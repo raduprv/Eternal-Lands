@@ -294,6 +294,8 @@ int HandleEvent(SDL_Event *event)
 				if(key==K_STATS)
 					{
 						view_self_stats=!view_self_stats;
+						if(!stats_win) display_stats(your_info);
+						else toggle_window(stats_win);
 						break;
 					}
 
@@ -318,18 +320,24 @@ int HandleEvent(SDL_Event *event)
 				if(key==K_OPTIONS)
 					{
 						options_menu=!options_menu;
+						if(!options_win) display_options_menu();
+						else toggle_window(options_win);
 						break;
 					}
 				
 				if(key==K_KNOWLEDGE)
 					{
 						view_knowledge=!view_knowledge;
+						if(!knowledge_win) display_knowledge();
+						else toggle_window(knowledge_win);
 						break;
 					}
 
 				if(key==K_ENCYCLOPEDIA)
 					{
 						view_encyclopedia=!view_encyclopedia;
+						if(!encyclopedia_win) display_encyclopedia();
+						else toggle_window(encyclopedia_win);
 						break;
 					}
 
@@ -350,6 +358,8 @@ int HandleEvent(SDL_Event *event)
 								return(done);
 							}
 						view_sigils_menu=!view_sigils_menu;
+						if(!sigil_win) display_sigils_menu();
+						else toggle_window(sigil_win);
 						break;
 					}
 
@@ -364,6 +374,8 @@ int HandleEvent(SDL_Event *event)
 									}
 							}
 						view_manufacture_menu=!view_manufacture_menu;
+						if(!manufacture_win) display_manufacture_menu();
+						else toggle_window(manufacture_win);
 						break;
 					}
 
@@ -377,8 +389,14 @@ int HandleEvent(SDL_Event *event)
 										break;
 									}
 								view_my_items=1;
+								if(!items_win) display_items_menu();
+								else show_window(items_win);
 							}
-						else view_my_items=0;
+						else
+							{
+								view_my_items=0;
+								hide_window(items_win);
+							}
 						break;
 					}
 
