@@ -74,6 +74,7 @@ void handle_window_resize()
 					texture_cache[i].texture_id=0;//force a reload
 				}
         }
+	if(minimap_tex) glDeleteTextures(1,&minimap_tex);
 	
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	
@@ -104,6 +105,7 @@ void handle_window_resize()
 						texture_cache[i].texture_id=load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
 				}
 		}
+	map_has_changed=1;
 	reset_material();
 	init_lights();
 	init_colors();
