@@ -293,7 +293,7 @@ void display_3d_reflection()
 	glPushMatrix();
 	glScalef(1.0f, 1.0f, -1.0f);
 	//first, render only the submerged objects, with the clipping plane enabled
-	for(i=0;i<max_obj_3d;i++)
+	for(i=0;i<highest_obj_3d;i++)
 		{
 			if(objects_list[i])
 				{

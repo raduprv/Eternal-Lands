@@ -326,7 +326,7 @@ void display_shadows()
 	x=-cx;
 	y=-cy;
 	glEnable(GL_CULL_FACE);
-	for(i=0;i<max_obj_3d;i++)
+	for(i=0;i<highest_obj_3d;i++)
 		{
 			if(objects_list[i])
 				{
@@ -366,7 +366,7 @@ void display_3d_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-	for(i=0;i<max_obj_3d;i++)
+	for(i=0;i<highest_obj_3d;i++)
 		{
 			if(objects_list[i])
 				{
@@ -434,7 +434,7 @@ void display_3d_non_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-	for(i=0;i<max_obj_3d;i++)
+	for(i=0;i<highest_obj_3d;i++)
 		{
 			if(objects_list[i])
 				{
