@@ -300,7 +300,7 @@ void init_e3d_cache()
 	int i;
 	for(i=0;i<1000;i++)
 		{
-			e3d_cache[i].file_name[0]=0;
+			e3d_cache[i].file_name=NULL;
 			e3d_cache[i].e3d_id=0;
 			e3d_cache[i].flag_for_destruction=0;
 		}
