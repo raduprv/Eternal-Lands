@@ -437,18 +437,20 @@ void draw_lake_tiles()
 	y_start=(int)y-5;
 	x_end=(int)x+5;
 	y_end=(int)y+5;
-	if(x_start<0)x_start=0;
-	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
-	if(y_start<0)y_start=0;
-	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
 	for(y=y_start;y<=y_end;y++)
 		{
+			int actualy=y;
+			if(actualy<0)actualy=0;
+			else if(actualy>=tile_map_size_y)actualy=tile_map_size_y-1;
 			y_scaled=y*3.0f;
 			for(x=x_start;x<=x_end;x++)
 				{
+					int actualx=x;
+					if(actualx<0)actualx=0;
+					else if(actualx>=tile_map_size_x)actualx=tile_map_size_x-1;
 					x_scaled=x*3.0f;
 					if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
-					if(!tile_map[y*tile_map_size_x+x])draw_lake_water_tile(x_scaled,y_scaled);
+					if(!tile_map[actualy*tile_map_size_x+actualx])draw_lake_water_tile(x_scaled,y_scaled);
 				}
 		}
 

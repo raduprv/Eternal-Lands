@@ -56,6 +56,7 @@ int check_peace_icons();
 void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
 void reset_states(int id, int state);
 int translate_win_id(int * win_id);
+void free_icons();
 extern int	icons_win;
 
 //Functions for the function pointers

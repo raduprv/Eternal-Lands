@@ -91,6 +91,7 @@ int start_rendering()
 	if(pm_log.ppl)free_pm_log();
 	save_bin_cfg();
 	unload_questlog();
+	free_icons();
 	//unload_e3d_list();	// do we really want to overwrite this file??
 
 	/* Destroy our GL context, etc. */

@@ -284,7 +284,7 @@ void init_peace_icons()
 	
 	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, "Show the map window", view_map_win, &map_win, DATA_WINDOW);
 	
-	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, "Show the console", view_console_win, &console_win, DATA_WINDOW);
+	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, "Show the console", view_console_win, &console_win, DATA_WINDOW);
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, "Show the buddy window", view_window, &buddy_win, DATA_WINDOW);
 	
@@ -320,6 +320,13 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 				break;
 		}
 	icons.icon[no]->data_type=data_type;
+}
+
+void free_icons()
+{
+	int i;
+	for(i=0;i<icons.no;i++)
+		free(icons.icon[i]);
 }
 
 int	mouseover_icons_handler(window_info *win, int mx, int my)
