@@ -16,10 +16,8 @@ void load_questlog()
 {
 	FILE *f = NULL;
 	char temp[1000];
-	_logdata *L=&logdata;
-	logdata.msg=NULL;
-	last=&logdata;
-	current=NULL;
+	_logdata *L;
+	
 #ifndef WINDOWS
 	char questlog_ini[256];
 	strcpy(questlog_ini, configdir);
@@ -31,6 +29,10 @@ void load_questlog()
 #else
 	f=fopen("questlog.ini","rb");
 #endif
+	L=&logdata;
+	logdata.msg=NULL;
+	last=&logdata;
+	current=NULL;
 	
 	if(!f)return;
 
