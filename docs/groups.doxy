@@ -247,6 +247,11 @@
  * \ingroup	elwindows
  */
 /*!
+ * \defgroup    root_win The root window of the client
+ *      Displays the root window the client. The root window handles all the other possible windows as its client windows.
+ * \ingroup windows
+ */
+/*!
  * \defgroup	books_win Displaying books
  * 		About displaying the book windows
  * \ingroup	windows
@@ -309,6 +314,11 @@
 /*!
  * \defgroup    help_win The help window
  *      Shows the help window
+ * \ingroup windows
+ */
+/*!
+ * \defgroup    chat_win    The new chat window
+ *      Shows the chat window
  * \ingroup windows
  */
 
