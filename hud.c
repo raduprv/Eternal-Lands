@@ -17,6 +17,7 @@ struct icons_struct icons =
 	};
 
 icon_struct * icon_list[30]={NULL};
+int icons_no=0;
 
 //Windows not handled by the window manager:
 int map_win=0;
@@ -298,7 +299,7 @@ void init_peace_icons()
 	
 	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &options_win, DATA_WINDOW);
 
-	set_icon_order(icons.no, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 , 13, 14, 15, 16);
+	set_icon_order(icons_no, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 , 13, 14, 15, 16);
 }
 
 void set_icon_order(int no, ...)
@@ -306,12 +307,14 @@ void set_icon_order(int no, ...)
 	va_list ap;
 	int i=0;
 	va_start(ap, no);
+	memset(icons.icon,0,25);
 	for(;i<no;i++) icons.icon[i]=icon_list[va_arg(ap, int)];
+	icons.no=no;
 }
 
 void	add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type)
 {
-	int no=icons.no++;
+	int no=icons_no++;
 	icon_list[no]=(icon_struct*)calloc(1,sizeof(icon_struct));
 	if(!no)
 		icon_list[no]->state=PRESSED;
