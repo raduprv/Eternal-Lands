@@ -184,7 +184,7 @@ void send_login_info()
 	//check for the username lenght
 	if(len<3)
 		{
-			sprintf(log_in_error_str,"%s: %s",error_str,error_username_length);
+			sprintf(log_in_error_str,"%s: %s",reg_error_str,error_username_length);
 			return;
 		}
 
@@ -229,19 +229,19 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, ch
 	//check for the username lenght
 	if(len<3)
 		{
-			sprintf(create_char_error_str,"%s: %s",error_str,error_username_length);
+			sprintf(create_char_error_str,"%s: %s",reg_error_str,error_username_length);
 			return;
 		}
 	//check if the password is >0
 	if(strlen(pass_str)<4)
 		{
-			sprintf(create_char_error_str,"%s: %s",error_str,error_password_length);
+			sprintf(create_char_error_str,"%s: %s",reg_error_str,error_password_length);
 			return;
 		}
 	//check if the password coresponds
 	if(strcmp(pass_str,conf_pass_str)!=0)
 		{
-			sprintf(create_char_error_str,"%s: %s",error_str,error_pass_no_match);
+			sprintf(create_char_error_str,"%s: %s",reg_error_str,error_pass_no_match);
 			return;
 		}
 
@@ -465,7 +465,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case LOG_IN_NOT_OK:
 			{
-				sprintf(log_in_error_str,"%s: %s",error_str,invalid_pass);
+				sprintf(log_in_error_str,"%s: %s",reg_error_str,invalid_pass);
 			}
 			break;
 
@@ -477,14 +477,14 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case YOU_DONT_EXIST:
 			{
-				sprintf(log_in_error_str,"%s: %s",error_str,char_dont_exist);
+				sprintf(log_in_error_str,"%s: %s",reg_error_str,char_dont_exist);
 			}
 			break;
 
 
 		case CREATE_CHAR_NOT_OK:
 			{
-				sprintf(create_char_error_str,"%s: %s",error_str,char_name_in_use);
+				sprintf(create_char_error_str,"%s: %s",reg_error_str,char_name_in_use);
 				return;
 			}
 			break;

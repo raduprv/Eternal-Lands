@@ -28,7 +28,7 @@ void load_cursors()
 	if(!f)
 		{
 			char str[100];
-			sprintf(str,"%s %s",error_str,cursors_file_str);
+			sprintf(str,"%s %s",reg_error_str,cursors_file_str);
             		log_error(str);
 			return;
 		}

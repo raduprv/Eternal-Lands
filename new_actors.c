@@ -46,7 +46,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->legs)
 				{
     		        char str[120];
-    		        sprintf(str,"%s: %s: %s\n",error_str,error_body_part,this_actor->legs_fn);
+    		        sprintf(str,"%s: %s: %s\n",reg_error_str,error_body_part,this_actor->legs_fn);
     		        log_error(str);
     		        this_actor->legs=0;
 				}
@@ -60,7 +60,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->head)
 				{
     		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_head,this_actor->head_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_head,this_actor->head_fn);
     		        log_error(str);
     		        this_actor->head=0;
 				}
@@ -74,7 +74,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->torso)
 				{
     		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_torso,this_actor->torso_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_torso,this_actor->torso_fn);
     		        log_error(str);
     		        this_actor->torso=0;
 				}
@@ -88,7 +88,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->weapon)
 				{
     		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_weapon,this_actor->weapon_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_weapon,this_actor->weapon_fn);
     		        log_error(str);
     		        this_actor->weapon=0;
 				}
@@ -102,7 +102,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->shield)
 				{
     		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_weapon,this_actor->shield_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_weapon,this_actor->shield_fn);
     		        log_error(str);
     		        this_actor->shield=0;
 				}
@@ -116,7 +116,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->helmet)
 				{
     		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_helmet,this_actor->helmet_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_helmet,this_actor->helmet_fn);
     		        log_error(str);
     		        this_actor->helmet=0;
 				}
@@ -131,7 +131,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->cape)
 				{
     		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_cape,this_actor->cape_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_cape,this_actor->cape_fn);
     		        log_error(str);
     		        this_actor->cape=0;
 				}

@@ -447,7 +447,7 @@ e3d_object * load_e3d(char *file_name)
 	if(!f)
         {
             char str[120];
-            sprintf(str,"%s: %s: %s",error_str,cant_open_file,file_name);
+            sprintf(str,"%s: %s: %s",reg_error_str,cant_open_file,file_name);
             LogError(str);
             return NULL;
         }
@@ -527,7 +527,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	if(!f)
         {
             char str[120];
-            sprintf(str,"%s: %s: %s",error_str,cant_open_file,cur_object->file_name);
+            sprintf(str,"%s: %s: %s",reg_error_str,cant_open_file,cur_object->file_name);
             LogError(str);
             return NULL;
         }
@@ -546,7 +546,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
   	if(!vertex_list)
 		{
 			char str[200];
-			sprintf(str,"%s: %s: %s",error_str,corrupted_object,cur_object->file_name);
+			sprintf(str,"%s: %s: %s",reg_error_str,corrupted_object,cur_object->file_name);
 			log_to_console(c_red2,str);
 			free(face_list);
 			fclose(f);

@@ -4,7 +4,13 @@
 typedef struct
 {
 	char str[30];
+#ifdef WRITE_XML
+	int saved_str;
+#endif
 	char desc[100];
+#ifdef WRITE_XML
+	int saved_desc;
+#endif
 } dichar;
 
 //Options
@@ -137,7 +143,7 @@ extern char
 		abort_str[10];
 
 //Errors
-extern char	error_str[15],
+extern char	reg_error_str[15],
 		/*3d_objects.c*/
 		cant_load_2d_object[30],
 		cant_open_file[30], //2d_objects.c
@@ -217,7 +223,7 @@ extern char	error_str[15],
 		error_password_length[50], 
 		error_pass_no_match[30],
 		invalid_pass[30],
-		redefine_your_colours[200],
+		redefine_your_colours[250],
 		char_dont_exist[30],
 		char_name_in_use[50],
 		server_latency[30],

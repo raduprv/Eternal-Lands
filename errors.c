@@ -23,7 +23,7 @@ void log_error(const Uint8 * message)
   	if(!err_file) err_file = fopen (error_log, "ab");
 	if(strncmp(message, "Error", 5))	// do we need to add Error:?
 		{
-			snprintf(str, 2048, "%s: %s\n", error_str, message);
+			snprintf(str, 2048, "%s: %s\n", reg_error_str, message);
 		}
 	else
 		{

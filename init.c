@@ -554,6 +554,10 @@ void init_stuff()
 	
 	//Initialize all strings
 	init_translatables();
+
+#ifdef WRITE_XML
+	load_translatables();//Write to the current working directory - hopefully we'll have write rights here...
+#endif
 	
 	//read the config file
 	read_config();
@@ -562,6 +566,7 @@ void init_stuff()
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
 #endif
+	
 	init_video();
 	resize_window();
 	init_gl_extensions();

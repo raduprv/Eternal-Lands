@@ -102,7 +102,7 @@ void play_ogg_file(char *file_name) {
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		snprintf(str, 256,"play_ogg_file %s: %s", my_tolower(error_str), alGetString(error));
+    		snprintf(str, 256,"play_ogg_file %s: %s", my_tolower(reg_error_str), alGetString(error));
     		LogError(str);
 			have_music=0;
 			return;
@@ -307,7 +307,7 @@ void update_position()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		snprintf(str, 256, "update_position %s: %s", my_tolower(error_str), alGetString(error));
+    		snprintf(str, 256, "update_position %s: %s", my_tolower(reg_error_str), alGetString(error));
     		LogError(str);
 			have_sound=0;
 			have_music=0;
@@ -389,7 +389,7 @@ int update_music(void *dummy)
 						}
 					if((error=alGetError()) != AL_NO_ERROR)
 						{
-							snprintf(str, 256, "update_music %s: %s", my_tolower(error_str), alGetString(error));
+							snprintf(str, 256, "update_music %s: %s", my_tolower(reg_error_str), alGetString(error));
 							LogError(str);
 							have_music=0;
 						}
@@ -451,7 +451,7 @@ void stream_music(ALuint buffer) {
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-    		snprintf(str, 256, "stream_music %s: %s", my_tolower(error_str), alGetString(error));
+    		snprintf(str, 256, "stream_music %s: %s", my_tolower(reg_error_str), alGetString(error));
     		LogError(str);
 			have_music=0;
     	}
@@ -470,7 +470,7 @@ void kill_local_sounds()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		snprintf(str, 256, "kill_local_sounds %s: %s", my_tolower(error_str), alGetString(error));
+    		snprintf(str, 256, "kill_local_sounds %s: %s", my_tolower(reg_error_str), alGetString(error));
     		LogError(str);
 			have_sound=0;
 			have_music=0;
@@ -659,7 +659,7 @@ int realloc_sources()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		snprintf(str, 256, "snd_realloc %s: %s", my_tolower(error_str), alGetString(error));
+    		snprintf(str, 256, "snd_realloc %s: %s", my_tolower(reg_error_str), alGetString(error));
     		LogError(str);
 			have_sound=0;
 			have_music=0;

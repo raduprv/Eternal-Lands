@@ -52,7 +52,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 		{
 			char str[120];
 			unlock_actors_lists();	// release now that we are done
-			sprintf(str,"%s: %s: %s\n",error_str,cant_load_actor,file_name);
+			sprintf(str,"%s: %s: %s\n",reg_error_str,cant_load_actor,file_name);
 			log_error(str);
 			return 0;
 		}
@@ -327,7 +327,7 @@ int get_frame_number(const md2 *model_data, const char *cur_frame)
 					return frame;
 				}
 		}
-	snprintf(str, 256, "%s: %s: %s\n",error_str,cant_find_frame,cur_frame);
+	snprintf(str, 256, "%s: %s: %s\n",reg_error_str,cant_find_frame,cur_frame);
 	log_error(str);
 
 	for(frame=0; frame < model_data->numFrames; frame++)
@@ -337,7 +337,7 @@ int get_frame_number(const md2 *model_data, const char *cur_frame)
 					return frame;
 				}
 		}
-	snprintf(str, 256, "%s: %s: %s\n",error_str,cant_find_frame,"idle01");
+	snprintf(str, 256, "%s: %s: %s\n",reg_error_str,cant_find_frame,"idle01");
 	log_error(str);
 
 	return -1;
@@ -886,7 +886,7 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 			if(!this_actor->legs)
 				{
 					char str[120];
-					sprintf(str,"%s: %s: %s\n",error_str,error_body_part,this_actor->legs_fn);
+					sprintf(str,"%s: %s: %s\n",reg_error_str,error_body_part,this_actor->legs_fn);
 					log_error(str);
 					this_actor->legs=0;
 			        //return 0;
@@ -901,7 +901,7 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 			if(!this_actor->head)
 				{
 					char str[120];
-					sprintf(str,"%s: %s: %s\n",error_str,error_body_part,this_actor->head_fn);
+					sprintf(str,"%s: %s: %s\n",reg_error_str,error_body_part,this_actor->head_fn);
 					log_error(str);
 					this_actor->head=0;
 					//return 0;
@@ -916,7 +916,7 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 			if(!this_actor->torso)
 				{
 					char str[120];
-					sprintf(str,"%s: %s: %s\n",error_str,error_body_part,this_actor->torso_fn);
+					sprintf(str,"%s: %s: %s\n",reg_error_str,error_body_part,this_actor->torso_fn);
 					log_error(str);
 					this_actor->torso=0;
 			        //return 0;
