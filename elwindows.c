@@ -24,27 +24,27 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	if(!windows_list.window)
 		{
 			// allocate the space
-			windows_list.num_windows=0;
-			windows_list.max_windows=32;
+			windows_list.num_windows= 0;
+			windows_list.max_windows= 32;
 			windows_list.window=(window_info *)calloc(32, sizeof(window_info));
-			windows_list.window[0].window_id=-1;	// force a rebuild of this
-			windows_list.num_windows=1;
+			windows_list.window[0].window_id= -1;	// force a rebuild of this
+			windows_list.num_windows= 1;
 		}
 	// now, verify that the main window is correct
 	if(windows_list.window[0].window_id != 0 || windows_list.window[0].len_x != window_width)
 		{
 			// this window is currently here only to help position things
 			// this represents the entire screen
-			windows_list.window[0].window_id=0;
-			windows_list.window[0].order=-1;
-			windows_list.window[0].pos_id=-1;
-			windows_list.window[0].pos_loc=0;
-			windows_list.window[0].pos_x=0;
-			windows_list.window[0].pos_y=0;
-			windows_list.window[0].len_x=window_width;
-			windows_list.window[0].len_y=window_height;
-			windows_list.window[0].cur_x=0;
-			windows_list.window[0].cur_y=0;
+			windows_list.window[0].window_id= 0;
+			windows_list.window[0].order= -1;
+			windows_list.window[0].pos_id= -1;
+			windows_list.window[0].pos_loc= 0;
+			windows_list.window[0].pos_x= 0;
+			windows_list.window[0].pos_y= 0;
+			windows_list.window[0].len_x= window_width;
+			windows_list.window[0].len_y= window_height;
+			windows_list.window[0].cur_x= 0;
+			windows_list.window[0].cur_y= 0;
 
 			windows_list.window[0].flags=0;
 			windows_list.window[0].displayed=0;
@@ -72,27 +72,27 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	// fill in the information
 	if(win_id > 0)
 		{
-			windows_list.window[win_id].window_id=win_id;
-			windows_list.window[win_id].order=win_id;
+			windows_list.window[win_id].window_id= win_id;
+			windows_list.window[win_id].order= (property_flags&ELW_SHOW_LAST)?-win_id:win_id;
 
-			windows_list.window[win_id].flags=property_flags;
-			windows_list.window[win_id].displayed=(property_flags&ELW_SHOW)?1:0;
-			//windows_list.window[win_id].collapsed=0;
-			windows_list.window[win_id].dragged=0;
+			windows_list.window[win_id].flags= property_flags;
+			windows_list.window[win_id].displayed= (property_flags&ELW_SHOW)?1:0;
+			//windows_list.window[win_id].collapsed= 0;
+			windows_list.window[win_id].dragged= 0;
 			strncpy(windows_list.window[win_id].window_name, name, 32);
 
-			windows_list.window[win_id].back_color[0]=0.0f;
-			windows_list.window[win_id].back_color[1]=0.0f;
-			windows_list.window[win_id].back_color[2]=0.0f;
-			windows_list.window[win_id].back_color[3]=0.5f;
-			windows_list.window[win_id].border_color[0]=0.77f;
-			windows_list.window[win_id].border_color[1]=0.57f;
-			windows_list.window[win_id].border_color[2]=0.39f;
-			windows_list.window[win_id].border_color[3]=0.0f;
-			windows_list.window[win_id].line_color[0]=0.77f;
-			windows_list.window[win_id].line_color[1]=0.57f;
-			windows_list.window[win_id].line_color[2]=0.39f;
-			windows_list.window[win_id].line_color[3]=0.0f;
+			windows_list.window[win_id].back_color[0]= 0.0f;
+			windows_list.window[win_id].back_color[1]= 0.0f;
+			windows_list.window[win_id].back_color[2]= 0.0f;
+			windows_list.window[win_id].back_color[3]= 0.5f;
+			windows_list.window[win_id].border_color[0]= 0.77f;
+			windows_list.window[win_id].border_color[1]= 0.57f;
+			windows_list.window[win_id].border_color[2]= 0.39f;
+			windows_list.window[win_id].border_color[3]= 0.0f;
+			windows_list.window[win_id].line_color[0]= 0.77f;
+			windows_list.window[win_id].line_color[1]= 0.57f;
+			windows_list.window[win_id].line_color[2]= 0.39f;
+			windows_list.window[win_id].line_color[3]= 0.0f;
 
 			windows_list.window[win_id].init_handler= NULL;
 			windows_list.window[win_id].display_handler= NULL;
@@ -109,9 +109,9 @@ void	destroy_window(int win_id)
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 	// mark the window as unused
-	windows_list.window[win_id].window_id=-1;
-	windows_list.window[win_id].order=-1;
-	windows_list.window[win_id].displayed=0;
+	windows_list.window[win_id].window_id= -1;
+	windows_list.window[win_id].order= -1;
+	windows_list.window[win_id].displayed= 0;
 }
 
 int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y)
@@ -120,8 +120,8 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 
 	move_window(win_id, pos_id, pos_loc, pos_x, pos_y);
-	windows_list.window[win_id].len_x=size_x;
-	windows_list.window[win_id].len_y=size_y;
+	windows_list.window[win_id].len_x= size_x;
+	windows_list.window[win_id].len_y= size_y;
 
 	if(windows_list.window[win_id].init_handler)
 		{
@@ -147,20 +147,20 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 
 int	draw_window_title(window_info *win)
 {
-	float u_first_start=(float)31/255;
-	float u_first_end=0;
-	float v_first_start=1.0f-(float)160/255;
-	float v_first_end=1.0f-(float)175/255;
+	float u_first_start= (float)31/255;
+	float u_first_end= 0;
+	float v_first_start= 1.0f-(float)160/255;
+	float v_first_end= 1.0f-(float)175/255;
 
-	float u_middle_start=(float)32/255;
-	float u_middle_end=(float)63/255;
-	float v_middle_start=1.0f-(float)160/255;
-	float v_middle_end=1.0f-(float)175/255;
+	float u_middle_start= (float)32/255;
+	float u_middle_end= (float)63/255;
+	float v_middle_start= 1.0f-(float)160/255;
+	float v_middle_end= 1.0f-(float)175/255;
 
-	float u_last_start=0;
-	float u_last_end=(float)31/255;
-	float v_last_start=1.0f-(float)160/255;
-	float v_last_end=1.0f-(float)175/255;
+	float u_last_start= 0;
+	float u_last_end= (float)31/255;
+	float v_last_start= 1.0f-(float)160/255;
+	float v_last_end= 1.0f-(float)175/255;
 
 	if((win->flags&ELW_TITLE_BAR) == ELW_TITLE_NONE)	return 0;
 
@@ -301,7 +301,7 @@ void	show_window(int win_id)
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
-	windows_list.window[win_id].displayed=1;
+	windows_list.window[win_id].displayed= 1;
 }
 
 void	hide_window(int win_id)
@@ -309,7 +309,7 @@ void	hide_window(int win_id)
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
-	windows_list.window[win_id].displayed=0;
+	windows_list.window[win_id].displayed= 0;
 }
 
 int	get_show_window(int win_id)
@@ -347,13 +347,14 @@ int	mouse_in_window(int win_id, int x, int y)
 
 int	click_in_window(int win_id, int x, int y, Uint32 flags)
 {
+    window_info *win;
+    int	mx, my;
+	int	ret_val;
+   
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
-			int	mx= x - windows_list.window[win_id].cur_x;
-			int	my= y - windows_list.window[win_id].cur_y;
-
 			// watch for needing to convert the globals into the flags
-			// TODO: put this in the main manager
+			// TODO: put this in the window manager
 			if(!flags){
 				if(shift_on)	flags |= ELW_SHIFT;
 				if(ctrl_on)		flags |= ELW_CTRL;
@@ -363,21 +364,26 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				if(left_click)	flags |= ELW_LEFT_MOUSE;
 				//if(double_click)	flags |= ELW_DBL_CLICK;
 			}
+			win= &windows_list.window[win_id];
+			mx= x - win->cur_x;
+			my= y - win->cur_y;
 			//check the X for close - but hide it
-			if(windows_list.window[win_id].flags&ELW_CLOSE_BOX && my>0 && my<=20 &&
-					mx>(windows_list.window[win_id].len_x-20) && mx<=windows_list.window[win_id].len_x)
+			if(win->flags&ELW_CLOSE_BOX)
 				{
-					hide_window(win_id);
-					return 1;
+        			if(my>0 && my<=20 && mx>(win->len_x-20) && mx<=win->len_x)
+						{
+							hide_window(win_id);
+							return 1;
+						}				
 				}
 			
 			//use the handler
-			if(windows_list.window[win_id].click_handler){
-				int	ret_val;
-
+			if(win->click_handler != NULL){
+			    int	ret_val;
+			    
 				glPushMatrix();
-				glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);
-				ret_val= (*windows_list.window[win_id].click_handler)(&windows_list.window[win_id], mx, my, flags);
+				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+				ret_val= (*win->click_handler)(win, mx, my, flags);
 				glPopMatrix();
 
 				return	ret_val;
@@ -389,13 +395,15 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 
 int	mouseover_window(int win_id, int x, int y)
 {
+	int	mx,	my;
+	int	ret_val;
+	
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
 			//use the handler if present
 			if(windows_list.window[win_id].mouseover_handler){
-				int	mx= x - windows_list.window[win_id].cur_x;
-				int	my= y - windows_list.window[win_id].cur_y;
-				int	ret_val;
+				mx= x - windows_list.window[win_id].cur_x;
+				my= y - windows_list.window[win_id].cur_y;
 
 				glPushMatrix();
 				glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);
@@ -408,6 +416,7 @@ int	mouseover_window(int win_id, int x, int y)
 
 	return 0;
 }
+
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 {
 	void	*old_handler;
@@ -418,15 +427,15 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 	// save the information
 	switch(handler_id){
 		case	ELW_HANDLER_INIT:
-			old_handler=(void *)windows_list.window[win_id].init_handler;
+			old_handler= (void *)windows_list.window[win_id].init_handler;
 			windows_list.window[win_id].init_handler=handler;
 			break;
 		case	ELW_HANDLER_DISPLAY:
-			old_handler=(void *)windows_list.window[win_id].display_handler;
+			old_handler= (void *)windows_list.window[win_id].display_handler;
 			windows_list.window[win_id].display_handler=handler;
 			break;
 		case	ELW_HANDLER_CLICK:
-			old_handler=(void *)windows_list.window[win_id].click_handler;
+			old_handler= (void *)windows_list.window[win_id].click_handler;
 			windows_list.window[win_id].click_handler=handler;
 			break;
 		default:

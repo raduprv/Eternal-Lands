@@ -56,6 +56,7 @@ typedef	struct	{
 #define	ELW_SHOW		0x0010
 #define	ELW_DRAGGABLE	0x0020
 //#define	ELW_COLLAPSABLE	0x0040
+#define	ELW_SHOW_LAST	0x0080
 
 #define	ELW_USE_BACKGROUND	0x0100
 #define	ELW_USE_BORDER		0x0200
