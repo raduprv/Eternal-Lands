@@ -103,15 +103,17 @@ void draw_3d_object(object3d * object_id)
 									glBindTexture(GL_TEXTURE_2D, texture_id);
 									last_texture=texture_id;
 								}
+#ifdef	DEBUG
 							// a quick check for errors
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
 								{
 									char str[256];
-									sprintf(str, "Object error for %s[%d] values (%d, %d)\n",
+									sprintf(str, "%s[%d] values (%d, %d)\n",
 										object_id->file_name, i,
 										array_order[i].start, array_order[i].count);
-									log_error(str);
+									LogError(str);
 								}
+#endif	// DEBUG
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,
 										 array_order[i].count);
 	check_gl_errors();
@@ -131,15 +133,17 @@ void draw_3d_object(object3d * object_id)
 									glBindTexture(GL_TEXTURE_2D, texture_id);
 									last_texture=texture_id;
 								}
+#ifdef	DEBUG
 							// a quick check for errors
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
 								{
 									char str[256];
-									sprintf(str, "Object error for %s[%d] values (%d, %d)\n",
+									sprintf(str, "%s[%d] values (%d, %d)\n",
 										object_id->file_name, i,
 										array_order[i].start, array_order[i].count);
-									log_error(str);
+									LogError(str);
 								}
+#endif	// DEBUG
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,
 										 array_order[i].count);
 	check_gl_errors();
