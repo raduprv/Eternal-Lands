@@ -585,7 +585,13 @@ void test_for_console_command()
 	if(my_strncompare(text_loc,"help", 4))
 		{
 			// help can open the Enc!
-			if(auto_open_encyclopedia)	view_window(&encyclopedia_win, -1);
+			if(auto_open_encyclopedia)
+			{
+				if (use_tabbed_windows)
+					view_tab (&tab_help_win, &tab_help_collection_id, 1);
+				else
+					view_window(&encyclopedia_win, -1);
+			}
 			// but fall thru and send it to the server
 		}
 

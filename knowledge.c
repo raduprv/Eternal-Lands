@@ -4,8 +4,8 @@
 int knowledge_win= 0;
 int knowledge_menu_x=100;
 int knowledge_menu_y=20;
-int knowledge_menu_x_len=TAB_WIDTH;
-int knowledge_menu_y_len=TAB_HEIGHT;
+int knowledge_menu_x_len=STATS_TAB_WIDTH;
+int knowledge_menu_y_len=STATS_TAB_HEIGHT;
 int knowledge_scroll_id = 13;
 //int knowledge_menu_dragged=0;
 //int knowledge_scroll_dragged=0;

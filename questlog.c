@@ -5,8 +5,8 @@
 int questlog_win=0;
 int questlog_menu_x=150;
 int questlog_menu_y=70;
-int questlog_menu_x_len=TAB_WIDTH;
-int questlog_menu_y_len=TAB_HEIGHT;
+int questlog_menu_x_len=STATS_TAB_WIDTH;
+int questlog_menu_y_len=STATS_TAB_HEIGHT;
 _logdata logdata,*last,*current;
 int	logdata_length=0;
 int quest_scroll_id = 14;

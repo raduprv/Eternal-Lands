@@ -6,8 +6,8 @@
 int help_win=0;
 int help_menu_x=150;
 int help_menu_y=70;
-int help_menu_x_len=500;
-int help_menu_y_len=350;
+int help_menu_x_len=HELP_TAB_WIDTH;
+int help_menu_y_len=HELP_TAB_HEIGHT;
 
 int helppage;
 
@@ -90,24 +90,29 @@ int click_help_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+void fill_help_win ()
+{
+	int i;
+	for(i=0;i<=numpage;i++)
+	{
+		if(my_strcompare(Page[i].Name,"HelpPage"))
+			break;
+	}
+	helppage=i;
+	set_window_handler (help_win, ELW_HANDLER_DISPLAY, &display_help_handler);
+	set_window_handler (help_win, ELW_HANDLER_CLICK, &click_help_handler);
+}
 
 void display_help()
 {
 	if(help_win <= 0)
-		{
-			int i;
-			for(i=0;i<500;i++){
-				if(my_strcompare(Page[i].Name,"HelpPage"))
-					break;
-			}
-			helppage=i;
-			help_win = create_window("help", 0, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
-			set_window_handler(help_win, ELW_HANDLER_DISPLAY, &display_help_handler );
-			set_window_handler(help_win, ELW_HANDLER_CLICK, &click_help_handler );
-		}
+	{
+		help_win = create_window("help", 0, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
+		fill_help_win ();
+	}
 	else
-		{
-			show_window(help_win);
-			select_window(help_win);
-		}
+	{
+		show_window(help_win);
+		select_window(help_win);
+	}
 }

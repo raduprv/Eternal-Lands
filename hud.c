@@ -299,18 +299,17 @@ void init_peace_icons()
 	if (use_tabbed_windows)
 	{
 		add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, tt_stats, view_window, &tab_stats_win, DATA_WINDOW);
+		add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_help_win, DATA_WINDOW);
 	}
 	else
 	{
 		add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, tt_stats, view_window, &stats_win, DATA_WINDOW);
 		add_icon(knowledge_icon_u_start, knowledge_icon_v_start, colored_knowledge_icon_u_start, colored_knowledge_icon_v_start, tt_knowledge, view_window, &knowledge_win, DATA_WINDOW);
-	}
-	
-	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_encyclopedia, view_window, &encyclopedia_win, DATA_WINDOW);
-	
-	if (!use_tabbed_windows)
+		add_icon(encyclopedia_icon_u_start, encyclopedia_icon_v_start, colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, tt_encyclopedia, view_window, &encyclopedia_win, DATA_WINDOW);
+		add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &help_win, DATA_WINDOW);
 		add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
-	
+	}
+		
 	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, (void *)interface_map, DATA_MODE);
 		
 	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, (void *)interface_console, DATA_MODE);
@@ -319,10 +318,6 @@ void init_peace_icons()
 	
 	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &options_win, DATA_WINDOW);
 	
-	/*
-	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_stats_win, DATA_WINDOW);
-	*/
-
 }
 
 void	add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type)
@@ -522,13 +517,21 @@ void view_window(int * window, int id)
 			else if(window==&sigil_win) display_sigils_menu();
 			else if(window==&manufacture_win) display_manufacture_menu();
 			else if(window==&options_win) display_options_menu();
-			else if(use_tabbed_windows && window==&tab_stats_win) display_tab_stats();
-			else if(!use_tabbed_windows && window==&stats_win) display_stats(your_info);
-			else if(!use_tabbed_windows && window==&knowledge_win) display_knowledge();
-			else if(!use_tabbed_windows && window==&questlog_win) display_questlog();
-			else if(window==&encyclopedia_win) display_encyclopedia();
 			else if(window==&buddy_win) display_buddy();
 			else if(window==&trade_win) display_trade_menu();
+			else if(use_tabbed_windows)
+			{
+				if(window==&tab_stats_win) display_tab_stats();
+				else if(window==&tab_help_win) display_tab_help();
+			} 
+			else
+			{
+				if(window==&stats_win) display_stats(your_info);
+				else if(window==&knowledge_win) display_knowledge();
+				else if(window==&questlog_win) display_questlog();
+				else if(window==&encyclopedia_win) display_encyclopedia();
+				else if(window==&help_win) display_help();
+			}
 		}
 	else toggle_window(*window);
 }

@@ -574,13 +574,18 @@ void FreeXML()
 	}
 }
 
+void fill_encyclopedia_win ()
+{
+	set_window_handler (encyclopedia_win, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler);
+	set_window_handler (encyclopedia_win, ELW_HANDLER_CLICK, &click_encyclopedia_handler);
+}
+
 void display_encyclopedia()
 {
 	if(encyclopedia_win <= 0)
 		{
 			encyclopedia_win= create_window("Encyclopedia", 0, 0, encyclopedia_menu_x, encyclopedia_menu_y, encyclopedia_menu_x_len, encyclopedia_menu_y_len, ELW_WIN_DEFAULT);
-			set_window_handler(encyclopedia_win, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler );
-			set_window_handler(encyclopedia_win, ELW_HANDLER_CLICK, &click_encyclopedia_handler );
+			fill_encyclopedia_win ();
 		}
 	else
 		{

@@ -58,4 +58,14 @@ int click_help_handler(window_info *win, int mx, int my, Uint32 flags);
  */
 void display_help();
 
+/*!
+ * \ingroup help_win
+ * \brief Sets the window handler functions for the help window
+ *
+ *      Sets the window handler functions for the help window
+ *
+ * \return None
+ */
+void fill_help_win ();
+
 #endif

@@ -204,8 +204,6 @@ int HandleEvent(SDL_Event *event)
 				      hide_window(items_win);
 				    if(buddy_win>0)
 				      hide_window(buddy_win);
-				    if(encyclopedia_win>0)
-				      hide_window(encyclopedia_win);
 				    if(manufacture_win>0)
 				      hide_window(manufacture_win);
 				    if(options_win>0)
@@ -214,8 +212,10 @@ int HandleEvent(SDL_Event *event)
 				      hide_window(sigil_win);
 				    if (use_tabbed_windows)
 				    {
-				    	if(tab_stats_win>0)
+				    	if (tab_stats_win>0)
 						hide_window(tab_stats_win);
+					if (tab_help_win > 0)
+						hide_window (tab_help_win);
 				    }
 				    else
 				    {
@@ -225,6 +225,10 @@ int HandleEvent(SDL_Event *event)
 				    		hide_window(stats_win);
 				    	if (knowledge_win > 0)
 				    		hide_window(knowledge_win);
+				    	if(encyclopedia_win>0)
+				    		hide_window(encyclopedia_win);
+					if (help_win > 0)
+						hide_window(help_win);
 				    }
 				    break;
 				  }
@@ -257,7 +261,7 @@ int HandleEvent(SDL_Event *event)
 				if(key==K_STATS)
 					{
 						if (use_tabbed_windows)
-							view_tab(&tab_stats_win, &tab_collection_id, 0);
+							view_tab(&tab_stats_win, &tab_stats_collection_id, 0);
 						else
 							view_window (&stats_win, 0);
 						break;
@@ -290,7 +294,7 @@ int HandleEvent(SDL_Event *event)
 				if(key==K_KNOWLEDGE)
 					{
 						if (use_tabbed_windows)
-							view_tab(&tab_stats_win, &tab_collection_id, 1);
+							view_tab(&tab_stats_win, &tab_stats_collection_id, 1);
 						else
 							view_window (&knowledge_win, 0);
 						break;
@@ -298,16 +302,21 @@ int HandleEvent(SDL_Event *event)
 
 				if(key==K_ENCYCLOPEDIA)
 					{
-						view_window(&encyclopedia_win,0);
+						if (use_tabbed_windows)
+							view_tab(&tab_help_win, &tab_help_collection_id, 1);
+						else
+							view_window(&encyclopedia_win,0);
 						break;
 					}
-				/*
+
 				if(key==K_HELP)
 					{
-						view_window(&help_win,0);
+						if (use_tabbed_windows)
+							view_tab(&tab_help_win, &tab_help_collection_id, 0);
+						else
+							view_window(&help_win,0);
 						break;
 					}
-				*/
 
 				if(key==K_REPEATSPELL)	// REPEAT spell command
 					{

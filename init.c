@@ -395,7 +395,7 @@ void save_bin_cfg()
 		cfg_mem.knowledge_menu_y=knowledge_menu_y;
 	}
 
-	if(encyclopedia_win) {
+	if(!use_tabbed_windows && encyclopedia_win) {
 		cfg_mem.encyclopedia_menu_x=windows_list.window[encyclopedia_win].cur_x;
 		cfg_mem.encyclopedia_menu_y=windows_list.window[encyclopedia_win].cur_y;
 	} else {

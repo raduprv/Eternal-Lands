@@ -7,8 +7,8 @@ player_attribs your_info;
 player_attribs someone_info;
 int attrib_menu_x=100;
 int attrib_menu_y=20;
-int attrib_menu_x_len=TAB_WIDTH;
-int attrib_menu_y_len=TAB_HEIGHT;
+int attrib_menu_x_len=STATS_TAB_WIDTH;
+int attrib_menu_y_len=STATS_TAB_HEIGHT;
 //int attrib_menu_dragged=0;
 
 int watch_this_stat=10;  // default to watching overall

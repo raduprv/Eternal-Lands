@@ -85,6 +85,16 @@ void display_encyclopedia();
 int encyclopedia_mouse_over();
 
 /*!
+ * \ingroup encyclopedia
+ * \brief Sets the window handler functions for the encyclopedia window
+ *
+ *      Sets the window handler functions for the encyclopedia window
+ *
+ * \return None
+ */
+void fill_encyclopedia_win ();
+
+/*!
  * \ingroup xml_utils
  * \brief   reads a category from the xml node \a a_node
  *
