@@ -1362,7 +1362,7 @@ void draw_game_map()
    	glDisable(GL_DEPTH_TEST);
    	glDisable(GL_LIGHTING);
 
-   	glViewport(0, 0, window_width, window_height);
+   	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();

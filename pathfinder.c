@@ -248,10 +248,10 @@ Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
 
 void pf_move_to_mouse_position()
 {
-	float min_mouse_x = (window_width-hud_x)/6;
+	int min_mouse_x = (window_width-hud_x)/6;
 	int min_mouse_y = hud_y;
 	
-	float max_mouse_x = min_mouse_x+((float)(window_width-hud_x)/1.5f)+4;
+	int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
 	int max_mouse_y = window_height;
 	
 	int screen_map_width = max_mouse_x - min_mouse_x;

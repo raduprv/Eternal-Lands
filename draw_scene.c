@@ -117,11 +117,16 @@ void draw_scene()
 	if(interface_mode==interface_map)
 		{
 			glClear(GL_COLOR_BUFFER_BIT);
+			Enter2DMode();
+			draw_hud_interface();
+			Leave2DMode();
 			draw_game_map();
 			SDL_Delay(20);
 			SDL_GL_SwapBuffers();
 			check_gl_errors();
 			return;
+			
+			check_gl_errors();
 		}
 
 	if(!have_a_map)return;

@@ -25,7 +25,7 @@ CFG=elc - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=cl.exe
+CPP=C:\Archivos de programa\Codeplay\vectorcl.exe
 MTL=midl.exe
 RSC=rc.exe
 
@@ -93,202 +93,752 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\2d_objects.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\3d_objects.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\actor_scripts.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\actors.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\asc.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\buddy.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\cache.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\colors.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\console.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\cursors.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\dialogues.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\draw_scene.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\encyclopedia.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\errors.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\events.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\filter.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\font.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\frustum.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\gl_init.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\help.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\hud.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\ignore.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\init.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\interface.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\items.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\knowledge.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\lights.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\main.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\manufacture.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\map_io.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\md2loader.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\md5.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\misc.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\multiplayer.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\new_actors.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\new_character.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\particles.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\paste.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\pathfinder.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\questlog.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\reflection.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\shadows.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\sound.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\spells.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\stats.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\text.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\textures.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\tile_map.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\trade.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\weather.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Group "Header Files"

@@ -33,5 +33,9 @@ int check_quickbar();
 
 extern int hud_x;
 extern int hud_y;
+extern int map_icon_x_start;
+extern int map_icon_y_start;
+extern int map_icon_x_end;
+extern int map_icon_y_end;
 extern int view_digital_clock;
 #endif	//__HUD_H

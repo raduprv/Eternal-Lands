@@ -196,10 +196,22 @@ float colored_questlog_icon_u_start=(float)192/256;
 float colored_questlog_icon_v_start=1.0f-(float)0/256;
 float colored_questlog_icon_u_end=(float)223/256;
 float colored_questlog_icon_v_end=1.0f-(float)31/256;
+
+float map_icon_u_start=(float)128/256;
+float map_icon_v_start=1.0f-(float)128/256;
+float map_icon_u_end=(float)159/256;
+float map_icon_v_end=1.0f-(float)159/256;
+
+float colored_map_icon_u_start=(float)160/256;
+float colored_map_icon_v_start=1.0f-(float)128/256;
+float colored_map_icon_u_end=(float)191/256;
+float colored_map_icon_v_end=1.0f-(float)159/256;
+
 float console_icon_u_start=(float)32/256;
 float console_icon_v_start=1.0f-(float)0/256;
 float console_icon_u_end=(float)63/256;
 float console_icon_v_end=1.0f-(float)31/256;
+
 float colored_console_icon_u_start=(float)128/256;
 float colored_console_icon_v_start=1.0f-(float)96/256;
 float colored_console_icon_u_end=(float)159/256;
@@ -294,6 +306,11 @@ int questlog_icon_x_start;
 int questlog_icon_x_end;
 int questlog_icon_y_start;
 int questlog_icon_y_end;
+
+int map_icon_x_start;
+int map_icon_x_end;
+int map_icon_y_start;
+int map_icon_y_end;
 
 int console_icon_x_start;
 int console_icon_x_end;
@@ -400,12 +417,17 @@ void init_peace_icons()
 	questlog_icon_x_end=questlog_icon_x_start+31;
 	questlog_icon_y_start=window_height-32;
 	questlog_icon_y_end=questlog_icon_y_start+31;
+	
+	map_icon_x_start=questlog_icon_x_end+1;
+	map_icon_x_end=map_icon_x_start+31;
+	map_icon_y_start=window_height-32;
+	map_icon_y_end=map_icon_y_start+31;
 
-	console_icon_x_start=questlog_icon_x_end+1;
+	console_icon_x_start=map_icon_x_end+1;
 	console_icon_x_end=console_icon_x_start+31;
 	console_icon_y_start=window_height-32;
 	console_icon_y_end=console_icon_y_start+31;
-
+	
 	options_icon_x_start=console_icon_x_end+1;
 	options_icon_x_end=options_icon_x_start+31;
 	options_icon_y_start=window_height-32;
@@ -548,6 +570,13 @@ void draw_peace_icons()
 	else
 		draw_2d_thing(options_icon_u_start, options_icon_v_start, options_icon_u_end, options_icon_v_end,
 					  options_icon_x_start, options_icon_y_start, options_icon_x_end, options_icon_y_end);
+	
+	if(interface_mode==interface_map || (mouse_x>map_icon_x_start && mouse_y>map_icon_y_start && mouse_x<map_icon_x_end && mouse_y<map_icon_y_end))
+		draw_2d_thing(colored_map_icon_u_start, colored_map_icon_v_start, colored_map_icon_u_end, colored_map_icon_v_end,
+					  map_icon_x_start, map_icon_y_start, map_icon_x_end, map_icon_y_end);
+	else
+		draw_2d_thing(map_icon_u_start, map_icon_v_start, map_icon_u_end, map_icon_v_end,
+					  map_icon_x_start, map_icon_y_start, map_icon_x_end, map_icon_y_end);
 
 	glEnd();
 	//glDisable(GL_ALPHA_TEST);
@@ -657,6 +686,12 @@ int check_peace_icons()
 			if(interface_mode==interface_console)interface_mode=interface_game;
 						else interface_mode=interface_console;
 		}
+	else if(mouse_x>map_icon_x_start && mouse_y>map_icon_y_start &&
+			mouse_x<map_icon_x_end && mouse_y<map_icon_y_end)
+		{
+			if(interface_mode==interface_game)switch_to_game_map();
+						else if(interface_mode==interface_map)switch_from_game_map();
+	}
 	return 1;
 }
 
