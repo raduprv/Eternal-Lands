@@ -894,19 +894,19 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 				mx= x - win->cur_x;
 				my= y - win->cur_y;
 			    
-					// widgets
-			glPushMatrix();
-			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-			while(W->next != NULL){
-				W = W->next;
-				if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
-					if(W->OnDrag != NULL)
-					{
-						W->OnDrag(W,dx, dy);
+				// widgets
+				glPushMatrix();
+				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+				while(W->next != NULL){
+					W = W->next;
+					if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
+						if(W->OnDrag != NULL)
+						{
+							W->OnDrag(W,dx, dy);
+						}
 					}
 				}
-			}
-			glPopMatrix();
+				glPopMatrix();
 
 				glPushMatrix();
 				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);

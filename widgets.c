@@ -492,7 +492,6 @@ int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
 		c->progress = progress;
 		return 1;
 	}
-
 	return 0;
 }
 
@@ -510,8 +509,7 @@ int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16
 
 	// Filling the widget info
 	W->widget_info = T;
-	T->lenght = lenght;
-	T->vlenght = vlenght;
+	T->pos_inc = 1;
 	W->id=widget_id++;
 	W->type = VSCROLLBAR;
 	W->Flags = 0;
@@ -523,7 +521,9 @@ int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16
 	W->b = -1.0;
 	W->len_y = ly;
 	W->len_x = lx;
+	W->OnClick = vscrollbar_click;
 	W->OnDraw = vscrollbar_draw;
+	W->OnDrag = vscrollbar_drag;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
@@ -565,6 +565,54 @@ int vscrollbar_draw(widget_list *W)
 	glVertex3i(W->pos_x + 15, W->pos_y + W->len_y - 10,0);
 	glEnd();
 
+	glBegin(GL_QUADS);
+	glVertex3i(W->pos_x + 7, 25+ c->pos,0);
+	glVertex3i(W->pos_x + W->len_x - 7, 25+c->pos,0);
+	glVertex3i(W->pos_x + W->len_x - 7, 45+c->pos,0);
+	glVertex3i(W->pos_x + 7, 45+c->pos,0);
+	glEnd();
+
 	glEnable(GL_TEXTURE_2D);
 	return 0;
+}
+
+int vscrollbar_click(widget_list *W, int x, int y)
+{
+	vscrollbar *b = (vscrollbar *)W->widget_info;
+	if (y<15)
+			b->pos -= b->pos_inc;
+	else
+		if(y>(W->len_y-15))
+			b->pos += b->pos_inc;
+		else
+			b->pos = y - 20;
+
+	if(b->pos < 0) b->pos = 0;
+	if(b->pos > (W->len_y -50)) b->pos = W->len_y -50;
+
+	return 1;
+}
+
+int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		vscrollbar *c = (vscrollbar *)w->widget_info;
+		c->pos_inc = pos_inc;
+		return 1;
+	}
+
+	return 0;
+}
+
+int vscrollbar_drag(widget_list *W, int dx, int dy)
+{
+	vscrollbar *b = (vscrollbar *)W->widget_info;
+	b->pos+=dy;
+
+	if(b->pos < 0) b->pos = 0;
+	if(b->pos > (W->len_y -50)) b->pos = W->len_y -50;
+
+	return 1;
+
 }
