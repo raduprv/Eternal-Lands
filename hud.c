@@ -335,7 +335,12 @@ void init_peace_icons()
 	trade_icon_y_start=window_height-32;
 	trade_icon_y_end=trade_icon_y_start+31;
 
-	inventory_icon_x_start=trade_icon_x_end+1;
+	attack_icon_x_start=trade_icon_x_end+1;
+	attack_icon_x_end=attack_icon_x_start+31;
+	attack_icon_y_start=window_height-32;
+	attack_icon_y_end=attack_icon_y_start+31;
+
+	inventory_icon_x_start=attack_icon_x_end+1;
 	inventory_icon_x_end=inventory_icon_x_start+31;
 	inventory_icon_y_start=window_height-32;
 	inventory_icon_y_end=inventory_icon_y_start+31;
@@ -345,12 +350,7 @@ void init_peace_icons()
 	spell_icon_y_start=window_height-32;
 	spell_icon_y_end=spell_icon_y_start+31;
 
-	attack_icon_x_start=spell_icon_x_end+1;
-	attack_icon_x_end=attack_icon_x_start+31;
-	attack_icon_y_start=window_height-32;
-	attack_icon_y_end=attack_icon_y_start+31;
-
-	manufacture_icon_x_start=attack_icon_x_end+1;
+	manufacture_icon_x_start=spell_icon_x_end+1;
 	manufacture_icon_x_end=manufacture_icon_x_start+31;
 	manufacture_icon_y_start=window_height-32;
 	manufacture_icon_y_end=manufacture_icon_y_start+31;
@@ -441,8 +441,7 @@ void draw_peace_icons()
 							  stand_icon_x_start, stand_icon_y_start, stand_icon_x_end, stand_icon_y_end);
 		}
 
-	if(mouse_x>spell_icon_x_start && mouse_y>spell_icon_y_start &&
-	   mouse_x<spell_icon_x_end && mouse_y<spell_icon_y_end)
+	if(view_sigils_menu || (mouse_x>spell_icon_x_start && mouse_y>spell_icon_y_start && mouse_x<spell_icon_x_end && mouse_y<spell_icon_y_end))
 		draw_2d_thing(colored_spell_icon_u_start, colored_spell_icon_v_start, colored_spell_icon_u_end, colored_spell_icon_v_end,
 					  spell_icon_x_start, spell_icon_y_start, spell_icon_x_end, spell_icon_y_end);
 	else
@@ -458,48 +457,42 @@ void draw_peace_icons()
 					  attack_icon_x_start, attack_icon_y_start, attack_icon_x_end, attack_icon_y_end);
 
 
-	if(mouse_x>inventory_icon_x_start && mouse_y>inventory_icon_y_start &&
-	   mouse_x<inventory_icon_x_end && mouse_y<inventory_icon_y_end)
+	if(view_my_items || (mouse_x>inventory_icon_x_start && mouse_y>inventory_icon_y_start && mouse_x<inventory_icon_x_end && mouse_y<inventory_icon_y_end))
 		draw_2d_thing(colored_inventory_icon_u_start, colored_inventory_icon_v_start, colored_inventory_icon_u_end, colored_inventory_icon_v_end,
 					  inventory_icon_x_start, inventory_icon_y_start, inventory_icon_x_end, inventory_icon_y_end);
 	else
 		draw_2d_thing(inventory_icon_u_start, inventory_icon_v_start, inventory_icon_u_end, inventory_icon_v_end,
 					  inventory_icon_x_start, inventory_icon_y_start, inventory_icon_x_end, inventory_icon_y_end);
 
-	if(mouse_x>manufacture_icon_x_start && mouse_y>manufacture_icon_y_start &&
-	   mouse_x<manufacture_icon_x_end && mouse_y<manufacture_icon_y_end)
+	if(view_manufacture_menu || (mouse_x>manufacture_icon_x_start && mouse_y>manufacture_icon_y_start && mouse_x<manufacture_icon_x_end && mouse_y<manufacture_icon_y_end))
 		draw_2d_thing(colored_manufacture_icon_u_start, colored_manufacture_icon_v_start, colored_manufacture_icon_u_end, colored_manufacture_icon_v_end,
 					  manufacture_icon_x_start, manufacture_icon_y_start, manufacture_icon_x_end, manufacture_icon_y_end);
 	else
 		draw_2d_thing(manufacture_icon_u_start, manufacture_icon_v_start, manufacture_icon_u_end, manufacture_icon_v_end,
 					  manufacture_icon_x_start, manufacture_icon_y_start, manufacture_icon_x_end, manufacture_icon_y_end);
 
-	if(mouse_x>stats_icon_x_start && mouse_y>stats_icon_y_start &&
-	   mouse_x<stats_icon_x_end && mouse_y<stats_icon_y_end)
+	if(view_self_stats || (mouse_x>stats_icon_x_start && mouse_y>stats_icon_y_start && mouse_x<stats_icon_x_end && mouse_y<stats_icon_y_end))
 		draw_2d_thing(colored_stats_icon_u_start, colored_stats_icon_v_start, colored_stats_icon_u_end, colored_stats_icon_v_end,
 					  stats_icon_x_start, stats_icon_y_start, stats_icon_x_end, stats_icon_y_end);
 	else
 		draw_2d_thing(stats_icon_u_start, stats_icon_v_start, stats_icon_u_end, stats_icon_v_end,
 					  stats_icon_x_start, stats_icon_y_start, stats_icon_x_end, stats_icon_y_end);
 
-	if(mouse_x>knowledge_icon_x_start && mouse_y>knowledge_icon_y_start &&
-	   mouse_x<knowledge_icon_x_end && mouse_y<knowledge_icon_y_end)
+	if(view_knowledge || (mouse_x>knowledge_icon_x_start && mouse_y>knowledge_icon_y_start && mouse_x<knowledge_icon_x_end && mouse_y<knowledge_icon_y_end))
 		draw_2d_thing(colored_knowledge_icon_u_start, colored_knowledge_icon_v_start, colored_knowledge_icon_u_end, colored_knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
 	else
 		draw_2d_thing(knowledge_icon_u_start, knowledge_icon_v_start, knowledge_icon_u_end, knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
 
-	if(mouse_x>encyclopedia_icon_x_start && mouse_y>encyclopedia_icon_y_start &&
-	   mouse_x<encyclopedia_icon_x_end && mouse_y<encyclopedia_icon_y_end)
+	if(view_encyclopedia || (mouse_x>encyclopedia_icon_x_start && mouse_y>encyclopedia_icon_y_start && mouse_x<encyclopedia_icon_x_end && mouse_y<encyclopedia_icon_y_end))
 		draw_2d_thing(colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, colored_encyclopedia_icon_u_end, colored_encyclopedia_icon_v_end,
 					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
 	else
 		draw_2d_thing(encyclopedia_icon_u_start, encyclopedia_icon_v_start, encyclopedia_icon_u_end, encyclopedia_icon_v_end,
 					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
 
-	if(mouse_x>options_icon_x_start && mouse_y>options_icon_y_start &&
-	   mouse_x<options_icon_x_end && mouse_y<options_icon_y_end)
+	if(options_menu || (mouse_x>options_icon_x_start && mouse_y>options_icon_y_start && mouse_x<options_icon_x_end && mouse_y<options_icon_y_end))
 		draw_2d_thing(colored_options_icon_u_start, colored_options_icon_v_start, colored_options_icon_u_end, colored_options_icon_v_end,
 					  options_icon_x_start, options_icon_y_start, options_icon_x_end, options_icon_y_end);
 	else
