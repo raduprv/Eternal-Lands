@@ -300,7 +300,7 @@ void init_vars()
 	add_var(INT,"server_port","sp",&port,change_int,2000);
 	add_var(STRING,"username","u",username_str,change_string,16);
 	add_var(SPECCHAR,"password","p",password_str,change_password,16);
-	add_var(INT,"log_server","log",&log_server,change_var,1);
+	add_var(BOOL,"log_server","log",&log_server,change_var,1);
 	
 	add_var(STRING,"data_dir","dir",datadir,change_string,90);//Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
 	add_var(STRING,"language","lang",lang,change_string,8);
