@@ -3,6 +3,10 @@
 
 _knowledge knowledge_list[200];
 
+char researching_name[16]="thingy";
+char researching_eta[10]="time";
+int page = 1;
+
 void display_knowledge()
 {
 	int i,x=knowledge_menu_x+2,y=knowledge_menu_y+2;
@@ -42,19 +46,22 @@ void display_knowledge()
 	glVertex3i(knowledge_menu_x+knowledge_menu_x_len-20,knowledge_menu_y,0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-   
+	
 	draw_string(knowledge_menu_x+knowledge_menu_x_len-16,knowledge_menu_y+2,"X",1);
-	glColor3f(0.9f,0.9f,0.9f);
-	draw_string_zoomed(knowledge_menu_x+10,knowledge_menu_y+315,"Currently researching:",1,0.8);
-	draw_string_zoomed(knowledge_menu_x+290,knowledge_menu_y+315,"ETA:",1,0.8);
+	//draw text
+	draw_string_small(knowledge_menu_x+4,knowledge_menu_y+215,items_string,4);
+	glColor3f(1.0f,1.0f,1.0f);
+	draw_string_zoomed(knowledge_menu_x+10,knowledge_menu_y+315,"Researching:",1,0.8);
+	draw_string_zoomed(knowledge_menu_x+130,knowledge_menu_y+315,researching_name,1,0.8);
+	draw_string_zoomed(knowledge_menu_x+280,knowledge_menu_y+315,"ETA:",1,0.8);
+	draw_string_zoomed(knowledge_menu_x+320,knowledge_menu_y+315,researching_eta,1,0.8);
 	// Draw knowledges
-	for(i=0;i<200;i++){
+	for(i=(100*(page-1));i<100*page;i++){
 		knowledge_list[i].mouse_over ? glColor3f(0.77f,0.33f,0.33f) : glColor3f(0.9f,0.9f,0.9f);
-		draw_string_zoomed(x,y,knowledge_list[i].name,1,0.6);
-		x+=40;
-		if(i%10==9){y+=10;x=knowledge_menu_x+2;}
+		draw_string_zoomed(x,y,knowledge_list[i].name,1,0.7);
+		x+=99;
+		if(i%4==3){y+=10;x=knowledge_menu_x+2;}
 	}
-
 	return;
 }
 
@@ -66,30 +73,31 @@ int knowledge_mouse_over()
 	for(x=0;x<200;x++)knowledge_list[x].mouse_over=0;
 	x=mouse_x-knowledge_menu_x;
 	y=mouse_y-knowledge_menu_y;
-	x/=40;
+	x/=99;
 	y/=10;
-	knowledge_list[y*10+x].mouse_over=1;
+	knowledge_list[(100*(page-1))+y*4+x].mouse_over=1;
 	return 1;
 }
 
 
 int check_knowledge_interface()
 {
-	int x,y,len;
+	int x,y,len,idx;
 	char str[100];
 	if(!view_knowledge || mouse_x>knowledge_menu_x+knowledge_menu_x_len || mouse_x<knowledge_menu_x
 	   || mouse_y<knowledge_menu_y || mouse_y>knowledge_menu_y+knowledge_menu_y_len)return 0;
 
 	x=mouse_x-knowledge_menu_x;
 	y=mouse_y-knowledge_menu_y;
-	x/=40;
+	x/=99;
 	y/=10;
-	if(y*10+x < 200 && *(knowledge_list[y*10+x].name))
+	idx = (100*(page-1))+y*4+x;
+	if(idx < 200 && *(knowledge_list[idx].name))
 		{
 			str[0] = RAW_TEXT;
-			len = strlen(knowledge_list[y*10+x].name) + 5;
+			len = strlen(knowledge_list[idx].name) + 5;
 			strcpy(str+1,"#ki ");
-			strcpy(str+5,knowledge_list[y*10+x].name);
+			strcpy(str+5,knowledge_list[idx].name);
 			str[len+1]=0;
 			my_tcp_send(my_socket,str,len);
 		}

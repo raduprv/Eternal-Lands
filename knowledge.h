@@ -3,7 +3,7 @@
 
 typedef struct
 {
-   char name[10];
+   char name[16];
    unsigned char mouse_over;
 }_knowledge;
 
