@@ -1003,7 +1003,9 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 			add_sound_object(snd_teleprtr,teleport_x,teleport_y,1,1);
 			//later on, maybe we want to have different visual types
 			//now, get the Z position
-			z=-2.2f+height_map[teleport_y*tile_map_size_x*6+teleport_x]*0.2f;
+			if(teleport_y*tile_map_size_x*6+teleport_x<tile_map_size_y*6*tile_map_size_x*6)
+				z=-2.2f+height_map[teleport_y*tile_map_size_x*6+teleport_x]*0.2f;
+			else continue;
 			//convert from height values to meters
 			x=(float)teleport_x/2;
 			y=(float)teleport_y/2;

@@ -743,7 +743,16 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 			x=140;
 			
-			if(mx>win->len_x/2-15 && mx < win->len_x/2+15) win->displayed=0;
+			if(mx>win->len_x/2-15 && mx < win->len_x/2+15) {
+				char str[5];
+		
+				str[0]=SEND_BOOK;
+				*((Uint16*)(str+1))=b->id;
+				*((Uint16*)(str+3))=0xFFFF;
+				my_tcp_send(my_socket, str, 5);
+				
+				win->displayed=0;
+			}
 			
 			x=win->len_x-120;
 			p=b->active_page+2;
@@ -765,7 +774,16 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				x-=40;
 			}
 			
-			if(mx>win->len_x/2-15 && mx < win->len_x/2+15) win->displayed=0;
+			if(mx>win->len_x/2-15 && mx < win->len_x/2+15) {
+				char str[5];
+		
+				str[0]=SEND_BOOK;
+				*((Uint16*)(str+1))=b->id;
+				*((Uint16*)(str+3))=0xFFFF;
+				my_tcp_send(my_socket, str, 5);
+				
+				win->displayed=0;
+			}
 			
 			x=win->len_x/2+50;
 			for(i=1;i<5;i++){
