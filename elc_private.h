@@ -5,10 +5,10 @@
 #define ELC_PRIVATE_H
 
 // VERSION DEFINITIONS
-#define VER_STRING	"0.9.8.0"
+#define VER_STRING	"0.9.9.0"
 #define VER_MAJOR	0
 #define VER_MINOR	9
-#define VER_RELEASE	8
+#define VER_RELEASE	9
 #define VER_BUILD	0
 #define COMPANY_NAME	""
 #define FILE_VERSION	""
@@ -18,6 +18,6 @@
 #define LEGAL_TRADEMARKS	""
 #define ORIGINAL_FILENAME	""
 #define PRODUCT_NAME	"Eternal-Lands Client"
-#define PRODUCT_VERSION	"0.9.8"
+#define PRODUCT_VERSION	"0.9.9"
 
 #endif //ELC_PRIVATE_H
