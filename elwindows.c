@@ -573,6 +573,7 @@ int	draw_window(window_info *win)
 		}
 	glPopMatrix();
 	
+	mouseover_window(win->window_id, mouse_x, mouse_y);
 	return(ret_val);
 }
 
@@ -717,6 +718,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_CLICK:
 			old_handler= (void *)windows_list.window[win_id].click_handler;
 			windows_list.window[win_id].click_handler=handler;
+			break;
+		case	ELW_HANDLER_MOUSEOVER:
+			old_handler= (void *)windows_list.window[win_id].mouseover_handler;
+			windows_list.window[win_id].mouseover_handler=handler;
 			break;
 		default:
 			old_handler=NULL;

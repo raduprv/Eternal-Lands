@@ -141,7 +141,7 @@ int		drag_windows(int mx, int my, int dx, int dy);
 void	end_drag_windows();
 int		select_window(int win_id);
 //void	close_windows();
-//TODO: mouseover, check windows on screen
+//TODO: check windows on screen
 
 // individual functions
 int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
