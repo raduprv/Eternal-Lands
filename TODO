@@ -14,14 +14,15 @@ OSX support - delayed :(
 Faster mouse icon switch without dropping FPS
 Investigate variable width fonts - preliminary testing
 Better faq support
-Change the internal way MD2s are loaded, and make them vertex arrays. - TESTING
+Reduce memory usage when VA's are enabled for MD2's
+Smarter caching system for MD2's and E3D's
 
 
 Unassigned:
 Depth shadows
 Various spell effects.
 Buddy list menu
-On card that support OVB, make the 3d objects and models VBO.
+On card that support VBO, make the 3d objects and models VBO.
 Make use of other extensions
 Server selection screen -- don't have multiple servers yet :p
 Fix windows (layering)
