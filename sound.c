@@ -119,13 +119,10 @@ void update_position()
 //usefull when we change maps, etc.
 void kill_local_sounds()
 {
-	int tostop,error;
+	int error;
 	if(!have_sound)return;
 	lock_sound_list();
-	tostop=used_sources;
-	if(used_sources)
-		tostop--;
-	alSourceStopv(tostop,sound_source);
+	alSourceStopv(used_sources,sound_source);
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
     		log_to_console(c_red1,"kill_local_sounds error.\n");
