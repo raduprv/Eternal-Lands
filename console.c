@@ -100,6 +100,17 @@ void test_for_console_command()
 			exit_now=1;
 			return;
 		}
+#ifdef	DEBUG
+#ifdef	CACHE_SYSTEM
+	if(my_strcompare(text_loc,"mem") || my_strcompare(text_loc,"cache"))
+		{
+			cache_dump_sizes(cache_system);
+			cache_dump_sizes(cache_e3d);
+			cache_dump_sizes(cache_md2);
+			return;
+		}
+#endif	//CACHE_SYSTEM
+#endif	//DEBUG
 	if(my_strcompare(text_loc,"ver") || my_strcompare(text_loc,"vers"))
 		{
 			char str[128];
