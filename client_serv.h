@@ -1,6 +1,15 @@
+/*!
+ * \file
+ * \brief this file defines the core client server protocol.
+ * \ingroup protocol
+ */
 #ifndef __CLIENT_SERV_H__
 #define __CLIENT_SERV_H__
 
+/*!
+ * \name Actor types
+ */
+/*! @{ */
 #define human_female 0
 #define human_male 1
 #define elf_female 2
@@ -44,14 +53,22 @@
 #define orchan_male 40
 #define draegoni_female 41
 #define draegoni_male 42
+/*! @} */
 
-//skin colors
+/*!
+ * \name Skin colors
+ */
+/*! @{ */
 #define SKIN_BROWN 0
 #define SKIN_NORMAL 1
 #define SKIN_PALE 2
 #define SKIN_TAN 3
+/*! @} */
 
-//shirt colors
+/*!
+ * \name Shirt colors
+ */
+/*! @{ */
 #define SHIRT_BLACK 0
 #define SHIRT_BLUE 1
 #define SHIRT_BROWN 2
@@ -71,12 +88,21 @@
 #define SHIRT_IRON_PLATE_ARMOR 16
 #define SHIRT_ARMOR_6 17
 #define SHIRT_FUR 18
+/*! @} */
 
+/*!
+ * \name No armor flags
+ */
+/*! @{ */
 #define NO_BODY_ARMOR 0
 #define NO_PANTS_ARMOR 0
 #define NO_BOOTS_ARMOR 0
+/*! @} */
 
-//hair
+/*!
+ * \name Hair colors
+ */
+/*! @{ */
 #define HAIR_BLACK 0
 #define HAIR_BLOND 1
 #define HAIR_BROWN 2
@@ -86,8 +112,12 @@
 #define HAIR_BLUE 6		// for Draegoni
 #define HAIR_GREEN 7	// for Draegoni
 #define HAIR_PURPLE 8	// for Draegoni
+/*! @} */
 
-//boots color
+/*!
+ * \name Boots colors
+ */
+/*! @{ */
 #define BOOTS_BLACK 0
 #define BOOTS_BROWN 1
 #define BOOTS_DARKBROWN 2
@@ -97,8 +127,12 @@
 #define BOOTS_LEATHER 6
 #define BOOTS_FUR 7
 #define BOOTS_IRON_GREAVE 8
+/*! @} */
 
-//pants
+/*!
+ * \name Pants colors
+ */
+/*! @{ */
 #define PANTS_BLACK 0
 #define PANTS_BLUE 1
 #define PANTS_BROWN 2
@@ -111,8 +145,12 @@
 #define PANTS_LEATHER 9
 #define PANTS_IRON_CUISSES 10
 #define PANTS_FUR 11
+/*! @} */
 
-//capes
+/*!
+ * \name Capes
+ */
+/*! @{ */
 #define CAPE_BLACK 0
 #define CAPE_BLUE 1
 #define CAPE_BLUEGRAY 2
@@ -134,15 +172,23 @@
 #define CAPE_WYTTER 18
 #define CAPE_QUELL 19
 #define CAPE_NONE 30
+/*! @} */
 
-//heads
+/*!
+ * \name Heads
+ */
+/*! @{ */
 #define HEAD_1 0
 #define HEAD_2 1
 #define HEAD_3 2
 #define HEAD_4 3
 #define HEAD_5 4
+/*! @} */
 
-
+/*!
+ * \name Types of wearable items
+ */
+/*! @{ */
 #define KIND_OF_WEAPON 0
 #define KIND_OF_SHIELD 1
 #define KIND_OF_CAPE 2
@@ -150,22 +196,33 @@
 #define KIND_OF_LEG_ARMOR 4
 #define KIND_OF_BODY_ARMOR 5
 #define KIND_OF_BOOT_ARMOR 6
+/*! @} */
 
-//helmets
+/*!
+ * \name Helmets
+ */
+/*! @{ */
 #define HELMET_IRON 0
 #define HELMET_FUR 1
 #define HELMET_LEATHER 2
 #define HELMET_NONE 20
+/*! @} */
 
-
-//shields
+/*!
+ * \name Shields
+ */
+/*! @{ */
 #define SHIELD_WOOD 0
 #define SHIELD_WOOD_ENHANCED 1
 #define SHIELD_IRON 2
 #define SHIELD_STEEL 3
 #define SHIELD_NONE 11
+/*! @} */
 
-//weapons
+/*!
+ * \name Weapons
+ */
+/*! @{ */
 #define WEAPON_NONE 0
 #define SWORD_1 1
 #define SWORD_2 2
@@ -215,7 +272,12 @@
 #define BATTLEAXE_TITANIUM_MAGIC 46
 #define GLOVE_FUR 47
 #define GLOVE_LEATHER 48
+/*! @} */
 
+/*!
+ * \name Frames
+ */
+/*! @{ */
 #define frame_walk 0
 #define frame_run 1
 #define frame_die1 2
@@ -240,8 +302,12 @@
 #define frame_attack_up_4 21
 #define frame_attack_down_1 22
 #define frame_attack_down_2 23
+/*! @} */
 
-//colors
+/*!
+ * \name Colors
+ */
+/*! @{ */
 #define c_red1 0
 #define c_red2 7
 #define c_red3 14
@@ -270,8 +336,12 @@
 #define c_grey2 13
 #define c_grey3 20
 #define c_grey4 27
+/*! @} */
 
-//foreign chars
+/*!
+ * \name Foreign chars
+ */
+/*! @{ */
 #define UUML 180
 #define EACUTE 181
 #define ACIRC 182
@@ -296,13 +366,21 @@
 #define AELIG 201
 #define OSLASH 202
 #define ARING 203
+/*! @} */
 
-//Windows
+/*!
+ * \name Windows
+ */
+/*! @{ */
 #define RULE_WIN 1
 #define RULE_INTERFACE 2
 #define NEW_CHAR_INTERFACE 3
+/*! @} */
 
-//actor commands
+/*!
+ * \name Actor commands
+ */
+/*! @{ */
 #define nothing 0
 #define kill_me 1
 #define die1 3
@@ -357,8 +435,12 @@
 #define attack_up_4 49
 #define attack_down_1 50
 #define attack_down_2 51
+/*! @} */
 
-//to server commands
+/*!
+ * \name To server commands
+ */
+/*! @{ */
 #define MOVE_TO 1
 #define SEND_PM 2
 #define GET_PLAYER_INFO 5
@@ -407,8 +489,12 @@
 #define ORIGINAL_IP 233
 #define LOG_IN 140
 #define CREATE_CHAR 141
+/*! @} */
 
-//to client commands
+/*!
+ * \name To client commands
+ */
+/*! @{ */
 #define ADD_NEW_ACTOR 1
 #define ADD_ACTOR_COMMAND 2
 #define YOU_ARE 3
@@ -480,15 +566,26 @@
 #define LOG_IN_NOT_OK 251
 #define CREATE_CHAR_OK 252
 #define CREATE_CHAR_NOT_OK 253
+/*! @} */
 
-//common (both to the server and client)
+/*!
+ * \name Common (both to the server and client) commands
+ */
+/*! @{ */
 #define RAW_TEXT 0
 #define BYE 255
+/*! @} */
 
-//protocol places
-#define PROTOCOL 0 //is an unsigned char
 
-//STATS
+/*! 
+ * \name Protocol places 
+ */
+#define PROTOCOL 0 /*!< is an unsigned char */
+
+/*!
+ * \name Stats
+ */
+/*! @{ */
 #define PHY_CUR 0
 #define PHY_BASE 1
 #define COO_CUR 2
@@ -564,8 +661,12 @@
 #define CRA_EXP_NEXT 72
 #define CRA_S_CUR 73
 #define CRA_S_BASE 74
+/*! @} */
 
-//SOUND
+/*!
+ * \name Sound
+ */
+/*! @{ */
 #define snd_rain     0
 #define snd_tele_in  1
 #define snd_tele_out 2
@@ -575,5 +676,7 @@
 #define snd_thndr_3  6
 #define snd_thndr_4  7
 #define snd_thndr_5  8
+/*! @} */
 
 #endif
+

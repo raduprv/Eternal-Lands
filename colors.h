@@ -1,6 +1,14 @@
+/*!
+ * \file
+ * \brief color handling
+ * \ingroup other
+ */
 #ifndef __COLORS_H__
 #define __COLORS_H__
 
+/*!
+ * A color structure for RGB color values.
+ */
 typedef struct
 {
 	Uint8 r1;
@@ -20,5 +28,14 @@ typedef struct
 
 extern color_rgb colors_list[30];
 
+/*!
+ * \ingroup other
+ * \brief initializes the \see colors_list color table of EL.
+ *
+ *      Initializes the \see colors_list color table of EL.
+ *
+ * \return None
+ */
 void init_colors();
 #endif
+
