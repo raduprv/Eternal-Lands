@@ -11,7 +11,7 @@ int encyclopedia_menu_dragged=0;
 _Category Category[100];
 _Page Page[100];
 int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0;
-float u,v,uend,vend,xend,yend;
+float u,v,uend,vend,xend,yend,r,g,b;
 char *s,*ss;
 
 void display_encyclopedia()
@@ -53,7 +53,7 @@ void display_encyclopedia()
 	draw_string(encyclopedia_menu_x+encyclopedia_menu_x_len-16,encyclopedia_menu_y+2,"X",1);
 
 	while(t){
-		glColor3f((float)colors_list[t->color].r1/255.0f,(float)colors_list[t->color].g1/255.0f,(float)colors_list[t->color].b1/255.0f);
+		glColor3f(t->r,t->g,t->b);
 		if(t->size)
 			draw_string(t->x+encyclopedia_menu_x,t->y+encyclopedia_menu_y,t->text,1);
 		else
@@ -104,38 +104,25 @@ int check_encyclopedia_interface()
 	return 1;
 }
 
-int GetColor(char *t)
+void GetColor(char *t)
 {
-	if(!xmlStrcasecmp("red1",t))return 0;
-	if(!xmlStrcasecmp("red2",t))return 1;
-	if(!xmlStrcasecmp("red3",t))return 2;
-	if(!xmlStrcasecmp("red4",t))return 3;
-	if(!xmlStrcasecmp("orange1",t))return 4;
-	if(!xmlStrcasecmp("orange2",t))return 5;
-	if(!xmlStrcasecmp("orange3",t))return 6;
-	if(!xmlStrcasecmp("orange4",t))return 7;
-	if(!xmlStrcasecmp("yellow1",t))return 8;
-	if(!xmlStrcasecmp("yellow2",t))return 9;
-	if(!xmlStrcasecmp("yellow3",t))return 10;
-	if(!xmlStrcasecmp("yellow4",t))return 11;
-	if(!xmlStrcasecmp("green1",t))return 12;
-	if(!xmlStrcasecmp("green2",t))return 13;
-	if(!xmlStrcasecmp("green3",t))return 14;
-	if(!xmlStrcasecmp("green4",t))return 15;
-	if(!xmlStrcasecmp("blue1",t))return 16;
-	if(!xmlStrcasecmp("blue2",t))return 17;
-	if(!xmlStrcasecmp("blue3",t))return 18;
-	if(!xmlStrcasecmp("blue4",t))return 19;
-	if(!xmlStrcasecmp("purple1",t))return 20;
-	if(!xmlStrcasecmp("purple2",t))return 21;
-	if(!xmlStrcasecmp("purple3",t))return 22;
-	if(!xmlStrcasecmp("purple4",t))return 23;
-	if(!xmlStrcasecmp("grey1",t))return 24;
-	if(!xmlStrcasecmp("grey2",t))return 25;
-	if(!xmlStrcasecmp("grey3",t))return 26;
-	if(!xmlStrcasecmp("grey4",t))return 27;
-
-	return -1;
+	if(!xmlStrcasecmp("silver",t)){r=192/255.0f; g=192/255.0f; b=192/255.0f;return;}
+	if(!xmlStrcasecmp("grey",t)){r=128/255.0f; g=128/255.0f; b=128/255.0f;return;}
+	if(!xmlStrcasecmp("maroon",t)){r=128/255.0f; g=0.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp("green",t)){r=0.0f; g=128/255.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp("navy",t)){r=0.0f; g=0.0f; b=128/255.0f;return;}
+	if(!xmlStrcasecmp("olive",t)){r=128/255.0f; g=128/255.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp("purple",t)){r=128/255.0f; g=0.0f; b=128/255.0f;return;}
+	if(!xmlStrcasecmp("teal",t)){r=0.0f; g=128/255.0f; b=128/255.0f;return;}
+	if(!xmlStrcasecmp("white",t)){r=1.0f; g=1.0f; b=1.0f;return;}
+	if(!xmlStrcasecmp("black",t)){r=0.0f; g=0.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp("red",t)){r=1.0f; g=0.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp("lime",t)){r=0.0f; g=1.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp("blue",t)){r=0.0f; g=0.0f; b=1.0f;return;}
+	if(!xmlStrcasecmp("magenta",t)){r=1.0f; g=0.0f; b=1.0f;return;}
+	if(!xmlStrcasecmp("yellow",t)){r=1.0f; g=1.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp("cyan",t)){r=0.0f; g=1.0f; b=1.0f;return;}
+	
 }
 
 
@@ -159,6 +146,28 @@ void ParseLink(xmlAttr *a_node)
 			//y=""
 			if(!xmlStrcasecmp(cur_attr->name,"y")){
 				y=atoi(cur_attr->children->content);
+			}
+		}
+	}
+}
+
+void ParseColor(xmlAttr *a_node)
+{
+	xmlAttr *cur_attr=NULL;
+
+    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+			//r=""
+			if(!xmlStrcasecmp(cur_attr->name,"r")){
+				r=atof(cur_attr->children->content);
+			}
+			//g=""
+			if(!xmlStrcasecmp(cur_attr->name,"g")){
+				g=atof(cur_attr->children->content);
+			}
+			//b=""
+			if(!xmlStrcasecmp(cur_attr->name,"b")){
+				b=atof(cur_attr->children->content);
 			}
 		}
 	}
@@ -286,7 +295,9 @@ void ReadCategoryXML(xmlNode * a_node)
 			
 			//<Color>
 			if(!xmlStrcasecmp(cur_node->name,"Color")){
-				color=GetColor(cur_node->children->content);
+				ParseColor(cur_node->properties);
+				if(cur_node->children)
+					GetColor(cur_node->children->content);
 			}
 			
 			//<Text>
@@ -298,7 +309,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				T->x=x;
 				T->y=y;
 				T->size=size;
-				T->color=color;
+				T->r=r; T->g=g; T->b=b;
 				T->text=(char*)malloc(strlen(cur_node->children->content)+1);
 				T->ref=NULL;
 				strcpy(T->text,cur_node->children->content);
@@ -349,7 +360,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				T->x=x;
 				T->y=y;
 				T->size=size;
-				T->color=color;
+				T->r=r; T->g=g; T->b=b;
 				T->text=(char*)malloc(strlen(s)+1);
 				T->ref=(char*)malloc(strlen(ss)+1);
 				strcpy(T->text,s);

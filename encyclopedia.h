@@ -11,7 +11,8 @@ typedef struct
 
 typedef struct _Texts
 {
-	int x,y,size,color;
+	int x,y,size;
+	float r,g,b;
 	char *text,*ref;
 	struct _Texts *Next;
 }_Text;
