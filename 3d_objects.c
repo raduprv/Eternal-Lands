@@ -338,7 +338,7 @@ void display_objects()
 											   objects_list[i]->z_pos,radius))
 								{
                      				draw_3d_object(objects_list[i]);
-                     				anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
+									anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
 								}
 						}
 				}
@@ -576,7 +576,8 @@ e3d_object * load_e3d(char *file_name)
 
 void compute_clouds_map(object3d * object_id)
 {
-	float x1,y1,x,y,z,m; //u,v; unused?
+	float x1,y1,x,y,z,m;
+	float cos_m,sin_m;
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int i,face_no;
@@ -597,14 +598,16 @@ void compute_clouds_map(object3d * object_id)
 	z_rot=object_id->z_rot;
 
 	m=(-z_rot)*3.1415926/180;
+	cos_m=cos(m);
+	sin_m=sin(m);
 
 	for(i=0;i<face_no*3;i++)
 		{
 			x=array_vertex[i].x;
 			y=array_vertex[i].y;
 			z=array_vertex[i].z;
-			x1=x*cos(m)+y*sin(m);
-			y1=y*cos(m)-x*sin(m);
+			x1=x*cos_m+y*sin_m;
+			y1=y*cos_m-x*sin_m;
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 

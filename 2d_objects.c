@@ -80,6 +80,7 @@ void draw_2d_object(obj_2d * object_id)
 	else
 		{
 			float m,x,y,x1,y1;
+			float cos_m,sin_m;
 
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -92,11 +93,13 @@ void draw_2d_object(obj_2d * object_id)
 			glBegin(GL_QUADS);
 
 			m=(-z_rot)*3.1415926/180;
+			cos_m=cos(m);
+			sin_m=sin(m);
 
 			x=render_x_start;
 			y=render_y_start;
-			x1=x*cos(m)+y*sin(m);
-			y1=y*cos(m)-x*sin(m);
+			x1=x*cos_m+y*sin_m;
+			y1=y*cos_m-x*sin_m;
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
@@ -108,8 +111,8 @@ void draw_2d_object(obj_2d * object_id)
 
 			x=render_x_start;
 			y=render_y_start+y_size;
-			x1=x*cos(m)+y*sin(m);
-			y1=y*cos(m)-x*sin(m);
+			x1=x*cos_m+y*sin_m;
+			y1=y*cos_m-x*sin_m;
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
@@ -121,8 +124,8 @@ void draw_2d_object(obj_2d * object_id)
 
 			x=render_x_start+x_size;
 			y=render_y_start+y_size;
-			x1=x*cos(m)+y*sin(m);
-			y1=y*cos(m)-x*sin(m);
+			x1=x*cos_m+y*sin_m;
+			y1=y*cos_m-x*sin_m;
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
@@ -134,8 +137,8 @@ void draw_2d_object(obj_2d * object_id)
 
 			x=render_x_start+x_size;
 			y=render_y_start;
-			x1=x*cos(m)+y*sin(m);
-			y1=y*cos(m)-x*sin(m);
+			x1=x*cos_m+y*sin_m;
+			y1=y*cos_m-x*sin_m;
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
