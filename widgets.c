@@ -705,9 +705,8 @@ int ParseWindow(xmlAttr *a_node)
         if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				int l = strlen(cur_attr->children->content);
-				UTF8Toisolat1(name, &l, cur_attr->children->content, &l);
-				name[l]=0;
+				char *p=name;
+				my_xmlStrncopy(&p, cur_attr->children->content, 255);
 				continue;
 			}
 			//pos_x=""
@@ -809,9 +808,8 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node)
 				case BUTTON:
 					//text=""
 					if(!xmlStrcasecmp(cur_attr->name,"text")){
-						int l = strlen(cur_attr->children->content);
-						UTF8Toisolat1(text, &l, cur_attr->children->content, &l);
-						text[l]=0;
+						char *p=text;
+						my_xmlStrncopy(&p, cur_attr->children->content, 255);
 						continue;
 					}
 					break;
@@ -893,7 +891,7 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node)
 			progressbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress);
 			break;
 		case VSCROLLBAR:
-			vscrollbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc, len_x);
+			vscrollbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc, len_y);
 			break;
 
 	}
@@ -917,4 +915,5 @@ int GetWidgetType(char *w)
 
 	return 0;
 }
+
 
