@@ -5,6 +5,7 @@
 #define IMAGE		0x02
 #define CHECKBOX	0x03
 #define BUTTON		0x04
+#define PROGRESSBAR	0x05
 
 typedef struct wl{
 	// Common widget data
@@ -43,6 +44,10 @@ typedef struct {
 	char text[256];
 }button;
 
+typedef struct {
+	float progress;
+}progressbar;
+
 // Common widget functions
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id);
 int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
@@ -77,5 +82,11 @@ int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked);
 int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y);
 int button_draw(widget_list *W);
 int button_set_text(Uint32 window_id, Uint32 widget_id, char *text);
+
+// Progressbar
+int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 xe, Uint16 ye);
+int progressbar_draw(widget_list *W);
+float progressbar_get_progress(Uint32 window_id, Uint32 widget_id);
+int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress);
 
 #endif

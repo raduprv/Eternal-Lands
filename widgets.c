@@ -293,6 +293,7 @@ int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
 int checkbox_draw(widget_list *W)
 {
 	checkbox *c = (checkbox *)W->widget_info;
+	glDisable(GL_TEXTURE_2D);
 	if(W->r!=-1.0)
 		glColor3f(W->r, W->g, W->b);
 	glBegin(c->checked ? GL_QUADS: GL_LINE_LOOP);
@@ -374,16 +375,18 @@ int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y
 int button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
+	glDisable(GL_TEXTURE_2D);
 	if(W->r != -1.0)
 		glColor3f(W->r,W->g,W->b);
 
-	glBegin(GL_LINES);
+	glBegin(GL_LINE_LOOP);
 	glVertex3i(W->pos_x,W->pos_y,0);
 	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
 	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
 	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
 	glEnd();
 
+	glEnable(GL_TEXTURE_2D);
 	draw_string_zoomed(W->pos_x + 2, W->pos_y + 2, (unsigned char *)l->text, 1, W->size);
 	return 1;
 }
@@ -398,3 +401,96 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 	}
 	return 0;
 }
+
+
+// Progressbar
+int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
+{
+	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
+	progressbar *T = (progressbar *) malloc(sizeof(label));
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	
+	// Clearing everything
+	memset(W,0,sizeof(widget_list));
+	memset(T,0,sizeof(progressbar));
+
+	// Filling the widget info
+	W->widget_info = T;
+	W->id=widget_id++;
+	W->type = PROGRESSBAR;
+	W->Flags = 0;
+	W->pos_x = x;
+	W->pos_y = y;
+	W->size = 1.0;
+	W->r = -1.0;
+	W->g = -1.0;
+	W->b = -1.0;
+	W->len_y = lx;
+	W->len_x = ly;
+	W->OnDraw = progressbar_draw;
+	W->OnInit = OnInit;
+	if(W->OnInit != NULL)
+		W->OnInit(W);
+
+	// Adding the widget to the list
+	while(w->next != NULL)
+		w = w->next;
+	w->next = W;
+
+	return W->id;
+}
+
+int progressbar_draw(widget_list *W)
+{
+	progressbar *b = (progressbar *)W->widget_info;
+	int pixels = (b->progress/100) * W->len_x;
+	glDisable(GL_TEXTURE_2D);
+	if(W->r != -1.0)
+		glColor3f(W->r,W->g,W->b);
+
+	glBegin(GL_LINES);
+	glVertex3i(W->pos_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
+	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
+	glVertex3i(W->pos_x,W->pos_y,0);
+	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glColor3f(0.40f,0.40f,1.00f);
+	glVertex3i(W->pos_x + 1, W->pos_y + 0, 0);
+	glVertex3i(W->pos_x + pixels,W->pos_y + 0,0);
+	glColor3f(0.10f,0.10f,0.80f);
+	glVertex3i(W->pos_x + pixels, W->pos_y + W->len_y - 1, 0);
+	glVertex3i(W->pos_x + 1, W->pos_y + W->len_y - 1, 0);
+	glColor3f(0.77f,0.57f,0.39f);
+	glEnd();
+	
+	return 0;
+}
+
+float progressbar_get_progress(Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		progressbar *c = (progressbar *)w->widget_info;
+		return c->progress;
+	}
+	return -1;
+}
+
+int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		progressbar *c = (progressbar *)w->widget_info;
+		c->progress = progress;
+		return 1;
+	}
+	return 0;
+
+}
+
