@@ -100,7 +100,7 @@ void test_for_console_command()
 			exit_now=1;
 			return;
 		}
-	if(my_strcompare(text_loc,"ver_") || my_strcompare(text_loc,"vers"))
+	if(my_strcompare(text_loc,"ver") || my_strcompare(text_loc,"vers"))
 		{
 			char str[128];
 			char extra[20];
