@@ -9,8 +9,10 @@
 
 typedef struct {
 	char file_name[64];
-	int always;
-	int prob;
+	int min_x;
+	int max_x;
+	int min_y;
+	int max_y;
 } playlist_entry;
 
 extern int have_sound;

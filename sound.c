@@ -28,7 +28,7 @@ ALuint music_source;
 
 int playing_music=0;
 
-playlist_entry playlist[20];
+playlist_entry playlist[50];
 int loop_list=1;
 int list_pos=-1;
 #endif	//NO_MUSIC
@@ -59,15 +59,11 @@ void get_map_playlist()
 	map_list_file_name[len-1]='l';
 
 	fp=fopen(map_list_file_name,"r");
-	if(!fp)
-		{
-			fp=fopen("./music/default.pll","r");
-			if(!fp)return;
-		}
+	if(!fp)return;
 
 	while(1)
 		{
-			fscanf(fp,"%d %d %s",&playlist[i].always,&playlist[i].prob,playlist[i].file_name);
+			fscanf(fp,"%d %d %d %d %s",&playlist[i].min_x,&playlist[i].max_x,&playlist[i].min_y,&playlist[i].max_y,playlist[i].file_name);
 			i++;
 			if(!fgets(strLine, 100, fp))break;
 		}
@@ -192,7 +188,11 @@ void play_music(int list) {
 
 	while(1)
 		{
-			fscanf(fp,"%d %d %s",&playlist[i].always,&playlist[i].prob,playlist[i].file_name);
+			fscanf(fp,"%s",playlist[i].file_name);
+			playlist[i].min_x=0;
+			playlist[i].max_x=10000;
+			playlist[i].min_y=0;
+			playlist[i].max_y=10000;
 			i++;
 			if(!fgets(strLine, 100, fp))break;
 		}
@@ -323,6 +323,14 @@ int update_music(void *dummy)
 			SDL_Delay(sleep);
 			if(playing_music)
 				{
+					int tx=-cx*2,ty=-cy*2;
+					if(tx < playlist[list_pos].min_x ||
+					   tx > playlist[list_pos].max_x ||
+					   ty < playlist[list_pos].min_y ||
+					   ty > playlist[list_pos].max_y) {
+						playing_music = 0;
+						continue;
+					}
 					alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
 					alGetSourcei(music_source, AL_SOURCE_STATE, &state);
 					state2=state;	//fake out the Dev-C++ optimizer!
@@ -365,10 +373,13 @@ int update_music(void *dummy)
 				}
 			else if(music_on)
 				{
+					int tx=-cx*2,ty=-cy*2;
 					if(playlist[list_pos+1].file_name[0]) {
 						list_pos++;
-						if(playlist[list_pos].always ||
-						   rand()%100 < playlist[list_pos].prob) {
+						if(tx > playlist[list_pos].min_x &&
+						   tx < playlist[list_pos].max_x &&
+						   ty > playlist[list_pos].min_y &&
+						   ty < playlist[list_pos].max_y) {
 							play_ogg_file(playlist[list_pos].file_name);
 						}
 					} else if(loop_list)
