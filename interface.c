@@ -48,9 +48,6 @@ int action_mode=action_walk;
 int you_sit=0;
 int sit_lock=0;
 
-int icon_orientation=0;
-int icon_pos=0;
-
 void get_world_x_y()
 {
 	float window_ratio;

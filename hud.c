@@ -321,189 +321,86 @@ void init_peace_icons()
 {
 	//TODO: positions should be based on icon size
 	//TODO: icon position and layout options (I.E. verticall, on top, etc)
+
+	walk_icon_x_start=0;
+	walk_icon_x_end=walk_icon_x_start+32;
+	walk_icon_y_start=window_height-32;
+	walk_icon_y_end=walk_icon_y_start+32;
+
+	sit_icon_x_start=walk_icon_x_end+1;
+	sit_icon_x_end=sit_icon_x_start+32;
+	sit_icon_y_start=window_height-32;
+	sit_icon_y_end=sit_icon_y_start+32;
+
+	stand_icon_x_start=walk_icon_x_end+1;
+	stand_icon_x_end=stand_icon_x_start+32;
+	stand_icon_y_start=window_height-32;
+	stand_icon_y_end=stand_icon_y_start+32;
+
+	pick_icon_x_start=stand_icon_x_end+1;
+	pick_icon_x_end=pick_icon_x_start+32;
+	pick_icon_y_start=window_height-32;
+	pick_icon_y_end=pick_icon_y_start+32;
+
+	eye_icon_x_start=pick_icon_x_end+1;
+	eye_icon_x_end=eye_icon_x_start+32;
+	eye_icon_y_start=window_height-32;
+	eye_icon_y_end=eye_icon_y_start+32;
+
+	use_icon_x_start=eye_icon_x_end+1;
+	use_icon_x_end=use_icon_x_start+32;
+	use_icon_y_start=window_height-32;
+	use_icon_y_end=use_icon_y_start+32;
+
+	trade_icon_x_start=use_icon_x_end+1;
+	trade_icon_x_end=trade_icon_x_start+32;
+	trade_icon_y_start=window_height-32;
+	trade_icon_y_end=trade_icon_y_start+32;
+
+	inventory_icon_x_start=trade_icon_x_end+1;
+	inventory_icon_x_end=inventory_icon_x_start+32;
+	inventory_icon_y_start=window_height-32;
+	inventory_icon_y_end=inventory_icon_y_start+32;
+
+	spell_icon_x_start=inventory_icon_x_end+1;
+	spell_icon_x_end=spell_icon_x_start+32;
+	spell_icon_y_start=window_height-32;
+	spell_icon_y_end=spell_icon_y_start+32;
+
+	attack_icon_x_start=spell_icon_x_end+1;
+	attack_icon_x_end=attack_icon_x_start+32;
+	attack_icon_y_start=window_height-32;
+	attack_icon_y_end=attack_icon_y_start+32;
+
+	harvest_icon_x_start=attack_icon_x_end+1;
+	harvest_icon_x_end=harvest_icon_x_start+32;
+	harvest_icon_y_start=window_height-32;
+	harvest_icon_y_end=harvest_icon_y_start+32;
+
+	manufacture_icon_x_start=harvest_icon_x_end+1;
+	manufacture_icon_x_end=manufacture_icon_x_start+32;
+	manufacture_icon_y_start=window_height-32;
+	manufacture_icon_y_end=manufacture_icon_y_start+32;
+
+	stats_icon_x_start=manufacture_icon_x_end+1;
+	stats_icon_x_end=stats_icon_x_start+32;
+	stats_icon_y_start=window_height-32;
+	stats_icon_y_end=stats_icon_y_start+32;
+
+	knowledge_icon_x_start=stats_icon_x_end+1;
+	knowledge_icon_x_end=knowledge_icon_x_start+32;
+	knowledge_icon_y_start=window_height-32;
+	knowledge_icon_y_end=knowledge_icon_y_start+32;
 	
-	if(!icon_orientation){
-		int d=(!icon_pos)?(window_height-32):0;
-		walk_icon_x_start=0;
-		walk_icon_x_end=walk_icon_x_start+32;
-		
-		sit_icon_x_start=walk_icon_x_end+1;
-		sit_icon_x_end=sit_icon_x_start+32;
-		
-		stand_icon_x_start=walk_icon_x_end+1;
-		stand_icon_x_end=stand_icon_x_start+32;
-	
-		pick_icon_x_start=stand_icon_x_end+1;
-		pick_icon_x_end=pick_icon_x_start+32;
-		
-		eye_icon_x_start=pick_icon_x_end+1;
-		eye_icon_x_end=eye_icon_x_start+32;
-	
-		use_icon_x_start=eye_icon_x_end+1;
-		use_icon_x_end=use_icon_x_start+32;
-	
-		trade_icon_x_start=use_icon_x_end+1;
-		trade_icon_x_end=trade_icon_x_start+32;
+	encyclopedia_icon_x_start=knowledge_icon_x_end+1;
+	encyclopedia_icon_x_end=encyclopedia_icon_x_start+32;
+	encyclopedia_icon_y_start=window_height-32;
+	encyclopedia_icon_y_end=encyclopedia_icon_y_start+32;
 
-		inventory_icon_x_start=trade_icon_x_end+1;
-		inventory_icon_x_end=inventory_icon_x_start+32;
-
-		spell_icon_x_start=inventory_icon_x_end+1;
-		spell_icon_x_end=spell_icon_x_start+32;
-
-		attack_icon_x_start=spell_icon_x_end+1;
-		attack_icon_x_end=attack_icon_x_start+32;
-
-		harvest_icon_x_start=attack_icon_x_end+1;
-		harvest_icon_x_end=harvest_icon_x_start+32;
-
-		manufacture_icon_x_start=harvest_icon_x_end+1;
-		manufacture_icon_x_end=manufacture_icon_x_start+32;
-
-		stats_icon_x_start=manufacture_icon_x_end+1;
-		stats_icon_x_end=stats_icon_x_start+32;
-
-		knowledge_icon_x_start=stats_icon_x_end+1;
-		knowledge_icon_x_end=knowledge_icon_x_start+32;
-		
-		encyclopedia_icon_x_start=knowledge_icon_x_end+1;
-		encyclopedia_icon_x_end=encyclopedia_icon_x_start+32;
-		
-		options_icon_x_start=encyclopedia_icon_x_end+1;
-		options_icon_x_end=options_icon_x_start+32;
-		
-		options_icon_y_start=d;
-		options_icon_y_end=options_icon_y_start+32;
-		encyclopedia_icon_y_start=d;
-		encyclopedia_icon_y_end=encyclopedia_icon_y_start+32;
-		knowledge_icon_y_start=d;
-		knowledge_icon_y_end=knowledge_icon_y_start+32;
-		stats_icon_y_start=d;
-		stats_icon_y_end=stats_icon_y_start+32;
-		manufacture_icon_y_start=d;
-		manufacture_icon_y_end=manufacture_icon_y_start+32;
-		harvest_icon_y_start=d;
-		harvest_icon_y_end=harvest_icon_y_start+32;
-		attack_icon_y_start=d;
-		attack_icon_y_end=attack_icon_y_start+32;
-		spell_icon_y_start=d;
-		spell_icon_y_end=spell_icon_y_start+32;
-		inventory_icon_y_start=d;
-		inventory_icon_y_end=inventory_icon_y_start+32;
-		trade_icon_y_start=d;
-		trade_icon_y_end=trade_icon_y_start+32;
-		use_icon_y_start=d;
-		use_icon_y_end=use_icon_y_start+32;
-		eye_icon_y_start=d;
-		eye_icon_y_end=eye_icon_y_start+32;
-		pick_icon_y_start=d;
-		pick_icon_y_end=pick_icon_y_start+32;
-		stand_icon_y_start=d;
-		stand_icon_y_end=stand_icon_y_start+32;
-		sit_icon_y_start=d;
-		sit_icon_y_end=sit_icon_y_start+32;
-		walk_icon_y_start=d;
-		walk_icon_y_end=walk_icon_y_start+32;
-
-	}else
-	{
-		int d=(icon_pos)?(window_width-32):0;
-		walk_icon_x_start=d;
-		walk_icon_x_end=walk_icon_x_start+32;
-		
-		sit_icon_x_start=d;
-		sit_icon_x_end=sit_icon_x_start+32;
-		
-		stand_icon_x_start=d;
-		stand_icon_x_end=stand_icon_x_start+32;
-	
-		pick_icon_x_start=d;
-		pick_icon_x_end=pick_icon_x_start+32;
-		
-		eye_icon_x_start=d;
-		eye_icon_x_end=eye_icon_x_start+32;
-	
-		use_icon_x_start=d;
-		use_icon_x_end=use_icon_x_start+32;
-	
-		trade_icon_x_start=d;
-		trade_icon_x_end=trade_icon_x_start+32;
-
-		inventory_icon_x_start=d;
-		inventory_icon_x_end=inventory_icon_x_start+32;
-
-		spell_icon_x_start=d;
-		spell_icon_x_end=spell_icon_x_start+32;
-
-		attack_icon_x_start=d;
-		attack_icon_x_end=attack_icon_x_start+32;
-
-		harvest_icon_x_start=d;
-		harvest_icon_x_end=harvest_icon_x_start+32;
-
-		manufacture_icon_x_start=d;
-		manufacture_icon_x_end=manufacture_icon_x_start+32;
-
-		stats_icon_x_start=d;
-		stats_icon_x_end=stats_icon_x_start+32;
-
-		knowledge_icon_x_start=d;
-		knowledge_icon_x_end=knowledge_icon_x_start+32;
-		
-		encyclopedia_icon_x_start=d;
-		encyclopedia_icon_x_end=encyclopedia_icon_x_start+32;
-		
-		options_icon_x_start=d;
-		options_icon_x_end=options_icon_x_start+32;
-		
-		walk_icon_y_start=0;
-		walk_icon_y_end=walk_icon_y_start+32;
-
-		sit_icon_y_start=walk_icon_y_end+1;
-		sit_icon_y_end=sit_icon_y_start+32;
-
-		stand_icon_y_start=walk_icon_y_end+1;
-		stand_icon_y_end=stand_icon_y_start+32;
-
-		pick_icon_y_start=stand_icon_y_end+1;
-		pick_icon_y_end=pick_icon_y_start+32;
-
-		eye_icon_y_start=pick_icon_y_end+1;
-		eye_icon_y_end=eye_icon_y_start+32;
-
-		use_icon_y_start=eye_icon_y_end+1;
-		use_icon_y_end=use_icon_y_start+32;
-
-		trade_icon_y_start=use_icon_y_end+1;
-		trade_icon_y_end=trade_icon_y_start+32;
-
-		inventory_icon_y_start=trade_icon_y_end+1;
-		inventory_icon_y_end=inventory_icon_y_start+32;
-
-		spell_icon_y_start=inventory_icon_y_end+1;
-		spell_icon_y_end=spell_icon_y_start+32;
-
-		attack_icon_y_start=spell_icon_y_end+1;
-		attack_icon_y_end=attack_icon_y_start+32;
-
-		harvest_icon_y_start=attack_icon_y_end+1;
-		harvest_icon_y_end=harvest_icon_y_start+32;
-
-		manufacture_icon_y_start=harvest_icon_y_end+1;
-		manufacture_icon_y_end=manufacture_icon_y_start+32;
-
-		stats_icon_y_start=manufacture_icon_y_end+1;
-		stats_icon_y_end=stats_icon_y_start+32;
-
-		knowledge_icon_y_start=stats_icon_y_end+1;
-		knowledge_icon_y_end=knowledge_icon_y_start+32;
-
-		encyclopedia_icon_y_start=knowledge_icon_y_end+1;
-		encyclopedia_icon_y_end=encyclopedia_icon_y_start+32;
-
-		options_icon_y_start=encyclopedia_icon_y_end+1;
-		options_icon_y_end=options_icon_y_start+32;
-	}
+	options_icon_x_start=encyclopedia_icon_x_end+1;
+	options_icon_x_end=options_icon_x_start+32;
+	options_icon_y_start=window_height-32;
+	options_icon_y_end=options_icon_y_start+32;
 }
 
 void draw_peace_icons()
@@ -760,42 +657,20 @@ int check_peace_icons()
 // the stats display
 void init_stats_display()
 {
-	if(!icon_orientation){
-		int d=(!icon_pos)?(window_height-44):44;
+mana_bar_start_x=24;
+mana_bar_start_y=window_height-44;
+mana_bar_x_len=100;
+mana_bar_y_len=8;
 
-		mana_bar_start_x=24;
-		mana_bar_start_y=d;
-		mana_bar_x_len=100;
-		mana_bar_y_len=8;
+food_bar_start_x=mana_bar_start_x+mana_bar_x_len+40;
+food_bar_start_y=mana_bar_start_y;
+food_bar_x_len=100;
+food_bar_y_len=8;
 
-		food_bar_start_x=mana_bar_start_x+mana_bar_x_len+40;
-		food_bar_start_y=mana_bar_start_y;
-		food_bar_x_len=100;
-		food_bar_y_len=8;
-
-		health_bar_start_x=food_bar_start_x+food_bar_x_len+40;
-		health_bar_start_y=mana_bar_start_y;
-		health_bar_x_len=100;
-		health_bar_y_len=8;
-	}
-	else{
-		int d=(icon_pos)?(window_width-44):44;
-
-		mana_bar_start_x=d;
-		mana_bar_start_y=24;
-		mana_bar_x_len=8;
-		mana_bar_y_len=100;
-
-		food_bar_start_x=mana_bar_start_x;
-		food_bar_start_y=mana_bar_start_y+mana_bar_y_len+40;
-		food_bar_x_len=8;
-		food_bar_y_len=100;
-
-		health_bar_start_x=food_bar_start_x;
-		health_bar_start_y=food_bar_start_y+food_bar_y_len+40;
-		health_bar_x_len=8;
-		health_bar_y_len=100;
-	}
+health_bar_start_x=food_bar_start_x+food_bar_x_len+40;
+health_bar_start_y=mana_bar_start_y;
+health_bar_x_len=100;
+health_bar_y_len=8;
 }
 
 void draw_stats_display()
@@ -814,86 +689,61 @@ void draw_stats_display()
 	//get the adjusted lenght
 
 	if(!your_info.material_points.cur || !your_info.material_points.base)
-		health_adjusted_x_len=0;//we don't want a div by 0
+	health_adjusted_x_len=0;//we don't want a div by 0
 	else
-		health_adjusted_x_len=(!icon_orientation?health_bar_x_len:health_bar_y_len)/((float)your_info.material_points.base/(float)your_info.material_points.cur);
+	health_adjusted_x_len=health_bar_x_len/((float)your_info.material_points.base/(float)your_info.material_points.cur);
 
 	if(your_info.food_level<=0)
-		food_adjusted_x_len=0;//we don't want a div by 0
+	food_adjusted_x_len=0;//we don't want a div by 0
 	else
-		food_adjusted_x_len=(!icon_orientation?health_bar_x_len:health_bar_y_len)/(45.0f/(float)your_info.food_level);
+	food_adjusted_x_len=health_bar_x_len/(45.0f/(float)your_info.food_level);
 
 	if(!your_info.ethereal_points.cur || !your_info.ethereal_points.base)
-		mana_adjusted_x_len=0;//we don't want a div by 0
+	mana_adjusted_x_len=0;//we don't want a div by 0
 	else
-		mana_adjusted_x_len=(!icon_orientation?health_bar_x_len:health_bar_y_len)/((float)your_info.ethereal_points.base/(float)your_info.ethereal_points.cur);
+	mana_adjusted_x_len=health_bar_x_len/((float)your_info.ethereal_points.base/(float)your_info.ethereal_points.cur);
 
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
-	
-	if(!icon_orientation){
-		//draw the healthbar
-		glColor3f(0.5f, 0.2f, 0.2f);
-		glVertex3i(health_bar_start_x,health_bar_start_y+health_bar_y_len,0);
-		glColor3f(1.0f, 0.2f, 0.2f);
-		glVertex3i(health_bar_start_x,health_bar_start_y,0);
-		glColor3f(1.0f, 0.2f, 0.2f);
-		glVertex3i(health_bar_start_x+health_adjusted_x_len,health_bar_start_y,0);
-		glColor3f(0.5f, 0.2f, 0.2f);
-		glVertex3i(health_bar_start_x+health_adjusted_x_len,health_bar_start_y+health_bar_y_len,0);
-		
-		//draw the food bar
-		glColor3f(0.5f, 0.5f, 0.2f);
-		glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
-		glColor3f(1.0f, 1.0f, 0.2f);
-		glVertex3i(food_bar_start_x,food_bar_start_y,0);
-		glColor3f(1.0f, 1.0f, 0.2f);
-		glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y,0);
-		glColor3f(0.5f, 0.5f, 0.2f);
-		glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y+food_bar_y_len,0);
-		
-		//draw the mana bar
-		glColor3f(0.2f, 0.2f, 0.5f);
-		glVertex3i(mana_bar_start_x,mana_bar_start_y+mana_bar_y_len,0);
-		glColor3f(0.2f, 0.2f, 1.0f);
-		glVertex3i(mana_bar_start_x,mana_bar_start_y,0);
-		glColor3f(0.2f, 0.2f, 1.0f);
-		glVertex3i(mana_bar_start_x+mana_adjusted_x_len,mana_bar_start_y,0);
-		glColor3f(0.2f, 0.2f, 0.5f);
-		glVertex3i(mana_bar_start_x+mana_adjusted_x_len,mana_bar_start_y+mana_bar_y_len,0);
-	}else{
-		glColor3f(0.5f, 0.2f, 0.2f);
-		glVertex3i(health_bar_start_x,health_bar_start_y+health_adjusted_x_len,0);
-		glColor3f(1.0f, 0.2f, 0.2f);
-		glVertex3i(health_bar_start_x,health_bar_start_y,0);
-		glColor3f(1.0f, 0.2f, 0.2f);
-		glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y,0);
-		glColor3f(0.5f, 0.2f, 0.2f);
-		glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y+health_adjusted_x_len,0);
-		
-		//draw the food bar
-		glColor3f(0.5f, 0.5f, 0.2f);
-		glVertex3i(food_bar_start_x,food_bar_start_y+food_adjusted_x_len,0);
-		glColor3f(1.0f, 1.0f, 0.2f);
-		glVertex3i(food_bar_start_x,food_bar_start_y,0);
-		glColor3f(1.0f, 1.0f, 0.2f);
-		glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y,0);
-		glColor3f(0.5f, 0.5f, 0.2f);
-		glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y+food_adjusted_x_len,0);
-		
-		//draw the mana bar
-		glColor3f(0.2f, 0.2f, 0.5f);
-		glVertex3i(mana_bar_start_x,mana_bar_start_y+mana_adjusted_x_len,0);
-		glColor3f(0.2f, 0.2f, 1.0f);
-		glVertex3i(mana_bar_start_x,mana_bar_start_y,0);
-		glColor3f(0.2f, 0.2f, 1.0f);
-		glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y,0);
-		glColor3f(0.2f, 0.2f, 0.5f);
-		glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y+mana_adjusted_x_len,0);
-	
-	}
+	//draw the healthbar
+	glColor3f(0.5f, 0.2f, 0.2f);
+	glVertex3i(health_bar_start_x,health_bar_start_y+health_bar_y_len,0);
+	glColor3f(1.0f, 0.2f, 0.2f);
+	glVertex3i(health_bar_start_x,health_bar_start_y,0);
+	glColor3f(1.0f, 0.2f, 0.2f);
+	glVertex3i(health_bar_start_x+health_adjusted_x_len,health_bar_start_y,0);
+	glColor3f(0.5f, 0.2f, 0.2f);
+	glVertex3i(health_bar_start_x+health_adjusted_x_len,health_bar_start_y+health_bar_y_len,0);
 
-	
+	//draw the food bar
+	glColor3f(0.5f, 0.5f, 0.2f);
+	glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
+	glColor3f(1.0f, 1.0f, 0.2f);
+	glVertex3i(food_bar_start_x,food_bar_start_y,0);
+	glColor3f(1.0f, 1.0f, 0.2f);
+	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y,0);
+	glColor3f(0.5f, 0.5f, 0.2f);
+	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y+food_bar_y_len,0);
+
+	//draw the food bar
+	glColor3f(0.5f, 0.5f, 0.2f);
+	glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
+	glColor3f(1.0f, 1.0f, 0.2f);
+	glVertex3i(food_bar_start_x,food_bar_start_y,0);
+	glColor3f(1.0f, 1.0f, 0.2f);
+	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y,0);
+	glColor3f(0.5f, 0.5f, 0.2f);
+	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y+food_bar_y_len,0);
+
+	//draw the mana bar
+	glColor3f(0.2f, 0.2f, 0.5f);
+	glVertex3i(mana_bar_start_x,mana_bar_start_y+mana_bar_y_len,0);
+	glColor3f(0.2f, 0.2f, 1.0f);
+	glVertex3i(mana_bar_start_x,mana_bar_start_y,0);
+	glColor3f(0.2f, 0.2f, 1.0f);
+	glVertex3i(mana_bar_start_x+mana_adjusted_x_len,mana_bar_start_y,0);
+	glColor3f(0.2f, 0.2f, 0.5f);
+	glVertex3i(mana_bar_start_x+mana_adjusted_x_len,mana_bar_start_y+mana_bar_y_len,0);
 
 	glEnd();
 
@@ -970,8 +820,10 @@ float clock_needle_v_start=1.0f-(float)193/255;
 float clock_needle_u_end=(float)31/255;
 float clock_needle_v_end=1.0f-(float)224/255;
 
+
 void init_misc_display()
 {
+
 }
 
 void draw_misc_display()
@@ -985,7 +837,7 @@ void draw_misc_display()
 			glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
 			glBegin(GL_QUADS);
-			draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, -32, -30, 32, 30);
+			draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, -32, -30,32, 30);
 			glEnd();
 
 			//draw the compass needle
@@ -1038,5 +890,3 @@ int check_misc_display()
 
 	return 0;
 }
-
-
