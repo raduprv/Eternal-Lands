@@ -48,7 +48,7 @@ void load_questlog()
 		temp[0]=0;
 		fgets(temp,999,f);
 		if(temp[0]==0)break;
-		add_questlog_line(temp);
+		add_questlog_line(temp, strlen(temp));
 		/*
 		l=(_logdata*)malloc(sizeof(_logdata));
 		L->Next=l;
@@ -100,7 +100,7 @@ void string_fix(char *t)
 }
 
 
-void add_questlog(char *t)
+void add_questlog(char *t, int len)
 {
 	char *s=t;
 
@@ -124,22 +124,23 @@ void add_questlog(char *t)
 		if(*s=='\n')*s=' ';
 		s++;
 	}
-	fwrite(t,sizeof(char),strlen(t),qlf);
+	fwrite(t,sizeof(char),len,qlf);
 	fputc(10,qlf);
 	//add to list
-	add_questlog_line(t);
+	add_questlog_line(t,len);
 }
 
 
-void add_questlog_line(char *t)
+void add_questlog_line(char *t, int len)
 {
 	_logdata *l;
 
 	l= (_logdata*)malloc(sizeof(_logdata));
 	l->Next= NULL;
-	l->msg= (char*)malloc(strlen(t)+1);
+	l->msg= (char*)malloc(len+1);
 	string_fix(t);
-	strcpy(l->msg, t);
+	strncpy(l->msg, t, len);
+	l->msg[len]=0;
 	last->Next= l;
 	last= l;
 	if(current==NULL) current=l;
