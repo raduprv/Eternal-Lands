@@ -76,6 +76,8 @@ void read_config()
   	poor_man=get_integer_after_string("#poor_man",file_mem,MAX_INI_FILE);
   	show_reflection=get_integer_after_string("#show_reflection",file_mem,MAX_INI_FILE);
 	if(show_reflection==-1)show_reflection=1;
+	show_fps=get_integer_after_string("#show_fps",file_mem,MAX_INI_FILE);
+	if(show_fps==-1)show_fps=1;
   	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,MAX_INI_FILE);
 	if(mouse_limit==-1)mouse_limit=15;
   	full_screen=get_integer_after_string("#full_screen",file_mem,MAX_INI_FILE);

@@ -1476,61 +1476,66 @@ void draw_options_menu()
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
 					  options_menu_x+8, options_menu_y+55, options_menu_x+38, options_menu_y+71);
-
+	if(show_reflection)
+		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
+					  options_menu_x+8, options_menu_y+75, options_menu_x+38, options_menu_y+91);
+	else
+		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
+					  options_menu_x+8, options_menu_y+75, options_menu_x+38, options_menu_y+91);
+	if(show_fps)
+		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
+					  options_menu_x+8, options_menu_y+95, options_menu_x+38, options_menu_y+111);
+	else
+		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
+					  options_menu_x+8, options_menu_y+95, options_menu_x+38, options_menu_y+111);
 
 	if(view_compas)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+75, options_menu_x+38, options_menu_y+91);
+					  options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+75, options_menu_x+38, options_menu_y+91);
+					  options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
 
 	if(view_clock)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+95, options_menu_x+38, options_menu_y+111);
+					  options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+95, options_menu_x+38, options_menu_y+111);
+					  options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
 
 	if(!have_sound)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
+					  options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
 	else if(sound_on)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
+					  options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
+					  options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
 
 	if(!have_music)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
+					  options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
 	else if(music_on)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
+					  options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
+					  options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
 
 	if(combat_grid)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
+					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
+					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
 
 	if(auto_camera)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
+					  options_menu_x+8, options_menu_y+215, options_menu_x+38, options_menu_y+231);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
-	if(show_reflection)
-		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
-	else
-		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
+					  options_menu_x+8, options_menu_y+215, options_menu_x+38, options_menu_y+231);
 
 
 	//video modes
@@ -1647,13 +1652,14 @@ void draw_options_menu()
 	draw_string(options_menu_x+55,options_menu_y+10,"Options",1);
 	draw_string(options_menu_x+45,options_menu_y+35,"Shadows",1);
 	draw_string(options_menu_x+45,options_menu_y+55,"Clouds",1);
-	draw_string(options_menu_x+45,options_menu_y+75,"Compass",1);
-	draw_string(options_menu_x+45,options_menu_y+95,"Clock",1);
-	draw_string(options_menu_x+45,options_menu_y+115,"Sound",1);
-	draw_string(options_menu_x+45,options_menu_y+135,"Music",1);
-	draw_string(options_menu_x+45,options_menu_y+155,"Combat Grid",1);
-	draw_string(options_menu_x+45,options_menu_y+175,"Auto Camera",1);
-	draw_string(options_menu_x+45,options_menu_y+195,"Reflections",1);
+	draw_string(options_menu_x+45,options_menu_y+75,"Reflections",1);
+	draw_string(options_menu_x+45,options_menu_y+95,"Show FPS",1);
+	draw_string(options_menu_x+45,options_menu_y+115,"Compass",1);
+	draw_string(options_menu_x+45,options_menu_y+135,"Clock",1);
+	draw_string(options_menu_x+45,options_menu_y+155,"Sound",1);
+	draw_string(options_menu_x+45,options_menu_y+175,"Music",1);
+	draw_string(options_menu_x+45,options_menu_y+195,"Combat Grid",1);
+	draw_string(options_menu_x+45,options_menu_y+215,"Auto Camera",1);
 
 	draw_string(options_menu_x+225,options_menu_y+10,"Video Modes",1);
 	draw_string(options_menu_x+225,options_menu_y+35,"Full Screen",1);
@@ -1687,26 +1693,30 @@ int check_options_menu()
 		clouds_shadows=!clouds_shadows;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+75 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+91)
-		view_compas=!view_compas;
+		show_reflection=!show_reflection;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+95 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+111)
-		view_clock=!view_clock;
+		show_fps=!show_fps;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+115 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+131)
-		if(sound_on)turn_sound_off();
-		else turn_sound_on();
+		view_compas=!view_compas;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+135 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+151)
-		music_on=!music_on;
+		view_clock=!view_clock;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+155 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+171)
-		combat_grid=!combat_grid;
+		if(sound_on)turn_sound_off();
+		else turn_sound_on();
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+175 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+191)
-		auto_camera=!auto_camera;
+		music_on=!music_on;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+195 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+211)
-		show_reflection=!show_reflection;
+		combat_grid=!combat_grid;
+	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+215 &&
+			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+231)
+		auto_camera=!auto_camera;
+
 	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+35 &&
 			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+51)
 		toggle_full_screen();

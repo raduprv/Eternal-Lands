@@ -90,6 +90,7 @@ extern int have_stencil;
 extern int poor_man;
 extern int show_reflection;
 extern int mouse_limit;
+extern int show_fps;
 
 extern Uint32 cur_time, last_time;
 extern int server_time_stamp;

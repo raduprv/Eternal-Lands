@@ -174,6 +174,7 @@ int selected_3d_object;
 int selected_inventory_object=-1;
 int view_health_bar=1;
 int view_names=1;
+int show_fps=1;
 
 float marble_menu_u_start=(float)160/255;
 float marble_menu_v_start=1.0f-(float)128/255;

@@ -191,10 +191,12 @@ void draw_scene()
 				}
 			else times_FPS_below_3=0;
 		}
-
-	sprintf(str, "FPS: %i",old_fps_average);
-	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(10,0,str,1);
+	if(show_fps)
+		{
+			sprintf(str, "FPS: %i",old_fps_average);
+			glColor3f(1.0f,1.0f,1.0f);
+			draw_string(10,0,str,1);
+		}
 
 	if(find_last_lines_time())
         draw_string(10,20,&display_text_buffer[display_text_buffer_first],max_lines_no);
