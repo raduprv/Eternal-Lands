@@ -386,7 +386,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_KNOWLEDGE_TEXT:
 			{
-				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+100,knowledge_string);
+				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+150,knowledge_string);
 			}
 			break;
 

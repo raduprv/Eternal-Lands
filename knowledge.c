@@ -10,9 +10,10 @@ int knowledge_menu_dragged=0;
 
 knowledge knowledge_list[300];
 
-int page_start = 0;
+int page_start=0;
 
-char knowledge_string[300]="";
+char knowledge_string[400]="";
+char *none="none";
 
 void display_knowledge()
 {
@@ -20,10 +21,21 @@ void display_knowledge()
 	int progress = (125*your_info.research_completed+1)/(your_info.research_total+1);
 	int scroll = (120*page_start)/(300-38);
 	char points_string[16];
-	if(your_info.research_completed==your_info.research_total)
+	char *research_string;
+	if(your_info.research_total && 
+	   (your_info.research_completed==your_info.research_total))
 		strcpy(points_string,"COMPLETE");
 	else
 		sprintf(points_string,"%4i/%-4i",your_info.research_completed,your_info.research_total);
+	if(your_info.researching<300)
+		research_string=knowledge_list[your_info.researching].name;
+	else
+		{
+			research_string=none;
+			points_string[0]='\0';
+			progress=1;
+		}
+
 	//title bar
 	draw_menu_title_bar(knowledge_menu_x,knowledge_menu_y-16,knowledge_menu_x_len);
 	// window drawing
@@ -98,10 +110,10 @@ void display_knowledge()
 	
 	draw_string(knowledge_menu_x+knowledge_menu_x_len-16,knowledge_menu_y+2,"X",1);
 	//draw text
-	draw_string_small(knowledge_menu_x+4,knowledge_menu_y+215,knowledge_string,4);
+	draw_string_small(knowledge_menu_x+4,knowledge_menu_y+210,knowledge_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(knowledge_menu_x+10,knowledge_menu_y+320,"Researching:",1);
-	draw_string_small(knowledge_menu_x+120,knowledge_menu_y+320,knowledge_list[your_info.researching].name,1);
+	draw_string_small(knowledge_menu_x+120,knowledge_menu_y+320,research_string,1);
 	draw_string_small(knowledge_menu_x+355,knowledge_menu_y+320,points_string,1);
 	// Draw knowledges
 	for(i=page_start;i<page_start+38;i++){
@@ -146,14 +158,14 @@ int check_knowledge_interface()
 	   y > 18 && y < 18+16)
 		{
 			if(page_start > 0)
-				page_start -= 4;
+				page_start -= 16;
 			return 1;
 		}
 	if(x > knowledge_menu_x_len-16 && x < knowledge_menu_x_len &&
 	   y > 180 && y < 180+16)
 		{
-			if(page_start < 300-38-4)
-				page_start += 4;
+			if(page_start < 300-38-16)
+				page_start += 16;
 			return 1;
 		}
 	if(x>knowledge_menu_x_len-20)

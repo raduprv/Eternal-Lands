@@ -15,7 +15,7 @@ extern int knowledge_menu_y_len;
 extern int knowledge_menu_dragged;
 
 extern knowledge knowledge_list[300];
-extern char knowledge_string[300];
+extern char knowledge_string[400];
 
 void display_knowledge();
 int knowledge_mouse_over();
