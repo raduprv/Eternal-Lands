@@ -101,24 +101,24 @@ void draw_scene()
         if(i>499)return;//we still don't have ourselves
         main_count++;
 
-        if(fps<5)
+        if(old_fps_average<5)
         	{
         		mouse_rate=1;
         		read_mouse_now=1;
 			}
-        else if(fps<10)
+        else if(old_fps_average<10)
         	{
         		mouse_rate=2;
 			}
-        else if(fps<20)
+        else if(old_fps_average<20)
         	{
         		mouse_rate=4;
 			}
-        else if(fps<30)
+        else if(old_fps_average<30)
         	{
         		mouse_rate=8;
 			}
-        else if(fps<40)
+        else if(old_fps_average<40)
         	{
         		mouse_rate=12;
 			}
