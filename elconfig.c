@@ -80,7 +80,7 @@ void change_vertex_array(int value)
 void change_point_particles(int value)
 {
 	use_point_particles=(value>0);
-	if(use_point_particles)
+	if(!use_point_particles)
 		{
 			log_to_console(c_green2,disabled_point_particles);
 		}
