@@ -162,10 +162,11 @@ void check_mouse_click()
 	if (item_dragged != -1){
 		Uint8 str[10];
 		int quantity = item_list[item_dragged].quantity;
+
 		if(right_click){
-			str[0]=USE_MAP_OBJECT;
-			*((int *)(str+1))=object_under_mouse;
-			*((int *)(str+5))=item_list[item_dragged].pos;
+			str[0]= USE_MAP_OBJECT;
+			*((int *)(str+1))= object_under_mouse;
+			*((int *)(str+5))= item_list[item_dragged].pos;
 			my_tcp_send(my_socket, str, 9);
 			item_dragged = -1;
 			return;
@@ -1036,13 +1037,14 @@ void draw_ingame_interface()
 	if(ground_items_win > 0)
 		{
 			int	old_view= view_ground_items;
-			view_ground_items= get_show_window(items_win);
+
+			view_ground_items= get_show_window(ground_items_items_win);
 			// watch for telling the server we need to close the bag
 			if(old_view && !view_ground_items)
 				{
 					unsigned char protocol_name;
 
-					protocol_name=S_CLOSE_BAG;
+					protocol_name= S_CLOSE_BAG;
 					my_tcp_send(my_socket,&protocol_name,1);
 				}
 		}
