@@ -211,14 +211,14 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 					//choose color for the health
 					if(actor_id->cur_health>=actor_id->max_health/2)
-					glColor3f(0,1,0);	//green life bar
+						glColor3f(0,1,0);	//green life bar
 					else if(actor_id->cur_health>=actor_id->max_health/4)
-					glColor3f(1,1,0);	//yellow life bar
+						glColor3f(1,1,0);	//yellow life bar
 					else glColor3f(1,0,0);	//red life bar
-					sprintf(hp,"%d/%d",actor_id->cur_health,actor_id->max_health);
+					sprintf(hp,"%d/%d", actor_id->cur_health, actor_id->max_health);
 					if(view_health_bar)	off= (0.7*zoom_level*name_zoom/3.0);
-					else off= 0;
-					draw_ingame_alt(-(((float)get_string_width(hp)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off,healtbar_z-(0.05*zoom_level*name_zoom/3.0),hp,1);
+					else off= 0.0;
+					draw_ingame_alt(-(((float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off,healtbar_z-(0.05*zoom_level*name_zoom/3.0),hp,1);
 				}
 			set_font(0);	// back to fixed pitch
 			if(actor_id->ghost)glEnable(GL_BLEND);
