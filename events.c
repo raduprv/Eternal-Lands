@@ -431,9 +431,6 @@ int HandleEvent(SDL_Event *event)
 								//if we have an object attached to us, drop it
 								if(cur_tool==tool_select && selected_3d_object!=-1)
         							{
-										if(ctrl_on)clone_3d_object(selected_3d_object);
-										else selected_3d_object=-1;
-										
 										if(c1){
 											if(c2)
 												objects_list[selected_3d_object]->x_rot=rand()%360;
@@ -445,6 +442,10 @@ int HandleEvent(SDL_Event *event)
 										if(randomheight){
 												objects_list[selected_3d_object]->z_pos=(float)(minh + (int)(((double)(maxh-minh+1) * rand()) / (RAND_MAX+1.0)))/10 ;
 										}
+										if(ctrl_on)clone_3d_object(selected_3d_object);
+										else selected_3d_object=-1;
+										
+									
 									}
 								else
 									{

@@ -16,7 +16,7 @@ int c4=0,c4_x1=100,c4_x2=114,c4_y1=73,c4_y2=87;
 int c5_x1=170,c5_x2=184,c5_y1=133,c5_y2=147;
 
 //buttons
-int minh=0,maxh=0,randomheight=1;
+int minh=0,maxh=0,randomheight=0;
 int b1_x1=168,b1_x2=182,b1_y1=93,b1_y2=107;
 int b2_x1=190,b2_x2=204,b2_y1=93,b2_y2=107;
 int b3_x1=168,b3_x2=182,b3_y1=113,b3_y2=127;
