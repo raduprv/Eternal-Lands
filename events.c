@@ -442,6 +442,9 @@ int HandleEvent(SDL_Event *event)
 											if(c4)
 												objects_list[selected_3d_object]->z_rot=rand()%360;
 										}
+										if(randomheight){
+												objects_list[selected_3d_object]->z_pos=(float)(minh + (int)(((double)(maxh-minh+1) * rand()) / (RAND_MAX+1.0)))/10 ;
+										}
 									}
 								else
 									{
