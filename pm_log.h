@@ -17,12 +17,13 @@ typedef struct
 } afk_struct;
 
 /*!
- * pm_struct
+ * Contains the number of message and the number of people that sent messages while AFK and a
+ * list of all messages that arrived.
  */
 struct pm_struct
 {
-        int msgs;
-        int ppl;
+        int msgs; /*!< number of message that arrived while AFK */
+        int ppl; /*!< number of people that sent a messages while AFK */
         afk_struct * afk_msgs; /*!< array of \see afk_struct elements */
 };
 

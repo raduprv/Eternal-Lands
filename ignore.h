@@ -8,7 +8,7 @@
 
 /*!
  * \name Array size
- *      defines the max. number of entries in \see ignore_list
+ *      defines the max. number of entries in ignore_list
  */
 /*! @{ */
 #define max_ignores 1000

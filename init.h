@@ -139,30 +139,30 @@ typedef struct
 
 }bin_cfg;
 
-extern int ini_file_size;
-extern int have_stencil;
-extern int poor_man;
-extern int show_reflection;
+extern int ini_file_size; /*!< file size of the ini file */
+extern int have_stencil; /*!< flag that indicates whether we have the stencil extension or not. \todo shouldn't this go to gl_init.h to all the other OpenGL related variables? */
+extern int poor_man; /*!< this flag, if set to true, indicates we are running on a really poor machine */
+extern int show_reflection; /*!< flag that indicates whether to display reflections or not */
 extern int mouse_limit;
-extern int show_fps;
-extern int limit_fps;
+extern int show_fps; /*!< flag that indicates whether to display FPS or not */
+extern int limit_fps; /*!< contains the max FPS number we should use. If this is 0, the highest possible number will be used. */
 extern int item_window_on_drop;
 extern int no_adjust_shadows;
-extern int clouds_shadows;
+extern int clouds_shadows; /*!< flag that indicates whether the shadows of clouds should be displayed or not */
 extern int compass_direction;
-extern char configdir[256];
-extern char datadir[256];
+extern char configdir[256]; /*!< the default directory where we look for configuration files */
+extern char datadir[256]; /*!< the default directory where we look for data files (aka installation dir) */
 
-extern int show_stats_in_hud;
-extern int show_help_text;
+extern int show_stats_in_hud; /*!< flag that indicates whether we should display the stats in the hud or not */
+extern int show_help_text; /*!< flag that inidicates whether to show the help text or not. \todo does this mean to display the #hints? */
 
-extern int disconnected;
-extern int exit_now;
+extern int disconnected; /*!< indicates whether we are currently connected or not */
+extern int exit_now; /*!< a flag that indicates we should exit the programm immediately */
 extern int have_url;
-extern char current_url[160];
-extern char broswer_name[120];
+extern char current_url[160]; /*!< contains the last URL that was opened by hitting F2 */
+extern char broswer_name[120]; /*!< a buffer that contains the name of the browser we should use */
 
-extern char lang[10];
+extern char lang[10]; /*!< contains the identifier for the current language. \todo Shouldn't this go into translate.h? */
 
 /*!
  * \ingroup init
@@ -288,8 +288,8 @@ typedef struct{
 	int id;
 	char *fn;
 }e3d_list;
-extern e3d_list *e3dlist;
-extern int e3dlistsize;
+extern e3d_list *e3dlist; /*!< a global list of e3d_list objects. */
+extern int e3dlistsize; /*!< the current size of \see e3dlist */
 
 extern int video_mode_set;
 

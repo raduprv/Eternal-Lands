@@ -10,34 +10,38 @@ extern GLuint paper1_text;
 
 extern float cx,cy,cz;
 extern float rx,ry,rz;
-extern float camera_rotation_speed;
+extern float camera_rotation_speed; /*!< current speed for rotations of the camera */
 extern int camera_rotation_frames;
 extern float camera_tilt_speed;
 extern int camera_tilt_frames;
 extern int normal_animation_timer;
-extern double camera_x_speed;
+extern double camera_x_speed; /*!< speed of the camera in x direction */
 extern int camera_x_frames;
-extern double camera_y_speed;
+extern double camera_y_speed; /*!< speed of the camera in y direction */
 extern int camera_y_frames;
-extern double camera_z_speed;
+extern double camera_z_speed; /*!< speed of the camera in z direction */
 extern int camera_z_frames;
-extern float fine_camera_rotation_speed;
-extern float normal_camera_rotation_speed;
-extern float zoom_level;
-extern int camera_zoom_dir;
+extern float fine_camera_rotation_speed; /*!< configurable fine grained speed for rotating the camera */
+extern float normal_camera_rotation_speed; /*!< configurable normal speed for rotating the camera */
+extern float zoom_level; /*!< current displayed zoom level */
+extern int camera_zoom_dir; /*!< direction of where the zoomed camera points to */
 extern int camera_zoom_frames;
 extern float new_zoom_level;
-extern float scene_mouse_x;
-extern float scene_mouse_y;
+extern float scene_mouse_x; /*!< x coordinate of the mouse position */
+extern float scene_mouse_y; /*!< y coordinate of the mouse position */
 
-extern float terrain_scale;
-extern int last_texture;
+extern float terrain_scale; /*!< scaling factor for terrain objects */
+extern int last_texture; /*!< id of the last used texture */
 
-extern float clouds_movement_u;
-extern float clouds_movement_v;
-extern Uint32 last_clear_clouds;
+/*! \name texture offset for movement of clouds. 
+ * @{ */
+extern float clouds_movement_u; /*!< offset for the u coordinate */
+extern float clouds_movement_v; /*!< offset for the v coordinate */
+/*! @} */
 
-extern int read_mouse_now;
+extern Uint32 last_clear_clouds; /*!< timestamp when the clouds cache gets cleared last time */
+
+extern int read_mouse_now; /*!< flag to indicate to reread the status of the mouse */
 
 extern GLenum base_unit,detail_unit,shadow_unit;
 

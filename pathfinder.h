@@ -44,9 +44,9 @@ typedef struct
 	int count; /*!< number of elements in tiles */
 } PF_OPEN_LIST;
 
-extern PF_TILE *pf_tile_map;
-extern PF_TILE *pf_dst_tile;
-extern int pf_follow_path;
+extern PF_TILE *pf_tile_map; /*!< a list of \see PF_TILE structures that form the path */
+extern PF_TILE *pf_dst_tile; /*!< the \see PF_TILE struct that defines our destination tile of the path */
+extern int pf_follow_path; /*!< flag, that indicates whether we should follow the path or not */
 
 /*!
  * \ingroup move_actors

@@ -41,12 +41,18 @@
  */
 typedef struct
 {
-	float u_start;
-	float u_end;
-	float v_start;
-	float v_end;
-	float x_size;
-	float y_size;
+    /*! \name start and end coordinates of the texture @{ */
+	float u_start; /*!< start position of the u coordinate */
+	float u_end; /*!< end position of the u coordinate */
+	float v_start; /*!< start position of the v coordinate */
+	float v_end; /*!< end position of the v coordiante */
+    /*! @} */
+
+    /*! \name size of the 2d object @{ */    
+	float x_size; /*!< size in x direction */
+	float y_size; /*!< size in y direction */
+    /*! @} */
+
 	float alpha_test; /*!< Use alpha?*/
 	int object_type; /*!< Is this a ground, fence or plant object?
 			   * ground: don't change rotation
@@ -61,14 +67,21 @@ typedef struct
  */
 typedef struct
 {
-	char file_name[80];
+	char file_name[80];    /*!< name of the file that contains the definition of the 2d object */
+    
+    /*! \name position of the object @{ */
 	float x_pos;
 	float y_pos;
 	float z_pos;
+    /*! @} */
+
+    /*! \name rotation of the object @{ */
 	float x_rot;
 	float y_rot;
 	float z_rot;
-	short sector;
+    /*! @} */
+
+	short sector;  /*!< the \see sector in which this object should occur */
 	obj_2d_def *obj_pointer; /**< Points to the 2d object type in the obj_2d_def list */
 }obj_2d;
 
@@ -77,8 +90,8 @@ typedef struct
  */
 typedef struct
 {
-	char file_name[128];
-	obj_2d_def *obj_2d_def_id;
+	char file_name[128];   /*!< the filename of the object */
+	obj_2d_def *obj_2d_def_id; /*!< a pointer to the header structure of this object */
 }obj_2d_cache_struct;
 
 extern obj_2d_cache_struct obj_2d_def_cache[max_obj_2d_def]; /*!< The 2d object cache array - holds all loaded 2d object definitions*/
@@ -87,7 +100,7 @@ extern obj_2d *obj_2d_list[max_obj_2d]; /*!< The 2d object array - holds all 2d 
 
 extern int map_meters_size_x;
 extern int map_meters_size_y;
-extern float texture_scale;
+extern float texture_scale; /*!< scaling factor for textures */
 
 /*!
  * \ingroup	display_2d

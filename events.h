@@ -20,7 +20,7 @@ enum {
 extern int shift_on; /*!< flag indicating whether the Shift key is pressed. */
 extern int alt_on; /*!< flag indicating whether the Alt key is pressed. */
 extern int ctrl_on; /*!< flag indicating whether the Ctrl key is pressd. */
-extern SDL_TimerID event_timer_clock;
+extern SDL_TimerID event_timer_clock; /*!< a timer for the clock events */
 
 /*!
  * \ingroup event_handle
@@ -73,9 +73,9 @@ typedef struct
     char text[512]; /*!< text of the marking */
 }marking;
 
-extern int adding_mark;
-extern int mark_x, mark_y;
-extern int max_mark;
-extern marking marks[200];
+extern int adding_mark; /*!< flag that indicates we are currently adding a mark to a map */
+extern int mark_x, mark_y; /*!< map coordinates of the position of the mark */
+extern int max_mark; /*!< max. number of marks we can handle */
+extern marking marks[200]; /*!< a global array of marks */
 
 #endif	// __EVENTS_H__

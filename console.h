@@ -6,7 +6,7 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
-extern char	auto_open_encyclopedia;
+extern char	auto_open_encyclopedia; /*!< flag, that indicates whether the encyclopedia window should be opened automatically upon startup of the client */
 
 /*!
  * \brief Clears the screen.

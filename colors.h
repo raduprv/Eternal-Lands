@@ -26,7 +26,7 @@ typedef struct
 
 } color_rgb;
 
-extern color_rgb colors_list[30];
+extern color_rgb colors_list[30]; /*!< the global list of colors we use */
 
 /*!
  * \ingroup other

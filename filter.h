@@ -9,14 +9,14 @@
 #include	"ignore.h"	/* just in case it hasn't been included */
 
 /*!
- * \name    max. number of filters for \see filter_list
+ * \name    max. number of filters for filter_list
  * @{
  */
 #define max_filters 1000
 /*! @} */
 
 /*!
- * a single entry in the \see filter_list
+ * a single entry in the filter_list
  */
 typedef struct
 {

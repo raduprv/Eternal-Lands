@@ -7,7 +7,7 @@
 #define __INTERFACE_H__
 
 extern int have_a_map;
-extern int auto_camera;
+extern int auto_camera; /*!< if this is true, we are using the auto camera */
 
 /*!
  * \name Action types
@@ -21,21 +21,26 @@ extern int auto_camera;
 #define action_attack 5
 /*! @} */
 
-extern int action_mode;
+extern int action_mode; /*!< contains the current action type */
 
-extern int mouse_x;
-extern int mouse_y;
-extern int mouse_delta_x;
-extern int mouse_delta_y;
+/*! \name mouse movement coordinates 
+ * @{ */
+extern int mouse_x; /*!< current x coordinate of the mouse */
+extern int mouse_y; /*!< current y coordinate of the mouse */
+extern int mouse_delta_x; /*!< current difference between the last saved mouse_x and the current mouse positions x coordinate */
+extern int mouse_delta_y; /*!< current difference between the last saved mouse_y and the current mouse positions y coordinate */
 
-extern int right_click;
-extern int middle_click;
-extern int left_click;
+/*! \name mouse buttons 
+ * @{ */
+extern int right_click; /*!< indicates the right mouse button was clicked */
+extern int middle_click; /*!< indicates the middle mouse button was clicked */
+extern int left_click; /*!< indicates the left mouse button was clicked */
+/*! @} */
 
-extern int view_health_bar;
-extern int view_names;
-extern int view_hp;
-extern int view_chat_text_as_overtext;
+extern int view_health_bar; /*!< indicates whether we should display the health bar or not */
+extern int view_names; /*!< indicates whether the names of actors should be displayed or not */
+extern int view_hp; /*!< indicates whether the current/max material points of an actor should be displayed or not */
+extern int view_chat_text_as_overtext; /*!< if this is true, then any text an actor is saying will be additionally displayed in a bubble over its head */
 
 extern int login_screen_menus;
 
@@ -53,15 +58,15 @@ extern int login_screen_menus;
 #define interface_rules 7
 /*! @} */
 
-extern char interface_mode;
-extern char username_box_selected;
-extern char password_box_selected;
+extern char interface_mode; /*!< current interface mode we are in */
+extern char username_box_selected; /*!< true, if the cursor is currently in the username input field */
+extern char password_box_selected; /*!< true, if the cursor is currently in the password input field */
 
-extern char username_str[16];
-extern char password_str[16];
-extern char display_password_str[16];
-extern int username_text_lenght;
-extern int password_text_lenght;
+extern char username_str[16]; /*!< the username of the actor */
+extern char password_str[16]; /*!< the password of the actor */
+extern char display_password_str[16]; /*!< a string that will be displayed when entering a password */
+extern int username_text_lenght; /*!< actual length of the \see username_str */
+extern int password_text_lenght; /*!< actual length of the \see password_str */
 
 extern int font_text;
 extern int cons_text;
@@ -70,8 +75,8 @@ extern int hud_text;
 extern int open_text;
 extern int login_text;
 
-extern int selected_3d_object;
-extern int selected_inventory_object;
+extern int selected_3d_object; /*!< if a 3d object is selected by the actor, this variable will contain the id of this object */
+extern int selected_inventory_object; /*!< if an inventory object is selected by the actor, this variable will contain the id of this object */
 
 /*!
  * a flag for a mode, that show whether a mode is supported and/or selected.
@@ -294,17 +299,30 @@ int switch_to_game_map();
  */
 void switch_from_game_map();
 
+#ifdef WINDOW_CHAT
 /*!
  * \ingroup interface_map
  * \brief
  *
  *      Detail
  *
+ * \param map
+ * \param mouse_mini
  * \sa draw_scene
+ * \callgraph
  */
-#ifdef WINDOW_CHAT
 void draw_game_map (int map, int mouse_mini);
 #else
+/*!
+ * \ingroup interface_map
+ * \brief
+ *
+ *      Detail
+ *
+ * \param map
+ * \sa draw_scene
+ * \callgraph
+ */
 void draw_game_map (int map);
 #endif
 
@@ -372,7 +390,7 @@ struct draw_map{
        unsigned short y_end;       
 };
 
-extern int cur_map;
+extern int cur_map; /*!< id of the map we are currently on */
 extern GLuint cont_text;
 extern GLuint legend_text;
 extern GLuint map_text;

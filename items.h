@@ -46,10 +46,10 @@ typedef struct
 typedef enum {
 	ITEM_REAGENT           = 1, /*!< can be used in magic */
 	ITEM_RESOURCE          = 2, /*!< can be used to manufacture */
-	ITEM_STACKABLE         = 4,
-	ITEM_INVENTORY_USABLE  = 8,
+	ITEM_STACKABLE         = 4, /*!< the item is stackable */
+	ITEM_INVENTORY_USABLE  = 8, /*!< item can be used with inventory */
 	ITEM_TILE_USABLE       = 16,
-	ITEM_PLAYER_USABLE     = 32,
+	ITEM_PLAYER_USABLE     = 32, /*!< item is usable by players */
 	ITEM_OBJECT_USABLE     = 64,
 	ITEM_ON_OFF            = 128,
 } item_definition_flags;
@@ -78,7 +78,7 @@ extern char other_player_trade_name[20]; /*!< playername of the trade partner in
 
 extern int item_action_mode;
 
-extern int view_ground_items;
+extern int view_ground_items; /*!< flag that indicates whether we should display ground items or not */
 extern int no_view_my_items;
 
 /*!
@@ -119,6 +119,8 @@ extern int trade_menu_x_len;
 extern int trade_menu_y_len;
 //extern int trade_menu_dragged;
 
+/*! \name text fields for items 
+ * @{ */
 extern int items_text_1;
 extern int items_text_2;
 extern int items_text_3;
@@ -129,6 +131,7 @@ extern int items_text_7;
 extern int items_text_8;
 extern int items_text_9;
 extern int items_text_10;
+/*! @} */
 
 extern int item_dragged;
 

@@ -29,7 +29,7 @@ extern Uint32 last_server_message_time; /*!< timestamp of the last server messag
 extern int lines_to_show; /*!< number of lines to show at once */
 extern int max_lines_no;
 
-extern char console_mode;
+extern char console_mode; /*!< flag that indicates whether we are in console mode or not */
 extern char not_from_the_end_console;
 
 extern int log_server; /*!< flag stating whether to log server messages or not */

@@ -6,107 +6,170 @@
 #ifndef __file_md2_H__
 #define __file_md2_H__
 
+/*!
+ * Contains the header information of an MD2 file
+ */
 typedef struct
 {
-	int magic;
-	int version;
-	int skinWidth;
-	int skinHeight;
-	int frameSize;
-	int numSkins;
-	int numVertices;
-	int numTexCoords;
-	int numFaces;
-	int numGlCommands;
-	int numFrames;
-	int offsetSkins;
-	int offsetTexCoords;
-	int offsetFaces;
-	int offsetFrames;
-	int offsetGlCommands;
-	int offsetEnd;
+	int magic; /*!< file magic number */
+	int version; /*!< MD2 version number */
+    
+    /*! \name Dimensions of the skin 
+     * @{ */
+	int skinWidth; /*!< width of the skin */
+	int skinHeight; /*!< height of the skin */
+    /*! @} */
+    
+	int frameSize; /*!< size of the frame */
+    
+    /*! \name Number of different objects declared in the file 
+     * @{ */
+	int numSkins; /*!< number of skins declared in the file */
+	int numVertices; /*!< number of vertices declared in the file */
+	int numTexCoords; /*!< number of texture coordinates declared in the file */
+	int numFaces; /*!< number of faces declared in the file */
+	int numGlCommands; /*!< number of OpenGL commands declared in the file */
+	int numFrames; /*!< number of frames declares in the file */
+    /*! @} */
+    
+    /*! \name Offsets of the different declared objects into the file. The offset is started after the header declaration. 
+     * @{ */
+	int offsetSkins; /*!< offset where skin declarations start */
+	int offsetTexCoords; /*!< offset where texture coordinate declarations start */
+	int offsetFaces; /*!< offset where face declarations start */
+	int offsetFrames; /*!< offset where frame declarations start */
+	int offsetGlCommands; /*!< offset where OpenGL command declarations start */
+	int offsetEnd; /*!< offset after the header, where the file ends */
+    /*! @} */
+  
 } header_file_md2;
 
+/*!
+ * A vertex file structure for a MD2 file
+ */
 typedef struct
 {
-	unsigned char vertex[3];
-	char lightNormalIndex;
+	unsigned char vertex[3]; /*!< x, y and z coordinates for the vertex */
+	char lightNormalIndex; /*!< index of the light normal used by this vertex */
 } vertex_file_md2;
 
+/*!
+ * A frame file structure for a MD2 file
+ */
 typedef struct
 {
-	float scale[3];
-	float translate[3];
-	char name[16];
-	vertex_file_md2 vertices[1];
+	float scale[3]; /*!< a scale factor in x, y and z for the frame */
+	float translate[3]; /*!< a translation vector in x, y and z for the frame */
+	char name[16]; /*!< the name of the frame */
+	vertex_file_md2 vertices[1]; /*!< an array of vertices attached to this frame */
 } frame_file_md2;
 
+/*!
+ * A face file structure for a MD2 file. A face consists of three vertices and a texture coordinate.
+ */
 typedef struct
 {
-	short vertexIndices[3];
-	short textureIndices[3];
+	short vertexIndices[3]; /*!< indices of the three vertices that compose the face */
+	short textureIndices[3]; /*!< indices of the three textures used at each the vertices */
 } faces_file_md2;
 
+/*!
+ * A texture file coordinate for a MD2 file.
+ */
 typedef struct
 {
-	short u, v;
+	short u, v; /*!< u and v coordinates of the texture */
 } textureCoordinate_file_md2;
 
+/*!
+ * A bounding box file structure for a MD2 file
+ */
 typedef struct
 {
+    /*! \name Minimum value of the bounding box in x, y and z direction 
+     * @{ */
 	float min_x;
 	float min_y;
 	float min_z;
+    /*! @} */
+    
+    /*! \name Maximum value of the bounding box in x, y and z direction 
+     * @{ */
 	float max_x;
 	float max_y;
 	float max_z;
-
+    /*! @} */
+    
 }bounding_box_file_md2;
 
 
 //now, we put our own structures (on how we'll store the md2 file)
+
+/*!
+ * The face structure we use for MD2 faces
+ */
 typedef struct
 {
-	short a;//a triangle
-	short b;//b triangle
-	short c;//c triangle
-	short at;//a texture
-	short bt;//b texture
-	short ct;//b texture
+	short a; /*!< a triangle */
+	short b; /*!< b triangle */
+	short c; /*!< c triangle */
+	short at; /*!< a texture */
+	short bt; /*!< b texture */
+	short ct; /*!< c texture */
 } face_md2;
 
+/*!
+ * The vertex structure we use for MD2 vertices
+ */
 typedef struct
 {
-	float x;
-	float y;
-	float z;
+	float x; /*!< x coordinate of the vertex */
+	float y; /*!< y coordinate of the vertex */
+	float z; /*!< z coordinate of the vertex */
 } vertex_md2;
 
+/*!
+ * The texture coordinates we use for MD2 texture coordinates
+ */
 typedef struct
 {
-	float u;
-	float v;
+	float u; /*!< u coordinate of the texture */
+	float v; /*!< v coordainte of the texture */
 } text_coord_md2;
 
+/*!
+ * The frame structure we use for MD2 frames
+ */
 typedef struct
 {
-	char name[16];
-	vertex_md2 *vertex_pointer;
-	bounding_box_file_md2 box;
-	vertex_md2 *vertex_array;
+	char name[16]; /*!< the name of the frame */
+	vertex_md2 *vertex_pointer; /*!< a pointer to the associated vertex */
+	bounding_box_file_md2 box; /*!< the bounding box for this frame */
+	vertex_md2 *vertex_array; /*!< an array of vertices that make up this frame */
 } frame_md2;
 
+/*!
+ * The MD2 structure we use
+ */
 typedef struct
 {
-	Uint32 numVertices;
-	Uint32 numTexCoords;
-	Uint32 numFaces;
-	Uint32 numFrames;
-	text_coord_md2 *offsetTexCoords;
-	face_md2 *offsetFaces;
-	frame_md2 *offsetFrames;
-	text_coord_md2	*text_coord_array;
-    cache_item_struct	*cache_ptr;
+    /*! \name Number of different fields used 
+     * @{ */
+	Uint32 numVertices; /*!< number of vertices */
+	Uint32 numTexCoords; /*!< number of texture coordinates */
+	Uint32 numFaces; /*!< number of faces */
+	Uint32 numFrames; /*!< number of frames */
+    /*! @} */
+    
+    /*! \name Offsets for differend fields used. Note that vertices don't have an offset, as they immediately start after the header. 
+     * @{ */
+	text_coord_md2 *offsetTexCoords; /*!< offset of the texture coordinates */
+	face_md2 *offsetFaces; /*!< offset of the faces */
+	frame_md2 *offsetFrames; /*!< offset of the frames */
+    /*! @} */
+    
+	text_coord_md2	*text_coord_array; /*!< an array of texture coordinates in the MD2 */
+    cache_item_struct	*cache_ptr; /*!< a pointer to a cache item for this MD2 */
 	char file_name[128];
 }md2;
 

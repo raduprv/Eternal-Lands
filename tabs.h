@@ -19,14 +19,14 @@
 
 extern int use_tabbed_windows; /*!< flag that indicates whether we use tabbed windows or the old separate windows. Can be set via commandline and in el.ini. */
 
-/*! \name Windows handlers
+/*! \name windows handlers 
  * @{ */
 extern int tab_stats_win; /*!< handler for the stats tabbed window */
 /* @} */
 
 extern int tab_stats_collection_id; /*!< pointer to the \see tab_collection for statistics windows */
 
-/*! \name Windows handlers
+/*! \name windows handlers 
  * @{ */
 extern int tab_help_win; /*!< handler for the help tabbed window */
 /* @} */

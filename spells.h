@@ -36,10 +36,10 @@ extern int sigil_menu_x_len;
 extern int sigil_menu_y_len;
 //extern int sigil_menu_dragged;
 
-extern int sigils_text;
-extern Uint8 spell_text[256];
+extern int sigils_text; /*!< an index for the sigils text */
+extern Uint8 spell_text[256]; /*!< buffer for the spell text */
 extern int sigils_we_have; /*!< the number of sigils the player has */
-extern int have_error_message;
+extern int have_error_message; /*!< flag that indicates whether we got an error message */
 
 /*!
  * \ingroup spells_win

@@ -79,16 +79,20 @@ extern GLfloat light_6_dist;
 #define global_lights_no 60
 /*! @} */
 
-extern GLfloat global_lights[global_lights_no][4];
+extern GLfloat global_lights[global_lights_no][4]; /*!< stores the lights that are global used */
+
+/*! \name Sky lights arrays 
+ * @{ */
 extern GLfloat sky_lights_c1[global_lights_no*2][4];
 extern GLfloat sky_lights_c2[global_lights_no*2][4];
 extern GLfloat sky_lights_c3[global_lights_no*2][4];
 extern GLfloat sky_lights_c4[global_lights_no*2][4];
+/*! @} */
 
-extern sun sun_pos[60*3];
+extern sun sun_pos[60*3]; /*!< an array of sun positions */
 
 extern GLfloat sun_ambient_light[];
-extern int sun_use_static_position;
+extern int sun_use_static_position; /*!< flag that indicates whether the sun should stay on a static position or move over the sky */
 
 /*!
  * \name Lights limits
@@ -99,9 +103,9 @@ extern int sun_use_static_position;
 
 extern light *lights_list[max_lights]; /*!< global lights list */
 
-extern char lights_on;
-extern unsigned char light_level;
-extern short game_minute;
+extern char lights_on; /*!< this indicates whether lights are on or not */
+extern unsigned char light_level; /*!< the light level */
+extern short game_minute; /*!< the current game minute */
 
 /*!
  * \ingroup lights

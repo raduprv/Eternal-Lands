@@ -13,7 +13,6 @@
  * A simple window handler setup to reduce the code needed to do windows
  *
  */
-
 typedef	struct	{
 	int	window_id;	/*!< the unique window id */
 	int	order;		/*!< the order the windows are to be displayed (layering) */
@@ -264,9 +263,10 @@ int		drag_windows(int mx, int my, int dx, int dy);
  *
  *      This event handler gets called when a keypress is reported in a window. The coordinates \a mx and \a my denotes the (x,y) position of the mouse within the window.
  *
- * \param x       x coordinate of the mouse position where the click occurred
- * \param y       y coordinate of the mouse position where the click occurred
- * \param key     the key or key combination that is pressed
+ * \param x         x coordinate of the mouse position where the click occurred
+ * \param y         y coordinate of the mouse position where the click occurred
+ * \param key       the key or key combination that is pressed
+ * \param unikey    
  * \retval int
  * \callgraph
  */
@@ -570,6 +570,7 @@ int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for 
  * \param x
  * \param y
  * \param key
+ * \param unikey
  * \retval int
  * \callgraph
  */

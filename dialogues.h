@@ -11,9 +11,9 @@
  */
 #define MAX_RESPONSES 40 /*!< max. number of response entries in \see dialogue_responces */
 
-extern char dialogue_string[2048];
-extern char npc_name[20];
-extern int cur_portrait;
+extern char dialogue_string[2048]; /*!< buffer for strings in a dialogue */
+extern char npc_name[20]; /*!< buffer for the NPCs name */
+extern int cur_portrait; /*!< pointer to the portrait used by a particular NPC */
 
 /*!
  * \name portrait textures
@@ -27,19 +27,18 @@ extern int portraits5_tex;
 /*! @} */
 
 /*!
- * response structure
+ * response structure used in dialogues with NPCs. It contains the data of a response from some NPC.
  */
 typedef struct{
 	char text[200]; /*!< text of the response */
-    /*!
-     * \name response coordinates
-     */
-    /*! @{ */
+
+    /*! \name response coordinates @{ */
 	int x_start;
 	int y_start;
 	int x_len;
 	int y_len;
     /*! @} */
+
 	int to_actor; /*!< id of the actor to which this response is directed */
 	int response_id; /*!< unique id of the response */
 	int in_use; /*!< flag whether this response is in use or not */
@@ -48,10 +47,8 @@ typedef struct{
 
 extern response dialogue_responces[MAX_RESPONSES];
 
-/*!
- * \name windows handlers
- */
-/*! @{ */
+/*! \name windows handlers 
+ * @{ */
 extern int dialogue_win; /*!< dialogue windows handler */
 /*! @} */
 

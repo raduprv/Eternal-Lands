@@ -37,6 +37,9 @@ documentation and/or software.
 
 typedef unsigned long UINT4;
 
+/*!
+ * The MD5 structure used to generate MD5 hash values
+ */
 typedef struct
 {
   UINT4 state[4];
