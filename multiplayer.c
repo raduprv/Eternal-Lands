@@ -622,17 +622,28 @@ int recvpacket()
 {
 	int len, total, size;
 	int i;
-	for(i=0;i<4096;i++)in_data[i]=0;
+	//for(i=0;i<4096;i++)in_data[i]=0;
+	memset(in_data, 4096, 0);
 
 	total=SDLNet_TCP_Recv(my_socket, in_data, 3);
 	if(total==-1)return 0;
 	if(total<3)
 		{
-			if(total > 0)log_to_console(c_red2,"Packet under run ... data lost!");
-			return -1; // didn't even get 3 bytes???
+			if(total > 0)log_to_console(c_red2,"Packet underrun ... data lost!");
+			return 0; // didn't even get 3 bytes???
 		}
 
 	size=(*((short *)(in_data+1)))+2;
+	if(size >= 4096-3){	//watch for fatal errors
+		if(total > 0)log_to_console(c_red2,"Packet overrun ... data lost!");
+		while(total<size) {
+			len=SDLNet_TCP_Recv(my_socket, in_data, (size-total > 4096)?4096:size-total);
+			if(len<=0) return 0; // Disconnected?
+			total+=len;
+		}
+		return 0;
+	}
+	//see if more data needs to be read
 	while(total<size) {
 		len=SDLNet_TCP_Recv(my_socket, in_data+total, size-total);
 		if(len<=0) return 0; // Disconnected?
