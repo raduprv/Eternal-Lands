@@ -265,71 +265,67 @@ int get_frame_number(const md2 *model_data, const char *cur_frame)
 void draw_model(md2 *model_data,char *cur_frame, int ghost)
 {
 	int frame;
+	int numFaces;
 
 	frame = get_frame_number(model_data, cur_frame);
-	if (frame >= 0)
-		{
-			int numFaces;
+	if(frame < 0)	return;
 
-			numFaces=model_data->numFaces;
-			check_gl_errors();
-			glColor3f(1.0f, 1.0f, 1.0f);
+	numFaces=model_data->numFaces;
+	check_gl_errors();
+	glColor3f(1.0f, 1.0f, 1.0f);
 #ifdef	USE_VERTEXARRAYS
-			if(have_vertex_array)
-				{
-					//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-					glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
-					//glEnableClientState(GL_VERTEX_ARRAY);
-					glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
-					check_gl_errors();
-					if(have_compiled_vertex_array)glLockArraysEXT(0, numFaces*3);
-					glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
-					if(have_compiled_vertex_array)glUnlockArraysEXT();
-					//glDisableClientState(GL_VERTEX_ARRAY);
-					//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-					//check_gl_errors();
-				}
-			else
-#endif	//USE_VERTEXARRAYS
-				{
-					int i;	//,j;
-					text_coord_md2 *offsetTexCoords;
-					face_md2 *offsetFaces;
-					vertex_md2 *vertex_pointer=NULL;
-
-					//setup
-					glBegin(GL_TRIANGLES);
-					vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
-					offsetFaces=model_data->offsetFaces;
-					offsetTexCoords=model_data->offsetTexCoords;
-					//draw each triangle
-					for(i=0;i<numFaces;i++)
-						{
-							float x,y,z;
-
-							glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
-							x=vertex_pointer[offsetFaces[i].a].x;
-							y=vertex_pointer[offsetFaces[i].a].y;
-							z=vertex_pointer[offsetFaces[i].a].z;
-							glVertex3f(x,y,z);
-
-							glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
-							x=vertex_pointer[offsetFaces[i].b].x;
-							y=vertex_pointer[offsetFaces[i].b].y;
-							z=vertex_pointer[offsetFaces[i].b].z;
-							glVertex3f(x,y,z);
-
-							glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
-							x=vertex_pointer[offsetFaces[i].c].x;
-							y=vertex_pointer[offsetFaces[i].c].y;
-							z=vertex_pointer[offsetFaces[i].c].z;
-							glVertex3f(x,y,z);
-						}
-					glEnd();
-				}
-				check_gl_errors();
+	if(have_vertex_array)
+		{
+			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
+			//glEnableClientState(GL_VERTEX_ARRAY);
+			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
+			check_gl_errors();
+			if(have_compiled_vertex_array)glLockArraysEXT(0, numFaces*3);
+			glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
+			if(have_compiled_vertex_array)glUnlockArraysEXT();
+			//glDisableClientState(GL_VERTEX_ARRAY);
+			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			//check_gl_errors();
 		}
-	// error condition already handled in subroutine
+	else
+#endif	//USE_VERTEXARRAYS
+		{
+			int i;	//,j;
+			text_coord_md2 *offsetTexCoords;
+			face_md2 *offsetFaces;
+			vertex_md2 *vertex_pointer=NULL;
+				//setup
+			glBegin(GL_TRIANGLES);
+			vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
+			offsetFaces=model_data->offsetFaces;
+			offsetTexCoords=model_data->offsetTexCoords;
+			//draw each triangle
+			for(i=0;i<numFaces;i++)
+				{
+					float x,y,z;
+
+					glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+					x=vertex_pointer[offsetFaces[i].a].x;
+					y=vertex_pointer[offsetFaces[i].a].y;
+					z=vertex_pointer[offsetFaces[i].a].z;
+					glVertex3f(x,y,z);
+
+					glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+					x=vertex_pointer[offsetFaces[i].b].x;
+					y=vertex_pointer[offsetFaces[i].b].y;
+					z=vertex_pointer[offsetFaces[i].b].z;
+					glVertex3f(x,y,z);
+
+					glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+					x=vertex_pointer[offsetFaces[i].c].x;
+					y=vertex_pointer[offsetFaces[i].c].y;
+					z=vertex_pointer[offsetFaces[i].c].z;
+					glVertex3f(x,y,z);
+				}
+			glEnd();
+		}
+	check_gl_errors();
 }
 
 
@@ -619,14 +615,12 @@ void add_actor_from_server(char * in_data)
 }
 
 
-
-
-void draw_interface_body_part(md2 *model_data,float scale)
+/*
+void draw_interface_body_part(md2 *model_data)
 {
-	int i,j;
-	float x,y,z;
-	char *dest_frame_name;
-	int numFrames;
+	int i;
+	//char *dest_frame_name;
+	//int numFrames;
 	int numFaces;
 	text_coord_md2 *offsetTexCoords;
 	face_md2 *offsetFaces;
@@ -634,57 +628,44 @@ void draw_interface_body_part(md2 *model_data,float scale)
 	vertex_md2 *vertex_pointer=NULL;
 
 	numFaces=model_data->numFaces;
-	numFrames=model_data->numFrames;
+	//numFrames=model_data->numFrames;
 	offsetFaces=model_data->offsetFaces;
 	offsetTexCoords=model_data->offsetTexCoords;
 	offsetFrames=model_data->offsetFrames;
 
 
 	//now, go and find the current frame
-	i=0;
-	while(i<numFrames)
-		{
-			dest_frame_name=(char *)&offsetFrames[i].name;
-			//dest_frame_name=offsetFrames[i].name;
-			if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
-				{
-					vertex_pointer=offsetFrames[i].vertex_pointer;
-					break;
-				}
-			i++;
-		}
-
-
-	if(vertex_pointer==NULL)return;
-
+	i=	get_frame_number(model_data, "idle01");
+	if (i < 0)	return;
 
 	glColor3f(1.0f,1.0f,1.0f);
+	vertex_pointer=offsetFrames[i].vertex_pointer;
 	glBegin(GL_TRIANGLES);
-	for(j=0;j<numFaces;j++)
+	for(i=0;i<numFaces;i++)
 		{
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].at].u,offsetTexCoords[offsetFaces[j].at].v);
-			x=vertex_pointer[offsetFaces[j].a].x*scale;
-			y=vertex_pointer[offsetFaces[j].a].y*scale;
-			z=vertex_pointer[offsetFaces[j].a].z*scale;
+			float x,y,z;
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+			x=vertex_pointer[offsetFaces[i].a].x;
+			y=vertex_pointer[offsetFaces[i].a].y;
+			z=vertex_pointer[offsetFaces[i].a].z;
 			glVertex3f(x,y,z);
 
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].bt].u,offsetTexCoords[offsetFaces[j].bt].v);
-			x=vertex_pointer[offsetFaces[j].b].x*scale;
-			y=vertex_pointer[offsetFaces[j].b].y*scale;
-			z=vertex_pointer[offsetFaces[j].b].z*scale;
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+			x=vertex_pointer[offsetFaces[i].b].x;
+			y=vertex_pointer[offsetFaces[i].b].y;
+			z=vertex_pointer[offsetFaces[i].b].z;
 			glVertex3f(x,y,z);
 
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].ct].u,offsetTexCoords[offsetFaces[j].ct].v);
-			x=vertex_pointer[offsetFaces[j].c].x*scale;
-			y=vertex_pointer[offsetFaces[j].c].y*scale;
-			z=vertex_pointer[offsetFaces[j].c].z*scale;
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+			x=vertex_pointer[offsetFaces[i].c].x;
+			y=vertex_pointer[offsetFaces[i].c].y;
+			z=vertex_pointer[offsetFaces[i].c].z;
 			glVertex3f(x,y,z);
 		}
 	glEnd();
 
 }
-
-
+*/
 
 
 //this actor will be resized. We want speed, so that's why we add a different function
@@ -705,8 +686,6 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 			last_texture=texture_id;
 			glBindTexture(GL_TEXTURE_2D, texture_id);
 		}
-	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos, y_pos, z_pos);
@@ -714,10 +693,18 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+	glScalef(scale,scale,scale);	//enlarge the actor
 
-	if(actor_id->body_parts->legs)draw_interface_body_part(actor_id->body_parts->legs,scale);
-	if(actor_id->body_parts->torso)draw_interface_body_part(actor_id->body_parts->torso,scale);
-	if(actor_id->body_parts->head)draw_interface_body_part(actor_id->body_parts->head,scale);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	//if(actor_id->body_parts->legs)draw_interface_body_part(actor_id->body_parts->legs);
+	//if(actor_id->body_parts->torso)draw_interface_body_part(actor_id->body_parts->torso);
+	//if(actor_id->body_parts->head)draw_interface_body_part(actor_id->body_parts->head);
+	if(actor_id->body_parts->legs)draw_model(actor_id->body_parts->legs,"idle01",0);
+	if(actor_id->body_parts->torso)draw_model(actor_id->body_parts->torso,"idle01",0);
+	if(actor_id->body_parts->head)draw_model(actor_id->body_parts->head,"idle01",0);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	//////
 	glPopMatrix();//restore the scene}
@@ -798,7 +785,5 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 	our_actor->body_parts=this_actor;
 	no_bounding_box=0;
 	return our_actor;
-
-
 }
 

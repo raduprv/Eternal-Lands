@@ -226,7 +226,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost);
 void draw_actor(actor * actor_id);
 void display_actors();
 void add_actor_from_server(char * in_data);
-void draw_interface_body_part(md2 *model_data,float scale);
+//void draw_interface_body_part(md2 *model_data);
 void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 						  int z_pos, float x_rot,float y_rot, float z_rot);
 actor * add_actor_interface(int actor_type, short skin, short hair, 
