@@ -16,6 +16,10 @@ void load_questlog()
 {
 	FILE *f = NULL;
 	char temp[1000];
+	_logdata *L=&logdata;
+	logdata.msg=NULL;
+	last=&logdata;
+	current=NULL;
 #ifndef WINDOWS
 	char questlog_ini[256];
 	strcpy(questlog_ini, configdir);
@@ -29,11 +33,6 @@ void load_questlog()
 #endif
 	
 	if(!f)return;
-	
-	_logdata *L=&logdata;
-	logdata.msg=NULL;
-	last=&logdata;
-	current=NULL;
 
 	while(!feof(f)){//loads and adds to a list all the quest log messages
 		_logdata *l;
