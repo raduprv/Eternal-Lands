@@ -33,7 +33,7 @@ void move_to_next_frame()
 	char frame_exists;
 
 	lock_actors_lists();
-	for(i=0;i<1000;i++)
+	for(i=0;i<max_actors;i++)
 		{
 			//clear the strings
 			for(k=0;k<16;k++)frame_name[k]=0;
@@ -124,7 +124,7 @@ void animate_actors()
 
 	// lock the actors_list so that nothing can interere with this look
 	lock_actors_lists();	//lock it to avoid timing issues
-	for(i=0;i<1000;i++)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			     {
@@ -212,7 +212,7 @@ void next_command()
 	int i;
 
 	lock_actors_lists();
-	for(i=0;i<1000;i++)
+	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])continue;//actor exists?
 			//if(!actors_list[i]->is_enhanced_model)//test only
@@ -520,10 +520,10 @@ void next_command()
 
 void destroy_actor(int actor_id)
 {
-	int i=0;
+	int i;
 
 	lock_actors_lists();	//lock it to avoid timing issues
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==actor_id)
@@ -538,8 +538,8 @@ void destroy_actor(int actor_id)
 					actors_list[i]=0;
 					break;
 				}
-			i++;
 		}
+	if(i==max_actors-1)max_actors=i;
 	unlock_actors_lists();	//unlock it since we are done
 }
 
@@ -548,7 +548,7 @@ void destroy_all_actors()
 	int i=0;
 
 	lock_actors_lists();	//lock it to avoid timing issues
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 				{
@@ -561,8 +561,8 @@ void destroy_all_actors()
 					free(actors_list[i]);
 					actors_list[i]=0;
 				}
-			i++;
 		}
+	max_actors=0;
 	unlock_actors_lists();	//unlock it since we are done
 }
 
@@ -586,7 +586,8 @@ void add_command_to_actor(int actor_id, char command)
 	int i=0;
 	int k=0;
 
-	while(i<1000)
+	lock_actors_lists();
+	while(i<max_actors)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==actor_id)
@@ -599,25 +600,27 @@ void add_command_to_actor(int actor_id, char command)
 									if(k>8)
 										{
 											update_all_actors();
+											unlock_actors_lists();
 											return;
 										}
 									actors_list[i]->que[k]=command;
 									break;
 								}
 						}
-
+					unlock_actors_lists();
 					return;
 				}
 			i++;
 		}
 	//if we got here, it means we don't have this actor, so get it from the server...
+	unlock_actors_lists();
 }
 
 void get_actor_damage(int actor_id, Uint8 damage)
 {
 	int i=0;
 
-	while(i<1000)
+	while(i<max_actors)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==actor_id)
@@ -636,7 +639,7 @@ void get_actor_heal(int actor_id, Uint8 quantity)
 {
 	int i=0;
 
-	while(i<1000)
+	while(i<max_actors)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==actor_id)
@@ -655,8 +658,7 @@ void move_self_forward()
 	int i,x,y,rot,tx,ty;
 	Uint8 str[10];
 
-	i=0;
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 			{
 				if(actors_list[i])
 				if(actors_list[i]->actor_id==yourself)
@@ -722,7 +724,6 @@ void move_self_forward()
 						my_tcp_send(my_socket,str,5);
 						return;
 					 }
-				i++;
 			}
 
 }
