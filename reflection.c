@@ -291,7 +291,9 @@ void display_3d_reflection()
 	int x,y;
 	double water_clipping_p[4]={0,0,-1,water_deepth_offset};
 	float window_ratio;
-
+	int sx,sy,ex,ey,j,k;
+	actor *xxx=pf_get_our_actor();
+	if(!xxx)return;
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
 	check_gl_errors();
@@ -310,35 +312,40 @@ void display_3d_reflection()
 	glPushMatrix();
 	glScalef(1.0f, 1.0f, -1.0f);
 	//first, render only the submerged objects, with the clipping plane enabled
-	for(i=0;i<highest_obj_3d;i++)
-		{
-			if(objects_list[i])
-				{
-					if(!objects_list[i]->e3d_data->is_ground)
+	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+	for(i=sx;i<=ex;i++)
+		for(j=sy;j<=ey;j++)
+			for(k=0;k<100;k++){
+				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
+				if(l==-1)continue;
+
+				if(objects_list[l])
+					{
+						if(!objects_list[l]->e3d_data->is_ground)
 					 	{
 							int dist1;
 							int dist2;
 
-			         		dist1=x-objects_list[i]->x_pos;
-			         		dist2=y-objects_list[i]->y_pos;
+			         		dist1=x-objects_list[l]->x_pos;
+			         		dist2=y-objects_list[l]->y_pos;
 			         		if(dist1*dist1+dist2*dist2<=21*21)
 			         			{
 									float x_len, y_len, z_len;
 									float radius;
 
-									z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
-									x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
-									y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
+									z_len=objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z;
+									x_len=objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x;
+									y_len=objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y;
 									//do some checks, to see if we really have to display this object
-									if(x_len<5 && y_len<5 && z_len<4 && !find_local_reflection(objects_list[i]->x_pos,objects_list[i]->y_pos,1))continue;
+									if(x_len<5 && y_len<5 && z_len<4 && !find_local_reflection(objects_list[l]->x_pos,objects_list[l]->y_pos,1))continue;
 
 									radius=x_len/2;
 									if(radius<y_len/2)radius=y_len/2;
 									if(radius<z_len)radius=z_len;
 									//not in the middle of the air
-									if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
-													   objects_list[i]->z_pos,radius))
-										draw_3d_reflection(objects_list[i]);
+									if(SphereInFrustum(objects_list[l]->x_pos,objects_list[l]->y_pos,
+													   objects_list[l]->z_pos,radius))
+										draw_3d_reflection(objects_list[l]);
 								}
 						}
 				}
@@ -346,18 +353,16 @@ void display_3d_reflection()
 
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0.0f,0.0f,1.0f);
-	
 	for(i=0;i<max_actors;i++)
 		{
-			if(actors_list[i])
-			if(!actors_list[i]->ghost&&actors_list[i]->tmp.have_tmp)
+			if(actors_list[i] && actors_list[i]->tmp.have_tmp)
+			if(!actors_list[i]->ghost)
 				{
 					int dist1;
 					int dist2;
 
 					dist1=x-actors_list[i]->tmp.x_pos;
 					dist2=y-actors_list[i]->tmp.y_pos;
-					
 					if(dist1*dist1+dist2*dist2<=100)
 							{
 								if(actors_list[i]->is_enhanced_model)
@@ -366,7 +371,6 @@ void display_3d_reflection()
 							}
 				}
 		}
-	
 	glPopMatrix();
 	reset_material();
 
@@ -375,6 +379,7 @@ void display_3d_reflection()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	check_gl_errors();
 }
+
 
 void make_lake_water_noise()
 {

@@ -466,6 +466,7 @@ int load_map(char * file_name)
 #ifdef EXTRA_DEBUG
 	ERR();//We finished loading the new map apparently...
 #endif
+	sector_add_map();
 	return 1;
 
 }

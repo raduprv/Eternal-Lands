@@ -95,6 +95,7 @@
 #include "elconfig.h"
 #include "timers.h"
 #include "rules.h"
+#include "sector.h"
 #ifdef BOOK
 #include "books.h"
 #endif

@@ -425,21 +425,27 @@ void display_2d_objects()
 {
 	int i;
 	int x,y;
-
+	int sx,sy,ex,ey,j,k;
+	actor *xxx=pf_get_our_actor();
+	if(!xxx)return;
 	x=-cx;
 	y=-cy;
 	glDisable(GL_CULL_FACE);
-	for(i=0;i<max_obj_2d;i++)
-		{
-			if(obj_2d_list[i])
+	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+	for(i=sx;i<=ex;i++)
+		for(j=sy;j<=ey;j++)
+			for(k=0;k<100;k++){
+				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
+				if(l==-1)continue;
+				if(obj_2d_list[l])
 				{
 					int dist1;
 					int dist2;
 
-					dist1=x-obj_2d_list[i]->x_pos;
-					dist2=y-obj_2d_list[i]->y_pos;
+					dist1=x-obj_2d_list[l]->x_pos;
+					dist2=y-obj_2d_list[l]->y_pos;
 					if(dist1*dist1+dist2*dist2<=220)
-						draw_2d_object(obj_2d_list[i]);
+						draw_2d_object(obj_2d_list[l]);
 				}
 		}
 }
