@@ -1,9 +1,14 @@
+03-25-04
+E3D's dynamically load arrays when displayed instead of at map load (kills map change lag)
+Fixed camera angle memory
+
 03-24-04
 non-Windows clients will now store config and logs in ~/.elc/
+VA support for actors now dynamically build the arrays
 
 03-19-04
 Added caps_filter support
-Memorize camera postition, angle, and zoom in el.cfg
+Memorize camera position, angle, and zoom in el.cfg
 Added version number to el.cfg to prevent problems in version changes
 
 03-18-04
