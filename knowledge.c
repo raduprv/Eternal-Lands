@@ -112,6 +112,8 @@ int knowledge_mouse_over()
 	y=mouse_y-knowledge_menu_y;
 	if(x>knowledge_menu_x_len-20)
 		return 1;
+	if(y>192)
+		return 1;
 	x/=99;
 	y/=10;
 	knowledge_list[page_start+y*4+x].mouse_over=1;
@@ -143,6 +145,8 @@ int check_knowledge_interface()
 			return 1;
 		}
 	if(x>knowledge_menu_x_len-20)
+		return 1;
+	if(y>192)
 		return 1;
 	x/=99;
 	y/=10;
