@@ -316,12 +316,12 @@ void check_mouse_click()
 	//after we test for interface clicks
 	// alternative drop method...
 	if (item_dragged != -1){  
+		Uint8 str[10];
+		int quantity = item_list[item_dragged].quantity;
 		if(right_click){
 			item_dragged = -1;
 			return;
 		}
-		Uint8 str[10];
-		int quantity = item_list[item_dragged].quantity;
 		if (quantity - item_quantity > 0)
 			quantity = item_quantity;
 		str[0] = DROP_ITEM;
