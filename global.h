@@ -55,6 +55,7 @@
 #include "multiplayer.h"
 #include "text.h"
 #include "interface.h"
+#include "hud.h"
 #include "map_io.h"
 #include "reflection.h"
 #include "shadows.h"

@@ -1,17 +1,38 @@
 .PHONY: clean release
 
-CFLAGS=-Wall -ggdb -pipe -DLINUX $(shell sdl-config --cflags)
-_CFLAGS=-mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe -DLINUX $(shell sdl-config --cflags)
-LDFLAGS=$(shell sdl-config --libs) -lSDL_net -lopenal -L/usr/X11R6/lib -lGLU -lGL  -lvorbis -lvorbisfile
-OBJS=2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o cache.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o knowledge.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o
+# tune these for your setup & compile options
+OPTIONS=-DLINUX -DUSE_VERTEXARRAYS
+PLATFORM=-march=i686
+XDIR=-L/usr/X11R6/lib
 
+# basic compiling and linking - rarely changed
+CFLAGS=$(PLATFORM) -Wall -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags)
+_CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags)
+LDFLAGS=$(shell sdl-config --libs) -lSDL_net -lopenal $(XDIR) -lGLU -lGL  -lvorbis -lvorbisfile
+
+# the objects we need
+OBJS=2d_objects.o 3d_objects.o	\
+	 actor_scripts.o actors.o asc.o	\
+	 cache.o colors.o console.o cursors.o	\
+	 dialogues.o draw_scene.o	\
+	 errors.o events.o filter.o font.o frustum.o	\
+	 gl_init.o global.o help.o hud.o	\
+	 ignore.o init.o interface.o items.o	\
+	 knowledge.o lights.o	\
+	 main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o	\
+	 new_actors.o new_character.o	\
+	 particles.o paste.o reflection.o	\
+	 shadows.o sound.o spells.o stats.o	\
+	 text.o textures.o tile_map.o trade.o weather.o
+
+# the compile targets
 el.x86.linux.bin: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o el.x86.linux.bin $(OBJS)
 
 release:
 	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
 
-%.o:	%.c %.h
+%.o:	global.h %.c %.h
 	$(CC) $(CFLAGS) -c $*.c
 
 clean:

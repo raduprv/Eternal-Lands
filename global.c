@@ -171,7 +171,7 @@ char interface_mode=interface_opening;
 char create_char_error_str[520];
 char log_in_error_str[520];
 int view_clock=1;
-int view_compas=1;
+int view_compass=1;
 int options_menu=0;
 int combat_mode=0;
 int auto_camera=0;

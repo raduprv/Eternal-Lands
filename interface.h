@@ -22,8 +22,6 @@ extern int mouse_delta_y;
 extern int right_click;
 extern int left_click;
 
-extern int view_clock;
-extern int view_compas;
 extern int options_menu;
 extern int view_self_stats;
 extern int view_health_bar;
@@ -42,7 +40,6 @@ extern int login_screen_menus;
 extern char interface_mode;
 extern char username_box_selected;
 extern char password_box_selected;
-
 
 extern char username_str[16];
 extern char password_str[16];
@@ -92,9 +89,6 @@ void init_opening_interface();
 void draw_login_screen();
 void add_char_to_username(unsigned char ch);
 void add_char_to_password(unsigned char ch);
-void init_peace_icons_position();
-void draw_peace_icons();
-int check_peace_menu();
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,
 				   int y_start,int x_end,int y_end);
 void draw_options_menu();

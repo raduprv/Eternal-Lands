@@ -470,7 +470,7 @@ void init_stuff()
 	check_gl_errors();
 	create_char_error_str[0]=0;
 	init_opening_interface();
-	init_peace_icons_position();
+	init_hud_interface();
 	make_sigils_list();
 
 	if(SDLNet_Init()<0)
