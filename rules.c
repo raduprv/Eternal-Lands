@@ -224,6 +224,7 @@ void cleanup_rules()
 void free_rules(rule_string * d)
 {
 	int i, j;
+	if(!d)return;
 	for(i=0;d[i].type!=-1;i++){
 		if(d[i].short_str) for(j=0;d[i].short_str[j];j++) free(d[i].short_str[j]);
 		if(d[i].long_str)  for(j=0;d[i].long_str[j];j++)  free(d[i].long_str[j]);
@@ -254,9 +255,9 @@ void highlight_rule(int type, Uint8 * rule, int no)
 		
 	if(type==RULE_WIN)toggle_rules_window(0);
 	else if(type==RULE_INTERFACE){
-		init_rules_interface(1, 1.0f, *((Uint16*)(rule)));
-		rule+=2;
-		no-=2;
+		init_rules_interface(rule[2], 1.0f, *((Uint16*)(rule)));
+		rule+=3;
+		no-=3;
 	}
 	
 	if(display_rules) {
@@ -274,10 +275,11 @@ void highlight_rule(int type, Uint8 * rule, int no)
 				display_rules[j].show_long_desc=1;
 			}
 		}
-		for(i=0;display_rules[i].type!=-1;i++)if(display_rules[i].type == RULE && display_rules[i].highlight) {
-			rule_offset=i;//Get the first highlighted entry
-			return;
-		}
+		for(i=0;display_rules[i].type!=-1;i++)
+			if(display_rules[i].type == RULE && display_rules[i].highlight) {
+				rule_offset=i;//Get the first highlighted entry
+				return;
+			}
 	}
 }
 
@@ -393,8 +395,7 @@ void check_mouse_rules_interface(rule_string * rules_ptr, int lenx, int leny, in
 
 void init_rules_interface(int next, float text_size, int count)
 {
-	if(next)next_interface=interface_opening;
-	else next_interface=interface_new_char;
+	next_interface=next;
 	if(rules.no){
 		if(display_rules) free_rules(display_rules);
 		display_rules=get_interface_rules((float)(window_width-60)/(12*text_size));
@@ -408,9 +409,8 @@ void init_rules_interface(int next, float text_size, int count)
 void draw_rules_interface()
 {
 	char str[20];
-	if(countdown==-1){
-		init_rules_interface(disconnected, 1.0f, 30);
-	} else if(countdown==0) {
+	if(countdown==-1) init_rules_interface(disconnected?interface_opening:interface_new_char, 1.0f, 30);
+	if(countdown==0) {
 		interface_mode=next_interface;
 		free_rules(display_rules);
 		display_rules=NULL;

@@ -405,7 +405,7 @@ void Move()
 
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(cx/*-0.25f*/,cy/*-0.25f*/, cz-0.5f);
+	glTranslatef(cx/*-0.25f*/,cy/*-0.25f*/, cz/*-0.5f*/);
 
 	//test only
 	update_position();
