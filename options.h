@@ -7,6 +7,7 @@ typedef struct
 	char * name;
 	char * desc;
 	int type;
+	int column;
 	void (*func)(int*,int*);
 	int * data_1;
 	int * data_2;
@@ -28,7 +29,7 @@ extern int options_menu_y_len;
 
 void display_options_menu();
 void init_display_options_menu();
-void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2);
+void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2, int column);
 void change_option(int * data_1, int * data_2);
 void move_to_full_screen(int  * unused, int * unused2);
 void switch_video_modes(int * unused, int * mode);

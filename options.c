@@ -56,43 +56,43 @@ void init_display_options_menu()
 	int option;
 	if(options.no) return;
 	
-	add_option(OPTION,"Shadows","Enables shadows - disable if you experience performance problems",change_option,&have_stencil,&shadows_on);
-	add_option(OPTION,"Clouds","Enables clouds - disable if you experience performance problems",change_option,&have_multitexture,&clouds_shadows);
-	add_option(OPTION,"Reflections","Enable reflections - disable if you experience performance problems",change_option,&always_true,&show_reflection);
-	add_option(OPTION,"Show FPS","Show the current framerate in upper left corner",change_option,&always_true,&show_fps);
-	add_option(OPTION,"Sit Lock","Locks you in a sitting position untill you press the \"Stand\" button or rightclicks to move.",change_option,&always_true,&sit_lock);
-	add_option(OPTION,"Filter CAPS","Turns on/off a filter for capitaled letters",change_option,&always_true,&caps_filter);
-	add_option(OPTION,"Sound","Turns on/off sound effects",change_option,&have_sound,&sound_on);
-	add_option(OPTION,"Music","Turns on/off in-game music",change_option,&have_music,&music_on);
-	add_option(OPTION,"Auto camera","Automatically change the camera according to the actor position",change_option,&always_true,&auto_camera);
-	add_option(NONE,NULL,NULL,NULL,NULL,NULL);//A hole :0)
-	add_option(OPTION,"Exit","Exits the game",change_option,&always_true,&exit_now);
+	add_option(OPTION,"Shadows","Enables shadows - disable if you experience performance problems",change_option,&have_stencil,&shadows_on,0);
+	add_option(OPTION,"Clouds","Enables clouds - disable if you experience performance problems",change_option,&have_multitexture,&clouds_shadows,0);
+	add_option(OPTION,"Reflections","Enable reflections - disable if you experience performance problems",change_option,&always_true,&show_reflection,0);
+	add_option(OPTION,"Show FPS","Show the current framerate in upper left corner",change_option,&always_true,&show_fps,0);
+	add_option(OPTION,"Sit Lock","Locks you in a sitting position untill you press the \"Stand\" button or rightclicks to move.",change_option,&always_true,&sit_lock,0);
+	add_option(OPTION,"Filter CAPS","Turns on/off a filter for capitaled letters",change_option,&always_true,&caps_filter,0);
+	add_option(OPTION,"Sound","Turns on/off sound effects",change_option,&have_sound,&sound_on,0);
+	add_option(OPTION,"Music","Turns on/off in-game music",change_option,&have_music,&music_on,0);
+	add_option(OPTION,"Auto camera","Automatically change the camera according to the actor position",change_option,&always_true,&auto_camera,0);
+	add_option(NONE,NULL,NULL,NULL,NULL,NULL,0);//A hole :0)
+	add_option(OPTION,"Exit","Exits the game",change_option,&always_true,&exit_now,0);
 
 	//Video mode automatically switches side - should this be changed?
-	add_option(OPTION,"Full Screen","Switches between full screen and windowed",move_to_full_screen,&always_true,&full_screen);
+	add_option(OPTION,"Full Screen","Switches between full screen and windowed",move_to_full_screen,&always_true,&full_screen,1);
 	option=1;
-	add_option(VIDEO_MODE,"640x480x16","Switches to video mode 640x480x16",switch_video_modes,(int*)&(video_modes[0].supported),&option);
+	add_option(VIDEO_MODE,"640x480x16","Switches to video mode 640x480x16",switch_video_modes,(int*)&(video_modes[0].supported),&option,1);
 	option=2;
-	add_option(VIDEO_MODE,"640x480x32","Switches to video mode 640x480x32",switch_video_modes,(int*)&(video_modes[1].supported),&option);
+	add_option(VIDEO_MODE,"640x480x32","Switches to video mode 640x480x32",switch_video_modes,(int*)&(video_modes[1].supported),&option,1);
 	option=3;
-	add_option(VIDEO_MODE,"800x600x16","Switches to video mode 800x600x16",switch_video_modes,(int*)&(video_modes[2].supported),&option);
+	add_option(VIDEO_MODE,"800x600x16","Switches to video mode 800x600x16",switch_video_modes,(int*)&(video_modes[2].supported),&option,1);
 	option=4;
-	add_option(VIDEO_MODE,"800x600x32","Switches to video mode 800x600x32",switch_video_modes,(int*)&(video_modes[3].supported),&option);
+	add_option(VIDEO_MODE,"800x600x32","Switches to video mode 800x600x32",switch_video_modes,(int*)&(video_modes[3].supported),&option,1);
 	option=5;
-	add_option(VIDEO_MODE,"1024x768x16","Switches to video mode 1024x768x16",switch_video_modes,(int*)&(video_modes[4].supported),&option);
+	add_option(VIDEO_MODE,"1024x768x16","Switches to video mode 1024x768x16",switch_video_modes,(int*)&(video_modes[4].supported),&option,1);
 	option=6;
-	add_option(VIDEO_MODE,"1024x768x32","Switches to video mode 1024x768x32",switch_video_modes,(int*)&(video_modes[5].supported),&option);
+	add_option(VIDEO_MODE,"1024x768x32","Switches to video mode 1024x768x32",switch_video_modes,(int*)&(video_modes[5].supported),&option,1);
 	option=7;
-	add_option(VIDEO_MODE,"1152x864x16","Switches to video mode 1152x864x16",switch_video_modes,(int*)&(video_modes[6].supported),&option);
+	add_option(VIDEO_MODE,"1152x864x16","Switches to video mode 1152x864x16",switch_video_modes,(int*)&(video_modes[6].supported),&option,1);
 	option=8;
-	add_option(VIDEO_MODE,"1152x864x32","Switches to video mode 1152x864x32",switch_video_modes,(int*)&(video_modes[7].supported),&option);
+	add_option(VIDEO_MODE,"1152x864x32","Switches to video mode 1152x864x32",switch_video_modes,(int*)&(video_modes[7].supported),&option,1);
 	option=9;
-	add_option(VIDEO_MODE,"1280x1024x16","Switches to video mode 1280x1024x16",switch_video_modes,(int*)&(video_modes[8].supported),&option);
+	add_option(VIDEO_MODE,"1280x1024x16","Switches to video mode 1280x1024x16",switch_video_modes,(int*)&(video_modes[8].supported),&option,1);
 	option=10;
-	add_option(VIDEO_MODE,"1280x1024x32","Switches to video mode 1280x1024x32",switch_video_modes,(int*)&(video_modes[9].supported),&option);
+	add_option(VIDEO_MODE,"1280x1024x32","Switches to video mode 1280x1024x32",switch_video_modes,(int*)&(video_modes[9].supported),&option,1);
 }
 
-void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2)
+void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2, int column)
 {
 	int no=options.no++;
 	options.option[no]=(option_struct*)calloc(1,sizeof(option_struct));
@@ -107,6 +107,7 @@ void add_option(int type, char * name, char * desc, void * func, int * data_1, i
 			*(options.option[no]->data_2)=*data_2;
 		}
 	options.option[no]->func=func;
+	options.option[no]->column=column;
 }
 
 //Wrappers
@@ -119,7 +120,11 @@ void switch_video_modes(int * unused, int * mode)
 
 int display_options_handler(window_info *win)
 {
-	int i = 0, y=35, x=8, y_len=options_menu_y_len-65;
+	int i = 0, y[2], x[2];
+	x[0]=8;
+	x[1]=188;
+	y[0]=35;
+	y[1]=35;
 	option_struct * cur;
 	get_and_set_texture_id(icons_text);
 	glBegin(GL_QUADS);
@@ -137,44 +142,40 @@ int display_options_handler(window_info *win)
 							   )
 								{
 									draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-											x, y, x+30, y+16);
+											x[cur->column], y[cur->column], x[cur->column]+30, y[cur->column?1:0]+16);
 								}
 							else
 								{
 									draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-											x, y, x+30, y+16);
+											x[cur->column], y[cur->column], x[cur->column]+30, y[cur->column]+16);
 								}
 						}
 					else
 						{
 							draw_2d_thing(broken_gem_u_start,broken_gem_v_start,broken_gem_u_end,broken_gem_v_end,
-									x, y, x+30, y+16);
+									x[cur->column], y[cur->column], x[cur->column]+30, y[cur->column]+16);
 						}
 				}
-			if((y+=20)>y_len)
-				{
-					y=35;
-					x+=180;
-				}
+			y[cur->column]+=20;
 		}
 	glEnd();
 	
 	draw_string(55,10,"Options",1);
 	draw_string(225,10,"Video Modes",1);
 
-	x=45;
+	x[0]=45;
+	x[1]=225;
+	y[0]=35;
+	y[1]=35;
+	
 	for(i=0;i<options.no;i++)
 		{
 			cur=options.option[i];
 			if(cur->type!=NONE)
 				{
-					draw_string(x,y,cur->name,1);
+					draw_string(x[cur->column],y[cur->column],cur->name,1);
 				}
-			if((y+=20)>y_len)
-				{
-					y=35;
-					x+=180;
-				}
+			y[cur->column]+=20;
 		}
 
 	glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
