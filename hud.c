@@ -2,28 +2,39 @@
 #include <math.h>
 #include "global.h"
 #include "elwindows.h"
+
+int	display_icons_handler(window_info *win);
+int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags);
+int	display_stats_bar_handler(window_info *win);
+//int	click_stats_bar_handler(window_info *win, int mx, int my, Uint32 flags);
+int	display_misc_handler(window_info *win);
+int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags);
 int	display_quickbar_handler(window_info *win);
 int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
 
-int hud_x=64;
-int hud_y=48;
+int hud_x= 64;
+int hud_y= 48;
 int hud_text;
-int view_digital_clock=0;
+int view_digital_clock= 0;
+int	icons_win= -1;
+int	stats_bar_win= -1;
+int	misc_win= -1;
 int	quickbar_win= -1;
 
 // initialize anything related to the hud
 void init_hud_interface()
 {
+	init_hud_frame();
 	init_peace_icons();
 	init_misc_display();
 	init_stats_display();
 	init_quickbar();
-	init_hud_frame();
 }
 
 // draw everything related to the hud
 void draw_hud_interface()
 {
+    // TODO: get the window manager to handle this
 	get_and_set_texture_id(hud_text);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
@@ -32,20 +43,54 @@ void draw_hud_interface()
 	get_and_set_texture_id(icons_text);
     draw_peace_icons();
     draw_stats_display();
-	if(window_width>640)draw_exp_display();
 	draw_quickbar();
 }
 
 // check to see if a mouse click was on the hud
+//TODO: add the window manager to handle these
 int check_hud_interface()
 {
-	if(check_peace_icons())return 1;
-	if(check_misc_display())return 1;
-	if(check_stats_display())return 1;
-	if(check_quickbar())return 1;
+    // TODO: get the window manager to handle this
+	if(check_peace_icons() > 0)return 1;
+	if(check_misc_display() > 0)return 1;
+	if(check_stats_display() > 0)return 1;
+	if(check_quickbar() > 0)return 1;
 
 	// nothing done here
 	return 0;
+}
+
+// hud frame section
+float vertical_bar_u_start=(float)192/256;
+float vertical_bar_u_end=1.0f;
+float vertical_bar_v_end=0.0f;
+float vertical_bar_v_start;
+
+float horizontal_bar_u_start=(float)144/256;
+float horizontal_bar_u_end=(float)191/256;
+float horizontal_bar_v_start=0;
+float horizontal_bar_v_end;
+
+void init_hud_frame()
+{
+	vertical_bar_v_start= (float)window_height/256;
+	horizontal_bar_v_end= (float)(window_width-hud_x)/256;
+}
+
+float logo_u_start=(float)64/256;
+float logo_v_start=1.0f-(float)128/256;
+
+float logo_u_end=(float)127/256;
+float logo_v_end=1.0f-(float)191/256;
+
+void draw_hud_frame()
+{
+	glBegin(GL_QUADS);
+	draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
+	draw_2d_thing_r(horizontal_bar_u_start, horizontal_bar_v_start, horizontal_bar_u_end, horizontal_bar_v_end,0,window_height,window_width-hud_x , window_height-hud_y);
+	//draw the logo
+	draw_2d_thing(logo_u_start, logo_v_start, logo_u_end, logo_v_end,window_width-hud_x, 0, window_width, 64);
+	glEnd();
 }
 
 
@@ -353,102 +398,112 @@ int exp_bar_start_y;
 
 void init_peace_icons()
 {
+	//create the icon window
+	icons_win= create_window("Icons", 0, 0, 0, window_height-32, window_width-64, 32, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
+	set_window_handler(icons_win, ELW_HANDLER_DISPLAY, &display_icons_handler);
+	set_window_handler(icons_win, ELW_HANDLER_CLICK, &click_icons_handler);
+	
 	//TODO: positions should be based on icon size
-	//TODO: icon position and layout options (I.E. verticall, on top, etc)
 
 	walk_icon_x_start=0;
 	walk_icon_x_end=walk_icon_x_start+31;
-	walk_icon_y_start=window_height-32;
+	walk_icon_y_start=0;
 	walk_icon_y_end=walk_icon_y_start+31;
 
 	sit_icon_x_start=walk_icon_x_end+1;
 	sit_icon_x_end=sit_icon_x_start+31;
-	sit_icon_y_start=window_height-32;
+	sit_icon_y_start=0;
 	sit_icon_y_end=sit_icon_y_start+31;
 
 	stand_icon_x_start=walk_icon_x_end+1;
 	stand_icon_x_end=stand_icon_x_start+31;
-	stand_icon_y_start=window_height-32;
+	stand_icon_y_start=0;
 	stand_icon_y_end=stand_icon_y_start+31;
 
 	eye_icon_x_start=stand_icon_x_end+1;
 	eye_icon_x_end=eye_icon_x_start+31;
-	eye_icon_y_start=window_height-32;
+	eye_icon_y_start=0;
 	eye_icon_y_end=eye_icon_y_start+31;
 
 	use_icon_x_start=eye_icon_x_end+1;
 	use_icon_x_end=use_icon_x_start+31;
-	use_icon_y_start=window_height-32;
+	use_icon_y_start=0;
 	use_icon_y_end=use_icon_y_start+31;
 
 	trade_icon_x_start=use_icon_x_end+1;
 	trade_icon_x_end=trade_icon_x_start+31;
-	trade_icon_y_start=window_height-32;
+	trade_icon_y_start=0;
 	trade_icon_y_end=trade_icon_y_start+31;
 
 	attack_icon_x_start=trade_icon_x_end+1;
 	attack_icon_x_end=attack_icon_x_start+31;
-	attack_icon_y_start=window_height-32;
+	attack_icon_y_start=0;
 	attack_icon_y_end=attack_icon_y_start+31;
 
 	inventory_icon_x_start=attack_icon_x_end+1;
 	inventory_icon_x_end=inventory_icon_x_start+31;
-	inventory_icon_y_start=window_height-32;
+	inventory_icon_y_start=0;
 	inventory_icon_y_end=inventory_icon_y_start+31;
 
 	spell_icon_x_start=inventory_icon_x_end+1;
 	spell_icon_x_end=spell_icon_x_start+31;
-	spell_icon_y_start=window_height-32;
+	spell_icon_y_start=0;
 	spell_icon_y_end=spell_icon_y_start+31;
 
 	manufacture_icon_x_start=spell_icon_x_end+1;
 	manufacture_icon_x_end=manufacture_icon_x_start+31;
-	manufacture_icon_y_start=window_height-32;
+	manufacture_icon_y_start=0;
 	manufacture_icon_y_end=manufacture_icon_y_start+31;
 
 	stats_icon_x_start=manufacture_icon_x_end+1;
 	stats_icon_x_end=stats_icon_x_start+31;
-	stats_icon_y_start=window_height-32;
+	stats_icon_y_start=0;
 	stats_icon_y_end=stats_icon_y_start+31;
 
 	knowledge_icon_x_start=stats_icon_x_end+1;
 	knowledge_icon_x_end=knowledge_icon_x_start+31;
-	knowledge_icon_y_start=window_height-32;
+	knowledge_icon_y_start=0;
 	knowledge_icon_y_end=knowledge_icon_y_start+31;
 
 	encyclopedia_icon_x_start=knowledge_icon_x_end+1;
 	encyclopedia_icon_x_end=encyclopedia_icon_x_start+31;
-	encyclopedia_icon_y_start=window_height-32;
+	encyclopedia_icon_y_start=0;
 	encyclopedia_icon_y_end=encyclopedia_icon_y_start+31;
 
 	questlog_icon_x_start=encyclopedia_icon_x_end+1;
 	questlog_icon_x_end=questlog_icon_x_start+31;
-	questlog_icon_y_start=window_height-32;
+	questlog_icon_y_start=0;
 	questlog_icon_y_end=questlog_icon_y_start+31;
 
 	map_icon_x_start=questlog_icon_x_end+1;
 	map_icon_x_end=map_icon_x_start+31;
-	map_icon_y_start=window_height-32;
+	map_icon_y_start=0;
 	map_icon_y_end=map_icon_y_start+31;
 
 	console_icon_x_start=map_icon_x_end+1;
 	console_icon_x_end=console_icon_x_start+31;
-	console_icon_y_start=window_height-32;
+	console_icon_y_start=0;
 	console_icon_y_end=console_icon_y_start+31;
 
 	buddy_icon_x_start=console_icon_x_end+1;
 	buddy_icon_x_end=buddy_icon_x_start+31;
-	buddy_icon_y_start=window_height-32;
+	buddy_icon_y_start=0;
 	buddy_icon_y_end=buddy_icon_y_start+31;
 
 	options_icon_x_start=buddy_icon_x_end+1;
 	options_icon_x_end=options_icon_x_start+31;
-	options_icon_y_start=window_height-32;
+	options_icon_y_start=0;
 	options_icon_y_end=options_icon_y_start+31;
 }
 
 void draw_peace_icons()
 {
+    display_window(icons_win);
+}
+
+int	display_icons_handler(window_info *win)
+{
+    int	in_window= (mouse_y >= win->pos_y && mouse_y < win->pos_y+win->len_y);
 	get_and_set_texture_id(icons_text);
 	glColor3f(1.0f,1.0f,1.0f);
 
@@ -456,24 +511,21 @@ void draw_peace_icons()
 	//glAlphaFunc(GL_GREATER,0.03f);
 	glBegin(GL_QUADS);
 
-	if(action_mode==action_walk || (mouse_x>walk_icon_x_start && mouse_y>walk_icon_y_start &&
-									mouse_x<walk_icon_x_end && mouse_y<walk_icon_y_end))
+	if(action_mode==action_walk || (in_window && mouse_x>walk_icon_x_start && mouse_x<walk_icon_x_end ))
 		draw_2d_thing(colored_walk_icon_u_start, colored_walk_icon_v_start, colored_walk_icon_u_end, colored_walk_icon_v_end,
 					  walk_icon_x_start, walk_icon_y_start, walk_icon_x_end, walk_icon_y_end);
 	else
 		draw_2d_thing(walk_icon_u_start, walk_icon_v_start, walk_icon_u_end, walk_icon_v_end,
 					  walk_icon_x_start, walk_icon_y_start, walk_icon_x_end, walk_icon_y_end);
 
-	if(action_mode==action_look || (mouse_x>eye_icon_x_start && mouse_y>eye_icon_y_start &&
-									mouse_x<eye_icon_x_end && mouse_y<eye_icon_y_end))
+	if(action_mode==action_look || (in_window && mouse_x>eye_icon_x_start && mouse_x<eye_icon_x_end))
 		draw_2d_thing(colored_eye_icon_u_start, colored_eye_icon_v_start, colored_eye_icon_u_end, colored_eye_icon_v_end,
 					  eye_icon_x_start, eye_icon_y_start, eye_icon_x_end, eye_icon_y_end);
 	else
 		draw_2d_thing(eye_icon_u_start, eye_icon_v_start, eye_icon_u_end, eye_icon_v_end,
 					  eye_icon_x_start, eye_icon_y_start, eye_icon_x_end, eye_icon_y_end);
 
-	if(action_mode==action_use || (mouse_x>use_icon_x_start && mouse_y>use_icon_y_start &&
-								   mouse_x<use_icon_x_end && mouse_y<use_icon_y_end))
+	if(action_mode==action_use || (in_window && mouse_x>use_icon_x_start && mouse_x<use_icon_x_end ))
 		draw_2d_thing(colored_use_icon_u_start, colored_use_icon_v_start, colored_use_icon_u_end, colored_use_icon_v_end,
 					  use_icon_x_start, use_icon_y_start, use_icon_x_end, use_icon_y_end);
 	else
@@ -481,8 +533,7 @@ void draw_peace_icons()
 					  use_icon_x_start, use_icon_y_start, use_icon_x_end, use_icon_y_end);
 
 
-	if(action_mode==action_trade || (mouse_x>trade_icon_x_start && mouse_y>trade_icon_y_start &&
-									 mouse_x<trade_icon_x_end && mouse_y<trade_icon_y_end))
+	if(action_mode==action_trade || (in_window && mouse_x>trade_icon_x_start && mouse_x<trade_icon_x_end))
 		draw_2d_thing(colored_trade_icon_u_start, colored_trade_icon_v_start, colored_trade_icon_u_end, colored_trade_icon_v_end,
 					  trade_icon_x_start, trade_icon_y_start, trade_icon_x_end, trade_icon_y_end);
 	else
@@ -490,11 +541,9 @@ void draw_peace_icons()
 					  trade_icon_x_start, trade_icon_y_start, trade_icon_x_end, trade_icon_y_end);
 
 
-
 	if(!you_sit)
 		{
-			if(mouse_x>sit_icon_x_start && mouse_y>sit_icon_y_start &&
-			   mouse_x<sit_icon_x_end && mouse_y<sit_icon_y_end)
+			if(in_window && mouse_x>sit_icon_x_start && mouse_x<sit_icon_x_end)
 				draw_2d_thing(colored_sit_icon_u_start, colored_sit_icon_v_start, colored_sit_icon_u_end, colored_sit_icon_v_end,
 							  sit_icon_x_start, sit_icon_y_start, sit_icon_x_end, sit_icon_y_end);
 			else
@@ -503,8 +552,7 @@ void draw_peace_icons()
 		}
 	else
 		{
-			if(mouse_x>sit_icon_x_start && mouse_y>sit_icon_y_start &&
-			   mouse_x<sit_icon_x_end && mouse_y<sit_icon_y_end)
+			if(in_window && mouse_x>sit_icon_x_start &&mouse_x<sit_icon_x_end)
 				draw_2d_thing(colored_stand_icon_u_start, colored_stand_icon_v_start, colored_stand_icon_u_end, colored_stand_icon_v_end,
 							  stand_icon_x_start, stand_icon_y_start, stand_icon_x_end, stand_icon_y_end);
 			else
@@ -512,15 +560,14 @@ void draw_peace_icons()
 							  stand_icon_x_start, stand_icon_y_start, stand_icon_x_end, stand_icon_y_end);
 		}
 
-	if(view_sigils_menu || (mouse_x>spell_icon_x_start && mouse_y>spell_icon_y_start && mouse_x<spell_icon_x_end && mouse_y<spell_icon_y_end))
+	if(view_sigils_menu || (in_window && mouse_x>spell_icon_x_start && mouse_x<spell_icon_x_end))
 		draw_2d_thing(colored_spell_icon_u_start, colored_spell_icon_v_start, colored_spell_icon_u_end, colored_spell_icon_v_end,
 					  spell_icon_x_start, spell_icon_y_start, spell_icon_x_end, spell_icon_y_end);
 	else
 		draw_2d_thing(spell_icon_u_start, spell_icon_v_start, spell_icon_u_end, spell_icon_v_end,
 					  spell_icon_x_start, spell_icon_y_start, spell_icon_x_end, spell_icon_y_end);
 
-	if(action_mode==action_attack || (mouse_x>attack_icon_x_start && mouse_y>attack_icon_y_start &&
-									  mouse_x<attack_icon_x_end && mouse_y<attack_icon_y_end))
+	if(action_mode==action_attack || (in_window && mouse_x>attack_icon_x_start && mouse_x<attack_icon_x_end))
 		draw_2d_thing(colored_attack_icon_u_start, colored_attack_icon_v_start, colored_attack_icon_u_end, colored_attack_icon_v_end,
 					  attack_icon_x_start, attack_icon_y_start, attack_icon_x_end, attack_icon_y_end);
 	else
@@ -528,70 +575,70 @@ void draw_peace_icons()
 					  attack_icon_x_start, attack_icon_y_start, attack_icon_x_end, attack_icon_y_end);
 
 
-	if(view_my_items || (mouse_x>inventory_icon_x_start && mouse_y>inventory_icon_y_start && mouse_x<inventory_icon_x_end && mouse_y<inventory_icon_y_end))
+	if(view_my_items || (in_window && mouse_x>inventory_icon_x_start && mouse_x<inventory_icon_x_end))
 		draw_2d_thing(colored_inventory_icon_u_start, colored_inventory_icon_v_start, colored_inventory_icon_u_end, colored_inventory_icon_v_end,
 					  inventory_icon_x_start, inventory_icon_y_start, inventory_icon_x_end, inventory_icon_y_end);
 	else
 		draw_2d_thing(inventory_icon_u_start, inventory_icon_v_start, inventory_icon_u_end, inventory_icon_v_end,
 					  inventory_icon_x_start, inventory_icon_y_start, inventory_icon_x_end, inventory_icon_y_end);
 
-	if(view_manufacture_menu || (mouse_x>manufacture_icon_x_start && mouse_y>manufacture_icon_y_start && mouse_x<manufacture_icon_x_end && mouse_y<manufacture_icon_y_end))
+	if(view_manufacture_menu || (in_window && mouse_x>manufacture_icon_x_start && mouse_x<manufacture_icon_x_end))
 		draw_2d_thing(colored_manufacture_icon_u_start, colored_manufacture_icon_v_start, colored_manufacture_icon_u_end, colored_manufacture_icon_v_end,
 					  manufacture_icon_x_start, manufacture_icon_y_start, manufacture_icon_x_end, manufacture_icon_y_end);
 	else
 		draw_2d_thing(manufacture_icon_u_start, manufacture_icon_v_start, manufacture_icon_u_end, manufacture_icon_v_end,
 					  manufacture_icon_x_start, manufacture_icon_y_start, manufacture_icon_x_end, manufacture_icon_y_end);
 
-	if(view_self_stats || (mouse_x>stats_icon_x_start && mouse_y>stats_icon_y_start && mouse_x<stats_icon_x_end && mouse_y<stats_icon_y_end))
+	if(view_self_stats || (in_window && mouse_x>stats_icon_x_start && mouse_x<stats_icon_x_end ))
 		draw_2d_thing(colored_stats_icon_u_start, colored_stats_icon_v_start, colored_stats_icon_u_end, colored_stats_icon_v_end,
 					  stats_icon_x_start, stats_icon_y_start, stats_icon_x_end, stats_icon_y_end);
 	else
 		draw_2d_thing(stats_icon_u_start, stats_icon_v_start, stats_icon_u_end, stats_icon_v_end,
 					  stats_icon_x_start, stats_icon_y_start, stats_icon_x_end, stats_icon_y_end);
 
-	if(view_knowledge || (mouse_x>knowledge_icon_x_start && mouse_y>knowledge_icon_y_start && mouse_x<knowledge_icon_x_end && mouse_y<knowledge_icon_y_end))
+	if(view_knowledge || (in_window && mouse_x>knowledge_icon_x_start && mouse_x<knowledge_icon_x_end))
 		draw_2d_thing(colored_knowledge_icon_u_start, colored_knowledge_icon_v_start, colored_knowledge_icon_u_end, colored_knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
 	else
 		draw_2d_thing(knowledge_icon_u_start, knowledge_icon_v_start, knowledge_icon_u_end, knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
 
-	if(view_encyclopedia || (mouse_x>encyclopedia_icon_x_start && mouse_y>encyclopedia_icon_y_start && mouse_x<encyclopedia_icon_x_end && mouse_y<encyclopedia_icon_y_end))
+	if(view_encyclopedia || (in_window && mouse_x>encyclopedia_icon_x_start && mouse_x<encyclopedia_icon_x_end))
 		draw_2d_thing(colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, colored_encyclopedia_icon_u_end, colored_encyclopedia_icon_v_end,
 					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
 	else
 		draw_2d_thing(encyclopedia_icon_u_start, encyclopedia_icon_v_start, encyclopedia_icon_u_end, encyclopedia_icon_v_end,
 					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
 
-	if(view_questlog || (mouse_x>questlog_icon_x_start && mouse_y>questlog_icon_y_start && mouse_x<questlog_icon_x_end && mouse_y<questlog_icon_y_end))
+	if(view_questlog || (in_window && mouse_x>questlog_icon_x_start && mouse_x<questlog_icon_x_end))
 		draw_2d_thing(colored_questlog_icon_u_start, colored_questlog_icon_v_start, colored_questlog_icon_u_end, colored_questlog_icon_v_end,
 					  questlog_icon_x_start, questlog_icon_y_start, questlog_icon_x_end, questlog_icon_y_end);
 	else
 		draw_2d_thing(questlog_icon_u_start, questlog_icon_v_start, questlog_icon_u_end, questlog_icon_v_end,
 					  questlog_icon_x_start, questlog_icon_y_start, questlog_icon_x_end, questlog_icon_y_end);
 
-	if(interface_mode==interface_console || (mouse_x>console_icon_x_start && mouse_y>console_icon_y_start && mouse_x<console_icon_x_end && mouse_y<console_icon_y_end))
+	if(interface_mode==interface_console || (in_window && mouse_x>console_icon_x_start && mouse_x<console_icon_x_end))
 		draw_2d_thing(colored_console_icon_u_start, colored_console_icon_v_start, colored_console_icon_u_end, colored_console_icon_v_end,
 					  console_icon_x_start, console_icon_y_start, console_icon_x_end, console_icon_y_end);
 	else
 		draw_2d_thing(console_icon_u_start, console_icon_v_start, console_icon_u_end, console_icon_v_end,
 					  console_icon_x_start, console_icon_y_start, console_icon_x_end, console_icon_y_end);
 
-	if(options_menu || (mouse_x>options_icon_x_start && mouse_y>options_icon_y_start && mouse_x<options_icon_x_end && mouse_y<options_icon_y_end))
+	if(options_menu || (in_window && mouse_x>options_icon_x_start && mouse_x<options_icon_x_end))
 		draw_2d_thing(colored_options_icon_u_start, colored_options_icon_v_start, colored_options_icon_u_end, colored_options_icon_v_end,
 					  options_icon_x_start, options_icon_y_start, options_icon_x_end, options_icon_y_end);
 	else
 		draw_2d_thing(options_icon_u_start, options_icon_v_start, options_icon_u_end, options_icon_v_end,
 					  options_icon_x_start, options_icon_y_start, options_icon_x_end, options_icon_y_end);
 
-	if(interface_mode==interface_map || (mouse_x>map_icon_x_start && mouse_y>map_icon_y_start && mouse_x<map_icon_x_end && mouse_y<map_icon_y_end))
+	if(interface_mode==interface_map || (in_window && mouse_x>map_icon_x_start && mouse_x<map_icon_x_end))
 		draw_2d_thing(colored_map_icon_u_start, colored_map_icon_v_start, colored_map_icon_u_end, colored_map_icon_v_end,
 					  map_icon_x_start, map_icon_y_start, map_icon_x_end, map_icon_y_end);
 	else
 		draw_2d_thing(map_icon_u_start, map_icon_v_start, map_icon_u_end, map_icon_v_end,
 					  map_icon_x_start, map_icon_y_start, map_icon_x_end, map_icon_y_end);
 
-	if(view_buddy || (mouse_x>buddy_icon_x_start && mouse_y>buddy_icon_y_start && mouse_x<buddy_icon_x_end && mouse_y<buddy_icon_y_end))
+	if(view_buddy || (in_window && mouse_x>buddy_icon_x_start && mouse_x<buddy_icon_x_end))
 		draw_2d_thing(colored_buddy_icon_u_start, colored_buddy_icon_v_start, colored_buddy_icon_u_end, colored_buddy_icon_v_end,
 					  buddy_icon_x_start, buddy_icon_y_start, buddy_icon_x_end, buddy_icon_y_end);
 	else
@@ -604,35 +651,30 @@ void draw_peace_icons()
 
 int check_peace_icons()
 {
-	if(combat_mode)return 0;
-	if(mouse_x<walk_icon_x_start || mouse_y<walk_icon_y_start ||
-	   mouse_x>options_icon_x_end || mouse_y>options_icon_y_end)return 0;
+    return(click_in_window(icons_win, mouse_x, mouse_y, 0));
+}
 
-	if(mouse_x>options_icon_x_start && mouse_y>options_icon_y_start &&
-	   mouse_x<options_icon_x_end && mouse_y<options_icon_y_end)
+int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+	if(combat_mode)return 0;
+
+	if(mx>options_icon_x_start && mx<options_icon_x_end)
 		options_menu=!options_menu;
-	else if(mouse_x>knowledge_icon_x_start && mouse_y>knowledge_icon_y_start &&
-			mouse_x<knowledge_icon_x_end && mouse_y<knowledge_icon_y_end)
+	else if(mx>knowledge_icon_x_start && mx<knowledge_icon_x_end)
 		{
 			view_knowledge=!view_knowledge;
 		}
-	else if(mouse_x>eye_icon_x_start && mouse_y>eye_icon_y_start &&
-			mouse_x<eye_icon_x_end && mouse_y<eye_icon_y_end)
+	else if(mx>eye_icon_x_start && mx<eye_icon_x_end)
 		action_mode=action_look;
-	else if(mouse_x>walk_icon_x_start && mouse_y>walk_icon_y_start &&
-			mouse_x<walk_icon_x_end && mouse_y<walk_icon_y_end)
+	else if(mx>walk_icon_x_start && mx<walk_icon_x_end)
 		action_mode=action_walk;
-	else if(mouse_x>trade_icon_x_start && mouse_y>trade_icon_y_start &&
-			mouse_x<trade_icon_x_end && mouse_y<trade_icon_y_end)
+	else if(mx>trade_icon_x_start && mx<trade_icon_x_end)
 		action_mode=action_trade;
-	else if(mouse_x>use_icon_x_start && mouse_y>use_icon_y_start &&
-			mouse_x<use_icon_x_end && mouse_y<use_icon_y_end)
+	else if(mx>use_icon_x_start && mx<use_icon_x_end)
 		action_mode=action_use;
-	else if(mouse_x>attack_icon_x_start && mouse_y>attack_icon_y_start &&
-			mouse_x<attack_icon_x_end && mouse_y<attack_icon_y_end)
+	else if(mx>attack_icon_x_start && mx<attack_icon_x_end)
 		action_mode=action_attack;
-	else if(mouse_x>manufacture_icon_x_start && mouse_y>manufacture_icon_y_start &&
-			mouse_x<manufacture_icon_x_end && mouse_y<manufacture_icon_y_end)
+	else if(mx>manufacture_icon_x_start && mx<manufacture_icon_x_end)
 		{
 			if(!view_manufacture_menu)
 				{
@@ -644,8 +686,7 @@ int check_peace_icons()
 				}
 			view_manufacture_menu=!view_manufacture_menu;
 		}
-	else if(mouse_x>spell_icon_x_start && mouse_y>spell_icon_y_start &&
-			mouse_x<spell_icon_x_end && mouse_y<spell_icon_y_end)
+	else if(mx>spell_icon_x_start && mx<spell_icon_x_end)
 		{
 			if(view_trade_menu)
 				{
@@ -654,13 +695,11 @@ int check_peace_icons()
 				}
 			view_sigils_menu=!view_sigils_menu;
 		}
-	else if(mouse_x>stats_icon_x_start && mouse_y>stats_icon_y_start &&
-			mouse_x<stats_icon_x_end && mouse_y<stats_icon_y_end)
+	else if(mx>stats_icon_x_start && mx<stats_icon_x_end)
 		{
 			view_self_stats=!view_self_stats;
 		}
-	else if(mouse_x>inventory_icon_x_start && mouse_y>inventory_icon_y_start &&
-			mouse_x<inventory_icon_x_end && mouse_y<inventory_icon_y_end)
+	else if(mx>inventory_icon_x_start && mx<inventory_icon_x_end)
 		{
 			if(!view_my_items)
 				{
@@ -673,8 +712,7 @@ int check_peace_icons()
 				}
 			else view_my_items=0;
 		}
-	else if(mouse_x>sit_icon_x_start && mouse_y>sit_icon_y_start &&
-			mouse_x<sit_icon_x_end && mouse_y<sit_icon_y_end) {
+	else if(mx>sit_icon_x_start && mx<sit_icon_x_end) {
 		if(!you_sit)
 			{
 				Uint8 str[4];
@@ -690,77 +728,41 @@ int check_peace_icons()
 				my_tcp_send(my_socket,str,2);
 			}
 	}
-	else if(mouse_x>encyclopedia_icon_x_start && mouse_y>encyclopedia_icon_y_start &&
-			mouse_x<encyclopedia_icon_x_end && mouse_y<encyclopedia_icon_y_end)
+	else if(mx>encyclopedia_icon_x_start && mx<encyclopedia_icon_x_end)
 		{
 			view_encyclopedia=!view_encyclopedia;
 		}
-	else if(mouse_x>questlog_icon_x_start && mouse_y>questlog_icon_y_start &&
-			mouse_x<questlog_icon_x_end && mouse_y<questlog_icon_y_end)
+	else if(mx>questlog_icon_x_start && mx<questlog_icon_x_end)
 		{
 			view_questlog=!view_questlog;
 		}
-	else if(mouse_x>console_icon_x_start && mouse_y>console_icon_y_start &&
-			mouse_x<console_icon_x_end && mouse_y<console_icon_y_end)
+	else if(mx>console_icon_x_start && mx<console_icon_x_end)
 		{
 			if(interface_mode==interface_console)interface_mode=interface_game;
 						else interface_mode=interface_console;
 		}
-	else if(mouse_x>map_icon_x_start && mouse_y>map_icon_y_start &&
-			mouse_x<map_icon_x_end && mouse_y<map_icon_y_end)
+	else if(mx>map_icon_x_start && mx<map_icon_x_end)
 		{
 			if(interface_mode==interface_game)switch_to_game_map();
 						else if(interface_mode==interface_map)switch_from_game_map();
-	}else if(mouse_x>buddy_icon_x_start && mouse_y>buddy_icon_y_start &&
-			mouse_x<buddy_icon_x_end && mouse_y<buddy_icon_y_end)
+	}else if(mx>buddy_icon_x_start && mx<buddy_icon_x_end)
 		{
 			view_buddy=!view_buddy;
 	}
 	return 1;
 }
 
-float vertical_bar_u_start=(float)192/256;
-float vertical_bar_u_end=1.0f;
-float vertical_bar_v_end=0.0f;
-float vertical_bar_v_start;
-
-float horizontal_bar_u_start=(float)144/256;
-float horizontal_bar_u_end=(float)191/256;
-float horizontal_bar_v_start=0;
-float horizontal_bar_v_end;
-
-void init_hud_frame()
-{
-	vertical_bar_v_start=(float)window_height/256;
-	horizontal_bar_v_end=(float)(window_width-hud_x)/256;
-
-
-
-}
-
-float logo_u_start=(float)64/256;
-float logo_v_start=1.0f-(float)128/256;
-
-float logo_u_end=(float)127/256;
-float logo_v_end=1.0f-(float)191/256;
-
-
-void draw_hud_frame()
-{
-	glBegin(GL_QUADS);
-	draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
-	draw_2d_thing_r(horizontal_bar_u_start, horizontal_bar_v_start, horizontal_bar_u_end, horizontal_bar_v_end,0,window_height,window_width-hud_x , window_height-hud_y);
-	//draw the logo
-	draw_2d_thing(logo_u_start, logo_v_start, logo_u_end, logo_v_end,window_width-hud_x, 0, window_width, 64);
-	glEnd();
-
-}
 
 // the stats display
 void init_stats_display()
 {
-	mana_bar_start_x=24;
-	mana_bar_start_y=window_height-44;
+	//create the stats bar window
+	stats_bar_win= create_window("Stats Bar", 0, 0, 24, window_height-44, window_width-24-64, 12, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
+	set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
+	//set_window_handler(stats_bar_win, ELW_HANDLER_CLICK, &click_stats_bar_handler);
+	
+	mana_bar_start_x=0;
+	mana_bar_start_y=0;
 
 	food_bar_start_x=mana_bar_start_x+100+40;
 	food_bar_start_y=mana_bar_start_y;
@@ -814,6 +816,11 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 
 void draw_stats_display()
 {
+    display_window(stats_bar_win);
+}
+
+int	display_stats_bar_handler(window_info *win)
+{
 	float health_adjusted_x_len;
 	float food_adjusted_x_len;
 	float mana_adjusted_x_len;
@@ -845,6 +852,7 @@ void draw_stats_display()
 	draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
 	draw_stats_bar(mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
 	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
+	if(win->len_x>640-64) draw_exp_display();
 }
 
 int check_stats_display()
@@ -881,71 +889,86 @@ float clock_needle_v_end=1.0f-(float)223/256;
 
 void init_misc_display()
 {
-
+	//create the icon window
+	misc_win= create_window("Misc", 0, 0, window_width-64, window_height-145, 64, 145, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
+	set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
+	set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 }
 
 void draw_misc_display()
 {
-			glBegin(GL_QUADS);
-			draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, window_width-64,window_height-64,window_width,window_height);
-			glEnd();
+    display_window(misc_win);
+}
 
-			//draw the compass needle
-    		glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-    		glAlphaFunc(GL_GREATER, 0.09f);
+int	display_misc_handler(window_info *win)
+{
+    //draw the compass
+	glBegin(GL_QUADS);
+	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0,win->len_y-64,64,win->len_y);
+	glEnd();
 
-			glTranslatef(window_width-32, window_height-32, 0);
-			glRotatef(compass_direction*rz, 0.0f, 0.0f, 1.0f);
+	//draw the compass needle
+    glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+    glAlphaFunc(GL_GREATER, 0.09f);
+	glPushMatrix();
+	glTranslatef(32, win->len_y-32, 0);
+	glRotatef(compass_direction*rz, 0.0f, 0.0f, 1.0f);
 
-			glBegin(GL_QUADS);
-			draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end,-5, -28, 5, 28);
-			glEnd();
-			glLoadIdentity();
-			glDisable(GL_ALPHA_TEST);
+	glBegin(GL_QUADS);
+	draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end,-5, -28, 5, 28);
+	glEnd();
+	glPopMatrix();
+	glDisable(GL_ALPHA_TEST);
 
-			//draw the clock
-			glBegin(GL_QUADS);
-			draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,
-						  window_width-64, window_height-128, window_width, window_height-64);
-			glEnd();
+	//draw the clock
+	glBegin(GL_QUADS);
+	draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,
+				  0, win->len_y-128, 64, win->len_y-64);
+	glEnd();
 
-			//draw the clock needle
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, 0.05f);
-			glTranslatef(window_width-(64-35), window_height-98, 0);
-			glRotatef(game_minute, 0.0f, 0.0f, 1.0f);
-			glBegin(GL_QUADS);
-			draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -5, -24,5, 6);
-			glEnd();
-			glLoadIdentity();
-			glDisable(GL_ALPHA_TEST);
+	//draw the clock needle
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.05f);
+	glPushMatrix();
+	glTranslatef(32, win->len_y-98, 0);
+	glRotatef(game_minute, 0.0f, 0.0f, 1.0f);
+	glBegin(GL_QUADS);
+	draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -5, -24,5, 6);
+	glEnd();
+	glPopMatrix();
+	glDisable(GL_ALPHA_TEST);
 
-			//Digital Clock
-			if(view_digital_clock==1){
-				char str[5];
-				snprintf(str,5,"%1d:%02d", game_minute/60, game_minute%60);
-				glColor3f(0.77f,0.57f,0.39f);
-				draw_string(window_width-51,window_height-145,str,1);
-			}
+	//Digital Clock
+	if(view_digital_clock==1){
+		char str[5];
+		snprintf(str,5,"%1d:%02d", game_minute/60, game_minute%60);
+		glColor3f(0.77f,0.57f,0.39f);
+		draw_string(3,12,str,1);
+	}
 }
 
 int check_misc_display()
 {
-	if(mouse_x>window_width-64 && mouse_x<window_width
-	   && mouse_y>window_height-128 && mouse_y<window_height-64)
+	return(click_in_window(misc_win, mouse_x, mouse_y, 0));
+}
+
+int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+    //check to see if we clicked on the clock
+	if(my>win->len_y-128 && my<win->len_y-64)
 		{
 			unsigned char protocol_name;
-			protocol_name=GET_TIME;
+
+			protocol_name= GET_TIME;
 			my_tcp_send(my_socket,&protocol_name,1);
 			return 1;
 		}
 	//check to see if we clicked on the compass
-	if(mouse_x>window_width-64 && mouse_x<window_width
-	   && mouse_y>window_height-64 && mouse_y<window_height)
+	if(my>win->len_y-64 && my<win->len_y)
 		{
 			unsigned char protocol_name;
 
-			protocol_name=LOCATE_ME;
+			protocol_name= LOCATE_ME;
 			my_tcp_send(my_socket,&protocol_name,1);
 			return 1;
 		}
@@ -953,16 +976,16 @@ int check_misc_display()
 	return 0;
 }
 
-int quickbar_x_len=30;
-int quickbar_y_len=6*30;
-int quickbar_x=0;
-int quickbar_y=0;
+int quickbar_x_len= 30;
+int quickbar_y_len= 6*30;
+int quickbar_x= 0;
+int quickbar_y= 0;
 
 //quickbar section
 void init_quickbar() {
 	quickbar_x_len= 30;
 	quickbar_y_len= 6*30+1;
-	quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x_len-4, 64, quickbar_x_len, quickbar_y_len, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER);
+	quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x_len-4, 64, quickbar_x_len, quickbar_y_len, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
 	set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 	set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
 }
