@@ -7,6 +7,7 @@ int filtered_so_far=0;
 int use_global_filters=1;
 char text_filter_replace[128]="smeg";
 int caps_filter=1;
+char storage_filter[128];
 
 //returns -1 if the name is already filtered, 1 on sucess, -2 if no more filter slots
 int add_to_filter_list(Uint8 *name, char save_name)
@@ -98,12 +99,62 @@ int check_if_filtered(Uint8 *name)
 	return 0;//nope
 }
 
+// Filter the lines that contain the desired string from the inventory listing
+int filter_storage_text (Uint8 * input_text, int len) {
+	int istart, iline, ic, diff;
+	int flen;
+
+	flen = strlen (storage_filter);
+	istart = iline = ic = 0;
+	while (ic < len - flen)
+        	{
+			if (input_text[ic] == '\n')
+                        	{
+					iline = ++ic;
+				}
+			else if (my_strncompare (input_text+ic, storage_filter, flen))
+                        	{
+					diff = iline - istart;
+					if (diff > 0)
+                                        	{
+					    		len -= diff;
+					    		memmove (input_text + istart, input_text + iline, len * sizeof (Uint8));
+			    				ic -= diff;
+			  			}
+			 		while (ic < len && input_text[ic] != '\n') ic++;
+					  iline = istart = ++ic;
+				}
+			else
+                        	{
+					ic++;
+				}
+		}
+
+	if (istart == 0)
+        	{
+			sprintf (input_text, "<none>");
+			len = 6;
+		} 
+	else
+        	{
+			input_text[--istart] = '\0';
+			len = istart;
+		}
+
+	storage_filter[0] = '\0';
+	return len;
+}  
 
 //returns the new length of the text
 int filter_text(Uint8 * input_text, int len)
 {
 	int i,bad_len,rep_len;
 	Uint8 *rloc=input_text;
+
+	// See if a search term has been added to the #storage command, and if so, 
+        // only list those items with that term
+	if (*storage_filter && my_strncompare (input_text+1, "Items you have in your storage:", 31))
+		len = 33 + filter_storage_text (input_text+33, len-33);
 
 	//do we need to do CAPS filtering?
 	if(caps_filter)

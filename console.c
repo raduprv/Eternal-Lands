@@ -426,7 +426,21 @@ void test_for_console_command()
 			if(auto_open_encyclopedia)	view_window(&encyclopedia_win, -1);
 			// but fall thru and send it to the server
 		}
-	
+
+	if (my_strncompare (text_loc, "storage", 7))
+		{
+			if (text_loc[7] != ' ')
+				{
+					storage_filter[0] = '\0';
+				}
+			else
+				{
+					my_strncp (storage_filter, text_loc+8, 128-1);
+					sprintf (input_text_line, "#storage");
+					input_text_lenght = 8;
+				}
+		}
+
 	send_input_text_line();//no command, send it to the server, as plain text
 
 }

@@ -16,6 +16,7 @@ extern int save_filters;
 extern int use_global_filters;
 extern char text_filter_replace[];
 extern int caps_filter;
+extern char storage_filter[128];
 
 int add_to_filter_list(Uint8 *name, char save_name);
 int remove_from_filter_list(Uint8 *name);
