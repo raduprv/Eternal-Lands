@@ -24,7 +24,7 @@ int no_alpha_sat=0;
 int item_window_on_drop=1;
 help_entry help_list[MAX_HELP_ENTRIES];
 char configdir[256]="./";
-char datadir[256]="DATA_DIR";
+char datadir[256]=DATA_DIR;
 
 void load_harvestable_list()
 {
@@ -98,11 +98,12 @@ void read_key_config()
 	f=fopen(key_ini,"rb"); //try to load local settings
 	if(!f) //use global settings
 		{
-			f=fopen("key.ini","rb");
-			stat("key.ini",&key_file);
+			strcpy(key_ini, datadir);
+			strcat(key_ini, "key.ini");
+			f=fopen(key_ini,"rb");
 		}
-	else
-		stat(key_ini,&key_file);
+
+	stat(key_ini,&key_file);
 #else
 	f=fopen("key.ini","rb");
 	stat("key.ini",&key_file);
@@ -204,7 +205,6 @@ void read_config()
 	DIR *d = NULL;
 	strcpy(configdir, getenv("HOME"));
 	strcat(configdir, "/.elc/");
-	my_strcp(datadir,".");
 	d=opendir(configdir);
 	if(!d)
 			mkdir(configdir,0755);
@@ -213,15 +213,18 @@ void read_config()
 			strcpy(el_ini, configdir);
 			strcat(el_ini, "el.ini");
 			closedir(d);
+			printf("opening: %s\n",el_ini);
 			f=fopen(el_ini,"rb"); //try to load local settings
 		}
 	if(!f) //use global settings
 		{
-			f=fopen("el.ini","rb");
-			stat("el.ini",&ini_file);
+			strcpy(el_ini, datadir);
+			strcat(el_ini, "el.ini");
+			printf("opening: %s\n",el_ini);
+			f=fopen(el_ini,"rb");
 		}
-	else
-		stat(el_ini,&ini_file);
+	
+	stat(el_ini,&ini_file);
 #else
 	f=fopen("el.ini","rb");
 	stat("el.ini",&ini_file);
