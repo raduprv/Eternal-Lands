@@ -114,5 +114,7 @@ extern int e3dlistsize;
 
 extern int video_mode_set;
 
+void read_command_line(); //from main.c
+
 #endif	//__INIT_H__
 

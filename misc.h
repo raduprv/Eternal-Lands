@@ -2,10 +2,6 @@
  * \file
  * \ingroup misc
  */
-/*!
- * \defgroup 	misc_utils Miscellaneous Utilities
- * 		Miscellaneous functions that are useful when you're working with the client
- */
 #ifndef __MISC_H__
 #define __MISC_H__
 
@@ -17,5 +13,9 @@ void save_scene_matrix();
 int mouse_in_sphere(float x, float y, float z, float radius);
 void find_last_url(char * source_string, int len);
 int go_to_url(void *dummy);
+
+//some prototypes, that won't fit somewhere else
+int SphereInFrustum(float x, float y, float z, float radius);
+int check_tile_in_frustrum(float x,float y);
 
 #endif

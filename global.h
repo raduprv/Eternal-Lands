@@ -1,28 +1,3 @@
-/*!
- * \defgroup 	init Initialization
- * 		The initiation phase - loading of variables, parsing files etc.
- */
-/*!
- * \defgroup 	load Loading files
- * 		About loading files and the file formats in the EL
- */
-/*!
- * \defgroup 	display Rendering
- * 		The group contains the functions used in the rendering phase
- */
-/*!
- * \defgroup 	render Files
- * 		The group contains the files used in the rendering process
- * \ingroup	display
- */
-/*!
- * \defgroup	network Network
- * 		The group contains information about the EL protocol and the network implementation in EL
- */
-/*!
- * \defgroup 	misc Miscellaneous
- * 		The group contains miscellaneous functions/utilities and files
- */
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
@@ -127,10 +102,4 @@
 #include "cal3dwrap.h"
 #endif
 
-//some prototypes, that won't fit somewhere else
-int SphereInFrustum(float x, float y, float z, float radius);
-int check_tile_in_frustrum(float x,float y);
-void read_command_line(); //from main.c
-
 #endif
-

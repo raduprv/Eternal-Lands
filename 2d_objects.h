@@ -1,17 +1,8 @@
 /*!
  * \file
  * \brief 	Handles rendering and loading 2d objects
- * \ingroup 	render
- */
-/*!
- * \defgroup 	load_2d Load 2D Objects
- * \ingroup 	load
- */
-/*!
- * \defgroup 	display_2d Display 2D Objects
  * \ingroup 	display
  */
-
 #ifndef __obj_2d_H__
 #define __obj_2d_H__
 

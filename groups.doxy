@@ -1,0 +1,128 @@
+/* This file is only used for creating groups for Doxygen */
+
+///////////////////////////////////////////////////////////////////////////////
+//		      	     The initialization phase		     	     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup 	init Initialization
+ * 		The initiation phase - loading of variables, parsing files etc.
+ */
+/*!
+ * \defgroup	Configuration
+ *		The functions used for parsing the configuration files
+ * \ingroup	init
+ */
+/*!
+ * \defgroup	encyclopedia Encyclopedia
+ *		The functions used for loading the Encyclopedia
+ * \ingroup	init
+ */
+/*!
+ * \defgroup	translation Translation
+ *		The functions used in EL's implementation of multiple languages support
+ * \ingroup	init
+ */
+
+
+///////////////////////////////////////////////////////////////////////////////
+//		      Loading files and file formats			     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup 	load Loading files
+ * 		About loading files and the file formats in the EL
+ */
+/*!
+ * \defgroup 	load_2d Load 2D Objects
+ * 		Functions used in loading 2D objects
+ * \ingroup 	load
+ */
+/*!
+ * \defgroup 	load_3d Load 3D Objects
+ * 		Functions used when loading 3D objects
+ * \ingroup 	load
+ */
+
+
+///////////////////////////////////////////////////////////////////////////////
+//		      		Rendering groups			     // 
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup 	display Rendering
+ * 		The group contains the functions used in the rendering phase
+ */
+/*!
+ * \defgroup 	display_2d Display 2D Objects
+ * 		Functions used in displaying 2D objects
+ * \ingroup 	display
+ */
+/*!
+ * \defgroup 	display_3d Display 3D Objects
+ * 		Functions used in displaying 3D objects
+ * \ingroup 	display
+ */
+/*!
+ * \defgroup 	display_actors Display actors
+ * 		Functions used in displaying actors
+ * \ingroup 	display
+ */
+
+
+///////////////////////////////////////////////////////////////////////////////
+//		      	   Networking/protocol groups			     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup	network Network
+ * 		The group contains information about the EL protocol and the network implementation in EL
+ */
+/*!
+ * \defgroup	network_actors Actors and network data
+ * 		Functions used for actor-related network data
+ * \ingroup	network
+ */
+
+
+///////////////////////////////////////////////////////////////////////////////
+//		      	   Event handling and the WM			     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup	events Events and the Window manager
+ * 		The group contains information about the event handling and the Window manager
+ */
+/*!
+ * \defgroup	events_actors Actor events
+ * 		Actor events
+ * \ingroup	events
+ */
+
+
+///////////////////////////////////////////////////////////////////////////////
+//		      	       Threading and EL			     	     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup	thread Threading
+ *		The group contains information about threading in the EL client
+ */
+/*!
+ * \defgroup 	move_actors Actors movement/animations
+ * 		Functions used for implementing the actors movement/animations
+ * \ingroup	thread
+ */
+
+
+///////////////////////////////////////////////////////////////////////////////
+//		      	   Miscellaneous groups			     	     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup 	misc Miscellaneous
+ * 		The group contains miscellaneous functions/utilities and files
+ */
+/*!
+ * \defgroup	actors_utils Actor utilities
+ * 		Miscellaneous functions for actors
+ * \ingroup	misc
+ */
+/*!
+ * \defgroup 	misc_utils Miscellaneous Utilities
+ * 		Miscellaneous functions that are useful when you're working with the client
+ * \ingroup	misc
+ */

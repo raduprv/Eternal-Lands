@@ -1,15 +1,7 @@
 /*!
  * \file
  * \brief	This file holds information about actors appearance etc. used for displaying the actors.
- * \ingroup	render
- */
-/*!
- * \defgroup 	display_actors Display actors
- * \ingroup 	display
- */
-/*!
- * \defgroup	network_actors Actors and network data
- * \ingroup	network
+ * \ingroup	display
  */
 #ifndef __actors_H__
 #define __actors_H__

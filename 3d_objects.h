@@ -1,13 +1,7 @@
 /*!
  * \file
  * \brief	Displays the 3d objects
- * \ingroup 	render
- */
-/*!\defgroup 	display_3d Display 3D Objects
  * \ingroup 	display
- */
-/*!\defgroup 	load_3d Load 3D Objects
- * \ingroup 	load
  */
 #ifndef __obj_3d_H__
 #define __obj_3d_H__
