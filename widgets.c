@@ -869,7 +869,15 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 	nr = col->nr_tabs++;
 	if (nr < col->max_tabs) {
 		my_strncp (col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
-		col->tabs[nr].tag_width = tag_width;
+		if (tag_width > 0)
+		{
+			col->tabs[nr].tag_width = tag_width;
+		}
+		else
+		{
+			// compute tag width from label width
+			col->tabs[nr].tag_width = 4 + (int) (w->size * get_string_width(col->tabs[nr].label));
+		}
 		col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
 	}
 	

@@ -98,7 +98,7 @@ typedef struct {
  *  Tabbed window structure
  */
 typedef struct {
-	Sint8 label[256];
+	Sint8 label[64];
 	Uint16 tag_width;
 	Uint32 content_id;
 } tab;

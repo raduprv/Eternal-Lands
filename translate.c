@@ -303,7 +303,18 @@ char	reg_error_str[15],
 	timer_lagging_behind[100];
 #else
 	;
-#endif
+#endif  // ELC
+/*! \} */
+
+#ifdef ELC
+/*! \name Window/Tab titles */
+/*! \{ */
+char	title_help[10],
+	title_encyclopedia[20],
+	title_statistics[20],
+	title_knowledge[20],
+	title_questlog[20];
+#endif  // ELC
 /*! \} */
 
 #ifdef ELC
@@ -314,6 +325,7 @@ char	reg_error_str[15],
 #define SIGILS_STR 1
 #define STATS_STR 5
 #define STATS_EXTRA 1
+#define TITLES_STR 1
 #endif
 
 #ifdef MAP_EDITOR
@@ -328,6 +340,7 @@ group_id_di * options_str;
 group_id_di * sigils_str;
 group_stat * stats_str;
 group_id * stats_extra;
+group_id * titles_str;
 #endif
 
 void init_groups()
@@ -340,6 +353,7 @@ void init_groups()
 	sigils_str=add_xml_group(DIGROUP,SIGILS_STR,"sigils");
 	stats_str=add_xml_group(STAT_GROUP,STATS_STR,"base","cross","misc","nexus","skills");
 	stats_extra=add_xml_group(GROUP,STATS_EXTRA,"extra");
+	titles_str = add_xml_group (GROUP, TITLES_STR, "titles");
 #endif
 #ifdef MAP_EDITOR
 	errors=add_xml_group(GROUP,ERRORS,"particles");
@@ -422,6 +436,7 @@ void init_translatables()
 	init_options();
 	init_spells();
 	init_stats();
+	init_titles();
 #endif
 }
 
@@ -782,6 +797,17 @@ void init_stats()
 }
 #endif
 
+#ifdef ELC
+void init_titles ()
+{
+	add_xml_identifier (titles_str, "t_help", title_help, "Help", sizeof(title_help));
+	add_xml_identifier (titles_str, "t_ency", title_encyclopedia, "Encyclopedia", sizeof(title_encyclopedia));
+	add_xml_identifier (titles_str, "t_stats", title_statistics, "Statistics", sizeof(title_statistics));
+	add_xml_identifier (titles_str, "t_know", title_knowledge, "Knowledge", sizeof(title_knowledge));
+	add_xml_identifier (titles_str, "t_qlog", title_questlog, "Quest log", sizeof(title_questlog));
+}
+#endif // ELC
+
 #ifdef WRITE_XML
 void save_strings(xmlDoc * doc, char * name)
 {
@@ -852,6 +878,16 @@ void load_translatables()
 		xmlFreeDoc(file.file);
 	}
 #endif
+#ifdef ELC
+	file = load_strings("titles.xml");
+	if(file.file!=NULL){
+		parse_titles(file.root);
+#ifdef WRITE_XML
+		save_strings(file.file,"titles.xml");
+#endif
+		xmlFreeDoc(file.file);
+	}
+#endif
 #ifndef WRITE_XML
 //There's no need for these variables to be hanging around any more...
 	free_xml_parser(GROUP,errors,ERRORS);
@@ -862,6 +898,7 @@ void load_translatables()
 	free_xml_parser(DIGROUP,sigils_str,SIGILS_STR);
 	free_xml_parser(STAT_GROUP,stats_str,STATS_STR);
 	free_xml_parser(GROUP,stats_extra,STATS_EXTRA);
+	free_xml_parser(GROUP,titles_str,TITLES_STR);
 #endif
 #endif
 }
@@ -1180,6 +1217,13 @@ void parse_stats(xmlNode * in)
 	parse_groups(in, stats_str, STATS_STR, STAT_GROUP);
 }
 #endif 
+
+#ifdef ELC
+void parse_titles(xmlNode * in)
+{
+	parse_groups(in, titles_str, TITLES_STR, GROUP);
+}
+#endif
 
 void free_xml_parser(int type, void * gPtr, int no)
 {

@@ -373,7 +373,7 @@ extern char	reg_error_str[15],
 		error_helmet[15],
 		error_cape[15],
 		duplicate_npc_actor[50],
-#endif
+#endif  // ELC
 		/*particles.c*/
 		particles_filever_wrong[100],
 		particle_system_overrun[100],
@@ -415,9 +415,19 @@ extern char	reg_error_str[15],
 		rules_not_found[100];
 #else
 		;
-#endif
+#endif  // ELC
 
 #endif  //DOXYGEN_SKIP_THIS
+
+#ifdef ELC
+#ifndef DOXYGEN_SKIP_THIS
+extern char	title_help[10],
+		title_encyclopedia[20],
+		title_statistics[20],
+		title_knowledge[20],
+		title_questlog[20];
+#endif  // DOXYGEN_SKIP_THIS
+#endif  // ELC
 
 /*!
  * \ingroup	translation
@@ -500,6 +510,16 @@ void init_spells(void);
  * \callgraph
  */
 void init_stats(void);
+
+/*!
+ * \ingroup	translation
+ * \brief	Initiates the title strings
+ * 
+ * 		Initiates the title strings
+ *
+ * \callgraph
+ */
+void init_titles(void);
 #endif
 
 /*!
@@ -683,6 +703,18 @@ void parse_spells(xmlNode * in);
  * \callgraph
  */
 void parse_stats(xmlNode * in);
+
+/*!
+ * \ingroup	translation
+ * \brief	Parses the titles
+ * 		
+ * 		Checks the current document and parses the titles group.
+ *
+ * \param	in The root xml-node
+ *
+ * \callgraph
+ */
+void parse_titles(xmlNode * in);
 #endif
 
 #ifdef WRITE_XML
