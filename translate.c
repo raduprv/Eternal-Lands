@@ -349,34 +349,30 @@ void * add_xml_group(int type, int no, ...)
 	va_list ap;
 	int i=0;
 	va_start(ap, no);
-	switch(type)
-		{
-			case GROUP:
-				{
-					group_id * grp;
-					grp=(group_id*)calloc(no,sizeof(group_id));
-					for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
-					return grp;
-				}
-			case DIGROUP:
-				{
-					group_id_di * grp;
-					grp=(group_id_di*)calloc(no,sizeof(group_id_di));
-					for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
-					return grp;
-				}
-#ifdef ELC
-			case STAT_GROUP:
-				{
-					group_stat * grp;
-					grp=(group_stat*)calloc(no,sizeof(group_stat));
-					for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
-					return grp;
-				}
-#endif
-			default: 
-				return NULL;
+	switch(type){
+		case GROUP: {
+			group_id * grp;
+			grp=(group_id*)calloc(no,sizeof(group_id));
+			for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
+			return grp;
 		}
+		case DIGROUP: {
+			group_id_di * grp;
+			grp=(group_id_di*)calloc(no,sizeof(group_id_di));
+			for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
+			return grp;
+		}
+#ifdef ELC
+		case STAT_GROUP: {
+			group_stat * grp;
+			grp=(group_stat*)calloc(no,sizeof(group_stat));
+			for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
+			return grp;
+		}
+#endif
+		default: 
+			return NULL;
+	}
 }
 
 void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char * str, char * desc)
@@ -794,68 +790,62 @@ void load_translatables()
 {
 	struct xml_struct file=load_strings("console.xml");
 #ifdef ELC
-	if(file.file!=NULL)
-		{
-			//Parse file
-			parse_console(file.root);
+	if(file.file!=NULL) {
+		//Parse file
+		parse_console(file.root);
 #ifdef WRITE_XML
-			save_strings(file.file,"console.xml");
+		save_strings(file.file,"console.xml");
 #endif
-			xmlFreeDoc(file.file);
-		}
+		xmlFreeDoc(file.file);
+	}
 #endif
 	file = load_strings("errors.xml");
-	if(file.file!=NULL)
-		{
-			parse_errors(file.root);
+	if(file.file!=NULL) {
+		parse_errors(file.root);
 #ifdef WRITE_XML
-			save_strings(file.file,"errors.xml");
+		save_strings(file.file,"errors.xml");
 #endif
-			xmlFreeDoc(file.file);
-		}
+		xmlFreeDoc(file.file);
+	}
 #ifdef ELC
 	file = load_strings("help.xml");
-	if(file.file!=NULL)
-		{
-			parse_help(file.root);
+	if(file.file!=NULL) {
+		parse_help(file.root);
 #ifdef WRITE_XML
-			save_strings(file.file,"help.xml");
+		save_strings(file.file,"help.xml");
 #endif
-			xmlFreeDoc(file.file);
-		}
+		xmlFreeDoc(file.file);
+	}
 #endif
 #ifdef ELC
 	file = load_strings("options.xml");
-	if(file.file!=NULL)
-		{
-			parse_options(file.root);
+	if(file.file!=NULL) {
+		parse_options(file.root);
 #ifdef WRITE_XML
-			save_strings(file.file,"options.xml");
+		save_strings(file.file,"options.xml");
 #endif
-			xmlFreeDoc(file.file);
-		}
+		xmlFreeDoc(file.file);
+	}
 #endif
 #ifdef ELC
 	file = load_strings("spells.xml");
-	if(file.file!=NULL)
-		{
-			parse_spells(file.root);
+	if(file.file!=NULL) {
+		parse_spells(file.root);
 #ifdef WRITE_XML
-			save_strings(file.file,"spells.xml");
+		save_strings(file.file,"spells.xml");
 #endif
-			xmlFreeDoc(file.file);
-		}
+		xmlFreeDoc(file.file);
+	}
 #endif 
 #ifdef ELC
 	file = load_strings("stats.xml");
-	if(file.file!=NULL)
-		{
-			parse_stats(file.root);
+	if(file.file!=NULL){
+		parse_stats(file.root);
 #ifdef WRITE_XML
-			save_strings(file.file,"stats.xml");
+		save_strings(file.file,"stats.xml");
 #endif
-			xmlFreeDoc(file.file);
-		}
+		xmlFreeDoc(file.file);
+	}
 #endif
 #ifndef WRITE_XML
 //There's no need for these variables to be hanging around any more...
@@ -877,94 +867,75 @@ struct xml_struct load_strings(char * file)
 	struct xml_struct tmp={NULL,NULL};
 	sprintf(file_name,"languages/%s/strings/%s",lang,file);
 	tmp=load_strings_file(file_name);
-	if(tmp.file==NULL||tmp.root==NULL)
-		{
-			sprintf(file_name,"languages/en/strings/%s",file);
-			tmp=load_strings_file(file_name);
-			if(tmp.file==NULL)
-				{
-					//Notify about this error - english only
-					char str[120];
-					sprintf(str,"Could not read %s",file);
-					log_error(str);
-				}
+	if(tmp.file==NULL||tmp.root==NULL){
+		sprintf(file_name,"languages/en/strings/%s",file);
+		tmp=load_strings_file(file_name);
+		if(tmp.file==NULL){
+			//Notify about this error - english only
+			char str[120];
+			sprintf(str,"Could not read %s",file);
+			log_error(str);
 		}
+	}
 	return tmp;
 }
 
 struct xml_struct load_strings_file(char * filename)
 {
 	struct xml_struct file={NULL,NULL};
-	if ((file.file = xmlReadFile(filename, NULL, 0)) == NULL)
-		{
+	if ((file.file = xmlReadFile(filename, NULL, 0)) == NULL){
 #ifdef WRITE_XML
-			if ((file.file = xmlNewDoc(BAD_CAST "1.0"))==NULL)
-				{
-					xmlFreeDoc(file.file);
-					file.file=NULL;
-				}
-#else
+		if ((file.file = xmlNewDoc(BAD_CAST "1.0"))==NULL){
 			xmlFreeDoc(file.file);
 			file.file=NULL;
+		}
+#else
+		xmlFreeDoc(file.file);
+		file.file=NULL;
+#endif
+	}
+	if(file.file){
+		if((file.root=xmlDocGetRootElement(file.file))==NULL){
+#ifdef WRITE_XML
+			file.root=xmlNewNode(NULL,"root");
+			xmlDocSetRootElement (file.file, file.root);
+			if((file.root=xmlDocGetRootElement(file.file))==NULL) {
+#endif
+	               	        char str[120];
+				sprintf(str, "Fatal: couldn't find root element in %s\n",filename);
+				log_error(str);
+				xmlFreeDoc(file.file);
+				file.file=NULL;
+#ifdef WRITE_XML
+			}
 #endif
 		}
-	if(file.file)
-		{
-			if((file.root=xmlDocGetRootElement(file.file))==NULL)
-				{
-#ifdef WRITE_XML
-					file.root=xmlNewNode(NULL,"root");
-					xmlDocSetRootElement (file.file, file.root);
-					if((file.root=xmlDocGetRootElement(file.file))==NULL) 
-						{
-#endif
-		               	        char str[120];
-					sprintf(str, "Fatal: couldn't find root element in %s\n",filename);
-					log_error(str);
-					xmlFreeDoc(file.file);
-					file.file=NULL;
-#ifdef WRITE_XML
-						}
-#endif
-				}
-		}
+	}
 	return file;
 }
 
 void copy_strings(xmlNode * in, distring_item * string)
 {
 	xmlNode *cur = in->children?in->children:in;
-	for(;cur; cur = cur-> next)
-		{
-			if(cur->type == XML_ELEMENT_NODE)
-				{
-					if(cur->children)
-						{
-							if(!xmlStrcasecmp(cur->name,"name")) 
-								{
-									int length=30;
-									int lutf8=xmlUTF8Strlen(cur->children->content);
-									if(lutf8>length||lutf8==-1)lutf8=length;
-									UTF8Toisolat1(string->var->str, &lutf8, cur->children->content, &length);
-									string->var->str[lutf8]=0;
+	for(;cur; cur = cur-> next) {
+		if(cur->type == XML_ELEMENT_NODE) {
+			if(cur->children) {
+				if(!xmlStrcasecmp(cur->name,"name")) {
+					char *p=string->var->str;
+					my_xmlStrncopy(&p, cur->children->content, 30);
 #ifdef WRITE_XML
-									string->var->saved_str=1;
+					string->var->saved_str=1;
 #endif
-								}
-							else if (!xmlStrcasecmp(cur->name,"desc")) 
-								{
-									int length=100;
-									int lutf8=xmlUTF8Strlen(cur->children->content);
-									if(lutf8>length||lutf8==-1)lutf8=length;
-									UTF8Toisolat1(string->var->desc, &lutf8, cur->children->content, &length); 
-									string->var->str[lutf8]=0;
+				} else if (!xmlStrcasecmp(cur->name,"desc")) {
+					char *p=string->var->desc;
+					my_xmlStrncopy(&p, cur->children->content, 100);
 #ifdef WRITE_XML
-									string->var->saved_desc=1;
+					string->var->saved_desc=1;
 #endif
-								}
-						}
 				}
+			}
 		}
+	}
 #ifdef WRITE_XML
 	if(!string->var->saved_str) xmlNewTextChild(in, NULL, "name", string->var->str);
 	if(!string->var->saved_desc) {
@@ -977,37 +948,25 @@ void copy_strings(xmlNode * in, distring_item * string)
 void copy_stats(xmlNode * in, statstring_item * string)
 {
 	xmlNode *cur = in->children?in->children:in;
-	for(; cur; cur = cur-> next)
-		{
-			if(cur->type == XML_ELEMENT_NODE)
-				{
-					if(cur->children)
-						{
-							if(!xmlStrcasecmp(cur->name,"name")) 
-								{
-									int len=20;
-									int lutf8=xmlUTF8Strlen(cur->children->content);
-									if(lutf8>len||lutf8==-1)lutf8=len;
-									UTF8Toisolat1(string->var->name, &len, cur->children->content, &len);
-									string->var->name[lutf8]=0;
+	for(; cur; cur = cur-> next) {
+		if(cur->type == XML_ELEMENT_NODE) {
+			if(cur->children){
+				if(!xmlStrcasecmp(cur->name,"name")) {
+					char *p=string->var->name;
+					my_xmlStrncopy(&p, cur->children->content, 20);
 #ifdef WRITE_XML
-									string->var->saved_name=1;
+					string->var->saved_name=1;
 #endif
-								}
-							else if (!xmlStrcasecmp(cur->name,"shortname"))	
-								{
-									int len=5;
-									int lutf8=xmlUTF8Strlen(cur->children->content);
-									if(lutf8>len||lutf8==-1)lutf8=len;
-									UTF8Toisolat1(string->var->shortname, &len, cur->children->content, &len);
-									string->var->shortname[lutf8]=0;
+				} else if (!xmlStrcasecmp(cur->name,"shortname")){
+					char *p=string->var->shortname;
+					my_xmlStrncopy(&p, cur->children->content, 5);
 #ifdef WRITE_XML
-									string->var->saved_shortname=1;
+					string->var->saved_shortname=1;
 #endif
-								}
-						}
 				}
+			}
 		}
+	}
 #ifdef WRITE_XML
 	if(!string->var->saved_name) xmlNewTextChild(in, NULL, "name", string->var->name);
 	if(!string->var->saved_shortname) xmlNewTextChild(in, NULL, "shortname", string->var->shortname);
@@ -1020,33 +979,28 @@ void parse_statstrings(xmlNode * in, group_stat * group)
 {
 	xmlNode * cur = in->children?in->children:in;
 	int i;
-	for(;cur;cur=cur->next)
-		{
-			if(cur->type == XML_ELEMENT_NODE)
-				{
-					if(cur->children)
-						{
-							for(i=0;i<group->no;i++)
-								if(!xmlStrcasecmp(cur->name,group->statstrings[i]->xml_id))
-									{
-										copy_stats(cur->children,group->statstrings[i]);
+	for(;cur;cur=cur->next) {
+		if(cur->type == XML_ELEMENT_NODE) {
+			if(cur->children) {
+				for(i=0;i<group->no;i++){
+					if(!xmlStrcasecmp(cur->name,group->statstrings[i]->xml_id)) {
+						copy_stats(cur->children,group->statstrings[i]);
 #ifdef WRITE_XML
-										group->statstrings[i]->saved=1;
+						group->statstrings[i]->saved=1;
 #endif
-										break;
-									}
-						}
+						break;
+					}
 				}
+			}
 		}
+	}
 #ifdef WRITE_XML
-	for(i=0;i<group->no;i++)
-		{
-			if(!group->statstrings[i]->saved)
-				{
-					cur=xmlNewTextChild(in, NULL, group->statstrings[i]->xml_id, NULL);
-					copy_stats(cur, group->statstrings[i]);
-				}
+	for(i=0;i<group->no;i++) {
+		if(!group->statstrings[i]->saved) {
+			cur=xmlNewTextChild(in, NULL, group->statstrings[i]->xml_id, NULL);
+			copy_stats(cur, group->statstrings[i]);
 		}
+	}
 #endif
 }
 #endif
@@ -1055,33 +1009,28 @@ void parse_distrings(xmlNode * in, group_id_di * group)
 {
 	xmlNode * cur = in->children?in->children:in;
 	int i;
-	for(;cur;cur=cur->next)
-		{
-			if(cur->type==XML_ELEMENT_NODE)
-				{
-					if(cur->children)
-						{
-							for(i=0;i<group->no;i++)
-								if(!xmlStrcasecmp(cur->name,group->distrings[i]->xml_id))
-									{
-										copy_strings(cur->children,group->distrings[i]);
+	for(;cur;cur=cur->next) {
+		if(cur->type==XML_ELEMENT_NODE) {
+			if(cur->children) {
+				for(i=0;i<group->no;i++){
+					if(!xmlStrcasecmp(cur->name,group->distrings[i]->xml_id)){
+						copy_strings(cur->children,group->distrings[i]);
 #ifdef WRITE_XML
-										group->distrings[i]->saved=1;
+						group->distrings[i]->saved=1;
 #endif
-										break;
-									}
-						}
+						break;
+					}
 				}
+			}
 		}
+	}
 #ifdef WRITE_XML
-	for(i=0;i<group->no;i++)
-		{
-			if(!group->distrings[i]->saved)
-				{
-					cur=xmlNewTextChild(in, NULL, group->distrings[i]->xml_id, NULL);
-					copy_strings(cur, group->distrings[i]);
-				}
+	for(i=0;i<group->no;i++) {
+		if(!group->distrings[i]->saved) {
+			cur=xmlNewTextChild(in, NULL, group->distrings[i]->xml_id, NULL);
+			copy_strings(cur, group->distrings[i]);
 		}
+	}
 #endif
 }
 
@@ -1089,35 +1038,27 @@ void parse_strings(xmlNode * in, group_id * group)
 {
 	int i;
 	xmlNode * cur = in->children?in->children:in;
-	for(;cur;cur=cur->next)
-		{
-			if(cur->type==XML_ELEMENT_NODE)
-				{
-					if(cur->children)
-						{
-							for(i=0;i<group->no;i++)
-								if(!xmlStrcasecmp(cur->name,group->strings[i]->xml_id))
-									{
-										int lutf8=xmlUTF8Strlen(cur->children->content);
-										if(lutf8 > group->strings[i]->max_len) lutf8=group->strings[i]->max_len;
-										UTF8Toisolat1(group->strings[i]->var, &lutf8, cur->children->content, &(group->strings[i]->max_len));
-										group->strings[i]->var[lutf8]=0;
+	for(;cur;cur=cur->next) {
+		if(cur->type==XML_ELEMENT_NODE) {
+			if(cur->children) {
+				for(i=0;i<group->no;i++){
+					if(!xmlStrcasecmp(cur->name,group->strings[i]->xml_id))	{
+						my_xmlStrncopy(&group->strings[i]->var, cur->children->content, group->strings[i]->max_len);
 #ifdef WRITE_XML
-										group->strings[i]->saved=1;
+						group->strings[i]->saved=1;
 #endif
-										break;
-									}
-						}
+						break;
+					}
 				}
+			}
 		}
+	}
 #ifdef WRITE_XML
-	for(i=0;i<group->no;i++)
-		{
-			if(!group->strings[i]->saved)
-				{
-					xmlNewTextChild(in, NULL, group->strings[i]->xml_id, group->strings[i]->var);
-				}
+	for(i=0;i<group->no;i++) {
+		if(!group->strings[i]->saved) {
+			xmlNewTextChild(in, NULL, group->strings[i]->xml_id, group->strings[i]->var);
 		}
+	}
 #endif
 }
 
@@ -1130,79 +1071,67 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 #endif
 	int i;
 	xmlNode * cur = in->children?in->children:in;
-	for(;cur;cur=cur->next)
-		{
-			if(cur->type==XML_ELEMENT_NODE)
-				{
-					for(i=0;i<size;i++)
-						{
-							switch(type)
-								{
-									case GROUP:
-										if(!xmlStrcasecmp(cur->name,group[i].xml_id))
-											{
-												parse_strings(cur,&(group[i]));
-#ifdef WRITE_XML
-												group[i].saved=1;
-#endif
-												i=size;
-											}
-										break;
-									case DIGROUP:
-										if(!xmlStrcasecmp(cur->name,Group[i].xml_id))
-											{
-												parse_distrings(cur,&(Group[i]));
-#ifdef WRITE_XML
-												Group[i].saved=1;
-#endif
-												i=size;
-											}
-										break;
-#ifdef ELC
-									case STAT_GROUP:
-										if(!xmlStrcasecmp(cur->name,stat[i].xml_id))
-											{
-												parse_statstrings(cur,&(stat[i]));
-#ifdef WRITE_XML
-												stat[i].saved=1;
-#endif
-												i=size;
-											}
-										break;
-#endif
-									default: break;
-								}
-						}
-				}
-		}
-#ifdef WRITE_XML
-	for(i=0;i<size;i++)
-		{
-			switch(type)
-				{
+	for(;cur;cur=cur->next) {
+		if(cur->type==XML_ELEMENT_NODE) {
+			for(i=0;i<size;i++) {
+				switch(type) {
 					case GROUP:
-						if(!group[i].saved)
-							{
-								cur=xmlNewChild(in, NULL, group[i].xml_id, NULL);
-								parse_strings(cur,&(group[i]));
-							}
+						if(!xmlStrcasecmp(cur->name,group[i].xml_id)) {
+							parse_strings(cur,&(group[i]));
+#ifdef WRITE_XML
+							group[i].saved=1;
+#endif
+							i=size;
+						}
 						break;
 					case DIGROUP:
-						if(!Group[i].saved)
-							{
-								cur=xmlNewChild(in, NULL, Group[i].xml_id, NULL);
-								parse_distrings(cur,&(Group[i]));
-							}
+						if(!xmlStrcasecmp(cur->name,Group[i].xml_id)) {
+							parse_distrings(cur,&(Group[i]));
+#ifdef WRITE_XML
+							Group[i].saved=1;
+#endif
+							i=size;
+						}
 						break;
+#ifdef ELC
 					case STAT_GROUP:
-						if(!stat[i].saved)
-							{
-								cur=xmlNewChild(in, NULL, stat[i].xml_id, NULL);
-								parse_statstrings(cur,&(stat[i]));
-							}
+						if(!xmlStrcasecmp(cur->name,stat[i].xml_id)) {
+							parse_statstrings(cur,&(stat[i]));
+#ifdef WRITE_XML
+							stat[i].saved=1;
+#endif
+							i=size;
+						}
+						break;
+#endif
 					default: break;
 				}
+			}
 		}
+	}
+#ifdef WRITE_XML
+	for(i=0;i<size;i++) {
+		switch(type) {
+			case GROUP:
+				if(!group[i].saved) {
+					cur=xmlNewChild(in, NULL, group[i].xml_id, NULL);
+					parse_strings(cur,&(group[i]));
+				}
+				break;
+			case DIGROUP:
+				if(!Group[i].saved) {
+					cur=xmlNewChild(in, NULL, Group[i].xml_id, NULL);
+					parse_distrings(cur,&(Group[i]));
+				}
+				break;
+			case STAT_GROUP:
+				if(!stat[i].saved) {
+					cur=xmlNewChild(in, NULL, stat[i].xml_id, NULL);
+					parse_statstrings(cur,&(stat[i]));
+				}
+			default: break;
+		}
+	}
 #endif
 }
 
@@ -1255,42 +1184,35 @@ void free_xml_parser(int type, void * gPtr, int no)
 	group_stat * stat=gPtr;
 #endif
 	int i=0,j;
-	switch(type)
-		{
-			case GROUP:
-				for(;i<no;i++)
-					{
-						for(j=0;j<grp[i].no;j++)
-							{
-								free(grp[i].strings[j]);
-							}
-						free(grp[i].strings);
-					}
-				free(grp);
-				break;
-			case DIGROUP:
-				for(;i<no;i++)
-					{
-						for(j=0;j<Grp[i].no;j++)
-							{
-								free(Grp[i].distrings[j]);
-							}
-						free(Grp[i].distrings);
-					}
-				free(Grp);
-				break;
+	switch(type) {
+		case GROUP:
+			for(;i<no;i++){
+				for(j=0;j<grp[i].no;j++) {
+					free(grp[i].strings[j]);
+				}
+				free(grp[i].strings);
+			}
+			free(grp);
+			break;
+		case DIGROUP:
+			for(;i<no;i++) {
+				for(j=0;j<Grp[i].no;j++) {
+					free(Grp[i].distrings[j]);
+				}
+				free(Grp[i].distrings);
+			}
+			free(Grp);
+			break;
 #ifdef ELC
-			case STAT_GROUP:
-				for(;i<no;i++)
-					{
-						for(j=0;j<stat[i].no;j++)
-							{
-								free(stat[i].statstrings[j]);
-							}
-						free(stat[i].statstrings);
-					}
-				free(stat);
+		case STAT_GROUP:
+			for(;i<no;i++) {
+				for(j=0;j<stat[i].no;j++) {
+					free(stat[i].statstrings[j]);
+				}
+				free(stat[i].statstrings);
+			}
+			free(stat);
 #endif
-			default: break;
-		}
+		default: break;
+	}
 }

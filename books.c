@@ -303,7 +303,7 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 	img=create_image(image_path, x, y, w, h, u_start, v_start, u_end, v_end);
 
 	if(cur->children && cur->children->content){
-		my_xmlStrcpy(&text,cur->children->content);
+		my_xmlStrcpy(&text, cur->children->content);
 	}
 	
 	if(add_image_to_page(text, img, b, p)==NULL) free(img);
@@ -312,10 +312,10 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 	if(text) free(text);
 }
 
-void add_xml_str_to_page(xmlNode * cur, char * in, int type, book * b, page *p)
+void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
 {
 	char * string=NULL;
-	if(my_xmlStrcpy(&string,in)!=-1){
+	if(cur->children && cur->children->content && my_xmlStrcpy(&string, cur->children->content)!=-1){
 		add_str_to_page(string, type, b, p);
 	} else {
 		char str[200];
@@ -331,11 +331,11 @@ void add_xml_page(xmlNode *cur, book * b)
 	for(;cur;cur=cur->next){
 		if(cur->type == XML_ELEMENT_NODE){
 			if (!xmlStrcasecmp(cur->name,"title")){
-				add_xml_str_to_page(cur,cur->children->content,_TITLE,b,p);
+				add_xml_str_to_page(cur,_TITLE,b,p);
 			} else if (!xmlStrcasecmp(cur->name,"author")){
-				add_xml_str_to_page(cur,cur->children->content,_AUTHOR,b,p);
+				add_xml_str_to_page(cur,_AUTHOR,b,p);
 			} else if (!xmlStrcasecmp(cur->name,"text")){
-				add_xml_str_to_page(cur,cur->children->content,_TEXT,b,p);
+				add_xml_str_to_page(cur,_TEXT,b,p);
 			} else if (!xmlStrcasecmp(cur->name,"image")){
 				add_xml_image_to_page(cur, b, p);
 			}

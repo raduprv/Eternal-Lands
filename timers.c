@@ -30,7 +30,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 	thunder_control();
 
 	if(is_raining)update_rain();
-	if(normal_animation_timer>2)
+	if(normal_animation_timer>2 && have_a_map)
 		{
 			if(my_timer_adjust > 0)my_timer_adjust--;
 			normal_animation_timer=0;

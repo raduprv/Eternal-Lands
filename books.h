@@ -260,7 +260,7 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p);
  * \return	None
  * \callgraph
  */
-void add_xml_str_to_page(xmlNode * cur, char * in, int type, book * b, page *p);
+void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p);
 
 /*!
  * \ingroup	books

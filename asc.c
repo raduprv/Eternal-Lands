@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <iconv.h>
 #include "global.h"
 #include "md5.h"
 
@@ -402,21 +403,59 @@ int xmlGetInt(xmlNode *n, xmlChar *c)
 	return i;
 }
 
-int my_xmlStrncopy(char ** dest, char * src, int len)
+int my_xmlStrncopy(char ** out, const char * in, int len)
 {
-	int l1=0;
-	int l2=0;
-	if(src) {
-		l1=strlen(src);
-		l2=xmlUTF8Strlen(src);
-		if(l2<0)l2=l1;
-		if(len) if(len<l2)l2=len;
-	
-		if(!*dest) *dest=(char*)malloc((l2+1)*sizeof(char));
+	if(in) {
+		size_t lin=0;
+		size_t lout=0;
+		int l1=0;
+		int l2=0;
+		int retval=1;
+		char *inbuf;
+		char *inbuf2;
+		char *outbuf;
+		char *outbuf2;
+		
+		lin=strlen(in);
+		l2=xmlUTF8Strlen(in);
+		
+		if(l2<0) lout=l1;
+		else if (len>0 && len<l2) lout=len;
+		else lout=l2;
+		
+		inbuf=inbuf2=(char *)malloc((lin+1)*sizeof(char));
+		outbuf=outbuf2=(char *)malloc((lout+1)*sizeof(char));
 
-		if(UTF8Toisolat1(*dest,&l2,src,&l1)<0) return -1;
-		dest[0][l2]=0;
-	}
-	return l2;
+		memcpy(inbuf,in,lin);
+
+		l1=lin;
+		l2=lout;
+
+		if(UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
+			retval=-1;
+		}
+
+		free(inbuf);
+
+		outbuf[l2]=0;
+
+		if(*out) {
+			memcpy(*out,outbuf,l2+1);
+			free(outbuf);
+		} else {
+			*out=outbuf;
+		}
+
+		return retval<0?-1:l2;
+	} else return -1;
 }
 
+int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
+{
+	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
+
+	iconv(t, src, l, dest, lu);
+
+	iconv_close(t);
+	return 1;
+}

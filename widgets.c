@@ -696,10 +696,8 @@ int ParseWindow(xmlAttr *a_node)
         if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				int l1 = strlen(cur_attr->children->content);
-				int l2 = xmlUTF8Strlen(cur_attr->children->content);
-				UTF8Toisolat1(name, &l2, cur_attr->children->content, &l1);
-				name[l2]=0;
+				char *p=name;
+				my_xmlStrncopy(&p, cur_attr->children->content, 255);
 				continue;
 			}
 			//pos_x=""
@@ -801,10 +799,8 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node)
 				case BUTTON:
 					//text=""
 					if(!xmlStrcasecmp(cur_attr->name,"text")){
-						int l1 = strlen(cur_attr->children->content);
-						int l2 = xmlUTF8Strlen(cur_attr->children->content);
-						UTF8Toisolat1(text, &l2, cur_attr->children->content, &l1);
-						text[l2]=0;
+						char *p=text;
+						my_xmlStrncopy(&p, cur_attr->children->content, 255);
 						continue;
 					}
 					break;

@@ -1,3 +1,8 @@
+/*!
+ * \file
+ * \brief	Handles the cache system in EL
+ * \ingroup	cache
+ */
 #ifndef __file_cache_H__
 #define __file_cache_H__
 

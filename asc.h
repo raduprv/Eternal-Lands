@@ -10,6 +10,8 @@
  * A macro for the my_xmlstrncopy function that copies and converts an xml-string. Sets the length to 0, hence it will copy untill \0 is reached.
  */
 #define my_xmlStrcpy(d,s) my_xmlStrncopy(d,s,0)
+#define UTF8Toisolat1(d,ld,s,ls) my_UTF8Toisolat1(d,ld,s,ls)
+int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
 
 /*!
  * \ingroup	misc_utils
@@ -253,7 +255,7 @@ int xmlGetInt(xmlNode *n, xmlChar *p);
  * \param	len The maximum length of chars that will be copied
  * \return	Returns the number of characters that have been copied, or -1 on failure.
  */
-int my_xmlStrncopy(char ** dest, char * src, int len);
+int my_xmlStrncopy(char ** dest, const char * src, int len);
 
 #endif
 
