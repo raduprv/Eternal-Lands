@@ -1,6 +1,21 @@
 Cicero:
 Port sound engine to OpenAL
 
+
 Learner:
+OSX support
+unignore saving to file
+unfilter support
+Faster mouse icon switch without dropping FPS
+
 
 Unassigned:
+Chat Window
+MultiChannel Chat (needs server support)
+Get File signature (MD5 or CRC32 of a specified filename)
+Upload File to client
+S/W version check & upload
+FreeBSD version
+User defined keyboard/mouse bindings
+
+
