@@ -33,6 +33,8 @@ char **  gargv;
 int start_rendering()
 {
     int done=0;
+    Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
+
 	SDL_Thread *music_thread=SDL_CreateThread(update_music, 0);
 #ifndef WINDOWS
 	SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
@@ -81,6 +83,13 @@ int start_rendering()
 								}
 						}
 					else if(afk) go_ifk();
+				}
+			
+			if((int)cur_time-my_timer_clock>500)//Timer failure! log it and restart the timer
+				{
+					log_error("Timer failure!");
+					SDL_SetTimer (1000/(18*4), my_timer_pointer);
+					my_timer_clock=cur_time;
 				}
 			
 			//cache handling
