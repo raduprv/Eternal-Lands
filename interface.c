@@ -517,14 +517,14 @@ typedef struct
 	char selected;
 }mode_flag;
 
-mode_flag video_modes[6];
+mode_flag video_modes[8];
 
 void build_video_mode_array()
 {
 	int i;
 	int flags;
 
-	for(i=0;i<6;i++)
+	for(i=0;i<8;i++)
 		{
 			video_modes[i].selected=0;
 			video_modes[i].supported=0;
@@ -576,6 +576,20 @@ void build_video_mode_array()
 	if(bpp==32)
 	#endif
 	if(SDL_VideoModeOK(1024, 768, 32, flags))video_modes[5].supported=1;
+
+	#ifdef WINDOWS
+	if(bpp==16 || full_screen)
+	#else
+	if(bpp==16)
+	#endif
+	if(SDL_VideoModeOK(1152, 864, 16, flags))video_modes[6].supported=1;
+
+	#ifdef WINDOWS
+	if(bpp==32 || full_screen)
+	#else
+	if(bpp==32)
+	#endif
+	if(SDL_VideoModeOK(1152, 864, 32, flags))video_modes[7].supported=1;
 }
 
 void draw_console_pic(int which_texture)
@@ -1626,6 +1640,26 @@ void draw_options_menu()
 	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
 	options_menu_x_start+193, options_menu_y_start+155, options_menu_x_start+220, options_menu_y_start+171);
 
+	if(video_modes[6].selected)
+	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
+	options_menu_x_start+193, options_menu_y_start+175, options_menu_x_start+220, options_menu_y_start+191);
+	else if(video_modes[6].supported)
+	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
+	options_menu_x_start+193, options_menu_y_start+175, options_menu_x_start+220, options_menu_y_start+191);
+	else
+	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
+	options_menu_x_start+193, options_menu_y_start+175, options_menu_x_start+220, options_menu_y_start+191);
+
+	if(video_modes[7].selected)
+	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
+	options_menu_x_start+193, options_menu_y_start+195, options_menu_x_start+220, options_menu_y_start+211);
+	else if(video_modes[7].supported)
+	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
+	options_menu_x_start+193, options_menu_y_start+195, options_menu_x_start+220, options_menu_y_start+211);
+	else
+	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
+	options_menu_x_start+193, options_menu_y_start+195, options_menu_x_start+220, options_menu_y_start+211);
+
 
 	glEnd();
 	draw_string(options_menu_x_start+55,options_menu_y_start+10,"Options",1);
@@ -1647,6 +1681,8 @@ void draw_options_menu()
 	draw_string(options_menu_x_start+225,options_menu_y_start+115,"800x600x32",1);
 	draw_string(options_menu_x_start+225,options_menu_y_start+135,"1024x768x16",1);
 	draw_string(options_menu_x_start+225,options_menu_y_start+155,"1024x768x32",1);
+	draw_string(options_menu_x_start+225,options_menu_y_start+175,"1152x864x16",1);
+	draw_string(options_menu_x_start+225,options_menu_y_start+195,"1152x864x32",1);
 }
 
 
@@ -1741,6 +1777,20 @@ int check_options_menu()
 		{
 			if(video_modes[5].supported && !video_modes[5].selected)
 			set_new_video_mode(full_screen,6);
+		}
+	else
+	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+175 &&
+	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+191)
+		{
+			if(video_modes[6].supported && !video_modes[6].selected)
+			set_new_video_mode(full_screen,7);
+		}
+	else
+	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+195 &&
+	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+211)
+		{
+			if(video_modes[7].supported && !video_modes[7].selected)
+			set_new_video_mode(full_screen,8);
 		}
 
 	return 1;

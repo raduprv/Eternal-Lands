@@ -128,7 +128,7 @@ void read_config()
 	broswer_name[k]=0;
 
 
-  	if(video_mode>6 || video_mode<=0)
+  	if(video_mode>8 || video_mode<=0)
   		{
 			Uint8 str[80];
 			video_mode=2;

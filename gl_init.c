@@ -34,6 +34,7 @@ void setup_video_mode()
 						window_height=600;
 						bpp=32;
 					}
+				else
 				if(video_mode==5)
 					{
 						window_width=1024;
@@ -45,6 +46,20 @@ void setup_video_mode()
 					{
 						window_width=1024;
 						window_height=768;
+						bpp=32;
+					}
+				else
+				if(video_mode==7)
+					{
+						window_width=1152;
+						window_height=864;
+						bpp=16;
+					}
+				else
+				if(video_mode==8)
+					{
+						window_width=1152;
+						window_height=864;
 						bpp=32;
 					}
 			}
@@ -63,6 +78,12 @@ void setup_video_mode()
 						log_to_console(c_yellow1,"Window size adjusted to 780x550.");
 					}
 				if(video_mode==5 || video_mode==6)
+					{
+						window_width=990;
+						window_height=720;
+						log_to_console(c_yellow1,"Window size adjusted to 990x720.");
+					}
+				if(video_mode==7 || video_mode==8)
 					{
 						window_width=990;
 						window_height=720;
@@ -157,12 +178,14 @@ void init_video()
 			if(video_mode==2)video_mode=1;
 			if(video_mode==4)video_mode=3;
 			if(video_mode==6)video_mode=5;
+			if(video_mode==8)video_mode=7;
 		}
 	else
 		{
 			if(video_mode==1)video_mode=2;
 			if(video_mode==3)video_mode=4;
 			if(video_mode==5)video_mode=6;
+			if(video_mode==7)video_mode=8;
 
 		}
 	/* Initialize the display */
