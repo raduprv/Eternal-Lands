@@ -754,3 +754,83 @@ void destroy_the_flagged()
 		}
 }
 
+
+void add_e3d_heightmap(int K, int D)
+{
+	int face_no = objects_list[K]->e3d_data->face_no;
+	float x_pos = objects_list[K]->x_pos;
+	float y_pos = objects_list[K]->y_pos;
+	float min_x = 0, min_y = 0, max_x = 0, max_y = 0;
+	e3d_array_vertex *T = objects_list[K]->e3d_data->array_vertex;
+	int minx, miny, maxx, maxy;							
+	int i, j, k, h;
+	float b0, b1, b2, b3, x0, x1, x2, x3, y0, y1, y2, y3;
+
+	// Calculating min and max x and y values of the object
+	for(k = 0; k < face_no*3; k++){
+		if(T[k].x < min_x) min_x = T[k].x;
+		if(T[k].x > max_x) max_x = T[k].x;
+		if(T[k].y < min_y) min_y = T[k].y;
+		if(T[k].y > max_y) max_y = T[k].y;
+	}
+
+	// Calculating min and max positions on the heightmap
+	minx = (x_pos + min_x) / 0.5f;
+	miny = (y_pos + min_y) / 0.5f;
+	maxx = (x_pos + max_x) / 0.5f + 1;
+	maxy = (y_pos + max_y) / 0.5f + 1;
+
+	for(i = minx; i < maxx; i++){
+		for(j = miny; j< maxy; j++){
+			for(k = 0; k < face_no*3; k +=3){
+				h=(((T[k].z + T[k+1].z + T[k+2].z)/3)+2.2f)/0.2f; // Average height of triangle
+				if(h>31)h=31;
+				x1 = T[k+0].x + x_pos; y1 = T[k+0].y + y_pos;
+				x2 = T[k+1].x + x_pos; y2 = T[k+1].y + y_pos;
+				x3 = T[k+2].x + x_pos; y3 = T[k+2].y + y_pos;
+			
+				// We determine if the point is in the triangle
+				x0 = i*0.5f; y0 = j*0.5f; 
+				b0 =  (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);
+				b1 = ((x2 - x0) * (y3 - y0) - (x3 - x0) * (y2 - y0)) / b0;
+				b2 = ((x3 - x0) * (y1 - y0) - (x1 - x0) * (y3 - y0)) / b0;
+				b3 = ((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / b0;
+				if(b1>0 && b2>0 && b3>0){
+					height_map[(j*tile_map_size_x*6)+i]=h;	
+					break;
+				}
+
+				if(D>1){ // For more detail we check more points
+					x0 = i*0.5f+0.25f; y0 = j*0.5f; 
+					b1 = ((x2 - x0) * (y3 - y0) - (x3 - x0) * (y2 - y0)) / b0;
+					b2 = ((x3 - x0) * (y1 - y0) - (x1 - x0) * (y3 - y0)) / b0;
+					b3 = ((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / b0;
+					if(b1>0 && b2>0 && b3>0){
+						height_map[(j*tile_map_size_x*6)+i]=h;	
+						break;
+					}
+					if(D>2){
+						x0 = i*0.5f; y0 = j*0.5f+0.25f; 
+						b1 = ((x2 - x0) * (y3 - y0) - (x3 - x0) * (y2 - y0)) / b0;
+						b2 = ((x3 - x0) * (y1 - y0) - (x1 - x0) * (y3 - y0)) / b0;
+						b3 = ((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / b0;
+						if(b1>0 && b2>0 && b3>0){
+							height_map[(j*tile_map_size_x*6)+i]=h;	
+							break;
+						}
+						if(D>3){
+							x0 = i*0.5f+0.25f; y0 = j*0.5f+0.25f; 
+							b1 = ((x2 - x0) * (y3 - y0) - (x3 - x0) * (y2 - y0)) / b0;
+							b2 = ((x3 - x0) * (y1 - y0) - (x1 - x0) * (y3 - y0)) / b0;
+							b3 = ((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / b0;
+							if(b1>0 && b2>0 && b3>0){
+								height_map[(j*tile_map_size_x*6)+i]=h;	
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

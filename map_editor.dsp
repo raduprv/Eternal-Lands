@@ -456,6 +456,10 @@ SOURCE=.\o3dow.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\elc\particles.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\particles_window.h
 # End Source File
 # Begin Source File

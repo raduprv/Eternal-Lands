@@ -5,6 +5,7 @@ void *undo_object = NULL;
 int undo_tile_value;
 int undo_tile_height;
 int undo_tile = -1;
+int calhm = 0;
 
 void zoomin(){
 	zoom_level -= ctrl_on ? 2.5f : 0.25f;
@@ -76,6 +77,9 @@ int HandleEvent(SDL_Event *event)
 		}
 		if ( event->key.keysym.sym == SDLK_e && ctrl_on){
 			toggle_window(edit_window_win);
+		}
+		if ( event->key.keysym.sym == SDLK_h && ctrl_on){
+			calhm = !calhm;
 		}
 		if ( event->key.keysym.sym == SDLK_z && ctrl_on){
 			if(undo_object != NULL){
@@ -555,6 +559,8 @@ int HandleEvent(SDL_Event *event)
 								//if we have an object attached to us, drop it
 								if(cur_tool==tool_select && selected_3d_object!=-1)
         							{
+										int K = selected_3d_object;
+										///
 										if(c1){
 											if(c2)
 												objects_list[selected_3d_object]->x_rot=randomanglex?((minax + (int)(((double)(maxax-minax+1) * rand()) / (RAND_MAX+1.0)))):(rand()%360);
@@ -566,10 +572,13 @@ int HandleEvent(SDL_Event *event)
 										if(randomheight){
 												objects_list[selected_3d_object]->z_pos=(float)(minh + (int)(((double)(maxh-minh+1) * rand()) / (RAND_MAX+1.0)))/10 ;
 										}
-										if(ctrl_on)clone_3d_object(selected_3d_object);
-										else selected_3d_object=-1;
-										
-									
+										if(ctrl_on)
+											clone_3d_object(selected_3d_object);
+										else{
+											if(calhm)
+												add_e3d_heightmap(selected_3d_object, 4);
+											selected_3d_object=-1;
+										}
 									}
 								else
 									{
