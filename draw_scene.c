@@ -48,9 +48,9 @@ void draw_scene()
 	else
 		{
             glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
-            draw_tile_map();
+            if(view_tile || cur_mode==mode_tile)draw_tile_map();
 			check_gl_errors();
-            display_2d_objects();
+            if(view_2d || cur_mode==mode_2d)display_2d_objects();
 		}
 
 	check_gl_errors();
