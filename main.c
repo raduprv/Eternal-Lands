@@ -92,7 +92,8 @@ int start_rendering()
 	if(pm_log.ppl)free_pm_log();
 	save_bin_cfg();
 	unload_questlog();
-	unload_e3d_list();
+	//unload_e3d_list();	// do we really want to overwrite this file??
+
 	/* Destroy our GL context, etc. */
 	destroy_sound();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
