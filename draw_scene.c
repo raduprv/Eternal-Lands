@@ -111,6 +111,10 @@ void draw_scene()
 							draw_hud_interface();
 							SDL_GL_SwapBuffers();
 							Leave2DMode();
+							if(elwin_mouse >= 0) {//Make sure that mouse changes in the quickbar
+								if(current_cursor!=elwin_mouse) change_cursor(elwin_mouse);
+								elwin_mouse=-1;
+							} else if(current_cursor!=CURSOR_ARROW) change_cursor(CURSOR_ARROW);
 							check_gl_errors();
 						}
 					SDL_Delay(20);
@@ -159,6 +163,10 @@ void draw_scene()
 							draw_hud_interface();
 							Leave2DMode();
 							draw_game_map(interface_mode==interface_map);
+							if(elwin_mouse >= 0) {
+								if(current_cursor!=elwin_mouse) change_cursor(elwin_mouse);
+								elwin_mouse=-1;
+							} else if(current_cursor!=CURSOR_ARROW) change_cursor(CURSOR_ARROW);
 							SDL_GL_SwapBuffers();
 							check_gl_errors();
 						}
