@@ -97,7 +97,7 @@ int filter_text(Uint8 * input_text, int len)
 	if(caps_filter)
 		{
 			// handle PM's
-			if(*rloc == '[') while(*rloc && *rloc != ']') rloc++;
+			if(*rloc == '[' || rloc[1] == '[') while(*rloc && *rloc != ':') rloc++;
 			// or ignore first word
 			else while(*rloc && *rloc != ' ' && *rloc != ':') rloc++;
 			// check for hitting the EOS
