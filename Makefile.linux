@@ -2,11 +2,12 @@
 
 CC=gcc
 
+OPTIONS=-DLINUX -DMAP_EDITOR
 GTK_CFLAGS = $(shell gtk-config --cflags)
 
-CFLAGS=-DLINUX $(GTK_CFLAGS) $(shell sdl-config --cflags) -g -W
+CFLAGS=$(OPTIONS) $(GTK_CFLAGS) $(shell sdl-config --cflags) -g -W
 
-_CFLAGS=-mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) -DLINUX
+_CFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags)
 
 GTK_LIBS =  $(shell gtk-config --libs)
 
