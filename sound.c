@@ -243,6 +243,7 @@ void init_sound()
 void destroy_sound()
 {
 	int i;
+	if(!have_sound)return;
 	SDL_DestroyMutex(sound_list_mutex);
 	sound_list_mutex=NULL;
 
