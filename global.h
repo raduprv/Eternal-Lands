@@ -1,0 +1,120 @@
+#ifndef __GLOBAL_H__
+#define __GLOBAL_H__
+
+#define true 1
+#define false 0
+
+#include <SDL.h>
+#include "SDL_opengl.h"
+#include "asc.h"
+#include "e3d.h"
+#include "2d_objects.h"
+#include "tiles.h"
+#include "lights.h"
+#include "interface.h"
+#include "editor.h"
+#include "map_io.h"
+#include "shadows.h"
+#include "reflection.h"
+
+#define sector_size_x 15
+#define sector_size_y 15
+
+extern int font_text;
+
+extern int map_meters_size_x;
+extern int map_meters_size_y;
+
+extern int window_width;
+extern int window_height;
+extern int bpp;
+
+extern Uint32 cur_time, last_time;
+
+extern float cx,cy,cz;
+extern float rx,ry,rz;
+extern float camera_x_end_point;
+extern float camera_z_end_point;
+extern float terrain_scale;
+extern int last_texture;
+
+//debug
+extern int texture2;
+extern int texture3;
+//end of debug
+
+typedef struct
+{
+	int texture_id;
+	int last_access_time;
+    char file_name[100];
+	unsigned char alpha;
+}texture_cache_struct;
+
+extern texture_cache_struct texture_cache[1000];
+
+extern  Uint8 *e3d_file_mem;
+extern  Uint8 *handle_e3d_file_mem;
+
+typedef struct
+{
+	float r1;
+	float g1;
+	float b1;
+	float r2;
+	float g2;
+	float b2;
+	float r3;
+	float g3;
+	float b3;
+	float r4;
+	float g4;
+	float b4;
+
+} color_rgb;
+
+extern color_rgb colors_list[25];
+
+
+//some prototypes, that won't fit somewhere else
+Uint32 my_timer(unsigned int some_int);
+
+
+
+
+//colors
+#define c_red 0
+#define c_blue 1
+#define c_green 2
+#define c_yellow 3
+#define c_orange 4
+#define c_violet 5
+#define c_light_red 6
+#define c_light_blue 7
+#define c_light_green 8
+#define c_dark_red 9
+#define c_dark_blue 10
+#define c_dark_green 11
+#define c_white 12
+#define c_dark 13
+#define c_gray 14
+#define c_purple 15
+#define c_brown 16
+#define c_green_yellow 17
+#define c_silver 18
+#define c_gold 19
+#define c_steel 20
+#define c_bronze 21
+
+extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
+extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
+extern int have_multitexture;
+extern int poor_man;
+extern int ground_detail_text;
+
+extern float clouds_movement_u;
+extern float clouds_movement_v;
+extern float texture_scale;
+extern int clouds_shadows;
+
+#endif
