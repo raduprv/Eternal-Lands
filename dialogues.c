@@ -165,11 +165,11 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 					   my>=dialogue_responces[i].y_start+7*14 && my<=dialogue_responces[i].y_start+7*14+dialogue_responces[i].y_len)
 						{
 							dialogue_responces[i].mouse_over=1;
-							return 1;
+							return 0;
 						}
 				}
 		}
-	return 1;
+	return 0;
 }
 
 int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
