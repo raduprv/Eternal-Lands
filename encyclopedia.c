@@ -9,7 +9,7 @@ int encyclopedia_menu_y_len=350;
 int encyclopedia_menu_dragged=0;
 
 _Category Category[100];
-_Page Page[100];
+_Page Page[500];
 int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0,isize,tsize,tid,ssize,mouseover=0,xposupdate,yposupdate,lastextlen=0;
 float u,v,uend,vend,xend,yend,r,g,b;
 char *s,*ss;
