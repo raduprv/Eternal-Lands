@@ -1,6 +1,7 @@
 #include "global.h"
+#include <string.h>
 
-char knowledge_array[200][32];
+_knowledge knowledge_list[200];
 
 void display_knowledge()
 {
@@ -43,10 +44,12 @@ void display_knowledge()
 	glEnable(GL_TEXTURE_2D);
    
 	draw_string(knowledge_menu_x+knowledge_menu_x_len-16,knowledge_menu_y+2,"X",1);
+	glColor3f(0.9f,0.9f,0.9f);
+	draw_string_zoomed(knowledge_menu_x+10,knowledge_menu_y+315,"Currently researching:",1,0.8);
+	draw_string_zoomed(knowledge_menu_x+290,knowledge_menu_y+315,"ETA:",1,0.8);
 	// Draw knowledges
 	for(i=0;i<200;i++){
-		//draw_string_zoomed(x,y,"1",1,0.6);
-		knowledge_list[i].mouse_over ? glColor3f(0.77f,0.57f,0.39f) : glColor3f(0.17f,0.17f,0.39f);
+		knowledge_list[i].mouse_over ? glColor3f(0.77f,0.33f,0.33f) : glColor3f(0.9f,0.9f,0.9f);
 		draw_string_zoomed(x,y,knowledge_list[i].name,1,0.6);
 		x+=40;
 		if(i%10==9){y+=10;x=knowledge_menu_x+2;}
@@ -72,17 +75,24 @@ int knowledge_mouse_over()
 
 int check_knowledge_interface()
 {
-	int x,y;
-	//char str[100];
+	int x,y,len;
+	char str[100];
 	if(!view_knowledge || mouse_x>knowledge_menu_x+knowledge_menu_x_len || mouse_x<knowledge_menu_x
 	   || mouse_y<knowledge_menu_y || mouse_y>knowledge_menu_y+knowledge_menu_y_len)return 0;
 
-	//check clicks
 	x=mouse_x-knowledge_menu_x;
 	y=mouse_y-knowledge_menu_y;
 	x/=40;
 	y/=10;
-	//send the click
+	if(y*10+x < 200 && *(knowledge_list[y*10+x].name))
+		{
+			str[0] = RAW_TEXT;
+			len = strlen(knowledge_list[y*10+x].name) + 5;
+			strcpy(str+1,"#ki ");
+			strcpy(str+5,knowledge_list[y*10+x].name);
+			str[len+1]=0;
+			my_tcp_send(my_socket,str,len);
+		}
 	return 1;
 } 
 
@@ -91,19 +101,19 @@ void get_knowledge_list(char *list)
 	int i=0,j=0,k;
 	for(k=0;k<200;k++)
 		{
-			knowledge_array[k][0]='\0';
+			knowledge_list[k].name[0]='\0';
 		}
-	while(list)
+	while(*list)
 		{
 			if(*list == ',')
 				{
-					knowledge_array[i][j]='\0';
+					knowledge_list[i].name[j]='\0';
 					j=0;
 					i++;
 				}
 			else
 				{
-					knowledge_array[i][j]=*list;
+					knowledge_list[i].name[j]=*list;
 					j++;
 				}
 			list++;

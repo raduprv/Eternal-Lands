@@ -7,8 +7,6 @@ typedef struct
    unsigned char mouse_over;
 }_knowledge;
 
-_knowledge knowledge_list[200];
-
 void display_knowledge();
 int knowledge_mouse_over();
 int check_knowledge_interface();

@@ -73,7 +73,10 @@ int HandleEvent(SDL_Event *event)
 					}
 
 				if ( event->key.keysym.sym == SDLK_RETURN && alt_on)
-					toggle_full_screen();
+					{
+						toggle_full_screen();
+						break;
+					}
 
 				if ( event->key.keysym.sym == SDLK_UP)
 					{
@@ -146,7 +149,8 @@ int HandleEvent(SDL_Event *event)
 
 				if( event->key.keysym.sym == SDLK_g && ctrl_on)
 					{
-						get_updates();
+						//get_updates();
+						get_knowledge_list("this,that,other");
 						break;
 					}
 
