@@ -16,6 +16,7 @@ md2 * load_md2_cache(char * file_name)
 	if(md2_id) return(md2_id);
 	//md2 not found in the cache, so load it, and store it
 	md2_id=load_md2(file_name);
+	if(md2_id==NULL) return NULL;
 	//and remember it
 	md2_id->cache_ptr=cache_add_item(cache_md2, md2_id->file_name, md2_id, md2_mem_used+sizeof(*md2_id));
 
