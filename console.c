@@ -166,6 +166,11 @@ void test_for_console_command()
 				}
 		}
 
+	if(strcmp(input_text_line,"filters_")==0)
+		{
+			list_filters();
+			return;
+		}
 
 ////////////////////////
 	if(input_text_line[0]=='m' && input_text_line[1]=='o' && input_text_line[2]=='d' &&
