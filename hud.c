@@ -906,7 +906,7 @@ void draw_quickbar() {
 
 					//get the x and y
 					cur_pos=item_list[i].pos;
-					if(cur_pos<7)//don't even check worn items
+					if(cur_pos<6)//don't even check worn items
 						{
 							x_start=quickbar_x+1;
 							x_end=x_start+50;
