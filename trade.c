@@ -401,7 +401,8 @@ int check_trade_interface()
 							}
 						if(i<36+6 && item_list[i].quantity)
 							{
-								if(action_mode==action_look && left_click)
+								//if(action_mode==action_look && left_click)
+								if(action_mode==action_look || right_click)
 									{
 										str[0]=LOOK_AT_INVENTORY_ITEM;
 										str[1]=item_list[i].pos;
