@@ -240,7 +240,6 @@ void get_your_items(Uint8 *data)
 			else item_list[i].use_with_inventory=0;
 		}
 	build_manufacture_list();
-
 }
 
 
@@ -438,7 +437,6 @@ void drag_item()
 	v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
 	v_end=v_start-(float)50/256;
 
-
 	//get the texture this item belongs to
 	this_texture=item_list[item_dragged].image_id/25;
 	if(this_texture==0)this_texture=items_text_1;
@@ -473,7 +471,7 @@ void remove_item_from_inventory(int pos)
 
 void remove_item_from_ground(Uint8 pos)
 {
-	ground_item_list[pos].quantity=0;
+	ground_item_list[pos].quantity= 0;
 }
 
 void get_new_inventory_item(Uint8 *data)
@@ -484,8 +482,8 @@ void get_new_inventory_item(Uint8 *data)
 	int quantity;
 	int image_id;
 
-	pos=data[6];
-	flags=data[7];
+	pos= data[6];
+	flags= data[7];
 	image_id=*((Uint16 *)(data));
 	quantity=*((Uint32 *)(data+2));
 
@@ -555,7 +553,7 @@ int display_ground_items_handler(window_info *win)
 	//ok, now let's draw the objects...
 	for(i=0;i<50;i++)
 		{
-			if(ground_item_list[i].quantity)
+			if(ground_item_list[i].quantity > 0)
 				{
 					float u_start,v_start,u_end,v_end;
 					int this_texture,cur_item,cur_pos;
@@ -601,11 +599,12 @@ int display_ground_items_handler(window_info *win)
 //do the flags later on
 void get_bag_item(Uint8 *data)
 {
-	int pos;
-	pos=data[6];
-	ground_item_list[pos].image_id=*((Uint16 *)(data));
-	ground_item_list[pos].quantity=*((Uint32 *)(data+2));
-	ground_item_list[pos].pos=pos;
+	int	pos;
+	pos= data[6];
+
+	ground_item_list[pos].image_id= *((Uint16 *)(data));
+	ground_item_list[pos].quantity= *((Uint32 *)(data+2));
+	ground_item_list[pos].pos= pos;
 }
 
 //put the flags later on
@@ -613,9 +612,8 @@ void get_bags_items_list(Uint8 *data)
 {
 	Uint16 items_no;
 	int i;
-	int my_offset;
 	int pos;
-
+	int my_offset;
 
 	view_ground_items=1;
 	draw_pick_up_menu();
@@ -624,18 +622,17 @@ void get_bags_items_list(Uint8 *data)
 			display_items_menu();
 		}
 	//clear the list
-	for(i=0;i<50;i++)ground_item_list[i].quantity=0;
+	for(i=0;i<50;i++) ground_item_list[i].quantity=0;
 
 	items_no=data[0];
 	for(i=0;i<items_no;i++)
 		{
-			my_offset=i*7+1;
-			pos=data[my_offset+6];
-			ground_item_list[pos].image_id=*((Uint16 *)(data+my_offset));
-			ground_item_list[pos].quantity=*((Uint32 *)(data+my_offset+2));
-			ground_item_list[pos].pos=pos;
+			my_offset= i*7+1;
+			pos= data[my_offset+6];
+			ground_item_list[pos].image_id= *((Uint16 *)(data+my_offset));
+			ground_item_list[pos].quantity= *((Uint32 *)(data+my_offset+2));
+			ground_item_list[pos].pos= pos;
 		}
-
 }
 
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
@@ -709,17 +706,17 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	for(y=0;y<10;y++)
 		for(x=0;x<5;x++)
 			{
-				x_screen=x*33;
-				y_screen=y*33;
+				x_screen= x*33;
+				y_screen= y*33;
 				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
 						int pos;
-						pos=y*5+x;
+						pos= y*5+x;
 						if(!ground_item_list[pos].quantity) {
 							if (item_dragged != -1){
 								Uint8 str[10];
 								int quantity = item_list[item_dragged].quantity;
-								if (quantity - item_quantity > 0)
+								if (quantity > item_quantity)
 									quantity = item_quantity;
 								str[0] = DROP_ITEM;
 								str[1] = item_list[item_dragged].pos;
@@ -732,19 +729,19 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 						}
 						if(action_mode==action_look || right_click)
 							{
-								str[0]=LOOK_AT_GROUND_ITEM;
-								str[1]=pos;
+								str[0]= LOOK_AT_GROUND_ITEM;
+								str[1]= pos;
 								my_tcp_send(my_socket,str,2);
 							}
 						else
 							{
 								int quantity;
-								quantity=ground_item_list[pos].quantity;
-								if(quantity-item_quantity>0)quantity=item_quantity;
+								quantity= ground_item_list[pos].quantity;
+								if(quantity > item_quantity) quantity= item_quantity;
 
-								str[0]=PICK_UP_ITEM;
-								str[1]=pos;
-								*((Uint16 *)(str+2))=quantity;
+								str[0]= PICK_UP_ITEM;
+								str[1]= pos;
+								*((Uint16 *)(str+2))= quantity;
 								my_tcp_send(my_socket,str,4);
 							}
 						return 1;
@@ -783,8 +780,8 @@ void open_bag(int object_id)
 		{
 			if(bag_list[i].obj_3d_id==object_id)
 				{
-					str[0]=INSPECT_BAG;
-					str[1]=i;
+					str[0]= INSPECT_BAG;
+					str[1]= i;
 					my_tcp_send(my_socket,str,2);
 					return;
 				}
@@ -822,3 +819,4 @@ void draw_pick_up_menu()
 	}
 	display_window(ground_items_win);
 }
+
