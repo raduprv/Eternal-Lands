@@ -565,7 +565,7 @@ void add_actor_from_server(char * in_data)
 	if(strlen(&in_data[23]) >= 30)
 		{
 			char str[120];
-			snprintf(str, 120, "Bad actor name/length (%d): %s/%d\n", actors_list[i]->actor_type,&in_data[23], strlen(&in_data[23]));
+			snprintf(str, 120, "Bad actor name/length (%d): %s/%d\n", actors_list[i]->actor_type,&in_data[23], (int)strlen(&in_data[23]));
 			log_error(str);
 			return;
 		}
