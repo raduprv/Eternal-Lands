@@ -44,7 +44,9 @@ int HandleEvent (SDL_Event *event)
 #endif
 	int done = 0;
 	Uint32 key = 0;
+#ifndef OLD_EVENT_HANDLER
 	Uint32 flags = 0;
+#endif
 
 	if (event->type == SDL_NOEVENT) return 0;
 
