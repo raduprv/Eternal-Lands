@@ -1025,16 +1025,6 @@ struct xml_struct load_strings_file(char * filename)
 	return file;
 }
 
-void elstrncpy(unsigned char *dest, unsigned char *src, int len)
-{
-	while(*src && len--)
-		{
-			if(*src<=127)*dest++=*src;//Failsafe untill we know what to do with the special EL encoding
-			src++;
-		}
-	*dest=0;
-}
-
 void copy_strings(xmlNode * in, distring_item * string)
 {
 	xmlNode *cur = in->children?in->children:in;
@@ -1046,14 +1036,16 @@ void copy_strings(xmlNode * in, distring_item * string)
 						{
 							if(!xmlStrcasecmp(cur->name,"name")) 
 								{
-									elstrncpy(string->var->str,cur->children->content,30);
+									int length=30;
+									UTF8Toisolat1(string->var->str, &length, cur->children->content, &length);
 #ifdef WRITE_XML
 									string->var->saved_str=1;
 #endif
 								}
 							else if (!xmlStrcasecmp(cur->name,"desc")) 
 								{
-									elstrncpy(string->var->desc,cur->children->content,100);
+									int length=100;
+									UTF8Toisolat1(string->var->desc, &length, cur->children->content, &length); 
 #ifdef WRITE_XML
 									string->var->saved_desc=1;
 #endif
@@ -1078,14 +1070,16 @@ void copy_stats(xmlNode * in, statstring_item * string)
 						{
 							if(!xmlStrcasecmp(cur->name,"name")) 
 								{
-									elstrncpy(string->var->name,cur->children->content,20);
+									int len=20;
+									UTF8Toisolat1(string->var->name, &len, cur->children->content, &len);
 #ifdef WRITE_XML
 									string->var->saved_name=1;
 #endif
 								}
 							else if (!xmlStrcasecmp(cur->name,"shortname"))	
 								{
-									elstrncpy(string->var->shortname,cur->children->content,5);
+									int len=5;
+									UTF8Toisolat1(string->var->shortname, &len, cur->children->content, &len);
 #ifdef WRITE_XML
 									string->var->saved_shortname=1;
 #endif
@@ -1183,7 +1177,7 @@ void parse_strings(xmlNode * in, group_id * group)
 							for(i=0;i<group->no;i++)
 								if(!xmlStrcasecmp(cur->name,group->strings[i]->xml_id))
 									{
-										elstrncpy(group->strings[i]->var,cur->children->content,group->strings[i]->max_len-1);
+										UTF8Toisolat1(group->strings[i]->var, &(group->strings[i]->max_len), cur->children->content, &(group->strings[i]->max_len));
 #ifdef WRITE_XML
 										group->strings[i]->saved=1;
 #endif

@@ -300,8 +300,10 @@ void ParsePage(xmlAttr *a_node)
         if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				Page[numpage].Name=(char*)malloc(strlen(cur_attr->children->content)+1);
-				strcpy(Page[numpage].Name,cur_attr->children->content);
+				int l=strlen(cur_attr->children->content);
+				Page[numpage].Name=(char*)malloc(l+1);
+				UTF8Toisolat1(Page[numpage].Name, &l, cur_attr->children->content, &l);
+				Page[numpage].Name[l]=0;
 			}
 		}
 	}
@@ -359,15 +361,17 @@ void ReadCategoryXML(xmlNode * a_node)
 			if(!xmlStrcasecmp(cur_node->name,"Text")){
 				_Text *T=(_Text*)malloc(sizeof(_Text));
 				_Text *t=&Page[numpage].T;
+				int l=strlen(cur_node->children->content);
 				T->Next=NULL;
 				ParseText(cur_node->properties);
 				T->x=x;
 				T->y=y;
 				T->size=size;
 				T->r=r; T->g=g; T->b=b;
-				T->text=(char*)malloc(strlen(cur_node->children->content)+1);
+				T->text=(char*)malloc(l+1);
 				T->ref=NULL;
-				strcpy(T->text,cur_node->children->content);
+				UTF8Toisolat1(T->text, &l, cur_node->children->content, &l); 
+				T->text[l]=0;
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
 				x+=strlen(T->text)*((T->size)?11:8);
@@ -480,16 +484,22 @@ void ReadCategoryXML(xmlNode * a_node)
 			if(!xmlStrcasecmp(cur_node->name,"link")){
 				_Text *T=(_Text*)malloc(sizeof(_Text));
 				_Text *t=&Page[numpage].T;
+				int ls;
+				int lss;
 				ParseLink(cur_node->properties);
+				lss=strlen(ss);
+				ls=strlen(s);
 				T->Next=NULL;
 				T->x=x;
 				T->y=y;
 				T->size=size;
 				T->r=r; T->g=g; T->b=b;
-				T->text=(char*)malloc(strlen(s)+1);
-				T->ref=(char*)malloc(strlen(ss)+1);
-				strcpy(T->text,s);
-				strcpy(T->ref,ss);
+				T->text=(char*)malloc(ls+1);
+				T->ref=(char*)malloc(lss+1);
+				UTF8Toisolat1(T->text, &ls, s, &ls);
+				T->text[ls]=0;
+				UTF8Toisolat1(T->ref, &lss, ss, &lss);
+				T->ref[lss]=0;
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
 				x+=strlen(T->text)*((T->size)?11:8);
@@ -512,8 +522,10 @@ void ReadIndexXML(xmlNode * a_node)
 			if(!xmlStrcasecmp(cur_node->name,"Category")){
 				xmlDocPtr doc;
 				char tmp[100];
-				Category[num_category].Name=(char*)malloc(strlen(cur_node->children->content)+1);
-				strcpy(Category[num_category++].Name,cur_node->children->content);
+				int l=strlen(cur_node->children->content);
+				Category[num_category].Name=(char*)malloc(l+1);
+				UTF8Toisolat1(Category[num_category].Name, &l, cur_node->children->content, &l);
+				Category[num_category++].Name[l]=0;
 
 				//we load the category now
 #ifdef NEW_STRUCTURE
