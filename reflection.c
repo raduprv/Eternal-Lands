@@ -22,7 +22,7 @@ void draw_3d_reflection(object3d * object_id)
 
 	int is_transparent;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	is_transparent=object_id->e3d_data->is_transparent;
 	materials_no=object_id->e3d_data->materials_no;
 
@@ -45,7 +45,7 @@ void draw_3d_reflection(object3d * object_id)
 		}
 
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
@@ -60,7 +60,7 @@ void draw_3d_reflection(object3d * object_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glVertexPointer(3,GL_FLOAT,0,array_vertex);
 	glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
 	glNormalPointer(GL_FLOAT,0,array_normal);
@@ -72,15 +72,15 @@ void draw_3d_reflection(object3d * object_id)
 					last_texture=texture_id;
 					glBindTexture(GL_TEXTURE_2D, texture_id);
 				}
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			//if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 			//if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glPopMatrix();//restore the scene
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 
 	if(object_id->self_lit && (night_shadows_on || dungeon))glEnable(GL_LIGHTING);
@@ -89,7 +89,7 @@ void draw_3d_reflection(object3d * object_id)
 			glDisable(GL_ALPHA_TEST);
 		}
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 //if there is any reflecting tile, returns 1, otherwise 0

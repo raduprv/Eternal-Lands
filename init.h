@@ -9,6 +9,7 @@
 
 char lang[10];
 extern char datadir[256];
+extern char configdir[256];
 
 void init_stuff();
 void window_resize();

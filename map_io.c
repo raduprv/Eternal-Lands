@@ -92,7 +92,7 @@ int save_map(char * file_name)
 	for(i=0;i<max_obj_2d;i++)if(obj_2d_list[i])obj_2d_no++;
 	for(i=0;i<max_lights;i++)if(lights_list[i])lights_no++;
 	// We ignore temporary particle systems (i.e. ones with a ttl)
-	for(i=0;i<max_particle_systems;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)particles_no++;
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)particles_no++;
 
 	//ok, now build the header...
 	//clear the header
@@ -231,7 +231,7 @@ int save_map(char * file_name)
 
 	// Write the particle systems
 	j=0;
-	for(i=0;i<max_particle_systems;i++)
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
 			if(j>particles_no)break;
 			if(particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)

@@ -355,11 +355,11 @@ void display_particle_handles()
 	int i;
 
 	glDisable(GL_TEXTURE_2D);
-	lock_particles_list();
-	for(i=0;i<max_particle_systems;i++)
+	LOCK_PARTICLES_LIST();
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		if(particles_list[i])
 			draw_particle_handle(particles_list[i]);
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 	glEnable(GL_TEXTURE_2D);
 }
 
@@ -379,8 +379,8 @@ void get_particles_object_under_mouse() {
 	glLoadIdentity();					// Reset The Matrix
 	Move();
 
-	lock_particles_list();
-	for(i=0;i<max_particle_systems;i++)
+	LOCK_PARTICLES_LIST();
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
 			if(particles_list[i])
 			     {
@@ -399,13 +399,13 @@ void get_particles_object_under_mouse() {
 			     }
 		}
 	glPopMatrix();
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 	glEnable(GL_TEXTURE_2D);
 }
 
 void kill_particles_object(int object_id) {
 	if(!particles_list[object_id])return;
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	if(particles_list[object_id]->def->use_light){
 		free(lights_list[particles_list[object_id]->light]);
 		lights_list[particles_list[object_id]->light]=NULL;
@@ -413,15 +413,15 @@ void kill_particles_object(int object_id) {
 	free(particles_list[object_id]);
 	particles_list[object_id]=0;//kill any reference to it
 	selected_particles_object=-1;//we have no selected object now...
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 void move_particles_object(int object_id) {
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	if(!particles_list[object_id])
 		{
 			if(object_id==selected_particles_object)selected_particles_object=-1;
-			unlock_particles_list();
+			UNLOCK_PARTICLES_LIST();
 			return;
 		}
 	particles_list[object_id]->x_pos=scene_mouse_x;
@@ -429,14 +429,14 @@ void move_particles_object(int object_id) {
 	if(particles_list[object_id]->def->use_light){
 		move_light(particles_list[object_id]->light);
 	}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 void clone_particles_object(int object_id) {
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	if(!particles_list[object_id])return;
 	selected_particles_object=create_particle_sys(particles_list[object_id]->def,scene_mouse_x,scene_mouse_y,particles_list[object_id]->z_pos);
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1148,7 +1148,7 @@ FILE *my_fopen (const char *fname, const char *mode)
 	{
 		char str[256];
 		snprintf(str, sizeof (str), "%s: %s \"%s\"", reg_error_str, cant_open_file, fname);
-		LogError(str);
+		LOG_ERROR(str);
 	}
 	return file;
 }

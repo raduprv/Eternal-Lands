@@ -33,12 +33,12 @@ void draw_scene()
 		{
 			if(!dungeon)draw_sky_background();
 			else draw_dungeon_sky_background();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
 			if(view_tile || cur_mode==mode_tile)draw_tile_map();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			if(view_2d || cur_mode==mode_2d)display_2d_objects();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			display_3d_reflection();
 			glNormal3f(0.0f,0.0f,1.0f);
 			draw_lake_tiles();
@@ -48,11 +48,11 @@ void draw_scene()
             glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
             if(view_tile || cur_mode==mode_tile)draw_tile_map();
 	    if(any_reflection)draw_lake_tiles();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
             if(view_2d || cur_mode==mode_2d)display_2d_objects();
 		}
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	if(view_3d || cur_mode==mode_3d)
 	{

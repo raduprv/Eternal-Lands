@@ -12,7 +12,7 @@
 //																		 //
 //***********************************************************************//
 #include <math.h>
-#include "SDL_opengl.h"
+//#include "SDL_opengl.h"
 #include "global.h"
 
 struct Sphere

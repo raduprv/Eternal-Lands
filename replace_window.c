@@ -142,8 +142,8 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 	if(x>d3_x1 && x<=d3_x2 && y>d3_y1 && y<=d3_y2 && oid!=-1 && nid!=-1){
 		int i=0;
 		if(mode==4  && nid!=-1 && oid!=-1){
-			lock_particles_list();
-			for(;i<max_particle_systems;i++){
+			LOCK_PARTICLES_LIST();
+			for(;i<MAX_PARTICLE_SYSTEMS;i++){
 				if(particles_list[i]){
 					if((INT)particles_list[i]->def==oid){
 						int j;
@@ -151,12 +151,12 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 						particles_list[i]->def=def;
 						particles_list[i]->particle_count=def->total_particle_no;
 						particles_list[i]->ttl=def->ttl;
-						memset(particles_list[i]->particles,0,max_particles);
+						memset(particles_list[i]->particles,0,MAX_PARTICLES);
 						for(j=0;j<def->total_particle_no;j++)create_particle(particles_list[i],&(particles_list[i]->particles[j]));
 					}
 				}
 			}
-			unlock_particles_list();
+			UNLOCK_PARTICLES_LIST();
 		}else if(mode==3  && nid!=-1 && oid!=-1){
 			for(;i<max_obj_3d;i++){
 				if(objects_list[i]){

@@ -411,7 +411,7 @@ int display_particles_window_handler(window_info *win)
 	glColor3f(0.77f,0.57f,0.39f);
 	glEnable(GL_TEXTURE_2D);
 
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	check_particle_sys_alive();
 
 	display_particles_window_preview(win);
@@ -618,7 +618,7 @@ int display_particles_window_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	snprintf(temp,99,"System info: TTL==%i, #particles==%i",particles_list[part_sys]->ttl,particles_list[part_sys]->particle_count);
 	draw_string(10,450,temp,1);
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 
 	get_and_set_texture_id(buttons_text);
 	glBegin(GL_QUADS);
@@ -645,7 +645,7 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 	if(shift_on/*flags&ELW_SHIFT*/)incr=0.1;
 	if(ctrl_on/*flags&ELW_CTRL*/)incr=1.0;
 
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	check_particle_sys_alive();
 
 	x=mouse_x-win->pos_x;
@@ -662,10 +662,10 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 		}
 
 	tmp=check_plus_minus_hit(particlenox2,particlenoy,x,y);
-	if(tmp==1 && def.total_particle_no<max_particles)
+	if(tmp==1 && def.total_particle_no<MAX_PARTICLES)
 		{
 			// If we add particles to an existing system, we must make sure they are free
-			for(i=def.total_particle_no;i<max_particles;i++)particles_list[part_sys]->particles[i].free=1;
+			for(i=def.total_particle_no;i<MAX_PARTICLES;i++)particles_list[part_sys]->particles[i].free=1;
 			def.total_particle_no+=50;
 		}
 	else if(tmp==2 && def.total_particle_no>0)def.total_particle_no-=50;
@@ -875,15 +875,15 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 	// Save definition
 	if(x>=10 && x<=42 && y>=380 && y<=412)save_particle_def_file();
 
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 	return 1;
 }
 
 void particles_win_move_preview(float zmove) {
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	check_particle_sys_alive();
 	particles_list[part_sys]->z_pos+=zmove;
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 void particles_win_zoomin(){

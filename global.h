@@ -18,7 +18,7 @@
 #endif
 
 #include <SDL.h>
-#include "SDL_opengl.h"
+#include <SDL_opengl.h>
 
 #ifdef LINUX
 #include <gtk/gtk.h>
@@ -181,6 +181,6 @@ extern int limit_fps;
 #define COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
 #endif
 
-#define check_gl_errors()       //NOP
+#define CHECK_GL_ERRORS()       //NOP
 
 #endif

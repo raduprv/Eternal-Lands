@@ -54,7 +54,7 @@ GLuint load_bmp8_color_key(char * FileName)
 	FILE *f = NULL;
 	GLuint texture;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
   	f = fopen (FileName, "rb");
   	if (!f) return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
@@ -155,7 +155,7 @@ GLuint load_bmp8_color_key(char * FileName)
 	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	free(file_mem_start);
 	free(texture_mem);
@@ -276,7 +276,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	else
 	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	free(texture_mem);
 	return texture;
 }
@@ -492,12 +492,12 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 		}
 //#endif	//CACHE_SYSTEN
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	//texture not found in the cache, so load it, and store it
 	if(alpha==0)texture_id=load_bmp8_color_key(file_name);
 	else
 		texture_id=load_bmp8_fixed_alpha(file_name, alpha);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	if(texture_id==0)
         {
             char str[120];
@@ -799,7 +799,7 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	free(texture_mem);
 	return texture;
 }
@@ -938,7 +938,7 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	else
 	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	free(texture_mem);
 	return texture;
 }
