@@ -44,6 +44,15 @@ typedef struct
 
 typedef struct
 {
+	char file_name[80];
+	float x_pos;
+	float y_pos;
+	float z_pos;
+	char reserved[10];
+}particles_io;
+
+typedef struct
+{
 	char file_sig[4];//should be "elmf", or else the map is invalid
 	int tile_map_x_len;
 	int tile_map_y_len;
@@ -65,9 +74,9 @@ typedef struct
 	float ambient_r;
 	float ambient_g;
 	float ambient_b;
-	int reserved_5;
-	int reserved_6;
-	int reserved_7;
+	int particles_struct_len;
+	int particles_no;
+	int particles_offset;
 	int reserved_8;
 	int reserved_9;
 	int reserved_10;

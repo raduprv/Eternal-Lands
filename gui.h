@@ -6,6 +6,7 @@
 #define OPEN_2D_OBJ 2
 #define OPEN_MAP    3
 #define SAVE_MAP    4
+#define OPEN_PARTICLES_OBJ 5
 
 extern char* selected_file;
 extern int continue_with;

@@ -27,6 +27,8 @@ int start_rendering()
 	}
 
 	/* Destroy our GL context, etc. */ 
+	SDL_SetTimer(0,NULL);
+	end_particles_list();
 	SDL_Quit( );
 	return(0);
 }

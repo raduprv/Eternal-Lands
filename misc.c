@@ -273,6 +273,130 @@ void open_2d_obj()
     }
 }
 #endif
+////////////////////////////////////////////////////////////////////////////
+////////////particle things/////////////////////////////////////////////////////
+void draw_particle_handle(particle_sys *system)
+{
+	glColor3f(0.0f,0.1f,0.1f);
+
+	glPushMatrix();//we don't want to affect the rest of the scene
+	glTranslatef (system->x_pos,system->y_pos,system->z_pos);
+
+	glBegin(GL_QUADS);
+		glVertex3f(-0.1f, -0.1f,  0.1f);	// Bottom Left Of The Texture and Quad
+		glVertex3f( 0.1f, -0.1f,  0.1f);	// Bottom Right Of The Texture and Quad
+		glVertex3f( 0.1f,  0.1f,  0.1f);	// Top Right Of The Texture and Quad
+		glVertex3f(-0.1f,  0.1f,  0.1f);	// Top Left Of The Texture and Quad
+		// Back Face
+		glVertex3f(-0.1f, -0.1f, -0.1f);	// Bottom Right Of The Texture and Quad
+		glVertex3f(-0.1f,  0.1f, -0.1f);	// Top Right Of The Texture and Quad
+		glVertex3f( 0.1f,  0.1f, -0.1f);	// Top Left Of The Texture and Quad
+		glVertex3f( 0.1f, -0.1f, -0.1f);	// Bottom Left Of The Texture and Quad
+		// Top Face
+		glVertex3f(-0.1f,  0.1f, -0.1f);	// Top Left Of The Texture and Quad
+		glVertex3f(-0.1f,  0.1f,  0.1f);	// Bottom Left Of The Texture and Quad
+		glVertex3f( 0.1f,  0.1f,  0.1f);	// Bottom Right Of The Texture and Quad
+		glVertex3f( 0.1f,  0.1f, -0.1f);	// Top Right Of The Texture and Quad
+		// Bottom Face
+		glVertex3f(-0.1f, -0.1f, -0.1f);	// Top Right Of The Texture and Quad
+		glVertex3f( 0.1f, -0.1f, -0.1f);	// Top Left Of The Texture and Quad
+		glVertex3f( 0.1f, -0.1f,  0.1f);	// Bottom Left Of The Texture and Quad
+		glVertex3f(-0.1f, -0.1f,  0.1f);	// Bottom Right Of The Texture and Quad
+		// Right face
+		glVertex3f( 0.1f, -0.1f, -0.1f);	// Bottom Right Of The Texture and Quad
+		glVertex3f( 0.1f,  0.1f, -0.1f);	// Top Right Of The Texture and Quad
+		glVertex3f( 0.1f,  0.1f,  0.1f);	// Top Left Of The Texture and Quad
+		glVertex3f( 0.1f, -0.1f,  0.1f);	// Bottom Left Of The Texture and Quad
+		// Left Face
+		glVertex3f(-0.1f, -0.1f, -0.1f);	// Bottom Left Of The Texture and Quad
+		glVertex3f(-0.1f, -0.1f,  0.1f);	// Bottom Right Of The Texture and Quad
+		glVertex3f(-0.1f,  0.1f,  0.1f);	// Top Right Of The Texture and Quad
+		glVertex3f(-0.1f,  0.1f, -0.1f);	// Top Left Of The Texture and Quad
+	glEnd();
+
+	glPopMatrix();//restore the scene
+}
+
+void display_particle_handles()
+{
+	int i;
+
+	glDisable(GL_TEXTURE_2D);
+	lock_particles_list();
+	for(i=0;i<max_particle_systems;i++)
+		if(particles_list[i])
+			draw_particle_handle(particles_list[i]);
+	unlock_particles_list();
+	glEnable(GL_TEXTURE_2D);
+}
+
+void get_particles_object_under_mouse() {
+	//ok, first of all, let's see what objects we have in range...
+	int i;
+	int x,y;
+
+	selected_particles_object=-1;
+	x=(int)-cx;
+	y=(int)-cy;
+
+	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+	glDisable(GL_TEXTURE_2D);
+
+	glPushMatrix();
+	glLoadIdentity();					// Reset The Matrix
+	Move();
+
+	lock_particles_list();
+	for(i=0;i<max_particle_systems;i++)
+		{
+			if(particles_list[i])
+			     {
+			         int dist1;
+			         int dist2;
+
+			         dist1=x-(int)particles_list[i]->x_pos;
+			         dist2=y-(int)particles_list[i]->y_pos;
+			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
+					draw_particle_handle(particles_list[i]);
+				 if(evaluate_colision())
+					{
+						selected_particles_object=i;
+						glClear(GL_COLOR_BUFFER_BIT);
+					}
+			     }
+		}
+	glPopMatrix();
+	unlock_particles_list();
+	glEnable(GL_TEXTURE_2D);
+}
+
+void kill_particles_object(int object_id) {
+	lock_particles_list();
+	free(particles_list[object_id]);
+	particles_list[object_id]=0;//kill any reference to it
+	selected_particles_object=-1;//we have no selected object now...
+	unlock_particles_list();
+}
+
+void move_particles_object(int object_id) {
+	lock_particles_list();
+	if(!particles_list[object_id])
+		{
+			if(object_id==selected_particles_object)selected_particles_object=-1;
+			unlock_particles_list();
+			return;
+		}
+	particles_list[object_id]->x_pos=scene_mouse_x;
+	particles_list[object_id]->y_pos=scene_mouse_y;
+	unlock_particles_list();
+}
+
+void clone_particles_object(int object_id) {
+	lock_particles_list();
+	if(!particles_list[object_id])return;
+	selected_particles_object=create_particle_sys(particles_list[object_id]->def,scene_mouse_x,scene_mouse_y,particles_list[object_id]->z_pos);
+	unlock_particles_list();
+}
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////tile things/////////////////////////////////////////////////////
@@ -839,9 +963,48 @@ void save_map_file()
 		save_map(proper_path);
     }
 }
+
+void open_particles_obj()
+{
+  OPENFILENAME ofn;
+  char szFileName[MAX_PATH];
+
+  ZeroMemory (&ofn, sizeof (ofn));
+  szFileName[0] = 0;
+
+  ofn.lStructSize = sizeof (ofn);
+  ofn.hwndOwner = 0;
+  ofn.lpstrFilter = "2D Object (*.part)\0*.part\0\0";
+  ofn.lpstrFile = szFileName;
+  ofn.nMaxFile = MAX_PATH;
+  ofn.lpstrDefExt = "2d0";
+  ofn.lpstrInitialDir = "./particles";
+
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |OFN_NOCHANGEDIR;
+    if (GetOpenFileName (&ofn))
+    {
+		char proper_path[128];
+		int fn_len;
+		int app_dir_len;
+		int i,j;
+
+		//get the proper path
+		fn_len=strlen(szFileName);
+		app_dir_len=strlen(exec_path);
+		j=0;
+		proper_path[0]='.';
+		for(i=app_dir_len;i<fn_len;i++,j++)proper_path[j+1]=szFileName[i];
+		proper_path[j+1]=0;
+
+		selected_particles_object=add_particle_sys(proper_path,scene_mouse_x,scene_mouse_y,0.0);
+		cur_tool=tool_select;//change the current tool
+    }
+}
 #endif
 
 #ifdef LINUX
+
+
 
 void open_3d_obj()
 {
@@ -859,6 +1022,24 @@ void open_3d_obj_continued()
 		cur_tool=tool_select;//change the current tool
     }
 }
+
+void open_particles_obj()
+{
+  gtk_window_set_title(GTK_WINDOW(file_selector), "open particles object");
+  continue_with = OPEN_PARTICLES_OBJ;
+  gtk_widget_show(file_selector);
+}
+
+void open_particles_obj_continued()
+{
+  if (selected_file)
+    {
+
+		selected_particles_object=add_particle_sys(selected_file,scene_mouse_x,scene_mouse_y,0.0);
+		cur_tool=tool_select;//change the current tool
+    }
+}
+
 
 void open_2d_obj()
 {

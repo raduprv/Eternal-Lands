@@ -8,6 +8,7 @@
 #define mode_light 3
 #define mode_height 4
 #define mode_map 5
+#define mode_particles 6
 
 //tools
 #define tool_kill 0
@@ -35,10 +36,12 @@ extern int view_2d;
 extern int view_3d;
 extern int view_light;
 extern int view_height;
+extern int view_particles;
 
 extern int selected_3d_object;
 extern int selected_2d_object;
 extern int selected_light;
+extern int selected_particles_object;
 extern int selected_tile;
 extern int selected_height;
 extern char move_tile_a_tile;

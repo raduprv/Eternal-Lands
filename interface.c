@@ -9,12 +9,13 @@ int check_interface_buttons()
 			if(mouse_x>=0 && mouse_x<=31)cur_mode=mode_tile;
 			if(mouse_x>=32 && mouse_x<=63)cur_mode=mode_2d;
 			if(mouse_x>=64 && mouse_x<=95)cur_mode=mode_3d;
-			if(mouse_x>=96 && mouse_x<=127)cur_mode=mode_light;
-			if(mouse_x>=128 && mouse_x<=159)cur_mode=mode_height;
-			if(mouse_x>=160 && mouse_x<=191)cur_mode=mode_map;
-			if(mouse_x>=192 && mouse_x<=223)cur_tool=tool_select;
-			if(mouse_x>=224 && mouse_x<=255)cur_tool=tool_clone;
-			if(mouse_x>=256 && mouse_x<=287)
+			if(mouse_x>=96 && mouse_x<=127)cur_mode=mode_particles;
+			if(mouse_x>=128 && mouse_x<=159)cur_mode=mode_light;
+			if(mouse_x>=160 && mouse_x<=191)cur_mode=mode_height;
+			if(mouse_x>=192 && mouse_x<=223)cur_mode=mode_map;
+			if(mouse_x>=224 && mouse_x<=255)cur_tool=tool_select;
+			if(mouse_x>=256 && mouse_x<=287)cur_tool=tool_clone;
+			if(mouse_x>=288 && mouse_x<=319)
 				{
 					if(cur_mode==mode_3d)
 						{
@@ -27,6 +28,13 @@ int check_interface_buttons()
 						{
 							SDL_Event event;
 							open_2d_obj();
+							while (SDL_PollEvent (&event));	//clears all the events
+							left_click=2;
+						}
+					if(cur_mode==mode_particles)
+						{
+							SDL_Event event;
+							open_particles_obj();
 							while (SDL_PollEvent (&event));	//clears all the events
 							left_click=2;
 						}
@@ -48,15 +56,15 @@ int check_interface_buttons()
 							selected_light=add_light(scene_mouse_x,scene_mouse_y,3.0f,1.0f,1.0f,1.0f,1.0f);
 						}
 				}
-			if(mouse_x>=288 && mouse_x<=319)cur_tool=tool_kill;
-			if(mouse_x>=320 && mouse_x<=351)
+			if(mouse_x>=320 && mouse_x<=351)cur_tool=tool_kill;
+			if(mouse_x>=352 && mouse_x<=383)
 				{
 					SDL_Event event;
 					save_map_file();
 					while (SDL_PollEvent (&event));	//clears all the events
 					left_click=2;
 				}
-			if(mouse_x>=352 && mouse_x<=383)
+			if(mouse_x>=384 && mouse_x<=415)
 				{
 					SDL_Event event;
 					open_map_file();
@@ -64,7 +72,7 @@ int check_interface_buttons()
 					left_click=2;
 				}
 
-			if(mouse_x>=384 && mouse_x<=416)
+			if(mouse_x>=416 && mouse_x<=447)
 				{
 					new_map_menu=1;
 				}
@@ -75,8 +83,9 @@ int check_interface_buttons()
 				if(mouse_x>=0 && mouse_x<=31)view_tile=!view_tile;
 				if(mouse_x>=32 && mouse_x<=63)view_2d=!view_2d;
 				if(mouse_x>=64 && mouse_x<=95)view_3d=!view_3d;
-				if(mouse_x>=96 && mouse_x<=127)view_light=!view_light;
-				if(mouse_x>=128 && mouse_x<=159)view_height=!view_height;
+				if(mouse_x>=96 && mouse_x<=127)view_particles=!view_particles;
+				if(mouse_x>=128 && mouse_x<=159)view_light=!view_light;
+				if(mouse_x>=160 && mouse_x<=191)view_height=!view_height;
 			}
 	return 1;
 
@@ -180,54 +189,60 @@ void draw_toolbar()
 	else glColor3f(0.0f,1.0f,1.0f);
 	draw_2d_thing(0,1.0f,(float)32/255,1.0f-(float)32/255, 64,0,96,32);
 
+	if(cur_mode!=mode_particles && view_particles)
+	glColor3f(1.0f,1.0f,1.0f);
+	else if(!view_particles && cur_mode!=mode_particles)glColor3f(0.3f,0.3f,0.3f);
+	else glColor3f(0.0f,1.0f,1.0f);
+	draw_2d_thing((float)192/255,1.0f-(float)32/255,(float)224/255,1.0f-(float)64/255, 96,0,128,32);
+
 	if(cur_mode!=mode_light && view_light)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_light && cur_mode!=mode_light)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)96/255,1.0f,(float)128/255,1.0f-(float)32/255, 96,0,128,32);
+	draw_2d_thing((float)96/255,1.0f,(float)128/255,1.0f-(float)32/255, 128,0,160,32);
 
 	if(cur_mode!=mode_height && view_height)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_height && cur_mode!=mode_height)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)160/255,1.0f-(float)32/255,(float)192/255,1.0f-(float)64/255, 128,0,160,32);
+	draw_2d_thing((float)160/255,1.0f-(float)32/255,(float)192/255,1.0f-(float)64/255, 160,0,192,32);
 
 
 	if(cur_mode!=mode_map)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)128/255,1.0f,(float)160/255,1.0f-(float)32/255, 160,0,192,32);
+	draw_2d_thing((float)128/255,1.0f,(float)160/255,1.0f-(float)32/255, 192,0,224,32);
 
 
 	if(cur_tool!=tool_select)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing(0,1.0f-(float)32/255,(float)32/255,1.0f-(float)64/255, 192,0,224,32);
+	draw_2d_thing(0,1.0f-(float)32/255,(float)32/255,1.0f-(float)64/255, 224,0,256,32);
 
 	if(cur_tool!=tool_clone)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)32/255,1.0f-(float)32/255,(float)64/255,1.0f-(float)64/255, 224,0,256,32);
+	draw_2d_thing((float)32/255,1.0f-(float)32/255,(float)64/255,1.0f-(float)64/255, 256,0,288,32);
 
 	if(cur_tool!=tool_new)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)224/255,1.0f,(float)256/255,1.0f-(float)32/255, 256,0,288,32);
+	draw_2d_thing((float)224/255,1.0f,(float)256/255,1.0f-(float)32/255, 288,0,320,32);
 
 	if(cur_tool!=tool_kill)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)192/255,1.0f,(float)224/255,1.0f-(float)32/255, 288,0,320,32);
+	draw_2d_thing((float)192/255,1.0f,(float)224/255,1.0f-(float)32/255, 320,0,352,32);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//save
-	draw_2d_thing((float)64/255,1.0f-(float)32/255,(float)96/255,1.0f-(float)64/255, 320,0,352,32);
+	draw_2d_thing((float)64/255,1.0f-(float)32/255,(float)96/255,1.0f-(float)64/255, 352,0,384,32);
 
 	//open
-	draw_2d_thing((float)96/255,1.0f-(float)32/255,(float)128/255,1.0f-(float)64/255, 352,0,384,32);
+	draw_2d_thing((float)96/255,1.0f-(float)32/255,(float)128/255,1.0f-(float)64/255, 384,0,416,32);
 
 	//new
-	draw_2d_thing((float)128/255,1.0f-(float)32/255,(float)160/255,1.0f-(float)64/255, 384,0,416,32);
+	draw_2d_thing((float)128/255,1.0f-(float)32/255,(float)160/255,1.0f-(float)64/255, 416,0,448,32);
 
 	glEnd();
 }

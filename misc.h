@@ -5,12 +5,14 @@ void open_3d_obj();
 void open_2d_obj();
 void open_map_file();
 void save_map_file();
+void open_particles_obj();
 
 #ifdef LINUX
 void open_3d_obj_continued();
 void open_2d_obj_continued();
 void open_map_file_continued();
 void save_map_file_continued();
+void open_particles_obj_continued();
 #endif
 
 
@@ -27,6 +29,11 @@ void get_2d_object_under_mouse();
 void kill_2d_object(int object_id);
 void move_2d_object(int object_id);
 void clone_2d_object(int object_id);
+
+void get_particles_object_under_mouse();
+void kill_particles_object(int object_id);
+void move_particles_object(int object_id);
+void clone_particles_object(int object_id);
 
 void load_all_tiles();
 void get_tile_under_mouse_from_list();

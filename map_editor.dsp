@@ -309,6 +309,10 @@ SOURCE=.\o3dow.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\elc\particles.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\reflection.c
 
 !IF  "$(CFG)" == "map_editor - Win32 Release"

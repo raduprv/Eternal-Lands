@@ -120,6 +120,7 @@ void init_stuff()
     seed = time (NULL);
   	srand (seed);
 
+	init_particles_list();
 	init_texture_cache();
 	init_e3d_cache();
 	init_2d_obj_cache();
@@ -156,6 +157,10 @@ void init_stuff()
 	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
 	buttons_text=load_texture_cache("./textures/buttons.bmp",0);
 	sky_text_1=load_texture_cache("./textures/sky.bmp",70);
+	particle_textures[0]=load_texture_cache("./textures/particle0.bmp",0);
+	particle_textures[1]=load_texture_cache("./textures/particle1.bmp",0);
+	particle_textures[2]=particle_textures[3]=particle_textures[4]=0;
+	particle_textures[5]=particle_textures[6]=particle_textures[7]=0;
 	//get the application home dir
 
 	have_multitexture=0;//debug only

@@ -32,6 +32,9 @@ on_ok_button1_clicked                  (GtkButton       *button,
       case SAVE_MAP:
 	save_map_file_continued();
 	break;
+      case OPEN_PARTICLES_OBJ:
+	open_particles_obj_continued();
+	break;
       }
 }
 

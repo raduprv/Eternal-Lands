@@ -52,6 +52,7 @@
 #include "o3dow.h"
 #include "replace_window.h"
 #include "edit_window.h"
+#include "../elc/particles.h"
 
 #define sector_size_x 15
 #define sector_size_y 15
@@ -141,12 +142,12 @@ extern color_rgb colors_list[25];
 #define c_steel 20
 #define c_bronze 21
 
-//#ifndef LINUX //extensions
+#ifndef LINUX //extensions
 extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
 extern PFNGLMULTITEXCOORD2FVARBPROC	glMultiTexCoord2fvARB;
 extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
-//#endif
+#endif
 
 extern int have_multitexture;
 extern int have_arb_compression;

@@ -53,7 +53,6 @@ void draw_scene()
 			check_gl_errors();
             display_2d_objects();
 		}
-
 #else	//OLD_DRAW_CODE
 
 	if(find_reflection())
@@ -101,6 +100,14 @@ void draw_scene()
 			if(view_2d || cur_mode==mode_2d)display_2d_objects();
 			if(view_tile || cur_mode==mode_tile)draw_tile_map();
 			if(find_reflection())draw_lake_tiles();
+		}
+
+	if(view_particles || cur_mode==mode_particles)
+		{
+			glDisable(GL_LIGHTING);
+			display_particles();
+			display_particle_handles();
+			glEnable(GL_LIGHTING);
 		}
 
 	if(view_grid)draw_heights_wireframe();
@@ -152,6 +159,7 @@ Uint32 my_timer(unsigned int some_int)
 		{
 			lake_waves_timer=0;
 			make_lake_water_noise();
+			update_particles();
 		}
 	lake_waves_timer++;
 	water_movement_u+=0.0004f;

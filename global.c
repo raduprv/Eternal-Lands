@@ -116,10 +116,12 @@ int cur_tool=tool_select;
 int view_tile=1;
 int view_2d=1;
 int view_3d=1;
+int view_particles=1;
 int view_light=1;
 int view_height=0;
 int selected_3d_object=-1;
 int selected_2d_object=-1;
+int selected_particles_object=-1;
 int selected_light=-1;
 int selected_tile=255;
 int selected_height=-1;
@@ -133,7 +135,6 @@ float x_tile_menu_offset=64;
 float y_tile_menu_offset=128;
 char view_new_map_menu=0;
 char view_grid=0;
-
 
 SDLMod mod_key_status;
 char shift_on=0;

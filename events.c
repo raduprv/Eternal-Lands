@@ -196,6 +196,10 @@ int HandleEvent(SDL_Event *event)
 			if(shift_on)lights_list[selected_light]->pos_z+=0.01f;
 			else lights_list[selected_light]->pos_z+=0.1f;
 
+			if(cur_mode==mode_particles && selected_particles_object!=-1)
+			if(shift_on)particles_list[selected_particles_object]->z_pos+=0.01f;
+			else particles_list[selected_particles_object]->z_pos+=0.1f;
+
 			if(cur_mode==mode_height && selected_height!=-1)
 			if(selected_height<31)selected_height++;
 
@@ -214,6 +218,10 @@ int HandleEvent(SDL_Event *event)
 			if(cur_mode==mode_light && selected_light!=-1)
 			if(shift_on)lights_list[selected_light]->pos_z-=0.01f;
 			else lights_list[selected_light]->pos_z-=0.1f;
+
+			if(cur_mode==mode_particles && selected_particles_object!=-1)
+			if(shift_on)particles_list[selected_particles_object]->z_pos-=0.01f;
+			else particles_list[selected_particles_object]->z_pos-=0.1f;
 
 			if(cur_mode==mode_height && selected_height!=-1)
 			if(selected_height>0)selected_height--;
@@ -494,6 +502,36 @@ int HandleEvent(SDL_Event *event)
 								}
 
 							}
+							//Particle objects/////////////////
+							if(cur_mode==mode_particles)
+							{
+								if(cur_tool==tool_kill)
+									{
+										get_particles_object_under_mouse();
+										if(selected_particles_object!=-1)kill_particles_object(selected_2d_object);
+										return(done);
+									}
+								if(cur_tool==tool_clone)
+									{
+										get_particles_object_under_mouse();
+										if(selected_particles_object!=-1)clone_particles_object(selected_particles_object);
+										cur_tool=tool_select;
+										return(done);
+									}
+
+								//if we have an object attached to us, drop it
+								if(left_click==1 && cur_tool==tool_select && selected_particles_object!=-1)selected_particles_object=-1;
+								else
+								{
+									if(selected_particles_object==-1){
+										get_particles_object_under_mouse();
+										if(alt_on && selected_particles_object!=-1){
+											selected_2d_object=-1;
+										}
+									}
+								}
+
+							}
 							//Lights/////////////////
 							if(cur_mode==mode_light)
 							{
@@ -581,6 +619,8 @@ int HandleEvent(SDL_Event *event)
 						if(cur_mode==mode_3d && cur_tool==tool_select && selected_3d_object!=-1)move_3d_object(selected_3d_object);
 						else
 						if(cur_mode==mode_2d && cur_tool==tool_select && selected_2d_object!=-1)move_2d_object(selected_2d_object);
+						else
+						if(cur_mode==mode_particles && cur_tool==tool_select && selected_particles_object!=-1)move_particles_object(selected_particles_object);
 						else
 						if(cur_mode==mode_light && cur_tool==tool_select && selected_light!=-1)move_light(selected_light);
 						else
