@@ -43,22 +43,36 @@ int get_font_char(unsigned char cur_char)
 			else if(cur_char>127+c_grey4)
 				{
 					switch(cur_char) {
+					case 193:
+						cur_char=AACCENT;break;
 					case 196:
 						cur_char=AUMLAUT;break;
 					case 197:
 						cur_char=ARING;break;
 					case 198:
 						cur_char=AELIG;break;
+					case 201:
+						cur_char=EACCENT;break;
+					case 205:
+						cur_char=IACCENT;break;
+					case 209:
+						cur_char=ENYE;break;
+					case 211:
+						cur_char=OACCENT;break;
 					case 214:
 						cur_char=OUMLAUT;break;
 					case 216:
 						cur_char=OSLASH;break;
+					case 218:
+						cur_char=UACCENT;break;
 					case 220:
 						cur_char=UUMLAUT;break;
 					case 223:
 						cur_char=DOUBLES;break;
 					case 224:
 						cur_char=AGRAVE;break;
+					case 225:
+						cur_char=aACCENT;break;
 					case 226:
 						cur_char=ACIRC;break;
 					case 228:
@@ -77,14 +91,22 @@ int get_font_char(unsigned char cur_char)
 						cur_char=ECIRC;break;
 					case 235:
 						cur_char=EUML;break;
+					case 237:
+						cur_char=iACCENT;break;
 					case 239:
 						cur_char=IUML;break;
+					case 241:
+						cur_char=EnyE;break;
+					case 243:
+						cur_char=oACCENT;break;
 					case 244:
 						cur_char=OCIRC;break;
 					case 246:
 						cur_char=oUMLAUT;break;
 					case 248:
 						cur_char=oSLASH;break;
+					case 250:
+						cur_char=uACCENT;break;
 					case 251:
 						cur_char=UGRAVE;break;
 					case 252:
@@ -95,7 +117,7 @@ int get_font_char(unsigned char cur_char)
 					default:
 						return -1;	//ignore it
 					}
-					if(cur_char>=UUML && cur_char<=ARING)
+					if(cur_char>=UUML && cur_char<=UACCENT)
 						{
 							cur_char-=(UUML-127);
 						}
@@ -443,7 +465,7 @@ int load_font(int num, char *file)
 	fonts[num]->texture_id=load_texture_cache(file, 0);
 	// load font information
 	// TODO: write this and remove the hack!
-	if(num==0)for(i=0; i<9*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
+	if(num==0)for(i=0; i<10*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
 	if(num==1){
 		static int widths[]={
 			4,2,7,11,8,12,12,2,7,7,9,10,3,8,
@@ -453,6 +475,7 @@ int load_font(int num, char *file)
 			12,12,10,6,10,6,10,12,3,11,9,9,9,9,
 			8,9,9,4,6,10,4,11,9,10,9,9,8,8,
 			8,9,10,12,10,10,9,8,2,8,10,8,12,12,
+			12,12,12,12,12,12,12,12,12,12,12,12,12,12,
 			12,12,12,12,12,12,12,12,12,12,12,12,12,12,
 			12,12,12,12,12,12,12,12,12,12,12,12,12,12,
 		};

@@ -366,6 +366,18 @@
 #define AELIG 201
 #define OSLASH 202
 #define ARING 203
+#define EnyE 204
+#define ENYE 205
+#define aACCENT 206
+#define AACCENT 207
+#define EACCENT 208
+#define iACCENT 209
+#define IACCENT 210
+#define oACCENT 211
+#define OACCENT 212
+#define uACCENT 213
+#define UACCENT 214
+
 /*! @} */
 
 /*!

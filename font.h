@@ -34,7 +34,7 @@
 typedef struct	{
 	int	spacing;
 	int texture_id; /*!< id of the texture used for the font */
-	int	widths[9*FONT_CHARS_PER_LINE];
+	int	widths[10*FONT_CHARS_PER_LINE];
 	char name[32]; /*!< name of the font */
 } font_info;
 
