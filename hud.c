@@ -16,6 +16,8 @@ struct icons_struct icons =
 		{NULL},
 	};
 
+icon_struct * icon_list[30]={NULL};
+
 //Windows not handled by the window manager:
 int map_win=0;
 int console_win=0;
@@ -295,38 +297,48 @@ void init_peace_icons()
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 	
 	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &options_win, DATA_WINDOW);
+
+	set_icon_order(icons.no, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 , 13, 14, 15, 16);
+}
+
+void set_icon_order(int no, ...)
+{
+	va_list ap;
+	int i=0;
+	va_start(ap, no);
+	for(;i<no;i++) icons.icon[i]=icon_list[va_arg(ap, int)];
 }
 
 void	add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type)
 {
 	int no=icons.no++;
-	icons.icon[no]=(icon_struct*)calloc(1,sizeof(icon_struct));
+	icon_list[no]=(icon_struct*)calloc(1,sizeof(icon_struct));
 	if(!no)
-		icons.icon[no]->state=PRESSED;
+		icon_list[no]->state=PRESSED;
 	else
-		icons.icon[no]->state=0;
-	icons.icon[no]->u[0]=u_start;
-	icons.icon[no]->u[1]=colored_u_start;
-	icons.icon[no]->v[0]=v_start;
-	icons.icon[no]->v[1]=colored_v_start;
-	icons.icon[no]->func=func;
-	icons.icon[no]->help_message=help_message;
-	icons.icon[no]->free_data=0;
+		icon_list[no]->state=0;
+	icon_list[no]->u[0]=u_start;
+	icon_list[no]->u[1]=colored_u_start;
+	icon_list[no]->v[0]=v_start;
+	icon_list[no]->v[1]=colored_v_start;
+	icon_list[no]->func=func;
+	icon_list[no]->help_message=help_message;
+	icon_list[no]->free_data=0;
 	switch(data_type)
 		{
 			case DATA_ACTIONMODE:
-				icons.icon[no]->data=(int*)calloc(1,sizeof(int));
-				memcpy(icons.icon[no]->data,data,sizeof(int));
-				icons.icon[no]->free_data=1;
+				icon_list[no]->data=(int*)calloc(1,sizeof(int));
+				memcpy(icon_list[no]->data,data,sizeof(int));
+				icon_list[no]->free_data=1;
 				break;
 			case DATA_WINDOW:
-				icons.icon[no]->data=(int*)data;
+				icon_list[no]->data=(int*)data;
 				break;
 			case DATA_NONE:
-				icons.icon[no]->data=NULL;
+				icon_list[no]->data=NULL;
 				break;
 		}
-	icons.icon[no]->data_type=data_type;
+	icon_list[no]->data_type=data_type;
 }
 
 void free_icons()
