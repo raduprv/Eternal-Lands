@@ -190,6 +190,7 @@ void read_bin_cfg()
 	cy=cfg_mem.camera_y;
 	cz=cfg_mem.camera_z;
 	zoom_level=cfg_mem.zoom_level;
+	if(zoom_level != 0.0f) resize_window();
 
 }
 
