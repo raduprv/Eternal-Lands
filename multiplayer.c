@@ -403,6 +403,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case CHANGE_MAP:
 			{
 				object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
+				close_dialogue();	// close the dialogue window if open
 				load_map(&in_data[3]);
 				destroy_all_particles();
 				kill_local_sounds();

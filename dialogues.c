@@ -153,6 +153,15 @@ int	display_dialogue_handler(window_info *win)
 	return 0;
 }
 
+
+void close_dialogue()
+{
+	if(dialogue_win > 0)
+	{
+		hide_window(dialogue_win);
+	}
+}
+
 int mouseover_dialogue_handler(window_info *win, int mx, int my)
 {
 	int i;

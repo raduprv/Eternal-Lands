@@ -37,5 +37,7 @@ extern int no_bounding_box;
 
 void build_response_entries(Uint8 *data,int total_lenght);
 void display_dialogue();
+void close_dialogue();
+
 #endif
 
