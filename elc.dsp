@@ -843,6 +843,10 @@ SOURCE=.\trade.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\translate.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\weather.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"
@@ -1095,6 +1099,10 @@ SOURCE=.\tiles.h
 # Begin Source File
 
 SOURCE=.\trade.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\translate.h
 # End Source File
 # Begin Source File
 

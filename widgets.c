@@ -490,7 +490,7 @@ int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
 		c->progress = progress;
 		return 1;
 	}
-	return 0;
 
+	return 0;
 }
 
