@@ -496,7 +496,7 @@ void destroy_actor(int actor_id)
 	int i;
 
 #ifdef POSSIBLE_FIX
-	lock_actors_lists();	//lock it to avoid timing issues
+	//lock_actors_lists();	//lock it to avoid timing issues
 #endif
 	for(i=0;i<max_actors;i++)
 		{
@@ -507,7 +507,7 @@ void destroy_actor(int actor_id)
 						if(actors_list[i]->is_enhanced_model)
 							{
 								glDeleteTextures(1,&actors_list[i]->texture_id);
-								free(actors_list[i]->body_parts);
+								if(actors_list[i]->body_parts)free(actors_list[i]->body_parts);
 							}
 						free(actors_list[i]);
 						actors_list[i]=0;
@@ -523,7 +523,7 @@ void destroy_actor(int actor_id)
 					}
 		}
 #ifdef POSSIBLE_FIX
-	unlock_actors_lists();	//unlock it since we are done
+	//unlock_actors_lists();	//unlock it since we are done
 #endif
 }
 
