@@ -74,6 +74,7 @@ obj_2d_cache_struct obj_2d_def_cache[max_obj_2d_def];
 int yourself=-1;
 int you_sit=0;
 actor *actors_list[1000];
+SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main threads
 object3d *objects_list[max_obj_3d];
 obj_2d *obj_2d_list[max_obj_2d];
 actor_types actors_defs[40];

@@ -118,6 +118,8 @@ void animate_actors()
     char moving;
     char rotating;
 
+	// lock the actors_list so that nothing can interere with this look
+	lock_actors_lists();	//lock it to avoid timing issues
 	for(i=0;i<1000;i++)
 		{
 			if(actors_list[i])
@@ -193,6 +195,8 @@ void animate_actors()
                         }
                  }
 		}
+	// unlock the actors_list since we are done now
+	unlock_actors_lists();
 }
 
 
@@ -511,6 +515,7 @@ void destroy_actor(int actor_id)
 {
 	int i=0;
 
+	lock_actors_lists();	//lock it to avoid timing issues
 	while(i<1000)
 		{
 			if(actors_list[i])
@@ -528,12 +533,14 @@ void destroy_actor(int actor_id)
 				}
 			i++;
 		}
+	unlock_actors_lists();	//unlock it since we are done
 }
 
 void destroy_all_actors()
 {
 	int i=0;
 
+	lock_actors_lists();	//lock it to avoid timing issues
 	while(i<1000)
 		{
 			if(actors_list[i])
@@ -549,6 +556,7 @@ void destroy_all_actors()
 				}
 			i++;
 		}
+	unlock_actors_lists();	//unlock it since we are done
 }
 
 

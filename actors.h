@@ -208,11 +208,16 @@ typedef struct
 }actor;
 
 
+extern SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main threads
 extern actor *actors_list[1000];
 extern actor_types actors_defs[40];
 
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, float y_pos, float z_pos, float z_rot, char remappable, char skin_color, char hair_color, char shirt_color, char pants_color, char boots_color, int actor_id);
 void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,int z_pos, float x_rot,float y_rot, float z_rot);
 actor * add_actor_interface(int actor_type, char skin, char hair, char shirt, char pants, char boots, char head);
+extern void	init_actors_lists();
+#define	lock_actors_lists()	SDL_LockMutex(actors_lists_mutex)
+#define	unlock_actors_lists()	SDL_UnlockMutex(actors_lists_mutex);
+extern void	end_actors_lists();
 
 #endif

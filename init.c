@@ -317,7 +317,7 @@ void init_stuff()
 	change_cursor(CURSOR_ARROW);
 
 
-	for(i=0;i<1000;i++)actors_list[i]=0;
+	init_actors_lists();
 	for(i=0;i<256;i++)tile_list[i]=0;
 	for(i=0;i<max_lights;i++)lights_list[i]=0;
 	for(i=0;i<max_particle_systems;i++)particles_list[i]=0;
@@ -423,12 +423,5 @@ void init_stuff()
     //play_music();
 
 }
-
-
-
-
-
-
-
 
 

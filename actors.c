@@ -2,6 +2,23 @@
 #include <math.h>
 #include "global.h"
 
+//Threading support for actors_lists
+void init_actors_lists()
+{
+	int	i;
+
+	actors_lists_mutex=SDL_CreateMutex();
+	lock_actors_lists();	//lock it to avoid timing issues
+	for(i=0;i<1000;i++)actors_list[i]=0;
+	unlock_actors_lists();	// release now that we are done
+}
+
+void end_actors_lists()
+{
+	SDL_DestroyMutex(actors_lists_mutex);
+	actors_lists_mutex=NULL;
+}
+
 //Tests to see if a MD2 is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
 md2 * load_md2_cache(char * file_name)
@@ -56,6 +73,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, 
 
 	//find a free spot, in the actors_list
 	i=0;
+	lock_actors_lists();	//lock it to avoid timing issues
 	while(i<1000)
 		{
 			if(!actors_list[i])break;
@@ -66,6 +84,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, 
 	if(!returned_md2)
 	   {
             char str[120];
+			unlock_actors_lists();	// release now that we are done
             sprintf(str,"Error: Can't load actor: %s\n",file_name);
             log_error(str);
 	        return 0;
@@ -122,6 +141,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, 
 	our_actor->sit_idle=0;
 
 	actors_list[i]=our_actor;
+	unlock_actors_lists();	// release now that we are done
 	return i;
 }
 
@@ -512,6 +532,7 @@ void add_actor_from_server(char * in_data)
 
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
 	f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
+	lock_actors_lists();	//lock it to avoid timing issues
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
 	actors_list[i]->actor_type=actor_type;
@@ -533,6 +554,7 @@ void add_actor_from_server(char * in_data)
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->kind_of_actor=kind_of_actor;
 	sprintf(actors_list[i]->actor_name,&in_data[23]);
+	unlock_actors_lists();	//lock it to avoid timing issues
 
 }
 
