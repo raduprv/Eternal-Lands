@@ -3449,7 +3449,7 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_FUR].model_name,"./md2/hat1_short.md2");
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[dwarf_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_shortf.md2");
+	my_strcp(actors_defs[dwarf_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_short.md2");
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[dwarf_female].walk_speed=default_walk_speed;
@@ -3999,7 +3999,7 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_FUR].model_name,"./md2/hat1_short.md2");
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[dwarf_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_shortm.md2");
+	my_strcp(actors_defs[dwarf_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_short.md2");
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[dwarf_male].walk_speed=default_walk_speed;
