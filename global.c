@@ -10,6 +10,7 @@ int window_height=480;
 int desktop_width;
 int desktop_height;
 
+int ini_file_size=0;
 int bpp=0;
 int have_stencil=1;
 int video_mode;

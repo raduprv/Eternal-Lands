@@ -1,7 +1,6 @@
 #ifndef __INIT_H__
 #define __INIT_H__
 
-#define MAX_INI_FILE 65536
 #define	CFG_VERSION	2
 
 typedef struct

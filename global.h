@@ -108,6 +108,7 @@ extern int window_height;
 extern int desktop_width;
 extern int desktop_height;
 
+extern int ini_file_size;
 extern int bpp;
 extern int video_mode;
 extern int full_screen;

@@ -58,7 +58,9 @@ void read_config()
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	int k,server_address_offset;
+	struct stat ini_file;
 #ifndef WINDOWS
+	char el_ini[256];
 	DIR *d = NULL;
 	strcpy(configdir, getenv("HOME"));
 	strcat(configdir, "/.elc/");
@@ -68,15 +70,22 @@ void read_config()
 			mkdir(configdir,0755);
 	else
 		{
-			char el_ini[256];
 			strcpy(el_ini, configdir);
 			strcat(el_ini, "el.ini");
 			closedir(d);
 			f=fopen(el_ini,"rb"); //try to load local settings
 		}
 	if(!f) //use global settings
-#endif
+		{
+			f=fopen("el.ini","rb");
+			stat("el.ini",&ini_file);
+		}
+	else
+		stat(el_ini,&ini_file);
+#else
 	f=fopen("el.ini","rb");
+	stat("el.ini",&ini_file);
+#endif
 	if(!f)//oops, the file doesn't exist, use the defaults
 		{
 			char str[120];
@@ -85,49 +94,49 @@ void read_config()
 			SDL_Quit();
 			exit(1);
 		}
-
-	file_mem = (Uint8 *) calloc(MAX_INI_FILE+2, sizeof(Uint8));
+	ini_file_size = ini_file.st_size;
+	file_mem = (Uint8 *) calloc(ini_file_size+2, sizeof(Uint8));
 	file_mem_start=file_mem;
-	fread (file_mem, 1, MAX_INI_FILE+1, f);
+	fread (file_mem, 1, ini_file_size+1, f);
 	//ok, now start to parse the file...
-	video_mode=get_integer_after_string("#video_mode",file_mem,MAX_INI_FILE);
-	shadows_on=get_integer_after_string("#shadows_on",file_mem,MAX_INI_FILE);
-	poor_man=get_integer_after_string("#poor_man",file_mem,MAX_INI_FILE);
-	show_reflection=get_integer_after_string("#show_reflection",file_mem,MAX_INI_FILE);
+	video_mode=get_integer_after_string("#video_mode",file_mem,ini_file_size);
+	shadows_on=get_integer_after_string("#shadows_on",file_mem,ini_file_size);
+	poor_man=get_integer_after_string("#poor_man",file_mem,ini_file_size);
+	show_reflection=get_integer_after_string("#show_reflection",file_mem,ini_file_size);
 	if(show_reflection==-1)show_reflection=1;
-	show_fps=get_integer_after_string("#show_fps",file_mem,MAX_INI_FILE);
+	show_fps=get_integer_after_string("#show_fps",file_mem,ini_file_size);
 	if(show_fps==-1)show_fps=1;
-	limit_fps=get_integer_after_string("#limit_fps",file_mem,MAX_INI_FILE);
+	limit_fps=get_integer_after_string("#limit_fps",file_mem,ini_file_size);
 	if(limit_fps==-1)limit_fps=0;
-	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,MAX_INI_FILE);
+	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,ini_file_size);
 	if(mouse_limit==-1)mouse_limit=15;
-	full_screen=get_integer_after_string("#full_screen",file_mem,MAX_INI_FILE);
-	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,MAX_INI_FILE);
+	full_screen=get_integer_after_string("#full_screen",file_mem,ini_file_size);
+	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,ini_file_size);
 #ifdef	USE_VERTEXARRAYS
-	use_vertex_array=get_integer_after_string("#use_vertex_array",file_mem,MAX_INI_FILE);
+	use_vertex_array=get_integer_after_string("#use_vertex_array",file_mem,ini_file_size);
 	if(use_vertex_array < 0) use_vertex_array=0;
 	else if(use_vertex_array > 0) log_to_console(c_green2,"Vertex Arrays enabled (memory hog on!)...");
 #endif	//USE_VERTEXARRAYS
-	sit_lock=get_integer_after_string("#sit_lock",file_mem,MAX_INI_FILE);
+	sit_lock=get_integer_after_string("#sit_lock",file_mem,ini_file_size);
 	if(sit_lock==-1)sit_lock=0;
-	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,MAX_INI_FILE);
-	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,MAX_INI_FILE);
-	caps_filter=get_integer_after_string("#caps_filter",file_mem,MAX_INI_FILE);
+	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,ini_file_size);
+	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,ini_file_size);
+	caps_filter=get_integer_after_string("#caps_filter",file_mem,ini_file_size);
 	if(caps_filter < 0) caps_filter=1;	//default to on
-	save_ignores=get_integer_after_string("#save_ignores",file_mem,MAX_INI_FILE);
-	log_server=get_integer_after_string("#log_server",file_mem,MAX_INI_FILE);
-	no_sound=get_integer_after_string("#no_sound",file_mem,MAX_INI_FILE);
-	normal_camera_rotation_speed=get_float_after_string("#normal_camera_rotation_speed",file_mem,MAX_INI_FILE);
-	fine_camera_rotation_speed=get_float_after_string("#fine_camera_rotation_speed",file_mem,MAX_INI_FILE);
-	name_zoom=get_float_after_string("#name_text_size",file_mem,MAX_INI_FILE);
+	save_ignores=get_integer_after_string("#save_ignores",file_mem,ini_file_size);
+	log_server=get_integer_after_string("#log_server",file_mem,ini_file_size);
+	no_sound=get_integer_after_string("#no_sound",file_mem,ini_file_size);
+	normal_camera_rotation_speed=get_float_after_string("#normal_camera_rotation_speed",file_mem,ini_file_size);
+	fine_camera_rotation_speed=get_float_after_string("#fine_camera_rotation_speed",file_mem,ini_file_size);
+	name_zoom=get_float_after_string("#name_text_size",file_mem,ini_file_size);
 	if(name_zoom<0.25f)name_zoom=1.0f;
-	chat_zoom=get_float_after_string("#chat_text_size",file_mem,MAX_INI_FILE);
+	chat_zoom=get_float_after_string("#chat_text_size",file_mem,ini_file_size);
 	if(chat_zoom<0.25f)chat_zoom=1.0f;
-	name_font=get_integer_after_string("#name_font",file_mem,MAX_INI_FILE);
-	chat_font=get_integer_after_string("#chat_font",file_mem,MAX_INI_FILE);
+	name_font=get_integer_after_string("#name_font",file_mem,ini_file_size);
+	chat_font=get_integer_after_string("#chat_font",file_mem,ini_file_size);
 
-	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,MAX_INI_FILE);
-	port=get_integer_after_string("#server_port",file_mem,MAX_INI_FILE);
+	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,ini_file_size);
+	port=get_integer_after_string("#server_port",file_mem,ini_file_size);
 
 	//handle multiple setting changes if poor_man is on
 	if(poor_man)
@@ -138,22 +147,22 @@ void read_config()
 		}
 
 	//ok, now get the server address
-	server_address_offset=get_string_after_string("#server_address",file_mem,MAX_INI_FILE,server_address, 70);
+	server_address_offset=get_string_after_string("#server_address",file_mem,ini_file_size,server_address, 70);
 
 	//ok, now get the current browser
-	server_address_offset=get_string_after_string("#browser",file_mem,MAX_INI_FILE,broswer_name,70);
+	server_address_offset=get_string_after_string("#browser",file_mem,ini_file_size,broswer_name,70);
 
 	//check for a different default text filter phrase
-	get_string_after_string("#text_filter_replace",file_mem,MAX_INI_FILE,text_filter_replace,127);
+	get_string_after_string("#text_filter_replace",file_mem,ini_file_size,text_filter_replace,127);
 
 	// now the default user and password
-	get_string_after_string("#username",file_mem,MAX_INI_FILE,username_str,16);
-	get_string_after_string("#password",file_mem,MAX_INI_FILE,password_str,16);
+	get_string_after_string("#username",file_mem,ini_file_size,username_str,16);
+	get_string_after_string("#password",file_mem,ini_file_size,password_str,16);
 	for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
 	display_password_str[k]=0;
 
 #ifndef WINDOWS
-	if(get_string_after_string("#data_dir",file_mem,MAX_INI_FILE,datadir,90)>0)
+	if(get_string_after_string("#data_dir",file_mem,ini_file_size,datadir,90)>0)
 		chdir(datadir);
 #endif
 
