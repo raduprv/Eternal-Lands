@@ -86,3 +86,4 @@ void draw_string(int x, int y,unsigned char * our_string,int max_lines)
     glEnd();
 	glDisable(GL_ALPHA_TEST);
 }
+
