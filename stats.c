@@ -473,7 +473,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 	sprintf(str,"Overall:     %2i/%-2i [%2i/%-2i]",cur_stats.overall_skill.cur,cur_stats.overall_skill.base,
 			cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
 	draw_string_small(x,y,str,1);
-
+	glColor3f(1.0,1.0,1.0);
 }
 
 
