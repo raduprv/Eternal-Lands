@@ -51,6 +51,9 @@ typedef struct
 	float acc_maxx,acc_maxy,acc_maxz;
 	float mindr,mindg,mindb,minda;
 	float maxdr,maxdg,maxdb,maxda;
+	int use_light;
+	float lightx,lighty,lightz;
+	float lightr,lightg,lightb;
 }particle_sys_def;
 
 typedef struct
@@ -64,6 +67,8 @@ typedef struct
 	float z_pos;
 
 	int ttl;
+
+	int light;//If we have a light this iwll be the position in the lights list
 
 	particle particles[max_particles];
 

@@ -4,7 +4,11 @@
 #include <locale.h>
 #endif
 #include "SDL_opengl.h"
+#ifdef MAP_EDITOR
+#include "../map_editor/global.h"
+#else
 #include "global.h"
+#endif
 #include "string.h"
 
 #define PART_SYS_VISIBLE_DIST_SQ 10*10
@@ -130,7 +134,10 @@ particle_sys_def *load_particle_def(const char *filename)
 	       &def->mindr,&def->mindg,&def->mindb,&def->minda);
 	fscanf(f,"%f,%f,%f,%f\n",
 	       &def->maxdr,&def->maxdg,&def->maxdb,&def->maxda);
-
+	fscanf(f,"%i\n",&def->use_light);
+	fscanf(f,"%f,%f,%f\n",&def->lightx,&def->lighty,&def->lightz);
+	fscanf(f,"%f,%f,%f\n",&def->lightr,&def->lightg,&def->lightb);
+	
 	if(def->total_particle_no>max_particles)
 		{
 		  char str[256];
@@ -185,8 +192,7 @@ particle_sys_def *load_particle_def(const char *filename)
 				}
 
 		}
-
-
+	
 	fclose(f);
 
 	return def;
@@ -231,6 +237,10 @@ int save_particle_def(particle_sys_def *def)
 	fprintf(f,"%f,%f,%f\n",def->acc_maxx,def->acc_maxy,def->acc_maxz);
 	fprintf(f,"%f,%f,%f,%f\n",def->mindr,def->mindg,def->mindb,def->minda);
 	fprintf(f,"%f,%f,%f,%f\n",def->maxdr,def->maxdg,def->maxdb,def->maxda);
+	// Particle light info
+	fprintf(f,"%i\n",def->use_light);
+	fprintf(f,"%f,%f,%f\n",def->lightx,def->lighty,def->lightz);
+	fprintf(f,"%f,%f,%f\n",def->lightr,def->lightg,def->lightb);
 
 	fclose(f);
 	return 1;
@@ -266,8 +276,7 @@ void destroy_all_particle_defs()
 	int i;
 	for(i=0;i<max_particle_defs;i++)
 		{
-			if(defs_list[i])
-				free(defs_list[i]);
+			free(defs_list[i]);
 			defs_list[i]=NULL;
 		}
 }
@@ -278,25 +287,16 @@ void destroy_all_particles()
 	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
-			if(particles_list[i])
-			   free(particles_list[i]);
+			if(!particles_list[i])continue;
+			if(particles_list[i]->def && particles_list[i]->def->use_light) {
+				free(lights_list[particles_list[i]->light]);
+				lights_list[particles_list[i]->light]=NULL;
+			}
+			free(particles_list[i]);
 			particles_list[i]=0;
 		}
 	unlock_particles_list();
 
-}
-
-void destroy_all_fires() {
-	int i;
-	lock_particles_list();
-	for(i=0;i<max_particle_systems;i++)
-		{
-			if(particles_list[i] && !strncmp(particles_list[i]->def->file_name,"./particles/fire_",17)) {
-				free(particles_list[i]);
-				particles_list[i]=0;
-			}
-		}
-	unlock_particles_list();
 }
 
 /*********************************************************************
@@ -306,6 +306,7 @@ int add_particle_sys(char *file_name,float x_pos,float y_pos,float z_pos)
 {
 	particle_sys_def *def=load_particle_def(file_name);
 	if(!def)return -1;
+
 	return create_particle_sys(def,x_pos,y_pos,z_pos);
 }
 
@@ -390,6 +391,14 @@ int create_particle_sys(particle_sys_def *def,float x,float y,float z)
 	system_id->def=def;
 	system_id->particle_count=def->total_particle_no;
 	system_id->ttl=def->ttl;
+
+	if(def->use_light) {
+#ifdef MAP_EDITOR
+		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1);
+#else
+		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f);
+#endif
+	}
 
 	for(i=0,p=&system_id->particles[0];i<def->total_particle_no;i++,p++)create_particle(system_id,p);
 	unlock_particles_list();
@@ -920,6 +929,10 @@ void update_particles() {
 			  if(!particles_list[i]->ttl && !particles_list[i]->particle_count)
 			  //if there are no more particles to add, and the TTL expired, then kill this evil system
 				{
+					if(particles_list[i]->def->use_light) {
+						free(lights_list[particles_list[i]->light]);
+						lights_list[particles_list[i]->light]=NULL;
+					}
 					free(particles_list[i]);
 					particles_list[i]=0;
 				}
