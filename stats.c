@@ -297,6 +297,12 @@ void display_stats(player_attribs cur_stats)
 	sprintf(str,"Ethereal Points: %2i/%-2i",cur_stats.ethereal_points.cur,cur_stats.ethereal_points.base);
 	draw_string_small(x,y,str,1);
 
+#ifdef	NEW_VERSION
+	//other info
+	y-=28;
+	sprintf(str,"Pickpoints: %i",cur_stats.combat_skill.base - cur_stats.combat_skill.cur);
+	draw_string_small(attrib_menu_x+190,y,str,1);
+#else	//NEW_VERSION
 	//armor and magic protection
 	y-=28;
 	sprintf(str,"Armor: %i",cur_stats.armor);
@@ -311,6 +317,7 @@ void display_stats(player_attribs cur_stats)
 	y+=14;
 	sprintf(str,"Magic Protection: %i",cur_stats.magic_resistence);
 	draw_string_small(attrib_menu_x+230,y,str,1);
+#endif	//NEW_VERSION
 
 
 	//nexuses here
@@ -348,10 +355,27 @@ void display_stats(player_attribs cur_stats)
 	//skills
 	glColor3f(1.0f,0.5f,0.2f);
 	draw_string_small(x,y,"Skills",1);
-	y+=14;
 
-	sprintf(str,"Manufacture: %2i/%-2i [%2i/%-2i]",cur_stats.manufacturing_skill.cur,cur_stats.manufacturing_skill.base,
-			cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
+#ifdef	NEW_VERSION
+	y+=14;
+	sprintf(str,"Overall:     %2i/%-2i [%2i/%-2i]",cur_stats.combat_skill.cur,cur_stats.combat_skill.base,
+			cur_stats.combat_exp,cur_stats.combat_exp_next_lev);
+	draw_string_small(x,y,str,1);
+#else	//NEW_VERSION
+	y+=14;
+	sprintf(str,"Combat:      %2i/%-2i [%2i/%-2i]",cur_stats.combat_skill.cur,cur_stats.combat_skill.base,
+			cur_stats.combat_exp,cur_stats.combat_exp_next_lev);
+	draw_string_small(x,y,str,1);
+#endif	//NEW_VERSION
+
+	y+=14;
+	sprintf(str,"Attack:      %2i/%-2i [%2i/%-2i]",cur_stats.attack_skill.cur,cur_stats.attack_skill.base,
+			cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
+	draw_string_small(x,y,str,1);
+
+	y+=14;
+	sprintf(str,"Defense:     %2i/%-2i [%2i/%-2i]",cur_stats.defense_skill.cur,cur_stats.defense_skill.base,
+			cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
@@ -362,21 +386,6 @@ void display_stats(player_attribs cur_stats)
 	y+=14;
 	sprintf(str,"Alchemy:     %2i/%-2i [%2i/%-2i]",cur_stats.alchemy_skill.cur,cur_stats.alchemy_skill.base,
 			cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
-	draw_string_small(x,y,str,1);
-
-	y+=14;
-	sprintf(str,"Combat:      %2i/%-2i [%2i/%-2i]",cur_stats.combat_skill.cur,cur_stats.combat_skill.base,
-			cur_stats.combat_exp,cur_stats.combat_exp_next_lev);
-	draw_string_small(x,y,str,1);
-
-	y+=14;
-	sprintf(str,"Attack:      %2i/%-2i [%2i/%-2i]",cur_stats.attack_skill.cur,cur_stats.attack_skill.base,
-			cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
-	draw_string_small(x,y,str,1);
-
-	y+=14;
-	sprintf(str,"Defense:     %2i/%-2i [%2i/%-2i]",cur_stats.defense_skill.cur,cur_stats.defense_skill.base,
-			cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
@@ -392,6 +401,11 @@ void display_stats(player_attribs cur_stats)
 	y+=14;
 	sprintf(str,"Summoning:   %2i/%-2i [%2i/%-2i]",cur_stats.summoning_skill.cur,cur_stats.summoning_skill.base,
 			cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
+	draw_string_small(x,y,str,1);
+
+	y+=14;
+	sprintf(str,"Manufacture: %2i/%-2i [%2i/%-2i]",cur_stats.manufacturing_skill.cur,cur_stats.manufacturing_skill.base,
+			cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
