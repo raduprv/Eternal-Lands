@@ -292,7 +292,8 @@ int HandleEvent(SDL_Event *event)
 
 				if (key==K_MAP)
 					{
-						view_window(&map_win,-1);
+						view_map_win(&map_win,-1);
+						break;
 					}
 
 				if (key==K_ROTATELEFT)
@@ -405,17 +406,14 @@ int HandleEvent(SDL_Event *event)
 
 				if(ch=='`' || key==K_CONSOLE)
 					{
-						if(interface_mode==interface_console)interface_mode=interface_game;
-						else {
-							interface_mode=interface_console;
-							if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
-						}
+						view_console_win(&console_win,-1);
 						break;
 					}
 
 				if(key==K_SHADOWS)
 					{
 						clouds_shadows=!clouds_shadows;
+						break;
 					}
 
 

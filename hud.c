@@ -16,8 +16,8 @@ struct icons_struct icons =
 	};
 
 //Windows not handled by the window manager:
-int map_win=MAP_WINDOW;
-int console_win=CONSOLE_WINDOW;
+int map_win=0;
+int console_win=0;
 
 int	display_icons_handler(window_info *win);
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags);
@@ -244,29 +244,25 @@ void init_peace_icons()
 	icons.y=0;
 	icons.x=0;
 	
-	int type=WALK;//If data is an integer we need to set this
-	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, "Walk", switch_action_mode, &type, DATA_INT);
+	int type=action_walk;
+	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, "Walk", switch_action_mode, &type, DATA_ACTIONMODE);
 	
-	type=SIT;
 	if(you_sit)
-		add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, "Stand up", switch_action_mode, &type, DATA_INT);
+		add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, "Stand up", sit_button_pressed, NULL, DATA_NONE);
 	else
-		add_icon(sit_icon_u_start, sit_icon_v_start, colored_sit_icon_u_start, colored_sit_icon_v_start, "Sit down", switch_action_mode, &type, DATA_INT);
+		add_icon(sit_icon_u_start, sit_icon_v_start, colored_sit_icon_u_start, colored_sit_icon_v_start, "Sit down", sit_button_pressed, NULL, DATA_NONE);
 	
-	type=LOOK;
-	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, "Look at", switch_action_mode, &type, DATA_INT);
+	type=action_look;
+	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, "Look at", switch_action_mode, &type, DATA_ACTIONMODE);
 
-	type=USE;
-	add_icon(use_icon_u_start, use_icon_v_start, colored_use_icon_u_start, colored_use_icon_v_start, "Use", switch_action_mode, &type, DATA_INT);
+	type=action_use;
+	add_icon(use_icon_u_start, use_icon_v_start, colored_use_icon_u_start, colored_use_icon_v_start, "Use", switch_action_mode, &type, DATA_ACTIONMODE);
 
-	type=TRADE;
-	add_icon(trade_icon_u_start, trade_icon_v_start, colored_trade_icon_u_start, colored_trade_icon_v_start, "Trade", switch_action_mode, &type, DATA_INT);
+	type=action_trade;
+	add_icon(trade_icon_u_start, trade_icon_v_start, colored_trade_icon_u_start, colored_trade_icon_v_start, "Trade", switch_action_mode, &type, DATA_ACTIONMODE);
 
-	type=ATTACK;
-	add_icon(attack_icon_u_start, attack_icon_v_start, colored_attack_icon_u_start, colored_attack_icon_v_start, "Attack", switch_action_mode, &type, DATA_INT);
-
-	type=TRADE;
-	add_icon(trade_icon_u_start, trade_icon_v_start, colored_trade_icon_u_start, colored_trade_icon_v_start, "Trade", switch_action_mode, &type, DATA_INT);
+	type=action_attack;
+	add_icon(attack_icon_u_start, attack_icon_v_start, colored_attack_icon_u_start, colored_attack_icon_v_start, "Attack", switch_action_mode, &type, DATA_ACTIONMODE);
 
 	//done with the integer variables - now for the windows
 	
@@ -284,9 +280,9 @@ void init_peace_icons()
 	
 	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, "Show the quest log", view_window, &questlog_win, DATA_WINDOW);
 	
-	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, "Show the map window", view_window, &map_win, DATA_WINDOW);
+	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, "Show the map window", view_map_win, &map_win, DATA_WINDOW);
 	
-	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, "Show the console", view_window, &console_win, DATA_WINDOW);
+	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, "Show the console", view_console_win, &console_win, DATA_WINDOW);
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, "Show the buddy window", view_window, &buddy_win, DATA_WINDOW);
 	
@@ -310,29 +306,15 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 	strcpy(icons.icon[no]->help_message,help_message);
 	switch(data_type)
 		{
-			case DATA_INT:
-				icons.icon[no]->data=(int*) calloc(1,sizeof(int));
-				memcpy(icons.icon[no]->data, data, sizeof(int));
-				break;
-			case DATA_INTPOINTER:
-				icons.icon[no]->data=(int*)data;
-				break;
-			case DATA_FLOAT:
-				icons.icon[no]->data=(float*) calloc(1,sizeof(float));
-				memcpy(icons.icon[no]->data, data, sizeof(float));
-				break;
-			case DATA_FLOATPOINTER:
-				icons.icon[no]->data=(float*)data;
-				break;
-			case DATA_CHAR:
-				icons.icon[no]->data=(char *) calloc(1,sizeof(char));
-				memcpy(icons.icon[no]->data, data, sizeof(char));
-				break;
-			case DATA_CHARPOINTER:
-				icons.icon[no]->data=(char*)data;
+			case DATA_ACTIONMODE:
+				icons.icon[no]->data=(int*)calloc(1,sizeof(int));
+				memcpy(icons.icon[no]->data,data,sizeof(int));
 				break;
 			case DATA_WINDOW:
 				icons.icon[no]->data=(int*)data;
+				break;
+			case DATA_NONE:
+				icons.icon[no]->data=NULL;
 				break;
 		}
 	icons.icon[no]->data_type=data_type;
@@ -353,11 +335,26 @@ void draw_peace_icons()
 int	display_icons_handler(window_info *win)
 {
 
-	int i, state=-1;
+	int i, state=-1, *z;
 
 	//glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	//glAlphaFunc(GL_GREATER,0.03f);
 
+	for(i=0;i<icons.no;i++)
+		{
+			if(icons.icon[i]->data_type==DATA_WINDOW)
+				{
+					z = (int*)icons.icon[i]->data;
+					if(*z && *z<windows_list.num_windows) icons.icon[i]->state=windows_list.window[*z].displayed;
+				}
+			else if(icons.icon[i]->data_type==DATA_ACTIONMODE)
+				{
+					z = (int*)icons.icon[i]->data;
+					if(action_mode==*z)icons.icon[i]->state=1;
+					else icons.icon[i]->state=0;
+				}
+		}
+	
 	if(mouse_in_window(win->window_id, mouse_x, mouse_y))
 		{
 			state=icon_cursor_x/32;//Icons must be 32 pixels wide...
@@ -391,26 +388,30 @@ int	display_icons_handler(window_info *win)
 	return 1;
 }
 
-void reset_states(int id, int state)
+void sit_button_pressed(void * none, int id)
 {
-	int i=0;
-	for(;i<icons.no;i++)
+	if(you_sit)
 		{
-			if(i!=id)icons.icon[i]->state=0;
-			else icons.icon[i]->state=state;
+			you_stand_up();
+			//Send message to server...
+			Uint8 str[4];
+			str[0]=SIT_DOWN;
+			str[1]=0;
+			my_tcp_send(my_socket,str,2);
+		}
+	else
+		{
+			you_sit_down();
+			//Send message to server...
+			Uint8 str[4];
+			str[0]=SIT_DOWN;
+			str[1]=1;
+			my_tcp_send(my_socket,str,2);
 		}
 }
 
-void you_stand_up() {
-	you_sit=0;
-	icons.icon[1]->u[0]=sit_icon_u_start;
-	icons.icon[1]->u[1]=colored_sit_icon_u_start;
-	icons.icon[1]->v[0]=sit_icon_v_start;
-	icons.icon[1]->v[1]=colored_sit_icon_v_start;
-	strcpy(icons.icon[1]->help_message,"Sit down");
-}
-
-void you_sit_down() {
+void you_sit_down()
+{
 	you_sit=1;
 	icons.icon[1]->u[0]=stand_icon_u_start;//Change the icon to stand
 	icons.icon[1]->u[1]=colored_stand_icon_u_start;
@@ -419,81 +420,57 @@ void you_sit_down() {
 	strcpy(icons.icon[1]->help_message,"Stand up");
 }
 
+void you_stand_up()
+{
+	you_sit=0;
+	icons.icon[1]->u[0]=sit_icon_u_start;
+	icons.icon[1]->u[1]=colored_sit_icon_u_start;
+	icons.icon[1]->v[0]=sit_icon_v_start;
+	icons.icon[1]->v[1]=colored_sit_icon_v_start;
+	strcpy(icons.icon[1]->help_message,"Sit down");
+}
+
 void switch_action_mode(int * mode, int id)
 {
-	switch(*mode)
+	action_mode=*mode;
+}
+
+void view_console_win(int * win, int id)
+{
+	if(id<0)id=translate_win_id(&console_win);
+	if(interface_mode==interface_console)
 		{
-			case WALK:
-				action_mode=action_walk;
-				reset_states(id, PRESSED);
-				break;
-			case SIT:
-				if(!you_sit)
-					{
-						Uint8 str[4];
-						str[0]=SIT_DOWN;
-						str[1]=1;
-						my_tcp_send(my_socket,str,2);
-					}
-				else
-					{
-						Uint8 str[4];
-						str[0]=SIT_DOWN;
-						str[1]=0;
-						my_tcp_send(my_socket,str,2);
-					}
-				break;
-			case LOOK:
-				action_mode=action_look;
-				reset_states(id, PRESSED);
-				break;
-			case TRADE:
-				action_mode=action_trade;
-				reset_states(id, PRESSED);
-				break;
-			case ATTACK:
-				action_mode=action_attack;
-				reset_states(id, PRESSED);
-				break;
-			case USE:
-				action_mode=action_use;
-				reset_states(id, PRESSED);
-			default: 
-				break;
+			interface_mode=interface_game;
+			icons.icon[id]->state=0;
+		}
+	else
+		{
+			interface_mode=interface_console;
+			if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+			icons.icon[id]->state=PRESSED;
+			icons.icon[id-1]->state=0;
+		}
+}
+
+void view_map_win(int * win, int id)
+{
+	if(id<0)id=translate_win_id(&map_win);
+	if(interface_mode==interface_game || interface_mode==interface_console)
+		{
+			if(switch_to_game_map()) {
+				icons.icon[id]->state=PRESSED;
+				icons.icon[id+1]->state=0;
+			}
+		}
+	else if(interface_mode==interface_map)
+		{
+			switch_from_game_map();
+			icons.icon[id]->state=0;
 		}
 }
 
 void view_window(int * window, int id)
 {
-	if (id<0)if((id=translate_win_id(*window))<0) return;//Something bad has happened...
-	if(window==&console_win)
-		{
-			if(interface_mode==interface_console)
-				{
-					interface_mode=interface_game;
-					reset_states(id, NOT_ACTIVE);
-				}
-			else 
-				{
-					interface_mode=interface_console;	
-					reset_states(id, PRESSED);
-				}
-			return;
-		}
-	if(window==&map_win)
-		{
-			if(interface_mode==interface_game)
-				{
-					switch_to_game_map();
-					reset_states(id, PRESSED);
-				}
-			else if(interface_mode==interface_map)
-				{
-					switch_from_game_map();
-					reset_states(id, NOT_ACTIVE);
-				}
-			return;
-		}
 	if(window==&items_win||window==&sigil_win||window==&manufacture_win)
 		{
 			if(get_show_window(trade_win))
@@ -517,9 +494,6 @@ void view_window(int * window, int id)
 			else if(window==&trade_win) display_trade_menu();
 		}
 	else toggle_window(*window);
-	
-	if(windows_list.window[*window].displayed)reset_states(id,PRESSED);
-	else reset_states(id,NOT_ACTIVE);
 }
 
 int check_peace_icons()
@@ -537,26 +511,11 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			switch(icons.icon[id]->data_type)
 				{
-					case DATA_INT:
-					case DATA_INTPOINTER:
+					case DATA_ACTIONMODE:
 					case DATA_WINDOW:
 						{
 							int * data=(int *)icons.icon[id]->data;
 							icons.icon[id]->func((int *)data, id);
-							break;
-						}
-					case DATA_FLOAT:
-					case DATA_FLOATPOINTER:
-						{
-							float *data=(float*)icons.icon[id]->data;
-							icons.icon[id]->func(data, id);
-							break;
-						}
-					case DATA_CHAR:
-					case DATA_CHARPOINTER:
-						{
-							char *data = (char*) icons.icon[id]->data;
-							icons.icon[id]->func((char*)data, id);
 							break;
 						}
 					default:
@@ -592,14 +551,14 @@ void show_help(char *help_message, int pos)
 	draw_string_small(pos*32+2, 10,help_message,1);
 }
 
-int translate_win_id(int win_id)
+int translate_win_id(int * win_id)
 {
 	int i=0;
 	for(;i<icons.no;i++)
 		{
 			if(icons.icon[i]->data_type==DATA_WINDOW)
 				{
-					if(*(int *)(icons.icon[i]->data)==win_id) return i;
+					if(icons.icon[i]->data==win_id) return i;
 				}
 		}
 	return -1;

@@ -101,7 +101,7 @@ void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_s
 int y_start,int x_end,int y_end);
 void display_options_menu();
 void draw_ingame_interface();
-void switch_to_game_map();
+int switch_to_game_map();
 void switch_from_game_map();
 void draw_game_map();
 

@@ -993,7 +993,7 @@ void draw_ingame_interface()
 
 int map_text;
 
-void switch_to_game_map()
+int switch_to_game_map()
 {
 	int len;
 	char map_map_file_name[256];
@@ -1008,10 +1008,11 @@ void switch_to_game_map()
 	if(!map_text)//this map has no map (sounds so stupid)
 		{
 			log_to_console(c_yellow2,"There is no map for this place.");
-			return;
+			return 0;
 		}
 	interface_mode=interface_map;
 	if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+	return 1;
 }
 
 void switch_from_game_map()
