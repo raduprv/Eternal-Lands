@@ -4,6 +4,7 @@
 #define LABEL		0x01
 #define IMAGE		0x02
 #define CHECKBOX	0x03
+#define BUTTON		0x04
 
 typedef struct wl{
 	// Common widget data
@@ -38,6 +39,10 @@ typedef struct {
 	int checked;
 }checkbox;
 
+typedef struct {
+	char text[256];
+}button;
+
 // Common widget functions
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id);
 int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
@@ -67,5 +72,10 @@ int checkbox_draw(widget_list *W);
 int checkbox_click(widget_list *W);
 int checkbox_get_checked(Uint32 window_id, Uint32 widget_id);
 int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked);
+
+// Button
+int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y);
+int button_draw(widget_list *W);
+int button_set_text(Uint32 window_id, Uint32 widget_id, char *text);
 
 #endif

@@ -331,3 +331,70 @@ int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked)
 	}
 	return 0;
 }
+
+
+// Button
+int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
+{
+	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
+	button *T = (button *) malloc(sizeof(button));
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	
+	// Clearing everything
+	memset(W,0,sizeof(widget_list));
+	memset(T,0,sizeof(button));
+
+	// Filling the widget info
+	W->widget_info = T;
+	W->id=widget_id++;
+	W->type = BUTTON;
+	W->Flags = 0;
+	W->pos_x = x;
+	W->pos_y = y;
+	W->size = 1.0;
+	W->r = -1.0;
+	W->g = -1.0;
+	W->b = -1.0;
+	strncpy(T->text,text,255);
+	W->len_y = (Uint16)(18 * 1.0) + 2;
+	W->len_x = (Uint16)(strlen(T->text) * 11 * 1.0) + 4;
+	W->OnDraw = button_draw;
+	W->OnInit = OnInit;
+	if(W->OnInit != NULL)
+		W->OnInit(W);
+
+	// Adding the widget to the list
+	while(w->next != NULL)
+		w = w->next;
+	w->next = W;
+
+	return W->id;
+}
+
+int button_draw(widget_list *W)
+{
+	button *l = (button *)W->widget_info;
+	if(W->r != -1.0)
+		glColor3f(W->r,W->g,W->b);
+
+	glBegin(GL_LINES);
+	glVertex3i(W->pos_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
+	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
+	glEnd();
+
+	draw_string_zoomed(W->pos_x + 2, W->pos_y + 2, (unsigned char *)l->text, 1, W->size);
+	return 1;
+}
+
+int button_set_text(Uint32 window_id, Uint32 widget_id, char *text)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		button *l = (button *) w->widget_info;
+		strncpy(l->text,text,255);
+		return 1;
+	}
+	return 0;
+}
