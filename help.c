@@ -18,7 +18,11 @@ void build_help()
 	i++;
 
 	my_strcp(help_list[i].topic_name,"console");
-	my_strcp(help_list[i].topic_info,"\n[console] - In the console mode you can access the following commands: [help] [ver] [ignore] [unignore] [ignores] [filter] [unfilter] [filters] [glinfo] [time] [date] [stats] [cls] [quit] [exit] [ping]. For more information on those commands, type: \"help command\", where command is one of the listed commands (without the quote marks). To enter or leave the console mode, you can press either F1, or the ~ key, as long as you are using an English keyboard. Anything that is not a valid command will be sent as a normal chat line.");
+	my_strcp(help_list[i].topic_info,"\n[console] - In the console mode you can access the following commands: [help] [ver] [faq] [ignore] [unignore] [ignores] [filter] [unfilter] [filters] [glinfo] [time] [date] [stats] [cls] [quit] [exit] [ping]. For more information on those commands, type: \"help command\", where command is one of the listed commands (without the quote marks). To enter or leave the console mode, you can press either F1, or the ~ key, as long as you are using an English keyboard. Anything that is not a valid command will be sent as a normal chat line.");
+	i++;
+
+	my_strcp(help_list[i].topic_name,"faq");
+	my_strcp(help_list[i].topic_info,"\n[faq] - Prints the current faq.txt file to the console. Please note that you will need to switch to the console & scroll back thru it.");
 	i++;
 
 	my_strcp(help_list[i].topic_name,"ping");

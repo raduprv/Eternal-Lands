@@ -100,17 +100,17 @@ void test_for_console_command()
 			exit_now=1;
 			return;
 		}
-//#ifdef	DEBUG
 #ifdef	CACHE_SYSTEM
 	if(my_strcompare(text_loc,"mem") || my_strcompare(text_loc,"cache"))
 		{
 			cache_dump_sizes(cache_system);
+#ifdef	DEBUG
 			cache_dump_sizes(cache_e3d);
 			cache_dump_sizes(cache_md2);
+#endif	//DEBUG
 			return;
 		}
 #endif	//CACHE_SYSTEM
-//#endif	//DEBUG
 	if(my_strcompare(text_loc,"ver") || my_strcompare(text_loc,"vers"))
 		{
 			char str[128];
@@ -432,6 +432,38 @@ void test_for_console_command()
 				}
 		}
 	////////////////////////
+	if(my_strcompare(text_loc,"faq"))
+		{
+			FILE	*f;
+			f=fopen("faq.txt", "r");
+			if(f)
+				{
+					Uint8	buffer[2049];
+					Uint8	*buf;
+					Uint32	len;
+					do
+						{
+							buf=fgets(buffer, 2048, f);
+							if(buf)
+								{
+									// strip trailing chars
+									len=strlen(buffer);
+									while(len > 0 && (buffer[len-1]=='\n' || buffer[len-1]=='\r' || buffer[len-1]==' '))
+										{
+											len--;
+											buffer[len]='\0';
+										}
+									//TODO: colorize?
+									put_text_in_buffer(buffer, -1, 0);
+								}
+							else	break;
+						}
+					while(!feof(f) && !ferror(f));
+					fclose(f);
+				}
+			else	LogError("faq.txt not found");
+			return;
+		}
 	if(my_strcompare(text_loc,"help"))
 		{
 			display_help_topic("main");
