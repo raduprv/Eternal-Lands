@@ -829,7 +829,7 @@ const struct draw_map seridia_maps[] = {
 	{184,162,395,359},//1 - Whitestone
 	{84,352,180,448}, //2 - Desert Pines
 	{336,118,387,165},//3 - Tirnym
-	{245,405,281,451},//4 - VOTD
+	{230,405,281,451},//4 - VOTD
 	{84,270,177,357}, //5 - Portland
 	{87,169,175,270}, //6 - Morcraven
 	{130,128,178,168},//7 - Naralik
