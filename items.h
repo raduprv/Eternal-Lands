@@ -38,8 +38,8 @@ typedef enum {
 	ITEM_ON_OFF            = 128,
 } item_definition_flags;
 
-extern item item_list[36+6];
-extern item manufacture_list[36+6];
+extern item item_list[36+8];
+extern item manufacture_list[36+8];
 extern ground_item ground_item_list[50];
 extern bag bag_list[200];
 

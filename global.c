@@ -286,8 +286,8 @@ int attrib_menu_y_len=348;
 int attrib_menu_dragged=0;
 
 //items
-item item_list[36+6];
-item manufacture_list[36+6];
+item item_list[36+8];
+item manufacture_list[36+8];
 ground_item ground_item_list[50];
 bag bag_list[200];
 
