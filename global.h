@@ -5,19 +5,22 @@
 #include <SDL_net.h>
 #include <SDL_thread.h>
 
+#ifndef OSX
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glext.h>
+#endif
 #ifdef WINDOWS
 #include <al.h>
 #include <alut.h>
-#include "SDL_opengl.h"
 #elif defined(OSX)
 #include <OpenAL/alut.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
+#include <OpenGL/glext.h>
 #else
 #include <AL/al.h>
 #include <AL/alut.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #endif //WINDOWS
 
 #ifndef	NO_MUSIC
