@@ -6,6 +6,12 @@
 #include "global.h"
 #include "books.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void free_books();
+ * int have_book(int);
+ */
+
 #define _TITLE 0
 #define _AUTHOR 1
 #define _TEXT 2
@@ -13,7 +19,76 @@
 #define _IMAGE_TEXT 4
 #define _PAGE 6
 
+/*! 
+ * Server side defines, specifies if it's a book that's supposed to be read from the server or from the books/ directory.
+ */
+/*! \{ */
+#define LOCAL 0
+#define SERVER 1
+/*! \} */
+
+/*!
+ * The image structure - holds the filename, u/v-coordinates and the texture ID
+ */
+typedef struct {
+	char file[200];/*!< The filename of the image for future references*/
+	
+	/*! \{ */
+	int x;/*! < The x offset */
+	int y;/*! < The y offset */
+	/*! \} */
+	/*! \{ */
+	int w;/*! < The width of the image*/
+	int h;/*! < The height of the image */
+	/*! \} */
+	
+	int texture; /*!< The texture ID in the texture_cache - NOT the GL-texture ID*/
+	/*! \{ */
+	int u[2]; /*!< The start and end U-coordinates*/
+	int v[2]; /*!< The start and end V-coordinates*/
+	/*! \} */
+} _image;
+
+/*!
+ * The page structure - holds the lines in a char ** array, 1 image and the page number (written in the bottom of the page).
+ */
+typedef struct {
+	char ** lines; /*!< The lines on one page. The char ** is ended by a NULL-pointer (lines[i]==NULL)*/
+	_image * image;/*!< The page can so far only have 1 image - this should be sufficient...*/
+	int page_no; /*!< The page number */
+} page;
+
+/*!
+ * The book structure, containing the pages, title and other variables telling the book type etc.
+ */
+struct _book {
+	char title[35];	 /*!< The book title*/
+	int id;		 /*!< The books unique ID (each book will have to have a different ID)*/
+	
+	int type;	 /*!< The type of book (currently the only available types are paper or book)*/
+	
+	int no_pages; /*!< The number of pages that we have loaded*/
+	page ** pages; /*!< The pages - the last page is NULL*/
+	int max_width;/*!< The page width in characters*/
+	int max_lines; /*!< The max. number of lines*/
+	
+	int server_pages;/*!< The number of server-side pages in the book (different from client-side)*/
+	int have_server_pages;/*!< The number of server-side pages we have*/
+	int pages_to_scroll; /*!< The number of pages to scroll when the next page is recieved*/
+
+	int active_page; /*!< The currently active page*/
+
+	struct _book * next; /*!< The next book*/
+};
+/*! The typedef for the _book structure - just for own convinience...*/
+typedef struct _book book;
+
 book * books=NULL;
+
+/* forward declaration added due to code cleanup */
+void add_book(book *bs);
+void display_book_window(book *b);
+/* end of added forward declaration */
 
 /*Memory handling etc.*/
 
@@ -102,6 +177,7 @@ void free_book(book * b)
 	free(b);
 }
 
+/* currently UNUSED
 void free_books()
 {
 	book *b,*l=NULL;
@@ -110,9 +186,11 @@ void free_books()
 		free_book(l);
 	}
 }
+*/
 
 /*Multiple book handling*/
 
+/* currently UNUSED
 int have_book(int id)
 {
 	book *b=books;
@@ -123,6 +201,7 @@ int have_book(int id)
 	}
 	return 0;
 }
+*/
 
 book * get_book(int id)
 {
