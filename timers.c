@@ -104,16 +104,20 @@ void check_timers()
 {
 	if((int)(cur_time-last_my_timer)>500)//OK, too long has passed, this is most likely a timer failure! log it and restart the timer
 		{
-			log_error("Draw scene timer is lagging behind!\n");
-			log_to_console(c_red2,"The draw_scene timer is lagging behind or has stopped, restarting it.");
+			char str[120];
+			sprintf(str,timer_lagging_behind,"draw_scene");
+			log_error(str);
+			log_to_console(c_red2,str);
 			SDL_RemoveTimer(draw_scene_timer);
 			draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
 			last_my_timer=my_timer_clock=SDL_GetTicks();
 		}
 	if((int)(cur_time-misc_timer_clock)>1500)
 		{
-			log_error("Misc timer is lagging behind!\n");
-			log_to_console(c_red2,"The misc timer is lagging behind or has suddenly stopped, restarting it.");
+			char str[120];
+			sprintf(str,timer_lagging_behind,"misc");
+			log_error(str);
+			log_to_console(c_red2,str);
 			SDL_RemoveTimer(misc_timer);
 			misc_timer = SDL_AddTimer (500, check_misc, NULL);
 			misc_timer_clock=SDL_GetTicks();

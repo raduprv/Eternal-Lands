@@ -360,7 +360,9 @@ char	reg_error_str[15],
 	snd_media_internal_error[50],
 	snd_media_ogg_error[50],
 	/*stats.c*/
-	stat_no_invalid[50]; 
+	stat_no_invalid[50],
+	/*timers.c*/
+	timer_lagging_behind[100];
 #else
 	;
 #endif
@@ -595,6 +597,7 @@ void init_errors()
 	add_xml_identifier(misc,"disconnect",disconnected_from_server,"Disconnected from server!",50);
 	add_xml_identifier(misc,"stat",stat_no_invalid,"Server sent invalid stat number",50);
 	add_xml_identifier(misc,"ascii",not_ascii,"Not ASCII",20);
+	add_xml_identifier(misc,"timer",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", 100);
 #endif
 
 	//Particle errors
