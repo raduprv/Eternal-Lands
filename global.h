@@ -18,7 +18,12 @@
 #include <SDL.h>
 #include "SDL_opengl.h"
 
+#ifdef LINUX
 #include <gtk/gtk.h>
+#include "gui.h"
+#include "gui_callbacks.h"
+#include "gui_support.h"
+#endif
 
 #include "init.h"
 #include "asc.h"
@@ -32,8 +37,7 @@
 #include "shadows.h"
 #include "reflection.h"
 #include "misc.h"
-#include "gui.h"
-#include "gui_callbacks.h"
+
 
 
 #define sector_size_x 15
