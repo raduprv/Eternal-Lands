@@ -40,15 +40,14 @@ ALuint get_loaded_buffer(int i)
 }
 int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 {
-	int error,tx,ty,distance,i=0;
+	int error,tx,ty,distance,i;
 	ALfloat sourcePos[]={ x, y, 0.0};
 	ALfloat sourceVel[]={ 0.0, 0.0, 0.0};
 
 	if(!have_sound)return 0;
 	lock_sound_list();
 
-	if(used_sources)
-		i=used_sources;
+	i=used_sources;
 	used_sources++;
 
 	if(used_sources>max_sources)
@@ -99,8 +98,6 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 			alSourcei(sound_source[i], AL_LOOPING, AL_FALSE);
 			if(sound_on)
 				alSourcePlay(sound_source[i]);
-			if(positional && (distance < 25))
-				alSourcePause(sound_source[i]);
 		}
 	unlock_sound_list();
 	return sound_source[i];
@@ -151,10 +148,9 @@ void update_position()
 //usefull when we change maps, etc.
 void kill_local_sounds()
 {
-	int i,error,state,prev_used;
+	int i,error,state;
 	if(!have_sound)return;
 	lock_sound_list();
-	prev_used = used_sources;
 	alSourceStopv(used_sources,sound_source);
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
@@ -165,7 +161,7 @@ void kill_local_sounds()
 			have_sound=0;
 			have_music=0;
     	}
-	for(i=0;i<prev_used;i++)
+	for(i=0;i<used_sources;i++)
 		{
 			alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
 			if(state != AL_STOPPED)
@@ -175,13 +171,17 @@ void kill_local_sounds()
 					break;
 				}
 		}
-	/*
-	if(realloc_sources())
-		{
-			log_to_console(c_red1, "Failed to stop all sounds.\n");
-			log_error("Failed to stop all sounds.\n");
-		}
-	*/
+	alDeleteSources(used_sources, sound_source);
+	used_sources = 0;
+	if((error=alGetError()) != AL_NO_ERROR) 
+    	{
+     		char	str[256];
+    		sprintf(str, "kill_local_sounds error: %s\n", alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
+			have_sound=0;
+			have_music=0;
+    	}
 	unlock_sound_list();
 }
 
@@ -215,7 +215,7 @@ void turn_sound_on()
 
 void init_sound()
 {
-	int error;
+	int i,error;
 	ALfloat listenerPos[]={-cx*2,-cy*2,0.0};
 	ALfloat listenerVel[]={0.0,0.0,0.0};
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
@@ -235,7 +235,6 @@ void init_sound()
 			have_music=0;
     	}
 
-
     // TODO: get this information from a file, sound.ini?	
 	my_strcp(sound_files[0],"./sound/rain1.wav");
 	my_strcp(sound_files[1],"./sound/teleport_in.wav");
@@ -251,6 +250,9 @@ void init_sound()
 	alListenerfv(AL_POSITION,listenerPos);
 	alListenerfv(AL_VELOCITY,listenerVel);
 	alListenerfv(AL_ORIENTATION,listenerOri);
+
+	for(i=0;i<max_buffers;i++)
+		sound_buffer[i] = -1;
 }
 
 void destroy_sound()
