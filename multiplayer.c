@@ -623,7 +623,7 @@ int recvpacket()
 	int len, total, size;
 	//int i;
 	//for(i=0;i<4096;i++)in_data[i]=0;
-	memset(in_data, 4096, 0);
+	memset(in_data, 0, 4096);
 
 	total=SDLNet_TCP_Recv(my_socket, in_data, 3);
 	if(total==-1)return 0;
