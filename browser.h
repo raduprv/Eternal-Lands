@@ -3,8 +3,10 @@
 
 typedef struct{
 	char DirName[24];
-	char Files[256][24];
+	char Files[256][256];
+	char Names[256][24];
 	int nf;
+	float xrot[256],yrot[256],zrot[256],size[256];
 }_Dir;
 
 extern int browser_menu_x;

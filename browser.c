@@ -18,20 +18,20 @@ int browser_win=0;
 
 object3d o3d[4];
 _Dir Dir[24];
-int dc=0,cd=-1,cp=0;
+int dc=-1,cd=-1,cp=0;
 
-void setobject(int n, char *fn)
+void setobject(int n, char *fn,float xrot, float yrot, float zrot)
 {
 	object3d *our_object=&o3d[n];
 	snprintf(our_object->file_name,80,"%s",fn);
 	
-	our_object->x_pos=0-cx;
-	our_object->y_pos=0-cy;
+	our_object->x_pos=0;
+	our_object->y_pos=0;
 	our_object->z_pos=cz;
 	
-	our_object->x_rot=0;
-	our_object->y_rot=0;
-	our_object->z_rot=0;
+	our_object->x_rot=xrot;
+	our_object->y_rot=yrot;
+	our_object->z_rot=zrot;
 
 	our_object->r=0;
 	our_object->g=0;
@@ -134,24 +134,24 @@ int display_browser_handler()
 		glClearStencil(0);
 		glClear (GL_DEPTH_BUFFER_BIT);
 		strcpy(fn,exec_path);
-		strcat(fn,"/3dobjects/");
-		strcat(fn,Dir[cd].DirName);
-		strcat(fn,"/");
 		strcat(fn,Dir[cd].Files[i]);
-		setobject(0,fn);
+		setobject(0,fn,Dir[cd].xrot[i],Dir[cd].yrot[i],Dir[cd].zrot[i]);
+		glPushMatrix();
+		glScalef(Dir[cd].size[i],Dir[cd].size[i],Dir[cd].size[i]);
 		draw_3d_object(&o3d[0]);
+		glPopMatrix();
 
 		if(i+2<Dir[cd].nf){
 			glViewport(browser_menu_x+200,window_height-browser_menu_y-200,200,200);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
-			strcat(fn,"/3dobjects/");
-			strcat(fn,Dir[cd].DirName);
-			strcat(fn,"/");
 			strcat(fn,Dir[cd].Files[i+2]);
-			setobject(1,fn);
+			setobject(1,fn,Dir[cd].xrot[i+2],Dir[cd].yrot[i+2],Dir[cd].zrot[i+2]);
+			glPushMatrix();
+			glScalef(Dir[cd].size[i+2],Dir[cd].size[i+2],Dir[cd].size[i+2]);
 			draw_3d_object(&o3d[1]);
+			glPopMatrix();
 		}
 
 		if(i+1<Dir[cd].nf){
@@ -159,12 +159,12 @@ int display_browser_handler()
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
-			strcat(fn,"/3dobjects/");
-			strcat(fn,Dir[cd].DirName);
-			strcat(fn,"/");
 			strcat(fn,Dir[cd].Files[i+1]);
-			setobject(2,fn);
+			setobject(2,fn,Dir[cd].xrot[i+1],Dir[cd].yrot[i+1],Dir[cd].zrot[i+1]);
+			glPushMatrix();
+			glScalef(Dir[cd].size[i+1],Dir[cd].size[i+1],Dir[cd].size[i+1]);
 			draw_3d_object(&o3d[2]);
+			glPopMatrix();
 		}
 
 		if(i+3<Dir[cd].nf){
@@ -172,12 +172,12 @@ int display_browser_handler()
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
-			strcat(fn,"/3dobjects/");
-			strcat(fn,Dir[cd].DirName);
-			strcat(fn,"/");
 			strcat(fn,Dir[cd].Files[i+3]);
-			setobject(3,fn);
+			setobject(3,fn,Dir[cd].xrot[i+3],Dir[cd].yrot[i+3],Dir[cd].zrot[i+3]);
+			glPushMatrix();
+			glScalef(Dir[cd].size[i+3],Dir[cd].size[i+3],Dir[cd].size[i+3]);
 			draw_3d_object(&o3d[3]);
+			glPopMatrix();
 		}
 
 		// Back to normal
@@ -185,10 +185,10 @@ int display_browser_handler()
 		Enter2DMode();
 
 		// Object names
-		draw_string(browser_menu_x+2,browser_menu_y+200-18,(unsigned char *)Dir[cd].Files[i],1);
-		draw_string(browser_menu_x+2,browser_menu_y+400-18,(unsigned char *)Dir[cd].Files[i+1],1);
-		draw_string(browser_menu_x+202,browser_menu_y+200-18,(unsigned char *)Dir[cd].Files[i+2],1);
-		draw_string(browser_menu_x+202,browser_menu_y+400-18,(unsigned char *)Dir[cd].Files[i+3],1);
+		draw_string(browser_menu_x+2,browser_menu_y+200-18,(unsigned char *)Dir[cd].Names[i],1);
+		draw_string(browser_menu_x+2,browser_menu_y+400-18,(unsigned char *)Dir[cd].Names[i+1],1);
+		draw_string(browser_menu_x+202,browser_menu_y+200-18,(unsigned char *)Dir[cd].Names[i+2],1);
+		draw_string(browser_menu_x+202,browser_menu_y+400-18,(unsigned char *)Dir[cd].Names[i+3],1);
 
    }
 	return 1;
@@ -306,7 +306,34 @@ void add_dir(char *n)
 
 void init_browser()
 {
+	char temp[512];
+	FILE *fp=fopen("browser.lst","r");
+	if(!fp){
+		log_error("browser.lst not found");
+		return;
+	}
+	
+	while(!feof(fp)){
+		fgets(temp,511,fp);
+		if(!strncmp(temp,"Category",8)){
+			dc++;
+			strcpy(Dir[dc].DirName,&temp[9]);
+		}else{
+			int i=0,j;
+			while(temp[i]!=','){
+				Dir[dc].Names[Dir[dc].nf][i]=temp[i++];
+			}
+			j=i+1;
+			i=0;
+			while(temp[j]!=','){
+				Dir[dc].Files[Dir[dc].nf][i++]=temp[j++];
+			}
 
+			sscanf(&temp[j+1],"%g,%g,%g,%g\n",&Dir[dc].xrot[Dir[dc].nf],&Dir[dc].yrot[Dir[dc].nf],&Dir[dc].zrot[Dir[dc].nf],&Dir[dc].size[Dir[dc].nf++]);
+		}
+	}
+	dc++;
+/*
 #ifdef WINDOWS
 	char execp[256];
 	struct _finddata_t c_file;
@@ -365,5 +392,5 @@ void init_browser()
   closedir(dir);
   
 #endif
-
+*/
 }
