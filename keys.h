@@ -51,3 +51,4 @@ unsigned int parse_key_string(char *s);
 void add_key(unsigned int *key,unsigned int n);
 
 #endif	//__KEYS_H__
+

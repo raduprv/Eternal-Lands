@@ -2,7 +2,6 @@
 #define __SPELLS_H__
 
 #define SIGILS_NO 50
-#define SPELL_NO 14
 
 typedef struct
 {
@@ -12,32 +11,23 @@ typedef struct
 	int have_sigil;
 }sigil_def;
 
-typedef struct
-{
-	char name[32];			//name of the spell
-	char description[64];	//Description of the spell
-	int have_all_sigils;	//Do we have all sigils ? 0=no;1=yes
-	int spell_level;		//magic level needed for the spell
-	int sigilcount;			//Number of sigils needed for this spell
-	int pos_x;				//x position of shortcut
-	int pos_y;				//y position of shortcut
-}spell_def;
-
 sigil_def sigils_list[SIGILS_NO];
 
-spell_def spell_list[SPELL_NO];
 extern Sint8 active_spells[10];
+
 extern int sigil_win;
 extern int sigil_menu_x;
 extern int sigil_menu_y;
 extern int sigil_menu_x_len;
 extern int sigil_menu_y_len;
+//extern int sigil_menu_dragged;
+
 extern int sigils_text;
 extern Uint8 spell_text[256];
 extern int sigils_we_have;
 extern int have_error_message;
+
 void repeat_spell();
-void make_spell_list();
 void make_sigils_list();
 void get_active_spell(int pos, int spell);
 void remove_active_spell(int pos);
