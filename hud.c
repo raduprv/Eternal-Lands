@@ -623,18 +623,18 @@ int check_peace_icons()
 // the stats display
 void init_stats_display()
 {
-mana_bar_start_x=20;
-mana_bar_start_y=window_height-48;
+mana_bar_start_x=24;
+mana_bar_start_y=window_height-44;
 mana_bar_x_len=100;
 mana_bar_y_len=8;
 
-food_bar_start_x=20;
-food_bar_start_y=mana_bar_start_y-18;
+food_bar_start_x=mana_bar_start_x+mana_bar_x_len+40;
+food_bar_start_y=mana_bar_start_y;
 food_bar_x_len=100;
 food_bar_y_len=8;
 
-health_bar_start_x=20;
-health_bar_start_y=food_bar_start_y-18;
+health_bar_start_x=food_bar_start_x+food_bar_x_len+40;
+health_bar_start_y=mana_bar_start_y;
 health_bar_x_len=100;
 health_bar_y_len=8;
 }
@@ -659,7 +659,7 @@ void draw_stats_display()
 	else
 	health_adjusted_x_len=health_bar_x_len/((float)your_info.material_points.base/(float)your_info.material_points.cur);
 
-	if(!your_info.food_level)
+	if(your_info.food_level<=0)
 	food_adjusted_x_len=0;//we don't want a div by 0
 	else
 	food_adjusted_x_len=health_bar_x_len/(45.0f/(float)your_info.food_level);
@@ -750,9 +750,9 @@ void draw_stats_display()
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(0.8f, 0.8f, 0.8f);
-	draw_string_small(health_bar_start_x-18,health_bar_start_y-3,health_str,1);
-	draw_string_small(food_bar_start_x-18,food_bar_start_y-3,food_str,1);
-	draw_string_small(mana_bar_start_x-18,mana_bar_start_y-3,mana_str,1);
+	draw_string_small(health_bar_start_x-24,health_bar_start_y-3,health_str,1);
+	draw_string_small(food_bar_start_x-24,food_bar_start_y-3,food_str,1);
+	draw_string_small(mana_bar_start_x-24,mana_bar_start_y-3,mana_str,1);
 }
 
 int check_stats_display()
