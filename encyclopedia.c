@@ -1,7 +1,7 @@
 #include <string.h>
 #include "global.h"
 
-int view_encyclopedia=1;
+int view_encyclopedia=0;
 int encyclopedia_menu_x=100;
 int encyclopedia_menu_y=20;
 int encyclopedia_menu_x_len=500;
