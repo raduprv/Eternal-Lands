@@ -7,6 +7,14 @@
 #define	FONT_X_SPACING	18	//X spacing of font in font.bmp
 #define	FONT_Y_SPACING	21	//Y spacing of font in font.bmp
 
+// contstant sizes
+#define	INGAME_FONT_X_LEN 0.17
+#define	INGAME_FONT_Y_LEN 0.25
+#define SMALL_INGAME_FONT_X_LEN 0.12
+#define SMALL_INGAME_FONT_Y_LEN 0.17
+#define ALT_INGAME_FONT_X_LEN 0.10
+#define ALT_INGAME_FONT_Y_LEN 0.15
+
 typedef struct	{
 	int	spacing;
 	int texture_id;
@@ -25,8 +33,10 @@ void draw_string(int x, int y,const unsigned char * our_string,int max_lines);
 void draw_string_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float text_zoom);
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines);
 #ifdef	ELC
-void draw_ingame_string(float x, float y,const unsigned char * our_string,
-						int max_lines,int big);
+void draw_ingame_string(float x, float y, const unsigned char * our_string, int max_lines, float font_x_scale, float font_y_scale);
+#define draw_ingame_normal(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
+#define draw_ingame_small(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
+#define draw_ingame_alt(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
 #endif	//ELC
 int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float displayed_font_x_size, float displayed_font_y_size);
 

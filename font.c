@@ -253,7 +253,7 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 
 #ifdef	ELC
 void draw_ingame_string(float x, float y,const unsigned char * our_string,
-						int max_lines,int big)
+						int max_lines, float font_x_scale, float font_y_scale)
 {
 	float u_start,u_end,v_start,v_end;
 	int col,row;
@@ -271,6 +271,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 	float cur_x,cur_y;
 	int current_lines=0;
 
+	/*
 	if(big)
 		{
 			displayed_font_x_size=0.17*zoom_level*name_zoom/3.0;
@@ -281,7 +282,9 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 			displayed_font_x_size=SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0;
 			displayed_font_y_size=SMALL_INGAME_FONT_Y_LEN*zoom_level*name_zoom/3.0;
 		}
-
+	*/
+	displayed_font_x_size=font_x_scale*zoom_level*name_zoom/3.0;
+	displayed_font_y_size=font_y_scale*zoom_level*name_zoom/3.0;
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.1f);

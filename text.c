@@ -501,7 +501,7 @@ void console_move_up()
 		}
 
 	//get the number of lines we have - the last one, which is the command line
-	max_lines=window_height/18-1;
+	max_lines=(window_height-hud_y)/18-1;
 	if(not_from_the_end_console)max_lines--;
 
 	//if we have less lines of text than the max lines onscreen, don't scrool up
@@ -528,7 +528,7 @@ void console_move_down()
 	if(!not_from_the_end_console)return;//we can't scrool down anymore
 
 	//get the number of lines we have on screen
-	max_lines=window_height/18-1;
+	max_lines=(window_height-hud_y)/18-1;
 	max_lines--;
 
 
@@ -553,7 +553,7 @@ void console_move_page_down()
 	int max_lines;
 	int i;
 
-	max_lines=window_height/18-3;
+	max_lines=(window_height-hud_y)/18-3;
 
 	for(i=0;i<max_lines;i++)
 		{
@@ -566,7 +566,7 @@ void console_move_page_up()
 	int max_lines;
 	int i;
 
-	max_lines=window_height/18-3;
+	max_lines=(window_height-hud_y)/18-3;
 
 	for(i=0;i<max_lines;i++)
 		{
