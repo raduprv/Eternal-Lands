@@ -77,8 +77,10 @@ int	display_dialogue_handler(window_info *win)
 	len= strlen(npc_name);
 	npc_name_x_start= win->len_x/2-(len*8)/2;
 
+	glDisable(GL_TEXTURE_2D);
 	//draw the character frame
 	glColor3f(0.0f,1.0f,1.0f);
+	glBegin(GL_LINES);
 	glVertex3i(0,0,0);
 	glVertex3i(66,0,0);
 
