@@ -13,6 +13,8 @@ extern int knowledge_menu_y;
 extern int knowledge_menu_x_len;
 extern int knowledge_menu_y_len;
 extern int knowledge_menu_dragged;
+extern int knowledge_scroll_dragged;
+extern int knowledge_page_start;
 
 extern knowledge knowledge_list[300];
 extern char knowledge_string[400];

@@ -599,6 +599,7 @@ int HandleEvent(SDL_Event *event)
 					encyclopedia_menu_dragged=0;
 					buddy_menu_dragged=0;
 					questlog_menu_dragged=0;
+					knowledge_scroll_dragged=0;
 				}
 
 			if(event->type==SDL_MOUSEBUTTONDOWN) {
@@ -618,8 +619,10 @@ int HandleEvent(SDL_Event *event)
 					camera_rotation_frames=40;
 				}
 
-			if((left_click>=1) && interface_mode==interface_game)
+			if((left_click>=1) && interface_mode==interface_game) {
 				if(check_drag_menus())return(done);
+				if(check_scroll_bars())return(done);
+			}
 
 			if((left_click==1 || right_click==1) &&
 			   interface_mode==interface_game)

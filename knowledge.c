@@ -7,10 +7,11 @@ int knowledge_menu_y=20;
 int knowledge_menu_x_len=500;
 int knowledge_menu_y_len=350;
 int knowledge_menu_dragged=0;
+int knowledge_scroll_dragged=0;
 
 knowledge knowledge_list[300];
 
-int page_start=0;
+int knowledge_page_start=0;
 
 char knowledge_string[400]="";
 char *none="nothing";
@@ -19,7 +20,7 @@ void display_knowledge()
 {
 	int i,x=knowledge_menu_x+2,y=knowledge_menu_y+2;
 	int progress = (125*your_info.research_completed+1)/(your_info.research_total+1);
-	int scroll = (120*page_start)/(300-38);
+	int scroll = (120*knowledge_page_start)/(300-38);
 	char points_string[16];
 	char *research_string;
 	if(your_info.research_total && 
@@ -116,7 +117,7 @@ void display_knowledge()
 	draw_string_small(knowledge_menu_x+120,knowledge_menu_y+320,research_string,1);
 	draw_string_small(knowledge_menu_x+355,knowledge_menu_y+320,points_string,1);
 	// Draw knowledges
-	for(i=page_start;i<page_start+38;i++){
+	for(i=knowledge_page_start;i<knowledge_page_start+38;i++){
 		knowledge_list[i].mouse_over ? glColor3f(0.1f,0.1f,0.9f) : glColor3f(0.9f,0.9f,0.9f);
 		if(knowledge_list[i].present)
 			draw_string_zoomed(x,y,knowledge_list[i].name,1,0.7);
@@ -140,7 +141,7 @@ int knowledge_mouse_over()
 		return 1;
 	x/=240;
 	y/=10;
-	knowledge_list[page_start+y*2+x].mouse_over=1;
+	knowledge_list[knowledge_page_start+y*2+x].mouse_over=1;
 	return 1;
 }
 
@@ -157,15 +158,15 @@ int check_knowledge_interface()
 	if(x > knowledge_menu_x_len-16 && x < knowledge_menu_x_len &&
 	   y > 18 && y < 18+16)
 		{
-			if(page_start > 0)
-				page_start -= 16;
+			if(knowledge_page_start > 0)
+				knowledge_page_start -= 16;
 			return 1;
 		}
 	if(x > knowledge_menu_x_len-16 && x < knowledge_menu_x_len &&
 	   y > 180 && y < 180+16)
 		{
-			if(page_start < 300-38-16)
-				page_start += 16;
+			if(knowledge_page_start < 300-38-16)
+				knowledge_page_start += 16;
 			return 1;
 		}
 	if(x>knowledge_menu_x_len-20)
@@ -174,7 +175,7 @@ int check_knowledge_interface()
 		return 1;
 	x/=240;
 	y/=10;
-	idx = page_start+y*2+x;
+	idx = knowledge_page_start+y*2+x;
 	if(idx < 200 && knowledge_list[idx].present)
 		{
 			str[0] = GET_KNOWLEDGE_INFO;

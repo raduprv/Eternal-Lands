@@ -86,6 +86,7 @@ extern int click_speed;
 
 void get_world_x_y();
 int check_drag_menus();
+int check_scroll_bars();
 void check_menus_out_of_screen();
 void check_mouse_click();
 void Enter2DMode();

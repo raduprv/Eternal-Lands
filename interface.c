@@ -226,6 +226,19 @@ int check_drag_menus()
 	return 0;
 }
 
+int check_scroll_bars()
+{
+	//for knowledge window only. don't modify other scroll bars yet.
+	if(knowledge_scroll_dragged || (view_knowledge && mouse_x>knowledge_menu_x+knowledge_menu_x_len-20 && mouse_x<knowledge_menu_x+knowledge_menu_x_len && mouse_y>knowledge_menu_y+35+(120*knowledge_page_start)/(300-38) && mouse_y<knowledge_menu_y+55+(120*knowledge_page_start)/(300-38))) {
+		knowledge_scroll_dragged=1;
+		if(left_click>1)
+			knowledge_page_start+=mouse_delta_y*2;
+		if(knowledge_page_start<0)knowledge_page_start=0;
+		if(knowledge_page_start>300-38)knowledge_page_start=300-38;
+		return 1;
+	}
+	return 0;
+}
 void check_menus_out_of_screen()
 {
 	if(attrib_menu_y-16<0)attrib_menu_y=16;
