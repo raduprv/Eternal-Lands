@@ -193,6 +193,29 @@ int HandleEvent(SDL_Event *event)
 						move_self_forward();
 					}
 
+				if(key==K_HIDEWINS)
+				  {
+				    if(ground_items_win>0)
+				      hide_window(ground_items_win);
+				    if(items_win>0)
+				      hide_window(items_win);
+				    if(buddy_win>0)
+				      hide_window(buddy_win);
+				    if(encyclopedia_win>0)
+				      hide_window(encyclopedia_win);
+				    if(manufacture_win>0)
+				      hide_window(manufacture_win);
+				    if(options_win>0)
+				      hide_window(options_win);
+				    if(questlog_win>0)
+				      hide_window(questlog_win);
+				    if(sigil_win>0)
+				      hide_window(sigil_win);
+				    if(stats_win>0)
+				      hide_window(stats_win);				    
+				    break;
+				  }
+
 				if(key==K_HEALTHBAR)
 					{
 						view_health_bar=!view_health_bar;
@@ -328,6 +351,12 @@ int HandleEvent(SDL_Event *event)
 							}
 						else go_ifk();
 					}
+
+				if(key==K_SIT)
+				  {
+				    sit_button_pressed(NULL,0);
+				    break;
+				  }
 				
 				if(key==K_BROWSER)
 					{

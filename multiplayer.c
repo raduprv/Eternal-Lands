@@ -669,14 +669,20 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			}
 			break;
 
-		case FIRE_SMALL_PARTICLES:
+		case FIRE_PARTICLES:
 			{
 #ifdef EXTRA_DEBUG
-	ERR();
+				ERR();
 #endif
-	add_particle_sys("./particles/fire_small.part",(float)(*((Uint16 *)(in_data+3)))/2.0 +0.25,(float)(*((Uint16 *)(in_data+5)))/2.0 + 0.25,0.0);
+				switch(*(Uint16 *)(in_data+7)) {
+				case 2:
+					add_particle_sys("./particles/fire_big.part",(float)(*((Uint16 *)(in_data+3)))/2.0 +0.25,(float)(*((Uint16 *)(in_data+5)))/2.0 + 0.25,0.0);
+					break;
+				case 1:
+				default:
+					add_particle_sys("./particles/fire_small.part",(float)(*((Uint16 *)(in_data+3)))/2.0 +0.25,(float)(*((Uint16 *)(in_data+5)))/2.0 + 0.25,0.0);
+				}
 			}
-			break;
 
 		case DESTROY_ALL_FIRES:
 			{

@@ -36,6 +36,7 @@ Uint32 K_CONSOLE=282;
 Uint32 K_SHADOWS=284;
 Uint32 K_KNOWLEDGE=CTRL|'k';
 Uint32 K_ENCYCLOPEDIA=CTRL|'e';
+Uint32 K_HIDEWINS=ALT|'d';
 Uint32 K_ITEM1=CTRL|'1';
 Uint32 K_ITEM2=CTRL|'2';
 Uint32 K_ITEM3=CTRL|'3';
@@ -44,7 +45,7 @@ Uint32 K_ITEM5=CTRL|'5';
 Uint32 K_ITEM6=CTRL|'6';
 Uint32 K_VIEWTEXTASOVERTEXT=ALT|'o';
 Uint32 K_AFK=CTRL|ALT|'a';
-
+Uint32 K_SIT=ALT|'s';
 
 // load the dynamic definitions for keys
 void read_key_config()
@@ -140,6 +141,8 @@ void read_key_config()
 		K_KNOWLEDGE = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ENCYCLOPEDIA",file_mem,key_file_size,0))!=-1)
 		K_ENCYCLOPEDIA = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_HIDEWINS",file_mem,key_file_size,0))!=-1)
+		K_HIDEWINS = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ITEM1",file_mem,key_file_size,0))!=-1)
 		K_ITEM1 = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ITEM2",file_mem,key_file_size,0))!=-1)
@@ -156,6 +159,8 @@ void read_key_config()
 		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_AFK",file_mem,key_file_size,0))!=-1)
 		K_AFK = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SIT",file_mem,key_file_size,0))!=-1)
+		K_SIT = parse_key_string(&file_mem[t]);
 }
 
 Uint32 parse_key_string(char *s)

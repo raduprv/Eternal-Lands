@@ -35,6 +35,7 @@ extern Uint32 K_CONSOLE;
 extern Uint32 K_SHADOWS;
 extern Uint32 K_KNOWLEDGE;
 extern Uint32 K_ENCYCLOPEDIA;
+extern Uint32 K_HIDEWINS;
 extern Uint32 K_ITEM1;
 extern Uint32 K_ITEM2;
 extern Uint32 K_ITEM3;
@@ -43,6 +44,7 @@ extern Uint32 K_ITEM5;
 extern Uint32 K_ITEM6;
 extern Uint32 K_VIEWTEXTASOVERTEXT;
 extern Uint32 K_AFK;
+extern Uint32 K_SIT;
 
 void read_key_config();
 unsigned int CRC32(unsigned char *, int);
