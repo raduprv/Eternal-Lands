@@ -4,7 +4,7 @@
 #define	CFG_VERSION	3
 
 #ifndef DATA_DIR
-#define DATA_DIR "."
+#define DATA_DIR .
 #endif
 
 typedef struct
