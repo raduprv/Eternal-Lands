@@ -27,6 +27,7 @@ typedef struct {
 
 
 extern int have_rules;
+extern int last_display;
 extern int countdown;
 extern int has_accepted;
 

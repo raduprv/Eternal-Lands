@@ -479,7 +479,6 @@ void draw_rules_interface()
     
 	glPushMatrix();
 	glTranslatef(x,y,0);
-	glRotatef(3.0f,0.0f,0.0f,1.0f);
 	glBegin(GL_QUADS);
 		glTexCoord2f(rules_u_start,rules_v_end);	glVertex2i(-width,height);
 		glTexCoord2f(rules_u_end,rules_v_end);		glVertex2i(width,height);

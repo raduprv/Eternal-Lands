@@ -571,7 +571,8 @@ void draw_login_screen()
 
 	//check to see if we clicked on the ACTIVE New Char button
 	if(new_char_button_selected && left_click==1) {
-		init_rules_interface(interface_new_char, 1.0f, 30);
+		if(last_display==-1)init_rules_interface(interface_new_char, 1.0f, 30);
+		else interface_mode=interface_new_char;
 		left_click=2;
 	}
 

@@ -5,7 +5,7 @@ OPTIONS=-DLINUX -DELC
 #-DTIMER_CHECK
 #-DWRITE_XML
 #-DBOOK
-PLATFORM=-march=athlon64
+PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
 # basic compiling and linking - rarely changed
