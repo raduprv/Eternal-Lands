@@ -83,7 +83,7 @@ FILE_PATTERNS          = *.c \
                          *.h \
                          *.doxy
 RECURSIVE              = YES
-EXCLUDE                = 
+EXCLUDE                = ../SDL_opengl.h
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXAMPLE_PATH           = 
@@ -188,14 +188,17 @@ SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = ELC \
-                         DOXYGEN_SKIP_THIS
+                         DOXYGEN_SKIP_THIS \
+                         DEBUG \
+                         EXTRA_DEBUG \
+                         BOOK
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   
 #---------------------------------------------------------------------------
 TAGFILES               = 
-GENERATE_TAGFILE       = 
+GENERATE_TAGFILE       = DOXYTAGS
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES
 PERL_PATH              = /usr/bin/perl
