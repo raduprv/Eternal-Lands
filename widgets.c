@@ -182,7 +182,7 @@ int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uin
 	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2); 
 }
 
-int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2)
+int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float id, float u1, float v1, float u2, float v2)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	image *T = (image *) malloc(sizeof(label));
@@ -525,10 +525,10 @@ int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
 // Vertical scrollbar
 int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return vscrollbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, 1);
+	return vscrollbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, 1, ly);
 }
 
-int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc)
+int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	vscrollbar *T = (vscrollbar *) malloc(sizeof(vscrollbar));
@@ -553,6 +553,7 @@ int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint
 	W->b = b;
 	W->len_y = ly;
 	W->len_x = lx;
+	T->bar_len = bar_len;
 	W->OnClick = vscrollbar_click;
 	W->OnDraw = vscrollbar_draw;
 	W->OnDrag = vscrollbar_drag;
@@ -598,10 +599,10 @@ int vscrollbar_draw(widget_list *W)
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 7, W->pos_y + 15 + c->pos, 0);
-	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y +  15 + c->pos, 0);
-	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y + 35 + c->pos, 0);
-	glVertex3i(W->pos_x + 7, W->pos_y + 35 + c->pos, 0);
+	glVertex3i(W->pos_x + 7, W->pos_y + 15 + (c->pos*((float)(W->len_y+30)/c->bar_len)), 0);
+	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y +  15 + (c->pos*((float)(W->len_y+30)/c->bar_len)), 0);
+	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y + 35 + (c->pos*((float)(W->len_y+30)/c->bar_len)), 0);
+	glVertex3i(W->pos_x + 7, W->pos_y + 35 + (c->pos*((float)(W->len_y+30)/c->bar_len)), 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
@@ -617,10 +618,10 @@ int vscrollbar_click(widget_list *W, int x, int y)
 		if(y>(W->len_y-15))
 			b->pos += b->pos_inc;
 		else
-			b->pos = y - 20;
+			b->pos = (y - 20)/((float)(W->len_y+30)/b->bar_len);
 
 	if(b->pos < 0) b->pos = 0;
-	if(b->pos > (W->len_y -50)) b->pos = W->len_y -50;
+	if(b->pos > (b->bar_len -50)) b->pos = b->bar_len -50;
 
 	return 1;
 }
@@ -643,13 +644,21 @@ int vscrollbar_drag(widget_list *W, int dx, int dy)
 	b->pos += dy;
 
 	if(b->pos < 0) b->pos = 0;
-	if(b->pos > (W->len_y -50)) b->pos = W->len_y -50;
+	if(b->pos > (b->bar_len -50)) b->pos = b->bar_len -50;
 
 	return 1;
 
 }
 
-
+int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		vscrollbar *c = (vscrollbar *)w->widget_info;
+		return c->pos;
+	}
+	return -1;
+}
 
 // XML Windows
 
@@ -696,8 +705,9 @@ int ParseWindow(xmlAttr *a_node)
         if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				char *p=name;
-				my_xmlStrncopy(&p, cur_attr->children->content, 255);
+				int l = strlen(cur_attr->children->content);
+				UTF8Toisolat1(name, &l, cur_attr->children->content, &l);
+				name[l]=0;
 				continue;
 			}
 			//pos_x=""
@@ -799,8 +809,9 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node)
 				case BUTTON:
 					//text=""
 					if(!xmlStrcasecmp(cur_attr->name,"text")){
-						char *p=text;
-						my_xmlStrncopy(&p, cur_attr->children->content, 255);
+						int l = strlen(cur_attr->children->content);
+						UTF8Toisolat1(text, &l, cur_attr->children->content, &l);
+						text[l]=0;
 						continue;
 					}
 					break;
@@ -882,7 +893,7 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node)
 			progressbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress);
 			break;
 		case VSCROLLBAR:
-			vscrollbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc);
+			vscrollbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc, len_x);
 			break;
 
 	}

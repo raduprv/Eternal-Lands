@@ -86,7 +86,7 @@ typedef struct {
  *  Vertical scrollbar structure
  */
 typedef struct {
-	int pos, pos_inc;
+	int pos, pos_inc, bar_len;
 }vscrollbar;
 
 
@@ -720,6 +720,17 @@ int vscrollbar_drag(widget_list *W, int dx, int dy);
  */
 int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc);
 
+/*!
+ * \ingroup	scrollbars
+ * \brief 	Sets the position of the vertical scrollbar
+ *
+ * 		Finds the vertical scrollbar widget and returns the position
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The unique widget ID
+ * \return  	Returns pos on succes, -1 on failure (if the widget was not found in the given window)
+ */
+int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id);
 
 
 // XML Windows
