@@ -153,10 +153,13 @@ void read_bin_cfg()
 
 	f=fopen("el.cfg","rb");
 	if(!f)return;//no config file, use defaults
+	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
 	fread(&cfg_mem,1,sizeof(cfg_mem),f);
 	fclose(f);
 
+	//verify the version number
+	if(cfg_mem.cfg_version_num != CFG_VERSION) return;	//oops! ignore the file
 	//good, retrive the data
 	items_menu_x=cfg_mem.items_menu_x;
 	items_menu_y=cfg_mem.items_menu_y;
@@ -183,6 +186,11 @@ void read_bin_cfg()
 	options_menu_x=cfg_mem.options_menu_x;
 	options_menu_y=cfg_mem.options_menu_y;
 
+	cx=cfg_mem.camera_x;
+	cy=cfg_mem.camera_y;
+	cz=cfg_mem.camera_z;
+	zoom_level=cfg_mem.zoom_level;
+
 }
 
 void save_bin_cfg()
@@ -192,7 +200,9 @@ void save_bin_cfg()
 
 	f=fopen("el.cfg","wb");
 	if(!f)return;//blah, whatever
+	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
+	cfg_mem.cfg_version_num=CFG_VERSION;	// set the version number
 	//good, retrive the data
 	cfg_mem.items_menu_x=items_menu_x;
 	cfg_mem.items_menu_y=items_menu_y;
@@ -217,6 +227,11 @@ void save_bin_cfg()
 
 	cfg_mem.options_menu_x=options_menu_x;
 	cfg_mem.options_menu_y=options_menu_y;
+
+	cfg_mem.camera_x=cx;
+	cfg_mem.camera_y=cy;
+	cfg_mem.camera_z=cz;
+	cfg_mem.zoom_level=zoom_level;
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);
