@@ -71,6 +71,7 @@ extern int limit_fps;
 extern int item_window_on_drop;
 extern int no_adjust_shadows;
 extern int clouds_shadows;
+extern int compass_direction;
 extern char configdir[256];
 extern char datadir[256];
 

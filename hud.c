@@ -892,7 +892,7 @@ void draw_misc_display()
     		glAlphaFunc(GL_GREATER, 0.09f);
 
 			glTranslatef(window_width-32, window_height-32, 0);
-			glRotatef(rz, 0.0f, 0.0f, 1.0f);
+			glRotatef(compass_direction*rz, 0.0f, 0.0f, 1.0f);
 
 			glBegin(GL_QUADS);
 			draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end,-5, -28, 5, 28);

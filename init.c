@@ -22,6 +22,7 @@ int no_adjust_shadows=0;
 int clouds_shadows=1;
 int no_alpha_sat=0;
 int item_window_on_drop=1;
+int compass_direction=1;
 char configdir[256]="./";
 char datadir[256]=DATA_DIR;
 
@@ -282,6 +283,7 @@ void read_config()
 	chat_font=get_integer_after_string("#chat_font",file_mem,ini_file_size);
 
 	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,ini_file_size);
+	compass_direction=1-2*(get_integer_after_string("#compass_north",file_mem,ini_file_size)>0);
 	port=get_integer_after_string("#server_port",file_mem,ini_file_size);
 
 	//handle multiple setting changes if poor_man is on
