@@ -182,7 +182,7 @@ int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uin
 	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2); 
 }
 
-int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float id, float u1, float v1, float u2, float v2)
+int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	image *T = (image *) malloc(sizeof(label));
