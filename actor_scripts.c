@@ -202,295 +202,306 @@ void next_command()
 	int i;
 
 	lock_actors_lists();
-	for(i=0;i<max_actors;i++)
+	for(i=0;i<1000;i++)
 		{
 			if(!actors_list[i])continue;//actor exists?
 			//if(!actors_list[i]->is_enhanced_model)//test only
-			if(!actors_list[i]->busy || (actors_list[i]->busy && actors_list[i]->after_move_frames_left && (actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw))) {//is it not busy?
-				if(actors_list[i]->que[0]==nothing)//do we have something in the que?
-					{
-						//if que is empty, set on idle
-						if(!actors_list[i]->dead)
-							{
-								actors_list[i]->stop_animation=0;
+			if(!actors_list[i]->busy || (actors_list[i]->busy && actors_list[i]->after_move_frames_left && (actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw)))//is it not busy?
+//			if(!actors_list[i]->busy || (actors_list[i]->busy && (actors_list[i]->stand_idle || actors_list[i]->sit_idle)))//is it not busy?
+			if(actors_list[i]->que[0]==nothing)//do we have something in the que?
+			   	 {
+					 	//if que is empty, set on idle
+					 if(!actors_list[i]->dead)
+					 {
+						actors_list[i]->stop_animation=0;
 
-								if(actors_list[i]->fighting)
-									{
-										my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].combat_idle_frame);
-									}
-
-								else if(!actors_list[i]->sitting)
-									{
-										if(!actors_list[i]->sit_idle)
-											{
-												my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_frame);
-												actors_list[i]->sit_idle=1;
-											}
-									}
-								else
-									{
-										if(!actors_list[i]->stand_idle)
-											{
-												my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_sit_frame);
-												actors_list[i]->stand_idle=1;
-											}
-									}
-
+					 	if(actors_list[i]->fighting)
+					 		{
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].combat_idle_frame);
+								goto after_fight_test;
 							}
 
-						actors_list[i]->last_command=nothing;//prevents us from not updating the walk/run animation
-					}
-				else
-					{
-						int actor_type;
-						int last_command=actors_list[i]->last_command;
-						float z_rot=actors_list[i]->z_rot;
-						float targeted_z_rot;
-						int k;
-
-						actors_list[i]->sit_idle=0;
-						actors_list[i]->stand_idle=0;
-
-						actor_type=actors_list[i]->actor_type;
-
-						if(actors_list[i]->que[0]==kill_me)
-							{
-								if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
-								free(actors_list[i]);
-								actors_list[i]=0;
+					 	if(!actors_list[i]->sitting)
+					 		{
+								if(!actors_list[i]->sit_idle)
+									{
+										my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_frame);
+										actors_list[i]->sit_idle=1;
+									}
 							}
 						else
-							if(actors_list[i]->que[0]==die1)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->dead=1;
-								}
-							else
-								if(actors_list[i]->que[0]==die2)
-									{
-										my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die2_frame);
-										actors_list[i]->stop_animation=1;
-										actors_list[i]->dead=1;
-									}
-								else
-									if(actors_list[i]->que[0]==pain1)
-										{
-											my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain1_frame);
-											actors_list[i]->stop_animation=1;
-										}
-									else
-										if(actors_list[i]->que[0]==pain2)
-											{
-												my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain2_frame);
-												actors_list[i]->stop_animation=1;
-											}
-										else
-											if(actors_list[i]->que[0]==pick)
-												{
-													my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pick_frame);
-													actors_list[i]->stop_animation=1;
-												}
-											else
-												if(actors_list[i]->que[0]==drop)
-													{
-														my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].drop_frame);
-														actors_list[i]->stop_animation=1;
-													}
-												else
-													if(actors_list[i]->que[0]==harvest)
-														{
-															my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].harvest_frame);
-															actors_list[i]->stop_animation=1;
-														}
-													else
-														if(actors_list[i]->que[0]==cast)
-															{
-																my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_cast_frame);
-																actors_list[i]->stop_animation=1;
-															}
-														else
-															if(actors_list[i]->que[0]==ranged)
-																{
-																	my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_ranged_frame);
-																	actors_list[i]->stop_animation=1;
-																}
-															else
-																if(actors_list[i]->que[0]==sit_down)
-																	{
-																		my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].sit_down_frame);
-																		actors_list[i]->stop_animation=1;
-																		actors_list[i]->sitting=1;
-																		if(actors_list[i]->actor_id==yourself)you_sit=1;
-																	}
-																else
-																	if(actors_list[i]->que[0]==stand_up)
-																		{
-																			my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].stand_up_frame);
-																			actors_list[i]->stop_animation=1;
-																			actors_list[i]->sitting=0;
-																			if(actors_list[i]->actor_id==yourself)you_sit=0;
-																		}
-																	else
-																		if(actors_list[i]->que[0]==enter_combat)
-																			{
-																				my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].in_combat_frame);
-																				actors_list[i]->stop_animation=1;
-																				actors_list[i]->fighting=1;
-																			}
-																		else
-																			if(actors_list[i]->que[0]==leave_combat)
-																				{
-																					my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].out_combat_frame);
-																					actors_list[i]->stop_animation=1;
-																					actors_list[i]->fighting=0;
-																				}
-																			else
-																				if(actors_list[i]->que[0]==attack_up_1)
-																					{
-																						if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
-																						else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_1_frame);
-																						actors_list[i]->stop_animation=1;
-																						actors_list[i]->fighting=1;
-																					}
-																				else
-																					if(actors_list[i]->que[0]==attack_up_2)
-																						{
-																							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
-																							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_2_frame);
-																							actors_list[i]->stop_animation=1;
-																							actors_list[i]->fighting=1;
-
-																						}
-																					else
-																						if(actors_list[i]->que[0]==attack_up_3)
-																							{
-																								if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
-																								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_3_frame);
-																								actors_list[i]->stop_animation=1;
-																								actors_list[i]->fighting=1;
-																							}
-																						else
-																							if(actors_list[i]->que[0]==attack_up_4)
-																								{
-																									if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
-																									else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_4_frame);
-																									actors_list[i]->stop_animation=1;
-																									actors_list[i]->fighting=1;
-																								}
-																							else
-																								if(actors_list[i]->que[0]==attack_down_1)
-																									{
-																										if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down1);
-																										else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_1_frame);
-																										actors_list[i]->stop_animation=1;
-																										actors_list[i]->fighting=1;
-																									}
-																								else
-																									if(actors_list[i]->que[0]==attack_down_2)
-																										{
-																											if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down2);
-																											else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_2_frame);
-																											actors_list[i]->stop_animation=1;
-																											actors_list[i]->fighting=1;
-																										}
-																									else
-																										if(actors_list[i]->que[0]==turn_left)
-																											{
-																												actors_list[i]->rotate_z_speed=45.0/9.0;
-																												actors_list[i]->rotate_frames_left=9;
-																												actors_list[i]->rotating=1;
-																												//generate a fake movement, so we will know when to make the actor
-																												//not busy
-																												actors_list[i]->move_x_speed=0;
-																												actors_list[i]->move_y_speed=0;
-																												actors_list[i]->movement_frames_left=9;
-																												actors_list[i]->moving=1;
-																												//test
-																												my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
-																												actors_list[i]->stop_animation=1;
-																											}
-																										else
-																											if(actors_list[i]->que[0]==turn_right)
-																												{
-																													actors_list[i]->rotate_z_speed=-45.0/9.0;
-																													actors_list[i]->rotate_frames_left=9;
-																													actors_list[i]->rotating=1;
-																													//generate a fake movement, so we will know when to make the actor
-																													//not busy
-																													actors_list[i]->move_x_speed=0;
-																													actors_list[i]->move_y_speed=0;
-																													actors_list[i]->movement_frames_left=9;
-																													actors_list[i]->moving=1;
-																													//test
-																													my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
-																													actors_list[i]->stop_animation=1;
-																												}
-						//ok, now the movement, this is the tricky part
-																											else
-																												if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw)
-																													{
-																														float rotation_angle;
-
-																														if(last_command<move_n || last_command>move_nw)//update the frame name too
-																															my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
-																														actors_list[i]->stop_animation=0;
-																														if(last_command!=actors_list[i]->que[0])//we need to calculate the rotation...
-																															{
-																																targeted_z_rot=(actors_list[i]->que[0]-move_n)*45.0f;
-																																rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
-																																actors_list[i]->rotate_z_speed=rotation_angle/6;
-																																if(auto_camera)
-																																	if(actors_list[i]->actor_id==yourself)
-																																		{
-																																			camera_rotation_speed=rotation_angle/18;
-																																			camera_rotation_frames=18;
-																																		}
-
-																																actors_list[i]->rotate_frames_left=6;
-																																actors_list[i]->rotating=1;
-																															}
-																														else targeted_z_rot=z_rot;
-																														//ok, now calculate the motion vector...
-																														actors_list[i]->move_x_speed=actors_defs[actor_type].walk_speed*sin(targeted_z_rot*3.1415926/180.0);
-																														actors_list[i]->move_y_speed=actors_defs[actor_type].walk_speed*cos(targeted_z_rot*3.1415926/180.0);
-																														actors_list[i]->movement_frames_left=18/4;
-																														actors_list[i]->after_move_frames_left=0;
-																														actors_list[i]->moving=1;
-																														//test to see if we have a diagonal movement, and if we do, adjust the speeds
-
-																														if((actors_list[i]->move_x_speed>0.01f || actors_list[i]->move_x_speed<-0.01f)
-																														   && (actors_list[i]->move_y_speed>0.01f || actors_list[i]->move_y_speed<-0.01f))
-																															{
-																																actors_list[i]->move_x_speed*=1.4142315;
-																																actors_list[i]->move_y_speed*=1.4142315;
-																															}
-
-																													}
-																												else
-																													if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw)
-																														{
-																															float rotation_angle;
-																															targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
-																															rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
-																															actors_list[i]->rotate_z_speed=rotation_angle/6.0f;
-																															actors_list[i]->rotate_frames_left=6;
-																															actors_list[i]->rotating=1;
-																															actors_list[i]->stop_animation=1;
-																														}
-
-						//mark the actor as being busy
-						actors_list[i]->busy=1;
-						//save the last command. It is especially good for run and walk
-						actors_list[i]->last_command=actors_list[i]->que[0];
-						//move que down with one command
-						for(k=0;k<10-1;k++)
 							{
-								actors_list[i]->que[k]=actors_list[i]->que[k+1];
+								if(!actors_list[i]->stand_idle)
+									{
+										my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_sit_frame);
+										actors_list[i]->stand_idle=1;
+									}
 							}
-						actors_list[i]->que[k]=nothing;
-					}
-			}
+
+						after_fight_test:
+					 }
+
+						actors_list[i]->last_command=nothing;//prevents us from not updating the walk/run animation
+				 }
+			else
+			     {
+					 int actor_type;
+					 int last_command=actors_list[i]->last_command;
+					 float z_rot=actors_list[i]->z_rot;
+					 float targeted_z_rot;
+					 int k;
+
+					 actors_list[i]->sit_idle=0;
+					 actors_list[i]->stand_idle=0;
+
+					 actor_type=actors_list[i]->actor_type;
+
+					 if(actors_list[i]->que[0]==kill_me)
+					 	{
+					 		if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
+							free(actors_list[i]);
+							actors_list[i]=0;
+						}
+					 else
+					 if(actors_list[i]->que[0]==die1)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->dead=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==die2)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die2_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->dead=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==pain1)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain1_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==pain2)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain2_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==pick)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pick_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==drop)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].drop_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==harvest)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].harvest_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==cast)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_cast_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==ranged)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_ranged_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==sit_down)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].sit_down_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->sitting=1;
+							if(actors_list[i]->actor_id==yourself)you_sit=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==stand_up)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].stand_up_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->sitting=0;
+							if(actors_list[i]->actor_id==yourself)you_sit=0;
+						}
+					 else
+					 if(actors_list[i]->que[0]==enter_combat)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].in_combat_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==leave_combat)
+					 	{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].out_combat_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=0;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_up_1)
+					 	{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_1_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_up_2)
+					 	{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_2_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_up_3)
+					 	{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_3_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_up_4)
+					 	{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_4_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_down_1)
+					 	{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down1);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_1_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_down_2)
+					 	{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down2);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_2_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==turn_left)
+					 	{
+							actors_list[i]->rotate_z_speed=45.0/9.0;
+							actors_list[i]->rotate_frames_left=9;
+							actors_list[i]->rotating=1;
+							//generate a fake movement, so we will know when to make the actor
+							//not busy
+							actors_list[i]->move_x_speed=0;
+							actors_list[i]->move_y_speed=0;
+							actors_list[i]->movement_frames_left=9;
+							actors_list[i]->moving=1;
+							//test
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==turn_right)
+					 	{
+							actors_list[i]->rotate_z_speed=-45.0/9.0;
+							actors_list[i]->rotate_frames_left=9;
+							actors_list[i]->rotating=1;
+							//generate a fake movement, so we will know when to make the actor
+							//not busy
+							actors_list[i]->move_x_speed=0;
+							actors_list[i]->move_y_speed=0;
+							actors_list[i]->movement_frames_left=9;
+							actors_list[i]->moving=1;
+							//test
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					//ok, now the movement, this is the tricky part
+					 else
+					 if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw)
+					 	{
+							float rotation_angle;
+
+							if(last_command<move_n || last_command>move_nw)//update the frame name too
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+							actors_list[i]->stop_animation=0;
+							if(last_command!=actors_list[i]->que[0])//we need to calculate the rotation...
+								{
+									targeted_z_rot=(actors_list[i]->que[0]-move_n)*45.0f;
+									rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
+									actors_list[i]->rotate_z_speed=rotation_angle/6;
+									if(auto_camera)
+									if(actors_list[i]->actor_id==yourself)
+										{
+											camera_rotation_speed=rotation_angle/18;
+											camera_rotation_frames=18;
+										}
+
+									actors_list[i]->rotate_frames_left=6;
+									actors_list[i]->rotating=1;
+								}
+							else targeted_z_rot=z_rot;
+							//ok, now calculate the motion vector...
+							actors_list[i]->move_x_speed=actors_defs[actor_type].walk_speed*sin(targeted_z_rot*3.1415926/180.0);
+							actors_list[i]->move_y_speed=actors_defs[actor_type].walk_speed*cos(targeted_z_rot*3.1415926/180.0);
+							actors_list[i]->movement_frames_left=18/4;
+							actors_list[i]->after_move_frames_left=0;
+							actors_list[i]->moving=1;
+							//test to see if we have a diagonal movement, and if we do, adjust the speeds
+
+							if((actors_list[i]->move_x_speed>0.01f || actors_list[i]->move_x_speed<-0.01f)
+							&& (actors_list[i]->move_y_speed>0.01f || actors_list[i]->move_y_speed<-0.01f))
+								{
+									actors_list[i]->move_x_speed*=1.4142315;
+									actors_list[i]->move_y_speed*=1.4142315;
+								}
+
+/*
+							if(actors_list[i]->actor_id==yourself)
+								{
+									camera_x_speed=actors_list[i]->move_x_speed/3.0;
+									camera_x_frames=36;
+									camera_y_speed=actors_list[i]->move_y_speed/3.0;
+									camera_y_frames=36;
+								}
+*/
+						}
+					else
+					if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw)
+						{
+							float rotation_angle;
+							targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
+							rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
+							actors_list[i]->rotate_z_speed=rotation_angle/6.0f;
+							actors_list[i]->rotate_frames_left=6;
+							actors_list[i]->rotating=1;
+							actors_list[i]->stop_animation=1;
+						}
+
+					//mark the actor as being busy
+					actors_list[i]->busy=1;
+					//save the last command. It is especially good for run and walk
+					actors_list[i]->last_command=actors_list[i]->que[0];
+					//move que down with one command
+					for(k=0;k<10-1;k++)
+						{
+							actors_list[i]->que[k]=actors_list[i]->que[k+1];
+						}
+					actors_list[i]->que[k]=nothing;
+				 }
 		}
 	unlock_actors_lists();
 }
