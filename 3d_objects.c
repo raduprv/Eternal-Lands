@@ -175,14 +175,15 @@ void draw_3d_object(object3d * object_id)
 	check_gl_errors();
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
-						{
+						if(array_order[i].count>0)
+							{
 	//check_gl_errors();
-							get_and_set_texture_id(array_order[i].texture_id);
-							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
-							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	//check_gl_errors();
-						}
+								get_and_set_texture_id(array_order[i].texture_id);
+								if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
+								glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+								if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+								//check_gl_errors();
+							}
 					glDisableClientState(GL_NORMAL_ARRAY);
 				}//is ground
 			else

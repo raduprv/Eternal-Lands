@@ -641,9 +641,9 @@ int	draw_window_title(window_info *win)
 
 int	draw_window_border(window_info *win)
 {
+	glDisable(GL_TEXTURE_2D);
 	if(win->flags&ELW_USE_BACKGROUND)
 		{
-			glDisable(GL_TEXTURE_2D);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 			glColor4f(win->back_color[0],win->back_color[1],win->back_color[2],win->back_color[3]);
@@ -659,7 +659,6 @@ int	draw_window_border(window_info *win)
 
 	if(win->flags&ELW_USE_BORDER)
 		{
-			glDisable(GL_TEXTURE_2D);
 			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 			glBegin(GL_LINES);
 			glVertex3i(0, 0, 0);
@@ -670,6 +669,7 @@ int	draw_window_border(window_info *win)
 			glVertex3i(0, win->len_y, 0);
 			glVertex3i(0, win->len_y, 0);
 			glVertex3i(0, 0, 0);
+			glEnd();
 		}
 
 	if(win->flags&ELW_CLOSE_BOX)
@@ -687,6 +687,7 @@ int	draw_window_border(window_info *win)
 			glEnable(GL_TEXTURE_2D);
 			draw_string(win->len_x-(ELW_BOX_SIZE-4), 2, "X", 1);
 		}
+	else glEnable(GL_TEXTURE_2D);
 
 	return 1;
 }
@@ -744,19 +745,9 @@ void	toggle_window(int win_id)
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
-	if(windows_list.window[win_id].displayed)
-		{
-			windows_list.window[win_id].displayed= 0;
-		}
-	else
-		{
-			// pull to the top if not currently displayed
-			if(!windows_list.window[win_id].displayed)	
-				{
-					select_window(win_id);
-				}
-			windows_list.window[win_id].displayed= 1;
-		}
+	if(!windows_list.window[win_id].displayed)
+		select_window(win_id);
+	windows_list.window[win_id].displayed=!windows_list.window[win_id].displayed;
 }
 
 

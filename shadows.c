@@ -109,15 +109,14 @@ void draw_3d_object_shadow(object3d * object_id)
 		}
 
 	for(i=0;i<materials_no;i++)
-		{
-			if(is_transparent)
-				{
+		if(array_order[i].count>0)
+			{
+				if(is_transparent)
 					get_and_set_texture_id(array_order[i].texture_id);
-				}
-			if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
-			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-		}
+				if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
+				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+				if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+			}
 
 	glPopMatrix();//restore the scene
 

@@ -461,7 +461,8 @@ void resize_window()
 	if (window_height==0)window_height=1;			// Prevent A Divide By Zero
 
 	//glViewport(0, hud_y, window_width-hud_x, window_height);	// Reset The Current Viewport
-	glViewport(0, 0, window_width-hud_x, -(window_height-hud_y));	// Reset The Current Viewport
+	//glViewport(0, 0, window_width-hud_x, -(window_height-hud_y));	// Reset The Current Viewport
+	glViewport(0,0,window_width,window_height);	// Reset The Current Viewport
 
 	glMatrixMode(GL_PROJECTION);					// Select The Projection Matrix
 	glLoadIdentity();							// Reset The Projection Matrix
