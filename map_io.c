@@ -232,7 +232,7 @@ int save_map(char * file_name)
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(j>particles_no)break;
-			if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)
+			if(particles_list[i] && particles_list[i]->def/* && particles_list[i]->def->ttl<0*/)
 				{
 					char *cur_particles_pointer=(char *)&cur_particles_io;
 					Uint32 k=0;
@@ -388,11 +388,12 @@ int load_map(char * file_name)
 		}
 
 	//read particle systems
-	for(i=0;i<particles_no;i++)
+	for(i=0;i<particles_no+1;i++)
 		{
 			char *cur_particles_pointer=(char *)&cur_particles_io;
 			fread(cur_particles_pointer,1,particles_io_size,f);
 			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
+			particles_list[i]->ttl=-1;
 		}
 
 	fclose(f);
