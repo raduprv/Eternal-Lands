@@ -1,6 +1,5 @@
 #include "global.h"
 
-
 int evaluate_colision()
 {
 	char pixels[16]={0};
@@ -177,6 +176,8 @@ void move_2d_object(int object_id)
 	obj_2d_list[object_id]->y_pos=scene_mouse_y;
 }
 
+
+int z_incrementation=1;//1 positive, 0 negative
 void clone_2d_object(int object_id)
 {
 	float z_pos,x_rot,z_rot;
@@ -186,7 +187,7 @@ void clone_2d_object(int object_id)
 	z_pos=obj_2d_list[object_id]->z_pos;
 	x_rot=obj_2d_list[object_id]->x_rot;
 	z_rot=obj_2d_list[object_id]->z_rot;
-	
+
 	if(ctrl_on)
 		{
 			collide=0;
@@ -196,7 +197,7 @@ void clone_2d_object(int object_id)
 						{
 							int dist1;
 							int dist2;
-							
+
 							dist1=scene_mouse_x-obj_2d_list[i]->x_pos;
 							dist2=scene_mouse_y-obj_2d_list[i]->y_pos;
 							if(dist1*dist1+dist2*dist2<=1)
@@ -205,13 +206,25 @@ void clone_2d_object(int object_id)
 				}
 			if(collide>1)
 				{
-					z_pos+=(float)(rand()%8-3)*0.01f;
-					z_pos-=0.01f;
+					if(z_pos>0.03f)
+					z_incrementation=0;
+
+					if(z_incrementation)
+					z_pos+=0.001f;
+					else
+					z_pos-=0.001f;
+
+					if(z_pos<0.001f)
+						{
+							z_incrementation=1;
+							z_pos=0.001f;
+						}
+
+
 				}
-			if(z_pos<0.01)z_pos=0.01;
 			z_rot=rand()%360;
 		}
-	
+
 	selected_2d_object=add_2d_obj(obj_2d_list[object_id]->file_name,scene_mouse_x,scene_mouse_y,z_pos,x_rot,0,z_rot);
 	cur_tool=tool_select;//change the current tool
 }
