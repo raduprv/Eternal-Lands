@@ -16,6 +16,7 @@ void draw_scene()
 
 	//debug
 	triangles_normal=0;
+	check_gl_errors();
 
 	//clear the clouds cache too...
 	if(last_clear_clouds+10000<cur_time)clear_clouds_cache();
@@ -33,6 +34,7 @@ void draw_scene()
 			SDL_Delay(20);
 			SDL_GL_SwapBuffers();
 			Leave2DMode();
+			check_gl_errors();
 			return;
 		}
 	if(interface_mode==interface_opening)
@@ -44,6 +46,7 @@ void draw_scene()
 			SDL_Delay(20);
 			SDL_GL_SwapBuffers();
 			Leave2DMode();
+			check_gl_errors();
 			return;
 		}
 
@@ -55,6 +58,7 @@ void draw_scene()
 			SDL_Delay(20);
 			SDL_GL_SwapBuffers();
 			Leave2DMode();
+			check_gl_errors();
 			return;
 		}
 
@@ -66,6 +70,7 @@ void draw_scene()
 			SDL_Delay(20);
 			SDL_GL_SwapBuffers();
 			Leave2DMode();
+			check_gl_errors();
 			return;
 		}
 
@@ -75,6 +80,7 @@ void draw_scene()
 			draw_game_map();
 			SDL_Delay(20);
 			SDL_GL_SwapBuffers();
+			check_gl_errors();
 			return;
 		}
 
@@ -121,6 +127,7 @@ void draw_scene()
 
 	CalculateFrustum();
 	any_reflection=find_reflection();
+	check_gl_errors();
 
 	//now, determine the current weather light level
 	get_weather_light_level();
@@ -129,15 +136,19 @@ void draw_scene()
 	else draw_dungeon_light();
 	update_scene_lights();
 	draw_lights();
+	check_gl_errors();
 
 
 	if(any_reflection)
 		{
 			if(!dungeon)draw_sky_background();
 			else draw_dungeon_sky_background();
+			check_gl_errors();
 			glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
 			draw_tile_map();
+			check_gl_errors();
 			display_2d_objects();
+			check_gl_errors();
 			if(show_reflection)display_3d_reflection();
 			glNormal3f(0.0f,0.0f,1.0f);
 			draw_lake_tiles();
@@ -146,8 +157,10 @@ void draw_scene()
 		{
             glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
             draw_tile_map();
+			check_gl_errors();
             display_2d_objects();
 		}
+	check_gl_errors();
 
 	anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 
@@ -156,13 +169,18 @@ void draw_scene()
 			if(shadows_on && have_stencil)if(day_shadows_on)draw_sun_shadowed_scene();
 		}
 
+	check_gl_errors();
 	if(!shadows_on || !have_stencil || night_shadows_on)display_objects();
 
+	check_gl_errors();
 	display_actors();
+	check_gl_errors();
 
 	//particles should be last, we have no Z writting
 	display_particles();
+	check_gl_errors();
 	if(is_raining)render_rain();
+	check_gl_errors();
 	//we do this because we don't want the rain/particles to mess with our cursor
 
 	Enter2DMode();
@@ -198,6 +216,7 @@ void draw_scene()
 			draw_string(10,0,str,1);
 		}
 
+	check_gl_errors();
 	if(find_last_lines_time())
 		{
 			set_font(chat_font);	// switch to the chat font
@@ -205,9 +224,11 @@ void draw_scene()
 			set_font(0);	// switch to fixed
 		}
 	anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
+	check_gl_errors();
 
 	draw_ingame_interface();
 	anything_under_the_mouse(0, UNDER_MOUSE_MENU);
+	check_gl_errors();
 	//print the text line we are currently writting (if any)
 	y_line=window_height-(17*6);
 	glColor3f(1.0f,1.0f,1.0f);
@@ -219,6 +240,7 @@ void draw_scene()
 	check_cursor_change();
 
 	SDL_GL_SwapBuffers();
+	check_gl_errors();
 }
 
 void Move()
