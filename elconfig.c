@@ -1,8 +1,12 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #ifdef MAP_EDITOR
 #include "../map_editor/global.h"
+#elif defined(ELCONFIG)
+#include <ctype.h>
+#include "../elconfig/global.h"
 #else
 #include "global.h"
 #endif
@@ -44,10 +48,15 @@ void change_sound_level(float *var, float * value)
 {
 	if(*value>=0 && *value<=100)
 		{
+#ifndef ELCONFIG
 			*var=(float)*value/100.0f;
+#else
+			*var=(float)*value;
+#endif
 		}
 }
 
+#ifndef ELCONFIG
 void change_password(char * passwd)
 {
 	int i=0;
@@ -60,6 +69,7 @@ void change_password(char * passwd)
 			display_password_str[i]=0;
 		}
 }
+#endif
 
 void change_poor_man(int value)
 {
@@ -77,19 +87,23 @@ void change_vertex_array(int value)
 {
 	if(value>0)use_vertex_array=value;
 	else value=0;
+#ifndef ELCONFIG
 	if(use_vertex_array)
 		{
 			log_to_console(c_green2,enabled_vertex_arrays);
 		}
+#endif
 }
 
 void change_point_particles(int value)
 {
 	use_point_particles=(value>0);
+#ifndef ELCONFIG
 	if(!use_point_particles)
 		{
 			log_to_console(c_green2,disabled_point_particles);
 		}
+#endif
 }
 
 void change_particles_percentage(int value)
@@ -98,7 +112,9 @@ void change_particles_percentage(int value)
 	else 
 		{
 			particles_percentage=0;
+#ifndef ELCONFIG
 			log_to_console(c_green2,disabled_particles_str);
+#endif
 		}
 }
 
@@ -106,15 +122,20 @@ void switch_vidmode(int mode)
 {
 	if(mode>10 || mode<=0)
 		{
+#ifndef ELCONFIG
 			//warn about this error
 			log_to_console(c_red2,invalid_video_mode);
+#endif
 			return;
 		}
 	else video_mode=mode;
+#ifndef ELCONFIG
 	if(!video_mode_set) return;
 	set_new_video_mode(full_screen,video_mode);
+#endif
 }
 
+#ifndef ELCONFIG
 void toggle_full_screen_mode(int * fs)
 {
 	if(!video_mode_set) 
@@ -135,6 +156,7 @@ void set_afk_time(int time)
 	if(time>0)afk_time=time*60000;
 	else afk_time=0;
 }
+#endif
 #endif
 
 #ifdef MAP_EDITOR
@@ -172,6 +194,16 @@ void switch_vidmode(int mode)
 
 #endif
 
+#ifdef ELCONFIG
+
+void change_srv_string(char *s)
+{
+	char *p=server_port;
+	while(*s && isdigit(*s))*p++=*s++;
+}
+
+#endif
+
 int check_var(char * str, int type)
 {
 	int i,*p;
@@ -194,9 +226,11 @@ int check_var(char * str, int type)
 									if(*tptr==0x0a||*tptr==0x0d) 
 										{
 #ifdef ELC
+#ifndef ELCONFIG
 											char str[200];
 											snprintf(str,200,"Reached newline without an ending \" in %s",our_vars.var[i]->name);
 											log_to_console(c_red2,str);
+#endif
 #endif
 											break;
 										}
@@ -293,8 +327,11 @@ void init_vars()
 {
 	//ELC specific variables
 #ifdef ELC
-	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4);
+#ifndef ELCONFIG
 	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0);
+#else
+	add_var(BOOL,"full_screen","fs",&full_screen,change_var,0);
+#endif
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0);
 	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0);
 	add_var(INT,"max_shadow_map_size","smsize",&max_shadow_map_size,change_int,1024);
@@ -330,9 +367,17 @@ void init_vars()
 	add_var(BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0);
 	add_var(BOOL,"show_help_text","shelp",&show_help_text,change_var,1);
 	add_var(BOOL,"relocate_quickbar","requick",&quickbar_relocatable,change_var,0);
+#ifndef ELCONFIG
 	add_var(SPECINT,"compass_north","comp",&compass_direction,change_compass_direction,1);
-	
+#else
+	add_var(BOOL,"compass_north","comp",&compass_direction,change_var,1);
+#endif
+
+#ifndef ELCONFIG
 	add_var(SPECINT,"auto_afk_time","afkt",&afk_time,set_afk_time,5*60000);
+#else
+	add_var(INT,"auto_afk_time","afkt",&afk_time,change_int,5);
+#endif
 	add_var(STRING,"afk_message","afkm",afk_message,change_string,127);
 	
 	add_var(BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1);
@@ -342,9 +387,17 @@ void init_vars()
 	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1);
 	
 	add_var(STRING,"server_address","sa",server_address,change_string,70);
+#ifndef ELCONFIG
 	add_var(INT,"server_port","sp",&port,change_int,2000);
+#else
+	add_var(SPECCHAR,"server_port","sp",server_port,change_srv_string,8);
+#endif
 	add_var(STRING,"username","u",username_str,change_string,16);
+#ifndef ELCONFIG
 	add_var(SPECCHAR,"password","p",password_str,change_password,16);
+#else
+	add_var(STRING,"password","p",password_str,change_string,16);
+#endif
 	add_var(INT,"log_server","log",&log_server,change_int,1);
 	add_var(STRING,"language","lang",lang,change_string,8);
 	add_var(STRING,"browser","b",broswer_name,change_string,70);
@@ -360,4 +413,5 @@ void init_vars()
 	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0);
 	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0);
 #endif
+
 }

@@ -11,6 +11,9 @@ typedef struct
 	void 	(*func)();
 	void 	*var;
 	int 	len;
+#ifdef ELCONFIG
+	int	saved;
+#endif
 //	char 	*message; //In case you want a message to be written when a setting is changed
 } var_struct;
 
