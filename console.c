@@ -76,7 +76,7 @@ void test_for_console_command()
 			y = 0,
 			found = 0;
 		Uint8 ch='\0';
-		char str[20];
+		char str[520];
 		char name[512] = {0};
 		char tmp_name[512] = {0};
 
@@ -114,14 +114,13 @@ void test_for_console_command()
 				fp = fopen(marks_file, "r");
 				if ( fp )
 				{
-					
 					while ( fgets(text, 600,fp) )
 					{
 						if (strlen (text) > 1) //skip empty lines
 						{
 							my_strncp (tmp_name, strstr(strstr(text, " ")+1, " ")+1, 500);
 							tmp_name[strlen(tmp_name)-1] = '\0'; //remove the newline
-							if (my_strncompare(name, tmp_name, 512))
+							if (my_strcompare(name, tmp_name))
 							{
 								sscanf (text, "%d %d", &x, &y);
 								found = 1;
@@ -163,13 +162,23 @@ void test_for_console_command()
 
 		if (found)
 		{
-			sprintf(str, "Goto: %d,%d", x, y);
-			log_to_console(c_orange1, str);
+			int check;
+			
 			if (pf_follow_path)
 			{
 				pf_destroy_path();
 			}
-			pf_find_path(x, y);
+			check = pf_find_path(x, y);
+			if (check)
+				sprintf(str, "Goto: %d,%d", x, y);
+			else
+				sprintf(str, "Can't go to %d,%d", x, y);
+			log_to_console((check?c_orange1:c_red2), str);
+		}
+		else
+		{
+			sprintf (str, "Mark %s not found", name);
+			log_to_console(c_red2, str);
 		}
 		return;
 	}
@@ -177,7 +186,10 @@ void test_for_console_command()
 	{
 		if (strlen(text_loc) > 5) //check for empty marks
 		{
+			char str[520];
 			put_mark_on_current_position(text_loc+5);
+			sprintf (str, "%s marked", text_loc+5);
+			log_to_console(c_orange1,str);
 		}
 		return;		
 	}

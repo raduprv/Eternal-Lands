@@ -1038,8 +1038,8 @@ void draw_game_map(int map)
         	        int x = mark_x;
         	        int y = mark_y;
 
-			screen_x=(50+200*x/(tile_map_size_x*6));
-			screen_y=200-200*y/(tile_map_size_y*6);
+			screen_x=(51+200*x/(tile_map_size_x*6));
+			screen_y=201-200*y/(tile_map_size_y*6);
 
 			glColor3f(1.0f,1.0f,0.0f);
 			glDisable(GL_TEXTURE_2D);
@@ -1062,8 +1062,8 @@ void draw_game_map(int map)
 			int x = marks[i].x;
 			int y = marks[i].y;
 			if ( x > 0 ) {
-				screen_x=(50+200*x/(tile_map_size_x*6));
-				screen_y=200-200*y/(tile_map_size_y*6);
+				screen_x=(51+200*x/(tile_map_size_x*6));
+				screen_y=201-200*y/(tile_map_size_y*6);
 
 				glColor3f(0.4f,1.0f,0.0f);
 				glDisable(GL_TEXTURE_2D);
