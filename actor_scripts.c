@@ -6052,11 +6052,11 @@ void init_actor_defs()
 	my_strcp(actors_defs[orchan_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
 	actors_defs[orchan_female].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
 
-	my_strcp(actors_defs[orchan_female].helmet[HELMET_IRON].model_name,"./md2/helmet1_tall.md2");
+	my_strcp(actors_defs[orchan_female].helmet[HELMET_IRON].model_name,"./md2/helmet1_orchan.md2");
 	my_strcp(actors_defs[orchan_female].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
-	my_strcp(actors_defs[orchan_female].helmet[HELMET_FUR].model_name,"./md2/hat1_tall.md2");
+	my_strcp(actors_defs[orchan_female].helmet[HELMET_FUR].model_name,"./md2/hat1_orchan.md2");
 	my_strcp(actors_defs[orchan_female].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[orchan_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tall.md2");
+	my_strcp(actors_defs[orchan_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_orchan.md2");
 	my_strcp(actors_defs[orchan_female].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[orchan_female].walk_speed=default_walk_speed;
@@ -6630,11 +6630,11 @@ void init_actor_defs()
 	my_strcp(actors_defs[orchan_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
 	actors_defs[orchan_male].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
 
-	my_strcp(actors_defs[orchan_male].helmet[HELMET_IRON].model_name,"./md2/helmet1_tallm.md2");
+	my_strcp(actors_defs[orchan_male].helmet[HELMET_IRON].model_name,"./md2/helmet1_orchan.md2");
 	my_strcp(actors_defs[orchan_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
-	my_strcp(actors_defs[orchan_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tallm.md2");
+	my_strcp(actors_defs[orchan_male].helmet[HELMET_FUR].model_name,"./md2/hat1_orchan.md2");
 	my_strcp(actors_defs[orchan_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[orchan_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tallm.md2");
+	my_strcp(actors_defs[orchan_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_orchan.md2");
 	my_strcp(actors_defs[orchan_male].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[orchan_male].walk_speed=default_walk_speed;
@@ -7204,11 +7204,11 @@ void init_actor_defs()
 	my_strcp(actors_defs[draegoni_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
 	actors_defs[draegoni_female].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
 
-	my_strcp(actors_defs[draegoni_female].helmet[HELMET_IRON].model_name,"./md2/helmet1_tall.md2");
+	my_strcp(actors_defs[draegoni_female].helmet[HELMET_IRON].model_name,"./md2/helmet1_draegoni.md2");
 	my_strcp(actors_defs[draegoni_female].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
-	my_strcp(actors_defs[draegoni_female].helmet[HELMET_FUR].model_name,"./md2/hat1_tall.md2");
+	my_strcp(actors_defs[draegoni_female].helmet[HELMET_FUR].model_name,"./md2/hat1_draegoni.md2");
 	my_strcp(actors_defs[draegoni_female].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[draegoni_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tall.md2");
+	my_strcp(actors_defs[draegoni_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_draegoni.md2");
 	my_strcp(actors_defs[draegoni_female].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[draegoni_female].walk_speed=default_walk_speed;
@@ -7781,11 +7781,11 @@ void init_actor_defs()
 	my_strcp(actors_defs[draegoni_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
 	actors_defs[draegoni_male].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
 
-	my_strcp(actors_defs[draegoni_male].helmet[HELMET_IRON].model_name,"./md2/helmet1_tall.md2");
+	my_strcp(actors_defs[draegoni_male].helmet[HELMET_IRON].model_name,"./md2/helmet1_draegoni.md2");
 	my_strcp(actors_defs[draegoni_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
-	my_strcp(actors_defs[draegoni_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tall.md2");
+	my_strcp(actors_defs[draegoni_male].helmet[HELMET_FUR].model_name,"./md2/hat1_draegoni.md2");
 	my_strcp(actors_defs[draegoni_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[draegoni_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tall.md2");
+	my_strcp(actors_defs[draegoni_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_draegoni.md2");
 	my_strcp(actors_defs[draegoni_male].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[draegoni_male].walk_speed=default_walk_speed;
