@@ -417,38 +417,93 @@ void save_bin_cfg()
 
 	cfg_mem.cfg_version_num=CFG_VERSION;	// set the version number
 	//good, retrive the data
-	cfg_mem.items_menu_x=windows_list.window[items_win].cur_x;
-	cfg_mem.items_menu_y=windows_list.window[items_win].cur_y;
+	if(items_win) {
+		cfg_mem.items_menu_x=windows_list.window[items_win].cur_x;
+		cfg_mem.items_menu_y=windows_list.window[items_win].cur_y;
+	} else {
+		cfg_mem.items_menu_x=items_menu_x;
+		cfg_mem.items_menu_y=items_menu_y;
+	}
 
-	cfg_mem.ground_items_menu_x=windows_list.window[ground_items_win].cur_x;
-	cfg_mem.ground_items_menu_y=windows_list.window[ground_items_win].cur_y;
+	if(ground_items_win) {
+		cfg_mem.ground_items_menu_x=windows_list.window[ground_items_win].cur_x;
+		cfg_mem.ground_items_menu_y=windows_list.window[ground_items_win].cur_y;
+	} else {
+		cfg_mem.ground_items_menu_x=ground_items_menu_x;
+		cfg_mem.ground_items_menu_y=ground_items_menu_y;
+	}
 
-	cfg_mem.trade_menu_x=windows_list.window[trade_win].cur_x;
-	cfg_mem.trade_menu_y=windows_list.window[trade_win].cur_y;
+	if(trade_win) {
+		cfg_mem.trade_menu_x=windows_list.window[trade_win].cur_x;
+		cfg_mem.trade_menu_y=windows_list.window[trade_win].cur_y;
+	} else {
+		cfg_mem.trade_menu_x=trade_menu_x;
+		cfg_mem.trade_menu_y=trade_menu_y;
+	}
 
-	cfg_mem.sigil_menu_x=windows_list.window[sigil_win].cur_x;
-	cfg_mem.sigil_menu_y=windows_list.window[sigil_win].cur_y;
+	if(sigil_win) {
+		cfg_mem.sigil_menu_x=windows_list.window[sigil_win].cur_x;
+		cfg_mem.sigil_menu_y=windows_list.window[sigil_win].cur_y;
+	} else {
+		cfg_mem.sigil_menu_x=sigil_menu_x;
+		cfg_mem.sigil_menu_y=sigil_menu_y;
+	}
 
-	cfg_mem.dialogue_menu_x=windows_list.window[dialogue_win].cur_x;
-	cfg_mem.dialogue_menu_y=windows_list.window[dialogue_win].cur_y;
+	if(dialogue_win) {
+		cfg_mem.dialogue_menu_x=windows_list.window[dialogue_win].cur_x;
+		cfg_mem.dialogue_menu_y=windows_list.window[dialogue_win].cur_y;
+	} else {
+		cfg_mem.dialogue_menu_x=dialogue_menu_x;
+		cfg_mem.dialogue_menu_y=dialogue_menu_y;
+	}
 
-	cfg_mem.manufacture_menu_x=windows_list.window[manufacture_win].cur_x;
-	cfg_mem.manufacture_menu_y=windows_list.window[manufacture_win].cur_y;
+	if(manufacture_win) {
+		cfg_mem.manufacture_menu_x=windows_list.window[manufacture_win].cur_x;
+		cfg_mem.manufacture_menu_y=windows_list.window[manufacture_win].cur_y;
+	} else {
+		cfg_mem.manufacture_menu_x=manufacture_menu_x;
+		cfg_mem.manufacture_menu_y=manufacture_menu_y;
+	}
 
-	cfg_mem.attrib_menu_x=windows_list.window[stats_win].cur_x;
-	cfg_mem.attrib_menu_y=windows_list.window[stats_win].cur_y;
+	if(stats_win) {
+		cfg_mem.attrib_menu_x=windows_list.window[stats_win].cur_x;
+		cfg_mem.attrib_menu_y=windows_list.window[stats_win].cur_y;
+	} else {
+		cfg_mem.attrib_menu_x=attrib_menu_x;
+		cfg_mem.attrib_menu_y=attrib_menu_y;
+	}
 
-	cfg_mem.options_menu_x=windows_list.window[options_win].cur_x;
-	cfg_mem.options_menu_y=windows_list.window[options_win].cur_y;
+	if(options_win) {
+		cfg_mem.options_menu_x=windows_list.window[options_win].cur_x;
+		cfg_mem.options_menu_y=windows_list.window[options_win].cur_y;
+	} else {
+		cfg_mem.options_menu_x=options_menu_x;
+		cfg_mem.options_menu_y=options_menu_y;
+	}
 
-	cfg_mem.knowledge_menu_x=windows_list.window[knowledge_win].cur_x;
-	cfg_mem.knowledge_menu_y=windows_list.window[knowledge_win].cur_y;
+	if(knowledge_win) {
+		cfg_mem.knowledge_menu_x=windows_list.window[knowledge_win].cur_x;
+		cfg_mem.knowledge_menu_y=windows_list.window[knowledge_win].cur_y;
+	} else {
+		cfg_mem.knowledge_menu_x=knowledge_menu_x;
+		cfg_mem.knowledge_menu_y=knowledge_menu_y;
+	}
 
-	cfg_mem.encyclopedia_menu_x=windows_list.window[encyclopedia_win].cur_x;
-	cfg_mem.encyclopedia_menu_y=windows_list.window[encyclopedia_win].cur_y;
+	if(encyclopedia_win) {
+		cfg_mem.encyclopedia_menu_x=windows_list.window[encyclopedia_win].cur_x;
+		cfg_mem.encyclopedia_menu_y=windows_list.window[encyclopedia_win].cur_y;
+	} else {
+		cfg_mem.encyclopedia_menu_x=encyclopedia_menu_x;
+		cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
+	}
 
-	cfg_mem.questlog_menu_x=windows_list.window[quest_win].cur_x;
-	cfg_mem.questlog_menu_y=windows_list.window[quest_win].cur_y;
+	if(quest_win) {
+		cfg_mem.questlog_menu_x=windows_list.window[quest_win].cur_x;
+		cfg_mem.questlog_menu_y=windows_list.window[quest_win].cur_y;
+	} else {
+		cfg_mem.questlog_menu_x=questlog_menu_x;
+		cfg_mem.questlog_menu_y=questlog_menu_y;
+	}
 
 	cfg_mem.watch_this_stat=watch_this_stat;
 
