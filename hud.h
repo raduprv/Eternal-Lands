@@ -14,9 +14,8 @@
 #define DATA_WINDOW 0
 #define DATA_ACTIONMODE 1
 
-//These aren't handled by the windowmanager - yet?
-extern int map_win;
-extern int console_win;
+#define HORIZONTAL 2
+#define VERTICAL 1
 
 typedef struct
 {
@@ -42,6 +41,10 @@ struct icons_struct
 };
 
 extern struct icons_struct icons;
+
+//These aren't handled by the windowmanager - yet?
+extern int map_win;
+extern int console_win;
 
 // the main hud handling
 void init_hud_interface();
@@ -88,6 +91,11 @@ void init_quickbar();
 void draw_quickbar();
 int check_quickbar();
 extern int	quickbar_win;
+extern int 	quickbar_relocatable;
+void flip_quickbar();
+void reset_quickbar();
+void change_flags(int win_id, Uint32 flags);
+Uint32 get_flags(int win_id);
 
 extern int hud_x;
 extern int hud_y;
@@ -98,5 +106,10 @@ extern int map_icon_x_end;
 extern int map_icon_y_end;
 extern int view_digital_clock;
 void build_levels_table();
+
+extern int quickbar_x;
+extern int quickbar_y;
+extern int quickbar_dir;
+extern int quickbar_draggable;
 
 #endif	//__HUD_H

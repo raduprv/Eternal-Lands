@@ -1,7 +1,7 @@
 #ifndef __INIT_H__
 #define __INIT_H__
 
-#define	CFG_VERSION	3
+#define	CFG_VERSION	4
 
 #ifndef DATA_DIR
 #define DATA_DIR "./"
@@ -44,10 +44,14 @@ typedef struct
 	int questlog_menu_x;
 	int questlog_menu_y;
 
+	int quickbar_x;
+	int quickbar_y;
+	int quickbar_flags;
+	
 	int watch_this_stat;
 
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[19];
+	int reserved[16];
 
 	float camera_x;
 	float camera_y;

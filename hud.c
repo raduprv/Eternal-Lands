@@ -2,6 +2,7 @@
 #include <math.h>
 #include "global.h"
 #include "elwindows.h"
+#include "keys.h" //Avoid problems with SHIFT, ALT, CTRL
 
 #define STATE(I) (icons.icon[I]->state&0x0F)
 #define PRESSED (1|(1<<31))
@@ -852,8 +853,12 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 
 int quickbar_x_len= 30;
 int quickbar_y_len= 6*30;
-int quickbar_x= 0;
-int quickbar_y= 0;
+int quickbar_x=34;
+int quickbar_y=64;
+int quickbar_draggable=0;
+int quickbar_dir=VERTICAL;
+int quickbar_relocatable=0;
+
 
 //quickbar section
 void init_quickbar() {
@@ -861,21 +866,27 @@ void init_quickbar() {
 	quickbar_y_len= 6*30+1;
 	if(quickbar_win <= 0)
 		{
-			quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x_len-4, 64, quickbar_x_len, quickbar_y_len, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
+			if(quickbar_dir==VERTICAL)
+				quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len, quickbar_draggable?ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE:ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
+			else
+				quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len, quickbar_draggable?ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE:ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
 			set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 			set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
 		}
 	else
 		{
-			move_window(quickbar_win, 0, 0, window_width-quickbar_x_len-4, 64);
+			move_window(quickbar_win, 0, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y);
 		}
 }
 
 void draw_quickbar() {
-	quickbar_x= window_width-quickbar_x_len-4;
-	quickbar_y= 64;
 	// failsafe until better integrated
-	init_window(quickbar_win, 0, 0, quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
+	if(quickbar_dir==VERTICAL) {
+		init_window(quickbar_win, 0, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
+	}
+	if(quickbar_dir==HORIZONTAL) {
+		init_window(quickbar_win, 0, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len);
+	} 
 	display_window(quickbar_win);
 }
 
@@ -888,10 +899,21 @@ int	display_quickbar_handler(window_info *win)
 	glBegin(GL_LINES);
 	use_window_color(quickbar_win, ELW_COLOR_LINE);
 	//draw the grid
-	for(y=1;y<6;y++)
+	if(quickbar_dir==VERTICAL)
 		{
-			glVertex3i(0, y*30+1, 0);
-			glVertex3i(quickbar_x_len, y*30+1, 0);
+			for(y=1;y<6;y++)
+				{
+					glVertex3i(0, y*30+1, 0);
+					glVertex3i(quickbar_x_len, y*30+1, 0);
+				}
+		}
+	else
+		{
+			for(y=1;y<6;y++)
+				{
+					glVertex3i(y*30+1, 0, 0);
+					glVertex3i(y*30+1, quickbar_x_len, 0);
+				}
 		}
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -946,10 +968,18 @@ int	display_quickbar_handler(window_info *win)
 
 							get_and_set_texture_id(this_texture);
 							glBegin(GL_QUADS);
-							draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
+							if(quickbar_dir==VERTICAL)
+								{
+									draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
+								}
+							else
+								{
+									draw_2d_thing(u_start,v_start,u_end,v_end,y_start+1,x_start+1,y_end-1,x_end-1);
+								}
 							glEnd();
 							sprintf(str,"%i",item_list[i].quantity);
-							draw_string_small(x_start,y_end-15,str,1);
+							if(quickbar_dir==VERTICAL) draw_string_small(x_start,y_end-15,str,1);
+							else draw_string_small(y_start,x_end-15,str,1);
 						}
 				}
 		}
@@ -965,13 +995,22 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 	int i,y;
 	int x_screen,y_screen;
 	Uint8 str[100];
+	int trigger=ELW_LEFT_MOUSE|ELW_CTRL|ELW_SHIFT;//flags we'll use for the quickbar relocation handling
 
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
 	for(y=0;y<6;y++)
 		{
-			x_screen=0;
-			y_screen=y*30;
+			if(quickbar_dir==VERTICAL)
+				{
+					x_screen=0;
+					y_screen=y*30;
+				}
+			else
+				{
+					x_screen=y*30;
+					y_screen=0;
+				}
 			if(mx>x_screen && mx<x_screen+30 && my>y_screen && my<y_screen+30)
 				{
 					//see if there is an empty space to drop this item over.
@@ -999,9 +1038,34 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 									return 1;
 								}
 						}
-
+					if(quickbar_relocatable>0)
+						{
+							if((flags&trigger)==(ELW_LEFT_MOUSE|ELW_CTRL))
+								{
+									//toggle draggable
+									if((get_flags(quickbar_win)!=(ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE)))
+										{
+											change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
+											quickbar_draggable=1;
+										}
+									else 
+										{
+											change_flags(quickbar_win, (ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST));
+											quickbar_draggable=0;
+										}
+								}
+							else if (((flags&trigger)==(ELW_LEFT_MOUSE|ELW_SHIFT)) && (get_flags(quickbar_win)==(ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE)))
+								{
+									//toggle vertical/horisontal
+									flip_quickbar();
+								}
+							else if (((flags&trigger)==trigger))
+								{
+									//reset
+									reset_quickbar();
+								}
+						}
 					//see if there is any item there
-
 					for(i=0;i<ITEM_NUM_ITEMS;i++)
 						{
 							//should we get the info for it?
@@ -1049,6 +1113,40 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	return 1;
 }
+
+/*Change the quickbar from vertical to horizontal, or vice versa*/
+void flip_quickbar() 
+{
+	if (quickbar_dir==VERTICAL) 
+		{
+			quickbar_dir=HORIZONTAL;
+			init_window(quickbar_win, 0, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, quickbar_y_len, quickbar_x_len);
+		}      
+	else if (quickbar_dir==HORIZONTAL) 
+		{
+			quickbar_dir=VERTICAL;
+			init_window(quickbar_win, 0, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, quickbar_x_len, quickbar_y_len);
+		}
+}
+
+/*Return the quickbar to it's Built-in position*/
+void reset_quickbar() 
+{
+	//Necessary Variables
+	quickbar_x_len= 30;
+	quickbar_y_len= 6*30+1;
+	quickbar_x= quickbar_x_len-4;
+	quickbar_y= 64;
+	//Re-set to default orientation
+	quickbar_dir=VERTICAL;
+	quickbar_draggable=0;
+	init_window(quickbar_win, 0, 0, quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
+	//Re-set  Flags
+	change_flags(quickbar_win, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);   
+	//NEED x_offset
+	move_window(quickbar_win, 0, 0, window_width-quickbar_x, 64);
+}
+
 
 Uint32 exp_lev[140];
 
@@ -1189,4 +1287,15 @@ void draw_exp_display()
 
 	draw_stats_bar(exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
 	draw_string_small(exp_bar_start_x, exp_bar_start_y+10, name, 1);
+}
+
+/*Flag manipulation-I hate doing this by hand*/
+/*Change flags*/
+void change_flags(int win_id, Uint32 flags) {
+	windows_list.window[win_id].flags=flags;     
+}
+
+/*Return flags*/
+Uint32 get_flags(int win_id) {
+	return windows_list.window[win_id].flags;
 }

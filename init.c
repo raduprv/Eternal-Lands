@@ -280,6 +280,7 @@ void read_config()
 
 	item_window_on_drop=get_integer_after_string("#item_window_on_drop",file_mem,ini_file_size);
 	view_digital_clock=get_integer_after_string("#view_digital_clock",file_mem,ini_file_size);
+	quickbar_relocatable=get_integer_after_string("#relocate_quickbar",file_mem,ini_file_size);
 #ifndef WINDOWS
 	if(get_string_after_string("#data_dir",file_mem,ini_file_size,datadir,90)>0)
 		chdir(datadir);
@@ -354,6 +355,14 @@ void read_bin_cfg()
 	questlog_menu_x=cfg_mem.questlog_menu_x;
 	questlog_menu_y=cfg_mem.questlog_menu_y;
 
+	if(quickbar_relocatable>0)
+		{
+			if((quickbar_x=cfg_mem.quickbar_x)>window_width||quickbar_x<=0)quickbar_x=34;
+			if((quickbar_y=cfg_mem.quickbar_y)>window_height||quickbar_y<=0)quickbar_y=64;
+			if((quickbar_dir=cfg_mem.quickbar_flags&0xFF)!=HORIZONTAL)quickbar_dir=VERTICAL;
+			if((quickbar_draggable=(cfg_mem.quickbar_flags&0xFF00)>>8)!=1)quickbar_draggable=0;
+		}
+	
 	watch_this_stat=cfg_mem.watch_this_stat;
 	if(watch_this_stat<0 || watch_this_stat>=NUM_WATCH_STAT)
 		watch_this_stat=0;
@@ -503,6 +512,19 @@ void save_bin_cfg()
 		cfg_mem.questlog_menu_x=questlog_menu_x;
 		cfg_mem.questlog_menu_y=questlog_menu_y;
 	}
+
+	if(quickbar_relocatable>0)
+		{
+			if(quickbar_win){
+				cfg_mem.quickbar_x=window_width-windows_list.window[quickbar_win].cur_x;
+				cfg_mem.quickbar_y=windows_list.window[quickbar_win].cur_y;
+				cfg_mem.quickbar_flags=quickbar_dir|(quickbar_draggable<<8);
+			} else {
+				cfg_mem.quickbar_x=quickbar_x;
+				cfg_mem.quickbar_y=quickbar_y;
+				cfg_mem.quickbar_flags=VERTICAL;
+			}
+		}
 
 	cfg_mem.watch_this_stat=watch_this_stat;
 
