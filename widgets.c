@@ -4,7 +4,7 @@
 
 Uint32 widget_id = 0;
 
-int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)())
+int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)(widget_list *))
 {
 	widget_list *w = &windows_list.window[window_id].widgetlist;
 	while(w->next != NULL){
@@ -48,7 +48,7 @@ int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)())
 	return 1;
 }
 
-int add_label(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y, Uint32 flags, float size, float r, float g, float b)
+int add_label(Uint32 window_id, int (*OnInit)(widget_list *), char *text, Uint16 x, Uint16 y, Uint32 flags, float size, float r, float g, float b)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	label *T = (label *) malloc(sizeof(label));
@@ -69,8 +69,8 @@ int add_label(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y,
 	T->g = g;
 	T->b = b;
 	strncpy(T->text,text,255);
-	W->len_y = 18 * size;
-	W->len_x = strlen(T->text) * 11 * size;
+	W->len_y = (Uint16)(18 * size);
+	W->len_x = (Uint16)(strlen(T->text) * 11 * size);
 	W->OnDraw = draw_label;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
@@ -87,9 +87,10 @@ int add_label(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y,
 
 int draw_label(widget_list *W)
 {
-	label *l = W->widget_info;
+	label *l = (label *)W->widget_info;
 	glColor3f(l->r,l->g,l->b);
-	draw_string_zoomed(W->pos_x,W->pos_y,l->text,1,l->size);
+	draw_string_zoomed(W->pos_x,W->pos_y,(unsigned char *)l->text,1,l->size);
 	return 1;
 }
+
 
