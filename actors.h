@@ -218,6 +218,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 			  float y_pos, float z_pos, float z_rot, char remappable, 
 			  short skin_color, short hair_color, short shirt_color, 
 			  short pants_color, short boots_color, int actor_id);
+void draw_actor_banner(actor * actor_id, float offset_z);
 void draw_actor(actor * actor_id);
 void display_actors();
 void add_actor_from_server(char * in_data);

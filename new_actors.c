@@ -271,13 +271,13 @@ void draw_enhanced_actor(actor * actor_id)
 	float x_rot,y_rot,z_rot;
 	int texture_id;
 	char *cur_frame;
-	char str[20];
-	float healtbar_x=-0.3f;
-	float healtbar_y=0;
+	//char str[20];
+	//float healtbar_x=-0.25f*zoom_level/3.0f;
+	//float healtbar_y=0;
 	float healtbar_z=0;
-	float healtbar_x_len=0.5f;
-	float healtbar_x_len_converted=0;
-	float healtbar_z_len=0.05f;
+	//float healtbar_x_len=0.5f*zoom_level/3.0f;
+	//float healtbar_x_len_converted=0;
+	//float healtbar_z_len=0.05f*zoom_level/3.0f;
 	int numFrames;
 	char *dest_frame_name;
 	frame_md2 *offsetFrames;
@@ -307,7 +307,7 @@ void draw_enhanced_actor(actor * actor_id)
 			dest_frame_name=(char *)&offsetFrames[i].name;
 			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
 				{
-					healtbar_z=offsetFrames[i].box.max_z+0.2f;
+					healtbar_z=offsetFrames[i].box.max_z;
 					break;
 				}
 			i++;
@@ -345,6 +345,8 @@ void draw_enhanced_actor(actor * actor_id)
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
+	draw_actor_banner(actor_id, healtbar_z);
+	/*
 	//draw the health bar
 	glDisable(GL_TEXTURE_2D);
 	//choose color for the bar
@@ -368,7 +370,7 @@ void draw_enhanced_actor(actor * actor_id)
 			glEnd();
 
 			//draw the frame
-			healtbar_y=0.001;
+			healtbar_y=0.001*zoom_level/3.0f;
 			glDepthFunc(GL_LEQUAL);
 			glColor3f(0,0,0);
 			glBegin(GL_LINES);
@@ -402,12 +404,14 @@ void draw_enhanced_actor(actor * actor_id)
 			if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
 			else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)glColor3f(1.0f,1.0f,1.0f);
 			else glColor3f(1.0f,1.0f,0.0f);
-			draw_ingame_string(-(strlen(actor_id->actor_name)*SMALL_INGAME_FONT_X_LEN)/2,healtbar_z-0.7f,actor_id->actor_name,1,0);
+			//draw_ingame_string(-(strlen(actor_id->actor_name)*SMALL_INGAME_FONT_X_LEN)/2,healtbar_z-0.7f,actor_id->actor_name,1,0);
+			//TODO: use text length function instead of strlen
+			draw_ingame_string(-((float)strlen(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level/3.0))/2.0,healtbar_z+0.03f,actor_id->actor_name,1,0);
 		}
 	glColor3f(1,1,1);
+	*/
 	glPopMatrix();//we don't want to affect the rest of the scene
-	if(!actor_id->ghost)glEnable(GL_LIGHTING);
-
+	//if(!actor_id->ghost)glEnable(GL_LIGHTING);
 
 }
 
