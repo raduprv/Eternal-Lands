@@ -683,7 +683,7 @@ void get_bags_items_list(Uint8 *data)
 
 
 	view_ground_items=1;
-	view_my_items=1;
+	if(item_window_on_drop)view_my_items=1;
 	//clear the list
 	for(i=0;i<50;i++)ground_item_list[i].quantity=0;
 

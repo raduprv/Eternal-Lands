@@ -56,7 +56,7 @@ extern int no_alpha_sat;
 extern int mouse_limit;
 extern int show_fps;
 extern int limit_fps;
-
+extern int item_window_on_drop;
 extern int no_adjust_shadows;
 extern int clouds_shadows;
 extern char configdir[256];

@@ -21,6 +21,7 @@ int mouse_limit=15;
 int no_adjust_shadows=0;
 int clouds_shadows=1;
 int no_alpha_sat=0;
+int item_window_on_drop=1;
 help_entry help_list[MAX_HELP_ENTRIES];
 char configdir[256];
 char datadir[256];
@@ -196,6 +197,7 @@ void read_config()
 	get_string_after_string("#password",file_mem,ini_file_size,password_str,16);
 	for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
 	display_password_str[k]=0;
+	item_window_on_drop=get_integer_after_string("#item_window_on_drop",file_mem,ini_file_size);
 
 #ifndef WINDOWS
 	if(get_string_after_string("#data_dir",file_mem,ini_file_size,datadir,90)>0)
