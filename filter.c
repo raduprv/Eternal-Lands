@@ -92,8 +92,21 @@ int filter_text(Uint8 * input_text, int len)
 {
 	int i,bad_len,rep_len;
 	Uint8 *rloc=input_text;
-	//do we need to do any filtering?
-	if(caps_filter && my_isupper(input_text_line)) my_tolower(input_text_line);
+
+	//do we need to do CAPS filtering?
+	if(caps_filter)
+		{
+			// handle PM's
+			if(*rloc == '[') while(*rloc && *rloc != ']') rloc++;
+			// or ignore first word
+			else while(*rloc && *rloc != ' ' && *rloc != ':') rloc++;
+			// check for hitting the EOS
+			if(!*rloc) rloc=input_text;
+			// if we pass the upper test, entire line goes lower
+			if(my_isupper(rloc)) my_tolower(input_text);
+			rloc=input_text;	// restore the initial value
+		}
+	//do we need to do any content filtering?
 	if(max_filters == 0)return(len);
 	// get the length of the replacement string
 	rep_len=strlen(text_filter_replace);
