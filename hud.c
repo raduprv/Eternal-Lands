@@ -228,6 +228,7 @@ int exp_bar_start_y;
 
 void init_peace_icons()
 {
+	int type=action_walk;
 	//create the icon window
 	if(icons_win <= 0)
 		{
@@ -244,7 +245,7 @@ void init_peace_icons()
 	icons.y=0;
 	icons.x=0;
 	
-	int type=action_walk;
+	
 	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, "Walk", switch_action_mode, &type, DATA_ACTIONMODE);
 	
 	if(you_sit)
@@ -392,18 +393,18 @@ void sit_button_pressed(void * none, int id)
 {
 	if(you_sit)
 		{
-			you_stand_up();
-			//Send message to server...
 			Uint8 str[4];
+			you_stand_up();
+			//Send message to server...	
 			str[0]=SIT_DOWN;
 			str[1]=0;
 			my_tcp_send(my_socket,str,2);
 		}
 	else
 		{
+			Uint8 str[4];
 			you_sit_down();
 			//Send message to server...
-			Uint8 str[4];
 			str[0]=SIT_DOWN;
 			str[1]=1;
 			my_tcp_send(my_socket,str,2);
@@ -503,10 +504,9 @@ int check_peace_icons()
 
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 {
+	int id=mx/32;//Icons are always 32 bit wide
 	if(combat_mode)return 0;
 
-	int id=mx/32;//Icons are always 32 bit wide
-	
 	if(id<icons.no)
 		{
 			switch(icons.icon[id]->data_type)

@@ -398,7 +398,7 @@ void test_for_console_command()
 			while(*text_loc && !isspace(*text_loc))	text_loc++;
 			while(*text_loc && isspace(*text_loc))	text_loc++;
 			if(my_strncompare(text_loc, "all", 3)){
-				for(;no<pm_log.ppl;no++) print_message(no);
+				for(no=0;no<pm_log.ppl;no++) print_message(no);
 				return;
 			}
 			no=atoi(text_loc)-1;
