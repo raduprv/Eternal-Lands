@@ -13,15 +13,6 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	actor *our_actor;
 	no_bounding_box=1;
 
-	our_actor = calloc(1, sizeof(actor));
-
-	//find a free spot, in the actors_list
-	lock_actors_lists();	//lock it to avoid timing issues
-	for(i=0;i<max_actors;i++)
-		{
-			if(!actors_list[i])break;
-		}
-
 	//ok, load the legs
 	if(this_actor->legs_fn[0])
 		{
@@ -124,6 +115,15 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	//get the skin
 	texture_id=load_bmp8_enhanced_actor(this_actor, 255);
 
+	our_actor = calloc(1, sizeof(actor));
+
+	//find a free spot, in the actors_list
+	lock_actors_lists();	//lock it to avoid timing issues
+	for(i=0;i<max_actors;i++)
+		{
+			if(!actors_list[i])break;
+		}
+
 	our_actor->texture_id=texture_id;
 	our_actor->is_enhanced_model=1;
 	our_actor->actor_id=actor_id;
@@ -179,18 +179,8 @@ void draw_enhanced_actor(actor * actor_id)
 	float x_rot,y_rot,z_rot;
 	int texture_id;
 	char *cur_frame;
-	//char str[20];
-	//float healtbar_x=-0.25f*zoom_level/3.0f;
-	//float healtbar_y=0;
 	float healtbar_z=0;
-	//float healtbar_x_len=0.5f*zoom_level/3.0f;
-	//float healtbar_x_len_converted=0;
-	//float healtbar_z_len=0.05f*zoom_level/3.0f;
-	//int numFrames;
-	//char *dest_frame_name;
-	//frame_md2 *offsetFrames;
 
-	//offsetFrames=actor_id->body_parts->head->offsetFrames;
 	texture_id=actor_id->texture_id;
 	if(last_texture!=texture_id)
 		{
@@ -203,20 +193,6 @@ void draw_enhanced_actor(actor * actor_id)
 	//now, go and find the current frame
 	i=get_frame_number(actor_id->body_parts->head, cur_frame);;
 	if(i >= 0)healtbar_z=actor_id->body_parts->head->offsetFrames[i].box.max_z;
-
-	/*
-	numFrames=actor_id->body_parts->head->numFrames;
-	while(i<numFrames)
-		{
-			dest_frame_name=(char *)&offsetFrames[i].name;
-			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-				{
-					healtbar_z=offsetFrames[i].box.max_z;
-					break;
-				}
-			i++;
-		}
-	*/
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->x_pos;
@@ -254,70 +230,7 @@ void draw_enhanced_actor(actor * actor_id)
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
 	draw_actor_banner(actor_id, healtbar_z);
-	/*
-	//draw the health bar
-	glDisable(GL_TEXTURE_2D);
-	//choose color for the bar
-	if(actor_id->cur_health>=actor_id->max_health/2)
-		glColor3f(0,1,0);//green life bar
-	else if(actor_id->cur_health>=actor_id->max_health/4 && actor_id->cur_health<actor_id->max_health/2)
-		glColor3f(1,1,0);//yellow life bar
-	else glColor3f(1,0,0);
-	if(!actor_id->ghost)glDisable(GL_LIGHTING);
 
-	if(view_health_bar && actor_id->cur_health>=0)
-		{
-			//get it's lenght
-			if(actor_id->max_health)//we don't want a division by zero, now do we?
-				healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
-			glBegin(GL_QUADS);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-			glEnd();
-
-			//draw the frame
-			healtbar_y=0.001*zoom_level/3.0f;
-			glDepthFunc(GL_LEQUAL);
-			glColor3f(0,0,0);
-			glBegin(GL_LINES);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
-
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
-			glEnd();
-		}
-
-	glEnable(GL_TEXTURE_2D);
-	glColor3f(1,0,0);
-
-	glDepthFunc(GL_ALWAYS);
-	if(actor_id->damage_ms)
-		{
-			sprintf(str,"%i",actor_id->damage);
-			glColor3f(1,0.3f,0.3f);
-			draw_ingame_string(-0.1,healtbar_z-2.0f,str,1,1);
-		}
-	glDepthFunc(GL_LESS);
-	if(actor_id->actor_name[0] && view_names)
-		{
-			if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
-			else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)glColor3f(1.0f,1.0f,1.0f);
-			else glColor3f(1.0f,1.0f,0.0f);
-			//draw_ingame_string(-(strlen(actor_id->actor_name)*SMALL_INGAME_FONT_X_LEN)/2,healtbar_z-0.7f,actor_id->actor_name,1,0);
-			//TODO: use text length function instead of strlen
-			draw_ingame_string(-((float)strlen(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level/3.0))/2.0,healtbar_z+0.03f,actor_id->actor_name,1,0);
-		}
-	glColor3f(1,1,1);
-	*/
 	glPopMatrix();//we don't want to affect the rest of the scene
 	//if(!actor_id->ghost)glEnable(GL_LIGHTING);
 
