@@ -6,7 +6,9 @@ char input_text_line[257];
 int input_text_lenght=0;
 int input_text_lines=1;
 char display_text_buffer[max_display_text_buffer_lenght];
+#ifdef WINDOW_CHAT
 int nr_text_buffer_lines = 0;
+#endif
 
 int display_text_buffer_first=0;
 int display_text_buffer_last=0;
@@ -567,10 +569,10 @@ int find_last_console_lines(int lines_no)
 	return 1;
 }
 
+#ifdef WINDOW_CHAT
 int find_line_nr (int line)
 {
 	int i=-1;
-#ifdef WINDOW_CHAT
 	int line_count = nr_text_buffer_lines - line;
 	
 	for(i=display_text_buffer_last-2;i>=0;i--)
@@ -582,9 +584,9 @@ int find_line_nr (int line)
 					if(line_count<=0)break;
 				}
 		}
-#endif
 	return i+1;
 }
+#endif
 
 void console_move_up()
 {

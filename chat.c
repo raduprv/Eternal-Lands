@@ -1,5 +1,7 @@
 #include "global.h"
 
+#ifdef WINDOW_CHAT
+
 int use_windowed_chat = 0;
 
 int chat_win = 0;
@@ -85,3 +87,5 @@ void display_chat ()
 		select_window (chat_win);
 	}
 }
+
+#endif // def WINDOW_CHAT

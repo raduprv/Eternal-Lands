@@ -164,6 +164,7 @@ int find_last_lines_time();
  */
 int find_last_console_lines(int lines_no);
 
+#ifdef WINDOW_CHAT
 /*!
  * \ingroup text_font
  * \brief finds the position of the beginning of a line
@@ -174,6 +175,7 @@ int find_last_console_lines(int lines_no);
  * \retval The position of the beginning of the line
  */
 int find_line_nr (int line);
+#endif
 
 /*!
  * \ingroup interface_console
