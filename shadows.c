@@ -121,8 +121,8 @@ void display_shadows()
 	int i;
 	int x,y;
 
-	x=-cx;
-	y=-cy;
+	x=(int)-cx;
+	y=(int)-cy;
 	glEnable(GL_CULL_FACE);
 	for(i=0;i<max_obj_3d;i++)
 		{
@@ -133,8 +133,8 @@ void display_shadows()
 						 int dist1;
 						 int dist2;
 
-						 dist1=x-objects_list[i]->x_pos;
-						 dist2=y-objects_list[i]->y_pos;
+						 dist1=x-(int)objects_list[i]->x_pos;
+						 dist2=y-(int)objects_list[i]->y_pos;
 						 if(dist1*dist1+dist2*dist2<=20*20)
 							draw_3d_object_shadow(objects_list[i]);
 					 }
@@ -152,8 +152,8 @@ void display_night_shadows(int phase)
 	float closest_light_dist=100.0f;
 	float next_closest_light_dist=100.0f;
 
-	x=-cx;
-	y=-cy;
+	x=(int)-cx;
+	y=(int)-cy;
 	glEnable(GL_CULL_FACE);
 	for(i=0;i<max_obj_3d;i++)
 		{
@@ -172,8 +172,8 @@ void display_night_shadows(int phase)
 
 					 x_pos=objects_list[i]->x_pos;
 					 y_pos=objects_list[i]->y_pos;
-					 dist1=x-x_pos;
-					 dist2=y-y_pos;
+					 dist1=x-(int)x_pos;
+					 dist2=y-(int)y_pos;
 					 if(dist1*dist1+dist2*dist2<=20*20)
 						{
 							//now, find the closest, or next closest light source, according to
@@ -240,8 +240,8 @@ void display_3d_ground_objects()
 	int i;
 	int x,y;
 
-	x=-cx;
-	y=-cy;
+	x=(int)-cx;
+	y=(int)-cy;
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -264,8 +264,8 @@ void display_3d_ground_objects()
 					 		int dist1;
 					 		int dist2;
 
-							dist1=x-objects_list[i]->x_pos;
-							dist2=y-objects_list[i]->y_pos;
+							dist1=x-(int)objects_list[i]->x_pos;
+							dist2=y-(int)objects_list[i]->y_pos;
 							if(dist1*dist1+dist2*dist2<=25*25)
 								{
 									/*
@@ -307,8 +307,8 @@ void display_3d_non_ground_objects()
 	int i;
 	int x,y;
 
-	x=-cx;
-	y=-cy;
+	x=(int)-cx;
+	y=(int)-cy;
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -331,8 +331,8 @@ void display_3d_non_ground_objects()
 							int dist1;
 							int dist2;
 
-							dist1=x-objects_list[i]->x_pos;
-							dist2=y-objects_list[i]->y_pos;
+							dist1=x-(int)objects_list[i]->x_pos;
+							dist2=y-(int)objects_list[i]->y_pos;
 							if(dist1*dist1+dist2*dist2<=25*25)
 								{
 									/*

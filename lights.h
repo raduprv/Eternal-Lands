@@ -9,7 +9,6 @@ typedef struct
   float r;
   float g;
   float b;
-
 }light;
 
 typedef struct
@@ -67,7 +66,20 @@ extern char lights_on;
 extern unsigned char light_level;
 extern int game_minute;
 
+void draw_test_light();
+void disable_local_lights();
+void enable_local_lights();
+void draw_lights();
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity);
+void update_scene_lights();
+void init_lights();
+void reset_material();
 void set_material(float r, float g, float b);
+void draw_global_light();
+void draw_dungeon_light();
+void make_gradient_light(int start,int steps,float *light_table, float r_start, float g_start, float b_start, float r_end, float g_end, float b_end);
+void build_global_light_table();
+void build_sun_pos_table();
+void new_minute();
 
 #endif

@@ -119,7 +119,6 @@ void draw_3d_object(object3d * object_id)
 				}//is ground
 			else
 				{
-					//BUG HERE!!VVVVVVVVV
 					glNormal3f(0,0,1);
 
 					for(i=0;i<materials_no;i++)
@@ -316,7 +315,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 		}
 
 	// now, allocate the memory
-	our_object = calloc(1, sizeof(object3d));
+	our_object=(object3d*) calloc(1, sizeof(object3d));
 
 	// and fill it in
 	snprintf(our_object->file_name,80,"%s",file_name);
@@ -348,8 +347,8 @@ void display_objects()
 	int i;
 	int x,y;
 
-	x=-cx;
-	y=-cy;
+	x=(int) -cx;
+	y=(int) -cy;
 	check_gl_errors();
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -371,8 +370,8 @@ void display_objects()
 					int dist1;
 					int dist2;
 
-					dist1=x-objects_list[i]->x_pos;
-					dist2=y-objects_list[i]->y_pos;
+					dist1=x-(int)objects_list[i]->x_pos;
+					dist2=y-(int)objects_list[i]->y_pos;
 					if(dist1*dist1+dist2*dist2<=29*29)
 						{
 							float x_len;
@@ -470,10 +469,10 @@ e3d_object * load_e3d(char *file_name)
 	materials_no=our_header.material_no;
 
 	//read the rest of the file (vertex,faces, materials)
-	face_list=calloc(faces_no, our_header.face_size);
+	face_list=(e3d_face*) calloc(faces_no, our_header.face_size);
 	fread(face_list, faces_no, our_header.face_size, f);
 
-	vertex_list=calloc(vertex_no, our_header.vertex_size);
+	vertex_list=(e3d_vertex*) calloc(vertex_no, our_header.vertex_size);
   	if(!vertex_list)
 		{
 			char str[200];
@@ -485,19 +484,19 @@ e3d_object * load_e3d(char *file_name)
 		}
 	fread(vertex_list, vertex_no, our_header.vertex_size, f);
 
-	material_list=calloc(materials_no, our_header.material_size);
+	material_list=(e3d_material*) calloc(materials_no, our_header.material_size);
 	fread(material_list, materials_no, our_header.material_size, f);
 
 	fclose (f);
 
 	//allocate memory for our new, converted structures
-	array_order=calloc(materials_no, sizeof(e3d_array_order));
-	array_vertex=calloc(faces_no*3, sizeof(e3d_array_vertex));
-	array_normal=calloc(faces_no*3, sizeof(e3d_array_normal));
-	array_uv_main=calloc(faces_no*3, sizeof(e3d_array_uv_main));
+	array_order=(e3d_array_order*) calloc(materials_no, sizeof(e3d_array_order));
+	array_vertex=(e3d_array_vertex*) calloc(faces_no*3, sizeof(e3d_array_vertex));
+	array_normal=(e3d_array_normal*) calloc(faces_no*3, sizeof(e3d_array_normal));
+	array_uv_main=(e3d_array_uv_main*) calloc(faces_no*3, sizeof(e3d_array_uv_main));
 
 	// allocate the memory
-	cur_object=calloc(1, sizeof(e3d_object));
+	cur_object=(e3d_object*) calloc(1, sizeof(e3d_object));
 	// and fill in the data
 	cur_object->min_x=our_header.min_x;
 	cur_object->min_y=our_header.min_y;
@@ -550,7 +549,8 @@ e3d_object * load_e3d(char *file_name)
 				start=-1;
 				cur_mat=material_list[i].material_id;
 				//some horses put two materials with the same name
-				//check to see if this si the case, and if it is, skip it
+				//check to see if this is the case, and if it is, skip it
+
 				for(l=0;l<materials_no;l++)
 					{
 						if(material_list[l].material_id==cur_mat && i!=l)
@@ -558,8 +558,9 @@ e3d_object * load_e3d(char *file_name)
 								char str[200];
 								size=0;
 								start=0;
-								sprintf(str,"Bad object: %s . Two or more materials with the same texture name!",file_name);
+								sprintf(str,"Bad object: %s . Two or more materials with the same texture name!\n",file_name);
 								//log_to_console(c_red2,str);
+								log_error(str);
 								goto skip_this_mat;
 							}
 					}
@@ -644,7 +645,7 @@ void compute_clouds_map(object3d * object_id)
 
 	array_vertex=object_id->e3d_data->array_vertex;
 	face_no=object_id->e3d_data->face_no;
-	array_detail=calloc(face_no*3,sizeof(e3d_array_uv_detail));
+	array_detail=(e3d_array_uv_detail*) calloc(face_no*3,sizeof(e3d_array_uv_detail));
 
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;

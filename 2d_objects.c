@@ -36,6 +36,7 @@ void draw_2d_object(obj_2d * object_id)
 	render_x_start=-x_size/2.0f;
 	object_type=obj_def_pointer->object_type;
 	if(object_type==ground)render_y_start=-y_size/2;
+	else	render_y_start= 0;
 
 	//find out what kind of object we have
 	if(object_type==fence)x_rot+=90;
@@ -168,7 +169,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   int u_start,u_end,v_start,v_end;
 
 
-  cur_object=calloc(1, sizeof(obj_2d_def));
+  cur_object=(obj_2d_def*) calloc(1, sizeof(obj_2d_def));
   //get the current directory
   l=strlen(file_name);
   //parse the string backwards, until we find a /
@@ -203,7 +204,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   f_size = ftell (f);
 
   //ok, allocate memory for it
-  obj_file_mem = calloc ( f_size, sizeof(char) );
+  obj_file_mem =(char*) calloc ( f_size, sizeof(char) );
   handle_obj_file_mem = obj_file_mem;
   fseek (f, 0, SEEK_SET);
   fread (obj_file_mem, 1, f_size, f);
@@ -232,7 +233,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   cur_object->alpha_test=alpha_test;
 
   //now  find the texture name
-      texture_file_name=calloc(128, sizeof(char));
+      texture_file_name=(char*) calloc(128, sizeof(char));
 			i=get_string_occurance("texture:",obj_file_mem,40,0);
 			obj_file_mem+=i;
 			k=0;
@@ -266,7 +267,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 						}
 				}
 
-			cur_object->texture_id=load_texture_cache(texture_file_name,0);
+			cur_object->texture_id= load_texture_cache(texture_file_name,0);
 			//now get the object type
 			i=get_string_occurance("type:",obj_file_mem,f_size,0);
 			obj_file_mem+=i;
@@ -354,7 +355,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_
 	obj_2d *our_object;
 	short sector;
 
-	our_object = calloc(1, sizeof(obj_2d));
+	our_object =(obj_2d*) calloc(1, sizeof(obj_2d));
 
 	//find a free spot, in the obj_2d_list
 	i=0;
@@ -390,7 +391,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_
 	obj_2d_list[i]=our_object;
 
 	//get the current sector
-	sector=(y_pos/sector_size_y)*(map_meters_size_x/sector_size_x)+(x_pos/sector_size_x);
+	sector=(short)((y_pos/sector_size_y)*(map_meters_size_x/sector_size_x)+(x_pos/sector_size_x));
 	our_object->sector=sector;
 
 	return i;
@@ -402,8 +403,8 @@ void display_2d_objects()
 	int i;
 	int x,y;
 
-	x=-cx;
-	y=-cy;
+	x= (int)-cx;
+	y= (int)-cy;
 	glDisable(GL_CULL_FACE);
 	for(i=0;i<max_obj_2d;i++)
 		{
@@ -412,8 +413,8 @@ void display_2d_objects()
 			         int dist1;
 			         int dist2;
 
-			         dist1=x-obj_2d_list[i]->x_pos;
-			         dist2=y-obj_2d_list[i]->y_pos;
+			         dist1= x-(int)obj_2d_list[i]->x_pos;
+			         dist2= y-(int)obj_2d_list[i]->y_pos;
 			         if(dist1*dist1+dist2*dist2<=75)
                      draw_2d_object(obj_2d_list[i]);
                  }

@@ -17,7 +17,7 @@ void zoomout(){
 int HandleEvent(SDL_Event *event)
 {
 	int done=0;
-	Uint8 ch;
+	Uint8 ch=0;
 
 	mod_key_status=SDL_GetModState();
 	if(mod_key_status&KMOD_SHIFT)shift_on=1;

@@ -1,13 +1,16 @@
+#include	"global.h"
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 
 #include <gtk/gtk.h>
 
-#include "gui_callbacks.h"
-#include "gui.h"
-#include "gui_support.h"
+//#include "gui_callbacks.h"
+//#include "gui_support.h"
 
+char* selected_file;
+int continue_with;
+GtkWidget* file_selector;
 
 void
 on_ok_button1_clicked                  (GtkButton       *button,

@@ -1,11 +1,10 @@
 #include <SDL.h>
 #include "global.h"
 #include <math.h>
-void Move();
 
 void draw_scene()
 {
-	unsigned char str [180];
+	char str [256];
 	int fps;
 	int y_line;
 	int any_reflection=0;
@@ -119,7 +118,7 @@ void draw_scene()
 	glColor3f(1.0f,1.0f,1.0f);//default color is white
 	sprintf(str, "Sx: %03.1f,Sy: %03.1f, Sz: %03.1f, cx: %03.2f, cy: %03.2f,rx: %03.2f, rz: %03.2f\nFPS: %i, Minute: %i",fLightPos[0],fLightPos[1],fLightPos[2],cx,cy,rx,rz,fps,game_minute);
 
-	draw_string(10,40,str,2);
+	draw_string(10,40,(unsigned char*)str,2);
 	draw_toolbar();
 	if(view_browser)display_browser();
 	if(view_tiles_list)display_tiles_list();

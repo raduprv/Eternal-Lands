@@ -11,14 +11,14 @@ void draw_tile_map()
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
-	if(cx<0)x=(cx*-1)/3;
-	else x=cx/3;
-	if(cy<0)y=(cy*-1)/3;
-	else y=cy/3;
-	x_start=(int)x-zoom_level;
-	y_start=(int)y-zoom_level;
-	x_end=(int)x+zoom_level;
-	y_end=(int)y+zoom_level;
+	if(cx<0)x=(int)(cx*-1)/3;
+	else x=(int)cx/3;
+	if(cy<0)y=(int)(cy*-1)/3;
+	else y=(int)cy/3;
+	x_start=x-(int)zoom_level;
+	y_start=y-(int)zoom_level;
+	x_end=x+(int)zoom_level;
+	y_end=y+(int)zoom_level;
 	if(x_start<0)x_start=0;
 	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
 	if(y_start<0)y_start=0;

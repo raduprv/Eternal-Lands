@@ -27,8 +27,8 @@ void get_3d_object_under_mouse()
 	int x,y;
 
 	selected_3d_object=-1;
-	x=-cx;
-	y=-cy;
+	x=(int)-cx;
+	y=(int)-cy;
 
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
@@ -46,8 +46,8 @@ void get_3d_object_under_mouse()
 			         int dist1;
 			         int dist2;
 
-			         dist1=x-objects_list[i]->x_pos;
-			         dist2=y-objects_list[i]->y_pos;
+			         dist1=x-(int)objects_list[i]->x_pos;
+			         dist2=y-(int)objects_list[i]->y_pos;
 			         if(dist1*dist1+dist2*dist2<=20*20)
                      	draw_3d_object(objects_list[i]);
                      if(evaluate_colision())
@@ -145,8 +145,8 @@ void get_2d_object_under_mouse()
 	int x,y;
 
 	selected_2d_object=-1;
-	x=-cx;
-	y=-cy;
+	x=(int)-cx;
+	y=(int)-cy;
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
@@ -161,8 +161,8 @@ void get_2d_object_under_mouse()
 			         int dist1;
 			         int dist2;
 
-			         dist1=x-obj_2d_list[i]->x_pos;
-			         dist2=y-obj_2d_list[i]->y_pos;
+			         dist1=x-(int)obj_2d_list[i]->x_pos;
+			         dist2=y-(int)obj_2d_list[i]->y_pos;
 			         if(dist1*dist1+dist2*dist2<=20*20)
                      	draw_2d_object(obj_2d_list[i]);
                      if(evaluate_colision())
@@ -210,8 +210,8 @@ void clone_2d_object(int object_id)
 							int dist1;
 							int dist2;
 
-							dist1=scene_mouse_x-obj_2d_list[i]->x_pos;
-							dist2=scene_mouse_y-obj_2d_list[i]->y_pos;
+							dist1=(int)(scene_mouse_x-obj_2d_list[i]->x_pos);
+							dist2=(int)(scene_mouse_y-obj_2d_list[i]->y_pos);
 							if(dist1*dist1+dist2*dist2<=1)
 								collide++;
 						}
@@ -297,8 +297,8 @@ void get_tile_under_mouse_from_list()
 	int tile_id;
 	int mx,my;
 
-	mx=mouse_x-x_tile_menu_offset;
-	my=mouse_y-y_tile_menu_offset;
+	mx=mouse_x-(int)x_tile_menu_offset;
+	my=mouse_y-(int)y_tile_menu_offset;
 
 	if(mx>64*8 || my>64*8 || mx<0 || my<0)return;//check to see if we clicked outside our rectangle
 
@@ -416,8 +416,8 @@ void visualise_lights()
 	int i;
 	int x,y;
 
-	x=-cx;
-	y=-cy;
+	x=(int)-cx;
+	y=(int)-cy;
 
 	glPushMatrix();
 	glLoadIdentity();					// Reset The Matrix
@@ -430,8 +430,8 @@ void visualise_lights()
 			         int dist1;
 			         int dist2;
 
-			         dist1=x-lights_list[i]->pos_x;
-			         dist2=y-lights_list[i]->pos_y;
+			         dist1=x-(int)lights_list[i]->pos_x;
+			         dist2=y-(int)lights_list[i]->pos_y;
 			         if(dist1*dist1+dist2*dist2<=20*20)
                      	draw_light_source(lights_list[i]);
 
@@ -447,8 +447,8 @@ void get_light_under_mouse()
 	int x,y;
 
 	selected_light=-1;
-	x=-cx;
-	y=-cy;
+	x=(int)-cx;
+	y=(int)-cy;
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
@@ -463,8 +463,8 @@ void get_light_under_mouse()
 			         int dist1;
 			         int dist2;
 
-			         dist1=x-lights_list[i]->pos_x;
-			         dist2=y-lights_list[i]->pos_y;
+			         dist1=x-(int)lights_list[i]->pos_x;
+			         dist2=y-(int)lights_list[i]->pos_y;
 			         if(dist1*dist1+dist2*dist2<=20*20)
                      	draw_light_source(lights_list[i]);
                      if(evaluate_colision())
@@ -610,8 +610,8 @@ void get_height_under_mouse_from_list()
 	int height_id;
 	int mx,my;
 
-	mx=mouse_x-x_tile_menu_offset;
-	my=mouse_y-y_tile_menu_offset;
+	mx=mouse_x-(int)x_tile_menu_offset;
+	my=mouse_y-(int)y_tile_menu_offset;
 
 	if(mx>32*8 || my>32*4 || mx<0 || my<0)return;//check to see if we clicked outside our rectangle
 
@@ -629,8 +629,8 @@ void draw_big_height_tile(int size)
 	int x1,x2;
 	int y1,y2;
 
-	x=scene_mouse_x/0.5f;
-	y=scene_mouse_y/0.5f;
+	x=(int)(scene_mouse_x/0.5f);
+	y=(int)(scene_mouse_y/0.5f);
 	if(size==2){
 	  x1=x-5;
 	  x2=x+5;
@@ -669,10 +669,10 @@ void draw_heights_wireframe()
 	int x_start,x_end,y_start,y_end;
 	float x_scaled,y_scaled;
 
-	if(cx<0)x=(cx*-1)/3*6;
-	else x=cx/3;
-	if(cy<0)y=(cy*-1)/3*6;
-	else y=cy/3;
+	if(cx<0)x=(int)((cx*-1.0)/3.0*6.0);
+	else x=(int)(cx/3.0);
+	if(cy<0)y=(int)((cy*-1.0)/3.0*6.0);
+	else y=(int)(cy/3.0);
 	x_start=(int)x-4*6;
 	y_start=(int)y-4*6;
 	x_end=(int)x+4*6;
@@ -716,14 +716,14 @@ void draw_height_map()
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
-	if(cx<0)x=(cx*-1)/3*6;
-	else x=cx/3;
-	if(cy<0)y=(cy*-1)/3*6;
-	else y=cy/3;
-	x_start=(int)x-zoom_level*6;
-	y_start=(int)y-zoom_level*6;
-	x_end=(int)x+zoom_level*6;
-	y_end=(int)y+zoom_level*6;
+	if(cx<0)x=(int)((cx*-1.0)/3.0*6.0);
+	else x=(int)(cx/3.0);
+	if(cy<0)y=(int)((cy*-1.0)/3.0*6.0);
+	else y=(int)(cy/3.0);
+	x_start=x-(int)(zoom_level*6.0);
+	y_start=y-(int)(zoom_level*6.0);
+	x_end=x+(int)(zoom_level*6.0);
+	y_end=y+(int)(zoom_level*6.0);
 	if(x_start<0)x_start=0;
 	if(x_end>=tile_map_size_x*6)x_end=tile_map_size_x*6-1;
 	if(y_start<0)y_start=0;

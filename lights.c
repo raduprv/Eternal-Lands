@@ -107,8 +107,8 @@ void update_scene_lights()
 	float x_dist,y_dist,dist;
 	char all_full=0;
 	char max_changed=0;
-	int max_dist=0;
-	int max_light;
+	float max_dist=0;
+	int max_light=0;
 
 	x=-cx;
 	y=-cy;

@@ -6,23 +6,9 @@
 int start_rendering()
 {
     int done = 0;
-    /*
-    static GLuint texture;
-    int x=0,y=0;
-    int i=0;
-    */
 	/* Loop until done. */
 	while( !done ) {
-	  /*
-		GLenum gl_error;
-		char* sdl_error;
-	  */
 		SDL_Event event;
-/*
-    last_time=cur_time;
-    get_world_x_y();
-    draw_scene();
-*/
 		/* Check if there's a pending event. */
 		
 		while( SDL_PollEvent( &event ) )
@@ -30,15 +16,14 @@ int start_rendering()
 			done = HandleEvent(&event);
 		}
 
-    last_time=cur_time;
-    get_world_x_y();
-    draw_scene();
+    	last_time=cur_time;
+    	get_world_x_y();
+		draw_scene();
 
 #ifdef LINUX
-    while (gtk_events_pending())
-      gtk_main_iteration();
+		while (gtk_events_pending())
+			gtk_main_iteration();
 #endif		
-	
 	}
 
 	/* Destroy our GL context, etc. */ 

@@ -1,6 +1,6 @@
 #include "global.h"
 
-void draw_string(int x, int y,unsigned char * our_string,int max_lines)
+void draw_string(int x, int y,const unsigned char * our_string,int max_lines)
 {
 	float u_start,u_end,v_start,v_end;
 	int col,row;

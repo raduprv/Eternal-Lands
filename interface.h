@@ -57,5 +57,23 @@ extern char alt_on;
 
 extern int buttons_text;
 
+int check_interface_buttons();
+void get_world_x_y();
+void Enter2DMode();
+void Leave2DMode();
+void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,int y_start,int x_end,int y_end);
+void draw_toolbar();
+void draw_3d_obj_info();
+void draw_2d_obj_info();
+void draw_light_info();
+void draw_height_info();
+void display_tiles_list();
+void display_heights_list();
+void check_mouse_minimap();
+void draw_mouse_minimap();
+void draw_minimap();
+void display_new_map_menu();
+void display_map_settings();
+
 #endif
 

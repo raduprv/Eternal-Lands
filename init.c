@@ -1,5 +1,7 @@
 #include "global.h"
 
+void init_colors();
+
 void init_texture_cache()
 {
 	int i;

@@ -237,7 +237,7 @@ void draw_toolbar()
 
 void draw_3d_obj_info()
 {
-	char str[128];
+	unsigned char str[128];
 	int x_menu,y_menu;
 	if(cur_mode!=mode_3d || selected_3d_object==-1)return;
 
@@ -262,70 +262,70 @@ void draw_3d_obj_info()
 	x_menu+=2;
 	y_menu+=2;
 
-	sprintf(str, "X Pos: %03.2f",objects_list[selected_3d_object]->x_pos);
+	sprintf((char *)str, "X Pos: %03.2f",objects_list[selected_3d_object]->x_pos);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Y Pos: %03.2f",objects_list[selected_3d_object]->y_pos);
+	sprintf((char *)str, "Y Pos: %03.2f",objects_list[selected_3d_object]->y_pos);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Z Pos: %03.2f",objects_list[selected_3d_object]->z_pos);
+	sprintf((char *)str, "Z Pos: %03.2f",objects_list[selected_3d_object]->z_pos);
 	draw_string(x_menu,y_menu,str,1);
 /////////////////////////////////////////////////
 	x_menu+=12*12;
 	y_menu-=17*2;
 
-	sprintf(str, "X Rot: %03.2f",objects_list[selected_3d_object]->x_rot);
+	sprintf((char *)str, "X Rot: %03.2f",objects_list[selected_3d_object]->x_rot);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Z Rot: %03.2f",objects_list[selected_3d_object]->z_rot);
+	sprintf((char *)str, "Z Rot: %03.2f",objects_list[selected_3d_object]->z_rot);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Y Rot: %03.2f",objects_list[selected_3d_object]->y_rot);
+	sprintf((char *)str, "Y Rot: %03.2f",objects_list[selected_3d_object]->y_rot);
 	draw_string(x_menu,y_menu,str,1);
 /////////////////////////////////////////////////
 	x_menu+=12*12;
 	y_menu-=17*2;
 
-	sprintf(str, "Red  : %03.2f",objects_list[selected_3d_object]->r);
+	sprintf((char *)str, "Red  : %03.2f",objects_list[selected_3d_object]->r);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Green: %03.2f",objects_list[selected_3d_object]->g);
+	sprintf((char *)str, "Green: %03.2f",objects_list[selected_3d_object]->g);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Blue : %03.2f",objects_list[selected_3d_object]->b);
+	sprintf((char *)str, "Blue : %03.2f",objects_list[selected_3d_object]->b);
 	draw_string(x_menu,y_menu,str,1);
 ///////////////////////////////////////////////////////////////////////
 	x_menu+=12*12;
 	y_menu-=17*2;
 
-	sprintf(str, "[B]lended : %s",objects_list[selected_3d_object]->blended ? "Yes" : "No");
+	sprintf((char *)str, "[B]lended : %s",objects_list[selected_3d_object]->blended ? "Yes" : "No");
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Self [L]it: %s",objects_list[selected_3d_object]->self_lit ? "Yes" : "No");
+	sprintf((char *)str, "Self [L]it: %s",objects_list[selected_3d_object]->self_lit ? "Yes" : "No");
 	draw_string(x_menu,y_menu,str,1);
 
 
 	y_menu+=17;
-	sprintf(str, "Object ID: %i",selected_3d_object);
+	sprintf((char *)str, "Object ID: %i",selected_3d_object);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
 	x_menu-=12*12*3;
-	sprintf(str, "FN: %s",objects_list[selected_3d_object]->file_name);
+	sprintf((char *)str, "FN: %s",objects_list[selected_3d_object]->file_name);
 	draw_string(x_menu,y_menu,str,1);
 
 }
 
 void draw_2d_obj_info()
 {
-	char str[128];
+	unsigned char str[128];
 	int x_menu,y_menu;
 	if(cur_mode!=mode_2d || selected_2d_object==-1)return;
 
@@ -350,41 +350,41 @@ void draw_2d_obj_info()
 	x_menu+=2;
 	y_menu+=2;
 
-	sprintf(str, "X Pos: %03.2f",obj_2d_list[selected_2d_object]->x_pos);
+	sprintf((char *)str, "X Pos: %03.2f",obj_2d_list[selected_2d_object]->x_pos);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Y Pos: %03.2f",obj_2d_list[selected_2d_object]->y_pos);
+	sprintf((char *)str, "Y Pos: %03.2f",obj_2d_list[selected_2d_object]->y_pos);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Z Pos: %03.2f",obj_2d_list[selected_2d_object]->z_pos);
+	sprintf((char *)str, "Z Pos: %03.2f",obj_2d_list[selected_2d_object]->z_pos);
 	draw_string(x_menu,y_menu,str,1);
 /////////////////////////////////////////////////
 	x_menu+=12*12;
 	y_menu-=17*2;
 
-	sprintf(str, "X Rot: %03.2f",obj_2d_list[selected_2d_object]->x_rot);
+	sprintf((char *)str, "X Rot: %03.2f",obj_2d_list[selected_2d_object]->x_rot);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Z Rot: %03.2f",obj_2d_list[selected_2d_object]->z_rot);
+	sprintf((char *)str, "Z Rot: %03.2f",obj_2d_list[selected_2d_object]->z_rot);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Object ID: %i",selected_2d_object);
+	sprintf((char *)str, "Object ID: %i",selected_2d_object);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
 	x_menu-=12*12;
-	sprintf(str, "FN: %s",obj_2d_list[selected_2d_object]->file_name);
+	sprintf((char *)str, "FN: %s",obj_2d_list[selected_2d_object]->file_name);
 	draw_string(x_menu,y_menu,str,1);
 
 }
 
 void draw_light_info()
 {
-	char str[128];
+	unsigned char str[128];
 	int x_menu,y_menu;
 	if(cur_mode!=mode_light || selected_light==-1)return;
 
@@ -409,35 +409,35 @@ void draw_light_info()
 	x_menu+=2;
 	y_menu+=2;
 
-	sprintf(str, "X Pos: %03.2f",lights_list[selected_light]->pos_x);
+	sprintf((char *)str, "X Pos: %03.2f",lights_list[selected_light]->pos_x);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Y Pos: %03.2f",lights_list[selected_light]->pos_y);
+	sprintf((char *)str, "Y Pos: %03.2f",lights_list[selected_light]->pos_y);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Z Pos: %03.2f",lights_list[selected_light]->pos_z);
+	sprintf((char *)str, "Z Pos: %03.2f",lights_list[selected_light]->pos_z);
 	draw_string(x_menu,y_menu,str,1);
 /////////////////////////////////////////////////
 	x_menu+=12*12;
 	y_menu-=17*2;
 
-	sprintf(str, "R: %03.2f",lights_list[selected_light]->r);
+	sprintf((char *)str, "R: %03.2f",lights_list[selected_light]->r);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "G: %03.2f",lights_list[selected_light]->g);
+	sprintf((char *)str, "G: %03.2f",lights_list[selected_light]->g);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "B: %03.2f",lights_list[selected_light]->b);
+	sprintf((char *)str, "B: %03.2f",lights_list[selected_light]->b);
 	draw_string(x_menu,y_menu,str,1);
 
 	x_menu+=12*8;
 	y_menu-=17*2;
 
-	sprintf(str, "Light ID: %i",selected_light);
+	sprintf((char *)str, "Light ID: %i",selected_light);
 	draw_string(x_menu,y_menu,str,1);
 }
 
@@ -445,7 +445,7 @@ void draw_light_info()
 
 void draw_height_info()
 {
-	char str[128];
+	unsigned char str[128];
 	int x_menu,y_menu;
 	if(cur_mode!=mode_height || selected_height==-1)return;
 
@@ -470,15 +470,15 @@ void draw_height_info()
 	x_menu+=2;
 	y_menu+=2;
 
-	sprintf(str, "X Pos: %i",(int)(scene_mouse_x*2.0f));
+	sprintf((char *)str, "X Pos: %i",(int)(scene_mouse_x*2.0f));
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Y Pos: %i",(int)(scene_mouse_y*2.0f));
+	sprintf((char *)str, "Y Pos: %i",(int)(scene_mouse_y*2.0f));
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "Z Pos: %03.2f",(float)selected_height*0.2f-11.0f*0.2f);
+	sprintf((char *)str, "Z Pos: %03.2f",(float)selected_height*0.2f-11.0f*0.2f);
 	draw_string(x_menu,y_menu,str,1);
 }
 
@@ -492,10 +492,10 @@ void display_tiles_list()
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	glColor3f(0.0f,0.0f,0.0f);
-	glVertex3i(x_tile_menu_offset,y_tile_menu_offset+64*4,0);
-	glVertex3i(x_tile_menu_offset,y_tile_menu_offset,0);
-	glVertex3i(x_tile_menu_offset+64*8,y_tile_menu_offset,0);
-	glVertex3i(x_tile_menu_offset+64*8,y_tile_menu_offset+64*4,0);
+	glVertex3i((int)(x_tile_menu_offset),(int)(y_tile_menu_offset)+64*4,0);
+	glVertex3i((int)(x_tile_menu_offset),(int)(y_tile_menu_offset),0);
+	glVertex3i((int)(x_tile_menu_offset)+64*8,(int)(y_tile_menu_offset),0);
+	glVertex3i((int)(x_tile_menu_offset)+64*8,(int)(y_tile_menu_offset)+64*4,0);
 	glColor3f(1.0f,1.0f,1.0f);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -504,11 +504,11 @@ void display_tiles_list()
 		{
 
 			x_start=64*(j%8);
-			x_start+=x_tile_menu_offset;
+			x_start+=(int)x_tile_menu_offset;
 			x_end=x_start+63;
 
 			y_start=64*(j/8);
-			y_start+=y_tile_menu_offset;
+			y_start+=(int)y_tile_menu_offset;
 			y_end=y_start+63;
 
 			if(!i)//we have a lake tile
@@ -558,10 +558,10 @@ void display_heights_list()
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	glColor3f(0.0f,0.0f,0.0f);
-	glVertex3i(x_tile_menu_offset,y_tile_menu_offset+32*4,0);
-	glVertex3i(x_tile_menu_offset,y_tile_menu_offset,0);
-	glVertex3i(x_tile_menu_offset+32*8,y_tile_menu_offset,0);
-	glVertex3i(x_tile_menu_offset+32*8,y_tile_menu_offset+32*4,0);
+	glVertex3i((int)(x_tile_menu_offset),(int)(y_tile_menu_offset)+32*4,0);
+	glVertex3i((int)(x_tile_menu_offset),(int)(y_tile_menu_offset),0);
+	glVertex3i((int)(x_tile_menu_offset)+32*8,(int)(y_tile_menu_offset),0);
+	glVertex3i((int)(x_tile_menu_offset)+32*8,(int)(y_tile_menu_offset)+32*4,0);
 	glColor3f(1.0f,1.0f,1.0f);
 	glEnd();
 
@@ -569,11 +569,11 @@ void display_heights_list()
 		{
 
 			x_start=32*(i%8);
-			x_start+=x_tile_menu_offset;
+			x_start+=(int)x_tile_menu_offset;
 			x_end=x_start+31;
 
 			y_start=32*(i/8);
-			y_start+=y_tile_menu_offset;
+			y_start+=(int)y_tile_menu_offset;
 			y_end=y_start+31;
 
 			change_color_height(i);
@@ -652,7 +652,7 @@ void draw_minimap()
 	int x,y;
 	int sx;
 	int sy=tile_map_size_y;
-	float x_scaled,y_scaled;
+	int x_scaled,y_scaled;
 	int cur_texture;
 	int i;
 
@@ -666,12 +666,12 @@ void draw_minimap()
 	for(y=0;y<tile_map_size_y;y++)
 		{
 			sy--;
-			y_scaled=sy*2;
+			y_scaled=(int)(sy*2.0);
 			sx=0;
 			for(x=0;x<tile_map_size_x;x++)
 				{
 					sx++;
-					x_scaled=sx*2;
+					x_scaled=(int)(sx*2.0);
 					if(!tile_map[y*tile_map_size_x+x])//water
 						{
 							glColor3f(0.0f,0.5f,1.0f);
@@ -680,10 +680,10 @@ void draw_minimap()
 							glDisable(GL_TEXTURE_2D);
 							glBegin(GL_QUADS);
 
-	 						glVertex3i(minimap_x_start+x_scaled,minimap_y_start+y_scaled+2, 0.0f);
-							glVertex3i(minimap_x_start+x_scaled,minimap_y_start+y_scaled, 0.0f);
-							glVertex3i(minimap_x_start+x_scaled+2, minimap_y_start+y_scaled,0.0f);
-							glVertex3i(minimap_x_start+x_scaled+2, minimap_y_start+y_scaled+2,0.0f);
+	 						glVertex3i(minimap_x_start+x_scaled,minimap_y_start+y_scaled+2, 0);
+							glVertex3i(minimap_x_start+x_scaled,minimap_y_start+y_scaled, 0);
+							glVertex3i(minimap_x_start+x_scaled+2, minimap_y_start+y_scaled,0);
+							glVertex3i(minimap_x_start+x_scaled+2, minimap_y_start+y_scaled+2,0);
 
 							glEnd();
 							glEnable(GL_TEXTURE_2D);
@@ -703,13 +703,13 @@ void draw_minimap()
 						}
 
  					glTexCoord2f(0, 1.0f);
-	 				glVertex3i(minimap_x_start+x_scaled,minimap_y_start+y_scaled+2, 0.0f);
+	 				glVertex3i(minimap_x_start+x_scaled,minimap_y_start+y_scaled+2, 0);
 					glTexCoord2f(0, 0);
-					glVertex3i(minimap_x_start+x_scaled,minimap_y_start+y_scaled, 0.0f);
+					glVertex3i(minimap_x_start+x_scaled,minimap_y_start+y_scaled, 0);
 					glTexCoord2f(1.0f, 0);
-					glVertex3i(minimap_x_start+x_scaled+2, minimap_y_start+y_scaled,0.0f);
+					glVertex3i(minimap_x_start+x_scaled+2, minimap_y_start+y_scaled,0);
 					glTexCoord2f(1.0f, 1.0f);
-					glVertex3i(minimap_x_start+x_scaled+2, minimap_y_start+y_scaled+2,0.0f);
+					glVertex3i(minimap_x_start+x_scaled+2, minimap_y_start+y_scaled+2,0);
 				}
 		}
 	glEnd();
@@ -724,8 +724,8 @@ void draw_minimap()
 			         int x;
 			         int y;
 
-			         x=objects_list[i]->x_pos/3;
-			         y=objects_list[i]->y_pos/3;
+			         x=(int)objects_list[i]->x_pos/3;
+			         y=(int)objects_list[i]->y_pos/3;
 			         glVertex3i(minimap_x_start+x*2, minimap_y_start+(tile_map_size_y-y)*2,0);
                  }
 		}
@@ -764,7 +764,7 @@ void display_new_map_menu()
 	y_menu+=2;
 
 	glColor3f(1.0f,1.0f,0.0f);
-	draw_string(x_menu,y_menu,"    Map Size",1);
+	draw_string(x_menu,y_menu,(unsigned char *)"    Map Size",1);
 
 	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
 	map_size=0;
@@ -772,7 +772,7 @@ void display_new_map_menu()
 	if(map_size==0)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
 	y_menu+=17;
-	draw_string(x_menu,y_menu,"Very Small [16x16]",1);
+	draw_string(x_menu,y_menu,(unsigned char *)"Very Small [16x16]",1);
 
 	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
 	map_size=1;
@@ -780,7 +780,7 @@ void display_new_map_menu()
 	if(map_size==1)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
 	y_menu+=17;
-	draw_string(x_menu,y_menu,"Small      [32x32]",1);
+	draw_string(x_menu,y_menu,(unsigned char *)"Small      [32x32]",1);
 
 	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
 	map_size=2;
@@ -788,7 +788,7 @@ void display_new_map_menu()
 	if(map_size==2)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
 	y_menu+=17;
-	draw_string(x_menu,y_menu,"Medium     [64x64]",1);
+	draw_string(x_menu,y_menu,(unsigned char *)"Medium     [64x64]",1);
 
 	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
 	map_size=3;
@@ -797,7 +797,7 @@ void display_new_map_menu()
 	if(map_size==3)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
 	y_menu+=17;
-	draw_string(x_menu,y_menu,"Large      [128x128]",1);
+	draw_string(x_menu,y_menu,(unsigned char *)"Large      [128x128]",1);
 
 	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
 	map_size=4;
@@ -805,7 +805,7 @@ void display_new_map_menu()
 	if(map_size==4)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
 	y_menu+=17;
-	draw_string(x_menu,y_menu,"Huge       [256x256]",1);
+	draw_string(x_menu,y_menu,(unsigned char *)"Huge       [256x256]",1);
 
 	y_menu+=17;
 	//test for OK
@@ -829,13 +829,13 @@ void display_new_map_menu()
 
 	y_menu+=17;
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(x_menu,y_menu,"   [Ok]    [Cancel]",1);
+	draw_string(x_menu,y_menu,(unsigned char *)"   [Ok]    [Cancel]",1);
 
 }
 
 void display_map_settings()
 {
-	char str[128];
+	unsigned char str[128];
 	int x_menu,y_menu;
 	if(cur_mode!=mode_map)return;
 
@@ -860,21 +860,21 @@ void display_map_settings()
 	x_menu+=2;
 	y_menu+=2;
 
-	sprintf(str, "R: %03.2f",ambient_r);
+	sprintf((char *)str, "R: %03.2f",ambient_r);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "G: %03.2f",ambient_g);
+	sprintf((char *)str, "G: %03.2f",ambient_g);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf(str, "B: %03.2f",ambient_b);
+	sprintf((char *)str, "B: %03.2f",ambient_b);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu-=17*2;
 	x_menu+=90;
 
-	sprintf(str, "[D]ungeon: %s",dungeon ? "Yes" : "No");
+	sprintf((char *)str, "[D]ungeon: %s",dungeon ? "Yes" : "No");
 	draw_string(x_menu,y_menu,str,1);
 
 }

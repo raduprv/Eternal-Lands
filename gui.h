@@ -7,7 +7,8 @@
 #define OPEN_MAP    3
 #define SAVE_MAP    4
 
-char* selected_file;
-int continue_with;
-GtkWidget* file_selector;
-GtkWidget* create_fileselection (void);
+extern char* selected_file;
+extern int continue_with;
+extern GtkWidget* file_selector;
+extern GtkWidget* create_fileselection (void);
+

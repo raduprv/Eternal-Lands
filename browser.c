@@ -46,6 +46,7 @@ void setobject(int n, char *fn)
 void display_browser()
 {
    int i=0,x=browser_menu_x+2,y=browser_menu_y+2;
+
    //title bar
    //draw_menu_title_bar(browser_menu_x,browser_menu_y-16,browser_menu_x_len);
    // window drawing
@@ -100,18 +101,18 @@ void display_browser()
    // The X
 	
 	if(cd!=-1){
-		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+160,"B",1);
-		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+180,"A",1);
-		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+200,"C",1);
-		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+220,"K",1);
+		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+160,(unsigned char *)"B",1);
+		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+180,(unsigned char *)"A",1);
+		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+200,(unsigned char *)"C",1);
+		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+220,(unsigned char *)"K",1);
    }
 
-   draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+2,"X",1);
+   draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+2,(unsigned char *)"X",1);
 
    if(cd==-1){ //display dir select menu
 	   int i,y=2;
 	   for(i=0;i<dc;i++){
-		   draw_string(browser_menu_x+2,browser_menu_y+y,Dir[i].DirName,1);
+		   draw_string(browser_menu_x+2,browser_menu_y+y,(unsigned char *)Dir[i].DirName,1);
 		   y+=18;
 	   }
 
@@ -188,10 +189,10 @@ void display_browser()
 		Enter2DMode();
 
 		// Object names
-		draw_string(browser_menu_x+2,browser_menu_y+200-18,Dir[cd].Files[i],1);
-		draw_string(browser_menu_x+2,browser_menu_y+400-18,Dir[cd].Files[i+1],1);
-		draw_string(browser_menu_x+202,browser_menu_y+200-18,Dir[cd].Files[i+2],1);
-		draw_string(browser_menu_x+202,browser_menu_y+400-18,Dir[cd].Files[i+3],1);
+		draw_string(browser_menu_x+2,browser_menu_y+200-18,(unsigned char *)Dir[cd].Files[i],1);
+		draw_string(browser_menu_x+2,browser_menu_y+400-18,(unsigned char *)Dir[cd].Files[i+1],1);
+		draw_string(browser_menu_x+202,browser_menu_y+200-18,(unsigned char *)Dir[cd].Files[i+2],1);
+		draw_string(browser_menu_x+202,browser_menu_y+400-18,(unsigned char *)Dir[cd].Files[i+3],1);
 
    }
 
@@ -282,6 +283,7 @@ int check_browser_interface()
 
 void add_dir(char *n)
 {
+#ifdef	WINDOWS
 	char execp[256];
 	struct _finddata_t c_file;
     long hFile;
@@ -304,6 +306,7 @@ void add_dir(char *n)
 		Dir[dc].nf++;
 	}
 	dc++;
+#endif
 }
 
 void init_browser()
@@ -343,6 +346,7 @@ void init_browser()
 		DIR * dir2;
 		char temp[256];
 		int i=0;
+
 		strcpy(temp,exec_path);
 		strcat(temp,"/3dobjects/");
 		strcat(temp,ffile->d_name);

@@ -101,10 +101,10 @@ int find_reflection()
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
-	if(cx<0)x=(cx*-1)/3;
-	else x=cx/3;
-	if(cy<0)y=(cy*-1)/3;
-	else y=cy/3;
+	if(cx<0)x=(int)(cx*-1)/3;
+	else x=(int)cx/3;
+	if(cy<0)y=(int)(cy*-1)/3;
+	else y=(int)cy/3;
 	x_start=(int)x-4;
 	y_start=(int)y-4;
 	x_end=(int)x+4;
@@ -162,8 +162,8 @@ void display_3d_reflection()
 	int x,y;
 	double water_clipping_p[4]={0,0,-1,water_deepth_offset};
 
-	x=-cx;
-	y=-cy;
+	x=(int)-cx;
+	y=(int)-cy;
 
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
@@ -185,8 +185,8 @@ void display_3d_reflection()
 			         		int dist1;
 			         		int dist2;
 
-			         		dist1=x-objects_list[i]->x_pos;
-			         		dist2=y-objects_list[i]->y_pos;
+			         		dist1=x-(int)objects_list[i]->x_pos;
+			         		dist2=y-(int)objects_list[i]->y_pos;
 			         		if(dist1*dist1+dist2*dist2<=21*21)
 			         			{
 									float x_len, y_len, z_len;
@@ -196,7 +196,7 @@ void display_3d_reflection()
 									x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
 									y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
 									//do some checks, to see if we really have to display this object
-									if(x_len<5 && y_len<5 && z_len<4 && !find_local_reflection(objects_list[i]->x_pos,objects_list[i]->y_pos,1))continue;
+									if(x_len<5 && y_len<5 && z_len<4 && !find_local_reflection((int)objects_list[i]->x_pos,(int)objects_list[i]->y_pos,1))continue;
 
 									radius=x_len/2;
 									if(radius<y_len/2)radius=y_len/2;
@@ -292,14 +292,14 @@ void draw_lake_tiles()
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
-	if(cx<0)x=(cx*-1)/3;
-	else x=cx/3;
-	if(cy<0)y=(cy*-1)/3;
-	else y=cy/3;
-	x_start=(int)x-zoom_level;
-	y_start=(int)y-zoom_level;
-	x_end=(int)x+zoom_level;
-	y_end=(int)y+zoom_level;
+	if(cx<0)x=(int)(cx*-1)/3;
+	else x=(int)cx/3;
+	if(cy<0)y=(int)(cy*-1)/3;
+	else y=(int)cy/3;
+	x_start=x-(int)zoom_level;
+	y_start=y-(int)zoom_level;
+	x_end=x+(int)zoom_level;
+	y_end=y+(int)zoom_level;
 	if(x_start<0)x_start=0;
 	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
 	if(y_start<0)y_start=0;

@@ -299,7 +299,7 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 	free(file_mem_start);
 	free(read_buffer);
 	fclose (f);
-	return texture_mem;
+	return (char *)texture_mem;
 //ok, now, hopefully, the file is loaded and converted...
 //so, assign the texture, and such
 }
@@ -387,7 +387,7 @@ char * load_bmp8_alpha_map(char * FileName)
 	free(file_mem_start);
 	free(read_buffer);
 	fclose(f);
-	return texture_mem;
+	return (char *)texture_mem;
 }
 
 //Tests to see if a texture is already loaded. If it is, return the handle.
@@ -468,7 +468,8 @@ int get_texture_id(int i)
 //load a bmp texture, and remaps it
 GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a,char skin, char hair, char shirt, char pants, char boots)
 {
-	int i,x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry;
+	int i,x,y,x_padding,x_size,y_size,colors_no,current_pallete_entry;
+	float r=0,g=0,b=0;
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * texture_mem;
@@ -718,10 +719,10 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a,char skin, char hair, ch
 					r=*(color_pallete+current_pallete_entry*4+2);
 				}
 
-				*(texture_mem+(y*x_size+x)*4)=r;
-				*(texture_mem+(y*x_size+x)*4+1)=g;
-				*(texture_mem+(y*x_size+x)*4+2)=b;
-				*(texture_mem+(y*x_size+x)*4+3)=a;
+				*(texture_mem+(y*x_size+x)*4)=(unsigned char)r;
+				*(texture_mem+(y*x_size+x)*4+1)=(unsigned char)g;
+				*(texture_mem+(y*x_size+x)*4+2)=(unsigned char)b;
+				*(texture_mem+(y*x_size+x)*4+3)=(unsigned char)a;
 			}
 
 		}
