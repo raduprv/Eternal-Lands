@@ -306,6 +306,11 @@
  * 		Shows the trade window
  * \ingroup	windows
  */
+/*!
+ * \defgroup    help_win The help window
+ *      Shows the help window
+ * \ingroup windows
+ */
 
 ///////////////////////////////////////////////////////////////////////////////
 //		      Interfaces (root windows) in EL			     //
