@@ -18,6 +18,7 @@ extern int have_music;
 extern int sound_on;
 extern int music_on;
 extern int no_sound;
+extern int playing_music;
 
 extern ALfloat sound_gain;
 extern ALfloat music_gain;
