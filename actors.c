@@ -270,13 +270,54 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 	numFaces=model_data->numFaces;
 	check_gl_errors();
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
-	glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
+#ifdef	USE_VERTEXARRAYS
+	if(use_vertex_array && model_data->offsetFrames[frame].vertex_array)
+		{
+			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
+			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 
-	check_gl_errors();
-	if(have_compiled_vertex_array)glLockArraysEXT(0, numFaces*3);
-	glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
-	if(have_compiled_vertex_array)glUnlockArraysEXT();
+			check_gl_errors();
+			if(have_compiled_vertex_array)glLockArraysEXT(0, numFaces*3);
+			glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
+			if(have_compiled_vertex_array)glUnlockArraysEXT();
+		}
+	else
+#endif	//USE_VERTEXARRAYS
+		{
+			int i;
+			text_coord_md2 *offsetTexCoords;
+			face_md2 *offsetFaces;
+			vertex_md2 *vertex_pointer=NULL;
+			//setup
+			glBegin(GL_TRIANGLES);
+			vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
+			offsetFaces=model_data->offsetFaces;
+			offsetTexCoords=model_data->offsetTexCoords;
+			//draw each triangle
+			for(i=0;i<numFaces;i++)
+				{
+					float x,y,z;
+
+					glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+					x=vertex_pointer[offsetFaces[i].a].x;
+					y=vertex_pointer[offsetFaces[i].a].y;
+					z=vertex_pointer[offsetFaces[i].a].z;
+					glVertex3f(x,y,z);
+
+					glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+					x=vertex_pointer[offsetFaces[i].b].x;
+					y=vertex_pointer[offsetFaces[i].b].y;
+					z=vertex_pointer[offsetFaces[i].b].z;
+					glVertex3f(x,y,z);
+
+					glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+					x=vertex_pointer[offsetFaces[i].c].x;
+					y=vertex_pointer[offsetFaces[i].c].y;
+					z=vertex_pointer[offsetFaces[i].c].z;
+					glVertex3f(x,y,z);
+				}
+			glEnd();
+		}
 	check_gl_errors();
 }
 

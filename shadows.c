@@ -135,7 +135,7 @@ void draw_3d_object_shadow(object3d * object_id)
 void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 {
 	int i;
-    int numFaces;
+	int numFaces;
 
 	//now, go and find the current frame
 	i = get_frame_number(model_data, cur_frame);
@@ -143,10 +143,46 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 	numFaces=model_data->numFaces;
 
 	check_gl_errors();
-	glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[i].vertex_array);
-	if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
-	glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
-	if(have_compiled_vertex_array)glUnlockArraysEXT();
+#ifdef	USE_VERTEXARRAYS
+	if(use_vertex_array && model_data->offsetFrames[i].vertex_array)
+		{
+			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[i].vertex_array);
+			if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
+			glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
+			if(have_compiled_vertex_array)glUnlockArraysEXT();
+		}
+	else
+#endif	//USE_VERTEXARRAYS
+		{
+			int i;
+			face_md2 *offsetFaces;
+			vertex_md2 *vertex_pointer=NULL;
+			//setup
+			glBegin(GL_TRIANGLES);
+			vertex_pointer=model_data->offsetFrames[i].vertex_pointer;
+			offsetFaces=model_data->offsetFaces;
+			//draw each triangle
+			for(i=0;i<numFaces;i++)
+				{
+					float x,y,z;
+
+					x=vertex_pointer[offsetFaces[i].a].x;
+					y=vertex_pointer[offsetFaces[i].a].y;
+					z=vertex_pointer[offsetFaces[i].a].z;
+					glVertex3f(x,y,z);
+
+					x=vertex_pointer[offsetFaces[i].b].x;
+					y=vertex_pointer[offsetFaces[i].b].y;
+					z=vertex_pointer[offsetFaces[i].b].z;
+					glVertex3f(x,y,z);
+
+					x=vertex_pointer[offsetFaces[i].c].x;
+					y=vertex_pointer[offsetFaces[i].c].y;
+					z=vertex_pointer[offsetFaces[i].c].z;
+					glVertex3f(x,y,z);
+				}
+			glEnd();
+		}
 	check_gl_errors();
 }
 

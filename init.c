@@ -57,9 +57,9 @@ void read_config()
 	Uint8 * file_mem_start;
 	int k,server_address_offset;
 
-  	f=fopen("el.ini","rb");
-  	if(!f)//oops, the file doesn't exist, use the defaults
-  		{
+	f=fopen("el.ini","rb");
+	if(!f)//oops, the file doesn't exist, use the defaults
+		{
 			char str[120];
 			sprintf(str, "Fatal: couldn't read configuration file el.ini\n");
 			log_error(str);
@@ -67,39 +67,44 @@ void read_config()
 			exit(1);
 		}
 
-  	file_mem = (Uint8 *) calloc(MAX_INI_FILE+2, sizeof(Uint8));
-  	file_mem_start=file_mem;
-  	fread (file_mem, 1, MAX_INI_FILE+1, f);
-  	//ok, now start to parse the file...
-  	video_mode=get_integer_after_string("#video_mode",file_mem,MAX_INI_FILE);
-  	shadows_on=get_integer_after_string("#shadows_on",file_mem,MAX_INI_FILE);
-  	poor_man=get_integer_after_string("#poor_man",file_mem,MAX_INI_FILE);
-  	show_reflection=get_integer_after_string("#show_reflection",file_mem,MAX_INI_FILE);
+	file_mem = (Uint8 *) calloc(MAX_INI_FILE+2, sizeof(Uint8));
+	file_mem_start=file_mem;
+	fread (file_mem, 1, MAX_INI_FILE+1, f);
+	//ok, now start to parse the file...
+	video_mode=get_integer_after_string("#video_mode",file_mem,MAX_INI_FILE);
+	shadows_on=get_integer_after_string("#shadows_on",file_mem,MAX_INI_FILE);
+	poor_man=get_integer_after_string("#poor_man",file_mem,MAX_INI_FILE);
+	show_reflection=get_integer_after_string("#show_reflection",file_mem,MAX_INI_FILE);
 	if(show_reflection==-1)show_reflection=1;
 	show_fps=get_integer_after_string("#show_fps",file_mem,MAX_INI_FILE);
 	if(show_fps==-1)show_fps=1;
-  	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,MAX_INI_FILE);
+	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,MAX_INI_FILE);
 	if(mouse_limit==-1)mouse_limit=15;
-  	full_screen=get_integer_after_string("#full_screen",file_mem,MAX_INI_FILE);
-  	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,MAX_INI_FILE);
+	full_screen=get_integer_after_string("#full_screen",file_mem,MAX_INI_FILE);
+	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,MAX_INI_FILE);
+#ifdef	USE_VERTEXARRAYS
+	use_vertex_array=get_integer_after_string("use_vertex_array",file_mem,MAX_INI_FILE);
+	if(use_vertex_array < 0) use_vertex_array=0;
+	else log_to_console(c_green2,"Vertex Arrays enabled (memory hog on!)...");
+#endif	//USE_VERTEXARRAYS
 	sit_lock=get_integer_after_string("#sit_lock",file_mem,MAX_INI_FILE);
 	if(sit_lock==-1)sit_lock=0;
-  	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,MAX_INI_FILE);
-  	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,MAX_INI_FILE);
-  	save_ignores=get_integer_after_string("#save_ignores",file_mem,MAX_INI_FILE);
-  	log_server=get_integer_after_string("#log_server",file_mem,MAX_INI_FILE);
-  	no_sound=get_integer_after_string("#no_sound",file_mem,MAX_INI_FILE);
-  	normal_camera_rotation_speed=get_float_after_string("#normal_camera_rotation_speed",file_mem,MAX_INI_FILE);
-  	fine_camera_rotation_speed=get_float_after_string("#fine_camera_rotation_speed",file_mem,MAX_INI_FILE);
-  	name_zoom=get_float_after_string("#name_text_size",file_mem,MAX_INI_FILE);
+	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,MAX_INI_FILE);
+	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,MAX_INI_FILE);
+	save_ignores=get_integer_after_string("#save_ignores",file_mem,MAX_INI_FILE);
+	log_server=get_integer_after_string("#log_server",file_mem,MAX_INI_FILE);
+	no_sound=get_integer_after_string("#no_sound",file_mem,MAX_INI_FILE);
+	normal_camera_rotation_speed=get_float_after_string("#normal_camera_rotation_speed",file_mem,MAX_INI_FILE);
+	fine_camera_rotation_speed=get_float_after_string("#fine_camera_rotation_speed",file_mem,MAX_INI_FILE);
+	name_zoom=get_float_after_string("#name_text_size",file_mem,MAX_INI_FILE);
 	if(name_zoom<0.25f)name_zoom=1.0f;
-  	chat_zoom=get_float_after_string("#chat_text_size",file_mem,MAX_INI_FILE);
+	chat_zoom=get_float_after_string("#chat_text_size",file_mem,MAX_INI_FILE);
 	if(chat_zoom<0.25f)chat_zoom=1.0f;
-  	name_font=get_integer_after_string("#name_font",file_mem,MAX_INI_FILE);
-  	chat_font=get_integer_after_string("#chat_font",file_mem,MAX_INI_FILE);
+	name_font=get_integer_after_string("#name_font",file_mem,MAX_INI_FILE);
+	chat_font=get_integer_after_string("#chat_font",file_mem,MAX_INI_FILE);
 
-  	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,MAX_INI_FILE);
-  	port=get_integer_after_string("#server_port",file_mem,MAX_INI_FILE);
+	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,MAX_INI_FILE);
+	port=get_integer_after_string("#server_port",file_mem,MAX_INI_FILE);
 
 	//handle multiple setting changes if poor_man is on
 	if(poor_man)
@@ -109,23 +114,23 @@ void read_config()
 			clouds_shadows=1;
 		}
 
-  	//ok, now get the server address
-  	server_address_offset=get_string_after_string("#server_address",file_mem,MAX_INI_FILE,server_address, 70);
+	//ok, now get the server address
+	server_address_offset=get_string_after_string("#server_address",file_mem,MAX_INI_FILE,server_address, 70);
 
-  	//ok, now get the current browser
-  	server_address_offset=get_string_after_string("#browser",file_mem,MAX_INI_FILE,broswer_name,70);
+	//ok, now get the current browser
+	server_address_offset=get_string_after_string("#browser",file_mem,MAX_INI_FILE,broswer_name,70);
 
 	//check for a different default text filter phrase
-  	get_string_after_string("#text_filter_replace",file_mem,MAX_INI_FILE,text_filter_replace,127);
+	get_string_after_string("#text_filter_replace",file_mem,MAX_INI_FILE,text_filter_replace,127);
 
 	// now the default user and password
-  	get_string_after_string("#username",file_mem,MAX_INI_FILE,username_str,16);
-  	get_string_after_string("#password",file_mem,MAX_INI_FILE,password_str,16);
+	get_string_after_string("#username",file_mem,MAX_INI_FILE,username_str,16);
+	get_string_after_string("#password",file_mem,MAX_INI_FILE,password_str,16);
 	for(k=0;k<strlen(password_str);k++) display_password_str[k]='*';
 	display_password_str[k]=0;
 
-  	if(video_mode>10 || video_mode<=0)
-  		{
+	if(video_mode>10 || video_mode<=0)
+		{
 			Uint8 str[80];
 			video_mode=2;
 			//warn about this error
@@ -135,8 +140,8 @@ void read_config()
 		}
 	setup_video_mode(full_screen,video_mode);
 
-  	fclose(f);
-  	free(file_mem_start);
+	fclose(f);
+	free(file_mem_start);
 }
 
 void read_bin_cfg()
@@ -144,34 +149,34 @@ void read_bin_cfg()
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
 
-  	f=fopen("el.cfg","rb");
-  	if(!f)return;//no config file, use defaults
+	f=fopen("el.cfg","rb");
+	if(!f)return;//no config file, use defaults
 
-  	fread(&cfg_mem,1,sizeof(cfg_mem),f);
-  	fclose(f);
+	fread(&cfg_mem,1,sizeof(cfg_mem),f);
+	fclose(f);
 
-  	//good, retrive the data
-  	items_menu_x=cfg_mem.items_menu_x;
-  	items_menu_y=cfg_mem.items_menu_y;
+	//good, retrive the data
+	items_menu_x=cfg_mem.items_menu_x;
+	items_menu_y=cfg_mem.items_menu_y;
 
-  	ground_items_menu_x=cfg_mem.ground_items_menu_x;
-  	ground_items_menu_y=cfg_mem.ground_items_menu_y;
+	ground_items_menu_x=cfg_mem.ground_items_menu_x;
+	ground_items_menu_y=cfg_mem.ground_items_menu_y;
 
 
-  	trade_menu_x=cfg_mem.trade_menu_x;
-  	trade_menu_y=cfg_mem.trade_menu_y;
+	trade_menu_x=cfg_mem.trade_menu_x;
+	trade_menu_y=cfg_mem.trade_menu_y;
 
-  	sigil_menu_x=cfg_mem.sigil_menu_x;
-  	sigil_menu_y=cfg_mem.sigil_menu_y;
+	sigil_menu_x=cfg_mem.sigil_menu_x;
+	sigil_menu_y=cfg_mem.sigil_menu_y;
 
-  	dialogue_menu_x=cfg_mem.dialogue_menu_x;
-  	dialogue_menu_y=cfg_mem.dialogue_menu_y;
+	dialogue_menu_x=cfg_mem.dialogue_menu_x;
+	dialogue_menu_y=cfg_mem.dialogue_menu_y;
 
-  	manufacture_menu_x=cfg_mem.manufacture_menu_x;
-  	manufacture_menu_y=cfg_mem.manufacture_menu_y;
+	manufacture_menu_x=cfg_mem.manufacture_menu_x;
+	manufacture_menu_y=cfg_mem.manufacture_menu_y;
 
-  	attrib_menu_x=cfg_mem.attrib_menu_x;
-  	attrib_menu_y=cfg_mem.attrib_menu_y;
+	attrib_menu_x=cfg_mem.attrib_menu_x;
+	attrib_menu_y=cfg_mem.attrib_menu_y;
 
 	options_menu_x=cfg_mem.options_menu_x;
 	options_menu_y=cfg_mem.options_menu_y;
@@ -183,30 +188,30 @@ void save_bin_cfg()
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
 
-  	f=fopen("el.cfg","wb");
-  	if(!f)return;//blah, whatever
+	f=fopen("el.cfg","wb");
+	if(!f)return;//blah, whatever
 
-  	//good, retrive the data
-  	cfg_mem.items_menu_x=items_menu_x;
-  	cfg_mem.items_menu_y=items_menu_y;
+	//good, retrive the data
+	cfg_mem.items_menu_x=items_menu_x;
+	cfg_mem.items_menu_y=items_menu_y;
 
-  	cfg_mem.ground_items_menu_x=ground_items_menu_x;
-  	cfg_mem.ground_items_menu_y=ground_items_menu_y;
+	cfg_mem.ground_items_menu_x=ground_items_menu_x;
+	cfg_mem.ground_items_menu_y=ground_items_menu_y;
 
-  	cfg_mem.trade_menu_x=trade_menu_x;
-  	cfg_mem.trade_menu_y=trade_menu_y;
+	cfg_mem.trade_menu_x=trade_menu_x;
+	cfg_mem.trade_menu_y=trade_menu_y;
 
-  	cfg_mem.sigil_menu_x=sigil_menu_x;
-  	cfg_mem.sigil_menu_y=sigil_menu_y;
+	cfg_mem.sigil_menu_x=sigil_menu_x;
+	cfg_mem.sigil_menu_y=sigil_menu_y;
 
-  	cfg_mem.dialogue_menu_x=dialogue_menu_x;
-  	cfg_mem.dialogue_menu_y=dialogue_menu_y;
+	cfg_mem.dialogue_menu_x=dialogue_menu_x;
+	cfg_mem.dialogue_menu_y=dialogue_menu_y;
 
-  	cfg_mem.manufacture_menu_x=manufacture_menu_x;
-  	cfg_mem.manufacture_menu_y=manufacture_menu_y;
+	cfg_mem.manufacture_menu_x=manufacture_menu_x;
+	cfg_mem.manufacture_menu_y=manufacture_menu_y;
 
-  	cfg_mem.attrib_menu_x=attrib_menu_x;
-  	cfg_mem.attrib_menu_y=attrib_menu_y;
+	cfg_mem.attrib_menu_x=attrib_menu_x;
+	cfg_mem.attrib_menu_y=attrib_menu_y;
 
 	cfg_mem.options_menu_x=options_menu_x;
 	cfg_mem.options_menu_y=options_menu_y;
@@ -272,8 +277,8 @@ void init_stuff()
 	init_video();
 	resize_window();
 
-    seed = time (NULL);
-  	srand (seed);
+	seed = time (NULL);
+	srand (seed);
 
 	init_texture_cache();
 	init_md2_cache();
@@ -316,9 +321,9 @@ void init_stuff()
 	read_bin_cfg();
 
 
-    if(!no_sound)init_sound();
+	if(!no_sound)init_sound();
 
-    //now load the multitexturing extension
+	//now load the multitexturing extension
 #ifdef WINDOWS
 	glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
 	glMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
@@ -342,7 +347,6 @@ void init_stuff()
 			have_multitexture=1;
 			log_to_console(c_green2,"GL_ARB_multitexture extension found, using it");
 		}
-
 	have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
 	if(have_compiled_vertex_array < 0)
 		{
@@ -387,31 +391,31 @@ void init_stuff()
 	init_peace_icons_position();
 	make_sigils_list();
 
-    if(SDLNet_Init()<0)
-   		{
-            char str[120];
-            sprintf(str,"Couldn't initialize net: %s\n",SDLNet_GetError());
-            log_error(str);
+	if(SDLNet_Init()<0)
+ 		{
+			char str[120];
+			sprintf(str,"Couldn't initialize net: %s\n",SDLNet_GetError());
+			log_error(str);
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(2);
 		}
 
-    if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
-        {
-   		    char str[120];
-    		sprintf(str, "Couldn't initialize the timer: %s\n", SDL_GetError());
-    		log_error(str);
-    		SDL_Quit();
-	       	exit(1);
-        }
+	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
+		{
+ 			char str[120];
+			sprintf(str, "Couldn't initialize the timer: %s\n", SDL_GetError());
+			log_error(str);
+			SDL_Quit();
+		 	exit(1);
+		}
 	SDL_SetTimer (1000/(18*4), my_timer_pointer);
 
-    //we might want to do this later.
-    connect_to_server();
+	//we might want to do this later.
+	connect_to_server();
 
-    //VERY test
-    //play_music();
+	//VERY test
+	//play_music();
 
 }
 

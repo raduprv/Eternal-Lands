@@ -408,6 +408,7 @@ float clouds_movement_u=-8;
 float clouds_movement_v=-3;
 int last_clear_clouds=0;
 int reflection_texture;
+int use_vertex_array=0;
 int have_compiled_vertex_array=0;
 
 int shift_on;

@@ -89,20 +89,23 @@ md2 * load_md2(char * file_name)
 			text_coord_pointer[i].v=1.0f-(float)file_text_coord_pointer[i].v/(float)file_header.skinHeight;
 		}
 	free(file_text_coord_pointer);
-
-	// allocate the space for a full texture coord array
-	our_md2->text_coord_array= calloc(file_header.numFaces, sizeof(text_coord_md2)*3);
-	//now, convert the coords to VA format
-	for(k=0;k<file_header.numFaces;k++)
+#ifdef	USE_VERTEXARRAYS
+	if(use_vertex_array)
 		{
-			our_md2->text_coord_array[k*3].u=text_coord_pointer[face_pointer[k].at].u;
-			our_md2->text_coord_array[k*3].v=text_coord_pointer[face_pointer[k].at].v;
-			our_md2->text_coord_array[k*3+1].u=text_coord_pointer[face_pointer[k].bt].u;
-			our_md2->text_coord_array[k*3+1].v=text_coord_pointer[face_pointer[k].bt].v;
-			our_md2->text_coord_array[k*3+2].u=text_coord_pointer[face_pointer[k].ct].u;
-			our_md2->text_coord_array[k*3+2].v=text_coord_pointer[face_pointer[k].ct].v;
+			// allocate the space for a full texture coord array
+			our_md2->text_coord_array= calloc(file_header.numFaces, sizeof(text_coord_md2)*3);
+			//now, convert the coords to VA format
+			for(k=0;k<file_header.numFaces;k++)
+				{
+					our_md2->text_coord_array[k*3].u=text_coord_pointer[face_pointer[k].at].u;
+					our_md2->text_coord_array[k*3].v=text_coord_pointer[face_pointer[k].at].v;
+					our_md2->text_coord_array[k*3+1].u=text_coord_pointer[face_pointer[k].bt].u;
+					our_md2->text_coord_array[k*3+1].v=text_coord_pointer[face_pointer[k].bt].v;
+					our_md2->text_coord_array[k*3+2].u=text_coord_pointer[face_pointer[k].ct].u;
+					our_md2->text_coord_array[k*3+2].v=text_coord_pointer[face_pointer[k].ct].v;
+				}
 		}
-	free(text_coord_pointer);//free the old uv data
+#endif	//USE_VERTEXARRAYS
 
 	/*
 	Now, the complicated thing: Load each frame, and convert the vertices, and the
@@ -121,6 +124,7 @@ md2 * load_md2(char * file_name)
 
 		//alocate some memory for OUR list of vertices
 		some_pointer=calloc(file_header.numVertices, sizeof(vertex_md2));
+		frame_pointer[i].vertex_pointer=some_pointer;
 
 		//read the current frame into our temp structure
 		frame_pointer_offset=file_header.frameSize*i;
@@ -195,25 +199,27 @@ md2 * load_md2(char * file_name)
 				frame_pointer[i].box.max_y+=y_offset;
 				frame_pointer[i].box.max_z+=z_offset;
 			}
-
-		//now, convert the vertices to VA format
-		frame_pointer[i].vertex_array= calloc(file_header.numFaces, sizeof(vertex_md2)*3);
-		for(k=0;k<file_header.numFaces;k++)
+#ifdef	USE_VERTEXARRAYS
+		if(use_vertex_array)
 			{
-				frame_pointer[i].vertex_array[k*3].x=some_pointer[face_pointer[k].a].x;
-				frame_pointer[i].vertex_array[k*3].y=some_pointer[face_pointer[k].a].y;
-				frame_pointer[i].vertex_array[k*3].z=some_pointer[face_pointer[k].a].z;
-				frame_pointer[i].vertex_array[k*3+1].x=some_pointer[face_pointer[k].b].x;
-				frame_pointer[i].vertex_array[k*3+1].y=some_pointer[face_pointer[k].b].y;
-				frame_pointer[i].vertex_array[k*3+1].z=some_pointer[face_pointer[k].b].z;
-				frame_pointer[i].vertex_array[k*3+2].x=some_pointer[face_pointer[k].c].x;
-				frame_pointer[i].vertex_array[k*3+2].y=some_pointer[face_pointer[k].c].y;
-				frame_pointer[i].vertex_array[k*3+2].z=some_pointer[face_pointer[k].c].z;
+				//now, convert the vertices to VA format
+				frame_pointer[i].vertex_array= calloc(file_header.numFaces, sizeof(vertex_md2)*3);
+				for(k=0;k<file_header.numFaces;k++)
+					{
+						frame_pointer[i].vertex_array[k*3].x=some_pointer[face_pointer[k].a].x;
+						frame_pointer[i].vertex_array[k*3].y=some_pointer[face_pointer[k].a].y;
+						frame_pointer[i].vertex_array[k*3].z=some_pointer[face_pointer[k].a].z;
+						frame_pointer[i].vertex_array[k*3+1].x=some_pointer[face_pointer[k].b].x;
+						frame_pointer[i].vertex_array[k*3+1].y=some_pointer[face_pointer[k].b].y;
+						frame_pointer[i].vertex_array[k*3+1].z=some_pointer[face_pointer[k].b].z;
+						frame_pointer[i].vertex_array[k*3+2].x=some_pointer[face_pointer[k].c].x;
+						frame_pointer[i].vertex_array[k*3+2].y=some_pointer[face_pointer[k].c].y;
+						frame_pointer[i].vertex_array[k*3+2].z=some_pointer[face_pointer[k].c].z;
+					}
 			}
-		free(some_pointer);	//get rid of the memory
+#endif	//USE_VERTEXARRAYS
 		}
 	free(file_frame_pointer);
-	free(face_pointer);
 
 	our_md2->numVertices=file_header.numVertices;
 	our_md2->numFaces=file_header.numFaces;
@@ -222,6 +228,7 @@ md2 * load_md2(char * file_name)
 
 	our_md2->offsetFrames=frame_pointer;
 	our_md2->offsetFaces=face_pointer;
+	our_md2->offsetTexCoords=text_coord_pointer;
 
 	//close the file, at exit
 	fclose (f);

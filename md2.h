@@ -3,58 +3,58 @@
 
 typedef struct
 {
-   int magic;
-   int version;
-   int skinWidth;
-   int skinHeight;
-   int frameSize;
-   int numSkins;
-   int numVertices;
-   int numTexCoords;
-   int numFaces;
-   int numGlCommands;
-   int numFrames;
-   int offsetSkins;
-   int offsetTexCoords;
-   int offsetFaces;
-   int offsetFrames;
-   int offsetGlCommands;
-   int offsetEnd;
+	int magic;
+	int version;
+	int skinWidth;
+	int skinHeight;
+	int frameSize;
+	int numSkins;
+	int numVertices;
+	int numTexCoords;
+	int numFaces;
+	int numGlCommands;
+	int numFrames;
+	int offsetSkins;
+	int offsetTexCoords;
+	int offsetFaces;
+	int offsetFrames;
+	int offsetGlCommands;
+	int offsetEnd;
 } header_file_md2;
 
 typedef struct
 {
-   unsigned char vertex[3];
-   char lightNormalIndex;
+	unsigned char vertex[3];
+	char lightNormalIndex;
 } vertex_file_md2;
 
 typedef struct
 {
-   float scale[3];
-   float translate[3];
-   char name[16];
-   vertex_file_md2 vertices[1];
+	float scale[3];
+	float translate[3];
+	char name[16];
+	vertex_file_md2 vertices[1];
 } frame_file_md2;
 
 typedef struct
 {
-   short vertexIndices[3];
-   short textureIndices[3];
+	short vertexIndices[3];
+	short textureIndices[3];
 } faces_file_md2;
 
 typedef struct
 {
-   short u, v;
+	short u, v;
 } textureCoordinate_file_md2;
 
 typedef struct
 {
-  float min_x;
-  float min_y;
-  float min_z;
-  float max_x;
-  float max_y;
-  float max_z;
+	float min_x;
+	float min_y;
+	float min_z;
+	float max_x;
+	float max_y;
+	float max_z;
 
 }bounding_box_file_md2;
 
@@ -62,43 +62,49 @@ typedef struct
 //now, we put our own structures (on how we'll store the md2 file)
 typedef struct
 {
-   short a;//a triangle
-   short b;//b triangle
-   short c;//c triangle
-   short at;//a texture
-   short bt;//b texture
-   short ct;//b texture
+	short a;//a triangle
+	short b;//b triangle
+	short c;//c triangle
+	short at;//a texture
+	short bt;//b texture
+	short ct;//b texture
 } face_md2;
 
 typedef struct
 {
-   float x;
-   float y;
-   float z;
+	float x;
+	float y;
+	float z;
 } vertex_md2;
 
 typedef struct
 {
-   float u;
-   float v;
+	float u;
+	float v;
 } text_coord_md2;
 
 typedef struct
 {
-   char name[16];
-   bounding_box_file_md2 box;
-   vertex_md2 *vertex_array;
+	char name[16];
+	vertex_md2 *vertex_pointer;
+	bounding_box_file_md2 box;
+#ifdef	USE_VERTEXARRAYS
+	vertex_md2 *vertex_array;
+#endif	//USE_VERTEXARRAYS
 } frame_md2;
 
 typedef struct
 {
-   int numVertices;
-   int numTexCoords;
-   int numFaces;
-   int numFrames;
-   face_md2 *offsetFaces;
-   frame_md2 *offsetFrames;
+	int numVertices;
+	int numTexCoords;
+	int numFaces;
+	int numFrames;
+	text_coord_md2 *offsetTexCoords;
+	face_md2 *offsetFaces;
+	frame_md2 *offsetFrames;
+#ifdef	USE_VERTEXARRAYS
 	text_coord_md2	*text_coord_array;
+#endif	//USE_VERTEXARRAYS
 }md2;
 
 
