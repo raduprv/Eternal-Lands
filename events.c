@@ -162,7 +162,7 @@ int HandleEvent(SDL_Event *event)
 		if ( event->key.keysym.sym == SDLK_PAGEUP )
 		{
 			//if(!ctrl_on && !shift_on && !alt_on)
-			if(!shift_on && !alt_on)
+			if(!shift_on && !ctrl_on)
 				{
 				  zoomin();
 				}
@@ -176,7 +176,7 @@ int HandleEvent(SDL_Event *event)
 		if ( event->key.keysym.sym == SDLK_PAGEDOWN )
 		{
 			//if(!ctrl_on && !shift_on && !alt_on)
-			if(!shift_on && !alt_on)
+			if(!shift_on && !ctrl_on)
 				{
 				  zoomout();
 				}
