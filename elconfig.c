@@ -183,7 +183,7 @@ int check_var(char * str, int type)
 					//Allright, it's the right variable... now move ptr forward
 					ptr+=type?our_vars.var[i]->nlen:our_vars.var[i]->snlen;
 					while(*ptr && (*ptr==' '||*ptr=='='))ptr++;//go to the string occurence
-					if(!*ptr||*ptr=='\n')return -1;//hmm, why would you do such a stupid thing?
+					if(!*ptr||*ptr==0x0d||*ptr==0x0a)return -1;//hmm, why would you do such a stupid thing?
 					if(*ptr=='"')
 						{
 							//Accurate quoting

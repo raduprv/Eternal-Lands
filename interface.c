@@ -165,7 +165,7 @@ void check_mouse_click()
 		}
 
 	//USE
-	if(((current_cursor==CURSOR_TALK || current_cursor==CURSOR_ENTER || current_cursor==CURSOR_USE) && left_click) || (action_mode==action_use && right_click))
+	if(((current_cursor==CURSOR_TALK || (current_cursor==CURSOR_ENTER && (!you_sit||!sit_lock)) || current_cursor==CURSOR_USE) && left_click) || (action_mode==action_use && right_click))
 		{
 			Uint8 str[10];
 
@@ -190,7 +190,7 @@ void check_mouse_click()
 		}
 
 	//OPEN BAG
-	if(current_cursor==CURSOR_PICK && left_click)
+	if(current_cursor==CURSOR_PICK && left_click && (!you_sit || !sit_lock))
 		{
 			if(object_under_mouse==-1)return;
 			open_bag(object_under_mouse);
