@@ -23,11 +23,11 @@ typedef struct
 extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 extern int last_message;
 extern int buffer_full;
+extern int total_nr_lines; /*!< The number of lines in the text buffer */
 
 extern float chat_zoom; /*!< zoom factor for chat text */
 
 extern text_message input_text_line; /*!< user input text */
-extern int total_nr_lines; /*!< The number of lines in the text buffer */
 
 extern int display_text_buffer_first;
 extern int display_text_buffer_last;

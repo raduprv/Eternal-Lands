@@ -446,8 +446,13 @@ int reset_soft_breaks (char *str, int len, float zoom, int width)
 	if (str == NULL) return 0;
 
 	// remove all old soft line breaks
-	for (ichar = 0; str[ichar] != '\0'; ichar++)
-		if (str[ichar] == '\r') str[ichar] = ' ';
+	for (ichar = 0; ichar < len; ichar++)
+	{
+		if (str[ichar] == '\r') 
+			str[ichar] = ' ';
+		else if (str[ichar] == '\0') 
+			break;
+	}
 
 	ichar = 0;
 	nlines = 1;

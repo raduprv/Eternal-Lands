@@ -14,6 +14,16 @@
  *
  * \callgraph
  */
+void set_create_char_error (const char *msg, int len);
+
+/*!
+ * \ingroup interface_newchar
+ * \brief
+ *
+ *      Detail
+ *
+ * \callgraph
+ */
 void change_actor();
 
 /* OBSOLETE declaration: queued for removal from this header file */

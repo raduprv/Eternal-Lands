@@ -570,7 +570,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case LOG_IN_NOT_OK:
 			{
-				sprintf(log_in_error_str,"%s: %s",reg_error_str,invalid_pass);
+				set_login_error (&in_data[3], data_lenght - 3);
 			}
 			break;
 
@@ -589,7 +589,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case CREATE_CHAR_NOT_OK:
 			{
-				sprintf(create_char_error_str,"%s: %s",reg_error_str,char_name_in_use);
+				set_create_char_error (&in_data[3], data_lenght - 3);
 				return;
 			}
 			break;

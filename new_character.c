@@ -173,6 +173,26 @@ float back_selected_start_v=1.0f-(float)202/256;
 float back_selected_end_u=(float)188/256;
 float back_selected_end_v=1.0f-(float)237/256;
 
+void set_create_char_error (const char *msg, int len)
+{
+	if (len <= 0)
+	{
+		// server didn't send a message, use the default
+		sprintf (create_char_error_str, "%s: %s", reg_error_str, char_name_in_use);
+	}
+	else
+	{
+		int prelen = strlen (reg_error_str) + 2;
+		int maxlen = sizeof (create_char_error_str) - prelen - 1;
+
+		if (len > maxlen) len = maxlen;
+		sprintf (create_char_error_str, "%s: ", reg_error_str);
+		strncat (create_char_error_str, msg, len);
+		create_char_error_str[len+prelen] = '\0';
+		reset_soft_breaks (create_char_error_str, len+prelen, 1.0, window_width - 20);
+	}
+}
+
 void change_actor ()
 {
 	// if there is any loaded model, destroy it
@@ -462,7 +482,7 @@ void draw_new_char_screen()
 
 	glColor3f (1.0f, 0.0f, 0.0f);
 	// print the current error, if any
-	draw_string (10, 400, create_char_error_str,1);
+	draw_string (10, 400, create_char_error_str, 3);
 }
 
 void add_char_to_pass(unsigned char ch)

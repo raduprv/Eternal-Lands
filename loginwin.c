@@ -33,6 +33,26 @@ int new_char_y_len = 35;
 char log_in_button_selected = 0;
 char new_char_button_selected = 0;
 
+void set_login_error (const char *msg, int len)
+{
+        if (len <= 0)
+        {
+                // server didn't send a message, use the default
+                sprintf (log_in_error_str, "%s: %s", reg_error_str, invalid_pass);
+        }
+        else
+        {
+                int prelen = strlen (reg_error_str) + 2;
+                int maxlen = sizeof (log_in_error_str) - prelen - 1;
+
+                if (len > maxlen) len = maxlen;
+                sprintf (log_in_error_str, "%s: ", reg_error_str);
+                strncat (log_in_error_str, msg, len);
+                log_in_error_str[len+prelen] = '\0';
+                reset_soft_breaks (log_in_error_str, len+prelen, 1.0, window_width);
+        }
+}
+
 int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 {
 	int half_screen_x = w / 2;
