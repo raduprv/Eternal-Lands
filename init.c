@@ -1,5 +1,7 @@
 #include "global.h"
 
+char lang[10]={"en"};
+
 void init_colors();
 
 void init_texture_cache()
@@ -38,6 +40,13 @@ void init_stuff()
 	int rgb_size[3];
 	int seed;
 	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
+	
+	init_translatables();
+
+#ifdef LOAD_XML
+	//Well, the current version of the map editor doesn't support having a datadir - will add that later ;-)
+	load_translatables();
+#endif
 
 #ifdef LINUX
 	file_selector = create_fileselection();
