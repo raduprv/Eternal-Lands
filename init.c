@@ -243,6 +243,7 @@ void init_e3d_cache()
 		{
 			e3d_cache[i].file_name[0]=0;
 			e3d_cache[i].e3d_id=0;
+			e3d_cache[i].flag_for_destruction=0;
 		}
 }
 

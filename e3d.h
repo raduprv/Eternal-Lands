@@ -2,6 +2,7 @@
 #define __E3D_H__
 
 #define max_obj_3d 10000
+#define max_e3d_cache 1000
 
 //the new array structures
 typedef struct
@@ -146,6 +147,7 @@ typedef struct
 {
 	char file_name[128];
 	e3d_object * e3d_id;
+	int flag_for_destruction;
 }e3d_cache_struct;
 
 extern e3d_cache_struct e3d_cache[1000];

@@ -321,6 +321,8 @@ int load_map(char * file_name)
 	//read the heights map
 	fread(height_map, 1, tile_map_size_x*tile_map_size_y*6*6, f);
 
+	//see which objects in our cache are not used in this map
+	flag_for_destruction();
 	//read the 3d objects
 	for(i=0;i<obj_3d_no;i++)
 		{
@@ -332,6 +334,9 @@ int load_map(char * file_name)
 					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
 
 		}
+
+	//delete the unused objects from the cache
+	destroy_the_flagged();
 
 	//read the 2d objects
 	for(i=0;i<obj_2d_no;i++)

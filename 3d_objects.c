@@ -249,7 +249,7 @@ e3d_object * load_e3d_cache(char * file_name)
 
 	file_name_lenght=strlen(file_name);
 
-	for(i=0;i<1000;i++)
+	for(i=0;i<max_e3d_cache;i++)
 		{
 			j=0;
 			while(j<file_name_lenght)
@@ -258,7 +258,10 @@ e3d_object * load_e3d_cache(char * file_name)
 					j++;
 				}
 			if(file_name_lenght==j)//ok, e3d already loaded
-				return e3d_cache[i].e3d_id;
+				{
+					e3d_cache[i].flag_for_destruction=0;
+					return e3d_cache[i].e3d_id;
+				}
 		}
 	//e3d not found in the cache, so load it, and store it
 	e3d_id=load_e3d(file_name);
@@ -266,12 +269,13 @@ e3d_object * load_e3d_cache(char * file_name)
 
 	//find a place to store it
 	i=0;
-	while(i<1000)
+	while(i<max_e3d_cache)
 		{
 			if(!e3d_cache[i].file_name[0])//we found a place to store it
 				{
 					sprintf(e3d_cache[i].file_name, "%s", file_name);
 					e3d_cache[i].e3d_id=e3d_id;
+					e3d_cache[i].flag_for_destruction=0;
 					return e3d_id;
 				}
 			i++;
@@ -701,4 +705,49 @@ void destroy_3d_object(int i)
 	objects_list[i]=0;
 }
 
+void flag_for_destruction()
+{
+	int i;
+
+	for(i=0;i<max_e3d_cache;i++)
+	if(e3d_cache[i].file_name[0])
+	e3d_cache[i].flag_for_destruction=1;
+}
+
+void destroy_the_flagged()
+{
+	int i;
+
+	for(i=0;i<max_e3d_cache;i++)
+	if(e3d_cache[i].file_name[0])
+	if(e3d_cache[i].flag_for_destruction)
+		{
+			if(e3d_cache[i].e3d_id->array_vertex)
+				{
+					free(e3d_cache[i].e3d_id->array_vertex);
+					e3d_cache[i].e3d_id->array_vertex=0;
+				}
+
+			if(e3d_cache[i].e3d_id->array_normal)
+				{
+					free(e3d_cache[i].e3d_id->array_normal);
+					e3d_cache[i].e3d_id->array_normal=0;
+				}
+
+			if(e3d_cache[i].e3d_id->array_uv_main)
+				{
+					free(e3d_cache[i].e3d_id->array_uv_main);
+					e3d_cache[i].e3d_id->array_uv_main=0;
+				}
+
+			if(e3d_cache[i].e3d_id->array_order)
+				{
+					free(e3d_cache[i].e3d_id->array_order);
+					e3d_cache[i].e3d_id->array_order=0;
+				}
+			e3d_cache[i].file_name[0]=0;
+			e3d_cache[i].flag_for_destruction=0;
+			free(e3d_cache[i].e3d_id);
+		}
+}
 
