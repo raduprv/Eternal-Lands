@@ -139,7 +139,7 @@ int check_var(char * str, int type)
 							char *tptr=++ptr;
 							while(*tptr && *tptr!='"')
 								{
-									if(*tptr==0x0a) 
+									if(*tptr==0x0a||*tptr==0x0d) 
 										{
 											char str[200];
 											snprintf(str,200,"Reached newline without an ending \" in %s",our_vars.var[i]->name);
@@ -155,7 +155,7 @@ int check_var(char * str, int type)
 							//Strip it
 							char our_string[200];
 							char *tptr=our_string;
-							while(*ptr && *ptr!=0x0a) 
+							while(*ptr && *ptr!=0x0a && *ptr!=0x0d)
 								{
 									if(*ptr!=' ')*tptr++=*ptr++; //Strip all spaces
 									else ptr++;
