@@ -88,9 +88,9 @@ extern char *optarg;
 extern int optind, opterr, optopt;
 
 #ifdef WINDOWS
-int Main(int argc, const char *argv[])
+int Main(int argc, const char **argv)
 #else
-int main(int argc, const char *argv[])
+int main(int argc, const char **argv)
 #endif
 {
 	int c= 0;
@@ -128,13 +128,14 @@ int main(int argc, const char *argv[])
 #ifdef WINDOWS
 int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
-	LPWSTR	*argv;
-	int	argc;
+	//LPWSTR	*argv;
+	//int	argc;
 
 	// supposed to work in theory, untested
-	argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	//argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-	Main(argc, argv);
+	//Main(argc, argv);
+	Main(_argc, _argv);
 	return 0;
 }
 
