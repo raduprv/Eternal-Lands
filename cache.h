@@ -33,7 +33,7 @@ typedef struct
 #ifdef	CACHE_SYSTEM
 	cache_item_struct	*cache_ptr;
 #else	//CACHE_SYSTEM
-	int last_access_time;
+	//int last_access_time;
 #endif	//CACHE_SYSTEM
 	unsigned char alpha;
 }texture_cache_struct;

@@ -9,9 +9,9 @@ int get_texture_id(int i)
     int new_texture_id;
     unsigned char alpha;
 
-#ifndef	CACHE_SYSTEM
-    texture_cache[i].last_access_time=cur_time;
-#endif	//CACHE_SYSTEM
+//#ifndef	CACHE_SYSTEM
+//    texture_cache[i].last_access_time=cur_time;
+//#endif	//CACHE_SYSTEM
     if(!texture_cache[i].texture_id)
         {
             alpha=texture_cache[i].alpha;
@@ -129,7 +129,7 @@ GLuint load_bmp8_color_key(char * FileName)
 	//so, assign the texture, and such
 
 	glGenTextures(1, &texture);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
 	bind_texture_id(texture);
 	if(poor_man)
 		{
@@ -249,7 +249,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	//so, assign the texture, and such
 
 	glGenTextures(1, &texture);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
 	bind_texture_id(texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -786,7 +786,7 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	//so, assign the texture, and such
 
 	glGenTextures(1, &texture);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
 	bind_texture_id(texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -926,7 +926,7 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	if(this_actor->cape_tex[0])load_bmp8_to_coordinates(this_actor->cape_tex,texture_mem,131,0,a);
 
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
 	bind_texture_id(texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
