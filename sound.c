@@ -526,6 +526,7 @@ int realloc_sources()
 
 void ogg_error(int code)
 {
+#ifndef	NO_MUSIC
 	char error_string[80];
     switch(code)
     {
@@ -544,4 +545,5 @@ void ogg_error(int code)
     }
 	log_to_console(c_red1,error_string);
 	log_error(error_string);
+#endif	//NO_MUSIC
 }
