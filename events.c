@@ -76,6 +76,9 @@ int HandleEvent(SDL_Event *event)
 		if ( event->key.keysym.sym == SDLK_r && ctrl_on){
 			view_replace_window=!view_replace_window;
 		}
+			if ( event->key.keysym.sym == SDLK_e && ctrl_on){
+			view_edit_window=!view_edit_window;
+		}
 
 		if ( event->key.keysym.sym == SDLK_LEFT )
 		{
@@ -379,6 +382,8 @@ int HandleEvent(SDL_Event *event)
 			else
 				middle_click= 0;
 
+			if(left_click==1 && check_edit_window_interface())return done;
+
 			if(shift_on && left_click==1){
 				get_world_x_y();
 				cx=0-scene_mouse_x;
@@ -462,6 +467,10 @@ int HandleEvent(SDL_Event *event)
 								else
 									{
 										get_3d_object_under_mouse();
+										if(alt_on){
+											ew_selected_object=selected_3d_object;
+											selected_3d_object=-1;
+										}
 									}
 							}
 							//2D objects/////////////////

@@ -163,6 +163,10 @@ SOURCE=.\draw_scene.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\edit_window.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\elc\elwindows.c
 # End Source File
 # Begin Source File
@@ -377,6 +381,10 @@ SOURCE=.\draw_scene.h
 # Begin Source File
 
 SOURCE=.\e3d.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\edit_window.h
 # End Source File
 # Begin Source File
 

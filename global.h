@@ -51,6 +51,7 @@
 #include "elwindows.h"
 #include "o3dow.h"
 #include "replace_window.h"
+#include "edit_window.h"
 
 #define sector_size_x 15
 #define sector_size_y 15
