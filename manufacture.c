@@ -111,36 +111,36 @@ int	display_manufacture_handler(window_info *win)
 
 	//draw the buttons frame
 	//Mix button
-	glVertex3i(33*6+40,manufacture_menu_y_len-30,0);
-	glVertex3i(33*6+40+50,manufacture_menu_y_len-30,0);
+	glVertex3i(33*6+40,win->len_y-30,0);
+	glVertex3i(33*6+40+50,win->len_y-30,0);
 
-	glVertex3i(33*6+40,manufacture_menu_y_len-10,0);
-	glVertex3i(33*6+40+50,manufacture_menu_y_len-10,0);
+	glVertex3i(33*6+40,win->len_y-10,0);
+	glVertex3i(33*6+40+50,win->len_y-10,0);
 
-	glVertex3i(33*6+40+50,manufacture_menu_y_len-30,0);
-	glVertex3i(33*6+40+50,manufacture_menu_y_len-9,0);
+	glVertex3i(33*6+40+50,win->len_y-30,0);
+	glVertex3i(33*6+40+50,win->len_y-9,0);
 
-	glVertex3i(33*6+40,manufacture_menu_y_len-30,0);
-	glVertex3i(33*6+40,manufacture_menu_y_len-10,0);
+	glVertex3i(33*6+40,win->len_y-30,0);
+	glVertex3i(33*6+40,win->len_y-10,0);
 
 	//Clear button
-	glVertex3i(33*9+40,manufacture_menu_y_len-30,0);
-	glVertex3i(33*9+40+70,manufacture_menu_y_len-30,0);
+	glVertex3i(33*9+40,win->len_y-30,0);
+	glVertex3i(33*9+40+70,win->len_y-30,0);
 
-	glVertex3i(33*9+40,manufacture_menu_y_len-10,0);
-	glVertex3i(33*9+40+70,manufacture_menu_y_len-10,0);
+	glVertex3i(33*9+40,win->len_y-10,0);
+	glVertex3i(33*9+40+70,win->len_y-10,0);
 
-	glVertex3i(33*9+40+70,manufacture_menu_y_len-30,0);
-	glVertex3i(33*9+40+70,manufacture_menu_y_len-9,0);
+	glVertex3i(33*9+40+70,win->len_y-30,0);
+	glVertex3i(33*9+40+70,win->len_y-9,0);
 
-	glVertex3i(33*9+40,manufacture_menu_y_len-30,0);
-	glVertex3i(33*9+40,manufacture_menu_y_len-10,0);
+	glVertex3i(33*9+40,win->len_y-30,0);
+	glVertex3i(33*9+40,win->len_y-10,0);
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	draw_string(33*6+40+8,manufacture_menu_y_len-30+2,"Mix",1);
-	draw_string(33*9+40+8,manufacture_menu_y_len-30+2,"Clear",1);
+	draw_string(33*6+40+8,win->len_y-30+2,"Mix",1);
+	draw_string(33*9+40+8,win->len_y-30+2,"Clear",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -232,7 +232,7 @@ int	display_manufacture_handler(window_info *win)
 				}
 		}
 	//now, draw the inventory text, if any.
-	draw_string_small(4,manufacture_menu_y_len-85,items_string,4);
+	draw_string_small(4,win->len_y-85,items_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
 	return 1;
 }
@@ -245,7 +245,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	//Clear
 	if(mx>33*9+40 && mx<33*9+40+70 &&
-	   my>manufacture_menu_y_len-30 && my<manufacture_menu_y_len-10)
+	   my>win->len_y-30 && my<win->len_y-10)
 		{
 			for(i=0; i<6; i++) manu_recipe[i].quantity= manu_recipe[i].image_id= 0; // clear the recipe
 			build_manufacture_list();
@@ -254,7 +254,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	//Mix
 	if(mx>33*6+40 && mx<33*6+40+50 &&
-	   my>manufacture_menu_y_len-30 && my<manufacture_menu_y_len-10)
+	   my>win->len_y-30 && my<win->len_y-10)
 		{
 			Uint8 str[20];
 			int items_no=0;

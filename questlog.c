@@ -154,7 +154,7 @@ int draw_questlog_string(char *t)
 	return 0;
 }
 
-int	display_quest_handler()
+int	display_quest_handler(window_info *win)
 {
 	_logdata *t=current;
 
@@ -162,16 +162,16 @@ int	display_quest_handler()
 	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
 	//scroll bar
-	glVertex3i(questlog_menu_x_len-20,20,0);
-	glVertex3i(questlog_menu_x_len-20,questlog_menu_y_len,0);
-	glVertex3i(questlog_menu_x_len-15,30,0);
-	glVertex3i(questlog_menu_x_len-10,25,0);
-	glVertex3i(questlog_menu_x_len-10,25,0);
-	glVertex3i(questlog_menu_x_len-5,30,0);
-	glVertex3i(questlog_menu_x_len-15,questlog_menu_y_len-15,0);
-	glVertex3i(questlog_menu_x_len-10,questlog_menu_y_len-10,0);
-	glVertex3i(questlog_menu_x_len-10,questlog_menu_y_len-10,0);
-	glVertex3i(questlog_menu_x_len-5,questlog_menu_y_len-15,0);
+	glVertex3i(win->len_x-20,20,0);
+	glVertex3i(win->len_x-20,win->len_y,0);
+	glVertex3i(win->len_x-15,30,0);
+	glVertex3i(win->len_x-10,25,0);
+	glVertex3i(win->len_x-10,25,0);
+	glVertex3i(win->len_x-5,30,0);
+	glVertex3i(win->len_x-15,win->len_y-15,0);
+	glVertex3i(win->len_x-10,win->len_y-10,0);
+	glVertex3i(win->len_x-10,win->len_y-10,0);
+	glVertex3i(win->len_x-5,win->len_y-15,0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
@@ -190,8 +190,7 @@ int click_quest_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	x= mx;
 	y= my;
-	if(x > questlog_menu_x_len-16 && x < questlog_menu_x_len &&
-	   y > 18 && y < 18+16)
+	if(x > win->len_x-16 && y > 18 && y < 18+16)
 		{
 			_logdata *t;
 			if(logdata.Next && current!=logdata.Next && current!=NULL){
@@ -203,8 +202,7 @@ int click_quest_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 			return 1;
 		}
-	if(x > questlog_menu_x_len-16 && x < questlog_menu_x_len &&
-	   y > questlog_menu_y_len-15 && y < questlog_menu_y_len-4)
+	if(x > win->len_x-16 && y > win->len_y-15 && y < win->len_y-4)
 		{
 			if(current)
 				if(current->Next)current=current->Next;

@@ -138,7 +138,7 @@ int display_items_handler(window_info *win)
 	if(item_quantity==2000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
 	draw_string_small(wear_items_x_offset+36,wear_items_y_offset+243,"2000",1);
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string(items_menu_x_len-16,2,"X",1);
+	//draw_string(items_menu_x_len-16,2,"X",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -199,7 +199,7 @@ int display_items_handler(window_info *win)
 				}
 		}
 	//now, draw the inventory text, if any.
-	draw_string_small(4,items_menu_y_len-59,items_string,4);
+	draw_string_small(4,win->len_y-59,items_string,4);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//draw the load string

@@ -72,7 +72,7 @@ int	display_dialogue_handler(window_info *win)
 
 	//calculate the npc_name_x_start (to have it centered on the screen)
 	len= strlen(npc_name);
-	npc_name_x_start= dialogue_menu_x_len/2-(len*8)/2;
+	npc_name_x_start= win->len_x/2-(len*8)/2;
 
 	//draw the character frame
 	glColor3f(0.0f,1.0f,1.0f);
@@ -129,8 +129,8 @@ int	display_dialogue_handler(window_info *win)
 	draw_string_small(70,2,dialogue_string,8);
 	//now, draw the character name
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string_small(npc_name_x_start,dialogue_menu_y_len-16,npc_name,1);
-	draw_string_small(dialogue_menu_x_len-60,dialogue_menu_y_len-16,"[close]",1);
+	draw_string_small(npc_name_x_start,win->len_y-16,npc_name,1);
+	draw_string_small(win->len_x-60,win->len_y-16,"[close]",1);
 
 	//ok, now draw the responses
 	for(i=0;i<20;i++)
@@ -192,8 +192,7 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 						}
 				}
 		}
-	if(mx>=dialogue_menu_x_len-60 && mx<=dialogue_menu_x_len
-	&& my>=dialogue_menu_y_len-16 && my<=dialogue_menu_y_len)
+	if(mx>=win->len_x-60 && my>=win->len_y-16)
 		{
 			hide_window(win->window_id);
 			return 1;

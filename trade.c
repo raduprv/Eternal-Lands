@@ -52,14 +52,14 @@ int display_trade_handler(window_info *win)
 	//draw the button frame
 
 	//Clear button
-	glVertex3i(33*5,trade_menu_y_len-30,0);
-	glVertex3i(33*5+70,trade_menu_y_len-30,0);
-	glVertex3i(33*5,trade_menu_y_len-10,0);
-	glVertex3i(33*5+70,trade_menu_y_len-10,0);
-	glVertex3i(33*5+70,trade_menu_y_len-30,0);
-	glVertex3i(33*5+70,trade_menu_y_len-9,0);
-	glVertex3i(33*5,trade_menu_y_len-30,0);
-	glVertex3i(33*5,trade_menu_y_len-10,0);
+	glVertex3i(33*5,win->len_y-30,0);
+	glVertex3i(33*5+70,win->len_y-30,0);
+	glVertex3i(33*5,win->len_y-10,0);
+	glVertex3i(33*5+70,win->len_y-10,0);
+	glVertex3i(33*5+70,win->len_y-30,0);
+	glVertex3i(33*5+70,win->len_y-9,0);
+	glVertex3i(33*5,win->len_y-30,0);
+	glVertex3i(33*5,win->len_y-10,0);
 
 	//the players accept boxes
 	glVertex3i(5,4*33-20,0);
@@ -122,7 +122,7 @@ int display_trade_handler(window_info *win)
 	draw_string_small(33*9+25+36,216,"2000",1);
 
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string(33*5+8,trade_menu_y_len-30+2,"Abort",1);
+	draw_string(33*5+8,win->len_y-30+2,"Abort",1);
 	if(trade_you_accepted)draw_string_small(8,4*33-19,"X",1);
 	draw_string_small(24,4*33-19,"You",1);
 	if(trade_other_accepted)draw_string_small(5*33+8,4*33-19,"X",1);
@@ -282,7 +282,7 @@ int display_trade_handler(window_info *win)
 
 
 	//now, draw the inventory text, if any.
-	draw_string_small(4,trade_menu_y_len-75,items_string,4);
+	draw_string_small(4,win->len_y-75,items_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
 	return 1;
 }
@@ -336,7 +336,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	//check to see if we hit the Abort button
 	if(mx>33*5 && mx<33*5+70 &&
-	my>trade_menu_y_len-30 && my<trade_menu_y_len-10)
+	my>win->len_y-30 && my<win->len_y-10)
 		{
 
 			str[0]=EXIT_TRADE;

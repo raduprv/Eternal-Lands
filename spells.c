@@ -283,30 +283,30 @@ int display_sigils_handler(window_info *win)
 
 	//draw the buttons frame
 	//Mix button
-	glVertex3i(33*6+40,sigil_menu_y_len-30,0);
-	glVertex3i(33*6+40+50,sigil_menu_y_len-30,0);
+	glVertex3i(33*6+40,win->len_y-30,0);
+	glVertex3i(33*6+40+50,win->len_y-30,0);
 
-	glVertex3i(33*6+40,sigil_menu_y_len-10,0);
-	glVertex3i(33*6+40+50,sigil_menu_y_len-10,0);
+	glVertex3i(33*6+40,win->len_y-10,0);
+	glVertex3i(33*6+40+50,win->len_y-10,0);
 
-	glVertex3i(33*6+40+50,sigil_menu_y_len-30,0);
-	glVertex3i(33*6+40+50,sigil_menu_y_len-9,0);
+	glVertex3i(33*6+40+50,win->len_y-30,0);
+	glVertex3i(33*6+40+50,win->len_y-9,0);
 
-	glVertex3i(33*6+40,sigil_menu_y_len-30,0);
-	glVertex3i(33*6+40,sigil_menu_y_len-10,0);
+	glVertex3i(33*6+40,win->len_y-30,0);
+	glVertex3i(33*6+40,win->len_y-10,0);
 
 	//Clear button
-	glVertex3i(33*9+40,sigil_menu_y_len-30,0);
-	glVertex3i(33*9+40+70,sigil_menu_y_len-30,0);
+	glVertex3i(33*9+40,win->len_y-30,0);
+	glVertex3i(33*9+40+70,win->len_y-30,0);
 
-	glVertex3i(33*9+40,sigil_menu_y_len-10,0);
-	glVertex3i(33*9+40+70,sigil_menu_y_len-10,0);
+	glVertex3i(33*9+40,win->len_y-10,0);
+	glVertex3i(33*9+40+70,win->len_y-10,0);
 
-	glVertex3i(33*9+40+70,sigil_menu_y_len-30,0);
-	glVertex3i(33*9+40+70,sigil_menu_y_len-9,0);
+	glVertex3i(33*9+40+70,win->len_y-30,0);
+	glVertex3i(33*9+40+70,win->len_y-9,0);
 
-	glVertex3i(33*9+40,sigil_menu_y_len-30,0);
-	glVertex3i(33*9+40,sigil_menu_y_len-10,0);
+	glVertex3i(33*9+40,win->len_y-30,0);
+	glVertex3i(33*9+40,win->len_y-10,0);
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -315,13 +315,13 @@ int display_sigils_handler(window_info *win)
 		glColor3f(0.87f,0.67f,0.49f);
 	else
 		glColor3f(0.77f,0.57f,0.39f);
-	draw_string(33*6+40+4,sigil_menu_y_len-30+2,"Cast",1);
+	draw_string(33*6+40+4,win->len_y-30+2,"Cast",1);
 
 	if(clear_mouseover)
 		glColor3f(0.87f,0.67f,0.49f);
 	else
 		glColor3f(0.77f,0.57f,0.39f);
-	draw_string(33*9+40+8,sigil_menu_y_len-30+2,"Clear",1);
+	draw_string(33*9+40+8,win->len_y-30+2,"Clear",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -388,7 +388,7 @@ int display_sigils_handler(window_info *win)
 		}
 
 	//now, draw the inventory text, if any.
-	draw_string_small(4,sigil_menu_y_len-90,spell_text,4);
+	draw_string_small(4,win->len_y-90,spell_text,4);
 	glColor3f(1.0f,1.0f,1.0f);
 	return 1;
 }
@@ -401,7 +401,7 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	//clear button pressed?
 	if(mx>33*9+40 && mx<33*9+40+70 &&
-	   my>sigil_menu_y_len-30 && my<sigil_menu_y_len-10)
+	   my>win->len_y-30 && my<win->len_y-10)
 		{
 			for(i=0;i<6;i++)on_cast[i]=-1;
 			for(i=0;i<6;i++)cast_cache[i]=-1;
@@ -409,7 +409,7 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 
 	if(mx>33*6+40 && mx<33*6+40+50 &&
-	   my>sigil_menu_y_len-30 && my<sigil_menu_y_len-10)
+	   my>win->len_y-30 && my<win->len_y-10)
 		{
 			//Cast?
 			Uint8 str[20];
@@ -502,14 +502,14 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 
 	//clear button?
 	if(mx>33*9+40 && mx<33*9+40+70 &&
-	   my>sigil_menu_y_len-30 && my<sigil_menu_y_len-10)
+	   my>win->len_y-30 && my<win->len_y-10)
 		clear_mouseover=1;
 	else
 		clear_mouseover=0;
 
 
 	if(mx>33*6+40 && mx<33*6+40+50 &&
-	   my>sigil_menu_y_len-30 && my<sigil_menu_y_len-10)
+	   my>win->len_y-30 && my<win->len_y-10)
 		cast_mouseover=1;
 	else
 		cast_mouseover=0;

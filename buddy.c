@@ -31,23 +31,23 @@ int display_buddy_handler(window_info *win)
 	glColor3f(0.77f,0.57f,0.39f);
 	//scroll bar
 	glBegin(GL_LINES);
-	glVertex3i(buddy_menu_x_len-20,20,0);
-	glVertex3i(buddy_menu_x_len-20,200,0);
-	glVertex3i(buddy_menu_x_len-15,30,0);
-	glVertex3i(buddy_menu_x_len-10,25,0);
-	glVertex3i(buddy_menu_x_len-10,25,0);
-	glVertex3i(buddy_menu_x_len-5,30,0);
-	glVertex3i(buddy_menu_x_len-15,185,0);
-	glVertex3i(buddy_menu_x_len-10,190,0);
-	glVertex3i(buddy_menu_x_len-10,190,0);
-	glVertex3i(buddy_menu_x_len-5,185,0);
+	glVertex3i(win->len_x-20,20,0);
+	glVertex3i(win->len_x-20,200,0);
+	glVertex3i(win->len_x-15,30,0);
+	glVertex3i(win->len_x-10,25,0);
+	glVertex3i(win->len_x-10,25,0);
+	glVertex3i(win->len_x-5,30,0);
+	glVertex3i(win->len_x-15,185,0);
+	glVertex3i(win->len_x-10,190,0);
+	glVertex3i(win->len_x-10,190,0);
+	glVertex3i(win->len_x-5,185,0);
 	glEnd();
 	glBegin(GL_QUADS);
 	//scroll bar
-	glVertex3i(buddy_menu_x_len-13,35+scroll,0);
-	glVertex3i(buddy_menu_x_len-7,35+scroll,0);
-	glVertex3i(buddy_menu_x_len-7,55+scroll,0);
-	glVertex3i(buddy_menu_x_len-13,55+scroll,0);
+	glVertex3i(win->len_x-13,35+scroll,0);
+	glVertex3i(win->len_x-7,35+scroll,0);
+	glVertex3i(win->len_x-7,55+scroll,0);
+	glVertex3i(win->len_x-13,55+scroll,0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	
@@ -106,21 +106,19 @@ int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags)
 	x= mx;
 	y= my;
 
-	if(x > buddy_menu_x_len-16 && x < buddy_menu_x_len &&
-		y > 18 && y < 18+16)
+	if(x > win->len_x-16 && y > 18 && y < 18+16)
 		{
 			if(bpage_start > 0)
 				bpage_start--;
 			return 1;
 		}
-	if(x > buddy_menu_x_len-16 && x < buddy_menu_x_len &&
-		y > 180 && y < 180+16)
+	if(x > win->len_x-16 && y > 180 && y < 180+16)
 		{
 			if(bpage_start < 100-19)
 				bpage_start++;
 			return 1;
 		}
-	if(x>buddy_menu_x_len-20)
+	if(x>win->len_x-20)
 		return 0;
 	
 	y/= 10;
