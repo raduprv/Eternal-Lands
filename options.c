@@ -121,11 +121,11 @@ void switch_video_modes(int * unused, int * mode)
 int display_options_handler(window_info *win)
 {
 	int i = 0, y[2], x[2];
+	option_struct * cur;
 	x[0]=8;
 	x[1]=188;
 	y[0]=35;
 	y[1]=35;
-	option_struct * cur;
 	get_and_set_texture_id(icons_text);
 	glBegin(GL_QUADS);
 	for(;i<options.no;i++)
