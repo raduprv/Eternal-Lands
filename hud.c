@@ -405,10 +405,16 @@ int exp_bar_start_y;
 void init_peace_icons()
 {
 	//create the icon window
-	icons_win= create_window("Icons", 0, 0, 0, window_height-32, window_width-64, 32, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
-	set_window_handler(icons_win, ELW_HANDLER_DISPLAY, &display_icons_handler);
-	set_window_handler(icons_win, ELW_HANDLER_CLICK, &click_icons_handler);
-	
+	if(icons_win <= 0)
+		{
+			icons_win= create_window("Icons", 0, 0, 0, window_height-32, window_width-64, 32, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
+			set_window_handler(icons_win, ELW_HANDLER_DISPLAY, &display_icons_handler);
+			set_window_handler(icons_win, ELW_HANDLER_CLICK, &click_icons_handler);
+		}
+	else
+		{
+			move_window(icons_win, 0, 0, 0, window_height-32);
+		}	
 	//TODO: positions should be based on icon size
 
 	walk_icon_x_start=0;
@@ -699,6 +705,8 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 						}
 				}
 			view_manufacture_menu=!view_manufacture_menu;
+			if(!view_manufacture_menu)	hide_window(manufacture_win);
+    		else	display_manufacture_menu();
 		}
 	else if(mx>spell_icon_x_start && mx<spell_icon_x_end)
 		{
@@ -779,9 +787,16 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 void init_stats_display()
 {
 	//create the stats bar window
-	stats_bar_win= create_window("Stats Bar", 0, 0, 24, window_height-44, window_width-24-64, 12, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
-	set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
-	//set_window_handler(stats_bar_win, ELW_HANDLER_CLICK, &click_stats_bar_handler);
+	if(stats_bar_win <= 0)
+		{
+			stats_bar_win= create_window("Stats Bar", 0, 0, 24, window_height-44, window_width-24-64, 12, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
+			set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
+			//set_window_handler(stats_bar_win, ELW_HANDLER_CLICK, &click_stats_bar_handler);
+		}
+	else
+		{
+			init_window(stats_bar_win, 0, 0, 24, window_height-44, window_width-24-64, 12);
+		}	
 	
 	mana_bar_start_x=0;
 	mana_bar_start_y=0;
@@ -914,9 +929,16 @@ float clock_needle_v_end=1.0f-(float)223/256;
 void init_misc_display()
 {
 	//create the icon window
-	misc_win= create_window("Misc", 0, 0, window_width-64, window_height-145, 64, 145, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
-	set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
-	set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
+	if(misc_win <= 0)
+		{
+			misc_win= create_window("Misc", 0, 0, window_width-64, window_height-145, 64, 145, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
+			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
+			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
+		}
+	else
+		{
+			move_window(misc_win, 0, 0, window_width-64, window_height-145);
+		}	
 }
 
 void draw_misc_display()
@@ -1011,9 +1033,16 @@ int quickbar_y= 0;
 void init_quickbar() {
 	quickbar_x_len= 30;
 	quickbar_y_len= 6*30+1;
-	quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x_len-4, 64, quickbar_x_len, quickbar_y_len, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
-	set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
-	set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
+	if(quickbar_win <= 0)
+		{
+			quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x_len-4, 64, quickbar_x_len, quickbar_y_len, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
+			set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
+			set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
+		}
+	else
+		{
+			move_window(quickbar_win, 0, 0, window_width-quickbar_x_len-4, 64);
+		}	
 }
 
 void draw_quickbar() {

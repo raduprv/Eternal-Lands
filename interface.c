@@ -80,7 +80,8 @@ int check_drag_menus()
 				return 1;
 			}
 
-	/*if(options_menu_dragged || (options_menu && mouse_x>options_menu_x && mouse_x<=options_menu_x + options_menu_x_len && mouse_y>options_menu_y-16 && mouse_y<=options_menu_y))
+	/*
+	if(options_menu_dragged || (options_menu && mouse_x>options_menu_x && mouse_x<=options_menu_x + options_menu_x_len && mouse_y>options_menu_y-16 && mouse_y<=options_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
 
@@ -109,6 +110,7 @@ int check_drag_menus()
 				return 1;
 			}
 
+	/*
 	if(manufacture_menu_dragged || (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_x<=manufacture_menu_x+manufacture_menu_x_len && mouse_y>manufacture_menu_y-16 && mouse_y<=manufacture_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged &&
 		   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -122,6 +124,7 @@ int check_drag_menus()
 					}
 				return 1;
 			}
+	*/
 
 	if(ground_items_menu_dragged || (view_ground_items && mouse_x>ground_items_menu_x && mouse_x<=ground_items_menu_x+ground_items_menu_x_len && mouse_y>ground_items_menu_y-16 && mouse_y<=ground_items_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !manufacture_menu_dragged &&
@@ -150,7 +153,6 @@ int check_drag_menus()
 				return 1;
 			}
 	/*
-	// TODO: move dragging logic into elwindows.c
 	if(attrib_menu_dragged || (view_self_stats && mouse_x>attrib_menu_x && mouse_x<=attrib_menu_x+attrib_menu_x_len && mouse_y>attrib_menu_y-16 && mouse_y<=attrib_menu_y))
 		if(!items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -335,6 +337,7 @@ void check_mouse_click()
 	//if(check_options_menu())return;
 	if(check_trade_interface())return;
 
+	/*
 	if(view_manufacture_menu && mouse_x>(manufacture_menu_x+manufacture_menu_x_len-20) && mouse_x<=(manufacture_menu_x+manufacture_menu_x_len)
 	   && mouse_y>manufacture_menu_y && mouse_y<=manufacture_menu_y+20)
 		{
@@ -342,6 +345,7 @@ void check_mouse_click()
 			return;
 		}
 	if(check_manufacture_interface())return;
+	*/
 
 	if(view_ground_items && mouse_x>(ground_items_menu_x+ground_items_menu_x_len-20) && mouse_x<=(ground_items_menu_x+ground_items_menu_x_len)
 	   && mouse_y>ground_items_menu_y && mouse_y<=ground_items_menu_y+20)
@@ -1294,6 +1298,7 @@ void draw_ingame_interface()
 	if(buddy_win > 0)	view_buddy= get_show_window(buddy_win);
 	if(encyclopedia_win > 0)	view_encyclopedia= get_show_window(encyclopedia_win);
 	if(knowledge_win > 0)	view_knowledge= get_show_window(knowledge_win);
+	if(manufacture_win > 0)	view_manufacture_menu= get_show_window(manufacture_win);
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
@@ -1318,7 +1323,7 @@ void draw_ingame_interface()
     if(view_my_items)display_items_menu();
     if(view_ground_items)draw_pick_up_menu();
     if(item_dragged!=-1)drag_item();
-    if(view_manufacture_menu)display_manufacture_menu();
+    //if(view_manufacture_menu)display_manufacture_menu();
     if(view_trade_menu)display_trade_menu();
     //if(options_menu)draw_options_menu();
     if(view_sigils_menu)

@@ -1,6 +1,8 @@
 #include "global.h"
+#include "elwindows.h"
 
 item manu_recipe[6];
+int	manufacture_win= 0;
 
 void build_manufacture_list()
 {
@@ -74,106 +76,71 @@ void build_manufacture_list()
 		}
 }
 
-void display_manufacture_menu()
+int	display_manufacture_handler(window_info *win)
 {
 	Uint8 str[80];
 	int x,y,i;
 	//first of all, draw the actual menu.
 
-	draw_menu_title_bar(manufacture_menu_x,manufacture_menu_y-16,manufacture_menu_x_len);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(manufacture_menu_x,manufacture_menu_y+manufacture_menu_y_len,0);
-	glVertex3i(manufacture_menu_x,manufacture_menu_y,0);
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len,manufacture_menu_y,0);
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len,manufacture_menu_y+manufacture_menu_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-
 	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
-	glVertex3i(manufacture_menu_x,manufacture_menu_y,0);
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len,manufacture_menu_y,0);
-
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len,manufacture_menu_y,0);
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len,manufacture_menu_y+manufacture_menu_y_len,0);
-
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len,manufacture_menu_y+manufacture_menu_y_len,0);
-	glVertex3i(manufacture_menu_x,manufacture_menu_y+manufacture_menu_y_len,0);
-
-	glVertex3i(manufacture_menu_x,manufacture_menu_y+manufacture_menu_y_len,0);
-	glVertex3i(manufacture_menu_x,manufacture_menu_y,0);
-
 	//draw the grid
 	for(y=1;y<4;y++)
 		{
-			glVertex3i(manufacture_menu_x,manufacture_menu_y+y*33,0);
-			glVertex3i(manufacture_menu_x+12*33,manufacture_menu_y+y*33,0);
+			glVertex3i(0,y*33,0);
+			glVertex3i(12*33,y*33,0);
 		}
 	for(x=1;x<13;x++)
 		{
-			glVertex3i(manufacture_menu_x+x*33,manufacture_menu_y,0);
-			glVertex3i(manufacture_menu_x+x*33,manufacture_menu_y+3*33,0);
+			glVertex3i(x*33,0,0);
+			glVertex3i(x*33,3*33,0);
 		}
 
 	//draw the bottom grid
 	for(y=1;y<2;y++)
 		{
-			glVertex3i(manufacture_menu_x,manufacture_menu_y+y*5*33,0);
-			glVertex3i(manufacture_menu_x+6*33,manufacture_menu_y+y*5*33,0);
+			glVertex3i(0,y*5*33,0);
+			glVertex3i(6*33,y*5*33,0);
 		}
 	for(x=1;x<7;x++)
 		{
-			glVertex3i(manufacture_menu_x+x*33,manufacture_menu_y+5*33,0);
-			glVertex3i(manufacture_menu_x+x*33,manufacture_menu_y+6*33,0);
+			glVertex3i(x*33,5*33,0);
+			glVertex3i(x*33,6*33,0);
 		}
-
-	glColor3f(0.77f,0.57f,0.39f);
-	//draw the corner, with the X in
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len,manufacture_menu_y+20,0);
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len-20,manufacture_menu_y+20,0);
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len-20,manufacture_menu_y+20,0);
-	glVertex3i(manufacture_menu_x+manufacture_menu_x_len-20,manufacture_menu_y,0);
-
 
 	//draw the buttons frame
 	//Mix button
-	glVertex3i(manufacture_menu_x+33*6+40,manufacture_menu_y+manufacture_menu_y_len-30,0);
-	glVertex3i(manufacture_menu_x+33*6+40+50,manufacture_menu_y+manufacture_menu_y_len-30,0);
+	glVertex3i(33*6+40,manufacture_menu_y_len-30,0);
+	glVertex3i(33*6+40+50,manufacture_menu_y_len-30,0);
 
-	glVertex3i(manufacture_menu_x+33*6+40,manufacture_menu_y+manufacture_menu_y_len-10,0);
-	glVertex3i(manufacture_menu_x+33*6+40+50,manufacture_menu_y+manufacture_menu_y_len-10,0);
+	glVertex3i(33*6+40,manufacture_menu_y_len-10,0);
+	glVertex3i(33*6+40+50,manufacture_menu_y_len-10,0);
 
-	glVertex3i(manufacture_menu_x+33*6+40+50,manufacture_menu_y+manufacture_menu_y_len-30,0);
-	glVertex3i(manufacture_menu_x+33*6+40+50,manufacture_menu_y+manufacture_menu_y_len-9,0);
+	glVertex3i(33*6+40+50,manufacture_menu_y_len-30,0);
+	glVertex3i(33*6+40+50,manufacture_menu_y_len-9,0);
 
-	glVertex3i(manufacture_menu_x+33*6+40,manufacture_menu_y+manufacture_menu_y_len-30,0);
-	glVertex3i(manufacture_menu_x+33*6+40,manufacture_menu_y+manufacture_menu_y_len-10,0);
+	glVertex3i(33*6+40,manufacture_menu_y_len-30,0);
+	glVertex3i(33*6+40,manufacture_menu_y_len-10,0);
 
 	//Clear button
-	glVertex3i(manufacture_menu_x+33*9+40,manufacture_menu_y+manufacture_menu_y_len-30,0);
-	glVertex3i(manufacture_menu_x+33*9+40+70,manufacture_menu_y+manufacture_menu_y_len-30,0);
+	glVertex3i(33*9+40,manufacture_menu_y_len-30,0);
+	glVertex3i(33*9+40+70,manufacture_menu_y_len-30,0);
 
-	glVertex3i(manufacture_menu_x+33*9+40,manufacture_menu_y+manufacture_menu_y_len-10,0);
-	glVertex3i(manufacture_menu_x+33*9+40+70,manufacture_menu_y+manufacture_menu_y_len-10,0);
+	glVertex3i(33*9+40,manufacture_menu_y_len-10,0);
+	glVertex3i(33*9+40+70,manufacture_menu_y_len-10,0);
 
-	glVertex3i(manufacture_menu_x+33*9+40+70,manufacture_menu_y+manufacture_menu_y_len-30,0);
-	glVertex3i(manufacture_menu_x+33*9+40+70,manufacture_menu_y+manufacture_menu_y_len-9,0);
+	glVertex3i(33*9+40+70,manufacture_menu_y_len-30,0);
+	glVertex3i(33*9+40+70,manufacture_menu_y_len-9,0);
 
-	glVertex3i(manufacture_menu_x+33*9+40,manufacture_menu_y+manufacture_menu_y_len-30,0);
-	glVertex3i(manufacture_menu_x+33*9+40,manufacture_menu_y+manufacture_menu_y_len-10,0);
+	glVertex3i(33*9+40,manufacture_menu_y_len-30,0);
+	glVertex3i(33*9+40,manufacture_menu_y_len-10,0);
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	draw_string(manufacture_menu_x+manufacture_menu_x_len-16,manufacture_menu_y+2,"X",1);
-	draw_string(manufacture_menu_x+33*6+40+8,manufacture_menu_y+manufacture_menu_y_len-30+2,"Mix",1);
-	draw_string(manufacture_menu_x+33*9+40+8,manufacture_menu_y+manufacture_menu_y_len-30+2,"Clear",1);
+	draw_string(33*6+40+8,manufacture_menu_y_len-30+2,"Mix",1);
+	draw_string(33*9+40+8,manufacture_menu_y_len-30+2,"Clear",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -195,9 +162,9 @@ void display_manufacture_menu()
 					//get the x and y
 					cur_pos=i;
 
-					x_start=manufacture_menu_x+33*(cur_pos%12)+1;
+					x_start=33*(cur_pos%12)+1;
 					x_end=x_start+32;
-					y_start=manufacture_menu_y+33*(cur_pos/12);
+					y_start=33*(cur_pos/12);
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
@@ -240,9 +207,9 @@ void display_manufacture_menu()
 					//get the x and y
 					cur_pos=i;
 
-					x_start=manufacture_menu_x+33*(cur_pos%6)+1;
+					x_start=33*(cur_pos%6)+1;
 					x_end=x_start+32;
-					y_start=manufacture_menu_y+33*5;
+					y_start=33*5;
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
@@ -265,23 +232,20 @@ void display_manufacture_menu()
 				}
 		}
 	//now, draw the inventory text, if any.
-	draw_string_small(manufacture_menu_x+4,manufacture_menu_y+manufacture_menu_y_len-85,items_string,4);
+	draw_string_small(4,manufacture_menu_y_len-85,items_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
+	return 1;
 }
 
-int check_manufacture_interface()
+int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int i,x,y;
 	int x_screen,y_screen;
 	Uint8 str[100];
 
-	//watch for the action not in this window
-	if(!view_manufacture_menu || mouse_x>manufacture_menu_x+manufacture_menu_x_len || mouse_x<manufacture_menu_x
-	   || mouse_y<manufacture_menu_y || mouse_y>manufacture_menu_y+manufacture_menu_y_len)return 0;
-
 	//Clear
-	if(mouse_x>manufacture_menu_x+33*9+40 && mouse_x<manufacture_menu_x+33*9+40+70 &&
-	   mouse_y>manufacture_menu_y+manufacture_menu_y_len-30 && mouse_y<manufacture_menu_y+manufacture_menu_y_len-10)
+	if(mx>33*9+40 && mx<33*9+40+70 &&
+	   my>manufacture_menu_y_len-30 && my<manufacture_menu_y_len-10)
 		{
 			for(i=0; i<6; i++) manu_recipe[i].quantity= manu_recipe[i].image_id= 0; // clear the recipe
 			build_manufacture_list();
@@ -289,8 +253,8 @@ int check_manufacture_interface()
 		}
 
 	//Mix
-	if(mouse_x>manufacture_menu_x+33*6+40 && mouse_x<manufacture_menu_x+33*6+40+50 &&
-	   mouse_y>manufacture_menu_y+manufacture_menu_y_len-30 && mouse_y<manufacture_menu_y+manufacture_menu_y_len-10)
+	if(mx>33*6+40 && mx<33*6+40+50 &&
+	   my>manufacture_menu_y_len-30 && my<manufacture_menu_y_len-10)
 		{
 			Uint8 str[20];
 			int items_no=0;
@@ -324,9 +288,9 @@ int check_manufacture_interface()
 	for(y=0;y<3;y++)
 		for(x=0;x<12;x++)
 			{
-				x_screen=manufacture_menu_x+x*33;
-				y_screen=manufacture_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				x_screen=x*33;
+				y_screen=y*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
 
 						//see if there is any item there
@@ -334,7 +298,7 @@ int check_manufacture_interface()
 						if(manufacture_list[y*12+x].quantity)
 							{
 
-								if(action_mode==action_look || right_click)
+								if(action_mode==action_look || (flags&ELW_RIGHT_MOUSE))
 									{
 										str[0]=LOOK_AT_INVENTORY_ITEM;
 										str[1]=manufacture_list[y*12+x].pos;
@@ -377,9 +341,9 @@ int check_manufacture_interface()
 	//see if we clicked on any item from the "production pipe"
 	for(x=0;x<6;x++)
 		{
-			x_screen=manufacture_menu_x+x*33;
-			y_screen=manufacture_menu_y+5*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+			x_screen=x*33;
+			y_screen=5*33;
+			if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 				{
 
 					//see if there is any item there
@@ -387,7 +351,7 @@ int check_manufacture_interface()
 					if(manufacture_list[36+x].quantity)
 						{
 
-							if(action_mode==action_look || right_click)
+							if(action_mode==action_look || (flags&ELW_RIGHT_MOUSE))
 								{
 									str[0]=LOOK_AT_INVENTORY_ITEM;
 									str[1]=manufacture_list[36+x].pos;
@@ -426,7 +390,20 @@ int check_manufacture_interface()
 						}
 				}
 		}
-
 	return 1;
-
 }
+
+void display_manufacture_menu()
+{
+	if(manufacture_win <= 0){
+		manufacture_win= create_window("Manufacture", 0, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
+
+		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
+		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
+	} else {
+		show_window(manufacture_win);
+		select_window(manufacture_win);
+	}
+	display_window(manufacture_win);
+}
+
