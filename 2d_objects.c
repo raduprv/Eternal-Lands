@@ -382,8 +382,6 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 		}
 
 	//but first convert any '\' in '/'
-	//len=strlen(file_name);
-	//for(k=0;k<len;k++)if(file_name[k]=='\\')file_name[k]='/';
 	clean_file_name(fname, file_name, 128);
 
 	returned_obj_2d_def=load_obj_2d_def_cache(fname);
