@@ -9,6 +9,9 @@
 #define plant 1
 #define fence 2
 
+#define sector_size_x 15
+#define sector_size_y 15
+
 typedef struct
 {
 	float u_start;
@@ -43,6 +46,10 @@ typedef struct
 extern obj_2d_cache_struct obj_2d_def_cache[max_obj_2d_def];
 
 extern obj_2d *obj_2d_list[max_obj_2d];
+
+extern int map_meters_size_x;
+extern int map_meters_size_y;
+extern float texture_scale;
 
 void draw_2d_object(obj_2d * object_id);
 obj_2d_def * load_obj_2d_def(char *file_name);

@@ -71,6 +71,9 @@ extern int options_menu_y_len;
 extern int options_menu_dragged;
 
 
+extern int selected_3d_object;
+extern int selected_inventory_object;
+
 typedef struct
 {
 	char supported;

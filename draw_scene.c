@@ -44,12 +44,9 @@ int main_count=0;
 int fps_average=0;
 int old_fps_average=0;
 
-//debuging info
-int debug_info=0;
-float debug_float;
-int triangles_normal=0;
-int triangles_shadow=0;
-
+float clouds_movement_u=-8;
+float clouds_movement_v=-3;
+Uint32 last_clear_clouds=0;
 
 void draw_scene()
 {
@@ -59,8 +56,6 @@ void draw_scene()
 	int any_reflection=0;
 	int mouse_rate;
 
-	//debug
-	triangles_normal=0;
 	check_gl_errors();
 
 	//clear the clouds cache too...

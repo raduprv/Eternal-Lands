@@ -5,6 +5,9 @@
 extern char our_name[20];
 extern char our_password[20];
 
+extern char create_char_error_str[520];
+extern char log_in_error_str[520];
+
 extern int port;
 extern unsigned char server_address[60];
 
@@ -24,6 +27,13 @@ extern int client_version_patch;
 extern int version_first_digit;
 extern int version_second_digit;
 extern Uint32 last_heart_beat;
+
+extern Uint32 cur_time, last_time;
+extern int server_time_stamp;
+extern int client_time_stamp;
+extern int client_server_delta_time;
+
+extern int log_conn_data;
 
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
 void send_version_to_server(IPaddress *ip);

@@ -10,10 +10,6 @@
 #include "global.h"
 
 int ini_file_size=0;
-int bpp=0;
-int have_stencil=1;
-int video_mode;
-int full_screen;
 
 int disconnected=1;
 int exit_now = 0;
@@ -28,34 +24,6 @@ int no_alpha_sat=0;
 help_entry help_list[MAX_HELP_ENTRIES];
 char configdir[256];
 char datadir[256];
-
-void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
-void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
-void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
-void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
-void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
-void (APIENTRY * ELglUnlockArraysEXT) (void);
-void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
-void (APIENTRY * ELglPointParameterfARB) (GLenum parameter, GLfloat value);
-
-int have_multitexture=0;
-float clouds_movement_u=-8;
-float clouds_movement_v=-3;
-Uint32 last_clear_clouds=0;
-int reflection_texture;
-int use_vertex_array=0;
-int vertex_arrays_built=0;
-int have_compiled_vertex_array=0;
-int have_point_parameter=0;
-
-int shift_on;
-int alt_on;
-int ctrl_on;
-
-#ifdef	CACHE_SYSTEM
-cache_struct	*cache_md2=NULL;
-cache_struct	*cache_e3d=NULL;
-#endif	//CACHE_SYSTEM
 
 void load_harvestable_list()
 {
@@ -405,8 +373,6 @@ void init_2d_obj_cache()
 void init_stuff()
 {
 	int seed;
-	Uint8 * extensions;
-	int ext_str_len;
 
 	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
 
@@ -466,70 +432,6 @@ void init_stuff()
 
 	if(!no_sound)init_sound();
 
-	//now load the multitexturing extension
-	ELglActiveTextureARB = SDL_GL_GetProcAddress("glActiveTextureARB");
-	ELglMultiTexCoord2fARB = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
-	ELglMultiTexCoord2fvARB	= SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
-	ELglClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
-	ELglLockArraysEXT = SDL_GL_GetProcAddress("glLockArraysEXT");
-	ELglUnlockArraysEXT = SDL_GL_GetProcAddress("glUnlockArraysEXT");
-	ELglPointParameterfARB= SDL_GL_GetProcAddress("glPointParameterfARB");
-
-	//see if we really have multitexturing
-	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
-	ext_str_len=strlen(extensions);
-	if(ELglActiveTextureARB && ELglMultiTexCoord2fARB && ELglMultiTexCoord2fvARB && ELglClientActiveTextureARB)
-		{
-			have_multitexture=get_string_occurance("GL_ARB_multitexture",extensions,ext_str_len,0);
-			if(have_multitexture==-1)
-				{
-					have_multitexture=0;
-					log_to_console(c_red1,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...");
-				}
-			else
-				{
-					have_multitexture=1;
-					log_to_console(c_green2,"GL_ARB_multitexture extension found, using it");
-				}
-		}
-	else
-		{
-			have_multitexture=0;
-			log_to_console(c_red1,"Couldn't find one of the GL_ARB_multitexture functions, giving up clouds shadows, and texture detail...");
-		}
-	if(ELglLockArraysEXT && ELglUnlockArraysEXT)
-		{
-			have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
-			if(have_compiled_vertex_array < 0)
-				{
-					have_compiled_vertex_array=0;
-					log_to_console(c_red1,"Couldn't find the GL_EXT_compiled_vertex_array extension, not using it...");
-				}
-			else log_to_console(c_green2,"GL_EXT_compiled_vertex_array extension found, using it...");
-		}
-	else
-		{
-			have_compiled_vertex_array=0;
-			log_to_console(c_red1,"Couldn't find one of the GL_EXT_compiled_vertex_array functions, not using it...");
-
-		}
-	if(ELglPointParameterfARB)
-		{
-			have_point_parameter=get_string_occurance("GL_ARB_point_parameters",extensions,ext_str_len,0);
-			if(have_point_parameter<0)
-				{
-					have_point_parameter=0;
-					log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
-				}
-			else log_to_console(c_green2,"GL_ARB_point_parameters extension found, using it...");
-		}
-	else
-		{
-			have_point_parameter=0;
-			log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
-		}
-
-	check_gl_errors();
 
 
 	//initialize the fonts

@@ -25,6 +25,29 @@ typedef struct
 	Uint32	(*compact_item)();	// routine to call to reduce memory usage without freeing
 }cache_struct;
 
+typedef struct
+{
+	int texture_id;
+    char file_name[128];
+#ifdef	CACHE_SYSTEM
+	cache_item_struct	*cache_ptr;
+#else	//CACHE_SYSTEM
+	int last_access_time;
+#endif	//CACHE_SYSTEM
+	unsigned char alpha;
+}texture_cache_struct;
+
+//#ifndef	CACHE_SYSTEM
+extern texture_cache_struct texture_cache[1000];
+//#endif	//CACHE_SYSTEM
+
+#ifdef	CACHE_SYSTEM
+#define	MAX_CACHE_SYSTEM	32
+extern cache_struct	*cache_system;
+extern cache_struct	*cache_md2;
+extern cache_struct	*cache_e3d;
+extern cache_struct	*cache_texture;
+#endif	//cache_system
 
 //proto
 extern cache_struct *cache_system;

@@ -48,6 +48,26 @@ typedef struct
 
 }bin_cfg;
 
+extern int ini_file_size;
+extern int have_stencil;
+extern int poor_man;
+extern int show_reflection;
+extern int no_alpha_sat;
+extern int mouse_limit;
+extern int show_fps;
+extern int limit_fps;
+
+extern int no_adjust_shadows;
+extern int clouds_shadows;
+extern char configdir[256];
+extern char datadir[256];
+
+extern int disconnected;
+extern int exit_now;
+extern int have_url;
+extern char current_url[160];
+extern char broswer_name[120];
+
 void load_harvestable_list();
 void load_entrable_list();
 void read_config();

@@ -33,6 +33,8 @@ extern int dialogue_menu_x_len;
 extern int dialogue_menu_y_len;
 extern int dialogue_menu_dragged;
 
+extern int no_bounding_box;
+
 void build_response_entries(Uint8 *data,int total_lenght);
 void display_dialogue();
 void highlight_dialogue_response();

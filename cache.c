@@ -5,6 +5,11 @@
 
 cache_struct	*cache_system=NULL;
 
+#ifdef	CACHE_SYSTEM
+cache_struct	*cache_md2=NULL;
+cache_struct	*cache_e3d=NULL;
+#endif	//CACHE_SYSTEM
+
 #ifndef	CACHE_SYSTEM
 md2_cache_struct md2_cache[1000];
 e3d_cache_struct e3d_cache[1000];

@@ -10,6 +10,10 @@
 int mod_key_status;
 Uint32 last_turn_around=0;
 
+int shift_on;
+int alt_on;
+int ctrl_on;
+
 int HandleEvent(SDL_Event *event)
 {
 	int done=0;

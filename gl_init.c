@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "global.h"
 
 Uint32 flags;
@@ -9,6 +10,25 @@ int window_height=480;
 int desktop_width;
 int desktop_height;
 
+int bpp=0;
+int have_stencil=1;
+int video_mode;
+int full_screen;
+
+int have_multitexture=0;
+int use_vertex_array=0;
+int vertex_arrays_built=0;
+int have_compiled_vertex_array=0;
+int have_point_parameter=0;
+
+void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
+void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
+void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
+void (APIENTRY * ELglUnlockArraysEXT) (void);
+void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglPointParameterfARB) (GLenum parameter, GLfloat value);
 
 void setup_video_mode()
 {
@@ -174,6 +194,8 @@ void check_gl_mode()
 void init_video()
 {
 	int rgb_size[3];
+	Uint8 * extensions;
+	int ext_str_len;
 
 	if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1 )
 		{
@@ -350,6 +372,72 @@ void init_video()
 	build_video_mode_array();
 	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &have_stencil);
 	last_texture=-1;	//no active texture
+
+
+	//now load the multitexturing extension
+	ELglActiveTextureARB = SDL_GL_GetProcAddress("glActiveTextureARB");
+	ELglMultiTexCoord2fARB = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
+	ELglMultiTexCoord2fvARB	= SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
+	ELglClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
+	ELglLockArraysEXT = SDL_GL_GetProcAddress("glLockArraysEXT");
+	ELglUnlockArraysEXT = SDL_GL_GetProcAddress("glUnlockArraysEXT");
+	ELglPointParameterfARB= SDL_GL_GetProcAddress("glPointParameterfARB");
+
+	//see if we really have multitexturing
+	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
+	ext_str_len=strlen(extensions);
+	if(ELglActiveTextureARB && ELglMultiTexCoord2fARB && ELglMultiTexCoord2fvARB && ELglClientActiveTextureARB)
+		{
+			have_multitexture=get_string_occurance("GL_ARB_multitexture",extensions,ext_str_len,0);
+			if(have_multitexture==-1)
+				{
+					have_multitexture=0;
+					log_to_console(c_red1,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...");
+				}
+			else
+				{
+					have_multitexture=1;
+					log_to_console(c_green2,"GL_ARB_multitexture extension found, using it");
+				}
+		}
+	else
+		{
+			have_multitexture=0;
+			log_to_console(c_red1,"Couldn't find one of the GL_ARB_multitexture functions, giving up clouds shadows, and texture detail...");
+		}
+	if(ELglLockArraysEXT && ELglUnlockArraysEXT)
+		{
+			have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
+			if(have_compiled_vertex_array < 0)
+				{
+					have_compiled_vertex_array=0;
+					log_to_console(c_red1,"Couldn't find the GL_EXT_compiled_vertex_array extension, not using it...");
+				}
+			else log_to_console(c_green2,"GL_EXT_compiled_vertex_array extension found, using it...");
+		}
+	else
+		{
+			have_compiled_vertex_array=0;
+			log_to_console(c_red1,"Couldn't find one of the GL_EXT_compiled_vertex_array functions, not using it...");
+
+		}
+	if(ELglPointParameterfARB)
+		{
+			have_point_parameter=get_string_occurance("GL_ARB_point_parameters",extensions,ext_str_len,0);
+			if(have_point_parameter<0)
+				{
+					have_point_parameter=0;
+					log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
+				}
+			else log_to_console(c_green2,"GL_ARB_point_parameters extension found, using it...");
+		}
+	else
+		{
+			have_point_parameter=0;
+			log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
+		}
+
+	check_gl_errors();
 }
 
 
