@@ -165,6 +165,7 @@ extern object3d *objects_list[max_obj_3d];
 e3d_object * load_e3d(char *file_name);
 e3d_object * load_e3d_detail(e3d_object *cur_object);
 int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b);
+Uint32 free_e3d_va(e3d_object *e3d_id);
 
 #endif
 

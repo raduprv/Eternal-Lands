@@ -768,7 +768,7 @@ void destroy_3d_object(int i)
 	objects_list[i]=0;
 }
 
-void destroy_e3d(e3d_object *e3d_id)
+Uint32 free_e3d_va(e3d_object *e3d_id)
 {
 	if(e3d_id->array_vertex)
 		{
@@ -793,6 +793,17 @@ void destroy_e3d(e3d_object *e3d_id)
 			free(e3d_id->array_order);
 			e3d_id->array_order=NULL;
 		}
+#ifdef	CACHE_SYSTEM
+		return(e3d_id->cache_ptr->size - sizeof(*e3d_id));
+#else	//CACHE_SYSTEM
+		return(0);
+#endif	//CACHE_SYSTEM
+}
+
+void destroy_e3d(e3d_object *e3d_id)
+{
+	// release the detailed data
+	free_e3d_va(e3d_id);
 	// and finally free the main object
 	free(e3d_id);
 }

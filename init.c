@@ -317,8 +317,9 @@ void init_e3d_cache()
 	//cache_e3d=cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
 	cache_e3d=cache_init(1000, NULL);
 	cache_set_name(cache_system, "E3D cache", cache_e3d);
-	cache_set_time_limit(cache_md2, 5*60*1000);
-	cache_set_size_limit(cache_md2, 8*1024*1024);
+	cache_set_compact(cache_e3d, &free_e3d_va);	// to compact, free VA arrays
+	cache_set_time_limit(cache_e3d, 5*60*1000);
+	cache_set_size_limit(cache_e3d, 8*1024*1024);
 #else	//CACHE_SYSTEM
 	int i;
 	for(i=0;i<1000;i++)
