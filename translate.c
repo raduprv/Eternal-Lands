@@ -5,14 +5,17 @@
 #include <string.h>
 #include <stdarg.h>
 #include "translate.h"
+#ifdef ELC
 #include "stats.h"
-
-char fooo[20];
-char mooo[20];
+#else
+#include "global.h"
+#endif
 
 #define GROUP 0
 #define DIGROUP 1
+#ifdef ELC
 #define STAT_GROUP 2
+#endif
 
 typedef struct
 {
@@ -33,6 +36,7 @@ typedef struct
 #endif
 } distring_item;
 
+#ifdef ELC
 typedef struct
 {
 	char xml_id[15];
@@ -41,6 +45,7 @@ typedef struct
 	int saved;
 #endif
 } statstring_item;
+#endif
 
 typedef struct
 {
@@ -62,6 +67,7 @@ typedef struct
 #endif
 } group_id_di;
 
+#ifdef ELC
 typedef struct
 {
 	char xml_id[15];
@@ -71,17 +77,20 @@ typedef struct
 	int saved;
 #endif
 } group_stat;
+#endif
 
-
+#ifdef ELC
 void init_console(void);
-void init_errors(void);
 void init_help(void);
 void init_options(void);
 void init_spells(void);
 void init_stats(void);
+#endif
+void init_errors(void);
 void * add_xml_group(int type, int no, ...);
 
 //Tooltips
+#ifdef ELC
 char	tt_walk[30],
 	tt_sit[30],
 	tt_stand[30],
@@ -100,7 +109,9 @@ char	tt_walk[30],
 	tt_console[30],
 	tt_buddy[30],
 	tt_options[30];
+#endif
 
+#ifdef ELC
 //Options
 dichar	opt_shadows,
 	opt_clouds,
@@ -118,7 +129,9 @@ dichar	opt_shadows,
 char 	switch_video_mode[50],
 	opt_options[20],
 	opt_vidmode[20];
+#endif
 
+#ifdef ELC
 //Sigils
 char 	sig_too_few_sigs[50];
 
@@ -148,7 +161,9 @@ dichar	sig_change,
 	sig_health,
 	sig_life,
 	sig_death;
+#endif
 
+#ifdef ELC
 //Help messages
 char	
 	/*3d_objects.c*/
@@ -200,7 +215,9 @@ char
 	/*trade.c*/
 	quantity_str[30],
 	abort_str[10];
+#endif
 
+#ifdef ELC
 //Console
 char	name_too_long[75], 
 	name_too_short[75],
@@ -229,6 +246,8 @@ char	name_too_long[75],
 	opengl_version_str[20],
 	supported_extensions_str[30],
 	logconn_str[50];
+#endif
+
 
 //Errors
 char	reg_error_str[15],
@@ -240,7 +259,8 @@ char	reg_error_str[15],
 	nasty_error_str[50],
 	corrupted_object[100],
 	bad_object[30],
-	multiple_material_same_texture[100], 
+	multiple_material_same_texture[100], 	
+#ifdef ELC
 	/*actors.c*/
 	cant_load_actor[30],
 	cant_find_frame[30],
@@ -254,9 +274,11 @@ char	reg_error_str[15],
 	cursors_file_str[30],
 	/*dialogues.c*/
 	close_str[20],
+#endif
 	/*font.c*/
 	cant_load_font[30],
 	/*init.c*/
+#ifdef ELC
 	no_stencil_str[150],
 	safemode_str[150],
 	no_sdl_str[30],
@@ -304,6 +326,7 @@ char	reg_error_str[15],
 	duplicate_npc_actor[50],
 	duplicate_actors_str[50],
 	bad_actor_name_length[50],
+#endif
 	/*particles.c*/
 	particles_filever_wrong[100],
 	particle_system_overrun[100],
@@ -314,9 +337,10 @@ char	reg_error_str[15],
 	using_textured_quads[50],
 	definitions_str[20],
 	part_sys_str[20],
-	part_part_str[20],
+	part_part_str[20]
+#ifdef ELC
 	/*paste.c*/
-	not_ascii[20],
+	,not_ascii[20],
 	/*sound.c*/
 	snd_ogg_load_error[50],
 	snd_ogg_stream_error[50],
@@ -336,7 +360,11 @@ char	reg_error_str[15],
 	snd_media_ogg_error[50],
 	/*stats.c*/
 	stat_no_invalid[50]; 
-	
+#else
+	;
+#endif
+
+#ifdef ELC
 #define CONSOLE_STR 3
 #define ERRORS 6
 #define HELP_STR 4
@@ -344,17 +372,25 @@ char	reg_error_str[15],
 #define SIGILS_STR 1
 #define STATS_STR 5
 #define STATS_EXTRA 1
+#endif
 
-group_id * console_str;
+#ifdef MAP_EDITOR
+#define ERRORS 1
+#endif
+
 group_id * errors;
+#ifdef ELC
+group_id * console_str;
 group_id * help_str;
 group_id_di * options_str;
 group_id_di * sigils_str;
 group_stat * stats_str;
 group_id * stats_extra;
+#endif
 
 void init_groups()
 {
+#ifdef ELC
 	console_str=add_xml_group(GROUP,CONSOLE_STR,"filter","ignore","misc");
 	errors=add_xml_group(GROUP,ERRORS,"actors","load","misc","particles","snd","video");
 	help_str=add_xml_group(GROUP,HELP_STR,"afk","misc","new","tooltips");
@@ -362,6 +398,10 @@ void init_groups()
 	sigils_str=add_xml_group(DIGROUP,SIGILS_STR,"sigils");
 	stats_str=add_xml_group(STAT_GROUP,STATS_STR,"base","cross","misc","nexus","skills");
 	stats_extra=add_xml_group(GROUP,STATS_EXTRA,"extra");
+#endif
+#ifdef MAP_EDITOR
+	errors=add_xml_group(GROUP,ERRORS,"particles");
+#endif
 }
 
 void * add_xml_group(int type, int no, ...)
@@ -385,6 +425,7 @@ void * add_xml_group(int type, int no, ...)
 					for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
 					return grp;
 				}
+#ifdef ELC
 			case STAT_GROUP:
 				{
 					group_stat * grp;
@@ -392,6 +433,7 @@ void * add_xml_group(int type, int no, ...)
 					for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
 					return grp;
 				}
+#endif
 			default: 
 				return NULL;
 		}
@@ -408,6 +450,7 @@ void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char *
 	group->no++;
 }
 
+#ifdef ELC
 void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name, char * shortname)
 {
 	group->statstrings=(statstring_item**)realloc(group->statstrings,(group->no+1)*sizeof(statstring_item*));
@@ -418,6 +461,7 @@ void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name,
 	strncpy(var->shortname, shortname, 5);
 	group->no++;
 }
+#endif
 
 void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def, int max_len)
 {
@@ -430,17 +474,35 @@ void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def,
 	group->no++;
 }
 
+void free_xml_parser(int type, void * gPtr, int no);
+
 void init_translatables()
 {
 	init_groups();
-	init_console();
 	init_errors();
+#ifdef ELC
+	init_console();
 	init_help();
 	init_options();
 	init_spells();
 	init_stats();
+#endif
+#ifndef WRITE_XML
+#ifndef LOAD_XML
+//There's no need for these variables to be hanging around any more...
+	free_xml_parser(GROUP,errors,ERRORS);
+#ifdef ELC
+	free_xml_parser(GROUP,console_str,CONSOLE_STR);
+	free_xml_parser(GROUP,help_str,HELP_STR);
+	free_xml_parser(DIGROUP,options_str,OPTIONS_STR);
+	free_xml_parser(DIGROUP,sigils_str,SIGILS_STR);
+	free_xml_parser(STAT_GROUP,stats_str,STATS_STR);
+	free_xml_parser(GROUP,stats_extra,STATS_EXTRA);
+#endif
+#endif
+#endif
 }
-
+#ifdef ELC
 void init_console()
 {
 	group_id * filter=&(console_str[0]);
@@ -476,16 +538,23 @@ void init_console()
 	add_xml_identifier(misc,"ext",supported_extensions_str,"Supported extensions",30);
 	add_xml_identifier(misc,"opengl",opengl_version_str,"OpenGL Version",20);
 }
+#endif
 
 void init_errors()
 {
+#ifdef ELC
 	group_id * actors=&(errors[0]);
 	group_id * load=&(errors[1]);
 	group_id * misc=&(errors[2]);
 	group_id * particles=&(errors[3]);
 	group_id * snd=&(errors[4]);
 	group_id * video=&(errors[5]);
-	
+#endif
+#ifdef MAP_EDITOR
+	group_id * particles=&(errors[0]);
+#endif
+
+#ifdef ELC
 	//Actor related errors
 	add_xml_identifier(actors,"load",cant_load_actor,"Can't load actor",30);
 	add_xml_identifier(actors,"frame",cant_find_frame,"Couldn't find frame",30);
@@ -538,7 +607,8 @@ void init_errors()
 	add_xml_identifier(misc,"disconnect",disconnected_from_server,"Disconnected from server!",50);
 	add_xml_identifier(misc,"stat",stat_no_invalid,"Server sent invalid stat number",50);
 	add_xml_identifier(misc,"ascii",not_ascii,"Not ASCII",20);
-	
+#endif
+
 	//Particle errors
 	add_xml_identifier(particles,"version",particles_filever_wrong,"Particle file %s version (%i) doesn't match file reader version (%i)!",100);
 	add_xml_identifier(particles,"overrun",particle_system_overrun,"Particle file %s tries to define %i particles, when %i is the maximum!",100);
@@ -550,7 +620,8 @@ void init_errors()
 	add_xml_identifier(particles,"defs",definitions_str,"Definitions",20);
 	add_xml_identifier(particles,"system",part_sys_str,"systems",20);
 	add_xml_identifier(particles,"particles",part_part_str,"particles",20);
-	
+
+#ifdef ELC
 	//Sound errors
 	add_xml_identifier(snd,"loadfile",snd_ogg_load_error,"Failed to load ogg file",50);
 	add_xml_identifier(snd,"loadstream",snd_ogg_stream_error,"Failed to load ogg stream",50);
@@ -584,8 +655,10 @@ void init_errors()
 	add_xml_identifier(video,"extnotfound",gl_ext_not_found,"Couldn't find the %s extension, not using it...",100);
 	add_xml_identifier(video,"multitex",gl_ext_no_multitexture,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...",150);
 	add_xml_identifier(video,"invalid",invalid_video_mode,"Stop playing with the configuration file and select valid modes!",75);
+#endif
 }
 
+#ifdef ELC
 void init_help()
 {
 	group_id * afk = &(help_str[0]);
@@ -659,7 +732,9 @@ void init_help()
 	add_xml_identifier(tooltips,"buddy",tt_buddy,"View buddy",30);
 	add_xml_identifier(tooltips,"opts",tt_options,"View options",30);
 }
+#endif
 
+#ifdef ELC
 void init_options()
 {
 	//Options
@@ -676,7 +751,9 @@ void init_options()
 	add_xml_distringid(options_str,"fullscreen",&opt_full_screen,"Full Screen","Switches between full screen and windowed mode");
 	add_xml_distringid(options_str,"strings",&opt_strings,"Options","Video mode");
 }
+#endif
 
+#ifdef ELC
 void init_spells()
 {
 	//Sigils
@@ -707,7 +784,9 @@ void init_spells()
 	add_xml_distringid(sigils_str,"life",&sig_life,"Life","");
 	add_xml_distringid(sigils_str,"death",&sig_death,"Death","");
 }
+#endif
 
+#ifdef ELC
 void init_stats()
 {
 	group_stat * base = &(stats_str[0]);
@@ -763,13 +842,16 @@ void init_stats()
 	add_xml_statid(skills,"crafting",&(attributes.crafting_skill),"Crafting","cra");
 	add_xml_statid(skills,"overall",&(attributes.overall_skill),"Overall","oa");
 }
+#endif
 
-void parse_console(xmlNode * in);
 void parse_errors(xmlNode * in);
+#ifdef ELC
+void parse_console(xmlNode * in);
 void parse_help(xmlNode * in);
 void parse_options(xmlNode * in);
 void parse_spells(xmlNode * in);
 void parse_stats(xmlNode * in);
+#endif
 
 struct xml_struct
 {
@@ -792,6 +874,7 @@ void save_strings(xmlDoc * doc, char * name)
 void load_translatables()
 {
 	struct xml_struct file=load_strings("console.xml");
+#ifdef ELC
 	if(file.file!=NULL)
 		{
 			//Parse file
@@ -802,6 +885,7 @@ void load_translatables()
 #endif
 			xmlFreeDoc(file.file);
 		}
+#endif
 	file = load_strings("errors.xml");
 	if(file.file!=NULL)
 		{
@@ -813,6 +897,7 @@ void load_translatables()
 #endif
 			xmlFreeDoc(file.file);
 		}
+#ifdef ELC
 	file = load_strings("help.xml");
 	if(file.file!=NULL)
 		{
@@ -823,6 +908,8 @@ void load_translatables()
 #endif
 			xmlFreeDoc(file.file);
 		}
+#endif
+#ifdef ELC
 	file = load_strings("options.xml");
 	if(file.file!=NULL)
 		{
@@ -833,6 +920,8 @@ void load_translatables()
 #endif
 			xmlFreeDoc(file.file);
 		}
+#endif
+#ifdef ELC
 	file = load_strings("spells.xml");
 	if(file.file!=NULL)
 		{
@@ -843,6 +932,8 @@ void load_translatables()
 #endif
 			xmlFreeDoc(file.file);
 		}
+#endif 
+#ifdef ELC
 	file = load_strings("stats.xml");
 	if(file.file!=NULL)
 		{
@@ -853,6 +944,17 @@ void load_translatables()
 #endif
 			xmlFreeDoc(file.file);
 		}
+#endif
+//There's no need for these variables to be hanging around any more...
+	free_xml_parser(GROUP,errors,ERRORS);
+#ifdef ELC
+	free_xml_parser(GROUP,console_str,CONSOLE_STR);
+	free_xml_parser(GROUP,help_str,HELP_STR);
+	free_xml_parser(DIGROUP,options_str,OPTIONS_STR);
+	free_xml_parser(DIGROUP,sigils_str,SIGILS_STR);
+	free_xml_parser(STAT_GROUP,stats_str,STATS_STR);
+	free_xml_parser(GROUP,stats_extra,STATS_EXTRA);
+#endif
 }
 
 struct xml_struct load_strings(char * file)
@@ -946,7 +1048,7 @@ void copy_strings(xmlNode * in, distring_item * string)
 	if(!string->var->saved_desc) xmlNewTextChild(in, NULL, "desc", string->var->desc?string->var->desc:" ");
 #endif
 }
-
+#ifdef ELC
 void copy_stats(xmlNode * in, statstring_item * string)
 {
 	xmlNode *cur = in->children?in->children:in;
@@ -978,7 +1080,9 @@ void copy_stats(xmlNode * in, statstring_item * string)
 	if(!string->var->saved_shortname) xmlNewTextChild(in, NULL, "shortname", string->var->shortname);
 #endif
 }
+#endif
 
+#ifdef ELC
 void parse_statstrings(xmlNode * in, group_stat * group)
 {
 	xmlNode * cur = in->children?in->children:in;
@@ -1012,6 +1116,7 @@ void parse_statstrings(xmlNode * in, group_stat * group)
 		}
 #endif
 }
+#endif
 
 void parse_distrings(xmlNode * in, group_id_di * group)
 {
@@ -1084,7 +1189,9 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 {
 	group_id * group=gPtr;
 	group_id_di * Group=gPtr;
+#ifdef ELC
 	group_stat * stat=gPtr;
+#endif
 	int i;
 	xmlNode * cur = in->children?in->children:in;
 	for(;cur;cur=cur->next)
@@ -1115,6 +1222,7 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 												i=size;
 											}
 										break;
+#ifdef ELC
 									case STAT_GROUP:
 										if(!xmlStrcasecmp(cur->name,stat[i].xml_id))
 											{
@@ -1125,6 +1233,7 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 												i=size;
 											}
 										break;
+#endif
 									default: break;
 								}
 						}
@@ -1161,33 +1270,91 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 #endif
 }
 
+#ifdef ELC
 void parse_console(xmlNode * in)
 {
 	parse_groups(in,console_str,CONSOLE_STR, GROUP);
 }
+#endif
 
 void parse_errors(xmlNode * in)
 {
 	parse_groups(in,errors,ERRORS,GROUP);
 }
 
+#ifdef ELC
 void parse_help(xmlNode * in)
 {
 	parse_groups(in, help_str, HELP_STR, GROUP);
 }
+#endif
 
+#ifdef ELC
 void parse_options(xmlNode * in)
 {
 	parse_groups(in, options_str, OPTIONS_STR, DIGROUP);
 }
+#endif
 
+#ifdef ELC
 void parse_spells(xmlNode * in)
 {
 	parse_groups(in, sigils_str, SIGILS_STR, DIGROUP);
 }
+#endif
 
+#ifdef ELC
 void parse_stats(xmlNode * in)
 {
 	parse_groups(in, stats_extra, STATS_EXTRA, GROUP);
 	parse_groups(in, stats_str, STATS_STR, STAT_GROUP);
+}
+#endif 
+
+void free_xml_parser(int type, void * gPtr, int no)
+{
+	group_id * grp=gPtr;
+	group_id_di * Grp=gPtr;
+#ifdef ELC
+	group_stat * stat=gPtr;
+#endif
+	int i=0,j;
+	switch(type)
+		{
+			case GROUP:
+				for(;i<no;i++)
+					{
+						for(j=0;j<grp[i].no;j++)
+							{
+								free(grp[i].strings[j]);
+							}
+						free(grp[i].strings);
+					}
+				free(grp);
+				break;
+			case DIGROUP:
+				for(;i<no;i++)
+					{
+						for(j=0;j<Grp[i].no;j++)
+							{
+								free(Grp[i].distrings[j]);
+							}
+						free(Grp[i].distrings);
+					}
+				free(Grp);
+				break;
+#ifdef ELC
+			case STAT_GROUP:
+				for(;i<no;i++)
+					{
+						for(j=0;j<stat[i].no;j++)
+							{
+								free(stat[i].statstrings[j]);
+							}
+						free(stat[i].statstrings);
+					}
+				free(stat);
+#endif
+			default: break;
+		}
 }

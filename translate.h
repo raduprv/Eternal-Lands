@@ -13,6 +13,7 @@ typedef struct
 #endif
 } dichar;
 
+#ifdef ELC
 //Options
 extern char	switch_video_mode[50];
 
@@ -31,7 +32,9 @@ extern dichar	opt_shadows,
 
 //Sigils
 extern char 	sig_too_few_sigs[50];
-		
+#endif
+
+#ifdef ELC
 extern dichar	sig_change,
 		sig_restore,
 		sig_space,
@@ -58,8 +61,9 @@ extern dichar	sig_change,
 		sig_health,
 		sig_life,
 		sig_death;
+#endif
 
-
+#ifdef ELC
 //Tooltips
 extern char 	tt_walk[30],
 		tt_sit[30], 
@@ -79,7 +83,9 @@ extern char 	tt_walk[30],
 		tt_console[30],
 		tt_buddy[30],
 		tt_options[30];
+#endif
 
+#ifdef ELC
 //Help messages
 extern char	
 		/*3d_objects.c*/
@@ -141,6 +147,7 @@ extern char
 		/*trade.c*/
 		quantity_str[30],
 		abort_str[10];
+#endif
 
 //Errors
 extern char	reg_error_str[15],
@@ -152,6 +159,7 @@ extern char	reg_error_str[15],
 		corrupted_object[100], 
 		bad_object[30],
 		multiple_material_same_texture[100],
+#ifdef ELC
 		/*actors.c*/
 		cant_load_actor[30],
 		cant_find_frame[30],
@@ -190,8 +198,10 @@ extern char	reg_error_str[15],
 		cursors_file_str[30],
 		/*dialogues.c*/
 		close_str[20],
+#endif
 		/*font.c*/
 		cant_load_font[30],
+#ifdef ELC
 		/*gl_init.c*/
 		no_stencil_str[150],
 		safemode_str[150], 
@@ -239,6 +249,7 @@ extern char	reg_error_str[15],
 		error_helmet[15],
 		error_cape[15],
 		duplicate_npc_actor[50],
+#endif
 		/*particles.c*/
 		particles_filever_wrong[100],
 		particle_system_overrun[100],
@@ -250,9 +261,10 @@ extern char	reg_error_str[15],
 		definitions_str[20],
 		part_def_str[20],
 		part_sys_str[20],
-		part_part_str[20],
+		part_part_str[20]
+#ifdef ELC
 		/*paste.c*/
-		not_ascii[20],
+		,not_ascii[20],
 		/*sound.c*/
 		snd_ogg_load_error[50],
 		snd_ogg_stream_error[50],
@@ -271,6 +283,9 @@ extern char	reg_error_str[15],
 		snd_media_internal_error[50],
 		snd_media_ogg_error[50], //sound.c
 		stat_no_invalid[50]; //stats.c
+#else
+		;
+#endif
 
 void init_translatables();
 void load_translatables();
