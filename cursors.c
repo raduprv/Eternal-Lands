@@ -200,7 +200,12 @@ void build_cursors()
 void check_cursor_change()
 {
 	int i;
-	if(object_under_mouse!=-1 && objects_list[object_under_mouse] && thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
+	if(object_under_mouse ==-1)
+		{
+			if(current_cursor!=CURSOR_WALK)change_cursor(CURSOR_WALK);
+			return;
+		}
+	if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 		{
 			//see if it is a bag. (bag1.e3d)
 			if(get_string_occurance("bag1.e3d",objects_list[object_under_mouse]->file_name, 80,0)!=-1)
@@ -247,20 +252,18 @@ void check_cursor_change()
 
 		}
 
-	else
-
-		if(object_under_mouse!=-1 && thing_under_the_mouse==UNDER_MOUSE_NPC)
-			{
-				if(action_mode==action_look)
-					{
-						if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
-						return;
-					}
-				if(current_cursor!=CURSOR_TALK)change_cursor(CURSOR_TALK);
-				return;
-			}
-
-	if(object_under_mouse!=-1 && thing_under_the_mouse==UNDER_MOUSE_PLAYER)
+	else if(thing_under_the_mouse==UNDER_MOUSE_NPC)
+		{
+			if(action_mode==action_look)
+				{
+					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
+					return;
+				}
+			if(current_cursor!=CURSOR_TALK)change_cursor(CURSOR_TALK);
+			return;
+		}
+	
+	else if(thing_under_the_mouse==UNDER_MOUSE_PLAYER)
 		{
 			if(action_mode==action_use)
 				{
@@ -290,7 +293,7 @@ void check_cursor_change()
 
 		}
 
-	if(object_under_mouse!=-1 && thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
+	else if(thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
 		{
 			if(action_mode==action_use)
 				{
@@ -316,8 +319,7 @@ void check_cursor_change()
 				}
 		}
 
-
-	if(object_under_mouse!=-1 && thing_under_the_mouse==UNDER_MOUSE_MENU)
+	else if(thing_under_the_mouse==UNDER_MOUSE_MENU)
 		{
 			int wear_items_x_offset=6*51+20;
 			int wear_items_y_offset=50;
@@ -352,6 +354,7 @@ void check_cursor_change()
 			return;
 		}
 
+	// when all fails - walk
 	if(current_cursor!=CURSOR_WALK)change_cursor(CURSOR_WALK);
 }
 
