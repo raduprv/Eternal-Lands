@@ -271,6 +271,7 @@ int load_map(char * file_name)
 
 	//see if we have to change the water texture (when we get from dungeon to surface or
 	//the other way around
+	check_gl_errors();
 	if(dungeon && !cur_map_header.dungeon)
 		{
 			//ok, change the water to normal
@@ -289,6 +290,7 @@ int load_map(char * file_name)
 			sky_text_1=load_texture_cache("./textures/water2.bmp",70);
 
 		}
+	check_gl_errors();
 
 	//get the type of map, and the ambient light
 	dungeon=cur_map_header.dungeon;
