@@ -895,6 +895,10 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					case RULE_WIN: 
 					case RULE_INTERFACE: 
 						highlight_rule(in_data[3],in_data+4,data_lenght-4);
+						break;
+					case NEW_CHAR_INTERFACE:
+						interface_mode=interface_new_char;
+						break;
 					default:
 						break;
 				}

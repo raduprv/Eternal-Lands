@@ -300,6 +300,7 @@
 //Windows
 #define RULE_WIN 1
 #define RULE_INTERFACE 2
+#define NEW_CHAR_INTERFACE 3
 
 //actor commands
 #define nothing 0

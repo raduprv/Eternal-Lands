@@ -21,6 +21,7 @@ int reached_end=0;
 int have_rules=0;
 int rule_offset=0;
 rule_string * display_rules;
+int last_display=-1;
 
 /*Interface*/
 int countdown=-1;
@@ -190,10 +191,14 @@ void toggle_rules_window(int toggle)
 		return;
 	}
 	
-	if(display_rules==NULL)display_rules=get_interface_rules((float)(rules_win_x_len-60)/(12*0.8f));
-	if(toggle) reset_rules(display_rules);
+	if(last_display<=0||display_rules==NULL){
+		if(display_rules)free_rules(display_rules);
+		display_rules=get_interface_rules((float)(rules_win_x_len-60)/(12*0.8f));
+	}
 	if(toggle && rules_win>0) toggle_window(rules_win);
 	else display_rules_window();
+
+	last_display=1;
 }
 
 /*Generic code*/
@@ -252,13 +257,16 @@ void highlight_rule(int type, Uint8 * rule, int no)
 	int i,j;
 	int r;
 	int cur_rule;
-		
+	
 	if(type==RULE_WIN)toggle_rules_window(0);
 	else if(type==RULE_INTERFACE){
 		init_rules_interface(rule[2], 1.0f, *((Uint16*)(rule)));
+		interface_mode=interface_rules;
 		rule+=3;
 		no-=3;
-	}
+	} else return; //Hmm...
+	
+	reset_rules(display_rules);
 	
 	if(display_rules) {
 		for(i=0;i<no;i++){
@@ -397,19 +405,23 @@ void init_rules_interface(int next, float text_size, int count)
 {
 	next_interface=next;
 	if(rules.no){
-		if(display_rules) free_rules(display_rules);
-		display_rules=get_interface_rules((float)(window_width-60)/(12*text_size));
+		if(last_display){//We need to format the rules again..
+			if(display_rules) free_rules(display_rules);
+			display_rules=get_interface_rules((float)(window_width-60)/(12*text_size));
+		}
 		countdown=count;//Countdown in 0.5 seconds...
 	} else {
 		countdown=0;//Just switch now, there are no rules
 	}
+
+	last_display=0;
 }
 
 
 void draw_rules_interface()
 {
 	char str[20];
-	if(countdown==-1) init_rules_interface(disconnected?interface_opening:interface_new_char, 1.0f, 30);
+	if(countdown==-1) init_rules_interface(disconnected?interface_opening:interface_new_char, 1.0f, 10);
 	if(countdown==0) {
 		interface_mode=next_interface;
 		free_rules(display_rules);
