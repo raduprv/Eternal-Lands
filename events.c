@@ -396,8 +396,10 @@ int HandleEvent(SDL_Event *event)
  		           //get the buttons state
 			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_LEFT))
 				left_click++;
-			else
+			else{
+				if(left_click) end_drag_windows();
 				left_click = 0;
+			}
 
 			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_RIGHT))
 				right_click++;
@@ -454,9 +456,7 @@ int HandleEvent(SDL_Event *event)
 					selected_tile=0;
 				}
 
-			if((left_click>=1))
-				if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) > 0)
-					return done;
+			
 
 			get_world_x_y();
 			if(!tool_bar_click)
@@ -666,9 +666,13 @@ int HandleEvent(SDL_Event *event)
 						else move_tile_a_tile=0;
 						if(cur_mode==mode_height && cur_tool==tool_select && selected_height!=-1)move_tile_a_height=1;
 						else move_tile_a_height=0;
-
 				}
+			
  		   }
-
+		   
+			if((left_click>=1))
+				if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) > 0)
+					return done;
+			
 	return(done);
 }
