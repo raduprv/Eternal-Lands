@@ -347,6 +347,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			}
 			break;
 
+		case PLAY_MUSIC:
+			{
+				if(!no_sound)play_music(*((short *)(in_data+3)));
+			}
+			break;
+
 		case PLAY_SOUND:
 			{
 				if(!no_sound)add_sound_object(*((short *)(in_data+3)),*((short *)(in_data+5)),*((short *)(in_data+7)),*((char *)(in_data+9)),*((short *)(in_data+10)));

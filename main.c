@@ -45,6 +45,8 @@ int start_rendering()
 				}
 			//draw everything
 			draw_scene();
+			//update the music buffers
+			update_music();
 			//see if we need to exit
 			if(exit_now)break;
 		}

@@ -1,11 +1,45 @@
 #include <string.h>
-#include "global.h"
 #include <math.h>
+#include "global.h"
+
+int used_sources;
+
+char sound_files[max_buffers][30];
+ALuint sound_source[max_sources];
+ALuint sound_buffer[max_buffers];
+SDL_mutex *sound_list_mutex;
+
+char music_files[max_songs][30];
+FILE* ogg_file;
+OggVorbis_File ogg_stream;
+
+ALuint music_buffers[2];
+ALuint music_source;
 
 void stop_sound(int i)
 {
 	if(!have_sound)return;
 	alSourceStop(i);
+}
+
+void load_ogg_file(int i) {
+	ogg_file = fopen(music_files[i], "rb");
+	if(!ogg_file) {
+		char	str[256];
+		sprintf(str, "Failed to load ogg file: %s\n", music_files[i]);
+		log_to_console(c_red1, str);
+		log_error(str);
+		have_music=0;
+		return;
+	}
+
+	ov_clear(&ogg_stream);
+
+	if(ov_open(ogg_file, &ogg_stream, NULL, 0) < 0) {
+		log_to_console(c_red1, "Failed to load ogg stream\n");
+		log_error("Failed to load ogg stream\n");
+		have_music=0;
+	}
 }
 
 ALuint get_loaded_buffer(int i)
@@ -36,6 +70,45 @@ ALuint get_loaded_buffer(int i)
 	return sound_buffer[i];
 }
 
+void play_music(int i) {
+
+    int error,queued;
+    if(!have_music)return;
+
+	if(i >= max_songs)
+		{
+			log_error("Got invalid song number\n");
+			return;
+		}
+
+    alSourceStop(music_source);
+    alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
+
+    while(queued--)
+    {
+        ALuint buffer;
+    
+        alSourceUnqueueBuffers(music_source, 1, &buffer);
+    }
+
+	load_ogg_file(i);
+
+    stream_music(music_buffers[0]);
+	stream_music(music_buffers[1]);
+    
+    alSourceQueueBuffers(music_source, 2, music_buffers);
+    alSourcePlay(music_source);
+
+	if((error=alGetError()) != AL_NO_ERROR) 
+    	{
+     		char	str[256];
+    		sprintf(str, "play_music error: %s\n", alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
+			have_music=0;
+    	}
+}
+
 int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 {
 	int error,tx,ty,distance,i;
@@ -43,6 +116,13 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 	ALfloat sourceVel[]={ 0.0, 0.0, 0.0};
 
 	if(!have_sound)return 0;
+
+	if(sound_file >= max_buffers)
+		{
+			log_error("Got invalid sound number\n");
+			return 0;
+		}
+
 	lock_sound_list();
 
 	i=used_sources;
@@ -142,6 +222,64 @@ void update_position()
 	unlock_sound_list();
 }
 
+void update_music() {
+
+    int error,processed;
+	if(!have_music)return;
+
+    alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
+
+	if(!processed)return; //skip error checking et al
+    while(processed--)
+    {
+        ALuint buffer;
+        
+        alSourceUnqueueBuffers(music_source, 1, &buffer);
+		stream_music(buffer);
+        alSourceQueueBuffers(music_source, 1, &buffer);
+    }
+	if((error=alGetError()) != AL_NO_ERROR) 
+    	{
+     		char	str[256];
+    		sprintf(str, "update_music error: %s\n", alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
+			have_music=0;
+    	}
+}
+
+void stream_music(ALuint buffer) {
+    char data[BUFFER_SIZE];
+    int  size = 0;
+    int  section;
+    int  result = 0;
+	int error;
+
+    while(size < BUFFER_SIZE)
+    {
+        result = ov_read(&ogg_stream, data + size, BUFFER_SIZE - size, 0, 2, 1,
+						 &section);
+    
+        if(result > 0)
+            size += result;
+        else
+            break;
+    }
+	if(!size)return;
+
+	alBufferData(buffer, AL_FORMAT_STEREO16, data, size, ov_bitrate(&ogg_stream,-1));
+
+	if((error=alGetError()) != AL_NO_ERROR) 
+    	{
+     		char	str[256];
+    		sprintf(str, "stream_music error: %s\n", alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
+			have_music=0;
+    	}
+}
+
+
 //kill all the sounds that loop infinitely
 //usefull when we change maps, etc.
 void kill_local_sounds()
@@ -199,6 +337,24 @@ void turn_sound_on()
 	unlock_sound_list();
 }
 
+void turn_music_off()
+{
+	if(!have_music)return;
+	music_on=0;
+	alSourcePause(music_source);
+}
+
+void turn_music_on()
+{
+	static int i = -1;
+	if(!have_music)return;
+	music_on=1;
+	i++;
+	if(i >= max_songs) i = 0;
+	play_music(i);
+	//alSourcePlay(music_source);
+}
+
 void init_sound()
 {
 	int i,error;
@@ -221,18 +377,22 @@ void init_sound()
 			have_music=0;
     	}
 
-	lock_sound_list();
     // TODO: get this information from a file, sound.ini?	
-	my_strcp(sound_files[0],"./sound/rain1.wav");
-	my_strcp(sound_files[1],"./sound/teleport_in.wav");
-	my_strcp(sound_files[2],"./sound/teleport_out.wav");
-	my_strcp(sound_files[3],"./sound/teleporter.wav");
-	my_strcp(sound_files[4],"./sound/thunder1.wav");
-	my_strcp(sound_files[5],"./sound/thunder2.wav");
-	my_strcp(sound_files[6],"./sound/thunder3.wav");
-	my_strcp(sound_files[7],"./sound/thunder4.wav");
-	my_strcp(sound_files[8],"./sound/thunder5.wav");
+	my_strcp(sound_files[snd_rain],"./sound/rain1.wav");
+	my_strcp(sound_files[snd_tele_in],"./sound/teleport_in.wav");
+	my_strcp(sound_files[snd_tele_out],"./sound/teleport_out.wav");
+	my_strcp(sound_files[snd_teleprtr],"./sound/teleporter.wav");
+	my_strcp(sound_files[snd_thndr_1],"./sound/thunder1.wav");
+	my_strcp(sound_files[snd_thndr_2],"./sound/thunder2.wav");
+	my_strcp(sound_files[snd_thndr_3],"./sound/thunder3.wav");
+	my_strcp(sound_files[snd_thndr_4],"./sound/thunder4.wav");
+	my_strcp(sound_files[snd_thndr_5],"./sound/thunder5.wav");
 
+	my_strcp(music_files[ogg_housewaltz],"./music/housewaltz.ogg");
+    my_strcp(music_files[ogg_overworld],"./music/overworld.ogg");
+	my_strcp(music_files[ogg_windyvillage],"./music/windyvillage.ogg");
+	my_strcp(music_files[ogg_mountainwoods],"./music/mountainwoods.ogg");
+	my_strcp(music_files[ogg_thedarkness],"./music/thedarkness.ogg");
 
 	alListenerfv(AL_POSITION,listenerPos);
 	alListenerfv(AL_VELOCITY,listenerVel);
@@ -244,7 +404,17 @@ void init_sound()
 	for(i=0;i<max_buffers;i++)
 		sound_buffer[i] = -1;
 
-	unlock_sound_list();
+	//initialize music
+
+	ogg_file = NULL;
+	
+    alGenBuffers(2, music_buffers);
+    alGenSources(1, &music_source);
+    alSource3f(music_source, AL_POSITION,        0.0, 0.0, 0.0);
+    alSource3f(music_source, AL_VELOCITY,        0.0, 0.0, 0.0);
+    alSource3f(music_source, AL_DIRECTION,       0.0, 0.0, 0.0);
+    alSourcef (music_source, AL_ROLLOFF_FACTOR,  0.0          );
+    alSourcei (music_source, AL_SOURCE_RELATIVE, AL_TRUE      );
 }
 
 void destroy_sound()
@@ -254,11 +424,15 @@ void destroy_sound()
 	SDL_DestroyMutex(sound_list_mutex);
 	sound_list_mutex=NULL;
 
+	alSourceStop(music_source);
 	alSourceStopv(used_sources, sound_source);
 	alDeleteSources(used_sources, sound_source);
+    alDeleteSources(1, &music_source);
 	for(i=0;i<max_buffers;i++)
 		if(alIsBuffer(sound_buffer[i]))
 			alDeleteBuffers(1, sound_buffer+i);
+    alDeleteBuffers(2, music_buffers);
+    ov_clear(&ogg_stream);
     alutExit();
 }
 

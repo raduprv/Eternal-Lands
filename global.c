@@ -207,11 +207,6 @@ int have_music=0;
 int sound_on=1;
 int music_on=1;
 int no_sound=0;
-int used_sources=0;
-char sound_files[max_buffers][30];
-ALuint sound_source[max_sources];
-ALuint sound_buffer[max_buffers];
-SDL_mutex *sound_list_mutex;
 
 //char interface_mode=interface_new_char;
 int mouse_x;

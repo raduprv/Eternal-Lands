@@ -15,6 +15,10 @@
 #include <AL/alut.h>
 #endif //WINDOWS
 
+#include <ogg/ogg.h>
+#include <vorbis/codec.h>
+#include <vorbis/vorbisenc.h>
+#include <vorbis/vorbisfile.h>
 
 #include "elc_private.h"
 #include "SDL_opengl.h"

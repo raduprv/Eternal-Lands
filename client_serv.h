@@ -396,7 +396,7 @@
 #define ADD_NEW_ENHANCED_ACTOR 51
 #define ACTOR_WEAR_ITEM 52
 #define ACTOR_UNWEAR_ITEM 53
-
+#define PLAY_MUSIC 54
 
 
 #define UPGRADE_NEW_VERSION 240
@@ -487,4 +487,22 @@
 #define SUM_EXP_NEXT 68
 #define SUM_S_CUR 69
 #define SUM_S_BASE 70
+
+//SOUND
+#define snd_rain     0
+#define snd_tele_in  1
+#define snd_tele_out 2
+#define snd_teleprtr 3
+#define snd_thndr_1  4
+#define snd_thndr_2  5
+#define snd_thndr_3  6
+#define snd_thndr_4  7
+#define snd_thndr_5  8
+
+//MUSIC
+#define ogg_housewaltz    0
+#define ogg_overworld     1
+#define ogg_windyvillage  2
+#define ogg_mountainwoods 3
+#define ogg_thedarkness   4
 #endif

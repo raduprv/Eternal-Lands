@@ -1631,7 +1631,8 @@ int check_options_menu()
 		else turn_sound_on();
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+175 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+191)
-		music_on=!music_on;
+		if(music_on)turn_music_off();
+		else turn_music_on();
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+195 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+211)
 		auto_camera=!auto_camera;
