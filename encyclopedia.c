@@ -10,7 +10,7 @@ int encyclopedia_menu_dragged=0;
 
 _Category Category[100];
 _Page Page[100];
-int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0;
+int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0,isize,tsize,tid,size;
 float u,v,uend,vend,xend,yend,r,g,b;
 char *s,*ss;
 
@@ -219,6 +219,37 @@ void ParseImage(xmlAttr *a_node)
 	}
 }
 
+void ParseSimage(xmlAttr *a_node)
+{
+	xmlAttr *cur_attr=NULL;
+
+    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+			//name=""
+			if(!xmlStrcasecmp(cur_attr->name,"name")){
+				id=load_texture_cache(cur_attr->children->content,0);
+			}
+			//isize=""
+			if(!xmlStrcasecmp(cur_attr->name,"isize")){
+				isize=atoi(cur_attr->children->content);
+			}
+			//tsize=""
+			if(!xmlStrcasecmp(cur_attr->name,"tsize")){
+				tsize=atoi(cur_attr->children->content);
+			}
+			//tid=""
+			if(!xmlStrcasecmp(cur_attr->name,"tid")){
+				tid=atoi(cur_attr->children->content);
+			}
+			//size=""
+			if(!xmlStrcasecmp(cur_attr->name,"size")){
+				size=atoi(cur_attr->children->content);
+			}
+
+		}
+	}
+}
+
 void ParsePos(xmlAttr *a_node)
 {
 	xmlAttr *cur_attr=NULL;
@@ -346,6 +377,40 @@ void ReadCategoryXML(xmlNode * a_node)
 				numimage++;
 			}
 			
+			//<sImage>
+			if(!xmlStrcasecmp(cur_node->name,"simage")){
+				_Image *I=(_Image*)malloc(sizeof(_Image));
+				_Image *i=&Page[numpage].I;
+				int picsperrow,xtile,ytile;
+				float ftsize;
+				ParseSimage(cur_node->properties);
+				
+				picsperrow=isize/tsize;
+				xtile=tid%picsperrow;
+				ytile=tid/picsperrow;
+				ftsize=(float)tsize/isize;
+				u=ftsize*xtile;
+				v=-ftsize*ytile;
+				uend=u+ftsize;
+				vend=v-ftsize;
+
+				I->Next=NULL;
+				I->id=id;
+				I->u=u;
+				I->v=v;
+				I->uend=uend;
+				I->vend=vend;
+				I->xend=x+(tsize*(size/100));
+				I->yend=y+(tsize*(size/100));
+				I->x=x;
+				I->y=y;
+				while(i->Next!=NULL)i=i->Next;
+				i->Next=I;
+				x+=xend;
+				y+=yend-((size)?18:15);
+				numimage++;
+			}
+
 			//<Pos>
 			if(!xmlStrcasecmp(cur_node->name,"pos")){
 				ParsePos(cur_node->properties);
