@@ -102,6 +102,12 @@ void check_mouse_click()
 			item_dragged = -1;
 		return;
 	}
+
+	if(use_item != -1 && right_click) {
+		use_item = -1;
+		return;
+	}
+
 	//LOOK AT
 	if((current_cursor==CURSOR_EYE && left_click) || (action_mode==action_look && right_click))
 		{

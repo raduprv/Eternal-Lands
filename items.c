@@ -315,15 +315,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 									{
 										if(item_list[i].quantity && item_list[i].pos==y*6+x)
 											{
-												if(item_dragged==i)
-													item_dragged=-1;
-												else {
-													str[0]=ITEM_ON_ITEM;
-													str[1]=item_list[item_dragged].pos;
-													str[2]=y*6+x;
-													my_tcp_send(my_socket,str,3);
-													item_dragged=-1;
-												}
+												item_dragged=-1;
 												return 1;
 											}
 									}
@@ -367,12 +359,17 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 											}
 										else if(action_mode==action_use)
 											{
-												if(item_list[i].use_with_inventory)
+												if(use_item!=-1) {
+													str[0]=ITEM_ON_ITEM;
+													str[1]=item_list[use_item].pos;
+													str[2]=item_list[i].pos;
+													my_tcp_send(my_socket,str,3);
+												}
+												else if(item_list[i].use_with_inventory)
 													{
 														str[0]=USE_INVENTORY_ITEM;
 														str[1]=item_list[i].pos;
 														my_tcp_send(my_socket,str,2);
-														return 1;
 													}
 												else
 													use_item=i;
