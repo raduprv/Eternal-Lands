@@ -1,4 +1,5 @@
 #include <string.h>
+#include <ctype.h>
 #include "global.h"
 
 char input_text_line[257];
@@ -125,9 +126,7 @@ void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit)
 // and the actor is displayed, put said sentence into an overtext bubble
 #define allowedCharInName(_x_)		(isalnum(_x_)||(_x_=='_'))
 void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
-{
-	int i;
-	
+{	
 	if (!view_chat_text_as_overtext)
 		return;		// disabled
 

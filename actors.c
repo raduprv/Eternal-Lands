@@ -807,7 +807,7 @@ actor *	get_actor_ptr_from_id( int actor_id )
 	int i;
 	for (i = 0; i < max_actors; i++)
 	{
-		if (actors_list[i]->actor_id =  actor_id)
+		if (actors_list[i]->actor_id == actor_id)
 			return actors_list[i];
 	}
 	return NULL;
