@@ -25,9 +25,11 @@ void setobject(int n, char *fn,float xrot, float yrot, float zrot)
 	object3d *our_object=&o3d[n];
 	snprintf(our_object->file_name,80,"%s",fn);
 	
+	our_object->e3d_data=load_e3d_cache(fn);
+
 	our_object->x_pos=0;
 	our_object->y_pos=0;
-	our_object->z_pos=cz;
+	our_object->z_pos=-(our_object->e3d_data->max_z-our_object->e3d_data->min_z)/2;
 	
 	our_object->x_rot=xrot;
 	our_object->y_rot=yrot;
@@ -39,7 +41,7 @@ void setobject(int n, char *fn,float xrot, float yrot, float zrot)
 	our_object->clouds_uv=NULL;
 	our_object->self_lit=0;
 	our_object->blended=0;
-	our_object->e3d_data=load_e3d_cache(fn);
+	
 
 }
 
@@ -114,8 +116,11 @@ int display_browser_handler()
 
    }else{ // display specified dir
 		int i=cp;
+		float tz=zoom_level;
 		char fn[256];
 		
+		//zoom_level=3.0;
+		//resize_window();
 		// Prepare to render
 		glEnable(GL_CULL_FACE);
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -130,7 +135,13 @@ int display_browser_handler()
 		Leave2DMode();
 
 		// Now we draw the 4 objects
-		glViewport(browser_menu_x,window_height-browser_menu_y-200,200,200);	
+		zoom_level=3.0;
+		resize_window();
+		glRotatef(-60, 1.0f, 0.0f, 0.0f);
+		glRotatef(0, 0.0f, 0.0f, 1.0f);
+		glRotatef(45, 0.0f, 0.0f, 1.0f);
+
+		glViewport(browser_menu_x,window_height-browser_menu_y-150,200,150);
 		glClearStencil(0);
 		glClear (GL_DEPTH_BUFFER_BIT);
 		strcpy(fn,exec_path);
@@ -140,35 +151,36 @@ int display_browser_handler()
 		glScalef(Dir[cd].size[i],Dir[cd].size[i],Dir[cd].size[i]);
 		draw_3d_object(&o3d[0]);
 		glPopMatrix();
-
-		if(i+2<Dir[cd].nf){
-			glViewport(browser_menu_x+200,window_height-browser_menu_y-200,200,200);	
-			glClearStencil(0);
-			glClear (GL_DEPTH_BUFFER_BIT);
-			strcpy(fn,exec_path);
-			strcat(fn,Dir[cd].Files[i+2]);
-			setobject(1,fn,Dir[cd].xrot[i+2],Dir[cd].yrot[i+2],Dir[cd].zrot[i+2]);
-			glPushMatrix();
-			glScalef(Dir[cd].size[i+2],Dir[cd].size[i+2],Dir[cd].size[i+2]);
-			draw_3d_object(&o3d[1]);
-			glPopMatrix();
-		}
+		
 
 		if(i+1<Dir[cd].nf){
-			glViewport(browser_menu_x,window_height-browser_menu_y-400,200,200);	
+			glViewport(browser_menu_x+200,window_height-browser_menu_y-150,200,150);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
 			strcat(fn,Dir[cd].Files[i+1]);
-			setobject(2,fn,Dir[cd].xrot[i+1],Dir[cd].yrot[i+1],Dir[cd].zrot[i+1]);
+			setobject(1,fn,Dir[cd].xrot[i+1],Dir[cd].yrot[i+1],Dir[cd].zrot[i+1]);
 			glPushMatrix();
 			glScalef(Dir[cd].size[i+1],Dir[cd].size[i+1],Dir[cd].size[i+1]);
+			draw_3d_object(&o3d[1]);
+			glPopMatrix();
+		}
+
+		if(i+2<Dir[cd].nf){
+			glViewport(browser_menu_x,window_height-browser_menu_y-350,200,150);	
+			glClearStencil(0);
+			glClear (GL_DEPTH_BUFFER_BIT);
+			strcpy(fn,exec_path);
+			strcat(fn,Dir[cd].Files[i+2]);
+			setobject(2,fn,Dir[cd].xrot[i+2],Dir[cd].yrot[i+2],Dir[cd].zrot[i+2]);
+			glPushMatrix();
+			glScalef(Dir[cd].size[i+2],Dir[cd].size[i+2],Dir[cd].size[i+2]);
 			draw_3d_object(&o3d[2]);
 			glPopMatrix();
 		}
 
 		if(i+3<Dir[cd].nf){
-			glViewport(browser_menu_x+200,window_height-browser_menu_y-400,200,200);	
+			glViewport(browser_menu_x+200,window_height-browser_menu_y-350,200,150);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
@@ -180,6 +192,8 @@ int display_browser_handler()
 			glPopMatrix();
 		}
 
+			zoom_level=tz;
+		resize_window();
 		// Back to normal
 		glViewport(0,0,window_width,window_height);
 		Enter2DMode();
@@ -189,7 +203,8 @@ int display_browser_handler()
 		draw_string(browser_menu_x+2,browser_menu_y+400-18,(unsigned char *)Dir[cd].Names[i+1],1);
 		draw_string(browser_menu_x+202,browser_menu_y+200-18,(unsigned char *)Dir[cd].Names[i+2],1);
 		draw_string(browser_menu_x+202,browser_menu_y+400-18,(unsigned char *)Dir[cd].Names[i+3],1);
-
+		zoom_level=tz;
+		resize_window();
    }
 	return 1;
 }
@@ -223,17 +238,17 @@ int check_browser_interface()
 			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 			cur_tool=tool_select;
 		}
-		if(cp+1<Dir[cd].nf && x>0 && x<200 && y>200 && y<400){
-			char fn[256];
-			strcpy(fn,exec_path);
-			strcat(fn,Dir[cd].Files[cp+1]);
-			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
-			cur_tool=tool_select;
-		}
-		if(cp+2<Dir[cd].nf && x>200 && x<400 && y>0 && y<200){
+		if(cp+2<Dir[cd].nf && x>0 && x<200 && y>200 && y<400){
 			char fn[256];
 			strcpy(fn,exec_path);
 			strcat(fn,Dir[cd].Files[cp+2]);
+			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
+			cur_tool=tool_select;
+		}
+		if(cp+1<Dir[cd].nf && x>200 && x<400 && y>0 && y<200){
+			char fn[256];
+			strcpy(fn,exec_path);
+			strcat(fn,Dir[cd].Files[cp+1]);
 			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 			cur_tool=tool_select;
 		}
