@@ -221,8 +221,7 @@ int HandleEvent(SDL_Event *event)
 
 				if(key==K_STATS)
 					{
-						SDL_SetTimer(0,NULL);
-						//view_window(&stats_win, 0);
+						view_window(&stats_win, 0);
 						break;
 					}
 
