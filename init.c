@@ -55,7 +55,7 @@ void read_config()
 	FILE *f = NULL;
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
-	int k,server_address_offset,text_filter_offset;
+	int k,server_address_offset;
 
   	f=fopen("el.ini","rb");
   	if(!f)//oops, the file doesn't exist, use the defaults
@@ -108,44 +108,19 @@ void read_config()
 		}
 
   	//ok, now get the server address
-  	server_address_offset=get_string_occurance("#server_address",file_mem,MAX_INI_FILE,0);
-	//we should be at the beginning of the server address
-	for(k=0;k<70;k++)
-		{
-			Uint8 ch;
-			ch=file_mem[server_address_offset+k];
-			if(ch==' ' || ch==0x0a || ch==0x0d)break;
-  			server_address[k]=ch;
-		}
-	server_address[k]=0;
+  	server_address_offset=get_string_after_string("#server_address",file_mem,MAX_INI_FILE,server_address, 70);
 
   	//ok, now get the current browser
-  	server_address_offset=get_string_occurance("#browser",file_mem,MAX_INI_FILE,0);
-	//we should be at the beginning of the browser path
-	for(k=0;k<70;k++)
-		{
-			Uint8 ch;
-			ch=file_mem[server_address_offset+k];
-			if(ch==0x0a || ch==0x0d)break;
-  			broswer_name[k]=ch;
-		}
-	broswer_name[k]=0;
+  	server_address_offset=get_string_after_string("#browser",file_mem,MAX_INI_FILE,broswer_name,70);
 
 	//check for a different default text filter phrase
-  	text_filter_offset=get_string_occurance("#text_filter_replace",file_mem,MAX_INI_FILE,0);
-	//watch for not defined
-	if(text_filter_offset > 0)
-		{
-			for(k=0;k<127;k++)
-				{
-					Uint8 ch;
-					ch=file_mem[text_filter_offset+k];
-					if(ch==' ' || ch==0x0a || ch==0x0d)break;
-					text_filter_replace[k]=ch;
-				}
-			text_filter_replace[k]=0;
-		}
+  	get_string_after_string("#text_filter_replace",file_mem,MAX_INI_FILE,text_filter_replace,127);
 
+	// now the default user and password
+  	get_string_after_string("#username",file_mem,MAX_INI_FILE,username_str,16);
+  	get_string_after_string("#password",file_mem,MAX_INI_FILE,password_str,16);
+	for(k=0;k<strlen(password_str);k++) display_password_str[k]='*';
+	display_password_str[k]=0;
 
   	if(video_mode>10 || video_mode<=0)
   		{
@@ -358,10 +333,12 @@ void init_stuff()
 			log_to_console(c_red1,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...");
 		}
 	else have_multitexture=1;
+	check_gl_errors();
 
 
 	//initialize the fonts
 	init_fonts();
+	check_gl_errors();
 
 	//load the necesary textures
 	//font_text=load_texture_cache("./textures/font.bmp",0);
@@ -385,6 +362,7 @@ void init_stuff()
 	sigils_text=load_texture_cache("./textures/sigils.bmp",0);
 
 	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
+	check_gl_errors();
 	create_char_error_str[0]=0;
 	init_opening_interface();
 	init_peace_icons_position();
