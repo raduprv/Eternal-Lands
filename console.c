@@ -190,7 +190,7 @@ void test_for_console_command()
 
 			for(i=0;i<15;i++)
 				{
-					ch=text_loc[i+7];//7 because there is a space after "ignore"
+					ch=text_loc[i+7];//7 because there is a space after "filter"
 					if(ch==' ' || ch=='\0')
 						{
 							ch=0;
@@ -208,7 +208,7 @@ void test_for_console_command()
 				}
 			if(i<3)
 				{
-					log_to_console(c_red1,"Word too short, only names>=3 characters can be used! Word not added to the filter list!");
+					log_to_console(c_red1,"Word too short, only words>=3 characters can be used! Word not added to the filter list!");
 					return;
 				}
 
@@ -216,7 +216,7 @@ void test_for_console_command()
 			if(result==-1)
 				{
 					Uint8 str[100];
-					sprintf(str,"You are already filter %s!",name);
+					sprintf(str,"You are already filtering %s!",name);
 					log_to_console(c_red1,str);
 					return;
 				}
@@ -366,6 +366,56 @@ void test_for_console_command()
 				{
 					Uint8 str[100];
 					sprintf(str,"Ok, %s was removed from your ignore list!",name);
+					log_to_console(c_green1,str);
+					return;
+				}
+		}
+	if(my_strncompare(text_loc,"unfilter ",9))
+		{
+			Uint8 name[16];
+			int i;
+			Uint8 ch='\0';
+			int result;
+
+			for(i=0;i<15;i++)
+				{
+					ch=text_loc[i+9];//9 because there is a space after "filter"
+					if(ch==' ' || ch=='\0')
+						{
+							ch=0;
+							break;
+						}
+					name[i]=ch;
+				}
+
+			name[i]=0;
+
+			if(i==15 && !ch)
+				{
+					Uint8 str[200];
+					my_strcp(str,"Word too long, the max limit is 15 characters. Word not removed from the filter list!");
+					log_to_console(c_red1,str);
+					return;
+				}
+			if(i<3)
+				{
+					Uint8 str[200];
+					my_strcp(str,"Word too short, only words>=3 characters can be used! Word not removed from the filter list!");
+					log_to_console(c_red1,str);
+					return;
+				}
+			result=remove_from_filter_list(name);
+			if(result==-1)
+				{
+					Uint8 str[200];
+					sprintf(str,"You are NOT filtering %s in the first place!",name);
+					log_to_console(c_red1,str);
+					return;
+				}
+			else
+				{
+					Uint8 str[100];
+					sprintf(str,"Ok, %s was removed from your filter list!",name);
 					log_to_console(c_green1,str);
 					return;
 				}

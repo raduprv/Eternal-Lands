@@ -42,17 +42,35 @@ int add_to_filter_list(Uint8 *name, char save_name)
 int remove_from_filter_list(Uint8 *name)
 {
 	int i;
+	int found = 0;
+	FILE *f = NULL;
 	//see if this name is on the list
 	for(i=0;i<max_filters;i++)
 		{
-			if(filter_list[i].len > 0)
+			if(!found && filter_list[i].len > 0)
 				if(my_strcompare(filter_list[i].name,name))
 					{
 						filter_list[i].len=0;
-						return 1;
+						found = 1;
+						filtered_so_far--;
 					}
 		}
-	return -1;
+	if(found)
+		{
+			f=fopen("local_filters.txt", "w");
+			for(i=0;i<max_filters;i++)
+				{
+					if(filter_list[i].len > 0)
+						{
+							fwrite(ignore_list[i].name, filter_list[i].len, 1, f);
+							fwrite("\n", 1, 1, f);	
+						}
+				}
+			fclose(f);
+			return 1;
+		}
+	else
+		return -1;
 }
 
 
