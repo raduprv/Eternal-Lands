@@ -439,6 +439,20 @@ void draw_new_char_screen()
 	draw_string(240,340,dwarf_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
+        glColor3f(1.0f,0.2f,0.2f);
+	draw_string(310,280,"P2P Only!",1);
+	
+	glDisable(GL_TEXTURE_2D);
+	
+	glBegin(GL_LINE_LOOP);
+	glVertex2i(305,275);
+	glVertex2i(305,360);
+	glVertex2i(410,360);
+	glVertex2i(410,275);
+	glEnd();
+
+	glEnable(GL_TEXTURE_2D);
+	
 	if(race==race_gnome)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
 	draw_string(310,300,"Gnome",1);

@@ -3,7 +3,7 @@
 # tune these for your setup & compile options
 OPTIONS=-DLINUX -DELC
 #-DPOSSIBLE_FIX -DOPTIMISED_LOCKS
-PLATFORM=-march=i686
+PLATFORM=-march=athlon64
 XDIR=-L/usr/X11R6/lib
 
 # basic compiling and linking - rarely changed
