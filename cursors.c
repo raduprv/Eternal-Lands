@@ -200,7 +200,7 @@ void build_cursors()
 void check_cursor_change()
 {
 	int i;
-	if(object_under_mouse!=-1 && thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
+	if(object_under_mouse!=-1 && objects_list[object_under_mouse] && thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
 		{
 			//see if it is a bag. (bag1.e3d)
 			if(get_string_occurance("bag1.e3d",objects_list[object_under_mouse]->file_name, 80,0)!=-1)
