@@ -552,8 +552,22 @@ int display_ground_items_handler(window_info *win)
 			glVertex3i(x*33,0,0);
 			glVertex3i(x*33,10*33,0);
 		}
+	// draw the "get all" box
+	glVertex3i(win->len_x, 20,0);
+	glVertex3i(win->len_x-33, 20,0);
+	glVertex3i(win->len_x-33, 20,0);
+	glVertex3i(win->len_x-33, 53,0);
+	glVertex3i(win->len_x-33, 53,0);
+	glVertex3i(win->len_x, 53,0);
+	glVertex3i(win->len_x, 53,0);
+	glVertex3i(win->len_x, 20,0);
+
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
+
+	// write "get all" in the "get all" box :)
+	draw_string_small(win->len_x-28, 23, "Get", 1);
+	draw_string_small(win->len_x-28, 36, "All", 1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -709,6 +723,21 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int x,y;
 	int x_screen,y_screen;
 	Uint8 str[10];
+
+	// see if we clicked on the "Get All" box
+	if(mx>(win->len_x-33) && mx<win->len_x && my>20 && my<53){
+		int pos;
+
+		for(pos = 0; pos < 50; pos++){
+			if(ground_item_list[pos].quantity){
+				str[0]=PICK_UP_ITEM;
+				str[1]=pos;
+				*((Uint16 *)(str+2))=ground_item_list[pos].quantity;
+				my_tcp_send(my_socket,str,4);
+			}
+		}
+		return 1;
+	}
 
 	//see if we clicked on any item in the wear category
 	for(y=0;y<10;y++)
