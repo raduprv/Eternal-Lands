@@ -6,12 +6,11 @@
 
 void draw_3d_object(object3d * object_id)
 {
-	//float x,y,z,u,v; unused?
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	int materials_no,texture_id; //,a,b,c; unused?
-	int i; //,k; unused?
+	int materials_no,texture_id;
+	int i;
 
 	e3d_array_vertex *array_vertex;
 	e3d_array_normal *array_normal;
@@ -26,32 +25,21 @@ void draw_3d_object(object3d * object_id)
 	is_ground=object_id->e3d_data->is_ground;
 	materials_no=object_id->e3d_data->materials_no;
 
-
 	array_vertex=object_id->e3d_data->array_vertex;
 	array_normal=object_id->e3d_data->array_normal;
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;
 
-#ifdef	USE_CLOUDS
 	check_gl_errors();
 	if(have_multitexture && clouds_shadows)
 		if(!object_id->clouds_uv)
 			compute_clouds_map(object_id);
-#endif	//USE_CLOUDS
 
 	check_gl_errors();
 	//also, update the last time this object was used
 	object_id->last_acessed_time=cur_time;
 
 	clouds_uv=object_id->clouds_uv;
-
-	x_pos=object_id->x_pos;
-	y_pos=object_id->y_pos;
-	z_pos=object_id->z_pos;
-
-	x_rot=object_id->x_rot;
-	y_rot=object_id->y_rot;
-	z_rot=object_id->z_rot;
 
 	//debug
 
@@ -78,9 +66,15 @@ void draw_3d_object(object3d * object_id)
 		}
 	check_gl_errors();
 
-
 	glPushMatrix();//we don't want to affect the rest of the scene
+	x_pos=object_id->x_pos;
+	y_pos=object_id->y_pos;
+	z_pos=object_id->z_pos;
 	glTranslatef (x_pos, y_pos, z_pos);
+
+	x_rot=object_id->x_rot;
+	y_rot=object_id->y_rot;
+	z_rot=object_id->z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
@@ -113,7 +107,7 @@ void draw_3d_object(object3d * object_id)
 									sprintf(str, "%s[%d] values (%d, %d)\n",
 										object_id->file_name, i,
 										array_order[i].start, array_order[i].count);
-									LogError(str);
+									log_error(str);
 								}
 #endif	// DEBUG
 						//if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
@@ -125,13 +119,14 @@ void draw_3d_object(object3d * object_id)
 				}//is ground
 			else
 				{
+					//BUG HERE!!VVVVVVVVV
 					glNormal3f(0,0,1);
 
 					for(i=0;i<materials_no;i++)
 						{
 	check_gl_errors();
 							texture_id=get_texture_id(array_order[i].texture_id);
-    						if(last_texture!=texture_id)
+    						//if(last_texture!=texture_id)
    						 		{
 									glBindTexture(GL_TEXTURE_2D, texture_id);
 									last_texture=texture_id;
@@ -144,7 +139,7 @@ void draw_3d_object(object3d * object_id)
 									sprintf(str, "%s[%d] values (%d, %d)\n",
 										object_id->file_name, i,
 										array_order[i].start, array_order[i].count);
-									LogError(str);
+									log_error(str);
 								}
 #endif	// DEBUG
 						//if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
@@ -352,6 +347,7 @@ void display_objects()
 {
 	int i;
 	int x,y;
+
 	x=-cx;
 	y=-cy;
 	check_gl_errors();
@@ -374,13 +370,11 @@ void display_objects()
 				{
 					int dist1;
 					int dist2;
-					int dist;
 
 					dist1=x-objects_list[i]->x_pos;
 					dist2=y-objects_list[i]->y_pos;
-					dist=dist1*dist1+dist2*dist2;
-					if(dist<=29*29)
-			         	{
+					if(dist1*dist1+dist2*dist2<=29*29)
+						{
 							float x_len;
 							float y_len;
 							float z_len;
@@ -394,13 +388,13 @@ void display_objects()
 							if(radius<y_len/2)radius=y_len/2;
 							if(radius<z_len)radius=z_len;
 							//not in the middle of the air
-							if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
-											   objects_list[i]->z_pos,radius))
+							//if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
+							//				   objects_list[i]->z_pos,radius))
 								{
                      				draw_3d_object(objects_list[i]);
 	check_gl_errors();
 									//anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
-	check_gl_errors();
+	//check_gl_errors();
 								}
 						}
 				}
@@ -635,7 +629,6 @@ e3d_object * load_e3d(char *file_name)
 	return cur_object;
 }
 
-#ifdef	USE_CLOUDS
 void compute_clouds_map(object3d * object_id)
 {
 	float x1,y1,x,y,z,m;
@@ -678,7 +671,6 @@ void compute_clouds_map(object3d * object_id)
 		}
 
 	object_id->clouds_uv=array_detail;
-
 }
 
 void clear_clouds_cache()
@@ -698,7 +690,6 @@ void clear_clouds_cache()
 				}
 		}
 }
-#endif	//ALLOW_CLOUDS
 
 void destroy_3d_object(int i)
 {

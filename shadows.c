@@ -10,14 +10,11 @@ void SetShadowMatrix()
 		+ fPlane[2] * fLightPos[2]
 		+ fPlane[3] * fLightPos[3];
 
-
-
 	// first column
 	fDestMat[0] = dot - fLightPos[0] * fPlane[0];
 	fDestMat[4] = 0.0f - fLightPos[0] * fPlane[1];
 	fDestMat[8] = 0.0f - fLightPos[0] * fPlane[2];
 	fDestMat[12] = 0.0f - fLightPos[0] * fPlane[3];
-
 
 	// second column
 	fDestMat[1] = 0.0f - fLightPos[1] * fPlane[0];
@@ -25,13 +22,11 @@ void SetShadowMatrix()
 	fDestMat[9] = 0.0f - fLightPos[1] * fPlane[2];
 	fDestMat[13] = 0.0f - fLightPos[1] * fPlane[3];
 
-
 	// third column
 	fDestMat[2] = 0.0f - fLightPos[2] * fPlane[0];
 	fDestMat[6] = 0.0f - fLightPos[2] * fPlane[1];
 	fDestMat[10] = dot - fLightPos[2] * fPlane[2];
 	fDestMat[14] = 0.0f - fLightPos[2] * fPlane[3];
-
 
 	// fourth column
 	fDestMat[3] = 0.0f - fLightPos[3] * fPlane[0];
@@ -64,14 +59,6 @@ void draw_3d_object_shadow(object3d * object_id)
 	is_transparent=object_id->e3d_data->is_transparent;
 	materials_no=object_id->e3d_data->materials_no;
 
-	x_pos=object_id->x_pos;
-	y_pos=object_id->y_pos;
-	z_pos=object_id->z_pos;
-
-	x_rot=object_id->x_rot;
-	y_rot=object_id->y_rot;
-	z_rot=object_id->z_rot;
-
 	if(is_transparent)
 		{
 			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
@@ -79,14 +66,19 @@ void draw_3d_object_shadow(object3d * object_id)
 		}
 	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
 
-
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glMultMatrixf(fDestMat);
+	x_pos=object_id->x_pos;
+	y_pos=object_id->y_pos;
+	z_pos=object_id->z_pos;
 	glTranslatef (x_pos, y_pos, z_pos);
+
+	x_rot=object_id->x_rot;
+	y_rot=object_id->y_rot;
+	z_rot=object_id->z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3,GL_FLOAT,0,array_vertex);
@@ -101,8 +93,8 @@ void draw_3d_object_shadow(object3d * object_id)
 			if(is_transparent)
 				{
 					texture_id=get_texture_id(array_order[i].texture_id);
-    				if(last_texture!=texture_id)
-   						{
+					if(last_texture!=texture_id)
+						{
 							last_texture=texture_id;
 							glBindTexture(GL_TEXTURE_2D, texture_id);
 						}
@@ -128,28 +120,28 @@ void display_shadows()
 {
 	int i;
 	int x,y;
+
 	x=-cx;
 	y=-cy;
 	glEnable(GL_CULL_FACE);
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
-			     {
+				 {
 				if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
 					{
-			    	     int dist1;
-			    	     int dist2;
+						 int dist1;
+						 int dist2;
 
-			    	     dist1=x-objects_list[i]->x_pos;
-			    	     dist2=y-objects_list[i]->y_pos;
-			    	     if(dist1*dist1+dist2*dist2<=20*20)
-                	     draw_3d_object_shadow(objects_list[i]);
+						 dist1=x-objects_list[i]->x_pos;
+						 dist2=y-objects_list[i]->y_pos;
+						 if(dist1*dist1+dist2*dist2<=20*20)
+							draw_3d_object_shadow(objects_list[i]);
 					 }
                  }
 		}
 	glDisable(GL_CULL_FACE);
 }
-
 
 void display_night_shadows(int phase)
 {
@@ -171,34 +163,34 @@ void display_night_shadows(int phase)
 			next_closest_light_dist=100.0f;
 
 			if(objects_list[i])
-			     {
+				 {
 				if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
 					{
-			         float dist1;
-			         float dist2;
-			         float x_pos,y_pos;
+					 float dist1;
+					 float dist2;
+					 float x_pos,y_pos;
 
-			         x_pos=objects_list[i]->x_pos;
-			         y_pos=objects_list[i]->y_pos;
-			         dist1=x-x_pos;
-			         dist2=y-y_pos;
-			         if(dist1*dist1+dist2*dist2<=20*20)
-			         	{
+					 x_pos=objects_list[i]->x_pos;
+					 y_pos=objects_list[i]->y_pos;
+					 dist1=x-x_pos;
+					 dist2=y-y_pos;
+					 if(dist1*dist1+dist2*dist2<=20*20)
+						{
 							//now, find the closest, or next closest light source, according to
 							//the phase value
 							for(j=0;j<max_lights;j++)
 							 {
 							  if(lights_list[j])
 							   {
-			         			 float dist1;
-			         			 float dist2;
-			         			 float light_dist;
+								 float dist1;
+								 float dist2;
+								 float light_dist;
 
-			          			 dist1=x_pos-lights_list[j]->pos_x;
-			         			 dist2=y_pos-lights_list[j]->pos_y;
-			         			 light_dist=sqrt(dist1*dist1+dist2*dist2);
-			         			 if(light_dist<=8)
-			         			 	{
+								 dist1=x_pos-lights_list[j]->pos_x;
+								 dist2=y_pos-lights_list[j]->pos_y;
+								 light_dist=sqrt(dist1*dist1+dist2*dist2);
+								 if(light_dist<=8)
+									{
 										if(light_dist<closest_light_dist)
 											{
 												//update the closest and next closest light
@@ -217,9 +209,9 @@ void display_night_shadows(int phase)
 									}
 
 							   }
-						     }
-						    if(phase==1)if(closest_light!=-1)
-						    	{
+							 }
+							if(phase==1)if(closest_light!=-1)
+								{
 									fLightPos[0]=lights_list[closest_light]->pos_x;
 									fLightPos[1]=lights_list[closest_light]->pos_y;
 									fLightPos[2]=lights_list[closest_light]->pos_z;
@@ -228,7 +220,7 @@ void display_night_shadows(int phase)
 									draw_3d_object_shadow(objects_list[i]);
 								}
 							if(phase==2)if(next_closest_light!=-1)
-						    	{
+								{
 									fLightPos[0]=lights_list[next_closest_light]->pos_x;
 									fLightPos[1]=lights_list[next_closest_light]->pos_y;
 									fLightPos[2]=lights_list[next_closest_light]->pos_z;
@@ -243,11 +235,78 @@ void display_night_shadows(int phase)
 	glDisable(GL_CULL_FACE);
 }
 
-
 void display_3d_ground_objects()
 {
 	int i;
 	int x,y;
+
+	x=-cx;
+	y=-cy;
+	glEnable(GL_CULL_FACE);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	if(have_multitexture && clouds_shadows)
+		{
+			//bind the detail texture
+			glActiveTextureARB(GL_TEXTURE1_ARB);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
+			glActiveTextureARB(GL_TEXTURE0_ARB);
+			glEnable(GL_TEXTURE_2D);
+
+		}
+	for(i=0;i<max_obj_3d;i++)
+		{
+			if(objects_list[i])
+				 {
+					 if(objects_list[i]->e3d_data->is_ground)
+						{
+					 		int dist1;
+					 		int dist2;
+
+							dist1=x-objects_list[i]->x_pos;
+							dist2=y-objects_list[i]->y_pos;
+							if(dist1*dist1+dist2*dist2<=25*25)
+								{
+									/*
+									float x_len;
+									float y_len;
+									float z_len;
+									float radius;
+
+									z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
+									x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
+									y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
+
+									radius=x_len/2;
+									if(radius<y_len/2)radius=y_len/2;
+									if(radius<z_len)radius=z_len;
+									//not in the middle of the air
+									if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
+													   objects_list[i]->z_pos,radius))
+										*/
+										draw_3d_object(objects_list[i]);
+								}
+						}
+                 }
+		}
+	if(have_multitexture && clouds_shadows)
+		{
+			//disable the second texture unit
+			glActiveTextureARB(GL_TEXTURE1_ARB);
+			glDisable(GL_TEXTURE_2D);
+			glActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+	glDisableClientState(GL_VERTEX_ARRAY);
+	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisable(GL_CULL_FACE);
+}
+
+void display_3d_non_ground_objects()
+{
+	int i;
+	int x,y;
+
 	x=-cx;
 	y=-cy;
 	glEnable(GL_CULL_FACE);
@@ -258,7 +317,7 @@ void display_3d_ground_objects()
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+			glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
@@ -266,62 +325,35 @@ void display_3d_ground_objects()
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
-			     {
-			         int dist1;
-			         int dist2;
-
-					 if(objects_list[i]->e3d_data->is_ground)
-					 	{
-			         		dist1=x-objects_list[i]->x_pos;
-			         		dist2=y-objects_list[i]->y_pos;
-			         		if(dist1*dist1+dist2*dist2<=20*20)
-                     			draw_3d_object(objects_list[i]);
-						}
-                 }
-		}
-	if(have_multitexture && clouds_shadows)
-		{
-			//disable the second texture unit
-			glActiveTextureARB(GL_TEXTURE1_ARB);
-			glDisable(GL_TEXTURE_2D);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-		}
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisable(GL_CULL_FACE);
-}
-
-void display_3d_non_ground_objects()
-{
-	int i;
-	int x,y;
-	x=-cx;
-	y=-cy;
-	glEnable(GL_CULL_FACE);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	if(have_multitexture && clouds_shadows)
-		{
-			//bind the detail texture
-			glActiveTextureARB(GL_TEXTURE1_ARB);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-			glEnable(GL_TEXTURE_2D);
-
-		}
-	for(i=0;i<max_obj_3d;i++)
-		{
-			if(objects_list[i])
-			     {
-			         int dist1;
-			         int dist2;
-
+				 {
 					 if(!objects_list[i]->e3d_data->is_ground)
-					 	{
-			         		dist1=x-objects_list[i]->x_pos;
-			         		dist2=y-objects_list[i]->y_pos;
-			         		if(dist1*dist1+dist2*dist2<=20*20)
-                     			draw_3d_object(objects_list[i]);
+						{
+							int dist1;
+							int dist2;
+
+							dist1=x-objects_list[i]->x_pos;
+							dist2=y-objects_list[i]->y_pos;
+							if(dist1*dist1+dist2*dist2<=25*25)
+								{
+									/*
+									float x_len, y_len, z_len;
+									float radius;
+
+									z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
+									x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
+									y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
+
+									radius=x_len/2;
+									if(radius<y_len/2)radius=y_len/2;
+									if(radius<z_len)radius=z_len;
+fprintf(stderr, "(%f, %f, %f) -> %f == %d\n", objects_list[i]->x_pos,objects_list[i]->y_pos, objects_list[i]->z_pos, radius,SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos, objects_list[i]->z_pos,radius));
+									//not in the middle of the air
+									if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
+													   objects_list[i]->z_pos,radius))
+										{*/
+											draw_3d_object(objects_list[i]);
+										//}
+								}
 						}
                  }
 		}
@@ -332,129 +364,130 @@ void display_3d_non_ground_objects()
 			glDisable(GL_TEXTURE_2D);
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 		}
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
 }
 
 void draw_sun_shadowed_scene()
 {
+	int	abs_light;
 
-        display_3d_ground_objects();
-		// turning off writing to the color buffer and depth buffer
-		glDisable(GL_DEPTH_TEST);
+	display_3d_ground_objects();
+	// turning off writing to the color buffer and depth buffer
+	glDisable(GL_DEPTH_TEST);
 
-		glDisable(GL_LIGHTING);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDisable(GL_LIGHTING);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-		glEnable(GL_STENCIL_TEST);
-		// write a one to the stencil buffer everywhere we are about to draw
-		glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
-		// this is to always pass a one to the stencil buffer where we draw
-		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+	glEnable(GL_STENCIL_TEST);
+	// write a one to the stencil buffer everywhere we are about to draw
+	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
+	// this is to always pass a one to the stencil buffer where we draw
+	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
+	display_shadows();
 
-        display_shadows();
+	glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
+	// don't modify the contents of the stencil buffer
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-		glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
-		// don't modify the contents of the stencil buffer
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//go to the 2d mode, and draw a black rectangle...
+	Enter2DMode();
+	glDisable(GL_TEXTURE_2D);
 
-
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        //go to the 2d mode, and draw a black rectangle...
-        Enter2DMode();
-        			glDisable(GL_TEXTURE_2D);
-
-					if(light_level<60)glColor4f(0.0f,0.0f,0.0f,0.73f+(float)light_level*0.008f);
-					if(light_level>60)glColor4f(0.0f,0.0f,0.0f,0.73f+(float)(119-light_level)*0.008f);
-        			glEnable(GL_BLEND);
-        			glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-        			glBegin(GL_QUADS);
-					glVertex3i(0,window_height,0);
-					glVertex3i(0,0,0);
-					glVertex3i(window_width,0,0);
-					glVertex3i(window_width,window_height,0);
-					glEnd();
-					glDisable(GL_BLEND);
-					glEnable(GL_TEXTURE_2D);
-
-        Leave2DMode();
-        glEnable(GL_DEPTH_TEST);
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		glEnable(GL_LIGHTING);
-		glDisable(GL_STENCIL_TEST);
+	//if(light_level<60)glColor4f(0.0f,0.0f,0.0f,0.73f+(float)light_level*0.008f);
+	//if(light_level>60)glColor4f(0.0f,0.0f,0.0f,0.73f+(float)(119-light_level)*0.008f);
+	abs_light=light_level;
+	if(light_level>59)abs_light=119-light_level;
+	//abs_light+=weather_light_offset;
+	if(abs_light<0)abs_light=0;
+	if(abs_light>59)abs_light=59;
 
 
-        display_3d_non_ground_objects();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
+	glBegin(GL_QUADS);
+	glVertex3i(0,window_height,0);
+	glVertex3i(0,0,0);
+	glVertex3i(window_width,0,0);
+	glVertex3i(window_width,window_height,0);
+	glEnd();
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
 
+	Leave2DMode();
+	glEnable(GL_DEPTH_TEST);
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+	glEnable(GL_LIGHTING);
+	glDisable(GL_STENCIL_TEST);
+
+	display_3d_non_ground_objects();
 }
 
 void draw_night_shadowed_scene()
 {
+	display_3d_ground_objects();
+	// turning off writing to the color buffer and depth buffer
+	glDisable(GL_DEPTH_TEST);
 
-        display_3d_ground_objects();
-		// turning off writing to the color buffer and depth buffer
-		glDisable(GL_DEPTH_TEST);
+	glDisable(GL_LIGHTING);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-		glDisable(GL_LIGHTING);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glEnable(GL_STENCIL_TEST);
+	// write a one to the stencil buffer everywhere we are about to draw
+	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
+	// this is to always pass a one to the stencil buffer where we draw
+	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
-		glEnable(GL_STENCIL_TEST);
-		// write a one to the stencil buffer everywhere we are about to draw
-		glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
-		// this is to always pass a one to the stencil buffer where we draw
-		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+	//display the first (closest light)
+	display_night_shadows(1);
+	//now, change the value of the stencil to 2, to have two distinct shadows
+	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
+	glStencilOp(GL_INCR, GL_INCR, GL_INCR);
+	//draw the next closest light
+	display_night_shadows(2);
 
-		//display the first (closest light)
-        display_night_shadows(1);
-        //now, change the value of the stencil to 2, to have two distinct shadows
-        glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
-        glStencilOp(GL_INCR, GL_INCR, GL_INCR);
-        //draw the next closest light
-        display_night_shadows(2);
+	glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
+	//glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
+	// don't modify the contents of the stencil buffer
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-		glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
-		//glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
-		// don't modify the contents of the stencil buffer
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//go to the 2d mode, and draw a black rectangle...
+	Enter2DMode();
+	glDisable(GL_TEXTURE_2D);
+	//source 1
+	glColor4f(0.0f,0.0f,0.0f,0.63f);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
+	glBegin(GL_QUADS);
+	glVertex3i(0,window_height,0);
+	glVertex3i(0,0,0);
+	glVertex3i(window_width,0,0);
+	glVertex3i(window_width,window_height,0);
+	glEnd();
 
+	//source 2
+	glStencilFunc(GL_LEQUAL, 2, 0xFFFFFFFF);
+	glBegin(GL_QUADS);
+	glColor4f(0.0f,0.0f,0.0f,0.33f);
+	glVertex3i(0,window_height,0);
+	glVertex3i(0,0,0);
+	glVertex3i(window_width,0,0);
+	glVertex3i(window_width,window_height,0);
+	glEnd();
 
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        //go to the 2d mode, and draw a black rectangle...
-        Enter2DMode();
-        			glDisable(GL_TEXTURE_2D);
-					//source 1
-					glColor4f(0.0f,0.0f,0.0f,0.63f);
-        			glEnable(GL_BLEND);
-        			glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-        			glBegin(GL_QUADS);
-					glVertex3i(0,window_height,0);
-					glVertex3i(0,0,0);
-					glVertex3i(window_width,0,0);
-					glVertex3i(window_width,window_height,0);
-					glEnd();
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
 
-					//source 2
-					glStencilFunc(GL_LEQUAL, 2, 0xFFFFFFFF);
-					glBegin(GL_QUADS);
-					glColor4f(0.0f,0.0f,0.0f,0.33f);
-					glVertex3i(0,window_height,0);
-					glVertex3i(0,0,0);
-					glVertex3i(window_width,0,0);
-					glVertex3i(window_width,window_height,0);
-					glEnd();
+	Leave2DMode();
+	glEnable(GL_DEPTH_TEST);
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+	glEnable(GL_LIGHTING);
+	glDisable(GL_STENCIL_TEST);
 
-
-					glDisable(GL_BLEND);
-					glEnable(GL_TEXTURE_2D);
-
-        Leave2DMode();
-        glEnable(GL_DEPTH_TEST);
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		glEnable(GL_LIGHTING);
-		glDisable(GL_STENCIL_TEST);
-
-
-        display_3d_non_ground_objects();
-
+	display_3d_non_ground_objects();
 }
+

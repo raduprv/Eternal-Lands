@@ -52,7 +52,7 @@ float m_Frustum[8][4];	// only use 6, but mult by 8 is faster
 /////
 ///////////////////////////////// NORMALIZE PLANE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
-void NormalizePlane(float frustum[6][4], int side)
+void NormalizePlane(float frustum[8][4], int side)
 {
 	// Here we calculate the magnitude of the normal to the plane (point A B C)
 	// Remember that (A, B, C) is that same thing as the normal's (X, Y, Z).

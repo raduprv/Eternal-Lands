@@ -41,7 +41,11 @@ void init_stuff()
 	file_selector = create_fileselection();
 #endif	//LINUX
 
+#ifdef	DEBUG
+	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) == -1 )
+#else	//DEBUG
 	if( SDL_Init(SDL_INIT_VIDEO) == -1 )
+#endif	//DEBUG
     {
 		char str[120];
 		sprintf(str, "Couldn't initialize SDL: %s\n", SDL_GetError());
