@@ -15,9 +15,7 @@ ALuint get_loaded_buffer(int i)
 	ALenum  format;
 	ALvoid  *data;
 	ALboolean loop;
-	if(alIsBuffer(sound_buffer[i]))
-		return sound_buffer[i];
-	else
+	if(!alIsBuffer(sound_buffer[i]))
 		{
 			alGenBuffers(1, sound_buffer+i);
 			
@@ -34,10 +32,10 @@ ALuint get_loaded_buffer(int i)
 			alutLoadWAVFile(sound_files[i],&format,&data,&size,&freq,&loop);
 			alBufferData(sound_buffer[i],format,data,size,freq);
 			alutUnloadWAV(format,data,size,freq);
-			
-			return sound_buffer[i];
 		}
+	return sound_buffer[i];
 }
+
 int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 {
 	int error,tx,ty,distance,i;
@@ -148,7 +146,7 @@ void update_position()
 //usefull when we change maps, etc.
 void kill_local_sounds()
 {
-	int i,error,state;
+	int error;
 	if(!have_sound)return;
 	lock_sound_list();
 	alSourceStopv(used_sources,sound_source);
@@ -161,27 +159,11 @@ void kill_local_sounds()
 			have_sound=0;
 			have_music=0;
     	}
-	for(i=0;i<used_sources;i++)
+	if(realloc_sources())
 		{
-			alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
-			if(state != AL_STOPPED)
-				{
-					log_to_console(c_red1, "Failed to stop all sounds.\n");
-					log_error("Failed to stop all sounds.\n");
-					break;
-				}
+			log_to_console(c_red1, "Failed to stop all sounds.\n");
+			log_error("Failed to stop all sounds.\n");
 		}
-	alDeleteSources(used_sources, sound_source);
-	used_sources = 0;
-	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-     		char	str[256];
-    		sprintf(str, "kill_local_sounds error: %s\n", alGetString(error));
-    		log_to_console(c_red1, str);
-    		log_error(str);
-			have_sound=0;
-			have_music=0;
-    	}
 	unlock_sound_list();
 }
 
@@ -222,7 +204,7 @@ void init_sound()
 	have_sound=1;
 	have_music=1;
 
-	alutInit(0, NULL); 
+	alutInit(0, NULL);
 	sound_list_mutex=SDL_CreateMutex();
 
 	if((error=alGetError()) != AL_NO_ERROR) 
@@ -251,6 +233,9 @@ void init_sound()
 	alListenerfv(AL_VELOCITY,listenerVel);
 	alListenerfv(AL_ORIENTATION,listenerOri);
 
+	//poison data
+	for(i=0;i<max_sources;i++)
+		sound_source[i] = -1;
 	for(i=0;i<max_buffers;i++)
 		sound_buffer[i] = -1;
 }
@@ -275,7 +260,9 @@ int realloc_sources()
 	int state,error;
 	int still_used=0;
 	ALuint new_sources[max_sources];
-	for(i=0;i<max_sources;i++)
+	if(used_sources>max_sources)
+		used_sources=max_sources;
+	for(i=0;i<used_sources;i++)
 		{
 			alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
 			if((state == AL_PLAYING) || (state == AL_PAUSED))
@@ -289,6 +276,8 @@ int realloc_sources()
 
 	for(i=0;i<still_used;i++)
 		sound_source[i] = new_sources[i];
+	for(i=still_used;i<max_sources;i++)
+		sound_source[i]=-1;
 	used_sources=still_used;
 	
 	if((error=alGetError()) != AL_NO_ERROR) 

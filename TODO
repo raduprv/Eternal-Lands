@@ -6,6 +6,9 @@ Get File signature (MD5 or CRC32 of a specified filename)
 	-used to send encrypted passwords?
 FreeBSD version
 log, cfg, & ini in user directory tree
+Specify alternate directory to load games files from
+Upload File to client
+S/W version check & upload
 
 
 Learner:
@@ -27,9 +30,6 @@ Ent's list:
 Unassigned:
 Chat Window
 MultiChannel Chat (needs server support)
-Upload File to client
-S/W version check & upload
 User defined keyboard/mouse bindings
 Server selection screen
-Specify alternate directory to load games files from
 

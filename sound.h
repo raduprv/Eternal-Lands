@@ -35,6 +35,7 @@ void turn_sound_on();
 void init_sound();
 void destroy_sound();
 int realloc_sources();
+ALuint get_loaded_buffer(int i);
 
 #define	lock_sound_list()	SDL_LockMutex(sound_list_mutex)
 #define	unlock_sound_list()	SDL_UnlockMutex(sound_list_mutex);
