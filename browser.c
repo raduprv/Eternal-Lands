@@ -230,7 +230,7 @@ int display_browser_handler()
 int check_browser_interface()
 {
    int x,y;
-   if(!view_browser || mouse_x>browser_menu_x+browser_menu_x_len || mouse_x<browser_menu_x
+   if(/*!view_browser || */mouse_x>browser_menu_x+browser_menu_x_len || mouse_x<browser_menu_x
       || mouse_y<browser_menu_y || mouse_y>browser_menu_y+browser_menu_y_len)return 0;
 
    	if(view_browser && mouse_x>(browser_menu_x+browser_menu_x_len-20) && mouse_x<=(browser_menu_x+browser_menu_x_len)
@@ -317,7 +317,6 @@ int check_browser_interface()
 			cd=-1;
 		}
    }
-   
    return 1;
 }
 

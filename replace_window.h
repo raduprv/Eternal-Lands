@@ -6,6 +6,7 @@ extern int replace_window_y;
 extern int replace_window_x_len;
 extern int replace_window_y_len;
 extern int view_replace_window;
+extern int replace_window_win;
 
 void init_replace_window();
 void display_replace_window();

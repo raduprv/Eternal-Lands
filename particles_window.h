@@ -2,7 +2,7 @@
 #define __PARTICLES_WINDOW_H__
 
 extern int view_particles_window;
-
+extern int particles_window;
 void init_particles_window();
 void display_particles_window();
 void toggle_particles_window();

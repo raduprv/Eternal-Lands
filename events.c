@@ -55,19 +55,20 @@ int HandleEvent(SDL_Event *event)
 		}
 
 		if ( event->key.keysym.sym == SDLK_b && ctrl_on){
-			view_browser=!view_browser;
+			toggle_window(browser_win);
 		}
 		if ( event->key.keysym.sym == SDLK_p && ctrl_on) {
 			toggle_particles_window();
+			toggle_window(particles_window);
 		}
 		if ( event->key.keysym.sym == SDLK_w && ctrl_on){
-			view_o3dow=!view_o3dow;
+			toggle_window(o3dow_win);
 		}
 		if ( event->key.keysym.sym == SDLK_r && ctrl_on){
-			view_replace_window=!view_replace_window;
+			toggle_window(replace_window_win);
 		}
-			if ( event->key.keysym.sym == SDLK_e && ctrl_on){
-			view_edit_window=!view_edit_window;
+		if ( event->key.keysym.sym == SDLK_e && ctrl_on){
+			toggle_window(edit_window_win);
 		}
 
 		if ( event->key.keysym.sym == SDLK_LEFT )
@@ -370,6 +371,22 @@ int HandleEvent(SDL_Event *event)
 	  }
 	} // *
 
+	if(event->type==SDL_MOUSEMOTION)
+				{
+					mouse_x= event->motion.x;
+					mouse_y= event->motion.y;
+
+					mouse_delta_x= event->motion.xrel;
+					mouse_delta_y= event->motion.yrel;
+				}
+			else
+				{
+					mouse_x= event->button.x;
+					mouse_y= event->button.y;
+					mouse_delta_x= mouse_delta_y= 0;
+				}
+
+
 	if(event->type==SDL_MOUSEMOTION || event->type==SDL_MOUSEBUTTONDOWN || event->type==SDL_MOUSEBUTTONUP)
 		{
 			char tool_bar_click=0;
@@ -392,9 +409,9 @@ int HandleEvent(SDL_Event *event)
 			else
 				middle_click= 0;
 
-			if(left_click==1 && check_edit_window_interface())return done;
-
-			if(left_click==1 && check_particles_window_interface())return done;
+			if((left_click==1 || right_click==1))
+				if(click_in_windows(mouse_x, mouse_y, 1)>0)
+					return (done);
 
 			if(shift_on && left_click==1){
 				get_world_x_y();
@@ -415,7 +432,6 @@ int HandleEvent(SDL_Event *event)
 					return(done);
 				}
 
-			if(left_click==1 && check_replace_window_interface())return done;
 			if(left_click && cur_tool==tool_select && selected_tile!=255  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3 && scene_mouse_x<tile_map_size_x*3)
 			{
 				tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3]=selected_tile;
@@ -424,8 +440,7 @@ int HandleEvent(SDL_Event *event)
 				return(done);
 			}
 
-			if(left_click==1 && check_browser_interface())return done;
-			if(left_click==1 && check_o3dow_interface())return done;
+
 			if(check_interface_buttons()==1)tool_bar_click=1;
 			if(right_click==1 && cur_tool==tool_select && selected_tile!=255 && cur_mode==mode_tile)selected_tile=255;
 			if(right_click==1 && cur_tool==tool_select && selected_height!=-1 && cur_mode==mode_height)selected_height=-1;
@@ -438,6 +453,10 @@ int HandleEvent(SDL_Event *event)
 					cur_tool=tool_select;
 					selected_tile=0;
 				}
+
+			if((left_click>=1))
+				if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) > 0)
+					return done;
 
 			get_world_x_y();
 			if(!tool_bar_click)

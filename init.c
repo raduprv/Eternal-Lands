@@ -185,6 +185,19 @@ void init_stuff()
 	SDL_EnableUNICODE(1);
 
     //we might want to do this later.
+
+	// creating windows
+	display_browser();
+	toggle_window(browser_win);
+	display_o3dow();
+	toggle_window(o3dow_win);
+	display_replace_window();
+	toggle_window(replace_window_win);
+	display_edit_window();
+	toggle_window(edit_window_win);
+	display_particles_window();
+	toggle_window(particles_window);
+
 }
 
 void resize_window()

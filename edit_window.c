@@ -256,7 +256,7 @@ int display_edit_window_handler()
 int check_edit_window_interface()
 {
 	int x,y;
-	if(!view_edit_window || mouse_x>edit_window_x+edit_window_x_len || mouse_x<edit_window_x
+	if(mouse_x>edit_window_x+edit_window_x_len || mouse_x<edit_window_x
       || mouse_y<edit_window_y || mouse_y>edit_window_y+edit_window_y_len)return 0;
 
    	if(view_edit_window && mouse_x>(edit_window_x+edit_window_x_len-20) && mouse_x<=(edit_window_x+edit_window_x_len)

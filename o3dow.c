@@ -269,7 +269,7 @@ int display_o3dow_handler()
 int check_o3dow_interface()
 {
 	int x,y;
-	if(!view_o3dow || mouse_x>o3dow_x+o3dow_x_len || mouse_x<o3dow_x
+	if(mouse_x>o3dow_x+o3dow_x_len || mouse_x<o3dow_x
       || mouse_y<o3dow_y || mouse_y>o3dow_y+o3dow_y_len)return 0;
 
    	if(view_o3dow && mouse_x>(o3dow_x+o3dow_x_len-20) && mouse_x<=(o3dow_x+o3dow_x_len)

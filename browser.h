@@ -21,6 +21,7 @@ extern int browser_menu_x_len;
 extern int browser_menu_y_len;
 extern int browser_menu_dragged;
 extern int view_browser;
+extern int browser_win;
 
 void init_browser();
 void display_browser();

@@ -90,7 +90,7 @@ int display_replace_window_handler()
 int check_replace_window_interface()
 {
 	int x,y;
-	if(!view_replace_window || mouse_x>replace_window_x+replace_window_x_len || mouse_x<replace_window_x
+	if(mouse_x>replace_window_x+replace_window_x_len || mouse_x<replace_window_x
       || mouse_y<replace_window_y || mouse_y>replace_window_y+replace_window_y_len)return 0;
 
    	if(view_replace_window && mouse_x>(replace_window_x+replace_window_x_len-20) && mouse_x<=(replace_window_x+replace_window_x_len)

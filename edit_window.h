@@ -6,6 +6,7 @@ extern int edit_window_y;
 extern int edit_window_x_len;
 extern int edit_window_y_len;
 extern int view_edit_window;
+extern int edit_window_win;
 extern int ew_selected_object;
 extern int ew_object_type;
 extern obj_2d o2t;
