@@ -633,22 +633,21 @@ int recvpacket()
 	if(in_data_used == 0)
 		{
 			// clear the buffer
-			memset(in_data, 0, 4096);
+			memset(in_data, 0, 8192);
 		}
 
 	//get the header if we don't have it
 	if(in_data_used < 3)
 		{
-			total=SDLNet_TCP_Recv(my_socket, in_data+in_data_used, 3-in_data_used);
-			if(total<=-1)return 0;	// no data to read - return and error
-			in_data_used+=total;	// adjust for what we have already;
-			total=in_data_used;
-			if(total<3)
+			len=SDLNet_TCP_Recv(my_socket, in_data+in_data_used, 3-in_data_used);
+			if(len<=-1)return 0;	// no data to read - return and error
+			in_data_used+=len;	// adjust for what we have already;
+			if(in_data_used<3)
 				{
-					if(total > 0)
+					if(in_data_used > 0)
 						{
 							//log_to_console(c_red2,"Packet underrun ... recovering!");
-							return -1; // didn't even get 3 bytes? noting new, keep running
+							return -1; // didn't even get 3 bytes? nothing new, keep running
 						}
 					else
 						{
@@ -657,33 +656,24 @@ int recvpacket()
 						}
 				}
 		}
-	else
-		{
-			total=in_data_used;
-		}
 
 	size=(*((short *)(in_data+1)))+2;
-	if(size >= 4096-3){	//watch for fatal errors
-		/*if(total > 0)*/log_to_console(c_red2,"Packet overrun ... data lost!");
-		/*while(total<size) {
-			len=SDLNet_TCP_Recv(my_socket, in_data, (size-total > 4096)?4096:size-total);
-			if(len<=0) return 0; // Disconnected?
-			total+=len;
-		}
-		in_data_used=0;	// get ready for a new packet
-		*/
+	if(size >= 8192-3){	//watch for fatal errors
+		log_to_console(c_red2,"Packet overrun ... data lost!");
 		return 0;	// and force a disconnect
 	}
 	//see if more data needs to be read
-	while(total<size) {
-		len=SDLNet_TCP_Recv(my_socket, in_data+total, size-total);
+	while(in_data_used<size) {
+		len=SDLNet_TCP_Recv(my_socket, in_data+in_data_used, size-in_data_used);
 		if(len<=0)
   			{
-  				log_to_console(c_red2,"link loss");
- 				return 0; // Disconnected?
+  				//log_to_console(c_red2,"link loss");
+ 				//return 0; // Disconnected?
+ 				return -1; // still not all here, lets come back later
  			}
-		total+=len;
+		in_data_used+=len;
 	}
+	total=in_data_used;
 	in_data_used=0;	// get ready for a new packet
 	return total;
 }
