@@ -479,7 +479,7 @@ void init_stuff()
 	int seed;
 
 	//TODO: process command line options
-	chdir(datadir);
+	chdir(DATA_DIR);
 	
 	//Initialize all strings
 	init_translatables();
