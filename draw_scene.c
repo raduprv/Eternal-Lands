@@ -14,6 +14,7 @@ void draw_scene()
         int y_line,i;
         Uint8 status;
         int any_reflection=0;
+		int mouse_rate;
 
         cur_time = SDL_GetTicks();
         get_message_from_server();
@@ -102,33 +103,32 @@ void draw_scene()
 
         if(fps<5)
         	{
+        		mouse_rate=1;
         		read_mouse_now=1;
 			}
         else if(fps<10)
         	{
-        		if(!(main_count%2))read_mouse_now=1;
-        		else read_mouse_now=0;
+        		mouse_rate=2;
 			}
         else if(fps<20)
         	{
-        		if(!(main_count%4))read_mouse_now=1;
-        		else read_mouse_now=0;
+        		mouse_rate=4;
 			}
         else if(fps<30)
         	{
-        		if(!(main_count%8))read_mouse_now=1;
-        		else read_mouse_now=0;
+        		mouse_rate=8;
 			}
         else if(fps<40)
         	{
-        		if(!(main_count%12))read_mouse_now=1;
-        		else read_mouse_now=0;
+        		mouse_rate=12;
 			}
         else
         	{
-        		if(!(main_count%15))read_mouse_now=1;
-        		else read_mouse_now=0;
+        		mouse_rate=15;
 			}
+		if(mouse_rate > mouse_limit)mouse_rate=mouse_limit;
+       	if(!(main_count%mouse_rate))read_mouse_now=1;
+       	else read_mouse_now=0;
         reset_under_the_mouse();
 
         glLoadIdentity();					// Reset The Matrix
