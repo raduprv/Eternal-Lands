@@ -65,8 +65,9 @@ typedef struct {
  */
 typedef struct {
 	Sint8 label[64];
-	Uint16 tag_width;
 	Uint32 content_id;
+	Uint16 tag_x, tag_width;
+	char closable;
 } tab;
 
 /*!
@@ -855,6 +856,36 @@ int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab)
 	return -1;
 }
 
+int tab_collection_close_tab (Uint32 window_id, Uint32 widget_id, int tab) 
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w) 
+	{
+		tab_collection *col = (tab_collection *) w->widget_info;
+		if (tab >= 0 && tab < col->nr_tabs)
+		{
+			int i, w;
+			
+			w = col->tabs[tab].tag_width + col->tag_space;
+			destroy_window (col->tabs[tab].content_id);
+			for (i = tab+1; i < col->nr_tabs; i++)
+			{
+				col->tabs[i].tag_x -= w;
+				col->tabs[i-1] = col->tabs[i];
+			}
+
+			col->nr_tabs--;
+			if (col->cur_tab > tab)
+				col->cur_tab--;
+			else if (col->cur_tab == tab)
+				col->cur_tab = 0;
+				
+			return col->cur_tab;
+		}
+	}
+	return -1;
+}
+
 int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height, Uint16 tag_space)
 {
 	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, tag_height, tag_space);
@@ -921,17 +952,17 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 int tab_collection_draw (widget_list *w)
 {
 	tab_collection *col;
-	int itab, ytagtop, ytagbot, xtag, nxtag, xcur, wcur, space;
+	int itab, ytagtop, ytagbot, xstart, xend, space;
+	int h;
 
 	if (!w) return 0;
 	
 	col = (tab_collection *) w->widget_info;
 	
-	ytagtop = w->pos_y;
-	ytagbot = w->pos_y + col->tag_height;
 	space = col->tag_space;
-	xcur = xtag = w->pos_x;
-	wcur = 0;
+	h = col->tag_height;
+	ytagtop = w->pos_y;
+	ytagbot = w->pos_y + h;
 
 	glDisable(GL_TEXTURE_2D);
 	if(w->r!=-1.0)
@@ -941,28 +972,54 @@ int tab_collection_draw (widget_list *w)
 		// draw the tags
 		for (itab = 0; itab < col->nr_tabs; itab++) 
 		{
-			nxtag =  xtag+col->tabs[itab].tag_width;
+			xstart = w->pos_x + col->tabs[itab].tag_x;
+			xend = xstart + col->tabs[itab].tag_width;
+
 			glBegin (GL_LINES);
-			glVertex3i (xtag, ytagbot, 0);
-			glVertex3i (xtag, ytagtop, 0);
-			glVertex3i (xtag, ytagtop, 0);
-			glVertex3i (nxtag, ytagtop, 0);
-			glVertex3i (nxtag, ytagtop, 0);
-			glVertex3i (nxtag, ytagbot, 0);
+
+			glVertex3i (xstart, ytagbot, 0);
+			glVertex3i (xstart, ytagtop, 0);
+			glVertex3i (xstart, ytagtop, 0);
+			glVertex3i (xend, ytagtop, 0);
+			glVertex3i (xend, ytagtop, 0);
+			glVertex3i (xend, ytagbot, 0);
+			
+			// draw a close box if necessary
+			if (col->tabs[itab].closable)
+			{
+				glVertex3i (xstart+3, ytagbot-3, 0);
+				glVertex3i (xstart+3, ytagtop+3, 0);
+				glVertex3i (xstart+3, ytagtop+3, 0);
+				glVertex3i (xstart+h-3, ytagtop+3, 0);
+				glVertex3i (xstart+h-3, ytagtop+3, 0);
+				glVertex3i (xstart+h-3, ytagbot-3, 0);
+				glVertex3i (xstart+h-3, ytagbot-3, 0);
+				glVertex3i (xstart+3, ytagbot-3, 0);
+
+				glVertex3i (xstart+3, ytagbot-3, 0);
+				glVertex3i (xstart+h-3, ytagtop+3, 0);
+				glVertex3i (xstart+3, ytagtop+3, 0);
+				glVertex3i (xstart+h-3, ytagbot-3, 0);
+			}
 			glEnd ();
+
 			glEnable(GL_TEXTURE_2D);
-			draw_string_zoomed (xtag+2, ytagtop+2, (unsigned char *)col->tabs[itab].label, 1, w->size);
+			if (col->tabs[itab].closable)
+				draw_string_zoomed (xstart+h, ytagtop+2, (unsigned char *)col->tabs[itab].label, 1, w->size);
+			else
+				draw_string_zoomed (xstart+2, ytagtop+2, (unsigned char *)col->tabs[itab].label, 1, w->size);
 			glDisable(GL_TEXTURE_2D);
-			if (itab == col->cur_tab) xcur = xtag;
-			xtag = nxtag + space;
 		}
-		wcur = col->tabs[col->cur_tab].tag_width;
 	}
+
+	xstart = w->pos_x + col->tabs[col->cur_tab].tag_x;
+	xend = xstart + col->tabs[col->cur_tab].tag_width;
+	
 	// draw the rest of the frame around the tab
 	glBegin (GL_LINES);
 	glVertex3i (w->pos_x, ytagbot, 0);
-	glVertex3i (xcur, ytagbot, 0);
-	glVertex3i (xcur+wcur, ytagbot, 0);
+	glVertex3i (xstart, ytagbot, 0);
+	glVertex3i (xend, ytagbot, 0);
 	glVertex3i (w->pos_x + w->len_x, ytagbot, 0);		
 	glVertex3i (w->pos_x + w->len_x, ytagbot, 0);		
 	glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);		
@@ -985,22 +1042,45 @@ int tab_collection_click (widget_list *W, int x, int y)
 	tab_collection *col = (tab_collection *) W->widget_info;
 	if (y < col->tag_height) 
 	{
-		int itag, xtag = 0, ctag = col->cur_tab;
+		int itag, ctag = col->cur_tab;
 
 		// find which tag was clicked
 		for (itag = 0; itag < col->nr_tabs; itag++) 
-		{
-			xtag += col->tabs[itag].tag_width + col->tag_space;
-			if (x < xtag) break;
-		}
+			if (x > col->tabs[itag].tag_x && x < col->tabs[itag].tag_x + col->tabs[itag].tag_width)
+				break;
 		
-		// if a new tab is selected, replace the current one
-		if (itag < col->nr_tabs && itag != ctag)
+		if (itag < col->nr_tabs)
 		{
-			col->cur_tab = itag;
-			hide_window (col->tabs[ctag].content_id);
-			show_window (col->tabs[itag].content_id);
-			//select_window (col->tabs[itag].content_id);
+			// check if close box was clicked
+			if (col->tabs[itag].closable && x > col->tabs[itag].tag_x + 3 && x < col->tabs[itag].tag_x + col->tag_height - 3 && y > 3 && y < col->tag_height - 3)
+			{
+				int i, w;
+
+				w = col->tabs[itag].tag_width + col->tag_space;
+
+				destroy_window (col->tabs[itag].content_id);
+				col->tabs[itag].content_id = -1;
+
+				for (i = itag+1; i < col->nr_tabs; i++)
+				{
+					col->tabs[i].tag_x -= w;
+					col->tabs[i-1] = col->tabs[i];
+				}
+
+				col->nr_tabs--;
+				if (ctag > itag)
+					col->cur_tab--;
+				else if (ctag == itag)
+					col->cur_tab = 0;
+			}
+			// check if a new tab is selected
+			else if (itag != ctag)
+			{
+				col->cur_tab = itag;
+				hide_window (col->tabs[ctag].content_id);
+				show_window (col->tabs[itag].content_id);
+				//select_window (col->tabs[itag].content_id);
+			}
 			return 1;
 		}
 	}
@@ -1024,7 +1104,7 @@ int tab_collection_resize (widget_list *W, Uint32 width, Uint32 height)
 	return 1;
 }
 
-int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width)
+int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable)
 {
 	widget_list *w = widget_find(window_id, col_id);
 	tab_collection *col;
@@ -1035,8 +1115,7 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 	
 	nr = col->nr_tabs++;
 	if (nr >= col->max_tabs)
-	{
-		
+	{		
 		// shoot, we allocated too few tabs
 		int old_max = col->max_tabs, new_max = 2 * old_max;
 		int itab;
@@ -1049,6 +1128,14 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 	}
 		
 	my_strncp (col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
+	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
+	col->tabs[nr].closable = closable ? 1 : 0;
+
+	if (nr == 0)
+		col->tabs[nr].tag_x = 0;
+	else
+		col->tabs[nr].tag_x = col->tabs[nr-1].tag_x + col->tabs[nr-1].tag_width + col->tag_space;
+
 	if (tag_width > 0)
 	{
 		col->tabs[nr].tag_width = tag_width;
@@ -1057,8 +1144,9 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 	{
 		// compute tag width from label width
 		col->tabs[nr].tag_width = 4 + (int) (w->size * get_string_width(col->tabs[nr].label));
+		if (col->tabs[nr].closable) 
+			col->tabs[nr].tag_width += col->tag_height;
 	}
-	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
 	
 	return col->tabs[nr].content_id;
 }
@@ -1193,10 +1281,11 @@ int text_field_draw (widget_list *w)
 
 int text_field_set_buf_pos (Uint32 window_id, Uint32 widget_id, int msg, int offset)
 {
+	text_field *tf;
 	widget_list *w = widget_find (window_id, widget_id);
 	if (w == NULL) return 0;
 	
-	text_field *tf = (text_field *) w->widget_info;
+	tf = (text_field *) w->widget_info;
 
 	if (msg < 0)
 	{
@@ -1529,7 +1618,7 @@ int ParseWidget (xmlNode *node, int winid)
 
 int ParseTab (xmlNode *node, int winid, int colid)
 {
-	int tag_width = 0, tabid;
+	int tag_width = 0, closable = 0, tabid;
 	char label[64] = {'\0'};
 	xmlAttr *cur_attr = NULL;
 	xmlNode *child;
@@ -1547,10 +1636,14 @@ int ParseTab (xmlNode *node, int winid, int colid)
 			{
 				tag_width = atoi (cur_attr->children->content);
 			}
+			else if ( !xmlStrcasecmp (cur_attr->name, "closable") )
+			{
+				closable = atoi (cur_attr->children->content);
+			}
 		}
 	}
 	
-	tabid = tab_add (winid, colid, label, tag_width);
+	tabid = tab_add (winid, colid, label, tag_width, closable);
 	
 	for (child = node->children; child; child = child->next)
 	{

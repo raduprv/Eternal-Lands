@@ -1036,10 +1036,11 @@ int tab_collection_resize (widget_list *W, Uint32 w, Uint32 h);
  * \param   	col_id The unique widget id of the tabbed window collection in which this tab is created
  * \param   	label The name of this tab as it appears on its tag
  * \param	tag_width The width of the tag
+ * \param	closable Flag indicating if the tab can be closed
  * \retval int  	Returns 1 if a new tab is selected, 0 otherwise
  * \callgraph
  */
-int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width);
+int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable);
 
 /*!
  * \ingroup	textfields

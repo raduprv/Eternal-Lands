@@ -326,7 +326,7 @@ void display_chat ()
 			chat_out_ids[itab] = chat_out_start_id + itab;
 		}
 
-		chat_tab_ids[0] = tab_add (chat_win, chat_tabcollection_id, "Local", 0);
+		chat_tab_ids[0] = tab_add (chat_win, chat_tabcollection_id, "Local", 0, 0);
 		set_window_min_size (chat_tab_ids[0], 0, 0);
 		chat_out_ids[0] = text_field_add_extended (chat_tab_ids[0], chat_out_ids[0], NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
 		
