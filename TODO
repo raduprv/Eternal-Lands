@@ -17,5 +17,11 @@ MultiChannel Chat (needs server support)
 Upload File to client
 S/W version check & upload
 User defined keyboard/mouse bindings
-
+Ent's list:
+2. Deepth shadows (very complicated) 
+5. Various spell effects. (medium-hard) 
+11. Buddy list menu (will do the server part myself) 
+12. Change the internal way MD2s are loaded, and make them vertex arrays.
+13. On card that support OVB, make the 3d objects and models VBO.
+14. Make use of other extensions, if supported (such as texture compression, bump mapping, etc.) 
 
