@@ -4,7 +4,7 @@
 void display_trade_menu()
 {
 	Uint8 str[80];
-	int x,y,i;
+	int x,y,i,j;
 	//first of all, draw the actual menu.
 
 	draw_menu_title_bar(trade_menu_x,trade_menu_y-16,trade_menu_x_len);
@@ -155,52 +155,59 @@ void display_trade_menu()
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
+	j=0;
 	for(i=0;i<36+6;i++)
 		{
 			if(item_list[i].quantity)
-				if(item_list[i].pos<36)
-					{
-						float u_start,v_start,u_end,v_end;
-						int this_texture,cur_item,cur_pos;
-						int x_start,x_end,y_start,y_end;
+			if(item_list[i].pos<36)
+				{
+					float u_start,v_start,u_end,v_end;
+					int this_texture,cur_item,cur_pos;
+					int x_start,x_end,y_start,y_end;
 
-						//get the UV coordinates.
-						cur_item=item_list[i].image_id%25;
-						u_start=0.2f*(cur_item%5);
-						u_end=u_start+0.2f;
-						v_start=1.0f-(0.2f*(cur_item/5));
-						v_end=v_start-0.2f;
+					//get the UV coordinates.
+					cur_item=item_list[i].image_id%25;
+					u_start=0.2f*(cur_item%5);
+					u_end=u_start+0.2f;
+					v_start=1.0f-(0.2f*(cur_item/5));
+					v_end=v_start-0.2f;
 
-						//get the x and y
-						cur_pos=i;
+					//get the x and y
+					cur_pos=j;
+					j++;
 
-						x_start=trade_menu_x+33*(cur_pos%12)+1;
-						x_end=x_start+32;
-						y_start=trade_menu_y+33*(cur_pos/12);
-						y_end=y_start+32;
+					x_start=trade_menu_x+33*(cur_pos%12)+1;
+					x_end=x_start+32;
+					y_start=trade_menu_y+33*(cur_pos/12);
+					y_end=y_start+32;
 
-						//get the texture this item belongs to
-						this_texture=item_list[i].image_id/25;
-						if(this_texture==0)this_texture=items_text_1;
-						else if(this_texture==1)this_texture=items_text_2;
-						else if(this_texture==2)this_texture=items_text_3;
-						else if(this_texture==3)this_texture=items_text_4;
-						else if(this_texture==4)this_texture=items_text_5;
-						else if(this_texture==5)this_texture=items_text_6;
+					//get the texture this item belongs to
+					this_texture=item_list[i].image_id/25;
+					if(this_texture==0)this_texture=items_text_1;
+					else
+					if(this_texture==1)this_texture=items_text_2;
+					else
+					if(this_texture==2)this_texture=items_text_3;
+					else
+					if(this_texture==3)this_texture=items_text_4;
+					else
+					if(this_texture==4)this_texture=items_text_5;
+					else
+					if(this_texture==5)this_texture=items_text_6;
 
-						if(last_texture!=texture_cache[this_texture].texture_id)
-							{
-								glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-								last_texture=texture_cache[this_texture].texture_id;
-							}
+					if(last_texture!=texture_cache[this_texture].texture_id)
+						{
+							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
+							last_texture=texture_cache[this_texture].texture_id;
+						}
 
-						glBegin(GL_QUADS);
-						draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-						glEnd();
+					glBegin(GL_QUADS);
+					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
+					glEnd();
 
-						sprintf(str,"%i",item_list[i].quantity);
-						draw_string_small(x_start,y_end-15,str,1);
-					}
+					sprintf(str,"%i",item_list[i].quantity);
+					draw_string_small(x_start,y_end-15,str,1);
+				}
 
 		}
 
@@ -231,11 +238,16 @@ void display_trade_menu()
 					//get the texture this item belongs to
 					this_texture=your_trade_list[i].image_id/25;
 					if(this_texture==0)this_texture=items_text_1;
-					else if(this_texture==1)this_texture=items_text_2;
-					else if(this_texture==2)this_texture=items_text_3;
-					else if(this_texture==3)this_texture=items_text_4;
-					else if(this_texture==4)this_texture=items_text_5;
-					else if(this_texture==5)this_texture=items_text_6;
+					else
+					if(this_texture==1)this_texture=items_text_2;
+					else
+					if(this_texture==2)this_texture=items_text_3;
+					else
+					if(this_texture==3)this_texture=items_text_4;
+					else
+					if(this_texture==4)this_texture=items_text_5;
+					else
+					if(this_texture==5)this_texture=items_text_6;
 
 					if(last_texture!=texture_cache[this_texture].texture_id)
 						{
@@ -280,11 +292,16 @@ void display_trade_menu()
 					//get the texture this item belongs to
 					this_texture=others_trade_list[i].image_id/25;
 					if(this_texture==0)this_texture=items_text_1;
-					else if(this_texture==1)this_texture=items_text_2;
-					else if(this_texture==2)this_texture=items_text_3;
-					else if(this_texture==3)this_texture=items_text_4;
-					else if(this_texture==4)this_texture=items_text_5;
-					else if(this_texture==5)this_texture=items_text_6;
+					else
+					if(this_texture==1)this_texture=items_text_2;
+					else
+					if(this_texture==2)this_texture=items_text_3;
+					else
+					if(this_texture==3)this_texture=items_text_4;
+					else
+					if(this_texture==4)this_texture=items_text_5;
+					else
+					if(this_texture==5)this_texture=items_text_6;
 
 					if(last_texture!=texture_cache[this_texture].texture_id)
 						{
@@ -311,33 +328,42 @@ void display_trade_menu()
 
 int check_trade_interface()
 {
-	int x,y;
+	int x,y; //i unused?
 	int x_screen,y_screen;
 	Uint8 str[10];
 
 	if(!view_trade_menu || mouse_x>trade_menu_x+trade_menu_x_len || mouse_x<trade_menu_x
-	   || mouse_y<trade_menu_y || mouse_y>trade_menu_y+trade_menu_x_len)return 0;
+	|| mouse_y<trade_menu_y || mouse_y>trade_menu_y+trade_menu_x_len)return 0;
 
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
-		for(x=0;x<2;x++)
-			{
-				x_screen=trade_menu_x+33*9+25+x*35;
-				y_screen=trade_menu_y+133+y*20;
-				if(mouse_x>x_screen && mouse_x<x_screen+35 && mouse_y>y_screen && mouse_y<y_screen+20)
-					{
-						if(x==0 && y==0)item_quantity=1;
-						else if(x==1 && y==0)item_quantity=5;
-						else if(x==0 && y==1)item_quantity=10;
-						else if(x==1 && y==1)item_quantity=20;
-						else if(x==0 && y==2)item_quantity=50;
-						else if(x==1 && y==2)item_quantity=100;
-						else if(x==0 && y==3)item_quantity=200;
-						else if(x==1 && y==3)item_quantity=500;
-						else if(x==0 && y==4)item_quantity=1000;
-						else if(x==1 && y==4)item_quantity=2000;
-					}
-			}
+	for(x=0;x<2;x++)
+		{
+			x_screen=trade_menu_x+33*9+25+x*35;
+			y_screen=trade_menu_y+133+y*20;
+			if(mouse_x>x_screen && mouse_x<x_screen+35 && mouse_y>y_screen && mouse_y<y_screen+20)
+				{
+					if(x==0 && y==0)item_quantity=1;
+					else
+					if(x==1 && y==0)item_quantity=5;
+					else
+					if(x==0 && y==1)item_quantity=10;
+					else
+					if(x==1 && y==1)item_quantity=20;
+					else
+					if(x==0 && y==2)item_quantity=50;
+					else
+					if(x==1 && y==2)item_quantity=100;
+					else
+					if(x==0 && y==3)item_quantity=200;
+					else
+					if(x==1 && y==3)item_quantity=500;
+					else
+					if(x==0 && y==4)item_quantity=1000;
+					else
+					if(x==1 && y==4)item_quantity=2000;
+				}
+		}
 
 	//check to see if we hit the Accept box
 	if(mouse_x>trade_menu_x+5 && mouse_x<trade_menu_x+20 && mouse_y>trade_menu_y+4*33-20 && mouse_y<trade_menu_y+4*33-5)
@@ -351,7 +377,7 @@ int check_trade_interface()
 
 	//check to see if we hit the Abort button
 	if(mouse_x>trade_menu_x+33*5 && mouse_x<trade_menu_x+33*5+70 &&
-	   mouse_y>trade_menu_y+trade_menu_y_len-30 && mouse_y<trade_menu_y+trade_menu_y_len-10)
+	mouse_y>trade_menu_y+trade_menu_y_len-30 && mouse_y<trade_menu_y+trade_menu_y_len-10)
 		{
 
 			str[0]=EXIT_TRADE;
@@ -361,96 +387,107 @@ int check_trade_interface()
 
 	//see if we clicked on any item in the main category
 	for(y=0;y<3;y++)
-		for(x=0;x<12;x++)
-			{
-				x_screen=trade_menu_x+x*33;
-				y_screen=trade_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-					{
+	for(x=0;x<12;x++)
+		{
+			x_screen=trade_menu_x+x*33;
+			y_screen=trade_menu_y+y*33;
+			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				{
+					int i,j;
 
-						//see if there is any item there
-						//should we get the info for it?
-						if(item_list[y*12+x].quantity)
-							{
+					//see if there is any item there
+					j=0;
+					for(i=0;i<36+6;i++)
+						{
+							if(item_list[i].quantity)
+							if(item_list[i].pos<36)
+								{
+									if(j==y*12+x)break;
+									j++;
+								}
+						}
 
-								if(action_mode==action_look && left_click)
-									{
-										str[0]=LOOK_AT_INVENTORY_ITEM;
-										str[1]=item_list[y*12+x].pos;
-										my_tcp_send(my_socket,str,2);
-									}
-								else
-									{
-										str[0]=PUT_OBJECT_ON_TRADE;
-										str[1]=item_list[y*12+x].pos;
-										*((Uint16 *)(str+2))=item_quantity;
-										my_tcp_send(my_socket,str,4);
-									}
+					if(item_list[i].quantity)
+						{
 
-								return 1;
+							if(action_mode==action_look && left_click)
+								{
+									str[0]=LOOK_AT_INVENTORY_ITEM;
+									str[1]=item_list[i].pos;
+									my_tcp_send(my_socket,str,2);
+								}
+							else
+								{
+									str[0]=PUT_OBJECT_ON_TRADE;
+									str[1]=item_list[i].pos;
+									*((Uint16 *)(str+2))=item_quantity;
+									my_tcp_send(my_socket,str,4);
+								}
+
+							return 1;
 							}
-					}
-			}
+				}
+		}
 
 	//see if we clicked on any item in your trading objects category
 	for(y=0;y<4;y++)
-		for(x=0;x<4;x++)
-			{
-				x_screen=trade_menu_x+x*33;
-				y_screen=trade_menu_y+(y+4)*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-					{
+	for(x=0;x<4;x++)
+		{
+			x_screen=trade_menu_x+x*33;
+			y_screen=trade_menu_y+(y+4)*33;
+			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				{
 
-						//see if there is any item there
-						//should we get the info for it?
-						if(your_trade_list[y*4+x].quantity)
-							{
+					//see if there is any item there
+					//should we get the info for it?
+					if(your_trade_list[y*4+x].quantity)
+						{
 
-								if(action_mode==action_look)
-									{
-										str[0]=LOOK_AT_TRADE_ITEM;
-										str[1]=y*4+x;
-										str[2]=0;//your trade
-										my_tcp_send(my_socket,str,3);
-									}
-								else
-									{
-										str[0]=REMOVE_OBJECT_FROM_TRADE;
-										str[1]=y*4+x;
-										*((Uint16 *)(str+2))=item_quantity;
-										my_tcp_send(my_socket,str,4);
-									}
+							if(action_mode==action_look)
+								{
+									str[0]=LOOK_AT_TRADE_ITEM;
+									str[1]=y*4+x;
+									str[2]=0;//your trade
+									my_tcp_send(my_socket,str,3);
+								}
+							else
+								{
+									str[0]=REMOVE_OBJECT_FROM_TRADE;
+									str[1]=y*4+x;
+									*((Uint16 *)(str+2))=item_quantity;
+									my_tcp_send(my_socket,str,4);
+								}
 
-								return 1;
+							return 1;
 							}
-					}
-			}
+				}
+		}
 
 	//see if we clicked on any item in your trading partner objects category
 	for(y=0;y<4;y++)
-		for(x=0;x<4;x++)
-			{
-				x_screen=trade_menu_x+33*5+x*33;
-				y_screen=trade_menu_y+(y+4)*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-					{
+	for(x=0;x<4;x++)
+		{
+			x_screen=trade_menu_x+33*5+x*33;
+			y_screen=trade_menu_y+(y+4)*33;
+			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				{
 
-						//see if there is any item there
-						//should we get the info for it?
-						if(others_trade_list[y*4+x].quantity)
-							{
+					//see if there is any item there
+					//should we get the info for it?
+					if(others_trade_list[y*4+x].quantity)
+						{
 
-								if(action_mode==action_look)
-									{
-										str[0]=LOOK_AT_TRADE_ITEM;
-										str[1]=y*4+x;
-										str[2]=1;//their trade
-										my_tcp_send(my_socket,str,3);
-									}
-								return 1;
+							if(action_mode==action_look)
+								{
+									str[0]=LOOK_AT_TRADE_ITEM;
+									str[1]=y*4+x;
+									str[2]=1;//their trade
+									my_tcp_send(my_socket,str,3);
+								}
+							return 1;
 							}
-					}
-			}
+				}
+		}
 	return 1;
 }
 
@@ -492,36 +529,39 @@ void get_your_trade_objects(Uint8 *data)
 
 void put_item_on_trade(Uint8 *data)
 {
+	//int i; unused?
 	int pos;
 	pos=data[3];
 
 	if(!data[4])
-		{
-			your_trade_list[pos].image_id=data[0];
-			your_trade_list[pos].quantity+=*((Uint16 *)(data+1));
-		}
+	{
+		your_trade_list[pos].image_id=data[0];
+		your_trade_list[pos].quantity+=*((Uint16 *)(data+1));
+	}
 	else
-		{
-			others_trade_list[pos].image_id=data[0];
-			others_trade_list[pos].quantity+=*((Uint16 *)(data+1));
-		}
+	{
+		others_trade_list[pos].image_id=data[0];
+		others_trade_list[pos].quantity+=*((Uint16 *)(data+1));
+	}
 }
 
 void remove_item_from_trade(Uint8 *data)
 {
+	//int i; unused?
 	int pos;
 	int quantity;
+	//int old_pos; unused?
 
 	pos=data[2];
 	quantity=*((Uint16 *)(data));
 
 	if(!data[3])
-		{
-			your_trade_list[pos].quantity-=quantity;
-		}
+	{
+		your_trade_list[pos].quantity-=quantity;
+	}
 	else
-		{
-			others_trade_list[pos].quantity-=quantity;
-		}
+	{
+		others_trade_list[pos].quantity-=quantity;
+	}
 }
 
