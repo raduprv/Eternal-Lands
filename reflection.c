@@ -252,7 +252,6 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 	return 0;
 }
 
-
 void display_3d_reflection()
 {
 	int i;
@@ -261,7 +260,6 @@ void display_3d_reflection()
 	float window_ratio;
 
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
-
 
 	check_gl_errors();
 	x=-cx;
@@ -283,20 +281,16 @@ void display_3d_reflection()
 		{
 			if(objects_list[i])
 				{
-					int dist1;
-					int dist2;
-					float dist;
-
 					if(!objects_list[i]->e3d_data->is_ground)
 					 	{
+							int dist1;
+							int dist2;
+
 			         		dist1=x-objects_list[i]->x_pos;
 			         		dist2=y-objects_list[i]->y_pos;
-			         		dist=dist1*dist1+dist2*dist2;
-			         		if(dist<=21*21)
+			         		if(dist1*dist1+dist2*dist2<=21*21)
 			         			{
-									float x_len;
-									float y_len;
-									float z_len;
+									float x_len, y_len, z_len;
 									float radius;
 
 									z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
