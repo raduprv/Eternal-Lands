@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /Gi /GX /O2 /D "NDEBUG" /D "WIN32" /D "WINDOWS" /D "ELC" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /Gi /GX /O2 /D "NDEBUG" /D "WIN32" /D "WINDOWS" /D "ELC" /D "LOAD_XML" /D "NEW_STRUCTURE" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 shell32.lib libxml2.lib vorbisfile.lib user32.lib SDL_net.lib kernel32.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib cal3d.lib /nologo /subsystem:windows /machine:I386 /out:"Release/el.exe"
+# ADD LINK32 shell32.lib libxml2.lib vorbisfile.lib user32.lib SDL_net.lib kernel32.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib /nologo /subsystem:windows /machine:I386 /out:"C:\cygwin\elc\Debug\elc.exe"
 
 !ELSEIF  "$(CFG)" == "elc - Win32 Debug"
 
@@ -197,21 +197,6 @@ SOURCE=.\cache.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\cal3dwrap.c
-
-!IF  "$(CFG)" == "elc - Win32 Release"
-
-# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj" /Tp
-
-!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
-
-# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj" /Tp
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\colors.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"
@@ -284,6 +269,10 @@ SOURCE=.\draw_scene.c
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=.\elconfig.c
 # End Source File
 # Begin Source File
 
@@ -898,10 +887,6 @@ SOURCE=.\cache.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\cal3dwrap.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\client_serv.h
 # End Source File
 # Begin Source File
@@ -931,6 +916,10 @@ SOURCE=.\e3d.h
 # Begin Source File
 
 SOURCE=.\elc_private.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\elconfig.h
 # End Source File
 # Begin Source File
 

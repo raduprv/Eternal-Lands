@@ -115,6 +115,11 @@ int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float
 // Label
 int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 {
+	return label_add_extended(window_id, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
+}
+
+int label_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
+{
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	label *T = (label *) malloc(sizeof(label));
 	widget_list *w = &windows_list.window[window_id].widgetlist;
@@ -127,13 +132,13 @@ int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 	W->widget_info = T;
 	W->id=widget_id++;
 	W->type = LABEL;
-	W->Flags = 0;
+	W->Flags = Flags;
 	W->pos_x = x;
 	W->pos_y = y;
-	W->size = 1.0;
-	W->r = -1.0;
-	W->g = -1.0;
-	W->b = -1.0;
+	W->size = size;
+	W->r = r;
+	W->g = g;
+	W->b = b;
 	strncpy(T->text,text,255);
 	W->len_y = (Uint16)(18 * 1.0);
 	W->len_x = (Uint16)(strlen(T->text) * 11 * 1.0);
@@ -174,6 +179,11 @@ int label_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 // Image
 int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2)
 {
+	return image_add_extended(window_id, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2); 
+}
+
+int image_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float id, float u1, float v1, float u2, float v2)
+{
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	image *T = (image *) malloc(sizeof(label));
 	widget_list *w = &windows_list.window[window_id].widgetlist;
@@ -186,13 +196,13 @@ int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uin
 	W->widget_info = T;
 	W->id=widget_id++;
 	W->type = IMAGE;
-	W->Flags = 0;
+	W->Flags = Flags;
 	W->pos_x = x;
 	W->pos_y = y;
-	W->size = 1.0;
-	W->r = 1.0;
-	W->g = 1.0;
-	W->b = 1.0;
+	W->size = size;
+	W->r = r;
+	W->g = g;
+	W->b = b;
 	T->u1 = u1;
 	T->u2 = u2;
 	T->v1 = v1;
@@ -254,6 +264,11 @@ int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u
 // Checkbox
 int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int checked)
 {
+	return checkbox_add_extended(window_id, NULL, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, checked);
+}
+
+int checkbox_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int checked)
+{
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	checkbox *T = (checkbox *) malloc(sizeof(label));
 	widget_list *w = &windows_list.window[window_id].widgetlist;
@@ -266,13 +281,13 @@ int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
 	W->widget_info = T;
 	W->id=widget_id++;
 	W->type = CHECKBOX;
-	W->Flags = 0;
+	W->Flags = Flags;
 	W->pos_x = x;
 	W->pos_y = y;
-	W->size = 1.0;
-	W->r = -1.0;
-	W->g = -1.0;
-	W->b = -1.0;
+	W->size = size;
+	W->r = r;
+	W->g = g;
+	W->b = b;
 	T->checked = checked;
 	W->len_y = lx;
 	W->len_x = ly;
@@ -338,6 +353,11 @@ int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked)
 // Button
 int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 {
+	return button_add_extended(window_id, NULL, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
+}
+
+int button_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
+{
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	button *T = (button *) malloc(sizeof(button));
 	widget_list *w = &windows_list.window[window_id].widgetlist;
@@ -350,13 +370,13 @@ int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y
 	W->widget_info = T;
 	W->id=widget_id++;
 	W->type = BUTTON;
-	W->Flags = 0;
+	W->Flags = Flags;
 	W->pos_x = x;
 	W->pos_y = y;
-	W->size = 1.0;
-	W->r = -1.0;
-	W->g = -1.0;
-	W->b = -1.0;
+	W->size = size;
+	W->r = r;
+	W->g = g;
+	W->b = b;
 	strncpy(T->text,text,255);
 	W->len_y = (Uint16)(18 * 1.0) + 2;
 	W->len_x = (Uint16)(strlen(T->text) * 11 * 1.0) + 4;
@@ -407,6 +427,11 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 // Progressbar
 int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
+	return progressbar_add_extended(window_id, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0);
+}
+
+int progressbar_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress)
+{
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	progressbar *T = (progressbar *) malloc(sizeof(progressbar));
 	widget_list *w = &windows_list.window[window_id].widgetlist;
@@ -419,15 +444,16 @@ int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
 	W->widget_info = T;
 	W->id=widget_id++;
 	W->type = PROGRESSBAR;
-	W->Flags = 0;
+	W->Flags = Flags;
 	W->pos_x = x;
 	W->pos_y = y;
-	W->size = 1.0;
-	W->r = -1.0;
-	W->g = -1.0;
-	W->b = -1.0;
+	W->size = size;
+	W->r = r;
+	W->g = g;
+	W->b = b;
 	W->len_y = ly;
 	W->len_x = lx;
+	T->progress = progress;
 	W->OnDraw = progressbar_draw;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
@@ -497,7 +523,12 @@ int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
 
 
 // Vertical scrollbar
-int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int lenght, int vlenght)
+int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
+{
+	return vscrollbar_add_extended(window_id, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, 1);
+}
+
+int vscrollbar_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	vscrollbar *T = (vscrollbar *) malloc(sizeof(vscrollbar));
@@ -509,16 +540,17 @@ int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16
 
 	// Filling the widget info
 	W->widget_info = T;
-	T->pos_inc = 1;
+	T->pos_inc = pos_inc;
+	T->pos = pos;
 	W->id=widget_id++;
 	W->type = VSCROLLBAR;
-	W->Flags = 0;
+	W->Flags = Flags;
 	W->pos_x = x;
 	W->pos_y = y;
-	W->size = 1.0;
-	W->r = -1.0;
-	W->g = -1.0;
-	W->b = -1.0;
+	W->size = size;
+	W->r = r;
+	W->g = g;
+	W->b = b;
 	W->len_y = ly;
 	W->len_x = lx;
 	W->OnClick = vscrollbar_click;
@@ -566,10 +598,10 @@ int vscrollbar_draw(widget_list *W)
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 7, 25+ c->pos,0);
-	glVertex3i(W->pos_x + W->len_x - 7, 25+c->pos,0);
-	glVertex3i(W->pos_x + W->len_x - 7, 45+c->pos,0);
-	glVertex3i(W->pos_x + 7, 45+c->pos,0);
+	glVertex3i(W->pos_x + 7, W->pos_y + 15 + c->pos, 0);
+	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y +  15 + c->pos, 0);
+	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y + 35 + c->pos, 0);
+	glVertex3i(W->pos_x + 7, W->pos_y + 35 + c->pos, 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
@@ -608,7 +640,7 @@ int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc)
 int vscrollbar_drag(widget_list *W, int dx, int dy)
 {
 	vscrollbar *b = (vscrollbar *)W->widget_info;
-	b->pos+=dy;
+	b->pos += dy;
 
 	if(b->pos < 0) b->pos = 0;
 	if(b->pos > (W->len_y -50)) b->pos = W->len_y -50;
@@ -617,3 +649,266 @@ int vscrollbar_drag(widget_list *W, int dx, int dy)
 
 }
 
+
+
+
+
+
+
+
+// XML Windows
+
+int AddXMLWindow(char *fn)
+{
+	xmlDocPtr doc = xmlReadFile(fn, NULL, 0);
+	int w;
+
+    if (doc == NULL)
+		return 0;
+
+    w = ReadXMLWindow(xmlDocGetRootElement(doc));
+    xmlFreeDoc(doc);
+	return w;
+}
+
+
+int ReadXMLWindow(xmlNode * a_node)
+{
+    xmlNode *cur_node=NULL;
+	static int w;
+    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+        if (cur_node->type==XML_ELEMENT_NODE){
+			if(!xmlStrcasecmp(cur_node->name,"Window")){
+				w = ParseWindow(cur_node->properties);
+			}else{
+				ParseWidget((char *)cur_node->name, w, cur_node->properties);
+			}
+		}
+		ReadXMLWindow(cur_node->children);
+    }
+	return w;
+}
+
+int ParseWindow(xmlAttr *a_node)
+{
+	xmlAttr *cur_attr=NULL;
+
+	Uint8 name[256] = "Default";
+	int pos_x = 0, pos_y = 0, size_x = 320, size_y = 240;
+	Uint32 flags = ELW_WIN_DEFAULT;
+
+    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+			//name=""
+			if(!xmlStrcasecmp(cur_attr->name,"name")){
+				int l = strlen(cur_attr->children->content);
+				UTF8Toisolat1(name, &l, cur_attr->children->content, &l);
+				name[l]=0;
+				continue;
+			}
+			//pos_x=""
+			if(!xmlStrcasecmp(cur_attr->name,"pos_x")){
+				pos_x = atoi(cur_attr->children->content);
+				continue;
+			}
+			//pos_y=""
+			if(!xmlStrcasecmp(cur_attr->name,"pos_y")){
+				pos_y = atoi(cur_attr->children->content);
+				continue;
+			}
+			//size_x=""
+			if(!xmlStrcasecmp(cur_attr->name,"size_x")){
+				size_x = atoi(cur_attr->children->content);
+				continue;
+			}
+			//size_y=""
+			if(!xmlStrcasecmp(cur_attr->name,"size_y")){
+				size_y = atoi(cur_attr->children->content);
+				continue;
+			}
+			//flags=""
+			if(!xmlStrcasecmp(cur_attr->name,"flags")){
+				flags = atoi(cur_attr->children->content);
+				continue;
+			}
+		}
+	}
+	return create_window(name, 0, 0, pos_x, pos_y, size_x, size_y, flags);
+}
+
+
+int ParseWidget(char *wn, int winid, xmlAttr *a_node)
+{
+	xmlAttr *cur_attr=NULL;
+
+	int pos_x = 0, pos_y = 0, len_x = 0, len_y = 0, type = GetWidgetType(wn), checked = 1, pos = 0, pos_inc = 1;
+	Uint32 flags = 0, id = 0, tid = 0;
+	float size = 1.0, r = 1.0, g = 1.0, b = 1.0, u1 = 0.0, u2 = 1.0, v1 = 0.0, v2 = 1.0, progress = 0;
+	char text[256];
+
+    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+			//pos_x=""
+			if(!xmlStrcasecmp(cur_attr->name,"pos_x")){
+				pos_x = atoi(cur_attr->children->content);
+				continue;
+			}
+			//pos_y=""
+			if(!xmlStrcasecmp(cur_attr->name,"pos_y")){
+				pos_y = atoi(cur_attr->children->content);
+				continue;
+			}
+			//len_x=""
+			if(!xmlStrcasecmp(cur_attr->name,"len_x")){
+				len_x = atoi(cur_attr->children->content);
+				continue;
+			}
+			//len_y=""
+			if(!xmlStrcasecmp(cur_attr->name,"len_y")){
+				len_y = atoi(cur_attr->children->content);
+				continue;
+			}
+			//flags=""
+			if(!xmlStrcasecmp(cur_attr->name,"flags")){
+				flags = atoi(cur_attr->children->content);
+				continue;
+			}
+			//size=""
+			if(!xmlStrcasecmp(cur_attr->name,"size")){
+				size = atof(cur_attr->children->content);
+				continue;
+			}
+			//r=""
+			if(!xmlStrcasecmp(cur_attr->name,"r")){
+				r = atof(cur_attr->children->content);
+				continue;
+			}
+			//g=""
+			if(!xmlStrcasecmp(cur_attr->name,"g")){
+				g = atof(cur_attr->children->content);
+				continue;
+			}
+			//b=""
+			if(!xmlStrcasecmp(cur_attr->name,"b")){
+				b = atof(cur_attr->children->content);
+				continue;
+			}
+			//id=""
+			if(!xmlStrcasecmp(cur_attr->name,"id")){
+				id = atof(cur_attr->children->content);
+				continue;
+			}
+
+			switch(type){
+				case LABEL:
+				case BUTTON:
+					//text=""
+					if(!xmlStrcasecmp(cur_attr->name,"text")){
+						int l = strlen(cur_attr->children->content);
+						UTF8Toisolat1(text, &l, cur_attr->children->content, &l);
+						text[l]=0;
+						continue;
+					}
+					break;
+				case IMAGE:
+					//u1=""
+					if(!xmlStrcasecmp(cur_attr->name,"u1")){
+						u1 = atof(cur_attr->children->content);
+						continue;
+					}
+					//u2=""
+					if(!xmlStrcasecmp(cur_attr->name,"u2")){
+						u2 = atof(cur_attr->children->content);
+						continue;
+					}
+					//v1=""
+					if(!xmlStrcasecmp(cur_attr->name,"v1")){
+						v1 = atof(cur_attr->children->content);
+						continue;
+					}
+					//v2=""
+					if(!xmlStrcasecmp(cur_attr->name,"v2")){
+						v2 = atof(cur_attr->children->content);
+						continue;
+					}
+					//id=""
+					if(!xmlStrcasecmp(cur_attr->name,"tid")){
+						tid = atoi(cur_attr->children->content);
+						continue;
+					}
+					break;
+
+				case CHECKBOX:
+					//checked=""
+					if(!xmlStrcasecmp(cur_attr->name,"checked")){
+						checked = atoi(cur_attr->children->content);
+						continue;
+					}
+					break;
+
+				case PROGRESSBAR:
+					//progress=""
+					if(!xmlStrcasecmp(cur_attr->name,"progress")){
+						progress = atof(cur_attr->children->content);
+						continue;
+					}
+					break;
+
+				case VSCROLLBAR:
+					//pos=""
+					if(!xmlStrcasecmp(cur_attr->name,"pos")){
+						pos = atoi(cur_attr->children->content);
+						continue;
+					}
+					//pos_inc=""
+					if(!xmlStrcasecmp(cur_attr->name,"pos_inc")){
+						pos_inc = atoi(cur_attr->children->content);
+						continue;
+					}
+					break;
+
+			}
+		}
+	}
+
+	switch(type){
+		case LABEL:
+			label_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
+			break;
+		case IMAGE:
+			image_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, tid, u1, v1, u2, v2);
+			break;
+		case CHECKBOX:
+			checkbox_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, checked);
+			break;
+		case BUTTON:
+			button_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
+			break;
+		case PROGRESSBAR:
+			progressbar_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress);
+			break;
+		case VSCROLLBAR:
+			vscrollbar_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc);
+			break;
+
+	}
+	return 1;
+}
+
+int GetWidgetType(char *w)
+{
+	if(!xmlStrcasecmp(w, "LABEL"))
+		return LABEL;
+	if(!xmlStrcasecmp(w, "IMAGE"))
+		return IMAGE;
+	if(!xmlStrcasecmp(w, "CHECKBOX"))
+		return CHECKBOX;
+	if(!xmlStrcasecmp(w, "BUTTON"))
+		return BUTTON;
+	if(!xmlStrcasecmp(w, "PROGRESSBAR"))
+		return PROGRESSBAR;
+	if(!xmlStrcasecmp(w, "VSCROLLBAR"))
+		return VSCROLLBAR;
+
+	return 0;
+}
