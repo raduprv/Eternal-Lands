@@ -25,7 +25,7 @@ float get_rotation_vector( float fStartAngle, float fEndAngle )
 
 void move_to_next_frame()
 {
-	int i,j,l,k;
+	int i,l,k; //j unused?
 	char frame_name[16];
 	char frame_number[3];
 	int frame_no;
