@@ -346,18 +346,30 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				y_screen=y*33;
 				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
-						if(y*12+x<ITEM_WEAR_START && item_list[y*12+x].quantity)
+						int i,j;
+
+						//see if there is any item there
+						j=0;
+						for(i=0;i<ITEM_NUM_ITEMS;i++)
+							{
+								if(item_list[i].quantity && item_list[i].pos<ITEM_WEAR_START)
+									{
+										if(j==y*12+x)break;
+										j++;
+									}
+							}
+						if(i<ITEM_NUM_ITEMS && item_list[i].quantity)
 							{
 								if(action_mode==action_look || right_click)
 									{
 										str[0]=LOOK_AT_INVENTORY_ITEM;
-										str[1]=item_list[y*12+x].pos;
+										str[1]=item_list[i].pos;
 										my_tcp_send(my_socket,str,2);
 									}
 								else
 									{
 										str[0]=PUT_OBJECT_ON_TRADE;
-										str[1]=item_list[y*12+x].pos;
+										str[1]=item_list[i].pos;
 										*((Uint16 *)(str+2))=item_quantity;
 										my_tcp_send(my_socket,str,4);
 									}
@@ -439,7 +451,19 @@ int mouseover_trade_handler(window_info *win, int mx, int my) {
 				y_screen=y*33;
 				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
-						if(y*12+x<ITEM_WEAR_START && item_list[y*12+x].quantity)
+						int i,j;
+
+						//see if there is any item there
+						j=0;
+						for(i=0;i<ITEM_NUM_ITEMS;i++)
+							{
+								if(item_list[i].quantity && item_list[i].pos<ITEM_WEAR_START)
+									{
+										if(j==y*12+x)break;
+										j++;
+									}
+							}
+						if(i<ITEM_NUM_ITEMS && item_list[i].quantity)
 							{
 								if(action_mode==action_look) {
 									elwin_mouse=CURSOR_EYE;
