@@ -15,6 +15,8 @@ extern int lake_waves_timer;
 extern float water_movement_u;
 extern float water_movement_v;
 
+#define is_water_tile(i) (!tile_map[i] || (tile_map[i]>230 && tile_map[i]<255))
+
 float mrandom(float max);
 void draw_3d_reflection(object3d * object_id);
 int find_reflection();

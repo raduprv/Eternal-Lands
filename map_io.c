@@ -307,29 +307,6 @@ int load_map(char * file_name)
 	lights_no=cur_map_header.lights_no;
 	particles_no=cur_map_header.particles_no;
 
-
-	//see if we have to change the water texture (when we get from dungeon to surface or
-	//the other way around
-	if(dungeon && !cur_map_header.dungeon)
-		{
-			//ok, change the water to normal
-			glDeleteTextures(1,&texture_cache[sky_text_1].texture_id);
-			//also destroy the name of that texture, since it is not in cache anymore
-			texture_cache[sky_text_1].file_name[0]=0;
-			sky_text_1=load_texture_cache("./textures/sky.bmp",70);
-
-		}
-	if(!dungeon && cur_map_header.dungeon)
-		{
-			//ok, change the water to dungeon water
-			glDeleteTextures(1,&texture_cache[sky_text_1].texture_id);
-			//also destroy the name of that texture, since it is not in cache anymore
-			texture_cache[sky_text_1].file_name[0]=0;
-			sky_text_1=load_texture_cache("./textures/water2.bmp",70);
-
-		}
-
-
 	//get the type of map, and the ambient light
 	dungeon=cur_map_header.dungeon;
 	ambient_r=cur_map_header.ambient_r;

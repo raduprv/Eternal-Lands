@@ -409,7 +409,7 @@ void load_all_tiles()
 	int i;
 	int cur_text;
 	char str[80];
-	for(i=1;i<255;i++)
+	for(i=0;i<255;i++)
 	{
 		sprintf(str,"./tiles/tile%i.bmp",i);
 		cur_text=load_texture_cache(str,255);

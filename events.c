@@ -322,6 +322,16 @@ int HandleEvent(SDL_Event *event)
 			game_minute--;
 		}
 
+		if(view_tiles_list && event->key.keysym.sym == SDLK_KP_PLUS)
+			{
+				if(tile_offset<192)tile_offset+=64;
+			}
+
+		if(view_tiles_list && event->key.keysym.sym == SDLK_KP_MINUS)
+			{
+				if(tile_offset>0)tile_offset-=64;
+			}
+
         //see if we get any text
         if ((event->key.keysym.unicode & 0xFF80)==0)
   		ch = event->key.keysym.unicode & 0x7F;
@@ -372,29 +382,7 @@ int HandleEvent(SDL_Event *event)
   		if(ambient_b<1.0f)ambient_b+=0.02f;
   		if(ch=='3' && cur_mode==mode_map && alt_on)
   		if(ambient_b>-0.05f)ambient_b-=0.02f;
-  		if((ch=='d' || ch=='D') && cur_mode==mode_map)
-			{
-					if(dungeon)
-						{
-							//ok, change the water to normal
-							glDeleteTextures(1,&texture_cache[sky_text_1].texture_id);
-							//also destroy the name of that texture, since it is not in cache anymore
-							texture_cache[sky_text_1].file_name[0]=0;
-							sky_text_1=load_texture_cache("./textures/sky.bmp",70);
-
-						}
-					if(!dungeon)
-						{
-							//ok, change the water to dungeon water
-							glDeleteTextures(1,&texture_cache[sky_text_1].texture_id);
-							//also destroy the name of that texture, since it is not in cache anymore
-							texture_cache[sky_text_1].file_name[0]=0;
-							sky_text_1=load_texture_cache("./textures/water2.bmp",70);
-
-						}
-  				dungeon=!dungeon;
-			}
-
+  		if((ch=='d' || ch=='D') && cur_mode==mode_map)dungeon=!dungeon;
 
   		if(ch=='m')minimap_on=!minimap_on;
 

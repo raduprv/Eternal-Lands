@@ -515,7 +515,7 @@ void display_tiles_list()
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	for(i=tile_offset,j=0;i<tiles_no;i++,j++)
+	for(i=tile_offset,j=0;i<tiles_no && j<64 ;i++,j++)
 		{
 
 			x_start=64*(j%8);

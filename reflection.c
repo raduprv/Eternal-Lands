@@ -120,7 +120,7 @@ int find_reflection()
 				{
 					x_scaled=x*3.0f;
 					if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
-					if(!tile_map[y*tile_map_size_x+x])return 1;
+					if(is_water_tile(y*tile_map_size_x+x))return 1;
 				}
 		}
 	return 0;
@@ -149,7 +149,7 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 		{
 			for(x=x_start;x<=x_end;x++)
 				{
-					if(!tile_map[y*tile_map_size_x+x])return 1;
+					if(is_water_tile(y*tile_map_size_x+x))return 1;
 				}
 		}
 	return 0;
@@ -284,7 +284,6 @@ void draw_lake_tiles()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	bind_texture_id(get_texture_id(sky_text_1));
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
@@ -307,7 +306,19 @@ void draw_lake_tiles()
 				{
 					x_scaled=x*3.0f;
 					if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
-					if(!tile_map[y*tile_map_size_x+x])draw_lake_water_tile(x_scaled,y_scaled);
+					if(is_water_tile(y*tile_map_size_x+x))
+						{
+							if(!tile_map[y*tile_map_size_x+x])
+								{
+									if(dungeon)
+										get_and_set_texture_id(tile_list[231]);
+									else
+										get_and_set_texture_id(tile_list[0]);
+								}
+							else
+								get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
+							draw_lake_water_tile(x_scaled,y_scaled);
+						}
 				}
 		}
 

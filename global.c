@@ -164,7 +164,6 @@ int night_shadows_on;
 
 //reflections
 water_vertex noise_array[16*16];
-int sky_text_1;
 float water_deepth_offset=-0.25f;
 int lake_waves_timer=0;
 float water_movement_u=0;
