@@ -117,6 +117,7 @@ int view_tile=1;
 int view_2d=1;
 int view_3d=1;
 int view_particles=1;
+int view_particle_handles=1;
 int view_light=1;
 int view_height=0;
 int selected_3d_object=-1;

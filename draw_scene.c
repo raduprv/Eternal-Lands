@@ -87,7 +87,7 @@ void draw_scene()
 		{
 			glDisable(GL_LIGHTING);
 			display_particles();
-			display_particle_handles();
+			if(view_particle_handles)display_particle_handles();
 			glEnable(GL_LIGHTING);
 		}
 

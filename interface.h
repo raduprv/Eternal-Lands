@@ -37,6 +37,7 @@ extern int view_3d;
 extern int view_light;
 extern int view_height;
 extern int view_particles;
+extern int view_particle_handles;
 
 extern int selected_3d_object;
 extern int selected_2d_object;

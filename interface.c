@@ -83,7 +83,10 @@ int check_interface_buttons()
 				if(mouse_x>=0 && mouse_x<=31)view_tile=!view_tile;
 				if(mouse_x>=32 && mouse_x<=63)view_2d=!view_2d;
 				if(mouse_x>=64 && mouse_x<=95)view_3d=!view_3d;
-				if(mouse_x>=96 && mouse_x<=127)view_particles=!view_particles;
+				if(mouse_x>=96 && mouse_x<=127) {
+				  if(shift_on)view_particle_handles=!view_particle_handles;
+				  else view_particles=!view_particles;
+				}
 				if(mouse_x>=128 && mouse_x<=159)view_light=!view_light;
 				if(mouse_x>=160 && mouse_x<=191)view_height=!view_height;
 			}
