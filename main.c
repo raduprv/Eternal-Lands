@@ -54,7 +54,7 @@ int start_rendering()
 					my_tcp_send(my_socket,&command,1);
 				}
 
-			if(!limit_fps || 800/(cur_time-last_time) < limit_fps)
+			if(!limit_fps || ((cur_time-last_time) && (800/(cur_time-last_time) < limit_fps)))
 				{
 					//draw everything
 					draw_scene();
