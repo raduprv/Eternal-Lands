@@ -5,7 +5,7 @@ void build_help()
 	int i=0;
 
 	my_strcp(help_list[i].topic_name,"main");
-	my_strcp(help_list[i].topic_info,"\nThere are the following topics available: [console] [keys]. Type: \"help topic\", for more information about that topic. Note that you can abbreviate the topic name, as long as it is not ambigous.");
+	my_strcp(help_list[i].topic_info,"\nThere are the following topics available: [console] [keys]. Type: \"help topic\", for more information about that topic. Note that you can abbreviate the topic name, as long as it is not ambiguous.");
 	i++;
 
 	my_strcp(help_list[i].topic_name,"topic");
@@ -13,11 +13,11 @@ void build_help()
 	i++;
 
 	my_strcp(help_list[i].topic_name,"keys");
-	my_strcp(help_list[i].topic_info,"\n[keys] - The following keys are available in the game:\n~ or F1 to switch to/from [console] mode.\nAlt+x to [exit] the game.\nLeft/Right arrows to rotate the camera around.\nShift + Left/Right arrows to finely rotate the camera.\nIns/Del to rotate your character in place (works only while you don't move, and you stand).\nF2 to go to the last heard URL (works only if you configured the browser properly, in el.ini).\nHome to move one step forward\nEsc to clear the text line you are writting\nTab to bring on the map.");
+	my_strcp(help_list[i].topic_info,"\n[keys] - The following keys are available in the game:\n~ or F1 to switch to/from [console] mode.\nAlt+x to [exit] the game.\nLeft/Right arrows to rotate the camera around.\nShift + Left/Right arrows to finely rotate the camera.\nIns/Del to rotate your character in place (works only while you don't move, and you stand).\nF2 to go to the last heard URL (works only if you configured the browser properly, in el.ini).\nHome to move one step forward\nEsc to clear the text line you are writing\nTab to bring on the map.");
 	i++;
 
 	my_strcp(help_list[i].topic_name,"console");
-	my_strcp(help_list[i].topic_info,"\n[console] - In the console mode you can access the following commands: [help] [ver] [ignore] [unignore] [ignores] [glinfo] [time] [date] [stats] [cls] [quit] [exit] [ping]. Fore more information on those commands, type: \"help command\", where command is one of the listed commands (without the quote marks). To enter or leave the console mode, you can press either F1, or the ~ key, as long as you are using an english keyboard. Anything that is not a valid command will be sent as a normal chat line.");
+	my_strcp(help_list[i].topic_info,"\n[console] - In the console mode you can access the following commands: [help] [ver] [ignore] [unignore] [ignores] [glinfo] [time] [date] [stats] [cls] [quit] [exit] [ping]. For more information on those commands, type: \"help command\", where command is one of the listed commands (without the quote marks). To enter or leave the console mode, you can press either F1, or the ~ key, as long as you are using an English keyboard. Anything that is not a valid command will be sent as a normal chat line.");
 	i++;
 
 	my_strcp(help_list[i].topic_name,"ping");
@@ -65,7 +65,7 @@ void build_help()
 	i++;
 
 	my_strcp(help_list[i].topic_name,"ignore");
-	my_strcp(help_list[i].topic_info,"\n[ignore] - Syntax:\"ignore name\". No quotemarks, of course. If you do that, you won't 'hear' any message from that player, wether public or private message. Depending on how the flag #save_ignores is set, the name will be added to the global_ignores.txt, which is loaded every time when you start the game, or not. Also, please not that you have to ignore the full name of that player, giving only the first few letters won't work as expected. Example: \"ignore Entropy\". If you try \"ignore entro\" instead, it won't work, it will ignore only the player entro. BTW, the ignore names are case insensitive. You can unignore players with the [unignore] command, and you cansee a list of ignored people with the [ignores] command.");
+	my_strcp(help_list[i].topic_info,"\n[ignore] - Syntax:\"ignore name\". No quotemarks, of course. If you do that, you won't 'hear' any message from that player, whether public or private message. Depending on how the flag #save_ignores is set, the name will be added to the global_ignores.txt, which is loaded every time when you start the game, or not. Also, please not that you have to ignore the full name of that player, giving only the first few letters won't work as expected. Example: \"ignore Entropy\". If you try \"ignore entro\" instead, it won't work, it will ignore only the player entro. BTW, the ignore names are case insensitive. You can unignore players with the [unignore] command, and you can see a list of ignored people with the [ignores] command.");
 	i++;
 
 	my_strcp(help_list[i].topic_name,"unignore");
@@ -131,7 +131,7 @@ void display_help_topic(Uint8 *topic)
 
 	if(result==-2)
 		{
-			log_to_console(c_red1,"Ambigous topic, please provide more letters!");
+			log_to_console(c_red1,"Ambiguous topic, please provide more letters!");
 			return;
 		}
 
