@@ -271,7 +271,6 @@ void highlight_rule(int type, Uint8 * rule, int no)
 	
 		for(i=0;i<no;i++){
 			cur_rule=rule[i];
-			printf("rule #: %d\n",cur_rule);
 			r=0;
 			
 			for(j=0;display_rules[j].type!=-1;j++){
