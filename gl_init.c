@@ -464,5 +464,18 @@ void toggle_full_screen()
 }
 
 
-
+extern const char *gluErrorString(int);
+int print_gl_errors(char *file, char *func, int line)
+{
+	char str[1024];
+	int	glErr, anyErr=GL_NO_ERROR;
+	
+	while ((glErr=glGetError()) != GL_NO_ERROR )
+		 {
+			anyErr=glErr;
+			sprintf(str, "OpenGL Error in file %s %s() line %d err %d: %s\n", file, func, line, glErr, gluErrorString(glErr));
+			log_error(str);
+		}
+	return anyErr;
+}
 

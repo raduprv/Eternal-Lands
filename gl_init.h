@@ -7,4 +7,11 @@ void init_video();
 void resize_window();
 void set_new_video_mode(int fs,int mode);
 void toggle_full_screen();
+int print_gl_errors(char *file, char *func, int line);
+#ifdef	DEBUG
+#define check_gl_errors()	print_gl_errors(__FILE__,  __FUNCTION__, __LINE__)
+#else	//DEBUG
+#define check_gl_errors()	//NOP
+#endif	//DEBUG
+
 #endif
