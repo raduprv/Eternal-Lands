@@ -45,6 +45,12 @@
 #include <vorbis/vorbisfile.h>
 #endif	//NO_MUSIC
 
+#ifdef X86_64
+typedef long int point;
+#else
+typedef int point;
+#endif
+
 #include "cache.h"
 #include "encyclopedia.h"
 #include "questlog.h"

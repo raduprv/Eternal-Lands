@@ -810,7 +810,7 @@ void display_book_window(book *b)
                 set_window_handler(*p, ELW_HANDLER_CLICK, &click_book_handler);
 		windows_list.window[*p].data=b;
         } else {
-		if((long int)windows_list.window[*p].data!=(long int)b){
+		if((point)windows_list.window[*p].data!=(point)b){
 			strcpy(windows_list.window[*p].window_name,b->title);
 			windows_list.window[*p].data=b;
 			if(!windows_list.window[*p].displayed) show_window(*p);
