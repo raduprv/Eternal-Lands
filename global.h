@@ -133,9 +133,11 @@ Uint32 my_timer(unsigned int some_int);
 #define c_steel 20
 #define c_bronze 21
 
-#ifndef LINUX /*linux has this*/
-extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
-extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
+#ifndef LINUX //extensions
+PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
+PFNGLMULTITEXCOORD2FVARBPROC	glMultiTexCoord2fvARB;
+PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
+PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
 #endif
 
 extern int have_multitexture;

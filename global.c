@@ -160,7 +160,9 @@ float water_movement_v=0;
 
 #ifndef LINUX //extensions
 PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB	= NULL;
+PFNGLMULTITEXCOORD2FVARBPROC	glMultiTexCoord2fvARB	= NULL;
 PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB		= NULL;
+PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB= NULL;
 #endif
 int have_multitexture;
 int poor_man=0;

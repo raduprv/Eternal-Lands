@@ -136,6 +136,8 @@ void init_stuff()
 #ifndef LINUX
 	glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
 	glMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
+	glMultiTexCoord2fvARB	= (PFNGLMULTITEXCOORD2FVARBPROC)	SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
+	glClientActiveTextureARB= (PFNGLCLIENTACTIVETEXTUREARBPROC)	SDL_GL_GetProcAddress("glClientActiveTextureARB");
 	if(!glActiveTextureARB || !glMultiTexCoord2fARB)have_multitexture=0;
 	else have_multitexture=1;
 #else
@@ -148,6 +150,9 @@ void init_stuff()
 	buttons_text=load_texture_cache("./textures/buttons.bmp",0);
 	sky_text_1=load_texture_cache("./textures/sky.bmp",70);
 	//get the application home dir
+
+	have_multitexture=0;//debug only
+
 #ifndef LINUX
 	GetCurrentDirectory(sizeof(exec_path),exec_path);
 #else
