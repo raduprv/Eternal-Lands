@@ -3,6 +3,10 @@
 
 #define	CFG_VERSION	2
 
+#ifndef DATA_DIR
+#define DATA_DIR "."
+#endif
+
 typedef struct
 {
 	int cfg_version_num;

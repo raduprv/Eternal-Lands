@@ -6,14 +6,13 @@
 #endif
 #include <string.h>
 #include <ctype.h>
-#include "init.h"
 #include <time.h>
 #include "global.h"
 
 int ini_file_size=0;
 
 int disconnected=1;
-int exit_now = 0;
+int exit_now=0;
 int have_url=0;
 char current_url[160];
 char broswer_name[120];
@@ -24,8 +23,8 @@ int clouds_shadows=1;
 int no_alpha_sat=0;
 int item_window_on_drop=1;
 help_entry help_list[MAX_HELP_ENTRIES];
-char configdir[256];
-char datadir[256];
+char configdir[256]=".";
+char datadir[256]=DATA_DIR;
 
 void load_harvestable_list()
 {
@@ -450,10 +449,8 @@ void init_stuff()
 
 	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
 
-	//clear dir pointers to default to current dir
-	memset(configdir, 0, 256);
-	memset(datadir, 0, 256);
 	//TODO: process command line options
+	chdir(datadir);
 	//read the config file
 	read_config();
 
