@@ -1,3 +1,6 @@
+03-24-04
+non-Windows clients will now store config and logs in ~/.elc/
+
 03-19-04
 Added caps_filter support
 Memorize camera postition, angle, and zoom in el.cfg
