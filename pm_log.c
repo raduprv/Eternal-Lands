@@ -154,7 +154,7 @@ int is_talking_about_me(Uint8 *server_msg, int len)
 void send_afk_message(char * server_msg, int type)
 {
 	Uint8 sendtext[160]={0};
-
+	if(!afk_message[0]) return;
 	if(type) sprintf(sendtext,"%c%s %s",2,last_pm_from,afk_message);
 	else 
 		{
