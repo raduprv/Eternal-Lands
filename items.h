@@ -92,6 +92,7 @@ extern int items_text_6;
 extern int items_text_7;
 extern int items_text_8;
 extern int items_text_9;
+extern int items_text_10;
 
 extern int item_dragged;
 
