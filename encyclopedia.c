@@ -53,11 +53,36 @@ void display_encyclopedia()
 	draw_string(encyclopedia_menu_x+encyclopedia_menu_x_len-16,encyclopedia_menu_y+2,"X",1);
 
 	while(t){
-		glColor3f(t->r,t->g,t->b);
+		int ylen=(t->size)?18:15;
+		int xlen=strlen(t->text)*((t->size)?11:8);
+
+		if(t->ref)
+			{
+				//draw a line
+				glColor3f(0.5,0.5,0.5);
+				glDisable(GL_TEXTURE_2D);
+				glBegin(GL_LINES);
+				glVertex3i(t->x+4+encyclopedia_menu_x,t->y+encyclopedia_menu_y+ylen,0);
+				glVertex3i(t->x+4+encyclopedia_menu_x+xlen-8,t->y+encyclopedia_menu_y+ylen,0);
+				glEnd();
+				glEnable(GL_TEXTURE_2D);
+			}
 		if(t->size)
-			draw_string(t->x+encyclopedia_menu_x,t->y+encyclopedia_menu_y,t->text,1);
+			{
+				if(t->ref && mouse_x>(t->x+encyclopedia_menu_x) && mouse_x<(t->x+xlen+encyclopedia_menu_x) && mouse_y>(t->y+encyclopedia_menu_y) && mouse_y<(t->y+ylen+encyclopedia_menu_y))
+				glColor3f(0.3,0.6,1.0);
+				else
+				glColor3f(t->r,t->g,t->b);
+				draw_string(t->x+encyclopedia_menu_x,t->y+encyclopedia_menu_y,t->text,1);
+			}
 		else
-			draw_string_small(t->x+encyclopedia_menu_x,t->y+encyclopedia_menu_y,t->text,1);
+			{
+				if(t->ref && mouse_x>(t->x+encyclopedia_menu_x) && mouse_x<(t->x+xlen+encyclopedia_menu_x) && mouse_y>(t->y+encyclopedia_menu_y) && mouse_y<(t->y+ylen+encyclopedia_menu_y))
+				glColor3f(0.3,0.6,1.0);
+				else
+				glColor3f(t->r,t->g,t->b);
+				draw_string_small(t->x+encyclopedia_menu_x,t->y+encyclopedia_menu_y,t->text,1);
+			}
 		t=t->Next;
 	}
 
@@ -69,7 +94,7 @@ void display_encyclopedia()
 		glEnd();
 		i=i->Next;
 	}
-	
+
 }
 
 int encyclopedia_mouse_over()
@@ -94,12 +119,12 @@ int check_encyclopedia_interface()
 						break;
 					}
 				}
-				
+
 			break;
 		}
 		t=t->Next;
 	}
-	
+
 
 	return 1;
 }
@@ -122,7 +147,7 @@ void GetColor(char *t)
 	if(!xmlStrcasecmp("magenta",t)){r=1.0f; g=0.0f; b=1.0f;return;}
 	if(!xmlStrcasecmp("yellow",t)){r=1.0f; g=1.0f; b=0.0f;return;}
 	if(!xmlStrcasecmp("cyan",t)){r=0.0f; g=1.0f; b=1.0f;return;}
-	
+
 }
 
 
@@ -318,7 +343,7 @@ void ReadCategoryXML(xmlNode * a_node)
         if (cur_node->type==XML_ELEMENT_NODE){
 			//<Page>
 			if(!xmlStrcasecmp(cur_node->name,"Page")){
-				
+
 				numpage++;
 				numtext=0;
 				numimage=0;
@@ -331,14 +356,14 @@ void ReadCategoryXML(xmlNode * a_node)
 			if(!xmlStrcasecmp(cur_node->name,"Size")){
 				size=(!xmlStrcasecmp("Big",cur_node->children->content))?1:0;
 			}
-			
+
 			//<Color>
 			if(!xmlStrcasecmp(cur_node->name,"Color")){
 				ParseColor(cur_node->properties);
 				if(cur_node->children)
 					GetColor(cur_node->children->content);
 			}
-			
+
 			//<Text>
 			if(!xmlStrcasecmp(cur_node->name,"Text")){
 				_Text *T=(_Text*)malloc(sizeof(_Text));
@@ -362,7 +387,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				x=2;
 				y+=(size)?18:15;
 			}
-			
+
 			//<Image>
 			if(!xmlStrcasecmp(cur_node->name,"image")){
 				_Image *I=(_Image*)malloc(sizeof(_Image));
@@ -384,7 +409,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				y+=yend-((size)?18:15);
 				numimage++;
 			}
-			
+
 			//<sImage>
 			if(!xmlStrcasecmp(cur_node->name,"simage")){
 				_Image *I=(_Image*)malloc(sizeof(_Image));
@@ -392,7 +417,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				int picsperrow,xtile,ytile;
 				float ftsize;
 				ParseSimage(cur_node->properties);
-				
+
 				picsperrow=isize/tsize;
 				xtile=tid%picsperrow;
 				ytile=tid/picsperrow;
@@ -443,7 +468,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				x+=strlen(T->text)*((T->size)?11:8);
 			}
 
-		
+
 		}
 
 		ReadCategoryXML(cur_node->children);
@@ -461,7 +486,7 @@ void ReadIndexXML(xmlNode * a_node)
 				char tmp[100];
 				Category[num_category].Name=(char*)malloc(strlen(cur_node->children->content)+1);
 				strcpy(Category[num_category++].Name,cur_node->children->content);
-				
+
 				//we load the category now
 				sprintf(tmp,"Encyclopedia/%s.xml",cur_node->children->content);
 				doc=xmlReadFile(tmp, NULL, 0);

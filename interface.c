@@ -57,8 +57,8 @@ void get_world_x_y()
 	float x,y,x1,y1,a,t;
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
-	x=(float)((mouse_x)*2.8f*zoom_level/window_width)-(2.8*zoom_level/2.0f);
-	y=(float)((window_height-mouse_y)*2.0f*zoom_level/window_height)-(2.0*zoom_level/2.0f);
+	x=(float)((mouse_x)*2.8f*zoom_level/(window_width-hud_x))-(2.8*zoom_level/2.0f);
+	y=(float)((window_height-hud_y-mouse_y)*2.0f*zoom_level/(window_height-hud_y))-(2.0*zoom_level/2.0f);
 
 	a=(rz)*3.1415926/180;
 	t=(rx)*3.1415926/180;
@@ -269,14 +269,14 @@ void check_menus_out_of_screen()
 	if(knowledge_menu_y-16<0)knowledge_menu_y=16;
 	if(knowledge_menu_y>window_height-32)knowledge_menu_y=window_height-32;
 	if(knowledge_menu_x+knowledge_menu_x_len<10)knowledge_menu_x=0-knowledge_menu_x_len+11;
-	if(knowledge_menu_x>window_width-10)knowledge_menu_x=window_width-10; 
-	
+	if(knowledge_menu_x>window_width-10)knowledge_menu_x=window_width-10;
+
 	if(encyclopedia_menu_y-16<0)encyclopedia_menu_y=16;
 	if(encyclopedia_menu_y>window_height-32)encyclopedia_menu_y=window_height-32;
 	if(encyclopedia_menu_x+encyclopedia_menu_x_len<10)encyclopedia_menu_x=0-encyclopedia_menu_x_len+11;
 	if(encyclopedia_menu_x>window_width-10)encyclopedia_menu_x=window_width-10;
 
-	
+
 	if(buddy_menu_y-16<0)buddy_menu_y=16;
 	if(buddy_menu_y>window_height-32)buddy_menu_y=window_height-32;
 	if(buddy_menu_x+buddy_menu_x_len<10)buddy_menu_x=0-buddy_menu_x_len+11;
@@ -370,7 +370,7 @@ void check_mouse_click()
 
 	//after we test for interface clicks
 	// alternative drop method...
-	if (item_dragged != -1){  
+	if (item_dragged != -1){
 		Uint8 str[10];
 		int quantity = item_list[item_dragged].quantity;
 		if(right_click){
@@ -386,7 +386,7 @@ void check_mouse_click()
 		if (item_list[item_dragged].quantity - quantity <= 0)
 			item_dragged = -1;
 		return;
-	} 
+	}
 	//LOOK AT
 	if((current_cursor==CURSOR_EYE && left_click) || (action_mode==action_look && right_click))
 		{
@@ -414,7 +414,7 @@ void check_mouse_click()
 	if (pf_follow_path) {
 		pf_destroy_path();
 	}
-		
+
 	//TRADE
 	if((action_mode==action_trade && right_click) || (current_cursor==CURSOR_TRADE && left_click))
 		{
@@ -519,6 +519,7 @@ void Enter2DMode()
 	glDisable(GL_DEPTH_TEST);
 
 	glViewport(0, 0, window_width, window_height);
+
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -536,6 +537,8 @@ void Leave2DMode()
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopAttrib();
+	glViewport(0, hud_y, window_width-hud_x, window_height-hud_y);
+	//glViewport(0, 0, window_width-hud_x, window_height-hud_y);	// Reset The Current Viewport
 }
 
 mode_flag video_modes[10];
@@ -1353,26 +1356,26 @@ void draw_game_map()
 	glVertex3i(250,0,0);
 
 	glEnd();
-	
+
 	//if we're following a path, draw the destination on the map
 	if (pf_follow_path) {
 		int x = pf_dst_tile->x;
 		int y = pf_dst_tile->y;
-		
+
 		screen_x=300-(50+200*x/(tile_map_size_x*6));
 		screen_y=0+200*y/(tile_map_size_y*6);
-		
+
 		glColor3f(1.0f,0.0f,0.0f);
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
 		glVertex2i(screen_x-3,screen_y-3);
 		glVertex2i(screen_x+2,screen_y+2);
-		
+
 		glVertex2i(screen_x+2,screen_y-3);
 		glVertex2i(screen_x-3,screen_y+2);
 		glEnd();
 	}
-	
+
 	//ok, now let's draw our possition...
 	for(i=0;i<max_actors;i++)
 		{

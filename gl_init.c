@@ -444,14 +444,22 @@ void init_gl_extensions()
 void resize_window()
 {
 	float window_ratio;
+	float hud_x_adjust=0;
+	float hud_y_adjust=0;
+
 	if (window_height==0)window_height=1;			// Prevent A Divide By Zero
 
-	glViewport(0, 0, window_width, window_height);	// Reset The Current Viewport
+	//glViewport(0, hud_y, window_width-hud_x, window_height);	// Reset The Current Viewport
+	glViewport(0, 0, window_width-hud_x, -(window_height-hud_y));	// Reset The Current Viewport
 
 	glMatrixMode(GL_PROJECTION);					// Select The Projection Matrix
 	glLoadIdentity();							// Reset The Projection Matrix
 
+	//window_ratio=(GLfloat)(window_width-hud_x)/(GLfloat)(window_height-hud_y);
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
+
+	//hud_y_adjust=(2.0/window_height)*hud_y;
+	//hud_x_adjust=(2.0/window_width)*hud_x;
 
 	//reference one
 	//glOrtho( -3.0*window_ratio, 3.0*window_ratio, -3.0, 3.0, -40.0, 40.0 );
@@ -461,6 +469,8 @@ void resize_window()
 
 	//new zoom
 	glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -40.0, 40.0 );
+	//glOrtho( (-1.0-hud_x_adjust)*zoom_level*window_ratio, (1.0-hud_x_adjust)*zoom_level*window_ratio, (-1.0+hud_y_adjust)*zoom_level, (1.0+hud_y_adjust)*zoom_level, -40.0, 40.0 );
+	//glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -0.0*zoom_level, 2.0*zoom_level, -40.0, 40.0 );
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix
@@ -564,7 +574,7 @@ int print_gl_errors(char *file, char *func, int line)
 {
 	char str[1024];
 	int	glErr, anyErr=GL_NO_ERROR;
-	
+
 	while ((glErr=glGetError()) != GL_NO_ERROR )
 		 {
 			anyErr=glErr;
@@ -577,4 +587,3 @@ int print_gl_errors(char *file, char *func, int line)
 		}
 	return anyErr;
 }
-

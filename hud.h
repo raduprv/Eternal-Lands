@@ -29,4 +29,7 @@ void init_quickbar();
 void draw_quickbar();
 int check_quickbar();
 
+extern int hud_x;
+extern int hud_y;
+
 #endif	//__HUD_H

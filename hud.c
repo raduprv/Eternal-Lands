@@ -3,6 +3,12 @@
 #include <math.h>
 
 
+//int hud_x=64;
+//int hud_y=49;
+int hud_x=0;
+int hud_y=0;
+
+
 // initialize anything related to the hud
 void init_hud_interface()
 {
@@ -309,7 +315,7 @@ void init_peace_icons()
 	stand_icon_x_end=stand_icon_x_start+32;
 	stand_icon_y_start=window_height-32;
 	stand_icon_y_end=stand_icon_y_start+32;
-	
+
 	eye_icon_x_start=stand_icon_x_end+1;
 	eye_icon_x_end=eye_icon_x_start+32;
 	eye_icon_y_start=window_height-32;
@@ -339,7 +345,7 @@ void init_peace_icons()
 	attack_icon_x_end=attack_icon_x_start+32;
 	attack_icon_y_start=window_height-32;
 	attack_icon_y_end=attack_icon_y_start+32;
-	
+
 	manufacture_icon_x_start=attack_icon_x_end+1;
 	manufacture_icon_x_end=manufacture_icon_x_start+32;
 	manufacture_icon_y_start=window_height-32;
@@ -354,7 +360,7 @@ void init_peace_icons()
 	knowledge_icon_x_end=knowledge_icon_x_start+32;
 	knowledge_icon_y_start=window_height-32;
 	knowledge_icon_y_end=knowledge_icon_y_start+32;
-	
+
 	encyclopedia_icon_x_start=knowledge_icon_x_end+1;
 	encyclopedia_icon_x_end=encyclopedia_icon_x_start+32;
 	encyclopedia_icon_y_start=window_height-32;
@@ -408,7 +414,7 @@ void draw_peace_icons()
 		draw_2d_thing(trade_icon_u_start, trade_icon_v_start, trade_icon_u_end, trade_icon_v_end,
 					  trade_icon_x_start, trade_icon_y_start, trade_icon_x_end, trade_icon_y_end);
 
-	
+
 
 	if(!you_sit)
 		{
@@ -479,7 +485,7 @@ void draw_peace_icons()
 	else
 		draw_2d_thing(knowledge_icon_u_start, knowledge_icon_v_start, knowledge_icon_u_end, knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
-	
+
 	if(mouse_x>encyclopedia_icon_x_start && mouse_y>encyclopedia_icon_y_start &&
 	   mouse_x<encyclopedia_icon_x_end && mouse_y<encyclopedia_icon_y_end)
 		draw_2d_thing(colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, colored_encyclopedia_icon_u_end, colored_encyclopedia_icon_v_end,
@@ -850,7 +856,7 @@ void draw_quickbar() {
 	int y,i;
 	quickbar_x=window_width-quickbar_x_len-4;
 	quickbar_y=window_height-100-6*52;
-	
+
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
@@ -938,7 +944,7 @@ int check_quickbar() {
 	int i,y;
 	int x_screen,y_screen;
 	Uint8 str[100];
-	
+
 	if(mouse_x>quickbar_x+quickbar_x_len || mouse_x<quickbar_x
 	   || mouse_y<quickbar_y || mouse_y>quickbar_y+quickbar_y_len)return 0;
 

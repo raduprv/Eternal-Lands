@@ -305,6 +305,22 @@ int HandleEvent(SDL_Event *event)
 						add_circular_burst(102, 142,1900, 0.9f, 0.2f, 0.3f, 0.3f);
 					}
 
+				if(event->key.keysym.sym==SDLK_F6)
+					{
+						if(!hud_x)
+							{
+								hud_x=64;
+								hud_y=49;
+							}
+						else
+							{
+								hud_x=0;
+								hud_y=0;
+							}
+						resize_window();
+					}
+//END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+
 				if ( event->key.keysym.sym == SDLK_ESCAPE)
 					{
 						input_text_lenght=0;
