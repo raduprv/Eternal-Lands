@@ -361,7 +361,7 @@ void display_actors()
 
 					dist1=x-actors_list[i]->x_pos;
 					dist2=y-actors_list[i]->y_pos;
-					if(sqrt(dist1*dist1+dist2*dist2)<=12)
+					if(dist1*dist1+dist2*dist2<=12*12)
 			         	{
 							if(actors_list[i]->is_enhanced_model)
 								{
@@ -394,7 +394,7 @@ void display_actors()
 
 					dist1=x-actors_list[i]->x_pos;
 					dist2=y-actors_list[i]->y_pos;
-					if(sqrt(dist1*dist1+dist2*dist2)<=12)
+					if(dist1*dist1+dist2*dist2<=12*12)
 			  			{
 							if(actors_list[i]->is_enhanced_model)
 								{

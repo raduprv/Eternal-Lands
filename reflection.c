@@ -393,7 +393,7 @@ int find_reflection()
 					if(!tile_map[y*tile_map_size_x+x])return 1;
 				}
 		}
-return 0;
+	return 0;
 }
 
 int find_local_reflection(int x_pos,int y_pos,int range)

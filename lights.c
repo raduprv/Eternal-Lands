@@ -109,7 +109,7 @@ void update_scene_lights()
 	char all_full=0;
 	char max_changed=0;
 	int max_dist=0;
-	int max_light;
+	int max_light=0;
 
 	x=-cx;
 	y=-cy;
@@ -139,6 +139,7 @@ void update_scene_lights()
 					if(max_changed)
 						{
 							max_dist=0;
+							max_changed=0;
 							if(light_0_dist>max_dist)
 								{
 									max_dist=light_0_dist;
@@ -174,7 +175,6 @@ void update_scene_lights()
 									max_dist=light_6_dist;
 									max_light=6;
 								}
-							max_changed=0;
 						}
 					x_dist=x-lights_list[i]->pos_x;
 					y_dist=y-lights_list[i]->pos_y;

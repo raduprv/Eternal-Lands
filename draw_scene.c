@@ -8,12 +8,12 @@ int old_fps_average=0;
 
 void draw_scene()
 {
-        unsigned char str [180];
-        int fps;
-        int y_line,i;
-        //Uint8 status; unused?
-        int any_reflection=0;
-		int mouse_rate;
+	unsigned char str [180];
+	int fps;
+	int y_line,i;
+	//Uint8 status; unused?
+	int any_reflection=0;
+	int mouse_rate;
 
 	//debug
 	triangles_normal=0;
@@ -22,71 +22,69 @@ void draw_scene()
 	if(last_clear_clouds+10000<cur_time)clear_clouds_cache();
 
 
-        if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-        else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
-		if(interface_mode==interface_console)
-		      {
-		        Enter2DMode();
-                glClear(GL_COLOR_BUFFER_BIT);
-                draw_console_pic(cons_text);
-                display_console_text();
-                SDL_Delay(20);
-                SDL_GL_SwapBuffers();
-                Leave2DMode();
-                return;
-              }
-		if(interface_mode==interface_opening)
-		      {
-		        Enter2DMode();
-                glClear(GL_COLOR_BUFFER_BIT);
+	if(interface_mode==interface_console)
+		{
+			Enter2DMode();
+			glClear(GL_COLOR_BUFFER_BIT);
+			draw_console_pic(cons_text);
+			display_console_text();
+			SDL_Delay(20);
+			SDL_GL_SwapBuffers();
+			Leave2DMode();
+			return;
+		}
+	if(interface_mode==interface_opening)
+		{
+				Enter2DMode();
+				glClear(GL_COLOR_BUFFER_BIT);
 				draw_console_pic(cons_text);
-    			display_console_text();
-                SDL_Delay(20);
-                SDL_GL_SwapBuffers();
-                Leave2DMode();
-                return;
-              }
+				display_console_text();
+				SDL_Delay(20);
+				SDL_GL_SwapBuffers();
+				Leave2DMode();
+				return;
+		}
 
-		if(interface_mode==interface_log_in)
-		      {
-		        Enter2DMode();
-                glClear(GL_COLOR_BUFFER_BIT);
-                draw_login_screen();
-                SDL_Delay(20);
-                SDL_GL_SwapBuffers();
-                Leave2DMode();
-                return;
-              }
+	if(interface_mode==interface_log_in)
+		{
+			Enter2DMode();
+			glClear(GL_COLOR_BUFFER_BIT);
+			draw_login_screen();
+			SDL_Delay(20);
+			SDL_GL_SwapBuffers();
+			Leave2DMode();
+			return;
+		}
 
-		if(interface_mode==interface_new_char)
-		      {
-		        Enter2DMode();
-                glClear(GL_COLOR_BUFFER_BIT);
-                draw_new_char_screen();
-                SDL_Delay(20);
-                SDL_GL_SwapBuffers();
-                Leave2DMode();
-                return;
-              }
+	if(interface_mode==interface_new_char)
+		{
+			Enter2DMode();
+			glClear(GL_COLOR_BUFFER_BIT);
+			draw_new_char_screen();
+			SDL_Delay(20);
+			SDL_GL_SwapBuffers();
+			Leave2DMode();
+			return;
+		}
 
-
-		if(interface_mode==interface_map)
-		      {
-                glClear(GL_COLOR_BUFFER_BIT);
-                draw_game_map();
-                SDL_Delay(20);
-                SDL_GL_SwapBuffers();
-                return;
-              }
+	if(interface_mode==interface_map)
+		{
+			glClear(GL_COLOR_BUFFER_BIT);
+			draw_game_map();
+			SDL_Delay(20);
+			SDL_GL_SwapBuffers();
+			return;
+		}
 
 
         if(!have_a_map)return;
         if(yourself==-1)return;//we don't have ourselves
-        for(i=0;i<500;i++)
-        if(actors_list[i])
-        if(actors_list[i]->actor_id==yourself)break;
-        if(i>499)return;//we still don't have ourselves
+        for(i=0;i<max_actors;i++)
+        if(actors_list[i] && actors_list[i]->actor_id==yourself)break;
+        if(i>max_actors)return;//we still don't have ourselves
         main_count++;
 
         if(old_fps_average<5)
@@ -162,59 +160,58 @@ void draw_scene()
               if(shadows_on && have_stencil)if(day_shadows_on)draw_sun_shadowed_scene();
               //if(shadows_on && have_stencil)if(night_shadows_on)draw_night_shadowed_scene();
             }
-        if(dungeon)
-            {
-              //if(shadows_on && have_stencil)draw_night_shadowed_scene();
-            }
+        //if(dungeon)
+        //    {
+        //      //if(shadows_on && have_stencil)draw_night_shadowed_scene();
+        //    }
 
         if(!shadows_on || !have_stencil || night_shadows_on)display_objects();
 
         display_actors();
 
-        //particles should be last, we have no Z writting
-        display_particles();
-        //we do this because we don't want the rain/particles to mess with our cursor
-        anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
-        if(is_raining)render_rain();
-        //we do this because we don't want the rain/particles to mess with our cursor
-        anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
+		//particles should be last, we have no Z writting
+		display_particles();
+		//we do this because we don't want the rain/particles to mess with our cursor
+		//anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);	// no needed since ignored later
+		if(is_raining)render_rain();
+		//we do this because we don't want the rain/particles to mess with our cursor
+		//anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);	// no needed since ignored later
 
-        //we also need no lightening for our interface
-        Enter2DMode();
-        //cur_time = SDL_GetTicks();
-        //get the FPS, etc
-        if((cur_time-last_time))fps=1000/(cur_time-last_time);
-        else fps=1000;
+		//we also need no lightening for our interface
+		Enter2DMode();
+		//cur_time = SDL_GetTicks();
+		//get the FPS, etc
+		if((cur_time-last_time))fps=1000/(cur_time-last_time);
+		else fps=1000;
 
-        if(main_count%10)fps_average+=fps;
-        else
+		if(main_count%10)fps_average+=fps;
+		else
           	{
 				old_fps_average=fps_average/10;
           		fps_average=0;
 			}
 
-
-
-	if(!no_adjust_shadows) {
-        if(fps<5)
-          	{
-          		times_FPS_below_3++;
-          		if(times_FPS_below_3>4 && shadows_on)
-          		    {
-                        shadows_on=0;
-                        put_colored_text_in_buffer(c_red1,"Low framerate detected, shadows disabled!",-1,0);
-                        times_FPS_below_3=0;
-                    }
+		if(!no_adjust_shadows)
+			{
+        		if(fps<5)
+          			{
+          				times_FPS_below_3++;
+          				if(times_FPS_below_3>4 && shadows_on)
+          		    		{
+                        		shadows_on=0;
+                        		put_colored_text_in_buffer(c_red1,"Low framerate detected, shadows disabled!",-1,0);
+                        		times_FPS_below_3=0;
+                    		}
+					}
+				else times_FPS_below_3=0;
 			}
-		else times_FPS_below_3=0;
-	}
 
         sprintf(str, "FPS: %i",old_fps_average);
         glColor3f(1.0f,1.0f,1.0f);
         draw_string(10,0,str,1);
 
         //we do this because we don't want the rain/particles to mess with our cursor
-        anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
+        //anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);	// no needed since ignored later
 
         if(find_last_lines_time())
         draw_string(10,20,&display_text_buffer[display_text_buffer_first],max_lines_no);
@@ -241,10 +238,9 @@ void Move()
     int i;
 	for(i=0;i<max_actors;i++)
 		{
-			if(actors_list[i])
-			if(actors_list[i]->actor_id==yourself)
+			if(actors_list[i] && actors_list[i]->actor_id==yourself)
 			 {
-			 //the following IF is in case the camera lost the actor like after a teleporting
+			 	//the following IF is in case the camera lost the actor like after a teleporting
 			    float x=actors_list[i]->x_pos;
 			    float y=actors_list[i]->y_pos;
 			    float z=-2.2f+height_map[actors_list[i]->y_tile_pos*tile_map_size_x*6+actors_list[i]->x_tile_pos]*0.2f;
@@ -255,13 +251,13 @@ void Move()
                 		cy=-actors_list[i]->y_pos;
 					}
 				*/
-			//move near the actor, but smoothly
-			camera_x_speed=(x-(-cx))/16.0;
-			camera_x_frames=16;
-			camera_y_speed=(y-(-cy))/16.0;
-			camera_y_frames=16;
-			camera_z_speed=(z-(-cz))/16.0;
-			camera_z_frames=16;
+				//move near the actor, but smoothly
+				camera_x_speed=(x-(-cx))/16.0;
+				camera_x_frames=16;
+				camera_y_speed=(y-(-cy))/16.0;
+				camera_y_frames=16;
+				camera_z_speed=(z-(-cz))/16.0;
+				camera_z_frames=16;
                 break;
              }
 		}
