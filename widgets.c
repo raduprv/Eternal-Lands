@@ -717,16 +717,16 @@ int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab)
 	return -1;
 }
 
-int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int max_tabs, Uint16 tag_height, Uint16 tag_space)
+int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height, Uint16 tag_space)
 {
-	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, max_tabs, tag_height, tag_space);
+	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, tag_height, tag_space);
 }
 
 int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height, Uint16 tag_space)
 {
 	int itab;
-	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	tab_collection *T = (tab_collection *) malloc(sizeof(tab_collection));
+	widget_list *W = (widget_list *) malloc (sizeof (widget_list));
+	tab_collection *T = (tab_collection *) malloc (sizeof (tab_collection));
 	widget_list *w = &windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
@@ -734,15 +734,15 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 	memset(T,0,sizeof(vscrollbar));
 
 	// Filling the widget info
-	T->tabs = malloc (max_tabs * sizeof (tab));
-	memset (T->tabs, 0, max_tabs * sizeof (tab));
+	T->max_tabs =  max_tabs <= 0 ? 2 : max_tabs;
+	T->tabs = malloc (T->max_tabs * sizeof (tab));
+	memset (T->tabs, 0, T->max_tabs * sizeof (tab));
 	// initialize all tabs content ids to -1 (unitialized window
-	for (itab = 0; itab < max_tabs; itab++)
+	for (itab = 0; itab < T->max_tabs; itab++)
 		T->tabs[itab].content_id = -1;
 	
 	W->widget_info = T;
 	T->nr_tabs = 0;
-	T->max_tabs = max_tabs;
 	T->tag_height = tag_height;
 	T->tag_space = tag_space;
 	T->cur_tab = 0;
@@ -837,7 +837,8 @@ int tab_collection_draw (widget_list *w)
 int tab_collection_click (widget_list *W, int x, int y)
 {
 	tab_collection *col = (tab_collection *) W->widget_info;
-	if (y < col->tag_height) {
+	if (y < col->tag_height) 
+	{
 		int itag, xtag = 0, ctag = col->cur_tab;
 
 		// find which tag was clicked
@@ -866,267 +867,380 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 	widget_list *w = widget_find(window_id, col_id);
 	tab_collection *col;
 	int nr;
-
+	
 	if (w == NULL || (col = (tab_collection *) w->widget_info) == NULL)
 		return 0;
 	
 	nr = col->nr_tabs++;
-	if (nr < col->max_tabs) {
-		my_strncp (col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
-		if (tag_width > 0)
-		{
-			col->tabs[nr].tag_width = tag_width;
-		}
-		else
-		{
-			// compute tag width from label width
-			col->tabs[nr].tag_width = 4 + (int) (w->size * get_string_width(col->tabs[nr].label));
-		}
-		col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
+	if (nr >= col->max_tabs)
+	{
+		
+		// shoot, we allocated too few tabs
+		int old_max = col->max_tabs, new_max = 2 * old_max;
+		int itab;
+		
+		col->tabs = realloc ( col->tabs, new_max * sizeof (tab) );
+		memset ( &(col->tabs[old_max]), 0, (new_max-old_max) * sizeof (tab) );
+		for (itab = old_max; itab < new_max; itab++)
+			col->tabs[itab].content_id = -1;
+		col->max_tabs = new_max;
 	}
+		
+	my_strncp (col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
+	if (tag_width > 0)
+	{
+		col->tabs[nr].tag_width = tag_width;
+	}
+	else
+	{
+		// compute tag width from label width
+		col->tabs[nr].tag_width = 4 + (int) (w->size * get_string_width(col->tabs[nr].label));
+	}
+	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
 	
 	return col->tabs[nr].content_id;
 }
 
 // XML Windows
 
-int AddXMLWindow(char *fn)
+int AddXMLWindow (char *fn)
 {
-	xmlDocPtr doc = xmlReadFile(fn, NULL, 0);
+	xmlDocPtr doc = xmlReadFile (fn, NULL, 0);
 	int w;
 
-    if (doc == NULL)
-		return 0;
+	if (doc == NULL)
+		return -1;
 
-    w = ReadXMLWindow(xmlDocGetRootElement(doc));
-    xmlFreeDoc(doc);
+	w = ReadXMLWindow( xmlDocGetRootElement (doc) );
+	xmlFreeDoc(doc);
+
 	return w;
 }
-
 
 int ReadXMLWindow(xmlNode * a_node)
 {
-    xmlNode *cur_node=NULL;
-	static int w;
-    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
-        if (cur_node->type==XML_ELEMENT_NODE){
-			if(!xmlStrcasecmp(cur_node->name,"Window")){
-				w = ParseWindow(cur_node->properties);
-			}else{
-				ParseWidget((char *)cur_node->name, w, cur_node->properties);
-			}
+	xmlNode *cur_node = NULL;
+	static int win;
+
+	for (cur_node = a_node; cur_node; cur_node = cur_node->next)
+	{
+		if (cur_node->type == XML_ELEMENT_NODE)
+		{
+			win = ParseWindow (cur_node);
 		}
-		ReadXMLWindow(cur_node->children);
-    }
-	return w;
+	}
+	
+	return win;
 }
 
-int ParseWindow(xmlAttr *a_node)
+int ParseWindow (xmlNode *node)
 {
-	xmlAttr *cur_attr=NULL;
+	xmlAttr *cur_attr = NULL;
+	xmlNode *child = NULL;
 
 	Uint8 name[256] = "Default";
 	int pos_x = 0, pos_y = 0, size_x = 320, size_y = 240;
 	Uint32 flags = ELW_WIN_DEFAULT;
+	int winid;
 
-    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
-        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+	for (cur_attr = node->properties; cur_attr; cur_attr = cur_attr->next)
+	{
+		if (cur_attr->type == XML_ATTRIBUTE_NODE)
+		{
 			//name=""
-			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				char *p=name;
-				my_xmlStrncopy(&p, cur_attr->children->content, 255);
+			if ( !xmlStrcasecmp (cur_attr->name,"name") )
+			{
+				char *p = name;
+				my_xmlStrncopy (&p, cur_attr->children->content, sizeof (name) );
 				continue;
 			}
 			//pos_x=""
-			if(!xmlStrcasecmp(cur_attr->name,"pos_x")){
-				pos_x = atoi(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "pos_x") )
+			{
+				pos_x = atoi (cur_attr->children->content);
 				continue;
 			}
 			//pos_y=""
-			if(!xmlStrcasecmp(cur_attr->name,"pos_y")){
-				pos_y = atoi(cur_attr->children->content);
+			if (!xmlStrcasecmp (cur_attr->name, "pos_y"))
+			{
+				pos_y = atoi (cur_attr->children->content);
 				continue;
 			}
 			//size_x=""
-			if(!xmlStrcasecmp(cur_attr->name,"size_x")){
-				size_x = atoi(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "size_x") )
+			{
+				size_x = atoi (cur_attr->children->content);
 				continue;
 			}
 			//size_y=""
-			if(!xmlStrcasecmp(cur_attr->name,"size_y")){
-				size_y = atoi(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "size_y") )
+			{
+				size_y = atoi (cur_attr->children->content);
 				continue;
 			}
 			//flags=""
-			if(!xmlStrcasecmp(cur_attr->name,"flags")){
-				flags = atoi(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "flags") )
+			{
+				flags = atoi (cur_attr->children->content);
 				continue;
 			}
 		}
 	}
-	return create_window(name, -1, 0, pos_x, pos_y, size_x, size_y, flags);
+	
+	winid = create_window (name, -1, 0, pos_x, pos_y, size_x, size_y, flags);
+	
+	for (child = node->children; child; child = child->next)
+	{
+		if (child->type == XML_ELEMENT_NODE)
+			ParseWidget (child, winid);
+	}
+	
+	return winid;
 }
 
-
-int ParseWidget(char *wn, int winid, xmlAttr *a_node)
+int ParseWidget (xmlNode *node, int winid)
 {
-	xmlAttr *cur_attr=NULL;
+	xmlAttr *cur_attr = NULL;
 
-	int pos_x = 0, pos_y = 0, len_x = 0, len_y = 0, type = GetWidgetType(wn), checked = 1, pos = 0, pos_inc = 1;
-	Uint32 flags = 0, id = widget_id++, tid = 0;
-	float size = 1.0, r = 1.0, g = 1.0, b = 1.0, u1 = 0.0, u2 = 1.0, v1 = 0.0, v2 = 1.0, progress = 0;
-	char text[256];
+	int pos_x = 0, pos_y = 0, len_x = 0, len_y = 0, type = GetWidgetType (node->name), checked = 1, pos = 0, pos_inc = 1;
+	Uint32 flags = 0, id = widget_id++, tid = 0, max_tabs = 0, tag_height = 0, tag_space = 0;
+	float size = 1.0, r = 1.0, g = 1.0, b = 1.0, u1 = 0.0, u2 = 1.0, v1 = 0.0, v2 = 1.0, progress = 0.0;
+	char text[256] = {'\0'};
 
-    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
-        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+	for (cur_attr = node->properties; cur_attr; cur_attr = cur_attr->next)
+	{
+		if (cur_attr->type == XML_ATTRIBUTE_NODE)
+		{
 			//pos_x=""
-			if(!xmlStrcasecmp(cur_attr->name,"pos_x")){
-				pos_x = atoi(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "pos_x") )
+			{
+				pos_x = atoi (cur_attr->children->content);
 				continue;
 			}
 			//pos_y=""
-			if(!xmlStrcasecmp(cur_attr->name,"pos_y")){
-				pos_y = atoi(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "pos_y") )
+			{
+				pos_y = atoi (cur_attr->children->content);
 				continue;
 			}
 			//len_x=""
-			if(!xmlStrcasecmp(cur_attr->name,"len_x")){
-				len_x = atoi(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "len_x") )
+			{
+				len_x = atoi (cur_attr->children->content);
 				continue;
 			}
 			//len_y=""
-			if(!xmlStrcasecmp(cur_attr->name,"len_y")){
-				len_y = atoi(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "len_y") )
+			{
+				len_y = atoi (cur_attr->children->content);
 				continue;
 			}
 			//flags=""
-			if(!xmlStrcasecmp(cur_attr->name,"flags")){
-				flags = atoi(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "flags") )
+			{
+				flags = atoi (cur_attr->children->content);
 				continue;
 			}
 			//size=""
-			if(!xmlStrcasecmp(cur_attr->name,"size")){
-				size = atof(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "size") )
+			{
+				size = atof (cur_attr->children->content);
 				continue;
 			}
 			//r=""
-			if(!xmlStrcasecmp(cur_attr->name,"r")){
-				r = atof(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "r") )
+			{
+				r = atof (cur_attr->children->content);
 				continue;
 			}
 			//g=""
-			if(!xmlStrcasecmp(cur_attr->name,"g")){
-				g = atof(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "g") )
+			{
+				g = atof (cur_attr->children->content);
 				continue;
 			}
 			//b=""
-			if(!xmlStrcasecmp(cur_attr->name,"b")){
-				b = atof(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name, "b") )
+			{
+				b = atof (cur_attr->children->content);
 				continue;
 			}
 			//id=""
-			if(!xmlStrcasecmp(cur_attr->name,"id")){
-				id = atof(cur_attr->children->content);
+			if ( !xmlStrcasecmp (cur_attr->name,"id") )
+			{
+				id = atof (cur_attr->children->content);
 				widget_id--;
 				continue;
 			}
 
-			switch(type){
+			switch (type)
+			{
 				case LABEL:
 				case BUTTON:
 					//text=""
-					if(!xmlStrcasecmp(cur_attr->name,"text")){
-						char *p=text;
-						my_xmlStrncopy(&p, cur_attr->children->content, 255);
+					if ( !xmlStrcasecmp (cur_attr->name, "text") )
+					{
+						char *p = text;
+						my_xmlStrncopy (&p, cur_attr->children->content, 255);
 						continue;
 					}
 					break;
 				case IMAGE:
 					//u1=""
-					if(!xmlStrcasecmp(cur_attr->name,"u1")){
-						u1 = atof(cur_attr->children->content);
+					if ( !xmlStrcasecmp (cur_attr->name,"u1") )
+					{
+						u1 = atof (cur_attr->children->content);
 						continue;
 					}
 					//u2=""
-					if(!xmlStrcasecmp(cur_attr->name,"u2")){
-						u2 = atof(cur_attr->children->content);
+					if ( !xmlStrcasecmp (cur_attr->name, "u2") )
+					{
+						u2 = atof (cur_attr->children->content);
 						continue;
 					}
 					//v1=""
-					if(!xmlStrcasecmp(cur_attr->name,"v1")){
-						v1 = atof(cur_attr->children->content);
+					if ( !xmlStrcasecmp (cur_attr->name, "v1") )
+					{
+						v1 = atof (cur_attr->children->content);
 						continue;
 					}
 					//v2=""
-					if(!xmlStrcasecmp(cur_attr->name,"v2")){
-						v2 = atof(cur_attr->children->content);
+					if ( !xmlStrcasecmp (cur_attr->name, "v2") )
+					{
+						v2 = atof (cur_attr->children->content);
 						continue;
 					}
 					//id=""
-					if(!xmlStrcasecmp(cur_attr->name,"tid")){
-						tid = atoi(cur_attr->children->content);
+					if ( !xmlStrcasecmp (cur_attr->name, "tid") )
+					{
+						tid = atoi (cur_attr->children->content);
 						continue;
 					}
 					break;
 
 				case CHECKBOX:
 					//checked=""
-					if(!xmlStrcasecmp(cur_attr->name,"checked")){
-						checked = atoi(cur_attr->children->content);
+					if ( !xmlStrcasecmp (cur_attr->name, "checked") )
+					{
+						checked = atoi (cur_attr->children->content);
 						continue;
 					}
 					break;
 
 				case PROGRESSBAR:
 					//progress=""
-					if(!xmlStrcasecmp(cur_attr->name,"progress")){
-						progress = atof(cur_attr->children->content);
+					if ( !xmlStrcasecmp (cur_attr->name, "progress") )
+					{
+						progress = atof (cur_attr->children->content);
 						continue;
 					}
 					break;
 
 				case VSCROLLBAR:
 					//pos=""
-					if(!xmlStrcasecmp(cur_attr->name,"pos")){
-						pos = atoi(cur_attr->children->content);
+					if ( !xmlStrcasecmp (cur_attr->name, "pos") )
+					{
+						pos = atoi (cur_attr->children->content);
 						continue;
 					}
 					//pos_inc=""
-					if(!xmlStrcasecmp(cur_attr->name,"pos_inc")){
-						pos_inc = atoi(cur_attr->children->content);
+					if ( !xmlStrcasecmp (cur_attr->name, "pos_inc") )
+					{
+						pos_inc = atoi (cur_attr->children->content);
 						continue;
 					}
 					break;
-
+				
+				case TABCOLLECTION:
+					//max_tabs=""
+					if ( !xmlStrcasecmp (cur_attr->name, "max_tabs") )
+					{
+						max_tabs = atoi (cur_attr->children->content);
+						continue;
+					}
+					//tag_height=""
+					if ( !xmlStrcasecmp (cur_attr->name, "tag_height") )
+					{
+						tag_height = atoi (cur_attr->children->content);
+						continue;
+					}
+					//tag_space=""
+					if ( !xmlStrcasecmp (cur_attr->name, "tag_space") )
+					{
+						tag_space = atoi (cur_attr->children->content);
+						continue;
+					}
+					break;
 			}
 		}
 	}
 
-	switch(type){
+	switch(type)
+	{
 		case LABEL:
-			label_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
-			break;
+			return label_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
 		case IMAGE:
-			image_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, tid, u1, v1, u2, v2);
-			break;
+			return image_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, tid, u1, v1, u2, v2);
 		case CHECKBOX:
-			checkbox_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, checked);
-			break;
+			return checkbox_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, checked);
 		case BUTTON:
-			button_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
-			break;
+			return button_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
 		case PROGRESSBAR:
-			progressbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress);
-			break;
+			return progressbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress);
 		case VSCROLLBAR:
-			vscrollbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc, len_y);
-			break;
-
+			return vscrollbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc, len_y);
+		case TABCOLLECTION:
+		{
+			xmlNode *tab;
+			int colid = tab_collection_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, max_tabs, tag_height, tag_space);
+			for (tab = node->children; tab; tab = tab->next)
+			{
+				if (tab->type == XML_ELEMENT_NODE)
+					ParseTab (tab, winid, colid);
+			}
+			
+			return colid;
+		}
 	}
-	return 1;
+
+	return -1;
 }
 
-int GetWidgetType(char *w)
+int ParseTab (xmlNode *node, int winid, int colid)
+{
+	int tag_width = 0, tabid;
+	char label[64] = {'\0'};
+	xmlAttr *cur_attr = NULL;
+	xmlNode *child;
+
+	for (cur_attr = node->properties; cur_attr; cur_attr = cur_attr->next)
+	{
+		if (cur_attr->type == XML_ATTRIBUTE_NODE)
+		{
+			if ( !xmlStrcasecmp (cur_attr->name, "label") )
+			{
+				char *p = label;
+				my_xmlStrncopy ( &p, cur_attr->children->content, sizeof (label) );
+			}
+			else if ( !xmlStrcasecmp (cur_attr->name, "tag_width") )
+			{
+				tag_width = atoi (cur_attr->children->content);
+			}
+		}
+	}
+	
+	tabid = tab_add (winid, colid, label, tag_width);
+	
+	for (child = node->children; child; child = child->next)
+	{
+		if (child->type == XML_ELEMENT_NODE)
+			ParseWidget (node, tabid);
+	}
+	
+	return tabid;
+}
+
+int GetWidgetType (const char *w)
 {
 	if(!xmlStrcasecmp(w, "LABEL"))
 		return LABEL;

@@ -534,6 +534,11 @@ int write_el_ini ()
 	FILE *file = open_el_ini ("r");
 	
 	// first check if we need to change anything
+	//
+	// The advantage of skipping this check is that a new el.ini would be
+	// created in the users $HOME/.elc for Unix users, even if nothing
+	// changed. However, most of the time it's pointless to update an
+	// unchanged file.
 	for (ivar = 0; ivar < our_vars.no; ivar++)
 	{
 		if (!our_vars.var[ivar]->saved)

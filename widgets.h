@@ -893,7 +893,6 @@ int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab);
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \param	max_tabs The largest number of tabs this collection will hold
  * \param	tag_height The height of the tags
  * \param	tag_space The spacing between two neigboring tags
  * \retval int  	Returns the new widgets unique ID 
@@ -901,7 +900,7 @@ int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab);
  * \sa tab_collection_add_extended
  */
 int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, 
-Uint16 y, Uint16 lx, Uint16 ly, int max_tabs, Uint16 tag_height, Uint16 tag_space);
+Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height, Uint16 tag_space);
 
 /*!
  * \ingroup	tabs
@@ -1006,25 +1005,38 @@ int ReadXMLWindow(xmlNode * a_node);
  *
  * 		The function is called from ReadXMLWindow, then parses the window data.
  *
- * \param   	a_node The xmlNode to be parsed
- * \retval int  	Returns the window_id in the windows_list.windows array on succes.
+ * \param   	node The xmlNode to be parsed
+ * \retval int  Returns the window_id in the windows_list.windows array on succes.
  * \callgraph
  */
-int ParseWindow(xmlAttr *a_node);
+int ParseWindow (xmlNode *node);
 
 /*!
  * \ingroup	xml_windows
  * \brief 	Parses xml-widget data
  *
- * 		The function is called from ReadXMLWindow, then parses the widget data
+ * 		The function is called from ParseWindow or ParseTab, then parses the widget data
  *
- * \param   	wn The widget name
- * \param   	winid The window ID
- * \param   	a_node The current xmlAttr node
- * \retval int  	Returns true
+ * \param   	node The xmlNode describing the widget
+ * \param   	winid The window ID the widget belongs to
+ * \retval int  Returns the new widget id 
  * \callgraph
  */
-int ParseWidget(char *wn, int winid, xmlAttr *a_node);
+int ParseWidget (xmlNode *node, int winid);
+
+/*!
+ * \ingroup	xml_windows
+ * \brief 	Parses xml window tab
+ *
+ * 		The function is called from ParseWidget, then parses the tab data
+ *
+ * \param   	node The xmlNode describing the tab
+ * \param   	winid The window ID to which the tab belongs
+ * \param   	colid The widget id of the tab collection the tab belongs to
+ * \retval int  Returns the window id of the tab
+ * \callgraph
+ */
+int ParseTab (xmlNode *node, int winid, int colid);
 
 /*!
  * \ingroup	xml_windows
@@ -1035,5 +1047,5 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node);
  * \param   	w The Widget's name
  * \retval int 	Returns the type of widget on succes, 0 on failure.
  */
-int GetWidgetType(char *w);
+int GetWidgetType (const char *w);
 #endif
