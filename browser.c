@@ -17,7 +17,7 @@ int browser_menu_dragged=0;
 int browser_win=0;
 
 object3d o3d[4];
-_Dir Dir[24];
+_Dir Dir[44];
 int dc=-1,cd=-1,cp=0;
 
 void setobject(int n, char *fn,float xrot, float yrot, float zrot)
@@ -108,10 +108,14 @@ int display_browser_handler()
    draw_string(0+browser_menu_x_len-16,0+2,(unsigned char *)"X",1);
 
    if(cd==-1){ //display dir select menu
-	   int i,y=2;
+	   int i,x=0,y=2;
 	   for(i=0;i<dc;i++){
-		   draw_string(0+2,0+y,(unsigned char *)Dir[i].DirName,1);
+		   draw_string(x+2,0+y,(unsigned char *)Dir[i].DirName,1);
 		   y+=18;
+		   if(y>=398){
+			   x=210;
+			   y=2;
+		   }
 	   }
 
    }else{ // display specified dir
@@ -225,6 +229,8 @@ int check_browser_interface()
 	
 	if(cd==-1){
 		int id=y/18;
+		if(x>210)
+			id+=22;
 		if(id>=dc)id=-1;
 		cd=id;
 	}else{
