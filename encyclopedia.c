@@ -516,22 +516,21 @@ void ReadIndexXML(xmlNode * a_node)
 				strcpy(Category[num_category++].Name,cur_node->children->content);
 
 				//we load the category now
-				sprintf(tmp,"Encyclopedia/%s/%s.xml",lang,cur_node->children->content);
+#ifdef NEW_STRUCTURE
+				sprintf(tmp,"./languages/%s/Encyclopedia/%s.xml",lang,cur_node->children->content);
 				doc=xmlReadFile(tmp, NULL, 0);
 				if (doc==NULL)
 					{
-						sprintf(tmp,"Encyclopedia/en/%s.xml",cur_node->children->content);
+						sprintf(tmp,"./languages/en/Encyclopedia/%s.xml",cur_node->children->content);
 						doc=xmlReadFile(tmp, NULL, 0);
-						if(doc==NULL)
-							{
-								//Falling back on the old method - remove once the normal method is looking in Encyclopedia/<lang>/<filename>.xml
-								sprintf(tmp,"Encyclopedia/%s.xml",cur_node->children->content);
-								doc=xmlReadFile(tmp, NULL, 0);
-								if(doc==NULL)
-									{
-										return;
-									}
-							}
+					}
+#else
+				sprintf(tmp,"Encyclopedia/%s.xml",cur_node->children->content);
+				doc=xmlReadFile(tmp, NULL, 0);
+#endif
+				if(doc==NULL)
+					{
+						return;
 					}
 				ReadCategoryXML(xmlDocGetRootElement(doc));
 				xmlFreeDoc(doc);

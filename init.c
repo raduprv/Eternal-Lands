@@ -114,10 +114,22 @@ void load_knowledge_list()
 	FILE *f = NULL;
 	int i=0;
 	char strLine[255];
-
+#ifdef NEW_STRUCTURE
+	char filename[200];
+#endif
+	
 	memset(knowledge_list, 0, sizeof(knowledge_list));
 	i=0;
+#ifdef NEW_STRUCTURE
+	sprintf(filename,"./languages/%s/knowledge.lst",lang);
+	if((f=fopen(filename,"rb"))==NULL)
+		{
+			strcpy(filename,"./languages/en/knowlege.lst");
+			f=fopen(filename,"rb");
+		}
+#else
 	f=fopen("knowledge.lst", "rb");
+#endif
 	if(!f)return;
 	while(1)
 		{
@@ -681,7 +693,11 @@ void init_stuff()
 		}
 	SDL_SetTimer (1000/(18*4), my_timer_pointer);
 
+#ifdef NEW_STRUCTURE
+	ReadXML("./languages/en/Encyclopedia/index.xml");
+#else
 	ReadXML("Encyclopedia/index.xml");
+#endif
 	read_key_config();
 	load_questlog();
 	init_buddy();
