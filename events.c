@@ -13,7 +13,7 @@ int max_mark = 0;
 marking marks[200];
 
 int mod_key_status;
-Uint32 last_turn_around=0;
+//Uint32 last_turn_around=0;
 
 int shift_on;
 int alt_on;
@@ -38,6 +38,7 @@ void	quick_use(int use_id)
 
 int HandleEvent(SDL_Event *event)
 {
+	static Uint32 last_turn_around = 0;
 	int done=0;
 	Uint8 ch;
 	Uint32 key=0;
@@ -73,9 +74,20 @@ int HandleEvent(SDL_Event *event)
 			{
 				key=(Uint16)event->key.keysym.sym;
 				
-				if(shift_on)key|=(1<<31);
-				if(ctrl_on)key|=(1<<30);
-				if(alt_on)key|=(1<<29);
+				if(shift_on)key|=SHIFT;
+				if(ctrl_on)key|=CTRL;
+				if(alt_on)key|=ALT;
+
+#ifdef WINDOW_CHAT				
+				if(afk_time) 
+					last_action_time=cur_time; //Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
+
+				if (interface_mode == interface_game)
+				{
+					keypress_in_windows(mouse_x, mouse_y, key, event->key.keysym.unicode);
+					break;
+				}
+#endif
 				
 				//first, try to see if we pressed Alt+x, to quit.
 				if ( (event->key.keysym.sym == SDLK_x && alt_on)
@@ -198,36 +210,36 @@ int HandleEvent(SDL_Event *event)
 
 				if(key==K_HIDEWINS)
 				  {
-				    if(ground_items_win>0)
+				    if(ground_items_win>=0)
 				      hide_window(ground_items_win);
-				    if(items_win>0)
+				    if(items_win>=0)
 				      hide_window(items_win);
-				    if(buddy_win>0)
+				    if(buddy_win>=0)
 				      hide_window(buddy_win);
-				    if(manufacture_win>0)
+				    if(manufacture_win>=0)
 				      hide_window(manufacture_win);
-				    if(options_win>0)
+				    if(options_win>=0)
 				      hide_window(options_win);
-				    if(sigil_win>0)
+				    if(sigil_win>=0)
 				      hide_window(sigil_win);
 				    if (use_tabbed_windows)
 				    {
-				    	if (tab_stats_win>0)
+				    	if (tab_stats_win>=0)
 						hide_window(tab_stats_win);
-					if (tab_help_win > 0)
+					if (tab_help_win >= 0)
 						hide_window (tab_help_win);
 				    }
 				    else
 				    {
-				    	if(questlog_win>0)
+				    	if(questlog_win>=0)
 				    		hide_window(questlog_win);
-				    	if(stats_win>0)
+				    	if(stats_win>=0)
 				    		hide_window(stats_win);
-				    	if (knowledge_win > 0)
+				    	if (knowledge_win >= 0)
 				    		hide_window(knowledge_win);
-				    	if(encyclopedia_win>0)
+				    	if(encyclopedia_win>=0)
 				    		hide_window(encyclopedia_win);
-					if (help_win > 0)
+					if (help_win >= 0)
 						hide_window(help_win);
 				    }
 				    break;

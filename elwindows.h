@@ -270,7 +270,7 @@ int		drag_windows(int mx, int my, int dx, int dy);
  * \retval int
  * \callgraph
  */
-int		keypress_in_windows(int x, int y, Uint32 key);
+int		keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey);
 #endif
 
 /*!
@@ -573,7 +573,7 @@ int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for 
  * \retval int
  * \callgraph
  */
-int		keypress_in_window(int win_id, int x, int y, Uint32 key);	// keypress in the window
+int		keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
 #endif
 
 // low level functions

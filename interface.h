@@ -103,6 +103,16 @@ void get_world_x_y();
  *
  *      Detail
  *
+ * \callgraph
+ */
+void get_old_world_x_y();
+
+/*!
+ * \ingroup interfaces
+ * \brief
+ *
+ *      Detail
+ *
  * \retval int
  * \callgraph
  */

@@ -4,11 +4,6 @@
 #include <ctype.h>
 #include "global.h"
 
-extern marking marks[200];
-extern int adding_mark;
-extern int mark_x , mark_y;
-extern int max_mark;
-
 char	auto_open_encyclopedia= 1;
 
 //cls - clears the text buffer

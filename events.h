@@ -73,4 +73,9 @@ typedef struct
     char text[512]; /*!< text of the marking */
 }marking;
 
+extern int adding_mark;
+extern int mark_x, mark_y;
+extern int max_mark;
+extern marking marks[200];
+
 #endif	// __EVENTS_H__

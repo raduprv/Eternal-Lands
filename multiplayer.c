@@ -29,8 +29,6 @@ int client_time_stamp=0;
 int client_server_delta_time=0;
 
 int yourself=-1;
-extern marking marks[200];
-extern int max_mark;
 
 int last_sit=0;
 

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "global.h"
 
 #ifdef WINDOW_CHAT
@@ -242,8 +243,7 @@ int click_root_handler (window_info *win, int mx, int my, Uint32 flags)
 		Uint8 str[10];
 		short x,y;
 		
-		//get_old_world_x_y ();
-		get_world_x_y ();
+		get_old_world_x_y ();
 		x = scene_mouse_x / 0.5f;
 		y = scene_mouse_y / 0.5f;
 		// check to see if the coordinates are OUTSIDE the map
@@ -652,6 +652,429 @@ int display_root_handler (window_info *win)
 	return 1;
 }
 
+int keypress_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	static Uint32 last_turn_around = 0;
+
+	int alt_on = key & ELW_ALT;
+	int ctrl_on = key & ELW_CTRL;
+	int shift_on = key & ELW_SHIFT;
+	Uint16 keysym = key & 0xffff;
+	Uint8 ch = unikey & 0xff;
+	
+	//first, try to see if we pressed Alt+x, to quit.
+	if ( (keysym == SDLK_x && alt_on) || (keysym == SDLK_q && ctrl_on && !alt_on) )
+	{
+		exit_now = 1;
+	}
+	else if (keysym == SDLK_RETURN && alt_on)
+	{
+		toggle_full_screen ();
+	}
+	else if (disconnected && !alt_on && !ctrl_on)
+	{
+		connect_to_server();
+	}
+	else if ( (keysym == SDLK_v && ctrl_on) || (keysym == SDLK_INSERT && shift_on) )
+	{
+#ifndef WINDOWS
+		startpaste();
+#else
+		windows_paste();
+#endif
+	}
+	else if (key == K_CAMERAUP)
+	{
+		if (rx > -60) rx -= 1.0f;
+	}
+	else if (key == K_CAMERADOWN)
+	{
+		if (rx < -45) rx += 1.0f;
+	}
+	else if (key == K_ZOOMIN)
+	{
+		if (zoom_level > 1.0f) new_zoom_level = zoom_level - 0.25;
+	}
+	else if (key == K_ZOOMOUT)
+	{
+		if (zoom_level < 3.75f) new_zoom_level = zoom_level + 0.25;
+	}
+	else if (key == K_ITEM1)
+	{
+		quick_use (0);
+	}
+	else if (key == K_ITEM2)
+	{
+		quick_use (1);
+	}
+	else if (key == K_ITEM3)
+	{
+		quick_use (2);
+	}
+	else if (key == K_ITEM4)
+	{
+		quick_use (3);
+	}
+	else if (key == K_ITEM5)
+	{
+		quick_use (4);
+	}
+	else if (key == K_ITEM6)
+	{
+		quick_use(5);
+	}
+	else if (key == K_TURNLEFT)
+	{
+		if (!last_turn_around || last_turn_around + 500 < cur_time)
+		{
+			Uint8 str[2];
+			last_turn_around = cur_time;
+			str[0] = TURN_LEFT;
+			my_tcp_send (my_socket, str, 1);
+		}
+	}
+	else if (key==K_TURNRIGHT)
+	{
+		if (!last_turn_around || last_turn_around + 500 < cur_time)
+		{
+			Uint8 str[2];
+			last_turn_around = cur_time;
+			str[0] = TURN_RIGHT;
+			my_tcp_send (my_socket, str, 1);
+		}
+	}
+	else if (key==K_ADVANCE)
+	{
+		move_self_forward();
+	}
+	else if(key==K_HIDEWINS)
+	{
+		if (ground_items_win >= 0)
+			hide_window (ground_items_win);
+		if (items_win >= 0)
+			hide_window (items_win);
+		if (buddy_win >= 0)
+			hide_window (buddy_win);
+		if (manufacture_win >= 0)
+			hide_window (manufacture_win);
+		if (options_win >= 0)
+			hide_window (options_win);
+		if (sigil_win >= 0)
+			hide_window (sigil_win);
+		if (use_tabbed_windows)
+		{
+			if (tab_stats_win >= 0)
+				hide_window (tab_stats_win);
+			if (tab_help_win >= 0)
+				hide_window (tab_help_win);
+		}
+		else
+		{
+			if(questlog_win >= 0)
+				hide_window (questlog_win);
+			if(stats_win >= 0)
+				hide_window (stats_win);
+			if (knowledge_win >= 0)
+				hide_window (knowledge_win);
+			if (encyclopedia_win >= 0)
+				hide_window (encyclopedia_win);
+			if (help_win >= 0)
+				hide_window (help_win);
+		}
+	}
+	else if (key == K_HEALTHBAR)
+	{
+		view_health_bar = !view_health_bar;
+	}
+	else if (key == K_VIEWTEXTASOVERTEXT)
+	{
+		view_chat_text_as_overtext = !view_chat_text_as_overtext;
+	}
+	else if (key == K_VIEWNAMES)
+	{
+		view_names = !view_names;
+	}
+	else if (key == K_VIEWHP)
+	{
+		view_hp = !view_hp;
+	}
+	else if (key == K_STATS)
+	{
+		if (use_tabbed_windows)
+			view_tab (&tab_stats_win, &tab_stats_collection_id, 0);
+		else
+			view_window (&stats_win, 0);
+	}
+	else if (key == K_WALK)
+	{
+		item_action_mode = qb_action_mode = action_mode = action_walk;
+	}
+	else if (key == K_LOOK)
+	{
+		item_action_mode = qb_action_mode = action_mode = action_look;
+	}
+	else if (key == K_USE)
+	{
+		item_action_mode = qb_action_mode = action_mode = action_use;
+	}
+	else if (key == K_OPTIONS)
+	{
+		view_window (&options_win, 0);
+	}
+	else if (key == K_KNOWLEDGE)
+	{
+		if (use_tabbed_windows)
+			view_tab(&tab_stats_win, &tab_stats_collection_id, 1);
+		else
+			view_window (&knowledge_win, 0);
+	}
+	else if (key == K_ENCYCLOPEDIA)
+	{
+		if (use_tabbed_windows)
+			view_tab(&tab_help_win, &tab_help_collection_id, 1);
+		else
+			view_window(&encyclopedia_win,0);
+	}
+	else if (key == K_HELP)
+	{
+		if (use_tabbed_windows)
+			view_tab(&tab_help_win, &tab_help_collection_id, 0);
+		else
+			view_window(&help_win,0);
+	}
+	else if (key == K_REPEATSPELL)	// REPEAT spell command
+	{
+		if ( get_show_window (sigil_win) && !get_show_window (trade_win) )
+		{
+			repeat_spell();
+		}
+	}
+	else if (key == K_SIGILS)
+	{
+		view_window (&sigil_win, -1);
+	}
+	else if (key == K_MANUFACTURE)
+	{
+		view_window (&manufacture_win, -1);
+	}
+	else if(key == K_ITEMS)
+	{
+		view_window (&items_win, -1);
+	}
+	else if (key == K_MAP)
+	{
+		view_map_win (&map_win, -1);
+	}
+	else if (key == K_ROTATELEFT)
+	{
+		camera_rotation_speed = normal_camera_rotation_speed / 40;
+		camera_rotation_frames = 40;
+	}
+	else if (key == K_FROTATELEFT)
+	{
+		camera_rotation_speed = fine_camera_rotation_speed / 10;
+		camera_rotation_frames = 10;
+	}
+	else if (key == K_ROTATERIGHT)
+	{
+		camera_rotation_speed = -normal_camera_rotation_speed / 40;
+		camera_rotation_frames = 40;
+	}
+	else if (key == K_FROTATERIGHT)
+	{
+		camera_rotation_speed = -fine_camera_rotation_speed / 10;
+		camera_rotation_frames = 10;
+	}
+	else if (key == K_AFK)
+	{
+		if (!afk) 
+		{
+			go_afk ();
+			last_action_time = cur_time - afk_time;
+		}
+		else
+		{
+			go_ifk ();
+		}
+	}
+	else if (key == K_SIT)
+	{
+		sit_button_pressed (NULL, 0);
+	}
+	else if (key == K_BROWSER)
+	{
+#ifndef WINDOWS
+		char browser_command[400];
+		if (have_url)
+		{
+			my_strcp( browser_command, broswer_name);
+			my_strcat (browser_command, " \"");
+			my_strcat (browser_command, current_url);
+			my_strcat (browser_command, "\"&");
+			system (browser_command);
+		}
+#else
+		SDL_Thread *go_to_url_thread;
+		go_to_url_thread = SDL_CreateThread (go_to_url, 0);
+#endif
+	}
+	// TEST REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!
+	else if (keysym == SDLK_F5)
+	{
+		toggle_rules_window (1);
+	}
+#ifdef BOOK
+	else if (keysym == SDLK_F7)
+	{
+		if (ctrl_on) 
+			read_local_book ("./books/abc.xml\0", 22);
+		else if (shift_on)
+			read_local_book ("./books/sediculos.xml\0", 22);
+	}
+#endif
+	else if (keysym == SDLK_F8)
+	{
+		have_point_sprite = !have_point_sprite;
+	}
+	else if (keysym == SDLK_F9)
+	{
+		actor *me = get_actor_ptr_from_id (yourself);
+		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);
+	}
+	else if (keysym == SDLK_F6)
+	{
+		if(!hud_x)
+		{
+			hud_x = 64;
+			hud_y = 49;
+		}
+		else
+		{
+			hud_x=0;
+			hud_y=0;
+		}
+		resize_root_window ();
+	}				
+	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	else if (keysym == SDLK_ESCAPE)
+	{
+		input_text_lenght = 0;
+		input_text_line[0] = 0;
+		input_text_lines = 1;
+	}
+	else
+	{
+		if ( (key >= 256 && key <= 267) || key==271)
+		{
+			switch (key)
+			{
+				case 266:
+					ch = 46;
+					break;
+				case 267:
+					ch = 47;
+					break;
+				case 271:
+					ch = 13;
+					break;
+				default:
+					ch = key-208;
+					break;
+			}
+		}
+
+		if (ch == '`' || key == K_CONSOLE)
+		{
+			view_console_win (&console_win, -1);
+		}
+		else if (key == K_SHADOWS)
+		{
+			clouds_shadows = !clouds_shadows;
+		}
+		else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
+		{
+			// watch for the '//' shortcut
+			if (input_text_lenght == 1 && ch== '/' && input_text_line[0] == '/' && last_pm_from[0])
+			{
+				int i;
+				int l = strlen (last_pm_from);
+				for (i=0; i<l; i++) input_text_line[input_text_lenght++] = last_pm_from[i];
+				put_char_in_buffer (' ');
+			}
+			else
+			{
+				// not the shortcut, add the character to the buffer
+				put_char_in_buffer(ch);
+			}
+		}
+		else if (ch == SDLK_BACKSPACE && input_text_lenght > 0)
+		{
+			input_text_lenght--;
+			if (input_text_line[input_text_lenght] == 0x0a)
+			{
+				input_text_lenght--;
+				if (input_text_lines > 1) input_text_lines--;
+				input_text_line[input_text_lenght] = '_';
+				input_text_line[input_text_lenght+1] = 0;
+			}
+			input_text_line[input_text_lenght] = '_';
+			input_text_line[input_text_lenght+1] = 0;
+		}
+		else if (ch == SDLK_RETURN && input_text_lenght > 0)
+		{
+			if ( (adding_mark == 1) && (input_text_lenght > 1) )
+			{
+				// XXX FIXME (Grum): this probably only happens in map mode,
+				// so it shouldn't occur here. Leave it for now.
+				int i;
+				// if text wrapping just keep the text until the wrap.
+				for (i = 0; i < strlen (input_text_line); i++) 
+					if (input_text_line[i] == 0x0a) 
+						input_text_line[i] = 0;
+							    
+				marks[max_mark].x = mark_x;
+				marks[max_mark].y = mark_y;
+				memset(marks[max_mark].text,0,500);
+						  
+				strncpy (marks[max_mark].text, input_text_line, 500);
+				marks[max_mark].text[strlen(marks[max_mark].text)-1] = 0;
+				max_mark++;
+				save_markings ();
+				adding_mark = 0;
+				input_text_lenght = 0;
+				input_text_lines = 1;
+				input_text_line[0] = 0;
+			}
+			else if (*input_text_line == '%' && input_text_lenght > 1) 
+			{
+				input_text_line[input_text_lenght] = 0;
+				if ( (check_var (input_text_line + 1, 1) ) < 0)
+					send_input_text_line();
+			}
+			else if (*input_text_line == '#')
+			{
+				test_for_console_command();
+			}
+			else
+			{
+				send_input_text_line();
+			}
+			//also clear the buffer
+			input_text_lenght = 0;
+			input_text_lines = 1;
+			input_text_line[0] = 0;
+		}
+		else
+		{
+			// nothing we can handle
+			return 0;
+		}
+	}
+	
+	// we handled it, return 1 to let the window manager know
+	return 1;
+}
+
 void display_root ()
 {
 	if (root_win < 0)
@@ -661,6 +1084,7 @@ void display_root ()
         	set_window_handler (root_win, ELW_HANDLER_DISPLAY, &display_root_handler);
         	set_window_handler (root_win, ELW_HANDLER_CLICK, &click_root_handler);
         	set_window_handler (root_win, ELW_HANDLER_MOUSEOVER, &mouseover_root_handler);
+        	set_window_handler (root_win, ELW_HANDLER_KEYPRESS, &keypress_root_handler);
 		
 		resize_root_window();
 	}

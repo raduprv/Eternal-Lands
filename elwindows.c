@@ -432,7 +432,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 }
 
 #ifdef WINDOW_CHAT
-int	keypress_in_windows(int x, int y, Uint32 key)
+int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
 {
 	int	done= 0;
 	int	id;
@@ -454,7 +454,7 @@ int	keypress_in_windows(int x, int y, Uint32 key)
 					// at this level?
 					if(windows_list.window[i].order == id)
 					{
-						done = keypress_in_window (i, x, y, key);
+						done = keypress_in_window (i, x, y, key, unikey);
 						if(done > 0)
 						{
 							if (windows_list.window[i].displayed > 0)
@@ -489,7 +489,7 @@ int	keypress_in_windows(int x, int y, Uint32 key)
 				// at this level?
 				if(windows_list.window[i].order == id)
 				{
-					done = keypress_in_window(i, x, y, key);
+					done = keypress_in_window(i, x, y, key, unikey);
 					if(done > 0)
 					{
 						//select_window(i);	// these never get selected
@@ -1265,7 +1265,7 @@ int	mouseover_window(int win_id, int x, int y)
 }
 
 #ifdef WINDOW_CHAT
-int	keypress_in_window(int win_id, int x, int y, Uint32 key)
+int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 {
 	window_info *win;
 	int	mx, my;
@@ -1291,7 +1291,7 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key)
 			{
 				if(W->OnKey != NULL)
 				{
-					W->OnKey (W, mx - W->pos_x, my - W->pos_y, key);
+					W->OnKey (W, mx - W->pos_x, my - W->pos_y, key, unikey);
 				}
 			}
 		}
@@ -1304,7 +1304,7 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key)
 			    
 			glPushMatrix();
 			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-			ret_val= (*win->keypress_handler)(win, mx, my, key);
+			ret_val= (*win->keypress_handler)(win, mx, my, key, unikey);
 			glPopMatrix();
 
 			return	ret_val; // keypresses are fall-through

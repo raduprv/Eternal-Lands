@@ -37,11 +37,6 @@ int action_mode=action_walk;
 Uint32 click_time=0;
 int click_speed=300;
 
-extern marking marks[200];
-extern int adding_mark;
-extern int mark_x , mark_y;
-extern int max_mark;
-
 void get_world_x_y()
 {
   	float mouse_z,z;	
