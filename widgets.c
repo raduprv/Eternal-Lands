@@ -1117,7 +1117,6 @@ int tab_collection_draw (widget_list *w)
 				glVertex3i (xstart+h-3, ytagbot-3, 0);
 				glEnd ();
 			}
-			glEnd ();
 
 			glEnable(GL_TEXTURE_2D);
 			
