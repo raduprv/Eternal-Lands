@@ -506,17 +506,4 @@
 #define snd_thndr_4  7
 #define snd_thndr_5  8
 
-//MUSIC
-#define ogg_housewaltz    0
-#define ogg_overworld     1
-#define ogg_windyvillage  2
-#define ogg_mountainwoods 3
-#define ogg_thedarkness   4
-#define ogg_el1           5
-#define ogg_el2           6
-#define ogg_el3           7
-#define ogg_el4           8
-#define ogg_el5           9
-#define ogg_el6          10
-#define ogg_el7          11
 #endif

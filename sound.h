@@ -7,8 +7,6 @@
 #define BUFFER_SIZE (4096 * 16)
 #define SLEEP_TIME 500
 
-#define max_songs 12
-
 typedef struct {
 	char file_name[64];
 	int always;
@@ -23,8 +21,6 @@ extern int no_sound;
 
 extern ALfloat sound_gain;
 extern ALfloat music_gain;
-
-extern playlist_entry playlist[20];
 
 void stop_sound(int i);
 int add_sound_object(int sound_file,int x, int y,int positional,int loops);

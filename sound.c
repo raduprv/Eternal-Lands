@@ -19,7 +19,6 @@ ALuint sound_buffer[max_buffers];
 SDL_mutex *sound_list_mutex;
 
 #ifndef	NO_MUSIC
-char music_files[max_songs][30];
 FILE* ogg_file;
 OggVorbis_File ogg_stream;
 vorbis_info* ogg_info;
@@ -546,21 +545,6 @@ void init_sound()
 	my_strcp(sound_files[snd_thndr_3],"./sound/thunder3.wav");
 	my_strcp(sound_files[snd_thndr_4],"./sound/thunder4.wav");
 	my_strcp(sound_files[snd_thndr_5],"./sound/thunder5.wav");
-
-#ifndef	NO_MUSIC
-	my_strcp(music_files[ogg_housewaltz],"./music/housewaltz.ogg");
-    my_strcp(music_files[ogg_overworld],"./music/overworld.ogg");
-	my_strcp(music_files[ogg_windyvillage],"./music/windyvillage.ogg");
-	my_strcp(music_files[ogg_mountainwoods],"./music/mountainwoods.ogg");
-	my_strcp(music_files[ogg_thedarkness],"./music/thedarkness.ogg");
-	my_strcp(music_files[ogg_el1],"./music/el1.ogg");
-	my_strcp(music_files[ogg_el2],"./music/el2.ogg");
-	my_strcp(music_files[ogg_el3],"./music/el3.ogg");
-	my_strcp(music_files[ogg_el4],"./music/el4.ogg");
-	my_strcp(music_files[ogg_el5],"./music/el5.ogg");
-	my_strcp(music_files[ogg_el6],"./music/el6.ogg");
-	my_strcp(music_files[ogg_el7],"./music/el7.ogg");
-#endif	//NO_MUSIC
 
 	alListenerfv(AL_POSITION,listenerPos);
 	alListenerfv(AL_VELOCITY,listenerVel);
