@@ -105,7 +105,7 @@ void test_for_console_command()
 			char extra[20];
 			if(version_patch_digit > 0)
 				{
-					snprintf(extra,20,".%d Beta",version_patch_digit);
+					snprintf(extra,20,"p%d Beta",version_patch_digit);
 				}
 			else
 				{
