@@ -136,6 +136,41 @@ void set_afk_time(int time)
 }
 #endif
 
+#ifdef MAP_EDITOR
+
+void set_auto_save_interval(int time)
+{
+	if(time>0)auto_save_time=time*60000;
+	else auto_save_time=0;
+}
+
+void switch_vidmode(int mode)
+{
+	switch(mode)
+		{
+			case 1: window_width=640;
+				window_height=480;
+				return;
+			case 2: window_width=780;
+				window_height=550;
+				return;
+			case 3:
+				window_width=990;
+				window_height=720;
+				return;
+			case 4:
+				window_width=1070;
+				window_height=785;
+				return;
+			case 5:
+				window_width=1250;
+				window_height=990;
+			default: return;
+		}
+}
+
+#endif
+
 int check_var(char * str, int type)
 {
 	int i,*p;
@@ -255,6 +290,7 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 
 void init_vars()
 {
+	//ELC specific variables
 #ifdef ELC
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4);
 	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0);
@@ -266,7 +302,6 @@ void init_vars()
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0);
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1);
-	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0);
 	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,0);
 	add_var(SPECINT,"use_point_particles","upp",&use_point_particles,change_point_particles,1);
 	add_var(SPECINT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100);
@@ -310,10 +345,18 @@ void init_vars()
 	add_var(STRING,"username","u",username_str,change_string,16);
 	add_var(SPECCHAR,"password","p",password_str,change_password,16);
 	add_var(BOOL,"log_server","log",&log_server,change_var,1);
-#endif
-	add_var(STRING,"data_dir","dir",datadir,change_string,90);//Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
-#ifdef ELC
 	add_var(STRING,"language","lang",lang,change_string,8);
 	add_var(STRING,"browser","b",broswer_name,change_string,70);
+#endif
+	//Global vars...
+	add_var(STRING,"data_dir","dir",datadir,change_string,90);//Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
+	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4);
+	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0);
+
+#ifdef MAP_EDITOR
+	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0);
+	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0);
+	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0);
+	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0);
 #endif
 }
