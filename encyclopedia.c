@@ -245,6 +245,14 @@ void ParseSimage(xmlAttr *a_node)
 			if(!xmlStrcasecmp(cur_attr->name,"size")){
 				size=atoi(cur_attr->children->content);
 			}
+			//x=""
+			if(!xmlStrcasecmp(cur_attr->name,"x")){
+				x=atoi(cur_attr->children->content);
+			}
+			//y=""
+			if(!xmlStrcasecmp(cur_attr->name,"y")){
+				y=atoi(cur_attr->children->content);
+			}
 
 		}
 	}
