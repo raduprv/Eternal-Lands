@@ -443,7 +443,7 @@ float colored_arrow_v_end=1.0f-(float)31/256;
 
 void draw_rules_interface()
 {
-	char str[20];
+	char str[100];
 	float diff=(float)(window_width-window_height)/2;
 	int x,y,width,height;//Width/Height are 0.5*width/height
 	float window_ratio=(float)window_width/640.0f;
