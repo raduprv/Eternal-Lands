@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include "global.h"
 
+void destroy_map_tiles()
+{
+	int i=0;
+	for(;i<256;i++) if(map_tiles[i].img) free(map_tiles[i].img);
+}
+
+
 void draw_tile_map()
 {
 	int x_start,x_end,y_start,y_end;

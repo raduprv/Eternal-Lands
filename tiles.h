@@ -18,6 +18,6 @@ extern int tile_list[256];
 
 void draw_tile_map();
 void load_map_tiles();
-
+void destroy_map_tiles();
 
 #endif
