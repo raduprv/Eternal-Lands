@@ -563,6 +563,8 @@ void FreeXML()
 		free(Page[i].Name);
 		while(t!=NULL){
 			_Text *tmp=t;
+			if(t->ref)free(t->ref);
+			if(t->text)free(t->text);
 			t=t->Next;
 			free(tmp);
 		}
