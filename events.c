@@ -390,17 +390,19 @@ int HandleEvent(SDL_Event *event)
 		break;
 
 		case SDL_VIDEORESIZE:
-	    {
-	      window_width = event->resize.w;
-	      window_height = event->resize.h;
+		    	{
+			     window_width = event->resize.w;
+			     window_height = event->resize.h;
 #ifdef LINUX
-	      if(SDL_SetVideoMode(window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE))
+                	     if(SDL_SetVideoMode(window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE))
+	      	      	  	   {
+			                  resize_window();
+	                  	   }
+#else
+                     	     handle_window_resize();
 #endif
-	      	{
-			resize_window();
-		}
-	    }
-	    break;
+	    	    	break;
+	    	    	}
 
 	    case SDL_QUIT:
 		done = 1;

@@ -108,65 +108,7 @@ void init_stuff()
 	file_selector = create_fileselection();
 #endif	//LINUX
 
-#ifdef	DEBUG
-	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) == -1 )
-#else	//DEBUG
-	if( SDL_Init(SDL_INIT_VIDEO) == -1 )
-#endif	//DEBUG
-    {
-		char str[120];
-		sprintf(str, "Couldn't initialize SDL: %s\n", SDL_GetError());
-		log_error(str);
-		SDL_Quit();
-		exit(1);
-	}
-
-	/* Detect the display depth */
-		if ( SDL_GetVideoInfo()->vfmt->BitsPerPixel <= 8 ) {
-			bpp = 8;
-		} else {
-			bpp = 16;  /* More doesn't seem to work */
-		}
-
-	/* Initialize the display */
-	switch (bpp) {
-	    case 8:
-		rgb_size[0] = 2;
-		rgb_size[1] = 3;
-		rgb_size[2] = 3;
-		break;
-	    case 15:
-	    case 16:
-		rgb_size[0] = 5;
-		rgb_size[1] = 5;
-		rgb_size[2] = 5;
-		break;
-            default:
-		rgb_size[0] = 8;
-		rgb_size[1] = 8;
-		rgb_size[2] = 8;
-		break;
-	}
-	SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
-	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
-	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
-//	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 1 );
-	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
-	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
-	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-	//if ( SDL_SetVideoMode( window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE|SDL_FULLSCREEN ) == NULL )
-    if ( SDL_SetVideoMode( window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE) == NULL )
-	{
-		char str[120];
-		sprintf(str, "Couldn't set GL mode: %s\n", SDL_GetError());
-		log_error(str);
-		SDL_Quit();
-		exit(1);
-	}
-
-	/* Set the window manager title bar */
-	SDL_WM_SetCaption( "Eternal Lands Editor", "testgl" );
-	SDL_WM_SetIcon(SDL_LoadBMP("mapeditor.ico"), NULL);
+	init_gl();
 
 	resize_window();
 	glEnable(GL_DEPTH_TEST);

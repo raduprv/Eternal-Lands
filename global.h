@@ -55,7 +55,7 @@
 #include "edit_window.h"
 #include "../elc/particles.h"
 #include "particles_window.h"
-
+#include "gl_init.h"
 #define sector_size_x 15
 #define sector_size_y 15
 
