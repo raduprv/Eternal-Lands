@@ -60,7 +60,8 @@ void display_encyclopedia()
 			draw_string_small(t->x+encyclopedia_menu_x,t->y+encyclopedia_menu_y,t->text,1);
 		t=t->Next;
 	}
-	
+
+	glColor3f(1.0f,1.0f,1.0f);
 	while(i){
 		get_and_set_texture_id(i->id);
 		glBegin(GL_QUADS);
