@@ -89,7 +89,7 @@ void read_key_config()
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	struct stat key_file;
-	int key_file_size;
+	int key_file_size,t;
 
 #ifndef WINDOWS
 	char key_ini[256];
@@ -108,48 +108,71 @@ void read_key_config()
 	stat("key.ini",&key_file);
 #endif
 
-	if(!f)//exiting file does not exist
-		{
-			char str[120];
-			sprintf(str, "Fatal: couldn't read configuration file key.ini\n");
-			log_error(str);
-			SDL_Quit();
-			exit(1);
-		}
+	if(!f)return; //take the defaults
+
 	key_file_size = key_file.st_size;
 	file_mem = (Uint8 *) calloc(key_file_size+2, sizeof(Uint8));
 	file_mem_start=file_mem;
 	fread (file_mem, 1, key_file_size+1, f);
 
-	K_CAMERAUP = parse_key_string(&file_mem[get_string_occurance("#K_CAMERAUP",file_mem,key_file_size,0)]);
-	K_CAMERADOWN = parse_key_string(&file_mem[get_string_occurance("#K_CAMERADOWN",file_mem,key_file_size,0)]);
-	K_ZOOMOUT = parse_key_string(&file_mem[get_string_occurance("#K_ZOOMOUT",file_mem,key_file_size,0)]);
-	K_ZOOMIN = parse_key_string(&file_mem[get_string_occurance("#K_ZOOMIN",file_mem,key_file_size,0)]);
-	K_TURNLEFT = parse_key_string(&file_mem[get_string_occurance("#K_TURNLEFT",file_mem,key_file_size,0)]);
-	K_TURNRIGHT = parse_key_string(&file_mem[get_string_occurance("#K_TURNRIGHT",file_mem,key_file_size,0)]);
-	K_ADVANCE = parse_key_string(&file_mem[get_string_occurance("#K_ADVANCE",file_mem,key_file_size,0)]);
-	K_HEALTHBAR = parse_key_string(&file_mem[get_string_occurance("#K_HEALTHBAR",file_mem,key_file_size,0)]);
-	K_VIEWNAMES = parse_key_string(&file_mem[get_string_occurance("#K_VIEWNAMES",file_mem,key_file_size,0)]);
-	K_STATS = parse_key_string(&file_mem[get_string_occurance("#K_STATS",file_mem,key_file_size,0)]);
-	K_WALK = parse_key_string(&file_mem[get_string_occurance("#K_WALK",file_mem,key_file_size,0)]);
-	K_LOOK = parse_key_string(&file_mem[get_string_occurance("#K_LOOK",file_mem,key_file_size,0)]);
-	K_USE = parse_key_string(&file_mem[get_string_occurance("#K_USE",file_mem,key_file_size,0)]);
-	K_OPTIONS = parse_key_string(&file_mem[get_string_occurance("#K_OPTIONS",file_mem,key_file_size,0)]);
-	K_REPEATSPELL = parse_key_string(&file_mem[get_string_occurance("#K_REPEATSPELL",file_mem,key_file_size,0)]);
-	K_SIGILS = parse_key_string(&file_mem[get_string_occurance("#K_SIGILS",file_mem,key_file_size,0)]);
-	K_MANUFACTURE = parse_key_string(&file_mem[get_string_occurance("#K_MANUFACTURE",file_mem,key_file_size,0)]);
-	K_ITEMS = parse_key_string(&file_mem[get_string_occurance("#K_ITEMS",file_mem,key_file_size,0)]);
-	K_MAP = parse_key_string(&file_mem[get_string_occurance("#K_MAP",file_mem,key_file_size,0)]);
-	K_ROTATELEFT = parse_key_string(&file_mem[get_string_occurance("#K_ROTATELEFT",file_mem,key_file_size,0)]);
-	K_ROTATERIGHT = parse_key_string(&file_mem[get_string_occurance("#K_ROTATERIGHT",file_mem,key_file_size,0)]);
-	K_FROTATELEFT = parse_key_string(&file_mem[get_string_occurance("#K_FROTATELEFT",file_mem,key_file_size,0)]);
-	K_FROTATERIGHT = parse_key_string(&file_mem[get_string_occurance("#K_FROTATERIGHT",file_mem,key_file_size,0)]);
-	K_BROWSER = parse_key_string(&file_mem[get_string_occurance("#K_BROWSER",file_mem,key_file_size,0)]);
-	K_ESCAPE = parse_key_string(&file_mem[get_string_occurance("#K_ESCAPE",file_mem,key_file_size,0)]);
-	K_CONSOLE = parse_key_string(&file_mem[get_string_occurance("#K_CONSOLE",file_mem,key_file_size,0)]);
-	K_SHADOWS = parse_key_string(&file_mem[get_string_occurance("#K_SHADOWS",file_mem,key_file_size,0)]);
-	K_KNOWLEDGE = parse_key_string(&file_mem[get_string_occurance("#K_KNOWLEDGE",file_mem,key_file_size,0)]);
-	K_ENCYCLOPEDIA = parse_key_string(&file_mem[get_string_occurance("#K_ENCYCLOPEDIA",file_mem,key_file_size,0)]);
+	if((t=get_string_occurance("#K_CAMERAUP",file_mem,key_file_size,0))!=-1)
+		K_CAMERAUP = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_CAMERADOWN",file_mem,key_file_size,0))!=-1)
+		K_CAMERADOWN = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ZOOMOUT",file_mem,key_file_size,0))!=-1)
+		K_ZOOMOUT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ZOOMIN",file_mem,key_file_size,0))!=-1)
+		K_ZOOMIN = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_TURNLEFT",file_mem,key_file_size,0))!=-1)
+		K_TURNLEFT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_TURNRIGHT",file_mem,key_file_size,0))!=-1)
+		K_TURNRIGHT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ADVANCE",file_mem,key_file_size,0))!=-1)
+		K_ADVANCE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_HEALTHBAR",file_mem,key_file_size,0))!=-1)
+		K_HEALTHBAR = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_VIEWNAMES",file_mem,key_file_size,0))!=-1)
+		K_VIEWNAMES = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_STATS",file_mem,key_file_size,0))!=-1)
+		K_STATS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_WALK",file_mem,key_file_size,0))!=-1)
+		K_WALK = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_LOOK",file_mem,key_file_size,0))!=-1)
+		K_LOOK = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_USE",file_mem,key_file_size,0))!=-1)
+		K_USE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_OPTIONS",file_mem,key_file_size,0))!=-1)
+		K_OPTIONS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_REPEATSPELL",file_mem,key_file_size,0))!=-1)
+		K_REPEATSPELL = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SIGILS",file_mem,key_file_size,0))!=-1)
+		K_SIGILS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_MANUFACTURE",file_mem,key_file_size,0))!=-1)
+		K_MANUFACTURE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEMS",file_mem,key_file_size,0))!=-1)
+		K_ITEMS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_MAP",file_mem,key_file_size,0))!=-1)
+		K_MAP = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ROTATELEFT",file_mem,key_file_size,0))!=-1)
+		K_ROTATELEFT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ROTATERIGHT",file_mem,key_file_size,0))!=-1)
+		K_ROTATERIGHT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_FROTATELEFT",file_mem,key_file_size,0))!=-1)
+		K_FROTATELEFT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_FROTATERIGHT",file_mem,key_file_size,0))!=-1)
+		K_FROTATERIGHT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_BROWSER",file_mem,key_file_size,0))!=-1)
+		K_BROWSER = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ESCAPE",file_mem,key_file_size,0))!=-1)
+		K_ESCAPE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_CONSOLE",file_mem,key_file_size,0))!=-1)
+		K_CONSOLE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SHADOWS",file_mem,key_file_size,0))!=-1)
+		K_SHADOWS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_KNOWLEDGE",file_mem,key_file_size,0))!=-1)
+		K_KNOWLEDGE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ENCYCLOPEDIA",file_mem,key_file_size,0))!=-1)
+		K_ENCYCLOPEDIA = parse_key_string(&file_mem[t]);
 
 }
 
@@ -634,149 +657,149 @@ Uint16 get_key_code(char *key)
 	{
 		Uint32 crc=CRC32(key,len);
 		switch(crc){
-			case 1094861778: //UP
+			case 0x414243d2: //UP
 				return 273;
-			case 2342280242: //F1
+			case 0x8b9c5c32: //F1
 				return 282;
-			case 2262792939: //F2
+			case 0x86df7aeb: //F2
 				return 283;
-			case 2183030620: //F3
+			case 0x821e675c: //F3
 				return 284;
-			case 2623092569: //F4
+			case 0x9c593759: //F4
 				return 285;
-			case 2560109294: //F5
+			case 0x98982aee: //F5
 				return 286;
-			case 2514160695: //F6
+			case 0x95db0c37: //F6
 				return 287;
-			case 2434404736: //F7
+			case 0x911a1180: //F7
 				return 288;
-			case 2840964157: //F8
+			case 0xa955ac3d: //F8
 				return 289;
-			case 2912203146: //F9
+			case 0xad94b18a: //F9
 				return 290;
-			case 3151901780: //F10
+			case 0xbbde3454: //F10
 				return 291;
-			case 3206490595: //F11
+			case 0xbf1f29e3: //F11
 				return 292;
-			case 2992377658: //F12
+			case 0xb25c0f3a: //F12
 				return 293;
-			case 3063747213: //F13
+			case 0xb69d128d: //F13
 				return 294;
-			case 2832876168: //F14
+			case 0xa8da4288: //F14
 				return 295;
-			case 2887475007: //F15
+			case 0xac1b5f3f: //F15
 				return 296;
-			case 3853726383: //BACKSPACE
+			case 0xe5b332af: //BACKSPACE
 				return 8;
-			case 1030177498: //TAB
+			case 0x3d6742da: //TAB
 				return 9;
-			case 3841266382: //CLEAR
+			case 0xe4f512ce: //CLEAR
 				return 12;
-			case 240935983: //RETURN
+			case 0xe5c642f: //RETURN
 				return 13;
-			case 440253684: //PAUSE
+			case 0x1a3dbcf4: //PAUSE
 				return 19;
-			case 2990420527: //ESCAPE
+			case 0xb23e322f: //ESCAPE
 				return 27;
-			case 3773448712: //SPACE
+			case 0xe0ea4208: //SPACE
 				return 32;
-			case 1057261590: //DELETE
+			case 0x3f048816: //DELETE
 				return 127;
-			case 6149441: //KP0
+			case 0x5dd541: //KP0
 				return 256;
-			case 77383926: //KP1
+			case 0x49cc8f6: //KP1
 				return 257;
-			case 165670447: //KP2
+			case 0x9dfee2f: //KP2
 				return 258;
-			case 220132248: //KP3
+			case 0xd1ef398: //KP3
 				return 259;
-			case 324641693: //KP4
+			case 0x1359a39d: //KP4
 				return 260;
-			case 395886122: //KP5
+			case 0x1798be2a: //KP5
 				return 261;
-			case 450599155: //KP6
+			case 0x1adb98f3: //KP6
 				return 262;
-			case 505054532: //KP7
+			case 0x1e1a8544: //KP7
 				return 263;
-			case 643119353: //KP8
+			case 0x265538f9: //KP8
 				return 264;
-			case 580134222: //KP9
+			case 0x2294254e: //KP9
 				return 265;
-			case 3379041891: //KP_PERIOD
+			case 0xc9681663: //KP_PERIOD
 				return 266;
-			case 4060291074: //KP_DIVIDE
+			case 0xf2032002: //KP_DIVIDE
 				return 267;
-			case 3332149623: //KP_MULTIPLY
+			case 0xc69c9177: //KP_MULTIPLY
 				return 268;
-			case 3764009845: //KP_MINUS
+			case 0xe05a3b75: //KP_MINUS
 				return 269;
-			case 2048191968: //KP_PLUS
+			case 0x7a14ede0: //KP_PLUS
 				return 270;
-			case 3110056442: //KP_ENTER
+			case 0xb95fb1fa: //KP_ENTER
 				return 271;
-			case 2575116214: //KP_EQUALS
+			case 0x997d27b6: //KP_EQUALS
 				return 272;
-			case 1093433498: //DOWN
+			case 0x412c789a: //DOWN
 				return 274;
-			case 3486792655: //RIGHT
+			case 0xcfd43bcf: //RIGHT
 				return 275;
-			case 341936847: //LEFT
+			case 0x14618acf: //LEFT
 				return 276;
-			case 3024635516: //INSERT
+			case 0xb448467c: //INSERT
 				return 277;
-			case 3583189434: //HOME
+			case 0xd59321ba: //HOME
 				return 278;
-			case 2251577015: //END
+			case 0x863456b7: //END
 				return 279;
-			case 3577851873: //PAGEUP
+			case 0xd541afe1: //PAGEUP
 				return 280;
-			case 2007317601: //PAGEDOWN
+			case 0x77a53c61: //PAGEDOWN
 				return 281;
-			case 2237915092: //NUMLOCK
+			case 0x8563dfd4: //NUMLOCK
 				return 300;
-			case 1264590309: //CAPSLOCK
+			case 0x4b601de5: //CAPSLOCK
 				return 301;
-			case 8086575: //SCROLLOCK
+			case 0x7b642f: //SCROLLOCK
 				return 302;
-			case 1873311326: //RSHIFT 
+			case 0x6fa8765e: //RSHIFT 
 				return 303;
-			case 1515845817: //LSHIFT
+			case 0x5a59f8b9: //LSHIFT
 				return 304;
-			case 3308635747: //RCTRL
+			case 0xc535c663: //RCTRL
 				return 305;
-			case 3051389936: //LCTRL
+			case 0xb5e083f0: //LCTRL
 				return 306;
-			case 4154995963: //RALT
+			case 0xf7a834fb: //RALT
 				return 307;
-			case 968484238: //LALT
+			case 0x39b9e58e: //LALT
 				return 308;
-			case 880371511: //RMETA
+			case 0x34796737: //RMETA
 				return 309;
-			case 1152131748: //LMETA
+			case 0x44ac22a4: //LMETA
 				return 310;
-			case 2395310348: //LSUPER
+			case 0x8ec5890c: //LSUPER
 				return 311;
-			case 3140749291: //RSUPER
+			case 0xbb3407eb: //RSUPER
 				return 312;
-			case 760903046: //MODE
+			case 0x2d5a7586: //MODE
 				return 313;
-			case 2266237026: //COMPOSE
+			case 0x87140862: //COMPOSE
 				return 314;
-			case 1361734987: //HELP
+			case 0x512a6d4b: //HELP
 				return 315;
-			case 3699884958: //PRINT
+			case 0xdc87c39e: //PRINT
 				return 316;
-			case 3186809220: //SYSREQ
+			case 0xbdf2d984: //SYSREQ
 				return 317;
-			case 221351753: //BREAK
+			case 0xd318f49: //BREAK
 				return 318;
-			case 1183141533: //MENU
+			case 0x46854e9d: //MENU
 				return 319;
-			case 2270738156: //POWER
+			case 0x8758b6ec: //POWER
 				return 320;
-			case 507767465: //EURO
+			case 0x1e43eaa9: //EURO
 				return 321;
-			case 234273406: //UNDO
+			case 0xdf6ba7e: //UNDO
 				return 322;
 			default:
 				return 0;
