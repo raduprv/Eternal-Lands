@@ -363,6 +363,10 @@ void read_bin_cfg()
 	encyclopedia_menu_x=cfg_mem.encyclopedia_menu_x;
 	encyclopedia_menu_y=cfg_mem.encyclopedia_menu_y;
 
+	watch_this_stat=cfg_mem.watch_this_stat;
+	if(watch_this_stat<0 || watch_this_stat>10)//change later on, if when add more skills to watch
+	watch_this_stat=0;
+
 	cx=cfg_mem.camera_x;
 	cy=cfg_mem.camera_y;
 	cz=cfg_mem.camera_z;
@@ -416,6 +420,7 @@ void save_bin_cfg()
 
 	cfg_mem.encyclopedia_menu_x=encyclopedia_menu_x;
 	cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
+	cfg_mem.watch_this_stat=watch_this_stat;
 
 	cfg_mem.camera_x=cx;
 	cfg_mem.camera_y=cy;
@@ -523,6 +528,7 @@ void init_stuff()
 	clear_thunders();
 	build_rain_table();
 	read_bin_cfg();
+	build_levels_table();//for some HUD stuff
 
 	if(!no_sound)init_sound();
 

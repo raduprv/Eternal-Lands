@@ -40,14 +40,18 @@ typedef struct
 
 	int encyclopedia_menu_x;
 	int encyclopedia_menu_y;
+	int watch_this_stat;
 
-	int reserved[20];
+	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
+	int reserved[19];
 
 	float camera_x;
 	float camera_y;
 	float camera_z;
 	float zoom_level;
 	float camera_angle;
+
+	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
 	float freserved[20];
 
 }bin_cfg;
