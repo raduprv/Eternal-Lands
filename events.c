@@ -446,7 +446,9 @@ int HandleEvent(SDL_Event *event)
 								input_text_line[input_text_lenght]=0;
 								if((check_var(input_text_line+1,1))<0) send_input_text_line();
 							}
-						else if(*input_text_line=='#' || interface_mode==interface_console) test_for_console_command();
+						//changed to prevent accidentally trigger # commands, thats why they have a #!
+						//else if(*input_text_line=='#' || interface_mode==interface_console) test_for_console_command();
+						else if(*input_text_line=='#') test_for_console_command();
 						else send_input_text_line();
 						//also clear the buffer
 						input_text_lenght=0;
