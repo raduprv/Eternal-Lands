@@ -470,11 +470,29 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 	int i, j;
 	int file_name_lenght;
 	int texture_id;
+	int texture_slot= -1;
 
 	file_name_lenght=strlen(file_name);
 
 	for(i=0;i<1000;i++)
 		{
+			if(texture_cache[i].file_name[0])
+				{
+					if(!strcasecmp(texture_cache[i].file_name, file_name))
+						{
+							// already loaded, use existing texture
+							return i;
+						}
+				}
+			else
+				{
+					// remember the first open slot we have
+					if(texture_slot < 0)
+						{
+							texture_slot= i;
+						}
+				}
+			/*
 			j=0;
 			while(j<file_name_lenght)
 				{
@@ -483,6 +501,7 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 				}
 			if(file_name_lenght==j)//ok, texture already loaded
 				return i;
+			*/
 		}
 //#endif	//CACHE_SYSTEN
 
@@ -493,27 +512,29 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 		texture_id=load_bmp8_fixed_alpha(file_name, alpha);
 	check_gl_errors();
 	if(texture_id==0)
-        {
-            char str[120];
-            sprintf(str,"Error: Problems loading texture: %s\n",file_name);
-            log_error(str);
-            return 0;
-        }
-	//find a place to store it
-	i=0;
-	while(i<1000)
 		{
-			if(!texture_cache[i].file_name[0])//we found a place to store it
+			char str[120];
+			sprintf(str,"Error: Problems loading texture: %s\n",file_name);
+			log_error(str);
+			return 0;
+		}
+	//find a place to store it
+	//i=0;
+	//while(i<1000)
+	if(texture_slot >= 0)
+		{
+			if(!texture_cache[texture_slot].file_name[0])//we found a place to store it
 				{
-					sprintf(texture_cache[i].file_name, "%s", file_name);
-					texture_cache[i].texture_id=texture_id;
-					texture_cache[i].alpha=alpha;
-					return i;
+					sprintf(texture_cache[texture_slot].file_name, "%s", file_name);
+					texture_cache[texture_slot].texture_id=texture_id;
+					texture_cache[texture_slot].alpha=alpha;
+					return texture_slot;
 				}
-			i++;
+			//i++;
 		}
 
-	return texture_id;
+	log_error("Error: out of texture space\n");
+	return 0;	// ERROR!
 }
 
 
