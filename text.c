@@ -78,7 +78,6 @@ void send_input_text_line()
 
 int filter_or_ignore_text(unsigned char *text_to_add, int len)
 {
-	checkTimerStop(text_to_add, len);	// SMW - timer testing
 	//check if ignored
 	if(pre_check_if_ignored(text_to_add))return 0;
 	//parse for URLs
