@@ -185,6 +185,10 @@ void read_config()
 	save_ignores=get_integer_after_string("#save_ignores",file_mem,ini_file_size);
 	log_server=get_integer_after_string("#log_server",file_mem,ini_file_size);
 	no_sound=get_integer_after_string("#no_sound",file_mem,ini_file_size);
+	sound_gain=(float)get_integer_after_string("#sound_gain",file_mem,ini_file_size)/100.0f;
+	if(sound_gain<0)sound_gain=1.0f;
+	music_gain=(float)get_integer_after_string("#music_gain",file_mem,ini_file_size)/100.0f;
+	if(music_gain<0)music_gain=1.0f;
 	normal_camera_rotation_speed=get_float_after_string("#normal_camera_rotation_speed",file_mem,ini_file_size);
 	fine_camera_rotation_speed=get_float_after_string("#fine_camera_rotation_speed",file_mem,ini_file_size);
 	name_zoom=get_float_after_string("#name_text_size",file_mem,ini_file_size);

@@ -15,6 +15,9 @@ extern int sound_on;
 extern int music_on;
 extern int no_sound;
 
+extern ALfloat sound_gain;
+extern ALfloat music_gain;
+
 void stop_sound(int i);
 int add_sound_object(int sound_file,int x, int y,int positional,int loops);
 void update_position();

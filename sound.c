@@ -8,6 +8,9 @@ int sound_on=1;
 int music_on=1;
 int no_sound=0;
 
+ALfloat sound_gain=1.0f;
+ALfloat music_gain=1.0f;
+
 int used_sources = 0;
 
 char sound_files[max_buffers][30];
@@ -169,7 +172,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
     	}
 
 	alSourcef(sound_source[i], AL_PITCH, 1.0f);
-	alSourcef(sound_source[i], AL_GAIN, 1.0f);
+	alSourcef(sound_source[i], AL_GAIN, sound_gain);
 	alSourcei(sound_source[i], AL_BUFFER,get_loaded_buffer(sound_file));
 	alSourcefv(sound_source[i], AL_VELOCITY, sourceVel);
 	alSourcefv(sound_source[i], AL_POSITION, sourcePos);
@@ -476,7 +479,7 @@ void init_sound()
 	alListenerfv(AL_POSITION,listenerPos);
 	alListenerfv(AL_VELOCITY,listenerVel);
 	alListenerfv(AL_ORIENTATION,listenerOri);
-	alListenerf(AL_GAIN,0.9f);
+	alListenerf(AL_GAIN,1.0f);
 
 	//poison data
 	for(i=0;i<max_sources;i++)
@@ -495,6 +498,7 @@ void init_sound()
     alSource3f(music_source, AL_DIRECTION,       0.0, 0.0, 0.0);
     alSourcef (music_source, AL_ROLLOFF_FACTOR,  0.0          );
     alSourcei (music_source, AL_SOURCE_RELATIVE, AL_TRUE      );
+	alSourcef (music_source, AL_GAIN,            music_gain);
 #endif	//NO_MUSIC
 }
 
