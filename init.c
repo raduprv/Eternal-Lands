@@ -83,9 +83,9 @@ void read_config()
 	full_screen=get_integer_after_string("#full_screen",file_mem,MAX_INI_FILE);
 	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,MAX_INI_FILE);
 #ifdef	USE_VERTEXARRAYS
-	use_vertex_array=get_integer_after_string("use_vertex_array",file_mem,MAX_INI_FILE);
+	use_vertex_array=get_integer_after_string("#use_vertex_array",file_mem,MAX_INI_FILE);
 	if(use_vertex_array < 0) use_vertex_array=0;
-	else log_to_console(c_green2,"Vertex Arrays enabled (memory hog on!)...");
+	else if(use_vertex_array > 0) log_to_console(c_green2,"Vertex Arrays enabled (memory hog on!)...");
 #endif	//USE_VERTEXARRAYS
 	sit_lock=get_integer_after_string("#sit_lock",file_mem,MAX_INI_FILE);
 	if(sit_lock==-1)sit_lock=0;
