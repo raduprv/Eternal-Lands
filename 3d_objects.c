@@ -202,6 +202,7 @@ void draw_3d_object(object3d * object_id)
 									glBindTexture(GL_TEXTURE_2D, texture_id);
 									last_texture=texture_id;
 								}
+#ifdef	DEBUG
 							// a quick check for errors
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
 								{
@@ -211,6 +212,7 @@ void draw_3d_object(object3d * object_id)
 										array_order[i].start, array_order[i].count);
 									log_error(str);
 								}
+#endif	// DEBUG
 							if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 							if(have_compiled_vertex_array)glUnlockArraysEXT();
@@ -321,7 +323,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 		}
 
 
-	sprintf(our_object->file_name,"%s",file_name);
+	snprintf(our_object->file_name,80,"%s",file_name);
 	our_object->x_pos=x_pos;
 	our_object->y_pos=y_pos;
 	our_object->z_pos=z_pos;
