@@ -726,7 +726,14 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					get_actor_ptr_from_id( *((Uint16 *)(in_data+3)) ), in_data+5 );
 			}
 			break;
-			
+
+		case PING_REQUEST:
+			{
+				// just send the pack back as it is
+				my_tcp_send(my_socket,in_data,data_lenght);
+			}
+			break;
+
 		case BUDDY_EVENT:
 			{
 				if(in_data[3]==1)
