@@ -48,13 +48,13 @@ void get_world_x_y()
 	float x,y,x1,y1,a,t;
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
-	x=(float)((mouse_x)*2.8f*zoom_level/(window_width-hud_x))-(2.8*zoom_level/2.0f);
+	x=(float)((mouse_x)*2.0f*window_ratio*(float)zoom_level/(float)(window_width-hud_x))-(window_ratio*zoom_level);
 	y=(float)((window_height-hud_y-mouse_y)*2.0f*zoom_level/(window_height-hud_y))-(2.0*zoom_level/2.0f);
 
 	a=(rz)*3.1415926/180;
 	t=(rx)*3.1415926/180;
 
-	y=y/cos(t);
+	y=(float)y/(float)cos(t);
 
 	x1=x*cos(a)+y*sin(a);
 	y1=y*cos(a)-x*sin(a);
