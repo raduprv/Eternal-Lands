@@ -6,9 +6,7 @@ char input_text_line[257];
 int input_text_lenght=0;
 int input_text_lines=1;
 char display_text_buffer[max_display_text_buffer_lenght];
-#ifdef WINDOW_CHAT
 int nr_text_buffer_lines = 0;
-#endif
 
 int display_text_buffer_first=0;
 int display_text_buffer_last=0;
@@ -250,7 +248,10 @@ void put_char_in_buffer(unsigned char ch)
 
 void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len, int x_chars_limit)
 {
-	int i, tmp_chars_limit;
+	int i;
+#ifdef WINDOW_CHAT
+	int tmp_chars_limit;
+#endif
 	Uint8 cur_char;
 
 	check_chat_text_to_overtext( text_to_add, len );
@@ -568,7 +569,8 @@ int find_last_console_lines(int lines_no)
 
 int find_line_nr (int line)
 {
-	int i;
+	int i=-1;
+#ifdef WINDOW_CHAT
 	int line_count = nr_text_buffer_lines - line;
 	
 	for(i=display_text_buffer_last-2;i>=0;i--)
@@ -580,7 +582,7 @@ int find_line_nr (int line)
 					if(line_count<=0)break;
 				}
 		}
-
+#endif
 	return i+1;
 }
 
