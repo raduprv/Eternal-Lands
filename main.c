@@ -72,6 +72,7 @@ int start_rendering()
 	have_music=0;
 	SDL_WaitThread(music_thread,&done);
 	save_bin_cfg();
+	unload_questlog();
 	/* Destroy our GL context, etc. */
 	destroy_sound();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);

@@ -197,6 +197,16 @@ float colored_encyclopedia_icon_v_start=1.0f-(float)64/256;
 float colored_encyclopedia_icon_u_end=(float)63/256;
 float colored_encyclopedia_icon_v_end=1.0f-(float)95/256;
 
+float questlog_icon_u_start=(float)0/256;
+float questlog_icon_v_start=1.0f-(float)64/256;
+float questlog_icon_u_end=(float)31/256;
+float questlog_icon_v_end=1.0f-(float)95/256;
+
+float colored_questlog_icon_u_start=(float)32/256;
+float colored_questlog_icon_v_start=1.0f-(float)64/256;
+float colored_questlog_icon_u_end=(float)63/256;
+float colored_questlog_icon_v_end=1.0f-(float)95/256;
+
 int walk_icon_x_start;
 int walk_icon_x_end;
 int walk_icon_y_start;
@@ -281,6 +291,11 @@ int encyclopedia_icon_x_start;
 int encyclopedia_icon_x_end;
 int encyclopedia_icon_y_start;
 int encyclopedia_icon_y_end;
+
+int questlog_icon_x_start;
+int questlog_icon_x_end;
+int questlog_icon_y_start;
+int questlog_icon_y_end;
 
 //stat bars
 int health_bar_start_x;
@@ -378,7 +393,12 @@ void init_peace_icons()
 	encyclopedia_icon_y_start=window_height-32;
 	encyclopedia_icon_y_end=encyclopedia_icon_y_start+31;
 
-	options_icon_x_start=encyclopedia_icon_x_end+1;
+	questlog_icon_x_start=encyclopedia_icon_x_end+1;
+	questlog_icon_x_end=questlog_icon_x_start+31;
+	questlog_icon_y_start=window_height-32;
+	questlog_icon_y_end=questlog_icon_y_start+31;
+
+	options_icon_x_start=questlog_icon_x_end+1;
 	options_icon_x_end=options_icon_x_start+31;
 	options_icon_y_start=window_height-32;
 	options_icon_y_end=options_icon_y_start+31;
@@ -499,6 +519,14 @@ void draw_peace_icons()
 	else
 		draw_2d_thing(encyclopedia_icon_u_start, encyclopedia_icon_v_start, encyclopedia_icon_u_end, encyclopedia_icon_v_end,
 					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
+	
+	if(view_questlog || (mouse_x>questlog_icon_x_start && mouse_y>questlog_icon_y_start && mouse_x<questlog_icon_x_end && mouse_y<questlog_icon_y_end))
+		draw_2d_thing(colored_questlog_icon_u_start, colored_questlog_icon_v_start, colored_questlog_icon_u_end, colored_questlog_icon_v_end,
+					  questlog_icon_x_start, questlog_icon_y_start, questlog_icon_x_end, questlog_icon_y_end);
+	else
+		draw_2d_thing(questlog_icon_u_start, questlog_icon_v_start, questlog_icon_u_end, questlog_icon_v_end,
+					  questlog_icon_x_start, questlog_icon_y_start, questlog_icon_x_end, questlog_icon_y_end);
+
 
 	if(options_menu || (mouse_x>options_icon_x_start && mouse_y>options_icon_y_start && mouse_x<options_icon_x_end && mouse_y<options_icon_y_end))
 		draw_2d_thing(colored_options_icon_u_start, colored_options_icon_v_start, colored_options_icon_u_end, colored_options_icon_v_end,
@@ -603,6 +631,11 @@ int check_peace_icons()
 			mouse_x<encyclopedia_icon_x_end && mouse_y<encyclopedia_icon_y_end)
 		{
 			view_encyclopedia=!view_encyclopedia;
+		}
+	else if(mouse_x>questlog_icon_x_start && mouse_y>questlog_icon_y_start &&
+			mouse_x<questlog_icon_x_end && mouse_y<questlog_icon_y_end)
+		{
+			view_questlog=!view_questlog;
 		}
 	return 1;
 }

@@ -377,6 +377,9 @@ void read_bin_cfg()
 
 	encyclopedia_menu_x=cfg_mem.encyclopedia_menu_x;
 	encyclopedia_menu_y=cfg_mem.encyclopedia_menu_y;
+	
+	questlog_menu_x=cfg_mem.questlog_menu_x;
+	questlog_menu_y=cfg_mem.questlog_menu_y;
 
 	watch_this_stat=cfg_mem.watch_this_stat;
 	if(watch_this_stat<0 || watch_this_stat>10)//change later on, if when add more skills to watch
@@ -435,6 +438,10 @@ void save_bin_cfg()
 
 	cfg_mem.encyclopedia_menu_x=encyclopedia_menu_x;
 	cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
+
+	cfg_mem.questlog_menu_x=questlog_menu_x;
+	cfg_mem.questlog_menu_y=questlog_menu_y;
+
 	cfg_mem.watch_this_stat=watch_this_stat;
 
 	cfg_mem.camera_x=cx;
@@ -603,6 +610,7 @@ void init_stuff()
 
 	ReadXML("Encyclopedia/index.xml");
 	read_key_config();
+	load_questlog();
 	//we might want to do this later.
 	connect_to_server();
 }

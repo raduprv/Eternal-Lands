@@ -40,6 +40,10 @@ typedef struct
 
 	int encyclopedia_menu_x;
 	int encyclopedia_menu_y;
+
+	int questlog_menu_x;
+	int questlog_menu_y;
+
 	int watch_this_stat;
 
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!

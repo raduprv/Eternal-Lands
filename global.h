@@ -37,6 +37,7 @@
 
 #include "cache.h"
 #include "encyclopedia.h"
+#include "questlog.h"
 #include "buddy.h"
 #include "knowledge.h"
 #include "elc_private.h"

@@ -248,6 +248,10 @@ SOURCE=.\pathfinder.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\questlog.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\reflection.c
 # End Source File
 # Begin Source File
@@ -453,6 +457,10 @@ SOURCE=.\paste.h
 # Begin Source File
 
 SOURCE=.\pathfinder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\questlog.h
 # End Source File
 # Begin Source File
 
