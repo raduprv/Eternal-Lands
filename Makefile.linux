@@ -6,6 +6,7 @@ OPTIONS=-DLINUX -DELC
 #-DTIMER_CHECK
 #-DWRITE_XML
 #-DBOOK
+#-DWINDOW_CHAT
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
@@ -19,7 +20,7 @@ STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a
 # the objects we need
 OBJS=2d_objects.o 3d_objects.o	\
 	actor_scripts.o actors.o asc.o buddy.o \
-	cache.o colors.o console.o cursors.o	\
+	cache.o chat.o colors.o console.o cursors.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o frustum.o	\

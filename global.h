@@ -103,6 +103,9 @@
 #include "sector.h"
 #include "help.h"
 #include "tabs.h"
+#ifdef WINDOW_CHAT
+#include "chat.h"
+#endif
 #ifdef BOOK
 #include "books.h"
 #endif

@@ -404,7 +404,10 @@ void init_vars()
 	add_var(STRING,"browser","b",broswer_name,change_string,70);
 	
 	add_var(BOOL,"use_tabbed_windows","tabs",&use_tabbed_windows,change_var,0);
+#ifdef WINDOW_CHAT
+	add_var(BOOL,"windowed_chat", "winchat", &use_windowed_chat, change_var, 0);
 #endif
+#endif // def ELC
 	//Global vars...
 	add_var(STRING,"data_dir","dir",datadir,change_string,90);//Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4);

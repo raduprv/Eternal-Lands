@@ -647,6 +647,11 @@ void init_stuff()
 		interface_mode=interface_opening;
 		connect_to_server();
 	}
+
+#ifdef WINDOW_CHAT	
+	// initialize the chat window
+	if (use_windowed_chat) display_chat ();
+#endif
 }
 
 void add_key(Uint32 *key,Uint32 n)

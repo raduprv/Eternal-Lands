@@ -6,6 +6,9 @@ char input_text_line[257];
 int input_text_lenght=0;
 int input_text_lines=1;
 char display_text_buffer[max_display_text_buffer_lenght];
+#ifdef WINDOW_CHAT
+int nr_text_buffer_lines = 0;
+#endif
 
 int display_text_buffer_first=0;
 int display_text_buffer_last=0;
@@ -245,14 +248,13 @@ void put_char_in_buffer(unsigned char ch)
 }
 
 
-void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len, 
-								int x_chars_limit)
+void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len, int x_chars_limit)
 {
-	int i;
+	int i, tmp_chars_limit;
 	Uint8 cur_char;
 
 	check_chat_text_to_overtext( text_to_add, len );
-
+	
 	// check for auto-length
 	if(len<0)len=strlen(text_to_add);
 	//set the time when we got this line
@@ -261,9 +263,17 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 	//watch for the end of buffer!
 	while(display_text_buffer_last+len+8 >= max_display_text_buffer_lenght)
 		{
+#ifdef WINDOW_CHAT
+			// First update the nr of lines in the current buffer
+			for (i = 0; i < 1024; i++)
+				if (display_text_buffer[i] == '\n') nr_text_buffer_lines--;
+#endif
+			// Now remove the first 1k characters
 			memmove(display_text_buffer, display_text_buffer+1024, display_text_buffer_last-1024);
 			display_text_buffer_last-=1024;
 			display_text_buffer_first-=1024;
+			// XXX FIXME (Grum): Heh? display_console_text_buffer_first isn't changed at all here.
+			// Have to check it.
 			if(display_console_text_buffer_first<0)
 				{
 					display_console_text_buffer_first=0;
@@ -278,7 +288,16 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 		}
 
 	//see if the text fits on the screen
+#ifdef WINDOW_CHAT
+	// argh, if the value that's passed is larger than our screen 
+	// width, it will happily write outside the window. Override in
+	// this case. 
+	tmp_chars_limit = (int) ((use_windowed_chat ? CHAT_WIN_TEXT_WIDTH : (window_width-hud_x)) / (11.0f * chat_zoom));
+	if(x_chars_limit == 0 || x_chars_limit> tmp_chars_limit)
+		x_chars_limit = tmp_chars_limit;
+#else
 	if(!x_chars_limit)x_chars_limit=(window_width-hud_x)/11;
+#endif
 	if(len<=x_chars_limit)
 		{
 			for(i=0;i<len;i++)
@@ -292,10 +311,16 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 						}
 
 					display_text_buffer[i+display_text_buffer_last]=cur_char;
+#ifdef WINDOW_CHAT
+					if (cur_char == '\n') nr_text_buffer_lines++;
+#endif
 				}
 			display_text_buffer[display_text_buffer_last+i]='\n';
 			display_text_buffer[display_text_buffer_last+i+1]=0;
 			display_text_buffer_last+=i+1;
+#ifdef WINDOW_CHAT
+			nr_text_buffer_lines++;
+#endif
 		}
 	else//we have to add new lines to our text...
 		{
@@ -356,6 +381,9 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 							j++;
 							semaphore=0;
 							if(lines_to_show<max_lines_no)lines_to_show++;
+#ifdef WINDOW_CHAT
+							nr_text_buffer_lines++;
+#endif
 						}
 					//don't add another new line, if the current char is already a new line...
 					if(cur_char!='\n')
@@ -368,7 +396,14 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 			display_text_buffer[display_text_buffer_last+j]='\n';
 			display_text_buffer[display_text_buffer_last+j+1]=0;
 			display_text_buffer_last+=j+1;
+#ifdef WINDOW_CHAT
+			nr_text_buffer_lines++;
+#endif			
 		}
+
+#ifdef WINDOW_CHAT
+	if (use_windowed_chat) update_chat_scrollbar ();
+#endif
 }
 
 void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, 
@@ -491,7 +526,7 @@ int find_last_lines_time()
 	int i;
 	int line_count=0;
 
-	//adjust the lines_no according to the time elapsed since the last message
+	// adjust the lines_no according to the time elapsed since the last message
 	if(((cur_time-last_server_message_time)/1000)>3)
 		{
 			if(lines_to_show>0)lines_to_show--;
@@ -531,17 +566,39 @@ int find_last_console_lines(int lines_no)
 	return 1;
 }
 
+int find_line_nr (int line)
+{
+	int i;
+	int line_count = nr_text_buffer_lines - line;
+	
+	for(i=display_text_buffer_last-2;i>=0;i--)
+		{
+			//parse the text backwards, until we meet the 10'th \n
+			if(display_text_buffer[i]=='\n')
+				{
+					line_count--;
+					if(line_count<=0)break;
+				}
+		}
+
+	return i+1;
+}
+
 void console_move_up()
 {
 	int i;
-	int total_lines_no=0;
 	int max_lines;
+#ifdef WINDOW_CHAT
+	int total_lines_no=nr_text_buffer_lines;
+#else
+	int total_lines_no=0;
 
 	//get the total number of lines
 	for(i=0;i<display_text_buffer_last;i++)
 		{
 			if(display_text_buffer[i]=='\n')total_lines_no++;
 		}
+#endif
 
 	//get the number of lines we have - the last one, which is the command line
 	max_lines=(window_height-hud_y)/18-1;
@@ -635,4 +692,5 @@ void display_console_text()
 											"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^",2);
 	draw_string(0,command_line_y,input_text_line,input_text_lines);
 }
+
 

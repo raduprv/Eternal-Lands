@@ -807,6 +807,21 @@ int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc);
 
 /*!
  * \ingroup	scrollbars
+ * \brief 	Sets the position of the vertical scrollbar
+ *
+ * 		Finds the vertical scrollbar widget and sets the position.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The unique widget ID
+ * \param   	pos The new position
+ * \retval int  	Returns 1 on succes, 0 on failure (if the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int vscrollbar_set_pos(Uint32 window_id, Uint32 widget_id, int pos);
+
+/*!
+ * \ingroup	scrollbars
  * \brief 	Sets the logical length of vertical scrollbar
  *
  * 		Finds the vertical scrollbar widget and sets its logical bar length.
