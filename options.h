@@ -33,6 +33,8 @@ void add_option(int type, char * name, char * desc, void * func, int * data_1, i
 void change_option(int * data_1, int * data_2);
 void move_to_full_screen(int  * unused, int * unused2);
 void switch_video_modes(int * unused, int * mode);
+void change_sound(int  * unused, int * unused2);
+void change_music(int  * unused, int * unused2);
 
 #define NONE 0		//0000b
 #define OPTION 1	//0001b

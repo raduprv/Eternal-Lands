@@ -62,8 +62,8 @@ void init_display_options_menu()
 	add_option(OPTION,"Show FPS","Show the current framerate in upper left corner",change_option,&always_true,&show_fps,0);
 	add_option(OPTION,"Sit Lock","Locks you in a sitting position untill you press the \"Stand\" button or rightclicks to move.",change_option,&always_true,&sit_lock,0);
 	add_option(OPTION,"Filter CAPS","Turns on/off a filter for capitaled letters",change_option,&always_true,&caps_filter,0);
-	add_option(OPTION,"Sound","Turns on/off sound effects",change_option,&have_sound,&sound_on,0);
-	add_option(OPTION,"Music","Turns on/off in-game music",change_option,&have_music,&music_on,0);
+	add_option(OPTION,"Sound","Turns on/off sound effects",change_sound,&have_sound,&sound_on,0);
+	add_option(OPTION,"Music","Turns on/off in-game music",change_music,&have_music,&music_on,0);
 	add_option(OPTION,"Auto camera","Automatically change the camera according to the actor position",change_option,&always_true,&auto_camera,0);
 	add_option(NONE,NULL,NULL,NULL,NULL,NULL,0);//A hole :0)
 	add_option(OPTION,"Exit","Exits the game",change_option,&always_true,&exit_now,0);
@@ -116,6 +116,18 @@ void move_to_full_screen(int * unused, int * unused2) { toggle_full_screen(); }
 void switch_video_modes(int * unused, int * mode)
 {
 	if(video_mode!=*mode) set_new_video_mode(full_screen,*mode);
+}
+void change_sound(int * unused, int * unused2) {
+	if(sound_on)
+		turn_sound_off();
+	else
+		turn_sound_on();
+}
+void change_music(int * unused, int * unused2) {
+	if(music_on)
+		turn_music_off();
+	else
+		turn_music_on();
 }
 
 int display_options_handler(window_info *win)

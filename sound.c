@@ -63,7 +63,7 @@ void get_map_playlist()
 
 	while(1)
 		{
-			fscanf(fp,"%d %d %d %d %s",&playlist[i].min_x,&playlist[i].min_y,&playlist[i].max_x,&playlist[i].max_y,playlist[i].file_name);
+			fscanf(fp,"%d %d %d %d %d %s",&playlist[i].min_x,&playlist[i].min_y,&playlist[i].max_x,&playlist[i].max_y,&playlist[i].time,playlist[i].file_name);
 			i++;
 			if(!fgets(strLine, 100, fp))break;
 		}
@@ -193,12 +193,15 @@ void play_music(int list) {
 			playlist[i].min_y=0;
 			playlist[i].max_x=10000;
 			playlist[i].max_y=10000;
+			playlist[i].time=2;
 			i++;
 			if(!fgets(strLine, 100, fp))break;
 		}
 	fclose(fp);
 	loop_list=0;
-	list_pos=-1;
+	list_pos=0;
+	alSourcef (music_source, AL_GAIN, music_gain);
+	play_ogg_file(playlist[list_pos].file_name);
 #endif	//NO_MUSIC
 }
 
@@ -315,7 +318,7 @@ void update_position()
 int update_music(void *dummy)
 {
 #ifndef	NO_MUSIC
-    int error,processed,state,state2,sleep;
+    int error,processed,state,state2,sleep,fade;
     char str[256];
    	sleep = SLEEP_TIME;
 	while(have_music)
@@ -323,12 +326,32 @@ int update_music(void *dummy)
 			SDL_Delay(sleep);
 			if(playing_music)
 				{
+					int day_time = (game_minute>=30 && game_minute<60*3+30);
 					int tx=-cx*2,ty=-cy*2;
+					if(fade) {
+						fade++;
+						if(fade > 6) {
+							int queued;
+							fade = 0;
+							playing_music = 0;
+							alSourceStop(music_source);
+							alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
+							alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
+							while(queued-- > 0) {
+								ALuint buffer;
+								alSourceUnqueueBuffers(music_source, 1, &buffer);
+							}
+						}
+						alSourcef(music_source, AL_GAIN, music_gain-((float)fade*(music_gain/6)));
+						continue;
+					}
 					if(tx < playlist[list_pos].min_x ||
 					   tx > playlist[list_pos].max_x ||
 					   ty < playlist[list_pos].min_y ||
-					   ty > playlist[list_pos].max_y) {
-						playing_music = 0;
+					   ty > playlist[list_pos].max_y ||
+					   (playlist[list_pos].time != 2 &&
+                        playlist[list_pos].time != day_time)) {
+						fade = 1;
 						continue;
 					}
 					alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
@@ -373,13 +396,17 @@ int update_music(void *dummy)
 				}
 			else if(music_on)
 				{
+					int day_time = (game_minute>=30 && game_minute<60*3+30);
 					int tx=-cx*2,ty=-cy*2;
 					if(playlist[list_pos+1].file_name[0]) {
 						list_pos++;
 						if(tx > playlist[list_pos].min_x &&
 						   tx < playlist[list_pos].max_x &&
 						   ty > playlist[list_pos].min_y &&
-						   ty < playlist[list_pos].max_y) {
+						   ty < playlist[list_pos].max_y &&
+                           (playlist[list_pos].time == 2 ||
+                            playlist[list_pos].time == day_time)) {
+							alSourcef (music_source, AL_GAIN, music_gain);
 							play_ogg_file(playlist[list_pos].file_name);
 						}
 					} else if(loop_list)
@@ -436,7 +463,7 @@ void stream_music(ALuint buffer) {
 //usefull when we change maps, etc.
 void kill_local_sounds()
 {
-	int error;
+	int error,queued,processed;
 	if(!have_sound || !used_sources)return;
 	lock_sound_list();
 	alSourceStopv(used_sources,sound_source);
@@ -451,6 +478,17 @@ void kill_local_sounds()
 	if(realloc_sources())
 		LogError("Failed to stop all sounds.");
 	unlock_sound_list();
+#ifndef	NO_MUSIC
+	if(!have_music)return;
+	playing_music = 0;
+	alSourceStop(music_source);
+	alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
+	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
+	while(queued-- > 0) {
+		ALuint buffer;
+		alSourceUnqueueBuffers(music_source, 1, &buffer);
+	}
+#endif	//NO_MUSIC
 }
 
 void turn_sound_off()

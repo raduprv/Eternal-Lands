@@ -13,6 +13,7 @@ typedef struct {
 	int max_x;
 	int min_y;
 	int max_y;
+	int time;
 } playlist_entry;
 
 extern int have_sound;
