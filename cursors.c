@@ -49,24 +49,21 @@ void load_cursors()
 							*(cursors_mem+(i+x)*2)=0;
 							*(cursors_mem+(i+x)*2+1)=0;
 						}
-					else
-						if(cur_color==1)//white
-							{
-								*(cursors_mem+(i+x)*2)=0;
-								*(cursors_mem+(i+x)*2+1)=1;
-							}
-						else
-							if(cur_color==2)//black
-								{
-									*(cursors_mem+(i+x)*2)=1;
-									*(cursors_mem+(i+x)*2+1)=1;
-								}
-							else
-								if(cur_color==3)//reverse
-									{
-										*(cursors_mem+(i+x)*2)=1;
-										*(cursors_mem+(i+x)*2+1)=0;
-									}
+					else if(cur_color==1)//white
+						{
+							*(cursors_mem+(i+x)*2)=0;
+							*(cursors_mem+(i+x)*2+1)=1;
+						}
+					else if(cur_color==2)//black
+						{
+							*(cursors_mem+(i+x)*2)=1;
+							*(cursors_mem+(i+x)*2+1)=1;
+						}
+					else if(cur_color==3)//reverse
+						{
+							*(cursors_mem+(i+x)*2)=1;
+							*(cursors_mem+(i+x)*2+1)=0;
+						}
 				}
 
 		}
@@ -208,6 +205,13 @@ void check_cursor_change()
 	if(object_under_mouse ==-1)
 		{
 			if(current_cursor!=CURSOR_WALK)change_cursor(CURSOR_WALK);
+			return;
+		}
+	if(view_ground_items && mouse_x<ground_items_menu_x+ground_items_menu_x_len
+	   && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y &&
+	   mouse_y<ground_items_menu_y+ground_items_menu_y_len)
+		{
+			if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
 			return;
 		}
 	if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])

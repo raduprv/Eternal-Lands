@@ -574,7 +574,6 @@ int check_peace_icons()
 		{
 			if(!view_my_items)
 				{
-					//Uint8 str[100];
 					if(view_trade_menu)
 						{
 							log_to_console(c_red2,"You can't view your inventory items while on trade.");
@@ -618,7 +617,7 @@ void draw_stats_display()
 
 int check_stats_display()
 {
-
+	return 0;
 }
 
 

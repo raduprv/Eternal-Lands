@@ -762,7 +762,7 @@ void remove_bag(int which_bag)
 
 int check_ground_items_interface()
 {
-	int x,y; //i unused?
+	int x,y;
 	int x_screen,y_screen;
 	Uint8 str[10];
 
@@ -781,13 +781,13 @@ int check_ground_items_interface()
 						pos=y*5+x;
 						if(!ground_item_list[pos].quantity)return 1;
 
-						if(action_mode==action_look || right_click)
+						if(/*action_mode==action_look ||*/ right_click)
 							{
 								str[0]=LOOK_AT_GROUND_ITEM;
 								str[1]=pos;
 								my_tcp_send(my_socket,str,2);
 							}
-						else if(action_mode==action_pick)
+						else /*if(action_mode==action_pick)*/
 							{
 								int quantity;
 								quantity=ground_item_list[pos].quantity;
