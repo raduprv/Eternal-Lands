@@ -1,6 +1,5 @@
-#include <GL/gl.h>
+#include "global.h"
 #include <cal3d/cal3d.h>
-#include <SDL.h>
 
 
 CalCoreModel testcore;
@@ -73,7 +72,6 @@ void init_cal3d_model() {
 	lasttick = SDL_GetTicks();
 }
 
-
 void render_cal3d_model()
 {
   // get the renderer of the model
@@ -83,6 +81,16 @@ void render_cal3d_model()
   // begin the rendering loop
   if(pCalRenderer->beginRendering())
   {
+    // set global OpenGL states
+    glEnable(GL_DEPTH_TEST);
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+
+    // we will use vertex arrays, so enable them
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+
     // get the number of meshes
     int meshCount;
     meshCount = pCalRenderer->getMeshCount();
@@ -151,6 +159,10 @@ void render_cal3d_model()
           // set the texture coordinate buffer and state if necessary
           if((pCalRenderer->getMapCount() > 0) && (textureCoordinateCount > 0))
           {
+            glEnable(GL_TEXTURE_2D);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glEnable(GL_COLOR_MATERIAL);
+
             // set the texture id we stored in the map user data
             glBindTexture(GL_TEXTURE_2D, (GLuint)pCalRenderer->getMapUserData(0));
 
@@ -160,21 +172,97 @@ void render_cal3d_model()
           }
 
           // draw the submesh
-
+		  
 		  if(sizeof(CalIndex)==2)
 			  glDrawElements(GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, &meshFaces[0][0]);
 		  else
 			  glDrawElements(GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_INT, &meshFaces[0][0]);
+          // disable the texture coordinate state if necessary
+          if((pCalRenderer->getMapCount() > 0) && (textureCoordinateCount > 0))
+          {
+            glDisable(GL_COLOR_MATERIAL);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            //glDisable(GL_TEXTURE_2D);
+          }
 
+          // adjust the vertex and face counter
+          //m_vertexCount += vertexCount;
+          //m_faceCount += faceCount;
 
-		}
+// DEBUG-CODE //////////////////////////////////////////////////////////////////
+
+glDisable(GL_LIGHTING);
+
+glBegin(GL_LINES);
+glColor3f(1.0f, 1.0f, 1.0f);
+int vertexId;
+for(vertexId = 0; vertexId < vertexCount; vertexId++)
+{
+const float scale = 0.3f;
+  glVertex3f(meshVertices[vertexId][0], meshVertices[vertexId][1], meshVertices[vertexId][2]);
+  glVertex3f(meshVertices[vertexId][0] + meshNormals[vertexId][0] * scale, meshVertices[vertexId][1] + meshNormals[vertexId][1] * scale, meshVertices[vertexId][2] + meshNormals[vertexId][2] * scale);
+}
+glEnd();
+
+glEnable(GL_LIGHTING);
+
+////////////////////////////////////////////////////////////////////////////////
+        }
       }
     }
+
+    // clear vertex array state
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    // clear light
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+    //glDisable(GL_DEPTH_TEST);
 
     // end the rendering
     pCalRenderer->endRendering();
   }
 
+// DEBUG-CODE //////////////////////////////////////////////////////////////////
+
+  // draw the bone lines
+  float lines[1024][2][3];
+  int nrLines;
+  nrLines =  testmodel.getSkeleton()->getBoneLines(&lines[0][0][0]);
+//  nrLines = m_calModel.getSkeleton()->getBoneLinesStatic(&lines[0][0][0]);
+
+  glLineWidth(3.0f);
+  glColor3f(1.0f, 1.0f, 1.0f);
+  glBegin(GL_LINES);
+    int currLine;
+    for(currLine = 0; currLine < nrLines; currLine++)
+    {
+      glVertex3f(lines[currLine][0][0], lines[currLine][0][1], lines[currLine][0][2]);
+      glVertex3f(lines[currLine][1][0], lines[currLine][1][1], lines[currLine][1][2]);
+    }
+  glEnd();
+  glLineWidth(1.0f);
+
+  // draw the bone points
+  float points[1024][3];
+  int nrPoints;
+  nrPoints =  testmodel.getSkeleton()->getBonePoints(&points[0][0]);
+//  nrPoints = m_calModel.getSkeleton()->getBonePointsStatic(&points[0][0]);
+
+  glPointSize(4.0f);
+  glBegin(GL_POINTS);
+    glColor3f(0.0f, 0.0f, 1.0f);
+    int currPoint;
+    for(currPoint = 0; currPoint < nrPoints; currPoint++)
+    {
+      glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
+    }
+
+  glEnd();
+  glPointSize(1.0f);
+
+////////////////////////////////////////////////////////////////////////////////
 }
 
 void update_cal3d_model()
