@@ -418,7 +418,7 @@ int check_trade_interface()
 
 								return 1;
 							}
-				}
+					}
 		}
 
 	//see if we clicked on any item in your trading objects category
@@ -435,7 +435,7 @@ int check_trade_interface()
 					if(your_trade_list[y*4+x].quantity)
 						{
 
-							if(action_mode==action_look)
+							if(action_mode==action_look || right_click)
 								{
 									str[0]=LOOK_AT_TRADE_ITEM;
 									str[1]=y*4+x;
@@ -451,7 +451,7 @@ int check_trade_interface()
 								}
 
 							return 1;
-							}
+						}
 				}
 		}
 
@@ -469,7 +469,7 @@ int check_trade_interface()
 					if(others_trade_list[y*4+x].quantity)
 						{
 
-							if(action_mode==action_look)
+							if(action_mode==action_look || right_click)
 								{
 									str[0]=LOOK_AT_TRADE_ITEM;
 									str[1]=y*4+x;
@@ -477,7 +477,7 @@ int check_trade_interface()
 									my_tcp_send(my_socket,str,3);
 								}
 							return 1;
-							}
+						}
 				}
 		}
 	return 1;
