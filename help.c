@@ -70,11 +70,23 @@ void build_help()
 	i++;
 
 	my_strcp(help_list[i].topic_name,"ignore");
-	my_strcp(help_list[i].topic_info,"\n[ignore] - Syntax:\"ignore name\". No quotemarks, of course. If you do that, you won't 'hear' any message from that player, whether public or private message. Depending on how the flag #save_ignores is set, the name will be added to the global_ignores.txt, which is loaded every time when you start the game, or not. Also, please not that you have to ignore the full name of that player, giving only the first few letters won't work as expected. Example: \"ignore Entropy\". If you try \"ignore entro\" instead, it won't work, it will ignore only the player entro. BTW, the ignore names are case insensitive. You can unignore players with the [unignore] command, and you can see a list of ignored people with the [ignores] command.");
+	my_strcp(help_list[i].topic_info,"\n[ignore] - Syntax: \"ignore name\". No quotemarks, of course. If you do that, you won't 'hear' any message from that player, whether public or private message. Depending on how the flag #save_ignores is set, the name will be added to the global_ignores.txt, which is loaded every time when you start the game, or not. Also, please not that you have to ignore the full name of that player, giving only the first few letters won't work as expected. Example: \"ignore Entropy\". If you try \"ignore entro\" instead, it won't work, it will ignore only the player entro. BTW, the ignore names are case insensitive. You can unignore players with the [unignore] command, and you can see a list of ignored people with the [ignores] command.");
 	i++;
 
 	my_strcp(help_list[i].topic_name,"unignore");
-	my_strcp(help_list[i].topic_info,"\n[unigonre] - Syntax: \"unignore name\". Causes that name to be removed from the ignore list. However, it will NOT remove that name from the local_ignores.txt, you have to do it manually.");
+	my_strcp(help_list[i].topic_info,"\n[unignore] - Syntax: \"unignore name\". Causes that name to be removed from the ignore list.");
+	i++;
+
+	my_strcp(help_list[i].topic_name,"filters");
+	my_strcp(help_list[i].topic_info,"\n[filters] - Display a list with the words that you are currently filtering.");
+	i++;
+
+	my_strcp(help_list[i].topic_name,"filter");
+	my_strcp(help_list[i].topic_info,"\n[filter] - Syntax: \"filter word\". No quotemarks, of course. When you filter a word, it will be replaced by the word specified by \"#text_filter_replace\" in your el.ini (\"smeg\" by default). You can unfilter words with the [unfilter] command, and you can see a list of filtered words with the [filters] command.");
+	i++;
+
+	my_strcp(help_list[i].topic_name,"unfilter");
+	my_strcp(help_list[i].topic_info,"\n[unfilter] - Syntax: \"unfilter word\". Causes that word to be removed from the filter list.");
 	i++;
 
 }
@@ -152,7 +164,7 @@ void display_help_topic(Uint8 *topic)
 				if(ch==']')ch=127+c_grey1;
 			str[i]=ch;
 		}
-	str[i+1]=0;
+	str[i]=0;
 	log_to_console(c_grey1,str);
 }
 
