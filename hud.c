@@ -1162,6 +1162,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 											str[1]=item_list[use_item].pos;
 											str[2]=item_list[i].pos;
 											my_tcp_send(my_socket,str,3);
+											use_item=-1;
 										}
 										else
 											use_item=i;

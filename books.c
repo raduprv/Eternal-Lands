@@ -12,7 +12,7 @@
 #define _IMAGE 3
 #define _IMAGE_TEXT 4
 
-struct _books *books=NULL;
+book * books=NULL;
 
 /*Memory handling etc.*/
 
@@ -53,7 +53,7 @@ book * create_book(char * title, int type, int id)
 	b->id=id;
 	strncpy(b->title, title, 34);
 	
-	add_book(b, &books);
+	add_book(b);
 	
 	return b;
 }
@@ -100,13 +100,12 @@ void free_book(book * b)
 	free(b);
 }
 
-void free_books(struct _books *b)
+void free_books()
 {
-	struct _books *bs=NULL;
-	for(;b;bs=b){
-		b=b->n;
-		free_book(bs->b);
-		free(bs);
+	book *b,*l=NULL;
+	for(b=books;b;l=b){
+		b=b->next;
+		free_book(l);
 	}
 }
 
@@ -114,39 +113,44 @@ void free_books(struct _books *b)
 
 int have_book(int id)
 {
-	struct _books *b;
-	for(b=books;b && b->b;b=b->n){
-		if(b->b->id==id) return 1;
+	book *b=books;
+	if(b){
+		for(;b->next;b=b->next){
+			if(b->id==id) return 1;
+		}
 	}
 	return 0;
 }
 
 book * get_book(int id)
 {
-	struct _books *b;
-	for(b=books;b && b->b;b=b->n){
-		if(b->b->id==id) return b->b;
+	book *b=books;
+	if(b){
+		for(;b->next;b=b->next){
+			if(b->id==id) return b;
+		}
 	}
 	return NULL;
 }
 
-void add_book(book *bs, struct _books **b)
+void add_book(book *bs)
 {
-	if(!*b) *b=(struct _books*)calloc(1,sizeof(struct _books));
-	for(;(*b)->b;*b=(*b)->n);
-	(*b)->b=bs;
-	(*b)->n=(struct _books*)calloc(1,sizeof(struct _books));
+	book *b=books;
+	if(b) {
+		for(;b->next;b=b->next);
+		b->next=bs;
+	} else books=bs;
 }
 
 /*Book parser*/
 
-void add_str_to_page(char * str, int type, book *b, page *p)
+page * add_str_to_page(char * str, int type, book *b, page *p)
 {
 	char ** lines=NULL;
 	char ** newlines=NULL;
 	int i;
 
-	if(!str) return;
+	if(!str) return NULL;
 	if(!p)p=add_page(b);
 	
 	newlines=get_lines(str, b->max_width);
@@ -184,6 +188,8 @@ void add_str_to_page(char * str, int type, book *b, page *p)
 		}
 	}
 	*lines=NULL;
+
+	return p;
 }
 
 char * wrap_line_around_image(char * line, int w, int x, int max_width, char * last)
@@ -216,26 +222,25 @@ char * wrap_line_around_image(char * line, int w, int x, int max_width, char * l
 	return last;
 }
 
-int add_image_to_page(char * in_text, _image *img, book * b, page * p)
+page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 {
 	char **line;
 	char *last_ptr;
 	int i=0,k;
 	int max_width=b->max_width;
 	int max_lines=b->max_lines;
-	int h;
-	int w;
-	int x;
+	int h, w, x, y;
 
-	if(!img||!b) return -1;
+	if(!img||!b) return NULL;
 	if(!p || p->image)p=add_page(b);
 
 	h=img->h/18+1;
+	y=img->y/18+1;
 	w=img->w/12+1;
 	x=img->x/12+1;
 
-	if(h>max_lines) return -1;
-
+	if(y+h>max_lines || w+x>max_width) return NULL;
+	
 	line=p->lines;
 
 	for(;line[i];i++);
@@ -263,10 +268,10 @@ int add_image_to_page(char * in_text, _image *img, book * b, page * p)
 			}
 		}
 
-		if(*last_ptr) add_str_to_page(last_ptr,_IMAGE_TEXT,b,p);
+		if(*last_ptr) p=add_str_to_page(last_ptr,_IMAGE_TEXT,b,p);
 	}
 
-	return 1;
+	return p;
 }
 
 /*XML-parser*/
@@ -301,8 +306,8 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 		my_xmlStrcpy(&text,cur->children->content);
 	}
 	
-	if(add_image_to_page(text, img, b, p)==-1) free(img);
-
+	if(add_image_to_page(text, img, b, p)==NULL) free(img);
+	
 	free(image_path);
 	if(text) free(text);
 }
@@ -414,8 +419,9 @@ void read_local_book(char * data, int len)
 	display_book_window(b);//Otherwise there's no point...
 }
 
-void add_image_from_server(char *data)
+page * add_image_from_server(char *data, book *b, page *p)
 {
+	return p;
 }
 
 void add_book_from_server(char * data, int len)
@@ -423,6 +429,7 @@ void add_book_from_server(char * data, int len)
 	char buffer[1024];
 	book *b;
 	page *p;
+	_image *i;
 	int l=*data++;//Title length
 	strncpy(buffer,data,l);
 	b=create_book(buffer,*(data+l),*((Uint16)*(data+l+1)));
@@ -436,7 +443,7 @@ void add_book_from_server(char * data, int len)
 				p=add_str_to_page(buffer,AUTHOR,b,p);
 				break;
 			case _IMAGE:
-				p=add_image_from_server(buffer);
+				p=add_image_from_server(buffer, b, p);
 		}
 	} while(len--);
 */}

@@ -85,6 +85,11 @@
  * 		About loading particles and the .part-format
  * \ingroup	load
  */
+/*!
+ * \defgroup	books Loading books
+ * 		About loading and parsing the book format in EL (implemented in XML)
+ * \ingroup	load
+ */
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,6 +196,16 @@
 /*!
  * \defgroup	network_magic Spells and magic
  * 		About the network-side implementation of spells and magic
+ * \ingroup	network
+ */
+/*!
+ * \defgroup	network_quests Quests
+ * 		About the network handling of quests and adding new entries to the quest-log.
+ * \ingroup	network
+ */
+/*!
+ * \defgroup	network_books Books and scrolls
+ * 		Covers the network-side implementation of books and scrolls
  * \ingroup	network
  */
 /*!
