@@ -22,6 +22,26 @@
  *		The functions used in EL's implementation of multiple languages support
  * \ingroup	init
  */
+/*!
+ * \defgroup	loadsave Loading/Saving settings
+ *		About the el.cfg file that has the saved settings.
+ * \ingroup	init
+ */
+/*!
+ * \defgroup	video Video initialization
+ *		About the video/GL initialization phase.
+ * \ingroup	init
+ */
+/*!
+ * \defgroup	hotkey Hotkeys
+ *		On how hotkeys are loaded and defined.
+ * \ingroup	init
+ */
+/*!
+ * \defgroup	other Other
+ * 		Various functions/files used for the init phase.
+ * \ingroup	init
+ */
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,6 +52,11 @@
  * 		About loading files and the file formats in the EL
  */
 /*!
+ * \defgroup	cache The cache system
+ * 		About the cache system used in EL
+ * \ingroup	load
+ */
+/*!
  * \defgroup 	load_2d Load 2D Objects
  * 		Functions used in loading 2D objects
  * \ingroup 	load
@@ -40,6 +65,21 @@
  * \defgroup 	load_3d Load 3D Objects
  * 		Functions used when loading 3D objects
  * \ingroup 	load
+ */
+/*!
+ * \defgroup	actors_load Loading actors and MD2s
+ *		Functions used when loading actors and MD2s
+ * \ingroup	load
+ */
+/*!
+ * \defgroup	maps Loading maps
+ * 		About loading the elm-maps and the map format.
+ * \ingroup	load
+ */
+/*!
+ * \defgroup	particles Particles
+ * 		About loading particles and the .part-format
+ * \ingroup	load
  */
 
 
@@ -65,6 +105,36 @@
  * 		Functions used in displaying actors
  * \ingroup 	display
  */
+/*!
+ * \defgroup	lights Lights
+ *		Displaying lights in EL
+ * \ingroup	display
+ */
+/*!
+ * \defgroup	shadows Shadows
+ *		On shadows and effects
+ * \ingroup	display
+ */
+/*!
+ * \defgroup	reflections Reflections
+ *		About reflections in EL
+ * \ingroup	display
+ */
+/*!
+ * \defgroup	tile The tiles
+ *		Handles displaying tiles and adding tile effects
+ * \ingroup	display
+ */
+/*!
+ * \defgroup	text_font Text and fonts
+ *		Covers the basics of the EL text and font implementation
+ * \ingroup	display
+ */
+/*!
+ * \defgroup	display_utils Utilities and misc.
+ * 		About the more basic functions useful when displaying
+ * \ingroup	display
+ */
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,8 +145,43 @@
  * 		The group contains information about the EL protocol and the network implementation in EL
  */
 /*!
+ * \defgroup	protocol Generic protocol information
+ *		Some general info about the protocol
+ * \ingroup	network
+ */
+/*!
+ * \defgroup	login Login and new characters
+ *		About the login-phase and the new characters
+ * \ingroup	network
+ */
+/*!
+ * \defgroup	network_text Text and dialogues
+ *		About text and dialogues in EL
+ * \ingroup	network
+ */
+/*!
+ * \defgroup	item Item handling
+ *		About the item handling
+ * \ingroup	network
+ */
+/*!
  * \defgroup	network_actors Actors and network data
  * 		Functions used for actor-related network data
+ * \ingroup	network
+ */
+/*!
+ * \defgroup	network_trade Handling trade sessions
+ * 		About the network-side trade sessions in EL
+ * \ingroup	network
+ */
+/*!
+ * \defgroup	network_magic Spells and magic
+ * 		About the network-side implementation of spells and magic
+ * \ingroup	network
+ */
+/*!
+ * \defgroup	updates Web-updates (http retrieval)
+ * 		About the http implementation in EL, allowing updates to happen from within the client
  * \ingroup	network
  */
 
@@ -89,9 +194,132 @@
  * 		The group contains information about the event handling and the Window manager
  */
 /*!
+ * \defgroup	event_handle Main event handling
+ * 		Covers the main event handling
+ * \ingroup	events
+ */
+/*!
  * \defgroup	events_actors Actor events
  * 		Actor events
  * \ingroup	events
+ */
+/*!
+ * \defgroup	elwindows The EL Window Manager
+ *		About the EL window manager and it's uses
+ * \ingroup	events
+ */
+/*!
+ * \defgroup	widgets Widgets and XML-defined windows
+ *		Covers widgets for the WM and XML-defined Windows
+ * \ingroup	elwindows
+ */
+
+///////////////////////////////////////////////////////////////////////////////
+//		      	   	   Windows in EL		   	     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup	windows Windows
+ * 		The main group for all of the different windows
+ * \ingroup	elwindows
+ */
+/*!
+ * \defgroup	books_win Displaying books
+ * 		About displaying the book windows
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	buddy_win The buddy window
+ * 		About the buddy window
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	encyclopedia_win The Encyclopedia window
+ * 		The Encyclopedia window
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	knowledge_win The knowledge window
+ * 		The knowledge window displays the characters current knowledges
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	items_win The inventory window
+ *		The inventory window shows your inventory items + what you are currently wearing.
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	manufacture_win The manufacture window
+ *		About displaying the manufacture window
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	options_win Options
+ *		Shows the game options
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	quest_win The Questlog
+ * 		Shows the questlog window
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	rules_win The rules window
+ * 		About the rules window (see also the rules interface)
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	spells_win The spell window
+ * 		The spell window displays sigils and the current spell combination
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	stats_win The statistics window
+ * 		The statistics window shows your characters current levels
+ * \ingroup	windows
+ */
+/*!
+ * \defgroup	trade_win The trade window
+ * 		Shows the trade window
+ * \ingroup	windows
+ */
+
+///////////////////////////////////////////////////////////////////////////////
+//		      Interfaces (root windows) in EL			     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup 	interfaces Interfaces (root windows)
+ *		Covers the EL interfaces (root windows)
+ * \ingroup	elwindows
+ */
+/*!
+ * \defgroup	interface_opening Opening interface
+ * 		The opening interface
+ * \ingroup	interfaces
+ */
+/*!
+ * \defgroup	interface_login Login interface
+ *		The login interface
+ * \ingroup	interfaces
+ */
+/*!
+ * \defgroup	interface_newchar Character creation screen
+ * 		The character creation screen.
+ * \ingroup	interfaces
+ */
+/*!
+ * \defgroup	interface_console The console
+ *		The console interface
+ * \ingroup	interfaces
+ */
+/*!
+ * \defgroup	interface_map The map and continent view
+ * 		The map and continent view
+ * \ingroup	interfaces
+ */
+/*!
+ * \defgroup	interface_rules The rules interface
+ *		Covers displaying the rules
+ * \ingroup	interfaces
  */
 
 
@@ -105,6 +333,16 @@
 /*!
  * \defgroup 	move_actors Actors movement/animations
  * 		Functions used for implementing the actors movement/animations
+ * \ingroup	thread
+ */
+/*!
+ * \defgroup 	mutex Mutexes
+ * 		The mutexes used in EL
+ * \ingroup	thread
+ */
+/*!
+ * \defgroup	timers Timers
+ * 		The timers in EL
  * \ingroup	thread
  */
 
@@ -124,5 +362,10 @@
 /*!
  * \defgroup 	misc_utils Miscellaneous Utilities
  * 		Miscellaneous functions that are useful when you're working with the client
+ * \ingroup	misc
+ */
+/*!
+ * \defgroup	commands Console commands
+ * 		Covers the console command handling
  * \ingroup	misc
  */
