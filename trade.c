@@ -155,7 +155,7 @@ void display_trade_menu()
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=0;i<36;i++)
+	for(i=0;i<36+6;i++)
 		{
 			if(item_list[i].quantity)
 			if(item_list[i].pos<36)
