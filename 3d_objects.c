@@ -365,7 +365,6 @@ void display_objects()
 			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
-
 		}
 
 	check_gl_errors();
@@ -417,7 +416,6 @@ void display_objects()
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 	check_gl_errors();
-
 }
 
 e3d_object * load_e3d(char *file_name)
