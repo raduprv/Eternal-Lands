@@ -374,8 +374,9 @@ void draw_text_particle_sys(particle_sys *system_id)
 {
 	float x_pos,y_pos,z_pos;
 	int i;
-	float x_len=0.065f*system_id->def->part_size;
-	float z_len=x_len;
+	float z_len=0.065f*system_id->def->part_size;
+	float x_len=z_len*cos(-rz*3.1415926/180.0);
+	float y_len=z_len*sin(-rz*3.1415926/180.0);
 	particle *p;
 
 	lock_particles_list();	//lock it to avoid timing issues
@@ -387,10 +388,6 @@ void draw_text_particle_sys(particle_sys *system_id)
 	check_gl_errors();
 	get_and_set_texture_id(particle_textures[system_id->def->part_texture]);
 
-	glPushMatrix();//we don't want to affect the rest of the scene
-	glTranslatef (x_pos, y_pos, z_pos);
-	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef (-x_pos, -y_pos, -z_pos);
 	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i++,p++)
 		{
 			if(!p->free && p->z>=0.0f)
@@ -399,25 +396,22 @@ void draw_text_particle_sys(particle_sys *system_id)
 					glColor4f(p->r,p->g,p->b,p->a);
 
 					glTexCoord2f(0.0f,1.0f);
-					glVertex3f(p->x-x_len,p->y,p->z+z_len);
+					glVertex3f(p->x-x_len,p->y-y_len,p->z+z_len);
 
 					glTexCoord2f(0.0f,0.0f);
-					glVertex3f(p->x-x_len,p->y,p->z-z_len);
+					glVertex3f(p->x-x_len,p->y-y_len,p->z-z_len);
 
 					glTexCoord2f(1.0f,1.0f);
-					glVertex3f(p->x+x_len,p->y,p->z+z_len);
+					glVertex3f(p->x+x_len,p->y+y_len,p->z+z_len);
 
 					glTexCoord2f(1.0f,0.0f);
-					glVertex3f(p->x+x_len,p->y,p->z-z_len);
+					glVertex3f(p->x+x_len,p->y+y_len,p->z-z_len);
 
 					glEnd();
-
 				}
 		}
 	unlock_particles_list();	// release now that we are done
 	check_gl_errors();
-
-	glPopMatrix();
 }
 
 void draw_point_particle_sys(particle_sys *system_id)
@@ -491,6 +485,7 @@ void display_particles()
 	glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
+	glDisable(GL_LIGHTING);
 
 	glBlendFunc(sblend,dblend);
 
