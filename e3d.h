@@ -2,6 +2,43 @@
 #define __E3D_H__
 
 #define max_obj_3d 10000
+#define max_e3d_cache 1000
+
+//the new array structures
+typedef struct
+{
+  float x;
+  float y;
+  float z;
+}e3d_array_vertex;
+
+typedef struct
+{
+  float nx;
+  float ny;
+  float nz;
+}e3d_array_normal;
+
+typedef struct
+{
+  float u;
+  float v;
+}e3d_array_uv_main;
+
+typedef struct
+{
+  float u;
+  float v;
+}e3d_array_uv_detail;
+
+typedef struct
+{
+  int texture_id;
+  int count;
+  int start;
+}e3d_array_order;
+
+//end of the new things
 
 typedef struct
 {
@@ -69,10 +106,12 @@ typedef struct
 
 typedef struct
 {
+	e3d_array_vertex *array_vertex;
+	e3d_array_normal *array_normal;
+	e3d_array_uv_main *array_uv_main;
+	e3d_array_order *array_order;
+	int materials_no;
 	int face_no;
-	e3d_face * faces;
-	int vertex_no;
-	e3d_vertex * vertexes;
 	float min_x;
 	float min_y;
 	float min_z;
@@ -97,16 +136,18 @@ typedef struct
 
    char self_lit;
    char blended;
-   short sector;
    float r,g,b;
+   e3d_array_uv_detail *clouds_uv;
 
    e3d_object *e3d_data;
+   int last_acessed_time;
 }object3d;
 
 typedef struct
 {
 	char file_name[128];
 	e3d_object * e3d_id;
+	int flag_for_destruction;
 }e3d_cache_struct;
 
 extern e3d_cache_struct e3d_cache[1000];

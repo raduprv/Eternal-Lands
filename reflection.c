@@ -6,108 +6,90 @@ float mrandom(float max)
   return ((float) max * (rand () % 8 ));
 }
 
+
 void draw_3d_reflection(object3d * object_id)
 {
-	float x,y,z,u,v;
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	float noise_x,noise_y,noise_z;
 
-	int faces_no,materials_no,texture_id,a,b,c;
-	int i,k,j;
-	e3d_face *faces_list;
-	e3d_vertex *vertex_list;
-	e3d_material *material_list;
-	char is_transparent;
+	int materials_no,texture_id;
+	int i;
 
+	e3d_array_vertex *array_vertex;
+	e3d_array_normal *array_normal;
+	e3d_array_uv_main *array_uv_main;
+	e3d_array_order *array_order;
 
-	faces_no=object_id->e3d_data->face_no;
-	faces_list=object_id->e3d_data->faces;
-	vertex_list=object_id->e3d_data->vertexes;
+	int is_transparent;
+
+	check_gl_errors();
 	is_transparent=object_id->e3d_data->is_transparent;
+	materials_no=object_id->e3d_data->materials_no;
 
+	array_vertex=object_id->e3d_data->array_vertex;
+	array_normal=object_id->e3d_data->array_normal;
+	array_uv_main=object_id->e3d_data->array_uv_main;
+	array_order=object_id->e3d_data->array_order;
+
+	if(object_id->self_lit && (night_shadows_on || dungeon))
+		{
+			glDisable(GL_LIGHTING);
+			glColor3f(object_id->r,object_id->g,object_id->b);
+		}
+
+	if(is_transparent)
+		{
+			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+			glAlphaFunc(GL_GREATER,0.05f);
+
+		}
+
+
+	check_gl_errors();
+	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
-	z_pos=object_id->z_pos+-water_deepth_offset*2;
+	z_pos=object_id->z_pos;
+	if(z_pos<0)z_pos+=-water_deepth_offset*2;
 
+	glTranslatef (x_pos, y_pos,z_pos);
 	x_rot=object_id->x_rot;
 	y_rot=object_id->y_rot;
 	z_rot=object_id->z_rot;
-
-  if(object_id->self_lit && (night_shadows_on || dungeon))
-  {
- 	glDisable(GL_LIGHTING);
-    glColor3f(object_id->r,object_id->g,object_id->b);
-  }
-
-  if(is_transparent)
-  	{
-	    glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-	    glAlphaFunc(GL_GREATER,0.05f);
-	    //glDisable(GL_CULL_FACE);
-
-	}
-
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	glTranslatef (x_pos, y_pos,z_pos);
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	j=0;//j is used for the noise table
-	glBegin(GL_TRIANGLES);
-	for(i=0;i<faces_no;i++)
+	check_gl_errors();
+	glVertexPointer(3,GL_FLOAT,0,array_vertex);
+	glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
+	glNormalPointer(GL_FLOAT,0,array_normal);
+	for(i=0;i<materials_no;i++)
 		{
-			a=faces_list[i].a;
-			b=faces_list[i].b;
-			c=faces_list[i].c;
-
-			if(j>255)j=0;
-			noise_x=noise_array[j].u;
-			noise_y=noise_array[j].v;
-			j++;
-
-			texture_id=get_texture_id(faces_list[i].material);
-
-
-    		if(last_texture!=texture_id)
-   			 	{
-					glEnd();
-					glBindTexture(GL_TEXTURE_2D, texture_id);
-					glBegin(GL_TRIANGLES);
+			texture_id=get_texture_id(array_order[i].texture_id);
+			if(last_texture!=texture_id)
+				{
 					last_texture=texture_id;
+					glBindTexture(GL_TEXTURE_2D, texture_id);
 				}
-
-
-			glNormal3fv(&vertex_list[a].nx);
-
-			glTexCoord2f(faces_list[i].au+noise_x,faces_list[i].av+noise_y);
-			glVertex3fv(&vertex_list[a].x);
-
-			glNormal3fv(&vertex_list[b].nx);
-
-			glTexCoord2f(faces_list[i].bu+noise_x,faces_list[i].bv+noise_y);
-			glVertex3fv(&vertex_list[b].x);
-
-			glNormal3fv(&vertex_list[c].nx);
-
-			glTexCoord2f(faces_list[i].cu+noise_x,faces_list[i].cv+noise_y);
-			glVertex3fv(&vertex_list[c].x);
+			check_gl_errors();
+			//if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
+			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+			//if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 
-
-	glEnd();
+	check_gl_errors();
 	glPopMatrix();//restore the scene
+	check_gl_errors();
 
 
-  if(object_id->self_lit && (night_shadows_on || dungeon))glEnable(GL_LIGHTING);
-  if(is_transparent)
-  	{
-  		glDisable(GL_ALPHA_TEST);
-  		//glEnable(GL_CULL_FACE);
-	}
+	if(object_id->self_lit && (night_shadows_on || dungeon))glEnable(GL_LIGHTING);
+	if(is_transparent)
+		{
+			glDisable(GL_ALPHA_TEST);
+		}
 
+	check_gl_errors();
 }
 
 //if there is any reflecting tile, returns 1, otherwise 0
@@ -123,10 +105,10 @@ int find_reflection()
 	else x=cx/3;
 	if(cy<0)y=(cy*-1)/3;
 	else y=cy/3;
-	x_start=(int)x-5;
-	y_start=(int)y-5;
-	x_end=(int)x+5;
-	y_end=(int)y+5;
+	x_start=(int)x-4;
+	y_start=(int)y-4;
+	x_end=(int)x+4;
+	y_end=(int)y+4;
 	if(x_start<0)x_start=0;
 	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
 	if(y_start<0)y_start=0;
@@ -141,7 +123,7 @@ int find_reflection()
 					if(!tile_map[y*tile_map_size_x+x])return 1;
 				}
 		}
-return 0;
+	return 0;
 }
 
 int find_local_reflection(int x_pos,int y_pos,int range)
@@ -170,7 +152,7 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 					if(!tile_map[y*tile_map_size_x+x])return 1;
 				}
 		}
-return 0;
+	return 0;
 }
 
 
@@ -186,9 +168,11 @@ void display_3d_reflection()
 
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
+	
 	glDisable(GL_CULL_FACE);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_FRONT);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
 
 	set_material(0.1f,0.2f,0.3f);
 	glPushMatrix();
@@ -233,8 +217,8 @@ void display_3d_reflection()
 	glPopMatrix();
 	reset_material();
 	glDisable(GL_CLIP_PLANE0);
-	//glDisable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void make_lake_water_noise()

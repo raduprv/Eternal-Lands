@@ -4,66 +4,68 @@
 void SetShadowMatrix()
 
 {
-
-               float dot;
-               // dot product of plane and light position
-               dot =      fPlane[0] * fLightPos[0] +
-                          fPlane[1] * fLightPos[1] +
-                          fPlane[2] * fLightPos[2] +
-                          fPlane[3] * fLightPos[3];
-
+	float dot;
+	// dot product of plane and light position
+	dot = fPlane[0] * fLightPos[0]
+		+ fPlane[1] * fLightPos[1]
+		+ fPlane[2] * fLightPos[2]
+		+ fPlane[3] * fLightPos[3];
 
 
-               // first column
-               fDestMat[0] = dot - fLightPos[0] * fPlane[0];
-               fDestMat[4] = 0.0f - fLightPos[0] * fPlane[1];
-               fDestMat[8] = 0.0f - fLightPos[0] * fPlane[2];
-               fDestMat[12] = 0.0f - fLightPos[0] * fPlane[3];
+
+	// first column
+	fDestMat[0] = dot - fLightPos[0] * fPlane[0];
+	fDestMat[4] = 0.0f - fLightPos[0] * fPlane[1];
+	fDestMat[8] = 0.0f - fLightPos[0] * fPlane[2];
+	fDestMat[12] = 0.0f - fLightPos[0] * fPlane[3];
 
 
-               // second column
-               fDestMat[1] = 0.0f - fLightPos[1] * fPlane[0];
-               fDestMat[5] = dot - fLightPos[1] * fPlane[1];
-               fDestMat[9] = 0.0f - fLightPos[1] * fPlane[2];
-               fDestMat[13] = 0.0f - fLightPos[1] * fPlane[3];
+	// second column
+	fDestMat[1] = 0.0f - fLightPos[1] * fPlane[0];
+	fDestMat[5] = dot - fLightPos[1] * fPlane[1];
+	fDestMat[9] = 0.0f - fLightPos[1] * fPlane[2];
+	fDestMat[13] = 0.0f - fLightPos[1] * fPlane[3];
 
 
-               // third column
-               fDestMat[2] = 0.0f - fLightPos[2] * fPlane[0];
-               fDestMat[6] = 0.0f - fLightPos[2] * fPlane[1];
-               fDestMat[10] = dot - fLightPos[2] * fPlane[2];
-               fDestMat[14] = 0.0f - fLightPos[2] * fPlane[3];
+	// third column
+	fDestMat[2] = 0.0f - fLightPos[2] * fPlane[0];
+	fDestMat[6] = 0.0f - fLightPos[2] * fPlane[1];
+	fDestMat[10] = dot - fLightPos[2] * fPlane[2];
+	fDestMat[14] = 0.0f - fLightPos[2] * fPlane[3];
 
 
-               // fourth column
-               fDestMat[3] = 0.0f - fLightPos[3] * fPlane[0];
-               fDestMat[7] = 0.0f - fLightPos[3] * fPlane[1];
-               fDestMat[11] = 0.0f - fLightPos[3] * fPlane[2];
-               fDestMat[15] = dot - fLightPos[3] * fPlane[3];
+	// fourth column
+	fDestMat[3] = 0.0f - fLightPos[3] * fPlane[0];
+	fDestMat[7] = 0.0f - fLightPos[3] * fPlane[1];
+	fDestMat[11] = 0.0f - fLightPos[3] * fPlane[2];
+	fDestMat[15] = dot - fLightPos[3] * fPlane[3];
 
 }
 
 void draw_3d_object_shadow(object3d * object_id)
 {
-	float x,y,z,u,v;
+
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	int faces_no,materials_no,texture_id,a,b,c;
-	int i,k;
-	e3d_face *faces_list;
-	e3d_vertex *vertex_list;
-	e3d_material *material_list;
+	int materials_no,texture_id;
+	int i;
 	char is_transparent;
+
+	e3d_array_vertex *array_vertex;
+	e3d_array_uv_main *array_uv_main;
+	e3d_array_order *array_order;
 
     if(object_id->blended)return;//blended objects can't have shadows
     if(object_id->self_lit)return;//light sources can't have shadows
     if(!(object_id->e3d_data->min_z-object_id->e3d_data->max_z))return;//we have a flat object
 
-	faces_no=object_id->e3d_data->face_no;
-	faces_list=object_id->e3d_data->faces;
-	vertex_list=object_id->e3d_data->vertexes;
+	array_vertex=object_id->e3d_data->array_vertex;
+	array_uv_main=object_id->e3d_data->array_uv_main;
+	array_order=object_id->e3d_data->array_order;
+
 	is_transparent=object_id->e3d_data->is_transparent;
+	materials_no=object_id->e3d_data->materials_no;
 
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
@@ -73,12 +75,11 @@ void draw_3d_object_shadow(object3d * object_id)
 	y_rot=object_id->y_rot;
 	z_rot=object_id->z_rot;
 
-  if(is_transparent)
-  	{
-	    glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-	    glAlphaFunc(GL_GREATER,0.05f);
-	    //glDisable(GL_CULL_FACE);
-	}
+	if(is_transparent)
+		{
+			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+			glAlphaFunc(GL_GREATER,0.05f);
+		}
 	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
 
 
@@ -90,48 +91,39 @@ void draw_3d_object_shadow(object3d * object_id)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 
-	glBegin(GL_TRIANGLES);
-	for(i=0;i<faces_no;i++)
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3,GL_FLOAT,0,array_vertex);
+	if(is_transparent)
 		{
-			a=faces_list[i].a;
-			b=faces_list[i].b;
-			c=faces_list[i].c;
-
-			if(is_transparent)
-			{
-				texture_id=get_texture_id(faces_list[i].material);
-
-
-    			if(last_texture!=texture_id)
-   				 	{
-						glEnd();
-						glBindTexture(GL_TEXTURE_2D, texture_id);
-						glBegin(GL_TRIANGLES);
-						last_texture=texture_id;
-					}
-			}
-
-			glTexCoord2f(faces_list[i].au,faces_list[i].av);
-			glVertex3f(vertex_list[a].x,vertex_list[a].y,vertex_list[a].z);
-
-			glTexCoord2f(faces_list[i].bu,faces_list[i].bv);
-			glVertex3f(vertex_list[b].x,vertex_list[b].y,vertex_list[b].z);
-
-			glTexCoord2f(faces_list[i].cu,faces_list[i].cv);
-			glVertex3f(vertex_list[c].x,vertex_list[c].y,vertex_list[c].z);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
 		}
 
+	for(i=0;i<materials_no;i++)
+		{
+			if(is_transparent)
+				{
+					texture_id=get_texture_id(array_order[i].texture_id);
+    				if(last_texture!=texture_id)
+   						{
+							last_texture=texture_id;
+							glBindTexture(GL_TEXTURE_2D, texture_id);
+						}
+				}
+			//if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
+			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+			//if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+		}
 
-	glEnd();
 	glPopMatrix();//restore the scene
 
-
-  if(is_transparent)
-  	{
-  		glDisable(GL_ALPHA_TEST);
-  		//glEnable(GL_CULL_FACE);
-	}
-  else glEnable(GL_TEXTURE_2D);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	if(is_transparent)
+		{
+			glDisable(GL_ALPHA_TEST);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+	else glEnable(GL_TEXTURE_2D);
 
 }
 

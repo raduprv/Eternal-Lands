@@ -147,4 +147,6 @@ extern float clouds_movement_v;
 extern float texture_scale;
 extern int clouds_shadows;
 
+#define check_gl_errors()       //NOP
+
 #endif

@@ -18,7 +18,7 @@
 struct Sphere
 {
 	float xPos, yPos, zPos, radius;						// We want to hold a XYZ position and radius
-	unsigned char  r, g, b;										// These will store the color of the sphere
+	unsigned char  r, g, b;								// These will store the color of the sphere
 };
 
 
@@ -44,7 +44,7 @@ enum PlaneData
 	D = 3				// The distance the plane is from the origin
 };
 
-float m_Frustum[6][4];
+float m_Frustum[8][4];	// only use 6, but mult by 8 is faster
 
 ///////////////////////////////// NORMALIZE PLANE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 /////
@@ -209,7 +209,7 @@ int PointInFrustum( float x, float y, float z )
 	for(; i < 6; i++ )
 	{
 		// Calculate the plane equation and check if the point is behind a side of the frustum
-		if(m_Frustum[i][A] * x + m_Frustum[i][B] * y + m_Frustum[i][C] * z + m_Frustum[i][D] <= 0)
+		if(m_Frustum[i][A] * x + m_Frustum[i][B] * y + m_Frustum[i][C] * z + m_Frustum[i][D] <= 0.0)
 		{
 			// The point was behind a side, so it ISN'T in the frustum
 			return 0;
@@ -240,11 +240,12 @@ int SphereInFrustum( float x, float y, float z, float radius )
 	// so we are inside of the frustum, but a distance of 3.  This is reflected below.
 
 	// Go through all the sides of the frustum
+	float	tradius=-radius-1.0;
 	int i = 0;
 	for(; i < 6; i++ )
 	{
 		// If the center of the sphere is farther away from the plane than the radius
-		if( m_Frustum[i][A] * x + m_Frustum[i][B] * y + m_Frustum[i][C] * z + m_Frustum[i][D] <= -radius-1.0 )
+		if( m_Frustum[i][A] * x + m_Frustum[i][B] * y + m_Frustum[i][C] * z + m_Frustum[i][D] <= tradius )
 		{
 			// The distance was greater than the radius so the sphere is outside of the frustum
 			return 0;
@@ -277,21 +278,21 @@ int CubeInFrustum(float x, float y, float z, float x_size, float y_size, float z
 	int i = 0;
 	for(; i < 6; i++ )
 	{
-		if(m_Frustum[i][A] * (x - x_size) + m_Frustum[i][B] * (y - y_size) + m_Frustum[i][C] * (z - z_size) + m_Frustum[i][D] > -1)
+		if(m_Frustum[i][A] * (x-x_size) + m_Frustum[i][B] * (y-y_size) + m_Frustum[i][C] * (z-z_size) + m_Frustum[i][D] > -1.0)
 		   continue;
-		if(m_Frustum[i][A] * (x + x_size) + m_Frustum[i][B] * (y - y_size) + m_Frustum[i][C] * (z - z_size) + m_Frustum[i][D] > -1)
+		if(m_Frustum[i][A] * (x+x_size) + m_Frustum[i][B] * (y-y_size) + m_Frustum[i][C] * (z-z_size) + m_Frustum[i][D] > -1.0)
 		   continue;
-		if(m_Frustum[i][A] * (x - x_size) + m_Frustum[i][B] * (y + y_size) + m_Frustum[i][C] * (z - z_size) + m_Frustum[i][D] > -1)
+		if(m_Frustum[i][A] * (x-x_size) + m_Frustum[i][B] * (y+y_size) + m_Frustum[i][C] * (z-z_size) + m_Frustum[i][D] > -1.0)
 		   continue;
-		if(m_Frustum[i][A] * (x + x_size) + m_Frustum[i][B] * (y + y_size) + m_Frustum[i][C] * (z - z_size) + m_Frustum[i][D] > -1)
+		if(m_Frustum[i][A] * (x+x_size) + m_Frustum[i][B] * (y+y_size) + m_Frustum[i][C] * (z-z_size) + m_Frustum[i][D] > -1.0)
 		   continue;
-		if(m_Frustum[i][A] * (x - x_size) + m_Frustum[i][B] * (y - y_size) + m_Frustum[i][C] * (z + z_size) + m_Frustum[i][D] > -1)
+		if(m_Frustum[i][A] * (x-x_size) + m_Frustum[i][B] * (y-y_size) + m_Frustum[i][C] * (z+z_size) + m_Frustum[i][D] > -1.0)
 		   continue;
-		if(m_Frustum[i][A] * (x + x_size) + m_Frustum[i][B] * (y - y_size) + m_Frustum[i][C] * (z + z_size) + m_Frustum[i][D] > -1)
+		if(m_Frustum[i][A] * (x+x_size) + m_Frustum[i][B] * (y-y_size) + m_Frustum[i][C] * (z+z_size) + m_Frustum[i][D] > -1.0)
 		   continue;
-		if(m_Frustum[i][A] * (x - x_size) + m_Frustum[i][B] * (y + y_size) + m_Frustum[i][C] * (z + z_size) + m_Frustum[i][D] > -1)
+		if(m_Frustum[i][A] * (x-x_size) + m_Frustum[i][B] * (y+y_size) + m_Frustum[i][C] * (z+z_size) + m_Frustum[i][D] > -1.0)
 		   continue;
-		if(m_Frustum[i][A] * (x + x_size) + m_Frustum[i][B] * (y + y_size) + m_Frustum[i][C] * (z + z_size) + m_Frustum[i][D] > -1)
+		if(m_Frustum[i][A] * (x+x_size) + m_Frustum[i][B] * (y+y_size) + m_Frustum[i][C] * (z+z_size) + m_Frustum[i][D] > -1.0)
 		   continue;
 
 		// If we get here, it isn't in the frustum
@@ -304,8 +305,9 @@ int CubeInFrustum(float x, float y, float z, float x_size, float y_size, float z
 
 int check_tile_in_frustrum(float x,float y)
 {
-	if(SphereInFrustum(x+1.5f, y+1.5f, 0, 2.449f))return 1;
-	else return 0;
+	return(SphereInFrustum(x+1.5f, y+1.5f, 0, 2.449f));
+	//if(SphereInFrustum(x+1.5f, y+1.5f, 0, 2.449f))return 1;
+	//else return 0;
 }
 
 
