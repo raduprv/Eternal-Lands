@@ -809,22 +809,32 @@ void draw_game_map()
 	}
 	//ok, now let's draw our possition...
 #ifdef POSSIBLE_FIX
+#ifndef OPTIMIZED_LOCKS
 	lock_actors_lists();
+#endif
 #endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 				if(actors_list[i]->actor_id==yourself)
 					{
+#ifdef OPTIMIZED_LOCKS
+						lock_actors_lists();
+#endif
 						int x=actors_list[i]->x_tile_pos;
 						int y=actors_list[i]->y_tile_pos;
+#ifdef OPTIMIZED_LOCKS
+						unlock_actors_lists();
+#endif
 						screen_x=300-(50+200*x/(tile_map_size_x*6));
 						screen_y=0+200*y/(tile_map_size_y*6);
 						break;
 					}
 		}
 #ifdef POSSIBLE_FIX
+#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();
+#endif
 #endif
 
 	glColor3f(0.0f,0.0f,1.0f);

@@ -108,7 +108,9 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	our_actor->sit_idle=0;
 
 	//find a free spot, in the actors_list
+#ifndef POSSIBLE_FIX //Well, the timer thread cannot free memory - so it shouldn't be necissary to lock it...
 	lock_actors_lists();	//lock it to avoid timing issues
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])break;
@@ -116,7 +118,9 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
+#ifndef POSSIBLE_FIX
 	unlock_actors_lists();	// release now that we are done
+#endif
 	return i;
 }
 
@@ -333,6 +337,7 @@ void draw_actor_overtext( actor* actor_ptr )
 }
 
 
+//Always lock the actor mutex before entering this function...
 int get_frame_number(const md2 *model_data, const char *cur_frame)
 {
 	Uint32 frame;
@@ -461,7 +466,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 {
 	int frame;
 	int numFaces;
-
+	
 	frame = get_frame_number(model_data, cur_frame);
 	if(frame < 0)	return;
 	//track the usage
@@ -624,7 +629,9 @@ void display_actors()
 	glEnableClientState(GL_VERTEX_ARRAY);
 #ifdef POSSIBLE_FIX
 #ifdef EXPENSIVE_CHECKING
+#ifndef OPTIMIZED_LOCKS
 	lock_actors_lists();	//lock it to avoid timing issues
+#endif
 #endif
 #else
 	lock_actors_lists();	//lock it to avoid timing issues
@@ -639,6 +646,9 @@ void display_actors()
 						int dist1;
 						int dist2;
 
+#ifdef OPTIMIZED_LOCKS
+						lock_actors_lists();
+#endif
 						dist1=x-cur_actor->x_pos;
 						dist2=y-cur_actor->y_pos;
 						if(dist1*dist1+dist2*dist2<=12*12)
@@ -646,8 +656,15 @@ void display_actors()
 								if(cur_actor->is_enhanced_model)
 									{
 										draw_enhanced_actor(cur_actor);
+#ifndef POSSIBLE_FIX 
+	/*I am not sure it's wise to do that while the actors_list is locked 
+	- what do you say Mihai? I think that SDL allows it to bypass the mutex 
+	as it's created in the same thread, hence we might get cur_actor==NULL! 
+	Which would of course crash the next if(cur_actor->...)
+	We'd at least need a check to see if we should drop the cur_actor...*/
 										//check for network data - reduces resyncs
 										get_message_from_server();
+#endif
 									}
 								else
 									{
@@ -660,6 +677,9 @@ void display_actors()
 										anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
 									else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 							}
+#ifdef OPTIMIZED_LOCKS
+						unlock_actors_lists();
+#endif
 					}
 				else
 					{
@@ -684,6 +704,9 @@ void display_actors()
 							int dist1;
 							int dist2;
 
+#ifdef OPTIMIZED_LOCKS
+							lock_actors_lists();
+#endif
 							dist1=x-cur_actor->x_pos;
 							dist2=y-cur_actor->y_pos;
 							if(dist1*dist1+dist2*dist2<=12*12)
@@ -703,15 +726,20 @@ void display_actors()
 											anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
 										else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 								}
+#ifdef OPTIMIZED_LOCKS
+							unlock_actors_lists();
+#endif
 						}
 			}
 	}
 #ifdef POSSIBLE_FIX
 #ifdef EXPENSIVE_CHECKING
-	lock_actors_lists();	//lock it to avoid timing issues
+#ifndef OPTIMIZED_LOCKS
+	unlock_actors_lists();	//lock it to avoid timing issues
+#endif
 #endif
 #else
-	lock_actors_lists();	//lock it to avoid timing issues
+	unlock_actors_lists();	//lock it to avoid timing issues
 #endif
 
 	glDisable(GL_BLEND);
@@ -826,7 +854,15 @@ void add_actor_from_server(char * in_data)
 	
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
+#ifndef OPTIMIZED_LOCKS
+	/*
+	We shouldn't have to lock the actors mutex here - we're merely checking 
+	for duplicate actors, and they will not be freed by any other thread...
+	Once found it'll be destroyed (and destroy actor is responsible for 
+	locking the mutex in OPTIMIZED_LOCKS)
+	*/
 	lock_actors_lists();	//lock it to avoid timing issues
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -840,9 +876,14 @@ void add_actor_from_server(char * in_data)
 					}
 		}
 #ifdef POSSIBLE_FIX
+#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();
+#endif
+#endif
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
-				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);//This will do a lock_actors_lists()...
+				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
+
+#ifdef POSSIBLE_FIX
 	lock_actors_lists();
 #endif
 	actors_list[i]->x_tile_pos=x_pos;
@@ -1018,21 +1059,10 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text )
 actor *	get_actor_ptr_from_id( int actor_id )
 {
 	int i;
-#ifdef POSSIBLE_FIX
-	lock_actors_lists();
-#endif
 	for (i = 0; i < max_actors; i++)
 	{
 		if (actors_list[i]->actor_id == actor_id)
-#ifndef POSSIBLE_FIX
 			return actors_list[i];
-#else
-			break;
-#endif
 	}
-#ifdef POSSIBLE_FIX
-	unlock_actors_lists();
-	if(i<max_actors) return actors_list[i];
-#endif
 	return NULL;
 }

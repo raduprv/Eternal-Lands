@@ -189,16 +189,24 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor->body_parts=this_actor;
 
 	//find a free spot, in the actors_list
+#ifndef OPTIMIZED_LOCKS
+	/*
+	Likewise it is from the normal thread and not the timer
+	hence we shouldn't have any problems that'd require locking
+	this
+	*/
 	lock_actors_lists();	//lock it to avoid timing issues
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])break;
 		}
-
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
 	no_bounding_box=0;
+#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();	//unlock it
+#endif
 
 	return i;
 }
@@ -277,9 +285,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 {
 	int i;
 
-#ifdef POSSIBLE_FIX
-	lock_actors_lists();
-#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -295,11 +300,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->weapon=0;
 								actors_list[i]->body_parts->weapon_fn[0]=0;
 								actors_list[i]->body_parts->weapon_tex[0]=0;
-#ifndef POSSIBLE_FIX
-								return
-#else
-								break;
-#endif
+								return;
 							}
 
 						if(which_part==KIND_OF_SHIELD)
@@ -307,11 +308,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->shield=0;
 								actors_list[i]->body_parts->shield_fn[0]=0;
 								actors_list[i]->body_parts->shield_tex[0]=0;
-#ifndef POSSIBLE_FIX
-								return
-#else
-								break;
-#endif
+								return;
 							}
 
 						if(which_part==KIND_OF_CAPE)
@@ -319,11 +316,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->cape=0;
 								actors_list[i]->body_parts->cape_fn[0]=0;
 								actors_list[i]->body_parts->cape_tex[0]=0;
-#ifndef POSSIBLE_FIX
-								return
-#else
-								break;
-#endif
+								return;
 							}
 
 						if(which_part==KIND_OF_HELMET)
@@ -331,22 +324,11 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->helmet=0;
 								actors_list[i]->body_parts->helmet_fn[0]=0;
 								actors_list[i]->body_parts->helmet_tex[0]=0;
-#ifndef POSSIBLE_FIX
-								return
-#else
-								break;
-#endif
+								return;
 							}
-#ifndef POSSIBLE_FIX
 						return;
-#else
-						break;
-#endif
 					}
 		}
-#ifdef POSSIBLE_FIX
-	unlock_actors_lists();
-#endif
 
 }
 
@@ -354,9 +336,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
 	int i;
 
-#ifdef POSSIBLE_FIX
-	lock_actors_lists();
-#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -377,11 +356,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								actors_list[i]->cur_weapon=which_id;
 
 								actors_list[i]->body_parts->weapon_glow=actors_defs[actors_list[i]->actor_type].weapon[which_id].glow;
-#ifndef POSSIBLE_FIX
 								return;
-#else
-								break;
-#endif
 							}
 
 						if(which_part==KIND_OF_SHIELD)
@@ -393,11 +368,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-#ifndef POSSIBLE_FIX
 								return;
-#else
-								break;
-#endif
 							}
 
 						if(which_part==KIND_OF_CAPE)
@@ -409,11 +380,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-#ifndef POSSIBLE_FIX
 								return;
-#else
-								break;
-#endif
 							}
 
 						if(which_part==KIND_OF_HELMET)
@@ -425,11 +392,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-#ifndef POSSIBLE_FIX
 								return;
-#else
-								break;
-#endif
 							}
 
 						if(which_part==KIND_OF_BODY_ARMOR)
@@ -442,11 +405,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-#ifndef POSSIBLE_FIX
 								return;
-#else
-								break;
-#endif
 							}
 						if(which_part==KIND_OF_LEG_ARMOR)
 							{
@@ -457,33 +416,18 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-#ifndef POSSIBLE_FIX
 								return;
-#else
-								break;
-#endif
 							}
 
 						if(which_part==KIND_OF_BOOT_ARMOR)
 							{
 								my_strcp(actors_list[i]->body_parts->boots_tex,actors_defs[actors_list[i]->actor_type].boots[which_id].boots_name);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-#ifndef POSSIBLE_FIX
 								return;
-#else
-								break;
-#endif
 							}
-#ifndef POSSIBLE_FIX
 						return;
-#else
-						break;
-#endif
 					}
 		}
-#ifdef POSSIBLE_FIX
-	unlock_actors_lists();
-#endif
 }
 
 void add_enhanced_actor_from_server(char * in_data)
@@ -611,7 +555,13 @@ void add_enhanced_actor_from_server(char * in_data)
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
+#ifndef OPTIMIZED_LOCKS
+	/*
+	Well, the timer threads doesn't change any of these vars, so
+	locking it isn't needed...
+	*/
 	lock_actors_lists();    //lock it to avoid timing issues
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -634,7 +584,9 @@ void add_enhanced_actor_from_server(char * in_data)
 						}
 				}
 		}
+#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();  //unlock it
+#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();

@@ -385,7 +385,9 @@ void display_actors_shadow()
 		}
 #ifdef POSSIBLE_FIX
 #ifdef EXPENSIVE_CHECKING
+#ifndef OPTIMIZED_LOCKS
 	lock_actors_lists();
+#endif
 #endif
 #endif
 	for(i=0;i<max_actors;i++)
@@ -395,7 +397,9 @@ void display_actors_shadow()
 				{
 					int dist1;
 					int dist2;
-
+#ifdef OPTIMIZED_LOCKS
+					lock_actors_lists();
+#endif
 					dist1=x-actors_list[i]->x_pos;
 					dist2=y-actors_list[i]->y_pos;
 					if(dist1*dist1+dist2*dist2<=12*12)
@@ -404,11 +408,16 @@ void display_actors_shadow()
 									draw_enhanced_actor_shadow(actors_list[i]);
 								else draw_actor_shadow(actors_list[i]);
 							}
+#ifdef OPTIMIZED_LOCKS
+					unlock_actors_lists();
+#endif
 				}
 		}
 #ifdef POSSIBLE_FIX
 #ifdef EXPENSIVE_CHECKING
+#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();
+#endif
 #endif
 #endif
 	if(use_vertex_array > 0)

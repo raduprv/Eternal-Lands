@@ -150,16 +150,10 @@ void draw_scene()
 	
 	if(!have_a_map)return;
 	if(yourself==-1)return;//we don't have ourselves
-#ifdef POSSIBLE_FIX
-	lock_actors_lists();
-#endif
 	for(i=0; i<max_actors; i++)
 		{
         	if(actors_list[i] && actors_list[i]->actor_id==yourself) break;
 		}
-#ifdef POSSIBLE_FIX
-	unlock_actors_lists();
-#endif
 	if(i > max_actors) return;//we still don't have ourselves
 	main_count++;
 	
@@ -340,15 +334,23 @@ void Move()
 {
     int i;
 #ifdef POSSIBLE_FIX
+#ifndef OPTIMIZED_LOCKS
 	lock_actors_lists();
+#endif
 #endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i] && actors_list[i]->actor_id==yourself)
 				{
+#ifdef OPTIMIZED_LOCKS
+					lock_actors_lists();
+#endif
 					float x=actors_list[i]->x_pos;
 					float y=actors_list[i]->y_pos;
 					float z=-2.2f+height_map[actors_list[i]->y_tile_pos*tile_map_size_x*6+actors_list[i]->x_tile_pos]*0.2f;
+#ifdef OPTIMIZED_LOCKS
+					unlock_actors_lists();
+#endif
 					//move near the actor, but smoothly
 					camera_x_speed=(x-(-cx))/16.0;
 					camera_x_frames=16;
@@ -360,7 +362,9 @@ void Move()
 				}
 		}
 #ifdef POSSIBLE_FIX
+#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();
+#endif
 #endif
     //check to see if we are out of the map
     if(cx>-7.5f)cx=-7.5f;

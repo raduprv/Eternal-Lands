@@ -27,7 +27,6 @@ int version_second_digit=9;
 
 int gargc;
 char **  gargv;
-
 /**********************************************************************/
 
 int start_rendering()
