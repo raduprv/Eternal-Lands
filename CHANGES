@@ -1,3 +1,6 @@
+06-22-04
+Total revamp of windows handling to use a single window manager interface
+
 04-19-04
 Changes needed to support -DNEW_VERSION better
 
