@@ -885,15 +885,11 @@ int	draw_window_border(window_info *win)
 	if(win->flags&ELW_USE_BORDER)
 	{
 		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
-		glBegin(GL_LINES);
+		glBegin(GL_LINE_LOOP);
 		glVertex3i(0, 0, 0);
 		glVertex3i(win->len_x, 0, 0);
-		glVertex3i(win->len_x, 0, 0);
-		glVertex3i(win->len_x, win->len_y, 0);
 		glVertex3i(win->len_x, win->len_y, 0);
 		glVertex3i(0, win->len_y, 0);
-		glVertex3i(0, win->len_y, 0);
-		glVertex3i(0, 0, 0);
 		glEnd();
 	}
 
@@ -920,10 +916,8 @@ int	draw_window_border(window_info *win)
 	{
 		//draw the corner, with the X in
 		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
-		glBegin(GL_LINES);
+		glBegin(GL_LINE_STRIP);
 		glVertex3i(win->len_x, ELW_BOX_SIZE, 0);
-		glVertex3i(win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE, 0);
-
 		glVertex3i(win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE, 0);
 		glVertex3i(win->len_x-ELW_BOX_SIZE, 0, 0);
 		glEnd();

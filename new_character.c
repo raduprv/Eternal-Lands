@@ -388,26 +388,20 @@ void draw_new_char_screen()
 	glEnd ();
 
 	glColor3f (0.2f, 0.2f, 0.2f);
-	glBegin (GL_LINES);
+	glBegin (GL_LINE_LOOP);
 	glVertex3i (actor_creation_menu_x_start, actor_creation_menu_y_start, 0);
 	glVertex3i (actor_creation_menu_x_end, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end, actor_creation_menu_y_end, 0);
 	glVertex3i (actor_creation_menu_x_end, actor_creation_menu_y_end, 0);
 	glVertex3i (actor_creation_menu_x_start, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_start, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_start, actor_creation_menu_y_start, 0);
-
-	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_start, 0);
-
 	glEnd ();
+
+	glBegin (GL_LINE_LOOP);
+	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_start, 0);
+	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_start, 0);
+	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_end, 0);
+	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_end, 0);
+	glEnd ();
+
 	glEnable (GL_TEXTURE_2D);
 
 	//draw the player

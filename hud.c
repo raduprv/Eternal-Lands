@@ -754,15 +754,11 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 
 	// draw the bar frame
 	glColor3f(0.77f, 0.57f, 0.39f);
-	glBegin(GL_LINES);
+	glBegin(GL_LINE_LOOP);
 	glVertex3i(x, y, 0);
 	glVertex3i(x+100, y, 0);
-	glVertex3i(x+100, y, 0);
-	glVertex3i(x+100, y+8, 0);
 	glVertex3i(x+100, y+8, 0);
 	glVertex3i(x, y+8, 0);
-	glVertex3i(x, y+8, 0);
-	glVertex3i(x, y, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 

@@ -205,18 +205,11 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				healtbar_y=0.001*zoom_level/3.0f;
 				glDepthFunc(GL_LEQUAL);
 				glColor3f(0,0,0);
-				glBegin(GL_LINES);
+				glBegin(GL_LINE_LOOP);
 				glVertex3f(healtbar_x,healtbar_y,healtbar_z);
 				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-
-				glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
 				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
-
-				glVertex3f(healtbar_x,healtbar_y,healtbar_z);
 				glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-
-				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
 				glEnd();
 			}
 

@@ -661,15 +661,11 @@ int progressbar_draw(widget_list *W)
 	if(W->r != -1.0)
 		glColor3f(W->r,W->g,W->b);
 
-	glBegin(GL_LINES);
+	glBegin(GL_LINE_LOOP);
 	glVertex3i(W->pos_x,W->pos_y,0);
 	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
-	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
 	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
-	glVertex3i(W->pos_x,W->pos_y,0);
 	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
-	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
-	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
 	glEnd();
 
 	glBegin(GL_QUADS);
@@ -769,19 +765,17 @@ int vscrollbar_draw(widget_list *W)
 	glDisable(GL_TEXTURE_2D);
 	if(W->r!=-1.0)
 		glColor3f(W->r, W->g, W->b);
-	glBegin(GL_LINES);
 
 	// scrollbar border
+	glBegin(GL_LINE_LOOP);
 	glVertex3i(W->pos_x,W->pos_y,0);
 	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
-	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
 	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
-	glVertex3i(W->pos_x,W->pos_y,0);
 	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
-	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
-	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
+	glEnd ();
 
 	// scrollbar arrows
+	glBegin (GL_LINES);
 	glVertex3i(W->pos_x + 5, W->pos_y + 10,0);
 	glVertex3i(W->pos_x + 10, W->pos_y + 5,0);
 	glVertex3i(W->pos_x + 10, W->pos_y + 5,0);
@@ -1076,31 +1070,30 @@ int tab_collection_draw (widget_list *w)
 			xstart = w->pos_x + col->tabs[itab].tag_x;
 			xend = xstart + col->tabs[itab].tag_width;
 
-			glBegin (GL_LINES);
-
+			// the tag itself
+			glBegin (GL_LINE_STRIP);
 			glVertex3i (xstart, ytagbot, 0);
 			glVertex3i (xstart, ytagtop, 0);
-			glVertex3i (xstart, ytagtop, 0);
-			glVertex3i (xend, ytagtop, 0);
 			glVertex3i (xend, ytagtop, 0);
 			glVertex3i (xend, ytagbot, 0);
+			glEnd ();
 			
 			// draw a close box if necessary
 			if (col->tabs[itab].closable)
 			{
+				glBegin (GL_LINE_LOOP);
 				glVertex3i (xstart+3, ytagbot-3, 0);
 				glVertex3i (xstart+3, ytagtop+3, 0);
-				glVertex3i (xstart+3, ytagtop+3, 0);
-				glVertex3i (xstart+h-3, ytagtop+3, 0);
 				glVertex3i (xstart+h-3, ytagtop+3, 0);
 				glVertex3i (xstart+h-3, ytagbot-3, 0);
-				glVertex3i (xstart+h-3, ytagbot-3, 0);
-				glVertex3i (xstart+3, ytagbot-3, 0);
+				glEnd ();
 
+				glBegin (GL_LINES);
 				glVertex3i (xstart+3, ytagbot-3, 0);
 				glVertex3i (xstart+h-3, ytagtop+3, 0);
 				glVertex3i (xstart+3, ytagtop+3, 0);
 				glVertex3i (xstart+h-3, ytagbot-3, 0);
+				glEnd ();
 			}
 			glEnd ();
 
@@ -1124,18 +1117,15 @@ int tab_collection_draw (widget_list *w)
 	xend = xstart + col->tabs[col->cur_tab].tag_width;
 	
 	// draw the rest of the frame around the tab
-	glBegin (GL_LINES);
-	glVertex3i (w->pos_x, ytagbot, 0);
-	glVertex3i (xstart, ytagbot, 0);
+	glBegin (GL_LINE_STRIP);
 	glVertex3i (xend, ytagbot, 0);
 	glVertex3i (w->pos_x + w->len_x, ytagbot, 0);		
-	glVertex3i (w->pos_x + w->len_x, ytagbot, 0);		
 	glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);		
-	glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);		
-	glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);		
 	glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);		
 	glVertex3i (w->pos_x, ytagbot, 0);		
+	glVertex3i (xstart, ytagbot, 0);
 	glEnd ();
+
 	glEnable(GL_TEXTURE_2D);
 	
 	// show the content of the current tab
@@ -1340,20 +1330,11 @@ int text_field_draw (widget_list *w)
 		if(w->r!=-1.0)
 			glColor3f (w->r, w->g, w->b);
 
-		glBegin (GL_LINES);
-
+		glBegin (GL_LINE_LOOP);
 		glVertex3i (w->pos_x, w->pos_y, 0);
 		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
-
-		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
-		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
-
 		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
 		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
-
-		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
-		glVertex3i (w->pos_x, w->pos_y, 0);
-
 		glEnd ();
 		
 		glEnable (GL_TEXTURE_2D);

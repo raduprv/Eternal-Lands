@@ -80,19 +80,11 @@ int	display_dialogue_handler(window_info *win)
 	glDisable(GL_TEXTURE_2D);
 	//draw the character frame
 	glColor3f(0.0f,1.0f,1.0f);
-	glBegin(GL_LINES);
+	glBegin(GL_LINE_LOOP);
 	glVertex3i(0,0,0);
 	glVertex3i(66,0,0);
-
-	glVertex3i(66,0,0);
-	glVertex3i(66,66,0);
-
 	glVertex3i(66,66,0);
 	glVertex3i(0,66,0);
-
-	glVertex3i(0,66,0);
-	glVertex3i(0,0,0);
-
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
