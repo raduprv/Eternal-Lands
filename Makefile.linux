@@ -30,7 +30,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	main.o manufacture.o map_io.o mapwin.o	\
 	md2loader.o md5.o misc.o multiplayer.o	\
 	new_actors.o new_character.o	\
-	options.o	\
+	openingwin.o options.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
 	questlog.o reflection.o	rules.o \
 	sector.o shadows.o sound.o spells.o stats.o tabs.o	\

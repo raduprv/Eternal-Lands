@@ -131,7 +131,6 @@ void draw_scene()
 					SDL_Delay(20);
 					return;
 				}
-#endif
 
 			if(interface_mode==interface_opening)
 				{
@@ -144,9 +143,7 @@ void draw_scene()
 					check_gl_errors();
 					return;
 				}
-		
 
-#ifndef WINDOW_CHAT
 			if(interface_mode==interface_log_in)
 				{
 					Enter2DMode();

@@ -647,6 +647,7 @@ void set_new_video_mode(int fs,int mode)
 	if (console_win >= 0) resize_window (console_win, window_width, window_height);
 	if (map_win >= 0) resize_window (map_win, window_width, window_height);
 	if (login_win >= 0) resize_window (login_win, window_width, window_height);
+	if (opening_win >= 0) resize_window (opening_win, window_width, window_height);
 #endif
 }
 
