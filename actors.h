@@ -155,7 +155,7 @@ typedef struct
 	body_part helmet[20];
 	weapon_part weapon[80];
 
-	shirt_part shirt[18];
+	shirt_part shirt[22];
 	skin_part  skin[4];
 	hair_part  hair[9];
 	boots_part boots[20];

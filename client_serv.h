@@ -70,6 +70,7 @@
 #define SHIRT_TITANIUM_CHAIN_ARMOR 15
 #define SHIRT_IRON_PLATE_ARMOR 16
 #define SHIRT_ARMOR_6 17
+#define SHIRT_FUR 18
 
 #define NO_BODY_ARMOR 0
 #define NO_PANTS_ARMOR 0
@@ -109,6 +110,7 @@
 #define PANTS_WHITE 8
 #define PANTS_LEATHER 9
 #define PANTS_IRON_CUISSES 10
+#define PANTS_FUR 11
 
 //capes
 #define CAPE_BLACK 0

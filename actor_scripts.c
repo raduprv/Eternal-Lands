@@ -902,9 +902,14 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].arms_name,"./md2/arms5.bmp");
 	my_strcp(actors_defs[human_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].model_name,"./md2/torso1_humanf.md2");
 	my_strcp(actors_defs[human_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].torso_name,"./md2/torso5.bmp");
+
 	my_strcp(actors_defs[human_female].shirt[SHIRT_IRON_PLATE_ARMOR].arms_name,"./md2/arms6.bmp");
 	my_strcp(actors_defs[human_female].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_humanf.md2");
 	my_strcp(actors_defs[human_female].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
+
+	my_strcp(actors_defs[human_female].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[human_female].shirt[SHIRT_FUR].model_name,"./md2/torso1_humanf.md2");
+	my_strcp(actors_defs[human_female].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
 
 	my_strcp(actors_defs[human_female].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[human_female].skin[SKIN_BROWN].head_name,"./md2/head_humanfbrown.bmp");
@@ -955,6 +960,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[human_female].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[human_female].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_humanf.md2");
+
+	my_strcp(actors_defs[human_female].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[human_female].legs[PANTS_FUR].model_name,"./md2/legs1_humanf.md2");
 
 	my_strcp(actors_defs[human_female].cape[CAPE_BLACK].model_name,"./md2/cape1_tallf.md2");
 	my_strcp(actors_defs[human_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -1482,6 +1490,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_male].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_humanm.md2");
 	my_strcp(actors_defs[human_male].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[human_male].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[human_male].shirt[SHIRT_FUR].model_name,"./md2/torso1_humanm.md2");
+	my_strcp(actors_defs[human_male].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[human_male].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[human_male].skin[SKIN_BROWN].head_name,"./md2/head_humanmbrown.bmp");
 	my_strcp(actors_defs[human_male].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -1532,6 +1544,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_male].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[human_male].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_humanm.md2");
 
+	my_strcp(actors_defs[human_male].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[human_male].legs[PANTS_FUR].model_name,"./md2/legs1_humanm.md2");
 
 	my_strcp(actors_defs[human_male].cape[CAPE_BLACK].model_name,"./md2/cape1_tallm.md2");
 	my_strcp(actors_defs[human_male].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -2072,6 +2086,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_female].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_elff.md2");
 	my_strcp(actors_defs[elf_female].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[elf_female].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[elf_female].shirt[SHIRT_FUR].model_name,"./md2/torso1_elff.md2");
+	my_strcp(actors_defs[elf_female].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[elf_female].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[elf_female].skin[SKIN_BROWN].head_name,"./md2/head_humanfbrown.bmp");
 	my_strcp(actors_defs[elf_female].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -2121,6 +2139,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[elf_female].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[elf_female].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_elff.md2");
+
+	my_strcp(actors_defs[elf_female].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[elf_female].legs[PANTS_FUR].model_name,"./md2/legs1_elff.md2");
 
 	my_strcp(actors_defs[elf_female].cape[CAPE_BLACK].model_name,"./md2/cape1_tallf.md2");
 	my_strcp(actors_defs[elf_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -2645,6 +2666,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_male].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_elfm.md2");
 	my_strcp(actors_defs[elf_male].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[elf_male].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[elf_male].shirt[SHIRT_FUR].model_name,"./md2/torso1_elfm.md2");
+	my_strcp(actors_defs[elf_male].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[elf_male].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[elf_male].skin[SKIN_BROWN].head_name,"./md2/head_elfmbrown.bmp");
 	my_strcp(actors_defs[elf_male].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -2694,6 +2719,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[elf_male].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[elf_male].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_elfm.md2");
+
+	my_strcp(actors_defs[elf_male].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[elf_male].legs[PANTS_FUR].model_name,"./md2/legs1_elfm.md2");
 
 	my_strcp(actors_defs[elf_male].cape[CAPE_BLACK].model_name,"./md2/cape1_tallm.md2");
 	my_strcp(actors_defs[elf_male].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -3215,6 +3243,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_dwarff.md2");
 	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_FUR].model_name,"./md2/torso1_dwarff.md2");
+	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[dwarf_female].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[dwarf_female].skin[SKIN_BROWN].head_name,"./md2/head_dwarffbrown.bmp");
 	my_strcp(actors_defs[dwarf_female].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -3264,6 +3296,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[dwarf_female].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[dwarf_female].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_dwarff.md2");
+
+	my_strcp(actors_defs[dwarf_female].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[dwarf_female].legs[PANTS_FUR].model_name,"./md2/legs1_dwarff.md2");
 
 	my_strcp(actors_defs[dwarf_female].cape[CAPE_BLACK].model_name,"./md2/cape1_shortf.md2");
 	my_strcp(actors_defs[dwarf_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -3785,6 +3820,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_dwarfm.md2");
 	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_FUR].model_name,"./md2/torso1_dwarfm.md2");
+	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[dwarf_male].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[dwarf_male].skin[SKIN_BROWN].head_name,"./md2/head_dwarfmbrown.bmp");
 	my_strcp(actors_defs[dwarf_male].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -3835,6 +3874,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[dwarf_male].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_dwarfm.md2");
 
+	my_strcp(actors_defs[dwarf_male].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[dwarf_male].legs[PANTS_FUR].model_name,"./md2/legs1_dwarfm.md2");
 
 	my_strcp(actors_defs[dwarf_male].cape[CAPE_BLACK].model_name,"./md2/cape1_shortm.md2");
 	my_strcp(actors_defs[dwarf_male].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -4360,6 +4401,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[gnome_female].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_gnomef.md2");
 	my_strcp(actors_defs[gnome_female].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[gnome_female].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[gnome_female].shirt[SHIRT_FUR].model_name,"./md2/torso1_gnomef.md2");
+	my_strcp(actors_defs[gnome_female].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[gnome_female].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[gnome_female].skin[SKIN_BROWN].head_name,"./md2/head_gnomefbrown.bmp");
 	my_strcp(actors_defs[gnome_female].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -4409,6 +4454,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[gnome_female].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[gnome_female].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_gnomef.md2");
+
+	my_strcp(actors_defs[gnome_female].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[gnome_female].legs[PANTS_FUR].model_name,"./md2/legs1_gnomef.md2");
 
 	my_strcp(actors_defs[gnome_female].cape[CAPE_BLACK].model_name,"./md2/cape1_gnomef.md2");
 	my_strcp(actors_defs[gnome_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -4931,6 +4979,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[gnome_male].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_gnomem.md2");
 	my_strcp(actors_defs[gnome_male].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[gnome_male].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[gnome_male].shirt[SHIRT_FUR].model_name,"./md2/torso1_gnomem.md2");
+	my_strcp(actors_defs[gnome_male].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[gnome_male].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[gnome_male].skin[SKIN_BROWN].head_name,"./md2/head_gnomembrown.bmp");
 	my_strcp(actors_defs[gnome_male].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -4980,6 +5032,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[gnome_male].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[gnome_male].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_gnomem.md2");
+
+	my_strcp(actors_defs[gnome_male].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[gnome_male].legs[PANTS_FUR].model_name,"./md2/legs1_gnomem.md2");
 
 	my_strcp(actors_defs[gnome_male].cape[CAPE_BLACK].model_name,"./md2/cape1_gnomem.md2");
 	my_strcp(actors_defs[gnome_male].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -5504,6 +5559,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[orchan_female].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_orchanf.md2");
 	my_strcp(actors_defs[orchan_female].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[orchan_female].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[orchan_female].shirt[SHIRT_FUR].model_name,"./md2/torso1_orchanf.md2");
+	my_strcp(actors_defs[orchan_female].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[orchan_female].skin[SKIN_BROWN].hands_name,"./md2/hands_orchanblue.bmp");
 	my_strcp(actors_defs[orchan_female].skin[SKIN_BROWN].head_name,"./md2/head_orchanfblue.bmp");
 	my_strcp(actors_defs[orchan_female].skin[SKIN_NORMAL].hands_name,"./md2/hands_orchangreen.bmp");
@@ -5553,6 +5612,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[orchan_female].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[orchan_female].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_orchanf.md2");
+
+	my_strcp(actors_defs[orchan_female].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[orchan_female].legs[PANTS_FUR].model_name,"./md2/legs1_orchanf.md2");
 
 	my_strcp(actors_defs[orchan_female].cape[CAPE_BLACK].model_name,"./md2/cape1_orchanf.md2");
 	my_strcp(actors_defs[orchan_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -6075,6 +6137,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[orchan_male].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_orchanm.md2");
 	my_strcp(actors_defs[orchan_male].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[orchan_male].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[orchan_male].shirt[SHIRT_FUR].model_name,"./md2/torso1_orchanm.md2");
+	my_strcp(actors_defs[orchan_male].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[orchan_male].skin[SKIN_BROWN].hands_name,"./md2/hands_orchanblue.bmp");
 	my_strcp(actors_defs[orchan_male].skin[SKIN_BROWN].head_name,"./md2/head_orchanmblue.bmp");
 	my_strcp(actors_defs[orchan_male].skin[SKIN_NORMAL].hands_name,"./md2/hands_orchangreen.bmp");
@@ -6124,6 +6190,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[orchan_male].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[orchan_male].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_orchanm.md2");
+
+	my_strcp(actors_defs[orchan_male].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[orchan_male].legs[PANTS_FUR].model_name,"./md2/legs1_orchanm.md2");
 
 	my_strcp(actors_defs[orchan_male].cape[CAPE_BLACK].model_name,"./md2/cape1_orchanm.md2");
 	my_strcp(actors_defs[orchan_male].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
