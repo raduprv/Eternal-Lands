@@ -124,6 +124,9 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!actors_list[i])break;
 		}
 
+	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
+	our_actor->current_displayed_text_time_left =  0;
+	
 	our_actor->texture_id=texture_id;
 	our_actor->is_enhanced_model=1;
 	our_actor->actor_id=actor_id;

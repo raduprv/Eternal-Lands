@@ -185,6 +185,9 @@ void read_key_config()
 		K_ITEM5 = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ITEM6",file_mem,key_file_size,0))!=-1)
 		K_ITEM6 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_VIEWTEXTASOVERTEXT",file_mem,key_file_size,0))!=-1)
+		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
+	
 
 }
 

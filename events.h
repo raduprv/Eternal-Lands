@@ -40,6 +40,7 @@ extern Uint32 K_ITEM3;
 extern Uint32 K_ITEM4;
 extern Uint32 K_ITEM5;
 extern Uint32 K_ITEM6;
+extern Uint32 K_VIEWTEXTASOVERTEXT;
 
 
 int HandleEvent(SDL_Event *event);

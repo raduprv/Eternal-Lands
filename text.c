@@ -145,6 +145,8 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 			{
 				playerName[j] = (char)text_to_add[i];
 				j++;
+				if (j>=128)
+					return;//over buffer
 			}
 			i++;
 		}
@@ -156,6 +158,8 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 			j = 0;
 			while (i<len)
 			{
+				if (j>=1024)
+					return;//over buffer
 				textbuffer[j] = (char)text_to_add[i];
 				i++;j++;
 			}
@@ -166,7 +170,12 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 				j = 0;
 				// Strip clan info
 				while (allowedCharInName(actors_list[i]->actor_name[j]))
-					actorName[j] = actors_list[i]->actor_name[j++];
+				{
+					actorName[j] = actors_list[i]->actor_name[j];
+					j++;
+					if (j>=128)
+						return;//over buffer
+				}
 				actorName[j] = 0;
 				if (strcmp(actorName, playerName)==0)
 				{

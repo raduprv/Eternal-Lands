@@ -39,7 +39,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	actor *our_actor;
 
 	our_actor = calloc(1, sizeof(actor));
-
+	
 	//find a free spot, in the actors_list
 	lock_actors_lists();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
@@ -61,6 +61,9 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 		{
 			texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,shirt_color,pants_color,boots_color);
 		}
+
+	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
+	our_actor->current_displayed_text_time_left =  0;
 
 	our_actor->is_enhanced_model=0;
 	our_actor->remapped_colors=remappable;
@@ -230,10 +233,11 @@ void draw_actor_overtext( actor* actor_ptr )
 		*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
 	tailleTexteHeight = (0.06f*zoom_level/3.0)*4;
 	fmargin = 0.02f*zoom_level;// border of the bubble size
-	delalageX = 0.5f;// position of the bubble
-	taillepicy = 0.5f;// size of the bubble 'leg'
+	delalageX = 0.3f;// position of the bubble
+	taillepicy = 0.7f;// size of the bubble 'leg'
 	taillepicx = 0.1f;
-	delalagePicX = 0.3f;
+	//delalagePicX = 0.3f;
+	delalagePicX = 0.2f;
 	z = 1.2f;// distance over the player
 	if (actor_ptr->sitting)		z = 0.8f; // close if he's sitting
 	w = tailleTexteWidth+fmargin*2;
@@ -256,32 +260,17 @@ void draw_actor_overtext( actor* actor_ptr )
 	decalageTexteX = -w/2+delalageX+delalagePicX+fmargin;
 	decalageTexteY = z+taillepicy-fmargin+tailleTexteHeight/2;
 	
-	glDepthFunc(GL_ALWAYS);// always draw bubbles over text
-	//---
-	// Draw bubble (white 80% blended)
 	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glColor4f(1.0f, 1.0f, 1.0f, 0.8f);
-	
-	glBegin(GL_TRIANGLES);
-	glVertex3f(ptx[0],		bulleZ,		pty[0]);
-	glVertex3f(ptx[1],		bulleZ,		pty[1]);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glBegin(GL_LINES);
+	for (i=0;i<=5;i++)
+	{
+		glVertex3f(ptx[i],		bulleZ,		pty[i]);
+		glVertex3f(ptx[i+1],	bulleZ,		pty[i+1]);
+	}
 	glVertex3f(ptx[6],		bulleZ,		pty[6]);
+	glVertex3f(ptx[0],		bulleZ,		pty[0]);
 	glEnd();
-	
-	glBegin(GL_TRIANGLES);
-	glVertex3f(ptx[2],		bulleZ,		pty[2]);
-	glVertex3f(ptx[3],		bulleZ,		pty[3]);
-	glVertex3f(ptx[5],		bulleZ,		pty[5]);
-	glEnd();
-	
-	glBegin(GL_TRIANGLES);
-	glVertex3f(ptx[3],		bulleZ,		pty[3]);
-	glVertex3f(ptx[4],		bulleZ,		pty[4]);
-	glVertex3f(ptx[5],		bulleZ,		pty[5]);
-	glEnd();
-	
-	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	
 	//---
@@ -289,7 +278,7 @@ void draw_actor_overtext( actor* actor_ptr )
 	glColor3f(0.4f,0.4f,0.4f);
 	draw_ingame_string(decalageTexteX,	decalageTexteY,actor_ptr->current_displayed_text,1,0);
 	
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 	if (actor_ptr->current_displayed_text_time_left<=0)
 	{	// clear if needed
 		actor_ptr->current_displayed_text_time_left = 0;
@@ -727,6 +716,9 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 	this_actor=calloc(1,sizeof(enhanced_actor));
 	our_actor = calloc(1, sizeof(actor));
 
+	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
+	our_actor->current_displayed_text_time_left =  0;
+	
 	//get the torso
 	my_strcp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name);
 	my_strcp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name);
@@ -800,37 +792,12 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 #define mini_bubble_ms	500		
 void	add_displayed_text_to_actor( actor * actor_ptr, const char* text )
 {
-	int actual_len;
 	int len_to_add;
-	char tempBuff[max_current_displayed_text_len];//sorry for the stack:)
-	
-	actual_len = strlen(actor_ptr->current_displayed_text);
 	len_to_add = strlen(text);
-	
-	if (len_to_add>max_current_displayed_text_len)
-	{		// Warning, text too long !
-		strncpy(tempBuff, text, max_current_displayed_text_len-5);
-		tempBuff[max_current_displayed_text_len-5] = '.';
-		tempBuff[max_current_displayed_text_len-4] = '.';
-		tempBuff[max_current_displayed_text_len-2] = '.';
-		tempBuff[max_current_displayed_text_len-1] = 0;
-		actor_ptr->current_displayed_text_time_left = max_current_displayed_text_len*ms_per_char;
-	}
-	else if (actual_len+len_to_add+1>=max_current_displayed_text_len)
-	{		// Strip the other text
-		strcpy(tempBuff, "...");
-		strcat(tempBuff, actor_ptr->current_displayed_text+max_current_displayed_text_len-len_to_add-5 );
-		strcat(tempBuff, " " );
-		strcat(tempBuff, text );
-		memcpy( actor_ptr->current_displayed_text, tempBuff, max_current_displayed_text_len );
-		actor_ptr->current_displayed_text_time_left = len_to_add*ms_per_char;
-	}
-	else
-	{		// ok, add it, or set it.
-		strcat(actor_ptr->current_displayed_text, " " );
-		strcat( actor_ptr->current_displayed_text, text );
-		actor_ptr->current_displayed_text_time_left += len_to_add*ms_per_char;
-	}
+	strncpy( actor_ptr->current_displayed_text, text, max_current_displayed_text_len-1 );
+	actor_ptr->current_displayed_text[max_current_displayed_text_len-1] = 0;
+	actor_ptr->current_displayed_text_time_left = len_to_add*ms_per_char;
+
 	actor_ptr->current_displayed_text_time_left += mini_bubble_ms;
 }
 
