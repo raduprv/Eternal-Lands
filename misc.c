@@ -643,7 +643,7 @@ void draw_heights_wireframe()
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 
-	glColor3f(0.8f,0.8f,0.8f);
+	glColor3f(gcr,gcg,gcb);
 
 	for(y=y_start;y<=y_end;y++)
 		{

@@ -26,6 +26,7 @@ float terrain_scale=2.0f;
 int last_texture=-2;
 int font_text;
 
+float gcr=0.8f,gcg=0.8f,gcb=0.8f;
 
 texture_cache_struct texture_cache[1000];
 e3d_cache_struct e3d_cache[1000];

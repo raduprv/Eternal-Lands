@@ -20,6 +20,11 @@ int HandleEvent(SDL_Event *event)
 	switch( event->type ) {
 
 	    case SDL_KEYDOWN:
+		if (event->key.keysym.sym == SDLK_1 && ctrl_on){gcr=1.0f;gcg=1.0f;gcb=1.0f;}
+		if (event->key.keysym.sym == SDLK_2 && ctrl_on){gcr=1.0f;gcg=0.0f;gcb=0.0f;}
+		if (event->key.keysym.sym == SDLK_3 && ctrl_on){gcr=0.0f;gcg=1.0f;gcb=0.0f;}
+		if (event->key.keysym.sym == SDLK_4 && ctrl_on){gcr=0.0f;gcg=0.0f;gcb=1.0f;}
+		if (event->key.keysym.sym == SDLK_5 && ctrl_on){gcr=0.0f;gcg=0.0f;gcb=0.0f;} 
 
 		if (event->key.keysym.sym == SDLK_TAB)heights_3d=!heights_3d;
 		if (event->key.keysym.sym == SDLK_g)view_grid=!view_grid;

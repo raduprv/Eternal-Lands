@@ -63,6 +63,8 @@ extern float camera_z_end_point;
 extern float terrain_scale;
 extern int last_texture;
 
+extern float gcr,gcg,gcb;
+
 //debug
 extern int texture2;
 extern int texture3;
