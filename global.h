@@ -14,7 +14,7 @@
 #include <time.h>
 
 /*#include <GL/glu.h>*/
-#ifndef	GNUC	// or should we test for VC
+#ifndef	__GNUC__	// or should we test for VC
 #define	snprintf _snprintf
 #endif
 
