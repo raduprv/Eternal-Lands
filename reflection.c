@@ -8,124 +8,13 @@ float mrandom(float max)
 	return ((float) max * (rand () % 8 ));
 }
 
-/*
-void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost)
-{
-	int i,j;
-	float x,y,z;
-	char *dest_frame_name;
-	int numFrames;
-    int numFaces;
-    text_coord_md2 *offsetTexCoords;
-    face_md2 *offsetFaces;
-    frame_md2 *offsetFrames;
-    vertex_md2 *vertex_pointer=NULL;
-
-	numFaces=model_data->numFaces;
-	numFrames=model_data->numFrames;
-	offsetFaces=model_data->offsetFaces;
-	offsetTexCoords=model_data->offsetTexCoords;
-	offsetFrames=model_data->offsetFrames;
-
-
-#ifdef	USE_VERTEXARRAYS
-	if(have_vertex_array)
-		{
-			glColor3f(1.0f,1.0f,1.0f);
-			draw_model(model_data, cur_frame, 0);
-		}
-	else
-		{
-#endif	//USE_VERTEXARRAYS
-	//now, go and find the current frame
-	i=0;
-	while(i<numFrames)
-		{
-			dest_frame_name=(char *)&offsetFrames[i].name;
-			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-				{
-					vertex_pointer=offsetFrames[i].vertex_pointer;
-					break;
-				}
-			i++;
-		}
-
-	i=0;
-	if(vertex_pointer==NULL)//if there is no frame, use idle01
-		{
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
-			log_error(str);
-			while(i<numFrames)
-				{
-					dest_frame_name=(char *)&offsetFrames[i].name;
-					if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
-						{
-							vertex_pointer=offsetFrames[i].vertex_pointer;
-							break;
-						}
-					i++;
-				}
-		}
-
-	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
-		{
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
-			log_error(str);
-			return;
-		}
-
-	glColor3f(1.0f,1.0f,1.0f);
-	glBegin(GL_TRIANGLES);
-	for(j=0;j<numFaces;j++)
-		{
-			x=vertex_pointer[offsetFaces[j].a].x;
-			y=vertex_pointer[offsetFaces[j].a].y;
-			z=vertex_pointer[offsetFaces[j].a].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].at].u,offsetTexCoords[offsetFaces[j].at].v);
-			glVertex3f(x,y,z);
-
-
-			x=vertex_pointer[offsetFaces[j].b].x;
-			y=vertex_pointer[offsetFaces[j].b].y;
-			z=vertex_pointer[offsetFaces[j].b].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].bt].u,offsetTexCoords[offsetFaces[j].bt].v);
-			glVertex3f(x,y,z);
-
-
-			x=vertex_pointer[offsetFaces[j].c].x;
-			y=vertex_pointer[offsetFaces[j].c].y;
-			z=vertex_pointer[offsetFaces[j].c].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].ct].u,offsetTexCoords[offsetFaces[j].ct].v);
-			glVertex3f(x,y,z);
-
-
-		}
-	glEnd();
-	}
-
-}
-*/
-
 void draw_actor_reflection(actor * actor_id)
 {
-	int i;	//,j;
+	int i;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	//float x,y,z;
 	int texture_id;
 	char *cur_frame;
-	//char *dest_frame_name;
-	//int numFrames;
-    //int numFaces;
-    //text_coord_md2 *offsetTexCoords;
-    //face_md2 *offsetFaces;
-    //frame_md2 *offsetFrames;
-    //vertex_md2 *vertex_pointer=NULL;
 
 	check_gl_errors();
 	if(!actor_id->remapped_colors)texture_id=texture_cache[actor_id->texture_id].texture_id;
@@ -142,34 +31,9 @@ void draw_actor_reflection(actor * actor_id)
 
 	cur_frame=actor_id->cur_frame;
 
-	//numFaces=actor_id->model_data->numFaces;
-	//numFrames=actor_id->model_data->numFrames;
-	//offsetFaces=actor_id->model_data->offsetFaces;
-	//offsetTexCoords=actor_id->model_data->offsetTexCoords;
-	//offsetFrames=actor_id->model_data->offsetFrames;
-
 	//now, go and find the current frame
 	i= get_frame_number(actor_id->model_data, cur_frame);
 	if(i<0)	return;	//nothing to draw
-	/*
-	while(i<numFrames)
-		{
-			dest_frame_name=(char *)&offsetFrames[i].name;
-			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-				{
-					vertex_pointer=offsetFrames[i].vertex_pointer;
-					break;
-				}
-			i++;
-		}
-	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
-		{
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
-			log_error(str);
-			return;
-		}
-	*/
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->x_pos;
@@ -190,38 +54,6 @@ void draw_actor_reflection(actor * actor_id)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 	draw_model(actor_id->model_data, cur_frame, actor_id->ghost);
-	/*
-	glColor3f(1.0f,1.0f,1.0f);
-	glBegin(GL_TRIANGLES);
-	for(j=0;j<numFaces;j++)
-		{
-			x=vertex_pointer[offsetFaces[j].a].x;
-			y=vertex_pointer[offsetFaces[j].a].y;
-			z=vertex_pointer[offsetFaces[j].a].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].at].u,offsetTexCoords[offsetFaces[j].at].v);
-			glVertex3f(x,y,z);
-
-
-			x=vertex_pointer[offsetFaces[j].b].x;
-			y=vertex_pointer[offsetFaces[j].b].y;
-			z=vertex_pointer[offsetFaces[j].b].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].bt].u,offsetTexCoords[offsetFaces[j].bt].v);
-			glVertex3f(x,y,z);
-
-
-			x=vertex_pointer[offsetFaces[j].c].x;
-			y=vertex_pointer[offsetFaces[j].c].y;
-			z=vertex_pointer[offsetFaces[j].c].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].ct].u,offsetTexCoords[offsetFaces[j].ct].v);
-			glVertex3f(x,y,z);
-
-
-		}
-	glEnd();
-	*/
 
 	glPopMatrix();
 	check_gl_errors();
@@ -233,11 +65,9 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	float x_rot,y_rot,z_rot;
 	int texture_id;
 	char *cur_frame;
-	//frame_md2 *offsetFrames;
 
 	check_gl_errors();
 	cur_frame=actor_id->cur_frame;
-	//offsetFrames=actor_id->body_parts->head->offsetFrames;
 	texture_id=actor_id->texture_id;
 
 	if(last_texture!=texture_id)
@@ -658,8 +488,6 @@ void draw_sky_background()
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	Leave2DMode();
-
-
 }
 
 void draw_dungeon_sky_background()
@@ -684,8 +512,6 @@ void draw_dungeon_sky_background()
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	Leave2DMode();
-
-
 }
 
 

@@ -221,9 +221,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
 			else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)glColor3f(1.0f,1.0f,1.0f);
 			else glColor3f(1.0f,1.0f,0.0f);
-			//draw_ingame_string(-(strlen(actor_id->actor_name)*SMALL_INGAME_FONT_X_LEN)/2,healtbar_z-0.7f,actor_id->actor_name,1,0);
-			//TODO: use text length function instead of strlen
-			//draw_ingame_string(-((float)strlen(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0,healtbar_z+0.05f,actor_id->actor_name,1,0);
 			set_font(name_font);	// to variable length
 			draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
 			set_font(0);	// back to fixed pitch
@@ -273,65 +270,20 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 	numFaces=model_data->numFaces;
 	check_gl_errors();
 	glColor3f(1.0f, 1.0f, 1.0f);
-#ifdef	USE_VERTEXARRAYS
-	if(have_vertex_array)
-		{
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
-			//glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
-			check_gl_errors();
-			if(have_compiled_vertex_array)glLockArraysEXT(0, numFaces*3);
-			glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
-			if(have_compiled_vertex_array)glUnlockArraysEXT();
-			//glDisableClientState(GL_VERTEX_ARRAY);
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			//check_gl_errors();
-		}
-	else
-#endif	//USE_VERTEXARRAYS
-		{
-			int i;	//,j;
-			text_coord_md2 *offsetTexCoords;
-			face_md2 *offsetFaces;
-			vertex_md2 *vertex_pointer=NULL;
-				//setup
-			glBegin(GL_TRIANGLES);
-			vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
-			offsetFaces=model_data->offsetFaces;
-			offsetTexCoords=model_data->offsetTexCoords;
-			//draw each triangle
-			for(i=0;i<numFaces;i++)
-				{
-					float x,y,z;
+	glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
+	glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 
-					glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
-					x=vertex_pointer[offsetFaces[i].a].x;
-					y=vertex_pointer[offsetFaces[i].a].y;
-					z=vertex_pointer[offsetFaces[i].a].z;
-					glVertex3f(x,y,z);
-
-					glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
-					x=vertex_pointer[offsetFaces[i].b].x;
-					y=vertex_pointer[offsetFaces[i].b].y;
-					z=vertex_pointer[offsetFaces[i].b].z;
-					glVertex3f(x,y,z);
-
-					glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
-					x=vertex_pointer[offsetFaces[i].c].x;
-					y=vertex_pointer[offsetFaces[i].c].y;
-					z=vertex_pointer[offsetFaces[i].c].z;
-					glVertex3f(x,y,z);
-				}
-			glEnd();
-		}
+	check_gl_errors();
+	if(have_compiled_vertex_array)glLockArraysEXT(0, numFaces*3);
+	glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
+	if(have_compiled_vertex_array)glUnlockArraysEXT();
 	check_gl_errors();
 }
 
 
 void draw_actor(actor * actor_id)
 {
-	int i;	//,j;
+	int i;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int texture_id;
@@ -375,14 +327,11 @@ void draw_actor(actor * actor_id)
 	glPopMatrix();//restore the scene
 	//now, draw their damage & nametag
 	glPushMatrix();
-	//glTranslatef(x_pos, y_pos, z_pos);
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
 	draw_actor_banner(actor_id, healtbar_z);
 	glPopMatrix();//we don't want to affect the rest of the scene
-	//if(!actor_id->ghost)glEnable(GL_LIGHTING);
-
 }
 
 
@@ -615,59 +564,6 @@ void add_actor_from_server(char * in_data)
 }
 
 
-/*
-void draw_interface_body_part(md2 *model_data)
-{
-	int i;
-	//char *dest_frame_name;
-	//int numFrames;
-	int numFaces;
-	text_coord_md2 *offsetTexCoords;
-	face_md2 *offsetFaces;
-	frame_md2 *offsetFrames;
-	vertex_md2 *vertex_pointer=NULL;
-
-	numFaces=model_data->numFaces;
-	//numFrames=model_data->numFrames;
-	offsetFaces=model_data->offsetFaces;
-	offsetTexCoords=model_data->offsetTexCoords;
-	offsetFrames=model_data->offsetFrames;
-
-
-	//now, go and find the current frame
-	i=	get_frame_number(model_data, "idle01");
-	if (i < 0)	return;
-
-	glColor3f(1.0f,1.0f,1.0f);
-	vertex_pointer=offsetFrames[i].vertex_pointer;
-	glBegin(GL_TRIANGLES);
-	for(i=0;i<numFaces;i++)
-		{
-			float x,y,z;
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
-			x=vertex_pointer[offsetFaces[i].a].x;
-			y=vertex_pointer[offsetFaces[i].a].y;
-			z=vertex_pointer[offsetFaces[i].a].z;
-			glVertex3f(x,y,z);
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
-			x=vertex_pointer[offsetFaces[i].b].x;
-			y=vertex_pointer[offsetFaces[i].b].y;
-			z=vertex_pointer[offsetFaces[i].b].z;
-			glVertex3f(x,y,z);
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
-			x=vertex_pointer[offsetFaces[i].c].x;
-			y=vertex_pointer[offsetFaces[i].c].y;
-			z=vertex_pointer[offsetFaces[i].c].z;
-			glVertex3f(x,y,z);
-		}
-	glEnd();
-
-}
-*/
-
-
 //this actor will be resized. We want speed, so that's why we add a different function
 void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 						  int z_pos, float x_rot,float y_rot, float z_rot)
@@ -697,9 +593,6 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	//if(actor_id->body_parts->legs)draw_interface_body_part(actor_id->body_parts->legs);
-	//if(actor_id->body_parts->torso)draw_interface_body_part(actor_id->body_parts->torso);
-	//if(actor_id->body_parts->head)draw_interface_body_part(actor_id->body_parts->head);
 	if(actor_id->body_parts->legs)draw_model(actor_id->body_parts->legs,"idle01",0);
 	if(actor_id->body_parts->torso)draw_model(actor_id->body_parts->torso,"idle01",0);
 	if(actor_id->body_parts->head)draw_model(actor_id->body_parts->head,"idle01",0);

@@ -341,7 +341,6 @@ void init_stuff()
 			have_multitexture=1;
 			log_to_console(c_green2,"GL_ARB_multitexture extension found, using it");
 		}
-#ifdef	USE_VERTEXARRAYS
 
 	have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
 	if(have_compiled_vertex_array < 0)
@@ -351,7 +350,6 @@ void init_stuff()
 		}
 	else log_to_console(c_green2,"GL_EXT_compiled_vertex_array extension found, using it...");
 
-#endif
 	check_gl_errors();
 
 

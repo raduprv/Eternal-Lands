@@ -86,11 +86,8 @@ typedef struct
 typedef struct
 {
    char name[16];
-   vertex_md2 *vertex_pointer;
    bounding_box_file_md2 box;
-#if defined(USE_VERTEXARRAYS)
    vertex_md2 *vertex_array;
-#endif
 } frame_md2;
 
 typedef struct
@@ -102,9 +99,7 @@ typedef struct
    text_coord_md2 *offsetTexCoords;
    face_md2 *offsetFaces;
    frame_md2 *offsetFrames;
-#if defined(USE_VERTEXARRAYS)
 	text_coord_md2	*text_coord_array;
-#endif
 }md2;
 
 

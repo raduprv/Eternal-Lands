@@ -135,8 +135,6 @@ void draw_3d_object_shadow(object3d * object_id)
 void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 {
 	int i;
-	//char *dest_frame_name;
-	//int numFrames;
     int numFaces;
 
 	//now, go and find the current frame
@@ -144,50 +142,11 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 	if(i < 0)return;	//can't draw it
 	numFaces=model_data->numFaces;
 
-#ifdef	USE_VERTEXARRAYS
 	check_gl_errors();
-	if(have_vertex_array)
-		{
-			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[i].vertex_array);
-			if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
-			glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
-			if(have_compiled_vertex_array)glUnlockArraysEXT();
-		}
-	else
-#endif	//USE_VERTEXARRAYS
-		{
-    		face_md2 *offsetFaces;
-    		frame_md2 *offsetFrames;
-    		vertex_md2 *vertex_pointer=NULL;
-
-    		text_coord_md2 *offsetTexCoords;
-			//numFrames=model_data->numFrames;
-			offsetFaces=model_data->offsetFaces;
-			offsetTexCoords=model_data->offsetTexCoords;
-			offsetFrames=model_data->offsetFrames;
-
-			vertex_pointer=offsetFrames[i].vertex_pointer;
-
-			glBegin(GL_TRIANGLES);
-			for(i=0;i<numFaces;i++)
-				{
-					float x,y,z;
-
-					x=vertex_pointer[offsetFaces[i].a].x;
-					y=vertex_pointer[offsetFaces[i].a].y;
-					z=vertex_pointer[offsetFaces[i].a].z;
-					glVertex3f(x,y,z);
-					x=vertex_pointer[offsetFaces[i].b].x;
-					y=vertex_pointer[offsetFaces[i].b].y;
-					z=vertex_pointer[offsetFaces[i].b].z;
-					glVertex3f(x,y,z);
-					x=vertex_pointer[offsetFaces[i].c].x;
-					y=vertex_pointer[offsetFaces[i].c].y;
-					z=vertex_pointer[offsetFaces[i].c].z;
-					glVertex3f(x,y,z);
-				}
-			glEnd();
-		}
+	glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[i].vertex_array);
+	if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
+	glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
+	if(have_compiled_vertex_array)glUnlockArraysEXT();
 	check_gl_errors();
 }
 
@@ -197,9 +156,6 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	char *cur_frame;
-	//frame_md2 *offsetFrames;
-
-	//offsetFrames=actor_id->body_parts->head->offsetFrames;
 
 	cur_frame=actor_id->cur_frame;
 
@@ -240,9 +196,7 @@ void draw_actor_shadow(actor * actor_id)
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	char *cur_frame;
-	//char *dest_frame_name;
 
-	//int numFrames;
     int numFaces;
 
 	//now, go and find the current frame
@@ -271,45 +225,10 @@ void draw_actor_shadow(actor * actor_id)
 
 	numFaces=actor_id->model_data->numFaces;
 	check_gl_errors();
-#ifdef	USE_VERTEXARRAYS
-	if(have_vertex_array)
-		{
-			glVertexPointer(3,GL_FLOAT,0,actor_id->model_data->offsetFrames[i].vertex_array);
-			if(have_compiled_vertex_array)glLockArraysEXT(0, actor_id->model_data->numFaces*3);
-			glDrawArrays(GL_TRIANGLES, 0, actor_id->model_data->numFaces*3);
-			if(have_compiled_vertex_array)glUnlockArraysEXT();
-		}
-	else
-#endif	//USE_VERTEXARRAYS
-		{
-    		face_md2 *offsetFaces;
-    		//frame_md2 *offsetFrames;
-    		vertex_md2 *vertex_pointer=NULL;
-
-			//numFrames=actor_id->model_data->numFrames;
-			offsetFaces=actor_id->model_data->offsetFaces;
-			//offsetFrames=actor_id->model_data->offsetFrames;
-
-			vertex_pointer=actor_id->model_data->offsetFrames[i].vertex_pointer;
-			glBegin(GL_TRIANGLES);
-			for(i=0;i<numFaces;i++)
-				{
-					float x,y,z;
-					x=vertex_pointer[offsetFaces[i].a].x;
-					y=vertex_pointer[offsetFaces[i].a].y;
-					z=vertex_pointer[offsetFaces[i].a].z;
-					glVertex3f(x,y,z);
-					x=vertex_pointer[offsetFaces[i].b].x;
-					y=vertex_pointer[offsetFaces[i].b].y;
-					z=vertex_pointer[offsetFaces[i].b].z;
-					glVertex3f(x,y,z);
-					x=vertex_pointer[offsetFaces[i].c].x;
-					y=vertex_pointer[offsetFaces[i].c].y;
-					z=vertex_pointer[offsetFaces[i].c].z;
-					glVertex3f(x,y,z);
-				}
-			glEnd();
-		}
+	glVertexPointer(3,GL_FLOAT,0,actor_id->model_data->offsetFrames[i].vertex_array);
+	if(have_compiled_vertex_array)glLockArraysEXT(0, actor_id->model_data->numFaces*3);
+	glDrawArrays(GL_TRIANGLES, 0, actor_id->model_data->numFaces*3);
+	if(have_compiled_vertex_array)glUnlockArraysEXT();
 
 	glPopMatrix();//restore the scene
 	check_gl_errors();
