@@ -885,6 +885,7 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
 }
 
 
+#ifdef	ELC
 int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 {
 	GLuint texture;
@@ -935,11 +936,6 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	free(texture_mem);
 	return texture;
 }
-
-
-
-
-
-
+#endif	//ELC
 
 

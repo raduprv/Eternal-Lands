@@ -415,8 +415,8 @@ void display_2d_objects()
 
 			         dist1= x-(int)obj_2d_list[i]->x_pos;
 			         dist2= y-(int)obj_2d_list[i]->y_pos;
-			         if(dist1*dist1+dist2*dist2<=75)
-                     draw_2d_object(obj_2d_list[i]);
+			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75)))
+                     	draw_2d_object(obj_2d_list[i]);
                  }
 		}
 }

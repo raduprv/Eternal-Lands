@@ -251,6 +251,7 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 	glDisable(GL_ALPHA_TEST);
 }
 
+#ifdef	ELC
 void draw_ingame_string(float x, float y,const unsigned char * our_string,
 						int max_lines,int big)
 {
@@ -353,10 +354,10 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 			i++;
 		}
 
-
     glEnd();
 	glDisable(GL_ALPHA_TEST);
 }
+#endif	//ELC
 
 
 

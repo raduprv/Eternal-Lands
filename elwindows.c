@@ -199,6 +199,9 @@ int	drag_windows(int mx, int my, int dx, int dy)
 								if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
 									drag_id= i;
 									break;
+								} else if(mouse_in_window(i, mx, my)){
+									// stop processing if we are inside of another window
+									return 0;
 								}
 							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
 								// try to find the next level
@@ -232,6 +235,9 @@ int	drag_windows(int mx, int my, int dx, int dy)
 						if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
 							drag_id= i;
 							break;
+						} else if(mouse_in_window(i, mx, my)){
+							// stop processing if we are inside of another window
+							return 0;
 						}
 					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
 						// try to find the next level
@@ -565,7 +571,7 @@ int	draw_window(window_info *win)
 
 	if(!win->displayed)	return 0;
 	// mouse over processing first
-	if(mouseover_window(win->window_id, mouse_x, mouse_y))elwin_mouse=1;
+	elwin_mouse= mouseover_window(win->window_id, mouse_x, mouse_y);
 	// now normal display processing
 	glPushMatrix();
 	glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
@@ -592,6 +598,8 @@ void	show_window(int win_id)
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
+	// pull to the top if not currently displayed
+	if(!windows_list.window[win_id].displayed)	select_window(win_id);
 	windows_list.window[win_id].displayed= 1;
 }
 
@@ -611,7 +619,11 @@ void	toggle_window(int win_id)
 	if(windows_list.window[win_id].displayed)
 		windows_list.window[win_id].displayed= 0;
 	else
-		windows_list.window[win_id].displayed= 1;
+		{
+			// pull to the top if not currently displayed
+			if(!windows_list.window[win_id].displayed)	select_window(win_id);
+			windows_list.window[win_id].displayed= 1;
+		}
 }
 
 
@@ -689,7 +701,10 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				ret_val= (*win->click_handler)(win, mx, my, flags);
 				glPopMatrix();
 
-				return	ret_val;
+				//return	ret_val;	// with click-thru
+				return	1;	// no click-thru permitted
+			} else {
+				return 1;
 			}
 		}
 
@@ -699,7 +714,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 int	mouseover_window(int win_id, int x, int y)
 {
 	int	mx,	my;
-	int	ret_val;
+	int	ret_val=0;
 	
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
@@ -713,8 +728,13 @@ int	mouseover_window(int win_id, int x, int y)
 				ret_val= (*windows_list.window[win_id].mouseover_handler)(&windows_list.window[win_id], mx, my);
 				glPopMatrix();
 
-				return	ret_val;
+			} 
+#ifdef	ELC
+			if(!ret_val) {
+				if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
 			}
+#endif	//ELC
+			return 1;
 		}
 
 	return 0;

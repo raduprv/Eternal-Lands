@@ -442,7 +442,8 @@ int HandleEvent(SDL_Event *event)
 								if(left_click==1 && cur_tool==tool_select && selected_2d_object!=-1)clone_2d_object(selected_2d_object);
 								else
 								{
-									get_2d_object_under_mouse();
+									if(selected_2d_object==-1)
+										get_2d_object_under_mouse();
 								}
 
 							}

@@ -372,7 +372,7 @@ void display_objects()
 
 					dist1=x-(int)objects_list[i]->x_pos;
 					dist2=y-(int)objects_list[i]->y_pos;
-					if(dist1*dist1+dist2*dist2<=29*29)
+					if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
 						{
 							float x_len;
 							float y_len;

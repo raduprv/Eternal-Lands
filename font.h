@@ -24,18 +24,23 @@ extern int	name_font;
 void draw_string(int x, int y,const unsigned char * our_string,int max_lines);
 void draw_string_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float text_zoom);
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines);
+#ifdef	ELC
 void draw_ingame_string(float x, float y,const unsigned char * our_string,
 						int max_lines,int big);
+#endif	//ELC
 int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float displayed_font_x_size, float displayed_font_y_size);
+
 int get_font_char(unsigned char cur_char);
 int find_font_char(unsigned char cur_char);
 int get_font_width(int cur_char);
 int get_char_width(unsigned char cur_char);
 int get_string_width(const unsigned char *str);
 int get_nstring_width(const unsigned char *str, int len);
+
 int load_font(int num, char *file);
 int	set_font(int num);
 void remove_font(int num);
 int init_fonts();
+
 #endif
 
