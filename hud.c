@@ -1202,6 +1202,6 @@ void draw_load_exp_display(){
 	glColor3f(0.87f, 0.67f, 0.49f);
 	sprintf(str, "Load:%4i", your_info.carry_capacity.base - your_info.carry_capacity.cur);
 	draw_string_small(load_bar_left+13, load_bar_bottom-15, str, 1);
-	sprintf(str, "Exp:%8li", nl_exp - cur_exp);
+	sprintf(str, "Exp:%8i", nl_exp - cur_exp);
 	draw_string_small(exp_bar_left+3, exp_bar_bottom-15, str, 1);
 }
