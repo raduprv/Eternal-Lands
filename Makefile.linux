@@ -1,14 +1,13 @@
 .PHONY: clean release
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC
-#-DPOSSIBLE_FIX -DOPTIMISED_LOCKS
-PLATFORM=-march=athlon64
+OPTIONS=-DLINUX -DELC -DPOSSIBLE_FIX -DOPTIMISED_LOCKS
+PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
 # basic compiling and linking - rarely changed
-CFLAGS=$(PLATFORM) -Wall -O -Werror -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -DPOSSIBLE_FIX -DOPTIMIZED_LOCKS
-_CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -DPOSSIBLE_FIX -DOPTIMIZED_LOCKS
+CFLAGS=$(PLATFORM) -Wall -O -Werror -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
+_CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
 LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL  -lvorbis -lvorbisfile
 _LDFLAGS=$(XDIR) -lGL -lpthread -lz
 STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a
