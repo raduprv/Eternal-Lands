@@ -42,5 +42,5 @@ translate.o: ../elc/translate.c ../elc/translate.h
 	$(CC) $(CFLAGS) -c $*.c
 
 clean:
-	-rm $(OBJS) mapedit.x86.linux.bin
+	-rm -f $(OBJS) mapedit.x86.linux.bin
 
