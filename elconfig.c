@@ -344,7 +344,7 @@ void init_vars()
 	add_var(INT,"server_port","sp",&port,change_int,2000);
 	add_var(STRING,"username","u",username_str,change_string,16);
 	add_var(SPECCHAR,"password","p",password_str,change_password,16);
-	add_var(BOOL,"log_server","log",&log_server,change_var,1);
+	add_var(INT,"log_server","log",&log_server,change_int,1);
 	add_var(STRING,"language","lang",lang,change_string,8);
 	add_var(STRING,"browser","b",broswer_name,change_string,70);
 #endif

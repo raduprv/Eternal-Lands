@@ -24,6 +24,7 @@ int log_server = 1;
 
 float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
+FILE	*srv_log=NULL;
 
 void write_to_log(Uint8 * data,int len)
 {
@@ -36,13 +37,18 @@ void write_to_log(Uint8 * data,int len)
 	if (chat_log == NULL)
 		{
 			char chat_log_file[100];
+			char srv_log_file[100];
 #ifndef WINDOWS
 			strcpy(chat_log_file, configdir);
 			strcat(chat_log_file, "chat_log.txt");
+			strcpy(srv_log_file, configdir);
+			strcat(srv_log_file, "srv_log.txt");
 #else
 			strcpy(chat_log_file, "chat_log.txt");
+			strcat(srv_log_file, "srv_log.txt");
 #endif
   			chat_log = fopen (chat_log_file, "a");
+  			srv_log = fopen (srv_log_file, "a");
 		}
 
 	j=0;
@@ -62,11 +68,16 @@ void write_to_log(Uint8 * data,int len)
 		}
 	str[j]='\n';
 
-	if(!server_message || log_server)
+	if(server_message && log_server==2)
 		{
-			fwrite(str, j+1, 1, chat_log);
+			fwrite(str, j+1, 1, srv_log);
+		}
+	else if (!server_message || log_server==1)
+		{
+                        fwrite(str, j+1, 1, chat_log);
 		}
   	fflush(chat_log);
+  	fflush(srv_log);
 }
 
 void send_input_text_line()
