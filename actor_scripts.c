@@ -583,6 +583,7 @@ void add_command_to_actor(int actor_id, char command)
 											}
 										else if(k>6)
 											{
+												// is the front a sit/stand spam?
 												if((actors_list[i]->que[0]==stand_up||actors_list[i]->que[0]==sit_down)
 												&&(actors_list[i]->que[1]==stand_up||actors_list[i]->que[1]==sit_down))
 													{
@@ -595,6 +596,14 @@ void add_command_to_actor(int actor_id, char command)
 														actors_list[i]->que[j]=nothing;
 														//backup one entry
 														k--;
+													}
+
+												// is the end a sit/stand spam?
+												else if((command==stand_up||command==sit_down)
+												&& (actors_list[i]->que[k-1]==stand_up||actors_list[i]->que[k-1]==sit_down))
+													{
+														actors_list[i]->que[k-1]=command;
+														break;
 													}
 
 											}
