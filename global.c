@@ -186,4 +186,3 @@ float texture_scale=12.0;
 int clouds_shadows=1;
 int use_mipmaps=0;
 
-

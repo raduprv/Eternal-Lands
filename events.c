@@ -113,7 +113,7 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 				}
-			}else{
+			} else {
 				if(undo_tile != -1 && undo_type == mode_tile){
 					tile_map[undo_tile] = undo_tile_value;
 					undo_tile = -1;
