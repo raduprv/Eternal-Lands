@@ -412,7 +412,7 @@ void load_all_tiles()
 	for(i=0;i<255;i++)
 	{
 		sprintf(str,"./tiles/tile%i.bmp",i);
-		if(!i || i>230) cur_text=load_texture_cache(str,water_alpha);
+		if(is_water_tile(i) && is_reflecting(i)) cur_text=load_texture_cache(str,70);
 		else cur_text=load_texture_cache(str,255);
 		if(cur_text==-1)return;
 		tile_list[i]=cur_text;
