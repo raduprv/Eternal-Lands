@@ -641,7 +641,7 @@ void get_bags_items_list(Uint8 *data)
 	draw_pick_up_menu();
 	if(item_window_on_drop)
 		{
-			display_items_menu();
+			view_window(&items_win, -1);
 		}
 	//clear the list
 	for(i=0;i<50;i++) ground_item_list[i].quantity=0;

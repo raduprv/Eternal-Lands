@@ -318,14 +318,14 @@ void next_command()
 									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].sit_down_frame);
 									actors_list[i]->stop_animation=1;
 									actors_list[i]->sitting=1;
-									if(actors_list[i]->actor_id==yourself)you_sit=1;
+									if(actors_list[i]->actor_id==yourself)you_sit_down();
 								}
 							else if(actors_list[i]->que[0]==stand_up)
 								{
 									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].stand_up_frame);
 									actors_list[i]->stop_animation=1;
 									actors_list[i]->sitting=0;
-									if(actors_list[i]->actor_id==yourself)you_sit=0;
+									if(actors_list[i]->actor_id==yourself)you_stand_up();
 								}
 							else if(actors_list[i]->que[0]==enter_combat)
 								{

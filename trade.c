@@ -536,7 +536,7 @@ void get_your_trade_objects(Uint8 *data)
 	trade_you_accepted=0;
 	trade_other_accepted=0;
 
-	display_trade_menu();
+	view_window(&trade_win, -1);
 
 	//we have to close the inventory and manufacture windows, otherwise bad things can happen.
 	hide_window(items_win);

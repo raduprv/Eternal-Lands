@@ -36,8 +36,10 @@ void go_afk()
 	log_to_console(c_green1,"Going AFK");
 	if(!you_sit) 
 		{
-			my_tcp_send(my_socket,"\7\1",2);//Sit down please...
-			you_sit=1;
+			Uint8 str[4];
+			str[0]=SIT_DOWN;
+			str[1]=1;
+			my_tcp_send(my_socket,str,2);
 		}
 	afk++;
 }

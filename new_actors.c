@@ -618,7 +618,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	actors_list[i]->cur_health=cur_health;
 	if(frame==frame_sit_idle)
 		{
-			if(actors_list[i]->actor_id==yourself)you_sit=1;
+			if(actors_list[i]->actor_id==yourself)you_sit_down();
 			actors_list[i]->sitting=1;
 		}
 	else if(frame==frame_combat_idle)

@@ -729,6 +729,9 @@ void	show_window(int win_id)
 	// pull to the top if not currently displayed
 	if(!windows_list.window[win_id].displayed)	select_window(win_id);
 	windows_list.window[win_id].displayed= 1;
+	
+	int id=translate_win_id(win_id);
+	if(id>=0) icons.icon[id]->state|=1;
 }
 
 void	hide_window(int win_id)
@@ -737,6 +740,9 @@ void	hide_window(int win_id)
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
 	windows_list.window[win_id].displayed= 0;
+	
+	int id=translate_win_id(win_id);
+	if(id>=0) icons.icon[id]->state=0;
 }
 
 void	toggle_window(int win_id)
@@ -745,11 +751,16 @@ void	toggle_window(int win_id)
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
 	if(windows_list.window[win_id].displayed)
-		windows_list.window[win_id].displayed= 0;
+		{
+			windows_list.window[win_id].displayed= 0;
+		}
 	else
 		{
 			// pull to the top if not currently displayed
-			if(!windows_list.window[win_id].displayed)	select_window(win_id);
+			if(!windows_list.window[win_id].displayed)	
+				{
+					select_window(win_id);
+				}
 			windows_list.window[win_id].displayed= 1;
 		}
 }

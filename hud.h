@@ -1,6 +1,55 @@
 #ifndef	__HUD_H
 #define	__HUD_H
 
+#include "elwindows.h"
+
+#define WALK 0
+#define SIT 1
+#define LOOK 2
+#define TRADE 3
+#define ATTACK 4
+#define USE 5
+
+#define NONE -1;
+#define DATA_INT 0
+#define DATA_INTPOINTER 1
+#define DATA_FLOAT 2
+#define DATA_FLOATPOINTER 3
+#define DATA_CHAR 4
+#define DATA_CHARPOINTER 5
+#define DATA_WINDOW 6
+
+//Any window that is not normally in a window struct:
+#define MAP_WINDOW (1<<30)
+#define CONSOLE_WINDOW (1<<29)
+
+extern int map_win;
+extern int console_win;
+
+typedef struct
+{
+	int state;
+	//Image position
+	float u[2];
+	float v[2];
+	//Help message
+	char help_message[120];
+	//Function pointer and data
+	int (*func)(void*, int);
+	void * data;
+	char data_type;
+} icon_struct;
+
+struct icons_struct
+{
+	int no;
+	int y;
+	int x;
+	icon_struct *icon[25];
+};
+
+extern struct icons_struct icons;
+
 // the main hud handling
 void init_hud_interface();
 void draw_hud_interface();
@@ -12,7 +61,15 @@ void draw_hud_frame();
 void init_peace_icons();
 void draw_peace_icons();
 int check_peace_icons();
+void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
+void reset_states(int id, int state);
+int translate_win_id(int win_id);
 extern int	icons_win;
+
+//Functions for the function pointers
+void switch_action_mode(int * mode, int id);
+void view_window(int * win, int id);
+void show_help(char *message, int mx);
 
 //stats/health section
 void init_stats_display();

@@ -14,5 +14,6 @@ void get_actor_damage(int actor_id, Uint8 damage);
 void get_actor_heal(int actor_id, Uint8 quantity);
 void move_self_forward();
 void init_actor_defs();
-
+void you_sit_down();
+void you_stand_up();
 #endif

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <ctype.h>
 #include "global.h"
 
 char	auto_open_encyclopedia= 1;
@@ -391,7 +392,7 @@ void test_for_console_command()
 	// TODO: make this automatic or a better command, m is too short
 	if(my_strncompare(text_loc,"msg", 3))
 		{
-			int no, m=-1;
+			int no;//, m=-1;
 
 			// find first space, then skip any spaces
 			while(*text_loc && !isspace(*text_loc))	text_loc++;
@@ -422,7 +423,7 @@ void test_for_console_command()
 	if(my_strncompare(text_loc,"help", 4))
 		{
 			// help can open the Enc!
-			if(auto_open_encyclopedia)	display_encyclopedia();
+			if(auto_open_encyclopedia)	view_window(&encyclopedia_win, -1);
 			// but fall thru and send it to the server
 		}
 	

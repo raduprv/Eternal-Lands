@@ -220,8 +220,7 @@ int HandleEvent(SDL_Event *event)
 
 				if(key==K_STATS)
 					{
-						if(!stats_win) display_stats(your_info);
-						else toggle_window(stats_win);
+						view_window(&stats_win, 0);
 						break;
 					}
 
@@ -245,22 +244,19 @@ int HandleEvent(SDL_Event *event)
 
 				if(key==K_OPTIONS)
 					{
-						if(!options_win) display_options_menu();
-						else toggle_window(options_win);
+						view_window(&options_win, 0);
 						break;
 					}
 				
 				if(key==K_KNOWLEDGE)
 					{
-						if(!knowledge_win) display_knowledge();
-						else toggle_window(knowledge_win);
+						view_window(&knowledge_win,0);
 						break;
 					}
 
 				if(key==K_ENCYCLOPEDIA)
 					{
-						if(!encyclopedia_win) display_encyclopedia();
-						else toggle_window(encyclopedia_win);
+						view_window(&encyclopedia_win,0);
 						break;
 					}
 
@@ -278,59 +274,25 @@ int HandleEvent(SDL_Event *event)
 
 				if(key==K_SIGILS)
 					{
-						if(!get_show_window(sigil_win))
-							{
-								if(get_show_window(trade_win))
-									{
-										log_to_console(c_red2,"You can't cast spells while on trade.");
-										return(done);
-									}
-							}
-						if(!sigil_win) display_sigils_menu();
-						else toggle_window(sigil_win);
+						view_window(&sigil_win,-1);
 						break;
 					}
 
 				if(key==K_MANUFACTURE)
 					{
-						if(!get_show_window(manufacture_win))
-							{
-								if(get_show_window(trade_win))
-									{
-										log_to_console(c_red2,"You can't manufacture while on trade.");
-										break;
-									}
-							}
-						if(!manufacture_win) display_manufacture_menu();
-						else toggle_window(manufacture_win);
+						view_window(&manufacture_win,-1);
 						break;
 					}
 
 				if(key==K_ITEMS)
 					{
-						if(!get_show_window(items_win))
-							{
-								if(get_show_window(trade_win))
-									{
-										log_to_console(c_red2,"You can't view your inventory items while on trade.");
-										break;
-									}
-								if(!items_win) display_items_menu();
-								else show_window(items_win);
-							}
-						else
-							{
-								hide_window(items_win);
-							}
+						view_window(&items_win,-1);
 						break;
 					}
 
 				if (key==K_MAP)
 					{
-						if(interface_mode==interface_map)
-							switch_from_game_map();
-						else if(interface_mode!=interface_log_in && interface_mode!=interface_new_char)
-							switch_to_game_map();
+						view_window(&map_win,-1);
 					}
 
 				if (key==K_ROTATELEFT)
