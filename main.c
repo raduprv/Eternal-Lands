@@ -6,7 +6,6 @@
 
 #ifdef WINDOWS
 #include <windows.h>
-
 #endif
 
 #include "global.h"
@@ -43,6 +42,7 @@ int start_rendering()
 				}
 			//advance the clock
 			cur_time = SDL_GetTicks();
+			checkTimer();		//SMW - timer special!
 			//check for network data
 			get_message_from_server();
 
@@ -134,8 +134,8 @@ int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 	// supposed to work in theory, untested
 	//argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-	//Main(argc, argv);
-	Main(_argc, _argv);
+	//Main(argc, (const char **) argv);
+	Main(_argc, (const char **)_argv);
 	return 0;
 }
 
