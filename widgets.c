@@ -82,11 +82,11 @@ Uint32 widget_id = 0x0000FFFF;
 // Common widget functions
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
+	widget_list *w = windows_list.window[window_id].widgetlist;
+	while(w != NULL){
 		if(w->id == widget_id)
 			return w;
+		w = w->next;
 	}
 	return NULL;
 }
@@ -210,7 +210,7 @@ int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, 
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	label *T = (label *) malloc(sizeof(label));
-	widget_list *w = &windows_list.window[window_id].widgetlist;
+	widget_list *w = windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
 	memset(W,0,sizeof(widget_list));
@@ -236,9 +236,16 @@ int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, 
 		W->OnInit(W);
 
 	// Adding the widget to the list
-	while(w->next != NULL)
-		w = w->next;
-	w->next = W;
+	if (w == NULL)
+	{
+		windows_list.window[window_id].widgetlist = W;
+	}
+	else
+	{
+		while(w->next != NULL)
+			w = w->next;
+		w->next = W;
+	}
 
 	return W->id;
 }
@@ -274,7 +281,7 @@ int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x,
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	image *T = (image *) malloc(sizeof(label));
-	widget_list *w = &windows_list.window[window_id].widgetlist;
+	widget_list *w = windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
 	memset(W,0,sizeof(widget_list));
@@ -304,9 +311,16 @@ int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x,
 		W->OnInit(W);
 
 	// Adding the widget to the list
-	while(w->next != NULL)
-		w = w->next;
-	w->next = W;
+	if (w == NULL)
+	{
+		windows_list.window[window_id].widgetlist = W;
+	}
+	else
+	{
+		while(w->next != NULL)
+			w = w->next;
+		w->next = W;
+	}
 
 	return W->id;
 
@@ -359,7 +373,7 @@ int checkbox_add_extended(Uint32 window_id,  Uint32 wid, int (*OnInit)(), Uint16
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	checkbox *T = (checkbox *) malloc(sizeof(label));
-	widget_list *w = &windows_list.window[window_id].widgetlist;
+	widget_list *w = windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
 	memset(W,0,sizeof(widget_list));
@@ -386,9 +400,16 @@ int checkbox_add_extended(Uint32 window_id,  Uint32 wid, int (*OnInit)(), Uint16
 		W->OnInit(W);
 
 	// Adding the widget to the list
-	while(w->next != NULL)
-		w = w->next;
-	w->next = W;
+	if (w == NULL)
+	{
+		windows_list.window[window_id].widgetlist = W;
+	}
+	else
+	{
+		while(w->next != NULL)
+			w = w->next;
+		w->next = W;
+	}
 
 	return W->id;
 }
@@ -448,7 +469,7 @@ int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	button *T = (button *) malloc(sizeof(button));
-	widget_list *w = &windows_list.window[window_id].widgetlist;
+	widget_list *w = windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
 	memset(W,0,sizeof(widget_list));
@@ -474,9 +495,16 @@ int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x
 		W->OnInit(W);
 
 	// Adding the widget to the list
-	while(w->next != NULL)
-		w = w->next;
-	w->next = W;
+	if (w == NULL)
+	{
+		windows_list.window[window_id].widgetlist = W;
+	}
+	else
+	{
+		while(w->next != NULL)
+			w = w->next;
+		w->next = W;
+	}
 
 	return W->id;
 }
@@ -522,7 +550,7 @@ int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	progressbar *T = (progressbar *) malloc(sizeof(progressbar));
-	widget_list *w = &windows_list.window[window_id].widgetlist;
+	widget_list *w = windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
 	memset(W,0,sizeof(widget_list));
@@ -548,9 +576,16 @@ int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 		W->OnInit(W);
 
 	// Adding the widget to the list
-	while(w->next != NULL)
-		w = w->next;
-	w->next = W;
+	if (w == NULL)
+	{
+		windows_list.window[window_id].widgetlist = W;
+	}
+	else
+	{
+		while(w->next != NULL)
+			w = w->next;
+		w->next = W;
+	}
 
 	return W->id;
 }
@@ -620,7 +655,7 @@ int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	vscrollbar *T = (vscrollbar *) malloc(sizeof(vscrollbar));
-	widget_list *w = &windows_list.window[window_id].widgetlist;
+	widget_list *w = windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
 	memset(W,0,sizeof(widget_list));
@@ -650,9 +685,16 @@ int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint
 		W->OnInit(W);
 
 	// Adding the widget to the list
-	while(w->next != NULL)
-		w = w->next;
-	w->next = W;
+	if (w == NULL)
+	{
+		windows_list.window[window_id].widgetlist = W;
+	}
+	else
+	{
+		while(w->next != NULL)
+			w = w->next;
+		w->next = W;
+	}
 
 	return W->id;
 }
@@ -816,7 +858,7 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 	int itab;
 	widget_list *W = (widget_list *) malloc (sizeof (widget_list));
 	tab_collection *T = (tab_collection *) malloc (sizeof (tab_collection));
-	widget_list *w = &windows_list.window[window_id].widgetlist;
+	widget_list *w = windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
 	memset(W,0,sizeof(widget_list));
@@ -855,9 +897,16 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 		W->OnInit(W);
 
 	// Adding the widget to the list
-	while(w->next != NULL)
-		w = w->next;
-	w->next = W;
+	if (w == NULL)
+	{
+		windows_list.window[window_id].widgetlist = W;
+	}
+	else
+	{
+		while(w->next != NULL)
+			w = w->next;
+		w->next = W;
+	}
 
 	return W->id;
 }
@@ -1017,7 +1066,7 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 {
 	widget_list *W = malloc ( sizeof (widget_list) );
 	text_field *T = malloc ( sizeof (text_field) );
-	widget_list *w = &windows_list.window[window_id].widgetlist;
+	widget_list *w = windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
 	memset ( W, 0, sizeof (widget_list) );
@@ -1053,9 +1102,16 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 		W->OnInit(W);
 
 	// Adding the widget to the list
-	while(w->next != NULL)
-		w = w->next;
-	w->next = W;
+	if (w == NULL)
+	{
+		windows_list.window[window_id].widgetlist = W;
+	}
+	else
+	{
+		while(w->next != NULL)
+			w = w->next;
+		w->next = W;
+	}
 
 	return W->id;
 }

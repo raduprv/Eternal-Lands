@@ -680,6 +680,9 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		win->mouseover_handler = NULL;
 		win->resize_handler = NULL;
 		win->keypress_handler = NULL;
+		
+		win->widgetlist = NULL;
+		
 		// now call the routine to place it properly
 		init_window (win_id, pos_id, pos_loc, pos_x, pos_y, size_x, size_y);
 	}
@@ -960,7 +963,7 @@ int	draw_window(window_info *win)
 	widget_list *W;
 	
 	if(win == NULL || win->window_id < 0)	return -1;
-	W = &win->widgetlist;
+	W = win->widgetlist;
 
 	if(!win->displayed)	return 0;
 	// mouse over processing first
@@ -983,10 +986,11 @@ int	draw_window(window_info *win)
 	}
 
 	// widget drawing
-	while(W->next != NULL){
-		W = W->next;
-		if(W->OnDraw != NULL)
+	while(W != NULL)
+	{
+		if (W->OnDraw != NULL)
 			W->OnDraw(W);
+		W = W->next;
 	}
 
 	glPopMatrix();
@@ -1127,7 +1131,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	win= &windows_list.window[win_id];
-	W = &win->widgetlist;
+	W = win->widgetlist;
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
 #ifdef OLD_EVENT_HANDLER
@@ -1159,14 +1163,15 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 			// widgets
 			glPushMatrix();
 			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-			while(W->next != NULL){
-				W = W->next;
+			while (W != NULL)
+			{
 				if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
 					if(W->OnClick != NULL)
 					{
 						W->OnClick(W,mx - W->pos_x, my - W->pos_y);
 					}
 				}
+				W = W->next;
 			}
 			glPopMatrix();
 
@@ -1199,7 +1204,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	win= &windows_list.window[win_id];
-	W = &win->widgetlist;
+	W = win->widgetlist;
 	if(win->drag_in || mouse_in_window(win_id, x, y) > 0)
 		{
 			//use the handler
@@ -1225,14 +1230,15 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 				// widgets
 				glPushMatrix();
 				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-				while(W->next != NULL){
-					W = W->next;
+				while(W != NULL)
+				{
 					if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
 						if(W->OnDrag != NULL)
 						{
 							W->OnDrag(W, mx - W->pos_x, my - W->pos_y, dx, dy);
 						}
 					}
+					W = W->next;
 				}
 				glPopMatrix();
 
@@ -1252,7 +1258,7 @@ int	mouseover_window(int win_id, int x, int y)
 {
 	int	mx,	my;
 	int	ret_val=0;
-	widget_list *W = &windows_list.window[win_id].widgetlist;
+	widget_list *W = windows_list.window[win_id].widgetlist;
 
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
@@ -1262,14 +1268,13 @@ int	mouseover_window(int win_id, int x, int y)
 			// widgets
 			glPushMatrix();
 			glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);
-			while(W->next != NULL){
-				W = W->next;
+			while(W != NULL)
+			{
 				if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
 					if(W->OnMouseover != NULL)
 						W->OnMouseover(W,mx,my);
 				}
-
-				
+				W = W->next;
 			}
 			glPopMatrix();
 
@@ -1306,7 +1311,7 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	win = &windows_list.window[win_id];
-	W = &win->widgetlist;
+	W = win->widgetlist;
 
 	if (mouse_in_window (win_id, x, y) > 0)
 	{
@@ -1316,9 +1321,8 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 		// widgets
 		glPushMatrix();
 		glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-		while(W->next != NULL)
+		while(W != NULL)
 		{
-			W = W->next;
 			if(mx > W->pos_x && mx <= (W->pos_x+W->len_x) && my > W->pos_y && my <= (W->pos_y+W->len_y))
 			{
 				if(W->OnKey != NULL)
@@ -1326,6 +1330,7 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 					ret_val |= W->OnKey (W, mx - W->pos_x, my - W->pos_y, key, unikey);
 				}
 			}
+			W = W->next;
 		}
 		glPopMatrix();
 

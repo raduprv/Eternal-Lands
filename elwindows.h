@@ -60,7 +60,7 @@ typedef	struct	{
 	int	data_value;	// a simple data value associated with this window
 	*/
 	void * data; /*!< data for this window */
-	widget_list widgetlist; /*!< list of widgets for this window */
+	widget_list *widgetlist; /*!< list of widgets for this window */
 } window_info;
 
 /*!
