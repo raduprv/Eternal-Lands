@@ -235,10 +235,11 @@ void update_position()
 int update_music(void *dummy)
 {
 #ifndef	NO_MUSIC
-    int error,processed,state;
+    int error,processed,state,sleep;
+	sleep = SLEEP_TIME;
 	while(have_music)
 		{
-			SDL_Delay(100);
+			SDL_Delay(sleep);
 			if(playing_music)
 				{
 					alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
@@ -254,7 +255,21 @@ int update_music(void *dummy)
 							alSourceQueueBuffers(music_source, 1, &buffer);
 						}
 					if(state != AL_PLAYING)
-						alSourcePlay(music_source);
+						{
+							//on slower systems, music can skip up to 10 times
+							//if it skips more, it just can't play the music...
+							if(sleep > SLEEP_TIME / 10)
+								sleep -= SLEEP_TIME / 10;
+							else if(sleep > 1) sleep = 1;
+							else
+								{
+									log_to_console(c_red1, "Sorry, too slow to play music\n");
+									LogError("Sorry, too slow to play music\n");
+									have_music = 0;
+									break;
+								}
+							alSourcePlay(music_source);
+						}
 					if((error=alGetError()) != AL_NO_ERROR)
 						{
 							char	str[256];

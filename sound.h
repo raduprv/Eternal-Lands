@@ -4,7 +4,8 @@
 #define max_buffers 9
 #define max_sources 16
 
-#define BUFFER_SIZE (4096 * 8)
+#define BUFFER_SIZE (4096 * 16)
+#define SLEEP_TIME 300
 
 #define max_songs 12
 
