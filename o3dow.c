@@ -3,8 +3,8 @@
 int view_o3dow=0;
 int o3dow_x=100;
 int o3dow_y=200;
-int o3dow_x_len=210;
-int o3dow_y_len=160;
+int o3dow_x_len=250;
+int o3dow_y_len=220;
 int o3dow_dragged=0;
 int o3dow_win=0;
 
@@ -14,13 +14,19 @@ int c2=0,c2_x1=100,c2_x2=114,c2_y1=33,c2_y2=47;
 int c3=0,c3_x1=100,c3_x2=114,c3_y1=53,c3_y2=67;
 int c4=0,c4_x1=100,c4_x2=114,c4_y1=73,c4_y2=87;
 int c5_x1=170,c5_x2=184,c5_y1=133,c5_y2=147;
+int c6_x1=170,c6_x2=184,c6_y1=193,c6_y2=207;
 
 //buttons
-int minh=0,maxh=0,randomheight=0;
+int mina=0,maxa=360,minh=0,maxh=0,randomheight=0, randomangle=0;
 int b1_x1=168,b1_x2=182,b1_y1=93,b1_y2=107;
 int b2_x1=190,b2_x2=204,b2_y1=93,b2_y2=107;
 int b3_x1=168,b3_x2=182,b3_y1=113,b3_y2=127;
 int b4_x1=190,b4_x2=204,b4_y1=113,b4_y2=127;
+
+int b5_x1=188,b5_x2=202,b5_y1=153,b5_y2=167;
+int b6_x1=210,b6_x2=224,b6_y1=153,b6_y2=167;
+int b7_x1=188,b7_x2=202,b7_y1=173,b7_y2=187;
+int b8_x1=210,b8_x2=224,b8_y1=173,b8_y2=187;
 
 void display_o3dow()
 {
@@ -76,6 +82,13 @@ int display_o3dow_handler()
 	glVertex3i(c4_x1,c4_y2,0);
 	glEnd();
 	
+	glBegin(randomangle ? GL_QUADS: GL_LINE_LOOP);
+	glVertex3i(c6_x1,c6_y1,0);
+	glVertex3i(c6_x2,c6_y1,0);
+	glVertex3i(c6_x2,c6_y2,0);
+	glVertex3i(c6_x1,c6_y2,0);
+	glEnd();
+
 	glBegin(randomheight ? GL_QUADS: GL_LINE_LOOP);
 	glVertex3i(c5_x1,c5_y1,0);
 	glVertex3i(c5_x2,c5_y1,0);
@@ -108,6 +121,31 @@ int display_o3dow_handler()
 	glVertex3i(b4_x2,b4_y2,0);
 	glVertex3i(b4_x1,b4_y2,0);
 	glEnd();
+	glBegin(GL_LINE_LOOP);
+	glVertex3i(b5_x1,b5_y1,0);
+	glVertex3i(b5_x2,b5_y1,0);
+	glVertex3i(b5_x2,b5_y2,0);
+	glVertex3i(b5_x1,b5_y2,0);
+	glEnd();
+	glBegin(GL_LINE_LOOP);
+	glVertex3i(b6_x1,b6_y1,0);
+	glVertex3i(b6_x2,b6_y1,0);
+	glVertex3i(b6_x2,b6_y2,0);
+	glVertex3i(b6_x1,b6_y2,0);
+	glEnd();
+	glBegin(GL_LINE_LOOP);
+	glVertex3i(b7_x1,b7_y1,0);
+	glVertex3i(b7_x2,b7_y1,0);
+	glVertex3i(b7_x2,b7_y2,0);
+	glVertex3i(b7_x1,b7_y2,0);
+	glEnd();
+	glBegin(GL_LINE_LOOP);
+	glVertex3i(b8_x1,b8_y1,0);
+	glVertex3i(b8_x2,b8_y1,0);
+	glVertex3i(b8_x2,b8_y2,0);
+	glVertex3i(b8_x1,b8_y2,0);
+	glEnd();
+
 
 
 
@@ -127,6 +165,14 @@ int display_o3dow_handler()
 	draw_string(10,110,temp,1);
 	draw_string(170,110,"+ -",1);
 	draw_string(10,130,"Random height: ",1);
+	
+	sprintf(temp,"Min angle: %d",mina);
+	draw_string(10,150,temp,1);
+	draw_string(190,150,"+ -",1);
+	sprintf(temp,"Max angle: %d",maxa);
+	draw_string(10,170,temp,1);
+	draw_string(190,170,"+ -",1);
+	draw_string(10,190,"Random angle: ",1);
 
 	return 1;
 }
@@ -153,11 +199,17 @@ int check_o3dow_interface()
 	if(x>c3_x1 && x<=c3_x2 && y>c3_y1 && y<=c3_y2)c3=!c3;
 	if(x>c4_x1 && x<=c4_x2 && y>c4_y1 && y<=c4_y2)c4=!c4;
 	if(x>c5_x1 && x<=c5_x2 && y>c5_y1 && y<=c5_y2)randomheight=!randomheight;
+	if(x>c6_x1 && x<=c6_x2 && y>c6_y1 && y<=c6_y2)randomangle=!randomangle;
 
 	if(x>b1_x1 && x<=b1_x2 && y>b1_y1 && y<=b1_y2)minh++;
 	if(x>b2_x1 && x<=b2_x2 && y>b2_y1 && y<=b2_y2)minh--;
 	if(x>b3_x1 && x<=b3_x2 && y>b3_y1 && y<=b3_y2)maxh++;
 	if(x>b4_x1 && x<=b4_x2 && y>b4_y1 && y<=b4_y2)maxh--;
+
+	if(x>b5_x1 && x<=b5_x2 && y>b5_y1 && y<=b5_y2)mina++;
+	if(x>b6_x1 && x<=b6_x2 && y>b6_y1 && y<=b6_y2)mina--;
+	if(x>b7_x1 && x<=b7_x2 && y>b7_y1 && y<=b7_y2)maxa++;
+	if(x>b8_x1 && x<=b8_x2 && y>b8_y1 && y<=b8_y2)maxa--;
 
 
    return 1;
