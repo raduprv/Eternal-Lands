@@ -108,11 +108,9 @@
 #include "mapwin.h"
 #include "loginwin.h"
 #include "openingwin.h"
+#include "books.h"
 #ifndef OLD_EVENT_HANDLER
 #include "chat.h"
-#endif
-#ifdef BOOK
-#include "books.h"
 #endif
 #ifdef CAL3D
 #include "cal3dwrap.h"

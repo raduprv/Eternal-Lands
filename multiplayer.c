@@ -136,21 +136,10 @@ void connect_to_server()
 	my_socket=SDLNet_TCP_Open(&ip);
 	if(!my_socket)
 		{
-			//check to see if the player is a moron...
-			if(server_address[0]=='1' && server_address[1]=='9' && server_address[2]=='2'
-			   && server_address[3]=='.' && server_address[4]=='1' && server_address[5]=='6'
-			   && server_address[6]=='8')
-			  	{
-			   		LOG_TO_CONSOLE(c_red1,license_check);
-					LOG_TO_CONSOLE(c_red1,alt_x_quit);
-				}
-			else
-				{
-					LOG_TO_CONSOLE(c_red1,failed_connect);
-					LOG_TO_CONSOLE(c_red1,reconnect_str);
-					LOG_TO_CONSOLE(c_red1,alt_x_quit);
-				}
-            return;
+			LOG_TO_CONSOLE(c_red1,failed_connect);
+			LOG_TO_CONSOLE(c_red1,reconnect_str);
+			LOG_TO_CONSOLE(c_red1,alt_x_quit);
+            		return;
 		}
 
 	if(SDLNet_TCP_AddSocket(set,my_socket)==-1)
@@ -928,6 +917,17 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					default:
 						break;
 				}
+			}
+
+		case OPEN_BOOK:
+			{
+				open_book(*((Uint16*)(in_data+3)));
+			}
+			break;
+
+		case READ_BOOK:
+			{
+				read_network_book(in_data+3, data_lenght-3);
 			}
 
 		default:

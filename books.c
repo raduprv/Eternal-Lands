@@ -11,6 +11,7 @@
 #define _TEXT 2
 #define _IMAGE 3
 #define _IMAGE_TEXT 4
+#define _PAGE 6
 
 book * books=NULL;
 
@@ -38,15 +39,16 @@ book * create_book(char * title, int type, int id)
 	book *b=(book*)calloc(1,sizeof(book));
 	
 	switch(type){
-		case 1:	
-			b->max_width=29;
-			b->max_lines=20;
-			type=1;
-			break;
 		case 2: 
 			b->max_width=20;
 			b->max_lines=15;
 			type=2;
+			break;
+		case 1:	
+		default:
+			b->max_width=29;
+			b->max_lines=20;
+			type=1;
 			break;
 	}
 	b->type=type;
@@ -124,13 +126,13 @@ int have_book(int id)
 
 book * get_book(int id)
 {
-	book *b=books;
-	if(b){
-		for(;b->next;b=b->next){
-			if(b->id==id) return b;
-		}
+	book *b;
+	
+	for(b=books;b;b=b->next){
+		if(b->id==id) break;
 	}
-	return NULL;
+	
+	return b;
 }
 
 void add_book(book *bs)
@@ -164,7 +166,7 @@ page * add_str_to_page(char * str, int type, book *b, page *p)
 		*lines++=(char*)calloc(1,sizeof(char));
 	}
 
-	for(;*newlines;i++) {
+	for(;newlines && *newlines;i++) {
 		if(type==_AUTHOR){
 			memmove(*newlines+1,*newlines,strlen(*newlines)+1);
 			**newlines=127+c_orange3;
@@ -211,6 +213,7 @@ char * wrap_line_around_image(char * line, int w, int x, int max_width, char * l
 						}
 						*line=*last;
 						i++;
+						if(!*last)break;
 					}
 				} else *line++=' ';
 			}
@@ -234,10 +237,10 @@ page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 	if(!img||!b) return NULL;
 	if(!p || p->image)p=add_page(b);
 
-	h=img->h/18+1;
-	y=img->y/18+1;
-	w=img->w/12+1;
-	x=img->x/12+1;
+	h=img->h/16+1;
+	y=img->y/16+1;
+	w=img->w/9;
+	x=img->x/10;
 
 	if(y+h>max_lines || w+x>max_width) return NULL;
 	
@@ -245,7 +248,7 @@ page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 
 	for(;line[i];i++);
 
-	if(i+h>=max_lines) {
+	if(i+h>=max_lines||y<=i) {
 		p=add_page(b);
 		line=p->lines;
 		i=0;
@@ -262,7 +265,7 @@ page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 		for(i=0;i<h;i++,line++){//
 			*line=(char*)malloc((max_width+2)*sizeof(char));
 			if(i && (w<(max_width/3*2) && x+w<max_width) && last_ptr && *last_ptr){//If it's more than 2/3rd of the page width, don't work on it
-				last_ptr=wrap_line_around_image(*line,w,x,b->max_width,last_ptr);
+				last_ptr=wrap_line_around_image(*line,w,x,b->max_width+1,last_ptr);
 			} else {
 				**line=0;
 			}
@@ -359,13 +362,12 @@ book * parse_book(xmlNode *in, char * title, int type, int id)
 	return b;
 }
 
-book * read_book(char * file)
+book * read_book(char * file, int type, int id)
 {
 	xmlDoc * doc;
 	xmlNode * root=NULL;
-	xmlChar *type=NULL,*title=NULL, *idstr=NULL;
+	xmlChar *title=NULL;
 	book *b=NULL;
-	int id;
 
 	if ((doc = xmlReadFile(file, NULL, 0)) == NULL) {
 		char str[200];
@@ -380,27 +382,15 @@ book * read_book(char * file)
 		char str[200];
 		snprintf(str,198,"Root element in %s is not <book>",file);
 		log_error(str);
-	} else if((type=xmlGetProp(root,"type"))==NULL){
-		char str[200];
-		snprintf(str,198,"Root element in %s does not contain a type=\"<booktype>\" property.",file);
-		log_error(str);
 	} else if((title=xmlGetProp(root,"title"))==NULL){
 		char str[200];
 		snprintf(str,198,"Root element in %s does not contain a title=\"<short title>\" property.",file);
 		log_error(str);
-	} else if((idstr=xmlGetProp(root,"id"))==NULL){
-		char str[200];
-		snprintf(str,198,"Root element in %s does not contain an id=\"<book id>\" property", file);
-		log_error(str);
 	} else {
-		id=atoi(idstr);
-		b=get_book(id);
-		if(!b) b=parse_book(root->children, title, atoi(type), id);
+		b=parse_book(root->children, title, type, id);
 	}
 	
-	if(type)free(type);
 	if(title)free(title);
-	if(idstr)free(idstr);
 	
 	xmlFreeDoc(doc);
 
@@ -409,44 +399,150 @@ book * read_book(char * file)
 
 /*Network parser*/
 
+void open_book(int id)
+{
+	book *b=get_book(id);
+
+	if(!b) {
+		char str[5];
+		
+		str[0]=SEND_BOOK;
+		*((Uint16*)(str+1))=id;
+		*((Uint16*)(str+3))=0;
+
+		my_tcp_send(my_socket, str, 5);
+
+		*((Uint16*)(str+3))=1;
+		my_tcp_send(my_socket, str, 5);
+	} else display_book_window(b);
+}
+
 void read_local_book(char * data, int len)
 {
 	char file_name[200];
 	book *b;
-	if(len>198) return;
-	strncpy(file_name,data,len);
-	b=read_book(file_name);
+
+	len-=3;
+	if(len>199)len=199;
+	strncpy(file_name,data+3, len);
+	file_name[len]=0;
+	
+	b=get_book(*((Uint16*)(data+1)));
+	if(!b) b=read_book(file_name,data[0],*((Uint16*)(data+1)));
+	if(!b) {
+		char str[200];
+		sprintf(str,"Could not open: %s", file_name);
+		LOG_TO_CONSOLE(c_red1, str);
+		return;
+	}
+	
 	display_book_window(b);//Otherwise there's no point...
 }
 
 page * add_image_from_server(char *data, book *b, page *p)
 {
+	int x, y;
+	int w, h;
+	int u_start, u_end;
+	int v_start, v_end;
+	char image_path[256];
+	char text[512];
+	int l=*((Uint16*)(data));
+	_image *img;
+
+	if(l>254)l=254;
+	memcpy(image_path, data+2, l);
+	image_path[l]=0;
+	
+	data+=l+2;
+
+	l=*((Uint16*)(data));
+	if(l>510)l=510;
+	memcpy(text, data+2, l);
+	text[l]=0;
+
+	data+=l+2;
+
+	x=*((Uint16*)(data));
+	y=*((Uint16*)(data+2));
+	w=*((Uint16*)(data+4));
+	h=*((Uint16*)(data+6));
+
+	u_start=data[8];
+	u_end=data[9];
+	v_start=data[10];
+	v_end=data[11];
+
+	img=create_image(image_path, x, y, w, h, u_start, v_start, u_end, v_end);
+	if(add_image_to_page(text, img, b, p)==NULL) free(img);
+	
 	return p;
 }
 
-void add_book_from_server(char * data, int len)
-{/*
-	char buffer[1024];
+void read_server_book(char * data, int len)
+{
+	char buffer[8192];
 	book *b;
 	page *p;
-	_image *i;
-	int l=*data++;//Title length
-	strncpy(buffer,data,l);
-	b=create_book(buffer,*(data+l),*((Uint16)*(data+l+1)));
-	data+=l+3;
+	int l=*((Uint16*)(data+4));
+
+	memcpy(buffer, data+6, l);
+	buffer[l]=0;
+	
+	b=get_book(*((Uint16*)(data+1)));
+	if(!b) b=create_book(buffer,*data,*((Uint16*)(data+1)));
+
+	b->server_pages=data[3];
+	b->have_server_pages++;
+
+	p=add_page(b);//Will create a page if pages is not found.
+
+	len-=l+6;
+	data+=l+6;
 	do {
+		l=*((Uint16*)(data+1));
+		memcpy(buffer, data+3, l);
+		buffer[l]=0;
+
 		switch(*data){
-			case TEXT:
-				p=add_str_to_page(buffer,TEXT,b,p);
+			case _TEXT:
+				p=add_str_to_page(buffer,_TEXT,b,p);
 				break;
-			case AUTHOR:
-				p=add_str_to_page(buffer,AUTHOR,b,p);
+			case _AUTHOR:
+				p=add_str_to_page(buffer,_AUTHOR,b,p);
+				break;
+			case _TITLE:
+				p=add_str_to_page(buffer,_TITLE,b,p);
 				break;
 			case _IMAGE:
 				p=add_image_from_server(buffer, b, p);
+				break;
+			case _PAGE:
+				//p=add_page(b);
+				break;
 		}
-	} while(len--);
-*/}
+		data+=l+3;
+		len-=l+3;
+	} while(len>0);
+
+	b->active_page+=b->pages_to_scroll;
+	b->pages_to_scroll=0;
+	
+	if(b)display_book_window(b);//Otherwise there's no point...
+}
+
+
+void read_network_book(char * in_data, int data_length)
+{
+	switch(*in_data){
+		case LOCAL:
+			read_local_book(in_data+1,data_length-1);
+			break;
+		case SERVER:
+			read_server_book(in_data+1,data_length-1);
+			break;
+	}
+}
 
 /*Generic display*/
 
@@ -617,9 +713,29 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 	my-=win->len_y;
 	if(my<-2 && my>-18) {
 		if(mx>10 && mx < 20){
-			if(b->active_page-b->type>=0)b->active_page-=b->type;
+			if(b->have_server_pages<b->server_pages){
+				if(b->active_page-b->type>=0)b->active_page-=b->type;
+				//We'll always have the first pages, you can't advance from 0-20 in 1 jump but must get them all.
+				//TODO: Make it possible to jump that many pages.
+			} else if(b->active_page-b->type>=0)b->active_page-=b->type;
 		} else if(mx>win->len_x-20 && mx<win->len_x-10){
-			if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
+			if(b->have_server_pages<b->server_pages){
+					//Get a 2 new pages...
+					char str[5];
+		
+					str[0]=SEND_BOOK;
+					*((Uint16*)(str+1))=b->id;
+					*((Uint16*)(str+3))=b->have_server_pages;
+					my_tcp_send(my_socket, str, 5);
+
+					if(b->have_server_pages+1<b->server_pages){
+						*((Uint16*)(str+3))=b->have_server_pages+1;
+						my_tcp_send(my_socket, str, 5);
+					}
+
+					if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
+					else b->pages_to_scroll=b->type;
+			} else if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
 		}
 		if(b->type==1){
 			x=50;
@@ -698,7 +814,7 @@ void display_book_window(book *b)
 			strcpy(windows_list.window[*p].window_name,b->title);
 			windows_list.window[*p].data=b;
 			if(!windows_list.window[*p].displayed) show_window(*p);
-		}else toggle_window(*p);
+		}//else toggle_window(*p);
         }
 }
 

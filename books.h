@@ -6,6 +6,14 @@
 #ifndef __BOOKS_H__
 #define __BOOKS_H__
 
+/*! 
+ * Server side defines, specifies if it's a book that's supposed to be read from the server or from the books/ directory.
+ */
+/*! \{ */
+#define LOCAL 0
+#define SERVER 1
+/*! \} */
+
 /*!
  * The image structure - holds the filename, u/v-coordinates and the texture ID
  */
@@ -46,11 +54,15 @@ struct _book {
 	
 	int type;	 /*!< The type of book (currently the only available types are paper or book)*/
 	
-	int no_pages; /*!< The number of pages*/
+	int no_pages; /*!< The number of pages that we have loaded*/
 	page ** pages; /*!< The pages - the last page is NULL*/
 	int max_width;/*!< The page width in characters*/
 	int max_lines; /*!< The max. number of lines*/
 	
+	int server_pages;/*!< The number of server-side pages in the book (different from client-side)*/
+	int have_server_pages;/*!< The number of server-side pages we have*/
+	int pages_to_scroll; /*!< The number of pages to scroll when the next page is recieved*/
+
 	int active_page; /*!< The currently active page*/
 
 	struct _book * next; /*!< The next book*/
@@ -317,10 +329,13 @@ book * parse_book(xmlNode *in, char * title, int type, int id);
  * \endcode
  * 
  * \param	file The file you wish to open
+ * \param	type The type of book (a note or a book)
+ * \param	id The server-side book ID
+ * 
  * \retval book*	Returns a pointer to the book loaded or NULL on error
  * \callgraph
  */
-book * read_book(char * file);
+book * read_book(char * file, int type, int id);
 
 /*!
  * \ingroup	network_books
@@ -359,10 +374,30 @@ page * add_image_from_server(char *data, book *b, page *p);
  * \param	data The network data
  * \param	len The length of the data
  *
- * \todo 	Finish this function.
  * \callgraph
  */
-void add_book_from_server(char * data, int len);
+void read_server_book(char * data, int len);
+
+/*!
+ * \ingroup	network_books
+ * \brief	Selects the parser for the book send from the server
+ *
+ * 		When the server sends a book to the client the first byte will be used to specify the parser that's going to be used - whether the book is local and uses xml or if it's server-side and uses the network data parser.
+ *
+ * \param	data The network data
+ * \param	len The length of the data
+ */
+void read_network_book(char * data, int len);
+
+/*!
+ * \ingroup	network_books
+ * \brief	Opens the book with the given ID
+ *
+ * 		Opens the book with the given ID - if the book isnt found it will send a SEND_BOOK followed by the ID to the server.
+ *
+ * \param	id The book ID
+ */
+void open_book(int id);
 
 /*!
  * \ingroup	books_win

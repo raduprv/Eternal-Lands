@@ -5,7 +5,6 @@ OPTIONS=-DLINUX -DELC
 #-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
-#-DBOOK
 ## use -DOLD_EVENT_HANDLER only to check if an error is caused by the new root windows!!!
 #-DOLD_EVENT_HANDLER 
 
@@ -21,7 +20,8 @@ STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a
 
 # the objects we need
 OBJS=2d_objects.o 3d_objects.o	\
-	actor_scripts.o actors.o asc.o buddy.o \
+	actor_scripts.o actors.o asc.o \
+	books.o buddy.o \
 	cache.o chat.o colors.o console.o consolewin.o cursors.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
@@ -38,7 +38,6 @@ OBJS=2d_objects.o 3d_objects.o	\
 	sector.o shadows.o sound.o spells.o stats.o tabs.o	\
 	text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	weather.o widgets.o 
-	#books.o
 
 # the compile targets
 el.x86.linux.bin: $(OBJS)
