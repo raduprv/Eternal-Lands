@@ -97,4 +97,6 @@ unsigned int CRC32(unsigned char *, int);
 unsigned short get_key_code(char *);
 unsigned int parse_key_string(char *s);
 void add_key(unsigned int *key,unsigned int n);
-#endif
+
+#endif	//__INIT_H__
+

@@ -191,8 +191,6 @@ void read_key_config()
 		K_ITEM6 = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_VIEWTEXTASOVERTEXT",file_mem,key_file_size,0))!=-1)
 		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
-	
-
 }
 
 
@@ -355,6 +353,7 @@ void read_bin_cfg()
 	if(cfg_mem.cfg_version_num != CFG_VERSION) return; //oops! ignore the file
 
 	//good, retrive the data
+	// TODO: move window save/restore into the window handler
 	items_menu_x=cfg_mem.items_menu_x;
 	items_menu_y=cfg_mem.items_menu_y;
 
@@ -390,8 +389,8 @@ void read_bin_cfg()
 	questlog_menu_y=cfg_mem.questlog_menu_y;
 
 	watch_this_stat=cfg_mem.watch_this_stat;
-	if(watch_this_stat<0 || watch_this_stat>10)//change later on, if when add more skills to watch
-	watch_this_stat=0;
+	if(watch_this_stat<0 || watch_this_stat>=NUM_WATCH_STAT)
+		watch_this_stat=0;
 
 	cx=cfg_mem.camera_x;
 	cy=cfg_mem.camera_y;
@@ -400,7 +399,6 @@ void read_bin_cfg()
 	rz=cfg_mem.camera_angle;
 
 	if(zoom_level != 0.0f) resize_window();
-
 }
 
 void save_bin_cfg()
@@ -417,6 +415,41 @@ void save_bin_cfg()
 
 	cfg_mem.cfg_version_num=CFG_VERSION;	// set the version number
 	//good, retrive the data
+	/*
+	// TODO: move window save/restore into the window handler
+	cfg_mem.items_menu_x=items_menu_x;
+	cfg_mem.items_menu_y=items_menu_y;
+
+	cfg_mem.ground_items_menu_x=ground_items_menu_x;
+	cfg_mem.ground_items_menu_y=ground_items_menu_y;
+
+	cfg_mem.trade_menu_x=trade_menu_x;
+	cfg_mem.trade_menu_y=trade_menu_y;
+
+	cfg_mem.sigil_menu_x=sigil_menu_x;
+	cfg_mem.sigil_menu_y=sigil_menu_y;
+
+	cfg_mem.dialogue_menu_x=dialogue_menu_x;
+	cfg_mem.dialogue_menu_y=dialogue_menu_y;
+
+	cfg_mem.manufacture_menu_x=manufacture_menu_x;
+	cfg_mem.manufacture_menu_y=manufacture_menu_y;
+
+	cfg_mem.attrib_menu_x=attrib_menu_x;
+	cfg_mem.attrib_menu_y=attrib_menu_y;
+
+	cfg_mem.options_menu_x=options_menu_x;
+	cfg_mem.options_menu_y=options_menu_y;
+
+	cfg_mem.knowledge_menu_x=knowledge_menu_x;
+	cfg_mem.knowledge_menu_y=knowledge_menu_y;
+
+	cfg_mem.encyclopedia_menu_x=encyclopedia_menu_x;
+	cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
+
+	cfg_mem.questlog_menu_x=questlog_menu_x;
+	cfg_mem.questlog_menu_y=questlog_menu_y;
+*/
 	if(items_win) {
 		cfg_mem.items_menu_x=windows_list.window[items_win].cur_x;
 		cfg_mem.items_menu_y=windows_list.window[items_win].cur_y;
