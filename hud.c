@@ -1004,8 +1004,7 @@ void draw_misc_display()
 			//Digital Clock
 			if(view_digital_clock==1){
 				char str[5];
-				snprintf(str,4,"%1d:%02d", game_minute/60, game_minute%60);
-				str[5]=0;
+				snprintf(str,5,"%1d:%02d", game_minute/60, game_minute%60); 
 				glColor3f(0.77f,0.57f,0.39f);
 				draw_string(window_width-51,window_height-145,str,1);
 			}

@@ -25,7 +25,7 @@ CFG=elc - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=C:\Archivos de programa\Codeplay\vectorcl.exe
+CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
@@ -1086,7 +1086,15 @@ SOURCE=.\CHANGES
 # End Source File
 # Begin Source File
 
+SOURCE=.\el.ini
+# End Source File
+# Begin Source File
+
 SOURCE=.\eternal_lands_license.txt
+# End Source File
+# Begin Source File
+
+SOURCE=.\key.ini
 # End Source File
 # Begin Source File
 
