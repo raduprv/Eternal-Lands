@@ -99,8 +99,10 @@ int main(int argc, const char *argv[])
     init_stuff();
 
 	// put this back in after windows compiling doesn't complain
-#ifndef WINDOWS
+//#ifndef WINDOWS	//may be a compiler specific issue?
 	// args processed after the init to override initialization
+	// NOTE: under Dev-C++ -liberty needs to be added to compile,
+	// 		 other compilers may need different options
 	while((c=getopt(argc, argv, "u:p:")) >= 0)
 		{
 			switch(c){
@@ -117,7 +119,7 @@ int main(int argc, const char *argv[])
 				break;
 			}
 		}
-#endif
+//#endif
     start_rendering();
 
 	return 0;
@@ -127,7 +129,7 @@ int main(int argc, const char *argv[])
 int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
 	LPWSTR	*argv;
-	DWORD	argc;
+	int	argc;
 
 	// supposed to work in theory, untested
 	argv = CommandLineToArgvW(GetCommandLineW(), &argc);
