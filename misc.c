@@ -206,7 +206,7 @@ void clone_2d_object(int object_id)
 			if(collide>1)
 				{
 					up++;
-					if(up>4)
+					if(up>=4)
 						up=0;
 					if(up)
 						z_pos+=0.01;
