@@ -34,16 +34,16 @@ void load_ogg_file(int i) {
 	ogg_file = fopen(music_files[i], "rb");
 	if(!ogg_file) {
 		char	str[256];
-		sprintf(str, "Failed to load ogg file: %s\n", music_files[i]);
+		snprintf(str, 256, "Failed to load ogg file: %s\n", music_files[i]);
 		log_to_console(c_red1, str);
-		log_error(str);
+		LogError(str);
 		have_music=0;
 		return;
 	}
 
 	if(ov_open(ogg_file, &ogg_stream, NULL, 0) < 0) {
 		log_to_console(c_red1, "Failed to load ogg stream\n");
-		log_error("Failed to load ogg stream\n");
+		LogError("Failed to load ogg stream");
 		have_music=0;
 	}
 
@@ -65,9 +65,9 @@ ALuint get_loaded_buffer(int i)
 			if((error=alGetError()) != AL_NO_ERROR) 
 				{
 					char	str[256];
-					sprintf(str, "Error creating buffer: %s\n", alGetString(error));
+					snprintf(str, 256, "Error creating buffer: %s\n", alGetString(error));
 					log_to_console(c_red1, str);
-					log_error(str);
+					LogError(str);
 					have_sound=0;
 					have_music=0;
 				}
@@ -86,13 +86,13 @@ void play_music(int i) {
 
 	if(i >= max_songs)
 		{
-			log_error("Got invalid song number\n");
+			LogError("Got invalid song number");
 			return;
 		}
 
 	alSourceStop(music_source);
 	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-	while(queued--)
+	while(queued-- > 0)
 		{
 			ALuint buffer;
 			
@@ -110,9 +110,9 @@ void play_music(int i) {
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		sprintf(str, "play_music error: %s\n", alGetString(error));
+    		snprintf(str, 256, "play_music error: %s\n", alGetString(error));
     		log_to_console(c_red1, str);
-    		log_error(str);
+    		LogError(str);
 			have_music=0;
     	}
 	playing_music = 1;
@@ -129,7 +129,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 
 	if(sound_file >= max_buffers)
 		{
-			log_error("Got invalid sound number\n");
+			LogError("Got invalid sound number\n");
 			return 0;
 		}
 
@@ -151,9 +151,9 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
     		char	str[256];
-    		sprintf(str, "Error creating a source %d: %s\n", i, alGetString(error));
+    		snprintf(str, 256, "Error creating a source %d: %s\n", i, alGetString(error));
     		log_to_console(c_red1, str);
-    		log_error(str);
+    		LogError(str);
 			have_sound=0;
 			have_music=0;
 			return 0;
@@ -222,9 +222,9 @@ void update_position()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		sprintf(str, "update_position error: %s\n", alGetString(error));
+    		snprintf(str, 256, "update_position error: %s\n", alGetString(error));
     		log_to_console(c_red1, str);
-    		log_error(str);
+    		LogError(str);
 			have_sound=0;
 			have_music=0;
     	}
@@ -241,7 +241,7 @@ void update_music()
 	alGetSourcei(music_source, AL_SOURCE_STATE, &state);
 
 	if(!processed)return; //skip error checking et al
-    while(processed--)
+    while(processed-- > 0)
     {
         ALuint buffer;
         
@@ -254,9 +254,9 @@ void update_music()
 	if((error=alGetError()) != AL_NO_ERROR)
     	{
      		char	str[256];
-    		sprintf(str, "update_music error: %s\n", alGetString(error));
+    		snprintf(str, 256, "update_music error: %s\n", alGetString(error));
     		log_to_console(c_red1, str);
-    		log_error(str);
+    		LogError(str);
 			have_music=0;
     	}
 #endif	//NO_MUSIC
@@ -266,18 +266,20 @@ void stream_music(ALuint buffer) {
 #ifndef	NO_MUSIC
     char data[BUFFER_SIZE];
     int  size = 0;
-    int  section;
+    int  section = 0;
     int  result = 0;
-	int error;
+	int error = 0;
+	char str[256];
 
     while(size < BUFFER_SIZE)
     {
         result = ov_read(&ogg_stream, data + size, BUFFER_SIZE - size, 0, 2, 1,
 						 &section);
-    
+sprintf(str, "%d", result);	//prevents optimization errors under Windows, but how/why?
+   
         if(result > 0)
             size += result;
-        else if(!result) break;
+        else if(result<=0) break;
     }
 	if(!size)return;
 
@@ -285,10 +287,9 @@ void stream_music(ALuint buffer) {
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-     		char	str[256];
-    		sprintf(str, "stream_music error: %s\n", alGetString(error));
+    		snprintf(str, 256, "stream_music error: %s\n", alGetString(error));
     		log_to_console(c_red1, str);
-    		log_error(str);
+    		LogError(str);
 			have_music=0;
     	}
 #endif	//NO_MUSIC
@@ -306,16 +307,16 @@ void kill_local_sounds()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		sprintf(str, "kill_local_sounds error: %s\n", alGetString(error));
+    		snprintf(str, 256, "kill_local_sounds error: %s\n", alGetString(error));
     		log_to_console(c_red1, str);
-    		log_error(str);
+    		LogError(str);
 			have_sound=0;
 			have_music=0;
     	}
 	if(realloc_sources())
 		{
 			log_to_console(c_red1, "Failed to stop all sounds.\n");
-			log_error("Failed to stop all sounds.\n");
+			LogError("Failed to stop all sounds.");
 		}
 	unlock_sound_list();
 }
@@ -394,9 +395,9 @@ void init_sound()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		sprintf(str, "Error initializing sound: %s\n", alGetString(error));
+    		snprintf(str, 256, "Error initializing sound: %s\n", alGetString(error));
     		log_to_console(c_red1, str);
-    		log_error(str);
+    		LogError(str);
 			have_sound=0;
 			have_music=0;
     	}
@@ -501,16 +502,16 @@ int realloc_sources()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		sprintf(str, "realloc_sources error: %s", alGetString(error));
+    		snprintf(str, 256, "realloc_sources error: %s", alGetString(error));
     		log_to_console(c_red1, str);
-    		log_error(str);
+    		LogError(str);
 			have_sound=0;
 			have_music=0;
     	}
 	if(used_sources>=max_sources) 
     	{
     		log_to_console(c_red1,"Too many sounds.\n");
-    		log_error("Too many sounds.\n");
+    		LogError("Too many sounds.");
 			return -1;
     	}
 	else
