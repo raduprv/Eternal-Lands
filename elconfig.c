@@ -290,6 +290,7 @@ void free_vars()
 		{
 			free(our_vars.var[i]);
 		}
+	our_vars.no=0;
 }
 
 void add_var(int type, char * name, char * shortname, void * var, void * func, int def)
