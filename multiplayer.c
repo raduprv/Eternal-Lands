@@ -486,13 +486,13 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case UPGRADE_NEW_VERSION:
 			{
-				log_to_console(c_red1,"There is a new version of the client, please update it\nhttp://www.eternal-lands.com/update.php");
+				log_to_console(c_red1,"There is a new version of the client, please update it\nhttp://www.eternal-lands.com/index.php?content=update");
 			}
 			break;
 
 		case UPGRADE_TOO_OLD:
 			{
-				log_to_console(c_red1,"This version is no longer supported, please update!\nhttp://www.eternal-lands.com/update.php");
+				log_to_console(c_red1,"This version is no longer supported, please update!\nhttp://www.eternal-lands.com/index.php?content=update");
 				this_version_is_invalid=1;
 			}
 			break;
