@@ -383,15 +383,11 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
 
 				frame = get_frame_number(model_data, cur_frame);
 				if(frame < 0)	return;
-			#ifdef	CACHE_SYSTEM
 				//track the usage
 				cache_use(cache_md2, model_data->cache_ptr);
-			#endif	//CACHE_SYSTEM
 				if(!(SDL_GetAppState()&SDL_APPACTIVE)) continue;	// not actually drawing, fake it
 
 				numFaces=model_data->numFaces;
-				//check_gl_errors();
-			#ifdef	USE_VERTEXARRAYS
 				if(use_vertex_array > 0)
 					{
 						//TODO: smarter decision making and maybe trigger cleanup?
@@ -412,7 +408,6 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
 						if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 					}
 				else
-			#endif	//USE_VERTEXARRAYS
 					{
 						int i;
 						text_coord_md2 *offsetTexCoords;
@@ -465,16 +460,13 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 
 	frame = get_frame_number(model_data, cur_frame);
 	if(frame < 0)	return;
-#ifdef	CACHE_SYSTEM
 	//track the usage
 	cache_use(cache_md2, model_data->cache_ptr);
-#endif	//CACHE_SYSTEM
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
 
 	numFaces=model_data->numFaces;
 	check_gl_errors();
 	glColor3f(1.0f, 1.0f, 1.0f);
-#ifdef	USE_VERTEXARRAYS
 	if(use_vertex_array > 0)
 		{
 			//TODO: smarter decision making and maybe trigger cleanup?
@@ -495,7 +487,6 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 	else
-#endif	//USE_VERTEXARRAYS
 		{
 			int i;
 			text_coord_md2 *offsetTexCoords;

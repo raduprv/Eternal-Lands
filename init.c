@@ -442,16 +442,12 @@ void save_bin_cfg()
 
 void init_md2_cache()
 {
-#ifdef	CACHE_SYSTEM
 	cache_md2=cache_init(1000, &destroy_md2);	// auto-free permitted
 	//cache_md2=cache_init(1000, NULL);	// no auto-free permitted
 	cache_set_name(cache_system, "MD2 cache", cache_md2);
 	cache_set_compact(cache_md2, &free_md2_va);	// to compact, free VA arrays
 	cache_set_time_limit(cache_md2, 5*60*1000);	// check every 5 minutes
 	cache_set_size_limit(cache_md2, 64*1024*1024);
-#else	//CACHE_SYSTEM
-	memset(md2_cache, 0, sizeof(md2_cache));
-#endif	//CACHE_SYSTEM
 }
 
 void init_texture_cache()
@@ -461,16 +457,12 @@ void init_texture_cache()
 
 void init_e3d_cache()
 {
-#ifdef	CACHE_SYSTEM
 	//cache_e3d=cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
 	cache_e3d=cache_init(1000, NULL);	//no aut- free permitted
 	cache_set_name(cache_system, "E3D cache", cache_e3d);
 	cache_set_compact(cache_e3d, &free_e3d_va);	// to compact, free VA arrays
 	cache_set_time_limit(cache_e3d, 5*60*1000);
 	cache_set_size_limit(cache_e3d, 8*1024*1024);
-#else	//CACHE_SYSTEM
-	memset(e3d_cache, 0, sizeof(e3d_cache));
-#endif	//CACHE_SYSTEM
 }
 
 void init_2d_obj_cache()
@@ -518,9 +510,7 @@ void init_stuff()
 	seed = time (NULL);
 	srand (seed);
 
-#ifdef	CACHE_SYSTEM
 	cache_system_init(MAX_CACHE_SYSTEM);
-#endif
 	init_texture_cache();
 	init_md2_cache();
 	init_e3d_cache();

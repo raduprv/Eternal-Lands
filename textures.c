@@ -9,9 +9,6 @@ int get_texture_id(int i)
     int new_texture_id;
     unsigned char alpha;
 
-//#ifndef	CACHE_SYSTEM
-//    texture_cache[i].last_access_time=cur_time;
-//#endif	//CACHE_SYSTEM
     if(!texture_cache[i].texture_id)
         {
             alpha=texture_cache[i].alpha;
@@ -468,18 +465,7 @@ char * load_bmp8_alpha_map(char * FileName)
 //If not, load it, and return the handle
 int load_texture_cache(char * file_name, unsigned char alpha)
 {
-/*
-#ifdef	CACHE_SYSTEM
-	int texture_id;
-	texture_cache_struct	*texture_ptr;
-
-	// search the cache for this entry
-	texture_ptr=cache_find_item(cache_texture, file_name);
-	// did we find it?
-	if(texture_ptr)	return(texture_ptr->texture_id);
-#else	//CACHE_SYSTEM
-*/
-	int i;//, j;
+	int i;
 	int file_name_lenght;
 	int texture_id;
 	int texture_slot= -1;
@@ -504,18 +490,7 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 							texture_slot= i;
 						}
 				}
-			/*
-			j=0;
-			while(j<file_name_lenght)
-				{
-					if(texture_cache[i].file_name[j]!=file_name[j])break;
-					j++;
-				}
-			if(file_name_lenght==j)//ok, texture already loaded
-				return i;
-			*/
 		}
-//#endif	//CACHE_SYSTEN
 
 	check_gl_errors();
 	//texture not found in the cache, so load it, and store it
@@ -530,9 +505,6 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 			log_error(str);
 			return 0;
 		}
-	//find a place to store it
-	//i=0;
-	//while(i<1000)
 	if(texture_slot >= 0)
 		{
 			if(!texture_cache[texture_slot].file_name[0])//we found a place to store it
@@ -542,7 +514,6 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 					texture_cache[texture_slot].alpha=alpha;
 					return texture_slot;
 				}
-			//i++;
 		}
 
 	log_error("Error: out of texture space\n");

@@ -10,7 +10,6 @@ md2 * load_md2_cache(char * file_name)
 {
 	md2 * md2_id;
 
-#ifdef	CACHE_SYSTEM
 	//do we have it already?
 	md2_id= cache_find_item(cache_md2, file_name);
 	if(md2_id) return(md2_id);
@@ -19,43 +18,6 @@ md2 * load_md2_cache(char * file_name)
 	if(md2_id==NULL) return NULL;
 	//and remember it
 	md2_id->cache_ptr= cache_add_item(cache_md2, md2_id->file_name, md2_id, md2_mem_used+sizeof(*md2_id));
-
-#else	//CACHE_SYSTEM
-	int i;
-	int j;
-	int file_name_lenght;
-	file_name_lenght=strlen(file_name);
-
-	for(i=0;i<1000;i++)
-		{
-			if(md2_cache[i].file_name)
-				{
-					j=0;
-					while(j<file_name_lenght)
-						{
-							if(md2_cache[i].file_name[j]!=file_name[j])break;
-							j++;
-						}
-					if(file_name_lenght==j)//ok, md2 already loaded
-						return md2_cache[i].md2_id;
-				}
-		}
-	//md2 not found in the cache, so load it, and store it
-	md2_id=load_md2(file_name);
-
-	//find a place to store it
-	i=0;
-	while(i<1000)
-		{
-			if(!md2_cache[i].file_name)//we found a place to store it
-				{
-					md2_cache[i].file_name=md2_id->file_name;
-					md2_cache[i].md2_id=md2_id;
-					return md2_id;
-				}
-			i++;
-		}
-#endif	//CACHE_SYSTEM
 
 	return md2_id;
 }
@@ -269,8 +231,6 @@ md2 * load_md2(char * file_name)
 Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame)
 {
 	Uint32	used= 0;
-
-#ifdef	USE_VERTEXARRAYS
 	Uint32	j,k;
 
 	if(use_vertex_array > 0 && vertex_arrays_built < use_vertex_array)
@@ -314,11 +274,7 @@ Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame)
 					cur_frame->vertex_array[j+2].z= cur_frame->vertex_pointer[cur_md2->offsetFaces[k].c].z;
 				}
 		}
-#ifdef	CACHE_SYSTEM
 	cache_adj_size(cache_md2, used, cur_md2);
-#endif	//CACHE_SYSTEM
-
-#endif	//USE_VERTEXARRAYS
 
 	return used;
 }
@@ -332,10 +288,8 @@ void free_md2(md2 *md2_ptr)
 		{
 			if(md2_ptr->offsetFrames[i].vertex_pointer) free(md2_ptr->offsetFrames[i].vertex_pointer);
 		}
-#ifdef	USE_VERTEXARRAYS
 	// release the VA data if it was allocated
 	free_md2_va(md2_ptr);
-#endif	//USE_VERTEXARRAYS
 	// release the rest of the memory we allocated
 	if(md2_ptr->offsetTexCoords) free(md2_ptr->offsetTexCoords);
 	if(md2_ptr->offsetFaces) free(md2_ptr->offsetFaces);
@@ -345,7 +299,6 @@ void free_md2(md2 *md2_ptr)
 Uint32 free_md2_va(md2 *md2_ptr)
 {
 	Uint32	mem=0;
-#ifdef	USE_VERTEXARRAYS
 	Uint32	i;
 
 	for(i=0; i<md2_ptr->numFrames; i++)
@@ -367,7 +320,6 @@ Uint32 free_md2_va(md2 *md2_ptr)
 			free(md2_ptr->text_coord_array);
 			md2_ptr->text_coord_array=NULL;
 		}
-#endif	//USE_VERTEXARRAYS
 
 	return	mem;
 }

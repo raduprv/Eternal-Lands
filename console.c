@@ -103,7 +103,6 @@ void test_for_console_command()
 			exit_now=1;
 			return;
 		}
-#ifdef	CACHE_SYSTEM
 	if(my_strcompare(text_loc,"mem") || my_strcompare(text_loc,"cache"))
 		{
 			cache_dump_sizes(cache_system);
@@ -113,7 +112,6 @@ void test_for_console_command()
 #endif	//DEBUG
 			return;
 		}
-#endif	//CACHE_SYSTEM
 	if(my_strcompare(text_loc,"ver") || my_strcompare(text_loc,"vers"))
 		{
 			char str[128];

@@ -20,10 +20,8 @@ void draw_3d_object(object3d * object_id)
 	int is_transparent;
 	int is_ground;
 
-#ifdef	CACHE_SYSTEM
 	//track the usage
 	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
-#endif	//CACHE_SYSTEM
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
 
 	// check for having to load the arrays
@@ -61,7 +59,6 @@ void draw_3d_object(object3d * object_id)
 	if(object_id->self_lit && (!is_day || dungeon))
 		{
 			glDisable(GL_LIGHTING);
-			//set_material(object_id->r,object_id->g,object_id->b);
 			glColor3f(object_id->r,object_id->g,object_id->b);
 		}
 
@@ -105,7 +102,6 @@ void draw_3d_object(object3d * object_id)
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
-	//check_gl_errors();
 							get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 							// a quick check for errors
@@ -122,7 +118,6 @@ void draw_3d_object(object3d * object_id)
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	//check_gl_errors();
 						}
 					glDisableClientState(GL_NORMAL_ARRAY);
 				}//is ground
@@ -135,7 +130,6 @@ void draw_3d_object(object3d * object_id)
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
-	//check_gl_errors();
 							get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 							// a quick check for errors
@@ -152,7 +146,6 @@ void draw_3d_object(object3d * object_id)
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	//check_gl_errors();
 						}
 				}
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -181,12 +174,10 @@ void draw_3d_object(object3d * object_id)
 					for(i=0;i<materials_no;i++)
 						if(array_order[i].count>0)
 							{
-	//check_gl_errors();
 								get_and_set_texture_id(array_order[i].texture_id);
 								if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 								glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 								if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-								//check_gl_errors();
 							}
 					glDisableClientState(GL_NORMAL_ARRAY);
 				}//is ground
@@ -202,7 +193,6 @@ void draw_3d_object(object3d * object_id)
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
-	//check_gl_errors();
 							get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 							// a quick check for errors
@@ -220,7 +210,6 @@ void draw_3d_object(object3d * object_id)
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	//check_gl_errors();
 						}
 				}
 			ELglClientActiveTextureARB(detail_unit);
@@ -248,7 +237,6 @@ e3d_object * load_e3d_cache(char * file_name)
 {
 	e3d_object * e3d_id;
 
-#ifdef	CACHE_SYSTEM
 	//do we have it already?
 	e3d_id=cache_find_item(cache_e3d, file_name);
 	if(e3d_id) return(e3d_id);
@@ -257,46 +245,6 @@ e3d_object * load_e3d_cache(char * file_name)
 	if(e3d_id==NULL) return NULL;
 	//and remember it
 	e3d_id->cache_ptr=cache_add_item(cache_e3d, e3d_id->file_name, e3d_id, sizeof(*e3d_id));
-#else	//CACHE_SYSTEM
-	int i;
-	int file_name_lenght;
-	file_name_lenght=strlen(file_name);
-
-	for(i=0;i<max_e3d_cache;i++)
-		{
-			if(e3d_cache[i].file_name)
-				{
-					int j=0;
-					while(j<file_name_lenght)
-						{
-							if(e3d_cache[i].file_name[j]!=file_name[j])break;
-							j++;
-						}
-					if(file_name_lenght==j)//ok, e3d already loaded
-						{
-							e3d_cache[i].flag_for_destruction=0;
-							return e3d_cache[i].e3d_id;
-						}
-				}
-		}
-	//e3d not found in the cache, so load it, and store it
-	e3d_id=load_e3d(file_name);
-	if(e3d_id==NULL)return NULL;
-
-	//find a place to store it
-	i=0;
-	while(i<max_e3d_cache)
-		{
-			if(!e3d_cache[i].file_name)	//we found a place to store it
-				{
-					e3d_cache[i].file_name=e3d_id->file_name;
-					e3d_cache[i].e3d_id=e3d_id;
-					e3d_cache[i].flag_for_destruction=0;
-					return e3d_id;
-				}
-			i++;
-		}
-#endif	//CACHE_SYSTEM
 
 	return e3d_id;
 }
@@ -305,7 +253,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 			float x_rot, float y_rot, float z_rot, char self_lit, char blended,
 			float r, float g, float b)
 {
-	int i;//,len,k;
+	int i;
 	char fname[128];
 	e3d_object *returned_e3d;
 	object3d *our_object;
@@ -380,7 +328,6 @@ void display_objects()
 			//bind the detail texture
 			ELglActiveTextureARB(detail_unit);
 			glEnable(GL_TEXTURE_2D);
-			//glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
 			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 			ELglActiveTextureARB(base_unit);
 			glEnable(GL_TEXTURE_2D);
@@ -684,10 +631,8 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	free(vertex_list);
 	free(face_list);
 
-#ifdef	CACHE_SYSTEM
-	//cache_use_item(cache_e3d, cur_object);
 	cache_adj_size(cache_e3d, mem, cur_object);
-#endif	//CACHE_SYSTEM
+
 	return cur_object;
 }
 
@@ -794,11 +739,7 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 			free(e3d_id->array_order);
 			e3d_id->array_order=NULL;
 		}
-#ifdef	CACHE_SYSTEM
-		return(e3d_id->cache_ptr->size - sizeof(*e3d_id));
-#else	//CACHE_SYSTEM
-		return(0);
-#endif	//CACHE_SYSTEM
+	return(e3d_id->cache_ptr->size - sizeof(*e3d_id));
 }
 
 void destroy_e3d(e3d_object *e3d_id)
@@ -809,30 +750,4 @@ void destroy_e3d(e3d_object *e3d_id)
 	free(e3d_id);
 }
 
-#ifndef	CACHE_SYSTEM
-void flag_for_destruction()
-{
-	int i;
-
-	for(i=0;i<max_e3d_cache;i++)
-	if(e3d_cache[i].file_name)
-		e3d_cache[i].flag_for_destruction=1;
-}
-
-void destroy_the_flagged()
-{
-	int i;
-
-	for(i=0;i<max_e3d_cache;i++)
-		{
-			if(e3d_cache[i].file_name)
-			if(e3d_cache[i].flag_for_destruction)
-				{
-					destroy_e3d(e3d_cache[i].e3d_id);
-					e3d_cache[i].file_name=NULL;
-					e3d_cache[i].flag_for_destruction=0;
-				}
-		}
-}
-#endif	//CACHE_SYSTEM
 

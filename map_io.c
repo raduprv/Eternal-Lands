@@ -384,9 +384,6 @@ int load_map(char * file_name)
 	}
 	
 	//see which objects in our cache are not used in this map
-#ifndef	CACHE_SYSTEM
-	flag_for_destruction();
-#endif	//CACHE_SYSTEM
 	//read the 3d objects
 	for(i=0;i<obj_3d_no;i++)
 		{
@@ -399,9 +396,6 @@ int load_map(char * file_name)
 		}
 
 	//delete the unused objects from the cache
-#ifndef	CACHE_SYSTEM
-	destroy_the_flagged();
-#endif	//CACHE_SYSTEM
 
 	//read the 2d objects
 	for(i=0;i<obj_2d_no;i++)

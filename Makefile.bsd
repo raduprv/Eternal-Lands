@@ -1,7 +1,7 @@
 .PHONY: clean release
 
 # tune these for your setup & compile options
-OPTIONS=-DBSD -DELC -DUSE_VERTEXARRAYS -DCACHE_SYSTEM -I/usr/X11R6/include
+OPTIONS=-DBSD -DELC -I/usr/X11R6/include
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
@@ -34,6 +34,12 @@ el.x86.bsd.bin: $(OBJS)
 
 release:
 	gmake -f Makefile.bsd 'CFLAGS=$(_CFLAGS)'
+
+cal3d:
+	gmake -f Makefile.bsd 'CFLAGS=$(CFLAGS) -DCAL3D' 'LDFLAGS=$(LDFLAGS) -lcal3d' 'OBJS=$(OBJS) cal3dwrap.o'
+
+cal3dwrap.o: cal3dwrap.c cal3dwrap.h
+	g++ $(CFLAGS) -c cal3dwrap.c
 
 %.o:	global.h %.c %.h
 	$(CC) $(CFLAGS) -c $*.c

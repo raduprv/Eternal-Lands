@@ -165,10 +165,8 @@ void draw_3d_object_shadow(object3d * object_id)
     if(object_id->blended)return;//blended objects can't have shadows
     if(object_id->self_lit)return;//light sources can't have shadows
     if(object_id->e3d_data->min_z>=object_id->e3d_data->max_z)return;//we have a flat object
-#ifdef	CACHE_SYSTEM
 	//track the usage
 	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
-#endif	//CACHE_SYSTEM
 
 	// check for having to load the arrays
 	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
@@ -233,9 +231,6 @@ void draw_3d_object_shadow(object3d * object_id)
 	else glEnable(GL_TEXTURE_2D);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
 {
 	int frame;
@@ -244,15 +239,12 @@ void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
 	//now, go and find the current frame
 	frame = get_frame_number(model_data, cur_frame);
 	if(frame < 0)return;	//can't draw it
-#ifdef	CACHE_SYSTEM
 	//track the usage
 	cache_use(cache_md2, model_data->cache_ptr);
-#endif	//CACHE_SYSTEM
 
 	numFaces=model_data->numFaces;
 
 	check_gl_errors();
-#ifdef	USE_VERTEXARRAYS
 	if(use_vertex_array > 0)
 		{
 			//TODO: smarter decision making and maybe trigger cleanup?
@@ -270,7 +262,6 @@ void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
 			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 	else
-#endif	//USE_VERTEXARRAYS
 		{
 			int i;
 			face_md2 *offsetFaces;
@@ -387,13 +378,11 @@ void display_actors_shadow()
 	int x,y;
 	x=-cx;
 	y=-cy;
-#ifdef	USE_VERTEXARRAYS
 	if(use_vertex_array > 0)
 		{
 			glEnableClientState(GL_VERTEX_ARRAY);
 			//glEnableClientState(GL_NORMAL_ARRAY);
 		}
-#endif	//USE_VERTEXARRAYS
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -412,13 +401,11 @@ void display_actors_shadow()
 							}
 				}
 		}
-#ifdef	USE_VERTEXARRAYS
 	if(use_vertex_array > 0)
 		{
 			//glDisableClientState(GL_NORMAL_ARRAY);
 			glDisableClientState(GL_VERTEX_ARRAY);
 		}
-#endif	//USE_VERTEXARRAYS
 }
 
 void display_shadows()

@@ -122,9 +122,7 @@ typedef struct
 	char is_transparent;
 	char is_ground;
 
-#ifdef	CACHE_SYSTEM
-   cache_item_struct	*cache_ptr;
-#endif	//CACHE_SYSTEM
+    cache_item_struct	*cache_ptr;
 	char file_name[128];
 }e3d_object;
 
@@ -148,16 +146,6 @@ typedef struct
    unsigned int last_acessed_time;
 }object3d;
 
-#ifndef	CACHE_SYSTEM
-typedef struct
-{
-	char *file_name;
-	e3d_object * e3d_id;
-	int flag_for_destruction;
-}e3d_cache_struct;
-
-extern e3d_cache_struct e3d_cache[1000];
-#endif	//CACHE_SYSTEM
 
 extern object3d *objects_list[max_obj_3d];
 

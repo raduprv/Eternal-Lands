@@ -83,10 +83,8 @@ int start_rendering()
 					else if(afk) go_ifk();
 				}
 			
-#ifdef	CACHE_SYSTEM
 			//cache handling
 			if(cache_system)cache_system_maint();
-#endif	//CACHE_SYSTEM
 			//see if we need to exit
 			if(exit_now)break;
 		}
