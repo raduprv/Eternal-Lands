@@ -1,7 +1,11 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef MAP_EDITOR
+#include "../map_editor/global.h"
+#else
 #include "global.h"
+#endif
 #include "elconfig.h"
 
 #define SPECINT		0 	//Multiple ints, special func							func(int)
