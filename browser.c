@@ -22,13 +22,13 @@ _Cat Cat[44];
 
 int dc=-1,cd=-1,cp=0,cc=-1,mc=1,ccat=0;
 
-void setobject(int n, char *fn,float xrot, float yrot, float zrot)
+int setobject(int n, char *fn,float xrot, float yrot, float zrot)
 {
 	object3d *our_object=&o3d[n];
 	snprintf(our_object->file_name,80,"%s",fn);
 	
 	our_object->e3d_data=load_e3d_cache(fn);
-
+	if(our_object->e3d_data==NULL)return 0;
 	our_object->x_pos=0;
 	our_object->y_pos=0;
 	our_object->z_pos=-(our_object->e3d_data->max_z-our_object->e3d_data->min_z)/2;
@@ -43,7 +43,7 @@ void setobject(int n, char *fn,float xrot, float yrot, float zrot)
 	our_object->clouds_uv=NULL;
 	our_object->self_lit=0;
 	our_object->blended=0;
-	
+	return 1;
 
 }
 
@@ -134,7 +134,7 @@ int display_browser_handler()
 			draw_string(x+2,0+y,"Back",1);
 	   }
    }else{ // display specified dir
-		int i=cp;
+		int i=cp,valid_object=0;
 		float tz=zoom_level;
 		char fn[256];
 		
@@ -163,11 +163,13 @@ int display_browser_handler()
 		glClear (GL_DEPTH_BUFFER_BIT);
 		strcpy(fn,exec_path);
 		strcat(fn,Dir[cd].Files[i]);
-		setobject(0,fn,Dir[cd].xrot[i],Dir[cd].yrot[i],Dir[cd].zrot[i]);
-		glPushMatrix();
-		glScalef(Dir[cd].size[i],Dir[cd].size[i],Dir[cd].size[i]);
-		draw_3d_object(&o3d[0]);
-		glPopMatrix();
+		valid_object=setobject(0,fn,Dir[cd].xrot[i],Dir[cd].yrot[i],Dir[cd].zrot[i]);
+		if(valid_object){
+			glPushMatrix();
+			glScalef(Dir[cd].size[i],Dir[cd].size[i],Dir[cd].size[i]);
+			draw_3d_object(&o3d[0]);
+			glPopMatrix();
+		}
 		
 
 		if(i+1<Dir[cd].nf){
@@ -176,11 +178,13 @@ int display_browser_handler()
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
 			strcat(fn,Dir[cd].Files[i+1]);
-			setobject(1,fn,Dir[cd].xrot[i+1],Dir[cd].yrot[i+1],Dir[cd].zrot[i+1]);
-			glPushMatrix();
-			glScalef(Dir[cd].size[i+1],Dir[cd].size[i+1],Dir[cd].size[i+1]);
-			draw_3d_object(&o3d[1]);
-			glPopMatrix();
+			valid_object=setobject(1,fn,Dir[cd].xrot[i+1],Dir[cd].yrot[i+1],Dir[cd].zrot[i+1]);
+			if(valid_object){
+				glPushMatrix();
+				glScalef(Dir[cd].size[i+1],Dir[cd].size[i+1],Dir[cd].size[i+1]);
+				draw_3d_object(&o3d[1]);
+				glPopMatrix();
+			}
 		}
 
 		if(i+2<Dir[cd].nf){
@@ -189,11 +193,13 @@ int display_browser_handler()
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
 			strcat(fn,Dir[cd].Files[i+2]);
-			setobject(2,fn,Dir[cd].xrot[i+2],Dir[cd].yrot[i+2],Dir[cd].zrot[i+2]);
-			glPushMatrix();
-			glScalef(Dir[cd].size[i+2],Dir[cd].size[i+2],Dir[cd].size[i+2]);
-			draw_3d_object(&o3d[2]);
-			glPopMatrix();
+			valid_object=setobject(2,fn,Dir[cd].xrot[i+2],Dir[cd].yrot[i+2],Dir[cd].zrot[i+2]);
+			if(valid_object){
+				glPushMatrix();
+				glScalef(Dir[cd].size[i+2],Dir[cd].size[i+2],Dir[cd].size[i+2]);
+				draw_3d_object(&o3d[2]);
+				glPopMatrix();
+			}
 		}
 
 		if(i+3<Dir[cd].nf){
@@ -202,11 +208,13 @@ int display_browser_handler()
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
 			strcat(fn,Dir[cd].Files[i+3]);
-			setobject(3,fn,Dir[cd].xrot[i+3],Dir[cd].yrot[i+3],Dir[cd].zrot[i+3]);
-			glPushMatrix();
-			glScalef(Dir[cd].size[i+3],Dir[cd].size[i+3],Dir[cd].size[i+3]);
-			draw_3d_object(&o3d[3]);
-			glPopMatrix();
+			valid_object=setobject(3,fn,Dir[cd].xrot[i+3],Dir[cd].yrot[i+3],Dir[cd].zrot[i+3]);
+			if(valid_object){
+				glPushMatrix();
+				glScalef(Dir[cd].size[i+3],Dir[cd].size[i+3],Dir[cd].size[i+3]);
+				draw_3d_object(&o3d[3]);
+				glPopMatrix();
+			}
 		}
 
 		zoom_level=tz;
