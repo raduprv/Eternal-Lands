@@ -260,7 +260,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 	void display_stats(player_attribs cur_stats)
 {
 	Uint8 str[80];
-	int x,y,foo,bar;
+	int x,y;
 	//first of all, draw the actual menu.
 
 	draw_menu_title_bar(attrib_menu_x,attrib_menu_y-16,attrib_menu_x_len);
@@ -429,86 +429,65 @@ void get_partial_stat(Uint8 name,Sint32 value)
 	draw_string_small(x,y,"Skills",1);
 
 	y+=14;
-	// draw the grid for the check boxes
-	check_grid_x_left=x-12;
+
+	check_grid_x_left=x;
 	check_grid_y_top=y;
-	// ***
-	glColor3f(0.77f,0.57f,0.39f);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_LINES);
-	glVertex3i(x-2,y,0);
-	glVertex3i(x-2,y+140,0);
-	glVertex3i(x-2,y+140,0);
-	glVertex3i(x-12,y+140,0);
-	glVertex3i(x-12,y+140,0);
-	glVertex3i(x-12,y,0);
-	glVertex3i(x-12,y,0);
-	glVertex3i(x-2,y,0);
 
-	for(foo=14; foo<140; foo+=14){
-		glVertex3i(x-12,y+foo,0);
-		glVertex3i(x-2,y+foo,0);
-	}
-	// tick the appropriate box.
-	foo = x-10;
-	bar = y+ ((watch_this_stat)*14)-6;
-	glVertex3i(foo, bar, 0);
-	foo+=3;  bar+=3;
-	glVertex3i(foo, bar, 0);
-	glVertex3i(foo, bar, 0);
-	foo+=5;  bar-=11;
-	glVertex3i(foo, bar, 0);
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-	// ***
-	
-	glColor3f(1.0f,0.5f,0.2f);
-
+	watch_this_stat==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Attack:      %2i/%-2i [%2i/%-2i]",cur_stats.attack_skill.cur,cur_stats.attack_skill.base,
 			cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
+	watch_this_stat==2?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Defense:     %2i/%-2i [%2i/%-2i]",cur_stats.defense_skill.cur,cur_stats.defense_skill.base,
 			cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
+	watch_this_stat==3?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Harvest:     %2i/%-2i [%2i/%-2i]",cur_stats.harvesting_skill.cur,cur_stats.harvesting_skill.base,
 			cur_stats.harvesting_exp,cur_stats.harvesting_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
+	watch_this_stat==4?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Alchemy:     %2i/%-2i [%2i/%-2i]",cur_stats.alchemy_skill.cur,cur_stats.alchemy_skill.base,
 			cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
+	watch_this_stat==5?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Magic:       %2i/%-2i [%2i/%-2i]",cur_stats.magic_skill.cur,cur_stats.magic_skill.base,
 			cur_stats.magic_exp,cur_stats.magic_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
+	watch_this_stat==6?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Potion:      %2i/%-2i [%2i/%-2i]",cur_stats.potion_skill.cur,cur_stats.potion_skill.base,
 			cur_stats.potion_exp,cur_stats.potion_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
+	watch_this_stat==7?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Summoning:   %2i/%-2i [%2i/%-2i]",cur_stats.summoning_skill.cur,cur_stats.summoning_skill.base,
 			cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
+	watch_this_stat==8?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Manufacture: %2i/%-2i [%2i/%-2i]",cur_stats.manufacturing_skill.cur,cur_stats.manufacturing_skill.base,
 			cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
+	watch_this_stat==9?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Crafting:    %2i/%-2i [%2i/%-2i]",cur_stats.crafting_skill.cur,cur_stats.crafting_skill.base,
 			cur_stats.crafting_exp,cur_stats.crafting_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
+	watch_this_stat==10?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	sprintf(str,"Overall:     %2i/%-2i [%2i/%-2i]",cur_stats.overall_skill.cur,cur_stats.overall_skill.base,
 			cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
 	draw_string_small(x,y,str,1);
@@ -520,7 +499,7 @@ int check_stats_interface()
 {
 	if(!view_self_stats || mouse_x>attrib_menu_x+attrib_menu_x_len || mouse_x<attrib_menu_x
 	   || mouse_y<attrib_menu_y || mouse_y>attrib_menu_y+attrib_menu_y_len)return 0;
-	if(mouse_x > check_grid_x_left && mouse_x < check_grid_x_left+12 &&
+	if(mouse_x > check_grid_x_left && mouse_x < check_grid_x_left+105 &&
 		mouse_y > check_grid_y_top && mouse_y < check_grid_y_top+140){
 		watch_this_stat = 1+(mouse_y - check_grid_y_top)/14;
 		return 1;
