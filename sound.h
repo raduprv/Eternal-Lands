@@ -24,6 +24,7 @@ extern int used_sources;
 extern char sound_files[max_buffers][30];
 extern ALuint sound_source[max_sources];
 extern ALuint sound_buffer[max_buffers];
+SDL_mutex *sound_list_mutex;
 
 void stop_sound(int i);
 int add_sound_object(int sound_file,int x, int y,int positional,int loops);
@@ -35,5 +36,7 @@ void init_sound();
 void destroy_sound();
 int realloc_sources();
 
+#define	lock_sound_list()	SDL_LockMutex(sound_list_mutex)
+#define	unlock_sound_list()	SDL_UnlockMutex(sound_list_mutex);
 #endif
 

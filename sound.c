@@ -10,11 +10,12 @@ void stop_sound(int i)
 
 int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 {
-	int tx,ty,distance,i=0;
+	int error,tx,ty,distance,i=0;
 	ALfloat sourcePos[]={ x, y, 0.0};
 	ALfloat sourceVel[]={ 0.0, 0.0, 0.0};
 
 	if(!have_sound)return 0;
+	lock_sound_list();
 
 	if(used_sources)
 		i=used_sources;
@@ -31,10 +32,11 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 
 	alGenSources(1, &sound_source[i]);
 
-	if(alGetError() != AL_NO_ERROR) 
+	if((error=alGetError()) != AL_NO_ERROR) 
     	{
     		log_to_console(c_red1,"Error creating a source.\n");
     		log_error("Error creating a source.\n");
+			printf("%s\n",alGetString(error));
 			have_sound=0;
 			have_music=0;
 			return 0;
@@ -69,17 +71,18 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 			if(positional && (distance < 25))
 				alSourcePause(sound_source[i]);
 		}
-
+	unlock_sound_list();
 	return i;
 }
 
 void update_position()
 {
-	int i,state,relative;
+	int i,state,relative,error;
 	int x,y,tx,ty,distance;
 	ALfloat sourcePos[3];
 
 	if(!have_sound)return;
+	lock_sound_list();
 
 	tx=-cx*2;
 	ty=-cy*2;
@@ -102,18 +105,37 @@ void update_position()
 			else if (sound_on && (state == AL_PAUSED) && (distance < 25))
 				alSourcePlay(sound_source[i]);
 		}
+	if((error=alGetError()) != AL_NO_ERROR) 
+    	{
+    		log_to_console(c_red1,"update_position error.\n");
+    		log_error("update_position error.\n");
+			printf("%s\n",alGetString(error));
+			have_sound=0;
+			have_music=0;
+    	}
+	unlock_sound_list();
 }
 
 //kill all the sounds that loop infinitely
 //usefull when we change maps, etc.
 void kill_local_sounds()
 {
-	int tostop;
+	int tostop,error;
 	if(!have_sound)return;
+	lock_sound_list();
 	tostop=used_sources;
 	if(used_sources)
 		tostop--;
 	alSourceStopv(tostop,sound_source);
+	if((error=alGetError()) != AL_NO_ERROR) 
+    	{
+    		log_to_console(c_red1,"kill_local_sounds error.\n");
+    		log_error("kill_local_sounds error.\n");
+			printf("%s\n",alGetString(error));
+			have_sound=0;
+			have_music=0;
+    	}
+	unlock_sound_list();
 }
 
 void turn_sound_off()
@@ -158,6 +180,7 @@ void init_sound()
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
 
 	alutInit(0, NULL) ; 
+	sound_list_mutex=SDL_CreateMutex();
 
 	if(alGetError() != AL_NO_ERROR) 
     	{
@@ -205,7 +228,10 @@ void init_sound()
 }
 
 void destroy_sound()
-{
+{ 
+	SDL_DestroyMutex(sound_list_mutex);
+	sound_list_mutex=NULL;
+
 	alSourceStopv(used_sources, sound_source);
 	alDeleteSources(used_sources, sound_source);
 	alDeleteBuffers(max_buffers, sound_buffer);
@@ -215,7 +241,7 @@ void destroy_sound()
 int realloc_sources()
 {
 	int i;
-	int state;
+	int state,error;
 	int still_used=0;
 	ALuint new_sources[max_sources];
 	for(i=0;i<max_sources;i++)
@@ -233,7 +259,15 @@ int realloc_sources()
 	for(i=0;i<still_used;i++)
 		sound_source[i] = new_sources[i];
 	used_sources=still_used;
-
+	
+	if((error=alGetError()) != AL_NO_ERROR) 
+    	{
+    		log_to_console(c_red1,"realloc_sources error.\n");
+    		log_error("realloc_sources error.\n");
+			printf("%s\n",alGetString(error));
+			have_sound=0;
+			have_music=0;
+    	}
 	if(used_sources>=max_sources) 
     	{
     		log_to_console(c_red1,"Too many sounds.\n");
