@@ -39,9 +39,15 @@ void build_response_entries(Uint8 *data,int total_lenght)
 	i=0;
 	for(i=0;i<20;i++)
 		{
+			// break if we don't have a length field
+			if (last_index + 3 > total_lenght)
+				break;
 			len=*((Uint16 *)(data+last_index));
+			// break if we don't have a complete response
+			if (last_index + 3 + len + 2 + 2 > total_lenght)
+				break;
 			dialogue_responces[i].in_use=1;
-			my_strcp(dialogue_responces[i].text,&data[last_index+2]);
+			my_strncp(dialogue_responces[i].text,&data[last_index+2], len);
 			dialogue_responces[i].response_id=*((Uint16 *)(data+last_index+2+len));
 			dialogue_responces[i].to_actor=*((Uint16 *)(data+last_index+2+2+len));
 			dialogue_responces[i].x_len=len*8;
@@ -56,9 +62,6 @@ void build_response_entries(Uint8 *data,int total_lenght)
 			dialogue_responces[i].y_start=y_start;
 			last_index+=len+2+2+2;
 			x_start+=(len+2)*8;
-
-			//see if we exceeded the limit
-			if(last_index+3>total_lenght)break;
 		}
 }
 
