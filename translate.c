@@ -480,7 +480,7 @@ void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def,
 	strcpy(group->strings[group->no]->xml_id,xml_id);
 	group->strings[group->no]->var=var;
 	strncpy(var, def, max_len-1);
-	group->strings[group->no]->max_len=max_len;
+	group->strings[group->no]->max_len=max_len-1;
 	group->no++;
 }
 
@@ -1191,7 +1191,7 @@ void parse_strings(xmlNode * in, group_id * group)
 										int lutf8=xmlUTF8Strlen(cur->children->content);
 										if(lutf8 > group->strings[i]->max_len) lutf8=group->strings[i]->max_len;
 										UTF8Toisolat1(group->strings[i]->var, &lutf8, cur->children->content, &(group->strings[i]->max_len));
-										group->strings[i]->var[lutf8-1]=0;
+										group->strings[i]->var[lutf8]=0;
 #ifdef WRITE_XML
 										group->strings[i]->saved=1;
 #endif
