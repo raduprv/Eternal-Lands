@@ -14,6 +14,9 @@
 #include <time.h>
 
 /*#include <GL/glu.h>*/
+#ifndef	GNUC	// or should we test for VC
+#define	snprintf _snprintf
+#endif
 
 #include <SDL.h>
 #include "SDL_opengl.h"

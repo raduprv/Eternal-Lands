@@ -479,7 +479,7 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a,char skin, char hair, ch
 	GLuint texture;
 
   	f = fopen (FileName, "rb");
-  	if (!f) return;
+  	if (!f) return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
   	fread (file_mem, 1, 50, f);//header only

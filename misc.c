@@ -279,7 +279,7 @@ void load_all_tiles()
 }
 
 
-int get_tile_under_mouse_from_list()
+void get_tile_under_mouse_from_list()
 {
 	int tile_id;
 	int mx,my;
