@@ -819,7 +819,17 @@ void rotatehm(float xrot, float yrot, float zrot, e3d_array_vertex *T, int nv)
 
 }
 
-void add_e3d_heightmap(int K, int D)
+int TriangleTest(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3)
+{
+	float b0,b1,b2,b3;
+	b0 =  (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);
+	b1 = ((x2 - x0) * (y3 - y0) - (x3 - x0) * (y2 - y0)) / b0;
+	b2 = ((x3 - x0) * (y1 - y0) - (x1 - x0) * (y3 - y0)) / b0;
+	b3 = ((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / b0;
+	return (b1>0 && b2>0 && b3>0) ? 1 : 0;
+}
+
+void clear_e3d_heightmap(int K)
 {
 	int face_no = objects_list[K]->e3d_data->face_no;
 	float x_pos = objects_list[K]->x_pos;
@@ -827,11 +837,181 @@ void add_e3d_heightmap(int K, int D)
 	float min_x = 0, min_y = 0, max_x = 0, max_y = 0;
 	e3d_array_vertex *T = objects_list[K]->e3d_data->array_vertex;
 	int minx, miny, maxx, maxy;							
-	int i, j, k, h;
-	float b0, b1, b2, b3, x0, x1, x2, x3, y0, y1, y2, y3;
+	int i, j, h;
 	
 	e3d_array_vertex *TT = NULL;
 	
+	// Check if we need to rotate the vertex
+	if(objects_list[K]->x_rot!=0.0 || objects_list[K]->y_rot!=0.0 || objects_list[K]->z_rot!=0.0)
+	{
+		TT = (e3d_array_vertex *)malloc(face_no*3*sizeof(e3d_array_vertex));
+		memcpy(TT,T,face_no*3*sizeof(e3d_array_vertex));
+		T = TT;
+		rotatehm(objects_list[K]->x_rot*(3.14159265/180),objects_list[K]->y_rot*(3.14159265/180),objects_list[K]->z_rot*(3.14159265/180),T,face_no*3);
+	}
+
+	// Calculating min and max x and y values of the object
+	for(i = 0; i < face_no*3; i++){
+		if(T[i].x < min_x) min_x = T[i].x;
+		if(T[i].x > max_x) max_x = T[i].x;
+		if(T[i].y < min_y) min_y = T[i].y;
+		if(T[i].y > max_y) max_y = T[i].y;
+	}
+
+	// Calculating min and max positions on the heightmap
+	minx = (x_pos + min_x) / 0.5f;
+	miny = (y_pos + min_y) / 0.5f;
+	maxx = (x_pos + max_x) / 0.5f + 1;
+	maxy = (y_pos + max_y) / 0.5f + 1;
+
+	for(i = minx; i < maxx; i++){
+		for(j = miny; j< maxy; j++){
+			height_map[(j*tile_map_size_x*6)+i]=11;
+		}
+	}
+	// Freeing if there is rotation
+	if(TT!=NULL)
+		free(TT);
+}
+
+
+int ccw(float p1x, float p1y, float p2x, float p2y, float p3x, float p3y)
+{
+    double d = ((p1y - p2y) * (p3x - p2x)) - ((p3y - p2y) * (p1x - p2x));
+	return (d > 0) ? 1 : ((d < 0) ? 2 : 3);
+}
+ 
+
+int TestLines(float pax, float pay, float pbx, float pby, float pcx, float pcy, float pdx, float pdy)
+{
+	int ccw1, ccw2, ccw3, ccw4;
+	if(pcx == pdx && pcy == pdy) return 0;
+	if (ccw (pax, pay, pbx, pby, pcx, pcy) == 3 || ccw (pax, pay, pbx, pby, pdx, pdy) == 3 || ccw (pcx, pcy, pdx, pdy, pax, pay) == 3 || ccw (pcx, pcy, pdx, pdy, pbx, pby) == 3){
+		if (between (pax, pay, pbx, pby, pcx, pcy) || between (pax, pay, pbx, pby, pdx, pdy) || between (pcx, pcy, pdx, pdy, pax, pay) || between (pcx, pcy, pdx, pdy, pbx, pby))
+			return 1;
+	}else{
+		ccw1 = (ccw (pax, pay, pbx, pby, pcx, pcy) == 1) ? 1 : 0;
+		ccw2 = (ccw (pax, pay, pbx, pby, pdx, pdy) == 1) ? 1 : 0;
+		ccw3 = (ccw (pcx, pcy, pdx, pdy, pax, pay) == 1) ? 1 : 0;
+		ccw4 = (ccw (pcx, pcy, pdx, pdy, pbx, pby) == 1) ? 1 : 0;
+		return (ccw1 ^ ccw2) && (ccw3 ^ ccw4);
+	}
+	return 0;
+}
+ 
+int between(float pax, float pay, float pbx, float pby, float pcx, float pcy)
+{
+
+	float p1x = pbx - pax, p1y = pby - pay, p2x = pcx - pax, p2y = pcy - pay;
+	if (ccw (pax, pay, pbx, pby, pcx, pcy) != 3)
+		return 0;
+	return (p2x * p1x + p2y * p1y >= 0) && (p2x * p2x + p2y * p2y <= p1x * p1x + p1y * p1y);
+}
+
+void change_heightmap(unsigned char *hm, unsigned char h)
+{
+	if(*hm==11 && h>21)return;
+	if(*hm<h)*hm=h;
+}
+
+void method1(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, int j)
+{
+	float x1 = T[0].x + x_pos, x2 = T[1].x + x_pos, x3 = T[2].x + x_pos;
+	float y1 = T[0].y + y_pos, y2 = T[1].y + y_pos, y3 = T[2].y + y_pos;
+	int h =(((T[0].z + T[1].z + T[2].z)/3+z_pos)+2.2f)/0.2f; // Average height of triangle
+	if(h>31)h=31;
+
+	// We determine if the point is in the triangle
+	if(TriangleTest(i*0.5f+0.25f, j*0.5f+0.25f, x1, y1, x2, y2, x3, y3)){
+		height_map[(j*tile_map_size_x*6)+i]=h;	
+		return;
+	}
+}
+
+void method2(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, int j)
+{
+	float x1 = T[0].x + x_pos, x2 = T[1].x + x_pos, x3 = T[2].x + x_pos;
+	float y1 = T[0].y + y_pos, y2 = T[1].y + y_pos, y3 = T[2].y + y_pos;
+	int h =(((T[0].z + T[1].z + T[2].z)/3+z_pos)+2.2f)/0.2f; // Average height of triangle
+	if(h>31)h=31;
+
+	// We determine if the point is in the triangle
+	if(TriangleTest(i*0.5f+0.25f, j*0.5f+0.25f, x1, y1, x2, y2, x3, y3)){
+		height_map[(j*tile_map_size_x*6)+i]=h;	
+		return;
+	}
+	if(TriangleTest(i*0.5f, j*0.5f, x1, y1, x2, y2, x3, y3)){
+		height_map[(j*tile_map_size_x*6)+i]=h;	
+		return;
+	}
+	if(TriangleTest(i*0.5f+0.25f, j*0.5f, x1, y1, x2, y2, x3, y3)){
+		height_map[(j*tile_map_size_x*6)+i]=h;	
+		return;
+	}
+	if(TriangleTest(i*0.5f+0.25f, j*0.5f, x1, y1, x2, y2, x3, y3)){
+		height_map[(j*tile_map_size_x*6)+i]=h;	
+		return;
+	}
+}
+
+void method3(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, int j)
+{
+	float x1 = T[0].x + x_pos, x2 = T[1].x + x_pos, x3 = T[2].x + x_pos;
+	float y1 = T[0].y + y_pos, y2 = T[1].y + y_pos, y3 = T[2].y + y_pos;
+	unsigned char h =(((T[0].z + T[1].z + T[2].z)/3+z_pos)+2.2f)/0.2f; // Average height of triangle
+	if(h>31)h=31;
+
+	// Special case 1: triangle inside rect
+	if( (x1 > i*0.5 && x1 < (i+1)*0.5 && y1 > j*0.5 && y1 < (j+1)*0.5)
+	||  (x2 > i*0.5 && x2 < (i+1)*0.5 && y2 > j*0.5 && y2 < (j+1)*0.5)
+	||  (x3 > i*0.5 && x3 < (i+1)*0.5 && y3 > j*0.5 && y3 < (j+1)*0.5)){
+		change_heightmap(&height_map[(j*tile_map_size_x*6)+i],h);
+		//height_map[(j*tile_map_size_x*6)+i]=h;	
+		//return;
+	}
+	
+	// Special case 2: rectangle inside triangle
+	if(TriangleTest(i*0.5f+0.25f, j*0.5f+0.25f, x1, y1, x2, y2, x3, y3)){
+		change_heightmap(&height_map[(j*tile_map_size_x*6)+i],h);
+		//height_map[(j*tile_map_size_x*6)+i]=h;	
+		//return;
+	}
+
+	// Checking triangle intersections
+	if(TestLines(i*0.5, j*0.5, (i+1)*0.5, j*0.5, x1, y1, x2, y2)
+	|| TestLines(i*0.5, j*0.5, (i+1)*0.5, j*0.5, x2, y2, x3, y3)
+	|| TestLines(i*0.5, j*0.5, (i+1)*0.5, j*0.5, x3, y3, x1, y1)
+	|| TestLines(i*0.5, j*0.5, i*0.5, (j+1)*0.5, x1, y1, x2, y2)
+	|| TestLines(i*0.5, j*0.5, i*0.5, (j+1)*0.5, x2, y2, x3, y3)
+	|| TestLines(i*0.5, j*0.5, i*0.5, (j+1)*0.5, x3, y3, x1, y1)
+	|| TestLines((i+1)*0.5, (j+1)*0.5, (i+1)*0.5, j*0.5, x1, y1, x2, y2)
+	|| TestLines((i+1)*0.5, (j+1)*0.5, (i+1)*0.5, j*0.5, x2, y2, x3, y3)
+	|| TestLines((i+1)*0.5, (j+1)*0.5, (i+1)*0.5, j*0.5, x3, y3, x1, y1)
+	|| TestLines((i+1)*0.5, (j+1)*0.5, i*0.5, (j+1)*0.5, x1, y1, x2, y2)
+	|| TestLines((i+1)*0.5, (j+1)*0.5, i*0.5, (j+1)*0.5, x2, y2, x3, y3)
+	|| TestLines((i+1)*0.5, (j+1)*0.5, i*0.5, (j+1)*0.5, x3, y3, x1, y1)){
+		change_heightmap(&height_map[(j*tile_map_size_x*6)+i],h);
+		//height_map[(j*tile_map_size_x*6)+i]=h;	
+		//return;
+	}
+
+
+}
+
+void add_e3d_heightmap(int K, int D)
+{
+	int face_no = objects_list[K]->e3d_data->face_no;
+	float x_pos = objects_list[K]->x_pos, y_pos = objects_list[K]->y_pos, z_pos = objects_list[K]->z_pos;
+	float min_x = 0, min_y = 0, max_x = 0, max_y = 0;
+	e3d_array_vertex *T = objects_list[K]->e3d_data->array_vertex, *TT = NULL;
+	int minx, miny, maxx, maxy;							
+	int i, j, k, h;
+	float b3, x0, x1, x2, x3, y0, y1, y2, y3;
+	void (*method)(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, int j);
+	
+	
+	method = D==1 ? method1 : (D==2)?method2:method3;
+
 	// Check if we need to rotate the vertex
 	if(objects_list[K]->x_rot!=0.0 || objects_list[K]->y_rot!=0.0 || objects_list[K]->z_rot!=0.0)
 	{
@@ -848,7 +1028,7 @@ void add_e3d_heightmap(int K, int D)
 		if(T[k].y < min_y) min_y = T[k].y;
 		if(T[k].y > max_y) max_y = T[k].y;
 	}
-
+		
 	// Calculating min and max positions on the heightmap
 	minx = (x_pos + min_x) / 0.5f;
 	miny = (y_pos + min_y) / 0.5f;
@@ -858,53 +1038,7 @@ void add_e3d_heightmap(int K, int D)
 	for(i = minx; i < maxx; i++){
 		for(j = miny; j< maxy; j++){
 			for(k = 0; k < face_no*3; k +=3){
-				h=(((T[k].z + T[k+1].z + T[k+2].z)/3)+2.2f)/0.2f; // Average height of triangle
-				if(h>31)h=31;
-				x1 = T[k+0].x + x_pos; y1 = T[k+0].y + y_pos;
-				x2 = T[k+1].x + x_pos; y2 = T[k+1].y + y_pos;
-				x3 = T[k+2].x + x_pos; y3 = T[k+2].y + y_pos;
-			
-				// We determine if the point is in the triangle
-				x0 = i*0.5f; y0 = j*0.5f; 
-				b0 =  (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);
-				b1 = ((x2 - x0) * (y3 - y0) - (x3 - x0) * (y2 - y0)) / b0;
-				b2 = ((x3 - x0) * (y1 - y0) - (x1 - x0) * (y3 - y0)) / b0;
-				b3 = ((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / b0;
-				if(b1>0 && b2>0 && b3>0){
-					height_map[(j*tile_map_size_x*6)+i]=h;	
-					break;
-				}
-
-				if(D>1){ // For more detail we check more points
-					x0 = i*0.5f+0.25f; y0 = j*0.5f; 
-					b1 = ((x2 - x0) * (y3 - y0) - (x3 - x0) * (y2 - y0)) / b0;
-					b2 = ((x3 - x0) * (y1 - y0) - (x1 - x0) * (y3 - y0)) / b0;
-					b3 = ((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / b0;
-					if(b1>0 && b2>0 && b3>0){
-						height_map[(j*tile_map_size_x*6)+i]=h;	
-						break;
-					}
-					if(D>2){
-						x0 = i*0.5f; y0 = j*0.5f+0.25f; 
-						b1 = ((x2 - x0) * (y3 - y0) - (x3 - x0) * (y2 - y0)) / b0;
-						b2 = ((x3 - x0) * (y1 - y0) - (x1 - x0) * (y3 - y0)) / b0;
-						b3 = ((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / b0;
-						if(b1>0 && b2>0 && b3>0){
-							height_map[(j*tile_map_size_x*6)+i]=h;	
-							break;
-						}
-						if(D>3){
-							x0 = i*0.5f+0.25f; y0 = j*0.5f+0.25f; 
-							b1 = ((x2 - x0) * (y3 - y0) - (x3 - x0) * (y2 - y0)) / b0;
-							b2 = ((x3 - x0) * (y1 - y0) - (x1 - x0) * (y3 - y0)) / b0;
-							b3 = ((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / b0;
-							if(b1>0 && b2>0 && b3>0){
-								height_map[(j*tile_map_size_x*6)+i]=h;	
-								break;
-							}
-						}
-					}
-				}
+				method(&T[k], x_pos, y_pos, z_pos, i, j);
 			}
 		}
 	}
