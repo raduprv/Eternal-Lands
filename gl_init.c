@@ -78,27 +78,39 @@ void setup_video_mode()
 				}
 			else if(video_mode==3 || video_mode==4)
 				{
+					if(window_width != 780 || window_height != 550)
+						{
+							log_to_console(c_yellow1,"Window size adjusted to 780x550.");
+					}
 					window_width=780;
 					window_height=550;
-					log_to_console(c_yellow1,"Window size adjusted to 780x550.");
 				}
 			else if(video_mode==5 || video_mode==6)
 				{
+					if(window_width != 990 || window_height != 720)
+						{
+							log_to_console(c_yellow1,"Window size adjusted to 990x720.");
+						}
 					window_width=990;
 					window_height=720;
-					log_to_console(c_yellow1,"Window size adjusted to 990x720.");
 				}
 			else if(video_mode==7 || video_mode==8)
 				{
+					if(window_width != 1120 || window_height != 830)
+						{
+							log_to_console(c_yellow1,"Window size adjusted to 1120x830.");
+						}
 					window_width=1120;
 					window_height=830;
-					log_to_console(c_yellow1,"Window size adjusted to 1120x830.");
 				}
 			else if(video_mode==9 || video_mode==10)
 				{
+					if(window_width != 1250 || window_height != 990)
+						{
+							log_to_console(c_yellow1,"Window size adjusted to 1250x990.");
+						}
 					window_width=1250;
 					window_height=990;
-					log_to_console(c_yellow1,"Window size adjusted to 1250x990.");
 				}
 			bpp=0;//autodetect
 		}
