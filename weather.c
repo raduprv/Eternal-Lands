@@ -31,8 +31,8 @@ void update_rain()
 	int speed_var=rand()%8192;	// TODO: reduce the number of calls to this
 	for(i=0;i<num_rain_drops;i++)
 		{
-			rain_drops[i].y-=RAIN_SPEED+rand_rain[speed_var];
-			rain_drops[i].y2-=RAIN_SPEED+rand_rain[speed_var];
+			rain_drops[i].y-=RAIN_SPEED+(rand_rain[speed_var]&0x1);
+			rain_drops[i].y2-=RAIN_SPEED+(rand_rain[speed_var]&0x1);
 			speed_var++;
 			speed_var&=(8192-1);	// limit the high end
 			if(rain_drops[i].y<0)
