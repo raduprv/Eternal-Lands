@@ -714,6 +714,9 @@ int	mouseover_window(int win_id, int x, int y)
 				glPopMatrix();
 
 				return	ret_val;
+			} else {
+				if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+				return 1;
 			}
 		}
 

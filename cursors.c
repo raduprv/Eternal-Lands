@@ -214,6 +214,10 @@ void build_cursors()
 void check_cursor_change()
 {
 	int i;
+	if(elwin_mouse) {
+		elwin_mouse=0;
+		return;
+	}
 	if(object_under_mouse ==-1)
 		{
 			if(current_cursor!=CURSOR_WALK)change_cursor(CURSOR_WALK);
@@ -331,41 +335,6 @@ void check_cursor_change()
 					if(current_cursor!=CURSOR_ATTACK)change_cursor(CURSOR_ATTACK);
 					return;
 				}
-		}
-
-	else if(thing_under_the_mouse==UNDER_MOUSE_MENU)
-		{
-			int wear_items_x_offset=6*51+20;
-			int wear_items_y_offset=50;
-			
-			if(elwin_mouse) {
-				elwin_mouse=0;
-				return;
-			}
-
-			//TODO: simplify this - use mouseover function?
-			if(action_mode==action_look && ((get_show_window(items_win) && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6)
-											|| (get_show_window(ground_items_win) && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)
-											|| (get_show_window(items_win) && mouse_x>items_menu_x+wear_items_x_offset && mouse_y>items_menu_y+wear_items_y_offset && mouse_x<items_menu_x+wear_items_x_offset+66 && mouse_y<items_menu_y+wear_items_y_offset+99)
-											|| (get_show_window(manufacture_win) && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y && mouse_x<=manufacture_menu_x+33*12 && mouse_y<=manufacture_menu_y+33*3)
-											|| (get_show_window(manufacture_win) && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y+33*5 && mouse_x<=manufacture_menu_x+33*6 && mouse_y<=manufacture_menu_y+33*6)
-											|| (get_show_window(trade_win) && mouse_x>trade_menu_x && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*4 && mouse_y<=trade_menu_y+33*8)
-											|| (get_show_window(trade_win) && mouse_x>trade_menu_x && mouse_y>trade_menu_y && mouse_x<=trade_menu_x+33*12 && mouse_y<=trade_menu_y+33*3)
-											|| (get_show_window(trade_win) && mouse_x>trade_menu_x+33*5 && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*9 && mouse_y<=trade_menu_y+33*8)))
-				{
-					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
-					return;
-				}
-
-			//TODO: simplify this - use mouseover function?
-			if(action_mode==action_use && (get_show_window(items_win) && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6))
-				{
-					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
-					return;
-				}
-
-			if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
-			return;
 		}
 
 	// when all fails - walk

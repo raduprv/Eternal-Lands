@@ -269,7 +269,6 @@ void draw_scene()
 	check_gl_errors();
 
 	draw_ingame_interface();
-	anything_under_the_mouse(0, UNDER_MOUSE_MENU);
 	check_gl_errors();
 	//print the text line we are currently writting (if any)
 	y_line=window_height-(17*6);

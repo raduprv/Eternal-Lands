@@ -19,8 +19,7 @@
 #define UNDER_MOUSE_ANIMAL 2
 #define UNDER_MOUSE_3D_OBJ 3
 #define UNDER_MOUSE_NOTHING 4
-#define UNDER_MOUSE_MENU 5
-#define UNDER_MOUSE_NO_CHANGE 6
+#define UNDER_MOUSE_NO_CHANGE 5
 
 extern actor *actor_under_mouse;
 extern int object_under_mouse;

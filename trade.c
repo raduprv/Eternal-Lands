@@ -448,7 +448,14 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-
+int mouseover_trade_handler(window_info *win, int mx, int my) {
+	if(action_mode==action_look) {
+		if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
+	} else {
+		if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+	}
+	return 1;
+}
 
 void get_trade_partner_name(Uint8 *player_name,int len)
 {
@@ -526,6 +533,7 @@ void display_trade_menu()
 
 		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
+		set_window_handler(trade_win, ELW_HANDLER_MOUSEOVER, &mouseover_trade_handler );
 	} else {
 		show_window(trade_win);
 		select_window(trade_win);

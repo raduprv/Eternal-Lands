@@ -1071,6 +1071,7 @@ void switch_to_game_map()
 			return;
 		}
 	interface_mode=interface_map;
+	if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
 }
 
 void switch_from_game_map()

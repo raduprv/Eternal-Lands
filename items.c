@@ -730,7 +730,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 							}
 							return 1;
 						}
-						if(right_click)
+						if(action_mode==action_look || right_click)
 							{
 								str[0]=LOOK_AT_GROUND_ITEM;
 								str[1]=pos;
@@ -756,10 +756,24 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 
 int mouseover_ground_items_handler(window_info *win, int mx, int my) {
-	if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
+	if(action_mode==action_look) {
+		if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
+	} else {
+		if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
+	}
 	return 1;
 }
 
+int mouseover_items_handler(window_info *win, int mx, int my) {
+	if(action_mode==action_look) {
+		if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
+	} else if(action_mode==action_use) {
+		if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
+	} else {
+		if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+	}
+	return 1;
+}
 
 void open_bag(int object_id)
 {
@@ -785,7 +799,7 @@ void display_items_menu()
 
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
-		//set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
+		set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
 	} else {
 		show_window(items_win);
 		select_window(items_win);

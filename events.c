@@ -505,7 +505,10 @@ int HandleEvent(SDL_Event *event)
 				if(ch=='`' || key==K_CONSOLE)
 					{
 						if(interface_mode==interface_console)interface_mode=interface_game;
-						else interface_mode=interface_console;
+						else {
+							interface_mode=interface_console;
+							if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+						}
 						break;
 					}
 
