@@ -483,39 +483,57 @@ void switch_action_mode(int * mode, int id)
 	item_action_mode=qb_action_mode=action_mode=*mode;
 }
 
+// XXX FIXME (Grum): the next two fuctions are toougly to live, but I'll clean 
+// them up once we get rid of the old event handler
 void view_console_win(int * win, int id)
 {
 #ifdef WINDOW_CHAT
-	if(interface_mode==interface_console || interface_mode==interface_game)
+	if (interface_mode == interface_console || interface_mode == interface_game)
+	{
 		toggle_window (game_win);
-#endif
+	}
+	else if (interface_mode == interface_map)
+	{
+		switch_from_game_map ();
+		toggle_window (map_win);
+	}
 	toggle_window (console_win);
+#endif
 	
-	if(interface_mode==interface_console) {
-		interface_mode=interface_game;
-	} else {
-		if(interface_mode==interface_map || interface_mode==interface_cont)
+	if (interface_mode == interface_console)
+	{
+		interface_mode = interface_game;
+	} 
+	else 
+	{
+#ifndef WINDOW_CHAT
+		if (interface_mode == interface_map || interface_mode == interface_cont)
 			glDeleteTextures(1,&map_text);
-		interface_mode=interface_console;
-		if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+#endif
+		interface_mode = interface_console;
+#ifndef WINDOW_CHAT
+		if (current_cursor != CURSOR_ARROW) 
+			change_cursor(CURSOR_ARROW);
+#endif
 	}
 }
 
-void view_map_win(int * win, int id)
+void view_map_win (int * win, int id)
 {
 #ifdef WINDOW_CHAT
 	int mode = interface_mode;
 
-	if (mode==interface_console)
+	toggle_window (map_win);
+	if (mode == interface_console)
 		toggle_window (console_win);
-	else if (mode==interface_game || mode==interface_map || mode==interface_cont)
+	else if (mode == interface_game || mode == interface_map || mode == interface_cont)
 		toggle_window (game_win);
-	if(mode==interface_game || mode==interface_console)
+	if (mode == interface_game || mode == interface_console)
 	{
-		if (switch_to_game_map() == 0)
+		if (switch_to_game_map () == 0)
 		{
 			// map load failed, toggle root window back in
-			if(mode==interface_game)
+			if(mode == interface_game)
 				toggle_window (game_win);
 			else
 				toggle_window (console_win);
@@ -524,11 +542,13 @@ void view_map_win(int * win, int id)
 #else
 	if(interface_mode==interface_game || interface_mode==interface_console)
 	{
-		switch_to_game_map();
+		switch_to_game_map ();
 	}
 #endif
-	else if(interface_mode==interface_map || interface_mode==interface_cont)
+	else if (interface_mode == interface_map || interface_mode == interface_cont)
+	{
 		switch_from_game_map();
+	}
 }
 
 void view_window(int * window, int id)

@@ -655,10 +655,20 @@ int HandleEvent (SDL_Event *event)
 					camera_tilt_frames=40;
 				}
 
+#ifdef WINDOW_CHAT
+			if (left_click >= 1)
+			{
+				if (drag_windows (mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)
+					return done;
+				if (drag_in_windows (mouse_x, mouse_y, 0, mouse_delta_x, mouse_delta_y) >= 0)
+					return done;
+			}
+#else
 			if((left_click>=1) && interface_mode==interface_game) {
 				if(check_drag_menus())return(done);
 				if(check_scroll_bars())return(done);
 			}
+#endif
 
 #ifdef WINDOW_CHAT
 			if(left_click==1 || right_click==1)

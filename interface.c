@@ -67,6 +67,8 @@ void get_old_world_x_y()
 	scene_mouse_y=p->y_pos+y1;
 }
 
+// XXX FIXME (Grum): scheduled for removal
+#ifndef WINDOW_CHAT
 int check_drag_menus()
 {
 	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)	return 1;
@@ -80,6 +82,7 @@ int check_scroll_bars()
 
 	return 0;
 }
+#endif
 
 // XXX FIXME (Grum): scheduled for removal, now in the root window click handler
 #ifndef WINDOW_CHAT
@@ -1205,3 +1208,27 @@ void save_markings()
           fclose(fp);
         };
 }
+
+#ifdef WINDOW_CHAT
+void hide_all_root_windows ()
+{
+	if (game_win >= 0) hide_window (game_win);
+	if (console_win >= 0) hide_window (console_win);
+	if (map_win >= 0) hide_window (map_win);
+	if (login_win >= 0) hide_window (login_win);
+	if (rules_root_win >= 0) hide_window (rules_root_win);
+	if (opening_win >= 0) hide_window (opening_win);
+	if (newchar_win >= 0) hide_window (newchar_win);
+}
+
+void resize_all_root_windows (Uint32 w, Uint32 h)
+{
+	if (game_win >= 0) resize_window (game_win, w, h);
+	if (console_win >= 0) resize_window (console_win, w, h);
+	if (map_win >= 0) resize_window (map_win, w, h);
+	if (login_win >= 0) resize_window (login_win, w, h);
+	if (rules_root_win >= 0) resize_window (rules_root_win, w, h);
+	if (opening_win >= 0) resize_window (opening_win, w, h);
+	if (newchar_win >= 0) resize_window (newchar_win, w, h);
+}
+#endif

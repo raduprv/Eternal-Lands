@@ -397,4 +397,9 @@ extern GLuint legend_text;
 extern GLuint map_text;
 extern const struct draw_map seridia_maps[]; /*!< global array of maps for the continet seridia */
 
+#ifdef WINDOW_CHAT
+void hide_all_root_windows ();
+void resize_all_root_windows (Uint32 w, Uint32 h);
+#endif
+
 #endif

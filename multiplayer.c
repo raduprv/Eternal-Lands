@@ -911,7 +911,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 						highlight_rule(in_data[3],in_data+4,data_lenght-4);
 						break;
 					case NEW_CHAR_INTERFACE:
-						interface_mode=interface_new_char;
+#ifdef WINDOW_CHAT
+						hide_all_root_windows ();
+						create_newchar_window ();
+						show_window (newchar_win);
+#endif
+						interface_mode = interface_new_char;
 						connect_to_server();
 						break;
 					default:
