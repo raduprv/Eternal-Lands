@@ -206,7 +206,22 @@ void get_your_items(Uint8 *data)
 		{
 			item_list[i].quantity=0;
 		}
+#ifdef NEW_VERSION
+	for(i=0;i<total_items;i++)
+		{
+			item_list[i].image_id=*((Uint16 *)(data+i*8+1));
+			item_list[i].quantity=*((Uint32 *)(data+i*8+1+2));
+			item_list[i].pos=data[i*8+1+6];
+			flags=data[i*8+1+7];
 
+			if((flags&ITEM_RESOURCE))item_list[i].is_resource=1;
+			else item_list[i].is_resource=0;
+			if((flags&ITEM_REAGENT))item_list[i].is_reagent=1;
+			else item_list[i].is_reagent=0;
+			if((flags&ITEM_INVENTORY_USABLE))item_list[i].use_with_inventory=1;
+			else item_list[i].use_with_inventory=0;
+		}
+#else
 	for(i=0;i<total_items;i++)
 		{
 			item_list[i].image_id=data[i*5+1];
@@ -221,6 +236,7 @@ void get_your_items(Uint8 *data)
 			if((flags&ITEM_INVENTORY_USABLE))item_list[i].use_with_inventory=1;
 			else item_list[i].use_with_inventory=0;
 		}
+#endif
 	build_manufacture_list();
 
 }
@@ -465,9 +481,20 @@ void get_new_inventory_item(Uint8 *data)
 	int i;
 	int pos;
 	Uint8 flags;
+	int quantity;
+	int image_id;
 
+#ifdef NEW_VERSION
+	pos=data[6];
+	flags=data[7];
+	image_id=*((Uint16 *)(data));
+	quantity=*((Uint32 *)(data+2));
+#else
 	pos=data[3];
 	flags=data[4];
+	image_id=data[0];
+	quantity=*((Uint16 *)(data+1));
+#endif
 
 	//first, try to see if the items already exists, and replace it
 	for(i=0;i<36+6;i++)
@@ -475,8 +502,8 @@ void get_new_inventory_item(Uint8 *data)
 			if(item_list[i].quantity)
 				if(item_list[i].pos==pos)
 					{
-						item_list[i].image_id=data[0];
-						item_list[i].quantity=*((Uint16 *)(data+1));
+						item_list[i].image_id=image_id;
+						item_list[i].quantity=quantity;
 						item_list[i].pos=pos;
 						build_manufacture_list();
 						return;
@@ -487,8 +514,8 @@ void get_new_inventory_item(Uint8 *data)
 		{
 			if(!item_list[i].quantity)
 				{
-					item_list[i].image_id=data[0];
-					item_list[i].quantity=*((Uint16 *)(data+1));
+					item_list[i].image_id=image_id;
+					item_list[i].quantity=quantity;
 					item_list[i].pos=pos;
 					if((flags&ITEM_RESOURCE))item_list[i].is_resource=1;
 					else item_list[i].is_resource=0;
@@ -650,7 +677,11 @@ void get_bags_items_list(Uint8 *data)
 	items_no=data[0];
 	for(i=0;i<items_no;i++)
 		{
+#ifdef NEW_VERSION
+			my_offset=i*6+1;
+#else
 			my_offset=i*7+1;
+#endif
 			pos=data[my_offset+5];
 			ground_item_list[pos].image_id=data[my_offset];
 			ground_item_list[pos].quantity=*((Uint32 *)(data+my_offset+1));
