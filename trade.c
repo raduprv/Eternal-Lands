@@ -158,8 +158,7 @@ void display_trade_menu()
 	j=0;
 	for(i=0;i<36+6;i++)
 		{
-			if(item_list[i].quantity)
-			if(item_list[i].pos<36)
+			if(item_list[i].quantity && item_list[i].pos<36)
 				{
 					float u_start,v_start,u_end,v_end;
 					int this_texture,cur_item,cur_pos;
@@ -184,16 +183,11 @@ void display_trade_menu()
 					//get the texture this item belongs to
 					this_texture=item_list[i].image_id/25;
 					if(this_texture==0)this_texture=items_text_1;
-					else
-					if(this_texture==1)this_texture=items_text_2;
-					else
-					if(this_texture==2)this_texture=items_text_3;
-					else
-					if(this_texture==3)this_texture=items_text_4;
-					else
-					if(this_texture==4)this_texture=items_text_5;
-					else
-					if(this_texture==5)this_texture=items_text_6;
+					else if(this_texture==1)this_texture=items_text_2;
+					else if(this_texture==2)this_texture=items_text_3;
+					else if(this_texture==3)this_texture=items_text_4;
+					else if(this_texture==4)this_texture=items_text_5;
+					else if(this_texture==5)this_texture=items_text_6;
 
 					if(last_texture!=texture_cache[this_texture].texture_id)
 						{
@@ -387,44 +381,41 @@ int check_trade_interface()
 
 	//see if we clicked on any item in the main category
 	for(y=0;y<3;y++)
-	for(x=0;x<12;x++)
-		{
-			x_screen=trade_menu_x+x*33;
-			y_screen=trade_menu_y+y*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-				{
-					int i,j;
+		for(x=0;x<12;x++)
+			{
+				x_screen=trade_menu_x+x*33;
+				y_screen=trade_menu_y+y*33;
+				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+					{
+						int i,j;
 
-					//see if there is any item there
-					j=0;
-					for(i=0;i<36+6;i++)
-						{
-							if(item_list[i].quantity)
-							if(item_list[i].pos<36)
+						//see if there is any item there
+						j=0;
+						for(i=0;i<36+6;i++)
+							{
+							if(item_list[i].quantity && item_list[i].pos<36)
 								{
 									if(j==y*12+x)break;
 									j++;
 								}
-						}
+							}
+						if(i<36+6 && item_list[i].quantity)
+							{
+								if(action_mode==action_look && left_click)
+									{
+										str[0]=LOOK_AT_INVENTORY_ITEM;
+										str[1]=item_list[i].pos;
+										my_tcp_send(my_socket,str,2);
+									}
+								else
+									{
+										str[0]=PUT_OBJECT_ON_TRADE;
+										str[1]=item_list[i].pos;
+										*((Uint16 *)(str+2))=item_quantity;
+										my_tcp_send(my_socket,str,4);
+									}
 
-					if(item_list[i].quantity)
-						{
-
-							if(action_mode==action_look && left_click)
-								{
-									str[0]=LOOK_AT_INVENTORY_ITEM;
-									str[1]=item_list[i].pos;
-									my_tcp_send(my_socket,str,2);
-								}
-							else
-								{
-									str[0]=PUT_OBJECT_ON_TRADE;
-									str[1]=item_list[i].pos;
-									*((Uint16 *)(str+2))=item_quantity;
-									my_tcp_send(my_socket,str,4);
-								}
-
-							return 1;
+								return 1;
 							}
 				}
 		}
