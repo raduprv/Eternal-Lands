@@ -128,19 +128,17 @@ int HandleEvent(SDL_Event *event)
 					console_move_page_down();
 
 				if(key==K_ZOOMIN && interface_mode==interface_game){
-					if(camera_zoom_dir == -1)
-						camera_zoom_frames+=5;
-					else
-						camera_zoom_frames=5;
-					camera_zoom_dir=-1;
+					if(zoom_level>2.0f) {
+						zoom_level-=0.25;
+						resize_window();
+					}
 				}
 
 				if(key==K_ZOOMOUT && interface_mode==interface_game){
-					if(camera_zoom_dir == 1)
-						camera_zoom_frames+=5;
-					else
-						camera_zoom_frames=5;
-					camera_zoom_dir=1;
+					if(zoom_level<3.75f) {
+						zoom_level+=0.25;
+						resize_window();
+					}
 				}
 
 				if (event->key.keysym.sym == SDLK_PAGEUP && interface_mode==interface_console)
@@ -547,6 +545,8 @@ int HandleEvent(SDL_Event *event)
 				{
 					camera_rotation_speed=normal_camera_rotation_speed*mouse_delta_x/220;
 					camera_rotation_frames=40;
+					camera_tilt_speed=normal_camera_rotation_speed*mouse_delta_y/220;
+					camera_tilt_frames=40;
 				}
 
 			if((left_click>=1) && interface_mode==interface_game) {

@@ -17,6 +17,9 @@ float normal_camera_rotation_speed;
 float camera_rotation_speed;
 int camera_rotation_frames;
 
+float camera_tilt_speed;
+int camera_tilt_frames;
+
 double camera_x_speed;
 int camera_x_frames;
 
@@ -392,6 +395,23 @@ void update_camera()
 				cz-=camera_z_speed;
 			camera_z_frames--;
 		}
+	if(camera_tilt_frames) {
+		if(camera_tilt_speed<0) {
+			if(rx>-60)rx+=camera_tilt_speed;
+			if(rx<-60) {
+				rx=-60;
+				camera_tilt_frames=0;
+			} else
+				camera_tilt_frames--;
+		} else {
+			if(rx<-45)rx+=camera_tilt_speed;
+			if(rx>-45) {
+				rx=-45;
+				camera_tilt_frames=0;
+			} else
+				camera_tilt_frames--;
+		}
+	}
 	if(camera_zoom_frames) {
 		if(camera_zoom_dir == 1) {
 			if(zoom_level<3.75f){

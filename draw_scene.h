@@ -5,6 +5,8 @@ extern float cx,cy,cz;
 extern float rx,ry,rz;
 extern float camera_rotation_speed;
 extern int camera_rotation_frames;
+extern float camera_tilt_speed;
+extern int camera_tilt_frames;
 extern int normal_animation_timer;
 extern double camera_x_speed;
 extern int camera_x_frames;
