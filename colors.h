@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief color handling
  * \ingroup other
+ * \brief color handling
  */
 #ifndef __COLORS_H__
 #define __COLORS_H__

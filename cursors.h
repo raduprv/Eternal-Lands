@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief cursor related data types and functions
  * \ingroup display_2d
+ * \brief cursor related data types and functions
  */
 #ifndef __CURSORS_H__
 #define __CURSORS_H__

@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief console related commands
  * \ingroup commands
+ * \brief console related commands
  */
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__

@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief this file defines the core client server protocol.
  * \ingroup protocol
+ * \brief this file defines the core client server protocol.
  */
 #ifndef __CLIENT_SERV_H__
 #define __CLIENT_SERV_H__
