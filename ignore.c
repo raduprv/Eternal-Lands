@@ -114,11 +114,10 @@ int pre_check_if_ignored(Uint8 * input_text)
 					name[i]=ch;
 				}
 			name[i]=0;
+			if(check_if_ignored(name))return 1;
 			//memorize this players name
 			my_strcp(last_pm_from,name);
-			if(check_if_ignored(name))return 1;
-			else return 0;
-
+			return 0;
 		}
 
 	if(input_text[1] == '[') input_text++;
