@@ -611,6 +611,7 @@ void init_stuff()
 	ReadXML("Encyclopedia/index.xml");
 	read_key_config();
 	load_questlog();
+	init_buddy();
 	//we might want to do this later.
 	connect_to_server();
 }

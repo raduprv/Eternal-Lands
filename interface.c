@@ -201,7 +201,7 @@ int check_drag_menus()
 
 	if(questlog_menu_dragged || (view_questlog && mouse_x>questlog_menu_x && mouse_x<=questlog_menu_x+questlog_menu_x_len && mouse_y>questlog_menu_y-16 && mouse_y<=questlog_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-        !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged)
+        !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged)
 		{
 			questlog_menu_dragged=1;
             if(left_click>1)
@@ -212,18 +212,6 @@ int check_drag_menus()
 			return 1;
          }
 
-	if(questlog_menu_dragged || (view_questlog && mouse_x>questlog_menu_x && mouse_x<=questlog_menu_x+questlog_menu_x_len && mouse_y>questlog_menu_y-16 && mouse_y<=questlog_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-        !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !buddy_menu_dragged)
-		{
-			questlog_menu_dragged=1;
-            if(left_click>1)
-               {
-                  questlog_menu_x+=mouse_delta_x;
-                  questlog_menu_y+=mouse_delta_y;
-               }
-			return 1;
-         }
 	return 0;
 }
 
@@ -1323,6 +1311,7 @@ void draw_ingame_interface()
 			check_sigil_mouseover();
     		display_sigils_menu();
 		}
+	if(view_buddy)display_buddy();
 }
 
 int map_text;

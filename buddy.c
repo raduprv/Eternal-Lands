@@ -76,23 +76,19 @@ void display_buddy()
    glEnable(GL_TEXTURE_2D);
    // The X
    draw_string(buddy_menu_x+buddy_menu_x_len-16,buddy_menu_y+2,"X",1);
+   
    // Draw budies
-   /* TEST
-   if(bpage_start==0)
-   {
-      for(i=0;i<100;i++){
-         buddy_list[i].name[2]=0;
-         buddy_list[i].name[0]=rand()%70+55;
-         buddy_list[i].type=rand()%4+1;
-      }
-   }*/
-
    qsort(buddy_list,100,sizeof(_buddy),compare2);
    i=bpage_start;
+   glColor3f(1.0,1.0,1.0);
    while(c==buddy_list[i].type){
+      if(i-bpage_start>18)return;
+      draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
+      y+=10;
       i++;
    }
    c++;
+
    glColor3f(1.0,0,0);
    while(c==buddy_list[i].type){
       if(i-bpage_start>18)return;
@@ -101,6 +97,7 @@ void display_buddy()
       i++;
    }
    c++;
+
    glColor3f(0,1.0,0);
    while(c==buddy_list[i].type){
       if(i-bpage_start>18)return;
@@ -157,5 +154,40 @@ int check_buddy_interface()
    sprintf(input_text_line,"/%s ",buddy_list[y].name);
    input_text_lenght=strlen(input_text_line);
    return 1;
+}
+
+void init_buddy()
+{
+	int i;
+	for(i=0;i<100;i++)
+		buddy_list[i].type=0xff;
+	
+}
+
+void add_buddy(char *n)
+{
+	int i;
+	//find empty space
+	for(i=0;i<100;i++){
+		if(buddy_list[i].type==0xff){//found then add buddy
+			buddy_list[i].type=0;
+			strcpy(buddy_list[i].name,n);
+			break;
+		}
+	}
+}
+
+void del_buddy(char *n)
+{
+	int i;
+	//find buddy
+	for(i=0;i<100;i++){
+		if(!strcmp(n,buddy_list[i].name)){
+			buddy_list[i].type=0xff;
+			break;
+		}
+		
+	}
+
 }
 

@@ -16,6 +16,7 @@ extern int view_buddy;
 
 void display_buddy();
 int check_buddy_interface();
-
+void add_buddy(char *n);
+void del_buddy(char *n);
 #endif
 
