@@ -37,6 +37,7 @@
 #define gargoyle2 33
 #define gargoyle3 34
 #define troll 35
+#define chimeran_wolf_mountain 36
 
 //skin colors
 #define SKIN_BROWN 0

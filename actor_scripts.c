@@ -1800,7 +1800,7 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[human_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tall.md2");
 	my_strcp(actors_defs[human_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[human_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tall.md2");
+	my_strcp(actors_defs[human_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tallm.md2");
 	my_strcp(actors_defs[human_male].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 
@@ -2901,7 +2901,7 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[elf_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tall.md2");
 	my_strcp(actors_defs[elf_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[elf_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tall.md2");
+	my_strcp(actors_defs[elf_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tallm.md2");
 	my_strcp(actors_defs[elf_male].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[elf_male].walk_speed=default_walk_speed;
@@ -3449,7 +3449,7 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_FUR].model_name,"./md2/hat1_short.md2");
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[dwarf_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_short.md2");
+	my_strcp(actors_defs[dwarf_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_shortf.md2");
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[dwarf_female].walk_speed=default_walk_speed;
@@ -3999,7 +3999,7 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_FUR].model_name,"./md2/hat1_short.md2");
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
-	my_strcp(actors_defs[dwarf_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_short.md2");
+	my_strcp(actors_defs[dwarf_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_shortm.md2");
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[dwarf_male].walk_speed=default_walk_speed;
@@ -4635,5 +4635,27 @@ void init_actor_defs()
 	my_strcp(actors_defs[cyclops].combat_idle_frame,"fightidle01");
 	actors_defs[cyclops].walk_speed=default_walk_speed;
 	actors_defs[cyclops].run_speed=2.0/18;
+
+	actors_defs[chimeran_wolf_mountain].ghost=0;
+	my_strcp(actors_defs[chimeran_wolf_mountain].skin_name,"./md2/chimeran.bmp");
+	my_strcp(actors_defs[chimeran_wolf_mountain].file_name,"./md2/chimeranwolf1.md2");
+	my_strcp(actors_defs[chimeran_wolf_mountain].walk_frame,"walk01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].die1_frame,"die01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].die2_frame,"die01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].pain1_frame,"pain01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].pain2_frame,"pain01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].idle_frame,"idle01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].attack_cast_frame,"cast01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].attack_up_1_frame,"attack01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].attack_up_2_frame,"attack01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].attack_up_3_frame,"attacktwo01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].attack_up_4_frame,"attacktwo01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].attack_down_1_frame,"attack01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].attack_down_2_frame,"attacktwo01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].in_combat_frame,"default01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].out_combat_frame,"default01");
+	my_strcp(actors_defs[chimeran_wolf_mountain].combat_idle_frame,"default01");
+	actors_defs[chimeran_wolf_mountain].walk_speed=default_walk_speed;
+	actors_defs[chimeran_wolf_mountain].run_speed=2.0/18;
 }
 
