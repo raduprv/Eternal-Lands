@@ -38,6 +38,7 @@ void draw_particle_sys(particle_sys *system_id)
 	lock_particles_list();	//lock it to avoid timing issues
 	for(i=0;i<total_particle_no;i++)
 		if(!system_id->particles[i].free)
+		if(system_id->particles[i].z >= 0.0f)
 			{
 				float r,g,b,a,x,y,z;
 				float u_start,u_end,v_start,v_end;
@@ -686,10 +687,10 @@ void update_teleporter(particle_sys *system_id)
 	//see if we need to add new particles
 	lock_particles_list();
 	if(particles_to_add)
-		for(i=0;i<particles_to_add;i++)
+		for(j=i=0;i<particles_to_add;i++)
 			{
 				//find a free space
-				for(j=0;j<total_particle_no;j++)
+				for(;j<total_particle_no;j++)
 					if(system_id->particles[j].free)
 						{
 							//finally, we found a spot
@@ -722,6 +723,7 @@ void update_teleporter(particle_sys *system_id)
 							system_id->particles[j].free=0;
 							//increase the particle count
 							system_id->particle_count++;
+							break;	//done looping
 						}
 
 			}
@@ -833,10 +835,10 @@ void update_teleport_in(particle_sys *system_id)
 	lock_particles_list();
 	if(system_id->system_ttl)
 		if(particles_to_add)
-			for(i=0;i<particles_to_add;i++)
+			for(j=i=0;i<particles_to_add;i++)
 				{
 					//find a free space
-					for(j=0;j<total_particle_no;j++)
+					for(;j<total_particle_no;j++)
 						if(system_id->particles[j].free)
 							{
 								//finally, we found a spot
@@ -869,6 +871,7 @@ void update_teleport_in(particle_sys *system_id)
 								system_id->particles[j].free=0;
 								//increase the particle count
 								system_id->particle_count++;
+								break;	//done looping
 							}
 
 				}
@@ -993,10 +996,10 @@ void update_bag_in(particle_sys *system_id)
 	lock_particles_list();
 	if(system_id->system_ttl)
 		if(particles_to_add)
-			for(i=0;i<particles_to_add;i++)
+			for(j=i=0;i<particles_to_add;i++)
 				{
 					//find a free space
-					for(j=0;j<total_particle_no;j++)
+					for(;j<total_particle_no;j++)
 						if(system_id->particles[j].free)
 							{
 								//finally, we found a spot
@@ -1029,6 +1032,7 @@ void update_bag_in(particle_sys *system_id)
 								system_id->particles[j].free=0;
 								//increase the particle count
 								system_id->particle_count++;
+								break;	//done looping
 							}
 
 				}
@@ -1153,10 +1157,10 @@ void update_bag_out(particle_sys *system_id)
 	lock_particles_list();
 	if(system_id->system_ttl)
 		if(particles_to_add)
-			for(i=0;i<particles_to_add;i++)
+			for(j=i=0;i<particles_to_add;i++)
 				{
 					//find a free space
-					for(j=0;j<total_particle_no;j++)
+					for(;j<total_particle_no;j++)
 						if(system_id->particles[j].free)
 							{
 								//finally, we found a spot
@@ -1189,6 +1193,7 @@ void update_bag_out(particle_sys *system_id)
 								system_id->particles[j].free=0;
 								//increase the particle count
 								system_id->particle_count++;
+								break;	//done looping
 							}
 
 				}
@@ -1313,10 +1318,10 @@ void update_teleport_out(particle_sys *system_id)
 	lock_particles_list();
 	if(system_id->system_ttl)
 		if(particles_to_add)
-			for(i=0;i<particles_to_add;i++)
+			for(j=i=0;i<particles_to_add;i++)
 				{
 					//find a free space
-					for(j=0;j<total_particle_no;j++)
+					for(;j<total_particle_no;j++)
 						if(system_id->particles[j].free)
 							{
 								//finally, we found a spot
@@ -1349,6 +1354,7 @@ void update_teleport_out(particle_sys *system_id)
 								system_id->particles[j].free=0;
 								//increase the particle count
 								system_id->particle_count++;
+								break;	//done looping
 							}
 
 				}
