@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief	Covers various of scripts used to animate and display actors as well as network data
  * \ingroup 	display
+ * \brief	Covers various of scripts used to animate and display actors as well as network data
  */
 #ifndef __ACTOR_SCRIPTS_H__
 #define __ACTOR_SCRIPTS_H__
@@ -140,7 +140,34 @@ void get_actor_heal(int actor_id, int quantity);
  * \return	None
  */
 void move_self_forward();
+
+/*!
+ * \ingroup other
+ * \brief initializes the actor_def list
+ *
+ *      Initializes the actor_def list
+ *
+ * \return None
+ */
 void init_actor_defs();
+
+/*!
+ * \ingroup events_actors
+ * \brief   Executes the sit down command
+ *
+ *      Executes the command to sit down.
+ *
+ * \return None
+ */
 void you_sit_down();
+
+/*!
+ * \ingroup events_actors
+ * \brief   Executes the stand up command
+ *
+ *      Executes the command to stand up
+ *
+ * \return None
+ */
 void you_stand_up();
 #endif
