@@ -34,11 +34,12 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-    		log_to_console(c_red1,"Error creating a source.\n");
-    		log_error("Error creating a source.\n");
-			printf("%s\n",alGetString(error));
-			have_sound=0;
-			have_music=0;
+    		char	str[256];
+    		sprintf(str, "Error creating a source %d.\n %s", i, alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
+			//have_sound=0;
+			//have_music=0;
 			return 0;
     	}
 
@@ -106,9 +107,10 @@ void update_position()
 		}
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-    		log_to_console(c_red1,"update_position error.\n");
-    		log_error("update_position error.\n");
-			printf("%s\n",alGetString(error));
+     		char	str[256];
+    		sprintf(str, "update_position error.\n %s", alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
 			have_sound=0;
 			have_music=0;
     	}
@@ -125,9 +127,10 @@ void kill_local_sounds()
 	alSourceStopv(used_sources,sound_source);
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-    		log_to_console(c_red1,"kill_local_sounds error.\n");
-    		log_error("kill_local_sounds error.\n");
-			printf("%s\n",alGetString(error));
+     		char	str[256];
+    		sprintf(str, "kill_local_sounds error.\n %s", alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
 			have_sound=0;
 			have_music=0;
     	}
@@ -164,7 +167,7 @@ void turn_sound_on()
 
 void init_sound()
 {
-	int i;
+	int i, error;
 	ALsizei size,freq;
 	ALenum  format;
 	ALvoid  *data;
@@ -178,10 +181,12 @@ void init_sound()
 	alutInit(0, NULL) ; 
 	sound_list_mutex=SDL_CreateMutex();
 
-	if(alGetError() != AL_NO_ERROR) 
+	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-    		log_to_console(c_red1,"Error initializing sound.\n");
-    		log_error("Error initializing sound.\n");
+     		char	str[256];
+    		sprintf(str, "Error initializing sound.\n %s", alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
 			have_sound=0;
 			have_music=0;
     	}
@@ -189,14 +194,17 @@ void init_sound()
 	// Generate buffers
 	alGenBuffers(max_buffers, sound_buffer);
     
-	if(alGetError() != AL_NO_ERROR) 
+	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-    		log_to_console(c_red1,"Error creating buffers.\n");
-    		log_error("Error creating buffers.\n");
+     		char	str[256];
+    		sprintf(str, "Error creating buffers.\n %s", alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
 			have_sound=0;
 			have_music=0;
     	}
-	
+
+    // TODO: get this information from a file, sound.ini?	
 	my_strcp(sound_files[0],"./sound/rain1.wav");
 	my_strcp(sound_files[1],"./sound/teleport_in.wav");
 	my_strcp(sound_files[2],"./sound/teleport_out.wav");
@@ -209,11 +217,7 @@ void init_sound()
 
 	for(i=0;i<max_buffers;i++)
 		{
-#ifndef WINDOWS
 			alutLoadWAVFile(sound_files[i],&format,&data,&size,&freq,&loop);
-#else
-			alutLoadWAVFile(sound_files[i],&format,&data,&size,&freq);
-#endif
 			alBufferData(sound_buffer[i],format,data,size,freq);
 			alutUnloadWAV(format,data,size,freq);
 		}
@@ -258,9 +262,10 @@ int realloc_sources()
 	
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-    		log_to_console(c_red1,"realloc_sources error.\n");
-    		log_error("realloc_sources error.\n");
-			printf("%s\n",alGetString(error));
+     		char	str[256];
+    		sprintf(str, "realloc_sources error.\n %s", alGetString(error));
+    		log_to_console(c_red1, str);
+    		log_error(str);
 			have_sound=0;
 			have_music=0;
     	}

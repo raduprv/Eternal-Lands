@@ -5,18 +5,20 @@
 #include <SDL.h>
 #include <SDL_net.h>
 #include <SDL_thread.h>
-#else
+#include <al.h>
+#include <alut.h>
+#else	//WINDOWS
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
 #include <SDL/SDL_thread.h>
-#endif
 
 #ifdef OSX
 #include <OpenAL/alut.h>
-#else
+#else	//OSX
 #include <AL/al.h>
 #include <AL/alut.h>
-#endif
+#endif	//OSX
+#endif	//WINDOWS
 
 #include "elc_private.h"
 #include "SDL_opengl.h"
