@@ -68,11 +68,12 @@ void move_3d_object(int object_id)
 
 void clone_3d_object(int object_id)
 {
-	float z_pos,x_rot,z_rot,r,g,b;
+	float z_pos,x_rot,y_rot,z_rot,r,g,b;
 	char self_lit,blended;
 
 	z_pos=objects_list[object_id]->z_pos;
 	x_rot=objects_list[object_id]->x_rot;
+	y_rot=objects_list[object_id]->y_rot;
 	z_rot=objects_list[object_id]->z_rot;
 	self_lit=objects_list[object_id]->self_lit;
 	blended=objects_list[object_id]->blended;
@@ -80,7 +81,7 @@ void clone_3d_object(int object_id)
 	g=objects_list[object_id]->g;
 	b=objects_list[object_id]->b;
 
-	selected_3d_object=add_e3d(objects_list[object_id]->file_name,scene_mouse_x,scene_mouse_y,z_pos,x_rot,0,z_rot,self_lit,blended,r,g,b);
+	selected_3d_object=add_e3d(objects_list[object_id]->file_name,scene_mouse_x,scene_mouse_y,z_pos,x_rot,y_rot,z_rot,self_lit,blended,r,g,b);
 	cur_tool=tool_select;//change the current tool
 }
 
