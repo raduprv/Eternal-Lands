@@ -163,7 +163,8 @@ int drag_knowledge_handler(window_info *win, int mx, int my, Uint32 flags, int d
 		//if(left_click>1)
 		knowledge_page_start+=((300-38)*dy)/120;
 		// bounds checking
-		if(knowledge_page_start%2==1) knowledge_page_start--;
+		if(knowledge_page_start%2==1) 
+			knowledge_page_start--;
 		if(knowledge_page_start < 0) knowledge_page_start= 0;
 		if(knowledge_page_start > 300-38) knowledge_page_start= 300-38;
 		return 1;
