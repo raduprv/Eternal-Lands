@@ -8,7 +8,7 @@
 #endif
 
 int mod_key_status;
-int last_turn_around=0;
+Uint32 last_turn_around=0;
 
 int HandleEvent(SDL_Event *event)
 {

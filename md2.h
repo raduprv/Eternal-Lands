@@ -95,10 +95,10 @@ typedef struct
 
 typedef struct
 {
-	int numVertices;
-	int numTexCoords;
-	int numFaces;
-	int numFrames;
+	Uint32 numVertices;
+	Uint32 numTexCoords;
+	Uint32 numFaces;
+	Uint32 numFrames;
 	text_coord_md2 *offsetTexCoords;
 	face_md2 *offsetFaces;
 	frame_md2 *offsetFrames;

@@ -233,7 +233,7 @@ extern int read_mouse_now;
 extern int have_multitexture;
 float clouds_movement_u;
 float clouds_movement_v;
-extern int last_clear_clouds;
+extern Uint32 last_clear_clouds;
 extern int reflection_texture;
 extern int use_vertex_array;
 extern int have_compiled_vertex_array;

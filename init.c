@@ -18,11 +18,7 @@ void load_harvestable_list()
 	int i=0;
 	char strLine[255];
 
-	for(i=0;i<100;i++)
-		{
-			harvestable_objects[i].name[0]=0;
-		}
-
+	memset(harvestable_objects, 0, sizeof(harvestable_objects)); 
 	i=0;
 	f=fopen("harvestable.lst", "rb");
 	if(!f)return;
@@ -41,11 +37,7 @@ void load_entrable_list()
 	int i=0;
 	char strLine[255];
 
-	for(i=0;i<100;i++)
-		{
-			entrable_objects[i].name[0]=0;
-		}
-
+	memset(entrable_objects, 0, sizeof(entrable_objects)); 
 	i=0;
 	f=fopen("entrable.lst", "rb");
 	if(!f)return;
@@ -152,7 +144,7 @@ void read_config()
 	// now the default user and password
 	get_string_after_string("#username",file_mem,MAX_INI_FILE,username_str,16);
 	get_string_after_string("#password",file_mem,MAX_INI_FILE,password_str,16);
-	for(k=0;k<strlen(password_str);k++) display_password_str[k]='*';
+	for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
 	display_password_str[k]=0;
 
 #ifndef WINDOWS
@@ -293,23 +285,13 @@ void init_md2_cache()
 	cache_set_time_limit(cache_md2, 5*60*1000);	// check every 5 minutes
 	cache_set_size_limit(cache_md2, 64*1024*1024);
 #else	//CACHE_SYSTEM
-	int i;
-	for(i=0;i<1000;i++)
-		{
-			md2_cache[i].file_name=NULL;
-			md2_cache[i].md2_id=0;
-		}
+	memset(md2_cache, 0, sizeof(md2_cache)); 
 #endif	//CACHE_SYSTEM
 }
 
 void init_texture_cache()
 {
-	int i;
-	for(i=0;i<1000;i++)
-		{
-			texture_cache[i].file_name[0]=0;
-			texture_cache[i].texture_id=0;
-		}
+	memset(texture_cache, 0, sizeof(texture_cache)); 
 }
 
 void init_e3d_cache()
@@ -322,24 +304,13 @@ void init_e3d_cache()
 	cache_set_time_limit(cache_e3d, 5*60*1000);
 	cache_set_size_limit(cache_e3d, 8*1024*1024);
 #else	//CACHE_SYSTEM
-	int i;
-	for(i=0;i<1000;i++)
-		{
-			e3d_cache[i].file_name=NULL;
-			e3d_cache[i].e3d_id=0;
-			e3d_cache[i].flag_for_destruction=0;
-		}
+	memset(e3d_cache, 0, sizeof(e3d_cache)); 
 #endif	//CACHE_SYSTEM
 }
 
 void init_2d_obj_cache()
 {
-	int i;
-	for(i=0;i<max_obj_2d_def;i++)
-		{
-			obj_2d_def_cache[i].file_name[0]=0;
-			obj_2d_def_cache[i].obj_2d_def_id=0;
-		}
+	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache)); 
 }
 
 void init_stuff()
@@ -378,14 +349,10 @@ void init_stuff()
 
 
 	init_actors_lists();
-	for(i=0;i<256;i++)tile_list[i]=0;
-	for(i=0;i<max_lights;i++)lights_list[i]=0;
+	memset(tile_list, 0, sizeof(tile_list)); 
+	memset(lights_list, 0, sizeof(lights_list)); 
 	init_particles_list();
-	for(i=0;i<30*sizeof(actor_types);i++)
-		{
-			char *pointer_actors_defs=(char *)actors_defs;
-			pointer_actors_defs[i]=0;
-		}
+	memset(actors_defs, 0, sizeof(actors_defs)); 
 	init_actor_defs();
 
 	load_map_tiles();

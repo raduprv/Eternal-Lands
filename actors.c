@@ -192,8 +192,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 int get_frame_number(const md2 *model_data, const char *cur_frame)
 {
-	int frame;
-	char str[256];
+	Uint32 frame;
+	Uint8 str[256];
 
 	for(frame=0; frame < model_data->numFrames; frame++)
 		{
