@@ -1,16 +1,18 @@
+#include <stdlib.h>
+#include <string.h>
 #include "global.h"
 
 //load a bmp texture, in respect to the color key
 GLuint load_bmp8_color_key(char * FileName)
 {
-	int i,x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry;
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry; //i unused?
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * texture_mem;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	int file_lenght;
+	//int file_lenght; unused?
 	GLuint texture;
 
   	f = fopen (FileName, "rb");
@@ -115,14 +117,14 @@ GLuint load_bmp8_color_key(char * FileName)
 //load a bmp texture, with the specified global alpha
 GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 {
-	int i,x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry;
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry; //i unused?
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * texture_mem;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	int file_lenght;
+	//int file_lenght; unused?
 	GLuint texture;
 
   	f = fopen (FileName, "rb");
@@ -232,14 +234,14 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 //load a bmp file, convert it to the rgba format, but don't assign it to any texture object
 char * load_bmp8_color_key_no_texture(char * FileName)
 {
-	int i,x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry;
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry; //i unused?
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	int file_lenght;
-	GLuint texture;
+	//int file_lenght; unused?
+	//GLuint texture; unused?
 	Uint8 *texture_mem;
 
   	f = fopen (FileName, "rb");
@@ -323,14 +325,14 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 //load a bmp file, convert it to an alpha map
 char * load_bmp8_alpha_map(char * FileName)
 {
-	int i,x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry;
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry; //i unused?
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	int file_lenght;
-	GLuint texture;
+	//int file_lenght; unused?
+	//GLuint texture; unused?
 	Uint8 *texture_mem;
 
   	f = fopen (FileName, "rb");
@@ -480,16 +482,16 @@ int get_texture_id(int i)
 
 
 //load a bmp texture, and remaps it
-GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a,char skin, char hair, char shirt, char pants, char boots)
+GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short shirt, short pants, short boots)
 {
-	int i,x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry;
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry; //i unused?
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * texture_mem;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	int file_lenght;
+	//int file_lenght; unused?
 	GLuint texture;
 
   	f = fopen (FileName, "rb");
@@ -780,13 +782,13 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a,char skin, char hair, ch
 
 void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,int y_pos,Uint8 alpha)
 {
-	int i,x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry;
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry; //i unused?
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	int file_lenght;
+	//int file_lenght; unused?
 
   	f = fopen (FileName, "rb");
   	if (!f) return;
@@ -864,7 +866,7 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
 
 int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 {
-	int i;
+	//int i; unused?
 	GLuint texture;
 	Uint8 * texture_mem;
 

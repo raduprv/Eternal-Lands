@@ -228,10 +228,9 @@ void next_command()
 					 	if(actors_list[i]->fighting)
 					 		{
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].combat_idle_frame);
-								goto after_fight_test;
 							}
 
-					 	if(!actors_list[i]->sitting)
+						else if(!actors_list[i]->sitting)
 					 		{
 								if(!actors_list[i]->sit_idle)
 									{
@@ -248,7 +247,6 @@ void next_command()
 									}
 							}
 
-						after_fight_test:
 					 }
 
 						actors_list[i]->last_command=nothing;//prevents us from not updating the walk/run animation

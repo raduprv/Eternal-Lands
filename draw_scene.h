@@ -6,4 +6,5 @@ void Move();
 void update_camera();
 Uint32 my_timer(unsigned int some_int);
 
+void CalculateFrustum();
 #endif

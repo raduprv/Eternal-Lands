@@ -326,7 +326,7 @@ void display_trade_menu()
 
 int check_trade_interface()
 {
-	int i,x,y;
+	int x,y; //i unused?
 	int x_screen,y_screen;
 	Uint8 str[10];
 
@@ -516,7 +516,7 @@ void get_your_trade_objects(Uint8 *data)
 
 void put_item_on_trade(Uint8 *data)
 {
-	int i;
+	//int i; unused?
 	int pos;
 	pos=data[3];
 
@@ -534,10 +534,10 @@ void put_item_on_trade(Uint8 *data)
 
 void remove_item_from_trade(Uint8 *data)
 {
-	int i;
+	//int i; unused?
 	int pos;
 	int quantity;
-	int old_pos;
+	//int old_pos; unused?
 
 	pos=data[2];
 	quantity=*((Uint16 *)(data));

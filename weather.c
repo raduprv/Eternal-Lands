@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "global.h"
 
 int rain_control_counter=0;
@@ -87,11 +88,12 @@ void rain_control()
 		{
 			if(!seconds_till_rain_stops)
 				{
-					seconds_till_rain_stops==-1;
+					seconds_till_rain_stops=-1;
 					rain_light_offset=0;
 					return;
 				}
-			seconds_till_rain_stops--;
+			else
+				seconds_till_rain_stops--;
 			//stop the actual rain, before the light level is back to it's normal values
 			if(seconds_till_rain_stops<30)
 				{
@@ -120,7 +122,7 @@ void rain_control()
 		{
 			if(!seconds_till_rain_starts)
 				{
-					seconds_till_rain_starts==-1;
+					seconds_till_rain_starts=-1;
 					if(!is_raining)
 						{
 							is_raining=1;
@@ -129,7 +131,8 @@ void rain_control()
 					rain_light_offset=30;
 					return;
 				}
-			seconds_till_rain_starts--;
+			else
+				seconds_till_rain_starts--;
 			//make it darker each 3 seconds
 			rain_light_offset=30-seconds_till_rain_starts/3;
 			if(rain_light_offset<0)rain_light_offset=0;
