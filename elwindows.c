@@ -90,6 +90,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 	int	first_win= -1;
 	int i;
 
+#ifdef OLD_EVENT_HANDLER
 	// watch for needing to convert the globals into the flags
 	if(!flags)
 	{
@@ -103,6 +104,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 		// TODO: consider other ways of triggering double clieck, like middle click or shift click
 		//if(double_click)	flags |= ELW_DBL_CLICK;
 	}
+#endif
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
@@ -194,7 +196,8 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 
 	// ignore a drag of 0, but say we processed
 	if(dx == 0 && dy == 0)	return -1;
-	
+
+#ifdef OLD_EVENT_HANDLER
 	// watch for needing to convert the globals into the flags
 	if(!flags)
 	{
@@ -208,6 +211,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 		// TODO: consider other ways of triggering double click, like middle click or shift click
 		//if(double_click)	flags |= ELW_DBL_CLICK;
 	}
+#endif
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
@@ -1126,6 +1130,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 	W = &win->widgetlist;
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
+#ifdef OLD_EVENT_HANDLER
 			// watch for needing to convert the globals into the flags
 			// TODO: put this in the window manager
 			if(!flags){
@@ -1137,6 +1142,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				if(left_click)	flags |= ELW_LEFT_MOUSE;
 				//if(double_click)	flags |= ELW_DBL_CLICK;
 			}
+#endif
 			mx= x - win->cur_x;
 			my= y - win->cur_y;
 			//check the X for close - but hide it
@@ -1200,6 +1206,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 			if(win->drag_handler != NULL){
 				int	ret_val;
 
+#ifdef OLD_EVENT_HANDLER
 				// watch for needing to convert the globals into the flags
 				// TODO: put this in the window manager
 				if(!flags){
@@ -1211,6 +1218,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 					if(left_click)	flags |= ELW_LEFT_MOUSE;
 					//if(double_click)	flags |= ELW_DBL_CLICK;
 				}
+#endif
 				mx= x - win->cur_x;
 				my= y - win->cur_y;
 							    

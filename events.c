@@ -42,8 +42,9 @@ int HandleEvent (SDL_Event *event)
 	static Uint32 last_turn_around = 0;
 	Uint8 ch;
 #endif
-	int done=0;
-	Uint32 key=0;
+	int done = 0;
+	Uint32 key = 0;
+	Uint32 flags = 0;
 
 	if (event->type == SDL_NOEVENT) return 0;
 
@@ -598,7 +599,8 @@ int HandleEvent (SDL_Event *event)
 
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
-			if(afk_time)last_action_time=cur_time;//Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
+			if (afk_time) 
+				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
 		case SDL_MOUSEMOTION:
 			if(event->type==SDL_MOUSEMOTION)
 				{
@@ -656,11 +658,18 @@ int HandleEvent (SDL_Event *event)
 				}
 
 #ifndef OLD_EVENT_HANDLER
+			if (shift_on) flags |= ELW_SHIFT;
+			if (alt_on) flags |= ELW_ALT;
+			if (ctrl_on) flags |= ELW_CTRL;
+			if (left_click) flags |= ELW_LEFT_MOUSE;
+			if (middle_click) flags |= ELW_MID_MOUSE;
+			if (right_click) flags |= ELW_RIGHT_MOUSE;
+
 			if (left_click >= 1)
 			{
 				if (drag_windows (mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)
 					return done;
-				if (drag_in_windows (mouse_x, mouse_y, 0, mouse_delta_x, mouse_delta_y) >= 0)
+				if (drag_in_windows (mouse_x, mouse_y, flags, mouse_delta_x, mouse_delta_y) >= 0)
 					return done;
 			}
 #else
@@ -672,7 +681,7 @@ int HandleEvent (SDL_Event *event)
 
 #ifndef OLD_EVENT_HANDLER
 			if(left_click==1 || right_click==1)
-				click_in_windows (mouse_x, mouse_y, 0);
+				click_in_windows (mouse_x, mouse_y, flags);
 #else
 			if((left_click==1 || right_click==1) &&
 				interface_mode==INTERFACE_GAME)
