@@ -67,17 +67,18 @@ void draw_scene()
 	if(interface_mode==interface_console)
 		{
 			// are we actively drawing things?
-			if(!(SDL_GetAppState()&SDL_APPACTIVE))	return;
-
-			Enter2DMode();
-			glClear(GL_COLOR_BUFFER_BIT);
-			draw_console_pic(cons_text);
-			display_console_text();
-			draw_hud_interface();
+			if(SDL_GetAppState()&SDL_APPACTIVE)
+				{
+					Enter2DMode();
+					glClear(GL_COLOR_BUFFER_BIT);
+					draw_console_pic(cons_text);
+					display_console_text();
+					draw_hud_interface();
+					SDL_GL_SwapBuffers();
+					Leave2DMode();
+					check_gl_errors();
+				}
 			SDL_Delay(20);
-			SDL_GL_SwapBuffers();
-			Leave2DMode();
-			check_gl_errors();
 			return;
 		}
 	if(interface_mode==interface_opening)
@@ -120,16 +121,17 @@ void draw_scene()
 	if(interface_mode==interface_map)
 		{
 			// are we actively drawing things?
-			if(!(SDL_GetAppState()&SDL_APPACTIVE))	return;
-
-			glClear(GL_COLOR_BUFFER_BIT);
-			Enter2DMode();
-			draw_hud_interface();
-			Leave2DMode();
-			draw_game_map();
+			if(SDL_GetAppState()&SDL_APPACTIVE)
+				{
+					glClear(GL_COLOR_BUFFER_BIT);
+					Enter2DMode();
+					draw_hud_interface();
+					Leave2DMode();
+					draw_game_map();
+					SDL_GL_SwapBuffers();
+					check_gl_errors();
+				}
 			SDL_Delay(20);
-			SDL_GL_SwapBuffers();
-			check_gl_errors();
 			return;
 			
 			check_gl_errors();
