@@ -319,7 +319,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y;
 	int x_screen,y_screen;
-	Uint8 str[10];
+	Uint8 str[256];
 
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
@@ -354,10 +354,24 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	//check to see if we hit the Accept box
 	if(mx>5 && mx<20 && my>4*33-20 && my<4*33-5)
 		{
+			if(trade_you_accepted){
+				str[0]= REJECT_TRADE;
+				my_tcp_send(my_socket, str, 1);
+			} else {
+				int i;
+				int	msg_len= 1;
 
-			if(trade_you_accepted)str[0]=REJECT_TRADE;
-			else str[0]=ACCEPT_TRADE;
-			my_tcp_send(my_socket,str,1);
+				str[0]= ACCEPT_TRADE;
+				// and send what we currently see as what they have offered us (we don't trust them!)
+				for(i=0; i<16; i++){
+					if (others_trade_list[i].quantity > 0 ){
+						*((Uint16 *)(str+msg_len))= others_trade_list[i].image_id;
+						*((Uint32 *)(str+msg_len+2))= others_trade_list[i].quantity;
+						msg_len+= 6;
+					}
+				}
+				my_tcp_send(my_socket, str, msg_len);
+			}
 			return 1;
 		}
 
@@ -365,7 +379,6 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(mx>33*5 && mx<33*5+70 &&
 	my>win->len_y-30 && my<win->len_y-10)
 		{
-
 			str[0]=EXIT_TRADE;
 			my_tcp_send(my_socket,str,1);
 			return 1;
