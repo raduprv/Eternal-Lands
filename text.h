@@ -262,7 +262,7 @@ void console_move_page_down();
 void console_move_page_up();
 
 // XXX FIXME (Grum): obsolete
-///*!
+//*!
 // * \ingroup interface_console
 // * \brief displays the console text
 // *
