@@ -1,5 +1,3 @@
-#include <sdl.h>
-#include <math.h>
 #include "global.h"
 
 int HandleEvent(SDL_Event *event)

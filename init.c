@@ -1,8 +1,4 @@
-#include <windows.h>
-#include <SDL.h>
-#include "init.h"
-#include <time.h>
-#include <gl/glu.h>
+#include "global.h"
 
 void init_texture_cache()
 {
@@ -40,6 +36,8 @@ void init_stuff()
 	int rgb_size[3];
 	int seed;
 	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
+
+	file_selector = create_fileselection();
 
 	if( SDL_Init(SDL_INIT_VIDEO) == -1 )
     {
@@ -133,10 +131,14 @@ void init_stuff()
 	clear_error_log();
 
    //now load the multitexturing extension
+#ifndef LINUX
 	glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
 	glMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
 	if(!glActiveTextureARB || !glMultiTexCoord2fARB)have_multitexture=0;
 	else have_multitexture=1;
+#else
+	have_multitexture=0;
+#endif
 	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 
 	//load the fonts texture
@@ -144,7 +146,11 @@ void init_stuff()
 	buttons_text=load_texture_cache("./textures/buttons.bmp",0);
 	sky_text_1=load_texture_cache("./textures/sky.bmp",70);
 	//get the application home dir
+#ifndef LINUX
 	GetCurrentDirectory(sizeof(exec_path),exec_path);
+#else
+	exec_path[0]='.';exec_path[1]='/';exec_path[2]=0;
+#endif
 
 
     if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)

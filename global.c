@@ -156,9 +156,10 @@ int lake_waves_timer=0;
 float water_movement_u=0;
 float water_movement_v=0;
 
-//extensions
+#ifndef LINUX //extensions
 PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB	= NULL;
 PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB		= NULL;
+#endif
 int have_multitexture;
 int poor_man=0;
 int ground_detail_text;

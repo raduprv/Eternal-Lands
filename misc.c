@@ -1,6 +1,5 @@
-#include <windows.h>
 #include "global.h"
-#include <math.h>
+
 
 int evaluate_colision()
 {
@@ -87,6 +86,7 @@ void clone_3d_object(int object_id)
 
 }
 
+#ifndef LINUX
 void open_3d_obj()
 {
   OPENFILENAME ofn;
@@ -124,7 +124,7 @@ void open_3d_obj()
     }
 
 }
-
+#endif
 ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////2D stuff here/////////////////////////////////////////////////
 void get_2d_object_under_mouse()
@@ -195,6 +195,7 @@ void clone_2d_object(int object_id)
 
 }
 
+#ifndef LINUX
 void open_2d_obj()
 {
   OPENFILENAME ofn;
@@ -232,6 +233,7 @@ void open_2d_obj()
     }
 
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////tile things/////////////////////////////////////////////////////
@@ -722,6 +724,7 @@ void draw_height_map()
 
 }
 
+#ifndef LINUX
 void save_map_file()
 {
   OPENFILENAME ofn;
@@ -758,7 +761,8 @@ void save_map_file()
     }
 
 }
-
+#endif
+#ifndef LINUX
 void open_map_file()
 {
   OPENFILENAME ofn;
@@ -797,3 +801,68 @@ void open_map_file()
     }
 
 }
+#endif
+
+#ifdef LINUX
+
+void open_3d_obj()
+{
+  gtk_window_set_title(GTK_WINDOW(file_selector), "open 3d object");
+  //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.e3d");
+  continue_with = OPEN_3D_OBJ;
+  gtk_widget_show(file_selector);
+}
+void open_3d_obj_continued()
+{
+  printf("%s\n", selected_file);
+  if (selected_file)
+    {
+
+		selected_3d_object=add_e3d(selected_file,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
+		cur_tool=tool_select;//change the current tool
+    }
+}
+
+void open_2d_obj()
+{
+  gtk_window_set_title(GTK_WINDOW(file_selector), "open 2d object");
+  //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.e2d");
+  continue_with = OPEN_2D_OBJ;
+  gtk_widget_show(file_selector);
+}
+void open_2d_obj_continued()
+{
+  if (selected_file)
+    {
+		selected_2d_object=add_2d_obj(selected_file,scene_mouse_x,scene_mouse_y,0.001f,0,0,0);
+		cur_tool=tool_select;//change the current tool
+    }
+}
+
+void open_map_file()
+{
+  gtk_window_set_title(GTK_WINDOW(file_selector), "open map");
+  //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.elm");
+  continue_with = OPEN_MAP;
+  gtk_widget_show(file_selector);
+}
+void open_map_file_continued()
+{
+  printf("openmap %s\n", selected_file);
+  if (selected_file)load_map(selected_file);
+}
+
+void save_map_file()
+{
+  gtk_window_set_title(GTK_WINDOW(file_selector), "save map");
+  //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.elm");
+  continue_with = SAVE_MAP;
+  gtk_widget_show(file_selector);
+}
+void save_map_file_continued()
+{
+  printf("savemap %s\n", selected_file);
+  if (selected_file)save_map(selected_file);
+}
+
+#endif

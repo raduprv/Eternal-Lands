@@ -3,9 +3,24 @@
 
 #define true 1
 #define false 0
+#ifndef LINUX
+#include <windows.h>
+#endif
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+#include <GL/glu.h>
 
 #include <SDL.h>
 #include "SDL_opengl.h"
+
+#include <gtk/gtk.h>
+
+#include "init.h"
 #include "asc.h"
 #include "e3d.h"
 #include "2d_objects.h"
@@ -16,6 +31,10 @@
 #include "map_io.h"
 #include "shadows.h"
 #include "reflection.h"
+#include "misc.h"
+#include "gui.h"
+#include "gui_callbacks.h"
+
 
 #define sector_size_x 15
 #define sector_size_y 15
@@ -106,8 +125,11 @@ Uint32 my_timer(unsigned int some_int);
 #define c_steel 20
 #define c_bronze 21
 
+#ifndef LINUX /*linux has this*/
 extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
 extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
+#endif
+
 extern int have_multitexture;
 extern int poor_man;
 extern int ground_detail_text;
