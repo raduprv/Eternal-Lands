@@ -445,3 +445,8 @@
  * 		Covers the console command handling
  * \ingroup	misc
  */
+/*!
+ * \defgroup	xml_utils XML Utilities
+ *		Miscellaneous common functions used in the clients XML-handling
+ * \ingroup	misc
+ */

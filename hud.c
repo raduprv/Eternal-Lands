@@ -1052,6 +1052,9 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 	
+	if(qb_action_mode==action_use_witem)	action_mode=action_use_witem;
+	if(qb_action_mode==action_use)		action_mode=action_use;
+
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
 	for(y=0;y<6;y++)

@@ -1,5 +1,6 @@
 /*!
  * \file
+ * \brief	Covers various of scripts used to animate and display actors as well as network data
  * \ingroup 	display
  */
 #ifndef __ACTOR_SCRIPTS_H__

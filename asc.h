@@ -1,37 +1,259 @@
+/*!
+ * \file
+ * \brief	Miscellaneous functions used for file handling and string utilities.
+ * \ingroup	misc
+ */
 #ifndef __ASC_H__
 #define __ASC_H__
 
-#define my_xmlStrcpy(d,s) my_xmlstrncopy(d,s,0)
-#define my_xmlStrncpy(d,s,l) my_xmlstrncopy(d,s,l)
+/*!
+ * A macro for the my_xmlstrncopy function that copies and converts an xml-string. Sets the length to 0, hence it will copy untill \0 is reached.
+ */
+#define my_xmlStrcpy(d,s) my_xmlStrncopy(d,s,0)
 
-//proto
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets an integer after the given string
+ *
+ * 		The function finds source_pointer in dest_pointer and returns the integer value after the string given after dest_pointer =.
+ *
+ * \param	source_pointer The string you wish to find
+ * \param	dest_pointer The pointer to the char array you wish to find the string from
+ * \param	max_len The maximum length is should check
+ * \return	Returns the integer behind the string or -1 on failure.
+ */
 Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 							 Sint32 max_len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets a float after the given string
+ *
+ * 		The function finds source_pointer in dest_pointer and returns the floating point value after =.
+ *
+ * \param	source_pointer The string you wish to find
+ * \param	dest_pointer The pointer to the char array you want to search for the string in.
+ * \param	max_len The maximum length it should check
+ * \return	Returns the float after the string or -1 on failure.
+ */
 float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 							 Sint32 max_len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets a string after a string
+ *
+ * 		The function finds the string given by source_pointer in dest_pointer, then returns the string after =.
+ *
+ * \param	source_pointer The string you wish to find
+ * \param	dest_pointer The char array that you wish to search
+ * \param	max_len The maximum length
+ * \param	value The string to copy to
+ * \param	value_len The max length of the new string
+ * \return	Returns the length of the string copied, or -1 on failure.
+ */
 Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 						 Sint32 max_len, Uint8 * value, int value_len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets the offset of a string in a char array
+ *
+ * 		The function gets the location of source_pointer in the dest_pointer char array, then returns the offset
+ *
+ * \param	source_pointer The string you wish to find
+ * \param	dest_pointer The char array you want to search for source_pointer
+ * \param	max_len The maximum length
+ * \param	begining Whether it should return the offset to the beginning of the string or the end of the string
+ * \return	Returns either the offset to the beginning of the string or to the end of the string - if the string was not found in the char array it returns -1 on failure.
+ */
 Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 						 Sint32 max_len,Uint8 begining);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	The function copies the string from source to dest
+ *
+ * 		The function copies the string from source to destination, and put a terminating \\0
+ *
+ * \param	dest The destination char array
+ * \param	source The source char array
+ * \return	None
+ * \todo	We should just use strcpy instead...
+ */
 void my_strcp(Uint8 *dest,const Uint8 * source);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	The function copies the string from source to dest, but no more than n characters
+ *
+ * 		The function copies the string from source to destination, but no more than n characters. It also puts an ending \\0
+ *
+ * \param	dest The destination char array
+ * \param	source The source char array
+ * \param	len The number of bytes you wish to copy
+ * \return	None
+ */
 void my_strncp(Uint8 *dest,const Uint8 * source,Sint32 len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	The function concencates the source string to the dest string
+ *
+ * 		The function concencates the source string to the dest string and sets a terminating \\0
+ *
+ * \param	dest The destination string
+ * \param	source The source string
+ * \return	None
+ * \todo	Err, use strcat instead...
+ */
 void my_strcat(Uint8 *dest,const Uint8 * source);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Compares n bytes of the 2 strings (case insensitive)
+ *
+ * 		The function compares n bytes of the 2 strings. It is not case sensitive
+ *
+ * \param	dest The first string
+ * \param	src The second string
+ * \param	len The number of bytes to compare
+ * \return	Returns 1 on match, 0 if the strings doesn't match.
+ */
 Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Compares the 2 strings
+ *
+ * 		The function compares the 2 strings, calls my_strncompare. 
+ *
+ * \param	dest The first string
+ * \param	src The second string
+ * \return 	Returns 1 on match, 0 if the strings doesn't match.
+ */
 Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Checks if len/2 characters of the string is uppercase
+ *
+ * 		Checks if len/2 characters of the string is uppercase
+ *
+ * \param	src The string to be checked
+ * \param	len The length of characters you wish to check
+ * \return	Returns 1 if enough characters are uppercase, 0 if they are lowercase.
+ */
 Sint32 my_isupper(const Uint8 *src, int len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Converts all characters in the string to lowercase
+ *
+ * 		Converts all characters in the string to lowercase
+ *
+ * \param	src The string to convert
+ * \return	Returns the src-pointer.
+ */
 Uint8 *my_tolower(Uint8 *src);
 
+/*!
+ * \ingroup	misc_utils
+ * \brief	Splits up the char array into multiple character arrays
+ *
+ * 		Splits up the char array into multiple character arrays. The new arrays will have chars_per_line+3 bytes allocated. The char ** array will have a NULL pointer as the end pointer.
+ *
+ * \param	str The string to split
+ * \param	chars_per_line The number of characters per line
+ * \return	Returns a char ** to the new array. You must free the memory yourself.
+ */
 char ** get_lines(char * str, int chars_per_line);
 
+/*!
+ * \ingroup	misc_utils
+ * \brief	Goes through the file-name and replaces \\ with /
+ *
+ * 		Goes through the file-name and replaces \\ with /. Leaves the source intact, and copies the string to the destination.
+ *
+ * \param	dest The destination string
+ * \param	src The source string
+ * \param	max_len The maximum length
+ * \return	Returns the length of the string
+ */
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets the md5sum of the file and puts it in digest
+ *
+ * 		Gets the md5sum of the file and puts it in digest
+ *
+ * \param	filename The name of the file you wish to open
+ * \param	digest The digest array in which the md5sum will be stored
+ * \return	None
+ */
 void get_file_digest(const Uint8 * filename, Uint8 digest[16]);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets the md5sum of the given string and copies it to the digest
+ *
+ * 		Gets the md5sum of the given string and copies it to the digest
+ *
+ * \param	string The string you wish to get the md5sum of
+ * \param	digest The digest array in which the md5sum will be stored
+ * \return	None
+ */
 void get_string_digest(const Uint8 * string, Uint8 digest[16]);
 
+/*!
+ * \ingroup	misc_utils
+ * \brief	A simple implementation of the http-GET
+ *
+ * 		The function gets the given file from the server and writes it to the open file pointed to by fp.
+ *
+ * \param	server The server you're getting the file from
+ * \param	path The path on the server
+ * \param	fp The file you're saving the file to...
+ */
 void http_get_file(char *server, char *path, FILE *fp);
 
+/*!
+ * \ingroup	xml_utils
+ * \brief	Finds the xml-attribute with the identifier p in the xmlNode and returns it as a floating point value
+ *
+ * 		Finds the xml-attribute with the identifier p in the xmlNode and returns it as a floating point value
+ *
+ * \param	n The xml-node you wish to search
+ * \param	p The attribute name you wish to search for
+ * \return	The floating point value of the string. Returns 0 on failure.
+ */
 float xmlGetFloat(xmlNode * n, xmlChar * p);
+
+/*!
+ * \ingroup	xml_utils
+ * \brief	Finds the xml-attribute with the identifier p in the xmlNode and returns it as an integer value
+ *
+ * 		Finds the xml-attribute with the identifier p in the xmlNode and returns it as an integer value
+ *
+ * \param	n The node you wish to search
+ * \param	p The attribute name you wish to search for
+ * \return	The integer value of the string. Returns 0 on failure.
+ */
 int xmlGetInt(xmlNode *n, xmlChar *p);
-int my_xmlstrncopy(char ** dest, char * src, int len);
+
+/*!
+ * \ingroup	xml_utils
+ * \brief	Copies and converts the UTF8-string pointed to by src into the destination.
+ *
+ * 		Copies and converts the UTF8-string pointed to by src into the destination. It will max copy n characters, but if n is 0 it will copy the entire string. If the pointer pointed to by dest is NULL it will allocate the memory for the pointer, however you will still need to free the memory.
+ *
+ * \param	dest A pointer to the destination character array pointer :)
+ * \param	src The source string
+ * \param	len The maximum length of chars that will be copied
+ * \return	Returns the number of characters that have been copied, or -1 on failure.
+ */
+int my_xmlStrncopy(char ** dest, char * src, int len);
 
 #endif
 

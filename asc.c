@@ -402,7 +402,7 @@ int xmlGetInt(xmlNode *n, xmlChar *c)
 	return i;
 }
 
-int my_xmlstrncopy(char ** dest, char * src, int len)
+int my_xmlStrncopy(char ** dest, char * src, int len)
 {
 	int l1=0;
 	int l2=0;

@@ -5,6 +5,7 @@
  */
 #ifndef __TRANSLATE_H__
 #define __TRANSLATE_H__
+#include <libxml/parser.h>
 #ifdef ELC
 #include "stats.h"
 #endif
@@ -568,6 +569,7 @@ void * add_xml_group(int type, int no, ...);
  */
 void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char * str, char * desc);
 
+#ifdef ELC
 /*!
  * \ingroup	translation
  * \brief	Adds a new statstring_item to the group. 
@@ -585,6 +587,7 @@ void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char *
  * \sa		init_translatables
  */
 void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name, char * shortname);
+#endif
 
 /*!
  * \ingroup	translation
@@ -731,6 +734,7 @@ struct xml_struct load_strings_file(char * filename);
  */
 void copy_strings(xmlNode * in, distring_item * string);
 
+#ifdef ELC
 /*!
  * \ingroup	translation
  * \brief	Copies the stats from the xmlNode to the statstring_item *.
@@ -754,6 +758,7 @@ void copy_stats(xmlNode * in, statstring_item * string);
  * \return	None
  */
 void parse_statstrings(xmlNode * in, group_stat * group);
+#endif
 
 /*!
  * \ingroup	translation
