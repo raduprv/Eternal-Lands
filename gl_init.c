@@ -444,8 +444,8 @@ void init_gl_extensions()
 void resize_window()
 {
 	float window_ratio;
-	float hud_x_adjust=0;
-	float hud_y_adjust=0;
+	//float hud_x_adjust=0;
+	//float hud_y_adjust=0;
 
 	if (window_height==0)window_height=1;			// Prevent A Divide By Zero
 

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #endif
 #include <string.h>
+#include <ctype.h>
 #include "init.h"
 #include <time.h>
 #include "global.h"
@@ -90,13 +91,12 @@ void read_key_config()
 	Uint8 * file_mem_start;
 	struct stat key_file;
 	int key_file_size;
-	char keydir[256];
 
 #ifndef WINDOWS
 	char key_ini[256];
 	strcpy(key_ini, configdir);
 	strcat(key_ini, "key.ini");
-	f=fopen(el_ini,"rb"); //try to load local settings
+	f=fopen(key_ini,"rb"); //try to load local settings
 	if(!f) //use global settings
 		{
 			f=fopen("key.ini","rb");

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 #include "global.h"
 
 SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
@@ -94,7 +95,7 @@ void draw_particle_sys(particle_sys *system_id)
 {
 	float x_pos,y_pos,z_pos;
 	int total_particle_no;
-	int i,part_type;
+	int i;//,part_type;
 
 	x_pos=system_id->x_pos;
 	y_pos=system_id->y_pos;
@@ -319,7 +320,7 @@ int add_circular_burst(int x_pos, int y_pos, int particles_no, float base_color_
 
 	particle_sys *system_id;
 
-	float x,y,z,r,g,b,a;
+	float r,g,b,a;//,x,y,z;
 	int size;
 	int j;//,i;
 	float float_rand;
@@ -383,8 +384,8 @@ void update_circular_burst(particle_sys *system_id)
 	int i,j;
 	int particle_count;
 	int total_particle_no;
-	int particles_to_add_per_frame=800;
-	int particles_to_add=0;
+	//int particles_to_add_per_frame=800;
+	//int particles_to_add=0;
 	int size,rand_size;
 
 	float x,y,z;
@@ -855,9 +856,9 @@ void update_teleport_in(particle_sys *system_id)
 	float start_z=0.0f;
 
 
-	float start_x_random_deviation=3.6f;
-	float start_y_random_deviation=3.6f;
-	float start_z_random_deviation=3.1f;
+	//float start_x_random_deviation=3.6f;
+	//float start_y_random_deviation=3.6f;
+	//float start_z_random_deviation=3.1f;
 
 	float path_x_deviation=0.0f;
 	float path_y_deviation=0.0f;
