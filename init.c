@@ -62,12 +62,13 @@ void read_config()
 	DIR *d = NULL;
 	strcpy(configdir, getenv("HOME"));
 	strcat(configdir, "/.elc/");
+	my_strcp(datadir,".");
 	d=opendir(configdir);
 	if(!d)
 			mkdir(configdir,0755);
 	else
 		{
-			char el_ini[100];
+			char el_ini[256];
 			strcpy(el_ini, configdir);
 			strcat(el_ini, "el.ini");
 			closedir(d);
@@ -175,14 +176,11 @@ void read_bin_cfg()
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
-#ifndef WINDOWS
-	char el_cfg[100];
+	char el_cfg[256];
+
 	strcpy(el_cfg, configdir);
 	strcat(el_cfg, "el.cfg");
 	f=fopen(el_cfg,"rb");
-#else
-	f=fopen("el.cfg","rb");
-#endif
 	if(!f)return;//no config file, use defaults
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
@@ -231,14 +229,11 @@ void save_bin_cfg()
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
-#ifndef WINDOWS
-	char el_cfg[100];
+	char el_cfg[256];
+
 	strcpy(el_cfg, configdir);
 	strcat(el_cfg, "el.cfg");
 	f=fopen(el_cfg,"wb");
-#else
-	f=fopen("el.cfg","wb");
-#endif
 	if(!f)return;//blah, whatever
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
@@ -325,6 +320,10 @@ void init_stuff()
 
 	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
 
+	//clear dir pointers to default to current dir
+	memset(configdir, 0, 256);
+	memset(datadir, 0, 256);
+	//TODO: process command line options
 	//read the config file
 	read_config();
 

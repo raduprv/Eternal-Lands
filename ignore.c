@@ -24,13 +24,9 @@ int add_to_ignore_list(Uint8 *name, char save_name)
 					if(save_name)
 						{
 							FILE *f = NULL;
-							char local_ignores[100];
-#ifndef WINDOWS
+							char local_ignores[256];
 							strcpy(local_ignores, configdir);
 							strcat(local_ignores, "local_ignores.txt");
-#else
-							strcpy(local_ignores, "local_ignores.txt");
-#endif
 							f=fopen(local_ignores, "a");
 							fwrite(name, strlen(name), 1, f);
 							fwrite("\n", 1, 1, f);
@@ -64,13 +60,9 @@ int remove_from_ignore_list(Uint8 *name)
 		}
 	if(found)
 		{
-			char local_ignores[100];
-#ifndef WINDOWS
+			char local_ignores[256];
 			strcpy(local_ignores, configdir);
 			strcat(local_ignores, "local_ignores.txt");
-#else
-			strcpy(local_ignores, "local_ignores.txt");
-#endif
 			f=fopen(local_ignores, "w");
 			for(i=0;i<max_ignores;i++)
 				{
@@ -195,13 +187,9 @@ void clear_ignore_list()
 
 void load_ignores()
 {
-	char local_ignores[100];
-#ifndef WINDOWS
+	char local_ignores[256];
 	strcpy(local_ignores, configdir);
 	strcat(local_ignores, "local_ignores.txt");
-#else
-	strcpy(local_ignores, "local_ignores.txt");
-#endif
 	clear_ignore_list();
 	load_ignores_list(local_ignores);
 	if(use_global_ignores)load_ignores_list("global_ignores.txt");

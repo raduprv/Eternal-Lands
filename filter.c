@@ -24,13 +24,9 @@ int add_to_filter_list(Uint8 *name, char save_name)
 					if(save_name)
 						{
 							FILE *f = NULL;
-							char local_filters[100];
-#ifndef WINDOWS
+							char local_filters[256];
 							strcpy(local_filters, configdir);
 							strcat(local_filters, "local_filters.txt");
-#else
-							strcpy(local_filters, "local_filters.txt");
-#endif
 							f=fopen(local_filters, "a");
 							fwrite(name, strlen(name), 1, f);
 							fwrite("\n", 1, 1, f);
@@ -64,13 +60,9 @@ int remove_from_filter_list(Uint8 *name)
 		}
 	if(found)
 		{
-			char local_filters[100];
-#ifndef WINDOWS
+			char local_filters[256];
 			strcpy(local_filters, configdir);
 			strcat(local_filters, "local_filters.txt");
-#else
-			strcpy(local_filters, "local_filters.txt");
-#endif
 			f=fopen(local_filters, "w");
 			for(i=0;i<max_filters;i++)
 				{
@@ -206,13 +198,9 @@ void clear_filter_list()
 
 void load_filters()
 {
-	char local_filters[100];
-#ifndef WINDOWS
+	char local_filters[256];
 	strcpy(local_filters, configdir);
 	strcat(local_filters, "local_filters.txt");
-#else
-	strcpy(local_filters, "local_filters.txt");
-#endif
 	clear_filter_list();
 	load_filters_list(local_filters);
 	if(use_global_filters)load_filters_list("global_filters.txt");

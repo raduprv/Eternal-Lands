@@ -4,13 +4,10 @@
 FILE *err_file = NULL;
 void clear_error_log()
 {
-	char error_log[100];
-#ifndef WINDOWS
+	char error_log[256];
+
 	strcpy(error_log, configdir);
 	strcat(error_log, "error_log.txt");
-#else
-	strcpy(error_log, "error_log.txt");
-#endif
 	if(!err_file) err_file = fopen (error_log, "wb");
 	fflush (err_file);
 }
@@ -19,13 +16,10 @@ void log_error(const Uint8 * message)
 {
 	Uint8	str[2048];
 	Uint32	len;
-	char error_log[100];
-#ifndef WINDOWS
+	char error_log[256];
+
 	strcpy(error_log, configdir);
 	strcat(error_log, "error_log.txt");
-#else
-	strcpy(error_log, "error_log.txt");
-#endif
   	if(!err_file) err_file = fopen (error_log, "ab");
 	if(strncmp(message, "Error", 5))	// do we need to add Error:?
 		{
@@ -45,13 +39,10 @@ void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *fu
 {
 	Uint8	str[2048];
 	Uint32	len;
-	char error_log[100];
-#ifndef WINDOWS
+	char error_log[256];
+
 	strcpy(error_log, configdir);
 	strcat(error_log, "error_log.txt");
-#else
-	strcpy(error_log, "error_log.txt");
-#endif
   	if(!err_file) err_file = fopen (error_log, "ab");
 	snprintf(str, 2048, "Error: %s.%s:%d - %s\n", file, func, line, message);
 	len=strlen(str);
@@ -64,26 +55,20 @@ void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *fu
 FILE *conn_file = NULL;
 void clear_conn_log()
 {
-	char connection_log[100];
-#ifndef WINDOWS
+	char connection_log[256];
+
 	strcpy(connection_log, configdir);
 	strcat(connection_log, "connection_log.txt");
-#else
-	strcpy(connection_log, "connection_log.txt");
-#endif
 	if(!conn_file) conn_file = fopen (connection_log, "wb");
 	fflush (conn_file);
 }
 
 void log_conn(const Uint8 *in_data, Uint32 data_lenght)
 {
-	char connection_log[100];
-#ifndef WINDOWS
+	char connection_log[256];
+
 	strcpy(connection_log, configdir);
 	strcat(connection_log, "connection_log.txt");
-#else
-	strcpy(connection_log, "connection_log.txt");
-#endif
   	if(!conn_file) conn_file = fopen (connection_log, "ab");
   	fwrite (in_data, data_lenght, 1, conn_file);
   	fflush (conn_file);
