@@ -6,7 +6,7 @@
 #define SMALL_INGAME_FONT_X_LEN 0.12
 #define SMALL_INGAME_FONT_Y_LEN 0.17
 
-extern char input_text_line[170];
+extern char input_text_line[257];
 extern int input_text_lenght;
 extern char display_text_buffer[max_display_text_buffer_lenght];
 
@@ -15,7 +15,7 @@ extern int display_text_buffer_last;
 
 extern int display_console_text_buffer_first;
 extern int display_console_text_buffer_last;
-
+extern char last_pm_from[32];
 
 extern Uint32 last_server_message_time;
 extern int lines_to_show;

@@ -75,15 +75,18 @@ int pre_check_if_ignored(Uint8 * input_text)
 	int i=0;
 	Uint8 name[16];
 	Uint8 ch;
-	if(input_text[1]=='[' && input_text[5]=='f')//private message
+	if(my_strncompare(&input_text[1],"[PM from",8))
 		{
+			//now find the name portion
 			for(i=0;i<15;i++)
 				{
-					ch=input_text[i+10];
+					ch=input_text[i+10];	//skip over the prefix
 					if(ch==':' || ch==' ')break;
 					name[i]=ch;
 				}
 			name[i]=0;
+			//memorize this players name
+			my_strcp(last_pm_from,name);
 			if(check_if_ignored(name))return 1;
 			else return 0;
 

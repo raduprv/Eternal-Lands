@@ -141,7 +141,7 @@ char our_name[20];
 char our_password[20];
 
 //text stuff
-char input_text_line[170];
+char input_text_line[257];
 int input_text_lenght=0;
 char display_text_buffer[max_display_text_buffer_lenght];
 
@@ -150,6 +150,7 @@ int display_text_buffer_last=0;
 
 int display_console_text_buffer_first=0;
 int display_console_text_buffer_last=0;
+char last_pm_from[32];
 
 Uint32 last_server_message_time;
 int lines_to_show=0;

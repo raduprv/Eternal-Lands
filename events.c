@@ -309,16 +309,31 @@ int HandleEvent(SDL_Event *event)
 				if(((ch>=32 && ch<=126) || (ch>127+c_grey4)) &&
 				   input_text_lenght<160)
 					{
-						input_text_line[input_text_lenght]=ch;
-						input_text_line[input_text_lenght+1]='_';
-						input_text_line[input_text_lenght+2]=0;
-						input_text_lenght++;
-						if(input_text_lenght==window_width/11-1)
+						//watch for the '//' shortcut
+						if(input_text_lenght==1 && ch=='/' && input_text_line[0]=='/' && last_pm_from[0])
 							{
-								input_text_line[input_text_lenght]=0x0a;
+								int i;
+								int l=strlen(last_pm_from);
+								for(i=0;i<l;i++)input_text_line[input_text_lenght++]=last_pm_from[i];
+								input_text_line[input_text_lenght]=' ';	//and a space after it
 								input_text_line[input_text_lenght+1]='_';
 								input_text_line[input_text_lenght+2]=0;
 								input_text_lenght++;
+							}
+						else
+							{
+								//not the shortcut, add the character to the buffer
+								input_text_line[input_text_lenght]=ch;
+								input_text_line[input_text_lenght+1]='_';
+								input_text_line[input_text_lenght+2]=0;
+								input_text_lenght++;
+								if(input_text_lenght==window_width/11-1)
+									{
+										input_text_line[input_text_lenght]=0x0a;
+										input_text_line[input_text_lenght+1]='_';
+										input_text_line[input_text_lenght+2]=0;
+										input_text_lenght++;
+									}
 							}
 					}
 				if(ch==SDLK_BACKSPACE && input_text_lenght>0)
