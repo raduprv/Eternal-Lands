@@ -31,7 +31,6 @@ void draw_scene()
 	update_scene_lights();
 	draw_lights();
 
-#ifndef	OLD_DRAW_CODE
 	if(any_reflection)
 		{
 			if(!dungeon)draw_sky_background();
@@ -53,25 +52,7 @@ void draw_scene()
 			check_gl_errors();
             display_2d_objects();
 		}
-#else	//OLD_DRAW_CODE
 
-	if(find_reflection())
-		{
-			if(!dungeon)draw_sky_background();
-			else draw_dungeon_sky_background();
-			display_3d_reflection();
-			glNormal3f(0.0f,0.0f,1.0f);
-			//draw_lake_tiles();
-		}
-	//if the shadows are on, then draw everything back to front
-	if(shadows_on)
-		{
-			glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
-			if(view_tile || cur_mode==mode_tile)draw_tile_map();
-			if(view_2d || cur_mode==mode_2d)display_2d_objects();
-			if(find_reflection())draw_lake_tiles();
-		}
-#endif	//OLD_DRAW_CODE
 	check_gl_errors();
 
 	if(view_3d || cur_mode==mode_3d)
