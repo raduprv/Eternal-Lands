@@ -4,8 +4,8 @@
 int view_questlog=0;
 int questlog_menu_x=150;
 int questlog_menu_y=70;
-int questlog_menu_x_len=350;
-int questlog_menu_y_len=200;
+int questlog_menu_x_len=550;
+int questlog_menu_y_len=300;
 int questlog_menu_dragged=0;
 _logdata logdata,*last,*current;
 FILE *qlf = NULL;
@@ -17,7 +17,7 @@ void load_questlog()
 	FILE *f = NULL;
 	char temp[1000];
 	_logdata *L;
-	
+
 #ifndef WINDOWS
 	char questlog_ini[256];
 	strcpy(questlog_ini, configdir);
@@ -33,13 +33,13 @@ void load_questlog()
 	logdata.msg=NULL;
 	last=&logdata;
 	current=NULL;
-	
+
 	if(!f)return;
 
 	while(!feof(f)){//loads and adds to a list all the quest log messages
 		_logdata *l;
 		int len;
-		
+
 		temp[0]=0;
 		fgets(temp,999,f);
 		if(temp[0]==0)break;
@@ -82,7 +82,7 @@ void string_fix(char *t)
 		if(s[i]==' '){c=0;lastspace=i;}
 		if(j>maxchar){
 			j=c;
-			t[lastspace]=10;
+			t[lastspace]='\n';
 		}
 		i++;
 		j++;
@@ -143,14 +143,14 @@ int draw_questlog_string(char *t)
 		draw_string_small(questlog_menu_x+2,y,temp,1);
 		y+=15;
 		if(y>(questlog_menu_y+questlog_menu_y_len-15))
-			return 1;	
+			return 1;
 	}
 	return 0;
 }
 
 
 void display_questlog()
-{	
+{
 	_logdata *t=current;
 	//title bar
 	draw_menu_title_bar(questlog_menu_x,questlog_menu_y-16,questlog_menu_x_len);
@@ -181,18 +181,18 @@ void display_questlog()
 	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y+20,0);
 	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y+20,0);
 	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y,0);
-   
+
 	//scroll bar
 	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y+20,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y+200,0);
+	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y+questlog_menu_y_len,0);
 	glVertex3i(questlog_menu_x+questlog_menu_x_len-15,questlog_menu_y+30,0);
 	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+25,0);
 	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+25,0);
 	glVertex3i(questlog_menu_x+questlog_menu_x_len-5,questlog_menu_y+30,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-15,questlog_menu_y+185,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+190,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+190,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-5,questlog_menu_y+185,0);
+	glVertex3i(questlog_menu_x+questlog_menu_x_len-15,questlog_menu_y+questlog_menu_y_len-15,0);
+	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+questlog_menu_y_len-10,0);
+	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+questlog_menu_y_len-10,0);
+	glVertex3i(questlog_menu_x+questlog_menu_x_len-5,questlog_menu_y+questlog_menu_y_len-15,0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	// The X
@@ -225,10 +225,10 @@ int check_questlog_interface()
 					t=t->Next;
 				}
 			}
-			
+
 		}
 	if(x > questlog_menu_x_len-16 && x < questlog_menu_x_len &&
-	   y > 180 && y < 180+16)
+	   y > questlog_menu_y_len-15 && y < questlog_menu_y_len-4)
 		{
 			if(current)
 				if(current->Next)current=current->Next;

@@ -82,11 +82,6 @@ float colored_trade_icon_v_start=1.0f-(float)64/256;
 float colored_trade_icon_u_end=(float)223/256;
 float colored_trade_icon_v_end=1.0f-(float)95/256;
 
-float follow_icon_u_start=(float)192/256;
-float follow_icon_v_start=1.0f-(float)0/256;
-float follow_icon_u_end=(float)223/256;
-float follow_icon_v_end=1.0f-(float)31/256;
-
 float sit_icon_u_start=(float)224/256;
 float sit_icon_v_start=1.0f-(float)0/256;
 float sit_icon_u_end=(float)255/256;
@@ -197,21 +192,20 @@ float colored_encyclopedia_icon_v_start=1.0f-(float)64/256;
 float colored_encyclopedia_icon_u_end=(float)63/256;
 float colored_encyclopedia_icon_v_end=1.0f-(float)95/256;
 
-float questlog_icon_u_start=(float)0/256;
-float questlog_icon_v_start=1.0f-(float)64/256;
-float questlog_icon_u_end=(float)31/256;
-float questlog_icon_v_end=1.0f-(float)95/256;
+float questlog_icon_u_start=(float)192/256;
+float questlog_icon_v_start=1.0f-(float)0/256;
+float questlog_icon_u_end=(float)223/256;
+float questlog_icon_v_end=1.0f-(float)31/256;
 
-float colored_questlog_icon_u_start=(float)32/256;
-float colored_questlog_icon_v_start=1.0f-(float)64/256;
-float colored_questlog_icon_u_end=(float)63/256;
-float colored_questlog_icon_v_end=1.0f-(float)95/256;
+float colored_questlog_icon_u_start=(float)96/256;
+float colored_questlog_icon_v_start=1.0f-(float)0/256;
+float colored_questlog_icon_u_end=(float)127/256;
+float colored_questlog_icon_v_end=1.0f-(float)31/256;
 
 float console_icon_u_start=(float)0/256;
 float console_icon_v_start=1.0f-(float)64/256;
 float console_icon_u_end=(float)31/256;
-float console_icon_v_end=1.0f-(float)95/256;
-
+float console_icon_v_end=1.0f-(float)95/256;
 float colored_console_icon_u_start=(float)32/256;
 float colored_console_icon_v_start=1.0f-(float)64/256;
 float colored_console_icon_u_end=(float)63/256;
@@ -412,7 +406,7 @@ void init_peace_icons()
 	questlog_icon_x_end=questlog_icon_x_start+31;
 	questlog_icon_y_start=window_height-32;
 	questlog_icon_y_end=questlog_icon_y_start+31;
-	
+
 	console_icon_x_start=questlog_icon_x_end+1;
 	console_icon_x_end=console_icon_x_start+31;
 	console_icon_y_start=window_height-32;
@@ -539,7 +533,7 @@ void draw_peace_icons()
 	else
 		draw_2d_thing(encyclopedia_icon_u_start, encyclopedia_icon_v_start, encyclopedia_icon_u_end, encyclopedia_icon_v_end,
 					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
-	
+
 	if(view_questlog || (mouse_x>questlog_icon_x_start && mouse_y>questlog_icon_y_start && mouse_x<questlog_icon_x_end && mouse_y<questlog_icon_y_end))
 		draw_2d_thing(colored_questlog_icon_u_start, colored_questlog_icon_v_start, colored_questlog_icon_u_end, colored_questlog_icon_v_end,
 					  questlog_icon_x_start, questlog_icon_y_start, questlog_icon_x_end, questlog_icon_y_end);
