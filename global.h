@@ -45,6 +45,7 @@
 #include "events.h"
 #include "frustum.h"
 #include "misc.h"
+#include "../elc/client_serv.h"
 #include "../elc/textures.h"
 #include "../elc/font.h"
 #include "../elc/elwindows.h"
@@ -58,6 +59,7 @@ extern int font_text;
 extern int map_meters_size_x;
 extern int map_meters_size_y;
 
+extern int elwin_mouse;
 extern int window_width;
 extern int window_height;
 extern int bpp;
@@ -145,6 +147,8 @@ extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
 //#endif
 
 extern int have_multitexture;
+extern int have_arb_compression;
+extern int have_s3_compression;
 extern int poor_man;
 extern int ground_detail_text;
 
@@ -155,6 +159,18 @@ extern float texture_scale;
 extern int clouds_shadows;
 
 extern int icons_text;
+
+#ifndef POINT_SIZE_MIN_ARB
+#define POINT_SIZE_MIN_ARB 0x8126
+#endif
+
+#ifndef COMPRESSED_RGBA_ARB
+#define COMPRESSED_RGBA_ARB                             0x84EE
+#endif
+
+#ifndef COMPRESSED_RGBA_S3TC_DXT5_EXT
+#define COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
+#endif
 
 #define check_gl_errors()       //NOP
 

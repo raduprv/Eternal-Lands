@@ -15,7 +15,7 @@ LIBS=$(shell sdl-config --libs) -lGL $(GTK_LIBS)
 
 OBJS=2d_objects.o 3d_objects.o	\
 	asc.o colors.o browser.o draw_scene.o	\
-	errors.o events.o font.o frustum.o	\
+	elwindows.o errors.o events.o font.o frustum.o	\
 	global.o gui.o gui_callbacks.o	\
 	init.o interface.o lights.o	\
 	main.o map_io.o misc.o reflection.o	\
