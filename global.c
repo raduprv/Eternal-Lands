@@ -155,6 +155,8 @@ int max_lines_no=10;
 char console_mode=0;
 char not_from_the_end_console=0;
 
+int log_server = 1;
+
 //interface
 int have_a_map=0;
 char interface_mode=interface_opening;

@@ -7,6 +7,8 @@ void write_to_log(Uint8 * data,int len)
 	char str[1000];
 	FILE *f = NULL;
 
+	int server_message = 0;
+
   	f = fopen ("chat_log.txt", "a");
 
 	j=0;
@@ -18,10 +20,14 @@ void write_to_log(Uint8 * data,int len)
 					str[j]=ch;
 					j++;
 				}
+			else
+			  if (ch != 133 && ch != 129 && ch != 128)
+			    server_message = 1;
 		}
 	str[j]='\n';
 
-  	fwrite(str, j+1, 1, f);
+	if(!server_message || log_server)
+	  fwrite(str, j+1, 1, f);
   	fclose(f);
 }
 

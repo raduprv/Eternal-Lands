@@ -24,6 +24,8 @@ extern int max_lines_no;
 extern char console_mode;
 extern char not_from_the_end_console;
 
+extern int log_server;
+
 int filter_or_ignore_text(unsigned char *text_to_add, int len);
 void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit);
 

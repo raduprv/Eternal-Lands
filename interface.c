@@ -408,7 +408,7 @@ void check_mouse_click()
 		{
 			if(object_under_mouse==-1)return;
 			open_bag(object_under_mouse);
-			//action_mode=action_pick;
+			action_mode=action_pick;
 			return;
 		}
 	if(action_mode==action_pick && right_click)

@@ -79,6 +79,7 @@ void read_config()
   	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,MAX_INI_FILE);
   	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,MAX_INI_FILE);
   	save_ignores=get_integer_after_string("#save_ignores",file_mem,MAX_INI_FILE);
+  	log_server=get_integer_after_string("#log_server",file_mem,MAX_INI_FILE);
   	no_sound=get_integer_after_string("#no_sound",file_mem,MAX_INI_FILE);
   	normal_camera_rotation_speed=get_float_after_string("normal_camera_rotation_speed",file_mem,MAX_INI_FILE);
   	fine_camera_rotation_speed=get_float_after_string("fine_camera_rotation_speed",file_mem,MAX_INI_FILE);
