@@ -908,3 +908,4 @@ int GetWidgetType(char *w)
 
 	return 0;
 }
+

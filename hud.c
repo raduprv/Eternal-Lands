@@ -1142,7 +1142,7 @@ void reset_quickbar()
 	//Necessary Variables
 	quickbar_x_len= 30;
 	quickbar_y_len= 6*30+1;
-	quickbar_x= quickbar_x_len-4;
+	quickbar_x= quickbar_x_len+4;
 	quickbar_y= 64;
 	//Re-set to default orientation
 	quickbar_dir=VERTICAL;

@@ -72,75 +72,81 @@ void draw_scene()
 
 	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
-
-	if(interface_mode==interface_console)
+	
+	if(interface_mode!=interface_game)
 		{
-			// are we actively drawing things?
-			if(SDL_GetAppState()&SDL_APPACTIVE)
+			if(quickbar_relocatable && quickbar_win)//Hack 
+				{
+					if(windows_list.window[quickbar_win].cur_x<window_width-hud_x && window_height - windows_list.window[quickbar_win].cur_y>hud_y) windows_list.window[quickbar_win].displayed=0;
+				}
+			if(interface_mode==interface_console)
+				{
+					// are we actively drawing things?
+					if(SDL_GetAppState()&SDL_APPACTIVE)
+						{
+							Enter2DMode();
+							draw_console_pic(cons_text);
+							display_console_text();
+							draw_hud_interface();
+							SDL_GL_SwapBuffers();
+							Leave2DMode();
+							check_gl_errors();
+						}
+					SDL_Delay(20);
+					return;
+				}
+			if(interface_mode==interface_opening)
 				{
 					Enter2DMode();
 					draw_console_pic(cons_text);
 					display_console_text();
-					draw_hud_interface();
+					SDL_Delay(20);
 					SDL_GL_SwapBuffers();
 					Leave2DMode();
 					check_gl_errors();
+					return;
 				}
-			SDL_Delay(20);
-			return;
-		}
-	if(interface_mode==interface_opening)
-		{
-			Enter2DMode();
-			draw_console_pic(cons_text);
-			display_console_text();
-			SDL_Delay(20);
-			SDL_GL_SwapBuffers();
-			Leave2DMode();
-			check_gl_errors();
-			return;
-		}
-
-	if(interface_mode==interface_log_in)
-		{
-			Enter2DMode();
-			draw_login_screen();
-			SDL_Delay(20);
-			SDL_GL_SwapBuffers();
-			Leave2DMode();
-			check_gl_errors();
-			return;
-		}
-
-	if(interface_mode==interface_new_char)
-		{
-			Enter2DMode();
-			draw_new_char_screen();
-			SDL_Delay(20);
-			SDL_GL_SwapBuffers();
-			Leave2DMode();
-			check_gl_errors();
-			return;
-		}
-
-	if(interface_mode==interface_map)
-		{
-			// are we actively drawing things?
-			if(SDL_GetAppState()&SDL_APPACTIVE)
+		
+			if(interface_mode==interface_log_in)
 				{
 					Enter2DMode();
-					draw_hud_interface();
-					Leave2DMode();
-					draw_game_map();
+					draw_login_screen();
+					SDL_Delay(20);
 					SDL_GL_SwapBuffers();
+					Leave2DMode();
+					check_gl_errors();
+					return;
+				}
+
+			if(interface_mode==interface_new_char)
+				{
+					Enter2DMode();
+					draw_new_char_screen();
+					SDL_Delay(20);
+					SDL_GL_SwapBuffers();
+					Leave2DMode();
+					check_gl_errors();
+					return;
+				}
+
+			if(interface_mode==interface_map)
+				{
+					// are we actively drawing things?
+					if(SDL_GetAppState()&SDL_APPACTIVE)
+						{
+							Enter2DMode();
+							draw_hud_interface();
+							Leave2DMode();
+							draw_game_map();
+							SDL_GL_SwapBuffers();
+							check_gl_errors();
+						}
+					SDL_Delay(20);
+					return;			
 					check_gl_errors();
 				}
-			SDL_Delay(20);
-			return;
-			
-			check_gl_errors();
 		}
-
+	
 	if(!have_a_map)return;
 	if(yourself==-1)return;//we don't have ourselves
 	for(i=0; i<max_actors; i++)
@@ -149,6 +155,8 @@ void draw_scene()
 		}
 	if(i > max_actors) return;//we still don't have ourselves
 	main_count++;
+	
+	if(quickbar_win>0)windows_list.window[quickbar_win].displayed=1;
 
 	if(old_fps_average<5)
 		{
