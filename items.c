@@ -25,7 +25,7 @@ void strap_word(char * in, char * out)
 	*out=0;
 }
 
-int item_action_mode;
+int item_action_mode=action_walk;
 
 int view_ground_items=0;
 int no_view_my_items=0;
@@ -283,9 +283,10 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	Uint8 str[100];
 
 	if(right_click) {
-		if(item_dragged!=-1){
+		if(item_dragged!=-1 || use_item!=-1){
 			use_item=-1;
 			item_dragged=-1;
+			item_action_mode=action_walk;
 			return 1;
 		}
 		if(mx>=wear_items_x_offset && mx<wear_items_x_offset+66 && my>=wear_items_y_offset && my<wear_items_y_offset+133) {
@@ -318,8 +319,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 	
-	if(item_action_mode==action_use_witem)action_mode=action_use_witem;
-	if(item_action_mode==action_use)action_mode=action_use;
+	if(item_action_mode==action_use_witem)	action_mode=action_use_witem;
+	if(item_action_mode==action_use)	action_mode=action_use;
 
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
@@ -955,11 +956,12 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 					if(item_list[i].quantity && item_list[i].pos==y*2+x+ITEM_WEAR_START){
 						if(item_action_mode==action_look) {
 							elwin_mouse=CURSOR_EYE;
+						} else if(item_action_mode==action_use) {
+							elwin_mouse=CURSOR_USE;
+						} else if(item_action_mode==action_use_witem) {
+							elwin_mouse=CURSOR_USE_WITEM;
 						} else {
 							elwin_mouse=CURSOR_PICK;
-							if(use_item!=-1){
-								item_action_mode=action_walk;
-							}
 						}
 						retval=1;
 					} 

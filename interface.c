@@ -71,9 +71,10 @@ void check_mouse_click()
 
 	if(!force_walk)
 	if(right_click) {
-		if(item_dragged!=-1){
+		if(item_dragged!=-1 || use_item!=-1){
 			use_item=-1;
 			item_dragged=-1;
+			action_mode=action_walk;
 			return;
 		}
 		if(object_under_mouse==-1) {
