@@ -267,7 +267,10 @@ char ** get_lines(char * str, int chars_per_line)
 			cur=my_str[lines]=(char*)malloc((chars_per_line+1)*sizeof(char));
 		
 			for(i=0;i<chars_per_line && str[i];i++){
-				if(str[i]==0x0a || str[i]==0x0d){
+				if(str[i]==0x0d){
+					i+=2;
+					break;
+				} else if (str[i]==0x0a){
 					i++;
 					break;
 				}
