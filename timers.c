@@ -102,15 +102,16 @@ Uint32 check_misc(Uint32 interval, void * data)
 //Checks if any of the timers have suddenly stopped
 void check_timers()
 {
-	if((int)(cur_time-last_my_timer)>500)//OK, too long has passed, this is most likely a timer failure! log it and restart the timer
+	if((int)(cur_time-last_my_timer)>1500)//OK, too long has passed, this is most likely a timer failure! log it and restart the timer
 		{
 			char str[120];
 			sprintf(str,timer_lagging_behind,"draw_scene");
 			log_error(str);
 			log_to_console(c_red2,str);
 			SDL_RemoveTimer(draw_scene_timer);
+			my_timer_clock=0;
 			draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
-			last_my_timer=my_timer_clock=SDL_GetTicks();
+			last_my_timer=SDL_GetTicks();
 		}
 	if((int)(cur_time-misc_timer_clock)>1500)
 		{
