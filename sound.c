@@ -13,6 +13,7 @@ SDL_mutex *sound_list_mutex;
 char music_files[max_songs][30];
 FILE* ogg_file;
 OggVorbis_File ogg_stream;
+vorbis_info* ogg_info;
 #endif	//NO_MUSIC
 
 ALuint music_buffers[2];
@@ -26,6 +27,8 @@ void stop_sound(int i)
 
 void load_ogg_file(int i) {
 #ifndef	NO_MUSIC
+	ov_clear(&ogg_stream);
+
 	ogg_file = fopen(music_files[i], "rb");
 	if(!ogg_file) {
 		char	str[256];
@@ -36,13 +39,13 @@ void load_ogg_file(int i) {
 		return;
 	}
 
-	ov_clear(&ogg_stream);
-
 	if(ov_open(ogg_file, &ogg_stream, NULL, 0) < 0) {
 		log_to_console(c_red1, "Failed to load ogg stream\n");
 		log_error("Failed to load ogg stream\n");
 		have_music=0;
 	}
+
+	ogg_info = ov_info(&ogg_stream, -1);
 #endif	//NO_MUSIC
 }
 
@@ -272,7 +275,7 @@ void stream_music(ALuint buffer) {
     }
 	if(!size)return;
 
-	alBufferData(buffer, AL_FORMAT_STEREO16, data, size, ov_bitrate(&ogg_stream,-1));
+	alBufferData(buffer, AL_FORMAT_STEREO16, data, size, ogg_info->rate);
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
