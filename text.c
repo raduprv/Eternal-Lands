@@ -43,54 +43,35 @@ void send_input_text_line()
 	int len;
 	Uint8 ch;
 
+	i=0;
 	j=1;
 	if(input_text_line[0]!='/')//we don't have a PM
 		{
 			str[0]=RAW_TEXT;
-			for(i=0;i<input_text_lenght;i++)
-				{
-					ch=input_text_line[i];
-					if(ch!=0x0a)
-						{
-							str[j]=ch;
-							j++;
-						}
-
-				}
-			str[j]=0;
-
-			len=strlen(&str[1]);
-			if(my_tcp_send(my_socket,str,len+1)<len+1)
-				{
-					//we got a nasty error, log it
-				}
-			return;
-
 		}
-	j=1;
-	if(input_text_line[0]=='/')//we have a PM
+	else
 		{
 			str[0]=SEND_PM;
-			for(i=0;i<input_text_lenght;i++)
+			i++;	// skip the leading /
+		}
+	for(;i<input_text_lenght;i++)	// copy it, but ignore the enter
+		{
+			ch=input_text_line[i];
+			if(ch!=0x0a)
 				{
-					ch=input_text_line[i+1];
-					if(ch!=0x0a)
-						{
-							str[j]=ch;
-							j++;
-						}
-
-				}
-			str[j]=0;
-
-			len=strlen(&str[1]);
-			if(my_tcp_send(my_socket,str,len)<len)
-				{
-					//we got a nasty error, log it
+					str[j]=ch;
+					j++;
 				}
 
 		}
+	str[j]=0;	// always a NULL at the end
 
+	len=strlen(&str[1]);
+	if(my_tcp_send(my_socket,str,len+1)<len+1)
+		{
+			//we got a nasty error, log it
+		}
+	return;
 
 }
 
