@@ -283,7 +283,7 @@ void check_mouse_click()
 			my_tcp_send(my_socket,&protocol_name,1);
 			return;
 		}
-	if(check_ground_items_interface())return;
+	if(item_dragged == -1 && check_ground_items_interface())return;
 
 	if(view_my_items && mouse_x>(items_menu_x+items_menu_x_len-20) && mouse_x<=(items_menu_x+items_menu_x_len)
 	   && mouse_y>items_menu_y && mouse_y<=items_menu_y+20)
@@ -314,6 +314,24 @@ void check_mouse_click()
 	if(check_hud_interface()) return;
 
 	//after we test for interface clicks
+	// alternative drop method...
+	if (item_dragged != -1){  
+		if(right_click){
+			item_dragged = -1;
+			return;
+		}
+		Uint8 str[10];
+		int quantity = item_list[item_dragged].quantity;
+		if (quantity - item_quantity > 0)
+			quantity = item_quantity;
+		str[0] = DROP_ITEM;
+		str[1] = item_list[item_dragged].pos;
+		*((Uint16 *) (str + 2)) = quantity;
+		my_tcp_send(my_socket, str, 4);
+		if (item_list[item_dragged].quantity - quantity <= 0)
+			item_dragged = -1;
+		return;
+	} 
 	//LOOK AT
 	if((current_cursor==CURSOR_EYE && left_click) || (action_mode==action_look && right_click))
 		{

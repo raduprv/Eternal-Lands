@@ -184,15 +184,15 @@ float colored_attack_icon_v_start=1.0f-(float)64/255;
 float colored_attack_icon_u_end=(float)255/255;
 float colored_attack_icon_v_end=1.0f-(float)91/255;
 
-float knowledge_icon_u_start=(float)192/255;
-float knowledge_icon_v_start=1.0f-(float)32/255;
-float knowledge_icon_u_end=(float)223/255;
-float knowledge_icon_v_end=1.0f-(float)63/255;
+float knowledge_icon_u_start=(float)0/255;
+float knowledge_icon_v_start=1.0f-(float)64/255;
+float knowledge_icon_u_end=(float)31/255;
+float knowledge_icon_v_end=1.0f-(float)95/255;
 
-float colored_knowledge_icon_u_start=(float)64/255;
-float colored_knowledge_icon_v_start=1.0f-(float)128/255;
-float colored_knowledge_icon_u_end=(float)95/255;
-float colored_knowledge_icon_v_end=1.0f-(float)159/255;
+float colored_knowledge_icon_u_start=(float)32/255;
+float colored_knowledge_icon_v_start=1.0f-(float)64/255;
+float colored_knowledge_icon_u_end=(float)63/255;
+float colored_knowledge_icon_v_end=1.0f-(float)95/255;
 
 int walk_icon_x_start;
 int walk_icon_x_end;
