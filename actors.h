@@ -244,7 +244,7 @@ typedef struct
 extern SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main threads
 extern actor *actors_list[1000];
 extern int	max_actors;
-extern actor_types actors_defs[43];
+extern actor_types actors_defs[100];
 
 int get_frame_number(const md2 *model_data, const char *cur_frame);
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
