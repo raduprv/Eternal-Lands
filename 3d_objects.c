@@ -58,7 +58,7 @@ void draw_3d_object(object3d * object_id)
 			glBlendFunc(GL_ONE,GL_ONE);
 		}
 
-	if(object_id->self_lit && (night_shadows_on || dungeon))
+	if(object_id->self_lit && (!is_day || dungeon))
 		{
 			glDisable(GL_LIGHTING);
 			//set_material(object_id->r,object_id->g,object_id->b);
@@ -159,13 +159,12 @@ void draw_3d_object(object3d * object_id)
 		}
 	else//draw a texture detail
 		{
-			ELglClientActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglClientActiveTextureARB(detail_unit);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2,GL_FLOAT,0,clouds_uv);
-			ELglClientActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglClientActiveTextureARB(base_unit);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-
 			if(!is_ground)
 				{
 					int i;
@@ -221,9 +220,9 @@ void draw_3d_object(object3d * object_id)
 	//check_gl_errors();
 						}
 				}
-			ELglClientActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglClientActiveTextureARB(detail_unit);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			ELglClientActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglClientActiveTextureARB(base_unit);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	glPopMatrix();//restore the scene
@@ -231,7 +230,7 @@ void draw_3d_object(object3d * object_id)
 
 
 	if(object_id->blended)glDisable(GL_BLEND);
-	if(object_id->self_lit && (night_shadows_on || dungeon))glEnable(GL_LIGHTING);
+	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
 	if(is_transparent)
 		{
 			glDisable(GL_ALPHA_TEST);
@@ -376,11 +375,11 @@ void display_objects()
 	if(have_multitexture && clouds_shadows)
 		{
 			//bind the detail texture
-			ELglActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(detail_unit);
 			glEnable(GL_TEXTURE_2D);
 			//glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
 			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-			ELglActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(base_unit);
 			glEnable(GL_TEXTURE_2D);
 
 		}
@@ -427,9 +426,9 @@ void display_objects()
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit
-			ELglActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(detail_unit);
 			glDisable(GL_TEXTURE_2D);
-			ELglActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(base_unit);
 		}
 	check_gl_errors();
 }

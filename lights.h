@@ -59,10 +59,12 @@ extern GLfloat sky_lights_c4[global_lights_no*2][4];
 
 extern sun sun_pos[60*3];
 
+extern GLfloat sun_ambient_light[];
 
 //for the lights
 #define global_lights_no 60
 extern GLfloat global_lights[global_lights_no][4];
+extern int sun_use_static_position;
 
 #define max_lights 1000
 extern light *lights_list[max_lights];

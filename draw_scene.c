@@ -55,6 +55,8 @@ float clouds_movement_u=-8;
 float clouds_movement_v=-3;
 Uint32 last_clear_clouds=0;
 
+GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXTURE2_ARB;
+
 void draw_scene()
 {
 	unsigned char str [180];
@@ -77,7 +79,6 @@ void draw_scene()
 			if(SDL_GetAppState()&SDL_APPACTIVE)
 				{
 					Enter2DMode();
-					glClear(GL_COLOR_BUFFER_BIT);
 					draw_console_pic(cons_text);
 					display_console_text();
 					draw_hud_interface();
@@ -91,7 +92,6 @@ void draw_scene()
 	if(interface_mode==interface_opening)
 		{
 			Enter2DMode();
-			glClear(GL_COLOR_BUFFER_BIT);
 			draw_console_pic(cons_text);
 			display_console_text();
 			SDL_Delay(20);
@@ -104,7 +104,6 @@ void draw_scene()
 	if(interface_mode==interface_log_in)
 		{
 			Enter2DMode();
-			glClear(GL_COLOR_BUFFER_BIT);
 			draw_login_screen();
 			SDL_Delay(20);
 			SDL_GL_SwapBuffers();
@@ -116,7 +115,6 @@ void draw_scene()
 	if(interface_mode==interface_new_char)
 		{
 			Enter2DMode();
-			glClear(GL_COLOR_BUFFER_BIT);
 			draw_new_char_screen();
 			SDL_Delay(20);
 			SDL_GL_SwapBuffers();
@@ -130,7 +128,6 @@ void draw_scene()
 			// are we actively drawing things?
 			if(SDL_GetAppState()&SDL_APPACTIVE)
 				{
-					glClear(GL_COLOR_BUFFER_BIT);
 					Enter2DMode();
 					draw_hud_interface();
 					Leave2DMode();
@@ -207,54 +204,44 @@ void draw_scene()
 		draw_lights();
 		check_gl_errors();
 
+		if(!dungeon && shadows_on && is_day)render_light_view();
+		check_gl_errors();
+
 		//check for network data
 		get_message_from_server();
 
 		if(any_reflection)
 			{
-				if(!dungeon)draw_sky_background();
-				else draw_dungeon_sky_background();
-				check_gl_errors();
-				glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
-				draw_tile_map();
-				check_gl_errors();
-				display_2d_objects();
+			  	if(!dungeon)draw_sky_background();
+			  	else draw_dungeon_sky_background();
 				check_gl_errors();
 				if(show_reflection)display_3d_reflection();
-				glNormal3f(0.0f,0.0f,1.0f);
-				draw_lake_tiles();
 			}
-		else
-			{
-            	glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
-            	draw_tile_map();
-				check_gl_errors();
-            	display_2d_objects();
-			}
-		check_gl_errors();
-
-		anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
-
-		//check for network data - reduces resyncs
-		get_message_from_server();
-
-		if(!dungeon)
-			{
-				if(shadows_on && have_stencil)if(day_shadows_on)draw_sun_shadowed_scene();
-			}
-
-		check_gl_errors();
-		if(!shadows_on || !have_stencil || night_shadows_on)display_objects();
-
 		check_gl_errors();
 
 		//check for network data - reduces resyncs
 		get_message_from_server();
 
+		if(!dungeon && shadows_on && is_day)draw_sun_shadowed_scene(any_reflection);
+		else {
+			glNormal3f(0.0f,0.0f,1.0f);
+			if(any_reflection)draw_lake_tiles();
+			draw_tile_map();
+			check_gl_errors();
+			display_2d_objects();
+			check_gl_errors();
+			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
+			display_objects();
+			display_actors();
+		}
+
+		check_gl_errors();
+
+		//check for network data - reduces resyncs
+		get_message_from_server();
 	}	// end of active display check
+	else display_actors();	// we need to 'touch' all the actors even if not drawing to avoid problems
 
-	// we need to 'touch' all the actors even if not drawing to avoid problems
-	display_actors();
 	check_gl_errors();
 
 	//check for network data - reduces resyncs
@@ -434,12 +421,16 @@ int	my_timer_clock=0;
 Uint32 my_timer(unsigned int some_int)
 {
 	int	new_time;
+	SDL_Event e;
 
 	// adjust the timer clock
 	if(my_timer_clock == 0)my_timer_clock=SDL_GetTicks();
 	else	my_timer_clock+=(TIMER_RATE-my_timer_adjust);
+	
+	e.type = SDL_USEREVENT;
+	e.user.code = EVENT_UPDATE_CAMERA;
+	SDL_PushEvent(&e);
 
-	update_camera();
 	//check the thunders
 	thunder_control();
 	//check the rain
@@ -452,7 +443,10 @@ Uint32 my_timer(unsigned int some_int)
 			normal_animation_timer=0;
     		update_particles();
     		next_command();
-    		animate_actors();
+
+		e.type = SDL_USEREVENT;
+		e.user.code = EVENT_ANIMATE_ACTORS;
+		SDL_PushEvent(&e);
 #ifdef CAL3D
 			update_cal3d_model();
 #endif

@@ -1,8 +1,6 @@
 #ifndef __PATHFINDER_H__
 #define __PATHFINDER_H__
 
-enum { SDL_PF_MOVEMENT_TIMER };
-
 enum {
 	PF_STATE_NONE=0,
 	PF_STATE_OPEN,

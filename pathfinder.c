@@ -266,7 +266,7 @@ Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
 	SDL_Event e;
 	
 	e.type = SDL_USEREVENT;
-	e.user.code = SDL_PF_MOVEMENT_TIMER;
+	e.user.code = EVENT_MOVEMENT_TIMER;
 	SDL_PushEvent(&e);
 	
 	return interval;

@@ -129,6 +129,17 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	// are we activley drawing?
 	if(SDL_GetAppState()&SDL_APPACTIVE){
+		if(use_shadow_mapping)
+			{
+				glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
+				glDisable(GL_TEXTURE_2D);
+				ELglActiveTextureARB(shadow_unit);
+				glDisable(depth_texture_target);
+				disable_texgen();
+				ELglActiveTextureARB(GL_TEXTURE0);
+				glEnable(GL_TEXTURE_2D);
+				glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+			}
 		//draw the health bar
 		glDisable(GL_TEXTURE_2D);
 		//choose color for the bar
@@ -225,17 +236,19 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				set_font(0);	// back to fixed pitch
 				if(actor_id->ghost)glEnable(GL_BLEND);
 			}
+		if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0))
+			{
+				draw_actor_overtext( actor_id );
+			}
+
+		glColor3f(1,1,1);
+		if(!actor_id->ghost)glEnable(GL_LIGHTING);
+		if(use_shadow_mapping)
+			{
+				last_texture=-1;
+				glPopAttrib();
+			}
 	}
-
-
-	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0))
-	{
-		draw_actor_overtext( actor_id );
-	}
-
-	glColor3f(1,1,1);
-	if(!actor_id->ghost)glEnable(GL_LIGHTING);
-
 }
 
 //-- Logan Dugenoux [5/26/2004]
@@ -493,28 +506,52 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 			offsetFaces=model_data->offsetFaces;
 			offsetTexCoords=model_data->offsetTexCoords;
 			//draw each triangle
-			for(i=0;i<numFaces;i++)
-				{
-					float x,y,z;
+			if(have_multitexture)
+				for(i=0;i<numFaces;i++)
+					{
+						float x,y,z;
 
-					glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
-					x=vertex_pointer[offsetFaces[i].a].x;
-					y=vertex_pointer[offsetFaces[i].a].y;
-					z=vertex_pointer[offsetFaces[i].a].z;
-					glVertex3f(x,y,z);
+						glMultiTexCoord2f(base_unit,offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+						x=vertex_pointer[offsetFaces[i].a].x;
+	       					y=vertex_pointer[offsetFaces[i].a].y;
+						z=vertex_pointer[offsetFaces[i].a].z;
+						glVertex3f(x,y,z);
 
-					glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
-					x=vertex_pointer[offsetFaces[i].b].x;
-					y=vertex_pointer[offsetFaces[i].b].y;
-					z=vertex_pointer[offsetFaces[i].b].z;
-					glVertex3f(x,y,z);
+						glMultiTexCoord2f(base_unit,offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+						x=vertex_pointer[offsetFaces[i].b].x;
+						y=vertex_pointer[offsetFaces[i].b].y;
+						z=vertex_pointer[offsetFaces[i].b].z;
+						glVertex3f(x,y,z);
 
-					glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
-					x=vertex_pointer[offsetFaces[i].c].x;
-					y=vertex_pointer[offsetFaces[i].c].y;
-					z=vertex_pointer[offsetFaces[i].c].z;
-					glVertex3f(x,y,z);
-				}
+						glMultiTexCoord2f(base_unit,offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+						x=vertex_pointer[offsetFaces[i].c].x;
+						y=vertex_pointer[offsetFaces[i].c].y;
+						z=vertex_pointer[offsetFaces[i].c].z;
+						glVertex3f(x,y,z);
+					}
+			else
+				for(i=0;i<numFaces;i++)
+					{
+						float x,y,z;
+
+						glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+						x=vertex_pointer[offsetFaces[i].a].x;
+	       					y=vertex_pointer[offsetFaces[i].a].y;
+						z=vertex_pointer[offsetFaces[i].a].z;
+						glVertex3f(x,y,z);
+
+						glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+						x=vertex_pointer[offsetFaces[i].b].x;
+						y=vertex_pointer[offsetFaces[i].b].y;
+						z=vertex_pointer[offsetFaces[i].b].z;
+						glVertex3f(x,y,z);
+
+						glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+						x=vertex_pointer[offsetFaces[i].c].x;
+						y=vertex_pointer[offsetFaces[i].c].y;
+						z=vertex_pointer[offsetFaces[i].c].z;
+						glVertex3f(x,y,z);
+					}
 			glEnd();
 		}
 	check_gl_errors();
@@ -585,6 +622,9 @@ void display_actors()
 	vertex_arrays_built=0;	// clear the counter
 	//MD2s don't have real normals...
 	glNormal3f(0.0f,0.0f,1.0f);
+	ELglActiveTextureARB(base_unit);
+	glEnable(GL_TEXTURE_2D);
+	ELglClientActiveTextureARB(base_unit);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -665,6 +705,7 @@ void display_actors()
 	unlock_actors_lists();	//unlock it since we are done
 
 	glDisable(GL_BLEND);
+	ELglClientActiveTextureARB(base_unit);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }

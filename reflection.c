@@ -149,7 +149,7 @@ void draw_3d_reflection(object3d * object_id)
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;
 
-	if(object_id->self_lit && (night_shadows_on || dungeon))
+	if(object_id->self_lit && (!is_day || dungeon))
 		{
 			glDisable(GL_LIGHTING);
 			glColor3f(object_id->r,object_id->g,object_id->b);
@@ -196,7 +196,7 @@ void draw_3d_reflection(object3d * object_id)
 	check_gl_errors();
 
 
-	if(object_id->self_lit && (night_shadows_on || dungeon))glEnable(GL_LIGHTING);
+	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
 	if(is_transparent)
 		{
 			glDisable(GL_ALPHA_TEST);
@@ -361,7 +361,6 @@ void make_lake_water_noise()
 	int x,y;
 	float noise_u,noise_v,noise_z;
 
-	if(no_sound)return;	//ignore the noise if no sound
 	for(x=0;x<16;x++)
 		for(y=0;y<16;y++)
 			{
@@ -394,17 +393,30 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 	v_step=3.0f*uv_tile;
 
 	glBegin(GL_TRIANGLE_STRIP);
-	for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
-		{
-			for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
-				{
- 					glTexCoord2f(fx*u_step+noise_array[((y+1)&15)*16+(x&15)].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+(x&15)].v+water_movement_v);
-	 				glVertex3f(fx,fy+y_step, water_deepth_offset);
+	if(have_multitexture)
+		for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
+			{
+				for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
+					{
+						glMultiTexCoord2f(base_unit,fx*u_step+noise_array[((y+1)&15)*16+(x&15)].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+(x&15)].v+water_movement_v);
+						glVertex3f(fx,fy+y_step, water_deepth_offset);
 
-					glTexCoord2f(fx*u_step+noise_array[y*16+(x&15)].u+water_movement_u, fy*v_step+noise_array[y*16+(x&15)].v+water_movement_v);
-					glVertex3f(fx,fy, water_deepth_offset);
-				}
-		}
+						glMultiTexCoord2f(base_unit,fx*u_step+noise_array[y*16+(x&15)].u+water_movement_u, fy*v_step+noise_array[y*16+(x&15)].v+water_movement_v);
+						glVertex3f(fx,fy, water_deepth_offset);
+					}
+			}
+	else
+		for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
+			{
+				for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
+					{
+						glTexCoord2f(fx*u_step+noise_array[((y+1)&15)*16+(x&15)].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+(x&15)].v+water_movement_v);
+						glVertex3f(fx,fy+y_step, water_deepth_offset);
+
+						glTexCoord2f(fx*u_step+noise_array[y*16+(x&15)].u+water_movement_u, fy*v_step+noise_array[y*16+(x&15)].v+water_movement_v);
+						glVertex3f(fx,fy, water_deepth_offset);
+					}
+			}
 	glEnd();
 }
 

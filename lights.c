@@ -393,7 +393,6 @@ void init_lights()
 	//most of the things in here are redundant, since we kind of set the light sources
 	//to their default values. However, better safe than sorry.
 
-
 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT0,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_diffuse);
@@ -476,13 +475,12 @@ void set_material(float r, float g, float b)
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_emission);
 }
 
-
-
+int sun_use_static_position=0;
+GLfloat sun_ambient_light[] = { 0.0, 0.0, 0.0, 1.0 };
 void draw_global_light()
 {
 	int i;
 	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
-	GLfloat ambient_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	i=light_level;
 	if(light_level>59)i=119-light_level;
@@ -492,16 +490,21 @@ void draw_global_light()
 	if(i>59)i=59;
 	//add the thunder light to the ambient/difuse light
 
-	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90;
-	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60;
-	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15;
+	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90-0.15f;
+	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60-0.15f;
+	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15-0.15f;
 	//the ambient light should be half of the difuse light
-	ambient_light[0]=difuse_light[0]/1.5f;
-	ambient_light[1]=difuse_light[1]/1.5f;
-	ambient_light[2]=difuse_light[2]/1.5f;
-	ambient_light[3]=1.0f;
-	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
-	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+	sun_ambient_light[0]=difuse_light[0]/1.5f+0.15f;
+	sun_ambient_light[1]=difuse_light[1]/1.5f+0.15f;
+	sun_ambient_light[2]=difuse_light[2]/1.5f+0.15f;
+	sun_ambient_light[3]=1.0f;
+	glLightfv(GL_LIGHT7,GL_AMBIENT,sun_ambient_light);
+	//We add (0.2,0.2,0.2) because that's the global ambient color, and we need it for shadows
+	sun_ambient_light[0]+=0.2f;
+	sun_ambient_light[1]+=0.2f;
+	sun_ambient_light[2]+=0.2f;
+	if(sun_use_static_position)glLightfv(GL_LIGHT7,GL_POSITION,global_light_position);
+	else glLightfv(GL_LIGHT7,GL_POSITION,sun_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,&difuse_light[0]);
 
 
@@ -509,12 +512,10 @@ void draw_global_light()
 
 void draw_dungeon_light()
 {
-	int i;
 	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
 	GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat ambient_light[4];
-	i=light_level;
-	if(light_level>59)i=119-light_level;
+
 	//the ambient light should be half of the difuse light
 	ambient_light[0]=ambient_r;
 	ambient_light[1]=ambient_g;
@@ -553,7 +554,7 @@ void make_gradient_light(int start,int steps,float *light_table, float r_start,
 void build_global_light_table()
 {
 	//the sun light
-	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
+  	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
 	make_gradient_light(30,30,(float *)global_lights,0.318f,0.248f,0.248f,0.05f,0.05f,0.08f);
 	//lake light
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
@@ -605,29 +606,28 @@ void new_minute()
 	//morning starts at 0
 	//is it morning?
 	if(game_minute<60)light_level=game_minute+60;
+	//check to see if it is full day
+	if(game_minute>=60 && game_minute<60*3)light_level=0;
 	//is it evening?
 	if(game_minute>=60*3 && game_minute<60*4)light_level=game_minute-60*3;
+	//full night?
+	if(game_minute>=60*4)light_level=59;
+
 	//is it day?
 	if(game_minute>=30 && game_minute<60*3+30 && !dungeon)
 		{
 			disable_local_lights();
-			day_shadows_on=1;
-			night_shadows_on=0;
-			fLightPos[0]=sun_pos[game_minute-30].x;
-			fLightPos[1]=sun_pos[game_minute-30].y;
-			fLightPos[2]=sun_pos[game_minute-30].z;
-			fLightPos[3]=sun_pos[game_minute-30].w;
-			SetShadowMatrix();
+			is_day=1;
+			sun_position[0]=sun_pos[game_minute-30].x;
+			sun_position[1]=sun_pos[game_minute-30].y;
+			sun_position[2]=sun_pos[game_minute-30].z;
+			sun_position[3]=sun_pos[game_minute-30].w;
+			calc_shadow_matrix();
 		}
 	else//it's too dark, or we are in a dungeon
 		{
-			day_shadows_on=0;
-			night_shadows_on=1;
+			is_day=0;
 			enable_local_lights();
+			sun_position[0]=sun_position[1]=sun_position[2]=0.0;
 		}
-	//check to see if it is full day
-	if(game_minute>=60 && game_minute<60*3)light_level=0;
-	//full night?
-	if(game_minute>=60*4)light_level=59;
-
 }

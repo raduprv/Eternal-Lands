@@ -216,6 +216,7 @@ extern char	reg_error_str[15],
 		gl_ext_found_not_used[100],
 		gl_ext_not_found[100],
 		gl_ext_no_multitexture[150],
+		disabled_shadow_mapping[50],
 		/*init.c*/
 		fatal_error_str[10],
 		no_e3d_list[50],

@@ -21,6 +21,7 @@ extern int have_arb_compression;
 extern int have_s3_compression;
 extern int have_sgis_generate_mipmap;
 extern int use_mipmaps;
+extern int have_arb_shadow;
 
 extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);

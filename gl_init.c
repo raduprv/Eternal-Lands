@@ -25,6 +25,7 @@ int have_arb_compression=0;
 int have_s3_compression=0;
 int have_sgis_generate_mipmap=0;
 int use_mipmaps=0;
+int have_arb_shadow=0;
 
 void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
@@ -369,11 +370,18 @@ void init_video()
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );
 	glClearStencil(0);
 
+	glEnable(GL_FOG);
+	glFogi(GL_FOG_MODE,GL_LINEAR);
+	glFogf(GL_FOG_START,5.0);
+	glFogf(GL_FOG_END,35.0);
+
 	SDL_EnableKeyRepeat(200, 100);
 	SDL_EnableUNICODE(1);
 	build_video_mode_array();
 	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &have_stencil);
 	last_texture=-1;	//no active texture
+
+	set_shadow_map_size();
 }
 
 void init_gl_extensions()
@@ -402,7 +410,7 @@ void init_gl_extensions()
 				}
 			else
 				{
-					have_multitexture=1;
+					glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB,&have_multitexture);
 					sprintf(str,gl_ext_found,"GL_ARB_multitexture");
 					log_to_console(c_green2,str);
 				}
@@ -450,25 +458,24 @@ void init_gl_extensions()
 			}
 		else 
 			{
+				have_point_sprite=1;
 				sprintf(str,gl_ext_found,"GL_*_point_sprite");
 				log_to_console(c_green2,str);
 			}
-
-
 		have_arb_compression=get_string_occurance("GL_ARB_texture_compression",extensions,ext_str_len,0);
-		if(have_arb_compression<0)
-		have_arb_compression=0;
-		else 
+
+		if(have_arb_compression<0) have_arb_compression=0;
+		else
 			{
+				have_arb_compression=1;
 				sprintf(str,gl_ext_found,"GL_ARB_texture_compression");
 				log_to_console(c_green2,str);
 			}
-
 		have_s3_compression=get_string_occurance("GL_EXT_texture_compression_s3tc",extensions,ext_str_len,0);
-		if(have_s3_compression<0)
-		have_s3_compression=0;
-		else 
+		if(have_s3_compression<0) have_s3_compression=0;
+		else
 			{
+				have_s3_compression=1;
 				sprintf(str,gl_ext_found,"GL_EXT_texture_compression_s3tc");
 				log_to_console(c_green2,str);
 			}
@@ -489,8 +496,24 @@ void init_gl_extensions()
 			}
 		else 
 			{
+				have_sgis_generate_mipmap=1;
 				sprintf(str,gl_ext_found,"GL_SGIS_generate_mipmap");
 				log_to_console(c_green2,str);
+			}
+
+		have_arb_shadow=get_string_occurance("GL_ARB_shadow",extensions,ext_str_len,0);
+		if(have_arb_shadow<0)have_arb_shadow=0;
+		else
+			{
+				have_arb_shadow=1;
+				sprintf(str,gl_ext_found,"GL_ARB_shadow");
+				log_to_console(c_green2,str);
+			}
+
+		if((have_multitexture<3 || !have_arb_shadow) && use_shadow_mapping)
+			{
+				use_shadow_mapping=0;
+				log_to_console(c_red1,disabled_shadow_mapping);
 			}
 
 	check_gl_errors();
@@ -563,6 +586,10 @@ void set_new_video_mode(int fs,int mode)
 						}
 				}
 		}
+
+	//...and the texture used for shadow mapping
+	glDeleteTextures(1,&depth_map_id);
+	depth_map_id=0;
 
 	//destroy the current context
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);

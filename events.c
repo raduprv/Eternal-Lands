@@ -349,20 +349,6 @@ int HandleEvent(SDL_Event *event)
 				  actor *me=get_actor_ptr_from_id(yourself);
 				  add_particle_sys("./particles/fire_small.part",me->x_pos+0.25f,me->y_pos+0.25f,-2.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+0.1f);
 				}
-				if(event->key.keysym.sym==SDLK_F10) {
-				  actor *me=get_actor_ptr_from_id(yourself);
-				  add_particle_sys("./particles/circular_burst.part",me->x_pos+0.25f,me->y_pos+0.25f,-1.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+0.1f);
-				}
-				if(event->key.keysym.sym==SDLK_F11) {
-				  actor *me=get_actor_ptr_from_id(yourself);
-				  add_particle_sys("./particles/spherical_burst.part",me->x_pos+0.25f,me->y_pos+0.25f,-1.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+0.1f);
-				}
-				if(event->key.keysym.sym==SDLK_F12) {
-				  actor *me=get_actor_ptr_from_id(yourself);
-				  add_particle_sys("./particles/fountain.part",me->x_pos+0.25f,me->y_pos+0.25f,-1.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+0.1f);
-				}
-				if(event->key.keysym.sym==SDLK_F4)dump_part_sys_info();
-
 				if(event->key.keysym.sym==SDLK_F6)
 					{
 						if(!hud_x)
@@ -589,9 +575,10 @@ int HandleEvent(SDL_Event *event)
 			}
 			break;
 		case SDL_USEREVENT:
-			if (event->user.code == SDL_PF_MOVEMENT_TIMER) {
+			if (event->user.code == EVENT_MOVEMENT_TIMER) {
 				pf_move();
-			}
+			} else if(event->user.code == EVENT_UPDATE_CAMERA)update_camera();
+			else if(event->user.code == EVENT_ANIMATE_ACTORS)animate_actors();
 		}
 
 	return(done);

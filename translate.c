@@ -292,6 +292,7 @@ char	reg_error_str[15],
 	gl_ext_found_not_used[100],
 	gl_ext_not_found[100],
 	gl_ext_no_multitexture[150],
+	disabled_shadow_mapping[50],
 	fatal_error_str[10],
 	no_e3d_list[50],
 	enabled_vertex_arrays[50],
@@ -654,6 +655,7 @@ void init_errors()
 	add_xml_identifier(video,"extnouse",gl_ext_found_not_used,"%s extension found, NOT using it...",100);
 	add_xml_identifier(video,"extnotfound",gl_ext_not_found,"Couldn't find the %s extension, not using it...",100);
 	add_xml_identifier(video,"multitex",gl_ext_no_multitexture,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...",150);
+	add_xml_identifier(video,"noshadowmapping",disabled_shadow_mapping,"Shadowmapping disabled (need newer hardware)",50);
 	add_xml_identifier(video,"invalid",invalid_video_mode,"Stop playing with the configuration file and select valid modes!",75);
 #endif
 }
