@@ -248,8 +248,7 @@ void Move()
 	glTranslatef(cx, cy, cz);
 
 	//test only
-    check_range_sounds();
-	update_positional_sounds();
+	update_position();
 }
 
 void update_camera()

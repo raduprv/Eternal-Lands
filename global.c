@@ -4,8 +4,6 @@ int map_meters_size_x;
 int map_meters_size_y;
 float texture_scale=12.0;
 
-//int window_width=800;
-//int window_height=570;
 int window_width=640;
 int window_height=480;
 
@@ -206,9 +204,10 @@ int have_music=0;
 int sound_on=1;
 int music_on=1;
 int no_sound=0;
-sound_object sound_list[max_sound_objects];
-sound_file sound_cache[max_sound_cache];
-
+int used_sources=0;
+char sound_files[max_buffers][30];
+ALuint sound_source[max_sources];
+ALuint sound_buffer[max_buffers];
 
 //char interface_mode=interface_new_char;
 int mouse_x;
@@ -391,6 +390,8 @@ int mouse_limit=15;
 int no_adjust_shadows=0;
 int clouds_shadows=1;
 help_entry help_list[MAX_HELP_ENTRIES];
+char home[100];
+char datadir[200];
 
 //extensions
 #ifdef WINDOWS//linux has those functins already...

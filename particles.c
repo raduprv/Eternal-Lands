@@ -1476,7 +1476,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 			teleport_y=*((Uint16 *)(teleport_list+my_offset+2));
 			teleport_type=*((Uint16 *)(teleport_list+my_offset+4));
 			//put the sound
-			add_sound_object("./sound/teleporter.wav",teleport_x,teleport_y,1,-1,0);
+			add_sound_object(snd_teleprtr,teleport_x,teleport_y,1,1);
 			//later on, maybe we want to have different visual types
 			//now, get the Z position
 			z=-2.2f+height_map[teleport_y*tile_map_size_x*6+teleport_x]*0.2f;

@@ -116,7 +116,7 @@ void rain_control()
 				if(!is_raining)
 					{
 						is_raining=1;
-						rain_sound=add_sound_object("./sound/rain1.wav",0,0,0,-1,1);
+						rain_sound=add_sound_object(snd_rain,0,0,0,1);
 					}
 
 
@@ -134,7 +134,7 @@ void rain_control()
 					if(!is_raining)
 						{
 							is_raining=1;
-							rain_sound=add_sound_object("./sound/rain1.wav",0,0,0,-1,1);
+							rain_sound=add_sound_object(snd_rain,0,0,0,1);
 							//find out how heavy the rainfall will be
 							num_rain_drops=(MAX_RAIN_DROPS+rand()%MAX_RAIN_DROPS)/2;
 						}
@@ -173,11 +173,11 @@ void thunder_control()
 							thunders[i].seconds_till_sound--;
 							if(!thunders[i].seconds_till_sound)
 								{
-									if(thunders[i].thunder_type==0)add_sound_object("./sound/thunder1.wav",0,0,0,0,0);
-									else if(thunders[i].thunder_type==1)add_sound_object("./sound/thunder2.wav",0,0,0,0,0);
-									else if(thunders[i].thunder_type==2)add_sound_object("./sound/thunder3.wav",0,0,0,0,0);
-									else if(thunders[i].thunder_type==3)add_sound_object("./sound/thunder4.wav",0,0,0,0,0);
-									else if(thunders[i].thunder_type==4)add_sound_object("./sound/thunder5.wav",0,0,0,0,0);
+									if(thunders[i].thunder_type==0)add_sound_object(snd_thndr_1,0,0,0,0);
+									else if(thunders[i].thunder_type==1)add_sound_object(snd_thndr_2,0,0,0,0);
+									else if(thunders[i].thunder_type==2)add_sound_object(snd_thndr_3,0,0,0,0);
+									else if(thunders[i].thunder_type==3)add_sound_object(snd_thndr_4,0,0,0,0);
+									else if(thunders[i].thunder_type==4)add_sound_object(snd_thndr_5,0,0,0,0);
 									thunders[i].seconds_till_sound=-1;//we are done with this sound
 
 								}

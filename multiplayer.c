@@ -341,22 +341,21 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case PLAY_SOUND:
 			{
-				if(!no_sound)add_sound_from_server(*((short *)(in_data+3)),*((short *)(in_data+5)),
-												   *((short *)(in_data+7)),*((char *)(in_data+9)),*((short *)(in_data+10)));
+				if(!no_sound)add_sound_object(*((short *)(in_data+3)),*((short *)(in_data+5)),*((short *)(in_data+7)),*((char *)(in_data+9)),*((short *)(in_data+10)));
 			}
 			break;
 
 		case TELEPORT_OUT:
 			{
 				add_teleport_out(*((short *)(in_data+3)),*((short *)(in_data+5)));
-				if(!no_sound)add_sound_object("./sound/teleport_out.wav",*((short *)(in_data+3)),*((short *)(in_data+5)),1,0,0);
+				if(!no_sound)add_sound_object(snd_tele_out,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
 			}
 			break;
 
 		case TELEPORT_IN:
 			{
 				add_teleport_in(*((short *)(in_data+3)),*((short *)(in_data+5)));
-				if(!no_sound)add_sound_object("./sound/teleport_in.wav",*((short *)(in_data+3)),*((short *)(in_data+5)),1,0,0);
+				if(!no_sound)add_sound_object(snd_tele_in,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
 			}
 			break;
 

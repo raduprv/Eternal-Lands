@@ -51,7 +51,7 @@ int start_rendering()
 
 	save_bin_cfg();
 	/* Destroy our GL context, etc. */
-	Mix_CloseAudio();
+	destroy_sound();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 	SDL_Quit( );

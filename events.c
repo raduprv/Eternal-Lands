@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "global.h"
 #ifndef WINDOWS
 #include <SDL/SDL_syswm.h>
@@ -184,7 +185,6 @@ int HandleEvent(SDL_Event *event)
 					{
 						if(!view_manufacture_menu)
 							{
-								//Uint8 str[100]; unused?
 								if(view_trade_menu)
 									{
 										log_to_console(c_red2,"You can't manufacture while on trade.");

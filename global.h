@@ -5,12 +5,17 @@
 #include <SDL.h>
 #include <SDL_net.h>
 #include <SDL_thread.h>
-#include <SDL_mixer.h>
 #else
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
 #include <SDL/SDL_thread.h>
-#include <SDL/SDL_mixer.h>
+#endif
+
+#ifdef OSX
+#include <OpenAL/alut.h>
+#else
+#include <AL/al.h>
+#include <AL/alut.h>
 #endif
 
 #include "elc_private.h"
@@ -173,6 +178,8 @@ extern int no_adjust_shadows;
 extern int clouds_shadows;
 extern int selected_3d_object;
 extern int selected_inventory_object;
+extern char home[100];
+extern char datadir[200];
 
 extern int no_bounding_box;
 

@@ -1,51 +1,39 @@
 #ifndef __SOUND_H__
 #define __SOUND_H__
 
-#define max_sound_objects 200
-#define max_sound_cache 100
+#define max_buffers 9
+#define max_sources 32
 
-#define SOUND_RANGE 40
-
-typedef struct
-{
-	int positional;
-	int x_pos;
-	int y_pos;
-	int channel;
-	int loops_number;
-	Mix_Chunk *chunk;
-	int is_playing;
-	int kill;
-
-}sound_object;
-
-typedef struct
-{
-	char file_name[60];
-	Mix_Chunk *chunk;
-}sound_file;
+#define snd_rain     0
+#define snd_tele_in  1
+#define snd_tele_out 2
+#define snd_teleprtr 3
+#define snd_thndr_1  4
+#define snd_thndr_2  5
+#define snd_thndr_3  6
+#define snd_thndr_4  7
+#define snd_thndr_5  8
 
 extern int have_sound;
 extern int have_music;
 extern int sound_on;
 extern int music_on;
 extern int no_sound;
+extern int used_sources;
 
-extern sound_object sound_list[max_sound_objects];
-extern sound_file sound_cache[max_sound_cache];
+extern char sound_files[max_buffers][30];
+extern ALuint sound_source[max_sources];
+extern ALuint sound_buffer[max_buffers];
 
-void play_music();
-void channelDone(int channel);
 void stop_sound(int i);
-Mix_Chunk * load_chunk_cache(char * file_name);
-int add_sound_object(char * file_name,int x, int y,int positional,int loops,int smooth_start);
-void add_sound_from_server(short number,short x, short y,short positional,short loops);
-void update_positional_sounds();
-void check_range_sounds();
+int add_sound_object(int sound_file,int x, int y,int positional,int loops);
+void update_position();
 void kill_local_sounds();
 void turn_sound_off();
 void turn_sound_on();
 void init_sound();
+void destroy_sound();
+int realloc_sources();
 
 #endif
 
