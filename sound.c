@@ -30,6 +30,7 @@ ALuint music_source;
 int playing_music=0;
 
 playlist_entry playlist[20];
+int loop_list=1;
 int list_pos=-1;
 #endif	//NO_MUSIC
 
@@ -42,10 +43,12 @@ void stop_sound(int i)
 void get_map_playlist()
 {
 #ifndef	NO_MUSIC
-	int len,i;
+	int len,i=0;
 	char map_list_file_name[256];
 	FILE *fp;
 	char strLine[255];
+
+	if(!have_music)return;
 
 	memset(playlist,0,sizeof(playlist));
 
@@ -62,7 +65,7 @@ void get_map_playlist()
 			fp=fopen("./music/default.pll","r");
 			if(!fp)return;
 		}
-	i=0;
+
 	while(1)
 		{
 			fscanf(fp,"%d %d %s",&playlist[i].always,&playlist[i].prob,playlist[i].file_name);
@@ -70,13 +73,15 @@ void get_map_playlist()
 			if(!fgets(strLine, 100, fp))break;
 		}
 	fclose(fp);
+	loop_list=1;
+	list_pos=-1;
 #endif	//NO_MUSIC
 }
 
 void play_ogg_file(char *file_name) {
 #ifndef	NO_MUSIC
 	int error,queued;
-	char file_name2[64];
+
     if(!have_music)return;
 
 	alSourceStop(music_source);
@@ -88,31 +93,8 @@ void play_ogg_file(char *file_name) {
 			alSourceUnqueueBuffers(music_source, 1, &buffer);
 		}
 
-	ov_clear(&ogg_stream);
-
-	if(file_name[0]!='.' && file_name[0]!='/') {
-		strcpy(file_name2,"./music/");
-		strcat(file_name2,file_name);
-	} else
-		strcpy(file_name2,file_name);
-	ogg_file = fopen(file_name2, "rb");
-	if(!ogg_file) {
-		char	str[256];
-		snprintf(str, 256, "Failed to load ogg file: %s\n", file_name);
-		log_to_console(c_red1, str);
-		LogError(str);
-		have_music=0;
-		return;
-	}
-
-	if(ov_open(ogg_file, &ogg_stream, NULL, 0) < 0) {
-		log_to_console(c_red1, "Failed to load ogg stream\n");
-		LogError("Failed to load ogg stream");
-		have_music=0;
-		return;
-	}
-
-	ogg_info = ov_info(&ogg_stream, -1);
+	load_ogg_file(file_name);
+	if(!have_music)return;
 
     stream_music(music_buffers[0]);
 	stream_music(music_buffers[1]);
@@ -135,14 +117,25 @@ void play_ogg_file(char *file_name) {
 #endif	//NO_MUSIC
 }
 
-void load_ogg_file(int i) {
+void load_ogg_file(char *file_name) {
 #ifndef	NO_MUSIC
+	char file_name2[80];
+
+	if(!have_music)return;
+
 	ov_clear(&ogg_stream);
 
-	ogg_file = fopen(music_files[i], "rb");
+	if(file_name[0]!='.' && file_name[0]!='/') {
+		strcpy(file_name2,"./music/");
+		strcat(file_name2,file_name);
+	} else
+		strcpy(file_name2,file_name);
+
+	ogg_file = fopen(file_name2, "rb");
+
 	if(!ogg_file) {
 		char	str[256];
-		snprintf(str, 256, "Failed to load ogg file: %s\n", music_files[i]);
+		snprintf(str, 256, "Failed to load ogg file: %s\n", file_name);
 		log_to_console(c_red1, str);
 		LogError(str);
 		have_music=0;
@@ -187,46 +180,31 @@ ALuint get_loaded_buffer(int i)
 	return sound_buffer[i];
 }
 
-void play_music(int i) {
+void play_music(int list) {
 #ifndef	NO_MUSIC
-    int error,queued;
-    if(!have_music)return;
+	int i=0;
+	char list_file_name[256];
+	FILE *fp;
+	char strLine[255];
 
-	if(i >= max_songs)
+	if(!have_music)return;
+
+	memset(playlist,0,sizeof(playlist));
+
+	sprintf(list_file_name,"./music/%d.pll",list);
+
+	fp=fopen(list_file_name,"r");
+	if(!fp)return;
+
+	while(1)
 		{
-			LogError("Got invalid song number");
-			return;
+			fscanf(fp,"%d %d %s",&playlist[i].always,&playlist[i].prob,playlist[i].file_name);
+			i++;
+			if(!fgets(strLine, 100, fp))break;
 		}
-
-	alSourceStop(music_source);
-	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-	while(queued-- > 0)
-		{
-			ALuint buffer;
-			
-			alSourceUnqueueBuffers(music_source, 1, &buffer);
-		}
-	
-	load_ogg_file(i);
-	if(!have_music)return;//must double check for error
-
-    stream_music(music_buffers[0]);
-	stream_music(music_buffers[1]);
-	stream_music(music_buffers[2]);
-	stream_music(music_buffers[3]);
-    
-    alSourceQueueBuffers(music_source, 4, music_buffers);
-    alSourcePlay(music_source);
-
-	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-     		char	str[256];
-    		snprintf(str, 256, "play_music error: %s\n", alGetString(error));
-    		log_to_console(c_red1, str);
-    		LogError(str);
-			have_music=0;
-    	}
-	playing_music = 1;
+	fclose(fp);
+	loop_list=0;
+	list_pos=-1;
 #endif	//NO_MUSIC
 }
 
@@ -402,8 +380,10 @@ int update_music(void *dummy)
 						   rand()%100 < playlist[list_pos].prob) {
 							play_ogg_file(playlist[list_pos].file_name);
 						}
-					} else
+					} else if(loop_list)
 						list_pos=-1;
+					else
+						get_map_playlist();
 					continue;
 				}
 		}

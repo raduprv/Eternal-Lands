@@ -38,8 +38,9 @@ int realloc_sources();
 ALuint get_loaded_buffer(int i);
 
 void get_map_playlist();
-void load_ogg_file(int i);
-void play_music(int i);
+void play_ogg_file(char *file_name);
+void load_ogg_file(char *file_name);
+void play_music(int list);
 int update_music(void *dummy);
 void stream_music(ALuint buffer);
 void turn_music_off();
