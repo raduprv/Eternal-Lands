@@ -1,5 +1,6 @@
 #include <string.h>
 #include "global.h"
+#include "elwindows.h"
 #include <math.h>
 
 int mouse_x;
@@ -144,6 +145,7 @@ int check_drag_menus()
 				return 1;
 			}
 
+	// TODO: move dragging logic into elwindows.c
 	if(attrib_menu_dragged || (view_self_stats && mouse_x>attrib_menu_x && mouse_x<=attrib_menu_x+attrib_menu_x_len && mouse_y>attrib_menu_y-16 && mouse_y<=attrib_menu_y))
 		if(!items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -154,6 +156,7 @@ int check_drag_menus()
 					{
 						attrib_menu_x+=mouse_delta_x;
 						attrib_menu_y+=mouse_delta_y;
+						move_window(stats_win, 0, 0, attrib_menu_x, attrib_menu_y);
 					}
 				return 1;
 			}
@@ -378,13 +381,14 @@ void check_mouse_click()
 		}
 	if(check_encyclopedia_interface())return;
 
-	if(view_self_stats && mouse_x>(attrib_menu_x+attrib_menu_x_len-20) && mouse_x<=(attrib_menu_x+attrib_menu_x_len)
-	   && mouse_y>attrib_menu_y && mouse_y<=attrib_menu_y+20)
+	if(view_self_stats)
 		{
-			view_self_stats=0;
-			return;
+			if(click_in_window(stats_win, mouse_x, mouse_y, 0)){
+				// is it the close button?
+				view_self_stats= get_show_window(stats_win);
+				return;
+			}
 		}
-	if(check_stats_interface())return;
 
 	if(view_questlog && mouse_x>(questlog_menu_x+questlog_menu_x_len-20) && mouse_x<=(questlog_menu_x+questlog_menu_x_len)
 	   && mouse_y>questlog_menu_y && mouse_y<=questlog_menu_y+20)
