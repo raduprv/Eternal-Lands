@@ -1,22 +1,14 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
-#ifdef WINDOWS
 #include <SDL.h>
 #include <SDL_net.h>
 #include <SDL_thread.h>
+
+#ifdef WINDOWS
 #include <al.h>
 #include <alut.h>
 #elif defined(LINUX)
-#include <SDL/SDL.h>
-#include <SDL/SDL_net.h>
-#include <SDL/SDL_thread.h>
-#include <AL/al.h>
-#include <AL/alut.h>
-#elif defined(BSD)
-#include <SDL.h>
-#include <SDL_net.h>
-#include <SDL_thread.h>
 #include <AL/al.h>
 #include <AL/alut.h>
 #elif defined(OSX)

@@ -1,9 +1,7 @@
 #include <string.h>
 #include "global.h"
 
-#ifdef LINUX
-#include <SDL/SDL_syswm.h>
-#elif defined(BSD)
+#ifndef WINDOWS
 #include <SDL_syswm.h>
 #endif
 

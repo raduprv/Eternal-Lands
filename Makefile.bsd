@@ -9,7 +9,7 @@ el.x86.bsd.bin: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o el.x86.bsd.bin $(OBJS)
 
 release:
-	make -f Makefile.bsd 'CFLAGS=$(_CFLAGS)'
+	gmake -f Makefile.bsd 'CFLAGS=$(_CFLAGS)'
 
 %.o:	%.c %.h
 	$(CC) $(CFLAGS) -c $*.c
