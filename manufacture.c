@@ -1,8 +1,10 @@
 #include "global.h"
 
+item manu_recipe[6];
+
 void build_manufacture_list()
 {
-	int i,j;
+	int i,j,l;
 
 	for(i=0;i<36+6;i++)manufacture_list[i].quantity=0;
 
@@ -19,6 +21,56 @@ void build_manufacture_list()
 							manufacture_list[j].pos=item_list[i].pos;
 							j++;
 						}
+		}
+	//now check for all items in the current recipe
+	l=1;
+	for(i=0; l>0 && i<6; i++)
+		{
+			if(manu_recipe[i].quantity > 0)
+				{
+					for(j=0; l>0 && j<36; j++)
+						{
+							if(manufacture_list[j].quantity>0 && manu_recipe[i].image_id == manufacture_list[j].image_id)
+								{
+									if(manu_recipe[i].quantity > manufacture_list[j].quantity)
+										{
+											l=0;	// can't make
+										}
+										break;
+								}
+						}
+					// watch for the item missing
+					if(j >= 36)
+						{
+							l=0;
+						}
+				}
+		}
+	//all there? good, put them in
+	if(l>0)
+		{
+			for(i=0; i<6; i++)
+				{
+					if(manu_recipe[i].quantity > 0)
+						{
+							for(j=0;j<36;j++)
+								{
+									if(manufacture_list[j].quantity>0 && manufacture_list[j].quantity>=manu_recipe[i].quantity && manufacture_list[j].image_id==manu_recipe[i].image_id)
+										{
+											//found an empty space in the "production pipe"
+											manufacture_list[j].quantity-=manu_recipe[i].quantity;
+											manufacture_list[i+36].quantity=manu_recipe[i].quantity;
+											manufacture_list[i+36].pos=manufacture_list[j].pos;
+											manufacture_list[i+36].image_id=manufacture_list[j].image_id;
+											break;
+										}
+								}
+						}
+					else
+						{
+							manufacture_list[i+36].quantity = 0;
+						}
+				}
 		}
 }
 
@@ -232,16 +284,20 @@ int check_manufacture_interface()
 	int x_screen,y_screen;
 	Uint8 str[100];
 
+	//watch for the action not in this window
 	if(!view_manufacture_menu || mouse_x>manufacture_menu_x+manufacture_menu_x_len || mouse_x<manufacture_menu_x
 	   || mouse_y<manufacture_menu_y || mouse_y>manufacture_menu_y+manufacture_menu_y_len)return 0;
 
+	//Clear
 	if(mouse_x>manufacture_menu_x+33*9+40 && mouse_x<manufacture_menu_x+33*9+40+70 &&
 	   mouse_y>manufacture_menu_y+manufacture_menu_y_len-30 && mouse_y<manufacture_menu_y+manufacture_menu_y_len-10)
 		{
+			for(i=0; i<6; i++) manu_recipe[i].quantity= manu_recipe[i].image_id= 0; // clear the recipe
 			build_manufacture_list();
 			return 1;
 		}
 
+	//Mix
 	if(mouse_x>manufacture_menu_x+33*6+40 && mouse_x<manufacture_menu_x+33*6+40+50 &&
 	   mouse_y>manufacture_menu_y+manufacture_menu_y_len-30 && mouse_y<manufacture_menu_y+manufacture_menu_y_len-10)
 		{
@@ -250,16 +306,26 @@ int check_manufacture_interface()
 
 			str[0]=MANUFACTURE_THIS;
 			for(i=36;i<36+6;i++)
-				if(manufacture_list[i].quantity)
-					{
-						str[items_no*3+2]=manufacture_list[i].pos;
-						*((Uint16 *)(str+items_no*3+2+1))=manufacture_list[i].quantity;
-						items_no++;
-					}
+				{
+					if(manufacture_list[i].quantity)
+						{
+							str[items_no*3+2]=manufacture_list[i].pos;
+							*((Uint16 *)(str+items_no*3+2+1))=manufacture_list[i].quantity;
+							items_no++;
+						}
+				}
 
 			str[1]=items_no;
-			if(items_no)//don't send an empty string
-				my_tcp_send(my_socket,str,items_no*3+2);
+			if(items_no)
+				{
+					//don't send an empty string
+					my_tcp_send(my_socket,str,items_no*3+2);
+					// and copy this recipe
+					for(i=36;i<36+6;i++)
+						{
+							manu_recipe[i-36]=manufacture_list[i];
+						}
+				}
 			return 1;
 		}
 
