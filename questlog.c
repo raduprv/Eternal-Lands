@@ -7,7 +7,6 @@ int questlog_menu_x=150;
 int questlog_menu_y=70;
 int questlog_menu_x_len=550;
 int questlog_menu_y_len=300;
-//int questlog_menu_dragged=0;
 _logdata logdata,*last,*current;
 int	logdata_length=0;
 int	quest_page_start=0;
@@ -21,46 +20,29 @@ void load_questlog()
 {
 	FILE *f = NULL;
 	char temp[1000];
-	//_logdata *L;
 
 #ifndef WINDOWS
 	char questlog_ini[256];
 	strcpy(questlog_ini, configdir);
 	strcat(questlog_ini, "quest.log");
-	f=fopen(questlog_ini,"rb"); //try to load local settings
-	if(!f) //use global settings
-		f=fopen("quest.log","rb");
+	f= fopen(questlog_ini,"rb"); //try to load local settings
+	if(!f)	//use global settings
+		f= fopen("quest.log","rb");
 
 #else
-	f=fopen("quest.log","rb");
+	f= fopen("quest.log","rb");
 #endif
-	//L=&logdata;
-	logdata.msg=NULL;
+	logdata.msg= NULL;
 	current= last= &logdata;
-	//current=NULL;
 
-	if(!f)return;
+	if(!f)	return;
 
 	while(!feof(f)){//loads and adds to a list all the quest log messages
-		//_logdata *l;
-		//int len;
-
-		temp[0]=0;
+		temp[0]= 0;
 		fgets(temp,999,f);
-		if(temp[0]==0)break;
+		if(temp[0] == 0)break;
 		add_questlog_line(temp, strlen(temp));
-		/*
-		l=(_logdata*)malloc(sizeof(_logdata));
-		L->Next=l;
-		L=l;
-		l->Next=0;
-		len=strlen(temp);
-		l->msg=(char*)malloc(len+1);
-		string_fix(temp);
-		strcpy(l->msg,temp);
-		*/
 	}
-	//last=L;
 	current=logdata.Next;
 	fclose(f);
 }
@@ -69,65 +51,70 @@ void load_questlog()
 void unload_questlog()
 {
 	//frees all the quest list
-	_logdata *t=logdata.Next;
+	_logdata *t= logdata.Next;
 	while(t!=NULL){
-		_logdata *tmp=t;
-		if(t->msg)free(t->msg);
-		t=t->Next;
+		_logdata *tmp= t;
+		if(t->msg)	free(t->msg);
+		t= t->Next;
 		free(tmp);
 	}
-	if(qlf!=NULL)fclose(qlf);
+	if(qlf!=NULL)	fclose(qlf);
 }
 
 
-void string_fix(char *t)
+void string_fix(char *t, int len)
 {
-	char *s=t;
-	int maxchar=(questlog_menu_x_len-25)/8;// calculate maximum amount of characters per line
-	int i=0,j=0,lastspace=0,c=0;
+	char *s= t;
+	int maxchar= (questlog_menu_x_len-25)/8;// calculate maximum amount of characters per line
+	int i=0, j=0, lastspace=0, c=0;
 
 
-	while(s[i]!=0){ //breaking the string in parts
-		if(s[i]==' '){c=0;lastspace=i;}
+	while(s[i]!=0 && len >= 0){ //breaking the string in parts
+		if(s[i]==' '){
+			c= 0;
+			lastspace= i;
+		}
 		if(j>maxchar){
-			j=c;
-			t[lastspace]='\n';
+			j= c;
+			t[lastspace]= '\n';
 		}
 		i++;
 		j++;
 		c++;
+		len--;
 	}
 }
 
 
 void add_questlog(char *t, int len)
 {
-	char *s=t;
+	char *s= t;
 
 	//write on file
-	if(qlf==NULL){
+	if(qlf == NULL){
 		#ifndef WINDOWS
 			char questlog_ini[256];
 			strcpy(questlog_ini, configdir);
 			strcat(questlog_ini, "quest.log");
-			qlf=fopen(questlog_ini,"wb");
+			qlf= fopen(questlog_ini,"wb");
 			if(!qlf) //use global settings
-				qlf=fopen("quest.log","ab");
+				qlf= fopen("quest.log","ab");
 			else
 				fseek(qlf,SEEK_END,0);
 
 		#else
-			qlf=fopen("quest.log","ab");
+			qlf= fopen("quest.log","ab");
 		#endif
 	}
 	while(*s){ //converting multiline msg in single line
-		if(*s=='\n')*s=' ';
+		if(*s=='\n')	*s= ' ';
 		s++;
 	}
-	fwrite(t,sizeof(char),len,qlf);
-	fputc(10,qlf);
+	if(len <= 0)	len=strlen(t);
+	fwrite(t, sizeof(char), len, qlf);
+	fputc(10, qlf);
 	//add to list
-	add_questlog_line(t,len);
+	add_questlog_line(t, len);
 }
 
 
@@ -135,15 +122,16 @@ void add_questlog_line(char *t, int len)
 {
 	_logdata *l;
 
+	if(len <= 0)	len=strlen(t);
 	l= (_logdata*)malloc(sizeof(_logdata));
 	l->Next= NULL;
 	l->msg= (char*)malloc(len+1);
-	string_fix(t);
+	string_fix(t, len);
 	strncpy(l->msg, t, len);
-	l->msg[len]=0;
+	l->msg[len]= 0;
 	last->Next= l;
 	last= l;
-	if(current==NULL) current=l;
+	if(current==NULL)	current= l;
 	// keep track of the counter
 	logdata_length++;
 }
@@ -167,7 +155,7 @@ void goto_questlog_entry(int ln)
 		}
 	//reset to the start
 	current= &logdata;
-	// loop thru allof the entries
+	// loop thru all of the entries
 	while(current->Next && cnt-- > 0)
 		{
 			current= current->Next;
@@ -178,21 +166,21 @@ void goto_questlog_entry(int ln)
 int draw_questlog_string(char *t)
 {
 	char temp[256];
-	int i=0;
+	int i= 0;
 
 	//we split the string in lines and draw it.
 	while(*t!=0){
 		while(*t!=10 && *t!=0){
-			temp[i]=*t;
+			temp[i]= *t;
 			t++;
 			i++;
 		}
-		if(*t!=0)t++;
-		temp[i]=0;
-		i=0;
+		if(*t!=0)	t++;
+		temp[i]= 0;
+		i= 0;
 		draw_string_small(2,questlog_y,temp,1);
-		questlog_y+=15;
-		if(questlog_y>(questlog_menu_y_len-15))
+		questlog_y+= 15;
+		if(questlog_y > (questlog_menu_y_len-15))
 			return 1;
 	}
 	return 0;
@@ -201,7 +189,7 @@ int draw_questlog_string(char *t)
 
 int	display_questlog_handler(window_info *win)
 {
-	_logdata *t=current;
+	_logdata *t= current;
 	//calc where the scroll bar goes
 	int scroll= quest_page_pos;
 
@@ -233,7 +221,7 @@ int	display_questlog_handler(window_info *win)
 	// Draw all texts from list
 	questlog_y= 0;
 	while(t!=NULL){
-		if(t->msg && draw_questlog_string(t->msg))return 1;
+		if(t->msg && draw_questlog_string(t->msg))	return 1;
 		t=t->Next;
 	}
 	return 1;
@@ -254,23 +242,13 @@ int click_questlog_handler(window_info *win, int mx, int my, Uint32 flags)
 					goto_questlog_entry(quest_page_start);
 					quest_page_pos= ((win->len_y-20-30-20)*quest_page_start)/logdata_length;
 				}
-			/*
-			_logdata *t;
-			if(logdata.Next && current!=logdata.Next && current!=NULL){
-				t=logdata.Next;
-				while(t!=NULL){
-					if(t->Next==current){current=t;return 1;}
-					t=t->Next;
-				}
-			}
-			*/
 			return 1;
 		}
 	if(x > win->len_x-16 && y > win->len_y-15 && y < win->len_y-4)
 		{
 			if(current && current->Next)
 				{
-					current=current->Next;
+					current= current->Next;
 					quest_page_start++;
 					quest_page_pos= ((win->len_y-20-30-20)*quest_page_start)/logdata_length;
 				}
@@ -292,7 +270,7 @@ int drag_questlog_handler(window_info *win, int mx, int my, Uint32 flags, int dx
 		if(quest_page_pos < 0) quest_page_pos= 0;
 		if(quest_page_pos >= scroll_area) quest_page_pos= scroll_area-1;
 		//and set which item to list first
-		quest_page_start=(logdata_length*quest_page_pos)/scroll_area;
+		quest_page_start= (logdata_length*quest_page_pos)/scroll_area;
 		goto_questlog_entry(quest_page_start);
 		return 1;
 	}
