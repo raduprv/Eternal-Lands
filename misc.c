@@ -181,7 +181,7 @@ void clone_2d_object(int object_id)
 {
 	float z_pos,x_rot,z_rot;
 	char self_lit,blended;
-	int i;
+	int i,collide;
 
 	z_pos=obj_2d_list[object_id]->z_pos;
 	x_rot=obj_2d_list[object_id]->x_rot;
@@ -189,6 +189,7 @@ void clone_2d_object(int object_id)
 	
 	if(ctrl_on)
 		{
+			collide=0;
 			for(i=0;i<max_obj_2d;i++)
 				{
 					if(obj_2d_list[i])
@@ -199,10 +200,11 @@ void clone_2d_object(int object_id)
 							dist1=scene_mouse_x-obj_2d_list[i]->x_pos;
 							dist2=scene_mouse_y-obj_2d_list[i]->y_pos;
 							if(dist1*dist1+dist2*dist2<=1)
-								z_pos+=0.01f;
+								collide=1;
 						}
 				}
-			z_pos-=0.01f;
+			if(collide)
+				z_pos+=0.01f;
 			z_rot=rand()%360;
 		}
 	
