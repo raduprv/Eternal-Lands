@@ -931,6 +931,16 @@ float colored_attack_icon_v_start=1.0f-(float)64/255;
 float colored_attack_icon_u_end=(float)255/255;
 float colored_attack_icon_v_end=1.0f-(float)91/255;
 
+float knowledge_icon_u_start=(float)192/255;
+float knowledge_icon_v_start=1.0f-(float)32/255;
+float knowledge_icon_u_end=(float)223/255;
+float knowledge_icon_v_end=1.0f-(float)63/255;
+
+float colored_knowledge_icon_u_start=(float)64/255;
+float colored_knowledge_icon_v_start=1.0f-(float)128/255;
+float colored_knowledge_icon_u_end=(float)95/255;
+float colored_knowledge_icon_v_end=1.0f-(float)159/255;
+
 int walk_icon_x_start;
 int walk_icon_x_end;
 int walk_icon_y_start;
@@ -1221,10 +1231,10 @@ void draw_peace_icons()
 
 	if(mouse_x>knowledge_icon_x_start && mouse_y>knowledge_icon_y_start &&
 	   mouse_x<knowledge_icon_x_end && mouse_y<knowledge_icon_y_end)
-		draw_2d_thing(colored_options_icon_u_start, colored_options_icon_v_start, colored_options_icon_u_end, colored_options_icon_v_end,
+		draw_2d_thing(colored_knowledge_icon_u_start, colored_knowledge_icon_v_start, colored_knowledge_icon_u_end, colored_knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
 	else
-		draw_2d_thing(options_icon_u_start, options_icon_v_start, options_icon_u_end, options_icon_v_end,
+		draw_2d_thing(knowledge_icon_u_start, knowledge_icon_v_start, knowledge_icon_u_end, knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
 
 	if(mouse_x>options_icon_x_start && mouse_y>options_icon_y_start &&
