@@ -20,7 +20,7 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 	return SDLNet_TCP_Send(my_socket,new_str,len+2);
 }
 
-void send_version_to_server()
+void send_version_to_server(IPaddress *ip)
 {
 	Uint8 str[20];
 
@@ -31,7 +31,13 @@ void send_version_to_server()
 	str[6]=client_version_minor;
 	str[7]=client_version_release;
 	str[8]=client_version_patch;
-	my_tcp_send(my_socket,str,9);
+	str[9]=ip->host&0xFF;
+	str[10]=(ip->host >> 8)&0xFF;
+	str[11]=(ip->host >> 16)&0xFF;
+	str[10]=(ip->host >> 24)&0xFF;
+	str[13]=ip->port&0xFF;
+	str[14]=(ip->port >> 8)&0xFF;
+	my_tcp_send(my_socket,str,15);
 }
 
 void connect_to_server()
@@ -106,7 +112,7 @@ void connect_to_server()
 		}
 
     //send the current version to the server
-    send_version_to_server();
+    send_version_to_server(&ip);
     last_heart_beat=cur_time;
     view_trade_menu=0;
 
@@ -650,6 +656,10 @@ int recvpacket()
 							return 0;	// fatal error, disconnect?
 						}
 				}
+		}
+	else
+		{
+			total=in_data_used;
 		}
 
 	size=(*((short *)(in_data+1)))+2;
