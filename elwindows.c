@@ -401,6 +401,7 @@ int	select_window(int win_id)
 // specific windows functions
 int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags)
 {
+	window_info *win;
 	int	win_id=-1;
 	int	i;
 
@@ -456,39 +457,41 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	// fill in the information
 	if(win_id > 0)
 		{
-			windows_list.window[win_id].window_id= win_id;
-			windows_list.window[win_id].order= (property_flags&ELW_SHOW_LAST)?-win_id:win_id;
+			win= &windows_list.window[win_id];
+			win->window_id= win_id;
+			win->order= (property_flags&ELW_SHOW_LAST)?-win_id:win_id;
 
-			windows_list.window[win_id].flags= property_flags;
-			windows_list.window[win_id].displayed= (property_flags&ELW_SHOW)?1:0;
-			//windows_list.window[win_id].collapsed= 0;
-			windows_list.window[win_id].dragged= 0;
-			strncpy(windows_list.window[win_id].window_name, name, 32);
+			win->flags= property_flags;
+			win->displayed= (property_flags&ELW_SHOW)?1:0;
+			//win->collapsed= 0;
+			win->dragged= 0;
+			strncpy(win->window_name, name, 32);
 
-			windows_list.window[win_id].back_color[0]= 0.0f;
-			windows_list.window[win_id].back_color[1]= 0.0f;
-			windows_list.window[win_id].back_color[2]= 0.0f;
-			windows_list.window[win_id].back_color[3]= 0.5f;
-			windows_list.window[win_id].border_color[0]= 0.77f;
-			windows_list.window[win_id].border_color[1]= 0.57f;
-			windows_list.window[win_id].border_color[2]= 0.39f;
-			windows_list.window[win_id].border_color[3]= 0.0f;
-			windows_list.window[win_id].line_color[0]= 0.77f;
-			windows_list.window[win_id].line_color[1]= 0.57f;
-			windows_list.window[win_id].line_color[2]= 0.39f;
-			windows_list.window[win_id].line_color[3]= 0.0f;
+			win->back_color[0]= 0.0f;
+			win->back_color[1]= 0.0f;
+			win->back_color[2]= 0.0f;
+			win->back_color[3]= 0.5f;
+			win->border_color[0]= 0.77f;
+			win->border_color[1]= 0.57f;
+			win->border_color[2]= 0.39f;
+			win->border_color[3]= 0.0f;
+			win->line_color[0]= 0.77f;
+			win->line_color[1]= 0.57f;
+			win->line_color[2]= 0.39f;
+			win->line_color[3]= 0.0f;
 
-			windows_list.window[win_id].init_handler= NULL;
-			windows_list.window[win_id].display_handler= NULL;
-			windows_list.window[win_id].click_handler= NULL;
-			windows_list.window[win_id].drag_handler= NULL;
-			windows_list.window[win_id].mouseover_handler= NULL;
+			win->init_handler= NULL;
+			win->display_handler= NULL;
+			win->click_handler= NULL;
+			win->drag_handler= NULL;
+			win->mouseover_handler= NULL;
 			// now call the routine to place it properly
 			init_window(win_id, pos_id, pos_loc, pos_x, pos_y, size_x, size_y);
 		}
 
 	return	win_id;
 }
+
 
 void	destroy_window(int win_id)
 {
@@ -500,16 +503,35 @@ void	destroy_window(int win_id)
 	windows_list.window[win_id].displayed= 0;
 }
 
+
+int		find_window(const char *name)
+{
+	int	win_id= -1;
+	int	i;
+
+	for(i=0; i<windows_list.num_windows; i++)
+		{
+			if(!strcmp(windows_list.window[win_id].window_name, name))
+				{
+					win_id= i;
+					break;
+				}
+		}
+
+	return win_id;
+}
+
+
 int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y)
 {
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 
-	// do the move first
-	move_window(win_id, pos_id, pos_loc, pos_x, pos_y);
-	// then memorize the size
+	// memorize the size
 	windows_list.window[win_id].len_x= size_x;
 	windows_list.window[win_id].len_y= size_y;
+	// then place the window
+	move_window(win_id, pos_id, pos_loc, pos_x, pos_y);
 
 	// finally, call any init_handler that was defined
 	if(windows_list.window[win_id].init_handler)
@@ -521,15 +543,24 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 
 int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 {
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
-	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	window_info *win;
 
-	windows_list.window[win_id].pos_id= pos_id;	//NOT SUPPORTED YET
-	windows_list.window[win_id].pos_loc= pos_loc;	//NOT SUPPORTED YET
-	windows_list.window[win_id].pos_x= pos_x;
-	windows_list.window[win_id].pos_y= pos_y;
-	windows_list.window[win_id].cur_x= pos_x;
-	windows_list.window[win_id].cur_y= pos_y;
+	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	win= &windows_list.window[win_id];
+	if(win->window_id != win_id)	return -1;
+
+	win->pos_id= pos_id;	//NOT SUPPORTED YET
+	win->pos_loc= pos_loc;	//NOT SUPPORTED YET
+	win->pos_x= pos_x;
+	win->pos_y= pos_y;
+	win->cur_x= pos_x;
+	win->cur_y= pos_y;
+
+	// check for the window actually being on the screen, if not, move it
+	if(win->cur_y < (win->flags&ELW_TITLE_HEIGHT)?ELW_TITLE_HEIGHT:0) win->cur_y= (win->flags&ELW_TITLE_HEIGHT)?ELW_TITLE_HEIGHT:0;
+	if(win->cur_y >= window_height) win->cur_y= window_height;	// had -32, but do we want that?
+	if(win->cur_x+win->len_x < ELW_BOX_SIZE) win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
+	if(win->cur_x > window_width-ELW_BOX_SIZE) win->cur_x= window_width-ELW_BOX_SIZE;
 
 	return 1;
 }
@@ -666,11 +697,6 @@ int	draw_window(window_info *win)
 	if(win == NULL || win->window_id < 0)	return -1;
 
 	if(!win->displayed)	return 0;
-	// check for the window actually being on the screen, if not, move it
-	if(win->cur_y < (win->flags&ELW_TITLE_HEIGHT)?ELW_TITLE_HEIGHT:0) win->cur_y= (win->flags&ELW_TITLE_HEIGHT)?ELW_TITLE_HEIGHT:0;
-	if(win->cur_y >= window_height) win->cur_y= window_height;	// had -32, but do we want that?
-	if(win->cur_x+win->len_x < ELW_BOX_SIZE) win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
-	if(win->cur_x > window_width-ELW_BOX_SIZE) win->cur_x= window_width-ELW_BOX_SIZE;
 	// mouse over processing first
 	if(mouseover_window(win->window_id, mouse_x, mouse_y))
 		elwin_mouse= 1;
@@ -921,6 +947,36 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 
 	return old_handler;
 }
+
+
+void	*get_window_handler(int win_id, int handler_id)
+{
+	void	*old_handler;
+
+	// get the information
+	switch(handler_id){
+		case	ELW_HANDLER_INIT:
+			old_handler= (void *)windows_list.window[win_id].init_handler;
+			break;
+		case	ELW_HANDLER_DISPLAY:
+			old_handler= (void *)windows_list.window[win_id].display_handler;
+			break;
+		case	ELW_HANDLER_CLICK:
+			old_handler= (void *)windows_list.window[win_id].click_handler;
+			break;
+		case	ELW_HANDLER_DRAG:
+			old_handler= (void *)windows_list.window[win_id].drag_handler;
+			break;
+		case	ELW_HANDLER_MOUSEOVER:
+			old_handler= (void *)windows_list.window[win_id].mouseover_handler;
+			break;
+		default:
+			old_handler=NULL;
+	}
+
+	return old_handler;
+}
+
 
 int	set_window_color(int win_id, Uint32 color_id, float r, float g, float b, float a)
 {

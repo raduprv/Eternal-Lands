@@ -145,17 +145,18 @@ int		drag_windows(int mx, int my, int dx, int dy);
 void	end_drag_windows();
 int		select_window(int win_id);
 //void	close_windows();
-//TODO: check windows on screen
 
 // individual functions
 int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
 void	destroy_window(int win_id);
+int		find_window(const char *name);
 int		init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y);
 int		move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y);
 //int	set_window_property(int win_id, Uint32 property_flag, int new_property);
 int		set_window_color(int win_id, Uint32 color_id, float r, float g, float b, float a);
 int		use_window_color(int win_id, Uint32 color_id);
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() );
+void	*get_window_handler(int win_id, int handler_id);
 void	show_window(int win_id);
 void	hide_window(int win_id);
 void	toggle_window(int win_id);
@@ -163,18 +164,18 @@ int		get_show_window(int win_id);
 //void	collapse_window(int win_id);	// future expansion
 //void	expand_window(int win_id);		// future expansion
 
-int	display_window(int win_id);
-int	mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
-int	click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coord in the window
-int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
-int	mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
+int		display_window(int win_id);
+int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
+int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coord in the window
+int		drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
+int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
 
 // low level functions
 //window_info	*get_window_info(int win_id);
 //window_info	*get_window_by_name(const Uint8 *name);
-int	draw_window(window_info *win);		// the complete window, including display_handler
-int	draw_window_title(window_info *win);// just the title bar if enabled
-int	draw_window_base(window_info *win);	// border & background
+int		draw_window(window_info *win);		// the complete window, including display_handler
+int		draw_window_title(window_info *win);// just the title bar if enabled
+int		draw_window_base(window_info *win);	// border & background
 
 // default handlers - VERY basic
 //int	init_handler(window_info *win);
