@@ -1,22 +1,102 @@
+/*!
+ * \file
+ * \brief handles sectoring and partitioning of maps
+ * \ingroup maps
+ * \todo Finish documentation
+ */
 #ifndef __SECTOR_H__
 #define __SECTOR_H__
+
+/*!
+ * returns the sector associated with the coordinates x and y
+ */
 #define sector_get(x,y) (((int)y/12)*(tile_map_size_x>>2)+(int)x/12)
+
+#define MAX_3D_OBJECTS 300 /*!< maximum number of 3d objects in a sector */
+
+/*!
+ * map_sector handles the data of one sector
+ */
 typedef struct{
-	Uint32 objects_checksum;
-	Uint32 tiles_checksum;
-	short e3d_local[300];
-	short e2d_local[20];
-	short lights_local[4];
-	short particles_local[8];
+	Uint32 objects_checksum; /*!< a MD5 checksum to check the objects in this sector */
+	Uint32 tiles_checksum; /*!< a MD5 checksum for the tiles in this sector */
+	short e3d_local[300]; /*!< array of local \see e3d objects in this sector */
+	short e2d_local[20]; /*!< array of local \see e2d objects in this sector */
+	short lights_local[4]; /*!< up to 4 lights are possible in one sector */
+	short particles_local[8]; /*!< up to 8 particles are possible in one sector */
 }map_sector;
-extern map_sector sectors[256*256];
-extern int num_sectors;
+
+extern map_sector sectors[256*256]; /*!< the global variable sectors stores all the currently loaded \see map_sector. */
+extern int num_sectors; /*!< current number of sectors in \see sectors */
+
+/*!
+ * \ingroup maps
+ * \brief returns the <em>parent</em> sector of the given sector and stores the start and end coordinates in the given parameters.
+ *
+ *      Returns the supersector of the given sector and stores the start coordinates in sx and sy and the end coordinates in ex and ey.
+ *
+ * \param sector    handle for the sector for which we search the supersector
+ * \param sx        variable to hold the x coordinate of the start position
+ * \param sy        variable to hold the y coordinate of the start position
+ * \param ex        variable to hold the x coordinate of the end position
+ * \param ey        variable to hold the y coordinate of the end position
+ * \return None
+ */
 void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey);
+
+/*!
+ * \ingroup maps
+ * \brief adds an 3d object, specified by objectid to the current sector.
+ *
+ *      Adds an 3d object, specified by objectid to the current sector.
+ *
+ * \param objectid  points to the 3d object to add.
+ * \return int
+ */
 int sector_add_3do(int objectid);
+
+/*!
+ * \ingroup maps
+ * \brief adds an 2d object, specified by objectid to the current sector
+ *
+ *      Adds an 2d object, specified by objectid to the current sector
+ *
+ * \param objectid  points to the 2d object to add.
+ * \return int
+ */
 int sector_add_2do(int objectid);
+
+/*!
+ * \ingroup maps
+ * \brief adds the given light to the current sector
+ *
+ *      Adds the light given by objectid to the current sector
+ *
+ * \param objectid  points to the light to add
+ * \return int
+ */
 int sector_add_light(int objectid);
+
+/*!
+ * \ingroup maps
+ * \brief adds the given particle to the current sector
+ *
+ *      Adds the particle given by objectid to the current sector
+ *
+ * \param objectid  points to the particle to add
+ * \return int
+ */
 int sector_add_particle(int objectid);
+
+/*!
+ * \ingroup maps
+ * \brief adds a map to the sector
+ *
+ *      Adds a map to the current sector
+ *
+ * \return None
+ */
 void sector_add_map();
 
-#define MAX_3D_OBJECTS 300
 #endif
+
