@@ -754,19 +754,19 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 	if(action_mode==action_look) {
-		if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
+		elwin_mouse=CURSOR_EYE;
 	} else {
-		if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
+		elwin_mouse=CURSOR_PICK;
 	}
 	return 1;
 }
 
 int mouseover_items_handler(window_info *win, int mx, int my) {
 	if(action_mode==action_look) {
-		if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
+		elwin_mouse=CURSOR_EYE;
 		return 1;
 	} else if(action_mode==action_use) {
-		if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
+		elwin_mouse=CURSOR_USE;
 		return 1;
 	}
 	return 0;

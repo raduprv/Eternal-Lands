@@ -450,9 +450,9 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 
 int mouseover_trade_handler(window_info *win, int mx, int my) {
 	if(action_mode==action_look) {
-		if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
+		elwin_mouse=CURSOR_EYE;
 	} else {
-		if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+		elwin_mouse=CURSOR_ARROW;
 	}
 	return 1;
 }

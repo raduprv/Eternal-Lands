@@ -7,7 +7,7 @@ int object_under_mouse;
 int thing_under_the_mouse;
 int current_cursor;
 int read_mouse_now=0;
-int elwin_mouse=0;
+int elwin_mouse=-1;
 
 struct cursors_struct cursors_array[20];
 struct harvest_names_struct harvestable_objects[100];
@@ -214,8 +214,9 @@ void build_cursors()
 void check_cursor_change()
 {
 	int i;
-	if(elwin_mouse) {
-		elwin_mouse=0;
+	if(elwin_mouse >= 0) {
+		if(current_cursor!=elwin_mouse)change_cursor(elwin_mouse);
+		elwin_mouse=-1;
 		return;
 	}
 	if(object_under_mouse ==-1)

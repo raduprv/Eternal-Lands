@@ -528,7 +528,7 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 							{
 								my_strcp(spell_text,sigils_list[y*12+x].name);
 								have_error_message=0;
-								return 1;
+								return 0;
 							}
 					}
 			}
@@ -543,7 +543,7 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 					{
 						my_strcp(spell_text,sigils_list[on_cast[x]].name);
 						have_error_message=0;
-						return 1;
+						return 0;
 					}
 		}
 	return 0;
