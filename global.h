@@ -27,6 +27,7 @@
 #include "gui_support.h"
 #endif
 
+#include "../elc/translate.h"
 #include "errors.h"
 #include "init.h"
 #include "asc.h"
