@@ -40,6 +40,8 @@ void destroy_map()
 					objects_list[i]=0;//kill any refference to it
 				}
 		}
+	// reset the top pointer
+	highest_obj_3d= 0;
 
 	//kill the 2d objects links
 	for(i=0;i<max_obj_2d;i++)
@@ -90,7 +92,7 @@ int save_map(char * file_name)
 	lights_io_size=sizeof(light_io);
 
 	//get the number of objects and lights
-	for(i=0;i<max_obj_3d;i++)if(objects_list[i])obj_3d_no++;
+	for(i=0;i<highest_obj_3d;i++)if(objects_list[i])obj_3d_no++;
 	for(i=0;i<max_obj_2d;i++)if(obj_2d_list[i])obj_2d_no++;
 	for(i=0;i<max_lights;i++)if(lights_list[i])lights_no++;
 
@@ -137,7 +139,7 @@ int save_map(char * file_name)
 
 	//write the 3d objects
 	j=0;
-	for(i=0;i<max_obj_3d;i++)
+	for(i=0;i<highest_obj_3d;i++)
 		{
 
 			if(j>obj_3d_no)break;
@@ -348,7 +350,9 @@ int load_map(char * file_name)
 	}
 	
 	//see which objects in our cache are not used in this map
-	//flag_for_destruction();
+#ifndef	CACHE_SYSTEM
+	flag_for_destruction();
+#endif	//CACHE_SYSTEM
 	//read the 3d objects
 	for(i=0;i<obj_3d_no;i++)
 		{
@@ -361,7 +365,9 @@ int load_map(char * file_name)
 		}
 
 	//delete the unused objects from the cache
-	//destroy_the_flagged();
+#ifndef	CACHE_SYSTEM
+	destroy_the_flagged();
+#endif	//CACHE_SYSTEM
 
 	//read the 2d objects
 	for(i=0;i<obj_2d_no;i++)
