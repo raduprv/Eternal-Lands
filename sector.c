@@ -1,4 +1,5 @@
 #include "global.h"
+#include "string.h"
 
 map_sector sectors[256*256];
 int num_sectors=256*256;

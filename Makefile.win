@@ -5,14 +5,14 @@ CPP  = g++.exe
 CC   = gcc.exe
 WINDRES = windres.exe
 RES  = 
-OBJ  = 3d_objects.o actor_scripts.o actors.o asc.o buddy.o cache.o colors.o console.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o options.o elconfig.o $(RES)
-LINKOBJ  = 3d_objects.o actor_scripts.o actors.o asc.o buddy.o cache.o colors.o console.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o options.o elconfig.o $(RES)
-LIBS =  -L"C:/Dev-Cpp/lib" -mwindows -lSDL -lopengl32  -lxml2 -lSDL_net -lALut -lOpenAL32 -lvorbisfile -liberty  
+OBJ  = 3d_objects.o actor_scripts.o actors.o asc.o buddy.o cache.o colors.o console.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o options.o elconfig.o help.o sector.o rules.o timers.o $(RES)
+LINKOBJ  = 3d_objects.o actor_scripts.o actors.o asc.o buddy.o cache.o colors.o console.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o options.o elconfig.o help.o sector.o rules.o timers.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" -mwindows -lSDL -lopengl32  -lxml2 -lSDL_net -lALut -lOpenAL32 -lvorbisfile -liberty -liconv  
 INCS =  -I"C:/Dev-Cpp/include" 
 CXXINCS =  -I"C:/Dev-Cpp/include/c++/3.3.1"  -I"C:/Dev-Cpp/include/c++/3.3.1/mingw32"  -I"C:/Dev-Cpp/include/c++/3.3.1/backward"  -I"C:/Dev-Cpp/lib/gcc-lib/mingw32/3.3.1/include"  -I"C:/Dev-Cpp/include" 
 BIN  = Debug/EL.exe
 CXXFLAGS = $(CXXINCS) -DWINDOWS  -D_WIN32 -Wall -DELC  
-CFLAGS = $(INCS) -DWINDOWS  -D_WIN32 -Wall -DELC -DLOAD_XML -DNEW_STRUCTURE  
+CFLAGS = $(INCS) -DWINDOWS  -D_WIN32 -Wall -DELC  
 
 .PHONY: all all-before all-after clean clean-custom
 
@@ -192,3 +192,15 @@ options.o: options.c
 
 elconfig.o: elconfig.c
 	$(CC) -c elconfig.c -o elconfig.o $(CFLAGS)
+
+help.o: help.c
+	$(CC) -c help.c -o help.o $(CFLAGS)
+
+sector.o: sector.c
+	$(CC) -c sector.c -o sector.o $(CFLAGS)
+
+rules.o: rules.c
+	$(CC) -c rules.c -o rules.o $(CFLAGS)
+
+timers.o: timers.c
+	$(CC) -c timers.c -o timers.o $(CFLAGS)
