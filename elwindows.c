@@ -1063,7 +1063,7 @@ void	toggle_window(int win_id)
 void resize_window (int win_id, int new_width, int new_height)
 {
 	window_info *win;
-
+	
 	if (win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if (windows_list.window[win_id].window_id != win_id)	return;
 	
@@ -1479,3 +1479,14 @@ int	use_window_color(int win_id, Uint32 color_id)
 	return 0;
 }
 
+int set_window_min_size (int win_id, int width, int height)
+{
+	if (win_id < 0 || win_id >= windows_list.num_windows)	return 0;
+	if (windows_list.window[win_id].window_id != win_id)	return 0;
+	if (width < 0 || height < 0)	return 0;
+
+	windows_list.window[win_id].min_len_x = width;
+	windows_list.window[win_id].min_len_y = height;
+	
+	return 1;
+}

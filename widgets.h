@@ -29,6 +29,7 @@ typedef struct wl{
 	int (*OnDrag)();
 	int (*OnInit)();
 	int (*OnMouseover)();
+	int (*OnResize)();
 	int (*OnKey)();
 	/*! \} */
 
@@ -977,6 +978,20 @@ int tab_collection_draw (widget_list *W);
  * \callgraph
  */
 int tab_collection_click (widget_list *W, int x, int y);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	The callback for resizing the tabbed window collection widget
+ *
+ * 		The callback for resizing the tabbed window collection widget
+ *
+ * \param   	W The widget
+ * \param   	width the new width
+ * \param   	height the new height
+ * \retval int  	Returns 1 on success, 0 on failure
+ * \callgraph
+ */
+int tab_collection_resize (widget_list *W, Uint32 w, Uint32 h);
 
 /*!
  * \ingroup	tabs

@@ -100,6 +100,7 @@ int widget_resize(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 	{
 		w->len_x = x;
 		w->len_y = y;
+		if (w->OnResize) w->OnResize (w, x, y);
 		return 1;
 	}
 	return 0;
@@ -789,6 +790,7 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 	W->OnDraw = tab_collection_draw;
 	W->OnDrag = NULL;
 	W->OnInit = OnInit;
+	W->OnResize = tab_collection_resize;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
 
@@ -888,6 +890,22 @@ int tab_collection_click (widget_list *W, int x, int y)
 	}
 	
 	return 0;
+}
+
+int tab_collection_resize (widget_list *W, Uint32 width, Uint32 height)
+{
+	Uint16 win_height;
+	tab_collection *col;
+	int itab;
+
+	if (W == NULL || (col = (tab_collection *) W->widget_info) == NULL)
+		return 0;
+	
+	win_height = height > col->tag_height ? height - col->tag_height : 0;
+	for (itab = 0; itab < col->nr_tabs; itab++)
+		resize_window (col->tabs[itab].content_id, width, win_height);
+	
+	return 1;
 }
 
 int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width)

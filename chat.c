@@ -5,10 +5,13 @@
 
 /*! \name chat text constants
  * @{ */
-#define CHAT_WIN_SPACE		4
+#define CHAT_WIN_MAX_TABS	5	/*< the maximum number of channels */
+#define CHAT_WIN_SPACE		4	/*< spacing between widget and window borders */
+#define CHAT_WIN_TAG_HEIGHT	20	/*!< height of a tab */
+#define CHAT_WIN_TAG_SPACE	3	/*!< spacing between tabs */
 #define CHAT_WIN_TEXT_WIDTH  	500	/*!< width of the text */
-#define CHAT_OUT_TEXT_HEIGHT 	(18*10)	/*!< height of the text: 10 lines in normal font size */
-#define CHAT_IN_TEXT_HEIGHT 	(18*3)	/*!< height of the text: 3 lines in normal font size */
+#define CHAT_OUT_TEXT_HEIGHT 	(18*8)	/*!< height of the output text: 8 lines in normal font size */
+#define CHAT_IN_TEXT_HEIGHT 	(18*3)	/*!< height of the input text: 3 lines in normal font size */
 #define CHAT_WIN_SCROLL_WIDTH	20	/*!< width of the scrollbar for the chat window */
 /*! @} */
 
@@ -16,13 +19,14 @@ int use_windowed_chat = 0;
 
 int chat_win = -1;
 int chat_scroll_id = 15;
-int chat_out_id = 18;
 int chat_in_id = 19;
+int chat_tabcollection_id = 20;
+int chat_out_start_id = 21;
+int chat_tab_ids[CHAT_WIN_MAX_TABS];
+int chat_out_ids[CHAT_WIN_MAX_TABS];
 
 int chat_win_x = 0; // upper left corner by default
 int chat_win_y = 0;
-int chat_win_len_x = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
-int chat_win_len_y = CHAT_OUT_TEXT_HEIGHT + CHAT_IN_TEXT_HEIGHT + 7 * CHAT_WIN_SPACE;
 
 int chat_win_text_width = CHAT_WIN_TEXT_WIDTH;
 int chat_out_text_height = CHAT_OUT_TEXT_HEIGHT;
@@ -68,13 +72,13 @@ int display_chat_handler (window_info *win)
 					r = colors_list[ch].r1 / 255.0f;
 					g = colors_list[ch].g1 / 255.0f;
 					b = colors_list[ch].b1 / 255.0f;
-					text_field_set_text_color (chat_win, chat_out_id, r, g, b);
+					text_field_set_text_color (chat_tab_ids[0], chat_out_ids[0], r, g, b);
 					break;
 				}
 			}
 		}
 
-		text_field_set_buf_offset (chat_win, chat_out_id, line_start);
+		text_field_set_buf_offset (chat_tab_ids[0], chat_out_ids[0], line_start);
 		text_changed = 0;
 	}
 
@@ -105,19 +109,50 @@ int drag_chat_handler(window_info *win, int mx, int my, Uint32 flags, int dx, in
 
 int resize_chat_handler(window_info *win, int width, int height)
 {
-	chat_win_text_width = width - 4 * CHAT_WIN_SPACE - CHAT_WIN_SCROLL_WIDTH;
-	chat_out_text_height = height - 7 * CHAT_WIN_SPACE - CHAT_IN_TEXT_HEIGHT;
+	int itab;
+	int scroll_x = width - CHAT_WIN_SCROLL_WIDTH;
+	int scroll_height = height - ELW_BOX_SIZE;
+	int inout_width = width - CHAT_WIN_SCROLL_WIDTH - 2 * CHAT_WIN_SPACE;
+	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
+	int input_y = height - input_height - CHAT_WIN_SPACE;
+	int tabcol_height = input_y - 2 * CHAT_WIN_SPACE;
+	int output_height = tabcol_height - CHAT_WIN_TAG_HEIGHT;
+	int diff = (int) 18*chat_zoom;
 	
-	widget_move (chat_win, chat_scroll_id, width - CHAT_WIN_SCROLL_WIDTH, 0);
-	widget_resize (chat_win, chat_scroll_id, CHAT_WIN_SCROLL_WIDTH, height - ELW_BOX_SIZE);
-	widget_resize (chat_win, chat_out_id, chat_win_text_width + 2 * CHAT_WIN_SPACE, chat_out_text_height + 2 * CHAT_WIN_SPACE);
-	widget_resize (chat_win, chat_in_id, chat_win_text_width + 2 * CHAT_WIN_SPACE, CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE);
-	widget_move (chat_win, chat_in_id, CHAT_WIN_SPACE, chat_out_text_height + 4 * CHAT_WIN_SPACE);
+	if (output_height < 5*18*chat_zoom + 2 * CHAT_WIN_SPACE && input_height > 3*diff)
+	{
+		input_height -= 2*diff;
+		input_y += 2*diff;
+		output_height += 2*diff;
+		tabcol_height += 2*diff;
+	}
+	else if (output_height < 8*18*chat_zoom + 2 * CHAT_WIN_SPACE && input_height > 2*diff)
+	{
+		input_height -= diff;
+		input_y += diff;
+		output_height += diff;
+		tabcol_height += diff;
+	}
+	
+	chat_win_text_width = inout_width - 2 * CHAT_WIN_SPACE;
+	chat_out_text_height = output_height - 2 * CHAT_WIN_SPACE;
+	
+	widget_resize (chat_win, chat_scroll_id, CHAT_WIN_SCROLL_WIDTH, scroll_height);
+	widget_move (chat_win, chat_scroll_id, scroll_x, 0);
+	
+	widget_resize (chat_win, chat_tabcollection_id, inout_width, tabcol_height);
+	
+	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
+		if (chat_tab_ids[itab] >= 0)
+			widget_resize (chat_tab_ids[itab], chat_out_ids[itab], inout_width, output_height);
+	
+	widget_resize (chat_win, chat_in_id, inout_width, input_height);
+	widget_move (chat_win, chat_in_id, CHAT_WIN_SPACE, input_y);
 	
 	reset_soft_breaks (display_text_buffer, chat_zoom, chat_win_text_width);
 	reset_soft_breaks (input_text_line, chat_zoom, chat_win_text_width);
 	
-	nr_displayed_lines = (int) (chat_out_text_height / (18.0 * chat_zoom));
+	nr_displayed_lines = (int) (chat_out_text_height / (18.0f * chat_zoom));
 	update_chat_scrollbar ();
 	return 0;
 }
@@ -141,6 +176,14 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 	else if (keysym == K_ROTATERIGHT)
 	{
 		if (tf->cursor < tf->buf_fill) tf->cursor++;
+	}
+	else if (keysym == SDLK_HOME)
+	{
+		tf->cursor = 0;
+	}
+	else if (keysym == SDLK_END)
+	{
+		tf->cursor = tf->buf_fill;
 	}
 	else if (keysym == SDLK_ESCAPE)
 	{
@@ -291,12 +334,23 @@ void display_chat ()
 {
 	if (chat_win < 0)
 	{
-		int scroll_len;
+		int scroll_len, itab;
+		
+		int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
+		int chat_win_height = CHAT_OUT_TEXT_HEIGHT + CHAT_IN_TEXT_HEIGHT + 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
+		int inout_width = CHAT_WIN_TEXT_WIDTH + 2 * CHAT_WIN_SPACE;
+		int output_height = CHAT_OUT_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
+		int tabcol_height = output_height + CHAT_WIN_TAG_HEIGHT;
+		int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
+		int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
+		
+		int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * chat_zoom);
+		int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (int) ((2+5) * 18.0 * chat_zoom);
 		
 		nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (18.0 * chat_zoom));
 		scroll_len = nr_text_buffer_lines >= nr_displayed_lines ? nr_text_buffer_lines-nr_displayed_lines : 0;
 		
-		chat_win = create_window ("chat", game_root_win, 0, chat_win_x, chat_win_y, chat_win_len_x, chat_win_len_y, (ELW_WIN_DEFAULT|ELW_RESIZEABLE) & ~ELW_CLOSE_BOX);
+		chat_win = create_window ("chat", game_root_win, 0, chat_win_x, chat_win_y, chat_win_width, chat_win_height, (ELW_WIN_DEFAULT|ELW_RESIZEABLE) & ~ELW_CLOSE_BOX);
 		
 		set_window_handler (chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
 		set_window_handler (chat_win, ELW_HANDLER_DRAG, &drag_chat_handler);
@@ -304,11 +358,23 @@ void display_chat ()
 		set_window_handler (chat_win, ELW_HANDLER_RESIZE, &resize_chat_handler);
 		set_window_handler (chat_win, ELW_HANDLER_KEYPRESS, &keypress_chat_handler);
 
-		chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, CHAT_WIN_TEXT_WIDTH+2*CHAT_WIN_SPACE+8, 0, CHAT_WIN_SCROLL_WIDTH, chat_win_len_y-ELW_BOX_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, scroll_len);
+		chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, 0, CHAT_WIN_SCROLL_WIDTH, chat_win_height - ELW_BOX_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, scroll_len);
 		
-		chat_out_id = text_field_add_extended (chat_win, chat_out_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, CHAT_WIN_TEXT_WIDTH + 2 * CHAT_WIN_SPACE, CHAT_OUT_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE, TEXT_FIELD_BORDER, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
+		chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, CHAT_WIN_MAX_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
 		
-		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, CHAT_OUT_TEXT_HEIGHT + 4 * CHAT_WIN_SPACE, CHAT_WIN_TEXT_WIDTH + 2 * CHAT_WIN_SPACE, CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, chat_zoom, 0.77f, 0.57f, 0.39f, input_text_line, sizeof (input_text_line), CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+		for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
+		{
+			chat_tab_ids[itab] = -1;
+			chat_out_ids[itab] = chat_out_start_id + itab;
+		}
+
+		chat_tab_ids[0] = tab_add (chat_win, chat_tabcollection_id, "Local", 0);
+		set_window_min_size (chat_tab_ids[0], 0, 0);
+		chat_out_ids[0] = text_field_add_extended (chat_tab_ids[0], chat_out_ids[0], NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
+		
+		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, chat_zoom, 0.77f, 0.57f, 0.39f, input_text_line, sizeof (input_text_line), CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+		
+		set_window_min_size (chat_win, min_width, min_height);
 		
 		widget_set_OnKey (chat_win, chat_in_id, chat_in_key_handler);
 	}

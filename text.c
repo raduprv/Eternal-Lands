@@ -118,7 +118,7 @@ void send_input_text_line (char *line, int line_len)
 		ch = line[i];
 		if (ch != '\n')
 		{
-			str[j] = ch;
+			str[j] = ch == '\r' ? ' ' : ch;
 			j++;
 		}
 	}	

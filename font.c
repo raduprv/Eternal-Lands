@@ -365,6 +365,8 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 
 int reset_soft_breaks (char *str, float zoom, int width)
 {
+	//displayed_font_x_width=(int)displayed_font_x_size;
+	int font_bit_width;
 	float displayed_font_x_size = 11.0 * zoom;
 	int ichar, iline, nlines;
 	float line_width;
@@ -384,7 +386,8 @@ int reset_soft_breaks (char *str, float zoom, int width)
 		{
 			if (str[iline] == '\n') break;
 			//line_width += zoom * get_char_width (str[iline]);
-			line_width += get_char_width (str[iline]) > 0 ? displayed_font_x_size : 0.0;
+			font_bit_width = get_font_width (str[iline]);
+			line_width += (int) (0.5f + font_bit_width * displayed_font_x_size / 12.0f);
 			if (line_width > width) break;
 		}
 		if (str[iline] == '\0') break;

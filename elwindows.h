@@ -388,7 +388,7 @@ int		move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y);
  *
  * \sa display_options_menu
  */
-int		set_window_color(int win_id, Uint32 color_id, float r, float g, float b, float a);
+int	set_window_color(int win_id, Uint32 color_id, float r, float g, float b, float a);
 
 /*!
  * \ingroup elwindows
@@ -403,6 +403,19 @@ int		set_window_color(int win_id, Uint32 color_id, float r, float g, float b, fl
  * \sa display_quickbar_handler
  */
 int		use_window_color(int win_id, Uint32 color_id);
+
+/*!
+ * \ingroup elwindows
+ * \brief sets the window's minimum size
+ *
+ *      Sets the minimum width and height for a resizeable window
+ *
+ * \param win_id the number of the window
+ * \param width the new minimum width
+ * \param height the new minimum height
+ * \retval int 0 on failure, 1 on success
+ */
+int set_window_min_size (int win_id, int width, int height);
 
 /*!
  * \ingroup elwindows
