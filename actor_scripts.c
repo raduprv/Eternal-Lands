@@ -569,8 +569,8 @@ void add_command_to_actor(int actor_id, char command)
 										//we are SEVERLY behind, just update all the actors in range
 										if(k>8)
 											{
-												update_all_actors();
 												unlock_actors_lists();
+												update_all_actors();
 												return;
 											}
 										actors_list[i]->que[k]=command;
