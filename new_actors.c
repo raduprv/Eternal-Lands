@@ -294,6 +294,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->weapon=0;
 								actors_list[i]->body_parts->weapon_fn[0]=0;
 								actors_list[i]->body_parts->weapon_tex[0]=0;
+								actors_list[i]->cur_weapon = WEAPON_NONE;
 								return;
 							}
 
