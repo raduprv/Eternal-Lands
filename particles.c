@@ -1,6 +1,23 @@
 #include <stdlib.h>
 #include "global.h"
 
+//Threading support for particals_list
+void init_particles_list()
+{
+	int	i;
+
+	particles_list_mutex=SDL_CreateMutex();
+	lock_particles_list();	//lock it to avoid timing issues
+	for(i=0;i<max_particle_systems;i++)particles_list[i]=0;
+	unlock_particles_list();	// release now that we are done
+}
+
+void end_particles_list()
+{
+	SDL_DestroyMutex(particles_list_mutex);
+	particles_list_mutex=NULL;
+}
+
 
 void draw_particle_sys(particle_sys *system_id)
 {
@@ -218,6 +235,7 @@ int add_teleport_in(int x_pos, int y_pos)
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 	//now, find a place for this system
+	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(!particles_list[i])
@@ -253,12 +271,12 @@ int add_teleport_in(int x_pos, int y_pos)
 		a=start_a+particle_rand(start_a_random_deviation);
 		//get the position
 		while(1)
-		{
-		x=start_x+particle_rand(start_x_random_deviation);
-		y=start_y+particle_rand(start_y_random_deviation);
-		z=start_z+particle_rand(start_z_random_deviation);
-		if(x*x+y*y<0.0625f || z<0)break;//try again, the particle is out of our circular range
-		}
+			{
+				x=start_x+particle_rand(start_x_random_deviation);
+				y=start_y+particle_rand(start_y_random_deviation);
+				z=start_z+particle_rand(start_z_random_deviation);
+				if(x*x+y*y<0.0625f || z<0)break;//try again, the particle is out of our circular range
+			}
 		size=rand()%7;
 		//ok, now put the things there
 		system_id->particles[j].x=x;
@@ -274,11 +292,12 @@ int add_teleport_in(int x_pos, int y_pos)
 		system_id->particles[j].free=0;
 	  }
 
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-return i;
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	unlock_particles_list();
+	return i;
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -321,6 +340,7 @@ int add_teleport_out(int x_pos, int y_pos)
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 	//now, find a place for this system
+	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(!particles_list[i])
@@ -356,12 +376,12 @@ int add_teleport_out(int x_pos, int y_pos)
 		a=start_a+particle_rand(start_a_random_deviation);
 		//get the position
 		while(1)
-		{
-		x=start_x+particle_rand(start_x_random_deviation);
-		y=start_y+particle_rand(start_y_random_deviation);
-		z=start_z+particle_rand(start_z_random_deviation);
-		if(x*x+y*y<0.0625f || z<-2)break;//try again, the particle is out of our circular range
-		}
+			{
+				x=start_x+particle_rand(start_x_random_deviation);
+				y=start_y+particle_rand(start_y_random_deviation);
+				z=start_z+particle_rand(start_z_random_deviation);
+				if(x*x+y*y<0.0625f || z<-2)break;//try again, the particle is out of our circular range
+			}
 		size=rand()%7;
 		//ok, now put the things there
 		system_id->particles[j].x=x;
@@ -377,11 +397,12 @@ int add_teleport_out(int x_pos, int y_pos)
 		system_id->particles[j].free=0;
 	  }
 
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-return i;
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	unlock_particles_list();
+	return i;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -425,6 +446,7 @@ int add_bag_in(int x_pos, int y_pos)
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 	//now, find a place for this system
+	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(!particles_list[i])
@@ -460,12 +482,12 @@ int add_bag_in(int x_pos, int y_pos)
 		a=start_a+particle_rand(start_a_random_deviation);
 		//get the position
 		while(1)
-		{
-		x=start_x+particle_rand(start_x_random_deviation);
-		y=start_y+particle_rand(start_y_random_deviation);
-		z=start_z+particle_rand(start_z_random_deviation);
-		if(x*x+y*y<0.0625f || z<0)break;//try again, the particle is out of our circular range
-		}
+			{
+				x=start_x+particle_rand(start_x_random_deviation);
+				y=start_y+particle_rand(start_y_random_deviation);
+				z=start_z+particle_rand(start_z_random_deviation);
+				if(x*x+y*y<0.0625f || z<0)break;//try again, the particle is out of our circular range
+			}
 		size=rand()%7;
 		//ok, now put the things there
 		system_id->particles[j].x=x;
@@ -481,11 +503,12 @@ int add_bag_in(int x_pos, int y_pos)
 		system_id->particles[j].free=0;
 	  }
 
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-return i;
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	unlock_particles_list();
+	return i;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -530,6 +553,7 @@ int add_bag_out(int x_pos, int y_pos)
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 	//now, find a place for this system
+	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(!particles_list[i])
@@ -565,12 +589,12 @@ int add_bag_out(int x_pos, int y_pos)
 		a=start_a+particle_rand(start_a_random_deviation);
 		//get the position
 		while(1)
-		{
-		x=start_x+particle_rand(start_x_random_deviation);
-		y=start_y+particle_rand(start_y_random_deviation);
-		z=start_z+particle_rand(start_z_random_deviation);
-		if(x*x+y*y<0.0625f || z<0)break;//try again, the particle is out of our circular range
-		}
+			{
+				x=start_x+particle_rand(start_x_random_deviation);
+				y=start_y+particle_rand(start_y_random_deviation);
+				z=start_z+particle_rand(start_z_random_deviation);
+				if(x*x+y*y<0.0625f || z<0)break;//try again, the particle is out of our circular range
+			}
 		size=rand()%7;
 		//ok, now put the things there
 		system_id->particles[j].x=x;
@@ -586,11 +610,12 @@ int add_bag_out(int x_pos, int y_pos)
 		system_id->particles[j].free=0;
 	  }
 
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-	  update_teleport_out(system_id);
-return i;
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	update_teleport_out(system_id);
+	unlock_particles_list();
+	return i;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -689,6 +714,7 @@ void update_teleporter(particle_sys *system_id)
 			particles_to_add=particles_to_add_per_frame;
 		}
 	//see if we need to add new particles
+	lock_particles_list();
 	if(particles_to_add)
 	for(i=0;i<particles_to_add;i++)
 		{
@@ -704,13 +730,13 @@ void update_teleporter(particle_sys *system_id)
 				a=start_a+particle_rand(start_a_random_deviation);
 				//get the position
 				while(1)
-				{
-				x=start_x+particle_rand(start_x_random_deviation);
-				y=start_y+particle_rand(start_y_random_deviation);
-				z=start_z+particle_rand(start_z_random_deviation);
-				if(z<0)z=0;
-				if(x*x+y*y<0.15f)break;//try again, the particle is out of our circular range
-				}
+					{
+						x=start_x+particle_rand(start_x_random_deviation);
+						y=start_y+particle_rand(start_y_random_deviation);
+						z=start_z+particle_rand(start_z_random_deviation);
+						if(z<0)z=0;
+						if(x*x+y*y<0.15f)break;//try again, the particle is out of our circular range
+					}
 				size=rand()%7;
 				//ok, now put the things there
 				system_id->particles[j].x=x;
@@ -775,6 +801,7 @@ void update_teleporter(particle_sys *system_id)
 		system_id->particles[j].a=a;
 		system_id->particles[j].size=size;
 	}
+	unlock_particles_list();
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -833,6 +860,7 @@ void update_teleport_in(particle_sys *system_id)
 			particles_to_add=particles_to_add_per_frame;
 		}
 	//see if we need to add new particles
+	lock_particles_list();
 	if(system_id->system_ttl)
 	if(particles_to_add)
 	for(i=0;i<particles_to_add;i++)
@@ -849,13 +877,13 @@ void update_teleport_in(particle_sys *system_id)
 				a=start_a+particle_rand(start_a_random_deviation);
 				//get the position
 				while(1)
-				{
-				x=start_x+particle_rand(start_x_random_deviation);
-				y=start_y+particle_rand(start_y_random_deviation);
-				z=start_z+particle_rand(start_z_random_deviation);
-				if(z<0)z=0;
-				if(x*x+y*y<0.15f || z<0)break;//try again, the particle is out of our circular range
-				}
+					{
+						x=start_x+particle_rand(start_x_random_deviation);
+						y=start_y+particle_rand(start_y_random_deviation);
+						z=start_z+particle_rand(start_z_random_deviation);
+						if(z<0)z=0;
+						if(x*x+y*y<0.15f || z<0)break;//try again, the particle is out of our circular range
+					}
 				size=rand()%7;
 				//ok, now put the things there
 				system_id->particles[j].x=x;
@@ -931,6 +959,7 @@ void update_teleport_in(particle_sys *system_id)
 			particles_list[i]=0;
 			break;
 		}
+	unlock_particles_list();
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -991,6 +1020,7 @@ void update_bag_in(particle_sys *system_id)
 			particles_to_add=particles_to_add_per_frame;
 		}
 	//see if we need to add new particles
+	lock_particles_list();
 	if(system_id->system_ttl)
 	if(particles_to_add)
 	for(i=0;i<particles_to_add;i++)
@@ -1007,13 +1037,13 @@ void update_bag_in(particle_sys *system_id)
 				a=start_a+particle_rand(start_a_random_deviation);
 				//get the position
 				while(1)
-				{
-				x=start_x+particle_rand(start_x_random_deviation);
-				y=start_y+particle_rand(start_y_random_deviation);
-				z=start_z+particle_rand(start_z_random_deviation);
-				if(z<0)z=0;
-				if(x*x+y*y<0.15f || z<0)break;//try again, the particle is out of our circular range
-				}
+					{
+						x=start_x+particle_rand(start_x_random_deviation);
+						y=start_y+particle_rand(start_y_random_deviation);
+						z=start_z+particle_rand(start_z_random_deviation);
+						if(z<0)z=0;
+						if(x*x+y*y<0.15f || z<0)break;//try again, the particle is out of our circular range
+					}
 				size=rand()%7;
 				//ok, now put the things there
 				system_id->particles[j].x=x;
@@ -1089,6 +1119,7 @@ void update_bag_in(particle_sys *system_id)
 			particles_list[i]=0;
 			break;
 		}
+	unlock_particles_list();
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1149,6 +1180,7 @@ void update_bag_out(particle_sys *system_id)
 			particles_to_add=particles_to_add_per_frame;
 		}
 	//see if we need to add new particles
+	lock_particles_list();
 	if(system_id->system_ttl)
 	if(particles_to_add)
 	for(i=0;i<particles_to_add;i++)
@@ -1165,13 +1197,13 @@ void update_bag_out(particle_sys *system_id)
 				a=start_a+particle_rand(start_a_random_deviation);
 				//get the position
 				while(1)
-				{
-				x=start_x+particle_rand(start_x_random_deviation);
-				y=start_y+particle_rand(start_y_random_deviation);
-				z=start_z+particle_rand(start_z_random_deviation);
-				if(z<0)z=0;
-				if(x*x+y*y<0.15f || z<0)break;//try again, the particle is out of our circular range
-				}
+					{
+						x=start_x+particle_rand(start_x_random_deviation);
+						y=start_y+particle_rand(start_y_random_deviation);
+						z=start_z+particle_rand(start_z_random_deviation);
+						if(z<0)z=0;
+						if(x*x+y*y<0.15f || z<0)break;//try again, the particle is out of our circular range
+					}
 				size=rand()%7;
 				//ok, now put the things there
 				system_id->particles[j].x=x;
@@ -1247,6 +1279,7 @@ void update_bag_out(particle_sys *system_id)
 			particles_list[i]=0;
 			break;
 		}
+	unlock_particles_list();
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1307,6 +1340,7 @@ void update_teleport_out(particle_sys *system_id)
 			particles_to_add=particles_to_add_per_frame;
 		}
 	//see if we need to add new particles
+	lock_particles_list();
 	if(system_id->system_ttl)
 	if(particles_to_add)
 	for(i=0;i<particles_to_add;i++)
@@ -1323,13 +1357,13 @@ void update_teleport_out(particle_sys *system_id)
 				a=start_a+particle_rand(start_a_random_deviation);
 				//get the position
 				while(1)
-				{
-				x=start_x+particle_rand(start_x_random_deviation);
-				y=start_y+particle_rand(start_y_random_deviation);
-				z=start_z+particle_rand(start_z_random_deviation);
-				if(z<0)z=0;
-				if(x*x+y*y<0.15f || z<-2)break;//try again, the particle is out of our circular range
-				}
+					{
+						x=start_x+particle_rand(start_x_random_deviation);
+						y=start_y+particle_rand(start_y_random_deviation);
+						z=start_z+particle_rand(start_z_random_deviation);
+						if(z<0)z=0;
+						if(x*x+y*y<0.15f || z<-2)break;//try again, the particle is out of our circular range
+					}
 				size=rand()%7;
 				//ok, now put the things there
 				system_id->particles[j].x=x;
@@ -1405,7 +1439,7 @@ void update_teleport_out(particle_sys *system_id)
 			particles_list[i]=0;
 			break;
 		}
-
+	unlock_particles_list();
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1421,6 +1455,7 @@ void update_particles()
 
 	x=-cx;
 	y=-cy;
+	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(particles_list[i])
@@ -1449,6 +1484,7 @@ void update_particles()
 						}
                  }
 		}
+	unlock_particles_list();
 }
 
 
@@ -1489,12 +1525,14 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 void destroy_all_particles()
 {
 	int i;
+	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 	if(particles_list[i])
 		{
 			free(particles_list[i]);
 			particles_list[i]=0;
 		}
+	unlock_particles_list();
 
 }
 

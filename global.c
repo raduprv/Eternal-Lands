@@ -62,8 +62,8 @@ int open_text;
 int login_text;
 int ground_detail_text;
 
+SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
 int particles_text;
-
 particle_sys *particles_list[max_particle_systems];
 
 texture_cache_struct texture_cache[1000];

@@ -50,6 +50,7 @@ typedef struct
 }particle_sys;
 
 
+extern SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
 extern int particles_text;
 extern particle_sys *particles_list[max_particle_systems];
 
@@ -70,5 +71,9 @@ void update_bag_out(particle_sys *system_id);
 void update_particles();
 void add_teleporters_from_list(Uint8 *teleport_list);
 void destroy_all_particles();
+extern void	init_particles_list();
+#define	lock_particles_list()	SDL_LockMutex(particles_list_mutex)
+#define	unlock_particles_list()	SDL_UnlockMutex(particles_list_mutex);
+extern void	end_particles_list();
 
 #endif
