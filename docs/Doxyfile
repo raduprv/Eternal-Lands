@@ -190,8 +190,7 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = ELC \
                          DOXYGEN_SKIP_THIS \
                          DEBUG \
-                         EXTRA_DEBUG \
-                         BOOK
+                         EXTRA_DEBUG
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
