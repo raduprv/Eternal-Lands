@@ -25,6 +25,9 @@ int	client_version_patch=VER_BUILD;
 int version_first_digit=10;	//protocol/game version sent to server
 int version_second_digit=9;
 
+int gargc;
+char **  gargv;
+
 /**********************************************************************/
 
 int start_rendering()
@@ -93,6 +96,7 @@ int start_rendering()
 	save_bin_cfg();
 	unload_questlog();
 	free_icons();
+	free_vars();
 	unload_e3d_list();	// do we really want to overwrite this file??
 	SDL_SetTimer(0,NULL);
 	end_particles_list();
@@ -112,40 +116,39 @@ int start_rendering()
 extern char *optarg;
 extern int optind, opterr, optopt;
 
+void	read_command_line()
+{
+	int i=1;
+	if(gargc<2)return;
+	for(;i<gargc;i++)
+		{
+			if(gargv[i][0]=='-')
+				{
+					if(gargv[i][1]=='-')check_var(gargv[i]+2,1);
+					else 
+						{
+							char str[200];
+							snprintf(str,198,"%s %s",gargv[i],gargv[i+1]);
+							check_var(str+1,0);
+						}
+				}
+		}
+}
+
 #ifdef WINDOWS
 int Main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
 #endif
 {
-	int c= 0;
-
+	gargc=argc;
+	gargv=argv;
+	
 	// do basic initialization
-    init_stuff();
+	init_vars();
+	init_stuff();
 
-	// put this back in after windows compiling doesn't complain
-#ifdef	__GNUC__
-	// args processed after the init to override initialization
-	// NOTE: under Dev-C++ -liberty needs to be added to compile,
-	// 		 other compilers may need different options
-	while((c=getopt(argc, argv, "u:p:")) >= 0)
-		{
-			switch(c){
-			case	'u':
-				my_strncp(username_str, optarg, 16);
-				break;
-			case	'p':
-				{
-					int  k;
-					my_strncp(password_str, optarg, 16);
-					for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
-					display_password_str[k]=0;
-				}
-				break;
-			}
-		}
-#endif
-    start_rendering();
+	start_rendering();
 
 	return 0;
 }

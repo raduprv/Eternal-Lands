@@ -90,6 +90,7 @@
 #include "pm_log.h"
 #include "options.h"
 #include "translate.h"
+#include "elconfig.h"
 #ifdef CAL3D
 #include "cal3dwrap.h"
 #endif
@@ -97,6 +98,7 @@
 //some prototypes, that won't fit somewhere else
 int SphereInFrustum(float x, float y, float z, float radius);
 int check_tile_in_frustrum(float x,float y);
+void read_command_line(); //from main.c
 
 #endif
 

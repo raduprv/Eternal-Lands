@@ -365,27 +365,19 @@ void test_for_console_command()
 			Uint8 this_string[8192];
 
 			my_string=(GLubyte *)glGetString(GL_RENDERER);
-			this_string[0]=0;
-			my_strcp(&this_string[1],video_card_str);
-			my_strcp(&this_string[strlen(&this_string[1])],my_string);
+			sprintf(this_string,"%s: %s",video_card_str,my_string);
 			log_to_console(c_red2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VENDOR);
-			this_string[0]=0;
-			my_strcp(&this_string[1],video_vendor_str);
-			my_strcp(&this_string[strlen(&this_string[1])],my_string);
+			sprintf(this_string,"%s: %s",video_vendor_str,my_string);
 			log_to_console(c_yellow3,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VERSION);
-			this_string[0]=0;
-			my_strcp(&this_string[1],opengl_version_str);
-			my_strcp(&this_string[strlen(&this_string[1])],my_string);
+			sprintf(this_string,"%s: %s",opengl_version_str,my_string);
 			log_to_console(c_yellow2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_EXTENSIONS);
-			this_string[0]=0;
-			my_strcp(&this_string[1],supported_extensions_str);
-			my_strcp(&this_string[strlen(&this_string[1])],my_string);
+			sprintf(this_string,"%s: %s",supported_extensions_str,my_string);
 			log_to_console(c_grey1,this_string);
 
 			return;

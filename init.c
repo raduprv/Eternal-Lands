@@ -29,6 +29,8 @@ char datadir[256]=DATA_DIR;
 
 char lang[10]={"en"};
 
+int video_mode_not_set;
+
 extern windows_info	windows_list;
 
 e3d_list *e3dlist=NULL;
@@ -144,10 +146,8 @@ void load_knowledge_list()
 void read_config()
 {
 	FILE *f = NULL;
-	Uint8 * file_mem;
-	Uint8 * file_mem_start;
-	int k,server_address_offset;
-	struct stat ini_file;
+	int k;
+	char str[250];
 #ifndef WINDOWS
 	char el_ini[256];
 	DIR *d = NULL;
@@ -169,11 +169,8 @@ void read_config()
 			strcat(el_ini, "el.ini");
 			f=fopen(el_ini,"rb");
 		}
-
-	stat(el_ini,&ini_file);
 #else
 	f=fopen("el.ini","rb");
-	stat("el.ini",&ini_file);
 #endif
 	if(!f)//oops, the file doesn't exist, use the defaults
 		{
@@ -183,122 +180,27 @@ void read_config()
 			SDL_Quit();
 			exit(1);
 		}
-	ini_file_size = ini_file.st_size;
-	file_mem = (Uint8 *) calloc(ini_file_size+2, sizeof(Uint8));
-	file_mem_start=file_mem;
-	fread (file_mem, 1, ini_file_size+1, f);
-	//ok, now start to parse the file...
-	video_mode=get_integer_after_string("#video_mode",file_mem,ini_file_size);
-	shadows_on=get_integer_after_string("#shadows_on",file_mem,ini_file_size);
-	poor_man=get_integer_after_string("#poor_man",file_mem,ini_file_size);
-	show_reflection=get_integer_after_string("#show_reflection",file_mem,ini_file_size);
-	if(show_reflection==-1)show_reflection=1;
-	show_fps=get_integer_after_string("#show_fps",file_mem,ini_file_size);
-	if(show_fps==-1)show_fps=1;
-	limit_fps=get_integer_after_string("#limit_fps",file_mem,ini_file_size);
-	if(limit_fps==-1)limit_fps=0;
-	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,ini_file_size);
-	if(mouse_limit==-1)mouse_limit=15;
-	click_speed=get_integer_after_string("#click_speed",file_mem,ini_file_size);
-	if(click_speed==-1)click_speed=300;
-	full_screen=get_integer_after_string("#full_screen",file_mem,ini_file_size);
-	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,ini_file_size);
-#ifdef	USE_VERTEXARRAYS
-	use_vertex_array=get_integer_after_string("#use_vertex_array",file_mem,ini_file_size);
-	if(use_vertex_array < 0) use_vertex_array=0;
-	else if(use_vertex_array > 0) log_to_console(c_green2,enabled_vertex_arrays);
-#endif	//USE_VERTEXARRAYS
-	use_point_particles=get_integer_after_string("#use_point_particles",file_mem,ini_file_size);
-	if(use_point_particles < 0) use_point_particles=1;
-	else if(use_point_particles == 0) log_to_console(c_green2,disabled_point_particles);
-	particles_percentage=get_integer_after_string("#particles_percentage",file_mem,ini_file_size);
-	if(particles_percentage<0) particles_percentage=100;
-	else if(particles_percentage==0) log_to_console(c_green2,disabled_particles_str);
-	use_mipmaps=get_integer_after_string("#use_mipmaps",file_mem,ini_file_size);
-	if(use_mipmaps<0)use_mipmaps=0;
-	sit_lock=get_integer_after_string("#sit_lock",file_mem,ini_file_size);
-	if(sit_lock==-1)sit_lock=0;
-	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,ini_file_size);
-	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,ini_file_size);
-	caps_filter=get_integer_after_string("#caps_filter",file_mem,ini_file_size);
-	if(caps_filter < 0) caps_filter=1;	//default to on
-	save_ignores=get_integer_after_string("#save_ignores",file_mem,ini_file_size);
-	log_server=get_integer_after_string("#log_server",file_mem,ini_file_size);
-	no_sound=get_integer_after_string("#no_sound",file_mem,ini_file_size);
-	sound_gain=(float)get_integer_after_string("#sound_gain",file_mem,ini_file_size)/100.0f;
-	if(sound_gain<0)sound_gain=1.0f;
-	music_gain=(float)get_integer_after_string("#music_gain",file_mem,ini_file_size)/100.0f;
-	if(music_gain<0)music_gain=1.0f;
-	normal_camera_rotation_speed=get_float_after_string("#normal_camera_rotation_speed",file_mem,ini_file_size);
-	fine_camera_rotation_speed=get_float_after_string("#fine_camera_rotation_speed",file_mem,ini_file_size);
-	name_zoom=get_float_after_string("#name_text_size",file_mem,ini_file_size);
-	if(name_zoom<0.25f)name_zoom=1.0f;
-	chat_zoom=get_float_after_string("#chat_text_size",file_mem,ini_file_size);
-	if(chat_zoom<0.25f)chat_zoom=1.0f;
-	name_font=get_integer_after_string("#name_font",file_mem,ini_file_size);
-	chat_font=get_integer_after_string("#chat_font",file_mem,ini_file_size);
-	
-	show_stats_in_hud=get_integer_after_string("#show_stats_in_hud",file_mem,ini_file_size);
-	show_help_text=get_integer_after_string("#show_help_text",file_mem,ini_file_size);
-	get_string_after_string("#language",file_mem,ini_file_size,lang,8);
-
-	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,ini_file_size);
-	compass_direction=1-2*(get_integer_after_string("#compass_north",file_mem,ini_file_size)>0);
-	port=get_integer_after_string("#server_port",file_mem,ini_file_size);
-
-	//handle multiple setting changes if poor_man is on
-	if(poor_man)
+	while(fgets(str,250,f))
 		{
-			show_reflection=0;
-			shadows_on=0;
-			clouds_shadows=1;
+			if(str[0]=='#')	
+				{
+					check_var(str+1,1);//check only for the long strings
+				}
 		}
 
-	//ok, now get the server address
-	server_address_offset=get_string_after_string("#server_address",file_mem,ini_file_size,server_address, 70);
-
-	//ok, now get the current browser
-	server_address_offset=get_string_after_string("#browser",file_mem,ini_file_size,broswer_name,70);
-
-	//check for a different default text filter phrase
-	get_string_after_string("#text_filter_replace",file_mem,ini_file_size,text_filter_replace,127);
-
-	//AFK handling
-	afk_time=60000*get_integer_after_string("#auto_afk_time",file_mem,ini_file_size);
-	get_string_after_string("#afk_message",file_mem,ini_file_size,afk_message,127);
-
-	// now the default user and password
-	get_string_after_string("#username",file_mem,ini_file_size,username_str,16);
-	get_string_after_string("#password",file_mem,ini_file_size,password_str,16);
-	for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
-	display_password_str[k]=0;
-	// if username is given, but no password, make password box active
-	if (username_str[0] && !password_str[0]) {
-		username_box_selected = 0;
-		password_box_selected = 1;
-	}
-
-	item_window_on_drop=get_integer_after_string("#item_window_on_drop",file_mem,ini_file_size);
-	view_digital_clock=get_integer_after_string("#view_digital_clock",file_mem,ini_file_size);
-	quickbar_relocatable=get_integer_after_string("#relocate_quickbar",file_mem,ini_file_size);
 #ifndef WINDOWS
-	if(get_string_after_string("#data_dir",file_mem,ini_file_size,datadir,90)>0)
 		chdir(datadir);
 #endif
-
-	if(video_mode>10 || video_mode<=0)
+	
+	if(password_str[0])//We have a password
 		{
-			Uint8 str[80];
-			video_mode=2;
-			//warn about this error
-			str[0]=c_red2+128;
-			sprintf(&str[1],invalid_video_mode);
-			put_text_in_buffer(str,strlen(str),0);
+			for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
+			display_password_str[k]=0;
 		}
-	setup_video_mode(full_screen,video_mode);
+	
+	if (video_mode_not_set) setup_video_mode(full_screen,video_mode);//fail safe if we didn't set a video_mode.
 
 	fclose(f);
-	free(file_mem_start);
 }
 
 void read_bin_cfg()
@@ -595,6 +497,9 @@ void init_stuff()
 	
 	//read the config file
 	read_config();
+
+	//Parse command line options
+	read_command_line();
 
 #ifdef LOAD_XML
 	//Good, we should be in the right working directory - load all translatables from their files

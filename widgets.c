@@ -616,3 +616,4 @@ int vscrollbar_drag(widget_list *W, int dx, int dy)
 	return 1;
 
 }
+

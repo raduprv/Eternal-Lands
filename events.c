@@ -455,7 +455,12 @@ int HandleEvent(SDL_Event *event)
 
 				if(ch==SDLK_RETURN && input_text_lenght>0)
 					{
-						if(*input_text_line=='#' || interface_mode==interface_console) test_for_console_command();
+						if(*input_text_line=='%' && input_text_lenght>1) 
+							{
+								input_text_line[input_text_lenght]=0;
+								if((check_var(input_text_line+1,1))<0) send_input_text_line();
+							}
+						else if(*input_text_line=='#' || interface_mode==interface_console) test_for_console_command();
 						else send_input_text_line();
 						//also clear the buffer
 						input_text_lenght=0;
