@@ -92,11 +92,6 @@ void init_e3d_cache();
 void init_2d_obj_cache();
 void init_stuff();
 void resize_window();
-void read_key_config();
-unsigned int CRC32(unsigned char *, int);
-unsigned short get_key_code(char *);
-unsigned int parse_key_string(char *s);
-void add_key(unsigned int *key,unsigned int n);
 
 void load_e3d_list();
 void unload_e3d_list();

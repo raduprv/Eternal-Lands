@@ -1,8 +1,7 @@
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include "global.h"
-#include "elwindows.h"
+#include	<string.h>
+#include	"global.h"
+#include	"elwindows.h"
+#include	"keys.h"
 
 #ifndef WINDOWS
 #include <SDL_syswm.h>
@@ -15,50 +14,10 @@ int shift_on;
 int alt_on;
 int ctrl_on;
 
-Uint32 K_CAMERAUP=273;
-Uint32 K_CAMERADOWN=274;
-Uint32 K_ZOOMOUT=281;
-Uint32 K_ZOOMIN=280;
-Uint32 K_TURNLEFT=277;
-Uint32 K_TURNRIGHT=127;
-Uint32 K_ADVANCE=278;
-Uint32 K_HEALTHBAR=ALT|'h';
-Uint32 K_VIEWNAMES=ALT|'n';
-Uint32 K_VIEWHP=ALT|'b';
-Uint32 K_STATS=CTRL|'a';
-Uint32 K_WALK=CTRL|'w';
-Uint32 K_LOOK=CTRL|'l';
-Uint32 K_USE=CTRL|'u';
-Uint32 K_OPTIONS=CTRL|'o';
-Uint32 K_REPEATSPELL=CTRL|'r';
-Uint32 K_SIGILS=CTRL|'s';
-Uint32 K_MANUFACTURE=CTRL|'m';
-Uint32 K_ITEMS=CTRL|'i';
-Uint32 K_MAP=9;
-Uint32 K_ROTATELEFT=276;
-Uint32 K_ROTATERIGHT=275;
-Uint32 K_FROTATELEFT=SHIFT|276;
-Uint32 K_FROTATERIGHT=SHIFT|275;
-Uint32 K_BROWSER=283;
-Uint32 K_ESCAPE=27;
-Uint32 K_CONSOLE=282;
-Uint32 K_SHADOWS=284;
-Uint32 K_KNOWLEDGE=CTRL|'k';
-Uint32 K_ENCYCLOPEDIA=CTRL|'e';
-Uint32 K_ITEM1=CTRL|'1';
-Uint32 K_ITEM2=CTRL|'2';
-Uint32 K_ITEM3=CTRL|'3';
-Uint32 K_ITEM4=CTRL|'4';
-Uint32 K_ITEM5=CTRL|'5';
-Uint32 K_ITEM6=CTRL|'6';
-Uint32 K_VIEWTEXTASOVERTEXT=ALT|'o';
-
-Uint8 quick_use_str[2];
-int i=0;
-
 
 void	quick_use(int use_id)
 {
+	Uint8 quick_use_str[2];
 	int	i;
 
 	for(i=0; i<ITEM_NUM_ITEMS; i++){

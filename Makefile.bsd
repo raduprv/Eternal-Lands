@@ -19,7 +19,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	 filter.o font.o frustum.o	\
 	 gl_init.o hud.o	\
 	 ignore.o init.o interface.o items.o	\
-	 knowledge.o lights.o	\
+	 keys.o knowledge.o lights.o	\
 	 main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o	\
 	 new_actors.o new_character.o	\
 	 particles.o paste.o pathfinder.o \
