@@ -41,5 +41,6 @@ int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 int label_draw(widget_list *W);
 int label_set_size(Uint32 window_id, Uint32 widget_id, float size);
 int label_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float b);
+int label_set_text(Uint32 window_id, Uint32 widget_id, char *text);
 
 #endif

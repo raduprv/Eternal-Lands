@@ -177,3 +177,17 @@ int label_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float 
 	}
 	return 0;
 }
+
+int label_set_text(Uint32 window_id, Uint32 widget_id, char *text)
+{
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	while(w->next != NULL){
+		w = w->next;
+		if(w->id == widget_id){
+			label *l = (label *) w->widget_info;
+			strncpy(l->text,text,255);
+			return 1;
+		}
+	}
+	return 0;
+}
