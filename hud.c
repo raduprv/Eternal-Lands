@@ -284,6 +284,22 @@ int knowledge_icon_x_end;
 int knowledge_icon_y_start;
 int knowledge_icon_y_end;
 
+//stat bars
+int health_bar_start_x;
+int health_bar_start_y;
+int health_bar_x_len;
+int health_bar_y_len;
+
+int mana_bar_start_x;
+int mana_bar_start_y;
+int mana_bar_x_len;
+int mana_bar_y_len;
+
+int food_bar_start_x;
+int food_bar_start_y;
+int food_bar_x_len;
+int food_bar_y_len;
+
 
 void init_peace_icons()
 {
@@ -359,7 +375,7 @@ void init_peace_icons()
 	knowledge_icon_x_end=knowledge_icon_x_start+32;
 	knowledge_icon_y_start=window_height-32;
 	knowledge_icon_y_end=knowledge_icon_y_start+32;
-	
+
 	options_icon_x_start=knowledge_icon_x_end+1;
 	options_icon_x_end=options_icon_x_start+32;
 	options_icon_y_start=window_height-32;
@@ -607,12 +623,136 @@ int check_peace_icons()
 // the stats display
 void init_stats_display()
 {
+mana_bar_start_x=20;
+mana_bar_start_y=window_height-48;
+mana_bar_x_len=100;
+mana_bar_y_len=8;
 
+food_bar_start_x=20;
+food_bar_start_y=mana_bar_start_y-18;
+food_bar_x_len=100;
+food_bar_y_len=8;
+
+health_bar_start_x=20;
+health_bar_start_y=food_bar_start_y-18;
+health_bar_x_len=100;
+health_bar_y_len=8;
 }
 
 void draw_stats_display()
 {
+	float health_adjusted_x_len;
+	float food_adjusted_x_len;
+	float mana_adjusted_x_len;
+	char health_str[32];
+	char food_str[32];
+	char mana_str[32];
 
+	sprintf(health_str, "%i",your_info.material_points.cur);
+	sprintf(food_str, "%i",your_info.food_level);
+	sprintf(mana_str, "%i",your_info.ethereal_points.cur);
+
+	//get the adjusted lenght
+
+	if(!your_info.material_points.cur || !your_info.material_points.base)
+	health_adjusted_x_len=0;//we don't want a div by 0
+	else
+	health_adjusted_x_len=health_bar_x_len/((float)your_info.material_points.base/(float)your_info.material_points.cur);
+
+	if(!your_info.food_level)
+	food_adjusted_x_len=0;//we don't want a div by 0
+	else
+	food_adjusted_x_len=health_bar_x_len/(45.0f/(float)your_info.food_level);
+
+	if(!your_info.ethereal_points.cur || !your_info.ethereal_points.base)
+	mana_adjusted_x_len=0;//we don't want a div by 0
+	else
+	mana_adjusted_x_len=health_bar_x_len/((float)your_info.ethereal_points.base/(float)your_info.ethereal_points.cur);
+
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+	//draw the healthbar
+	glColor3f(0.5f, 0.2f, 0.2f);
+	glVertex3i(health_bar_start_x,health_bar_start_y+health_bar_y_len,0);
+	glColor3f(1.0f, 0.2f, 0.2f);
+	glVertex3i(health_bar_start_x,health_bar_start_y,0);
+	glColor3f(1.0f, 0.2f, 0.2f);
+	glVertex3i(health_bar_start_x+health_adjusted_x_len,health_bar_start_y,0);
+	glColor3f(0.5f, 0.2f, 0.2f);
+	glVertex3i(health_bar_start_x+health_adjusted_x_len,health_bar_start_y+health_bar_y_len,0);
+
+	//draw the food bar
+	glColor3f(0.5f, 0.5f, 0.2f);
+	glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
+	glColor3f(1.0f, 1.0f, 0.2f);
+	glVertex3i(food_bar_start_x,food_bar_start_y,0);
+	glColor3f(1.0f, 1.0f, 0.2f);
+	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y,0);
+	glColor3f(0.5f, 0.5f, 0.2f);
+	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y+food_bar_y_len,0);
+
+	//draw the food bar
+	glColor3f(0.5f, 0.5f, 0.2f);
+	glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
+	glColor3f(1.0f, 1.0f, 0.2f);
+	glVertex3i(food_bar_start_x,food_bar_start_y,0);
+	glColor3f(1.0f, 1.0f, 0.2f);
+	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y,0);
+	glColor3f(0.5f, 0.5f, 0.2f);
+	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y+food_bar_y_len,0);
+
+	//draw the mana bar
+	glColor3f(0.2f, 0.2f, 0.5f);
+	glVertex3i(mana_bar_start_x,mana_bar_start_y+mana_bar_y_len,0);
+	glColor3f(0.2f, 0.2f, 1.0f);
+	glVertex3i(mana_bar_start_x,mana_bar_start_y,0);
+	glColor3f(0.2f, 0.2f, 1.0f);
+	glVertex3i(mana_bar_start_x+mana_adjusted_x_len,mana_bar_start_y,0);
+	glColor3f(0.2f, 0.2f, 0.5f);
+	glVertex3i(mana_bar_start_x+mana_adjusted_x_len,mana_bar_start_y+mana_bar_y_len,0);
+
+	glEnd();
+
+
+	glColor3f(0.4f, 0.4f, 0.4f);
+	glBegin(GL_LINES);
+	//draw the frame for the health bar
+	glVertex3i(health_bar_start_x,health_bar_start_y,0);
+	glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y,0);
+	glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y,0);
+	glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y+health_bar_y_len,0);
+	glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y+health_bar_y_len,0);
+	glVertex3i(health_bar_start_x,health_bar_start_y+health_bar_y_len,0);
+	glVertex3i(health_bar_start_x,health_bar_start_y+health_bar_y_len,0);
+	glVertex3i(health_bar_start_x,health_bar_start_y,0);
+
+	//draw the frame for the food bar
+	glVertex3i(food_bar_start_x,food_bar_start_y,0);
+	glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y,0);
+	glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y,0);
+	glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y+food_bar_y_len,0);
+	glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y+food_bar_y_len,0);
+	glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
+	glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
+	glVertex3i(food_bar_start_x,food_bar_start_y,0);
+
+	//draw the frame for the mana bar
+	glVertex3i(mana_bar_start_x,mana_bar_start_y,0);
+	glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y,0);
+	glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y,0);
+	glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y+mana_bar_y_len,0);
+	glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y+mana_bar_y_len,0);
+	glVertex3i(mana_bar_start_x,mana_bar_start_y+mana_bar_y_len,0);
+	glVertex3i(mana_bar_start_x,mana_bar_start_y+mana_bar_y_len,0);
+	glVertex3i(mana_bar_start_x,mana_bar_start_y,0);
+
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+
+	glColor3f(0.8f, 0.8f, 0.8f);
+	draw_string_small(health_bar_start_x-18,health_bar_start_y-3,health_str,1);
+	draw_string_small(food_bar_start_x-18,food_bar_start_y-3,food_str,1);
+	draw_string_small(mana_bar_start_x-18,mana_bar_start_y-3,mana_str,1);
 }
 
 int check_stats_display()
