@@ -1,0 +1,329 @@
+<Help>
+<Page Name="HelpPage">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands Help</Text>
+	<nl/><nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<Text>This the Eternal Lands Help Page. Here you can find</Text><nl/>
+	<Text>information that will help you get familiar with the</Text><nl/>
+	<Text>interface, and some tips to get you started in the game.</Text>
+	<nl/><nl/>
+	<color r="0.8" g="0.8" b="0.8"/>
+	<size>Medium</size>
+	<link ref="HP Commands" title="Shortcut Keys"/>
+	<size>Small</size>
+	<Text> - shortcut keys</Text><nl/>
+	<size>Medium</size>
+	<link ref="text" title="Text Commands"/>
+	<size>Small</size>
+	<Text> - list of commands you can type anywhere.</Text><nl/>
+	<size>Medium</size>
+	<link ref="channel" title="chat systems"/>
+	<size>Small</size>
+	<Text> - explaination of channels, pms.</Text>
+	<nl/>
+	<size>Medium</size>
+	<link ref="HP main_Interface" title="Interface"/>
+	<size>Small</size>
+	<Text> - familiarize yourself with the game interface</Text><nl/>
+	<size>Medium</size>
+	<link ref="HP Tips" title="Tips"/>
+	<size>Small</size>
+	<Text> - some tips on how to get started</Text><nl/>
+	<size>Medium</size>
+	<link ref="NFAQ2" title="Newbie FAQ"/><nl/>
+	<nl/>
+</Page>
+<Page Name="HP Commands">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands Help</Text><nl/>
+	<Text>             Shortcut Keys</Text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="0" g="0.7" b="1"/>
+	<Text>Keys:</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<color r="0" g="1" b="1"/><Text>~ or F1 </Text><color r="0.9" g="0.9" b="0.9"/><Text>=switch to/out of the console mode (like Quake, etc.) </Text>
+	<nl/>
+	<color r="0" g="1" b="1"/><Text>Up/Down arrows </Text><color r="0.9" g="0.9" b="0.9"/><Text>= lets you scroll up/down through the text, </Text>
+	<nl/>
+	<Text>when in F1</Text>
+	<nl/>
+	<color r="0" g="1" b="1"/><Text>F2 </Text><color r="0.9" g="0.9" b="0.9"/><Text>=opens a browser window with the last URL you heard. You </Text>
+	<nl/>
+	<Text>have to configure your browser and Operating System in the</Text>
+	<nl/> 
+	<Text>el.ini file, or Elconfig.exe</Text>
+	<nl/>
+	<color r="0" g="1" b="1"/><Text>Tab </Text><color r="0.9" g="0.9" b="0.9"/><Text>=Brings up a map of the area, X shows where you are.</Text>
+	<nl/>
+	<Text>**These maps are not completely accurate however. </Text>
+	<nl/>
+	<color r="0" g="1" b="1"/><Text>Left/Right arrows OR Middle Mouse button</Text><color r="0.9" g="0.9" b="0.9"/><Text>=lets you rotate the</Text>
+	<nl/>
+	<Text> camera, on the Z axis.</Text>
+	<nl/>
+	<color r="0" g="1" b="1"/><Text>Shift + Left/Right arrows </Text><color r="0.9" g="0.9" b="0.9"/><Text>=allow you to rotate the camera in</Text>
+	<nl/>
+	<Text> the fine tune mode. </Text>
+	<nl/>
+	<color r="0" g="1" b="1"/><Text>Up/Down arrows</Text><color r="0.9" g="0.9" b="0.9"/><Text>=lets you rotate the camera on the X axis, </Text>
+	<nl/>
+	<Text>between 45 and 60 degrees. Default is 60.</Text>
+	<nl/>
+	<color r="0" g="1" b="1"/><Text>Alt+x </Text><color r="0.9" g="0.9" b="0.9"/><Text>=quits the game (no warnings/confirmations). </Text><nl/>
+	<nl/>
+	<Text>Page: 1</Text><color>yellow</color>
+	<link ref="HP Commands2" title=" 2"/><nl/>
+	<Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/>
+</Page>
+<Page name="HP Commands2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands Help</Text><nl/>
+	<Text>             Shortcut Keys</Text><nl/>
+	<nl/>
+	<size>Medium</size>
+		<color r="0" g="1" b="1"/><Text>Alt+h </Text><color r="0.9" g="0.9" b="0.9"/><Text>= turns on/off the health bars</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>Alt+n </Text><color r="0.9" g="0.9" b="0.9"/><Text>= turns on/off name tags</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>ctrl+v OR shift+insert</Text><color r="0.9" g="0.9" b="0.9"/><Text>= paste text from clipboard</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>Page up/Page down </Text><color r="0.9" g="0.9" b="0.9"/><Text>= zooms in/out </Text><nl/>
+	<color r="0" g="1" b="1"/><Text>F9 </Text><color r="0.9" g="0.9" b="0.9"/><Text>=  Starts your own personal fire</Text><nl/>
+	<nl/>
+	<color r="0" g="0.7" b="1"/><Text>Hotkeys for icons:</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>ctrl+a </Text><color r="0.9" g="0.9" b="0.9"/><Text>= stats menu</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>ctrl+s </Text><color r="0.9" g="0.9" b="0.9"/><Text>= magic menu</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>ctrl+i </Text><color r="0.9" g="0.9" b="0.9"/><Text>= inventory menu </Text><nl/>
+	<color r="0" g="1" b="1"/><Text>ctrl+m </Text><color r="0.9" g="0.9" b="0.9"/><Text>= manufacture menu</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>ctrl+u </Text><color r="0.9" g="0.9" b="0.9"/><Text>= use icon </Text><nl/>
+	<color r="0" g="1" b="1"/><Text>ctrl+w </Text><color r="0.9" g="0.9" b="0.9"/><Text>= walk icon</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>ctrl+o </Text><color r="0.9" g="0.9" b="0.9"/><Text>= options/tools/config menu</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>ctrl+l </Text><color r="0.9" g="0.9" b="0.9"/><Text>= eye icon</Text><nl/>
+	<nl/>
+	<nl/><Text>Page:</Text>
+	<color>yellow</color>
+	<link ref="HP Commands" title=" 1"/><color r="0.9" g="0.9" b="0.9"/>
+	<Text> 2</Text><nl/>
+	<color>yellow</color>
+	<Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/>
+</Page>
+<Page name="text">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands Help</Text><nl/>
+	<Text>             Text Commands</Text><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.7" b="1"/>
+	<Text>Here is a list of commands you can type anywhere in the game!</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<color r="0" g="1" b="1"/><Text>#cls </Text><color r="0.9" g="0.9" b="0.9"/><Text>= clears the screen</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#time </Text><color r="0.9" g="0.9" b="0.9"/><Text>= gets the current game time</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#date </Text><color r="0.9" g="0.9" b="0.9"/><Text>= gets the current game date</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#stats </Text><color r="0.9" g="0.9" b="0.9"/><Text>= some information about how many players are logged in</Text><nl/>
+	<Text>, etc.</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#exit </Text><color r="0.9" g="0.9" b="0.9"/><Text>= quits the game (no confirmation)</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#quit </Text><color r="0.9" g="0.9" b="0.9"/><Text>= same as above</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#glinfo </Text><color r="0.9" g="0.9" b="0.9"/><Text>= shows some details about your video card and OpenGL</Text><nl/>
+	<Text> info</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#help </Text><color r="0.9" g="0.9" b="0.9"/><Text>= displays a help menu</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>/help (followed by a topic) </Text><color r="0.9" g="0.9" b="0.9"/><Text>= displays help for that topic </Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#ping </Text><color r="0.9" g="0.9" b="0.9"/><Text>= Shows your current latency </Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#beam me up </Text><color r="0.9" g="0.9" b="0.9"/><Text>= teleports your character to the campfire on Isla</Text><nl/>
+	<Text> Prima.</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#help_me (followed by your question) </Text><color r="0.9" g="0.9" b="0.9"/><Text>= will send a question to</Text><nl/>
+	<Text> the NH's or Moderators online</Text><nl/><nl/>
+	<Text>Page: 1</Text><color>yellow</color><link ref="text2" title=" 2"/><nl/>
+	<Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/>
+</Page>
+<Page name="text2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands Help</Text><nl/>
+	<Text>              Text Commands</Text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="0" g="0.7" b="1"/>
+	<Text>Here is a list of commands you can type anywhere in the game!</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#ver </Text><color r="0.9" g="0.9" b="0.9"/><Text>= shows the current version</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#abuse (followed by abusers name and what they did) </Text><color r="0.9" g="0.9" b="0.9"/><Text>=  will</Text><nl/>
+	<Text> send an abuse report to the Moderators</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#exp </Text><color r="0.9" g="0.9" b="0.9"/><Text>=  tells you your Experience points, and how much you </Text><nl/>
+	<Text> need for the next level</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#suicide </Text><color r="0.9" g="0.9" b="0.9"/><Text>=  Take a wild guess at what this does? You die! </Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#storage </Text><color r="0.9" g="0.9" b="0.9"/><Text>=  gives you a list of all the items in your storage</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#arm </Text><color r="0.9" g="0.9" b="0.9"/><Text>=  gives you a breakdown of your current equipment</Text><nl/> 
+	<Text>attributes</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#killme yes </Text><color r="0.9" g="0.9" b="0.9"/><Text>=  Deletes your character COMPLETELY (You lose </Text><nl/>
+	<Text>everything, be sure you want to do this first!)</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#reset </Text><color r="0.9" g="0.9" b="0.9"/><Text>=  resets your attributes, nexuses, perks, and overall </Text><nl/>
+	<Text>exp/level to the default values </Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#list_perks </Text><color r="0.9" g="0.9" b="0.9"/><Text>=  tell's you all of the current perks you have..</Text><nl/>
+	<nl/><nl/><Text>Page:</Text><color>yellow</color><link ref="text" title=" 1"/>
+	<color r="0.9" g="0.9" b="0.9"/><Text> 2</Text><nl/>
+	<color>yellow</color><Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/><nl/>
+	<nl/>
+</Page>
+<Page name="channel">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>         channel commands</Text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="0" g="0.7" b="1"/>
+	<Text>Here are various channel commands, so you can talk to us </Text><nl/>
+    <Text>ingame! </Text><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<color r="0" g="1" b="1"/><Text>#jc 1 </Text><color r="0.9" g="0.9" b="0.9"/><Text>= 1 is the newbie channel (you can also replace the 1</Text><nl/>
+	<Text> with newbie, #jc newbie, same with the other named </Text><nl/><Text>channels).</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#jc 2 </Text><color r="0.9" g="0.9" b="0.9"/><Text>= 2 is the help channel (rarely used, stick with #jc 1)</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#jc 3 </Text><color r="0.9" g="0.9" b="0.9"/><Text>= 3 is the market channel. Go here to buy/sell/trade </Text><nl/>
+	<Text>stuff with each other</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#jc 4 </Text><color r="0.9" g="0.9" b="0.9"/><Text>= 4 is the general conversation channel</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#jc 1234</Text><color r="0.9" g="0.9" b="0.9"/><Text>= To make your own channel, just add any numbers up to</Text><nl/>
+	<Text> a million! </Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#lc </Text><color r="0.9" g="0.9" b="0.9"/><Text>= Leave Channel</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>#ci </Text><color r="0.9" g="0.9" b="0.9"/><Text>= Channel Info</Text><nl/>
+	<color r="0" g="1" b="1"/><Text>@ <messages></messages></Text><color r="0.9" g="0.9" b="0.9"/><Text>= Type this to speak in a channel</Text><nl/>
+	<Text>(Example: @Hey guys, whats up?)</Text><nl/>
+	<nl/><color>yellow</color><Text>                            </Text><link ref="HelpPage" title="Back To Help Index"/>
+</Page>
+<Page Name="HP Tips">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>             Eternal Lands Help</Text><nl/>
+	<Text>                    TIPS</Text><nl/><nl/>
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/>
+</Page>
+<Page Name="HP main_Interface">
+<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>             Eternal Lands Help</Text><nl/>
+	<Text>                 INTERFACE</Text><nl/><nl/>
+	<size>Medium</size>
+	<link ref="HP Interface" title="Info on icons"/><Text>  </Text><nl/>
+	<link ref="HP Interfaceinfo" title="What do those different color bars do."/><nl/>
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/>
+</Page>
+<Page name="NFAQ2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>             Eternal Lands Help</Text><nl/>
+	<Text>                 Newbie FAQ</Text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I EAT?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/>
+	<Text>Click the use icon at the bottom, then click a food item.</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I KNOW WHAT LEVEL I AM?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/>
+	<Text>Click the bars icon on the bottom</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I SEE MY INVENTORY?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Click the bars icon on the bottom</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I WALK?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/>
+	<Text>Use the walk icon, and click on the ground next to you.</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I SIT?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Click the second icon from the left</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I READ A BOOK?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>same as eating food</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>CAN YOU GIVE ME FREE STUFF?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>NO NO NO NO NO NO NO NO NO!!! NEVER EVER EVER ASK THIS IN THE </Text><nl/>
+	<Text>GAME!!</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I LOOK AT THE MAP?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>press the tab key</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/><Text>Page: 1</Text><color>yellow</color>
+	<link ref="NFAQ3" title=" 2"/><nl/>
+	<Text>                            </Text><link ref="HelpPage" title="Back To Help Index"/>
+</Page>
+<Page name="NFAQ3">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>             Eternal Lands Help</Text><nl/>
+	<Text>                 Newbie FAQ</Text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="0.1" g="0.5" b="1"/><Text>WHERE CAN I GET A SWORD OR ARMOR?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>FROM A BLACKSMITH OR FROM PLAYERS, BUT YOU WILL NEED GOLD </Text><nl/>
+	<Text>COINS FIRST</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>IS {BLANK} PERK GOOD TO HAVE?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Read the wraith's description and decide for yourself.</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>CAN YOU HEAL ME?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Don't ask people that. They will heal you if they want to can.</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I GET MONEY?</Text><nl/>                    
+	<color r="0.5" g="0.9" b="0.9"/><Text>Kill rabbits and sell the meat and furs to taverns</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I COOK RAW MEAT?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>You need to Cook it on the campfire, it tkaes wood and fire </Text><nl/>
+	<Text>essence to start a fire(For long explaination click</Text><link ref="CampF" title=" here.)"/><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I GET A FIRE GOING IN ISLA PRIME?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><link ref="FireB" title="click here for step by walk through"/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/><Text>Page:</Text><color>yellow</color>
+	<link ref="NFAQ2" title=" 1"/><color r="0.9" g="0.9" b="0.9"/><Text> 2</Text>
+	<color>yellow</color><nl/>
+	<Text>                            </Text><link ref="HelpPage" title="Back To Help Index"/>
+</Page>
+<Page name="CampF">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>             Eternal Lands Help</Text><nl/>
+	<Text>             How to cooking meat</Text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/><Text>To cook meat: </Text><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>1. Find a burning campfire (There is one on IP near the beam </Text><nl/>
+	<Text>   up point).</Text><nl/>
+	<nl/>
+	<Text>2. Open your inventory and right click with your mouse over </Text><nl/>
+	<Text>   the raw meat until the "use with" pointer comes up. (Looks </Text><nl/>
+	<Text>   like a fist). </Text><nl/>
+	<nl/>
+	<Text>3. Click and drag each piece of meat onto the burning fire. </Text><nl/>
+	<Text>   Placement is critical and somewhat touchy at times. If </Text><nl/>
+	<Text>   you've succeeded the words "You've cooked the meat!" will </Text><nl/>
+	<Text>   appear on your screen. If not then keep trying.</Text><nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<Text>                            </Text><color>yellow</color><link ref="NFAQ3" title="Back To FAQ"/>
+	<nl/>
+</Page>
+<Page name="FireB">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>             Eternal Lands Help</Text><nl/>
+	<Text>                Basic Campfire</Text><nl/>
+	<nl/>
+	<size>Medium</size><color r="1" g="0.5" b="0"/>
+	<Text>If the fire is not burning:</Text><nl/><color r="0.9" g="0.9" b="0.9"/>
+	<nl/>
+	<Text>1. Harvest some logs. (Some can be found on the west end of</Text><nl/>
+	<Text>   one of the buildings to the south of the firepit.) You will </Text><nl/>
+	<Text>   need a total of no more than four.</Text><nl/>
+	<nl/>
+	<Text>2. go back to the fire pit and load the logs into the firepit </Text><nl/>
+	<Text>   using the same "use with" procedure as described </Text><nl/>
+	<Text>   earlier. If successful you should see the words 'You put </Text><nl/>
+	<Text>   logs on the fire"</Text><nl/>
+	<nl/>
+	<Text>3. Ignite the fire using a fire essence just like you </Text><nl/>
+	<Text>   loaded the firepit with logs earlier. If you do not have </Text><nl/>
+	<Text>   fire essence you can make some or buy some form the magic </Text><nl/>
+	<Text>   shop(15 gc each) or buy from market channel #jc 3. </Text><nl/>
+	<nl/>
+	<nl/>
+	<Text>                            </Text><link ref="NFAQ3" title="Back To FAQ"/>
+	<nl/>
+</Page>
+</Help>

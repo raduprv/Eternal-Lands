@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <afk>
+    <going>Going AFK</going>
+    <not>Not AFK any more</not>
+    <back>You have %d new messages from the following people: </back>
+    <names>Names</names>
+    <messages>Messages</messages>
+    <help>To print the messages from the different people type #msg &lt;number&gt; or #msg all to view them all</help>
+  </afk>
+  <misc>
+    <values>values</values>
+    <close>[close]</close>
+    <low>Low framerate detected, shadows disabled!</low>
+    <size>Window size adjusted to %s</size>
+    <trade>You can't open this window while on trade.</trade>
+    <user>Username</user>
+    <pass>Password</pass>
+    <getall>Get All</getall>
+    <completed>COMPLETED</completed>
+    <research>Researching</research>
+    <nothing>Nothing</nothing>
+    <mix>Mix</mix>
+    <clear>Clear</clear>
+    <connect>Connecting to Server...</connect>
+    <reconnect>Press any key to try again.</reconnect>
+    <license>Entropy says: U R 2</license>
+    <quantity>Quantity</quantity>
+    <abort>Abort</abort>
+    <sigils>This spell requires at least 2 sigils</sigils>
+    <switch>Switches to video mode %s</switch>
+    <cache>Cache size</cache>
+  </misc>
+  <new>
+    <skin>Skin</skin>
+    <hair>Hair</hair>
+    <shirt>Shirt</shirt>
+    <pants>Pants</pants>
+    <boots>Boots</boots>
+    <head>Head</head>
+    <gender>Gender</gender>
+    <male>Male</male>
+    <female>Female</female>
+    <race>Race</race>
+    <human>Human</human>
+    <elf>Elf</elf>
+    <dwarf>Dwarf</dwarf>
+    <confirm>Confirm Password</confirm>
+  </new>
+  <tooltips>
+    <walk>Walk</walk>
+    <sit>Sit down</sit>
+    <stand>Stand up</stand>
+    <look>Look at</look>
+    <use>Use</use>
+    <trade>Trade</trade>
+    <attack>Attack</attack>
+    <invent>View inventory</invent>
+    <spell>View spell window</spell>
+    <manu>View manufacture window</manu>
+    <stats>View stats</stats>
+    <know>View knowledge window</know>
+    <ency>View encyclopedia window</ency>
+    <quest>View questlog</quest>
+    <map>View map</map>
+    <console>View console</console>
+    <buddy>View buddy</buddy>
+    <opts>View options</opts>
+  </tooltips>
+</root>

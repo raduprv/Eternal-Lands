@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <options>
+    <shadows>
+      <name>Shadows</name>
+      <desc>Enables shadows - disable if you experience performance problems</desc>
+    </shadows>
+    <clouds>
+      <name>Clouds</name>
+      <desc>Enables clouds - disable if you experience performance problems</desc>
+    </clouds>
+    <reflections>
+      <name>Reflections</name>
+      <desc>Enable reflections - disable if you experience performance problems</desc>
+    </reflections>
+    <fps>
+      <name>Show FPS</name>
+      <desc>Show the current framerate in upper left corner</desc>
+    </fps>
+    <sitlock>
+      <name>Sit lock</name>
+      <desc>Locks you in a sitting position until you press the "Stand" button or right click to move.</desc>
+    </sitlock>
+    <caps>
+      <name>Filter CAPS</name>
+      <desc>Turns on/off a filter for capitalized letters</desc>
+    </caps>
+    <sound>
+      <name>Sound</name>
+      <desc>Turns on/off sound effects</desc>
+    </sound>
+    <music>
+      <name>Music</name>
+      <desc>Turns on/off in-game music</desc>
+    </music>
+    <autocam>
+      <name>Auto Camera</name>
+      <desc>Automatically change the camera according to the actor position</desc>
+    </autocam>
+    <exit>
+      <name>Exit</name>
+      <desc>Exits the game</desc>
+    </exit>
+    <fullscreen>
+      <name>Full Screen</name>
+      <desc>Switches between full screen and windowed mode</desc>
+    </fullscreen>
+    <strings>
+      <name>Options</name>
+      <desc>Video mode</desc>
+    </strings>
+  </options>
+</root>

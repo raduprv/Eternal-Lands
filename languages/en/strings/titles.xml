@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <titles>
+    <t_help>Help</t_help>
+    <t_ency>Encyclopedia</t_ency>
+    <t_stats>Statistics</t_stats>
+    <t_know>Knowledge</t_know>
+    <t_qlog>Quest log</t_qlog>
+  </titles>
+</root>

@@ -1,0 +1,367 @@
+<Books>
+<Page name="Books_GM">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>          White Stone City library</Text><nl/>	
+	<Color>red</Color>
+	<Text>            General Metallurgy</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                 Price (gc)   Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Metallurgy                30           250</Text><nl/>
+	<Text>Metal smelting            35           300</Text><nl/>
+	<Text>Metal mining              35           300</Text><nl/>
+	<Text>Metal molding             33           400</Text><nl/>
+	<Text>Weapon construction       60           700</Text><nl/>
+	<Text>Sword construction        90           900</Text><nl/>
+	<Text>General armor             130          1000</Text><nl/>
+	<Text>Torso armor               160          1200</Text><nl/>
+	<Text>Feet armor                160          1400</Text><nl/>
+	<Text>Legs armor                110          1600</Text><nl/>
+	<Text>Head armor                100          1600</Text><nl/>
+	<Text>Shield construction       130          600</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_MSM">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>          White Stone City library</Text><nl/>	
+	<Color>red</Color>
+	<Text>      Mining, Smelting and Molding</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                 Price (gc)   Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Gold smelting             37           1000</Text><nl/>
+	<Text>Iron smelting             25           500</Text><nl/>
+	<Text>Silver smelting           40           500</Text><nl/>
+	<Text>Steel smelting            70           1200</Text><nl/>
+	<Text>Gold mining               160          1400</Text><nl/>
+	<Text>Iron mining               135          2000</Text><nl/>
+	<Text>Silver mining             150          1000</Text><nl/>
+	<Text>Steel molding             200          2000</Text><nl/>
+	<Text>Gold molding              250          1000</Text><nl/>
+	<Text>Iron molding              100          1500</Text><nl/>
+	<Text>Silver molding            180          1500</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_WA">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>          White Stone City library</Text><nl/>	
+	<Color>red</Color>
+	<Text>            Weapons and Armors</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                 Price (gc)   Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Iron sword                90           2000</Text><nl/>
+	<Text>Iron broad sword          110          3000</Text><nl/>
+	<Text>Steel long sword          150          4000</Text><nl/>
+	<Text>Two edged sword           200          5000</Text><nl/>
+	<Text>Leather helmet            70           800</Text><nl/>
+	<Text>Iron helmet               100          1400</Text><nl/>
+	<Text>Iron greaves              120          800</Text><nl/>
+	<Text>Leather pants             80           1200</Text><nl/>
+	<Text>Chainmail torso           200          2000</Text><nl/>
+	<Text>Iron platemail            230          2400</Text><nl/>
+	<Text>Steel chainmail           250          2100</Text><nl/>
+	<Text>Padded leather torso      100          1000</Text><nl/>
+	<Text>Iron shield               160          1400</Text><nl/>
+	<Text>Iron Cuisses              120          1600</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_GB">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>         Frukas (Grahm's Village)</Text><nl/>	
+	<Color>red</Color>
+	<Text>            Generic Biology</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                 Price (gc)   Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Biology                   50           400</Text><nl/>
+	<Text>Biochemestry              60           500</Text><nl/>
+	<Text>Botanics                  40           400</Text><nl/>
+	<Text>Anatomy                   40           600</Text><nl/>
+	<Text>Advanced Alchemy          100          600</Text><nl/>
+	<Text>Advanced Potions          120          800</Text><nl/>
+	<Text>Advanced Summoning        60           800</Text><nl/>
+	<Text>Combat Tactics            70           800</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_AP">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>         Frukas (Grahm's Village)</Text><nl/>	
+	<Color>red</Color>
+	<Text>           Alchemy and Potions</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                 Price (gc)   Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Life Essence              110          1200</Text><nl/>
+	<Text>Death Essence             130          1300</Text><nl/>
+	<Text>Health Essence            150          1400</Text><nl/>
+	<Text>Magic Essence             200          800</Text><nl/>
+	<Text>Body Restoration          200          900</Text><nl/>
+	<Text>Wildness                  180          400</Text><nl/>
+	<Text>Vitality                  140          900</Text><nl/>
+	<Text>Coordination              150          1000</Text><nl/>
+	<Text>Will                      150          300</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_SF">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>         Frukas (Grahm's Village)</Text><nl/>	
+	<Color>red</Color>
+	<Text>          Summoning and Fighting</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                 Price (gc)   Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Snakes Summoning          90           400</Text><nl/>
+	<Text>Wolf Summoning            100          600</Text><nl/>
+	<Text>Boar Summoning            130          500</Text><nl/>
+	<Text>Skeleton Summoning        140          700</Text><nl/>
+	<Text>Fluffy Rabbit Summoning   10000        15000</Text><nl/>
+	<Text>Chimeran Wolf Summoning   15000        20000</Text><nl/>
+	<Text>Goblin Fight              40           900</Text><nl/>
+	<Text>Skeleton Fight            80           1000</Text><nl/>
+	<Text>Gargoyle Fight            100          1100</Text><nl/>
+	<Text>Puma Fight                120          1200</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_CR">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>      Gorlic (Lakeside Inn and Tavern)</Text><nl/>	
+	<Color>red</Color>
+	<Text>                  Crystal</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                 Price (gc)   Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Crystal Tech              80           300</Text><nl/>
+	<Text>Crystal Mining            60           500</Text><nl/>
+	<Text>Quartz Mining             30           400</Text><nl/>
+	<Text>Rose Quartz Mining        50           500</Text><nl/>
+	<Text>Blue Quartz Mining        40           500</Text><nl/>
+	<Text>Ruby Mining               150          700</Text><nl/>
+	<Text>Emerald Mining            200          700</Text><nl/>
+	<Text>Sapphire mining           250          700</Text><nl/>
+	<Text>Diamond Mining            300          700</Text><nl/>
+	<Text>Crystal Processing        50           500</Text><nl/>
+	<Text>Diamond Processing        500          2000</Text><nl/>
+	<Text>Sapphire Processing       400          1500</Text><nl/>
+	<Text>Emerald Processing        300          600</Text><nl/>
+	<Text>Ruby Processing           450          700</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_JW">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>      Gorlic (Lakeside Inn and Tavern)</Text><nl/>	
+	<Color>red</Color>
+	<Text>                  Jewelry</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                 Price (gc)   Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Jewelry Tech              200          700</Text><nl/>
+	<Text>Crystal Embedding         300          500</Text><nl/>
+	<Text>Generic Rings             170          800</Text><nl/>
+	<Text>Generic Medallion         170          900</Text><nl/>
+	<Text>Diamond Embedding         300          400</Text><nl/>
+	<Text>Sapphire Embedding        250          300</Text><nl/>
+	<Text>Emerald Embedding         200          360</Text><nl/>
+	<Text>Ruby Embedding            150          200</Text><nl/>
+	<Text>Silver Rings              150          600</Text><nl/>
+	<Text>Gold Rings                300          400</Text><nl/>
+	<Text>Silver Medallions         200          600</Text><nl/>
+	<Text>Gold Medallions           300          500</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_MD">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>    Monster Drops (Mineral and Manufacture)</Text><nl/>	
+	<Color>red</Color>
+	<Text>                 Page 1/4</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                       Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Steel Shield                    1800</Text><nl/>
+	<Text>Titanium Mining                 6000</Text><nl/>
+	<Text>Titanium Smelting               2000</Text><nl/>
+	<Text>Titanium Molding                7000</Text><nl/>
+	<Text>Titanium Chain mail torso       4000</Text><nl/>
+	<Text>Titanium Short sword            6000</Text><nl/>
+	<Text>Titanium Long sword             7000</Text><nl/>
+	<Text>Titanium Serpent Sword          8000</Text><nl/>
+	<Text>General Axe Construction        4000</Text><nl/>
+	<Text>Iron Axe Construction           3000</Text><nl/>
+	<Text>Steel Axe Construction          4000</Text><nl/>
+	<Text>Titanium Axe Construction       10000</Text><nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text>                    Go to page: </Text>
+	<link ref="Books_MD2" title="[2]"/>
+	<link ref="Books_MD3" title="[3]"/>
+	<link ref="Books_MD4" title="[4]"/><nl/><nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_MD2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>           Monster Drops (Jewelry)</Text><nl/>	
+	<Color>red</Color>
+	<Text>                 Page 2/4</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                       Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Isla Prima Ring Building        200</Text><nl/>
+	<Text>Votd Ring Building              800</Text><nl/>
+	<Text>Naralik Ring Building           900</Text><nl/>
+	<Text>WSC Ring Building               600</Text><nl/>
+	<Text>Portland Ring Building          600</Text><nl/>
+	<Text>Desert Pines Ring Building      600</Text><nl/>
+	<Text>Ring of Damage Building         5000</Text><nl/>
+	<Text>Ring of Disengagement Building  3000</Text><nl/>
+	<Text>Sun Medallion Building          1600</Text><nl/>
+	<Text>Unicorn Medallion Building      1400</Text><nl/>
+	<Text>Moon Medallion Building         1600</Text><nl/>
+	<Text>Stars Medallion Building        1800</Text><nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text>                    Go to page: </Text>
+	<link ref="Books_MD" title="[1]"/>
+	<link ref="Books_MD3" title="[3]"/>
+	<link ref="Books_MD4" title="[4]"/><nl/><nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_MD3">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>     Monster Drops (Potions and Summoning)</Text><nl/>	
+	<Color>red</Color>
+	<Text>                 Page 3/4</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                       Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Potion of Physique              600</Text><nl/>
+	<Text>Potion of Feasting              2000</Text><nl/>
+	<Text>Potion of Manufacturing         2300</Text><nl/>
+	<Text>Potion of Summoning             2600</Text><nl/>
+	<Text>Gargoyles Summoning             800</Text><nl/>
+	<Text>Puma Summoning                  900</Text><nl/>
+	<Text>Bear Summoning                  1000</Text><nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text>                    Go to page: </Text>
+	<link ref="Books_MD" title="[1]"/>
+	<link ref="Books_MD2" title="[2]"/>
+	<link ref="Books_MD4" title="[4]"/><nl/><nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+<Page name="Books_MD4">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   BOOKS</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>           Monster Drops (Combat)</Text><nl/>	
+	<Color>red</Color>
+	<Text>                 Page 4/4</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Book Name                       Research Points</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Goblin Fighting                 900</Text><nl/>
+	<Text>Orc Fighting                    1300</Text><nl/>
+	<Text>Bear Fighting                   1400</Text><nl/>
+	<Text>Troll Fighting                  1500</Text><nl/>
+	<Text>Cyclops Fighting                1600</Text><nl/>
+	<Text>Dwarf Fighting                  2000</Text><nl/>
+	<Text>Elf Fighting                    2000</Text><nl/>
+	<Text>Human Fighting                  2000</Text><nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text>                    Go to page: </Text>
+	<link ref="Books_MD" title="[1]"/>
+	<link ref="Books_MD2" title="[2]"/>
+	<link ref="Books_MD3" title="[3]"/><nl/><nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
+</Page>
+</Books>
