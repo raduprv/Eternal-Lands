@@ -4,8 +4,8 @@
 
 void SetShadowMatrix()
 {
-
 	float dot;
+
 	// dot product of plane and light position
 	dot = fPlane[0] * fLightPos[0]
 		+ fPlane[1] * fLightPos[1]
@@ -39,7 +39,6 @@ void SetShadowMatrix()
 
 void draw_3d_object_shadow(object3d * object_id)
 {
-
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
@@ -121,7 +120,6 @@ void draw_3d_object_shadow(object3d * object_id)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	else glEnable(GL_TEXTURE_2D);
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -282,7 +280,7 @@ void display_actors_shadow()
 	if(use_vertex_array > 0)
 		{
 			glEnableClientState(GL_VERTEX_ARRAY);
-			glEnableClientState(GL_NORMAL_ARRAY);
+			//glEnableClientState(GL_NORMAL_ARRAY);
 		}
 #endif	//USE_VERTEXARRAYS
 	for(i=0;i<max_actors;i++)
@@ -306,7 +304,7 @@ void display_actors_shadow()
 #ifdef	USE_VERTEXARRAYS
 	if(use_vertex_array > 0)
 		{
-			glDisableClientState(GL_NORMAL_ARRAY);
+			//glDisableClientState(GL_NORMAL_ARRAY);
 			glDisableClientState(GL_VERTEX_ARRAY);
 		}
 #endif	//USE_VERTEXARRAYS
@@ -415,7 +413,6 @@ void display_3d_non_ground_objects()
 	//we don't want to be affected by 2d objects and shadows
 	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
 
-	glEnable(GL_CULL_FACE);
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	if(have_multitexture && clouds_shadows)
