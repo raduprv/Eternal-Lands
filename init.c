@@ -306,7 +306,7 @@ void init_stuff()
 	init_actors_lists();
 	for(i=0;i<256;i++)tile_list[i]=0;
 	for(i=0;i<max_lights;i++)lights_list[i]=0;
-	for(i=0;i<max_particle_systems;i++)particles_list[i]=0;
+	init_particles_list();
 	for(i=0;i<30*sizeof(actor_types);i++)
 		{
 			char *pointer_actors_defs=(char *)actors_defs;
