@@ -190,7 +190,7 @@ int display_browser_handler()
 			glPopMatrix();
 		}
 
-			zoom_level=tz;
+		zoom_level=tz;
 		resize_window();
 		// Back to normal
 		glViewport(0,0,window_width,window_height);
@@ -201,8 +201,7 @@ int display_browser_handler()
 		draw_string(browser_menu_x+2,browser_menu_y+400-18,(unsigned char *)Dir[cd].Names[i+2],1);
 		draw_string(browser_menu_x+202,browser_menu_y+200-18,(unsigned char *)Dir[cd].Names[i+1],1);
 		draw_string(browser_menu_x+202,browser_menu_y+400-18,(unsigned char *)Dir[cd].Names[i+3],1);
-		zoom_level=tz;
-		resize_window();
+
    }
 	return 1;
 }
