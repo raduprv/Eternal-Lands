@@ -969,7 +969,7 @@ float unlit_gem_u_end=(float)255/256;
 float unlit_gem_v_end=1.0f-(float)111/256;
 
 int display_options_handler(windows_info *win);
-int click_options_handler(int mx, int my, Uint32 flags);
+int click_options_handler(window_info *win, int mx, int my, Uint32 flags);
 void draw_options_menu()
 {
 	if(options_win <= 0){
@@ -1198,82 +1198,82 @@ int display_options_handler(windows_info *win)
 	return 1;
 }
 
-int click_options_handler(int mx, int my, Uint32 flags)
+int click_options_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	// in the first column?
-	if(mouse_x>8 && mouse_x<38)
+	if(mx>8 && mx<38)
 		{
-			if(mouse_y>35 && mouse_y<51)
+			if(my>35 && my<51)
 				shadows_on=!shadows_on;
-			else if(mouse_y>55 && mouse_y<71)
+			else if(my>55 && my<71)
 				clouds_shadows=!clouds_shadows;
-			else if(mouse_y>75 && mouse_y<91)
+			else if(my>75 && my<91)
 				show_reflection=!show_reflection;
-			else if(mouse_y>95 && mouse_y<111)
+			else if(my>95 && my<111)
 				show_fps=!show_fps;
-			else if(mouse_y>115 && mouse_y<131)
+			else if(my>115 && my<131)
 				sit_lock=!sit_lock;
-			else if(mouse_y>135 && mouse_y<151)
+			else if(my>135 && my<151)
 				caps_filter=!caps_filter;
-			else if(mouse_y>155 && mouse_y<171)
+			else if(my>155 && my<171)
 				if(sound_on)turn_sound_off();
 				else turn_sound_on();
-			else if(mouse_y>175 && mouse_y<191)
+			else if(my>175 && my<191)
 				if(music_on)turn_music_off();
 				else turn_music_on();
-			else if(mouse_y>195 && mouse_y<211)
+			else if(my>195 && my<211)
 				auto_camera=!auto_camera;
 		}
-	else if(mouse_x>193 && mouse_x<220)
+	else if(mx>193 && mx<220)
 		{
-			if(mouse_y>35 && mouse_y<51)
+			if(my>35 && my<51)
 				toggle_full_screen();
-			else if(mouse_y>55 && mouse_y<71)
+			else if(my>55 && my<71)
 				{
 					if(video_modes[0].supported && !video_modes[0].selected)
 						set_new_video_mode(full_screen,1);
 				}
-			else if(mouse_y>75 && mouse_y<91)
+			else if(my>75 && my<91)
 				{
 					if(video_modes[1].supported && !video_modes[1].selected)
 						set_new_video_mode(full_screen,2);
 				}
-			else if(mouse_y>95 && mouse_y<111)
+			else if(my>95 && my<111)
 				{
 					if(video_modes[2].supported && !video_modes[2].selected)
 						set_new_video_mode(full_screen,3);
 				}
-			else if(mouse_y>115 && mouse_y<131)
+			else if(my>115 && my<131)
 				{
 					if(video_modes[3].supported && !video_modes[3].selected)
 						set_new_video_mode(full_screen,4);
 				}
-			else if(mouse_y>135 && mouse_y<151)
+			else if(my>135 && my<151)
 				{
 					if(video_modes[4].supported && !video_modes[4].selected)
 						set_new_video_mode(full_screen,5);
 				}
-			else if(mouse_y>155 && mouse_y<171)
+			else if(my>155 && my<171)
 				{
 					if(video_modes[5].supported && !video_modes[5].selected)
 						set_new_video_mode(full_screen,6);
 				}
-			else if(mouse_y>175 && mouse_y<191)
+			else if(my>175 && my<191)
 				{
 					if(video_modes[6].supported && !video_modes[6].selected)
 						set_new_video_mode(full_screen,7);
 				}
-			else if(mouse_y>195 && mouse_y<211)
+			else if(my>195 && my<211)
 				{
 					if(video_modes[7].supported && !video_modes[7].selected)
 						set_new_video_mode(full_screen,8);
 				}
-			else if(mouse_y>215 && mouse_y<231)
+			else if(my>215 && my<231)
 				{
 					if(video_modes[8].supported && !video_modes[8].selected)
 						set_new_video_mode(full_screen,9);
 				}
-			else if(mouse_y>235 && mouse_y<251)
+			else if(my>235 && my<251)
 				{
 					if(video_modes[9].supported && !video_modes[9].selected)
 						set_new_video_mode(full_screen,10);
