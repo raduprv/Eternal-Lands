@@ -144,15 +144,4 @@ int have_name(char *name, int len);
  */
 int is_talking_about_me(Uint8 * server_msg, int len);
 
-/*!
- * \ingroup actor_utils
- * \brief prints the return message after user comes back from AFK.
- *
- *      Prints the return message after the user comes back from AFK.
- *
- * \return None
- */
-void print_return_message(void);
-
 #endif
-
