@@ -3,9 +3,9 @@
 
 #ifndef OLD_EVENT_HANDLER
 
-extern int login_win;
+extern int login_root_win;
 
-void create_login_window ();
+void create_login_root_window ();
 
 #endif // not def OLD_EVENT_HANDLER
 

@@ -516,10 +516,10 @@ void init_stuff()
 #ifndef OLD_EVENT_HANDLER
 	// XXX FIXME (Grum): Maybe we should do this at a later time, after
 	// we're logged in?
-	create_game_window ();
-	create_console_window ();
-	create_map_window ();
-	create_login_window ();
+	create_game_root_window ();
+	create_console_root_window ();
+	create_map_root_window ();
+	create_login_root_window ();
 #else
 	resize_root_window();
 #endif
@@ -667,12 +667,12 @@ void init_stuff()
 	//we might want to do this later.
 //	connect_to_server();
 #ifndef OLD_EVENT_HANDLER
-	create_opening_window ();
+	create_opening_root_window ();
 #endif
 	if (has_accepted)
 	{
 #ifndef OLD_EVENT_HANDLER
-		show_window (opening_win);
+		show_window (opening_root_win);
 #endif
 		interface_mode=INTERFACE_OPENING;
 		connect_to_server();
@@ -680,7 +680,7 @@ void init_stuff()
 	else 
 	{
 #ifndef OLD_EVENT_HANDLER
-		create_rules_root_window (opening_win, 5);
+		create_rules_root_window (opening_root_win, 5);
 		show_window (rules_root_win);
 #else		
 		init_rules_interface(INTERFACE_OPENING, 1.0f, 10, window_width, window_height);	// has_accepted is loaded from el.cfg

@@ -3,9 +3,9 @@
 
 #ifndef OLD_EVENT_HANDLER
 
-extern int opening_win;
+extern int opening_root_win;
 
-void create_opening_window ();
+void create_opening_root_window ();
 
 #endif
 

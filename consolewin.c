@@ -1,7 +1,7 @@
 #include <string.h>
 #include "global.h"
 
-int console_win = -1;
+int console_root_win = -1;
 
 #ifndef OLD_EVENT_HANDLER
 
@@ -48,8 +48,8 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		if ( switch_to_game_map () )
 		{
-			hide_window (console_win);
-			show_window (map_win);
+			hide_window (console_root_win);
+			show_window (map_root_win);
 			interface_mode = INTERFACE_MAP;
 		}
 	}
@@ -59,8 +59,8 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 
 		if (ch == '`' || key == K_CONSOLE)
 		{
-			hide_window (console_win);
-			show_window (game_win);
+			hide_window (console_root_win);
+			show_window (game_root_win);
 			interface_mode = INTERFACE_GAME;
 		}
 		else if (ch == SDLK_RETURN && input_text_lenght > 0)
@@ -89,14 +89,14 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	return 1;	
 }
 
-void create_console_window ()
+void create_console_root_window ()
 {
-	if (console_win < 0)
+	if (console_root_win < 0)
 	{
-		console_win = create_window ("Console", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		console_root_win = create_window ("Console", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		
-		set_window_handler (console_win, ELW_HANDLER_DISPLAY, &display_console_handler);
-		set_window_handler (console_win, ELW_HANDLER_KEYPRESS, &keypress_console_handler);
+		set_window_handler (console_root_win, ELW_HANDLER_DISPLAY, &display_console_handler);
+		set_window_handler (console_root_win, ELW_HANDLER_KEYPRESS, &keypress_console_handler);
 	}
 }
 

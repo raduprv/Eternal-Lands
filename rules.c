@@ -188,7 +188,7 @@ void display_rules_window()
 {
 	if(rules_win<0){
 #ifndef OLD_EVENT_HANDLER
-		rules_win=create_window("Rules", game_win, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
+		rules_win=create_window("Rules", game_root_win, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
 #else
 		rules_win=create_window("Rules", -1, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
 #endif
@@ -786,7 +786,7 @@ void create_rules_root_window (int next, int time)
 		set_window_handler (rules_root_win, ELW_HANDLER_RESIZE, &resize_rules_root_handler);
 		
 		// XXX FIXME (Grum): try to get rid of interface_mode
-		init_rules_interface (next == newchar_win ? INTERFACE_NEW_CHAR : INTERFACE_OPENING, 1.0, 2*time, window_width, window_height);
+		init_rules_interface (next == newchar_root_win ? INTERFACE_NEW_CHAR : INTERFACE_OPENING, 1.0, 2*time, window_width, window_height);
 		next_win_id = next;
 	}
 }

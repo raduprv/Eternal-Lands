@@ -807,7 +807,7 @@ void login_from_new_char()
 
 #ifndef OLD_EVENT_HANDLER
 
-int newchar_win = -1;
+int newchar_root_win = -1;
 
 int display_newchar_handler (window_info *win)
 {
@@ -900,8 +900,8 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (mx > back_button_x_start && mx < back_button_x_end && my > back_button_y_start && my < back_button_y_end && back_selected)
 	{
 		// don't destroy this window yet, maybe the use will come back
-		hide_window (newchar_win);
-		show_window (login_win);
+		hide_window (newchar_root_win);
+		show_window (login_root_win);
 		interface_mode=INTERFACE_LOG_IN;
 	}
 	else if (mx > done_button_x_start && mx < done_button_x_end && my > done_button_y_start && mouse_y < done_button_y_end && done_selected)
@@ -1143,16 +1143,16 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	return 1;
 }
 
-void create_newchar_window ()
+void create_newchar_root_window ()
 {
-	if (newchar_win < 0)
+	if (newchar_root_win < 0)
 	{
-		newchar_win = create_window ("New Character", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		newchar_root_win = create_window ("New Character", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
-		set_window_handler (newchar_win, ELW_HANDLER_DISPLAY, &display_newchar_handler);
-		set_window_handler (newchar_win, ELW_HANDLER_MOUSEOVER, &mouseover_newchar_handler);
-		set_window_handler (newchar_win, ELW_HANDLER_CLICK, &click_newchar_handler);
-		set_window_handler (newchar_win, ELW_HANDLER_KEYPRESS, &keypress_newchar_handler);
+		set_window_handler (newchar_root_win, ELW_HANDLER_DISPLAY, &display_newchar_handler);
+		set_window_handler (newchar_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_newchar_handler);
+		set_window_handler (newchar_root_win, ELW_HANDLER_CLICK, &click_newchar_handler);
+		set_window_handler (newchar_root_win, ELW_HANDLER_KEYPRESS, &keypress_newchar_handler);
 	}
 }
 

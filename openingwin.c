@@ -2,7 +2,7 @@
 
 #ifndef OLD_EVENT_HANDLER
 
-int opening_win = -1;
+int opening_root_win = -1;
 
 int display_opening_handler ()
 {
@@ -17,11 +17,11 @@ int display_opening_handler ()
 void switch_to_login ()
 {
 	// bring up the login screen
-	show_window (login_win);
+	show_window (login_root_win);
 
 	// destroy ourselves, we're no longer needed
-	destroy_window (opening_win);
-	opening_win = -1;
+	destroy_window (opening_root_win);
+	opening_root_win = -1;
 
 	interface_mode = INTERFACE_LOG_IN;
 }
@@ -53,15 +53,15 @@ int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	return 1;
 }
 
-void create_opening_window ()
+void create_opening_root_window ()
 {
-	if (opening_win < 0)
+	if (opening_root_win < 0)
 	{
-		opening_win = create_window ("Opening", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		opening_root_win = create_window ("Opening", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
-                set_window_handler (opening_win, ELW_HANDLER_DISPLAY, &display_opening_handler);
-                set_window_handler (opening_win, ELW_HANDLER_KEYPRESS, &keypress_opening_handler);
-                set_window_handler (opening_win, ELW_HANDLER_CLICK, &click_opening_handler);
+		set_window_handler (opening_root_win, ELW_HANDLER_DISPLAY, &display_opening_handler);
+		set_window_handler (opening_root_win, ELW_HANDLER_KEYPRESS, &keypress_opening_handler);
+		set_window_handler (opening_root_win, ELW_HANDLER_CLICK, &click_opening_handler);
 	}
 }
 

@@ -8,7 +8,7 @@
 
 /*! \name windows handlers
  * @{ */
-extern int console_win; /*!< handler for the console window */
+extern int console_root_win; /*!< handler for the console window */
 /*! @} */
 
 #ifndef OLD_EVENT_HANDLER
@@ -21,7 +21,7 @@ extern int console_win; /*!< handler for the console window */
  *
  * \callgraph
  */
-void create_console_window ();
+void create_console_root_window ();
 
 #endif
 

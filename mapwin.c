@@ -1,7 +1,7 @@
 #include <string.h>
 #include "global.h"
 
-int map_win = -1;
+int map_root_win = -1;
 int showing_continent = 0;
 
 int mouse_over_minimap = 0;
@@ -72,8 +72,8 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	else if (key == K_MAP)
 	{
 		switch_from_game_map ();
-		hide_window (map_win);
-		show_window (game_win);
+		hide_window (map_root_win);
+		show_window (game_root_win);
 		interface_mode = INTERFACE_GAME;
 	}
 	else
@@ -83,8 +83,8 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		if (ch == '`' || key == K_CONSOLE)
 		{
 			switch_from_game_map ();
-			hide_window (map_win);
-			show_window (console_win);
+			hide_window (map_root_win);
+			show_window (console_root_win);
 			interface_mode = INTERFACE_CONSOLE;
 		}
 		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
@@ -110,16 +110,16 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	return 1;
 }
 
-void create_map_window ()
+void create_map_root_window ()
 {
-	if (map_win < 0)
+	if (map_root_win < 0)
 	{
-		map_win = create_window ("Map", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		map_root_win = create_window ("Map", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 	
-		set_window_handler (map_win, ELW_HANDLER_DISPLAY, &display_map_handler);
-		set_window_handler (map_win, ELW_HANDLER_KEYPRESS, &keypress_map_handler);
-		set_window_handler (map_win, ELW_HANDLER_CLICK, &click_map_handler);
-		set_window_handler (map_win, ELW_HANDLER_MOUSEOVER, &mouseover_map_handler);
+		set_window_handler (map_root_win, ELW_HANDLER_DISPLAY, &display_map_handler);
+		set_window_handler (map_root_win, ELW_HANDLER_KEYPRESS, &keypress_map_handler);
+		set_window_handler (map_root_win, ELW_HANDLER_CLICK, &click_map_handler);
+		set_window_handler (map_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_map_handler);
 	}
 }
 

@@ -1212,23 +1212,23 @@ void save_markings()
 #ifndef OLD_EVENT_HANDLER
 void hide_all_root_windows ()
 {
-	if (game_win >= 0) hide_window (game_win);
-	if (console_win >= 0) hide_window (console_win);
-	if (map_win >= 0) hide_window (map_win);
-	if (login_win >= 0) hide_window (login_win);
+	if (game_root_win >= 0) hide_window (game_root_win);
+	if (console_root_win >= 0) hide_window (console_root_win);
+	if (map_root_win >= 0) hide_window (map_root_win);
+	if (login_root_win >= 0) hide_window (login_root_win);
 	if (rules_root_win >= 0) hide_window (rules_root_win);
-	if (opening_win >= 0) hide_window (opening_win);
-	if (newchar_win >= 0) hide_window (newchar_win);
+	if (opening_root_win >= 0) hide_window (opening_root_win);
+	if (newchar_root_win >= 0) hide_window (newchar_root_win);
 }
 
 void resize_all_root_windows (Uint32 w, Uint32 h)
 {
-	if (game_win >= 0) resize_window (game_win, w, h);
-	if (console_win >= 0) resize_window (console_win, w, h);
-	if (map_win >= 0) resize_window (map_win, w, h);
-	if (login_win >= 0) resize_window (login_win, w, h);
+	if (game_root_win >= 0) resize_window (game_root_win, w, h);
+	if (console_root_win >= 0) resize_window (console_root_win, w, h);
+	if (map_root_win >= 0) resize_window (map_root_win, w, h);
+	if (login_root_win >= 0) resize_window (login_root_win, w, h);
 	if (rules_root_win >= 0) resize_window (rules_root_win, w, h);
-	if (opening_win >= 0) resize_window (opening_win, w, h);
-	if (newchar_win >= 0) resize_window (newchar_win, w, h);
+	if (opening_root_win >= 0) resize_window (opening_root_win, w, h);
+	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
 }
 #endif

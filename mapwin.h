@@ -8,7 +8,7 @@
 
 /*! \name windows handlers 
  * @{ */
-extern int map_win; /*!< handler for the map window */
+extern int map_root_win; /*!< handler for the map window */
 /*! @} */
 
 
@@ -22,7 +22,7 @@ extern int map_win; /*!< handler for the map window */
  *
  * \callgraph
  */
-void create_map_window ();
+void create_map_root_window ();
 
 #endif
 

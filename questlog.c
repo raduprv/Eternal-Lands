@@ -268,7 +268,7 @@ void display_questlog()
 	if(questlog_win < 0)
 	{
 #ifndef OLD_EVENT_HANDLER
-		questlog_win= create_window("Quest", game_win, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
+		questlog_win= create_window("Quest", game_root_win, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
 #else
 		questlog_win= create_window("Quest", -1, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
 #endif

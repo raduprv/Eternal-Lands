@@ -483,73 +483,75 @@ void switch_action_mode(int * mode, int id)
 	item_action_mode=qb_action_mode=action_mode=*mode;
 }
 
-// XXX FIXME (Grum): the next two fuctions are toougly to live, but I'll clean 
-// them up once we get rid of the old event handler
+#ifndef OLD_EVENT_HANDLER
+void view_console_win (int *win, int id)
+{
+	if ( get_show_window (console_root_win) )
+	{
+		hide_window (console_root_win);
+		show_window (game_root_win);
+	}
+	else
+	{
+		if ( get_show_window (game_root_win) )
+			hide_window (game_root_win);
+		if ( get_show_window (map_root_win) )
+		{
+			switch_from_game_map ();
+			hide_window (map_root_win);
+		}
+		show_window (console_root_win);
+	}
+}
+#else
 void view_console_win(int * win, int id)
 {
-#ifndef OLD_EVENT_HANDLER
-	if (interface_mode == INTERFACE_CONSOLE || interface_mode == INTERFACE_GAME)
-	{
-		toggle_window (game_win);
-	}
-	else if (interface_mode == INTERFACE_MAP)
-	{
-		switch_from_game_map ();
-		toggle_window (map_win);
-	}
-	toggle_window (console_win);
-#endif
-	
 	if (interface_mode == INTERFACE_CONSOLE)
 	{
 		interface_mode = INTERFACE_GAME;
 	} 
 	else 
 	{
-#ifdef OLD_EVENT_HANDLER
 		if (interface_mode == INTERFACE_MAP || interface_mode == INTERFACE_CONT)
 			glDeleteTextures(1,&map_text);
-#endif
 		interface_mode = INTERFACE_CONSOLE;
-#ifdef OLD_EVENT_HANDLER
 		if (current_cursor != CURSOR_ARROW) 
 			change_cursor(CURSOR_ARROW);
-#endif
 	}
 }
+#endif
 
+#ifndef OLD_EVENT_HANDLER
 void view_map_win (int * win, int id)
 {
-#ifndef OLD_EVENT_HANDLER
-	int mode = interface_mode;
-
-	toggle_window (map_win);
-	if (mode == INTERFACE_CONSOLE)
-		toggle_window (console_win);
-	else if (mode == INTERFACE_GAME || mode == INTERFACE_MAP || mode == INTERFACE_CONT)
-		toggle_window (game_win);
-	if (mode == INTERFACE_GAME || mode == INTERFACE_CONSOLE)
+	if ( get_show_window (map_root_win) )
 	{
-		if (switch_to_game_map () == 0)
-		{
-			// map load failed, toggle root window back in
-			if(mode == INTERFACE_GAME)
-				toggle_window (game_win);
-			else
-				toggle_window (console_win);
-		}
+		switch_from_game_map ();
+		hide_window (map_root_win);
+		show_window (game_root_win);
 	}
+	else if ( switch_to_game_map () )
+	{
+		if ( get_show_window (game_root_win) )
+			hide_window (game_root_win);
+		if ( get_show_window (console_root_win) )
+			hide_window (console_root_win);
+		show_window (map_root_win);
+	}
+}
 #else
+void view_map_win (int * win, int id)
+{
 	if(interface_mode==INTERFACE_GAME || interface_mode==INTERFACE_CONSOLE)
 	{
 		switch_to_game_map ();
 	}
-#endif
 	else if (interface_mode == INTERFACE_MAP || interface_mode == INTERFACE_CONT)
 	{
 		switch_from_game_map();
 	}
 }
+#endif
 
 void view_window(int * window, int id)
 {

@@ -10,7 +10,7 @@
 
 /*! \name windows handlers 
  * @{ */
-extern int game_win; /*!< the root (game) window */
+extern int game_root_win; /*!< the root (game) window */
 /*! @} */
 
 /*!
@@ -71,7 +71,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey);
  *
  * \callgraph
  */
-void create_game_window ();
+void create_game_root_window ();
 
 #endif
 

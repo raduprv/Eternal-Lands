@@ -572,18 +572,18 @@ int find_last_console_lines(int lines_no)
 #ifndef OLD_EVENT_HANDLER
 int find_line_nr (int line)
 {
-	int i=-1;
+	int i = -1;
 	int line_count = nr_text_buffer_lines - line;
 	
-	for(i=display_text_buffer_last-2;i>=0;i--)
+	for (i = display_text_buffer_last - 2; i >= 0; i--)
+	{
+		//parse the text backwards, until we meet the right \n
+		if (display_text_buffer[i] == '\n')
 		{
-			//parse the text backwards, until we meet the 10'th \n
-			if(display_text_buffer[i]=='\n')
-				{
-					line_count--;
-					if(line_count<=0)break;
-				}
+			line_count--;
+			if (line_count <= 0) break;
 		}
+	}
 	return i+1;
 }
 #endif

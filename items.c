@@ -1009,7 +1009,7 @@ void display_items_menu()
 {
 	if(items_win < 0){
 #ifndef OLD_EVENT_HANDLER
-		items_win= create_window("Inventory", game_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
+		items_win= create_window("Inventory", game_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
 #else
 		items_win= create_window("Inventory", -1, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
 #endif
@@ -1028,7 +1028,7 @@ void draw_pick_up_menu()
 {
 	if(ground_items_win < 0){
 #ifndef OLD_EVENT_HANDLER
-		ground_items_win= create_window("Bag", game_win, 0, ground_items_menu_x, ground_items_menu_y, ground_items_menu_x_len, ground_items_menu_y_len, ELW_WIN_DEFAULT);
+		ground_items_win= create_window("Bag", game_root_win, 0, ground_items_menu_x, ground_items_menu_y, ground_items_menu_x_len, ground_items_menu_y_len, ELW_WIN_DEFAULT);
 #else
 		ground_items_win= create_window("Bag", -1, 0, ground_items_menu_x, ground_items_menu_y, ground_items_menu_x_len, ground_items_menu_y_len, ELW_WIN_DEFAULT);
 #endif

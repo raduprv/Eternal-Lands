@@ -4,7 +4,7 @@
 
 #ifndef OLD_EVENT_HANDLER
 
-int login_win = -1;
+int login_root_win = -1;
 
 int username_text_x;
 int username_text_y;
@@ -196,29 +196,25 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (log_in_button_selected && left_click)
 	{
 		send_login_info ();
-		// XXX FIXME (Grum): figure out how to do this cleanly
-		//left_click=2;//don't relogin 100 times like a moron
 	}
 	//check to see if we clicked on the ACTIVE New Char button
 	else if (new_char_button_selected && left_click)
 	{
 		// don't destroy the login window just yet, the user might 
 		// click the back button
-		hide_window (login_win);
-		create_newchar_window ();
+		hide_window (login_root_win);
+		create_newchar_root_window ();
 		if (last_display == -1)
 		{
-			create_rules_root_window (newchar_win, 15);
+			create_rules_root_window (newchar_root_win, 15);
 			show_window (rules_root_win);
 			interface_mode = INTERFACE_RULES;
 		}
 		else 
 		{
-			show_window (newchar_win);
+			show_window (newchar_root_win);
 			interface_mode = INTERFACE_NEW_CHAR;
 		}
-		// XXX FIXME (Grum): figure out how to do this cleanly
-		//left_click=2;
 	}
 	return 1;
 }
@@ -254,19 +250,19 @@ int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32
 	return 1;
 }
 
-void create_login_window ()
+void create_login_root_window ()
 {
-	if (login_win < 0)
+	if (login_root_win < 0)
 	{
-		login_win = create_window ("Login", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		login_root_win = create_window ("Login", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
-                set_window_handler (login_win, ELW_HANDLER_DISPLAY, &display_login_handler);		
-                set_window_handler (login_win, ELW_HANDLER_MOUSEOVER, &mouseover_login_handler);		
-                set_window_handler (login_win, ELW_HANDLER_CLICK, &click_login_handler);		
-                set_window_handler (login_win, ELW_HANDLER_KEYPRESS, &keypress_login_handler);
-                set_window_handler (login_win, ELW_HANDLER_RESIZE, &resize_login_handler);
+		set_window_handler (login_root_win, ELW_HANDLER_DISPLAY, &display_login_handler);		
+		set_window_handler (login_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_login_handler);		
+		set_window_handler (login_root_win, ELW_HANDLER_CLICK, &click_login_handler);		
+		set_window_handler (login_root_win, ELW_HANDLER_KEYPRESS, &keypress_login_handler);
+		set_window_handler (login_root_win, ELW_HANDLER_RESIZE, &resize_login_handler);
 		
-		resize_window (login_win, window_width, window_height);	
+		resize_window (login_root_win, window_width, window_height);	
 	}
 }
 

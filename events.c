@@ -359,7 +359,7 @@ int HandleEvent (SDL_Event *event)
 
 				if (key==K_MAP)
 					{
-						view_map_win(&map_win,-1);
+						view_map_win(&map_root_win,-1);
 					}
 
 				if (key==K_ROTATELEFT)
@@ -501,7 +501,7 @@ int HandleEvent (SDL_Event *event)
 
 				if(ch=='`' || key==K_CONSOLE)
 					{
-						view_console_win(&console_win,-1);
+						view_console_win(&console_root_win,-1);
 						break;
 					}
 

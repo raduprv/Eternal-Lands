@@ -364,11 +364,11 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				show_hud_windows ();
 #ifndef OLD_EVENT_HANDLER
 				// login and/or new character windows are no longer needed
-				if (login_win >= 0) destroy_window (login_win);
-				login_win = -1;
-				if (newchar_win >= 0) destroy_window (newchar_win);
-				newchar_win = -1;
-				show_window (game_win);
+				if (login_root_win >= 0) destroy_window (login_root_win);
+				login_root_win = -1;
+				if (newchar_root_win >= 0) destroy_window (newchar_root_win);
+				newchar_root_win = -1;
+				show_window (game_root_win);
 #endif
 				interface_mode=INTERFACE_GAME;
 				previously_logged_in=1;
@@ -913,8 +913,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					case NEW_CHAR_INTERFACE:
 #ifndef OLD_EVENT_HANDLER
 						hide_all_root_windows ();
-						create_newchar_window ();
-						show_window (newchar_win);
+						create_newchar_root_window ();
+						show_window (newchar_root_win);
 #endif
 						interface_mode = INTERFACE_NEW_CHAR;
 						connect_to_server();

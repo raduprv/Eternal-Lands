@@ -3,7 +3,7 @@
 
 #ifndef OLD_EVENT_HANDLER
 
-int game_win = -1;
+int game_root_win = -1;
 
 // This is the main part of the old check_cursor_change ()
 int mouseover_game_handler (window_info *win, int mx, int my)
@@ -694,8 +694,8 @@ Uint8 key_to_char (Uint32 unikey)
 	return unikey & 0xff;
 }
 
-// keypress handler common to all in-game root windows (game_win, console_win,
-// and map_win)
+// keypress handler common to all in-game root windows (game_root_win, 
+// console_root_win, and map_root_win)
 int keypress_root_common (Uint32 key, Uint32 unikey)
 {
 	static Uint32 last_turn_around = 0;
@@ -1069,8 +1069,8 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		if ( switch_to_game_map () )
 		{
-			hide_window (game_win);
-			show_window (map_win);
+			hide_window (game_root_win);
+			show_window (map_root_win);
 			interface_mode = INTERFACE_MAP;
 		}
 	}
@@ -1126,8 +1126,8 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 
 		if (ch == '`' || key == K_CONSOLE)
 		{
-			hide_window (game_win);
-			show_window (console_win);
+			hide_window (game_root_win);
+			show_window (console_root_win);
 			interface_mode = INTERFACE_CONSOLE;
 		}
 		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
@@ -1154,16 +1154,16 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	return 1;
 }
 
-void create_game_window ()
+void create_game_root_window ()
 {
-	if (game_win < 0)
+	if (game_root_win < 0)
 	{
-		game_win = create_window ("Game", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		game_root_win = create_window ("Game", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		
-        	set_window_handler (game_win, ELW_HANDLER_DISPLAY, &display_game_handler);
-        	set_window_handler (game_win, ELW_HANDLER_CLICK, &click_game_handler);
-        	set_window_handler (game_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
-        	set_window_handler (game_win, ELW_HANDLER_KEYPRESS, &keypress_game_handler);
+        	set_window_handler (game_root_win, ELW_HANDLER_DISPLAY, &display_game_handler);
+        	set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
+        	set_window_handler (game_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
+        	set_window_handler (game_root_win, ELW_HANDLER_KEYPRESS, &keypress_game_handler);
 		
 		resize_root_window();
 	}
