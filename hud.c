@@ -194,6 +194,17 @@ float colored_knowledge_icon_v_start=1.0f-(float)64/255;
 float colored_knowledge_icon_u_end=(float)63/255;
 float colored_knowledge_icon_v_end=1.0f-(float)95/255;
 
+// until we have an incon using the knowledge one
+float encyclopedia_icon_u_start=(float)0/255;
+float encyclopedia_icon_v_start=1.0f-(float)64/255;
+float encyclopedia_icon_u_end=(float)31/255;
+float encyclopedia_icon_v_end=1.0f-(float)95/255;
+
+float colored_encyclopedia_icon_u_start=(float)32/255;
+float colored_encyclopedia_icon_v_start=1.0f-(float)64/255;
+float colored_encyclopedia_icon_u_end=(float)63/255;
+float colored_encyclopedia_icon_v_end=1.0f-(float)95/255;
+
 int walk_icon_x_start;
 int walk_icon_x_end;
 int walk_icon_y_start;
@@ -283,6 +294,11 @@ int knowledge_icon_x_start;
 int knowledge_icon_x_end;
 int knowledge_icon_y_start;
 int knowledge_icon_y_end;
+
+int encyclopedia_icon_x_start;
+int encyclopedia_icon_x_end;
+int encyclopedia_icon_y_start;
+int encyclopedia_icon_y_end;
 
 //stat bars
 int health_bar_start_x;
@@ -375,8 +391,13 @@ void init_peace_icons()
 	knowledge_icon_x_end=knowledge_icon_x_start+32;
 	knowledge_icon_y_start=window_height-32;
 	knowledge_icon_y_end=knowledge_icon_y_start+32;
+	
+	encyclopedia_icon_x_start=knowledge_icon_x_end+1;
+	encyclopedia_icon_x_end=encyclopedia_icon_x_start+32;
+	encyclopedia_icon_y_start=window_height-32;
+	encyclopedia_icon_y_end=encyclopedia_icon_y_start+32;
 
-	options_icon_x_start=knowledge_icon_x_end+1;
+	options_icon_x_start=encyclopedia_icon_x_end+1;
 	options_icon_x_end=options_icon_x_start+32;
 	options_icon_y_start=window_height-32;
 	options_icon_y_end=options_icon_y_start+32;
@@ -509,6 +530,14 @@ void draw_peace_icons()
 	else
 		draw_2d_thing(knowledge_icon_u_start, knowledge_icon_v_start, knowledge_icon_u_end, knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
+	
+	if(mouse_x>encyclopedia_icon_x_start && mouse_y>encyclopedia_icon_y_start &&
+	   mouse_x<encyclopedia_icon_x_end && mouse_y<encyclopedia_icon_y_end)
+		draw_2d_thing(colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, colored_encyclopedia_icon_u_end, colored_encyclopedia_icon_v_end,
+					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
+	else
+		draw_2d_thing(encyclopedia_icon_u_start, encyclopedia_icon_v_start, encyclopedia_icon_u_end, encyclopedia_icon_v_end,
+					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
 
 	if(mouse_x>options_icon_x_start && mouse_y>options_icon_y_start &&
 	   mouse_x<options_icon_x_end && mouse_y<options_icon_y_end)
@@ -616,6 +645,11 @@ int check_peace_icons()
 				my_tcp_send(my_socket,str,2);
 			}
 	}
+	else if(mouse_x>encyclopedia_icon_x_start && mouse_y>encyclopedia_icon_y_start &&
+			mouse_x<encyclopedia_icon_x_end && mouse_y<encyclopedia_icon_y_end)
+		{
+			view_encyclopedia=!view_encyclopedia;
+		}
 	return 1;
 }
 
