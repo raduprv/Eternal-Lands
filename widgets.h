@@ -170,6 +170,18 @@ widget_list * widget_find(Uint32 window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	widgets
+ * \brief 	Destroy a widget with a given ID
+ *
+ * 		Destroys a widget with ID \a widget_id, and removes it from the window's widget list.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \retval	int 1 on success, 0 on failure
+ */
+int widget_destroy (Uint32 window_id, Uint32 widget_id);
+
+/*!
+ * \ingroup	widgets
  * \brief 	Sets the widget's draw callback
  *
  * 		Finds the widget in the window and sets the widget's draw callback in the specified window.

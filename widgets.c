@@ -108,6 +108,42 @@ widget_list * widget_find(Uint32 window_id, Uint32 widget_id)
 	return NULL;
 }
 
+int widget_destroy (Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *w, *n;
+
+	if (window_id < 0 || window_id >= windows_list.num_windows) return 0;
+	if (windows_list.window[window_id].window_id != window_id) return 0;
+	
+	n = windows_list.window[window_id].widgetlist;
+	if (n->id == widget_id)
+	{
+		if (n->OnDestroy != NULL)
+			n->OnDestroy (n);
+		windows_list.window[window_id].widgetlist = n->next;
+		free (n);
+		return 1;
+	}
+	else
+	{
+		while (n != NULL)
+		{
+			w = n;
+			n = n->next;
+			if(n->id == widget_id)
+			{
+				if (n->OnDestroy != NULL)
+					n->OnDestroy (n);
+				w->next = n->next;
+				free (n);
+				return 1;
+			}
+		}
+	}
+	
+	return 0;
+}
+
 int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)())
 {
 	widget_list *w = widget_find(window_id, widget_id);
