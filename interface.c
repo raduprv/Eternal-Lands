@@ -506,7 +506,7 @@ void build_video_mode_array()
 	int i;
 	int flags;
 
-	for(i=0;i<8;i++)
+	for(i=0;i<10;i++)
 		{
 			video_modes[i].selected=0;
 			video_modes[i].supported=0;
