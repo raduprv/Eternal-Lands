@@ -622,12 +622,14 @@ int HandleEvent(SDL_Event *event)
 				if(check_drag_menus())return(done);
 
 			if((left_click==1 || right_click==1) &&
-			   (interface_mode==interface_game ||
-				interface_mode==interface_console))
+			   interface_mode==interface_game)
 				check_mouse_click();
 			else if((left_click==1 || right_click==1) &&
 			   interface_mode==interface_map)
 			   	pf_move_to_mouse_position();
+			else if((left_click==1 || right_click==1) &&
+			   interface_mode==interface_console)
+				check_hud_interface();
 			else
 				if((left_click==1 || right_click==1) &&
 				   interface_mode==interface_opening && !disconnected)
