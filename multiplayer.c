@@ -634,14 +634,15 @@ int recvpacket()
 	//get the header if we don't have it
 	if(in_data_used < 3)
 		{
-			total=SDLNet_TCP_Recv(my_socket, in_data+in_data_used, 3);
-			if(total==-1)return 0;	//no data to read - return
-			total+=in_data_used;	// adjust for what we have already
+			total=SDLNet_TCP_Recv(my_socket, in_data+in_data_used, 3-in_data_used);
+			if(total==-1)return 0;	// no data to read - return
+			in_data_used+=total;	// adjust for what we have already;
+			total=in_data_used;
 			if(total<3)
 				{
 					if(total > 0)
 						{
-							log_to_console(c_red2,"Packet underrun ... recovering!");
+							//log_to_console(c_red2,"Packet underrun ... recovering!");
 							return -1; // didn't even get 3 bytes? noting new, keep running
 						}
 					else
