@@ -27,7 +27,11 @@ void send_version_to_server()
 	str[0]=SEND_VERSION;
 	*((short *)(str+1))=(short)version_first_digit;
 	*((short *)(str+3))=(short)version_second_digit;
-	my_tcp_send(my_socket,str,5);
+	str[5]=client_version_major;
+	str[6]=client_version_minor;
+	str[7]=client_version_release;
+	str[8]=client_version_patch;
+	my_tcp_send(my_socket,str,9);
 }
 
 void connect_to_server()
