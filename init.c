@@ -343,12 +343,12 @@ void init_stuff()
 
 	//now load the multitexturing extension
 	//#ifdef WINDOWS
-	ELglActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
-	ELglMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
-	ELglMultiTexCoord2fvARB	= (PFNGLMULTITEXCOORD2FVARBPROC)	SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
-	ELglClientActiveTextureARB= (PFNGLCLIENTACTIVETEXTUREARBPROC)	SDL_GL_GetProcAddress("glClientActiveTextureARB");
-	ELglLockArraysEXT			= (PFNGLLOCKARRAYSEXTPROC)			SDL_GL_GetProcAddress("glLockArraysEXT");
-	ELglUnlockArraysEXT		= (PFNGLUNLOCKARRAYSEXTPROC)		SDL_GL_GetProcAddress("glUnlockArraysEXT");
+	ELglActiveTextureARB = SDL_GL_GetProcAddress("glActiveTextureARB");
+	ELglMultiTexCoord2fARB = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
+	ELglMultiTexCoord2fvARB	= SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
+	ELglClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
+	ELglLockArraysEXT = SDL_GL_GetProcAddress("glLockArraysEXT");
+	ELglUnlockArraysEXT = SDL_GL_GetProcAddress("glUnlockArraysEXT");
 	//#endif
 
 	//see if we really have multitexturing
