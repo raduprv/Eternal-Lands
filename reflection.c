@@ -42,6 +42,7 @@ void draw_actor_reflection(actor * actor_id)
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+	z_pos+=-water_deepth_offset*2;
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 
@@ -83,6 +84,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+	z_pos+=-water_deepth_offset*2;
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	x_rot=actor_id->x_rot;
@@ -158,7 +160,8 @@ void draw_3d_reflection(object3d * object_id)
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
 	z_pos=object_id->z_pos;
-	if(z_pos<0)z_pos+=-water_deepth_offset*2;
+	//if(z_pos<0)z_pos+=-water_deepth_offset*2;
+	z_pos+=-water_deepth_offset*2;
 
 	glTranslatef (x_pos, y_pos,z_pos);
 	x_rot=object_id->x_rot;
