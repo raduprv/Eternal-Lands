@@ -12,7 +12,7 @@ INCS =  -I"C:/Dev-Cpp/include"
 CXXINCS =  -I"C:/Dev-Cpp/include/c++"  -I"C:/Dev-Cpp/include/c++/mingw32"  -I"C:/Dev-Cpp/include/c++/backward"  -I"C:/Dev-Cpp/include" 
 BIN  = Debug/EL.exe
 CXXFLAGS = $(CXXINCS)-DWINDOWS  -D_WIN32 -Wall -DELC   -fexpensive-optimizations
-CFLAGS = $(INCS)-DWINDOWS  -D_WIN32 -Wall -DELC   -fexpensive-optimizations
+CFLAGS = $(INCS)-DWINDOWS  -D_WIN32 -Wall    -fexpensive-optimizations
 
 .PHONY: all all-before all-after clean clean-custom
 

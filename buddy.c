@@ -169,6 +169,13 @@ void init_buddy()
 	
 }
 
+/* Widget test
+int clika(widget_list *w){
+	w->pos_x+=10;
+	return 0;
+}
+*/
+
 void display_buddy()
 {
 	if(buddy_win <= 0)
@@ -177,6 +184,18 @@ void display_buddy()
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_DRAG, &drag_buddy_handler );
+			/* Widget test
+			label_add(buddy_win,NULL,"Hello!",0,0);
+			label_set_size(buddy_win,0,2.0);
+			label_set_color(buddy_win,0,0.5,0.5,0.5);
+			widget_move(buddy_win,0,20,20);
+			label_set_text(buddy_win,0,"Bye!");
+			widget_set_OnClick(buddy_win,0,clika);
+			widget_set_OnMouseover(buddy_win,0,clika);
+			image_add(buddy_win,NULL,load_texture_cache("./textures/sky.bmp",70),0,30,64,64,0.0,0.0,1.0,1.0);
+			widget_set_OnClick(buddy_win,1,clika);
+			widget_set_OnMouseover(buddy_win,1,clika);
+			*/
 		}
 	else
 		{
