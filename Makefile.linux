@@ -1,7 +1,7 @@
 .PHONY: clean release
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC
+OPTIONS=-DLINUX -DELC 
 #-DX86_64
 #-DTIMER_CHECK
 PLATFORM=-march=i686

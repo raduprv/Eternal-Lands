@@ -266,9 +266,9 @@ void highlight_rule(int type, Uint8 * rule, int no)
 		no-=3;
 	} else return; //Hmm...
 	
-	reset_rules(display_rules);
-	
 	if(display_rules) {
+		reset_rules(display_rules);
+	
 		for(i=0;i<no;i++){
 			cur_rule=rule[i];
 			r=0;
@@ -283,6 +283,7 @@ void highlight_rule(int type, Uint8 * rule, int no)
 				display_rules[j].show_long_desc=1;
 			}
 		}
+		
 		for(i=0;display_rules[i].type!=-1;i++)
 			if(display_rules[i].type == RULE && display_rules[i].highlight) {
 				rule_offset=i;//Get the first highlighted entry
@@ -429,7 +430,6 @@ void draw_rules_interface()
 		if(next_interface==interface_opening)connect_to_server();
 		return;
 	}
-	if(!rules.no) interface_mode=next_interface;
 
 	draw_rules(display_rules, 1, 20,20,window_width,window_height-50*((float)window_width/640.0f),1.0f);
 	

@@ -2,6 +2,8 @@
 #include <math.h>
 #include <string.h>
 
+GLuint paper1_text;
+
 float cx=0;
 float cy=0;
 float cz=0;
@@ -89,6 +91,7 @@ void draw_scene()
 					if(SDL_GetAppState()&SDL_APPACTIVE)
 						{
 							Enter2DMode();
+							//draw_console_pic(paper1_text);
 							draw_console_pic(cons_text);
 							draw_rules_interface();
 							SDL_GL_SwapBuffers();

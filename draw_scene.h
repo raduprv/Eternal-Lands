@@ -1,6 +1,8 @@
 #ifndef __DRAW_SCENE_H__
 #define __DRAW_SCENE_H__
 
+extern GLuint paper1_text;
+
 extern float cx,cy,cz;
 extern float rx,ry,rz;
 extern float camera_rotation_speed;
