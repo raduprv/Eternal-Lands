@@ -587,9 +587,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case NPC_TEXT:
 			{
-
 				put_small_text_in_box(&in_data[3],data_lenght-3,dialogue_menu_x_len-70,dialogue_string);
-				have_dialogue=1;
+				display_dialogue();
 				if(in_data[3]>=127 && in_data[4]>=127)add_questlog(&in_data[4]);
 			}
 			break;
