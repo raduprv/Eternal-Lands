@@ -9,11 +9,11 @@ void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 	float x,y,z;
 	char *dest_frame_name;
 	int numFrames;
-    int numFaces;
-    text_coord_md2 *offsetTexCoords;
-    face_md2 *offsetFaces;
-    frame_md2 *offsetFrames;
-    vertex_md2 *vertex_pointer=NULL;
+	int numFaces;
+	text_coord_md2 *offsetTexCoords;
+	face_md2 *offsetFaces;
+	frame_md2 *offsetFrames;
+	vertex_md2 *vertex_pointer=NULL;
 
 	numFaces=model_data->numFaces;
 	numFrames=model_data->numFrames;
@@ -733,7 +733,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->cur_weapon=weapon;
 	actors_list[i]->kind_of_actor=kind_of_actor;
-	sprintf(actors_list[i]->actor_name,&in_data[28]);
+	my_strncp(actors_list[i]->actor_name,&in_data[28],30);
 	unlock_actors_lists();  //unlock it
 
 }

@@ -631,7 +631,7 @@ void add_actor_from_server(char * in_data)
 	actors_list[i]->dead=dead;
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->kind_of_actor=kind_of_actor;
-	my_strcp(actors_list[i]->actor_name,&in_data[23]);
+	my_strncp(actors_list[i]->actor_name,&in_data[23],30);
 	unlock_actors_lists();	//unlock it
 }
 
