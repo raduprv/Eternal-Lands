@@ -264,7 +264,7 @@ void read_config()
 	else if(use_vertex_array > 0) log_to_console(c_green2,"Vertex Arrays enabled (memory hog on!)...");
 #endif	//USE_VERTEXARRAYS
 	use_point_particles=get_integer_after_string("#use_point_particles",file_mem,ini_file_size);
-	if(use_point_particles < 0) use_vertex_array=1;
+	if(use_point_particles < 0) use_point_particles=1;
 	else if(use_point_particles == 0) log_to_console(c_green2,"Point Particles disabled.");
 	sit_lock=get_integer_after_string("#sit_lock",file_mem,ini_file_size);
 	if(sit_lock==-1)sit_lock=0;
