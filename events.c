@@ -161,7 +161,6 @@ int HandleEvent(SDL_Event *event)
 					console_move_page_up();
 
 				if(key==K_ITEM1){
-					add_buddy("hola",4);
 				  for(i=0;i<ITEM_NUM_ITEMS;i++){
 				    if(item_list[i].pos==0 &&
 				       item_list[i].quantity &&
@@ -175,7 +174,6 @@ int HandleEvent(SDL_Event *event)
 				  break;
 				}
 				if(key==K_ITEM2){
-					add_buddy("ola",0);
 				  for(i=0;i<ITEM_NUM_ITEMS;i++){
 				    if(item_list[i].pos==1 &&
 				       item_list[i].quantity &&

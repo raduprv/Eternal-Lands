@@ -709,7 +709,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case BUDDY_EVENT:
 			{
 				if(in_data[3]==1)
-					add_buddy(&in_data[4]);
+					add_buddy(&in_data[5],in_data[4]);
 				else if(in_data[3]==0)
 					del_buddy(&in_data[4]);
 			}

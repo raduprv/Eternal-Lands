@@ -164,13 +164,13 @@ void init_buddy()
 	
 }
 
-void add_buddy(char *n)
+void add_buddy(char *n, int t)
 {
 	int i;
 	//find empty space
 	for(i=0;i<100;i++){
 		if(buddy_list[i].type==0xff){//found then add buddy
-			buddy_list[i].type=0;
+			buddy_list[i].type=t;
 			strcpy(buddy_list[i].name,n);
 			break;
 		}

@@ -217,6 +217,16 @@ float colored_console_icon_v_start=1.0f-(float)96/256;
 float colored_console_icon_u_end=(float)159/256;
 float colored_console_icon_v_end=1.0f-(float)127/256;
 
+float buddy_icon_u_start=(float)64/256;
+float buddy_icon_v_start=1.0f-(float)32/256;
+float buddy_icon_u_end=(float)95/256;
+float buddy_icon_v_end=1.0f-(float)63/256;
+
+float colored_buddy_icon_u_start=(float)0/256;
+float colored_buddy_icon_v_start=1.0f-(float)96/256;
+float colored_buddy_icon_u_end=(float)31/256;
+float colored_buddy_icon_v_end=1.0f-(float)127/256;
+
 int walk_icon_x_start;
 int walk_icon_x_end;
 int walk_icon_y_start;
@@ -316,6 +326,11 @@ int console_icon_x_start;
 int console_icon_x_end;
 int console_icon_y_start;
 int console_icon_y_end;
+
+int buddy_icon_x_start;
+int buddy_icon_x_end;
+int buddy_icon_y_start;
+int buddy_icon_y_end;
 
 //stat bars
 int health_bar_start_x;
@@ -428,7 +443,12 @@ void init_peace_icons()
 	console_icon_y_start=window_height-32;
 	console_icon_y_end=console_icon_y_start+31;
 	
-	options_icon_x_start=console_icon_x_end+1;
+	buddy_icon_x_start=console_icon_x_end+1;
+	buddy_icon_x_end=buddy_icon_x_start+31;
+	buddy_icon_y_start=window_height-32;
+	buddy_icon_y_end=buddy_icon_y_start+31;
+
+	options_icon_x_start=buddy_icon_x_end+1;
 	options_icon_x_end=options_icon_x_start+31;
 	options_icon_y_start=window_height-32;
 	options_icon_y_end=options_icon_y_start+31;
@@ -577,6 +597,13 @@ void draw_peace_icons()
 	else
 		draw_2d_thing(map_icon_u_start, map_icon_v_start, map_icon_u_end, map_icon_v_end,
 					  map_icon_x_start, map_icon_y_start, map_icon_x_end, map_icon_y_end);
+	
+	if(view_buddy || (mouse_x>buddy_icon_x_start && mouse_y>buddy_icon_y_start && mouse_x<buddy_icon_x_end && mouse_y<buddy_icon_y_end))
+		draw_2d_thing(colored_buddy_icon_u_start, colored_buddy_icon_v_start, colored_buddy_icon_u_end, colored_buddy_icon_v_end,
+					  buddy_icon_x_start, buddy_icon_y_start, buddy_icon_x_end, buddy_icon_y_end);
+	else
+		draw_2d_thing(buddy_icon_u_start, buddy_icon_v_start, buddy_icon_u_end, buddy_icon_v_end,
+					  buddy_icon_x_start, buddy_icon_y_start, buddy_icon_x_end, buddy_icon_y_end);
 
 	glEnd();
 	//glDisable(GL_ALPHA_TEST);
@@ -691,6 +718,10 @@ int check_peace_icons()
 		{
 			if(interface_mode==interface_game)switch_to_game_map();
 						else if(interface_mode==interface_map)switch_from_game_map();
+	}else if(mouse_x>buddy_icon_x_start && mouse_y>buddy_icon_y_start &&
+			mouse_x<buddy_icon_x_end && mouse_y<buddy_icon_y_end)
+		{
+			view_buddy=!view_buddy;
 	}
 	return 1;
 }
