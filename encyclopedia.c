@@ -528,7 +528,6 @@ void ReadIndexXML(xmlNode * a_node)
 				Category[num_category++].Name[l]=0;
 
 				//we load the category now
-#ifdef NEW_STRUCTURE
 				sprintf(tmp,"languages/%s/Encyclopedia/%s.xml",lang,cur_node->children->content);
 				doc=xmlReadFile(tmp, NULL, 0);
 				if (doc==NULL)
@@ -536,10 +535,6 @@ void ReadIndexXML(xmlNode * a_node)
 						sprintf(tmp,"languages/en/Encyclopedia/%s.xml",cur_node->children->content);
 						doc=xmlReadFile(tmp, NULL, 0);
 					}
-#else
-				sprintf(tmp,"Encyclopedia/%s.xml",cur_node->children->content);
-				doc=xmlReadFile(tmp, NULL, 0);
-#endif
 				if(doc==NULL)
 					{
 						return;

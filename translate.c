@@ -488,21 +488,8 @@ void init_translatables()
 	init_spells();
 	init_stats();
 #endif
-#ifndef WRITE_XML
-#ifndef LOAD_XML
-//There's no need for these variables to be hanging around any more...
-	free_xml_parser(GROUP,errors,ERRORS);
-#ifdef ELC
-	free_xml_parser(GROUP,console_str,CONSOLE_STR);
-	free_xml_parser(GROUP,help_str,HELP_STR);
-	free_xml_parser(DIGROUP,options_str,OPTIONS_STR);
-	free_xml_parser(DIGROUP,sigils_str,SIGILS_STR);
-	free_xml_parser(STAT_GROUP,stats_str,STATS_STR);
-	free_xml_parser(GROUP,stats_extra,STATS_EXTRA);
-#endif
-#endif
-#endif
 }
+
 #ifdef ELC
 void init_console()
 {
@@ -880,7 +867,6 @@ void load_translatables()
 	if(file.file!=NULL)
 		{
 			//Parse file
-			fprintf(stdout,"parsing file console.xml\n");
 			parse_console(file.root);
 #ifdef WRITE_XML
 			save_strings(file.file,"console.xml");
@@ -891,8 +877,6 @@ void load_translatables()
 	file = load_strings("errors.xml");
 	if(file.file!=NULL)
 		{
-			//Parse file
-			fprintf(stdout,"parsing file errors.xml\n");
 			parse_errors(file.root);
 #ifdef WRITE_XML
 			save_strings(file.file,"errors.xml");
@@ -903,7 +887,6 @@ void load_translatables()
 	file = load_strings("help.xml");
 	if(file.file!=NULL)
 		{
-			fprintf(stdout,"parsing file help.xml\n");
 			parse_help(file.root);
 #ifdef WRITE_XML
 			save_strings(file.file,"help.xml");
@@ -915,7 +898,6 @@ void load_translatables()
 	file = load_strings("options.xml");
 	if(file.file!=NULL)
 		{
-			fprintf(stdout,"parsing file options.xml\n");
 			parse_options(file.root);
 #ifdef WRITE_XML
 			save_strings(file.file,"options.xml");
@@ -927,7 +909,6 @@ void load_translatables()
 	file = load_strings("spells.xml");
 	if(file.file!=NULL)
 		{
-			fprintf(stdout,"parsing file spells.xml\n");
 			parse_spells(file.root);
 #ifdef WRITE_XML
 			save_strings(file.file,"spells.xml");
@@ -939,7 +920,6 @@ void load_translatables()
 	file = load_strings("stats.xml");
 	if(file.file!=NULL)
 		{
-			fprintf(stdout,"parsing file stats.xml\n");
 			parse_stats(file.root);
 #ifdef WRITE_XML
 			save_strings(file.file,"stats.xml");
@@ -963,19 +943,11 @@ struct xml_struct load_strings(char * file)
 {
 	char file_name[120];
 	struct xml_struct tmp={NULL,NULL};
-#ifdef NEW_STRUCTURE
 	sprintf(file_name,"languages/%s/strings/%s",lang,file);
-#else
-	sprintf(file_name,"strings/%s/%s",lang,file);
-#endif
 	tmp=load_strings_file(file_name);
 	if(tmp.file==NULL||tmp.root==NULL)
 		{
-#ifdef NEW_STRUCTURE
 			sprintf(file_name,"languages/en/strings/%s",file);
-#else
-			sprintf(file_name,"strings/en/%s",file);
-#endif
 			tmp=load_strings_file(file_name);
 			if(tmp.file==NULL)
 				{

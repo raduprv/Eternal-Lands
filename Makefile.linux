@@ -1,7 +1,7 @@
 .PHONY: clean release
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC -DUSE_VERTEXARRAYS -DCACHE_SYSTEM -DLOAD_XML
+OPTIONS=-DLINUX -DELC -DUSE_VERTEXARRAYS -DCACHE_SYSTEM
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
