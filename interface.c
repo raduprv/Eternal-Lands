@@ -241,7 +241,10 @@ void check_mouse_click()
 				}
 			str[0]=USE_MAP_OBJECT;
 			*((int *)(str+1))=object_under_mouse;
-			*((int *)(str+5))=use_item;
+			if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM)
+				*((int *)(str+5))=item_list[use_item].pos;
+			else
+				*((int *)(str+5))=-1;
 			my_tcp_send(my_socket,str,9);
 			return;
 		}

@@ -12,7 +12,7 @@
 
 #define DATA_NONE -1
 #define DATA_WINDOW 0
-#define DATA_ACTIONMODE 1
+#define DATA_MODE 1
 
 #define HORIZONTAL 2
 #define VERTICAL 1
