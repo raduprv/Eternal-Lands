@@ -377,7 +377,7 @@ void init_browser()
 			strcpy(Dir[dc].DirName,&temp[12]);
 			Cat[cc].Sub[Cat[cc].ns]=&Dir[dc];
 			Cat[cc].ns++;
-		}else{
+		}else if(temp[0]!='\n'){
 			int i=0,j;
 			while(temp[i]!=','){
 				Dir[dc].Names[Dir[dc].nf][i]=temp[i++];
