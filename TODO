@@ -8,12 +8,13 @@ S/W version check & upload
 
 
 Learner:
-Player controlled text size for name tags and chat - Testing
 OSX support
 unignore saving to file
 unfilter support
 Faster mouse icon switch without dropping FPS
 Investigate variable width fonts
+save zoom level and angle in el.cfg
+Better faq support
 
 
 Ent's original list:

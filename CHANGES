@@ -1,3 +1,6 @@
+03-05-04
+Added sit_lock options to EL.ini to prevent walking if your sitting
+
 03-02-04
 Added username & password to el.ini and disabled by default
 Activated GL error checking in several places when DEBUG defined
@@ -18,7 +21,7 @@ Added name_text_size and chat_text_size to el.ini to adjust the font sizes
 02-02-04
 Fixed name tag & healthbar positioning issues
 Name & healthbar no longer zoom
-Name & healthbar no longer use the same routine for both actor types
+Name & healthbar now use the same routine for both actor types
 
 01-29-04
 Added zoom in/out feature.
