@@ -336,15 +336,21 @@ void init_stuff()
 			have_multitexture=0;
 			log_to_console(c_red1,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...");
 		}
-	else have_multitexture=1;
-#ifdef	USE_VERTEXARRAYS
-	have_vertex_array=get_string_occurance("GL_EXT_vertex_array",extensions,ext_str_len,0);
-	if(have_vertex_array < 0)have_vertex_array=0;
-	if(have_vertex_array < 0)
+	else
 		{
-			have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
-			if(have_compiled_vertex_array < 0)have_compiled_vertex_array=0;
+			have_multitexture=1;
+			log_to_console(c_green2,"GL_ARB_multitexture extension found, using it");
 		}
+#ifdef	USE_VERTEXARRAYS
+
+	have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
+	if(have_compiled_vertex_array < 0)
+		{
+			have_compiled_vertex_array=0;
+			log_to_console(c_red1,"Couldn't find the GL_EXT_compiled_vertex_array extension, not using it...");
+		}
+	else log_to_console(c_green2,"GL_EXT_compiled_vertex_array extension found, using it...");
+
 #endif
 	check_gl_errors();
 
