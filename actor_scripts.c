@@ -63,7 +63,7 @@ void move_to_next_frame()
 					if(!actors_list[i]->is_enhanced_model)
 						numFrames=actors_list[i]->model_data->numFrames;
 					else
-						numFrames=actors_list[i]->body_parts->torso->numFrames;
+						numFrames=actors_list[i]->body_parts->head->numFrames;
 
 					frame_exists=0;
 					for(k=0;k<numFrames;k++)
@@ -78,7 +78,7 @@ void move_to_next_frame()
 								}
 							else
 								{
-									if(strcmp(frame_name,actors_list[i]->body_parts->torso->offsetFrames[k].name)==0)
+									if(strcmp(frame_name,actors_list[i]->body_parts->head->offsetFrames[k].name)==0)
 										{
 											frame_exists=1;
 											break;
@@ -525,7 +525,13 @@ void destroy_actor(int actor_id)
 							}
 						free(actors_list[i]);
 						actors_list[i]=0;
-						if(i==max_actors-1)max_actors=i;
+						if(i==max_actors-1)max_actors--;
+						else
+							{
+								//copy the last one down and fill in the hole
+								max_actors--;
+								actors_list[i]=actors_list[max_actors];
+							}
 						break;
 					}
 		}
