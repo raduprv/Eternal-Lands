@@ -418,7 +418,7 @@ void update_camera()
 			} else 
 				camera_zoom_frames = 0;
 		} else {
-			if(zoom_level>2.0f){
+			if(zoom_level>1.75f){
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
 			} else 
