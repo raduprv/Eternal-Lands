@@ -8,12 +8,12 @@ S/W version check & upload -- testing
 User defined keyboard/mouse bindings
 
 Learner:
-OSX support
+OSX support - delayed :(
 Faster mouse icon switch without dropping FPS
-Investigate variable width fonts
+Investigate variable width fonts - preliminary testing
 save zoom level and angle in el.cfg
 Better faq support
-Change the internal way MD2s are loaded, and make them vertex arrays.
+Change the internal way MD2s are loaded, and make them vertex arrays. - TESTING
 
 
 Ent's original list:
@@ -30,3 +30,4 @@ MultiChannel Chat (needs server support)
 Server selection screen (we only have one server right now...)
 rework internal windowing system to keep track of which window is on top and
 	to draw them and catch clicks accordingly
+
