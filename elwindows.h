@@ -23,7 +23,7 @@ typedef	struct	{
 	float	border_color[4];	// r,g,b,a for the border
 	float	line_color[4];		// r,g,b,a for any internal lines
 
-	char	window_name[32];	// should be a unique name suitable for display
+	char	window_name[35];	// should be a unique name suitable for display
 
 	char	displayed;	// is the window currently being displayed?
 	//char	collapsed;	// is it collapsed or expanded?
@@ -45,6 +45,7 @@ typedef	struct	{
 	int	max_list;	// amount of space allocated in list
 	int	data_value;	// a simple data value associated with this window
 	*/
+	void * data;
 	widget_list widgetlist;
 } window_info;
 

@@ -266,7 +266,7 @@ char ** get_lines(char * str, int chars_per_line)
 	if(str){
 		while(*str){
 			my_str=(char **)realloc(my_str,(lines+2)*sizeof(char *));
-			cur=my_str[lines]=(char*)calloc(chars_per_line+2,sizeof(char));
+			cur=my_str[lines]=(char*)calloc(chars_per_line+3,sizeof(char));
 		
 			for(i=0;i<chars_per_line && str[i];i++){
 				if(str[i]==0x0d) i++;
@@ -414,7 +414,7 @@ int my_xmlstrncopy(char ** dest, char * src, int len)
 	
 		if(!*dest) *dest=(char*)malloc((l2+1)*sizeof(char));
 
-		UTF8Toisolat1(*dest,&l2,src,&l1);
+		if(UTF8Toisolat1(*dest,&l2,src,&l1)<0) return -1;
 		dest[0][l2]=0;
 	}
 	return l2;

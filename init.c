@@ -595,9 +595,11 @@ void init_stuff()
 	legend_text=load_texture_cache("./maps/legend.bmp",0);
 	cont_text=load_texture_cache("./maps/seridia.bmp",128);
 	
-	//Paper
+	//Paper & book
 	paper1_text=load_texture_cache("./textures/paper1.bmp",0);
-
+#ifdef BOOK
+	book1_text=load_texture_cache("./textures/book1.bmp",0);
+#endif
 
 	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 	check_gl_errors();

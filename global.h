@@ -95,6 +95,9 @@
 #include "elconfig.h"
 #include "timers.h"
 #include "rules.h"
+#ifdef BOOK
+#include "books.h"
+#endif
 #ifdef CAL3D
 #include "cal3dwrap.h"
 #endif

@@ -467,7 +467,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 			win->displayed= (property_flags&ELW_SHOW)?1:0;
 			//win->collapsed= 0;
 			win->dragged= 0;
-			strncpy(win->window_name, name, 32);
+			strncpy(win->window_name, name, 34);
 
 			win->back_color[0]= 0.0f;
 			win->back_color[1]= 0.0f;
@@ -652,7 +652,6 @@ int	draw_window_title(window_info *win)
 			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 			// center text
 			draw_string_small((win->len_x-len)/2, 1-ELW_TITLE_HEIGHT, win->window_name, 1);
-			
 		}
 
 	return 1;

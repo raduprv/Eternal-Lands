@@ -380,6 +380,12 @@ int HandleEvent(SDL_Event *event)
 					}
 //TEST REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!
 				if(event->key.keysym.sym==SDLK_F5) toggle_rules_window(1);
+#ifdef BOOK
+				if(event->key.keysym.sym==SDLK_F7){
+					if(ctrl_on) read_local_book("./books/abc.xml\0",22);
+					else if(shift_on) read_local_book("./books/sediculos.xml\0",22);
+				}
+#endif
 				if(event->key.keysym.sym==SDLK_F8)
 				  have_point_sprite=!have_point_sprite;
 				if(event->key.keysym.sym==SDLK_F9) {

@@ -7,6 +7,7 @@ int	max_fonts=0;
 font_info	*fonts[10];
 int	chat_font=0;
 int	name_font=0;
+int	book_font=0;
 
 
 // converts a character into which entry in font.bmp to use, negative on error or no output
@@ -403,6 +404,7 @@ int init_fonts()
 	for(i=0; i<10; i++)	fonts[i]= NULL;
 	load_font(0, "./textures/font.bmp");
 	load_font(1, "./textures/fontv.bmp");
+	load_font(2, "./textures/font2.bmp");
 	//set the default font
 	cur_font_num= 0;
 	font_text= fonts[0]->texture_id;
@@ -437,12 +439,12 @@ int load_font(int num, char *file)
 	// set default font info
 	strcpy(fonts[num]->name, "default");
 	fonts[num]->spacing=0;
-	for(i=0; i<9*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
 	// load texture
 	fonts[num]->texture_id=load_texture_cache(file, 0);
 	// load font information
 	// TODO: write this and remove the hack!
-	if(num > 0){
+	if(num==0)for(i=0; i<9*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
+	if(num==1){
 		static int widths[]={
 			4,2,7,11,8,12,12,2,7,7,9,10,3,8,
 			2,10,10,10,8,8,10,7,9,9,9,9,3,3,
@@ -456,6 +458,21 @@ int load_font(int num, char *file)
 		};
 		memcpy(fonts[num]->widths, widths, sizeof(widths));
 		fonts[num]->spacing=4;
+	}
+	if(num==2){
+		static int widths[]={
+			 8,  8,  8, 10,  8, 10, 10,  8,  8,  8,  8, 10,  8,  8,
+			 8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
+			10, 10, 10,  8, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+			10, 10, 10, 10, 10, 10, 10, 10,  8, 10, 10, 10, 10, 10,
+			10, 10, 10, 10, 10, 10, 10,  8,  8,  8,  8,  8,  8,  8,
+			10,  8,  8,  8,  8,  8,  8, 10,  8,  8,  8,  8,  8,  8,
+			 8,  8,  8, 10,  8,  8,  8, 10,  8, 10, 10,  8, 10,  8,
+			 8,  8, 10, 10, 10,  8, 10, 10,  8,  8,  8, 12, 12, 12, 
+			10, 10, 12, 10, 12, 12, 12,
+		};
+		memcpy(fonts[num]->widths, widths, sizeof(widths));
+		fonts[num]->spacing=2;
 	}
 
 	//and return
