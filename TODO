@@ -13,7 +13,7 @@ OSX support - delayed :(
 Faster mouse icon switch without dropping FPS
 Investigate variable width fonts - preliminary testing
 Reduce memory usage when VA's are enabled for MD2's - testing
-Smarter caching system for MD2's and E3D's - testing (-DCACHE_SYSTEM)
+Smarter caching system for MD2's and E3D's - testing
 Synchronize ELC & map_editor code - E3D in progress
 Add player stat bars to HUD (material, etheral, food, knowledge)
 Improve screen windows handling for more consistent look and less duplicated code (moving towards a better window method/layering).
