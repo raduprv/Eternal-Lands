@@ -299,7 +299,7 @@ void init_vars()
 	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0);
 	add_var(INT,"max_shadow_map_size","smsize",&max_shadow_map_size,change_int,1024);
 	add_var(SPECINT,"poor_man","poor",&poor_man,change_poor_man,0);
-	add_var(BOOL,"show_reflections","refl",&show_reflection,change_var,1);
+	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1);
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0);
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1);
