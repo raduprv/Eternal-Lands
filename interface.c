@@ -711,8 +711,8 @@ GLuint generate_minimap()
 		{
 			if(objects_list[i])
 				{
-					int x=(float)objects_list[i]->x_pos/scale;
-					int y=(float)objects_list[i]->y_pos/scale;
+					x=(float)objects_list[i]->x_pos/scale;
+					y=(float)objects_list[i]->y_pos/scale;
 
 					x&=255;//Just in case...
 					y&=255;
