@@ -4,18 +4,6 @@
  * <p>The initialization module gets started by the call
  * \ref init_vars and \ref init_stuff in main.</p>
  *
- * <p>Submodules covered include:
- * <ul>
- *  <li>\ref ssecconfig</li>
- *  <li>\ref ssecencyc</li>
- *  <li>\ref ssectranslation</li>
- *  <li>\ref ssecloading</li>
- *  <li>\ref ssecvideo</li>
- *  <li>\ref ssechotkeys</li>
- *  <li>\ref ssecotherinit</li>
- * </ul>
- * </p>
- *
  * \todo Finish documentation
  *
  */
