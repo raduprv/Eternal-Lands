@@ -168,7 +168,7 @@ void init_buddy()
 	
 }
 
-
+/*
 int clika(widget_list *w){
 	w->pos_x+=10;
 	return 0;
@@ -178,14 +178,13 @@ int clikaa(widget_list *w){
 	b->progress++;
 	return 0;
 }
-
+*/
 void display_buddy()
 {
 	if(buddy_win <= 0)
 		{
-			buddy_win = AddXMLWindow("buddy.xml");
-			widget_set_OnClick(buddy_win,666,clika);
-			//buddy_win = create_window("Buddy", 0, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
+			//buddy_win = AddXMLWindow("buddy.xml");
+			buddy_win = create_window("Buddy", 0, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_DRAG, &drag_buddy_handler );
