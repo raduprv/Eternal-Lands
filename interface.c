@@ -250,13 +250,6 @@ void check_mouse_click()
 		}
 	if(check_items_interface())return;
 
-	if(view_self_stats && mouse_x>(attrib_menu_x+attrib_menu_x_len-20) && mouse_x<=(attrib_menu_x+attrib_menu_x_len)
-	   && mouse_y>attrib_menu_y && mouse_y<=attrib_menu_y+20)
-		{
-			view_self_stats=0;
-			return;
-		}
-
 	if(view_knowledge && mouse_x>(knowledge_menu_x+knowledge_menu_x_len-20) && mouse_x<=(knowledge_menu_x+knowledge_menu_x_len)
 	   && mouse_y>knowledge_menu_y && mouse_y<=knowledge_menu_y+20)
 		{
@@ -264,6 +257,14 @@ void check_mouse_click()
 			return;
 		}
 	if(check_knowledge_interface())return;
+
+	if(view_self_stats && mouse_x>(attrib_menu_x+attrib_menu_x_len-20) && mouse_x<=(attrib_menu_x+attrib_menu_x_len)
+	   && mouse_y>attrib_menu_y && mouse_y<=attrib_menu_y+20)
+		{
+			view_self_stats=0;
+			return;
+		}
+	if(check_stats_interface())return;
 
 	// check for a click on the HUD (between scene & windows)
 	if(check_hud_interface()) return;

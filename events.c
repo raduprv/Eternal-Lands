@@ -151,6 +151,7 @@ int HandleEvent(SDL_Event *event)
 					{
 						//get_updates();
 						get_knowledge_list("this,that,other,this1,that1,other1,this2,that2,other2,this3,that3,other3,this4,that4,other4,this5,that5,other5,this,that,other,this1,that1,other1,this2,that2,other2,this3,that3,other3,this4,that4,other4,this5,that5,other5,this,that,other,this1,that1,other1,this2,that2,other2,this3,that3,other3,this4,that4,other4,this5,that5,other5,this,that,other,this1,that1,other1,this2,that2,other2,this3,that3,other3,this4,that4,other4,this5,that5,other5,this,that,other,this1,that1,other1,this2,that2,other2,this3,that3,other3,this4,that4,other4,this5,that5,other5,this,that,other,this1,that1,other1,this2,that2,other2,this3,that3,other3,this4,that4,other4,this5,that5,other5,this,that,other,this1,that1,other1,this2,that2,other2,this3,that3,other3,this4,that4,other4,this5,that5,other5,this,that,other,this1,that1,other1,this2,that2,other2,this3,that3,other3,this4,that4,other4,this5,that5,other5");
+						get_research_info(200,250,"something");
 						break;
 					}
 

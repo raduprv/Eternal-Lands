@@ -11,7 +11,7 @@ void display_knowledge();
 int knowledge_mouse_over();
 int check_knowledge_interface();
 void get_knowledge_list(char *list);
-
+void get_research_info(Uint16 points_remain, Uint16 points_total, char *name);
 extern int knowledge_menu_x;
 extern int knowledge_menu_y;
 extern int knowledge_menu_x_len;

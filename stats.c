@@ -415,3 +415,9 @@ void display_stats(player_attribs cur_stats)
 }
 
 
+int check_stats_interface()
+{
+	if(!view_self_stats || mouse_x>attrib_menu_x+attrib_menu_x_len || mouse_x<attrib_menu_x
+	   || mouse_y<attrib_menu_y || mouse_y>attrib_menu_y+attrib_menu_y_len)return 0;
+	return 1;
+}

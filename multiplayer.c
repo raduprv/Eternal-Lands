@@ -328,6 +328,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			}
 			break;
 
+		case GET_RESEARCH_INFO:
+			{
+				get_research_info(*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)),in_data+7);
+			}
+			break;
+
 		case HERE_YOUR_INVENTORY:
 			{
 				get_your_items(in_data+3);
