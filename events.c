@@ -399,12 +399,9 @@ int HandleEvent(SDL_Event *event)
 			done = 1;
 			break;
 
-
-		}
-
-	if(event->type==SDL_MOUSEMOTION || event->type==SDL_MOUSEBUTTONDOWN ||
-	   event->type==SDL_MOUSEBUTTONUP)
-		{
+		case SDL_MOUSEMOTION:
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
 			mouse_x=event->motion.x;
 			mouse_y=event->motion.y;
 
@@ -461,6 +458,25 @@ int HandleEvent(SDL_Event *event)
 						interface_mode=interface_log_in;
 						left_click=2;
 					}
+			if (event->type == SDL_MOUSEBUTTONDOWN) {
+				if (event->button.button == SDL_BUTTON_WHEELUP) {
+					if (interface_mode == interface_console)
+						console_move_up();
+					else if (zoom_level > 2.0f) {
+						zoom_level -= 0.25f;
+						resize_window();
+					}
+				}
+				if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+					if (interface_mode == interface_console)
+						console_move_down();
+					else if (zoom_level < 3.75f) {
+						zoom_level += 0.25f;
+						resize_window();
+					}
+				}
+			}
+			break;
 
 		}
 
