@@ -547,7 +547,7 @@ extern void	init_actors_lists();
 #else
 /*!
  * \ingroup mutex
- * \name Thread syncronization mutexs
+ * \name Thread synchronization mutexs
  */
 /*! \{ */
 #define lock_actors_lists()	SDL_LockMutex(actors_lists_mutex)
