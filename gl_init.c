@@ -443,8 +443,8 @@ void init_gl_extensions()
 
 		}
 
-		have_point_sprite=get_string_occurance("GL_ARB_point_sprite",extensions,ext_str_len,0) || get_string_occurance("GL_NV_point_sprite",extensions,ext_str_len,0);
-		if(have_point_sprite<0)
+		have_point_sprite=get_string_occurance("GL_ARB_point_sprite",extensions,ext_str_len,0)>=0 || get_string_occurance("GL_NV_point_sprite",extensions,ext_str_len,0)>=0;
+		if(!have_point_sprite)
 			{
 				have_point_sprite=0;
 				sprintf(str,gl_ext_not_found,"GL_*_point_sprite");
