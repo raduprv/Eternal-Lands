@@ -738,7 +738,7 @@ int cur_map;  //Is there a better way to do this?
 const struct draw_map seridia_maps[] = {
 	{409,107,450,147},//0 - Isla Prima
 	{184,162,395,359},//1 - Whitestone
-	{84,352,160,448}, //2 - Desert Pines
+	{84,352,180,448}, //2 - Desert Pines
 	{336,118,387,165},//3 - Tirnym
 	{245,405,281,451},//4 - VOTD
 	{84,270,177,357}, //5 - Portland

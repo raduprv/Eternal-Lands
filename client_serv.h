@@ -132,6 +132,7 @@
 #define CAPE_RAVENOD 16
 #define CAPE_ROGUE 17
 #define CAPE_WYTTER 18
+#define CAPE_QUELL 19
 #define CAPE_NONE 30
 
 //heads

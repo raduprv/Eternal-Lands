@@ -938,6 +938,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_female].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[human_female].cape[CAPE_WYTTER].model_name,"./md2/cape1_tallf.md2");
 	my_strcp(actors_defs[human_female].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[human_female].cape[CAPE_QUELL].model_name,"./md2/cape1_tallf.md2");
+	my_strcp(actors_defs[human_female].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[human_female].head[HEAD_1].model_name,"./md2/head1_humanf.md2");
 	my_strcp(actors_defs[human_female].head[HEAD_2].model_name,"./md2/head2_humanf.md2");
@@ -1531,7 +1533,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_male].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[human_male].cape[CAPE_WYTTER].model_name,"./md2/cape1_tallm.md2");
 	my_strcp(actors_defs[human_male].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
-
+	my_strcp(actors_defs[human_male].cape[CAPE_QUELL].model_name,"./md2/cape1_tallm.md2");
+	my_strcp(actors_defs[human_male].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[human_male].head[HEAD_1].model_name,"./md2/head1_humanm.md2");
 	my_strcp(actors_defs[human_male].head[HEAD_2].model_name,"./md2/head2_humanm.md2");
@@ -2137,7 +2140,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_female].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[elf_female].cape[CAPE_WYTTER].model_name,"./md2/cape1_tallf.md2");
 	my_strcp(actors_defs[elf_female].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
-
+	my_strcp(actors_defs[elf_female].cape[CAPE_QUELL].model_name,"./md2/cape1_tallf.md2");
+	my_strcp(actors_defs[elf_female].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 
 	my_strcp(actors_defs[elf_female].head[HEAD_1].model_name,"./md2/head1_elff.md2");
@@ -2728,6 +2732,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_male].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[elf_male].cape[CAPE_WYTTER].model_name,"./md2/cape1_tallm.md2");
 	my_strcp(actors_defs[elf_male].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[elf_male].cape[CAPE_QUELL].model_name,"./md2/cape1_tallm.md2");
+	my_strcp(actors_defs[elf_male].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 
 	my_strcp(actors_defs[elf_male].head[HEAD_1].model_name,"./md2/head1_elfm.md2");
@@ -3316,6 +3322,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_female].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[dwarf_female].cape[CAPE_WYTTER].model_name,"./md2/cape1_shortf.md2");
 	my_strcp(actors_defs[dwarf_female].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[dwarf_female].cape[CAPE_QUELL].model_name,"./md2/cape1_shortf.md2");
+	my_strcp(actors_defs[dwarf_female].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[dwarf_female].head[HEAD_1].model_name,"./md2/head1_dwarff.md2");
 	my_strcp(actors_defs[dwarf_female].head[HEAD_2].model_name,"./md2/head2_dwarff.md2");
@@ -3903,6 +3911,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[dwarf_male].cape[CAPE_WYTTER].model_name,"./md2/cape1_shortm.md2");
 	my_strcp(actors_defs[dwarf_male].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[dwarf_male].cape[CAPE_QUELL].model_name,"./md2/cape1_shortm.md2");
+	my_strcp(actors_defs[dwarf_male].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[dwarf_male].head[HEAD_1].model_name,"./md2/head1_dwarfm.md2");
 	my_strcp(actors_defs[dwarf_male].head[HEAD_2].model_name,"./md2/head2_dwarfm.md2");
@@ -4494,6 +4504,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[gnome_female].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[gnome_female].cape[CAPE_WYTTER].model_name,"./md2/cape1_gnomef.md2");
 	my_strcp(actors_defs[gnome_female].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[gnome_female].cape[CAPE_QUELL].model_name,"./md2/cape1_gnomef.md2");
+	my_strcp(actors_defs[gnome_female].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[gnome_female].head[HEAD_1].model_name,"./md2/head1_gnomef.md2");
 	my_strcp(actors_defs[gnome_female].head[HEAD_2].model_name,"./md2/head2_gnomef.md2");
@@ -5082,6 +5094,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[gnome_male].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[gnome_male].cape[CAPE_WYTTER].model_name,"./md2/cape1_gnomem.md2");
 	my_strcp(actors_defs[gnome_male].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[gnome_male].cape[CAPE_QUELL].model_name,"./md2/cape1_gnomem.md2");
+	my_strcp(actors_defs[gnome_male].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[gnome_male].head[HEAD_1].model_name,"./md2/head1_gnomem.md2");
 	my_strcp(actors_defs[gnome_male].head[HEAD_2].model_name,"./md2/head2_gnomem.md2");
@@ -5672,6 +5686,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[orchan_female].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[orchan_female].cape[CAPE_WYTTER].model_name,"./md2/cape1_orchanf.md2");
 	my_strcp(actors_defs[orchan_female].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[orchan_female].cape[CAPE_QUELL].model_name,"./md2/cape1_orchanf.md2");
+	my_strcp(actors_defs[orchan_female].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[orchan_female].head[HEAD_1].model_name,"./md2/head1_orchanf.md2");
 	my_strcp(actors_defs[orchan_female].head[HEAD_2].model_name,"./md2/head2_orchanf.md2");
@@ -6260,6 +6276,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[orchan_male].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[orchan_male].cape[CAPE_WYTTER].model_name,"./md2/cape1_orchanm.md2");
 	my_strcp(actors_defs[orchan_male].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[orchan_male].cape[CAPE_QUELL].model_name,"./md2/cape1_orchanm.md2");
+	my_strcp(actors_defs[orchan_male].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[orchan_male].head[HEAD_1].model_name,"./md2/head1_orchanm.md2");
 	my_strcp(actors_defs[orchan_male].head[HEAD_2].model_name,"./md2/head2_orchanm.md2");
@@ -6844,6 +6862,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[draegoni_female].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[draegoni_female].cape[CAPE_WYTTER].model_name,"./md2/cape1_draegonif.md2");
 	my_strcp(actors_defs[draegoni_female].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[draegoni_female].cape[CAPE_QUELL].model_name,"./md2/cape1_draegonif.md2");
+	my_strcp(actors_defs[draegoni_female].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[draegoni_female].head[HEAD_1].model_name,"./md2/head1_draegonif.md2");
 	my_strcp(actors_defs[draegoni_female].head[HEAD_2].model_name,"./md2/head2_draegonif.md2");
@@ -7430,6 +7450,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[draegoni_male].cape[CAPE_ROGUE].skin_name,"./md2/cape_rogue.bmp");
 	my_strcp(actors_defs[draegoni_male].cape[CAPE_WYTTER].model_name,"./md2/cape1_draegonim.md2");
 	my_strcp(actors_defs[draegoni_male].cape[CAPE_WYTTER].skin_name,"./md2/cape_wytter.bmp");
+	my_strcp(actors_defs[draegoni_male].cape[CAPE_QUELL].model_name,"./md2/cape1_draegonim.md2");
+	my_strcp(actors_defs[draegoni_male].cape[CAPE_QUELL].skin_name,"./md2/cape_quell.bmp");
 
 	my_strcp(actors_defs[draegoni_male].head[HEAD_1].model_name,"./md2/head1_draegonim.md2");
 	my_strcp(actors_defs[draegoni_male].head[HEAD_2].model_name,"./md2/head2_draegonim.md2");
