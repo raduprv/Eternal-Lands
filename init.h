@@ -34,6 +34,9 @@ typedef struct
 	int knowledge_menu_x;
 	int knowledge_menu_y;
 
+	int encyclopedia_menu_x;
+	int encyclopedia_menu_y;
+
 	int reserved[20];
 
 	float camera_x;

@@ -27,6 +27,7 @@ extern int view_self_stats;
 extern int view_health_bar;
 extern int view_names;
 extern int view_knowledge;
+extern int view_encyclopedia;
 
 extern int login_screen_menus;
 

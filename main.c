@@ -77,6 +77,8 @@ int start_rendering()
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 	SDL_Quit( );
+	xmlCleanupParser();
+	FreeXML();
 	return(0);
 }
 

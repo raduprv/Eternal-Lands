@@ -296,6 +296,9 @@ void read_bin_cfg()
 	knowledge_menu_x=cfg_mem.knowledge_menu_x;
 	knowledge_menu_y=cfg_mem.knowledge_menu_y;
 
+	encyclopedia_menu_x=cfg_mem.encyclopedia_menu_x;
+	encyclopedia_menu_y=cfg_mem.encyclopedia_menu_y;
+
 	cx=cfg_mem.camera_x;
 	cy=cfg_mem.camera_y;
 	cz=cfg_mem.camera_z;
@@ -346,6 +349,9 @@ void save_bin_cfg()
 
 	cfg_mem.knowledge_menu_x=knowledge_menu_x;
 	cfg_mem.knowledge_menu_y=knowledge_menu_y;
+
+	cfg_mem.encyclopedia_menu_x=encyclopedia_menu_x;
+	cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
 
 	cfg_mem.camera_x=cx;
 	cfg_mem.camera_y=cy;
@@ -579,6 +585,7 @@ void init_stuff()
 		}
 	SDL_SetTimer (1000/(18*4), my_timer_pointer);
 
+	ReadXML("Encyclopedia/index.xml");
 	//we might want to do this later.
 	connect_to_server();
 }

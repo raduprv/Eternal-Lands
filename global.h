@@ -38,6 +38,7 @@
 #ifdef	CACHE_SYSTEM
 #include "cache.h"
 #endif
+#include "encyclopedia.h"
 #include "knowledge.h"
 #include "elc_private.h"
 #include "asc.h"
@@ -82,6 +83,7 @@
 #include "textures.h"
 #include "trade.h"
 #include "new_character.h"
+
 
 //cursors
 #define CURSOR_EYE 0
