@@ -649,9 +649,10 @@ int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
  * \param   	b (0<=b<=1)
  * \param   	pos
  * \param   	pos_inc
+ * \param		bar_len
  * \return  	Returns the new widgets unique ID 
  */
-int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc);
+int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len);
 
 /*!
  * \ingroup	scrollbars
