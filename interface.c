@@ -8,8 +8,10 @@ void get_world_x_y()
 	float x,y,x1,y1,a,t;
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
-	x=(float)(mouse_x*9.0f/window_width)-(9.0f/2.0f);
-	y=(float)((window_height-mouse_y)*6.0f/window_height)-(6.0f/2.0f);
+	//x=(float)(mouse_x*9.0f/window_width)-(9.0f/2.0f);
+	//y=(float)((window_height-mouse_y)*6.0f/window_height)-(6.0f/2.0f);
+	x=(float)((mouse_x)*2.8f*zoom_level/window_width)-(2.8*zoom_level/2.0f);
+	y=(float)((window_height-mouse_y)*2.0f*zoom_level/window_height)-(2.0*zoom_level/2.0f);
 
 	a=(rz)*3.1415926/180;
 	t=(rx)*3.1415926/180;
@@ -19,10 +21,8 @@ void get_world_x_y()
 	x1=x*cos(a)+y*sin(a);
 	y1=y*cos(a)-x*sin(a);
 
-
 	scene_mouse_x=-cx+x1;
 	scene_mouse_y=-cy+y1;
-
 }
 
 int check_drag_menus()
@@ -407,7 +407,6 @@ void Leave2DMode()
 	glPopAttrib();
 }
 
-
 mode_flag video_modes[10];
 
 void build_video_mode_array()
@@ -517,14 +516,11 @@ void draw_console_pic(int which_texture)
 	glVertex3i(window_width,0,0);
 
 	glEnd();
-
 }
-
 
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,
 				   int y_start,int x_end,int y_end)
 {
-
 	glTexCoord2f(u_start,v_end);
 	glVertex3i(x_start,y_end,0);
 
@@ -536,9 +532,7 @@ void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_sta
 
 	glTexCoord2f(u_end,v_end);
 	glVertex3i(x_end,y_end,0);
-
 }
-
 
 void init_opening_interface()
 {
@@ -547,19 +541,15 @@ void init_opening_interface()
 	check_gl_errors();
 	login_text=load_texture_cache("./textures/login_back.bmp",255);
 	check_gl_errors();
-
 }
-
 
 void draw_login_screen()
 {
-
 	float selected_bar_u_start=(float)0/255;
 	float selected_bar_v_start=1.0f-(float)0/255;
 
 	float selected_bar_u_end=(float)174/255;
 	float selected_bar_v_end=1.0f-(float)28/255;
-
 
 	float unselected_bar_u_start=(float)0/255;
 	float unselected_bar_v_start=1.0f-(float)40/255;
@@ -709,7 +699,6 @@ void draw_login_screen()
 		draw_2d_thing(new_char_unselected_start_u,new_char_unselected_start_v,
 					  new_char_unselected_end_u,new_char_unselected_end_v,new_char_x,
 					  new_char_y,new_char_x+new_char_x_len,new_char_y+new_char_y_len);
-
 	glEnd();
 
 	glColor3f(0.0f,0.9f,1.0f);
@@ -765,7 +754,6 @@ void add_char_to_password(unsigned char ch)
 			password_box_selected=0;
 		}
 }
-
 
 float walk_icon_u_start=(float)0/255;
 float walk_icon_v_start=1.0f-(float)0/255;
@@ -1299,9 +1287,7 @@ int check_peace_menu()
 			}
 	}
 	return 1;
-
 }
-
 
 float lit_gem_u_start=(float)224/255;
 float lit_gem_v_start=1.0f-(float)112/255;
@@ -1318,10 +1304,8 @@ float unlit_gem_v_start=1.0f-(float)96/255;
 float unlit_gem_u_end=(float)255/255;
 float unlit_gem_v_end=1.0f-(float)111/255;
 
-
 void draw_options_menu()
 {
-
 	draw_menu_title_bar(options_menu_x,options_menu_y-16,options_menu_x + options_menu_x_len-options_menu_x);
 
 	glEnable(GL_BLEND);
@@ -1356,7 +1340,6 @@ void draw_options_menu()
 	glVertex3i(options_menu_x + options_menu_x_len-20,options_menu_y,0);
 
 	glEnd();
-
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -1439,9 +1422,7 @@ void draw_options_menu()
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
 					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
 
-
 	//video modes
-
 	if(full_screen)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
 					  options_menu_x+193, options_menu_y+35, options_menu_x+220, options_menu_y+51);
@@ -1549,7 +1530,6 @@ void draw_options_menu()
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
 					  options_menu_x+193, options_menu_y+235, options_menu_x+220, options_menu_y+251);
 
-
 	glEnd();
 	draw_string(options_menu_x+55,options_menu_y+10,"Options",1);
 	draw_string(options_menu_x+45,options_menu_y+35,"Shadows",1);
@@ -1575,7 +1555,6 @@ void draw_options_menu()
 	draw_string(options_menu_x+225,options_menu_y+215,"1280x1024x16",1);
 	draw_string(options_menu_x+225,options_menu_y+235,"1280x1024x32",1);
 }
-
 
 int check_options_menu()
 {
@@ -1679,13 +1658,11 @@ int check_options_menu()
 			if(video_modes[9].supported && !video_modes[9].selected)
 				set_new_video_mode(full_screen,10);
 		}
-
 	return 1;
 }
 
 void draw_ingame_interface()
 {
-
 	float compas_u_start=(float)34/255;
 	float compas_v_start=1.0f-(float)194/255;
 
@@ -1805,7 +1782,6 @@ void switch_from_game_map()
 	interface_mode=interface_game;
 }
 
-
 void draw_game_map()
 {
 	int screen_x=0;
@@ -1867,10 +1843,8 @@ void draw_game_map()
 	glVertex2i(screen_x-3,screen_y+2);
 	glEnd();
 
-
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
-
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -1884,7 +1858,6 @@ void draw_game_map()
 
 void draw_menu_title_bar(int x, int y, int x_len)
 {
-
 	float u_first_start=(float)31/255;
 	float u_first_end=0;
 	float v_first_start=1.0f-(float)160/255;
@@ -1899,7 +1872,6 @@ void draw_menu_title_bar(int x, int y, int x_len)
 	float u_last_end=(float)31/255;
 	float v_last_start=1.0f-(float)160/255;
 	float v_last_end=1.0f-(float)175/255;
-
 
 	int segments_no;
 	int i;
@@ -1921,7 +1893,6 @@ void draw_menu_title_bar(int x, int y, int x_len)
 	glVertex3i(x+32,y+16,0);
 	glTexCoord2f(u_first_start,v_first_start);
 	glVertex3i(x+32,y,0);
-
 
 	for(i=1;i<segments_no-1;i++)
 		{
@@ -1947,8 +1918,4 @@ void draw_menu_title_bar(int x, int y, int x_len)
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
 }
-
-
-
-
 
