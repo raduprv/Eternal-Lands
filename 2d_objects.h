@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief 	Handles rendering and loading 2d objects
  * \ingroup 	display
+ * \brief 	Handles rendering and loading 2d objects
  */
 #ifndef __obj_2d_H__
 #define __obj_2d_H__
@@ -20,7 +20,6 @@
  *\name 	2D object types
  *		These defines sets the 2d object types
  */
-
 /*! \{ */
 #define invalid -1 /*!< Invalid object*/
 #define ground 0 /*!< Ground object*/
@@ -28,8 +27,14 @@
 #define fence 2 /*!< Fences - will be put in 90 degrees angle (x_rot+=90)*/
 /*! \} */
 
+/*!
+ * \name    2D sector size
+ *      These defines sets the size of a 2D sector.
+ */
+/*! \{ */  
 #define sector_size_x 15 /*!< Equivalent to 5 tiles - is not used yet apparently...*/
 #define sector_size_y 15 /*!< Equivalent to 5 tiles - is not used yet apparently...*/
+/*! \} */
 
 /*! 
  * obj_2d_def is loaded from a .2do-file and is shared amongst all objects of that type in the obj_2d_def_cache array

@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief	Displays the 3d objects
  * \ingroup 	display
+ * \brief	Displays the 3d objects
  */
 #ifndef __obj_3d_H__
 #define __obj_3d_H__
@@ -22,7 +22,7 @@ void draw_3d_object(object3d * object_id);
  * \brief	Loads an e3d object from file_name.
  *
  * 		The function loads an e3d object as specified with file_name. 
- * 		e3d-objects are binary objects (the e3d_object structure with an e3d_header as the header).
+ *      e3d-objects are binary objects (the e3d_object structure with an e3d_header as the header).
  *
  * \param	file_name The filename we wish to load
  * \return 	On success the function returns a pointer to the loaded object, otherwise it returns NULL.
@@ -65,8 +65,8 @@ e3d_object * load_e3d_cache(char * file_name);
  * \return	Returns 0 on error or the position in the objects_list on succes.
  */
 int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos, 
-			float x_rot, float y_rot, float z_rot, char self_lit, char blended,
-			float r, float g, float b);
+                float x_rot, float y_rot, float z_rot, char self_lit, char blended, 
+                float r, float g, float b);
 
 /*!
  * \ingroup	display_3d
