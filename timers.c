@@ -102,7 +102,7 @@ Uint32 check_misc(Uint32 interval, void * data)
 //Checks if any of the timers have suddenly stopped
 void check_timers()
 {
-	if((int)(cur_time-last_my_timer)>5000)//OK, too long has passed, this is most likely a timer failure! log it and restart the timer
+	if((int)(cur_time-last_my_timer)>10000)//OK, too long has passed, this is most likely a timer failure! log it and restart the timer
 		{
 			char str[120];
 			sprintf(str,timer_lagging_behind,"draw_scene");
