@@ -1,22 +1,22 @@
 /*!
  * \file
- * \brief Displays the tiles
- * \ingroup     render
- * \internal    Check groups!
+ * \brief 	Displays the tiles
+ * \ingroup     display
  */
 #ifndef __TILE_H__
 #define __TILE_H__
 
 
-extern unsigned char *tile_map;     /*!< tile_map */
-extern unsigned char *height_map;   /*!< height_map */
-extern int tile_map_size_x;         /*!< tile_map_size_x */
-extern int tile_map_size_y;         /*!< tile_map_size_y */
-extern int tile_list[256];          /*!< tile_list[] */
-extern int ground_detail_text;      /*!< ground_detail_text */
+extern unsigned char *tile_map;     /*!< The tile-map is an unsigned char array of map_tile_size_x*map_tile_size_y */
+extern unsigned char *height_map;   /*!< The height-map is an unsigned char array of (map_tile_size_x*6)*(map_tile_size_y*6) - each tile has 36 heightmap blocks */
+extern int tile_map_size_x;         /*!< The tile map size in the x direction */
+extern int tile_map_size_y;         /*!< The tile map size in the y direction */
+extern int tile_list[256];          /*!< A list containing the texture ID's of the different tiles */
+extern int ground_detail_text;      /*!< The texture for ground details (clouds shadows) */
 
 /*!
- * \brief draw_tile_map
+ * \ingroup	tile
+ * \brief 	Displays the tile map.
  *
  *      TODO: draw_tile_map
  *
@@ -26,14 +26,13 @@ extern int ground_detail_text;      /*!< ground_detail_text */
 void draw_tile_map();
 
 /*!
- * \internal check group!
- * \ingroup load
- * \brief load_map_tiles
+ * \ingroup 	maps
+ * \brief 	Loads the map tiles
  *
- *      TODO: load_map_tiles
+ *      	Loads the map tiles - tile_list[tile]==0 && tile!=255 it will load the tile (from tiles/tile<tile_id>.bmp).
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
  */
 void load_map_tiles();
 #endif

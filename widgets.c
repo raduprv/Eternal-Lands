@@ -182,7 +182,7 @@ int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uin
 	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2); 
 }
 
-int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float id, float u1, float v1, float u2, float v2)
+int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	image *T = (image *) malloc(sizeof(label));
@@ -696,9 +696,10 @@ int ParseWindow(xmlAttr *a_node)
         if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				int l = strlen(cur_attr->children->content);
-				UTF8Toisolat1(name, &l, cur_attr->children->content, &l);
-				name[l]=0;
+				int l1 = strlen(cur_attr->children->content);
+				int l2 = xmlUTF8Strlen(cur_attr->children->content);
+				UTF8Toisolat1(name, &l2, cur_attr->children->content, &l1);
+				name[l2]=0;
 				continue;
 			}
 			//pos_x=""
@@ -800,9 +801,10 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node)
 				case BUTTON:
 					//text=""
 					if(!xmlStrcasecmp(cur_attr->name,"text")){
-						int l = strlen(cur_attr->children->content);
-						UTF8Toisolat1(text, &l, cur_attr->children->content, &l);
-						text[l]=0;
+						int l1 = strlen(cur_attr->children->content);
+						int l2 = xmlUTF8Strlen(cur_attr->children->content);
+						UTF8Toisolat1(text, &l2, cur_attr->children->content, &l1);
+						text[l2]=0;
 						continue;
 					}
 					break;

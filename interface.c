@@ -220,10 +220,11 @@ void check_mouse_click()
 		}
 		break;
 
+	case CURSOR_ENTER:
+			if(you_sit && sit_lock && !ctrl_on) return;
 	case CURSOR_USE:
 	case CURSOR_USE_WITEM:
 	case CURSOR_TALK:
-	case CURSOR_ENTER:
 		{
 			Uint8 str[10];
 
@@ -239,7 +240,6 @@ void check_mouse_click()
 					for(i=0;i<20;i++)dialogue_responces[i].in_use=0;
 					return;
 				}
-			if(you_sit && sit_lock && !ctrl_on) return;
 			str[0]=USE_MAP_OBJECT;
 			*((int *)(str+1))=object_under_mouse;
 			if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM){

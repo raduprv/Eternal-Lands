@@ -5,91 +5,12 @@
 #include <string.h>
 #include <stdarg.h>
 #include "translate.h"
-#ifdef ELC
-#include "stats.h"
-#else
+#ifdef MAP_EDITOR
 #include "global.h"
 #endif
 
-#define GROUP 0
-#define DIGROUP 1
-#ifdef ELC
-#define STAT_GROUP 2
-#endif
-
-typedef struct
-{
-	char xml_id[15];
-	char * var;
-	int max_len;
-#ifdef WRITE_XML
-	int saved;
-#endif
-} string_item;
-
-typedef struct
-{
-	char xml_id[15];
-	dichar * var;
-#ifdef WRITE_XML
-	int saved;
-#endif
-} distring_item;
-
-#ifdef ELC
-typedef struct
-{
-	char xml_id[15];
-	names * var;
-#ifdef WRITE_XML
-	int saved;
-#endif
-} statstring_item;
-#endif
-
-typedef struct
-{
-	char xml_id[15];
-	int no;
-	string_item ** strings;
-#ifdef WRITE_XML
-	int saved;
-#endif
-} group_id;
-
-typedef struct
-{
-	char xml_id[15];
-	int no;
-	distring_item ** distrings;
-#ifdef WRITE_XML
-	int saved;
-#endif
-} group_id_di;
-
-#ifdef ELC
-typedef struct
-{
-	char xml_id[15];
-	int no;
-	statstring_item ** statstrings;
-#ifdef WRITE_XML
-	int saved;
-#endif
-} group_stat;
-#endif
-
-#ifdef ELC
-void init_console(void);
-void init_help(void);
-void init_options(void);
-void init_spells(void);
-void init_stats(void);
-#endif
-void init_errors(void);
-void * add_xml_group(int type, int no, ...);
-
-//Tooltips
+/*! \name Tooltips*/
+/*! \{ */
 #ifdef ELC
 char	tt_walk[30],
 	tt_sit[30],
@@ -110,9 +31,11 @@ char	tt_walk[30],
 	tt_buddy[30],
 	tt_options[30];
 #endif
+/*! \} */
 
 #ifdef ELC
-//Options
+/*! \name Options*/
+/*! \{ */
 dichar	opt_shadows,
 	opt_clouds,
 	opt_reflections,
@@ -130,9 +53,11 @@ char 	switch_video_mode[50],
 	opt_options[20],
 	opt_vidmode[20];
 #endif
+/*! \} */
 
 #ifdef ELC
-//Sigils
+/*! \name Sigils/spells */
+/*! \{ */
 char 	sig_too_few_sigs[50];
 
 dichar	sig_change,
@@ -162,10 +87,12 @@ dichar	sig_change,
 	sig_life,
 	sig_death;
 #endif
+/*! \} */
 
 #ifdef ELC
-//Help messages
-char	
+/*! \name Help messages*/
+/*! \{ */
+char 	
 	/*3d_objects.c*/
 	values_str[20],
 	/*draw_scene.c*/
@@ -216,9 +143,11 @@ char
 	quantity_str[30],
 	abort_str[10];
 #endif
+/*! \} */
 
 #ifdef ELC
-//Console
+/*! \name Console*/
+/*! \{ */
 char	name_too_long[75], 
 	name_too_short[75],
 	not_added_to_ignores[75],
@@ -248,8 +177,8 @@ char	name_too_long[75],
 	logconn_str[50];
 #endif
 
-
-//Errors
+/*! \name Errors */
+/*! \{ */
 char	reg_error_str[15],
 	/*2d_objects.c*/
 	cant_load_2d_object[30],
@@ -373,6 +302,7 @@ char	reg_error_str[15],
 #else
 	;
 #endif
+/*! \} */
 
 #ifdef ELC
 #define CONSOLE_STR 3
@@ -483,8 +413,6 @@ void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def,
 	group->strings[group->no]->max_len=max_len-1;
 	group->no++;
 }
-
-void free_xml_parser(int type, void * gPtr, int no);
 
 void init_translatables()
 {
@@ -852,24 +780,6 @@ void init_stats()
 	add_xml_statid(skills,"overall",&(attributes.overall_skill),"Overall","oa");
 }
 #endif
-
-void parse_errors(xmlNode * in);
-#ifdef ELC
-void parse_console(xmlNode * in);
-void parse_help(xmlNode * in);
-void parse_options(xmlNode * in);
-void parse_spells(xmlNode * in);
-void parse_stats(xmlNode * in);
-#endif
-
-struct xml_struct
-{
-	xmlDoc * file;
-	xmlNode * root;
-};
-
-struct xml_struct load_strings(char * file);
-struct xml_struct load_strings_file(char * filename);
 
 #ifdef WRITE_XML
 void save_strings(xmlDoc * doc, char * name)

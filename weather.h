@@ -1,40 +1,40 @@
 /*!
  * \file
- * \internal Check groups!
- * \brief Structures and functions for the EL weather
+ * \brief 	Structures and functions for the EL weather
+ * \ingroup	misc
  */
 #ifndef __WEATHER_H__
 #define __WEATHER_H__
 
 /*!
- * \name    ???max number of thunders???
+ * \name    	Maximum number of thunders in one place
  */
 /*! \{ */
 #define MAX_THUNDERS 5
 /*! \} */
 
 /*!
- * \name    ???rain related constants???
+ * \name	Rain related constants
  */
 /*! \{ */
-#define MAX_RAIN_DROPS 5000 /*!< MAX_RAIN_DROPS */
-#define RAIN_SPEED 2        /*!< RAIN_SPEED */
-#define rain_drop_len 5     /*!< rain_drop_len */
+#define MAX_RAIN_DROPS 5000 /*!< The maximum number of rain drops in one place */
+#define RAIN_SPEED 2        /*!< The speed of the rain drops */
+#define rain_drop_len 5     /*!< The length of the rain drops */
 /*! \} */
 
 
-extern int seconds_till_rain_starts;    /*!< seconds_till_rain_starts */
-extern int seconds_till_rain_stops;     /*!< seconds_till_rain_stops */
-extern int is_raining;                  /*!< is_raining */
-extern int rain_sound;                  /*!< rain_sound */
-extern int weather_light_offset;        /*!< weather_light_offset */
-extern int rain_light_offset;           /*!< rain_light_offfset */
-extern int thunder_light_offset;        /*!< thunder_light_offset */
-extern int lightning_text;              /*!< lightning_text */
+extern int seconds_till_rain_starts;    /*!< Seconds till the rain starts */
+extern int seconds_till_rain_stops;     /*!< Seconts till the rain stops */
+extern int is_raining;                  /*!< Specifies if it's raining - if it is, draw the raindrops */
+extern int rain_sound;                  /*!< Specifies the rain sound */
+extern int weather_light_offset;        /*!< Sets the current light offset */
+extern int rain_light_offset;           /*!< Sets the current rain offset */
+extern int thunder_light_offset;        /*!< Sets the current thunder light offset */
+extern int lightning_text;              /*!< Sets the lightning texture */
 
 
 /*!
- * TODO: struct thunder
+ * The thunder structure
  */
 typedef struct
 {
@@ -48,10 +48,10 @@ typedef struct
 	int rot;
 }thunder;
 
-thunder thunders[MAX_THUNDERS];         /*!< thunders[] */
+thunder thunders[MAX_THUNDERS];         /*!< The array containing the current thunders */
 
 /*!
- *  TODO: struct rain_drop
+ * The rain drop structure - defines the start and end position
  */
 typedef struct
 {
@@ -61,95 +61,94 @@ typedef struct
 	short y2;
 }rain_drop;
 
-rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< rain_drops[] */
+rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 
 /*!
- * \internal check groups!
- * \brief build_rain_table
+ * \ingroup	other
+ * \brief 	Builds the rain table.
  *
- *      TODO: build_rain_table
+ * 		Builds the current rain table, called on init. Defines where the raindrops will go in the screen.
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
  */
 void build_rain_table();
 
 /*!
- * \internal check groups!
- * \brief update_rain
+ * \ingroup	weather_timer
+ * \brief 	Updates the rain
  *
- *      TODO: update_rain
+ * 		Updates the rain on the screen (moves the location a bit, it's just a 2d effect).
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
  */
 void update_rain();
 
 /*!
- * \internal check groups!
- * \ingroup render
- * \brief render_rain
+ * \ingroup 	display_weather
+ * \brief 	Renders the rain
  *
- *      TODO: render_rain
+ *      	Draws the raindrops on the screen.
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
  */
 void render_rain();
 
 /*!
- * \internal check groups!
- * \brief rain_control
+ * \ingroup	weather_timer
+ * \brief 	Check whether it needs to start raining
  *
- *      TODO: rain_control
+ *      	The function checks every second if it should begin raining.
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
  */
 void rain_control();
 
 /*!
- * \internal check groups!
- * \brief thunder_control
+ * \ingroup	weather_timer
+ * \brief 	Controls the thunders
  *
- *      TODO: thunder_control
+ * 		Checks if it needs to start a thunder nearby.
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
  */
 void thunder_control();
 
 /*!
- * \internal check groups!
- * \brief add_thunder
+ * \ingroup	network_misc
+ * \brief 	add_thunder
  *
- *      TODO: add_thunder
- *
- * \param   type
- * \param   sound_delay
- * \return  None
+ *		Adds a thunder of the specified type with the given sound_delay.
+ * 
+ * \param   	type
+ * \param   	sound_delay
+ * \return  	None
  */
 void add_thunder(int type,int sound_delay);
 
 /*!
- * \internal check groups!
- * \brief get_weather_light_level
+ * \ingroup	display_weather
+ * \brief	Gets the current light level for the weather
  *
- *      TODO: get_weather_light_level
+ * 		Gets the current light level for the weather.
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
  */
 void get_weather_light_level();
 
 /*!
- * \internal check groups!
- * \brief clear_thunders
+ * \ingroup	other
+ * \brief 	Reset the thunders
  *
- *      TODO: clear_thunders
+ *      	Resets the thunders.
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
  */
 void clear_thunders();
 #endif

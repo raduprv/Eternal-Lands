@@ -1,14 +1,25 @@
 /*!
  * \file
- * \brief Functions related to internationalization of the client.
- * \ingroup misc
- * \internal Check groups!
+ * \brief 	Functions related to internationalization of the client.
+ * \ingroup 	translation
  */
 #ifndef __TRANSLATE_H__
 #define __TRANSLATE_H__
+#ifdef ELC
+#include "stats.h"
+#endif
+
+/*! \name Group types*/
+/*! \{ */
+#define GROUP 0
+#define DIGROUP 1
+#ifdef ELC
+#define STAT_GROUP 2
+#endif
+/*! \} */
 
 /*!
- * TODO: dichar
+ * This is used for setting a short name and description - used for i.e. options and sigils
  */
 typedef struct
 {
@@ -21,6 +32,95 @@ typedef struct
 	int saved_desc;            /*!< saved_desc */
 #endif
 } dichar;
+
+/*! 
+ * Defines a normal xml-node and a pointer to the variable the content should be saved to.
+ */
+typedef struct
+{
+	char xml_id[15];
+	char * var;
+	int max_len;
+#ifdef WRITE_XML
+	int saved;
+#endif
+} string_item;
+
+/*!
+ * Defines a distring xml-node (contains both \<name\> and \<desc\> as child-nodes to \<xml_id\>).
+ */
+typedef struct
+{
+	char xml_id[15];
+	dichar * var;
+#ifdef WRITE_XML
+	int saved;
+#endif
+} distring_item;
+
+/*!
+ * Defines a name xml-node (contains both \<name\> and \<shortname\>) used for i.e. stats.
+ */
+#ifdef ELC
+typedef struct
+{
+	char xml_id[15];
+	names * var;
+#ifdef WRITE_XML
+	int saved;
+#endif
+} statstring_item;
+#endif
+
+/*!
+ * Defines an xml-group using string_item ID's.
+ */
+typedef struct
+{
+	char xml_id[15];
+	int no;
+	string_item ** strings;
+#ifdef WRITE_XML
+	int saved;
+#endif
+} group_id;
+
+/*!
+ * Defines an xml-group using distring_item ID's
+ */
+typedef struct
+{
+	char xml_id[15];
+	int no;
+	distring_item ** distrings;
+#ifdef WRITE_XML
+	int saved;
+#endif
+} group_id_di;
+
+#ifdef ELC
+/*!
+ * Defines an xml-group using distring_item ID's
+ */
+typedef struct
+{
+	char xml_id[15];
+	int no;
+	statstring_item ** statstrings;
+#ifdef WRITE_XML
+	int saved;
+#endif
+} group_stat;
+#endif
+
+/*! 
+ * Defines an xml-structure with the root element and document - used when loading the file.
+ */
+struct xml_struct
+{
+	xmlDoc * file;
+	xmlNode * root;
+};
 
 
 #ifdef ELC
@@ -317,26 +417,381 @@ extern char	reg_error_str[15],
 #endif  //DOXYGEN_SKIP_THIS
 
 /*!
- * \internal check group!
- * \brief init_translatables
+ * \ingroup	translation
+ * \brief 	Initiates the translatable strings
  *
- *      TODO: init_translatables
+ * 		Initiates the translatable strings - uses the "See Also" subfunctions.
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
+ * \sa	init_console
+ * \sa	init_help
+ * \sa	init_options
+ * \sa	init_spells
+ * \sa	init_stats
+ * \sa	init_errors
+ * \callgraph
  */
 void init_translatables();
 
 /*!
- * \internal check group!
- * \ingroup load
- * \brief load_translatables
+ * \ingroup 	translation
+ * \brief 	Loads the translatable strings from their xml-files.
  *
- *      TODO: load_translatables
+ *      	Loads the translatable strings from their xml-files. Uses the "See also" subfunctions.
  *
- * \param   None
- * \return  None
+ * \param   	None
+ * \return  	None
+ * \sa		parse_errors
+ * \sa		parse_console
+ * \sa		parse_spells
+ * \sa		parse_options
+ * \sa		parse_stats
+ * \callgraph
  */
 void load_translatables();
+
+#ifdef ELC
+/*!
+ * \ingroup 	translation
+ * \brief	Initiates the console strings
+ * 
+ * 		Initiates the console strings.
+ *
+ * \param	None
+ * \return	None
+ */
+void init_console(void);
+
+/*!
+ * \ingroup	translation
+ * \brief	Initiates the help strings
+ * 		
+ * 		Initiates the help strings.
+ * 
+ * \param	None
+ * \return 	None
+ */
+void init_help(void);
+
+/*!
+ * \ingroup	translation
+ * \brief	Initiates the options strings
+ * 
+ * 		Initiates the options strings.
+ *
+ * \param	None
+ * \return 	None
+ */
+void init_options(void);
+
+/*!
+ * \ingroup	translation
+ * \brief	Initiates the spells/sigils strings
+ *
+ * 		Initiates the spells/sigils strings.
+ *
+ * \param	None
+ * \return	None
+ */
+void init_spells(void);
+
+/*!
+ * \ingroup	translation
+ * \brief	Initiates the stats strings
+ * 
+ * 		Initiates the stats strings
+ *
+ * \param	None
+ * \return	None
+ */
+void init_stats(void);
+#endif
+
+/*!
+ * \ingroup	translation
+ * \brief	Initiates the error strings
+ *
+ * 		Initiates the error strings
+ *
+ * \param	None
+ * \return	None
+ */
+void init_errors(void);
+
+/*!
+ * \ingroup	translation
+ * \brief	Defines a new XML-group
+ *
+ * 		Defines a new XML-group of the given type with no objects (followed by their xml ID's)
+ *
+ * 		Example usage:
+ * \code
+ * 		test=add_xml_group(GROUP,6,"nothing","something","anything","misc","tuesday","friday","yesterday");
+ * \endcode
+ * 		Would look for a the elements:
+ * \code
+ * 		<root>
+ * 			<nothing>...</nothing>
+ * 			<someting>...</something>
+ * 			<anything>...</anything>
+ * 			<misc>...</misc>
+ * 			<tuesday>...</tuesday>
+ * 			<friday>...</friday>
+ * 			<yesterday>...</yesterday>
+ * 		</root>
+ * \endcode
+ * 		You have to add the elements it will look for inside these group ID's later.
+ * 
+ * \param	type The xml-group type. GROUP, DIGROUP or STAT_GROUP.
+ * \param	no The number of objects in the group
+ * \param	... The groups xml-objects
+ * \return	A pointer to the xml-group array
+ */
+void * add_xml_group(int type, int no, ...);
+
+/*!
+ * \ingroup	translation
+ * \brief	Adds a new distring_item to the given group.
+ *
+ * 		Adds a new distring_item to the given group, with the given xml-id. It also sets the variables default string/description.
+ *
+ * \param	group The group you wish to add the distring_item to
+ * \param	xml_id The xml id
+ * \param	var A pointer to the variable
+ * \param	str The default string
+ * \param	desc The default description
+ * \return	None
+ * \sa		distring_item
+ * \sa		add_xml_group
+ * \sa		init_translatables
+ */
+void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char * str, char * desc);
+
+/*!
+ * \ingroup	translation
+ * \brief	Adds a new statstring_item to the group. 
+ *
+ * 		Adds a new statstring_item to the group, and associates it with teh xml_id. Also sets the variables default name and shortname.
+ * 
+ * \param	group The group you wish to add the statstring_item to.
+ * \param	xml_id The xml identifier
+ * \param	var The variable the new statstring_item points to
+ * \param	name The default name
+ * \param	shortname The default short name
+ * \return	None
+ * \sa		statstring_item
+ * \sa		add_xml_group
+ * \sa		init_translatables
+ */
+void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name, char * shortname);
+
+/*!
+ * \ingroup	translation
+ * \brief	Adds a new string_item to the group
+ *
+ * 		The function adds a new string_item to the given group and associates it with teh given xml_id. Furthermore it sets the variables default name and the maximum length of the variable.
+ *
+ * \param	group The group you wish to add the string_item to
+ * \param	xml_id The xml-nodes ID
+ * \param	var A pointer to the variable
+ * \param	def The default string
+ * \param	max_len The maximum length
+ * \return	None
+ * \sa		string_item
+ * \sa		add_xml_group
+ * \sa		init_translatables
+ */
+void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def, int max_len);
+
+/*!
+ * \ingroup	translation
+ * \brief	Free's the memory used by the xml-parser
+ *
+ * 		Free's the memory used by the xml-parser to store the groups and their children. Only call when you're done parsing!
+ *
+ * \param	type The type of group
+ * \param	gPtr A pointer ot the group
+ * \param	no The number of items in the group
+ * \return	None
+ */
+void free_xml_parser(int type, void * gPtr, int no);
+
+/*!
+ * \ingroup	translation
+ * \brief	Parses the errors
+ * 
+ * 		Checks the current document and parses the errors group.
+ *
+ * \param	in The root xml-node
+ * \return	None
+ */
+void parse_errors(xmlNode * in);
+
+#ifdef ELC
+/*!
+ * \ingroup	translation
+ * \brief	Parses the console
+ * 		
+ * 		Checks the current document and parses the console group.
+ *
+ * \param	in The root xml-node
+ * \return	None
+ */
+void parse_console(xmlNode * in);
+
+/*!
+ * \ingroup	translation
+ * \brief	Parses the help
+ * 		
+ * 		Checks the current document and parses the help group.
+ *
+ * \param	in The root xml-node
+ * \return	None
+ */
+void parse_help(xmlNode * in);
+
+/*!
+ * \ingroup	translation
+ * \brief	Parses the options
+ * 		
+ * 		Checks the current document and parses the options group.
+ *
+ * \param	in The root xml-node
+ * \return	None
+ */
+void parse_options(xmlNode * in);
+
+/*!
+ * \ingroup	translation
+ * \brief	Parses the sigils/spells
+ * 		
+ * 		Checks the current document and parses the spells/sigils group.
+ *
+ * \param	in The root xml-node
+ * \return	None
+ */
+void parse_spells(xmlNode * in);
+
+/*!
+ * \ingroup	translation
+ * \brief	Parses the stats
+ * 		
+ * 		Checks the current document and parses the stats/sigils group.
+ *
+ * \param	in The root xml-node
+ * \return	None
+ */
+void parse_stats(xmlNode * in);
+#endif
+
+#ifdef WRITE_XML
+/*!
+ * \ingroup	translation
+ * \brief	Saves the group strings to ./languages/en/strings/\<filename\>
+ *
+ * 		If you have defined WRITE_XML it will write the strings to ./languages/en/strings (be sure to make the directories first).
+ *
+ * \param	doc A pointer to the current document
+ * \param	name The filename of the document
+ * \return	None
+ */
+void save_strings(xmlDoc * doc, char * name);
+#endif
+
+/*!
+ * \ingroup	translation
+ * \brief	Loads the strings from a file (calls load_strings_file)
+ *
+ * 		First tries loading the file from the native language directory, then it loads the strings from the ./languages/en dir.
+ *
+ * \param	file The filename you wish to load (not the directory, this function will call load_strings_file to open the file in the right dir)
+ * \return	A structure containing the xmlDoc * and a xmlNode * to the root element.
+ * \sa		load_strings_file
+ */
+struct xml_struct load_strings(char * file);
+
+/*!
+ * \ingroup	translation
+ * \brief	Loads an xml file with the strings
+ *
+ * 		Loads the xml-file pointed to by filename. Returns the an xml_struct containing a pointer to the document and the root element, if the document and root element is found/loaded succesfully. Otherwise it returns NULL in both pointers.
+ */
+struct xml_struct load_strings_file(char * filename);
+
+/*!
+ * \ingroup	translation
+ * \brief	Copies the strings from the xmlNode to the distring_item *.
+ *
+ * 		When the xml_id is found this function is called to copy the distring_item (the strings are in the \<name\> and \<desc\> tags)
+ *
+ * \param	in The current xmlNode
+ * \param	string A pointer to the distring_item.
+ * \return	None
+ */
+void copy_strings(xmlNode * in, distring_item * string);
+
+/*!
+ * \ingroup	translation
+ * \brief	Copies the stats from the xmlNode to the statstring_item *.
+ *
+ * 		When the xmlNode * is found in the current document, this function is called to copy the stats to the statstring_item *
+ *
+ * \param	in The current xmlNode
+ * \param	string A pointer to the statstring_item
+ * \return	None
+ */
+void copy_stats(xmlNode * in, statstring_item * string);
+
+/*!
+ * \ingroup	translation
+ * \brief	Parses a statstring_item group
+ * 
+ * 		Parses a statstring group and calls copy_stats if it finds a match.
+ *
+ * \param	in The current xmlNode
+ * \param	group The group you wish to parse
+ * \return	None
+ */
+void parse_statstrings(xmlNode * in, group_stat * group);
+
+/*!
+ * \ingroup	translation
+ * \brief	Parses a distring_item group
+ *
+ * 		Parses the distring_item group (group) and calls copy_strings if a match is found.
+ *
+ * \param	in The current xmlNode
+ * \param	group The current group
+ * \return	None
+ */
+void parse_distrings(xmlNode * in, group_id_di * group);
+
+/*!
+ * \ingroup	translation
+ * \brief	Parses a string_item group
+ *
+ * 		Parses the string_item group (group) and copies the string if a match is found (using UTF8Toisolat1).
+ *
+ * \param	in The current xmlNode*
+ * \param	group The current group
+ * \return 	None
+ */
+void parse_strings(xmlNode * in, group_id * group);
+
+/*!
+ * \ingroup	translation
+ * \brief	Called when parsing any group.
+ *
+ *		This is the main parser. It is called by all of the groups when parsing their different xml element names, comparing it with the current xmlNodes name - if it finds a match it calls either parse_strings, parse_distrings or parse_statstrings.
+ *
+ * \param	in The current xmlNode
+ * \param	gPtr The current group
+ * \param	size The size of the group
+ * \param	The type of the group
+ * \return	None
+ * \todo	An idea might be to improve the groups to also have function *, to tell them what function it should call depending on the kind of group. group->parse(xmlNode *, group *), would look better than the current switch statement.
+ */
+void parse_groups(xmlNode * in, void * gPtr, int size, int type);
 
 #endif

@@ -56,6 +56,10 @@
  * 		About the cache system used in EL
  * \ingroup	load
  */
+/*!\defgroup    load_bmp    Load texture bitmaps
+		Covers Eternal Lands texture loading
+ *  \ingroup    load
+ */
 /*!
  * \defgroup 	load_2d Load 2D Objects
  * 		Functions used in loading 2D objects
@@ -126,6 +130,11 @@
  * \ingroup	display
  */
 /*!
+ * \defgroup	display_weather
+ * 		Handles the weather effects in EL
+ * \ingroup	display
+ */
+/*!
  * \defgroup	text_font Text and fonts
  *		Covers the basics of the EL text and font implementation
  * \ingroup	display
@@ -160,6 +169,11 @@
  * \ingroup	network
  */
 /*!
+ * \defgroup	trade Trading
+ * 		About the network handling of trading.
+ * \ingroup	network
+ */
+/*!
  * \defgroup	item Item handling
  *		About the item handling
  * \ingroup	network
@@ -182,6 +196,11 @@
 /*!
  * \defgroup	updates Web-updates (http retrieval)
  * 		About the http implementation in EL, allowing updates to happen from within the client
+ * \ingroup	network
+ */
+/*!
+ * \defgroup	network_misc Miscellaneous
+ * 		Miscellaneous functions - i.e. used for updating the weather
  * \ingroup	network
  */
 
@@ -209,8 +228,13 @@
  * \ingroup	events
  */
 /*!
- * \defgroup	widgets Widgets and XML-defined windows
- *		Covers widgets for the WM and XML-defined Windows
+ * \defgroup	widgets Widgets
+ *		Covers widgets for the WM
+ * \ingroup	elwindows
+ */
+/*!
+ * \defgroup	xml_windows XML Defined Windows
+ * 		Eternal Lands supports XML defined windows through widgets
  * \ingroup	elwindows
  */
 
@@ -322,6 +346,58 @@
  * \ingroup	interfaces
  */
 
+///////////////////////////////////////////////////////////////////////////////
+//		      	Widgets and XML-defined windows		   	     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup	labels Labels
+ * 		Widget labels
+ * \ingroup	widgets
+ */
+/*!
+ * \defgroup	images Images
+ * 		Widget images
+ * \ingroup	widgets
+ */
+/*!
+ * \defgroup	checkboxes Checkboxes
+ * 		Widget checkboxes
+ * \ingroup	widgets
+ */
+/*!
+ * \defgroup	buttons Buttons
+ * 		Widget buttons
+ * \ingroup	widgets
+ */
+/*!
+ * \defgroup	progressbars Progressbars
+ * 		Widget progressbars
+ * \ingroup	widgets
+ */
+/*!
+ * \defgroup	scrollbars Scrollbars
+ * 		Widget scrollbars
+ * \ingroup	widgets
+ */
+
+
+///////////////////////////////////////////////////////////////////////////////
+//		      	         Sound and music			     //
+///////////////////////////////////////////////////////////////////////////////
+/*!
+ * \defgroup	sound Sound and music
+ * 		Covers the sound and music implementation in EL (using OpenAL)
+ */
+/*!
+ * \defgroup	sound_effects Sound effects
+ * 		Adding sound effects to EL
+ * \ingroup	sound
+ */
+/*!
+ * \defgroup 	music Music playback
+ * 		The client handles playback of Ogg Vorbis files
+ * \ingroup	sound
+ */
 
 ///////////////////////////////////////////////////////////////////////////////
 //		      	       Threading and EL			     	     //
