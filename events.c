@@ -65,8 +65,8 @@ void	quick_use(int use_id)
 		if(item_list[i].pos==use_id &&
 			item_list[i].quantity &&
 			item_list[i].use_with_inventory){
-				quick_use_str[0]=USE_INVENTORY_ITEM;
-				quick_use_str[1]=5;
+				quick_use_str[0]= USE_INVENTORY_ITEM;
+				quick_use_str[1]= use_id;
 				my_tcp_send(my_socket,quick_use_str,2);
 				break;
 		}
