@@ -127,102 +127,105 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	float healtbar_x_len_converted=0;
 	float healtbar_z_len=0.05f*zoom_level/3.0f;
 
-	//draw the health bar
-	glDisable(GL_TEXTURE_2D);
-	//choose color for the bar
-	if(actor_id->cur_health>=actor_id->max_health/2)
-		glColor3f(0,0.5,0);	//green life bar
-	//else if(actor_id->cur_health>=actor_id->max_health/4 && actor_id->cur_health<actor_id->max_health/2)
-	else if(actor_id->cur_health>=actor_id->max_health/4)
-		glColor3f(0.5,0.5,0);	//yellow life bar
-	else glColor3f(0.5,0,0);	//red life bar
-	if(!actor_id->ghost)glDisable(GL_LIGHTING);
+	// are we activley drawing?
+	if(SDL_GetAppState()&SDL_APPACTIVE){
+		//draw the health bar
+		glDisable(GL_TEXTURE_2D);
+		//choose color for the bar
+		if(actor_id->cur_health>=actor_id->max_health/2)
+			glColor3f(0,0.5,0);	//green life bar
+		//else if(actor_id->cur_health>=actor_id->max_health/4 && actor_id->cur_health<actor_id->max_health/2)
+		else if(actor_id->cur_health>=actor_id->max_health/4)
+			glColor3f(0.5,0.5,0);	//yellow life bar
+		else glColor3f(0.5,0,0);	//red life bar
+		if(!actor_id->ghost)glDisable(GL_LIGHTING);
 
-	if(view_health_bar && actor_id->cur_health>=0 && (!actor_id->dead))
-		{
-			//get it's lenght
-			if(actor_id->max_health > 0)//we don't want a division by zero, now do we?
-				{
-					healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
-				}
-			glBegin(GL_QUADS);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
-			//choose color for the bar
-			if(actor_id->cur_health>=actor_id->max_health/2)
-			  glColor3f(0,1,0);	//green life bar
-			else if(actor_id->cur_health>=actor_id->max_health/4)
-			  glColor3f(1,1,0);	//yellow life bar
-			else glColor3f(1,0,0);	//red life bar
+		if(view_health_bar && actor_id->cur_health>=0 && (!actor_id->dead))
+			{
+				//get it's lenght
+				if(actor_id->max_health > 0)//we don't want a division by zero, now do we?
+					{
+						healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
+					}
+				glBegin(GL_QUADS);
+				glVertex3f(healtbar_x,healtbar_y,healtbar_z);
+				glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
+				//choose color for the bar
+				if(actor_id->cur_health>=actor_id->max_health/2)
+			  		glColor3f(0,1,0);	//green life bar
+				else if(actor_id->cur_health>=actor_id->max_health/4)
+			  		glColor3f(1,1,0);	//yellow life bar
+				else glColor3f(1,0,0);	//red life bar
 
-			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-			glEnd();
+				glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
+				glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+				glEnd();
 
-			//draw the frame
-			healtbar_y=0.001*zoom_level/3.0f;
-			glDepthFunc(GL_LEQUAL);
-			glColor3f(0,0,0);
-			glBegin(GL_LINES);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
+				//draw the frame
+				healtbar_y=0.001*zoom_level/3.0f;
+				glDepthFunc(GL_LEQUAL);
+				glColor3f(0,0,0);
+				glBegin(GL_LINES);
+				glVertex3f(healtbar_x,healtbar_y,healtbar_z);
+				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
 
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
+				glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
 
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+				glVertex3f(healtbar_x,healtbar_y,healtbar_z);
+				glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
 
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
-			glEnd();
-		}
+				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
+				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
+				glEnd();
+			}
 
-	glEnable(GL_TEXTURE_2D);
-	glColor3f(1,0,0);
+		glEnable(GL_TEXTURE_2D);
+		glColor3f(1,0,0);
 
-	glDepthFunc(GL_ALWAYS);
-	if(actor_id->damage_ms)
-		{
-			sprintf(str,"%i",actor_id->damage);
-			glColor3f(1,0.3f,0.3f);
-			//draw_ingame_string(-0.1,healtbar_z-2.0f,str,1,1);
-			//draw_ingame_string(-0.1,healtbar_z/2.0f,str,1,1);
-			draw_ingame_normal(-0.1,healtbar_z/2.0f,str,1);
-		}
-	glDepthFunc(GL_LESS);
-	if(actor_id->actor_name[0] && (view_names || view_hp))
-		{
-			if(actor_id->ghost)glDisable(GL_BLEND);
-			set_font(name_font);	// to variable length
+		glDepthFunc(GL_ALWAYS);
+		if(actor_id->damage_ms)
+			{
+				sprintf(str,"%i",actor_id->damage);
+				glColor3f(1,0.3f,0.3f);
+				//draw_ingame_string(-0.1,healtbar_z-2.0f,str,1,1);
+				//draw_ingame_string(-0.1,healtbar_z/2.0f,str,1,1);
+				draw_ingame_normal(-0.1,healtbar_z/2.0f,str,1);
+			}
+		glDepthFunc(GL_LESS);
+		if(actor_id->actor_name[0] && (view_names || view_hp))
+			{
+				if(actor_id->ghost)glDisable(GL_BLEND);
+				set_font(name_font);	// to variable length
 
-			if(view_names)
-				{
-					if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
-					else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)glColor3f(1.0f,1.0f,1.0f);
-					else glColor3f(1.0f,1.0f,0.0f);
-					//draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
-					draw_ingame_small(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1);
-				}
-			if(view_hp && actor_id->cur_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC))
-				{
-					char hp[200];
-					float	off;
+				if(view_names)
+					{
+						if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
+						else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)glColor3f(1.0f,1.0f,1.0f);
+						else glColor3f(1.0f,1.0f,0.0f);
+						//draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
+						draw_ingame_small(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1);
+					}
+				if(view_hp && actor_id->cur_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC))
+					{
+						char hp[200];
+						float	off;
 
-					//choose color for the health
-					if(actor_id->cur_health>=actor_id->max_health/2)
-						glColor3f(0,1,0);	//green life bar
-					else if(actor_id->cur_health>=actor_id->max_health/4)
-						glColor3f(1,1,0);	//yellow life bar
-					else glColor3f(1,0,0);	//red life bar
-					sprintf(hp,"%d/%d", actor_id->cur_health, actor_id->max_health);
-					if(view_health_bar)	off= (0.7*zoom_level*name_zoom/3.0);
-					else off= 0.0;
-					draw_ingame_alt(-(((float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off,healtbar_z-(0.05*zoom_level*name_zoom/3.0),hp,1);
-				}
-			set_font(0);	// back to fixed pitch
-			if(actor_id->ghost)glEnable(GL_BLEND);
-		}
+						//choose color for the health
+						if(actor_id->cur_health>=actor_id->max_health/2)
+							glColor3f(0,1,0);	//green life bar
+						else if(actor_id->cur_health>=actor_id->max_health/4)
+							glColor3f(1,1,0);	//yellow life bar
+						else glColor3f(1,0,0);	//red life bar
+						sprintf(hp,"%d/%d", actor_id->cur_health, actor_id->max_health);
+						if(view_health_bar)	off= (0.7*zoom_level*name_zoom/3.0);
+						else off= 0.0;
+						draw_ingame_alt(-(((float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off,healtbar_z-(0.05*zoom_level*name_zoom/3.0),hp,1);
+					}
+				set_font(0);	// back to fixed pitch
+				if(actor_id->ghost)glEnable(GL_BLEND);
+			}
+	}
 
 
 	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0))
@@ -249,6 +252,7 @@ void draw_actor_overtext( actor* actor_ptr )
 
 	//-- decrease display time
 	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
+	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
 	bulleZ = 0.01f;// put text a little bit closer than the bubble
 
 	tailleTexteWidth = ((float)get_string_width(actor_ptr->current_displayed_text)
@@ -369,9 +373,10 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
 				//track the usage
 				cache_use(cache_md2, model_data->cache_ptr);
 			#endif	//CACHE_SYSTEM
+				if(!(SDL_GetAppState()&SDL_APPACTIVE)) continue;	// not actually drawing, fake it
 
 				numFaces=model_data->numFaces;
-				check_gl_errors();
+				//check_gl_errors();
 			#ifdef	USE_VERTEXARRAYS
 				if(use_vertex_array > 0)
 					{
@@ -387,7 +392,7 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
 						glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
 						glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 
-						check_gl_errors();
+						//check_gl_errors();
 						if(have_compiled_vertex_array)ELglLockArraysEXT(0, numFaces*3);
 						glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
 						if(have_compiled_vertex_array)ELglUnlockArraysEXT();
@@ -426,8 +431,9 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
 							}
 						glEnd();
 					}
-				check_gl_errors();
+				//check_gl_errors();
 		}
+	check_gl_errors();
 
 	glPopMatrix();
 	glEnable(GL_TEXTURE_2D);
@@ -449,6 +455,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 	//track the usage
 	cache_use(cache_md2, model_data->cache_ptr);
 #endif	//CACHE_SYSTEM
+	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
 
 	numFaces=model_data->numFaces;
 	check_gl_errors();
@@ -468,7 +475,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
 			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 
-			check_gl_errors();
+			//check_gl_errors();
 			if(have_compiled_vertex_array)ELglLockArraysEXT(0, numFaces*3);
 			glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
 			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
@@ -568,6 +575,7 @@ void display_actors()
 {
 	int i;
 	int x,y;
+	int	has_ghosts=0;
 	x=-cx;
 	y=-cy;
 
@@ -580,65 +588,73 @@ void display_actors()
 	//display only the non ghosts
 	for(i=0;i<max_actors;i++)
 		{
-			if(actors_list[i])
-				if(!actors_list[i]->ghost)
+			actor *cur_actor= actors_list[i];
+			if(cur_actor)
+				if(!cur_actor->ghost)
 					{
 						int dist1;
 						int dist2;
 
-						dist1=x-actors_list[i]->x_pos;
-						dist2=y-actors_list[i]->y_pos;
+						dist1=x-cur_actor->x_pos;
+						dist2=y-cur_actor->y_pos;
 						if(dist1*dist1+dist2*dist2<=12*12)
 							{
-								if(actors_list[i]->is_enhanced_model)
+								if(cur_actor->is_enhanced_model)
 									{
-										draw_enhanced_actor(actors_list[i]);
+										draw_enhanced_actor(cur_actor);
 									}
 								else
 									{
-										draw_actor(actors_list[i]);
+										draw_actor(cur_actor);
 									}
-								if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+								if(cur_actor->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
 								else
-									if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+									if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
 									else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 							}
 					}
+				else
+					{
+						has_ghosts++;
+					}
 		}
 
-	//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	//display only the ghosts
-	glEnable(GL_BLEND);
 	//we don't need the light, for ghosts
 	glDisable(GL_LIGHTING);
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i])
-				if(actors_list[i]->ghost)
-					{
-						int dist1;
-						int dist2;
+	//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	if(has_ghosts){
+		//display only the ghosts
+		glEnable(GL_BLEND);
+		for(i=0;i<max_actors;i++)
+			{
+				actor *cur_actor= actors_list[i];
+				if(cur_actor)
+					if(cur_actor->ghost)
+						{
+							int dist1;
+							int dist2;
 
-						dist1=x-actors_list[i]->x_pos;
-						dist2=y-actors_list[i]->y_pos;
-						if(dist1*dist1+dist2*dist2<=12*12)
-							{
-								if(actors_list[i]->is_enhanced_model)
-									{
-										draw_enhanced_actor(actors_list[i]);
-									}
-								else
-									{
-										draw_actor(actors_list[i]);
-									}
-								if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
-								else
-									if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
-									else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
-							}
-					}
-		}
+							dist1=x-cur_actor->x_pos;
+							dist2=y-cur_actor->y_pos;
+							if(dist1*dist1+dist2*dist2<=12*12)
+								{
+									if(cur_actor->is_enhanced_model)
+										{
+											draw_enhanced_actor(cur_actor);
+										}
+									else
+										{
+											draw_actor(cur_actor);
+										}
+									if(cur_actor->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+									else
+										if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+										else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
+								}
+						}
+			}
+	}
 
 	glDisable(GL_BLEND);
 	glDisableClientState(GL_VERTEX_ARRAY);

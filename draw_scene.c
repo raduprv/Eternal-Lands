@@ -131,9 +131,11 @@ void draw_scene()
 
 	if(!have_a_map)return;
 	if(yourself==-1)return;//we don't have ourselves
-	for(i=0;i<max_actors;i++)
-        if(actors_list[i] && actors_list[i]->actor_id==yourself)break;
-	if(i>max_actors)return;//we still don't have ourselves
+	for(i=0; i<max_actors; i++)
+		{
+        	if(actors_list[i] && actors_list[i]->actor_id==yourself) break;
+		}
+	if(i >= max_actors) return;//we still don't have ourselves
 	main_count++;
 
 	if(old_fps_average<5)
@@ -173,51 +175,64 @@ void draw_scene()
 	any_reflection=find_reflection();
 	check_gl_errors();
 
-	//now, determine the current weather light level
-	get_weather_light_level();
+	// are we actively drawing things?
+	if(SDL_GetAppState()&SDL_APPACTIVE){
 
-	if(!dungeon)draw_global_light();
-	else draw_dungeon_light();
-	update_scene_lights();
-	draw_lights();
-	check_gl_errors();
+		//now, determine the current weather light level
+		get_weather_light_level();
 
-	if(any_reflection)
-		{
-			if(!dungeon)draw_sky_background();
-			else draw_dungeon_sky_background();
-			check_gl_errors();
-			glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
-			draw_tile_map();
-			check_gl_errors();
-			display_2d_objects();
-			check_gl_errors();
-			if(show_reflection)display_3d_reflection();
-			glNormal3f(0.0f,0.0f,1.0f);
-			draw_lake_tiles();
-		}
-	else
-		{
-            glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
-            draw_tile_map();
-			check_gl_errors();
-            display_2d_objects();
-		}
-	check_gl_errors();
+		if(!dungeon)draw_global_light();
+		else draw_dungeon_light();
+		update_scene_lights();
+		draw_lights();
+		check_gl_errors();
 
-	anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
+		if(any_reflection)
+			{
+				if(!dungeon)draw_sky_background();
+				else draw_dungeon_sky_background();
+				check_gl_errors();
+				glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
+				draw_tile_map();
+				check_gl_errors();
+				display_2d_objects();
+				check_gl_errors();
+				if(show_reflection)display_3d_reflection();
+				glNormal3f(0.0f,0.0f,1.0f);
+				draw_lake_tiles();
+			}
+		else
+			{
+            	glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
+            	draw_tile_map();
+				check_gl_errors();
+            	display_2d_objects();
+			}
+		check_gl_errors();
 
-	if(!dungeon)
-		{
-			if(shadows_on && have_stencil)if(day_shadows_on)draw_sun_shadowed_scene();
-		}
+		anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 
-	check_gl_errors();
-	if(!shadows_on || !have_stencil || night_shadows_on)display_objects();
+		if(!dungeon)
+			{
+				if(shadows_on && have_stencil)if(day_shadows_on)draw_sun_shadowed_scene();
+			}
 
-	check_gl_errors();
+		check_gl_errors();
+		if(!shadows_on || !have_stencil || night_shadows_on)display_objects();
+
+		check_gl_errors();
+	}	// end of active display check
+
+	// we need to 'touch' all the actors even if not drawing to avoid problems
 	display_actors();
 	check_gl_errors();
+
+	// if not active, dont bother drawing any more
+	if(!(SDL_GetAppState()&SDL_APPACTIVE))
+		{
+			SDL_Delay(20);
+			return;
+		}
 
 	//particles should be last, we have no Z writting
 	display_particles();

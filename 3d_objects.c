@@ -4,6 +4,7 @@
 #include "global.h"
 
 object3d *objects_list[max_obj_3d];
+int highest_obj_3d= 0;
 
 void draw_3d_object(object3d * object_id)
 {
@@ -23,6 +24,7 @@ void draw_3d_object(object3d * object_id)
 	//track the usage
 	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
 #endif	//CACHE_SYSTEM
+	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
 
 	// check for having to load the arrays
 	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
@@ -103,7 +105,7 @@ void draw_3d_object(object3d * object_id)
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
-	check_gl_errors();
+	//check_gl_errors();
 							get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 							// a quick check for errors
@@ -116,10 +118,10 @@ void draw_3d_object(object3d * object_id)
 									LogError(str);
 								}
 #endif	// DEBUG
-						if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
-						glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-						if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	check_gl_errors();
+							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
+							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	//check_gl_errors();
 						}
 					glDisableClientState(GL_NORMAL_ARRAY);
 				}//is ground
@@ -132,7 +134,7 @@ void draw_3d_object(object3d * object_id)
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
-	check_gl_errors();
+	//check_gl_errors();
 							get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 							// a quick check for errors
@@ -145,10 +147,10 @@ void draw_3d_object(object3d * object_id)
 									LogError(str);
 								}
 #endif	// DEBUG
-						if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
-						glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-						if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	check_gl_errors();
+							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
+							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	//check_gl_errors();
 						}
 				}
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -174,12 +176,12 @@ void draw_3d_object(object3d * object_id)
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
-	check_gl_errors();
+	//check_gl_errors();
 							get_and_set_texture_id(array_order[i].texture_id);
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	check_gl_errors();
+	//check_gl_errors();
 						}
 					glDisableClientState(GL_NORMAL_ARRAY);
 				}//is ground
@@ -195,7 +197,7 @@ void draw_3d_object(object3d * object_id)
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
-	check_gl_errors();
+	//check_gl_errors();
 							get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 							// a quick check for errors
@@ -211,7 +213,7 @@ void draw_3d_object(object3d * object_id)
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	check_gl_errors();
+	//check_gl_errors();
 						}
 				}
 			ELglClientActiveTextureARB(GL_TEXTURE1_ARB);
@@ -349,6 +351,11 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	our_object->e3d_data=returned_e3d;
 
 	objects_list[i]=our_object;
+	// watch the top end
+	if(i >= highest_obj_3d)
+		{
+			highest_obj_3d= i+1;
+		}
 	return i;
 }
 
@@ -374,35 +381,36 @@ void display_objects()
 		}
 
 	check_gl_errors();
-	for(i=0;i<max_obj_3d;i++)
+	for(i=0;i<highest_obj_3d;i++)
 		{
-			if(objects_list[i])
-				{
-					int dist1;
-					int dist2;
+			object3d	*object_id= objects_list[i];
 
-					dist1=x-objects_list[i]->x_pos;
-					dist2=y-objects_list[i]->y_pos;
+			if(object_id)
+				{
+					int dist1, dist2;
+
+					dist1= x-object_id->x_pos;
+					dist2= y-object_id->y_pos;
 					if(dist1*dist1+dist2*dist2<=29*29)
 			         	{
 							float x_len, y_len, z_len;
 							float radius;
 
-							z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
-							x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
-							y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
+							z_len= object_id->e3d_data->max_z-object_id->e3d_data->min_z;
+							x_len= object_id->e3d_data->max_x-object_id->e3d_data->min_x;
+							y_len= object_id->e3d_data->max_y-object_id->e3d_data->min_y;
 							//do some checks, to see if we really have to display this object
 							radius=x_len/2;
 							if(radius<y_len/2)radius=y_len/2;
 							if(radius<z_len)radius=z_len;
 							//not in the middle of the air
-							if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
-											   objects_list[i]->z_pos,radius))
+							if(SphereInFrustum(object_id->x_pos, object_id->y_pos,
+											   object_id->z_pos, radius))
 								{
-                     				draw_3d_object(objects_list[i]);
-	check_gl_errors();
-									anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
-	check_gl_errors();
+                     				draw_3d_object(object_id);
+	//check_gl_errors();
+									anything_under_the_mouse(i, UNDER_MOUSE_3D_OBJ);
+	//check_gl_errors();
 								}
 						}
 				}
@@ -730,7 +738,7 @@ void clear_clouds_cache()
 	int i;
 
 	last_clear_clouds=cur_time;
-	for(i=0;i<max_obj_3d;i++)
+	for(i=0;i<highest_obj_3d;i++)
 		{
 			if(objects_list[i])
 				{
@@ -747,6 +755,10 @@ void destroy_3d_object(int i)
 {
 	free(objects_list[i]);
 	objects_list[i]=0;
+	if(i == highest_obj_3d+1)
+		{
+			highest_obj_3d= i;
+		}
 }
 
 Uint32 free_e3d_va(e3d_object *e3d_id)
@@ -789,20 +801,18 @@ void destroy_e3d(e3d_object *e3d_id)
 	free(e3d_id);
 }
 
+#ifndef	CACHE_SYSTEM
 void flag_for_destruction()
 {
-#ifndef	CACHE_SYSTEM
 	int i;
 
 	for(i=0;i<max_e3d_cache;i++)
 	if(e3d_cache[i].file_name)
 		e3d_cache[i].flag_for_destruction=1;
-#endif	//CACHE_SYSTEM
 }
 
 void destroy_the_flagged()
 {
-#ifndef	CACHE_SYSTEM
 	int i;
 
 	for(i=0;i<max_e3d_cache;i++)
@@ -815,6 +825,6 @@ void destroy_the_flagged()
 					e3d_cache[i].flag_for_destruction=0;
 				}
 		}
-#endif	//CACHE_SYSTEM
 }
+#endif	//CACHE_SYSTEM
 
