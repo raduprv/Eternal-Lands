@@ -133,6 +133,14 @@ typedef	struct	{
 extern	windows_info	windows_list;
 #define	SCREEN	0
 
+// windows manager function
+void	display_windows();
+int		click_in_windows(int mx, int my, Uint32 flags);
+int		select_window(int win_id);
+//void	close_windows();
+//TODO: mouseover and dragging windows
+
+// individual functions
 int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
 void	destroy_window(int win_id);
 int		init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y);

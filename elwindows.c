@@ -15,6 +15,172 @@ windows_info	windows_list;	// the master list of windows
  *
  */
 
+// general windows manager functions
+void	display_windows()
+{
+	int	id;
+	int	next_id;
+	int i;
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	// first draw everything that is last under everything
+	id= -1;
+	while(1)
+		{
+			next_id= -9999;
+			for(i=1; i<windows_list.num_windows; i++){
+				// only look at displayed windows
+				if(windows_list.window[i].displayed > 0){
+					// at this level?
+					if(windows_list.window[i].order == id){
+						display_window(i);
+					} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
+						// try to find the next level
+						next_id= windows_list.window[i].order;
+					}
+				}
+			}
+			if(next_id <= -9999)
+				{
+					break;
+				}
+			else
+				{
+					id= next_id;
+				}
+		}
+	// now display each window in the proper order
+	id= 1;
+	while(1)
+		{
+			next_id= 9999;
+			for(i=1; i<windows_list.num_windows; i++){
+				// only look at displayed windows
+				if(windows_list.window[i].displayed > 0){
+					// at this level?
+					if(windows_list.window[i].order == id){
+						display_window(i);
+					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
+						// try to find the next level
+						next_id= windows_list.window[i].order;
+					}
+				}
+			}
+			if(next_id >= 9999)
+				{
+					break;
+				}
+			else
+				{
+					id= next_id;
+				}
+		}
+}
+
+
+int		click_in_windows(int mx, int my, Uint32 flags)
+{
+	int	done= 0;
+	int	id;
+	int	next_id;
+	int i;
+
+	// watch for needing to convert the globals into the flags
+	if(!flags){
+		if(shift_on)	flags |= ELW_SHIFT;
+		if(ctrl_on)		flags |= ELW_CTRL;
+		if(alt_on)		flags |= ELW_ALT;
+		if(right_click)	flags |= ELW_RIGHT_MOUSE;
+		//if(mid_click)	flags |= ELW_MID_MOUSE;
+		if(left_click)	flags |= ELW_LEFT_MOUSE;
+		//if(double_click)	flags |= ELW_DBL_CLICK;
+	}
+
+	// check each window in the proper order
+	id= 9999;
+	while(done <= 0)
+		{
+			next_id= 0;
+			for(i=1; i<windows_list.num_windows; i++){
+				// only look at displayed windows
+				if(windows_list.window[i].displayed > 0){
+					// at this level?
+					if(windows_list.window[i].order == id){
+						done= click_in_window(i, mx, my, flags);
+						if(done){
+							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
+							return i;
+						}
+					} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
+						// try to find the next level
+						next_id= windows_list.window[i].order;
+					}
+				}
+			}
+			if(next_id <= 0)
+				{
+					break;
+				}
+			else
+				{
+					id= next_id;
+				}
+		}
+	// now check the background windows in the proper order
+	id= -9999;
+	while(done <= 0)
+		{
+			next_id= 0;
+			for(i=1; i<windows_list.num_windows; i++){
+				// only look at displayed windows
+				if(windows_list.window[i].displayed > 0){
+					// at this level?
+					if(windows_list.window[i].order == id){
+						done= click_in_window(i, mx, my, flags);
+						if(done){
+							//select_window(i);	// these never get selected
+							return i;
+						}
+					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
+						// try to find the next level
+						next_id= windows_list.window[i].order;
+					}
+				}
+			}
+			if(next_id >= 0)
+				{
+					break;
+				}
+			else
+				{
+					id= next_id;
+				}
+		}
+	return 0;	// no click in a window
+}
+
+
+int		select_window(int win_id)
+{
+	int	i, old;
+
+	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	// shuffle the order of the windows
+	old= windows_list.window[win_id].order;
+	if(old <= 0)	return 0;
+	for(i=1; i<windows_list.num_windows; i++){
+		if(windows_list.window[i].order > old){
+			windows_list.window[i].order--;
+		}
+	}
+	// and put it on top
+	windows_list.window[win_id].order= windows_list.num_windows-1;;
+}
+
+
+
+// specific windows functions
 int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags)
 {
 	int	win_id=-1;
@@ -282,6 +448,7 @@ int	draw_window(window_info *win)
 
 	draw_window_title(win);
 	draw_window_border(win);
+	glColor3f(1.0f, 1.0f, 1.0f);
 
 	if(win->display_handler)
 		{
@@ -372,6 +539,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				{
         			if(my>0 && my<=20 && mx>(win->len_x-20) && mx<=win->len_x)
 						{
+							// the X was hit, hide this window
 							hide_window(win_id);
 							return 1;
 						}				
