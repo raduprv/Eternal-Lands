@@ -1,3 +1,6 @@
+03-27-04
+Added code for caching with basic LRU support for E3D & MD2
+
 03-25-04
 E3D's dynamically load arrays when displayed instead of at map load (kills map change lag)
 Fixed camera angle memory

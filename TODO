@@ -13,7 +13,7 @@ Faster mouse icon switch without dropping FPS
 Investigate variable width fonts - preliminary testing
 Better faq support
 Reduce memory usage when VA's are enabled for MD2's - testing
-Smarter caching system for MD2's and E3D's - in progress
+Smarter caching system for MD2's and E3D's - in progress - testing (-DCACHE_SYSTEM)
 
 
 Unassigned:
