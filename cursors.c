@@ -213,17 +213,13 @@ void build_cursors()
 	cursors_array[CURSOR_TRADE].hot_y=0;
 	assign_cursor(CURSOR_TRADE);
 
-	cursors_array[CURSOR_MAGIC].hot_x=3;
-	cursors_array[CURSOR_MAGIC].hot_y=0;
-	assign_cursor(CURSOR_MAGIC);
+	cursors_array[CURSOR_USE_WITEM].hot_x=3;
+	cursors_array[CURSOR_USE_WITEM].hot_y=0;
+	assign_cursor(CURSOR_USE_WITEM);
 
 	cursors_array[CURSOR_USE].hot_x=3;
 	cursors_array[CURSOR_USE].hot_y=0;
 	assign_cursor(CURSOR_USE);
-
-	cursors_array[CURSOR_USE_WITEM].hot_x=3;
-	cursors_array[CURSOR_USE_WITEM].hot_y=0;
-	assign_cursor(CURSOR_USE_WITEM);
 }
 
 void check_cursor_change()

@@ -131,7 +131,6 @@ void check_mouse_click()
 				action_mode=action_walk;
 			break;
 		case CURSOR_USE:
-		case CURSOR_MAGIC:
 		case CURSOR_TALK:
 		case CURSOR_ARROW:
 		default:
