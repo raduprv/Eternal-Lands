@@ -232,7 +232,6 @@ void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_
 
 }
 
-#ifndef OLD_EVENT_HANDLER
 /*
 // returns how far to move for the next char, or negative on error
 int draw_font_char_scaled (int font, unsigned char ch, int x, int y, float zoom)
@@ -409,8 +408,6 @@ int reset_soft_breaks (char *str, float zoom, int width)
 	
 	return nlines;
 }
-
-#endif
 
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
 {
