@@ -110,7 +110,7 @@ typedef struct{
 extern e3d_list *e3dlist;
 extern int e3dlistsize;
 
-extern int video_mode_not_set;
+extern int video_mode_set;
 
 #endif	//__INIT_H__
 

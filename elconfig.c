@@ -105,8 +105,18 @@ void switch_vidmode(int mode)
 			return;
 		}
 	else video_mode=mode;
-	video_mode_not_set=0;
+	if(!video_mode_set) return;
 	set_new_video_mode(full_screen,video_mode);
+}
+
+void toggle_full_screen_mode(int * fs)
+{
+	if(!video_mode_set) 
+		{
+			*fs=!*fs;
+			return;
+		}
+	toggle_full_screen();
 }
 
 void change_compass_direction(int dir)
@@ -238,7 +248,7 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 void init_vars()
 {
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4);
-	add_var(SPEC,"full_screen","fs",&full_screen,toggle_full_screen,0);
+	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0);
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0);
 	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0);
 	add_var(INT,"max_shadow_map_size","smsize",&max_shadow_map_size,change_int,1024);

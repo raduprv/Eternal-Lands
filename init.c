@@ -29,7 +29,7 @@ char datadir[256]=DATA_DIR;
 
 char lang[10]={"en"};
 
-int video_mode_not_set;
+int video_mode_set=0;
 
 extern windows_info	windows_list;
 
@@ -198,8 +198,6 @@ void read_config()
 		}
 
 	
-	if (video_mode_not_set) setup_video_mode(full_screen,video_mode);//fail safe if we didn't set a video_mode.
-
 	fclose(f);
 }
 
@@ -501,6 +499,11 @@ void init_stuff()
 
 	//Parse command line options
 	read_command_line();
+
+	//OK, we have the video mode settings...
+	setup_video_mode(full_screen,video_mode);
+	//now you may set the video mode using the %<foo> in-game
+	video_mode_set=1;
 
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
