@@ -17,6 +17,7 @@ int full_screen;
 
 int have_multitexture=0;
 int use_vertex_array=0;
+int use_point_particles=1;
 int vertex_arrays_built=0;
 int have_compiled_vertex_array=0;
 int have_point_parameter=0;
@@ -433,6 +434,10 @@ void init_gl_extensions()
 					have_point_parameter=0;
 					log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
 				}
+			else if(!use_point_particles) {
+					have_point_parameter=0;
+					log_to_console(c_green2,"GL_ARB_point_parameters extension found, NOT using it...");
+			}
 			else log_to_console(c_green2,"GL_ARB_point_parameters extension found, using it...");
 		}
 	else

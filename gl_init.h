@@ -13,6 +13,7 @@ extern int full_screen;
 
 extern int have_multitexture;
 extern int use_vertex_array;
+extern int use_point_particles;
 extern int vertex_arrays_built;
 extern int have_compiled_vertex_array;
 extern int have_point_parameter;

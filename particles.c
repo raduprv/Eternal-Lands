@@ -23,8 +23,7 @@ void end_particles_list()
 	particles_list_mutex=NULL;
 }
 
-/*
-void draw_particle_sys(particle_sys *system_id)
+void draw_text_particle_sys(particle_sys *system_id)
 {
 	float x_pos,y_pos,z_pos;
 	int total_particle_no;
@@ -36,12 +35,13 @@ void draw_particle_sys(particle_sys *system_id)
 	total_particle_no=system_id->total_particle_no;
 	part_type=system_id->part_type;
 
+	get_and_set_texture_id(particles_text);
+
 	check_gl_errors();
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef (x_pos, y_pos, z_pos);
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 	check_gl_errors();
-	glBegin(GL_QUADS);
 	lock_particles_list();	//lock it to avoid timing issues
 	for(i=0;i<total_particle_no;i++)
 		if(!system_id->particles[i].free)
@@ -67,6 +67,7 @@ void draw_particle_sys(particle_sys *system_id)
 				v_start=1.0f-(float)part_type*8/64;
 				v_end=v_start-(float)8/64;
 
+				glBegin(GL_TRIANGLE_STRIP);
 				glColor4f(r,g,b,a);
 
 				glTexCoord2f(u_start,v_start);
@@ -81,17 +82,18 @@ void draw_particle_sys(particle_sys *system_id)
 				glTexCoord2f(u_end,v_start);
 				glVertex3f(x+x_len,y,z);
 
+				glEnd();
+
 			}
 	unlock_particles_list();	// release now that we are done
-	glEnd();
 	check_gl_errors();
 
 	glPopMatrix();
 
 }
-*/
 
-void draw_particle_sys(particle_sys *system_id)
+
+void draw_point_particle_sys(particle_sys *system_id)
 {
 	float x_pos,y_pos,z_pos;
 	int total_particle_no;
@@ -109,7 +111,7 @@ void draw_particle_sys(particle_sys *system_id)
 	check_gl_errors();
 	glDisable(GL_TEXTURE_2D);
 
-	if(have_point_parameter)ELglPointParameterfARB(POINT_SIZE_MIN_ARB,3.0f);
+	ELglPointParameterfARB(POINT_SIZE_MIN_ARB,3.0f);
 
 	glBegin(GL_POINTS);
 	lock_particles_list();	//lock it to avoid timing issues
@@ -129,6 +131,12 @@ void draw_particle_sys(particle_sys *system_id)
 
 }
 
+void draw_particle_sys(particle_sys *system_id) {
+	if(have_point_parameter)
+		draw_point_particle_sys(system_id);
+	else
+		draw_text_particle_sys(system_id);
+}
 
 particle_sys *create_particle_sys(float x, float y, float z, int sys_type, int part_type, int num_particles, int ttl)
 {
