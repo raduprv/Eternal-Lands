@@ -191,7 +191,7 @@ int notepadLoadFile ()
 			return 0;
 		}
 #else
-		LOG_ERROR (can_parse_notes);
+		LOG_ERROR (cant_parse_notes);
 		return 0;
 #endif
 	}
