@@ -1,14 +1,14 @@
 .PHONY: clean release
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DUSE_VERTEXARRAYS -DCACHE_SYSTEM -I/usr/include/libxml2/
+OPTIONS=-DLINUX -DUSE_VERTEXARRAYS -DCACHE_SYSTEM
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
 # basic compiling and linking - rarely changed
-CFLAGS=$(PLATFORM) -Wall -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags)
-_CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags)
-LDFLAGS=$(shell sdl-config --libs) -lSDL_net -lopenal $(XDIR) -lGLU -lGL  -lvorbis -lvorbisfile -lxml2
+CFLAGS=$(PLATFORM) -Wall -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
+_CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
+LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGLU -lGL  -lvorbis -lvorbisfile
 
 # the objects we need
 OBJS=2d_objects.o 3d_objects.o	\
