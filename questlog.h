@@ -104,5 +104,15 @@ void goto_questlog_entry(int ln);
  */
 void string_fix(char *t, int len);
 
+/*!
+ * \ingroup quest_win
+ * \brief Sets the window handler functions for the quest log window
+ *
+ *      Sets the window handler functions for the quest log window
+ *
+ * \return None
+ */
+void fill_questlog_win ();
+
 #endif	//__QUESTLOG_H__
 

@@ -7,8 +7,8 @@ player_attribs your_info;
 player_attribs someone_info;
 int attrib_menu_x=100;
 int attrib_menu_y=20;
-int attrib_menu_x_len=576;
-int attrib_menu_y_len=348;
+int attrib_menu_x_len=TAB_WIDTH;
+int attrib_menu_y_len=TAB_HEIGHT;
 //int attrib_menu_dragged=0;
 
 int watch_this_stat=10;  // default to watching overall
@@ -528,18 +528,21 @@ int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 0;
 }
 
+void fill_stats_win ()
+{
+	//set_window_color(stats_win, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
+	set_window_handler(stats_win, ELW_HANDLER_DISPLAY, &display_stats_handler );
+	set_window_handler(stats_win, ELW_HANDLER_CLICK, &click_stats_handler );
+}
+
 void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this test
 {
 	if(stats_win <= 0){
 		stats_win= create_window("Stats", 0, 0, attrib_menu_x, attrib_menu_y, attrib_menu_x_len, attrib_menu_y_len, ELW_WIN_DEFAULT);
-
-		//set_window_color(stats_win, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
-		set_window_handler(stats_win, ELW_HANDLER_DISPLAY, &display_stats_handler );
-		set_window_handler(stats_win, ELW_HANDLER_CLICK, &click_stats_handler );
+		fill_stats_win ();
 	} else {
 		show_window(stats_win);
 		select_window(stats_win);
 	}
 	display_window(stats_win);
 }
-

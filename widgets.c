@@ -666,6 +666,199 @@ int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id)
 	return -1;
 }
 
+int tab_collection_get_tab (Uint32 window_id, Uint32 widget_id) 
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w) 
+	{
+		tab_collection *col = (tab_collection *) w->widget_info;
+		return col->cur_tab;
+	}
+	return -1;
+}
+
+int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab) 
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w) 
+	{
+		tab_collection *col = (tab_collection *) w->widget_info;
+		if (tab >= 0 && tab < col->nr_tabs)
+		{
+			if (tab != col->cur_tab) 
+				hide_window (col->tabs[col->cur_tab].content_id);
+			col->cur_tab = tab;
+
+			// Don't show the tab, because the parent window might
+			// be hidden. The widget drawing code will take care 
+			// of it.
+			//show_window (col->tabs[tab].content_id);
+			//select_window (col->tabs[tab].content_id);
+			return tab;
+		}
+	}
+	return -1;
+}
+
+int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int max_tabs, Uint16 tag_height, Uint16 tag_space)
+{
+	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, max_tabs, tag_height, tag_space);
+}
+
+int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height, Uint16 tag_space)
+{
+	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
+	tab_collection *T = (tab_collection *) malloc(sizeof(tab_collection));
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	
+	// Clearing everything
+	memset(W,0,sizeof(widget_list));
+	memset(T,0,sizeof(vscrollbar));
+
+	// Filling the widget info
+	T->tabs = malloc (max_tabs * sizeof (tab));
+	memset (T->tabs, 0, max_tabs * sizeof (tab));
+	
+	W->widget_info = T;
+	T->nr_tabs = 0;
+	T->max_tabs = max_tabs;
+	T->tag_height = tag_height;
+	T->tag_space = tag_space;
+	T->cur_tab = 0;
+	W->id = wid;
+	W->type = TABCOLLECTION;
+	W->Flags = Flags;
+	W->pos_x = x;
+	W->pos_y = y;
+	W->size = size;
+	W->r = r;
+	W->g = g;
+	W->b = b;
+	W->len_y = ly;
+	W->len_x = lx;
+	W->OnClick = tab_collection_click;
+	W->OnDraw = tab_collection_draw;
+	W->OnDrag = NULL;
+	W->OnInit = OnInit;
+	if(W->OnInit != NULL)
+		W->OnInit(W);
+
+	// Adding the widget to the list
+	while(w->next != NULL)
+		w = w->next;
+	w->next = W;
+
+	return W->id;
+}
+
+int tab_collection_draw (widget_list *w)
+{
+	tab_collection *col;
+	int itab, ytagtop, ytagbot, xtag, nxtag, xcur, wcur, space;
+
+	if (!w) return 0;
+	
+	col = (tab_collection *) w->widget_info;
+	
+	ytagtop = w->pos_y;
+	ytagbot = w->pos_y + col->tag_height;
+	space = col->tag_space;
+	xcur = xtag = w->pos_x;
+	wcur = 0;
+
+	glDisable(GL_TEXTURE_2D);
+	if(w->r!=-1.0)
+		glColor3f(w->r, w->g, w->b);
+	
+	if (col->nr_tabs > 0) {
+		// draw the tags
+		for (itab = 0; itab < col->nr_tabs; itab++) 
+		{
+			nxtag =  xtag+col->tabs[itab].tag_width;
+			glBegin (GL_LINES);
+			glVertex3i (xtag, ytagbot, 0);
+			glVertex3i (xtag, ytagtop, 0);
+			glVertex3i (xtag, ytagtop, 0);
+			glVertex3i (nxtag, ytagtop, 0);
+			glVertex3i (nxtag, ytagtop, 0);
+			glVertex3i (nxtag, ytagbot, 0);
+			glEnd ();
+			glEnable(GL_TEXTURE_2D);
+			draw_string_zoomed (xtag+2, ytagtop+2, (unsigned char *)col->tabs[itab].label, 1, w->size);
+			glDisable(GL_TEXTURE_2D);
+			if (itab == col->cur_tab) xcur = xtag;
+			xtag = nxtag + space;
+		}
+		wcur = col->tabs[col->cur_tab].tag_width;
+	}
+	// draw the rest of the frame around the tab
+	glBegin (GL_LINES);
+	glVertex3i (w->pos_x, ytagbot, 0);
+	glVertex3i (xcur, ytagbot, 0);
+	glVertex3i (xcur+wcur, ytagbot, 0);
+	glVertex3i (w->pos_x + w->len_x, ytagbot, 0);		
+	glVertex3i (w->pos_x + w->len_x, ytagbot, 0);		
+	glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);		
+	glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);		
+	glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);		
+	glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);		
+	glVertex3i (w->pos_x, ytagbot, 0);		
+	glEnd ();
+	glEnable(GL_TEXTURE_2D);
+	
+	// show the content of the current tab
+	if (col->nr_tabs > 0)
+		show_window (col->tabs[col->cur_tab].content_id);
+	
+	return 1;
+}
+
+int tab_collection_click (widget_list *W, int x, int y)
+{
+	tab_collection *col = (tab_collection *) W->widget_info;
+	if (y < col->tag_height) {
+		int itag, xtag = 0, ctag = col->cur_tab;
+
+		// find which tag was clicked
+		for (itag = 0; itag < col->nr_tabs; itag++) 
+		{
+			xtag += col->tabs[itag].tag_width + col->tag_space;
+			if (x < xtag) break;
+		}
+		
+		// if a new tab is selected, replace the current one
+		if (itag < col->nr_tabs && itag != ctag)
+		{
+			col->cur_tab = itag;
+			hide_window (col->tabs[ctag].content_id);
+			show_window (col->tabs[itag].content_id);
+			//select_window (col->tabs[itag].content_id);
+			return 1;
+		}
+	}
+	
+	return 0;
+}
+
+int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width)
+{
+	widget_list *w = widget_find(window_id, col_id);
+	tab_collection *col;
+	int nr;
+
+	if (w == NULL || (col = (tab_collection *) w->widget_info) == NULL)
+		return 0;
+	
+	nr = col->nr_tabs++;
+	if (nr < col->max_tabs) {
+		my_strncp (col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
+		col->tabs[nr].tag_width = tag_width;
+		col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
+	}
+	
+	return col->tabs[nr].content_id;
+}
+
 // XML Windows
 
 int AddXMLWindow(char *fn)
@@ -918,6 +1111,8 @@ int GetWidgetType(char *w)
 		return PROGRESSBAR;
 	if(!xmlStrcasecmp(w, "VSCROLLBAR"))
 		return VSCROLLBAR;
+	if(!xmlStrcasecmp(w, "TABCOLLECTION"))
+		return TABCOLLECTION;
 
 	return 0;
 }

@@ -6,6 +6,8 @@
 #ifndef __KNOWLEDGE_H__
 #define __KNOWLEDGE_H__
 
+#define KNOWLEDGE_LIST_SIZE 200
+
 /*!
  * knowledge structure
  */
@@ -31,7 +33,7 @@ extern int knowledge_menu_y_len;
 //extern int knowledge_scroll_dragged;
 extern int knowledge_page_start;
 
-extern knowledge knowledge_list[300]; /*!< global array of knowledgeable items */
+extern knowledge knowledge_list[KNOWLEDGE_LIST_SIZE]; /*!< global array of knowledgeable items */
 extern char knowledge_string[400];
 
 /*!
@@ -69,4 +71,15 @@ void get_knowledge_list(Uint16 size, char *list);
  * \return None
  */
 void get_new_knowledge(Uint16 idx);
+
+/*! 
+ * \ingroup knowledge_win
+ * \brief Sets the window handler functions for the knowledge window
+ *
+ * 	Sets the window handler functions for the knowledge window
+ *
+ * \return None
+ */
+void fill_knowledge_win ();
+
 #endif

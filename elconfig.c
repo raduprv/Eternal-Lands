@@ -402,6 +402,8 @@ void init_vars()
 	add_var(INT,"log_server","log",&log_server,change_int,1);
 	add_var(STRING,"language","lang",lang,change_string,8);
 	add_var(STRING,"browser","b",broswer_name,change_string,70);
+	
+	add_var(BOOL,"use_tabbed_windows","tabs",&use_tabbed_windows,change_var,0);
 #endif
 	//Global vars...
 	add_var(STRING,"data_dir","dir",datadir,change_string,90);//Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...

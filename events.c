@@ -210,14 +210,22 @@ int HandleEvent(SDL_Event *event)
 				      hide_window(manufacture_win);
 				    if(options_win>0)
 				      hide_window(options_win);
-				    if(questlog_win>0)
-				      hide_window(questlog_win);
 				    if(sigil_win>0)
 				      hide_window(sigil_win);
-				    if(stats_win>0)
-				      hide_window(stats_win);
-					if(help_win>0)
-				      hide_window(stats_win);
+				    if (use_tabbed_windows)
+				    {
+				    	if(tab_stats_win>0)
+						hide_window(tab_stats_win);
+				    }
+				    else
+				    {
+				    	if(questlog_win>0)
+				    		hide_window(questlog_win);
+				    	if(stats_win>0)
+				    		hide_window(stats_win);
+				    	if (knowledge_win > 0)
+				    		hide_window(knowledge_win);
+				    }
 				    break;
 				  }
 
@@ -248,7 +256,10 @@ int HandleEvent(SDL_Event *event)
 
 				if(key==K_STATS)
 					{
-						view_window(&stats_win, 0);
+						if (use_tabbed_windows)
+							view_tab(&tab_stats_win, &tab_collection_id, 0);
+						else
+							view_window (&stats_win, 0);
 						break;
 					}
 
@@ -275,10 +286,13 @@ int HandleEvent(SDL_Event *event)
 						view_window(&options_win, 0);
 						break;
 					}
-				
+
 				if(key==K_KNOWLEDGE)
 					{
-						view_window(&knowledge_win,0);
+						if (use_tabbed_windows)
+							view_tab(&tab_stats_win, &tab_collection_id, 1);
+						else
+							view_window (&knowledge_win, 0);
 						break;
 					}
 
@@ -287,12 +301,13 @@ int HandleEvent(SDL_Event *event)
 						view_window(&encyclopedia_win,0);
 						break;
 					}
-				
+				/*
 				if(key==K_HELP)
 					{
 						view_window(&help_win,0);
 						break;
 					}
+				*/
 
 				if(key==K_REPEATSPELL)	// REPEAT spell command
 					{
@@ -414,7 +429,7 @@ int HandleEvent(SDL_Event *event)
 							}
 						resize_window();
 					}
-
+				
 //END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
 				if ( event->key.keysym.sym == SDLK_ESCAPE)

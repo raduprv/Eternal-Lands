@@ -379,21 +379,39 @@ void	end_drag_windows()
 
 int	select_window(int win_id)
 {
-	int	i, old;
+	int	i, old, nchild, idiff;
 
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	
+	// if this is a child window, raise the parent first
+	if (windows_list.window[win_id].pos_id > 0)
+		select_window(windows_list.window[win_id].pos_id);
+		
+	// count the number of children
+	nchild = 0;
+	for(i=1; i<windows_list.num_windows; i++)
+	{
+		if (windows_list.window[i].pos_id == win_id)
+			nchild++;
+	}	
 
-	// shuffle the order of the windows
+	// shuffle the order of the windows. Children are raised together with
+	// this window
 	old= windows_list.window[win_id].order;
 	if(old <= 0)	return 0;	// show last are never shuffled
+	idiff = (windows_list.num_windows-1-nchild) - old;
 	for(i=1; i<windows_list.num_windows; i++){
 		if(windows_list.window[i].order > old){
-			windows_list.window[i].order--;
+			if (windows_list.window[i].pos_id != win_id)
+				windows_list.window[i].order -= (nchild+1);
+			else
+				windows_list.window[i].order += idiff;
 		}
 	}
+	
 	// and put it on top
-	windows_list.window[win_id].order= windows_list.num_windows-1;
+	windows_list.window[win_id].order += idiff;
 
 	return 1;
 }
@@ -467,7 +485,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 			win->displayed= (property_flags&ELW_SHOW)?1:0;
 			//win->collapsed= 0;
 			win->dragged= 0;
-			strncpy(win->window_name, name, 34);
+			my_strncp(win->window_name, name, 34);
 
 			win->back_color[0]= 0.0f;
 			win->back_color[1]= 0.0f;
@@ -526,14 +544,23 @@ int		find_window(const char *name)
 
 int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y)
 {
+	int pwin_x, pwin_y;
+	
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(pos_id < 0 || pos_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	if(windows_list.window[pos_id].window_id != pos_id)	return -1;
+	
+	// parent window position. The new window is placed relative to these
+	// coordinates
+	pwin_x = windows_list.window[pos_id].cur_x;
+	pwin_y = windows_list.window[pos_id].cur_y;
 
 	// memorize the size
 	windows_list.window[win_id].len_x= size_x;
 	windows_list.window[win_id].len_y= size_y;
 	// then place the window
-	move_window(win_id, pos_id, pos_loc, pos_x, pos_y);
+	move_window(win_id, pos_id, pos_loc, pos_x+pwin_x, pos_y+pwin_y);
 
 	// finally, call any init_handler that was defined
 	if(windows_list.window[win_id].init_handler)
@@ -546,23 +573,40 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 {
 	window_info *win;
+	int dx, dy, i;
 
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(pos_id < 0 || pos_id >= windows_list.num_windows)	return -1;
+	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	if(windows_list.window[pos_id].window_id != pos_id)	return -1;
+	
 	win= &windows_list.window[win_id];
-	if(win->window_id != win_id)	return -1;
 
-	win->pos_id= pos_id;	//NOT SUPPORTED YET
+	dx = -win->cur_x;
+	dy = -win->cur_y;
+
+	win->pos_id = pos_id;
 	win->pos_loc= pos_loc;	//NOT SUPPORTED YET
 	win->pos_x= pos_x;
 	win->pos_y= pos_y;
 	win->cur_x= pos_x;	//TODO: calc based on pos_id & pos_loc
 	win->cur_y= pos_y;	//TODO: calc based on pos_id & pos_loc
 
-	// check for the window actually being on the screen, if not, move it
-	if(win->cur_y < ((win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0)) win->cur_y= (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0;
-	if(win->cur_y >= window_height) win->cur_y= window_height;	// had -32, but do we want that?
-	if(win->cur_x+win->len_x < ELW_BOX_SIZE) win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
-	if(win->cur_x > window_width-ELW_BOX_SIZE) win->cur_x= window_width-ELW_BOX_SIZE;
+	// don't check child windows for visibility
+	if (pos_id == 0) {
+		// check for the window actually being on the screen, if not, move it
+		if(win->cur_y < ((win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0)) win->cur_y= (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0;
+		if(win->cur_y >= window_height) win->cur_y= window_height;	// had -32, but do we want that?
+		if(win->cur_x+win->len_x < ELW_BOX_SIZE) win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
+		if(win->cur_x > window_width-ELW_BOX_SIZE) win->cur_x= window_width-ELW_BOX_SIZE;
+	}
+	
+	// move child windows, if any
+	dx += win->cur_x;
+	dy += win->cur_y;
+	for (i = 0; i < windows_list.num_windows; i++)
+		if (windows_list.window[i].pos_id == win_id)
+			move_window (i, win_id, 0, windows_list.window[i].cur_x + dx, windows_list.window[i].cur_y + dy);
 
 	return 1;
 }
@@ -713,8 +757,10 @@ int	draw_window_border(window_info *win)
 int	draw_window(window_info *win)
 {
 	int	ret_val=0;
-	widget_list *W = &win->widgetlist;
+	widget_list *W;
+	
 	if(win == NULL || win->window_id < 0)	return -1;
+	W = &win->widgetlist;
 
 	if(!win->displayed)	return 0;
 	// mouse over processing first
@@ -760,10 +806,17 @@ void	show_window(int win_id)
 
 void	hide_window(int win_id)
 {
+	int iwin;
+	
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
 	windows_list.window[win_id].displayed= 0;
+	
+	// hide child windows
+	for (iwin = 0; iwin < windows_list.num_windows; iwin++)
+		if (windows_list.window[iwin].pos_id == win_id)
+			hide_window (iwin);
 }
 
 void	toggle_window(int win_id)
@@ -773,7 +826,14 @@ void	toggle_window(int win_id)
 
 	if(!windows_list.window[win_id].displayed)
 		select_window(win_id);
-	windows_list.window[win_id].displayed=!windows_list.window[win_id].displayed;
+	//windows_list.window[win_id].displayed=!windows_list.window[win_id].displayed;
+
+	// if we hide a window, we have to hide it's children too, so we cannot
+	// simply toggle the displayed flag.
+	if (windows_list.window[win_id].displayed)
+		hide_window (win_id);
+	else
+		show_window (win_id);
 }
 
 

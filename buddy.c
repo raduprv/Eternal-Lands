@@ -108,7 +108,7 @@ void display_buddy()
 			progressbar_add(buddy_win,NULL,50,50,20,200);
 			progressbar_set_progress(buddy_win,4,25);
 			widget_set_OnClick(buddy_win,4,clikaa);
-		*/	vscrollbar_add_extended(buddy_win,12,NULL,130,20,20,180,0,1.0,0.77f,0.57f,0.39f,0,1,130);
+		*/	vscrollbar_add_extended(buddy_win,12,NULL,130,20,20,180,0,1.0,0.77f,0.57f,0.39f,0,1,MAX_BUDDY-19);
 		
 		}
 	else

@@ -1,7 +1,7 @@
 /*!
  * \file
- * \ingroup widgets
  * \brief Functions for the widgets used by EL
+ * \ingroup widgets
  */
 #ifndef	__WIDGETS_H
 #define	__WIDGETS_H
@@ -16,6 +16,7 @@
 #define BUTTON		0x04     /*!< button widget */
 #define PROGRESSBAR	0x05     /*!< progressbar widget */
 #define VSCROLLBAR	0x06     /*!< vertical scrollbar widget */
+#define TABCOLLECTION	0x07     /*!< tabbed windows collection widget */
 /*! \} */
 
 
@@ -89,6 +90,22 @@ typedef struct {
 	int pos, pos_inc, bar_len;
 }vscrollbar;
 
+/*!
+ *  Tabbed window structure
+ */
+typedef struct {
+	Sint8 label[256];
+	Uint16 tag_width;
+	Uint32 content_id;
+} tab;
+
+/*!
+ *  Tab collection structure
+ */
+typedef struct {
+	int tag_height, tag_space, nr_tabs, max_tabs, cur_tab;
+	tab *tabs;
+} tab_collection;
 
 // Common widget functions
 
@@ -702,8 +719,8 @@ int vscrollbar_click(widget_list *W, int x, int y);
  * 		The callback for dragging the vertical scrollbar widget
  *
  * \param   	W The vertical scrollbar widget
- * \param   	x Specifies the x pos
- * \param   	y Specifies the y pos
+ * \param	x Specifies the x pos
+ * \param	y Specifies the y pos
  * \param   	dx Specifies the delta x
  * \param   	dy Specifies the delta y
  * \return  	Returns true
@@ -747,6 +764,117 @@ int vscrollbar_set_bar_len (Uint32 window_id, Uint32 widget_id, int bar_len);
  * \return  	Returns pos on succes, -1 on failure (if the widget was not found in the given window)
  */
 int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	Returns the number of the currently selected tab
+ *
+ * 		Returns the number of the currently selected tab in a tabbed window collection. Numbers are in the range 0...nr_tabs-1.
+ *		
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The unique widget ID of the tab collection
+ * \return  	Returns the tab number on succes, -1 on failure
+ */
+int tab_collection_get_tab (Uint32 window_id, Uint32 widget_id);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	Selects a tab in the tab collection
+ *
+ * 		Select a tab from the tab collection and bring it to the front
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The unique widget ID of the tab collection
+ * \param	tab The number of the tab to be selected
+ * \return  	Returns the tab number on succes, -1 on failure (if the tab number was greater than or equal to the number of tabs in the collection)
+ */
+int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	Creates a tabbed window collection
+ *
+ * 		Creates a tabbed window collection and adds it to the given window
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	OnInit The function used when initializing the widget
+ * \param   	x The x position
+ * \param   	y The y position
+ * \param   	lx The width
+ * \param   	ly The height
+ * \param	max_tabs The largest number of tabs this collection will hold
+ * \param	tag_height The height of the tags
+ * \param	tag_space The spacing between two neigboring tags
+ * \return  	Returns the new widgets unique ID 
+ * \callgraph
+ */
+int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, 
+Uint16 y, Uint16 lx, Uint16 ly, int max_tabs, Uint16 tag_height, Uint16 tag_space);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	Creates an extended tabbed window collection
+ *
+ * 		Creates an extended tabbed window collection and adds it to the given window
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	wid The unique widget ID
+ * \param   	OnInit The function called when initializing the widget
+ * \param   	x The x position
+ * \param   	y The y position
+ * \param   	lx The width
+ * \param   	ly The height
+ * \param   	Flags The flags
+ * \param   	size The text size
+ * \param   	r (0<=r<=1)
+ * \param   	g (0<=g<=1)
+ * \param   	b (0<=b<=1)
+ * \param	max_tabs The largest number of tabs this collection will hold
+ * \param	tag_height The height of the tags
+ * \param	tag_space The spacing between two neigboring tags
+ * \return  	Returns the new widgets unique ID 
+ */
+int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int 
+(*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, 
+float size, float r, float g, float b, int max_tabs, Uint16 tag_height, Uint16 tag_space);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	Draws a tabbed window collection
+ *
+ * 		Draws the vertical tabbed window collection given by *W
+ *
+ * \param   	W A pointer to the tabbed window collection you wish to draw
+ * \return  	Returns 1 on success, 0 on error
+ */
+int tab_collection_draw (widget_list *W);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	The callback for mouseclicks in the tabbed window collection widget
+ *
+ * 		The callback for mouseclicks in the tabbed window collection widget
+ *
+ * \param   	W The widget
+ * \param   	x The mouse x position
+ * \param   	y The mouse y position
+ * \return  	Returns 1 if a new tab is selected, 0 otherwise
+ */
+int tab_collection_click (widget_list *W, int x, int y);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	Creates a new tabbed window
+ *
+ * 		Creates a new tabbed window 
+ *
+ * \param   	window_id The location of the parent window in the windows_list.window[] array
+ * \param   	col_id The unique widget id of the tabbed window collection in which this tab is created
+ * \param   	label The name of this tab as it appears on its tag
+ * \param	tag_width The width of the tag
+ * \return  	Returns 1 if a new tab is selected, 0 otherwise
+ */
+int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width);
 
 
 // XML Windows
@@ -809,4 +937,3 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node);
  */
 int GetWidgetType(char *w);
 #endif
-

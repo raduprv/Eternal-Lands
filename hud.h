@@ -277,6 +277,19 @@ void view_window(int * win, int id);
 
 /*!
  * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param window
+ * \param col_id
+ * \param tab
+ * \return None
+ */
+void view_tab (int *window, int *col_id, int tab);
+
+/*!
+ * \ingroup windows
  * \brief   views the console window (i.e. switch to console mode)
  *
  *      This is not handled by the window manager, so we have to call this function

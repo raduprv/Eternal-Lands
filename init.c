@@ -371,7 +371,7 @@ void save_bin_cfg()
 		cfg_mem.manufacture_menu_y=manufacture_menu_y;
 	}
 
-	if(stats_win) {
+	if(!use_tabbed_windows && stats_win) {
 		cfg_mem.attrib_menu_x=windows_list.window[stats_win].cur_x;
 		cfg_mem.attrib_menu_y=windows_list.window[stats_win].cur_y;
 	} else {
@@ -387,7 +387,7 @@ void save_bin_cfg()
 		cfg_mem.options_menu_y=options_menu_y;
 	}
 
-	if(knowledge_win) {
+	if(!use_tabbed_windows && knowledge_win) {
 		cfg_mem.knowledge_menu_x=windows_list.window[knowledge_win].cur_x;
 		cfg_mem.knowledge_menu_y=windows_list.window[knowledge_win].cur_y;
 	} else {
@@ -403,7 +403,7 @@ void save_bin_cfg()
 		cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
 	}
 
-	if(questlog_win) {
+	if(!use_tabbed_windows && questlog_win) {
 		cfg_mem.questlog_menu_x=windows_list.window[questlog_win].cur_x;
 		cfg_mem.questlog_menu_y=windows_list.window[questlog_win].cur_y;
 	} else {

@@ -102,6 +102,7 @@
 #include "rules.h"
 #include "sector.h"
 #include "help.h"
+#include "tabstats.h"
 #ifdef BOOK
 #include "books.h"
 #endif

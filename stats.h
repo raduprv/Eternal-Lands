@@ -239,5 +239,15 @@ void display_stats(player_attribs cur_stats);
  */
 void init_attribf(void);
 
+/*!
+ * \ingroup stats_win
+ * \brief Sets the window handler functions for the statistics window
+ *
+ *      Sets the window handler functions for the statistics window
+ *
+ * \return None
+ */
+void fill_stats_win ();
+
 #endif
 
