@@ -673,8 +673,8 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
 
 	//now, find a place into the bags list, so we can destroy the bag properly
-	bag_list[bag_id].x=x;
-	bag_list[bag_id].y=y;
+	bag_list[bag_id].x=bag_x;
+	bag_list[bag_id].y=bag_y;
 	bag_list[bag_id].obj_3d_id=obj_3d_id;
 }
 
@@ -705,15 +705,15 @@ void add_bags_from_list(Uint8 *data)
 			obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
 			//now, find a place into the bags list, so we can destroy the bag properly
 
-			bag_list[bag_id].x=x;
-			bag_list[bag_id].y=y;
+			bag_list[bag_id].x=bag_x;
+			bag_list[bag_id].y=bag_y;
 			bag_list[bag_id].obj_3d_id=obj_3d_id;
 		}
 }
 
 void remove_bag(int which_bag)
 {
-	add_bag_out(bag_list[which_bag].x*2,bag_list[which_bag].y*2);
+	add_bag_out(bag_list[which_bag].x,bag_list[which_bag].y);
 	destroy_3d_object(bag_list[which_bag].obj_3d_id);
 	bag_list[which_bag].obj_3d_id=-1;
 }
