@@ -16,12 +16,13 @@ windows_info	windows_list;	// the master list of windows
  */
 
 // general windows manager functions
-void	display_windows()
+void	display_windows(int level)
 {
 	int	id;
 	int	next_id;
 	int i;
 
+	windows_list.display_level= level;
 	glColor3f(1.0f, 1.0f, 1.0f);
 	// first draw everything that is last under everything
 	id= -1;
@@ -49,30 +50,33 @@ void	display_windows()
 					id= next_id;
 				}
 		}
-	// now display each window in the proper order
-	id= 1;
-	while(1)
+	if(level > 0)
 		{
-			next_id= 9999;
-			for(i=1; i<windows_list.num_windows; i++){
-				// only look at displayed windows
-				if(windows_list.window[i].displayed > 0){
-					// at this level?
-					if(windows_list.window[i].order == id){
-						display_window(i);
-					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
-						// try to find the next level
-						next_id= windows_list.window[i].order;
+			// now display each window in the proper order
+			id= 1;
+			while(1)
+				{
+					next_id= 9999;
+					for(i=1; i<windows_list.num_windows; i++){
+						// only look at displayed windows
+						if(windows_list.window[i].displayed > 0){
+							// at this level?
+							if(windows_list.window[i].order == id){
+								display_window(i);
+							} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
+								// try to find the next level
+								next_id= windows_list.window[i].order;
+							}
+						}
 					}
-				}
-			}
-			if(next_id >= 9999)
-				{
-					break;
-				}
-			else
-				{
-					id= next_id;
+					if(next_id >= 9999)
+						{
+							break;
+						}
+					else
+						{
+							id= next_id;
+						}
 				}
 		}
 }
@@ -91,39 +95,44 @@ int		click_in_windows(int mx, int my, Uint32 flags)
 		if(ctrl_on)		flags |= ELW_CTRL;
 		if(alt_on)		flags |= ELW_ALT;
 		if(right_click)	flags |= ELW_RIGHT_MOUSE;
-		//if(mid_click)	flags |= ELW_MID_MOUSE;
+		if(middle_click)	flags |= ELW_MID_MOUSE;
 		if(left_click)	flags |= ELW_LEFT_MOUSE;
+		// TODO: centralized double click handling
+		// TODO: consider other ways of triggering double clieck, like middle click or shift click
 		//if(double_click)	flags |= ELW_DBL_CLICK;
 	}
 
 	// check each window in the proper order
-	id= 9999;
-	while(done <= 0)
+	if(windows_list.display_level > 0)
 		{
-			next_id= 0;
-			for(i=1; i<windows_list.num_windows; i++){
-				// only look at displayed windows
-				if(windows_list.window[i].displayed > 0){
-					// at this level?
-					if(windows_list.window[i].order == id){
-						done= click_in_window(i, mx, my, flags);
-						if(done){
-							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
-							return i;
+			id= 9999;
+			while(done <= 0)
+				{
+					next_id= 0;
+					for(i=1; i<windows_list.num_windows; i++){
+						// only look at displayed windows
+						if(windows_list.window[i].displayed > 0){
+							// at this level?
+							if(windows_list.window[i].order == id){
+								done= click_in_window(i, mx, my, flags);
+								if(done){
+									if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
+									return i;
+								}
+							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
+								// try to find the next level
+								next_id= windows_list.window[i].order;
+							}
 						}
-					} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
-						// try to find the next level
-						next_id= windows_list.window[i].order;
 					}
-				}
-			}
-			if(next_id <= 0)
-				{
-					break;
-				}
-			else
-				{
-					id= next_id;
+					if(next_id <= 0)
+						{
+							break;
+						}
+					else
+						{
+							id= next_id;
+						}
 				}
 		}
 	// now check the background windows in the proper order
@@ -160,22 +169,126 @@ int		click_in_windows(int mx, int my, Uint32 flags)
 }
 
 
+int		drag_windows(int mx, int my, int dx, int dy)
+{
+	int	next_id;
+	int	id, i;
+	int	drag_id= 0;
+
+	// check each window in the proper order for which one might be getting dragged
+	if(windows_list.display_level > 0)
+		{
+			id= 9999;
+			while(drag_id <= 0)
+				{
+					next_id= 0;
+					for(i=1; i<windows_list.num_windows; i++){
+						// only look at displayed windows
+						if(windows_list.window[i].displayed > 0 && (windows_list.window[i].flags&ELW_DRAGGABLE)){
+							// at this level?
+							if(windows_list.window[i].order == id){
+								// check for being actively dragging or on the top bar
+								if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
+									drag_id= i;
+									break;
+								}
+							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
+								// try to find the next level
+								next_id= windows_list.window[i].order;
+							}
+						}
+					}
+					if(next_id <= 0)
+						{
+							break;
+						}
+					else
+						{
+							id= next_id;
+						}
+				}
+		}
+
+	// this section probably won't be needed, included to be complete
+	// now check the background windows in the proper order for which one might be getting dragged
+	id= -9999;
+	while(drag_id <= 0)
+		{
+			next_id= 0;
+			for(i=1; i<windows_list.num_windows; i++){
+				// only look at displayed windows
+				if(windows_list.window[i].displayed > 0 && (windows_list.window[i].flags&ELW_DRAGGABLE)){
+					// at this level?
+					if(windows_list.window[i].order == id){
+						// check for being actively dragging or on the top bar
+						if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
+							drag_id= i;
+							break;
+						}
+					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
+						// try to find the next level
+						next_id= windows_list.window[i].order;
+					}
+				}
+			}
+			if(next_id >= 0)
+				{
+					break;
+				}
+			else
+				{
+					id= next_id;
+				}
+		}
+
+	// are we dragging a window?
+	if(drag_id <= 0)	return 0;
+
+	// dragged window is always on top
+	select_window(drag_id);
+	// flag we are dragging
+	windows_list.window[drag_id].dragged= 1;
+	if(left_click>1 && (dx != 0 || dy != 0))	// TODO: avoid globals?
+		{
+			// move to new location
+			move_window(drag_id, windows_list.window[drag_id].pos_id, windows_list.window[drag_id].pos_loc,
+					windows_list.window[drag_id].pos_x+dx, windows_list.window[drag_id].pos_y+dy);
+		}
+
+	return 1;
+}
+
+
+void	end_drag_windows()
+{
+	int	i;
+
+	for(i= 0; i<windows_list.num_windows; i++)
+		{
+			windows_list.window[i].dragged= 0;
+		}
+}
+
+
 int		select_window(int win_id)
 {
 	int	i, old;
 
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
+
 	// shuffle the order of the windows
 	old= windows_list.window[win_id].order;
-	if(old <= 0)	return 0;
+	if(old <= 0)	return 0;	// show last are never shuffled
 	for(i=1; i<windows_list.num_windows; i++){
 		if(windows_list.window[i].order > old){
 			windows_list.window[i].order--;
 		}
 	}
 	// and put it on top
-	windows_list.window[win_id].order= windows_list.num_windows-1;;
+	windows_list.window[win_id].order= windows_list.num_windows-1;
+
+	return 1;
 }
 
 
@@ -516,7 +629,6 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 {
     window_info *win;
     int	mx, my;
-	int	ret_val;
    
 	if(mouse_in_window(win_id, x, y) > 0)
 		{

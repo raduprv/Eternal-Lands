@@ -21,7 +21,7 @@ typedef	struct	{
 	float	border_color[4];	// r,g,b,a for the border
 	float	line_color[4];		// r,g,b,a for any internal lines
 
-	char	window_name[32];
+	char	window_name[32];	// should be a unique name suitable for display
 
 	char	displayed;	// is the window currently being displayed?
 	//char	collapsed;	// is it collapsed or expanded?
@@ -128,6 +128,7 @@ typedef	struct	{
 	window_info	*window;
 	int	num_windows;	// highest item used
 	int max_windows;	// number of windows allocated
+	int	display_level;
 } windows_info;
 
 extern	windows_info	windows_list;
@@ -136,9 +137,11 @@ extern	windows_info	windows_list;
 // windows manager function
 void	display_windows();
 int		click_in_windows(int mx, int my, Uint32 flags);
+int		drag_windows(int mx, int my, int dx, int dy);
+void	end_drag_windows();
 int		select_window(int win_id);
 //void	close_windows();
-//TODO: mouseover and dragging windows
+//TODO: mouseover, check windows on screen
 
 // individual functions
 int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
