@@ -379,12 +379,19 @@ void test_for_console_command()
 
 			return;
 		}
-	if(my_strcompare(text_loc,"log conn data"))
+	if(my_strncompare(text_loc,"log conn data", 8))
 		{
 			log_to_console(c_grey1,"Logging raw connection data");
 			log_conn_data=1;
 			return;
 		}
+
+	if(my_strncompare(text_loc,"help", 4))
+		{
+			// help always opens the Enc!
+			display_encyclopedia();
+		}
+
 	send_input_text_line();//no command, send it to the server, as plain text
 
 }
