@@ -841,7 +841,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				get_actor_damage(*((Uint16 *)(in_data+3)),*((Uint16*)(in_data[5])));
+				get_actor_damage(*((Uint16 *)(in_data+3)),*((Uint16*)(in_data+5)));
 			}
 			break;
 
@@ -850,7 +850,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				get_actor_heal(*((Uint16 *)(in_data+3)),*((Uint16*)(in_data[5])));
+				get_actor_heal(*((Uint16 *)(in_data+3)),*((Uint16*)(in_data+5)));
 			}
 			break;
 
