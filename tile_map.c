@@ -15,10 +15,10 @@ void draw_tile_map()
 	else x=cx/3;
 	if(cy<0)y=(cy*-1)/3;
 	else y=cy/3;
-	x_start=(int)x-3;
-	y_start=(int)y-3;
-	x_end=(int)x+3;
-	y_end=(int)y+3;
+	x_start=(int)x-5;
+	y_start=(int)y-5;
+	x_end=(int)x+5;
+	y_end=(int)y+5;
 	if(x_start<0)x_start=0;
 	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
 	if(y_start<0)y_start=0;

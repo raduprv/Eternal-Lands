@@ -134,13 +134,13 @@ int HandleEvent(SDL_Event *event)
 		{
 			if(!ctrl_on && !shift_on && !alt_on)
 				{
-					if(zoom_level<3.75f)
+					if(zoom_level<5.75f)
 						{
 							zoom_level+=0.25f;
 							resize_window();
 						}
 				}
-			else 
+			else
 				{
 					if(cur_mode==mode_3d && selected_3d_object!=-1)
 						if(shift_on)objects_list[selected_3d_object]->y_rot+=1.0f;

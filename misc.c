@@ -262,7 +262,7 @@ int get_tile_under_mouse_from_list()
 	mx=mouse_x-x_tile_menu_offset;
 	my=mouse_y-y_tile_menu_offset;
 
-	if(mx>64*8 || my>64*4 || mx<0 || my<0)return;//check to see if we clicked outside our rectangle
+	if(mx>64*8 || my>64*8 || mx<0 || my<0)return;//check to see if we clicked outside our rectangle
 
 	mx/=64;
 	my/=64;
