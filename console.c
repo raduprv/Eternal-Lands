@@ -410,7 +410,11 @@ void test_for_console_command()
 			while(*text_loc && isspace(*text_loc))	text_loc++;
 			if(!afk)
 				{
-					if((text_lenght=input_text_lenght-(text_loc-input_text_line))) strncpy(afk_message, text_loc, text_lenght);
+					if((text_lenght=input_text_lenght-(text_loc-input_text_line))) 
+						{
+							strncpy(afk_message, text_loc, text_lenght);
+							afk_message[text_lenght]=0;
+						}
 					go_afk();
 					last_action_time=cur_time-afk_time-1;
 				}
