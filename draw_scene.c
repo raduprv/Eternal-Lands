@@ -91,8 +91,6 @@ void draw_scene()
 					if(SDL_GetAppState()&SDL_APPACTIVE)
 						{
 							Enter2DMode();
-							//draw_console_pic(paper1_text);
-							draw_console_pic(cons_text);
 							draw_rules_interface();
 							SDL_GL_SwapBuffers();
 							Leave2DMode();

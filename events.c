@@ -449,7 +449,7 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if(ch=='`' || key==K_CONSOLE)
+				if(interface_mode!=interface_rules &&(ch=='`' || key==K_CONSOLE))
 					{
 						view_console_win(&console_win,-1);
 						break;

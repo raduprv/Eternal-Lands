@@ -19,7 +19,7 @@ int rules_win_y_len=300;
 /*Shared*/
 int reached_end=0;
 int have_rules=0;
-int rule_offset=0;
+int rule_offset=1;
 rule_string * display_rules;
 int last_display=-1;
 
@@ -249,7 +249,7 @@ void reset_rules(rule_string * r)
 		r[i].highlight=0;
 		r[i].mouseover=0;
 	}
-	rule_offset=0;
+	rule_offset=1;
 }
 
 void highlight_rule(int type, Uint8 * rule, int no)
@@ -271,6 +271,7 @@ void highlight_rule(int type, Uint8 * rule, int no)
 	
 		for(i=0;i<no;i++){
 			cur_rule=rule[i];
+			printf("rule #: %d\n",cur_rule);
 			r=0;
 			
 			for(j=0;display_rules[j].type!=-1;j++){
@@ -319,8 +320,8 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 	int x=0, y=y_in;
 	
 	if(rules_ptr[1].type==-1) reached_end=1;
-	
-	for(i=0;i<20 && y<leny;i++){
+
+	for(i=0;y<leny;i++){
 		ptr=str;
 		len=0;
 		switch(rules_ptr[i].type){
@@ -336,8 +337,8 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 				break;
 			case RULE:
 				if(rules_ptr[i].highlight) glColor3f(1.0f,0.0f,0.0f);
-				else if(rules_ptr[i].mouseover) glColor3f(0.7f,1.0f,0.0f);
-				else glColor3f(0.0f,1.0f,0.0f);
+				else if(rules_ptr[i].mouseover) glColor3f(0.77f,0.5f,0.4f);
+				else glColor3f(0.77f, 0.57f, 0.39f);
 				sprintf(str,"%d: ",rules_no++);
 				ptr+=strlen(str);
 				zoom=text_size;
@@ -346,8 +347,8 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 				ydiff=20*zoom;
 				break;
 			case INFO:
-				if(rules_ptr[i].mouseover) glColor3f(0.0f,0.5f,1.0f);
-				else glColor3f(0.0f,0.0f,1.0f);
+				if(rules_ptr[i].mouseover) glColor3f(0.8f,0.5f,0.5f);
+				else glColor3f(0.76f,0.48f,0.39f);
 				zoom=text_size;
 				x=x_in+20;
 				y+=10*zoom;
@@ -357,20 +358,21 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 		}
 		rules_ptr[i].x_start=x;
 		rules_ptr[i].y_start=y;
-		for(j=0;rules_ptr[i].short_str[j];j++){//Draw the lines
+		for(j=0;rules_ptr[i].short_str[j] &&y<leny;j++){//Draw the lines
 			if(j==1)ptr=str;
 			if(j) y+=18*zoom;
 			strcpy(ptr,rules_ptr[i].short_str[j]);
 			if(!j)draw_string_zoomed(x,y,str,0,zoom);
 			else draw_string_zoomed(x+xdiff,y,str,0,zoom);
-			tmplen=strlen(str)*11.25*zoom;
+			tmplen=strlen(str)*11*zoom;
 			if(tmplen>len)len=tmplen;
 		}
 		y+=ydiff;
 		rules_ptr[i].y_end=y;
+		rules_ptr[i].x_end=rules_ptr[i].x_start+len;
 		if(rules_ptr[i].show_long_desc && rules_ptr[i].long_str){//Draw the lines of the long description
 			if(rules_ptr[i].highlight) glColor3f(0.8f,0.0f,0.0f);
-			else glColor3f(0.6f,1.0f,1.0f);
+			else glColor3f(0.76f,0.5f,0.37f);
 			for(j=0;rules_ptr[i].long_str[j]&& y<leny;j++){
 				if(j)y+=18*zoom*0.9f;
 				strcpy(str,rules_ptr[i].long_str[j]);
@@ -378,17 +380,18 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 			}
 			y+=ydiff;
 		}
-		rules_ptr[i].x_end=rules_ptr[i].x_start+len;
 	}
 	rules_ptr[i].y_start=2*leny;//hehe ;-)
 	
 	return i;//The number of rules we're displaying
 }
 
+int has_accepted=0;
+
 void check_mouse_rules_interface(rule_string * rules_ptr, int lenx, int leny, int mx, int my)
 {
 	int i;
-	for(i=0;i<20 && rules_ptr[i].type!=-1 && rules_ptr[i].y_start<leny;i++){
+	for(i=0;rules_ptr[i].type!=-1 && rules_ptr[i].y_start<leny;i++){
 		if(mx>rules_ptr[i].x_start && mx<rules_ptr[i].x_end &&
 				my>rules_ptr[i].y_start && my<rules_ptr[i].y_end){
 			if(left_click==1) {
@@ -408,7 +411,7 @@ void init_rules_interface(int next, float text_size, int count)
 	if(rules.no){
 		if(last_display){//We need to format the rules again..
 			if(display_rules) free_rules(display_rules);
-			display_rules=get_interface_rules((float)(window_width-60)/(12*text_size));
+			display_rules=get_interface_rules((float)(window_height-140)/(12*text_size));
 		}
 		countdown=count;//Countdown in 0.5 seconds...
 	} else {
@@ -416,14 +419,42 @@ void init_rules_interface(int next, float text_size, int count)
 	}
 
 	last_display=0;
+	has_accepted=0;
 }
 
+float rules_u_start=(float)3/256;
+float rules_v_start=1.0f-(float)63/256;
+float rules_u_end=(float)127/256;
+float rules_v_end=1.0f-(float)127/256;
+
+float accept_u_start=(float)2/256;
+float accept_v_start=1.0f-(float)2/256;
+float accept_u_end=(float)60/256;
+float accept_v_end=1.0f-(float)28/256;
+
+float colored_accept_u_start=(float)2/256;
+float colored_accept_v_start=1.0f-(float)34/256;
+float colored_accept_u_end=(float)60/256;
+float colored_accept_v_end=1.0f-(float)60/256;
+
+float arrow_u_start=(float)64/256;
+float arrow_v_start=1.0f;
+float arrow_u_end=(float)79/256;
+float arrow_v_end=1.0f-(float)31/256;
+
+float colored_arrow_u_start=(float)80/256;
+float colored_arrow_v_start=1.0f;
+float colored_arrow_u_end=(float)95/256;
+float colored_arrow_v_end=1.0f-(float)31/256;
 
 void draw_rules_interface()
 {
 	char str[20];
+	float diff=(window_width-window_height)>>1;
+	int x,y,width,height;//Width/Height are 0.5*width/height
+	float window_ratio=window_width/640.0f;
 	if(countdown==-1) init_rules_interface(disconnected?interface_opening:interface_new_char, 1.0f, 10);
-	if(countdown==0) {
+	if(has_accepted) {
 		interface_mode=next_interface;
 		free_rules(display_rules);
 		display_rules=NULL;
@@ -431,12 +462,152 @@ void draw_rules_interface()
 		return;
 	}
 
-	draw_rules(display_rules, 1, 20,20,window_width,window_height-50*((float)window_width/640.0f),1.0f);
+    	glColor3f(1.0f,1.0f,1.0f);
 	
-	glColor3f(0.6f,1.0f,1.0f);
-	sprintf(str,"%d",countdown/2);
-	draw_string(10,20,str,0);
+    get_and_set_texture_id(paper1_text);
+	
+    	glPushMatrix();
+	glTranslatef(diff,0,0);
+	glBegin(GL_QUADS);
+	//draw the texture
+		glTexCoord2f(0.0f,1.0f); glVertex3i(0,0,0);
+		glTexCoord2f(0.0f,0.0f); glVertex3i(0,window_height,0);
+		glTexCoord2f(1.0f,0.0f); glVertex3i(window_height,window_height,0);
+		glTexCoord2f(1.0f,1.0f); glVertex3i(window_height,0,0);
+	glEnd();
+	glPopMatrix();
 
-	check_mouse_rules_interface(display_rules, window_width, window_height, mouse_x, mouse_y);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER,0.05f);
+	
+    get_and_set_texture_id(hud_text);
+    	
+	width=120*window_ratio;
+	height=40*window_ratio;
+	x=diff+(window_height>>1);
+	y=66*window_ratio;
+    
+	glPushMatrix();
+	glTranslatef(x,y,0);
+	glRotatef(3.0f,0.0f,0.0f,1.0f);
+	glBegin(GL_QUADS);
+		glTexCoord2f(rules_u_start,rules_v_end);	glVertex2i(-width,height);
+		glTexCoord2f(rules_u_end,rules_v_end);		glVertex2i(width,height);
+		glTexCoord2f(rules_u_end,rules_v_start);	glVertex2i(width,-height);
+		glTexCoord2f(rules_u_start,rules_v_start);	glVertex2i(-width,-height);
+	glEnd();
+	glPopMatrix();
+
+	width=50*window_ratio;//Actually 0.5*width
+	height=20*window_ratio;//Actually 0.5*height
+	x=diff+window_height/2;
+	y=window_height-80*window_ratio;
+	
+	if(countdown!=0){
+		glAlphaFunc(GL_GREATER,0.04f);
+		glPushMatrix();
+		glTranslatef(x,y,0);
+		
+		glBegin(GL_QUADS);
+			glTexCoord2f(accept_u_start,accept_v_end);	glVertex2i(-width,height);
+			glTexCoord2f(accept_u_end,accept_v_end);	glVertex2i(width,height);
+			glTexCoord2f(accept_u_end,accept_v_start);	glVertex2i(width,-height);
+			glTexCoord2f(accept_u_start,accept_v_start);	glVertex2i(-width,-height);
+	} else {
+		glAlphaFunc(GL_GREATER,0.02f);
+		glPushMatrix();
+		glTranslatef(x,y,0);
+		
+		if(mouse_x>x-50-width && mouse_x<x+width && mouse_y>y-height && mouse_y<y+height && left_click) has_accepted=1;
+		glBegin(GL_QUADS);
+			glTexCoord2f(colored_accept_u_start,colored_accept_v_end);	glVertex2i(-width,height);
+			glTexCoord2f(colored_accept_u_end,colored_accept_v_end);	glVertex2i(width,height);
+			glTexCoord2f(colored_accept_u_end,colored_accept_v_start);	glVertex2i(width,-height);
+			glTexCoord2f(colored_accept_u_start,colored_accept_v_start);	glVertex2i(-width,-height);
+	}
+	glEnd();
+	glPopMatrix();
+
+	x=window_height+diff-40*window_ratio;
+	y=120*window_ratio;
+	
+	if(mouse_x>x-16&&mouse_x<x+16&&mouse_y>y-16&&mouse_y<y+16){
+		
+		if(left_click==1) 
+			if(rule_offset>1){
+				rule_offset--;
+				left_click=2;
+			}
+		
+		glAlphaFunc(GL_GREATER,0.04f);
+	
+		glPushMatrix();
+		glTranslatef(x,y,0);
+		glBegin(GL_QUADS);
+			glTexCoord2f(colored_arrow_u_start,colored_arrow_v_end);	glVertex2i(-16,16);
+			glTexCoord2f(colored_arrow_u_end,colored_arrow_v_end);		glVertex2i(16,16);
+			glTexCoord2f(colored_arrow_u_end,colored_arrow_v_start);	glVertex2i(16,-16);
+			glTexCoord2f(colored_arrow_u_start,colored_arrow_v_start);	glVertex2i(-16,-16);
+	} else {
+		glAlphaFunc(GL_GREATER,0.01f);
+		
+		glPushMatrix();
+		glTranslatef(x,y,0);
+		glBegin(GL_QUADS);	
+			glTexCoord2f(arrow_u_start,arrow_v_end);	glVertex2i(-16,16);
+			glTexCoord2f(arrow_u_end,arrow_v_end);		glVertex2i(16,16);
+			glTexCoord2f(arrow_u_end,arrow_v_start);	glVertex2i(16,-16);
+			glTexCoord2f(arrow_u_start,arrow_v_start);	glVertex2i(-16,-16);
+	}
+	glEnd();
+	glPopMatrix();
+	
+	x=window_height+diff-40*window_ratio;
+	y=window_height-120*window_ratio;
+	
+	if(mouse_x>x-16&&mouse_x<x+16&&mouse_y>y-16&&mouse_y<y+16){
+		
+		if(left_click==1) 
+			if(!reached_end){
+				rule_offset++;
+				left_click=2;
+			}
+		
+		glAlphaFunc(GL_GREATER,0.04f);
+	
+		glPushMatrix();
+		glTranslatef(x,y,0);
+		glRotatef(180.0f,0.0f,0.0f,1.0f);
+		glBegin(GL_QUADS);
+			glTexCoord2f(colored_arrow_u_start,colored_arrow_v_end);	glVertex2i(-16,16);
+			glTexCoord2f(colored_arrow_u_end,colored_arrow_v_end);		glVertex2i(16,16);
+			glTexCoord2f(colored_arrow_u_end,colored_arrow_v_start);	glVertex2i(16,-16);
+			glTexCoord2f(colored_arrow_u_start,colored_arrow_v_start);	glVertex2i(-16,-16);
+	} else {
+		glAlphaFunc(GL_GREATER,0.01f);
+		
+		glPushMatrix();
+		glTranslatef(x,y,0);
+		glRotatef(180.0f,0.0f,0.0f,1.0f);
+		glBegin(GL_QUADS);	
+			glTexCoord2f(arrow_u_start,arrow_v_end);	glVertex2i(-16,16);
+			glTexCoord2f(arrow_u_end,arrow_v_end);		glVertex2i(16,16);
+			glTexCoord2f(arrow_u_end,arrow_v_start);	glVertex2i(16,-16);
+			glTexCoord2f(arrow_u_start,arrow_v_start);	glVertex2i(-16,-16);
+	}
+	glEnd();
+	glPopMatrix();
+	
+    	glDisable(GL_ALPHA_TEST);
+
+	glColor3f(0.77f, 0.57f, 0.39f);
+	
+	if(countdown!=0)sprintf(str,"You can proceed in %d seconds...",countdown/2);
+	else sprintf(str,"Click on \"I Accept\" to play the game!");
+	draw_string(diff+window_height/2-strlen(str)*11/2,window_height-40*window_ratio,str,0);
+	
+	draw_rules(display_rules+rule_offset, rule_offset, diff+40*window_ratio,125*window_ratio,window_height+diff/2-50,window_height-140*window_ratio,1.0f);
+	
+	check_mouse_rules_interface(display_rules+rule_offset, window_height-50, window_height, mouse_x, mouse_y);
 }
 

@@ -651,7 +651,7 @@ void display_actors()
 										draw_enhanced_actor(cur_actor);
 										//check for network data - reduces resyncs
 										get_message_from_server();
-										if(cur_actor==NULL)continue;//The server might destroy our actor in that very moment...
+										if(actors_list[i]==NULL)continue;//The server might destroy our actor in that very moment...
 									}
 								else
 									{

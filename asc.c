@@ -264,21 +264,22 @@ char ** get_lines(char * str, int chars_per_line)
 	if(str){
 		while(*str){
 			my_str=(char **)realloc(my_str,(lines+2)*sizeof(char *));
-			cur=my_str[lines]=(char*)malloc((chars_per_line+1)*sizeof(char));
+			cur=my_str[lines]=(char*)calloc(chars_per_line+2,sizeof(char));
 		
 			for(i=0;i<chars_per_line && str[i];i++){
-				if(str[i]==0x0d){
-					i+=2;
-					break;
-				} else if (str[i]==0x0a){
+				if(str[i]==0x0d) i++;
+				if (str[i]==0x0a){
 					i++;
 					break;
 				}
 				cur[i]=str[i];
 			}
-			if(i==chars_per_line){
+			if(i>=chars_per_line){//Wrap it
 				//go back to the last space
-				while(i>0 && str[i]!='/' && str[i]!=' ' && str[i]!=0x0a && str[i--]!=0x0d);
+				while(i){
+					if(str[i]=='/' || str[i]==' ' || str[i]==0x0a || str[i]==0x0d) break;
+					i--;
+				}
 				if(i){
 					i++;
 					if(str[i]==' ')str++;
