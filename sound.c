@@ -237,8 +237,9 @@ void update_position()
 int update_music(void *dummy)
 {
 #ifndef	NO_MUSIC
-    int error,processed,state,sleep;
-	sleep = SLEEP_TIME;
+    int error,processed,state,state2,sleep;
+    char str[256];
+   	sleep = SLEEP_TIME;
 	while(have_music)
 		{
 			SDL_Delay(sleep);
@@ -246,20 +247,20 @@ int update_music(void *dummy)
 				{
 					alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
 					alGetSourcei(music_source, AL_SOURCE_STATE, &state);
-					
+					state2=state;	//fake out the Dev-C++ optimizer!
 					if(!processed) {
 						if(sleep < SLEEP_TIME)sleep+=(SLEEP_TIME / 100);
 						continue; //skip error checking et al
 					}
 					while(processed-- > 0)
 						{
-							ALuint buffer;
-							
+    						ALuint buffer;
+
 							alSourceUnqueueBuffers(music_source, 1, &buffer);
 							stream_music(buffer);
 							alSourceQueueBuffers(music_source, 1, &buffer);
 						}
-					if(state && state != AL_PLAYING)
+					if(state2 != AL_PLAYING)
 						{
 							log_to_console(c_red1, "Skip! Speeding up...\n");
 							//on slower systems, music can skip up to 10 times
@@ -279,7 +280,6 @@ int update_music(void *dummy)
 						}
 					if((error=alGetError()) != AL_NO_ERROR)
 						{
-							char	str[256];
 							snprintf(str, 256, "update_music error: %s\n", alGetString(error));
 							log_to_console(c_red1, str);
 							LogError(str);
