@@ -79,7 +79,7 @@ Main()
 }
 
 #ifdef WINDOWS
-int WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
+int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
 	Main();
 	return 0;
