@@ -614,7 +614,8 @@ int HandleEvent(SDL_Event *event)
 				if(check_drag_menus())return(done);
 
 			if((left_click==1 || right_click==1) &&
-			   interface_mode==interface_game)
+			   (interface_mode==interface_game ||
+				interface_mode==interface_console))
 				check_mouse_click();
 			else if((left_click==1 || right_click==1) &&
 			   interface_mode==interface_map)
