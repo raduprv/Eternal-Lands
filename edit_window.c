@@ -58,7 +58,7 @@ int display_edit_window_handler(window_info *win)
 	char temp[100];
 	glColor3f(0.77f,0.57f,0.39f);
 
-	if(ew_selected_object!=-1 && !ew_object_type?objects_list[ew_selected_object]:obj_2d_list[ew_selected_object]){
+	if(ew_selected_object!=-1 && !ew_object_type?(int)objects_list[ew_selected_object]:(int)obj_2d_list[ew_selected_object]){
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE,GL_SRC_ALPHA);
