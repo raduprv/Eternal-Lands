@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <unistd.h>
 
 #ifdef WINDOWS
 #include <windows.h>
@@ -18,7 +19,7 @@ int	client_version_major=VER_MAJOR;
 int client_version_minor=VER_MINOR;
 int client_version_release=VER_RELEASE;
 int	client_version_patch=VER_BUILD;
-int version_first_digit=9;	//protocol/game version sent to server
+int version_first_digit=10;	//protocol/game version sent to server
 int version_second_digit=9;
 
 /**********************************************************************/
@@ -83,21 +84,36 @@ int start_rendering()
 	return(0);
 }
 
+extern char *optarg;
+extern int optind, opterr, optopt;
+
 #ifdef WINDOWS
-Main()
+int Main(int argc, const char *argv[])
 #else
-	 int main()
+int main(int argc, const char *argv[])
 #endif
 {
-	int logo;
-	int numtests;
-	int slowly;
+	int c= 0;
 
-	logo = 1;
-	slowly = 1;
-	numtests = 1;
-
+	// do basic initialization
     init_stuff();
+	// args processed after the init to override initialization
+	while((c=getopt(argc, argv, "u:p:")) >= 0)
+		{
+			switch(c){
+			case	'u':
+				my_strncp(username_str, optarg, 16);
+				break;
+			case	'p':
+				{
+					int  k;
+					my_strncp(password_str, optarg, 16);
+					for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
+					display_password_str[k]=0;
+				}
+				break;
+			}
+		}
     start_rendering();
 
 	return 0;
@@ -106,7 +122,13 @@ Main()
 #ifdef WINDOWS
 int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
-	Main();
+	LPWSTR	*argv;
+	DWORD	argc;
+
+	// supposed to work in theory, untested
+	argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+	Main(argc, argv);
 	return 0;
 }
 
