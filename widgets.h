@@ -1098,7 +1098,6 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
  * \param   	ly The height
  * \param	buf the message buffer
  * \param 	buf_size the size of the message buffer
- * \param	chan_nr the channel of which messages are drawn
  * \param	x_space the number of pixels in the x-direction between the border and the text
  * \param	y_space the number of pixels in the y-direction between the border and the text
  * \retval int  	Returns the new widgets unique ID 
@@ -1127,6 +1126,7 @@ int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
  * \param   	b (0<=b<=1)
  * \param	buf the text buffer
  * \param 	buf_size the size of the text buffer
+ * \param	chan_nr the channel of which messages are drawn
  * \param	x_space the number of pixels in the x-direction between the border and the text
  * \param	y_space the number of pixels in the y-direction between the border and the text
  * \param	text_r red component of the text color, or -1.0 for default
