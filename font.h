@@ -36,4 +36,5 @@ int get_nstring_width(unsigned char *str, int len);
 int load_font(int num, char *file);
 int	set_font(int num);
 void remove_font(int num);
+int init_fonts();
 #endif
