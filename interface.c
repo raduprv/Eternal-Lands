@@ -25,8 +25,6 @@ char log_in_error_str[520];
 int options_menu=0;
 int combat_mode=0;
 int auto_camera=0;
-int selected_3d_object;
-int selected_inventory_object=-1;
 int view_health_bar=1;
 int view_names=1;
 int view_chat_text_as_overtext=0;
@@ -400,6 +398,10 @@ void check_mouse_click()
 		Uint8 str[10];
 		int quantity = item_list[item_dragged].quantity;
 		if(right_click){
+			str[0]=USE_MAP_OBJECT;
+			*((int *)(str+1))=object_under_mouse;
+			*((int *)(str+5))=item_list[item_dragged].pos;
+			my_tcp_send(my_socket, str, 9);
 			item_dragged = -1;
 			return;
 		}
@@ -489,7 +491,7 @@ void check_mouse_click()
 			action_mode=action_walk;
 			str[0]=USE_MAP_OBJECT;
 			*((int *)(str+1))=object_under_mouse;
-			*((int *)(str+5))=selected_inventory_object;
+			*((int *)(str+5))=-1;
 			my_tcp_send(my_socket,str,9);
 			return;
 		}
