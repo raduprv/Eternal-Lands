@@ -1,19 +1,30 @@
+/*!
+ * \file
+ * \brief Functions related to internationalization of the client.
+ * \ingroup misc
+ * \internal Check groups!
+ */
 #ifndef __TRANSLATE_H__
 #define __TRANSLATE_H__
 
+/*!
+ * TODO: dichar
+ */
 typedef struct
 {
-	unsigned char str[31];
+	unsigned char str[31];     /*!< str */
 #ifdef WRITE_XML
-	int saved_str;
+	int saved_str;             /*!< saved_str */
 #endif
-	unsigned char desc[101];
+	unsigned char desc[101];   /*!< desc */
 #ifdef WRITE_XML
-	int saved_desc;
+	int saved_desc;            /*!< saved_desc */
 #endif
 } dichar;
 
+
 #ifdef ELC
+#ifndef DOXYGEN_SKIP_THIS
 //Options
 extern char	switch_video_mode[50];
 
@@ -32,9 +43,11 @@ extern dichar	opt_shadows,
 
 //Sigils
 extern char 	sig_too_few_sigs[50];
-#endif
+#endif //DOXYGEN_SKIP_THIS
+#endif //ELF
 
 #ifdef ELC
+#ifndef DOXYGEN_SKIP_THIS
 extern dichar	sig_change,
 		sig_restore,
 		sig_space,
@@ -61,9 +74,11 @@ extern dichar	sig_change,
 		sig_health,
 		sig_life,
 		sig_death;
-#endif
+#endif  //DOXYGEN_SKIP_THIS
+#endif  //ELC
 
 #ifdef ELC
+#ifndef DOXYGEN_SKIP_THIS
 //Tooltips
 extern char 	tt_walk[30],
 		tt_sit[30], 
@@ -83,9 +98,11 @@ extern char 	tt_walk[30],
 		tt_console[30],
 		tt_buddy[30],
 		tt_options[30];
-#endif
+#endif  //DOXYGEN_SKIP_THIS
+#endif  //ELC
 
 #ifdef ELC
+#ifndef DOXYGEN_SKIP_THIS
 //Help messages
 extern char	
 		/*3d_objects.c*/
@@ -147,8 +164,10 @@ extern char
 		/*trade.c*/
 		quantity_str[30],
 		abort_str[10];
-#endif
+#endif  //DOXYGEN_SKIP_THIS
+#endif  //ELC
 
+#ifndef DOXYGEN_SKIP_THIS
 //Errors
 extern char	reg_error_str[15],
 		/*3d_objects.c*/
@@ -295,7 +314,29 @@ extern char	reg_error_str[15],
 		;
 #endif
 
+#endif  //DOXYGEN_SKIP_THIS
+
+/*!
+ * \internal check group!
+ * \brief init_translatables
+ *
+ *      TODO: init_translatables
+ *
+ * \param   None
+ * \return  None
+ */
 void init_translatables();
+
+/*!
+ * \internal check group!
+ * \ingroup load
+ * \brief load_translatables
+ *
+ *      TODO: load_translatables
+ *
+ * \param   None
+ * \return  None
+ */
 void load_translatables();
 
 #endif

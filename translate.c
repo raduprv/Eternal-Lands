@@ -506,34 +506,34 @@ void init_console()
 	group_id * ignore=&(console_str[1]);
 	group_id * misc=&(console_str[2]);
 	
-	add_xml_identifier(ignore,"toolong",name_too_long,"Name too long, the max limit is 15 characters.",75);
-	add_xml_identifier(ignore,"tooshort",name_too_short,"Name too short, only names>=3 characters can be used!",75);
-	add_xml_identifier(ignore,"noadd",not_added_to_ignores,"Name not added to the ignore list!",75);
-	add_xml_identifier(ignore,"already",already_ignoring,"You are already ignoring %s!",50);
-	add_xml_identifier(ignore,"full",ignore_list_full,"Wow, your ignore list is full, this is impossible!",100);
-	add_xml_identifier(ignore,"add",added_to_ignores,"%s was added to your ignore list!",50);
-	add_xml_identifier(ignore,"norem",not_removed_from_ignores,"Name not removed from the ignore list!",50);
-	add_xml_identifier(ignore,"not",not_ignoring,"You are NOT ignoring %s in the first place!",75);
-	add_xml_identifier(ignore,"rem",removed_from_ignores,"OK, %s was removed from your ignore list!",50);
-	add_xml_identifier(ignore,"none",no_ignores_str,"You are ignoring no one!",50);
-	add_xml_identifier(ignore,"cur",ignores_str,"You are currently ignoring",50);
+	add_xml_identifier(ignore,"toolong",name_too_long,"Name too long, the max limit is 15 characters.",sizeof(name_too_long));
+	add_xml_identifier(ignore,"tooshort",name_too_short,"Name too short, only names>=3 characters can be used!",sizeof(name_too_short));
+	add_xml_identifier(ignore,"noadd",not_added_to_ignores,"Name not added to the ignore list!",sizeof(not_added_to_ignores));
+	add_xml_identifier(ignore,"already",already_ignoring,"You are already ignoring %s!",sizeof(already_ignoring));
+	add_xml_identifier(ignore,"full",ignore_list_full,"Wow, your ignore list is full, this is impossible!",sizeof(ignore_list_full));
+	add_xml_identifier(ignore,"add",added_to_ignores,"%s was added to your ignore list!",sizeof(added_to_ignores));
+	add_xml_identifier(ignore,"norem",not_removed_from_ignores,"Name not removed from the ignore list!",sizeof(not_removed_from_ignores));
+	add_xml_identifier(ignore,"not",not_ignoring,"You are NOT ignoring %s in the first place!",sizeof(not_ignoring));
+	add_xml_identifier(ignore,"rem",removed_from_ignores,"OK, %s was removed from your ignore list!",sizeof(removed_from_ignores));
+	add_xml_identifier(ignore,"none",no_ignores_str,"You are ignoring no one!",sizeof(no_ignores_str));
+	add_xml_identifier(ignore,"cur",ignores_str,"You are currently ignoring",sizeof(ignores_str));
+
+	add_xml_identifier(filter,"toolong",word_too_long,"Word too long, the max limit is 15 characters.",sizeof(word_too_long));
+	add_xml_identifier(filter,"tooshort",word_too_short,"Word too short, only words>=3 characters can be used!",sizeof(word_too_long));
+	add_xml_identifier(filter,"notadd",not_added_to_filter,"Word not added to the filter list!",sizeof(not_added_to_filter));
+	add_xml_identifier(filter,"already",already_filtering,"You are already filtering %s",sizeof(already_filtering));
+	add_xml_identifier(filter,"add",added_to_filters,"OK, %s was added to your filter list!",sizeof(added_to_filters));
+	add_xml_identifier(filter,"norem",not_removed_from_filter,"Word not removed from the filter list!",sizeof(not_removed_from_filter));
+	add_xml_identifier(filter,"not",not_filtering,"You are NOT filtering %s in the first place!",sizeof(not_filtering));
+	add_xml_identifier(filter,"rem",removed_from_filter,"OK, %s was removed from your filter list!",sizeof(removed_from_filter));
+	add_xml_identifier(filter,"none",no_filters_str,"You are filtering nothing!",sizeof(no_filters_str));
+	add_xml_identifier(filter,"cur",filters_str,"You are currently filtering",sizeof(filters_str));
 	
-	add_xml_identifier(filter,"toolong",word_too_long,"Word too long, the max limit is 15 characters.",75);
-	add_xml_identifier(filter,"tooshort",word_too_short,"Word too short, only words>=3 characters can be used!",75);
-	add_xml_identifier(filter,"notadd",not_added_to_filter,"Word not added to the filter list!",50);
-	add_xml_identifier(filter,"already",already_filtering,"You are already filtering %s",50);
-	add_xml_identifier(filter,"add",added_to_filters,"OK, %s was added to your filter list!",50);
-	add_xml_identifier(filter,"norem",not_removed_from_filter,"Word not removed from the filter list!",50);
-	add_xml_identifier(filter,"not",not_filtering,"You are NOT filtering %s in the first place!",75);
-	add_xml_identifier(filter,"rem",removed_from_filter,"OK, %s was removed from your filter list!",50);
-	add_xml_identifier(filter,"none",no_filters_str,"You are filtering nothing!",50);
-	add_xml_identifier(filter,"cur",filters_str,"You are currently filtering",50);
-	
-	add_xml_identifier(misc,"log",logconn_str,"Logging raw connection data",50);
-	add_xml_identifier(misc,"card",video_card_str,"Video card",20);
-	add_xml_identifier(misc,"vendor",video_vendor_str,"Vendor ID",20);
-	add_xml_identifier(misc,"ext",supported_extensions_str,"Supported extensions",30);
-	add_xml_identifier(misc,"opengl",opengl_version_str,"OpenGL Version",20);
+	add_xml_identifier(misc,"log",logconn_str,"Logging raw connection data",sizeof(logconn_str));
+	add_xml_identifier(misc,"card",video_card_str,"Video card",sizeof(video_card_str));
+	add_xml_identifier(misc,"vendor",video_vendor_str,"Vendor ID",sizeof(video_vendor_str));
+	add_xml_identifier(misc,"ext",supported_extensions_str,"Supported extensions",sizeof(supported_extensions_str));
+	add_xml_identifier(misc,"opengl",opengl_version_str,"OpenGL Version",sizeof(opengl_version_str));
 }
 #endif
 
@@ -554,116 +554,116 @@ void init_errors()
 
 #ifdef ELC
 	//Actor related errors
-	add_xml_identifier(actors,"load",cant_load_actor,"Can't load actor",30);
-	add_xml_identifier(actors,"frame",cant_find_frame,"Couldn't find frame",30);
-	add_xml_identifier(actors,"unk_frame",unknown_frame,"Unknown frame",20);
-	add_xml_identifier(actors,"dup_id",duplicate_actors_str,"Duplicate actor ID",30);
-	add_xml_identifier(actors,"namelen",bad_actor_name_length,"Bad actor name/length",30);
-	add_xml_identifier(actors,"addcommand",cant_add_command,"Unable to add command",50);
-	add_xml_identifier(actors,"loadbody",error_body_part,"Can't load body part",30);
-	add_xml_identifier(actors,"head",error_head,"head",15);
-	add_xml_identifier(actors,"torso",error_torso,"torso",15);
-	add_xml_identifier(actors,"weapon",error_weapon,"weapon",15);
-	add_xml_identifier(actors,"helmet",error_helmet,"helmet",15);
-	add_xml_identifier(actors,"cape",error_cape,"cape",15);
-	add_xml_identifier(actors,"dupnpc",duplicate_npc_actor,"Duplicate actor name",50);
+	add_xml_identifier(actors,"load",cant_load_actor,"Can't load actor",sizeof(cant_load_actor));
+	add_xml_identifier(actors,"frame",cant_find_frame,"Couldn't find frame",sizeof(cant_find_frame));
+	add_xml_identifier(actors,"unk_frame",unknown_frame,"Unknown frame",sizeof(unknown_frame));
+	add_xml_identifier(actors,"dup_id",duplicate_actors_str,"Duplicate actor ID",sizeof(duplicate_actors_str));
+	add_xml_identifier(actors,"namelen",bad_actor_name_length,"Bad actor name/length",sizeof(bad_actor_name_length));
+	add_xml_identifier(actors,"addcommand",cant_add_command,"Unable to add command",sizeof(cant_add_command));
+	add_xml_identifier(actors,"loadbody",error_body_part,"Can't load body part",sizeof(error_body_part));
+	add_xml_identifier(actors,"head",error_head,"head",sizeof(error_head));
+	add_xml_identifier(actors,"torso",error_torso,"torso",sizeof(error_torso));
+	add_xml_identifier(actors,"weapon",error_weapon,"weapon",sizeof(error_weapon));
+	add_xml_identifier(actors,"helmet",error_helmet,"helmet",sizeof(error_helmet));
+	add_xml_identifier(actors,"cape",error_cape,"cape",sizeof(error_cape));
+	add_xml_identifier(actors,"dupnpc",duplicate_npc_actor,"Duplicate actor name",sizeof(duplicate_npc_actor));
 	
 	//Loading errors
-	add_xml_identifier(load,"obj",cant_load_2d_object,"Can't load 2d object",30);
-	add_xml_identifier(load,"file",cant_open_file,"Can't open file",30);
-	add_xml_identifier(load,"cursors",cursors_file_str,"Can't open cursors file.",30);
-	add_xml_identifier(load,"font",cant_load_font,"Unable to load font",30);
-	add_xml_identifier(load,"fatal",fatal_error_str,"Fatal",10);
-	add_xml_identifier(load,"noe3d",no_e3d_list,"Couldn't read e3dlist.txt",50);
-	add_xml_identifier(load,"elini",cant_read_elini,"Couldn't read configuration file el.ini",50);
-	add_xml_identifier(load,"invmap",invalid_map,"%s is an invalid map!",40);
+	add_xml_identifier(load,"obj",cant_load_2d_object,"Can't load 2d object",sizeof(cant_load_2d_object));
+	add_xml_identifier(load,"file",cant_open_file,"Can't open file",sizeof(cant_open_file));
+	add_xml_identifier(load,"cursors",cursors_file_str,"Can't open cursors file.",sizeof(cursors_file_str));
+	add_xml_identifier(load,"font",cant_load_font,"Unable to load font",sizeof(cant_load_font));
+	add_xml_identifier(load,"fatal",fatal_error_str,"Fatal",sizeof(fatal_error_str));
+	add_xml_identifier(load,"noe3d",no_e3d_list,"Couldn't read e3dlist.txt",sizeof(no_e3d_list));
+	add_xml_identifier(load,"elini",cant_read_elini,"Couldn't read configuration file el.ini",sizeof(cant_read_elini));
+	add_xml_identifier(load,"invmap",invalid_map,"%s is an invalid map!",sizeof(invalid_map));
 	
 	//Miscellaneous errors
-	add_xml_identifier(misc,"error",reg_error_str,"Error",15);
-	add_xml_identifier(misc,"objerr",object_error_str,"Object error",30);
-	add_xml_identifier(misc,"nasty",nasty_error_str,"Something nasty happened while trying to process: %s",50);
-	add_xml_identifier(misc,"corrupt",corrupted_object,"Object seems to be corrupted. Skipping the object. Warning: This might cause further problems.",100);
-	add_xml_identifier(misc,"badobj",bad_object,"Bad object",30);
-	add_xml_identifier(misc,"multimat",multiple_material_same_texture,"Two or more materials with the same texture name!",100);
-	add_xml_identifier(misc,"resync",resync_server,"Resync with the server...",50);
-	add_xml_identifier(misc,"vertex",enabled_vertex_arrays,"Vertex Arrays enabled (memory hog on!)...",50);
-	add_xml_identifier(misc,"point",disabled_point_particles,"Point Particles disabled.",50);
-	add_xml_identifier(misc,"particles",disabled_particles_str,"Particles completely disabled!",50);
-	add_xml_identifier(misc,"net",failed_sdl_net_init,"Couldn't initialize net",30);
-	add_xml_identifier(misc,"timer",failed_sdl_timer_init,"Couldn't initialize the timer",30);
-	add_xml_identifier(misc,"resolve",failed_resolve,"Can't resolve server address.\nPerhaps you are not connected to the Internet or your DNS server is down!",150);
-	add_xml_identifier(misc,"connect",failed_connect,"Can't connect to server :(",100);
-	add_xml_identifier(misc,"userlen",error_username_length,"Username MUST be at least 3 characters long!",50);
-	add_xml_identifier(misc,"passlen",error_password_length,"The password MUST be at least 4 characters long!",50);
-	add_xml_identifier(misc,"passnomatch",error_pass_no_match,"Passwords don't match!",30);
-	add_xml_identifier(misc,"wrongpass",invalid_pass,"Invalid password!",30);
-	add_xml_identifier(misc,"redefine",redefine_your_colours,"You need to update your character, due to the new models!\nGo on the New Character screen, type your existing\nusername and password, update your character, then press\nDone. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*",250);
-	add_xml_identifier(misc,"noexist",char_dont_exist,"You don't exist!",30);
-	add_xml_identifier(misc,"latency",server_latency,"Server latency",30);
-	add_xml_identifier(misc,"newver",update_your_client,"There is a new version of the client, please update it",100);
-	add_xml_identifier(misc,"notsup",client_ver_not_supported,"This version is no longer supported, please update!",100);
-	add_xml_identifier(misc,"packets",packet_overrun,"Packet overrun...data lost!",50);
-	add_xml_identifier(misc,"disconnect",disconnected_from_server,"Disconnected from server!",50);
-	add_xml_identifier(misc,"stat",stat_no_invalid,"Server sent invalid stat number",50);
-	add_xml_identifier(misc,"ascii",not_ascii,"Not ASCII",20);
-	add_xml_identifier(misc,"timer",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", 100);
-	add_xml_identifier(misc,"nameinuse",char_name_in_use,"Character name is already taken",50);
+	add_xml_identifier(misc,"error",reg_error_str,"Error",sizeof(reg_error_str));
+	add_xml_identifier(misc,"objerr",object_error_str,"Object error",sizeof(object_error_str));
+	add_xml_identifier(misc,"nasty",nasty_error_str,"Something nasty happened while trying to process: %s",sizeof(nasty_error_str));
+	add_xml_identifier(misc,"corrupt",corrupted_object,"Object seems to be corrupted. Skipping the object. Warning: This might cause further problems.",sizeof(corrupted_object));
+	add_xml_identifier(misc,"badobj",bad_object,"Bad object",sizeof(bad_object));
+	add_xml_identifier(misc,"multimat",multiple_material_same_texture,"Two or more materials with the same texture name!",sizeof(multiple_material_same_texture));
+	add_xml_identifier(misc,"resync",resync_server,"Resync with the server...",sizeof(resync_server));
+	add_xml_identifier(misc,"vertex",enabled_vertex_arrays,"Vertex Arrays enabled (memory hog on!)...",sizeof(enabled_vertex_arrays));
+	add_xml_identifier(misc,"point",disabled_point_particles,"Point Particles disabled.",sizeof(disabled_point_particles));
+	add_xml_identifier(misc,"particles",disabled_particles_str,"Particles completely disabled!",sizeof(disabled_particles_str));
+	add_xml_identifier(misc,"net",failed_sdl_net_init,"Couldn't initialize net",sizeof(failed_sdl_net_init));
+	add_xml_identifier(misc,"timer",failed_sdl_timer_init,"Couldn't initialize the timer",sizeof(failed_sdl_timer_init));
+	add_xml_identifier(misc,"resolve",failed_resolve,"Can't resolve server address.\nPerhaps you are not connected to the Internet or your DNS server is down!",sizeof(failed_resolve));
+	add_xml_identifier(misc,"connect",failed_connect,"Can't connect to server :(",sizeof(failed_connect));
+	add_xml_identifier(misc,"userlen",error_username_length,"Username MUST be at least 3 characters long!",sizeof(error_username_length));
+	add_xml_identifier(misc,"passlen",error_password_length,"The password MUST be at least 4 characters long!",sizeof(error_password_length));
+	add_xml_identifier(misc,"passnomatch",error_pass_no_match,"Passwords don't match!",sizeof(error_pass_no_match));
+	add_xml_identifier(misc,"wrongpass",invalid_pass,"Invalid password!",sizeof(invalid_pass));
+	add_xml_identifier(misc,"redefine",redefine_your_colours,"You need to update your character, due to the new models!\nGo on the New Character screen, type your existing\nusername and password, update your character, then press\nDone. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*",sizeof(redefine_your_colours));
+	add_xml_identifier(misc,"noexist",char_dont_exist,"You don't exist!",sizeof(char_dont_exist));
+	add_xml_identifier(misc,"latency",server_latency,"Server latency",sizeof(server_latency));
+	add_xml_identifier(misc,"newver",update_your_client,"There is a new version of the client, please update it",sizeof(update_your_client));
+	add_xml_identifier(misc,"notsup",client_ver_not_supported,"This version is no longer supported, please update!",sizeof(client_ver_not_supported));
+	add_xml_identifier(misc,"packets",packet_overrun,"Packet overrun...data lost!",sizeof(packet_overrun));
+	add_xml_identifier(misc,"disconnect",disconnected_from_server,"Disconnected from server!",sizeof(disconnected_from_server));
+	add_xml_identifier(misc,"stat",stat_no_invalid,"Server sent invalid stat number",sizeof(stat_no_invalid));
+	add_xml_identifier(misc,"ascii",not_ascii,"Not ASCII",sizeof(not_ascii));
+	add_xml_identifier(misc,"timer",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", sizeof(timer_lagging_behind));
+	add_xml_identifier(misc,"nameinuse",char_name_in_use,"Character name is already taken",sizeof(char_name_in_use));
 #endif
 
 	//Particle errors
-	add_xml_identifier(particles,"version",particles_filever_wrong,"Particle file %s version (%i) doesn't match file reader version (%i)!",100);
-	add_xml_identifier(particles,"overrun",particle_system_overrun,"Particle file %s tries to define %i particles, when %i is the maximum!",100);
-	add_xml_identifier(particles,"pos",particle_strange_pos,"Particle file %s contained strange position/constraint values. Tried to fix.",100);
-	add_xml_identifier(particles,"sysdump",particle_system_dump,"-- PARTICLE SYSTEM DUMP --",50);
-	add_xml_identifier(particles,"disabled",particles_disabled_str,"Particles disabled!",50);
-	add_xml_identifier(particles,"point",point_sprites_enabled,"Using point sprites",50);
-	add_xml_identifier(particles,"quads",using_textured_quads,"Using textured quads",50);
-	add_xml_identifier(particles,"defs",definitions_str,"Definitions",20);
-	add_xml_identifier(particles,"system",part_sys_str,"systems",20);
-	add_xml_identifier(particles,"particles",part_part_str,"particles",20);
+	add_xml_identifier(particles,"version",particles_filever_wrong,"Particle file %s version (%i) doesn't match file reader version (%i)!",sizeof(particles_filever_wrong));
+	add_xml_identifier(particles,"overrun",particle_system_overrun,"Particle file %s tries to define %i particles, when %i is the maximum!",sizeof(particle_system_overrun));
+	add_xml_identifier(particles,"pos",particle_strange_pos,"Particle file %s contained strange position/constraint values. Tried to fix.",sizeof(particle_strange_pos));
+	add_xml_identifier(particles,"sysdump",particle_system_dump,"-- PARTICLE SYSTEM DUMP --",sizeof(particle_system_dump));
+	add_xml_identifier(particles,"disabled",particles_disabled_str,"Particles disabled!",sizeof(particles_disabled_str));
+	add_xml_identifier(particles,"point",point_sprites_enabled,"Using point sprites",sizeof(point_sprites_enabled));
+	add_xml_identifier(particles,"quads",using_textured_quads,"Using textured quads",sizeof(using_textured_quads));
+	add_xml_identifier(particles,"defs",definitions_str,"Definitions",sizeof(definitions_str));
+	add_xml_identifier(particles,"system",part_sys_str,"systems",sizeof(part_sys_str));
+	add_xml_identifier(particles,"particles",part_part_str,"particles",sizeof(part_part_str));
 
 #ifdef ELC
 	//Sound errors
-	add_xml_identifier(snd,"loadfile",snd_ogg_load_error,"Failed to load ogg file",50);
-	add_xml_identifier(snd,"loadstream",snd_ogg_stream_error,"Failed to load ogg stream",50);
-	add_xml_identifier(snd,"buffer",snd_buff_error,"Error creating buffer",50);
-	add_xml_identifier(snd,"number",snd_invalid_number,"Got invalid sound number",50);
-	add_xml_identifier(snd,"source",snd_source_error,"Error creating a source",50);
-	add_xml_identifier(snd,"skip",snd_skip_speedup,"Skip! Speeding up...",50);
-	add_xml_identifier(snd,"tooslow",snd_too_slow,"Sorry, too slow to play music...",50);
-	add_xml_identifier(snd,"fail",snd_stop_fail,"Failed to stop all sounds.",50);
-	add_xml_identifier(snd,"init",snd_init_error,"Error initializing sound",50);
-	add_xml_identifier(snd,"toomany",snd_sound_overflow,"Too many sounds.",50);
-	add_xml_identifier(snd,"read",snd_media_read,"Read from media.",50);
-	add_xml_identifier(snd,"notvorbis",snd_media_notvorbis,"Not Vorbis data.",50);
-	add_xml_identifier(snd,"version",snd_media_ver_mismatch,"Vorbis version mismatch.",50);
-	add_xml_identifier(snd,"header",snd_media_invalid_header,"Invalid Vorbis header.",50);
-	add_xml_identifier(snd,"intern",snd_media_internal_error,"Internal logic fault (bug or heap/stack corruption.",50);
-	add_xml_identifier(snd,"unknown",snd_media_ogg_error,"Unknown Ogg error.",50);
+	add_xml_identifier(snd,"loadfile",snd_ogg_load_error,"Failed to load ogg file",sizeof(snd_ogg_load_error));
+	add_xml_identifier(snd,"loadstream",snd_ogg_stream_error,"Failed to load ogg stream",sizeof(snd_ogg_stream_error));
+	add_xml_identifier(snd,"buffer",snd_buff_error,"Error creating buffer",sizeof(snd_buff_error));
+	add_xml_identifier(snd,"number",snd_invalid_number,"Got invalid sound number",sizeof(snd_invalid_number));
+	add_xml_identifier(snd,"source",snd_source_error,"Error creating a source",sizeof(snd_source_error));
+	add_xml_identifier(snd,"skip",snd_skip_speedup,"Skip! Speeding up...",sizeof(snd_skip_speedup));
+	add_xml_identifier(snd,"tooslow",snd_too_slow,"Sorry, too slow to play music...",sizeof(snd_too_slow));
+	add_xml_identifier(snd,"fail",snd_stop_fail,"Failed to stop all sounds.",sizeof(snd_stop_fail));
+	add_xml_identifier(snd,"init",snd_init_error,"Error initializing sound",sizeof(snd_init_error));
+	add_xml_identifier(snd,"toomany",snd_sound_overflow,"Too many sounds.",sizeof(snd_sound_overflow));
+	add_xml_identifier(snd,"read",snd_media_read,"Read from media.",sizeof(snd_media_read));
+	add_xml_identifier(snd,"notvorbis",snd_media_notvorbis,"Not Vorbis data.",sizeof(snd_media_notvorbis));
+	add_xml_identifier(snd,"version",snd_media_ver_mismatch,"Vorbis version mismatch.",sizeof(snd_media_ver_mismatch));
+	add_xml_identifier(snd,"header",snd_media_invalid_header,"Invalid Vorbis header.",sizeof(snd_media_invalid_header));
+	add_xml_identifier(snd,"intern",snd_media_internal_error,"Internal logic fault (bug or heap/stack corruption.",sizeof(snd_media_internal_error));
+	add_xml_identifier(snd,"unknown",snd_media_ogg_error,"Unknown Ogg error.",sizeof(snd_media_ogg_error));
 	
 	//Video errors
-	add_xml_identifier(video,"nostencil",no_stencil_str,"Video mode %s with a stencil buffer is not available\nTrying this mode without a stencil buffer...",150);
-	add_xml_identifier(video,"safemode",safemode_str,"Video mode %s without a stencil buffer is not available\nTrying the safemode (640x480x32) Full Screen (no stencil)",150);
-	add_xml_identifier(video,"nosdl",no_sdl_str,"Couldn't initialize SDL",30);
-	add_xml_identifier(video,"nohwstencil",no_hardware_stencil_str,"Couldn't find a hardware accelerated stencil buffer.\nShadows are not available.",150);
-	add_xml_identifier(video,"depth",suggest_24_or_32_bit,"Hint: Try a 32 BPP resolution (if you are under XWindows, set your screen display to 24 or 32 bpp).",150);
-	add_xml_identifier(video,"glmode",fail_opengl_mode,"Couldn't set GL mode",30);
-	add_xml_identifier(video,"swstencil",stencil_falls_back_on_software_accel,"Hmm... This mode seems to fall back in software 'acceleration'.\nTrying to disable the stencil buffer.",150);
-	add_xml_identifier(video,"last_try",last_chance_str,"Hmm... No luck without a stencil buffer either...\nLet's try one more thing...",150);
-	add_xml_identifier(video,"swmode",software_mode_str,"Damn, it seems that you are out of luck, we are in the software mode now, so the game will be veeeeery slow. If you DO have a 3D accelerated card, try to update your OpenGl drivers...",200);
-	add_xml_identifier(video,"extfound",gl_ext_found,"%s extension found, using it.",100);
-	add_xml_identifier(video,"extnouse",gl_ext_found_not_used,"%s extension found, NOT using it...",100);
-	add_xml_identifier(video,"extnotfound",gl_ext_not_found,"Couldn't find the %s extension, not using it...",100);
-	add_xml_identifier(video,"multitex",gl_ext_no_multitexture,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...",150);
-	add_xml_identifier(video,"noshadowmapping",disabled_shadow_mapping,"Shadowmapping disabled (need newer hardware)",50);
-	add_xml_identifier(video,"invalid",invalid_video_mode,"Stop playing with the configuration file and select valid modes!",75);
+	add_xml_identifier(video,"nostencil",no_stencil_str,"Video mode %s with a stencil buffer is not available\nTrying this mode without a stencil buffer...",sizeof(no_stencil_str));
+	add_xml_identifier(video,"safemode",safemode_str,"Video mode %s without a stencil buffer is not available\nTrying the safemode (640x480x32) Full Screen (no stencil)",sizeof(safemode_str));
+	add_xml_identifier(video,"nosdl",no_sdl_str,"Couldn't initialize SDL",sizeof(no_sdl_str));
+	add_xml_identifier(video,"nohwstencil",no_hardware_stencil_str,"Couldn't find a hardware accelerated stencil buffer.\nShadows are not available.",sizeof(no_hardware_stencil_str));
+	add_xml_identifier(video,"depth",suggest_24_or_32_bit,"Hint: Try a 32 BPP resolution (if you are under XWindows, set your screen display to 24 or 32 bpp).",sizeof(suggest_24_or_32_bit));
+	add_xml_identifier(video,"glmode",fail_opengl_mode,"Couldn't set GL mode",sizeof(fail_opengl_mode));
+	add_xml_identifier(video,"swstencil",stencil_falls_back_on_software_accel,"Hmm... This mode seems to fall back in software 'acceleration'.\nTrying to disable the stencil buffer.",sizeof(stencil_falls_back_on_software_accel));
+	add_xml_identifier(video,"last_try",last_chance_str,"Hmm... No luck without a stencil buffer either...\nLet's try one more thing...",sizeof(last_chance_str));
+	add_xml_identifier(video,"swmode",software_mode_str,"Damn, it seems that you are out of luck, we are in the software mode now, so the game will be veeeeery slow. If you DO have a 3D accelerated card, try to update your OpenGl drivers...",sizeof(software_mode_str));
+	add_xml_identifier(video,"extfound",gl_ext_found,"%s extension found, using it.",sizeof(gl_ext_found));
+	add_xml_identifier(video,"extnouse",gl_ext_found_not_used,"%s extension found, NOT using it...",sizeof(gl_ext_found_not_used));
+	add_xml_identifier(video,"extnotfound",gl_ext_not_found,"Couldn't find the %s extension, not using it...",sizeof(gl_ext_not_found));
+	add_xml_identifier(video,"multitex",gl_ext_no_multitexture,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...",sizeof(gl_ext_no_multitexture));
+	add_xml_identifier(video,"noshadowmapping",disabled_shadow_mapping,"Shadowmapping disabled (need newer hardware)",sizeof(disabled_shadow_mapping));
+	add_xml_identifier(video,"invalid",invalid_video_mode,"Stop playing with the configuration file and select valid modes!",sizeof(invalid_video_mode));
 
 	//Rule errors
-	add_xml_identifier(rules,"proceed",you_can_proceed,"You can proceed in %d seconds",50);
-	add_xml_identifier(rules,"accept",accepted_rules,"Click on \"I Accept\" to play the game!",50);
-	add_xml_identifier(rules,"read",read_rules_str,"An error occured while reading the rules",50);
-	add_xml_identifier(rules,"parse",parse_rules_str,"An error occored while parsing the rules",50);
-	add_xml_identifier(rules,"notfound",rules_not_found,"The rules.xml file was not found. You will have to redownload your game.",100);
+	add_xml_identifier(rules,"proceed",you_can_proceed,"You can proceed in %d seconds",sizeof(you_can_proceed));
+	add_xml_identifier(rules,"accept",accepted_rules,"Click on \"I Accept\" to play the game!",sizeof(accepted_rules));
+	add_xml_identifier(rules,"read",read_rules_str,"An error occured while reading the rules",sizeof(read_rules_str));
+	add_xml_identifier(rules,"parse",parse_rules_str,"An error occored while parsing the rules",sizeof(parse_rules_str));
+	add_xml_identifier(rules,"notfound",rules_not_found,"The rules.xml file was not found. You will have to redownload your game.",sizeof(rules_not_found));
 #endif
 }
 
@@ -676,70 +676,70 @@ void init_help()
 	group_id * tooltips = &(help_str[3]);
 
 	//AFK Messages
-	add_xml_identifier(afk,"going",going_afk,"Going AFK",30);
-	add_xml_identifier(afk,"not",not_afk,"Not AFK any more",50);
-	add_xml_identifier(afk,"back",new_messages,"You have %d new messages from the following people: ",100);
-	add_xml_identifier(afk,"names",afk_names,"Names",15);
-	add_xml_identifier(afk,"messages",afk_messages,"Messages",25);
-	add_xml_identifier(afk,"help",afk_print_help,"To print the messages from the different people type #msg <number> or #msg all to view them all",150);
+	add_xml_identifier(afk,"going",going_afk,"Going AFK",sizeof(going_afk));
+	add_xml_identifier(afk,"not",not_afk,"Not AFK any more",sizeof(not_afk));
+	add_xml_identifier(afk,"back",new_messages,"You have %d new messages from the following people: ",sizeof(new_messages));
+	add_xml_identifier(afk,"names",afk_names,"Names",sizeof(afk_names));
+	add_xml_identifier(afk,"messages",afk_messages,"Messages",sizeof(afk_messages));
+	add_xml_identifier(afk,"help",afk_print_help,"To print the messages from the different people type #msg <number> or #msg all to view them all",sizeof(afk_print_help));
 	//Miscellaneous
-	add_xml_identifier(misc,"values",values_str,"values",20);
-	add_xml_identifier(misc,"close",close_str,"[close]",20);
-	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows disabled!",100);
-	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",50);
-	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",100);
-	add_xml_identifier(misc,"user",login_username_str,"Username",20);
-	add_xml_identifier(misc,"pass",login_password_str,"Password",20);
-	add_xml_identifier(misc,"getall",get_all_str,"Get All",8);
-	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",12);
-	add_xml_identifier(misc,"research",researching_str,"Researching",30);
-	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",25);
-	add_xml_identifier(misc,"mix",mix_str,"Mix",4);
-	add_xml_identifier(misc,"clear",clear_str,"Clear",6);
-	add_xml_identifier(misc,"connect",connect_to_server_str,"Connecting to Server...",50);
-	add_xml_identifier(misc,"reconnect",reconnect_str,"Press any key to try again.",50);
-	add_xml_identifier(misc,"license",license_check,"Entropy says: U R 2 g00d 2 r34d +h3 license.txt?\nBTW, that license.txt file is actually there for a reason.",20);
-	add_xml_identifier(misc,"quantity",quantity_str,"Quantity",30);
-	add_xml_identifier(misc,"abort",abort_str,"Abort",6);
-	add_xml_identifier(misc,"sigils",sig_too_few_sigs,"This spell requires at least 2 sigils",50);
-	add_xml_identifier(misc,"switch",switch_video_mode,"Switches to video mode %s",50);
-	add_xml_identifier(misc,"cache",cache_size_str,"Cache size",20);
+	add_xml_identifier(misc,"values",values_str,"values",sizeof(values_str));
+	add_xml_identifier(misc,"close",close_str,"[close]",sizeof(close_str));
+	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows disabled!",sizeof(low_framerate_str));
+	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",sizeof(window_size_adjusted_str));
+	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",sizeof(no_open_on_trade));
+	add_xml_identifier(misc,"user",login_username_str,"Username",sizeof(login_username_str));
+	add_xml_identifier(misc,"pass",login_password_str,"Password",sizeof(login_password_str));
+	add_xml_identifier(misc,"getall",get_all_str,"Get All",sizeof(get_all_str));
+	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",sizeof(completed_research));
+	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
+	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
+	add_xml_identifier(misc,"mix",mix_str,"Mix",sizeof(mix_str));
+	add_xml_identifier(misc,"clear",clear_str,"Clear",sizeof(clear_str));
+	add_xml_identifier(misc,"connect",connect_to_server_str,"Connecting to Server...",sizeof(connect_to_server_str));
+	add_xml_identifier(misc,"reconnect",reconnect_str,"Press any key to try again.",sizeof(reconnect_str));
+	add_xml_identifier(misc,"license",license_check,"Entropy says: U R 2 g00d 2 r34d +h3 license.txt?\nBTW, that license.txt file is actually there for a reason.",sizeof(license_check));
+	add_xml_identifier(misc,"quantity",quantity_str,"Quantity",sizeof(quantity_str));
+	add_xml_identifier(misc,"abort",abort_str,"Abort",sizeof(abort_str));
+	add_xml_identifier(misc,"sigils",sig_too_few_sigs,"This spell requires at least 2 sigils",sizeof(sig_too_few_sigs));
+	add_xml_identifier(misc,"switch",switch_video_mode,"Switches to video mode %s",sizeof(switch_video_mode));
+	add_xml_identifier(misc,"cache",cache_size_str,"Cache size",sizeof(cache_size_str));
 
 	//New characters
-	add_xml_identifier(new,"skin",skin_str,"Skin",10);
-	add_xml_identifier(new,"hair",hair_str,"Hair",10);
-	add_xml_identifier(new,"shirt",shirt_str,"Shirt",10);
-	add_xml_identifier(new,"pants",pants_str,"Pants",10);
-	add_xml_identifier(new,"boots",boots_str,"Boots",10);
-	add_xml_identifier(new,"head",head_str,"Head",10);
-	add_xml_identifier(new,"gender",gender_str,"Gender",10);
-	add_xml_identifier(new,"male",male_str,"Male",10);
-	add_xml_identifier(new,"female",female_str,"Female",10);
-	add_xml_identifier(new,"race",race_str,"Race",10);
-	add_xml_identifier(new,"human",human_str,"Human",10);
-	add_xml_identifier(new,"elf",elf_str,"Elf",10);
-	add_xml_identifier(new,"dwarf",dwarf_str,"Dwarf",10);
-	add_xml_identifier(new,"confirm",confirm_password,"Confirm Password",30);
+	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));
+	add_xml_identifier(new,"hair",hair_str,"Hair",sizeof(hair_str));
+	add_xml_identifier(new,"shirt",shirt_str,"Shirt",sizeof(shirt_str));
+	add_xml_identifier(new,"pants",pants_str,"Pants",sizeof(pants_str));
+	add_xml_identifier(new,"boots",boots_str,"Boots",sizeof(boots_str));
+	add_xml_identifier(new,"head",head_str,"Head",sizeof(head_str));
+	add_xml_identifier(new,"gender",gender_str,"Gender",sizeof(gender_str));
+	add_xml_identifier(new,"male",male_str,"Male",sizeof(male_str));
+	add_xml_identifier(new,"female",female_str,"Female",sizeof(female_str));
+	add_xml_identifier(new,"race",race_str,"Race",sizeof(race_str));
+	add_xml_identifier(new,"human",human_str,"Human",sizeof(human_str));
+	add_xml_identifier(new,"elf",elf_str,"Elf",sizeof(elf_str));
+	add_xml_identifier(new,"dwarf",dwarf_str,"Dwarf",sizeof(dwarf_str));
+	add_xml_identifier(new,"confirm",confirm_password,"Confirm Password",sizeof(confirm_password));
 	
 	//Icons
-	add_xml_identifier(tooltips,"walk",tt_walk,"Walk",30);
-	add_xml_identifier(tooltips,"sit",tt_sit,"Sit down",30);
-	add_xml_identifier(tooltips,"stand",tt_stand,"Stand up",30);
-	add_xml_identifier(tooltips,"look",tt_look,"Look at",30);
-	add_xml_identifier(tooltips,"use",tt_use,"Use",30);
-	add_xml_identifier(tooltips,"trade",tt_trade,"Trade",30);
-	add_xml_identifier(tooltips,"attack",tt_attack,"Attack",30);
-	add_xml_identifier(tooltips,"invent",tt_inventory,"View inventory",30);
-	add_xml_identifier(tooltips,"spell",tt_spell,"View spell window",30);
-	add_xml_identifier(tooltips,"manu",tt_manufacture,"View manufacture window",30);
-	add_xml_identifier(tooltips,"stats",tt_stats,"View stats",30);
-	add_xml_identifier(tooltips,"know",tt_knowledge,"View knowledge window",30);
-	add_xml_identifier(tooltips,"ency",tt_encyclopedia,"View encyclopedia window",30);
-	add_xml_identifier(tooltips,"quest",tt_questlog,"View questlog",30);
-	add_xml_identifier(tooltips,"map",tt_mapwin,"View map",30);
-	add_xml_identifier(tooltips,"console",tt_console,"View console",30);
-	add_xml_identifier(tooltips,"buddy",tt_buddy,"View buddy",30);
-	add_xml_identifier(tooltips,"opts",tt_options,"View options",30);
+	add_xml_identifier(tooltips,"walk",tt_walk,"Walk",sizeof(tt_walk));
+	add_xml_identifier(tooltips,"sit",tt_sit,"Sit down",sizeof(tt_sit));
+	add_xml_identifier(tooltips,"stand",tt_stand,"Stand up",sizeof(tt_stand));
+	add_xml_identifier(tooltips,"look",tt_look,"Look at",sizeof(tt_look));
+	add_xml_identifier(tooltips,"use",tt_use,"Use",sizeof(tt_use));
+	add_xml_identifier(tooltips,"trade",tt_trade,"Trade",sizeof(tt_trade));
+	add_xml_identifier(tooltips,"attack",tt_attack,"Attack",sizeof(tt_attack));
+	add_xml_identifier(tooltips,"invent",tt_inventory,"View inventory",sizeof(tt_inventory));
+	add_xml_identifier(tooltips,"spell",tt_spell,"View spell window",sizeof(tt_spell));
+	add_xml_identifier(tooltips,"manu",tt_manufacture,"View manufacture window",sizeof(tt_manufacture));
+	add_xml_identifier(tooltips,"stats",tt_stats,"View stats",sizeof(tt_stats));
+	add_xml_identifier(tooltips,"know",tt_knowledge,"View knowledge window",sizeof(tt_knowledge));
+	add_xml_identifier(tooltips,"ency",tt_encyclopedia,"View encyclopedia window",sizeof(tt_encyclopedia));
+	add_xml_identifier(tooltips,"quest",tt_questlog,"View questlog",sizeof(tt_questlog));
+	add_xml_identifier(tooltips,"map",tt_mapwin,"View map",sizeof(tt_mapwin));
+	add_xml_identifier(tooltips,"console",tt_console,"View console",sizeof(tt_console));
+	add_xml_identifier(tooltips,"buddy",tt_buddy,"View buddy",sizeof(tt_buddy));
+	add_xml_identifier(tooltips,"opts",tt_options,"View options",sizeof(tt_options));
 }
 #endif
 
@@ -805,11 +805,11 @@ void init_stats()
 	group_stat * skills = &(stats_str[4]);
 
 	//Initial strings
-	add_xml_identifier(stats_extra,"base",attributes.base,"Basic Attributes",30);
-	add_xml_identifier(stats_extra,"cross",attributes.cross,"Cross Attributes",30);
-	add_xml_identifier(stats_extra,"nexus",attributes.nexus,"Nexus",30);
-	add_xml_identifier(stats_extra,"skills",attributes.skills,"Skills",30);
-	add_xml_identifier(stats_extra,"pickpoints",attributes.pickpoints,"Pickpoints",30);
+	add_xml_identifier(stats_extra,"base",attributes.base,"Basic Attributes",sizeof(attributes.base));
+	add_xml_identifier(stats_extra,"cross",attributes.cross,"Cross Attributes",sizeof(attributes.cross));
+	add_xml_identifier(stats_extra,"nexus",attributes.nexus,"Nexus",sizeof(attributes.nexus));
+	add_xml_identifier(stats_extra,"skills",attributes.skills,"Skills",sizeof(attributes.skills));
+	add_xml_identifier(stats_extra,"pickpoints",attributes.pickpoints,"Pickpoints",sizeof(attributes.pickpoints));
 
 	add_xml_statid(base,"phy",&(attributes.phy),"Physique","phy");
 	add_xml_statid(base,"coo",&(attributes.coo),"Coordination","coo");

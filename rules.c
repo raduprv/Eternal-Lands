@@ -92,17 +92,11 @@ int read_rules()
 			return 0;
 		}
 	}
-
+	
 	if ((root = xmlDocGetRootElement(doc))==NULL) {
-		xmlFreeDoc(doc);
 		log_error(read_rules_str);
-		return 0;
-	}
-
-	if(!parse_rules(root->children)){
-		xmlFreeDoc(doc);
+	} else if(!parse_rules(root->children)){
 		log_error(parse_rules_str);
-		return 0;
 	}
 
 	xmlFreeDoc(doc);

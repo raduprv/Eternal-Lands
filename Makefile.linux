@@ -1,7 +1,7 @@
 .PHONY: clean release docs
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC 
+OPTIONS=-DLINUX -DELC
 #-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
@@ -52,12 +52,12 @@ cal3d:
 cal3dwrap.o: cal3dwrap.c cal3dwrap.h
 	g++ $(CFLAGS) -c cal3dwrap.c
 
-%.o:	global.h %.c %.h
-	$(CC) $(CFLAGS) -c $*.c
-
 clean:
 	-rm -f $(OBJS) el.x86.linux.bin
 
 docs:	
 	cd docs && doxygen Doxyfile
 
+.depend: *.c *.h
+	echo $(OBJS) | sed 's/\.o/.c/g' | xargs gcc $(CFLAGS) -MM >.depend
+include .depend
