@@ -679,13 +679,13 @@ void display_book_window(book *b)
 	else p=&book_win;
         if(*p<0){
                 if(b->type==1)
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 			*p=create_window(b->title, game_win, 0, book_win_x, book_win_y, 320, 400, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
 #else
 			*p=create_window(b->title, -1, 0, book_win_x, book_win_y, 320, 400, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
 #endif
 		else if(b->type==2)
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 			*p=create_window(b->title, game_win, 0, book_win_x, book_win_y, 528, 320, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW); //width/height are different
 #else
 			*p=create_window(b->title, -1, 0, book_win_x, book_win_y, 528, 320, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW); //width/height are different

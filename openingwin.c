@@ -1,6 +1,6 @@
 #include "global.h"
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 int opening_win = -1;
 
@@ -65,4 +65,4 @@ void create_opening_window ()
 	}
 }
 
-#endif // WINDOW_CHAT
+#endif // not def OLD_EVENT_HANDLER

@@ -12,7 +12,7 @@ extern int map_win; /*!< handler for the map window */
 /*! @} */
 
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 /*!
  * \ingroup interface_map

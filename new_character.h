@@ -94,7 +94,7 @@ void add_char_to_new_character(unsigned char ch);
  */
 void login_from_new_char();
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 extern int newchar_win;
 
@@ -108,6 +108,6 @@ extern int newchar_win;
  */
 void create_newchar_window ();
 
-#endif // def WINDOW_CHAT
+#endif // not def OLD_EVENT_HANDLER
 
 #endif

@@ -572,7 +572,7 @@ void get_sigils_we_have(Uint32 sigils_we_have)
 void display_sigils_menu()
 {
 	if(sigil_win < 0){
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 		sigil_win= create_window("Sigils", game_win, 0, sigil_menu_x, sigil_menu_y, sigil_menu_x_len, sigil_menu_y_len, ELW_WIN_DEFAULT);
 #else
 		sigil_win= create_window("Sigils", -1, 0, sigil_menu_x, sigil_menu_y, sigil_menu_x_len, sigil_menu_y_len, ELW_WIN_DEFAULT);

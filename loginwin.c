@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include "global.h"
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 int login_win = -1;
 
@@ -270,4 +270,4 @@ void create_login_window ()
 	}
 }
 
-#endif // def WINDOW_CHAT
+#endif // not def OLD_EVENT_HANDLER

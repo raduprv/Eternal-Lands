@@ -218,7 +218,7 @@ void build_cursors()
 }
 
 // XXX FIXME (Grum): scheduled for removal
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 void check_cursor_change()
 {
 	int i;

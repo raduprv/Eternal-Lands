@@ -230,7 +230,7 @@ void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_
 
 }
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 void draw_string_clipped(int x, int y, const unsigned char * our_string, int width, int height)
 {
 	draw_string_zoomed_clipped(x, y, our_string, height, width, 1.0f);

@@ -11,7 +11,7 @@
 extern int console_win; /*!< handler for the console window */
 /*! @} */
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 /*!
  * \ingroup interface_console

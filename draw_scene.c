@@ -60,13 +60,13 @@ Uint32 last_clear_clouds=0;
 
 GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXTURE2_ARB;
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 Uint32 draw_delay = 0;
 #endif
 
 void draw_scene()
 {
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	static int main_count = 0;
 	static int old_fps_average = 0;
 	static int fps_average = 0;
@@ -96,7 +96,7 @@ void draw_scene()
 					if(windows_list.window[quickbar_win].cur_x<window_width-hud_x && window_height - windows_list.window[quickbar_win].cur_y>hud_y) windows_list.window[quickbar_win].displayed=0;
 				}
 			
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 			if(interface_mode==interface_rules)
 				{
 					if(SDL_GetAppState()&SDL_APPACTIVE)
@@ -189,7 +189,7 @@ void draw_scene()
 #endif
 		}
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	glLoadIdentity ();	// Reset The Matrix
 	
 	Enter2DMode ();
@@ -400,7 +400,7 @@ void draw_scene()
 	SDL_GL_SwapBuffers();
 	check_gl_errors();
 	
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	if (draw_delay > 0)
 	{
 		SDL_Delay (draw_delay);

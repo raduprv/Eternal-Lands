@@ -3,7 +3,7 @@
 
 int console_win = -1;
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 int display_console_handler (window_info *win)
 {

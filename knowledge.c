@@ -168,7 +168,7 @@ void display_knowledge()
 {
 	if(knowledge_win < 0)
 	{
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 		knowledge_win= create_window("Knowledge", game_win, 0, knowledge_menu_x, knowledge_menu_y, knowledge_menu_x_len, knowledge_menu_y_len, ELW_WIN_DEFAULT);		
 #else
 		knowledge_win= create_window("Knowledge", -1, 0, knowledge_menu_x, knowledge_menu_y, knowledge_menu_x_len, knowledge_menu_y_len, ELW_WIN_DEFAULT);		

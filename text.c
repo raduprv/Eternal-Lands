@@ -6,7 +6,7 @@ char input_text_line[257];
 int input_text_lenght=0;
 int input_text_lines=1;
 char display_text_buffer[max_display_text_buffer_lenght];
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 int nr_text_buffer_lines = 0;
 #endif
 
@@ -251,7 +251,7 @@ void put_char_in_buffer(unsigned char ch)
 void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len, int x_chars_limit)
 {
 	int i;
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	int tmp_chars_limit;
 #endif
 	Uint8 cur_char;
@@ -266,7 +266,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 	//watch for the end of buffer!
 	while(display_text_buffer_last+len+8 >= max_display_text_buffer_lenght)
 		{
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 			// First update the nr of lines in the current buffer
 			for (i = 0; i < 1024; i++)
 				if (display_text_buffer[i] == '\n') nr_text_buffer_lines--;
@@ -291,7 +291,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 		}
 
 	//see if the text fits on the screen
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	// argh, if the value that's passed is larger than our screen 
 	// width, it will happily write outside the window. Override in
 	// this case. 
@@ -314,14 +314,14 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 						}
 
 					display_text_buffer[i+display_text_buffer_last]=cur_char;
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 					if (cur_char == '\n') nr_text_buffer_lines++;
 #endif
 				}
 			display_text_buffer[display_text_buffer_last+i]='\n';
 			display_text_buffer[display_text_buffer_last+i+1]=0;
 			display_text_buffer_last+=i+1;
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 			nr_text_buffer_lines++;
 #endif
 		}
@@ -384,7 +384,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 							j++;
 							semaphore=0;
 							if(lines_to_show<max_lines_no)lines_to_show++;
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 							nr_text_buffer_lines++;
 #endif
 						}
@@ -399,12 +399,12 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 			display_text_buffer[display_text_buffer_last+j]='\n';
 			display_text_buffer[display_text_buffer_last+j+1]=0;
 			display_text_buffer_last+=j+1;
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 			nr_text_buffer_lines++;
 #endif			
 		}
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	if (use_windowed_chat) update_chat_scrollbar ();
 #endif
 }
@@ -569,7 +569,7 @@ int find_last_console_lines(int lines_no)
 	return 1;
 }
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 int find_line_nr (int line)
 {
 	int i=-1;
@@ -592,7 +592,7 @@ void console_move_up()
 {
 	int i;
 	int max_lines;
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	int total_lines_no=nr_text_buffer_lines;
 #else
 	int total_lines_no=0;

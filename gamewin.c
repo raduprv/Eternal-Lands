@@ -1,7 +1,7 @@
 #include <string.h>
 #include "global.h"
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 int game_win = -1;
 

@@ -431,7 +431,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 	return drag_id;
 }
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
 {
 	int	done= 0;
@@ -1288,7 +1288,7 @@ int	mouseover_window(int win_id, int x, int y)
 	return 0;
 }
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 {
 	window_info *win;

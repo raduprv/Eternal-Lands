@@ -206,7 +206,7 @@ void change_actor ()
 }
 
 // XXX FIXME (Grum): scheduled for removal
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 void check_for_input()
 {
 
@@ -442,7 +442,7 @@ void draw_new_char_screen()
 	float unselected_bar_u_end=(float)170/256;
 	float unselected_bar_v_end=1.0f-(float)63/256;
 
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	check_for_input();
 #endif
 
@@ -713,7 +713,7 @@ void add_char_to_pass(unsigned char ch)
 			display_pass_str[pass_text_lenght]=0;
 			pass_str[pass_text_lenght]=0;
 		}
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	if(ch==SDLK_TAB)
 		{
 			password_selected = 0;
@@ -735,7 +735,7 @@ void add_char_to_un(unsigned char ch)
 			user_text_lenght--;
 			user_str[user_text_lenght]=0;
 		}
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	if(ch==SDLK_TAB)
 		{
 			username_selected = 0;
@@ -760,7 +760,7 @@ void add_char_to_conf(unsigned char ch)
 			conf_pass_str[conf_pass_text_lenght]=0;
 		}
 
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	if(ch==SDLK_TAB)
 		{
 			confirm_pass_selected = 0;
@@ -805,7 +805,7 @@ void login_from_new_char()
 
 // New character window code below.
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 int newchar_win = -1;
 

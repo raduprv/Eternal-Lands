@@ -108,7 +108,7 @@
 #include "mapwin.h"
 #include "loginwin.h"
 #include "openingwin.h"
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 #include "chat.h"
 #endif
 #ifdef BOOK

@@ -286,7 +286,7 @@ void pf_move_to_mouse_position()
 	
 	int x, y, clicked_x, clicked_y;
 	
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	// XXX (Grum): what is this doing here anyway?
 	if(check_hud_interface() >= 0);
 #endif

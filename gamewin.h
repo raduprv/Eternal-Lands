@@ -6,7 +6,7 @@
 #ifndef __GAMEWIN_H__
 #define __GAMEWIN_H__
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 /*! \name windows handlers 
  * @{ */

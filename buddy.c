@@ -85,7 +85,7 @@ void display_buddy()
 	if(buddy_win < 0)
 		{
 			//buddy_win = AddXMLWindow("buddy.xml");
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 			buddy_win = create_window("Buddy", game_win, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
 #else
 			buddy_win = create_window("Buddy", -1, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);

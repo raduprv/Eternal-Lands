@@ -214,7 +214,7 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 void display_dialogue()
 {
 	if(dialogue_win < 0){
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 		dialogue_win= create_window("Dialogue", game_win, 0, dialogue_menu_x, dialogue_menu_y, dialogue_menu_x_len, dialogue_menu_y_len, ELW_WIN_DEFAULT);
 #else
 		dialogue_win= create_window("Dialogue", -1, 0, dialogue_menu_x, dialogue_menu_y, dialogue_menu_x_len, dialogue_menu_y_len, ELW_WIN_DEFAULT);

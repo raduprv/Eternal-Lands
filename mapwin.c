@@ -6,7 +6,7 @@ int showing_continent = 0;
 
 int mouse_over_minimap = 0;
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 {

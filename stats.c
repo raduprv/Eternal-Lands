@@ -538,7 +538,7 @@ void fill_stats_win ()
 void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this test
 {
 	if(stats_win < 0){
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 		stats_win= create_window("Stats", game_win, 0, attrib_menu_x, attrib_menu_y, attrib_menu_x_len, attrib_menu_y_len, ELW_WIN_DEFAULT);
 #else
 		stats_win= create_window("Stats", -1, 0, attrib_menu_x, attrib_menu_y, attrib_menu_x_len, attrib_menu_y_len, ELW_WIN_DEFAULT);

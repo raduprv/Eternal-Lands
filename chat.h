@@ -6,7 +6,7 @@
 #ifndef __CHAT_H__
 #define __CHAT_H__
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 /*! \name chat text constants 
  * @{ */
@@ -39,6 +39,6 @@ void update_chat_scrollbar ();
  */
 void display_chat ();
 
-#endif // WINDOW_CHAT
+#endif // not def OLD_EVENT_HANDLER
 
 #endif // def __CHAT_H__

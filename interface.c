@@ -68,7 +68,7 @@ void get_old_world_x_y()
 }
 
 // XXX FIXME (Grum): scheduled for removal
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 int check_drag_menus()
 {
 	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)	return 1;
@@ -85,7 +85,7 @@ int check_scroll_bars()
 #endif
 
 // XXX FIXME (Grum): scheduled for removal, now in the root window click handler
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 void check_mouse_click()
 {
 	int force_walk=(ctrl_on && right_click);
@@ -508,7 +508,7 @@ void init_opening_interface()
 
 // XXX FIXME (Grum): scheduled for removal, now in the login window 
 // display handler
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 void draw_login_screen()
 {
 	char str[20];
@@ -699,7 +699,7 @@ void add_char_to_username(unsigned char ch)
 			username_text_lenght--;
 			username_str[username_text_lenght]=0;
 		}
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	if(ch==SDLK_TAB)
 		{
 			username_box_selected=0;
@@ -724,7 +724,7 @@ void add_char_to_password(unsigned char ch)
 			display_password_str[password_text_lenght]=0;
 			password_str[password_text_lenght]=0;
 		}
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	if(ch==SDLK_TAB)
 		{
 			username_box_selected=1;
@@ -755,12 +755,12 @@ void draw_ingame_interface()
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	display_windows(1);	// Display all the windows handled by the window manager
 #endif
 	//draw_hud_interface();
 	display_spells_we_have();
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	if(item_dragged!=-1)drag_item(item_dragged,0);
 	if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM)drag_item(use_item,1);
 #endif
@@ -880,7 +880,7 @@ void switch_from_game_map()
 }
 
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 void draw_game_map (int map, int mouse_mini)
 #else
 void draw_game_map(int map)
@@ -890,7 +890,7 @@ void draw_game_map(int map)
 	int screen_y=0;
 	int x=-1,y=-1;
 	int i;
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	float scale=(float)(window_width-hud_x)/300.0f;
 #endif
 	float x_size=0,y_size=0;
@@ -934,7 +934,7 @@ void draw_game_map(int map)
 		glTexCoord2f(0.0f,0.0f); glVertex3i(250,0,0);
 	glEnd();
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	if (mouse_mini)
 		glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
 	else
@@ -1209,7 +1209,7 @@ void save_markings()
         };
 }
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 void hide_all_root_windows ()
 {
 	if (game_win >= 0) hide_window (game_win);

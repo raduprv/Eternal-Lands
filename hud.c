@@ -59,7 +59,7 @@ void draw_hud_interface()
 {
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	display_windows(0);	// draw only the non-stacked windows
 #endif
 }
@@ -487,7 +487,7 @@ void switch_action_mode(int * mode, int id)
 // them up once we get rid of the old event handler
 void view_console_win(int * win, int id)
 {
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	if (interface_mode == interface_console || interface_mode == interface_game)
 	{
 		toggle_window (game_win);
@@ -506,12 +506,12 @@ void view_console_win(int * win, int id)
 	} 
 	else 
 	{
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 		if (interface_mode == interface_map || interface_mode == interface_cont)
 			glDeleteTextures(1,&map_text);
 #endif
 		interface_mode = interface_console;
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 		if (current_cursor != CURSOR_ARROW) 
 			change_cursor(CURSOR_ARROW);
 #endif
@@ -520,7 +520,7 @@ void view_console_win(int * win, int id)
 
 void view_map_win (int * win, int id)
 {
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	int mode = interface_mode;
 
 	toggle_window (map_win);

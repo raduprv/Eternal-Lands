@@ -1,7 +1,7 @@
 #ifndef __OPENINGWIN_H__
 #define __OPENINGWIN_H__
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 extern int opening_win;
 

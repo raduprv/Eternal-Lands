@@ -584,7 +584,7 @@ void display_encyclopedia()
 {
 	if(encyclopedia_win < 0)
 		{
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 			encyclopedia_win= create_window("Encyclopedia", game_win, 0, encyclopedia_menu_x, encyclopedia_menu_y, encyclopedia_menu_x_len, encyclopedia_menu_y_len, ELW_WIN_DEFAULT);
 #else
 			encyclopedia_win= create_window("Encyclopedia", -1, 0, encyclopedia_menu_x, encyclopedia_menu_y, encyclopedia_menu_x_len, encyclopedia_menu_y_len, ELW_WIN_DEFAULT);

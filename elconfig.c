@@ -404,7 +404,7 @@ void init_vars()
 	add_var(STRING,"browser","b",broswer_name,change_string,70);
 	
 	add_var(BOOL,"use_tabbed_windows","tabs",&use_tabbed_windows,change_var,0);
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	add_var(BOOL,"windowed_chat", "winchat", &use_windowed_chat, change_var, 0);
 #endif
 #endif // def ELC

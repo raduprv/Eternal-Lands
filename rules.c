@@ -41,7 +41,7 @@ int accept_y;
 int accept_width;
 int accept_height;
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 int next_win_id;
 #endif
 
@@ -187,7 +187,7 @@ int display_rules_handler(window_info *win)
 void display_rules_window()
 {
 	if(rules_win<0){
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 		rules_win=create_window("Rules", game_win, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
 #else
 		rules_win=create_window("Rules", -1, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
@@ -480,7 +480,7 @@ void draw_rules_interface (int len_x, int len_y)
 	int y, width, height;	// Width/Height are 0.5*width/height
 	float window_ratio = (float) len_x / 640.0f;
 
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	if(has_accepted) {
 		interface_mode=next_interface;
 		if(disconnected)connect_to_server();
@@ -544,7 +544,7 @@ void draw_rules_interface (int len_x, int len_y)
 			glTexCoord2f (colored_accept_u_end, colored_accept_v_start);	glVertex2i (accept_width, 0);
 			glTexCoord2f (colored_accept_u_start, colored_accept_v_start);	glVertex2i (0, 0);
 		
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 		if(mouse_x > accept_x && mouse_x < accept_x+accept_width && mouse_y > accept_y && mouse_y < accept_y+accept_height && left_click) has_accepted=1;
 #endif
 	}
@@ -555,7 +555,7 @@ void draw_rules_interface (int len_x, int len_y)
 	
 	glPushMatrix();
 	glTranslatef (x_arrow, y_arrow_up, 0);
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	if (mouse_over_up)
 	{
 #else
@@ -592,7 +592,7 @@ void draw_rules_interface (int len_x, int len_y)
 	glPushMatrix ();
 	glTranslatef (x_arrow+arrow_size, y_arrow_down+arrow_size, 0);
 	glRotatef (180.0f, 0.0f, 0.0f, 1.0f);
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	if (mouse_over_down)
 	{
 #else
@@ -637,12 +637,12 @@ void draw_rules_interface (int len_x, int len_y)
 	draw_rules (display_rules + rule_offset, rule_offset, diff + 30 * window_ratio, 120 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.0f);
     	glDisable (GL_ALPHA_TEST);
 
-#ifndef WINDOW_CHAT	
+#ifdef OLD_EVENT_HANDLER	
 	check_mouse_rules_interface(display_rules+rule_offset, len_y-50, len_y, mouse_x, mouse_y);
 #endif
 }
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 int rules_root_win = -1;
 

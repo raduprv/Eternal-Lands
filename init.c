@@ -513,7 +513,7 @@ void init_stuff()
 	
 	init_video();
 	// now create the root window
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	// XXX FIXME (Grum): Maybe we should do this at a later time, after
 	// we're logged in?
 	create_game_window ();
@@ -666,12 +666,12 @@ void init_stuff()
 	
 	//we might want to do this later.
 //	connect_to_server();
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 	create_opening_window ();
 #endif
 	if (has_accepted)
 	{
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 		show_window (opening_win);
 #endif
 		interface_mode=interface_opening;
@@ -679,7 +679,7 @@ void init_stuff()
 	}
 	else 
 	{
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 		create_rules_root_window (opening_win, 5);
 		show_window (rules_root_win);
 #else		
@@ -687,7 +687,7 @@ void init_stuff()
 #endif
 	}
 
-#ifdef WINDOW_CHAT	
+#ifndef OLD_EVENT_HANDLER	
 	// initialize the chat window
 	if (use_windowed_chat) display_chat ();
 #endif

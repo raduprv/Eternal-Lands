@@ -1,6 +1,6 @@
 #include "global.h"
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 
 int use_windowed_chat = 0;
 
@@ -101,4 +101,4 @@ void display_chat ()
 	}
 }
 
-#endif // def WINDOW_CHAT
+#endif // not def OLD_EVENT_HANDLER

@@ -412,7 +412,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 void display_manufacture_menu()
 {
 	if(manufacture_win < 0){
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 		manufacture_win= create_window("Manufacture", game_win, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
 #else
 		manufacture_win= create_window("Manufacture", -1, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);

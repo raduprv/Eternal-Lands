@@ -38,7 +38,7 @@ void	quick_use(int use_id)
 
 int HandleEvent (SDL_Event *event)
 {
-#ifndef WINDOW_CHAT
+#ifdef OLD_EVENT_HANDLER
 	static Uint32 last_turn_around = 0;
 	Uint8 ch;
 #endif
@@ -79,7 +79,7 @@ int HandleEvent (SDL_Event *event)
 				if (ctrl_on) key |= CTRL;
 				if (alt_on) key |= ALT;
 
-#ifdef WINDOW_CHAT				
+#ifndef OLD_EVENT_HANDLER				
 				if (afk_time) 
 					last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 
@@ -655,7 +655,7 @@ int HandleEvent (SDL_Event *event)
 					camera_tilt_frames=40;
 				}
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 			if (left_click >= 1)
 			{
 				if (drag_windows (mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)
@@ -670,7 +670,7 @@ int HandleEvent (SDL_Event *event)
 			}
 #endif
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 			if(left_click==1 || right_click==1)
 				click_in_windows (mouse_x, mouse_y, 0);
 #else

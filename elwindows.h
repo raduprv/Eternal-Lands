@@ -256,7 +256,7 @@ int		drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy);
  */
 int		drag_windows(int mx, int my, int dx, int dy);
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 /*!
  * \ingroup elwindows
  * \brief   callback function used when a key is pressed in a window.
@@ -559,7 +559,7 @@ int		drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
  */
 int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
 
-#ifdef WINDOW_CHAT
+#ifndef OLD_EVENT_HANDLER
 /*!
  * \ingroup elwindows
  * \brief
