@@ -64,6 +64,123 @@ void test_for_console_command()
 			cls();
 			return;
 		}
+	if(my_strncompare(text_loc,"goto",4))
+	{
+		Uint8 sx[3];
+		Uint8 sy[3];
+		int i,
+			j,
+			is_name = 0,
+			sw = 0,
+			x = 0,
+			y = 0,
+			found = 0;
+		Uint8 ch='\0';
+		char str[20];
+		char name[512] = {0};
+		char tmp_name[512] = {0};
+
+		while (!isspace(*text_loc))
+			*text_loc++;
+		while (isspace(*text_loc))
+			*text_loc++;
+		for (i = 0; text_loc[i] != '\0'; i++)
+		{
+			if (!isdigit(text_loc[i]) && text_loc[i] != ' ' && text_loc[i] != ',')
+			{
+				is_name = 1;
+				break;
+			}
+		}
+		if (is_name)
+		{
+			for (i = 0; text_loc[i] != 0x0a && text_loc[i] != '\0'; i++)
+			{
+				name[i] = text_loc[i];
+			}
+			name[i] = '\0';
+			
+			{ 
+				FILE * fp;
+				char marks_file[256], text[600];
+#ifndef WINDOWS
+				my_strcp(marks_file, getenv("HOME"));
+				my_strcat(marks_file, "/.elc/");
+				my_strcat(marks_file, strrchr(map_file_name,'/')+1);
+#else
+				my_strcp(marks_file, strrchr(map_file_name,'/')+1);
+#endif
+				my_strcat(marks_file, ".txt");
+				fp = fopen(marks_file, "r");
+				if ( fp )
+				{
+					
+					while ( fgets(text, 600,fp) )
+					{
+						if (strlen (text) > 1) //skip empty lines
+						{
+							my_strncp (tmp_name, strstr(strstr(text, " ")+1, " ")+1, 500);
+							tmp_name[strlen(tmp_name)-1] = '\0'; //remove the newline
+							if (my_strncompare(name, tmp_name, 512))
+							{
+								sscanf (text, "%d %d", &x, &y);
+								found = 1;
+								break;
+							}
+						}
+					}
+					fclose(fp);
+				}
+			}
+		}
+		else
+		{
+			found = 1;
+			for(i = 0, j = 0; i < 15; i++)
+			{
+				ch=text_loc[i];
+				if((ch==' ' || ch=='\0' || ch == ',') && sw==0)
+				{
+					sw=1;
+					j=0;
+				}
+				else if((ch==' ' || ch=='\0' || ch == ',') && sw==1)
+					break;
+				else if(sw==0)
+				{
+					sx[j]=ch;
+					j++;
+				}
+				else if(sw==1)
+				{
+					sy[j]=ch;
+					j++;
+				}
+			}
+			x=atoi(sx);
+			y=atoi(sy);
+		}
+
+		if (found)
+		{
+			sprintf(str, "Goto: %d,%d", x, y);
+			log_to_console(c_orange1, str);
+			if (pf_follow_path)
+			{
+				pf_destroy_path();
+			}
+			pf_find_path(x, y);
+		}
+		return;
+	}
+	if(my_strncompare(text_loc,"mark", 4))
+	{
+		if (strlen(text_loc) > 5) //check for empty marks
+		{
+			put_mark_on_current_position(text_loc+5);
+		}
+		return;		
+	}
 	//stats ?
 	if(my_strcompare(text_loc,"stats"))
 		{

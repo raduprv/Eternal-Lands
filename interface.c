@@ -1114,6 +1114,22 @@ void put_mark_on_map_on_mouse_position()
         mark_y = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
         adding_mark = 1;
 }
+void put_mark_on_current_position(char *name)
+{
+	actor *me = pf_get_our_actor();
+
+	if (me != NULL)
+	{	
+		marks[max_mark].x = me->x_tile_pos;
+		marks[max_mark].y = me->y_tile_pos;
+		memset(marks[max_mark].text,0,500);
+		
+		my_strncp(marks[max_mark].text,name,500);
+		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
+		max_mark++;
+		save_markings();
+	}		
+}
 
 void delete_mark_on_map_on_mouse_position()
 {

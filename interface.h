@@ -97,6 +97,7 @@ void draw_menu_title_bar(int x, int y, int x_len);
 void save_markings();
 void delete_mark_on_map_on_mouse_position();
 void put_mark_on_map_on_mouse_position();
+void put_mark_on_current_position(char *name);
 
 struct draw_map{
        unsigned short x_start;
