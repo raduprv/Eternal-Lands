@@ -2,6 +2,15 @@
 #include "global.h"
 #include <math.h>
 
+float fDestMat[16];
+float fSunPos[4]={400.0, 400.0, 500.0, 0.0};
+float fLightPos[4]={400.0, 400.0, 500.0, 0.0};
+float fPlane[4]={0,0,1,0};
+int shadows_on=0;
+int day_shadows_on;
+int night_shadows_on;
+int shadows_texture;
+
 void SetShadowMatrix()
 {
 	float dot;

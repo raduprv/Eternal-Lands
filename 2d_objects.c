@@ -3,6 +3,11 @@
 #include <string.h>
 #include "global.h"
 
+obj_2d *obj_2d_list[max_obj_2d];
+
+int map_meters_size_x;
+int map_meters_size_y;
+float texture_scale=12.0;
 
 void draw_2d_object(obj_2d * object_id)
 {

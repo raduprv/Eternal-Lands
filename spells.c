@@ -1,5 +1,19 @@
 #include "global.h"
 
+sigil_def sigils_list[SIGILS_NO];
+int sigil_menu_x=10;
+int sigil_menu_y=20;
+int sigil_menu_x_len=12*33+20;
+int sigil_menu_y_len=6*33;
+int sigil_menu_dragged=0;
+
+int sigils_text;
+Uint8 spell_text[256];
+int view_sigils_menu=0;
+int sigils_we_have;
+int have_error_message=0;
+Sint8 active_spells[10];
+
 Sint8 on_cast[6];
 Sint8 cast_cache[6];
 int clear_mouseover=0;

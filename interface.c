@@ -2,14 +2,58 @@
 #include "global.h"
 #include <math.h>
 
+int mouse_x;
+int mouse_y;
+int mouse_delta_x;
+int mouse_delta_y;
+int right_click;
+int left_click;
+int open_text;
+int login_screen_menus;
+char username_box_selected=1;
+char password_box_selected=0;
+char username_str[16]={0};
+char password_str[16]={0};
+char display_password_str[16]={0};
+int username_text_lenght=0;
+int password_text_lenght=0;
+
+int have_a_map=0;
+char interface_mode=interface_opening;
+char create_char_error_str[520];
+char log_in_error_str[520];
+int view_clock=1;
+int view_compass=1;
+int options_menu=0;
+int combat_mode=0;
+int auto_camera=0;
+int selected_3d_object;
+int selected_inventory_object=-1;
+int view_health_bar=1;
+int view_names=1;
+int show_fps=1;
+int limit_fps=0;
+
+float marble_menu_u_start=(float)160/255;
+float marble_menu_v_start=1.0f-(float)128/255;
+float marble_menu_u_end=(float)255/255;
+float marble_menu_v_end=1.0f-(float)255/255;
+float close_button_u_start=(float)192/255;
+float close_button_v_start=1.0f-(float)96/255;
+float close_button_u_end=(float)207/255;
+float close_button_v_end=1.0f-(float)111/255;
+
+int action_mode=action_walk;
+
+int you_sit=0;
+int sit_lock=0;
+
 void get_world_x_y()
 {
 	float window_ratio;
 	float x,y,x1,y1,a,t;
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
-	//x=(float)(mouse_x*9.0f/window_width)-(9.0f/2.0f);
-	//y=(float)((window_height-mouse_y)*6.0f/window_height)-(6.0f/2.0f);
 	x=(float)((mouse_x)*2.8f*zoom_level/window_width)-(2.8*zoom_level/2.0f);
 	y=(float)((window_height-mouse_y)*2.0f*zoom_level/window_height)-(2.0*zoom_level/2.0f);
 

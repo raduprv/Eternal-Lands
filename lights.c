@@ -2,6 +2,46 @@
 #include "global.h"
 #include <math.h>
 
+GLfloat global_lights[global_lights_no][4];
+
+GLfloat sky_lights_c1[global_lights_no*2][4];
+GLfloat sky_lights_c2[global_lights_no*2][4];
+GLfloat sky_lights_c3[global_lights_no*2][4];
+GLfloat sky_lights_c4[global_lights_no*2][4];
+
+GLfloat light_0_position[4];
+GLfloat light_0_diffuse[4];
+GLfloat light_0_dist;
+
+GLfloat light_1_position[4];
+GLfloat light_1_diffuse[4];
+GLfloat light_1_dist;
+
+GLfloat light_2_position[4];
+GLfloat light_2_diffuse[4];
+GLfloat light_2_dist;
+
+GLfloat light_3_position[4];
+GLfloat light_3_diffuse[4];
+GLfloat light_3_dist;
+
+GLfloat light_4_position[4];
+GLfloat light_4_diffuse[4];
+GLfloat light_4_dist;
+
+GLfloat light_5_position[4];
+GLfloat light_5_diffuse[4];
+GLfloat light_5_dist;
+
+GLfloat light_6_position[4];
+GLfloat light_6_diffuse[4];
+GLfloat light_6_dist;
+
+light *lights_list[max_lights];
+unsigned char light_level=58;
+sun sun_pos[60*3];
+short game_minute=60;
+
 void draw_test_light()
 {
 	GLfloat light_position[] = { 15.0, 15.0, 3.0, 1.0 };

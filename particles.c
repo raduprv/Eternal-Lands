@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include "global.h"
 
+SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
+int particles_text;
+particle_sys *particles_list[max_particle_systems];
+
 //Threading support for particals_list
 void init_particles_list()
 {

@@ -2,6 +2,17 @@
 #include <stdlib.h>
 #include "global.h"
 
+unsigned char *tile_map;
+unsigned char *height_map;
+int tile_map_size_x;
+int tile_map_size_y;
+int tile_list[256];
+char dungeon=0;//no sun
+float ambient_r=0;
+float ambient_g=0;
+float ambient_b=0;
+char map_file_name[60];
+
 void draw_tile_map()
 {
 	int x_start,x_end,y_start,y_end;

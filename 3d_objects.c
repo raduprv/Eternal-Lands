@@ -3,6 +3,7 @@
 #include <string.h>
 #include "global.h"
 
+object3d *objects_list[max_obj_3d];
 
 void draw_3d_object(object3d * object_id)
 {

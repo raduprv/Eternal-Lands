@@ -3,6 +3,14 @@
 #include "global.h"
 #include <math.h>
 
+water_vertex noise_array[16*16];
+int sky_text_1;
+float water_deepth_offset=-0.25f;
+int lake_waves_timer=0;
+float water_movement_u=0;
+float water_movement_v=0;
+int show_reflection=1;
+
 float mrandom(float max)
 {
 	return ((float) max * (rand () % 8 ));

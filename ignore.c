@@ -2,6 +2,11 @@
 #include <string.h>
 #include "global.h"
 
+ignore_slot ignore_list[max_ignores];
+int ignored_so_far=0;
+int save_ignores=1;
+int use_global_ignores=1;
+
 //returns -1 if the name is already ignored, 1 on sucess, -2 if no more ignore slots
 int add_to_ignore_list(Uint8 *name, char save_name)
 {

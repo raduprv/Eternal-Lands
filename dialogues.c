@@ -1,6 +1,26 @@
 #include <string.h>
 #include "global.h"
 
+char dialogue_string[1024];
+char npc_name[20];
+int cur_portrait=8;
+int portraits1_tex;
+int portraits2_tex;
+int portraits3_tex;
+int portraits4_tex;
+int portraits5_tex;
+
+response dialogue_responces[20];
+int have_dialogue=0;
+
+int dialogue_menu_x=1;
+int dialogue_menu_y=1;
+int dialogue_menu_x_len=638;
+int dialogue_menu_y_len=160;
+int dialogue_menu_dragged=0;
+
+int no_bounding_box=0;
+
 
 void build_response_entries(Uint8 *data,int total_lenght)
 {

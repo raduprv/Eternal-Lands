@@ -2,6 +2,12 @@
 #include <string.h>
 #include "global.h"
 
+filter_slot filter_list[max_filters];
+int filtered_so_far=0;
+int use_global_filters=1;
+char text_filter_replace[128]="smeg";
+int caps_filter=1;
+
 //returns -1 if the name is already filtered, 1 on sucess, -2 if no more filter slots
 int add_to_filter_list(Uint8 *name, char save_name)
 {

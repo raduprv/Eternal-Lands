@@ -1,5 +1,65 @@
 #include "global.h"
 
+item item_list[36+8];
+item manufacture_list[36+8];
+ground_item ground_item_list[50];
+bag bag_list[200];
+
+item inventory_trade_list[36];
+item your_trade_list[24];
+item others_trade_list[24];
+int trade_you_accepted=0;
+int trade_other_accepted=0;
+char other_player_trade_name[20];
+
+int view_my_items=0;
+int view_ground_items=0;
+int view_manufacture_menu=0;
+int view_trade_menu=0;
+int no_view_my_items=0;
+
+int items_menu_x=10;
+int items_menu_y=20;
+int items_menu_x_len=6*51+110;
+int items_menu_y_len=6*51+60;
+int items_menu_dragged=0;
+
+int ground_items_menu_x=6*51+100+20;
+int ground_items_menu_y=20;
+int ground_items_menu_x_len=6*33;
+int ground_items_menu_y_len=10*33;
+int ground_items_menu_dragged=0;
+
+int manufacture_menu_x=10;
+int manufacture_menu_y=20;
+int manufacture_menu_x_len=12*33+20;
+int manufacture_menu_y_len=6*33;
+int manufacture_menu_dragged=0;
+
+int trade_menu_x=10;
+int trade_menu_y=20;
+int trade_menu_x_len=13*33;
+int trade_menu_y_len=11*33;
+int trade_menu_dragged=0;
+
+int options_menu_x=220;
+int options_menu_y=50;
+int options_menu_x_len=390;
+int options_menu_y_len=260;
+int options_menu_dragged=0;
+
+int items_text_1;
+int items_text_2;
+int items_text_3;
+int items_text_4;
+int items_text_5;
+int items_text_6;
+int items_text_7;
+
+char items_string[300];
+int item_dragged=-1;
+int item_quantity=1;
+
 int wear_items_x_offset=6*51+20;
 int wear_items_y_offset=30;
 

@@ -1,6 +1,13 @@
 #include "global.h"
 #include <string.h>
 
+int view_knowledge=0;
+int knowledge_menu_x=100;
+int knowledge_menu_y=20;
+int knowledge_menu_x_len=400;
+int knowledge_menu_y_len=350;
+int knowledge_menu_dragged=0;
+
 _knowledge knowledge_list[200];
 
 char research_name[16]="none";

@@ -3,6 +3,12 @@
 
 Uint32 flags;
 
+int window_width=640;
+int window_height=480;
+
+int desktop_width;
+int desktop_height;
+
 
 void setup_video_mode()
 {

@@ -5,6 +5,13 @@
 
 cache_struct	*cache_system=NULL;
 
+#ifndef	CACHE_SYSTEM
+md2_cache_struct md2_cache[1000];
+e3d_cache_struct e3d_cache[1000];
+#endif	//CACHE_SYSTEM
+texture_cache_struct texture_cache[1000];
+obj_2d_cache_struct obj_2d_def_cache[max_obj_2d_def];
+
 // top level cache system routines
 void cache_system_init(Uint32 max_items)
 {

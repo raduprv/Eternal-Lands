@@ -2,6 +2,12 @@
 #include <math.h>
 #include "global.h"
 
+int have_sound=0;
+int have_music=0;
+int sound_on=1;
+int music_on=1;
+int no_sound=0;
+
 int used_sources = 0;
 
 char sound_files[max_buffers][30];

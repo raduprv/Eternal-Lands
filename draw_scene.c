@@ -1,10 +1,55 @@
 #include "global.h"
 #include <math.h>
 
+float cx=0;
+float cy=0;
+float cz=0;
+float rx=-60;
+float ry=0;
+float rz=45;
+float terrain_scale=2.0f;
+float zoom_level=3.0f;
+float name_zoom=1.0f;
+
+float fine_camera_rotation_speed;
+float normal_camera_rotation_speed;
+
+float camera_rotation_speed;
+int camera_rotation_frames;
+
+double camera_x_speed;
+int camera_x_frames;
+
+double camera_y_speed;
+int camera_y_frames;
+
+double camera_z_speed;
+int camera_z_frames;
+
+int normal_animation_timer=0;
+
+float scene_mouse_x;
+float scene_mouse_y;
+
+int last_texture=-2;
+int font_text;
+int cons_text;
+int icons_text;
+int open_text;
+int login_text;
+int ground_detail_text;
+
 int times_FPS_below_3=0;
 int main_count=0;
 int fps_average=0;
 int old_fps_average=0;
+
+//debuging info
+int debug_info=0;
+float debug_float;
+int triangles_normal=0;
+int triangles_shadow=0;
+
 
 void draw_scene()
 {

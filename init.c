@@ -9,6 +9,46 @@
 #include <time.h>
 #include "global.h"
 
+int ini_file_size=0;
+int bpp=0;
+int have_stencil=1;
+int video_mode;
+int full_screen;
+
+int disconnected=1;
+int exit_now = 0;
+int have_url=0;
+char current_url[160];
+char broswer_name[120];
+int poor_man=0;
+int mouse_limit=15;
+int no_adjust_shadows=0;
+int clouds_shadows=1;
+int no_alpha_sat=0;
+help_entry help_list[MAX_HELP_ENTRIES];
+char configdir[256];
+char datadir[256];
+
+void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
+void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
+void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
+void (APIENTRY * ELglUnlockArraysEXT) (void);
+
+int have_multitexture=0;
+float clouds_movement_u=-8;
+float clouds_movement_v=-3;
+Uint32 last_clear_clouds=0;
+int reflection_texture;
+int use_vertex_array=0;
+int vertex_arrays_built=0;
+int have_compiled_vertex_array=0;
+
+int shift_on;
+int alt_on;
+int ctrl_on;
+
 #ifdef	CACHE_SYSTEM
 cache_struct	*cache_md2=NULL;
 cache_struct	*cache_e3d=NULL;

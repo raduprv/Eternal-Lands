@@ -2,11 +2,30 @@
 #include <string.h>
 #include "global.h"
 
+int port=2000;
+unsigned char server_address[60];
+TCPsocket my_socket=0;
+SDLNet_SocketSet set=0;
+Uint8 in_data[8192];
+int previously_logged_in=0;
+Uint32 last_heart_beat;
+
+char our_name[20];
+char our_password[20];
+int log_conn_data=0;
+
 int this_version_is_invalid=0;
 int put_new_data_offset=0;
 Uint8	tcp_cache[256];
 Uint32	tcp_cache_len=0;
 Uint32	tcp_cache_time=0;
+
+//for the client/server sync
+int server_time_stamp=0;
+int client_time_stamp=0;
+int client_server_delta_time=0;
+
+int yourself=-1;
 
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 {

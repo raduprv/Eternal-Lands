@@ -11,6 +11,16 @@
 #include "global.h"
 #include "init.h"
 
+Uint32 cur_time=0, last_time=0;//for FPS
+
+char version_string[]=VER_STRING;
+int	client_version_major=VER_MAJOR;
+int client_version_minor=VER_MINOR;
+int client_version_release=VER_RELEASE;
+int	client_version_patch=VER_BUILD;
+int version_first_digit=9;	//protocol/game version sent to server
+int version_second_digit=7;
+
 /**********************************************************************/
 
 int start_rendering()

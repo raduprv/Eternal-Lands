@@ -1,6 +1,16 @@
 #include <stdlib.h>
 #include "global.h"
 
+int seconds_till_rain_starts=-1;
+int seconds_till_rain_stops=-1;
+int is_raining=0;
+int rain_sound=0;
+int weather_light_offset=0;
+int rain_light_offset=0;
+int thunder_light_offset;
+thunder thunders[MAX_THUNDERS];
+int lightning_text;
+
 Uint32 rain_control_counter=0;
 Uint32 thunder_control_counter=0;
 int num_rain_drops=MAX_RAIN_DROPS;

@@ -1,6 +1,15 @@
 #include <string.h>
 #include "global.h"
 
+int view_self_stats=0;
+player_attribs your_info;
+player_attribs someone_info;
+int attrib_menu_x=100;
+int attrib_menu_y=20;
+int attrib_menu_x_len=516;
+int attrib_menu_y_len=348;
+int attrib_menu_dragged=0;
+
 void get_the_stats(Sint16 *stats)
 {
 	memset(&your_info, 0, sizeof(your_info));	// failsafe incase structure changes

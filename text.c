@@ -1,6 +1,25 @@
 #include <string.h>
 #include "global.h"
 
+char input_text_line[257];
+int input_text_lenght=0;
+char display_text_buffer[max_display_text_buffer_lenght];
+
+int display_text_buffer_first=0;
+int display_text_buffer_last=0;
+
+int display_console_text_buffer_first=0;
+int display_console_text_buffer_last=0;
+char last_pm_from[32];
+
+Uint32 last_server_message_time;
+int lines_to_show=0;
+int max_lines_no=10;
+char console_mode=0;
+char not_from_the_end_console=0;
+
+int log_server = 1;
+
 float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 
