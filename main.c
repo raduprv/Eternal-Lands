@@ -61,8 +61,7 @@ int Main(int argc, char *argv[])
 	slowly = 1;
 	numtests = 1;
 
-	gtk_set_locale ();
-	gtk_init (&argc, &argv);
+
 	init_stuff();
 	
 	start_rendering();
@@ -78,7 +77,7 @@ int main(int argc, char *argv[])
 #endif
 
 #ifndef LINUX
-int STDCALL WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
+int WINAPI WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
 Main(0, NULL);
   return 0;

@@ -1,0 +1,253 @@
+# Microsoft Developer Studio Project File - Name="map_editor" - Package Owner=<4>
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
+# ** DO NOT EDIT **
+
+# TARGTYPE "Win32 (x86) Application" 0x0101
+
+CFG=map_editor - Win32 Debug
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
+!MESSAGE 
+!MESSAGE NMAKE /f "map_editor.mak".
+!MESSAGE 
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "map_editor.mak" CFG="map_editor - Win32 Debug"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+!MESSAGE "map_editor - Win32 Release" (based on "Win32 (x86) Application")
+!MESSAGE "map_editor - Win32 Debug" (based on "Win32 (x86) Application")
+!MESSAGE 
+
+# Begin Project
+# PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
+CPP=cl.exe
+MTL=midl.exe
+RSC=rc.exe
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "Release"
+# PROP BASE Intermediate_Dir "Release"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "Release"
+# PROP Intermediate_Dir "Release"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /Gi /GX /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "WINDOWS" /D "_AFXDLL" /Fp"Release/elc.pch" /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
+# ADD LINK32 user32.lib SDL_net.lib kernel32.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib GLU32.lib comdlg32.lib /nologo /subsystem:windows /pdb:"Release/el.pdb" /machine:I386 /out:"Release/mapedit.exe"
+# SUBTRACT LINK32 /pdb:none
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "Debug"
+# PROP BASE Intermediate_Dir "Debug"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 2
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "Debug"
+# PROP Intermediate_Dir "Debug"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /Gm /Gi /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "WINDOWS" /D "_AFXDLL" /Fp"Debug/elc.pch" /YX /FD /GZ /c
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 SDL_net.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib GLU32.lib comdlg32.lib /nologo /subsystem:windows /pdb:"Debug/el.pdb" /debug /machine:I386 /out:"Debug/mapedit.exe" /pdbtype:sept
+# SUBTRACT LINK32 /pdb:none
+
+!ENDIF 
+
+# Begin Target
+
+# Name "map_editor - Win32 Release"
+# Name "map_editor - Win32 Debug"
+# Begin Group "Source Files"
+
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\2d_objects.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\3d_objects.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\asc.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\colors.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\draw_scene.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\errors.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\events.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\font.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\frustum.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\global.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\init.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\lights.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\main.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\map_io.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\misc.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\reflection.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\shadows.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\textures.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\tile_map.c
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\2d_objects.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\asc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\e3d.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\editor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\global.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\init.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\lights.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\map_io.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\misc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\reflection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SDL_opengl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\shadows.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tiles.h
+# End Source File
+# End Group
+# Begin Group "Resource Files"
+
+# PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\mapeditor.ico
+# End Source File
+# End Group
+# Begin Group "Project Files"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\eternal_lands_license.txt
+# End Source File
+# End Group
+# End Target
+# End Project

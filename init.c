@@ -37,7 +37,11 @@ void init_stuff()
 	int seed;
 	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
 
+#ifdef LINUX
+	gtk_set_locale ();
+	gtk_init (&argc, &argv);
 	file_selector = create_fileselection();
+#endif
 
 	if( SDL_Init(SDL_INIT_VIDEO) == -1 )
     {
