@@ -814,7 +814,6 @@ void open_3d_obj()
 }
 void open_3d_obj_continued()
 {
-  printf("%s\n", selected_file);
   if (selected_file)
     {
 
@@ -848,7 +847,6 @@ void open_map_file()
 }
 void open_map_file_continued()
 {
-  printf("openmap %s\n", selected_file);
   if (selected_file)load_map(selected_file);
 }
 
@@ -861,7 +859,6 @@ void save_map_file()
 }
 void save_map_file_continued()
 {
-  printf("savemap %s\n", selected_file);
   if (selected_file)save_map(selected_file);
 }
 
