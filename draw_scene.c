@@ -152,17 +152,32 @@ void Move()
 
 }
 
+#define TIMER_RATE 20;
+int my_timer_clock=0;
+int normal_animation_timer=0;
+
 Uint32 my_timer(unsigned int some_int)
 {
-	if(lake_waves_timer>2)
-		{
-			lake_waves_timer=0;
-			make_lake_water_noise();
-			update_particles();
-		}
-	lake_waves_timer++;
-	water_movement_u+=0.0004f;
-	water_movement_v+=0.0002f;
+	int new_time;
+	if(my_timer_clock==0)my_timer_clock=SDL_GetTicks();
+	else my_timer_clock+=TIMER_RATE;
 
-	return some_int;
+	if(normal_animation_timer>2)
+		{
+			normal_animation_timer=0;
+			update_particles();
+			if(lake_waves_timer>2)
+				{
+					lake_waves_timer=0;
+					make_lake_water_noise();
+				}
+			lake_waves_timer++;
+			water_movement_u+=0.0004f;
+			water_movement_v+=0.0002f;
+		}
+	normal_animation_timer++;
+
+	new_time=TIMER_RATE-(SDL_GetTicks()-my_timer_clock);
+	if(new_time<10) new_time=10;
+	return new_time;
 }

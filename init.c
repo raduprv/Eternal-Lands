@@ -180,7 +180,7 @@ void init_stuff()
     		SDL_Quit();
 	       	exit(1);
         }
-	SDL_SetTimer (1000/17, my_timer_pointer);
+	SDL_SetTimer (1000/(18*4), my_timer_pointer);
 
 	SDL_EnableUNICODE(1);
 
