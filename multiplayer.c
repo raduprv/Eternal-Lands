@@ -570,6 +570,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case CLOSE_BAG:
 			{
 				view_ground_items=0;
+				hide_window(ground_items_win);
 			}
 			break;
 
@@ -624,7 +625,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_TRADE_EXIT:
 			{
-				view_trade_menu=0;
+				view_trade_menu= 0;
+				hide_window(trade_win);
 			}
 			break;
 

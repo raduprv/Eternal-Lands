@@ -1,75 +1,50 @@
 #include "global.h"
+#include "elwindows.h"
 
+int trade_win=0;
 
-void display_trade_menu()
+int display_trade_handler(window_info *win)
 {
 	Uint8 str[80];
 	int x,y,i,j;
-	//first of all, draw the actual menu.
 
-	draw_menu_title_bar(trade_menu_x,trade_menu_y-16,trade_menu_x_len);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(trade_menu_x,trade_menu_y+trade_menu_y_len,0);
-	glVertex3i(trade_menu_x,trade_menu_y,0);
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y,0);
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y+trade_menu_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-
 	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
-	glVertex3i(trade_menu_x,trade_menu_y,0);
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y,0);
-
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y,0);
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y+trade_menu_y_len,0);
-
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y+trade_menu_y_len,0);
-	glVertex3i(trade_menu_x,trade_menu_y+trade_menu_y_len,0);
-
-	glVertex3i(trade_menu_x,trade_menu_y+trade_menu_y_len,0);
-	glVertex3i(trade_menu_x,trade_menu_y,0);
-
 	//draw the grid
 	for(y=1;y<4;y++)
 		{
-			glVertex3i(trade_menu_x,trade_menu_y+y*33,0);
-			glVertex3i(trade_menu_x+12*33,trade_menu_y+y*33,0);
+			glVertex3i(0,y*33,0);
+			glVertex3i(12*33,y*33,0);
 		}
 	for(x=1;x<13;x++)
 		{
-			glVertex3i(trade_menu_x+x*33,trade_menu_y,0);
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+3*33,0);
+			glVertex3i(x*33,0,0);
+			glVertex3i(x*33,3*33,0);
 		}
 
 	glColor3f(0.57f,0.67f,0.49f);
 	//draw the you have grid
 	for(y=1;y<6;y++)
 		{
-			glVertex3i(trade_menu_x,trade_menu_y+(y+3)*33,0);
-			glVertex3i(trade_menu_x+4*33,trade_menu_y+(y+3)*33,0);
+			glVertex3i(0,(y+3)*33,0);
+			glVertex3i(4*33,(y+3)*33,0);
 		}
 	for(x=0;x<5;x++)
 		{
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+4*33,0);
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+8*33,0);
+			glVertex3i(x*33,4*33,0);
+			glVertex3i(x*33,8*33,0);
 		}
 	//draw the what the other player has
 	for(y=1;y<6;y++)
 		{
-			glVertex3i(trade_menu_x+5*33,trade_menu_y+(y+3)*33,0);
-			glVertex3i(trade_menu_x+9*33,trade_menu_y+(y+3)*33,0);
+			glVertex3i(5*33,(y+3)*33,0);
+			glVertex3i(9*33,(y+3)*33,0);
 		}
 	for(x=5;x<10;x++)
 		{
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+4*33,0);
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+8*33,0);
+			glVertex3i(x*33,4*33,0);
+			glVertex3i(x*33,8*33,0);
 		}
 
 	glColor3f(0.77f,0.57f,0.39f);
@@ -77,81 +52,81 @@ void display_trade_menu()
 	//draw the button frame
 
 	//Clear button
-	glVertex3i(trade_menu_x+33*5,trade_menu_y+trade_menu_y_len-30,0);
-	glVertex3i(trade_menu_x+33*5+70,trade_menu_y+trade_menu_y_len-30,0);
-	glVertex3i(trade_menu_x+33*5,trade_menu_y+trade_menu_y_len-10,0);
-	glVertex3i(trade_menu_x+33*5+70,trade_menu_y+trade_menu_y_len-10,0);
-	glVertex3i(trade_menu_x+33*5+70,trade_menu_y+trade_menu_y_len-30,0);
-	glVertex3i(trade_menu_x+33*5+70,trade_menu_y+trade_menu_y_len-9,0);
-	glVertex3i(trade_menu_x+33*5,trade_menu_y+trade_menu_y_len-30,0);
-	glVertex3i(trade_menu_x+33*5,trade_menu_y+trade_menu_y_len-10,0);
+	glVertex3i(33*5,trade_menu_y_len-30,0);
+	glVertex3i(33*5+70,trade_menu_y_len-30,0);
+	glVertex3i(33*5,trade_menu_y_len-10,0);
+	glVertex3i(33*5+70,trade_menu_y_len-10,0);
+	glVertex3i(33*5+70,trade_menu_y_len-30,0);
+	glVertex3i(33*5+70,trade_menu_y_len-9,0);
+	glVertex3i(33*5,trade_menu_y_len-30,0);
+	glVertex3i(33*5,trade_menu_y_len-10,0);
 
 	//the players accept boxes
-	glVertex3i(trade_menu_x+5,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+20,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5,trade_menu_y+4*33-5,0);
-	glVertex3i(trade_menu_x+20,trade_menu_y+4*33-5,0);
-	glVertex3i(trade_menu_x+20,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+20,trade_menu_y+4*33-4,0);
-	glVertex3i(trade_menu_x+5,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5,trade_menu_y+4*33-5,0);
+	glVertex3i(5,4*33-20,0);
+	glVertex3i(20,4*33-20,0);
+	glVertex3i(5,4*33-5,0);
+	glVertex3i(20,4*33-5,0);
+	glVertex3i(20,4*33-20,0);
+	glVertex3i(20,4*33-4,0);
+	glVertex3i(5,4*33-20,0);
+	glVertex3i(5,4*33-5,0);
 
-	glVertex3i(trade_menu_x+5*33+5,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5*33+20,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5*33+5,trade_menu_y+4*33-5,0);
-	glVertex3i(trade_menu_x+5*33+20,trade_menu_y+4*33-5,0);
-	glVertex3i(trade_menu_x+5*33+20,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5*33+20,trade_menu_y+4*33-4,0);
-	glVertex3i(trade_menu_x+5*33+5,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5*33+5,trade_menu_y+4*33-5,0);
+	glVertex3i(5*33+5,4*33-20,0);
+	glVertex3i(5*33+20,4*33-20,0);
+	glVertex3i(5*33+5,4*33-5,0);
+	glVertex3i(5*33+20,4*33-5,0);
+	glVertex3i(5*33+20,4*33-20,0);
+	glVertex3i(5*33+20,4*33-4,0);
+	glVertex3i(5*33+5,4*33-20,0);
+	glVertex3i(5*33+5,4*33-5,0);
 
 
 	//now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
 	for(y=0;y<6;y++)
 		{
-			glVertex3i(trade_menu_x+33*9+25,trade_menu_y+133+y*20,0);
-			glVertex3i(trade_menu_x+33*9+25+2*35,trade_menu_y+133+y*20,0);
+			glVertex3i(33*9+25,133+y*20,0);
+			glVertex3i(33*9+25+2*35,133+y*20,0);
 		}
 	for(x=0;x<3;x++)
 		{
-			glVertex3i(trade_menu_x+33*9+25+x*35,trade_menu_y+133,0);
-			glVertex3i(trade_menu_x+33*9+25+x*35,trade_menu_y+133+5*20,0);
+			glVertex3i(33*9+25+x*35,133,0);
+			glVertex3i(33*9+25+x*35,133+5*20,0);
 		}
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
 	//draw the quantity string
-	draw_string_small(trade_menu_x+33*9+25,trade_menu_y+116,"Quantity",1);
+	draw_string_small(33*9+25,116,"Quantity",1);
 	//draw the quantity values
 	if(item_quantity==1)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+15,trade_menu_y+136,"1",1);
+	draw_string_small(33*9+25+15,136,"1",1);
 	if(item_quantity==5)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+50,trade_menu_y+136,"5",1);
+	draw_string_small(33*9+25+50,136,"5",1);
 	if(item_quantity==10)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+10,trade_menu_y+156,"10",1);
+	draw_string_small(33*9+25+10,156,"10",1);
 	if(item_quantity==20)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+45,trade_menu_y+156,"20",1);
+	draw_string_small(33*9+25+45,156,"20",1);
 	if(item_quantity==50)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+10,trade_menu_y+176,"50",1);
+	draw_string_small(33*9+25+10,176,"50",1);
 	if(item_quantity==100)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+40,trade_menu_y+176,"100",1);
+	draw_string_small(33*9+25+40,176,"100",1);
 	if(item_quantity==200)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+5,trade_menu_y+196,"200",1);
+	draw_string_small(33*9+25+5,196,"200",1);
 	if(item_quantity==500)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+40,trade_menu_y+196,"500",1);
+	draw_string_small(33*9+25+40,196,"500",1);
 	if(item_quantity==1000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+1,trade_menu_y+216,"1000",1);
+	draw_string_small(33*9+25+1,216,"1000",1);
 	if(item_quantity==2000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+36,trade_menu_y+216,"2000",1);
+	draw_string_small(33*9+25+36,216,"2000",1);
 
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string(trade_menu_x+33*5+8,trade_menu_y+trade_menu_y_len-30+2,"Abort",1);
-	if(trade_you_accepted)draw_string_small(trade_menu_x+8,trade_menu_y+4*33-19,"X",1);
-	draw_string_small(trade_menu_x+24,trade_menu_y+4*33-19,"You",1);
-	if(trade_other_accepted)draw_string_small(trade_menu_x+5*33+8,trade_menu_y+4*33-19,"X",1);
-	draw_string_small(trade_menu_x+5*33+24,trade_menu_y+4*33-19,other_player_trade_name,1);
+	draw_string(33*5+8,trade_menu_y_len-30+2,"Abort",1);
+	if(trade_you_accepted)draw_string_small(8,4*33-19,"X",1);
+	draw_string_small(24,4*33-19,"You",1);
+	if(trade_other_accepted)draw_string_small(5*33+8,4*33-19,"X",1);
+	draw_string_small(5*33+24,4*33-19,other_player_trade_name,1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -176,9 +151,9 @@ void display_trade_menu()
 					cur_pos=j;
 					j++;
 
-					x_start=trade_menu_x+33*(cur_pos%12)+1;
+					x_start=33*(cur_pos%12)+1;
 					x_end=x_start+32;
-					y_start=trade_menu_y+33*(cur_pos/12);
+					y_start=33*(cur_pos/12);
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
@@ -221,9 +196,9 @@ void display_trade_menu()
 					//get the x and y
 					cur_pos=i;
 
-					x_start=trade_menu_x+33*(cur_pos%4)+1;
+					x_start=33*(cur_pos%4)+1;
 					x_end=x_start+32;
-					y_start=trade_menu_y+33*(cur_pos/4+4);
+					y_start=33*(cur_pos/4+4);
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
@@ -273,9 +248,9 @@ void display_trade_menu()
 					//get the x and y
 					cur_pos=i;
 
-					x_start=trade_menu_x+33*(cur_pos%4+5)+1;
+					x_start=33*(cur_pos%4+5)+1;
 					x_end=x_start+32;
-					y_start=trade_menu_y+33*(cur_pos/4+4);
+					y_start=33*(cur_pos/4+4);
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
@@ -307,27 +282,25 @@ void display_trade_menu()
 
 
 	//now, draw the inventory text, if any.
-	draw_string_small(trade_menu_x+4,trade_menu_y+trade_menu_y_len-75,items_string,4);
+	draw_string_small(4,trade_menu_y_len-75,items_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
+	return 1;
 }
 
 
-int check_trade_interface()
+int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y;
 	int x_screen,y_screen;
 	Uint8 str[10];
 
-	if(!view_trade_menu || mouse_x>trade_menu_x+trade_menu_x_len || mouse_x<trade_menu_x
-	|| mouse_y<trade_menu_y || mouse_y>trade_menu_y+trade_menu_y_len)return 0;
-
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
 	for(x=0;x<2;x++)
 		{
-			x_screen=trade_menu_x+33*9+25+x*35;
-			y_screen=trade_menu_y+133+y*20;
-			if(mouse_x>x_screen && mouse_x<x_screen+35 && mouse_y>y_screen && mouse_y<y_screen+20)
+			x_screen=33*9+25+x*35;
+			y_screen=133+y*20;
+			if(mx>x_screen && mx<x_screen+35 && my>y_screen && my<y_screen+20)
 				{
 					if(x==0 && y==0)item_quantity=1;
 					else
@@ -352,7 +325,7 @@ int check_trade_interface()
 		}
 
 	//check to see if we hit the Accept box
-	if(mouse_x>trade_menu_x+5 && mouse_x<trade_menu_x+20 && mouse_y>trade_menu_y+4*33-20 && mouse_y<trade_menu_y+4*33-5)
+	if(mx>5 && mx<20 && my>4*33-20 && my<4*33-5)
 		{
 
 			if(trade_you_accepted)str[0]=REJECT_TRADE;
@@ -362,8 +335,8 @@ int check_trade_interface()
 		}
 
 	//check to see if we hit the Abort button
-	if(mouse_x>trade_menu_x+33*5 && mouse_x<trade_menu_x+33*5+70 &&
-	mouse_y>trade_menu_y+trade_menu_y_len-30 && mouse_y<trade_menu_y+trade_menu_y_len-10)
+	if(mx>33*5 && mx<33*5+70 &&
+	my>trade_menu_y_len-30 && my<trade_menu_y_len-10)
 		{
 
 			str[0]=EXIT_TRADE;
@@ -375,9 +348,9 @@ int check_trade_interface()
 	for(y=0;y<3;y++)
 		for(x=0;x<12;x++)
 			{
-				x_screen=trade_menu_x+x*33;
-				y_screen=trade_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				x_screen=x*33;
+				y_screen=y*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
 						int i,j;
 
@@ -417,9 +390,9 @@ int check_trade_interface()
 	for(y=0;y<4;y++)
 	for(x=0;x<4;x++)
 		{
-			x_screen=trade_menu_x+x*33;
-			y_screen=trade_menu_y+(y+4)*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+			x_screen=x*33;
+			y_screen=(y+4)*33;
+			if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 				{
 
 					//see if there is any item there
@@ -451,9 +424,9 @@ int check_trade_interface()
 	for(y=0;y<4;y++)
 	for(x=0;x<4;x++)
 		{
-			x_screen=trade_menu_x+33*5+x*33;
-			y_screen=trade_menu_y+(y+4)*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+			x_screen=33*5+x*33;
+			y_screen=(y+4)*33;
+			if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 				{
 
 					//see if there is any item there
@@ -504,6 +477,7 @@ void get_your_trade_objects(Uint8 *data)
 	trade_other_accepted=0;
 
 	view_trade_menu=1;
+	display_trade_menu();
 
 	//we have to close the inventory and manufacture windows, otherwise bad things can happen.
 	view_my_items=0;
@@ -544,5 +518,19 @@ void remove_item_from_trade(Uint8 *data)
 	{
 		others_trade_list[pos].quantity-=quantity;
 	}
+}
+
+void display_trade_menu()
+{
+	if(trade_win <= 0){
+		trade_win= create_window("Trade", 0, 0, trade_menu_x, trade_menu_y, trade_menu_x_len, trade_menu_y_len, ELW_WIN_DEFAULT);
+
+		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
+		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
+	} else {
+		show_window(trade_win);
+		select_window(trade_win);
+	}
+	display_window(trade_win);
 }
 

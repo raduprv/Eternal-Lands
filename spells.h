@@ -15,6 +15,7 @@ sigil_def sigils_list[SIGILS_NO];
 
 extern Sint8 active_spells[10];
 
+extern int sigil_win;
 extern int sigil_menu_x;
 extern int sigil_menu_y;
 extern int sigil_menu_x_len;
@@ -34,8 +35,8 @@ void remove_active_spell(int pos);
 void get_active_spell_list(Uint8 *my_spell_list);
 void display_spells_we_have();
 void display_sigils_menu();
-int check_sigil_interface();
-void check_sigil_mouseover();
+//int check_sigil_interface();
+//void check_sigil_mouseover();
 void get_sigils_we_have(Uint32 sigils_we_have);
 #endif
 

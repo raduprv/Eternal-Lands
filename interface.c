@@ -67,6 +67,7 @@ int check_drag_menus()
 {
 	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y))	return 1;
 
+	/*
 	if(sigil_menu_dragged || (view_sigils_menu && mouse_x>sigil_menu_x && mouse_x<=sigil_menu_x+sigil_menu_x_len && mouse_y>sigil_menu_y-16 && mouse_y<=sigil_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -80,7 +81,6 @@ int check_drag_menus()
 				return 1;
 			}
 
-	/*
 	if(options_menu_dragged || (options_menu && mouse_x>options_menu_x && mouse_x<=options_menu_x + options_menu_x_len && mouse_y>options_menu_y-16 && mouse_y<=options_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -94,7 +94,6 @@ int check_drag_menus()
 					}
 				return 1;
 			}
-	*/
 
 	if(trade_menu_dragged || (view_trade_menu && mouse_x>trade_menu_x && mouse_x<=trade_menu_x+trade_menu_x_len && mouse_y>trade_menu_y-16 && mouse_y<=trade_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
@@ -110,7 +109,6 @@ int check_drag_menus()
 				return 1;
 			}
 
-	/*
 	if(manufacture_menu_dragged || (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_x<=manufacture_menu_x+manufacture_menu_x_len && mouse_y>manufacture_menu_y-16 && mouse_y<=manufacture_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged &&
 		   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -124,7 +122,6 @@ int check_drag_menus()
 					}
 				return 1;
 			}
-	*/
 
 	if(ground_items_menu_dragged || (view_ground_items && mouse_x>ground_items_menu_x && mouse_x<=ground_items_menu_x+ground_items_menu_x_len && mouse_y>ground_items_menu_y-16 && mouse_y<=ground_items_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !manufacture_menu_dragged &&
@@ -152,7 +149,7 @@ int check_drag_menus()
 					}
 				return 1;
 			}
-	/*
+
 	if(attrib_menu_dragged || (view_self_stats && mouse_x>attrib_menu_x && mouse_x<=attrib_menu_x+attrib_menu_x_len && mouse_y>attrib_menu_y-16 && mouse_y<=attrib_menu_y))
 		if(!items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -325,7 +322,6 @@ void check_mouse_click()
 					if (check_dialogue_response()) return;	// avoid click thrus
 				}
 		}
-	*/
 
 	if(view_sigils_menu && mouse_x>(sigil_menu_x+sigil_menu_x_len-20) && mouse_x<=(sigil_menu_x+sigil_menu_x_len)
 	   && mouse_y>sigil_menu_y && mouse_y<=sigil_menu_y+20)
@@ -334,8 +330,9 @@ void check_mouse_click()
 			return;
 		}
 	if(check_sigil_interface())return;
+	*/
 	//if(check_options_menu())return;
-	if(check_trade_interface())return;
+	//if(check_trade_interface())return;
 
 	/*
 	if(view_manufacture_menu && mouse_x>(manufacture_menu_x+manufacture_menu_x_len-20) && mouse_x<=(manufacture_menu_x+manufacture_menu_x_len)
@@ -345,7 +342,6 @@ void check_mouse_click()
 			return;
 		}
 	if(check_manufacture_interface())return;
-	*/
 
 	if(view_ground_items && mouse_x>(ground_items_menu_x+ground_items_menu_x_len-20) && mouse_x<=(ground_items_menu_x+ground_items_menu_x_len)
 	   && mouse_y>ground_items_menu_y && mouse_y<=ground_items_menu_y+20)
@@ -357,7 +353,7 @@ void check_mouse_click()
 			my_tcp_send(my_socket,&protocol_name,1);
 			return;
 		}
-	if(item_dragged == -1 && check_ground_items_interface())return;
+	//if(item_dragged == -1 && check_ground_items_interface())return;
 
 	if(view_my_items && mouse_x>(items_menu_x+items_menu_x_len-20) && mouse_x<=(items_menu_x+items_menu_x_len)
 	   && mouse_y>items_menu_y && mouse_y<=items_menu_y+20)
@@ -368,7 +364,6 @@ void check_mouse_click()
 		}
 	if(check_items_interface())return;
 
-	/*
 	if(view_knowledge && mouse_x>(knowledge_menu_x+knowledge_menu_x_len-20) && mouse_x<=(knowledge_menu_x+knowledge_menu_x_len)
 	   && mouse_y>knowledge_menu_y && mouse_y<=knowledge_menu_y+20)
 		{
@@ -1299,12 +1294,28 @@ void draw_ingame_interface()
 	if(encyclopedia_win > 0)	view_encyclopedia= get_show_window(encyclopedia_win);
 	if(knowledge_win > 0)	view_knowledge= get_show_window(knowledge_win);
 	if(manufacture_win > 0)	view_manufacture_menu= get_show_window(manufacture_win);
+	if(sigil_win > 0)	view_sigils_menu= get_show_window(sigil_win);
+	if(items_win > 0)	view_my_items= get_show_window(items_win);
+	if(ground_items_win > 0)
+		{
+			int	old_view= view_ground_items;
+			view_ground_items= get_show_window(items_win);
+			// watch for telling the server we need to close the bag
+			if(old_view && !view_ground_items)
+				{
+					unsigned char protocol_name;
+
+					protocol_name=S_CLOSE_BAG;
+					my_tcp_send(my_socket,&protocol_name,1);
+				}
+		}
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
 	display_windows(1);	// Display all the windows handled by the window manager
 	//draw_hud_interface();
     display_spells_we_have();
+    if(item_dragged!=-1)drag_item();
 
 	/*
     if(have_dialogue)
@@ -1320,17 +1331,18 @@ void draw_ingame_interface()
 	//if(view_encyclopedia){encyclopedia_mouse_over();display_encyclopedia();}
 	//if(view_questlog)display_questlog();
 	//if(view_buddy)display_buddy();
-    if(view_my_items)display_items_menu();
-    if(view_ground_items)draw_pick_up_menu();
-    if(item_dragged!=-1)drag_item();
+    //if(view_my_items)display_items_menu();
+    //if(view_ground_items)draw_pick_up_menu();
     //if(view_manufacture_menu)display_manufacture_menu();
-    if(view_trade_menu)display_trade_menu();
+    //if(view_trade_menu)display_trade_menu();
     //if(options_menu)draw_options_menu();
+	/*
     if(view_sigils_menu)
     	{
 			check_sigil_mouseover();
     		display_sigils_menu();
 		}
+	*/
 	
 }
 

@@ -1,6 +1,8 @@
 #include "global.h"
+#include "elwindows.h"
 
 sigil_def sigils_list[SIGILS_NO];
+int sigil_win=0;
 int sigil_menu_x=10;
 int sigil_menu_y=20;
 int sigil_menu_x_len=12*33+20;
@@ -21,6 +23,7 @@ int cast_mouseover=0;
 
 void repeat_spell()
 {
+	//TODO:!!
 }
 
 void make_sigils_list()
@@ -249,114 +252,77 @@ void display_spells_we_have()
 	glDisable(GL_BLEND);
 }
 
-void display_sigils_menu()
+int display_sigils_handler(window_info *win)
 {
 	int x,y,i;
-	//first of all, draw the actual menu.
 
-	draw_menu_title_bar(sigil_menu_x,sigil_menu_y-16,sigil_menu_x_len);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(sigil_menu_x,sigil_menu_y+sigil_menu_y_len,0);
-	glVertex3i(sigil_menu_x,sigil_menu_y,0);
-	glVertex3i(sigil_menu_x+sigil_menu_x_len,sigil_menu_y,0);
-	glVertex3i(sigil_menu_x+sigil_menu_x_len,sigil_menu_y+sigil_menu_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-
 	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
-	glVertex3i(sigil_menu_x,sigil_menu_y,0);
-	glVertex3i(sigil_menu_x+sigil_menu_x_len,sigil_menu_y,0);
-
-	glVertex3i(sigil_menu_x+sigil_menu_x_len,sigil_menu_y,0);
-	glVertex3i(sigil_menu_x+sigil_menu_x_len,sigil_menu_y+sigil_menu_y_len,0);
-
-	glVertex3i(sigil_menu_x+sigil_menu_x_len,sigil_menu_y+sigil_menu_y_len,0);
-	glVertex3i(sigil_menu_x,sigil_menu_y+sigil_menu_y_len,0);
-
-	glVertex3i(sigil_menu_x,sigil_menu_y+sigil_menu_y_len,0);
-	glVertex3i(sigil_menu_x,sigil_menu_y,0);
-
-	//draw the grid
 	for(y=1;y<4;y++)
 		{
-			glVertex3i(sigil_menu_x,sigil_menu_y+y*33,0);
-			glVertex3i(sigil_menu_x+12*33,sigil_menu_y+y*33,0);
+			glVertex3i(0,y*33,0);
+			glVertex3i(12*33,y*33,0);
 		}
 	for(x=1;x<13;x++)
 		{
-			glVertex3i(sigil_menu_x+x*33,sigil_menu_y,0);
-			glVertex3i(sigil_menu_x+x*33,sigil_menu_y+3*33,0);
+			glVertex3i(x*33,0,0);
+			glVertex3i(x*33,3*33,0);
 		}
 
 	//draw the bottom grid
 	for(y=1;y<2;y++)
 		{
-			glVertex3i(sigil_menu_x,sigil_menu_y+y*5*33,0);
-			glVertex3i(sigil_menu_x+6*33,sigil_menu_y+y*5*33,0);
+			glVertex3i(0,y*5*33,0);
+			glVertex3i(6*33,y*5*33,0);
 		}
 	for(x=1;x<7;x++)
 		{
-			glVertex3i(sigil_menu_x+x*33,sigil_menu_y+5*33,0);
-			glVertex3i(sigil_menu_x+x*33,sigil_menu_y+6*33,0);
+			glVertex3i(x*33,5*33,0);
+			glVertex3i(x*33,6*33,0);
 		}
-
-	glColor3f(0.77f,0.57f,0.39f);
-	//draw the corner, with the X in
-	glVertex3i(sigil_menu_x+sigil_menu_x_len,sigil_menu_y+20,0);
-	glVertex3i(sigil_menu_x+sigil_menu_x_len-20,sigil_menu_y+20,0);
-	glVertex3i(sigil_menu_x+sigil_menu_x_len-20,sigil_menu_y+20,0);
-	glVertex3i(sigil_menu_x+sigil_menu_x_len-20,sigil_menu_y,0);
-
 
 	//draw the buttons frame
 	//Mix button
-	glVertex3i(sigil_menu_x+33*6+40,sigil_menu_y+sigil_menu_y_len-30,0);
-	glVertex3i(sigil_menu_x+33*6+40+50,sigil_menu_y+sigil_menu_y_len-30,0);
+	glVertex3i(33*6+40,sigil_menu_y_len-30,0);
+	glVertex3i(33*6+40+50,sigil_menu_y_len-30,0);
 
-	glVertex3i(sigil_menu_x+33*6+40,sigil_menu_y+sigil_menu_y_len-10,0);
-	glVertex3i(sigil_menu_x+33*6+40+50,sigil_menu_y+sigil_menu_y_len-10,0);
+	glVertex3i(33*6+40,sigil_menu_y_len-10,0);
+	glVertex3i(33*6+40+50,sigil_menu_y_len-10,0);
 
-	glVertex3i(sigil_menu_x+33*6+40+50,sigil_menu_y+sigil_menu_y_len-30,0);
-	glVertex3i(sigil_menu_x+33*6+40+50,sigil_menu_y+sigil_menu_y_len-9,0);
+	glVertex3i(33*6+40+50,sigil_menu_y_len-30,0);
+	glVertex3i(33*6+40+50,sigil_menu_y_len-9,0);
 
-	glVertex3i(sigil_menu_x+33*6+40,sigil_menu_y+sigil_menu_y_len-30,0);
-	glVertex3i(sigil_menu_x+33*6+40,sigil_menu_y+sigil_menu_y_len-10,0);
+	glVertex3i(33*6+40,sigil_menu_y_len-30,0);
+	glVertex3i(33*6+40,sigil_menu_y_len-10,0);
 
 	//Clear button
-	glVertex3i(sigil_menu_x+33*9+40,sigil_menu_y+sigil_menu_y_len-30,0);
-	glVertex3i(sigil_menu_x+33*9+40+70,sigil_menu_y+sigil_menu_y_len-30,0);
+	glVertex3i(33*9+40,sigil_menu_y_len-30,0);
+	glVertex3i(33*9+40+70,sigil_menu_y_len-30,0);
 
-	glVertex3i(sigil_menu_x+33*9+40,sigil_menu_y+sigil_menu_y_len-10,0);
-	glVertex3i(sigil_menu_x+33*9+40+70,sigil_menu_y+sigil_menu_y_len-10,0);
+	glVertex3i(33*9+40,sigil_menu_y_len-10,0);
+	glVertex3i(33*9+40+70,sigil_menu_y_len-10,0);
 
-	glVertex3i(sigil_menu_x+33*9+40+70,sigil_menu_y+sigil_menu_y_len-30,0);
-	glVertex3i(sigil_menu_x+33*9+40+70,sigil_menu_y+sigil_menu_y_len-9,0);
+	glVertex3i(33*9+40+70,sigil_menu_y_len-30,0);
+	glVertex3i(33*9+40+70,sigil_menu_y_len-9,0);
 
-	glVertex3i(sigil_menu_x+33*9+40,sigil_menu_y+sigil_menu_y_len-30,0);
-	glVertex3i(sigil_menu_x+33*9+40,sigil_menu_y+sigil_menu_y_len-10,0);
+	glVertex3i(33*9+40,sigil_menu_y_len-30,0);
+	glVertex3i(33*9+40,sigil_menu_y_len-10,0);
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	draw_string(sigil_menu_x+sigil_menu_x_len-16,sigil_menu_y+2,"X",1);
 	if(cast_mouseover)
 		glColor3f(0.87f,0.67f,0.49f);
 	else
 		glColor3f(0.77f,0.57f,0.39f);
-	draw_string(sigil_menu_x+33*6+40+4,sigil_menu_y+sigil_menu_y_len-30+2,"Cast",1);
+	draw_string(33*6+40+4,sigil_menu_y_len-30+2,"Cast",1);
 
 	if(clear_mouseover)
 		glColor3f(0.87f,0.67f,0.49f);
 	else
 		glColor3f(0.77f,0.57f,0.39f);
-	draw_string(sigil_menu_x+33*9+40+8,sigil_menu_y+sigil_menu_y_len-30+2,"Clear",1);
+	draw_string(33*9+40+8,sigil_menu_y_len-30+2,"Clear",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -378,9 +344,9 @@ void display_sigils_menu()
 					//get the x and y
 					cur_pos=i;
 
-					x_start=sigil_menu_x+33*(cur_pos%12)+1;
+					x_start=33*(cur_pos%12)+1;
 					x_end=x_start+32;
-					y_start=sigil_menu_y+33*(cur_pos/12);
+					y_start=33*(cur_pos/12);
 					y_end=y_start+32;
 
 					get_and_set_texture_id(sigils_text);
@@ -409,9 +375,9 @@ void display_sigils_menu()
 					//get the x and y
 					cur_pos=i;
 
-					x_start=sigil_menu_x+33*(cur_pos%6)+1;
+					x_start=33*(cur_pos%6)+1;
 					x_end=x_start+32;
-					y_start=sigil_menu_y+33*5;
+					y_start=33*5;
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
@@ -423,30 +389,28 @@ void display_sigils_menu()
 		}
 
 	//now, draw the inventory text, if any.
-	draw_string_small(sigil_menu_x+4,sigil_menu_y+sigil_menu_y_len-90,spell_text,4);
+	draw_string_small(4,sigil_menu_y_len-90,spell_text,4);
 	glColor3f(1.0f,1.0f,1.0f);
+	return 1;
 }
 
 
-int check_sigil_interface()
+int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int i,x,y;
 	int x_screen,y_screen;
 
-	if(!view_sigils_menu || mouse_x>sigil_menu_x+sigil_menu_x_len || mouse_x<sigil_menu_x
-	   || mouse_y<sigil_menu_y || mouse_y>sigil_menu_y+sigil_menu_y_len)return 0;
-
 	//clear button pressed?
-	if(mouse_x>sigil_menu_x+33*9+40 && mouse_x<sigil_menu_x+33*9+40+70 &&
-	   mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
+	if(mx>33*9+40 && mx<33*9+40+70 &&
+	   my>sigil_menu_y_len-30 && my<sigil_menu_y_len-10)
 		{
 			for(i=0;i<6;i++)on_cast[i]=-1;
 			for(i=0;i<6;i++)cast_cache[i]=-1;
 			return 1;
 		}
 
-	if(mouse_x>sigil_menu_x+33*6+40 && mouse_x<sigil_menu_x+33*6+40+50 &&
-	   mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
+	if(mx>33*6+40 && mx<33*6+40+50 &&
+	   my>sigil_menu_y_len-30 && my<sigil_menu_y_len-10)
 		{
 			//Cast?
 			Uint8 str[20];
@@ -487,9 +451,9 @@ int check_sigil_interface()
 	for(y=0;y<3;y++)
 		for(x=0;x<12;x++)
 			{
-				x_screen=sigil_menu_x+x*33;
-				y_screen=sigil_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				x_screen=x*33;
+				y_screen=y*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
 
 						//see if there is any sigil there
@@ -518,38 +482,35 @@ int check_sigil_interface()
 	//see if we clicked on any sigil from "on cast"
 	for(x=0;x<6;x++)
 		{
-			x_screen=sigil_menu_x+x*33;
-			y_screen=sigil_menu_y+5*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+			x_screen=x*33;
+			y_screen=5*33;
+			if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 				{
 					on_cast[x]=-1;
 					return 1;
 				}
 		}
-	return 1;
+	return 0;
 }
 
 
-void check_sigil_mouseover()
+int mouseover_sigils_handler(window_info *win, int mx, int my)
 {
 	int x,y;
 	int x_screen,y_screen;
 
 	if(!have_error_message)spell_text[0]=0;
 
-	if(!view_sigils_menu || mouse_x>sigil_menu_x+sigil_menu_x_len || mouse_x<sigil_menu_x
-	   || mouse_y<sigil_menu_y || mouse_y>sigil_menu_y+sigil_menu_y_len)return;
-
 	//clear button?
-	if(mouse_x>sigil_menu_x+33*9+40 && mouse_x<sigil_menu_x+33*9+40+70 &&
-	   mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
+	if(mx>33*9+40 && mx<33*9+40+70 &&
+	   my>sigil_menu_y_len-30 && my<sigil_menu_y_len-10)
 		clear_mouseover=1;
 	else
 		clear_mouseover=0;
 
 
-	if(mouse_x>sigil_menu_x+33*6+40 && mouse_x<sigil_menu_x+33*6+40+50 &&
-	   mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
+	if(mx>33*6+40 && mx<33*6+40+50 &&
+	   my>sigil_menu_y_len-30 && my<sigil_menu_y_len-10)
 		cast_mouseover=1;
 	else
 		cast_mouseover=0;
@@ -558,9 +519,9 @@ void check_sigil_mouseover()
 	for(y=0;y<3;y++)
 		for(x=0;x<12;x++)
 			{
-				x_screen=sigil_menu_x+x*33;
-				y_screen=sigil_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				x_screen=x*33;
+				y_screen=y*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
 
 						//see if there is any sigil there
@@ -568,7 +529,7 @@ void check_sigil_mouseover()
 							{
 								my_strcp(spell_text,sigils_list[y*12+x].name);
 								have_error_message=0;
-								return;
+								return 1;
 							}
 					}
 			}
@@ -576,16 +537,17 @@ void check_sigil_mouseover()
 	//see if we clicked on any sigil from "on cast"
 	for(x=0;x<6;x++)
 		{
-			x_screen=sigil_menu_x+x*33;
-			y_screen=sigil_menu_y+5*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+			x_screen=x*33;
+			y_screen=5*33;
+			if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 				if(on_cast[x]!=-1)
 					{
 						my_strcp(spell_text,sigils_list[on_cast[x]].name);
 						have_error_message=0;
-						return;
+						return 1;
 					}
 		}
+	return 0;
 }
 
 void get_sigils_we_have(Uint32 sigils_we_have)
@@ -602,4 +564,19 @@ void get_sigils_we_have(Uint32 sigils_we_have)
 
 }
 
+
+void display_sigils_menu()
+{
+	if(sigil_win <= 0){
+		sigil_win= create_window("Sigils", 0, 0, sigil_menu_x, sigil_menu_y, sigil_menu_x_len, sigil_menu_y_len, ELW_WIN_DEFAULT);
+
+		set_window_handler(sigil_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
+		set_window_handler(sigil_win, ELW_HANDLER_CLICK, &click_sigils_handler );
+		set_window_handler(sigil_win, ELW_HANDLER_MOUSEOVER, &mouseover_sigils_handler );
+	} else {
+		show_window(sigil_win);
+		select_window(sigil_win);
+	}
+	display_window(sigil_win);
+}
 

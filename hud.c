@@ -689,7 +689,7 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 	else if(mx>walk_icon_x_start && mx<walk_icon_x_end)
 		action_mode=action_walk;
 	else if(mx>trade_icon_x_start && mx<trade_icon_x_end)
-		action_mode=action_trade;
+			action_mode=action_trade;
 	else if(mx>use_icon_x_start && mx<use_icon_x_end)
 		action_mode=action_use;
 	else if(mx>attack_icon_x_start && mx<attack_icon_x_end)
@@ -716,6 +716,8 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 					return 0;
 				}
 			view_sigils_menu=!view_sigils_menu;
+			if(!view_sigils_menu)	hide_window(sigil_win);
+    		else	display_sigils_menu();
 		}
 	else if(mx>stats_icon_x_start && mx<stats_icon_x_end)
 		{
@@ -735,6 +737,8 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 					view_my_items=1;
 				}
 			else view_my_items=0;
+			if(!view_my_items)	hide_window(items_win);
+    		else	display_items_menu();
 		}
 	else if(mx>sit_icon_x_start && mx<sit_icon_x_end) {
 		if(!you_sit)

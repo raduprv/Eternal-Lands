@@ -1,4 +1,5 @@
 #include "global.h"
+#include "elwindows.h"
 
 item item_list[ITEM_NUM_ITEMS];
 item manufacture_list[ITEM_NUM_ITEMS];
@@ -18,12 +19,14 @@ int view_manufacture_menu=0;
 int view_trade_menu=0;
 int no_view_my_items=0;
 
+int items_win= 0;
 int items_menu_x=10;
 int items_menu_y=20;
 int items_menu_x_len=6*51+110;
 int items_menu_y_len=6*51+60;
 int items_menu_dragged=0;
 
+int ground_items_win= 0;
 int ground_items_menu_x=6*51+100+20;
 int ground_items_menu_y=20;
 int ground_items_menu_x_len=6*33;
@@ -63,116 +66,82 @@ int item_quantity=1;
 int wear_items_x_offset=6*51+20;
 int wear_items_y_offset=30;
 
-void display_items_menu()
+int display_items_handler(window_info *win)
 {
 	Uint8 str[80];
 	int x,y,i;
 	int item_is_weared=0;
-	//first of all, draw the actual menu.
 
-	draw_menu_title_bar(items_menu_x,items_menu_y-16,items_menu_x_len);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(items_menu_x,items_menu_y+items_menu_y_len,0);
-	glVertex3i(items_menu_x,items_menu_y,0);
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y,0);
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+items_menu_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-
 	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
-	glVertex3i(items_menu_x,items_menu_y,0);
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y,0);
-
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y,0);
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+items_menu_y_len,0);
-
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+items_menu_y_len,0);
-	glVertex3i(items_menu_x,items_menu_y+items_menu_y_len,0);
-
-	glVertex3i(items_menu_x,items_menu_y+items_menu_y_len,0);
-	glVertex3i(items_menu_x,items_menu_y,0);
 
 	//draw the grid
 	for(y=1;y<7;y++)
 		{
-			glVertex3i(items_menu_x,items_menu_y+y*51,0);
-			glVertex3i(items_menu_x+6*51,items_menu_y+y*51,0);
+			glVertex3i(0,y*51,0);
+			glVertex3i(6*51,y*51,0);
 		}
 	for(x=1;x<7;x++)
 		{
-			glVertex3i(items_menu_x+x*51,items_menu_y,0);
-			glVertex3i(items_menu_x+x*51,items_menu_y+6*51,0);
+			glVertex3i(x*51,0,0);
+			glVertex3i(x*51,6*51,0);
 		}
 
 	glColor3f(0.57f,0.67f,0.49f);
 	//draw the small grid
 	for(y=0;y<5;y++)
 		{
-			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+y*33,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+2*33,items_menu_y+wear_items_y_offset+y*33,0);
+			glVertex3i(wear_items_x_offset,wear_items_y_offset+y*33,0);
+			glVertex3i(wear_items_x_offset+2*33,wear_items_y_offset+y*33,0);
 		}
 	for(x=0;x<3;x++)
 		{
-			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset+4*33,0);
+			glVertex3i(wear_items_x_offset+x*33,wear_items_y_offset,0);
+			glVertex3i(wear_items_x_offset+x*33,wear_items_y_offset+4*33,0);
 		}
-	glColor3f(0.77f,0.57f,0.39f);
-	//draw the corner, with the X in
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+20,0);
-	glVertex3i(items_menu_x+items_menu_x_len-20,items_menu_y+20,0);
-
-	glVertex3i(items_menu_x+items_menu_x_len-20,items_menu_y+20,0);
-	glVertex3i(items_menu_x+items_menu_x_len-20,items_menu_y,0);
-
 
 	//now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
 	for(y=0;y<6;y++)
 		{
-			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+160+y*20,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+2*35,items_menu_y+wear_items_y_offset+160+y*20,0);
+			glVertex3i(wear_items_x_offset,wear_items_y_offset+160+y*20,0);
+			glVertex3i(wear_items_x_offset+2*35,wear_items_y_offset+160+y*20,0);
 		}
 	for(x=0;x<3;x++)
 		{
-			glVertex3i(items_menu_x+wear_items_x_offset+x*35,items_menu_y+wear_items_y_offset+160,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+x*35,items_menu_y+wear_items_y_offset+160+5*20,0);
+			glVertex3i(wear_items_x_offset+x*35,wear_items_y_offset+160,0);
+			glVertex3i(wear_items_x_offset+x*35,wear_items_y_offset+160+5*20,0);
 		}
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
 	//draw the quantity string
-	draw_string_small(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+145,"Quantity",1);
+	draw_string_small(wear_items_x_offset,wear_items_y_offset+145,"Quantity",1);
 	//draw the quantity values
 	if(item_quantity==1)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+15,items_menu_y+wear_items_y_offset+163,"1",1);
+	draw_string_small(wear_items_x_offset+15,wear_items_y_offset+163,"1",1);
 	if(item_quantity==5)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+50,items_menu_y+wear_items_y_offset+163,"5",1);
+	draw_string_small(wear_items_x_offset+50,wear_items_y_offset+163,"5",1);
 	if(item_quantity==10)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+10,items_menu_y+wear_items_y_offset+183,"10",1);
+	draw_string_small(wear_items_x_offset+10,wear_items_y_offset+183,"10",1);
 	if(item_quantity==20)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+45,items_menu_y+wear_items_y_offset+183,"20",1);
+	draw_string_small(wear_items_x_offset+45,wear_items_y_offset+183,"20",1);
 	if(item_quantity==50)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+10,items_menu_y+wear_items_y_offset+203,"50",1);
+	draw_string_small(wear_items_x_offset+10,wear_items_y_offset+203,"50",1);
 	if(item_quantity==100)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+40,items_menu_y+wear_items_y_offset+203,"100",1);
+	draw_string_small(wear_items_x_offset+40,wear_items_y_offset+203,"100",1);
 	if(item_quantity==200)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+5,items_menu_y+wear_items_y_offset+223,"200",1);
+	draw_string_small(wear_items_x_offset+5,wear_items_y_offset+223,"200",1);
 	if(item_quantity==500)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+40,items_menu_y+wear_items_y_offset+223,"500",1);
+	draw_string_small(wear_items_x_offset+40,wear_items_y_offset+223,"500",1);
 	if(item_quantity==1000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+1,items_menu_y+wear_items_y_offset+243,"1000",1);
+	draw_string_small(wear_items_x_offset+1,wear_items_y_offset+243,"1000",1);
 	if(item_quantity==2000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+36,items_menu_y+wear_items_y_offset+243,"2000",1);
+	draw_string_small(wear_items_x_offset+36,wear_items_y_offset+243,"2000",1);
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string(items_menu_x+items_menu_x_len-16,items_menu_y+2,"X",1);
+	draw_string(items_menu_x_len-16,2,"X",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -197,17 +166,17 @@ void display_items_menu()
 						{
 							cur_pos-=ITEM_WEAR_START;
 							item_is_weared=1;
-							x_start=items_menu_x+wear_items_x_offset+33*(cur_pos%2)+1;
+							x_start=wear_items_x_offset+33*(cur_pos%2)+1;
 							x_end=x_start+32;
-							y_start=items_menu_y+wear_items_y_offset+33*(cur_pos/2);
+							y_start=wear_items_y_offset+33*(cur_pos/2);
 							y_end=y_start+32;
 						}
 					else
 						{
 							item_is_weared=0;
-							x_start=items_menu_x+51*(cur_pos%6)+1;
+							x_start=51*(cur_pos%6)+1;
 							x_end=x_start+50;
-							y_start=items_menu_y+51*(cur_pos/6);
+							y_start=51*(cur_pos/6);
 							y_end=y_start+50;
 						}
 
@@ -233,12 +202,13 @@ void display_items_menu()
 				}
 		}
 	//now, draw the inventory text, if any.
-	draw_string_small(items_menu_x+4,items_menu_y+items_menu_y_len-59,items_string,4);
+	draw_string_small(4,items_menu_y_len-59,items_string,4);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//draw the load string
 	sprintf(str,"Load:%i/%i",your_info.carry_capacity.cur,your_info.carry_capacity.base);
-	draw_string_small(items_menu_x+6*51+4,items_menu_y+6*51+44,str,1);
+	draw_string_small(6*51+4,6*51+44,str,1);
+	return 1;
 }
 
 
@@ -277,22 +247,19 @@ void get_your_items(Uint8 *data)
 }
 
 
-int check_items_interface()
+int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int i,x,y;
 	int x_screen,y_screen;
 	Uint8 str[100];
 
-	if(!view_my_items || mouse_x>items_menu_x+items_menu_x_len || mouse_x<items_menu_x
-	   || mouse_y<items_menu_y || mouse_y>items_menu_y+items_menu_y_len)return 0;
-
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
 		for(x=0;x<2;x++)
 			{
-				x_screen=items_menu_x+wear_items_x_offset+x*35;
-				y_screen=items_menu_y+wear_items_y_offset+160+y*20;
-				if(mouse_x>x_screen && mouse_x<x_screen+35 && mouse_y>y_screen && mouse_y<y_screen+20)
+				x_screen=wear_items_x_offset+x*35;
+				y_screen=wear_items_y_offset+160+y*20;
+				if(mx>x_screen && mx<x_screen+35 && my>y_screen && my<y_screen+20)
 					{
 						if(x==0 && y==0)item_quantity=1;
 						else if(x==1 && y==0)item_quantity=5;
@@ -313,9 +280,9 @@ int check_items_interface()
 	for(y=0;y<6;y++)
 		for(x=0;x<6;x++)
 			{
-				x_screen=items_menu_x+x*51;
-				y_screen=items_menu_y+y*51;
-				if(mouse_x>x_screen && mouse_x<x_screen+51 && mouse_y>y_screen && mouse_y<y_screen+51)
+				x_screen=x*51;
+				y_screen=y*51;
+				if(mx>x_screen && mx<x_screen+51 && my>y_screen && my<y_screen+51)
 					{
 						//see if there is an empty space to drop this item over.
 						if(item_dragged!=-1)//we have to drop this item
@@ -401,9 +368,9 @@ int check_items_interface()
 	for(y=0;y<4;y++)
 		for(x=0;x<2;x++)
 			{
-				x_screen=wear_items_x_offset+items_menu_x+x*33;
-				y_screen=wear_items_y_offset+items_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				x_screen=wear_items_x_offset+x*33;
+				y_screen=wear_items_y_offset+y*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
 						//see if there is any item there
 						//see if there is an empty space to drop this item over.
@@ -565,64 +532,27 @@ void get_new_inventory_item(Uint8 *data)
 
 
 
-void draw_pick_up_menu()
+int display_ground_items_handler(window_info *win)
 {
 	Uint8 str[80];
 	int x,y,i;
-	//first of all, draw the actual menu.
 
-	draw_menu_title_bar(ground_items_menu_x,ground_items_menu_y-16,ground_items_menu_x_len);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y+ground_items_menu_y_len,0);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y+ground_items_menu_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-
 	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y,0);
-
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y+ground_items_menu_y_len,0);
-
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y+ground_items_menu_y_len,0);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y+ground_items_menu_y_len,0);
-
-	glVertex3i(ground_items_menu_x,ground_items_menu_y+ground_items_menu_y_len,0);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y,0);
-
 	//draw the grid
 	for(y=1;y<11;y++)
 		{
-			glVertex3i(ground_items_menu_x,ground_items_menu_y+y*33,0);
-			glVertex3i(ground_items_menu_x+5*33,ground_items_menu_y+y*33,0);
+			glVertex3i(0,y*33,0);
+			glVertex3i(5*33,y*33,0);
 		}
 	for(x=1;x<6;x++)
 		{
-			glVertex3i(ground_items_menu_x+x*33,ground_items_menu_y,0);
-			glVertex3i(ground_items_menu_x+x*33,ground_items_menu_y+10*33,0);
+			glVertex3i(x*33,0,0);
+			glVertex3i(x*33,10*33,0);
 		}
-
-
-	glColor3f(0.77f,0.57f,0.39f);
-	//draw the corner, with the X in
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y+20,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len-20,ground_items_menu_y+20,0);
-
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len-20,ground_items_menu_y+20,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len-20,ground_items_menu_y,0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	draw_string(ground_items_menu_x+ground_items_menu_x_len-16,ground_items_menu_y+2,"X",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -643,9 +573,9 @@ void draw_pick_up_menu()
 
 					//get the x and y
 					cur_pos=i;
-					x_start=ground_items_menu_x+33*(cur_pos%5)+1;
+					x_start=33*(cur_pos%5)+1;
 					x_end=x_start+32;
-					y_start=ground_items_menu_y+33*(cur_pos/5);
+					y_start=33*(cur_pos/5);
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
@@ -667,6 +597,7 @@ void draw_pick_up_menu()
 				}
 		}
 	glColor3f(1.0f,1.0f,1.0f);
+	return 1;
 }
 
 
@@ -690,7 +621,12 @@ void get_bags_items_list(Uint8 *data)
 
 
 	view_ground_items=1;
-	if(item_window_on_drop)view_my_items=1;
+	draw_pick_up_menu();
+	if(item_window_on_drop)
+		{
+			view_my_items=1;
+			display_items_menu();
+		}
 	//clear the list
 	for(i=0;i<50;i++)ground_item_list[i].quantity=0;
 
@@ -757,8 +693,6 @@ void add_bags_from_list(Uint8 *data)
 			bag_list[bag_id].x=x;
 			bag_list[bag_id].y=y;
 			bag_list[bag_id].obj_3d_id=obj_3d_id;
-
-
 		}
 }
 
@@ -769,22 +703,19 @@ void remove_bag(int which_bag)
 	bag_list[which_bag].obj_3d_id=-1;
 }
 
-int check_ground_items_interface()
+int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y;
 	int x_screen,y_screen;
 	Uint8 str[10];
 
-	if(!view_ground_items || mouse_x>ground_items_menu_x+ground_items_menu_x_len || mouse_x<ground_items_menu_x
-	   || mouse_y<ground_items_menu_y || mouse_y>ground_items_menu_y+ground_items_menu_y_len)return 0;
-
 	//see if we clicked on any item in the wear category
 	for(y=0;y<10;y++)
 		for(x=0;x<5;x++)
 			{
-				x_screen=ground_items_menu_x+x*33;
-				y_screen=ground_items_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				x_screen=x*33;
+				y_screen=y*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
 						int pos;
 						pos=y*5+x;
@@ -812,7 +743,6 @@ int check_ground_items_interface()
 			}
 
 	return 1;
-
 }
 
 
@@ -833,9 +763,35 @@ void open_bag(int object_id)
 }
 
 
+void display_items_menu()
+{
+	if(items_win <= 0){
+		items_win= create_window("Inventory", 0, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
+
+		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
+		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
+		//set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
+	} else {
+		show_window(items_win);
+		select_window(items_win);
+	}
+	display_window(items_win);
+}
 
 
+void draw_pick_up_menu()
+{
+	if(ground_items_win <= 0){
+		ground_items_win= create_window("Bag", 0, 0, ground_items_menu_x, ground_items_menu_y, ground_items_menu_x_len, ground_items_menu_y_len, ELW_WIN_DEFAULT);
 
-
+		set_window_handler(ground_items_win, ELW_HANDLER_DISPLAY, &display_ground_items_handler );
+		set_window_handler(ground_items_win, ELW_HANDLER_CLICK, &click_ground_items_handler );
+		//set_window_handler(ground_items_win, ELW_HANDLER_MOUSEOVER, &mouseover_ground_items_handler );
+	} else {
+		show_window(ground_items_win);
+		select_window(ground_items_win);
+	}
+	display_window(ground_items_win);
+}
 
 

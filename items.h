@@ -10,21 +10,21 @@ typedef struct
 	int is_resource;//does it appear on the manufacturing menu?
 	int use_with_inventory;
 
-}item;
+} item;
 
 typedef struct
 {
 	int pos;
 	int image_id;
 	int quantity;
-}ground_item;
+} ground_item;
 
 typedef struct
 {
 	int x;
 	int y;
 	int obj_3d_id;
-}bag;
+} bag;
 
 
 typedef enum {
@@ -60,12 +60,14 @@ extern int view_manufacture_menu;
 extern int view_trade_menu;
 extern int no_view_my_items;
 
+extern int items_win;
 extern int items_menu_x;
 extern int items_menu_y;
 extern int items_menu_x_len;
 extern int items_menu_y_len;
 extern int items_menu_dragged;
 
+extern int ground_items_win;
 extern int ground_items_menu_x;
 extern int ground_items_menu_y;
 extern int ground_items_menu_x_len;
@@ -101,7 +103,7 @@ extern int click_speed;
 
 void display_items_menu();
 void get_your_items(Uint8 *data);
-int check_items_interface();
+//int check_items_interface();
 void drag_item();
 void remove_item_from_inventory(int pos);
 void remove_item_from_ground(Uint8 pos);
@@ -112,7 +114,7 @@ void get_bags_items_list(Uint8 *data);
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id);
 void add_bags_from_list(Uint8 *data);
 void remove_bag(int which_bag);
-int check_ground_items_interface();
+//int check_ground_items_interface();
 void open_bag(int object_id);
 #endif
 
