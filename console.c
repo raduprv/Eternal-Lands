@@ -114,7 +114,7 @@ void test_for_console_command()
 		{
 			Uint8 name[16];
 			int i;
-			Uint8 ch;
+			Uint8 ch='\0';
 			int result;
 
 			for(i=0;i<15;i++)
@@ -168,6 +168,60 @@ void test_for_console_command()
 			list_filters();
 			return;
 		}
+	if(my_strncompare(text_loc,"filter ", 7))
+		{
+			Uint8 name[16];
+			int i;
+			Uint8 ch='\0';
+			int result;
+
+			for(i=0;i<15;i++)
+				{
+					ch=text_loc[i+7];//7 because there is a space after "ignore"
+					if(ch==' ' || ch=='_')
+						{
+							ch=0;
+							break;
+						}
+					name[i]=ch;
+				}
+
+			name[i]=0;
+
+			if(i==15 && !ch)
+				{
+					log_to_console(c_red1,"Word too long, the max limit is 15 characters. Word not added to the filter list!");
+					return;
+				}
+			if(i<3)
+				{
+					log_to_console(c_red1,"Word too short, only names>=3 characters can be used! Word not added to the filter list!");
+					return;
+				}
+
+			result=add_to_filter_list(name,save_ignores);
+			if(result==-1)
+				{
+					Uint8 str[100];
+					sprintf(str,"You are already filter %s!",name);
+					log_to_console(c_red1,str);
+					return;
+				}
+			if(result==-2)
+				{
+					log_to_console(c_red1,"Wow, your filter list is full, this is impossible!");
+					return;
+				}
+			else
+				{
+					Uint8 str[100];
+					sprintf(str,"Ok, %s was added to your filter list!",name);
+					log_to_console(c_green1,str);
+					return;
+				}
+		}
+
+////////////////////////
 
 ////////////////////////
 	if(my_strncompare(text_loc, "modes_", 5))
@@ -233,7 +287,7 @@ void test_for_console_command()
 		{
 			Uint8 name[16];
 			int i;
-			Uint8 ch;
+			Uint8 ch='\0';
 			int result;
 
 			for(i=0;i<15;i++)
