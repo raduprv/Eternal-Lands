@@ -4,6 +4,9 @@
 
 int this_version_is_invalid=0;
 int put_new_data_offset=0;
+Uint8	tcp_cache[256];
+Uint32	tcp_cache_len=0;
+Uint32	tcp_cache_time=0;
 
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 {
@@ -11,6 +14,28 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 	Uint8 new_str[1024];//should be enough
 
 	if(disconnected)return 0;
+	//check to see if we have too many packets being sent of the same to reduce server flood
+	if(len < 256)	// only if it fits
+	if(str[0]==MOVE_TO || str[0]==RUN_TO || str[0]==SIT_DOWN || str[0]==HARVEST || str[0]==MANUFACTURE_THIS || str[0]==CAST_SPELL || str[0]==RESPOND_TO_NPC || str[0]==ATTACK_SOMEONE || str[0]==SEND_PM || str[0]==RAW_TEXT)
+		{
+			Uint32	time_limit=600;
+			if( str[0]==SEND_PM || str[0]==RAW_TEXT)time_limit=1500;
+			//if too close together
+			if(len == tcp_cache_len && *str == *tcp_cache && cur_time < tcp_cache_time+time_limit)
+				{
+					//and the same packet
+					if(!memcmp(str, tcp_cache, len))
+						{
+							//ignore this packet
+							return 0;
+						}
+				}
+			//memorize the data we are sending for next time
+			memcpy(tcp_cache, str, len);
+			tcp_cache_len = len;
+			tcp_cache_time = cur_time;
+		}
+	//update the heartbeat timer
 	last_heart_beat=cur_time;
 
 	new_str[0]=str[0];//copy the protocol
@@ -257,7 +282,9 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case REMOVE_ACTOR:
 			{
+				lock_actors_lists();	//lock it to avoid timing issues
 				destroy_actor(*((short *)(in_data+3)));
+				unlock_actors_lists();	//unlock it
 			}
 			break;
 
