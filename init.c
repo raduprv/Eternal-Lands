@@ -314,6 +314,12 @@ void read_config()
 	get_string_after_string("#password",file_mem,ini_file_size,password_str,16);
 	for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
 	display_password_str[k]=0;
+	// if username is given, but no password, make password box active
+	if (username_str[0] && !password_str[0]) {
+		username_box_selected = 0;
+		password_box_selected = 1;
+	}
+
 	item_window_on_drop=get_integer_after_string("#item_window_on_drop",file_mem,ini_file_size);
 	view_digital_clock=get_integer_after_string("#view_digital_clock",file_mem,ini_file_size);
 #ifndef WINDOWS
