@@ -2,7 +2,7 @@
 #include <math.h>
 #include "global.h"
 
-int used_sources;
+int used_sources = 0;
 
 char sound_files[max_buffers][30];
 ALuint sound_source[max_sources];
@@ -14,10 +14,12 @@ char music_files[max_songs][30];
 FILE* ogg_file;
 OggVorbis_File ogg_stream;
 vorbis_info* ogg_info;
-#endif	//NO_MUSIC
 
 ALuint music_buffers[2];
 ALuint music_source;
+
+int playing_music = 0;
+#endif	//NO_MUSIC
 
 void stop_sound(int i)
 {
@@ -78,7 +80,7 @@ ALuint get_loaded_buffer(int i)
 }
 
 void play_music(int i) {
-
+#ifndef	NO_MUSIC
     int error,queued;
     if(!have_music)return;
 
@@ -88,16 +90,15 @@ void play_music(int i) {
 			return;
 		}
 
-    alSourceStop(music_source);
-    alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-
-    while(queued--)
-    {
-        ALuint buffer;
-    
-        alSourceUnqueueBuffers(music_source, 1, &buffer);
-    }
-
+	alSourceStop(music_source);
+	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
+	while(queued--)
+		{
+			ALuint buffer;
+			
+			alSourceUnqueueBuffers(music_source, 1, &buffer);
+		}
+	
 	load_ogg_file(i);
 
     stream_music(music_buffers[0]);
@@ -114,6 +115,8 @@ void play_music(int i) {
     		log_error(str);
 			have_music=0;
     	}
+	playing_music = 1;
+#endif	//NO_MUSIC
 }
 
 int add_sound_object(int sound_file,int x, int y,int positional,int loops)
@@ -132,8 +135,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 
 	lock_sound_list();
 
-	i=used_sources;
-	used_sources++;
+	i=used_sources++;
 
 	if(used_sources>max_sources)
 		i=realloc_sources();
@@ -229,10 +231,11 @@ void update_position()
 	unlock_sound_list();
 }
 
-void update_music() {
-
+void update_music()
+{
+#ifndef	NO_MUSIC
     int error,processed;
-	if(!have_music)return;
+	if(!have_music || !playing_music)return;
 
     alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
 
@@ -253,16 +256,17 @@ void update_music() {
     		log_error(str);
 			have_music=0;
     	}
+#endif	//NO_MUSIC
 }
 
 void stream_music(ALuint buffer) {
+#ifndef	NO_MUSIC
     char data[BUFFER_SIZE];
     int  size = 0;
     int  section;
     int  result = 0;
 	int error;
 
-#ifndef	NO_MUSIC
     while(size < BUFFER_SIZE)
     {
         result = ov_read(&ogg_stream, data + size, BUFFER_SIZE - size, 0, 2, 1,
@@ -294,7 +298,7 @@ void stream_music(ALuint buffer) {
 void kill_local_sounds()
 {
 	int error;
-	if(!have_sound)return;
+	if(!have_sound || !used_sources)return;
 	lock_sound_list();
 	alSourceStopv(used_sources,sound_source);
 	if((error=alGetError()) != AL_NO_ERROR) 
@@ -348,20 +352,26 @@ void turn_sound_on()
 
 void turn_music_off()
 {
+#ifndef	NO_MUSIC
 	if(!have_music)return;
 	music_on=0;
 	alSourcePause(music_source);
+	playing_music = 0;
+#endif	//NO_MUSIC
 }
 
 void turn_music_on()
 {
-	static int i = -1;
+#ifndef	NO_MUSIC
+	static int i = ogg_el1 - 1;
 	if(!have_music)return;
 	music_on=1;
 	i++;
 	if(i >= max_songs) i = 0;
 	play_music(i);
 	//alSourcePlay(music_source);
+	playing_music = 1;
+#endif	//NO_MUSIC
 }
 
 void init_sound()
@@ -371,8 +381,11 @@ void init_sound()
 	ALfloat listenerVel[]={0.0,0.0,0.0};
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
 	have_sound=1;
+#ifndef	NO_MUSIC
 	have_music=1;
-
+#else
+	have_music=0;
+#endif	//NO_MUSIC
 	alutInit(0, NULL);
 	sound_list_mutex=SDL_CreateMutex();
 
@@ -403,6 +416,13 @@ void init_sound()
 	my_strcp(music_files[ogg_windyvillage],"./music/windyvillage.ogg");
 	my_strcp(music_files[ogg_mountainwoods],"./music/mountainwoods.ogg");
 	my_strcp(music_files[ogg_thedarkness],"./music/thedarkness.ogg");
+	my_strcp(music_files[ogg_el1],"./music/el1.ogg");
+	my_strcp(music_files[ogg_el2],"./music/el2.ogg");
+	my_strcp(music_files[ogg_el3],"./music/el3.ogg");
+	my_strcp(music_files[ogg_el4],"./music/el4.ogg");
+	my_strcp(music_files[ogg_el5],"./music/el5.ogg");
+	my_strcp(music_files[ogg_el6],"./music/el6.ogg");
+	my_strcp(music_files[ogg_el7],"./music/el7.ogg");
 #endif	//NO_MUSIC
 
 	alListenerfv(AL_POSITION,listenerPos);
@@ -418,15 +438,15 @@ void init_sound()
 	//initialize music
 #ifndef	NO_MUSIC
 	ogg_file = NULL;
-#endif	//NO_MUSIC
 
     alGenBuffers(2, music_buffers);
-    alGenSources(1, &music_source);
+	alGenSources(1, &music_source);
     alSource3f(music_source, AL_POSITION,        0.0, 0.0, 0.0);
     alSource3f(music_source, AL_VELOCITY,        0.0, 0.0, 0.0);
     alSource3f(music_source, AL_DIRECTION,       0.0, 0.0, 0.0);
     alSourcef (music_source, AL_ROLLOFF_FACTOR,  0.0          );
     alSourcei (music_source, AL_SOURCE_RELATIVE, AL_TRUE      );
+#endif	//NO_MUSIC
 }
 
 void destroy_sound()
@@ -479,7 +499,7 @@ int realloc_sources()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		sprintf(str, "realloc_sources error.\n %s", alGetString(error));
+    		sprintf(str, "realloc_sources error: %s", alGetString(error));
     		log_to_console(c_red1, str);
     		log_error(str);
 			have_sound=0;

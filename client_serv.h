@@ -509,4 +509,11 @@
 #define ogg_windyvillage  2
 #define ogg_mountainwoods 3
 #define ogg_thedarkness   4
+#define ogg_el1           5
+#define ogg_el2           6
+#define ogg_el3           7
+#define ogg_el4           8
+#define ogg_el5           9
+#define ogg_el6          10
+#define ogg_el7          11
 #endif

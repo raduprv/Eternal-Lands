@@ -6,7 +6,7 @@
 
 #define BUFFER_SIZE (4096 * 8)
 
-#define max_songs 5
+#define max_songs 12
 
 extern int have_sound;
 extern int have_music;
