@@ -6,6 +6,7 @@ int map_meters_size_y;
 int window_width=800;
 int window_height=570;
 
+float zoom_level=3.0f;
 
 int bpp;
 

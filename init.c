@@ -180,10 +180,11 @@ void resize_window()
 
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
-	glOrtho( -3.0*window_ratio, 3.0*window_ratio, -3.0, 3.0, -35.0, 35.0 );
+	//glOrtho( -3.0*window_ratio, 3.0*window_ratio, -3.0, 3.0, -35.0, 35.0 );
 
 	// Calculate The Aspect Ratio Of The Window
 	//gluPerspective(45.0f,(GLfloat)window_width/(GLfloat)window_height,0.1f,1000.0f);
+	glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -40.0, 40.0 );
 
 	glMatrixMode(GL_MODELVIEW);						// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix

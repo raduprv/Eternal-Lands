@@ -115,15 +115,33 @@ int HandleEvent(SDL_Event *event)
 
 		if ( event->key.keysym.sym == SDLK_PAGEUP )
 		{
-   			if(cur_mode==mode_3d && selected_3d_object!=-1)
-			if(shift_on)objects_list[selected_3d_object]->y_rot-=1.0f;
-			else objects_list[selected_3d_object]->y_rot-=10.0f;
+			if(shift_on)
+				if(zoom_level>2.0f)
+					{
+						zoom_level-=0.25f;
+						resize_window();
+					}
+				else
+					{
+						if(cur_mode==mode_3d && selected_3d_object!=-1)
+						if(shift_on)objects_list[selected_3d_object]->y_rot-=1.0f;
+						else objects_list[selected_3d_object]->y_rot-=10.0f;
+					}
 		}
 		if ( event->key.keysym.sym == SDLK_PAGEDOWN )
 		{
-   			if(cur_mode==mode_3d && selected_3d_object!=-1)
-			if(shift_on)objects_list[selected_3d_object]->y_rot+=1.0f;
-			else objects_list[selected_3d_object]->y_rot+=10.0f;
+			if(shift_on)
+				if(zoom_level<3.75f)
+					{
+						zoom_level+=0.25f;
+						resize_window();
+					}
+				else 
+					{
+						if(cur_mode==mode_3d && selected_3d_object!=-1)
+						if(shift_on)objects_list[selected_3d_object]->y_rot+=1.0f;
+						else objects_list[selected_3d_object]->y_rot+=10.0f;
+					}
 
 		}
 

@@ -52,6 +52,8 @@ extern int window_width;
 extern int window_height;
 extern int bpp;
 
+extern float zoom_level;
+
 extern Uint32 cur_time, last_time;
 
 extern float cx,cy,cz;
