@@ -139,31 +139,32 @@ int main(int argc, char **argv)
 
 
 #ifdef WINDOWS
+// splits a char* into a char ** based on the delimiters
 int makeargv(char *s, char *delimiters, char ***argvp)
 {
 	int i, numtokens;
 	char *snew, *t;
-	// comprobamos que no nos lleguen nulls
+
 	if ((s == NULL) || (delimiters == NULL) || (argvp == NULL))
 		return -1;
-	// obtenemos el tamaño total de la cadena y la copiamos en t
+
 	*argvp = NULL;
 	snew = s + strspn(s, delimiters);
 	if ((t = malloc(strlen(snew) + 1)) == NULL)
 		return -1;
 	strcpy(t, snew);
-	// contamos el numero de cadenas distintas que habran
+
 	numtokens = 0;
 	if (strtok(t, delimiters) != NULL)
 		for (numtokens = 1; strtok(NULL, delimiters) != NULL; numtokens++);
-	// pedimos memoria para tantas cadenas y comprobamos que no haya error
+
 	if ((*argvp = malloc((numtokens + 1)*sizeof(char *))) == NULL){
 		free(t);
 		return -1;
 	}
-	if (numtokens == 0) // esta vacio no hacemos nada
+	if (numtokens == 0)
 		free(t);
-	else{	// hacemos que cada char* apunte a su sitio en t
+	else{
 		strcpy(t, snew);
 		**argvp = strtok(t, delimiters);
 		for (i = 1; i < numtokens; i++)
@@ -172,7 +173,7 @@ int makeargv(char *s, char *delimiters, char ***argvp)
 	*((*argvp) + numtokens) = NULL;
 	return numtokens;
 }
-
+//frees the char** created by makeargv
 void freemakeargv(char **argv)
 {
 	if (argv == NULL)
