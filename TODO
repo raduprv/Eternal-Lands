@@ -4,8 +4,10 @@ S/W version check & upload -- need server support to finish
 	-check MD5 sum of a file -- testing
 	-http download of a file -- testing
 User defined keyboard/mouse bindings
-add option to limit fps -- testing
-add research window
+Buddy list menu
+Server selection screen
+Exit game back to Server Selection screen
+Chat Window
 
 
 Learner:
@@ -15,19 +17,14 @@ Investigate variable width fonts - preliminary testing
 Reduce memory usage when VA's are enabled for MD2's - testing
 Smarter caching system for MD2's and E3D's - testing
 Synchronize ELC & map_editor code - E3D in progress
-Add player stat bars to HUD (material, etheral, food, knowledge)
 Improve screen windows handling for more consistent look and less duplicated code (moving towards a better window method/layering).
 
 
 Unassigned:
 Depth shadows
 Various spell effects.
-Buddy list menu
 On card that support VBO, make the 3d objects and models VBO.
 Make use of other extensions
-Server selection screen -- don't have multiple servers yet :p
-Exit game back to Server Selection screen
-Chat Window -- would like multiple channel support first
 Allow setting el.ini values on command line
 
 
