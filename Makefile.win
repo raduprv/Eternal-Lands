@@ -1,68 +1,65 @@
-# Project: GL Engine
-# Makefile created by Dev-C++ 4.9.8.0
+# Project: elc
+# Makefile created by Dev-C++ 4.9.8.5
 
 CPP  = g++.exe
 CC   = gcc.exe
 WINDRES = windres.exe
-RES  = ter_g_private.res
-OBJ  = main.o init.o global.o events.o draw_scene.o textures.o md2loader.o actors.o 3d_objects.o lights.o tile_map.o 2d_objects.o errors.o filter.o font.o interface.o colors.o multiplayer.o text.o map_io.o asc.o reflection.o shadows.o console.o new_character.o actor_scripts.o particles.o misc.o frustum.o spells.o stats.o sound.o ignore.o help.o paste.o gl_init.o weather.o items.o dialogues.o manufacture.o trade.o new_actors.o cursors.o $(RES)
-LINKOBJ  = main.o init.o global.o events.o draw_scene.o textures.o md2loader.o actors.o 3d_objects.o lights.o tile_map.o 2d_objects.o errors.o filter.o font.o interface.o colors.o multiplayer.o text.o map_io.o asc.o reflection.o shadows.o console.o new_character.o actor_scripts.o particles.o misc.o frustum.o spells.o stats.o sound.o ignore.o help.o paste.o gl_init.o weather.o items.o dialogues.o manufacture.o trade.o new_actors.o cursors.o $(RES)
-LIBS =  -L"F:/Dev-Cpp/lib" -L"F:/Dev-Cpp/Lib" -mwindows -lSDL -lopengl32 -lglu32 F:/C++/Lib/SDL_net.lib F:/C++/Lib/SDL_mixer.lib 
-INCS =  -I"F:/Dev-Cpp/include"  -I"F:/c++/include/sdl" 
-CXXINCS =  -I"F:/Dev-Cpp/include/c++"  -I"F:/Dev-Cpp/include/c++/mingw32"  -I"F:/Dev-Cpp/include/c++/backward"  -I"F:/Dev-Cpp/include"  -I"F:/c++/include/sdl" 
-BIN  = el.exe
-CXXFLAGS = $(CXXINCS) 
-CFLAGS = $(INCS) -DWINDOWS
+RES  = elc_private.res
+OBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o $(RES)
+LINKOBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o $(RES)
+LIBS =  -L"C:/Program Files/SDL/SDL_mixer/lib" -L"C:/Program Files/SDL/SDL_net/lib" -L"C:/Program Files/SDL/SDL/lib" -L"C:/Program Files/oglsdk/lib" -L"C:/Program Files/Dev-Cpp/lib" -mwindows -lopengl32 -lSDL -lSDL_mixer -lSDL_net 
+INCS =  -I"C:/Program Files/oglsdk/include"  -I"C:/Program Files/SDL/SDL_mixer/include"  -I"C:/Program Files/SDL/SDL_net/include"  -I"C:/Program Files/SDL/SDL/include"  -I"C:/Program Files/Dev-Cpp/include" 
+CXXINCS =  -I"C:/Program Files/Dev-Cpp/include/c++"  -I"C:/Program Files/Dev-Cpp/include/c++/mingw32"  -I"C:/Program Files/Dev-Cpp/include/c++/backward"  -I"C:/Program Files/Dev-Cpp/include" 
+BIN  = elc.exe
+CXXFLAGS = $(CXXINCS)  -fexpensive-optimizations -O3
+CFLAGS = $(INCS)-DWINDOWS -march=i686 -fomit-frame-pointer -ffast-math -pipe   -fexpensive-optimizations -O3
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before el.exe all-after
+all: all-before elc.exe all-after
 
 
 clean: clean-custom
 	rm -f $(OBJ) $(BIN)
 
-$(BIN): $(LINKOBJ)
-	$(CC) $(LINKOBJ) -o "el.exe" $(LIBS)
-
-main.o: main.c
-	$(CC) -c main.c -o main.o $(CFLAGS)
-
-init.o: init.c
-	$(CC) -c init.c -o init.o $(CFLAGS)
-
-global.o: global.c
-	$(CC) -c global.c -o global.o $(CFLAGS)
-
-events.o: events.c
-	$(CC) -c events.c -o events.o $(CFLAGS)
-
-draw_scene.o: draw_scene.c
-	$(CC) -c draw_scene.c -o draw_scene.o $(CFLAGS)
-
-textures.o: textures.c
-	$(CC) -c textures.c -o textures.o $(CFLAGS)
-
-md2loader.o: md2loader.c
-	$(CC) -c md2loader.c -o md2loader.o $(CFLAGS)
-
-actors.o: actors.c
-	$(CC) -c actors.c -o actors.o $(CFLAGS)
-
-3d_objects.o: 3d_objects.c
-	$(CC) -c 3d_objects.c -o 3d_objects.o $(CFLAGS)
-
-lights.o: lights.c
-	$(CC) -c lights.c -o lights.o $(CFLAGS)
-
-tile_map.o: tile_map.c
-	$(CC) -c tile_map.c -o tile_map.o $(CFLAGS)
+$(BIN): $(OBJ)
+	$(CC) $(LINKOBJ) -o "elc.exe" $(LIBS)
 
 2d_objects.o: 2d_objects.c
 	$(CC) -c 2d_objects.c -o 2d_objects.o $(CFLAGS)
 
+3d_objects.o: 3d_objects.c
+	$(CC) -c 3d_objects.c -o 3d_objects.o $(CFLAGS)
+
+actor_scripts.o: actor_scripts.c
+	$(CC) -c actor_scripts.c -o actor_scripts.o $(CFLAGS)
+
+actors.o: actors.c
+	$(CC) -c actors.c -o actors.o $(CFLAGS)
+
+asc.o: asc.c
+	$(CC) -c asc.c -o asc.o $(CFLAGS)
+
+colors.o: colors.c
+	$(CC) -c colors.c -o colors.o $(CFLAGS)
+
+console.o: console.c
+	$(CC) -c console.c -o console.o $(CFLAGS)
+
+cursors.o: cursors.c
+	$(CC) -c cursors.c -o cursors.o $(CFLAGS)
+
+dialogues.o: dialogues.c
+	$(CC) -c dialogues.c -o dialogues.o $(CFLAGS)
+
+draw_scene.o: draw_scene.c
+	$(CC) -c draw_scene.c -o draw_scene.o $(CFLAGS)
+
 errors.o: errors.c
 	$(CC) -c errors.c -o errors.o $(CFLAGS)
+
+events.o: events.c
+	$(CC) -c events.c -o events.o $(CFLAGS)
 
 filter.o: filter.c
 	$(CC) -c filter.c -o filter.o $(CFLAGS)
@@ -70,23 +67,62 @@ filter.o: filter.c
 font.o: font.c
 	$(CC) -c font.c -o font.o $(CFLAGS)
 
+frustum.o: frustum.c
+	$(CC) -c frustum.c -o frustum.o $(CFLAGS)
+
+gl_init.o: gl_init.c
+	$(CC) -c gl_init.c -o gl_init.o $(CFLAGS)
+
+global.o: global.c
+	$(CC) -c global.c -o global.o $(CFLAGS)
+
+help.o: help.c
+	$(CC) -c help.c -o help.o $(CFLAGS)
+
+ignore.o: ignore.c
+	$(CC) -c ignore.c -o ignore.o $(CFLAGS)
+
+init.o: init.c
+	$(CC) -c init.c -o init.o $(CFLAGS)
+
 interface.o: interface.c
 	$(CC) -c interface.c -o interface.o $(CFLAGS)
 
-colors.o: colors.c
-	$(CC) -c colors.c -o colors.o $(CFLAGS)
+items.o: items.c
+	$(CC) -c items.c -o items.o $(CFLAGS)
 
-multiplayer.o: multiplayer.c
-	$(CC) -c multiplayer.c -o multiplayer.o $(CFLAGS)
+lights.o: lights.c
+	$(CC) -c lights.c -o lights.o $(CFLAGS)
 
-text.o: text.c
-	$(CC) -c text.c -o text.o $(CFLAGS)
+main.o: main.c
+	$(CC) -c main.c -o main.o $(CFLAGS)
+
+manufacture.o: manufacture.c
+	$(CC) -c manufacture.c -o manufacture.o $(CFLAGS)
 
 map_io.o: map_io.c
 	$(CC) -c map_io.c -o map_io.o $(CFLAGS)
 
-asc.o: asc.c
-	$(CC) -c asc.c -o asc.o $(CFLAGS)
+md2loader.o: md2loader.c
+	$(CC) -c md2loader.c -o md2loader.o $(CFLAGS)
+
+misc.o: misc.c
+	$(CC) -c misc.c -o misc.o $(CFLAGS)
+
+multiplayer.o: multiplayer.c
+	$(CC) -c multiplayer.c -o multiplayer.o $(CFLAGS)
+
+new_actors.o: new_actors.c
+	$(CC) -c new_actors.c -o new_actors.o $(CFLAGS)
+
+new_character.o: new_character.c
+	$(CC) -c new_character.c -o new_character.o $(CFLAGS)
+
+particles.o: particles.c
+	$(CC) -c particles.c -o particles.o $(CFLAGS)
+
+paste.o: paste.c
+	$(CC) -c paste.c -o paste.o $(CFLAGS)
 
 reflection.o: reflection.c
 	$(CC) -c reflection.c -o reflection.o $(CFLAGS)
@@ -94,23 +130,8 @@ reflection.o: reflection.c
 shadows.o: shadows.c
 	$(CC) -c shadows.c -o shadows.o $(CFLAGS)
 
-console.o: console.c
-	$(CC) -c console.c -o console.o $(CFLAGS)
-
-new_character.o: new_character.c
-	$(CC) -c new_character.c -o new_character.o $(CFLAGS)
-
-actor_scripts.o: actor_scripts.c
-	$(CC) -c actor_scripts.c -o actor_scripts.o $(CFLAGS)
-
-particles.o: particles.c
-	$(CC) -c particles.c -o particles.o $(CFLAGS)
-
-misc.o: misc.c
-	$(CC) -c misc.c -o misc.o $(CFLAGS)
-
-frustum.o: frustum.c
-	$(CC) -c frustum.c -o frustum.o $(CFLAGS)
+sound.o: sound.c
+	$(CC) -c sound.c -o sound.o $(CFLAGS)
 
 spells.o: spells.c
 	$(CC) -c spells.c -o spells.o $(CFLAGS)
@@ -118,41 +139,20 @@ spells.o: spells.c
 stats.o: stats.c
 	$(CC) -c stats.c -o stats.o $(CFLAGS)
 
-sound.o: sound.c
-	$(CC) -c sound.c -o sound.o $(CFLAGS)
+text.o: text.c
+	$(CC) -c text.c -o text.o $(CFLAGS)
 
-ignore.o: ignore.c
-	$(CC) -c ignore.c -o ignore.o $(CFLAGS)
+textures.o: textures.c
+	$(CC) -c textures.c -o textures.o $(CFLAGS)
 
-help.o: help.c
-	$(CC) -c help.c -o help.o $(CFLAGS)
-
-paste.o: paste.c
-	$(CC) -c paste.c -o paste.o $(CFLAGS)
-
-gl_init.o: gl_init.c
-	$(CC) -c gl_init.c -o gl_init.o $(CFLAGS)
-
-weather.o: weather.c
-	$(CC) -c weather.c -o weather.o $(CFLAGS)
-
-items.o: items.c
-	$(CC) -c items.c -o items.o $(CFLAGS)
-
-dialogues.o: dialogues.c
-	$(CC) -c dialogues.c -o dialogues.o $(CFLAGS)
-
-manufacture.o: manufacture.c
-	$(CC) -c manufacture.c -o manufacture.o $(CFLAGS)
+tile_map.o: tile_map.c
+	$(CC) -c tile_map.c -o tile_map.o $(CFLAGS)
 
 trade.o: trade.c
 	$(CC) -c trade.c -o trade.o $(CFLAGS)
 
-new_actors.o: new_actors.c
-	$(CC) -c new_actors.c -o new_actors.o $(CFLAGS)
+weather.o: weather.c
+	$(CC) -c weather.c -o weather.o $(CFLAGS)
 
-cursors.o: cursors.c
-	$(CC) -c cursors.c -o cursors.o $(CFLAGS)
-
-ter_g_private.res: ter_g_private.rc 
-	$(WINDRES) -i ter_g_private.rc -I rc -o ter_g_private.res -O coff 
+elc_private.res: elc_private.rc 
+	$(WINDRES) -i elc_private.rc -I rc -o elc_private.res -O coff 
