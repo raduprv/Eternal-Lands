@@ -1,3 +1,9 @@
+/*!
+ * \file
+ * \ingroup misc_utils
+ * \brief common functions to handle the MD5 sum of data. This comes from RSA Data Security Inc.
+ */
+
 /* md5.h - header file for md5.c */
 /* RSA Data Security, Inc., MD5 Message-Digest Algorithm */
 
@@ -26,11 +32,6 @@ These notices must be retained in any copies of any part of this
 documentation and/or software.
 */
 
-/*!
- * \file
- * \ingroup misc_utils
- * \brief common functions to handle the MD5 sum of data.
- */
 #ifndef H__MD5
 #define H__MD5
 
@@ -43,9 +44,39 @@ typedef struct
   unsigned char buffer[64];
 } MD5;
 
-void MD5Open(MD5 *);
-void MD5Digest(MD5 *, const void *, unsigned int);
-void MD5Close(MD5 *, unsigned char[16]);
+/*!
+ * \ingroup misc_utils
+ * \brief
+ *
+ *      Detail
+ *
+ * \param md5
+ */
+void MD5Open(MD5 * md5);
+
+/*!
+ * \ingroup misc_utils
+ * \brief
+ *
+ *      Detail
+ *
+ * \param md5
+ * \param input
+ * \param input_len
+ */
+void MD5Digest(MD5 *md5, const void *input, unsigned int input_len);
+
+/*!
+ * \ingroup misc_utils
+ * \brief
+ *
+ *      Detail
+ *
+ * \param md5
+ * \param digest
+ *
+ * \sa MD5Digest
+ */
+void MD5Close(MD5 *md5, unsigned char digest[16]);
 
 #endif
-

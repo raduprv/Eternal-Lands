@@ -12,7 +12,7 @@
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void change_actor();
 
@@ -22,7 +22,7 @@ void change_actor();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void check_for_input();
 
@@ -32,7 +32,7 @@ void check_for_input();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_new_char_screen();
 
@@ -43,7 +43,8 @@ void draw_new_char_screen();
  *      Detail
  *
  * \param ch
- * \return None
+ *
+ * \sa add_char_to_new_character
  */
 void add_char_2_pass(unsigned char ch);
 
@@ -54,7 +55,8 @@ void add_char_2_pass(unsigned char ch);
  *      Detail
  *
  * \param ch
- * \return None
+ *
+ * \sa add_char_to_new_character
  */
 void add_char_2_un(unsigned char ch);
 
@@ -65,7 +67,8 @@ void add_char_2_un(unsigned char ch);
  *      Detail
  *
  * \param ch
- * \return None
+ *
+ * \sa add_char_to_new_character
  */
 void add_char_2_conf(unsigned char ch);
 
@@ -76,7 +79,8 @@ void add_char_2_conf(unsigned char ch);
  *      Detail
  *
  * \param ch
- * \return None
+ *
+ * \callgraph
  */
 void add_char_to_new_character(unsigned char ch);
 
@@ -86,7 +90,7 @@ void add_char_to_new_character(unsigned char ch);
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void login_from_new_char();
 

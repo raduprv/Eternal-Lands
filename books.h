@@ -70,7 +70,8 @@ extern int book1_text;
  * \param	title The title of the book
  * \param	type The type of book (1==Paper, 2==Book)
  * \param	id The unique ID of the book
- * \return	A pointer to the created book
+ * \retval book*	A pointer to the created book
+ * \sa add_book
  */
 book * create_book(char * title, int type, int id);
 
@@ -81,7 +82,7 @@ book * create_book(char * title, int type, int id);
  * 		Adds a new page to the given book using realloc. Always sets the page size to 1 more than currently used, and makes sure that the last pointer is pointing to NULL.
  *
  * \param	b A pointer to the book you wish to add a page to.
- * \return	A pointer to the newly created page.
+ * \retval page*	A pointer to the newly created page.
  */
 page * add_page(book * b);
 
@@ -101,7 +102,8 @@ page * add_page(book * b);
  * \param	v_start The start v texture coordinate
  * \param	u_end The end u texture coordinate
  * \param	v_end The end v texture coordinate
- * \return	Returns a pointer to the image created.
+ * \retval _image*	Returns a pointer to the image created.
+ * \callgraph
  */
 _image *create_image(char * file, int x, int y, int w, int h, float u_start, float v_start, float u_end, float v_end);
 
@@ -112,7 +114,7 @@ _image *create_image(char * file, int x, int y, int w, int h, float u_start, flo
  * 		Frees the memory allocated by a page (including lines)
  *
  * \param	p The page which memory you wish to free
- * \return	None
+ * \sa free_book
  */
 void free_page(page * p);
 
@@ -123,7 +125,7 @@ void free_page(page * p);
  * 		Goes through the book and frees the pages (calls free_page), then frees the memory allocated by the book
  *
  * \param	b The book which memory you wish to free.
- * \return	None
+ * \sa free_page
  */
 void free_book(book * b);
 
@@ -133,7 +135,8 @@ void free_book(book * b);
  * 
  * 		Frees all memory allocated by books - parses through the \c books variable and frees every loaded book. (books->next)
  *
- * \return	None
+ * \sa free_book
+ * \sa free_page
  */
 void free_books(void);
 
@@ -144,7 +147,7 @@ void free_books(void);
  * 		Checks if we have the book with the given ID
  *
  * \param	id The ID of the book
- * \return	1 if the book is found, 0 if not.
+ * \retval int	1 if the book is found, 0 if not.
  */
 int have_book(int id);
 
@@ -155,7 +158,8 @@ int have_book(int id);
  * 		Finds a book with the given ID and returns a pointer to it.
  *
  * \param	id The ID of the book
- * \return	A pointer to the book if found. If it does not exist, it returns NULL.
+ * \retval book*	A pointer to the book if found. If it does not exist, it returns NULL.
+ * \sa read_book
  */
 book * get_book(int id);
 
@@ -164,6 +168,8 @@ book * get_book(int id);
  * \brief	Adds a book to the \c books variable.
  *
  * 		Adds a book to the \c books variable.
+ *
+ * \sa create_book
  */
 void add_book(book *bs);
 
@@ -179,7 +185,7 @@ void add_book(book *bs);
  * \param	x The x position
  * \param	max_width The maximum width of the text in \c line
  * \param	last The text you wish to wrap into the line
- * \return	Returns a pointer to the next character in last that has not been wrapped
+ * \retval char*	Returns a pointer to the next character in last that has not been wrapped
  */
 char * wrap_line_around_image(char * line, int w, int x, int max_width, char * last);
 
@@ -193,9 +199,9 @@ char * wrap_line_around_image(char * line, int w, int x, int max_width, char * l
  * \param	img The image you wish to add to the page
  * \param	b The book the page belongs to
  * \param	p The page you wish to add the image and text to
- * \return	Returns a pointer to the active page or NULL on failure.
- * \callgraph
+ * \retval page*	Returns a pointer to the active page or NULL on failure.
  * \sa 		wrap_line_around_image
+ * \callgraph
  */
 page * add_image_to_page(char * text, _image *img, book * b, page *p);
 
@@ -209,7 +215,8 @@ page * add_image_to_page(char * text, _image *img, book * b, page *p);
  * \param	type The type of text (_TITLE, _AUTHOR, _TEXT)
  * \param	b The active book
  * \param	p The page you wish to add the text to
- * \return	Returns a pointer to the active page or NULL on failure.
+ * \retval page*	Returns a pointer to the active page or NULL on failure.
+ * \callgraph
  */
 page * add_str_to_page(char * str, int type, book *b, page *p);
 
@@ -229,7 +236,7 @@ page * add_str_to_page(char * str, int type, book *b, page *p);
  * \param	cur The current xmlNode
  * \param	b The current book
  * \param	p The current page
- * \return	None
+ *
  * \callgraph
  */
 void add_xml_image_to_page(xmlNode * cur, book * b, page *p);
@@ -255,7 +262,7 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p);
  * \param	type The type of text
  * \param	b The current book
  * \param	p The current page
- * \return	None
+ *
  * \callgraph
  */
 void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p);
@@ -268,7 +275,8 @@ void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p);
  *
  * \param	cur The current xmlNode
  * \param	b The book we're parsing
- * \return	None
+ *
+ * \callgraph
  */
 void add_xml_page(xmlNode *cur, book * b);
 
@@ -282,7 +290,8 @@ void add_xml_page(xmlNode *cur, book * b);
  * \param	title The title of the book
  * \param	type The type of book (Paper==1, Book==2)
  * \param	id The book's ID
- * \return	Returns a pointer to the created book
+ * \retval book*	Returns a pointer to the created book
+ * \callgraph
  */
 book * parse_book(xmlNode *in, char * title, int type, int id);
 
@@ -308,7 +317,7 @@ book * parse_book(xmlNode *in, char * title, int type, int id);
  * \endcode
  * 
  * \param	file The file you wish to open
- * \return	Returns a pointer to the book loaded or NULL on error
+ * \retval book*	Returns a pointer to the book loaded or NULL on error
  * \callgraph
  */
 book * read_book(char * file);
@@ -321,7 +330,8 @@ book * read_book(char * file);
  *
  * \param	data The data from the server
  * \param	len The length of the data
- * \return	None
+ *
+ * \callgraph
  */
 void read_local_book(char * data, int len);
 
@@ -334,7 +344,8 @@ void read_local_book(char * data, int len);
  * \param	data The data from the server
  * \param	b The book being parsed
  * \param	p The current page
- * \return 	Returns the active page
+ * \retval page* 	Returns the active page
+ * \callgraph
  * \todo 	Finish this function - it is supposed to get the image data send from the server and add it to the given page.
  */
 page * add_image_from_server(char *data, book *b, page *p);
@@ -347,8 +358,9 @@ page * add_image_from_server(char *data, book *b, page *p);
  *
  * \param	data The network data
  * \param	len The length of the data
- * \return	None
+ *
  * \todo 	Finish this function.
+ * \callgraph
  */
 void add_book_from_server(char * data, int len);
 
@@ -359,8 +371,9 @@ void add_book_from_server(char * data, int len);
  * 		The function displays the image given by i. Called by display_page
  *
  * \param	i The image you want displayed
- * \return	None
+ *
  * \sa 		display_page
+ * \callgraph
  */
 void display_image(_image *i);
 
@@ -372,8 +385,9 @@ void display_image(_image *i);
  *
  * \param	b The book you're reading
  * \param	p The page you want to display currently
- * \return	None
+ *
  * \sa		display_book
+ * \callgraph
  */
 void display_page(book * b, page * p);
 
@@ -385,8 +399,6 @@ void display_page(book * b, page * p);
  * 
  * \param	b The current book
  * \param	type The type of book
- * \return	None
- * \callgraph
  */
 void display_book(book * b, int type);
 
@@ -397,7 +409,8 @@ void display_book(book * b, int type);
  * 		Handles initial displayal of the book
  *
  * \param	win The window that's being drawn
- * \return	Returns true
+ * \retval int	Returns true
+ * \callgraph
  */
 int display_book_handler(window_info *win);
 
@@ -411,7 +424,8 @@ int display_book_handler(window_info *win);
  * \param	mx The mouse x position in the window
  * \param	my The mouse y position in the window
  * \param	flags The flags
- * \return	Returns true
+ * \retval int	Returns true
+ * \sa display_book_window
  */
 int click_book_handler(window_info *win, int mx, int my, Uint32 flags);
 
@@ -422,7 +436,8 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags);
  * 		Displays a book window (handles both paper and books)
  *
  * \param	b A pointer to the book you wish to display
- * \return	None
+ *
+ * \callgraph
  */
 void display_book_window(book *b);
 

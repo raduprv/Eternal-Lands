@@ -160,7 +160,6 @@ extern int particles_percentage;
  *
  *      Destroys all particles of all particle systems and frees up memory used.
  *
- * \return None
  */
 void destroy_all_particles();
 
@@ -170,7 +169,6 @@ void destroy_all_particles();
  *
  *      Destroys all allocated \see particle_def structures
  *
- * \return None
  */
 void destroy_all_particle_defs();
 
@@ -182,7 +180,6 @@ void destroy_all_particle_defs();
  *
  * \param x     x coordinate of the position of the fire to remove
  * \param y     y coordinate of the position of the fire to remove
- * \return None
  */
 void remove_fire_at(float x,float y);
 
@@ -192,7 +189,7 @@ void remove_fire_at(float x,float y);
  *
  *      Initializes the list of particle systems.
  *
- * \return None
+ * \sa init_stuff
  */
 extern void	init_particles_list();
 
@@ -202,7 +199,7 @@ extern void	init_particles_list();
  *
  *      end_particles_list()
  *
- * \return None
+ * \callgraph
  */
 extern void	end_particles_list();
 
@@ -220,19 +217,20 @@ extern void	end_particles_list();
  * \param x     x coordinate of where the particle system should appear
  * \param y     y coordinate of where the particle system should appear
  * \param z     z coordinate of where the particle system should appear
- * \return int
+ * \retval int
+ * \callgraph
  */
 int create_particle_sys(particle_sys_def *def,float x,float y,float z);
 
 /*!
  * \ingroup particles
- * \brief creates a new particle for the given \see particle_sys and returns it in the parameter result
+ * \brief creates a new particle for the given particle_sys and returns it in the parameter result
  *
- *      Creates a new particle for the given \see particle_sys particle system and returns it with the parameter result.
+ *      Creates a new particle for the given particle_sys particle system and returns it with the parameter result.
  *
  * \param sys       the particle system for which to create a new particle
- * \param result    a pointer to a \see particle struct filled by the function
- * \return None
+ * \param result    a pointer to a particle struct filled by the function
+ *
  */
 void create_particle(particle_sys *sys,particle *result);
 
@@ -246,7 +244,8 @@ void create_particle(particle_sys *sys,particle *result);
  * \param x_pos     x coordinate where the particle system should appear
  * \param y_pos     y coordinate where the particle system should appear
  * \param z_pos     z coordinate where the particle system should appear
- * \return int
+ * \retval int
+ * \callgraph
  */
 int add_particle_sys(char *file_name,float x_pos,float y_pos,float z_pos);
 
@@ -259,7 +258,8 @@ int add_particle_sys(char *file_name,float x_pos,float y_pos,float z_pos);
  * \param file_name     filename of the file that contains the particly systems definition.
  * \param x_tile        x coordinate of the tile where the particle system should be added
  * \param y_tile        y coordinate of the tile where the particle system should be added
- * \return int
+ * \retval int
+ * \callgraph
  */
 int add_particle_sys_at_tile(char *file_name,int x_tile,int y_tile);
 
@@ -272,7 +272,7 @@ int add_particle_sys_at_tile(char *file_name,int x_tile,int y_tile);
  *
  *      Displays the particle systems
  *
- * \return None
+ * \callgraph
  */
 void display_particles();
 
@@ -285,7 +285,8 @@ void display_particles();
  *      Updates the given teleporter particle system
  *
  * \param system_id     the id of the teleporter particle system to update
- * \return None
+ *
+ * \sa create_particle
  */
 void update_teleporter_sys(particle_sys *system_id);
 
@@ -296,7 +297,8 @@ void update_teleporter_sys(particle_sys *system_id);
  *      Updates the given fire particle system
  *
  * \param system_id     the id of the fire particle system to update
- * \return None
+ *
+ * \sa create_particle
  */
 void update_fire_sys(particle_sys *system_id);
 
@@ -307,7 +309,8 @@ void update_fire_sys(particle_sys *system_id);
  *      Updates the given teleport particle system.
  *
  * \param system_id     the id of the teleport particle system to update
- * \return None
+ *
+ * \sa create_particle
  */
 void update_teleport_sys(particle_sys *system_id);
 
@@ -318,7 +321,8 @@ void update_teleport_sys(particle_sys *system_id);
  *      Updats the given bag particle system
  *
  * \param system_id     the id of the bag particle system to update
- * \return None
+ *
+ * \sa create_particle
  */
 void update_bag_part_sys(particle_sys *system_id);
 
@@ -329,7 +333,6 @@ void update_bag_part_sys(particle_sys *system_id);
  *      Updates the given burst particle system
  *
  * \param system_id     the id of the burst particle system to update
- * \return None
  */
 void update_burst_sys(particle_sys *system_id);
 
@@ -340,7 +343,8 @@ void update_burst_sys(particle_sys *system_id);
  *      Updates the given fountain particle system
  *
  * \param system_id     the id of the fountain particle system to update.
- * \return None
+ *
+ * \sa create_particle
  */
 void update_fountain_sys(particle_sys *system_id);
 
@@ -350,7 +354,7 @@ void update_fountain_sys(particle_sys *system_id);
  *
  *      Updates all particles
  *
- * \return None
+ * \callgraph
  */
 void update_particles();
 
@@ -363,7 +367,8 @@ void update_particles();
  *      Adds all teleporters from the given list.
  *
  * \param teleport_list     an array of teleporter particle systems to add
- * \return None
+ *
+ * \callgraph
  */
 void add_teleporters_from_list(Uint8 *teleport_list);
 
@@ -373,7 +378,6 @@ void add_teleporters_from_list(Uint8 *teleport_list);
  *
  *      Dumps some info about particle systems.
  *
- * \return None
  */
 void dump_part_sys_info();
 #endif
@@ -385,9 +389,9 @@ void dump_part_sys_info();
  *      Saves the given particle system definition to a file.
  *
  * \param def       the particle system header to save
- * \return int
+ * \retval int
+ * \callgraph
  */
 int save_particle_def(particle_sys_def *def);
 
 #endif
-

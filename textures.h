@@ -13,7 +13,8 @@
  * 		Opens an 8-bit bmp-file and loads the file as a color-key (a=(r+b+g)/3). It will generate the texture as well and return the texture ID.
  *
  * \param   	FileName The filename you wish to load the color-key from.
- * \return  	The texture ID given as a GLuint.
+ * \retval GLuint  	The texture ID given as a GLuint.
+ * \callgraph
  */
 GLuint load_bmp8_color_key(char * FileName);
 
@@ -25,7 +26,8 @@ GLuint load_bmp8_color_key(char * FileName);
  *
  * \param   	FileName The filename of the bitmap.
  * \param   	a The alpha value
- * \return  	The texture ID as a GLuint.
+ * \retval GLuint  	The texture ID as a GLuint.
+ * \callgraph
  */
 GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
 
@@ -36,7 +38,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
  *      	Loads a raw color-key texture/bitmap from an 8-bit bitmap file. Does not generate the GL-texture.
  *
  * \param   	FileName The filename of the texture you wish to load.
- * \return  	A char * to the memory containing the texture (with the color-key). The GL-texture is not generated.
+ * \retval char*  	A char * to the memory containing the texture (with the color-key). The GL-texture is not generated.
  */
 char * load_bmp8_color_key_no_texture(char * FileName);
 
@@ -47,7 +49,7 @@ char * load_bmp8_color_key_no_texture(char * FileName);
  *      	Load the alpha-map from an 8-bit bitmap file. It does not load the rgb-values into the array, but (r+g+b)/3.
  *
  * \param   	FileName The filename of the file you wish to load the alpha-map from.
- * \return  	A char* to the memory containing the alpha-map.
+ * \retval char*  	A char* to the memory containing the alpha-map.
  */
 char * load_bmp8_alpha_map(char * FileName);
 
@@ -59,7 +61,8 @@ char * load_bmp8_alpha_map(char * FileName);
  *
  * \param   	file_name The filename of the texture you wish to load.
  * \param   	alpha The alpha-value. If 0, it will load the texture as an 8-bit color-key.
- * \return  	The position in the texture_cache array
+ * \retval int  	The position in the texture_cache array
+ * \callgraph
  */
 int load_texture_cache(char * file_name,unsigned char alpha);
 
@@ -70,7 +73,8 @@ int load_texture_cache(char * file_name,unsigned char alpha);
  *     		Gets the texture ID from the texture cache. It will reload the texture if it was unloaded.
  *
  * \param   	i The position in the texture cache
- * \return  	int The texture ID.
+ * \retval int  	int The texture ID.
+ * \callgraph
  */
 int		get_texture_id(int i);
 
@@ -81,7 +85,6 @@ int		get_texture_id(int i);
  *      	Binds the texture ID if it is different from the last texture.
  *
  * \param   	texture_id OpenGL's texture ID (not the position in the cache system)
- * \return  	None
  */
 void	bind_texture_id(int texture_id);
 
@@ -92,9 +95,10 @@ void	bind_texture_id(int texture_id);
  *      	Will get the texture ID of the given position in the texture_cache (and reload it if it has been unloaded). Next it will bind the texture ID if it is different from the last texture.
  *
  * \param   	i The position in the texture_cache.
- * \return  	The OpenGL texture ID
+ * \retval int 	The OpenGL texture ID
  * \sa		bind_texture_id
  * \sa		get_texture_id
+ * \callgraph
  */
 int		get_and_set_texture_id(int i);
 
@@ -111,7 +115,8 @@ int		get_and_set_texture_id(int i);
  * \param   	shirt The shirt colour
  * \param   	pants The pants colour
  * \param   	boots The boots colour
- * \return  	The GL texture ID.
+ * \retval GLuint  	The GL texture ID.
+ * \callgraph
  */
 GLuint	load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short shirt,
 							   short pants, short boots);
@@ -127,7 +132,6 @@ GLuint	load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
  * \param   	x_pos The x offset
  * \param   	y_pos The y offset (256*x)
  * \param   	alpha The fixed alpha
- * \return  	None
  */
 void	load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,int y_pos,
 							  Uint8 alpha);
@@ -140,9 +144,10 @@ void	load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
  *
  * \param   	this_actor A pointer to the enhanced_actor structure
  * \param   	a The fixed alpha
- * \return  	int The GL texture ID.
+ * \retval int 	int The GL texture ID.
  * \sa		load_bmp8_to_coordinates
  * \todo	Hmm, there might be a better way to do this - it can consume a lot of memory, yet many will actors have approximately the same texture. Currently every actor gets it's own texture loaded.
+ * \callgraph
  */
 int		load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a);
 #endif	//ELC

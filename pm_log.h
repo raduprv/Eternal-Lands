@@ -39,7 +39,6 @@ extern char afk_message[160]; /*!< buffer for the afk message used to inform oth
  *
  *      Frees up the memory used by the PM log.
  *
- * \return None
  */
 void free_pm_log(void);
 
@@ -49,7 +48,7 @@ void free_pm_log(void);
  *
  *      Sets the players status to AFK.
  *
- * \return None
+ * \callgraph
  */
 void go_afk(void);
 
@@ -59,7 +58,7 @@ void go_afk(void);
  *
  *      Returns the players status from AFK to normal.
  *
- * \return None
+ * \callgraph
  */
 void go_ifk(void);
 
@@ -71,7 +70,8 @@ void go_ifk(void);
  *
  * \param msg   a string containing the message to add to the PM log.
  * \param len   the length of msg.
- * \return None
+ *
+ * \callgraph
  */
 void add_message_to_pm_log(char * msg, int len);
 
@@ -83,7 +83,6 @@ void add_message_to_pm_log(char * msg, int len);
  *
  * \param name  the name to add to the PM log.
  * \param len   the length of name
- * \return None
  */
 void add_name_to_pm_log(char *name, int len);
 
@@ -95,7 +94,8 @@ void add_name_to_pm_log(char *name, int len);
  *
  * \param server_msg    a handle for the message to sent.
  * \param type          the type of message to sent.
- * \return None
+ *
+ * \callgraph
  */
 void send_afk_message(Uint8 * server_msg, int type);
 
@@ -105,7 +105,7 @@ void send_afk_message(Uint8 * server_msg, int type);
  *
  *      Prints the user specified return message, after the player returns from AFK.
  *
- * \return None
+ * \callgraph
  */
 void print_return_message(void);
 
@@ -116,7 +116,6 @@ void print_return_message(void);
  *     Prints the specified message from the users \see afk_struct.
  *
  * \param no    the number of the message to print
- * \return None
  */
 void print_message(int no);
 
@@ -128,7 +127,7 @@ void print_message(int no);
  *
  * \param name
  * \param len
- * \return int
+ * \retval int
  */
 int have_name(char *name, int len);
 
@@ -140,7 +139,8 @@ int have_name(char *name, int len);
  *
  * \param server_msg
  * \param len
- * \return int
+ * \retval int
+ * \callgraph
  */
 int is_talking_about_me(Uint8 * server_msg, int len);
 

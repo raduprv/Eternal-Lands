@@ -20,7 +20,7 @@
  * \param	source_pointer The string you wish to find
  * \param	dest_pointer The pointer to the char array you wish to find the string from
  * \param	max_len The maximum length is should check
- * \return	Returns the integer behind the string or -1 on failure.
+ * \retval Sint32	Returns the integer behind the string or -1 on failure.
  */
 Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 							 Sint32 max_len);
@@ -34,7 +34,7 @@ Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest
  * \param	source_pointer The string you wish to find
  * \param	dest_pointer The pointer to the char array you want to search for the string in.
  * \param	max_len The maximum length it should check
- * \return	Returns the float after the string or -1 on failure.
+ * \retval float	Returns the float after the string or -1 on failure.
  */
 float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 							 Sint32 max_len);
@@ -50,7 +50,7 @@ float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_po
  * \param	max_len The maximum length
  * \param	value The string to copy to
  * \param	value_len The max length of the new string
- * \return	Returns the length of the string copied, or -1 on failure.
+ * \retval Sint32	Returns the length of the string copied, or -1 on failure.
  */
 Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 						 Sint32 max_len, Uint8 * value, int value_len);
@@ -65,7 +65,7 @@ Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_
  * \param	dest_pointer The char array you want to search for source_pointer
  * \param	max_len The maximum length
  * \param	begining Whether it should return the offset to the beginning of the string or the end of the string
- * \return	Returns either the offset to the beginning of the string or to the end of the string - if the string was not found in the char array it returns -1 on failure.
+ * \retval Sint32	Returns either the offset to the beginning of the string or to the end of the string - if the string was not found in the char array it returns -1 on failure.
  */
 Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 						 Sint32 max_len,Uint8 begining);
@@ -78,7 +78,6 @@ Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_poi
  *
  * \param	dest The destination char array
  * \param	source The source char array
- * \return	None
  * \todo	We should just use strcpy instead...
  */
 void my_strcp(Uint8 *dest,const Uint8 * source);
@@ -92,7 +91,6 @@ void my_strcp(Uint8 *dest,const Uint8 * source);
  * \param	dest The destination char array
  * \param	source The source char array
  * \param	len The number of bytes you wish to copy
- * \return	None
  */
 void my_strncp(Uint8 *dest,const Uint8 * source,Sint32 len);
 
@@ -104,7 +102,6 @@ void my_strncp(Uint8 *dest,const Uint8 * source,Sint32 len);
  *
  * \param	dest The destination string
  * \param	source The source string
- * \return	None
  * \todo	Err, use strcat instead...
  */
 void my_strcat(Uint8 *dest,const Uint8 * source);
@@ -118,7 +115,7 @@ void my_strcat(Uint8 *dest,const Uint8 * source);
  * \param	dest The first string
  * \param	src The second string
  * \param	len The number of bytes to compare
- * \return	Returns 1 on match, 0 if the strings doesn't match.
+ * \retval Sint32	Returns 1 on match, 0 if the strings doesn't match.
  */
 Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len);
 
@@ -130,7 +127,8 @@ Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len);
  *
  * \param	dest The first string
  * \param	src The second string
- * \return 	Returns 1 on match, 0 if the strings doesn't match.
+ * \retval Sint32 	Returns 1 on match, 0 if the strings doesn't match.
+ * \sa my_strncompare
  */
 Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src);
 
@@ -142,7 +140,7 @@ Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src);
  *
  * \param	src The string to be checked
  * \param	len The length of characters you wish to check
- * \return	Returns 1 if enough characters are uppercase, 0 if they are lowercase.
+ * \retval Sint32	Returns 1 if enough characters are uppercase, 0 if they are lowercase.
  */
 Sint32 my_isupper(const Uint8 *src, int len);
 
@@ -153,7 +151,7 @@ Sint32 my_isupper(const Uint8 *src, int len);
  * 		Converts all characters in the string to lowercase
  *
  * \param	src The string to convert
- * \return	Returns the src-pointer.
+ * \retval Uint8*	Returns the src-pointer.
  */
 Uint8 *my_tolower(Uint8 *src);
 
@@ -165,7 +163,7 @@ Uint8 *my_tolower(Uint8 *src);
  *
  * \param	str The string to split
  * \param	chars_per_line The number of characters per line
- * \return	Returns a char ** to the new array. You must free the memory yourself.
+ * \retval char**	Returns a char ** to the new array. You must free the memory yourself.
  */
 char ** get_lines(char * str, int chars_per_line);
 
@@ -178,7 +176,7 @@ char ** get_lines(char * str, int chars_per_line);
  * \param	dest The destination string
  * \param	src The source string
  * \param	max_len The maximum length
- * \return	Returns the length of the string
+ * \retval Uint32	Returns the length of the string
  */
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len);
 
@@ -190,7 +188,7 @@ Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len);
  *
  * \param	filename The name of the file you wish to open
  * \param	digest The digest array in which the md5sum will be stored
- * \return	None
+ * \callgraph
  */
 void get_file_digest(const Uint8 * filename, Uint8 digest[16]);
 
@@ -202,7 +200,7 @@ void get_file_digest(const Uint8 * filename, Uint8 digest[16]);
  *
  * \param	string The string you wish to get the md5sum of
  * \param	digest The digest array in which the md5sum will be stored
- * \return	None
+ * \callgraph
  */
 void get_string_digest(const Uint8 * string, Uint8 digest[16]);
 
@@ -226,7 +224,7 @@ void http_get_file(char *server, char *path, FILE *fp);
  *
  * \param	n The xml-node you wish to search
  * \param	p The attribute name you wish to search for
- * \return	The floating point value of the string. Returns 0 on failure.
+ * \retval float	The floating point value of the string. Returns 0 on failure.
  */
 float xmlGetFloat(xmlNode * n, xmlChar * p);
 
@@ -238,7 +236,7 @@ float xmlGetFloat(xmlNode * n, xmlChar * p);
  *
  * \param	n The node you wish to search
  * \param	p The attribute name you wish to search for
- * \return	The integer value of the string. Returns 0 on failure.
+ * \retval int	The integer value of the string. Returns 0 on failure.
  */
 int xmlGetInt(xmlNode *n, xmlChar *p);
 
@@ -254,7 +252,8 @@ int xmlGetInt(xmlNode *n, xmlChar *p);
  * \param	dest A pointer to the destination character array pointer
  * \param	src The source string
  * \param	len The maximum length of chars that will be copied
- * \return	Returns the number of characters that have been copied, or -1 on failure.
+ * \retval int	Returns the number of characters that have been copied, or -1 on failure.
+ * \sa my_UTF8Toisolat1
  */
 int my_xmlStrncopy(char ** dest, const char * src, int len);
 
@@ -268,7 +267,7 @@ int my_xmlStrncopy(char ** dest, const char * src, int len);
  * \param	lu The max. length of the characters converted and added to the destination buffer
  * \param	src A pointer to the source pointer
  * \param	len The maximum number of bytes to convert
- * \return	Returns true
+ * \retval int	Returns true
  * \todo	Add more return values depending on the situation
  */
 #ifdef WINDOWS

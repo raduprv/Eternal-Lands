@@ -112,11 +112,76 @@ typedef struct
 
 
 //proto
+
+/*!
+ * \ingroup cache
+ * \brief
+ *
+ *      Detail
+ *
+ * \param file_name
+ * \return md2*
+ * \callgraph
+ */
 md2 * load_md2_cache(char * file_name);
+
+/*!
+ * \ingroup actors_load
+ * \brief
+ *
+ *      Detail
+ *
+ * \param file_name
+ * \return md2*
+ */
 md2 * load_md2(char * file_name);
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \param md2_ptr
+ *
+ * \callgraph
+ */
 void destroy_md2(md2 *md2_ptr);
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \param md2_ptr
+ *
+ * \callgraph
+ */
 void free_md2(md2 *md2_ptr);
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \param md2_ptr
+ * \return Uint32
+ */
 Uint32 free_md2_va(md2 *md2_ptr);
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \param cur_md2
+ * \param cur_frame
+ * \return Uint32
+ * \callgraph
+ */
 Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame);
 
 #endif

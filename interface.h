@@ -93,7 +93,7 @@ extern int click_speed;
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void get_world_x_y();
 
@@ -103,7 +103,8 @@ void get_world_x_y();
  *
  *      Detail
  *
- * \return int
+ * \retval int
+ * \callgraph
  */
 int check_drag_menus();
 
@@ -113,7 +114,8 @@ int check_drag_menus();
  *
  *      Detail
  *
- * \return int
+ * \retval int
+ * \callgraph
  */
 int check_scroll_bars();
 
@@ -125,7 +127,7 @@ int check_scroll_bars();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void check_mouse_click();
 
@@ -135,7 +137,6 @@ void check_mouse_click();
  *
  *      Detail
  *
- * \return None
  */
 void Enter2DMode();
 
@@ -145,7 +146,6 @@ void Enter2DMode();
  *
  *      Detail
  *
- * \return None
  */
 void Leave2DMode();
 
@@ -155,7 +155,8 @@ void Leave2DMode();
  *
  *      Detail
  *
- * \return None
+ * \sa init_video
+ * \sa toggle_full_screen
  */
 void build_video_mode_array();
 
@@ -166,7 +167,8 @@ void build_video_mode_array();
  *      Detail
  *
  * \param which_texture
- * \return None
+ *
+ * \callgraph
  */
 void draw_console_pic(int which_texture);
 
@@ -176,7 +178,7 @@ void draw_console_pic(int which_texture);
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void init_opening_interface();
 
@@ -186,7 +188,7 @@ void init_opening_interface();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_login_screen();
 
@@ -197,7 +199,8 @@ void draw_login_screen();
  *      Detail
  *
  * \param ch
- * \return None
+ *
+ * \sa HandleEvent
  */
 void add_char_to_username(unsigned char ch);
 
@@ -208,7 +211,8 @@ void add_char_to_username(unsigned char ch);
  *      Detail
  *
  * \param ch
- * \return None
+ *
+ * \sa HandleEvent
  */
 void add_char_to_password(unsigned char ch);
 
@@ -226,7 +230,6 @@ void add_char_to_password(unsigned char ch);
  * \param y_start
  * \param x_end
  * \param y_end
- * \return None
  */
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start, 
 int y_start,int x_end,int y_end);
@@ -245,7 +248,8 @@ int y_start,int x_end,int y_end);
  * \param y_start
  * \param x_end
  * \param y_end
- * \return None
+ *
+ * \sa draw_hud_frame
  */
 void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_start,
 int y_start,int x_end,int y_end);
@@ -256,7 +260,7 @@ int y_start,int x_end,int y_end);
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_ingame_interface();
 
@@ -266,7 +270,8 @@ void draw_ingame_interface();
  *
  *      Detail
  *
- * \return int
+ * \retval int
+ * \callgraph
  */
 int switch_to_game_map();
 
@@ -276,7 +281,6 @@ int switch_to_game_map();
  *
  *      Detail
  *
- * \return None
  */
 void switch_from_game_map();
 
@@ -286,7 +290,7 @@ void switch_from_game_map();
  *
  *      Detail
  *
- * \return None
+ * \sa draw_scene
  */
 void draw_game_map();
 
@@ -299,7 +303,8 @@ void draw_game_map();
  * \param x
  * \param y
  * \param x_len
- * \return None
+ *
+ * \callgraph
  */
 void draw_menu_title_bar(int x, int y, int x_len);
 
@@ -309,7 +314,6 @@ void draw_menu_title_bar(int x, int y, int x_len);
  *
  *      Detail
  *
- * \return None
  */
 void save_markings();
 
@@ -319,7 +323,7 @@ void save_markings();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void delete_mark_on_map_on_mouse_position();
 
@@ -329,7 +333,6 @@ void delete_mark_on_map_on_mouse_position();
  *
  *      Detail
  *
- * \return None
  */
 void put_mark_on_map_on_mouse_position();
 
@@ -340,7 +343,8 @@ void put_mark_on_map_on_mouse_position();
  *      Detail
  *
  * \param name
- * \return None
+ *
+ * \callgraph
  */
 void put_mark_on_current_position(char *name);
 

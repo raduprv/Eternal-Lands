@@ -40,7 +40,7 @@ extern char storage_filter[128]; /*!< string to use as filter when using the #st
  *
  * \param name          the name to add to the list of filtered words
  * \param save_name     inidicator whether to save this name in the configuration files.
- * \return int
+ * \retval int
  */
 int add_to_filter_list(Uint8 *name, char save_name);
 
@@ -51,7 +51,7 @@ int add_to_filter_list(Uint8 *name, char save_name);
  *      Removes \a name from the current list of filters.
  *
  * \param name      the name to remove from the list.
- * \return int
+ * \retval int
  */
 int remove_from_filter_list(Uint8 *name);
 
@@ -62,19 +62,20 @@ int remove_from_filter_list(Uint8 *name);
  *      Checks if the given \a name is filtered (aka ignored)
  *
  * \param name      the name to check
- * \return int
+ * \retval int
  */
 int check_if_filtered(Uint8 *name);
 
 /*!
  * \ingroup actors_utils
- * \brief   filters the \a input_text of occurrences of words in \see filter_list and replaces them with the string currently stored in \see text_filter_replace.
+ * \brief   filters the \a input_text of occurrences of words in filter_list and replaces them with the string currently stored in text_filter_replace.
  *
- *      Filters the \a input_text of occurrences of words in \see filter_list and replaces them with the string currently stored in \see text_filter_replace.
+ *      Filters the \a input_text of occurrences of words in filter_list and replaces them with the string currently stored in text_filter_replace.
  *
  * \param input_text    the text to filter
  * \param len           the length of \a input_text
- * \return int
+ * \retval int
+ * \callgraph
  */
 int filter_text(Uint8 * input_text, int len);
 
@@ -82,10 +83,11 @@ int filter_text(Uint8 * input_text, int len);
  * \ingroup loadsave
  * \brief   loads a list of filters from \a file_name.
  *
- *      Loads a list of filters from the file \a file_name and adds them to the variable \see filter_list.
+ *      Loads a list of filters from the file \a file_name and adds them to the variable filter_list.
  *
  * \param file_name     the filename from where to load the filter specs.
- * \return None
+ *
+ * \callgraph
  */
 void load_filters_list(char * file_name);
 
@@ -95,7 +97,7 @@ void load_filters_list(char * file_name);
  *
  *      Clears the list of currently defined and active filters.
  *
- * \return None
+ * \sa load_filters
  */
 void clear_filter_list();
 
@@ -105,7 +107,7 @@ void clear_filter_list();
  *
  *      Loads both, the global and local filter lists from their corresponding files.
  *
- * \return None
+ * \callgraph
  */
 void load_filters();
 
@@ -115,7 +117,6 @@ void load_filters();
  *
  *      Lists all currently defined filters to the console.
  *
- * \return None
  */
 void list_filters();
 

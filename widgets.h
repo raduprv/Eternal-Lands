@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief Functions for the widgets used by EL
  * \ingroup widgets
+ * \brief Functions for the widgets used by EL
  */
 #ifndef	__WIDGETS_H
 #define	__WIDGETS_H
@@ -24,13 +24,17 @@
  * The widget list structure - each window has a widget list.
  */
 typedef struct wl{
-	// Common widget data
+    /*!
+	 * \name Common widget data
+     */
+    /*! @{ */
 	Uint16 pos_x, pos_y, len_x, len_y; /*!< Widget area */
 	Uint32 id;                         /*!< Widget unique id */
 	Uint32 type;   /*!< Specifies what kind of widget it is */
 	Uint32 Flags;  /*!< Status flags...visible,enbled,etc */
 	float size;    /*!< Size of text, image, etc */
 	float r, g, b; /*!< Associated color */
+    /*! @} */
 
 	/*! \name The widget handlers */
 	/*! \{ */
@@ -117,7 +121,7 @@ typedef struct {
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
- * \return  	A widget_list pointer to the widget if found, otherwise NULL
+ * \retval widget_list*  	A widget_list pointer to the widget if found, otherwise NULL
  */
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id);
 
@@ -130,7 +134,9 @@ widget_list * widget_find(Uint32 window_id, Uint32 widget_id);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
  * \param   	handler A function pointer to the handler
- * \return  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
 
@@ -143,7 +149,9 @@ int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
  * \param   	handler A function pointer to the handler
- * \return  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int widget_set_OnClick(Uint32 window_id, Uint32 widget_id, int (*handler)());
 
@@ -156,7 +164,9 @@ int widget_set_OnClick(Uint32 window_id, Uint32 widget_id, int (*handler)());
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
  * \param   	handler A function pointer to the handler
- * \return  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int widget_set_OnDrag(Uint32 window_id, Uint32 widget_id, int (*handler)());
 
@@ -169,7 +179,9 @@ int widget_set_OnDrag(Uint32 window_id, Uint32 widget_id, int (*handler)());
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
  * \param   	handler A function pointer to the handler.
- * \return  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)());
 
@@ -183,7 +195,9 @@ int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)())
  * \param   	widget_id The widget's unique ID
  * \param   	x The new x location
  * \param   	y The new y location
- * \return  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
 
@@ -197,7 +211,9 @@ int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
  * \param   	widget_id The widget's unique ID
  * \param   	x The new width
  * \param   	y The new height
- * \return  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int widget_resize(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
 
@@ -210,7 +226,9 @@ int widget_resize(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
  * \param   	f The flags
- * \return  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int widget_set_flags(Uint32 window_id, Uint32 widget_id, Uint32 f);
 
@@ -223,7 +241,9 @@ int widget_set_flags(Uint32 window_id, Uint32 widget_id, Uint32 f);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
  * \param   	size The new text size
- * \return  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int widget_set_size(Uint32 window_id, Uint32 widget_id, float size);
 
@@ -238,7 +258,9 @@ int widget_set_size(Uint32 window_id, Uint32 widget_id, float size);
  * \param   	r (0<=r<=1)
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
- * \return  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float b);
 
@@ -265,7 +287,9 @@ int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	text The text
- * \return  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa lable_add
  */
 int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text);
 
@@ -280,9 +304,9 @@ int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, 
  * \param   	text The text
  * \param   	x The x position
  * \param   	y The y position
- * \return  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID 
+ *
  * \sa		label_add_extended
- * \callgraph
  */
 int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y);
 
@@ -293,7 +317,8 @@ int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
  * 		Draws the label given by the widget.
  *
  * \param   	W The widget that is to be drawn
- * \return  	Returns true
+ * \retval int  	Returns true
+ * \callgraph
  */
 int label_draw(widget_list *W);
 
@@ -306,7 +331,9 @@ int label_draw(widget_list *W);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
  * \param   	text The new text 
- * \return  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ * \retval int  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ *
+ * \sa widget_find
  */
 int label_set_text(Uint32 window_id, Uint32 widget_id, char *text);
 
@@ -337,7 +364,9 @@ int label_set_text(Uint32 window_id, Uint32 widget_id, char *text);
  * \param   	v1 The start v texture coordinate
  * \param   	u2 The end u texture coordinate
  * \param   	v2 The end v texture coordinate
- * \return  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa image_add
  */
 int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2);
 
@@ -358,8 +387,9 @@ int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x,
  * \param   	v1 The start v texture coordinate
  * \param   	u2 The end u texture coordinate
  * \param   	v2 The end v texture coordinate
- * \return  	Returns the new widgets unique ID
- * \callgraph
+ * \retval int  	Returns the new widgets unique ID
+ *
+ * \sa image_add_extended
  */
 int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2);
 
@@ -370,7 +400,8 @@ int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uin
  * 		Draws an image widget as given by the widget *.
  *
  * \param   	W A pointer to the widget that should be drawn
- * \return  	Returns true
+ * \retval int  	Returns true
+ * \callgraph
  */
 int image_draw(widget_list *W);
 
@@ -383,7 +414,9 @@ int image_draw(widget_list *W);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widgets unique ID
  * \param   	id The location in the texture_cache array
- * \return  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ * \retval int  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ *
+ * \sa widget_find
  */
 int image_set_id(Uint32 window_id, Uint32 widget_id, int id);
 
@@ -399,7 +432,9 @@ int image_set_id(Uint32 window_id, Uint32 widget_id, int id);
  * \param   	v1 The start v texture coordinate
  * \param   	u2 The end u texture coordinate
  * \param   	v2 The end v texture coordinate
- * \return  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ * \retval int  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ *
+ * \sa widget_find
  */
 int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u2, float v2);
 
@@ -426,7 +461,9 @@ int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	checked Specified if the widget is checked or not
- * \return  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa checkbox_add
  */
 int checkbox_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int checked);
 
@@ -443,8 +480,9 @@ int checkbox_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16
  * \param   	lx The width
  * \param   	ly The height
  * \param   	checked Specifies whether the checkbox is checked or not
- * \return  	Returns the new widgets unique ID
- * \callgraph
+ * \retval int  	Returns the new widgets unique ID
+ *
+ * \sa checkbox_add_extended
  */
 int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int checked);
 
@@ -455,7 +493,8 @@ int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * 		Draws the checkbox pointed to by *W.
  *
  * \param   	W The widget you wish to draw
- * \return  	Returns true
+ * \retval int  	Returns true
+ * \callgraph
  */
 int checkbox_draw(widget_list *W);
 
@@ -466,7 +505,7 @@ int checkbox_draw(widget_list *W);
  * 		When the checkbox is clicked this function will be called.
  *
  * \param   	W The widget that called the checkbox
- * \return  	Returns true
+ * \retval int  	Returns true
  */
 int checkbox_click(widget_list *W);
 
@@ -478,7 +517,9 @@ int checkbox_click(widget_list *W);
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID
- * \return  	Returns 0 if the checkbox is unchecked, 1 if the checkbox is checked and -1 if the checkbox is not even found.
+ * \retval int  	Returns 0 if the checkbox is unchecked, 1 if the checkbox is checked and -1 if the checkbox is not even found.
+ *
+ * \sa widget_find
  */
 int checkbox_get_checked(Uint32 window_id, Uint32 widget_id);
 
@@ -491,7 +532,9 @@ int checkbox_get_checked(Uint32 window_id, Uint32 widget_id);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID
  * \param   	checked Whether it should be checked or not
- * \return  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ * \retval int  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ *
+ * \sa widget_find
  */
 int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked);
 
@@ -518,7 +561,9 @@ int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked);
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	text The button label
- * \return  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa button_add
  */
 int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text);
 
@@ -533,8 +578,9 @@ int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x
  * \param   	text The button label
  * \param   	x The x position
  * \param   	y The y position
- * \return  	Returns the new widgets unique ID 
- * \callgraph
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa button_add_extended
  */
 int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y);
 
@@ -545,7 +591,8 @@ int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y
  * 		Draws the button widget pointed to by W.
  *
  * \param   	W The button widget
- * \return  	Returns true
+ * \retval int  	Returns true
+ * \callgraph
  */
 int button_draw(widget_list *W);
 
@@ -558,7 +605,9 @@ int button_draw(widget_list *W);
  * \param   window_id The location of the window in the windows_list.window[] array
  * \param   widget_id The unique widget ID
  * \param   text The button label
- * \return  Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ * \retval int  Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
+ *
+ * \sa widget_find
  */
 int button_set_text(Uint32 window_id, Uint32 widget_id, char *text);
 
@@ -585,7 +634,9 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text);
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	progress The current progress
- * \return  	Returns the new widgets unique ID
+ * \retval int  	Returns the new widgets unique ID
+ *
+ * \sa progressbar_add
  */
 int progressbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress);
 
@@ -601,8 +652,9 @@ int progressbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uin
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \return  	Returns the new widgets unique ID 
- * \callgraph
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa progressbar_add_extended
  */
 int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly);
 
@@ -613,7 +665,8 @@ int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
  * 		The function draws the progressbar pointed to by *W
  *
  * \param   	W The progressbar widget that is going to be drawn
- * \return  	Returns false
+ * \retval int  	Returns false
+ * \callgraph
  */
 int progressbar_draw(widget_list *W);
 
@@ -625,7 +678,9 @@ int progressbar_draw(widget_list *W);
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID
- * \return  	Returns -1 on failure, otherwise the current progress.
+ * \retval float  	Returns -1 on failure, otherwise the current progress.
+ *
+ * \sa widget_find
  */
 float progressbar_get_progress(Uint32 window_id, Uint32 widget_id);
 
@@ -638,7 +693,9 @@ float progressbar_get_progress(Uint32 window_id, Uint32 widget_id);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID
  * \param   	progress The new progress
- * \return  	Returns 1 on succes, 0 on failure (if the widget_id was not found in that window).
+ * \retval int  	Returns 1 on succes, 0 on failure (if the widget_id was not found in that window).
+ *
+ * \sa widget_find
  */
 int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress);
 
@@ -667,7 +724,9 @@ int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
  * \param   	pos
  * \param   	pos_inc
  * \param		bar_len
- * \return  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa vscrollbar_add
  */
 int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len);
 
@@ -683,8 +742,9 @@ int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \return  	Returns the new widgets unique ID 
- * \callgraph
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa vscrollbar_add_extended
  */
 int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly);
 
@@ -695,7 +755,8 @@ int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16
  * 		Draws the vertical scrollbar given by *W
  *
  * \param   	W A pointer to the vertical scrollbar widget you wish to draw
- * \return  	Returns false
+ * \retval int  	Returns false
+ * \callgraph
  */
 int vscrollbar_draw(widget_list *W);
 
@@ -708,7 +769,7 @@ int vscrollbar_draw(widget_list *W);
  * \param   	W The widget
  * \param   	x The mouse x position
  * \param   	y The mouse y position
- * \return  	Returns true
+ * \retval int  	Returns true
  */
 int vscrollbar_click(widget_list *W, int x, int y);
 
@@ -723,7 +784,9 @@ int vscrollbar_click(widget_list *W, int x, int y);
  * \param	y Specifies the y pos
  * \param   	dx Specifies the delta x
  * \param   	dy Specifies the delta y
- * \return  	Returns true
+ * \retval int  	Returns true
+ *
+ * \sa vscrollbar_click
  */
 int vscrollbar_drag(widget_list *W, int x, int y, int dx, int dy);
 
@@ -736,7 +799,9 @@ int vscrollbar_drag(widget_list *W, int x, int y, int dx, int dy);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID
  * \param   	pos_inc The position increase (or decrease)
- * \return  	Returns 1 on succes, 0 on failure (if the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes, 0 on failure (if the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc);
 
@@ -749,7 +814,9 @@ int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID
  * \param   	bar_len The new logical bar length
- * \return  	Returns 1 on succes, 0 on failure (if the widget was not found in the given window)
+ * \retval int  	Returns 1 on succes, 0 on failure (if the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int vscrollbar_set_bar_len (Uint32 window_id, Uint32 widget_id, int bar_len);
 
@@ -761,9 +828,14 @@ int vscrollbar_set_bar_len (Uint32 window_id, Uint32 widget_id, int bar_len);
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID
- * \return  	Returns pos on succes, -1 on failure (if the widget was not found in the given window)
+ * \retval int  	Returns pos on succes, -1 on failure (if the widget was not found in the given window)
+ *
+ * \sa widget_find
  */
 int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id);
+
+
+// Tabbed window
 
 /*!
  * \ingroup	tabs
@@ -773,7 +845,9 @@ int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id);
  *		
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID of the tab collection
- * \return  	Returns the tab number on succes, -1 on failure
+ * \retval int  	Returns the tab number on succes, -1 on failure
+ *
+ * \sa widget_find
  */
 int tab_collection_get_tab (Uint32 window_id, Uint32 widget_id);
 
@@ -786,7 +860,8 @@ int tab_collection_get_tab (Uint32 window_id, Uint32 widget_id);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID of the tab collection
  * \param	tab The number of the tab to be selected
- * \return  	Returns the tab number on succes, -1 on failure (if the tab number was greater than or equal to the number of tabs in the collection)
+ * \retval int  	Returns the tab number on succes, -1 on failure (if the tab number was greater than or equal to the number of tabs in the collection)
+ * \callgraph
  */
 int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab);
 
@@ -805,8 +880,9 @@ int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab);
  * \param	max_tabs The largest number of tabs this collection will hold
  * \param	tag_height The height of the tags
  * \param	tag_space The spacing between two neigboring tags
- * \return  	Returns the new widgets unique ID 
- * \callgraph
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa tab_collection_add_extended
  */
 int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, 
 Uint16 y, Uint16 lx, Uint16 ly, int max_tabs, Uint16 tag_height, Uint16 tag_space);
@@ -832,7 +908,9 @@ Uint16 y, Uint16 lx, Uint16 ly, int max_tabs, Uint16 tag_height, Uint16 tag_spac
  * \param	max_tabs The largest number of tabs this collection will hold
  * \param	tag_height The height of the tags
  * \param	tag_space The spacing between two neigboring tags
- * \return  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa tab_collection_add
  */
 int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int 
 (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, 
@@ -845,7 +923,8 @@ float size, float r, float g, float b, int max_tabs, Uint16 tag_height, Uint16 t
  * 		Draws the vertical tabbed window collection given by *W
  *
  * \param   	W A pointer to the tabbed window collection you wish to draw
- * \return  	Returns 1 on success, 0 on error
+ * \retval int  	Returns 1 on success, 0 on error
+ * \callgraph
  */
 int tab_collection_draw (widget_list *W);
 
@@ -858,7 +937,8 @@ int tab_collection_draw (widget_list *W);
  * \param   	W The widget
  * \param   	x The mouse x position
  * \param   	y The mouse y position
- * \return  	Returns 1 if a new tab is selected, 0 otherwise
+ * \retval int  	Returns 1 if a new tab is selected, 0 otherwise
+ * \callgraph
  */
 int tab_collection_click (widget_list *W, int x, int y);
 
@@ -872,7 +952,8 @@ int tab_collection_click (widget_list *W, int x, int y);
  * \param   	col_id The unique widget id of the tabbed window collection in which this tab is created
  * \param   	label The name of this tab as it appears on its tag
  * \param	tag_width The width of the tag
- * \return  	Returns 1 if a new tab is selected, 0 otherwise
+ * \retval int  	Returns 1 if a new tab is selected, 0 otherwise
+ * \callgraph
  */
 int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width);
 
@@ -886,7 +967,7 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
  * 		Adds a window from an xml-file.
  *
  * \param   	fn The filename
- * \return  	Returns 0 on failure and the window_id on succes
+ * \retval int  	Returns 0 on failure and the window_id on succes
  * \callgraph
  */
 int AddXMLWindow(char *fn);
@@ -898,7 +979,8 @@ int AddXMLWindow(char *fn);
  * 		Reads an xml-file and parses the window/widget data
  *
  * \param   	a_node The xmlNode to be parsed.
- * \return  	Returns the window position in the windows_list.windows[] array on succes.
+ * \retval int  	Returns the window position in the windows_list.windows[] array on succes.
+ * \callgraph
  */
 int ReadXMLWindow(xmlNode * a_node);
 
@@ -909,7 +991,8 @@ int ReadXMLWindow(xmlNode * a_node);
  * 		The function is called from ReadXMLWindow, then parses the window data.
  *
  * \param   	a_node The xmlNode to be parsed
- * \return  	Returns the window_id in the windows_list.windows array on succes.
+ * \retval int  	Returns the window_id in the windows_list.windows array on succes.
+ * \callgraph
  */
 int ParseWindow(xmlAttr *a_node);
 
@@ -922,7 +1005,8 @@ int ParseWindow(xmlAttr *a_node);
  * \param   	wn The widget name
  * \param   	winid The window ID
  * \param   	a_node The current xmlAttr node
- * \return  	Returns true
+ * \retval int  	Returns true
+ * \callgraph
  */
 int ParseWidget(char *wn, int winid, xmlAttr *a_node);
 
@@ -933,7 +1017,7 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node);
  * 		Gets the widget type from the name
  *
  * \param   	w The Widget's name
- * \return 	Returns the type of widget on succes, 0 on failure.
+ * \retval int 	Returns the type of widget on succes, 0 on failure.
  */
 int GetWidgetType(char *w);
 #endif

@@ -170,7 +170,6 @@ extern char lang[10];
  *
  *      Detail
  *
- * \return None
  */
 void load_harvestable_list();
 
@@ -180,7 +179,6 @@ void load_harvestable_list();
  *
  *      Detail
  *
- * \return None
  */
 void load_entrable_list();
 
@@ -190,7 +188,7 @@ void load_entrable_list();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void read_config();
 
@@ -200,7 +198,7 @@ void read_config();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void read_bin_cfg();
 
@@ -210,37 +208,36 @@ void read_bin_cfg();
  *
  *      Detail
  *
- * \return None
  */
 void save_bin_cfg();
 
 /*!
- * \ingroup init
+ * \ingroup cache
  * \brief
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void init_md2_cache();
 
 /*!
- * \ingroup init
+ * \ingroup cache
  * \brief
  *
  *      Detail
  *
- * \return None
+ * \sa init_stuff
  */
 void init_texture_cache();
 
 /*!
- * \ingroup init
+ * \ingroup cache
  * \brief
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void init_e3d_cache();
 
@@ -250,7 +247,7 @@ void init_e3d_cache();
  *
  *      Detail
  *
- * \return None
+ * \sa init_stuff
  */
 void init_2d_obj_cache();
 
@@ -260,7 +257,7 @@ void init_2d_obj_cache();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void init_stuff();
 
@@ -270,7 +267,6 @@ void init_stuff();
  *
  *      Detail
  *
- * \return None
  */
 void resize_window();
 
@@ -280,7 +276,7 @@ void resize_window();
  *
  *      Detail
  *
- * \return None
+ * \sa init_stuff
  */
 void load_e3d_list();
 
@@ -290,7 +286,7 @@ void load_e3d_list();
  *
  *      Detail
  *
- * \return None
+ * \sa start_rendering
  */
 void unload_e3d_list();
 
@@ -312,7 +308,8 @@ extern int video_mode_set;
  *
  *      Detail
  *
- * \return None
+ * \sa init_stuff
+ * \callgraph
  */
 void read_command_line(); //from main.c
 

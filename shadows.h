@@ -24,7 +24,7 @@ extern int max_shadow_map_size; /*!< max. size of the shadow maps in byte */
  *
  *      Computes the shadow transformation matrix
  *
- * \return None
+ * \callgraph
  */
 void calc_shadow_matrix();
 
@@ -35,7 +35,8 @@ void calc_shadow_matrix();
  *      Draws 3D shadows for the given object3d object.
  *
  * \param object_id Pointer to the object for which shadows will be drawn.
- * \return None
+ *
+ * \callgraph
  */
 void draw_3d_object_shadow(object3d * object_id);
 
@@ -45,42 +46,43 @@ void draw_3d_object_shadow(object3d * object_id);
  *
  *      Draws shadows caused by the body parts of an actor
  *
- * \param model_data    The \see md2 data
+ * \param model_data    The md2 data
  * \param cur_frame     the current frame for which to draw the shadows
  * \param ghost         ghost
- * \return None
  */
 void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost);
 
 /*!
  * \ingroup shadows
- * \brief draws the shadows for an \see enhanced_actor
+ * \brief draws the shadows for an enhanced_actor
  *
- *      Draws shadows for an \see enhanced_actor
+ *      Draws shadows for an enhanced_actor
  *
- * \param actor_id  Pointer to the \see actor
- * \return None
+ * \param actor_id  Pointer to the actor
+ *
+ * \callgraph
  */
 void draw_enhanced_actor_shadow(actor * actor_id);
 
 /*!
  * \ingroup shadows
- * \brief draws shados for an \see actor
+ * \brief draws shados for an actor
  *
- *      Draws shados for an \see actor
+ *      Draws shados for an actor
  *
- * \param actor_id  Pointer to the \see actor data
- * \return None
+ * \param actor_id  Pointer to the actor data
+ *
+ * \callgraph
  */
 void draw_actor_shadow(actor * actor_id);
 
 /*!
  * \ingroup shadows
- * \brief displays the shadows for an \see actor
+ * \brief displays the shadows for an actor
  *
- *      Displays the shadows for an \see actor
+ *      Displays the shadows for an actor
  *
- * \return None
+ * \callgraph
  */
 void display_actors_shadow();
 
@@ -90,7 +92,7 @@ void display_actors_shadow();
  *
  *      Displays shadows
  *
- * \return None
+ * \callgraph
  */
 void display_shadows();
 
@@ -98,9 +100,9 @@ void display_shadows();
  * \ingroup shadows
  * \brief displays 3D objects that lie on the ground
  *
- *      Displays 3D ground objects. \sa display_3d_non_ground_objects
+ *      Displays 3D ground objects. display_3d_non_ground_objects
  *
- * \return None
+ * \callgraph
  */
 void display_3d_ground_objects();
 
@@ -108,9 +110,9 @@ void display_3d_ground_objects();
  * \ingroup shadows
  * \brief displays 3D objects that don't lie on the ground
  *
- *      Displays 3D objects that are not ground objects. \sa display_3d_ground_objects
+ *      Displays 3D objects that are not ground objects. display_3d_ground_objects
  *
- * \return None
+ * \callgraph
  */
 void display_3d_non_ground_objects();
 
@@ -121,7 +123,8 @@ void display_3d_non_ground_objects();
  *      Draws the scene with shadows enabled that are cast by the sun.
  *
  * \param any_reflection    Any reflection
- * \return None
+ *
+ * \callgraph
  */
 void draw_sun_shadowed_scene(int any_reflection);
 
@@ -131,7 +134,7 @@ void draw_sun_shadowed_scene(int any_reflection);
  *
  *      render_light_view to be documented
  *
- * \return None
+ * \callgraph
  */
 void render_light_view();
 
@@ -141,7 +144,6 @@ void render_light_view();
  *
  *      Disables generation of textures
  *
- * \return None
  */
 void disable_texgen();
 
@@ -151,9 +153,8 @@ void disable_texgen();
  *
  *      Computes and sets the size of the shadow maps
  *
- * \return None
+ * \sa floor_pow2
  */
 void set_shadow_map_size();
 
 #endif
-

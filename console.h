@@ -13,7 +13,6 @@ extern char	auto_open_encyclopedia;
  *
  *      Clears the screen. As a side effect the chat log get's cleared too.
  *
- * \return None
  */
 void cls();
 
@@ -22,7 +21,6 @@ void cls();
  *
  *      Prints the current log
  *
- * \return None
  */
 void print_log();
 
@@ -31,8 +29,7 @@ void print_log();
  *
  *      Checks whether a console command is waiting in the que and executes it if necessary.
  *
- * \return None
+ * \callgraph
  */
 void test_for_console_command();
 #endif
-

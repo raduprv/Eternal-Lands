@@ -50,13 +50,13 @@ extern int pf_follow_path;
 
 /*!
  * \ingroup move_actors
- * \brief returns the corresponding \see PF_TILE struct for the given position
+ * \brief returns the corresponding PF_TILE struct for the given position
  *
- *      Returns the corresponding \see PF_TILE structure for the given position
+ *      Returns the corresponding PF_TILE structure for the given position
  *
  * \param x          x coordinate of the position
  * \param y          y coordinate of the position
- * \return PF_TILE*  the corresponding pathfinder tile for the given (x,y) position
+ * \retval PF_TILE*  the corresponding pathfinder tile for the given (x,y) position
  */
 PF_TILE *pf_get_tile(int x, int y);
 
@@ -66,19 +66,18 @@ PF_TILE *pf_get_tile(int x, int y);
  *
  *      Returns the next open tile for the current path
  *
- * \return PF_TILE* a pointer to a \see PF_TILE struct containing the data of the next open tile.
+ * \retval PF_TILE* a pointer to a \see PF_TILE struct containing the data of the next open tile.
  */
 PF_TILE *pf_get_next_open_tile();
 
 /*!
  * \ingroup move_actors
- * \brief adds the current tile to the \see PF_OPEN_TILE structure.
+ * \brief adds the current tile to the PF_OPEN_TILE structure.
  *
- *      Adds the current tile to the \see PF_OPEN_TILE structure
+ *      Adds the current tile to the PF_OPEN_TILE structure
  *
- * \param current       the current \see PF_TILE
+ * \param current       the current PF_TILE
  * \param neighbour
- * \return None
  */
 void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour);
 
@@ -90,7 +89,8 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour);
  *
  * \param x     x coordinate of the target position
  * \param y     y coordinate of the target position
- * \return int
+ * \retval int
+ * \callgraph
  */
 int pf_find_path(int x, int y);
 
@@ -100,17 +100,16 @@ int pf_find_path(int x, int y);
  *
  *      Clears the current path and frees up the memory used
  *
- * \return None
  */
 void pf_destroy_path();
 
 /*!
  * \ingroup move_actors
- * \brief returns the current \see actor
+ * \brief returns the current actor
  *
- *      Returns a pointer to the current \see actor.
+ *      Returns a pointer to the current actor.
  *
- * \return actor*   a pointer to the actor
+ * \retval actor*   a pointer to the actor
  */
 actor *pf_get_our_actor();
 
@@ -120,7 +119,7 @@ actor *pf_get_our_actor();
  *
  *      Moves the actor along the calculated path
  *
- * \return None
+ * \callgraph
  */
 void pf_move();
 
@@ -132,7 +131,7 @@ void pf_move();
  *
  * \param x     x coordinate of the position to check
  * \param y     y coordinate of the position to check
- * \return int  0 if the tile at (x,y) isn't occupied, else != 0
+ * \retval int  0 if the tile at (x,y) isn't occupied, else != 0
  */
 int pf_is_tile_occupied(int x, int y);
 
@@ -144,7 +143,7 @@ int pf_is_tile_occupied(int x, int y);
  *
  * \param interval
  * \param param
- * \return Uint32
+ * \retval Uint32
  */
 Uint32 pf_movement_timer_callback(Uint32 interval, void *param);
 
@@ -154,9 +153,8 @@ Uint32 pf_movement_timer_callback(Uint32 interval, void *param);
  *
  *      Moves the actor to the mouse position where the last click occurred
  *
- * \return None
+ * \callgraph
  */
 void pf_move_to_mouse_position();
 
 #endif /* __PATHFINDER_H__ */
-

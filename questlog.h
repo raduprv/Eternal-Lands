@@ -33,7 +33,7 @@ extern int questlog_menu_y_len;
  *
  *      Displays the questlog window
  *
- * \return None
+ * \callgraph
  */
 void display_questlog();
 
@@ -43,7 +43,7 @@ void display_questlog();
  *
  *      Loads the questlog from the users filesystem.
  *
- * \return None
+ * \callgraph
  */
 void load_questlog();
 
@@ -53,7 +53,6 @@ void load_questlog();
  *
  *      Unloads the questlog and frees up the memory used.
  *
- * \return None
  */
 void unload_questlog();
 
@@ -65,7 +64,8 @@ void unload_questlog();
  *
  * \param t     the log to add
  * \param len   the length of t
- * \return None
+ *
+ * \callgraph
  */
 void add_questlog(char *t, int len);
 
@@ -77,7 +77,8 @@ void add_questlog(char *t, int len);
  *
  * \param t     the log to add
  * \param len   the length of t
- * \return None
+ *
+ * \callgraph
  */
 void add_questlog_line(char *t, int len);
 
@@ -88,7 +89,6 @@ void add_questlog_line(char *t, int len);
  *      Goes to the entry in the questlog with the specified index.
  *
  * \param ln    the index for the entry to search for.
- * \return None
  */
 void goto_questlog_entry(int ln);
 
@@ -100,7 +100,6 @@ void goto_questlog_entry(int ln);
  *
  * \param t
  * \param len
- * \return None
  */
 void string_fix(char *t, int len);
 
@@ -110,9 +109,8 @@ void string_fix(char *t, int len);
  *
  *      Sets the window handler functions for the quest log window
  *
- * \return None
+ * \callgraph
  */
 void fill_questlog_win ();
 
 #endif	//__QUESTLOG_H__
-

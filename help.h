@@ -27,7 +27,8 @@ int help_menu_y_len=200;
  *      Calls the display event handler for the given help window \a win.
  *
  * \param win       the \see window_info pointer that contains the definition for the help window
- * \return int
+ * \retval int
+ * \callgraph
  */
 int display_help_handler(window_info *win);
 
@@ -37,11 +38,12 @@ int display_help_handler(window_info *win);
  *
  *      Calls the click event handler for the given window \a win.
  *
- * \param win       the \see window_info pointer that contains the definition for the help window
+ * \param win       the window_info pointer that contains the definition for the help window
  * \param mx        x position where the mouse click occurred
  * \param my        y position where the mouse click occurred
  * \param flags     mouseflags
- * \return int
+ * \retval int
+ * \sa display_help
  */
 int click_help_handler(window_info *win, int mx, int my, Uint32 flags);
 
@@ -52,7 +54,7 @@ int click_help_handler(window_info *win, int mx, int my, Uint32 flags);
  *      Displays the help window.
  *      \bug there's currently a bug associated with this, in that the client causes a segmentation fault, whenever the help icon is clicked.
  *
- * \return None
+ * \callgraph
  */
 void display_help();
 

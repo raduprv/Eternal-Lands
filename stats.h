@@ -9,7 +9,7 @@
 #include "global.h"
 
 /*!
- * \name windows handlers
+ * \name Windows handlers
  */
 /*! @{ */
 extern int	stats_win; /*!< handle for the stats window */
@@ -202,7 +202,8 @@ player_attribs someone_info; /*!< attributes of someone else the player interact
  *      Retrieves all the statistics of the player and stores them in the parameter stats.
  *
  * \param stats 
- * \return None
+ *
+ * \callgraph
  */
 void get_the_stats(Sint16 *stats);
 
@@ -214,7 +215,6 @@ void get_the_stats(Sint16 *stats);
  *
  * \param name  The name of the stat to get. Can be an attribute, cross attribute, skill or nexus
  * \param value The value of the stat to get.
- * \return None
  */
 void get_partial_stat(unsigned char name,Sint32 value);
 
@@ -225,7 +225,8 @@ void get_partial_stat(unsigned char name,Sint32 value);
  *      Opens the statistics window, and displays it. The current values will be used from the parameter cur_stats.
  *
  * \param cur_stats These are the current values of the players attributes to be displayed in the stats window.
- * \return None
+ *
+ * \callgraph
  */
 void display_stats(player_attribs cur_stats);
 
@@ -235,7 +236,6 @@ void display_stats(player_attribs cur_stats);
  *
  *      Initializes the callbacks used to calculate base and current value of the cross attributes.
  *
- * \return None
  */
 void init_attribf(void);
 
@@ -245,9 +245,8 @@ void init_attribf(void);
  *
  *      Sets the window handler functions for the statistics window
  *
- * \return None
+ * \callgraph
  */
 void fill_stats_win ();
 
 #endif
-

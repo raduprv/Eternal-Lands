@@ -55,7 +55,8 @@ extern int	name_font; /*!< font size used for name font */
  * \param y             y coordinate of the position to draw the string
  * \param our_string    the string to draw
  * \param max_lines
- * \return None
+ *
+ * \callgraph
  */
 void draw_string(int x, int y,const unsigned char * our_string,int max_lines);
 
@@ -70,7 +71,8 @@ void draw_string(int x, int y,const unsigned char * our_string,int max_lines);
  * \param our_string    the string to draw
  * \param max_lines
  * \param text_zoom     the zoom factor to use
- * \return None
+ *
+ * \callgraph
  */
 void draw_string_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float text_zoom);
 
@@ -84,7 +86,8 @@ void draw_string_zoomed(int x, int y,const unsigned char * our_string,int max_li
  * \param y             y coordinate of the position to draw the string
  * \param our_string    the string to draw
  * \param max_lines
- * \return None
+ *
+ * \callgraph
  */
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines);
 
@@ -101,7 +104,8 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
  * \param max_lines
  * \param font_x_scale  font scaling factor in x direction
  * \param font_y_scale  font scaling factor in y direction
- * \return None
+ *
+ * \callgraph
  */
 void draw_ingame_string(float x, float y, const unsigned char * our_string, int max_lines, float font_x_scale, float font_y_scale);
 
@@ -126,7 +130,8 @@ void draw_ingame_string(float x, float y, const unsigned char * our_string, int 
  * \param cur_y                     y coordinate of the position to draw the string
  * \param displayed_font_x_size     the size of the font in x direction as displayed
  * \param displayed_font_y_size     the size of the font in y direction as displayed
- * \return int
+ * \retval int
+ * \callgraph
  */
 int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float displayed_font_x_size, float displayed_font_y_size);
 
@@ -137,7 +142,7 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
  *      Returns the index of the font used by \a cur_char
  *
  * \param cur_char  the char to get the font info for.
- * \return int
+ * \retval int
  */
 int get_font_char(unsigned char cur_char);
 
@@ -148,7 +153,9 @@ int get_font_char(unsigned char cur_char);
  *      Search for the font of \a cur_char and returns the index if found
  *
  * \param cur_char  the char to search for
- * \return int
+ * \retval int
+ *
+ * \sa get_font_char
  */
 int find_font_char(unsigned char cur_char);
 
@@ -159,7 +166,7 @@ int find_font_char(unsigned char cur_char);
  *      Returns the font width of \a cur_char
  *
  * \param cur_char  the char to get the font width for
- * \return int
+ * \retval int
  */
 int get_font_width(int cur_char);
 
@@ -170,7 +177,8 @@ int get_font_width(int cur_char);
  *      Returns the width of char \a cur_char
  *
  * \param cur_char  the char to get the width for
- * \return int
+ * \retval int
+ * \callgraph
  */
 int get_char_width(unsigned char cur_char);
 
@@ -181,7 +189,9 @@ int get_char_width(unsigned char cur_char);
  *      Returns the width of the string \a str
  *
  * \param str   the string which width to return
- * \return int
+ * \retval int
+ * \sa get_nstring_width
+ * \callgraph
  */
 int get_string_width(const unsigned char *str);
 
@@ -193,7 +203,9 @@ int get_string_width(const unsigned char *str);
  *
  * \param str       the string for which the width should returned
  * \param len       the length until which \a str should be used
- * \return int
+ * \retval int
+ * \sa get_string_width
+ * \callgraph
  */
 int get_nstring_width(const unsigned char *str, int len);
 
@@ -205,7 +217,8 @@ int get_nstring_width(const unsigned char *str, int len);
  *
  * \param num       number of fonts suspected to load from \a file
  * \param file      filename of the fonts file.
- * \return int
+ * \retval int
+ * \callgraph
  */
 int load_font(int num, char *file);
 
@@ -216,7 +229,7 @@ int load_font(int num, char *file);
  *      Sets the current font to the one given in \a num.
  *
  * \param num       the index in the \see fonts variable that defines the font to be used.
- * \return int
+ * \retval int
  */
 int	set_font(int num);
 
@@ -227,7 +240,6 @@ int	set_font(int num);
  *      Removes the font with the given index \a num from the \see fonts variable.
  *
  * \param num       index of the font to remove.
- * \return None
  */
 void remove_font(int num);
 
@@ -237,7 +249,8 @@ void remove_font(int num);
  *
  *      Initializes the font engine
  *
- * \return None
+ * \sa init_stuff
+ * \callgraph
  */
 int init_fonts();
 

@@ -29,7 +29,6 @@ extern SDL_TimerID event_timer_clock;
  *      Gets called when a use mouse click occurs in the quickbar.
  *
  * \param use_id    the id of the item to use
- * \return None
  */
 void	quick_use(int use_id);
 
@@ -41,7 +40,7 @@ void	quick_use(int use_id);
  *
  * \param interval
  * \param data
- * \return Uint32
+ * \retval Uint32
  */
 Uint32 event_timer(Uint32 interval, void * data);
 
@@ -52,7 +51,8 @@ Uint32 event_timer(Uint32 interval, void * data);
  *      Main event handling routine.
  *
  * \param event     a pointer to last event occurred.
- * \return int
+ * \retval int
+ * \callgraph
  */
 int HandleEvent(SDL_Event *event);
 

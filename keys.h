@@ -68,7 +68,7 @@ extern Uint32 K_SIT;
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void read_key_config();
 
@@ -80,7 +80,9 @@ void read_key_config();
  *
  * \param data
  * \param len
- * \return unsigned int
+ * \retval unsigned int
+ *
+ * \sa get_key_code
  */
 unsigned int CRC32(unsigned char *data, int len);
 
@@ -91,7 +93,9 @@ unsigned int CRC32(unsigned char *data, int len);
  *      Detail
  *
  * \param key
- * \return unsigned short
+ * \retval unsigned short
+ *
+ * \sa CRC32
  */
 unsigned short get_key_code(char *key);
 
@@ -102,7 +106,8 @@ unsigned short get_key_code(char *key);
  *      Detail
  *
  * \param s
- * \return unsigned int
+ * \retval unsigned int
+ * \callgraph
  */
 unsigned int parse_key_string(char *s);
 
@@ -114,7 +119,8 @@ unsigned int parse_key_string(char *s);
  *
  * \param key
  * \param n
- * \return None
+ *
+ * \sa parse_key_string
  */
 void add_key(unsigned int *key,unsigned int n);
 

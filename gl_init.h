@@ -41,7 +41,8 @@ extern void (APIENTRY * ELglUnlockArraysEXT) (void);
  *
  *      Initializes and sets up the selected video mode
  *
- * \return None
+ * \sa init_stuff
+ * \sa init_video
  */
 void setup_video_mode();
 
@@ -51,7 +52,7 @@ void setup_video_mode();
  *
  *      Checks if the selected mode is available via OpenGL.
  *
- * \return None
+ * \sa init_video
  */
 void check_gl_mode();
 
@@ -61,7 +62,7 @@ void check_gl_mode();
  *
  *      Initializes the video engine.
  *
- * \return None
+ * \callgraph
  */
 void init_video();
 
@@ -71,7 +72,7 @@ void init_video();
  *
  *      Checks and enables available OpenGL extensions (GLX)
  *
- * \return None
+ * \callgraph
  */
 void init_gl_extensions();
 
@@ -81,7 +82,6 @@ void init_gl_extensions();
  *
  *      Resizes the window, after selecting a new video mode.
  *
- * \return None
  */
 void resize_window();
 
@@ -93,7 +93,8 @@ void resize_window();
  *
  * \param fs        flag, indicating whether \a mode will be in fullscreen or in windowed mode.
  * \param mode      the new video mode to use.
- * \return None
+ *
+ * \callgraph
  */
 void set_new_video_mode(int fs,int mode);
 
@@ -103,7 +104,7 @@ void set_new_video_mode(int fs,int mode);
  *
  *      Toggles the display from fullscreen to windowed mode and vice versa.
  *
- * \return None
+ * \callgraph
  */
 void toggle_full_screen();
 
@@ -116,7 +117,8 @@ void toggle_full_screen();
  * \param file  the source file where the error occurred
  * \param func  the function where the error occurred
  * \param line  the line in the source file where the error occurred
- * \return int
+ * \retval int
+ * \callgraph
  */
 int print_gl_errors(char *file, char *func, int line);
 

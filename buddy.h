@@ -35,7 +35,7 @@ extern int buddy_win; /*!< The identifier of the buddy window*/
  *
  * 		Inititates the buddy list (sets all types to 255)
  *
- * \return	None
+ * \sa init_stuff
  */
 void init_buddy();
 
@@ -47,7 +47,9 @@ void init_buddy();
  *
  * \param	arg1 The first buddy*
  * \param	arg2 The second buddy*
- * \return	Returns either a negative or positive integer depending on whether arg1 or arg2 is to be placed higher in the array that's being sorted. */
+ * \retval int	Returns either a negative or positive integer depending on whether arg1 or arg2 is to be placed higher in the array that's being sorted.
+ * \sa display_buddy_handler
+ */
 int compare2( const void *arg1, const void *arg2);
 
 /*!
@@ -60,7 +62,8 @@ int compare2( const void *arg1, const void *arg2);
  * \param	mx The mouse' x position
  * \param	my The mouse' y position
  * \param	flags The flags
- * \return	Returns true
+ * \retval int	Returns true
+ * \callgraph
  */
 int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags);
 
@@ -71,7 +74,8 @@ int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags);
  * 		This is the main function for drawing the buddy list window
  *
  * \param	win The window that's being drawn
- * \return	Returns true
+ * \retval int	Returns true
+ * \callgraph
  */
 int display_buddy_handler(window_info *win);
 
@@ -87,7 +91,8 @@ int display_buddy_handler(window_info *win);
  * \param	flags The flags
  * \param	dx The delta x
  * \param	dy The delta y
- * \return	Returns 1 if the mouse is being dragged within the scrollbar, otherwise 0.
+ * \retval int	Returns 1 if the mouse is being dragged within the scrollbar, otherwise 0.
+ * \sa display_buddy
  */
 int drag_buddy_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy);
 	
@@ -97,7 +102,7 @@ int drag_buddy_handler(window_info *win, int mx, int my, Uint32 flags, int dx, i
  *
  * 		The function is used for initiating the buddy window or setting an existing buddy window to be displayed.
  *
- * \return	None
+ * \callgraph
  */
 void display_buddy();
 
@@ -110,7 +115,8 @@ void display_buddy();
  * \param	n The name of the buddy
  * \param	t The type of buddy
  * \param	len The length of the name
- * \return	None
+ *
+ * \sa process_message_from_server
  */
 void add_buddy(char *n, int t, int len);
 
@@ -122,8 +128,8 @@ void add_buddy(char *n, int t, int len);
  *
  * \param	n The name of the buddy to remove
  * \param	len The length of the name
- * \return	None
+ *
+ * \sa process_message_from_server
  */
 void del_buddy(char *n, int len);
 #endif
-

@@ -200,7 +200,6 @@ extern	windows_info	windows_list; /*!< global variable defining the list of wind
  *
  *      Displays all active windows
  *
- * \return None
  */
 void	display_windows();
 
@@ -213,7 +212,8 @@ void	display_windows();
  * \param mx        x coordinate of the mouse position where the click occurred
  * \param my        y coordinate of the mouse position where the click occurred
  * \param flags     mouseflags
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		click_in_windows(int mx, int my, Uint32 flags);
 
@@ -228,7 +228,8 @@ int		click_in_windows(int mx, int my, Uint32 flags);
  * \param flags     mouseflags
  * \param dx        dragging distance in x-direction
  * \param dy        dragging distance in y-direction
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy);
 
@@ -242,7 +243,8 @@ int		drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy);
  * \param my
  * \param dx
  * \param dy
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		drag_windows(int mx, int my, int dx, int dy);
 
@@ -252,7 +254,6 @@ int		drag_windows(int mx, int my, int dx, int dy);
  *
  *      Detail
  *
- * \return None
  */
 void	end_drag_windows();
 
@@ -263,7 +264,7 @@ void	end_drag_windows();
  *      Detail
  *
  * \param win_id
- * \return int
+ * \retval int
  */
 int		select_window(int win_id);
 //void	close_windows();
@@ -284,7 +285,8 @@ int		select_window(int win_id);
  * \param size_x
  * \param size_y
  * \param property_flags
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
 
@@ -295,7 +297,6 @@ int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int
  *      Detail
  *
  * \param win_id
- * \return None
  */
 void	destroy_window(int win_id);
 
@@ -306,7 +307,7 @@ void	destroy_window(int win_id);
  *      Detail
  *
  * \param name
- * \return int
+ * \retval int
  */
 int		find_window(const char *name);
 
@@ -323,7 +324,8 @@ int		find_window(const char *name);
  * \param pos_y
  * \param size_x
  * \param size_y
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y);
 
@@ -338,7 +340,7 @@ int		init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, i
  * \param pos_loc
  * \param pos_x
  * \param pos_y
- * \return int
+ * \retval int
  */
 int		move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y);
 //int	set_window_property(int win_id, Uint32 property_flag, int new_property);
@@ -355,7 +357,9 @@ int		move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y);
  * \param g
  * \param b
  * \param a
- * \return int
+ * \retval int
+ *
+ * \sa display_options_menu
  */
 int		set_window_color(int win_id, Uint32 color_id, float r, float g, float b, float a);
 
@@ -367,7 +371,9 @@ int		set_window_color(int win_id, Uint32 color_id, float r, float g, float b, fl
  *
  * \param win_id
  * \param color_id
- * \return int
+ * \retval int
+ *
+ * \sa display_quickbar_handler
  */
 int		use_window_color(int win_id, Uint32 color_id);
 
@@ -380,7 +386,7 @@ int		use_window_color(int win_id, Uint32 color_id);
  * \param win_id
  * \param handler_id
  * \param handler
- * \return void*
+ * \retval void*
  */
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() );
 
@@ -392,7 +398,7 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() );
  *
  * \param win_id
  * \param handler_id
- * \return void*
+ * \retval void*
  */
 void	*get_window_handler(int win_id, int handler_id);
 
@@ -403,7 +409,8 @@ void	*get_window_handler(int win_id, int handler_id);
  *      Detail
  *
  * \param win_id
- * \return None
+ *
+ * \callgraph
  */
 void	show_window(int win_id);
 
@@ -414,7 +421,6 @@ void	show_window(int win_id);
  *      Detail
  *
  * \param win_id
- * \return None
  */
 void	hide_window(int win_id);
 
@@ -425,7 +431,8 @@ void	hide_window(int win_id);
  *      Detail
  *
  * \param win_id
- * \return None
+ *
+ * \callgraph
  */
 void	toggle_window(int win_id);
 
@@ -436,7 +443,7 @@ void	toggle_window(int win_id);
  *      Detail
  *
  * \param win_id
- * \return int
+ * \retval int
  */
 int		get_show_window(int win_id);
 //void	collapse_window(int win_id);	// future expansion
@@ -449,7 +456,8 @@ int		get_show_window(int win_id);
  *      Detail
  *
  * \param win_id
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		display_window(int win_id);
 
@@ -462,7 +470,7 @@ int		display_window(int win_id);
  * \param win_id
  * \param x
  * \param y
- * \return int
+ * \retval int
  */
 int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
 
@@ -476,7 +484,8 @@ int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
  * \param x
  * \param y
  * \param flags
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coord in the window
 
@@ -492,7 +501,8 @@ int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coo
  * \param flags
  * \param dx
  * \param dy
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
 
@@ -505,7 +515,8 @@ int		drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
  * \param win_id
  * \param x
  * \param y
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
 
@@ -520,7 +531,8 @@ int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for 
  *      Detail
  *
  * \param win
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		draw_window(window_info *win);		// the complete window, including display_handler
 
@@ -531,7 +543,8 @@ int		draw_window(window_info *win);		// the complete window, including display_h
  *      Detail
  *
  * \param win
- * \return int
+ * \retval int
+ * \callgraph
  */
 int		draw_window_title(window_info *win);// just the title bar if enabled
 
@@ -542,7 +555,7 @@ int		draw_window_title(window_info *win);// just the title bar if enabled
  *      Detail
  *
  * \param win
- * \return int
+ * \retval int
  */
 int		draw_window_base(window_info *win);	// border & background
 

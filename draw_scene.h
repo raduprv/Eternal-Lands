@@ -47,7 +47,7 @@ extern GLenum base_unit,detail_unit,shadow_unit;
  *
  *      Draws the current scene and updates the display.
  *
- * \return None
+ * \callgraph
  */
 void draw_scene();
 
@@ -57,7 +57,7 @@ void draw_scene();
  *
  *      Moves all actors in view range
  *
- * \return None
+ * \callgraph
  */
 void Move();
 
@@ -67,7 +67,7 @@ void Move();
  *
  *      Updates the camera and redraws the scene
  *
- * \return None
+ * \callgraph
  */
 void update_camera();
 
@@ -77,7 +77,7 @@ void update_camera();
  *
  *      get_tmp_actor_data() to be documented
  *
- * \return None
+ * \sa draw_scene
  */
 void get_tmp_actor_data();
 
@@ -87,7 +87,7 @@ void get_tmp_actor_data();
  *
  *      CalculateFrustum() to be documented
  *
- * \return None
+ * \callgraph
  */
 void CalculateFrustum();
 #endif

@@ -425,7 +425,6 @@ extern char	reg_error_str[15],
  *
  * 		Initiates the translatable strings - uses the "See Also" subfunctions.
  *
- * \return  	None
  * \sa	init_console
  * \sa	init_help
  * \sa	init_options
@@ -442,7 +441,6 @@ void init_translatables();
  *
  *      	Loads the translatable strings from their xml-files. Uses the "See also" subfunctions.
  *
- * \return  	None
  * \sa		parse_errors
  * \sa		parse_console
  * \sa		parse_spells
@@ -459,7 +457,7 @@ void load_translatables();
  * 
  * 		Initiates the console strings.
  *
- * \return	None
+ * \sa add_xml_identifier
  */
 void init_console(void);
 
@@ -469,7 +467,7 @@ void init_console(void);
  * 		
  * 		Initiates the help strings.
  * 
- * \return 	None
+ * \sa add_xml_identifier
  */
 void init_help(void);
 
@@ -479,7 +477,7 @@ void init_help(void);
  * 
  * 		Initiates the options strings.
  *
- * \return 	None
+ * \callgraph
  */
 void init_options(void);
 
@@ -489,7 +487,7 @@ void init_options(void);
  *
  * 		Initiates the spells/sigils strings.
  *
- * \return	None
+ * \sa add_xml_distringid
  */
 void init_spells(void);
 
@@ -499,7 +497,7 @@ void init_spells(void);
  * 
  * 		Initiates the stats strings
  *
- * \return	None
+ * \callgraph
  */
 void init_stats(void);
 #endif
@@ -510,7 +508,7 @@ void init_stats(void);
  *
  * 		Initiates the error strings
  *
- * \return	None
+ * \sa add_xml_identifier
  */
 void init_errors(void);
 
@@ -541,7 +539,7 @@ void init_errors(void);
  * \param	type The xml-group type. GROUP, DIGROUP or STAT_GROUP.
  * \param	no The number of objects in the group
  * \param	... The groups xml-objects
- * \return	A pointer to the xml-group array
+ * \retval void*	A pointer to the xml-group array
  */
 void * add_xml_group(int type, int no, ...);
 
@@ -556,7 +554,7 @@ void * add_xml_group(int type, int no, ...);
  * \param	var A pointer to the variable
  * \param	str The default string
  * \param	desc The default description
- * \return	None
+ *
  * \sa		distring_item
  * \sa		add_xml_group
  * \sa		init_translatables
@@ -575,7 +573,7 @@ void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char *
  * \param	var The variable the new statstring_item points to
  * \param	name The default name
  * \param	shortname The default short name
- * \return	None
+ *
  * \sa		statstring_item
  * \sa		add_xml_group
  * \sa		init_translatables
@@ -594,7 +592,7 @@ void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name,
  * \param	var A pointer to the variable
  * \param	def The default string
  * \param	max_len The maximum length
- * \return	None
+ *
  * \sa		string_item
  * \sa		add_xml_group
  * \sa		init_translatables
@@ -610,7 +608,6 @@ void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def,
  * \param	type The type of group
  * \param	gPtr A pointer ot the group
  * \param	no The number of items in the group
- * \return	None
  */
 void free_xml_parser(int type, void * gPtr, int no);
 
@@ -621,7 +618,8 @@ void free_xml_parser(int type, void * gPtr, int no);
  * 		Checks the current document and parses the errors group.
  *
  * \param	in The root xml-node
- * \return	None
+ *
+ * \callgraph
  */
 void parse_errors(xmlNode * in);
 
@@ -633,7 +631,8 @@ void parse_errors(xmlNode * in);
  * 		Checks the current document and parses the console group.
  *
  * \param	in The root xml-node
- * \return	None
+ *
+ * \callgraph
  */
 void parse_console(xmlNode * in);
 
@@ -644,7 +643,8 @@ void parse_console(xmlNode * in);
  * 		Checks the current document and parses the help group.
  *
  * \param	in The root xml-node
- * \return	None
+ *
+ * \callgraph
  */
 void parse_help(xmlNode * in);
 
@@ -655,7 +655,8 @@ void parse_help(xmlNode * in);
  * 		Checks the current document and parses the options group.
  *
  * \param	in The root xml-node
- * \return	None
+ *
+ * \callgraph
  */
 void parse_options(xmlNode * in);
 
@@ -666,7 +667,8 @@ void parse_options(xmlNode * in);
  * 		Checks the current document and parses the spells/sigils group.
  *
  * \param	in The root xml-node
- * \return	None
+ *
+ * \callgraph
  */
 void parse_spells(xmlNode * in);
 
@@ -677,7 +679,8 @@ void parse_spells(xmlNode * in);
  * 		Checks the current document and parses the stats/sigils group.
  *
  * \param	in The root xml-node
- * \return	None
+ *
+ * \callgraph
  */
 void parse_stats(xmlNode * in);
 #endif
@@ -691,7 +694,6 @@ void parse_stats(xmlNode * in);
  *
  * \param	doc A pointer to the current document
  * \param	name The filename of the document
- * \return	None
  */
 void save_strings(xmlDoc * doc, char * name);
 #endif
@@ -703,8 +705,9 @@ void save_strings(xmlDoc * doc, char * name);
  * 		First tries loading the file from the native language directory, then it loads the strings from the ./languages/en dir.
  *
  * \param	file The filename you wish to load (not the directory, this function will call load_strings_file to open the file in the right dir)
- * \return	A structure containing the xmlDoc * and a xmlNode * to the root element.
+ * \retval xml_struct	A structure containing the xmlDoc * and a xmlNode * to the root element.
  * \sa		load_strings_file
+ * \callgraph
  */
 struct xml_struct load_strings(char * file);
 
@@ -713,6 +716,11 @@ struct xml_struct load_strings(char * file);
  * \brief	Loads an xml file with the strings
  *
  * 		Loads the xml-file pointed to by filename. Returns the an xml_struct containing a pointer to the document and the root element, if the document and root element is found/loaded succesfully. Otherwise it returns NULL in both pointers.
+ *
+ * \param filename
+ * \retval xml_struct
+ * \sa load_string
+ * \callgraph
  */
 struct xml_struct load_strings_file(char * filename);
 
@@ -724,7 +732,6 @@ struct xml_struct load_strings_file(char * filename);
  *
  * \param	in The current xmlNode
  * \param	string A pointer to the distring_item.
- * \return	None
  */
 void copy_strings(xmlNode * in, distring_item * string);
 
@@ -737,7 +744,6 @@ void copy_strings(xmlNode * in, distring_item * string);
  *
  * \param	in The current xmlNode
  * \param	string A pointer to the statstring_item
- * \return	None
  */
 void copy_stats(xmlNode * in, statstring_item * string);
 
@@ -749,7 +755,8 @@ void copy_stats(xmlNode * in, statstring_item * string);
  *
  * \param	in The current xmlNode
  * \param	group The group you wish to parse
- * \return	None
+ *
+ * \callgraph
  */
 void parse_statstrings(xmlNode * in, group_stat * group);
 #endif
@@ -762,7 +769,8 @@ void parse_statstrings(xmlNode * in, group_stat * group);
  *
  * \param	in The current xmlNode
  * \param	group The current group
- * \return	None
+ *
+ * \callgraph
  */
 void parse_distrings(xmlNode * in, group_id_di * group);
 
@@ -774,7 +782,6 @@ void parse_distrings(xmlNode * in, group_id_di * group);
  *
  * \param	in The current xmlNode*
  * \param	group The current group
- * \return 	None
  */
 void parse_strings(xmlNode * in, group_id * group);
 
@@ -788,7 +795,8 @@ void parse_strings(xmlNode * in, group_id * group);
  * \param	gPtr The current group
  * \param	size The size of the group
  * \param	type The type of the group
- * \return	None
+ *
+ * \callgraph
  * \todo	An idea might be to improve the groups to also have function *, to tell them what function it should call depending on the kind of group. group->parse(xmlNode *, group *), would look better than the current switch statement.
  */
 void parse_groups(xmlNode * in, void * gPtr, int size, int type);

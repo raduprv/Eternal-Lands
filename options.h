@@ -48,7 +48,7 @@ extern int options_menu_y_len;
  * 
  *      Displays the options window.
  *
- * \return None
+ * \callgraph
  */
 void display_options_menu();
 
@@ -58,7 +58,7 @@ void display_options_menu();
  *
  *      Initializes the data for the options window.
  *
- * \return None
+ * \callgraph
  */
 void init_display_options_menu();
 
@@ -75,7 +75,6 @@ void init_display_options_menu();
  * \param data_1    ***reserved???
  * \param data_2    ***reserved???
  * \param column
- * \return None
  */
 void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2, int column);
 
@@ -87,7 +86,6 @@ void add_option(int type, char * name, char * desc, void * func, int * data_1, i
  *
  * \param data_1
  * \param data_2
- * \return None
  */
 void change_option(int * data_1, int * data_2);
 
@@ -99,7 +97,8 @@ void change_option(int * data_1, int * data_2);
  *
  * \param unused
  * \param unused2
- * \return None
+ *
+ * \callgraph
  */
 void move_to_full_screen(int  * unused, int * unused2);
 
@@ -111,7 +110,8 @@ void move_to_full_screen(int  * unused, int * unused2);
  *
  * \param unused
  * \param mode      the new mode to use
- * \return None
+ *
+ * \callgraph
  */
 void switch_video_modes(int * unused, int * mode);
 
@@ -123,8 +123,9 @@ void switch_video_modes(int * unused, int * mode);
  *
  * \param unused
  * \param unused2
- * \return None
+ *
  * \sa sound_effects
+ * \callgraph
  */
 void change_sound(int  * unused, int * unused2);
 
@@ -136,8 +137,9 @@ void change_sound(int  * unused, int * unused2);
  *
  * \param unused
  * \param unused2
- * \return None
+ *
  * \sa music
+ * \callgraph
  */
 void change_music(int  * unused, int * unused2);
 
@@ -151,4 +153,3 @@ void change_music(int  * unused, int * unused2);
 /*! @} */
 
 #endif
-

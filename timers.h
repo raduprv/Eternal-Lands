@@ -20,7 +20,8 @@ extern SDL_TimerID misc_timer;           /*!< misc_timer */
  *
  * \param   	some_int The last delay
  * \param   	data A void* to data, not used currently
- * \return  	Uint32 The delay before it's called the next time
+ * \retval Uint32  	Uint32 The delay before it's called the next time
+ * \callgraph
  */
 Uint32 my_timer(Uint32 some_int, void * data);
 
@@ -32,7 +33,8 @@ Uint32 my_timer(Uint32 some_int, void * data);
  *
  * \param   	interval The time interval
  * \param   	data A void* to some data. It is not currently used.
- * \return  	Uint32 The next interval
+ * \retval Uint32  	Uint32 The next interval
+ * \callgraph
  */
 Uint32 check_misc(Uint32 interval, void * data);
 #ifdef TIMER_CHECK
@@ -42,8 +44,7 @@ Uint32 check_misc(Uint32 interval, void * data);
  *
  *      	If TIMER_CHECK is defined this will make sure that the timers are alive, but comparing the last time the timers were called with the current time. It is not normally a problem.
  *
- * \param   	None
- * \return  	None
+ * \callgraph
  */
 void check_timers(void);
 #endif

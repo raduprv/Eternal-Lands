@@ -42,7 +42,7 @@ extern char knowledge_string[400];
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void display_knowledge();
 
@@ -57,7 +57,8 @@ void display_knowledge();
  *
  * \param size
  * \param list
- * \return None
+ *
+ * \sa process_message_from_server
  */
 void get_knowledge_list(Uint16 size, char *list);
 
@@ -68,7 +69,8 @@ void get_knowledge_list(Uint16 size, char *list);
  *      Detail
  *
  * \param idx
- * \return None
+ *
+ * \sa process_message_from_server
  */
 void get_new_knowledge(Uint16 idx);
 
@@ -78,7 +80,7 @@ void get_new_knowledge(Uint16 idx);
  *
  * 	Sets the window handler functions for the knowledge window
  *
- * \return None
+ * \callgraph
  */
 void fill_knowledge_win ();
 

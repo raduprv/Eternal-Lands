@@ -70,7 +70,7 @@ extern int numpage;
  *
  *      Displays the encyclopedia window
  *
- * \return None
+ * \callgraph
  */
 void display_encyclopedia();
 
@@ -80,7 +80,7 @@ void display_encyclopedia();
  *
  *      Mouse over event handler for encyclopedia
  *
- * \return int
+ * \retval int
  */
 int encyclopedia_mouse_over();
 
@@ -91,7 +91,8 @@ int encyclopedia_mouse_over();
  *      Reads a category from the xml node element \a a_node
  *
  * \param a_node    the xml node element that contains the declaration of the category
- * \return None
+ *
+ * \callgraph
  */
 void ReadCategoryXML(xmlNode * a_node);
 
@@ -102,7 +103,8 @@ void ReadCategoryXML(xmlNode * a_node);
  *      Reads and parses the index.xml file used by the encyclopedia
  *
  * \param a_node    the root xml node element of the index.
- * \return None
+ *
+ * \callgraph
  */
 void ReadIndexXML(xmlNode * a_node);
 
@@ -113,7 +115,8 @@ void ReadIndexXML(xmlNode * a_node);
  *      Reads xml from the given \a filename
  *
  * \param filename  filename of the xml file to read.
- * \return None
+ *
+ * \callgraph
  */
 void ReadXML(const char *filename);
 
@@ -123,7 +126,7 @@ void ReadXML(const char *filename);
  *
  *      Frees any memory used by the encyclopedia xml handling.
  *
- * \return None
+ * \sa start_rendering
  */
 void FreeXML();
 #endif

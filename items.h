@@ -146,7 +146,7 @@ extern int click_speed;
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void display_items_menu();
 
@@ -157,7 +157,8 @@ void display_items_menu();
  *      Detail
  *
  * \param data
- * \return None
+ *
+ * \callgraph
  */
 void get_your_items(Uint8 *data);
 
@@ -169,7 +170,8 @@ void get_your_items(Uint8 *data);
  *
  * \param item
  * \param mini
- * \return None
+ *
+ * \callgraph
  */
 void drag_item(int item, int mini);
 
@@ -180,7 +182,8 @@ void drag_item(int item, int mini);
  *      Detail
  *
  * \param pos
- * \return None
+ *
+ * \callgraph
  */
 void remove_item_from_inventory(int pos);
 
@@ -191,7 +194,8 @@ void remove_item_from_inventory(int pos);
  *      Detail
  *
  * \param pos
- * \return None
+ *
+ * \sa process_message_from_server
  */
 void remove_item_from_ground(Uint8 pos);
 
@@ -202,7 +206,8 @@ void remove_item_from_ground(Uint8 pos);
  *      Detail
  *
  * \param data
- * \return None
+ *
+ * \callgraph
  */
 void get_new_inventory_item(Uint8 *data);
 
@@ -212,7 +217,7 @@ void get_new_inventory_item(Uint8 *data);
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_pick_up_menu();
 
@@ -223,7 +228,8 @@ void draw_pick_up_menu();
  *      Detail
  *
  * \param data
- * \return None
+ *
+ * \sa process_message_from_server
  */
 void get_bag_item(Uint8 *data);
 
@@ -234,7 +240,8 @@ void get_bag_item(Uint8 *data);
  *      Detail
  *
  * \param data
- * \return None
+ *
+ * \callgraph
  */
 void get_bags_items_list(Uint8 *data);
 
@@ -247,7 +254,8 @@ void get_bags_items_list(Uint8 *data);
  * \param bag_x
  * \param bag_y
  * \param bag_id
- * \return None
+ *
+ * \callgraph
  */
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id);
 
@@ -258,7 +266,8 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id);
  *      Detail
  *
  * \param data
- * \return None
+ *
+ * \callgraph
  */
 void add_bags_from_list(Uint8 *data);
 
@@ -269,7 +278,8 @@ void add_bags_from_list(Uint8 *data);
  *      Detail
  *
  * \param which_bag
- * \return None
+ *
+ * \callgraph
  */
 void remove_bag(int which_bag);
 
@@ -280,7 +290,6 @@ void remove_bag(int which_bag);
  *      Detail
  *
  * \param object_id
- * \return None
  */
 void open_bag(int object_id);
 #endif

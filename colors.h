@@ -30,12 +30,11 @@ extern color_rgb colors_list[30];
 
 /*!
  * \ingroup other
- * \brief initializes the \see colors_list color table of EL.
+ * \brief initializes the colors_list color table of EL.
  *
- *      Initializes the \see colors_list color table of EL.
+ *      Initializes the colors_list color table of EL.
  *
- * \return None
+ * \sa init_stuff
  */
 void init_colors();
 #endif
-

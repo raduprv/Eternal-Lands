@@ -19,7 +19,6 @@ extern int manufacture_win; /*!< manufacture windows handler */
  *
  *      Detail
  *
- * \return None
  */
 void build_manufacture_list();
 
@@ -29,7 +28,7 @@ void build_manufacture_list();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void display_manufacture_menu();
 

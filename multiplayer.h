@@ -51,7 +51,7 @@ extern int log_conn_data;
  * \param my_socket
  * \param str
  * \param len
- * \return int
+ * \retval int
  */
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
 
@@ -62,7 +62,8 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
  *      Detail
  *
  * \param ip
- * \return None
+ *
+ * \sa my_tcp_send
  */
 void send_version_to_server(IPaddress *ip);
 
@@ -72,7 +73,7 @@ void send_version_to_server(IPaddress *ip);
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void connect_to_server();
 
@@ -82,7 +83,7 @@ void connect_to_server();
  *
  *      Detail
  *
- * \return None
+ * \sa my_tcp_send
  */
 void send_login_info();
 
@@ -102,7 +103,8 @@ void send_login_info();
  * \param boots
  * \param head
  * \param type
- * \return None
+ *
+ * \sa my_tcp_send
  */
 void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, char skin, 
 				   char hair, char shirt, char pants, char boots,char head, char type);
@@ -115,7 +117,8 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, ch
  *
  * \param in_data
  * \param data_lenght
- * \return None
+ *
+ * \callgraph
  */
 void process_message_from_server(unsigned char *in_data, int data_lenght);
 
@@ -125,7 +128,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght);
  *
  *      Detail
  *
- * \return int
+ * \retval int
  */
 int recvpacket();
 
@@ -135,7 +138,6 @@ int recvpacket();
  *
  *      Detail
  *
- * \return None
  */
 void get_message_from_server();
 
@@ -145,7 +147,7 @@ void get_message_from_server();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void get_updates();
 #endif

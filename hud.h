@@ -91,7 +91,7 @@ extern float map_icon_v_start;
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void init_hud_interface();
 
@@ -101,7 +101,7 @@ void init_hud_interface();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_hud_interface();
 
@@ -111,7 +111,8 @@ void draw_hud_interface();
  *
  *      Detail
  *
- * \return int
+ * \retval int
+ * \callgraph
  */
 int check_hud_interface();
 
@@ -121,7 +122,7 @@ int check_hud_interface();
  *
  *      Detail
  *
- * \return None
+ * \sa init_hud_interface
  */
 void init_hud_frame();
 
@@ -131,7 +132,7 @@ void init_hud_frame();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_hud_frame();
 
@@ -143,7 +144,7 @@ void draw_hud_frame();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void init_peace_icons();
 
@@ -153,7 +154,7 @@ void init_peace_icons();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_peace_icons();
 
@@ -163,7 +164,8 @@ void draw_peace_icons();
  *
  *      Detail
  *
- * \return int
+ * \retval int
+ * \callgraph
  */
 int check_peace_icons();
 
@@ -181,7 +183,8 @@ int check_peace_icons();
  * \param func
  * \param data
  * \param data_type
- * \return None
+ *
+ * \sa init_peace_icons
  */
 void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
 
@@ -193,7 +196,6 @@ void add_icon(float u_start, float v_start, float colored_u_start, float colored
  *
  * \param no
  * \param ...
- * \return None
  */
 void set_icon_order(int no, ...);
 
@@ -205,7 +207,6 @@ void set_icon_order(int no, ...);
  *
  * \param id
  * \param state
- * \return None
  */
 void reset_states(int id, int state);
 
@@ -216,7 +217,7 @@ void reset_states(int id, int state);
  *      Detail
  *
  * \param win_id
- * \return int
+ * \retval int
  */
 int translate_win_id(int * win_id);
 
@@ -226,7 +227,7 @@ int translate_win_id(int * win_id);
  *
  *      Detail
  *
- * \return None
+ * \sa start_rendering
  */
 void free_icons();
 
@@ -247,7 +248,8 @@ extern int	icons_win; /*!< icons window handler */
  *
  * \param mode
  * \param id
- * \return None
+ *
+ * \sa init_peace_icons
  */
 void switch_action_mode(int * mode, int id);
 
@@ -259,7 +261,6 @@ void switch_action_mode(int * mode, int id);
  *
  * \param unused
  * \param id
- * \return None
  */
 void sit_button_pressed(void *unused, int id);
 
@@ -271,7 +272,8 @@ void sit_button_pressed(void *unused, int id);
  *
  * \param win
  * \param id
- * \return None
+ *
+ * \callgraph
  */
 void view_window(int * win, int id);
 
@@ -284,7 +286,8 @@ void view_window(int * win, int id);
  * \param window
  * \param col_id
  * \param tab
- * \return None
+ *
+ * \callgraph
  */
 void view_tab (int *window, int *col_id, int tab);
 
@@ -296,7 +299,8 @@ void view_tab (int *window, int *col_id, int tab);
  *
  * \param win
  * \param id
- * \return None
+ *
+ * \callgraph
  */
 void view_console_win(int * win, int id);
 
@@ -308,7 +312,8 @@ void view_console_win(int * win, int id);
  *
  * \param win
  * \param id
- * \return None
+ *
+ * \callgraph
  */
 void view_map_win(int *win, int id);
 
@@ -318,7 +323,6 @@ void view_map_win(int *win, int id);
  *
  *      Detail
  *
- * \return None
  */
 void view_cont_win();
 
@@ -331,7 +335,8 @@ void view_cont_win();
  * \param message
  * \param x
  * \param y
- * \return None
+ *
+ * \callgraph
  */
 void show_help(char *message, int x, int y);
 
@@ -343,7 +348,7 @@ void show_help(char *message, int x, int y);
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void init_stats_display();
 
@@ -353,7 +358,7 @@ void init_stats_display();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_stats_display();
 
@@ -363,7 +368,7 @@ void draw_stats_display();
  *
  *      Detail
  *
- * \return int
+ * \retval int
  */
 int check_stats_display();
 
@@ -373,7 +378,7 @@ int check_stats_display();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_exp_display();
 
@@ -383,7 +388,7 @@ void draw_exp_display();
  *
  *      Detail
  *
- * \return None
+ * \sa init_stuff
  */
 void build_levels_table();
 
@@ -400,7 +405,7 @@ extern int	stats_bar_win; /*!< stats bar windows handler */
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_stats();
 
@@ -412,7 +417,7 @@ void draw_stats();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void init_misc_display();
 
@@ -422,7 +427,7 @@ void init_misc_display();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_misc_display();
 
@@ -432,7 +437,8 @@ void draw_misc_display();
  *
  *      Detail
  *
- * \return int
+ * \retval int
+ * \callgraph
  */
 int check_misc_display();
 
@@ -451,7 +457,7 @@ extern int	misc_win; /*!< misc. windows handler */
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void init_quickbar();
 
@@ -461,7 +467,7 @@ void init_quickbar();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void draw_quickbar();
 
@@ -471,7 +477,8 @@ void draw_quickbar();
  *
  *      Detail
  *
- * \return int
+ * \retval int
+ * \callgraph
  */
 int check_quickbar();
 
@@ -490,7 +497,7 @@ extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar 
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void flip_quickbar();
 
@@ -500,7 +507,7 @@ void flip_quickbar();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void reset_quickbar();
 
@@ -512,7 +519,6 @@ void reset_quickbar();
  *
  * \param win_id
  * \param flags
- * \return None
  */
 void change_flags(int win_id, Uint32 flags);
 
@@ -523,7 +529,9 @@ void change_flags(int win_id, Uint32 flags);
  *      Detail
  *
  * \param win_id
- * \return Uint32
+ * \retval Uint32
+ *
+ * \sa click_quickbar_handler
  */
 Uint32 get_flags(int win_id);
 

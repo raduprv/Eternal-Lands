@@ -72,7 +72,8 @@ extern cache_struct	*cache_texture; /*!< texture cache */
  *      Initializes the cache system. \a max_items determines the maximal number of items in the cache.
  *
  * \param max_items     maximum number of items in the cache
- * \return None
+ *
+ * \callgraph
  */
 void cache_system_init(Uint32 max_items);
 
@@ -82,7 +83,7 @@ void cache_system_init(Uint32 max_items);
  *
  *      Clears and shuts down the cache system.
  *
- * \return None
+ * \callgraph
  */
 void cache_system_shutdown();
 
@@ -92,7 +93,7 @@ void cache_system_shutdown();
  *
  *      Runs a cache maintenance routine.
  *
- * \return None
+ * \callgraph
  */
 void cache_system_maint();
 
@@ -102,7 +103,8 @@ void cache_system_maint();
  *
  *      Cleans out the cache system of items no longer used.
  *
- * \return Uint32
+ * \retval Uint32
+ * \callgraph
  */
 Uint32 cache_system_clean();
 
@@ -112,7 +114,8 @@ Uint32 cache_system_clean();
  *
  *      Compacts the cache system.
  *
- * \return Uint32
+ * \retval Uint32
+ * \callgraph
  */
 Uint32 cache_system_compact();
 
@@ -123,7 +126,8 @@ Uint32 cache_system_compact();
  *      Dumps the sizes of the given \a cache to the console.
  *
  * \param cache     cache to query for its size.
- * \return None
+ *
+ * \callgraph
  */
 void cache_dump_sizes(cache_struct *cache);
 
@@ -136,7 +140,8 @@ void cache_dump_sizes(cache_struct *cache);
  *
  * \param max_items         max. number of items in the cache
  * \param free_item         routine used to free items in the cache.
- * \return cache_struct*    a pointer to a newly created cache.
+ * \retval cache_struct*    a pointer to a newly created cache.
+ * \callgraph
  */
 cache_struct *cache_init(Uint32 max_items, void (*free_item)());
 
@@ -148,7 +153,6 @@ cache_struct *cache_init(Uint32 max_items, void (*free_item)());
  *
  * \param cache     the cache for which to set the free item handler.
  * \param free_item routine to use when items in \a cache get freed.
- * \return None
  */
 void cache_set_free(cache_struct *cache, void (*free_item)());
 
@@ -160,7 +164,6 @@ void cache_set_free(cache_struct *cache, void (*free_item)());
  *
  * \param cache         the cache for which to set the compact item handler.
  * \param compact_item  routine to use when items in \a cache get compacted.
- * \return None
  */
 void cache_set_compact(cache_struct *cache, Uint32 (*compact_item)());
 
@@ -172,7 +175,6 @@ void cache_set_compact(cache_struct *cache, Uint32 (*compact_item)());
  *
  * \param cache         the cache for which the time limit should be set.
  * \param time_limit    the max. amount of time to live for items in \a cache.
- * \return None
  */
 void cache_set_time_limit(cache_struct *cache, Uint32 time_limit);
 
@@ -184,7 +186,6 @@ void cache_set_time_limit(cache_struct *cache, Uint32 time_limit);
  *
  * \param cache         the cache for which the size limit should be set.
  * \param size_limit    the max. size for items in \a cache (in bytes).
- * \return None
  */
 void cache_set_size_limit(cache_struct *cache, Uint32 size_limit);
 
@@ -195,7 +196,8 @@ void cache_set_size_limit(cache_struct *cache, Uint32 size_limit);
  *      Cleans the given \a cache.
  *
  * \param cache     cache to clean.
- * \return Uint32
+ * \retval Uint32
+ * \callgraph
  */
 Uint32 cache_clean(cache_struct *cache);
 
@@ -206,7 +208,8 @@ Uint32 cache_clean(cache_struct *cache);
  *      Compacts the given \a cache.
  *
  * \param cache     the cache to compact.
- * \return Uint32
+ * \retval Uint32
+ * \callgraph
  */
 Uint32 cache_compact(cache_struct *cache);
 
@@ -217,7 +220,8 @@ Uint32 cache_compact(cache_struct *cache);
  *      Deletes the given \a cache and frees up used memory.
  *
  * \param cache     the cache to delete.
- * \return None
+ *
+ * \callgraph
  */
 void cache_delete(cache_struct *cache);
 
@@ -228,7 +232,6 @@ void cache_delete(cache_struct *cache);
  *      Clears all the counters in the given \a cache.
  *
  * \param cache     the cache for which the counters should get cleared.
- * /return None
  */
 void cache_clear_counter(cache_struct *cache);
 
@@ -242,7 +245,8 @@ void cache_clear_counter(cache_struct *cache);
  * \param name                  the name to use for \a item in \a cache
  * \param item                  a pointer to the item to add
  * \param size                  max. size of items in \a cache.
- * \return cache_item_struct*   a pointer to a \see cache_item_struct of the given \a item.
+ * \retval cache_item_struct*   a pointer to a \see cache_item_struct of the given \a item.
+ * \callgraph
  */
 cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, Uint32 size);
 
@@ -255,7 +259,8 @@ cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, 
  * \param cache     the cache which contains the \a item to change the \a name
  * \param name      the new name of \a item in \a cache
  * \param item      a pointer to the item which \a name should get changed.
- * \return None
+ *
+ * \callgraph
  */
 void cache_set_name(cache_struct *cache, Uint8 *name, void *item);
 
@@ -268,7 +273,8 @@ void cache_set_name(cache_struct *cache, Uint8 *name, void *item);
  * \param cache     the cache which contains the \a item to the the \a size.
  * \param size      the new size of \a item in \a cache.
  * \param item      a pointer to the item which \a size should get changed.
- * \return None
+ *
+ * \callgraph
  */
 void cache_set_size(cache_struct *cache, Uint32 size, void *item);
 
@@ -281,7 +287,8 @@ void cache_set_size(cache_struct *cache, Uint32 size, void *item);
  * \param cache     the cache which contains the \a item to adjust the \a size.
  * \param size      the new size of \a item in \a cache.
  * \param item      a pointer to the item which \a size should get adjusted.
- * \return None
+ *
+ * \callgraph
  */
 void cache_adj_size(cache_struct *cache, Uint32 size, void *item);
 
@@ -293,7 +300,6 @@ void cache_adj_size(cache_struct *cache, Uint32 size, void *item);
  *
  * \param cache     the cache to search
  * \param item      the item to search for
- * \return None
  */
 void cache_use(cache_struct *cache, cache_item_struct *item);
 
@@ -305,7 +311,8 @@ void cache_use(cache_struct *cache, cache_item_struct *item);
  *
  * \param cache         the cache to search
  * \param item_data     data of which item to search for
- * \return None
+ *
+ * \callgraph
  */
 void cache_use_item(cache_struct *cache, const void *item_data);
 
@@ -317,7 +324,8 @@ void cache_use_item(cache_struct *cache, const void *item_data);
  *
  * \param cache                 the cache to search
  * \param name                  the name to look for in \a cache.
- * \return cache_item_struct*   a pointer to a cache item with the given \a name.
+ * \retval cache_item_struct*   a pointer to a cache item with the given \a name.
+ * \callgraph
  */
 cache_item_struct *cache_find(cache_struct *cache, const Uint8 *name);
 
@@ -329,7 +337,8 @@ cache_item_struct *cache_find(cache_struct *cache, const Uint8 *name);
  *
  * \param cache                 the cache to search
  * \param item                  address of the item to look for
- * \return cache_item_struct*   a pointer to a cache item stored at location of \a item.
+ * \retval cache_item_struct*   a pointer to a cache item stored at location of \a item.
+ * \callgraph
  */
 cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item);
 
@@ -341,7 +350,8 @@ cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item);
  *
  * \param cache         the cache to search
  * \param name          a pointer to the name to look for in \a cache.
- * \return void*        a pointer to the cache item given by \a name
+ * \retval void*        a pointer to the cache item given by \a name
+ * \callgraph
  */
 void *cache_find_item(cache_struct *cache, const Uint8 *name);
 
@@ -353,7 +363,8 @@ void *cache_find_item(cache_struct *cache, const Uint8 *name);
  *
  * \param cache         the cache which gets \a item removed.
  * \param item          the item to remove from \a cache.
- * \return None
+ *
+ * \callgraph
  */
 void cache_remove(cache_struct *cache, cache_item_struct *item);
 
@@ -365,7 +376,8 @@ void cache_remove(cache_struct *cache, cache_item_struct *item);
  *
  * \param cache         the cache whichs gets \a name removed
  * \param name          the name to lookup in \a cache and delete.
- * \return None
+ *
+ * \callgraph
  */
 void cache_remove_item(cache_struct *cache, const Uint8 *name);
 
@@ -376,7 +388,8 @@ void cache_remove_item(cache_struct *cache, const Uint8 *name);
  *      Clears the given \a cache, removes all entries and frees up consumed memory.
  *
  * \param cache         the cache from which to remove all items.
- * \return None
+ *
+ * \callgraph
  */
 void cache_remove_all(cache_struct *cache);
 
@@ -387,7 +400,8 @@ void cache_remove_all(cache_struct *cache);
  *      Clears up the given \a cache by removing any unused items.
  *
  * \param cache     the cache to clear
- * \return None
+ *
+ * \callgraph
  */
 void cache_remove_unused(cache_struct *cache);
 

@@ -45,31 +45,28 @@ extern int have_error_message;
  * \ingroup spells_win
  * \brief Repeats the last used spell.
  *
- *      Repeats the spell that was last used. This is initiated by pressing Ctrl+R. \sa hotkey
+ *      Repeats the spell that was last used. This is initiated by pressing Ctrl+R. hotkey
  *
- * \return None
  */
 void repeat_spell();
 
 /*!
  * \ingroup other
- * \brief Initializes the \see sigil_list global variable.
+ * \brief Initializes the sigil_list global variable.
  *
- *      Initializes and sets up the global variable \see sigil_list to its initial state.
+ *      Initializes and sets up the global variable sigil_list to its initial state.
  *
- * \return None
  */
 void make_sigils_list();
 
 /*!
  * \ingroup spells_win
- * \brief changes the \see active_spell at the given \a pos to the given \a spell.
+ * \brief changes the active_spell at the given \a pos to the given \a spell.
  *
- *      Changes the \see active_spell at the given \a pos to the given \a spell.
+ *      Changes the active_spell at the given \a pos to the given \a spell.
  *
  * \param pos   index in the list of which spell to change
  * \param spell the index of the spell to use.
- * \return None
  */
 void get_active_spell(int pos, int spell);
 
@@ -80,18 +77,16 @@ void get_active_spell(int pos, int spell);
  *      Removes the spell at the given \a pos from the list of active spells
  *
  * \param pos   the index into the array of the spell to remove
- * \return None
  */
 void remove_active_spell(int pos);
 
 /*!
  * \ingroup spells_win
- * \brief sets the list of \see active_spells to the given list \a my_spell_list.
+ * \brief sets the list of active_spells to the given list \a my_spell_list.
  *
- *      Sets the list of \see active_spells to the given list \a my_spell_list.
+ *      Sets the list of active_spells to the given list \a my_spell_list.
  *
- * \param my_spell_list the spell list to use for \see active_spells.
- * \return None
+ * \param my_spell_list the spell list to use for active_spells.
  */
 void get_active_spell_list(Uint8 *my_spell_list);
 
@@ -101,7 +96,7 @@ void get_active_spell_list(Uint8 *my_spell_list);
  *
  *      Draws the sigils that the actor currently owns
  *
- * \return None
+ * \callgraph
  */
 void display_spells_we_have();
 
@@ -111,18 +106,17 @@ void display_spells_we_have();
  *
  *      Displays the spells window
  *
- * \return None
+ * \callgraph
  */
 void display_sigils_menu();
 
 /*!
  * \ingroup spells_win
- * \brief sets the sigils in \see sigil_list according the mask in \a sigils_we_have.
+ * \brief sets the sigils in sigil_list according the mask in \a sigils_we_have.
  *
- *      sets the sigils in \see sigil_list according the mask in \a sigils_we_have.
+ *      sets the sigils in sigil_list according the mask in \a sigils_we_have.
  *
  * \param sigils_we_have    the mask to determine the sigils which the actor has.
- * \return None
  */
 void get_sigils_we_have(Uint32 sigils_we_have);
 #endif

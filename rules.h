@@ -57,18 +57,18 @@ extern int has_accepted; /*!< flag indicating whether the rules are accepted or 
  *
  *      Reads in the rules from the rules.xml file
  *
- * \return int  0 on success, else != 0 ***
+ * \retval int  0 on success, else != 0 ***
+ * \callgraph
  */
 int read_rules(void);
 
 /*!
  * \ingroup interface_rules
- * \brief releases the given \see rule_string
+ * \brief releases the given rule_string
  *
- *      Releases the given \see rule_string and frees the memory used.
+ *      Releases the given rule_string and frees the memory used.
  *
- * \param d pointer to the \see rule_string to release
- * \return None
+ * \param d pointer to the rule_string to release
  */
 void free_rules(rule_string * d);
 
@@ -78,7 +78,7 @@ void free_rules(rule_string * d);
  *
  *      Draws the interface to show up the rules at the start of the game
  *
- * \return None
+ * \callgraph
  */
 void draw_rules_interface(void);
 
@@ -89,18 +89,20 @@ void draw_rules_interface(void);
  *      Toggles the state of the rules window from visible to invisible and vice versa.
  *
  * \param toggle    defines to which state to switch the rules window
- * \return None
+ *
+ * \callgraph
  */
 void toggle_rules_window(int toggle);
 
 /*!
  * \ingroup interface_rules
- * \brief reads the interface rules into a \see rule_string structure and returns it.
+ * \brief reads the interface rules into a rule_string structure and returns it.
  *
- *      Reads in the interface rules into a \see rule_string structure and returns it.
+ *      Reads in the interface rules into a rule_string structure and returns it.
  *
  * \param chars_per_line    number of characters in a line.
- * \return rule_string*     a pointer to a \see rule_string structure allocated and filled by the function.
+ * \retval rule_string*     a pointer to a rule_string structure allocated and filled by the function.
+ * \callgraph
  */
 rule_string * get_interface_rules(int chars_per_line);
 
@@ -113,7 +115,8 @@ rule_string * get_interface_rules(int chars_per_line);
  * \param next  ***complete this
  * \param text_size the size of the text being displayed
  * \param countdown number of seconds to show off the rules.
- * \return None
+ *
+ * \callgraph
  */
 void init_rules_interface(int next, float text_size, int countdown);
 
@@ -123,12 +126,11 @@ void init_rules_interface(int next, float text_size, int countdown);
  *
  *      Checks the position of the mouse within the rules interface
  *
- * \param rules An array containing the \see rule_string structures to display
+ * \param rules An array containing the rule_string structures to display
  * \param lenx
  * \param leny
  * \param mx
  * \param my
- * \return None
  */
 void check_mouse_rules_interface(rule_string * rules, int lenx, int leny, int mx, int my);
 
@@ -138,14 +140,15 @@ void check_mouse_rules_interface(rule_string * rules, int lenx, int leny, int mx
  *
  *      Draws all rules specified in the parameter rules to the rules interface
  *
- * \param rules An array of \see rule_string structures to be displayed
+ * \param rules An array of rule_string structures to be displayed
  * \param rules_no  Number of rules in the rules parameter
  * \param x
  * \param y
  * \param lenx
  * \param leny
  * \param text_size the size of the text to display
- * \return int
+ * \retval int
+ * \callgraph
  */
 int draw_rules(rule_string * rules, int rules_no, int x, int y, int lenx, int leny, float text_size);
 
@@ -155,7 +158,7 @@ int draw_rules(rule_string * rules, int rules_no, int x, int y, int lenx, int le
  *
  *      Cleans up and frees the memory used by the rules.
  *
- * \return None
+ * \callgraph
  */
 void cleanup_rules(void);
 
@@ -166,7 +169,6 @@ void cleanup_rules(void);
  *      Resets the rules to the ones specified in the parameter.
  *
  * \param r An array of \see rule_string structures which will be used to replace the current rules.
- * \return None
  */
 void reset_rules(rule_string * r);
 
@@ -179,9 +181,9 @@ void reset_rules(rule_string * r);
  * \param type  the highlighing type to use
  * \param rules
  * \param no    the rule number to highlight.
- * \return None
+ *
+ * \callgraph
  */
 void highlight_rule(int type, Uint8 * rules, int no);
 
 #endif
-

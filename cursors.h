@@ -76,7 +76,6 @@ extern struct enter_names_struct entrable_objects[100];
  *
  *      Loads and initializes the \see cursors_array global variable
  *
- * \return None
  */
 void load_cursors();
 
@@ -87,7 +86,8 @@ void load_cursors();
  *      Assigns the given \a cursor_id to the current cursos.
  *
  * \param cursor_id     the cursor to use
- * \return None
+ *
+ * \sa build_cursors
  */
 void assign_cursor(int cursor_id);
 
@@ -98,7 +98,6 @@ void assign_cursor(int cursor_id);
  *      Changes the current cursor to the cursor given in \a cursor_id.
  *
  * \param cursor_id     the cursor to switch to
- * \return None
  */
 void change_cursor(int cursor_id);
 
@@ -109,7 +108,6 @@ void change_cursor(int cursor_id);
  *      Changes the currently displayed cursor to the one given in \a cursor_id.
  *
  * \param cursor_id     the cursor to show
- * \return None
  */
 void change_cursor_show(int cursor_id);
 
@@ -119,7 +117,7 @@ void change_cursor_show(int cursor_id);
  *
  *      Builds and initializes all available cursors and stores them in the \see cursors_array.
  *
- * \return None
+ * \callgraph
  */
 void build_cursors();
 
@@ -129,9 +127,8 @@ void build_cursors();
  *
  *      Checks whether the cursor has changed and we need to update displays.
  *
- * \return None
+ * \callgraph
  */
 void check_cursor_change();
 
 #endif
-

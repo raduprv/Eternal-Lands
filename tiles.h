@@ -18,9 +18,9 @@ extern int ground_detail_text;      /*!< The texture for ground details (clouds 
  * \ingroup	tile
  * \brief 	Displays the tile map.
  *
- *      TODO: draw_tile_map
+ *      draw_tile_map
  *
- * \return  None
+ * \callgraph
  */
 void draw_tile_map();
 
@@ -30,8 +30,7 @@ void draw_tile_map();
  *
  *      	Loads the map tiles - tile_list[tile]==0 && tile!=255 it will load the tile (from tiles/tile\<tile_id\>.bmp).
  *
- * \return  	None
+ * \callgraph
  */
 void load_map_tiles();
 #endif
-

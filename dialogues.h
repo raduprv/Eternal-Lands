@@ -71,7 +71,6 @@ extern int no_bounding_box;
  *
  * \param data
  * \param total_lenght
- * \return None
  */
 void build_response_entries(Uint8 *data,int total_lenght);
 
@@ -81,7 +80,7 @@ void build_response_entries(Uint8 *data,int total_lenght);
  *
  *      Displays the current dialogue.
  *
- * \return None
+ * \callgraph
  */
 void display_dialogue();
 
@@ -91,7 +90,7 @@ void display_dialogue();
  *
  *      Closes the current dialogue.
  *
- * \return None
+ * \sa close_window
  */
 void close_dialogue();
 

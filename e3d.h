@@ -259,7 +259,8 @@ extern object3d *objects_list[max_obj_3d]; /*!< global variable containing up to
  *      Loads detail, attachs it to the \a cur_object and returns it.
  *
  * \param cur_object    the object for which detail is loaded and attached.
- * \return e3d_object*  a pointer to the modified \a cur_object.
+ * \retval e3d_object*  a pointer to the modified \a cur_object.
+ * \callgraph
  */
 e3d_object * load_e3d_detail(e3d_object *cur_object);
 
@@ -270,7 +271,9 @@ e3d_object * load_e3d_detail(e3d_object *cur_object);
  *      free_e3d_va(e3d_object*) to be documented.
  *
  * \param e3d_id    id of the \see e3d_object
- * \return Uint32
+ * \retval Uint32
+ * \sa destroy_e3d
+ * \sa init_e3d_cache
  */
 Uint32 free_e3d_va(e3d_object *e3d_id);
 

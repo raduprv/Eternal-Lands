@@ -39,7 +39,6 @@ extern int num_sectors; /*!< current number of sectors in \see sectors */
  * \param sy        variable to hold the y coordinate of the start position
  * \param ex        variable to hold the x coordinate of the end position
  * \param ey        variable to hold the y coordinate of the end position
- * \return None
  */
 void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey);
 
@@ -50,7 +49,7 @@ void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey);
  *      Adds an 3d object, specified by objectid to the current sector.
  *
  * \param objectid  points to the 3d object to add.
- * \return int
+ * \retval int
  */
 int sector_add_3do(int objectid);
 
@@ -61,7 +60,7 @@ int sector_add_3do(int objectid);
  *      Adds an 2d object, specified by objectid to the current sector
  *
  * \param objectid  points to the 2d object to add.
- * \return int
+ * \retval int
  */
 int sector_add_2do(int objectid);
 
@@ -72,7 +71,7 @@ int sector_add_2do(int objectid);
  *      Adds the light given by objectid to the current sector
  *
  * \param objectid  points to the light to add
- * \return int
+ * \retval int
  */
 int sector_add_light(int objectid);
 
@@ -83,7 +82,7 @@ int sector_add_light(int objectid);
  *      Adds the particle given by objectid to the current sector
  *
  * \param objectid  points to the particle to add
- * \return int
+ * \retval int
  */
 int sector_add_particle(int objectid);
 
@@ -93,9 +92,8 @@ int sector_add_particle(int objectid);
  *
  *      Adds a map to the current sector
  *
- * \return None
+ * \callgraph
  */
 void sector_add_map();
 
 #endif
-

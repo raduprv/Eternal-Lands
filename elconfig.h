@@ -44,7 +44,10 @@ extern struct variables our_vars; /*!< global variable containing all defined va
  *
  * \param str       the name of the variable to check
  * \param type      the type of the variable
- * \return int      0 if \a str is found, else !=0.
+ * \retval int      0 if \a str is found, else !=0.
+ *
+ * \sa read_command_line
+ * \sa read_config
  */
 int check_var(char * str, int type);
 
@@ -54,7 +57,7 @@ int check_var(char * str, int type);
  *
  *      Initializes the global \see our_vars variable.
  *
- * \return None
+ * \callgraph
  */
 void init_vars();
 
@@ -64,7 +67,7 @@ void init_vars();
  *
  *      Frees up the memory used by the global \see our_vars variable.
  *
- * \return None
+ * \sa start_rendering
  */
 void free_vars();
 

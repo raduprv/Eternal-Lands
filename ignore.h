@@ -36,7 +36,7 @@ extern int use_global_ignores; /*!< flag, indicating whether to use global ignor
  *
  * \param name
  * \param save_name
- * \return int
+ * \retval int
  */
 int add_to_ignore_list(Uint8 *name, char save_name);
 
@@ -47,7 +47,7 @@ int add_to_ignore_list(Uint8 *name, char save_name);
  *      Detail
  *
  * \param name
- * \return int
+ * \retval int
  */
 int remove_from_ignore_list(Uint8 *name);
 
@@ -58,7 +58,7 @@ int remove_from_ignore_list(Uint8 *name);
  *      Detail
  *
  * \param name
- * \return int
+ * \retval int
  */
 int check_if_ignored(Uint8 *name);
 
@@ -70,7 +70,9 @@ int check_if_ignored(Uint8 *name);
  *
  * \param input_text
  * \param type
- * \return int
+ * \retval int
+ *
+ * \sa check_if_ignored
  */
 int pre_check_if_ignored(Uint8 * input_text, int type);
 
@@ -81,7 +83,8 @@ int pre_check_if_ignored(Uint8 * input_text, int type);
  *      Detail
  *
  * \param file_name
- * \return None
+ *
+ * \callgraph
  */
 void load_ignores_list(char * file_name);
 
@@ -91,7 +94,7 @@ void load_ignores_list(char * file_name);
  *
  *      Detail
  *
- * \return None
+ * \sa load_ignores
  */
 void clear_ignore_list();
 
@@ -101,7 +104,7 @@ void clear_ignore_list();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void load_ignores();
 
@@ -111,7 +114,6 @@ void load_ignores();
  *
  *      Detail
  *
- * \return None
  */
 void list_ignores();
 

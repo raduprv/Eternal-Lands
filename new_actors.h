@@ -17,7 +17,6 @@ extern float sitting;
  * \param model_data
  * \param cur_frame
  * \param ghost
- * \return None
  */
 void draw_body_part(md2 *model_data,char *cur_frame, int ghost);
 
@@ -34,7 +33,8 @@ void draw_body_part(md2 *model_data,char *cur_frame, int ghost);
  * \param z_pos
  * \param z_rot
  * \param actor_id
- * \return int
+ * \retval int
+ * \callgraph
  */
 int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos, float y_pos,
 					   float z_pos, float z_rot, int actor_id);
@@ -46,7 +46,8 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
  *      Detail
  *
  * \param actor_id
- * \return void
+ *
+ * \callgraph
  */
 void draw_enhanced_actor(actor * actor_id);
 
@@ -58,7 +59,8 @@ void draw_enhanced_actor(actor * actor_id);
  *
  * \param actor_id
  * \param which_part
- * \return None
+ *
+ * \callgraph
  */
 void unwear_item_from_actor(int actor_id,Uint8 which_part);
 
@@ -71,7 +73,8 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part);
  * \param actor_id
  * \param which_part
  * \param which_id
- * \return None
+ *
+ * \callgraph
  */
 void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id);
 
@@ -82,7 +85,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id);
  *      Detail
  *
  * \param in_data
- * \return None
+ *
+ * \callgraph
  */
 void add_enhanced_actor_from_server(char * in_data);
 
@@ -92,7 +96,7 @@ void add_enhanced_actor_from_server(char * in_data);
  *
  *      Detail
  *
- * \return None
+ * \sa init_stuff
  */
 void build_glow_color_table();
 #endif

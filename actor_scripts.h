@@ -13,7 +13,7 @@
  * 		This function is used for calculating the rotation in degrees instead of a floating point number from 0<=fAngle<=1
  *
  * \param	fAngle Denotes the floating point rotation (0<=fAngle<=1)
- * \return	The angle in degrees
+ * \retval float	The angle in degrees
  */
 float unwindAngle_Degrees( float fAngle );
 
@@ -25,7 +25,8 @@ float unwindAngle_Degrees( float fAngle );
  *
  * \param	fStartAngle Sets the starting angle (0<=fAngle<=1)
  * \param	fEndAngle Sets the end angle (0<=fAngle<=1)
- * \return	The rotation vector in degrees
+ * \retval float	The rotation vector in degrees
+ * \sa unwindAngle_Degrees
  */
 float get_rotation_vector( float fStartAngle, float fEndAngle );
 
@@ -35,7 +36,6 @@ float get_rotation_vector( float fStartAngle, float fEndAngle );
  *
  * 		The move_to_next_frame function goes through the actors list and sets the cur_frame that's used when rendering.
  *
- * \return	None
  */
 void move_to_next_frame();
 
@@ -46,7 +46,6 @@ void move_to_next_frame();
  * 		This function is called from the display/network loop, when the timer thread calls SDL_PushEvent EVENT_ANIMATE_ACTORS. 
  * 		It's purpose is to animate the actors - that is, to change their x,y,z positions according to their current movement frames
  *
- * \return	None
  */
 void animate_actors();
 
@@ -56,7 +55,7 @@ void animate_actors();
  *
  * 		The function is called from the timer thread and parses through the command queue. If no new commands have been found or the actor is idle, it will copy that frame to the actor. Furthermore it changes the x, y, z movement speed and rotation speeds.
  *
- * \return	None
+ * \callgraph
  */
 void next_command();
 
@@ -67,7 +66,7 @@ void next_command();
  * 		The function parses through the actors_list and destroys the actor with the matching actor_id.
  *
  * \param	actor_id The server-side actor ID
- * \return 	None
+ *
  * \sa		destroy_all_actors
  * \sa		actors_list
  */
@@ -79,7 +78,6 @@ void destroy_actor(int actor_id);
  *
  * 		The function destroys all actors, free()s the memory/textures and sets the *actors_list=NULL
  *
- * \return	None
  * \sa		destroy_actor
  */
 void destroy_all_actors();
@@ -90,7 +88,6 @@ void destroy_all_actors();
  *
  * 		The function is called whenever the client gets a message called "Resyncing with the server". It will call destroy_all_actors and send a SEND_ME_MY_ACTORS to the server hence getting the actors in range again.
  *
- * \return	None
  * \sa		destroy_all_actors
  */
 void update_all_actors();
@@ -103,7 +100,8 @@ void update_all_actors();
  *
  * \param	actor_id The server-side actor ID
  * \param	command The command that should be added to the actor
- * \return	None
+ *
+ * \callgraph
  */
 void add_command_to_actor(int actor_id, char command);
 
@@ -115,7 +113,6 @@ void add_command_to_actor(int actor_id, char command);
  *
  * \param	actor_id The server-side actor ID
  * \param	damage The damage given by the actor
- * \return	None
  */
 void get_actor_damage(int actor_id, int damage);
 
@@ -127,7 +124,6 @@ void get_actor_damage(int actor_id, int damage);
  *
  * \param	actor_id The server-side actor ID
  * \param	quantity The amount of healthpoints healed.
- * \return	None
  */
 void get_actor_heal(int actor_id, int quantity);
 
@@ -137,7 +133,7 @@ void get_actor_heal(int actor_id, int quantity);
  *
  * 		First it finds yourself in the actors_list, then moves you a step forward (sends a MOVE_TO to the server).
  *
- * \return	None
+ * \callgraph
  */
 void move_self_forward();
 
@@ -147,7 +143,7 @@ void move_self_forward();
  *
  *      Initializes the actor_def list
  *
- * \return None
+ * \callgraph
  */
 void init_actor_defs();
 
@@ -157,7 +153,6 @@ void init_actor_defs();
  *
  *      Executes the command to sit down.
  *
- * \return None
  */
 void you_sit_down();
 
@@ -167,7 +162,6 @@ void you_sit_down();
  *
  *      Executes the command to stand up
  *
- * \return None
  */
 void you_stand_up();
 #endif

@@ -41,7 +41,7 @@ extern float water_movement_v; /*!< movement of the water in v direction */
  *      mrandom(float)
  *
  * \param max
- * \return float
+ * \retval float
  */
 float mrandom(float max);
 
@@ -51,43 +51,45 @@ float mrandom(float max);
  *
  *      Draws the reflections caused by the specified body parts.
  *
- * \param model_data    the \see md2 model data used to calculate the reflections
+ * \param model_data    the md2 model data used to calculate the reflections
  * \param cur_frame     the current frame
  * \param ghost         specifies wheter the body part is a ghost or not
- * \return None
  */
 void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost);
 
 /*!
  * \ingroup reflections
- * \brief draws the reflection caused by the specified \see actor
+ * \brief draws the reflection caused by the specified actor
  *
- *      Draws the reflection caused by the specified \see actor
+ *      Draws the reflection caused by the specified actor
  *
- * \param actor_id  the \see actor for which the reflections are drawn
- * \return None
+ * \param actor_id  the actor for which the reflections are drawn
+ *
+ * \callgraph
  */
 void draw_actor_reflection(actor * actor_id);
 
 /*!
  * \ingroup reflections
- * \brief draws the reflection caused by the specified \see actor
+ * \brief draws the reflection caused by the specified actor
  *
- *      Draws the reflection caused by the specified \see actor
+ *      Draws the reflection caused by the specified actor
  *
- * \param actor_id  the \see actor for which the reflections are drawn.
- * \return None
+ * \param actor_id  the actor for which the reflections are drawn.
+ *
+ * \callgraph
  */
 void draw_enhanced_actor_reflection(actor * actor_id);
 
 /*!
  * \ingroup reflections
- * \brief draws reflections caused by the given \see object3d
+ * \brief draws reflections caused by the given object3d
  *
- *      Draws reflections caused by the given \see object3d
+ *      Draws reflections caused by the given object3d
  *
  * \param object_id the 3d object for which reflections are drawn.
- * \return None
+ *
+ * \callgraph
  */
 void draw_3d_reflection(object3d * object_id);
 
@@ -97,7 +99,8 @@ void draw_3d_reflection(object3d * object_id);
  *
  *      Finds all reflections on the current map.
  *
- * \return int
+ * \retval int
+ * \callgraph
  */
 int find_reflection();
 
@@ -110,7 +113,7 @@ int find_reflection();
  * \param x_pos the x coordinate of the position
  * \param y_pos the y coordinate of the position
  * \param range the range up to which reflections should be searched for.
- * \return int
+ * \retval int
  */
 int find_local_reflection(int x_pos,int y_pos,int range);
 
@@ -120,7 +123,7 @@ int find_local_reflection(int x_pos,int y_pos,int range);
  *
  *      Displays all reflections caused by 3d objects.
  *
- * \return None
+ * \callgraph
  */
 void display_3d_reflection();
 
@@ -130,7 +133,7 @@ void display_3d_reflection();
  *
  *      Adds noise to the water of lakes to make them look more realistic.
  *
- * \return None
+ * \sa mrandom
  */
 void make_lake_water_noise();
 
@@ -142,7 +145,6 @@ void make_lake_water_noise();
  *
  * \param x_pos the x coordinate of the position
  * \param y_pos the y coordinate of the position
- * \return None
  */
 void draw_lake_water_tile(float x_pos, float y_pos);
 
@@ -152,7 +154,7 @@ void draw_lake_water_tile(float x_pos, float y_pos);
  *
  *      Draws all the tiles of all lakes on the current map
  *
- * \return None
+ * \callgraph
  */
 void draw_lake_tiles();
 
@@ -162,7 +164,7 @@ void draw_lake_tiles();
  *
  *      Draws the sky background in open areas
  *
- * \return None
+ * \callgraph
  */
 void draw_sky_background();
 
@@ -172,9 +174,8 @@ void draw_sky_background();
  *
  *      Draws the sky background in dungeons
  *
- * \return None
+ * \callgraph
  */
 void draw_dungeon_sky_background();
 
 #endif
-

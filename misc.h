@@ -18,7 +18,6 @@
  * \param ox
  * \param oy
  * \param oz
- * \return None
  */
 void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GLfloat *oz);
 
@@ -33,7 +32,6 @@ void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GL
  * \param oz
  * \param wx
  * \param wy
- * \return None
  */
 void project_ortho(GLfloat ox, GLfloat oy, GLfloat oz, GLfloat * wx, GLfloat * wy);
 
@@ -43,7 +41,6 @@ void project_ortho(GLfloat ox, GLfloat oy, GLfloat oz, GLfloat * wx, GLfloat * w
  *
  *      Detail
  *
- * \return None
  */
 void reset_under_the_mouse();
 
@@ -55,7 +52,7 @@ void reset_under_the_mouse();
  *
  * \param object_id
  * \param object_type
- * \return int
+ * \retval int
  */
 int anything_under_the_mouse(int object_id, int object_type);
 
@@ -65,7 +62,6 @@ int anything_under_the_mouse(int object_id, int object_type);
  *
  *      Detail
  *
- * \return None
  */
 void save_scene_matrix();
 
@@ -79,7 +75,8 @@ void save_scene_matrix();
  * \param y
  * \param z
  * \param radius
- * \return int
+ * \retval int
+ * \callgraph
  */
 int mouse_in_sphere(float x, float y, float z, float radius);
 
@@ -91,7 +88,8 @@ int mouse_in_sphere(float x, float y, float z, float radius);
  *
  * \param source_string
  * \param len
- * \return None
+ *
+ * \callgraph
  */
 void find_last_url(char * source_string, int len);
 
@@ -102,7 +100,7 @@ void find_last_url(char * source_string, int len);
  *      Detail
  *
  * \param dummy
- * \return int
+ * \retval int
  */
 int go_to_url(void *dummy);
 
@@ -118,7 +116,7 @@ int go_to_url(void *dummy);
  * \param y
  * \param z
  * \param radius
- * \return int
+ * \retval int
  */
 int SphereInFrustum(float x, float y, float z, float radius);
 
@@ -130,7 +128,8 @@ int SphereInFrustum(float x, float y, float z, float radius);
  *
  * \param x
  * \param y
- * \return int
+ * \retval int
+ * \callgraph
  */
 int check_tile_in_frustrum(float x,float y);
 
@@ -142,7 +141,7 @@ int check_tile_in_frustrum(float x,float y);
  *
  * \param fname The file name
  * \param mode The mode in which the file is to be opened
- * \return Pointer to the file on success, NULL otherwise
+ * \retval FILE* Pointer to the file on success, NULL otherwise
  */
 FILE *my_fopen (const char *fname, const char *mode);
 

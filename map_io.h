@@ -104,8 +104,49 @@ extern float ambient_g;
 extern float ambient_b;
 extern int map_type;
 
+/*!
+ * \ingroup maps
+ * \brief
+ *
+ *      Detail
+ *
+ * \callgraph
+ */
 void destroy_map();
+
+/*!
+ * \ingroup maps
+ * \brief
+ *
+ *      Detail
+ *
+ * \param file_name
+ * \retval int
+ */
 int save_map(char * file_name);
+
+/*!
+ * \ingroup maps
+ * \brief
+ *
+ *      Detail
+ *
+ * \param file_name
+ * \retval int
+ * \callgraph
+ */
 int load_map(char * file_name);
+
+/*!
+ * \ingroup maps
+ * \brief
+ *
+ *      Detail
+ *
+ * \param m_x_size
+ * \param m_y_size
+ *
+ * \callgraph
+ */
 void new_map(int m_x_size,int m_y_size);
 #endif

@@ -109,7 +109,7 @@ extern short game_minute;
  *
  *      Detail
  *
- * \return None
+ * \todo Check this. It seems not get called from anywhere.
  */
 void draw_test_light();
 
@@ -119,7 +119,6 @@ void draw_test_light();
  *
  *      Detail
  *
- * \return None
  */
 void disable_local_lights();
 
@@ -129,7 +128,7 @@ void disable_local_lights();
  *
  *      Detail
  *
- * \return None
+ * \sa new_minute
  */
 void enable_local_lights();
 
@@ -139,7 +138,7 @@ void enable_local_lights();
  *
  *      Detail
  *
- * \return None
+ * \sa draw_scene
  */
 void draw_lights();
 
@@ -156,7 +155,7 @@ void draw_lights();
  * \param g
  * \param b
  * \param intensity
- * \return int
+ * \retval int
  */
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity);
 
@@ -166,7 +165,7 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
  *
  *      Detail
  *
- * \return None
+ * \sa draw_scene
  */
 void update_scene_lights();
 
@@ -176,7 +175,8 @@ void update_scene_lights();
  *
  *      Detail
  *
- * \return None
+ * \sa init_stuff
+ * \sa set_new_video_mode
  */
 void init_lights();
 
@@ -186,7 +186,6 @@ void init_lights();
  *
  *      Detail
  *
- * \return None
  */
 void reset_material();
 
@@ -199,7 +198,6 @@ void reset_material();
  * \param r
  * \param g
  * \param b
- * \return None
  */
 void set_material(float r, float g, float b);
 
@@ -209,7 +207,7 @@ void set_material(float r, float g, float b);
  *
  *      Detail
  *
- * \return None
+ * \sa draw_scene
  */
 void draw_global_light();
 
@@ -219,7 +217,7 @@ void draw_global_light();
  *
  *      Detail
  *
- * \return None
+ * \sa draw_scene
  */
 void draw_dungeon_light();
 
@@ -238,7 +236,6 @@ void draw_dungeon_light();
  * \param r_end
  * \param g_end
  * \param b_end
- * \return None
  */
 void make_gradient_light(int start,int steps,float *light_table, float r_start, 
 						 float g_start, float b_start, float r_end, float g_end, float b_end);
@@ -249,7 +246,7 @@ void make_gradient_light(int start,int steps,float *light_table, float r_start,
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void build_global_light_table();
 
@@ -259,7 +256,7 @@ void build_global_light_table();
  *
  *      Detail
  *
- * \return None
+ * \sa init_stuff
  */
 void build_sun_pos_table();
 
@@ -269,7 +266,7 @@ void build_sun_pos_table();
  *
  *      Detail
  *
- * \return None
+ * \callgraph
  */
 void new_minute();
 

@@ -46,7 +46,7 @@ void write_to_log(Uint8 * data,int len);
  * \ingroup text_font
  * \brief   Sends the current input text to the server
  *
- *      Sends the current text in \see input_text_line to the server.
+ *      Sends the current text in input_text_line to the server.
  *
  */
 void send_input_text_line();
@@ -59,7 +59,8 @@ void send_input_text_line();
  *
  * \param text_to_add   the string to add
  * \param len           the length of text_to_add
- * \return int
+ * \retval int
+ * \callgraph
  */
 int filter_or_ignore_text(unsigned char *text_to_add, int len);
 
@@ -70,7 +71,8 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len);
  *      Puts the given character into the text buffer
  *
  * \param ch    the character to add
- * \return None
+ *
+ * \callgraph
  */
 void put_char_in_buffer(unsigned char ch);
 
@@ -83,23 +85,24 @@ void put_char_in_buffer(unsigned char ch);
  * \param text_to_add   the string to add to the buffer
  * \param len           the length of text_to_add
  * \param x_chars_limit flag indicating whether the text should be filtered (!=0) or not (==0).
- * \return None
+ *
+ * \callgraph
  */
 void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit);
 
 /*!
  * \ingroup text_font
- * \brief works like \see put_text_in_buffer, but the text will be in the specified color.
+ * \brief works like put_text_in_buffer, but the text will be in the specified color.
  *
- *      Works like \see put_text_in_buffer, but the text will be in the specified color.
+ *      Works like put_text_in_buffer, but the text will be in the specified color.
  *
  * \param color         the color of the text
  * \param text_to_add   the string to add to the buffer
  * \param len           the length of text_to_add
  * \param x_chars_limit flag indicating whether the text should be filtered (!=0) or not (==0).
- * \return None
  *
  * \sa put_text_in_buffer
+ * \callgraph
  */
 void put_colored_text_in_buffer(Uint8 color,unsigned char *text_to_add, int len, 
 								int x_chars_limit);
@@ -114,23 +117,23 @@ void put_colored_text_in_buffer(Uint8 color,unsigned char *text_to_add, int len,
  * \param len           the length of text_to_add
  * \param pixels_limit
  * \param buffer
- * \return None
+ *
+ * \callgraph
  */
 void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, 
 						   char *buffer);
 
 /*!
  * \ingroup text_font
- * \brief works the same as \see put_small_text_in_box, but the text will be added in the specified color.
+ * \brief works the same as put_small_text_in_box, but the text will be added in the specified color.
  *
- *      Works the same like \see put_small_text_in_box, but the text will be added in the specified color.
+ *      Works the same like put_small_text_in_box, but the text will be added in the specified color.
  *
  * \param color         the color of the text
  * \param text_to_add   the string to add
  * \param len           the length of text_to_add
  * \param pixels_limit
  * \param buffer
- * \return None
  *
  * \sa put_small_text_in_box
  */
@@ -143,7 +146,7 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
  *
  *      find_last_lines_time()
  *
- * \return int
+ * \retval int
  */
 int find_last_lines_time();
 
@@ -154,7 +157,7 @@ int find_last_lines_time();
  *      find_last_console_lines(int)
  *
  * \param lines_no
- * \return None
+ * \retval int
  */
 int find_last_console_lines(int lines_no);
 
@@ -163,8 +166,6 @@ int find_last_console_lines(int lines_no);
  * \brief moves the screen up one line in console mode.
  *
  *      Moves the screen in console mode one line up.
- *
- * \return None
  *
  * \sa console_move_down, \sa console_move_page_down, \sa console_move_page_up
  */
@@ -176,8 +177,6 @@ void console_move_up();
  *
  *      Moves the screen down one line in console mode.
  *
- * \return None
- *
  * \sa console_move_up, \sa console_move_page_down, \sa console_move_page_up
  */
 void console_move_down();
@@ -188,9 +187,8 @@ void console_move_down();
  *
  *      Moves the screen in console mode down one page.
  *
- * \return None
- *
  * \sa console_move_page_up, \sa console_move_down, \sa console_move_up
+ * \callgraph
  */
 void console_move_page_down();
 
@@ -200,9 +198,8 @@ void console_move_page_down();
  *
  *      Moves the screen in console mode up one page.
  *
- * \return None
- *
  * \sa console_move_page_down, \sa console_move_up, \sa console_move_down
+ * \callgraph
  */
 void console_move_page_up();
 
@@ -212,11 +209,10 @@ void console_move_page_up();
  *
  *      Switches to console mode and displays the txt.
  *
- * \return None
+ * \callgraph
  */
 void display_console_text();
 
 #define log_to_console(color,buffer)	put_colored_text_in_buffer(color,buffer,-1,0) /*!< logs the text in buffer with the specified color to the console. */
 
 #endif
-

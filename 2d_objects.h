@@ -96,8 +96,9 @@ extern float texture_scale;
  * 		Draws the 2D object given with object_id. It is called from display_2d_objects(); if it's within the viewing distance
  * 		
  * \param	object_id A pointer to the 2d object id
- * \return 	None
+ *
  * \sa		display_2d_objects
+ * \callgraph
  */
 void draw_2d_object(obj_2d * object_id);
 
@@ -107,9 +108,9 @@ void draw_2d_object(obj_2d * object_id);
  *
  *         	Parses through the obj_2d_list, checking for an object within the viewing distance (dist_x^2+dist_y^2<=220)
  *         	
- * \return 	None
  * \sa 		draw_2d_object
  * \sa		obj_2d_list
+ * \callgraph
  */
 void display_2d_objects();
 
@@ -121,10 +122,11 @@ void display_2d_objects();
  * 	   	Have a look at the objects in ./2dobjects/ground/ 
  * 	   	
  * \param 	file_name The filename of the object we wish to load
- * \return 	A pointer to the loaded 2d object on succes, otherwise NULL
+ * \retval obj_2d_def* 	A pointer to the loaded 2d object on succes, otherwise NULL
  * \sa		obj_2d_def
  * \sa		obj_2d_def_cache_struct
  * \sa		obj_2d_def_cache
+ * \callgraph
  */
 obj_2d_def * load_obj_2d_def(char *file_name);
 
@@ -135,7 +137,8 @@ obj_2d_def * load_obj_2d_def(char *file_name);
  * 		Checks for an already existing instance of the object given with file_name in the 2d object cache.
  * 		
  * \param	file_name The filename of the 2d object definition we wish to load
- * \return 	On succes it returns a pointer to the loaded 2d object, otherwise it tries loading it using load_obj_2d_def - if this fails as well, it returns NULL
+ * \retval obj_2d_def* 	On succes it returns a pointer to the loaded 2d object, otherwise it tries loading it using load_obj_2d_def - if this fails as well, it returns NULL
+ * \callgraph
  */
 obj_2d_def * load_obj_2d_def_cache(char * file_name);
 
@@ -153,7 +156,8 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name);
  * \param	x_rot The x rotation
  * \param	y_rot The y rotation
  * \param	z_rot The z rotation
- * \return 	Returns 0 on failure and the location in the obj_2d_list if it succeeds
+ * \retval int 	Returns 0 on failure and the location in the obj_2d_list if it succeeds
+ * \callgraph
  */
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			   float x_rot, float y_rot, float z_rot);

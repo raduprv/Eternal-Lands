@@ -375,7 +375,7 @@ extern actor_types actors_defs[100];	/*!< The actor definitions*/
  *
  * \param	model_data The MD2 model data, we wish to find the position of the cur_frame in
  * \param	cur_frame The name of the current frame.
- * \return	Returns the position of the frame on succes, -1 on failure (if the given frame was not found)
+ * \retval int	Returns the position of the frame on succes, -1 on failure (if the given frame was not found)
  */
 int get_frame_number(const md2 *model_data, const char *cur_frame);
 
@@ -399,7 +399,8 @@ int get_frame_number(const md2 *model_data, const char *cur_frame);
  * \param	pants_color Sets the actors pants colour
  * \param	boots_color Sets the actors boots colour (This is the "naked" actors boots, not i.e. fur or leather boots)
  * \param	actor_id The current actors actor_id as the server sees it
- * \return	Returns the position in the actors_list or -1 on failure
+ * \retval int	Returns the position in the actors_list or -1 on failure
+ * \callgraph
  */
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 			  float y_pos, float z_pos, float z_rot, char remappable,
@@ -414,7 +415,8 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
  *
  * \param	actor_id Is a pointer to the actor we wish to draw
  * \param	offset_z Is the z offset, found by the current MD2 frames max_z.
- * \return	None
+ *
+ * \callgraph
  */
 void draw_actor_banner(actor * actor_id, float offset_z);
 
@@ -429,7 +431,8 @@ void draw_actor_banner(actor * actor_id, float offset_z);
  * \param	r (0<=r<=1)
  * \param	g (0<=g<=1)
  * \param	b (0<=b<=1)
- * \return	None
+ *
+ * \callgraph
  */
 void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b);
 
@@ -442,7 +445,8 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
  * \param	model_data A pointer to the md2 model
  * \param	cur_frame The current frame
  * \param	ghost Whether the model is a "ghost" or not
- * \return 	None
+ *
+ * \callgraph
  */
 void draw_model(md2 *model_data,char *cur_frame, int ghost);
 
@@ -453,7 +457,8 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost);
  * 		The function draws the actor pointed to by actor_id. It is usually called from display_actors().
  *
  * \param	actor_id A pointer to the actor in the actors_list
- * \return	None
+ *
+ * \callgraph
  */
 void draw_actor(actor * actor_id);
 
@@ -463,7 +468,7 @@ void draw_actor(actor * actor_id);
  * 
  * 		The function draws the actor if it's within a range of 12*12
  *
- * \return	None
+ * \callgraph
  */
 void display_actors();
 
@@ -474,7 +479,8 @@ void display_actors();
  * 		Is called when the client gets an ADD_NEW_ACTOR command from the server. Parses the data pointed to by in_data, then adds the actor to the actors list
  *
  * \param	in_data The data from the server
- * \return	None
+ *
+ * \callgraph
  */
 void add_actor_from_server(char * in_data);
 //void draw_interface_body_part(md2 *model_data);
@@ -493,8 +499,9 @@ void add_actor_from_server(char * in_data);
  * \param	x_rot The x rotation
  * \param	y_rot The y rotation
  * \param 	z_rot The z rotation
- * \return 	None
+ *
  * \sa		add_actor_interface
+ * \callgraph
  */
 void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 						  int z_pos, float x_rot,float y_rot, float z_rot);
@@ -512,8 +519,9 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
  * \param	pants The pants type
  * \param	boots The type of boots
  * \param	head The head type
- * \return	A pointer to the actor created
+ * \retval actor*	A pointer to the actor created
  * \sa		client_serv.h
+ * \callgraph
  */
 actor * add_actor_interface(int actor_type, short skin, short hair,
 							short shirt, short pants, short boots, short head);
@@ -524,7 +532,6 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
  *
  * 		Sets all actor pointers in the actors_list to NULL and creates the actors_list mutex.
  *
- * \return	None
  * \sa		actors_list
  * \sa		lock_actors_lists
  */
@@ -558,7 +565,6 @@ extern void	init_actors_lists();
  *
  * 		Destroys the actors_list mutex and sets the pointer to NULL
  * 
- * \return 	None
  */
 extern void	end_actors_lists();
 
@@ -569,7 +575,8 @@ extern void	end_actors_lists();
  * 		When an actor speaks in local chat and the function is called (only if the view_chat_to_overtext variable is 1) the function draws a bubble containing the text above the head of the actor.
  *
  * \param	actor_ptr A pointer to the actor we wish to draw the overtext of
- * \return	None
+ *
+ * \callgraph
  */
 void	draw_actor_overtext( actor* actor_ptr );
 
@@ -591,7 +598,7 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text );
  * 		The function is used for getting a pointer to the actor with the given actor_id (the server-side actor id).
  *
  * \param	actor_id The server-side actor_id - NOT the position in the actors_list
- * \return	A pointer to the actor with the given ID. If the actor is not found it returns NULL
+ * \retval actor*	A pointer to the actor with the given ID. If the actor is not found it returns NULL
  * \sa		pf_get_our_actor
  */
 actor *	get_actor_ptr_from_id( int actor_id );

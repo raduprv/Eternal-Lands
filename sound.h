@@ -42,7 +42,6 @@ extern ALfloat music_gain; /*!< gain for playing music */
  *      Stops playing the sound that is specified by the given index.
  *
  * \param i index of the sound to stop
- * \return None
  */
 void stop_sound(int i);
 
@@ -57,7 +56,8 @@ void stop_sound(int i);
  * \param y             the y coordinate of the position where the sound should be audible.
  * \param positional    boolean flag, indicating whether we shall play the sound positional.
  * \param loops         boolean flag, indicating whether we shall play the sound in a loop.
- * \return int          int returns the added sound_object
+ * \retval int          int returns the added sound_object
+ * \callgraph
  */
 int add_sound_object(int sound_file,int x, int y,int positional,int loops);
 
@@ -67,7 +67,6 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops);
  *
  *      Updates the position change of sound played.
  *
- * \return None
  */
 void update_position();
 
@@ -77,7 +76,7 @@ void update_position();
  *
  *      kill all the sounds that loop infinitely; usefull when we change maps, etc.
  *
- * \return None
+ * \callgraph
  */
 void kill_local_sounds();
 
@@ -87,7 +86,6 @@ void kill_local_sounds();
  *
  *      Turns off the playback of sound (effects).
  *
- * \return None
  */
 void turn_sound_off();
 
@@ -97,7 +95,6 @@ void turn_sound_off();
  *
  *      Turns on the playback of sound (effects).
  *
- * \return None
  */
 void turn_sound_on();
 
@@ -107,7 +104,6 @@ void turn_sound_on();
  *
  *      Initializes the sound system of EL
  *
- * \return None
  */
 void init_sound();
 
@@ -117,7 +113,6 @@ void init_sound();
  *
  *      Shuts down the sound system of EL.
  *
- * \return None
  */
 void destroy_sound();
 
@@ -127,7 +122,7 @@ void destroy_sound();
  *
  *      Reallocates the sources of playlist entries.
  *
- * \return int  the number of sound sources still in use.
+ * \retval int  the number of sound sources still in use.
  */
 int realloc_sources();
 
@@ -138,7 +133,7 @@ int realloc_sources();
  *      Retrieves a previously loaded buffer at the given index. If the sound file at the index \a i is not buffered already, it will be loaded and buffered for future use.
  *
  * \param i index of the file to load
- * \return ALuint   a handle into the sound buffer.
+ * \retval ALuint   a handle into the sound buffer.
  */
 ALuint get_loaded_buffer(int i);
 
@@ -149,7 +144,6 @@ ALuint get_loaded_buffer(int i);
  *
  *      Retrieves the playlist, associated with the current map.
  *
- * \return None
  */
 void get_map_playlist();
 
@@ -160,7 +154,8 @@ void get_map_playlist();
  *      Plays an ogg file, specified by a filename
  *
  * \param file_name name of the ogg file to play
- * \return None
+ *
+ * \callgraph
  */
 void play_ogg_file(char *file_name);
 
@@ -171,7 +166,6 @@ void play_ogg_file(char *file_name);
  *      Loads an ogg file, specified by a filename.
  *
  * \param file_name name of the ogg file to load
- * \return None
  */
 void load_ogg_file(char *file_name);
 
@@ -182,7 +176,8 @@ void load_ogg_file(char *file_name);
  *      Start music playback, according the playlist entries in the given playlist.
  *
  * \param list  a handle for the playlist to use for playback.
- * \return None
+ *
+ * \callgraph
  */
 void play_music(int list);
 
@@ -193,7 +188,8 @@ void play_music(int list);
  *      Updates the music and brings the sound system in sync.
  *
  * \param dummy currently not used
- * \return int  always returns 0.
+ * \retval int  always returns 0.
+ * \callgraph
  */
 int update_music(void *dummy);
 
@@ -204,7 +200,8 @@ int update_music(void *dummy);
  *      Creates a sound stream, ready for playback, from the data pointed to by \a buffer.
  *
  * \param buffer    handle to a buffer with the sound data
- * \return None
+ *
+ * \sa ogg_error
  */
 void stream_music(ALuint buffer);
 
@@ -213,8 +210,6 @@ void stream_music(ALuint buffer);
  * \brief Turns music off and stops playback of music.
  *
  *      Turns music off and stops playback of music.
- *
- * \return None
  */
 void turn_music_off();
 
@@ -223,8 +218,6 @@ void turn_music_off();
  * \brief Turns music on and starts playback of music
  *
  *      Turns music on and starts playback of music.
- *
- * \return None
  */
 void turn_music_on();
 
@@ -235,7 +228,6 @@ void turn_music_on();
  *      Creates an ogg error with the specified code.
  *
  * \param code  error code used to create this error.
- * \return None
  */
 void ogg_error(int code);
 
@@ -249,4 +241,3 @@ void ogg_error(int code);
 /*! @} */
 
 #endif
-

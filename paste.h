@@ -13,7 +13,8 @@
  *      Pastes the contents of the given buffer to the chat window
  *
  * \param buffer    the data to paste
- * \return None
+ *
+ * \callgraph
  */
 void do_paste(Uint8 * buffer);
 
@@ -26,7 +27,6 @@ void do_paste(Uint8 * buffer);
  *
  *      A callback function used when pasting is started. This function is specific to the X Window system.
  *
- * \return None
  */
 void startpaste();
 
@@ -37,7 +37,8 @@ void startpaste();
  *      A callback function used when pasting is finishing. This function is specific to the X Window system.
  *
  * \param event     the X Window event used for pasting
- * \return None
+ *
+ * \callgraph
  */
 void finishpaste(XSelectionEvent event);
 
@@ -49,10 +50,9 @@ void finishpaste(XSelectionEvent event);
  *
  *      A callback function used for pasting. This function is specific to Windows.
  *
- * \return None
+ * \callgraph
  */
 void windows_paste();
 #endif
 
 #endif
-
