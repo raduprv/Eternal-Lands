@@ -94,6 +94,7 @@ void string_fix(char *t)
 void add_questlog(char *t)
 {
 	_logdata *l;
+	char *s=t;
 	//write on file
 	if(qlf==NULL){
 		#ifndef WINDOWS
@@ -109,6 +110,10 @@ void add_questlog(char *t)
 		#else
 			qlf=fopen("quest.log","ab");
 		#endif
+	}
+	while(*s){
+		if(*s=='\n')*s=' ';
+		s++;
 	}
 	fwrite(t,sizeof(char),strlen(t),qlf);
 	fputc(10,qlf);
