@@ -66,7 +66,7 @@ int start_rendering()
 			//Check the timers to make sure that they are all still alive...
 			check_timers();
 #endif
-			
+
 			//cache handling
 			if(cache_system)cache_system_maint();
 			//see if we need to exit
@@ -109,7 +109,7 @@ void	read_command_line()
 			if(gargv[i][0]=='-')
 				{
 					if(gargv[i][1]=='-')check_var(gargv[i]+2,1);
-					else 
+					else
 						{
 							char str[200];
 							snprintf(str,198,"%s %s",gargv[i],gargv[i+1]);
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 {
 	gargc=argc;
 	gargv=argv;
-	
+
 	// do basic initialization
 	init_vars();
 	init_stuff();
@@ -143,7 +143,9 @@ int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 	LPWSTR *argv;
 	int	argc, i;
 	char **targv;
+	//commented out code is incompatible with win 98
 
+/*
 	argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 	targv=(char**)malloc(sizeof(char*)*argc);
 
@@ -151,13 +153,16 @@ int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 		targv[i]=(char*)calloc(sizeof(char), wcslen(argv[i])+1);
 		WideCharToMultiByte(CP_ACP, 0, argv[i], -1, targv[i], wcslen(argv[i]), " ", NULL);
 	}
+*/
+	argc=0;
+	targv=NULL;
 
 	Main(argc, (char **) targv);
-
+/*
 	for(i=0;i<argc;i++){
 		free(targv[i]);
 	}
-	free(targv);
+	free(targv);*/
 
 	return 0;
 }

@@ -44,7 +44,7 @@ void set_shadow_map_size()
 	depth_map_width=floor_pow2(window_width);
 	depth_map_height=floor_pow2(window_height);
 	while(depth_map_width>max)depth_map_width/=2;
-	while(depth_map_height>max)depth_map_height/=2;	
+	while(depth_map_height>max)depth_map_height/=2;
 }
 
 void calc_light_frustum(float light_xrot)
@@ -81,7 +81,7 @@ void calc_shadow_matrix()
 					  0.0,0.0,0.0,0.0,
 					  0.5,0.0,0.0,0.0,
 					  0.5,0.0,0.0,1.0};
-			
+
 			float div_length=1.0f/sqrt(sun_position[0]*sun_position[0]+sun_position[1]*sun_position[1]+sun_position[2]*sun_position[2]);
 			sun_position[0]*=div_length;
 			sun_position[1]*=div_length;
@@ -318,7 +318,7 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 	x_rot=actor_id->tmp.x_rot;
 	y_rot=actor_id->tmp.y_rot;
 	z_rot=actor_id->tmp.z_rot;
-	
+
 	z_rot+=180;//test
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
@@ -345,7 +345,7 @@ void draw_actor_shadow(actor * actor_id)
 
 	//now, go and find the current frame
 	cur_frame=actor_id->tmp.cur_frame;
-	
+
 	i = get_frame_number(actor_id->model_data, cur_frame);
 	if(i < 0)return;	//can't draw it
 
@@ -355,7 +355,7 @@ void draw_actor_shadow(actor * actor_id)
 	x_pos=actor_id->tmp.x_pos;
 	y_pos=actor_id->tmp.y_pos;
 	z_pos=actor_id->tmp.z_pos;
-	
+
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
 
@@ -364,7 +364,7 @@ void draw_actor_shadow(actor * actor_id)
 	x_rot=actor_id->tmp.x_rot;
 	y_rot=actor_id->tmp.y_rot;
 	z_rot=actor_id->tmp.z_rot;
-	
+
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
@@ -387,7 +387,7 @@ void display_actors_shadow()
 			glEnableClientState(GL_VERTEX_ARRAY);
 			//glEnableClientState(GL_NORMAL_ARRAY);
 		}
-	
+
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -395,10 +395,10 @@ void display_actors_shadow()
 				{
 					int dist1;
 					int dist2;
-					
+
 					dist1=x-actors_list[i]->tmp.x_pos;
 					dist2=y-actors_list[i]->tmp.y_pos;
-					
+
 					if(dist1*dist1+dist2*dist2<=12*12)
 							{
 								if(actors_list[i]->is_enhanced_model)
@@ -407,7 +407,7 @@ void display_actors_shadow()
 							}
 				}
 		}
-	
+
 	if(use_vertex_array > 0)
 		{
 			//glDisableClientState(GL_NORMAL_ARRAY);
@@ -427,7 +427,8 @@ void display_shadows()
 		{
 			if(objects_list[i])
 				{
-					if(use_shadow_mapping || (!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f))
+					//if(use_shadow_mapping || (!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f))
+					if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
 						{
 							int dist1;
 							int dist2;
@@ -689,7 +690,7 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_PREVIOUS_EXT);
-	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);			
+	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_CONSTANT_EXT);
 	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,sun_ambient_light);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
