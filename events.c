@@ -414,12 +414,14 @@ int HandleEvent(SDL_Event *event)
 			if(right_click==1 && cur_tool==tool_select && selected_height!=-1 && cur_mode==mode_height)selected_height=-1;
 			if(right_click==1 && cur_tool==tool_select && selected_2d_object!=-1 && cur_mode==mode_2d)kill_2d_object(selected_2d_object);
 			if(right_click==1 && cur_tool==tool_select && selected_3d_object!=-1 && cur_mode==mode_3d)kill_3d_object(selected_3d_object);
+			if(right_click==1 && cur_tool==tool_select && cur_mode==mode_particles && selected_particles_object!=-1)kill_particles_object(selected_particles_object);
 			if(right_click==1 && cur_mode==mode_tile && view_tiles_list)
 				{
 					view_tiles_list=0;
 					cur_tool=tool_select;
 					selected_tile=0;
 				}
+
 			get_world_x_y();
 			if(!tool_bar_click)
 				{
@@ -508,7 +510,7 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_kill)
 									{
 										get_particles_object_under_mouse();
-										if(selected_particles_object!=-1)kill_particles_object(selected_2d_object);
+										if(selected_particles_object!=-1)kill_particles_object(selected_particles_object);
 										return(done);
 									}
 								if(cur_tool==tool_clone)
@@ -526,7 +528,7 @@ int HandleEvent(SDL_Event *event)
 									if(selected_particles_object==-1){
 										get_particles_object_under_mouse();
 										if(alt_on && selected_particles_object!=-1){
-											selected_2d_object=-1;
+											selected_particles_object=-1;
 										}
 									}
 								}

@@ -101,7 +101,7 @@ void clone_3d_object(int object_id)
 void open_3d_obj()
 {
   OPENFILENAME ofn;
-  char szFileName[MAX_PATH];
+  char szFileName[MAX_PATH], temp[MAX_PATH];
 
   ZeroMemory (&ofn, sizeof (ofn));
   szFileName[0] = 0;
@@ -112,7 +112,9 @@ void open_3d_obj()
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrDefExt = "e3d";
-  ofn.lpstrInitialDir = "./3dobjects";
+  strcpy(temp,exec_path);
+  strcat(temp,"\\3dobjects\\");
+  ofn.lpstrInitialDir = temp;
 
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
     if (GetOpenFileName (&ofn))
@@ -239,7 +241,7 @@ void clone_2d_object(int object_id)
 void open_2d_obj()
 {
   OPENFILENAME ofn;
-  char szFileName[MAX_PATH];
+  char szFileName[MAX_PATH],temp[MAX_PATH];
 
   ZeroMemory (&ofn, sizeof (ofn));
   szFileName[0] = 0;
@@ -250,7 +252,9 @@ void open_2d_obj()
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrDefExt = "2d0";
-  ofn.lpstrInitialDir = "./2dobjects";
+  strcpy(temp,exec_path);
+  strcat(temp,"\\2dobjects\\");
+  ofn.lpstrInitialDir = temp;
 
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |OFN_NOCHANGEDIR;
     if (GetOpenFileName (&ofn))
@@ -892,7 +896,7 @@ void draw_height_map()
 void open_map_file()
 {
   OPENFILENAME ofn;
-  char szFileName[MAX_PATH];
+  char szFileName[MAX_PATH],temp[MAX_PATH];
 
   ZeroMemory (&ofn, sizeof (ofn));
   szFileName[0] = 0;
@@ -903,7 +907,9 @@ void open_map_file()
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrDefExt = "elm";
-  ofn.lpstrInitialDir = "./maps";
+  strcpy(temp,exec_path);
+  strcat(temp,"\\maps\\");
+  ofn.lpstrInitialDir = temp;
 
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
     if (GetOpenFileName (&ofn))
@@ -929,7 +935,7 @@ void open_map_file()
 void save_map_file()
 {
   OPENFILENAME ofn;
-  char szFileName[MAX_PATH];
+  char szFileName[MAX_PATH], temp[MAX_PATH];
 
   ZeroMemory (&ofn, sizeof (ofn));
   szFileName[0] = 0;
@@ -940,7 +946,9 @@ void save_map_file()
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrDefExt = "elm";
-  ofn.lpstrInitialDir = "./maps";
+  strcpy(temp,exec_path);
+  strcat(temp,"\\maps\\");
+  ofn.lpstrInitialDir = temp;
 
     ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY |
       OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
@@ -967,18 +975,20 @@ void save_map_file()
 void open_particles_obj()
 {
   OPENFILENAME ofn;
-  char szFileName[MAX_PATH];
+  char szFileName[MAX_PATH],temp[MAX_PATH];
 
   ZeroMemory (&ofn, sizeof (ofn));
   szFileName[0] = 0;
 
   ofn.lStructSize = sizeof (ofn);
   ofn.hwndOwner = 0;
-  ofn.lpstrFilter = "2D Object (*.part)\0*.part\0\0";
+  ofn.lpstrFilter = "Particle File (*.part)\0*.part\0\0";
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrDefExt = "2d0";
-  ofn.lpstrInitialDir = "./particles";
+  strcpy(temp,exec_path);
+  strcat(temp,"\\particles\\");
+  ofn.lpstrInitialDir = temp;
 
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |OFN_NOCHANGEDIR;
     if (GetOpenFileName (&ofn))
