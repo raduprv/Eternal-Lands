@@ -640,6 +640,10 @@ SOURCE=.\new_character.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\options.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\particles.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"
@@ -1019,6 +1023,10 @@ SOURCE=.\new_actors.h
 # Begin Source File
 
 SOURCE=.\new_character.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\options.h
 # End Source File
 # Begin Source File
 

@@ -39,6 +39,7 @@ typedef struct {
 }checkbox;
 
 // Common widget functions
+widget_list * widget_find(Uint32 window_id, Uint32 widget_id);
 int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
 int widget_set_OnClick(Uint32 window_id, Uint32 widget_id, int (*handler)());
 int widget_set_OnDrag(Uint32 window_id, Uint32 widget_id, int (*handler)());

@@ -6,123 +6,107 @@
 Uint32 widget_id = 0;
 
 // Common widget functions
-int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)())
+widget_list * widget_find(Uint32 window_id, Uint32 widget_id)
 {
 	widget_list *w = &windows_list.window[window_id].widgetlist;
 	while(w->next != NULL){
 		w = w->next;
-		if(w->id == widget_id){
-			w->OnDraw = handler;
-			return 1;
-		}
+		if(w->id == widget_id)
+			return w;
+	}
+	return NULL;
+}
+
+int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)())
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		w->OnDraw = handler;
+		return 1;
 	}
 	return 0;
 }
 
 int widget_set_OnClick(Uint32 window_id, Uint32 widget_id, int (*handler)())
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			w->OnClick = handler;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		w->OnClick = handler;
+		return 1;
 	}
 	return 0;
 }
 
 int widget_set_OnDrag(Uint32 window_id, Uint32 widget_id, int (*handler)())
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			w->OnDrag = handler;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		w->OnDrag = handler;
+		return 1;
 	}
 	return 0;
 }
 
 int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)())
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			w->OnMouseover = handler;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		w->OnMouseover = handler;
+		return 1;
 	}
 	return 0;
 }
 
 int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			w->pos_x = x;
-			w->pos_y = y;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		w->pos_x = x;
+		w->pos_y = y;
+		return 1;
 	}
 	return 0;
 }
 
 int widget_resize(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			w->len_x = x;
-			w->len_y = y;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		w->len_x = x;
+		w->len_y = y;
+		return 1;
 	}
 	return 0;
 }
 
 int widget_set_flags(Uint32 window_id, Uint32 widget_id, Uint32 f)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			w->Flags = f;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		w->Flags = f;
+		return 1;
 	}
 	return 0;
 }
 
 int widget_set_size(Uint32 window_id, Uint32 widget_id, float size)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			w->size = size;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		w->size = size;
+		return 1;
 	}
 	return 0;
 }
 
 int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float b)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			w->r = r;
-			w->g = g;
-			w->b = b;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		w->r = r;
+		w->g = g;
+		w->b = b;
+		return 1;
 	}
 	return 0;
 }
@@ -177,14 +161,11 @@ int label_draw(widget_list *W)
 
 int label_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			label *l = (label *) w->widget_info;
-			strncpy(l->text,text,255);
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		label *l = (label *) w->widget_info;
+		strncpy(l->text,text,255);
+		return 1;
 	}
 	return 0;
 }
@@ -246,31 +227,25 @@ int image_draw(widget_list *W)
 
 int image_set_id(Uint32 window_id, Uint32 widget_id, int id)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			image *l = (image *) w->widget_info;
-			l->id = id;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		image *l = (image *) w->widget_info;
+		l->id = id;
+		return 1;
 	}
 	return 0;
 }
 
 int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u2, float v2)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			image *l = (image *) w->widget_info;
-			l->u1 = u1;
-			l->u2 = u2;
-			l->v1 = v1;
-			l->v2 = v2;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		image *l = (image *) w->widget_info;
+		l->u1 = u1;
+		l->u2 = u2;
+		l->v1 = v1;
+		l->v2 = v2;
+		return 1;
 	}
 	return 0;
 }
@@ -338,27 +313,21 @@ int checkbox_click(widget_list *W)
 
 int checkbox_get_checked(Uint32 window_id, Uint32 widget_id)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			checkbox *c = (checkbox *)w->widget_info;
-			return c->checked;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		checkbox *c = (checkbox *)w->widget_info;
+		return c->checked;
 	}
 	return -1;
 }
 
 int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked)
 {
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			checkbox *c = (checkbox *)w->widget_info;
-			c->checked = checked;
-			return 1;
-		}
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		checkbox *c = (checkbox *)w->widget_info;
+		c->checked = checked;
+		return 1;
 	}
-	return -1;
+	return 0;
 }
