@@ -83,7 +83,6 @@ void draw_particle_sys(particle_sys *system_id)
 
 }
 
-
 particle_sys *create_particle_sys(float x, float y, float z, int sys_type, int part_type, int num_particles, int ttl)
 {
 	int	i;
@@ -101,7 +100,6 @@ particle_sys *create_particle_sys(float x, float y, float z, int sys_type, int p
 					break;
 				}
 		}
-
 
 	//now set the free flag, on all the particles
 	for(i=0;i<num_particles;i++)system_id->particles[i].free=1;
@@ -174,7 +172,7 @@ int add_teleporter(float x_pos, float y_pos, float z_pos)
 	system_id->particle_count=800;
 	system_id->total_particle_no=800;
 	*/
-	system_id=create_particle_sys(x_pos, y_pos, z_pos, TELEPORTER_PARTICLE_SYS, TELEPORTER_PARTICLE, 800, 0);
+	system_id=create_particle_sys(x_pos, y_pos, z_pos, TELEPORTER_PARTICLE_SYS, TELEPORTER_PARTICLE, total_particle_no, 0);
 
 
 	//find a free space
@@ -274,7 +272,7 @@ int add_teleport_in(int x_pos, int y_pos)
 	system_id->total_particle_no=800;
 	system_id->system_ttl=8;
 	*/
-	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, TELEPORT_OUT_PARTICLE_SYS, SPARKS_PARTICLE, 800, 8);
+	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, TELEPORT_IN_PARTICLE_SYS, SPARKS_PARTICLE, total_particle_no, 8);
 
 	//find a free space
 	for(j=0;j<total_particle_no;j++)
@@ -309,10 +307,10 @@ int add_teleport_in(int x_pos, int y_pos)
 				system_id->particles[j].free=0;
 			}
 
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
+	update_teleport_in(system_id);
+	update_teleport_in(system_id);
+	update_teleport_in(system_id);
+	update_teleport_in(system_id);
 	unlock_particles_list();
 	return i;
 }
@@ -378,7 +376,7 @@ int add_teleport_out(int x_pos, int y_pos)
 	system_id->total_particle_no=800;
 	system_id->system_ttl=8;
 	*/
-	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, TELEPORT_OUT_PARTICLE_SYS, SPARKS_PARTICLE, 800, 8);
+	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, TELEPORT_OUT_PARTICLE_SYS, SPARKS_PARTICLE, total_particle_no, 8);
 
 	//find a free space
 	for(j=0;j<total_particle_no;j++)
@@ -483,7 +481,7 @@ int add_bag_in(int x_pos, int y_pos)
 	system_id->total_particle_no=300;
 	system_id->system_ttl=8;
 	*/
-	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, BAG_IN_PARTICLE_SYS, SPARKS_PARTICLE, 800, 8);
+	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, BAG_IN_PARTICLE_SYS, SPARKS_PARTICLE, total_particle_no, 8);
 
 
 	//find a free space
@@ -519,10 +517,10 @@ int add_bag_in(int x_pos, int y_pos)
 				system_id->particles[j].free=0;
 			}
 
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
+	update_bag_in(system_id);
+	update_bag_in(system_id);
+	update_bag_in(system_id);
+	update_bag_in(system_id);
 	unlock_particles_list();
 	return i;
 }
@@ -590,7 +588,7 @@ int add_bag_out(int x_pos, int y_pos)
 	system_id->total_particle_no=300;
 	system_id->system_ttl=8;
 	*/
-	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, BAG_OUT_PARTICLE_SYS, SPARKS_PARTICLE, 800, 8);
+	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, BAG_OUT_PARTICLE_SYS, SPARKS_PARTICLE, total_particle_no, 8);
 
 
 	//find a free space
@@ -626,10 +624,10 @@ int add_bag_out(int x_pos, int y_pos)
 				system_id->particles[j].free=0;
 			}
 
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
+	update_bag_out(system_id);
+	update_bag_out(system_id);
+	update_bag_out(system_id);
+	update_bag_out(system_id);
 	unlock_particles_list();
 	return i;
 }
