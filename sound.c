@@ -189,12 +189,11 @@ void play_music(int list) {
 
 	if(!have_music)return;
 
-	memset(playlist,0,sizeof(playlist));
-
 	sprintf(list_file_name,"./music/%d.pll",list);
-
 	fp=fopen(list_file_name,"r");
 	if(!fp)return;
+
+	memset(playlist,0,sizeof(playlist));
 
 	while(1)
 		{
