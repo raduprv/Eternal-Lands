@@ -592,7 +592,6 @@ void add_command_to_actor(int actor_id, char command)
 												update_all_actors();
 												return;
 #else
-												i=max_actors;
 												break;
 #endif
 											}
