@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <math.h>
+#ifndef WINDOWS
+#include <locale.h>
+#endif
 #include "SDL_opengl.h"
 #include "global.h"
 #include "string.h"
@@ -88,7 +91,9 @@ particle_sys_def *load_particle_def(const char *filename)
 			fclose(f);
 			return NULL;
 		}
-
+#ifndef WINDOWS
+	setlocale(LC_NUMERIC,"en_US");
+#endif
 	// System info
 	strncpy(def->file_name,filename,79);
 	def->file_name[79]=0;
