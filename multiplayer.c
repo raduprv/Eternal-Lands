@@ -361,8 +361,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case LOG_IN_OK:
 			{
-#ifdef WINDOW_CHAT
 				show_hud_windows ();
+#ifdef WINDOW_CHAT
 				// login and/or new character windows are no longer needed
 				if (login_win >= 0) destroy_window (login_win);
 				login_win = -1;
