@@ -208,11 +208,17 @@ process_message_from_server(unsigned char *in_data, int data_lenght)
 	            {
 	              case RAW_TEXT:
 	                {
-	                    if(interface_mode!=interface_opening)
-	                    put_text_in_buffer(&in_data[3],data_lenght-3,0);
-	                    else put_text_in_buffer(&in_data[3],data_lenght-3,54);
-
-	                    write_to_log(&in_data[3],data_lenght-3);
+						// do filtering and ignoring
+						data_lenght=filter_or_ignore_text(&in_data[3],data_lenght);
+						if(data_lenght > 0)
+							{
+								//how to display it
+	                    		if(interface_mode!=interface_opening)
+	                    		put_text_in_buffer(&in_data[3],data_lenght-3,0);
+	                    		else put_text_in_buffer(&in_data[3],data_lenght-3,54);
+								//lets log it
+	                    		write_to_log(&in_data[3],data_lenght-3);
+							}
 	                }
 	              break;
 
