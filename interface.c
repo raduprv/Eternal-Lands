@@ -1950,45 +1950,45 @@ void draw_game_map()
 {
 	int screen_x;
 	int screen_y;
-	int i=0;
+	int i;
 
-   		glDisable(GL_DEPTH_TEST);
-   		glDisable(GL_LIGHTING);
+   	glDisable(GL_DEPTH_TEST);
+   	glDisable(GL_LIGHTING);
 
-    	glViewport(0, 0, window_width, window_height);
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		//glOrtho(0.0, (GLdouble)500, (GLdouble)500, 0.0, -250.0, 250.0);
-		glOrtho(300, (GLdouble)0, (GLdouble)0, 200, -250.0, 250.0);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
+   	glViewport(0, 0, window_width, window_height);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	//glOrtho(0.0, (GLdouble)500, (GLdouble)500, 0.0, -250.0, 250.0);
+	glOrtho(300, (GLdouble)0, (GLdouble)0, 200, -250.0, 250.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
 
 
-			glBindTexture(GL_TEXTURE_2D, map_text);
-			last_texture=-1;
+	glBindTexture(GL_TEXTURE_2D, map_text);
+	last_texture=-1;
 
-			glColor3f(1.0f,1.0f,1.0f);
-			glBegin(GL_QUADS);
-			//draw the texture
+	glColor3f(1.0f,1.0f,1.0f);
+	glBegin(GL_QUADS);
+	//draw the texture
 
-			glTexCoord2f(1.0f,0.0f);
-			glVertex3i(50,0,0);
+	glTexCoord2f(1.0f,0.0f);
+	glVertex3i(50,0,0);
 
-			glTexCoord2f(1.0f,1.0f);
-			glVertex3i(50,200,0);
+	glTexCoord2f(1.0f,1.0f);
+	glVertex3i(50,200,0);
 
-			glTexCoord2f(0.0f,1.0f);
-			glVertex3i(250,200,0);
+	glTexCoord2f(0.0f,1.0f);
+	glVertex3i(250,200,0);
 
-			glTexCoord2f(0.0f,0.0f);
-			glVertex3i(250,0,0);
+	glTexCoord2f(0.0f,0.0f);
+	glVertex3i(250,0,0);
 
 	glEnd();
 
 	//ok, now let's draw our possition...
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==yourself)
@@ -1999,7 +1999,6 @@ void draw_game_map()
 			    screen_y=0+200*y/(tile_map_size_y*6);
                 break;
              }
-			i++;
 		}
 
 	glColor3f(0.0f,0.0f,1.0f);
@@ -2017,14 +2016,14 @@ void draw_game_map()
 	glColor3f(1.0f,1.0f,1.0f);
 
 
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
 }
 
 void draw_menu_title_bar(int x, int y, int x_len)

@@ -500,7 +500,7 @@ void display_3d_reflection()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0.0f,0.0f,1.0f);
-	for(i=0;i<1000;i++)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			 {

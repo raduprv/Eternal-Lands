@@ -363,7 +363,7 @@ void display_actors_shadow()
 	int x,y;
 	x=-cx;
 	y=-cy;
-	for(i=0;i<1000;i++)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			 {

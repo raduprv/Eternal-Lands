@@ -389,8 +389,7 @@ void set_new_video_mode(int fs,int mode)
 		}
 
 	//do the same for the actors textures...
-	i=0;
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 				{
@@ -400,7 +399,6 @@ void set_new_video_mode(int fs,int mode)
 							actors_list[i]->texture_id=0;
 						}
 				}
-			i++;
 		}
 
 	//destroy the current context
@@ -434,8 +432,7 @@ void set_new_video_mode(int fs,int mode)
 		}
 
 	//do the same for the actors textures...
-	i=0;
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 				{

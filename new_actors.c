@@ -111,11 +111,9 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor = calloc(1, sizeof(actor));
 
 	//find a free spot, in the actors_list
-	i=0;
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])break;
-			i++;
 		}
 
 	//ok, load the legs
@@ -269,6 +267,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor->body_parts=this_actor;
 
 	actors_list[i]=our_actor;
+	if(i>=max_actors)max_actors=i+1;
 	no_bounding_box=0;
 	return i;
 }
@@ -429,9 +428,9 @@ void draw_enhanced_actor(actor * actor_id)
 
 void unwear_item_from_actor(int actor_id,Uint8 which_part)
 {
-	int i=0;
+	int i;
 
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==actor_id)
@@ -470,16 +469,15 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 					return;
 				}
-			i++;
 		}
 
 }
 
 void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
-	int i=0;
+	int i;
 
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==actor_id)
@@ -547,7 +545,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						}
 					return;
 				}
-			i++;
 		}
 
 }
@@ -658,13 +655,11 @@ void add_enhanced_actor_from_server(char * in_data)
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
-	i=0;
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==actor_id)
-			destroy_actor(i);//we don't want two actors with thesame ID
-			i++;
+				destroy_actor(i);//we don't want two actors with thesame ID
 		}
 
 	this_actor=calloc(1,sizeof(enhanced_actor));
