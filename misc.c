@@ -417,7 +417,12 @@ void load_all_tiles()
 		if(cur_text==-1)return;
 		tile_list[i]=cur_text;
 		tiles_no=i;
+		map_tiles[i].img=load_bmp8_color_key_no_texture_img(str,map_tiles+i);
 	}
+        strcpy(str,"./art/water.bmp");
+	map_tiles[0].img=load_bmp8_color_key_no_texture_img(str,map_tiles);
+	strcpy(str,"./art/mountain.bmp");
+	map_tiles[255].img=load_bmp8_color_key_no_texture_img(str,map_tiles+255);
 }
 
 

@@ -64,6 +64,8 @@ extern char alt_on;
 
 extern int buttons_text;
 
+extern int map_has_changed;
+
 int check_interface_buttons();
 void get_world_x_y();
 void Enter2DMode();

@@ -3,7 +3,8 @@
 
 GLuint load_bmp8_color_key(char * FileName);
 GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
-char * load_bmp8_color_key_no_texture(char * FileName);
+#define load_bmp8_color_key_no_texture(c) load_bmp8_color_key_no_texture_img(c,NULL);
+char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img);
 char * load_bmp8_alpha_map(char * FileName);
 int load_texture_cache(char * file_name,unsigned char alpha);
 int		get_texture_id(int i);

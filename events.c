@@ -384,7 +384,7 @@ int HandleEvent(SDL_Event *event)
   		if(ambient_b>-0.05f)ambient_b-=0.02f;
   		if((ch=='d' || ch=='D') && cur_mode==mode_map)dungeon=!dungeon;
 
-  		if(ch=='m')minimap_on=!minimap_on;
+  		if(ch=='m')map_has_changed=(minimap_on=!minimap_on);
 
 
 		break;

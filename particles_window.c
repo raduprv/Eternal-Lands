@@ -582,9 +582,10 @@ int display_particles_window_handler(window_info *win)
 	unlock_particles_list();
 
 	get_and_set_texture_id(buttons_text);
-	glColor3f(1.0,1.0,1.0);
 	glBegin(GL_QUADS);
+	glColor3f(def.minr,def.ming,def.minb);
 	draw_2d_thing((float)128/255,1.0f-(float)32/255,(float)160/255,1.0f-(float)64/255, 10,380,42,412);
+	glColor3f(def.maxr,def.ming,def.minb);
 	draw_2d_thing((float)64/255,1.0f-(float)32/255,(float)96/255,1.0f-(float)64/255, 74,380,106,412);
 	glEnd();
 

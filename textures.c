@@ -283,7 +283,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 
 /////////////////////////////////////////////////////////////////////////////////////
 //load a bmp file, convert it to the rgba format, but don't assign it to any texture object
-char * load_bmp8_color_key_no_texture(char * FileName)
+char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img)
 {
 	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry; //i unused?
 	Uint8 * file_mem;
@@ -360,7 +360,13 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 				}
 
 		}
-
+	
+        if(img)
+		{
+			img->x=x_size;
+			img->y=y_size;
+		}
+	
 	free(file_mem_start);
 	free(read_buffer);
 	fclose (f);
