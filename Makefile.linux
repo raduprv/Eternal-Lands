@@ -17,7 +17,7 @@ STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a
 
 # the objects we need
 OBJS=2d_objects.o 3d_objects.o	\
-	actor_scripts.o actors.o asc.o buddy.o books.o	\
+	actor_scripts.o actors.o asc.o buddy.o	\
 	cache.o colors.o console.o cursors.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
@@ -33,6 +33,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	shadows.o sound.o spells.o stats.o	\
 	text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	weather.o widgets.o
+	#books.o
 
 # the compile targets
 el.x86.linux.bin: $(OBJS)
