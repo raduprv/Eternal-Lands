@@ -234,14 +234,12 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 void draw_actor(actor * actor_id)
 {
-	int i,j;
+	int i;	//,j;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	//float u,v; unused?
-	float x,y,z;
 	int texture_id;
 	char *cur_frame;
-	char *dest_frame_name;
 	//char str[20];
 	//float healtbar_x=-0.3f;
 	//float healtbar_y=0;
@@ -266,24 +264,14 @@ void draw_actor(actor * actor_id)
 
 	cur_frame=actor_id->cur_frame;
 
-	numFaces=actor_id->model_data->numFaces;
-	numFrames=actor_id->model_data->numFrames;
-	offsetFaces=actor_id->model_data->offsetFaces;
-	offsetTexCoords=actor_id->model_data->offsetTexCoords;
-	offsetFrames=actor_id->model_data->offsetFrames;
-
-	x_pos=actor_id->x_pos;
-	y_pos=actor_id->y_pos;
-	z_pos=actor_id->z_pos;
-
-	x_rot=actor_id->x_rot;
-	y_rot=actor_id->y_rot;
-	z_rot=actor_id->z_rot;
-
 	//now, go and find the current frame
+	offsetFrames=actor_id->model_data->offsetFrames;
+	numFrames=actor_id->model_data->numFrames;
 	i=0;
 	while(i<numFrames)
 		{
+			char *dest_frame_name;
+
 			dest_frame_name=(char *)&offsetFrames[i].name;
 			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
 				{
@@ -307,6 +295,14 @@ void draw_actor(actor * actor_id)
 			last_texture=texture_id;
 		}
 
+	x_pos=actor_id->x_pos;
+	y_pos=actor_id->y_pos;
+	z_pos=actor_id->z_pos;
+
+	x_rot=actor_id->x_rot;
+	y_rot=actor_id->y_rot;
+	z_rot=actor_id->z_rot;
+
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
@@ -319,32 +315,30 @@ void draw_actor(actor * actor_id)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_TRIANGLES);
-	for(j=0;j<numFaces;j++)
+	offsetFaces=actor_id->model_data->offsetFaces;
+	offsetTexCoords=actor_id->model_data->offsetTexCoords;
+	numFaces=actor_id->model_data->numFaces;
+	for(i=0;i<numFaces;i++)
 		{
-			x=vertex_pointer[offsetFaces[j].a].x;
-			y=vertex_pointer[offsetFaces[j].a].y;
-			z=vertex_pointer[offsetFaces[j].a].z;
+			float x,y,z;
 
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].at].u,offsetTexCoords[offsetFaces[j].at].v);
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+			x=vertex_pointer[offsetFaces[i].a].x;
+			y=vertex_pointer[offsetFaces[i].a].y;
+			z=vertex_pointer[offsetFaces[i].a].z;
 			glVertex3f(x,y,z);
 
-
-			x=vertex_pointer[offsetFaces[j].b].x;
-			y=vertex_pointer[offsetFaces[j].b].y;
-			z=vertex_pointer[offsetFaces[j].b].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].bt].u,offsetTexCoords[offsetFaces[j].bt].v);
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+			x=vertex_pointer[offsetFaces[i].b].x;
+			y=vertex_pointer[offsetFaces[i].b].y;
+			z=vertex_pointer[offsetFaces[i].b].z;
 			glVertex3f(x,y,z);
 
-
-			x=vertex_pointer[offsetFaces[j].c].x;
-			y=vertex_pointer[offsetFaces[j].c].y;
-			z=vertex_pointer[offsetFaces[j].c].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].ct].u,offsetTexCoords[offsetFaces[j].ct].v);
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+			x=vertex_pointer[offsetFaces[i].c].x;
+			y=vertex_pointer[offsetFaces[i].c].y;
+			z=vertex_pointer[offsetFaces[i].c].z;
 			glVertex3f(x,y,z);
-
-
 		}
 	glEnd();
 

@@ -5,9 +5,7 @@
 
 void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 {
-	int i,j;
-	float x,y,z;
-	char *dest_frame_name;
+	int i;	//,j;
 	int numFrames;
 	int numFaces;
 	text_coord_md2 *offsetTexCoords;
@@ -15,19 +13,15 @@ void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 	frame_md2 *offsetFrames;
 	vertex_md2 *vertex_pointer=NULL;
 
-	numFaces=model_data->numFaces;
-	numFrames=model_data->numFrames;
-	offsetFaces=model_data->offsetFaces;
-	offsetTexCoords=model_data->offsetTexCoords;
-	offsetFrames=model_data->offsetFrames;
-
-
 	//now, go and find the current frame
+	offsetFrames=model_data->offsetFrames;
+	numFrames=model_data->numFrames;
 	i=0;
 	while(i<numFrames)
 		{
+			char *dest_frame_name;
 			dest_frame_name=(char *)&offsetFrames[i].name;
-			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
+			if(strcmp(cur_frame, dest_frame_name)==0)//we found the current frame
 				{
 					vertex_pointer=offsetFrames[i].vertex_pointer;
 					break;
@@ -38,6 +32,7 @@ void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 	i=0;
 	if(vertex_pointer==NULL)//if there is no frame, use idle01
 		{
+			char *dest_frame_name;
 			char str[120];
 			sprintf(str, "couldn't find frame: %s\n",cur_frame);
 			log_error(str);
@@ -63,32 +58,30 @@ void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_TRIANGLES);
-	for(j=0;j<numFaces;j++)
+	offsetFaces=model_data->offsetFaces;
+	offsetTexCoords=model_data->offsetTexCoords;
+	numFaces=model_data->numFaces;
+	for(i=0;i<numFaces;i++)
 		{
-			x=vertex_pointer[offsetFaces[j].a].x;
-			y=vertex_pointer[offsetFaces[j].a].y;
-			z=vertex_pointer[offsetFaces[j].a].z;
+			float x,y,z;
 
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].at].u,offsetTexCoords[offsetFaces[j].at].v);
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+			x=vertex_pointer[offsetFaces[i].a].x;
+			y=vertex_pointer[offsetFaces[i].a].y;
+			z=vertex_pointer[offsetFaces[i].a].z;
 			glVertex3f(x,y,z);
 
-
-			x=vertex_pointer[offsetFaces[j].b].x;
-			y=vertex_pointer[offsetFaces[j].b].y;
-			z=vertex_pointer[offsetFaces[j].b].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].bt].u,offsetTexCoords[offsetFaces[j].bt].v);
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+			x=vertex_pointer[offsetFaces[i].b].x;
+			y=vertex_pointer[offsetFaces[i].b].y;
+			z=vertex_pointer[offsetFaces[i].b].z;
 			glVertex3f(x,y,z);
 
-
-			x=vertex_pointer[offsetFaces[j].c].x;
-			y=vertex_pointer[offsetFaces[j].c].y;
-			z=vertex_pointer[offsetFaces[j].c].z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].ct].u,offsetTexCoords[offsetFaces[j].ct].v);
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+			x=vertex_pointer[offsetFaces[i].c].x;
+			y=vertex_pointer[offsetFaces[i].c].y;
+			z=vertex_pointer[offsetFaces[i].c].z;
 			glVertex3f(x,y,z);
-
-
 		}
 	glEnd();
 
