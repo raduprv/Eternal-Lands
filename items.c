@@ -369,16 +369,6 @@ int check_items_interface()
 												str[1]=item_list[i].pos;
 												my_tcp_send(my_socket,str,2);
 											}
-										else if(action_mode==action_pick)
-											{
-												int quantity;
-												quantity=item_list[i].quantity;
-												if(quantity-item_quantity>0)quantity=item_quantity;
-												str[0]=DROP_ITEM;
-												str[1]=item_list[i].pos;
-												*((Uint16 *)(str+2))=quantity;//quantity
-												my_tcp_send(my_socket,str,4);
-											}
 										else if(action_mode==action_use)
 											{
 												if(item_list[i].use_with_inventory)
@@ -796,13 +786,13 @@ int check_ground_items_interface()
 						pos=y*5+x;
 						if(!ground_item_list[pos].quantity)return 1;
 
-						if(/*action_mode==action_look ||*/ right_click)
+						if(right_click)
 							{
 								str[0]=LOOK_AT_GROUND_ITEM;
 								str[1]=pos;
 								my_tcp_send(my_socket,str,2);
 							}
-						else /*if(action_mode==action_pick)*/
+						else
 							{
 								int quantity;
 								quantity=ground_item_list[pos].quantity;

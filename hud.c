@@ -59,16 +59,6 @@ float colored_eye_icon_v_start=1.0f-(float)64/255;
 float colored_eye_icon_u_end=(float)159/255;
 float colored_eye_icon_v_end=1.0f-(float)95/255;
 
-float pick_icon_u_start=(float)96/255;
-float pick_icon_v_start=1.0f-(float)0/255;
-float pick_icon_u_end=(float)127/255;
-float pick_icon_v_end=1.0f-(float)31/255;
-
-float colored_pick_icon_u_start=(float)160/255;
-float colored_pick_icon_v_start=1.0f-(float)64/255;
-float colored_pick_icon_u_end=(float)191/255;
-float colored_pick_icon_v_end=1.0f-(float)95/255;
-
 float trade_icon_u_start=(float)128/255;
 float trade_icon_v_start=1.0f-(float)0/255;
 float trade_icon_u_end=(float)159/255;
@@ -113,16 +103,6 @@ float colored_spell_icon_u_start=(float)96/255;
 float colored_spell_icon_v_start=1.0f-(float)96/255;
 float colored_spell_icon_u_end=(float)127/255;
 float colored_spell_icon_v_end=1.0f-(float)127/255;
-
-float harvest_icon_u_start=(float)64/255;
-float harvest_icon_v_start=1.0f-(float)32/255;
-float harvest_icon_u_end=(float)95/255;
-float harvest_icon_v_end=1.0f-(float)63/255;
-
-float colored_harvest_icon_u_start=(float)128/255;
-float colored_harvest_icon_v_start=1.0f-(float)96/255;
-float colored_harvest_icon_u_end=(float)159/255;
-float colored_harvest_icon_v_end=1.0f-(float)127/255;
 
 float inventory_icon_u_start=(float)96/255;
 float inventory_icon_v_start=1.0f-(float)32/255;
@@ -220,11 +200,6 @@ int eye_icon_x_end;
 int eye_icon_y_start;
 int eye_icon_y_end;
 
-int pick_icon_x_start;
-int pick_icon_x_end;
-int pick_icon_y_start;
-int pick_icon_y_end;
-
 int trade_icon_x_start;
 int trade_icon_x_end;
 int trade_icon_y_start;
@@ -254,11 +229,6 @@ int spell_icon_x_start;
 int spell_icon_x_end;
 int spell_icon_y_start;
 int spell_icon_y_end;
-
-int harvest_icon_x_start;
-int harvest_icon_x_end;
-int harvest_icon_y_start;
-int harvest_icon_y_end;
 
 int inventory_icon_x_start;
 int inventory_icon_x_end;
@@ -336,13 +306,8 @@ void init_peace_icons()
 	stand_icon_x_end=stand_icon_x_start+32;
 	stand_icon_y_start=window_height-32;
 	stand_icon_y_end=stand_icon_y_start+32;
-
-	pick_icon_x_start=stand_icon_x_end+1;
-	pick_icon_x_end=pick_icon_x_start+32;
-	pick_icon_y_start=window_height-32;
-	pick_icon_y_end=pick_icon_y_start+32;
-
-	eye_icon_x_start=pick_icon_x_end+1;
+	
+	eye_icon_x_start=stand_icon_x_end+1;
 	eye_icon_x_end=eye_icon_x_start+32;
 	eye_icon_y_start=window_height-32;
 	eye_icon_y_end=eye_icon_y_start+32;
@@ -371,13 +336,8 @@ void init_peace_icons()
 	attack_icon_x_end=attack_icon_x_start+32;
 	attack_icon_y_start=window_height-32;
 	attack_icon_y_end=attack_icon_y_start+32;
-
-	harvest_icon_x_start=attack_icon_x_end+1;
-	harvest_icon_x_end=harvest_icon_x_start+32;
-	harvest_icon_y_start=window_height-32;
-	harvest_icon_y_end=harvest_icon_y_start+32;
-
-	manufacture_icon_x_start=harvest_icon_x_end+1;
+	
+	manufacture_icon_x_start=attack_icon_x_end+1;
 	manufacture_icon_x_end=manufacture_icon_x_start+32;
 	manufacture_icon_y_start=window_height-32;
 	manufacture_icon_y_end=manufacture_icon_y_start+32;
@@ -445,13 +405,7 @@ void draw_peace_icons()
 		draw_2d_thing(trade_icon_u_start, trade_icon_v_start, trade_icon_u_end, trade_icon_v_end,
 					  trade_icon_x_start, trade_icon_y_start, trade_icon_x_end, trade_icon_y_end);
 
-	if(action_mode==action_pick || (mouse_x>pick_icon_x_start && mouse_y>pick_icon_y_start &&
-									mouse_x<pick_icon_x_end && mouse_y<pick_icon_y_end))
-		draw_2d_thing(colored_pick_icon_u_start, colored_pick_icon_v_start, colored_pick_icon_u_end, colored_pick_icon_v_end,
-					  pick_icon_x_start, pick_icon_y_start, pick_icon_x_end, pick_icon_y_end);
-	else
-		draw_2d_thing(pick_icon_u_start, pick_icon_v_start, pick_icon_u_end, pick_icon_v_end,
-					  pick_icon_x_start, pick_icon_y_start, pick_icon_x_end, pick_icon_y_end);
+	
 
 	if(!you_sit)
 		{
@@ -481,14 +435,6 @@ void draw_peace_icons()
 	else
 		draw_2d_thing(spell_icon_u_start, spell_icon_v_start, spell_icon_u_end, spell_icon_v_end,
 					  spell_icon_x_start, spell_icon_y_start, spell_icon_x_end, spell_icon_y_end);
-
-	if(action_mode==action_harvest || (mouse_x>harvest_icon_x_start && mouse_y>harvest_icon_y_start &&
-									   mouse_x<harvest_icon_x_end && mouse_y<harvest_icon_y_end))
-		draw_2d_thing(colored_harvest_icon_u_start, colored_harvest_icon_v_start, colored_harvest_icon_u_end, colored_harvest_icon_v_end,
-					  harvest_icon_x_start, harvest_icon_y_start, harvest_icon_x_end, harvest_icon_y_end);
-	else
-		draw_2d_thing(harvest_icon_u_start, harvest_icon_v_start, harvest_icon_u_end, harvest_icon_v_end,
-					  harvest_icon_x_start, harvest_icon_y_start, harvest_icon_x_end, harvest_icon_y_end);
 
 	if(action_mode==action_attack || (mouse_x>attack_icon_x_start && mouse_y>attack_icon_y_start &&
 									  mouse_x<attack_icon_x_end && mouse_y<attack_icon_y_end))
@@ -577,9 +523,6 @@ int check_peace_icons()
 	else if(mouse_x>use_icon_x_start && mouse_y>use_icon_y_start &&
 			mouse_x<use_icon_x_end && mouse_y<use_icon_y_end)
 		action_mode=action_use;
-	else if(mouse_x>harvest_icon_x_start && mouse_y>harvest_icon_y_start &&
-			mouse_x<harvest_icon_x_end && mouse_y<harvest_icon_y_end)
-		action_mode=action_harvest;
 	else if(mouse_x>attack_icon_x_start && mouse_y>attack_icon_y_start &&
 			mouse_x<attack_icon_x_end && mouse_y<attack_icon_y_end)
 		action_mode=action_attack;
@@ -596,9 +539,6 @@ int check_peace_icons()
 				}
 			view_manufacture_menu=!view_manufacture_menu;
 		}
-	else if(mouse_x>pick_icon_x_start && mouse_y>pick_icon_y_start &&
-			mouse_x<pick_icon_x_end && mouse_y<pick_icon_y_end)
-		action_mode=action_pick;
 	else if(mouse_x>spell_icon_x_start && mouse_y>spell_icon_y_start &&
 			mouse_x<spell_icon_x_end && mouse_y<spell_icon_y_end)
 		{
@@ -657,20 +597,20 @@ int check_peace_icons()
 // the stats display
 void init_stats_display()
 {
-mana_bar_start_x=24;
-mana_bar_start_y=window_height-44;
-mana_bar_x_len=100;
-mana_bar_y_len=8;
+	mana_bar_start_x=24;
+	mana_bar_start_y=window_height-44;
+	mana_bar_x_len=100;
+	mana_bar_y_len=8;
 
-food_bar_start_x=mana_bar_start_x+mana_bar_x_len+40;
-food_bar_start_y=mana_bar_start_y;
-food_bar_x_len=100;
-food_bar_y_len=8;
+	food_bar_start_x=mana_bar_start_x+mana_bar_x_len+40;
+	food_bar_start_y=mana_bar_start_y;
+	food_bar_x_len=100;
+	food_bar_y_len=8;
 
-health_bar_start_x=food_bar_start_x+food_bar_x_len+40;
-health_bar_start_y=mana_bar_start_y;
-health_bar_x_len=100;
-health_bar_y_len=8;
+	health_bar_start_x=food_bar_start_x+food_bar_x_len+40;
+	health_bar_start_y=mana_bar_start_y;
+	health_bar_x_len=100;
+	health_bar_y_len=8;
 }
 
 void draw_stats_display()

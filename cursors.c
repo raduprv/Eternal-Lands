@@ -343,8 +343,7 @@ void check_cursor_change()
 			int wear_items_x_offset=6*51+20;
 			int wear_items_y_offset=50;
 
-			if(action_mode==action_pick && ((view_my_items && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6)
-											|| (view_ground_items && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)))
+			if(view_ground_items && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)
 				{
 					if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
 					return;

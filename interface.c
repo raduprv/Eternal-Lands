@@ -460,16 +460,15 @@ void check_mouse_click()
 		}
 
 	//OPEN BAG
-	if((current_cursor==CURSOR_PICK && left_click) || (action_mode==action_pick && right_click))
+	if(current_cursor==CURSOR_PICK && left_click)
 		{
 			if(object_under_mouse==-1)return;
 			open_bag(object_under_mouse);
-			/*action_mode=action_pick;*/
 			return;
 		}
 
 	//HARVEST
-	if((current_cursor==CURSOR_HARVEST && left_click) || (action_mode==action_harvest && right_click))
+	if(current_cursor==CURSOR_HARVEST && left_click)
 		{
 			Uint8 str[10];
 
