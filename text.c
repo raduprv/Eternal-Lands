@@ -312,7 +312,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 		if ( (ch >= 32 && ch <= 126) || ch > 127 + c_grey4)
 		{
 			buf->data[pos+jb] = str[ib];
-			jb++;
+			if (++jb > nr_paste) break;
 		}
 	}
 
