@@ -98,5 +98,14 @@ unsigned short get_key_code(char *);
 unsigned int parse_key_string(char *s);
 void add_key(unsigned int *key,unsigned int n);
 
+void load_e3d_list();
+void unload_e3d_list();
+typedef struct{
+	int id;
+	char *fn;
+}e3d_list;
+extern e3d_list *e3dlist;
+extern int e3dlistsize;
+
 #endif	//__INIT_H__
 
