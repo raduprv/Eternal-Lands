@@ -20,7 +20,7 @@ int use_vertex_array=0;
 int use_point_particles=1;
 int vertex_arrays_built=0;
 int have_compiled_vertex_array=0;
-int have_point_parameter=0;
+int have_point_sprite=0;
 int have_arb_compression=0;
 int have_s3_compression=0;
 
@@ -31,7 +31,6 @@ void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 void (APIENTRY * ELglUnlockArraysEXT) (void);
 void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
-void (APIENTRY * ELglPointParameterfARB) (GLenum parameter, GLfloat value);
 
 void setup_video_mode()
 {
@@ -386,7 +385,6 @@ void init_gl_extensions()
 	ELglClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
 	ELglLockArraysEXT = SDL_GL_GetProcAddress("glLockArraysEXT");
 	ELglUnlockArraysEXT = SDL_GL_GetProcAddress("glUnlockArraysEXT");
-	ELglPointParameterfARB= SDL_GL_GetProcAddress("glPointParameterfARB");
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
@@ -426,25 +424,20 @@ void init_gl_extensions()
 			log_to_console(c_red1,"Couldn't find one of the GL_EXT_compiled_vertex_array functions, not using it...");
 
 		}
-	if(ELglPointParameterfARB)
-		{
-			have_point_parameter=get_string_occurance("GL_ARB_point_parameters",extensions,ext_str_len,0);
-			if(have_point_parameter<0)
-				{
-					have_point_parameter=0;
-					log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
-				}
-			else if(!use_point_particles) {
-					have_point_parameter=0;
-					log_to_console(c_green2,"GL_ARB_point_parameters extension found, NOT using it...");
+
+		have_point_sprite=get_string_occurance("GL_ARB_point_sprite",extensions,ext_str_len,0) || get_string_occurance("GL_NV_point_sprite",extensions,ext_str_len,0);
+		if(have_point_sprite<0)
+			{
+				have_point_sprite=0;
+				log_to_console(c_red1,"Couldn't find GL_*_point_sprite extension, not using it");
 			}
-			else log_to_console(c_green2,"GL_ARB_point_parameters extension found, using it...");
-		}
-	else
-		{
-			have_point_parameter=0;
-			log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
-		}
+		else if(!use_point_particles)
+			{
+				have_point_sprite=0;
+				log_to_console(c_green2,"GL_*_point_sprite extension found, NOT using it...");
+			}
+		else log_to_console(c_green2,"GL_*_point_sprite extensions found, using it...");
+
 
 		have_arb_compression=get_string_occurance("GL_ARB_texture_compression",extensions,ext_str_len,0);
 		if(have_arb_compression<0)
@@ -456,9 +449,9 @@ void init_gl_extensions()
 		have_s3_compression=0;
 		else log_to_console(c_green2,"GL_EXT_texture_compression_s3tc extension found, using it...");
 
-
 	check_gl_errors();
 }
+
 void resize_window()
 {
 	float window_ratio;

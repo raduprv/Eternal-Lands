@@ -39,6 +39,12 @@ release:
 static:
 	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
 
+cal3d:
+	$(CC) $(CFLAGS) $(LDFLAGS) -lcal3d -o el.x86.linux.bin $(OBJS) cal3dwrap.o 
+
+cal3dwrap.o: cal3dwrap.c cal3dwrap.h
+	g++ $(CFLAGS) -c cal3dwrap.c
+
 %.o:	global.h %.c %.h
 	$(CC) $(CFLAGS) -c $*.c
 

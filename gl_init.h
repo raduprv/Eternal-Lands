@@ -16,7 +16,7 @@ extern int use_vertex_array;
 extern int use_point_particles;
 extern int vertex_arrays_built;
 extern int have_compiled_vertex_array;
-extern int have_point_parameter;
+extern int have_point_sprite;
 extern int have_arb_compression;
 extern int have_s3_compression;
 
@@ -26,7 +26,6 @@ extern void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 extern void (APIENTRY * ELglUnlockArraysEXT) (void);
-extern void (APIENTRY * ELglPointParameterfARB) (GLenum parameter, GLfloat value);
 
 void setup_video_mode();
 void check_gl_mode();
