@@ -459,7 +459,7 @@ void check_mouse_click()
 		}
 
 	//USE
-	if(((current_cursor==CURSOR_TALK || current_cursor==CURSOR_ENTER) && left_click) || (action_mode==action_use && right_click))
+	if(((current_cursor==CURSOR_TALK || current_cursor==CURSOR_ENTER || current_cursor==CURSOR_USE) && left_click) || (action_mode==action_use && right_click))
 		{
 			Uint8 str[10];
 
