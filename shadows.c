@@ -259,12 +259,7 @@ void draw_actor_shadow(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	numFaces=actor_id->model_data->numFaces;
-	check_gl_errors();
-	glVertexPointer(3,GL_FLOAT,0,actor_id->model_data->offsetFrames[i].vertex_array);
-	if(have_compiled_vertex_array)glLockArraysEXT(0, actor_id->model_data->numFaces*3);
-	glDrawArrays(GL_TRIANGLES, 0, actor_id->model_data->numFaces*3);
-	if(have_compiled_vertex_array)glUnlockArraysEXT();
+	draw_body_part_shadow(actor_id->model_data,cur_frame,actor_id->ghost);
 
 	glPopMatrix();//restore the scene
 	check_gl_errors();
