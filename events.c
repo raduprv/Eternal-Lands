@@ -50,12 +50,19 @@ int HandleEvent(SDL_Event *event)
 		if (event->key.keysym.sym == SDLK_g)view_grid=!view_grid;
 
 		if ( event->key.keysym.sym == SDLK_ESCAPE )
+
 		{
+
 			done = 1;
+
 		}
+
 		if ( event->key.keysym.sym == SDLK_b && ctrl_on )
+
 		{
+
 			view_browser=!view_browser;
+
 		}
 		if ( event->key.keysym.sym == SDLK_LEFT )
 		{
@@ -336,34 +343,33 @@ int HandleEvent(SDL_Event *event)
 	} // *
 
 	if(event->type==SDL_MOUSEMOTION || event->type==SDL_MOUSEBUTTONDOWN || event->type==SDL_MOUSEBUTTONUP)
- 		   {
-			 char tool_bar_click=0;
- 		     mouse_x=event->motion.x;
- 		     mouse_y=event->motion.y;
+		{
+			char tool_bar_click=0;
+			mouse_x=event->motion.x;
+			mouse_y=event->motion.y;
 
  		           //get the buttons state
 			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_LEFT))
-				   left_click++;
-			    else
-			 	   left_click = 0;
+				left_click++;
+			else
+				left_click = 0;
 
-			     if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_RIGHT))
-			 	   right_click++;
-			     else
-				   right_click= 0;
+			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_RIGHT))
+				right_click++;
+			else
+				right_click= 0;
 
-			
-			     if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_MIDDLE))
-			 	   middle_click++;
-			     else
-				   middle_click= 0;
+			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_MIDDLE))
+				middle_click++;
+			else
+				middle_click= 0;
 
-			       if(shift_on && left_click==1){
-				 get_world_x_y();
-				 cx=0-scene_mouse_x;
-				 cy=0-scene_mouse_y;
-				 return(done);
-			       }
+			if(shift_on && left_click==1){
+				get_world_x_y();
+				cx=0-scene_mouse_x;
+				cy=0-scene_mouse_y;
+				return(done);
+			}
 
 			if(minimap_on && left_click==1)
 				{
@@ -376,8 +382,6 @@ int HandleEvent(SDL_Event *event)
 					draw_mouse_minimap();
 					return(done);
 				}
-
-		
 
 			if(left_click==1 && check_browser_interface())return done;
 			if(check_interface_buttons()==1)tool_bar_click=1;
@@ -412,14 +416,15 @@ int HandleEvent(SDL_Event *event)
 									}
 
 								//if we have an object attached to us, drop it
-								if(cur_tool==tool_select && selected_3d_object!=-1){
-								  if(ctrl_on)clone_3d_object(selected_3d_object);
-								  else selected_3d_object=-1;
-								}
+								if(cur_tool==tool_select && selected_3d_object!=-1)
+        							{
+										if(ctrl_on)clone_3d_object(selected_3d_object);
+										else selected_3d_object=-1;
+									}
 								else
-								{
-									get_3d_object_under_mouse();
-								}
+									{
+										get_3d_object_under_mouse();
+									}
 							}
 							//2D objects/////////////////
 							if(cur_mode==mode_2d)
@@ -438,7 +443,6 @@ int HandleEvent(SDL_Event *event)
 									}
 
 								//if we have an object attached to us, drop it
-
 								if(left_click==1 && cur_tool==tool_select && selected_2d_object!=-1)clone_2d_object(selected_2d_object);
 								else
 								{
