@@ -299,6 +299,21 @@ void destroy_all_particles()
 
 }
 
+void destroy_all_fires()
+{
+	int i;
+	for(i=0;i<max_particle_systems;i++){
+		if(particles_list[i] && !strncmp(particles_list[i]->def->file_name,"./particles/fire_",17)) {
+			if(particles_list[i]->def->use_light){
+				free(lights_list[particles_list[i]->light]);
+				lights_list[particles_list[i]->light]=NULL;
+			}
+			free(particles_list[i]);
+			particles_list[i]=0;
+		}
+	}
+}
+
 /*********************************************************************
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/
