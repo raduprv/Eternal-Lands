@@ -6,7 +6,7 @@
 #include "../map_editor/global.h"
 #elif defined(ELCONFIG)
 #include <ctype.h>
-#include "../elconfig/global.h"
+#include "../gtk-elconfig/global.h"
 #else
 #include "global.h"
 #endif
