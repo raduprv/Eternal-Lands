@@ -150,6 +150,14 @@ void ParseLink(xmlAttr *a_node)
 			if(!xmlStrcasecmp(cur_attr->name,"title")){
 				s=cur_attr->children->content;
 			}
+			//x=""
+			if(!xmlStrcasecmp(cur_attr->name,"x")){
+				x=atoi(cur_attr->children->content);
+			}
+			//y=""
+			if(!xmlStrcasecmp(cur_attr->name,"y")){
+				y=atoi(cur_attr->children->content);
+			}
 		}
 	}
 }
@@ -188,6 +196,14 @@ void ParseImage(xmlAttr *a_node)
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
 				id=load_texture_cache(cur_attr->children->content,0);
 			}
+			//x=""
+			if(!xmlStrcasecmp(cur_attr->name,"x")){
+				x=atoi(cur_attr->children->content);
+			}
+			//y=""
+			if(!xmlStrcasecmp(cur_attr->name,"y")){
+				y=atoi(cur_attr->children->content);
+			}
 		}
 	}
 }
@@ -209,6 +225,41 @@ void ParsePos(xmlAttr *a_node)
 		}
 	}
 }
+
+void ParsePage(xmlAttr *a_node)
+{
+	xmlAttr *cur_attr=NULL;
+
+    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+			//name=""
+			if(!xmlStrcasecmp(cur_attr->name,"name")){
+				Page[numpage].Name=(char*)malloc(strlen(cur_attr->children->content)+1);
+				strcpy(Page[numpage].Name,cur_attr->children->content);
+			}
+		}
+	}
+}
+
+void ParseText(xmlAttr *a_node)
+{
+	xmlAttr *cur_attr=NULL;
+
+    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+			//x=""
+			if(!xmlStrcasecmp(cur_attr->name,"x")){
+				x=atoi(cur_attr->children->content);
+			}
+			//y=""
+			if(!xmlStrcasecmp(cur_attr->name,"y")){
+				y=atoi(cur_attr->children->content);
+			}
+
+		}
+	}
+}
+
 void ReadCategoryXML(xmlNode * a_node)
 {
     xmlNode *cur_node=NULL;
@@ -217,17 +268,13 @@ void ReadCategoryXML(xmlNode * a_node)
         if (cur_node->type==XML_ELEMENT_NODE){
 			//<Page>
 			if(!xmlStrcasecmp(cur_node->name,"Page")){
+				
 				numpage++;
 				numtext=0;
 				numimage=0;
 				x=2;
 				y=2;
-			}
-
-			//<Name>
-			if(!xmlStrcasecmp(cur_node->name,"Name")){
-				Page[numpage].Name=(char*)malloc(strlen(cur_node->children->content)+1);
-				strcpy(Page[numpage].Name,cur_node->children->content);
+				ParsePage(cur_node->properties);
 			}
 
 			//<Size>
@@ -245,6 +292,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				_Text *T=(_Text*)malloc(sizeof(_Text));
 				_Text *t=&Page[numpage].T;
 				T->Next=NULL;
+				ParseText(cur_node->properties);
 				T->x=x;
 				T->y=y;
 				T->size=size;
