@@ -559,7 +559,7 @@ void set_new_video_mode(int fs,int mode)
 {
 	int i;
 	int alpha;
-
+	
 	full_screen=fs;
 	video_mode=mode;
 

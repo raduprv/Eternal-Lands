@@ -256,7 +256,7 @@ void init_peace_icons()
 		}
 	else
 		{
-			move_window(icons_win, 0, 0, 0, window_height-32);
+			move_window(icons_win, -1, 0, 0, window_height-32);
 		}
 
 	if(icons_no) return;
@@ -651,7 +651,7 @@ void init_stats_display()
 		}
 	else
 		{
-			init_window(stats_bar_win, 0, 0, 24, window_height-44, window_width-24-64, 12);
+			init_window(stats_bar_win, -1, 0, 24, window_height-44, window_width-24-64, 12);
 		}
 
 	mana_bar_start_x=0;
@@ -810,7 +810,7 @@ void init_misc_display()
 		}
 	else
 		{
-			move_window(misc_win, 0, 0, window_width-64, window_height-145);
+			move_window(misc_win, -1, 0, window_width-64, window_height-145);
 		}
 }
 
@@ -930,19 +930,19 @@ void init_quickbar() {
 	else
 		{
 			if(quickbar_draggable) show_window(quickbar_win);
-			else if(quickbar_y>window_height||quickbar_x>window_width) move_window(quickbar_win, 0, 0, 200, 64);//The player has done something stupid... let him/her correct it
-			else move_window(quickbar_win, 0, 0, window_width-quickbar_x, quickbar_y);
+			else if(quickbar_y>window_height||quickbar_x>window_width) move_window(quickbar_win, -1, 0, 200, 64);//The player has done something stupid... let him/her correct it
+			else move_window(quickbar_win, -1, 0, window_width-quickbar_x, quickbar_y);
 		}
 }
 
 void draw_quickbar() {
 	// failsafe until better integrated
 	if(quickbar_dir==VERTICAL) {
-		init_window(quickbar_win, 0, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
+		init_window(quickbar_win, -1, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
 		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
 	}
 	else if(quickbar_dir==HORIZONTAL) {
-		init_window(quickbar_win, 0, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len);
+		init_window(quickbar_win, -1, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len);
 		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
 
 	} 
@@ -1259,12 +1259,12 @@ void flip_quickbar()
 	if (quickbar_dir==VERTICAL) 
 		{
 			quickbar_dir=HORIZONTAL;
-			init_window(quickbar_win, 0, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, quickbar_y_len, quickbar_x_len);
+			init_window(quickbar_win, -1, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, quickbar_y_len, quickbar_x_len);
 		}      
 	else if (quickbar_dir==HORIZONTAL) 
 		{
 			quickbar_dir=VERTICAL;
-			init_window(quickbar_win, 0, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, quickbar_x_len, quickbar_y_len);
+			init_window(quickbar_win, -1, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, quickbar_x_len, quickbar_y_len);
 		}
 }
 
@@ -1279,11 +1279,11 @@ void reset_quickbar()
 	//Re-set to default orientation
 	quickbar_dir=VERTICAL;
 	quickbar_draggable=0;
-	init_window(quickbar_win, 0, 0, quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
+	init_window(quickbar_win, -1, 0, quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
 	//Re-set  Flags
 	change_flags(quickbar_win, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);   
 	//NEED x_offset
-	move_window(quickbar_win, 0, 0, window_width-quickbar_x, 64);
+	move_window(quickbar_win, -1, 0, window_width-quickbar_x, 64);
 }
 
 

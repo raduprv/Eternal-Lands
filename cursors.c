@@ -20,6 +20,7 @@ int cursors_y_lenght;
 void load_cursors()
 {
 	int f_size,cursors_colors_no,x,y,i;
+	
 	FILE *f = NULL;
 	Uint8 * cursors_mem_bmp;
 	Uint8 *handle_cursors_mem_bmp;
@@ -158,7 +159,6 @@ void assign_cursor(int cursor_id)
 
 void change_cursor(int cursor_id)
 {
-
 	SDL_SetCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
 	current_cursor=cursor_id;
 }
