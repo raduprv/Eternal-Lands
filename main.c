@@ -61,7 +61,10 @@ int Main(int argc, char *argv[])
 	slowly = 1;
 	numtests = 1;
 
-
+#ifdef	LINUX
+	gtk_set_locale ();
+	gtk_init (&argc, &argv);
+#endif	//LINUX
 	init_stuff();
 	
 	start_rendering();
