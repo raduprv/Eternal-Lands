@@ -176,13 +176,12 @@ void move_2d_object(int object_id)
 	obj_2d_list[object_id]->y_pos=scene_mouse_y;
 }
 
-
-int z_incrementation=1;//1 positive, 0 negative
 void clone_2d_object(int object_id)
 {
 	float z_pos,x_rot,z_rot;
 	char self_lit,blended;
 	int i,collide;
+	static int up=0;
 
 	z_pos=obj_2d_list[object_id]->z_pos;
 	x_rot=obj_2d_list[object_id]->x_rot;
@@ -206,21 +205,15 @@ void clone_2d_object(int object_id)
 				}
 			if(collide>1)
 				{
-					if(z_pos>0.03f)
-					z_incrementation=0;
-
-					if(z_incrementation)
-					z_pos+=0.003f;
+					up++;
+					if(up>4)
+						up=0;
+					if(up)
+						z_pos+=0.01;
 					else
-					z_pos-=0.003f;
-
-					if(z_pos<0.001f)
-						{
-							z_incrementation=1;
-							z_pos=0.001f;
-						}
-
-
+						z_pos-=0.04;
+					if(z_pos<0.01)
+						z_pos=0.01;
 				}
 			z_rot=rand()%360;
 		}
