@@ -1,5 +1,6 @@
 #include <string.h>
 #include "global.h"
+#include "elwindows.h"
 
 int view_self_stats=0;
 player_attribs your_info;
@@ -256,54 +257,14 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		}
 }
 
-
-	void display_stats(player_attribs cur_stats)
+int display_stats_handler()
 {
+	player_attribs cur_stats= your_info;
 	Uint8 str[80];
 	int x,y;
-	//first of all, draw the actual menu.
 
-	draw_menu_title_bar(attrib_menu_x,attrib_menu_y-16,attrib_menu_x_len);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(attrib_menu_x,attrib_menu_y+attrib_menu_y_len,0);
-	glVertex3i(attrib_menu_x,attrib_menu_y,0);
-	glVertex3i(attrib_menu_x+attrib_menu_x_len,attrib_menu_y,0);
-	glVertex3i(attrib_menu_x+attrib_menu_x_len,attrib_menu_y+attrib_menu_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-
-	glColor3f(0.0f,1.0f,0.0f);
-	glBegin(GL_LINES);
-	glVertex3i(attrib_menu_x,attrib_menu_y,0);
-	glVertex3i(attrib_menu_x+attrib_menu_x_len,attrib_menu_y,0);
-
-	glVertex3i(attrib_menu_x+attrib_menu_x_len,attrib_menu_y,0);
-	glVertex3i(attrib_menu_x+attrib_menu_x_len,attrib_menu_y+attrib_menu_y_len,0);
-
-	glVertex3i(attrib_menu_x+attrib_menu_x_len,attrib_menu_y+attrib_menu_y_len,0);
-	glVertex3i(attrib_menu_x,attrib_menu_y+attrib_menu_y_len,0);
-
-	glVertex3i(attrib_menu_x,attrib_menu_y+attrib_menu_y_len,0);
-	glVertex3i(attrib_menu_x,attrib_menu_y,0);
-
-	//draw the corner, with the X in
-	glVertex3i(attrib_menu_x+attrib_menu_x_len,attrib_menu_y+20,0);
-	glVertex3i(attrib_menu_x+attrib_menu_x_len-20,attrib_menu_y+20,0);
-
-	glVertex3i(attrib_menu_x+attrib_menu_x_len-20,attrib_menu_y+20,0);
-	glVertex3i(attrib_menu_x+attrib_menu_x_len-20,attrib_menu_y,0);
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-	draw_string_small(attrib_menu_x+attrib_menu_x_len-16,attrib_menu_y+2,"X",1);
-
-	x=attrib_menu_x+5;
-	y=attrib_menu_y+5;
+	x=5;
+	y=5;
 
 	draw_string_small(x,y,"Basic Attributes",1);
 	y+=14;
@@ -389,13 +350,13 @@ void get_partial_stat(Uint8 name,Sint32 value)
 	//other info
 	y-=28;
 	sprintf(str,"Pickpoints: %i",cur_stats.overall_skill.base - cur_stats.overall_skill.cur);
-	draw_string_small(attrib_menu_x+190,y,str,1);
+	draw_string_small(190,y,str,1);
 
 
 	//nexuses here
 	glColor3f(1.0f,1.0f,1.0f);
 	x+=170;
-	y=attrib_menu_y+5;
+	y=5;
 
 	draw_string_small(x,y,"Nexuses",1);
 	y+=14;
@@ -491,18 +452,34 @@ void get_partial_stat(Uint8 name,Sint32 value)
 	sprintf(str,"Overall:     %2i/%-2i [%2i/%-2i]",cur_stats.overall_skill.cur,cur_stats.overall_skill.base,
 			cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
 	draw_string_small(x,y,str,1);
-	glColor3f(1.0,1.0,1.0);
+
+	return 1;
 }
 
 
-int check_stats_interface()
+int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-	if(!view_self_stats || mouse_x>attrib_menu_x+attrib_menu_x_len || mouse_x<attrib_menu_x
-	   || mouse_y<attrib_menu_y || mouse_y>attrib_menu_y+attrib_menu_y_len)return 0;
-	if(mouse_x > check_grid_x_left && mouse_x < check_grid_x_left+105 &&
-		mouse_y > check_grid_y_top && mouse_y < check_grid_y_top+140){
-		watch_this_stat = 1+(mouse_y - check_grid_y_top)/14;
+	if(mx > check_grid_x_left && mx < check_grid_x_left+105 &&
+		my > check_grid_y_top && my < check_grid_y_top+140){
+		// we don't care which click did the select
+		watch_this_stat = 1+(my - check_grid_y_top)/14;
 		return 1;
 	}
 	return 1;
 }
+
+int	stats_win= -1;
+void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this test
+{
+	if(stats_win < 0){
+		stats_win= create_window("Stats", 0, 0, attrib_menu_x, attrib_menu_y, attrib_menu_x_len, attrib_menu_y_len, ELW_WIN_DEFAULT);
+
+		set_window_color(stats_win, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
+		set_window_handler(stats_win, ELW_HANDLER_DISPLAY, &display_stats_handler );
+		set_window_handler(stats_win, ELW_HANDLER_CLICK, &click_stats_handler );
+	} else {
+		show_window(stats_win);
+	}
+	display_window(stats_win);
+}
+

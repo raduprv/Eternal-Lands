@@ -1,12 +1,15 @@
 #include <string.h>
-#include "global.h"
 #include <math.h>
-
+#include "global.h"
+#include "elwindows.h"
+int	display_quickbar_handler(window_info *win);
+int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
 
 int hud_x=64;
 int hud_y=48;
 int hud_text;
 int view_digital_clock=0;
+int	quickbar_win= -1;
 
 // initialize anything related to the hud
 void init_hud_interface()
@@ -957,53 +960,36 @@ int quickbar_y=0;
 
 //quickbar section
 void init_quickbar() {
-	quickbar_x_len=30;
-	quickbar_y_len=6*30+1;
+	quickbar_x_len= 30;
+	quickbar_y_len= 6*30+1;
+	quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x_len-4, 64, quickbar_x_len, quickbar_y_len, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER);
+	set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
+	set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
 }
 
 void draw_quickbar() {
+	quickbar_x= window_width-quickbar_x_len-4;
+	quickbar_y= 64;
+	// failsafe until better integrated
+	init_window(quickbar_win, 0, 0, quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
+	display_window(quickbar_win);
+}
+
+int	display_quickbar_handler(window_info *win)
+{
 	Uint8 str[80];
-	int y,i;
-	quickbar_x=window_width-quickbar_x_len-4;
-	//quickbar_y=window_height-150-6*31;
-	quickbar_y=64;
+	int y, i;
 
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(quickbar_x,quickbar_y+quickbar_y_len,0);
-	glVertex3i(quickbar_x,quickbar_y,0);
-	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y,0);
-	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y+quickbar_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
-	glVertex3i(quickbar_x,quickbar_y,0);
-	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y,0);
-
-	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y,0);
-	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y+quickbar_y_len,0);
-
-	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y+quickbar_y_len,0);
-	glVertex3i(quickbar_x,quickbar_y+quickbar_y_len,0);
-
-	glVertex3i(quickbar_x,quickbar_y+quickbar_y_len,0);
-	glVertex3i(quickbar_x,quickbar_y,0);
-
+	use_window_color(quickbar_win, ELW_COLOR_LINE);
 	//draw the grid
 	for(y=1;y<6;y++)
 		{
-			glVertex3i(quickbar_x,quickbar_y+y*30+1,0);
-			glVertex3i(quickbar_x+quickbar_x_len,quickbar_y+y*30+1,0);
+			glVertex3i(0, y*30+1, 0);
+			glVertex3i(quickbar_x_len, y*30+1, 0);
 		}
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	glColor3f(1.0f,1.0f,1.0f);
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
 	for(i=0;i<ITEM_NUM_ITEMS;i++)
@@ -1025,10 +1011,10 @@ void draw_quickbar() {
 					cur_pos=item_list[i].pos;
 					if(cur_pos<6)//don't even check worn items
 						{
-							x_start=quickbar_x+1;
-							x_end=x_start+29;
-							y_start=quickbar_y+30*(cur_pos%6)+1;
-							y_end=y_start+29;
+							x_start= 1;
+							x_end= x_start+29;
+							y_start= 30*(cur_pos%6)+1;
+							y_end= y_start+29;
 
 							//get the texture this item belongs to
 							this_texture=item_list[i].image_id/25;
@@ -1049,23 +1035,26 @@ void draw_quickbar() {
 						}
 				}
 		}
+	return 1;
 }
 
 int check_quickbar() {
+	return(click_in_window(quickbar_win, mouse_x, mouse_y, 0));
+}
+
+int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
+{
 	int i,y;
 	int x_screen,y_screen;
 	Uint8 str[100];
 
-	if(mouse_x>quickbar_x+quickbar_x_len || mouse_x<quickbar_x
-	   || mouse_y<quickbar_y || mouse_y>quickbar_y+quickbar_y_len)return 0;
-
-
+	// no in window check needed, already done
 	//see if we clicked on any item in the main category
 	for(y=0;y<6;y++)
 		{
-			x_screen=quickbar_x;
-			y_screen=quickbar_y+y*30;
-			if(mouse_x>x_screen && mouse_x<x_screen+51 && mouse_y>y_screen && mouse_y<y_screen+30)
+			x_screen=0;
+			y_screen=y*30;
+			if(mx>x_screen && mx<x_screen+30 && my>y_screen && my<y_screen+30)
 				{
 					//see if there is an empty space to drop this item over.
 					if(item_dragged!=-1)//we have to drop this item
@@ -1101,7 +1090,7 @@ int check_quickbar() {
 							if(item_list[i].quantity && item_list[i].pos==y)
 								{
 
-									if(action_mode==action_look || right_click)
+									if(action_mode==action_look || (flags&ELW_RIGHT_MOUSE))
 										{
 											if(cur_time<(click_time+click_speed))
 												if(item_list[i].use_with_inventory)
@@ -1163,7 +1152,6 @@ void build_levels_table()
         else
         if(i<=90)exp+=exp*7/100;
         else exp+=exp*4/100;
-
 
         exp_lev[i]=exp;
     }
