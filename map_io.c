@@ -207,7 +207,7 @@ int save_map(char * file_name)
 	for(i=0;i<max_lights;i++)
 		{
 			if(j>lights_no)break;
-			if(lights_list[i] && !light_list[i]->locked)
+			if(lights_list[i] && !lights_list[i]->locked)
 				{
 					char * cur_light_pointer=(char *)&cur_light_io;
 					int k=0;
