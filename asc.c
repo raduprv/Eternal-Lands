@@ -154,6 +154,15 @@ void my_strcp(char *dest,char * source)
 	*dest='\0';
 }
 
+void my_strncp(char *dest,char * source,int len)
+{
+	while(*source && --len > 0)
+		{
+			*dest++=*source++;
+		}
+	*dest='\0';
+}
+
 void my_strcat(char *dest,char * source)
 {
 	int i,l,dl;
