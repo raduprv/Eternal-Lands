@@ -416,20 +416,20 @@ void init_rules_interface(int next, float text_size, int count)
 	interface_mode=interface_rules;
 }
 
-float rules_u_start=(float)3/256;
+float rules_u_start=(float)1/256;
 float rules_v_start=1.0f-(float)63/256;
 float rules_u_end=(float)127/256;
 float rules_v_end=1.0f-(float)127/256;
 
-float accept_u_start=(float)2/256;
-float accept_v_start=1.0f-(float)2/256;
-float accept_u_end=(float)60/256;
-float accept_v_end=1.0f-(float)28/256;
+float accept_u_start=(float)1/256;
+float accept_v_start=1.0f-(float)1/256;
+float accept_u_end=(float)63/256;
+float accept_v_end=1.0f-(float)31/256;
 
-float colored_accept_u_start=(float)2/256;
-float colored_accept_v_start=1.0f-(float)34/256;
-float colored_accept_u_end=(float)60/256;
-float colored_accept_v_end=1.0f-(float)60/256;
+float colored_accept_u_start=(float)1/256;
+float colored_accept_v_start=1.0f-(float)33/256;
+float colored_accept_u_end=(float)63/256;
+float colored_accept_v_end=1.0f-(float)63/256;
 
 float arrow_u_start=(float)64/256;
 float arrow_v_start=1.0f;
