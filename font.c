@@ -425,7 +425,7 @@ int load_font(int num, char *file)
 			fonts[num]=(font_info *)calloc(1, sizeof(font_info));
 			if(fonts[num] == NULL)
 				{
-					log_error(cant_load_font);
+//					log_error(cant_load_font);
 					return -1;
 				}
 		}

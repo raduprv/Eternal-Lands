@@ -977,9 +977,9 @@ void save_markings()
 #ifndef WINDOWS
       strcpy(marks_file, getenv("HOME"));
       strcat(marks_file, "/.elc/");
-      strcat(marks_file,rindex(map_file_name,'/')+1);
+      strcat(marks_file,strrchr(map_file_name,'/')+1);
 #else
-      strcpy(marks_file,rindex(map_file_name,'/')+1);
+      strcpy(marks_file,strrchr(map_file_name,'/')+1);
 #endif
       strcat(marks_file,".txt");
       fp = fopen(marks_file,"w");

@@ -154,13 +154,25 @@ int main(int argc, char **argv)
 #ifdef WINDOWS
 int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
-	LPWSTR	*argv;
-	int	argc;
+	LPWSTR *argv;
+	int	argc, i;
+	char **targv;
 
-	// supposed to work in theory, untested
 	argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	targv=(char**)malloc(sizeof(char*)*argc);
 
-	Main(argc, (char **) argv);
+	for(i=0;i<argc;i++){ //converting unicodes to char
+		targv[i]=(char*)calloc(sizeof(char), wcslen(argv[i])+1);
+		WideCharToMultiByte(CP_ACP, 0, argv[i], -1, targv[i], wcslen(argv[i]), " ", NULL);
+	}
+
+	Main(argc, (char **) targv);
+
+	for(i=0;i<argc;i++){
+		free(targv[i]);
+	}
+	free(targv);
+
 	return 0;
 }
 

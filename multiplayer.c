@@ -288,6 +288,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 				// do filtering and ignoring
 				data_lenght=filter_or_ignore_text(&in_data[3],data_lenght-3)+3;
+				if(in_data[3]==128){Beep(1000,1000);/*exit(0);*/}
 				if(data_lenght > 3)
 					{
 						//how to display it
@@ -436,9 +437,9 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifndef WINDOWS
     				strcpy(marks_file, getenv("HOME"));
     				strcat(marks_file, "/.elc/");
-					strcat(marks_file, rindex(map_file_name,'/')+1);
+					strcat(marks_file, strrchr(map_file_name,'/')+1);
 #else
-					strcpy(marks_file, rindex(map_file_name,'/')+1);
+					strcpy(marks_file, strrchr(map_file_name,'/')+1);
 #endif
 					strcat(marks_file, ".txt");
 					fp = fopen(marks_file, "r");
