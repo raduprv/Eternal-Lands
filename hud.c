@@ -648,9 +648,9 @@ void draw_stats_display()
 	char food_str[32];
 	char mana_str[32];
 
-	sprintf(health_str, "%i",your_info.material_points.cur);
-	sprintf(food_str, "%i",your_info.food_level);
-	sprintf(mana_str, "%i",your_info.ethereal_points.cur);
+	sprintf(health_str, "%3i",your_info.material_points.cur);
+	sprintf(food_str, "%3i",your_info.food_level);
+	sprintf(mana_str, "%3i",your_info.ethereal_points.cur);
 
 	//get the adjusted lenght
 
