@@ -431,7 +431,7 @@ void display_shadows()
 			if(objects_list[i])
 				{
 					//if(use_shadow_mapping || (!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f))
-					if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
+					if((use_shadow_mapping && !objects_list[i]->e3d_data->is_ground) || (!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f))
 						{
 							int dist1;
 							int dist2;
