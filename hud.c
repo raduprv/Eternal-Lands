@@ -409,7 +409,6 @@ void sit_button_pressed(void * none, int id)
 	if(you_sit)
 		{
 			Uint8 str[4];
-			you_stand_up();
 			//Send message to server...	
 			str[0]=SIT_DOWN;
 			str[1]=0;
@@ -418,7 +417,6 @@ void sit_button_pressed(void * none, int id)
 	else
 		{
 			Uint8 str[4];
-			you_sit_down();
 			//Send message to server...
 			str[0]=SIT_DOWN;
 			str[1]=1;
