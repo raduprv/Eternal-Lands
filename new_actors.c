@@ -640,8 +640,16 @@ void add_enhanced_actor_from_server(char * in_data)
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
-				if(actors_list[i]->actor_id==actor_id)
-					destroy_actor(i);//we don't want two actors with thesame ID
+				{
+					if(actors_list[i]->actor_id==actor_id)
+						{
+							destroy_actor(i);//we don't want two actors with thesame ID
+						}
+					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
+						{
+							destroy_actor(i);//we don't want two actors with thesame ID
+						}
+				}
 		}
 
 	this_actor=calloc(1,sizeof(enhanced_actor));
@@ -715,9 +723,14 @@ void add_enhanced_actor_from_server(char * in_data)
 	//test only
 	actors_list[i]->max_health=max_health;
 	actors_list[i]->cur_health=cur_health;
-	if(frame==frame_sit_idle)actors_list[i]->sitting=1;
-	else
-		if(frame==frame_combat_idle)actors_list[i]->fighting=1;
+	if(frame==frame_sit_idle)
+		{
+			actors_list[i]->sitting=1;
+		}
+	else if(frame==frame_combat_idle)
+		{
+			actors_list[i]->fighting=1;
+		}
 
 	//ghost or not?
 	actors_list[i]->ghost=0;
@@ -726,6 +739,14 @@ void add_enhanced_actor_from_server(char * in_data)
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->cur_weapon=weapon;
 	actors_list[i]->kind_of_actor=kind_of_actor;
+	if(strlen(&in_data[28]) >= 30)
+		{
+			char str[120];
+			snprintf(str, 120, "Bad actor name/length (%d): %s/%d\n", actors_list[i]->actor_type,&in_data[28], strlen(&in_data[28]));
+			log_error(str);
+			return;
+		}
+
 	my_strncp(actors_list[i]->actor_name,&in_data[28],30);
 	unlock_actors_lists();  //unlock it
 
