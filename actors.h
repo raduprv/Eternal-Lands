@@ -20,7 +20,6 @@ typedef struct
 	float r;
 	float g;
 	float b;
-
 }glow_color;
 
 
@@ -69,6 +68,7 @@ typedef struct
 	int cape_glow;
 	int legs_glow;
 
+	char hands_tex_save[32];
 }enhanced_actor;
 
 typedef struct
@@ -164,7 +164,6 @@ typedef struct
 	double walk_speed;
 	double run_speed;
 	char ghost;
-
 } actor_types;
 
 
@@ -196,8 +195,6 @@ typedef struct
 
 	int is_enhanced_model;
 	enhanced_actor *body_parts;
-
-
 
 	char remapped_colors;
 
@@ -241,7 +238,6 @@ typedef struct
 
 	char current_displayed_text[max_current_displayed_text_len];
 	int current_displayed_text_time_left;
-
 }actor;
 
 

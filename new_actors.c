@@ -280,9 +280,9 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 					{
 						if(which_part==KIND_OF_WEAPON)
 							{
-								//if(actors_list[i]->body_parts->weapon == GLOVE_FUR || actors_list[i]->body_parts->weapon == GLOVE_LEATHER){
-								//	my_strcp(actors_list[i]->body_parts->hands_tex,actors_defs[actors_list[i]->actor_type].skin[skin].hands_name);
-								//}
+								if(actors_list[i]->body_parts->weapon == GLOVE_FUR || actors_list[i]->body_parts->weapon == GLOVE_LEATHER){
+									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
+								}
 								actors_list[i]->body_parts->weapon=0;
 								actors_list[i]->body_parts->weapon_fn[0]=0;
 								actors_list[i]->body_parts->weapon_tex[0]=0;
@@ -560,6 +560,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	my_strcp(this_actor->torso_fn,actors_defs[actor_type].shirt[shirt].model_name);
 	//skin
 	my_strcp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name);
+	my_strcp(this_actor->hands_tex_save,actors_defs[actor_type].skin[skin].hands_name);
 	my_strcp(this_actor->head_tex,actors_defs[actor_type].skin[skin].head_name);
 	//hair
 	my_strcp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name);
