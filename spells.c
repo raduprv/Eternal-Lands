@@ -7,7 +7,6 @@ int sigil_menu_x=10;
 int sigil_menu_y=20;
 int sigil_menu_x_len=12*33+20;
 int sigil_menu_y_len=6*33;
-//int sigil_menu_dragged=0;
 
 int sigils_text;
 Uint8 spell_text[256];
@@ -16,13 +15,18 @@ int have_error_message=0;
 Sint8 active_spells[10];
 
 Sint8 on_cast[6];
-Sint8 cast_cache[6];
 int clear_mouseover=0;
 int cast_mouseover=0;
 
+char	last_spell_str[20];
+int		last_spell_len= 0;
+
 void repeat_spell()
 {
-	//TODO:!!
+	if(last_spell_len > 0)
+		{
+			my_tcp_send(my_socket, last_spell_str, last_spell_len);
+		}
 }
 
 void make_sigils_list()
@@ -404,7 +408,6 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 	   my>win->len_y-30 && my<win->len_y-10)
 		{
 			for(i=0;i<6;i++)on_cast[i]=-1;
-			for(i=0;i<6;i++)cast_cache[i]=-1;
 			return 1;
 		}
 
@@ -437,11 +440,12 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 							str[sigils_no+2]=on_cast[i];
 							sigils_no++;
 						}
-					cast_cache[i]=on_cast[i];	// cache this spell
 				}
 
 			str[1]=sigils_no;
-			my_tcp_send(my_socket,str,sigils_no+2);
+			last_spell_len= sigils_no+2;
+			my_tcp_send(my_socket, str, last_spell_len);
+			memcpy(last_spell_str, str, last_spell_len);
 			return 1;
 			//ok, send it to the server...
 		}
