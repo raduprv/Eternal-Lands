@@ -35,6 +35,7 @@ void change_string(char * var, char * str, int len)
 	*var=0;
 }
 
+#ifdef ELC
 void change_sound_level(float *var, float * value)
 {
 	if(*value>=0 && *value<=100)
@@ -129,6 +130,7 @@ void set_afk_time(int time)
 	if(time>0)afk_time=time*60000;
 	else afk_time=0;
 }
+#endif
 
 int check_var(char * str, int type)
 {
@@ -151,9 +153,11 @@ int check_var(char * str, int type)
 								{
 									if(*tptr==0x0a||*tptr==0x0d) 
 										{
+#ifdef ELC
 											char str[200];
 											snprintf(str,200,"Reached newline without an ending \" in %s",our_vars.var[i]->name);
 											log_to_console(c_red2,str);
+#endif
 											break;
 										}
 									tptr++;
@@ -247,6 +251,7 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 
 void init_vars()
 {
+#ifdef ELC
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4);
 	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0);
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0);
@@ -301,8 +306,10 @@ void init_vars()
 	add_var(STRING,"username","u",username_str,change_string,16);
 	add_var(SPECCHAR,"password","p",password_str,change_password,16);
 	add_var(BOOL,"log_server","log",&log_server,change_var,1);
-	
+#endif
 	add_var(STRING,"data_dir","dir",datadir,change_string,90);//Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
+#ifdef ELC
 	add_var(STRING,"language","lang",lang,change_string,8);
 	add_var(STRING,"browser","b",broswer_name,change_string,70);
+#endif
 }
