@@ -499,10 +499,9 @@ void init_stuff()
 	//now you may set the video mode using the %<foo> in-game
 	video_mode_set=1;
 
-#ifndef WINDOWS
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
-#endif
+
 	
 	init_video();
 	resize_window();
