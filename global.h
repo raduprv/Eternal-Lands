@@ -88,6 +88,7 @@
 #include "new_character.h"
 #include "init.h"
 #include "pm_log.h"
+#include "options.h"
 #ifdef CAL3D
 #include "cal3dwrap.h"
 #endif

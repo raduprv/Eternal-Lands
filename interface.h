@@ -21,7 +21,6 @@ extern int right_click;
 extern int middle_click;
 extern int left_click;
 
-extern int options_win;
 extern int view_health_bar;
 extern int view_names;
 extern int view_hp;
@@ -53,31 +52,16 @@ extern int hud_text;
 extern int open_text;
 extern int login_text;
 
-extern float marble_menu_u_start;
-extern float marble_menu_v_start;
-extern float marble_menu_u_end;
-extern float marble_menu_v_end;
-
-extern float close_button_u_start;
-extern float close_button_v_start;
-extern float close_button_u_end;
-extern float close_button_v_end;
-
-extern int options_menu_x;
-extern int options_menu_y;
-extern int options_menu_x_len;
-extern int options_menu_y_len;
-//extern int options_menu_dragged;
-
-
 extern int selected_3d_object;
 extern int selected_inventory_object;
 
 typedef struct
 {
-	char supported;
-	char selected;
+	int supported;
+	int selected;
 }mode_flag;
+
+extern mode_flag video_modes[10];
 
 extern Uint32 click_time;
 extern int click_speed;

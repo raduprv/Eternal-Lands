@@ -1,6 +1,7 @@
 #include "global.h"
 #include "widgets.h"
 #include "elwindows.h"
+#include <string.h>
 
 Uint32 widget_id = 0;
 
