@@ -97,7 +97,7 @@ int get_integer_after_string(char * source_pointer, char * dest_pointer,
 	return -1;//if we are here, it means we didn't find the string...
 }
 
-//this function returns an integer, after the source string in the destination string
+//this function returns a float, after the source string in the destination string
 //if the string is not found, after max_len, the function returns null.
 //the function is NOT case sensitive
 float get_float_after_string(char * source_pointer, char * dest_pointer, 
@@ -135,7 +135,10 @@ float get_float_after_string(char * source_pointer, char * dest_pointer,
 					while(1)
 						{
 							cur_dest_char=*(dest_pointer+i);
-							if((cur_dest_char>=48 && cur_dest_char<=57) || cur_dest_char=='-' || cur_dest_char=='+')break;//we found a number
+							if((cur_dest_char>=48 && cur_dest_char<=57) || cur_dest_char=='-' || cur_dest_char=='+' || cur_dest_char=='.')
+								{
+									break;//we found a number
+								}
 							if(cur_dest_char==0x0a) return -1;//we didn't find any number on this line
 							i++;
 						}
