@@ -188,9 +188,9 @@ void display_manufacture_menu()
 					//get the UV coordinates.
 					cur_item=manufacture_list[i].image_id%25;
 					u_start=0.2f*(cur_item%5);
-					u_end=u_start+0.2f;
-					v_start=(1.0f+2.0f/256.0f)-(0.2f*(cur_item/5));
-					v_end=v_start-0.2f;
+					u_end=u_start+(float)50/256;
+					v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
+					v_end=v_start-(float)50/256;
 
 					//get the x and y
 					cur_pos=i;
@@ -232,9 +232,10 @@ void display_manufacture_menu()
 					//get the UV coordinates.
 					cur_item=manufacture_list[i].image_id%25;
 					u_start=0.2f*(cur_item%5);
-					u_end=u_start+0.2f;
-					v_start=(1.0f+2.0f/256.0f)-(0.2f*(cur_item/5));
-					v_end=v_start-0.2f;
+					u_end=u_start+(float)50/256;
+					v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
+					v_end=v_start-(float)50/256;
+
 
 					//get the x and y
 					cur_pos=i;

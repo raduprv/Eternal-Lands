@@ -11,8 +11,8 @@
 #define cyclops 7
 #define beaver 8
 #define rat 9
-#define town_folk2 10
-#define town_folk3 11
+#define goblin_male_2 10
+#define goblin_female_1 11
 #define town_folk4 12
 #define town_folk5 13
 #define shop_girl3 14
@@ -400,8 +400,8 @@
 #define PLAY_MUSIC 54
 #define GET_KNOWLEDGE_LIST 55
 #define GET_NEW_KNOWLEDGE 56
-#define GET_KNOWLEDGE_TEXT 57 
-#define BUDDY_EVENT 59 
+#define GET_KNOWLEDGE_TEXT 57
+#define BUDDY_EVENT 59
 
 #define UPGRADE_NEW_VERSION 240
 #define UPGRADE_TOO_OLD 241

@@ -24,16 +24,17 @@
 #include <GL/glext.h>
 #endif
 
+//SDL has to be before ogg
+#include <SDL.h>
+#include <SDL_net.h>
+#include <SDL_thread.h>
+
 #ifndef	NO_MUSIC
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisenc.h>
 #include <vorbis/vorbisfile.h>
 #endif	//NO_MUSIC
-
-#include <SDL.h>
-#include <SDL_net.h>
-#include <SDL_thread.h>
 
 #include "cache.h"
 #include "encyclopedia.h"

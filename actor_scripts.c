@@ -697,7 +697,7 @@ void move_self_forward()
 					if (pf_follow_path) {
 						pf_destroy_path();
 					}
-					
+
 					str[0]=MOVE_TO;
 					*((short *)(str+1))=tx;
 					*((short *)(str+3))=ty;
@@ -2642,6 +2642,50 @@ void init_actor_defs()
 	my_strcp(actors_defs[goblin_male_1].combat_idle_frame,"fightidle01");
 	actors_defs[goblin_male_1].walk_speed=default_walk_speed;
 	actors_defs[goblin_male_1].run_speed=2.0/18;
+
+	actors_defs[goblin_male_2].ghost=0;
+	my_strcp(actors_defs[goblin_male_2].skin_name,"./md2/goblinmale_armed.bmp");
+	my_strcp(actors_defs[goblin_male_2].file_name,"./md2/goblin_armedmale.md2");
+	my_strcp(actors_defs[goblin_male_2].walk_frame,"walk01");
+	my_strcp(actors_defs[goblin_male_2].die1_frame,"die01");
+	my_strcp(actors_defs[goblin_male_2].die2_frame,"die01");
+	my_strcp(actors_defs[goblin_male_2].pain1_frame,"pain01");
+	my_strcp(actors_defs[goblin_male_2].pain2_frame,"paintwo01");
+	my_strcp(actors_defs[goblin_male_2].idle_frame,"idle01");
+	my_strcp(actors_defs[goblin_male_2].attack_cast_frame,"cast01");
+	my_strcp(actors_defs[goblin_male_2].attack_up_1_frame,"punchone01");
+	my_strcp(actors_defs[goblin_male_2].attack_up_2_frame,"punchtwo01");
+	my_strcp(actors_defs[goblin_male_2].attack_up_3_frame,"punchone01");
+	my_strcp(actors_defs[goblin_male_2].attack_up_4_frame,"punchtwo01");
+	my_strcp(actors_defs[goblin_male_2].attack_down_1_frame,"kickone01");
+	my_strcp(actors_defs[goblin_male_2].attack_down_2_frame,"kickone01");
+	my_strcp(actors_defs[goblin_male_2].in_combat_frame,"fightstain01");
+	my_strcp(actors_defs[goblin_male_2].out_combat_frame,"fightstaout01");
+	my_strcp(actors_defs[goblin_male_2].combat_idle_frame,"fightidle01");
+	actors_defs[goblin_male_2].walk_speed=default_walk_speed;
+	actors_defs[goblin_male_2].run_speed=2.0/18;
+
+	actors_defs[goblin_female_1].ghost=0;
+	my_strcp(actors_defs[goblin_female_1].skin_name,"./md2/goblinfemale.bmp");
+	my_strcp(actors_defs[goblin_female_1].file_name,"./md2/goblin_female.md2");
+	my_strcp(actors_defs[goblin_female_1].walk_frame,"walk01");
+	my_strcp(actors_defs[goblin_female_1].die1_frame,"die01");
+	my_strcp(actors_defs[goblin_female_1].die2_frame,"die01");
+	my_strcp(actors_defs[goblin_female_1].pain1_frame,"pain01");
+	my_strcp(actors_defs[goblin_female_1].pain2_frame,"paintwo01");
+	my_strcp(actors_defs[goblin_female_1].idle_frame,"idle01");
+	my_strcp(actors_defs[goblin_female_1].attack_cast_frame,"cast01");
+	my_strcp(actors_defs[goblin_female_1].attack_up_1_frame,"punchone01");
+	my_strcp(actors_defs[goblin_female_1].attack_up_2_frame,"punchtwo01");
+	my_strcp(actors_defs[goblin_female_1].attack_up_3_frame,"punchone01");
+	my_strcp(actors_defs[goblin_female_1].attack_up_4_frame,"punchtwo01");
+	my_strcp(actors_defs[goblin_female_1].attack_down_1_frame,"kickone01");
+	my_strcp(actors_defs[goblin_female_1].attack_down_2_frame,"kickone01");
+	my_strcp(actors_defs[goblin_female_1].in_combat_frame,"fightstain01");
+	my_strcp(actors_defs[goblin_female_1].out_combat_frame,"fightstaout01");
+	my_strcp(actors_defs[goblin_female_1].combat_idle_frame,"fightidle01");
+	actors_defs[goblin_female_1].walk_speed=default_walk_speed;
+	actors_defs[goblin_female_1].run_speed=2.0/18;
 
 	actors_defs[orc_male_1].ghost=0;
 	my_strcp(actors_defs[orc_male_1].skin_name,"./md2/orcm1.bmp");

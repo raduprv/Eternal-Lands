@@ -432,7 +432,7 @@ void init_peace_icons()
 	questlog_icon_x_end=questlog_icon_x_start+31;
 	questlog_icon_y_start=window_height-32;
 	questlog_icon_y_end=questlog_icon_y_start+31;
-	
+
 	map_icon_x_start=questlog_icon_x_end+1;
 	map_icon_x_end=map_icon_x_start+31;
 	map_icon_y_start=window_height-32;
@@ -442,7 +442,7 @@ void init_peace_icons()
 	console_icon_x_end=console_icon_x_start+31;
 	console_icon_y_start=window_height-32;
 	console_icon_y_end=console_icon_y_start+31;
-	
+
 	buddy_icon_x_start=console_icon_x_end+1;
 	buddy_icon_x_end=buddy_icon_x_start+31;
 	buddy_icon_y_start=window_height-32;
@@ -590,14 +590,14 @@ void draw_peace_icons()
 	else
 		draw_2d_thing(options_icon_u_start, options_icon_v_start, options_icon_u_end, options_icon_v_end,
 					  options_icon_x_start, options_icon_y_start, options_icon_x_end, options_icon_y_end);
-	
+
 	if(interface_mode==interface_map || (mouse_x>map_icon_x_start && mouse_y>map_icon_y_start && mouse_x<map_icon_x_end && mouse_y<map_icon_y_end))
 		draw_2d_thing(colored_map_icon_u_start, colored_map_icon_v_start, colored_map_icon_u_end, colored_map_icon_v_end,
 					  map_icon_x_start, map_icon_y_start, map_icon_x_end, map_icon_y_end);
 	else
 		draw_2d_thing(map_icon_u_start, map_icon_v_start, map_icon_u_end, map_icon_v_end,
 					  map_icon_x_start, map_icon_y_start, map_icon_x_end, map_icon_y_end);
-	
+
 	if(view_buddy || (mouse_x>buddy_icon_x_start && mouse_y>buddy_icon_y_start && mouse_x<buddy_icon_x_end && mouse_y<buddy_icon_y_end))
 		draw_2d_thing(colored_buddy_icon_u_start, colored_buddy_icon_v_start, colored_buddy_icon_u_end, colored_buddy_icon_v_end,
 					  buddy_icon_x_start, buddy_icon_y_start, buddy_icon_x_end, buddy_icon_y_end);
@@ -1004,7 +1004,7 @@ void draw_misc_display()
 			//Digital Clock
 			if(view_digital_clock==1){
 				char str[5];
-				snprintf(str,5,"%1d:%02d", game_minute/60, game_minute%60); 
+				snprintf(str,5,"%1d:%02d", game_minute/60, game_minute%60);
 				glColor3f(0.77f,0.57f,0.39f);
 				draw_string(window_width-51,window_height-145,str,1);
 			}
@@ -1101,9 +1101,9 @@ void draw_quickbar() {
 					//get the UV coordinates.
 					cur_item=item_list[i].image_id%25;
 					u_start=0.2f*(cur_item%5);
-					u_end=u_start+0.2f;
-					v_start=(1.0f+2.0f/256.0f)-(0.2f*(cur_item/5));
-					v_end=v_start-0.2f;
+					u_end=u_start+(float)50/256;
+					v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
+					v_end=v_start-(float)50/256;
 
 					//get the x and y
 					cur_pos=item_list[i].pos;
