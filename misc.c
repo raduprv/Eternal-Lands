@@ -8,12 +8,10 @@ int evaluate_colision()
 	glReadPixels(mouse_x, window_height-mouse_y, 1, 1, GL_LUMINANCE, GL_BYTE, &pixels);
 	if(pixels[0])return 1;//there is something
 	return 0;//no collision, sorry
-
 }
 
 void get_3d_object_under_mouse()
 {
-
 	//ok, first of all, let's see what objects we have in range...
 	int i;
 	int x,y;
@@ -39,8 +37,8 @@ void get_3d_object_under_mouse()
 
 			         dist1=x-objects_list[i]->x_pos;
 			         dist2=y-objects_list[i]->y_pos;
-			         if(sqrt(dist1*dist1+dist2*dist2)<=20)
-                     draw_3d_object(objects_list[i]);
+			         if(dist1*dist1+dist2*dist2<=20*20)
+                     	draw_3d_object(objects_list[i]);
                      if(evaluate_colision())
                      	{
                      		selected_3d_object=i;
@@ -83,7 +81,6 @@ void clone_3d_object(int object_id)
 
 	selected_3d_object=add_e3d(objects_list[object_id]->file_name,scene_mouse_x,scene_mouse_y,z_pos,x_rot,0,z_rot,self_lit,blended,r,g,b);
 	cur_tool=tool_select;//change the current tool
-
 }
 
 #ifndef LINUX
@@ -129,7 +126,6 @@ void open_3d_obj()
 //////////////////////2D stuff here/////////////////////////////////////////////////
 void get_2d_object_under_mouse()
 {
-
 	//ok, first of all, let's see what objects we have in range...
 	int i;
 	int x,y;
@@ -137,7 +133,6 @@ void get_2d_object_under_mouse()
 	selected_2d_object=-1;
 	x=-cx;
 	y=-cy;
-
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
@@ -154,8 +149,8 @@ void get_2d_object_under_mouse()
 
 			         dist1=x-obj_2d_list[i]->x_pos;
 			         dist2=y-obj_2d_list[i]->y_pos;
-			         if(sqrt(dist1*dist1+dist2*dist2)<=20)
-                     draw_2d_object(obj_2d_list[i]);
+			         if(dist1*dist1+dist2*dist2<=20*20)
+                     	draw_2d_object(obj_2d_list[i]);
                      if(evaluate_colision())
                      	{
                      		selected_2d_object=i;
@@ -176,7 +171,6 @@ void kill_2d_object(int object_id)
 
 void move_2d_object(int object_id)
 {
-
 	obj_2d_list[object_id]->x_pos=scene_mouse_x;
 	obj_2d_list[object_id]->y_pos=scene_mouse_y;
 }
@@ -192,7 +186,6 @@ void clone_2d_object(int object_id)
 
 	selected_2d_object=add_2d_obj(obj_2d_list[object_id]->file_name,scene_mouse_x,scene_mouse_y,z_pos,x_rot,0,z_rot);
 	cur_tool=tool_select;//change the current tool
-
 }
 
 #ifndef LINUX
@@ -231,7 +224,6 @@ void open_2d_obj()
 		selected_2d_object=add_2d_obj(proper_path,scene_mouse_x,scene_mouse_y,0.001f,0,0,0);
 		cur_tool=tool_select;//change the current tool
     }
-
 }
 #endif
 
@@ -250,7 +242,6 @@ void load_all_tiles()
 		tile_list[i]=cur_text;
 		tiles_no=i;
 	}
-
 }
 
 
@@ -273,7 +264,6 @@ int get_tile_under_mouse_from_list()
 	view_tiles_list=0;
 	cur_tool=tool_select;
 	selected_tile=tile_id;
-
 }
 
 void move_tile()
@@ -368,17 +358,13 @@ void draw_light_source(light * object_id)
 
 	glPopMatrix();//restore the scene
 
-
   glEnable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
-
-
 }
 
 
 void visualise_lights()
 {
-
 	//ok, first of all, let's see what objects we have in range...
 	int i;
 	int x,y;
@@ -399,8 +385,8 @@ void visualise_lights()
 
 			         dist1=x-lights_list[i]->pos_x;
 			         dist2=y-lights_list[i]->pos_y;
-			         if(sqrt(dist1*dist1+dist2*dist2)<=20)
-                     draw_light_source(lights_list[i]);
+			         if(dist1*dist1+dist2*dist2<=20*20)
+                     	draw_light_source(lights_list[i]);
 
                  }
 		}
@@ -409,7 +395,6 @@ void visualise_lights()
 
 void get_light_under_mouse()
 {
-
 	//ok, first of all, let's see what objects we have in range...
 	int i;
 	int x,y;
@@ -417,7 +402,6 @@ void get_light_under_mouse()
 	selected_light=-1;
 	x=-cx;
 	y=-cy;
-
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
@@ -434,8 +418,8 @@ void get_light_under_mouse()
 
 			         dist1=x-lights_list[i]->pos_x;
 			         dist2=y-lights_list[i]->pos_y;
-			         if(sqrt(dist1*dist1+dist2*dist2)<=20)
-                     draw_light_source(lights_list[i]);
+			         if(dist1*dist1+dist2*dist2<=20*20)
+                     	draw_light_source(lights_list[i]);
                      if(evaluate_colision())
                      	{
                      		selected_light=i;
@@ -448,7 +432,6 @@ void get_light_under_mouse()
 
 void move_light(int object_id)
 {
-
 	lights_list[object_id]->pos_x=scene_mouse_x;
 	lights_list[object_id]->pos_y=scene_mouse_y;
 }
@@ -471,7 +454,6 @@ void clone_light(int object_id)
 
 	selected_light=add_light(scene_mouse_x,scene_mouse_y,z_pos,r,g,b,1.0f);
 	cur_tool=tool_select;//change the current tool
-
 }
 
 void change_color_height(unsigned char cur_height)
@@ -510,8 +492,6 @@ void change_color_height(unsigned char cur_height)
 		if(cur_height==29)glColor4f(0.35f,0.2f,0.0f,0.5f);
 		if(cur_height==30)glColor4f(0.3f,0.15f,0.0f,0.5f);
 		if(cur_height==31)glColor4f(0.25f,0.1f,0.0f,0.5f);
-
-
 }
 
 void move_height_tile()
@@ -584,7 +564,6 @@ void get_height_under_mouse_from_list()
 	view_heights_list=0;
 	cur_tool=tool_select;
 	selected_height=height_id;
-
 }
 
 void draw_big_height_tile(int size)
@@ -662,7 +641,6 @@ void draw_heights_wireframe()
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_LIGHTING);
-
 }
 
 
@@ -679,10 +657,10 @@ void draw_height_map()
 	else x=cx/3;
 	if(cy<0)y=(cy*-1)/3*6;
 	else y=cy/3;
-	x_start=(int)x-3*6;
-	y_start=(int)y-3*6;
-	x_end=(int)x+3*6;
-	y_end=(int)y+3*6;
+	x_start=(int)x-5*6;
+	y_start=(int)y-5*6;
+	x_end=(int)x+5*6;
+	y_end=(int)y+5*6;
 	if(x_start<0)x_start=0;
 	if(x_end>=tile_map_size_x*6)x_end=tile_map_size_x*6-1;
 	if(y_start<0)y_start=0;
@@ -721,7 +699,6 @@ void draw_height_map()
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glEnable(GL_LIGHTING);
-
 }
 
 #ifndef LINUX
@@ -759,7 +736,6 @@ void open_map_file()
 
 		load_map(proper_path);
     }
-
 }
 #endif
 #ifndef LINUX
@@ -799,7 +775,6 @@ void save_map_file()
 
 		save_map(proper_path);
     }
-
 }
 #endif
 
@@ -845,6 +820,7 @@ void open_map_file()
   continue_with = OPEN_MAP;
   gtk_widget_show(file_selector);
 }
+
 void open_map_file_continued()
 {
   if (selected_file)load_map(selected_file);
@@ -857,6 +833,7 @@ void save_map_file()
   continue_with = SAVE_MAP;
   gtk_widget_show(file_selector);
 }
+
 void save_map_file_continued()
 {
   if (selected_file)save_map(selected_file);
