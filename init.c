@@ -169,8 +169,12 @@ void init_stuff()
 	buttons_text=load_texture_cache("./textures/buttons.bmp",0);
 	particle_textures[0]=load_texture_cache("./textures/particle0.bmp",0);
 	particle_textures[1]=load_texture_cache("./textures/particle1.bmp",0);
-	particle_textures[2]=particle_textures[3]=particle_textures[4]=0;
-	particle_textures[5]=particle_textures[6]=particle_textures[7]=0;
+	particle_textures[2]=load_texture_cache("./textures/particle2.bmp",0);
+	particle_textures[3]=load_texture_cache("./textures/particle3.bmp",0);
+	particle_textures[4]=load_texture_cache("./textures/particle4.bmp",0);
+	particle_textures[5]=load_texture_cache("./textures/particle5.bmp",0);
+	particle_textures[6]=load_texture_cache("./textures/particle6.bmp",0);
+	particle_textures[7]=load_texture_cache("./textures/particle7.bmp",0);
 	//get the application home dir
 
 	have_multitexture=0;//debug only
