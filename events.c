@@ -98,7 +98,7 @@ int HandleEvent(SDL_Event *event)
 
 				//first, try to see if we pressed Alt+x, to quit.
 				if ( (event->key.keysym.sym == SDLK_x && alt_on)
-					 || (event->key.keysym.sym == SDLK_q && ctrl_on) )
+					 || (event->key.keysym.sym == SDLK_q && ctrl_on && !alt_on) )
 					{
 						done = 1;
 						//break;
