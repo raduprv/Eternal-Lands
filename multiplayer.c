@@ -669,6 +669,15 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			}
 			break;
 
+		case FIRE_SMALL_PARTICLES:
+			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+			  add_particle_sys_at_tile("./particles/fire_small.part",*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)));
+			}
+			break;
+
 		case GET_NEW_GROUND_ITEM:
 			{
 #ifdef EXTRA_DEBUG
