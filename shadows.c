@@ -383,6 +383,9 @@ void display_actors_shadow()
 			glEnableClientState(GL_VERTEX_ARRAY);
 			//glEnableClientState(GL_NORMAL_ARRAY);
 		}
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -401,6 +404,9 @@ void display_actors_shadow()
 							}
 				}
 		}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 	if(use_vertex_array > 0)
 		{
 			//glDisableClientState(GL_NORMAL_ARRAY);

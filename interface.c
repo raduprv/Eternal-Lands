@@ -808,6 +808,9 @@ void draw_game_map()
 		glEnd();
 	}
 	//ok, now let's draw our possition...
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -820,6 +823,9 @@ void draw_game_map()
 						break;
 					}
 		}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 
 	glColor3f(0.0f,0.0f,1.0f);
 	glDisable(GL_TEXTURE_2D);

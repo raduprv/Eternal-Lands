@@ -196,18 +196,34 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 				i++;j++;
 			}
 			textbuffer[j]=0;
+#ifdef POSSIBLE_FIX
+			lock_actors_lists();
+#endif
 			for (i = 0; i < max_actors; i++)
 			{
 				char actorName[128];
+#ifdef POSSIBLE_FIX
+				int overflow=0;
+#endif
 				j = 0;
 				// Strip clan info
 				while (allowedCharInName(actors_list[i]->actor_name[j]))
 				{
 					actorName[j] = actors_list[i]->actor_name[j];
 					j++;
-					if (j>=128)
+					if (j>=128) 
+#ifndef POSSIBLE_FIX
 						return;//over buffer
+#else
+					{
+						overflow=1;
+						break;
+					}
+#endif
 				}
+#ifdef POSSIBLE_FIX
+				if(overflow)break;
+#endif
 				actorName[j] = 0;
 				if (strcmp(actorName, playerName)==0)
 				{
@@ -215,6 +231,9 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 					break;
 				}
 			}
+#ifdef POSSIBLE_FIX
+			unlock_actors_lists();
+#endif
 			
 		}
 		

@@ -181,12 +181,22 @@ actor *pf_get_our_actor()
 		return NULL;
 	}
 
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for (i = 0; i < max_actors; i++) {
 		if (actors_list[i]->actor_id == yourself) {
+#ifndef POSSIBLE_FIX
 			return actors_list[i];
+#else
+			break;
+#endif
 		}
 	}
-	
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+	if(i<max_actors) return actors_list[i];
+#endif
 	return NULL;
 }
 
@@ -251,14 +261,24 @@ void pf_move()
 int pf_is_tile_occupied(int x, int y)
 {
 	int i;
-	
+
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for (i = 0; i < max_actors; i++) {
 		if (actors_list[i]->x_tile_pos == x && actors_list[i]->y_tile_pos == y) {
+#ifndef POSSIBLE_FIX
 			return 1;
+#else
+			break;
+#endif
 		}
 	}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 	
-	return 0;
+	return (i<max_actors);
 }
 
 Uint32 pf_movement_timer_callback(Uint32 interval, void *param)

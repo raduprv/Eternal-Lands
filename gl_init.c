@@ -574,6 +574,9 @@ void set_new_video_mode(int fs,int mode)
 		}
 
 	//do the same for the actors textures...
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -585,6 +588,9 @@ void set_new_video_mode(int fs,int mode)
 						}
 				}
 		}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 
 	//...and the texture used for shadow mapping
 	glDeleteTextures(1,&depth_map_id);
@@ -619,6 +625,9 @@ void set_new_video_mode(int fs,int mode)
 		}
 
 	//do the same for the actors textures...
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -636,7 +645,10 @@ void set_new_video_mode(int fs,int mode)
 						}
 				}
 		}
-
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
+	
 	//it is dependent on the window height...
 	init_hud_interface();
 	new_minute();

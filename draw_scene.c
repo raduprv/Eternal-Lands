@@ -150,10 +150,16 @@ void draw_scene()
 	
 	if(!have_a_map)return;
 	if(yourself==-1)return;//we don't have ourselves
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for(i=0; i<max_actors; i++)
 		{
         	if(actors_list[i] && actors_list[i]->actor_id==yourself) break;
 		}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 	if(i > max_actors) return;//we still don't have ourselves
 	main_count++;
 	
@@ -333,6 +339,9 @@ void draw_scene()
 void Move()
 {
     int i;
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i] && actors_list[i]->actor_id==yourself)
@@ -350,6 +359,9 @@ void Move()
 					break;
 				}
 		}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
     //check to see if we are out of the map
     if(cx>-7.5f)cx=-7.5f;
     if(cy>-7.5f)cy=-7.5f;

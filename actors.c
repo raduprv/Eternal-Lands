@@ -1000,10 +1000,21 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text )
 actor *	get_actor_ptr_from_id( int actor_id )
 {
 	int i;
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for (i = 0; i < max_actors; i++)
 	{
 		if (actors_list[i]->actor_id == actor_id)
+#ifndef POSSIBLE_FIX
 			return actors_list[i];
+#else
+			break;
+#endif
 	}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
+	if(i<max_actors) return actors_list[i];
 	return NULL;
 }

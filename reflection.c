@@ -339,6 +339,9 @@ void display_3d_reflection()
 
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0.0f,0.0f,1.0f);
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -357,6 +360,9 @@ void display_3d_reflection()
 							}
 				}
 		}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 	glPopMatrix();
 	reset_material();
 
