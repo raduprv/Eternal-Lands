@@ -299,11 +299,11 @@ void destroy_all_particles()
 
 }
 
-void destroy_all_fires()
+void remove_fire_at(float x_pos, float y_pos)
 {
 	int i;
 	for(i=0;i<max_particle_systems;i++){
-		if(particles_list[i] && !strncmp(particles_list[i]->def->file_name,"./particles/fire_",17)) {
+		if(particles_list[i] && !strncmp(particles_list[i]->def->file_name,"./particles/fire_",17) && particles_list[i]->x_pos==x_pos && particles_list[i]->y_pos==y_pos) {
 			if(particles_list[i]->def->use_light && lights_list[particles_list[i]->light]){
 				free(lights_list[particles_list[i]->light]);
 				lights_list[particles_list[i]->light]=NULL;

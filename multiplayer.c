@@ -682,12 +682,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			}
 			break;
 
-		case DESTROY_ALL_FIRES:
+		case REMOVE_FIRE_AT:
 			{
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				destroy_all_fires();
+				remove_fire_at((float)(*((Uint16 *)(in_data+3)))/2.0 +0.25,(float)(*((Uint16 *)(in_data+5)))/2.0 + 0.25);
 			}
 			break;
 

@@ -87,7 +87,7 @@ extern int particles_percentage;
 #define	unlock_particles_list()	SDL_UnlockMutex(particles_list_mutex)
 void destroy_all_particles();
 void destroy_all_particle_defs();
-void destroy_all_fires();
+void remove_fire_at(float x,float y);
 extern void	init_particles_list();
 extern void	end_particles_list();
 
