@@ -1,7 +1,7 @@
 #ifndef __INIT_H__
 #define __INIT_H__
 
-#define	CFG_VERSION	2
+#define	CFG_VERSION	3
 
 #ifndef DATA_DIR
 #define DATA_DIR "."

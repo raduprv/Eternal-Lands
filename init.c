@@ -23,7 +23,7 @@ int clouds_shadows=1;
 int no_alpha_sat=0;
 int item_window_on_drop=1;
 help_entry help_list[MAX_HELP_ENTRIES];
-char configdir[256]=".";
+char configdir[256]="./";
 char datadir[256]=DATA_DIR;
 
 void load_harvestable_list()
