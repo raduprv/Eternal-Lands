@@ -23,6 +23,7 @@
 #endif	//NO_MUSIC
 
 #include "elc_private.h"
+#define	GL_GLEXT_PROTOTYPES	1
 #include "SDL_opengl.h"
 #include "asc.h"
 #include "md2.h"
@@ -203,6 +204,8 @@ extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
 extern PFNGLMULTITEXCOORD2FVARBPROC		glMultiTexCoord2fvARB;
 extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
+extern PFNGLLOCKARRAYSEXTPROC			glLockArraysEXT;
+extern PFNGLUNLOCKARRAYSEXTPROC			glUnlockArraysEXT;
 #endif
 
 extern int shift_on;
@@ -215,6 +218,7 @@ float clouds_movement_u;
 float clouds_movement_v;
 extern int last_clear_clouds;
 extern int reflection_texture;
+extern int have_compiled_vertex_array;
 
 #define UNDER_MOUSE_NPC 0
 #define UNDER_MOUSE_PLAYER 1

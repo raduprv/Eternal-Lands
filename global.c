@@ -399,13 +399,16 @@ PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB	= NULL;
 PFNGLMULTITEXCOORD2FVARBPROC	glMultiTexCoord2fvARB	= NULL;
 PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB		= NULL;
 PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB= NULL;
+PFNGLLOCKARRAYSEXTPROC			glLockArraysEXT			= NULL;
+PFNGLUNLOCKARRAYSEXTPROC		glUnlockArraysEXT		= NULL;
 #endif
 
-int have_multitexture;
+int have_multitexture=0;
 float clouds_movement_u=-8;
 float clouds_movement_v=-3;
 int last_clear_clouds=0;
 int reflection_texture;
+int have_compiled_vertex_array=0;
 
 int shift_on;
 int alt_on;
