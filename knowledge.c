@@ -20,7 +20,10 @@ void display_knowledge()
 	int progress = (125*your_info.research_completed+1)/(your_info.research_total+1);
 	int scroll = (120*page_start)/(300-38);
 	char points_string[16];
-	sprintf(points_string,"%4i/%-4i",your_info.research_completed,your_info.research_total);
+	if(your_info.research_completed==your_info.research_total)
+		strcpy(points_string,"COMPLETE");
+	else
+		sprintf(points_string,"%4i/%-4i",your_info.research_completed,your_info.research_total);
 	//title bar
 	draw_menu_title_bar(knowledge_menu_x,knowledge_menu_y-16,knowledge_menu_x_len);
 	// window drawing
