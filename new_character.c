@@ -102,6 +102,7 @@ void change_actor()
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
 	else if(race==race_gnome)*/
 	if(hair_color==HAIR_BLOND) if(race==race_draegoni||race==race_orchan) hair_color++;
+	if(hair_color>HAIR_WHITE && race != race_draegoni) hair_color=HAIR_BLACK;
 	if(shirt_color==SHIRT_PINK) if(male) shirt_color++;
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
 
@@ -262,45 +263,45 @@ void check_for_input()
 			change_actor();
 		}
 	//check to see if we changed the gender
-	//530,300
-	if(mouse_x>530 && mouse_x<620 && mouse_y>300 && mouse_y<320)
+	//460,300
+	if(mouse_x>460 && mouse_x<590 && mouse_y>300 && mouse_y<320)
 		{
 			male=1;
 			change_actor();
 		}
 
-	if(mouse_x>530 && mouse_x<620 && mouse_y>320 && mouse_y<340)
+	if(mouse_x>460 && mouse_x<590 && mouse_y>320 && mouse_y<340)
 		{
 			male=0;
 			change_actor();
 		}
 	//check to see if we changed the race
-	if(mouse_x>530 && mouse_x<620 && mouse_y>380 && mouse_y<400)
+	if(mouse_x>240 && mouse_x<300 && mouse_y>300 && mouse_y<320)
 		{
 			race=race_human;
 			change_actor();
 		}
-	if(mouse_x>530 && mouse_x<620 && mouse_y>400 && mouse_y<420)
+	if(mouse_x>240 && mouse_x<300 && mouse_y>320 && mouse_y<340)
 		{
 			race=race_elf;
 			change_actor();
 		}
-	if(mouse_x>530 && mouse_x<620 && mouse_y>420 && mouse_y<440)
+	if(mouse_x>240 && mouse_x<300 && mouse_y>340 && mouse_y<360)
 		{
 			race=race_dwarf;
 			change_actor();
 		}
-	if(mouse_x>530 && mouse_x<620 && mouse_y>440 && mouse_y<460)
+	if(mouse_x>310 && mouse_x<400 && mouse_y>300 && mouse_y<320)
 		{
 			race=race_gnome;
 			change_actor();
 		}
-	if(mouse_x>530 && mouse_x<620 && mouse_y>460 && mouse_y<480)
+	if(mouse_x>310 && mouse_x<400 && mouse_y>320 && mouse_y<340)
 		{
 			race=race_orchan;
 			change_actor();
 		}
-	if(mouse_x>530 && mouse_x<620 && mouse_y>480 && mouse_y<500)
+	if(mouse_x>310 && mouse_x<400 && mouse_y>340 && mouse_y<360)
 		{
 			race=race_draegoni;
 			change_actor();
@@ -409,48 +410,48 @@ void draw_new_char_screen()
 	draw_string(120,370,">>",1);
 
 	glColor3f(1.0f,0.2f,0.2f);
-	draw_string(530,280,gender_str,1);
+	draw_string(460,280,gender_str,1);
 
 	if(male==1)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,300,male_str,1);
+	draw_string(460,300,male_str,1);
 
 	if(male!=1)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,320,female_str,1);
+	draw_string(460,320,female_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	glColor3f(1.0f,0.2f,0.2f);
-	draw_string(530,360,race_str,1);
+	draw_string(240,280,race_str,1);
 
 	if(race==race_human)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,380,human_str,1);
+	draw_string(240,300,human_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	if(race==race_elf)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,400,elf_str,1);
+	draw_string(240,320,elf_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	if(race==race_dwarf)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,420,dwarf_str,1);
+	draw_string(240,340,dwarf_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	if(race==race_gnome)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,440,"Gnome",1);
+	draw_string(310,300,"Gnome",1);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	if(race==race_orchan)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,460,"Orchan",1);
+	draw_string(310,320,"Orchan",1);
 	glColor3f(1.0f,1.0f,1.0f);
 	
 	if(race==race_draegoni)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,480,"Draegoni",1);
+	draw_string(310,340,"Draegoni",1);
 	glColor3f(1.0f,1.0f,1.0f);
 	
 	//draw the player frame
