@@ -15,6 +15,7 @@ void draw_2d_object(obj_2d * object_id)
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	float x_size,y_size;
+	float alpha_test;
 	int object_type;
 	obj_2d_def *obj_def_pointer;
 
@@ -28,7 +29,9 @@ void draw_2d_object(obj_2d * object_id)
 	v_end=obj_def_pointer->v_end;
 	x_size=obj_def_pointer->x_size;
 	y_size=obj_def_pointer->y_size;
+	alpha_test=obj_def_pointer->alpha_test;
 	render_x_start=-x_size/2.0f;
+
 	object_type=obj_def_pointer->object_type;
 	if(object_type==ground)render_y_start=-y_size/2;
 	else	render_y_start=0;
@@ -55,6 +58,9 @@ void draw_2d_object(obj_2d * object_id)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
     glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+    if(alpha_test!=0)
+    glAlphaFunc(GL_GREATER,alpha_test);
+    else
     glAlphaFunc(GL_GREATER,0.18f);
 
 	texture_id=get_and_set_texture_id(obj_def_pointer->texture_id);
@@ -104,7 +110,7 @@ void draw_2d_object(obj_2d * object_id)
 
 			ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_start,v_start);
 			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
-								 +clouds_movement_u,y1/texture_scale 
+								 +clouds_movement_u,y1/texture_scale
 								 +clouds_movement_v);
 			glVertex3f(render_x_start,render_y_start,z_pos);
 
@@ -116,7 +122,7 @@ void draw_2d_object(obj_2d * object_id)
 			y1=y_pos+y1;
 
 			ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_start,v_end);
-			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale 
+			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
 								 +clouds_movement_u,y1/texture_scale
 								 +clouds_movement_v);
 			glVertex3f(render_x_start,render_y_start+y_size,z_pos);
@@ -170,10 +176,10 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	char *texture_file_name;
 	char *handle_obj_file_mem;
 	float x_size,y_size;
+	float alpha_test;
 	int file_x_len;
 	int file_y_len;
 	int u_start,u_end,v_start,v_end;
-
 
 	cur_object=calloc(1, sizeof(obj_2d_def));
 	//get the current directory
@@ -227,6 +233,8 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	v_end=get_integer_after_string("v_end:",obj_file_mem,f_size);
 	x_size=get_float_after_string("x_size:",obj_file_mem,f_size);
 	y_size=get_float_after_string("y_size:",obj_file_mem,f_size);
+	alpha_test=get_float_after_string("alpha_test:",obj_file_mem,f_size);
+	if(alpha_test<0)alpha_test=0;
 
 	//get the proper u/v coordinates
 	cur_object->u_start=(float)u_start/file_x_len;
@@ -235,6 +243,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	cur_object->v_end=1.0f-(float)v_end/file_y_len;
 	cur_object->x_size=x_size;
 	cur_object->y_size=y_size;
+	cur_object->alpha_test=alpha_test;
 
 	//now  find the texture name
 	texture_file_name=calloc(128, sizeof(char));
@@ -258,7 +267,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 		}
 	while(l<128)
 		{
-			if(obj_file_mem[k]!=' ' && obj_file_mem[k]!=0x0a 
+			if(obj_file_mem[k]!=' ' && obj_file_mem[k]!=0x0a
 			   && obj_file_mem[k]!=0x0d)
 				{
 					texture_file_name[l]=obj_file_mem[k];
@@ -311,7 +320,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 
 }
 
-//Tests to see if an obj_2d object is already loaded. 
+//Tests to see if an obj_2d object is already loaded.
 //If it is, return the handle.
 //If not, load it, and return the handle
 obj_2d_def * load_obj_2d_def_cache(char * file_name)
@@ -353,7 +362,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 	return obj_2d_def_id;
 }
 
-int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, 
+int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			   float x_rot, float y_rot, float z_rot)
 {
 	int i;//,len,k;

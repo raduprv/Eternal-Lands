@@ -49,6 +49,7 @@ extern int password_text_lenght;
 extern int font_text;
 extern int cons_text;
 extern int icons_text;
+extern int hud_text;
 extern int open_text;
 extern int login_text;
 
@@ -94,7 +95,9 @@ void draw_login_screen();
 void add_char_to_username(unsigned char ch);
 void add_char_to_password(unsigned char ch);
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,
-				   int y_start,int x_end,int y_end);
+int y_start,int x_end,int y_end);
+void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_start,
+int y_start,int x_end,int y_end);
 void draw_options_menu();
 int check_options_menu();
 void draw_ingame_interface();

@@ -1,13 +1,12 @@
 #ifndef	__HUD_H
 #define	__HUD_H
 
-extern int view_clock;
-extern int view_compass;
-
 // the main hud handling
 void init_hud_interface();
 void draw_hud_interface();
 int check_hud_interface();
+void init_hud_frame();
+void draw_hud_frame();
 
 // icons subsection
 void init_peace_icons();

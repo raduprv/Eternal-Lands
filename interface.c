@@ -22,8 +22,6 @@ int have_a_map=0;
 char interface_mode=interface_opening;
 char create_char_error_str[520];
 char log_in_error_str[520];
-int view_clock=1;
-int view_compass=1;
 int options_menu=0;
 int combat_mode=0;
 int auto_camera=0;
@@ -33,15 +31,6 @@ int view_health_bar=1;
 int view_names=1;
 int show_fps=1;
 int limit_fps=0;
-
-float marble_menu_u_start=(float)160/255;
-float marble_menu_v_start=1.0f-(float)128/255;
-float marble_menu_u_end=(float)255/255;
-float marble_menu_v_end=1.0f-(float)255/255;
-float close_button_u_start=(float)192/255;
-float close_button_v_start=1.0f-(float)96/255;
-float close_button_u_end=(float)207/255;
-float close_button_v_end=1.0f-(float)111/255;
 
 int action_mode=action_walk;
 
@@ -668,6 +657,23 @@ void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_sta
 	glVertex3i(x_end,y_end,0);
 }
 
+void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_start,
+				   int y_start,int x_end,int y_end)
+{
+	glTexCoord2f(u_start,v_start);
+	glVertex3i(x_start,y_end,0);
+
+	glTexCoord2f(u_end,v_start);
+	glVertex3i(x_start,y_start,0);
+
+	glTexCoord2f(u_end,v_end);
+	glVertex3i(x_end,y_start,0);
+
+	glTexCoord2f(u_start,v_end);
+	glVertex3i(x_end,y_end,0);
+}
+
+
 void init_opening_interface()
 {
 	check_gl_errors();
@@ -679,41 +685,41 @@ void init_opening_interface()
 
 void draw_login_screen()
 {
-	float selected_bar_u_start=(float)0/255;
-	float selected_bar_v_start=1.0f-(float)0/255;
+	float selected_bar_u_start=(float)0/256;
+	float selected_bar_v_start=1.0f-(float)0/256;
 
-	float selected_bar_u_end=(float)174/255;
-	float selected_bar_v_end=1.0f-(float)28/255;
+	float selected_bar_u_end=(float)174/256;
+	float selected_bar_v_end=1.0f-(float)28/256;
 
-	float unselected_bar_u_start=(float)0/255;
-	float unselected_bar_v_start=1.0f-(float)40/255;
+	float unselected_bar_u_start=(float)0/256;
+	float unselected_bar_v_start=1.0f-(float)40/256;
 
-	float unselected_bar_u_end=(float)170/255;
-	float unselected_bar_v_end=1.0f-(float)63/255;
+	float unselected_bar_u_end=(float)170/256;
+	float unselected_bar_v_end=1.0f-(float)63/256;
 	/////////////////////////
-	float log_in_unselected_start_u=(float)0/255;
-	float log_in_unselected_start_v=1.0f-(float)80/255;
+	float log_in_unselected_start_u=(float)0/256;
+	float log_in_unselected_start_v=1.0f-(float)80/256;
 
-	float log_in_unselected_end_u=(float)87/255;
-	float log_in_unselected_end_v=1.0f-(float)115/255;
+	float log_in_unselected_end_u=(float)87/256;
+	float log_in_unselected_end_v=1.0f-(float)115/256;
 
-	float log_in_selected_start_u=(float)0/255;
-	float log_in_selected_start_v=1.0f-(float)120/255;
+	float log_in_selected_start_u=(float)0/256;
+	float log_in_selected_start_v=1.0f-(float)120/256;
 
-	float log_in_selected_end_u=(float)87/255;
-	float log_in_selected_end_v=1.0f-(float)155/255;
+	float log_in_selected_end_u=(float)87/256;
+	float log_in_selected_end_v=1.0f-(float)155/256;
 	/////////////////////////
-	float new_char_unselected_start_u=(float)100/255;
-	float new_char_unselected_start_v=1.0f-(float)80/255;
+	float new_char_unselected_start_u=(float)100/256;
+	float new_char_unselected_start_v=1.0f-(float)80/256;
 
-	float new_char_unselected_end_u=(float)238/255;
-	float new_char_unselected_end_v=1.0f-(float)115/255;
+	float new_char_unselected_end_u=(float)238/256;
+	float new_char_unselected_end_v=1.0f-(float)115/256;
 
-	float new_char_selected_start_u=(float)100/255;
-	float new_char_selected_start_v=1.0f-(float)120/255;
+	float new_char_selected_start_u=(float)100/256;
+	float new_char_selected_start_v=1.0f-(float)120/256;
 
-	float new_char_selected_end_u=(float)238/255;
-	float new_char_selected_end_v=1.0f-(float)155/255;
+	float new_char_selected_end_u=(float)238/256;
+	float new_char_selected_end_v=1.0f-(float)155/256;
 
 	/////////////////////////////////////////////
 	/////////////////////////////////////////////
@@ -889,20 +895,20 @@ void add_char_to_password(unsigned char ch)
 		}
 }
 
-float lit_gem_u_start=(float)224/255;
-float lit_gem_v_start=1.0f-(float)112/255;
-float lit_gem_u_end=(float)255/255;
-float lit_gem_v_end=1.0f-(float)128/255;
+float lit_gem_u_start=(float)224/256;
+float lit_gem_v_start=1.0f-(float)112/256;
+float lit_gem_u_end=(float)255/256;
+float lit_gem_v_end=1.0f-(float)128/256;
 
-float broken_gem_u_start=(float)192/255;
-float broken_gem_v_start=1.0f-(float)112/255;
-float broken_gem_u_end=(float)223/255;
-float broken_gem_v_end=1.0f-(float)128/255;
+float broken_gem_u_start=(float)192/256;
+float broken_gem_v_start=1.0f-(float)112/256;
+float broken_gem_u_end=(float)223/256;
+float broken_gem_v_end=1.0f-(float)128/256;
 
-float unlit_gem_u_start=(float)224/255;
-float unlit_gem_v_start=1.0f-(float)96/255;
-float unlit_gem_u_end=(float)255/255;
-float unlit_gem_v_end=1.0f-(float)111/255;
+float unlit_gem_u_start=(float)224/256;
+float unlit_gem_v_start=1.0f-(float)96/256;
+float unlit_gem_u_end=(float)255/256;
+float unlit_gem_v_end=1.0f-(float)111/256;
 
 void draw_options_menu()
 {
@@ -981,14 +987,14 @@ void draw_options_menu()
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
 					  options_menu_x+8, options_menu_y+95, options_menu_x+38, options_menu_y+111);
 
-	if(view_compass)
+	if(sit_lock)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
 					  options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
 					  options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
 
-	if(view_clock)
+	if(caps_filter)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
 					  options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
 	else
@@ -1136,8 +1142,8 @@ void draw_options_menu()
 	draw_string(options_menu_x+45,options_menu_y+55,"Clouds",1);
 	draw_string(options_menu_x+45,options_menu_y+75,"Reflections",1);
 	draw_string(options_menu_x+45,options_menu_y+95,"Show FPS",1);
-	draw_string(options_menu_x+45,options_menu_y+115,"Compass",1);
-	draw_string(options_menu_x+45,options_menu_y+135,"Clock",1);
+	draw_string(options_menu_x+45,options_menu_y+115,"Sit Lock",1);
+	draw_string(options_menu_x+45,options_menu_y+135,"Filter CAPS",1);
 	draw_string(options_menu_x+45,options_menu_y+155,"Sound",1);
 	draw_string(options_menu_x+45,options_menu_y+175,"Music",1);
 	draw_string(options_menu_x+45,options_menu_y+195,"Auto Camera",1);
@@ -1179,10 +1185,10 @@ int check_options_menu()
 		show_fps=!show_fps;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+115 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+131)
-		view_compass=!view_compass;
+		sit_lock=!sit_lock;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+135 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+151)
-		view_clock=!view_clock;
+		caps_filter=!caps_filter;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+155 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+171)
 		if(sound_on)turn_sound_off();
@@ -1415,20 +1421,20 @@ void draw_game_map()
 
 void draw_menu_title_bar(int x, int y, int x_len)
 {
-	float u_first_start=(float)31/255;
+	float u_first_start=(float)31/256;
 	float u_first_end=0;
-	float v_first_start=1.0f-(float)160/255;
-	float v_first_end=1.0f-(float)175/255;
+	float v_first_start=1.0f-(float)160/256;
+	float v_first_end=1.0f-(float)175/256;
 
-	float u_middle_start=(float)32/255;
-	float u_middle_end=(float)63/255;
-	float v_middle_start=1.0f-(float)160/255;
-	float v_middle_end=1.0f-(float)175/255;
+	float u_middle_start=(float)32/256;
+	float u_middle_end=(float)63/256;
+	float v_middle_start=1.0f-(float)160/256;
+	float v_middle_end=1.0f-(float)175/256;
 
 	float u_last_start=0;
-	float u_last_end=(float)31/255;
-	float v_last_start=1.0f-(float)160/255;
-	float v_last_end=1.0f-(float)175/255;
+	float u_last_end=(float)31/256;
+	float v_last_start=1.0f-(float)160/256;
+	float v_last_end=1.0f-(float)175/256;
 
 	int segments_no;
 	int i;

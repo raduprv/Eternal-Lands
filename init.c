@@ -533,6 +533,7 @@ void init_stuff()
 	//load the necesary textures
 	//font_text=load_texture_cache("./textures/font.bmp",0);
 	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
+	hud_text=load_texture_cache("./textures/gamebuttons2.bmp",0);
 	cons_text=load_texture_cache("./textures/console.bmp",255);
 	sky_text_1=load_texture_cache("./textures/sky.bmp",70);
 	particles_text=load_texture_cache("./textures/particles.bmp",0);
@@ -613,7 +614,7 @@ Uint32 parse_key_string(char *s)
 	sscanf(s,"%s %s %s %s",t1,t2,t3,t4);
 	if(t1)
 		add_key(&key,get_key_code(t1));
-	
+
 	if(*t2!='#'){
 		add_key(&key,get_key_code(t2));
 		if(*t3!='#'){
@@ -622,7 +623,7 @@ Uint32 parse_key_string(char *s)
 				add_key(&key,get_key_code(t4));
 		}
 	}
-	
+
 	return key;
 }
 
@@ -630,7 +631,7 @@ Uint32 CRC32(unsigned char *data, int len)
 {
     unsigned int result=0;
     int i,j;
-    unsigned char octet;   
+    unsigned char octet;
 
     for (i=0; i<len; i++){
         octet = *(data++);
@@ -761,7 +762,7 @@ Uint16 get_key_code(char *key)
 				return 301;
 			case 0x7b642f: //SCROLLOCK
 				return 302;
-			case 0x6fa8765e: //RSHIFT 
+			case 0x6fa8765e: //RSHIFT
 				return 303;
 			case 0x5a59f8b9: //LSHIFT
 				return 304;

@@ -56,29 +56,29 @@ char user_str[16];
 int back=0;
 int done_button=0;
 
-float done_button_unselected_start_u=(float)0/255;
-float done_button_unselected_start_v=1.0f-(float)161/255;
+float done_button_unselected_start_u=(float)0/256;
+float done_button_unselected_start_v=1.0f-(float)161/256;
 
-float done_button_unselected_end_u=(float)87/255;
-float done_button_unselected_end_v=1.0f-(float)196/255;
+float done_button_unselected_end_u=(float)87/256;
+float done_button_unselected_end_v=1.0f-(float)196/256;
 
-float done_button_selected_start_u=(float)0/255;
-float done_button_selected_start_v=1.0f-(float)202/255;
+float done_button_selected_start_u=(float)0/256;
+float done_button_selected_start_v=1.0f-(float)202/256;
 
-float done_button_selected_end_u=(float)87/255;
-float done_button_selected_end_v=1.0f-(float)237/255;
+float done_button_selected_end_u=(float)87/256;
+float done_button_selected_end_v=1.0f-(float)237/256;
 /////////////////////////
-float back_unselected_start_u=(float)100/255;
-float back_unselected_start_v=1.0f-(float)161/255;
+float back_unselected_start_u=(float)100/256;
+float back_unselected_start_v=1.0f-(float)161/256;
 
-float back_unselected_end_u=(float)188/255;
-float back_unselected_end_v=1.0f-(float)196/255;
+float back_unselected_end_u=(float)188/256;
+float back_unselected_end_v=1.0f-(float)196/256;
 
-float back_selected_start_u=(float)100/255;
-float back_selected_start_v=1.0f-(float)202/255;
+float back_selected_start_u=(float)100/256;
+float back_selected_start_v=1.0f-(float)202/256;
 
-float back_selected_end_u=(float)188/255;
-float back_selected_end_v=1.0f-(float)237/255;
+float back_selected_end_u=(float)188/256;
+float back_selected_end_v=1.0f-(float)237/256;
 
 
 void change_actor()
@@ -300,18 +300,18 @@ void check_for_input()
 void draw_new_char_screen()
 {
 
-	float selected_bar_u_start=(float)0/255;
-	float selected_bar_v_start=1.0f-(float)0/255;
+	float selected_bar_u_start=(float)0/256;
+	float selected_bar_v_start=1.0f-(float)0/256;
 
-	float selected_bar_u_end=(float)174/255;
-	float selected_bar_v_end=1.0f-(float)28/255;
+	float selected_bar_u_end=(float)174/256;
+	float selected_bar_v_end=1.0f-(float)28/256;
 
 
-	float unselected_bar_u_start=(float)0/255;
-	float unselected_bar_v_start=1.0f-(float)40/255;
+	float unselected_bar_u_start=(float)0/256;
+	float unselected_bar_v_start=1.0f-(float)40/256;
 
-	float unselected_bar_u_end=(float)170/255;
-	float unselected_bar_v_end=1.0f-(float)63/255;
+	float unselected_bar_u_end=(float)170/256;
+	float unselected_bar_v_end=1.0f-(float)63/256;
 
 	check_for_input();
 

@@ -5,8 +5,9 @@
 
 //int hud_x=64;
 //int hud_y=49;
-int hud_x=0;
-int hud_y=0;
+int hud_x=64;
+int hud_y=48;
+int hud_text;
 
 
 // initialize anything related to the hud
@@ -16,16 +17,19 @@ void init_hud_interface()
 	init_misc_display();
 	init_stats_display();
 	init_quickbar();
+	init_hud_frame();
 }
 
 // draw everything related to the hud
 void draw_hud_interface()
 {
-	get_and_set_texture_id(icons_text);
+	get_and_set_texture_id(hud_text);
 	glColor3f(1.0f, 1.0f, 1.0f);
-
-    draw_peace_icons();
+	draw_hud_frame();
     draw_misc_display();
+
+	get_and_set_texture_id(icons_text);
+    draw_peace_icons();
     draw_stats_display();
 	draw_quickbar();
 }
@@ -44,156 +48,156 @@ int check_hud_interface()
 
 
 // the icons section
-float walk_icon_u_start=(float)0/255;
-float walk_icon_v_start=1.0f-(float)0/255;
-float walk_icon_u_end=(float)31/255;
-float walk_icon_v_end=1.0f-(float)31/255;
+float walk_icon_u_start=(float)0/256;
+float walk_icon_v_start=1.0f-(float)0/256;
+float walk_icon_u_end=(float)31/256;
+float walk_icon_v_end=1.0f-(float)31/256;
 
-float colored_walk_icon_u_start=(float)64/255;
-float colored_walk_icon_v_start=1.0f-(float)64/255;
-float colored_walk_icon_u_end=(float)95/255;
-float colored_walk_icon_v_end=1.0f-(float)95/255;
+float colored_walk_icon_u_start=(float)64/256;
+float colored_walk_icon_v_start=1.0f-(float)64/256;
+float colored_walk_icon_u_end=(float)95/256;
+float colored_walk_icon_v_end=1.0f-(float)95/256;
 
-float run_icon_u_start=(float)32/255;
-float run_icon_v_start=1.0f-(float)0/255;
-float run_icon_u_end=(float)63/255;
-float run_icon_v_end=1.0f-(float)31/255;
+float run_icon_u_start=(float)32/256;
+float run_icon_v_start=1.0f-(float)0/256;
+float run_icon_u_end=(float)63/256;
+float run_icon_v_end=1.0f-(float)31/256;
 
-float eye_icon_u_start=(float)64/255;
-float eye_icon_v_start=1.0f-(float)0/255;
-float eye_icon_u_end=(float)95/255;
-float eye_icon_v_end=1.0f-(float)31/255;
+float eye_icon_u_start=(float)64/256;
+float eye_icon_v_start=1.0f-(float)0/256;
+float eye_icon_u_end=(float)95/256;
+float eye_icon_v_end=1.0f-(float)31/256;
 
-float colored_eye_icon_u_start=(float)128/255;
-float colored_eye_icon_v_start=1.0f-(float)64/255;
-float colored_eye_icon_u_end=(float)159/255;
-float colored_eye_icon_v_end=1.0f-(float)95/255;
+float colored_eye_icon_u_start=(float)128/256;
+float colored_eye_icon_v_start=1.0f-(float)64/256;
+float colored_eye_icon_u_end=(float)159/256;
+float colored_eye_icon_v_end=1.0f-(float)95/256;
 
-float trade_icon_u_start=(float)128/255;
-float trade_icon_v_start=1.0f-(float)0/255;
-float trade_icon_u_end=(float)159/255;
-float trade_icon_v_end=1.0f-(float)31/255;
+float trade_icon_u_start=(float)128/256;
+float trade_icon_v_start=1.0f-(float)0/256;
+float trade_icon_u_end=(float)159/256;
+float trade_icon_v_end=1.0f-(float)31/256;
 
-float colored_trade_icon_u_start=(float)192/255;
-float colored_trade_icon_v_start=1.0f-(float)64/255;
-float colored_trade_icon_u_end=(float)223/255;
-float colored_trade_icon_v_end=1.0f-(float)95/255;
+float colored_trade_icon_u_start=(float)192/256;
+float colored_trade_icon_v_start=1.0f-(float)64/256;
+float colored_trade_icon_u_end=(float)223/256;
+float colored_trade_icon_v_end=1.0f-(float)95/256;
 
-float follow_icon_u_start=(float)192/255;
-float follow_icon_v_start=1.0f-(float)0/255;
-float follow_icon_u_end=(float)223/255;
-float follow_icon_v_end=1.0f-(float)31/255;
+float follow_icon_u_start=(float)192/256;
+float follow_icon_v_start=1.0f-(float)0/256;
+float follow_icon_u_end=(float)223/256;
+float follow_icon_v_end=1.0f-(float)31/256;
 
-float sit_icon_u_start=(float)224/255;
-float sit_icon_v_start=1.0f-(float)0/255;
-float sit_icon_u_end=(float)255/255;
-float sit_icon_v_end=1.0f-(float)31/255;
+float sit_icon_u_start=(float)224/256;
+float sit_icon_v_start=1.0f-(float)0/256;
+float sit_icon_u_end=(float)255/256;
+float sit_icon_v_end=1.0f-(float)31/256;
 
-float colored_sit_icon_u_start=(float)32/255;
-float colored_sit_icon_v_start=1.0f-(float)96/255;
-float colored_sit_icon_u_end=(float)63/255;
-float colored_sit_icon_v_end=1.0f-(float)127/255;
+float colored_sit_icon_u_start=(float)32/256;
+float colored_sit_icon_v_start=1.0f-(float)96/256;
+float colored_sit_icon_u_end=(float)63/256;
+float colored_sit_icon_v_end=1.0f-(float)127/256;
 
-float stand_icon_u_start=(float)0/255;
-float stand_icon_v_start=1.0f-(float)32/255;
-float stand_icon_u_end=(float)31/255;
-float stand_icon_v_end=1.0f-(float)63/255;
+float stand_icon_u_start=(float)0/256;
+float stand_icon_v_start=1.0f-(float)32/256;
+float stand_icon_u_end=(float)31/256;
+float stand_icon_v_end=1.0f-(float)63/256;
 
-float colored_stand_icon_u_start=(float)64/255;
-float colored_stand_icon_v_start=1.0f-(float)96/255;
-float colored_stand_icon_u_end=(float)95/255;
-float colored_stand_icon_v_end=1.0f-(float)127/255;
+float colored_stand_icon_u_start=(float)64/256;
+float colored_stand_icon_v_start=1.0f-(float)96/256;
+float colored_stand_icon_u_end=(float)95/256;
+float colored_stand_icon_v_end=1.0f-(float)127/256;
 
-float spell_icon_u_start=(float)32/255;
-float spell_icon_v_start=1.0f-(float)32/255;
-float spell_icon_u_end=(float)63/255;
-float spell_icon_v_end=1.0f-(float)63/255;
+float spell_icon_u_start=(float)32/256;
+float spell_icon_v_start=1.0f-(float)32/256;
+float spell_icon_u_end=(float)63/256;
+float spell_icon_v_end=1.0f-(float)63/256;
 
-float colored_spell_icon_u_start=(float)96/255;
-float colored_spell_icon_v_start=1.0f-(float)96/255;
-float colored_spell_icon_u_end=(float)127/255;
-float colored_spell_icon_v_end=1.0f-(float)127/255;
+float colored_spell_icon_u_start=(float)96/256;
+float colored_spell_icon_v_start=1.0f-(float)96/256;
+float colored_spell_icon_u_end=(float)127/256;
+float colored_spell_icon_v_end=1.0f-(float)127/256;
 
-float inventory_icon_u_start=(float)96/255;
-float inventory_icon_v_start=1.0f-(float)32/255;
-float inventory_icon_u_end=(float)127/255;
-float inventory_icon_v_end=1.0f-(float)63/255;
+float inventory_icon_u_start=(float)96/256;
+float inventory_icon_v_start=1.0f-(float)32/256;
+float inventory_icon_u_end=(float)127/256;
+float inventory_icon_v_end=1.0f-(float)63/256;
 
-float colored_inventory_icon_u_start=(float)160/255;
-float colored_inventory_icon_v_start=1.0f-(float)96/255;
-float colored_inventory_icon_u_end=(float)192/255;
-float colored_inventory_icon_v_end=1.0f-(float)127/255;
+float colored_inventory_icon_u_start=(float)160/256;
+float colored_inventory_icon_v_start=1.0f-(float)96/256;
+float colored_inventory_icon_u_end=(float)192/256;
+float colored_inventory_icon_v_end=1.0f-(float)127/256;
 
-float manufacture_icon_u_start=(float)128/255;
-float manufacture_icon_v_start=1.0f-(float)32/255;
-float manufacture_icon_u_end=(float)159/255;
-float manufacture_icon_v_end=1.0f-(float)63/255;
+float manufacture_icon_u_start=(float)128/256;
+float manufacture_icon_v_start=1.0f-(float)32/256;
+float manufacture_icon_u_end=(float)159/256;
+float manufacture_icon_v_end=1.0f-(float)63/256;
 
-float colored_manufacture_icon_u_start=(float)0/255;
-float colored_manufacture_icon_v_start=1.0f-(float)128/255;
-float colored_manufacture_icon_u_end=(float)31/255;
-float colored_manufacture_icon_v_end=1.0f-(float)159/255;
+float colored_manufacture_icon_u_start=(float)0/256;
+float colored_manufacture_icon_v_start=1.0f-(float)128/256;
+float colored_manufacture_icon_u_end=(float)31/256;
+float colored_manufacture_icon_v_end=1.0f-(float)159/256;
 
-float stats_icon_u_start=(float)160/255;
-float stats_icon_v_start=1.0f-(float)32/255;
-float stats_icon_u_end=(float)191/255;
-float stats_icon_v_end=1.0f-(float)63/255;
+float stats_icon_u_start=(float)160/256;
+float stats_icon_v_start=1.0f-(float)32/256;
+float stats_icon_u_end=(float)191/256;
+float stats_icon_v_end=1.0f-(float)63/256;
 
-float colored_stats_icon_u_start=(float)32/255;
-float colored_stats_icon_v_start=1.0f-(float)128/255;
-float colored_stats_icon_u_end=(float)63/255;
-float colored_stats_icon_v_end=1.0f-(float)159/255;
+float colored_stats_icon_u_start=(float)32/256;
+float colored_stats_icon_v_start=1.0f-(float)128/256;
+float colored_stats_icon_u_end=(float)63/256;
+float colored_stats_icon_v_end=1.0f-(float)159/256;
 
-float options_icon_u_start=(float)192/255;
-float options_icon_v_start=1.0f-(float)32/255;
-float options_icon_u_end=(float)223/255;
-float options_icon_v_end=1.0f-(float)63/255;
+float options_icon_u_start=(float)192/256;
+float options_icon_v_start=1.0f-(float)32/256;
+float options_icon_u_end=(float)223/256;
+float options_icon_v_end=1.0f-(float)63/256;
 
-float colored_options_icon_u_start=(float)64/255;
-float colored_options_icon_v_start=1.0f-(float)128/255;
-float colored_options_icon_u_end=(float)95/255;
-float colored_options_icon_v_end=1.0f-(float)159/255;
+float colored_options_icon_u_start=(float)64/256;
+float colored_options_icon_v_start=1.0f-(float)128/256;
+float colored_options_icon_u_end=(float)95/256;
+float colored_options_icon_v_end=1.0f-(float)159/256;
 
-float use_icon_u_start=(float)224/255;
-float use_icon_v_start=1.0f-(float)32/255;
-float use_icon_u_end=(float)255/255;
-float use_icon_v_end=1.0f-(float)63/255;
+float use_icon_u_start=(float)224/256;
+float use_icon_v_start=1.0f-(float)32/256;
+float use_icon_u_end=(float)255/256;
+float use_icon_v_end=1.0f-(float)63/256;
 
-float colored_use_icon_u_start=(float)96/255;
-float colored_use_icon_v_start=1.0f-(float)128/255;
-float colored_use_icon_u_end=(float)127/255;
-float colored_use_icon_v_end=1.0f-(float)159/255;
+float colored_use_icon_u_start=(float)96/256;
+float colored_use_icon_v_start=1.0f-(float)128/256;
+float colored_use_icon_u_end=(float)127/256;
+float colored_use_icon_v_end=1.0f-(float)159/256;
 
-float attack_icon_u_start=(float)160/255;
-float attack_icon_v_start=1.0f-(float)0/255;
-float attack_icon_u_end=(float)191/255;
-float attack_icon_v_end=1.0f-(float)31/255;
+float attack_icon_u_start=(float)160/256;
+float attack_icon_v_start=1.0f-(float)0/256;
+float attack_icon_u_end=(float)191/256;
+float attack_icon_v_end=1.0f-(float)31/256;
 
-float colored_attack_icon_u_start=(float)224/255;
-float colored_attack_icon_v_start=1.0f-(float)64/255;
-float colored_attack_icon_u_end=(float)255/255;
-float colored_attack_icon_v_end=1.0f-(float)91/255;
+float colored_attack_icon_u_start=(float)224/256;
+float colored_attack_icon_v_start=1.0f-(float)64/256;
+float colored_attack_icon_u_end=(float)255/256;
+float colored_attack_icon_v_end=1.0f-(float)91/256;
 
-float knowledge_icon_u_start=(float)0/255;
-float knowledge_icon_v_start=1.0f-(float)64/255;
-float knowledge_icon_u_end=(float)31/255;
-float knowledge_icon_v_end=1.0f-(float)95/255;
+float knowledge_icon_u_start=(float)96/256;
+float knowledge_icon_v_start=1.0f-(float)64/256;
+float knowledge_icon_u_end=(float)127/256;
+float knowledge_icon_v_end=1.0f-(float)95/256;
 
-float colored_knowledge_icon_u_start=(float)32/255;
-float colored_knowledge_icon_v_start=1.0f-(float)64/255;
-float colored_knowledge_icon_u_end=(float)63/255;
-float colored_knowledge_icon_v_end=1.0f-(float)95/255;
+float colored_knowledge_icon_u_start=(float)160/256;
+float colored_knowledge_icon_v_start=1.0f-(float)64/256;
+float colored_knowledge_icon_u_end=(float)191/256;
+float colored_knowledge_icon_v_end=1.0f-(float)95/256;
 
 // until we have an incon using the knowledge one
-float encyclopedia_icon_u_start=(float)0/255;
-float encyclopedia_icon_v_start=1.0f-(float)64/255;
-float encyclopedia_icon_u_end=(float)31/255;
-float encyclopedia_icon_v_end=1.0f-(float)95/255;
+float encyclopedia_icon_u_start=(float)0/256;
+float encyclopedia_icon_v_start=1.0f-(float)64/256;
+float encyclopedia_icon_u_end=(float)31/256;
+float encyclopedia_icon_v_end=1.0f-(float)95/256;
 
-float colored_encyclopedia_icon_u_start=(float)32/255;
-float colored_encyclopedia_icon_v_start=1.0f-(float)64/255;
-float colored_encyclopedia_icon_u_end=(float)63/255;
-float colored_encyclopedia_icon_v_end=1.0f-(float)95/255;
+float colored_encyclopedia_icon_u_start=(float)32/256;
+float colored_encyclopedia_icon_v_start=1.0f-(float)64/256;
+float colored_encyclopedia_icon_u_end=(float)63/256;
+float colored_encyclopedia_icon_v_end=1.0f-(float)95/256;
 
 int walk_icon_x_start;
 int walk_icon_x_end;
@@ -302,74 +306,74 @@ void init_peace_icons()
 	//TODO: icon position and layout options (I.E. verticall, on top, etc)
 
 	walk_icon_x_start=0;
-	walk_icon_x_end=walk_icon_x_start+32;
+	walk_icon_x_end=walk_icon_x_start+31;
 	walk_icon_y_start=window_height-32;
-	walk_icon_y_end=walk_icon_y_start+32;
+	walk_icon_y_end=walk_icon_y_start+31;
 
 	sit_icon_x_start=walk_icon_x_end+1;
-	sit_icon_x_end=sit_icon_x_start+32;
+	sit_icon_x_end=sit_icon_x_start+31;
 	sit_icon_y_start=window_height-32;
-	sit_icon_y_end=sit_icon_y_start+32;
+	sit_icon_y_end=sit_icon_y_start+31;
 
 	stand_icon_x_start=walk_icon_x_end+1;
-	stand_icon_x_end=stand_icon_x_start+32;
+	stand_icon_x_end=stand_icon_x_start+31;
 	stand_icon_y_start=window_height-32;
-	stand_icon_y_end=stand_icon_y_start+32;
+	stand_icon_y_end=stand_icon_y_start+31;
 
 	eye_icon_x_start=stand_icon_x_end+1;
-	eye_icon_x_end=eye_icon_x_start+32;
+	eye_icon_x_end=eye_icon_x_start+31;
 	eye_icon_y_start=window_height-32;
-	eye_icon_y_end=eye_icon_y_start+32;
+	eye_icon_y_end=eye_icon_y_start+31;
 
 	use_icon_x_start=eye_icon_x_end+1;
-	use_icon_x_end=use_icon_x_start+32;
+	use_icon_x_end=use_icon_x_start+31;
 	use_icon_y_start=window_height-32;
-	use_icon_y_end=use_icon_y_start+32;
+	use_icon_y_end=use_icon_y_start+31;
 
 	trade_icon_x_start=use_icon_x_end+1;
-	trade_icon_x_end=trade_icon_x_start+32;
+	trade_icon_x_end=trade_icon_x_start+31;
 	trade_icon_y_start=window_height-32;
-	trade_icon_y_end=trade_icon_y_start+32;
+	trade_icon_y_end=trade_icon_y_start+31;
 
 	inventory_icon_x_start=trade_icon_x_end+1;
-	inventory_icon_x_end=inventory_icon_x_start+32;
+	inventory_icon_x_end=inventory_icon_x_start+31;
 	inventory_icon_y_start=window_height-32;
-	inventory_icon_y_end=inventory_icon_y_start+32;
+	inventory_icon_y_end=inventory_icon_y_start+31;
 
 	spell_icon_x_start=inventory_icon_x_end+1;
-	spell_icon_x_end=spell_icon_x_start+32;
+	spell_icon_x_end=spell_icon_x_start+31;
 	spell_icon_y_start=window_height-32;
-	spell_icon_y_end=spell_icon_y_start+32;
+	spell_icon_y_end=spell_icon_y_start+31;
 
 	attack_icon_x_start=spell_icon_x_end+1;
-	attack_icon_x_end=attack_icon_x_start+32;
+	attack_icon_x_end=attack_icon_x_start+31;
 	attack_icon_y_start=window_height-32;
-	attack_icon_y_end=attack_icon_y_start+32;
+	attack_icon_y_end=attack_icon_y_start+31;
 
 	manufacture_icon_x_start=attack_icon_x_end+1;
-	manufacture_icon_x_end=manufacture_icon_x_start+32;
+	manufacture_icon_x_end=manufacture_icon_x_start+31;
 	manufacture_icon_y_start=window_height-32;
-	manufacture_icon_y_end=manufacture_icon_y_start+32;
+	manufacture_icon_y_end=manufacture_icon_y_start+31;
 
 	stats_icon_x_start=manufacture_icon_x_end+1;
-	stats_icon_x_end=stats_icon_x_start+32;
+	stats_icon_x_end=stats_icon_x_start+31;
 	stats_icon_y_start=window_height-32;
-	stats_icon_y_end=stats_icon_y_start+32;
+	stats_icon_y_end=stats_icon_y_start+31;
 
 	knowledge_icon_x_start=stats_icon_x_end+1;
-	knowledge_icon_x_end=knowledge_icon_x_start+32;
+	knowledge_icon_x_end=knowledge_icon_x_start+31;
 	knowledge_icon_y_start=window_height-32;
-	knowledge_icon_y_end=knowledge_icon_y_start+32;
+	knowledge_icon_y_end=knowledge_icon_y_start+31;
 
 	encyclopedia_icon_x_start=knowledge_icon_x_end+1;
-	encyclopedia_icon_x_end=encyclopedia_icon_x_start+32;
+	encyclopedia_icon_x_end=encyclopedia_icon_x_start+31;
 	encyclopedia_icon_y_start=window_height-32;
-	encyclopedia_icon_y_end=encyclopedia_icon_y_start+32;
+	encyclopedia_icon_y_end=encyclopedia_icon_y_start+31;
 
 	options_icon_x_start=encyclopedia_icon_x_end+1;
-	options_icon_x_end=options_icon_x_start+32;
+	options_icon_x_end=options_icon_x_start+31;
 	options_icon_y_start=window_height-32;
-	options_icon_y_end=options_icon_y_start+32;
+	options_icon_y_end=options_icon_y_start+31;
 }
 
 void draw_peace_icons()
@@ -377,8 +381,8 @@ void draw_peace_icons()
 	get_and_set_texture_id(icons_text);
 	glColor3f(1.0f,1.0f,1.0f);
 
-	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-	glAlphaFunc(GL_GREATER,0.03f);
+	//glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	//glAlphaFunc(GL_GREATER,0.03f);
 	glBegin(GL_QUADS);
 
 	if(action_mode==action_walk || (mouse_x>walk_icon_x_start && mouse_y>walk_icon_y_start &&
@@ -503,7 +507,7 @@ void draw_peace_icons()
 					  options_icon_x_start, options_icon_y_start, options_icon_x_end, options_icon_y_end);
 
 	glEnd();
-	glDisable(GL_ALPHA_TEST);
+	//glDisable(GL_ALPHA_TEST);
 }
 
 int check_peace_icons()
@@ -602,6 +606,33 @@ int check_peace_icons()
 	return 1;
 }
 
+float vertical_bar_u_start=(float)192/256;
+float vertical_bar_u_end=1.0f;
+float vertical_bar_v_end=0.0f;
+float vertical_bar_v_start;
+
+float horizontal_bar_u_start=(float)144/256;
+float horizontal_bar_u_end=(float)191/256;
+float horizontal_bar_v_start=0;
+float horizontal_bar_v_end;
+
+void init_hud_frame()
+{
+vertical_bar_v_start=(float)window_height/256;
+horizontal_bar_v_end=(float)(window_width-hud_x)/256;
+
+
+
+}
+
+void draw_hud_frame()
+{
+	glBegin(GL_QUADS);
+	draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
+	draw_2d_thing_r(horizontal_bar_u_start, horizontal_bar_v_start, horizontal_bar_u_end, horizontal_bar_v_end,0,window_height,window_width-hud_x , window_height-hud_y);
+	glEnd();
+
+}
 
 // the stats display
 void init_stats_display()
@@ -697,7 +728,8 @@ void draw_stats_display()
 	glEnd();
 
 
-	glColor3f(0.4f, 0.4f, 0.4f);
+	//glColor3f(0.4f, 0.4f, 0.4f);
+	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
 	//draw the frame for the health bar
 	glVertex3i(health_bar_start_x,health_bar_start_y,0);
@@ -745,29 +777,29 @@ int check_stats_display()
 
 
 // the misc section (compass, clock, ?)
-float compass_u_start=(float)34/255;
-float compass_v_start=1.0f-(float)194/255;
+float compass_u_start=(float)32/256;
+float compass_v_start=1.0f-(float)192/256;
 
-float compass_u_end=(float)96/255;
-float compass_v_end=1.0f-(float)255/255;
+float compass_u_end=(float)95/256;
+float compass_v_end=0;
 
-float clock_u_start=(float)98/255;
-float clock_v_start=1.0f-(float)191/255;
+float clock_u_start=0;
+float clock_v_start=1.0f-(float)128/256;
 
-float clock_u_end=(float)157/255;
-float clock_v_end=1.0f-(float)255/255;
+float clock_u_end=(float)63/256;
+float clock_v_end=1.0f-(float)191/256;
 
-float needle_u_start=(float)4/255;
-float needle_v_start=1.0f-(float)200/255;
+float needle_u_start=(float)4/256;
+float needle_v_start=1.0f-(float)200/256;
 
-float needle_u_end=(float)14/255;
-float needle_v_end=1.0f-(float)246/255;
+float needle_u_end=(float)14/256;
+float needle_v_end=1.0f-(float)246/256;
 
-float clock_needle_u_start=(float)21/255;
-float clock_needle_v_start=1.0f-(float)193/255;
+float clock_needle_u_start=(float)21/256;
+float clock_needle_v_start=1.0f-(float)192/256;
 
-float clock_needle_u_end=(float)31/255;
-float clock_needle_v_end=1.0f-(float)224/255;
+float clock_needle_u_end=(float)31/256;
+float clock_needle_v_end=1.0f-(float)223/256;
 
 
 void init_misc_display()
@@ -777,49 +809,46 @@ void init_misc_display()
 
 void draw_misc_display()
 {
-    glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-    glAlphaFunc(GL_GREATER, 0.001f);
-
-	if(view_compass)
-		{
-			glTranslatef(window_width-32, window_height-30, 0);
-			glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
 			glBegin(GL_QUADS);
-			draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, -32, -30,32, 30);
+			draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, window_width-64,window_height-64,window_width,window_height);
 			glEnd();
 
 			//draw the compass needle
-			glLoadIdentity();
-			glBegin(GL_QUADS);
-			draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end,
-						  window_width-36, window_height-56, window_width-28, window_height-8);
-			glEnd();
-		}
+    		glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+    		glAlphaFunc(GL_GREATER, 0.09f);
 
-	if(view_clock)
-		{
+			glTranslatef(window_width-32, window_height-32, 0);
+			glRotatef(rz, 0.0f, 0.0f, 1.0f);
+
+			glBegin(GL_QUADS);
+			draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end,-5, -28, 5, 28);
+			glEnd();
+			glLoadIdentity();
+			glDisable(GL_ALPHA_TEST);
+
 			//draw the clock
 			glBegin(GL_QUADS);
 			draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,
-						  window_width-132, window_height-64, window_width-68, window_height);
+						  window_width-64, window_height-128, window_width, window_height-64);
 			glEnd();
 
 			//draw the clock needle
-			glTranslatef(window_width-(132-32), window_height-32, 0);
+			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GREATER, 0.05f);
+			glTranslatef(window_width-(64-35), window_height-98, 0);
 			glRotatef(game_minute, 0.0f, 0.0f, 1.0f);
 			glBegin(GL_QUADS);
 			draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -5, -24,5, 6);
 			glEnd();
 			glLoadIdentity();
-		}
-	glDisable(GL_ALPHA_TEST);
+			glDisable(GL_ALPHA_TEST);
 }
 
 int check_misc_display()
 {
-	if(view_clock && mouse_x>window_width-132 && mouse_x<window_width-68
-	   && mouse_y>window_height-64 && mouse_y<window_height)
+	if(mouse_x>window_width-64 && mouse_x<window_width
+	   && mouse_y>window_height-128 && mouse_y<window_height-64)
 		{
 			unsigned char protocol_name;
 			protocol_name=GET_TIME;
@@ -827,7 +856,7 @@ int check_misc_display()
 			return 1;
 		}
 	//check to see if we clicked on the compass
-	if(view_compass && mouse_x>window_width-64 && mouse_x<window_width
+	if(mouse_x>window_width-64 && mouse_x<window_width
 	   && mouse_y>window_height-64 && mouse_y<window_height)
 		{
 			unsigned char protocol_name;
@@ -855,7 +884,7 @@ void draw_quickbar() {
 	Uint8 str[80];
 	int y,i;
 	quickbar_x=window_width-quickbar_x_len-4;
-	quickbar_y=window_height-100-6*52;
+	quickbar_y=window_height-150-6*52;
 
 
 	glEnable(GL_BLEND);

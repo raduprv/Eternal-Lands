@@ -75,9 +75,9 @@ Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_
 }
 
 //this function returns an integer, after the source string in the destination string
-//if the string is not found, after max_len, the function returns null.
+//if the string is not found, after max_len, the function returns -1.
 //the function is NOT case sensitive
-Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
+Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer,
 							 int max_len)
 {
 	int i;
@@ -123,9 +123,9 @@ Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest
 }
 
 //this function returns a float, after the source string in the destination string
-//if the string is not found, after max_len, the function returns null.
+//if the string is not found, after max_len, the function returns -1.0f.
 //the function is NOT case sensitive
-float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
+float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer,
 							 int max_len)
 {
 	int i;
@@ -170,7 +170,7 @@ float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_po
 					return atof(dest_pointer+i);
 				}
 		}//end of the for
-	return -1;//if we are here, it means we didn't find the string...
+	return -1.0f;//if we are here, it means we didn't find the string...
 }
 
 void my_strcp(Uint8 *dest,const Uint8 * source)
@@ -257,7 +257,7 @@ Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
 {
 	Uint32	len;
 	Uint32	i;
-	
+
 	len=strlen(src);
 	if(len > max_len)len=max_len-1;
 	for(i=0;i<len;i++)
