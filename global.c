@@ -233,6 +233,7 @@ float water_deepth_offset=-0.25f;
 int lake_waves_timer=0;
 float water_movement_u=0;
 float water_movement_v=0;
+int show_reflection=1;
 
 //client server stuff
 int port=2000;

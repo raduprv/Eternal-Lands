@@ -156,7 +156,7 @@ void draw_scene()
                 glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
                 draw_tile_map();
                 display_2d_objects();
-                if(!poor_man)display_3d_reflection();
+                if(show_reflection)display_3d_reflection();
                 glNormal3f(0.0f,0.0f,1.0f);
                 draw_lake_tiles();
             }

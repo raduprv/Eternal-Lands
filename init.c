@@ -85,6 +85,7 @@ void read_config()
 
 	if(poor_man)
 		{
+			show_reflection=0;
 			shadows_on=0;
 			clouds_shadows=1;
 		}

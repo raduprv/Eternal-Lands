@@ -1549,6 +1549,13 @@ void draw_options_menu()
 	else
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
 	options_menu_x_start+8, options_menu_y_start+175, options_menu_x_start+38, options_menu_y_start+191);
+	if(show_reflection)
+	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
+	options_menu_x_start+8, options_menu_y_start+195, options_menu_x_start+38, options_menu_y_start+211);
+	else
+	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
+	options_menu_x_start+8, options_menu_y_start+195, options_menu_x_start+38, options_menu_y_start+211);
+
 
 	//video modes
 
@@ -1630,6 +1637,7 @@ void draw_options_menu()
 	draw_string(options_menu_x_start+45,options_menu_y_start+135,"Music",1);
 	draw_string(options_menu_x_start+45,options_menu_y_start+155,"Combat Grid",1);
 	draw_string(options_menu_x_start+45,options_menu_y_start+175,"Auto Camera",1);
+	draw_string(options_menu_x_start+45,options_menu_y_start+195,"Reflections",1);
 
 	draw_string(options_menu_x_start+225,options_menu_y_start+10,"Video Modes",1);
 	draw_string(options_menu_x_start+225,options_menu_y_start+35,"Full Screen",1);
@@ -1684,6 +1692,10 @@ int check_options_menu()
 	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+175 &&
 	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+191)
 	auto_camera=!auto_camera;
+	else
+	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+195 &&
+	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+211)
+	show_reflection=!show_reflection;
 	else
 	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+35 &&
 	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+51)

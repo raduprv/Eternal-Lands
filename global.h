@@ -70,6 +70,7 @@ extern int video_mode;
 extern int full_screen;
 extern int have_stencil;
 extern int poor_man;
+extern int show_reflection;
 
 extern Uint32 cur_time, last_time;
 extern int server_time_stamp;
