@@ -2,7 +2,7 @@
 #define __SOUND_H__
 
 #define max_buffers 9
-#define max_sources 32
+#define max_sources 16
 
 #define snd_rain     0
 #define snd_tele_in  1

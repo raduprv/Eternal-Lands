@@ -8,6 +8,36 @@ void stop_sound(int i)
 	alSourceStop(i);
 }
 
+ALuint get_loaded_buffer(int i)
+{
+	int error;
+	ALsizei size,freq;
+	ALenum  format;
+	ALvoid  *data;
+	ALboolean loop;
+	if(alIsBuffer(sound_buffer[i]))
+		return sound_buffer[i];
+	else
+		{
+			alGenBuffers(1, sound_buffer+i);
+			
+			if((error=alGetError()) != AL_NO_ERROR) 
+				{
+					char	str[256];
+					sprintf(str, "Error creating buffer: %s\n", alGetString(error));
+					log_to_console(c_red1, str);
+					log_error(str);
+					have_sound=0;
+					have_music=0;
+				}
+
+			alutLoadWAVFile(sound_files[i],&format,&data,&size,&freq,&loop);
+			alBufferData(sound_buffer[i],format,data,size,freq);
+			alutUnloadWAV(format,data,size,freq);
+			
+			return sound_buffer[i];
+		}
+}
 int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 {
 	int error,tx,ty,distance,i=0;
@@ -35,17 +65,17 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
     		char	str[256];
-    		sprintf(str, "Error creating a source %d.\n %s", i, alGetString(error));
+    		sprintf(str, "Error creating a source %d: %s\n", i, alGetString(error));
     		log_to_console(c_red1, str);
     		log_error(str);
-			//have_sound=0;
-			//have_music=0;
+			have_sound=0;
+			have_music=0;
 			return 0;
     	}
 
 	alSourcef(sound_source[i], AL_PITCH, 1.0f);
 	alSourcef(sound_source[i], AL_GAIN, 1.0f);
-	alSourcei(sound_source[i], AL_BUFFER,sound_buffer[sound_file]);
+	alSourcei(sound_source[i], AL_BUFFER,get_loaded_buffer(sound_file));
 	alSourcefv(sound_source[i], AL_VELOCITY, sourceVel);
 	alSourcefv(sound_source[i], AL_POSITION, sourcePos);
 	if(!positional)
@@ -108,7 +138,7 @@ void update_position()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		sprintf(str, "update_position error.\n %s", alGetString(error));
+    		sprintf(str, "update_position error: %s\n", alGetString(error));
     		log_to_console(c_red1, str);
     		log_error(str);
 			have_sound=0;
@@ -121,19 +151,37 @@ void update_position()
 //usefull when we change maps, etc.
 void kill_local_sounds()
 {
-	int error;
+	int i,error,state,prev_used;
 	if(!have_sound)return;
 	lock_sound_list();
+	prev_used = used_sources;
 	alSourceStopv(used_sources,sound_source);
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		sprintf(str, "kill_local_sounds error.\n %s", alGetString(error));
+    		sprintf(str, "kill_local_sounds error: %s\n", alGetString(error));
     		log_to_console(c_red1, str);
     		log_error(str);
 			have_sound=0;
 			have_music=0;
     	}
+	for(i=0;i<prev_used;i++)
+		{
+			alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
+			if(state != AL_STOPPED)
+				{
+					log_to_console(c_red1, "Failed to stop all sounds.\n");
+					log_error("Failed to stop all sounds.\n");
+					break;
+				}
+		}
+	/*
+	if(realloc_sources())
+		{
+			log_to_console(c_red1, "Failed to stop all sounds.\n");
+			log_error("Failed to stop all sounds.\n");
+		}
+	*/
 	unlock_sound_list();
 }
 
@@ -167,42 +215,26 @@ void turn_sound_on()
 
 void init_sound()
 {
-	int i, error;
-	ALsizei size,freq;
-	ALenum  format;
-	ALvoid  *data;
-	ALboolean loop;
+	int error;
 	ALfloat listenerPos[]={-cx*2,-cy*2,0.0};
 	ALfloat listenerVel[]={0.0,0.0,0.0};
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
 	have_sound=1;
 	have_music=1;
 
-	alutInit(0, NULL) ; 
+	alutInit(0, NULL); 
 	sound_list_mutex=SDL_CreateMutex();
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		sprintf(str, "Error initializing sound.\n %s", alGetString(error));
+    		sprintf(str, "Error initializing sound: %s\n", alGetString(error));
     		log_to_console(c_red1, str);
     		log_error(str);
 			have_sound=0;
 			have_music=0;
     	}
 
-	// Generate buffers
-	alGenBuffers(max_buffers, sound_buffer);
-    
-	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-     		char	str[256];
-    		sprintf(str, "Error creating buffers.\n %s", alGetString(error));
-    		log_to_console(c_red1, str);
-    		log_error(str);
-			have_sound=0;
-			have_music=0;
-    	}
 
     // TODO: get this information from a file, sound.ini?	
 	my_strcp(sound_files[0],"./sound/rain1.wav");
@@ -215,12 +247,6 @@ void init_sound()
 	my_strcp(sound_files[7],"./sound/thunder4.wav");
 	my_strcp(sound_files[8],"./sound/thunder5.wav");
 
-	for(i=0;i<max_buffers;i++)
-		{
-			alutLoadWAVFile(sound_files[i],&format,&data,&size,&freq,&loop);
-			alBufferData(sound_buffer[i],format,data,size,freq);
-			alutUnloadWAV(format,data,size,freq);
-		}
 
 	alListenerfv(AL_POSITION,listenerPos);
 	alListenerfv(AL_VELOCITY,listenerVel);
@@ -228,13 +254,16 @@ void init_sound()
 }
 
 void destroy_sound()
-{ 
+{
+	int i;
 	SDL_DestroyMutex(sound_list_mutex);
 	sound_list_mutex=NULL;
 
 	alSourceStopv(used_sources, sound_source);
 	alDeleteSources(used_sources, sound_source);
-	alDeleteBuffers(max_buffers, sound_buffer);
+	for(i=0;i<max_buffers;i++)
+		if(alIsBuffer(sound_buffer[i]))
+			alDeleteBuffers(1, sound_buffer+i);
     alutExit();
 }
 
