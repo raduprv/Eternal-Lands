@@ -110,7 +110,7 @@ void send_input_text_line()
 
 int filter_or_ignore_text(unsigned char *text_to_add, int len)
 {
-	int	l;
+	int	l, type;
 	unsigned char *ptr;
 
 	//check for auto receiving #help
@@ -122,7 +122,7 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 	}
 
 	//check if ignored
-	int type=strncasecmp(&text_to_add[1],"[PM from",8)?0:1;
+	type=strncasecmp(&text_to_add[1],"[PM from",8)?0:1;
 	if(pre_check_if_ignored(text_to_add,type))return 0;
 	//All right, we do not ignore the person
 	if(afk)
