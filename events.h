@@ -5,6 +5,10 @@ extern int shift_on;
 extern int alt_on;
 extern int ctrl_on;
 
+#define SHIFT (1<<31)
+#define CTRL (1<<30)
+#define ALT (1<<29)
+
 extern Uint32 K_CAMERAUP;
 extern Uint32 K_CAMERADOWN;
 extern Uint32 K_ZOOMOUT;

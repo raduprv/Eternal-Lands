@@ -14,10 +14,6 @@ int shift_on;
 int alt_on;
 int ctrl_on;
 
-#define SHIFT (1<<31)
-#define CTRL (1<<30)
-#define ALT (1<<29)
-
 Uint32 K_CAMERAUP=273;
 Uint32 K_CAMERADOWN=274;
 Uint32 K_ZOOMOUT=281;
