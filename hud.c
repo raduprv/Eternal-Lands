@@ -241,10 +241,11 @@ void init_peace_icons()
 		{
 			move_window(icons_win, 0, 0, 0, window_height-32);
 		}
-	
+
+	if(icons.no) return;
+
 	icons.y=0;
 	icons.x=0;
-	icons.no=0;
 	
 	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, "Walk", switch_action_mode, &type, DATA_ACTIONMODE);
 	
