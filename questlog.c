@@ -21,13 +21,13 @@ void load_questlog()
 #ifndef WINDOWS
 	char questlog_ini[256];
 	strcpy(questlog_ini, configdir);
-	strcat(questlog_ini, "questlog.ini");
+	strcat(questlog_ini, "quest.log");
 	f=fopen(questlog_ini,"rb"); //try to load local settings
 	if(!f) //use global settings
-		f=fopen("questlog.ini","rb");
+		f=fopen("quest.log","rb");
 
 #else
-	f=fopen("questlog.ini","rb");
+	f=fopen("quest.log","rb");
 #endif
 	L=&logdata;
 	logdata.msg=NULL;
@@ -99,15 +99,15 @@ void add_questlog(char *t)
 		#ifndef WINDOWS
 			char questlog_ini[256];
 			strcpy(questlog_ini, configdir);
-			strcat(questlog_ini, "questlog.ini");
+			strcat(questlog_ini, "quest.log");
 			qlf=fopen(questlog_ini,"wb");
 			if(!qlf) //use global settings
-				qlf=fopen("questlog.ini","ab");
+				qlf=fopen("quest.log","ab");
 			else
 				fseek(qlf,SEEK_END,0);
 
 		#else
-			qlf=fopen("questlog.ini","ab");
+			qlf=fopen("quest.log","ab");
 		#endif
 	}
 	fwrite(t,sizeof(char),strlen(t),qlf);
