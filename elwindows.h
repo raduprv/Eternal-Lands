@@ -194,9 +194,9 @@ typedef	struct	{
  * structure containing data for all windows used.
  */
 typedef	struct	{
-	window_info	*window; /*!< an array of \see window_info window */
+	window_info	*window; /*!< an array of \ref window_info windows */
 	int	num_windows;	/*!< highest item used */
-	int max_windows;	/*! number of windows allocated */
+	int max_windows;	/*!< number of windows allocated */
 	int	display_level;
 } windows_info;
 
@@ -208,12 +208,14 @@ extern	windows_info	windows_list; /*!< global variable defining the list of wind
 
 /*!
  * \ingroup elwindows
- * \brief   displays all active windows
+ * \brief   Displays all active windows
  *
  *      Displays all active windows
  *
+ * \param level     the display level to display
+ * \callgraph
  */
-void	display_windows();
+void	display_windows(int level);
 
 /*!
  * \ingroup elwindows
@@ -247,15 +249,15 @@ int		drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Handles dragging and resizing of a window
  *
- *      Detail
+ *      Checks all the windows for one that is currently seletec and moves or resizes this one resp.
  *
- * \param mx
- * \param my
- * \param dx
- * \param dy
- * \retval int
+ * \param mx        x coordinate of the mouse position
+ * \param my        y coordinate of the mouse position
+ * \param dx        amount in x direction to drag or resize the window
+ * \param dy        amount in y direction to drag or resize the window
+ * \retval int      the id of the window being dragged or resized
  * \callgraph
  */
 int		drag_windows(int mx, int my, int dx, int dy);
@@ -269,7 +271,7 @@ int		drag_windows(int mx, int my, int dx, int dy);
  * \param x         x coordinate of the mouse position where the click occurred
  * \param y         y coordinate of the mouse position where the click occurred
  * \param key       the key or key combination that is pressed
- * \param unikey    
+ * \param unikey    the unicode value of \a key
  * \retval int
  * \callgraph
  */
@@ -277,53 +279,66 @@ int		keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Resets the states of all windows which are related to dragging
  *
- *      Detail
+ *      Resets the dragged, resized and drag_in states of all windows.
  *
  */
 void	end_drag_windows();
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Selects the window given by \a win_id.
  *
- *      Detail
+ *      Selects the window given in \a win_id. The selected window and each of its childs, if applicable, is brought to front.
  *
- * \param win_id
- * \retval int
+ * \param win_id    the id of the window to select
+ * \retval int  -1, if \a win_id is either <0 or greater than \ref windows_info::num_windows, or if \a win_id is not equal the \ref window_info::window_id stored for this \ref windows_info::window.
+ *               0, if the \ref window_info::order of the \ref windows_info::window stored at this index is less than 0,
+ *               else 1.
+ *
+ * \pre The parameter \a win_id must be both, greater or equal to 0 and less than \ref windows_info::num_windows
+ * \pre The parameter \a win_id must be equal the \ref window_info::window_id which is currently stored in \ref windows_list.
+ * \pre The \ref window_info::order of the \ref windows_info::window stored at the index \a win_id, must be greater than 0.
  */
 int		select_window(int win_id);
+
+/* UNUSED */
 //void	close_windows();
 
 // individual functions
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Creates a new window and calls \ref init_window to place it.
  *
- *      Detail
+ *      Creates a new window with the given \a name and \a property_flags and then calls \ref init_window to place it accordingly.
  *
- * \param name
- * \param pos_id
- * \param pos_loc
- * \param pos_x
- * \param pos_y
- * \param size_x
- * \param size_y
- * \param property_flags
- * \retval int
+ * \param name              name of the window
+ * \param pos_id            used to determine the visibility of this window, gets passed to \ref init_window
+ * \param pos_loc           passed to \ref init_window
+ * \param pos_x             passed to \ref init_window
+ * \param pos_y             passed to \ref init_window
+ * \param size_x            passed to \ref init_window
+ * \param size_y            passed to \ref init_window
+ * \param property_flags    the windows properties
+ * \retval int              returns the window id as an index into the \ref windows_info::window array.
  * \callgraph
+ *
+ * \post    If this functions returns -1, it indicates an unhandled exception has occured.
  */
 int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Destroys the window with the given \a win_id.
  *
- *      Detail
+ *      Destroys the window with the given \a win_id and frees up memory.
  *
- * \param win_id
+ * \param win_id    the index into the \ref windows_info::window array
+ *
+ * \pre If \a win_id is \<0 or \>\ref windows_info::num_windows this function returns without performing any actions.
+ * \pre If the \ref window_info::window_id of the window stored at the index \a win_id into the \ref windows_list variable is not equal to \a win_id, this function returns without performing any actions.
  */
 void	destroy_window(int win_id);
 
@@ -341,93 +356,125 @@ void	destroy_window(int win_id);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Initializes a new window.
  *
- *      Detail
+ *      Initializes a new window with the given \a win_id, position and size. Calls \ref move_window to place the window accordingly.
  *
- * \param win_id
- * \param pos_id
+ * \param win_id        the \ref window_info::window_id for the window
+ * \param pos_id        the id of the position
  * \param pos_loc
- * \param pos_x
- * \param pos_y
- * \param size_x
- * \param size_y
+ * \param pos_x         x coordinate of the upper left corner of the window
+ * \param pos_y         y coordinate of the upper left corner of the window
+ * \param size_x        width of the window
+ * \param size_y        height of the window
  * \retval int
- * \callgraph
+ * \sa move_window
  */
 int		init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Moves the window given by \a win_id
  *
- *      Detail
+ *      Moves the given window to the new position given.
  *
- * \param win_id
- * \param pos_id
+ * \param win_id        id for the window to move
+ * \param pos_id        id of the new posisiotn
  * \param pos_loc
- * \param pos_x
- * \param pos_y
- * \retval int
+ * \param pos_x         x coordinate of the new position
+ * \param pos_y         y coordinate of the new position
+ * \retval int          -1, if \a win_id < 0 or \a win_id > \ref windows_info::num_windows,
+ *                      or if the \ref window_info::window_id of the window at index \a win_id into \ref windows_list is not equal \a win_id,
+ *                      else 1 is returned.
+ *
+ * \pre If \a win_id is less than 0, this functions returns -1 without performing any actions
+ * \pre If \a win_id is greater than \ref windows_info::num_windows this function returns -1 without performing any actions
+ * \pre If \a win_id is not equal \ref window_info::window_id of the window at the index \a win_id into \ref windows_list this functions returns -1, without performing any action.
  */
 int		move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y);
 //int	set_window_property(int win_id, Uint32 property_flag, int new_property);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Sets the window (background) color to the given values.
  *
- *      Detail
+ *      Sets the background color of the window given by \a win_id to the values given in \a r, \a g, \a b and \a a.
+ *      \note This function is currently only used when displaying the options menu.
  *
- * \param win_id
- * \param color_id
- * \param r
- * \param g
- * \param b
- * \param a
- * \retval int
+ * \param win_id        the id of the window
+ * \param color_id      an id for the color value
+ * \param r             red value of the color (0<=r<=1)
+ * \param g             green value of the color (0<=g<=1)
+ * \param b             blue value of the color (0<=b<=1)
+ * \param a             transparency of the color (0<=a<=1)
+ * \retval int          0, if \a win_id is less than 0, or if \a win_id is greater than \ref windows_info::num_windows,
+ *                      or if the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array is not equal to \a win_id,
+ *                      or if no action was performed, else 1 is returned.
  *
- * \sa display_options_menu
+ * \callgraph
+ *
+ * \pre If \a win_id < 0 this function returns 0 without performing any actions.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows, this functions returns 0 without performing any actions.
+ * \pre If none of the above preconditions is true, but no action is performed else, this function returns 0.
+ * \pre This functions only handles the \a color_id of \ref ELW_COLOR_BACK, \ref ELW_COLOR_BORDER and \ref ELW_COLOR_LINE.
  */
 int	set_window_color(int win_id, Uint32 color_id, float r, float g, float b, float a);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Uses the color of the window \a win_id that is referred to by \a color_id.
  *
- *      Detail
+ *      The part of the window \a win_id given by \a color_id will be used further.
+ *      \note This function is only used by the quickbar (\ref display_quickbar_handler)
  *
- * \param win_id
- * \param color_id
- * \retval int
+ * \param win_id        the id of the window to set the color
+ * \param color_id      the color id to use
+ * \retval int          0, if \a win_id is less than 0, or if \a win_id is greater than \ref windows_info::num_windows,
+ *                      or if the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array is not equal to \a win_id,
+ *                      or if no action was performed, else 1 is returned.
  *
  * \sa display_quickbar_handler
+ *
+ * \pre If \a win_id < 0 this function returns 0 without performing any actions.
+ * \pre If \a win_id is greater than the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns 0 without performing any actions.
+ * \pre If none of the above preconditions is true, but no action is performed else, this function returns 0.
+ * \pre This function only handles the \a color_id of \ref ELW_COLOR_BACK, \ref ELW_COLOR_BORDER and \ref ELW_COLOR_LINE.
  */
 int		use_window_color(int win_id, Uint32 color_id);
 
 /*!
  * \ingroup elwindows
- * \brief sets the window's minimum size
+ * \brief Sets the window's minimum size
  *
- *      Sets the minimum width and height for a resizeable window
+ *      Sets the minimum \a width and \a height for the resizeable window given by \a win_id
  *
  * \param win_id the number of the window
  * \param width the new minimum width
  * \param height the new minimum height
  * \retval int 0 on failure, 1 on success
+ *
+ * \pre If \a win_id < 0 this function returns 0, without performing any actions.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows this function returns 0 without performing any actions.
+ * \pre If either \a width or \a height is less than 0 this function returns 0 without performing any actions.
  */
 int set_window_min_size (int win_id, int width, int height);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Sets a new window handler callback function to be used for the given window.
  *
- *      Detail
+ *      The given \a handler will be set to be the callback function to handle \a handler_id callbacks for the \a win_id window.
  *
- * \param win_id
- * \param handler_id
- * \param handler
- * \retval void*
+ * \param win_id        the id of the window for which to set a callback function.
+ * \param handler_id    the type of handler that will be set.
+ * \param handler       a pointer to the callback function to use.
+ * \retval void*        a pointer to the old handler, or NULL.
+ *
+ * \pre If \a win_id < 0 this function returns NULL without performing any actions.
+ * \pre If \a win_id  is greater than \ref windows_info::num_windows, this function returns NULL without performing any actions.
+ * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns NULL without performing any actions.
+ * \pre If \a handler_id is not one of \ref ELW_HANDLER_INIT, \ref ELW_HANDLER_DISPLAY, \ref ELW_HANDLER_CLICK, \ref ELW_HANDLER_DRAG, \ref ELW_HANDLER_MOUSEOVER, \ref ELW_HANDLER_RESIZE, \ref ELW_HANDLER_KEYPRESS or \ref ELW_HANDLER_DESTROY, this function returns NULL.
+ *
  */
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() );
 
@@ -446,60 +493,82 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() );
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Selects and shows the given window
  *
- *      Detail
+ *      Selects and shows the window given by \a win_id and all it's child windows where applicable.
  *
- * \param win_id
+ * \param win_id    the id of the window to show
  *
- * \callgraph
+ * \sa select_window
+ *
+ * \pre If \a win_id < 0 this function returns without performing any actions.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows, this function returns without performing any actions.
+ * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns without performing any actions.
  */
 void	show_window(int win_id);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Hides the given window.
  *
- *      Detail
+ *      Hides the window given by \a win_id and all its child windows where applicable.
  *
- * \param win_id
+ * \param win_id    the id of the window to hide.
+ *
+ * \pre If \a win_id < 0 this function returns without performing any actions.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows, this function returns without performing any actions.
+ * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns without performing any actions.
  */
 void	hide_window(int win_id);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Toggles the visibility of the given window.
  *
- *      Detail
+ *      Toggles the visibility of the window given by \a win_id, by either calling \ref hide_window or \ref show_window.
  *
- * \param win_id
+ * \param win_id    the id of the window to toggle.
  *
  * \callgraph
+ *
+ * \pre If \a win_id < 0 this function returns without performing any actions.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows, this function returns without performing any actions.
+ * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns without performing any actions.
  */
 void	toggle_window(int win_id);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Sets the new size of a resizable window.
  *
- *      Detail
+ *      Resizes the window given by \a win_id to given \a new_width and \a new_height, if the window is resizable. Whether a window is resizable or not is determined by looking if the \ref window_info::resize_handler equals NULL or not.
  *
- * \param win_id
- * \param new_width
- * \param new_height
+ * \param win_id        the id of the window to resize
+ * \param new_width     the new width of the window
+ * \param new_height    the new height of the window
  *
  * \callgraph
+ *
+ * \pre If \a win_id < 0 this function returns without performing any actions.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows, this function returns without performing any actions.
+ * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns without performing any actions.
+ * \pre If \a new_width is less than the minimum width (\ref window_info::min_len_x) it will be adjusted accordingly before applying.
+ * \pre If \a new_height is less than the minimum height (\ref window_info::min_len_y) it will be adjusted acoordingly before applying.
  */
 void resize_window (int win_id, int new_width, int new_height);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Checks whether a window is currently displayed and returns a proper boolean value.
  *
- *      Detail
+ *      Returns the visibility status of the window given by \a win_id in a boolean value.
  *
- * \param win_id
- * \retval int
+ * \param win_id    the id of the window to check
+ * \retval int      0 (false) if the window is hidden, else 1 (true).
+ *
+ * \pre If \a win_id < 0, this function returns false (0), without performing any actions.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows, this function returns false (0), without performing any actions.
+ * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns false (0), without performing any actions.
  */
 int		get_show_window(int win_id);
 //void	collapse_window(int win_id);	// future expansion
@@ -520,29 +589,43 @@ int		get_show_window(int win_id);
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Checks if the mouse coordinates are inside a window.
  *
- *      Detail
+ *      Checks whether the given mouse coordinates \a x and \a y are within the window given by \a win_id and returns either a boolean value or an error.
  *
- * \param win_id
- * \param x
- * \param y
- * \retval int
+ * \param win_id    the id of the window to check for the coordinates \a x and \a y
+ * \param x         the x location of the mouse cursor to check
+ * \param y         the y location of the mouse cursor to check
+ * \retval int      -1, if either \a win_id < 0, or \a win_id is greater than \ref windows_info::num_windows,
+ *                  or if \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array.
+ *                  0 (false), if the coordinates \a x and \a y are outside the window given by \a win_id,
+ *                  else 1 (true).
+ *
+ * \pre If \a win_id < 0, this function returns -1, without performing any actions, indicating an error.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows, this function returns -1, without performing any actions, indicating an error.
+ * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns -1 without performing any actions, indicating an error.
  */
 int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
 
 /*!
  * \ingroup elwindows
- * \brief
+ * \brief   Checks if there is a click in a window at the given coordinates.
  *
- *      Detail
+ *      Checks whether a click occured inside the window given by \a win_id, at the coordinates \a x and \a y and returns a boolean value or an error.
  *
- * \param win_id
- * \param x
- * \param y
- * \param flags
- * \retval int
+ * \param win_id    the id of the window to check
+ * \param x         the x coordinate of the cursor position where the click occured
+ * \param y         the y coordinate of the cursor position where the click occured
+ * \param flags     the window flags of the window. They will be given to the \ref window_info::click_handler that handles the actual click event.
+ * \retval int      -1, if either \a win_id < 0, or \a win_id is greater than \ref windows_info::num_windows,
+ *                  of if \a win_id is not equal the \ref window_info::window_id of the given at index \a win_id into the \ref windows_list array.
+ *                  1 (true), if the cursor is actualy inside the window, 
+ *                  else 0 (false).
  * \callgraph
+ *
+ * \pre If \a win_id < 0, this function returns -1, without performing any actions, indicating an error.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows, this function returns -1, without performing any actions, indicating an error.
+ * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns -1, without performing any actions, indicating an error.
  */
 int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coord in the window
 
