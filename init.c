@@ -577,6 +577,7 @@ void init_stuff()
 	items_text_7=load_texture_cache("./textures/items7.bmp",0);
 	items_text_8=load_texture_cache("./textures/items8.bmp",0);
 	items_text_9=load_texture_cache("./textures/items9.bmp",0);
+	items_text_10=load_texture_cache("./textures/items10.bmp",0);
 
 	portraits1_tex=load_texture_cache("./textures/portraits1.bmp",0);
 	portraits2_tex=load_texture_cache("./textures/portraits2.bmp",0);

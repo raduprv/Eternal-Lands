@@ -69,6 +69,7 @@ int items_text_6;
 int items_text_7;
 int items_text_8;
 int items_text_9;
+int items_text_10;
 
 char items_string[300];
 int item_dragged=-1;
@@ -487,6 +488,8 @@ void drag_item(int item, int mini)
 		this_texture=items_text_8;break;
 	case 8:
 		this_texture=items_text_9;break;
+	case 9:
+		this_texture=items_text_10;break;
 	}
 
 	get_and_set_texture_id(this_texture);
