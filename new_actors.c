@@ -222,6 +222,7 @@ void draw_enhanced_actor(actor * actor_id)
 	x_pos=actor_id->x_pos;
 	y_pos=actor_id->y_pos;
 	z_pos=actor_id->z_pos;
+
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 

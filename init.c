@@ -547,7 +547,9 @@ void init_stuff()
 	init_video();
 	resize_window();
 	init_gl_extensions();
-
+#ifdef CAL3D
+	cal3d_init();
+#endif
 	seed = time (NULL);
 	srand (seed);
 

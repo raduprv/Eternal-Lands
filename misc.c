@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 #include "global.h"
 
 Uint8 last_pixel_color[4];
@@ -44,6 +45,52 @@ int anything_under_the_mouse(int object_id, int object_type)
 
 }
 
+static GLfloat  model[16];
+static GLfloat  proj[16];
+static GLint    viewport[4];
+
+void save_scene_matrix()
+{
+	glGetFloatv(GL_MODELVIEW_MATRIX, model);
+	glGetFloatv(GL_PROJECTION_MATRIX, proj);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	viewport[2]/=2;
+	viewport[3]/=2;
+}
+
+static void
+project_ortho(GLfloat ox, GLfloat oy, GLfloat oz, GLfloat * wx, GLfloat * wy)
+{
+	GLfloat tmp[3];
+
+	// apply modelview matrix
+	tmp[0] = model[0*4+0] * ox + model[1*4+0] * oy + model[2*4+0] * oz + model[3*4+0];
+	tmp[1] = model[0*4+1] * ox + model[1*4+1] * oy + model[2*4+1] * oz + model[3*4+1];
+	tmp[2] = model[0*4+2] * ox + model[1*4+2] * oy + model[2*4+2] * oz + model[3*4+2];
+	
+	// apply projection matrix
+	ox = proj[0*4+0] * tmp[0] + proj[3*4+0];
+	oy = proj[1*4+1] * tmp[1] + proj[3*4+1];
+	oz = proj[2*4+2] * tmp[2] + proj[3*4+2];
+	
+	// viewport
+	*wx = viewport[0] + (1 + ox) * viewport[2];
+	*wy = viewport[1] + (1 + oy) * viewport[3];
+}
+
+int mouse_in_sphere(float x, float y, float z, float radius)
+{
+	GLfloat  winx, winy;
+	int m_y = window_height - mouse_y;
+	
+	project_ortho(x, y, z, &winx, &winy);
+	
+	radius = proj[0*4+0]*radius+proj[3*4+0];
+	radius = (1.0+radius)*viewport[2];
+	
+	return (mouse_x >= winx - radius  &&  mouse_x <= winx + radius  &&
+			m_y     >= winy - radius  &&  m_y     <= winy + radius);
+}
 
 void find_last_url(char * source_string, int len)
 {

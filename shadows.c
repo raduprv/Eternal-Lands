@@ -462,7 +462,8 @@ void display_3d_non_ground_objects()
 												   objects_list[i]->z_pos,radius))
 										{
                      						draw_3d_object(objects_list[i]);
-                     						anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
+											if (read_mouse_now && mouse_in_sphere(objects_list[i]->x_pos, objects_list[i]->y_pos, objects_list[i]->z_pos, radius))
+												anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
 										}
 								}
 						}

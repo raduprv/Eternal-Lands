@@ -153,23 +153,23 @@ void draw_scene()
 		}
 	else if(old_fps_average<10)
 		{
-			mouse_rate=2;
+			mouse_rate=3;
 		}
 	else if(old_fps_average<20)
 		{
-			mouse_rate=4;
+			mouse_rate=6;
 		}
 	else if(old_fps_average<30)
 		{
-			mouse_rate=8;
+			mouse_rate=10;
 		}
 	else if(old_fps_average<40)
 		{
-			mouse_rate=12;
+			mouse_rate=15;
 		}
 	else
 		{
-			mouse_rate=15;
+			mouse_rate=20;
 		}
 	if(mouse_rate > mouse_limit)mouse_rate=mouse_limit;
 	if(!(main_count%mouse_rate))read_mouse_now=1;
@@ -178,6 +178,7 @@ void draw_scene()
 
 	glLoadIdentity();					// Reset The Matrix
 	Move();
+	save_scene_matrix();
 
 	CalculateFrustum();
 	any_reflection=find_reflection();
@@ -244,7 +245,9 @@ void draw_scene()
 	// we need to 'touch' all the actors even if not drawing to avoid problems
 	display_actors();
 	check_gl_errors();
-
+#ifdef CAL3D
+	cal3d_render();
+#endif
 	//check for network data - reduces resyncs
 	get_message_from_server();
 
@@ -407,6 +410,9 @@ Uint32 my_timer(unsigned int some_int)
     		update_particles();
     		next_command();
     		animate_actors();
+#ifdef CAL3D
+			cal3d_tick();
+#endif
     		move_to_next_frame();
     		if(lake_waves_timer>2)
     		    {
