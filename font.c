@@ -144,10 +144,10 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	glVertex3i(cur_x,cur_y,0);
 
 	glTexCoord2f(u_start,v_end);
-	glVertex3i(cur_x,cur_y+(displayed_font_y_size*((float)FONT_Y_SPACING+1.0f)/(float)(FONT_Y_SPACING)),0);
+	glVertex3i(cur_x,cur_y+(displayed_font_y_size+1),0);
 
 	glTexCoord2f(u_end,v_end);
-	glVertex3i(cur_x+displayed_font_x_width,cur_y+(displayed_font_y_size*((float)FONT_Y_SPACING+1.0f)/(float)(FONT_Y_SPACING)),0);
+	glVertex3i(cur_x+displayed_font_x_width,cur_y+(displayed_font_y_size+1),0);
 
 	glTexCoord2f(u_end,v_start);
 	glVertex3i(cur_x+displayed_font_x_width,cur_y,0);
