@@ -22,6 +22,7 @@ void strap_word(char * in, char * out)
 	*out++='\n';
 	i=3;
 	while(i--) *out++=*in++;
+	*out=0;
 }
 
 int view_ground_items=0;

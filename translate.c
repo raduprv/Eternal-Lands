@@ -570,7 +570,7 @@ void init_help()
 	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",100);
 	add_xml_identifier(misc,"user",login_username_str,"Username",20);
 	add_xml_identifier(misc,"pass",login_password_str,"Password",20);
-	add_xml_identifier(misc,"getall",get_all_str,"Get All",8);
+	add_xml_identifier(misc,"getall",get_all_str,"Get All",7);
 	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",12);
 	add_xml_identifier(misc,"research",researching_str,"Researching",30);
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",25);
