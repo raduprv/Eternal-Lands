@@ -278,3 +278,4 @@ int check_edit_window_interface()
 
    return 1;
 }
+
