@@ -1,9 +1,12 @@
+01-27-04
+Resync reduction for long actions
+
 01-18-04
 Sound engine changed to OpenAL
 
 01-17-04
 Fixed particles  so the aren't visible below ground level or under bridges
-Fixed particle adding in update_ to add correctly andavoid excess looping
+Fixed particle adding in update_ to add correctly and avoid excess looping
 The cursor no longer automatically switched to Fight on a corpse
 Fixed timing issues for actor animation
 SIN()/COS() optimizations for shadows

@@ -1,5 +1,5 @@
 Cicero:
-Port sound engine to OpenAL
+Port sound engine to OpenAL - TESTING
 Get File signature (MD5 or CRC32 of a specified filename) 
 	-used with server to decide if a file will need uploading?
 	-used to detect modified/corrupt files?
@@ -31,4 +31,5 @@ Upload File to client
 S/W version check & upload
 User defined keyboard/mouse bindings
 Server selection screen
+Specify alternate directory to load games files from
 
