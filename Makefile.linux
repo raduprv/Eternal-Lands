@@ -1,7 +1,7 @@
 .PHONY: clean release
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC -DPOSSIBLE_FIX -DOPTIMISED_LOCKS
+OPTIONS=-DLINUX -DELC -DPOSSIBLE_FIX -DOPTIMIZED_LOCKS
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
