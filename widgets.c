@@ -92,10 +92,12 @@ int GetWidgetType (const char *w);
 // Common widget functions
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id)
 {
+	widget_list *w;
+
 	if (window_id < 0 || window_id >= windows_list.num_windows) return NULL;
 	if (windows_list.window[window_id].window_id != window_id) return NULL;
 	
-	widget_list *w = windows_list.window[window_id].widgetlist;
+	w = windows_list.window[window_id].widgetlist;
 	while(w != NULL)
 	{
 		if(w->id == widget_id)
