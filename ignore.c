@@ -87,10 +87,11 @@ int pre_check_if_ignored(Uint8 * input_text)
 
 		}
 
+	if(input_text[1] == '[') input_text++;
 	for(i=0;i<15;i++)
 		{
 			ch=input_text[i+1];
-			if(ch==':' || ch==' ')break;
+			if(ch==':' || ch==' ' || ch==']')break;
 			name[i]=ch;
 		}
 	name[i]=0;
