@@ -17,8 +17,10 @@ int browser_menu_dragged=0;
 int browser_win=0;
 
 object3d o3d[4];
-_Dir Dir[44];
-int dc=-1,cd=-1,cp=0;
+_Dir Dir[120];
+_Cat Cat[44];
+
+int dc=-1,cd=-1,cp=0,cc=-1,mc=1,ccat=0;
 
 void setobject(int n, char *fn,float xrot, float yrot, float zrot)
 {
@@ -109,15 +111,28 @@ int display_browser_handler()
 
    if(cd==-1){ //display dir select menu
 	   int i,x=0,y=2;
-	   for(i=0;i<dc;i++){
-		   draw_string(x+2,0+y,(unsigned char *)Dir[i].DirName,1);
-		   y+=18;
-		   if(y>=398){
-			   x=210;
-			   y=2;
-		   }
+	   if(mc==1){
+		   glColor3f(0.5f,0.5f,0.5f);
+			for(i=0;i<=cc;i++){
+				draw_string(x+2,0+y,(unsigned char *)Cat[i].Name,1);
+				y+=18;
+				if(y>=398){
+					x=210;
+					y=2;
+				}
+			}	
+	   }else{
+			for(i=0;i<Cat[ccat].ns;i++){
+				draw_string(x+2,0+y,(unsigned char *)Cat[ccat].Sub[i]->DirName,1);
+				y+=18;
+				if(y>=398){
+					x=210;
+					y=2;
+				}
+			}
+			glColor3f(0.5f,0.5f,0.5f);
+			draw_string(x+2,0+y,"Back",1);
 	   }
-
    }else{ // display specified dir
 		int i=cp;
 		float tz=zoom_level;
@@ -229,10 +244,20 @@ int check_browser_interface()
 	
 	if(cd==-1){
 		int id=y/18;
-		if(x>210)
-			id+=22;
-		if(id>=dc)id=-1;
-		cd=id;
+		if(x>210)id+=22;
+
+		if(mc==1){
+			if(id<=cc){
+				ccat=id;
+				mc=0;
+			}
+		}else{
+			if(id==Cat[ccat].ns)
+				mc=1;
+			else if(id<Cat[ccat].ns)
+				cd=id;
+		}
+
 	}else{
 		if(x>0 && x<200 && y>0 && y<200){
 			char fn[256];
@@ -322,8 +347,14 @@ void init_browser()
 	while(!feof(fp)){
 		fgets(temp,511,fp);
 		if(!strncmp(temp,"Category",8)){
+			cc++;
+			strcpy(Cat[cc].Name,&temp[9]);		
+		}else
+		if(!strncmp(temp,"SubCategory",11)){
 			dc++;
-			strcpy(Dir[dc].DirName,&temp[9]);
+			strcpy(Dir[dc].DirName,&temp[12]);
+			Cat[cc].Sub[Cat[cc].ns]=&Dir[dc];
+			Cat[cc].ns++;
 		}else{
 			int i=0,j;
 			while(temp[i]!=','){
