@@ -60,4 +60,4 @@ docs:
 
 .depend: *.c *.h
 	echo $(OBJS) | sed 's/\.o/.c/g' | xargs gcc $(CFLAGS) -MM >.depend
-include .depend
+-include .depend
