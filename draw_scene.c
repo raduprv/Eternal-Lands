@@ -135,7 +135,7 @@ void draw_scene()
 		{
         	if(actors_list[i] && actors_list[i]->actor_id==yourself) break;
 		}
-	if(i >= max_actors) return;//we still don't have ourselves
+	if(i > max_actors) return;//we still don't have ourselves
 	main_count++;
 
 	if(old_fps_average<5)
