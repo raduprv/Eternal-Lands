@@ -24,14 +24,9 @@ void load_cursors()
 	Uint8 * cursors_mem_bmp;
 	Uint8 *handle_cursors_mem_bmp;
 	Uint8 cur_color;
-	f = fopen ("./textures/cursors.bmp", "rb");
-	if(!f)
-		{
-			char str[100];
-			sprintf(str,"%s %s",reg_error_str,cursors_file_str);
-            		log_error(str);
-			return;
-		}
+	f = my_fopen ("./textures/cursors.bmp", "rb");
+	if(!f) return;
+
 	fseek (f, 0, SEEK_END);
 	f_size = ftell (f);
 	//ok, allocate memory for it

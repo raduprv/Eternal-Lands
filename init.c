@@ -49,11 +49,8 @@ void load_e3d_list()
 	FILE *fp;
 	int i=0;
 
-	fp=fopen("e3dlist.txt","r");
+	fp=my_fopen("e3dlist.txt","r");
 	if(!fp){
-		char str[120];
-		sprintf(str, "%s: %s\n",fatal_error_str,no_e3d_list);
-		log_error(str);
 		SDL_Quit();
 		exit(1);
 	}
@@ -81,7 +78,7 @@ void load_harvestable_list()
 
 	memset(harvestable_objects, 0, sizeof(harvestable_objects));
 	i=0;
-	f=fopen("harvestable.lst", "rb");
+	f=my_fopen("harvestable.lst", "rb");
 	if(!f)return;
 	while(1)
 		{
@@ -100,7 +97,7 @@ void load_entrable_list()
 
 	memset(entrable_objects, 0, sizeof(entrable_objects));
 	i=0;
-	f=fopen("entrable.lst", "rb");
+	f=my_fopen("entrable.lst", "rb");
 	if(!f)return;
 	while(1)
 		{
@@ -121,10 +118,10 @@ void load_knowledge_list()
 	memset(knowledge_list, 0, sizeof(knowledge_list));
 	i=0;
 	sprintf(filename,"languages/%s/knowledge.lst",lang);
-	if((f=fopen(filename,"rb"))==NULL)
+	if((f=my_fopen(filename,"rb"))==NULL)
 		{
 			strcpy(filename,"languages/en/knowledge.lst");
-			f=fopen(filename,"rb");
+			f=my_fopen(filename,"rb");
 		}
 	if(!f)return;
 	while(1)
@@ -155,22 +152,20 @@ void read_config()
 			strcpy(el_ini, configdir);
 			strcat(el_ini, "el.ini");
 			closedir(d);
+			// don't use my_fopen, not everyone keeps local settings
 			f=fopen(el_ini,"rb"); //try to load local settings
 		}
 	if(!f) //use global settings
 		{
 			strcpy(el_ini, datadir);
 			strcat(el_ini, "el.ini");
-			f=fopen(el_ini,"rb");
+			f=my_fopen(el_ini,"rb");
 		}
 #else
-	f=fopen("el.ini","rb");
+	f=my_fopen("el.ini","rb");
 #endif
-	if(!f)//oops, the file doesn't exist, use the defaults
+	if(!f)//oops, the file doesn't exist, give up
 		{
-			char str[120];
-			sprintf(str, "Fatal: Can't read el.ini\n");
-			log_error(str);
 			SDL_Quit();
 			exit(1);
 		}
@@ -209,6 +204,7 @@ void read_bin_cfg()
 
 	strcpy(el_cfg, configdir);
 	strcat(el_cfg, "el.cfg");
+	// don't use my_fopen, absence of binary config is not an error
 	f=fopen(el_cfg,"rb");
 	if(!f)return;//no config file, use defaults
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
@@ -286,7 +282,7 @@ void save_bin_cfg()
 
 	strcpy(el_cfg, configdir);
 	strcat(el_cfg, "el.cfg");
-	f=fopen(el_cfg,"wb");
+	f=my_fopen(el_cfg,"wb");
 	if(!f)return;//blah, whatever
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 

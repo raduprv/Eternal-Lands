@@ -1176,7 +1176,7 @@ void save_markings()
       strcpy(marks_file,strrchr(map_file_name,'/')+1);
 #endif
       strcat(marks_file,".txt");
-      fp = fopen(marks_file,"w");
+      fp = my_fopen(marks_file,"w");
       if ( fp ) {
 	  for ( i = 0 ; i < max_mark ; i ++)
     	     if ( marks[i].x > 0 )

@@ -65,14 +65,9 @@ md2 * load_md2(char * file_name)
 
 	temp_frame_storage_pointer= (char *)&temp_frame_storage;
 
-	f = fopen (file_name, "rb");
-	if(!f)
-		{
-			char str[120];
-			sprintf(str,"%s: %s: %s\n",reg_error_str,cant_open_file,file_name);
-			log_error(str);
-			return NULL;
-		}
+	f = my_fopen (file_name, "rb");
+	if(!f) return NULL;
+
 	fread (&file_header, 1, sizeof(header_file_md2), f);
 
 	//allocate the main memory

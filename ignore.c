@@ -32,10 +32,13 @@ int add_to_ignore_list(Uint8 *name, char save_name)
 							char local_ignores[256];
 							strcpy(local_ignores, configdir);
 							strcat(local_ignores, "local_ignores.txt");
-							f=fopen(local_ignores, "a");
-							fwrite(name, strlen(name), 1, f);
-							fwrite("\n", 1, 1, f);
-							fclose(f);
+							f=my_fopen(local_ignores, "a");
+							if (f != NULL)
+							{
+								fwrite(name, strlen(name), 1, f);
+								fwrite("\n", 1, 1, f);
+								fclose(f);
+							}
 						}
 					ignore_list[i].used=1;//mark as used
 					ignored_so_far++;
@@ -68,8 +71,10 @@ int remove_from_ignore_list(Uint8 *name)
 			char local_ignores[256];
 			strcpy(local_ignores, configdir);
 			strcat(local_ignores, "local_ignores.txt");
-			f=fopen(local_ignores, "w");
-			for(i=0;i<max_ignores;i++)
+			f=my_fopen(local_ignores, "w");
+			if (f != NULL)
+			{
+				for(i=0;i<max_ignores;i++)
 				{
 					if(ignore_list[i].used)
 						{
@@ -77,7 +82,8 @@ int remove_from_ignore_list(Uint8 *name)
 							fwrite("\n", 1, 1, f);	
 						}
 				}
-			fclose(f);
+				fclose(f);
+			}
 			return 1;
 		}
 	else
@@ -144,6 +150,7 @@ void load_ignores_list(char * file_name)
 	Uint8 name[64];
 	Uint8 ch;
 
+	// don't use my_fopen, absence of ignores is not an error
 	f = fopen(file_name, "rb");
 	if(!f)return;
 	fseek(f,0,SEEK_END);

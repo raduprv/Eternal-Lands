@@ -469,6 +469,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					strcpy(marks_file, strrchr(map_file_name,'/')+1);
 #endif
 					strcat(marks_file, ".txt");
+					// don't use my_fopen here, not everyone uses map markers
 					fp = fopen(marks_file, "r");
 					max_mark = 0;
 					if ( fp )
@@ -1004,7 +1005,7 @@ void get_updates()
 	strcpy(servername, "no-exit.org");
 	strcpy(filepath_on_server, "/el/files/testfile");
 	strcpy(local_filepath, "testfile");
-	fp = fopen(local_filepath, "w");
+	fp = my_fopen(local_filepath, "w");
 	http_get_file(servername, filepath_on_server, fp);
 	fclose(fp);
 }

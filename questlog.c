@@ -25,12 +25,13 @@ void load_questlog()
 	char questlog_ini[256];
 	strcpy(questlog_ini, configdir);
 	strcat(questlog_ini, "quest.log");
+	// don't use my_fopen here, not everyone uses local settings
 	f= fopen(questlog_ini,"rb"); //try to load local settings
 	if(!f)	//use global settings
-		f= fopen("quest.log","rb");
+		f= my_fopen("quest.log","rb");
 
 #else
-	f= fopen("quest.log","rb");
+	f= my_fopen("quest.log","rb");
 #endif
 	logdata.msg= NULL;
 	current= last= &logdata;
@@ -96,15 +97,19 @@ void add_questlog(char *t, int len)
 			char questlog_ini[256];
 			strcpy(questlog_ini, configdir);
 			strcat(questlog_ini, "quest.log");
-			qlf= fopen(questlog_ini,"wb");
+			// don't use my_fopen here, not everyone uses local settings
+			// Heh? Changed local quest log to open in append mode too, instead
+			// of overwrite
+			qlf= fopen(questlog_ini,"ab");
 			if(!qlf) //use global settings
-				qlf= fopen("quest.log","ab");
+				qlf= my_fopen("quest.log","ab");
 			else
 				fseek(qlf,SEEK_END,0);
 
 		#else
-			qlf= fopen("quest.log","ab");
+			qlf= my_fopen("quest.log","ab");
 		#endif
+			if (qlf == NULL) return;
 	}
 	while(*s){ //converting multiline msg in single line
 		if(*s=='\n')	*s= ' ';

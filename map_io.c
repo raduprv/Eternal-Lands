@@ -141,7 +141,15 @@ int save_map(char * file_name)
 	cur_map_header.particles_offset=cur_map_header.lights_offset+lights_no*lights_io_size;
 
 	//ok, now let's open/create the file, and start writting the header...
-	f=fopen(file_name, "wb");
+	f=my_fopen(file_name, "wb");
+	if (f == NULL)
+	{
+		// unable to open output file
+		// Let's quit now before our user spends a whole lot of time
+		// creating a map that can't be saved.
+		SDL_Quit ();
+		exit (1);
+	}
 
 	//write the header
 	fwrite(mem_map_header, sizeof(map_header), 1, f);
@@ -318,7 +326,7 @@ int load_map(char * file_name)
 	int particles_io_size;
 
 	FILE *f = NULL;
-	f=fopen(file_name, "rb");
+	f=my_fopen(file_name, "rb");
 	if(!f)return 0;
 
 #ifdef EXTRA_DEBUG

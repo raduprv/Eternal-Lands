@@ -47,8 +47,16 @@ void write_to_log(Uint8 * data,int len)
 			strcpy(chat_log_file, "chat_log.txt");
 			strcpy(srv_log_file, "srv_log.txt");
 #endif
-  			chat_log = fopen (chat_log_file, "a");
-  			srv_log = fopen (srv_log_file, "a");
+  			chat_log = my_fopen (chat_log_file, "a");
+  			srv_log = my_fopen (srv_log_file, "a");
+			
+			if (chat_log == NULL || srv_log == NULL)
+			{
+				// quit to prevent error log filling up with messages caused
+				// by unability to open chat log
+				SDL_Quit ();
+				exit (1);
+			}
 		}
 
 	j=0;

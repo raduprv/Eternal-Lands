@@ -34,10 +34,13 @@ int add_to_filter_list(Uint8 *name, char save_name)
 							char local_filters[256];
 							strcpy(local_filters, configdir);
 							strcat(local_filters, "local_filters.txt");
-							f=fopen(local_filters, "a");
-							fwrite(name, strlen(name), 1, f);
-							fwrite("\n", 1, 1, f);
-							fclose(f);
+							f=my_fopen(local_filters, "a");
+							if (f != NULL)
+							{
+								fwrite(name, strlen(name), 1, f);
+								fwrite("\n", 1, 1, f);
+								fclose(f);
+							}
 						}
 					filter_list[i].len=strlen(filter_list[i].name);//memorize the length
 					filtered_so_far++;
@@ -70,8 +73,10 @@ int remove_from_filter_list(Uint8 *name)
 			char local_filters[256];
 			strcpy(local_filters, configdir);
 			strcat(local_filters, "local_filters.txt");
-			f=fopen(local_filters, "w");
-			for(i=0;i<max_filters;i++)
+			f=my_fopen(local_filters, "w");
+			if (f != NULL)
+			{
+				for(i=0;i<max_filters;i++)
 				{
 					if(filter_list[i].len > 0)
 						{
@@ -79,7 +84,8 @@ int remove_from_filter_list(Uint8 *name)
 							fwrite("\n", 1, 1, f);	
 						}
 				}
-			fclose(f);
+				fclose(f);
+			}
 			return 1;
 		}
 	else
@@ -226,6 +232,7 @@ void load_filters_list(char * file_name)
 	Uint8 name[64];
 	Uint8 ch;
 
+	// don't use my_fopen, absence of filters is not an error
 	f = fopen(file_name, "rb");
 	if(!f)return;
 	fseek(f,0,SEEK_END);

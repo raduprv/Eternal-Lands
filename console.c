@@ -34,7 +34,9 @@ void print_log()
 {
 	FILE *f = NULL;
 
-  	f = fopen ("text_log.txt", "ab");
+  	f = my_fopen ("text_log.txt", "ab");
+	if (!f) return;
+	
   	fwrite (display_text_buffer, display_text_buffer_last, 1, f);
   	fclose (f);
 }
@@ -116,7 +118,9 @@ void test_for_console_command()
 				my_strcp(marks_file, strrchr(map_file_name,'/')+1);
 #endif
 				my_strcat(marks_file, ".txt");
-				fp = fopen(marks_file, "r");
+				// If the player uses goto with a marker, the marks file 
+				// should be there, so use my_fopen
+				fp = my_fopen(marks_file, "r");
 				if ( fp )
 				{
 					while ( fgets(text, 600,fp) )

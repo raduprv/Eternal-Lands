@@ -207,15 +207,12 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 		}
 
 
-	f = fopen (file_name, "rb");
+	f = my_fopen (file_name, "rb");
 	if(!f)
-		{
-            char str[256];
-            sprintf(str,"%s: %s: %s",reg_error_str,cant_open_file,file_name);
-            LogError(str);
-            free(cur_object);
-    	    return NULL;
-		}
+	{
+		free(cur_object);
+		return NULL;
+	}
 	fseek (f, 0, SEEK_END);
 	f_size = ftell (f);
 

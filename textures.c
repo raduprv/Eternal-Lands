@@ -52,7 +52,7 @@ GLuint load_bmp8_color_key(char * FileName)
 	GLuint texture;
 
 	check_gl_errors();
-  	f = fopen (FileName, "rb");
+  	f = my_fopen (FileName, "rb");
   	if (!f) return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
@@ -177,7 +177,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	FILE *f = NULL;
 	GLuint texture;
 
-  	f = fopen (FileName, "rb");
+  	f = my_fopen (FileName, "rb");
   	if (!f) return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
@@ -302,7 +302,7 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 	FILE *f = NULL;
 	Uint8 *texture_mem;
 
-  	f = fopen (FileName, "rb");
+  	f = my_fopen (FileName, "rb");
   	if (!f) return NULL;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
@@ -390,7 +390,7 @@ char * load_bmp8_alpha_map(char * FileName)
 	FILE *f = NULL;
 	Uint8 *texture_mem;
 
-  	f = fopen (FileName, "rb");
+  	f = my_fopen (FileName, "rb");
   	if (!f) return NULL;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
@@ -534,7 +534,7 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	FILE *f = NULL;
 	GLuint texture;
 
-  	f = fopen (FileName, "rb");
+  	f = my_fopen (FileName, "rb");
   	if (!f) return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
@@ -821,7 +821,7 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
 	Uint8 * color_pallete;
 	FILE *f = NULL;
 
-  	f = fopen (FileName, "rb");
+  	f = my_fopen (FileName, "rb");
   	if (!f) return;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;

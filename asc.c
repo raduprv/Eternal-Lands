@@ -327,10 +327,14 @@ Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
 void get_file_digest(const Uint8 * filename, Uint8 digest[16])
 {
 	MD5 md5;
-	FILE *fp = fopen(filename, "r");
+	FILE *fp = my_fopen(filename, "r");
 	Uint8 buffer[64];
 	Sint32 length;
 	MD5Open(&md5);
+	
+	memset (digest, 0, sizeof (digest));	
+	if (fp == NULL) return;
+	
 	while ((length = fread(buffer, 1, sizeof(buffer), fp)) > 0)
 		{
 			MD5Digest(&md5, buffer, length);

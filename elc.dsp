@@ -795,6 +795,10 @@ SOURCE=.\stats.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\tabstats.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\text.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"

@@ -84,12 +84,9 @@ particle_sys_def *load_particle_def(const char *filename)
 			}
 	if(!def)return NULL;
 
-	f=fopen(cleanpath,"r");
+	f=my_fopen(cleanpath,"r");
 	if(!f)
 		{
-			char str[120];
-			sprintf(str,"%s %s",cant_open_file,cleanpath);
-			LogError(str);
 			free(def);
 			defs_list[i]=NULL;
 			return NULL;
@@ -205,14 +202,8 @@ int save_particle_def(particle_sys_def *def)
 
 	clean_file_name(cleanpath,def->file_name,128);
 
-	f=fopen(cleanpath,"w");
-	if(!f)
-		{
-			char str[120];
-			sprintf(str,"%s %s",cant_open_file,cleanpath);
-			LogError(str);
-			return 0;
-		}
+	f=my_fopen(cleanpath,"w");
+	if(!f) return 0;
 
 	fprintf(f,"%i\n",PARTICLE_DEF_VERSION);
 

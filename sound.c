@@ -58,6 +58,7 @@ void get_map_playlist()
 	map_list_file_name[len-2]='l';
 	map_list_file_name[len-1]='l';
 
+	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(map_list_file_name,"r");
 	if(!fp)return;
 
@@ -125,12 +126,9 @@ void load_ogg_file(char *file_name) {
 	} else
 		strcpy(file_name2,file_name);
 
-	ogg_file = fopen(file_name2, "rb");
+	ogg_file = my_fopen(file_name2, "rb");
 
 	if(!ogg_file) {
-		char	str[256];
-		snprintf(str, 256, "%s: %s", snd_ogg_load_error, file_name);
-		LogError(str);
 		have_music=0;
 		return;
 	}
@@ -181,6 +179,7 @@ void play_music(int list) {
 	if(!have_music)return;
 
 	sprintf(list_file_name,"./music/%d.pll",list);
+	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(list_file_name,"r");
 	if(!fp)return;
 

@@ -192,3 +192,14 @@ int go_to_url(void *dummy)
 	return 0;
 }
 
+FILE *my_fopen (const char *fname, const char *mode)
+{
+	FILE *file = fopen (fname, mode);
+	if (file == NULL)
+	{
+		char str[256];
+		snprintf(str, sizeof (str), "%s: %s \"%s\"", reg_error_str, cant_open_file, fname);
+		LogError(str);
+	}
+	return file;
+}

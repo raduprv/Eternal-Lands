@@ -403,14 +403,8 @@ e3d_object * load_e3d(char *file_name)
 	e3d_header our_header;
 	char *our_header_pointer=(char *)&our_header;
 
-	f = fopen(file_name, "rb");
-	if(!f)
-        {
-            char str[120];
-            sprintf(str,"%s: %s: %s",reg_error_str,cant_open_file,file_name);
-            LogError(str);
-            return NULL;
-        }
+	f = my_fopen(file_name, "rb");
+	if(!f) return NULL;
 
 	//load and parse the header
 	fread(our_header_pointer, 1, sizeof(e3d_header), f);
@@ -483,14 +477,8 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 			cur_dir[i+1]=0;
 		}
 
-	f = fopen(cur_object->file_name, "rb");
-	if(!f)
-        {
-            char str[120];
-            sprintf(str,"%s: %s: %s",reg_error_str,cant_open_file,cur_object->file_name);
-            LogError(str);
-            return NULL;
-        }
+	f = my_fopen(cur_object->file_name, "rb");
+	if(!f) return NULL;
 
 	//load and parse the header
 	fread(our_header_pointer, 1, sizeof(e3d_header), f);

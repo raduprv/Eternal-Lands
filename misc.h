@@ -134,4 +134,16 @@ int SphereInFrustum(float x, float y, float z, float radius);
  */
 int check_tile_in_frustrum(float x,float y);
 
+/*!
+ * \ingroup misc
+ * \brief Opens a file and check the result
+ *
+ *      Tries to open a file, and logs an error message if it fails
+ *
+ * \param fname The file name
+ * \param mode The mode in which the file is to be opened
+ * \return Pointer to the file on success, NULL otherwise
+ */
+FILE *my_fopen (const char *fname, const char *mode);
+
 #endif
