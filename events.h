@@ -10,4 +10,11 @@ extern int ctrl_on;
 void	quick_use(int use_id);
 int HandleEvent(SDL_Event *event);
 
+typedef struct
+{
+    int x ;
+    int y;
+    char text[512];
+}marking;
+
 #endif	// __EVENTS_H__

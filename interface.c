@@ -37,6 +37,11 @@ int action_mode=action_walk;
 Uint32 click_time=0;
 int click_speed=300;
 
+extern marking marks[200];
+extern int adding_mark;
+extern int mark_x , mark_y;
+extern int max_mark;
+
 void get_world_x_y()
 {
 	float window_ratio;
@@ -684,100 +689,6 @@ void switch_from_game_map()
 	glDeleteTextures(1,&map_text);
 	interface_mode=interface_game;
 }
-
-void draw_game_map()
-{
-	int screen_x=0;
-	int screen_y=0;
-	int i;
-
-   	glDisable(GL_DEPTH_TEST);
-   	glDisable(GL_LIGHTING);
-
-   	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(300, (GLdouble)0, (GLdouble)0, 200, -250.0, 250.0);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-
-	bind_texture_id(map_text);
-	glColor3f(1.0f,1.0f,1.0f);
-	glBegin(GL_QUADS);
-	//draw the texture
-
-	glTexCoord2f(1.0f,0.0f);
-	glVertex3i(50,0,0);
-
-	glTexCoord2f(1.0f,1.0f);
-	glVertex3i(50,200,0);
-
-	glTexCoord2f(0.0f,1.0f);
-	glVertex3i(250,200,0);
-
-	glTexCoord2f(0.0f,0.0f);
-	glVertex3i(250,0,0);
-
-	glEnd();
-
-	//if we're following a path, draw the destination on the map
-	if (pf_follow_path) {
-		int x = pf_dst_tile->x;
-		int y = pf_dst_tile->y;
-
-		screen_x=300-(50+200*x/(tile_map_size_x*6));
-		screen_y=0+200*y/(tile_map_size_y*6);
-
-		glColor3f(1.0f,0.0f,0.0f);
-		glDisable(GL_TEXTURE_2D);
-		glBegin(GL_LINES);
-		glVertex2i(screen_x-3,screen_y-3);
-		glVertex2i(screen_x+2,screen_y+2);
-
-		glVertex2i(screen_x+2,screen_y-3);
-		glVertex2i(screen_x-3,screen_y+2);
-		glEnd();
-	}
-
-	//ok, now let's draw our possition...
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i])
-				if(actors_list[i]->actor_id==yourself)
-					{
-						int x=actors_list[i]->x_tile_pos;
-						int y=actors_list[i]->y_tile_pos;
-						screen_x=300-(50+200*x/(tile_map_size_x*6));
-						screen_y=0+200*y/(tile_map_size_y*6);
-						break;
-					}
-		}
-
-	glColor3f(0.0f,0.0f,1.0f);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_LINES);
-	glVertex2i(screen_x-3,screen_y-3);
-	glVertex2i(screen_x+2,screen_y+2);
-
-	glVertex2i(screen_x+2,screen_y-3);
-	glVertex2i(screen_x-3,screen_y+2);
-	glEnd();
-
-	glEnable(GL_TEXTURE_2D);
-	glColor3f(1.0f,1.0f,1.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_LIGHTING);
-}
-
 void draw_menu_title_bar(int x, int y, int x_len)
 {
 	float u_first_start=(float)31/256;
@@ -841,3 +752,241 @@ void draw_menu_title_bar(int x, int y, int x_len)
 	glDisable(GL_ALPHA_TEST);
 }
 
+void draw_game_map()
+{
+	int screen_x=0;
+	int screen_y=0;
+	int i;
+
+   	glDisable(GL_DEPTH_TEST);
+   	glDisable(GL_LIGHTING);
+
+   	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(300, (GLdouble)0, (GLdouble)0, 200, -250.0, 250.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	bind_texture_id(map_text);
+	glColor3f(1.0f,1.0f,1.0f);
+	glBegin(GL_QUADS);
+	//draw the texture
+
+	glTexCoord2f(1.0f,0.0f);
+	glVertex3i(50,0,0);
+
+	glTexCoord2f(1.0f,1.0f);
+	glVertex3i(50,200,0);
+
+	glTexCoord2f(0.0f,1.0f);
+	glVertex3i(250,200,0);
+
+	glTexCoord2f(0.0f,0.0f);
+	glVertex3i(250,0,0);
+
+	glEnd();
+
+	//if we're following a path, draw the destination on the map
+	if (pf_follow_path) {
+		int x = pf_dst_tile->x;
+		int y = pf_dst_tile->y;
+
+		screen_x=300-(50+200*x/(tile_map_size_x*6));
+		screen_y=0+200*y/(tile_map_size_y*6);
+
+		glColor3f(1.0f,0.0f,0.0f);
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+		glVertex2i(screen_x-3,screen_y-3);
+		glVertex2i(screen_x+2,screen_y+2);
+
+		glVertex2i(screen_x+2,screen_y-3);
+		glVertex2i(screen_x-3,screen_y+2);
+		glEnd();
+	}
+	//ok, now let's draw our possition...
+	for(i=0;i<max_actors;i++)
+		{
+			if(actors_list[i])
+				if(actors_list[i]->actor_id==yourself)
+					{
+						int x=actors_list[i]->x_tile_pos;
+						int y=actors_list[i]->y_tile_pos;
+						screen_x=300-(50+200*x/(tile_map_size_x*6));
+						screen_y=0+200*y/(tile_map_size_y*6);
+						break;
+					}
+		}
+
+	glColor3f(0.0f,0.0f,1.0f);
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_LINES);
+	glVertex2i(screen_x-3,screen_y-3);
+	glVertex2i(screen_x+2,screen_y+2);
+
+	glVertex2i(screen_x+2,screen_y-3);
+	glVertex2i(screen_x-3,screen_y+2);
+	glEnd();
+
+	glEnable(GL_TEXTURE_2D);
+	glColor3f(1.0f,1.0f,1.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+
+// this is necessary for the text over map
+
+   	glDisable(GL_DEPTH_TEST);
+   	glDisable(GL_LIGHTING);
+
+   	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho((GLdouble)0, (GLdouble)300, (GLdouble)200, (GLdouble)0, -250.0, 250.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	// draw a temporary mark until the text is entered
+	if (adding_mark) {
+                int x = mark_x;
+                int y = mark_y;
+
+		screen_x=(50+200*x/(tile_map_size_x*6));
+		screen_y=200-200*y/(tile_map_size_y*6);
+
+		glColor3f(1.0f,1.0f,0.0f);
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+		glVertex2i(screen_x-3,screen_y-3);
+		glVertex2i(screen_x+2,screen_y+2);
+
+		glVertex2i(screen_x+2,screen_y-3);
+		glVertex2i(screen_x-3,screen_y+2);
+		glEnd();
+        glEnable(GL_TEXTURE_2D);
+        glColor3f(1.0f,1.0f,0.0f);
+	draw_string_zoomed(screen_x,screen_y,input_text_line,1,0.3);
+	}
+
+
+// crave the markings
+	for(i=0;i<max_mark;i++)
+	 {
+		int x = marks[i].x;
+		int y = marks[i].y;
+		if ( x > 0 ) {
+		screen_x=(50+200*x/(tile_map_size_x*6));
+		screen_y=200-200*y/(tile_map_size_y*6);
+
+		glColor3f(0.4f,1.0f,0.0f);
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+		glVertex2i(screen_x-3,screen_y-3);
+		glVertex2i(screen_x+2,screen_y+2);
+		glVertex2i(screen_x+2,screen_y-3);
+		glVertex2i(screen_x-3,screen_y+2);
+		glEnd();
+        glEnable(GL_TEXTURE_2D);
+        glColor3f(0.2f,1.0f,0.0f);
+	draw_string_zoomed(screen_x,screen_y,marks[i].text,1,0.3);
+		}
+	 }
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+}
+
+
+void put_mark_on_map_on_mouse_position()
+{
+        int min_mouse_x = (window_width-hud_x)/6;
+        int min_mouse_y = 0;
+
+        int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
+        int max_mouse_y = window_height - hud_y;
+
+        int screen_map_width = max_mouse_x - min_mouse_x;
+        int screen_map_height = max_mouse_y - min_mouse_y;
+
+        if (mouse_x < min_mouse_x
+        || mouse_x > max_mouse_x
+        || mouse_y < min_mouse_y
+        || mouse_y > max_mouse_y) {
+                return;
+        }
+
+        mark_x = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
+        mark_y = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
+        adding_mark = 1;
+}
+
+void delete_mark_on_map_on_mouse_position()
+{
+        int min_mouse_x = (window_width-hud_x)/6;
+        int min_mouse_y = 0;
+	int mx , my , i;
+        int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
+        int max_mouse_y = window_height - hud_y;
+
+        int screen_map_width = max_mouse_x - min_mouse_x;
+        int screen_map_height = max_mouse_y - min_mouse_y;
+
+        if (mouse_x < min_mouse_x
+        || mouse_x > max_mouse_x
+        || mouse_y < min_mouse_y
+        || mouse_y > max_mouse_y) {
+                return;
+        }
+
+        mx = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
+        my = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
+
+	for ( i = 0 ; i < max_mark ; i ++ ) 
+	    if (( abs( mx - marks[i].x) < 20 ) && (abs( my - marks[i].y) < 20 ) )
+              {
+		marks[i].x =  -1 ;
+		marks[i].y =  -1 ;
+		break;
+	      }
+save_markings();
+}
+
+void save_markings()
+{
+      FILE * fp;
+      char marks_file[256];
+      int i;
+
+#ifndef WINDOWS
+      strcpy(marks_file, getenv("HOME"));
+      strcat(marks_file, "/.elc/");
+      strcat(marks_file,rindex(map_file_name,'/')+1);
+#else
+      strcpy(marks_file,rindex(map_file_name,'/')+1);
+#endif
+      strcat(marks_file,".txt");
+      fp = fopen(marks_file,"w");
+      if ( fp ) {
+	  for ( i = 0 ; i < max_mark ; i ++)
+    	     if ( marks[i].x > 0 )
+                fprintf(fp,"%d %d %s\n",marks[i].x,marks[i].y,marks[i].text);
+          fclose(fp);
+        };
+}

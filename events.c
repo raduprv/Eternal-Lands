@@ -7,6 +7,11 @@
 #include <SDL_syswm.h>
 #endif
 
+int adding_mark = 0;
+int mark_x , mark_y;
+int max_mark = 0;
+marking marks[200];
+
 int mod_key_status;
 Uint32 last_turn_around=0;
 
@@ -441,6 +446,29 @@ int HandleEvent(SDL_Event *event)
 
 				if(ch==SDLK_RETURN && input_text_lenght>0)
 					{
+					if (( adding_mark == 1 ) && (input_text_lenght>1))
+						{
+						  int i;
+						  // if text wrapping just keep the text until the wrap.
+					          for ( i = 0 ; i < strlen(input_text_line) ; i ++) 
+							if ( input_text_line[i] == 0x0a ) 
+							   input_text_line[i] = 0;
+							    
+					          marks[max_mark].x = mark_x;
+					    	  marks[max_mark].y = mark_y;
+						  memset(marks[max_mark].text,0,500);
+						  
+						  strncpy(marks[max_mark].text,input_text_line,500);
+						  marks[max_mark].text[strlen(marks[max_mark].text)-1]=0;
+					          max_mark++;
+						  save_markings();
+						  adding_mark = 0;
+						  input_text_lenght=0;
+						  input_text_lines=1;
+						  input_text_line[0]=0;
+
+						}
+					else 
 						if(*input_text_line=='%' && input_text_lenght>1) 
 							{
 								input_text_line[input_text_lenght]=0;
@@ -538,9 +566,15 @@ int HandleEvent(SDL_Event *event)
 			if((left_click==1 || right_click==1) &&
 				interface_mode==interface_game)
 				check_mouse_click();
-			else if((left_click==1 || right_click==1) &&
-				interface_mode==interface_map)
-			   	pf_move_to_mouse_position();
+			else if( interface_mode==interface_map)
+				{
+				if (left_click==1) 
+				 pf_move_to_mouse_position();
+				if ((right_click==1) && (!ctrl_on))
+				 put_mark_on_map_on_mouse_position();
+				if ((right_click==1) && (ctrl_on))
+				 delete_mark_on_map_on_mouse_position();
+				}
 			else if((left_click==1 || right_click==1) &&
 				interface_mode==interface_console)
 				check_hud_interface();
