@@ -1,5 +1,6 @@
 #ifndef WINDOWS
 #include <dirent.h>
+#include <locale.h>
 #endif
 #include "global.h"
 
@@ -93,6 +94,9 @@ void init_stuff()
 	int seed;
 	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
 	
+#ifndef WINDOWS
+	setlocale(LC_NUMERIC,"en_US");
+#endif
 	init_translatables();
 
 	init_vars();
