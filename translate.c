@@ -324,7 +324,10 @@ char	title_help[10],
 	title_encyclopedia[20],
 	title_statistics[20],
 	title_knowledge[20],
-	title_questlog[20];
+	title_questlog[20],
+	title_local[20],
+	title_channel[20],
+	title_guild[20];
 #endif  // ELC
 /*! \} */
 
@@ -840,6 +843,9 @@ void init_titles ()
 	add_xml_identifier (titles_str, "t_stats", title_statistics, "Statistics", sizeof(title_statistics));
 	add_xml_identifier (titles_str, "t_know", title_knowledge, "Knowledge", sizeof(title_knowledge));
 	add_xml_identifier (titles_str, "t_qlog", title_questlog, "Quest log", sizeof(title_questlog));
+	add_xml_identifier (titles_str, "t_local", title_local, "Local", sizeof(title_local));
+	add_xml_identifier (titles_str, "t_channel", title_channel, "Channel", sizeof(title_channel));
+	add_xml_identifier (titles_str, "t_guild", title_guild, "Guild", sizeof(title_guild));
 }
 #endif // ELC
 

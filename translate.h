@@ -417,7 +417,10 @@ extern char	title_help[10],
 		title_encyclopedia[20],
 		title_statistics[20],
 		title_knowledge[20],
-		title_questlog[20];
+		title_questlog[20],
+		title_local[20],
+		title_channel[20],
+		title_guild[20];
 #endif  // DOXYGEN_SKIP_THIS
 #endif  // ELC
 
