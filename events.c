@@ -405,7 +405,10 @@ int HandleEvent(SDL_Event *event)
 	    {
 	      window_width = event->resize.w;
 	      window_height = event->resize.h;
-		  resize_window();
+	      if(SDL_SetVideoMode(window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE))
+	      	{
+			resize_window();
+		}
 	    }
 	    break;
 
