@@ -3,11 +3,13 @@
 
 int rain_control_counter=0;
 int thunder_control_counter=0;
-
+int num_rain_drops=MAX_RAIN_DROPS;
+char rand_rain[8192];
 
 void build_rain_table()
 {
 	int i;
+
 	for(i=0;i<MAX_RAIN_DROPS;i++)
 		{
 			rain_drops[i].x=rand()%500;
@@ -15,17 +17,24 @@ void build_rain_table()
 			rain_drops[i].x2=rain_drops[i].x;
 			rain_drops[i].y2=rain_drops[i].y+rain_drop_len;
 		}
+	// setup the motion table as well
+	for(i=0;i<8192;i++)
+		{
+			rand_rain[i]=rand()&0xff;
+		}
 
 }
 
 void update_rain()
 {
 	int i;
-	for(i=0;i<MAX_RAIN_DROPS;i++)
+	int speed_var=rand()%8192;	// TODO: reduce the number of calls to this
+	for(i=0;i<num_rain_drops;i++)
 		{
-			short speed_var=rand()%2;
-			rain_drops[i].y-=RAIN_SPEED+speed_var;
-			rain_drops[i].y2-=RAIN_SPEED+speed_var;
+			rain_drops[i].y-=RAIN_SPEED+rand_rain[speed_var];
+			rain_drops[i].y2-=RAIN_SPEED+rand_rain[speed_var];
+			speed_var++;
+			speed_var&=(8192-1);	// limit the high end
 			if(rain_drops[i].y<0)
 			{
 				rain_drops[i].x=rand()%500;
@@ -39,18 +48,18 @@ void update_rain()
 void render_rain()
 {
 
-   		glDisable(GL_DEPTH_TEST);
-   		glDisable(GL_TEXTURE_2D);
+   	glDisable(GL_DEPTH_TEST);
+   	glDisable(GL_TEXTURE_2D);
 
-    	glViewport(0, 0, window_width, window_height);
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		//glOrtho(0.0, (GLdouble)500, (GLdouble)500, 0.0, -250.0, 250.0);
-		glOrtho(500, (GLdouble)0, (GLdouble)0, 500, -250.0, 250.0);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
+   	glViewport(0, 0, window_width, window_height);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	//glOrtho(0.0, (GLdouble)500, (GLdouble)500, 0.0, -250.0, 250.0);
+	glOrtho(500, (GLdouble)0, (GLdouble)0, 500, -250.0, 250.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
 
 
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -58,19 +67,19 @@ void render_rain()
 	glEnable(GL_BLEND);
   	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
   	glColor4f(0.1f,0.1f,0.1f,0.6f);
-  	glDrawArrays(GL_LINES,0,MAX_RAIN_DROPS);
+  	glDrawArrays(GL_LINES,0,num_rain_drops);
 	glDisable(GL_BLEND);
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void rain_control()
@@ -127,6 +136,8 @@ void rain_control()
 						{
 							is_raining=1;
 							rain_sound=add_sound_object("./sound/rain1.wav",0,0,0,-1,1);
+							//find out how heavy the rainfall will be
+							num_rain_drops=(MAX_RAIN_DROPS+rand()%MAX_RAIN_DROPS)/2;
 						}
 					rain_light_offset=30;
 					return;
