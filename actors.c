@@ -128,11 +128,11 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glDisable(GL_TEXTURE_2D);
 	//choose color for the bar
 	if(actor_id->cur_health>=actor_id->max_health/2)
-		glColor3f(0,1,0);	//green life bar
+		glColor3f(0,0.5,0);	//green life bar
 	//else if(actor_id->cur_health>=actor_id->max_health/4 && actor_id->cur_health<actor_id->max_health/2)
 	else if(actor_id->cur_health>=actor_id->max_health/4)
-		glColor3f(1,1,0);	//yellow life bar
-	else glColor3f(1,0,0);	//red life bar
+		glColor3f(0.5,0.5,0);	//yellow life bar
+	else glColor3f(0.5,0,0);	//red life bar
 	if(!actor_id->ghost)glDisable(GL_LIGHTING);
 
 	if(view_health_bar && actor_id->cur_health>=0)
@@ -145,6 +145,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			glBegin(GL_QUADS);
 			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
 			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
+			//choose color for the bar
+			if(actor_id->cur_health>=actor_id->max_health/2)
+			  glColor3f(0,1,0);	//green life bar
+			else if(actor_id->cur_health>=actor_id->max_health/4)
+			  glColor3f(1,1,0);	//yellow life bar
+			else glColor3f(1,0,0);	//red life bar
+
 			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
 			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
 			glEnd();
