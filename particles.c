@@ -709,7 +709,7 @@ void update_teleporter_sys(particle_sys *system_id)
 					{
 						//finally, we found a spot
 						create_particle(system_id,&(system_id->particles[j]));
-						if(system_id->particles[j].z<0)system_id->particles[j].z=0;
+						if(system_id->particles[j].z<system_id->z_pos)system_id->particles[j].z=system_id->z_pos;
 						//increase the particle count
 						system_id->particle_count++;
 						break;	//done looping
@@ -722,7 +722,7 @@ void update_teleporter_sys(particle_sys *system_id)
 	for(j=0,p=&system_id->particles[0];j<total_particle_no;j++,p++)
 		if(!p->free)
 			{
-				if(p->z>2.0f)
+				if(p->z>system_id->z_pos+2.0f)
 					{
 						//poor particle, it died :(
 						p->free=1;
@@ -763,9 +763,9 @@ void update_teleport_sys(particle_sys *system_id)
 				if(system_id->particles[j].free)
 					{
 						create_particle(system_id,&(system_id->particles[j]));
-						system_id->particles[j].x=0;
-						system_id->particles[j].y=0;
-						system_id->particles[j].z=0;
+						system_id->particles[j].x=system_id->x_pos;
+						system_id->particles[j].y=system_id->y_pos;
+						system_id->particles[j].z=system_id->z_pos;
 						system_id->particle_count++;
 
 						break;
@@ -778,7 +778,7 @@ void update_teleport_sys(particle_sys *system_id)
 	for(j=0,p=&system_id->particles[0];j<total_particle_no;j++,p++)
 		if(!p->free)
 			{
-				if(p->z>2.0f)
+				if(p->z>system_id->z_pos+2.0f)
 					{
 						//poor particle, it died :(
 						p->free=1;
@@ -820,7 +820,7 @@ void update_bag_part_sys(particle_sys *system_id)
 					{
 						//finally, we found a spot
 						create_particle(system_id,&(system_id->particles[j]));
-						if(system_id->particles[j].z<0)system_id->particles[j].z=0;
+						if(system_id->particles[j].z<system_id->z_pos)system_id->particles[j].z=system_id->z_pos;
 						//increase the particle count
 						system_id->particle_count++;
 						break;	//done looping
@@ -832,7 +832,7 @@ void update_bag_part_sys(particle_sys *system_id)
 	for(j=0,p=&system_id->particles[0];j<total_particle_no;j++,p++)
 		if(!p->free)
 			{
-				if(p->z>1.0f)
+				if(p->z>system_id->z_pos+1.0f)
 					{
 						//poor particle, it died :(
 						p->free=1;
