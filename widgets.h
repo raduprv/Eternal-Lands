@@ -11,10 +11,10 @@ typedef struct wl{
 	Uint32 Flags; // Status flags...visible,enbled,etc
 	
 	// the handlers
-	int (*OnDraw)(struct wl*);
+	int (*OnDraw)();
 	int (*OnClick)();
 	int (*OnDrag)();
-	int (*OnInit)(struct wl*);
+	int (*OnInit)();
 	int (*OnMouseover)();
 
 	void *widget_info; // Pointer to specific widget data

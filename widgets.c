@@ -4,7 +4,7 @@
 
 Uint32 widget_id = 0;
 
-int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)(widget_list *))
+int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)())
 {
 	widget_list *w = &windows_list.window[window_id].widgetlist;
 	while(w->next != NULL){
@@ -48,7 +48,7 @@ int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)())
 	return 1;
 }
 
-int add_label(Uint32 window_id, int (*OnInit)(widget_list *), char *text, Uint16 x, Uint16 y, Uint32 flags, float size, float r, float g, float b)
+int add_label(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y, Uint32 flags, float size, float r, float g, float b)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	label *T = (label *) malloc(sizeof(label));
