@@ -99,7 +99,7 @@ void draw_string(int x, int y,unsigned char * our_string,int max_lines)
 					if(current_lines>=max_lines)break;
 					continue;
 				}
-			if(cur_char>=127 && cur_char<=127+c_grey4)
+			else if(cur_char>=127 && cur_char<=127+c_grey4)
 				{
 					float r,g,b;
 					//must be a color
@@ -111,11 +111,11 @@ void draw_string(int x, int y,unsigned char * our_string,int max_lines)
 					i++;
 					continue;
 				}
-			if(cur_char>=UUML && cur_char<=ARING)
+			else if(cur_char>=UUML && cur_char<=ARING)
 				{
 					cur_char-=(UUML-127);
 				}
-			if(cur_char!='\n' && cur_char<32)//invalid character
+			else if(cur_char!='\n' && cur_char<32)//invalid character
 				{
 					i++;
 					continue;
@@ -197,7 +197,7 @@ void draw_string_small(int x, int y,unsigned char * our_string,int max_lines)
 					if(current_lines>=max_lines)break;
 					continue;
 				}
-			if(cur_char>=127)
+			else if(cur_char>=127)
 				{
 					float r,g,b;
 					//must be a color
@@ -209,7 +209,7 @@ void draw_string_small(int x, int y,unsigned char * our_string,int max_lines)
 					i++;
 					continue;
 				}
-			if(cur_char!='\n' && cur_char<32)//invalid character
+			else if(cur_char!='\n' && cur_char<32)//invalid character
 				{
 					i++;
 					continue;
@@ -360,7 +360,7 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 					if(current_lines>=max_lines)break;
 					continue;
 				}
-			if(cur_char>=127 && cur_char<=127+c_grey4)
+			else if(cur_char>=127 && cur_char<=127+c_grey4)
 				{
 					float r,g,b;
 					//must be a color
@@ -372,11 +372,11 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 					i++;
 					continue;
 				}
-			if(cur_char>=UUML && cur_char<=ARING)
+			else if(cur_char>=UUML && cur_char<=ARING)
 				{
 					cur_char-=(UUML-127);
 				}
-			if(cur_char!='\n' && cur_char<32)//invalid character
+			else if(cur_char!='\n' && cur_char<32)//invalid character
 				{
 					i++;
 					continue;

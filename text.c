@@ -131,8 +131,11 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 		}
 	
 	// force the color
-	display_text_buffer[display_text_buffer_last]=127+color;
-	display_text_buffer_last++;
+	if(text_to_add <= 127 || *text_to_add > 127+c_grey4)
+		{
+			display_text_buffer[display_text_buffer_last]=127+color;
+			display_text_buffer_last++;
+		}
 
 	//see if the text fits on the screen
 	if(!x_chars_limit)x_chars_limit=window_width/11;
@@ -249,8 +252,11 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 	int x_chars_limit;
 
 	// force the color
-	buffer[last_text]=127+color;
-	last_text++;
+	if(text_to_add <= 127)
+		{
+			buffer[last_text]=127+color;
+			last_text++;
+		}
 	//see if the text fits on the screen
 	x_chars_limit=pixels_limit/8;
 	if(len<=x_chars_limit)
