@@ -20,6 +20,8 @@ int use_vertex_array=0;
 int vertex_arrays_built=0;
 int have_compiled_vertex_array=0;
 int have_point_parameter=0;
+int have_arb_compression=0;
+int have_s3_compression=0;
 
 void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
@@ -438,6 +440,17 @@ void init_gl_extensions()
 			have_point_parameter=0;
 			log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
 		}
+
+		have_arb_compression=get_string_occurance("GL_ARB_texture_compression",extensions,ext_str_len,0);
+		if(have_arb_compression<0)
+		have_arb_compression=0;
+		else log_to_console(c_green2,"GL_ARB_texture_compression extension found, using it...");
+
+		have_s3_compression=get_string_occurance("GL_EXT_texture_compression_s3tc",extensions,ext_str_len,0);
+		if(have_s3_compression<0)
+		have_s3_compression=0;
+		else log_to_console(c_green2,"GL_EXT_texture_compression_s3tc extension found, using it...");
+
 
 	check_gl_errors();
 }

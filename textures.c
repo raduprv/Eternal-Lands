@@ -141,14 +141,20 @@ GLuint load_bmp8_color_key(char * FileName)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		}
-	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGBA,
-				 x_size, y_size,
-				 0,
-				 GL_RGBA,
-				 GL_UNSIGNED_BYTE,
-				 texture_mem);
+
+
+	if(have_arb_compression)
+		{
+			if(have_s3_compression)
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			else
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+
+		}
+	else
+	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+
+
 	check_gl_errors();
 
 	free(file_mem_start);
@@ -259,14 +265,16 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		}
 
-	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGBA,
-				 x_size, y_size,
-				 0,
-				 GL_RGBA,
-				 GL_UNSIGNED_BYTE,
-				 texture_mem);
+	if(have_arb_compression)
+		{
+			if(have_s3_compression)
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			else
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+
+		}
+	else
+	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 
 	check_gl_errors();
 	free(texture_mem);
@@ -773,14 +781,17 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		}
 
-	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGBA,
-				 x_size, y_size,
-				 0,
-				 GL_RGBA,
-				 GL_UNSIGNED_BYTE,
-				 texture_mem);
+	if(have_arb_compression)
+		{
+			if(have_s3_compression)
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			else
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+
+		}
+	else
+	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+
 
 	check_gl_errors();
 	free(texture_mem);
@@ -909,14 +920,16 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		}
 
-	glTexImage2D(GL_TEXTURE_2D,
-				 0,
-				 GL_RGBA,
-				 256, 256,
-				 0,
-				 GL_RGBA,
-				 GL_UNSIGNED_BYTE,
-				 texture_mem);
+	if(have_arb_compression)
+		{
+			if(have_s3_compression)
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			else
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+
+		}
+	else
+	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 
 	check_gl_errors();
 	free(texture_mem);

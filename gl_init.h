@@ -16,6 +16,8 @@ extern int use_vertex_array;
 extern int vertex_arrays_built;
 extern int have_compiled_vertex_array;
 extern int have_point_parameter;
+extern int have_arb_compression;
+extern int have_s3_compression;
 
 extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
@@ -42,5 +44,14 @@ int print_gl_errors(char *file, char *func, int line);
 #ifndef POINT_SIZE_MIN_ARB
 #define POINT_SIZE_MIN_ARB 0x8126
 #endif
+
+#ifndef COMPRESSED_RGBA_ARB
+#define COMPRESSED_RGBA_ARB				0x84EE
+#endif
+
+#ifndef COMPRESSED_RGBA_S3TC_DXT5_EXT
+#define COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
+#endif
+
 
 #endif
