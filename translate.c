@@ -30,7 +30,8 @@ char	tt_walk[30],
 	tt_mapwin[30],
 	tt_console[30],
 	tt_buddy[30],
-	tt_options[30];
+	tt_options[30],
+	tt_help[30];
 #endif
 /*! \} */
 
@@ -666,6 +667,8 @@ void init_help()
 	add_xml_identifier(tooltips,"console",tt_console,"View console",sizeof(tt_console));
 	add_xml_identifier(tooltips,"buddy",tt_buddy,"View buddy",sizeof(tt_buddy));
 	add_xml_identifier(tooltips,"opts",tt_options,"View options",sizeof(tt_options));
+	add_xml_identifier(tooltips,"help",tt_help,"View help",sizeof(tt_help));
+
 }
 #endif
 

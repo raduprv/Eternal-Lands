@@ -215,7 +215,9 @@ int HandleEvent(SDL_Event *event)
 				    if(sigil_win>0)
 				      hide_window(sigil_win);
 				    if(stats_win>0)
-				      hide_window(stats_win);				    
+				      hide_window(stats_win);
+					if(help_win>0)
+				      hide_window(stats_win);
 				    break;
 				  }
 
@@ -283,6 +285,12 @@ int HandleEvent(SDL_Event *event)
 				if(key==K_ENCYCLOPEDIA)
 					{
 						view_window(&encyclopedia_win,0);
+						break;
+					}
+				
+				if(key==K_HELP)
+					{
+						view_window(&help_win,0);
 						break;
 					}
 

@@ -199,7 +199,8 @@ extern char 	tt_walk[30],
 		tt_mapwin[30],
 		tt_console[30],
 		tt_buddy[30],
-		tt_options[30];
+		tt_options[30],
+		tt_help[30];
 #endif  //DOXYGEN_SKIP_THIS
 #endif  //ELC
 

@@ -203,6 +203,12 @@ float map_icon_v_start=1.0f-(float)128/256;
 float colored_map_icon_u_start=(float)160/256;
 float colored_map_icon_v_start=1.0f-(float)128/256;
 
+float help_icon_u_start=(float)224/256;
+float help_icon_v_start=1.0f-(float)128/256;
+
+float colored_help_icon_u_start=(float)192/256;
+float colored_help_icon_v_start=1.0f-(float)128/256;
+
 float console_icon_u_start=(float)32/256;
 float console_icon_v_start=1.0f-(float)0/256;
 
@@ -295,6 +301,8 @@ void init_peace_icons()
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 	
 	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &options_win, DATA_WINDOW);
+	
+	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &help_win, DATA_WINDOW);
 
 }
 
@@ -501,6 +509,7 @@ void view_window(int * window, int id)
 			else if(window==&encyclopedia_win) display_encyclopedia();
 			else if(window==&buddy_win) display_buddy();
 			else if(window==&trade_win) display_trade_menu();
+			else if(window==&help_win) display_help();
 		}
 	else toggle_window(*window);
 }

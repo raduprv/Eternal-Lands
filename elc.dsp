@@ -392,6 +392,10 @@ SOURCE=.\gl_init.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\help.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\hud.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"

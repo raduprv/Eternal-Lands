@@ -341,7 +341,6 @@ void display_objects()
 
 	check_gl_errors();
 	
-
 	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 	for(i=sx;i<=ex;i++)
 		for(j=sy;j<=ey;j++)
@@ -351,8 +350,7 @@ void display_objects()
 				if(l==-1)break;
 				object_id= objects_list[l];
 
-
-			if(object_id)
+				if(object_id)
 				{
 					int dist1, dist2;
 

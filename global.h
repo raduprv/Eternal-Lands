@@ -96,6 +96,7 @@
 #include "timers.h"
 #include "rules.h"
 #include "sector.h"
+#include "help.h"
 #ifdef BOOK
 #include "books.h"
 #endif

@@ -38,8 +38,9 @@ extern int encyclopedia_menu_x;
 extern int encyclopedia_menu_y;
 extern int encyclopedia_menu_x_len;
 extern int encyclopedia_menu_y_len;
-//extern int encyclopedia_menu_dragged;
-
+extern _Category Category[100];
+extern _Page Page[500];
+extern int numpage;
 
 void display_encyclopedia();
 int encyclopedia_mouse_over();
