@@ -138,6 +138,12 @@ int HandleEvent(SDL_Event *event)
 					}
 
 
+				if( event->key.keysym.sym == SDLK_g && ctrl_on)
+					{
+						get_updates();
+						break;
+					}
+
 				if( event->key.keysym.sym == SDLK_h && alt_on)
 					{
 						view_health_bar=!view_health_bar;

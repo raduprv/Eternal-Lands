@@ -722,3 +722,16 @@ void get_message_from_server()
 	goto try_get_message_again;
 }
 
+void get_updates()
+{
+	char servername[80];
+	char filepath_on_server[80];
+	char local_filepath[80];
+	FILE *fp;
+	strcpy(servername, "no-exit.org");
+	strcpy(filepath_on_server, "/el/files/testfile");
+	strcpy(local_filepath, "testfile");
+	fp = fopen(local_filepath, "w");
+	http_get_file(servername, filepath_on_server, fp);
+	fclose(fp);
+}

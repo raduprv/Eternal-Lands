@@ -34,6 +34,6 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, ch
 void process_message_from_server(unsigned char *in_data, int data_lenght);
 int recvpacket();
 void get_message_from_server();
-
+void get_updates();
 #endif
 
