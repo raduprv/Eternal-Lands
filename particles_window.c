@@ -194,14 +194,14 @@ void draw_velocity(float x,float y,float z,float x2,float y2,float z2)
 }
 
 static float preview_zoom=1.5;
-void display_particles_window_preview()
+void display_particles_window_preview(window_info *win)
 {
 	float save_cx=cx,save_cy=cy,save_cz=cz;
 	float save_rx=rx;
 	int save_view_particles=view_particles;
-	int viewx=particles_window_x+previewx+1;
+	int viewx=win->pos_x+previewx+1;
 	int vieww=previewx2-previewx-2;
-	int viewy=window_height-(particles_window_y+previewy2)+1;
+	int viewy=window_height-(win->pos_y+previewy2)+1;
 	int viewh=previewy2-previewy-2;
 
 	cx=-particles_list[part_sys]->x_pos;
@@ -339,7 +339,7 @@ void display_particles_window_preview()
 	view_particles=save_view_particles;
 }
 
-int display_particles_window_handler()
+int display_particles_window_handler(window_info *win)
 {
 	char temp[100];
 	char *preview_display_handle_strings[]={"Texture","Start position","Constraint","Start velocity","Acceleration"};
@@ -393,7 +393,7 @@ int display_particles_window_handler()
 	lock_particles_list();
 	check_particle_sys_alive();
 
-	display_particles_window_preview();
+	display_particles_window_preview(win);
 
 	snprintf(temp,99,"System type: %i",def.part_sys_type);
 	draw_string(systypex+2,systypey+2,temp,1);
@@ -591,14 +591,14 @@ int display_particles_window_handler()
 	return 1;
 }
 
-int check_particles_window_interface()
+int check_particles_window_interface(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y,tmp,i;
 	int minx,miny,minz,maxx,maxy,maxz;
 
-	if(!view_particles_window || mouse_x>particles_window_x+particles_window_x_len || mouse_x<particles_window_x || mouse_y<particles_window_y || mouse_y>particles_window_y+particles_window_y_len)return 0;
+	if(!view_particles_window || mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
 
-   	if(mouse_x>(particles_window_x+particles_window_x_len-20) && mouse_y<=particles_window_y+20)
+   	if(mouse_x>(win->pos_x+win->len_x-20) && mouse_y<=win->pos_y+20)
 	{
 		toggle_particles_window();
 		return 1;
@@ -608,8 +608,8 @@ int check_particles_window_interface()
 	lock_particles_list();
 	check_particle_sys_alive();
 
-	x=mouse_x-particles_window_x;
-	y=mouse_y-particles_window_y;
+	x=mouse_x-win->pos_x;
+	y=mouse_y-win->pos_y;
 
 	tmp=check_plus_minus_hit(systypex2,systypey,x,y);
 	if(tmp==1)def.part_sys_type++;
