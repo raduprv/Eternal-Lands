@@ -35,7 +35,7 @@ void free_pm_log()
 void go_afk()
 {
 	if(pm_log.ppl)free_pm_log();
-	log_to_console(c_green1,going_afk);
+	LOG_TO_CONSOLE(c_green1,going_afk);
 	if(!you_sit) 
 		{
 			Uint8 str[4];
@@ -72,20 +72,20 @@ void print_return_message()
 	char str[65];
 	int m=-1;
 
-	log_to_console(c_green1,not_afk);
+	LOG_TO_CONSOLE(c_green1,not_afk);
 	if(pm_log.ppl && pm_log.msgs)
 		{
 			snprintf(str,60,new_messages,pm_log.msgs);
-			log_to_console(c_green2,str);
+			LOG_TO_CONSOLE(c_green2,str);
 			print_title("#",afk_names,afk_messages);
-			log_to_console(c_green2,afk_title);
+			LOG_TO_CONSOLE(c_green2,afk_title);
 			while(++m<pm_log.ppl)
 				{
 					char name[35];
 					sprintf(name,"%2d: %16s         %2d",m+1,pm_log.afk_msgs[m].name,pm_log.afk_msgs[m].msgs);
-					log_to_console(c_green2,name);
+					LOG_TO_CONSOLE(c_green2,name);
 				}
-			log_to_console(c_green2,afk_print_help);
+			LOG_TO_CONSOLE(c_green2,afk_print_help);
 		}
 }
 
@@ -94,7 +94,7 @@ void print_message(int no)
 	int m=-1;
 
 	while(++m<pm_log.afk_msgs[no].msgs)
-		log_to_console(c_blue1,pm_log.afk_msgs[no].messages[m]);
+		LOG_TO_CONSOLE(c_blue1,pm_log.afk_msgs[no].messages[m]);
 }
 
 int have_name(char *name, int len)

@@ -108,7 +108,7 @@ void connect_to_server()
 			my_socket=0;
 		}
 
-	log_to_console(c_red1,connect_to_server_str);
+	LOG_TO_CONSOLE(c_red1,connect_to_server_str);
 	draw_scene();	// update the screen
 	set=SDLNet_AllocSocketSet(1);
 	if(!set)
@@ -124,7 +124,7 @@ void connect_to_server()
 
 	if(SDLNet_ResolveHost(&ip,server_address,port)==-1)
 		{
-			log_to_console(c_red2,failed_resolve);
+			LOG_TO_CONSOLE(c_red2,failed_resolve);
 			return;
 		}
 
@@ -136,14 +136,14 @@ void connect_to_server()
 			   && server_address[3]=='.' && server_address[4]=='1' && server_address[5]=='6'
 			   && server_address[6]=='8')
 			  	{
-			   		log_to_console(c_red1,license_check);
-					log_to_console(c_red1,alt_x_quit);
+			   		LOG_TO_CONSOLE(c_red1,license_check);
+					LOG_TO_CONSOLE(c_red1,alt_x_quit);
 				}
 			else
 				{
-					log_to_console(c_red1,failed_connect);
-					log_to_console(c_red1,reconnect_str);
-					log_to_console(c_red1,alt_x_quit);
+					LOG_TO_CONSOLE(c_red1,failed_connect);
+					LOG_TO_CONSOLE(c_red1,reconnect_str);
+					LOG_TO_CONSOLE(c_red1,alt_x_quit);
 				}
             return;
 		}
@@ -295,7 +295,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				if(data_lenght > 3)
 					{
 						//how to display it
-						if(interface_mode!=interface_opening)
+						if(interface_mode!=INTERFACE_OPENING)
 							put_text_in_buffer(&in_data[3],data_lenght-3,0);
 						else put_text_in_buffer(&in_data[3],data_lenght-3,54);
 						//lets log it
@@ -370,7 +370,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				newchar_win = -1;
 				show_window (game_win);
 #endif
-				interface_mode=interface_game;
+				interface_mode=INTERFACE_GAME;
 				previously_logged_in=1;
 			}
 			break;
@@ -462,7 +462,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				rain_sound=0;//kill local sounds also kills the rain sound
 				weather_light_offset=0;
 				rain_light_offset=0;
-				if(interface_mode==interface_map||interface_mode==interface_cont){
+				if(interface_mode==INTERFACE_MAP||interface_mode==INTERFACE_CONT){
 					switch_from_game_map();
 				}
 				{ 
@@ -634,21 +634,21 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 				Uint8 str[160];
 				sprintf(str,"%s: %i MS",server_latency, SDL_GetTicks()-*((Uint32 *)(in_data+3)));
-				log_to_console(c_green1,str);
+				LOG_TO_CONSOLE(c_green1,str);
 			}
 			break;
 
 		case UPGRADE_NEW_VERSION:
 			{
-				log_to_console(c_red1,update_your_client);
-				log_to_console(c_red1,(char*)web_update_address);
+				LOG_TO_CONSOLE(c_red1,update_your_client);
+				LOG_TO_CONSOLE(c_red1,(char*)web_update_address);
 			}
 			break;
 
 		case UPGRADE_TOO_OLD:
 			{
-				log_to_console(c_red1,client_ver_not_supported);
-				log_to_console(c_red1,(char*)web_update_address);
+				LOG_TO_CONSOLE(c_red1,client_ver_not_supported);
+				LOG_TO_CONSOLE(c_red1,(char*)web_update_address);
 				this_version_is_invalid=1;
 			}
 			break;
@@ -916,7 +916,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 						create_newchar_window ();
 						show_window (newchar_win);
 #endif
-						interface_mode = interface_new_char;
+						interface_mode = INTERFACE_NEW_CHAR;
 						connect_to_server();
 						break;
 					default:
@@ -970,10 +970,10 @@ static void process_data_from_server()
 					break;
 			}
 			else { /* sizeof (in_data) - 3 < size */
-				log_to_console(c_red2, packet_overrun);
+				LOG_TO_CONSOLE(c_red2, packet_overrun);
 	    
-				log_to_console(c_red2, disconnected_from_server);
-				log_to_console(c_red2, alt_x_quit);
+				LOG_TO_CONSOLE(c_red2, disconnected_from_server);
+				LOG_TO_CONSOLE(c_red2, alt_x_quit);
 				in_data_used = 0;
 				disconnected = 1;
 			}
@@ -998,10 +998,10 @@ void get_message_from_server()
 		}
 		else { /* 0 >= received (EOF or some error) */
 			if (received)
-				log_to_console(c_red2, SDLNet_GetError()); //XXX: SDL[Net]_GetError used by timer thread ? i bet its not reentrant...
+				LOG_TO_CONSOLE(c_red2, SDLNet_GetError()); //XXX: SDL[Net]_GetError used by timer thread ? i bet its not reentrant...
 		 
-			log_to_console(c_red2, disconnected_from_server);
-			log_to_console(c_red2, alt_x_quit);
+			LOG_TO_CONSOLE(c_red2, disconnected_from_server);
+			LOG_TO_CONSOLE(c_red2, alt_x_quit);
 			in_data_used = 0;
 			disconnected = 1;
 		}

@@ -11,7 +11,7 @@
  *      defines the max. number of entries in ignore_list
  */
 /*! @{ */
-#define max_ignores 1000
+#define MAX_IGNORES 1000
 /*! @} */
 
 /*!
@@ -23,7 +23,7 @@ typedef struct
 	char used; /*! flag, indicating whether this ignore_slot is in use or not */
 }ignore_slot;
 
-extern ignore_slot ignore_list[max_ignores]; /*!< global array of names to ignore */
+extern ignore_slot ignore_list[MAX_IGNORES]; /*!< global array of names to ignore */
 extern int ignored_so_far; /*!< number of players ignored so far in this execution */
 extern int save_ignores; /*!< flag, inidicating whether the ignores should be persisted between different executions. */
 extern int use_global_ignores; /*!< flag, indicating whether to use global ignores file or not */

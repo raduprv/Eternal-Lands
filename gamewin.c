@@ -17,7 +17,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 	{
 		int i;
 		
-		if(action_mode==action_look)
+		if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
@@ -28,7 +28,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 			elwin_mouse = CURSOR_PICK;
 		}
 
-		else if(action_mode==action_use)
+		else if(action_mode==ACTION_USE)
 		{
 			elwin_mouse = CURSOR_USE;
 		}
@@ -57,7 +57,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 				}
 			}
 		
-			if(action_mode==action_use_witem)
+			if(action_mode==ACTION_USE_WITEM)
 			{
 				elwin_mouse = CURSOR_USE_WITEM;
 			}
@@ -72,7 +72,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 
 	else if(thing_under_the_mouse==UNDER_MOUSE_NPC)
 	{
-		if(action_mode==action_look)
+		if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
@@ -85,22 +85,22 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 
 	else if(thing_under_the_mouse==UNDER_MOUSE_PLAYER)
 	{
-		if(action_mode==action_use)
+		if(action_mode==ACTION_USE)
 		{
 			elwin_mouse = CURSOR_USE;
 		}      
 
-		else if(action_mode==action_look)
+		else if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
 
-		else if(action_mode==action_trade)
+		else if(action_mode==ACTION_TRADE)
 		{
 			elwin_mouse = CURSOR_TRADE;
 		}
 
-		else if(alt_on || action_mode==action_attack)
+		else if(alt_on || action_mode==ACTION_ATTACK)
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -113,12 +113,12 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 
 	else if(thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
 	{
-		if(action_mode==action_use)
+		if(action_mode==ACTION_USE)
 		{
 			elwin_mouse = CURSOR_USE;
 		}      
 		
-		else if(action_mode==action_look)
+		else if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
@@ -128,7 +128,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 			elwin_mouse = CURSOR_EYE;
 		}
 
-		else if(alt_on || action_mode==action_attack || (actor_under_mouse && !actor_under_mouse->dead))
+		else if(alt_on || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -158,50 +158,50 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			{
 				use_item = -1;
 				item_dragged = -1;
-				action_mode = action_walk;
+				action_mode = ACTION_WALK;
 				return 1;
 			}
 			switch (current_cursor) 
 			{
 				case CURSOR_EYE:
 					if (thing_under_the_mouse == UNDER_MOUSE_PLAYER)
-						action_mode = action_trade;
+						action_mode = ACTION_TRADE;
 					else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
-						action_mode = action_use;
+						action_mode = ACTION_USE;
 					else
-						action_mode = action_walk;
+						action_mode = ACTION_WALK;
 					break;
 				case CURSOR_HARVEST:
-					action_mode = action_look;
+					action_mode = ACTION_LOOK;
 					break;
 				case CURSOR_TRADE:
-					action_mode = action_attack;
+					action_mode = ACTION_ATTACK;
 					break;
 				case CURSOR_USE_WITEM:
 					if(use_item != -1)
 						use_item = -1;
 					else
-						action_mode = action_walk;
+						action_mode = ACTION_WALK;
 					break;
 				case CURSOR_ATTACK:
 					if(thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
-						action_mode = action_look;
+						action_mode = ACTION_LOOK;
 					else
-						action_mode = action_walk;
+						action_mode = ACTION_WALK;
 					break;
 				case CURSOR_ENTER:
 				case CURSOR_PICK:
 				case CURSOR_WALK:
 					if(thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
-						action_mode = action_look;
+						action_mode = ACTION_LOOK;
 					else
-						action_mode = action_walk;
+						action_mode = ACTION_WALK;
 					break;
 				case CURSOR_USE:
 				case CURSOR_TALK:
 				case CURSOR_ARROW:
 				default:
-					action_mode = action_walk;
+					action_mode = ACTION_WALK;
 					break;
 			}
 			return 1;
@@ -350,7 +350,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			{
 				*((int *)(str+5)) = item_list[use_item].pos;
 				use_item = -1;
-				action_mode = action_walk;
+				action_mode = ACTION_WALK;
 			} 
 			else
 			{
@@ -487,7 +487,7 @@ int display_game_handler (window_info *win)
 
 	CalculateFrustum ();
 	any_reflection = find_reflection ();
-	check_gl_errors ();
+	CHECK_GL_ERRORS ();
 
 	// are we actively drawing things?
 	if (SDL_GetAppState() & SDL_APPACTIVE)
@@ -501,11 +501,11 @@ int display_game_handler (window_info *win)
 			draw_dungeon_light ();
 		update_scene_lights ();
 		draw_lights ();
-		check_gl_errors ();
+		CHECK_GL_ERRORS ();
 
 		if (!dungeon && shadows_on && is_day) 
 			render_light_view();
-		check_gl_errors ();
+		CHECK_GL_ERRORS ();
 
 		//check for network data
 		get_message_from_server ();
@@ -517,10 +517,10 @@ int display_game_handler (window_info *win)
 				draw_sky_background ();
 		  	else 
 				draw_dungeon_sky_background ();
-			check_gl_errors ();
+			CHECK_GL_ERRORS ();
 			if (show_reflection) display_3d_reflection ();
 		}
-		check_gl_errors ();
+		CHECK_GL_ERRORS ();
 
 		//check for network data - reduces resyncs
 		get_message_from_server ();
@@ -534,15 +534,15 @@ int display_game_handler (window_info *win)
 			glNormal3f (0.0f,0.0f,1.0f);
 			if (any_reflection) draw_lake_tiles ();
 			draw_tile_map ();
-			check_gl_errors ();
+			CHECK_GL_ERRORS ();
 			display_2d_objects ();
-			check_gl_errors ();
+			CHECK_GL_ERRORS ();
 			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
 			display_objects ();
 			display_actors ();
 		}
 		glDisable (GL_FOG);
-		check_gl_errors ();
+		CHECK_GL_ERRORS ();
 
 		//check for network data - reduces resyncs
 		get_message_from_server ();
@@ -552,7 +552,7 @@ int display_game_handler (window_info *win)
 		display_actors ();	// we need to 'touch' all the actors even if not drawing to avoid problems
 	}
 
-	check_gl_errors ();
+	CHECK_GL_ERRORS ();
 
 	//check for network data - reduces resyncs
 	get_message_from_server ();
@@ -569,9 +569,9 @@ int display_game_handler (window_info *win)
 
 	//particles should be last, we have no Z writting
 	display_particles ();
-	check_gl_errors ();
+	CHECK_GL_ERRORS ();
 	if (is_raining) render_rain ();
-	check_gl_errors ();
+	CHECK_GL_ERRORS ();
 	//we do this because we don't want the rain/particles to mess with our cursor
 
 	Enter2DMode ();
@@ -614,7 +614,7 @@ int display_game_handler (window_info *win)
 		draw_string (10, 0, str, 1);
 	}
 
-	check_gl_errors ();
+	CHECK_GL_ERRORS ();
 	if (!use_windowed_chat && find_last_lines_time ())
 	{
 		set_font(chat_font);	// switch to the chat font
@@ -623,11 +623,11 @@ int display_game_handler (window_info *win)
 	}
 	
 	anything_under_the_mouse (0, UNDER_MOUSE_NO_CHANGE);
-	check_gl_errors ();
+	CHECK_GL_ERRORS ();
 
 	draw_ingame_interface ();
 	
-	check_gl_errors ();
+	CHECK_GL_ERRORS ();
 	// print the text line we are currently writting (if any)
 	y_line = window_height - (17 * (4+input_text_lines));
 	switch(map_type)
@@ -875,15 +875,15 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	// set action modes
 	else if (key == K_WALK)
 	{
-		item_action_mode = qb_action_mode = action_mode = action_walk;
+		item_action_mode = qb_action_mode = action_mode = ACTION_WALK;
 	}
 	else if (key == K_LOOK)
 	{
-		item_action_mode = qb_action_mode = action_mode = action_look;
+		item_action_mode = qb_action_mode = action_mode = ACTION_LOOK;
 	}
 	else if (key == K_USE)
 	{
-		item_action_mode = qb_action_mode = action_mode = action_use;
+		item_action_mode = qb_action_mode = action_mode = ACTION_USE;
 	}
 	// Roja likes to rotate the camera while in console mode :)
 	else if (key == K_ROTATELEFT)
@@ -1071,7 +1071,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		{
 			hide_window (game_win);
 			show_window (map_win);
-			interface_mode = interface_map;
+			interface_mode = INTERFACE_MAP;
 		}
 	}
 	// TEST REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!
@@ -1128,7 +1128,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		{
 			hide_window (game_win);
 			show_window (console_win);
-			interface_mode = interface_console;
+			interface_mode = INTERFACE_CONSOLE;
 		}
 		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
 		{

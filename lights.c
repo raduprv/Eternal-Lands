@@ -2,12 +2,12 @@
 #include "global.h"
 #include <math.h>
 
-GLfloat global_lights[global_lights_no][4];
+GLfloat global_lights[GLOBAL_LIGHTS_NO][4];
 
-GLfloat sky_lights_c1[global_lights_no*2][4];
-GLfloat sky_lights_c2[global_lights_no*2][4];
-GLfloat sky_lights_c3[global_lights_no*2][4];
-GLfloat sky_lights_c4[global_lights_no*2][4];
+GLfloat sky_lights_c1[GLOBAL_LIGHTS_NO*2][4];
+GLfloat sky_lights_c2[GLOBAL_LIGHTS_NO*2][4];
+GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
+GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 
 GLfloat light_0_position[4];
 GLfloat light_0_diffuse[4];
@@ -37,7 +37,7 @@ GLfloat light_6_position[4];
 GLfloat light_6_diffuse[4];
 GLfloat light_6_dist;
 
-light *lights_list[max_lights];
+light *lights_list[MAX_LIGHTS];
 unsigned char light_level=58;
 sun sun_pos[60*3];
 short game_minute=60;
@@ -128,7 +128,7 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 	new_light->b=b*intensity;
 
 	//find a free spot, in the lights list
-	for(i=0;i<max_lights;i++)
+	for(i=0;i<MAX_LIGHTS;i++)
 		{
 			if(!lights_list[i])
 				{
@@ -171,7 +171,7 @@ void update_scene_lights()
 
 	light_6_diffuse[0]=0;light_6_diffuse[1]=0;light_6_diffuse[2]=0;light_6_diffuse[3]=1.0;
 
-	for(i=0;i<max_lights;i++)
+	for(i=0;i<MAX_LIGHTS;i++)
 		{
 			if(lights_list[i])
 				{

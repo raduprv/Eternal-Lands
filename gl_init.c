@@ -101,7 +101,7 @@ void setup_video_mode()
 					{
 						Uint8 str[100];
 						sprintf(str,window_size_adjusted_str,"640x480");
-						log_to_console(c_yellow1,str);
+						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=640;
 				window_height=480;
@@ -112,7 +112,7 @@ void setup_video_mode()
 					{
 						Uint8 str[100];
 						sprintf(str,window_size_adjusted_str,"780x550");
-						log_to_console(c_yellow1,str);
+						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=780;
 				window_height=550;
@@ -123,7 +123,7 @@ void setup_video_mode()
 					{
 						Uint8 str[100];
 						sprintf(str,window_size_adjusted_str,"990x720");
-						log_to_console(c_yellow1,str);
+						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=990;
 				window_height=720;
@@ -134,7 +134,7 @@ void setup_video_mode()
 					{
 						Uint8 str[100];
 						sprintf(str,window_size_adjusted_str,"1070x785");
-						log_to_console(c_yellow1,str);
+						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=1070;
 				window_height=785;
@@ -145,7 +145,7 @@ void setup_video_mode()
 					{
 						Uint8 str[100];
 						sprintf(str,window_size_adjusted_str,"1250x990");
-						log_to_console(c_yellow1,str);
+						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=1250;
 				window_height=990;
@@ -173,7 +173,7 @@ void check_gl_mode()
 			char vid_mode_str[25];
 			sprintf(vid_mode_str,"%ix%ix%i",window_width,window_height,bpp);
 			sprintf(str,no_stencil_str,vid_mode_str);
-			log_to_console(c_red1,str);
+			LOG_TO_CONSOLE(c_red1,str);
 
 			SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
 			have_stencil=0;
@@ -194,7 +194,7 @@ void check_gl_mode()
 
 					sprintf(vid_mode_str,"%ix%ix%i",old_width,old_height,old_bpp);
 					sprintf(str,safemode_str,vid_mode_str);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 
 					full_screen=1;
 					video_mode=2;
@@ -276,8 +276,8 @@ void init_video()
 	//try to find a stencil buffer (it doesn't always work on Linux)
 	if(!SDL_SetVideoMode(window_width, window_height, bpp, flags))
     	{
-			log_to_console(c_red1,no_hardware_stencil_str);
-			if(bpp!=32)log_to_console(c_grey1,suggest_24_or_32_bit);
+			LOG_TO_CONSOLE(c_red1,no_hardware_stencil_str);
+			if(bpp!=32)LOG_TO_CONSOLE(c_grey1,suggest_24_or_32_bit);
 			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
 			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 			if(!SDL_SetVideoMode( window_width, window_height, bpp, flags))
@@ -303,7 +303,7 @@ void init_video()
 		have_hardware=get_string_occurance("gdi generic",my_string,len,0);
 		if(have_hardware==-1)goto all_ok;
 		//let the user know there is a problem
-		log_to_console(c_red1,stencil_falls_back_on_software_accel);
+		LOG_TO_CONSOLE(c_red1,stencil_falls_back_on_software_accel);
 		//first, shut down this mode we have now.
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
 		SDL_Init(SDL_INIT_VIDEO);//restart SDL
@@ -324,7 +324,7 @@ void init_video()
 		if(have_hardware==-1)goto all_ok;
 		//wtf, this really shouldn't happen....
 		//let's try a default mode, maybe Quake 2's mode, and pray it works
-		log_to_console(c_red1,last_chance_str);
+		LOG_TO_CONSOLE(c_red1,last_chance_str);
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
 		SDL_Init(SDL_INIT_VIDEO);//restart SDL
 		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
@@ -348,7 +348,7 @@ void init_video()
 		if(have_hardware==-1)goto all_ok;
 		//wtf, this really shouldn't happen....
 		//let's try a default mode, maybe Quake 2's mode, and pray it works
-		log_to_console(c_red1,software_mode_str);
+		LOG_TO_CONSOLE(c_red1,software_mode_str);
 
 
 	all_ok:;
@@ -405,19 +405,19 @@ void init_gl_extensions()
 			if(have_multitexture==-1)
 				{
 					have_multitexture=0;
-					log_to_console(c_red1,gl_ext_no_multitexture);
+					LOG_TO_CONSOLE(c_red1,gl_ext_no_multitexture);
 				}
 			else
 				{
 					glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB,&have_multitexture);
 					sprintf(str,gl_ext_found,"GL_ARB_multitexture");
-					log_to_console(c_green2,str);
+					LOG_TO_CONSOLE(c_green2,str);
 				}
 		}
 	else
 		{
 			have_multitexture=0;
-			log_to_console(c_red1,gl_ext_no_multitexture);
+			LOG_TO_CONSOLE(c_red1,gl_ext_no_multitexture);
 		}
 	if(ELglLockArraysEXT && ELglUnlockArraysEXT)
 		{
@@ -426,19 +426,19 @@ void init_gl_extensions()
 				{
 					have_compiled_vertex_array=0;
 					sprintf(str,gl_ext_not_found,"GL_EXT_compiled_vertex_array");
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 				}
 			else 
 				{
 					sprintf(str,gl_ext_found,"GL_EXT_compiled_vertex_array");
-					log_to_console(c_green2,str);
+					LOG_TO_CONSOLE(c_green2,str);
 				}
 		}
 	else
 		{
 			have_compiled_vertex_array=0;
 			sprintf(str,gl_ext_not_found,"GL_EXT_compiled_vertex_array");
-			log_to_console(c_red1,str);
+			LOG_TO_CONSOLE(c_red1,str);
 
 		}
 
@@ -447,19 +447,19 @@ void init_gl_extensions()
 			{
 				have_point_sprite=0;
 				sprintf(str,gl_ext_not_found,"GL_*_point_sprite");
-				log_to_console(c_red1,str);
+				LOG_TO_CONSOLE(c_red1,str);
 			}
 		else if(!use_point_particles)
 			{
 				have_point_sprite=0;
 				sprintf(str,gl_ext_found_not_used,"GL_*_point_sprite");
-				log_to_console(c_green2,str);
+				LOG_TO_CONSOLE(c_green2,str);
 			}
 		else 
 			{
 				have_point_sprite=1;
 				sprintf(str,gl_ext_found,"GL_*_point_sprite");
-				log_to_console(c_green2,str);
+				LOG_TO_CONSOLE(c_green2,str);
 			}
 		have_arb_compression=get_string_occurance("GL_ARB_texture_compression",extensions,ext_str_len,0);
 
@@ -468,7 +468,7 @@ void init_gl_extensions()
 			{
 				have_arb_compression=1;
 				sprintf(str,gl_ext_found,"GL_ARB_texture_compression");
-				log_to_console(c_green2,str);
+				LOG_TO_CONSOLE(c_green2,str);
 			}
 		have_s3_compression=get_string_occurance("GL_EXT_texture_compression_s3tc",extensions,ext_str_len,0);
 		if(have_s3_compression<0) have_s3_compression=0;
@@ -476,7 +476,7 @@ void init_gl_extensions()
 			{
 				have_s3_compression=1;
 				sprintf(str,gl_ext_found,"GL_EXT_texture_compression_s3tc");
-				log_to_console(c_green2,str);
+				LOG_TO_CONSOLE(c_green2,str);
 			}
 
 		have_sgis_generate_mipmap=get_string_occurance("GL_SGIS_generate_mipmap",extensions,ext_str_len,0);
@@ -485,19 +485,19 @@ void init_gl_extensions()
 				have_sgis_generate_mipmap=0;
 				use_mipmaps=0;
 				sprintf(str,gl_ext_not_found,"GL_SGIS_generate_mipmap");
-				log_to_console(c_red1,str);
+				LOG_TO_CONSOLE(c_red1,str);
 			}
 		else if(!use_mipmaps)
 			{
 				have_sgis_generate_mipmap=0;
 				sprintf(str,gl_ext_found_not_used,"GL_SGIS_generate_mipmap");
-				log_to_console(c_green2,str);
+				LOG_TO_CONSOLE(c_green2,str);
 			}
 		else 
 			{
 				have_sgis_generate_mipmap=1;
 				sprintf(str,gl_ext_found,"GL_SGIS_generate_mipmap");
-				log_to_console(c_green2,str);
+				LOG_TO_CONSOLE(c_green2,str);
 			}
 
 		have_arb_shadow=get_string_occurance("GL_ARB_shadow",extensions,ext_str_len,0);
@@ -506,16 +506,16 @@ void init_gl_extensions()
 			{
 				have_arb_shadow=1;
 				sprintf(str,gl_ext_found,"GL_ARB_shadow");
-				log_to_console(c_green2,str);
+				LOG_TO_CONSOLE(c_green2,str);
 			}
 
 		if((have_multitexture<3 || !have_arb_shadow) && use_shadow_mapping)
 			{
 				use_shadow_mapping=0;
-				log_to_console(c_red1,disabled_shadow_mapping);
+				LOG_TO_CONSOLE(c_red1,disabled_shadow_mapping);
 			}
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 void resize_root_window()

@@ -3,8 +3,8 @@
  * \ingroup display_2d
  * \brief loading, handling and displaying MD2 files.
  */
-#ifndef __file_md2_H__
-#define __file_md2_H__
+#ifndef __FILE_MD2_H__
+#define __FILE_MD2_H__
 
 /*!
  * Contains the header information of an MD2 file

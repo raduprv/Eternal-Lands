@@ -293,8 +293,8 @@ void pf_move_to_mouse_position()
 	//if(mouse_x>map_icon_x_start && mouse_y>map_icon_y_start &&
 	//		mouse_x<map_icon_x_end && mouse_y<map_icon_y_end)
 	//	{
-	//		if(interface_mode==interface_game)switch_to_game_map();
-	//					else if(interface_mode==interface_map)switch_from_game_map();
+	//		if(interface_mode==INTERFACE_GAME)switch_to_game_map();
+	//					else if(interface_mode==INTERFACE_MAP)switch_from_game_map();
 	//		return;
 	//}
 

@@ -412,7 +412,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 							}
 						if(i<ITEM_NUM_ITEMS && item_list[i].quantity)
 							{
-								if(action_mode==action_look || right_click)
+								if(action_mode==ACTION_LOOK || right_click)
 									{
 										str[0]=LOOK_AT_INVENTORY_ITEM;
 										str[1]=item_list[i].pos;
@@ -445,7 +445,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(your_trade_list[y*4+x].quantity)
 						{
 
-							if(action_mode==action_look || right_click)
+							if(action_mode==ACTION_LOOK || right_click)
 								{
 									str[0]=LOOK_AT_TRADE_ITEM;
 									str[1]=y*4+x;
@@ -479,7 +479,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(others_trade_list[y*4+x].quantity)
 						{
 
-							if(action_mode==action_look || right_click)
+							if(action_mode==ACTION_LOOK || right_click)
 								{
 									str[0]=LOOK_AT_TRADE_ITEM;
 									str[1]=y*4+x;
@@ -517,7 +517,7 @@ int mouseover_trade_handler(window_info *win, int mx, int my) {
 							}
 						if(i<ITEM_NUM_ITEMS && item_list[i].quantity)
 							{
-								if(action_mode==action_look) {
+								if(action_mode==ACTION_LOOK) {
 									elwin_mouse=CURSOR_EYE;
 									return 1;
 								} else
@@ -534,7 +534,7 @@ int mouseover_trade_handler(window_info *win, int mx, int my) {
 					{
 						if(your_trade_list[y*4+x].quantity)
 							{
-								if(action_mode==action_look) {
+								if(action_mode==ACTION_LOOK) {
 									elwin_mouse=CURSOR_EYE;
 									return 1;
 								} else
@@ -551,7 +551,7 @@ int mouseover_trade_handler(window_info *win, int mx, int my) {
 					{
 						if(others_trade_list[y*4+x].quantity)
 							{
-								if(action_mode==action_look) {
+								if(action_mode==ACTION_LOOK) {
 									elwin_mouse=CURSOR_EYE;
 									return 1;
 								} else

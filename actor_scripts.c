@@ -273,7 +273,7 @@ void move_to_next_frame()
 	int numFrames;
 	char frame_exists;
 
-	lock_actors_lists();
+	LOCK_ACTORS_LISTS();
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i]!=0)
@@ -370,14 +370,14 @@ void move_to_next_frame()
 					sprintf(actors_list[i]->cur_frame, "%s",frame_name);
 				}
 		}
-	unlock_actors_lists();
+	UNLOCK_ACTORS_LISTS();
 }
 
 void animate_actors()
 {
 	int i;
 	// lock the actors_list so that nothing can interere with this look
-	lock_actors_lists();	//lock it to avoid timing issues
+	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -464,7 +464,7 @@ void animate_actors()
 				}
 		}
 	// unlock the actors_list since we are done now
-	unlock_actors_lists();
+	UNLOCK_ACTORS_LISTS();
 }
 
 
@@ -476,7 +476,7 @@ void next_command()
 	int i;
 	int max_queue=0;
 
-	lock_actors_lists();
+	LOCK_ACTORS_LISTS();
 	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])continue;//actor exists?
@@ -733,7 +733,7 @@ void next_command()
 						}
 				}
 		}
-	unlock_actors_lists();
+	UNLOCK_ACTORS_LISTS();
 	if(max_queue >= 4)my_timer_adjust+=6+(max_queue-4);	//speed up the timer clock if we are building up too much
 }
 
@@ -750,7 +750,7 @@ void destroy_actor(int actor_id)
 			if(actors_list[i])//The timer thread doesn't free memory
 				if(actors_list[i]->actor_id==actor_id)
 					{
-						lock_actors_lists();
+						LOCK_ACTORS_LISTS();
 						if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
 						if(actors_list[i]->is_enhanced_model)
 							{
@@ -767,7 +767,7 @@ void destroy_actor(int actor_id)
 								actors_list[i]=actors_list[max_actors];
 								actors_list[max_actors]=NULL;
 						}
-						unlock_actors_lists();
+						UNLOCK_ACTORS_LISTS();
 						break;
 					}
 		}
@@ -777,7 +777,7 @@ void destroy_all_actors()
 {
 	int i=0;
 	actor *to_free;
-	lock_actors_lists();	//lock it to avoid timing issues
+	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -794,7 +794,7 @@ void destroy_all_actors()
 				}
 		}
 	max_actors=0;
-	unlock_actors_lists();	//unlock it since we are done
+	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
 }
 
 
@@ -805,7 +805,7 @@ void update_all_actors()
 	Uint8 str[40];
 
 	//we got a nasty error, log it
-	log_to_console(c_red2,resync_server);
+	LOG_TO_CONSOLE(c_red2,resync_server);
 
 	destroy_all_actors();
 	str[0]=SEND_ME_MY_ACTORS;
@@ -826,7 +826,7 @@ void add_command_to_actor(int actor_id, char command)
 			if(actors_list[i])
 				if(actors_list[i]->actor_id==actor_id)//The timer thread can't free so this should be np...
 					{
-						lock_actors_lists();
+						LOCK_ACTORS_LISTS();
 						for(k=0;k<10;k++)
 							{
 								if(actors_list[i]->que[k]==nothing)
@@ -863,7 +863,7 @@ void add_command_to_actor(int actor_id, char command)
 										break;
 									}
 							}
-						unlock_actors_lists();
+						UNLOCK_ACTORS_LISTS();
 						have_actor=1;
 						break;
 					}
@@ -882,7 +882,7 @@ void add_command_to_actor(int actor_id, char command)
 			//if we got here, it means we don't have this actor, so get it from the server...
 			char	str[256];
 			sprintf(str, "%s %d - %d\n", cant_add_command, command, actor_id);
-			LogError(str);
+			LOG_ERROR(str);
 		}
 	else if (k>8)
 		{
@@ -943,7 +943,7 @@ void move_self_forward()
 		{
 			if(actors_list[i] && actors_list[i]->actor_id==yourself)
 				{
-					lock_actors_lists();
+					LOCK_ACTORS_LISTS();
 					x=actors_list[i]->x_tile_pos;
 					y=actors_list[i]->y_tile_pos;
 					rot=actors_list[i]->z_rot;
@@ -998,7 +998,7 @@ void move_self_forward()
 					*((short *)(str+3))=ty;
 
 					my_tcp_send(my_socket,str,5);
-					unlock_actors_lists();
+					UNLOCK_ACTORS_LISTS();
 					return;
 				}
 		}
@@ -1017,7 +1017,7 @@ int find_description_index (const dict_elem dict[], const char *elem, const char
 	}
 
 	snprintf (errmsg, sizeof (errmsg), "Unknown %s \"%s\"\n", desc, elem);
-	LogError (errmsg);
+	LOG_ERROR(errmsg);
 	return -1;
 }
 
@@ -1051,7 +1051,7 @@ int get_property (xmlNode *node, const char *prop, const char *desc, const dict_
 	}
 	
 	snprintf (errmsg, sizeof(errmsg), "Unable to find property %s in node %s\n", prop, node->name);
-	LogError (errmsg);
+	LOG_ERROR(errmsg);
 	return -1;
 }
 
@@ -1078,7 +1078,7 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 				get_string_value (shirt->torso_name, sizeof (shirt->torso_name), item);
 			} else {
 				snprintf (errmsg, sizeof (errmsg), "unknown shirt property \"%s\"", item->name);
-				LogError (errmsg);
+				LOG_ERROR(errmsg);
 				ok = 0;
 			}
 		}
@@ -1108,7 +1108,7 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg) {
 				get_string_value (skin->head_name, sizeof (skin->head_name), item);
 			} else {
 				snprintf (errmsg, sizeof (errmsg), "unknown skin property \"%s\"", item->name);
-				LogError (errmsg);
+				LOG_ERROR(errmsg);
 				ok = 0;
 			}
 		}
@@ -1142,7 +1142,7 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 				legs->glow = mode;
 			} else {
 				snprintf (errmsg, sizeof (errmsg), "unknown legs property \"%s\"", item->name);
-				LogError (errmsg);
+				LOG_ERROR(errmsg);
 				ok = 0;
 			}
 		}
@@ -1184,7 +1184,7 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 				weapon->glow = mode;
 			} else {
 				snprintf (errmsg, sizeof (errmsg), "unknown weapon property \"%s\"", item->name);
-				LogError (errmsg);
+				LOG_ERROR(errmsg);
 				ok = 0;
 			}
 		}
@@ -1212,7 +1212,7 @@ int parse_actor_body_part (body_part *part, xmlNode *cfg, const char *part_name)
 				part->glow = mode;
 			} else {
 				snprintf (errmsg, sizeof (errmsg), "unknown %s property \"%s\"", part_name, item->name);
-				LogError (errmsg);
+				LOG_ERROR(errmsg);
 				ok = 0;
 			}
 		}
@@ -1346,7 +1346,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 				get_string_value (act->attack_down_2_frame, sizeof (act->attack_down_2_frame), item);
 			} else {
 				snprintf (errmsg, sizeof (errmsg), "unknown frame property \"%s\"", item->name);
-				LogError (errmsg);
+				LOG_ERROR(errmsg);
 				ok = 0;
 			}
 		}
@@ -1378,7 +1378,7 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg) {
 				boots->glow = mode;
 			} else {
 				snprintf (errmsg, sizeof (errmsg), "unknown legs property \"%s\"", item->name);
-				LogError (errmsg);
+				LOG_ERROR(errmsg);
 				ok = 0;
 			}
 		}
@@ -1436,7 +1436,7 @@ int parse_actor_script (xmlNode *cfg) {
 				act->run_speed = get_float_value (item);
 			} else {
 				snprintf (errmsg, sizeof (errmsg), "Unknown actor attribute \"%s\"", item->name);
-				LogError (errmsg);
+				LOG_ERROR(errmsg);
 				ok = 0;
 			}
 		}
@@ -1454,7 +1454,7 @@ int parse_actor_defs (xmlNode *node) {
 			if (xmlStrcasecmp (def->name, "actor") == 0) {
 				ok &= parse_actor_script (def);
 			} else {
-				LogError ("parse error: actor or include expected");
+				LOG_ERROR("parse error: actor or include expected");
 				ok = 0;
 			}
 		else if (def->type == XML_ENTITY_REF_NODE) {
@@ -1476,18 +1476,18 @@ int read_actor_defs (const char *dir, const char *index) {
 	doc = xmlReadFile (fname, NULL, 0);
 	if (doc == NULL) {
 		snprintf (errmsg, sizeof (errmsg), "Unable to read actor definition file %s", fname);
-		LogError (errmsg);
+		LOG_ERROR(errmsg);
 		return 0;
 	}
 	
 	root = xmlDocGetRootElement (doc);
 	if (root == NULL) {
 		snprintf (errmsg, sizeof (errmsg), "Unable to parse actor definition file %s", fname);
-		LogError (errmsg);
+		LOG_ERROR(errmsg);
 		ok = 0;
 	} else if (xmlStrcasecmp (root->name, "actors") != 0) {
 		snprintf (errmsg, sizeof (errmsg), "Unknown key \"%s\" (\"actors\" expected).", root->name);
-		LogError (errmsg);
+		LOG_ERROR(errmsg);
 		ok = 0;
 	} else {
 		ok = parse_actor_defs (root);

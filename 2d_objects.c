@@ -3,7 +3,7 @@
 #include <string.h>
 #include "global.h"
 
-obj_2d *obj_2d_list[max_obj_2d];
+obj_2d *obj_2d_list[MAX_OBJ_2D];
 
 int map_meters_size_x;
 int map_meters_size_y;
@@ -33,7 +33,7 @@ void draw_2d_object(obj_2d * object_id)
 	render_x_start=-x_size/2.0f;
 
 	object_type=obj_def_pointer->object_type;
-	if(object_type==ground)render_y_start=-y_size/2;
+	if(object_type==GROUND)render_y_start=-y_size/2;
 	else	render_y_start=0;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
@@ -47,8 +47,8 @@ void draw_2d_object(obj_2d * object_id)
 	y_rot=object_id->y_rot;
 	z_rot=object_id->z_rot;
 	//find out what kind of object we have
-	if(object_type==fence)x_rot+=90;
-	if(object_type==plant)
+	if(object_type==FENCE)x_rot+=90;
+	if(object_type==PLANT)
 		{
 			x_rot+=90;
 			z_rot=-rz;
@@ -290,26 +290,26 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 		{
 			if(obj_file_mem[k]==0x0a)
 				{
-					cur_object->object_type=invalid;
+					cur_object->object_type=INVALID;
 					break;
 				}
 			if(obj_file_mem[k]==' ')continue;
 
 			if(obj_file_mem[k]=='g' || obj_file_mem[k]=='G')
 				{
-					cur_object->object_type=ground;
+					cur_object->object_type=GROUND;
 					break;
 				}
 
 			if(obj_file_mem[k]=='p' || obj_file_mem[k]=='P')
 				{
-					cur_object->object_type=plant;
+					cur_object->object_type=PLANT;
 					break;
 				}
 
 			if(obj_file_mem[k]=='f' || obj_file_mem[k]=='F')
 				{
-					cur_object->object_type=fence;
+					cur_object->object_type=FENCE;
 					break;
 				}
 		}
@@ -332,7 +332,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 	file_name_lenght=strlen(file_name);
 
-	for(i=0;i<max_obj_2d_def;i++)
+	for(i=0;i<MAX_OBJ_2D_def;i++)
 		{
 			if(!strcasecmp(obj_2d_def_cache[i].file_name, file_name))
 				{
@@ -355,7 +355,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 	//find a place to store it
 	i=0;
-	while(i<max_obj_2d_def)
+	while(i<MAX_OBJ_2D_def)
 		{
 			if(!obj_2d_def_cache[i].file_name[0])//we found a place to store it
 				{
@@ -379,7 +379,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	short sector;
 
 	//find a free spot, in the obj_2d_list
-	for(i=0; i<max_obj_2d; i++)
+	for(i=0; i<MAX_OBJ_2D; i++)
 		{
 			if(!obj_2d_list[i])break;
 		}
@@ -393,7 +393,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 		{
             char str[256];
             sprintf(str,"%s: %s: %s",reg_error_str,cant_load_2d_object,fname);
-            LogError(str);
+            LOG_ERROR(str);
 	        return 0;
 		}
 
@@ -411,8 +411,8 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	obj_2d_list[i]=our_object;
 
 	//get the current sector
-	sector=(y_pos/sector_size_y)*(map_meters_size_x/sector_size_x)
-		+(x_pos/sector_size_x);
+	sector=(y_pos/SECTOR_SIZE_Y)*(map_meters_size_x/SECTOR_SIZE_X)
+		+(x_pos/SECTOR_SIZE_X);
 	our_object->sector=sector;
 
 	return i;
@@ -428,7 +428,7 @@ void display_2d_objects()
 	x=-cx;
 	y=-cy;
 	glDisable(GL_CULL_FACE);
-	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 	for(i=sx;i<=ex;i++)
 		for(j=sy;j<=ey;j++)
 			for(k=0;k<20;k++){

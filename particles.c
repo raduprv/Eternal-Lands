@@ -3,7 +3,7 @@
 #ifndef WINDOWS
 #include <locale.h>
 #endif
-#include "SDL_opengl.h"
+//#include "SDL_opengl.h"
 #ifdef MAP_EDITOR
 #include "../map_editor/global.h"
 #else
@@ -16,13 +16,13 @@
 int particles_percentage=100;
 SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
 int particle_textures[8];
-particle_sys *particles_list[max_particle_systems];
+particle_sys *particles_list[MAX_PARTICLE_SYSTEMS];
 
 /******************************************************
  *           PARTICLE SYSTEM DEFINITIONS              *
  ******************************************************/
-#define max_particle_defs 500
-particle_sys_def *defs_list[max_particle_defs];
+#define MAX_PARTICLE_DEFS 500
+particle_sys_def *defs_list[MAX_PARTICLE_DEFS];
 
 #ifndef ELC
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
@@ -70,12 +70,12 @@ particle_sys_def *load_particle_def(const char *filename)
 	clean_file_name(cleanpath,filename,128);
 
 	//Check if it's already loaded
-	for(i=0;i<max_particle_defs;i++)
+	for(i=0;i<MAX_PARTICLE_DEFS;i++)
 		if(defs_list[i] && !part_strcmp(cleanpath,defs_list[i]->file_name))
 			return defs_list[i];
 
 	//Check if we have a free slot for it
-	for(i=0;i<max_particle_defs;i++)
+	for(i=0;i<MAX_PARTICLE_DEFS;i++)
 		if(!defs_list[i])
 			{
 				defs_list[i]=(particle_sys_def *)calloc(1,sizeof(particle_sys_def));
@@ -98,7 +98,7 @@ particle_sys_def *load_particle_def(const char *filename)
 		{
 			char str[256];
 			snprintf(str,256,particles_filever_wrong,filename,version,PARTICLE_DEF_VERSION);
-			LogError(str);
+			LOG_ERROR(str);
 			fclose(f);
 			return NULL;
 		}
@@ -135,12 +135,12 @@ particle_sys_def *load_particle_def(const char *filename)
 	fscanf(f,"%f,%f,%f\n",&def->lightx,&def->lighty,&def->lightz);
 	fscanf(f,"%f,%f,%f\n",&def->lightr,&def->lightg,&def->lightb);
 	
-	if(def->total_particle_no>max_particles)
+	if(def->total_particle_no>MAX_PARTICLES)
 		{
 		  char str[256];
-		  snprintf(str,256,particle_system_overrun,filename,def->total_particle_no,max_particles);
-		  LogError(str);
-		  def->total_particle_no=max_particles;
+		  snprintf(str,256,particle_system_overrun,filename,def->total_particle_no,MAX_PARTICLES);
+		  LOG_ERROR(str);
+		  def->total_particle_no=MAX_PARTICLES;
 		}
 	if(def->constrain_rad_sq>0.0)
 		{
@@ -185,7 +185,7 @@ particle_sys_def *load_particle_def(const char *filename)
 				{
 					 char str[256];
 					 snprintf(str,256,particle_strange_pos,filename);
-					 LogError(str);
+					 LOG_ERROR(str);
 				}
 
 		}
@@ -246,18 +246,18 @@ void init_particles_list()
 	int	i;
 
 	particles_list_mutex=SDL_CreateMutex();
-	lock_particles_list();	//lock it to avoid timing issues
-	for(i=0;i<max_particle_systems;i++)particles_list[i]=0;
-	for(i=0;i<max_particle_defs;i++)defs_list[i]=0;
-	unlock_particles_list();	// release now that we are done
+	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)particles_list[i]=0;
+	for(i=0;i<MAX_PARTICLE_DEFS;i++)defs_list[i]=0;
+	UNLOCK_PARTICLES_LIST();	// release now that we are done
 }
 
 void end_particles_list()
 {
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	destroy_all_particles();
 	destroy_all_particle_defs();
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 	SDL_DestroyMutex(particles_list_mutex);
 	particles_list_mutex=NULL;
 }
@@ -265,7 +265,7 @@ void end_particles_list()
 void destroy_all_particle_defs()
 {
 	int i;
-	for(i=0;i<max_particle_defs;i++)
+	for(i=0;i<MAX_PARTICLE_DEFS;i++)
 		{
 			free(defs_list[i]);
 			defs_list[i]=NULL;
@@ -275,8 +275,8 @@ void destroy_all_particle_defs()
 void destroy_all_particles()
 {
 	int i;
-	lock_particles_list();
-	for(i=0;i<max_particle_systems;i++)
+	LOCK_PARTICLES_LIST();
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
 			if(!particles_list[i])continue;
 			if(particles_list[i]->def && particles_list[i]->def->use_light && lights_list[particles_list[i]->light]) {
@@ -286,14 +286,14 @@ void destroy_all_particles()
 			free(particles_list[i]);
 			particles_list[i]=0;
 		}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 
 }
 
 void remove_fire_at(float x_pos, float y_pos)
 {
 	int i;
-	for(i=0;i<max_particle_systems;i++){
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++){
 		if(particles_list[i] && !strncmp(particles_list[i]->def->file_name,"./particles/fire_",17) && particles_list[i]->x_pos==x_pos && particles_list[i]->y_pos==y_pos) {
 			if(particles_list[i]->def->use_light && lights_list[particles_list[i]->light]){
 				free(lights_list[particles_list[i]->light]);
@@ -327,34 +327,34 @@ void create_particle(particle_sys *sys,particle *result)
 	particle_sys_def *def=sys->def;
 	if(def->random_func==0) {
 		do {
-			result->x=particle_random(def->minx,def->maxx);
-			result->y=particle_random(def->miny,def->maxy);
-			result->z=particle_random(def->minz,def->maxz);
+			result->x=PARTICLE_RANDOM(def->minx,def->maxx);
+			result->y=PARTICLE_RANDOM(def->miny,def->maxy);
+			result->z=PARTICLE_RANDOM(def->minz,def->maxz);
 		} while(def->constrain_rad_sq>0 && (result->x*result->x+result->y*result->y)>def->constrain_rad_sq);
 
-		result->vx=particle_random(def->vel_minx,def->vel_maxx);
-		result->vy=particle_random(def->vel_miny,def->vel_maxy);
-		result->vz=particle_random(def->vel_minz,def->vel_maxz);
+		result->vx=PARTICLE_RANDOM(def->vel_minx,def->vel_maxx);
+		result->vy=PARTICLE_RANDOM(def->vel_miny,def->vel_maxy);
+		result->vz=PARTICLE_RANDOM(def->vel_minz,def->vel_maxz);
 
-		result->r=particle_random(def->minr,def->maxr);
-		result->g=particle_random(def->ming,def->maxg);
-		result->b=particle_random(def->minb,def->maxb);
-		result->a=particle_random(def->mina,def->maxa);
+		result->r=PARTICLE_RANDOM(def->minr,def->maxr);
+		result->g=PARTICLE_RANDOM(def->ming,def->maxg);
+		result->b=PARTICLE_RANDOM(def->minb,def->maxb);
+		result->a=PARTICLE_RANDOM(def->mina,def->maxa);
 	} else {
 		do {
-			result->x=particle_random2(def->minx,def->maxx);
-			result->y=particle_random2(def->miny,def->maxy);
-			result->z=particle_random2(def->minz,def->maxz);
+			result->x=PARTICLE_RANDOM2(def->minx,def->maxx);
+			result->y=PARTICLE_RANDOM2(def->miny,def->maxy);
+			result->z=PARTICLE_RANDOM2(def->minz,def->maxz);
 		} while(def->constrain_rad_sq>0 && (result->x*result->x+result->y*result->y)>def->constrain_rad_sq);
 
-		result->vx=particle_random2(def->vel_minx,def->vel_maxx);
-		result->vy=particle_random2(def->vel_miny,def->vel_maxy);
-		result->vz=particle_random2(def->vel_minz,def->vel_maxz);
+		result->vx=PARTICLE_RANDOM2(def->vel_minx,def->vel_maxx);
+		result->vy=PARTICLE_RANDOM2(def->vel_miny,def->vel_maxy);
+		result->vz=PARTICLE_RANDOM2(def->vel_minz,def->vel_maxz);
 
-		result->r=particle_random2(def->minr,def->maxr);
-		result->g=particle_random2(def->ming,def->maxg);
-		result->b=particle_random2(def->minb,def->maxb);
-		result->a=particle_random2(def->mina,def->maxa);
+		result->r=PARTICLE_RANDOM2(def->minr,def->maxr);
+		result->g=PARTICLE_RANDOM2(def->ming,def->maxg);
+		result->b=PARTICLE_RANDOM2(def->minb,def->maxb);
+		result->a=PARTICLE_RANDOM2(def->mina,def->maxa);
 	}
 	result->x+=sys->x_pos;
 	result->y+=sys->y_pos;
@@ -374,9 +374,9 @@ int create_particle_sys(particle_sys_def *def,float x,float y,float z)
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	//now, find a place for this system
-	for(psys=0;psys<max_particle_systems;psys++)
+	for(psys=0;psys<MAX_PARTICLE_SYSTEMS;psys++)
 		{
 			if(!particles_list[psys])
 				{
@@ -384,10 +384,10 @@ int create_particle_sys(particle_sys_def *def,float x,float y,float z)
 					break;
 				}
 		}
-	if(psys==max_particle_systems)
+	if(psys==MAX_PARTICLE_SYSTEMS)
 		{
 			free(system_id);
-			unlock_particles_list();
+			UNLOCK_PARTICLES_LIST();
 			return -1;
 		}
 
@@ -407,7 +407,7 @@ int create_particle_sys(particle_sys_def *def,float x,float y,float z)
 	}
 
 	for(i=0,p=&system_id->particles[0];i<def->total_particle_no;i++,p++)create_particle(system_id,p);
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 
 	return psys;
 }
@@ -424,13 +424,13 @@ void draw_text_particle_sys(particle_sys *system_id)
 	float y_len=z_len*sin(-rz*3.1415926/180.0);
 	particle *p;
 
-	lock_particles_list();	//lock it to avoid timing issues
+	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues
 
 	x_pos=system_id->x_pos;
 	y_pos=system_id->y_pos;
 	z_pos=system_id->z_pos;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	get_and_set_texture_id(particle_textures[system_id->def->part_texture]);
 
 	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i++,p++)
@@ -455,8 +455,8 @@ void draw_text_particle_sys(particle_sys *system_id)
 					glEnd();
 				}
 		}
-	unlock_particles_list();	// release now that we are done
-	check_gl_errors();
+	UNLOCK_PARTICLES_LIST();	// release now that we are done
+	CHECK_GL_ERRORS();
 }
 
 void draw_point_particle_sys(particle_sys *system_id)
@@ -465,7 +465,7 @@ void draw_point_particle_sys(particle_sys *system_id)
 	int i;
 	particle *p;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glEnable(GL_POINT_SPRITE_NV);
 	glTexEnvf(GL_POINT_SPRITE_NV,GL_COORD_REPLACE_NV,GL_TRUE);
 	glPointSize(system_id->def->part_size*(5.5f-zoom_level)*4.4f);
@@ -478,11 +478,11 @@ void draw_point_particle_sys(particle_sys *system_id)
 		{
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
-			lock_particles_list(); //lock it to avoid timing issues
+			LOCK_PARTICLES_LIST(); //lock it to avoid timing issues
 			glVertexPointer(3,GL_FLOAT,sizeof(particle),&(system_id->particles[0].x));
 			glColorPointer(4,GL_FLOAT,sizeof(particle),&(system_id->particles[0].r));
 			glDrawArrays(GL_POINTS,0,system_id->total_particle_no);
-			unlock_particles_list();// release now that we are done
+			UNLOCK_PARTICLES_LIST();// release now that we are done
 			glDisableClientState(GL_VERTEX_ARRAY);
 			glDisableClientState(GL_COLOR_ARRAY);
 
@@ -491,7 +491,7 @@ void draw_point_particle_sys(particle_sys *system_id)
 #endif
  {
 	glBegin(GL_POINTS);
-	lock_particles_list();	//lock it to avoid timing issues
+	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues
 	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i++,p++)
 	  {
 		if(!p->free)
@@ -500,11 +500,11 @@ void draw_point_particle_sys(particle_sys *system_id)
 				glVertex3f(p->x,p->y,p->z);
 			}
 	  }
-	unlock_particles_list();	// release now that we are done
+	UNLOCK_PARTICLES_LIST();	// release now that we are done
 	glEnd();
  }
 	glDisable(GL_POINT_SPRITE_NV);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 #endif
 }
 
@@ -525,7 +525,7 @@ void display_particles()
 	x=-cx;
 	y=-cy;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
 	glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
@@ -534,9 +534,9 @@ void display_particles()
 
 	glBlendFunc(sblend,dblend);
 
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	// Perhaps we should have a depth sort here..?
-	for(i=0;i<max_particle_systems;i++)
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
 			if(particles_list[i])
 				{
@@ -560,10 +560,10 @@ void display_particles()
 						}
 				}
 		}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 	glDisable(GL_CULL_FACE); //Intel fix
 	glPopAttrib();
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 /******************************************************************************
@@ -578,7 +578,7 @@ void update_fountain_sys(particle_sys *system_id) {
 	total_particle_no=system_id->def->total_particle_no;
 
 	//see if we need to add new particles
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	if(system_id->ttl)
 		particles_to_add=total_particle_no-system_id->particle_count;
 
@@ -615,15 +615,15 @@ void update_fountain_sys(particle_sys *system_id) {
 				p->x+=p->vx;
 				p->y+=p->vy;
 				p->z+=p->vz;
-				p->vx+=particle_random(system_id->def->acc_minx,system_id->def->acc_maxx);
-				p->vy+=particle_random(system_id->def->acc_miny,system_id->def->acc_maxy);
-				p->vz+=particle_random(system_id->def->acc_minz,system_id->def->acc_maxz);
-				p->r+=particle_random(system_id->def->mindr,system_id->def->maxdr);
-				p->g+=particle_random(system_id->def->mindg,system_id->def->maxdg);
-				p->b+=particle_random(system_id->def->mindb,system_id->def->maxdb);
-				p->a+=particle_random(system_id->def->minda,system_id->def->maxda);
+				p->vx+=PARTICLE_RANDOM(system_id->def->acc_minx,system_id->def->acc_maxx);
+				p->vy+=PARTICLE_RANDOM(system_id->def->acc_miny,system_id->def->acc_maxy);
+				p->vz+=PARTICLE_RANDOM(system_id->def->acc_minz,system_id->def->acc_maxz);
+				p->r+=PARTICLE_RANDOM(system_id->def->mindr,system_id->def->maxdr);
+				p->g+=PARTICLE_RANDOM(system_id->def->mindg,system_id->def->maxdg);
+				p->b+=PARTICLE_RANDOM(system_id->def->mindb,system_id->def->maxdb);
+				p->a+=PARTICLE_RANDOM(system_id->def->minda,system_id->def->maxda);
 			}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 void update_burst_sys(particle_sys *system_id)
@@ -634,7 +634,7 @@ void update_burst_sys(particle_sys *system_id)
 
 	total_particle_no=system_id->def->total_particle_no;
 
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 
 	//find used particles
 	for(j=0,p=&system_id->particles[0];j<total_particle_no;j++,p++)
@@ -664,12 +664,12 @@ void update_burst_sys(particle_sys *system_id)
 				p->y+=p->vy;
 				p->z+=p->vz;
 
-				p->r+=particle_random(system_id->def->mindr,system_id->def->maxdr);
-				p->g+=particle_random(system_id->def->mindg,system_id->def->maxdg);
-				p->b+=particle_random(system_id->def->mindb,system_id->def->maxdb);
-				p->a+=particle_random(system_id->def->minda,system_id->def->maxda);
+				p->r+=PARTICLE_RANDOM(system_id->def->mindr,system_id->def->maxdr);
+				p->g+=PARTICLE_RANDOM(system_id->def->mindg,system_id->def->maxdg);
+				p->b+=PARTICLE_RANDOM(system_id->def->mindb,system_id->def->maxdb);
+				p->a+=PARTICLE_RANDOM(system_id->def->minda,system_id->def->maxda);
 			}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 void update_fire_sys(particle_sys *system_id)
@@ -681,7 +681,7 @@ void update_fire_sys(particle_sys *system_id)
 	int j;
 	
 	//see if we need to add new particles
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 
 	if(system_id->ttl)
 		particles_to_add=total_particle_no-system_id->particle_count;
@@ -715,17 +715,17 @@ void update_fire_sys(particle_sys *system_id)
 					}
 				
 				// Fires don't use acceleration as usual...
-				p->x+=p->vx+particle_random(system_id->def->acc_minx,system_id->def->acc_maxx);
-				p->y+=p->vy+particle_random(system_id->def->acc_miny,system_id->def->acc_maxy);
-				p->z+=p->vz+particle_random(system_id->def->acc_minz,system_id->def->acc_maxz);
+				p->x+=p->vx+PARTICLE_RANDOM(system_id->def->acc_minx,system_id->def->acc_maxx);
+				p->y+=p->vy+PARTICLE_RANDOM(system_id->def->acc_miny,system_id->def->acc_maxy);
+				p->z+=p->vz+PARTICLE_RANDOM(system_id->def->acc_minz,system_id->def->acc_maxz);
 
-				p->r+=particle_random(system_id->def->mindr,system_id->def->maxdr);
-				p->g+=particle_random(system_id->def->mindg,system_id->def->maxdg);
-				p->b+=particle_random(system_id->def->mindb,system_id->def->maxdb);
-				p->a+=particle_random(system_id->def->minda,system_id->def->maxda);
+				p->r+=PARTICLE_RANDOM(system_id->def->mindr,system_id->def->maxdr);
+				p->g+=PARTICLE_RANDOM(system_id->def->mindg,system_id->def->maxdg);
+				p->b+=PARTICLE_RANDOM(system_id->def->mindb,system_id->def->maxdb);
+				p->a+=PARTICLE_RANDOM(system_id->def->minda,system_id->def->maxda);
 
 			}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 void update_teleporter_sys(particle_sys *system_id)
@@ -737,7 +737,7 @@ void update_teleporter_sys(particle_sys *system_id)
 	int j;
 
 	//see if we need to add new particles
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 
 	if(system_id->ttl)
 		particles_to_add=total_particle_no-system_id->particle_count;
@@ -771,17 +771,17 @@ void update_teleporter_sys(particle_sys *system_id)
 					}
 				
 				// Teleporters don't use acceleration as usual...
-				p->x+=p->vx+particle_random2(system_id->def->acc_minx,system_id->def->acc_maxx);
-				p->y+=p->vy+particle_random2(system_id->def->acc_miny,system_id->def->acc_maxy);
-				p->z+=p->vz+particle_random2(system_id->def->acc_minz,system_id->def->acc_maxz);
+				p->x+=p->vx+PARTICLE_RANDOM2(system_id->def->acc_minx,system_id->def->acc_maxx);
+				p->y+=p->vy+PARTICLE_RANDOM2(system_id->def->acc_miny,system_id->def->acc_maxy);
+				p->z+=p->vz+PARTICLE_RANDOM2(system_id->def->acc_minz,system_id->def->acc_maxz);
 
-				p->r+=particle_random2(system_id->def->mindr,system_id->def->maxdr);
-				p->g+=particle_random2(system_id->def->mindg,system_id->def->maxdg);
-				p->b+=particle_random2(system_id->def->mindb,system_id->def->maxdb);
-				p->a+=particle_random2(system_id->def->minda,system_id->def->maxda);
+				p->r+=PARTICLE_RANDOM2(system_id->def->mindr,system_id->def->maxdr);
+				p->g+=PARTICLE_RANDOM2(system_id->def->mindg,system_id->def->maxdg);
+				p->b+=PARTICLE_RANDOM2(system_id->def->mindb,system_id->def->maxdb);
+				p->a+=PARTICLE_RANDOM2(system_id->def->minda,system_id->def->maxda);
 
 			}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 void update_teleport_sys(particle_sys *system_id)
@@ -793,7 +793,7 @@ void update_teleport_sys(particle_sys *system_id)
 	int j;
 
 	//see if we need to add new particles
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	if(system_id->ttl)
 		particles_to_add=total_particle_no-system_id->particle_count;
 	for(j=i=0;i<particles_to_add;i++)
@@ -827,17 +827,17 @@ void update_teleport_sys(particle_sys *system_id)
 					}
 
 				// Teleports don't use acceleration as usual...
-				p->x+=p->vx+particle_random2(system_id->def->acc_minx,system_id->def->acc_maxx);
-				p->y+=p->vy+particle_random2(system_id->def->acc_miny,system_id->def->acc_maxy);
-				p->z+=p->vz+particle_random2(system_id->def->acc_minz,system_id->def->acc_maxz);
+				p->x+=p->vx+PARTICLE_RANDOM2(system_id->def->acc_minx,system_id->def->acc_maxx);
+				p->y+=p->vy+PARTICLE_RANDOM2(system_id->def->acc_miny,system_id->def->acc_maxy);
+				p->z+=p->vz+PARTICLE_RANDOM2(system_id->def->acc_minz,system_id->def->acc_maxz);
 
-				p->r+=particle_random2(system_id->def->mindr,system_id->def->maxdr);
-				p->g+=particle_random2(system_id->def->mindg,system_id->def->maxdg);
-				p->b+=particle_random2(system_id->def->mindb,system_id->def->maxdb);
-				p->a+=particle_random2(system_id->def->minda,system_id->def->maxda);
+				p->r+=PARTICLE_RANDOM2(system_id->def->mindr,system_id->def->maxdr);
+				p->g+=PARTICLE_RANDOM2(system_id->def->mindg,system_id->def->maxdg);
+				p->b+=PARTICLE_RANDOM2(system_id->def->mindb,system_id->def->maxdb);
+				p->a+=PARTICLE_RANDOM2(system_id->def->minda,system_id->def->maxda);
 
 			}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 void update_bag_part_sys(particle_sys *system_id)
@@ -849,7 +849,7 @@ void update_bag_part_sys(particle_sys *system_id)
 	int j;
 
 	//see if we need to add new particles
-	lock_particles_list();
+	LOCK_PARTICLES_LIST();
 	if(system_id->ttl)
 		particles_to_add=total_particle_no-system_id->particle_count;
 	for(j=i=0;i<particles_to_add;i++)
@@ -880,24 +880,24 @@ void update_bag_part_sys(particle_sys *system_id)
 						continue;
 					}
 				// Bags don't use acceleration as usual...
-				p->x+=p->vx+particle_random2(system_id->def->acc_minx,system_id->def->acc_maxx);
-				p->y+=p->vy+particle_random2(system_id->def->acc_miny,system_id->def->acc_maxy);
-				p->z+=p->vz+particle_random2(system_id->def->acc_minz,system_id->def->acc_maxz);
+				p->x+=p->vx+PARTICLE_RANDOM2(system_id->def->acc_minx,system_id->def->acc_maxx);
+				p->y+=p->vy+PARTICLE_RANDOM2(system_id->def->acc_miny,system_id->def->acc_maxy);
+				p->z+=p->vz+PARTICLE_RANDOM2(system_id->def->acc_minz,system_id->def->acc_maxz);
 
-				p->r+=particle_random2(system_id->def->mindr,system_id->def->maxdr);
-				p->g+=particle_random2(system_id->def->mindg,system_id->def->maxdg);
-				p->b+=particle_random2(system_id->def->mindb,system_id->def->maxdb);
-				p->a+=particle_random2(system_id->def->minda,system_id->def->maxda);
+				p->r+=PARTICLE_RANDOM2(system_id->def->mindr,system_id->def->maxdr);
+				p->g+=PARTICLE_RANDOM2(system_id->def->mindg,system_id->def->maxdg);
+				p->b+=PARTICLE_RANDOM2(system_id->def->mindb,system_id->def->maxdb);
+				p->a+=PARTICLE_RANDOM2(system_id->def->minda,system_id->def->maxda);
 			}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 void update_particles() {
 	int i,x=-cx,y=-cy;
 	if(!particles_percentage)
 	  return;
-	lock_particles_list();
-	for(i=0;i<max_particle_systems;i++)
+	LOCK_PARTICLES_LIST();
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
 		if(particles_list[i])
 			{
@@ -945,7 +945,7 @@ void update_particles() {
 				
 			}
 		}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 }
 
 /******************************************************************************
@@ -960,7 +960,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 	float x,y,z;
 
 	teleporters_no=*((Uint16 *)(teleport_list));
-	lock_particles_list();	//lock it to avoid timing issues
+	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues
 	for(i=0;i<teleporters_no;i++)
 		{
 			my_offset=i*5+2;
@@ -987,7 +987,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 			//won't try to plot a path through it
 			pf_tile_map[teleport_y*tile_map_size_x*6+teleport_x].z = 0;
 		}
-	unlock_particles_list();
+	UNLOCK_PARTICLES_LIST();
 
 }
 
@@ -995,30 +995,30 @@ void dump_part_sys_info()
 {
 	char str[256];
 	int i,partdefs=0,partsys=0;
-	log_to_console(c_grey1,particle_system_dump);
+	LOG_TO_CONSOLE(c_grey1,particle_system_dump);
 	if(!particles_percentage)
 		{
-			log_to_console(c_grey1,particles_disabled_str);
+			LOG_TO_CONSOLE(c_grey1,particles_disabled_str);
 			return;
 		}
 	if(have_point_sprite)
-	  log_to_console(c_grey1,point_sprites_enabled);
+	  LOG_TO_CONSOLE(c_grey1,point_sprites_enabled);
 	else
-	  log_to_console(c_grey1,using_textured_quads);
-	log_to_console(c_grey1,definitions_str);
-	for(i=0;i<max_particle_defs;i++)
+	  LOG_TO_CONSOLE(c_grey1,using_textured_quads);
+	LOG_TO_CONSOLE(c_grey1,definitions_str);
+	for(i=0;i<MAX_PARTICLE_DEFS;i++)
 		if(defs_list[i])
 			{
 				partdefs++;
-				log_to_console(c_grey1,defs_list[i]->file_name);
+				LOG_TO_CONSOLE(c_grey1,defs_list[i]->file_name);
 			}
 	sprintf(str,"#%s: %i",my_tolower(definitions_str),partdefs);
-	log_to_console(c_grey1,str);
-	for(i=0;i<max_particle_systems;i++)
+	LOG_TO_CONSOLE(c_grey1,str);
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		if(particles_list[i])partsys++;
 	sprintf(str,"#%s: %i",part_sys_str,partsys);
-	log_to_console(c_grey1,str);
+	LOG_TO_CONSOLE(c_grey1,str);
 	sprintf(str,"#%s: %i%%",part_part_str,particles_percentage);
-	log_to_console(c_grey1,str);
+	LOG_TO_CONSOLE(c_grey1,str);
 }
 #endif

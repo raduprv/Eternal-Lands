@@ -6,14 +6,14 @@
 #ifndef __TEXT_H__
 #define __TEXT_H__
 
-#define max_display_text_buffer_lenght 264128 /*!< max. buffer length for displayable text */
+#define MAX_DISPLAY_TEXT_BUFFER_LENGTH 264128 /*!< max. buffer length for displayable text */
 
 extern float chat_zoom; /*!< zoom factor for chat text */
 
 extern char input_text_line[257]; /*!< user input text */
 extern int input_text_lenght; /*!< actual length of \see input_text_line */
 extern int input_text_lines; /*!< number of lines used by \see input_text_line. \todo check this desc. */
-extern char display_text_buffer[max_display_text_buffer_lenght]; /*!< buffer to hold the text to display */
+extern char display_text_buffer[MAX_DISPLAY_TEXT_BUFFER_LENGTH]; /*!< buffer to hold the text to display */
 #ifndef OLD_EVENT_HANDLER
 extern int nr_text_buffer_lines; /*!< The number of lines in the text buffer */
 #endif
@@ -229,6 +229,6 @@ void console_move_page_up();
  */
 void display_console_text();
 
-#define log_to_console(color,buffer)	put_colored_text_in_buffer(color,buffer,-1,0) /*!< logs the text in buffer with the specified color to the console. */
+#define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,buffer,-1,0) /*!< logs the text in buffer with the specified color to the console. */
 
 #endif

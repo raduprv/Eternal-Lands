@@ -50,7 +50,7 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		{
 			hide_window (console_win);
 			show_window (map_win);
-			interface_mode = interface_map;
+			interface_mode = INTERFACE_MAP;
 		}
 	}
 	else
@@ -61,7 +61,7 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		{
 			hide_window (console_win);
 			show_window (game_win);
-			interface_mode = interface_game;
+			interface_mode = INTERFACE_GAME;
 		}
 		else if (ch == SDLK_RETURN && input_text_lenght > 0)
 		{

@@ -303,7 +303,7 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 	img=create_image(image_path, x, y, w, h, u_start, v_start, u_end, v_end);
 
 	if(cur->children && cur->children->content){
-		my_xmlStrcpy(&text, cur->children->content);
+		MY_XMLSTRCPY(&text, cur->children->content);
 	}
 	
 	if(add_image_to_page(text, img, b, p)==NULL) free(img);
@@ -315,7 +315,7 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
 {
 	char * string=NULL;
-	if(cur->children && cur->children->content && my_xmlStrcpy(&string, cur->children->content)!=-1){
+	if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, cur->children->content)!=-1){
 		add_str_to_page(string, type, b, p);
 	} else {
 		char str[200];
@@ -371,7 +371,7 @@ book * read_book(char * file)
 		char str[200];
 		snprintf(str,198,"Couldn't open the book: %s",file);
 		log_error(str);
-		log_to_console(c_red1,str);
+		LOG_TO_CONSOLE(c_red1,str);
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
 		char str[200];
 		snprintf(str,198,"Error while parsing: %s",file);

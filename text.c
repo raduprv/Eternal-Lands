@@ -5,7 +5,7 @@
 char input_text_line[257];
 int input_text_lenght=0;
 int input_text_lines=1;
-char display_text_buffer[max_display_text_buffer_lenght];
+char display_text_buffer[MAX_DISPLAY_TEXT_BUFFER_LENGTH];
 #ifndef OLD_EVENT_HANDLER
 int nr_text_buffer_lines = 0;
 #endif
@@ -168,7 +168,7 @@ void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit)
 //-- Logan Dugenoux [5/26/2004]
 // Checks chat string, if it begins with an actor name, 
 // and the actor is displayed, put said sentence into an overtext bubble
-#define allowedCharInName(_x_)		(isalnum(_x_)||(_x_=='_'))
+#define ALLOWED_CHAR_IN_NAME(_x_)		(isalnum(_x_)||(_x_=='_'))
 void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 {	
 	if (!view_chat_text_as_overtext)
@@ -196,7 +196,7 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 		if (i!=len)
 		{
 			playerName[j] = 0;
-			while ((j>0)&&(!allowedCharInName(playerName[j])))
+			while ((j>0)&&(!ALLOWED_CHAR_IN_NAME(playerName[j])))
 				playerName[j--] = 0;
 			j = 0;
 			while (i<len)
@@ -212,7 +212,7 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 				char actorName[128];
 				j = 0;
 				// Strip clan info
-				while (allowedCharInName(actors_list[i]->actor_name[j]))
+				while (ALLOWED_CHAR_IN_NAME(actors_list[i]->actor_name[j]))
 				{
 					actorName[j] = actors_list[i]->actor_name[j];
 					j++;
@@ -264,7 +264,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 	last_server_message_time=cur_time;
 	if(lines_to_show<max_lines_no)lines_to_show++;
 	//watch for the end of buffer!
-	while(display_text_buffer_last+len+8 >= max_display_text_buffer_lenght)
+	while(display_text_buffer_last+len+8 >= MAX_DISPLAY_TEXT_BUFFER_LENGTH)
 		{
 #ifndef OLD_EVENT_HANDLER
 			// First update the nr of lines in the current buffer

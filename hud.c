@@ -32,7 +32,7 @@ int	misc_win= -1;
 int	quickbar_win= -1;
 int show_help_text=1;
 
-int qb_action_mode=action_use;
+int qb_action_mode=ACTION_USE;
 
 int show_stats_in_hud=0;
 
@@ -267,22 +267,22 @@ void init_peace_icons()
 	
 	//add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_stand, sit_button_pressed, &you_sit, DATA_NONE);
 
-	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, tt_walk, switch_action_mode, (void *)action_walk, DATA_ACTIONMODE);
+	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, tt_walk, switch_action_mode, (void *)ACTION_WALK, DATA_ACTIONMODE);
 	
 	if(you_sit)
 		add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_stand, sit_button_pressed, NULL, DATA_NONE);
 	else
 		add_icon(sit_icon_u_start, sit_icon_v_start, colored_sit_icon_u_start, colored_sit_icon_v_start, tt_sit, sit_button_pressed, NULL, DATA_NONE);
 	
-	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, tt_look, switch_action_mode, (void *)action_look, DATA_ACTIONMODE);
+	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, tt_look, switch_action_mode, (void *)ACTION_LOOK, DATA_ACTIONMODE);
 
-	add_icon(use_icon_u_start, use_icon_v_start, colored_use_icon_u_start, colored_use_icon_v_start, tt_use, switch_action_mode, (void *)action_use, DATA_ACTIONMODE);
+	add_icon(use_icon_u_start, use_icon_v_start, colored_use_icon_u_start, colored_use_icon_v_start, tt_use, switch_action_mode, (void *)ACTION_USE, DATA_ACTIONMODE);
 	
-	add_icon(use_with_item_icon_u_start, use_with_item_icon_v_start, colored_use_with_item_icon_u_start, colored_use_with_item_icon_v_start, tt_use_witem, switch_action_mode, (void *)action_use_witem, DATA_ACTIONMODE);
+	add_icon(use_with_item_icon_u_start, use_with_item_icon_v_start, colored_use_with_item_icon_u_start, colored_use_with_item_icon_v_start, tt_use_witem, switch_action_mode, (void *)ACTION_USE_WITEM, DATA_ACTIONMODE);
 
-	add_icon(trade_icon_u_start, trade_icon_v_start, colored_trade_icon_u_start, colored_trade_icon_v_start, tt_trade, switch_action_mode, (void *)action_trade, DATA_ACTIONMODE);
+	add_icon(trade_icon_u_start, trade_icon_v_start, colored_trade_icon_u_start, colored_trade_icon_v_start, tt_trade, switch_action_mode, (void *)ACTION_TRADE, DATA_ACTIONMODE);
 
-	add_icon(attack_icon_u_start, attack_icon_v_start, colored_attack_icon_u_start, colored_attack_icon_v_start, tt_attack, switch_action_mode, (void *)action_attack, DATA_ACTIONMODE);
+	add_icon(attack_icon_u_start, attack_icon_v_start, colored_attack_icon_u_start, colored_attack_icon_v_start, tt_attack, switch_action_mode, (void *)ACTION_ATTACK, DATA_ACTIONMODE);
 
 	//done with the integer variables - now for the windows
 	
@@ -316,9 +316,9 @@ void init_peace_icons()
 		add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
 	}
 		
-	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, (void *)interface_map, DATA_MODE);
+	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, (void *)INTERFACE_MAP, DATA_MODE);
 		
-	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, (void *)interface_console, DATA_MODE);
+	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, (void *)INTERFACE_CONSOLE, DATA_MODE);
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 	
@@ -488,11 +488,11 @@ void switch_action_mode(int * mode, int id)
 void view_console_win(int * win, int id)
 {
 #ifndef OLD_EVENT_HANDLER
-	if (interface_mode == interface_console || interface_mode == interface_game)
+	if (interface_mode == INTERFACE_CONSOLE || interface_mode == INTERFACE_GAME)
 	{
 		toggle_window (game_win);
 	}
-	else if (interface_mode == interface_map)
+	else if (interface_mode == INTERFACE_MAP)
 	{
 		switch_from_game_map ();
 		toggle_window (map_win);
@@ -500,17 +500,17 @@ void view_console_win(int * win, int id)
 	toggle_window (console_win);
 #endif
 	
-	if (interface_mode == interface_console)
+	if (interface_mode == INTERFACE_CONSOLE)
 	{
-		interface_mode = interface_game;
+		interface_mode = INTERFACE_GAME;
 	} 
 	else 
 	{
 #ifdef OLD_EVENT_HANDLER
-		if (interface_mode == interface_map || interface_mode == interface_cont)
+		if (interface_mode == INTERFACE_MAP || interface_mode == INTERFACE_CONT)
 			glDeleteTextures(1,&map_text);
 #endif
-		interface_mode = interface_console;
+		interface_mode = INTERFACE_CONSOLE;
 #ifdef OLD_EVENT_HANDLER
 		if (current_cursor != CURSOR_ARROW) 
 			change_cursor(CURSOR_ARROW);
@@ -524,28 +524,28 @@ void view_map_win (int * win, int id)
 	int mode = interface_mode;
 
 	toggle_window (map_win);
-	if (mode == interface_console)
+	if (mode == INTERFACE_CONSOLE)
 		toggle_window (console_win);
-	else if (mode == interface_game || mode == interface_map || mode == interface_cont)
+	else if (mode == INTERFACE_GAME || mode == INTERFACE_MAP || mode == INTERFACE_CONT)
 		toggle_window (game_win);
-	if (mode == interface_game || mode == interface_console)
+	if (mode == INTERFACE_GAME || mode == INTERFACE_CONSOLE)
 	{
 		if (switch_to_game_map () == 0)
 		{
 			// map load failed, toggle root window back in
-			if(mode == interface_game)
+			if(mode == INTERFACE_GAME)
 				toggle_window (game_win);
 			else
 				toggle_window (console_win);
 		}
 	}
 #else
-	if(interface_mode==interface_game || interface_mode==interface_console)
+	if(interface_mode==INTERFACE_GAME || interface_mode==INTERFACE_CONSOLE)
 	{
 		switch_to_game_map ();
 	}
 #endif
-	else if (interface_mode == interface_map || interface_mode == interface_cont)
+	else if (interface_mode == INTERFACE_MAP || interface_mode == INTERFACE_CONT)
 	{
 		switch_from_game_map();
 	}
@@ -557,7 +557,7 @@ void view_window(int * window, int id)
 		{
 			if(get_show_window(trade_win))
 				{
-					log_to_console(c_red2,no_open_on_trade);
+					LOG_TO_CONSOLE(c_red2,no_open_on_trade);
 					return;
 				}
 		}
@@ -1121,11 +1121,11 @@ int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 					for(i=0;i<ITEM_NUM_ITEMS;i++){
 						if(item_list[i].quantity && item_list[i].pos==y)
 							{
-								if(qb_action_mode==action_look) {
+								if(qb_action_mode==ACTION_LOOK) {
 									elwin_mouse=CURSOR_EYE;
-								} else if(qb_action_mode==action_use) {
+								} else if(qb_action_mode==ACTION_USE) {
 									elwin_mouse=CURSOR_USE;
-								} else if(qb_action_mode==action_use_witem) {
+								} else if(qb_action_mode==ACTION_USE_WITEM) {
 									elwin_mouse=CURSOR_USE_WITEM;
 								} else {
 									elwin_mouse=CURSOR_PICK;
@@ -1151,30 +1151,30 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if(right_click) {
 		switch(qb_action_mode) {
-		case action_walk:
-			qb_action_mode=action_look;
+		case ACTION_WALK:
+			qb_action_mode=ACTION_LOOK;
 			break;
-		case action_look:
-			qb_action_mode=action_use;
+		case ACTION_LOOK:
+			qb_action_mode=ACTION_USE;
 			break;
-		case action_use:
-			qb_action_mode=action_use_witem;
+		case ACTION_USE:
+			qb_action_mode=ACTION_USE_WITEM;
 			break;
-		case action_use_witem:
+		case ACTION_USE_WITEM:
 			if(use_item!=-1)
 				use_item=-1;
 			else
-				qb_action_mode=action_walk;
+				qb_action_mode=ACTION_WALK;
 			break;
 		default:
 			use_item=-1;
-			qb_action_mode=action_walk;
+			qb_action_mode=ACTION_WALK;
 		}
 		return 1;
 	}
 	
-	if(qb_action_mode==action_use_witem)	action_mode=action_use_witem;
-	if(qb_action_mode==action_use)		action_mode=action_use;
+	if(qb_action_mode==ACTION_USE_WITEM)	action_mode=ACTION_USE_WITEM;
+	if(qb_action_mode==ACTION_USE)		action_mode=ACTION_USE;
 
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
@@ -1259,14 +1259,14 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 										*((Uint16 *)(str+2))=item_list[i].quantity;
 										my_tcp_send(my_socket, str, 4);
 										return 1;
-									} else if(qb_action_mode==action_look)
+									} else if(qb_action_mode==ACTION_LOOK)
 										{
 											click_time=cur_time;
 											str[0]=LOOK_AT_INVENTORY_ITEM;
 											str[1]=item_list[i].pos;
 											my_tcp_send(my_socket,str,2);
 										}
-									else if(qb_action_mode==action_use)
+									else if(qb_action_mode==ACTION_USE)
 										{
 											if(item_list[i].use_with_inventory)
 												{
@@ -1277,7 +1277,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 												}
 											return 1;
 										}
-									else if(qb_action_mode==action_use_witem) {
+									else if(qb_action_mode==ACTION_USE_WITEM) {
 										if(use_item!=-1) {
 											str[0]=ITEM_ON_ITEM;
 											str[1]=item_list[use_item].pos;

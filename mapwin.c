@@ -43,7 +43,7 @@ int display_map_handler ()
 		Leave2DMode ();
 		draw_game_map (!showing_continent, mouse_over_minimap);
 		Enter2DMode ();
-		check_gl_errors ();
+		CHECK_GL_ERRORS ();
 	}	
 
 	draw_delay = 20;
@@ -74,7 +74,7 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		switch_from_game_map ();
 		hide_window (map_win);
 		show_window (game_win);
-		interface_mode = interface_game;
+		interface_mode = INTERFACE_GAME;
 	}
 	else
 	{
@@ -85,7 +85,7 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 			switch_from_game_map ();
 			hide_window (map_win);
 			show_window (console_win);
-			interface_mode = interface_console;
+			interface_mode = INTERFACE_CONSOLE;
 		}
 		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
 		{

@@ -13,12 +13,12 @@ extern int auto_camera; /*!< if this is true, we are using the auto camera */
  * \name Action types
  */
 /*! @{ */
-#define action_walk 0
-#define action_look 1
-#define action_use 2
-#define action_use_witem 3
-#define action_trade 4
-#define action_attack 5
+#define ACTION_WALK 0
+#define ACTION_LOOK 1
+#define ACTION_USE 2
+#define ACTION_USE_WITEM 3
+#define ACTION_TRADE 4
+#define ACTION_ATTACK 5
 /*! @} */
 
 extern int action_mode; /*!< contains the current action type */
@@ -48,14 +48,14 @@ extern int login_screen_menus;
  * \name Interface types
  */
 /*! @{ */
-#define interface_game 0
-#define interface_log_in 1
-#define interface_new_char 2
-#define interface_console 3
-#define interface_opening 4
-#define interface_map 5
-#define interface_cont 6
-#define interface_rules 7
+#define INTERFACE_GAME 0
+#define INTERFACE_LOG_IN 1
+#define INTERFACE_NEW_CHAR 2
+#define INTERFACE_CONSOLE 3
+#define INTERFACE_OPENING 4
+#define INTERFACE_MAP 5
+#define INTERFACE_CONT 6
+#define INTERFACE_RULES 7
 /*! @} */
 
 extern char interface_mode; /*!< current interface mode we are in */

@@ -3,7 +3,7 @@
 #include <string.h>
 #include "global.h"
 
-object3d *objects_list[max_obj_3d];
+object3d *objects_list[MAX_OBJ_3D];
 int highest_obj_3d= 0;
 
 void draw_3d_object(object3d * object_id)
@@ -37,12 +37,12 @@ void draw_3d_object(object3d * object_id)
 	is_transparent=object_id->e3d_data->is_transparent;
 	is_ground=object_id->e3d_data->is_ground;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	if(have_multitexture && clouds_shadows)
 		if(!object_id->clouds_uv)
 			compute_clouds_map(object_id);
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	//also, update the last time this object was used
 	object_id->last_acessed_time=cur_time;
 
@@ -70,7 +70,7 @@ void draw_3d_object(object3d * object_id)
 			else glAlphaFunc(GL_GREATER,0.06f);
 			glDisable(GL_CULL_FACE);
 		}
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=object_id->x_pos;
@@ -85,7 +85,7 @@ void draw_3d_object(object3d * object_id)
 	y_rot=object_id->y_rot;
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	if(!have_multitexture || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -98,7 +98,7 @@ void draw_3d_object(object3d * object_id)
 
 					glEnableClientState(GL_NORMAL_ARRAY);
 					glNormalPointer(GL_FLOAT,0,array_normal);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
@@ -112,7 +112,7 @@ void draw_3d_object(object3d * object_id)
 										object_id->file_name, i,
 										values_str,
 										array_order[i].start, array_order[i].count);
-									LogError(str);
+									LOG_ERROR(str);
 								}
 #endif	// DEBUG
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
@@ -140,7 +140,7 @@ void draw_3d_object(object3d * object_id)
 										object_id->file_name, i,
 										values_str,
 										array_order[i].start, array_order[i].count);
-									LogError(str);
+									LOG_ERROR(str);
 								}
 #endif	// DEBUG
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
@@ -169,7 +169,7 @@ void draw_3d_object(object3d * object_id)
 					glEnableClientState(GL_NORMAL_ARRAY);
 					glVertexPointer(3,GL_FLOAT,0,array_vertex);
 					glNormalPointer(GL_FLOAT,0,array_normal);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						if(array_order[i].count>0)
@@ -189,7 +189,7 @@ void draw_3d_object(object3d * object_id)
 					glNormal3f(0,0,1);
 					glVertexPointer(3,GL_FLOAT,0,array_vertex);
 					glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
@@ -204,7 +204,7 @@ void draw_3d_object(object3d * object_id)
 										object_id->file_name, i,
 										values_str,
 										array_order[i].start, array_order[i].count);
-									LogError(str);
+									LOG_ERROR(str);
 								}
 #endif	// DEBUG
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
@@ -218,7 +218,7 @@ void draw_3d_object(object3d * object_id)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	glPopMatrix();//restore the scene
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 
 	if(object_id->blended)glDisable(GL_BLEND);
@@ -228,7 +228,7 @@ void draw_3d_object(object3d * object_id)
 			glDisable(GL_ALPHA_TEST);
 			glEnable(GL_CULL_FACE);
 		}
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 //Tests to see if an e3d object is already loaded. If it is, return the handle.
@@ -260,7 +260,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	//find a free spot, in the e3d_list
 	i=0;
-	while(i<max_obj_3d)
+	while(i<MAX_OBJ_3D)
 		{
 			if(!objects_list[i])break;
 			i++;
@@ -275,7 +275,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 		{
             char str[256];
             sprintf(str,nasty_error_str,fname);
-            LogError(str);
+            LOG_ERROR(str);
 
     		//replace it with the null object, to avoid object IDs corruption
     		returned_e3d=load_e3d_cache("./3dobjects/misc_objects/badobject.e3d");
@@ -325,7 +325,7 @@ void display_objects()
 
 	x=-cx;
 	y=-cy;
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	if(have_multitexture && clouds_shadows)
@@ -339,9 +339,9 @@ void display_objects()
 
 		}
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	
-	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 	for(i=sx;i<=ex;i++)
 		for(j=sy;j<=ey;j++)
 			for(k=0;k<MAX_3D_OBJECTS;k++){
@@ -373,15 +373,15 @@ void display_objects()
 											   object_id->z_pos, radius))
 								{
                      				draw_3d_object(object_id);
-	//check_gl_errors();
+	//CHECK_GL_ERRORS();
 									if (read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, radius))
 										anything_under_the_mouse(l, UNDER_MOUSE_3D_OBJ);
-	//check_gl_errors();
+	//CHECK_GL_ERRORS();
 								}
 						}
 				}
 		}
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	if(have_multitexture && clouds_shadows)
@@ -391,7 +391,7 @@ void display_objects()
 			glDisable(GL_TEXTURE_2D);
 			ELglActiveTextureARB(base_unit);
 		}
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 e3d_object * load_e3d(char *file_name)
@@ -495,7 +495,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 		{
 			char str[200];
 			sprintf(str,"%s: %s: %s",reg_error_str,corrupted_object,cur_object->file_name);
-			log_to_console(c_red2,str);
+			LOG_TO_CONSOLE(c_red2,str);
 			free(face_list);
 			fclose(f);
 			return NULL;
@@ -561,7 +561,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 								size=0;
 								start=0;
 								sprintf(str,"%s: %s . %s",bad_object,cur_object->file_name,multiple_material_same_texture);
-								log_to_console(c_red2,str);
+								LOG_TO_CONSOLE(c_red2,str);
 								goto skip_this_mat;
 							}
 					}

@@ -21,7 +21,7 @@ int username_text_lenght=0;
 int password_text_lenght=0;
 
 int have_a_map=0;
-char interface_mode=interface_rules;
+char interface_mode=INTERFACE_RULES;
 char create_char_error_str[520];
 char log_in_error_str[520];
 int combat_mode=0;
@@ -32,7 +32,7 @@ int view_hp=0;
 int view_chat_text_as_overtext=0;
 int limit_fps=0;
 
-int action_mode=action_walk;
+int action_mode=ACTION_WALK;
 
 Uint32 click_time=0;
 int click_speed=300;
@@ -97,49 +97,49 @@ void check_mouse_click()
 		if(item_dragged!=-1 || use_item!=-1 || object_under_mouse==-1){
 			use_item=-1;
 			item_dragged=-1;
-			action_mode=action_walk;
+			action_mode=ACTION_WALK;
 			return;
 		}
 		switch(current_cursor) {
 		case CURSOR_EYE:
 			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER)
-				action_mode=action_trade;
+				action_mode=ACTION_TRADE;
 			else if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
-				action_mode=action_use;
+				action_mode=ACTION_USE;
 			else
-				action_mode=action_walk;
+				action_mode=ACTION_WALK;
 			break;
 		case CURSOR_HARVEST:
-			action_mode=action_look;
+			action_mode=ACTION_LOOK;
 			break;
 		case CURSOR_TRADE:
-			action_mode=action_attack;
+			action_mode=ACTION_ATTACK;
 			break;
 		case CURSOR_USE_WITEM:
 			if(use_item!=-1)
 				use_item=-1;
 			else
-				action_mode=action_walk;
+				action_mode=ACTION_WALK;
 			break;
 		case CURSOR_ATTACK:
 			if(thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
-				action_mode=action_look;
+				action_mode=ACTION_LOOK;
 			else
-				action_mode=action_walk;
+				action_mode=ACTION_WALK;
 			break;
 		case CURSOR_ENTER:
 		case CURSOR_PICK:
 		case CURSOR_WALK:
 			if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
-				action_mode=action_look;
+				action_mode=ACTION_LOOK;
 			else
-				action_mode=action_walk;
+				action_mode=ACTION_WALK;
 			break;
 		case CURSOR_USE:
 		case CURSOR_TALK:
 		case CURSOR_ARROW:
 		default:
-			action_mode=action_walk;
+			action_mode=ACTION_WALK;
 			break;
 		}
 		return;
@@ -268,7 +268,7 @@ void check_mouse_click()
 			if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM){
 				*((int *)(str+5))=item_list[use_item].pos;
 				use_item=-1;
-				action_mode=action_walk;
+				action_mode=ACTION_WALK;
 			} else
 				*((int *)(str+5))=-1;
 			my_tcp_send(my_socket,str,9);
@@ -499,11 +499,11 @@ void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_s
 
 void init_opening_interface()
 {
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	login_screen_menus=load_texture_cache("./textures/login_menu.bmp",0);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	login_text=load_texture_cache("./textures/login_back.bmp",255);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 // XXX FIXME (Grum): scheduled for removal, now in the login window 
@@ -619,8 +619,8 @@ void draw_login_screen()
 
 	//check to see if we clicked on the ACTIVE New Char button
 	if(new_char_button_selected && left_click==1) {
-		if(last_display==-1)init_rules_interface(interface_new_char, 1.0f, 30, window_width, window_height);
-		else interface_mode=interface_new_char;
+		if(last_display==-1)init_rules_interface(INTERFACE_NEW_CHAR, 1.0f, 30, window_width, window_height);
+		else interface_mode=INTERFACE_NEW_CHAR;
 		left_click=2;
 	}
 
@@ -865,10 +865,10 @@ int switch_to_game_map()
 	map_map_file_name[len-1]='p';
 	map_text=load_bmp8_fixed_alpha(map_map_file_name,128);
 	if(!map_text){
-		log_to_console(c_yellow2,"There is no map for this place.");
+		LOG_TO_CONSOLE(c_yellow2,"There is no map for this place.");
 		return 0;
 	}
-	interface_mode=interface_map;
+	interface_mode=INTERFACE_MAP;
 	if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
 	return 1;
 }
@@ -876,7 +876,7 @@ int switch_to_game_map()
 void switch_from_game_map()
 {
 	glDeleteTextures(1,&map_text);
-	interface_mode=interface_game;
+	interface_mode=INTERFACE_GAME;
 }
 
 
@@ -942,8 +942,8 @@ void draw_game_map(int map)
 #else
 	if(mouse_x > 0 && mouse_x < 50*scale && mouse_y > 0 && mouse_y < 55*scale){
 		if(left_click==1){
-			if(map)interface_mode=interface_cont;
-			else interface_mode=interface_map;
+			if(map)interface_mode=INTERFACE_CONT;
+			else interface_mode=INTERFACE_MAP;
 			left_click=2;
 		}
 		glColor4f(1.0f,1.0f,1.0f,1.0f);

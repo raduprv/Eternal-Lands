@@ -46,15 +46,15 @@ int head_forward = 0;
 int head_back = 0;
 
 
-#define race_human 0
-#define race_elf 2
-#define race_dwarf 4
-#define race_gnome 37
-#define race_orchan 39
-#define race_draegoni 41
+#define RACE_HUMAN 0
+#define RACE_ELF 2
+#define RACE_DWARF 4
+#define RACE_GNOME 37
+#define RACE_ORCHAN 39
+#define RACE_DRAEGONI 41
 
 int male=1;
-int race=race_human;
+int race=RACE_HUMAN;
 
 actor * our_model;
 int any_model=0;
@@ -184,17 +184,17 @@ void change_actor ()
 		free (our_model);
 		our_model = 0;
 	}
-	/*if(race==race_human)
+	/*if(race==RACE_HUMAN)
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
-	else if(race==race_elf)
+	else if(race==RACE_ELF)
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
-	else if(race==race_dwarf)
+	else if(race==RACE_DWARF)
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
-	else if(race==race_gnome)*/
+	else if(race==RACE_GNOME)*/
 	if (hair_color == HAIR_BLOND) 
-		if ((race == race_draegoni && male) || race == race_orchan) 
+		if ((race == RACE_DRAEGONI && male) || race == RACE_ORCHAN) 
 			hair_color++;
-	if (hair_color > HAIR_WHITE && race != race_draegoni) 
+	if (hair_color > HAIR_WHITE && race != RACE_DRAEGONI) 
 		hair_color = HAIR_BLACK;
 	if (shirt_color == SHIRT_PINK && male) 
 		shirt_color++;
@@ -236,7 +236,7 @@ void check_for_input()
 
 	if(mouse_x>110 && mouse_x<200 && mouse_y>197 && mouse_y<235 && back_selected)
 		{
-			interface_mode=interface_log_in;
+			interface_mode=INTERFACE_LOG_IN;
 			return;
 		}
 	if(mouse_x>10 && mouse_x<90 && mouse_y>197 && mouse_y<235 && done_selected)
@@ -266,23 +266,23 @@ void check_for_input()
 	if(mouse_x>=90 && mouse_y>290 && mouse_y<308 && mouse_x<=108)
 		{
 			int wrap;
-			if(race==race_draegoni)wrap=HAIR_PURPLE;
+			if(race==RACE_DRAEGONI)wrap=HAIR_PURPLE;
 			else wrap=HAIR_WHITE;
 			if(hair_color==HAIR_BLACK)
 				hair_color=wrap;
 			else hair_color--;
-			if(hair_color==HAIR_BLOND) if((race==race_draegoni && male)||race==race_orchan) hair_color--;
+			if(hair_color==HAIR_BLOND) if((race==RACE_DRAEGONI && male)||race==RACE_ORCHAN) hair_color--;
 			change_actor();
 		}
 	if(mouse_x>=120 && mouse_y>290 && mouse_y<308 && mouse_x<=138)
 		{
 			int wrap;
-			if(race==race_draegoni)wrap=HAIR_PURPLE;
+			if(race==RACE_DRAEGONI)wrap=HAIR_PURPLE;
 			else wrap=HAIR_WHITE;
 			if(hair_color==wrap)
 				hair_color=HAIR_BLACK;
 			else hair_color++;
-			if(hair_color==HAIR_BLOND) if((race==race_draegoni && male)||race==race_orchan) hair_color++;
+			if(hair_color==HAIR_BLOND) if((race==RACE_DRAEGONI && male)||race==RACE_ORCHAN) hair_color++;
 			change_actor();
 		}
 
@@ -339,7 +339,7 @@ void check_for_input()
 		{
 			if(head==HEAD_1)
 				{
-					if(race==race_human)
+					if(race==RACE_HUMAN)
 						head=HEAD_5;
 					else
 						head=HEAD_4;
@@ -349,7 +349,7 @@ void check_for_input()
 		}
 	if(mouse_x>=120 && mouse_y>370 && mouse_y<388 && mouse_x<=138)
 		{
-			if(head==HEAD_4 &&!(race==race_human))
+			if(head==HEAD_4 &&!(race==RACE_HUMAN))
 				{
 					head=HEAD_1;
 				}
@@ -374,32 +374,32 @@ void check_for_input()
 	//check to see if we changed the race
 	if(mouse_x>240 && mouse_x<300 && mouse_y>300 && mouse_y<320)
 		{
-			race=race_human;
+			race=RACE_HUMAN;
 			change_actor();
 		}
 	if(mouse_x>240 && mouse_x<300 && mouse_y>320 && mouse_y<340)
 		{
-			race=race_elf;
+			race=RACE_ELF;
 			change_actor();
 		}
 	if(mouse_x>240 && mouse_x<300 && mouse_y>340 && mouse_y<360)
 		{
-			race=race_dwarf;
+			race=RACE_DWARF;
 			change_actor();
 		}
 	if(mouse_x>310 && mouse_x<400 && mouse_y>300 && mouse_y<320)
 		{
-			race=race_gnome;
+			race=RACE_GNOME;
 			change_actor();
 		}
 	if(mouse_x>310 && mouse_x<400 && mouse_y>320 && mouse_y<340)
 		{
-			race=race_orchan;
+			race=RACE_ORCHAN;
 			change_actor();
 		}
 	if(mouse_x>310 && mouse_x<400 && mouse_y>340 && mouse_y<360)
 		{
-			race=race_draegoni;
+			race=RACE_DRAEGONI;
 			change_actor();
 		}
 	//check to see the selected dialogue boxes
@@ -549,19 +549,19 @@ void draw_new_char_screen()
 	glColor3f (1.0f, 0.2f, 0.2f);
 	draw_string (race_text_x_start, race_text_y_start, race_str, 1);
 
-	if (race == race_human)
+	if (race == RACE_HUMAN)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else
 		glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (human_text_x_start, human_text_y_start, human_str, 1);
 
-	if (race == race_elf)
+	if (race == RACE_ELF)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else
 		glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (elf_text_x_start, elf_text_y_start, elf_str, 1);
 
-	if (race == race_dwarf)
+	if (race == RACE_DWARF)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else
 		glColor3f (1.0f, 1.0f, 1.0f);
@@ -581,19 +581,19 @@ void draw_new_char_screen()
 
 	glEnable (GL_TEXTURE_2D);
 	
-	if (race == race_gnome)
+	if (race == RACE_GNOME)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else
 		glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (gnome_text_x_start, gnome_text_y_start, "Gnome", 1);
 
-	if (race == race_orchan)
+	if (race == RACE_ORCHAN)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else
 		glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (orchan_text_x_start, orchan_text_y_start, "Orchan", 1);
 	
-	if (race == race_draegoni)
+	if (race == RACE_DRAEGONI)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else
 		glColor3f (1.0f, 1.0f, 1.0f);
@@ -812,7 +812,7 @@ int newchar_win = -1;
 int display_newchar_handler (window_info *win)
 {
 	draw_new_char_screen ();	
-	check_gl_errors ();
+	CHECK_GL_ERRORS ();
 	draw_delay = 20;
 	return 1;
 }
@@ -902,7 +902,7 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 		// don't destroy this window yet, maybe the use will come back
 		hide_window (newchar_win);
 		show_window (login_win);
-		interface_mode=interface_log_in;
+		interface_mode=INTERFACE_LOG_IN;
 	}
 	else if (mx > done_button_x_start && mx < done_button_x_end && my > done_button_y_start && mouse_y < done_button_y_end && done_selected)
 	{
@@ -928,25 +928,25 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 	//check hair color change
 	else if (mx >= back_arrow_x_start && my > hair_text_y_start && my < hair_text_y_end && mx <= back_arrow_x_end)
 	{
-		int wrap = race == race_draegoni ? HAIR_PURPLE : HAIR_WHITE;
+		int wrap = race == RACE_DRAEGONI ? HAIR_PURPLE : HAIR_WHITE;
 		if(hair_color == HAIR_BLACK)
 			hair_color=wrap;
 		else
 			hair_color--;
 		if(hair_color == HAIR_BLOND)
-			if ((race==race_draegoni && male) || race==race_orchan)
+			if ((race==RACE_DRAEGONI && male) || race==RACE_ORCHAN)
 				hair_color--;
 		change_actor();
 	}
 	else if(mx >= forward_arrow_x_start && my > hair_text_y_start && my < hair_text_y_end && mx <= forward_arrow_x_end)
 	{
-		int wrap = race == race_draegoni ? HAIR_PURPLE : HAIR_WHITE;
+		int wrap = race == RACE_DRAEGONI ? HAIR_PURPLE : HAIR_WHITE;
 		if(hair_color==wrap)
 			hair_color = HAIR_BLACK;
 		else
 			hair_color++;
 		if (hair_color == HAIR_BLOND)
-			if ((race==race_draegoni && male) || race==race_orchan)
+			if ((race==RACE_DRAEGONI && male) || race==RACE_ORCHAN)
 				hair_color++;
 		change_actor();
 	}
@@ -1010,7 +1010,7 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		if(head == HEAD_1)
 		{
-			if (race == race_human)
+			if (race == RACE_HUMAN)
 				head = HEAD_5;
 			else
 				head = HEAD_4;
@@ -1023,7 +1023,7 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 	}
 	else if (mx >= forward_arrow_x_start && my > head_text_y_start && my < head_text_y_end && mx <= forward_arrow_x_end)
 	{
-		if (head == HEAD_4 && race != race_human)
+		if (head == HEAD_4 && race != RACE_HUMAN)
 		{
 			head = HEAD_1;
 		}
@@ -1052,32 +1052,32 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 	//check to see if we changed the race
 	else if (mx > human_text_x_start && mx < human_text_x_end && my > human_text_y_start && my < human_text_y_end)
 	{
-		race = race_human;
+		race = RACE_HUMAN;
 		change_actor ();
 	}
 	else if (mx > elf_text_x_start && mx < elf_text_x_end && my > elf_text_y_start && my < elf_text_y_end)
 	{
-		race = race_elf;
+		race = RACE_ELF;
 		change_actor ();
 	}
 	else if (mx > dwarf_text_x_start && mx < dwarf_text_x_end && my > dwarf_text_y_start && my < dwarf_text_y_end)
 	{
-		race = race_dwarf;
+		race = RACE_DWARF;
 		change_actor ();
 	}
 	else if (mx > gnome_text_x_start && mx < gnome_text_x_end && my > gnome_text_y_start && my < gnome_text_y_end)
 	{
-		race = race_gnome;
+		race = RACE_GNOME;
 		change_actor();
 	}
 	else if (mx > orchan_text_x_start && mx < orchan_text_x_end && my > orchan_text_y_start && my < orchan_text_y_end)
 	{
-		race = race_orchan;
+		race = RACE_ORCHAN;
 		change_actor ();
 	}
 	else if (mx > draegoni_text_x_start && mx < draegoni_text_x_end && my > draegoni_text_y_start && my < draegoni_text_y_end)
 	{
-		race = race_draegoni;
+		race = RACE_DRAEGONI;
 		change_actor();
 	}
 	//check to see the selected dialogue boxes

@@ -119,7 +119,7 @@ void check_timers()
 			char str[120];
 			sprintf(str,timer_lagging_behind,"draw_scene");
 			log_error(str);
-			log_to_console(c_red2,str);
+			LOG_TO_CONSOLE(c_red2,str);
 			SDL_RemoveTimer(draw_scene_timer);
 			my_timer_clock=0;
 			draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
@@ -130,7 +130,7 @@ void check_timers()
 			char str[120];
 			sprintf(str,timer_lagging_behind,"misc");
 			log_error(str);
-			log_to_console(c_red2,str);
+			LOG_TO_CONSOLE(c_red2,str);
 			SDL_RemoveTimer(misc_timer);
 			misc_timer = SDL_AddTimer (500, check_misc, NULL);
 			misc_timer_clock=SDL_GetTicks();

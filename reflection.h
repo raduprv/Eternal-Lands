@@ -27,12 +27,12 @@ extern float water_movement_v; /*!< movement of the water in v direction */
 /*!
  * defines whether a tile is a water tile or not
  */
-#define is_water_tile(i) (!i || (i>230 && i<255))
+#define IS_WATER_TILE(i) (!i || (i>230 && i<255))
 
 /*!
  * The following macro tests if a _water tile_ is reflecting
  */
-#define is_reflecting(i) (i<240)
+#define IS_REFLECTING(i) (i<240)
 
 /*!
  * \ingroup misc_utils

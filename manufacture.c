@@ -315,7 +315,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 						if(manufacture_list[y*12+x].quantity)
 							{
 
-								if(action_mode==action_look || (flags&ELW_RIGHT_MOUSE))
+								if(action_mode==ACTION_LOOK || (flags&ELW_RIGHT_MOUSE))
 									{
 										str[0]=LOOK_AT_INVENTORY_ITEM;
 										str[1]=manufacture_list[y*12+x].pos;
@@ -367,7 +367,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(manufacture_list[36+x].quantity)
 						{
 
-							if(action_mode==action_look || (flags&ELW_RIGHT_MOUSE))
+							if(action_mode==ACTION_LOOK || (flags&ELW_RIGHT_MOUSE))
 								{
 									str[0]=LOOK_AT_INVENTORY_ITEM;
 									str[1]=manufacture_list[36+x].pos;

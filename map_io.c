@@ -37,7 +37,7 @@ void destroy_map()
 		}
 
 	//kill the 3d objects links
-	for(i=0;i<max_obj_3d;i++)
+	for(i=0;i<MAX_OBJ_3D;i++)
 		{
 			if(objects_list[i])
 				{
@@ -50,7 +50,7 @@ void destroy_map()
 	highest_obj_3d= 0;
 
 	//kill the 2d objects links
-	for(i=0;i<max_obj_2d;i++)
+	for(i=0;i<MAX_OBJ_2D;i++)
 		{
 			if(obj_2d_list[i])
 				{
@@ -60,7 +60,7 @@ void destroy_map()
 		}
 
 	//kill the lights links
-	for(i=0;i<max_lights;i++)
+	for(i=0;i<MAX_LIGHTS;i++)
 		{
 			if(lights_list[i])
 				{
@@ -104,10 +104,10 @@ int save_map(char * file_name)
 
 	//get the number of objects and lights
 	for(i=0;i<highest_obj_3d;i++)if(objects_list[i])obj_3d_no++;
-	for(i=0;i<max_obj_2d;i++)if(obj_2d_list[i])obj_2d_no++;
-	for(i=0;i<max_lights;i++)if(lights_list[i])lights_no++;
+	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
+	for(i=0;i<MAX_LIGHTS;i++)if(lights_list[i])lights_no++;
 	// We ignore temporary particle systems (i.e. ones with a ttl>=0)
-	for(i=0;i<max_particle_systems;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)particles_no++;
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)particles_no++;
 
 	//ok, now build the header...
 	//clear the header
@@ -198,7 +198,7 @@ int save_map(char * file_name)
 
 	//write the 2d objects
 	j=0;
-	for(i=0;i<max_obj_2d;i++)
+	for(i=0;i<MAX_OBJ_2D;i++)
 		{
 
 			if(j>obj_2d_no)break;
@@ -227,7 +227,7 @@ int save_map(char * file_name)
 
 	//write the lights
 	j=0;
-	for(i=0;i<max_lights;i++)
+	for(i=0;i<MAX_LIGHTS;i++)
 		{
 			if(j>lights_no)break;
 			if(lights_list[i])
@@ -254,7 +254,7 @@ int save_map(char * file_name)
 
 	// Write the particle systems
 	j=0;
-	for(i=0;i<max_particle_systems;i++)
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
 			if(j>particles_no)break;
 			if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)

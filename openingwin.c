@@ -8,7 +8,7 @@ int display_opening_handler ()
 {
 	draw_console_pic (cons_text);
 	display_console_text ();
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	draw_delay = 20;
 	return 1;
@@ -23,7 +23,7 @@ void switch_to_login ()
 	destroy_window (opening_win);
 	opening_win = -1;
 
-	interface_mode = interface_log_in;
+	interface_mode = INTERFACE_LOG_IN;
 }
 
 int click_opening_handler ()

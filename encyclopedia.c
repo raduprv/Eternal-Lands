@@ -301,7 +301,7 @@ void ParsePage(xmlAttr *a_node)
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
 				Page[numpage].Name=NULL;
-				my_xmlStrcpy(&Page[numpage].Name, cur_attr->children->content);
+				MY_XMLSTRCPY(&Page[numpage].Name, cur_attr->children->content);
 			}
 		}
 	}
@@ -367,7 +367,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				T->r=r; T->g=g; T->b=b;
 				T->text=NULL;
 				T->ref=NULL;
-				my_xmlStrcpy(&T->text, cur_node->children->content); 
+				MY_XMLSTRCPY(&T->text, cur_node->children->content); 
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
 				x+=strlen(T->text)*((T->size)?11:8);
@@ -488,8 +488,8 @@ void ReadCategoryXML(xmlNode * a_node)
 				T->r=r; T->g=g; T->b=b;
 				T->text=NULL;
 				T->ref=NULL;
-				my_xmlStrcpy(&T->text, s);
-				my_xmlStrcpy(&T->ref, ss);
+				MY_XMLSTRCPY(&T->text, s);
+				MY_XMLSTRCPY(&T->ref, ss);
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
 				x+=strlen(T->text)*((T->size)?11:8);
@@ -513,7 +513,7 @@ void ReadIndexXML(xmlNode * a_node)
 				xmlDocPtr doc;
 				char tmp[100];
 				Category[num_category].Name=NULL;
-				my_xmlStrcpy(&Category[num_category].Name, cur_node->children->content);
+				MY_XMLSTRCPY(&Category[num_category].Name, cur_node->children->content);
 
 				//we load the category now
 				sprintf(tmp,"languages/%s/Encyclopedia/%s.xml",lang,cur_node->children->content);

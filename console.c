@@ -16,7 +16,7 @@ void cls()
 	display_text_buffer_last=0;
 
 	//clear the buffer
-	for(i=0;i<max_display_text_buffer_lenght;i++)display_text_buffer[i]=0;
+	for(i=0;i<MAX_DISPLAY_TEXT_BUFFER_LENGTH;i++)display_text_buffer[i]=0;
 	not_from_the_end_console=0;
 
 	//also update the lines to show, and the last server message thing
@@ -177,12 +177,12 @@ void test_for_console_command()
 				sprintf(str, "Goto: %d,%d", x, y);
 			else
 				sprintf(str, "Can't go to %d,%d", x, y);
-			log_to_console((check?c_orange1:c_red2), str);
+			LOG_TO_CONSOLE((check?c_orange1:c_red2), str);
 		}
 		else
 		{
 			sprintf (str, "Mark %s not found", name);
-			log_to_console(c_red2, str);
+			LOG_TO_CONSOLE(c_red2, str);
 		}
 		return;
 	}
@@ -193,7 +193,7 @@ void test_for_console_command()
 			char str[520];
 			put_mark_on_current_position(text_loc+5);
 			sprintf (str, "%s marked", text_loc+5);
-			log_to_console(c_orange1,str);
+			LOG_TO_CONSOLE(c_orange1,str);
 		}
 		return;		
 	}
@@ -213,7 +213,7 @@ void test_for_console_command()
 				marks[i].x = marks[i].y = -1;
 				save_markings();
 				sprintf(str,"%s removed", marks[i].text);
-				log_to_console(c_orange1,str);
+				LOG_TO_CONSOLE(c_orange1,str);
 				break;
 			}
 		}
@@ -281,7 +281,7 @@ void test_for_console_command()
 				}
 			sprintf(str,"Eternal Lands Version %d.%d.%d%s",client_version_major,
 					client_version_minor,client_version_release,extra);
-			log_to_console(c_green1,str);
+			LOG_TO_CONSOLE(c_green1,str);
 			return;
 		}
 
@@ -314,14 +314,14 @@ void test_for_console_command()
 				{
 					Uint8 str[100];
 					sprintf(str,"%s %s",name_too_long,not_added_to_ignores);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[100];
 					sprintf(str,"%s %s",name_too_short,not_added_to_ignores);
-					log_to_console(c_red1,name_too_short);
+					LOG_TO_CONSOLE(c_red1,name_too_short);
 					return;
 				}
 
@@ -330,19 +330,19 @@ void test_for_console_command()
 				{
 					Uint8 str[100];
 					sprintf(str,already_ignoring,name);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			if(result==-2)
 				{
-					log_to_console(c_red1,ignore_list_full);
+					LOG_TO_CONSOLE(c_red1,ignore_list_full);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
 					sprintf(str,added_to_ignores,name);
-					log_to_console(c_green1,str);
+					LOG_TO_CONSOLE(c_green1,str);
 					return;
 				}
 		}
@@ -376,14 +376,14 @@ void test_for_console_command()
 				{
 					Uint8 str[100];
 					sprintf(str,"%s %s",word_too_long,not_added_to_filter);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[100];
 					sprintf(str,"%s %s",word_too_short,not_added_to_filter);
-					log_to_console(c_red1,word_too_short);
+					LOG_TO_CONSOLE(c_red1,word_too_short);
 					return;
 				}
 
@@ -392,19 +392,19 @@ void test_for_console_command()
 				{
 					Uint8 str[100];
 					sprintf(str,already_filtering,name);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			if(result==-2)
 				{
-					log_to_console(c_red1,filter_list_full);
+					LOG_TO_CONSOLE(c_red1,filter_list_full);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
 					sprintf(str,added_to_filters,name);
-					log_to_console(c_green1,str);
+					LOG_TO_CONSOLE(c_green1,str);
 					return;
 				}
 		}
@@ -434,14 +434,14 @@ void test_for_console_command()
 				{
 					Uint8 str[200];
 					sprintf(str,"%s %s",name_too_long,not_removed_from_ignores);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[200];
 					sprintf(str,"%s %s",name_too_short,not_removed_from_filter);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			result=remove_from_ignore_list(name);
@@ -449,14 +449,14 @@ void test_for_console_command()
 				{
 					Uint8 str[200];
 					sprintf(str,not_ignoring,name);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
 					sprintf(str,removed_from_ignores,name);
-					log_to_console(c_green1,str);
+					LOG_TO_CONSOLE(c_green1,str);
 					return;
 				}
 		}
@@ -484,14 +484,14 @@ void test_for_console_command()
 				{
 					Uint8 str[200];
 					sprintf(str,"%s %s",word_too_long,not_removed_from_filter);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[200];
 					sprintf(str,"%s %s",word_too_short,not_removed_from_filter);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			result=remove_from_filter_list(name);
@@ -499,14 +499,14 @@ void test_for_console_command()
 				{
 					Uint8 str[200];
 					sprintf(str,not_filtering,name);
-					log_to_console(c_red1,str);
+					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
 					sprintf(str,removed_from_filter,name);
-					log_to_console(c_green1,str);
+					LOG_TO_CONSOLE(c_green1,str);
 					return;
 				}
 		}
@@ -519,25 +519,25 @@ void test_for_console_command()
 
 			my_string=(GLubyte *)glGetString(GL_RENDERER);
 			sprintf(this_string,"%s: %s",video_card_str,my_string);
-			log_to_console(c_red2,this_string);
+			LOG_TO_CONSOLE(c_red2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VENDOR);
 			sprintf(this_string,"%s: %s",video_vendor_str,my_string);
-			log_to_console(c_yellow3,this_string);
+			LOG_TO_CONSOLE(c_yellow3,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VERSION);
 			sprintf(this_string,"%s: %s",opengl_version_str,my_string);
-			log_to_console(c_yellow2,this_string);
+			LOG_TO_CONSOLE(c_yellow2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_EXTENSIONS);
 			sprintf(this_string,"%s: %s",supported_extensions_str,my_string);
-			log_to_console(c_grey1,this_string);
+			LOG_TO_CONSOLE(c_grey1,this_string);
 
 			return;
 		}
 	if(my_strncompare(text_loc,"log conn data", 8))
 		{
-			log_to_console(c_grey1,logconn_str);
+			LOG_TO_CONSOLE(c_grey1,logconn_str);
 			log_conn_data=1;
 			return;
 		}

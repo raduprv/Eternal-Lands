@@ -9,7 +9,7 @@ cache_struct	*cache_md2=NULL;
 cache_struct	*cache_e3d=NULL;
 
 texture_cache_struct texture_cache[1000];
-obj_2d_cache_struct obj_2d_def_cache[max_obj_2d_def];
+obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_def];
 
 // top level cache system routines
 void cache_system_init(Uint32 max_items)
@@ -70,7 +70,7 @@ Uint32	cache_system_clean()
 
 	if(!cache_system || !cache_system->time_limit || !cache_system->cached_items) return 0;
 	// make sure we are in a safe place
-	if(interface_mode != interface_game) return 0;
+	if(interface_mode != INTERFACE_GAME) return 0;
 	for(i=0; i<cache_system->max_item; i++)
 		{
 			if(cache_system->cached_items[i] && cache_system->cached_items[i]->cache_item)

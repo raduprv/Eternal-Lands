@@ -24,7 +24,7 @@ void draw_actor_reflection(actor * actor_id)
 	int texture_id;
 	char *cur_frame;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	if(!actor_id->remapped_colors)texture_id=get_texture_id(actor_id->texture_id);
 	else
 		{
@@ -63,7 +63,7 @@ void draw_actor_reflection(actor * actor_id)
 	draw_model(actor_id->model_data, cur_frame, actor_id->ghost);
 
 	glPopMatrix();
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 void draw_enhanced_actor_reflection(actor * actor_id)
@@ -73,7 +73,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	int texture_id;
 	char *cur_frame;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	
 	cur_frame=actor_id->tmp.cur_frame;
 	
@@ -122,7 +122,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 
 	//////
 	glPopMatrix();//restore the scene
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 
@@ -142,7 +142,7 @@ void draw_3d_reflection(object3d * object_id)
 
 	int is_transparent;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	is_transparent=object_id->e3d_data->is_transparent;
 	materials_no=object_id->e3d_data->materials_no;
 
@@ -170,7 +170,7 @@ void draw_3d_reflection(object3d * object_id)
 		}
 
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
@@ -186,7 +186,7 @@ void draw_3d_reflection(object3d * object_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glVertexPointer(3,GL_FLOAT,0,array_vertex);
 	glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
 	glNormalPointer(GL_FLOAT,0,array_normal);
@@ -198,9 +198,9 @@ void draw_3d_reflection(object3d * object_id)
 				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 				if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 			}
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glPopMatrix();//restore the scene
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 
 	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
@@ -209,7 +209,7 @@ void draw_3d_reflection(object3d * object_id)
 			glDisable(GL_ALPHA_TEST);
 		}
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 //if there is any reflecting tile, returns 1, otherwise 0
@@ -241,9 +241,9 @@ int find_reflection()
 				{
 					x_scaled=x*3.0f;
 					if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
-					if(is_water_tile(tile_map[y*tile_map_size_x+x]))
+					if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]))
 						{
-							if(is_reflecting(tile_map[y*tile_map_size_x+x])) return 2;
+							if(IS_REFLECTING(tile_map[y*tile_map_size_x+x])) return 2;
 							found_water=1;
 						}	  
 				}
@@ -275,9 +275,9 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 		{
 			for(x=x_start;x<=x_end;x++)
 				{
-					if(is_water_tile(tile_map[y*tile_map_size_x+x]))
+					if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]))
 						{
-							if(is_reflecting(tile_map[y*tile_map_size_x+x])) return 2;
+							if(IS_REFLECTING(tile_map[y*tile_map_size_x+x])) return 2;
 							found_water=1;
 						}
 				}
@@ -296,7 +296,7 @@ void display_3d_reflection()
 	if(!xxx)return;
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	x=-cx;
 	y=-cy;
 
@@ -312,7 +312,7 @@ void display_3d_reflection()
 	glPushMatrix();
 	glScalef(1.0f, 1.0f, -1.0f);
 	//first, render only the submerged objects, with the clipping plane enabled
-	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 	for(i=sx;i<=ex;i++)
 		for(j=sy;j<=ey;j++)
 			for(k=0;k<MAX_3D_OBJECTS;k++){
@@ -377,7 +377,7 @@ void display_3d_reflection()
 	glDisable(GL_CLIP_PLANE0);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 
@@ -479,7 +479,7 @@ void draw_lake_tiles()
 					if(actualx<0)actualx=0;
 					else if(actualx>=tile_map_size_x)actualx=tile_map_size_x-1;
 					x_scaled=x*3.0f;
-					if(is_water_tile(tile_map[actualy+actualx]) && check_tile_in_frustrum(x_scaled,y_scaled))
+					if(IS_WATER_TILE(tile_map[actualy+actualx]) && check_tile_in_frustrum(x_scaled,y_scaled))
 						{
 							if(!tile_map[actualy+actualx])
 								{
@@ -504,26 +504,26 @@ void draw_sky_background()
 	Enter2DMode();
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
-#define scale_factor 100
+#define SCALE_FACTOR 100
 
-	glColor3f(sky_lights_c1[light_level][0]-(float)weather_light_offset/scale_factor,
-			  sky_lights_c1[light_level][1]-(float)weather_light_offset/scale_factor,
-			  sky_lights_c1[light_level][2]-(float)weather_light_offset/scale_factor);
+	glColor3f(sky_lights_c1[light_level][0]-(float)weather_light_offset/SCALE_FACTOR,
+			  sky_lights_c1[light_level][1]-(float)weather_light_offset/SCALE_FACTOR,
+			  sky_lights_c1[light_level][2]-(float)weather_light_offset/SCALE_FACTOR);
 	glVertex3i(0,0,0);
 
-	glColor3f(sky_lights_c2[light_level][0]-(float)weather_light_offset/scale_factor,
-			  sky_lights_c2[light_level][1]-(float)weather_light_offset/scale_factor,
-			  sky_lights_c2[light_level][2]-(float)weather_light_offset/scale_factor);
+	glColor3f(sky_lights_c2[light_level][0]-(float)weather_light_offset/SCALE_FACTOR,
+			  sky_lights_c2[light_level][1]-(float)weather_light_offset/SCALE_FACTOR,
+			  sky_lights_c2[light_level][2]-(float)weather_light_offset/SCALE_FACTOR);
 	glVertex3i(0,window_height,0);
 
-	glColor3f(sky_lights_c3[light_level][0]-(float)weather_light_offset/scale_factor,
-			  sky_lights_c3[light_level][1]-(float)weather_light_offset/scale_factor,
-			  sky_lights_c3[light_level][2]-(float)weather_light_offset/scale_factor);
+	glColor3f(sky_lights_c3[light_level][0]-(float)weather_light_offset/SCALE_FACTOR,
+			  sky_lights_c3[light_level][1]-(float)weather_light_offset/SCALE_FACTOR,
+			  sky_lights_c3[light_level][2]-(float)weather_light_offset/SCALE_FACTOR);
 	glVertex3i(window_width,window_height,0);
 
-	glColor3f(sky_lights_c4[light_level][0]-(float)weather_light_offset/scale_factor,
-			  sky_lights_c4[light_level][1]-(float)weather_light_offset/scale_factor,
-			  sky_lights_c4[light_level][2]-(float)weather_light_offset/scale_factor);
+	glColor3f(sky_lights_c4[light_level][0]-(float)weather_light_offset/SCALE_FACTOR,
+			  sky_lights_c4[light_level][1]-(float)weather_light_offset/SCALE_FACTOR,
+			  sky_lights_c4[light_level][2]-(float)weather_light_offset/SCALE_FACTOR);
 	glVertex3i(window_width,0,0);
 
 	glEnd();

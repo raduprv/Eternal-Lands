@@ -3,15 +3,15 @@
  * \ingroup particles
  * \brief data structures and functions for the particle system
  */
-#ifndef __particles_H__
-#define __particles_H__
+#ifndef __PARTICLES_H__
+#define __PARTICLES_H__
 
 /*!
  * \name Particle system constants
  */
 /*! \{ */
-#define max_particle_systems 500 /*!< max. number of simultaneous particle systems. */
-#define max_particles 2000 /*!< max. number of particles per particle system */
+#define MAX_PARTICLE_SYSTEMS 500 /*!< max. number of simultaneous particle systems. */
+#define MAX_PARTICLES 2000 /*!< max. number of particles per particle system */
 /*! \} */
 
 /*!
@@ -123,21 +123,21 @@ typedef struct
 
 	int light; /*!< If we have a light this will be the position in the lights list */
 
-	particle particles[max_particles]; /*!< an array of particles for this particle system */
+	particle particles[MAX_PARTICLES]; /*!< an array of particles for this particle system */
 
 }particle_sys;
 
 extern SDL_mutex *particles_list_mutex;	/*!< used for locking between the timer and main threads */
 extern int particle_textures[8];
-extern particle_sys *particles_list[max_particle_systems]; /*!< array of particle systems */
+extern particle_sys *particles_list[MAX_PARTICLE_SYSTEMS]; /*!< array of particle systems */
 extern int particles_percentage;
 
 /*!
  * \name randomization of particles
  */
 /*! \{ */
-#define particle_random(min,max) (min+(max-min)*(rand()/(float)RAND_MAX))
-#define particle_random2(min,max) (min+0.5*(max-min)+0.5*(max-min)/(float)((rand()%200)-100+0.5))
+#define PARTICLE_RANDOM(min,max) (min+(max-min)*(rand()/(float)RAND_MAX))
+#define PARTICLE_RANDOM2(min,max) (min+0.5*(max-min)+0.5*(max-min)/(float)((rand()%200)-100+0.5))
 /*! \} */
 
 
@@ -146,8 +146,8 @@ extern int particles_percentage;
  * \name Particle rendering thread synchronization
  */
 /*! @{ */
-#define	lock_particles_list()	SDL_LockMutex(particles_list_mutex)
-#define	unlock_particles_list()	SDL_UnlockMutex(particles_list_mutex)
+#define	LOCK_PARTICLES_LIST()	SDL_LockMutex(particles_list_mutex)
+#define	UNLOCK_PARTICLES_LIST()	SDL_UnlockMutex(particles_list_mutex)
 /*! @} */
 
 

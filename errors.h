@@ -59,13 +59,13 @@ void clear_conn_log();
 void log_conn(const Uint8 *in_data, Uint32 data_lenght);
 
 /*!
- * \name    LogError macro
+ * \name    LOG_ERROR macro
  */
 /*! @{ */
 #ifdef	DEBUG
-#define	LogError(msg)	log_error_detailed(msg, __FILE__, __FUNCTION__, __LINE__) /*!< detailed log of error */
+#define	LOG_ERROR(msg)	log_error_detailed(msg, __FILE__, __FUNCTION__, __LINE__) /*!< detailed log of error */
 #else
-#define	LogError(msg)	log_error(msg) /*! log the error */
+#define	LOG_ERROR(msg)	log_error(msg) /*! log the error */
 #endif	//DEBUG
 /*! @} */
 

@@ -3,17 +3,16 @@
  * \ingroup 	display
  * \brief 	Handles rendering and loading 2d objects
  */
-#ifndef __obj_2d_H__
-#define __obj_2d_H__
+#ifndef __OBJ_2D_H__
+#define __OBJ_2D_H__
 
 /*!
  *\name 	2D Object array sizes
  *		The sizes of the arrays where we keep 2d objects and 2d object definitions
  */
 /*! \{ */
-#define max_obj_2d 15000 /*!<Maximum number of 2d objects in a map*/
-
-#define max_obj_2d_def 1000 /*!<Maximum number of loaded 2d object definitions*/
+#define MAX_OBJ_2D 15000 /*!<Maximum number of 2d objects in a map*/
+#define MAX_OBJ_2D_def 1000 /*!<Maximum number of loaded 2d object definitions*/
 /*! \} */
 
 /*!
@@ -21,10 +20,10 @@
  *		These defines sets the 2d object types
  */
 /*! \{ */
-#define invalid -1 /*!< Invalid object*/
-#define ground 0 /*!< Ground object*/
-#define plant 1 /*!< Plants and other items that needs to follow the cameras z rotation*/
-#define fence 2 /*!< Fences - will be put in 90 degrees angle (x_rot+=90)*/
+#define INVALID -1 /*!< Invalid object*/
+#define GROUND 0 /*!< Ground object*/
+#define PLANT 1 /*!< Plants and other items that needs to follow the cameras z rotation*/
+#define FENCE 2 /*!< Fences - will be put in 90 degrees angle (x_rot+=90)*/
 /*! \} */
 
 /*!
@@ -32,8 +31,8 @@
  *      These defines sets the size of a 2D sector.
  */
 /*! \{ */  
-#define sector_size_x 15 /*!< Equivalent to 5 tiles - is not used yet apparently...*/
-#define sector_size_y 15 /*!< Equivalent to 5 tiles - is not used yet apparently...*/
+#define SECTOR_SIZE_X 15 /*!< Equivalent to 5 tiles - is not used yet apparently...*/
+#define SECTOR_SIZE_Y 15 /*!< Equivalent to 5 tiles - is not used yet apparently...*/
 /*! \} */
 
 /*! 
@@ -94,9 +93,9 @@ typedef struct
 	obj_2d_def *obj_2d_def_id; /*!< a pointer to the header structure of this object */
 }obj_2d_cache_struct;
 
-extern obj_2d_cache_struct obj_2d_def_cache[max_obj_2d_def]; /*!< The 2d object cache array - holds all loaded 2d object definitions*/
+extern obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_def]; /*!< The 2d object cache array - holds all loaded 2d object definitions*/
 
-extern obj_2d *obj_2d_list[max_obj_2d]; /*!< The 2d object array - holds all 2d objects on that map*/
+extern obj_2d *obj_2d_list[MAX_OBJ_2D]; /*!< The 2d object array - holds all 2d objects on that map*/
 
 extern int map_meters_size_x;
 extern int map_meters_size_y;

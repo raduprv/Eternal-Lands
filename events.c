@@ -97,11 +97,11 @@ int HandleEvent (SDL_Event *event)
 				if(afk_time) 
 					last_action_time=cur_time; // Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 
-				if(interface_mode==interface_rules) break;
+				if(interface_mode==INTERFACE_RULES) break;
 
-				if(interface_mode==interface_opening && !disconnected)
+				if(interface_mode==INTERFACE_OPENING && !disconnected)
 					{
-						interface_mode=interface_log_in;
+						interface_mode=INTERFACE_LOG_IN;
 						break;
 					}
 
@@ -127,35 +127,35 @@ int HandleEvent (SDL_Event *event)
 					windows_paste();
 #endif
 
-				if (event->key.keysym.sym == SDLK_UP && interface_mode==interface_console)
+				if (event->key.keysym.sym == SDLK_UP && interface_mode==INTERFACE_CONSOLE)
 					console_move_up();
 
-				if(key==K_CAMERAUP && interface_mode==interface_game)
+				if(key==K_CAMERAUP && interface_mode==INTERFACE_GAME)
 					if(rx>-60)rx-=1.0f;
 
 
-				if (event->key.keysym.sym == SDLK_DOWN && interface_mode==interface_console)
+				if (event->key.keysym.sym == SDLK_DOWN && interface_mode==INTERFACE_CONSOLE)
 					console_move_down();
 						
-				if(key==K_CAMERADOWN && interface_mode==interface_game)
+				if(key==K_CAMERADOWN && interface_mode==INTERFACE_GAME)
 					if(rx<-45)rx +=1.0f;
 
-				if (event->key.keysym.sym == SDLK_PAGEDOWN && interface_mode==interface_console)
+				if (event->key.keysym.sym == SDLK_PAGEDOWN && interface_mode==INTERFACE_CONSOLE)
 					console_move_page_down();
 
-				if(key==K_ZOOMIN && interface_mode==interface_game){
+				if(key==K_ZOOMIN && interface_mode==INTERFACE_GAME){
 					if(zoom_level>1.0f) {
 						new_zoom_level=zoom_level-0.25;
 					}
 				}
 
-				if(key==K_ZOOMOUT && interface_mode==interface_game){
+				if(key==K_ZOOMOUT && interface_mode==INTERFACE_GAME){
 					if(zoom_level<3.75f) {
 						new_zoom_level=zoom_level+0.25;
 					}
 				}
 
-				if (event->key.keysym.sym == SDLK_PAGEUP && interface_mode==interface_console)
+				if (event->key.keysym.sym == SDLK_PAGEUP && interface_mode==INTERFACE_CONSOLE)
 					console_move_page_up();
 
 				if(key==K_ITEM1){
@@ -278,19 +278,19 @@ int HandleEvent (SDL_Event *event)
 
 				if(key==K_WALK)
 					{
-						item_action_mode=qb_action_mode=action_mode=action_walk;
+						item_action_mode=qb_action_mode=action_mode=ACTION_WALK;
 						break;
 					}
 
 				if(key==K_LOOK)
 					{
-						item_action_mode=qb_action_mode=action_mode=action_look;
+						item_action_mode=qb_action_mode=action_mode=ACTION_LOOK;
 						break;
 					}
 
 				if(key==K_USE)
 					{
-						item_action_mode=qb_action_mode=action_mode=action_use;
+						item_action_mode=qb_action_mode=action_mode=ACTION_USE;
 						break;
 					}
 
@@ -479,7 +479,7 @@ int HandleEvent (SDL_Event *event)
 							}
 					}
 
-				if(interface_mode==interface_log_in)
+				if(interface_mode==INTERFACE_LOG_IN)
 					{
 						if(ch==SDLK_RETURN && username_str[0] && password_str[0])
 							{
@@ -493,7 +493,7 @@ int HandleEvent (SDL_Event *event)
 						break;
 					}
 
-				if(interface_mode==interface_new_char)
+				if(interface_mode==INTERFACE_NEW_CHAR)
 					{
 						add_char_to_new_character(ch);
 						break;
@@ -572,7 +572,7 @@ int HandleEvent (SDL_Event *event)
 								input_text_line[input_text_lenght]=0;
 								if((check_var(input_text_line+1,1))<0) send_input_text_line();
 							}
-						else if(*input_text_line=='#' || interface_mode==interface_console) test_for_console_command();
+						else if(*input_text_line=='#' || interface_mode==INTERFACE_CONSOLE) test_for_console_command();
 						else send_input_text_line();
 						//also clear the buffer
 						input_text_lenght=0;
@@ -675,9 +675,9 @@ int HandleEvent (SDL_Event *event)
 				click_in_windows (mouse_x, mouse_y, 0);
 #else
 			if((left_click==1 || right_click==1) &&
-				interface_mode==interface_game)
+				interface_mode==INTERFACE_GAME)
 				check_mouse_click();
-			else if( interface_mode==interface_map)
+			else if( interface_mode==INTERFACE_MAP)
 				{
 				if (left_click==1) 
 				 pf_move_to_mouse_position();
@@ -687,19 +687,19 @@ int HandleEvent (SDL_Event *event)
 				 delete_mark_on_map_on_mouse_position();
 				}
 			else if((left_click==1 || right_click==1) &&
-				(interface_mode==interface_console || interface_mode==interface_cont))
+				(interface_mode==INTERFACE_CONSOLE || interface_mode==INTERFACE_CONT))
 				check_hud_interface();
 			else
 				if((left_click==1 || right_click==1) &&
-				   interface_mode==interface_opening && !disconnected)
+				   interface_mode==INTERFACE_OPENING && !disconnected)
 					{
-						interface_mode=interface_log_in;
+						interface_mode=INTERFACE_LOG_IN;
 						left_click=2;
 					}
 #endif
 			if (event->type == SDL_MOUSEBUTTONDOWN) {
 				if (event->button.button == SDL_BUTTON_WHEELUP) {
-					if (interface_mode == interface_console)
+					if (interface_mode == INTERFACE_CONSOLE)
 						console_move_up();
 					else {
 						if(camera_zoom_dir == -1)
@@ -710,7 +710,7 @@ int HandleEvent (SDL_Event *event)
 					}
 				}
 				if (event->button.button == SDL_BUTTON_WHEELDOWN) {
-					if (interface_mode == interface_console)
+					if (interface_mode == INTERFACE_CONSOLE)
 						console_move_down();
 					else {
 						if(camera_zoom_dir == 1)

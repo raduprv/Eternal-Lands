@@ -7,8 +7,8 @@
 #ifndef __SOUND_H__
 #define __SOUND_H__
 
-#define max_buffers 9 /*!< max number of buffers */
-#define max_sources 16 /*!< max. number of sources */
+#define MAX_BUFFERS 9 /*!< max number of buffers */
+#define MAX_SOURCES 16 /*!< max. number of sources */
 
 #define BUFFER_SIZE (4096 * 16) /*!< size of one buffer */
 #define SLEEP_TIME 500 /*! sleep time in ms, between music or sound effects */
@@ -236,8 +236,8 @@ void ogg_error(int code);
  * \name Sound thread synchronization
  */
 /*! @{ */
-#define	lock_sound_list()	SDL_LockMutex(sound_list_mutex)
-#define	unlock_sound_list()	SDL_UnlockMutex(sound_list_mutex);
+#define	LOCK_SOUND_LIST()	SDL_LockMutex(sound_list_mutex)
+#define	UNLOCK_SOUND_LIST()	SDL_UnlockMutex(sound_list_mutex);
 /*! @} */
 
 #endif

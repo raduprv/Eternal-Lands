@@ -28,7 +28,7 @@ void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey)
 int sector_add_3do(int objectid)
 {
 	int i;
-	int sector_no=sector_get(objects_list[objectid]->x_pos, objects_list[objectid]->y_pos);
+	int sector_no=SECTOR_GET(objects_list[objectid]->x_pos, objects_list[objectid]->y_pos);
 
 	if(sector_no>=num_sectors) return -1;
 
@@ -46,7 +46,7 @@ int sector_add_3do(int objectid)
 int sector_add_2do(int objectid)
 {
 	int i;
-	int sector_no=sector_get(obj_2d_list[objectid]->x_pos, obj_2d_list[objectid]->y_pos);
+	int sector_no=SECTOR_GET(obj_2d_list[objectid]->x_pos, obj_2d_list[objectid]->y_pos);
 
 	if(sector_no>=num_sectors) return -1;
 
@@ -64,7 +64,7 @@ int sector_add_2do(int objectid)
 int sector_add_light(int objectid)
 {
 	int i;
-	int sector_no=sector_get(lights_list[objectid]->pos_x, lights_list[objectid]->pos_y);
+	int sector_no=SECTOR_GET(lights_list[objectid]->pos_x, lights_list[objectid]->pos_y);
 
 	if(sector_no>=num_sectors) return -1;
 
@@ -82,7 +82,7 @@ int sector_add_light(int objectid)
 int sector_add_particle(int objectid)
 {
 	int i;
-	int sector_no=sector_get(particles_list[objectid]->x_pos, particles_list[objectid]->y_pos);
+	int sector_no=SECTOR_GET(particles_list[objectid]->x_pos, particles_list[objectid]->y_pos);
 
 	if(sector_no>=num_sectors) return -1;
 
@@ -108,15 +108,15 @@ void sector_add_map()
 	int particles_no=0;
 	memset(sectors,-1,sizeof(map_sector)*256*256);
 
-	for(i=0;i<max_obj_3d;i++)if(objects_list[i])obj_3d_no++;
-	for(i=0;i<max_obj_2d;i++)if(obj_2d_list[i])obj_2d_no++;
-	for(i=0;i<max_lights;i++)if(lights_list[i])lights_no++;
-	for(i=0;i<max_particle_systems;i++){
+	for(i=0;i<MAX_OBJ_3D;i++)if(objects_list[i])obj_3d_no++;
+	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
+	for(i=0;i<MAX_LIGHTS;i++)if(lights_list[i])lights_no++;
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++){
 		if(particles_list[i])
 			particles_no++;
 	}
 	// 3d objects
-	for(i=0;i<max_obj_3d;i++){
+	for(i=0;i<MAX_OBJ_3D;i++){
 		if(j>obj_3d_no)
 			break;
 
@@ -128,7 +128,7 @@ void sector_add_map()
 
 	//2d objects
 	j=0;
-	for(i=0;i<max_obj_2d;i++){
+	for(i=0;i<MAX_OBJ_2D;i++){
 		if(j>obj_2d_no)
 			break;
 		if(obj_2d_list[i]){
@@ -139,7 +139,7 @@ void sector_add_map()
 /*
 	//lights
 	j=0;
-	for(i=0;i<max_lights;i++){
+	for(i=0;i<MAX_LIGHTS;i++){
 		if(j>lights_no)break;
 		if(lights_list[i]){
 			sector_add_light(i);
@@ -149,7 +149,7 @@ void sector_add_map()
 
 	//particle systems
 	j=0;
-	for(i=0;i<max_particle_systems;i++){
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++){
 		if(j>particles_no)
 			break;
 		if(particles_list[i]){

@@ -78,7 +78,7 @@ void draw_scene()
 	int mouse_rate;
 #endif
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	//clear the clouds cache too...
 	if(last_clear_clouds+10000<cur_time)clear_clouds_cache();
@@ -88,7 +88,7 @@ void draw_scene()
 	
 	get_tmp_actor_data();
 	
-	if(interface_mode!=interface_game)
+	if(interface_mode!=INTERFACE_GAME)
 		{
 			new_zoom_level=zoom_level;//No scrolling when switching modes...
 			if(quickbar_relocatable && quickbar_win >= 0)//Hack 
@@ -105,13 +105,13 @@ void draw_scene()
 							draw_rules_interface (window_width, window_height);
 							SDL_GL_SwapBuffers();
 							Leave2DMode();
-							check_gl_errors();
+							CHECK_GL_ERRORS();
 						}
 					SDL_Delay(20);
 					return;
 				}
 
-			if(interface_mode==interface_console)
+			if(interface_mode==INTERFACE_CONSOLE)
 				{
 					// are we actively drawing things?
 					if(SDL_GetAppState()&SDL_APPACTIVE)
@@ -126,13 +126,13 @@ void draw_scene()
 								if(current_cursor!=elwin_mouse) change_cursor(elwin_mouse);
 								elwin_mouse=-1;
 							} else if(current_cursor!=CURSOR_ARROW) change_cursor(CURSOR_ARROW);
-							check_gl_errors();
+							CHECK_GL_ERRORS();
 						}
 					SDL_Delay(20);
 					return;
 				}
 
-			if(interface_mode==interface_opening)
+			if(interface_mode==INTERFACE_OPENING)
 				{
 					Enter2DMode();
 					draw_console_pic(cons_text);
@@ -140,33 +140,33 @@ void draw_scene()
 					SDL_Delay(20);
 					SDL_GL_SwapBuffers();
 					Leave2DMode();
-					check_gl_errors();
+					CHECK_GL_ERRORS();
 					return;
 				}
 
-			if(interface_mode==interface_log_in)
+			if(interface_mode==INTERFACE_LOG_IN)
 				{
 					Enter2DMode();
 					draw_login_screen();
 					SDL_Delay(20);
 					SDL_GL_SwapBuffers();
 					Leave2DMode();
-					check_gl_errors();
+					CHECK_GL_ERRORS();
 					return;
 				}
 
-			if(interface_mode==interface_new_char)
+			if(interface_mode==INTERFACE_NEW_CHAR)
 				{
 					Enter2DMode();
 					draw_new_char_screen();
 					SDL_Delay(20);
 					SDL_GL_SwapBuffers();
 					Leave2DMode();
-					check_gl_errors();
+					CHECK_GL_ERRORS();
 					return;
 				}
 
-			if(interface_mode==interface_map || interface_mode==interface_cont)
+			if(interface_mode==INTERFACE_MAP || interface_mode==INTERFACE_CONT)
 				{
 					// are we actively drawing things?
 					if(SDL_GetAppState()&SDL_APPACTIVE)
@@ -174,17 +174,17 @@ void draw_scene()
 							Enter2DMode();
 							draw_hud_interface();
 							Leave2DMode();
-							draw_game_map(interface_mode==interface_map);
+							draw_game_map(interface_mode==INTERFACE_MAP);
 							if(elwin_mouse >= 0) {
 								if(current_cursor!=elwin_mouse) change_cursor(elwin_mouse);
 								elwin_mouse=-1;
 							} else if(current_cursor!=CURSOR_ARROW) change_cursor(CURSOR_ARROW);
 							SDL_GL_SwapBuffers();
-							check_gl_errors();
+							CHECK_GL_ERRORS();
 						}
 					SDL_Delay(20);
 					return;			
-					check_gl_errors();
+					CHECK_GL_ERRORS();
 				}
 #endif
 		}
@@ -262,7 +262,7 @@ void draw_scene()
 
 	CalculateFrustum();
 	any_reflection=find_reflection();
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	// are we actively drawing things?
 	if(SDL_GetAppState()&SDL_APPACTIVE){
@@ -274,10 +274,10 @@ void draw_scene()
 		else draw_dungeon_light();
 		update_scene_lights();
 		draw_lights();
-		check_gl_errors();
+		CHECK_GL_ERRORS();
 
 		if(!dungeon && shadows_on && is_day)render_light_view();
-		check_gl_errors();
+		CHECK_GL_ERRORS();
 
 		//check for network data
 		get_message_from_server();
@@ -287,10 +287,10 @@ void draw_scene()
 			{
 			  	if(!dungeon)draw_sky_background();
 			  	else draw_dungeon_sky_background();
-				check_gl_errors();
+				CHECK_GL_ERRORS();
 				if(show_reflection)display_3d_reflection();
 			}
-		check_gl_errors();
+		CHECK_GL_ERRORS();
 
 		//check for network data - reduces resyncs
 		get_message_from_server();
@@ -300,22 +300,22 @@ void draw_scene()
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
 			draw_tile_map();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			display_2d_objects();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 			display_objects();
 			display_actors();
 		}
 		glDisable(GL_FOG);
-		check_gl_errors();
+		CHECK_GL_ERRORS();
 
 		//check for network data - reduces resyncs
 		get_message_from_server();
 	}	// end of active display check
 	else display_actors();	// we need to 'touch' all the actors even if not drawing to avoid problems
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	//check for network data - reduces resyncs
 	get_message_from_server();
@@ -329,9 +329,9 @@ void draw_scene()
 
 	//particles should be last, we have no Z writting
 	display_particles();
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	if(is_raining)render_rain();
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	//we do this because we don't want the rain/particles to mess with our cursor
 
 	Enter2DMode();
@@ -366,7 +366,7 @@ void draw_scene()
 			draw_string(10,0,str,1);
 		}
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	if(find_last_lines_time())
 	{
 		set_font(chat_font);	// switch to the chat font
@@ -375,10 +375,10 @@ void draw_scene()
 	}
 	
 	anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	draw_ingame_interface();
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	//print the text line we are currently writting (if any)
 	y_line=window_height-(17*(4+input_text_lines));
 	switch(map_type){
@@ -398,7 +398,7 @@ void draw_scene()
 #endif
 
 	SDL_GL_SwapBuffers();
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	
 #ifndef OLD_EVENT_HANDLER
 	if (draw_delay > 0)
@@ -412,7 +412,7 @@ void draw_scene()
 void get_tmp_actor_data()
 {
 	int i;
-	lock_actors_lists();
+	LOCK_ACTORS_LISTS();
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -433,7 +433,7 @@ void get_tmp_actor_data()
 					actors_list[i]->tmp.have_tmp=1;
 				}
 		}
-	unlock_actors_lists();
+	UNLOCK_ACTORS_LISTS();
 }
 
 void Move()

@@ -90,7 +90,7 @@ void change_vertex_array(int value)
 #ifndef ELCONFIG
 	if(use_vertex_array)
 		{
-			log_to_console(c_green2,enabled_vertex_arrays);
+			LOG_TO_CONSOLE(c_green2,enabled_vertex_arrays);
 		}
 #endif
 }
@@ -101,7 +101,7 @@ void change_point_particles(int value)
 #ifndef ELCONFIG
 	if(!use_point_particles)
 		{
-			log_to_console(c_green2,disabled_point_particles);
+			LOG_TO_CONSOLE(c_green2,disabled_point_particles);
 		}
 #endif
 }
@@ -113,7 +113,7 @@ void change_particles_percentage(int value)
 		{
 			particles_percentage=0;
 #ifndef ELCONFIG
-			log_to_console(c_green2,disabled_particles_str);
+			LOG_TO_CONSOLE(c_green2,disabled_particles_str);
 #endif
 		}
 }
@@ -124,7 +124,7 @@ void switch_vidmode(int mode)
 		{
 #ifndef ELCONFIG
 			//warn about this error
-			log_to_console(c_red2,invalid_video_mode);
+			LOG_TO_CONSOLE(c_red2,invalid_video_mode);
 #endif
 			return;
 		}
@@ -229,7 +229,7 @@ int check_var(char * str, int type)
 #ifndef ELCONFIG
 											char str[200];
 											snprintf(str,200,"Reached newline without an ending \" in %s",our_vars.var[i]->name);
-											log_to_console(c_red2,str);
+											LOG_TO_CONSOLE(c_red2,str);
 #endif
 #endif
 											break;

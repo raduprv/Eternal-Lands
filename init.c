@@ -474,7 +474,7 @@ void check_options ()
 	{
 		char err[120];
 		sprintf (err, must_use_tabs, video_mode);
-		log_to_console (c_red2, err);
+		LOG_TO_CONSOLE(c_red2, err);
 		use_tabbed_windows = 1;
 	}
 }
@@ -576,7 +576,7 @@ void init_stuff()
 
 	//initialize the fonts
 	init_fonts();
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	//load the necesary textures
 	//font_text=load_texture_cache("./textures/font.bmp",0);
@@ -622,7 +622,7 @@ void init_stuff()
 #endif
 
 	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	create_char_error_str[0]=0;
 	init_opening_interface();
 	init_hud_interface();
@@ -674,7 +674,7 @@ void init_stuff()
 #ifndef OLD_EVENT_HANDLER
 		show_window (opening_win);
 #endif
-		interface_mode=interface_opening;
+		interface_mode=INTERFACE_OPENING;
 		connect_to_server();
 	}
 	else 
@@ -683,7 +683,7 @@ void init_stuff()
 		create_rules_root_window (opening_win, 5);
 		show_window (rules_root_win);
 #else		
-		init_rules_interface(interface_opening, 1.0f, 10, window_width, window_height);	// has_accepted is loaded from el.cfg
+		init_rules_interface(INTERFACE_OPENING, 1.0f, 10, window_width, window_height);	// has_accepted is loaded from el.cfg
 #endif
 	}
 

@@ -2,7 +2,7 @@
 #include <string.h>
 #include "global.h"
 
-ignore_slot ignore_list[max_ignores];
+ignore_slot ignore_list[MAX_IGNORES];
 int ignored_so_far=0;
 int save_ignores=1;
 int use_global_ignores=1;
@@ -12,14 +12,14 @@ int add_to_ignore_list(Uint8 *name, char save_name)
 {
 	int i;
 	//see if this name is already on the list
-	for(i=0;i<max_ignores;i++)
+	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(ignore_list[i].used)
 				if(my_strcompare(ignore_list[i].name,name))return -1;//already in the list
 		}
 
 	//ok, find a free spot
-	for(i=0;i<max_ignores;i++)
+	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(!ignore_list[i].used)
 				{
@@ -56,7 +56,7 @@ int remove_from_ignore_list(Uint8 *name)
 	int found = 0;
 	FILE *f = NULL;
 	//see if this name is on the list
-	for(i=0;i<max_ignores;i++)
+	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(!found && ignore_list[i].used)
 				if(my_strcompare(ignore_list[i].name,name))
@@ -74,7 +74,7 @@ int remove_from_ignore_list(Uint8 *name)
 			f=my_fopen(local_ignores, "w");
 			if (f != NULL)
 			{
-				for(i=0;i<max_ignores;i++)
+				for(i=0;i<MAX_IGNORES;i++)
 				{
 					if(ignore_list[i].used)
 						{
@@ -95,7 +95,7 @@ int remove_from_ignore_list(Uint8 *name)
 int check_if_ignored(Uint8 *name)
 {
 	int i;
-	for(i=0;i<max_ignores;i++)
+	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(ignore_list[i].used)
 				if(my_strcompare(ignore_list[i].name,name))return 1;//yep, ignored
@@ -192,7 +192,7 @@ void clear_ignore_list()
 {
 	int i;
 	//see if this name is already on the list
-	for(i=0;i<max_ignores;i++)
+	for(i=0;i<MAX_IGNORES;i++)
 		ignore_list[i].used=0;
 }
 
@@ -210,15 +210,15 @@ void load_ignores()
 void list_ignores()
 {
 	int i;
-	Uint8 str[max_ignores*19];
+	Uint8 str[MAX_IGNORES*19];
 
 	if(!ignored_so_far)
 		{
-			log_to_console(c_grey1,no_ignores_str);
+			LOG_TO_CONSOLE(c_grey1,no_ignores_str);
 			return;
 		}
 	sprintf(str,"%s:\n",ignores_str);
-	for(i=0;i<max_ignores;i++)
+	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(ignore_list[i].used)
 				{
@@ -229,7 +229,7 @@ void list_ignores()
 
 	str[strlen(str)-2]=0;//get rid of the last ", " thingy
 
-	log_to_console(c_grey1,str);
+	LOG_TO_CONSOLE(c_grey1,str);
 
 }
 

@@ -76,17 +76,17 @@ extern GLfloat light_6_dist;
  * \name Lights limits
  */
 /*! @{ */
-#define global_lights_no 60
+#define GLOBAL_LIGHTS_NO 60
 /*! @} */
 
-extern GLfloat global_lights[global_lights_no][4]; /*!< stores the lights that are global used */
+extern GLfloat global_lights[GLOBAL_LIGHTS_NO][4]; /*!< stores the lights that are global used */
 
 /*! \name Sky lights arrays 
  * @{ */
-extern GLfloat sky_lights_c1[global_lights_no*2][4];
-extern GLfloat sky_lights_c2[global_lights_no*2][4];
-extern GLfloat sky_lights_c3[global_lights_no*2][4];
-extern GLfloat sky_lights_c4[global_lights_no*2][4];
+extern GLfloat sky_lights_c1[GLOBAL_LIGHTS_NO*2][4];
+extern GLfloat sky_lights_c2[GLOBAL_LIGHTS_NO*2][4];
+extern GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
+extern GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 /*! @} */
 
 extern sun sun_pos[60*3]; /*!< an array of sun positions */
@@ -98,10 +98,10 @@ extern int sun_use_static_position; /*!< flag that indicates whether the sun sho
  * \name Lights limits
  */
 /*! @{ */
-#define max_lights 1000
+#define MAX_LIGHTS 1000
 /*! @} */
 
-extern light *lights_list[max_lights]; /*!< global lights list */
+extern light *lights_list[MAX_LIGHTS]; /*!< global lights list */
 
 extern char lights_on; /*!< this indicates whether lights are on or not */
 extern unsigned char light_level; /*!< the light level */

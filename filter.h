@@ -12,7 +12,7 @@
  * \name    max. number of filters for filter_list
  * @{
  */
-#define max_filters 1000
+#define MAX_FILTERS 1000
 /*! @} */
 
 /*!
@@ -24,7 +24,7 @@ typedef struct
 	int len; /*!< length of \a name */
 }filter_slot;
 
-extern filter_slot filter_list[max_filters]; /*!< global variable of filters */
+extern filter_slot filter_list[MAX_FILTERS]; /*!< global variable of filters */
 extern int filtered_so_far; /*!< number of items that have been filter duing the current execution */
 extern int save_filters; /*!< global flag, indicating whether filters should be saved between executions or not */
 extern int use_global_filters; /*!< global flag, indicating whether global filtering is used or not */

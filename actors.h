@@ -3,8 +3,8 @@
  * \ingroup	display
  * \brief	This file holds information about actors appearance etc. used for displaying the actors.
  */
-#ifndef __actors_H__
-#define __actors_H__
+#ifndef __ACTORS_H__
+#define __ACTORS_H__
 
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
 extern int you_sit; 	/*!< Specifies if you are currently sitting down.*/
@@ -24,7 +24,7 @@ extern float name_zoom; /*!< The name_zoom defines how large the text used for d
 /*! \} */
 
 /*! Max text len to display into bubbles overhead*/
-#define max_current_displayed_text_len	60
+#define MAX_CURRENT_DISPLAYED_TEXT_LEN	60
 
 /*!
  * \name	Glow colours
@@ -348,7 +348,7 @@ typedef struct
 
 	/*! \name Overhead text (text bubbles)*/
 	/*! \{ */
-	char current_displayed_text[max_current_displayed_text_len]; /*!< If the text is displayed in a bubble over the actor, this holds the text*/
+	char current_displayed_text[MAX_CURRENT_DISPLAYED_TEXT_LEN]; /*!< If the text is displayed in a bubble over the actor, this holds the text*/
 	int current_displayed_text_time_left;	/*!< Defines the remaining time the overhead text should be displayed*/
 	/*! \} */
 	
@@ -533,29 +533,35 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
  * 		Sets all actor pointers in the actors_list to NULL and creates the actors_list mutex.
  *
  * \sa		actors_list
- * \sa		lock_actors_lists
+ * \sa		LOCK_ACTORS_LISTS
  */
 extern void	init_actors_lists();
 
 #ifdef MUTEX_DEBUG
-#define	lock_actors_lists() 	\
+/*!
+ * \ingroup mutex
+ * \name Actor list thread synchronization
+ */
+/*! @{ */
+#define	LOCK_ACTORS_LISTS() 	\
 	{\
 		fprintf(stderr,"Last locked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
 		if(SDL_LockMutex(actors_lists_mutex)==-1)fprintf(stderr,"We're fucked!! The mutex on %s %s %d was not locked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__);\
 	}
-#define	unlock_actors_lists() 	\
+#define	UNLOCK_ACTORS_LISTS() 	\
 	{\
 		fprintf(stderr,"Last unlocked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
 		if(SDL_UnlockMutex(actors_lists_mutex)==-1)fprintf(stderr,"We're fucked!! The mutex on %s %s %d was not unlocked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__);\
 	}
+/*! @} */
 #else
 /*!
  * \ingroup mutex
  * \name Actor list thread synchronization
  */
 /*! @{ */
-#define lock_actors_lists()	SDL_LockMutex(actors_lists_mutex)
-#define unlock_actors_lists()	SDL_UnlockMutex(actors_lists_mutex)
+#define LOCK_ACTORS_LISTS()	SDL_LockMutex(actors_lists_mutex)
+#define UNLOCK_ACTORS_LISTS()	SDL_UnlockMutex(actors_lists_mutex)
 /*! @} */
 #endif
 

@@ -199,7 +199,7 @@ FILE *my_fopen (const char *fname, const char *mode)
 	{
 		char str[256];
 		snprintf(str, sizeof (str), "%s: %s \"%s\"", reg_error_str, cant_open_file, fname);
-		LogError(str);
+		LOG_ERROR(str);
 	}
 	return file;
 }

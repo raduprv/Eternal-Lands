@@ -25,7 +25,7 @@ void strap_word(char * in, char * out)
 	*out=0;
 }
 
-int item_action_mode=action_walk;
+int item_action_mode=ACTION_WALK;
 
 int view_ground_items=0;
 int no_view_my_items=0;
@@ -286,41 +286,41 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		if(item_dragged!=-1 || use_item!=-1){
 			use_item=-1;
 			item_dragged=-1;
-			item_action_mode=action_walk;
+			item_action_mode=ACTION_WALK;
 			return 1;
 		}
 		if(mx>=wear_items_x_offset && mx<wear_items_x_offset+66 && my>=wear_items_y_offset && my<wear_items_y_offset+133) {
 			switch(item_action_mode){
-				case action_walk:
-					item_action_mode=action_look;
+				case ACTION_WALK:
+					item_action_mode=ACTION_LOOK;
 					break;
-				case action_look:
+				case ACTION_LOOK:
 				default:
-					item_action_mode=action_walk;
+					item_action_mode=ACTION_WALK;
 			}
 			return 1;
 		}
 		switch(item_action_mode) {
-		case action_walk:
-			item_action_mode=action_look;
+		case ACTION_WALK:
+			item_action_mode=ACTION_LOOK;
 			break;
-		case action_look:
-			item_action_mode=action_use;
+		case ACTION_LOOK:
+			item_action_mode=ACTION_USE;
 			break;
-		case action_use:
-			item_action_mode=action_use_witem;
+		case ACTION_USE:
+			item_action_mode=ACTION_USE_WITEM;
 			break;
-		case action_use_witem:
-			item_action_mode=action_walk;
+		case ACTION_USE_WITEM:
+			item_action_mode=ACTION_WALK;
 			break;
 		default:
-			item_action_mode=action_walk;
+			item_action_mode=ACTION_WALK;
 		}
 		return 1;
 	}
 	
-	if(item_action_mode==action_use_witem)	action_mode=action_use_witem;
-	if(item_action_mode==action_use)	action_mode=action_use;
+	if(item_action_mode==ACTION_USE_WITEM)	action_mode=ACTION_USE_WITEM;
+	if(item_action_mode==ACTION_USE)	action_mode=ACTION_USE;
 
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
@@ -387,14 +387,14 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 											my_tcp_send(my_socket, str, 4);
 											return 1;
 										}
-										if(item_action_mode==action_look)
+										if(item_action_mode==ACTION_LOOK)
 											{
 												click_time=cur_time;
 												str[0]=LOOK_AT_INVENTORY_ITEM;
 												str[1]=item_list[i].pos;
 												my_tcp_send(my_socket,str,2);
 											}
-										else if(item_action_mode==action_use)
+										else if(item_action_mode==ACTION_USE)
 											{
 												if(item_list[i].use_with_inventory)
 													{
@@ -404,7 +404,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 													}
 												return 1;
 											}
-										else if(item_action_mode==action_use_witem) {
+										else if(item_action_mode==ACTION_USE_WITEM) {
 												if(use_item!=-1) {
 													str[0]=ITEM_ON_ITEM;
 													str[1]=item_list[use_item].pos;
@@ -471,7 +471,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 								//should we get the info for it?
 								if(item_list[i].quantity && item_list[i].pos==y*2+x+ITEM_WEAR_START)
 									{
-										if(item_action_mode==action_look || right_click)
+										if(item_action_mode==ACTION_LOOK || right_click)
 											{
 												str[0]=LOOK_AT_INVENTORY_ITEM;
 												str[1]=item_list[i].pos;
@@ -814,7 +814,7 @@ void remove_bag(int which_bag)
 {
 	int sector, i, j=MAX_3D_OBJECTS-1, k=-1;
 	add_particle_sys_at_tile("./particles/bag_out.part",bag_list[which_bag].x,bag_list[which_bag].y);
-	sector=sector_get(objects_list[bag_list[which_bag].obj_3d_id]->x_pos, objects_list[bag_list[which_bag].obj_3d_id]->y_pos);
+	sector=SECTOR_GET(objects_list[bag_list[which_bag].obj_3d_id]->x_pos, objects_list[bag_list[which_bag].obj_3d_id]->y_pos);
 	for(i=0;i<MAX_3D_OBJECTS;i++){
 		if(k!=-1 && sectors[sector].e3d_local[i]==-1){
 			j=i-1;
@@ -838,10 +838,10 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	Uint8 str[10];
 
 	if(right_click) {
-		if(item_action_mode==action_look)
-			item_action_mode=action_walk;
+		if(item_action_mode==ACTION_LOOK)
+			item_action_mode=ACTION_WALK;
 		else
-			item_action_mode=action_look;
+			item_action_mode=ACTION_LOOK;
 		return 1;
 	}
 
@@ -885,7 +885,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 							}
 							return 1;
 						}
-						if(item_action_mode==action_look)
+						if(item_action_mode==ACTION_LOOK)
 							{
 								str[0]= LOOK_AT_GROUND_ITEM;
 								str[1]= pos;
@@ -922,7 +922,7 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 					int pos;
 					pos= y*5+x;
 					if(ground_item_list[pos].quantity) {
-						if(item_action_mode==action_look) {
+						if(item_action_mode==ACTION_LOOK) {
 							elwin_mouse=CURSOR_EYE;
 						} else {
 							elwin_mouse=CURSOR_PICK;
@@ -949,11 +949,11 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 								//should we get the info for it?
 								if(item_list[i].quantity && item_list[i].pos==y*6+x)
 									{
-										if(item_action_mode==action_look) {
+										if(item_action_mode==ACTION_LOOK) {
 											elwin_mouse=CURSOR_EYE;
-										} else if(item_action_mode==action_use) {
+										} else if(item_action_mode==ACTION_USE) {
 											elwin_mouse=CURSOR_USE;
-										} else if(item_action_mode==action_use_witem) {
+										} else if(item_action_mode==ACTION_USE_WITEM) {
 											elwin_mouse=CURSOR_USE_WITEM;
 										} else {
 											elwin_mouse=CURSOR_PICK;
@@ -971,11 +971,11 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 				for(i=0;i<ITEM_NUM_ITEMS;i++){
 					//should we get the info for it?
 					if(item_list[i].quantity && item_list[i].pos==y*2+x+ITEM_WEAR_START){
-						if(item_action_mode==action_look) {
+						if(item_action_mode==ACTION_LOOK) {
 							elwin_mouse=CURSOR_EYE;
-						} else if(item_action_mode==action_use) {
+						} else if(item_action_mode==ACTION_USE) {
 							elwin_mouse=CURSOR_USE;
-						} else if(item_action_mode==action_use_witem) {
+						} else if(item_action_mode==ACTION_USE_WITEM) {
 							elwin_mouse=CURSOR_USE_WITEM;
 						} else {
 							elwin_mouse=CURSOR_PICK;

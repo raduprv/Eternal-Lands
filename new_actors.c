@@ -148,7 +148,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 
 	our_actor = calloc(1, sizeof(actor));
 
-	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
+	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
 	our_actor->current_displayed_text_time_left =  0;
 
 	our_actor->texture_id=texture_id;
@@ -190,7 +190,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor->body_parts=this_actor;
 
 	//find a free spot, in the actors_list
-	lock_actors_lists();	//lock it to avoid timing issues
+	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])break;
@@ -679,7 +679,7 @@ void add_enhanced_actor_from_server(char * in_data)
 			my_strncp(actors_list[i]->actor_name,&in_data[28],30);
 			if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
 		}
-	unlock_actors_lists();  //unlock it
+	UNLOCK_ACTORS_LISTS();  //unlock it
 
 #ifdef EXTRA_DEBUG
 	ERR();

@@ -15,9 +15,9 @@ void init_actors_lists()
 	int	i;
 
 	actors_lists_mutex=SDL_CreateMutex();
-	lock_actors_lists();	//lock it to avoid timing issues
+	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0;i<1000;i++)actors_list[i]=NULL;
-	unlock_actors_lists();	// release now that we are done
+	UNLOCK_ACTORS_LISTS();	// release now that we are done
 }
 
 void end_actors_lists()
@@ -59,7 +59,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 
 	our_actor = calloc(1, sizeof(actor));
 
-	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
+	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
 	our_actor->current_displayed_text_time_left =  0;
 
 	our_actor->is_enhanced_model=0;
@@ -108,7 +108,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	our_actor->sit_idle=0;
 
 	//find a free spot, in the actors_list
-	lock_actors_lists();
+	LOCK_ACTORS_LISTS();
 	
 	for(i=0;i<max_actors;i++)
 		{
@@ -208,7 +208,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				glColor3f(1,0.3f,0.3f);
 				//draw_ingame_string(-0.1,healtbar_z-2.0f,str,1,1);
 				//draw_ingame_string(-0.1,healtbar_z/2.0f,str,1,1);
-				draw_ingame_normal(-0.1,healtbar_z/2.0f,str,1);
+				DRAW_INGAME_NORMAL(-0.1,healtbar_z/2.0f,str,1);
 			}
 		glDepthFunc(GL_LESS);
 		if(actor_id->actor_name[0] && (view_names || view_hp))
@@ -231,7 +231,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						} else if(actor_id->is_enhanced_model && (actor_id->kind_of_actor==PKABLE_HUMAN || actor_id->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)) glColor3f(1.0f,0.0f,0.0f);
 						else glColor3f(1.0f,1.0f,0.0f);
 						//draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
-						draw_ingame_small(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1);
+						DRAW_INGAME_SMALL(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1);
 					}
 				if(view_hp && actor_id->cur_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC))
 					{
@@ -247,7 +247,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						sprintf(hp,"%d/%d", actor_id->cur_health, actor_id->max_health);
 						if(view_health_bar)	off= (0.7*zoom_level*name_zoom/3.0);
 						else off= 0.0;
-						draw_ingame_alt(-(((float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off,healtbar_z-(0.05*zoom_level*name_zoom/3.0),hp,1);
+						DRAW_INGAME_ALT(-(((float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off,healtbar_z-(0.05*zoom_level*name_zoom/3.0),hp,1);
 					}
 				set_font(0);	// back to fixed pitch
 				if(actor_id->ghost)glEnable(GL_BLEND);
@@ -333,7 +333,7 @@ void draw_actor_overtext( actor* actor_ptr )
 	glColor3f(0.4f,0.4f,0.4f);
 
 	//draw_ingame_string(decalageTexteX,	decalageTexteY,actor_ptr->current_displayed_text,1,0);
-	draw_ingame_small(decalageTexteX,	decalageTexteY,actor_ptr->current_displayed_text,1);
+	DRAW_INGAME_SMALL(decalageTexteX,	decalageTexteY,actor_ptr->current_displayed_text,1);
 
 	//glDepthFunc(GL_LESS);
 	if (actor_ptr->current_displayed_text_time_left<=0)
@@ -418,7 +418,7 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
 						glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
 						glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 
-						//check_gl_errors();
+						//CHECK_GL_ERRORS();
 						if(have_compiled_vertex_array)ELglLockArraysEXT(0, numFaces*3);
 						glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
 						if(have_compiled_vertex_array)ELglUnlockArraysEXT();
@@ -456,9 +456,9 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
 							}
 						glEnd();
 					}
-				//check_gl_errors();
+				//CHECK_GL_ERRORS();
 		}
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 
 	glPopMatrix();
 	glEnable(GL_TEXTURE_2D);
@@ -481,7 +481,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
 
 	numFaces=model_data->numFaces;
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	glColor3f(1.0f, 1.0f, 1.0f);
 	if(use_vertex_array > 0)
 		{
@@ -497,7 +497,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
 			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 
-			//check_gl_errors();
+			//CHECK_GL_ERRORS();
 			if(have_compiled_vertex_array)ELglLockArraysEXT(0, numFaces*3);
 			glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
 			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
@@ -562,7 +562,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 					}
 			glEnd();
 		}
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 
@@ -881,7 +881,7 @@ void add_actor_from_server(char * in_data)
 			log_error(str);
 		}
 	else my_strncp(actors_list[i]->actor_name,&in_data[23],30);
-	unlock_actors_lists();	//unlock it
+	UNLOCK_ACTORS_LISTS();	//unlock it
 	
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -938,7 +938,7 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 	this_actor=calloc(1,sizeof(enhanced_actor));
 	our_actor = calloc(1, sizeof(actor));
 
-	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
+	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
 	our_actor->current_displayed_text_time_left =  0;
 
 	//get the torso
@@ -1010,17 +1010,17 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 
 
 //--- LoganDugenoux [5/25/2004]
-#define ms_per_char	200
-#define mini_bubble_ms	500
+#define MS_PER_CHAR	200
+#define MINI_BUBBLE_MS	500
 void	add_displayed_text_to_actor( actor * actor_ptr, const char* text )
 {
 	int len_to_add;
 	len_to_add = strlen(text);
-	strncpy( actor_ptr->current_displayed_text, text, max_current_displayed_text_len-1 );
-	actor_ptr->current_displayed_text[max_current_displayed_text_len-1] = 0;
-	actor_ptr->current_displayed_text_time_left = len_to_add*ms_per_char;
+	strncpy( actor_ptr->current_displayed_text, text, MAX_CURRENT_DISPLAYED_TEXT_LEN-1 );
+	actor_ptr->current_displayed_text[MAX_CURRENT_DISPLAYED_TEXT_LEN-1] = 0;
+	actor_ptr->current_displayed_text_time_left = len_to_add*MS_PER_CHAR;
 
-	actor_ptr->current_displayed_text_time_left += mini_bubble_ms;
+	actor_ptr->current_displayed_text_time_left += MINI_BUBBLE_MS;
 }
 
 //--- LoganDugenoux [5/25/2004]

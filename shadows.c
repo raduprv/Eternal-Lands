@@ -247,7 +247,7 @@ void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
 
 	numFaces=model_data->numFaces;
 
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 	if(use_vertex_array > 0)
 		{
 			//TODO: smarter decision making and maybe trigger cleanup?
@@ -295,7 +295,7 @@ void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
 				}
 			glEnd();
 		}
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 
@@ -376,7 +376,7 @@ void draw_actor_shadow(actor * actor_id)
 	draw_model_shadow(actor_id->model_data,cur_frame,actor_id->ghost);
 
 	glPopMatrix();//restore the scene
-	check_gl_errors();
+	CHECK_GL_ERRORS();
 }
 
 void display_actors_shadow()
@@ -428,7 +428,7 @@ void display_shadows()
 	x=-cx;
 	y=-cy;
 	glEnable(GL_CULL_FACE);
-	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 	for(i=sx;i<=ex;i++)
 		for(j=sy;j<=ey;j++)
 			for(k=0;k<MAX_3D_OBJECTS;k++){
@@ -477,7 +477,7 @@ void display_3d_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 	for(i=sx;i<=ex;i++)
 		for(j=sy;j<=ey;j++)
 			for(k=0;k<MAX_3D_OBJECTS;k++){
@@ -553,7 +553,7 @@ void display_3d_non_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 	for(i=sx;i<=ex;i++)
 		for(j=sy;j<=ey;j++)
 			for(k=0;k<MAX_3D_OBJECTS;k++){
@@ -616,7 +616,7 @@ void render_light_view()
 					GLenum internalformat=GL_DEPTH_COMPONENT16_ARB;
 					glGenTextures(1,&depth_map_id);
 					glBindTexture(depth_texture_target,depth_map_id);
-					check_gl_errors();
+					CHECK_GL_ERRORS();
 					glGetIntegerv(GL_DEPTH_BITS,&depthbits);
 					if(depthbits==24)internalformat=GL_DEPTH_COMPONENT24_ARB;
 					else if(depthbits==32)internalformat=GL_DEPTH_COMPONENT32_ARB;
@@ -632,7 +632,7 @@ void render_light_view()
 					//TODO: Might want to use CLAMP_TO_BORDER for cards that support it?
 					glTexParameteri(depth_texture_target,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 					glTexParameteri(depth_texture_target,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-					check_gl_errors();
+					CHECK_GL_ERRORS();
 				}
 
 			glViewport(0,0,depth_map_width,depth_map_height);
@@ -643,7 +643,7 @@ void render_light_view()
 			glEnable(GL_DEPTH_TEST);
 			glDisable(GL_FOG);
 			glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			glMatrixMode(GL_PROJECTION);
 			glPushMatrix();
 			glLoadMatrixd(light_proj_mat);
@@ -656,7 +656,7 @@ void render_light_view()
 			glBindTexture(depth_texture_target,depth_map_id);
 			glCopyTexSubImage2D(depth_texture_target,0,0,0,0,0,depth_map_width,depth_map_height);
 
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			glMatrixMode(GL_PROJECTION);
 			glPopMatrix();
 			glMatrixMode(GL_MODELVIEW);
@@ -665,7 +665,7 @@ void render_light_view()
 			glPopAttrib();
 			glBindTexture(GL_TEXTURE_2D,0);
 			last_texture=-1;
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 		}
 }
 
@@ -748,14 +748,14 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glEnable(GL_TEXTURE_2D);
 			last_texture=-1;
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
 			draw_tile_map();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			display_2d_objects();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 			display_objects();
 			display_actors();  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
@@ -795,9 +795,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 			if(any_reflection)draw_lake_tiles();
 
 			draw_tile_map();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			display_2d_objects();
-			check_gl_errors();
+			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 			display_3d_ground_objects();
 			// turning off writing to the color buffer and depth buffer

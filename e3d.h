@@ -10,8 +10,8 @@
  * \name    3D objects array sizes
  */
 /*! @{ */
-#define max_obj_3d 15000
-#define max_e3d_cache 1000
+#define MAX_OBJ_3D 15000
+#define MAX_E3D_CACHE 1000
 /*! @} */
 
 extern int highest_obj_3d;  /*!< pointer to the highes 3D object in map */
@@ -247,7 +247,7 @@ typedef struct
 }object3d;
 
 
-extern object3d *objects_list[max_obj_3d]; /*!< global variable containing up to \see max_obj_3d \see object3d objects. */
+extern object3d *objects_list[MAX_OBJ_3D]; /*!< global variable containing up to \see max_obj_3d \see object3d objects. */
 
 
 //proto

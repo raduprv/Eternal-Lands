@@ -25,7 +25,7 @@ void build_rain_table()
 			rain_drops[i].x=rand()%500;
 			rain_drops[i].y=rand()%500;
 			rain_drops[i].x2=rain_drops[i].x;
-			rain_drops[i].y2=rain_drops[i].y+rain_drop_len;
+			rain_drops[i].y2=rain_drops[i].y+RAIN_DROP_LEN;
 		}
 	// setup the motion table as well
 	for(i=0;i<8192;i++)
@@ -50,7 +50,7 @@ void update_rain()
 					rain_drops[i].x=rand()%500;
 					rain_drops[i].y=500;
 					rain_drops[i].x2=rain_drops[i].x;
-					rain_drops[i].y2=500-rain_drop_len;
+					rain_drops[i].y2=500-RAIN_DROP_LEN;
 				}
 		}
 }

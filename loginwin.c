@@ -154,7 +154,7 @@ int display_login_handler (window_info *win)
 	// print the current error, if any
 	draw_string (0, log_in_y + 40, log_in_error_str, 5);
 	
-	check_gl_errors ();
+	CHECK_GL_ERRORS ();
 	draw_delay = 20;
 	return 1;
 }
@@ -210,12 +210,12 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			create_rules_root_window (newchar_win, 15);
 			show_window (rules_root_win);
-			interface_mode = interface_rules;
+			interface_mode = INTERFACE_RULES;
 		}
 		else 
 		{
 			show_window (newchar_win);
-			interface_mode = interface_new_char;
+			interface_mode = INTERFACE_NEW_CHAR;
 		}
 		// XXX FIXME (Grum): figure out how to do this cleanly
 		//left_click=2;

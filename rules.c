@@ -26,7 +26,7 @@ int last_display=-1;
 
 /*Interface*/
 int countdown = 0;
-int next_interface=interface_log_in;
+int next_interface=INTERFACE_LOG_IN;
 
 int x_arrow;
 int y_arrow_up;
@@ -53,9 +53,9 @@ void add_rule(char * short_desc, char * long_desc, int type)
 	int no=rules.no++;
 	int len;
 
-	len=my_xmlStrcpy(&rules.rule[no].short_desc, short_desc);
+	len=MY_XMLSTRCPY(&rules.rule[no].short_desc, short_desc);
 	rules.rule[no].short_len=len;
-	len=my_xmlStrcpy(&rules.rule[no].long_desc, long_desc);
+	len=MY_XMLSTRCPY(&rules.rule[no].long_desc, long_desc);
 	rules.rule[no].long_len=len;
 
 	rules.rule[no].type=type;
@@ -435,7 +435,7 @@ void init_rules_interface(int next, float text_size, int count, int len_x, int l
 
 	last_display = 0;
 	has_accepted = 0;
-	interface_mode = interface_rules;
+	interface_mode = INTERFACE_RULES;
 	
 	arrow_size = 32;
 	x_arrow = (len_x + len_y) / 2 - 50 * window_ratio - arrow_size / 2;
@@ -651,7 +651,7 @@ int display_rules_root_handler (window_info *win)
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{	
 		draw_rules_interface (win->len_x, win->len_y);
-		check_gl_errors();
+		CHECK_GL_ERRORS();
 	}
 	
 	draw_delay = 20;
@@ -786,7 +786,7 @@ void create_rules_root_window (int next, int time)
 		set_window_handler (rules_root_win, ELW_HANDLER_RESIZE, &resize_rules_root_handler);
 		
 		// XXX FIXME (Grum): try to get rid of interface_mode
-		init_rules_interface (next == newchar_win ? interface_new_char : interface_opening, 1.0, 2*time, window_width, window_height);
+		init_rules_interface (next == newchar_win ? INTERFACE_NEW_CHAR : INTERFACE_OPENING, 1.0, 2*time, window_width, window_height);
 		next_win_id = next;
 	}
 }

@@ -2,7 +2,7 @@
 #include <string.h>
 #include "global.h"
 
-filter_slot filter_list[max_filters];
+filter_slot filter_list[MAX_FILTERS];
 int filtered_so_far=0;
 int use_global_filters=1;
 char text_filter_replace[128]="smeg";
@@ -14,14 +14,14 @@ int add_to_filter_list(Uint8 *name, char save_name)
 {
 	int i;
 	//see if this name is already on the list
-	for(i=0;i<max_filters;i++)
+	for(i=0;i<MAX_FILTERS;i++)
 		{
 			if(filter_list[i].len > 0)
 				if(my_strcompare(filter_list[i].name,name))return -1;//already in the list
 		}
 
 	//ok, find a free spot
-	for(i=0;i<max_filters;i++)
+	for(i=0;i<MAX_FILTERS;i++)
 		{
 			if(!filter_list[i].len > 0)
 				{
@@ -58,7 +58,7 @@ int remove_from_filter_list(Uint8 *name)
 	int found = 0;
 	FILE *f = NULL;
 	//see if this name is on the list
-	for(i=0;i<max_filters;i++)
+	for(i=0;i<MAX_FILTERS;i++)
 		{
 			if(!found && filter_list[i].len > 0)
 				if(my_strcompare(filter_list[i].name,name))
@@ -76,7 +76,7 @@ int remove_from_filter_list(Uint8 *name)
 			f=my_fopen(local_filters, "w");
 			if (f != NULL)
 			{
-				for(i=0;i<max_filters;i++)
+				for(i=0;i<MAX_FILTERS;i++)
 				{
 					if(filter_list[i].len > 0)
 						{
@@ -97,7 +97,7 @@ int remove_from_filter_list(Uint8 *name)
 int check_if_filtered(Uint8 *name)
 {
 	int i;
-	for(i=0;i<max_filters;i++)
+	for(i=0;i<MAX_FILTERS;i++)
 		{
 			if(filter_list[i].len > 0)
 				if(my_strncompare(filter_list[i].name,name,filter_list[i].len))return filter_list[i].len;//yep, filtered
@@ -196,7 +196,7 @@ int filter_text(Uint8 * input_text, int len)
 			rloc= input_text;	// restore the initial value
 		}
 	//do we need to do any content filtering?
-	if(max_filters == 0)return(len);
+	if(MAX_FILTERS == 0)return(len);
 	// get the length of the replacement string
 	rep_len=strlen(text_filter_replace);
 	// scan the text for any strings
@@ -274,7 +274,7 @@ void clear_filter_list()
 {
 	int i;
 	//see if this name is already on the list
-	for(i=0;i<max_filters;i++)
+	for(i=0;i<MAX_FILTERS;i++)
 		filter_list[i].len=0;
 }
 
@@ -292,15 +292,15 @@ void load_filters()
 void list_filters()
 {
 	int i;
-	Uint8 str[max_filters*19];
+	Uint8 str[MAX_FILTERS*19];
 
 	if(!filtered_so_far)
 		{
-			log_to_console(c_grey1,no_filters_str);
+			LOG_TO_CONSOLE(c_grey1,no_filters_str);
 			return;
 		}
 	sprintf(str,"%s:\n",filters_str);
-	for(i=0;i<max_filters;i++)
+	for(i=0;i<MAX_FILTERS;i++)
 		{
 			if(filter_list[i].len > 0)
 				{
@@ -311,7 +311,7 @@ void list_filters()
 
 	str[strlen(str)-2]=0;//get rid of the last ", " thingy
 
-	log_to_console(c_grey1,str);
+	LOG_TO_CONSOLE(c_grey1,str);
 
 }
 

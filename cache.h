@@ -3,8 +3,8 @@
  * \ingroup	cache
  * \brief	Handles the cache system in EL
  */
-#ifndef __file_cache_H__
-#define __file_cache_H__
+#ifndef __FILE_CACHE_H__
+#define __FILE_CACHE_H__
 
 /*!
  * a single item storable in the cache

@@ -3,8 +3,8 @@
  * \ingroup 	display
  * \brief	Displays the 3d objects
  */
-#ifndef __obj_3d_H__
-#define __obj_3d_H__
+#ifndef __OBJ_3D_H__
+#define __OBJ_3D_H__
 
 /*!
  * \ingroup 	display_3d

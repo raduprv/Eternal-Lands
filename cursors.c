@@ -234,7 +234,7 @@ void check_cursor_change()
 		}
 	if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 		{
-			if(action_mode==action_look)
+			if(action_mode==ACTION_LOOK)
 				{
 					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
 					return;
@@ -245,7 +245,7 @@ void check_cursor_change()
 					if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
 					return;
 				}
-			if(action_mode==action_use)
+			if(action_mode==ACTION_USE)
 				{
 					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
 					return;
@@ -270,7 +270,7 @@ void check_cursor_change()
 							return;
 						}
 				}
-			if(action_mode==action_use_witem)
+			if(action_mode==ACTION_USE_WITEM)
 				{
 					if(current_cursor!=CURSOR_USE_WITEM)change_cursor(CURSOR_USE_WITEM);
 					return;
@@ -284,7 +284,7 @@ void check_cursor_change()
 
 	else if(thing_under_the_mouse==UNDER_MOUSE_NPC)
 		{
-			if(action_mode==action_look)
+			if(action_mode==ACTION_LOOK)
 				{
 					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
 					return;
@@ -295,25 +295,25 @@ void check_cursor_change()
 	
 	else if(thing_under_the_mouse==UNDER_MOUSE_PLAYER)
 		{
-			if(action_mode==action_use)
+			if(action_mode==ACTION_USE)
 				{
 					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
 					return;
 				}      
-			if(action_mode==action_look)
+			if(action_mode==ACTION_LOOK)
 				{
 					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
 					return;
 				}
 
 
-			if(action_mode==action_trade)
+			if(action_mode==ACTION_TRADE)
 				{
 					if(current_cursor!=CURSOR_TRADE)change_cursor(CURSOR_TRADE);
 					return;
 				}
 
-			if(alt_on || action_mode==action_attack)
+			if(alt_on || action_mode==ACTION_ATTACK)
 				{
 					if(current_cursor!=CURSOR_ATTACK)change_cursor(CURSOR_ATTACK);
 					return;
@@ -325,12 +325,12 @@ void check_cursor_change()
 
 	else if(thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
 		{
-			if(action_mode==action_use)
+			if(action_mode==ACTION_USE)
 				{
 					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
 					return;
 				}      
-			if(action_mode==action_look)
+			if(action_mode==ACTION_LOOK)
 				{
 					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
 					return;
@@ -342,7 +342,7 @@ void check_cursor_change()
 					return;
 				}
 
-			if(alt_on || action_mode==action_attack || (actor_under_mouse && !actor_under_mouse->dead))
+			if(alt_on || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
 				{
 					if(current_cursor!=CURSOR_ATTACK)change_cursor(CURSOR_ATTACK);
 					return;
