@@ -373,6 +373,7 @@ void draw_actor(actor * actor_id)
 	//now, go and find the current frame
 	i=get_frame_number(actor_id->model_data, cur_frame);;
 	if(i >= 0)healtbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
+	vertex_pointer=actor_id->model_data->offsetFrames[i].vertex_pointer;
 	/*
 	//now, go and find the current frame
 	offsetFrames=actor_id->model_data->offsetFrames;
