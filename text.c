@@ -131,7 +131,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 		}
 	
 	// force the color
-	if(text_to_add <= 127 || *text_to_add > 127+c_grey4)
+	if(*text_to_add <= 127 || *text_to_add > 127+c_grey4)
 		{
 			display_text_buffer[display_text_buffer_last]=127+color;
 			display_text_buffer_last++;
@@ -252,7 +252,7 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 	int x_chars_limit;
 
 	// force the color
-	if(text_to_add <= 127)
+	if(*text_to_add <= 127)
 		{
 			buffer[last_text]=127+color;
 			last_text++;
@@ -292,7 +292,7 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 			j=0;
 			for(i=0;i<len;i++)
 				{
-					if(!semaphore && new_line_pos+x_chars_limit<len)//don't go trough the last line
+					if(!semaphore && new_line_pos+x_chars_limit<len)//don't go through the last line
 						{
 							//find the closest space from the end of this line
 							//if we have one really big word, then parse the string from the
