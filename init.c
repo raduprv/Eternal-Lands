@@ -123,6 +123,21 @@ void read_config()
 		}
 	broswer_name[k]=0;
 
+	//check for a different default text filter phrase
+  	server_address_offset=get_string_occurance("#text_filter_replace",file_mem,MAX_INI_FILE,0);
+	//watch for not defined
+	if(server_address_offset > 0)
+		{
+		for(k=0;k<127;k++)
+			{
+				Uint8 ch;
+				ch=file_mem[server_address_offset+k];
+				if(ch==' ' || ch==0x0a || ch==0x0d)break;
+  				text_filter_replace[k]=ch;
+			}
+		text_filter_replace[k]=0;
+		}
+
 
   	if(video_mode>10 || video_mode<=0)
   		{
