@@ -156,9 +156,9 @@ void display_trade_menu()
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
 	j=0;
-	for(i=0;i<36+6;i++)
+	for(i=0;i<ITEM_NUM_ITEMS;i++)
 		{
-			if(item_list[i].quantity && item_list[i].pos<36)
+			if(item_list[i].quantity && item_list[i].pos<ITEM_WEAR_START)
 				{
 					float u_start,v_start,u_end,v_end;
 					int this_texture,cur_item,cur_pos;
@@ -383,15 +383,15 @@ int check_trade_interface()
 
 						//see if there is any item there
 						j=0;
-						for(i=0;i<36+6;i++)
+						for(i=0;i<ITEM_NUM_ITEMS;i++)
 							{
-							if(item_list[i].quantity && item_list[i].pos<36)
+							if(item_list[i].quantity && item_list[i].pos<ITEM_WEAR_START)
 								{
 									if(j==y*12+x)break;
 									j++;
 								}
 							}
-						if(i<36+6 && item_list[i].quantity)
+						if(i<ITEM_NUM_ITEMS && item_list[i].quantity)
 							{
 								//if(action_mode==action_look && left_click)
 								if(action_mode==action_look || right_click)

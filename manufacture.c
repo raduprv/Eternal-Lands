@@ -10,10 +10,10 @@ void build_manufacture_list()
 
 	//ok, now see which items are resources
 	j=0;
-	for(i=0;i<36+6;i++)
+	for(i=0;i<ITEM_NUM_ITEMS;i++)
 		{
 			if(item_list[i].quantity)
-				if(item_list[i].pos<36)
+				if(item_list[i].pos<ITEM_WEAR_START)
 					if(item_list[i].is_resource)
 						{
 							manufacture_list[j].quantity=item_list[i].quantity;
