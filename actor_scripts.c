@@ -41,6 +41,12 @@ void move_to_next_frame()
 					for(k=0;k<16;k++)frame_name[k]=0;
 					for(k=0;k<3;k++)frame_number[k]=0;
 
+					//now see if we can find that frame
+					if(!actors_list[i]->is_enhanced_model)
+						numFrames=actors_list[i]->model_data->numFrames;
+					else
+						numFrames=actors_list[i]->body_parts->head->numFrames;
+
 					//first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
 					if(actors_list[i]->damage_ms)
 						{
@@ -54,16 +60,21 @@ void move_to_next_frame()
 					for(k=0;k<l-2;k++)frame_name[k]=actors_list[i]->cur_frame[k];
 					//increment the frame_no
 					frame_no++;
+					//9 frames, not moving, and another command is queued
+					if(frame_no > 9 && !actors_list[i]->moving && !actors_list[i]->rotating && actors_list[i]->que[0]!=nothing)
+						{
+							//if(actors_list[i]->last_command==nothing)
+							//{
+								actors_list[i]->stop_animation=1;	//force stopping, not looping
+								actors_list[i]->busy=0;	//ok, take the next command
+							//}
+						}
+
 					//transform back into string
 					frame_number[0]=(unsigned int)48+frame_no/10;
 					frame_number[1]=(unsigned int)48+frame_no%10;
 					//create the name of the next frame to look for
 					my_strcat(frame_name,frame_number);
-					//now see if we can find that frame
-					if(!actors_list[i]->is_enhanced_model)
-						numFrames=actors_list[i]->model_data->numFrames;
-					else
-						numFrames=actors_list[i]->body_parts->head->numFrames;
 
 					frame_exists=0;
 					for(k=0;k<numFrames;k++)
