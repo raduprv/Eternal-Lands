@@ -548,5 +548,4 @@ void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this te
 		show_window(stats_win);
 		select_window(stats_win);
 	}
-	display_window(stats_win);
 }

@@ -372,11 +372,6 @@ int	mouseover_icons_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
-void draw_peace_icons()
-{
-    display_window(icons_win);
-}
-
 int	display_icons_handler(window_info *win)
 {
 	int i, state=-1, *z;
@@ -603,7 +598,7 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 				case DATA_WINDOW:
 					{
 						int * data=(int *)icon_list[id]->data;
-						icon_list[id]->func((int *)data, id);
+						icon_list[id]->func(data, id);
 						break;
 					}
 				default:
@@ -725,11 +720,6 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	draw_string_small(x-(1+8*strlen(buf)), y-3, buf, 1);
 }
 
-void draw_stats_display()
-{
-    display_window(stats_bar_win);
-}
-
 int	display_stats_bar_handler(window_info *win)
 {
 	float health_adjusted_x_len;
@@ -830,11 +820,6 @@ void init_misc_display()
 		{
 			move_window(misc_win, -1, 0, window_width-64, window_height-145);
 		}
-}
-
-void draw_misc_display()
-{
-    display_window(misc_win);
 }
 
 int	display_misc_handler(window_info *win)
@@ -964,7 +949,7 @@ void draw_quickbar() {
 		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
 
 	} 
-	display_window(quickbar_win);
+	show_window(quickbar_win);
 }
 
 int	display_quickbar_handler(window_info *win)

@@ -585,5 +585,4 @@ void display_sigils_menu()
 		show_window(sigil_win);
 		select_window(sigil_win);
 	}
-	display_window(sigil_win);
 }

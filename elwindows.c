@@ -578,15 +578,15 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	int	i;
 	
 	// verify that we are setup and space allocated
-	if(windows_list.window == NULL)
-		{
-			// allocate the space
-			windows_list.num_windows= 0;
-			windows_list.max_windows= 32;
-			windows_list.window=(window_info *)calloc(32, sizeof(window_info));
-			//windows_list.window[0].window_id= -1;	// force a rebuild of this
-			//windows_list.num_windows= 1;
-		}
+	if (windows_list.window == NULL)
+	{
+		// allocate the space
+		windows_list.num_windows = 0;
+		windows_list.max_windows = 32;
+		windows_list.window=(window_info *) calloc(32, sizeof(window_info));
+		//windows_list.window[0].window_id = -1;	// force a rebuild of this
+		//windows_list.num_windows = 1;
+	}
 
 /* Grum: Removed in our quest to make the root window a normal one
 	// now, verify that the main window is correct
@@ -611,63 +611,74 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 */
 
 	// find an empty slot
-	for(i=0; i<windows_list.num_windows; i++)
+	for (i=0; i<windows_list.num_windows; i++)
+	{
+		if (windows_list.window[i].window_id < 0)
 		{
-			if(windows_list.window[i].window_id < 0)
-				{
-					win_id=i;
-					break;
-				}
+			win_id = i;
+			break;
 		}
+	}
 
 	// need a new_entry?
-	if(win_id < 0)
+	if (win_id < 0)
+	{
+		if (windows_list.num_windows < windows_list.max_windows - 1)
 		{
-			if(windows_list.num_windows < windows_list.max_windows-1)
-				{
-					win_id= windows_list.num_windows++;
-				}
+			win_id = windows_list.num_windows++;
 		}
+	}
 
 	// fill in the information
-	if(win_id >= 0)
+	if (win_id >= 0)
+	{
+		win = &windows_list.window[win_id];
+		win->window_id = win_id;
+		win->order = (property_flags & ELW_SHOW_LAST) ? -win_id-1 : win_id+1;
+
+		win->flags = property_flags;
+		//win->collapsed = 0;
+		win->dragged = 0;
+		win->resized = 0;
+		win->drag_in = 0;
+		my_strncp(win->window_name, name, sizeof (win->window_name));
+		
+		if (pos_id >= 0 && !windows_list.window[pos_id].displayed)
 		{
-			win= &windows_list.window[win_id];
-			win->window_id= win_id;
-			win->order= (property_flags&ELW_SHOW_LAST)?-win_id-1:win_id+1;
-
-			win->flags= property_flags;
-			win->displayed= (property_flags&ELW_SHOW)?1:0;
-			//win->collapsed= 0;
-			win->dragged = 0;
-			win->resized = 0;
-			win->drag_in = 0;
-			win->reinstate = 0;
-			my_strncp(win->window_name, name, sizeof (win->window_name));
-
-			win->back_color[0]= 0.0f;
-			win->back_color[1]= 0.0f;
-			win->back_color[2]= 0.0f;
-			win->back_color[3]= 0.5f;
-			win->border_color[0]= 0.77f;
-			win->border_color[1]= 0.57f;
-			win->border_color[2]= 0.39f;
-			win->border_color[3]= 0.0f;
-			win->line_color[0]= 0.77f;
-			win->line_color[1]= 0.57f;
-			win->line_color[2]= 0.39f;
-			win->line_color[3]= 0.0f;
-
-			win->init_handler= NULL;
-			win->display_handler= NULL;
-			win->click_handler= NULL;
-			win->drag_handler= NULL;
-			win->mouseover_handler= NULL;
-			win->resize_handler = NULL;
-			win->keypress_handler = NULL;
-			// now call the routine to place it properly
-			init_window(win_id, pos_id, pos_loc, pos_x, pos_y, size_x, size_y);
+			// parent is hidden
+			win->reinstate = (property_flags & ELW_SHOW) ? 1 : 0;
+			win->displayed = 0;
 		}
+		else
+		{
+			// no parent, or parent is shown
+			win->displayed = (property_flags & ELW_SHOW) ? 1 : 0;
+			win->reinstate = 0;
+		}
+
+		win->back_color[0] = 0.0f;
+		win->back_color[1] = 0.0f;
+		win->back_color[2] = 0.0f;
+		win->back_color[3] = 0.5f;
+		win->border_color[0] = 0.77f;
+		win->border_color[1] = 0.57f;
+		win->border_color[2] = 0.39f;
+		win->border_color[3] = 0.0f;
+		win->line_color[0] = 0.77f;
+		win->line_color[1] = 0.57f;
+		win->line_color[2] = 0.39f;
+		win->line_color[3] = 0.0f;
+
+		win->init_handler = NULL;
+		win->display_handler = NULL;
+		win->click_handler = NULL;
+		win->drag_handler = NULL;
+		win->mouseover_handler = NULL;
+		win->resize_handler = NULL;
+		win->keypress_handler = NULL;
+		// now call the routine to place it properly
+		init_window (win_id, pos_id, pos_loc, pos_x, pos_y, size_x, size_y);
+	}
 
 	return	win_id;
 }
@@ -982,13 +993,26 @@ int	draw_window(window_info *win)
 void	show_window(int win_id)
 {
 	int iwin;
+	int ipos;
 	
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
-
+	
 	// pull to the top if not currently displayed
-	if(!windows_list.window[win_id].displayed)	select_window(win_id);
-	windows_list.window[win_id].displayed = 1;
+	if(!windows_list.window[win_id].displayed)
+		select_window(win_id);
+
+	ipos = windows_list.window[win_id].pos_id;
+	if (ipos >= 0 && !windows_list.window[ipos].displayed)
+	{
+		// parent is hidden, simply set the reinstated flag
+		windows_list.window[win_id].reinstate = 1;
+	}
+	else
+	{
+		// display it
+		windows_list.window[win_id].displayed = 1;
+	}
 	
 	// see if child windows need to be reinstated
 	for (iwin = 0; iwin < windows_list.num_windows; iwin++)
@@ -1026,7 +1050,7 @@ void	toggle_window(int win_id)
 
 	// if we hide a window, we have to hide it's children too, so we cannot
 	// simply toggle the displayed flag.
-	if (windows_list.window[win_id].displayed)
+	if (windows_list.window[win_id].displayed || windows_list.window[win_id].reinstate)
 		hide_window (win_id);
 	else
 		show_window (win_id);

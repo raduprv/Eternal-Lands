@@ -646,6 +646,5 @@ void display_trade_menu()
 		show_window(trade_win);
 		select_window(trade_win);
 	}
-	display_window(trade_win);
 }
 

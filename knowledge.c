@@ -180,6 +180,5 @@ void display_knowledge()
 		show_window(knowledge_win);
 		select_window(knowledge_win);
 	}
-	display_window(knowledge_win);
 }
 

@@ -697,7 +697,7 @@ void display_book_window(book *b)
 		if((long int)windows_list.window[*p].data!=(long int)b){
 			strcpy(windows_list.window[*p].window_name,b->title);
 			windows_list.window[*p].data=b;
-			if(!windows_list.window[*p].displayed) display_window(*p);
+			if(!windows_list.window[*p].displayed) show_window(*p);
 		}else toggle_window(*p);
         }
 }

@@ -424,6 +424,5 @@ void display_manufacture_menu()
 		show_window(manufacture_win);
 		select_window(manufacture_win);
 	}
-	display_window(manufacture_win);
 }
 

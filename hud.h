@@ -140,16 +140,6 @@ void draw_hud_frame();
 void init_peace_icons();
 
 /*!
- * \ingroup display_2d
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void draw_peace_icons();
-
-/*!
  * \ingroup windows
  * \brief
  *
@@ -335,16 +325,6 @@ void show_help(char *message, int x, int y);
 void init_stats_display();
 
 /*!
- * \ingroup display_2d
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void draw_stats_display();
-
-/*!
  * \ingroup windows
  * \brief
  *
@@ -402,16 +382,6 @@ void draw_stats();
  * \callgraph
  */
 void init_misc_display();
-
-/*!
- * \ingroup display_2d
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void draw_misc_display();
 
 /*!
  * \ingroup windows

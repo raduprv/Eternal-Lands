@@ -75,7 +75,6 @@ void display_options_menu()
 		show_window(options_win);
 		select_window(options_win);
 	}
-	display_window(options_win);
 }
 
 void init_display_options_menu()
