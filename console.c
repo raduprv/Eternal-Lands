@@ -101,7 +101,9 @@ void test_for_console_command()
 		}
 	if(my_strcompare(text_loc,"ver_"))
 		{
-			log_to_console(c_green1,"Eternal Lands Version 0.9.3 Beta");
+			char str[128];
+			sprintf(str,"Eternal Lands Version 0.%d.%d Beta",version_first_digit,version_second_digit);
+			log_to_console(c_green1,str);
 			return;
 		}
 
