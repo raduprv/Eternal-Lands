@@ -323,6 +323,8 @@ void init_stuff()
 	glMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
 	glMultiTexCoord2fvARB	= (PFNGLMULTITEXCOORD2FVARBPROC)	SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
 	glClientActiveTextureARB= (PFNGLCLIENTACTIVETEXTUREARBPROC)	SDL_GL_GetProcAddress("glClientActiveTextureARB");
+	glLockArraysEXT			= (PFNGLLOCKARRAYSEXTPROC)			SDL_GL_GetProcAddress("glLockArraysEXT");
+	glUnlockArraysEXT		= (PFNGLUNLOCKARRAYSEXTPROC)		SDL_GL_GetProcAddress("glUnlockArraysEXT");
 #endif
 
 	//see if we really have multitexturing
@@ -335,6 +337,10 @@ void init_stuff()
 			log_to_console(c_red1,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...");
 		}
 	else have_multitexture=1;
+	have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
+#ifdef	USE_VERTEXARRAYS
+	if(have_compiled_vertex_array < 0)have_compiled_vertex_array=0;
+#endif
 	check_gl_errors();
 
 
