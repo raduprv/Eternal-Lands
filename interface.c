@@ -1038,7 +1038,7 @@ void draw_ingame_interface()
 		{
 			int	old_view= view_ground_items;
 
-			view_ground_items= get_show_window(ground_items_items_win);
+			view_ground_items= get_show_window(ground_items_win);
 			// watch for telling the server we need to close the bag
 			if(old_view && !view_ground_items)
 				{
