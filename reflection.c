@@ -162,7 +162,6 @@ void display_3d_reflection()
 	int x,y;
 	double water_clipping_p[4]={0,0,-1,water_deepth_offset};
 
-
 	x=-cx;
 	y=-cy;
 
@@ -181,20 +180,16 @@ void display_3d_reflection()
 		{
 			if(objects_list[i])
 			     {
-			         int dist1;
-			         int dist2;
-			         float dist;
-
 					 if(!objects_list[i]->e3d_data->is_ground)
 					 	{
+			         		int dist1;
+			         		int dist2;
+
 			         		dist1=x-objects_list[i]->x_pos;
 			         		dist2=y-objects_list[i]->y_pos;
-			         		dist=dist1*dist1+dist2*dist2;
-			         		if(dist<=21*21)
+			         		if(dist1*dist1+dist2*dist2<=21*21)
 			         			{
-									float x_len;
-									float y_len;
-									float z_len;
+									float x_len, y_len, z_len;
 									float radius;
 
 									z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
@@ -208,8 +203,8 @@ void display_3d_reflection()
 									if(radius<z_len)radius=z_len;
 									//not in the middle of the air
 									if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
-									objects_list[i]->z_pos,radius))
-                     				draw_3d_reflection(objects_list[i]);
+										objects_list[i]->z_pos,radius))
+                     						draw_3d_reflection(objects_list[i]);
 								}
 						}
                  }
@@ -217,6 +212,7 @@ void display_3d_reflection()
 	glPopMatrix();
 	reset_material();
 	glDisable(GL_CLIP_PLANE0);
+	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
@@ -243,14 +239,9 @@ void make_lake_water_noise()
 void draw_lake_water_tile(float x_pos, float y_pos)
 {
 	int x,y;
+	float fx,fy;
 	float x_step,y_step;
 	float u_step,v_step;
-
-	float u_noise_start;
-	float u_noise_end;
-	float v_noise_start;
-	float v_noise_end;
-
 	float uv_tile=50;
 
 	x_step=3.0f/16.0f;
@@ -260,68 +251,21 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 	v_step=3.0f/uv_tile;
 
 	glBegin(GL_QUADS);
-	for(y=0;y<16;y++)
+	for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
 		{
-			for(x=0;x<16;x++)
+			for(x=0,fx=x_pos;x<16;fx+=x_step,x++)
 				{
+ 					glTexCoord2f((fx)*u_step+noise_array[((y+1)&15)*16+x].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+x].v+water_movement_v);
+	 				glVertex3f(fx,fy+y_step, water_deepth_offset);
 
-					if(y==15 && x!=15)
-					{
- 					glTexCoord2f((x_pos+x*x_step)*u_step+noise_array[(y-15)*16+x].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y-15)*16+x].v+water_movement_v);
-	 				glVertex3f(x_pos+x*x_step,y_pos+y*y_step+y_step, water_deepth_offset);
+					glTexCoord2f((fx)*u_step+noise_array[y*16+x].u+water_movement_u, (fy)*v_step+noise_array[y*16+x].v+water_movement_v);
+					glVertex3f(fx,fy, water_deepth_offset);
 
-					glTexCoord2f((x_pos+x*x_step)*u_step+noise_array[y*16+x].u+water_movement_u, (y_pos+y*y_step)*v_step+noise_array[y*16+x].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step,y_pos+y*y_step, water_deepth_offset);
+					glTexCoord2f((fx+x_step)*u_step+noise_array[y*16+((x+1)&15)].u+water_movement_u, (fy)*v_step+noise_array[y*16+((x+1)&15)].v+water_movement_v);
+					glVertex3f(fx+x_step, fy,water_deepth_offset);
 
-					glTexCoord2f((x_pos+x*x_step+x_step)*u_step+noise_array[y*16+x+1].u+water_movement_u, (y_pos+y*y_step)*v_step+noise_array[y*16+x+1].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step+x_step, y_pos+y*y_step,water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step+x_step)*u_step+noise_array[(y-15)*16+x+1].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y-15)*16+x+1].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step+x_step, y_pos+y*y_step+y_step,water_deepth_offset);
-					}
-					else if(y!=15 && x==15)
-					{
- 					glTexCoord2f((x_pos+x*x_step)*u_step+noise_array[(y+1)*16+x].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y+1)*16+x].v+water_movement_v);
-	 				glVertex3f(x_pos+x*x_step,y_pos+y*y_step+y_step, water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step)*u_step+noise_array[y*16+x].u+water_movement_u, (y_pos+y*y_step)*v_step+noise_array[y*16+x].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step,y_pos+y*y_step, water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step+x_step)*u_step+noise_array[y*16+x-15].u+water_movement_u, (y_pos+y*y_step)*v_step+noise_array[y*16+x-15].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step+x_step, y_pos+y*y_step,water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step+x_step)*u_step+noise_array[(y+1)*16+x-15].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y+1)*16+x-15].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step+x_step, y_pos+y*y_step+y_step,water_deepth_offset);
-					}
-					else if(y==15 && x==15)
-					{
- 					glTexCoord2f((x_pos+x*x_step)*u_step+noise_array[(y-15)*16+x].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y-15)*16+x].v+water_movement_v);
-	 				glVertex3f(x_pos+x*x_step,y_pos+y*y_step+y_step, water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step)*u_step+noise_array[y*16+x].u+water_movement_u, (y_pos+y*y_step)*v_step+noise_array[y*16+x].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step,y_pos+y*y_step, water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step+x_step)*u_step+noise_array[y*16+x-15].u+water_movement_u, (y_pos+y*y_step)*v_step+noise_array[y*16+x-15].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step+x_step, y_pos+y*y_step,water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step+x_step)*u_step+noise_array[(y-15)*16+x-15].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y-15)*16+x-15].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step+x_step, y_pos+y*y_step+y_step,water_deepth_offset);
-					}
-					else
-					{
- 					glTexCoord2f((x_pos+x*x_step)*u_step+noise_array[(y+1)*16+x].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y+1)*16+x].v+water_movement_v);
-	 				glVertex3f(x_pos+x*x_step,y_pos+y*y_step+y_step, water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step)*u_step+noise_array[y*16+x].u+water_movement_u, (y_pos+y*y_step)*v_step+noise_array[y*16+x].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step,y_pos+y*y_step, water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step+x_step)*u_step+noise_array[y*16+x+1].u+water_movement_u, (y_pos+y*y_step)*v_step+noise_array[y*16+x+1].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step+x_step, y_pos+y*y_step,water_deepth_offset);
-
-					glTexCoord2f((x_pos+x*x_step+x_step)*u_step+noise_array[(y+1)*16+x+1].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y+1)*16+x+1].v+water_movement_v);
-					glVertex3f(x_pos+x*x_step+x_step, y_pos+y*y_step+y_step,water_deepth_offset);
-					}
-
+					glTexCoord2f((fx+x_step)*u_step+noise_array[((y+1)&15)*16+((x+1)&15)].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+((x+1)&15)].v+water_movement_v);
+					glVertex3f(fx+x_step, fy+y_step,water_deepth_offset);
 
 				}
 
@@ -340,13 +284,11 @@ void draw_lake_tiles()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-
 	if(last_texture!=texture_cache[sky_text_1].texture_id)
 		{
 			glBindTexture(GL_TEXTURE_2D, texture_cache[sky_text_1].texture_id);
 			last_texture=texture_cache[sky_text_1].texture_id;
 		}
-
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
