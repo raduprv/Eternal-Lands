@@ -603,6 +603,18 @@ void	hide_window(int win_id)
 	windows_list.window[win_id].displayed= 0;
 }
 
+void	toggle_window(int win_id)
+{
+	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
+	if(windows_list.window[win_id].window_id != win_id)	return;
+
+	if(windows_list.window[win_id].displayed)
+		windows_list.window[win_id].displayed= 0;
+	else
+		windows_list.window[win_id].displayed= 1;
+}
+
+
 int	get_show_window(int win_id)
 {
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return 0;

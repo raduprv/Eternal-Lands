@@ -154,6 +154,7 @@ int		use_window_color(int win_id, Uint32 color_id);
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() );
 void	show_window(int win_id);
 void	hide_window(int win_id);
+void	toggle_window(int win_id);
 int		get_show_window(int win_id);
 //void	collapse_window(int win_id);	// future expansion
 //void	expand_window(int win_id);		// future expansion
