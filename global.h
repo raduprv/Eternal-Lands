@@ -218,6 +218,7 @@ float clouds_movement_u;
 float clouds_movement_v;
 extern int last_clear_clouds;
 extern int reflection_texture;
+extern int have_vertex_array;
 extern int have_compiled_vertex_array;
 
 #define UNDER_MOUSE_NPC 0
