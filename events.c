@@ -10,12 +10,12 @@ int calhm = 0;
 void zoomin(){
 	zoom_level -= ctrl_on ? 2.5f : 0.25f;
 	if(zoom_level<1.0f) zoom_level = 1.0f;
-	resize_window();
+	window_resize();
 }
 
 void zoomout(){
 	zoom_level += ctrl_on ? 2.5f : 0.25f;	
-	resize_window();
+	window_resize();
 }
 
 int HandleEvent(SDL_Event *event)
@@ -49,7 +49,7 @@ int HandleEvent(SDL_Event *event)
 		if (event->key.keysym.sym == SDLK_3 && ctrl_on){gcr=0.0f;gcg=1.0f;gcb=0.0f;}
 		if (event->key.keysym.sym == SDLK_4 && ctrl_on){gcr=0.0f;gcg=0.0f;gcb=1.0f;}
 		if (event->key.keysym.sym == SDLK_5 && ctrl_on){gcr=0.0f;gcg=0.0f;gcb=0.0f;}
-		if (event->key.keysym.sym == SDLK_F12){zoom_level=3.75f;resize_window();}
+		if (event->key.keysym.sym == SDLK_F12){zoom_level=3.75f;window_resize();}
 
 		if (event->key.keysym.sym == SDLK_TAB)heights_3d=!heights_3d;
 		if (event->key.keysym.sym == SDLK_g)view_grid=!view_grid;
@@ -424,7 +424,7 @@ int HandleEvent(SDL_Event *event)
 #ifdef LINUX
                 	     if(SDL_SetVideoMode(window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE))
 	      	      	  	   {
-			                  resize_window();
+			                  window_resize();
 	                  	   }
 #else
                      	     handle_window_resize();
@@ -532,7 +532,7 @@ int HandleEvent(SDL_Event *event)
 						else
 							height_map[(int)(scene_mouse_y*2)*tile_map_size_x*6+(int)(scene_mouse_x*2)]=selected_height;
 
-				if(view_heights_list)get_height_under_mouse_from_list();
+				//if(view_heights_list)get_height_under_mouse_from_list(); // Window should handle it
 			}
 
 
@@ -786,7 +786,7 @@ int HandleEvent(SDL_Event *event)
 										else
 										height_map[(int)(scene_mouse_y*2.0f)*tile_map_size_x*6+(int)(scene_mouse_x*2.0f)]=selected_height;
 									}
-								if(view_heights_list)get_height_under_mouse_from_list();
+								//if(view_heights_list)get_height_under_mouse_from_list(); // Window should handle it
 							}
 
 						}

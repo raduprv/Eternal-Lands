@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include "global.h"
 
+void my_strncp(Uint8 *dest,const Uint8 * source, Sint32 len)
+{
+	while(*source && --len > 0)
+		{
+			*dest++=*source++;
+		}
+	*dest='\0';
+}
 //find the first string occurance, and return the distance to that string
 //if beggining is 1, it returns the offset to the beginning of the string
 //otherwise it returns the offset to the end of the string

@@ -146,7 +146,7 @@ int display_browser_handler(window_info *win)
 
 		// Now we draw the 4 objects
 		zoom_level=3.0;
-		resize_window();
+		window_resize();
 		glRotatef(-60, 1.0f, 0.0f, 0.0f);
 		glRotatef(0, 0.0f, 0.0f, 1.0f);
 		glRotatef(45, 0.0f, 0.0f, 1.0f);
@@ -211,7 +211,7 @@ int display_browser_handler(window_info *win)
 		}
 
 		zoom_level=tz;
-		resize_window();
+		window_resize();
 		// Back to normal
 		glViewport(0,0,window_width,window_height);
 		Enter2DMode();

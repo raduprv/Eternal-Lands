@@ -8,7 +8,6 @@
 //#include "gui_callbacks.h"
 //#include "gui_support.h"
 
-char* selected_file;
 int continue_with;
 GtkWidget* file_selector;
 

@@ -69,4 +69,7 @@ void save_map_file();
 void save_map_file_continued();
 #endif
 
+extern char* selected_file;
+FILE *my_fopen (const char *fname, const char *mode);
+
 #endif	//__MISC_H

@@ -80,7 +80,7 @@ void handle_window_resize()
 	
 	init_gl();
 
-	resize_window();
+	window_resize();
 	
     glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);

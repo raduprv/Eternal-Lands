@@ -1,5 +1,6 @@
 #include "global.h"
 
+char* selected_file;
 float grid_height=0.02f;
 
 void draw_checkbox(int startx, int starty, int checked)
@@ -770,25 +771,6 @@ void move_height_tile()
 	glEnable(GL_LIGHTING);
 }
 
-
-void get_height_under_mouse_from_list()
-{
-	int height_id;
-	int mx,my;
-
-	mx=mouse_x-(int)x_tile_menu_offset;
-	my=mouse_y-(int)y_tile_menu_offset;
-
-	if(mx>32*8 || my>32*4 || mx<0 || my<0)return;//check to see if we clicked outside our rectangle
-
-	mx/=32;
-	my/=32;
-	height_id=my*8+mx;
-	view_heights_list=0;
-	cur_tool=tool_select;
-	selected_height=height_id;
-}
-
 void draw_big_height_tile(int size)
 {
 	int x,y;
@@ -1035,7 +1017,7 @@ void save_particle_def_file()
     if (GetSaveFileName (&ofn))
     {
 		strcpy(def.file_name,szFileName);
-		save_particle_def(&def);
+		save_particle_def_file(&def);
     }
 }
 
@@ -1091,6 +1073,7 @@ void open_3d_obj()
   continue_with = OPEN_3D_OBJ;
   gtk_widget_show(file_selector);
 }
+#endif
 void open_3d_obj_continued()
 {
   if (selected_file)
@@ -1101,14 +1084,14 @@ void open_3d_obj_continued()
 		if(selected_particles_object>=0)particles_list[selected_particles_object]->ttl=-1; // we dont want the particle sys to disapear
     }
 }
-
+#ifdef LINUX
 void open_particles_obj()
 {
   gtk_window_set_title(GTK_WINDOW(file_selector), "open particles object");
   continue_with = OPEN_PARTICLES_OBJ;
   gtk_widget_show(file_selector);
 }
-
+#endif
 void open_particles_obj_continued()
 {
   if (selected_file)
@@ -1119,7 +1102,7 @@ void open_particles_obj_continued()
     }
 }
 
-
+#ifdef LINUX
 void open_2d_obj()
 {
   gtk_window_set_title(GTK_WINDOW(file_selector), "open 2d object");
@@ -1127,6 +1110,7 @@ void open_2d_obj()
   continue_with = OPEN_2D_OBJ;
   gtk_widget_show(file_selector);
 }
+#endif
 void open_2d_obj_continued()
 {
   if (selected_file)
@@ -1135,7 +1119,7 @@ void open_2d_obj_continued()
 		cur_tool=tool_select;//change the current tool
     }
 }
-
+#ifdef LINUX
 void open_map_file()
 {
   gtk_window_set_title(GTK_WINDOW(file_selector), "open map");
@@ -1143,12 +1127,12 @@ void open_map_file()
   continue_with = OPEN_MAP;
   gtk_widget_show(file_selector);
 }
-
+#endif
 void open_map_file_continued()
 {
   if (selected_file)load_map(selected_file);
 }
-
+#ifdef LINUX
 void save_map_file()
 {
   gtk_window_set_title(GTK_WINDOW(file_selector), "save map");
@@ -1156,25 +1140,35 @@ void save_map_file()
   continue_with = SAVE_MAP;
   gtk_widget_show(file_selector);
 }
-
+#endif
 void save_map_file_continued()
 {
   if (selected_file)save_map(selected_file);
 }
-
+#ifdef LINUX
 void save_particle_def_file()
 {
 	gtk_window_set_title(GTK_WINDOW(file_selector), "save particle system definition");
 	continue_with = SAVE_PARTICLE_DEF;
 	gtk_widget_show(file_selector);
 }
-
+#endif
 
 void save_particle_def_file_continued()
 {
 	if(!selected_file)return;
 	strncpy(def.file_name,selected_file,80);
-	save_particle_def(&def);
+	save_particle_def_file(&def);
 }
 
-#endif
+FILE *my_fopen (const char *fname, const char *mode)
+{
+	FILE *file = fopen (fname, mode);
+	if (file == NULL)
+	{
+		char str[256];
+		snprintf(str, sizeof (str), "%s: %s \"%s\"", reg_error_str, cant_open_file, fname);
+		LogError(str);
+	}
+	return file;
+}

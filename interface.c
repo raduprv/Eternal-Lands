@@ -566,32 +566,45 @@ void display_tiles_list()
 }
 
 
-void display_heights_list()
+
+int height_win = 0;
+
+int display_heights_handler(window_info *win)
 {
 
 	int i;
 	int x_start,y_start,x_end,y_end;
+	int pos_x = win->pos_x, pos_y = win->pos_y + 16;
+	
+	char error[256];
 
 	//draw a black rectangle
+	//n_tile_menu_offset isn't needed in a window...
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	glColor3f(0.0f,0.0f,0.0f);
-	glVertex3i((int)(x_tile_menu_offset),(int)(y_tile_menu_offset)+32*4,0);
-	glVertex3i((int)(x_tile_menu_offset),(int)(y_tile_menu_offset),0);
-	glVertex3i((int)(x_tile_menu_offset)+32*8,(int)(y_tile_menu_offset),0);
-	glVertex3i((int)(x_tile_menu_offset)+32*8,(int)(y_tile_menu_offset)+32*4,0);
+	/*glVertex3i(pos_x,pos_y+(32*4),0);
+	glVertex3i(pos_x,pos_y,0);
+	glVertex3i(pos_x+(32*8),pos_y,0);
+	glVertex3i(pos_x+(32*8),pos_y+(32*4),0);*/
+	glVertex3i(0,win->len_y-1,0);
+	glVertex3i(0,20,0);
+	glVertex3i(win->len_x-1,20,0);
+	glVertex3i(win->len_x-1,win->len_y-1,0);
 	glColor3f(1.0f,1.0f,1.0f);
 	glEnd();
+	
+	sprintf(error, "X-%d, Y-%d", pos_x, pos_y);
+	log_error(error);
 
 	for(i=0;i<32;i++)
 		{
 
 			x_start=32*(i%8);
-			x_start+=(int)x_tile_menu_offset;
 			x_end=x_start+31;
 
 			y_start=32*(i/8);
-			y_start+=(int)y_tile_menu_offset;
+			y_start+=20;
 			y_end=y_start+31;
 
 			change_color_height(i);
@@ -605,6 +618,42 @@ void display_heights_list()
 			glEnd();
 		}
 	glEnable(GL_TEXTURE_2D);
+}
+
+int check_height_interface(window_info *win, int mx, int my, Uint32 flags)
+{
+   int x, y;
+   int height_id;
+   if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x
+      || mouse_y-20<win->pos_y || mouse_y-20>win->pos_y+win->len_y)return 0; 
+      //check to see if we clicked outside our rectangle
+
+
+    x=mouse_x-win->pos_x;
+    y=mouse_y-win->pos_y - 20;
+
+	x/=32;
+	y/=32;
+	height_id=y*8+x;
+	view_heights_list=0;
+	cur_tool=tool_select;
+	selected_height=height_id;
+	return 1;                 // Disable clickthroughs?
+}
+
+void display_heights_list()
+{
+	if(height_win <= 0){
+		height_win = create_window("heights", 0, 0, 64, 128, 32*8, 32*4+20, ELW_WIN_DEFAULT);
+
+		set_window_handler(height_win, ELW_HANDLER_DISPLAY, &display_heights_handler );
+		set_window_handler(height_win, ELW_HANDLER_CLICK, &check_height_interface );
+		
+	} else {
+		show_window(height_win);
+		select_window(height_win);
+	}
+	display_window(height_win);
 }
 
 void check_mouse_minimap()

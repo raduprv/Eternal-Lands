@@ -116,7 +116,7 @@ void init_stuff()
 
 	init_gl();
 
-	resize_window();
+	window_resize();
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 //	glDepthFunc(GL_LEQUAL);
@@ -216,7 +216,7 @@ void init_stuff()
 
 }
 
-void resize_window()
+void window_resize()
 {
 	float window_ratio;
 	if (window_height==0)window_height=1;			// Prevent A Divide By Zero
