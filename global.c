@@ -229,7 +229,6 @@ int username_text_lenght=0;
 int password_text_lenght=0;
 
 //shadows
-
 float fDestMat[16];
 float fSunPos[4]={400.0, 400.0, 500.0, 0.0};
 float fLightPos[4]={400.0, 400.0, 500.0, 0.0};
@@ -430,7 +429,7 @@ int client_version_minor=VER_MINOR;
 int client_version_release=VER_RELEASE;
 int	client_version_patch=VER_BUILD;
 int version_first_digit=9;	//protocol/game version sent to server
-int version_second_digit=5;
+int version_second_digit=6;
 
 
 
