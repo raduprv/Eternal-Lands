@@ -171,6 +171,7 @@ void init_buddy()
 
 void display_buddy()
 {
+	int t;
 	if(buddy_win <= 0)
 		{
 			buddy_win= create_window("Buddy", 0, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);

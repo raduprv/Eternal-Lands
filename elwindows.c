@@ -3,6 +3,7 @@
 #include "global.h"
 #include "keys.h"
 #include "elwindows.h"
+#include "widgets.h"
 
 windows_info	windows_list;	// the master list of windows
 
@@ -695,7 +696,7 @@ int	draw_window_border(window_info *win)
 int	draw_window(window_info *win)
 {
 	int	ret_val=0;
-
+	widget_list *W = &win->widgetlist;
 	if(win == NULL || win->window_id < 0)	return -1;
 
 	if(!win->displayed)	return 0;
@@ -717,6 +718,14 @@ int	draw_window(window_info *win)
 		{
 		ret_val=1;
 		}
+
+	// widget drawing
+	while(W->next != NULL){
+		W = W->next;
+		if(W->OnDraw != NULL)
+			W->OnDraw(W);
+	}
+
 	glPopMatrix();
 	
 	return(ret_val);
@@ -789,10 +798,12 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 {
     window_info *win;
     int	mx, my;
-   
+   	widget_list *W; 
+
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	win= &windows_list.window[win_id];
+	W = &win->widgetlist;
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
 			// watch for needing to convert the globals into the flags
@@ -819,6 +830,20 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 						}				
 				}
 			
+			// widgets
+			glPushMatrix();
+			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+			while(W->next != NULL){
+				W = W->next;
+				if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
+					if(W->OnClick != NULL)
+						W->OnClick(W,mx,my);
+				}
+
+				
+			}
+			glPopMatrix();
+
 			//use the handler
 			if(win->click_handler != NULL){
 			    int	ret_val;
@@ -883,13 +908,29 @@ int	mouseover_window(int win_id, int x, int y)
 {
 	int	mx,	my;
 	int	ret_val=0;
-	
+	widget_list *W = &windows_list.window[win_id].widgetlist;
+
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
+			mx= x - windows_list.window[win_id].cur_x;
+			my= y - windows_list.window[win_id].cur_y;
+
+			// widgets
+			glPushMatrix();
+			glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);
+			while(W->next != NULL){
+				W = W->next;
+				if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
+					if(W->OnMouseover != NULL)
+						W->OnMouseover(W,mx,my);
+				}
+
+				
+			}
+			glPopMatrix();
+
 			//use the handler if present
 			if(windows_list.window[win_id].mouseover_handler){
-				mx= x - windows_list.window[win_id].cur_x;
-				my= y - windows_list.window[win_id].cur_y;
 
 				glPushMatrix();
 				glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);

@@ -1,6 +1,8 @@
 #ifndef	__EL_WINDOWS_H
 #define	__EL_WINDOWS_H
 
+#include "widgets.h"
+
 /*
  * A simple window handler setup to reduce the code needed to do windows
  *
@@ -43,6 +45,7 @@ typedef	struct	{
 	int	max_list;	// amount of space allocated in list
 	int	data_value;	// a simple data value associated with this window
 	*/
+	widget_list widgetlist;
 } window_info;
 
 // Title bar & other constants
