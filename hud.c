@@ -2,12 +2,14 @@
 #include "global.h"
 #include <math.h>
 
+
 // initialize anything related to the hud
 void init_hud_interface()
 {
 	init_peace_icons();
 	init_misc_display();
 	init_stats_display();
+	init_quickbar();
 }
 
 // draw everything related to the hud
@@ -19,6 +21,7 @@ void draw_hud_interface()
     draw_peace_icons();
     draw_misc_display();
     draw_stats_display();
+	draw_quickbar();
 }
 
 // check to see if a mouse click was on the hud
@@ -27,6 +30,7 @@ int check_hud_interface()
 	if(check_peace_icons())return 1;
 	if(check_misc_display())return 1;
 	if(check_stats_display())return 1;
+	if(check_quickbar())return 1;
 
 	// nothing done here
 	return 0;
@@ -285,7 +289,6 @@ int food_bar_start_x;
 int food_bar_start_y;
 int food_bar_x_len;
 int food_bar_y_len;
-
 
 void init_peace_icons()
 {
@@ -829,4 +832,195 @@ int check_misc_display()
 		}
 
 	return 0;
+}
+
+int quickbar_x_len=51;
+int quickbar_y_len=6*51;
+int quickbar_x=0;
+int quickbar_y=0;
+
+//quickbar section
+void init_quickbar() {
+	quickbar_x_len=51;
+	quickbar_y_len=6*51+1;
+}
+
+void draw_quickbar() {
+	quickbar_x=window_width-quickbar_x_len-4;
+	quickbar_y=window_height-100-6*52;
+	Uint8 str[80];
+	int y,i;
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+	glColor4f(0.0f,0.0f,0.0f,0.5f);
+	glVertex3i(quickbar_x,quickbar_y+quickbar_y_len,0);
+	glVertex3i(quickbar_x,quickbar_y,0);
+	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y,0);
+	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y+quickbar_y_len,0);
+	glEnd();
+
+	glDisable(GL_BLEND);
+	glColor3f(0.77f,0.57f,0.39f);
+	glBegin(GL_LINES);
+	glVertex3i(quickbar_x,quickbar_y,0);
+	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y,0);
+
+	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y,0);
+	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y+quickbar_y_len,0);
+
+	glVertex3i(quickbar_x+quickbar_x_len,quickbar_y+quickbar_y_len,0);
+	glVertex3i(quickbar_x,quickbar_y+quickbar_y_len,0);
+
+	glVertex3i(quickbar_x,quickbar_y+quickbar_y_len,0);
+	glVertex3i(quickbar_x,quickbar_y,0);
+
+	//draw the grid
+	for(y=1;y<6;y++)
+		{
+			glVertex3i(quickbar_x,quickbar_y+y*51+1,0);
+			glVertex3i(quickbar_x+quickbar_x_len,quickbar_y+y*51+1,0);
+		}
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+	glColor3f(1.0f,1.0f,1.0f);
+	glColor3f(1.0f,1.0f,1.0f);
+	//ok, now let's draw the objects...
+	for(i=0;i<ITEM_NUM_ITEMS;i++)
+		{
+			if(item_list[i].quantity)
+				{
+					float u_start,v_start,u_end,v_end;
+					int this_texture,cur_item,cur_pos;
+					int x_start,x_end,y_start,y_end;
+
+					//get the UV coordinates.
+					cur_item=item_list[i].image_id%25;
+					u_start=0.2f*(cur_item%5);
+					u_end=u_start+0.2f;
+					v_start=(1.0f+2.0f/256.0f)-(0.2f*(cur_item/5));
+					v_end=v_start-0.2f;
+
+					//get the x and y
+					cur_pos=item_list[i].pos;
+					if(cur_pos<7)//don't even check worn items
+						{
+							x_start=quickbar_x+1;
+							x_end=x_start+50;
+							y_start=quickbar_y+51*(cur_pos%6)+1;
+							y_end=y_start+50;
+						}
+
+					//get the texture this item belongs to
+					this_texture=item_list[i].image_id/25;
+					if(this_texture==0)this_texture=items_text_1;
+					else if(this_texture==1)this_texture=items_text_2;
+					else if(this_texture==2)this_texture=items_text_3;
+					else if(this_texture==3)this_texture=items_text_4;
+					else if(this_texture==4)this_texture=items_text_5;
+					else if(this_texture==5)this_texture=items_text_6;
+					else if(this_texture==6)this_texture=items_text_7;
+
+					get_and_set_texture_id(this_texture);
+					glBegin(GL_QUADS);
+					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
+					glEnd();
+					sprintf(str,"%i",item_list[i].quantity);
+					draw_string_small(x_start,y_end-15,str,1);
+				}
+		}
+}
+
+int check_quickbar() {
+	int i,y;
+	int x_screen,y_screen;
+	Uint8 str[100];
+	
+	if(mouse_x>quickbar_x+quickbar_x_len || mouse_x<quickbar_x
+	   || mouse_y<quickbar_y || mouse_y>quickbar_y+quickbar_y_len)return 0;
+
+
+	//see if we clicked on any item in the main category
+	for(y=0;y<6;y++)
+		{
+			x_screen=quickbar_x;
+			y_screen=quickbar_y+y*51;
+			if(mouse_x>x_screen && mouse_x<x_screen+51 && mouse_y>y_screen && mouse_y<y_screen+51)
+				{
+					//see if there is an empty space to drop this item over.
+					if(item_dragged!=-1)//we have to drop this item
+						{
+							int any_item=0;
+							for(i=0;i<ITEM_NUM_ITEMS;i++)
+								{
+									if(item_list[i].quantity && item_list[i].pos==y)
+										{
+											any_item=1;
+											if(item_dragged==i)//drop the item only over itself
+												item_dragged=-1;
+											return 1;
+										}
+								}
+							if(!any_item)
+								{
+									//send the drop info to the server
+									str[0]=MOVE_INVENTORY_ITEM;
+									str[1]=item_list[item_dragged].pos;
+									str[2]=y;
+									my_tcp_send(my_socket,str,3);
+									item_dragged=-1;
+									return 1;
+								}
+						}
+
+					//see if there is any item there
+
+					for(i=0;i<ITEM_NUM_ITEMS;i++)
+						{
+							//should we get the info for it?
+							if(item_list[i].quantity && item_list[i].pos==y)
+								{
+
+									if(action_mode==action_look || right_click)
+										{
+											if(cur_time<(click_time+click_speed))
+												if(item_list[i].use_with_inventory)
+													{
+														str[0]=USE_INVENTORY_ITEM;
+														str[1]=item_list[i].pos;
+														my_tcp_send(my_socket,str,2);
+														return 1;
+													}
+											click_time=cur_time;
+											str[0]=LOOK_AT_INVENTORY_ITEM;
+											str[1]=item_list[i].pos;
+											my_tcp_send(my_socket,str,2);
+										}
+									else if(action_mode==action_use)
+										{
+											if(item_list[i].use_with_inventory)
+												{
+													str[0]=USE_INVENTORY_ITEM;
+													str[1]=item_list[i].pos;
+													my_tcp_send(my_socket,str,2);
+													return 1;
+												}
+											return 1;
+										}
+									else//we might test for other things first, like use or drop
+										{
+											if(item_dragged==-1)//we have to drag this item
+												{
+													item_dragged=i;
+												}
+										}
+
+									return 1;
+								}
+						}
+				}
+		}
+	return 1;
 }

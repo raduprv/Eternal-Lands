@@ -78,6 +78,8 @@ typedef struct
 	char selected;
 }mode_flag;
 
+extern Uint32 click_time;
+extern int click_speed;
 
 void get_world_x_y();
 int check_drag_menus();

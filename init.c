@@ -385,6 +385,7 @@ void init_stuff()
 
 	init_video();
 	resize_window();
+	init_gl_extensions();
 
 	seed = time (NULL);
 	srand (seed);
@@ -429,10 +430,7 @@ void init_stuff()
 	build_rain_table();
 	read_bin_cfg();
 
-
 	if(!no_sound)init_sound();
-
-
 
 	//initialize the fonts
 	init_fonts();

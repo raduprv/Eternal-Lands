@@ -63,9 +63,6 @@ int item_quantity=1;
 int wear_items_x_offset=6*51+20;
 int wear_items_y_offset=30;
 
-Uint32 click_time=0;
-int click_speed=300;
-
 void display_items_menu()
 {
 	Uint8 str[80];

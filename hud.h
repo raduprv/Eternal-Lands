@@ -24,4 +24,9 @@ void init_misc_display();
 void draw_misc_display();
 int check_misc_display();
 
+//quickbar section
+void init_quickbar();
+void draw_quickbar();
+int check_quickbar();
+
 #endif	//__HUD_H

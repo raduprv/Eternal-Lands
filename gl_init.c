@@ -194,8 +194,6 @@ void check_gl_mode()
 void init_video()
 {
 	int rgb_size[3];
-	Uint8 * extensions;
-	int ext_str_len;
 
 	if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1 )
 		{
@@ -372,8 +370,12 @@ void init_video()
 	build_video_mode_array();
 	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &have_stencil);
 	last_texture=-1;	//no active texture
+}
 
-
+void init_gl_extensions()
+{
+	Uint8 * extensions;
+	int ext_str_len;
 	//now load the multitexturing extension
 	ELglActiveTextureARB = SDL_GL_GetProcAddress("glActiveTextureARB");
 	ELglMultiTexCoord2fARB = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
@@ -439,8 +441,6 @@ void init_video()
 
 	check_gl_errors();
 }
-
-
 void resize_window()
 {
 	float window_ratio;
