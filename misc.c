@@ -501,6 +501,8 @@ void move_height_tile()
 
 	x_start=scene_mouse_x-0.25f;
 	y_start=scene_mouse_y-0.25f;
+	//x_start=scene_mouse_x;
+	//y_start=scene_mouse_y;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
@@ -520,7 +522,6 @@ void move_height_tile()
 		glVertex3f(x_start+1.5f+0.5f, y_start-1.5f,z);
 		glVertex3f(x_start+1.5f+0.5f, y_start+1.5f+0.5f,z);
 		glEnd();
-
 	}
 	else
 	if(ctrl_on)
@@ -531,7 +532,6 @@ void move_height_tile()
 		glVertex3f(x_start+0.5f+0.5f, y_start-0.5f,z);
 		glVertex3f(x_start+0.5f+0.5f, y_start+0.5f+0.5f,z);
 		glEnd();
-
 	}
 	else
 	{

@@ -635,7 +635,7 @@ e3d_object * load_e3d(char *file_name)
 	return cur_object;
 }
 
-#ifdef	ALLOW_CLOUDS
+#ifdef	USE_CLOUDS
 void compute_clouds_map(object3d * object_id)
 {
 	float x1,y1,x,y,z,m;

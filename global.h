@@ -29,6 +29,7 @@
 #include "asc.h"
 #include "e3d.h"
 #include "2d_objects.h"
+#include "3d_objects.h"
 #include "tiles.h"
 #include "lights.h"
 #include "interface.h"
@@ -146,6 +147,7 @@ extern int ground_detail_text;
 
 extern float clouds_movement_u;
 extern float clouds_movement_v;
+extern Uint32 last_clear_clouds;
 extern float texture_scale;
 extern int clouds_shadows;
 
