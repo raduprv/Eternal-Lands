@@ -128,7 +128,7 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 
 	//displayed_font_x_width=(int)displayed_font_x_size;
 	font_bit_width=get_font_width(chr);
-	displayed_font_x_width=(int)(((float)font_bit_width)*displayed_font_x_size/12.0);
+	displayed_font_x_width=(int)(0.5f+((float)font_bit_width)*displayed_font_x_size/12.0);
 	ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
 	//ignored_bits=0;	
 
