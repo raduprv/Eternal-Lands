@@ -761,22 +761,56 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 
 int mouseover_ground_items_handler(window_info *win, int mx, int my) {
-	if(action_mode==action_look) {
-		elwin_mouse=CURSOR_EYE;
-	} else {
-		elwin_mouse=CURSOR_PICK;
-	}
-	return 1;
+	int x,y;
+	int x_screen,y_screen;
+	for(y=0;y<10;y++)
+		for(x=0;x<5;x++)
+			{
+				x_screen= x*33;
+				y_screen= y*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33) {
+					int pos;
+					pos= y*5+x;
+					if(ground_item_list[pos].quantity) {
+						if(action_mode==action_look) {
+							elwin_mouse=CURSOR_EYE;
+						} else {
+							elwin_mouse=CURSOR_PICK;
+						}
+						return 1;
+					}
+				}
+			}
+	return 0;
 }
 
 int mouseover_items_handler(window_info *win, int mx, int my) {
-	if(action_mode==action_look) {
-		elwin_mouse=CURSOR_EYE;
-		return 1;
-	} else if(action_mode==action_use) {
-		elwin_mouse=CURSOR_USE;
-		return 1;
-	}
+	int x,y,i;
+	int x_screen,y_screen;
+	for(y=0;y<6;y++)
+		for(x=0;x<6;x++)
+			{
+				x_screen=x*51;
+				y_screen=y*51;
+				if(mx>x_screen && mx<x_screen+51 && my>y_screen && my<y_screen+51)
+					{
+						for(i=0;i<ITEM_NUM_ITEMS;i++)
+							{
+								//should we get the info for it?
+								if(item_list[i].quantity && item_list[i].pos==y*6+x)
+									{
+										if(action_mode==action_look) {
+											elwin_mouse=CURSOR_EYE;
+										} else if(action_mode==action_use) {
+											elwin_mouse=CURSOR_USE;
+										} else {
+											elwin_mouse=CURSOR_PICK;
+										}
+										return 1;
+									}
+							}
+					}
+			}
 	return 0;
 }
 

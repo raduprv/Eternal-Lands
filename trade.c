@@ -346,31 +346,18 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				y_screen=y*33;
 				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
-						int i,j;
-
-						//see if there is any item there
-						j=0;
-						for(i=0;i<ITEM_NUM_ITEMS;i++)
+						if(y*12+x<ITEM_WEAR_START && item_list[y*12+x].quantity)
 							{
-							if(item_list[i].quantity && item_list[i].pos<ITEM_WEAR_START)
-								{
-									if(j==y*12+x)break;
-									j++;
-								}
-							}
-						if(i<ITEM_NUM_ITEMS && item_list[i].quantity)
-							{
-								//if(action_mode==action_look && left_click)
 								if(action_mode==action_look || right_click)
 									{
 										str[0]=LOOK_AT_INVENTORY_ITEM;
-										str[1]=item_list[i].pos;
+										str[1]=item_list[y*12+x].pos;
 										my_tcp_send(my_socket,str,2);
 									}
 								else
 									{
 										str[0]=PUT_OBJECT_ON_TRADE;
-										str[1]=item_list[i].pos;
+										str[1]=item_list[y*12+x].pos;
 										*((Uint16 *)(str+2))=item_quantity;
 										my_tcp_send(my_socket,str,4);
 									}
@@ -443,12 +430,60 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 }
 
 int mouseover_trade_handler(window_info *win, int mx, int my) {
-	if(action_mode==action_look) {
-		elwin_mouse=CURSOR_EYE;
-	} else {
-		elwin_mouse=CURSOR_ARROW;
-	}
-	return 1;
+	int x,y;
+	int x_screen,y_screen;
+	for(y=0;y<3;y++)
+		for(x=0;x<12;x++)
+			{
+				x_screen=x*33;
+				y_screen=y*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
+					{
+						if(y*12+x<ITEM_WEAR_START && item_list[y*12+x].quantity)
+							{
+								if(action_mode==action_look) {
+									elwin_mouse=CURSOR_EYE;
+									return 1;
+								} else
+									return 0;
+							}
+					}
+			}
+	for(y=0;y<4;y++)
+		for(x=0;x<4;x++)
+			{
+				x_screen=x*33;
+				y_screen=(y+4)*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
+					{
+						if(your_trade_list[y*4+x].quantity)
+							{
+								if(action_mode==action_look) {
+									elwin_mouse=CURSOR_EYE;
+									return 1;
+								} else
+									return 0;
+							}
+					}
+			}
+	for(y=0;y<4;y++)
+		for(x=0;x<4;x++)
+			{
+				x_screen=33*5+x*33;
+				y_screen=(y+4)*33;
+				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
+					{
+						if(others_trade_list[y*4+x].quantity)
+							{
+								if(action_mode==action_look) {
+									elwin_mouse=CURSOR_EYE;
+									return 1;
+								} else
+									return 0;
+							}
+					}
+			}
+	return 0;
 }
 
 void get_trade_partner_name(Uint8 *player_name,int len)
