@@ -73,7 +73,9 @@ void read_config()
   	shadows_on=get_integer_after_string("#shadows_on",file_mem,MAX_INI_FILE);
   	poor_man=get_integer_after_string("#poor_man",file_mem,MAX_INI_FILE);
   	show_reflection=get_integer_after_string("#show_reflection",file_mem,MAX_INI_FILE);
+	if(show_reflection==-1)show_reflection=1;
   	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,MAX_INI_FILE);
+	if(mouse_limit==-1)mouse_limit=15;
   	full_screen=get_integer_after_string("#full_screen",file_mem,MAX_INI_FILE);
   	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,MAX_INI_FILE);
   	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,MAX_INI_FILE);
