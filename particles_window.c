@@ -596,7 +596,7 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 	int x,y,tmp,i;
 	int minx,miny,minz,maxx,maxy,maxz;
 
-	if(!view_particles_window || mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
+	if(/*!view_particles_window || */mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
 
    	if(mouse_x>(win->pos_x+win->len_x-20) && mouse_y<=win->pos_y+20)
 	{
