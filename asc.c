@@ -7,13 +7,13 @@
 //find the first string occurance, and return the distance to that string
 //if beggining is 1, it returns the offset to the beginning of the string
 //otherwise it returns the offset to the end of the string
-int get_string_occurance(char * source_pointer, char * dest_pointer, int max_len,char beginning)
+Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_pointer, Sint32 max_len,Uint8 beginning)
 {
 	int i;
 	int j;
 	int k;
-	char cur_src_char;
-	char cur_dest_char;
+	Uint8 cur_src_char;
+	Uint8 cur_dest_char;
 	int source_lenght;
 
 	source_lenght=strlen(source_pointer);
@@ -49,17 +49,41 @@ int get_string_occurance(char * source_pointer, char * dest_pointer, int max_len
 	return -1;//if we are here, it means we didn't find the string...
 }
 
+//find & copy a string into memory
+//return the length or -1 if not found
+Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, Sint32 max_len, Uint8 *value, Sint32 value_len)
+{
+	int i;
+	int loc=get_string_occurance(source_pointer, dest_pointer, max_len, 0);
+
+	if (loc < 0)
+		{
+			return -1;
+		}
+	// now copy the string
+	for(i=0;i<value_len-1;i++)
+		{
+			Uint8 ch;
+			ch=dest_pointer[loc+i];
+			if(ch==0x0a || ch==0x0d)break;
+  			value[i]=ch;
+		}
+	value[i]=0;	// always place a NULL
+
+	return(i);
+}
+
 //this function returns an integer, after the source string in the destination string
 //if the string is not found, after max_len, the function returns null.
 //the function is NOT case sensitive
-int get_integer_after_string(char * source_pointer, char * dest_pointer, 
+Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 							 int max_len)
 {
 	int i;
 	int j;
 	int k;
-	char cur_src_char;
-	char cur_dest_char;
+	Uint8 cur_src_char;
+	Uint8 cur_dest_char;
 	int source_lenght;
 
 	source_lenght=strlen(source_pointer);
@@ -100,14 +124,14 @@ int get_integer_after_string(char * source_pointer, char * dest_pointer,
 //this function returns a float, after the source string in the destination string
 //if the string is not found, after max_len, the function returns null.
 //the function is NOT case sensitive
-float get_float_after_string(char * source_pointer, char * dest_pointer, 
+float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 							 int max_len)
 {
 	int i;
 	int j;
 	int k;
-	char cur_src_char;
-	char cur_dest_char;
+	Uint8 cur_src_char;
+	Uint8 cur_dest_char;
 	int source_lenght;
 
 	source_lenght=strlen(source_pointer);
@@ -148,7 +172,7 @@ float get_float_after_string(char * source_pointer, char * dest_pointer,
 	return -1;//if we are here, it means we didn't find the string...
 }
 
-void my_strcp(char *dest,char * source)
+void my_strcp(Uint8 *dest,const Uint8 * source)
 {
 	while(*source)
 		{
@@ -157,7 +181,7 @@ void my_strcp(char *dest,char * source)
 	*dest='\0';
 }
 
-void my_strncp(char *dest,char * source,int len)
+void my_strncp(Uint8 *dest,const Uint8 * source, Sint32 len)
 {
 	while(*source && --len > 0)
 		{
@@ -166,7 +190,7 @@ void my_strncp(char *dest,char * source,int len)
 	*dest='\0';
 }
 
-void my_strcat(char *dest,char * source)
+void my_strcat(Uint8 *dest,const Uint8 * source)
 {
 	int i,l,dl;
 	l=strlen(source);
@@ -175,7 +199,7 @@ void my_strcat(char *dest,char * source)
 	dest[dl+i]=0;
 }
 
-int my_strncompare(Uint8 *dest, Uint8 *src, int len)
+Sint32 my_strncompare(Uint8 *dest, const Uint8 *src, Sint32 len)
 {
 	int i;
 	Uint8 ch1,ch2;
@@ -192,32 +216,35 @@ int my_strncompare(Uint8 *dest, Uint8 *src, int len)
 	else return 1;
 }
 
-int my_strcompare(Uint8 *dest, Uint8 *src)
+Sint32 my_strcompare(Uint8 *dest, const Uint8 *src)
 {
-	int len;
+	Sint32 len;
 
 	len=strlen(dest);
 	if(len!=strlen(src))return 0;
 	return(my_strncompare(dest, src, len));
 }
 
-void get_file_digest(char * filename, unsigned char digest[16])
+void get_file_digest(const Uint8 * filename, Uint8 digest[16])
 {
 	MD5 md5;
 	FILE *fp = fopen(filename, "r");
-	char buffer[64];
-	int length;
+	Uint8 buffer[64];
+	Sint32 length;
 	MD5Open(&md5);
 	while ((length = fread(buffer, 1, sizeof(buffer), fp)) > 0)
-		MD5Digest(&md5, buffer, length);
+		{
+			MD5Digest(&md5, buffer, length);
+		}
 	MD5Close(&md5, digest);
 	fclose(fp);
 }
 
-void get_string_digest(char * string, unsigned char digest[16])
+void get_string_digest(const Uint8 * string, Uint8 digest[16])
 {
 	MD5 md5;
 	MD5Open(&md5);
 	MD5Digest(&md5, string, strlen(string));
 	MD5Close(&md5, digest);
 }
+
