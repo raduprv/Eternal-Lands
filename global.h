@@ -9,6 +9,9 @@
 #include <windows.h>
 #include <al.h>
 #include <alut.h>
+#ifndef	GNUC	// or should we test for VC
+#define	snprintf _snprintf 
+#endif
 #elif defined(OSX)
 #include <OpenAL/alut.h>
 #include <OpenGL/gl.h>
@@ -232,11 +235,12 @@ extern int ctrl_on;
 extern int read_mouse_now;
 
 extern int have_multitexture;
-float clouds_movement_u;
-float clouds_movement_v;
+extern float clouds_movement_u;
+extern float clouds_movement_v;
 extern Uint32 last_clear_clouds;
 extern int reflection_texture;
 extern int use_vertex_array;
+extern int vertex_arrays_built;
 extern int have_compiled_vertex_array;
 
 #define UNDER_MOUSE_NPC 0
