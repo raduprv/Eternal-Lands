@@ -344,6 +344,7 @@ int items_text_3;
 int items_text_4;
 int items_text_5;
 int items_text_6;
+int items_text_7;
 
 char items_string[300];
 int item_dragged=-1;

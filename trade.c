@@ -188,6 +188,7 @@ void display_trade_menu()
 					else if(this_texture==3)this_texture=items_text_4;
 					else if(this_texture==4)this_texture=items_text_5;
 					else if(this_texture==5)this_texture=items_text_6;
+					else if(this_texture==6)this_texture=items_text_7;
 
 					if(last_texture!=texture_cache[this_texture].texture_id)
 						{
@@ -242,6 +243,8 @@ void display_trade_menu()
 					if(this_texture==4)this_texture=items_text_5;
 					else
 					if(this_texture==5)this_texture=items_text_6;
+					else
+					if(this_texture==6)this_texture=items_text_7;
 
 					if(last_texture!=texture_cache[this_texture].texture_id)
 						{
@@ -296,6 +299,8 @@ void display_trade_menu()
 					if(this_texture==4)this_texture=items_text_5;
 					else
 					if(this_texture==5)this_texture=items_text_6;
+					else
+					if(this_texture==6)this_texture=items_text_7;
 
 					if(last_texture!=texture_cache[this_texture].texture_id)
 						{

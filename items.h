@@ -86,6 +86,7 @@ extern int items_text_3;
 extern int items_text_4;
 extern int items_text_5;
 extern int items_text_6;
+extern int items_text_7;
 extern int item_dragged;
 
 extern char items_string[300];

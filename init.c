@@ -354,6 +354,7 @@ void init_stuff()
 	items_text_4=load_texture_cache("./textures/items4.bmp",0);
 	items_text_5=load_texture_cache("./textures/items5.bmp",0);
 	items_text_6=load_texture_cache("./textures/items6.bmp",0);
+	items_text_7=load_texture_cache("./textures/items7.bmp",0);
 
 	portraits1_tex=load_texture_cache("./textures/portraits1.bmp",0);
 	portraits2_tex=load_texture_cache("./textures/portraits2.bmp",0);
