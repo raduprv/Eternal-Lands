@@ -13,7 +13,7 @@ knowledge knowledge_list[300];
 int page_start=0;
 
 char knowledge_string[400]="";
-char *none="none";
+char *none="nothing";
 
 void display_knowledge()
 {
