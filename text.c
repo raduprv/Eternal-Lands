@@ -140,7 +140,7 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 	if(afk)
 		{
 			if(type)add_message_to_pm_log(text_to_add,len);
-			else if(is_talking_about_me(&text_to_add[1],len-1))send_afk_message(&text_to_add[1], type);
+			else if(*text_to_add==(c_grey1+127) && is_talking_about_me(text_to_add+1,len-1))send_afk_message(&text_to_add[1], type);
 		}
 	//parse for URLs
 	find_last_url(text_to_add,len);

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "global.h"
 #include "pm_log.h"
 
@@ -146,7 +147,7 @@ int my_namecmp(char *check)
 	my_tolower(username);
 	
 	for(;i<20 && username[i] && check[i]==username[i];i++);
-	if(check[i]==username[i]||(check[i]==' ' && !username[i])) return 0;
+	if(check[i]==username[i]||((check[i]==' '||!isalpha(check[i])) && !username[i])) return 0;
 	return 1;
 }
 
@@ -155,11 +156,11 @@ int is_talking_about_me(Uint8 *server_msg, int len)
 	int a=0;
 	unsigned char msg[200];
 	if(len>198)return 0;
+	if(*server_msg=='['||*server_msg=='#') return 0;//Only do local chat
 	strncpy(msg,server_msg,len);
 	msg[len]=0;
 	my_tolower(msg);
 
-	if(*msg=='['||*msg=='#') return 0;//Only do local chat
 	while(msg[a] && msg[a]!=':' && (msg[a]<127+c_red1||msg[a]>127+c_grey4)) a++;
 	//We do need the name of ourselves...
 	while(a<199 && msg[a]){
