@@ -59,8 +59,8 @@
 #define SHIRT_YELLOW 11
 #define SHIRT_LEATHER_ARMOR 12
 #define SHIRT_CHAIN_ARMOR 13
-#define SHIRT_ARMOR_3 14
-#define SHIRT_ARMOR_4 15
+#define SHIRT_STEEL_CHAIN_ARMOR 14
+#define SHIRT_TITANIUM_CHAIN_ARMOR 15
 #define SHIRT_ARMOR_5 16
 #define SHIRT_ARMOR_6 17
 
@@ -83,6 +83,7 @@
 #define BOOTS_DULLBROWN 3
 #define BOOTS_LIGHTBROWN 4
 #define BOOTS_ORANGE 5
+#define BOOTS_LEATHER 6
 
 //pants
 #define PANTS_BLACK 0
@@ -94,6 +95,7 @@
 #define PANTS_LIGHTBROWN 6
 #define PANTS_RED 7
 #define PANTS_WHITE 8
+#define PANTS_LEATHER 9
 
 //capes
 #define CAPE_BLACK 0
@@ -106,6 +108,7 @@
 #define CAPE_GREENGRAY 7
 #define CAPE_PURPLE 8
 #define CAPE_WHITE 9
+#define CAPE_FUR 10
 #define CAPE_NONE 30
 
 //heads
@@ -126,6 +129,7 @@
 
 //helmets
 #define HELMET_IRON 0
+#define HELMET_FUR 1
 #define HELMET_NONE 20
 
 //shields

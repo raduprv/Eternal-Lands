@@ -62,7 +62,7 @@ md2 * load_md2_cache(char * file_name)
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, float y_pos, float z_pos, float z_rot, char remappable, char skin_color, char hair_color, char shirt_color, char pants_color, char boots_color, int actor_id)
+int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, float y_pos, float z_pos, float z_rot, char remappable, short skin_color, short hair_color, short shirt_color, short pants_color, short boots_color, int actor_id)
 {
 	int texture_id;
 	int i;
@@ -520,7 +520,7 @@ void add_actor_from_server(char * in_data)
 		}
 
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
-	f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
+		f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
 	lock_actors_lists();	//lock it to avoid timing issues
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;

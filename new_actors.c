@@ -286,7 +286,7 @@ void draw_enhanced_actor(actor * actor_id)
 	char str[20];
 	float healtbar_x=-0.3f;
 	float healtbar_y=0;
-	float healtbar_z;
+	float healtbar_z=0;
 	float healtbar_x_len=0.5f;
 	float healtbar_x_len_converted=0;
 	float healtbar_z_len=0.05f;
@@ -540,6 +540,24 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							actors_list[i]->body_parts->torso=(md2*)load_md2_cache(actors_list[i]->body_parts->torso_fn);
 							no_bounding_box=0;
 							glDeleteTextures(1,&actors_list[i]->texture_id);
+							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+							return;
+						}
+					if(which_part==KIND_OF_LEG_ARMOR)
+						{
+							my_strcp(actors_list[i]->body_parts->pants_tex,actors_defs[actors_list[i]->actor_type].legs[which_id].legs_name);
+							my_strcp(actors_list[i]->body_parts->legs_fn,actors_defs[actors_list[i]->actor_type].legs[which_id].model_name);
+							no_bounding_box=1;
+							actors_list[i]->body_parts->legs=(md2*)load_md2_cache(actors_list[i]->body_parts->legs_fn);
+							no_bounding_box=0;
+							glDeleteTextures(1,&actors_list[i]->texture_id);
+							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+							return;
+						}
+
+					if(which_part==KIND_OF_BOOT_ARMOR)
+						{
+							my_strcp(actors_list[i]->body_parts->boots_tex,actors_defs[actors_list[i]->actor_type].boots[which_id].boots_name);
 							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 							return;
 						}
