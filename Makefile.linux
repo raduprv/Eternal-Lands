@@ -1,4 +1,4 @@
-.PHONY: clean
+.PHONY: clean release
 
 CC=gcc
 
@@ -6,7 +6,7 @@ GTK_CFLAGS = $(shell gtk-config --cflags)
 
 CFLAGS=-DLINUX $(GTK_CFLAGS) $(shell sdl-config --cflags)
 
-_CFLAGS=-mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe -DLINUX
+_CFLAGS=-mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) -DLINUX
 
 GTK_LIBS =  $(shell gtk-config --libs)
 

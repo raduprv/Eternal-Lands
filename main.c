@@ -33,9 +33,11 @@ int start_rendering()
     last_time=cur_time;
     get_world_x_y();
     draw_scene();
+
+#ifdef LINUX
     while (gtk_events_pending())
       gtk_main_iteration();
-		
+#endif		
 	
 	}
 
