@@ -179,6 +179,7 @@ void draw_scene()
 	else read_mouse_now=0;
 	reset_under_the_mouse();
 
+	if(camera_zoom_frames) resize_window();
 	glLoadIdentity();					// Reset The Matrix
 	Move();
 	save_scene_matrix();
@@ -325,8 +326,6 @@ void draw_scene()
 	SDL_GL_SwapBuffers();
 	check_gl_errors();
 
-
-	if(camera_zoom_frames) resize_window();
 }
 
 void Move()
