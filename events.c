@@ -2,7 +2,11 @@
 
 void zoomin(){
 	if(zoom_level>2.0f){
-		zoom_level-=0.25f;
+	    if(ctrl_on){
+			zoom_level-=2.5f;
+		} else {
+			zoom_level-=0.25f;
+		}  		
 		resize_window();
 	}
 }
@@ -11,7 +15,11 @@ void zoomout(){
 	
 // zoom limit removed to help in getting the overall view
 	//if(zoom_level<15.75f){
-		zoom_level+=0.25f;
+	    if(ctrl_on){
+			zoom_level+=2.5f;
+		} else {
+			zoom_level+=0.25f;
+		}  		
 		resize_window();
 	//}
 }
@@ -153,7 +161,8 @@ int HandleEvent(SDL_Event *event)
 
 		if ( event->key.keysym.sym == SDLK_PAGEUP )
 		{
-			if(!ctrl_on && !shift_on && !alt_on)
+			//if(!ctrl_on && !shift_on && !alt_on)
+			if(!shift_on && !alt_on)
 				{
 				  zoomin();
 				}
@@ -166,7 +175,8 @@ int HandleEvent(SDL_Event *event)
 		}
 		if ( event->key.keysym.sym == SDLK_PAGEDOWN )
 		{
-			if(!ctrl_on && !shift_on && !alt_on)
+			//if(!ctrl_on && !shift_on && !alt_on)
+			if(!shift_on && !alt_on)
 				{
 				  zoomout();
 				}
