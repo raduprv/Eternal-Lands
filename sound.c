@@ -5,7 +5,7 @@
 void stop_sound(int i)
 {
 	if(!have_sound)return;
-	alSourceStop(sound_source[i]);
+	alSourceStop(i);
 }
 
 int add_sound_object(int sound_file,int x, int y,int positional,int loops)
@@ -72,7 +72,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 				alSourcePause(sound_source[i]);
 		}
 	unlock_sound_list();
-	return i;
+	return sound_source[i];
 }
 
 void update_position()
