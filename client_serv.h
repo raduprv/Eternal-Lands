@@ -193,6 +193,8 @@
 #define BATTLEAXE_TITANIUM_COLD 44
 #define BATTLEAXE_TITANIUM_FIRE 45
 #define BATTLEAXE_TITANIUM_MAGIC 46
+#define GLOVE_FUR 47
+#define GLOVE_LEATHER 48
 
 #define frame_walk 0
 #define frame_run 1
