@@ -187,6 +187,9 @@ void draw_scene()
 		draw_lights();
 		check_gl_errors();
 
+		//check for network data
+		get_message_from_server();
+
 		if(any_reflection)
 			{
 				if(!dungeon)draw_sky_background();
@@ -212,6 +215,9 @@ void draw_scene()
 
 		anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 
+		//check for network data - reduces resyncs
+		get_message_from_server();
+
 		if(!dungeon)
 			{
 				if(shadows_on && have_stencil)if(day_shadows_on)draw_sun_shadowed_scene();
@@ -221,11 +227,18 @@ void draw_scene()
 		if(!shadows_on || !have_stencil || night_shadows_on)display_objects();
 
 		check_gl_errors();
+
+		//check for network data - reduces resyncs
+		get_message_from_server();
+
 	}	// end of active display check
 
 	// we need to 'touch' all the actors even if not drawing to avoid problems
 	display_actors();
 	check_gl_errors();
+
+	//check for network data - reduces resyncs
+	get_message_from_server();
 
 	// if not active, dont bother drawing any more
 	if(!(SDL_GetAppState()&SDL_APPACTIVE))
