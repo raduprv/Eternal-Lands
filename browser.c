@@ -354,15 +354,16 @@ void init_browser()
 		while ((ffile2 = readdir(dir2))){
 			char *t=ffile2->d_name;
 			
-			
 			while(*t!='.')t++;
 			if(!strcmp(t,".e3d")){//its an e3d add to list
 				strcpy(Dir[dc].Files[i++],ffile2->d_name);
 				Dir[dc].nf++;
 			}    
 		}
+		closedir(dir2);
 		dc++;
   }
+  closedir(dir);
   
 #endif
 
