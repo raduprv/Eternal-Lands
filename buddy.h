@@ -14,6 +14,7 @@ extern int buddy_menu_y_len;
 extern int buddy_menu_dragged;
 extern int view_buddy;
 
+void init_buddy();
 void display_buddy();
 int check_buddy_interface();
 void add_buddy(char *n, int t);
