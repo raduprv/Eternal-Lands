@@ -1,7 +1,7 @@
 #ifndef __obj_2d_H__
 #define __obj_2d_H__
 
-#define max_obj_2d 6000
+#define max_obj_2d 15000
 #define max_obj_2d_def 1000
 
 #define invalid -1
