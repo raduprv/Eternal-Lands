@@ -4,7 +4,6 @@
 #include "global.h"
 
 
-
 void draw_2d_object(obj_2d * object_id)
 {
 	float render_x_start,render_y_start,u_start,v_start,u_end,v_end;
@@ -16,14 +15,6 @@ void draw_2d_object(obj_2d * object_id)
 
 	int texture_id;
 
-	x_pos=object_id->x_pos;
-	y_pos=object_id->y_pos;
-	z_pos=object_id->z_pos;
-
-	x_rot=object_id->x_rot;
-	y_rot=object_id->y_rot;
-	z_rot=object_id->z_rot;
-
 	obj_def_pointer=object_id->obj_pointer;
 
 	u_start=obj_def_pointer->u_start;
@@ -32,11 +23,21 @@ void draw_2d_object(obj_2d * object_id)
 	v_end=obj_def_pointer->v_end;
 	x_size=obj_def_pointer->x_size;
 	y_size=obj_def_pointer->y_size;
-	texture_id=get_texture_id(obj_def_pointer->texture_id);
 	render_x_start=-x_size/2.0f;
 	object_type=obj_def_pointer->object_type;
 	if(object_type==ground)render_y_start=-y_size/2;
+	else	render_y_start=0;
 
+	glPushMatrix();//we don't want to affect the rest of the scene
+
+	x_pos=object_id->x_pos;
+	y_pos=object_id->y_pos;
+	z_pos=object_id->z_pos;
+	glTranslatef (x_pos, y_pos, 0);
+
+	x_rot=object_id->x_rot;
+	y_rot=object_id->y_rot;
+	z_rot=object_id->z_rot;
 	//find out what kind of object we have
 	if(object_type==fence)x_rot+=90;
 	if(object_type==plant)
@@ -44,9 +45,6 @@ void draw_2d_object(obj_2d * object_id)
 			x_rot+=90;
 			z_rot=-rz;
 		}
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	glTranslatef (x_pos, y_pos, 0);
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
@@ -54,6 +52,7 @@ void draw_2d_object(obj_2d * object_id)
     glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.18f);
 
+	texture_id=get_texture_id(obj_def_pointer->texture_id);
 	if(last_texture!=texture_id)
 		{
 			glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -202,9 +201,9 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	f = fopen (file_name, "rb");
 	if(!f)
 		{
-            char str[120];
-            sprintf(str,"Error: Can't open file: %s\n",file_name);
-            log_error(str);
+            char str[256];
+            sprintf(str,"Can't open file: %s",file_name);
+            LogError(str);
             free(cur_object);
     	    return NULL;
 		}
@@ -357,8 +356,8 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, 
 			   float x_rot, float y_rot, float z_rot)
 {
-	//int texture_id; // unused?
 	int i,k,len;
+	char	fname[128];
 	obj_2d_def *returned_obj_2d_def;
 	obj_2d *our_object;
 	short sector;
@@ -374,20 +373,21 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 		}
 
 	//but first convert any '\' in '/'
-	len=strlen(file_name);
-	for(k=0;k<len;k++)if(file_name[k]=='\\')file_name[k]='/';
+	//len=strlen(file_name);
+	//for(k=0;k<len;k++)if(file_name[k]=='\\')file_name[k]='/';
+	clean_file_name(fname, file_name, 128);
 
-	returned_obj_2d_def=load_obj_2d_def_cache(file_name);
+	returned_obj_2d_def=load_obj_2d_def_cache(fname);
 	if(!returned_obj_2d_def)
 		{
-            char str[120];
-            sprintf(str,"Error: Can't load 2d object: %s\n",file_name);
-            log_error(str);
+            char str[256];
+            sprintf(str,"Can't load 2d object: %s",fname);
+            LogError(str);
             free(our_object);
 	        return 0;
 		}
 
-	sprintf(our_object->file_name,"%s",file_name);
+	my_strncp(our_object->file_name, fname, 80);
 	our_object->x_pos=x_pos;
 	our_object->y_pos=y_pos;
 	our_object->z_pos=z_pos;
@@ -409,7 +409,6 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 
 void display_2d_objects()
 {
-
 	int i;
 	int x,y;
 
@@ -430,3 +429,4 @@ void display_2d_objects()
 				}
 		}
 }
+

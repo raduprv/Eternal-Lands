@@ -219,7 +219,7 @@ Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len)
 
 Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src)
 {
-	Sint32 len;
+	Uint32 len;
 
 	len=strlen(dest);
 	if(len!=strlen(src))return 0;
@@ -253,6 +253,29 @@ Uint8 *my_tolower(Uint8 *src)
 
 
 // File utilities
+Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
+{
+	Uint32	len;
+	Uint32	i;
+	
+	len=strlen(src);
+	if(len > max_len)len=max_len-1;
+	for(i=0;i<len;i++)
+		{
+			if(src[i]=='\\')
+				{
+					dest[i]='/';
+				}
+			else
+				{
+					dest[i]=src[i];
+				}
+		}
+	//always place a null that the end
+	dest[len]='\0';
+	return(len);
+}
+
 void get_file_digest(const Uint8 * filename, Uint8 digest[16])
 {
 	MD5 md5;

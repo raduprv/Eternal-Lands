@@ -115,7 +115,7 @@ void draw_3d_object(object3d * object_id)
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
 								{
 									char str[256];
-									sprintf(str, "%s[%d] values (%d, %d)\n",
+									sprintf(str, "%s[%d] values (%d, %d)",
 										object_id->file_name, i,
 										array_order[i].start, array_order[i].count);
 									LogError(str);
@@ -146,7 +146,7 @@ void draw_3d_object(object3d * object_id)
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
 								{
 									char str[256];
-									sprintf(str, "%s[%d] values (%d, %d)\n",
+									sprintf(str, "%s[%d] values (%d, %d)",
 										object_id->file_name, i,
 										array_order[i].start, array_order[i].count);
 									LogError(str);
@@ -214,10 +214,10 @@ void draw_3d_object(object3d * object_id)
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
 								{
 									char str[256];
-									sprintf(str, "Object error for %s[%d] values (%d, %d)\n",
+									sprintf(str, "Object error for %s[%d] values (%d, %d)",
 										object_id->file_name, i,
 										array_order[i].start, array_order[i].count);
-									log_error(str);
+									LogError(str);
 								}
 #endif	// DEBUG
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
@@ -312,6 +312,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 			float r, float g, float b)
 {
 	int i,len,k;
+	char fname[128];
 	e3d_object *returned_e3d;
 	object3d *our_object;
 
@@ -324,15 +325,16 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 		}
 
 	//but first convert any '\' in '/'
-	len=strlen(file_name);
-	for(k=0;k<len;k++)if(file_name[k]=='\\')file_name[k]='/';
+	//len=strlen(file_name);
+	//for(k=0;k<len;k++)if(file_name[k]=='\\')file_name[k]='/';
+	clean_file_name(fname, file_name, 128);
 
-	returned_e3d=load_e3d_cache(file_name);
+	returned_e3d=load_e3d_cache(fname);
 	if(returned_e3d==NULL)
 		{
-            char str[120];
-            sprintf(str,"Error: Something nasty happened while trying to process: %s\n",file_name);
-            log_error(str);
+            char str[256];
+            sprintf(str,"Something nasty happened while trying to process: %s",fname);
+            LogError(str);
 
     		//replace it with the null object, to avoid object IDs corruption
     		returned_e3d=load_e3d_cache("./3dobjects/misc_objects/badobject.e3d");
@@ -343,7 +345,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	our_object = calloc(1, sizeof(object3d));
 
 	// and fill it in
-	my_strncp(our_object->file_name, file_name, 80);
+	my_strncp(our_object->file_name, fname, 80);
 	our_object->x_pos=x_pos;
 	our_object->y_pos=y_pos;
 	our_object->z_pos=z_pos;
@@ -452,8 +454,8 @@ e3d_object * load_e3d(char *file_name)
 	if(!f)
         {
             char str[120];
-            sprintf(str,"Error: Can't open %s\n",file_name);
-            log_error(str);
+            sprintf(str,"Can't open %s",file_name);
+            LogError(str);
             return NULL;
         }
 
@@ -532,8 +534,8 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	if(!f)
         {
             char str[120];
-            sprintf(str,"Error: Can't open %s\n",cur_object->file_name);
-            log_error(str);
+            sprintf(str,"Can't open %s",cur_object->file_name);
+            LogError(str);
             return NULL;
         }
 

@@ -18,6 +18,7 @@ Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src);
 Sint32 my_isupper(const Uint8 *src);
 Uint8 *my_tolower(Uint8 *src);
 
+Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len);
 void get_file_digest(const Uint8 * filename, Uint8 digest[16]);
 void get_string_digest(const Uint8 * string, Uint8 digest[16]);
 
