@@ -500,7 +500,7 @@ int display_game_handler (window_info *win)
 		resize_root_window ();
 	}
 	
-	Move ();
+	move_camera ();
 	save_scene_matrix ();
 
 	CalculateFrustum ();

@@ -96,7 +96,7 @@ int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-void GetColor(char *t)
+void GetColorFromName (const char *t)
 {
 	if(!xmlStrcasecmp("silver",t)){r=192/255.0f; g=192/255.0f; b=192/255.0f;return;}
 	if(!xmlStrcasecmp("grey",t)){r=128/255.0f; g=128/255.0f; b=128/255.0f;return;}
@@ -114,7 +114,6 @@ void GetColor(char *t)
 	if(!xmlStrcasecmp("magenta",t)){r=1.0f; g=0.0f; b=1.0f;return;}
 	if(!xmlStrcasecmp("yellow",t)){r=1.0f; g=1.0f; b=0.0f;return;}
 	if(!xmlStrcasecmp("cyan",t)){r=0.0f; g=1.0f; b=1.0f;return;}
-
 }
 
 
@@ -352,7 +351,7 @@ void ReadCategoryXML(xmlNode * a_node)
 			if(!xmlStrcasecmp(cur_node->name,"Color")){
 				ParseColor(cur_node->properties);
 				if(cur_node->children)
-					GetColor(cur_node->children->content);
+					GetColorFromName (cur_node->children->content);
 			}
 
 			//<Text>

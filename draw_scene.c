@@ -145,7 +145,7 @@ void get_tmp_actor_data()
 	UNLOCK_ACTORS_LISTS();
 }
 
-void Move()
+void move_camera ()
 {
     int i;
 	for(i=0;i<max_actors;i++)
@@ -165,11 +165,11 @@ void Move()
 					break;
 				}
 		}
-    //check to see if we are out of the map
-    if(cx>-7.5f)cx=-7.5f;
-    if(cy>-7.5f)cy=-7.5f;
-    if(cx<-(tile_map_size_x*3-7.9))cx=(float)-(tile_map_size_x*3-7.9);
-    if(cy<-(tile_map_size_x*3-7.9))cy=(float)-(tile_map_size_x*3-7.9);
+	//check to see if we are out of the map
+	if(cx>-7.5f)cx=-7.5f;
+	if(cy>-7.5f)cy=-7.5f;
+	if(cx<-(tile_map_size_x*3-7.9))cx=(float)-(tile_map_size_x*3-7.9);
+	if(cy<-(tile_map_size_x*3-7.9))cy=(float)-(tile_map_size_x*3-7.9);
 
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
@@ -177,7 +177,6 @@ void Move()
 
 	//test only
 	update_position();
-
 }
 
 void update_camera()

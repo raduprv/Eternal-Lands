@@ -69,13 +69,13 @@ void draw_scene();
 
 /*!
  * \ingroup move_actors
- * \brief       moves all actors in view range
+ * \brief       moves the camera
  *
- *      Moves all actors in view range
+ *      Moves the camera to the new character position
  *
  * \callgraph
  */
-void Move();
+void move_camera ();
 
 /*!
  * \ingroup display
