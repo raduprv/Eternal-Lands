@@ -325,7 +325,7 @@ void free_md2(md2 *md2_ptr)
 
 	for(i=0; i<md2_ptr->numFrames; i++)
 		{
-			if(md2_ptr->offsetFrames->vertex_pointer) free(md2_ptr->offsetFrames->vertex_pointer);
+			if(md2_ptr->offsetFrames[i].vertex_pointer) free(md2_ptr->offsetFrames[i].vertex_pointer);
 		}
 #ifdef	USE_VERTEXARRAYS
 	free_md2_va(md2_ptr);
@@ -342,11 +342,11 @@ Uint32 free_md2_va(md2 *md2_ptr)
 	Uint32	i;
 	for(i=0; i<md2_ptr->numFrames; i++)
 		{
-			if(md2_ptr->offsetFrames->vertex_array)
+			if(md2_ptr->offsetFrames[i].vertex_array)
 				{
 					mem+= md2_ptr->numFaces*sizeof(vertex_md2)*3;
-					free(md2_ptr->offsetFrames->vertex_array);
-					md2_ptr->offsetFrames->vertex_array=NULL;
+					free(md2_ptr->offsetFrames[i].vertex_array);
+					md2_ptr->offsetFrames[i].vertex_array=NULL;
 				}
 		}
 	if(md2_ptr->text_coord_array)

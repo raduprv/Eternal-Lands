@@ -286,10 +286,11 @@ void save_bin_cfg()
 void init_md2_cache()
 {
 #ifdef	CACHE_SYSTEM
-	cache_md2=cache_init(1000, NULL);	// no auto-free permitted
+	cache_md2=cache_init(1000, &destroy_md2);	// auto-free permitted
+	//cache_md2=cache_init(1000, NULL);	// no auto-free permitted
 	cache_set_name(cache_system, "MD2 cache", cache_md2);
 	cache_set_compact(cache_md2, &free_md2_va);	// to compact, free VA arrays
-	cache_set_time_limit(cache_md2, 1*60*1000);	// check every 5 minutes
+	cache_set_time_limit(cache_md2, 5*60*1000);	// check every 5 minutes
 	cache_set_size_limit(cache_md2, 64*1024*1024);
 #else	//CACHE_SYSTEM
 	int i;
@@ -315,7 +316,7 @@ void init_e3d_cache()
 {
 #ifdef	CACHE_SYSTEM
 	//cache_e3d=cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
-	cache_e3d=cache_init(1000, NULL);
+	cache_e3d=cache_init(1000, NULL);	//no aut- free permitted
 	cache_set_name(cache_system, "E3D cache", cache_e3d);
 	cache_set_compact(cache_e3d, &free_e3d_va);	// to compact, free VA arrays
 	cache_set_time_limit(cache_e3d, 5*60*1000);

@@ -49,6 +49,8 @@ void cache_dump_sizes(cache_struct *cache)
 void	cache_system_maint()
 {
 	if(!cur_time || !cache_system || !cache_system->time_limit || cache_system->LRU_time+cache_system->time_limit > cur_time) return;
+	//clean anything we can delete
+	cache_system_clean();
 	//do an automated memory compaction
 	cache_system_compact();
 	//actually done already, just forcing it to assist in debugging
@@ -112,8 +114,7 @@ cache_struct *cache_init(Uint32 max_items, void (*free_item)())
 	cache->LRU_time=cur_time;
 	cache->time_limit=0;	// 0 == no time based LRU check
 	cache->size_limit=0;	// 0 == no space based LRU check
-	if(free_item)cache->free_item=free_item;
-	else cache->free_item=&free;
+	cache->free_item=free_item;
 	cache->compact_item=NULL;
 	if(cache_system) cache_add_item(cache_system, "", cache, sizeof(cache_struct)+max_items*sizeof(cache_item_struct *));
 	//all done, send the data back
@@ -190,9 +191,9 @@ Uint32 cache_clean(cache_struct *cache)
 					if(cache->cached_items[i]->access_count == 0 && cache->cached_items[i]->access_time+cache->time_limit < cur_time)
 						{
 							mem_freed+= cache->cached_items[i]->size;
-							cache_remove(cache, cache->cached_items[i]->cache_item);
+							cache_remove(cache, cache->cached_items[i]);
 						}
-					cache->cached_items[i]->access_count=0;
+					//cache->cached_items[i]->access_count=0;
 				}
 		}
 	//adjust the LRU time-stamp
@@ -213,12 +214,16 @@ Uint32 cache_compact(cache_struct *cache)
 			if(cache->cached_items[i] && cache->cached_items[i]->cache_item)
 				{
 					//decide if this entry needs to be cleaned
-					//if(cache->cached_items[i]->access_count == 0 && cache->cached_items[i]->access_time_cache+cache->time_limit < cur_time)
-					if(cache->cached_items[i]->access_time+cache->time_limit < cur_time)
+					if(cache->cached_items[i]->access_count == 0 && cache->cached_items[i]->access_time+cache->time_limit < cur_time)
+					//if(cache->cached_items[i]->access_time+cache->time_limit < cur_time)
 						{
 							freed= (*cache->compact_item)(cache->cached_items[i]->cache_item);
 							mem_freed+= freed;
 							cache_adj_size(cache, -freed, cache->cached_items[i]->cache_item);
+						}
+					else
+						{
+							cache->cached_items[i]->access_count=0;	// clear the counter
 						}
 				}
 		}
@@ -377,14 +382,13 @@ void cache_set_size(cache_struct *cache, Uint32 size, void *item)
 					cache->total_size+=size;
 					if(cache != cache_system)
 						{
-							//cache_system->total_size-=item_ptr->size;
-							//cache_system->total_size+=size;
 							cache_adj_size(cache_system, size-item_ptr->size, cache);
 						}
 				}
 			item_ptr->size=size;
-			item_ptr->access_time=cur_time;
-			item_ptr->access_count++;
+			cache_use(cache, item_ptr);
+			//item_ptr->access_time=cur_time;
+			//item_ptr->access_count++;
 		}
 }
 
@@ -396,17 +400,18 @@ void cache_adj_size(cache_struct *cache, Uint32 size, void *item)
 	if(item_ptr)
 		{
 			// adjust the current size
-			if(item_ptr->size != size)
-				{
+			//if(item_ptr->size != size)
+			//	{
 					cache->total_size+=size;
 					if(cache != cache_system)
 						{
 							cache_adj_size(cache_system, size, cache);
 						}
-				}
+			//	}
 			item_ptr->size+=size;
-			item_ptr->access_time=cur_time;
-			item_ptr->access_count++;
+			cache_use(cache, item_ptr);
+			//item_ptr->access_time=cur_time;
+			//item_ptr->access_count++;
 		}
 }
 
