@@ -138,20 +138,37 @@ void add_message_to_pm_log(char * message, int len)
 	pm_log.msgs++;
 }
 
-int is_talking_about_me(Uint8 *server_msg, int len)
+int my_namecmp(char *check)
 {
-	int a=0,l=strlen(username_str);
-
-	if(*server_msg=='['||*server_msg=='#') return 0;//Only do local chat
-	while(*server_msg++!=':' && --len); 
-	server_msg+=2; len-=2;//We don't need the name of the actor...
-	//We do need the name of ourselves...
-	while((strncasecmp(server_msg+a,username_str,l))!=0) 
-		if((len-a++)<=l)return 0;//We're at the end
+	int i=0;
+	char username[20];
+	strcpy(username,username_str);
+	my_tolower(username);
+	
+	for(;i<20 && username[i] && check[i]==username[i];i++);
+	if(check[i]==username[i]||(check[i]==' ' && !username[i])) return 0;
 	return 1;
 }
 
-void send_afk_message(char * server_msg, int type)
+int is_talking_about_me(Uint8 *server_msg, int len)
+{
+	int a=0;
+	unsigned char msg[200];
+	strncpy(msg,server_msg,len);
+	msg[len]=0;
+	my_tolower(msg);
+
+	if(*msg=='['||*msg=='#') return 0;//Only do local chat
+	while(msg[a] && msg[a]!=':' && (msg[a]<127+c_red1||msg[a]>127+c_grey4)) a++;
+	//We do need the name of ourselves...
+	while(a<199 && msg[a]){
+		if((msg[a]==' '||(msg[a]>127+c_red1 && msg[a]<127+c_grey4)) && !my_namecmp(msg+1+a))return 1;
+		else a++;
+	}
+	return 0;
+}
+
+void send_afk_message(Uint8 * server_msg, int type)
 {
 	Uint8 sendtext[160]={0};
 	if(!afk_message[0]) return;
@@ -161,7 +178,7 @@ void send_afk_message(char * server_msg, int type)
 			int i=0;
 			char * name=(char*)calloc(20,sizeof(char));
 			
-			while((*(name+i++)=*server_msg++)!=':');
+			while((*server_msg>127+c_grey4||*server_msg<127+c_red1) && (*(name+i++)=*server_msg++)!=':');
 			*(name+i-1)=0;
 			if(have_name(name,i-1)<0)
 				{

@@ -27,7 +27,7 @@ void go_afk(void);
 void go_ifk(void);
 void add_message_to_pm_log(char * msg, int len);
 void add_name_to_pm_log(char *name, int len);
-void send_afk_message(char * server_msg, int type);
+void send_afk_message(Uint8 * server_msg, int type);
 void print_return_message(void);
 void print_message(int no);
 int have_name(char *name, int len);
