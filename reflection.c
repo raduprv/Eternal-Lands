@@ -281,14 +281,10 @@ void draw_lake_tiles()
 	int cur_texture;
 
 	//glDisable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-	if(last_texture!=texture_cache[sky_text_1].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[sky_text_1].texture_id);
-			last_texture=texture_cache[sky_text_1].texture_id;
-		}
+	bind_texture_id(get_texture_id(sky_text_1));
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
@@ -315,8 +311,8 @@ void draw_lake_tiles()
 				}
 		}
 
-	//glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
 }
 
 void draw_sky_background()
