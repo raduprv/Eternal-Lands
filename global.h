@@ -9,6 +9,8 @@
 #define	snprintf _snprintf
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
+#define atan2f atan2
+#define acosf acos
 #endif
 #elif defined(OSX)
 #include <OpenAL/alut.h>
