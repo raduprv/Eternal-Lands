@@ -150,7 +150,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 		}
 
 	//see if the text fits on the screen
-	if(!x_chars_limit)x_chars_limit=window_width/11;
+	if(!x_chars_limit)x_chars_limit=(window_width-hud_x)/11;
 	if(len<=x_chars_limit)
 		{
 			for(i=0;i<len;i++)

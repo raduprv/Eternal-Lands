@@ -426,7 +426,7 @@ int HandleEvent(SDL_Event *event)
 								input_text_line[input_text_lenght+1]='_';
 								input_text_line[input_text_lenght+2]=0;
 								input_text_lenght++;
-								if(input_text_lenght==window_width/11-1)
+								if(input_text_lenght==(window_width-hud_x)/11-1)
 									{
 										input_text_line[input_text_lenght]=0x0a;
 										input_text_line[input_text_lenght+1]='_';

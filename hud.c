@@ -188,7 +188,6 @@ float colored_knowledge_icon_v_start=1.0f-(float)64/256;
 float colored_knowledge_icon_u_end=(float)191/256;
 float colored_knowledge_icon_v_end=1.0f-(float)95/256;
 
-// until we have an incon using the knowledge one
 float encyclopedia_icon_u_start=(float)0/256;
 float encyclopedia_icon_v_start=1.0f-(float)64/256;
 float encyclopedia_icon_u_end=(float)31/256;
@@ -611,8 +610,8 @@ float horizontal_bar_v_end;
 
 void init_hud_frame()
 {
-vertical_bar_v_start=(float)window_height/256;
-horizontal_bar_v_end=(float)(window_width-hud_x)/256;
+	vertical_bar_v_start=(float)window_height/256;
+	horizontal_bar_v_end=(float)(window_width-hud_x)/256;
 
 
 
