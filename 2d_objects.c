@@ -8,6 +8,7 @@ void draw_2d_object(obj_2d * object_id)
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	float x_size,y_size;
+	float alpha_test;
 	int object_type;
 	obj_2d_def *obj_def_pointer;
 
@@ -30,6 +31,7 @@ void draw_2d_object(obj_2d * object_id)
 	v_end=obj_def_pointer->v_end;
 	x_size=obj_def_pointer->x_size;
 	y_size=obj_def_pointer->y_size;
+	alpha_test=obj_def_pointer->alpha_test;
 	texture_id=get_texture_id(obj_def_pointer->texture_id);
 	render_x_start=-x_size/2.0f;
 	object_type=obj_def_pointer->object_type;
@@ -50,6 +52,9 @@ void draw_2d_object(obj_2d * object_id)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
     glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+    if(alpha_test!=0)
+    glAlphaFunc(GL_GREATER,alpha_test);
+    else
     glAlphaFunc(GL_GREATER,0.18f);
 
     		if(last_texture!=texture_id)
@@ -157,6 +162,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   char *texture_file_name;
   char *handle_obj_file_mem;
   float x_size,y_size;
+  float alpha_test;
   int file_x_len;
   int file_y_len;
   int u_start,u_end,v_start,v_end;
@@ -213,6 +219,8 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   v_end=get_integer_after_string("v_end:",obj_file_mem,f_size);
   x_size=get_float_after_string("x_size:",obj_file_mem,f_size);
   y_size=get_float_after_string("y_size:",obj_file_mem,f_size);
+  alpha_test=get_float_after_string("alpha_test:",obj_file_mem,f_size);
+  if(alpha_test<0)alpha_test=0;
 
   //get the proper u/v coordinates
   cur_object->u_start=(float)u_start/file_x_len;
@@ -221,6 +229,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   cur_object->v_end=1.0f-(float)v_end/file_y_len;
   cur_object->x_size=x_size;
   cur_object->y_size=y_size;
+  cur_object->alpha_test=alpha_test;
 
   //now  find the texture name
       texture_file_name=calloc(128, sizeof(char));

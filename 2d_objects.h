@@ -11,14 +11,15 @@
 
 typedef struct
 {
-  float u_start;
-  float u_end;
-  float v_start;
-  float v_end;
-  float x_size;
-  float y_size;
-  int object_type;
-  int texture_id;
+	float u_start;
+	float u_end;
+	float v_start;
+	float v_end;
+	float x_size;
+	float y_size;
+	float alpha_test;
+	int object_type;
+	int texture_id;
 }obj_2d_def;
 
 typedef struct
