@@ -1,6 +1,7 @@
 02-12-04
 Trade window now support RightClick to get description
 Made NPC dialog text not click through to playing area
+Manu screen now remembers what you are trying to make
 
 02-05-04
 Added name_text_size and chat_text_size to el.ini to adjust the font sizes
