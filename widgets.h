@@ -27,12 +27,19 @@ typedef struct {
 	char text[256]; // Text
 }label;
 
+// Common widget functions
 int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
 int widget_set_OnClick(Uint32 window_id, Uint32 widget_id, int (*handler)());
 int widget_set_OnDrag(Uint32 window_id, Uint32 widget_id, int (*handler)());
 int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)());
+int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
+int widget_resize(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
+int widget_set_flags(Uint32 window_id, Uint32 widget_id, Uint32 f);
 
-int add_label(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y, Uint32 flags, float size, float r, float g, float b);
-int draw_label(widget_list *W);
+// Label
+int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y);
+int label_draw(widget_list *W);
+int label_set_size(Uint32 window_id, Uint32 widget_id, float size);
+int label_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float b);
 
 #endif
