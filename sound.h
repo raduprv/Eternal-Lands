@@ -31,6 +31,7 @@ void update_music();
 void stream_music(ALuint buffer);
 void turn_music_off();
 void turn_music_on();
+void ogg_error(int code);
 
 #define	lock_sound_list()	SDL_LockMutex(sound_list_mutex)
 #define	unlock_sound_list()	SDL_UnlockMutex(sound_list_mutex);

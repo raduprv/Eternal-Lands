@@ -275,11 +275,13 @@ void stream_music(ALuint buffer) {
     {
         result = ov_read(&ogg_stream, data + size, BUFFER_SIZE - size, 0, 2, 1,
 						 &section);
-sprintf(str, "%d", result);	//prevents optimization errors under Windows, but how/why?
-   
+		sprintf(str, "%d", result);	//prevents optimization errors under Windows, but how/why?
         if(result > 0)
             size += result;
-        else if(result<=0) break;
+        else if(result < 0)
+			ogg_error(result);
+		else
+			break;
     }
 	if(!size)return;
 
@@ -367,13 +369,17 @@ void turn_music_on()
 {
 #ifndef	NO_MUSIC
 	static int i = ogg_el1 - 1;
+	//int state
 	if(!have_music)return;
 	music_on=1;
 	i++;
 	if(i >= max_songs) i = 0;
 	play_music(i);
+	//alGetSourcei(music_source, AL_SOURCE_STATE, &state);
+	//if(state == AL_PAUSED) {
 	//alSourcePlay(music_source);
 	playing_music = 1;
+	//}
 #endif	//NO_MUSIC
 }
 
@@ -516,4 +522,26 @@ int realloc_sources()
     	}
 	else
 		return used_sources;
+}
+
+void ogg_error(int code)
+{
+	char error_string[80];
+    switch(code)
+    {
+        case OV_EREAD:
+            strcpy(error_string, "Read from media.\n"); break;
+        case OV_ENOTVORBIS:
+            strcpy(error_string, "Not Vorbis data.\n"); break;
+        case OV_EVERSION:
+            strcpy(error_string, "Vorbis version mismatch.\n"); break;
+        case OV_EBADHEADER:
+            strcpy(error_string, "Invalid Vorbis header.\n"); break;
+        case OV_EFAULT:
+            strcpy(error_string, "Internal logic fault (bug or heap/stack corruption.\n"); break;
+        default:
+            strcpy(error_string, "Unknown Ogg error.\n");
+    }
+	log_to_console(c_red1,error_string);
+	log_error(error_string);
 }
