@@ -7,7 +7,7 @@
 int afk=0;
 int last_action_time=0;
 int afk_time=0;
-char afk_message[160]={0};
+char afk_message[MAX_TEXT_MESSAGE_LENGTH]={0};
 char afk_title[100];
 
 struct pm_struct pm_log;
@@ -176,7 +176,7 @@ int is_talking_about_me(Uint8 *server_msg, int len)
 
 void send_afk_message(Uint8 * server_msg, int type)
 {
-	Uint8 sendtext[160]={0};
+	Uint8 sendtext[MAX_TEXT_MESSAGE_LENGTH]={0};
 	if(!afk_message[0]) return;
 	if(type) sprintf(sendtext,"%c%s %s",2,last_pm_from,afk_message);
 	else 

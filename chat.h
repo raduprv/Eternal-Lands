@@ -6,6 +6,8 @@
 #ifndef __CHAT_H__
 #define __CHAT_H__
 
+#define MAX_TEXT_MESSAGE_LENGTH 160 /*!< The server will disconnect us when we send longer messages */
+
 extern int use_windowed_chat; /*!< flag indicating whether we use the new windowed chat window or not */
 
 extern int chat_win; /*!< handler for the chat window */

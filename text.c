@@ -35,7 +35,7 @@ void init_text_buffers ()
 	memset ( display_text_buffer, 0, sizeof (display_text_buffer) );
 	input_text_line.chan_nr = CHANNEL_ALL;
 	input_text_line.len = 0;
-	input_text_line.size = 256;
+	input_text_line.size = MAX_TEXT_MESSAGE_LENGTH + 1;
 	input_text_line.data = malloc (input_text_line.size);
 	input_text_line.data[0] = '\0';
 }

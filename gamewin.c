@@ -998,7 +998,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 	{
 		root_key_to_input_field (key, unikey);
 	}
-	else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_line.len < 160)
+	else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
 	{
 		// watch for the '//' shortcut
 		if (input_text_line.len == 1 && ch== '/' && input_text_line.data[0] == '/' && last_pm_from[0])
