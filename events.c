@@ -115,10 +115,13 @@ int HandleEvent(SDL_Event *event)
 
 		if ( event->key.keysym.sym == SDLK_PAGEUP )
 		{
-			if((!ctrl_on && !shift_on && !alt_on) && zoom_level>2.0f)
+			if(!ctrl_on && !shift_on && !alt_on)
 				{
-					zoom_level-=0.25f;
-					resize_window();
+					if(zoom_level>2.0f)
+					{
+						zoom_level-=0.25f;
+						resize_window();
+					}
 				}
 			else
 				{
@@ -129,10 +132,13 @@ int HandleEvent(SDL_Event *event)
 		}
 		if ( event->key.keysym.sym == SDLK_PAGEDOWN )
 		{
-			if((!ctrl_on && !shift_on && !alt_on) && zoom_level<3.75f)
+			if(!ctrl_on && !shift_on && !alt_on)
 				{
-					zoom_level+=0.25f;
-					resize_window();
+					if(zoom_level<3.75f)
+						{
+							zoom_level+=0.25f;
+							resize_window();
+						}
 				}
 			else 
 				{
