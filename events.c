@@ -14,10 +14,42 @@ int shift_on;
 int alt_on;
 int ctrl_on;
 
+Uint32 K_CAMERAUP;
+Uint32 K_CAMERADOWN;
+Uint32 K_ZOOMOUT;
+Uint32 K_ZOOMIN;
+Uint32 K_TURNLEFT;
+Uint32 K_TURNRIGHT;
+Uint32 K_ADVANCE;
+Uint32 K_HEALTHBAR;
+Uint32 K_VIEWNAMES;
+Uint32 K_STATS;
+Uint32 K_WALK;
+Uint32 K_LOOK;
+Uint32 K_USE;
+Uint32 K_OPTIONS;
+Uint32 K_REPEATSPELL;
+Uint32 K_SIGILS;
+Uint32 K_MANUFACTURE;
+Uint32 K_ITEMS;
+Uint32 K_MAP;
+Uint32 K_ROTATELEFT;
+Uint32 K_ROTATERIGHT;
+Uint32 K_FROTATELEFT;
+Uint32 K_FROTATERIGHT;
+Uint32 K_BROWSER;
+Uint32 K_ESCAPE;
+Uint32 K_CONSOLE;
+Uint32 K_SHADOWS;
+Uint32 K_KNOWLEDGE;
+Uint32 K_ENCYCLOPEDIA;
+
+
 int HandleEvent(SDL_Event *event)
 {
 	int done=0;
 	Uint8 ch;
+	Uint32 key=0;
 
 	if (event->type == SDL_NOEVENT) return 0;
 
@@ -47,6 +79,11 @@ int HandleEvent(SDL_Event *event)
 #endif
 	    case SDL_KEYDOWN:
 			{
+				if(shift_on)key|=(1<<31);
+				if(ctrl_on)key|=(1<<30);
+				if(alt_on)key|=(1<<29);
+				(Uint16)key=(Uint16)event->key.keysym.sym;
+
 				//first, try to see if we pressed Alt+x, to quit.
 				if ( (event->key.keysym.sym == SDLK_x && alt_on)
 					 || (event->key.keysym.sym == SDLK_q && ctrl_on) )
@@ -82,48 +119,40 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if ( event->key.keysym.sym == SDLK_UP)
-					{
-						if(interface_mode==interface_console)console_move_up();
-						else
-							{
-								if(rx>-60)rx-=1.0f;
-							}
+				if ( event->key.keysym.sym == SDLK_UP && interface_mode==interface_console)
+					console_move_up();
 
+				if(key==K_CAMERAUP && interface_mode==interface_game)
+					if(rx>-60)rx-=1.0f;
+
+
+				if ( event->key.keysym.sym == SDLK_DOWN && interface_mode==interface_console)
+					console_move_down();
+						
+				if(key==K_CAMERADOWN && interface_mode==interface_game)
+					if(rx<-45)rx +=1.0f;
+
+				if ( event->key.keysym.sym == SDLK_PAGEDOWN && interface_mode==interface_console)
+					console_move_page_down();
+
+				if(key==K_ZOOMOUT && interface_mode==interface_game){
+					if(zoom_level<3.75f){
+						zoom_level+=0.25f;
+						resize_window();
 					}
+				}
 
+				if ( event->key.keysym.sym == SDLK_PAGEUP && interface_mode==interface_console)
+					console_move_page_up();
 
-				if ( event->key.keysym.sym == SDLK_DOWN )
-					{
-						if(interface_mode==interface_console)console_move_down();
-						else
-							{
-								if(rx<-45)rx +=1.0f;
-							}
-
+				if(key==K_ZOOMIN && interface_mode==interface_game){
+					if(zoom_level>2.0f){
+						zoom_level-=0.25f;
+						resize_window();
 					}
+				}
 
-				if ( event->key.keysym.sym == SDLK_PAGEDOWN )
-					{
-						if(interface_mode==interface_console)console_move_page_down();
-						else if(zoom_level<3.75f)
-							{
-								zoom_level+=0.25f;
-								resize_window();
-							}
-					}
-
-				if ( event->key.keysym.sym == SDLK_PAGEUP )
-					{
-						if(interface_mode==interface_console)console_move_page_up();
-						else if(zoom_level>2.0f)
-							{
-								zoom_level-=0.25f;
-								resize_window();
-							}
-					}
-
-				if ( event->key.keysym.sym == SDLK_INSERT )
+				if (key==K_TURNLEFT)
 					{
 						if(!last_turn_around || last_turn_around+500<cur_time)
 							{
@@ -134,7 +163,7 @@ int HandleEvent(SDL_Event *event)
 							}
 					}
 
-				if ( event->key.keysym.sym == SDLK_DELETE )
+				if (key==K_TURNRIGHT)
 					{
 						if(!last_turn_around || last_turn_around+500<cur_time)
 							{
@@ -145,55 +174,67 @@ int HandleEvent(SDL_Event *event)
 							}
 					}
 
-				if ( event->key.keysym.sym == SDLK_HOME )
+				if (key==K_ADVANCE)
 					{
 						move_self_forward();
 					}
 
-				if( event->key.keysym.sym == SDLK_h && alt_on)
+				if(key==K_HEALTHBAR)
 					{
 						view_health_bar=!view_health_bar;
 						break;
 					}
 
 
-				if( event->key.keysym.sym == SDLK_n && alt_on)
+				if(key==K_VIEWNAMES)
 					{
 						view_names=!view_names;
 						break;
 					}
 
-				if( event->key.keysym.sym == SDLK_a && ctrl_on)
+				if(key==K_STATS)
 					{
 						view_self_stats=!view_self_stats;
 						break;
 					}
 
-				if( event->key.keysym.sym == SDLK_w && ctrl_on)
+				if(key==K_WALK)
 					{
 						action_mode=action_walk;
 						break;
 					}
 
-				if( event->key.keysym.sym == SDLK_l && ctrl_on)
+				if(key==K_LOOK)
 					{
 						action_mode=action_look;
 						break;
 					}
 
-				if( event->key.keysym.sym == SDLK_u && ctrl_on)
+				if(key==K_USE)
 					{
 						action_mode=action_use;
 						break;
 					}
 
-				if( event->key.keysym.sym == SDLK_o && ctrl_on)
+				if(key==K_OPTIONS)
 					{
 						options_menu=!options_menu;
 						break;
 					}
+				
+				if(key==K_KNOWLEDGE)
+					{
+						view_knowledge=!view_knowledge;
+						break;
+					}
 
-				if( event->key.keysym.sym == SDLK_r && ctrl_on)	// REPEAT spell command
+				if(key==K_ENCYCLOPEDIA)
+					{
+						view_encyclopedia=!view_encyclopedia;
+						break;
+					}
+
+				if(key==K_REPEATSPELL)	// REPEAT spell command
 					{
 						if(view_sigils_menu)
 							{
@@ -202,7 +243,7 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if( event->key.keysym.sym == SDLK_s && ctrl_on)
+				if(key==K_SIGILS)
 					{
 						if(view_trade_menu)
 							{
@@ -213,7 +254,7 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if( event->key.keysym.sym == SDLK_m && ctrl_on)
+				if(key==K_MANUFACTURE)
 					{
 						if(!view_manufacture_menu)
 							{
@@ -227,7 +268,7 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if( event->key.keysym.sym == SDLK_i && ctrl_on)
+				if(key==K_ITEMS)
 					{
 						if(!view_my_items)
 							{
@@ -242,41 +283,37 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if ( event->key.keysym.sym == SDLK_TAB && !alt_on)
+				if (key==K_MAP)
 					{
 						if(interface_mode==interface_game)switch_to_game_map();
 						else if(interface_mode==interface_map)switch_from_game_map();
 					}
 
-				if ( event->key.keysym.sym == SDLK_LEFT )
+				if (key==K_ROTATELEFT)
 					{
-						if(shift_on)
-							{
-								camera_rotation_speed=fine_camera_rotation_speed/10;
-								camera_rotation_frames=10;
-							}
-						else
-							{
-								camera_rotation_speed=normal_camera_rotation_speed/40;
-								camera_rotation_frames=40;
-							}
-
+						camera_rotation_speed=normal_camera_rotation_speed/40;
+						camera_rotation_frames=40;
 					}
-				if ( event->key.keysym.sym == SDLK_RIGHT )
+				if(key==K_FROTATELEFT)
 					{
-						if(shift_on)
-							{
-								camera_rotation_speed=-fine_camera_rotation_speed/10;
-								camera_rotation_frames=10;
-							}
-						else
-							{
-								camera_rotation_speed=-normal_camera_rotation_speed/40;
-								camera_rotation_frames=40;
-							}
+						camera_rotation_speed=fine_camera_rotation_speed/10;
+						camera_rotation_frames=10;
 					}
 
-				if(event->key.keysym.sym==SDLK_F2)
+				if (key==K_ROTATERIGHT)
+					{
+						camera_rotation_speed=-normal_camera_rotation_speed/40;
+						camera_rotation_frames=40;
+					}
+
+				if(key==K_FROTATERIGHT)
+					{
+						camera_rotation_speed=-fine_camera_rotation_speed/10;
+						camera_rotation_frames=10;
+					}
+
+
+				if(key==K_BROWSER)
 					{
 #ifndef WINDOWS
 						char browser_command[400];
@@ -350,14 +387,14 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if(ch=='`' || event->key.keysym.sym==SDLK_F1)
+				if(ch=='`' || key==K_CONSOLE)
 					{
 						if(interface_mode==interface_console)interface_mode=interface_game;
 						else interface_mode=interface_console;
 						break;
 					}
 
-				if(event->key.keysym.sym==SDLK_F3)
+				if(key==K_SHADOWS)
 					{
 						clouds_shadows=!clouds_shadows;
 					}
