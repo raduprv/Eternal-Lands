@@ -273,11 +273,10 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 
 			numFaces=model_data->numFaces;
 			check_gl_errors();
+			glColor3f(1.0f, 1.0f, 1.0f);
 #ifdef	USE_VERTEXARRAYS
-			if(have_vertex_array && !ghost)	// why are ghosts broken?
-			//if(have_vertex_array)
+			if(have_vertex_array)
 				{
-					glColor3f(1.0f, 1.0f, 1.0f);
 					//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 					glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
 					//glEnableClientState(GL_VERTEX_ARRAY);
@@ -299,7 +298,6 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 					vertex_md2 *vertex_pointer=NULL;
 
 					//setup
-					glColor3f(1.0f,1.0f,1.0f);
 					glBegin(GL_TRIANGLES);
 					vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
 					offsetFaces=model_data->offsetFaces;
