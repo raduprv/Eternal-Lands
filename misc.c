@@ -48,7 +48,7 @@ void get_3d_object_under_mouse()
 
 			         dist1=x-(int)objects_list[i]->x_pos;
 			         dist2=y-(int)objects_list[i]->y_pos;
-			         if(dist1*dist1+dist2*dist2<=20*20)
+			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
                      	draw_3d_object(objects_list[i]);
                      if(evaluate_colision())
                      	{
@@ -163,7 +163,7 @@ void get_2d_object_under_mouse()
 
 			         dist1=x-(int)obj_2d_list[i]->x_pos;
 			         dist2=y-(int)obj_2d_list[i]->y_pos;
-			         if(dist1*dist1+dist2*dist2<=20*20)
+			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
                      	draw_2d_object(obj_2d_list[i]);
                      if(evaluate_colision())
                      	{
@@ -432,7 +432,7 @@ void visualise_lights()
 
 			         dist1=x-(int)lights_list[i]->pos_x;
 			         dist2=y-(int)lights_list[i]->pos_y;
-			         if(dist1*dist1+dist2*dist2<=20*20)
+			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
                      	draw_light_source(lights_list[i]);
 
                  }
@@ -465,7 +465,7 @@ void get_light_under_mouse()
 
 			         dist1=x-(int)lights_list[i]->pos_x;
 			         dist2=y-(int)lights_list[i]->pos_y;
-			         if(dist1*dist1+dist2*dist2<=20*20)
+			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
                      	draw_light_source(lights_list[i]);
                      if(evaluate_colision())
                      	{
