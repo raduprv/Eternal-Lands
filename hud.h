@@ -24,7 +24,7 @@ typedef struct
 	float u[2];
 	float v[2];
 	//Help message
-	char help_message[120];
+	char * help_message;
 	//Function pointer and data
 	int (*func)(void*, int);
 	void * data;

@@ -310,7 +310,7 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 	icons.icon[no]->v[0]=v_start;
 	icons.icon[no]->v[1]=colored_v_start;
 	icons.icon[no]->func=func;
-	strcpy(icons.icon[no]->help_message,help_message);
+	icons.icon[no]->help_message=help_message;
 	icons.icon[no]->free_data=0;
 	switch(data_type)
 		{
@@ -435,7 +435,7 @@ void you_sit_down()
 	icons.icon[1]->u[1]=colored_stand_icon_u_start;
 	icons.icon[1]->v[0]=stand_icon_v_start;
 	icons.icon[1]->v[1]=colored_stand_icon_v_start;
-	strcpy(icons.icon[1]->help_message,"Stand up");
+	icons.icon[1]->help_message=tt_stand;
 }
 
 void you_stand_up()
@@ -445,7 +445,7 @@ void you_stand_up()
 	icons.icon[1]->u[1]=colored_sit_icon_u_start;
 	icons.icon[1]->v[0]=sit_icon_v_start;
 	icons.icon[1]->v[1]=colored_sit_icon_v_start;
-	strcpy(icons.icon[1]->help_message,"Sit down");
+	icons.icon[1]->help_message=tt_sit;
 }
 
 void switch_action_mode(int * mode, int id)

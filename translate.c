@@ -470,7 +470,7 @@ void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def,
 	group->strings[group->no]=(string_item*)calloc(1,sizeof(string_item));
 	strcpy(group->strings[group->no]->xml_id,xml_id);
 	group->strings[group->no]->var=var;
-	strncpy(var, def, max_len);
+	strncpy(var, def, max_len-1);
 	group->strings[group->no]->max_len=max_len;
 	group->no++;
 }
