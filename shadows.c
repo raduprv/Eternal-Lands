@@ -77,7 +77,6 @@ void draw_3d_object_shadow(object3d * object_id)
 		}
 	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
 
-
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glMultMatrixf(fDestMat);
 	x_pos=object_id->x_pos;
@@ -314,6 +313,7 @@ void display_shadows()
 {
 	int i;
 	int x,y;
+
 	x=-cx;
 	y=-cy;
 	glEnable(GL_CULL_FACE);
@@ -366,7 +366,6 @@ void display_3d_ground_objects()
 
 					if(objects_list[i]->e3d_data->is_ground)
 					 	{
-
 			         		dist1=x-objects_list[i]->x_pos;
 			         		dist2=y-objects_list[i]->y_pos;
 			         		if(dist1*dist1+dist2*dist2<=700)
@@ -407,6 +406,7 @@ void display_3d_non_ground_objects()
 {
 	int i;
 	int x,y;
+
 	x=-cx;
 	y=-cy;
 
@@ -429,34 +429,34 @@ void display_3d_non_ground_objects()
 		{
 			if(objects_list[i])
 				{
-					int dist1;
-					int dist2;
-
-					dist1=x-objects_list[i]->x_pos;
-					dist2=y-objects_list[i]->y_pos;
 					if(!objects_list[i]->e3d_data->is_ground)
-						if(dist1*dist1+dist2*dist2<=900)
-			         		{
-								float x_len;
-								float y_len;
-								float z_len;
-								float radius;
+					{
+						int dist1;
+						int dist2;
 
-								z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
-								x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
-								y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
+						dist1=x-objects_list[i]->x_pos;
+						dist2=y-objects_list[i]->y_pos;
+							if(dist1*dist1+dist2*dist2<=900)
+			         			{
+									float x_len, y_len, z_len;
+									float radius;
 
-								radius=x_len/2;
-								if(radius<y_len/2)radius=y_len/2;
-								if(radius<z_len)radius=z_len;
-								//not in the middle of the air
-								if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
+									z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
+									x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
+									y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
+
+									radius=x_len/2;
+									if(radius<y_len/2)radius=y_len/2;
+									if(radius<z_len)radius=z_len;
+									//not in the middle of the air
+									if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
 												   objects_list[i]->z_pos,radius))
-									{
-                     					draw_3d_object(objects_list[i]);
-                     					anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
-									}
-							}
+										{
+                     						draw_3d_object(objects_list[i]);
+                     						anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
+										}
+								}
+						}
 				}
 		}
 	if(have_multitexture && clouds_shadows)
@@ -492,7 +492,6 @@ void draw_sun_shadowed_scene()
 	glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
 	// don't modify the contents of the stencil buffer
 	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
 
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	//go to the 2d mode, and draw a black rectangle...
