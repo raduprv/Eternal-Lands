@@ -24,6 +24,7 @@ Uint32 K_TURNRIGHT=127;
 Uint32 K_ADVANCE=278;
 Uint32 K_HEALTHBAR=ALT|'h';
 Uint32 K_VIEWNAMES=ALT|'n';
+Uint32 K_VIEWHP=ALT|'b';
 Uint32 K_STATS=CTRL|'a';
 Uint32 K_WALK=CTRL|'w';
 Uint32 K_LOOK=CTRL|'l';
@@ -288,6 +289,12 @@ int HandleEvent(SDL_Event *event)
 				if(key==K_VIEWNAMES)
 					{
 						view_names=!view_names;
+						break;
+					}
+
+				if(key==K_VIEWHP)
+					{
+						view_hp=!view_hp;
 						break;
 					}
 
@@ -652,7 +659,6 @@ int HandleEvent(SDL_Event *event)
 
 			if(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2))
 				{
-
 					camera_rotation_speed=normal_camera_rotation_speed*mouse_delta_x/220;
 					camera_rotation_frames=40;
 				}

@@ -28,6 +28,7 @@ int combat_mode=0;
 int auto_camera=0;
 int view_health_bar=1;
 int view_names=1;
+int view_hp=0;
 int view_chat_text_as_overtext=0;
 int show_fps=1;
 int limit_fps=0;
@@ -916,6 +917,9 @@ int display_options_handler(windows_info *win)
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
 					  193, 235, 220, 251);
+	/* for Exit Game */
+	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
+				  8, 235, 38, 251);
 
 	glEnd();
 	draw_string(55,10,"Options",1);
@@ -928,6 +932,8 @@ int display_options_handler(windows_info *win)
 	draw_string(45,155,"Sound",1);
 	draw_string(45,175,"Music",1);
 	draw_string(45,195,"Auto Camera",1);
+	draw_string(45,235,"Exit Game",1);
+
 
 	draw_string(225,10,"Video Modes",1);
 	draw_string(225,35,"Full Screen",1);
@@ -970,6 +976,9 @@ int click_options_handler(window_info *win, int mx, int my, Uint32 flags)
 				else turn_music_on();
 			else if(my>195 && my<211)
 				auto_camera=!auto_camera;
+			else if(my>235 && my<251)
+				exit_now = 1;
+
 		}
 	else if(mx>193 && mx<220)
 		{

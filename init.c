@@ -137,6 +137,8 @@ void read_key_config()
 		K_HEALTHBAR = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_VIEWNAMES",file_mem,key_file_size,0))!=-1)
 		K_VIEWNAMES = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_VIEWHP",file_mem,key_file_size,0))!=-1)
+		K_VIEWHP = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_STATS",file_mem,key_file_size,0))!=-1)
 		K_STATS = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_WALK",file_mem,key_file_size,0))!=-1)

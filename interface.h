@@ -21,9 +21,10 @@ extern int right_click;
 extern int middle_click;
 extern int left_click;
 
-extern int	options_win;
+extern int options_win;
 extern int view_health_bar;
 extern int view_names;
+extern int view_hp;
 extern int view_chat_text_as_overtext;
 
 extern int login_screen_menus;

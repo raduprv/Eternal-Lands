@@ -18,6 +18,7 @@ extern Uint32 K_TURNRIGHT;
 extern Uint32 K_ADVANCE;
 extern Uint32 K_HEALTHBAR;
 extern Uint32 K_VIEWNAMES;
+extern Uint32 K_VIEWHP;
 extern Uint32 K_STATS;
 extern Uint32 K_WALK;
 extern Uint32 K_LOOK;

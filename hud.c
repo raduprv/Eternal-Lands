@@ -496,6 +496,8 @@ void init_peace_icons()
 int	mouseover_icons_handler(window_info *win, int mx, int my)
 {
 	icon_cursor_x= mx;	// just memorize for later
+
+	return 1;
 }
 
 void draw_peace_icons()
