@@ -1,8 +1,9 @@
 #ifndef	__WIDGETS_H
 #define	__WIDGETS_H
 
-#define LABEL 0x01
-#define IMAGE 0x02
+#define LABEL		0x01
+#define IMAGE		0x02
+#define CHECKBOX	0x03
 
 typedef struct wl{
 	// Common widget data
@@ -33,6 +34,10 @@ typedef struct {
 	int id; // Texture id
 }image;
 
+typedef struct {
+	int checked;
+}checkbox;
+
 // Common widget functions
 int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
 int widget_set_OnClick(Uint32 window_id, Uint32 widget_id, int (*handler)());
@@ -54,5 +59,12 @@ int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uin
 int image_draw(widget_list *W);
 int image_set_id(Uint32 window_id, Uint32 widget_id, int id);
 int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u2, float v2);
+
+// Checkbox
+int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 xe, Uint16 ye, int checked);
+int checkbox_draw(widget_list *W);
+int checkbox_click(widget_list *W);
+int checkbox_get_checked(Uint32 window_id, Uint32 widget_id);
+int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked);
 
 #endif

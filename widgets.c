@@ -275,4 +275,89 @@ int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u
 }
 
 
+// Checkbox
+int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int checked)
+{
+	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
+	checkbox *T = (checkbox *) malloc(sizeof(label));
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	
+	// Clearing everything
+	memset(W,0,sizeof(widget_list));
+	memset(T,0,sizeof(checkbox));
 
+	// Filling the widget info
+	W->widget_info = T;
+	W->id=widget_id++;
+	W->type = CHECKBOX;
+	W->Flags = 0;
+	W->pos_x = x;
+	W->pos_y = y;
+	W->size = 1.0;
+	W->r = -1.0;
+	W->g = -1.0;
+	W->b = -1.0;
+	T->checked = checked;
+	W->len_y = lx;
+	W->len_x = ly;
+	W->OnDraw = checkbox_draw;
+	W->OnClick = checkbox_click;
+	W->OnInit = OnInit;
+	if(W->OnInit != NULL)
+		W->OnInit(W);
+
+	// Adding the widget to the list
+	while(w->next != NULL)
+		w = w->next;
+	w->next = W;
+
+	return W->id;
+}
+
+int checkbox_draw(widget_list *W)
+{
+	checkbox *c = (checkbox *)W->widget_info;
+	if(W->r!=-1.0)
+		glColor3f(W->r, W->g, W->b);
+	glBegin(c->checked ? GL_QUADS: GL_LINE_LOOP);
+	glVertex3i(W->pos_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
+	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
+	glEnd();
+	return 1;
+}
+
+int checkbox_click(widget_list *W)
+{
+	checkbox *c = (checkbox *)W->widget_info;
+	c->checked = !c->checked;
+	return 1;
+}
+
+int checkbox_get_checked(Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	while(w->next != NULL){
+		w = w->next;
+		if(w->id == widget_id){
+			checkbox *c = (checkbox *)w->widget_info;
+			return c->checked;
+		}
+	}
+	return -1;
+}
+
+int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked)
+{
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	while(w->next != NULL){
+		w = w->next;
+		if(w->id == widget_id){
+			checkbox *c = (checkbox *)w->widget_info;
+			c->checked = checked;
+			return 1;
+		}
+	}
+	return -1;
+}

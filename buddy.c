@@ -196,6 +196,7 @@ void display_buddy()
 			widget_set_OnClick(buddy_win,1,clika);
 			widget_set_OnMouseover(buddy_win,1,clika);
 			widget_resize(buddy_win,1,128,128);
+			checkbox_add(buddy_win, NULL, 2, 100,20,20,0);
 			*/
 		}
 	else
