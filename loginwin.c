@@ -225,7 +225,7 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 
 int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	Uint8 ch = key_to_char (key);
+	Uint8 ch = key_to_char (unikey);
 	
 	// First check key presses common to all root windows. Many of these
 	// don't make sense at this point, but it should be harmless.

@@ -674,11 +674,11 @@ int check_quit_or_fullscreen (Uint32 key)
 	return 1;
 }
 
-Uint8 key_to_char (Uint32 key)
+Uint8 key_to_char (Uint32 unikey)
 {
-	if ( (key >= 256 && key <= 267) || key==271)
+	if ( (unikey >= 256 && unikey <= 267) || unikey==271)
 	{
-		switch (key)
+		switch (unikey)
 		{
 			case 266:
 				return 46;
@@ -687,11 +687,11 @@ Uint8 key_to_char (Uint32 key)
 			case 271:
 				return 13;
 			default:
-				return key-208;
+				return unikey-208;
 		}
 	}
 	
-	return key & 0xff;
+	return unikey & 0xff;
 }
 
 // keypress handler common to all in-game root windows (game_win, console_win,
@@ -941,9 +941,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (keysym == SDLK_ESCAPE)
 	{
+		// clear the input buffer
 		input_text_lenght = 0;
-		input_text_line[0] = 0;
 		input_text_lines = 1;
+		input_text_line[0] = '\0';
 	}
 	else
 	{
@@ -1018,10 +1019,10 @@ int text_input_handler (Uint8 ch)
 		{
 			send_input_text_line();
 		}
-		//also clear the buffer
+		// also clear the buffer
 		input_text_lenght = 0;
 		input_text_lines = 1;
-		input_text_line[0] = 0;
+		input_text_line[0] = '\0';
 	}
 	else
 	{
@@ -1121,7 +1122,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	else
 	{
-		Uint8 ch = key_to_char (key);
+		Uint8 ch = key_to_char (unikey);
 
 		if (ch == '`' || key == K_CONSOLE)
 		{
@@ -1132,6 +1133,10 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
 		{
 			test_for_console_command ();
+			// also clear the buffer
+			input_text_lenght = 0;
+			input_text_lines = 1;
+			input_text_line[0] = '\0';
 		}
 		// see if the common text handler can deal with it
 		else if ( text_input_handler (ch) )

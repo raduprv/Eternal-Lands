@@ -24,7 +24,7 @@ extern int game_win; /*!< the root (game) window */
  * \retval Uint8
  * \callgraph
  */
-Uint8 key_to_char (Uint32 key);
+Uint8 key_to_char (Uint32 unikey);
 
 /*!
  * \ingroup events

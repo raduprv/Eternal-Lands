@@ -1110,7 +1110,7 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 
 int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	Uint8 ch = key_to_char (key);
+	Uint8 ch = key_to_char (unikey);
 	
 	// first, try to see if we pressed Alt+x, to quit.
 	if ( check_quit_or_fullscreen (key) )

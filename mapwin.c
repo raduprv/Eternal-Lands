@@ -78,7 +78,7 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	}
 	else
 	{
-		Uint8 ch = key_to_char (key);
+		Uint8 ch = key_to_char (unikey);
 
 		if (ch == '`' || key == K_CONSOLE)
 		{
@@ -90,6 +90,10 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
 		{
 			test_for_console_command ();
+			// also clear the buffer
+			input_text_lenght = 0;
+			input_text_lines = 1;
+			input_text_line[0] = '\0';
 		}
 		else if ( text_input_handler (ch) )
 		{
