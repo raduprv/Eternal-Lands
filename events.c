@@ -5,17 +5,17 @@ int HandleEvent(SDL_Event *event)
 	int done=0;
 	Uint8 ch;
 
-	    mod_key_status=SDL_GetModState();
-		if(mod_key_status&KMOD_SHIFT)shift_on=1;
-		else shift_on=0;
+	mod_key_status=SDL_GetModState();
+	if(mod_key_status&KMOD_SHIFT)shift_on=1;
+	else shift_on=0;
 
-	    mod_key_status=SDL_GetModState();
-		if(mod_key_status&KMOD_CTRL)ctrl_on=1;
-		else ctrl_on=0;
+	mod_key_status=SDL_GetModState();
+	if(mod_key_status&KMOD_CTRL)ctrl_on=1;
+	else ctrl_on=0;
 
-	    mod_key_status=SDL_GetModState();
-		if(mod_key_status&KMOD_ALT)alt_on=1;
-		else alt_on=0;
+	mod_key_status=SDL_GetModState();
+	if(mod_key_status&KMOD_ALT)alt_on=1;
+	else alt_on=0;
 
 	switch( event->type ) {
 
@@ -115,11 +115,11 @@ int HandleEvent(SDL_Event *event)
 
 		if ( event->key.keysym.sym == SDLK_PAGEUP )
 		{
-			if(ctrl_on && zoom_level>2.0f)
-					{
-						zoom_level-=0.25f;
-						resize_window();
-					}
+			if((!ctrl_on && !shift_on && !alt_on) && zoom_level>2.0f)
+				{
+					zoom_level-=0.25f;
+					resize_window();
+				}
 			else
 				{
 					if(cur_mode==mode_3d && selected_3d_object!=-1)
@@ -129,11 +129,11 @@ int HandleEvent(SDL_Event *event)
 		}
 		if ( event->key.keysym.sym == SDLK_PAGEDOWN )
 		{
-			if(ctrl_on && zoom_level<3.75f)
-					{
-						zoom_level+=0.25f;
-						resize_window();
-					}
+			if((!ctrl_on && !shift_on && !alt_on) && zoom_level<3.75f)
+				{
+					zoom_level+=0.25f;
+					resize_window();
+				}
 			else 
 				{
 					if(cur_mode==mode_3d && selected_3d_object!=-1)
@@ -188,6 +188,17 @@ int HandleEvent(SDL_Event *event)
 			if(game_minute>60*5)game_minute=0;
 		}
 
+		if ( event->key.keysym.sym == SDLK_n)
+		{
+			game_minute=0;
+		}
+
+		if ( event->key.keysym.sym == SDLK_d)
+		{
+			game_minute=60;
+		}
+
+
 		if ( event->key.keysym.sym == SDLK_F2 )
 		{
 			if(game_minute==0)game_minute=60*5;
@@ -221,17 +232,17 @@ int HandleEvent(SDL_Event *event)
   		if(objects_list[selected_3d_object]->b>0.0f)objects_list[selected_3d_object]->b-=0.05f;
 		//for lights now
   		if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && !alt_on)
-  		if(lights_list[selected_light]->r<5.0f)lights_list[selected_light]->r+=0.02f;
+  		if(lights_list[selected_light]->r<5.0f)lights_list[selected_light]->r+=0.1f;
   		if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && alt_on)
-  		if(lights_list[selected_light]->r>0.0f)lights_list[selected_light]->r-=0.02f;
+  		if(lights_list[selected_light]->r>0.0f)lights_list[selected_light]->r-=0.1f;
   		if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && !alt_on)
-  		if(lights_list[selected_light]->g<5.0f)lights_list[selected_light]->g+=0.02f;
+  		if(lights_list[selected_light]->g<5.0f)lights_list[selected_light]->g+=0.1f;
   		if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && alt_on)
-  		if(lights_list[selected_light]->g>0.0f)lights_list[selected_light]->g-=0.02f;
+  		if(lights_list[selected_light]->g>0.0f)lights_list[selected_light]->g-=0.1f;
   		if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && !alt_on)
-  		if(lights_list[selected_light]->b<5.0f)lights_list[selected_light]->b+=0.02f;
+  		if(lights_list[selected_light]->b<5.0f)lights_list[selected_light]->b+=0.1f;
   		if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && alt_on)
-  		if(lights_list[selected_light]->b>0.0f)lights_list[selected_light]->b-=0.02f;
+  		if(lights_list[selected_light]->b>0.0f)lights_list[selected_light]->b-=0.1f;
 		//for ambient light
   		if(ch=='1' && cur_mode==mode_map && !alt_on)
   		if(ambient_r<1.0f)ambient_r+=0.02f;
