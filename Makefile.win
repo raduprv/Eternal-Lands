@@ -5,8 +5,8 @@ CPP  = g++.exe
 CC   = gcc.exe
 WINDRES = windres.exe
 RES  = ter_g_private.res
-OBJ  = main.o init.o global.o events.o draw_scene.o textures.o md2loader.o actors.o 3d_objects.o lights.o tile_map.o 2d_objects.o errors.o font.o interface.o colors.o multiplayer.o text.o map_io.o asc.o reflection.o shadows.o console.o new_character.o actor_scripts.o particles.o misc.o frustum.o spells.o stats.o sound.o ignore.o help.o paste.o gl_init.o weather.o items.o dialogues.o manufacture.o trade.o new_actors.o cursors.o $(RES)
-LINKOBJ  = main.o init.o global.o events.o draw_scene.o textures.o md2loader.o actors.o 3d_objects.o lights.o tile_map.o 2d_objects.o errors.o font.o interface.o colors.o multiplayer.o text.o map_io.o asc.o reflection.o shadows.o console.o new_character.o actor_scripts.o particles.o misc.o frustum.o spells.o stats.o sound.o ignore.o help.o paste.o gl_init.o weather.o items.o dialogues.o manufacture.o trade.o new_actors.o cursors.o $(RES)
+OBJ  = main.o init.o global.o events.o draw_scene.o textures.o md2loader.o actors.o 3d_objects.o lights.o tile_map.o 2d_objects.o errors.o filter.o font.o interface.o colors.o multiplayer.o text.o map_io.o asc.o reflection.o shadows.o console.o new_character.o actor_scripts.o particles.o misc.o frustum.o spells.o stats.o sound.o ignore.o help.o paste.o gl_init.o weather.o items.o dialogues.o manufacture.o trade.o new_actors.o cursors.o $(RES)
+LINKOBJ  = main.o init.o global.o events.o draw_scene.o textures.o md2loader.o actors.o 3d_objects.o lights.o tile_map.o 2d_objects.o errors.o filter.o font.o interface.o colors.o multiplayer.o text.o map_io.o asc.o reflection.o shadows.o console.o new_character.o actor_scripts.o particles.o misc.o frustum.o spells.o stats.o sound.o ignore.o help.o paste.o gl_init.o weather.o items.o dialogues.o manufacture.o trade.o new_actors.o cursors.o $(RES)
 LIBS =  -L"F:/Dev-Cpp/lib" -L"F:/Dev-Cpp/Lib" -mwindows -lSDL -lopengl32 -lglu32 F:/C++/Lib/SDL_net.lib F:/C++/Lib/SDL_mixer.lib 
 INCS =  -I"F:/Dev-Cpp/include"  -I"F:/c++/include/sdl" 
 CXXINCS =  -I"F:/Dev-Cpp/include/c++"  -I"F:/Dev-Cpp/include/c++/mingw32"  -I"F:/Dev-Cpp/include/c++/backward"  -I"F:/Dev-Cpp/include"  -I"F:/c++/include/sdl" 
@@ -63,6 +63,9 @@ tile_map.o: tile_map.c
 
 errors.o: errors.c
 	$(CC) -c errors.c -o errors.o $(CFLAGS)
+
+filter.o: filter.c
+	$(CC) -c filter.c -o filter.o $(CFLAGS)
 
 font.o: font.c
 	$(CC) -c font.c -o font.o $(CFLAGS)
