@@ -213,14 +213,12 @@ void read_config()
 			strcpy(el_ini, configdir);
 			strcat(el_ini, "el.ini");
 			closedir(d);
-			printf("opening: %s\n",el_ini);
 			f=fopen(el_ini,"rb"); //try to load local settings
 		}
 	if(!f) //use global settings
 		{
 			strcpy(el_ini, datadir);
 			strcat(el_ini, "el.ini");
-			printf("opening: %s\n",el_ini);
 			f=fopen(el_ini,"rb");
 		}
 	
