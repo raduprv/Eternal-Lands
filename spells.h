@@ -63,43 +63,43 @@ void make_sigils_list();
 
 /*!
  * \ingroup spells_win
- * \brief get_active_spell
+ * \brief changes the \see active_spell at the given \a pos to the given \a spell.
  *
- *      get_active_spell(int,int)
+ *      Changes the \see active_spell at the given \a pos to the given \a spell.
  *
- * \param pos   Position
- * \param spell Spell
+ * \param pos   index in the list of which spell to change
+ * \param spell the index of the spell to use.
  * \return None
  */
 void get_active_spell(int pos, int spell);
 
 /*!
  * \ingroup spells_win
- * \brief remove_active_spell
+ * \brief removes the spell at the given \a pos from the list of active spells
  *
- *      remove_active_spell(int)
+ *      Removes the spell at the given \a pos from the list of active spells
  *
- * \param pos   Position
+ * \param pos   the index into the array of the spell to remove
  * \return None
  */
 void remove_active_spell(int pos);
 
 /*!
  * \ingroup spells_win
- * \brief get_active_spell_list
+ * \brief sets the list of \see active_spells to the given list \a my_spell_list.
  *
- *      get_active_spell_list(Uint8*)
+ *      Sets the list of \see active_spells to the given list \a my_spell_list.
  *
- * \param my_spell_list current spell list
+ * \param my_spell_list the spell list to use for \see active_spells.
  * \return None
  */
 void get_active_spell_list(Uint8 *my_spell_list);
 
 /*!
  * \ingroup spells_win
- * \brief display_spells_we_have
+ * \brief draws the sigils that the actor currently owns
  *
- *      display_spells_we_have()
+ *      Draws the sigils that the actor currently owns
  *
  * \return None
  */
@@ -107,9 +107,9 @@ void display_spells_we_have();
 
 /*!
  * \ingroup spells_win
- * \brief display_sigils_menu
+ * \brief displays the spells window
  *
- *      display_sigils_menu
+ *      Displays the spells window
  *
  * \return None
  */
@@ -117,11 +117,11 @@ void display_sigils_menu();
 
 /*!
  * \ingroup spells_win
- * \brief get_sigils_we_have
+ * \brief sets the sigils in \see sigil_list according the mask in \a sigils_we_have.
  *
- *      get_sigils_we_have(Uint32)
+ *      sets the sigils in \see sigil_list according the mask in \a sigils_we_have.
  *
- * \param sigils_we_have
+ * \param sigils_we_have    the mask to determine the sigils which the actor has.
  * \return None
  */
 void get_sigils_we_have(Uint32 sigils_we_have);
