@@ -271,6 +271,7 @@ void check_mouse_click()
 
 	case CURSOR_WALK:
 	default:
+		if(!you_sit || !sit_lock)
 		{
 			Uint8 str[10];
 			short x,y;

@@ -245,16 +245,15 @@ void init_peace_icons()
 
 	if(icons_no) return;
 	
-	add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_stand, sit_button_pressed, &you_sit, DATA_NONE);
+	//add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_stand, sit_button_pressed, &you_sit, DATA_NONE);
 
 	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, tt_walk, switch_action_mode, (void *)action_walk, DATA_ACTIONMODE);
-	/*
+	
 	if(you_sit)
 		add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_stand, sit_button_pressed, NULL, DATA_NONE);
 	else
 		add_icon(sit_icon_u_start, sit_icon_v_start, colored_sit_icon_u_start, colored_sit_icon_v_start, tt_sit, sit_button_pressed, NULL, DATA_NONE);
-	*/
-
+	
 	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, tt_look, switch_action_mode, (void *)action_look, DATA_ACTIONMODE);
 
 	add_icon(use_icon_u_start, use_icon_v_start, colored_use_icon_u_start, colored_use_icon_v_start, tt_use, switch_action_mode, (void *)action_use, DATA_ACTIONMODE);
@@ -427,21 +426,21 @@ void sit_button_pressed(void * none, int id)
 void you_sit_down()
 {
 	you_sit=1;
-	icon_list[0]->u[0]=stand_icon_u_start;//Change the icon to stand
-	icon_list[0]->u[1]=colored_stand_icon_u_start;
-	icon_list[0]->v[0]=stand_icon_v_start;
-	icon_list[0]->v[1]=colored_stand_icon_v_start;
-	icon_list[0]->help_message=tt_stand;
+	icon_list[1]->u[0]=stand_icon_u_start;//Change the icon to stand
+	icon_list[1]->u[1]=colored_stand_icon_u_start;
+	icon_list[1]->v[0]=stand_icon_v_start;
+	icon_list[1]->v[1]=colored_stand_icon_v_start;
+	icon_list[1]->help_message=tt_stand;
 }
 
 void you_stand_up()
 {
 	you_sit=0;
-	icon_list[0]->u[0]=sit_icon_u_start;
-	icon_list[0]->u[1]=colored_sit_icon_u_start;
-	icon_list[0]->v[0]=sit_icon_v_start;
-	icon_list[0]->v[1]=colored_sit_icon_v_start;
-	icon_list[0]->help_message=tt_sit;
+	icon_list[1]->u[0]=sit_icon_u_start;
+	icon_list[1]->u[1]=colored_sit_icon_u_start;
+	icon_list[1]->v[0]=sit_icon_v_start;
+	icon_list[1]->v[1]=colored_sit_icon_v_start;
+	icon_list[1]->help_message=tt_sit;
 }
 
 void switch_action_mode(int * mode, int id)
