@@ -491,8 +491,8 @@ void display_3d_ground_objects()
 
 					if(objects_list[l]->e3d_data->is_ground)
 					 	{
-			         		dist1=x-objects_list[i]->x_pos;
-			         		dist2=y-objects_list[i]->y_pos;
+			         		dist1=x-objects_list[l]->x_pos;
+			         		dist2=y-objects_list[l]->y_pos;
 			         		if(dist1*dist1+dist2*dist2<=700)
 								{
 									float x_len;
@@ -562,7 +562,7 @@ void display_3d_non_ground_objects()
 
 				if(objects_list[l])
 					{
-					if(!objects_list[i]->e3d_data->is_ground)
+					if(!objects_list[l]->e3d_data->is_ground)
 					{
 						int dist1;
 						int dist2;
@@ -585,9 +585,9 @@ void display_3d_non_ground_objects()
 									if(SphereInFrustum(objects_list[l]->x_pos,objects_list[l]->y_pos,
 												   objects_list[l]->z_pos,radius))
 										{
-                     						draw_3d_object(objects_list[i]);
+                     						draw_3d_object(objects_list[l]);
 											if (read_mouse_now && mouse_in_sphere(objects_list[l]->x_pos, objects_list[l]->y_pos, objects_list[l]->z_pos, radius))
-												anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
+												anything_under_the_mouse(l,UNDER_MOUSE_3D_OBJ);
 										}
 								}
 						}
