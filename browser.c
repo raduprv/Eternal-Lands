@@ -219,9 +219,6 @@ int check_browser_interface()
 		if(x>0 && x<200 && y>0 && y<200){
 			char fn[256];
 			strcpy(fn,exec_path);
-			strcat(fn,"/3dobjects/");
-			strcat(fn,Dir[cd].DirName);
-			strcat(fn,"/");
 			strcat(fn,Dir[cd].Files[cp]);
 			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 			cur_tool=tool_select;
@@ -229,9 +226,6 @@ int check_browser_interface()
 		if(cp+1<Dir[cd].nf && x>0 && x<200 && y>200 && y<400){
 			char fn[256];
 			strcpy(fn,exec_path);
-			strcat(fn,"/3dobjects/");
-			strcat(fn,Dir[cd].DirName);
-			strcat(fn,"/");
 			strcat(fn,Dir[cd].Files[cp+1]);
 			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 			cur_tool=tool_select;
@@ -239,9 +233,6 @@ int check_browser_interface()
 		if(cp+2<Dir[cd].nf && x>200 && x<400 && y>0 && y<200){
 			char fn[256];
 			strcpy(fn,exec_path);
-			strcat(fn,"/3dobjects/");
-			strcat(fn,Dir[cd].DirName);
-			strcat(fn,"/");
 			strcat(fn,Dir[cd].Files[cp+2]);
 			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 			cur_tool=tool_select;
@@ -249,9 +240,6 @@ int check_browser_interface()
 		if(cp+3<Dir[cd].nf && x>200 && x<400 && y>200 && y<400){
 			char fn[256];
 			strcpy(fn,exec_path);
-			strcat(fn,"/3dobjects/");
-			strcat(fn,Dir[cd].DirName);
-			strcat(fn,"/");
 			strcat(fn,Dir[cd].Files[cp+3]);
 			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 			cur_tool=tool_select;
