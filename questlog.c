@@ -1,7 +1,7 @@
 #include <string.h>
 #include "global.h"
 
-int view_questlog=1;
+int view_questlog=0;
 int questlog_menu_x=150;
 int questlog_menu_y=70;
 int questlog_menu_x_len=350;
