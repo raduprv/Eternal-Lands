@@ -14,7 +14,7 @@ void build_help()
 	i++;
 
 	my_strcp(help_list[i].topic_name,"keys");
-	my_strcp(help_list[i].topic_info,"\n[keys] - The following keys are available in the game:\n~ or F1 to switch to/from [console] mode.\nAlt+x to [exit] the game.\nLeft/Right arrows to rotate the camera around.\nShift + Left/Right arrows to finely rotate the camera.\nIns/Del to rotate your character in place (works only while you don't move, and you stand).\nF2 to go to the last heard URL (works only if you configured the browser properly, in el.ini).\nHome to move one step forward\nEsc to clear the text line you are writing\nTab to bring on the map.");
+	my_strcp(help_list[i].topic_info,"\n[keys] - The following keys are available in the game:\n~ or F1 to switch to/from [console] mode.\nAlt+x to [exit] the game.\nLeft/Right arrows to rotate the camera around.\nShift + Left/Right arrows to finely rotate the camera.\nPageUp/PageDown to zoom in and out\nIns/Del to rotate your character in place (works only while you don't move, and you stand).\nF2 to go to the last heard URL (works only if you configured the browser properly, in el.ini).\nHome to move one step forward\nEsc to clear the text line you are writing\nTab to bring on the map.");
 	i++;
 
 	my_strcp(help_list[i].topic_name,"console");
