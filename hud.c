@@ -309,7 +309,7 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 		case DATA_ACTIONMODE:
 		case DATA_MODE:
 			icon_list[no]->data=(int*)calloc(1,sizeof(int));
-			*(int *)icon_list[no]->data=(int)data;
+			*(int *)icon_list[no]->data=(long int)data;
 			icon_list[no]->free_data=1;
 			break;
 		case DATA_WINDOW:

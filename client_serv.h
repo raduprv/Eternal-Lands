@@ -297,6 +297,9 @@
 #define OSLASH 202
 #define ARING 203
 
+//Windows
+#define RULE_WIN 1
+#define RULE_INTERFACE 2
 
 //actor commands
 #define nothing 0
@@ -466,6 +469,7 @@
 #define PING_REQUEST 60
 #define FIRE_PARTICLES 61
 #define REMOVE_FIRE_AT 62
+#define DISPLAY_CLIENT_WINDOW 63
 
 #define UPGRADE_NEW_VERSION 240
 #define UPGRADE_TOO_OLD 241

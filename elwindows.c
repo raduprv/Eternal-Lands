@@ -628,13 +628,31 @@ int	draw_window_title(window_info *win)
 	// draw the name of the window
 	if(win->flags&ELW_TITLE_NAME)
 		{
-			int	len;
+			int	len=(get_string_width(win->window_name)*8)/12;
+			int	x_pos=(win->len_x-len)/2;
 
+			glColor4f(0.0f,0.0f,0.0f,1.0f);
+			glBegin(GL_QUADS);
+				glVertex3i(x_pos, -ELW_TITLE_HEIGHT, 0);
+				glVertex3i(x_pos+len, -ELW_TITLE_HEIGHT, 0);
+				glVertex3i(x_pos+len, 0, 0);
+				glVertex3i(x_pos, 0, 0);
+			glEnd();
+			glBegin(GL_TRIANGLE_STRIP);
+				glVertex3i(x_pos, -ELW_TITLE_HEIGHT, 0);
+				glVertex3i(x_pos-10, -ELW_TITLE_HEIGHT/2, 0);
+				glVertex3i(x_pos, 0, 0);
+			glEnd();
+			glBegin(GL_TRIANGLE_STRIP);
+				glVertex3i(x_pos+len, -ELW_TITLE_HEIGHT, 0);
+				glVertex3i(x_pos+len+10, -ELW_TITLE_HEIGHT/2, 0);
+				glVertex3i(x_pos+len, 0, 0);
+			glEnd();
 			glEnable(GL_TEXTURE_2D);
 			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 			// center text
-			len=(get_string_width(win->window_name)*8)/12;
-			draw_string_small((win->len_x-len)/2, -ELW_TITLE_HEIGHT, win->window_name, 1);
+			draw_string_small((win->len_x-len)/2, 1-ELW_TITLE_HEIGHT, win->window_name, 1);
+			
 		}
 
 	return 1;

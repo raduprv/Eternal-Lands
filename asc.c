@@ -253,6 +253,41 @@ Uint8 *my_tolower(Uint8 *src)
 	return dest;
 }
 
+/*Wraps the lines*/
+
+char ** get_lines(char * str, int chars_per_line)
+{
+	char ** my_str=NULL;
+	char * cur=NULL;
+	int lines=0;
+	int i=0;
+	if(str){
+		while(*str){
+			my_str=(char **)realloc(my_str,(lines+2)*sizeof(char *));
+			cur=my_str[lines]=(char*)malloc((chars_per_line+1)*sizeof(char));
+		
+			for(i=0;i<chars_per_line && str[i];i++){
+				cur[i]=str[i];
+			}
+			if(i==chars_per_line){
+				//go back to the last space
+				while(i>0 && str[i]!='/' && str[i--]!=' ');
+				if(i){
+					i++;
+					if(str[i]==' ')str++;
+				} else {
+					//Force a break then...
+					i=chars_per_line;
+				}
+			}
+			str+=i;
+			cur[i]=0;
+			lines++;
+		}
+		if(my_str)my_str[lines]=NULL;//Used to get the bounds for displaying each line
+	}
+	return my_str;
+}
 
 // File utilities
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
@@ -338,3 +373,24 @@ void http_get_file(char *server, char *path, FILE *fp)
 		}
 	SDLNet_TCP_Close(http_sock);
 }
+
+/*XML*/
+
+int my_xmlstrncopy(char ** dest, char * src, int len)
+{
+	int l1=0;
+	int l2=0;
+	if(src) {
+		l1=strlen(src);
+		l2=xmlUTF8Strlen(src);
+		if(l2<0)l2=l1;
+		if(len) if(len<l2)l2=len;
+	
+		if(!*dest) *dest=(char*)malloc((l2+1)*sizeof(char));
+
+		UTF8Toisolat1(*dest,&l2,src,&l1);
+		dest[0][l2]=0;
+	}
+	return l2;
+}
+

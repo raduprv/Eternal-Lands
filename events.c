@@ -103,7 +103,7 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if(disconnected && !alt_on && !ctrl_on)
+				if(interface_mode!=interface_rules && disconnected && !alt_on && !ctrl_on)
 					{
 						connect_to_server();
 						break;
@@ -376,6 +376,7 @@ int HandleEvent(SDL_Event *event)
 #endif
 					}
 //TEST REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!
+				if(event->key.keysym.sym==SDLK_F5) toggle_rules_window(1);
 				if(event->key.keysym.sym==SDLK_F8)
 				  have_point_sprite=!have_point_sprite;
 				if(event->key.keysym.sym==SDLK_F9) {

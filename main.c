@@ -62,8 +62,10 @@ int start_rendering()
 			else
 				SDL_Delay(1);//give up timeslice for anyone else
 
+#ifdef TIMER_CHECK
 			//Check the timers to make sure that they are all still alive...
 			check_timers();
+#endif
 			
 			//cache handling
 			if(cache_system)cache_system_maint();

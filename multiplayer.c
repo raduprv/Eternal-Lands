@@ -888,6 +888,17 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					del_buddy(&in_data[4],data_lenght-2);
 			}
 			break;
+			
+		case DISPLAY_CLIENT_WINDOW:
+			{
+				switch(in_data[3]){
+					case RULE_WIN: 
+					case RULE_INTERFACE: 
+						highlight_rule(in_data[3],in_data+4,data_lenght-4);
+					default:
+						break;
+				}
+			}
 
 		default:
 			{

@@ -21,7 +21,7 @@ int username_text_lenght=0;
 int password_text_lenght=0;
 
 int have_a_map=0;
-char interface_mode=interface_opening;
+char interface_mode=interface_rules;
 char create_char_error_str[520];
 char log_in_error_str[520];
 int combat_mode=0;

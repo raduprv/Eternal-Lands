@@ -621,6 +621,8 @@ void init_stuff()
 	load_questlog();
 	init_buddy();
 	
+	have_rules=read_rules();
+	
 	//initiate function pointers
 	init_attribf();
 	
@@ -628,7 +630,7 @@ void init_stuff()
 	misc_timer = SDL_AddTimer (500, check_misc, NULL);
 	
 	//we might want to do this later.
-	connect_to_server();
+//	connect_to_server();
 }
 
 void add_key(Uint32 *key,Uint32 n)

@@ -94,6 +94,7 @@
 #include "translate.h"
 #include "elconfig.h"
 #include "timers.h"
+#include "rules.h"
 #ifdef CAL3D
 #include "cal3dwrap.h"
 #endif

@@ -442,6 +442,33 @@ void test_for_console_command()
 					input_text_lenght = 8;
 				}
 		}
+	
+	if (my_strncompare (text_loc, "test", 4))
+		{
+			int rule=0,i;
+			int val=0;
+			char rules[50];
+			char temp[10];
+			while(*text_loc && !isspace(*text_loc))	text_loc++;
+			
+			for(i=0;*text_loc;i++){
+				if(*text_loc!=' ') {
+					temp[i]=*text_loc;
+				}
+				else {
+					temp[i+1]=0;
+					val=atoi(temp);
+					if(val)	rules[rule++]=val;
+					i=-1;
+				}
+				text_loc++;
+			}
+			rules[rule++]=atoi(temp);
+			
+			highlight_rule(1, rules, rule);
+			
+			return;
+		}
 
 	send_input_text_line();//no command, send it to the server, as plain text
 

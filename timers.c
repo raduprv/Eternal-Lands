@@ -96,6 +96,8 @@ Uint32 check_misc(Uint32 interval, void * data)
 			else if(afk) go_ifk();
 		}
 	
+	if(countdown>0) countdown --;
+	
 	return 500;
 }
 

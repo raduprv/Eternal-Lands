@@ -37,6 +37,7 @@ extern int login_screen_menus;
 #define interface_opening 4
 #define interface_map 5
 #define interface_cont 6
+#define interface_rules 7
 
 extern char interface_mode;
 extern char username_box_selected;
