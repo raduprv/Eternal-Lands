@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /Gm /Gi /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "WINDOWS" /D "_AFXDLL" /Fp"Debug/elc.pch" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /Gm /Gi /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "WINDOWS" /D "_AFXDLL" /FR /Fp"Debug/elc.pch" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -95,30 +95,97 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\2d_objects.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\3d_objects.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\asc.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\browser.c
 # End Source File
 # Begin Source File
 
 SOURCE=.\colors.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\draw_scene.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\errors.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\events.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -127,50 +194,158 @@ SOURCE=.\font.c
 # Begin Source File
 
 SOURCE=.\frustum.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\global.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\init.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\interface.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\lights.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\main.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\map_io.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\misc.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\reflection.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\shadows.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\textures.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\tile_map.c
+
+!IF  "$(CFG)" == "map_editor - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
+
+!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -183,6 +358,10 @@ SOURCE=.\2d_objects.h
 # Begin Source File
 
 SOURCE=.\asc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\elc\browser.h
 # End Source File
 # Begin Source File
 

@@ -162,7 +162,7 @@ void init_stuff()
 #else
 	exec_path[0]='.';exec_path[1]='/';exec_path[2]=0;
 #endif
-
+	init_browser();
 
     if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
         {

@@ -53,6 +53,10 @@ int HandleEvent(SDL_Event *event)
 		{
 			done = 1;
 		}
+		if ( event->key.keysym.sym == SDLK_b && ctrl_on )
+		{
+			view_browser=!view_browser;
+		}
 		if ( event->key.keysym.sym == SDLK_LEFT )
 		{
 			if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
@@ -367,6 +371,9 @@ int HandleEvent(SDL_Event *event)
 					return(done);
 				}
 
+		
+
+			if(left_click==1 && check_browser_interface())return done;
 			if(check_interface_buttons()==1)tool_bar_click=1;
 			if(right_click==1 && cur_tool==tool_select && selected_tile!=255 && cur_mode==mode_tile)selected_tile=255;
 			if(right_click==1 && cur_tool==tool_select && selected_height!=-1 && cur_mode==mode_height)selected_height=-1;

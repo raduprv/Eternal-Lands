@@ -41,7 +41,7 @@
 #include "shadows.h"
 #include "reflection.h"
 #include "misc.h"
-
+#include "browser.h"
 
 
 #define sector_size_x 15
