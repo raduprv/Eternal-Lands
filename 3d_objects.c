@@ -910,7 +910,7 @@ int between(float pax, float pay, float pbx, float pby, float pcx, float pcy)
 
 void change_heightmap(unsigned char *hm, unsigned char h)
 {
-	if(*hm==11 && h>21)return;
+	//if(*hm==11 && h>21)return;
 	if(*hm<h)*hm=h;
 }
 

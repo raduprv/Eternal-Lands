@@ -576,18 +576,23 @@ int HandleEvent(SDL_Event *event)
 											clone_3d_object(selected_3d_object);
 										else{
 											if(calhm)
-												add_e3d_heightmap(selected_3d_object, 4);
+												add_e3d_heightmap(selected_3d_object, 3);
 											selected_3d_object=-1;
 										}
 									}
 								else
 									{
 										get_3d_object_under_mouse();
-										if(alt_on && selected_3d_object!=-1){
-											ew_selected_object=selected_3d_object;
-											ew_object_type=0;
-											memcpy(&o3t,objects_list[ew_selected_object],sizeof(object3d));
-											selected_3d_object=-1;
+										if(selected_3d_object!=-1){
+											if(calhm)
+												clear_e3d_heightmap(selected_3d_object);
+
+											if(alt_on){
+												ew_selected_object=selected_3d_object;
+												ew_object_type=0;
+												memcpy(&o3t,objects_list[ew_selected_object],sizeof(object3d));
+												selected_3d_object=-1;
+											}
 										}
 									}
 							}
