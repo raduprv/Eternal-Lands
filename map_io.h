@@ -97,6 +97,7 @@ extern char dungeon;//no sun
 extern float ambient_r;
 extern float ambient_g;
 extern float ambient_b;
+extern int map_type;
 
 void destroy_map();
 int save_map(char * file_name);

@@ -519,60 +519,6 @@ void draw_rules_interface()
 	glEnd();
 	glPopMatrix();
 
-	x=30*window_ratio;
-	y=110*window_ratio;
-	width=window_height-60*window_ratio;
-	switch(video_mode){//Hmm...
-		case 1:
-		case 2:
-			x=30;
-			y=110;
-			height=270;
-			width=420;
-			break;
-		case 3:
-		case 4:
-			x=40;
-			y=135;
-			width=470;
-			height=290;
-			break;
-		case 5:
-		case 6:
-			x=48;
-			y=176;
-			height=380;
-			width=610;
-			break;
-		case 7:
-		case 8:
-			x=54;
-			y=180;
-			height=420;
-			width=670;
-			break;
-		case 9:
-		case 10:
-			x=60;
-			y=220;
-			height=560;
-			width=860;
-			break;
-	}
-	
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_SRC_ALPHA);
-	glColor4f(0.5f,0.5f,0.5f,0.5f);
-	glBegin(GL_QUADS);
-		glVertex2i(x,y);
-		glVertex2i(x+width,y);
-		glVertex2i(x+width,y+height);
-		glVertex2i(x,y+height);
-	glEnd();
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-
 	x=window_height+diff-50*window_ratio;
 	y=128*window_ratio;
 	

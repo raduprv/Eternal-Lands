@@ -338,7 +338,14 @@ void draw_scene()
 	check_gl_errors();
 	//print the text line we are currently writting (if any)
 	y_line=window_height-(17*(4+input_text_lines));
-	glColor3f(1.0f,1.0f,1.0f);
+	switch(map_type){
+		case 2:
+			glColor3f(0.6f,1.0f,1.0f);
+			break;
+		case 1:
+		default:
+			glColor3f(1.0f,1.0f,1.0f);
+	}
 	draw_string(10,y_line,input_text_line,input_text_lines);
 
 	Leave2DMode();

@@ -2,6 +2,8 @@
 #include <string.h>
 #include "global.h"
 
+int map_type=1;
+
 void destroy_map()
 {
 	int i;
@@ -372,6 +374,9 @@ int load_map(char * file_name)
 
 	if(!dungeon) cur_map=get_cur_map(file_name);//Otherwise we pretend that we don't know where we are - if anyone wants to do the work and input all coordinates it's fine by me however :o)
 	else cur_map=-1;
+
+	if(!strcmp(file_name+7,"startmap.elm")) map_type=2; //Remove this hack and set the map type from the server!
+	else map_type=1;
 
 	//this is useful if we go in/out a dungeon
 	new_minute();
