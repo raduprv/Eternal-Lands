@@ -1,5 +1,16 @@
 #include "global.h"
 
+void kill_height_map_at_texture_tile(int tex_pos){
+  int start_point;
+  int h_x, h_y;
+  start_point = (tex_pos*6)+((30*tile_map_size_x)*(tex_pos/tile_map_size_x));
+  for(h_y=0; h_y<6; h_y++){
+    for(h_x=0; h_x<6; h_x++){
+      height_map[start_point+h_x+(h_y*tile_map_size_x*6)]=0;
+    }
+  }
+}
+
 int evaluate_colision()
 {
 	char pixels[16]={0};
@@ -79,6 +90,8 @@ void clone_3d_object(int object_id)
 	r=objects_list[object_id]->r;
 	g=objects_list[object_id]->g;
 	b=objects_list[object_id]->b;
+
+	z_pos=(z_pos == 0.01f)?0.02f:(z_pos == 0.02f?0.01f:z_pos);
 
 	selected_3d_object=add_e3d(objects_list[object_id]->file_name,scene_mouse_x,scene_mouse_y,z_pos,x_rot,y_rot,z_rot,self_lit,blended,r,g,b);
 	cur_tool=tool_select;//change the current tool
@@ -547,6 +560,16 @@ void move_height_tile()
 	if(!heights_3d)z=0.02f;
 	else z=(float)selected_height*0.2f-11.0f*0.2f+0.02f;
 
+	if(ctrl_on && alt_on)
+	{
+		glBegin(GL_QUADS);
+		glVertex3f(x_start-2.5f,y_start+2.5f+0.5f, z);
+		glVertex3f(x_start-2.5f,y_start-2.5f, z);
+		glVertex3f(x_start+2.5f+0.5f, y_start-2.5f,z);
+		glVertex3f(x_start+2.5f+0.5f, y_start+2.5f+0.5f,z);
+		glEnd();
+	}
+	else
 	if(alt_on)
 	{
 		glBegin(GL_QUADS);
@@ -608,7 +631,13 @@ void draw_big_height_tile(int size)
 
 	x=scene_mouse_x/0.5f;
 	y=scene_mouse_y/0.5f;
-	if(size==1)
+	if(size==2){
+	  x1=x-5;
+	  x2=x+5;
+	  y1=y-5;
+	  y2=y+5;
+	}
+	else if(size==1)
 		{
 			x1=x-3;
 			x2=x+3;
@@ -644,10 +673,10 @@ void draw_heights_wireframe()
 	else x=cx/3;
 	if(cy<0)y=(cy*-1)/3*6;
 	else y=cy/3;
-	x_start=(int)x-3*6;
-	y_start=(int)y-3*6;
-	x_end=(int)x+3*6;
-	y_end=(int)y+3*6;
+	x_start=(int)x-4*6;
+	y_start=(int)y-4*6;
+	x_end=(int)x+4*6;
+	y_end=(int)y+4*6;
 	if(x_start<0)x_start=0;
 	if(x_end>=tile_map_size_x*6)x_end=tile_map_size_x*6-1;
 	if(y_start<0)y_start=0;
@@ -691,10 +720,10 @@ void draw_height_map()
 	else x=cx/3;
 	if(cy<0)y=(cy*-1)/3*6;
 	else y=cy/3;
-	x_start=(int)x-5*6;
-	y_start=(int)y-5*6;
-	x_end=(int)x+5*6;
-	y_end=(int)y+5*6;
+	x_start=(int)x-zoom_level*6;
+	y_start=(int)y-zoom_level*6;
+	x_end=(int)x+zoom_level*6;
+	y_end=(int)y+zoom_level*6;
 	if(x_start<0)x_start=0;
 	if(x_end>=tile_map_size_x*6)x_end=tile_map_size_x*6-1;
 	if(y_start<0)y_start=0;

@@ -1,5 +1,19 @@
 #include "global.h"
 
+void zoomin(){
+  if(zoom_level>2.0f){
+    zoom_level-=0.25f;
+    resize_window();
+  }
+}
+
+void zoomout(){
+  if(zoom_level<15.75f){
+    zoom_level+=0.25f;
+    resize_window();
+  }
+}
+
 int HandleEvent(SDL_Event *event)
 {
 	int done=0;
@@ -20,6 +34,11 @@ int HandleEvent(SDL_Event *event)
 	switch( event->type ) {
 
 	    case SDL_KEYDOWN:
+	      /* overhead view */
+	      if(event->key.keysym.sym == SDLK_o){
+		if(rx == -60) rx = 0;
+		else rx = -60;
+	      }
 		if (event->key.keysym.sym == SDLK_1 && ctrl_on){gcr=1.0f;gcg=1.0f;gcb=1.0f;}
 		if (event->key.keysym.sym == SDLK_2 && ctrl_on){gcr=1.0f;gcg=0.0f;gcb=0.0f;}
 		if (event->key.keysym.sym == SDLK_3 && ctrl_on){gcr=0.0f;gcg=1.0f;gcb=0.0f;}
@@ -123,11 +142,7 @@ int HandleEvent(SDL_Event *event)
 		{
 			if(!ctrl_on && !shift_on && !alt_on)
 				{
-					if(zoom_level>2.0f)
-					{
-						zoom_level-=0.25f;
-						resize_window();
-					}
+				  zoomin();
 				}
 			else
 				{
@@ -140,11 +155,7 @@ int HandleEvent(SDL_Event *event)
 		{
 			if(!ctrl_on && !shift_on && !alt_on)
 				{
-					if(zoom_level<5.75f)
-						{
-							zoom_level+=0.25f;
-							resize_window();
-						}
+				  zoomout();
 				}
 			else
 				{
@@ -310,6 +321,16 @@ int HandleEvent(SDL_Event *event)
 		break;
 	}
 
+	// zooming with mousewheel...
+	if(event->type==SDL_MOUSEBUTTONDOWN){
+	  if(event->button.button == SDL_BUTTON_WHEELUP){
+	    zoomin();
+	  }
+	  if(event->button.button == SDL_BUTTON_WHEELDOWN){
+	    zoomout();
+	  }
+	} // *
+
 	if(event->type==SDL_MOUSEMOTION || event->type==SDL_MOUSEBUTTONDOWN || event->type==SDL_MOUSEBUTTONUP)
  		   {
 			 char tool_bar_click=0;
@@ -326,6 +347,13 @@ int HandleEvent(SDL_Event *event)
 			 	   right_click++;
 			       else
 				   right_click= 0;
+
+			       if(shift_on && left_click==1){
+				 get_world_x_y();
+				 cx=0-scene_mouse_x;
+				 cy=0-scene_mouse_y;
+				 return(done);
+			       }
 
 			if(minimap_on && left_click==1)
 				{
@@ -353,9 +381,9 @@ int HandleEvent(SDL_Event *event)
 			get_world_x_y();
 			if(!tool_bar_click)
 				{
-					if(left_click==1)
+					if(left_click)
 						{
-							if(cur_mode==mode_3d)
+							if(cur_mode==mode_3d && left_click == 1)
 							{
 								if(cur_tool==tool_kill)
 									{
@@ -371,7 +399,10 @@ int HandleEvent(SDL_Event *event)
 									}
 
 								//if we have an object attached to us, drop it
-								if(cur_tool==tool_select && selected_3d_object!=-1)selected_3d_object=-1;
+								if(cur_tool==tool_select && selected_3d_object!=-1){
+								  if(ctrl_on)clone_3d_object(selected_3d_object);
+								  else selected_3d_object=-1;
+								}
 								else
 								{
 									get_3d_object_under_mouse();
@@ -395,7 +426,7 @@ int HandleEvent(SDL_Event *event)
 
 								//if we have an object attached to us, drop it
 
-								if(cur_tool==tool_select && selected_2d_object!=-1)clone_2d_object(selected_2d_object);
+								if(left_click==1 && cur_tool==tool_select && selected_2d_object!=-1)clone_2d_object(selected_2d_object);
 								else
 								{
 									get_2d_object_under_mouse();
@@ -431,6 +462,7 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_kill && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3 && scene_mouse_x<tile_map_size_x*3)
 									{
 										tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3]=255;
+										kill_height_map_at_texture_tile((int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3);
 										return(done);
 									}
 
@@ -445,6 +477,9 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_select && selected_tile!=255  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3 && scene_mouse_x<tile_map_size_x*3)
 									{
 										tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3]=selected_tile;
+										if(selected_tile == 0 || selected_tile == 20 || selected_tile == 21){
+										  kill_height_map_at_texture_tile((int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3);
+										}
 									}
 								if(view_tiles_list)get_tile_under_mouse_from_list();
 							}
@@ -467,6 +502,9 @@ int HandleEvent(SDL_Event *event)
 								//if we have a height attached to us, drop it
 								if(cur_tool==tool_select && selected_height!=-1  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3*6 && scene_mouse_x<tile_map_size_x*3*6)
 									{
+									  if(alt_on && ctrl_on)draw_big_height_tile(2);
+
+									  else
 										if(alt_on)draw_big_height_tile(1);
 										else
 										if(ctrl_on)draw_big_height_tile(0);

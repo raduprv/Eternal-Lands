@@ -630,10 +630,16 @@ void draw_mouse_minimap()
 	cx=-x_map_pos;
 	cy=-y_map_pos;
 
-	for(x=-2;x!=2;x++)
-	for(y=-2;y!=2;y++)
-	if(y_map_pos+y>=0 && y_map_pos+y<tile_map_size_y && x_map_pos+x>=0 && x_map_pos+x<tile_map_size_x)
-	tile_map[(int)(y_map_pos+y)*tile_map_size_x+(int)x_map_pos+x]=selected_tile;
+	for(x=-2;x!=2;x++){
+	  for(y=-2;y!=2;y++){
+	    if(y_map_pos+y>=0 && y_map_pos+y<tile_map_size_y && x_map_pos+x>=0 && x_map_pos+x<tile_map_size_x){
+	      tile_map[(int)(y_map_pos+y)*tile_map_size_x+(int)x_map_pos+x]=((cur_tool==tool_kill)?255:selected_tile);
+	      if(cur_tool==tool_kill || selected_tile == 0 || selected_tile == 20 || selected_tile == 21){
+		kill_height_map_at_texture_tile((int)(y_map_pos+y)*tile_map_size_x+(int)x_map_pos+x);
+	      }
+	    }
+	  }
+	}	
 
 }
 
