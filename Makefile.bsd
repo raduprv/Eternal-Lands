@@ -2,6 +2,10 @@
 
 # tune these for your setup & compile options
 OPTIONS=-DBSD -DELC -I/usr/X11R6/include
+#-DX86_64
+#-DTIMER_CHECK
+#-DWRITE_XML
+#-DBOOK
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
@@ -12,22 +16,23 @@ LDFLAGS=$(shell sdl11-config --libs) $(XDIR) -lSDL_net -lopenal -lGLU -lGL -lvor
 
 # the objects we need
 OBJS=2d_objects.o 3d_objects.o	\
-	actor_scripts.o actors.o asc.o buddy.o	\
+	actor_scripts.o actors.o asc.o buddy.o books.o \
 	cache.o colors.o console.o cursors.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o frustum.o	\
-	gl_init.o hud.o	\
+	gl_init.o hud.o	help.o \
 	ignore.o init.o interface.o items.o	\
 	keys.o knowledge.o lights.o	\
 	main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o	\
 	new_actors.o new_character.o	\
 	options.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
-	questlog.o reflection.o	\
-	shadows.o sound.o spells.o stats.o	\
-	text.o textures.o tile_map.o translate.o trade.o	\
+	questlog.o reflection.o	rules.o \
+	sector.o shadows.o sound.o spells.o stats.o	\
+	text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	weather.o widgets.o
+	#books.o
 
 el.x86.bsd.bin: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o el.x86.bsd.bin $(OBJS)

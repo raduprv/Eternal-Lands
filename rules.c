@@ -3,6 +3,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <string.h>
+#include <stdlib.h>
 #include <malloc.h>
 
 #define TITLE 	0
