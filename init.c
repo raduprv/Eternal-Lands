@@ -490,7 +490,13 @@ void init_stuff()
 #endif
 	// initialize the text buffers
 	init_text_buffers ();
-	
+	// XXX FIXME (Grum): actually this should only be done when windowed
+	// chat is not used (which we don't know yet at this point), but let's
+	// leave it here until we're certain that the chat channel buffers are
+	// never used otherwise, then move it down till after the configuration
+	// is read.
+	init_chat_channels ();
+
 	// initialize the fonts, but don't load the textures yet. Do that here
 	// because the messages need the font widths.
 	init_fonts();

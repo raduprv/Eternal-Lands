@@ -38,7 +38,6 @@ void init_text_buffers ()
 	input_text_line.size = 256;
 	input_text_line.data = malloc (input_text_line.size);
 	input_text_line.data[0] = '\0';
-	if (use_windowed_chat) init_chat_channels ();
 }
 
 void update_text_windows (int nlines, int channel)
