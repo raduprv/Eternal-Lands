@@ -390,7 +390,7 @@ void draw_text_particle_sys(particle_sys *system_id)
 
 	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i++,p++)
 		{
-			if(!p->free && p->z>=0.0f)
+			if(!p->free)
 				{
 					glBegin(GL_TRIANGLE_STRIP);
 					glColor4f(p->r,p->g,p->b,p->a);
@@ -449,7 +449,7 @@ void draw_point_particle_sys(particle_sys *system_id)
 	lock_particles_list();	//lock it to avoid timing issues
 	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i++,p++)
 	  {
-		if(!p->free && p->z>=0.0f)
+		if(!p->free)
 			{
 				glColor4f(p->r,p->g,p->b,p->a);
 				glVertex3f(p->x,p->y,p->z);
@@ -648,7 +648,6 @@ void update_fire_sys(particle_sys *system_id)
 					{
 						//finally, we found a spot
 						create_particle(system_id,&(system_id->particles[j]));
-						if(system_id->particles[j].z<0)system_id->particles[j].z=0;
 						//increase the particle count
 						system_id->particle_count++;
 						j++;
