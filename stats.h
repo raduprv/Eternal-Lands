@@ -70,6 +70,7 @@ typedef struct
 	Uint16 research_completed;
 	Uint16 research_total;
 } player_attribs;
+#define	NUM_WATCH_STAT	11	// allow watching stats 0-10
 
 extern int attrib_menu_x;
 extern int attrib_menu_y;
