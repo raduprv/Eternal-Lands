@@ -256,9 +256,7 @@ void draw_scene()
 	// we need to 'touch' all the actors even if not drawing to avoid problems
 	display_actors();
 	check_gl_errors();
-#ifdef CAL3D
-	render_cal3d_model();
-#endif
+
 	//check for network data - reduces resyncs
 	get_message_from_server();
 

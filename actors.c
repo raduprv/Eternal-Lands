@@ -528,7 +528,6 @@ void draw_actor(actor * actor_id)
 	float x_rot,y_rot,z_rot;
 	int texture_id;
 	float healtbar_z=0;
-
 	if(!actor_id->remapped_colors)texture_id=get_texture_id(actor_id->texture_id);
 	else
 		{
@@ -558,7 +557,11 @@ void draw_actor(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
+#ifdef CAL3D
+	render_cal3d_model(actor_id);
+#else
 	draw_model(actor_id->model_data, actor_id->cur_frame, actor_id->ghost);
+#endif
 
 	glPopMatrix();//restore the scene
 	//now, draw their damage & nametag
