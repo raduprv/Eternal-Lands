@@ -547,7 +547,10 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 void show_help(char *help_message, int x, int y)
 {
 	Uint8 str[125];
-	int len=strlen(help_message);
+	int len=strlen(help_message)*8+1;
+	int width=window_width-80;
+	
+	if(x+len>width) x-=(x+len)-width;
 	
 	glColor4f(0.0f,0.0f,0.0f,0.5f);
 	glDisable(GL_TEXTURE_2D);
@@ -556,8 +559,8 @@ void show_help(char *help_message, int x, int y)
 	glBegin(GL_QUADS);
 	glVertex3i(x-1,y+15,0);
 	glVertex3i(x-1,y,0);
-	glVertex3i(x+1+len*8,y,0);
-	glVertex3i(x+1+len*8,y+15,0);
+	glVertex3i(x+len,y,0);
+	glVertex3i(x+len,y+15,0);
 	glEnd();
 	
 	glDisable(GL_BLEND);

@@ -1059,7 +1059,7 @@ void parse_strings(xmlNode * in, group_id * group)
 							for(i=0;i<group->no;i++)
 								if(!xmlStrcasecmp(cur->name,group->strings[i]->xml_id))
 									{
-										strncpy(group->strings[i]->var,cur->children->content,group->strings[i]->max_len);
+										strncpy(group->strings[i]->var,cur->children->content,group->strings[i]->max_len-1);
 #ifdef WRITE_XML
 										group->strings[i]->saved=1;
 #endif

@@ -7,11 +7,11 @@ extern int	stats_win;
 
 typedef struct
 {
-	char name[20];
+	char name[21];
 #ifdef WRITE_XML
 	int saved_name;
 #endif
-	char shortname[5];
+	char shortname[6];
 #ifdef WRITE_XML
 	int saved_shortname;
 #endif
