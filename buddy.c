@@ -169,7 +169,7 @@ void init_buddy()
 	
 }
 
-/*
+
 int clika(widget_list *w){
 	w->pos_x+=10;
 	return 0;
@@ -179,7 +179,7 @@ int clikaa(widget_list *w){
 	b->progress++;
 	return 0;
 }
-*/
+
 void display_buddy()
 {
 	if(buddy_win <= 0)
@@ -188,7 +188,7 @@ void display_buddy()
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_DRAG, &drag_buddy_handler );
-			/*
+		/*	
 			label_add(buddy_win,NULL,"Hello!",0,0);
 			widget_set_size(buddy_win,0,2.0);
 			widget_set_color(buddy_win,0,0.5,0.5,0.5);
@@ -207,7 +207,7 @@ void display_buddy()
 			progressbar_add(buddy_win,NULL,50,50,20,200);
 			progressbar_set_progress(buddy_win,4,25);
 			widget_set_OnClick(buddy_win,4,clikaa);
-			*/
+		*/	vscrollbar_add(buddy_win,NULL,10,10,20,100,100,10);
 		}
 	else
 		{
