@@ -447,7 +447,7 @@ void init_console()
 	add_xml_identifier(ignore,"cur",ignores_str,"You are currently ignoring",sizeof(ignores_str));
 
 	add_xml_identifier(filter,"toolong",word_too_long,"Word too long, the max limit is 15 characters.",sizeof(word_too_long));
-	add_xml_identifier(filter,"tooshort",word_too_short,"Word too short, only words>=3 characters can be used!",sizeof(word_too_long));
+	add_xml_identifier(filter,"tooshort",word_too_short,"Word too short, only words>=3 characters can be used!",sizeof(word_too_short));
 	add_xml_identifier(filter,"notadd",not_added_to_filter,"Word not added to the filter list!",sizeof(not_added_to_filter));
 	add_xml_identifier(filter,"already",already_filtering,"You are already filtering %s",sizeof(already_filtering));
 	add_xml_identifier(filter,"add",added_to_filters,"OK, %s was added to your filter list!",sizeof(added_to_filters));

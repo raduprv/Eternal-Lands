@@ -49,6 +49,29 @@ void get_world_x_y()
 	unproject_ortho(mouse_x,window_height-hud_y-mouse_y,mouse_z,&scene_mouse_x,&scene_mouse_y,&z);
 }
 
+void get_old_world_x_y()
+{
+	float window_ratio;
+	float x,y,x1,y1,a,t;
+	actor *p=pf_get_our_actor();
+	if(!p) return;
+	
+	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
+	x=(float)((mouse_x)*2.0f*window_ratio*(float)zoom_level/(float)(window_width-hud_x))-(window_ratio*zoom_level);
+	y=(float)((window_height-hud_y-mouse_y+0.11*window_height)*2.0f*zoom_level/(window_height-hud_y))-(2.0*zoom_level/2.0f);
+
+	a=(rz)*3.1415926/180;
+	t=(rx)*3.1415926/180;
+
+	y=(float)y/(float)cos(t);
+
+	x1=x*cos(a)+y*sin(a);
+	y1=y*cos(a)-x*sin(a);
+
+	scene_mouse_x=p->x_pos+x1;
+	scene_mouse_y=p->y_pos+y1;
+}
+
 int check_drag_menus()
 {
 	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) > 0)	return 1;
@@ -153,7 +176,7 @@ void check_mouse_click()
 		Uint8 str[10];
 		short x,y;
 		
-		get_world_x_y();
+		get_old_world_x_y();
 		x=scene_mouse_x/0.5f;
 		y=scene_mouse_y/0.5f;
 		//check to see if the coordinates are OUTSIDE the map
