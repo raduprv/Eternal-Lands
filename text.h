@@ -139,22 +139,23 @@ void put_colored_text_in_buffer(Uint8 color,unsigned char *text_to_add, int len,
 void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, 
 						   char *buffer);
 
-/*!
- * \ingroup text_font
- * \brief works the same as put_small_text_in_box, but the text will be added in the specified color.
- *
- *      Works the same like put_small_text_in_box, but the text will be added in the specified color.
- *
- * \param color         the color of the text
- * \param text_to_add   the string to add
- * \param len           the length of text_to_add
- * \param pixels_limit
- * \param buffer
- *
- * \sa put_small_text_in_box
- */
-void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len, 
-								   int pixels_limit, char *buffer);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup text_font
+// * \brief works the same as put_small_text_in_box, but the text will be added in the specified color.
+// *
+// *      Works the same like put_small_text_in_box, but the text will be added in the specified color.
+// *
+// * \param color         the color of the text
+// * \param text_to_add   the string to add
+// * \param len           the length of text_to_add
+// * \param pixels_limit
+// * \param buffer
+// *
+// * \sa put_small_text_in_box
+// */
+//void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len, 
+//								   int pixels_limit, char *buffer);
 
 /*!
  * \ingroup text_font
@@ -166,16 +167,17 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
  */
 int find_last_lines_time();
 
-/*!
- * \ingroup interface_console
- * \brief find_last_console_lines
- *
- *      find_last_console_lines(int)
- *
- * \param lines_no
- * \retval int
- */
-int find_last_console_lines(int lines_no);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup interface_console
+// * \brief find_last_console_lines
+// *
+// *      find_last_console_lines(int)
+// *
+// * \param lines_no
+// * \retval int
+// */
+//int find_last_console_lines(int lines_no);
 
 #ifndef OLD_EVENT_HANDLER
 /*!

@@ -24,6 +24,9 @@ FILE *qlf = NULL;
 
 int questlog_y;
 
+/* forward declaration added due to code cleanup */
+void add_questlog_line(char *t, int len);
+/* end of added forward declaration */
 
 void load_questlog()
 {

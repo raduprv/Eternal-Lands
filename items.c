@@ -34,6 +34,10 @@ int trade_you_accepted=0;
 int trade_other_accepted=0;
 char other_player_trade_name[20];
 
+/* forward declaration added due to code cleanup */
+void draw_pick_up_menu();
+/* end of added forward declaration */
+
 void strap_word(char * in, char * out)
 {
 	int i = 3;

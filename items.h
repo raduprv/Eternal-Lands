@@ -261,15 +261,16 @@ void remove_item_from_ground(Uint8 pos);
  */
 void get_new_inventory_item(Uint8 *data);
 
-/*!
- * \ingroup items_win
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void draw_pick_up_menu();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup items_win
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void draw_pick_up_menu();
 
 /*!
  * \ingroup item

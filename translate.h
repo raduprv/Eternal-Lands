@@ -452,377 +452,405 @@ void init_translatables();
  */
 void load_translatables();
 
-#ifdef ELC
-/*!
- * \ingroup 	translation
- * \brief	Initiates the console strings
- * 
- * 		Initiates the console strings.
- *
- * \sa add_xml_identifier
- */
-void init_console(void);
+//#ifdef ELC
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup 	translation
+// * \brief	Initiates the console strings
+// * 
+// * 		Initiates the console strings.
+// *
+// * \sa add_xml_identifier
+// */
+//void init_console(void);
 
-/*!
- * \ingroup	translation
- * \brief	Initiates the help strings
- * 		
- * 		Initiates the help strings.
- * 
- * \sa add_xml_identifier
- */
-void init_help(void);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Initiates the help strings
+// * 		
+// * 		Initiates the help strings.
+// * 
+// * \sa add_xml_identifier
+// */
+//void init_help(void);
 
-/*!
- * \ingroup	translation
- * \brief	Initiates the options strings
- * 
- * 		Initiates the options strings.
- *
- * \callgraph
- */
-void init_options(void);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Initiates the options strings
+// * 
+// * 		Initiates the options strings.
+// *
+// * \callgraph
+// */
+//void init_options(void);
 
-/*!
- * \ingroup	translation
- * \brief	Initiates the spells/sigils strings
- *
- * 		Initiates the spells/sigils strings.
- *
- * \sa add_xml_distringid
- */
-void init_spells(void);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Initiates the spells/sigils strings
+// *
+// * 		Initiates the spells/sigils strings.
+// *
+// * \sa add_xml_distringid
+// */
+//void init_spells(void);
 
-/*!
- * \ingroup	translation
- * \brief	Initiates the stats strings
- * 
- * 		Initiates the stats strings
- *
- * \callgraph
- */
-void init_stats(void);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Initiates the stats strings
+// * 
+// * 		Initiates the stats strings
+// *
+// * \callgraph
+// */
+//void init_stats(void);
 
-/*!
- * \ingroup	translation
- * \brief	Initiates the title strings
- * 
- * 		Initiates the title strings
- *
- * \callgraph
- */
-void init_titles(void);
-#endif
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Initiates the title strings
+// * 
+// * 		Initiates the title strings
+// *
+// * \callgraph
+// */
+//void init_titles(void);
+//#endif
 
-/*!
- * \ingroup	translation
- * \brief	Initiates the error strings
- *
- * 		Initiates the error strings
- *
- * \sa add_xml_identifier
- */
-void init_errors(void);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Initiates the error strings
+// *
+// * 		Initiates the error strings
+// *
+// * \sa add_xml_identifier
+// */
+//void init_errors(void);
 
-/*!
- * \ingroup	translation
- * \brief	Defines a new XML-group
- *
- * 		Defines a new XML-group of the given type with no objects (followed by their xml ID's)
- *
- * 		Example usage:
- * \code
- * 		test=add_xml_group(GROUP,6,"nothing","something","anything","misc","tuesday","friday","yesterday");
- * \endcode
- * 		Would look for a the elements:
- * \code
- * 		<root>
- * 			<nothing>...</nothing>
- * 			<someting>...</something>
- * 			<anything>...</anything>
- * 			<misc>...</misc>
- * 			<tuesday>...</tuesday>
- * 			<friday>...</friday>
- * 			<yesterday>...</yesterday>
- * 		</root>
- * \endcode
- * 		You have to add the elements it will look for inside these group ID's later.
- * 
- * \param	type The xml-group type. GROUP, DIGROUP or STAT_GROUP.
- * \param	no The number of objects in the group
- * \param	... The groups xml-objects
- * \retval void*	A pointer to the xml-group array
- */
-void * add_xml_group(int type, int no, ...);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Defines a new XML-group
+// *
+// * 		Defines a new XML-group of the given type with no objects (followed by their xml ID's)
+// *
+// * 		Example usage:
+// * \code
+// * 		test=add_xml_group(GROUP,6,"nothing","something","anything","misc","tuesday","friday","yesterday");
+// * \endcode
+// * 		Would look for a the elements:
+// * \code
+// * 		<root>
+// * 			<nothing>...</nothing>
+// * 			<someting>...</something>
+// * 			<anything>...</anything>
+// * 			<misc>...</misc>
+// * 			<tuesday>...</tuesday>
+// * 			<friday>...</friday>
+// * 			<yesterday>...</yesterday>
+// * 		</root>
+// * \endcode
+// * 		You have to add the elements it will look for inside these group ID's later.
+// * 
+// * \param	type The xml-group type. GROUP, DIGROUP or STAT_GROUP.
+// * \param	no The number of objects in the group
+// * \param	... The groups xml-objects
+// * \retval void*	A pointer to the xml-group array
+// */
+//void * add_xml_group(int type, int no, ...);
 
-/*!
- * \ingroup	translation
- * \brief	Adds a new distring_item to the given group.
- *
- * 		Adds a new distring_item to the given group, with the given xml-id. It also sets the variables default string/description.
- *
- * \param	group The group you wish to add the distring_item to
- * \param	xml_id The xml id
- * \param	var A pointer to the variable
- * \param	str The default string
- * \param	desc The default description
- *
- * \sa		distring_item
- * \sa		add_xml_group
- * \sa		init_translatables
- */
-void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char * str, char * desc);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Adds a new distring_item to the given group.
+// *
+// * 		Adds a new distring_item to the given group, with the given xml-id. It also sets the variables default string/description.
+// *
+// * \param	group The group you wish to add the distring_item to
+// * \param	xml_id The xml id
+// * \param	var A pointer to the variable
+// * \param	str The default string
+// * \param	desc The default description
+// *
+// * \sa		distring_item
+// * \sa		add_xml_group
+// * \sa		init_translatables
+// */
+//void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char * str, char * desc);
 
-#ifdef ELC
-/*!
- * \ingroup	translation
- * \brief	Adds a new statstring_item to the group. 
- *
- * 		Adds a new statstring_item to the group, and associates it with teh xml_id. Also sets the variables default name and shortname.
- * 
- * \param	group The group you wish to add the statstring_item to.
- * \param	xml_id The xml identifier
- * \param	var The variable the new statstring_item points to
- * \param	name The default name
- * \param	shortname The default short name
- *
- * \sa		statstring_item
- * \sa		add_xml_group
- * \sa		init_translatables
- */
-void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name, char * shortname);
-#endif
+/* OBSOLETE declaration: queued for removal from this header file */
+//#ifdef ELC
+//*!
+// * \ingroup	translation
+// * \brief	Adds a new statstring_item to the group. 
+// *
+// * 		Adds a new statstring_item to the group, and associates it with teh xml_id. Also sets the variables default name and shortname.
+// * 
+// * \param	group The group you wish to add the statstring_item to.
+// * \param	xml_id The xml identifier
+// * \param	var The variable the new statstring_item points to
+// * \param	name The default name
+// * \param	shortname The default short name
+// *
+// * \sa		statstring_item
+// * \sa		add_xml_group
+// * \sa		init_translatables
+// */
+//void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name, char * shortname);
+//#endif
 
-/*!
- * \ingroup	translation
- * \brief	Adds a new string_item to the group
- *
- * 		The function adds a new string_item to the given group and associates it with teh given xml_id. Furthermore it sets the variables default name and the maximum length of the variable.
- *
- * \param	group The group you wish to add the string_item to
- * \param	xml_id The xml-nodes ID
- * \param	var A pointer to the variable
- * \param	def The default string
- * \param	max_len The maximum length
- *
- * \sa		string_item
- * \sa		add_xml_group
- * \sa		init_translatables
- */
-void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def, int max_len);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Adds a new string_item to the group
+// *
+// * 		The function adds a new string_item to the given group and associates it with teh given xml_id. Furthermore it sets the variables default name and the maximum length of the variable.
+// *
+// * \param	group The group you wish to add the string_item to
+// * \param	xml_id The xml-nodes ID
+// * \param	var A pointer to the variable
+// * \param	def The default string
+// * \param	max_len The maximum length
+// *
+// * \sa		string_item
+// * \sa		add_xml_group
+// * \sa		init_translatables
+// */
+//void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def, int max_len);
 
-/*!
- * \ingroup	translation
- * \brief	Free's the memory used by the xml-parser
- *
- * 		Free's the memory used by the xml-parser to store the groups and their children. Only call when you're done parsing!
- *
- * \param	type The type of group
- * \param	gPtr A pointer ot the group
- * \param	no The number of items in the group
- */
-void free_xml_parser(int type, void * gPtr, int no);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Free's the memory used by the xml-parser
+// *
+// * 		Free's the memory used by the xml-parser to store the groups and their children. Only call when you're done parsing!
+// *
+// * \param	type The type of group
+// * \param	gPtr A pointer ot the group
+// * \param	no The number of items in the group
+// */
+//void free_xml_parser(int type, void * gPtr, int no);
 
-/*!
- * \ingroup	translation
- * \brief	Parses the errors
- * 
- * 		Checks the current document and parses the errors group.
- *
- * \param	in The root xml-node
- *
- * \callgraph
- */
-void parse_errors(xmlNode * in);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses the errors
+// * 
+// * 		Checks the current document and parses the errors group.
+// *
+// * \param	in The root xml-node
+// *
+// * \callgraph
+// */
+//void parse_errors(xmlNode * in);
 
-#ifdef ELC
-/*!
- * \ingroup	translation
- * \brief	Parses the console
- * 		
- * 		Checks the current document and parses the console group.
- *
- * \param	in The root xml-node
- *
- * \callgraph
- */
-void parse_console(xmlNode * in);
+//#ifdef ELC
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses the console
+// * 		
+// * 		Checks the current document and parses the console group.
+// *
+// * \param	in The root xml-node
+// *
+// * \callgraph
+// */
+//void parse_console(xmlNode * in);
 
-/*!
- * \ingroup	translation
- * \brief	Parses the help
- * 		
- * 		Checks the current document and parses the help group.
- *
- * \param	in The root xml-node
- *
- * \callgraph
- */
-void parse_help(xmlNode * in);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses the help
+// * 		
+// * 		Checks the current document and parses the help group.
+// *
+// * \param	in The root xml-node
+// *
+// * \callgraph
+// */
+//void parse_help(xmlNode * in);
 
-/*!
- * \ingroup	translation
- * \brief	Parses the options
- * 		
- * 		Checks the current document and parses the options group.
- *
- * \param	in The root xml-node
- *
- * \callgraph
- */
-void parse_options(xmlNode * in);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses the options
+// * 		
+// * 		Checks the current document and parses the options group.
+// *
+// * \param	in The root xml-node
+// *
+// * \callgraph
+// */
+//void parse_options(xmlNode * in);
 
-/*!
- * \ingroup	translation
- * \brief	Parses the sigils/spells
- * 		
- * 		Checks the current document and parses the spells/sigils group.
- *
- * \param	in The root xml-node
- *
- * \callgraph
- */
-void parse_spells(xmlNode * in);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses the sigils/spells
+// * 		
+// * 		Checks the current document and parses the spells/sigils group.
+// *
+// * \param	in The root xml-node
+// *
+// * \callgraph
+// */
+//void parse_spells(xmlNode * in);
 
-/*!
- * \ingroup	translation
- * \brief	Parses the stats
- * 		
- * 		Checks the current document and parses the stats/sigils group.
- *
- * \param	in The root xml-node
- *
- * \callgraph
- */
-void parse_stats(xmlNode * in);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses the stats
+// * 		
+// * 		Checks the current document and parses the stats/sigils group.
+// *
+// * \param	in The root xml-node
+// *
+// * \callgraph
+// */
+//void parse_stats(xmlNode * in);
 
-/*!
- * \ingroup	translation
- * \brief	Parses the titles
- * 		
- * 		Checks the current document and parses the titles group.
- *
- * \param	in The root xml-node
- *
- * \callgraph
- */
-void parse_titles(xmlNode * in);
-#endif
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses the titles
+// * 		
+// * 		Checks the current document and parses the titles group.
+// *
+// * \param	in The root xml-node
+// *
+// * \callgraph
+// */
+//void parse_titles(xmlNode * in);
+//#endif
 
-#ifdef WRITE_XML
-/*!
- * \ingroup	translation
- * \brief	Saves the group strings to ./languages/en/strings/\<filename\>
- *
- * 		If you have defined WRITE_XML it will write the strings to ./languages/en/strings (be sure to make the directories first).
- *
- * \param	doc A pointer to the current document
- * \param	name The filename of the document
- */
-void save_strings(xmlDoc * doc, char * name);
-#endif
+/* OBSOLETE declaration: queued for removal from this header file */
+//#ifdef WRITE_XML
+//*!
+// * \ingroup	translation
+// * \brief	Saves the group strings to ./languages/en/strings/\<filename\>
+// *
+// * 		If you have defined WRITE_XML it will write the strings to ./languages/en/strings (be sure to make the directories first).
+// *
+// * \param	doc A pointer to the current document
+// * \param	name The filename of the document
+// */
+//void save_strings(xmlDoc * doc, char * name);
+//#endif
 
-/*!
- * \ingroup	translation
- * \brief	Loads the strings from a file (calls load_strings_file)
- *
- * 		First tries loading the file from the native language directory, then it loads the strings from the ./languages/en dir.
- *
- * \param	file The filename you wish to load (not the directory, this function will call load_strings_file to open the file in the right dir)
- * \retval xml_struct	A structure containing the xmlDoc * and a xmlNode * to the root element.
- * \sa		load_strings_file
- * \callgraph
- */
-struct xml_struct load_strings(char * file);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Loads the strings from a file (calls load_strings_file)
+// *
+// * 		First tries loading the file from the native language directory, then it loads the strings from the ./languages/en dir.
+// *
+// * \param	file The filename you wish to load (not the directory, this function will call load_strings_file to open the file in the right dir)
+// * \retval xml_struct	A structure containing the xmlDoc * and a xmlNode * to the root element.
+// * \sa		load_strings_file
+// * \callgraph
+// */
+//struct xml_struct load_strings(char * file);
 
-/*!
- * \ingroup	translation
- * \brief	Loads an xml file with the strings
- *
- * 		Loads the xml-file pointed to by filename. Returns the an xml_struct containing a pointer to the document and the root element, if the document and root element is found/loaded succesfully. Otherwise it returns NULL in both pointers.
- *
- * \param filename
- * \retval xml_struct
- * \sa load_string
- * \callgraph
- */
-struct xml_struct load_strings_file(char * filename);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Loads an xml file with the strings
+// *
+// * 		Loads the xml-file pointed to by filename. Returns the an xml_struct containing a pointer to the document and the root element, if the document and root element is found/loaded succesfully. Otherwise it returns NULL in both pointers.
+// *
+// * \param filename
+// * \retval xml_struct
+// * \sa load_string
+// * \callgraph
+// */
+//struct xml_struct load_strings_file(char * filename);
 
-/*!
- * \ingroup	translation
- * \brief	Copies the strings from the xmlNode to the distring_item *.
- *
- * 		When the xml_id is found this function is called to copy the distring_item (the strings are in the \<name\> and \<desc\> tags)
- *
- * \param	in The current xmlNode
- * \param	string A pointer to the distring_item.
- */
-void copy_strings(xmlNode * in, distring_item * string);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Copies the strings from the xmlNode to the distring_item *.
+// *
+// * 		When the xml_id is found this function is called to copy the distring_item (the strings are in the \<name\> and \<desc\> tags)
+// *
+// * \param	in The current xmlNode
+// * \param	string A pointer to the distring_item.
+// */
+//void copy_strings(xmlNode * in, distring_item * string);
 
-#ifdef ELC
-/*!
- * \ingroup	translation
- * \brief	Copies the stats from the xmlNode to the statstring_item *.
- *
- * 		When the xmlNode * is found in the current document, this function is called to copy the stats to the statstring_item *
- *
- * \param	in The current xmlNode
- * \param	string A pointer to the statstring_item
- */
-void copy_stats(xmlNode * in, statstring_item * string);
+//#ifdef ELC
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Copies the stats from the xmlNode to the statstring_item *.
+// *
+// * 		When the xmlNode * is found in the current document, this function is called to copy the stats to the statstring_item *
+// *
+// * \param	in The current xmlNode
+// * \param	string A pointer to the statstring_item
+// */
+//void copy_stats(xmlNode * in, statstring_item * string);
 
-/*!
- * \ingroup	translation
- * \brief	Parses a statstring_item group
- * 
- * 		Parses a statstring group and calls copy_stats if it finds a match.
- *
- * \param	in The current xmlNode
- * \param	group The group you wish to parse
- *
- * \callgraph
- */
-void parse_statstrings(xmlNode * in, group_stat * group);
-#endif
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses a statstring_item group
+// * 
+// * 		Parses a statstring group and calls copy_stats if it finds a match.
+// *
+// * \param	in The current xmlNode
+// * \param	group The group you wish to parse
+// *
+// * \callgraph
+// */
+//void parse_statstrings(xmlNode * in, group_stat * group);
+//#endif
 
-/*!
- * \ingroup	translation
- * \brief	Parses a distring_item group
- *
- * 		Parses the distring_item group (group) and calls copy_strings if a match is found.
- *
- * \param	in The current xmlNode
- * \param	group The current group
- *
- * \callgraph
- */
-void parse_distrings(xmlNode * in, group_id_di * group);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses a distring_item group
+// *
+// * 		Parses the distring_item group (group) and calls copy_strings if a match is found.
+// *
+// * \param	in The current xmlNode
+// * \param	group The current group
+// *
+// * \callgraph
+// */
+//void parse_distrings(xmlNode * in, group_id_di * group);
 
-/*!
- * \ingroup	translation
- * \brief	Parses a string_item group
- *
- * 		Parses the string_item group (group) and copies the string if a match is found (using UTF8Toisolat1).
- *
- * \param	in The current xmlNode*
- * \param	group The current group
- */
-void parse_strings(xmlNode * in, group_id * group);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Parses a string_item group
+// *
+// * 		Parses the string_item group (group) and copies the string if a match is found (using UTF8Toisolat1).
+// *
+// * \param	in The current xmlNode*
+// * \param	group The current group
+// */
+//void parse_strings(xmlNode * in, group_id * group);
 
-/*!
- * \ingroup	translation
- * \brief	Called when parsing any group.
- *
- *		This is the main parser. It is called by all of the groups when parsing their different xml element names, comparing it with the current xmlNodes name - if it finds a match it calls either parse_strings, parse_distrings or parse_statstrings.
- *
- * \param	in The current xmlNode
- * \param	gPtr The current group
- * \param	size The size of the group
- * \param	type The type of the group
- *
- * \callgraph
- * \todo	An idea might be to improve the groups to also have function *, to tell them what function it should call depending on the kind of group. group->parse(xmlNode *, group *), would look better than the current switch statement.
- */
-void parse_groups(xmlNode * in, void * gPtr, int size, int type);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	translation
+// * \brief	Called when parsing any group.
+// *
+// *		This is the main parser. It is called by all of the groups when parsing their different xml element names, comparing it with the current xmlNodes name - if it finds a match it calls either parse_strings, parse_distrings or parse_statstrings.
+// *
+// * \param	in The current xmlNode
+// * \param	gPtr The current group
+// * \param	size The size of the group
+// * \param	type The type of the group
+// *
+// * \callgraph
+// * \todo	An idea might be to improve the groups to also have function *, to tell them what function it should call depending on the kind of group. group->parse(xmlNode *, group *), would look better than the current switch statement.
+// */
+//void parse_groups(xmlNode * in, void * gPtr, int size, int type);
 
 #endif

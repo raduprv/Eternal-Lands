@@ -354,6 +354,29 @@ group_id * stats_extra;
 group_id * titles_str;
 #endif
 
+/* forward declarations added due to code cleanup */
+void init_console(void);
+void init_help(void);
+void init_options(void);
+void init_spells(void);
+void init_stats(void);
+void init_titles(void);
+void init_errors(void);
+void * add_xml_group(int type, int no, ...);
+void free_xml_parser(int type, void * gPtr, int no);
+void parse_errors(xmlNode * in);
+#ifdef ELC
+void parse_console(xmlNode * in);
+void parse_help(xmlNode * in);
+void parse_options(xmlNode * in);
+void parse_spells(xmlNode * in);
+void parse_stats(xmlNode * in);
+void parse_titles(xmlNode * in);
+#endif
+struct xml_struct load_strings(char * file);
+struct xml_struct load_strings_file(char * filename);
+/* end of added forward declarations */
+
 void init_groups()
 {
 #ifdef ELC

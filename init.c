@@ -52,6 +52,10 @@ typedef struct{
 e3d_list *e3dlist=NULL;
 int e3dlistsize=0;
 
+/* forward declaration added due to code cleanup */
+void read_command_line(); //from main.c
+/* end of added forward declaration */
+
 void unload_e3d_list()
 {
 	int i;

@@ -2,6 +2,11 @@
 #include "global.h"
 #include "elwindows.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void change_cursor_show(int);
+ */
+
 actor *actor_under_mouse;
 int object_under_mouse;
 int thing_under_the_mouse;
@@ -163,12 +168,14 @@ void change_cursor(int cursor_id)
 	current_cursor=cursor_id;
 }
 
+/* currently UNUSED
 void change_cursor_show(int cursor_id)
 {
 	SDL_SetCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
 	current_cursor=cursor_id;
 	SDL_WarpMouse(mouse_x,mouse_y);
 }
+*/
 
 void build_cursors()
 {

@@ -1,6 +1,11 @@
 #include "global.h"
 #include "string.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * int sector_add_light(int);
+ */
+
 map_sector sectors[256*256];
 int num_sectors=256*256;
 Uint16 active_sector;
@@ -60,7 +65,7 @@ int sector_add_2do(int objectid)
 	return -1;
 }
 
-
+/* currently UNUSED
 int sector_add_light(int objectid)
 {
 	int i;
@@ -77,7 +82,7 @@ int sector_add_light(int objectid)
 	}
 	return -1;
 }
-
+*/
 
 int sector_add_particle(int objectid)
 {

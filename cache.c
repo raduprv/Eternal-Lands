@@ -3,6 +3,17 @@
 #include "global.h"
 #include "cache.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void cache_system_shutdown();
+ * void cache_set_free(cache_struct*, void(*));
+ * void cache_clear_counter(cache_struct*);
+ * void cache_set_size(cache_struct*, Uint32, void*);
+ * void cache_use_item(cache_struct*, const void*);
+ * void cache_remove_item(cache_struct*, cosnt Uint8*);
+ * void cache_remove_unused(cache_struct*);
+ */
+
 cache_struct	*cache_system=NULL;
 
 cache_struct	*cache_md2=NULL;
@@ -11,6 +22,17 @@ cache_struct	*cache_e3d=NULL;
 texture_cache_struct texture_cache[1000];
 obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF];
 
+/* forward declarations added due to code cleanup */
+Uint32 cache_system_clean();
+Uint32 cache_system_compact();
+Uint32 cache_clean(cache_struct *cache);
+Uint32 cache_compact(cache_struct *cache);
+void cache_delete(cache_struct *cache);
+cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item);
+void cache_remove(cache_struct *cache, cache_item_struct *item);
+void cache_remove_all(cache_struct *cache);
+/* end of added forward declarations */
+
 // top level cache system routines
 void cache_system_init(Uint32 max_items)
 {
@@ -18,11 +40,13 @@ void cache_system_init(Uint32 max_items)
 	cache_set_time_limit(cache_system, 1*60*1000);	// once per minute check for processing
 }
 
+/* currently UNUSED
 void cache_system_shutdown()
 {
 	cache_delete(cache_system);
 	cache_system=NULL;
 }
+*/
 
 void cache_dump_sizes(cache_struct *cache)
 {
@@ -151,10 +175,12 @@ void cache_delete(cache_struct *cache)
 	free(cache);
 }
 
+/* currently UNUSED
 void cache_set_free(cache_struct *cache, void (*free_item)())
 {
 	cache->free_item=free_item;
 }
+*/
 
 void cache_set_compact(cache_struct *cache, Uint32 (*compact_item)())
 {
@@ -171,6 +197,7 @@ void cache_set_size_limit(cache_struct *cache, Uint32 size_limit)
 	cache->size_limit=size_limit;
 }
 
+/* currently UNUSED
 void cache_clear_counter(cache_struct *cache)
 {
 	Sint32	i;
@@ -183,7 +210,7 @@ void cache_clear_counter(cache_struct *cache)
 				}
 		}
 }
-
+*/
 
 Uint32 cache_clean(cache_struct *cache)
 {
@@ -252,6 +279,7 @@ void	cache_use(cache_struct *cache, cache_item_struct *item_ptr)
 		}
 }
 
+/* currently UNUSED
 void cache_use_item(cache_struct *cache, const void *item_data)
 {
 	cache_item_struct *item_ptr=NULL;
@@ -264,6 +292,7 @@ void cache_use_item(cache_struct *cache, const void *item_data)
 	//		item_ptr->access_count++;
 	//	}
 }
+*/
 
 cache_item_struct *cache_find(cache_struct *cache, const Uint8 *name)
 {
@@ -379,6 +408,7 @@ void cache_set_name(cache_struct *cache, Uint8 *name, void *item)
 		}
 }
 
+/* currently UNUSED
 void cache_set_size(cache_struct *cache, Uint32 size, void *item)
 {
 	cache_item_struct *item_ptr;
@@ -402,6 +432,7 @@ void cache_set_size(cache_struct *cache, Uint32 size, void *item)
 			//item_ptr->access_count++;
 		}
 }
+*/
 
 void cache_adj_size(cache_struct *cache, Uint32 size, void *item)
 {
@@ -475,6 +506,7 @@ void cache_remove(cache_struct *cache, cache_item_struct *item)
 	cache->recent_item = NULL;	//forget where we are just incase
 }
 
+/* currently UNUSED
 void cache_remove_item(cache_struct *cache, const Uint8 *name)
 {
 	cache_item_struct *item;
@@ -483,6 +515,7 @@ void cache_remove_item(cache_struct *cache, const Uint8 *name)
 	item=cache_find(cache, name);
 	if(item) cache_remove(cache, item);
 }
+*/
 
 void cache_remove_all(cache_struct *cache)
 {
@@ -501,6 +534,7 @@ void cache_remove_all(cache_struct *cache)
 	cache->recent_item = NULL;	//forget where we are just incase
 }
 
+/* currently UNUSED
 void cache_remove_unused(cache_struct *cache)
 {
 	Sint32	i;
@@ -516,4 +550,4 @@ void cache_remove_unused(cache_struct *cache)
 		}
 	cache->recent_item = NULL;	//forget where we are just incase
 }
-
+*/

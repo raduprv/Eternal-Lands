@@ -68,16 +68,17 @@ int add_to_filter_list(Uint8 *name, char save_name);
  */
 int remove_from_filter_list(Uint8 *name);
 
-/*!
- * \ingroup actors_utils
- * \brief   checks if the given \a name is filtered (aka ignored).
- *
- *      Checks if the given \a name is filtered (aka ignored)
- *
- * \param name      the name to check
- * \retval int
- */
-int check_if_filtered(Uint8 *name);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup actors_utils
+// * \brief   checks if the given \a name is filtered (aka ignored).
+// *
+// *      Checks if the given \a name is filtered (aka ignored)
+// *
+// * \param name      the name to check
+// * \retval int
+// */
+//int check_if_filtered(Uint8 *name);
 
 /*!
  * \ingroup actors_utils
@@ -92,27 +93,29 @@ int check_if_filtered(Uint8 *name);
  */
 int filter_text(Uint8 * input_text, int len);
 
-/*!
- * \ingroup loadsave
- * \brief   loads a list of filters from \a file_name.
- *
- *      Loads a list of filters from the file \a file_name and adds them to the variable filter_list.
- *
- * \param file_name     the filename from where to load the filter specs.
- *
- * \callgraph
- */
-void load_filters_list(char * file_name);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup loadsave
+// * \brief   loads a list of filters from \a file_name.
+// *
+// *      Loads a list of filters from the file \a file_name and adds them to the variable filter_list.
+// *
+// * \param file_name     the filename from where to load the filter specs.
+// *
+// * \callgraph
+// */
+//void load_filters_list(char * file_name);
 
-/*!
- * \ingroup actors_utils
- * \brief       clears the list of currently defined filters.
- *
- *      Clears the list of currently defined and active filters.
- *
- * \sa load_filters
- */
-void clear_filter_list();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup actors_utils
+// * \brief       clears the list of currently defined filters.
+// *
+// *      Clears the list of currently defined and active filters.
+// *
+// * \sa load_filters
+// */
+//void clear_filter_list();
 
 /*!
  * \ingroup loadsave

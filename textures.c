@@ -2,6 +2,12 @@
 #include <string.h>
 #include "global.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * char* load_bmp8_color_key_no_texture(char*);
+ * char* load_bmp8_alpha_map(char*);
+ */
+
 //get a texture id out of the texture cache
 //if null, then reload it (means it was previously freed)
 int get_texture_id(int i)
@@ -290,6 +296,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	return texture;
 }
 
+/* currently UNUSED
 /////////////////////////////////////////////////////////////////////////////////////
 //load a bmp file, convert it to the rgba format, but don't assign it to any texture object
 char * load_bmp8_color_key_no_texture(char * FileName)
@@ -377,7 +384,9 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 	//ok, now, hopefully, the file is loaded and converted...
 	//so, assign the texture, and such
 }
+*/
 
+/* currently UNUSED
 /////////////////////////////////////////////////////////////////////////////////////
 //load a bmp file, convert it to an alpha map
 char * load_bmp8_alpha_map(char * FileName)
@@ -460,6 +469,7 @@ char * load_bmp8_alpha_map(char * FileName)
 	fclose(f);
 	return texture_mem;
 }
+*/
 
 //Tests to see if a texture is already loaded. If it is, return the handle.
 //If not, load it, and return the handle

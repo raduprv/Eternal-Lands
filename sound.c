@@ -60,6 +60,13 @@ int loop_list=1;
 int list_pos=-1;
 #endif	//NO_MUSIC
 
+/* forward declaration added due to code cleanup */
+int realloc_sources();
+void load_ogg_file(char *file_name);
+void stream_music(ALuint buffer);
+void ogg_error(int code);
+/* end of added forward declarations */
+
 void stop_sound(int i)
 {
 	if(!have_sound)return;

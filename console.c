@@ -4,6 +4,11 @@
 #include <ctype.h>
 #include "global.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void print_log();
+ */
+
 char	auto_open_encyclopedia= 1;
 
 //cls - clears the text buffer
@@ -25,6 +30,7 @@ void cls()
 	last_server_message_time=cur_time;
 }
 
+/* currently UNUSED
 void print_log()
 {
 	FILE *f = NULL;
@@ -35,6 +41,7 @@ void print_log()
   	fwrite (display_text_buffer, display_text_buffer_last, 1, f);
   	fclose (f);
 }
+*/
 
 //do we have any console commands?
 //if not, send the text to the server

@@ -48,6 +48,13 @@ int next_win_id;
 /* Rule parser */
 static struct rules_struct rules = {0,{{NULL,0,NULL,0,0}}};
 
+/* forward declarations added due to code cleanup */
+void free_rules(rule_string * d);
+rule_string * get_interface_rules(int chars_per_line);
+void check_mouse_rules_interface(rule_string * rules, int lenx, int leny, int mx, int my);
+int draw_rules(rule_string * rules, int rules_no, int x, int y, int lenx, int leny, float text_size);
+/* end of added forward declarations */
+
 void add_rule(char * short_desc, char * long_desc, int type)
 {
 	int no=rules.no++;

@@ -132,15 +132,15 @@ extern light *lights_list[MAX_LIGHTS]; /*!< global lights list */
 extern unsigned char light_level; /*!< the light level */
 extern short game_minute; /*!< the current game minute */
 
-/*!
- * \ingroup lights
- * \brief
- *
- *      Detail
- *
- * \todo Check this. It seems not get called from anywhere.
- */
-void draw_test_light();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup lights
+// * \brief
+// *
+// *      Detail
+// *
+// */
+//void draw_test_light();
 
 /*!
  * \ingroup lights
@@ -151,15 +151,16 @@ void draw_test_light();
  */
 void disable_local_lights();
 
-/*!
- * \ingroup lights
- * \brief
- *
- *      Detail
- *
- * \sa new_minute
- */
-void enable_local_lights();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup lights
+// * \brief
+// *
+// *      Detail
+// *
+// * \sa new_minute
+// */
+//void enable_local_lights();
 
 /*!
  * \ingroup lights
@@ -250,24 +251,25 @@ void draw_global_light();
  */
 void draw_dungeon_light();
 
-/*!
- * \ingroup lights
- * \brief
- *
- *      Detail
- *
- * \param start
- * \param steps
- * \param light_table
- * \param r_start
- * \param g_start
- * \param b_start
- * \param r_end
- * \param g_end
- * \param b_end
- */
-void make_gradient_light(int start,int steps,float *light_table, float r_start, 
-						 float g_start, float b_start, float r_end, float g_end, float b_end);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup lights
+// * \brief
+// *
+// *      Detail
+// *
+// * \param start
+// * \param steps
+// * \param light_table
+// * \param r_start
+// * \param g_start
+// * \param b_start
+// * \param r_end
+// * \param g_end
+// * \param b_end
+// */
+//void make_gradient_light(int start,int steps,float *light_table, float r_start, 
+//						 float g_start, float b_start, float r_end, float g_end, float b_end);
 
 /*!
  * \ingroup other

@@ -43,64 +43,69 @@ extern float water_movement_v; /*!< movement of the water in v direction */
  */
 #define IS_REFLECTING(i) (i<240)
 
-/*!
- * \ingroup misc_utils
- * \brief mrandom
- *
- *      mrandom(float)
- *
- * \param max
- * \retval float
- */
-float mrandom(float max);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup misc_utils
+// * \brief mrandom
+// *
+// *      mrandom(float)
+// *
+// * \param max
+// * \retval float
+// */
+//float mrandom(float max);
 
-/*!
- * \ingroup reflections
- * \brief draws the reflections cause by the specified body parts.
- *
- *      Draws the reflections caused by the specified body parts.
- *
- * \param model_data    the md2 model data used to calculate the reflections
- * \param cur_frame     the current frame
- * \param ghost         specifies wheter the body part is a ghost or not
- */
-void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup reflections
+// * \brief draws the reflections cause by the specified body parts.
+// *
+// *      Draws the reflections caused by the specified body parts.
+// *
+// * \param model_data    the md2 model data used to calculate the reflections
+// * \param cur_frame     the current frame
+// * \param ghost         specifies wheter the body part is a ghost or not
+// */
+//void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost);
 
-/*!
- * \ingroup reflections
- * \brief draws the reflection caused by the specified actor
- *
- *      Draws the reflection caused by the specified actor
- *
- * \param actor_id  the actor for which the reflections are drawn
- *
- * \callgraph
- */
-void draw_actor_reflection(actor * actor_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup reflections
+// * \brief draws the reflection caused by the specified actor
+// *
+// *      Draws the reflection caused by the specified actor
+// *
+// * \param actor_id  the actor for which the reflections are drawn
+// *
+// * \callgraph
+// */
+//void draw_actor_reflection(actor * actor_id);
 
-/*!
- * \ingroup reflections
- * \brief draws the reflection caused by the specified actor
- *
- *      Draws the reflection caused by the specified actor
- *
- * \param actor_id  the actor for which the reflections are drawn.
- *
- * \callgraph
- */
-void draw_enhanced_actor_reflection(actor * actor_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup reflections
+// * \brief draws the reflection caused by the specified actor
+// *
+// *      Draws the reflection caused by the specified actor
+// *
+// * \param actor_id  the actor for which the reflections are drawn.
+// *
+// * \callgraph
+// */
+//void draw_enhanced_actor_reflection(actor * actor_id);
 
-/*!
- * \ingroup reflections
- * \brief draws reflections caused by the given object3d
- *
- *      Draws reflections caused by the given object3d
- *
- * \param object_id the 3d object for which reflections are drawn.
- *
- * \callgraph
- */
-void draw_3d_reflection(object3d * object_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup reflections
+// * \brief draws reflections caused by the given object3d
+// *
+// *      Draws reflections caused by the given object3d
+// *
+// * \param object_id the 3d object for which reflections are drawn.
+// *
+// * \callgraph
+// */
+//void draw_3d_reflection(object3d * object_id);
 
 /*!
  * \ingroup reflections
@@ -113,18 +118,19 @@ void draw_3d_reflection(object3d * object_id);
  */
 int find_reflection();
 
-/*!
- * \ingroup reflections
- * \brief finds reflections from the given position up to a specified range.
- *
- *      Finds reflections from the given position up to a specified range.
- *
- * \param x_pos the x coordinate of the position
- * \param y_pos the y coordinate of the position
- * \param range the range up to which reflections should be searched for.
- * \retval int
- */
-int find_local_reflection(int x_pos,int y_pos,int range);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup reflections
+// * \brief finds reflections from the given position up to a specified range.
+// *
+// *      Finds reflections from the given position up to a specified range.
+// *
+// * \param x_pos the x coordinate of the position
+// * \param y_pos the y coordinate of the position
+// * \param range the range up to which reflections should be searched for.
+// * \retval int
+// */
+//int find_local_reflection(int x_pos,int y_pos,int range);
 
 /*!
  * \ingroup reflections
@@ -146,16 +152,17 @@ void display_3d_reflection();
  */
 void make_lake_water_noise();
 
-/*!
- * \ingroup reflections
- * \brief draws a tile at the given position as a lake water tile.
- *
- *      Draws a tile at the given position as a lake water tile.
- *
- * \param x_pos the x coordinate of the position
- * \param y_pos the y coordinate of the position
- */
-void draw_lake_water_tile(float x_pos, float y_pos);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup reflections
+// * \brief draws a tile at the given position as a lake water tile.
+// *
+// *      Draws a tile at the given position as a lake water tile.
+// *
+// * \param x_pos the x coordinate of the position
+// * \param y_pos the y coordinate of the position
+// */
+//void draw_lake_water_tile(float x_pos, float y_pos);
 
 /*!
  * \ingroup reflections

@@ -20,32 +20,34 @@ int help_menu_x_len=150;
 int help_menu_y_len=200;
 */
 
-/*!
- * \ingroup event_handle
- * \brief   calls the display event handler for the given help window \a win.
- *
- *      Calls the display event handler for the given help window \a win.
- *
- * \param win       the \see window_info pointer that contains the definition for the help window
- * \retval int
- * \callgraph
- */
-int display_help_handler(window_info *win);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup event_handle
+// * \brief   calls the display event handler for the given help window \a win.
+// *
+// *      Calls the display event handler for the given help window \a win.
+// *
+// * \param win       the \see window_info pointer that contains the definition for the help window
+// * \retval int
+// * \callgraph
+// */
+//int display_help_handler(window_info *win);
 
-/*!
- * \ingroup event_handle
- * \brief   calls the click event handler for the given window \a win
- *
- *      Calls the click event handler for the given window \a win.
- *
- * \param win       the window_info pointer that contains the definition for the help window
- * \param mx        x position where the mouse click occurred
- * \param my        y position where the mouse click occurred
- * \param flags     mouseflags
- * \retval int
- * \sa display_help
- */
-int click_help_handler(window_info *win, int mx, int my, Uint32 flags);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup event_handle
+// * \brief   calls the click event handler for the given window \a win
+// *
+// *      Calls the click event handler for the given window \a win.
+// *
+// * \param win       the window_info pointer that contains the definition for the help window
+// * \param mx        x position where the mouse click occurred
+// * \param my        y position where the mouse click occurred
+// * \param flags     mouseflags
+// * \retval int
+// * \sa display_help
+// */
+//int click_help_handler(window_info *win, int mx, int my, Uint32 flags);
 
 /*!
  * \ingroup help_win

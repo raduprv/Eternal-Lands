@@ -379,33 +379,34 @@ extern actor_types actors_defs[100];	/*!< The actor definitions*/
  */
 int get_frame_number(const md2 *model_data, const char *cur_frame);
 
-/*!
- * \ingroup	network_actors
- * \brief	Adds an actor to the actors_list
- *
- * 		This function is called from the add_actor_from_server, after having parsed the network data. It adds the given actor to the actors_list, if the model data is found.
- *
- * \param	file_name The file-name from which the main model will be loaded from.
- * \param	skin_name The skin-name the actor is using
- * \param	frame_name The current frame-name.
- * \param	x_pos The x position
- * \param	y_pos The y position
- * \param	z_pos The z position
- * \param	z_rot The z rotation
- * \param	remappable Defines if the actor can get a different texture
- * \param	skin_color Sets the actors skin colour
- * \param	hair_color Sets the actors hair colour
- * \param	shirt_color Sets the actors shirt colour
- * \param	pants_color Sets the actors pants colour
- * \param	boots_color Sets the actors boots colour (This is the "naked" actors boots, not i.e. fur or leather boots)
- * \param	actor_id The current actors actor_id as the server sees it
- * \retval int	Returns the position in the actors_list or -1 on failure
- * \callgraph
- */
-int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
-			  float y_pos, float z_pos, float z_rot, char remappable,
-			  short skin_color, short hair_color, short shirt_color,
-			  short pants_color, short boots_color, int actor_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	network_actors
+// * \brief	Adds an actor to the actors_list
+// *
+// * 		This function is called from the add_actor_from_server, after having parsed the network data. It adds the given actor to the actors_list, if the model data is found.
+// *
+// * \param	file_name The file-name from which the main model will be loaded from.
+// * \param	skin_name The skin-name the actor is using
+// * \param	frame_name The current frame-name.
+// * \param	x_pos The x position
+// * \param	y_pos The y position
+// * \param	z_pos The z position
+// * \param	z_rot The z rotation
+// * \param	remappable Defines if the actor can get a different texture
+// * \param	skin_color Sets the actors skin colour
+// * \param	hair_color Sets the actors hair colour
+// * \param	shirt_color Sets the actors shirt colour
+// * \param	pants_color Sets the actors pants colour
+// * \param	boots_color Sets the actors boots colour (This is the "naked" actors boots, not i.e. fur or leather boots)
+// * \param	actor_id The current actors actor_id as the server sees it
+// * \retval int	Returns the position in the actors_list or -1 on failure
+// * \callgraph
+// */
+//int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
+//			  float y_pos, float z_pos, float z_rot, char remappable,
+//			  short skin_color, short hair_color, short shirt_color,
+//			  short pants_color, short boots_color, int actor_id);
 
 /*!
  * \ingroup	display_actors
@@ -450,17 +451,18 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
  */
 void draw_model(md2 *model_data,char *cur_frame, int ghost);
 
-/*!
- * \ingroup	display_actors
- * \brief	Draws the actor pointed to by actor_id
- *
- * 		The function draws the actor pointed to by actor_id. It is usually called from display_actors().
- *
- * \param	actor_id A pointer to the actor in the actors_list
- *
- * \callgraph
- */
-void draw_actor(actor * actor_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	display_actors
+// * \brief	Draws the actor pointed to by actor_id
+// *
+// * 		The function draws the actor pointed to by actor_id. It is usually called from display_actors().
+// *
+// * \param	actor_id A pointer to the actor in the actors_list
+// *
+// * \callgraph
+// */
+//void draw_actor(actor * actor_id);
 
 /*!
  * \ingroup	display_actors
@@ -565,26 +567,28 @@ extern void	init_actors_lists();
 /*! @} */
 #endif
 
-/*!
- * \ingroup	display_actors
- * \brief	Destroys the actors list mutex
- *
- * 		Destroys the actors_list mutex and sets the pointer to NULL
- * 
- */
-extern void	end_actors_lists();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	display_actors
+// * \brief	Destroys the actors list mutex
+// *
+// * 		Destroys the actors_list mutex and sets the pointer to NULL
+// * 
+// */
+//extern void	end_actors_lists();
 
-/*!
- * \ingroup	display_actors
- * \brief	Draws the bubble-text above the actor
- *
- * 		When an actor speaks in local chat and the function is called (only if the view_chat_to_overtext variable is 1) the function draws a bubble containing the text above the head of the actor.
- *
- * \param	actor_ptr A pointer to the actor we wish to draw the overtext of
- *
- * \callgraph
- */
-void	draw_actor_overtext( actor* actor_ptr );
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	display_actors
+// * \brief	Draws the bubble-text above the actor
+// *
+// * 		When an actor speaks in local chat and the function is called (only if the view_chat_to_overtext variable is 1) the function draws a bubble containing the text above the head of the actor.
+// *
+// * \param	actor_ptr A pointer to the actor we wish to draw the overtext of
+// *
+// * \callgraph
+// */
+//void	draw_actor_overtext( actor* actor_ptr );
 
 /*!
  * \ingroup	network_text
@@ -608,6 +612,5 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text );
  * \sa		pf_get_our_actor
  */
 actor *	get_actor_ptr_from_id( int actor_id );
-
 
 #endif

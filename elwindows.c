@@ -5,7 +5,22 @@
 #include "elwindows.h"
 #include "widgets.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * int find_window(const char*);
+ * void* get_window_handler(int, int);
+ */
+
 windows_info	windows_list;	// the master list of windows
+
+/* forward declarations added due to code cleanup */
+int display_window(int win_id);
+int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
+int	mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
+#ifndef OLD_EVENT_HANDLER
+int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
+#endif
+/* end of added forward declarations */
 
 /*
  * The intent of the windows system is to create the window once
@@ -701,7 +716,7 @@ void	destroy_window(int win_id)
 	windows_list.window[win_id].displayed= 0;
 }
 
-
+/* currently UNUSED
 int	find_window(const char *name)
 {
 	int	win_id= -1;
@@ -718,7 +733,7 @@ int	find_window(const char *name)
 
 	return win_id;
 }
-
+*/
 
 int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y)
 {
@@ -1395,7 +1410,7 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 	return old_handler;
 }
 
-
+/* currently UNUSED
 void	*get_window_handler(int win_id, int handler_id)
 {
 	void	*old_handler;
@@ -1429,7 +1444,7 @@ void	*get_window_handler(int win_id, int handler_id)
 
 	return old_handler;
 }
-
+*/
 
 int	set_window_color(int win_id, Uint32 color_id, float r, float g, float b, float a)
 {

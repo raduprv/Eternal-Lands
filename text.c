@@ -41,6 +41,11 @@ float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
+/* forward declaration added due to code cleanup */
+void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len, 
+								   int pixels_limit, char *buffer);
+/* end of added forward declaration */
+
 #ifndef OLD_EVENT_HANDLER
 void update_text_windows (int nlines)
 {

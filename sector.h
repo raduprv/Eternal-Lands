@@ -58,27 +58,29 @@ void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey);
  */
 int sector_add_3do(int objectid);
 
-/*!
- * \ingroup maps
- * \brief adds an 2d object, specified by objectid to the current sector
- *
- *      Adds an 2d object, specified by objectid to the current sector
- *
- * \param objectid  points to the 2d object to add.
- * \retval int
- */
-int sector_add_2do(int objectid);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup maps
+// * \brief adds an 2d object, specified by objectid to the current sector
+// *
+// *      Adds an 2d object, specified by objectid to the current sector
+// *
+// * \param objectid  points to the 2d object to add.
+// * \retval int
+// */
+//int sector_add_2do(int objectid);
 
-/*!
- * \ingroup maps
- * \brief adds the given light to the current sector
- *
- *      Adds the light given by objectid to the current sector
- *
- * \param objectid  points to the light to add
- * \retval int
- */
-int sector_add_light(int objectid);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup maps
+// * \brief adds the given light to the current sector
+// *
+// *      Adds the light given by objectid to the current sector
+// *
+// * \param objectid  points to the light to add
+// * \retval int
+// */
+//int sector_add_light(int objectid);
 
 /*!
  * \ingroup maps

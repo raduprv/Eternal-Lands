@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void remove_font(int);
+ */
+
 /*!
  * \name constants for fonts
  */
@@ -30,6 +35,12 @@ int	chat_font=0;
 int	name_font=0;
 int	book_font=0;
 
+/* forward declarations added due to code cleanup */
+int get_font_char(unsigned char cur_char);
+int get_font_width(int cur_char);
+int get_nstring_width(const unsigned char *str, int len);
+int set_font_parameters (int num);
+/* end of added forward declarations */
 
 // converts a character into which entry in font.bmp to use, negative on error or no output
 int find_font_char(unsigned char cur_char)
@@ -735,7 +746,7 @@ int	set_font(int num)
 	return cur_font_num;
 }
 
-
+/* currently UNUSED
 void remove_font(int num)
 {
 	if(num < max_fonts && fonts[num])
@@ -748,3 +759,4 @@ void remove_font(int num)
 				}
 		}
 }
+*/

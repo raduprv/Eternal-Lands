@@ -4,6 +4,18 @@
 #include "elwindows.h"
 #include "keys.h" //Avoid problems with SHIFT, ALT, CTRL
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * int check_peace_icons();
+ * void set_icon_order(int, ...);
+ * void reset_states(int, int);
+ * int translate_win_id(int*);
+ * int check_stats_display();
+ * int check_misc_display();
+ * void draw_quickbar();
+ * void check_quickbar();
+ */
+
 /*!
  * \name action types
  */
@@ -43,6 +55,21 @@ int	display_quickbar_handler(window_info *win);
 int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
 int	mouseover_quickbar_handler(window_info *win, int mx, int my);
 int	mouseover_stats_bar_handler(window_info *win, int mx, int my);
+/* forward declarations added due to code cleanup */
+void init_hud_frame();
+void init_peace_icons();
+void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
+void switch_action_mode(int * mode, int id);
+void init_stats_display();
+void draw_exp_display();
+void draw_stats();
+void init_misc_display();
+void init_quickbar();
+void flip_quickbar();
+void reset_quickbar();
+void change_flags(int win_id, Uint32 flags);
+Uint32 get_flags(int win_id);
+/* end of added forward declarations */
 
 int hud_x= 64;
 int hud_y= 48;
@@ -639,10 +666,12 @@ void view_tab (int *window, int *col_id, int tab)
 	}
 }
 
+/* currently UNUSED
 int check_peace_icons()
 {
     return(click_in_window(icons_win, mouse_x, mouse_y, 0));
 }
+*/
 
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 {
@@ -698,6 +727,7 @@ void show_help(char *help_message, int x, int y)
 	draw_string_small(x, y,help_message,1);
 }
 
+/* currently UNUSED
 int translate_win_id(int * win_id)
 {
 	int i=0;
@@ -710,6 +740,7 @@ int translate_win_id(int * win_id)
 		}
 	return -1;
 }
+*/
 
 // the stats display
 void init_stats_display()
@@ -835,11 +866,12 @@ int mouseover_stats_bar_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
+/* currently UNUSED
 int check_stats_display()
 {
 	return 0;
 }
-
+*/
 
 // the misc section (compass, clock, ?)
 float compass_u_start=(float)32/256;
@@ -938,10 +970,12 @@ int	display_misc_handler(window_info *win)
 	return	1;
 }
 
+/* currently UNUSED
 int check_misc_display()
 {
 	return(click_in_window(misc_win, mouse_x, mouse_y, 0));
 }
+*/
 
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 {
@@ -1019,6 +1053,7 @@ void init_quickbar() {
 	}
 }
 
+/* currently UNUSED
 void draw_quickbar() {
 	// failsafe until better integrated
 	if(quickbar_dir==VERTICAL) {
@@ -1032,6 +1067,7 @@ void draw_quickbar() {
 	} 
 	show_window(quickbar_win);
 }
+*/
 
 int	display_quickbar_handler(window_info *win)
 {
@@ -1170,9 +1206,11 @@ int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 	return 0;
 }
 
+/* currently UNUSED
 int check_quickbar() {
 	return(click_in_window(quickbar_win, mouse_x, mouse_y, 0));
 }
+*/
 
 int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 {

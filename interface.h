@@ -363,19 +363,20 @@ void draw_game_map (int map, int mouse_mini);
 void draw_game_map (int map);
 #endif
 
-/*!
- * \ingroup interfaces
- * \brief
- *
- *      Detail
- *
- * \param x
- * \param y
- * \param x_len
- *
- * \callgraph
- */
-void draw_menu_title_bar(int x, int y, int x_len);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup interfaces
+// * \brief
+// *
+// *      Detail
+// *
+// * \param x
+// * \param y
+// * \param x_len
+// *
+// * \callgraph
+// */
+//void draw_menu_title_bar(int x, int y, int x_len);
 
 /*!
  * \ingroup interfaces

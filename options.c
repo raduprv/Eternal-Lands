@@ -77,6 +77,15 @@ float unlit_gem_v_end=1.0f-(float)111/256;
 int display_options_handler(window_info *win);
 int click_options_handler(window_info *win, int mx, int my, Uint32 flags);
 int mouseover_options_handler(window_info * win, int mx, int my);
+/* forward declarations added due to code cleanup */
+void init_display_options_menu();
+void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2, int column);
+void change_option(int * data_1, int * data_2);
+void move_to_full_screen(int  * unused, int * unused2);
+void switch_video_modes(int * unused, int * mode);
+void change_sound(int  * unused, int * unused2);
+void change_music(int  * unused, int * unused2);
+/* end of added forward declarations */
 
 char options_help_text[400]={0};
 

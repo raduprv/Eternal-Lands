@@ -16,15 +16,16 @@
  */
 void change_actor();
 
-/*!
- * \ingroup interface_newchar
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void check_for_input();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup interface_newchar
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void check_for_input();
 
 /*!
  * \ingroup interface_newchar
@@ -36,41 +37,44 @@ void check_for_input();
  */
 void draw_new_char_screen();
 
-/*!
- * \ingroup interface_newchar
- * \brief
- *
- *      Detail
- *
- * \param ch
- *
- * \sa add_char_to_new_character
- */
-void add_char_2_pass(unsigned char ch);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup interface_newchar
+// * \brief
+// *
+// *      Detail
+// *
+// * \param ch
+// *
+// * \sa add_char_to_new_character
+// */
+//void add_char_2_pass(unsigned char ch);
 
-/*!
- * \ingroup interface_newchar
- * \brief
- *
- *      Detail
- *
- * \param ch
- *
- * \sa add_char_to_new_character
- */
-void add_char_2_un(unsigned char ch);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup interface_newchar
+// * \brief
+// *
+// *      Detail
+// *
+// * \param ch
+// *
+// * \sa add_char_to_new_character
+// */
+//void add_char_2_un(unsigned char ch);
 
-/*!
- * \ingroup interface_newchar
- * \brief
- *
- *      Detail
- *
- * \param ch
- *
- * \sa add_char_to_new_character
- */
-void add_char_2_conf(unsigned char ch);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup interface_newchar
+// * \brief
+// *
+// *      Detail
+// *
+// * \param ch
+// *
+// * \sa add_char_to_new_character
+// */
+//void add_char_2_conf(unsigned char ch);
 
 /*!
  * \ingroup interface_newchar

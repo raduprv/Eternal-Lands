@@ -53,14 +53,14 @@ extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 //extern int have_arb_shadow; /*!< flat that indicates whether we have the ARB shadow extension or not */
 /*! @} */
 
-extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 
 /*
  * OBSOLETE: Queued for removal from this file.
  * Only used in gl_init.c, no need to declare it here.
+extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
  */
-//extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
 
+extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 extern void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
@@ -80,15 +80,16 @@ extern void (APIENTRY * ELglUnlockArraysEXT) (void);
  */
 void setup_video_mode(int fs, int mode);
 
-/*!
- * \ingroup video
- * \brief   checks if the selected mode is available via OpenGL.
- *
- *      Checks if the selected mode is available via OpenGL.
- *
- * \sa init_video
- */
-void check_gl_mode();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup video
+// * \brief   checks if the selected mode is available via OpenGL.
+// *
+// *      Checks if the selected mode is available via OpenGL.
+// *
+// * \sa init_video
+// */
+//void check_gl_mode();
 
 /*!
  * \ingroup video

@@ -114,26 +114,28 @@ void init_sound();
  */
 void destroy_sound();
 
-/*!
- * \ingroup sound
- * \brief reallocates the sources of playlist entries.
- *
- *      Reallocates the sources of playlist entries.
- *
- * \retval int  the number of sound sources still in use.
- */
-int realloc_sources();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup sound
+// * \brief reallocates the sources of playlist entries.
+// *
+// *      Reallocates the sources of playlist entries.
+// *
+// * \retval int  the number of sound sources still in use.
+// */
+//int realloc_sources();
 
-/*!
- * \ingroup sound
- * \brief retrieves a previously loaded buffer at the given index.
- *
- *      Retrieves a previously loaded buffer at the given index. If the sound file at the index \a i is not buffered already, it will be loaded and buffered for future use.
- *
- * \param i index of the file to load
- * \retval ALuint   a handle into the sound buffer.
- */
-ALuint get_loaded_buffer(int i);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup sound
+// * \brief retrieves a previously loaded buffer at the given index.
+// *
+// *      Retrieves a previously loaded buffer at the given index. If the sound file at the index \a i is not buffered already, it will be loaded and buffered for future use.
+// *
+// * \param i index of the file to load
+// * \retval ALuint   a handle into the sound buffer.
+// */
+//ALuint get_loaded_buffer(int i);
 
 
 /*!
@@ -145,27 +147,29 @@ ALuint get_loaded_buffer(int i);
  */
 void get_map_playlist();
 
-/*!
- * \ingroup music
- * \brief plays the ogg file with the given filename.
- *
- *      Plays an ogg file, specified by a filename
- *
- * \param file_name name of the ogg file to play
- *
- * \callgraph
- */
-void play_ogg_file(char *file_name);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup music
+// * \brief plays the ogg file with the given filename.
+// *
+// *      Plays an ogg file, specified by a filename
+// *
+// * \param file_name name of the ogg file to play
+// *
+// * \callgraph
+// */
+//void play_ogg_file(char *file_name);
 
-/*!
- * \ingroup music
- * \brief loads the ogg file with the given filename.
- *
- *      Loads an ogg file, specified by a filename.
- *
- * \param file_name name of the ogg file to load
- */
-void load_ogg_file(char *file_name);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup music
+// * \brief loads the ogg file with the given filename.
+// *
+// *      Loads an ogg file, specified by a filename.
+// *
+// * \param file_name name of the ogg file to load
+// */
+//void load_ogg_file(char *file_name);
 
 /*!
  * \ingroup music
@@ -191,17 +195,18 @@ void play_music(int list);
  */
 int update_music(void *dummy);
 
-/*!
- * \ingroup music
- * \brief creates a sound stream from the data pointed to by \a buffer
- *
- *      Creates a sound stream, ready for playback, from the data pointed to by \a buffer.
- *
- * \param buffer    handle to a buffer with the sound data
- *
- * \sa ogg_error
- */
-void stream_music(ALuint buffer);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup music
+// * \brief creates a sound stream from the data pointed to by \a buffer
+// *
+// *      Creates a sound stream, ready for playback, from the data pointed to by \a buffer.
+// *
+// * \param buffer    handle to a buffer with the sound data
+// *
+// * \sa ogg_error
+// */
+//void stream_music(ALuint buffer);
 
 /*!
  * \ingroup music
@@ -219,15 +224,16 @@ void turn_music_off();
  */
 void turn_music_on();
 
-/*!
- * \ingroup music
- * \brief creates an error with the specified code.
- *
- *      Creates an ogg error with the specified code.
- *
- * \param code  error code used to create this error.
- */
-void ogg_error(int code);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup music
+// * \brief creates an error with the specified code.
+// *
+// *      Creates an ogg error with the specified code.
+// *
+// * \param code  error code used to create this error.
+// */
+//void ogg_error(int code);
 
 //*!
 // * \ingroup mutex

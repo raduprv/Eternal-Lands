@@ -78,18 +78,19 @@ void unload_questlog();
  */
 void add_questlog(char *t, int len);
 
-/*!
- * \ingroup quest_win
- * \brief adds the string t up to the given length as a new line to the questlog.
- *
- *      Adds the string t up to the given length as a new line to the questlog
- *
- * \param t     the log to add
- * \param len   the length of t
- *
- * \callgraph
- */
-void add_questlog_line(char *t, int len);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup quest_win
+// * \brief adds the string t up to the given length as a new line to the questlog.
+// *
+// *      Adds the string t up to the given length as a new line to the questlog
+// *
+// * \param t     the log to add
+// * \param len   the length of t
+// *
+// * \callgraph
+// */
+//void add_questlog_line(char *t, int len);
 
 /*!
  * \ingroup quest_win
@@ -101,16 +102,17 @@ void add_questlog_line(char *t, int len);
  */
 void goto_questlog_entry(int ln);
 
-/*!
- * \ingroup misc_utils
- * \brief string_fix
- *
- *      string_fix(char*,int)
- *
- * \param t
- * \param len
- */
-void string_fix(char *t, int len);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup misc_utils
+// * \brief string_fix
+// *
+// *      string_fix(char*,int)
+// *
+// * \param t
+// * \param len
+// */
+//void string_fix(char *t, int len);
 
 /*!
  * \ingroup quest_win

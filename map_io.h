@@ -186,26 +186,28 @@ extern float ambient_b;
 
 extern int map_type; /*!< id of the type of map we are currently using */
 
-/*!
- * \ingroup maps
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void destroy_map();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup maps
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void destroy_map();
 
-/*!
- * \ingroup maps
- * \brief
- *
- *      Detail
- *
- * \param file_name
- * \retval int
- */
-int save_map(char * file_name);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup maps
+// * \brief
+// *
+// *      Detail
+// *
+// * \param file_name
+// * \retval int
+// */
+//int save_map(char * file_name);
 
 /*!
  * \ingroup maps
@@ -219,16 +221,17 @@ int save_map(char * file_name);
  */
 int load_map(char * file_name);
 
-/*!
- * \ingroup maps
- * \brief
- *
- *      Detail
- *
- * \param m_x_size
- * \param m_y_size
- *
- * \callgraph
- */
-void new_map(int m_x_size,int m_y_size);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup maps
+// * \brief
+// *
+// *      Detail
+// *
+// * \param m_x_size
+// * \param m_y_size
+// *
+// * \callgraph
+// */
+//void new_map(int m_x_size,int m_y_size);
 #endif

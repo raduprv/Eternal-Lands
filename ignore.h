@@ -57,16 +57,17 @@ int add_to_ignore_list(Uint8 *name, char save_name);
  */
 int remove_from_ignore_list(Uint8 *name);
 
-/*!
- * \ingroup actors_utils
- * \brief
- *
- *      Detail
- *
- * \param name
- * \retval int
- */
-int check_if_ignored(Uint8 *name);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup actors_utils
+// * \brief
+// *
+// *      Detail
+// *
+// * \param name
+// * \retval int
+// */
+//int check_if_ignored(Uint8 *name);
 
 /*!
  * \ingroup actors_utils
@@ -82,27 +83,29 @@ int check_if_ignored(Uint8 *name);
  */
 int pre_check_if_ignored(Uint8 * input_text, int type);
 
-/*!
- * \ingroup loadsave
- * \brief
- *
- *      Detail
- *
- * \param file_name
- *
- * \callgraph
- */
-void load_ignores_list(char * file_name);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup loadsave
+// * \brief
+// *
+// *      Detail
+// *
+// * \param file_name
+// *
+// * \callgraph
+// */
+//void load_ignores_list(char * file_name);
 
-/*!
- * \ingroup actors_utils
- * \brief
- *
- *      Detail
- *
- * \sa load_ignores
- */
-void clear_ignore_list();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup actors_utils
+// * \brief
+// *
+// *      Detail
+// *
+// * \sa load_ignores
+// */
+//void clear_ignore_list();
 
 /*!
  * \ingroup loadsave

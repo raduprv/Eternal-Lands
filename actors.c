@@ -3,6 +3,11 @@
 #include <string.h>
 #include "global.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void end_actors_list();
+ */
+
 #ifdef ELC
 /*!
  * \name ingame text drawing macros
@@ -20,6 +25,10 @@ SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main thr
 
 actor_types actors_defs[100];
 
+/* forward declaration add due to code cleanup */
+void draw_actor_overtext( actor* actor_ptr );
+/* end of added forward declaration */
+
 //Threading support for actors_lists
 void init_actors_lists()
 {
@@ -31,11 +40,13 @@ void init_actors_lists()
 	UNLOCK_ACTORS_LISTS();	// release now that we are done
 }
 
+/* currently UNUSED
 void end_actors_lists()
 {
 	SDL_DestroyMutex(actors_lists_mutex);
 	actors_lists_mutex=NULL;
 }
+*/
 
 //return the ID (number in the actors_list[]) of the new allocated actor
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,

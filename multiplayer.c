@@ -3,6 +3,11 @@
 #include "global.h"
 #include "elwindows.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void get_updates();
+ */
+
 const char * web_update_address="http://www.eternal-lands.com/index.php?content=update";
 
 int port=2000;
@@ -927,11 +932,13 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		default:
 			{
-				/* Unknown data type?? */;
+				// Unknown data type??
+                ;
 			}
 			break;
 		}
 }
+
 
 int in_data_used=0;
 static void process_data_from_server()
@@ -1009,6 +1016,7 @@ void get_message_from_server()
 	}
 }
 
+/* currently UNUSED
 void get_updates()
 {
 	char servername[80];
@@ -1022,3 +1030,4 @@ void get_updates()
 	http_get_file(servername, filepath_on_server, fp);
 	fclose(fp);
 }
+*/

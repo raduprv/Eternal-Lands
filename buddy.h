@@ -42,62 +42,66 @@ extern int buddy_win; /*!< The identifier of the buddy window */
  */
 void init_buddy();
 
-/*!
- * \ingroup	buddy_win
- * \brief	Compares 2 buddies and specifies which one should be on top of the other
- *
- * 		Compares 2 buddies and specifies which one should be on top of the other - is used for sorting the buddy list using qsort.
- *
- * \param	arg1 The first buddy*
- * \param	arg2 The second buddy*
- * \retval int	Returns either a negative or positive integer depending on whether arg1 or arg2 is to be placed higher in the array that's being sorted.
- * \sa display_buddy_handler
- */
-int compare2( const void *arg1, const void *arg2);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	buddy_win
+// * \brief	Compares 2 buddies and specifies which one should be on top of the other
+// *
+// * 		Compares 2 buddies and specifies which one should be on top of the other - is used for sorting the buddy list using qsort.
+// *
+// * \param	arg1 The first buddy*
+// * \param	arg2 The second buddy*
+// * \retval int	Returns either a negative or positive integer depending on whether arg1 or arg2 is to be placed higher in the array that's being sorted.
+// * \sa display_buddy_handler
+// */
+//int compare2( const void *arg1, const void *arg2);
 
-/*!
- * \ingroup	buddy_win
- * \brief	The callback for handling mouseclicks in the buddy-list
- *
- * 		The callback for handling mouseclicks in the buddy-list - will display a buddy's name at the bottom of the screen (/\<name\> ) ready for writing him/her a message.
- * 
- * \param	win The window that called the function
- * \param	mx The mouse' x position
- * \param	my The mouse' y position
- * \param	flags The flags
- * \retval int	Returns true
- * \callgraph
- */
-int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	buddy_win
+// * \brief	The callback for handling mouseclicks in the buddy-list
+// *
+// * 		The callback for handling mouseclicks in the buddy-list - will display a buddy's name at the bottom of the screen (/\<name\> ) ready for writing him/her a message.
+// * 
+// * \param	win The window that called the function
+// * \param	mx The mouse' x position
+// * \param	my The mouse' y position
+// * \param	flags The flags
+// * \retval int	Returns true
+// * \callgraph
+// */
+//int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags);
 
-/*!
- * \ingroup	buddy_win
- * \brief	Draws the buddy list
- *
- * 		This is the main function for drawing the buddy list window
- *
- * \param	win The window that's being drawn
- * \retval int	Returns true
- * \callgraph
- */
-int display_buddy_handler(window_info *win);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	buddy_win
+// * \brief	Draws the buddy list
+// *
+// * 		This is the main function for drawing the buddy list window
+// *
+// * \param	win The window that's being drawn
+// * \retval int	Returns true
+// * \callgraph
+// */
+//int display_buddy_handler(window_info *win);
 
-/*!
- * \ingroup	buddy_win
- * \brief	The drag callback for the buddy window
- *
- * 		The drag callback for the buddy window - handles dragging the scrollbar etc.
- *
- * \param	win The window that called the function
- * \param	mx The mouse' x position
- * \param	my The mouse' y position
- * \param	flags The flags
- * \param	dx The delta x
- * \param	dy The delta y
- * \retval int	Returns 1 if the mouse is being dragged within the scrollbar, otherwise 0.
- * \sa display_buddy
- */
-int drag_buddy_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	buddy_win
+// * \brief	The drag callback for the buddy window
+// *
+// * 		The drag callback for the buddy window - handles dragging the scrollbar etc.
+// *
+// * \param	win The window that called the function
+// * \param	mx The mouse' x position
+// * \param	my The mouse' y position
+// * \param	flags The flags
+// * \param	dx The delta x
+// * \param	dy The delta y
+// * \retval int	Returns 1 if the mouse is being dragged within the scrollbar, otherwise 0.
+// * \sa display_buddy
+// */
+//int drag_buddy_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy);
 	
 /*!
  * \ingroup	buddy_win

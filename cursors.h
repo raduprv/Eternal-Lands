@@ -84,17 +84,18 @@ extern struct enter_names_struct entrable_objects[100];
  */
 void load_cursors();
 
-/*!
- * \ingroup display_2d
- * \brief assigns the given \a cursor_id to the current cursor.
- *
- *      Assigns the given \a cursor_id to the current cursos.
- *
- * \param cursor_id     the cursor to use
- *
- * \sa build_cursors
- */
-void assign_cursor(int cursor_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup display_2d
+// * \brief assigns the given \a cursor_id to the current cursor.
+// *
+// *      Assigns the given \a cursor_id to the current cursos.
+// *
+// * \param cursor_id     the cursor to use
+// *
+// * \sa build_cursors
+// */
+//void assign_cursor(int cursor_id);
 
 /*!
  * \ingroup display_2d
@@ -106,15 +107,16 @@ void assign_cursor(int cursor_id);
  */
 void change_cursor(int cursor_id);
 
-/*!
- * \ingroup display_2d
- * \brief changes the currently shown cursor to the one given in \a cursor_id.
- *
- *      Changes the currently displayed cursor to the one given in \a cursor_id.
- *
- * \param cursor_id     the cursor to show
- */
-void change_cursor_show(int cursor_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup display_2d
+// * \brief changes the currently shown cursor to the one given in \a cursor_id.
+// *
+// *      Changes the currently displayed cursor to the one given in \a cursor_id.
+// *
+// * \param cursor_id     the cursor to show
+// */
+//void change_cursor_show(int cursor_id);
 
 /*!
  * \ingroup other

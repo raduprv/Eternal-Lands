@@ -89,15 +89,16 @@ void Move();
  */
 void update_camera();
 
-/*!
- * \ingroup network_actors
- * \brief      get_tmp_actor_data
- *
- *      get_tmp_actor_data() to be documented
- *
- * \sa draw_scene
- */
-void get_tmp_actor_data();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup network_actors
+// * \brief      get_tmp_actor_data
+// *
+// *      get_tmp_actor_data() to be documented
+// *
+// * \sa draw_scene
+// */
+//void get_tmp_actor_data();
 
 /*!
  * \ingroup misc_utils

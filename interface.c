@@ -3,6 +3,11 @@
 #include "elwindows.h"
 #include <math.h>
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void draw_menu_title_bar(int, int, int);
+ */
+
 int mouse_x;
 int mouse_y;
 int mouse_delta_x;
@@ -772,6 +777,7 @@ void draw_ingame_interface()
 #endif
 }
 
+/* currently UNUSED
 void draw_menu_title_bar(int x, int y, int x_len)
 {
 	float u_first_start=(float)31/256;
@@ -834,6 +840,7 @@ void draw_menu_title_bar(int x, int y, int x_len)
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
 }
+*/
 
 GLuint map_text;
 GLuint cont_text;

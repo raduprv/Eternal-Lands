@@ -2,6 +2,11 @@
 #include "global.h"
 #include <math.h>
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void draw_test_light();
+ */
+
 /*!
  * a position for the sun
  */
@@ -53,6 +58,7 @@ unsigned char light_level=58;
 sun sun_pos[60*3];
 short game_minute=60;
 
+/* currently UNUSED
 void draw_test_light()
 {
 	GLfloat light_position[] = { 15.0, 15.0, 3.0, 1.0 };
@@ -65,6 +71,7 @@ void draw_test_light()
 	glLightfv(GL_LIGHT1, GL_POSITION, light_position_2);
 	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
 }
+*/
 
 void disable_local_lights()
 {

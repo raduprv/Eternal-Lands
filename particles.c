@@ -11,6 +11,11 @@
 #endif
 #include "string.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * void dump_part_sys_info();
+ */
+
 /*!
  * \name Particle system kinds
  */
@@ -43,6 +48,11 @@ particle_sys *particles_list[MAX_PARTICLE_SYSTEMS];
  ******************************************************/
 #define MAX_PARTICLE_DEFS 500
 particle_sys_def *defs_list[MAX_PARTICLE_DEFS];
+
+/* forward declarations added due to code cleanup */
+void destroy_all_particle_defs();
+int create_particle_sys(particle_sys_def *def,float x,float y,float z);
+/* end of added forward declarations */
 
 #ifndef ELC
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
@@ -215,6 +225,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	return def;
 }
 
+#ifdef MAP_EDITOR
 int save_particle_def(particle_sys_def *def)
 {
 	char cleanpath[128];
@@ -256,6 +267,7 @@ int save_particle_def(particle_sys_def *def)
 	fclose(f);
 	return 1;
 }
+#endif
 
 /*******************************************************************
  *            INITIALIZATION AND CLEANUP FUNCTIONS                 *
@@ -1011,6 +1023,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 
 }
 
+/* currently UNUSED
 void dump_part_sys_info()
 {
 	char str[256];
@@ -1041,4 +1054,5 @@ void dump_part_sys_info()
 	sprintf(str,"#%s: %i%%",part_part_str,particles_percentage);
 	LOG_TO_CONSOLE(c_grey1,str);
 }
+*/
 #endif

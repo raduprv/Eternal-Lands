@@ -153,15 +153,16 @@ void draw_hud_interface();
  */
 int check_hud_interface();
 
-/*!
- * \ingroup other
- * \brief
- *
- *      Detail
- *
- * \sa init_hud_interface
- */
-void init_hud_frame();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup other
+// * \brief
+// *
+// *      Detail
+// *
+// * \sa init_hud_interface
+// */
+//void init_hud_frame();
 
 /*!
  * \ingroup display_2d
@@ -175,78 +176,84 @@ void draw_hud_frame();
 
 // icons subsection
 
-/*!
- * \ingroup other
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void init_peace_icons();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup other
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void init_peace_icons();
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \retval int
- * \callgraph
- */
-int check_peace_icons();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \retval int
+// * \callgraph
+// */
+//int check_peace_icons();
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \param u_start
- * \param v_start
- * \param colored_u_start
- * \param colored_v_start
- * \param help_message
- * \param func
- * \param data
- * \param data_type
- *
- * \sa init_peace_icons
- */
-void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param u_start
+// * \param v_start
+// * \param colored_u_start
+// * \param colored_v_start
+// * \param help_message
+// * \param func
+// * \param data
+// * \param data_type
+// *
+// * \sa init_peace_icons
+// */
+//void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \param no
- * \param ...
- */
-void set_icon_order(int no, ...);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param no
+// * \param ...
+// */
+//void set_icon_order(int no, ...);
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \param id
- * \param state
- */
-void reset_states(int id, int state);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param id
+// * \param state
+// */
+//void reset_states(int id, int state);
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \param win_id
- * \retval int
- */
-int translate_win_id(int * win_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win_id
+// * \retval int
+// */
+//int translate_win_id(int * win_id);
 
 /*!
  * \ingroup windows
@@ -260,18 +267,19 @@ void free_icons();
 
 //Functions for the function pointers
 
-/*!
- * \ingroup network_actors
- * \brief
- *
- *      Detail
- *
- * \param mode
- * \param id
- *
- * \sa init_peace_icons
- */
-void switch_action_mode(int * mode, int id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup network_actors
+// * \brief
+// *
+// *      Detail
+// *
+// * \param mode
+// * \param id
+// *
+// * \sa init_peace_icons
+// */
+//void switch_action_mode(int * mode, int id);
 
 /*!
  * \ingroup windows
@@ -353,35 +361,38 @@ void show_help(char *message, int x, int y);
 
 //stats/health section
 
-/*!
- * \ingroup other
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void init_stats_display();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup other
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void init_stats_display();
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \retval int
- */
-int check_stats_display();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \retval int
+// */
+//int check_stats_display();
 
-/*!
- * \ingroup display_2d
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void draw_exp_display();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup display_2d
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void draw_exp_display();
 
 /*!
  * \ingroup other
@@ -393,114 +404,124 @@ void draw_exp_display();
  */
 void build_levels_table();
 
-/*!
- * \ingroup display_2d
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void draw_stats();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup display_2d
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void draw_stats();
 
 //misc section (compass, clock, ?)
 
-/*!
- * \ingroup other
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void init_misc_display();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup other
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void init_misc_display();
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \retval int
- * \callgraph
- */
-int check_misc_display();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \retval int
+// * \callgraph
+// */
+//int check_misc_display();
 
 //quickbar section
 
-/*!
- * \ingroup other
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void init_quickbar();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup other
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void init_quickbar();
 
-/*!
- * \ingroup display_2d
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void draw_quickbar();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup display_2d
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void draw_quickbar();
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \retval int
- * \callgraph
- */
-int check_quickbar();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \retval int
+// * \callgraph
+// */
+//int check_quickbar();
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void flip_quickbar();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void flip_quickbar();
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void reset_quickbar();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void reset_quickbar();
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \param win_id
- * \param flags
- */
-void change_flags(int win_id, Uint32 flags);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win_id
+// * \param flags
+// */
+//void change_flags(int win_id, Uint32 flags);
 
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- * \param win_id
- * \retval Uint32
- *
- * \sa click_quickbar_handler
- */
-Uint32 get_flags(int win_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup windows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win_id
+// * \retval Uint32
+// *
+// * \sa click_quickbar_handler
+// */
+//Uint32 get_flags(int win_id);
 
 #endif	//__HUD_H

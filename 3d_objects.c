@@ -6,6 +6,11 @@
 object3d *objects_list[MAX_OBJ_3D];
 int highest_obj_3d= 0;
 
+/* forward declarations added due to code cleanup */
+e3d_object * load_e3d(char *file_name);
+void compute_clouds_map(object3d * object_id);
+/* end of added forward declarations */
+
 void draw_3d_object(object3d * object_id)
 {
 	float x_pos,y_pos,z_pos;

@@ -31,27 +31,29 @@ GLuint load_bmp8_color_key(char * FileName);
  */
 GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
 
-/*!
- * \ingroup 	load_bmp
- * \brief 	Opens a bitmap-file and returns a pointer to the raw image.
- *
- *      	Loads a raw color-key texture/bitmap from an 8-bit bitmap file. Does not generate the GL-texture.
- *
- * \param   	FileName The filename of the texture you wish to load.
- * \retval char*  	A char * to the memory containing the texture (with the color-key). The GL-texture is not generated.
- */
-char * load_bmp8_color_key_no_texture(char * FileName);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup 	load_bmp
+// * \brief 	Opens a bitmap-file and returns a pointer to the raw image.
+// *
+// *      	Loads a raw color-key texture/bitmap from an 8-bit bitmap file. Does not generate the GL-texture.
+// *
+// * \param   	FileName The filename of the texture you wish to load.
+// * \retval char*  	A char * to the memory containing the texture (with the color-key). The GL-texture is not generated.
+// */
+//char * load_bmp8_color_key_no_texture(char * FileName);
 
-/*!
- * \ingroup 	load_bmp
- * \brief 	Loads the alpha-map from an 8-bit bitmap file.
- *
- *      	Load the alpha-map from an 8-bit bitmap file. It does not load the rgb-values into the array, but (r+g+b)/3.
- *
- * \param   	FileName The filename of the file you wish to load the alpha-map from.
- * \retval char*  	A char* to the memory containing the alpha-map.
- */
-char * load_bmp8_alpha_map(char * FileName);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup 	load_bmp
+// * \brief 	Loads the alpha-map from an 8-bit bitmap file.
+// *
+// *      	Load the alpha-map from an 8-bit bitmap file. It does not load the rgb-values into the array, but (r+g+b)/3.
+// *
+// * \param   	FileName The filename of the file you wish to load the alpha-map from.
+// * \retval char*  	A char* to the memory containing the alpha-map.
+// */
+//char * load_bmp8_alpha_map(char * FileName);
 
 /*!
  * \ingroup 	cache
@@ -121,20 +123,22 @@ int		get_and_set_texture_id(int i);
 GLuint	load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short shirt,
 							   short pants, short boots);
                                
-/*!
- * \ingroup 	load_bmp
- * \brief 	Loads a raw image to the given texture_space.
- *
- *      	Loads a raw 8-bit bmp texture to the texture_space at the x, y offset.
- *
- * \param   	FileName The filename of the bitmap you wish to get loaded.
- * \param   	texture_space The texture you wish to load
- * \param   	x_pos The x offset
- * \param   	y_pos The y offset (256*x)
- * \param   	alpha The fixed alpha
- */
-void	load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,int y_pos,
-							  Uint8 alpha);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup 	load_bmp
+// * \brief 	Loads a raw image to the given texture_space.
+// *
+// *      	Loads a raw 8-bit bmp texture to the texture_space at the x, y offset.
+// *
+// * \param   	FileName The filename of the bitmap you wish to get loaded.
+// * \param   	texture_space The texture you wish to load
+// * \param   	x_pos The x offset
+// * \param   	y_pos The y offset (256*x)
+// * \param   	alpha The fixed alpha
+// */
+//void	load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,int y_pos,
+//							  Uint8 alpha);
+
 #ifdef	ELC
 /*!
  * \ingroup 	load_bmp

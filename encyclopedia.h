@@ -80,15 +80,16 @@ extern int numpage;
  */
 void display_encyclopedia();
 
-/*!
- * \ingroup encyclopedia
- * \brief   mouse over event handler for encyclopedia
- *
- *      Mouse over event handler for encyclopedia
- *
- * \retval int
- */
-int encyclopedia_mouse_over();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup encyclopedia
+// * \brief   mouse over event handler for encyclopedia
+// *
+// *      Mouse over event handler for encyclopedia
+// *
+// * \retval int
+// */
+//int encyclopedia_mouse_over();
 
 /*!
  * \ingroup encyclopedia
@@ -100,29 +101,31 @@ int encyclopedia_mouse_over();
  */
 void fill_encyclopedia_win ();
 
-/*!
- * \ingroup xml_utils
- * \brief   reads a category from the xml node \a a_node
- *
- *      Reads a category from the xml node element \a a_node
- *
- * \param a_node    the xml node element that contains the declaration of the category
- *
- * \callgraph
- */
-void ReadCategoryXML(xmlNode * a_node);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup xml_utils
+// * \brief   reads a category from the xml node \a a_node
+// *
+// *      Reads a category from the xml node element \a a_node
+// *
+// * \param a_node    the xml node element that contains the declaration of the category
+// *
+// * \callgraph
+// */
+//void ReadCategoryXML(xmlNode * a_node);
 
-/*!
- * \ingroup xml_utils
- * \brief   reads the index.xml file for the encyclopedia
- *
- *      Reads and parses the index.xml file used by the encyclopedia
- *
- * \param a_node    the root xml node element of the index.
- *
- * \callgraph
- */
-void ReadIndexXML(xmlNode * a_node);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup xml_utils
+// * \brief   reads the index.xml file for the encyclopedia
+// *
+// *      Reads and parses the index.xml file used by the encyclopedia
+// *
+// * \param a_node    the root xml node element of the index.
+// *
+// * \callgraph
+// */
+//void ReadIndexXML(xmlNode * a_node);
 
 /*!
  * \ingroup xml_utils

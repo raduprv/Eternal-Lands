@@ -1147,65 +1147,70 @@ int text_field_set_text_color (Uint32 window_id, Uint32 widget_id, float r, floa
  */
 int AddXMLWindow(char *fn);
 
-/*!
- * \ingroup	xml_windows
- * \brief 	Reads an xml-file and parses the window/widget data
- *
- * 		Reads an xml-file and parses the window/widget data
- *
- * \param   	a_node The xmlNode to be parsed.
- * \retval int  	Returns the window position in the windows_list.windows[] array on succes.
- * \callgraph
- */
-int ReadXMLWindow(xmlNode * a_node);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	xml_windows
+// * \brief 	Reads an xml-file and parses the window/widget data
+// *
+// * 		Reads an xml-file and parses the window/widget data
+// *
+// * \param   	a_node The xmlNode to be parsed.
+// * \retval int  	Returns the window position in the windows_list.windows[] array on succes.
+// * \callgraph
+// */
+//int ReadXMLWindow(xmlNode * a_node);
 
-/*!
- * \ingroup	xml_windows
- * \brief 	Parses xml-window data
- *
- * 		The function is called from ReadXMLWindow, then parses the window data.
- *
- * \param   	node The xmlNode to be parsed
- * \retval int  Returns the window_id in the windows_list.windows array on succes.
- * \callgraph
- */
-int ParseWindow (xmlNode *node);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	xml_windows
+// * \brief 	Parses xml-window data
+// *
+// * 		The function is called from ReadXMLWindow, then parses the window data.
+// *
+// * \param   	node The xmlNode to be parsed
+// * \retval int  Returns the window_id in the windows_list.windows array on succes.
+// * \callgraph
+// */
+//int ParseWindow (xmlNode *node);
 
-/*!
- * \ingroup	xml_windows
- * \brief 	Parses xml-widget data
- *
- * 		The function is called from ParseWindow or ParseTab, then parses the widget data
- *
- * \param   	node The xmlNode describing the widget
- * \param   	winid The window ID the widget belongs to
- * \retval int  Returns the new widget id 
- * \callgraph
- */
-int ParseWidget (xmlNode *node, int winid);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	xml_windows
+// * \brief 	Parses xml-widget data
+// *
+// * 		The function is called from ParseWindow or ParseTab, then parses the widget data
+// *
+// * \param   	node The xmlNode describing the widget
+// * \param   	winid The window ID the widget belongs to
+// * \retval int  Returns the new widget id 
+// * \callgraph
+// */
+//int ParseWidget (xmlNode *node, int winid);
 
-/*!
- * \ingroup	xml_windows
- * \brief 	Parses xml window tab
- *
- * 		The function is called from ParseWidget, then parses the tab data
- *
- * \param   	node The xmlNode describing the tab
- * \param   	winid The window ID to which the tab belongs
- * \param   	colid The widget id of the tab collection the tab belongs to
- * \retval int  Returns the window id of the tab
- * \callgraph
- */
-int ParseTab (xmlNode *node, int winid, int colid);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	xml_windows
+// * \brief 	Parses xml window tab
+// *
+// * 		The function is called from ParseWidget, then parses the tab data
+// *
+// * \param   	node The xmlNode describing the tab
+// * \param   	winid The window ID to which the tab belongs
+// * \param   	colid The widget id of the tab collection the tab belongs to
+// * \retval int  Returns the window id of the tab
+// * \callgraph
+// */
+//int ParseTab (xmlNode *node, int winid, int colid);
 
-/*!
- * \ingroup	xml_windows
- * \brief 	Gets the widget type
- *
- * 		Gets the widget type from the name
- *
- * \param   	w The Widget's name
- * \retval int 	Returns the type of widget on succes, 0 on failure.
- */
-int GetWidgetType (const char *w);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup	xml_windows
+// * \brief 	Gets the widget type
+// *
+// * 		Gets the widget type from the name
+// *
+// * \param   	w The Widget's name
+// * \retval int 	Returns the type of widget on succes, 0 on failure.
+// */
+//int GetWidgetType (const char *w);
 #endif

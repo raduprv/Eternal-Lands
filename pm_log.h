@@ -76,16 +76,17 @@ void go_ifk(void);
  */
 void add_message_to_pm_log(char * msg, int len);
 
-/*!
- * \ingroup actor_utils
- * \brief adds the given name up to a specified length to the PM log.
- *
- *      Adds the given name up to the specified length len to the PM log.
- *
- * \param name  the name to add to the PM log.
- * \param len   the length of name
- */
-void add_name_to_pm_log(char *name, int len);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup actor_utils
+// * \brief adds the given name up to a specified length to the PM log.
+// *
+// *      Adds the given name up to the specified length len to the PM log.
+// *
+// * \param name  the name to add to the PM log.
+// * \param len   the length of name
+// */
+//void add_name_to_pm_log(char *name, int len);
 
 /*!
  * \ingroup network_actors
@@ -100,15 +101,16 @@ void add_name_to_pm_log(char *name, int len);
  */
 void send_afk_message(Uint8 * server_msg, int type);
 
-/*!
- * \ingroup actor_utils
- * \brief prints the user specified return message, after the player returns from AFK.
- *
- *      Prints the user specified return message, after the player returns from AFK.
- *
- * \callgraph
- */
-void print_return_message(void);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup actor_utils
+// * \brief prints the user specified return message, after the player returns from AFK.
+// *
+// *      Prints the user specified return message, after the player returns from AFK.
+// *
+// * \callgraph
+// */
+//void print_return_message(void);
 
 /*!
  * \ingroup actor_utils
@@ -120,17 +122,18 @@ void print_return_message(void);
  */
 void print_message(int no);
 
-/*!
- * \ingroup actor_utils
- * \brief have_name
- *
- *      have_name(char*,int)
- *
- * \param name
- * \param len
- * \retval int
- */
-int have_name(char *name, int len);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup actor_utils
+// * \brief have_name
+// *
+// *      have_name(char*,int)
+// *
+// * \param name
+// * \param len
+// * \retval int
+// */
+//int have_name(char *name, int len);
 
 /*!
  * \ingroup network_actors

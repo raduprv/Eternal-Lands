@@ -75,17 +75,18 @@ extern int log_conn_data; /*!< indicates whether we should log connection data o
  */
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
 
-/*!
- * \ingroup network_actors
- * \brief
- *
- *      Detail
- *
- * \param ip
- *
- * \sa my_tcp_send
- */
-void send_version_to_server(IPaddress *ip);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup network_actors
+// * \brief
+// *
+// *      Detail
+// *
+// * \param ip
+// *
+// * \sa my_tcp_send
+// */
+//void send_version_to_server(IPaddress *ip);
 
 /*!
  * \ingroup network_actors
@@ -129,28 +130,30 @@ void send_login_info();
 void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, char skin, 
 				   char hair, char shirt, char pants, char boots,char head, char type);
 
-/*!
- * \ingroup network_actors
- * \brief
- *
- *      Detail
- *
- * \param in_data
- * \param data_lenght
- *
- * \callgraph
- */
-void process_message_from_server(unsigned char *in_data, int data_lenght);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup network_actors
+// * \brief
+// *
+// *      Detail
+// *
+// * \param in_data
+// * \param data_lenght
+// *
+// * \callgraph
+// */
+//void process_message_from_server(unsigned char *in_data, int data_lenght);
 
-/*!
- * \ingroup network_actors
- * \brief
- *
- *      Detail
- *
- * \retval int
- */
-int recvpacket();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup network_actors
+// * \brief
+// *
+// *      Detail
+// *
+// * \retval int
+// */
+//int recvpacket();
 
 /*!
  * \ingroup network_actors
@@ -161,13 +164,14 @@ int recvpacket();
  */
 void get_message_from_server();
 
-/*!
- * \ingroup network_actors
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void get_updates();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup network_actors
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void get_updates();
 #endif

@@ -142,14 +142,15 @@ extern int particles_percentage;
  */
 void destroy_all_particles();
 
-/*!
- * \ingroup other
- * \brief destroys all allocated \see particle_def structures
- *
- *      Destroys all allocated \see particle_def structures
- *
- */
-void destroy_all_particle_defs();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup other
+// * \brief destroys all allocated \see particle_def structures
+// *
+// *      Destroys all allocated \see particle_def structures
+// *
+// */
+//void destroy_all_particle_defs();
 
 /*!
  * \ingroup other
@@ -186,32 +187,34 @@ extern void	end_particles_list();
 
 //CREATION OF NEW PARTICLES AND SYSTEMS 
 
-/*!
- * \ingroup particles
- * \brief creates a new particle system with the given header at the given position.
- *
- *      Creates a new particle system with the given \see particle_sys_def header at position (x,y,z)
- *
- * \param def   particle system header information
- * \param x     x coordinate of where the particle system should appear
- * \param y     y coordinate of where the particle system should appear
- * \param z     z coordinate of where the particle system should appear
- * \retval int
- * \callgraph
- */
-int create_particle_sys(particle_sys_def *def,float x,float y,float z);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup particles
+// * \brief creates a new particle system with the given header at the given position.
+// *
+// *      Creates a new particle system with the given \see particle_sys_def header at position (x,y,z)
+// *
+// * \param def   particle system header information
+// * \param x     x coordinate of where the particle system should appear
+// * \param y     y coordinate of where the particle system should appear
+// * \param z     z coordinate of where the particle system should appear
+// * \retval int
+// * \callgraph
+// */
+//int create_particle_sys(particle_sys_def *def,float x,float y,float z);
 
-/*!
- * \ingroup particles
- * \brief creates a new particle for the given particle_sys and returns it in the parameter result
- *
- *      Creates a new particle for the given particle_sys particle system and returns it with the parameter result.
- *
- * \param sys       the particle system for which to create a new particle
- * \param result    a pointer to a particle struct filled by the function
- *
- */
-void create_particle(particle_sys *sys,particle *result);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup particles
+// * \brief creates a new particle for the given particle_sys and returns it in the parameter result
+// *
+// *      Creates a new particle for the given particle_sys particle system and returns it with the parameter result.
+// *
+// * \param sys       the particle system for which to create a new particle
+// * \param result    a pointer to a particle struct filled by the function
+// *
+// */
+//void create_particle(particle_sys *sys,particle *result);
 
 /*!
  * \ingroup particles
@@ -257,75 +260,81 @@ void display_particles();
 
 //UPDATE FUNCTIONS
 
-/*!
- * \ingroup particles
- * \brief updates the given teleporter particle system
- *
- *      Updates the given teleporter particle system
- *
- * \param system_id     the id of the teleporter particle system to update
- *
- * \sa create_particle
- */
-void update_teleporter_sys(particle_sys *system_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup particles
+// * \brief updates the given teleporter particle system
+// *
+// *      Updates the given teleporter particle system
+// *
+// * \param system_id     the id of the teleporter particle system to update
+// *
+// * \sa create_particle
+// */
+//void update_teleporter_sys(particle_sys *system_id);
 
-/*!
- * \ingroup particles
- * \brief updates the given fire particle system
- *
- *      Updates the given fire particle system
- *
- * \param system_id     the id of the fire particle system to update
- *
- * \sa create_particle
- */
-void update_fire_sys(particle_sys *system_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup particles
+// * \brief updates the given fire particle system
+// *
+// *      Updates the given fire particle system
+// *
+// * \param system_id     the id of the fire particle system to update
+// *
+// * \sa create_particle
+// */
+//void update_fire_sys(particle_sys *system_id);
 
-/*!
- * \ingroup particles
- * \brief updates the given teleport particle system.
- *
- *      Updates the given teleport particle system.
- *
- * \param system_id     the id of the teleport particle system to update
- *
- * \sa create_particle
- */
-void update_teleport_sys(particle_sys *system_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup particles
+// * \brief updates the given teleport particle system.
+// *
+// *      Updates the given teleport particle system.
+// *
+// * \param system_id     the id of the teleport particle system to update
+// *
+// * \sa create_particle
+// */
+//void update_teleport_sys(particle_sys *system_id);
 
-/*!
- * \ingroup particles
- * \brief updates the given bag particle system
- *
- *      Updats the given bag particle system
- *
- * \param system_id     the id of the bag particle system to update
- *
- * \sa create_particle
- */
-void update_bag_part_sys(particle_sys *system_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup particles
+// * \brief updates the given bag particle system
+// *
+// *      Updats the given bag particle system
+// *
+// * \param system_id     the id of the bag particle system to update
+// *
+// * \sa create_particle
+// */
+//void update_bag_part_sys(particle_sys *system_id);
 
-/*!
- * \ingroup particles
- * \brief updates the given burst particle system
- *
- *      Updates the given burst particle system
- *
- * \param system_id     the id of the burst particle system to update
- */
-void update_burst_sys(particle_sys *system_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup particles
+// * \brief updates the given burst particle system
+// *
+// *      Updates the given burst particle system
+// *
+// * \param system_id     the id of the burst particle system to update
+// */
+//void update_burst_sys(particle_sys *system_id);
 
-/*!
- * \ingroup particles
- * \brief updates the given fountain particle system
- *
- *      Updates the given fountain particle system
- *
- * \param system_id     the id of the fountain particle system to update.
- *
- * \sa create_particle
- */
-void update_fountain_sys(particle_sys *system_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup particles
+// * \brief updates the given fountain particle system
+// *
+// *      Updates the given fountain particle system
+// *
+// * \param system_id     the id of the fountain particle system to update.
+// *
+// * \sa create_particle
+// */
+//void update_fountain_sys(particle_sys *system_id);
 
 /*!
  * \ingroup particles
@@ -351,16 +360,18 @@ void update_particles();
  */
 void add_teleporters_from_list(Uint8 *teleport_list);
 
-/*!
- * \ingroup misc_utils
- * \brief dumps some info about particle systems.
- *
- *      Dumps some info about particle systems.
- *
- */
-void dump_part_sys_info();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup misc_utils
+// * \brief dumps some info about particle systems.
+// *
+// *      Dumps some info about particle systems.
+// *
+// */
+//void dump_part_sys_info();
 #endif
 
+#ifdef MAP_EDITOR
 /*!
  * \ingroup loadsave
  * \brief saves the given particle system definition to a file
@@ -372,5 +383,6 @@ void dump_part_sys_info();
  * \callgraph
  */
 int save_particle_def(particle_sys_def *def);
+#endif
 
 #endif

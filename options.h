@@ -69,95 +69,102 @@ extern int options_menu_y_len;
  */
 void display_options_menu();
 
-/*!
- * \ingroup options_win
- * \brief initializes the data for the options window.
- *
- *      Initializes the data for the options window.
- *
- * \callgraph
- */
-void init_display_options_menu();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup options_win
+// * \brief initializes the data for the options window.
+// *
+// *      Initializes the data for the options window.
+// *
+// * \callgraph
+// */
+//void init_display_options_menu();
 
-/*!
- * \ingroup options_win
- * \brief adds the given option to the list of known options.
- *
- *      Adds the given option to the list of known options.
- *
- * \param type      type of the option
- * \param name      name of the option
- * \param desc      description for this option
- * \param func      pointer to the callback implementation used for this option
- * \param data_1    ***reserved???
- * \param data_2    ***reserved???
- * \param column
- */
-void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2, int column);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup options_win
+// * \brief adds the given option to the list of known options.
+// *
+// *      Adds the given option to the list of known options.
+// *
+// * \param type      type of the option
+// * \param name      name of the option
+// * \param desc      description for this option
+// * \param func      pointer to the callback implementation used for this option
+// * \param data_1    ***reserved???
+// * \param data_2    ***reserved???
+// * \param column
+// */
+//void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2, int column);
 
-/*!
- * \ingroup options_win
- * \brief changes the option to the data given in \a data_1 and \a data_2.
- *
- *      Changes the option to the data given in \a data_1 and \a data_2.
- *
- * \param data_1
- * \param data_2
- */
-void change_option(int * data_1, int * data_2);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup options_win
+// * \brief changes the option to the data given in \a data_1 and \a data_2.
+// *
+// *      Changes the option to the data given in \a data_1 and \a data_2.
+// *
+// * \param data_1
+// * \param data_2
+// */
+//void change_option(int * data_1, int * data_2);
 
-/*!
- * \ingroup options_win
- * \brief switches the client into fullscreen mode.
- *
- *      Switches the client into fullscreen mode.
- *
- * \param unused
- * \param unused2
- *
- * \callgraph
- */
-void move_to_full_screen(int  * unused, int * unused2);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup options_win
+// * \brief switches the client into fullscreen mode.
+// *
+// *      Switches the client into fullscreen mode.
+// *
+// * \param unused
+// * \param unused2
+// *
+// * \callgraph
+// */
+//void move_to_full_screen(int  * unused, int * unused2);
 
-/*!
- * \ingroup options_win
- * \brief switches the video mode to the one given in \a mode.
- *
- *      Switches video mode to the given \a mode.
- *
- * \param unused
- * \param mode      the new mode to use
- *
- * \callgraph
- */
-void switch_video_modes(int * unused, int * mode);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup options_win
+// * \brief switches the video mode to the one given in \a mode.
+// *
+// *      Switches video mode to the given \a mode.
+// *
+// * \param unused
+// * \param mode      the new mode to use
+// *
+// * \callgraph
+// */
+//void switch_video_modes(int * unused, int * mode);
 
-/*!
- * \ingroup options_win
- * \brief toggles sound on/off
- *
- *      Toggles sound on or off.
- *
- * \param unused
- * \param unused2
- *
- * \sa sound_effects
- * \callgraph
- */
-void change_sound(int  * unused, int * unused2);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup options_win
+// * \brief toggles sound on/off
+// *
+// *      Toggles sound on or off.
+// *
+// * \param unused
+// * \param unused2
+// *
+// * \sa sound_effects
+// * \callgraph
+// */
+//void change_sound(int  * unused, int * unused2);
 
-/*!
- * \ingroup options_win
- * \brief toggles music on/off.
- *
- *      Toggles music on or off.
- *
- * \param unused
- * \param unused2
- *
- * \sa music
- * \callgraph
- */
-void change_music(int  * unused, int * unused2);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup options_win
+// * \brief toggles music on/off.
+// *
+// *      Toggles music on or off.
+// *
+// * \param unused
+// * \param unused2
+// *
+// * \sa music
+// * \callgraph
+// */
+//void change_music(int  * unused, int * unused2);
 
 #endif

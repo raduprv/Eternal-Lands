@@ -12,6 +12,10 @@ char afk_title[100];
 
 struct pm_struct pm_log;
 
+/* forward declaration added due to code cleanup */
+void print_return_message(void);
+/* end of added forward declaration */
+
 void free_pm_log()
 {
 	int i;

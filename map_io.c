@@ -2,6 +2,12 @@
 #include <string.h>
 #include "global.h"
 
+/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *
+ * int save_map(char*);
+ * void new_map(int, int);
+ */
+
 int map_type=1;
 
 void destroy_map()
@@ -71,6 +77,7 @@ void destroy_map()
 
 }
 
+/* currently UNUSED
 int save_map(char * file_name)
 {
 	int i,j;
@@ -276,7 +283,7 @@ int save_map(char * file_name)
 	return 1;
 
 }
-
+*/
 
 int get_cur_map(char * file_name)
 {
@@ -464,6 +471,7 @@ int load_map(char * file_name)
 
 }
 
+/* currently UNUSED
 void new_map(int m_x_size,int m_y_size)
 {
 	int i;
@@ -490,4 +498,4 @@ void new_map(int m_x_size,int m_y_size)
 
 
 }
-
+*/

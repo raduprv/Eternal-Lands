@@ -327,16 +327,17 @@ int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int
  */
 void	destroy_window(int win_id);
 
-/*!
- * \ingroup elwindows
- * \brief
- *
- *      Detail
- *
- * \param name
- * \retval int
- */
-int		find_window(const char *name);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup elwindows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param name
+// * \retval int
+// */
+//int		find_window(const char *name);
 
 /*!
  * \ingroup elwindows
@@ -430,17 +431,18 @@ int set_window_min_size (int win_id, int width, int height);
  */
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() );
 
-/*!
- * \ingroup elwindows
- * \brief
- *
- *      Detail
- *
- * \param win_id
- * \param handler_id
- * \retval void*
- */
-void	*get_window_handler(int win_id, int handler_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup elwindows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win_id
+// * \param handler_id
+// * \retval void*
+// */
+//void	*get_window_handler(int win_id, int handler_id);
 
 /*!
  * \ingroup elwindows
@@ -503,17 +505,18 @@ int		get_show_window(int win_id);
 //void	collapse_window(int win_id);	// future expansion
 //void	expand_window(int win_id);		// future expansion
 
-/*!
- * \ingroup elwindows
- * \brief
- *
- *      Detail
- *
- * \param win_id
- * \retval int
- * \callgraph
- */
-int		display_window(int win_id);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup elwindows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win_id
+// * \retval int
+// * \callgraph
+// */
+//int		display_window(int win_id);
 
 /*!
  * \ingroup elwindows
@@ -543,93 +546,99 @@ int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
  */
 int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coord in the window
 
-/*!
- * \ingroup elwindows
- * \brief
- *
- *      Detail
- *
- * \param win_id
- * \param x
- * \param y
- * \param flags
- * \param dx
- * \param dy
- * \retval int
- * \callgraph
- */
-int		drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup elwindows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win_id
+// * \param x
+// * \param y
+// * \param flags
+// * \param dx
+// * \param dy
+// * \retval int
+// * \callgraph
+// */
+//int		drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
 
-/*!
- * \ingroup elwindows
- * \brief
- *
- *      Detail
- *
- * \param win_id
- * \param x
- * \param y
- * \retval int
- * \callgraph
- */
-int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup elwindows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win_id
+// * \param x
+// * \param y
+// * \retval int
+// * \callgraph
+// */
+//int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
 
-#ifndef OLD_EVENT_HANDLER
-/*!
- * \ingroup elwindows
- * \brief
- *
- *      Detail
- *
- * \param win_id
- * \param x
- * \param y
- * \param key
- * \param unikey
- * \retval int
- * \callgraph
- */
-int		keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
-#endif
+/* OBSOLETE declaration: queued for removal from this header file */
+//#ifndef OLD_EVENT_HANDLER
+//*!
+// * \ingroup elwindows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win_id
+// * \param x
+// * \param y
+// * \param key
+// * \param unikey
+// * \retval int
+// * \callgraph
+// */
+//int		keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
+//#endif
 
 // low level functions
 //window_info	*get_window_info(int win_id);
 //window_info	*get_window_by_name(const Uint8 *name);
 
-/*!
- * \ingroup elwindows
- * \brief
- *
- *      Detail
- *
- * \param win
- * \retval int
- * \callgraph
- */
-int		draw_window(window_info *win);		// the complete window, including display_handler
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup elwindows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win
+// * \retval int
+// * \callgraph
+// */
+//int		draw_window(window_info *win);		// the complete window, including display_handler
 
-/*!
- * \ingroup elwindows
- * \brief
- *
- *      Detail
- *
- * \param win
- * \retval int
- * \callgraph
- */
-int		draw_window_title(window_info *win);// just the title bar if enabled
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup elwindows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win
+// * \retval int
+// * \callgraph
+// */
+//int		draw_window_title(window_info *win);// just the title bar if enabled
 
-/*!
- * \ingroup elwindows
- * \brief
- *
- *      Detail
- *
- * \param win
- * \retval int
- */
-int		draw_window_base(window_info *win);	// border & background
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup elwindows
+// * \brief
+// *
+// *      Detail
+// *
+// * \param win
+// * \retval int
+// */
+//int		draw_window_base(window_info *win);	// border & background
 
 // default handlers - VERY basic
 //int	init_handler(window_info *win);

@@ -40,17 +40,18 @@ extern int ctrl_on; /*!< flag indicating whether the Ctrl key is pressd. */
  */
 void	quick_use(int use_id);
 
-/*!
- * \ingroup timers
- * \brief   event_timer
- *
- *      event_timer(Uint32,void*) to be documented
- *
- * \param interval
- * \param data
- * \retval Uint32
- */
-Uint32 event_timer(Uint32 interval, void * data);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup timers
+// * \brief   event_timer
+// *
+// *      event_timer(Uint32,void*) to be documented
+// *
+// * \param interval
+// * \param data
+// * \retval Uint32
+// */
+//Uint32 event_timer(Uint32 interval, void * data);
 
 /*!
  * \ingroup event_handle

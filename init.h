@@ -188,43 +188,47 @@ extern char lang[10]; /*!< contains the identifier for the current language. \to
 
 extern int video_mode_set;
 
-/*!
- * \ingroup init
- * \brief
- *
- *      Detail
- *
- */
-void load_harvestable_list();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup init
+// * \brief
+// *
+// *      Detail
+// *
+// */
+//void load_harvestable_list();
 
-/*!
- * \ingroup init
- * \brief
- *
- *      Detail
- *
- */
-void load_entrable_list();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup init
+// * \brief
+// *
+// *      Detail
+// *
+// */
+//void load_entrable_list();
 
-/*!
- * \ingroup loadsave
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void read_config();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup loadsave
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void read_config();
 
-/*!
- * \ingroup loadsave
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void read_bin_cfg();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup loadsave
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void read_bin_cfg();
 
 /*!
  * \ingroup loadsave
@@ -235,45 +239,49 @@ void read_bin_cfg();
  */
 void save_bin_cfg();
 
-/*!
- * \ingroup cache
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void init_md2_cache();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup cache
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void init_md2_cache();
 
-/*!
- * \ingroup cache
- * \brief
- *
- *      Detail
- *
- * \sa init_stuff
- */
-void init_texture_cache();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup cache
+// * \brief
+// *
+// *      Detail
+// *
+// * \sa init_stuff
+// */
+//void init_texture_cache();
 
-/*!
- * \ingroup cache
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void init_e3d_cache();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup cache
+// * \brief
+// *
+// *      Detail
+// *
+// * \callgraph
+// */
+//void init_e3d_cache();
 
-/*!
- * \ingroup init
- * \brief
- *
- *      Detail
- *
- * \sa init_stuff
- */
-void init_2d_obj_cache();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup init
+// * \brief
+// *
+// *      Detail
+// *
+// * \sa init_stuff
+// */
+//void init_2d_obj_cache();
 
 /*!
  * \ingroup init
@@ -285,15 +293,16 @@ void init_2d_obj_cache();
  */
 void init_stuff();
 
-/*!
- * \ingroup load
- * \brief
- *
- *      Detail
- *
- * \sa init_stuff
- */
-void load_e3d_list();
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup load
+// * \brief
+// *
+// *      Detail
+// *
+// * \sa init_stuff
+// */
+//void load_e3d_list();
 
 /*!
  * \ingroup load
@@ -305,15 +314,16 @@ void load_e3d_list();
  */
 void unload_e3d_list();
 
-/*!
- * \ingroup init
- * \brief
- *
- *      Detail
- *
- * \sa init_stuff
- * \callgraph
- */
-void read_command_line(); //from main.c
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup init
+// * \brief
+// *
+// *      Detail
+// *
+// * \sa init_stuff
+// * \callgraph
+// */
+//void read_command_line(); //from main.c
 
 #endif	//__INIT_H__

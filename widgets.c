@@ -79,6 +79,14 @@ typedef struct {
 
 Uint32 widget_id = 0x0000FFFF;
 
+/* forward declarations added due to code cleanup */
+int ReadXMLWindow(xmlNode * a_node);
+int ParseWindow (xmlNode *node);
+int ParseWidget (xmlNode *node, int winid);
+int ParseTab (xmlNode *node, int winid, int colid);
+int GetWidgetType (const char *w);
+/* end of added forward declarations */
+
 // Common widget functions
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id)
 {
@@ -269,7 +277,6 @@ int label_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 	}
 	return 0;
 }
-
 
 // Image
 int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2)

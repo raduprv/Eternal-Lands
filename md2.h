@@ -188,16 +188,17 @@ typedef struct
  */
 md2 * load_md2_cache(char * file_name);
 
-/*!
- * \ingroup actors_load
- * \brief
- *
- *      Detail
- *
- * \param file_name
- * \return md2*
- */
-md2 * load_md2(char * file_name);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup actors_load
+// * \brief
+// *
+// *      Detail
+// *
+// * \param file_name
+// * \return md2*
+// */
+//md2 * load_md2(char * file_name);
 
 /*!
  * \ingroup display_2d
@@ -211,17 +212,18 @@ md2 * load_md2(char * file_name);
  */
 void destroy_md2(md2 *md2_ptr);
 
-/*!
- * \ingroup display_2d
- * \brief
- *
- *      Detail
- *
- * \param md2_ptr
- *
- * \callgraph
- */
-void free_md2(md2 *md2_ptr);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup display_2d
+// * \brief
+// *
+// *      Detail
+// *
+// * \param md2_ptr
+// *
+// * \callgraph
+// */
+//void free_md2(md2 *md2_ptr);
 
 /*!
  * \ingroup display_2d

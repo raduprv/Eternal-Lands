@@ -188,56 +188,60 @@ void draw_ingame_string(float x, float y, const unsigned char * our_string, int 
 //*! @} */
 #endif	//ELC
 
-/*!
- * \ingroup text_font
- * \brief   displays a single char \a cur_char at the desired position (\a cur_x, \a cur_y) with the specified font scalings.
- *
- *      Draws a single char \a cur_char at the desired position (\a cur_x, \a cur_y) with the specified font scalings.
- *
- * \param cur_char                  the char to draw
- * \param cur_x                     x coordinate of the position to draw the string
- * \param cur_y                     y coordinate of the position to draw the string
- * \param displayed_font_x_size     the size of the font in x direction as displayed
- * \param displayed_font_y_size     the size of the font in y direction as displayed
- * \retval int
- * \callgraph
- */
-int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float displayed_font_x_size, float displayed_font_y_size);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup text_font
+// * \brief   displays a single char \a cur_char at the desired position (\a cur_x, \a cur_y) with the specified font scalings.
+// *
+// *      Draws a single char \a cur_char at the desired position (\a cur_x, \a cur_y) with the specified font scalings.
+// *
+// * \param cur_char                  the char to draw
+// * \param cur_x                     x coordinate of the position to draw the string
+// * \param cur_y                     y coordinate of the position to draw the string
+// * \param displayed_font_x_size     the size of the font in x direction as displayed
+// * \param displayed_font_y_size     the size of the font in y direction as displayed
+// * \retval int
+// * \callgraph
+// */
+//int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float displayed_font_x_size, float displayed_font_y_size);
 
-/*!
- * \ingroup text_font
- * \brief   returns the index of the font used by \a cur_char
- *
- *      Returns the index of the font used by \a cur_char
- *
- * \param cur_char  the char to get the font info for.
- * \retval int
- */
-int get_font_char(unsigned char cur_char);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup text_font
+// * \brief   returns the index of the font used by \a cur_char
+// *
+// *      Returns the index of the font used by \a cur_char
+// *
+// * \param cur_char  the char to get the font info for.
+// * \retval int
+// */
+//int get_font_char(unsigned char cur_char);
 
-/*!
- * \ingroup text_font
- * \brief   search for the font of \a cur_char and returns the index if found.
- *
- *      Search for the font of \a cur_char and returns the index if found
- *
- * \param cur_char  the char to search for
- * \retval int
- *
- * \sa get_font_char
- */
-int find_font_char(unsigned char cur_char);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup text_font
+// * \brief   search for the font of \a cur_char and returns the index if found.
+// *
+// *      Search for the font of \a cur_char and returns the index if found
+// *
+// * \param cur_char  the char to search for
+// * \retval int
+// *
+// * \sa get_font_char
+// */
+//int find_font_char(unsigned char cur_char);
 
-/*!
- * \ingroup text_font
- * \brief   returns the font width of \a cur_char
- *
- *      Returns the font width of \a cur_char
- *
- * \param cur_char  the char to get the font width for
- * \retval int
- */
-int get_font_width(int cur_char);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup text_font
+// * \brief   returns the font width of \a cur_char
+// *
+// *      Returns the font width of \a cur_char
+// *
+// * \param cur_char  the char to get the font width for
+// * \retval int
+// */
+//int get_font_width(int cur_char);
 
 /*!
  * \ingroup text_font
@@ -264,31 +268,33 @@ int get_char_width(unsigned char cur_char);
  */
 int get_string_width(const unsigned char *str);
 
-/*!
- * \ingroup text_font
- * \brief   returns the width of the first \a len bytes of \a str.
- *
- *      Returns the width of the first \a len bytes of \a str
- *
- * \param str       the string for which the width should returned
- * \param len       the length until which \a str should be used
- * \retval int
- * \sa get_string_width
- * \callgraph
- */
-int get_nstring_width(const unsigned char *str, int len);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup text_font
+// * \brief   returns the width of the first \a len bytes of \a str.
+// *
+// *      Returns the width of the first \a len bytes of \a str
+// *
+// * \param str       the string for which the width should returned
+// * \param len       the length until which \a str should be used
+// * \retval int
+// * \sa get_string_width
+// * \callgraph
+// */
+//int get_nstring_width(const unsigned char *str, int len);
 
-/*!
- * \ingroup text_font
- * \brief   sets parameters for font \a num
- *
- *      sets parameters for font \a num, but does not load the texture yet
- *
- * \param num       the number of the font
- * \retval int -1 on failure, \a num on success
- * \callgraph
- */
-int set_font_parameters (int num);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup text_font
+// * \brief   sets parameters for font \a num
+// *
+// *      sets parameters for font \a num, but does not load the texture yet
+// *
+// * \param num       the number of the font
+// * \retval int -1 on failure, \a num on success
+// * \callgraph
+// */
+//int set_font_parameters (int num);
 
 /*!
  * \ingroup text_font
@@ -301,15 +307,16 @@ int set_font_parameters (int num);
  */
 int	set_font(int num);
 
-/*!
- * \ingroup text_font
- * \brief   removes the font with the given index \a num from the \see fonts variable.
- *
- *      Removes the font with the given index \a num from the \see fonts variable.
- *
- * \param num       index of the font to remove.
- */
-void remove_font(int num);
+/* OBSOLETE declaration: queued for removal from this header file */
+//*!
+// * \ingroup text_font
+// * \brief   removes the font with the given index \a num from the \see fonts variable.
+// *
+// *      Removes the font with the given index \a num from the \see fonts variable.
+// *
+// * \param num       index of the font to remove.
+// */
+//void remove_font(int num);
 
 /*!
  * \ingroup other
