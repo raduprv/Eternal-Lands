@@ -88,6 +88,26 @@ int HandleEvent(SDL_Event *event)
 				if(afk_time) 
 					last_action_time=cur_time; //Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 
+				if(interface_mode==interface_rules) break;
+
+				if(interface_mode==interface_opening && !disconnected)
+					{
+						interface_mode=interface_log_in;
+						break;
+					}
+
+				if (event->key.keysym.sym == SDLK_RETURN && alt_on)
+					{
+						toggle_full_screen();
+						break;
+					}
+				
+				if(disconnected && !alt_on && !ctrl_on)
+					{
+						connect_to_server();
+						break;
+					}
+
 #ifndef WINDOWS
 				if((event->key.keysym.sym == SDLK_v && ctrl_on) ||
 				   (event->key.keysym.sym == SDLK_INSERT && shift_on))
@@ -97,23 +117,6 @@ int HandleEvent(SDL_Event *event)
 				   (event->key.keysym.sym == SDLK_INSERT && shift_on))
 					windows_paste();
 #endif
-				if(interface_mode==interface_opening && !disconnected)
-					{
-						interface_mode=interface_log_in;
-						break;
-					}
-
-				if(interface_mode!=interface_rules && disconnected && !alt_on && !ctrl_on)
-					{
-						connect_to_server();
-						break;
-					}
-
-				if (event->key.keysym.sym == SDLK_RETURN && alt_on)
-					{
-						toggle_full_screen();
-						break;
-					}
 
 				if (event->key.keysym.sym == SDLK_UP && interface_mode==interface_console)
 					console_move_up();
@@ -449,7 +452,7 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if(interface_mode!=interface_rules &&(ch=='`' || key==K_CONSOLE))
+				if(ch=='`' || key==K_CONSOLE)
 					{
 						view_console_win(&console_win,-1);
 						break;
@@ -460,7 +463,6 @@ int HandleEvent(SDL_Event *event)
 						clouds_shadows=!clouds_shadows;
 						break;
 					}
-
 
 				if(((ch>=32 && ch<=126) || (ch>127+c_grey4)) &&
 				   input_text_lenght<160)

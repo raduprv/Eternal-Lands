@@ -105,7 +105,7 @@ int read_rules()
 
 	xmlFreeDoc(doc);
 	
-	return 1;
+	return (rules.no>0);
 }
 
 /*Rules window interface*/

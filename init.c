@@ -626,6 +626,11 @@ void init_stuff()
 	init_buddy();
 	
 	have_rules=read_rules();
+	if(!have_rules){
+		log_error("Essential file rules.xml is missing. You have to redownload your game.");
+		SDL_Quit();
+		exit(3);
+	}
 	
 	//initiate function pointers
 	init_attribf();
