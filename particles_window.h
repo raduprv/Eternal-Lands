@@ -3,6 +3,7 @@
 
 extern int view_particles_window;
 extern int particles_window;
+extern particle_sys_def def;
 void init_particles_window();
 void display_particles_window();
 void toggle_particles_window();
