@@ -28,6 +28,7 @@ int camera_z_frames;
 
 int camera_zoom_dir;
 int camera_zoom_frames=0;
+float new_zoom_level=3.0f;
 
 int normal_animation_timer=0;
 
@@ -179,7 +180,10 @@ void draw_scene()
 	else read_mouse_now=0;
 	reset_under_the_mouse();
 
-	if(camera_zoom_frames) resize_window();
+	if(new_zoom_level != zoom_level) {
+		zoom_level=new_zoom_level;
+		resize_window();
+	}
 	glLoadIdentity();					// Reset The Matrix
 	Move();
 	save_scene_matrix();
@@ -391,13 +395,13 @@ void update_camera()
 	if(camera_zoom_frames) {
 		if(camera_zoom_dir == 1) {
 			if(zoom_level<3.75f){
-				zoom_level+=0.05f;
+				new_zoom_level+=0.05f;
 				camera_zoom_frames--;
 			} else 
 				camera_zoom_frames = 0;
 		} else {
 			if(zoom_level>2.0f){
-				zoom_level-=0.05f;
+				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
 			} else 
 				camera_zoom_frames = 0;

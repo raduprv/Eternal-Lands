@@ -338,7 +338,7 @@ void read_bin_cfg()
 	cx=cfg_mem.camera_x;
 	cy=cfg_mem.camera_y;
 	cz=cfg_mem.camera_z;
-	zoom_level=cfg_mem.zoom_level;
+	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 	rz=cfg_mem.camera_angle;
 
 	if(zoom_level != 0.0f) resize_window();
