@@ -495,7 +495,9 @@ void destroy_actor(int actor_id)
 #endif
 	int i;
 
-	//lock_actors_lists();	//lock it to avoid timing issues
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();	//lock it to avoid timing issues
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -520,7 +522,9 @@ void destroy_actor(int actor_id)
 						break;
 					}
 		}
-	//unlock_actors_lists();	//unlock it since we are done
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();	//unlock it since we are done
+#endif
 }
 
 void destroy_all_actors()
