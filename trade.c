@@ -1,561 +1,520 @@
 #include "global.h"
 
+void finish_trade(int player_id)
+{
+	int i;
+	int the_other_player;
+	Uint8 str[200];
+	inventory_item palyer_1_items[36];
+	inventory_item palyer_2_items[36];
+	int player_with_problems;//store which player has a problem with the items (can't carry them)
 
-void display_trade_menu()
+
+	the_other_player=players[player_id].trading_with;
+	if(the_other_player==-1)return;//shrug. This player is trading with no one...
+
+	//mark them both as free (they are not trading with anyone)
+	players[player_id].trading_with=-1;
+	players[the_other_player].trading_with=-1;
+	players[player_id].trade_accepted=0;
+	players[the_other_player].trade_accepted=0;
+
+	str[0]=GET_TRADE_EXIT;
+	*((Uint16 *)(str+1))=1;
+	MY_SDLNet_TCP_Send(players[player_id].sock, str, 3);
+	MY_SDLNet_TCP_Send(players[the_other_player].sock, str, 3);
+
+
+	//ok, start to copy the inventory in a temp structure
+
+    memcpy(palyer_1_items, players[player_id].player_data.actor_items, sizeof( inventory_item)*36);
+    memcpy(palyer_2_items, players[the_other_player].player_data.actor_items, sizeof( inventory_item)*36);
+
+
+	//excellent, now let's put eachother's stuff where it belongs
+	for(i=0;i<16;i++)
+		{
+			if(players[player_id].trade_items[i].quantity)
+				{
+					if(add_item_to_player(the_other_player,players[player_id].trade_items[i].item_category,
+					players[player_id].trade_items[i].quantity)!=1)
+						{
+							player_with_problems=0;
+							goto restore_original;
+						}
+				}
+		}
+
+	for(i=0;i<16;i++)
+		{
+			if(players[the_other_player].trade_items[i].quantity)
+				{
+					if(add_item_to_player(player_id,players[the_other_player].trade_items[i].item_category,
+					players[the_other_player].trade_items[i].quantity)!=1)
+						{
+							player_with_problems=1;
+							goto restore_original;
+						}
+				}
+		}
+
+	goto end_of_trade;
+
+	restore_original:
+
+    memcpy( players[player_id].player_data.actor_items, palyer_1_items, sizeof( inventory_item)*36);
+    memcpy( players[the_other_player].player_data.actor_items, palyer_2_items, sizeof( inventory_item) *36);
+
+	for(i=0;i<16;i++)
+		{
+			if(players[player_id].trade_items[i].quantity)
+				{
+					add_item_to_player(player_id,players[player_id].trade_items[i].item_category,
+					players[player_id].trade_items[i].quantity);
+					players[player_id].trade_items[i].quantity=0;
+				}
+		}
+
+	//put the other's player objects back.
+	for(i=0;i<16;i++)
+		{
+			if(players[the_other_player].trade_items[i].quantity)
+				{
+					add_item_to_player(the_other_player,players[the_other_player].trade_items[i].item_category,
+					players[the_other_player].trade_items[i].quantity);
+					players[the_other_player].trade_items[i].quantity=0;
+				}
+		}
+
+	my_text[0]=127+c_red1;
+	sprintf(&my_text[1],TRADE_FAILED_PLAYER_CANT_CARRY_ITEMS,player_with_problems ? players[player_id].player_data.player_name : players[the_other_player].player_data.player_name);
+	send_text_to_player(the_other_player);
+	send_text_to_player(player_id);
+
+	//people might think they have their stuff duplicated, so let's send them both their inventories
+	send_inventory_items(player_id,0);
+	send_inventory_items(the_other_player,0);
+
+	end_of_trade:
+	//now, clear the players on trade items...
+	for(i=0;i<16;i++)
+		{
+			if(players[player_id].trade_items[i].quantity)players[player_id].trade_items[i].quantity=0;
+		}
+
+	for(i=0;i<16;i++)
+		{
+			if(players[the_other_player].trade_items[i].quantity)players[the_other_player].trade_items[i].quantity=0;
+		}
+
+
+}
+
+void complete_initiate_trade(int player_1, int player_2)
+{
+	Uint8 str[32];
+	int len;
+
+	//make it so that players are trading with eachother
+	players[player_1].trading_with=player_2;
+	players[player_2].trading_with=player_1;
+
+	//after the trade is completed, they shouldn't be pending trade with anyone
+	players[player_1].pending_trading_with=-1;
+	players[player_2].pending_trading_with=-1;
+
+	//now, send a message to both players that the trading mode is engaged
+	send_inventory_items(player_1,1);
+	send_inventory_items(player_2,1);
+
+	//now, let's send the name of the players to eachother
+	len=strlen(players[player_2].player_data.player_name);
+	str[0]=GET_TRADE_PARTNER_NAME;
+	*((Uint16 *)(str+1))=len+1;
+	my_strcp(&str[3],players[player_2].player_data.player_name);
+	MY_SDLNet_TCP_Send(players[player_1].sock, str, len+3);
+
+	len=strlen(players[player_1].player_data.player_name);
+	str[0]=GET_TRADE_PARTNER_NAME;
+	*((Uint16 *)(str+1))=len+1;
+	my_strcp(&str[3],players[player_1].player_data.player_name);
+	MY_SDLNet_TCP_Send(players[player_2].sock, str, len+3);
+}
+
+void initiate_trade(int player_id, int target_player)
 {
 	Uint8 str[80];
-	int x,y,i,j;
-	//first of all, draw the actual menu.
+	float src_x;
+	float src_y;
+	float dst_x;
+	float dst_y;
 
-	draw_menu_title_bar(trade_menu_x,trade_menu_y-16,trade_menu_x_len);
+	if(players[player_id].trading_with==target_player)return;//we are already trading with that player, WTF!
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(trade_menu_x,trade_menu_y+trade_menu_y_len,0);
-	glVertex3i(trade_menu_x,trade_menu_y,0);
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y,0);
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y+trade_menu_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-
-	glColor3f(0.77f,0.57f,0.39f);
-	glBegin(GL_LINES);
-	glVertex3i(trade_menu_x,trade_menu_y,0);
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y,0);
-
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y,0);
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y+trade_menu_y_len,0);
-
-	glVertex3i(trade_menu_x+trade_menu_x_len,trade_menu_y+trade_menu_y_len,0);
-	glVertex3i(trade_menu_x,trade_menu_y+trade_menu_y_len,0);
-
-	glVertex3i(trade_menu_x,trade_menu_y+trade_menu_y_len,0);
-	glVertex3i(trade_menu_x,trade_menu_y,0);
-
-	//draw the grid
-	for(y=1;y<4;y++)
+	//see if the target_player is a valid entity
+	if(target_player<0 || target_player>=max_players+max_ai)
 		{
-			glVertex3i(trade_menu_x,trade_menu_y+y*33,0);
-			glVertex3i(trade_menu_x+12*33,trade_menu_y+y*33,0);
-		}
-	for(x=1;x<13;x++)
-		{
-			glVertex3i(trade_menu_x+x*33,trade_menu_y,0);
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+3*33,0);
+			disconnect_player(player_id);//the motherfucker tried to crash the server
+			sprintf(str,"[%s] tried to look at an out of range actor\n",players[player_id].player_data.player_name);
+			log_violation(str);
+			return;
 		}
 
-	glColor3f(0.57f,0.67f,0.49f);
-	//draw the you have grid
-	for(y=1;y<6;y++)
+	if(!players[target_player].logged_in)return;//maybe that player logged off?
+
+	//see if the other player is an existing human
+		if(target_player>=max_players)
 		{
-			glVertex3i(trade_menu_x,trade_menu_y+(y+3)*33,0);
-			glVertex3i(trade_menu_x+4*33,trade_menu_y+(y+3)*33,0);
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],CANT_TRADE_WITH_NPCS);
+			send_text_to_player(player_id);
+			return;
 		}
-	for(x=0;x<5;x++)
+	//see if the other player is self...
+		if(target_player==player_id)
 		{
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+4*33,0);
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+8*33,0);
-		}
-	//draw the what the other player has
-	for(y=1;y<6;y++)
-		{
-			glVertex3i(trade_menu_x+5*33,trade_menu_y+(y+3)*33,0);
-			glVertex3i(trade_menu_x+9*33,trade_menu_y+(y+3)*33,0);
-		}
-	for(x=5;x<10;x++)
-		{
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+4*33,0);
-			glVertex3i(trade_menu_x+x*33,trade_menu_y+8*33,0);
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],CANT_TRADE_WITH_YOURSELF);
+			send_text_to_player(player_id);
+			return;
 		}
 
-	glColor3f(0.77f,0.57f,0.39f);
-
-	//draw the button frame
-
-	//Clear button
-	glVertex3i(trade_menu_x+33*5,trade_menu_y+trade_menu_y_len-30,0);
-	glVertex3i(trade_menu_x+33*5+70,trade_menu_y+trade_menu_y_len-30,0);
-	glVertex3i(trade_menu_x+33*5,trade_menu_y+trade_menu_y_len-10,0);
-	glVertex3i(trade_menu_x+33*5+70,trade_menu_y+trade_menu_y_len-10,0);
-	glVertex3i(trade_menu_x+33*5+70,trade_menu_y+trade_menu_y_len-30,0);
-	glVertex3i(trade_menu_x+33*5+70,trade_menu_y+trade_menu_y_len-9,0);
-	glVertex3i(trade_menu_x+33*5,trade_menu_y+trade_menu_y_len-30,0);
-	glVertex3i(trade_menu_x+33*5,trade_menu_y+trade_menu_y_len-10,0);
-
-	//the players accept boxes
-	glVertex3i(trade_menu_x+5,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+20,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5,trade_menu_y+4*33-5,0);
-	glVertex3i(trade_menu_x+20,trade_menu_y+4*33-5,0);
-	glVertex3i(trade_menu_x+20,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+20,trade_menu_y+4*33-4,0);
-	glVertex3i(trade_menu_x+5,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5,trade_menu_y+4*33-5,0);
-
-	glVertex3i(trade_menu_x+5*33+5,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5*33+20,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5*33+5,trade_menu_y+4*33-5,0);
-	glVertex3i(trade_menu_x+5*33+20,trade_menu_y+4*33-5,0);
-	glVertex3i(trade_menu_x+5*33+20,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5*33+20,trade_menu_y+4*33-4,0);
-	glVertex3i(trade_menu_x+5*33+5,trade_menu_y+4*33-20,0);
-	glVertex3i(trade_menu_x+5*33+5,trade_menu_y+4*33-5,0);
-
-
-	//now, draw the quantity boxes
-	glColor3f(0.3f,0.5f,1.0f);
-	for(y=0;y<6;y++)
+	if(players[player_id].player_data.map_id!=players[target_player].player_data.map_id)
 		{
-			glVertex3i(trade_menu_x+33*9+25,trade_menu_y+133+y*20,0);
-			glVertex3i(trade_menu_x+33*9+25+2*35,trade_menu_y+133+y*20,0);
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],CANT_TRADE_NOT_IN_SAME_MAP);
+    		send_text_to_player(player_id);
+    		return;
 		}
-	for(x=0;x<3;x++)
+	//see if the players are close to eachother
+	src_x=players[player_id].player_data.x_pos;
+	src_y=players[player_id].player_data.y_pos;
+	dst_x=players[target_player].player_data.x_pos;
+	dst_y=players[target_player].player_data.y_pos;
+	if((dst_x-src_x)*(dst_x-src_x)+(dst_y-src_y)*(dst_y-src_y)>3*3)
 		{
-			glVertex3i(trade_menu_x+33*9+25+x*35,trade_menu_y+133,0);
-			glVertex3i(trade_menu_x+33*9+25+x*35,trade_menu_y+133+5*20,0);
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],TOO_FAR_AWAY);
+    		send_text_to_player(player_id);
+    		return;
 		}
 
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-
-	//draw the quantity string
-	draw_string_small(trade_menu_x+33*9+25,trade_menu_y+116,"Quantity",1);
-	//draw the quantity values
-	if(item_quantity==1)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+15,trade_menu_y+136,"1",1);
-	if(item_quantity==5)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+50,trade_menu_y+136,"5",1);
-	if(item_quantity==10)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+10,trade_menu_y+156,"10",1);
-	if(item_quantity==20)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+45,trade_menu_y+156,"20",1);
-	if(item_quantity==50)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+10,trade_menu_y+176,"50",1);
-	if(item_quantity==100)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+40,trade_menu_y+176,"100",1);
-	if(item_quantity==200)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+5,trade_menu_y+196,"200",1);
-	if(item_quantity==500)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+40,trade_menu_y+196,"500",1);
-	if(item_quantity==1000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+1,trade_menu_y+216,"1000",1);
-	if(item_quantity==2000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(trade_menu_x+33*9+25+36,trade_menu_y+216,"2000",1);
-
-	glColor3f(0.77f,0.57f,0.39f);
-	draw_string(trade_menu_x+33*5+8,trade_menu_y+trade_menu_y_len-30+2,"Abort",1);
-	if(trade_you_accepted)draw_string_small(trade_menu_x+8,trade_menu_y+4*33-19,"X",1);
-	draw_string_small(trade_menu_x+24,trade_menu_y+4*33-19,"You",1);
-	if(trade_other_accepted)draw_string_small(trade_menu_x+5*33+8,trade_menu_y+4*33-19,"X",1);
-	draw_string_small(trade_menu_x+5*33+24,trade_menu_y+4*33-19,other_player_trade_name,1);
-
-	glColor3f(1.0f,1.0f,1.0f);
-	//ok, now let's draw the objects...
-	j=0;
-	for(i=0;i<36+6;i++)
+	//see if the current player is trading already with someone
+	if(players[player_id].trading_with!=-1)
 		{
-			if(item_list[i].quantity && item_list[i].pos<36)
-				{
-					float u_start,v_start,u_end,v_end;
-					int this_texture,cur_item,cur_pos;
-					int x_start,x_end,y_start,y_end;
-
-					//get the UV coordinates.
-					cur_item=item_list[i].image_id%25;
-					u_start=0.2f*(cur_item%5);
-					u_end=u_start+0.2f;
-					v_start=1.0f-(0.2f*(cur_item/5));
-					v_end=v_start-0.2f;
-
-					//get the x and y
-					cur_pos=j;
-					j++;
-
-					x_start=trade_menu_x+33*(cur_pos%12)+1;
-					x_end=x_start+32;
-					y_start=trade_menu_y+33*(cur_pos/12);
-					y_end=y_start+32;
-
-					//get the texture this item belongs to
-					this_texture=item_list[i].image_id/25;
-					if(this_texture==0)this_texture=items_text_1;
-					else if(this_texture==1)this_texture=items_text_2;
-					else if(this_texture==2)this_texture=items_text_3;
-					else if(this_texture==3)this_texture=items_text_4;
-					else if(this_texture==4)this_texture=items_text_5;
-					else if(this_texture==5)this_texture=items_text_6;
-					else if(this_texture==6)this_texture=items_text_7;
-
-					if(last_texture!=texture_cache[this_texture].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-							last_texture=texture_cache[this_texture].texture_id;
-						}
-
-					glBegin(GL_QUADS);
-					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-					glEnd();
-
-					sprintf(str,"%i",item_list[i].quantity);
-					draw_string_small(x_start,y_end-15,str,1);
-				}
-
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],ALREADY_TRADING);
+			send_text_to_player(player_id);
+			return;
 		}
 
-	//let's draw the objects we have on trade
-	for(i=0;i<16;i++)
+	//see if the other player is already trading with someone else
+		if(players[target_player].trading_with!=-1)
 		{
-			if(your_trade_list[i].quantity)
-				{
-					float u_start,v_start,u_end,v_end;
-					int this_texture,cur_item,cur_pos;
-					int x_start,x_end,y_start,y_end;
-
-					//get the UV coordinates.
-					cur_item=your_trade_list[i].image_id%25;
-					u_start=0.2f*(cur_item%5);
-					u_end=u_start+0.2f;
-					v_start=1.0f-(0.2f*(cur_item/5));
-					v_end=v_start-0.2f;
-
-					//get the x and y
-					cur_pos=i;
-
-					x_start=trade_menu_x+33*(cur_pos%4)+1;
-					x_end=x_start+32;
-					y_start=trade_menu_y+33*(cur_pos/4+4);
-					y_end=y_start+32;
-
-					//get the texture this item belongs to
-					this_texture=your_trade_list[i].image_id/25;
-					if(this_texture==0)this_texture=items_text_1;
-					else
-					if(this_texture==1)this_texture=items_text_2;
-					else
-					if(this_texture==2)this_texture=items_text_3;
-					else
-					if(this_texture==3)this_texture=items_text_4;
-					else
-					if(this_texture==4)this_texture=items_text_5;
-					else
-					if(this_texture==5)this_texture=items_text_6;
-					else
-					if(this_texture==6)this_texture=items_text_7;
-
-					if(last_texture!=texture_cache[this_texture].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-							last_texture=texture_cache[this_texture].texture_id;
-						}
-
-					glBegin(GL_QUADS);
-					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-					glEnd();
-
-					sprintf(str,"%i",your_trade_list[i].quantity);
-					draw_string_small(x_start,y_end-15,str,1);
-				}
-
+			my_text[0]=127+c_red1;
+			sprintf(&my_text[1],TARGET_ALREADY_ON_TRADE,players[target_player].player_data.player_name);
+			send_text_to_player(player_id);
+			return;
 		}
 
-	//let's draw the objects the other has on trade
-	for(i=0;i<16;i++)
+	//see if the other player is fighting with someone
+		if(players[target_player].number_of_opponents)
 		{
-			if(others_trade_list[i].quantity)
-				{
-					float u_start,v_start,u_end,v_end;
-					int this_texture,cur_item,cur_pos;
-					int x_start,x_end,y_start,y_end;
-
-					//get the UV coordinates.
-					cur_item=others_trade_list[i].image_id%25;
-					u_start=0.2f*(cur_item%5);
-					u_end=u_start+0.2f;
-					v_start=1.0f-(0.2f*(cur_item/5));
-					v_end=v_start-0.2f;
-
-					//get the x and y
-					cur_pos=i;
-
-					x_start=trade_menu_x+33*(cur_pos%4+5)+1;
-					x_end=x_start+32;
-					y_start=trade_menu_y+33*(cur_pos/4+4);
-					y_end=y_start+32;
-
-					//get the texture this item belongs to
-					this_texture=others_trade_list[i].image_id/25;
-					if(this_texture==0)this_texture=items_text_1;
-					else
-					if(this_texture==1)this_texture=items_text_2;
-					else
-					if(this_texture==2)this_texture=items_text_3;
-					else
-					if(this_texture==3)this_texture=items_text_4;
-					else
-					if(this_texture==4)this_texture=items_text_5;
-					else
-					if(this_texture==5)this_texture=items_text_6;
-					else
-					if(this_texture==6)this_texture=items_text_7;
-
-					if(last_texture!=texture_cache[this_texture].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-							last_texture=texture_cache[this_texture].texture_id;
-						}
-
-					glBegin(GL_QUADS);
-					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-					glEnd();
-
-					sprintf(str,"%i",others_trade_list[i].quantity);
-					draw_string_small(x_start,y_end-15,str,1);
-				}
-
+			my_text[0]=127+c_red1;
+			sprintf(&my_text[1],TRADE_TARGET_IS_FIGHTING,players[target_player].player_data.player_name);
+			send_text_to_player(player_id);
+			return;
 		}
 
-
-	//now, draw the inventory text, if any.
-	draw_string_small(trade_menu_x+4,trade_menu_y+trade_menu_y_len-75,items_string,4);
-	glColor3f(1.0f,1.0f,1.0f);
-}
-
-
-int check_trade_interface()
-{
-	int x,y;
-	int x_screen,y_screen;
-	Uint8 str[10];
-
-	if(!view_trade_menu || mouse_x>trade_menu_x+trade_menu_x_len || mouse_x<trade_menu_x
-	|| mouse_y<trade_menu_y || mouse_y>trade_menu_y+trade_menu_y_len)return 0;
-
-	//see if we changed the quantity
-	for(y=0;y<5;y++)
-	for(x=0;x<2;x++)
+	//see if we are fighting with someone
+		if(players[player_id].number_of_opponents)
 		{
-			x_screen=trade_menu_x+33*9+25+x*35;
-			y_screen=trade_menu_y+133+y*20;
-			if(mouse_x>x_screen && mouse_x<x_screen+35 && mouse_y>y_screen && mouse_y<y_screen+20)
-				{
-					if(x==0 && y==0)item_quantity=1;
-					else
-					if(x==1 && y==0)item_quantity=5;
-					else
-					if(x==0 && y==1)item_quantity=10;
-					else
-					if(x==1 && y==1)item_quantity=20;
-					else
-					if(x==0 && y==2)item_quantity=50;
-					else
-					if(x==1 && y==2)item_quantity=100;
-					else
-					if(x==0 && y==3)item_quantity=200;
-					else
-					if(x==1 && y==3)item_quantity=500;
-					else
-					if(x==0 && y==4)item_quantity=1000;
-					else
-					if(x==1 && y==4)item_quantity=2000;
-				}
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],CANT_TRADE_WHEN_IN_COMBAT);
+			send_text_to_player(player_id);
+			return;
 		}
 
-	//check to see if we hit the Accept box
-	if(mouse_x>trade_menu_x+5 && mouse_x<trade_menu_x+20 && mouse_y>trade_menu_y+4*33-20 && mouse_y<trade_menu_y+4*33-5)
-		{
-
-			if(trade_you_accepted)str[0]=REJECT_TRADE;
-			else str[0]=ACCEPT_TRADE;
-			my_tcp_send(my_socket,str,1);
-			return 1;
-		}
-
-	//check to see if we hit the Abort button
-	if(mouse_x>trade_menu_x+33*5 && mouse_x<trade_menu_x+33*5+70 &&
-	mouse_y>trade_menu_y+trade_menu_y_len-30 && mouse_y<trade_menu_y+trade_menu_y_len-10)
-		{
-
-			str[0]=EXIT_TRADE;
-			my_tcp_send(my_socket,str,1);
-			return 1;
-		}
-
-	//see if we clicked on any item in the main category
-	for(y=0;y<3;y++)
-		for(x=0;x<12;x++)
+		//see if that player is pending a trade with us
+		if(players[target_player].pending_trading_with==player_id)
 			{
-				x_screen=trade_menu_x+x*33;
-				y_screen=trade_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				complete_initiate_trade(player_id,target_player);
+				return;
+			}
+		else
+			{
+				if(players[player_id].pending_trading_with!=target_player)
 					{
-						int i,j;
+						//notify the other player that someone else wants to trade with him
+						my_text[0]=127+c_yellow2;
+						sprintf(&my_text[1],INCOMING_TRADE_REQUEST,players[player_id].player_data.player_name);
+						send_text_to_player(target_player);
 
-						//see if there is any item there
-						j=0;
-						for(i=0;i<36+6;i++)
-							{
-							if(item_list[i].quantity && item_list[i].pos<36)
-								{
-									if(j==y*12+x)break;
-									j++;
-								}
-							}
-						if(i<36+6 && item_list[i].quantity)
-							{
-								//if(action_mode==action_look && left_click)
-								if(action_mode==action_look || right_click)
-									{
-										str[0]=LOOK_AT_INVENTORY_ITEM;
-										str[1]=item_list[i].pos;
-										my_tcp_send(my_socket,str,2);
-									}
-								else
-									{
-										str[0]=PUT_OBJECT_ON_TRADE;
-										str[1]=item_list[i].pos;
-										*((Uint16 *)(str+2))=item_quantity;
-										my_tcp_send(my_socket,str,4);
-									}
+						//notify ourselves
+						my_text[0]=127+c_yellow2;
+						sprintf(&my_text[1],OUTGOING_TRADE_REQUEST,players[target_player].player_data.player_name);
+						send_text_to_player(player_id);
 
-								return 1;
-							}
 					}
-		}
 
-	//see if we clicked on any item in your trading objects category
-	for(y=0;y<4;y++)
-	for(x=0;x<4;x++)
+				players[player_id].pending_trading_with=target_player;
+				return;
+			}
+
+}
+
+void accept_trade(int player_id)
+{
+	Uint8 str[20];
+
+	if(players[player_id].trading_with==-1)return;//shrug. This player is trading with no one...
+
+	players[player_id].trade_accepted=1;
+
+	str[0]=GET_TRADE_ACCEPT;
+	*((Uint16 *)(str+1))=2;
+	str[3]=0;
+	MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+
+	str[0]=GET_TRADE_ACCEPT;
+	*((Uint16 *)(str+1))=2;
+	str[3]=1;
+	MY_SDLNet_TCP_Send(players[players[player_id].trading_with].sock, str, 4);
+
+	//check if both accepted, and if so, complete the trade
+	if(players[players[player_id].trading_with].trade_accepted)
+	finish_trade(player_id);
+}
+
+void reject_trade(int player_id)
+{
+	Uint8 str[20];
+
+	if(players[player_id].trading_with==-1)return;//shrug. This player is trading with no one...
+
+	players[player_id].trade_accepted=0;
+
+	str[0]=GET_TRADE_REJECT;
+	*((Uint16 *)(str+1))=2;
+	str[3]=0;
+	MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+
+	str[0]=GET_TRADE_REJECT;
+	*((Uint16 *)(str+1))=2;
+	str[3]=1;
+	MY_SDLNet_TCP_Send(players[players[player_id].trading_with].sock, str, 4);
+
+}
+
+void put_object_on_trade(int player_id, int pos, int quantity)
+{
+	int quantity_to_put;
+	int i;
+	Uint8 str[100];
+	int item_category;
+	int free_trade_slot=-1;
+
+	if(players[player_id].trading_with==-1)return;//shrug. This player is trading with no one...
+
+	if(pos>=36)return;//this player wants to trade an object s/he wears or has in bank
+
+
+
+	reject_trade(player_id);
+
+
+	if(!players[player_id].player_data.actor_items[pos].quantity)return;
+
+	if(players[player_id].player_data.actor_items[pos].quantity<quantity)
+	quantity_to_put=players[player_id].player_data.actor_items[pos].quantity;
+	else quantity_to_put=quantity;
+	item_category=players[player_id].player_data.actor_items[pos].item_category;
+
+	//see if this guy has more than 0xffffffff of that item on trade
+	for(i=0;i<16;i++)
 		{
-			x_screen=trade_menu_x+x*33;
-			y_screen=trade_menu_y+(y+4)*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+			int quantity_count=0;
+			if(players[player_id].trade_items[i].quantity && players[player_id].trade_items[i].item_category==item_category)
 				{
-
-					//see if there is any item there
-					//should we get the info for it?
-					if(your_trade_list[y*4+x].quantity)
-						{
-
-							if(action_mode==action_look || right_click)
-								{
-									str[0]=LOOK_AT_TRADE_ITEM;
-									str[1]=y*4+x;
-									str[2]=0;//your trade
-									my_tcp_send(my_socket,str,3);
-								}
-							else
-								{
-									str[0]=REMOVE_OBJECT_FROM_TRADE;
-									str[1]=y*4+x;
-									*((Uint16 *)(str+2))=item_quantity;
-									my_tcp_send(my_socket,str,4);
-								}
-
-							return 1;
-						}
+					quantity_count+=players[player_id].trade_items[i].quantity;
+					if(quantity_count+quantity_to_put>0xffffffff)return;//no more than 0xffffffff at the same time
 				}
 		}
 
-	//see if we clicked on any item in your trading partner objects category
-	for(y=0;y<4;y++)
-	for(x=0;x<4;x++)
+	//get the first free position
+	for(i=0;i<16;i++)
 		{
-			x_screen=trade_menu_x+33*5+x*33;
-			y_screen=trade_menu_y+(y+4)*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+			if(!players[player_id].trade_items[i].quantity || (players[player_id].trade_items[i].quantity && players[player_id].trade_items[i].item_category==item_category))
 				{
-
-					//see if there is any item there
-					//should we get the info for it?
-					if(others_trade_list[y*4+x].quantity)
-						{
-
-							if(action_mode==action_look || right_click)
-								{
-									str[0]=LOOK_AT_TRADE_ITEM;
-									str[1]=y*4+x;
-									str[2]=1;//their trade
-									my_tcp_send(my_socket,str,3);
-								}
-							return 1;
-						}
+					free_trade_slot=i;
+					break;
 				}
 		}
-	return 1;
+	if(free_trade_slot==-1)return;//no free trade slots
+
+	//ok, now fill that slot in...
+	players[player_id].trade_items[free_trade_slot].quantity+=quantity_to_put;
+	players[player_id].trade_items[free_trade_slot].item_category=item_category;
+
+	//now, substract that item from the players main inventory
+	remove_item_from_player(player_id,item_category,quantity_to_put);
+
+	str[0]=GET_TRADE_OBJECT;
+	*((Uint16 *)(str+1))=9;
+	*((Uint16 *)(str+3))=items[item_category].image_id;
+	*((Uint32 *)(str+5))=quantity_to_put;
+	str[9]=free_trade_slot;
+	str[10]=0;//send item to self
+	MY_SDLNet_TCP_Send(players[player_id].sock, str, 11);
+	str[10]=1;//send item to other
+	MY_SDLNet_TCP_Send(players[players[player_id].trading_with].sock, str, 11);
+
+
+}
+
+void look_at_your_trade_item(int player_id, int pos)
+{
+	Uint8 str[128];
+	int cur_item;
+	int len;
+
+
+	if(pos>15)return;
+	if(players[player_id].trading_with==-1)return;
+	if(!players[player_id].trade_items[pos].quantity)return;
+
+	cur_item=players[player_id].trade_items[pos].item_category;
+	sprintf(&str[4],INVENTORY_ITEM_LOOK,items[cur_item].name,items[cur_item].description,items[cur_item].weight);
+	len=strlen(&str[4]);
+	len+=2;
+	str[0]=INVENTORY_ITEM_TEXT;
+	*((Uint16 *)(str+1))=len;
+	str[3]=my_text[0]=127+c_green2;
+	MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+	return;
+}
+
+void look_at_their_trade_item(int player_id, int pos)
+{
+	Uint8 str[128];
+	int cur_item;
+	int len;
+	int target_id;
+
+	target_id=players[player_id].trading_with;
+	if(pos>15)return;
+	if(target_id==-1)return;
+	if(!players[target_id].trade_items[pos].quantity)return;
+
+	cur_item=players[target_id].trade_items[pos].item_category;
+	sprintf(&str[4],INVENTORY_ITEM_LOOK,items[cur_item].name,items[cur_item].description,items[cur_item].weight);
+	len=strlen(&str[4]);
+	len+=2;
+	str[0]=INVENTORY_ITEM_TEXT;
+	*((Uint16 *)(str+1))=len;
+	str[3]=my_text[0]=127+c_green2;
+	MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+	return;
+}
+
+void remove_object_from_trade(int player_id, int pos, int quantity)
+{
+	int quantity_to_remove;
+	int item_category;
+	Uint8 str[100];
+
+	if(players[player_id].trading_with==-1)return;//shrug. This player is trading with no one...
+	//check to see if we have a valid position
+	if(pos>=16)return;
+	if(!players[player_id].trade_items[pos].quantity)return;
+
+	reject_trade(players[player_id].trading_with);
+
+	if(players[player_id].trade_items[pos].quantity<quantity)
+	quantity_to_remove=players[player_id].trade_items[pos].quantity;
+	else quantity_to_remove=quantity;
+
+	players[player_id].trade_items[pos].quantity-=quantity_to_remove;
+	//give back the item to that player
+	item_category=players[player_id].trade_items[pos].item_category;
+	add_item_to_player(player_id,item_category,quantity_to_remove,0,0);
+	//now, notify both players about this
+	str[0]=REMOVE_TRADE_OBJECT;
+	*((Uint16 *)(str+1))=5;
+	*((Uint16 *)(str+3))=quantity_to_remove;
+	str[5]=pos;
+	str[6]=0;//send item to self
+	MY_SDLNet_TCP_Send(players[player_id].sock, str, 7);
+	str[6]=1;//send item to other
+	MY_SDLNet_TCP_Send(players[players[player_id].trading_with].sock, str, 7);
+
 }
 
 
 
-void get_trade_partner_name(Uint8 *player_name,int len)
+/*
+This means one of the players aborted the trade so, just put their objects back
+altho we do no checks to ensure if there is enough space in their inventory, there should be enough space
+since the users are not allowed to do anything that would cause them to geain any new items while they trade
+*/
+void exit_trade(int player_id)
 {
 	int i;
-	for(i=0;i<len;i++)
+	int the_other_player;
+	Uint8 str[200];
+
+
+	the_other_player=players[player_id].trading_with;
+	if(the_other_player==-1)return;//shouldn't happen, but let's be sure
+
+	//set them as trading with no one
+	players[player_id].trading_with=-1;
+	players[the_other_player].trading_with=-1;
+	players[player_id].trade_accepted=0;
+	players[the_other_player].trade_accepted=0;
+
+
+	//mark them both as free (they are not trading with anyone)
+	players[player_id].trading_with=-1;
+	players[the_other_player].trading_with=-1;
+
+	if(the_other_player==-1)return;//shrug. This player is trading with no one...
+
+	//put the first player's objects back
+	for(i=0;i<16;i++)
 		{
-			other_player_trade_name[i]=player_name[i];
+			if(players[player_id].trade_items[i].quantity)
+				{
+					add_item_to_player(player_id,players[player_id].trade_items[i].item_category,
+					players[player_id].trade_items[i].quantity);
+					players[player_id].trade_items[i].quantity=0;
+				}
 		}
-	other_player_trade_name[i]=0;
+
+	//put the other's player objects back.
+	for(i=0;i<16;i++)
+		{
+			if(players[the_other_player].trade_items[i].quantity)
+				{
+					add_item_to_player(the_other_player,players[the_other_player].trade_items[i].item_category,
+					players[the_other_player].trade_items[i].quantity);
+					players[the_other_player].trade_items[i].quantity=0;
+				}
+		}
+
+	//tell both players to close the trade
+	str[0]=GET_TRADE_EXIT;
+	*((Uint16 *)(str+1))=1;
+	MY_SDLNet_TCP_Send(players[player_id].sock, str, 3);
+	MY_SDLNet_TCP_Send(players[the_other_player].sock, str, 3);
+
+	my_text[0]=127+c_red1;
+	my_strcp(&my_text[1],YOU_ABORTED_TRADE);
+	send_text_to_player(player_id);
+
+	my_text[0]=127+c_red1;
+	sprintf(&my_text[1],PARTNER_ABORTED_TRADE,players[player_id].player_data.player_name);
+	send_text_to_player(the_other_player);
 }
 
-
-void get_your_trade_objects(Uint8 *data)
-{
-	int i;
-
-	//clear the items first
-	for(i=0;i<16;i++)your_trade_list[i].quantity=0;
-	for(i=0;i<16;i++)others_trade_list[i].quantity=0;
-
-	no_view_my_items=1;
-	get_your_items(data);
-
-	//reset the accepted flags too
-	trade_you_accepted=0;
-	trade_other_accepted=0;
-
-	view_trade_menu=1;
-
-	//we have to close the inventory and manufacture windows, otherwise bad things can happen.
-	view_my_items=0;
-	view_manufacture_menu=0;
-	view_sigils_menu=0;
-}
-
-void put_item_on_trade(Uint8 *data)
-{
-	int pos;
-	pos=data[3];
-
-	if(!data[4])
-	{
-		your_trade_list[pos].image_id=data[0];
-		your_trade_list[pos].quantity+=*((Uint16 *)(data+1));
-	}
-	else
-	{
-		others_trade_list[pos].image_id=data[0];
-		others_trade_list[pos].quantity+=*((Uint16 *)(data+1));
-	}
-}
-
-void remove_item_from_trade(Uint8 *data)
-{
-	int pos;
-	int quantity;
-
-	pos=data[2];
-	quantity=*((Uint16 *)(data));
-
-	if(!data[3])
-	{
-		your_trade_list[pos].quantity-=quantity;
-	}
-	else
-	{
-		others_trade_list[pos].quantity-=quantity;
-	}
-}
 

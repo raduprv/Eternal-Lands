@@ -1,844 +1,1284 @@
 #include "global.h"
+int add_item_to_bank(int player_id,int item_type, int quantity);
+int add_item_to_player(int player_id,int item_type, int quantity);
 
-int wear_items_x_offset=6*51+20;
-int wear_items_y_offset=30;
 
 
-void display_items_menu()
+
+void send_inventory_item(int player_id, int pos)
 {
-	Uint8 str[80];
-	int x,y,i;
-	int item_is_weared=0;
-	//first of all, draw the actual menu.
+	Uint8 str[32];
 
-	draw_menu_title_bar(items_menu_x,items_menu_y-16,items_menu_x_len);
+	str[0]=GET_NEW_INVENTORY_ITEM;
+	*((Uint16 *)(str+1))=9;
+	*((Uint16 *)(str+3))=items[players[player_id].player_data.actor_items[pos].item_category].image_id;
+	*((Uint32 *)(str+5))=players[player_id].player_data.actor_items[pos].quantity;
+	str[9]=pos;
+	str[10]=items[players[player_id].player_data.actor_items[pos].item_category].flags;
+	MY_SDLNet_TCP_Send(players[player_id].sock, str, 11);
+}
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(items_menu_x,items_menu_y+items_menu_y_len,0);
-	glVertex3i(items_menu_x,items_menu_y,0);
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y,0);
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+items_menu_y_len,0);
-	glEnd();
+void read_items_def()
+{
+	int cur_item=0;
+	int f_size;
+	FILE *f = NULL;
+	Uint8 * asc_file_mem;
+	Uint8 * asc_file_mem_start;
 
-	glDisable(GL_BLEND);
+  f = fopen("items_def.txt", "rb");
+  if(!f)return;
+  fseek(f,0,SEEK_END);
+  f_size = ftell(f);
+  //ok, allocate memory for it
+  asc_file_mem=(Uint8 *)calloc(f_size+200, 1);
+  asc_file_mem_start=asc_file_mem;
+  fseek (f, 0, SEEK_SET);
+  fread (asc_file_mem, 1, f_size, f);
+  fclose (f);
 
-	glColor3f(0.77f,0.57f,0.39f);
-	glBegin(GL_LINES);
-	glVertex3i(items_menu_x,items_menu_y,0);
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y,0);
-
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y,0);
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+items_menu_y_len,0);
-
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+items_menu_y_len,0);
-	glVertex3i(items_menu_x,items_menu_y+items_menu_y_len,0);
-
-	glVertex3i(items_menu_x,items_menu_y+items_menu_y_len,0);
-	glVertex3i(items_menu_x,items_menu_y,0);
-
-	//draw the grid
-	for(y=1;y<7;y++)
+	while(cur_item<255)
 		{
-			glVertex3i(items_menu_x,items_menu_y+y*51,0);
-			glVertex3i(items_menu_x+6*51,items_menu_y+y*51,0);
-		}
-	for(x=1;x<7;x++)
-		{
-			glVertex3i(items_menu_x+x*51,items_menu_y,0);
-			glVertex3i(items_menu_x+x*51,items_menu_y+6*51,0);
+			int i;
+			int size_to_search;
+
+			i=get_string_occurance("[item]",asc_file_mem,f_size-(asc_file_mem-asc_file_mem_start),0);
+			if(i==-1)break;//no more items
+
+			asc_file_mem+=i;//go to the next item, if any
+			//see where the item ends
+
+			size_to_search=get_string_occurance("[/item]",asc_file_mem,f_size-(asc_file_mem-asc_file_mem_start),0);
+			if(size_to_search==-1)
+				{
+					log_error("An item has no end tag...");
+					break;
+				}
+
+			//read the names/info/etc.
+ 			 i=get_string_occurance("item_name:",asc_file_mem,f_size-(asc_file_mem-asc_file_mem_start),0);
+
+			if(i!=-1)
+				{
+					Uint8 *temp=asc_file_mem;
+					asc_file_mem+=i;
+					str_copy_grave(items[cur_item].name,asc_file_mem,64);
+					asc_file_mem=temp;//we don't know the order of the strings...
+				}
+
+ 			 i=get_string_occurance("item_description:",asc_file_mem,f_size-(asc_file_mem-asc_file_mem_start),0);
+
+			if(i!=-1)
+				{
+					Uint8 *temp=asc_file_mem;
+					asc_file_mem+=i;
+					str_copy_grave(items[cur_item].description,asc_file_mem,200);
+					asc_file_mem=temp;//we don't know the order of the strings...
+				}
+
+			items[cur_item].give_back_item=
+			get_integer_after_string("give_back_item:",asc_file_mem,size_to_search);
+
+			items[cur_item].image_id=
+			get_integer_after_string("image_id:",asc_file_mem,size_to_search);
+
+			//read the flags
+			items[cur_item].flags=0;
+
+			if(get_integer_after_string("is_reagent:",asc_file_mem,size_to_search)==1)
+			items[cur_item].flags|=ITEM_REAGENT;
+
+			if(get_integer_after_string("is_resource:",asc_file_mem,size_to_search)==1)
+			items[cur_item].flags|=ITEM_RESOURCE;
+
+			if(get_integer_after_string("is_stackable:",asc_file_mem,size_to_search)==1)
+			items[cur_item].flags|=ITEM_STACKABLE;
+
+			if(get_integer_after_string("is_turnable:",asc_file_mem,size_to_search)==1)
+			items[cur_item].flags|=ITEM_ON_OFF;
+
+			if(get_integer_after_string("is_inventory_usable:",asc_file_mem,size_to_search)==1)
+			items[cur_item].flags|=ITEM_INVENTORY_USABLE;
+
+			if(get_integer_after_string("is_tile_usable:",asc_file_mem,size_to_search)==1)
+			items[cur_item].flags|=ITEM_TILE_USABLE;
+
+			if(get_integer_after_string("is_player_usable:",asc_file_mem,size_to_search)==1)
+			items[cur_item].flags|=ITEM_PLAYER_USABLE;
+
+			if(get_integer_after_string("is_object_usable:",asc_file_mem,size_to_search)==1)
+			items[cur_item].flags|=ITEM_OBJECT_USABLE;
+
+			//read the rest of the things
+			items[cur_item].wearable=get_integer_after_string("is_wearable:",asc_file_mem,size_to_search);
+			if(items[cur_item].wearable==-1)items[cur_item].wearable=0;
+
+			items[cur_item].base_cost=
+			get_integer_after_string("base_cost:",asc_file_mem,size_to_search);
+
+			items[cur_item].base_quality=
+			get_integer_after_string("base_quality:",asc_file_mem,size_to_search);
+
+			items[cur_item].base_quantity=
+			get_integer_after_string("base_quantity:",asc_file_mem,size_to_search);
+
+			items[cur_item].weight=
+			get_integer_after_string("weight:",asc_file_mem,size_to_search);
+
+			//teleport stuff
+			items[cur_item].teleport_x=
+			get_integer_after_string("teleport_x:",asc_file_mem,size_to_search);
+			items[cur_item].teleport_y=
+			get_integer_after_string("teleport_y:",asc_file_mem,size_to_search);
+			items[cur_item].teleport_map=
+			get_integer_after_string("teleport_map:",asc_file_mem,size_to_search);
+
+			/////////////////on use stuff//////////////////////////////////////////////////
+
+			items[cur_item].increase_attack_on_use=
+			get_integer_after_string("increase_attack_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_attack_on_use==-1)items[cur_item].increase_attack_on_use=0;
+
+			items[cur_item].increase_defense_on_use=
+			get_integer_after_string("increase_defense_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_defense_on_use==-1)items[cur_item].increase_defense_on_use=0;
+
+			items[cur_item].increase_combat_on_use=
+			get_integer_after_string("increase_combat_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_combat_on_use==-1)items[cur_item].increase_combat_on_use=0;
+
+			items[cur_item].increase_manufacturing_on_use=
+			get_integer_after_string("increase_manufacturing_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_manufacturing_on_use==-1)items[cur_item].increase_manufacturing_on_use=0;
+
+			items[cur_item].increase_harvesting_on_use=
+			get_integer_after_string("increase_harvesting_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_harvesting_on_use==-1)items[cur_item].increase_harvesting_on_use=0;
+
+			items[cur_item].increase_alchemy_on_use=
+			get_integer_after_string("increase_alchemy_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_alchemy_on_use==-1)items[cur_item].increase_alchemy_on_use=0;
+
+			items[cur_item].increase_magic_on_use=
+			get_integer_after_string("increase_magic_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_magic_on_use==-1)items[cur_item].increase_magic_on_use=0;
+
+			items[cur_item].increase_potion_on_use=
+			get_integer_after_string("increase_potion_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_potion_on_use==-1)items[cur_item].increase_potion_on_use=0;
+
+			items[cur_item].increase_summoning_on_use=
+			get_integer_after_string("increase_summoning_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_summoning_on_use==-1)items[cur_item].increase_summoning_on_use=0;
+
+			items[cur_item].increase_armor_on_use=
+			get_integer_after_string("increase_armor_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_armor_on_use==-1)items[cur_item].increase_armor_on_use=0;
+
+			items[cur_item].increase_physique_on_use=
+			get_integer_after_string("increase_physique_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_physique_on_use==-1)items[cur_item].increase_physique_on_use=0;
+
+			items[cur_item].increase_coordination_on_use=
+			get_integer_after_string("increase_coordination_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_coordination_on_use==-1)items[cur_item].increase_coordination_on_use=0;
+
+			items[cur_item].increase_reasoning_on_use=
+			get_integer_after_string("increase_reasoning_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_reasoning_on_use==-1)items[cur_item].increase_reasoning_on_use=0;
+
+			items[cur_item].increase_will_on_use=
+			get_integer_after_string("increase_will_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_will_on_use==-1)items[cur_item].increase_will_on_use=0;
+
+			items[cur_item].increase_instinct_on_use=
+			get_integer_after_string("increase_instinct_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_instinct_on_use==-1)items[cur_item].increase_instinct_on_use=0;
+
+			items[cur_item].increase_vitality_on_use=
+			get_integer_after_string("increase_vitality_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_vitality_on_use==-1)items[cur_item].increase_vitality_on_use=0;
+
+			items[cur_item].increase_human_nexus_on_use=
+			get_integer_after_string("increase_human_nexus_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_human_nexus_on_use==-1)items[cur_item].increase_human_nexus_on_use=0;
+
+			items[cur_item].increase_animal_nexus_on_use=
+			get_integer_after_string("increase_animal_nexus_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_animal_nexus_on_use==-1)items[cur_item].increase_animal_nexus_on_use=0;
+
+			items[cur_item].increase_vegetal_nexus_on_use=
+			get_integer_after_string("increase_vegetal_nexus_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_vegetal_nexus_on_use==-1)items[cur_item].increase_vegetal_nexus_on_use=0;
+
+			items[cur_item].increase_inorganic_nexus_on_use=
+			get_integer_after_string("increase_inorganic_nexus_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_inorganic_nexus_on_use==-1)items[cur_item].increase_inorganic_nexus_on_use=0;
+
+			items[cur_item].increase_artificial_nexus_on_use=
+			get_integer_after_string("increase_artificial_nexus_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_artificial_nexus_on_use==-1)items[cur_item].increase_artificial_nexus_on_use=0;
+
+			items[cur_item].increase_magic_nexus_on_use=
+			get_integer_after_string("increase_magic_nexus_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_magic_nexus_on_use==-1)items[cur_item].increase_magic_nexus_on_use=0;
+
+			items[cur_item].increase_material_points_on_use=
+			get_integer_after_string("increase_material_points_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_material_points_on_use==-1)items[cur_item].increase_material_points_on_use=0;
+
+			items[cur_item].increase_ethereal_points_on_use=
+			get_integer_after_string("increase_ethereal_points_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_ethereal_points_on_use==-1)items[cur_item].increase_ethereal_points_on_use=0;
+
+			items[cur_item].increase_karma_on_use=
+			get_integer_after_string("increase_karma_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_karma_on_use==-1)items[cur_item].increase_karma_on_use=0;
+
+			items[cur_item].increase_food_on_use=
+			get_integer_after_string("increase_food_on_use:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_food_on_use==-1)items[cur_item].increase_food_on_use=0;
+			//////////////////////////on wear stuff
+			items[cur_item].increase_armor_on_wear=
+			get_integer_after_string("increase_armor_on_wear:",asc_file_mem,size_to_search);
+			if(items[cur_item].increase_armor_on_wear==-1)items[cur_item].increase_armor_on_wear=0;
+
+			items[cur_item].damage=
+			get_integer_after_string("damage:",asc_file_mem,size_to_search);
+			if(items[cur_item].damage==-1)items[cur_item].damage=0;
+
+			items[cur_item].accuracy=
+			get_integer_after_string("accuracy:",asc_file_mem,size_to_search);
+			if(items[cur_item].accuracy==-1)items[cur_item].accuracy=0;
+
+			items[cur_item].what_kind_wearable=
+			get_integer_after_string("what_kind_wearable:",asc_file_mem,size_to_search);
+
+			items[cur_item].what_wearable_id=
+			get_integer_after_string("what_wearable_id:",asc_file_mem,size_to_search);
+
+			items[cur_item].is_quest_item=
+			get_integer_after_string("is_quest_item:",asc_file_mem,size_to_search);
+			if(items[cur_item].is_quest_item==-1)items[cur_item].is_quest_item=0;
+
+			cur_item++;
 		}
 
-	glColor3f(0.57f,0.67f,0.49f);
-	//draw the small grid
-#ifdef NEW_VERSION
-	for(y=0;y<5;y++)
-		{
-			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+y*33,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+2*33,items_menu_y+wear_items_y_offset+y*33,0);
-		}
-	for(x=0;x<3;x++)
-		{
-			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset+4*33,0);
-		}
-#else
-	for(y=0;y<4;y++)
-		{
-			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+y*33,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+2*33,items_menu_y+wear_items_y_offset+y*33,0);
-		}
-	for(x=0;x<3;x++)
-		{
-			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset+3*33,0);
-		}
-#endif
-	glColor3f(0.77f,0.57f,0.39f);
-	//draw the corner, with the X in
-	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+20,0);
-	glVertex3i(items_menu_x+items_menu_x_len-20,items_menu_y+20,0);
+}
 
-	glVertex3i(items_menu_x+items_menu_x_len-20,items_menu_y+20,0);
-	glVertex3i(items_menu_x+items_menu_x_len-20,items_menu_y,0);
+//!!!!!!!!!!!!!!!!TODO: send a int instead of short for quantity, and a short for image id
+void send_inventory_items(int player_id,int for_trade)
+{
+	Uint8 str[500];
+	int i;
+	int items_no=0;
 
+	if(!for_trade)
+	str[0]=HERE_YOUR_INVENTORY;
+	else
+	str[0]=GET_YOUR_TRADEOBJECTS;
 
-	//now, draw the quantity boxes
-	glColor3f(0.3f,0.5f,1.0f);
-	for(y=0;y<6;y++)
-		{
-			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+160+y*20,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+2*35,items_menu_y+wear_items_y_offset+160+y*20,0);
-		}
-	for(x=0;x<3;x++)
-		{
-			glVertex3i(items_menu_x+wear_items_x_offset+x*35,items_menu_y+wear_items_y_offset+160,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+x*35,items_menu_y+wear_items_y_offset+160+5*20,0);
-		}
-
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-
-	//draw the quantity string
-	draw_string_small(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+145,"Quantity",1);
-	//draw the quantity values
-	if(item_quantity==1)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+15,items_menu_y+wear_items_y_offset+163,"1",1);
-	if(item_quantity==5)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+50,items_menu_y+wear_items_y_offset+163,"5",1);
-	if(item_quantity==10)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+10,items_menu_y+wear_items_y_offset+183,"10",1);
-	if(item_quantity==20)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+45,items_menu_y+wear_items_y_offset+183,"20",1);
-	if(item_quantity==50)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+10,items_menu_y+wear_items_y_offset+203,"50",1);
-	if(item_quantity==100)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+40,items_menu_y+wear_items_y_offset+203,"100",1);
-	if(item_quantity==200)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+5,items_menu_y+wear_items_y_offset+223,"200",1);
-	if(item_quantity==500)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+40,items_menu_y+wear_items_y_offset+223,"500",1);
-	if(item_quantity==1000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+1,items_menu_y+wear_items_y_offset+243,"1000",1);
-	if(item_quantity==2000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+36,items_menu_y+wear_items_y_offset+243,"2000",1);
-	glColor3f(0.77f,0.57f,0.39f);
-	draw_string(items_menu_x+items_menu_x_len-16,items_menu_y+2,"X",1);
-
-	glColor3f(1.0f,1.0f,1.0f);
-	//ok, now let's draw the objects...
 	for(i=0;i<36+8;i++)
 		{
-			if(item_list[i].quantity)
+			if(players[player_id].player_data.actor_items[i].quantity)
 				{
-					float u_start,v_start,u_end,v_end;
-					int this_texture,cur_item,cur_pos;
-					int x_start,x_end,y_start,y_end;
+					Uint8 flags;
+					*((Uint16 *)(str+4+items_no*8))=items[players[player_id].player_data.actor_items[i].item_category].image_id;
+					*((Uint32 *)(str+4+items_no*8+2))=players[player_id].player_data.actor_items[i].quantity;
+					str[4+items_no*8+6]=i;
+					str[4+items_no*8+7]=items[players[player_id].player_data.actor_items[i].item_category].flags;
+					items_no++;
+				}
+		}
+	*((Uint16 *)(str+1))=2+items_no*8;
+	str[3]=items_no;
+	MY_SDLNet_TCP_Send(players[player_id].sock, &str, 4+items_no*8);
+}
 
-					//get the UV coordinates.
-					cur_item=item_list[i].image_id%25;
-					u_start=0.2f*(cur_item%5);
-					u_end=u_start+0.2f;
-					v_start=(1.0f+2.0f/256.0f)-(0.2f*(cur_item/5));
-					v_end=v_start-0.2f;
 
-					//get the x and y
-					cur_pos=item_list[i].pos;
-					if(cur_pos>35)//the items we 'wear' are smaller
+void send_inventory_item_info(int player_id,Uint8 pos)
+{
+	Uint8 str[300];
+	int len;
+
+	if(pos>=36+8)return;//fuck you
+
+			if(players[player_id].player_data.actor_items[pos].quantity)
+				{
+					sprintf(&str[4],INVENTORY_ITEM_LOOK,items[players[player_id].player_data.actor_items[pos].item_category].name,
+					items[players[player_id].player_data.actor_items[pos].item_category].description,items[players[player_id].player_data.actor_items[pos].item_category].weight);
+					len=strlen(&str[4]);
+					len+=2;
+					str[0]=INVENTORY_ITEM_TEXT;
+					*((Uint16 *)(str+1))=len;
+					str[3]=my_text[0]=127+c_green2;
+					MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+				}
+
+}
+
+void move_inventory_item(int old_pos,int new_pos,int player_id)
+{
+	int k;
+	char str[300];
+	int len;
+	int item_category;
+
+	if(players[player_id].trading_with!=-1)
+		{
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],CANT_DO_WHILE_TRADING);
+			send_text_to_player(player_id);
+			return;
+		}
+
+
+	if(old_pos>36+8 || new_pos>36+8)
+		{
+			sprintf(&str[4],"U R teh sux, if u think u can send stupid info and foul the server!");
+			len=strlen(&str[4]);
+			len+=2;
+			str[0]=INVENTORY_ITEM_TEXT;
+			*((Uint16 *)(str+1))=len;
+			str[3]=my_text[0]=127+c_red2;
+			MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+			return;
+		}
+
+
+
+
+	if(players[player_id].player_data.actor_items[old_pos].quantity)
+		{
+			//see if the targeted position is free
+			if(players[player_id].player_data.actor_items[new_pos].quantity)
+				{
+					sprintf(&str[4],"U R teh sux, this position is already occupied! Stop sending bogous input to the server!");
+					len=strlen(&str[4]);
+					len+=2;
+					str[0]=INVENTORY_ITEM_TEXT;
+					*((Uint16 *)(str+1))=len;
+					str[3]=my_text[0]=127+c_red2;
+					MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+					return;
+				}
+
+				if(new_pos>=36)
+					{
+						int kind_of_wear;
+						int cur_kind_of_wear;
+
+						item_category=players[player_id].player_data.actor_items[old_pos].item_category;
+
+						kind_of_wear=items[players[player_id].player_data.actor_items[old_pos].item_category].wearable;
+						if(!kind_of_wear)
+							{
+								sprintf(&str[4],CANT_WEAR_ITEM);
+								len=strlen(&str[4]);
+								len+=2;
+								str[0]=INVENTORY_ITEM_TEXT;
+								*((Uint16 *)(str+1))=len;
+								str[3]=my_text[0]=127+c_red2;
+								MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+								return;
+							}
+						for(k=36;k<36+8;k++)
+							{
+								if(players[player_id].player_data.actor_items[k].quantity)
+									{
+										cur_kind_of_wear=items[players[player_id].player_data.actor_items[k].item_category].wearable;
+										if(kind_of_wear==cur_kind_of_wear || ((kind_of_wear==LEFT_HAND || kind_of_wear==RIGHT_HAND)&& cur_kind_of_wear==BOTH_HANDS)
+											|| ((cur_kind_of_wear==LEFT_HAND || cur_kind_of_wear==RIGHT_HAND)&& kind_of_wear==BOTH_HANDS))
+											{
+												sprintf(&str[4],"Can't wear, a similar item is already worn!");
+												len=strlen(&str[4]);
+												len+=2;
+												str[0]=INVENTORY_ITEM_TEXT;
+												*((Uint16 *)(str+1))=len;
+												str[3]=my_text[0]=127+c_red2;
+												MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+												return;
+											}
+									}
+							}
+
+					}
+			//if we are here, we have a valid move
+			str[0]=REMOVE_ITEM_FROM_INVENTORY;
+			*((Uint16 *)(str+1))=2;
+			str[3]=old_pos;
+			MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+
+			players[player_id].player_data.actor_items[new_pos].item_category=
+			players[player_id].player_data.actor_items[old_pos].item_category;
+			players[player_id].player_data.actor_items[new_pos].quantity=
+			players[player_id].player_data.actor_items[old_pos].quantity;
+
+			send_inventory_item(player_id,new_pos);
+
+			players[player_id].player_data.actor_items[old_pos].item_category=0;
+			players[player_id].player_data.actor_items[old_pos].quantity=0;
+
+			if(old_pos<36 && new_pos>=36)wear_item(player_id, new_pos);//wear the item
+			if(old_pos>=36 && new_pos<36)unwear_item(player_id, new_pos);//wear the item
+
+		}
+
+
+}
+
+/*
+Returns:
+1 =Everything OK
+0 =Not enough space
+-1=Too heavy
+*/
+
+int add_item_to_player(int player_id,int item_type, int quantity)
+{
+	int i;
+	int total_carry_items=0;
+	char free_list[36]={0};
+	int is_stackable;
+	Uint8 str[50];
+	int player_max_carry;
+	int player_cur_carry;
+
+	//see if this player is not too loaded
+	player_cur_carry=get_carried_weight(player_id);
+	player_max_carry=(players[player_id].player_data.physique.base+players[player_id].player_data.coordination.base)/2*20;
+	if(items[item_type].weight*quantity+player_cur_carry>player_max_carry)return -1;
+	//see if the item is stackable
+	is_stackable=items[item_type].flags&ITEM_STACKABLE;
+
+	for(i=0;i<36;i++)
+		{
+			if(players[player_id].player_data.actor_items[i].quantity)
+				{
+					if(is_stackable && players[player_id].player_data.actor_items[i].item_category==item_type)
 						{
-							cur_pos-=36;
-							item_is_weared=1;
-							x_start=items_menu_x+wear_items_x_offset+33*(cur_pos%2)+1;
-							x_end=x_start+32;
-							y_start=items_menu_y+wear_items_y_offset+33*(cur_pos/2);
-							y_end=y_start+32;
+							//see if the quantity doesn't go over 0xffffffff
+							if(players[player_id].player_data.actor_items[i].quantity+quantity<0xffffffff)
+								{
+									players[player_id].player_data.actor_items[i].quantity+=quantity;
+									send_inventory_item(player_id,i);
+									send_partial_stat_to_player(player_id,CARRY_WGHT_CUR);
+									return 1;
+								}
+						}
+					//mark this item as occupied in the free_list
+					free_list[i]=1;
+					total_carry_items++;
+				}
+		}
+	if(total_carry_items>35)return 0;
+	//if the item is not stackable, make sure we have enoug free slots to add all of it
+	if(!is_stackable && total_carry_items+quantity>36)return 0;
+	//find a free space in the inventory...
+	if(is_stackable)
+	for(i=0;i<36;i++)
+		{
+			if(!free_list[i])
+				{
+					//ok, we found a free position in the inventory
+					players[player_id].player_data.actor_items[i].quantity=quantity;
+					players[player_id].player_data.actor_items[i].item_category=item_type;
+					send_inventory_item(player_id,i);
+					send_partial_stat_to_player(player_id,CARRY_WGHT_CUR);
+					return 1;
+				}
+		}
+	else//not stackable
+	for(i=0;i<36;i++)
+		{
+			if(!free_list[i])
+				{
+					//ok, we found a free position in the inventory
+					players[player_id].player_data.actor_items[i].quantity=1;
+					players[player_id].player_data.actor_items[i].item_category=item_type;
+					send_inventory_item(player_id,i);
+					quantity--;
+					if(!quantity)
+						{
+							send_partial_stat_to_player(player_id,CARRY_WGHT_CUR);
+							return 1;//ok, we are done with them
+						}
+					break;
+				}
+		}
+
+	return 0;
+
+}
+
+void open_bag(int player_id)
+{
+	Uint8 str[500];
+	int i;
+	int bags_no=0;
+	int map_id;
+	int which_bag;
+
+	which_bag=players[player_id].opened_bag;
+	map_id=players[player_id].player_data.map_id;
+	if(which_bag==-1)return;
+
+	//first of all get the number of items this bag carries
+	str[0]=HERE_YOUR_GROUND_ITEMS;
+	for(i=0;i<50;i++)
+		{
+			if(map_list[map_id].bags[which_bag].items[i].quantity)
+				{
+					Uint8 flags;
+					*((Uint16 *)(str+4+bags_no*7))=items[map_list[map_id].bags[which_bag].items[i].item_category].image_id;
+					*((Uint32 *)(str+4+bags_no*7+2))=map_list[map_id].bags[which_bag].items[i].quantity;
+					str[4+bags_no*7+6]=i;
+					bags_no++;
+				}
+		}
+	*((Uint16 *)(str+1))=2+bags_no*7;
+	str[3]=bags_no;
+	MY_SDLNet_TCP_Send(players[player_id].sock, &str, 4+bags_no*7);
+}
+
+void destroy_bag(int map_id, int bag_id)
+{
+	int i;
+	Uint8 str[8];
+
+	if(!map_list[map_id].bags[bag_id].in_use)return;
+	//first, find out if there is any player that has that bag open
+	for(i=0;i<max_players;i++)
+     {
+        if(players[i].sock)
+        if(players[i].logged_in)
+        if(players[i].player_data.map_id==map_id)
+        if(players[i].opened_bag==bag_id)
+        	{
+				send_1_octet_command_to_player(CLOSE_BAG, i);
+				players[i].opened_bag=-1;
+				break;
+			}
+	 }
+
+	//now, send a message to the entire map to destroy that bag
+	str[0]=DESTROY_BAG;
+	*((Uint16 *)(str+1))=2;
+	*((Uint8 *)(str+3))=bag_id;
+	send_message_to_map(map_id,str,4);
+
+	//make it not in use
+	map_list[map_id].bags[bag_id].in_use=0;
+	//decrease the number of bags on this map
+	map_list[map_id].bags_no--;
+}
+
+void remove_item_from_player(int player_id, int item_type,int quantity)
+{
+	int i;
+	Uint8 str[32];
+
+	for(i=0;i<36;i++)
+		{
+			if(players[player_id].player_data.actor_items[i].quantity)
+				{
+					if(players[player_id].player_data.actor_items[i].item_category==item_type)
+						{
+							if(players[player_id].player_data.actor_items[i].quantity>=quantity)
+								{
+									players[player_id].player_data.actor_items[i].quantity-=quantity;
+									quantity=0;
+								}
+							else
+								{
+									quantity-=players[player_id].player_data.actor_items[i].quantity;
+									players[player_id].player_data.actor_items[i].quantity=0;
+								}
+							if(!players[player_id].player_data.actor_items[i].quantity)
+								{
+									str[0]=REMOVE_ITEM_FROM_INVENTORY;
+									*((Uint16 *)(str+1))=2;
+									str[3]=i;
+									MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+								}
+							else
+							send_inventory_item(player_id,i);
+
+							if(!quantity)
+								{
+									send_partial_stat_to_player(player_id,CARRY_WGHT_CUR);
+									return;//finally, we are done with it
+								}
+						}
+
+				}
+		}
+}
+
+void drop_item(int player_id, int pos,int quantity)
+{
+	int i;
+	int map_id;
+	int item_exists=0;
+	int bag_at_the_feet=0;
+	int my_x,my_y;
+	int which_bag=0;//to avoid warnings
+	int item_category;
+	Uint8 str[200];
+	Uint32 min_time_stamp=0xffffffff;
+	int min_time_stamp_entry;
+	int all_bags_taken=1;
+	int first_time;
+
+	if(players[player_id].trading_with!=-1)
+		{
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],CANT_DO_WHILE_TRADING);
+			send_text_to_player(player_id);
+			return;
+		}
+
+	if(pos>=36)
+		{
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],CANT_DROP_WORN_ITEM);
+			send_text_to_player(player_id);
+			return;
+		}
+
+	//first see if that item really exists
+	if(players[player_id].player_data.actor_items[pos].quantity)
+	item_exists=1;
+
+	if(!item_exists)return;//*shrug* that wasn't supposed to happen
+	//check to see if the quantity of the item is at least equal with the one we try to take
+	if(players[player_id].player_data.actor_items[pos].quantity<quantity)return;
+	item_category=players[player_id].player_data.actor_items[pos].item_category;
+
+	//ok, now that the item exists, see if there is a bag at our feet...
+	map_id=players[player_id].player_data.map_id;
+	my_x=players[player_id].player_data.x_pos;
+	my_y=players[player_id].player_data.y_pos;
+
+	if(map_list[map_id].bags_no)
+	for(i=0;i<MAX_GROUND_BAGS;i++)
+		{
+			if(map_list[map_id].bags[i].in_use)
+			if(map_list[map_id].bags[i].x==my_x)
+			if(map_list[map_id].bags[i].y==my_y)
+				{
+					bag_at_the_feet=1;
+					which_bag=i;
+					if(players[player_id].opened_bag==i)
+						{
+							first_time=0;
 						}
 					else
 						{
-							item_is_weared=0;
-							x_start=items_menu_x+51*(cur_pos%6)+1;
-							x_end=x_start+50;
-							y_start=items_menu_y+51*(cur_pos/6);
-							y_end=y_start+50;
+							players[player_id].opened_bag=i;
+							first_time=1;
 						}
+					if(first_time)open_bag(player_id);
+					break;
+				}
+		}
 
-					//get the texture this item belongs to
-					this_texture=item_list[i].image_id/25;
-					if(this_texture==0)this_texture=items_text_1;
-					else if(this_texture==1)this_texture=items_text_2;
-					else if(this_texture==2)this_texture=items_text_3;
-					else if(this_texture==3)this_texture=items_text_4;
-					else if(this_texture==4)this_texture=items_text_5;
-					else if(this_texture==5)this_texture=items_text_6;
-					else if(this_texture==6)this_texture=items_text_7;
-
-					if(last_texture!=texture_cache[this_texture].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-							last_texture=texture_cache[this_texture].texture_id;
-						}
-
-					glBegin(GL_QUADS);
-					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-					glEnd();
-					if(!item_is_weared)
-						{
-							sprintf(str,"%i",item_list[i].quantity);
-							draw_string_small(x_start,y_end-15,str,1);
-						}
+	if(bag_at_the_feet)
+		{
+			//see if there is already an item with the same id
+			for(i=0;i<50;i++)
+				{
+					if(map_list[map_id].bags[which_bag].items[i].quantity)
+					if(map_list[map_id].bags[which_bag].items[i].item_category==item_category)
+					goto space_found;
 				}
 
-		}
-	//now, draw the inventory text, if any.
-	draw_string_small(items_menu_x+4,items_menu_y+items_menu_y_len-59,items_string,4);
-
-	glColor3f(1.0f,1.0f,1.0f);
-	//draw the load string
-	sprintf(str,"Load:%i/%i",your_info.carry_capacity.cur,your_info.carry_capacity.base);
-	draw_string_small(items_menu_x+6*51+4,items_menu_y+6*51+44,str,1);
-}
-
-
-
-void get_your_items(Uint8 *data)
-{
-	int i,total_items;
-	Uint8 flags;
-
-	total_items=data[0];
-
-	//clear the item string we might have left from a previous session
-	items_string[0]=0;
-
-	//clear the items first
-	for(i=0;i<36+6;i++)
-		{
-			item_list[i].quantity=0;
-		}
-#ifdef NEW_VERSION
-	for(i=0;i<total_items;i++)
-		{
-			item_list[i].image_id=*((Uint16 *)(data+i*8+1));
-			item_list[i].quantity=*((Uint32 *)(data+i*8+1+2));
-			item_list[i].pos=data[i*8+1+6];
-			flags=data[i*8+1+7];
-
-			if((flags&ITEM_RESOURCE))item_list[i].is_resource=1;
-			else item_list[i].is_resource=0;
-			if((flags&ITEM_REAGENT))item_list[i].is_reagent=1;
-			else item_list[i].is_reagent=0;
-			if((flags&ITEM_INVENTORY_USABLE))item_list[i].use_with_inventory=1;
-			else item_list[i].use_with_inventory=0;
-		}
-#else
-	for(i=0;i<total_items;i++)
-		{
-			item_list[i].image_id=data[i*5+1];
-			item_list[i].quantity=*((Uint16 *)(data+i*5+1+1));
-			item_list[i].pos=data[i*5+1+3];
-			flags=data[i*5+1+4];
-
-			if((flags&ITEM_RESOURCE))item_list[i].is_resource=1;
-			else item_list[i].is_resource=0;
-			if((flags&ITEM_REAGENT))item_list[i].is_reagent=1;
-			else item_list[i].is_reagent=0;
-			if((flags&ITEM_INVENTORY_USABLE))item_list[i].use_with_inventory=1;
-			else item_list[i].use_with_inventory=0;
-		}
-#endif
-	build_manufacture_list();
-
-}
-
-
-int check_items_interface()
-{
-	int i,x,y;
-	int x_screen,y_screen;
-	Uint8 str[100];
-
-	if(!view_my_items || mouse_x>items_menu_x+items_menu_x_len || mouse_x<items_menu_x
-	   || mouse_y<items_menu_y || mouse_y>items_menu_y+items_menu_y_len)return 0;
-
-	//see if we changed the quantity
-	for(y=0;y<5;y++)
-		for(x=0;x<2;x++)
-			{
-				x_screen=items_menu_x+wear_items_x_offset+x*35;
-				y_screen=items_menu_y+wear_items_y_offset+160+y*20;
-				if(mouse_x>x_screen && mouse_x<x_screen+35 && mouse_y>y_screen && mouse_y<y_screen+20)
-					{
-						if(x==0 && y==0)item_quantity=1;
-						else if(x==1 && y==0)item_quantity=5;
-						else if(x==0 && y==1)item_quantity=10;
-						else if(x==1 && y==1)item_quantity=20;
-						else if(x==0 && y==2)item_quantity=50;
-						else if(x==1 && y==2)item_quantity=100;
-						else if(x==0 && y==3)item_quantity=200;
-						else if(x==1 && y==3)item_quantity=500;
-						else if(x==0 && y==4)item_quantity=1000;
-						else if(x==1 && y==4)item_quantity=2000;
-					}
-			}
-
-
-
-	//see if we clicked on any item in the main category
-	for(y=0;y<6;y++)
-		for(x=0;x<6;x++)
-			{
-				x_screen=items_menu_x+x*51;
-				y_screen=items_menu_y+y*51;
-				if(mouse_x>x_screen && mouse_x<x_screen+51 && mouse_y>y_screen && mouse_y<y_screen+51)
-					{
-						//see if there is an empty space to drop this item over.
-						if(item_dragged!=-1)//we have to drop this item
-							{
-								int any_item=0;
-								for(i=0;i<36+6;i++)
-									{
-										if(item_list[i].quantity && item_list[i].pos==y*6+x)
-											{
-												any_item=1;
-												if(item_dragged==i)//drop the item only over itself
-													item_dragged=-1;
-												return 1;
-											}
-									}
-								if(!any_item)
-									{
-										//send the drop info to the server
-										str[0]=MOVE_INVENTORY_ITEM;
-										str[1]=item_list[item_dragged].pos;
-										str[2]=y*6+x;
-										my_tcp_send(my_socket,str,3);
-										item_dragged=-1;
-										return 1;
-									}
-							}
-
-						//see if there is any item there
-
-						for(i=0;i<36+6;i++)
-							{
-								//should we get the info for it?
-								if(item_list[i].quantity && item_list[i].pos==y*6+x)
-									{
-
-										if(action_mode==action_look || right_click)
-											{
-												str[0]=LOOK_AT_INVENTORY_ITEM;
-												str[1]=item_list[i].pos;
-												my_tcp_send(my_socket,str,2);
-											}
-										else if(action_mode==action_pick)
-											{
-												int quantity;
-												quantity=item_list[i].quantity;
-												if(quantity-item_quantity>0)quantity=item_quantity;
-												str[0]=DROP_ITEM;
-												str[1]=item_list[i].pos;
-												*((Uint16 *)(str+2))=quantity;//quantity
-												my_tcp_send(my_socket,str,4);
-											}
-										else if(action_mode==action_use)
-											{
-												if(item_list[i].use_with_inventory)
-													{
-														str[0]=USE_INVENTORY_ITEM;
-														str[1]=item_list[i].pos;
-														my_tcp_send(my_socket,str,2);
-														return 1;
-													}
-												return 1;
-											}
-										else//we might test for other things first, like use or drop
-											{
-												if(item_dragged==-1)//we have to drag this item
-													{
-														item_dragged=i;
-													}
-											}
-
-										return 1;
-									}
-							}
-					}
-			}
-
-	//see if we clicked on any item in the wear category
-#ifdef NEW_VERSION
-	for(y=0;y<4;y++)
-#else
-	for(y=0;y<3;y++)
-#endif
-		for(x=0;x<2;x++)
-			{
-				x_screen=wear_items_x_offset+items_menu_x+x*33;
-				y_screen=wear_items_y_offset+items_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-					{
-						//see if there is any item there
-						//see if there is an empty space to drop this item over.
-						if(item_dragged!=-1)//we have to drop this item
-							{
-								int any_item=0;
-								for(i=0;i<38+6;i++)
-									{
-										if(item_list[i].quantity && item_list[i].pos==36+y*2+x)
-											{
-												any_item=1;
-												if(item_dragged==i)//drop the item only over itself
-													item_dragged=-1;
-												return 1;
-											}
-									}
-								if(!any_item)
-									{
-										Uint8 str[20];
-										//send the drop info to the server
-										str[0]=MOVE_INVENTORY_ITEM;
-										str[1]=item_list[item_dragged].pos;
-										str[2]=36+y*2+x;
-										my_tcp_send(my_socket,str,3);
-										item_dragged=-1;
-										return 1;
-									}
-							}
-
-						for(i=0;i<36+8;i++)
-							{
-								//should we get the info for it?
-								if(item_list[i].quantity && item_list[i].pos==y*2+x+36)
-									{
-										if(action_mode==action_look || right_click)
-											{
-												str[0]=LOOK_AT_INVENTORY_ITEM;
-												str[1]=item_list[i].pos;
-												my_tcp_send(my_socket,str,2);
-											}
-										else//we might test for other things first, like use or drop
-											{
-												if(item_dragged==-1)//we have to drag this item
-													{
-														item_dragged=i;
-													}
-											}
-										return 1;
-									}
-							}
-					}
-			}
-
-	return 1;
-
-}
-
-
-
-void drag_item()
-{
-	float u_start,v_start,u_end,v_end;
-	int cur_item,this_texture;
-
-	cur_item=item_list[item_dragged].image_id%25;
-	u_start=0.2f*(cur_item%5);
-	u_end=u_start+0.2f;
-	v_start=(1.0f+2.0f/256.0f)-(0.2f*(cur_item/5));
-	v_end=v_start-0.2f;
-
-	//get the texture this item belongs to
-	this_texture=item_list[item_dragged].image_id/25;
-	if(this_texture==0)this_texture=items_text_1;
-	else if(this_texture==1)this_texture=items_text_2;
-	else if(this_texture==2)this_texture=items_text_3;
-	else if(this_texture==3)this_texture=items_text_4;
-	else if(this_texture==4)this_texture=items_text_5;
-	else if(this_texture==5)this_texture=items_text_6;
-	else if(this_texture==6)this_texture=items_text_7;
-
-	if(last_texture!=texture_cache[this_texture].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-			last_texture=texture_cache[this_texture].texture_id;
-		}
-
-	glBegin(GL_QUADS);
-	draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+25,mouse_y+25);
-	glEnd();
-}
-
-
-void remove_item_from_inventory(int pos)
-{
-	int i;
-	for(i=0;i<36+6;i++)
-		{
-			if(item_list[i].quantity)
-				if(item_list[i].pos==pos)
-					{
-						item_list[i].quantity=0;
-						build_manufacture_list();
-						return;
-					}
-		}
-}
-
-void remove_item_from_ground(Uint8 pos)
-{
-	ground_item_list[pos].quantity=0;
-}
-
-void get_new_inventory_item(Uint8 *data)
-{
-	int i;
-	int pos;
-	Uint8 flags;
-	int quantity;
-	int image_id;
-
-#ifdef NEW_VERSION
-	pos=data[6];
-	flags=data[7];
-	image_id=*((Uint16 *)(data));
-	quantity=*((Uint32 *)(data+2));
-#else
-	pos=data[3];
-	flags=data[4];
-	image_id=data[0];
-	quantity=*((Uint16 *)(data+1));
-#endif
-
-	//first, try to see if the items already exists, and replace it
-	for(i=0;i<36+6;i++)
-		{
-			if(item_list[i].quantity)
-				if(item_list[i].pos==pos)
-					{
-						item_list[i].image_id=image_id;
-						item_list[i].quantity=quantity;
-						item_list[i].pos=pos;
-						build_manufacture_list();
-						return;
-					}
-		}
-
-	for(i=0;i<36+6;i++)
-		{
-			if(!item_list[i].quantity)
+			//see if there is enough room in this bag
+			for(i=0;i<50;i++)
 				{
-					item_list[i].image_id=image_id;
-					item_list[i].quantity=quantity;
-					item_list[i].pos=pos;
-					if((flags&ITEM_RESOURCE))item_list[i].is_resource=1;
-					else item_list[i].is_resource=0;
-					if((flags&ITEM_REAGENT))item_list[i].is_reagent=1;
-					else item_list[i].is_reagent=0;
-					if((flags&ITEM_INVENTORY_USABLE))item_list[i].use_with_inventory=1;
-					else item_list[i].use_with_inventory=0;
+					if(!map_list[map_id].bags[which_bag].items[i].quantity)
+					break;
+				}
+			space_found:
+					if(i<50)
+						{
+							//we found a free spot, now take the item from that guy and put it in the bag
+							players[player_id].player_data.actor_items[pos].quantity-=quantity;
+							if(!players[player_id].player_data.actor_items[pos].quantity)
+								{
+									str[0]=REMOVE_ITEM_FROM_INVENTORY;
+									*((Uint16 *)(str+1))=2;
+									str[3]=pos;
+									MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+								}
+							else
+							send_inventory_item(player_id,pos);
 
-					build_manufacture_list();
+							map_list[map_id].bags[which_bag].items[i].quantity+=quantity;
+							map_list[map_id].bags[which_bag].items[i].item_category=players[player_id].player_data.actor_items[pos].item_category;
+							//now, tell the client that he has a new item, on the ground
+							str[0]=GET_NEW_GROUND_ITEM;
+							*((Uint16 *)(str+1))=9;
+							*((Uint16 *)(str+3))=items[item_category].image_id;
+							*((Uint32 *)(str+5))=map_list[map_id].bags[which_bag].items[i].quantity;
+							str[9]=i;
+							str[10]=items[item_category].flags;
+							MY_SDLNet_TCP_Send(players[player_id].sock, str, 11);
+							//update the last accessed time stamp
+							map_list[map_id].bags[which_bag].time_stamp=time_stamp;
+							return;
+						}
+					else//not enough room, damn it!
+						{
+							int len;
+							sprintf(&str[4],NO_ROOM_TO_DROP_ITEM);
+							len=strlen(&str[4]);
+							len+=2;
+							str[0]=INVENTORY_ITEM_TEXT;
+							*((Uint16 *)(str+1))=len;
+							str[3]=my_text[0]=127+c_red2;
+							MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+							return;
+						}
+		}//ok, there is no bag at our feet, create one
+
+
+		for(i=0;i<MAX_GROUND_BAGS;i++)
+		{
+			if(!map_list[map_id].bags[i].in_use)
+				{
+					all_bags_taken=0;
+					which_bag=i;
+					break;
+				}
+		}
+
+		if(all_bags_taken)//no free bag spot, must delete an old one...
+		for(i=0;i<MAX_GROUND_BAGS;i++)
+			{
+				if(map_list[map_id].bags[which_bag].in_use)
+				if(map_list[map_id].bags[i].time_stamp<min_time_stamp)
+					{
+						min_time_stamp=map_list[map_id].bags[i].time_stamp;
+						which_bag=i;
+					}
+			}
+
+		if(all_bags_taken)destroy_bag(map_id,which_bag);
+
+		//ok, now add a new bag
+		map_list[map_id].bags[which_bag].time_stamp=time_stamp;
+		map_list[map_id].bags[which_bag].in_use=1;
+		map_list[map_id].bags[which_bag].x=my_x;
+		map_list[map_id].bags[which_bag].y=my_y;
+
+		//increase the number of bags on this map
+		map_list[map_id].bags_no++;
+
+		//now, notify everyone we have a winner (in fact, a new bag)
+		str[0]=GET_NEW_BAG;
+		*((Uint16 *)(str+1))=6;
+		*((Uint16 *)(str+3))=my_x;
+		*((Uint16 *)(str+5))=my_y;
+		*((Uint8 *)(str+7))=which_bag;
+		send_message_to_map(map_id,str,8);
+
+
+		//clear the bag content
+		for(i=0;i<50;i++)
+			{
+				map_list[map_id].bags[which_bag].items[i].quantity=0;
+			}
+
+		i=0;//we are using the first item in the bag, since it is a new bag
+
+		players[player_id].opened_bag=which_bag;
+		//send the "hey, open the ground inventory" message to the client
+		open_bag(player_id);
+
+
+		players[player_id].player_data.actor_items[pos].quantity-=quantity;
+		if(!players[player_id].player_data.actor_items[pos].quantity)
+			{
+				str[0]=REMOVE_ITEM_FROM_INVENTORY;
+				*((Uint16 *)(str+1))=2;
+				str[3]=pos;
+				MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+			}
+		else
+		send_inventory_item(player_id,pos);
+
+		map_list[map_id].bags[which_bag].items[i].quantity+=quantity;
+		map_list[map_id].bags[which_bag].items[i].item_category=players[player_id].player_data.actor_items[pos].item_category;
+		//now, tell the client that he has a new item, on the ground
+		str[0]=GET_NEW_GROUND_ITEM;
+		*((Uint16 *)(str+1))=9;
+		*((Uint16 *)(str+3))=items[item_category].image_id;
+		*((Uint32 *)(str+5))=map_list[map_id].bags[which_bag].items[i].quantity;
+		str[9]=i;
+		str[10]=items[item_category].flags;
+		MY_SDLNet_TCP_Send(players[player_id].sock, str, 11);
+		return;
+
+
+}
+
+void send_bags_list(int player_id)
+{
+	Uint8 str[500];
+	int i;
+	int bags_no=0;
+	int map_id;
+
+	map_id=players[player_id].player_data.map_id;
+
+	//first of all get the number of items this person carries
+	str[0]=GET_BAGS_LIST;
+	for(i=0;i<MAX_GROUND_BAGS;i++)
+		{
+			if(map_list[map_id].bags[i].in_use)
+				{
+					*((Uint16 *)(str+4+bags_no*5))=map_list[map_id].bags[i].x;
+					*((Uint16 *)(str+4+bags_no*5+2))=map_list[map_id].bags[i].y;
+					*((Uint8 *)(str+4+bags_no*5+4))=i;//the bag id
+					bags_no++;
+				}
+		}
+	*((Uint16 *)(str+1))=2+bags_no*5;
+	str[3]=bags_no;
+	if(bags_no)MY_SDLNet_TCP_Send(players[player_id].sock, &str, 4+bags_no*5);
+}
+
+
+void send_ground_item_info(int player_id,Uint8 pos)
+{
+	Uint8 str[300];
+	int len,cur_item,cur_bag,cur_map;
+
+	//check to see if the bag exists
+	cur_bag=players[player_id].opened_bag;
+	if(cur_bag==-1)return;//*shrug* there is no bag here
+
+	//see if the user tried to feed us with an invalid position...
+	if(pos>49)
+		{
+			disconnect_player(player_id);//the motherfucker tried to crash the server
+			sprintf(str,"%s tried to look at object no %i in a bag.\n",players[player_id].player_data.player_name,pos);
+			log_violation(str);
+			return;
+		}
+
+	cur_map=players[player_id].player_data.map_id;
+	cur_item=map_list[cur_map].bags[cur_bag].items[pos].item_category;
+	if(map_list[cur_map].bags[cur_bag].items[pos].quantity)
+		{
+			sprintf(&str[4],INVENTORY_ITEM_LOOK,items[cur_item].name,items[cur_item].description,items[cur_item].weight);
+			len=strlen(&str[4]);
+			len+=2;
+			str[0]=INVENTORY_ITEM_TEXT;
+			*((Uint16 *)(str+1))=len;
+			str[3]=my_text[0]=127+c_green2;
+			MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+			return;
+		}
+
+}
+
+
+
+
+void get_item_from_bag(int player_id,Uint8 pos,int quantity)
+{
+	Uint8 str[300];
+	int len,cur_item,cur_bag,cur_map;
+	int i;
+	int res;
+
+	if(players[player_id].trading_with!=-1)
+		{
+			my_text[0]=127+c_red1;
+			my_strcp(&my_text[1],CANT_DO_WHILE_TRADING);
+			send_text_to_player(player_id);
+			return;
+		}
+
+
+	//check to see if the bag exists
+	cur_bag=players[player_id].opened_bag;
+	if(cur_bag==-1)return;//*shrug* there is no bag here
+
+	cur_map=players[player_id].player_data.map_id;
+	cur_item=map_list[cur_map].bags[cur_bag].items[pos].item_category;
+	//do we have any item at that position?
+	//see if the user tried to feed us with an invalid position...
+	if(pos>49)
+		{
+			disconnect_player(player_id);//the motherfucker tried to crash the server
+			sprintf(str,"%s tried to take object no %i from a bag.\n",players[player_id].player_data.player_name,pos);
+			log_violation(str);
+			return;
+		}
+
+	if(!map_list[cur_map].bags[cur_bag].items[pos].quantity)return;
+	//test if someone wants to take more than [s]he diserves
+	if(map_list[cur_map].bags[cur_bag].items[pos].quantity-quantity>=0)
+		{
+			//check if the player has enough room in the inventory for that item
+			res=add_item_to_player(player_id,cur_item,quantity);
+			if(res==0)
+				{
+					sprintf(&str[4],INVENTORY_FULL);
+					len=strlen(&str[4]);
+					len+=2;
+					str[0]=INVENTORY_ITEM_TEXT;
+					*((Uint16 *)(str+1))=len;
+					str[3]=my_text[0]=127+c_red2;
+					MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
 					return;
 				}
-		}
-
-}
-
-
-
-
-
-
-void draw_pick_up_menu()
-{
-	Uint8 str[80];
-	int x,y,i;
-	//first of all, draw the actual menu.
-
-	draw_menu_title_bar(ground_items_menu_x,ground_items_menu_y-16,ground_items_menu_x_len);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y+ground_items_menu_y_len,0);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y+ground_items_menu_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-
-	glColor3f(0.77f,0.57f,0.39f);
-	glBegin(GL_LINES);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y,0);
-
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y+ground_items_menu_y_len,0);
-
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y+ground_items_menu_y_len,0);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y+ground_items_menu_y_len,0);
-
-	glVertex3i(ground_items_menu_x,ground_items_menu_y+ground_items_menu_y_len,0);
-	glVertex3i(ground_items_menu_x,ground_items_menu_y,0);
-
-	//draw the grid
-	for(y=1;y<11;y++)
-		{
-			glVertex3i(ground_items_menu_x,ground_items_menu_y+y*33,0);
-			glVertex3i(ground_items_menu_x+5*33,ground_items_menu_y+y*33,0);
-		}
-	for(x=1;x<6;x++)
-		{
-			glVertex3i(ground_items_menu_x+x*33,ground_items_menu_y,0);
-			glVertex3i(ground_items_menu_x+x*33,ground_items_menu_y+10*33,0);
-		}
-
-
-	glColor3f(0.77f,0.57f,0.39f);
-	//draw the corner, with the X in
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len,ground_items_menu_y+20,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len-20,ground_items_menu_y+20,0);
-
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len-20,ground_items_menu_y+20,0);
-	glVertex3i(ground_items_menu_x+ground_items_menu_x_len-20,ground_items_menu_y,0);
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-	draw_string(ground_items_menu_x+ground_items_menu_x_len-16,ground_items_menu_y+2,"X",1);
-
-	glColor3f(1.0f,1.0f,1.0f);
-	//ok, now let's draw the objects...
-	for(i=0;i<50;i++)
-		{
-			if(ground_item_list[i].quantity)
+			if(res==-1)
 				{
-					float u_start,v_start,u_end,v_end;
-					int this_texture,cur_item,cur_pos;
-					int x_start,x_end,y_start,y_end;
-
-					//get the UV coordinates.
-					cur_item=ground_item_list[i].image_id%25;
-					u_start=0.2f*(cur_item%5);
-					u_end=u_start+0.2f;
-					v_start=(1.0f+2.0f/256.0f)-(0.2f*(cur_item/5));
-					v_end=v_start-0.2f;
-
-					//get the x and y
-					cur_pos=i;
-					x_start=ground_items_menu_x+33*(cur_pos%5)+1;
-					x_end=x_start+32;
-					y_start=ground_items_menu_y+33*(cur_pos/5);
-					y_end=y_start+32;
-
-					//get the texture this item belongs to
-					this_texture=ground_item_list[i].image_id/25;
-					if(this_texture==0)this_texture=items_text_1;
-					else if(this_texture==1)this_texture=items_text_2;
-					else if(this_texture==2)this_texture=items_text_3;
-					else if(this_texture==3)this_texture=items_text_4;
-					else if(this_texture==4)this_texture=items_text_5;
-					else if(this_texture==5)this_texture=items_text_6;
-					else if(this_texture==6)this_texture=items_text_7;
-
-					if(last_texture!=texture_cache[this_texture].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-							last_texture=texture_cache[this_texture].texture_id;
-						}
-
-					glBegin(GL_QUADS);
-					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-					glEnd();
-					sprintf(str,"%i",ground_item_list[i].quantity);
-					draw_string_small(x_start,y_end-15,str,1);
+					sprintf(&str[4],YOU_ARE_OVERLOADED);
+					len=strlen(&str[4]);
+					len+=2;
+					str[0]=INVENTORY_ITEM_TEXT;
+					*((Uint16 *)(str+1))=len;
+					str[3]=my_text[0]=127+c_red2;
+					MY_SDLNet_TCP_Send(players[player_id].sock, str, len+2);
+					return;
 				}
 
-		}
-	glColor3f(1.0f,1.0f,1.0f);
-}
+			//now, decrease the quantity of that item, from the bag
+			map_list[cur_map].bags[cur_bag].items[pos].quantity-=quantity;
+			//see if there is anything left from that item
+			if(!map_list[cur_map].bags[cur_bag].items[pos].quantity)
+				{
+					int counter=0;
+					//see if there are other items left in this bag
+					for(i=0;i<50;i++)
+						{
+							if(map_list[cur_map].bags[cur_bag].items[i].quantity)
+								{
+									counter=1;
+									break;
+								}
+						}
+					//if the bag is empty now, destroy it
+					if(!counter)destroy_bag(cur_map,cur_bag);
 
-
-//do the flags later on
-void get_bag_item(Uint8 *data)
-{
-	//int i; unused?
-	int pos;
-#ifdef NEW_VERSION
-	pos=data[6];
-	ground_item_list[pos].image_id=*((Uint16 *)(data));
-	ground_item_list[pos].quantity=*((Uint32 *)(data+2));
-	ground_item_list[pos].pos=pos;
-#else
-	pos=data[5];
-	ground_item_list[pos].image_id=data[0];
-	ground_item_list[pos].quantity=*((Uint32 *)(data+1));
-	ground_item_list[pos].pos=pos;
-#endif
-}
-
-//put the flags later on
-void get_bags_items_list(Uint8 *data)
-{
-	Uint16 items_no;
-	int i;
-	int my_offset;
-	int pos;
-
-
-	view_ground_items=1;
-	view_my_items=1;
-	//clear the list
-	for(i=0;i<50;i++)ground_item_list[i].quantity=0;
-
-	items_no=data[0];
-	for(i=0;i<items_no;i++)
-		{
-			my_offset=i*7+1;
-#ifdef NEW_VERSION
-			pos=data[my_offset+6];
-			ground_item_list[pos].image_id=*((Uint16 *)(data+my_offset));
-			ground_item_list[pos].quantity=*((Uint32 *)(data+my_offset+2));
-			ground_item_list[pos].pos=pos;
-#else
-			pos=data[my_offset+5];
-			ground_item_list[pos].image_id=data[my_offset];
-			ground_item_list[pos].quantity=*((Uint32 *)(data+my_offset+1));
-			ground_item_list[pos].pos=pos;
-#endif
-		}
-
-}
-
-void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
-{
-	float x,y,z;
-	int obj_3d_id;
-
-	//now, get the Z position
-	z=-2.2f+height_map[bag_y*tile_map_size_x*6+bag_x]*0.2f;
-	//convert from height values to meters
-	x=(float)bag_x/2;
-	y=(float)bag_y/2;
-	//center the object
-	x=x+0.25f;
-	y=y+0.25f;
-	obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
-
-	//now, find a place into the bags list, so we can destroy the bag properly
-	bag_list[bag_id].x=x;
-	bag_list[bag_id].y=y;
-	bag_list[bag_id].obj_3d_id=obj_3d_id;
-}
-
-void add_bags_from_list(Uint8 *data)
-{
-	Uint16 bags_no;
-	int i;
-	int bag_x,bag_y,my_offset; //bag_type unused?
-	float x,y,z;
-	int obj_3d_id, bag_id;
-
-	bags_no=data[0];
-	for(i=0;i<bags_no;i++)
-		{
-			my_offset=i*5+1;
-			bag_x=*((Uint16 *)(data+my_offset));
-			bag_y=*((Uint16 *)(data+my_offset+2));
-			bag_id=*((Uint8 *)(data+my_offset+4));
-			//now, get the Z position
-			z=-2.2f+height_map[bag_y*tile_map_size_x*6+bag_x]*0.2f;
-			//convert from height values to meters
-			x=(float)bag_x/2;
-			y=(float)bag_y/2;
-			//center the object
-			x=x+0.25f;
-			y=y+0.25f;
-
-			obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
-			//now, find a place into the bags list, so we can destroy the bag properly
-
-			bag_list[bag_id].x=x;
-			bag_list[bag_id].y=y;
-			bag_list[bag_id].obj_3d_id=obj_3d_id;
-
-
-		}
-}
-
-void remove_bag(int which_bag)
-{
-	add_bag_out(bag_list[which_bag].x*2,bag_list[which_bag].y*2);
-	destroy_3d_object(bag_list[which_bag].obj_3d_id);
-	bag_list[which_bag].obj_3d_id=-1;
-}
-
-int check_ground_items_interface()
-{
-	int x,y; //i unused?
-	int x_screen,y_screen;
-	Uint8 str[10];
-
-	if(!view_ground_items || mouse_x>ground_items_menu_x+ground_items_menu_x_len || mouse_x<ground_items_menu_x
-	   || mouse_y<ground_items_menu_y || mouse_y>ground_items_menu_y+ground_items_menu_y_len)return 0;
-
-	//see if we clicked on any item in the wear category
-	for(y=0;y<10;y++)
-		for(x=0;x<5;x++)
+					str[0]=REMOVE_ITEM_FROM_GROUND;
+					*((Uint16 *)(str+1))=2;
+					str[3]=pos;
+					MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+				}//there is still some of that item left there
+			else
 			{
-				x_screen=ground_items_menu_x+x*33;
-				y_screen=ground_items_menu_y+y*33;
-				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+				//now, tell the client that he has a new item, on the ground
+				str[0]=GET_NEW_GROUND_ITEM;
+				*((Uint16 *)(str+1))=9;
+				*((Uint16 *)(str+3))=items[cur_item].image_id;
+				*((Uint32 *)(str+5))=map_list[cur_map].bags[cur_bag].items[pos].quantity;
+				str[9]=pos;
+				str[10]=items[cur_item].flags;
+				MY_SDLNet_TCP_Send(players[player_id].sock, str, 11);
+			}
+
+
+			return;
+
+		}
+
+}
+
+
+void bags_cleanup()
+{
+	int i,j;
+	int bags_no;
+
+	for(i=0;i<=maps_number;i++)
+		{
+			bags_no=map_list[i].bags_no;
+			if(!bags_no)continue;//no maps here
+			for(j=0;j<MAX_GROUND_BAGS;j++)
+				{
+					if(map_list[i].bags[j].in_use)
+					if(map_list[i].bags[j].time_stamp+60*1000*12<time_stamp)
+					destroy_bag(i,j);
+				}
+		}
+}
+
+void inspect_bag(int player_id,int bag_id,int direct_from_client)
+{
+	int map_id;
+
+
+	if(bag_id>=MAX_GROUND_BAGS)
+		{
+			char str[300];
+			disconnect_player(player_id);//the motherfucker tried to crash the server
+			sprintf(str,"%s tried to pick up an invalid bag.\n",(char *)&players[player_id].player_data.player_name);
+			log_violation(str);
+			return;
+		}
+
+	map_id=players[player_id].player_data.map_id;
+	//see if the player is right on that bag
+	if(!map_list[map_id].bags[bag_id].in_use)return;
+	if(map_list[map_id].bags[bag_id].x!=players[player_id].player_data.x_pos ||
+	map_list[map_id].bags[bag_id].y!=players[player_id].player_data.y_pos)
+		{
+			if(!direct_from_client)return;
+			players[player_id].final_action=PICK_BAG_ACTION;
+			players[player_id].final_object=bag_id;
+			find_path(player_id,map_list[map_id].bags[bag_id].x,map_list[map_id].bags[bag_id].y);
+			return;
+		}
+	//fine, every prerequisites are completed
+	players[player_id].opened_bag=bag_id;
+	open_bag(player_id);
+
+}
+
+void drop_item_when_die(int player_id, int which_item,int quantity)
+{
+	int i;
+	int map_id;
+	int bag_at_the_feet=0;
+	int my_x,my_y;
+	int which_bag=0;//to avoid warnings
+	int item_category;
+	Uint8 str[200];
+	Uint32 min_time_stamp=0xffffffff;
+	int min_time_stamp_entry;
+	int all_bags_taken=1;
+
+
+	item_category=players[player_id].player_data.actor_items[which_item].item_category;
+
+	//see if there is a bag at our feet...
+	map_id=players[player_id].player_data.map_id;
+	my_x=players[player_id].player_data.x_pos;
+	my_y=players[player_id].player_data.y_pos;
+
+	if(map_list[map_id].bags_no)
+	for(i=0;i<MAX_GROUND_BAGS;i++)
+		{
+			if(map_list[map_id].bags[i].in_use)
+			if(map_list[map_id].bags[i].x==my_x)
+			if(map_list[map_id].bags[i].y==my_y)
+				{
+					bag_at_the_feet=1;
+					which_bag=i;
+					if(players[player_id].opened_bag!=i)
+						{
+							players[player_id].opened_bag=i;
+						}
+					break;
+				}
+		}
+
+	if(bag_at_the_feet)
+		{
+			//see if there is already an item with the same id
+			for(i=0;i<50;i++)
+				{
+					if(map_list[map_id].bags[which_bag].items[i].quantity)
+					if(map_list[map_id].bags[which_bag].items[i].item_category==item_category)
+					goto space_found;
+				}
+
+			//see if there is enough room in this bag
+			for(i=0;i<50;i++)
+				{
+					if(!map_list[map_id].bags[which_bag].items[i].quantity)
+					break;
+				}
+			space_found:
+					if(i<50)
+						{
+							//we found a free spot, now take the item from that guy and put it in the bag
+							players[player_id].player_data.actor_items[which_item].quantity-=quantity;
+							if(!players[player_id].player_data.actor_items[which_item].quantity)
+								{
+									str[0]=REMOVE_ITEM_FROM_INVENTORY;
+									*((Uint16 *)(str+1))=2;
+									str[3]=which_item;
+									MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+								}
+							else
+							send_inventory_item(player_id,which_item);
+
+							map_list[map_id].bags[which_bag].items[i].quantity+=quantity;
+							map_list[map_id].bags[which_bag].items[i].item_category=players[player_id].player_data.actor_items[which_item].item_category;
+
+							//update the last accessed time stamp
+							str[9]=map_list[map_id].bags[which_bag].time_stamp=time_stamp;
+							return;
+						}
+					else//not enough room, damn it! The player still losses that item
+						{
+							players[player_id].player_data.actor_items[which_item].quantity-=quantity;
+							if(!players[player_id].player_data.actor_items[which_item].quantity)
+								{
+									str[0]=REMOVE_ITEM_FROM_INVENTORY;
+									*((Uint16 *)(str+1))=2;
+									str[3]=which_item;
+									MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+								}
+							else
+							send_inventory_item(player_id,which_item);
+
+							return;
+						}
+		}//ok, there is no bag at our feet, create one
+
+
+		for(i=0;i<MAX_GROUND_BAGS;i++)
+		{
+			if(!map_list[map_id].bags[i].in_use)
+				{
+					all_bags_taken=0;
+					which_bag=i;
+					break;
+				}
+		}
+
+		if(all_bags_taken)//no free bag spot, must delete an old one...
+		for(i=0;i<MAX_GROUND_BAGS;i++)
+			{
+				if(map_list[map_id].bags[which_bag].in_use)
+				if(map_list[map_id].bags[i].time_stamp<min_time_stamp)
 					{
-						int pos;
-						pos=y*5+x;
-						if(!ground_item_list[pos].quantity)return 1;
-
-						if(action_mode==action_look || right_click)
-							{
-								str[0]=LOOK_AT_GROUND_ITEM;
-								str[1]=pos;
-								my_tcp_send(my_socket,str,2);
-							}
-						else if(action_mode==action_pick)
-							{
-								int quantity;
-								quantity=ground_item_list[pos].quantity;
-								if(quantity-item_quantity>0)quantity=item_quantity;
-
-								str[0]=PICK_UP_ITEM;
-								str[1]=pos;
-								*((Uint16 *)(str+2))=quantity;
-								my_tcp_send(my_socket,str,4);
-							}
-						return 1;
+						min_time_stamp=map_list[map_id].bags[i].time_stamp;
+						which_bag=i;
 					}
 			}
 
-	return 1;
+
+		if(all_bags_taken)destroy_bag(map_id,which_bag);
+
+		//ok, now add a new bag
+		map_list[map_id].bags[which_bag].time_stamp=time_stamp;
+		map_list[map_id].bags[which_bag].in_use=1;
+		map_list[map_id].bags[which_bag].x=my_x;
+		map_list[map_id].bags[which_bag].y=my_y;
+
+		//increase the number of bags on this map
+		map_list[map_id].bags_no++;
+
+		//now, notify everyone we have a winner (in fact, a new bag)
+		str[0]=GET_NEW_BAG;
+		*((Uint16 *)(str+1))=6;
+		*((Uint16 *)(str+3))=my_x;
+		*((Uint16 *)(str+5))=my_y;
+		*((Uint8 *)(str+7))=which_bag;
+		send_message_to_map(map_id,str,8);
+
+
+		//clear the bag content
+		for(i=0;i<50;i++)
+			{
+				map_list[map_id].bags[which_bag].items[i].quantity=0;
+			}
+
+		i=0;//we are using the first item in the bag, since it is a new bag
+
+		players[player_id].opened_bag=which_bag;
+		//send the "hey, open the ground inventory" message to the client
+
+		players[player_id].player_data.actor_items[which_item].quantity-=quantity;
+		if(!players[player_id].player_data.actor_items[which_item].quantity)
+			{
+				str[0]=REMOVE_ITEM_FROM_INVENTORY;
+				*((Uint16 *)(str+1))=2;
+				str[3]=which_item;
+				MY_SDLNet_TCP_Send(players[player_id].sock, str, 4);
+			}
+		else
+		send_inventory_item(player_id,which_item);
+
+		map_list[map_id].bags[which_bag].items[i].quantity+=quantity;
+		map_list[map_id].bags[which_bag].items[i].item_category=players[player_id].player_data.actor_items[which_item].item_category;
+		return;
+
 
 }
 
 
-void open_bag(int object_id)
+
+int add_item_to_bank(int player_id,int item_type, int quantity)
 {
-	int i;
-	Uint8 str[4];
+	int i,j;
+	int total_bank_items=0;
+	char free_list[100]={0};
+
+	for(36+8;i<100+36+8;i++)
+		{
+			if(players[player_id].player_data.actor_items[i].quantity)
+				{
+					if(players[player_id].player_data.actor_items[i].item_category==item_type)
+						{
+							//see if the quantity doesn't go over 0xffffffff
+							if(players[player_id].player_data.actor_items[i].quantity+quantity<0xffffffff)
+								{
+									players[player_id].player_data.actor_items[i].quantity+=quantity;
+									return 1;
+								}
+						}
+					//mark this item as occupied in the free_list
+					free_list[i-44]=1;
+					total_bank_items++;
+				}
+		}
+	if(total_bank_items>99)return 0;
+	//find a free space in the bank
 	for(i=0;i<100;i++)
 		{
-			if(bag_list[i].obj_3d_id==object_id)
+			if(!free_list[i])
 				{
-					str[0]=INSPECT_BAG;
-					str[1]=i;
-					my_tcp_send(my_socket,str,2);
-					return;
+					//ok, we found a free position in the inventory
+					if(!players[player_id].player_data.actor_items[i+44].quantity)
+						{
+							players[player_id].player_data.actor_items[i+44].quantity=quantity;
+							players[player_id].player_data.actor_items[i+44].item_category=item_type;
+							return 1;
+						}
+				}
+		}
+
+	return 0;
+
+}
+
+
+void remove_item_from_bank(int player_id, int item_type,int quantity)
+{
+	int i;
+	for(i=36+8;i<100+36+8;i++)
+		{
+			if(players[player_id].player_data.actor_items[i].quantity)
+				{
+					if(players[player_id].player_data.actor_items[i].item_category==item_type)
+						{
+							if(players[player_id].player_data.actor_items[i].quantity>=quantity)
+								{
+									players[player_id].player_data.actor_items[i].quantity-=quantity;
+									quantity=0;
+								}
+							else
+								{
+									quantity-=players[player_id].player_data.actor_items[i].quantity;
+									players[player_id].player_data.actor_items[i].quantity=0;
+								}
+							if(!quantity)return;//finally, we are done with it
+						}
+
 				}
 		}
 }
+
 
 
 
