@@ -202,7 +202,7 @@ void next_command()
 	int i;
 
 	lock_actors_lists();
-	for(i=0;i<1000;i++)
+	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])continue;//actor exists?
 			//if(!actors_list[i]->is_enhanced_model)//test only
@@ -531,6 +531,7 @@ void destroy_actor(int actor_id)
 								//copy the last one down and fill in the hole
 								max_actors--;
 								actors_list[i]=actors_list[max_actors];
+								actors_list[max_actors]=NULL;
 							}
 						break;
 					}
