@@ -393,7 +393,9 @@ int HandleEvent(SDL_Event *event)
 	    {
 	      window_width = event->resize.w;
 	      window_height = event->resize.h;
+#ifdef LINUX
 	      if(SDL_SetVideoMode(window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE))
+#endif
 	      	{
 			resize_window();
 		}
