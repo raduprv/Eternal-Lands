@@ -733,12 +733,13 @@ void add_bags_from_list(Uint8 *data)
 			bag_x=*((Uint16 *)(data+my_offset));
 			bag_y=*((Uint16 *)(data+my_offset+2));
 			bag_id=*((Uint8 *)(data+my_offset+4));
+			if(bag_id>=200)continue;
 			//now, get the Z position
 			if(bag_y*tile_map_size_x*6+bag_x>tile_map_size_x*tile_map_size_y*6*6) 
 				{
 					//Warn about this error!
 					log_error("A bag was located OUTSIDE the map!\n");
-					return;
+					continue;
 				}
 			z=-2.2f+height_map[bag_y*tile_map_size_x*6+bag_x]*0.2f;
 			//convert from height values to meters

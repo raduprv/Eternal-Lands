@@ -91,32 +91,32 @@ typedef struct
 
 typedef struct
 {
-	char model_name[30];
-	char arms_name[30];
-	char torso_name[30];
+	char model_name[35];
+	char arms_name[35];
+	char torso_name[35];
 }shirt_part;
 
 typedef struct
 {
-	char hands_name[30];
-	char head_name[30];
+	char hands_name[35];
+	char head_name[35];
 }skin_part;
 
 typedef struct
 {
-	char hair_name[30];
+	char hair_name[35];
 }hair_part;
 
 typedef struct
 {
-	char boots_name[30];
+	char boots_name[35];
 	int glow;
 }boots_part;
 
 typedef struct
 {
-	char legs_name[30];
-	char model_name[30];
+	char legs_name[35];
+	char model_name[35];
 	int glow;
 }legs_part;
 
@@ -157,7 +157,7 @@ typedef struct
 
 	shirt_part shirt[18];
 	skin_part  skin[4];
-	hair_part  hair[6];
+	hair_part  hair[9];
 	boots_part boots[20];
 	legs_part legs[16];
 

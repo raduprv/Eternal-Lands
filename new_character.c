@@ -12,7 +12,7 @@ int head=HEAD_1;
 int actor_creation_menu_x_start=250;
 int actor_creation_menu_y_start=10;
 int actor_creation_menu_x_end=350;
-int actor_creation_menu_y_end=260;
+int actor_creation_menu_y_end=270;
 
 int skin_f=0;
 int skin_b=0;
@@ -31,6 +31,9 @@ int head_b=0;
 #define race_human 0
 #define race_elf 2
 #define race_dwarf 4
+#define race_gnome 37
+#define race_orchan 39
+#define race_draegoni 41
 
 int male=1;
 int race=race_human;
@@ -91,11 +94,15 @@ void change_actor()
 			free(our_model);
 			our_model=0;
 		}
-	if(race==race_human)
+	/*if(race==race_human)
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
 	else if(race==race_elf)
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
 	else if(race==race_dwarf)
+		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
+	else if(race==race_gnome)*/
+	if(hair_color==HAIR_BLOND) if(race==race_draegoni||race==race_orchan) hair_color++;
+	if(shirt_color==SHIRT_PINK) if(male) shirt_color++;
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
 
 	any_model=1;//we have an actor loaded
@@ -161,16 +168,24 @@ void check_for_input()
 	//check hair color change
 	if(mouse_x>=90 && mouse_y>290 && mouse_y<308 && mouse_x<=108)
 		{
+			int wrap;
+			if(race==race_draegoni)wrap=HAIR_PURPLE;
+			else wrap=HAIR_WHITE;
 			if(hair_color==HAIR_BLACK)
-				hair_color=HAIR_WHITE;
+				hair_color=wrap;
 			else hair_color--;
+			if(hair_color==HAIR_BLOND) if(race==race_draegoni||race==race_orchan) hair_color--;
 			change_actor();
 		}
 	if(mouse_x>=120 && mouse_y>290 && mouse_y<308 && mouse_x<=138)
 		{
-			if(hair_color==HAIR_WHITE)
+			int wrap;
+			if(race==race_draegoni)wrap=HAIR_PURPLE;
+			else wrap=HAIR_WHITE;
+			if(hair_color==wrap)
 				hair_color=HAIR_BLACK;
 			else hair_color++;
+			if(hair_color==HAIR_BLOND) if(race==race_draegoni||race==race_orchan) hair_color++;
 			change_actor();
 		}
 
@@ -180,6 +195,7 @@ void check_for_input()
 			if(shirt_color==SHIRT_BLACK)
 				shirt_color=SHIRT_YELLOW;
 			else shirt_color--;
+			if(shirt_color==SHIRT_PINK) if(male)shirt_color--;
 			change_actor();
 		}
 	if(mouse_x>=120 && mouse_y>310 && mouse_y<328 && mouse_x<=138)
@@ -187,6 +203,7 @@ void check_for_input()
 			if(shirt_color==SHIRT_YELLOW)
 				shirt_color=SHIRT_BLACK;
 			else shirt_color++;
+			if(shirt_color==SHIRT_PINK) if(male)shirt_color++;
 			change_actor();
 		}
 
@@ -271,6 +288,21 @@ void check_for_input()
 	if(mouse_x>530 && mouse_x<620 && mouse_y>420 && mouse_y<440)
 		{
 			race=race_dwarf;
+			change_actor();
+		}
+	if(mouse_x>530 && mouse_x<620 && mouse_y>440 && mouse_y<460)
+		{
+			race=race_gnome;
+			change_actor();
+		}
+	if(mouse_x>530 && mouse_x<620 && mouse_y>460 && mouse_y<480)
+		{
+			race=race_orchan;
+			change_actor();
+		}
+	if(mouse_x>530 && mouse_x<620 && mouse_y>480 && mouse_y<500)
+		{
+			race=race_draegoni;
 			change_actor();
 		}
 	//check to see the selected dialogue boxes
@@ -389,7 +421,7 @@ void draw_new_char_screen()
 	glColor3f(1.0f,1.0f,1.0f);
 
 	glColor3f(1.0f,0.2f,0.2f);
-	draw_string(530,360,"Race",1);
+	draw_string(530,360,race_str,1);
 
 	if(race==race_human)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
@@ -406,6 +438,21 @@ void draw_new_char_screen()
 	draw_string(530,420,dwarf_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
+	if(race==race_gnome)glColor3f(0.0f,0.5f,1.0f);
+	else glColor3f(1.0f,1.0f,1.0f);
+	draw_string(530,440,"Gnome",1);
+	glColor3f(1.0f,1.0f,1.0f);
+
+	if(race==race_orchan)glColor3f(0.0f,0.5f,1.0f);
+	else glColor3f(1.0f,1.0f,1.0f);
+	draw_string(530,460,"Orchan",1);
+	glColor3f(1.0f,1.0f,1.0f);
+	
+	if(race==race_draegoni)glColor3f(0.0f,0.5f,1.0f);
+	else glColor3f(1.0f,1.0f,1.0f);
+	draw_string(530,480,"Draegoni",1);
+	glColor3f(1.0f,1.0f,1.0f);
+	
 	//draw the player frame
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
@@ -446,9 +493,9 @@ void draw_new_char_screen()
 
 	//draw the player
 	glEnable(GL_DEPTH_TEST);
-	draw_interface_actor(our_model,150.0f,300,250,0,90.0f,0.0f, 0.0f);
+	draw_interface_actor(our_model,150.0f,300,260,0,90.0f,0.0f, 0.0f);
 
-	draw_interface_actor(our_model,150.0f,500,250,0,270.0f,0.0f, -180.0f);
+	draw_interface_actor(our_model,150.0f,500,260,0,270.0f,0.0f, -180.0f);
 	glDisable(GL_DEPTH_TEST);
 
 	//now start putting the dialogue boxes.
