@@ -620,7 +620,7 @@ void add_command_to_actor(int actor_id, char command)
 	unlock_actors_lists();
 		{
 			char	str[256];
-			sprintf(str, "%s %d - %d\b", cant_add_command, command, actor_id);
+			sprintf(str, "%s %d - %d\n", cant_add_command, command, actor_id);
 			log_error(str);
 		}
 	//update_all_actors();
