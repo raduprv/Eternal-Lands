@@ -176,6 +176,96 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 	return 0;	// no click in a window
 }
 
+int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
+{
+	int	done= 0;
+	int	id;
+	int	next_id;
+	int	first_win= 0;
+	int i;
+
+	// ignore a drag of 0, but say we processed
+	if(dx == 0 && dy == 0)	return 0;
+	// watch for needing to convert the globals into the flags
+	if(!flags){
+		if(shift_on)	flags |= ELW_SHIFT;
+		if(ctrl_on)		flags |= ELW_CTRL;
+		if(alt_on)		flags |= ELW_ALT;
+		if(right_click)	flags |= ELW_RIGHT_MOUSE;
+		if(middle_click)	flags |= ELW_MID_MOUSE;
+		if(left_click)	flags |= ELW_LEFT_MOUSE;
+		// TODO: centralized double click handling
+		// TODO: consider other ways of triggering double clieck, like middle click or shift click
+		//if(double_click)	flags |= ELW_DBL_CLICK;
+	}
+
+	// check each window in the proper order
+	if(windows_list.display_level > 0)
+		{
+			id= 9999;
+			while(done <= 0)
+				{
+					next_id= 0;
+					for(i=1; i<windows_list.num_windows; i++){
+						// only look at displayed windows
+						if(windows_list.window[i].displayed > 0){
+							// at this level?
+							if(windows_list.window[i].order == id){
+								done= drag_in_window(i, mx, my, flags, dx, dy);
+								if(done > 0){
+									if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
+									return i;
+								}
+								if(first_win == 0 && mouse_in_window(i, mx, my))	first_win= i;
+							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
+								// try to find the next level
+								next_id= windows_list.window[i].order;
+							}
+						}
+					}
+					if(next_id <= 0)
+						{
+							break;
+						}
+					else
+						{
+							id= next_id;
+						}
+				}
+		}
+	// now check the background windows in the proper order
+	id= -9999;
+	while(done <= 0)
+		{
+			next_id= 0;
+			for(i=1; i<windows_list.num_windows; i++){
+				// only look at displayed windows
+				if(windows_list.window[i].displayed > 0){
+					// at this level?
+					if(windows_list.window[i].order == id){
+						done= drag_in_window(i, mx, my, flags, dx, dy);
+						if(done > 0){
+							//select_window(i);	// these never get selected
+							return i;
+						}
+					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
+						// try to find the next level
+						next_id= windows_list.window[i].order;
+					}
+				}
+			}
+			if(next_id >= 0)
+				{
+					break;
+				}
+			else
+				{
+					id= next_id;
+				}
+		}
+	return 0;	// no drag in a window
+}
+
 
 int	drag_windows(int mx, int my, int dx, int dy)
 {
@@ -280,6 +370,7 @@ void	end_drag_windows()
 	for(i= 0; i<windows_list.num_windows; i++)
 		{
 			windows_list.window[i].dragged= 0;
+			windows_list.window[i].drag_in= 0;
 		}
 }
 
@@ -390,6 +481,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 			windows_list.window[win_id].init_handler= NULL;
 			windows_list.window[win_id].display_handler= NULL;
 			windows_list.window[win_id].click_handler= NULL;
+			windows_list.window[win_id].drag_handler= NULL;
 			windows_list.window[win_id].mouseover_handler= NULL;
 			init_window(win_id, pos_id, pos_loc, pos_x, pos_y, size_x, size_y);
 		}
@@ -665,6 +757,9 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
     window_info *win;
     int	mx, my;
    
+	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	win= &windows_list.window[win_id];
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
 			// watch for needing to convert the globals into the flags
@@ -678,7 +773,6 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				if(left_click)	flags |= ELW_LEFT_MOUSE;
 				//if(double_click)	flags |= ELW_DBL_CLICK;
 			}
-			win= &windows_list.window[win_id];
 			mx= x - win->cur_x;
 			my= y - win->cur_y;
 			//check the X for close - but hide it
@@ -705,6 +799,47 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				return	1;	// no click-thru permitted
 			} else {
 				return 1;
+			}
+		}
+
+	return 0;
+}
+
+
+int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
+{
+    window_info *win;
+    int	mx, my;
+   
+	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	win= &windows_list.window[win_id];
+	if(win->drag_in || mouse_in_window(win_id, x, y) > 0)
+		{
+			//use the handler
+			if(win->drag_handler != NULL){
+			    int	ret_val;
+
+				// watch for needing to convert the globals into the flags
+				// TODO: put this in the window manager
+				if(!flags){
+					if(shift_on)	flags |= ELW_SHIFT;
+					if(ctrl_on)		flags |= ELW_CTRL;
+					if(alt_on)		flags |= ELW_ALT;
+					if(right_click)	flags |= ELW_RIGHT_MOUSE;
+					//if(mid_click)	flags |= ELW_MID_MOUSE;
+					if(left_click)	flags |= ELW_LEFT_MOUSE;
+					//if(double_click)	flags |= ELW_DBL_CLICK;
+				}
+				mx= x - win->cur_x;
+				my= y - win->cur_y;
+			    
+				glPushMatrix();
+				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+				ret_val= (*win->drag_handler)(win, mx, my, flags, dx, dy);
+				glPopMatrix();
+
+				return	1;	// drag has been processed
 			}
 		}
 
@@ -760,6 +895,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_CLICK:
 			old_handler= (void *)windows_list.window[win_id].click_handler;
 			windows_list.window[win_id].click_handler=handler;
+			break;
+		case	ELW_HANDLER_DRAG:
+			old_handler= (void *)windows_list.window[win_id].drag_handler;
+			windows_list.window[win_id].drag_handler=handler;
 			break;
 		case	ELW_HANDLER_MOUSEOVER:
 			old_handler= (void *)windows_list.window[win_id].mouseover_handler;

@@ -21,10 +21,10 @@ int display_knowledge_handler(window_info *win)
 {
 	int i,x=2,y=2;
 	int progress = (125*your_info.research_completed+1)/(your_info.research_total+1);
-	int scroll = (120*knowledge_page_start)/(300-38);
+	int scroll = (120*knowledge_page_start)/(win->len_y-38);
 	char points_string[16];
 	char *research_string;
-
+	
 	if(your_info.research_total && 
 	   (your_info.research_completed==your_info.research_total))
 		strcpy(points_string,"COMPLETE");
@@ -155,6 +155,22 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 } 
 
+
+int drag_knowledge_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy)
+{
+	if(win->drag_in || (mx>win->len_x-20 && my>35+(120*knowledge_page_start)/(300-38) && my<55+(120*knowledge_page_start)/(300-38))) {
+		win->drag_in= 1;
+		//if(left_click>1)
+		knowledge_page_start+= dy*2;
+		// bounds checking
+		if(knowledge_page_start < 0) knowledge_page_start= 0;
+		if(knowledge_page_start > 300-38) knowledge_page_start= 300-38;
+		return 1;
+	}
+	return 0;
+}
+
+
 void get_knowledge_list(Uint16 size, char *list)
 {
 	int i;
@@ -183,6 +199,7 @@ void display_knowledge()
 
 		set_window_handler(knowledge_win, ELW_HANDLER_DISPLAY, &display_knowledge_handler );
 		set_window_handler(knowledge_win, ELW_HANDLER_CLICK, &click_knowledge_handler );
+		set_window_handler(knowledge_win, ELW_HANDLER_DRAG, &drag_knowledge_handler );
 		set_window_handler(knowledge_win, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	} else {
 		show_window(knowledge_win);

@@ -64,13 +64,15 @@ void get_world_x_y()
 
 int check_drag_menus()
 {
-	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y))	return 1;
+	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) > 0)	return 1;
 
 	return 0;
 }
 
 int check_scroll_bars()
 {
+	if(drag_in_windows(mouse_x, mouse_y, 0, mouse_delta_x, mouse_delta_y) > 0)	return 1;
+	/*
 	//for knowledge window only. don't modify other scroll bars yet.
 	//TODO: simplify this logic
 	if(knowledge_scroll_dragged || (mouse_in_window(knowledge_win, mouse_x, mouse_y) && mouse_x>knowledge_menu_x+knowledge_menu_x_len-20 && mouse_x<knowledge_menu_x+knowledge_menu_x_len && mouse_y>knowledge_menu_y+35+(120*knowledge_page_start)/(300-38) && mouse_y<knowledge_menu_y+55+(120*knowledge_page_start)/(300-38))) {
@@ -81,6 +83,7 @@ int check_scroll_bars()
 		if(knowledge_page_start>300-38)knowledge_page_start=300-38;
 		return 1;
 	}
+	*/
 	return 0;
 }
 

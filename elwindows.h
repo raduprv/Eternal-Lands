@@ -26,11 +26,13 @@ typedef	struct	{
 	char	displayed;	// is the window currently being displayed?
 	//char	collapsed;	// is it collapsed or expanded?
 	char	dragged;	// are we dragging the window?
+	char	drag_in;	// are we dragging inside the window?
 
 	// the handlers
 	int (*init_handler)();		// init, scaling, etc
 	int (*display_handler)();	// display the window
 	int (*click_handler)();		// handle mouse clicks
+	int (*drag_handler)();		// handle dragging inside windows
 	int (*mouseover_handler)();		// handle mouseovers
 
 	/*
@@ -113,7 +115,8 @@ typedef	struct	{
 #define	ELW_HANDLER_INIT	0
 #define	ELW_HANDLER_DISPLAY	1
 #define	ELW_HANDLER_CLICK	2
-#define	ELW_HANDLER_MOUSEOVER	3
+#define	ELW_HANDLER_DRAG	3
+#define	ELW_HANDLER_MOUSEOVER	4
 
 // mouse click flags - first ones from events
 #define	ELW_SHIFT	SHIFT
@@ -137,6 +140,7 @@ extern	windows_info	windows_list;
 // windows manager function
 void	display_windows();
 int		click_in_windows(int mx, int my, Uint32 flags);
+int		drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy);
 int		drag_windows(int mx, int my, int dx, int dy);
 void	end_drag_windows();
 int		select_window(int win_id);
@@ -162,6 +166,7 @@ int		get_show_window(int win_id);
 int	display_window(int win_id);
 int	mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
 int	click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coord in the window
+int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
 int	mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
 
 // low level functions

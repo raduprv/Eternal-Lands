@@ -625,7 +625,7 @@ int HandleEvent(SDL_Event *event)
 					encyclopedia_menu_dragged=0;
 					buddy_menu_dragged=0;
 					questlog_menu_dragged=0;
-					knowledge_scroll_dragged=0;
+					//knowledge_scroll_dragged=0;
 				}
 
 			if(event->type==SDL_MOUSEBUTTONDOWN) {
