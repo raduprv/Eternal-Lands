@@ -1003,13 +1003,13 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 		// watch for the '//' shortcut
 		if (input_text_line.len == 1 && ch== '/' && input_text_line.data[0] == '/' && last_pm_from[0])
 		{
-			put_string_in_buffer (last_pm_from, 1);
-			put_char_in_buffer (' ', input_text_line.len);
+			put_string_in_buffer (&input_text_line, last_pm_from, 1);
+			put_char_in_buffer (&input_text_line, ' ', input_text_line.len);
 		}
 		else
 		{
 			// not the shortcut, add the character to the buffer
-			put_char_in_buffer (ch, input_text_line.len);
+			put_char_in_buffer (&input_text_line, ch, input_text_line.len);
 		}
 	}
 	else if (ch == SDLK_BACKSPACE && input_text_line.len > 0)
@@ -1138,6 +1138,12 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 	}
 #endif			
+#ifdef NOTEPAD
+	else if (keysym == SDLK_F12)
+	{
+		display_notepad ();
+	}
+#endif
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	else
 	{

@@ -252,37 +252,37 @@ void check_chat_text_to_overtext (unsigned char *text_to_add, int len)
 	}
 }
 
-int put_char_in_buffer (Uint8 ch, int pos)
+int put_char_in_buffer (text_message *buf, Uint8 ch, int pos)
 {
 	int i, nlen;
 	
-	if (pos < 0 || pos > input_text_line.len) return 0;
+	if (pos < 0 || pos > buf->len) return 0;
 	
 	// First shift everything after pos to the right
-	nlen = input_text_line.len + 1;
-	if (nlen >= input_text_line.size)
-		nlen = input_text_line.size - 1;
-	input_text_line.data[nlen] = '\0';
+	nlen = buf->len + 1;
+	if (nlen >= buf->size)
+		nlen = buf->size - 1;
+	buf->data[nlen] = '\0';
 	for (i = nlen - 1; i > pos; i--)
-		input_text_line.data[i] = input_text_line.data[i-1];
+		buf->data[i] = buf->data[i-1];
 	
 	// insert the new character, and update the length
-	input_text_line.data[pos] = ch;
-	input_text_line.len = nlen;
+	buf->data[pos] = ch;
+	buf->len = nlen;
 	
 	return 1;
 }
 
-int put_string_in_buffer (const Uint8 *str, int pos)
+int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 {
 	int nr_free, nr_paste, ib, jb, nb;
 	Uint8 ch;
 	
-	if (pos < 0 || pos > input_text_line.len) return 0;
+	if (pos < 0 || pos > buf->len) return 0;
 	if (str == NULL) return 0;
 
 	// find out how many characters to paste
-	nr_free = input_text_line.size - pos - 1;
+	nr_free = buf->size - pos - 1;
 	nr_paste = 0;
 	for (ib = 0; str[ib] && nr_paste < nr_free; ib++)
 	{
@@ -294,15 +294,15 @@ int put_string_in_buffer (const Uint8 *str, int pos)
 	if (nr_paste == 0) return 0;
 
 	// now move the characters right of the cursor (if any)
-	nb = input_text_line.len - pos;
+	nb = buf->len - pos;
 	if (nb > nr_free - nr_paste) nb = nr_free - nr_paste;
 	if (nb > 0)
 	{
 		for (ib = nb-1; ib >= 0; ib--)
-			input_text_line.data[pos+ib+nr_paste] = input_text_line.data[pos+ib];
+			buf->data[pos+ib+nr_paste] = buf->data[pos+ib];
 	}
-	input_text_line.data[pos+nb+nr_paste] = '\0';
-	input_text_line.len = pos+nb+nr_paste;
+	buf->data[pos+nb+nr_paste] = '\0';
+	buf->len = pos+nb+nr_paste;
 	
 	// insert the pasted text
 	jb = 0;
@@ -311,7 +311,7 @@ int put_string_in_buffer (const Uint8 *str, int pos)
 		ch = str[ib];
 		if ( (ch >= 32 && ch <= 126) || ch > 127 + c_grey4)
 		{
-			input_text_line.data[pos+jb] = str[ib];
+			buf->data[pos+jb] = str[ib];
 			jb++;
 		}
 	}

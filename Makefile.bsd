@@ -10,7 +10,7 @@ SRCS= 2d_objects.c 3d_objects.c  \
     keys.c knowledge.c lights.c loginwin.c  \
     main.c manufacture.c map_io.c mapwin.c  \
     md2loader.c md5.c misc.c multiplayer.c  \
-    new_actors.c new_character.c    \
+    new_actors.c new_character.c notepad.c   \
     openingwin.c options.c  \
     particles.c paste.c pathfinder.c pm_log.c   \
     questlog.c reflection.c rules.c \

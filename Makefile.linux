@@ -5,6 +5,7 @@ OPTIONS=-DLINUX -DELC
 #-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
+#-DNOTEPAD
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
@@ -30,7 +31,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	keys.o knowledge.o lights.o loginwin.o	\
 	main.o manufacture.o map_io.o mapwin.o	\
 	md2loader.o md5.o misc.o multiplayer.o	\
-	new_actors.o new_character.o	\
+	new_actors.o new_character.o notepad.o	\
 	openingwin.o options.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
 	questlog.o reflection.o	rules.o \

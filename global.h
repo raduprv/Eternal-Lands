@@ -119,5 +119,8 @@ typedef int point;
 #ifdef CAL3D
 #include "cal3dwrap.h"
 #endif
+#ifdef NOTEPAD
+#include "notepad.h"
+#endif
 
 #endif

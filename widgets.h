@@ -950,6 +950,18 @@ int tab_collection_get_tab_id (Uint32 window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	tabs
+ * \brief 	Returns the number of tabs in this collection
+ *
+ * 		Returns the number of tabs in this collection
+ *		
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The unique widget ID of the tab collection
+ * \retval int  	Returns the number of tabs, or -1 on failure
+ */
+int tab_collection_get_nr_tabs (Uint32 window_id, Uint32 widget_id);
+
+/*!
+ * \ingroup	tabs
  * \brief 	Sets the label color for a tab
  *
  * 		Sets the color with which the label of the tab belonging to the window with ID \a tab_id is drawn.

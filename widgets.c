@@ -206,6 +206,17 @@ int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 	return 0;
 }
 
+int widget_set_OnDestroy (Uint32 window_id, Uint32 widget_id, int (*handler)())
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w)
+	{
+		w->OnDestroy = handler;
+		return 1;
+	}
+	return 0;
+}
+
 int widget_resize(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 {
 	widget_list *w = widget_find (window_id, widget_id);
@@ -896,6 +907,17 @@ int tab_collection_get_tab_id (Uint32 window_id, Uint32 widget_id)
 	return -1;
 }
 
+int tab_collection_get_nr_tabs (Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w)
+	{
+		tab_collection *t = (tab_collection *) w->widget_info;
+		return t->nr_tabs;
+	}
+	return -1;
+}
+
 int tab_set_label_color_by_id (Uint32 window_id, Uint32 col_id, Uint32 tab_id, float r, float g, float b)
 {
 	widget_list *w = widget_find (window_id, col_id);
@@ -1255,6 +1277,135 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 }
 
 // text field
+int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	Uint16 keysym = key & 0xffff;
+	Uint8 ch = key_to_char(unikey);
+	text_field *tf;
+	text_message *msg;
+	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
+	
+	if (w == NULL) return 0;
+	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0) return 0;
+	
+	tf = (text_field *) w->widget_info;
+	msg = &(tf->buffer[tf->msg]);
+	
+	if (keysym == K_ROTATELEFT)
+	{
+		if (tf->cursor > 0) tf->cursor--;
+		return 1;
+	}
+	else if (keysym == K_ROTATERIGHT)
+	{
+		if (tf->cursor < msg->len) tf->cursor++;
+		return 1;
+	}
+	else if (keysym == SDLK_HOME)
+	{
+		tf->cursor = 0;
+		return 1;
+	}
+	else if (keysym == SDLK_END)
+	{
+		tf->cursor = msg->len;
+		return 1;
+	}
+	else if (ch == SDLK_RETURN)
+	{	
+		put_char_in_buffer (msg, '\n', tf->cursor);
+		msg->len++;
+		tf->cursor++;
+		return 1;
+	}
+	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
+	{
+		int i;
+		for (i = tf->cursor; i <= msg->len; i++)
+			msg->data[i-1] = msg->data[i];
+		tf->cursor--;
+		msg->len--;
+		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x);
+		return 1;
+	}
+	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
+	{
+		int i;
+		for (i = tf->cursor+1; i <= msg->len; i++)
+			msg->data[i-1] = msg->data[i];
+		msg->len--;
+		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x);
+		return 1;
+	}
+	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && ch != '`' )
+	{
+		tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
+		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x);
+		return 1;
+	}
+	return 0;
+}
+
+// XXX rewrite: there's bound to be a simpler way to do this.
+unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigned int maxchar, float text_zoom)
+{
+	unsigned short i = 0, c = 0, k = 0;
+	unsigned short nnls = 0, ncs = 0;
+	float displayed_font_x_size = 11.0 * text_zoom;
+	float displayed_font_y_size = 18.0 * text_zoom;
+
+	ncs = x/displayed_font_x_size;
+	nnls = y/displayed_font_y_size;
+
+	if (c == nnls)
+	{   
+		while (k < ncs && str[i+k] != '\0')
+		{
+			if (str[i+k] == '\r' || str[i+k] == '\n')
+			{
+				return i+k;
+			}
+			k++;
+		}
+		return i+k;
+	}
+     
+	while (i < maxchar && str[i] != '\0')
+	{
+		if (str[i] == '\n' || str[i] == '\r')
+		{
+			c++;
+			if (c == nnls)
+			{
+				i++;
+				while (k < ncs && str[i+k] != '\0')
+				{
+					if (str[i+k] == '\r' || str[i+k] == '\n')
+					{
+						return i+k;
+					}
+					k++;
+				}
+				return i+k;
+			}
+		}
+		i++;
+	}
+	return i+k;
+} 
+
+int text_field_click (widget_list *w, int mx, int my)
+{
+	text_field *tf;
+	text_message *msg;
+        
+	tf = (text_field *) w->widget_info;
+	msg = &(tf->buffer[tf->msg]);
+	tf->cursor = get_edit_pos (mx, my, msg->data, msg->len, 1);
+    
+	return 1;
+}
+
 int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space)
 {
 	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, CHANNEL_ALL, x_space, y_space, -1.0, -1.0, -1.0);
@@ -1296,6 +1447,11 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 	W->len_x = lx;
 	W->OnDraw = text_field_draw;
 	W->OnDestroy = free_widget_info;
+	if (Flags & TEXT_FIELD_EDITABLE)
+	{
+		W->OnKey = text_field_keypress;
+		W->OnClick = text_field_click;
+	}
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);

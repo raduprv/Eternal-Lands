@@ -445,12 +445,12 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 		// watch for the '//' shortcut
 		if (tf->cursor == 1 && ch == '/' && msg->data[0] == '/' && last_pm_from[0])
 		{
-			tf->cursor += put_string_in_buffer (last_pm_from, 1);
-			tf->cursor += put_char_in_buffer (' ', tf->cursor);
+			tf->cursor += put_string_in_buffer (&input_text_line, last_pm_from, 1);
+			tf->cursor += put_char_in_buffer (&input_text_line, ' ', tf->cursor);
 		}
 		else if (msg->len < msg->size - 1)
 		{
-			tf->cursor += put_char_in_buffer (ch, tf->cursor);
+			tf->cursor += put_char_in_buffer (&input_text_line, ch, tf->cursor);
 		}
 		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}
@@ -485,7 +485,7 @@ void paste_in_input_field (const Uint8 *text)
 	if (w == NULL) return;
 	tf = (text_field *) w->widget_info;
 	
-	put_string_in_buffer (text, tf->cursor);
+	put_string_in_buffer (&input_text_line, text, tf->cursor);
 	reset_soft_breaks (tf->buffer->data, tf->buffer->len, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 }
 

@@ -10,7 +10,7 @@ void do_paste(Uint8 * buffer)
 	if (use_windowed_chat)
 		paste_in_input_field (buffer);
 	else
-		put_string_in_buffer (buffer, input_text_line.len);
+		put_string_in_buffer (&input_text_line, buffer, input_text_line.len);
 }
 
 #ifndef WINDOWS

@@ -95,14 +95,15 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len);
  * \ingroup text_font
  * \brief   Puts a character in a buffer
  *
- *      Puts the given character \a ch into the text buffer at position \a pos
+ *      Puts the given character \a ch into text message \a buf at position \a pos
  *
+ * \param buf	(pointer to) the message
  * \param ch    the character to add
  * \param pos	the position at which the character is to be placed
  * \retval int	1 if a character is inserted, 0 otherwise
  * \callgraph
  */
-int put_char_in_buffer (Uint8 ch, int pos);
+int put_char_in_buffer (text_message *buf, Uint8 ch, int pos);
 
 /*!
  * \ingroup text_font
@@ -110,12 +111,13 @@ int put_char_in_buffer (Uint8 ch, int pos);
  *
  *      Inserts the given string \a str into the text buffer at position \a pos
  *
+ * \param buf	(pointer to) the message
  * \param str	the string to add
  * \param pos	the position at which the string is to be placed
  * \retval int	the number of characters inserted
  * \callgraph
  */
-int put_string_in_buffer (const Uint8 *str, int pos);
+int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos);
 
 /*!
  * \ingroup text_font
