@@ -288,7 +288,6 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 				// do filtering and ignoring
 				data_lenght=filter_or_ignore_text(&in_data[3],data_lenght-3)+3;
-				if(in_data[3]==128){Beep(1000,1000);/*exit(0);*/}
 				if(data_lenght > 3)
 					{
 						//how to display it
