@@ -171,6 +171,7 @@ void turn_sound_off()
 {
 	int i,loop;
 	if(!have_sound)return;
+	lock_sound_list();
 	sound_on=0;
 	for(i=0;i<used_sources;i++)
 		{
@@ -180,12 +181,14 @@ void turn_sound_off()
 			else
 				alSourceStop(sound_source[i]);
 		}
+	unlock_sound_list();
 }
 
 void turn_sound_on()
 {
 	int i,state=0;
 	if(!have_sound)return;
+	lock_sound_list();
 	sound_on=1;
 	for(i=0;i<used_sources;i++)
 		{
@@ -193,6 +196,7 @@ void turn_sound_on()
 			if(state == AL_PAUSED)
 				alSourcePlay(sound_source[i]);
 		}
+	unlock_sound_list();
 }
 
 void init_sound()
@@ -217,6 +221,7 @@ void init_sound()
 			have_music=0;
     	}
 
+	lock_sound_list();
     // TODO: get this information from a file, sound.ini?	
 	my_strcp(sound_files[0],"./sound/rain1.wav");
 	my_strcp(sound_files[1],"./sound/teleport_in.wav");
@@ -238,6 +243,8 @@ void init_sound()
 		sound_source[i] = -1;
 	for(i=0;i<max_buffers;i++)
 		sound_buffer[i] = -1;
+
+	unlock_sound_list();
 }
 
 void destroy_sound()
