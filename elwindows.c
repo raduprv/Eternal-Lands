@@ -557,7 +557,7 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	win->cur_y= pos_y;
 
 	// check for the window actually being on the screen, if not, move it
-	if(win->cur_y < (win->flags&ELW_TITLE_HEIGHT)?ELW_TITLE_HEIGHT:0) win->cur_y= (win->flags&ELW_TITLE_HEIGHT)?ELW_TITLE_HEIGHT:0;
+	if(win->cur_y < (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0) win->cur_y= (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0;
 	if(win->cur_y >= window_height) win->cur_y= window_height;	// had -32, but do we want that?
 	if(win->cur_x+win->len_x < ELW_BOX_SIZE) win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
 	if(win->cur_x > window_width-ELW_BOX_SIZE) win->cur_x= window_width-ELW_BOX_SIZE;
