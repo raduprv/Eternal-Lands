@@ -32,6 +32,9 @@
 #include <vorbis/vorbisfile.h>
 #endif	//NO_MUSIC
 
+#ifdef	CACHE_SYSTEM
+#include "cache.h"
+#endif
 #include "elc_private.h"
 #include "asc.h"
 #include "md2.h"
@@ -209,14 +212,12 @@ int check_tile_in_frustrum(float x,float y);
 void draw_ingame_string(float x, float y,unsigned char * our_string,int max_lines,int big);
 void init_colors();
 
-//#ifdef WINDOWS
 extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
 extern void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 extern void (APIENTRY * ELglUnlockArraysEXT) (void);
-//#endif
 
 extern int shift_on;
 extern int alt_on;
@@ -263,6 +264,13 @@ struct enter_names_struct
 	char name[80];
 };
 extern struct enter_names_struct entrable_objects[100];
+
+#ifdef	CACHE_SYSTEM
+#define	MAX_CACHE_SYSTEM	32
+extern cache_struct	*cache_system;
+extern cache_struct	*cache_md2;
+extern cache_struct	*cache_e3d;
+#endif	//cache_system
 
 
 #endif

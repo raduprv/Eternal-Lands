@@ -7,6 +7,11 @@
 #include <time.h>
 #include "global.h"
 
+#ifdef	CACHE_SYSTEM
+cache_struct	*cache_md2=NULL;
+cache_struct	*cache_e3d=NULL;
+#endif	//CACHE_SYSTEM
+
 void load_harvestable_list()
 {
 	FILE *f = NULL;
@@ -220,6 +225,8 @@ void read_bin_cfg()
 	cy=cfg_mem.camera_y;
 	cz=cfg_mem.camera_z;
 	zoom_level=cfg_mem.zoom_level;
+	rz=cfg_mem.camera_angle;
+
 	if(zoom_level != 0.0f) resize_window();
 
 }
@@ -269,6 +276,7 @@ void save_bin_cfg()
 	cfg_mem.camera_y=cy;
 	cfg_mem.camera_z=cz;
 	cfg_mem.zoom_level=zoom_level;
+	cfg_mem.camera_angle=rz;
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);
@@ -277,12 +285,20 @@ void save_bin_cfg()
 
 void init_md2_cache()
 {
+#ifdef	CACHE_SYSTEM
+	cache_md2=cache_init(1000, NULL);	// no auto-free permitted
+	cache_set_name(cache_system, "MD2 cache", cache_md2);
+	cache_set_compact(cache_md2, &free_md2_va);	// to compact, free VA arrays
+	cache_set_time_limit(cache_md2, 1*60*1000);	// check every 5 minutes
+	cache_set_size_limit(cache_md2, 64*1024*1024);
+#else	//CACHE_SYSTEM
 	int i;
 	for(i=0;i<1000;i++)
 		{
 			md2_cache[i].file_name[0]=0;
 			md2_cache[i].md2_id=0;
 		}
+#endif	//CACHE_SYSTEM
 }
 
 void init_texture_cache()
@@ -297,6 +313,13 @@ void init_texture_cache()
 
 void init_e3d_cache()
 {
+#ifdef	CACHE_SYSTEM
+	//cache_e3d=cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
+	cache_e3d=cache_init(1000, NULL);
+	cache_set_name(cache_system, "E3D cache", cache_e3d);
+	cache_set_time_limit(cache_md2, 5*60*1000);
+	cache_set_size_limit(cache_md2, 8*1024*1024);
+#else	//CACHE_SYSTEM
 	int i;
 	for(i=0;i<1000;i++)
 		{
@@ -304,6 +327,7 @@ void init_e3d_cache()
 			e3d_cache[i].e3d_id=0;
 			e3d_cache[i].flag_for_destruction=0;
 		}
+#endif	//CACHE_SYSTEM
 }
 
 void init_2d_obj_cache()
@@ -334,6 +358,9 @@ void init_stuff()
 	seed = time (NULL);
 	srand (seed);
 
+#ifdef	CACHE_SYSTEM
+	cache_system_init(MAX_CACHE_SYSTEM);
+#endif
 	init_texture_cache();
 	init_md2_cache();
 	init_e3d_cache();

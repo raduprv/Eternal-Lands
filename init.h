@@ -39,6 +39,7 @@ typedef struct
 	float camera_y;
 	float camera_z;
 	float zoom_level;
+	float camera_angle;
 	float freserved[20];
 
 }bin_cfg;
