@@ -38,8 +38,9 @@ void init_stuff()
 	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
 
 #ifdef LINUX
+	i = 1;
 	gtk_set_locale ();
-	gtk_init (&argc, &argv);
+	gtk_init (&i, (char***)NULL);
 	file_selector = create_fileselection();
 #endif
 
