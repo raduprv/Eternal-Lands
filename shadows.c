@@ -144,7 +144,7 @@ void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
 
 	check_gl_errors();
 #ifdef	USE_VERTEXARRAYS
-	if(use_vertex_array)
+	if(use_vertex_array > 0)
 		{
 			//TODO: smarter decision making and maybe trigger cleanup?
 			if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
@@ -153,7 +153,7 @@ void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
 				}
 		}
 	// determine the drawing method
-	if(use_vertex_array && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
+	if(use_vertex_array > 0 && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
 		{
 			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 			if(have_compiled_vertex_array)ELglLockArraysEXT(0, model_data->numFaces*3);
@@ -279,7 +279,7 @@ void display_actors_shadow()
 	x=-cx;
 	y=-cy;
 #ifdef	USE_VERTEXARRAYS
-	if(use_vertex_array)
+	if(use_vertex_array > 0)
 		{
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glEnableClientState(GL_NORMAL_ARRAY);
@@ -304,7 +304,7 @@ void display_actors_shadow()
 				}
 		}
 #ifdef	USE_VERTEXARRAYS
-	if(use_vertex_array)
+	if(use_vertex_array > 0)
 		{
 			glDisableClientState(GL_NORMAL_ARRAY);
 			glDisableClientState(GL_VERTEX_ARRAY);

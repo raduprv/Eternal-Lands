@@ -270,7 +270,7 @@ Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame)
 
 #ifdef	USE_VERTEXARRAYS
 	Uint32	k;
-	if(use_vertex_array)
+	if(use_vertex_array > 0 && vertex_arrays_built < use_vertex_array)
 		{
 			// do we need the texture array populated?
 			if (!cur_md2->text_coord_array)
@@ -278,6 +278,7 @@ Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame)
 					// allocate the space for a full texture coord array
 					cur_md2->text_coord_array= calloc(cur_md2->numFaces, sizeof(text_coord_md2)*3);
 					used += cur_md2->numFaces*sizeof(text_coord_md2)*3;
+					vertex_arrays_built++;
 					//now, convert the coords to VA format
 					for(k=0;k<cur_md2->numFaces;k++)
 						{
@@ -296,6 +297,7 @@ Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame)
 					cur_frame->vertex_array= calloc(cur_md2->numFaces, sizeof(vertex_md2)*3);
 					used += cur_md2->numFaces*sizeof(vertex_md2)*3;
 			}
+			vertex_arrays_built++;
 			for(k=0;k<cur_md2->numFaces;k++)
 				{
 					cur_frame->vertex_array[k*3].x=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].a].x;

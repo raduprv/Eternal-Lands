@@ -234,7 +234,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 	check_gl_errors();
 	glColor3f(1.0f, 1.0f, 1.0f);
 #ifdef	USE_VERTEXARRAYS
-	if(use_vertex_array)
+	if(use_vertex_array > 0)
 		{
 			//TODO: smarter decision making and maybe trigger cleanup?
 			if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
@@ -243,7 +243,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 				}
 		}
 	// determine the drawing method
-	if(use_vertex_array && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
+	if(use_vertex_array > 0 && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
 		{
 			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
 			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
@@ -351,6 +351,7 @@ void display_actors()
 	x=-cx;
 	y=-cy;
 
+	vertex_arrays_built=0;	// clear the counter
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	//MD2s don't have real normals...
 	glNormal3f(0.0f,0.0f,1.0f);
