@@ -89,7 +89,7 @@ void draw_3d_object(object3d * object_id)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 	check_gl_errors();
-	if(!have_multitexture || !clouds_shadows)
+	if(!have_multitexture || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glVertexPointer(3,GL_FLOAT,0,array_vertex);
@@ -159,9 +159,12 @@ void draw_3d_object(object3d * object_id)
 		}
 	else//draw a texture detail
 		{
-			ELglClientActiveTextureARB(detail_unit);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(2,GL_FLOAT,0,clouds_uv);
+			if(clouds_shadows)
+				{
+					ELglClientActiveTextureARB(detail_unit);
+					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					glTexCoordPointer(2,GL_FLOAT,0,clouds_uv);
+				}
 			ELglClientActiveTextureARB(base_unit);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);

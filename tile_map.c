@@ -44,7 +44,7 @@ void draw_tile_map()
 	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
 	if(y_start<0)y_start=0;
 	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
-	if(!have_multitexture || !clouds_shadows)
+	if(!have_multitexture || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glBegin(GL_QUADS);
 			for(y=y_start;y<=y_end;y++)
