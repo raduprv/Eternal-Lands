@@ -16,6 +16,7 @@ typedef struct
 	cache_item_struct	*recent_item;
 	Sint32	num_items;		// the number of active items in the list
 	Sint32	max_item;		// the highest slot used
+	Sint32	first_unused;	// the lowest possible unused slow (might be in use!!)
 	Sint32	num_allocated;	// the allocated space for the list
 	Uint32	LRU_time;		// last time LRU processing done
 	Uint32	total_size;		// total size currently allocated

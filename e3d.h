@@ -3,6 +3,7 @@
 
 #define max_obj_3d 10000
 #define max_e3d_cache 1000
+extern int highest_obj_3d;
 
 //the new array structures
 typedef struct

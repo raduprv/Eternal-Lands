@@ -282,12 +282,13 @@ cache_item_struct *cache_find(cache_struct *cache, const Uint8 *name)
 			cache_use(cache, cache->recent_item);
 			return(cache->recent_item);
 		}
+	// not the most recent, then scan the list
 	for(i=0; i<cache->max_item; i++)
 		{
 			if(cache->cached_items[i] && cache->cached_items[i]->name && !strcmp(cache->cached_items[i]->name, name))
 				{
 					cache_use(cache, cache->cached_items[i]);
-					cache->recent_item=cache->cached_items[i];
+					cache->recent_item= cache->cached_items[i];
 					return(cache->cached_items[i]);
 				}
 		}
@@ -322,7 +323,7 @@ void *cache_find_item(cache_struct *cache, const Uint8 *name)
 	cache_item_struct	*item_ptr;
 
 	if(!cache->cached_items) return NULL;
-	item_ptr=cache_find(cache, name);
+	item_ptr= cache_find(cache, name);
 	if(item_ptr)
 		{
 			//cache_use(cache, item_ptr);
@@ -337,7 +338,7 @@ cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, 
 
 	if(!cache->cached_items) return NULL;
 	//find an empty slot
-	for(i=0; i<cache->max_item; i++)
+	for(i=cache->first_unused; i<cache->max_item; i++)
 		{
 			//is the slot empty
 			if(!cache->cached_items[i])
@@ -350,13 +351,15 @@ cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, 
 		{
 			// make sure we have room - consider dynamic expansion if not
 			if(cache->max_item >= cache->num_allocated) return NULL;
-			// keep track of the highes used
-			i=cache->max_item;
+			// keep track of the highesr used
+			i= cache->max_item;
 			cache->max_item++;
 		}
 	//allocate the memory
 	cache->cached_items[i]=calloc(1,sizeof(cache_item_struct));
 	if(!cache->cached_items[i]) return NULL;
+	//adjusted the lowest unsued size
+	cache->first_unused= i+1;
 	//memorize the information
 	cache->cached_items[i]->cache_item=item;
 	cache->cached_items[i]->size=size;
@@ -442,7 +445,7 @@ void cache_remove(cache_struct *cache, cache_item_struct *item)
 	item->size=0;			//failsafe
 	if(cache->max_item > 0)
 		{
-			// special case, at end
+			// special case, at end (most common usage)
 			if(cache->cached_items[cache->max_item-1] == item)
 				{
 					Sint32	i=cache->max_item-1;
@@ -455,17 +458,21 @@ void cache_remove(cache_struct *cache, cache_item_struct *item)
 						}
 					// now memorize the new high mark
 					cache->max_item=i+1;
+					// and adjust first unused if needed
+					if(cache->first_unused > i)	cache->first_unused= i;;
 				}
 			else
 				{
 					Sint32	i;
-					// start at the end and work backwards
+					// start at the end and work backwards looking for this item
 					for(i=cache->max_item-1; i>=0 ; i--)
 						{
 							if(cache->cached_items[i] == item)
 								{
 									//remove it from the list
 									cache->cached_items[i]=NULL;
+									// and adjust first unused if needed
+									if(cache->first_unused > i)	cache->first_unused= i;;
 									break;
 								}
 						}
