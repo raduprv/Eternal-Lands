@@ -224,7 +224,7 @@ void read_config()
 			strcat(el_ini, "el.ini");
 			f=fopen(el_ini,"rb");
 		}
-	
+
 	stat(el_ini,&ini_file);
 #else
 	f=fopen("el.ini","rb");
@@ -386,7 +386,7 @@ void read_bin_cfg()
 
 	encyclopedia_menu_x=cfg_mem.encyclopedia_menu_x;
 	encyclopedia_menu_y=cfg_mem.encyclopedia_menu_y;
-	
+
 	questlog_menu_x=cfg_mem.questlog_menu_x;
 	questlog_menu_y=cfg_mem.questlog_menu_y;
 
@@ -624,6 +624,7 @@ void init_stuff()
 	load_cursors();
 	build_cursors();
 	change_cursor(CURSOR_ARROW);
+	build_glow_color_table();
 
 
 	init_actors_lists();
@@ -669,6 +670,8 @@ void init_stuff()
 	items_text_5=load_texture_cache("./textures/items5.bmp",0);
 	items_text_6=load_texture_cache("./textures/items6.bmp",0);
 	items_text_7=load_texture_cache("./textures/items7.bmp",0);
+	items_text_8=load_texture_cache("./textures/items8.bmp",0);
+	items_text_9=load_texture_cache("./textures/items9.bmp",0);
 
 	portraits1_tex=load_texture_cache("./textures/portraits1.bmp",0);
 	portraits2_tex=load_texture_cache("./textures/portraits2.bmp",0);

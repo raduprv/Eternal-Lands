@@ -61,7 +61,7 @@
 #define SHIRT_CHAIN_ARMOR 13
 #define SHIRT_STEEL_CHAIN_ARMOR 14
 #define SHIRT_TITANIUM_CHAIN_ARMOR 15
-#define SHIRT_ARMOR_5 16
+#define SHIRT_IRON_PLATE_ARMOR 16
 #define SHIRT_ARMOR_6 17
 
 #define NO_BODY_ARMOR 0
@@ -84,6 +84,8 @@
 #define BOOTS_LIGHTBROWN 4
 #define BOOTS_ORANGE 5
 #define BOOTS_LEATHER 6
+#define BOOTS_FUR 7
+#define BOOTS_IRON_GREAVE 8
 
 //pants
 #define PANTS_BLACK 0
@@ -96,6 +98,7 @@
 #define PANTS_RED 7
 #define PANTS_WHITE 8
 #define PANTS_LEATHER 9
+#define PANTS_IRON_CUISSES 10
 
 //capes
 #define CAPE_BLACK 0
@@ -130,7 +133,9 @@
 //helmets
 #define HELMET_IRON 0
 #define HELMET_FUR 1
+#define HELMET_LEATHER 2
 #define HELMET_NONE 20
+
 
 //shields
 #define SHIELD_WOOD 0
@@ -155,7 +160,38 @@
 #define HAMMER_1 12
 #define HAMMER_2 13
 #define PICKAX 14
-
+#define SWORD_1_FIRE 15
+#define SWORD_2_FIRE 16
+#define SWORD_2_COLD 17
+#define SWORD_3_FIRE 18
+#define SWORD_3_COLD 19
+#define SWORD_3_MAGIC 20
+#define SWORD_4_FIRE 21
+#define SWORD_4_COLD 22
+#define SWORD_4_MAGIC 23
+#define SWORD_4_THERMAL 24
+#define SWORD_5_FIRE 25
+#define SWORD_5_COLD 26
+#define SWORD_5_MAGIC 27
+#define SWORD_5_THERMAL 28
+#define SWORD_6_FIRE 29
+#define SWORD_6_COLD 30
+#define SWORD_6_MAGIC 31
+#define SWORD_6_THERMAL 32
+#define SWORD_7_FIRE 33
+#define SWORD_7_COLD 34
+#define SWORD_7_MAGIC 35
+#define SWORD_7_THERMAL 36
+#define PICKAX_MAGIC 37
+#define BATTLEAXE_IRON 38
+#define BATTLEAXE_STEEL 39
+#define BATTLEAXE_TITANIUM 40
+#define BATTLEAXE_IRON_FIRE 41
+#define BATTLEAXE_STEEL_COLD 42
+#define BATTLEAXE_STEEL_FIRE 43
+#define BATTLEAXE_TITANIUM_COLD 44
+#define BATTLEAXE_TITANIUM_FIRE 45
+#define BATTLEAXE_TITANIUM_MAGIC 46
 
 #define frame_walk 0
 #define frame_run 1

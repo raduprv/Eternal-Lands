@@ -786,7 +786,9 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].arms_name,"./md2/arms5.bmp");
 	my_strcp(actors_defs[human_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].model_name,"./md2/torso1_humanf.md2");
 	my_strcp(actors_defs[human_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].torso_name,"./md2/torso5.bmp");
-
+	my_strcp(actors_defs[human_female].shirt[SHIRT_IRON_PLATE_ARMOR].arms_name,"./md2/arms6.bmp");
+	my_strcp(actors_defs[human_female].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_humanf.md2");
+	my_strcp(actors_defs[human_female].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
 	my_strcp(actors_defs[human_female].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[human_female].skin[SKIN_BROWN].head_name,"./md2/head_humanfbrown.bmp");
@@ -811,6 +813,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_female].boots[BOOTS_LIGHTBROWN].boots_name,"./md2/boots1_lightbrown.bmp");
 	my_strcp(actors_defs[human_female].boots[BOOTS_ORANGE].boots_name,"./md2/boots1_orange.bmp");
 	my_strcp(actors_defs[human_female].boots[BOOTS_LEATHER].boots_name,"./md2/boots2.bmp");
+	my_strcp(actors_defs[human_female].boots[BOOTS_FUR].boots_name,"./md2/boots3.bmp");
+	my_strcp(actors_defs[human_female].boots[BOOTS_IRON_GREAVE].boots_name,"./md2/boots4.bmp");
 
 	my_strcp(actors_defs[human_female].legs[PANTS_BLACK].legs_name,"./md2/pants1_black.bmp");
 	my_strcp(actors_defs[human_female].legs[PANTS_BLACK].model_name,"./md2/legs1_humanf.md2");
@@ -832,6 +836,9 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_female].legs[PANTS_WHITE].model_name,"./md2/legs1_humanf.md2");
 	my_strcp(actors_defs[human_female].legs[PANTS_LEATHER].legs_name,"./md2/pants2.bmp");
 	my_strcp(actors_defs[human_female].legs[PANTS_LEATHER].model_name,"./md2/legs1_humanf.md2");
+
+	my_strcp(actors_defs[human_female].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
+	my_strcp(actors_defs[human_female].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_humanf.md2");
 
 	my_strcp(actors_defs[human_female].cape[CAPE_BLACK].model_name,"./md2/cape1_tallf.md2");
 	my_strcp(actors_defs[human_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -878,95 +885,373 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_female].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 	my_strcp(actors_defs[human_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[human_female].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+
 	my_strcp(actors_defs[human_female].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
 	my_strcp(actors_defs[human_female].weapon[SWORD_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_1].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_1].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_1_FIRE].model_name,"./md2/sword1_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_1_FIRE].skin_name,"./md2/sword1.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_1_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_1_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_1_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_1_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_1_FIRE].glow=GLOW_FIRE;
+
 	my_strcp(actors_defs[human_female].weapon[SWORD_2].model_name,"./md2/sword2_tall.md2");
-	my_strcp(actors_defs[human_female].weapon[SWORD_2].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2].skin_name,"./md2/sword2.bmp");
 	my_strcp(actors_defs[human_female].weapon[SWORD_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_2].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_2].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_FIRE].model_name,"./md2/sword2_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_FIRE].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_2_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_COLD].model_name,"./md2/sword2_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_COLD].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_2_COLD].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_2_COLD].glow=GLOW_COLD;
+
 	my_strcp(actors_defs[human_female].weapon[SWORD_3].model_name,"./md2/sword3_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[SWORD_3].skin_name,"./md2/sword3.bmp");
 	my_strcp(actors_defs[human_female].weapon[SWORD_3].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_3].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_3].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_3].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_3].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_FIRE].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_FIRE].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_3_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_COLD].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_COLD].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_COLD].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_3_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_MAGIC].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_MAGIC].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_3_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_3_MAGIC].glow=GLOW_MAGIC;
+
 	my_strcp(actors_defs[human_female].weapon[SWORD_4].model_name,"./md2/sword4_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[SWORD_4].skin_name,"./md2/sword4.bmp");
 	my_strcp(actors_defs[human_female].weapon[SWORD_4].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_4].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_4].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_4].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_4].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_FIRE].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_FIRE].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_4_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_COLD].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_COLD].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_COLD].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_4_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_MAGIC].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_MAGIC].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_4_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_THERMAL].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_THERMAL].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_4_THERMAL].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_4_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[human_female].weapon[SWORD_5].model_name,"./md2/sword5_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[SWORD_5].skin_name,"./md2/sword5.bmp");
 	my_strcp(actors_defs[human_female].weapon[SWORD_5].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_5].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_5].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_5].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_5].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_FIRE].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_FIRE].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_5_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_COLD].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_COLD].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_COLD].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_5_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_MAGIC].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_MAGIC].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_5_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_THERMAL].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_THERMAL].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_5_THERMAL].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_5_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[human_female].weapon[SWORD_6].model_name,"./md2/sword6_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[SWORD_6].skin_name,"./md2/sword6.bmp");
 	my_strcp(actors_defs[human_female].weapon[SWORD_6].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_6].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_6].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_6].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_6].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_FIRE].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_FIRE].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_6_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_COLD].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_COLD].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_COLD].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_6_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_MAGIC].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_MAGIC].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_6_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_THERMAL].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_THERMAL].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_6_THERMAL].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_6_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[human_female].weapon[SWORD_7].model_name,"./md2/sword7_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[SWORD_7].skin_name,"./md2/sword7.bmp");
 	my_strcp(actors_defs[human_female].weapon[SWORD_7].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_7].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_7].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[SWORD_7].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_7].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_FIRE].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_FIRE].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_7_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_COLD].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_COLD].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_COLD].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_7_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_MAGIC].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_MAGIC].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_7_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_THERMAL].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_THERMAL].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[SWORD_7_THERMAL].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[SWORD_7_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[human_female].weapon[STAFF_1].model_name,"./md2/staff1_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[STAFF_1].skin_name,"./md2/staff1_brown.bmp");
 	my_strcp(actors_defs[human_female].weapon[STAFF_1].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_1].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_1].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_1].attack_down2,"hacktwo01");
+	actors_defs[human_female].weapon[STAFF_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_female].weapon[STAFF_2].model_name,"./md2/staff1_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[STAFF_2].skin_name,"./md2/staff1_green.bmp");
 	my_strcp(actors_defs[human_female].weapon[STAFF_2].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_2].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_2].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_2].attack_down2,"hacktwo01");
+	actors_defs[human_female].weapon[STAFF_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_female].weapon[STAFF_3].model_name,"./md2/staff2_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[STAFF_3].skin_name,"./md2/staff3.bmp");
 	my_strcp(actors_defs[human_female].weapon[STAFF_3].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_3].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_3].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_3].attack_down2,"hacktwo01");
+	actors_defs[human_female].weapon[STAFF_3].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_female].weapon[STAFF_4].model_name,"./md2/staff3_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[STAFF_4].skin_name,"./md2/staff4.bmp");
 	my_strcp(actors_defs[human_female].weapon[STAFF_4].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_4].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_4].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[human_female].weapon[STAFF_4].attack_down2,"hacktwo01");
+	actors_defs[human_female].weapon[STAFF_4].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_female].weapon[HAMMER_1].model_name,"./md2/warhammer1_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_1].skin_name,"./md2/warhammer1.bmp");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_1].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[HAMMER_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_female].weapon[HAMMER_2].model_name,"./md2/warhammer2_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_2].skin_name,"./md2/warhammer2.bmp");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[HAMMER_2].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[HAMMER_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_female].weapon[PICKAX].model_name,"./md2/pickaxe1_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[PICKAX].skin_name,"./md2/pickaxe1.bmp");
 	my_strcp(actors_defs[human_female].weapon[PICKAX].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[PICKAX].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_female].weapon[PICKAX].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_female].weapon[PICKAX].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[PICKAX].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON].model_name,"./md2/axe1_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[BATTLEAXE_IRON].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[BATTLEAXE_STEEL].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[BATTLEAXE_TITANIUM].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON_FIRE].model_name,"./md2/axe1_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON_FIRE].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_IRON_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[BATTLEAXE_IRON_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_FIRE].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_FIRE].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[BATTLEAXE_STEEL_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_COLD].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_COLD].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_STEEL_COLD].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[BATTLEAXE_STEEL_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_FIRE].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_FIRE].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_COLD].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_COLD].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_MAGIC].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_MAGIC].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_female].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
 
 	my_strcp(actors_defs[human_female].helmet[HELMET_IRON].model_name,"./md2/helmet1_tallf.md2");
 	my_strcp(actors_defs[human_female].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[human_female].helmet[HELMET_FUR].model_name,"./md2/hat1_tallf.md2");
 	my_strcp(actors_defs[human_female].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
+	my_strcp(actors_defs[human_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tallf.md2");
+	my_strcp(actors_defs[human_female].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[human_female].walk_speed=default_walk_speed;
 	actors_defs[human_female].run_speed=2.0/18;
@@ -1041,6 +1326,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_male].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].model_name,"./md2/torso1_humanm.md2");
 	my_strcp(actors_defs[human_male].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].torso_name,"./md2/torso5.bmp");
 
+	my_strcp(actors_defs[human_male].shirt[SHIRT_IRON_PLATE_ARMOR].arms_name,"./md2/arms6.bmp");
+	my_strcp(actors_defs[human_male].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_humanm.md2");
+	my_strcp(actors_defs[human_male].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
+
 	my_strcp(actors_defs[human_male].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[human_male].skin[SKIN_BROWN].head_name,"./md2/head_humanmbrown.bmp");
 	my_strcp(actors_defs[human_male].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -1064,6 +1353,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_male].boots[BOOTS_LIGHTBROWN].boots_name,"./md2/boots1_lightbrown.bmp");
 	my_strcp(actors_defs[human_male].boots[BOOTS_ORANGE].boots_name,"./md2/boots1_orange.bmp");
 	my_strcp(actors_defs[human_male].boots[BOOTS_LEATHER].boots_name,"./md2/boots2.bmp");
+	my_strcp(actors_defs[human_male].boots[BOOTS_FUR].boots_name,"./md2/boots3.bmp");
+	my_strcp(actors_defs[human_male].boots[BOOTS_IRON_GREAVE].boots_name,"./md2/boots4.bmp");
 
 	my_strcp(actors_defs[human_male].legs[PANTS_BLACK].legs_name,"./md2/pants1_black.bmp");
 	my_strcp(actors_defs[human_male].legs[PANTS_BLACK].model_name,"./md2/legs1_humanm.md2");
@@ -1085,6 +1376,9 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_male].legs[PANTS_WHITE].model_name,"./md2/legs1_humanm.md2");
 	my_strcp(actors_defs[human_male].legs[PANTS_LEATHER].legs_name,"./md2/pants2.bmp");
 	my_strcp(actors_defs[human_male].legs[PANTS_LEATHER].model_name,"./md2/legs1_humanm.md2");
+
+	my_strcp(actors_defs[human_male].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
+	my_strcp(actors_defs[human_male].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_humanm.md2");
 
 
 	my_strcp(actors_defs[human_male].cape[CAPE_BLACK].model_name,"./md2/cape1_tallm.md2");
@@ -1133,95 +1427,383 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_male].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 	my_strcp(actors_defs[human_male].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[human_male].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+
 	my_strcp(actors_defs[human_male].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
 	my_strcp(actors_defs[human_male].weapon[SWORD_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_1].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_1].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_1_FIRE].model_name,"./md2/sword1_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_1_FIRE].skin_name,"./md2/sword1.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_1_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_1_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_1_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_1_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_1_FIRE].glow=GLOW_FIRE;
+
 	my_strcp(actors_defs[human_male].weapon[SWORD_2].model_name,"./md2/sword2_tall.md2");
-	my_strcp(actors_defs[human_male].weapon[SWORD_2].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2].skin_name,"./md2/sword2.bmp");
 	my_strcp(actors_defs[human_male].weapon[SWORD_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_2].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_2].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_FIRE].model_name,"./md2/sword2_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_FIRE].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_2_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_COLD].model_name,"./md2/sword2_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_COLD].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_2_COLD].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_2_COLD].glow=GLOW_COLD;
+
 	my_strcp(actors_defs[human_male].weapon[SWORD_3].model_name,"./md2/sword3_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[SWORD_3].skin_name,"./md2/sword3.bmp");
 	my_strcp(actors_defs[human_male].weapon[SWORD_3].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_3].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_3].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_3].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_3].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_FIRE].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_FIRE].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_3_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_COLD].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_COLD].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_COLD].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_3_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_MAGIC].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_MAGIC].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_3_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_3_MAGIC].glow=GLOW_MAGIC;
+
 	my_strcp(actors_defs[human_male].weapon[SWORD_4].model_name,"./md2/sword4_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[SWORD_4].skin_name,"./md2/sword4.bmp");
 	my_strcp(actors_defs[human_male].weapon[SWORD_4].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_4].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_4].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_4].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_4].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_FIRE].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_FIRE].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_4_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_COLD].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_COLD].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_COLD].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_4_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_MAGIC].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_MAGIC].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_4_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_THERMAL].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_THERMAL].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_4_THERMAL].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_4_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[human_male].weapon[SWORD_5].model_name,"./md2/sword5_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[SWORD_5].skin_name,"./md2/sword5.bmp");
 	my_strcp(actors_defs[human_male].weapon[SWORD_5].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_5].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_5].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_5].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_5].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_FIRE].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_FIRE].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_5_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_COLD].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_COLD].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_COLD].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_5_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_MAGIC].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_MAGIC].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_5_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_THERMAL].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_THERMAL].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_5_THERMAL].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_5_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[human_male].weapon[SWORD_6].model_name,"./md2/sword6_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[SWORD_6].skin_name,"./md2/sword6.bmp");
 	my_strcp(actors_defs[human_male].weapon[SWORD_6].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_6].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_6].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_6].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_6].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_FIRE].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_FIRE].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_6_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_COLD].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_COLD].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_COLD].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_6_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_MAGIC].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_MAGIC].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_6_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_THERMAL].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_THERMAL].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_6_THERMAL].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_6_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[human_male].weapon[SWORD_7].model_name,"./md2/sword7_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[SWORD_7].skin_name,"./md2/sword7.bmp");
 	my_strcp(actors_defs[human_male].weapon[SWORD_7].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_7].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_7].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[SWORD_7].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_7].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_FIRE].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_FIRE].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_7_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_COLD].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_COLD].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_COLD].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_7_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_MAGIC].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_MAGIC].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_7_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_THERMAL].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_THERMAL].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[SWORD_7_THERMAL].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[SWORD_7_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[human_male].weapon[STAFF_1].model_name,"./md2/staff1_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[STAFF_1].skin_name,"./md2/staff1_brown.bmp");
 	my_strcp(actors_defs[human_male].weapon[STAFF_1].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_1].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_1].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_1].attack_down2,"hacktwo01");
+	actors_defs[human_male].weapon[STAFF_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_male].weapon[STAFF_2].model_name,"./md2/staff1_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[STAFF_2].skin_name,"./md2/staff1_green.bmp");
 	my_strcp(actors_defs[human_male].weapon[STAFF_2].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_2].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_2].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_2].attack_down2,"hacktwo01");
+	actors_defs[human_male].weapon[STAFF_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_male].weapon[STAFF_3].model_name,"./md2/staff2_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[STAFF_3].skin_name,"./md2/staff3.bmp");
 	my_strcp(actors_defs[human_male].weapon[STAFF_3].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_3].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_3].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_3].attack_down2,"hacktwo01");
+	actors_defs[human_male].weapon[STAFF_3].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_male].weapon[STAFF_4].model_name,"./md2/staff3_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[STAFF_4].skin_name,"./md2/staff4.bmp");
 	my_strcp(actors_defs[human_male].weapon[STAFF_4].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_4].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_4].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[human_male].weapon[STAFF_4].attack_down2,"hacktwo01");
+	actors_defs[human_male].weapon[STAFF_4].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_male].weapon[HAMMER_1].model_name,"./md2/warhammer1_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_1].skin_name,"./md2/warhammer1.bmp");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_1].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[HAMMER_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_male].weapon[HAMMER_2].model_name,"./md2/warhammer2_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_2].skin_name,"./md2/warhammer2.bmp");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[HAMMER_2].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[HAMMER_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_male].weapon[PICKAX].model_name,"./md2/pickaxe1_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[PICKAX].skin_name,"./md2/pickaxe1.bmp");
 	my_strcp(actors_defs[human_male].weapon[PICKAX].attack_up1,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[PICKAX].attack_up2,"slashone01");
 	my_strcp(actors_defs[human_male].weapon[PICKAX].attack_down1,"hackone01");
 	my_strcp(actors_defs[human_male].weapon[PICKAX].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[PICKAX].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[PICKAX_MAGIC].model_name,"./md2/pickaxe1_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[PICKAX_MAGIC].skin_name,"./md2/pickaxe1.bmp");
+	my_strcp(actors_defs[human_male].weapon[PICKAX_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[PICKAX_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[PICKAX_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[PICKAX_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[PICKAX_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON].model_name,"./md2/axe1_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[BATTLEAXE_IRON].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[BATTLEAXE_STEEL].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[BATTLEAXE_TITANIUM].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON_FIRE].model_name,"./md2/axe1_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON_FIRE].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_IRON_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[BATTLEAXE_IRON_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_FIRE].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_FIRE].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[BATTLEAXE_STEEL_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_COLD].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_COLD].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_STEEL_COLD].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[BATTLEAXE_STEEL_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_FIRE].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_FIRE].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_COLD].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_COLD].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_MAGIC].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_MAGIC].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
+	actors_defs[human_male].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
 
 	my_strcp(actors_defs[human_male].helmet[HELMET_IRON].model_name,"./md2/helmet1_tall.md2");
 	my_strcp(actors_defs[human_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[human_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tall.md2");
 	my_strcp(actors_defs[human_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
+	my_strcp(actors_defs[human_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tall.md2");
+	my_strcp(actors_defs[human_male].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
+
+
 
 	actors_defs[human_male].walk_speed=default_walk_speed;
 	actors_defs[human_male].run_speed=2.0/18;
@@ -1296,6 +1878,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].model_name,"./md2/torso1_elff.md2");
 	my_strcp(actors_defs[elf_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].torso_name,"./md2/torso5.bmp");
 
+	my_strcp(actors_defs[elf_female].shirt[SHIRT_IRON_PLATE_ARMOR].arms_name,"./md2/arms6.bmp");
+	my_strcp(actors_defs[elf_female].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_elff.md2");
+	my_strcp(actors_defs[elf_female].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
+
 	my_strcp(actors_defs[elf_female].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[elf_female].skin[SKIN_BROWN].head_name,"./md2/head_humanfbrown.bmp");
 	my_strcp(actors_defs[elf_female].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -1319,6 +1905,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_female].boots[BOOTS_LIGHTBROWN].boots_name,"./md2/boots1_lightbrown.bmp");
 	my_strcp(actors_defs[elf_female].boots[BOOTS_ORANGE].boots_name,"./md2/boots1_orange.bmp");
 	my_strcp(actors_defs[elf_female].boots[BOOTS_LEATHER].boots_name,"./md2/boots2.bmp");
+	my_strcp(actors_defs[elf_female].boots[BOOTS_FUR].boots_name,"./md2/boots3.bmp");
+	my_strcp(actors_defs[elf_female].boots[BOOTS_IRON_GREAVE].boots_name,"./md2/boots4.bmp");
 
 	my_strcp(actors_defs[elf_female].legs[PANTS_BLACK].legs_name,"./md2/pants1_black.bmp");
 	my_strcp(actors_defs[elf_female].legs[PANTS_BLACK].model_name,"./md2/legs1_elff.md2");
@@ -1341,6 +1929,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_female].legs[PANTS_LEATHER].legs_name,"./md2/pants2.bmp");
 	my_strcp(actors_defs[elf_female].legs[PANTS_LEATHER].model_name,"./md2/legs1_elff.md2");
 
+	my_strcp(actors_defs[elf_female].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
+	my_strcp(actors_defs[elf_female].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_elff.md2");
 
 	my_strcp(actors_defs[elf_female].cape[CAPE_BLACK].model_name,"./md2/cape1_tallf.md2");
 	my_strcp(actors_defs[elf_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -1388,95 +1978,383 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_female].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 	my_strcp(actors_defs[elf_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[elf_female].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+
 	my_strcp(actors_defs[elf_female].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_1].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_1].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_1_FIRE].model_name,"./md2/sword1_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_1_FIRE].skin_name,"./md2/sword1.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_1_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_1_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_1_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_1_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_1_FIRE].glow=GLOW_FIRE;
+
 	my_strcp(actors_defs[elf_female].weapon[SWORD_2].model_name,"./md2/sword2_tall.md2");
-	my_strcp(actors_defs[elf_female].weapon[SWORD_2].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2].skin_name,"./md2/sword2.bmp");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_2].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_2].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_FIRE].model_name,"./md2/sword2_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_FIRE].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_2_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_COLD].model_name,"./md2/sword2_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_COLD].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_2_COLD].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_2_COLD].glow=GLOW_COLD;
+
 	my_strcp(actors_defs[elf_female].weapon[SWORD_3].model_name,"./md2/sword3_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_3].skin_name,"./md2/sword3.bmp");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_3].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_3].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_3].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_3].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_3].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_FIRE].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_FIRE].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_3_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_COLD].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_COLD].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_COLD].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_3_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_MAGIC].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_MAGIC].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_3_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_3_MAGIC].glow=GLOW_MAGIC;
+
 	my_strcp(actors_defs[elf_female].weapon[SWORD_4].model_name,"./md2/sword4_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_4].skin_name,"./md2/sword4.bmp");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_4].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_4].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_4].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_4].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_4].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_FIRE].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_FIRE].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_4_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_COLD].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_COLD].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_COLD].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_4_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_MAGIC].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_MAGIC].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_4_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_THERMAL].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_THERMAL].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_4_THERMAL].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_4_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[elf_female].weapon[SWORD_5].model_name,"./md2/sword5_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_5].skin_name,"./md2/sword5.bmp");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_5].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_5].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_5].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_5].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_5].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_FIRE].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_FIRE].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_5_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_COLD].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_COLD].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_COLD].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_5_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_MAGIC].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_MAGIC].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_5_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_THERMAL].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_THERMAL].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_5_THERMAL].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_5_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[elf_female].weapon[SWORD_6].model_name,"./md2/sword6_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_6].skin_name,"./md2/sword6.bmp");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_6].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_6].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_6].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_6].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_6].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_FIRE].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_FIRE].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_6_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_COLD].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_COLD].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_COLD].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_6_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_MAGIC].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_MAGIC].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_6_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_THERMAL].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_THERMAL].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_6_THERMAL].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_6_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[elf_female].weapon[SWORD_7].model_name,"./md2/sword7_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_7].skin_name,"./md2/sword7.bmp");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_7].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_7].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_7].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_7].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_7].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_FIRE].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_FIRE].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_7_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_COLD].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_COLD].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_COLD].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_7_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_MAGIC].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_MAGIC].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_7_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_THERMAL].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_THERMAL].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[SWORD_7_THERMAL].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[SWORD_7_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[elf_female].weapon[STAFF_1].model_name,"./md2/staff1_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_1].skin_name,"./md2/staff1_brown.bmp");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_1].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_1].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_1].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_1].attack_down2,"hacktwo01");
+	actors_defs[elf_female].weapon[STAFF_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_female].weapon[STAFF_2].model_name,"./md2/staff1_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_2].skin_name,"./md2/staff1_green.bmp");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_2].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_2].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_2].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_2].attack_down2,"hacktwo01");
+	actors_defs[elf_female].weapon[STAFF_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_female].weapon[STAFF_3].model_name,"./md2/staff2_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_3].skin_name,"./md2/staff3.bmp");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_3].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_3].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_3].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_3].attack_down2,"hacktwo01");
+	actors_defs[elf_female].weapon[STAFF_3].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_female].weapon[STAFF_4].model_name,"./md2/staff3_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_4].skin_name,"./md2/staff4.bmp");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_4].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_4].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_4].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[elf_female].weapon[STAFF_4].attack_down2,"hacktwo01");
+	actors_defs[elf_female].weapon[STAFF_4].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_1].model_name,"./md2/warhammer1_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_1].skin_name,"./md2/warhammer1.bmp");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_1].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[HAMMER_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_2].model_name,"./md2/warhammer2_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_2].skin_name,"./md2/warhammer2.bmp");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[HAMMER_2].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[HAMMER_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_female].weapon[PICKAX].model_name,"./md2/pickaxe1_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[PICKAX].skin_name,"./md2/pickaxe1.bmp");
 	my_strcp(actors_defs[elf_female].weapon[PICKAX].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[PICKAX].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_female].weapon[PICKAX].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_female].weapon[PICKAX].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[PICKAX].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[PICKAX_MAGIC].model_name,"./md2/pickaxe1_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[PICKAX_MAGIC].skin_name,"./md2/pickaxe1.bmp");
+	my_strcp(actors_defs[elf_female].weapon[PICKAX_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[PICKAX_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[PICKAX_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[PICKAX_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[PICKAX_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON].model_name,"./md2/axe1_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[BATTLEAXE_IRON].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[BATTLEAXE_STEEL].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON_FIRE].model_name,"./md2/axe1_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON_FIRE].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_IRON_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[BATTLEAXE_IRON_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_FIRE].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_FIRE].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[BATTLEAXE_STEEL_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_COLD].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_COLD].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_STEEL_COLD].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[BATTLEAXE_STEEL_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_FIRE].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_FIRE].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_COLD].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_COLD].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
 
 	my_strcp(actors_defs[elf_female].helmet[HELMET_IRON].model_name,"./md2/helmet1_tallf.md2");
 	my_strcp(actors_defs[elf_female].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[elf_female].helmet[HELMET_FUR].model_name,"./md2/hat1_tallf.md2");
 	my_strcp(actors_defs[elf_female].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
+	my_strcp(actors_defs[elf_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tallf.md2");
+	my_strcp(actors_defs[elf_female].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
+
+
 
 	actors_defs[elf_female].walk_speed=default_walk_speed;
 	actors_defs[elf_female].run_speed=2.0/18;
@@ -1551,6 +2429,9 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_male].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].model_name,"./md2/torso1_elfm.md2");
 	my_strcp(actors_defs[elf_male].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].torso_name,"./md2/torso5.bmp");
 
+	my_strcp(actors_defs[elf_male].shirt[SHIRT_IRON_PLATE_ARMOR].arms_name,"./md2/arms6.bmp");
+	my_strcp(actors_defs[elf_male].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_elfm.md2");
+	my_strcp(actors_defs[elf_male].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
 	my_strcp(actors_defs[elf_male].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[elf_male].skin[SKIN_BROWN].head_name,"./md2/head_elfmbrown.bmp");
@@ -1575,6 +2456,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_male].boots[BOOTS_LIGHTBROWN].boots_name,"./md2/boots1_lightbrown.bmp");
 	my_strcp(actors_defs[elf_male].boots[BOOTS_ORANGE].boots_name,"./md2/boots1_orange.bmp");
 	my_strcp(actors_defs[elf_male].boots[BOOTS_LEATHER].boots_name,"./md2/boots2.bmp");
+	my_strcp(actors_defs[elf_male].boots[BOOTS_FUR].boots_name,"./md2/boots3.bmp");
+	my_strcp(actors_defs[elf_male].boots[BOOTS_IRON_GREAVE].boots_name,"./md2/boots4.bmp");
 
 	my_strcp(actors_defs[elf_male].legs[PANTS_BLACK].legs_name,"./md2/pants1_black.bmp");
 	my_strcp(actors_defs[elf_male].legs[PANTS_BLACK].model_name,"./md2/legs1_elfm.md2");
@@ -1596,6 +2479,9 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_male].legs[PANTS_WHITE].model_name,"./md2/legs1_elfm.md2");
 	my_strcp(actors_defs[elf_male].legs[PANTS_LEATHER].legs_name,"./md2/pants2.bmp");
 	my_strcp(actors_defs[elf_male].legs[PANTS_LEATHER].model_name,"./md2/legs1_elfm.md2");
+
+	my_strcp(actors_defs[elf_male].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
+	my_strcp(actors_defs[elf_male].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_elfm.md2");
 
 	my_strcp(actors_defs[elf_male].cape[CAPE_BLACK].model_name,"./md2/cape1_tallm.md2");
 	my_strcp(actors_defs[elf_male].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -1642,95 +2528,381 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_male].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 	my_strcp(actors_defs[elf_male].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[elf_male].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+
 	my_strcp(actors_defs[elf_male].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_1].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_1].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_1_FIRE].model_name,"./md2/sword1_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_1_FIRE].skin_name,"./md2/sword1.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_1_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_1_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_1_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_1_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_1_FIRE].glow=GLOW_FIRE;
+
 	my_strcp(actors_defs[elf_male].weapon[SWORD_2].model_name,"./md2/sword2_tall.md2");
-	my_strcp(actors_defs[elf_male].weapon[SWORD_2].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2].skin_name,"./md2/sword2.bmp");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_2].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_2].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_FIRE].model_name,"./md2/sword2_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_FIRE].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_2_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_COLD].model_name,"./md2/sword2_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_COLD].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_2_COLD].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_2_COLD].glow=GLOW_COLD;
+
 	my_strcp(actors_defs[elf_male].weapon[SWORD_3].model_name,"./md2/sword3_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_3].skin_name,"./md2/sword3.bmp");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_3].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_3].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_3].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_3].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_3].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_FIRE].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_FIRE].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_3_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_COLD].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_COLD].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_COLD].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_3_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_MAGIC].model_name,"./md2/sword3_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_MAGIC].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_3_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_3_MAGIC].glow=GLOW_MAGIC;
+
 	my_strcp(actors_defs[elf_male].weapon[SWORD_4].model_name,"./md2/sword4_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_4].skin_name,"./md2/sword4.bmp");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_4].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_4].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_4].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_4].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_4].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_FIRE].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_FIRE].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_4_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_COLD].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_COLD].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_COLD].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_4_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_MAGIC].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_MAGIC].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_4_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_THERMAL].model_name,"./md2/sword4_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_THERMAL].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_4_THERMAL].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_4_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[elf_male].weapon[SWORD_5].model_name,"./md2/sword5_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_5].skin_name,"./md2/sword5.bmp");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_5].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_5].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_5].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_5].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_5].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_FIRE].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_FIRE].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_5_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_COLD].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_COLD].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_COLD].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_5_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_MAGIC].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_MAGIC].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_5_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_THERMAL].model_name,"./md2/sword5_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_THERMAL].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_5_THERMAL].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_5_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[elf_male].weapon[SWORD_6].model_name,"./md2/sword6_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_6].skin_name,"./md2/sword6.bmp");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_6].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_6].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_6].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_6].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_6].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_FIRE].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_FIRE].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_6_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_COLD].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_COLD].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_COLD].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_6_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_MAGIC].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_MAGIC].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_6_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_THERMAL].model_name,"./md2/sword6_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_THERMAL].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_6_THERMAL].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_6_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[elf_male].weapon[SWORD_7].model_name,"./md2/sword7_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_7].skin_name,"./md2/sword7.bmp");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_7].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_7].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_7].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_7].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_7].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_FIRE].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_FIRE].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_7_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_COLD].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_COLD].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_COLD].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_7_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_MAGIC].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_MAGIC].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_7_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_THERMAL].model_name,"./md2/sword7_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_THERMAL].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[SWORD_7_THERMAL].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[SWORD_7_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[elf_male].weapon[STAFF_1].model_name,"./md2/staff1_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_1].skin_name,"./md2/staff1_brown.bmp");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_1].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_1].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_1].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_1].attack_down2,"hacktwo01");
+	actors_defs[elf_male].weapon[STAFF_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_male].weapon[STAFF_2].model_name,"./md2/staff1_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_2].skin_name,"./md2/staff1_green.bmp");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_2].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_2].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_2].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_2].attack_down2,"hacktwo01");
+	actors_defs[elf_male].weapon[STAFF_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_male].weapon[STAFF_3].model_name,"./md2/staff2_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_3].skin_name,"./md2/staff3.bmp");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_3].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_3].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_3].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_3].attack_down2,"hacktwo01");
+	actors_defs[elf_male].weapon[STAFF_3].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_male].weapon[STAFF_4].model_name,"./md2/staff3_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_4].skin_name,"./md2/staff4.bmp");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_4].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_4].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_4].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[elf_male].weapon[STAFF_4].attack_down2,"hacktwo01");
+	actors_defs[elf_male].weapon[STAFF_4].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_1].model_name,"./md2/warhammer1_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_1].skin_name,"./md2/warhammer1.bmp");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_1].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[HAMMER_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_2].model_name,"./md2/warhammer2_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_2].skin_name,"./md2/warhammer2.bmp");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[HAMMER_2].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[HAMMER_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_male].weapon[PICKAX].model_name,"./md2/pickaxe1_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[PICKAX].skin_name,"./md2/pickaxe1.bmp");
 	my_strcp(actors_defs[elf_male].weapon[PICKAX].attack_up1,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[PICKAX].attack_up2,"slashone01");
 	my_strcp(actors_defs[elf_male].weapon[PICKAX].attack_down1,"hackone01");
 	my_strcp(actors_defs[elf_male].weapon[PICKAX].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[PICKAX].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[PICKAX_MAGIC].model_name,"./md2/pickaxe1_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[PICKAX_MAGIC].skin_name,"./md2/pickaxe1.bmp");
+	my_strcp(actors_defs[elf_male].weapon[PICKAX_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[PICKAX_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[PICKAX_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[PICKAX_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[PICKAX_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON].model_name,"./md2/axe1_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[BATTLEAXE_IRON].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[BATTLEAXE_STEEL].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON_FIRE].model_name,"./md2/axe1_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON_FIRE].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_IRON_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[BATTLEAXE_IRON_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_FIRE].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_FIRE].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[BATTLEAXE_STEEL_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_COLD].model_name,"./md2/axe2_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_COLD].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_STEEL_COLD].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[BATTLEAXE_STEEL_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_FIRE].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_FIRE].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_COLD].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_COLD].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].model_name,"./md2/axe3_tall.md2");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
+	actors_defs[elf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
 
 	my_strcp(actors_defs[elf_male].helmet[HELMET_IRON].model_name,"./md2/helmet1_tall.md2");
 	my_strcp(actors_defs[elf_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[elf_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tall.md2");
 	my_strcp(actors_defs[elf_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
+	my_strcp(actors_defs[elf_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_tall.md2");
+	my_strcp(actors_defs[elf_male].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[elf_male].walk_speed=default_walk_speed;
 	actors_defs[elf_male].run_speed=2.0/18;
@@ -1805,6 +2977,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].model_name,"./md2/torso1_dwarff.md2");
 	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].torso_name,"./md2/torso5.bmp");
 
+	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_IRON_PLATE_ARMOR].arms_name,"./md2/arms6.bmp");
+	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_dwarff.md2");
+	my_strcp(actors_defs[dwarf_female].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
+
 	my_strcp(actors_defs[dwarf_female].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[dwarf_female].skin[SKIN_BROWN].head_name,"./md2/head_dwarffbrown.bmp");
 	my_strcp(actors_defs[dwarf_female].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
@@ -1828,6 +3004,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_female].boots[BOOTS_LIGHTBROWN].boots_name,"./md2/boots1_lightbrown.bmp");
 	my_strcp(actors_defs[dwarf_female].boots[BOOTS_ORANGE].boots_name,"./md2/boots1_orange.bmp");
 	my_strcp(actors_defs[dwarf_female].boots[BOOTS_LEATHER].boots_name,"./md2/boots2.bmp");
+	my_strcp(actors_defs[dwarf_female].boots[BOOTS_FUR].boots_name,"./md2/boots3.bmp");
+	my_strcp(actors_defs[dwarf_female].boots[BOOTS_IRON_GREAVE].boots_name,"./md2/boots4.bmp");
 
 	my_strcp(actors_defs[dwarf_female].legs[PANTS_BLACK].legs_name,"./md2/pants1_black.bmp");
 	my_strcp(actors_defs[dwarf_female].legs[PANTS_BLACK].model_name,"./md2/legs1_dwarff.md2");
@@ -1850,6 +3028,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_female].legs[PANTS_LEATHER].legs_name,"./md2/pants2.bmp");
 	my_strcp(actors_defs[dwarf_female].legs[PANTS_LEATHER].model_name,"./md2/legs1_dwarff.md2");
 
+	my_strcp(actors_defs[dwarf_female].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
+	my_strcp(actors_defs[dwarf_female].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_dwarff.md2");
 
 	my_strcp(actors_defs[dwarf_female].cape[CAPE_BLACK].model_name,"./md2/cape1_shortf.md2");
 	my_strcp(actors_defs[dwarf_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -1896,95 +3076,381 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_female].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[dwarf_female].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1].model_name,"./md2/sword1_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_1].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1_FIRE].model_name,"./md2/sword1_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1_FIRE].skin_name,"./md2/sword1.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_1_FIRE].glow=GLOW_FIRE;
+
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2].model_name,"./md2/sword2_short.md2");
-	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2].skin_name,"./md2/sword2.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_2].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_FIRE].model_name,"./md2/sword2_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_FIRE].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_2_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_COLD].model_name,"./md2/sword2_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_COLD].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_2_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_2_COLD].glow=GLOW_COLD;
+
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3].model_name,"./md2/sword3_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3].skin_name,"./md2/sword3.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_3].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_FIRE].model_name,"./md2/sword3_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_FIRE].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_3_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_COLD].model_name,"./md2/sword3_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_COLD].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_3_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_MAGIC].model_name,"./md2/sword3_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_MAGIC].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_3_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_3_MAGIC].glow=GLOW_MAGIC;
+
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4].model_name,"./md2/sword4_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4].skin_name,"./md2/sword4.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_4].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_FIRE].model_name,"./md2/sword4_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_FIRE].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_4_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_COLD].model_name,"./md2/sword4_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_COLD].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_4_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_MAGIC].model_name,"./md2/sword4_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_MAGIC].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_4_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_THERMAL].model_name,"./md2/sword4_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_THERMAL].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_4_THERMAL].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_4_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5].model_name,"./md2/sword5_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5].skin_name,"./md2/sword5.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_5].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_FIRE].model_name,"./md2/sword5_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_FIRE].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_5_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_COLD].model_name,"./md2/sword5_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_COLD].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_5_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_MAGIC].model_name,"./md2/sword5_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_MAGIC].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_5_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_THERMAL].model_name,"./md2/sword5_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_THERMAL].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_5_THERMAL].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_5_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6].model_name,"./md2/sword6_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6].skin_name,"./md2/sword6.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_6].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_FIRE].model_name,"./md2/sword6_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_FIRE].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_6_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_COLD].model_name,"./md2/sword6_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_COLD].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_6_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_MAGIC].model_name,"./md2/sword6_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_MAGIC].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_6_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_THERMAL].model_name,"./md2/sword6_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_THERMAL].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_6_THERMAL].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_6_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7].model_name,"./md2/sword7_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7].skin_name,"./md2/sword7.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_7].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_FIRE].model_name,"./md2/sword7_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_FIRE].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_7_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_COLD].model_name,"./md2/sword7_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_COLD].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_7_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_MAGIC].model_name,"./md2/sword7_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_MAGIC].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_7_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_THERMAL].model_name,"./md2/sword7_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_THERMAL].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[SWORD_7_THERMAL].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[SWORD_7_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_1].model_name,"./md2/staff1_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_1].skin_name,"./md2/staff1_brown.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_1].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_1].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_1].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_1].attack_down2,"hacktwo01");
+	actors_defs[dwarf_female].weapon[STAFF_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_2].model_name,"./md2/staff1_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_2].skin_name,"./md2/staff1_green.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_2].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_2].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_2].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_2].attack_down2,"hacktwo01");
+	actors_defs[dwarf_female].weapon[STAFF_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_3].model_name,"./md2/staff2_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_3].skin_name,"./md2/staff3.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_3].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_3].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_3].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_3].attack_down2,"hacktwo01");
+	actors_defs[dwarf_female].weapon[STAFF_3].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_4].model_name,"./md2/staff3_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_4].skin_name,"./md2/staff4.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_4].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_4].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_4].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[STAFF_4].attack_down2,"hacktwo01");
+	actors_defs[dwarf_female].weapon[STAFF_4].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_1].model_name,"./md2/warhammer1_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_1].skin_name,"./md2/warhammer1.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_1].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[HAMMER_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_2].model_name,"./md2/warhammer2_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_2].skin_name,"./md2/warhammer2.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[HAMMER_2].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[HAMMER_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_female].weapon[PICKAX].model_name,"./md2/pickaxe1_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[PICKAX].skin_name,"./md2/pickaxe1.bmp");
 	my_strcp(actors_defs[dwarf_female].weapon[PICKAX].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[PICKAX].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_female].weapon[PICKAX].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_female].weapon[PICKAX].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[PICKAX].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[PICKAX_MAGIC].model_name,"./md2/pickaxe1_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[PICKAX_MAGIC].skin_name,"./md2/pickaxe1.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[PICKAX_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[PICKAX_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[PICKAX_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[PICKAX_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[PICKAX_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON].model_name,"./md2/axe1_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[BATTLEAXE_IRON].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL].model_name,"./md2/axe2_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM].model_name,"./md2/axe3_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON_FIRE].model_name,"./md2/axe1_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON_FIRE].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_IRON_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[BATTLEAXE_IRON_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_FIRE].model_name,"./md2/axe2_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_FIRE].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_COLD].model_name,"./md2/axe2_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_COLD].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[BATTLEAXE_STEEL_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_FIRE].model_name,"./md2/axe3_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_FIRE].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_COLD].model_name,"./md2/axe3_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_COLD].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].model_name,"./md2/axe3_short.md2");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_female].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
 
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_IRON].model_name,"./md2/helmet1_short.md2");
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_FUR].model_name,"./md2/hat1_short.md2");
 	my_strcp(actors_defs[dwarf_female].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
+	my_strcp(actors_defs[dwarf_female].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_short.md2");
+	my_strcp(actors_defs[dwarf_female].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[dwarf_female].walk_speed=default_walk_speed;
 	actors_defs[dwarf_female].run_speed=2.0/18;
@@ -2059,6 +3525,9 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].model_name,"./md2/torso1_dwarfm.md2");
 	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].torso_name,"./md2/torso5.bmp");
 
+	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_IRON_PLATE_ARMOR].arms_name,"./md2/arms6.bmp");
+	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_dwarfm.md2");
+	my_strcp(actors_defs[dwarf_male].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
 	my_strcp(actors_defs[dwarf_male].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
 	my_strcp(actors_defs[dwarf_male].skin[SKIN_BROWN].head_name,"./md2/head_dwarfmbrown.bmp");
@@ -2083,6 +3552,8 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].boots[BOOTS_LIGHTBROWN].boots_name,"./md2/boots1_lightbrown.bmp");
 	my_strcp(actors_defs[dwarf_male].boots[BOOTS_ORANGE].boots_name,"./md2/boots1_orange.bmp");
 	my_strcp(actors_defs[dwarf_male].boots[BOOTS_LEATHER].boots_name,"./md2/boots2.bmp");
+	my_strcp(actors_defs[dwarf_male].boots[BOOTS_FUR].boots_name,"./md2/boots3.bmp");
+	my_strcp(actors_defs[dwarf_male].boots[BOOTS_IRON_GREAVE].boots_name,"./md2/boots4.bmp");
 
 	my_strcp(actors_defs[dwarf_male].legs[PANTS_BLACK].legs_name,"./md2/pants1_black.bmp");
 	my_strcp(actors_defs[dwarf_male].legs[PANTS_BLACK].model_name,"./md2/legs1_dwarfm.md2");
@@ -2104,6 +3575,9 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].legs[PANTS_WHITE].model_name,"./md2/legs1_dwarfm.md2");
 	my_strcp(actors_defs[dwarf_male].legs[PANTS_LEATHER].legs_name,"./md2/pants2.bmp");
 	my_strcp(actors_defs[dwarf_male].legs[PANTS_LEATHER].model_name,"./md2/legs1_dwarfm.md2");
+
+	my_strcp(actors_defs[dwarf_male].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
+	my_strcp(actors_defs[dwarf_male].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_dwarfm.md2");
 
 
 	my_strcp(actors_defs[dwarf_male].cape[CAPE_BLACK].model_name,"./md2/cape1_shortm.md2");
@@ -2151,95 +3625,382 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[dwarf_male].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1].model_name,"./md2/sword1_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_1].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1_FIRE].model_name,"./md2/sword1_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1_FIRE].skin_name,"./md2/sword1.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_1_FIRE].glow=GLOW_FIRE;
+
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2].model_name,"./md2/sword2_short.md2");
-	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2].skin_name,"./md2/sword2.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_2].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_FIRE].model_name,"./md2/sword2_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_FIRE].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_2_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_COLD].model_name,"./md2/sword2_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_COLD].skin_name,"./md2/sword2.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_2_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_2_COLD].glow=GLOW_COLD;
+
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3].model_name,"./md2/sword3_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3].skin_name,"./md2/sword3.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_3].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_FIRE].model_name,"./md2/sword3_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_FIRE].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_3_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_COLD].model_name,"./md2/sword3_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_COLD].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_3_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_MAGIC].model_name,"./md2/sword3_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_MAGIC].skin_name,"./md2/sword3.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_3_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_3_MAGIC].glow=GLOW_MAGIC;
+
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4].model_name,"./md2/sword4_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4].skin_name,"./md2/sword4.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_4].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_FIRE].model_name,"./md2/sword4_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_FIRE].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_4_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_COLD].model_name,"./md2/sword4_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_COLD].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_4_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_MAGIC].model_name,"./md2/sword4_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_MAGIC].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_4_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_THERMAL].model_name,"./md2/sword4_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_THERMAL].skin_name,"./md2/sword4.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_4_THERMAL].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_4_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5].model_name,"./md2/sword5_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5].skin_name,"./md2/sword5.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_5].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_FIRE].model_name,"./md2/sword5_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_FIRE].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_5_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_COLD].model_name,"./md2/sword5_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_COLD].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_5_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_MAGIC].model_name,"./md2/sword5_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_MAGIC].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_5_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_THERMAL].model_name,"./md2/sword5_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_THERMAL].skin_name,"./md2/sword5.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_5_THERMAL].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_5_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6].model_name,"./md2/sword6_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6].skin_name,"./md2/sword6.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_6].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_FIRE].model_name,"./md2/sword6_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_FIRE].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_6_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_COLD].model_name,"./md2/sword6_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_COLD].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_6_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_MAGIC].model_name,"./md2/sword6_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_MAGIC].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_6_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_THERMAL].model_name,"./md2/sword6_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_THERMAL].skin_name,"./md2/sword6.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_6_THERMAL].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_6_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7].model_name,"./md2/sword7_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7].skin_name,"./md2/sword7.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_7].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_FIRE].model_name,"./md2/sword7_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_FIRE].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_7_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_COLD].model_name,"./md2/sword7_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_COLD].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_7_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_MAGIC].model_name,"./md2/sword7_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_MAGIC].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_7_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_THERMAL].model_name,"./md2/sword7_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_THERMAL].skin_name,"./md2/sword7.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_THERMAL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_THERMAL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_THERMAL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[SWORD_7_THERMAL].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[SWORD_7_THERMAL].glow=GLOW_THERMAL;
+
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_1].model_name,"./md2/staff1_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_1].skin_name,"./md2/staff1_brown.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_1].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_1].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_1].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_1].attack_down2,"hacktwo01");
+	actors_defs[dwarf_male].weapon[STAFF_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_2].model_name,"./md2/staff1_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_2].skin_name,"./md2/staff1_green.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_2].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_2].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_2].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_2].attack_down2,"hacktwo01");
+	actors_defs[dwarf_male].weapon[STAFF_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_3].model_name,"./md2/staff2_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_3].skin_name,"./md2/staff3.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_3].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_3].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_3].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_3].attack_down2,"hacktwo01");
+	actors_defs[dwarf_male].weapon[STAFF_3].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_4].model_name,"./md2/staff3_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_4].skin_name,"./md2/staff4.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_4].attack_up1,"slashtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_4].attack_up2,"slashtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_4].attack_down1,"hacktwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[STAFF_4].attack_down2,"hacktwo01");
+	actors_defs[dwarf_male].weapon[STAFF_4].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_1].model_name,"./md2/warhammer1_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_1].skin_name,"./md2/warhammer1.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_1].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_1].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_1].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_1].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[HAMMER_1].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_2].model_name,"./md2/warhammer2_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_2].skin_name,"./md2/warhammer2.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_2].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_2].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_2].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[HAMMER_2].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[HAMMER_2].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[dwarf_male].weapon[PICKAX].model_name,"./md2/pickaxe1_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[PICKAX].skin_name,"./md2/pickaxe1.bmp");
 	my_strcp(actors_defs[dwarf_male].weapon[PICKAX].attack_up1,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[PICKAX].attack_up2,"slashone01");
 	my_strcp(actors_defs[dwarf_male].weapon[PICKAX].attack_down1,"hackone01");
 	my_strcp(actors_defs[dwarf_male].weapon[PICKAX].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[PICKAX].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[PICKAX_MAGIC].model_name,"./md2/pickaxe1_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[PICKAX_MAGIC].skin_name,"./md2/pickaxe1.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[PICKAX_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[PICKAX_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[PICKAX_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[PICKAX_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[PICKAX_MAGIC].glow=GLOW_MAGIC;
+
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON].model_name,"./md2/axe1_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[BATTLEAXE_IRON].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL].model_name,"./md2/axe2_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM].model_name,"./md2/axe3_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON_FIRE].model_name,"./md2/axe1_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON_FIRE].skin_name,"./md2/axe1.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_IRON_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[BATTLEAXE_IRON_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_FIRE].model_name,"./md2/axe2_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_FIRE].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_COLD].model_name,"./md2/axe2_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_COLD].skin_name,"./md2/axe2.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[BATTLEAXE_STEEL_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_FIRE].model_name,"./md2/axe3_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_FIRE].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_FIRE].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_FIRE].glow=GLOW_FIRE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_COLD].model_name,"./md2/axe3_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_COLD].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_COLD].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_COLD].glow=GLOW_COLD;
+
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].model_name,"./md2/axe3_short.md2");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].skin_name,"./md2/axe3.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up1,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_up2,"slashone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down1,"hackone01");
+	my_strcp(actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].attack_down2,"hackone01");
+	actors_defs[dwarf_male].weapon[BATTLEAXE_TITANIUM_MAGIC].glow=GLOW_MAGIC;
+
 
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_IRON].model_name,"./md2/helmet1_short.md2");
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_FUR].model_name,"./md2/hat1_short.md2");
 	my_strcp(actors_defs[dwarf_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
+	my_strcp(actors_defs[dwarf_male].helmet[HELMET_LEATHER].model_name,"./md2/helmet2_short.md2");
+	my_strcp(actors_defs[dwarf_male].helmet[HELMET_LEATHER].skin_name,"./md2/helmet2.bmp");
 
 	actors_defs[dwarf_male].walk_speed=default_walk_speed;
 	actors_defs[dwarf_male].run_speed=2.0/18;

@@ -15,6 +15,24 @@ extern float name_zoom;
 
 typedef struct
 {
+	float r;
+	float g;
+	float b;
+
+}glow_color;
+
+
+//GLOWS
+#define GLOW_NONE 0
+#define GLOW_FIRE 1
+#define GLOW_COLD 2
+#define GLOW_THERMAL 3
+#define GLOW_MAGIC 4
+
+extern glow_color glow_colors[10];
+
+typedef struct
+{
 	char legs_fn[32];
 	char head_fn[32];
 	char torso_fn[32];
@@ -43,12 +61,19 @@ typedef struct
 	char helmet_tex[32];
 	char cape_tex[32];
 
+	int weapon_glow;
+	int shield_glow;
+	int helmet_glow;
+	int cape_glow;
+	int legs_glow;
+
 }enhanced_actor;
 
 typedef struct
 {
 	char model_name[30];
 	char skin_name[30];
+	int glow;
 }body_part;
 
 typedef struct
@@ -59,6 +84,7 @@ typedef struct
 	char attack_down1[30];
 	char attack_up2[30];
 	char attack_down2[30];
+	int glow;
 }weapon_part;
 
 typedef struct
@@ -82,12 +108,14 @@ typedef struct
 typedef struct
 {
 	char boots_name[30];
+	int glow;
 }boots_part;
 
 typedef struct
 {
 	char legs_name[30];
 	char model_name[30];
+	int glow;
 }legs_part;
 
 typedef struct
@@ -123,7 +151,7 @@ typedef struct
 	body_part shield[10];
 	body_part cape[20];
 	body_part helmet[20];
-	weapon_part weapon[20];
+	weapon_part weapon[80];
 
 	shirt_part shirt[18];
 	skin_part  skin[4];
@@ -222,10 +250,11 @@ extern actor_types actors_defs[40];
 
 int get_frame_number(const md2 *model_data, const char *cur_frame);
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
-			  float y_pos, float z_pos, float z_rot, char remappable, 
-			  short skin_color, short hair_color, short shirt_color, 
+			  float y_pos, float z_pos, float z_rot, char remappable,
+			  short skin_color, short hair_color, short shirt_color,
 			  short pants_color, short boots_color, int actor_id);
 void draw_actor_banner(actor * actor_id, float offset_z);
+void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b);
 void draw_model(md2 *model_data,char *cur_frame, int ghost);
 void draw_actor(actor * actor_id);
 void display_actors();
@@ -233,7 +262,7 @@ void add_actor_from_server(char * in_data);
 //void draw_interface_body_part(md2 *model_data);
 void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 						  int z_pos, float x_rot,float y_rot, float z_rot);
-actor * add_actor_interface(int actor_type, short skin, short hair, 
+actor * add_actor_interface(int actor_type, short skin, short hair,
 							short shirt, short pants, short boots, short head);
 extern void	init_actors_lists();
 #define	lock_actors_lists()	SDL_LockMutex(actors_lists_mutex)

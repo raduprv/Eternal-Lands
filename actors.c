@@ -28,8 +28,8 @@ void end_actors_lists()
 
 //return the ID (number in the actors_list[]) of the new allocated actor
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
-			  float y_pos, float z_pos, float z_rot, char remappable, 
-			  short skin_color, short hair_color, short shirt_color, 
+			  float y_pos, float z_pos, float z_rot, char remappable,
+			  short skin_color, short hair_color, short shirt_color,
 			  short pants_color, short boots_color, int actor_id)
 {
 	int texture_id;
@@ -39,7 +39,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	actor *our_actor;
 
 	our_actor = calloc(1, sizeof(actor));
-	
+
 	//find a free spot, in the actors_list
 	lock_actors_lists();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
@@ -224,7 +224,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			if(actor_id->ghost)glEnable(GL_BLEND);
 		}
 
-	
+
 	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0))
 	{
 		draw_actor_overtext( actor_id );
@@ -246,11 +246,11 @@ void draw_actor_overtext( actor* actor_ptr )
 	float tailleTexteWidth, tailleTexteHeight;
 	float decalageTexteX, decalageTexteY;
 	int i;
-	
+
 	//-- decrease display time
 	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
 	bulleZ = 0.01f;// put text a little bit closer than the bubble
-	
+
 	tailleTexteWidth = ((float)get_string_width(actor_ptr->current_displayed_text)
 		*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
 	tailleTexteHeight = (0.06f*zoom_level/3.0)*4;
@@ -264,7 +264,7 @@ void draw_actor_overtext( actor* actor_ptr )
 	if (actor_ptr->sitting)		z = 0.8f; // close if he's sitting
 	w = tailleTexteWidth+fmargin*2;
 	h = tailleTexteHeight+fmargin*2;
-	
+
 	// define bubble pts
 	ptx[0] = 0;		pty[0] = z;
 	ptx[1] = taillepicx+delalagePicX;	pty[1] = z+taillepicy;
@@ -278,10 +278,10 @@ void draw_actor_overtext( actor* actor_ptr )
 		ptx[6] = ptx[5];
 		ptx[1] = ptx[5]+taillepicx*2;
 	}
-	
+
 	decalageTexteX = -w/2+delalageX+delalagePicX+fmargin;
 	decalageTexteY = z+taillepicy-fmargin+tailleTexteHeight/2;
-	
+
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_LINES);
@@ -294,13 +294,14 @@ void draw_actor_overtext( actor* actor_ptr )
 	glVertex3f(ptx[0],		bulleZ,		pty[0]);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	
+
 	//---
 	// Draw text
 	glColor3f(0.4f,0.4f,0.4f);
+
 	//draw_ingame_string(decalageTexteX,	decalageTexteY,actor_ptr->current_displayed_text,1,0);
 	draw_ingame_small(decalageTexteX,	decalageTexteY,actor_ptr->current_displayed_text,1);
-	
+
 	//glDepthFunc(GL_LESS);
 	if (actor_ptr->current_displayed_text_time_left<=0)
 	{	// clear if needed
@@ -337,6 +338,105 @@ int get_frame_number(const md2 *model_data, const char *cur_frame)
 
 	return -1;
 }
+
+
+
+void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
+{
+	int frame;
+	int numFaces;
+	int k;
+
+	//glDisable(GL_CULL_FACE);
+	glDisable(GL_TEXTURE_2D);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+	glDisable(GL_LIGHTING);
+
+	glColor4f(r,g,b,0.99f);
+
+	glPushMatrix();
+
+	for(k=0;k<2;k++)
+		{
+				//glScalef(1.01f+0.01f*(float)k, 1.01f+0.01f*(float)k, 1.01f+0.01f*(float)k);
+				glScalef(0.98f+0.05f*(float)k, 0.98f+0.05f*(float)k, 0.98f+0.05f*(float)k);
+
+				frame = get_frame_number(model_data, cur_frame);
+				if(frame < 0)	return;
+			#ifdef	CACHE_SYSTEM
+				//track the usage
+				cache_use(cache_md2, model_data->cache_ptr);
+			#endif	//CACHE_SYSTEM
+
+				numFaces=model_data->numFaces;
+				check_gl_errors();
+			#ifdef	USE_VERTEXARRAYS
+				if(use_vertex_array > 0)
+					{
+						//TODO: smarter decision making and maybe trigger cleanup?
+						if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
+							{
+								build_md2_va(model_data, &model_data->offsetFrames[frame]);
+							}
+					}
+				// determine the drawing method
+				if(use_vertex_array > 0 && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
+					{
+						glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
+						glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
+
+						check_gl_errors();
+						if(have_compiled_vertex_array)ELglLockArraysEXT(0, numFaces*3);
+						glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
+						if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+					}
+				else
+			#endif	//USE_VERTEXARRAYS
+					{
+						int i;
+						text_coord_md2 *offsetTexCoords;
+						face_md2 *offsetFaces;
+						vertex_md2 *vertex_pointer=NULL;
+						//setup
+						glBegin(GL_TRIANGLES);
+						vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
+						offsetFaces=model_data->offsetFaces;
+						offsetTexCoords=model_data->offsetTexCoords;
+						//draw each triangle
+						for(i=0;i<numFaces;i++)
+							{
+								float x,y,z;
+
+								x=vertex_pointer[offsetFaces[i].a].x;
+								y=vertex_pointer[offsetFaces[i].a].y;
+								z=vertex_pointer[offsetFaces[i].a].z;
+								glVertex3f(x,y,z);
+
+								x=vertex_pointer[offsetFaces[i].b].x;
+								y=vertex_pointer[offsetFaces[i].b].y;
+								z=vertex_pointer[offsetFaces[i].b].z;
+								glVertex3f(x,y,z);
+
+								x=vertex_pointer[offsetFaces[i].c].x;
+								y=vertex_pointer[offsetFaces[i].c].y;
+								z=vertex_pointer[offsetFaces[i].c].z;
+								glVertex3f(x,y,z);
+							}
+						glEnd();
+					}
+				check_gl_errors();
+		}
+
+	glPopMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	glEnable(GL_LIGHTING);
+	//glEnable(GL_CULL_FACE);
+}
+
+
 
 void draw_model(md2 *model_data,char *cur_frame, int ghost)
 {
@@ -472,7 +572,6 @@ void display_actors()
 	y=-cy;
 
 	vertex_arrays_built=0;	// clear the counter
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	//MD2s don't have real normals...
 	glNormal3f(0.0f,0.0f,1.0f);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -507,7 +606,8 @@ void display_actors()
 					}
 		}
 
-
+	//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	//display only the ghosts
 	glEnable(GL_BLEND);
 	//we don't need the light, for ghosts
@@ -656,7 +756,7 @@ void add_actor_from_server(char * in_data)
 						sprintf(str,"Duplicate actor ID %d was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[23]);
 						log_error(str);
 						destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
-						i--;// last actor was put here, he needs to be checked too 
+						i--;// last actor was put here, he needs to be checked too
 					}
 		}
 
@@ -729,7 +829,7 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 	glPopMatrix();//restore the scene}
 }
 
-actor * add_actor_interface(int actor_type, short skin, short hair, 
+actor * add_actor_interface(int actor_type, short skin, short hair,
 							short shirt, short pants, short boots, short head)
 {
 	actor *our_actor;
@@ -741,7 +841,7 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 
 	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
 	our_actor->current_displayed_text_time_left =  0;
-	
+
 	//get the torso
 	my_strcp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name);
 	my_strcp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name);
@@ -811,8 +911,8 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 
 
 //--- LoganDugenoux [5/25/2004]
-#define ms_per_char	200		
-#define mini_bubble_ms	500		
+#define ms_per_char	200
+#define mini_bubble_ms	500
 void	add_displayed_text_to_actor( actor * actor_ptr, const char* text )
 {
 	int len_to_add;

@@ -1,8 +1,9 @@
 #ifndef __DIALOGUES_H__
 #define __DIALOGUES_H__
 
+#define MAX_RESPONSES 40
 
-extern char dialogue_string[1024];
+extern char dialogue_string[2048];
 extern char npc_name[20];
 extern int cur_portrait;
 
@@ -24,7 +25,7 @@ typedef struct{
 	int mouse_over;
 }response;
 
-extern response dialogue_responces[20];
+extern response dialogue_responces[MAX_RESPONSES];
 extern int dialogue_win;
 
 extern int dialogue_menu_x;

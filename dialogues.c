@@ -2,7 +2,7 @@
 #include "global.h"
 #include "elwindows.h"
 
-char dialogue_string[1024];
+char dialogue_string[2048];
 char npc_name[20];
 int cur_portrait=8;
 int portraits1_tex;
@@ -11,13 +11,13 @@ int portraits3_tex;
 int portraits4_tex;
 int portraits5_tex;
 
-response dialogue_responces[20];
+response dialogue_responces[MAX_RESPONSES];
 int dialogue_win= 0;
 
 int dialogue_menu_x=1;
 int dialogue_menu_y=1;
 int dialogue_menu_x_len=638;
-int dialogue_menu_y_len=160;
+int dialogue_menu_y_len=190;
 //int dialogue_menu_dragged=0;
 
 int no_bounding_box=0;
@@ -34,10 +34,10 @@ void build_response_entries(Uint8 *data,int total_lenght)
 	y_start=0;
 
 	//first, clear the previous dialogue entries
-	for(i=0;i<20;i++)dialogue_responces[i].in_use=0;
+	for(i=0;i<MAX_RESPONSES;i++)dialogue_responces[i].in_use=0;
 
 	i=0;
-	for(i=0;i<20;i++)
+	for(i=0;i<MAX_RESPONSES;i++)
 		{
 			// break if we don't have a length field
 			if (last_index + 3 > total_lenght)
@@ -136,7 +136,7 @@ int	display_dialogue_handler(window_info *win)
 	draw_string_small(win->len_x-60,win->len_y-16,"[close]",1);
 
 	//ok, now draw the responses
-	for(i=0;i<20;i++)
+	for(i=0;i<MAX_RESPONSES;i++)
 		{
 			if(dialogue_responces[i].in_use)
 				{
@@ -167,9 +167,9 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 	int i;
 
 	//first, clear the mouse overs
-	for(i=0;i<20;i++)dialogue_responces[i].mouse_over=0;
+	for(i=0;i<MAX_RESPONSES;i++)dialogue_responces[i].mouse_over=0;
 
-	for(i=0;i<20;i++)
+	for(i=0;i<MAX_RESPONSES;i++)
 		{
 			if(dialogue_responces[i].in_use)
 				{
@@ -189,7 +189,7 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 	int i;
 	Uint8 str[16];
 
-	for(i=0;i<20;i++)
+	for(i=0;i<MAX_RESPONSES;i++)
 		{
 			if(dialogue_responces[i].in_use)
 				{

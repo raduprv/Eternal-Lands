@@ -3,6 +3,32 @@
 #include <string.h>
 #include "global.h"
 
+glow_color glow_colors[10];
+
+//build the glow color table
+void build_glow_color_table()
+{
+	glow_colors[GLOW_NONE].r=0;
+	glow_colors[GLOW_NONE].g=0;
+	glow_colors[GLOW_NONE].b=0;
+
+	glow_colors[GLOW_FIRE].r=0.5f;
+	glow_colors[GLOW_FIRE].g=0.1f;
+	glow_colors[GLOW_FIRE].b=0.1f;
+
+	glow_colors[GLOW_COLD].r=0.1f;
+	glow_colors[GLOW_COLD].g=0.1f;
+	glow_colors[GLOW_COLD].b=0.5f;
+
+	glow_colors[GLOW_THERMAL].r=0.5f;
+	glow_colors[GLOW_THERMAL].g=0.1f;
+	glow_colors[GLOW_THERMAL].b=0.5f;
+
+	glow_colors[GLOW_MAGIC].r=0.5f;
+	glow_colors[GLOW_MAGIC].g=0.4f;
+	glow_colors[GLOW_MAGIC].b=0.0f;
+}
+
 //return the ID (number in the actors_list[]) of the new allocated actor
 int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos, float y_pos,
 					   float z_pos, float z_rot, int actor_id)
@@ -126,7 +152,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 
 	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
 	our_actor->current_displayed_text_time_left =  0;
-	
+
 	our_actor->texture_id=texture_id;
 	our_actor->is_enhanced_model=1;
 	our_actor->actor_id=actor_id;
@@ -212,7 +238,15 @@ void draw_enhanced_actor(actor * actor_id)
 	if(actor_id->body_parts->legs)draw_model(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
 	if(actor_id->body_parts->torso)draw_model(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
 	if(actor_id->body_parts->head)draw_model(actor_id->body_parts->head,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->weapon)draw_model(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
+
+	if(actor_id->body_parts->weapon)
+		{
+			int glow;
+			draw_model(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
+			glow=actor_id->body_parts->weapon_glow;
+			if(glow!=GLOW_NONE)draw_model_halo(actor_id->body_parts->weapon,cur_frame,glow_colors[glow].r,glow_colors[glow].g,glow_colors[glow].b);
+		}
+
 	if(actor_id->body_parts->shield)draw_model(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
 	if(actor_id->body_parts->helmet)draw_model(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
 	if(actor_id->body_parts->cape)draw_model(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
@@ -299,6 +333,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								actors_list[i]->cur_weapon=which_id;
+
+								actors_list[i]->body_parts->weapon_glow=actors_defs[actors_list[i]->actor_type].weapon[which_id].glow;
+
 								return;
 							}
 
@@ -493,7 +530,7 @@ void add_enhanced_actor_from_server(char * in_data)
 							sprintf(str,"Duplicate actor ID %d was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[28]);
 							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
-							i--;// last actor was put here, he needs to be checked too 
+							i--;// last actor was put here, he needs to be checked too
 						}
 					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
 						{
@@ -501,7 +538,7 @@ void add_enhanced_actor_from_server(char * in_data)
 							sprintf(str,"Duplicate actor Name(%d) was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[28]);
 							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
-							i--;// last actor was put here, he needs to be checked too 
+							i--;// last actor was put here, he needs to be checked too
 						}
 				}
 		}
@@ -551,7 +588,7 @@ void add_enhanced_actor_from_server(char * in_data)
 
 	my_strcp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name);
 	my_strcp(this_actor->weapon_fn,actors_defs[actor_type].weapon[weapon].model_name);
-
+	this_actor->weapon_glow=actors_defs[actor_type].weapon[weapon].glow;
 
 	//helmet
 	if(helmet!=HELMET_NONE)

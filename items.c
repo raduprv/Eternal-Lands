@@ -55,6 +55,8 @@ int items_text_4;
 int items_text_5;
 int items_text_6;
 int items_text_7;
+int items_text_8;
+int items_text_9;
 
 char items_string[300];
 int item_dragged=-1;
@@ -186,6 +188,8 @@ int display_items_handler(window_info *win)
 					else if(this_texture==4)this_texture=items_text_5;
 					else if(this_texture==5)this_texture=items_text_6;
 					else if(this_texture==6)this_texture=items_text_7;
+					else if(this_texture==7)this_texture=items_text_8;
+					else if(this_texture==8)this_texture=items_text_9;
 
 					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
@@ -446,6 +450,8 @@ void drag_item()
 	else if(this_texture==4)this_texture=items_text_5;
 	else if(this_texture==5)this_texture=items_text_6;
 	else if(this_texture==6)this_texture=items_text_7;
+	else if(this_texture==7)this_texture=items_text_8;
+	else if(this_texture==8)this_texture=items_text_9;
 
 	get_and_set_texture_id(this_texture);
 	glBegin(GL_QUADS);
@@ -582,6 +588,8 @@ int display_ground_items_handler(window_info *win)
 					else if(this_texture==4)this_texture=items_text_5;
 					else if(this_texture==5)this_texture=items_text_6;
 					else if(this_texture==6)this_texture=items_text_7;
+					else if(this_texture==7)this_texture=items_text_8;
+					else if(this_texture==8)this_texture=items_text_9;
 
 					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);

@@ -165,6 +165,8 @@ int display_trade_handler(window_info *win)
 					else if(this_texture==4)this_texture=items_text_5;
 					else if(this_texture==5)this_texture=items_text_6;
 					else if(this_texture==6)this_texture=items_text_7;
+					else if(this_texture==7)this_texture=items_text_8;
+					else if(this_texture==8)this_texture=items_text_9;
 
 					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
@@ -204,18 +206,14 @@ int display_trade_handler(window_info *win)
 					//get the texture this item belongs to
 					this_texture=your_trade_list[i].image_id/25;
 					if(this_texture==0)this_texture=items_text_1;
-					else
-					if(this_texture==1)this_texture=items_text_2;
-					else
-					if(this_texture==2)this_texture=items_text_3;
-					else
-					if(this_texture==3)this_texture=items_text_4;
-					else
-					if(this_texture==4)this_texture=items_text_5;
-					else
-					if(this_texture==5)this_texture=items_text_6;
-					else
-					if(this_texture==6)this_texture=items_text_7;
+					else if(this_texture==1)this_texture=items_text_2;
+					else if(this_texture==2)this_texture=items_text_3;
+					else if(this_texture==3)this_texture=items_text_4;
+					else if(this_texture==4)this_texture=items_text_5;
+					else if(this_texture==5)this_texture=items_text_6;
+					else if(this_texture==6)this_texture=items_text_7;
+					else if(this_texture==7)this_texture=items_text_8;
+					else if(this_texture==8)this_texture=items_text_9;
 
 					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
@@ -256,18 +254,14 @@ int display_trade_handler(window_info *win)
 					//get the texture this item belongs to
 					this_texture=others_trade_list[i].image_id/25;
 					if(this_texture==0)this_texture=items_text_1;
-					else
-					if(this_texture==1)this_texture=items_text_2;
-					else
-					if(this_texture==2)this_texture=items_text_3;
-					else
-					if(this_texture==3)this_texture=items_text_4;
-					else
-					if(this_texture==4)this_texture=items_text_5;
-					else
-					if(this_texture==5)this_texture=items_text_6;
-					else
-					if(this_texture==6)this_texture=items_text_7;
+					else if(this_texture==1)this_texture=items_text_2;
+					else if(this_texture==2)this_texture=items_text_3;
+					else if(this_texture==3)this_texture=items_text_4;
+					else if(this_texture==4)this_texture=items_text_5;
+					else if(this_texture==5)this_texture=items_text_6;
+					else if(this_texture==6)this_texture=items_text_7;
+					else if(this_texture==7)this_texture=items_text_8;
+					else if(this_texture==8)this_texture=items_text_9;
 
 					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);

@@ -399,7 +399,7 @@ void init_peace_icons()
 	else
 		{
 			move_window(icons_win, 0, 0, 0, window_height-32);
-		}	
+		}
 	//TODO: positions should be based on icon size
 
 	walk_icon_x_start=0;
@@ -652,7 +652,7 @@ int	display_icons_handler(window_info *win)
 
 	glEnd();
 	//glDisable(GL_ALPHA_TEST);
-	
+
 	return 1;
 }
 
@@ -785,8 +785,8 @@ void init_stats_display()
 	else
 		{
 			init_window(stats_bar_win, 0, 0, 24, window_height-44, window_width-24-64, 12);
-		}	
-	
+		}
+
 	mana_bar_start_x=0;
 	mana_bar_start_y=0;
 
@@ -927,7 +927,7 @@ void init_misc_display()
 	else
 		{
 			move_window(misc_win, 0, 0, window_width-64, window_height-145);
-		}	
+		}
 }
 
 void draw_misc_display()
@@ -1031,7 +1031,7 @@ void init_quickbar() {
 	else
 		{
 			move_window(quickbar_win, 0, 0, window_width-quickbar_x_len-4, 64);
-		}	
+		}
 }
 
 void draw_quickbar() {
@@ -1092,6 +1092,8 @@ int	display_quickbar_handler(window_info *win)
 							else if(this_texture==4)this_texture=items_text_5;
 							else if(this_texture==5)this_texture=items_text_6;
 							else if(this_texture==6)this_texture=items_text_7;
+							else if(this_texture==7)this_texture=items_text_8;
+							else if(this_texture==8)this_texture=items_text_9;
 
 							get_and_set_texture_id(this_texture);
 							glBegin(GL_QUADS);
