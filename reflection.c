@@ -99,7 +99,15 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	if(actor_id->body_parts->legs)draw_model(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
 	if(actor_id->body_parts->torso)draw_model(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
 	if(actor_id->body_parts->head)draw_model(actor_id->body_parts->head,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->weapon)draw_model(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
+
+	if(actor_id->body_parts->weapon)
+		{
+			int glow;
+			draw_model(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
+			glow=actor_id->body_parts->weapon_glow;
+			if(glow!=GLOW_NONE)draw_model_halo(actor_id->body_parts->weapon,cur_frame,glow_colors[glow].r,glow_colors[glow].g,glow_colors[glow].b);
+		}
+
 	if(actor_id->body_parts->shield)draw_model(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
 	if(actor_id->body_parts->helmet)draw_model(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
 	if(actor_id->body_parts->cape)draw_model(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
