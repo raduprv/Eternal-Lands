@@ -54,12 +54,11 @@ void save_scene_matrix()
 	glGetFloatv(GL_MODELVIEW_MATRIX, model);
 	glGetFloatv(GL_PROJECTION_MATRIX, proj);
 	glGetIntegerv(GL_VIEWPORT, viewport);
-	viewport[2]/=2;
-	viewport[3]/=2;
+	viewport[2]>>=1;
+	viewport[3]>>=1;
 }
 
-static void
-project_ortho(GLfloat ox, GLfloat oy, GLfloat oz, GLfloat * wx, GLfloat * wy)
+void project_ortho(GLfloat ox, GLfloat oy, GLfloat oz, GLfloat * wx, GLfloat * wy)
 {
 	GLfloat tmp[3];
 
@@ -76,6 +75,29 @@ project_ortho(GLfloat ox, GLfloat oy, GLfloat oz, GLfloat * wx, GLfloat * wy)
 	// viewport
 	*wx = viewport[0] + (1 + ox) * viewport[2];
 	*wy = viewport[1] + (1 + oy) * viewport[3];
+}
+
+void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GLfloat *oz)
+{
+	GLfloat tmp[3];
+
+	// Inverse viewport
+	tmp[0]=(wx-viewport[0])/(float)viewport[2]-1.0f;
+	tmp[1]=(wy-viewport[1])/(float)viewport[3]-1.0f;
+	tmp[2]=2.0f*wz-1.0f;
+
+	// Inverse projection
+	tmp[0]=(tmp[0]-proj[3*4+0])/proj[0*4+0];
+	tmp[1]=(tmp[1]-proj[3*4+1])/proj[1*4+1];
+	tmp[2]=(tmp[2]-proj[3*4+2])/proj[2*4+2];
+
+	// Inverse modelview
+	tmp[0]-=model[3*4+0];
+	tmp[1]-=model[3*4+1];
+	tmp[2]-=model[3*4+2];
+	*ox = model[0*4+0]*tmp[0]+model[0*4+1]*tmp[1]+model[0*4+2]*tmp[2];
+	*oy = model[1*4+0]*tmp[0]+model[1*4+1]*tmp[1]+model[1*4+2]*tmp[2];
+	*oz = model[2*4+0]*tmp[0]+model[2*4+1]*tmp[1]+model[2*4+2]*tmp[2];
 }
 
 int mouse_in_sphere(float x, float y, float z, float radius)
