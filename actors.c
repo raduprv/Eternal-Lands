@@ -622,8 +622,13 @@ void display_actors()
 	ELglClientActiveTextureARB(base_unit);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
-
+#ifdef POSSIBLE_FIX
+#ifdef EXPENSIVE_CHECKING
 	lock_actors_lists();	//lock it to avoid timing issues
+#endif
+#else
+	lock_actors_lists();	//lock it to avoid timing issues
+#endif
 	//display only the non ghosts
 	for(i=0;i<max_actors;i++)
 		{
@@ -701,7 +706,13 @@ void display_actors()
 						}
 			}
 	}
-	unlock_actors_lists();	//unlock it since we are done
+#ifdef POSSIBLE_FIX
+#ifdef EXPENSIVE_CHECKING
+	lock_actors_lists();	//lock it to avoid timing issues
+#endif
+#else
+	lock_actors_lists();	//lock it to avoid timing issues
+#endif
 
 	glDisable(GL_BLEND);
 	ELglClientActiveTextureARB(base_unit);

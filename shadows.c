@@ -384,7 +384,9 @@ void display_actors_shadow()
 			//glEnableClientState(GL_NORMAL_ARRAY);
 		}
 #ifdef POSSIBLE_FIX
+#ifdef EXPENSIVE_CHECKING
 	lock_actors_lists();
+#endif
 #endif
 	for(i=0;i<max_actors;i++)
 		{
@@ -405,7 +407,9 @@ void display_actors_shadow()
 				}
 		}
 #ifdef POSSIBLE_FIX
+#ifdef EXPENSIVE_CHECKING
 	unlock_actors_lists();
+#endif
 #endif
 	if(use_vertex_array > 0)
 		{
