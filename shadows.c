@@ -233,8 +233,6 @@ void draw_actor_shadow(actor * actor_id)
 	float x_rot,y_rot,z_rot;
 	char *cur_frame;
 
-    int numFaces;
-
 	//now, go and find the current frame
 	cur_frame=actor_id->cur_frame;
 	i = get_frame_number(actor_id->model_data, cur_frame);

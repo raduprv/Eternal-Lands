@@ -1,3 +1,4 @@
+#include <string.h>
 #include "global.h"
 
 void get_the_stats(Sint16 *stats)

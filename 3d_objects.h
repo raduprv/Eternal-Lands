@@ -11,4 +11,6 @@ e3d_object * load_e3d(char *file_name);
 void compute_clouds_map(object3d * object_id);
 void clear_clouds_cache();
 void destroy_3d_object(int i);
+void flag_for_destruction();
+void destroy_the_flagged();
 #endif
