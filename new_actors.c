@@ -280,8 +280,10 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 					{
 						if(which_part==KIND_OF_WEAPON)
 							{
-								if(actors_list[i]->body_parts->weapon == GLOVE_FUR || actors_list[i]->body_parts->weapon == GLOVE_LEATHER){
+								if(actors_list[i]->cur_weapon == GLOVE_FUR || actors_list[i]->cur_weapon == GLOVE_LEATHER){
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
+									glDeleteTextures(1,&actors_list[i]->texture_id);
+									actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								}
 								actors_list[i]->body_parts->weapon=0;
 								actors_list[i]->body_parts->weapon_fn[0]=0;
