@@ -865,7 +865,7 @@ struct xml_struct load_strings_file(char * filename);
 #ifdef WRITE_XML
 void save_strings(xmlDoc * doc, char * name)
 {
-	char str[50]={"./languages/en/strings/"};//default language is en - change this if you want to save the strings to another folder...
+	char str[50]={"languages/en/strings/"};//default language is en - change this if you want to save the strings to another folder...
 	strcat(str,name);
 	xmlSaveFormatFileEnc (str, doc, "UTF-8", 1);//We'll save the file in UTF-8
 }
@@ -962,7 +962,7 @@ struct xml_struct load_strings(char * file)
 	char file_name[120];
 	struct xml_struct tmp={NULL,NULL};
 #ifdef NEW_STRUCTURE
-	sprintf(file_name,"./languages/%s/strings/%s",lang,file);
+	sprintf(file_name,"languages/%s/strings/%s",lang,file);
 #else
 	sprintf(file_name,"strings/%s/%s",lang,file);
 #endif
@@ -970,9 +970,9 @@ struct xml_struct load_strings(char * file)
 	if(tmp.file==NULL||tmp.root)
 		{
 #ifdef NEW_STRUCTURE
-			sprintf(file_name,"./languages/en/strings/%s",file);
+			sprintf(file_name,"languages/en/strings/%s",file);
 #else
-			sprintf(file_name,"./strings/en/%s",file);
+			sprintf(file_name,"strings/en/%s",file);
 #endif
 			tmp=load_strings_file(file_name);
 			if(tmp.file==NULL)

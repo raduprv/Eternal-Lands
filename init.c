@@ -121,10 +121,10 @@ void load_knowledge_list()
 	memset(knowledge_list, 0, sizeof(knowledge_list));
 	i=0;
 #ifdef NEW_STRUCTURE
-	sprintf(filename,"./languages/%s/knowledge.lst",lang);
+	sprintf(filename,"languages/%s/knowledge.lst",lang);
 	if((f=fopen(filename,"rb"))==NULL)
 		{
-			strcpy(filename,"./languages/en/knowlege.lst");
+			strcpy(filename,"languages/en/knowlege.lst");
 			f=fopen(filename,"rb");
 		}
 #else
@@ -694,7 +694,7 @@ void init_stuff()
 	SDL_SetTimer (1000/(18*4), my_timer_pointer);
 
 #ifdef NEW_STRUCTURE
-	ReadXML("./languages/en/Encyclopedia/index.xml");
+	ReadXML("languages/en/Encyclopedia/index.xml");
 #else
 	ReadXML("Encyclopedia/index.xml");
 #endif

@@ -517,11 +517,11 @@ void ReadIndexXML(xmlNode * a_node)
 
 				//we load the category now
 #ifdef NEW_STRUCTURE
-				sprintf(tmp,"./languages/%s/Encyclopedia/%s.xml",lang,cur_node->children->content);
+				sprintf(tmp,"languages/%s/Encyclopedia/%s.xml",lang,cur_node->children->content);
 				doc=xmlReadFile(tmp, NULL, 0);
 				if (doc==NULL)
 					{
-						sprintf(tmp,"./languages/en/Encyclopedia/%s.xml",cur_node->children->content);
+						sprintf(tmp,"languages/en/Encyclopedia/%s.xml",cur_node->children->content);
 						doc=xmlReadFile(tmp, NULL, 0);
 					}
 #else
