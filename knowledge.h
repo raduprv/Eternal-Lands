@@ -12,6 +12,7 @@ _knowledge knowledge_list[200];
 void display_knowledge();
 int knowledge_mouse_over();
 int check_knowledge_interface();
+void get_knowledge_list(char *list);
 
 extern int knowledge_menu_x;
 extern int knowledge_menu_y;

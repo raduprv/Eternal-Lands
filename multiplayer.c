@@ -322,6 +322,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			}
 			break;
 
+		case GET_KNOWLEDGE_LIST:
+			{
+				get_knowledge_list(in_data+3);
+			}
+			break;
+
 		case HERE_YOUR_INVENTORY:
 			{
 				get_your_items(in_data+3);

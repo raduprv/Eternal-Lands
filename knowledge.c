@@ -1,5 +1,7 @@
 #include "global.h"
 
+char knowledge_array[200][32];
+
 void display_knowledge()
 {
 	int i,x=knowledge_menu_x+2,y=knowledge_menu_y+2;
@@ -83,3 +85,27 @@ int check_knowledge_interface()
 	//send the click
 	return 1;
 } 
+
+void get_knowledge_list(char *list)
+{
+	int i=0,j=0,k;
+	for(k=0;k<200;k++)
+		{
+			knowledge_array[k][0]='\0';
+		}
+	while(list)
+		{
+			if(*list == ',')
+				{
+					knowledge_array[i][j]='\0';
+					j=0;
+					i++;
+				}
+			else
+				{
+					knowledge_array[i][j]=*list;
+					j++;
+				}
+			list++;
+		}
+}
