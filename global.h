@@ -214,9 +214,9 @@ extern int current_cursor;
 
 struct cursors_struct
 {
-  int hot_x;
-  int hot_y;
-  Uint8 *cursor_pointer;
+	int hot_x;
+	int hot_y;
+	Uint8 *cursor_pointer;
 };
 extern struct cursors_struct cursors_array[20];
 

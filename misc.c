@@ -1,10 +1,5 @@
 #include <stdlib.h>
 #include "global.h"
-/*
-#ifdef WINDOWS
-#include <shellapi.h>
-#endif
-*/
 
 Uint8 last_pixel_color[4];
 
@@ -121,7 +116,6 @@ int go_to_url(void *dummy)
 	my_strcat(browser_command,"\"");
 
 	system(browser_command);
-	//system("iexplore http://localhost");
 
 	return 0;
 

@@ -156,16 +156,11 @@ void display_items_menu()
 					//get the texture this item belongs to
 					this_texture=item_list[i].image_id/25;
 					if(this_texture==0)this_texture=items_text_1;
-					else
-					if(this_texture==1)this_texture=items_text_2;
-					else
-					if(this_texture==2)this_texture=items_text_3;
-					else
-					if(this_texture==3)this_texture=items_text_4;
-					else
-					if(this_texture==4)this_texture=items_text_5;
-					else
-					if(this_texture==5)this_texture=items_text_6;
+					else if(this_texture==1)this_texture=items_text_2;
+					else if(this_texture==2)this_texture=items_text_3;
+					else if(this_texture==3)this_texture=items_text_4;
+					else if(this_texture==4)this_texture=items_text_5;
+					else if(this_texture==5)this_texture=items_text_6;
 
 					if(last_texture!=texture_cache[this_texture].texture_id)
 						{
@@ -197,7 +192,7 @@ void display_items_menu()
 
 void get_your_items(Uint8 *data)
 {
-  int i,total_items; //j unused?
+	int i,total_items;
 	Uint8 flags;
 
 	total_items=data[0];
@@ -225,10 +220,6 @@ void get_your_items(Uint8 *data)
 			if((flags&ITEM_INVENTORY_USABLE))item_list[i].use_with_inventory=1;
 			else item_list[i].use_with_inventory=0;
 		}
-	//this is because the manufacturing screen also requests the items
-	//if(!no_view_my_items)view_my_items=1;
-	//else no_view_my_items=0;
-	//update the items list
 	build_manufacture_list();
 
 }
@@ -241,184 +232,173 @@ int check_items_interface()
 	Uint8 str[100];
 
 	if(!view_my_items || mouse_x>items_menu_x+items_menu_x_len || mouse_x<items_menu_x
-	|| mouse_y<items_menu_y || mouse_y>items_menu_y+items_menu_y_len)return 0;
+	   || mouse_y<items_menu_y || mouse_y>items_menu_y+items_menu_y_len)return 0;
 
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
-	for(x=0;x<2;x++)
-		{
-			x_screen=items_menu_x+wear_items_x_offset+x*35;
-			y_screen=items_menu_y+wear_items_y_offset+130+y*20;
-			if(mouse_x>x_screen && mouse_x<x_screen+35 && mouse_y>y_screen && mouse_y<y_screen+20)
-				{
-					if(x==0 && y==0)item_quantity=1;
-					else
-					if(x==1 && y==0)item_quantity=5;
-					else
-					if(x==0 && y==1)item_quantity=10;
-					else
-					if(x==1 && y==1)item_quantity=20;
-					else
-					if(x==0 && y==2)item_quantity=50;
-					else
-					if(x==1 && y==2)item_quantity=100;
-					else
-					if(x==0 && y==3)item_quantity=200;
-					else
-					if(x==1 && y==3)item_quantity=500;
-					else
-					if(x==0 && y==4)item_quantity=1000;
-					else
-					if(x==1 && y==4)item_quantity=2000;
-				}
-		}
+		for(x=0;x<2;x++)
+			{
+				x_screen=items_menu_x+wear_items_x_offset+x*35;
+				y_screen=items_menu_y+wear_items_y_offset+130+y*20;
+				if(mouse_x>x_screen && mouse_x<x_screen+35 && mouse_y>y_screen && mouse_y<y_screen+20)
+					{
+						if(x==0 && y==0)item_quantity=1;
+						else if(x==1 && y==0)item_quantity=5;
+						else if(x==0 && y==1)item_quantity=10;
+						else if(x==1 && y==1)item_quantity=20;
+						else if(x==0 && y==2)item_quantity=50;
+						else if(x==1 && y==2)item_quantity=100;
+						else if(x==0 && y==3)item_quantity=200;
+						else if(x==1 && y==3)item_quantity=500;
+						else if(x==0 && y==4)item_quantity=1000;
+						else if(x==1 && y==4)item_quantity=2000;
+					}
+			}
 
 
 
 	//see if we clicked on any item in the main category
 	for(y=0;y<6;y++)
-	for(x=0;x<6;x++)
-		{
-			x_screen=items_menu_x+x*51;
-			y_screen=items_menu_y+y*51;
-			if(mouse_x>x_screen && mouse_x<x_screen+51 && mouse_y>y_screen && mouse_y<y_screen+51)
-				{
-							//see if there is an empty space to drop this item over.
-							if(item_dragged!=-1)//we have to drop this item
-								{
-									int any_item=0;
-									for(i=0;i<36+6;i++)
-										{
+		for(x=0;x<6;x++)
+			{
+				x_screen=items_menu_x+x*51;
+				y_screen=items_menu_y+y*51;
+				if(mouse_x>x_screen && mouse_x<x_screen+51 && mouse_y>y_screen && mouse_y<y_screen+51)
+					{
+						//see if there is an empty space to drop this item over.
+						if(item_dragged!=-1)//we have to drop this item
+							{
+								int any_item=0;
+								for(i=0;i<36+6;i++)
+									{
 										if(item_list[i].quantity && item_list[i].pos==y*6+x)
 											{
 												any_item=1;
 												if(item_dragged==i)//drop the item only over itself
-												item_dragged=-1;
+													item_dragged=-1;
 												return 1;
 											}
-										}
-									if(!any_item)
-										{
-											//send the drop info to the server
-											str[0]=MOVE_INVENTORY_ITEM;
-											str[1]=item_list[item_dragged].pos;
-											str[2]=y*6+x;
-											my_tcp_send(my_socket,str,3);
-											item_dragged=-1;
-											return 1;
-										}
-								}
+									}
+								if(!any_item)
+									{
+										//send the drop info to the server
+										str[0]=MOVE_INVENTORY_ITEM;
+										str[1]=item_list[item_dragged].pos;
+										str[2]=y*6+x;
+										my_tcp_send(my_socket,str,3);
+										item_dragged=-1;
+										return 1;
+									}
+							}
 
-					//see if there is any item there
+						//see if there is any item there
 
-					for(i=0;i<36+6;i++)
-						{
-							//should we get the info for it?
-							if(item_list[i].quantity && item_list[i].pos==y*6+x)
-								{
+						for(i=0;i<36+6;i++)
+							{
+								//should we get the info for it?
+								if(item_list[i].quantity && item_list[i].pos==y*6+x)
+									{
 
-									if(action_mode==action_look || right_click)
-										{
-											str[0]=LOOK_AT_INVENTORY_ITEM;
-											str[1]=item_list[i].pos;
-											my_tcp_send(my_socket,str,2);
-										}
-									else
-									if(action_mode==action_pick)
-										{
-											int quantity;
-											quantity=item_list[i].quantity;
-											if(quantity-item_quantity>0)quantity=item_quantity;
-											str[0]=DROP_ITEM;
-											str[1]=item_list[i].pos;
-											*((Uint16 *)(str+2))=quantity;//quantity, debug
-											my_tcp_send(my_socket,str,4);
-										}
-									else
-									if(action_mode==action_use)
-										{
-											if(item_list[i].use_with_inventory)
-												{
-													str[0]=USE_INVENTORY_ITEM;
-													str[1]=item_list[i].pos;
-													my_tcp_send(my_socket,str,2);
-													return 1;
-												}
-											return 1;
-										}
-									else//we might test for other things first, like use or drop
-										{
-											if(item_dragged==-1)//we have to drag this item
-												{
-													item_dragged=i;
-												}
-										}
+										if(action_mode==action_look || right_click)
+											{
+												str[0]=LOOK_AT_INVENTORY_ITEM;
+												str[1]=item_list[i].pos;
+												my_tcp_send(my_socket,str,2);
+											}
+										else if(action_mode==action_pick)
+											{
+												int quantity;
+												quantity=item_list[i].quantity;
+												if(quantity-item_quantity>0)quantity=item_quantity;
+												str[0]=DROP_ITEM;
+												str[1]=item_list[i].pos;
+												*((Uint16 *)(str+2))=quantity;//quantity, debug
+												my_tcp_send(my_socket,str,4);
+											}
+										else if(action_mode==action_use)
+											{
+												if(item_list[i].use_with_inventory)
+													{
+														str[0]=USE_INVENTORY_ITEM;
+														str[1]=item_list[i].pos;
+														my_tcp_send(my_socket,str,2);
+														return 1;
+													}
+												return 1;
+											}
+										else//we might test for other things first, like use or drop
+											{
+												if(item_dragged==-1)//we have to drag this item
+													{
+														item_dragged=i;
+													}
+											}
 
-									return 1;
-								}
-						}
-				}
-		}
+										return 1;
+									}
+							}
+					}
+			}
 
 	//see if we clicked on any item in the wear category
 	for(y=0;y<3;y++)
-	for(x=0;x<2;x++)
-		{
-			x_screen=wear_items_x_offset+items_menu_x+x*33;
-			y_screen=wear_items_y_offset+items_menu_y+y*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-				{
-					//see if there is any item there
-							//see if there is an empty space to drop this item over.
-							if(item_dragged!=-1)//we have to drop this item
-								{
-									int any_item=0;
-									for(i=0;i<36+6;i++)
-										{
+		for(x=0;x<2;x++)
+			{
+				x_screen=wear_items_x_offset+items_menu_x+x*33;
+				y_screen=wear_items_y_offset+items_menu_y+y*33;
+				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+					{
+						//see if there is any item there
+						//see if there is an empty space to drop this item over.
+						if(item_dragged!=-1)//we have to drop this item
+							{
+								int any_item=0;
+								for(i=0;i<36+6;i++)
+									{
 										if(item_list[i].quantity && item_list[i].pos==36+y*2+x)
 											{
 												any_item=1;
 												if(item_dragged==i)//drop the item only over itself
-												item_dragged=-1;
+													item_dragged=-1;
 												return 1;
 											}
-										}
-									if(!any_item)
-										{
-											Uint8 str[20];
-											//send the drop info to the server
-											str[0]=MOVE_INVENTORY_ITEM;
-											str[1]=item_list[item_dragged].pos;
-											str[2]=36+y*2+x;
-											my_tcp_send(my_socket,str,3);
-											item_dragged=-1;
-											return 1;
-										}
-								}
+									}
+								if(!any_item)
+									{
+										Uint8 str[20];
+										//send the drop info to the server
+										str[0]=MOVE_INVENTORY_ITEM;
+										str[1]=item_list[item_dragged].pos;
+										str[2]=36+y*2+x;
+										my_tcp_send(my_socket,str,3);
+										item_dragged=-1;
+										return 1;
+									}
+							}
 
-					for(i=0;i<36+6;i++)
-						{
-							//should we get the info for it?
-							if(item_list[i].pos==y*2+x+36)
-								{
-									if(action_mode==action_look || right_click)
-										{
-											str[0]=LOOK_AT_INVENTORY_ITEM;
-											str[1]=item_list[i].pos;
-											my_tcp_send(my_socket,str,2);
-										}
-									else//we might test for other things first, like use or drop
-										{
-											if(item_dragged==-1)//we have to drag this item
-												{
-													item_dragged=i;
-												}
-										}
-									return 1;
-								}
-						}
-				}
-		}
+						for(i=0;i<36+6;i++)
+							{
+								//should we get the info for it?
+								if(item_list[i].pos==y*2+x+36)
+									{
+										if(action_mode==action_look || right_click)
+											{
+												str[0]=LOOK_AT_INVENTORY_ITEM;
+												str[1]=item_list[i].pos;
+												my_tcp_send(my_socket,str,2);
+											}
+										else//we might test for other things first, like use or drop
+											{
+												if(item_dragged==-1)//we have to drag this item
+													{
+														item_dragged=i;
+													}
+											}
+										return 1;
+									}
+							}
+					}
+			}
 
 	return 1;
 
@@ -437,25 +417,20 @@ void drag_item()
 	v_start=(1.0f+2.0f/256.0f)-(0.2f*(cur_item/5));
 	v_end=v_start-0.2f;
 
-					//get the texture this item belongs to
-					this_texture=item_list[item_dragged].image_id/25;
-					if(this_texture==0)this_texture=items_text_1;
-					else
-					if(this_texture==1)this_texture=items_text_2;
-					else
-					if(this_texture==2)this_texture=items_text_3;
-					else
-					if(this_texture==3)this_texture=items_text_4;
-					else
-					if(this_texture==4)this_texture=items_text_5;
-					else
-					if(this_texture==5)this_texture=items_text_6;
+	//get the texture this item belongs to
+	this_texture=item_list[item_dragged].image_id/25;
+	if(this_texture==0)this_texture=items_text_1;
+	else if(this_texture==1)this_texture=items_text_2;
+	else if(this_texture==2)this_texture=items_text_3;
+	else if(this_texture==3)this_texture=items_text_4;
+	else if(this_texture==4)this_texture=items_text_5;
+	else if(this_texture==5)this_texture=items_text_6;
 
-					if(last_texture!=texture_cache[this_texture].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-							last_texture=texture_cache[this_texture].texture_id;
-						}
+	if(last_texture!=texture_cache[this_texture].texture_id)
+		{
+			glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
+			last_texture=texture_cache[this_texture].texture_id;
+		}
 
 	glBegin(GL_QUADS);
 	draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+25,mouse_y+25);
@@ -469,12 +444,12 @@ void remove_item_from_inventory(int pos)
 	for(i=0;i<36+6;i++)
 		{
 			if(item_list[i].quantity)
-			if(item_list[i].pos==pos)
-				{
-					item_list[i].quantity=0;
-					build_manufacture_list();
-					return;
-				}
+				if(item_list[i].pos==pos)
+					{
+						item_list[i].quantity=0;
+						build_manufacture_list();
+						return;
+					}
 		}
 }
 
@@ -496,14 +471,14 @@ void get_new_inventory_item(Uint8 *data)
 	for(i=0;i<36+6;i++)
 		{
 			if(item_list[i].quantity)
-			if(item_list[i].pos==pos)
-				{
-					item_list[i].image_id=data[0];
-					item_list[i].quantity=*((Uint16 *)(data+1));
-					item_list[i].pos=pos;
-					build_manufacture_list();
-					return;
-				}
+				if(item_list[i].pos==pos)
+					{
+						item_list[i].image_id=data[0];
+						item_list[i].quantity=*((Uint16 *)(data+1));
+						item_list[i].pos=pos;
+						build_manufacture_list();
+						return;
+					}
 		}
 
 	for(i=0;i<36+6;i++)
@@ -618,16 +593,11 @@ void draw_pick_up_menu()
 					//get the texture this item belongs to
 					this_texture=ground_item_list[i].image_id/25;
 					if(this_texture==0)this_texture=items_text_1;
-					else
-					if(this_texture==1)this_texture=items_text_2;
-					else
-					if(this_texture==2)this_texture=items_text_3;
-					else
-					if(this_texture==3)this_texture=items_text_4;
-					else
-					if(this_texture==4)this_texture=items_text_5;
-					else
-					if(this_texture==5)this_texture=items_text_6;
+					else if(this_texture==1)this_texture=items_text_2;
+					else if(this_texture==2)this_texture=items_text_3;
+					else if(this_texture==3)this_texture=items_text_4;
+					else if(this_texture==4)this_texture=items_text_5;
+					else if(this_texture==5)this_texture=items_text_6;
 
 					if(last_texture!=texture_cache[this_texture].texture_id)
 						{
@@ -650,7 +620,7 @@ void draw_pick_up_menu()
 //do the flags later on
 void get_bag_item(Uint8 *data)
 {
-  //int i; unused?
+	//int i; unused?
 	int pos;
 	pos=data[5];
 
@@ -751,32 +721,32 @@ void remove_bag(int which_bag)
 
 int check_ground_items_interface()
 {
-  int x,y; //i unused?
+	int x,y; //i unused?
 	int x_screen,y_screen;
 	Uint8 str[10];
 
 	if(!view_ground_items || mouse_x>ground_items_menu_x+ground_items_menu_x_len || mouse_x<ground_items_menu_x
-	|| mouse_y<ground_items_menu_y || mouse_y>ground_items_menu_y+ground_items_menu_y_len)return 0;
+	   || mouse_y<ground_items_menu_y || mouse_y>ground_items_menu_y+ground_items_menu_y_len)return 0;
 
 	//see if we clicked on any item in the wear category
 	for(y=0;y<10;y++)
-	for(x=0;x<5;x++)
-		{
-			x_screen=ground_items_menu_x+x*33;
-			y_screen=ground_items_menu_y+y*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-				{
-					int pos;
-					pos=y*5+x;
-					if(!ground_item_list[pos].quantity)return 1;
+		for(x=0;x<5;x++)
+			{
+				x_screen=ground_items_menu_x+x*33;
+				y_screen=ground_items_menu_y+y*33;
+				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+					{
+						int pos;
+						pos=y*5+x;
+						if(!ground_item_list[pos].quantity)return 1;
 
-					if(action_mode==action_look || right_click)
+						if(action_mode==action_look || right_click)
 							{
 								str[0]=LOOK_AT_GROUND_ITEM;
 								str[1]=pos;
 								my_tcp_send(my_socket,str,2);
 							}
-					else if(action_mode==action_pick)
+						else if(action_mode==action_pick)
 							{
 								int quantity;
 								quantity=ground_item_list[pos].quantity;
@@ -787,9 +757,9 @@ int check_ground_items_interface()
 								*((Uint16 *)(str+2))=quantity;
 								my_tcp_send(my_socket,str,4);
 							}
-					return 1;
-				}
-		}
+						return 1;
+					}
+			}
 
 	return 1;
 

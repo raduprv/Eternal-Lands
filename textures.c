@@ -12,7 +12,6 @@ GLuint load_bmp8_color_key(char * FileName)
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	//int file_lenght; unused?
 	GLuint texture;
 
   	f = fopen (FileName, "rb");
@@ -22,39 +21,39 @@ GLuint load_bmp8_color_key(char * FileName)
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=19778)//BM (the identifier)
-  	{
-		free(file_mem_start);
-		fclose (f);
-		return 0;
-	}
+		{
+			free(file_mem_start);
+			fclose (f);
+			return 0;
+		}
 	file_mem+=18;
 	x_size=*((int *) file_mem);
 	file_mem+=4;
 	y_size=*((int *) file_mem);
 	file_mem+=6;
 	if(*((short *)file_mem)!=8)//8 bit/pixel?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return 0;
-	  }
+		{
+			free(file_mem_start);
+			fclose (f);
+			return 0;
+		}
 
 	file_mem+=2;
 	if(*((int *)file_mem)!=0)//any compression?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return 0;
-	  }
-	  file_mem+=16;
+		{
+			free(file_mem_start);
+			fclose (f);
+			return 0;
+		}
+	file_mem+=16;
 
-	  colors_no=*((int *)file_mem);
-	  if(!colors_no)colors_no=256;
-	  file_mem+=8;//here comes the pallete
+	colors_no=*((int *)file_mem);
+	if(!colors_no)colors_no=256;
+	file_mem+=8;//here comes the pallete
 
-	  color_pallete=file_mem+4;
-	  fread (file_mem, 1, colors_no*4+4, f);//header only
-	  file_mem+=colors_no*4;
+	color_pallete=file_mem+4;
+	fread (file_mem, 1, colors_no*4+4, f);//header only
+	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
 	if(x_padding)x_padding=4-x_padding;
@@ -69,45 +68,45 @@ GLuint load_bmp8_color_key(char * FileName)
 			fread (read_buffer, 1, x_size-x_padding, f);
 
 			for(x=0;x<x_size;x++)
-			{
-				current_pallete_entry=*(read_buffer+x);
-				b=*(color_pallete+current_pallete_entry*4);
-				g=*(color_pallete+current_pallete_entry*4+1);
-				r=*(color_pallete+current_pallete_entry*4+2);
-				*(texture_mem+(y*x_size+x)*4)=r;
-				*(texture_mem+(y*x_size+x)*4+1)=g;
-				*(texture_mem+(y*x_size+x)*4+2)=b;
-				a=(r+b+g)/3;
-				*(texture_mem+(y*x_size+x)*4+3)=a;
-			}
+				{
+					current_pallete_entry=*(read_buffer+x);
+					b=*(color_pallete+current_pallete_entry*4);
+					g=*(color_pallete+current_pallete_entry*4+1);
+					r=*(color_pallete+current_pallete_entry*4+2);
+					*(texture_mem+(y*x_size+x)*4)=r;
+					*(texture_mem+(y*x_size+x)*4+1)=g;
+					*(texture_mem+(y*x_size+x)*4+2)=b;
+					a=(r+b+g)/3;
+					*(texture_mem+(y*x_size+x)*4+3)=a;
+				}
 
 		}
 
 	free(read_buffer);
 	fclose (f);
-//ok, now, hopefully, the file is loaded and converted...
-//so, assign the texture, and such
+	//ok, now, hopefully, the file is loaded and converted...
+	//so, assign the texture, and such
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	if(poor_man)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		}
 	else
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
 	glTexImage2D(GL_TEXTURE_2D,
-		     0,
-		     GL_RGBA,
-		     x_size, y_size,
-		     0,
-		     GL_RGBA,
-		     GL_UNSIGNED_BYTE,
-		     texture_mem);
+				 0,
+				 GL_RGBA,
+				 x_size, y_size,
+				 0,
+				 GL_RGBA,
+				 GL_UNSIGNED_BYTE,
+				 texture_mem);
 
 	free(file_mem_start);
 	free(texture_mem);
@@ -124,7 +123,6 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	//int file_lenght; unused?
 	GLuint texture;
 
   	f = fopen (FileName, "rb");
@@ -134,39 +132,39 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=19778)//BM (the identifier)
-  	{
-		free(file_mem_start);
-		fclose (f);
-		return 0;
-	}
+		{
+			free(file_mem_start);
+			fclose (f);
+			return 0;
+		}
 	file_mem+=18;
 	x_size=*((int *) file_mem);
 	file_mem+=4;
 	y_size=*((int *) file_mem);
 	file_mem+=6;
 	if(*((short *)file_mem)!=8)//8 bit/pixel?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return 0;
-	  }
+		{
+			free(file_mem_start);
+			fclose (f);
+			return 0;
+		}
 
 	file_mem+=2;
 	if(*((int *)file_mem)!=0)//any compression?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return 0;
-	  }
-	  file_mem+=16;
+		{
+			free(file_mem_start);
+			fclose (f);
+			return 0;
+		}
+	file_mem+=16;
 
-	  colors_no=*((int *)file_mem);
-	  if(!colors_no)colors_no=256;
-	  file_mem+=8;//here comes the pallete
+	colors_no=*((int *)file_mem);
+	if(!colors_no)colors_no=256;
+	file_mem+=8;//here comes the pallete
 
-	  color_pallete=file_mem+4;
-	  fread (file_mem, 1, colors_no*4+4, f);//header only
-	  file_mem+=colors_no*4;
+	color_pallete=file_mem+4;
+	fread (file_mem, 1, colors_no*4+4, f);//header only
+	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
 	if(x_padding)x_padding=4-x_padding;
@@ -182,24 +180,24 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 			fread (read_buffer, 1, x_size-x_padding, f);
 
 			for(x=0;x<x_size;x++)
-			{
-				current_pallete_entry=*(read_buffer+x);
-				b=*(color_pallete+current_pallete_entry*4);
-				g=*(color_pallete+current_pallete_entry*4+1);
-				r=*(color_pallete+current_pallete_entry*4+2);
-				*(texture_mem+(y*x_size+x)*4)=r;
-				*(texture_mem+(y*x_size+x)*4+1)=g;
-				*(texture_mem+(y*x_size+x)*4+2)=b;
-				*(texture_mem+(y*x_size+x)*4+3)=a;
-			}
+				{
+					current_pallete_entry=*(read_buffer+x);
+					b=*(color_pallete+current_pallete_entry*4);
+					g=*(color_pallete+current_pallete_entry*4+1);
+					r=*(color_pallete+current_pallete_entry*4+2);
+					*(texture_mem+(y*x_size+x)*4)=r;
+					*(texture_mem+(y*x_size+x)*4+1)=g;
+					*(texture_mem+(y*x_size+x)*4+2)=b;
+					*(texture_mem+(y*x_size+x)*4+3)=a;
+				}
 
 		}
 
 	free(file_mem_start);
 	free(read_buffer);
 	fclose (f);
-//ok, now, hopefully, the file is loaded and converted...
-//so, assign the texture, and such
+	//ok, now, hopefully, the file is loaded and converted...
+	//so, assign the texture, and such
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -207,24 +205,24 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	if(poor_man)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		}
 	else
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
 
 	glTexImage2D(GL_TEXTURE_2D,
-		     0,
-		     GL_RGBA,
-		     x_size, y_size,
-		     0,
-		     GL_RGBA,
-		     GL_UNSIGNED_BYTE,
-		     texture_mem);
+				 0,
+				 GL_RGBA,
+				 x_size, y_size,
+				 0,
+				 GL_RGBA,
+				 GL_UNSIGNED_BYTE,
+				 texture_mem);
 
 	free(texture_mem);
 	return texture;
@@ -240,8 +238,6 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	//int file_lenght; unused?
-	//GLuint texture; unused?
 	Uint8 *texture_mem;
 
   	f = fopen (FileName, "rb");
@@ -251,39 +247,39 @@ char * load_bmp8_color_key_no_texture(char * FileName)
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=19778)//BM (the identifier)
-  	{
-		free(file_mem_start);
-		fclose (f);
-		return NULL;
-	}
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
 	file_mem+=18;
 	x_size=*((int *) file_mem);
 	file_mem+=4;
 	y_size=*((int *) file_mem);
 	file_mem+=6;
 	if(*((short *)file_mem)!=8)//8 bit/pixel?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return NULL;
-	  }
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
 
 	file_mem+=2;
 	if(*((int *)file_mem)!=0)//any compression?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return NULL;
-	  }
-	  file_mem+=16;
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
+	file_mem+=16;
 
-	  colors_no=*((int *)file_mem);
-	  if(!colors_no)colors_no=256;
-	  file_mem+=8;//here comes the pallete
+	colors_no=*((int *)file_mem);
+	if(!colors_no)colors_no=256;
+	file_mem+=8;//here comes the pallete
 
-	  color_pallete=file_mem+4;
-	  fread (file_mem, 1, colors_no*4+4, f);//header only
-	  file_mem+=colors_no*4;
+	color_pallete=file_mem+4;
+	fread (file_mem, 1, colors_no*4+4, f);//header only
+	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
 	if(x_padding)x_padding=4-x_padding;
@@ -295,21 +291,20 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 
 	for(y=0;y<y_size;y++)
 		{
-			//fread (texture_mem+y*x_size, 1, x_size-x_padding, f);
 			fread (read_buffer, 1, x_size-x_padding, f);
 
 			for(x=0;x<x_size;x++)
-			{
-				current_pallete_entry=*(read_buffer+x);
-				b=*(color_pallete+current_pallete_entry*4);
-				g=*(color_pallete+current_pallete_entry*4+1);
-				r=*(color_pallete+current_pallete_entry*4+2);
-				*(texture_mem+(y*x_size+x)*4)=r;
-				*(texture_mem+(y*x_size+x)*4+1)=g;
-				*(texture_mem+(y*x_size+x)*4+2)=b;
-				a=(r+b+g)/3;
-				*(texture_mem+(y*x_size+x)*4+3)=a;
-			}
+				{
+					current_pallete_entry=*(read_buffer+x);
+					b=*(color_pallete+current_pallete_entry*4);
+					g=*(color_pallete+current_pallete_entry*4+1);
+					r=*(color_pallete+current_pallete_entry*4+2);
+					*(texture_mem+(y*x_size+x)*4)=r;
+					*(texture_mem+(y*x_size+x)*4+1)=g;
+					*(texture_mem+(y*x_size+x)*4+2)=b;
+					a=(r+b+g)/3;
+					*(texture_mem+(y*x_size+x)*4+3)=a;
+				}
 
 		}
 
@@ -317,22 +312,20 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 	free(read_buffer);
 	fclose (f);
 	return texture_mem;
-//ok, now, hopefully, the file is loaded and converted...
-//so, assign the texture, and such
+	//ok, now, hopefully, the file is loaded and converted...
+	//so, assign the texture, and such
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 //load a bmp file, convert it to an alpha map
 char * load_bmp8_alpha_map(char * FileName)
 {
-	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry; //i unused?
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry;
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	//int file_lenght; unused?
-	//GLuint texture; unused?
 	Uint8 *texture_mem;
 
   	f = fopen (FileName, "rb");
@@ -342,39 +335,39 @@ char * load_bmp8_alpha_map(char * FileName)
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=19778)//BM (the identifier)
-  	{
-		free(file_mem_start);
-		fclose (f);
-		return NULL;
-	}
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
 	file_mem+=18;
 	x_size=*((int *) file_mem);
 	file_mem+=4;
 	y_size=*((int *) file_mem);
 	file_mem+=6;
 	if(*((short *)file_mem)!=8)//8 bit/pixel?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return NULL;
-	  }
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
 
 	file_mem+=2;
 	if(*((int *)file_mem)!=0)//any compression?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return NULL;
-	  }
-	  file_mem+=16;
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
+	file_mem+=16;
 
-	  colors_no=*((int *)file_mem);
-	  if(!colors_no)colors_no=256;
-	  file_mem+=8;//here comes the pallete
+	colors_no=*((int *)file_mem);
+	if(!colors_no)colors_no=256;
+	file_mem+=8;//here comes the pallete
 
-	  color_pallete=file_mem+4;
-	  fread (file_mem, 1, colors_no*4+4, f);//header only
-	  file_mem+=colors_no*4;
+	color_pallete=file_mem+4;
+	fread (file_mem, 1, colors_no*4+4, f);//header only
+	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
 	if(x_padding)x_padding=4-x_padding;
@@ -386,18 +379,17 @@ char * load_bmp8_alpha_map(char * FileName)
 
 	for(y=0;y<y_size;y++)
 		{
-			//fread (texture_mem+y*x_size, 1, x_size-x_padding, f);
 			fread (read_buffer, 1, x_size-x_padding, f);
 
 			for(x=0;x<x_size;x++)
-			{
-				current_pallete_entry=*(read_buffer+x);
-				b=*(color_pallete+current_pallete_entry*4);
-				g=*(color_pallete+current_pallete_entry*4+1);
-				r=*(color_pallete+current_pallete_entry*4+2);
-				a=(r+b+g)/3;
-				*(texture_mem+(y*x_size+x))=a;
-			}
+				{
+					current_pallete_entry=*(read_buffer+x);
+					b=*(color_pallete+current_pallete_entry*4);
+					g=*(color_pallete+current_pallete_entry*4+1);
+					r=*(color_pallete+current_pallete_entry*4+2);
+					a=(r+b+g)/3;
+					*(texture_mem+(y*x_size+x))=a;
+				}
 
 		}
 
@@ -427,12 +419,12 @@ int load_texture_cache(char * file_name,unsigned char alpha)
 					j++;
 				}
 			if(file_name_lenght==j)//ok, texture already loaded
-			return i;
+				return i;
 		}
 	//texture not found in the cache, so load it, and store it
 	if(alpha==0)texture_id=load_bmp8_color_key(file_name);
 	else
-	texture_id=load_bmp8_fixed_alpha(file_name, alpha);
+		texture_id=load_bmp8_fixed_alpha(file_name, alpha);
 	if(texture_id==0)
         {
             char str[120];
@@ -471,7 +463,7 @@ int get_texture_id(int i)
             //our texture was freed, we have to reload it
         	if(alpha==0)new_texture_id=load_bmp8_color_key(texture_cache[i].file_name);
             else
-        	new_texture_id=load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
+				new_texture_id=load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
         	texture_cache[i].texture_id=new_texture_id;
         }
     return texture_cache[i].texture_id;
@@ -482,16 +474,16 @@ int get_texture_id(int i)
 
 
 //load a bmp texture, and remaps it
-GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short shirt, short pants, short boots)
+GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short shirt,
+							   short pants, short boots)
 {
-	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry; //i unused?
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry;
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * texture_mem;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	//int file_lenght; unused?
 	GLuint texture;
 
   	f = fopen (FileName, "rb");
@@ -501,39 +493,39 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=19778)//BM (the identifier)
-  	{
-		free(file_mem_start);
-		fclose (f);
-		return 0;
-	}
+		{
+			free(file_mem_start);
+			fclose (f);
+			return 0;
+		}
 	file_mem+=18;
 	x_size=*((int *) file_mem);
 	file_mem+=4;
 	y_size=*((int *) file_mem);
 	file_mem+=6;
 	if(*((short *)file_mem)!=8)//8 bit/pixel?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return 0;
-	  }
+		{
+			free(file_mem_start);
+			fclose (f);
+			return 0;
+		}
 
 	file_mem+=2;
 	if(*((int *)file_mem)!=0)//any compression?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return 0;
-	  }
-	  file_mem+=16;
+		{
+			free(file_mem_start);
+			fclose (f);
+			return 0;
+		}
+	file_mem+=16;
 
-	  colors_no=*((int *)file_mem);
-	  if(!colors_no)colors_no=256;
-	  file_mem+=8;//here comes the pallete
+	colors_no=*((int *)file_mem);
+	if(!colors_no)colors_no=256;
+	file_mem+=8;//here comes the pallete
 
-	  color_pallete=file_mem+4;
-	  fread (file_mem, 1, colors_no*4+4, f);//header only
-	  file_mem+=colors_no*4;
+	color_pallete=file_mem+4;
+	fread (file_mem, 1, colors_no*4+4, f);//header only
+	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
 	if(x_padding)x_padding=4-x_padding;
@@ -545,208 +537,188 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 
 	for(y=0;y<y_size;y++)
 		{
-			//fread (texture_mem+y*x_size, 1, x_size-x_padding, f);
 			fread (read_buffer, 1, x_size-x_padding, f);
 
 			for(x=0;x<x_size;x++)
-			{
-				current_pallete_entry=*(read_buffer+x);
-				if(current_pallete_entry>1 && current_pallete_entry<22)
-					{
-						if(current_pallete_entry>1 && current_pallete_entry<6)//skin
-							{
-								int intensity;
-								intensity=current_pallete_entry-1;
-
-								if(intensity==1)
-									{
-										r=colors_list[skin].r1;
-										g=colors_list[skin].g1;
-										b=colors_list[skin].b1;
-									}
-								else
-								if(intensity==2)
-									{
-										r=colors_list[skin].r2;
-										g=colors_list[skin].g2;
-										b=colors_list[skin].b2;
-									}
-								else
-								if(intensity==3)
-									{
-										r=colors_list[skin].r3;
-										g=colors_list[skin].g3;
-										b=colors_list[skin].b3;
-									}
-								else
-								if(intensity==4)
-									{
-										r=colors_list[skin].r4;
-										g=colors_list[skin].g4;
-										b=colors_list[skin].b4;
-									}
-
-							}
-						else
-						if(current_pallete_entry>5 && current_pallete_entry<10)//hair
-							{
-								int intensity;
-								intensity=current_pallete_entry-5;
-
-								if(intensity==1)
-									{
-										r=colors_list[hair].r1;
-										g=colors_list[hair].g1;
-										b=colors_list[hair].b1;
-									}
-								else
-								if(intensity==2)
-									{
-										r=colors_list[hair].r2;
-										g=colors_list[hair].g2;
-										b=colors_list[hair].b2;
-									}
-								else
-								if(intensity==3)
-									{
-										r=colors_list[hair].r3;
-										g=colors_list[hair].g3;
-										b=colors_list[hair].b3;
-									}
-								else
-								if(intensity==4)
-									{
-										r=colors_list[hair].r4;
-										g=colors_list[hair].g4;
-										b=colors_list[hair].b4;
-									}
-
-							}
-						else
-						if(current_pallete_entry>9 && current_pallete_entry<14)//shirt
-							{
-								int intensity;
-								intensity=current_pallete_entry-9;
-
-								if(intensity==1)
-									{
-										r=colors_list[shirt].r1;
-										g=colors_list[shirt].g1;
-										b=colors_list[shirt].b1;
-									}
-								else
-								if(intensity==2)
-									{
-										r=colors_list[shirt].r2;
-										g=colors_list[shirt].g2;
-										b=colors_list[shirt].b2;
-									}
-								else
-								if(intensity==3)
-									{
-										r=colors_list[shirt].r3;
-										g=colors_list[shirt].g3;
-										b=colors_list[shirt].b3;
-									}
-								else
-								if(intensity==4)
-									{
-										r=colors_list[shirt].r4;
-										g=colors_list[shirt].g4;
-										b=colors_list[shirt].b4;
-									}
-							}
-						else
-						if(current_pallete_entry>13 && current_pallete_entry<18)//pants
-							{
-								int intensity;
-								intensity=current_pallete_entry-13;
-
-								if(intensity==1)
-									{
-										r=colors_list[pants].r1;
-										g=colors_list[pants].g1;
-										b=colors_list[pants].b1;
-									}
-								else
-								if(intensity==2)
-									{
-										r=colors_list[pants].r2;
-										g=colors_list[pants].g2;
-										b=colors_list[pants].b2;
-									}
-								else
-								if(intensity==3)
-									{
-										r=colors_list[pants].r3;
-										g=colors_list[pants].g3;
-										b=colors_list[pants].b3;
-									}
-								else
-								if(intensity==4)
-									{
-										r=colors_list[pants].r4;
-										g=colors_list[pants].g4;
-										b=colors_list[pants].b4;
-									}
-							}
-
-						else
-						if(current_pallete_entry>17 && current_pallete_entry<22)//boots
-							{
-								int intensity;
-								intensity=current_pallete_entry-17;
-
-								if(intensity==1)
-									{
-										r=colors_list[boots].r1;
-										g=colors_list[boots].g1;
-										b=colors_list[boots].b1;
-									}
-								else
-								if(intensity==2)
-									{
-										r=colors_list[boots].r2;
-										g=colors_list[boots].g2;
-										b=colors_list[boots].b2;
-									}
-								else
-								if(intensity==3)
-									{
-										r=colors_list[boots].r3;
-										g=colors_list[boots].g3;
-										b=colors_list[boots].b3;
-									}
-								else
-								if(intensity==4)
-									{
-										r=colors_list[boots].r4;
-										g=colors_list[boots].g4;
-										b=colors_list[boots].b4;
-									}
-							}
-
-					}
-				else//not a special color, leave it alone
 				{
-					b=*(color_pallete+current_pallete_entry*4);
-					g=*(color_pallete+current_pallete_entry*4+1);
-					r=*(color_pallete+current_pallete_entry*4+2);
-				}
+					current_pallete_entry=*(read_buffer+x);
+					if(current_pallete_entry>1 && current_pallete_entry<22)
+						{
+							if(current_pallete_entry>1 && current_pallete_entry<6)//skin
+								{
+									int intensity;
+									intensity=current_pallete_entry-1;
 
-				*(texture_mem+(y*x_size+x)*4)=r;
-				*(texture_mem+(y*x_size+x)*4+1)=g;
-				*(texture_mem+(y*x_size+x)*4+2)=b;
-				*(texture_mem+(y*x_size+x)*4+3)=a;
-			}
+									if(intensity==1)
+										{
+											r=colors_list[skin].r1;
+											g=colors_list[skin].g1;
+											b=colors_list[skin].b1;
+										}
+									else if(intensity==2)
+										{
+											r=colors_list[skin].r2;
+											g=colors_list[skin].g2;
+											b=colors_list[skin].b2;
+										}
+									else if(intensity==3)
+										{
+											r=colors_list[skin].r3;
+											g=colors_list[skin].g3;
+											b=colors_list[skin].b3;
+										}
+									else if(intensity==4)
+										{
+											r=colors_list[skin].r4;
+											g=colors_list[skin].g4;
+											b=colors_list[skin].b4;
+										}
+
+								}
+							else if(current_pallete_entry>5 && current_pallete_entry<10)//hair
+								{
+									int intensity;
+									intensity=current_pallete_entry-5;
+
+									if(intensity==1)
+										{
+											r=colors_list[hair].r1;
+											g=colors_list[hair].g1;
+											b=colors_list[hair].b1;
+										}
+									else if(intensity==2)
+										{
+											r=colors_list[hair].r2;
+											g=colors_list[hair].g2;
+											b=colors_list[hair].b2;
+										}
+									else if(intensity==3)
+										{
+											r=colors_list[hair].r3;
+											g=colors_list[hair].g3;
+											b=colors_list[hair].b3;
+										}
+									else if(intensity==4)
+										{
+											r=colors_list[hair].r4;
+											g=colors_list[hair].g4;
+											b=colors_list[hair].b4;
+										}
+
+								}
+							else if(current_pallete_entry>9 && current_pallete_entry<14)//shirt
+								{
+									int intensity;
+									intensity=current_pallete_entry-9;
+
+									if(intensity==1)
+										{
+											r=colors_list[shirt].r1;
+											g=colors_list[shirt].g1;
+											b=colors_list[shirt].b1;
+										}
+									else if(intensity==2)
+										{
+											r=colors_list[shirt].r2;
+											g=colors_list[shirt].g2;
+											b=colors_list[shirt].b2;
+										}
+									else if(intensity==3)
+										{
+											r=colors_list[shirt].r3;
+											g=colors_list[shirt].g3;
+											b=colors_list[shirt].b3;
+										}
+									else if(intensity==4)
+										{
+											r=colors_list[shirt].r4;
+											g=colors_list[shirt].g4;
+											b=colors_list[shirt].b4;
+										}
+								}
+							else if(current_pallete_entry>13 && current_pallete_entry<18)//pants
+								{
+									int intensity;
+									intensity=current_pallete_entry-13;
+
+									if(intensity==1)
+										{
+											r=colors_list[pants].r1;
+											g=colors_list[pants].g1;
+											b=colors_list[pants].b1;
+										}
+									else if(intensity==2)
+										{
+											r=colors_list[pants].r2;
+											g=colors_list[pants].g2;
+											b=colors_list[pants].b2;
+										}
+									else if(intensity==3)
+										{
+											r=colors_list[pants].r3;
+											g=colors_list[pants].g3;
+											b=colors_list[pants].b3;
+										}
+									else if(intensity==4)
+										{
+											r=colors_list[pants].r4;
+											g=colors_list[pants].g4;
+											b=colors_list[pants].b4;
+										}
+								}
+
+							else if(current_pallete_entry>17 && current_pallete_entry<22)//boots
+								{
+									int intensity;
+									intensity=current_pallete_entry-17;
+
+									if(intensity==1)
+										{
+											r=colors_list[boots].r1;
+											g=colors_list[boots].g1;
+											b=colors_list[boots].b1;
+										}
+									else if(intensity==2)
+										{
+											r=colors_list[boots].r2;
+											g=colors_list[boots].g2;
+											b=colors_list[boots].b2;
+										}
+									else if(intensity==3)
+										{
+											r=colors_list[boots].r3;
+											g=colors_list[boots].g3;
+											b=colors_list[boots].b3;
+										}
+									else if(intensity==4)
+										{
+											r=colors_list[boots].r4;
+											g=colors_list[boots].g4;
+											b=colors_list[boots].b4;
+										}
+								}
+
+						}
+					else//not a special color, leave it alone
+						{
+							b=*(color_pallete+current_pallete_entry*4);
+							g=*(color_pallete+current_pallete_entry*4+1);
+							r=*(color_pallete+current_pallete_entry*4+2);
+						}
+
+					*(texture_mem+(y*x_size+x)*4)=r;
+					*(texture_mem+(y*x_size+x)*4+1)=g;
+					*(texture_mem+(y*x_size+x)*4+2)=b;
+					*(texture_mem+(y*x_size+x)*4+3)=a;
+				}
 
 		}
 
 	free(file_mem_start);
 	free(read_buffer);
 	fclose (f);
-//ok, now, hopefully, the file is loaded and converted...
-//so, assign the texture, and such
+	//ok, now, hopefully, the file is loaded and converted...
+	//so, assign the texture, and such
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -754,24 +726,24 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	if(poor_man)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		}
 	else
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
 
 	glTexImage2D(GL_TEXTURE_2D,
-		     0,
-		     GL_RGBA,
-		     x_size, y_size,
-		     0,
-		     GL_RGBA,
-		     GL_UNSIGNED_BYTE,
-		     texture_mem);
+				 0,
+				 GL_RGBA,
+				 x_size, y_size,
+				 0,
+				 GL_RGBA,
+				 GL_UNSIGNED_BYTE,
+				 texture_mem);
 
 	free(texture_mem);
 	return texture;
@@ -780,15 +752,15 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 
 
 
-void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,int y_pos,Uint8 alpha)
+void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,int y_pos,
+							  Uint8 alpha)
 {
-	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry; //i unused?
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry;
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	FILE *f = NULL;
-	//int file_lenght; unused?
 
   	f = fopen (FileName, "rb");
   	if (!f) return;
@@ -797,39 +769,39 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=19778)//BM (the identifier)
-  	{
-		free(file_mem_start);
-		fclose (f);
-		return;
-	}
+		{
+			free(file_mem_start);
+			fclose (f);
+			return;
+		}
 	file_mem+=18;
 	x_size=*((int *) file_mem);
 	file_mem+=4;
 	y_size=*((int *) file_mem);
 	file_mem+=6;
 	if(*((short *)file_mem)!=8)//8 bit/pixel?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return;
-	  }
+		{
+			free(file_mem_start);
+			fclose (f);
+			return;
+		}
 
 	file_mem+=2;
 	if(*((int *)file_mem)!=0)//any compression?
-	  {
-		free(file_mem_start);
-		fclose (f);
-		return;
-	  }
-	  file_mem+=16;
+		{
+			free(file_mem_start);
+			fclose (f);
+			return;
+		}
+	file_mem+=16;
 
-	  colors_no=*((int *)file_mem);
-	  if(!colors_no)colors_no=256;
-	  file_mem+=8;//here comes the pallete
+	colors_no=*((int *)file_mem);
+	if(!colors_no)colors_no=256;
+	file_mem+=8;//here comes the pallete
 
-	  color_pallete=file_mem+4;
-	  fread (file_mem, 1, colors_no*4+4, f);//header only
-	  file_mem+=colors_no*4;
+	color_pallete=file_mem+4;
+	fread (file_mem, 1, colors_no*4+4, f);//header only
+	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
 	if(x_padding)x_padding=4-x_padding;
@@ -843,18 +815,18 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
 		{
 			fread (read_buffer, 1, x_size+x_padding, f);
 			for(x=0;x<x_size;x++)
-			{
-				int texture_y;
-				texture_y=(255-(y+y_pos));
-				current_pallete_entry=*(read_buffer+x);
-				b=*(color_pallete+current_pallete_entry*4);
-				g=*(color_pallete+current_pallete_entry*4+1);
-				r=*(color_pallete+current_pallete_entry*4+2);
-				*(texture_space+(texture_y*256+x+x_pos)*4)=r;
-				*(texture_space+(texture_y*256+x+x_pos)*4+1)=g;
-				*(texture_space+(texture_y*256+x+x_pos)*4+2)=b;
-				*(texture_space+(texture_y*256+x+x_pos)*4+3)=alpha;
-			}
+				{
+					int texture_y;
+					texture_y=(255-(y+y_pos));
+					current_pallete_entry=*(read_buffer+x);
+					b=*(color_pallete+current_pallete_entry*4);
+					g=*(color_pallete+current_pallete_entry*4+1);
+					r=*(color_pallete+current_pallete_entry*4+2);
+					*(texture_space+(texture_y*256+x+x_pos)*4)=r;
+					*(texture_space+(texture_y*256+x+x_pos)*4+1)=g;
+					*(texture_space+(texture_y*256+x+x_pos)*4+2)=b;
+					*(texture_space+(texture_y*256+x+x_pos)*4+3)=alpha;
+				}
 
 		}
 
@@ -866,24 +838,10 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
 
 int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 {
-	//int i; unused?
 	GLuint texture;
 	Uint8 * texture_mem;
 
 	texture_mem=(Uint8*)calloc(1,256*256*4);
-/*
-	char pants_tex[32];
-	char boots_tex[32];
-	char torso_tex[32];
-	char arms_tex[32];
-	char hands_tex[32];
-	char head_tex[32];
-	char hair_tex[32];
-	char weapon_tex[32];
-	char shield_tex[32];
-	char helmet_tex[32];
-	char cape_tex[32];
-*/
 	if(this_actor->pants_tex[0])load_bmp8_to_coordinates(this_actor->pants_tex,texture_mem,78,175,a);
 	if(this_actor->boots_tex[0])load_bmp8_to_coordinates(this_actor->boots_tex,texture_mem,0,175,a);
 	if(this_actor->torso_tex[0])load_bmp8_to_coordinates(this_actor->torso_tex,texture_mem,158,156,a);
@@ -902,24 +860,24 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	if(poor_man)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		}
 	else
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
 
 	glTexImage2D(GL_TEXTURE_2D,
-		     0,
-		     GL_RGBA,
-		     256, 256,
-		     0,
-		     GL_RGBA,
-		     GL_UNSIGNED_BYTE,
-		     texture_mem);
+				 0,
+				 GL_RGBA,
+				 256, 256,
+				 0,
+				 GL_RGBA,
+				 GL_UNSIGNED_BYTE,
+				 texture_mem);
 
 	free(texture_mem);
 	return texture;

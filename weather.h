@@ -18,24 +18,24 @@ extern int lightning_text;
 
 typedef struct
 {
-   int in_use;
-   int light_offset;
-   int seconds_till_sound;
-   int thunder_type;
-   int time_since_started;
-   int x;
-   int y;
-   int rot;
+	int in_use;
+	int light_offset;
+	int seconds_till_sound;
+	int thunder_type;
+	int time_since_started;
+	int x;
+	int y;
+	int rot;
 }thunder;
 
 thunder thunders[MAX_THUNDERS];
 
 typedef struct
 {
-  short x;
-  short y;
-  short x2;
-  short y2;
+	short x;
+	short y;
+	short x2;
+	short y2;
 }rain_drop;
 
 rain_drop rain_drops[MAX_RAIN_DROPS];

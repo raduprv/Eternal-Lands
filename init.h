@@ -6,32 +6,32 @@
 
 typedef struct
 {
-int items_menu_x;
-int items_menu_y;
+	int items_menu_x;
+	int items_menu_y;
 
-int ground_items_menu_x;
-int ground_items_menu_y;
+	int ground_items_menu_x;
+	int ground_items_menu_y;
 
-int manufacture_menu_x;
-int manufacture_menu_y;
+	int manufacture_menu_x;
+	int manufacture_menu_y;
 
-int trade_menu_x;
-int trade_menu_y;
+	int trade_menu_x;
+	int trade_menu_y;
 
-int options_menu_x;
-int options_menu_y;
+	int options_menu_x;
+	int options_menu_y;
 
-int attrib_menu_x;
-int attrib_menu_y;
+	int attrib_menu_x;
+	int attrib_menu_y;
 
-int sigil_menu_x;
-int sigil_menu_y;
+	int sigil_menu_x;
+	int sigil_menu_y;
 
-int dialogue_menu_x;
-int dialogue_menu_y;
+	int dialogue_menu_x;
+	int dialogue_menu_y;
 
 
-int reserved[20];
+	int reserved[20];
 
 }bin_cfg;
 

@@ -6,115 +6,102 @@ Uint32 flags;
 
 void setup_video_mode()
 {
-		if(full_screen)
-			{
-				if(video_mode==1)
-					{
-						window_width=640;
-						window_height=480;
-						bpp=16;
-					}
-				else
-				if(video_mode==2)
-					{
-						window_width=640;
-						window_height=480;
-						bpp=32;
-					}
-				else
-				if(video_mode==3)
-					{
-						window_width=800;
-						window_height=600;
-						bpp=16;
-					}
-				else
-				if(video_mode==4)
-					{
-						window_width=800;
-						window_height=600;
-						bpp=32;
-					}
-				else
-				if(video_mode==5)
-					{
-						window_width=1024;
-						window_height=768;
-						bpp=16;
-					}
-				else
-				if(video_mode==6)
-					{
-						window_width=1024;
-						window_height=768;
-						bpp=32;
-					}
-				else
-				if(video_mode==7)
-					{
-						window_width=1152;
-						window_height=864;
-						bpp=16;
-					}
-				else
-				if(video_mode==8)
-					{
-						window_width=1152;
-						window_height=864;
-						bpp=32;
-					}
-				else
-				if(video_mode==9)
-					{
-						window_width=1280;
-						window_height=1024;
-						bpp=16;
-					}
-				else
-				if(video_mode==10)
-					{
-						window_width=1280;
-						window_height=1024;
-						bpp=32;
-					}
-			}
-			else //windowed mode
-			{
-				if(video_mode==1 || video_mode==2)
-					{
-						window_width=640;
-						window_height=480;
-					}
-				else
-				if(video_mode==3 || video_mode==4)
-					{
-						window_width=780;
-						window_height=550;
-						log_to_console(c_yellow1,"Window size adjusted to 780x550.");
-					}
-				else
-				if(video_mode==5 || video_mode==6)
-					{
-						window_width=990;
-						window_height=720;
-						log_to_console(c_yellow1,"Window size adjusted to 990x720.");
-					}
-				else
-				if(video_mode==7 || video_mode==8)
-					{
-						window_width=1120;
-						window_height=830;
-						log_to_console(c_yellow1,"Window size adjusted to 1120x830.");
-					}
-				else
-				if(video_mode==9 || video_mode==10)
-					{
-						window_width=1250;
-						window_height=990;
-						log_to_console(c_yellow1,"Window size adjusted to 1250x990.");
-					}
-				bpp=0;//autodetect
-			}
+	if(full_screen)
+		{
+			if(video_mode==1)
+				{
+					window_width=640;
+					window_height=480;
+					bpp=16;
+				}
+			else if(video_mode==2)
+				{
+					window_width=640;
+					window_height=480;
+					bpp=32;
+				}
+			else if(video_mode==3)
+				{
+					window_width=800;
+					window_height=600;
+					bpp=16;
+				}
+			else if(video_mode==4)
+				{
+					window_width=800;
+					window_height=600;
+					bpp=32;
+				}
+			else if(video_mode==5)
+				{
+					window_width=1024;
+					window_height=768;
+					bpp=16;
+				}
+			else if(video_mode==6)
+				{
+					window_width=1024;
+					window_height=768;
+					bpp=32;
+				}
+			else if(video_mode==7)
+				{
+					window_width=1152;
+					window_height=864;
+					bpp=16;
+				}
+			else if(video_mode==8)
+				{
+					window_width=1152;
+					window_height=864;
+					bpp=32;
+				}
+			else if(video_mode==9)
+				{
+					window_width=1280;
+					window_height=1024;
+					bpp=16;
+				}
+			else if(video_mode==10)
+				{
+					window_width=1280;
+					window_height=1024;
+					bpp=32;
+				}
+		}
+	else //windowed mode
+		{
+			if(video_mode==1 || video_mode==2)
+				{
+					window_width=640;
+					window_height=480;
+				}
+			else if(video_mode==3 || video_mode==4)
+				{
+					window_width=780;
+					window_height=550;
+					log_to_console(c_yellow1,"Window size adjusted to 780x550.");
+				}
+			else if(video_mode==5 || video_mode==6)
+				{
+					window_width=990;
+					window_height=720;
+					log_to_console(c_yellow1,"Window size adjusted to 990x720.");
+				}
+			else if(video_mode==7 || video_mode==8)
+				{
+					window_width=1120;
+					window_height=830;
+					log_to_console(c_yellow1,"Window size adjusted to 1120x830.");
+				}
+			else if(video_mode==9 || video_mode==10)
+				{
+					window_width=1250;
+					window_height=990;
+					log_to_console(c_yellow1,"Window size adjusted to 1250x990.");
+				}
+			bpp=0;//autodetect
+		}
 #ifndef WINDOWS
 	bpp=0;//under X, we can't change the desktop BPP
 #endif
@@ -138,28 +125,28 @@ void check_gl_mode()
 
 			SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
 			have_stencil=0;
-				//now, test if the video mode is OK...
-				if(!SDL_VideoModeOK(window_width, window_height, bpp, flags))
-					{
-						int old_width;
-						int old_height;
-						int old_bpp;
+			//now, test if the video mode is OK...
+			if(!SDL_VideoModeOK(window_width, window_height, bpp, flags))
+				{
+					int old_width;
+					int old_height;
+					int old_bpp;
 
-						old_width=window_width;
-						old_height=window_height;
-						old_bpp=bpp;
+					old_width=window_width;
+					old_height=window_height;
+					old_bpp=bpp;
 
-						window_width=640;
-						window_height=480;
-						bpp=32;
+					window_width=640;
+					window_height=480;
+					bpp=32;
 
-						sprintf(str,"Video mode %ix%ix%i without a stencil buffer is not available\nTrying the safemode (640x480x32) Full Screen (no stencil)",old_width,old_height,old_bpp);
-						log_to_console(c_red1,str);
+					sprintf(str,"Video mode %ix%ix%i without a stencil buffer is not available\nTrying the safemode (640x480x32) Full Screen (no stencil)",old_width,old_height,old_bpp);
+					log_to_console(c_red1,str);
 
-						full_screen=1;
-						video_mode=2;
+					full_screen=1;
+					video_mode=2;
 
-					}
+				}
 
 		}
 	else have_stencil=1;
@@ -171,13 +158,13 @@ void init_video()
 	int rgb_size[3];
 
 	if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1 )
-    {
-		char str[120];
-		sprintf(str, "Couldn't initialize SDL: %s\n", SDL_GetError());
-		log_error(str);
-		SDL_Quit();
-		exit(1);
-	}
+		{
+			char str[120];
+			sprintf(str, "Couldn't initialize SDL: %s\n", SDL_GetError());
+			log_error(str);
+			SDL_Quit();
+			exit(1);
+		}
 
 	setup_video_mode();
 
@@ -185,15 +172,15 @@ void init_video()
 	if(!bpp)
 		{
 			if ( SDL_GetVideoInfo()->vfmt->BitsPerPixel <= 8 )
-			{
-				bpp = 8;
-			}
+				{
+					bpp = 8;
+				}
 			else
-			if ( SDL_GetVideoInfo()->vfmt->BitsPerPixel <= 16 )
-			{
-				bpp = 16;  /* More doesn't seem to work */
-			}
-			else bpp=32;
+				if ( SDL_GetVideoInfo()->vfmt->BitsPerPixel <= 16 )
+					{
+						bpp = 16;  /* More doesn't seem to work */
+					}
+				else bpp=32;
 		}
 
 	//adjust the video mode accordingly
@@ -216,18 +203,18 @@ void init_video()
 		}
 	/* Initialize the display */
 	switch (bpp) {
-	    case 8:
+	case 8:
 		rgb_size[0] = 2;
 		rgb_size[1] = 3;
 		rgb_size[2] = 3;
 		break;
-	    case 15:
-	    case 16:
+	case 15:
+	case 16:
 		rgb_size[0] = 5;
 		rgb_size[1] = 5;
 		rgb_size[2] = 5;
 		break;
-            default:
+	default:
 		rgb_size[0] = 8;
 		rgb_size[1] = 8;
 		rgb_size[2] = 8;
@@ -252,76 +239,76 @@ void init_video()
 			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 			if(!SDL_SetVideoMode( window_width, window_height, bpp, flags))
 			    {
-				char str[120];
-				sprintf(str, "Couldn't set GL mode: %s\n", SDL_GetError());
-				log_error(str);
-				SDL_Quit();
-				exit(1);
+					char str[120];
+					sprintf(str, "Couldn't set GL mode: %s\n", SDL_GetError());
+					log_error(str);
+					SDL_Quit();
+					exit(1);
 			    }
 			have_stencil=0;
 
     	}
 #ifdef WINDOWS
-//try to see if we get hardware acceleration, or the windows generic shit
+	//try to see if we get hardware acceleration, or the windows generic shit
 	{
-			int len;
-			GLubyte *my_string;
-			int have_hardware;
+		int len;
+		GLubyte *my_string;
+		int have_hardware;
 
-			my_string=(GLubyte *)glGetString(GL_RENDERER);
-			len=strlen(my_string);
-			have_hardware=get_string_occurance("gdi generic",my_string,len,0);
-			if(have_hardware==-1)goto all_ok;
-			//let the user know there is a problem
-			log_to_console(c_red1,"Hmm... This mode seems to fall back in software 'acceleration'.\nTrying to disable the stencil buffer.");
-			//first, shut down this mode we have now.
-			SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
-			SDL_Init(SDL_INIT_VIDEO);//restart SDL
-			SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
-			SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
-			SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
-			SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0);
-			SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24);
-			SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
-			SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
-			if(full_screen)flags=SDL_OPENGL|SDL_FULLSCREEN;
-			SDL_SetVideoMode(window_width, window_height, bpp, flags);
-			have_stencil=0;
+		my_string=(GLubyte *)glGetString(GL_RENDERER);
+		len=strlen(my_string);
+		have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+		if(have_hardware==-1)goto all_ok;
+		//let the user know there is a problem
+		log_to_console(c_red1,"Hmm... This mode seems to fall back in software 'acceleration'.\nTrying to disable the stencil buffer.");
+		//first, shut down this mode we have now.
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
+		SDL_Init(SDL_INIT_VIDEO);//restart SDL
+		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
+		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
+		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
+		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0);
+		SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24);
+		SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
+		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
+		if(full_screen)flags=SDL_OPENGL|SDL_FULLSCREEN;
+		SDL_SetVideoMode(window_width, window_height, bpp, flags);
+		have_stencil=0;
 
-			my_string=(GLubyte *)glGetString(GL_RENDERER);
-			len=strlen(my_string);
-			have_hardware=get_string_occurance("gdi generic",my_string,len,0);
-			if(have_hardware==-1)goto all_ok;
-			//wtf, this really shouldn't happen....
-			//let's try a default mode, maybe Quake 2's mode, and pray it works
-			log_to_console(c_red1,"Hmm... No luck without a stencil buffer either...\nLet's try one more thing...");
-			SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
-			SDL_Init(SDL_INIT_VIDEO);//restart SDL
-			SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
-			SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
-			SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
-			SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0);
-			SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24);
-			SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
-			SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
-			flags=SDL_OPENGL|SDL_FULLSCREEN;
-			full_screen=1;
-			video_mode=2;
-			window_width=640;
-			window_height=480;
-			bpp=32;
-			SDL_SetVideoMode(window_width, window_height, bpp, flags);
-			//see if it worked...
-			my_string=(GLubyte *)glGetString(GL_RENDERER);
-			len=strlen(my_string);
-			have_hardware=get_string_occurance("gdi generic",my_string,len,0);
-			if(have_hardware==-1)goto all_ok;
-			//wtf, this really shouldn't happen....
-			//let's try a default mode, maybe Quake 2's mode, and pray it works
-			log_to_console(c_red1,"Damn, it seems that you are out of luck, we are in the software mode now, so the game will be veeeeery slow. If you DO have a 3D accelerated card, try to update your OpenGl drivers...");
+		my_string=(GLubyte *)glGetString(GL_RENDERER);
+		len=strlen(my_string);
+		have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+		if(have_hardware==-1)goto all_ok;
+		//wtf, this really shouldn't happen....
+		//let's try a default mode, maybe Quake 2's mode, and pray it works
+		log_to_console(c_red1,"Hmm... No luck without a stencil buffer either...\nLet's try one more thing...");
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
+		SDL_Init(SDL_INIT_VIDEO);//restart SDL
+		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
+		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
+		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
+		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0);
+		SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24);
+		SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
+		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
+		flags=SDL_OPENGL|SDL_FULLSCREEN;
+		full_screen=1;
+		video_mode=2;
+		window_width=640;
+		window_height=480;
+		bpp=32;
+		SDL_SetVideoMode(window_width, window_height, bpp, flags);
+		//see if it worked...
+		my_string=(GLubyte *)glGetString(GL_RENDERER);
+		len=strlen(my_string);
+		have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+		if(have_hardware==-1)goto all_ok;
+		//wtf, this really shouldn't happen....
+		//let's try a default mode, maybe Quake 2's mode, and pray it works
+		log_to_console(c_red1,"Damn, it seems that you are out of luck, we are in the software mode now, so the game will be veeeeery slow. If you DO have a 3D accelerated card, try to update your OpenGl drivers...");
 
 
-all_ok:
+	all_ok:
 	}
 #endif
 
@@ -352,9 +339,9 @@ void resize_window()
 	float window_ratio;
 	if (window_height==0)window_height=1;			// Prevent A Divide By Zero
 
-	glViewport(0, 0, window_width, window_height);					// Reset The Current Viewport
+	glViewport(0, 0, window_width, window_height);	// Reset The Current Viewport
 
-	glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
+	glMatrixMode(GL_PROJECTION);					// Select The Projection Matrix
 	glLoadIdentity();							// Reset The Projection Matrix
 
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
@@ -365,7 +352,7 @@ void resize_window()
 	//some zoom test
 	//glOrtho( -3.6*window_ratio, 3.6*window_ratio, -3.6, 3.6, -40.0, 40.0 );
 
-	glMatrixMode(GL_MODELVIEW);						// Select The Modelview Matrix
+	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix
 }
 
@@ -404,8 +391,6 @@ void set_new_video_mode(int fs,int mode)
 	//destroy the current context
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
-
-	//setup_video_mode();
 	init_video();
 	resize_window();
 	init_lights();
@@ -427,7 +412,7 @@ void set_new_video_mode(int fs,int mode)
 	            	//our texture was freed, we have to reload it
 	        		if(alpha==0)texture_cache[i].texture_id=load_bmp8_color_key(texture_cache[i].file_name);
 	            	else
-        			texture_cache[i].texture_id=load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
+						texture_cache[i].texture_id=load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
 				}
 		}
 
@@ -440,15 +425,14 @@ void set_new_video_mode(int fs,int mode)
 						{
 							//reload the skin
 							actors_list[i]->texture_id=load_bmp8_remapped_skin(actors_list[i]->skin_name,
-							150,actors_list[i]->skin,actors_list[i]->hair,actors_list[i]->shirt,
-							actors_list[i]->pants,actors_list[i]->boots);
+																			   150,actors_list[i]->skin,actors_list[i]->hair,actors_list[i]->shirt,
+																			   actors_list[i]->pants,actors_list[i]->boots);
 						}
 					if(actors_list[i]->is_enhanced_model)
 						{
 							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 						}
 				}
-			//i++; this shouldn't be here...
 		}
 
 	//it is dependent on the window height...

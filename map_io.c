@@ -59,17 +59,14 @@ int save_map(char * file_name)
 	char * mem_map_header=(char *)&cur_map_header;
 
 	object3d_io cur_3d_obj_io;
-	//object3d cur_3d_obj;    unused?
 	int obj_3d_no=0;
 	int obj_3d_io_size;
 
 	obj_2d_io cur_2d_obj_io;
-	//obj_2d cur_2d_obj;      unused?
 	int obj_2d_no=0;
 	int obj_2d_io_size;
 
 	light_io cur_light_io;
-	//light cur_light;        unused?
 	int lights_no=0;
 	int lights_io_size;
 
@@ -227,22 +224,19 @@ int save_map(char * file_name)
 
 int load_map(char * file_name)
 {
-	int i; // j; unused?
+	int i;
 	map_header cur_map_header;
 	char * mem_map_header=(char *)&cur_map_header;
 
 	object3d_io cur_3d_obj_io;
-	//object3d cur_3d_obj;  unused?
 	int obj_3d_no=0;
 	int obj_3d_io_size;
 
 	obj_2d_io cur_2d_obj_io;
-	//obj_2d cur_2d_obj;    unused?
 	int obj_2d_no=0;
 	int obj_2d_io_size;
 
 	light_io cur_light_io;
-	//light cur_light;      unused?
 	int lights_no=0;
 	int lights_io_size;
 
@@ -332,8 +326,8 @@ int load_map(char * file_name)
 			fread(cur_3do_pointer, 1, obj_3d_io_size, f);
 
 			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
-			cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
-			cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
+					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
+					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
 
 		}
 
@@ -344,7 +338,7 @@ int load_map(char * file_name)
 			fread(cur_2do_pointer, 1, obj_2d_io_size, f);
 
 			add_2d_obj(cur_2d_obj_io.file_name,cur_2d_obj_io.x_pos,cur_2d_obj_io.y_pos,
-			cur_2d_obj_io.z_pos,cur_2d_obj_io.x_rot,cur_2d_obj_io.y_rot,cur_2d_obj_io.z_rot);
+					   cur_2d_obj_io.z_pos,cur_2d_obj_io.x_rot,cur_2d_obj_io.y_rot,cur_2d_obj_io.z_rot);
 		}
 
 

@@ -239,7 +239,6 @@ void display_spells_we_have()
 
 void display_sigils_menu()
 {
-	//Uint8 str[80];     unused?
 	int x,y,i;
 	//first of all, draw the actual menu.
 
@@ -336,15 +335,15 @@ void display_sigils_menu()
 
 	draw_string(sigil_menu_x+sigil_menu_x_len-16,sigil_menu_y+2,"X",1);
 	if(cast_mouseover)
-	glColor3f(0.87f,0.67f,0.49f);
+		glColor3f(0.87f,0.67f,0.49f);
 	else
-	glColor3f(0.77f,0.57f,0.39f);
+		glColor3f(0.77f,0.57f,0.39f);
 	draw_string(sigil_menu_x+33*6+40+4,sigil_menu_y+sigil_menu_y_len-30+2,"Cast",1);
 
 	if(clear_mouseover)
-	glColor3f(0.87f,0.67f,0.49f);
+		glColor3f(0.87f,0.67f,0.49f);
 	else
-	glColor3f(0.77f,0.57f,0.39f);
+		glColor3f(0.77f,0.57f,0.39f);
 	draw_string(sigil_menu_x+33*9+40+8,sigil_menu_y+sigil_menu_y_len-30+2,"Clear",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
@@ -393,7 +392,7 @@ void display_sigils_menu()
 			if(on_cast[i]!=-1)
 				{
 					float u_start,v_start,u_end,v_end;
-					int cur_item,cur_pos; // this_texture unused?
+					int cur_item,cur_pos;
 					int x_start,x_end,y_start,y_end;
 
 					//get the UV coordinates.
@@ -436,32 +435,30 @@ int check_sigil_interface()
 {
 	int i,x,y;
 	int x_screen,y_screen;
-	//Uint8 str[100];     unused?
 
 	if(!view_sigils_menu || mouse_x>sigil_menu_x+sigil_menu_x_len || mouse_x<sigil_menu_x
-	|| mouse_y<sigil_menu_y || mouse_y>sigil_menu_y+sigil_menu_y_len)return 0;
+	   || mouse_y<sigil_menu_y || mouse_y>sigil_menu_y+sigil_menu_y_len)return 0;
 
 	//clear button pressed?
 	if(mouse_x>sigil_menu_x+33*9+40 && mouse_x<sigil_menu_x+33*9+40+70 &&
-	mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
+	   mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
 		{
 			for(i=0;i<6;i++)on_cast[i]=-1;
 			return 1;
 		}
 
 	if(mouse_x>sigil_menu_x+33*6+40 && mouse_x<sigil_menu_x+33*6+40+50 &&
-	mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
+	   mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
 		{
 			//Cast?
 			Uint8 str[20];
 			int count=0;
-			//int len;       unused?
 			int sigils_no=0;
 
 
 			for(i=0;i<6;i++)
-			if(on_cast[i]!=-1)
-			count++;
+				if(on_cast[i]!=-1)
+					count++;
 
 			if(count<2)
 				{
@@ -471,11 +468,11 @@ int check_sigil_interface()
 				}
 			str[0]=CAST_SPELL;
 			for(i=0;i<6;i++)
-			if(on_cast[i]!=-1)
-				{
-					str[sigils_no+2]=on_cast[i];
-					sigils_no++;
-				}
+				if(on_cast[i]!=-1)
+					{
+						str[sigils_no+2]=on_cast[i];
+						sigils_no++;
+					}
 
 			str[1]=sigils_no;
 			my_tcp_send(my_socket,str,sigils_no+2);
@@ -485,35 +482,35 @@ int check_sigil_interface()
 
 	//see if we clicked on any sigil in the main category
 	for(y=0;y<3;y++)
-	for(x=0;x<12;x++)
-		{
-			x_screen=sigil_menu_x+x*33;
-			y_screen=sigil_menu_y+y*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-				{
+		for(x=0;x<12;x++)
+			{
+				x_screen=sigil_menu_x+x*33;
+				y_screen=sigil_menu_y+y*33;
+				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+					{
 
-					//see if there is any sigil there
-					if(sigils_list[y*12+x].have_sigil)
-						{
+						//see if there is any sigil there
+						if(sigils_list[y*12+x].have_sigil)
+							{
 
-							int j;
-							int image_id=sigils_list[y*12+x].sigil_img;
+								int j;
+								int image_id=sigils_list[y*12+x].sigil_img;
 
-							//see if it is already on the list
-							for(j=0;j<6;j++)
-							if(on_cast[j]==image_id)return 1;
+								//see if it is already on the list
+								for(j=0;j<6;j++)
+									if(on_cast[j]==image_id)return 1;
 
 
-							for(j=0;j<6;j++)
-							if(on_cast[j]==-1)
-								{
-									on_cast[j]=image_id;
-									return 1;
-								}
-							return 1;
-						}
-				}
-		}
+								for(j=0;j<6;j++)
+									if(on_cast[j]==-1)
+										{
+											on_cast[j]=image_id;
+											return 1;
+										}
+								return 1;
+							}
+					}
+			}
 
 	//see if we clicked on any sigil from "on cast"
 	for(x=0;x<6;x++)
@@ -532,47 +529,46 @@ int check_sigil_interface()
 
 void check_sigil_mouseover()
 {
-	int x,y; //i unused?
+	int x,y;
 	int x_screen,y_screen;
-	//Uint8 str[100];
 
 	if(!have_error_message)spell_text[0]=0;
 
 	if(!view_sigils_menu || mouse_x>sigil_menu_x+sigil_menu_x_len || mouse_x<sigil_menu_x
-	|| mouse_y<sigil_menu_y || mouse_y>sigil_menu_y+sigil_menu_y_len)return;
+	   || mouse_y<sigil_menu_y || mouse_y>sigil_menu_y+sigil_menu_y_len)return;
 
 	//clear button?
 	if(mouse_x>sigil_menu_x+33*9+40 && mouse_x<sigil_menu_x+33*9+40+70 &&
-	mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
-	clear_mouseover=1;
+	   mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
+		clear_mouseover=1;
 	else
-	clear_mouseover=0;
+		clear_mouseover=0;
 
 
 	if(mouse_x>sigil_menu_x+33*6+40 && mouse_x<sigil_menu_x+33*6+40+50 &&
-	mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
-	cast_mouseover=1;
+	   mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
+		cast_mouseover=1;
 	else
-	cast_mouseover=0;
+		cast_mouseover=0;
 
 	//see if we clicked on any sigil in the main category
 	for(y=0;y<3;y++)
-	for(x=0;x<12;x++)
-		{
-			x_screen=sigil_menu_x+x*33;
-			y_screen=sigil_menu_y+y*33;
-			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-				{
+		for(x=0;x<12;x++)
+			{
+				x_screen=sigil_menu_x+x*33;
+				y_screen=sigil_menu_y+y*33;
+				if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
+					{
 
-					//see if there is any sigil there
-					if(sigils_list[y*12+x].have_sigil)
-						{
-							my_strcp(spell_text,sigils_list[y*12+x].name);
-							have_error_message=0;
-							return;
-						}
-				}
-		}
+						//see if there is any sigil there
+						if(sigils_list[y*12+x].have_sigil)
+							{
+								my_strcp(spell_text,sigils_list[y*12+x].name);
+								have_error_message=0;
+								return;
+							}
+					}
+			}
 
 	//see if we clicked on any sigil from "on cast"
 	for(x=0;x<6;x++)
@@ -580,12 +576,12 @@ void check_sigil_mouseover()
 			x_screen=sigil_menu_x+x*33;
 			y_screen=sigil_menu_y+5*33;
 			if(mouse_x>x_screen && mouse_x<x_screen+33 && mouse_y>y_screen && mouse_y<y_screen+33)
-			if(on_cast[x]!=-1)
-				{
-					my_strcp(spell_text,sigils_list[on_cast[x]].name);
-					have_error_message=0;
-					return;
-				}
+				if(on_cast[x]!=-1)
+					{
+						my_strcp(spell_text,sigils_list[on_cast[x]].name);
+						have_error_message=0;
+						return;
+					}
 		}
 }
 
@@ -595,11 +591,11 @@ void get_sigils_we_have(Uint32 sigils_we_have)
 	int po2=1;
 
 	for(i=0;i<32;i++)
-	{
-		if((sigils_we_have&po2))sigils_list[i].have_sigil=1;
-		else sigils_list[i].have_sigil=0;
-		po2*=2;
-	}
+		{
+			if((sigils_we_have&po2))sigils_list[i].have_sigil=1;
+			else sigils_list[i].have_sigil=0;
+			po2*=2;
+		}
 
 }
 

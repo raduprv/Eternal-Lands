@@ -36,12 +36,12 @@ void update_rain()
 			speed_var++;
 			speed_var&=(8192-1);	// limit the high end
 			if(rain_drops[i].y<0)
-			{
-				rain_drops[i].x=rand()%500;
-				rain_drops[i].y=500;
-				rain_drops[i].x2=rain_drops[i].x;
-				rain_drops[i].y2=500-rain_drop_len;
-			}
+				{
+					rain_drops[i].x=rand()%500;
+					rain_drops[i].y=500;
+					rain_drops[i].x2=rain_drops[i].x;
+					rain_drops[i].y2=500-rain_drop_len;
+				}
 		}
 }
 
@@ -55,7 +55,6 @@ void render_rain()
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	//glOrtho(0.0, (GLdouble)500, (GLdouble)500, 0.0, -250.0, 250.0);
 	glOrtho(500, (GLdouble)0, (GLdouble)0, 500, -250.0, 250.0);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -114,11 +113,11 @@ void rain_control()
 						}
 				}
 			else
-			if(!is_raining)
-				{
-					is_raining=1;
-					rain_sound=add_sound_object("./sound/rain1.wav",0,0,0,-1,1);
-				}
+				if(!is_raining)
+					{
+						is_raining=1;
+						rain_sound=add_sound_object("./sound/rain1.wav",0,0,0,-1,1);
+					}
 
 
 			//make it lighter each 3 seconds
@@ -166,10 +165,8 @@ void thunder_control()
 			if(thunders[i].in_use)
 				{
 					if(thunders[i].time_since_started<5)thunders[i].light_offset=thunders[i].time_since_started;
-					else
-					if(thunders[i].time_since_started>5 && thunders[i].time_since_started<10)thunders[i].light_offset=5;
-					else
-					if(thunders[i].time_since_started>10 &&thunders[i].time_since_started<15)thunders[i].light_offset=15-thunders[i].time_since_started;
+					else if(thunders[i].time_since_started>5 && thunders[i].time_since_started<10)thunders[i].light_offset=5;
+					else if(thunders[i].time_since_started>10 &&thunders[i].time_since_started<15)thunders[i].light_offset=15-thunders[i].time_since_started;
 					//should we start the sound?
 					if(thunders[i].seconds_till_sound!=-1 && thunders[i].seconds_till_sound>=0)
 						{
@@ -177,14 +174,10 @@ void thunder_control()
 							if(!thunders[i].seconds_till_sound)
 								{
 									if(thunders[i].thunder_type==0)add_sound_object("./sound/thunder1.wav",0,0,0,0,0);
-									else
-									if(thunders[i].thunder_type==1)add_sound_object("./sound/thunder2.wav",0,0,0,0,0);
-									else
-									if(thunders[i].thunder_type==2)add_sound_object("./sound/thunder3.wav",0,0,0,0,0);
-									else
-									if(thunders[i].thunder_type==3)add_sound_object("./sound/thunder4.wav",0,0,0,0,0);
-									else
-									if(thunders[i].thunder_type==4)add_sound_object("./sound/thunder5.wav",0,0,0,0,0);
+									else if(thunders[i].thunder_type==1)add_sound_object("./sound/thunder2.wav",0,0,0,0,0);
+									else if(thunders[i].thunder_type==2)add_sound_object("./sound/thunder3.wav",0,0,0,0,0);
+									else if(thunders[i].thunder_type==3)add_sound_object("./sound/thunder4.wav",0,0,0,0,0);
+									else if(thunders[i].thunder_type==4)add_sound_object("./sound/thunder5.wav",0,0,0,0,0);
 									thunders[i].seconds_till_sound=-1;//we are done with this sound
 
 								}
@@ -192,7 +185,7 @@ void thunder_control()
 					thunders[i].time_since_started++;
 					//is this thunder expired?
 					if(thunders[i].time_since_started>20 && thunders[i].seconds_till_sound==-1)
-					thunders[i].in_use=0;
+						thunders[i].in_use=0;
 				}
 		}
 
@@ -229,7 +222,7 @@ void get_weather_light_level()
 	for(i=0;i<MAX_THUNDERS;i++)
 		{
 			if(thunders[i].in_use)
-			thunder_light_offset+=thunders[i].light_offset;
+				thunder_light_offset+=thunders[i].light_offset;
 		}
 
 	//thunders light is positive, while rain light is negative
@@ -246,74 +239,5 @@ void clear_thunders()
 		}
 }
 
-/*
-void render_ligtning()
-{
-	int i;
-	float u_start,v_start;
-	int frame;
-
-   		glDisable(GL_DEPTH_TEST);
-
-    	glViewport(0, 0, window_width, window_height);
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		glOrtho(500, (GLdouble)0, (GLdouble)0, 500, -250.0, 250.0);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-
-	glEnable(GL_BLEND);
-  	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-    glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-    glAlphaFunc(GL_GREATER,0.18f);
-	if(last_texture!=texture_cache[lightning_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[lightning_text].texture_id);
-			last_texture=texture_cache[lightning_text].texture_id;
-		}
-
-	for(i=0;i<MAX_THUNDERS;i++)
-		{
-			if(thunders[i].in_use && thunders[i].time_since_started<16)
-				{
-					frame=thunders[i].time_since_started/2;
-					u_start=1.0f/8*frame;
-					v_start=1.0f;
-					glLoadIdentity();
-					glTranslatef(thunders[i].x,thunders[i].y, 0);
-					glRotatef(thunders[i].rot, 0.0f, 0.0f, 1.0f);
-					glBegin(GL_QUADS);
-
-
-					glTexCoord2f(u_start,0);
-					glVertex3i(-15,-250,0);
-
-					glTexCoord2f(u_start,v_start);
-					glVertex3i(-15,250,0);
-
-					glTexCoord2f(u_start+0.25f/2,v_start);
-					glVertex3i(15,250,0);
-
-					glTexCoord2f(u_start+0.25f/2,0);
-					glVertex3i(15,-250,0);
-					glEnd();
-
-				}
-		}
-	glDisable(GL_BLEND);
-	glDisable(GL_ALPHA_TEST);
-
-
-
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-
-		glEnable(GL_DEPTH_TEST);
-}
-*/
 
 

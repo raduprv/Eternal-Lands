@@ -10,29 +10,29 @@ int add_to_ignore_list(Uint8 *name, char save_name)
 	for(i=0;i<max_ignores;i++)
 		{
 			if(ignore_list[i].used)
-			if(my_strcompare(ignore_list[i].name,name))return -1;//already in the list
+				if(my_strcompare(ignore_list[i].name,name))return -1;//already in the list
 		}
 
 	//ok, find a free spot
 	for(i=0;i<max_ignores;i++)
 		{
 			if(!ignore_list[i].used)
-			{
-				//excellent, a free spot
-				my_strcp(ignore_list[i].name,name);
-				//add to the global ignore file, if the case
-				if(save_name)
-					{
-						FILE *f = NULL;
-  						f=fopen("local_ignores.txt", "a");
-  						fwrite(name, strlen(name), 1, f);
-  						fwrite("\n", 1, 1, f);
-  						fclose(f);
-					}
-				ignore_list[i].used=1;//mark as used
-				ignored_so_far++;
-				return 1;
-			}
+				{
+					//excellent, a free spot
+					my_strcp(ignore_list[i].name,name);
+					//add to the global ignore file, if the case
+					if(save_name)
+						{
+							FILE *f = NULL;
+							f=fopen("local_ignores.txt", "a");
+							fwrite(name, strlen(name), 1, f);
+							fwrite("\n", 1, 1, f);
+							fclose(f);
+						}
+					ignore_list[i].used=1;//mark as used
+					ignored_so_far++;
+					return 1;
+				}
 		}
 
 	return -2;//if we are here, it means the ignores list is full
@@ -46,11 +46,11 @@ int remove_from_ignore_list(Uint8 *name)
 	for(i=0;i<max_ignores;i++)
 		{
 			if(ignore_list[i].used)
-			if(my_strcompare(ignore_list[i].name,name))
-				{
-					ignore_list[i].used=0;
-					return 1;
-				}
+				if(my_strcompare(ignore_list[i].name,name))
+					{
+						ignore_list[i].used=0;
+						return 1;
+					}
 		}
 	return -1;
 }
@@ -63,7 +63,7 @@ int check_if_ignored(Uint8 *name)
 	for(i=0;i<max_ignores;i++)
 		{
 			if(ignore_list[i].used)
-			if(my_strcompare(ignore_list[i].name,name))return 1;//yep, ignored
+				if(my_strcompare(ignore_list[i].name,name))return 1;//yep, ignored
 		}
 	return 0;//nope
 }
@@ -105,47 +105,47 @@ int pre_check_if_ignored(Uint8 * input_text)
 
 void load_ignores_list(char * file_name)
 {
-  int f_size;
-  FILE *f = NULL;
-  Uint8 * ignore_list_mem;
-  int i,j;
-  Uint8 name[16];
-  Uint8 ch;
+	int f_size;
+	FILE *f = NULL;
+	Uint8 * ignore_list_mem;
+	int i,j;
+	Uint8 name[16];
+	Uint8 ch;
 
-  f = fopen(file_name, "rb");
-  if(!f)return;
-  fseek(f,0,SEEK_END);
-  f_size = ftell(f);
+	f = fopen(file_name, "rb");
+	if(!f)return;
+	fseek(f,0,SEEK_END);
+	f_size = ftell(f);
 
-  //ok, allocate memory for it
-  ignore_list_mem=(Uint8 *)calloc(f_size, 1);
-  fseek (f, 0, SEEK_SET);
-  fread (ignore_list_mem, 1, f_size, f);
-  fclose (f);
+	//ok, allocate memory for it
+	ignore_list_mem=(Uint8 *)calloc(f_size, 1);
+	fseek (f, 0, SEEK_SET);
+	fread (ignore_list_mem, 1, f_size, f);
+	fclose (f);
 
-  j=0;
-  i=0;
-  while(i<f_size)
-  	{
-		ch=ignore_list_mem[i];
-		if(ch=='\n' || ch=='\r')
-			{
-				if(j)if(add_to_ignore_list(name,0)==-1)return;//ignore list full
-				j=0;
-				i++;
-				continue;
-			}
-		else
-			{
-				name[j]=ch;
-			}
-		name[j+1]=0;
-		j++;
-		i++;
-	}
+	j=0;
+	i=0;
+	while(i<f_size)
+		{
+			ch=ignore_list_mem[i];
+			if(ch=='\n' || ch=='\r')
+				{
+					if(j)if(add_to_ignore_list(name,0)==-1)return;//ignore list full
+					j=0;
+					i++;
+					continue;
+				}
+			else
+				{
+					name[j]=ch;
+				}
+			name[j+1]=0;
+			j++;
+			i++;
+		}
 
 
-  free(ignore_list_mem);
+	free(ignore_list_mem);
 }
 
 
@@ -154,7 +154,7 @@ void clear_ignore_list()
 	int i;
 	//see if this name is already on the list
 	for(i=0;i<max_ignores;i++)
-	ignore_list[i].used=0;
+		ignore_list[i].used=0;
 }
 
 
@@ -179,10 +179,10 @@ void list_ignores()
 	for(i=0;i<max_ignores;i++)
 		{
 			if(ignore_list[i].used)
-			{
-				my_strcp(&str[strlen(str)],ignore_list[i].name);
-				my_strcp(&str[strlen(str)],", ");
-			}
+				{
+					my_strcp(&str[strlen(str)],ignore_list[i].name);
+					my_strcp(&str[strlen(str)],", ");
+				}
 		}
 
 	str[strlen(str)-2]=0;//get rid of the last ", " thingy

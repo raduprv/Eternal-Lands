@@ -6,10 +6,8 @@
 void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 {
 	int i,j;
-	//float u,v;   unused?
 	float x,y,z;
 	char *dest_frame_name;
-	//char str[20]; unused?
 	int numFrames;
     int numFaces;
     text_coord_md2 *offsetTexCoords;
@@ -27,16 +25,15 @@ void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 	//now, go and find the current frame
 	i=0;
 	while(i<numFrames)
-	{
-		dest_frame_name=(char *)&offsetFrames[i].name;
-		//dest_frame_name=offsetFrames[i].name;
-		if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-			{
-				vertex_pointer=offsetFrames[i].vertex_pointer;
-				break;
-			}
-		i++;
-	}
+		{
+			dest_frame_name=(char *)&offsetFrames[i].name;
+			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
+				{
+					vertex_pointer=offsetFrames[i].vertex_pointer;
+					break;
+				}
+			i++;
+		}
 
 	i=0;
 	if(vertex_pointer==NULL)//if there is no frame, use idle01
@@ -45,15 +42,15 @@ void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 			sprintf(str, "couldn't find frame: %s\n",cur_frame);
 			log_error(str);
 			while(i<numFrames)
-			{
-				dest_frame_name=(char *)&offsetFrames[i].name;
-				if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
-					{
-						vertex_pointer=offsetFrames[i].vertex_pointer;
-						break;
-					}
-				i++;
-			}
+				{
+					dest_frame_name=(char *)&offsetFrames[i].name;
+					if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
+						{
+							vertex_pointer=offsetFrames[i].vertex_pointer;
+							break;
+						}
+					i++;
+				}
 		}
 
 	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
@@ -99,12 +96,12 @@ void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos, float y_pos, float z_pos, float z_rot, int actor_id)
+int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos, float y_pos,
+					   float z_pos, float z_rot, int actor_id)
 {
 	int texture_id;
 	int i;
 	int k;
-	//md2 *returned_md2;  unused?
 	actor *our_actor;
 	no_bounding_box=1;
 
@@ -121,13 +118,12 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 		{
 			this_actor->legs=(md2*)load_md2_cache(this_actor->legs_fn);
 			if(!this_actor->legs)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part: %s\n",this_actor->legs_fn);
     		        log_error(str);
     		        this_actor->legs=0;
-			        //return 0;
-			   }
+				}
 		}
 	else this_actor->legs=0;
 
@@ -136,13 +132,12 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 		{
 			this_actor->head=(md2*)load_md2_cache(this_actor->head_fn);
 			if(!this_actor->head)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part (head): %s\n",this_actor->head_fn);
     		        log_error(str);
     		        this_actor->head=0;
-			        //return 0;
-			   }
+				}
 		}
 	else this_actor->head=0;
 
@@ -151,13 +146,12 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 		{
 			this_actor->torso=(md2*)load_md2_cache(this_actor->torso_fn);
 			if(!this_actor->torso)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part (torso): %s\n",this_actor->torso_fn);
     		        log_error(str);
     		        this_actor->torso=0;
-			        //return 0;
-			   }
+				}
 		}
 	else this_actor->torso=0;
 
@@ -166,13 +160,12 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 		{
 			this_actor->weapon=(md2*)load_md2_cache(this_actor->weapon_fn);
 			if(!this_actor->weapon)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part (weapon): %s\n",this_actor->weapon_fn);
     		        log_error(str);
     		        this_actor->weapon=0;
-			        //return 0;
-			   }
+				}
 		}
 	else this_actor->weapon=0;
 
@@ -181,13 +174,12 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 		{
 			this_actor->shield=(md2*)load_md2_cache(this_actor->shield_fn);
 			if(!this_actor->shield)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part (shield): %s\n",this_actor->shield_fn);
     		        log_error(str);
     		        this_actor->shield=0;
-			        //return 0;
-			   }
+				}
 		}
 	else this_actor->shield=0;
 
@@ -196,13 +188,12 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 		{
 			this_actor->helmet=(md2*)load_md2_cache(this_actor->helmet_fn);
 			if(!this_actor->helmet)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part (helmet): %s\n",this_actor->helmet_fn);
     		        log_error(str);
     		        this_actor->helmet=0;
-			        //return 0;
-			   }
+				}
 		}
 	else this_actor->helmet=0;
 
@@ -212,21 +203,17 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 		{
 			this_actor->cape=(md2*)load_md2_cache(this_actor->cape_fn);
 			if(!this_actor->cape)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part (cape): %s\n",this_actor->cape_fn);
     		        log_error(str);
     		        this_actor->cape=0;
-			        //return 0;
-			   }
+				}
 		}
 	else this_actor->cape=0;
 
 	//get the skin
 	texture_id=load_bmp8_enhanced_actor(this_actor, 255);
-	//texture_id=load_texture_cache("./md2/textureformat.bmp",150);
-	//texture_id=load_texture_cache("./md2/animals3.bmp",150);
-
 
 	our_actor->texture_id=texture_id;
 	our_actor->is_enhanced_model=1;
@@ -277,10 +264,9 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 
 void draw_enhanced_actor(actor * actor_id)
 {
-	int i; //,j; unused?
+	int i;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	//float x,y,z;  unused?
 	int texture_id;
 	char *cur_frame;
 	char str[20];
@@ -298,7 +284,6 @@ void draw_enhanced_actor(actor * actor_id)
 
 	offsetFrames=actor_id->body_parts->head->offsetFrames;
 	texture_id=actor_id->texture_id;
-	//texture_id=texture_cache[actor_id->texture_id].texture_id;
 
 	cur_frame=actor_id->cur_frame;
 
@@ -316,16 +301,15 @@ void draw_enhanced_actor(actor * actor_id)
 	i=0;
 	numFrames=actor_id->body_parts->head->numFrames;
 	while(i<numFrames)
-	{
-		dest_frame_name=(char *)&offsetFrames[i].name;
-		//dest_frame_name=offsetFrames[i].name;
-		if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-			{
-				healtbar_z=offsetFrames[i].box.max_z+0.2f;
-				break;
-			}
-		i++;
-	}
+		{
+			dest_frame_name=(char *)&offsetFrames[i].name;
+			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
+				{
+					healtbar_z=offsetFrames[i].box.max_z+0.2f;
+					break;
+				}
+			i++;
+		}
 
 	if(last_texture!=texture_id)
 		{
@@ -333,7 +317,7 @@ void draw_enhanced_actor(actor * actor_id)
 			last_texture=texture_id;
 		}
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-	z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
@@ -356,7 +340,6 @@ void draw_enhanced_actor(actor * actor_id)
 	//now, draw their damage
 
 	glPushMatrix();
-	//glTranslatef(x_pos, y_pos, z_pos);
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
@@ -364,9 +347,9 @@ void draw_enhanced_actor(actor * actor_id)
 	glDisable(GL_TEXTURE_2D);
 	//choose color for the bar
 	if(actor_id->cur_health>=actor_id->max_health/2)
-	glColor3f(0,1,0);//green life bar
+		glColor3f(0,1,0);//green life bar
 	else if(actor_id->cur_health>=actor_id->max_health/4 && actor_id->cur_health<actor_id->max_health/2)
-	glColor3f(1,1,0);//yellow life bar
+		glColor3f(1,1,0);//yellow life bar
 	else glColor3f(1,0,0);
 	if(!actor_id->ghost)glDisable(GL_LIGHTING);
 
@@ -374,7 +357,7 @@ void draw_enhanced_actor(actor * actor_id)
 		{
 			//get it's lenght
 			if(actor_id->max_health)//we don't want a division by zero, now do we?
-			healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
+				healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
 			glBegin(GL_QUADS);
 			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
 			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
@@ -433,42 +416,42 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
-			if(actors_list[i]->actor_id==actor_id)
-				{
-					if(which_part==KIND_OF_WEAPON)
-						{
-							actors_list[i]->body_parts->weapon=0;
-							actors_list[i]->body_parts->weapon_fn[0]=0;
-							actors_list[i]->body_parts->weapon_tex[0]=0;
-							return;
-						}
+				if(actors_list[i]->actor_id==actor_id)
+					{
+						if(which_part==KIND_OF_WEAPON)
+							{
+								actors_list[i]->body_parts->weapon=0;
+								actors_list[i]->body_parts->weapon_fn[0]=0;
+								actors_list[i]->body_parts->weapon_tex[0]=0;
+								return;
+							}
 
-					if(which_part==KIND_OF_SHIELD)
-						{
-							actors_list[i]->body_parts->shield=0;
-							actors_list[i]->body_parts->shield_fn[0]=0;
-							actors_list[i]->body_parts->shield_tex[0]=0;
-							return;
-						}
+						if(which_part==KIND_OF_SHIELD)
+							{
+								actors_list[i]->body_parts->shield=0;
+								actors_list[i]->body_parts->shield_fn[0]=0;
+								actors_list[i]->body_parts->shield_tex[0]=0;
+								return;
+							}
 
-					if(which_part==KIND_OF_CAPE)
-						{
-							actors_list[i]->body_parts->cape=0;
-							actors_list[i]->body_parts->cape_fn[0]=0;
-							actors_list[i]->body_parts->cape_tex[0]=0;
-							return;
-						}
+						if(which_part==KIND_OF_CAPE)
+							{
+								actors_list[i]->body_parts->cape=0;
+								actors_list[i]->body_parts->cape_fn[0]=0;
+								actors_list[i]->body_parts->cape_tex[0]=0;
+								return;
+							}
 
-					if(which_part==KIND_OF_HELMET)
-						{
-							actors_list[i]->body_parts->helmet=0;
-							actors_list[i]->body_parts->helmet_fn[0]=0;
-							actors_list[i]->body_parts->helmet_tex[0]=0;
-							return;
-						}
+						if(which_part==KIND_OF_HELMET)
+							{
+								actors_list[i]->body_parts->helmet=0;
+								actors_list[i]->body_parts->helmet_fn[0]=0;
+								actors_list[i]->body_parts->helmet_tex[0]=0;
+								return;
+							}
 
-					return;
-				}
+						return;
+					}
 		}
 
 }
@@ -480,89 +463,89 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
-			if(actors_list[i]->actor_id==actor_id)
-				{
-					if(which_part==KIND_OF_WEAPON)
-						{
-							my_strcp(actors_list[i]->body_parts->weapon_tex,actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
-							my_strcp(actors_list[i]->body_parts->weapon_fn,actors_defs[actors_list[i]->actor_type].weapon[which_id].model_name);
-							no_bounding_box=1;
-							actors_list[i]->body_parts->weapon=(md2*)load_md2_cache(actors_list[i]->body_parts->weapon_fn);
-							no_bounding_box=0;
-							glDeleteTextures(1,&actors_list[i]->texture_id);
-							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-							actors_list[i]->cur_weapon=which_id;
-							return;
-						}
+				if(actors_list[i]->actor_id==actor_id)
+					{
+						if(which_part==KIND_OF_WEAPON)
+							{
+								my_strcp(actors_list[i]->body_parts->weapon_tex,actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
+								my_strcp(actors_list[i]->body_parts->weapon_fn,actors_defs[actors_list[i]->actor_type].weapon[which_id].model_name);
+								no_bounding_box=1;
+								actors_list[i]->body_parts->weapon=(md2*)load_md2_cache(actors_list[i]->body_parts->weapon_fn);
+								no_bounding_box=0;
+								glDeleteTextures(1,&actors_list[i]->texture_id);
+								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+								actors_list[i]->cur_weapon=which_id;
+								return;
+							}
 
-					if(which_part==KIND_OF_SHIELD)
-						{
-							my_strcp(actors_list[i]->body_parts->shield_tex,actors_defs[actors_list[i]->actor_type].shield[which_id].skin_name);
-							my_strcp(actors_list[i]->body_parts->shield_fn,actors_defs[actors_list[i]->actor_type].shield[which_id].model_name);
-							no_bounding_box=1;
-							actors_list[i]->body_parts->shield=(md2*)load_md2_cache(actors_list[i]->body_parts->shield_fn);
-							no_bounding_box=0;
-							glDeleteTextures(1,&actors_list[i]->texture_id);
-							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-							return;
-						}
+						if(which_part==KIND_OF_SHIELD)
+							{
+								my_strcp(actors_list[i]->body_parts->shield_tex,actors_defs[actors_list[i]->actor_type].shield[which_id].skin_name);
+								my_strcp(actors_list[i]->body_parts->shield_fn,actors_defs[actors_list[i]->actor_type].shield[which_id].model_name);
+								no_bounding_box=1;
+								actors_list[i]->body_parts->shield=(md2*)load_md2_cache(actors_list[i]->body_parts->shield_fn);
+								no_bounding_box=0;
+								glDeleteTextures(1,&actors_list[i]->texture_id);
+								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+								return;
+							}
 
-					if(which_part==KIND_OF_CAPE)
-						{
-							my_strcp(actors_list[i]->body_parts->cape_tex,actors_defs[actors_list[i]->actor_type].cape[which_id].skin_name);
-							my_strcp(actors_list[i]->body_parts->cape_fn,actors_defs[actors_list[i]->actor_type].cape[which_id].model_name);
-							no_bounding_box=1;
-							actors_list[i]->body_parts->cape=(md2*)load_md2_cache(actors_list[i]->body_parts->cape_fn);
-							no_bounding_box=0;
-							glDeleteTextures(1,&actors_list[i]->texture_id);
-							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-							return;
-						}
+						if(which_part==KIND_OF_CAPE)
+							{
+								my_strcp(actors_list[i]->body_parts->cape_tex,actors_defs[actors_list[i]->actor_type].cape[which_id].skin_name);
+								my_strcp(actors_list[i]->body_parts->cape_fn,actors_defs[actors_list[i]->actor_type].cape[which_id].model_name);
+								no_bounding_box=1;
+								actors_list[i]->body_parts->cape=(md2*)load_md2_cache(actors_list[i]->body_parts->cape_fn);
+								no_bounding_box=0;
+								glDeleteTextures(1,&actors_list[i]->texture_id);
+								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+								return;
+							}
 
-					if(which_part==KIND_OF_HELMET)
-						{
-							my_strcp(actors_list[i]->body_parts->helmet_tex,actors_defs[actors_list[i]->actor_type].helmet[which_id].skin_name);
-							my_strcp(actors_list[i]->body_parts->helmet_fn,actors_defs[actors_list[i]->actor_type].helmet[which_id].model_name);
-							no_bounding_box=1;
-							actors_list[i]->body_parts->helmet=(md2*)load_md2_cache(actors_list[i]->body_parts->helmet_fn);
-							no_bounding_box=0;
-							glDeleteTextures(1,&actors_list[i]->texture_id);
-							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-							return;
-						}
+						if(which_part==KIND_OF_HELMET)
+							{
+								my_strcp(actors_list[i]->body_parts->helmet_tex,actors_defs[actors_list[i]->actor_type].helmet[which_id].skin_name);
+								my_strcp(actors_list[i]->body_parts->helmet_fn,actors_defs[actors_list[i]->actor_type].helmet[which_id].model_name);
+								no_bounding_box=1;
+								actors_list[i]->body_parts->helmet=(md2*)load_md2_cache(actors_list[i]->body_parts->helmet_fn);
+								no_bounding_box=0;
+								glDeleteTextures(1,&actors_list[i]->texture_id);
+								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+								return;
+							}
 
-					if(which_part==KIND_OF_BODY_ARMOR)
-						{
-							my_strcp(actors_list[i]->body_parts->arms_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].arms_name);
-							my_strcp(actors_list[i]->body_parts->torso_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].torso_name);
-							my_strcp(actors_list[i]->body_parts->torso_fn,actors_defs[actors_list[i]->actor_type].shirt[which_id].model_name);
-							no_bounding_box=1;
-							actors_list[i]->body_parts->torso=(md2*)load_md2_cache(actors_list[i]->body_parts->torso_fn);
-							no_bounding_box=0;
-							glDeleteTextures(1,&actors_list[i]->texture_id);
-							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-							return;
-						}
-					if(which_part==KIND_OF_LEG_ARMOR)
-						{
-							my_strcp(actors_list[i]->body_parts->pants_tex,actors_defs[actors_list[i]->actor_type].legs[which_id].legs_name);
-							my_strcp(actors_list[i]->body_parts->legs_fn,actors_defs[actors_list[i]->actor_type].legs[which_id].model_name);
-							no_bounding_box=1;
-							actors_list[i]->body_parts->legs=(md2*)load_md2_cache(actors_list[i]->body_parts->legs_fn);
-							no_bounding_box=0;
-							glDeleteTextures(1,&actors_list[i]->texture_id);
-							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-							return;
-						}
+						if(which_part==KIND_OF_BODY_ARMOR)
+							{
+								my_strcp(actors_list[i]->body_parts->arms_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].arms_name);
+								my_strcp(actors_list[i]->body_parts->torso_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].torso_name);
+								my_strcp(actors_list[i]->body_parts->torso_fn,actors_defs[actors_list[i]->actor_type].shirt[which_id].model_name);
+								no_bounding_box=1;
+								actors_list[i]->body_parts->torso=(md2*)load_md2_cache(actors_list[i]->body_parts->torso_fn);
+								no_bounding_box=0;
+								glDeleteTextures(1,&actors_list[i]->texture_id);
+								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+								return;
+							}
+						if(which_part==KIND_OF_LEG_ARMOR)
+							{
+								my_strcp(actors_list[i]->body_parts->pants_tex,actors_defs[actors_list[i]->actor_type].legs[which_id].legs_name);
+								my_strcp(actors_list[i]->body_parts->legs_fn,actors_defs[actors_list[i]->actor_type].legs[which_id].model_name);
+								no_bounding_box=1;
+								actors_list[i]->body_parts->legs=(md2*)load_md2_cache(actors_list[i]->body_parts->legs_fn);
+								no_bounding_box=0;
+								glDeleteTextures(1,&actors_list[i]->texture_id);
+								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+								return;
+							}
 
-					if(which_part==KIND_OF_BOOT_ARMOR)
-						{
-							my_strcp(actors_list[i]->body_parts->boots_tex,actors_defs[actors_list[i]->actor_type].boots[which_id].boots_name);
-							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-							return;
-						}
-					return;
-				}
+						if(which_part==KIND_OF_BOOT_ARMOR)
+							{
+								my_strcp(actors_list[i]->body_parts->boots_tex,actors_defs[actors_list[i]->actor_type].boots[which_id].boots_name);
+								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+								return;
+							}
+						return;
+					}
 		}
 
 }
@@ -626,58 +609,40 @@ void add_enhanced_actor_from_server(char * in_data)
 
 	//get the current frame
 	if(frame==frame_walk)my_strcp(cur_frame,actors_defs[actor_type].walk_frame);
-	else
-	if(frame==frame_run)my_strcp(cur_frame,actors_defs[actor_type].run_frame);
-	else
-	if(frame==frame_die1)
+	else if(frame==frame_run)my_strcp(cur_frame,actors_defs[actor_type].run_frame);
+	else if(frame==frame_die1)
 		{
 			my_strcp(cur_frame,actors_defs[actor_type].die1_frame);
 			dead=1;
 		}
-	else
-	if(frame==frame_die2)
+	else if(frame==frame_die2)
 		{
 			my_strcp(cur_frame,actors_defs[actor_type].die2_frame);
 			dead=1;
 		}
-	else
-	if(frame==frame_pain1)my_strcp(cur_frame,actors_defs[actor_type].pain1_frame);
-	else
-	if(frame==frame_pain2)my_strcp(cur_frame,actors_defs[actor_type].pain2_frame);
-	else
-	if(frame==frame_pick)my_strcp(cur_frame,actors_defs[actor_type].pick_frame);
-	else
-	if(frame==frame_drop)my_strcp(cur_frame,actors_defs[actor_type].drop_frame);
-	else
-	if(frame==frame_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_frame);
-	else
-	if(frame==frame_sit_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_sit_frame);
-	else
-	if(frame==frame_harvest)my_strcp(cur_frame,actors_defs[actor_type].harvest_frame);
-	else
-	if(frame==frame_cast)my_strcp(cur_frame,actors_defs[actor_type].attack_cast_frame);
-	else
-	if(frame==frame_attack_up_1)my_strcp(cur_frame,actors_defs[actor_type].attack_up_1_frame);
-	else
-	if(frame==frame_attack_up_2)my_strcp(cur_frame,actors_defs[actor_type].attack_up_2_frame);
-	else
-	if(frame==frame_attack_up_3)my_strcp(cur_frame,actors_defs[actor_type].attack_up_3_frame);
-	else
-	if(frame==frame_attack_up_4)my_strcp(cur_frame,actors_defs[actor_type].attack_up_4_frame);
-	else
-	if(frame==frame_attack_down_1)my_strcp(cur_frame,actors_defs[actor_type].attack_down_1_frame);
-	else
-	if(frame==frame_attack_down_2)my_strcp(cur_frame,actors_defs[actor_type].attack_down_2_frame);
-	else
-	if(frame==frame_combat_idle)my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);
+	else if(frame==frame_pain1)my_strcp(cur_frame,actors_defs[actor_type].pain1_frame);
+	else if(frame==frame_pain2)my_strcp(cur_frame,actors_defs[actor_type].pain2_frame);
+	else if(frame==frame_pick)my_strcp(cur_frame,actors_defs[actor_type].pick_frame);
+	else if(frame==frame_drop)my_strcp(cur_frame,actors_defs[actor_type].drop_frame);
+	else if(frame==frame_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_frame);
+	else if(frame==frame_sit_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_sit_frame);
+	else if(frame==frame_harvest)my_strcp(cur_frame,actors_defs[actor_type].harvest_frame);
+	else if(frame==frame_cast)my_strcp(cur_frame,actors_defs[actor_type].attack_cast_frame);
+	else if(frame==frame_attack_up_1)my_strcp(cur_frame,actors_defs[actor_type].attack_up_1_frame);
+	else if(frame==frame_attack_up_2)my_strcp(cur_frame,actors_defs[actor_type].attack_up_2_frame);
+	else if(frame==frame_attack_up_3)my_strcp(cur_frame,actors_defs[actor_type].attack_up_3_frame);
+	else if(frame==frame_attack_up_4)my_strcp(cur_frame,actors_defs[actor_type].attack_up_4_frame);
+	else if(frame==frame_attack_down_1)my_strcp(cur_frame,actors_defs[actor_type].attack_down_1_frame);
+	else if(frame==frame_attack_down_2)my_strcp(cur_frame,actors_defs[actor_type].attack_down_2_frame);
+	else if(frame==frame_combat_idle)my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
-			if(actors_list[i]->actor_id==actor_id)
-				destroy_actor(i);//we don't want two actors with thesame ID
+				if(actors_list[i]->actor_id==actor_id)
+					destroy_actor(i);//we don't want two actors with thesame ID
 		}
 
 	this_actor=calloc(1,sizeof(enhanced_actor));
@@ -753,7 +718,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	actors_list[i]->cur_health=cur_health;
 	if(frame==frame_sit_idle)actors_list[i]->sitting=1;
 	else
-	if(frame==frame_combat_idle)actors_list[i]->fighting=1;
+		if(frame==frame_combat_idle)actors_list[i]->fighting=1;
 
 	//ghost or not?
 	actors_list[i]->ghost=0;

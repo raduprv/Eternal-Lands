@@ -5,43 +5,43 @@ extern char map_file_name[60];
 
 typedef struct
 {
-   char file_name[80];
-   float x_pos;
-   float y_pos;
-   float z_pos;
+	char file_name[80];
+	float x_pos;
+	float y_pos;
+	float z_pos;
 
-   float x_rot;
-   float y_rot;
-   float z_rot;
+	float x_rot;
+	float y_rot;
+	float z_rot;
 
-   char self_lit;
-   char blended;
-   float r,g,b;
-   char reserved[24];
+	char self_lit;
+	char blended;
+	float r,g,b;
+	char reserved[24];
 
 }object3d_io;
 
 typedef struct
 {
-  char file_name[80];
-  float x_pos;
-  float y_pos;
-  float z_pos;
-  float x_rot;
-  float y_rot;
-  float z_rot;
-  char reserved[24];
+	char file_name[80];
+	float x_pos;
+	float y_pos;
+	float z_pos;
+	float x_rot;
+	float y_rot;
+	float z_rot;
+	char reserved[24];
 }obj_2d_io;
 
 typedef struct
 {
-  float pos_x;
-  float pos_y;
-  float pos_z;
-  float r;
-  float g;
-  float b;
-  char reserved[15];
+	float pos_x;
+	float pos_y;
+	float pos_z;
+	float r;
+	float g;
+	float b;
+	char reserved[15];
 }light_io;
 
 typedef struct

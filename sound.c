@@ -16,24 +16,24 @@ void channelDone(int channel)
 {
 	int i;
     /* find the entry that use this channel, and then free the chunk, to set the channel
-    as free */
+	   as free */
 	for(i=0;i<max_sound_objects;i++)
 		{
-		  if(sound_list[i].channel==channel) {
-			if((sound_list[i].kill && sound_list[i].loops_number==-1) || !sound_list[i].loops_number)
-				{
-					sound_list[i].chunk=0;
-					sound_list[i].channel=-1;
-					return;
-				}
-			else
-				{
-					sound_list[i].is_playing=0;//this basically makes us recheck if it is in range again,
-					sound_list[i].channel=-1;
-					//after we move the camera
-					return;
-				}
-		  }
+			if(sound_list[i].channel==channel) {
+				if((sound_list[i].kill && sound_list[i].loops_number==-1) || !sound_list[i].loops_number)
+					{
+						sound_list[i].chunk=0;
+						sound_list[i].channel=-1;
+						return;
+					}
+				else
+					{
+						sound_list[i].is_playing=0;//this basically makes us recheck if it is in range again,
+						sound_list[i].channel=-1;
+						//after we move the camera
+						return;
+					}
+			}
 		}
 
 }
@@ -66,7 +66,7 @@ Mix_Chunk * load_chunk_cache(char * file_name)
 					j++;
 				}
 			if(file_name_lenght==j)//ok, Mix_Chunk already loaded
-			return sound_cache[i].chunk;
+				return sound_cache[i].chunk;
 		}
 	//asc not found in the cache, so load it, and store it
 	chunk=Mix_LoadWAV(file_name);
@@ -158,38 +158,38 @@ void update_positional_sounds()
 	debug_float=-1;
 
 	for(i=0;i<max_sound_objects;i++)
-	{
-		if(sound_list[i].chunk)
-		if(sound_list[i].positional)
-		if(sound_list[i].is_playing)
-			{
-				int x,y;
-				Uint16 distance;
-				Uint8 dist;
-				int angle;
-				int tx,ty;
+		{
+			if(sound_list[i].chunk)
+				if(sound_list[i].positional)
+					if(sound_list[i].is_playing)
+						{
+							int x,y;
+							Uint16 distance;
+							Uint8 dist;
+							int angle;
+							int tx,ty;
 
 
-				x=sound_list[i].x_pos;
-				y=sound_list[i].y_pos;
-				tx=-cx*2;
-				ty=-cy*2;
+							x=sound_list[i].x_pos;
+							y=sound_list[i].y_pos;
+							tx=-cx*2;
+							ty=-cy*2;
 
-				distance=sqrt((tx-x)*(tx-x)+(ty-y)*(ty-y));
-				distance*=6;
-				debug_float=(atan2(tx-x,ty-y))/(3.1415926/180);
-				if(debug_float<0)debug_float=360+debug_float;
+							distance=sqrt((tx-x)*(tx-x)+(ty-y)*(ty-y));
+							distance*=6;
+							debug_float=(atan2(tx-x,ty-y))/(3.1415926/180);
+							if(debug_float<0)debug_float=360+debug_float;
 
-				angle=(atan2(tx-x,ty-y))/(3.1415926/180);
-				if(angle<0)angle+=360;
-				angle=rz-angle;
+							angle=(atan2(tx-x,ty-y))/(3.1415926/180);
+							if(angle<0)angle+=360;
+							angle=rz-angle;
 
-				if(distance<=255)dist=distance;
-				else dist=255;
-				Mix_SetPosition(sound_list[i].channel, angle, dist);
-			}
+							if(distance<=255)dist=distance;
+							else dist=255;
+							Mix_SetPosition(sound_list[i].channel, angle, dist);
+						}
 
-	}
+		}
 }
 
 void check_range_sounds()
@@ -199,50 +199,50 @@ void check_range_sounds()
 	if(!have_sound)return;
 
 	for(i=0;i<max_sound_objects;i++)
-	{
-		if(sound_list[i].chunk)
-		if(sound_list[i].positional)
-		if(sound_list[i].loops_number==-1)
-			{
-				int x,y;
-				Uint16 distance;
-				int tx,ty;
+		{
+			if(sound_list[i].chunk)
+				if(sound_list[i].positional)
+					if(sound_list[i].loops_number==-1)
+						{
+							int x,y;
+							Uint16 distance;
+							int tx,ty;
 
 
-				x=sound_list[i].x_pos;
-				y=sound_list[i].y_pos;
-				tx=-cx*2;
-				ty=-cy*2;
+							x=sound_list[i].x_pos;
+							y=sound_list[i].y_pos;
+							tx=-cx*2;
+							ty=-cy*2;
 
-				distance=sqrt((tx-x)*(tx-x)+(ty-y)*(ty-y));
+							distance=sqrt((tx-x)*(tx-x)+(ty-y)*(ty-y));
 
-				//test to see if out of range
-				if(sound_list[i].is_playing && distance>SOUND_RANGE)
-					{
-						Mix_HaltChannel(sound_list[i].channel);
-						//Mix_HaltChannel(-1);
-						continue;
-					}
-				//test to see if we have an in range sound
-				if(!sound_list[i].is_playing && distance<SOUND_RANGE)
-					{
-						sound_list[i].channel=Mix_PlayChannel(-1,sound_list[i].chunk,-1);
+							//test to see if out of range
+							if(sound_list[i].is_playing && distance>SOUND_RANGE)
+								{
+									Mix_HaltChannel(sound_list[i].channel);
+									//Mix_HaltChannel(-1);
+									continue;
+								}
+							//test to see if we have an in range sound
+							if(!sound_list[i].is_playing && distance<SOUND_RANGE)
+								{
+									sound_list[i].channel=Mix_PlayChannel(-1,sound_list[i].chunk,-1);
 
-						//don't give a chance to the channel play if sound off
-						if(!sound_on)Mix_Pause(sound_list[i].channel);
+									//don't give a chance to the channel play if sound off
+									if(!sound_on)Mix_Pause(sound_list[i].channel);
 
-						if(sound_list[i].channel==-1)
-							{
-								log_to_console(c_red1,"Huston, we have a problem...");
-	                		}
+									if(sound_list[i].channel==-1)
+										{
+											log_to_console(c_red1,"Huston, we have a problem...");
+										}
 
-						sound_list[i].is_playing=1;
-						continue;
-					}
+									sound_list[i].is_playing=1;
+									continue;
+								}
 
-			}
+						}
 
-	}
+		}
 }
 
 //kill all the sounds that loop infinitely
@@ -254,19 +254,19 @@ void kill_local_sounds()
 	if(!have_sound)return;
 
 	for(i=0;i<max_sound_objects;i++)
-	{
-		if(sound_list[i].chunk)
-		if(sound_list[i].loops_number==-1)
-			{
-				if(!sound_list[i].is_playing)
-				sound_list[i].chunk=0;
-				else
+		{
+			if(sound_list[i].chunk)
+				if(sound_list[i].loops_number==-1)
 					{
-						sound_list[i].kill=1;
-						Mix_HaltChannel(sound_list[i].channel);
+						if(!sound_list[i].is_playing)
+							sound_list[i].chunk=0;
+						else
+							{
+								sound_list[i].kill=1;
+								Mix_HaltChannel(sound_list[i].channel);
+							}
 					}
-			}
-	}
+		}
 }
 
 void turn_sound_off()
@@ -305,21 +305,21 @@ void init_sound()
     		log_error(str);
         }
     else
-    //if(Mix_OpenAudio(22050,MIX_DEFAULT_FORMAT,2,1024)<0)
-    if(Mix_OpenAudio(22050,MIX_DEFAULT_FORMAT,2,2048)<0)
-         {
-   		    char str[120];
-    		sprintf(str, "Hmm.. couldn't set the sampling rate or something...: %s\n", SDL_GetError());
-    		log_to_console(c_red1,str);
-			have_sound=0;
-			have_music=0;
-			return;
-		 }
-	else
-     	{
-			 have_sound=1;
-			 have_music=1;
-	 	}
+		//if(Mix_OpenAudio(22050,MIX_DEFAULT_FORMAT,2,1024)<0)
+		if(Mix_OpenAudio(22050,MIX_DEFAULT_FORMAT,2,2048)<0)
+			{
+				char str[120];
+				sprintf(str, "Hmm.. couldn't set the sampling rate or something...: %s\n", SDL_GetError());
+				log_to_console(c_red1,str);
+				have_sound=0;
+				have_music=0;
+				return;
+			}
+		else
+			{
+				have_sound=1;
+				have_music=1;
+			}
 
 	Mix_AllocateChannels(32);
 	// set the callback for when a channel stops playing

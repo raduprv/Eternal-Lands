@@ -3,9 +3,9 @@
 
 typedef struct
 {
-  float u;
-  float v;
-  float z;
+	float u;
+	float v;
+	float z;
 
 }water_vertex;
 

@@ -2,10 +2,10 @@
 #define __STATS_H__
 
 typedef struct
-	{
-		Sint16 base;
-		Sint16 cur;
-	} attrib_16;
+{
+	Sint16 base;
+	Sint16 cur;
+} attrib_16;
 
 typedef struct
 {
@@ -65,9 +65,6 @@ typedef struct
 	Uint32 potion_exp_next_lev;
 	Uint32 summoning_exp;
 	Uint32 summoning_exp_next_lev;
-
-
-
 
 } player_attribs;
 

@@ -10,14 +10,14 @@ void draw_tile_map()
 	int cur_texture;
 
 	if(have_multitexture && clouds_shadows)
-	{
+		{
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
-	}
+		}
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
@@ -124,17 +124,17 @@ void load_map_tiles()
 	int cur_tile;
 	char str[80];
 	for(i=0;i<tile_map_size_x*tile_map_size_y;i++)
-	{
-		cur_tile=tile_map[i];
-		//check to see if we already have the current tile loaded
-		if(!tile_list[cur_tile] && cur_tile && cur_tile!=255)//if it is 255, it's a null tile, don't load it
-															 //if it is 0, it's a lake tile, don't load it
-			{
-				//tile not loaded, so load it
-				sprintf(str,"./tiles/tile%i.bmp",cur_tile);
-				tile_list[cur_tile]=load_texture_cache(str,255);
-			}
-	}
+		{
+			cur_tile=tile_map[i];
+			//check to see if we already have the current tile loaded
+			if(!tile_list[cur_tile] && cur_tile && cur_tile!=255)//if it is 255, it's a null tile, don't load it
+				//if it is 0, it's a lake tile, don't load it
+				{
+					//tile not loaded, so load it
+					sprintf(str,"./tiles/tile%i.bmp",cur_tile);
+					tile_list[cur_tile]=load_texture_cache(str,255);
+				}
+		}
 
 }
 

@@ -2,29 +2,29 @@
 #define __ITEMS_H__
 
 typedef struct
-	{
-		int image_id;
-		int pos;
-		int quantity;
-		int is_reagent;//can be used for spells?
-		int is_resource;//does it appear on the manufacturing menu?
-		int use_with_inventory;
+{
+	int image_id;
+	int pos;
+	int quantity;
+	int is_reagent;//can be used for spells?
+	int is_resource;//does it appear on the manufacturing menu?
+	int use_with_inventory;
 
-	}item;
-
-typedef struct
-	{
-		int pos;
-		int image_id;
-		int quantity;
-	}ground_item;
+}item;
 
 typedef struct
-	{
-		int x;
-		int y;
-		int obj_3d_id;
-	}bag;
+{
+	int pos;
+	int image_id;
+	int quantity;
+}ground_item;
+
+typedef struct
+{
+	int x;
+	int y;
+	int obj_3d_id;
+}bag;
 
 
 typedef enum {

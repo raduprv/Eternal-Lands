@@ -7,65 +7,65 @@ int cursors_y_lenght;
 
 void load_cursors()
 {
-  int f_size,cursors_colors_no,x,y,i;
-  FILE *f = NULL;
-  Uint8 * cursors_mem_bmp;
-  Uint8 *handle_cursors_mem_bmp;
-  Uint8 cur_color;
-  f = fopen ("./textures/cursors.bmp", "rb");
-  fseek (f, 0, SEEK_END);
-  f_size = ftell (f);
-//ok, allocate memory for it
-  cursors_mem_bmp = (Uint8 *)calloc ( f_size, sizeof(char) );
-  handle_cursors_mem_bmp=cursors_mem_bmp;
-  fseek (f, 0, SEEK_SET);
-  fread (cursors_mem_bmp, 1, f_size, f);
-  fclose (f);
+	int f_size,cursors_colors_no,x,y,i;
+	FILE *f = NULL;
+	Uint8 * cursors_mem_bmp;
+	Uint8 *handle_cursors_mem_bmp;
+	Uint8 cur_color;
+	f = fopen ("./textures/cursors.bmp", "rb");
+	fseek (f, 0, SEEK_END);
+	f_size = ftell (f);
+	//ok, allocate memory for it
+	cursors_mem_bmp = (Uint8 *)calloc ( f_size, sizeof(char) );
+	handle_cursors_mem_bmp=cursors_mem_bmp;
+	fseek (f, 0, SEEK_SET);
+	fread (cursors_mem_bmp, 1, f_size, f);
+	fclose (f);
 
-  cursors_mem_bmp += 18;		//x lenght is at offset+18
-  cursors_x_lenght = *((int *) cursors_mem_bmp);
-  cursors_mem_bmp += 4;		//y lenght is at offset+22
-  cursors_y_lenght = *((int *) cursors_mem_bmp);
-  cursors_mem_bmp += 46 - 22;
-  cursors_colors_no = *((int *) cursors_mem_bmp);
-  cursors_mem_bmp += 54 - 46 + cursors_colors_no * 4;
+	cursors_mem_bmp += 18;		//x lenght is at offset+18
+	cursors_x_lenght = *((int *) cursors_mem_bmp);
+	cursors_mem_bmp += 4;		//y lenght is at offset+22
+	cursors_y_lenght = *((int *) cursors_mem_bmp);
+	cursors_mem_bmp += 46 - 22;
+	cursors_colors_no = *((int *) cursors_mem_bmp);
+	cursors_mem_bmp += 54 - 46 + cursors_colors_no * 4;
 
-//ok, now transform the bitmap in cursors info
-cursors_mem = (Uint8 *)calloc ( cursors_x_lenght*cursors_y_lenght*2, sizeof(char));
+	//ok, now transform the bitmap in cursors info
+	cursors_mem = (Uint8 *)calloc ( cursors_x_lenght*cursors_y_lenght*2, sizeof(char));
 
 	for(y=cursors_y_lenght-1;y>=0;y--)
 		{
 			i=(cursors_y_lenght-y-1)*cursors_x_lenght;
 			for(x=0;x<cursors_x_lenght;x++)
-			{
-			cur_color=*(cursors_mem_bmp+y*cursors_x_lenght+x);
-			if(cur_color==0)//transparent
 				{
-				*(cursors_mem+(i+x)*2)=0;
-				*(cursors_mem+(i+x)*2+1)=0;
+					cur_color=*(cursors_mem_bmp+y*cursors_x_lenght+x);
+					if(cur_color==0)//transparent
+						{
+							*(cursors_mem+(i+x)*2)=0;
+							*(cursors_mem+(i+x)*2+1)=0;
+						}
+					else
+						if(cur_color==1)//white
+							{
+								*(cursors_mem+(i+x)*2)=0;
+								*(cursors_mem+(i+x)*2+1)=1;
+							}
+						else
+							if(cur_color==2)//black
+								{
+									*(cursors_mem+(i+x)*2)=1;
+									*(cursors_mem+(i+x)*2+1)=1;
+								}
+							else
+								if(cur_color==3)//reverse
+									{
+										*(cursors_mem+(i+x)*2)=1;
+										*(cursors_mem+(i+x)*2+1)=0;
+									}
 				}
-			else
-			if(cur_color==1)//white
-				{
-				*(cursors_mem+(i+x)*2)=0;
-				*(cursors_mem+(i+x)*2+1)=1;
-				}
-			else
-			if(cur_color==2)//black
-				{
-				*(cursors_mem+(i+x)*2)=1;
-				*(cursors_mem+(i+x)*2+1)=1;
-				}
-			else
-			if(cur_color==3)//reverse
-				{
-				*(cursors_mem+(i+x)*2)=1;
-				*(cursors_mem+(i+x)*2+1)=0;
-				}
-			}
 
 		}
-free(handle_cursors_mem_bmp);
+	free(handle_cursors_mem_bmp);
 }
 
 void assign_cursor(int cursor_id)
@@ -83,52 +83,52 @@ void assign_cursor(int cursor_id)
 
 	i=0;
 	for(y=0;y<cursors_y_lenght;y++)
-	for(x=cursor_id*16;x<cursor_id*16+16;x++)
-		{
-			cur_color=*(cursors_mem+(y*cursors_x_lenght+x)*2);
-			*(cur_cursor_mem+i)=cur_color;//data
-			cur_color=*(cursors_mem+(y*cursors_x_lenght+x)*2+1);
-			*(cur_cursor_mem+i+256)=cur_color;//mask
-			i++;
-		}
+		for(x=cursor_id*16;x<cursor_id*16+16;x++)
+			{
+				cur_color=*(cursors_mem+(y*cursors_x_lenght+x)*2);
+				*(cur_cursor_mem+i)=cur_color;//data
+				cur_color=*(cursors_mem+(y*cursors_x_lenght+x)*2+1);
+				*(cur_cursor_mem+i+256)=cur_color;//mask
+				i++;
+			}
 	//ok, now put the data into the bit data and bit mask
 	for(i=0;i<16*16;i++)
-	{
-		cur_color=*(cur_cursor_mem+i);
-		cur_byte=i/8;
-		cur_bit=i%8;
-		if(cur_color)//if it is 0, let it alone, no point in setting it
-		  {
-			  if(cur_bit==0)cur_mask=128;
-			  else if(cur_bit==1)cur_mask=64;
-			  else if(cur_bit==2)cur_mask=32;
-			  else if(cur_bit==3)cur_mask=16;
-			  else if(cur_bit==4)cur_mask=8;
-			  else if(cur_bit==5)cur_mask=4;
-			  else if(cur_bit==6)cur_mask=2;
-			  else if(cur_bit==7)cur_mask=1;
-			  cursor_data[cur_byte]|=cur_mask;
-		  }
+		{
+			cur_color=*(cur_cursor_mem+i);
+			cur_byte=i/8;
+			cur_bit=i%8;
+			if(cur_color)//if it is 0, let it alone, no point in setting it
+				{
+					if(cur_bit==0)cur_mask=128;
+					else if(cur_bit==1)cur_mask=64;
+					else if(cur_bit==2)cur_mask=32;
+					else if(cur_bit==3)cur_mask=16;
+					else if(cur_bit==4)cur_mask=8;
+					else if(cur_bit==5)cur_mask=4;
+					else if(cur_bit==6)cur_mask=2;
+					else if(cur_bit==7)cur_mask=1;
+					cursor_data[cur_byte]|=cur_mask;
+				}
 
-	}
+		}
 	for(i=0;i<16*16;i++)
-	{
-		cur_color=*(cur_cursor_mem+i+256);
-		cur_byte=i/8;
-		cur_bit=i%8;
-		if(cur_color)//if it is 0, let it alone, no point in setting it
-		  {
-			  if(cur_bit==0)cur_mask=128;
-			  else if(cur_bit==1)cur_mask=64;
-			  else if(cur_bit==2)cur_mask=32;
-			  else if(cur_bit==3)cur_mask=16;
-			  else if(cur_bit==4)cur_mask=8;
-			  else if(cur_bit==5)cur_mask=4;
-			  else if(cur_bit==6)cur_mask=2;
-			  else if(cur_bit==7)cur_mask=1;
-			  cursor_mask[cur_byte]|=cur_mask;
-		  }
-	}
+		{
+			cur_color=*(cur_cursor_mem+i+256);
+			cur_byte=i/8;
+			cur_bit=i%8;
+			if(cur_color)//if it is 0, let it alone, no point in setting it
+				{
+					if(cur_bit==0)cur_mask=128;
+					else if(cur_bit==1)cur_mask=64;
+					else if(cur_bit==2)cur_mask=32;
+					else if(cur_bit==3)cur_mask=16;
+					else if(cur_bit==4)cur_mask=8;
+					else if(cur_bit==5)cur_mask=4;
+					else if(cur_bit==6)cur_mask=2;
+					else if(cur_bit==7)cur_mask=1;
+					cursor_mask[cur_byte]|=cur_mask;
+				}
+		}
 
 	hot_x=cursors_array[cursor_id].hot_x;
 	hot_y=cursors_array[cursor_id].hot_y;
@@ -219,46 +219,46 @@ void check_cursor_change()
 					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
 					return;
 				}
-				//see if the object is a harvestable resource.
-				for(i=0;i<100;i++)
-					{
-						if(!harvestable_objects[i].name[0])break;//end of the objects
-						if(get_string_occurance(harvestable_objects[i].name,objects_list[object_under_mouse]->file_name, 80,0)!=-1)
-							{
-								if(current_cursor!=CURSOR_HARVEST)change_cursor(CURSOR_HARVEST);
-								return;
-							}
-					}
+			//see if the object is a harvestable resource.
+			for(i=0;i<100;i++)
+				{
+					if(!harvestable_objects[i].name[0])break;//end of the objects
+					if(get_string_occurance(harvestable_objects[i].name,objects_list[object_under_mouse]->file_name, 80,0)!=-1)
+						{
+							if(current_cursor!=CURSOR_HARVEST)change_cursor(CURSOR_HARVEST);
+							return;
+						}
+				}
 
-				//see if the object is an entrable resource.
-				for(i=0;i<100;i++)
-					{
-						if(!entrable_objects[i].name[0])break;//end of the objects
-						if(get_string_occurance(entrable_objects[i].name,objects_list[object_under_mouse]->file_name, 80,0)!=-1)
-							{
-								if(current_cursor!=CURSOR_ENTER)change_cursor(CURSOR_ENTER);
-								return;
-							}
-					}
+			//see if the object is an entrable resource.
+			for(i=0;i<100;i++)
+				{
+					if(!entrable_objects[i].name[0])break;//end of the objects
+					if(get_string_occurance(entrable_objects[i].name,objects_list[object_under_mouse]->file_name, 80,0)!=-1)
+						{
+							if(current_cursor!=CURSOR_ENTER)change_cursor(CURSOR_ENTER);
+							return;
+						}
+				}
 
-				//hmm, no usefull object, so select walk....
-				if(current_cursor!=CURSOR_WALK)change_cursor(CURSOR_WALK);
-				return;
+			//hmm, no usefull object, so select walk....
+			if(current_cursor!=CURSOR_WALK)change_cursor(CURSOR_WALK);
+			return;
 
 		}
 
 	else
 
-	if(object_under_mouse!=-1 && thing_under_the_mouse==UNDER_MOUSE_NPC)
-		{
-			if(action_mode==action_look)
-				{
-					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
-					return;
-				}
-			if(current_cursor!=CURSOR_TALK)change_cursor(CURSOR_TALK);
-			return;
-		}
+		if(object_under_mouse!=-1 && thing_under_the_mouse==UNDER_MOUSE_NPC)
+			{
+				if(action_mode==action_look)
+					{
+						if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
+						return;
+					}
+				if(current_cursor!=CURSOR_TALK)change_cursor(CURSOR_TALK);
+				return;
+			}
 
 	if(object_under_mouse!=-1 && thing_under_the_mouse==UNDER_MOUSE_PLAYER)
 		{
@@ -320,20 +320,20 @@ void check_cursor_change()
 			int wear_items_y_offset=50;
 
 			if(action_mode==action_pick && ((view_my_items && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6)
-			|| (view_ground_items && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)))
+											|| (view_ground_items && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)))
 				{
 					if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
 					return;
 				}
 
 			if(action_mode==action_look && ((view_my_items && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6)
-			|| (view_ground_items && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)
-			|| (view_my_items && mouse_x>items_menu_x+wear_items_x_offset && mouse_y>items_menu_y+wear_items_y_offset && mouse_x<items_menu_x+wear_items_x_offset+66 && mouse_y<items_menu_y+wear_items_y_offset+99)
-			|| (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y && mouse_x<=manufacture_menu_x+33*12 && mouse_y<=manufacture_menu_y+33*3)
-			|| (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y+33*5 && mouse_x<=manufacture_menu_x+33*6 && mouse_y<=manufacture_menu_y+33*6)
-			|| (view_trade_menu && mouse_x>trade_menu_x && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*4 && mouse_y<=trade_menu_y+33*8)
-			|| (view_trade_menu && mouse_x>trade_menu_x && mouse_y>trade_menu_y && mouse_x<=trade_menu_x+33*12 && mouse_y<=trade_menu_y+33*3)
-			|| (view_trade_menu && mouse_x>trade_menu_x+33*5 && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*9 && mouse_y<=trade_menu_y+33*8)))
+											|| (view_ground_items && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)
+											|| (view_my_items && mouse_x>items_menu_x+wear_items_x_offset && mouse_y>items_menu_y+wear_items_y_offset && mouse_x<items_menu_x+wear_items_x_offset+66 && mouse_y<items_menu_y+wear_items_y_offset+99)
+											|| (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y && mouse_x<=manufacture_menu_x+33*12 && mouse_y<=manufacture_menu_y+33*3)
+											|| (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y+33*5 && mouse_x<=manufacture_menu_x+33*6 && mouse_y<=manufacture_menu_y+33*6)
+											|| (view_trade_menu && mouse_x>trade_menu_x && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*4 && mouse_y<=trade_menu_y+33*8)
+											|| (view_trade_menu && mouse_x>trade_menu_x && mouse_y>trade_menu_y && mouse_x<=trade_menu_x+33*12 && mouse_y<=trade_menu_y+33*3)
+											|| (view_trade_menu && mouse_x>trade_menu_x+33*5 && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*9 && mouse_y<=trade_menu_y+33*8)))
 				{
 					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
 					return;

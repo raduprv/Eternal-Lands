@@ -398,20 +398,4 @@ void init_colors()
 	colors_list[i].g4=0;
 	colors_list[i].b4=0;
 
-/*
-	i=;
-	colors_list[i].r1=/255;
-	colors_list[i].g1=/255;
-	colors_list[i].b1=/255;
-	colors_list[i].r2=/255;
-	colors_list[i].g2=/255;
-	colors_list[i].b2=/255;
-	colors_list[i].r3=/255;
-	colors_list[i].g3=/255;
-	colors_list[i].b3=/255;
-	colors_list[i].r4=/255;
-	colors_list[i].g4=/255;
-	colors_list[i].b4=/255;
-*/
-
 }

@@ -80,8 +80,8 @@ object3d *objects_list[max_obj_3d];
 obj_2d *obj_2d_list[max_obj_2d];
 actor_types actors_defs[40];
 
-  Uint8 *e3d_file_mem;
-  Uint8 *handle_e3d_file_mem;
+Uint8 *e3d_file_mem;
+Uint8 *handle_e3d_file_mem;
 
 //lights
 GLfloat global_lights[global_lights_no][4];

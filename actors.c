@@ -40,7 +40,7 @@ md2 * load_md2_cache(char * file_name)
 					j++;
 				}
 			if(file_name_lenght==j)//ok, md2 already loaded
-			return md2_cache[i].md2_id;
+				return md2_cache[i].md2_id;
 		}
 	//md2 not found in the cache, so load it, and store it
 	md2_id=load_md2(file_name);
@@ -62,7 +62,10 @@ md2 * load_md2_cache(char * file_name)
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, float y_pos, float z_pos, float z_rot, char remappable, short skin_color, short hair_color, short shirt_color, short pants_color, short boots_color, int actor_id)
+int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
+			  float y_pos, float z_pos, float z_rot, char remappable, 
+			  short skin_color, short hair_color, short shirt_color, 
+			  short pants_color, short boots_color, int actor_id)
 {
 	int texture_id;
 	int i;
@@ -81,18 +84,18 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, 
 
 	returned_md2=load_md2_cache(file_name);
 	if(!returned_md2)
-	   {
+		{
             char str[120];
 			unlock_actors_lists();	// release now that we are done
             sprintf(str,"Error: Can't load actor: %s\n",file_name);
             log_error(str);
 	        return 0;
-	   }
+		}
 	if(!remappable)texture_id=load_texture_cache(skin_name,150);
 	else
-	{
-		texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,shirt_color,pants_color,boots_color);
-	}
+		{
+			texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,shirt_color,pants_color,boots_color);
+		}
 
 	our_actor->is_enhanced_model=0;
 	our_actor->remapped_colors=remappable;
@@ -173,10 +176,10 @@ void draw_actor(actor * actor_id)
 
 	if(!actor_id->remapped_colors)texture_id=texture_cache[actor_id->texture_id].texture_id;
 	else
-	{
-		//we have remaped colors, we don't store such textures into the cache
-		texture_id=actor_id->texture_id;
-	}
+		{
+			//we have remaped colors, we don't store such textures into the cache
+			texture_id=actor_id->texture_id;
+		}
 
 	cur_frame=actor_id->cur_frame;
 
@@ -197,17 +200,16 @@ void draw_actor(actor * actor_id)
 	//now, go and find the current frame
 	i=0;
 	while(i<numFrames)
-	{
-		dest_frame_name=(char *)&offsetFrames[i].name;
-		//dest_frame_name=offsetFrames[i].name;
-		if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-			{
-				vertex_pointer=offsetFrames[i].vertex_pointer;
-				healtbar_z=offsetFrames[i].box.max_z+0.2f;
-				break;
-			}
-		i++;
-	}
+		{
+			dest_frame_name=(char *)&offsetFrames[i].name;
+			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
+				{
+					vertex_pointer=offsetFrames[i].vertex_pointer;
+					healtbar_z=offsetFrames[i].box.max_z+0.2f;
+					break;
+				}
+			i++;
+		}
 	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
 		{
 			char str[120];
@@ -223,7 +225,7 @@ void draw_actor(actor * actor_id)
 		}
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-	z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
@@ -274,42 +276,42 @@ void draw_actor(actor * actor_id)
 	glDisable(GL_TEXTURE_2D);
 	//choose color for the bar
 	if(actor_id->cur_health>=actor_id->max_health/2)
-	glColor3f(0,1,0);//green life bar
+		glColor3f(0,1,0);//green life bar
 	else if(actor_id->cur_health>=actor_id->max_health/4 && actor_id->cur_health<actor_id->max_health/2)
-	glColor3f(1,1,0);//yellow life bar
+		glColor3f(1,1,0);//yellow life bar
 	else glColor3f(1,0,0);
 	if(!actor_id->ghost)glDisable(GL_LIGHTING);
 
 	if(view_health_bar && actor_id->cur_health>=0)
-	{
-	//get it's lenght
-	if(actor_id->max_health)//we don't want a division by zero, now do we?
-	healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
-	glBegin(GL_QUADS);
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-	glEnd();
+		{
+			//get it's lenght
+			if(actor_id->max_health)//we don't want a division by zero, now do we?
+				healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
+			glBegin(GL_QUADS);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+			glEnd();
 
-	//draw the frame
-	healtbar_y=0.001;
-	glDepthFunc(GL_LEQUAL);
-	glColor3f(0,0,0);
-	glBegin(GL_LINES);
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
+			//draw the frame
+			healtbar_y=0.001;
+			glDepthFunc(GL_LEQUAL);
+			glColor3f(0,0,0);
+			glBegin(GL_LINES);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
 
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-	glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
 
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
 
-	glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
-	glEnd();
-	}
+			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
+			glEnd();
+		}
 
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1,0,0);
@@ -354,29 +356,29 @@ void display_actors()
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
-			if(!actors_list[i]->ghost)
-				{
-					int dist1;
-					int dist2;
+				if(!actors_list[i]->ghost)
+					{
+						int dist1;
+						int dist2;
 
-					dist1=x-actors_list[i]->x_pos;
-					dist2=y-actors_list[i]->y_pos;
-					if(dist1*dist1+dist2*dist2<=12*12)
-			         	{
-							if(actors_list[i]->is_enhanced_model)
-								{
-									draw_enhanced_actor(actors_list[i]);
-								}
-                     		else
-                     			{
-                     				draw_actor(actors_list[i]);
-								}
-                     		if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
-                     		else
-                     		if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
-                     		else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
-						}
-             	}
+						dist1=x-actors_list[i]->x_pos;
+						dist2=y-actors_list[i]->y_pos;
+						if(dist1*dist1+dist2*dist2<=12*12)
+							{
+								if(actors_list[i]->is_enhanced_model)
+									{
+										draw_enhanced_actor(actors_list[i]);
+									}
+								else
+									{
+										draw_actor(actors_list[i]);
+									}
+								if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+								else
+									if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+									else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
+							}
+					}
 		}
 
 
@@ -387,29 +389,29 @@ void display_actors()
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
-			if(actors_list[i]->ghost)
-				{
-					int dist1;
-					int dist2;
+				if(actors_list[i]->ghost)
+					{
+						int dist1;
+						int dist2;
 
-					dist1=x-actors_list[i]->x_pos;
-					dist2=y-actors_list[i]->y_pos;
-					if(dist1*dist1+dist2*dist2<=12*12)
-			  			{
-							if(actors_list[i]->is_enhanced_model)
-								{
-									draw_enhanced_actor(actors_list[i]);
-								}
-                     		else
-                     			{
-                     				draw_actor(actors_list[i]);
-								}
-                     		if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
-                     		else
-                     		if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
-                     		else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
-						}
-             	}
+						dist1=x-actors_list[i]->x_pos;
+						dist2=y-actors_list[i]->y_pos;
+						if(dist1*dist1+dist2*dist2<=12*12)
+							{
+								if(actors_list[i]->is_enhanced_model)
+									{
+										draw_enhanced_actor(actors_list[i]);
+									}
+								else
+									{
+										draw_actor(actors_list[i]);
+									}
+								if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+								else
+									if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+									else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
+							}
+					}
 		}
 	glDisable(GL_BLEND);
 }
@@ -465,49 +467,49 @@ void add_actor_from_server(char * in_data)
 	//get the current frame
 	if(frame==frame_walk)my_strcp(cur_frame,actors_defs[actor_type].walk_frame);
 	else
-	if(frame==frame_run)my_strcp(cur_frame,actors_defs[actor_type].run_frame);
-	else
-	if(frame==frame_die1)
-		{
-			my_strcp(cur_frame,actors_defs[actor_type].die1_frame);
-			dead=1;
-		}
-	else
-	if(frame==frame_die2)
-		{
-			my_strcp(cur_frame,actors_defs[actor_type].die2_frame);
-			dead=1;
-		}
-	else
-	if(frame==frame_pain1)my_strcp(cur_frame,actors_defs[actor_type].pain1_frame);
-	else
-	if(frame==frame_pain2)my_strcp(cur_frame,actors_defs[actor_type].pain2_frame);
-	else
-	if(frame==frame_pick)my_strcp(cur_frame,actors_defs[actor_type].pick_frame);
-	else
-	if(frame==frame_drop)my_strcp(cur_frame,actors_defs[actor_type].drop_frame);
-	else
-	if(frame==frame_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_frame);
-	else
-	if(frame==frame_sit_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_sit_frame);
-	else
-	if(frame==frame_harvest)my_strcp(cur_frame,actors_defs[actor_type].harvest_frame);
-	else
-	if(frame==frame_cast)my_strcp(cur_frame,actors_defs[actor_type].attack_cast_frame);
-	else
-	if(frame==frame_attack_up_1)my_strcp(cur_frame,actors_defs[actor_type].attack_up_1_frame);
-	else
-	if(frame==frame_attack_up_2)my_strcp(cur_frame,actors_defs[actor_type].attack_up_2_frame);
-	else
-	if(frame==frame_attack_up_3)my_strcp(cur_frame,actors_defs[actor_type].attack_up_3_frame);
-	else
-	if(frame==frame_attack_up_4)my_strcp(cur_frame,actors_defs[actor_type].attack_up_4_frame);
-	else
-	if(frame==frame_attack_down_1)my_strcp(cur_frame,actors_defs[actor_type].attack_down_1_frame);
-	else
-	if(frame==frame_attack_down_2)my_strcp(cur_frame,actors_defs[actor_type].attack_down_2_frame);
-	else
-	if(frame==frame_combat_idle)my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);
+		if(frame==frame_run)my_strcp(cur_frame,actors_defs[actor_type].run_frame);
+		else
+			if(frame==frame_die1)
+				{
+					my_strcp(cur_frame,actors_defs[actor_type].die1_frame);
+					dead=1;
+				}
+			else
+				if(frame==frame_die2)
+					{
+						my_strcp(cur_frame,actors_defs[actor_type].die2_frame);
+						dead=1;
+					}
+				else
+					if(frame==frame_pain1)my_strcp(cur_frame,actors_defs[actor_type].pain1_frame);
+					else
+						if(frame==frame_pain2)my_strcp(cur_frame,actors_defs[actor_type].pain2_frame);
+						else
+							if(frame==frame_pick)my_strcp(cur_frame,actors_defs[actor_type].pick_frame);
+							else
+								if(frame==frame_drop)my_strcp(cur_frame,actors_defs[actor_type].drop_frame);
+								else
+									if(frame==frame_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_frame);
+									else
+										if(frame==frame_sit_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_sit_frame);
+										else
+											if(frame==frame_harvest)my_strcp(cur_frame,actors_defs[actor_type].harvest_frame);
+											else
+												if(frame==frame_cast)my_strcp(cur_frame,actors_defs[actor_type].attack_cast_frame);
+												else
+													if(frame==frame_attack_up_1)my_strcp(cur_frame,actors_defs[actor_type].attack_up_1_frame);
+													else
+														if(frame==frame_attack_up_2)my_strcp(cur_frame,actors_defs[actor_type].attack_up_2_frame);
+														else
+															if(frame==frame_attack_up_3)my_strcp(cur_frame,actors_defs[actor_type].attack_up_3_frame);
+															else
+																if(frame==frame_attack_up_4)my_strcp(cur_frame,actors_defs[actor_type].attack_up_4_frame);
+																else
+																	if(frame==frame_attack_down_1)my_strcp(cur_frame,actors_defs[actor_type].attack_down_1_frame);
+																	else
+																		if(frame==frame_attack_down_2)my_strcp(cur_frame,actors_defs[actor_type].attack_down_2_frame);
+																		else
+																			if(frame==frame_combat_idle)my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
@@ -515,12 +517,12 @@ void add_actor_from_server(char * in_data)
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
-			if(actors_list[i]->actor_id==actor_id)
-			destroy_actor(i);//we don't want two actors with thesame ID
+				if(actors_list[i]->actor_id==actor_id)
+					destroy_actor(i);//we don't want two actors with thesame ID
 		}
 
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
-		f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
+				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
 	lock_actors_lists();	//lock it to avoid timing issues
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
@@ -534,7 +536,7 @@ void add_actor_from_server(char * in_data)
 	actors_list[i]->cur_health=cur_health;
 	if(frame==frame_sit_idle)actors_list[i]->sitting=1;
 	else
-	if(frame==frame_combat_idle)actors_list[i]->fighting=1;
+		if(frame==frame_combat_idle)actors_list[i]->fighting=1;
 
 	//ghost or not?
 	actors_list[i]->ghost=actors_defs[actor_type].ghost;
@@ -553,10 +555,8 @@ void add_actor_from_server(char * in_data)
 void draw_interface_body_part(md2 *model_data,float scale)
 {
 	int i,j;
-	//float u,v; unused?
 	float x,y,z;
 	char *dest_frame_name;
-	//char str[20]; unused?
 	int numFrames;
     int numFaces;
     text_coord_md2 *offsetTexCoords;
@@ -574,16 +574,16 @@ void draw_interface_body_part(md2 *model_data,float scale)
 	//now, go and find the current frame
 	i=0;
 	while(i<numFrames)
-	{
-		dest_frame_name=(char *)&offsetFrames[i].name;
-		//dest_frame_name=offsetFrames[i].name;
-		if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
-			{
-				vertex_pointer=offsetFrames[i].vertex_pointer;
-				break;
-			}
-		i++;
-	}
+		{
+			dest_frame_name=(char *)&offsetFrames[i].name;
+			//dest_frame_name=offsetFrames[i].name;
+			if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
+				{
+					vertex_pointer=offsetFrames[i].vertex_pointer;
+					break;
+				}
+			i++;
+		}
 
 
 	if(vertex_pointer==NULL)return;
@@ -626,26 +626,14 @@ void draw_interface_body_part(md2 *model_data,float scale)
 
 
 //this actor will be resized. We want speed, so that's why we add a different function
-void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,int z_pos, float x_rot,float y_rot, float z_rot)
+void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
+						  int z_pos, float x_rot,float y_rot, float z_rot)
 {
-	//int i,j;      unused?
-	//float x,y,z;  unused?
 	int texture_id;
-	//char *cur_frame; unused?
-	//char str[20];    unused?
-	//float healtbar_x=-0.3f; unused?
-	//float healtbar_y=0;    unused?
-	//float healtbar_z;       unused?
-	//float healtbar_x_len=0.5f; unused?
-	//float healtbar_x_len_converted=0; unused?
-	//float healtbar_z_len=0.1f;   unused?
-	//int numFrames;       unused?
-	//char *dest_frame_name; unused?
 	frame_md2 *offsetFrames;
 
 	offsetFrames=actor_id->body_parts->head->offsetFrames;
 	texture_id=actor_id->texture_id;
-	//texture_id=texture_cache[actor_id->texture_id].texture_id;
 
 	x_rot+=180;//test
 	z_rot+=180;//test
@@ -656,7 +644,7 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,int z
 			last_texture=texture_id;
 		}
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-	glPushMatrix();//we don't want to affect the rest of the scene
+		glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos, y_pos, z_pos);
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
@@ -671,7 +659,8 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,int z
 	glPopMatrix();//restore the scene}
 }
 
-actor * add_actor_interface(int actor_type, short skin, short hair, short shirt, short pants, short boots, short head)
+actor * add_actor_interface(int actor_type, short skin, short hair, 
+							short shirt, short pants, short boots, short head)
 {
 
 
@@ -700,13 +689,13 @@ actor * add_actor_interface(int actor_type, short skin, short hair, short shirt,
 		{
 			this_actor->legs=(md2*)load_md2_cache(this_actor->legs_fn);
 			if(!this_actor->legs)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part: %s\n",this_actor->legs_fn);
     		        log_error(str);
     		        this_actor->legs=0;
 			        //return 0;
-			   }
+				}
 		}
 	else this_actor->legs=0;
 
@@ -715,13 +704,13 @@ actor * add_actor_interface(int actor_type, short skin, short hair, short shirt,
 		{
 			this_actor->head=(md2*)load_md2_cache(this_actor->head_fn);
 			if(!this_actor->head)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part: %s\n",this_actor->head_fn);
     		        log_error(str);
     		        this_actor->head=0;
 			        //return 0;
-			   }
+				}
 		}
 	else this_actor->head=0;
 
@@ -730,13 +719,13 @@ actor * add_actor_interface(int actor_type, short skin, short hair, short shirt,
 		{
 			this_actor->torso=(md2*)load_md2_cache(this_actor->torso_fn);
 			if(!this_actor->torso)
-			   {
+				{
     		        char str[120];
     		        sprintf(str,"Error: Can't load body part: %s\n",this_actor->torso_fn);
     		        log_error(str);
     		        this_actor->torso=0;
 			        //return 0;
-			   }
+				}
 		}
 	else this_actor->torso=0;
 

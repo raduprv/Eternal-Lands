@@ -55,7 +55,7 @@ void read_config()
 	FILE *f = NULL;
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
-	int k,server_address_offset; //i unused?
+	int k,server_address_offset,text_filter_offset;
 
   	f=fopen("el.ini","rb");
   	if(!f)//oops, the file doesn't exist, use the defaults
@@ -85,8 +85,8 @@ void read_config()
   	save_ignores=get_integer_after_string("#save_ignores",file_mem,MAX_INI_FILE);
   	log_server=get_integer_after_string("#log_server",file_mem,MAX_INI_FILE);
   	no_sound=get_integer_after_string("#no_sound",file_mem,MAX_INI_FILE);
-  	normal_camera_rotation_speed=get_float_after_string("normal_camera_rotation_speed",file_mem,MAX_INI_FILE);
-  	fine_camera_rotation_speed=get_float_after_string("fine_camera_rotation_speed",file_mem,MAX_INI_FILE);
+  	normal_camera_rotation_speed=get_float_after_string("#normal_camera_rotation_speed",file_mem,MAX_INI_FILE);
+  	fine_camera_rotation_speed=get_float_after_string("#fine_camera_rotation_speed",file_mem,MAX_INI_FILE);
 
   	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,MAX_INI_FILE);
   	port=get_integer_after_string("#server_port",file_mem,MAX_INI_FILE);
@@ -124,18 +124,18 @@ void read_config()
 	broswer_name[k]=0;
 
 	//check for a different default text filter phrase
-  	server_address_offset=get_string_occurance("#text_filter_replace",file_mem,MAX_INI_FILE,0);
+  	text_filter_offset=get_string_occurance("#text_filter_replace",file_mem,MAX_INI_FILE,0);
 	//watch for not defined
-	if(server_address_offset > 0)
+	if(text_filter_offset > 0)
 		{
-		for(k=0;k<127;k++)
-			{
-				Uint8 ch;
-				ch=file_mem[server_address_offset+k];
-				if(ch==' ' || ch==0x0a || ch==0x0d)break;
-  				text_filter_replace[k]=ch;
-			}
-		text_filter_replace[k]=0;
+			for(k=0;k<127;k++)
+				{
+					Uint8 ch;
+					ch=file_mem[text_filter_offset+k];
+					if(ch==' ' || ch==0x0a || ch==0x0d)break;
+					text_filter_replace[k]=ch;
+				}
+			text_filter_replace[k]=0;
 		}
 
 
@@ -326,7 +326,6 @@ void init_stuff()
 	clear_error_log();
 	clear_conn_log();
 	clear_thunders();
-	//prepare_shadows_texture();
 	build_rain_table();
 	read_bin_cfg();
 
@@ -334,12 +333,12 @@ void init_stuff()
     if(!no_sound)init_sound();
 
     //now load the multitexturing extension
-    #ifdef WINDOWS
+#ifdef WINDOWS
 	glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
 	glMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
 	glMultiTexCoord2fvARB	= (PFNGLMULTITEXCOORD2FVARBPROC)	SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
 	glClientActiveTextureARB= (PFNGLCLIENTACTIVETEXTUREARBPROC)	SDL_GL_GetProcAddress("glClientActiveTextureARB");
-	#endif
+#endif
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
@@ -360,7 +359,6 @@ void init_stuff()
 	cons_text=load_texture_cache("./textures/console.bmp",255);
 	sky_text_1=load_texture_cache("./textures/sky.bmp",70);
 	particles_text=load_texture_cache("./textures/particles.bmp",0);
-	//lightning_text=load_texture_cache("./textures/lightning.bmp",0);
 	items_text_1=load_texture_cache("./textures/items1.bmp",0);
 	items_text_2=load_texture_cache("./textures/items2.bmp",0);
 	items_text_3=load_texture_cache("./textures/items3.bmp",0);

@@ -11,27 +11,27 @@
 
 typedef struct
 {
-  float u_start;
-  float u_end;
-  float v_start;
-  float v_end;
-  float x_size;
-  float y_size;
-  int object_type;
-  int texture_id;
+	float u_start;
+	float u_end;
+	float v_start;
+	float v_end;
+	float x_size;
+	float y_size;
+	int object_type;
+	int texture_id;
 }obj_2d_def;
 
 typedef struct
 {
-  char file_name[80];
-  float x_pos;
-  float y_pos;
-  float z_pos;
-  float x_rot;
-  float y_rot;
-  float z_rot;
-  short sector;
-  obj_2d_def *obj_pointer;
+	char file_name[80];
+	float x_pos;
+	float y_pos;
+	float z_pos;
+	float x_rot;
+	float y_rot;
+	float z_rot;
+	short sector;
+	obj_2d_def *obj_pointer;
 }obj_2d;
 
 typedef struct
@@ -47,7 +47,8 @@ extern obj_2d *obj_2d_list[max_obj_2d];
 void draw_2d_object(obj_2d * object_id);
 obj_2d_def * load_obj_2d_def(char *file_name);
 obj_2d_def * load_obj_2d_def_cache(char * file_name);
-int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot);
+int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, 
+			   float x_rot, float y_rot, float z_rot);
 void display_2d_objects();
 
 #endif

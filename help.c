@@ -18,7 +18,7 @@ void build_help()
 	i++;
 
 	my_strcp(help_list[i].topic_name,"console");
-	my_strcp(help_list[i].topic_info,"\n[console] - In the console mode you can access the following commands: [help] [ver] [ignore] [unignore] [ignores] [glinfo] [time] [date] [stats] [cls] [quit] [exit] [ping]. For more information on those commands, type: \"help command\", where command is one of the listed commands (without the quote marks). To enter or leave the console mode, you can press either F1, or the ~ key, as long as you are using an English keyboard. Anything that is not a valid command will be sent as a normal chat line.");
+	my_strcp(help_list[i].topic_info,"\n[console] - In the console mode you can access the following commands: [help] [ver] [ignore] [unignore] [ignores] [filter] [unfilter] [filters] [glinfo] [time] [date] [stats] [cls] [quit] [exit] [ping]. For more information on those commands, type: \"help command\", where command is one of the listed commands (without the quote marks). To enter or leave the console mode, you can press either F1, or the ~ key, as long as you are using an English keyboard. Anything that is not a valid command will be sent as a normal chat line.");
 	i++;
 
 	my_strcp(help_list[i].topic_name,"ping");
@@ -84,7 +84,7 @@ int get_help_topic(Uint8 *topic)
 	len=strlen(topic);
 	if(!len)return -1;
 	for (i=0;i<MAX_HELP_ENTRIES;i++)
-     {
+		{
         	{
 				for(j=0;j<len;j++)
 					{
@@ -106,10 +106,10 @@ int get_help_topic(Uint8 *topic)
 					}
 			}
 
-	 }
-if(!body_count)return -1;
-if(body_count>1)return -2;
-return topic_id;
+		}
+	if(!body_count)return -1;
+	if(body_count>1)return -2;
+	return topic_id;
 }
 
 
@@ -144,7 +144,7 @@ void display_help_topic(Uint8 *topic)
 			ch=help_list[result].topic_info[i];
 			if(ch=='[')ch=127+c_orange2;
 			else
-			if(ch==']')ch=127+c_grey1;
+				if(ch==']')ch=127+c_grey1;
 			str[i]=ch;
 		}
 	str[i+1]=0;

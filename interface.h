@@ -95,7 +95,8 @@ void add_char_to_password(unsigned char ch);
 void init_peace_icons_position();
 void draw_peace_icons();
 int check_peace_menu();
-void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,int y_start,int x_end,int y_end);
+void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,
+				   int y_start,int x_end,int y_end);
 void draw_options_menu();
 int check_options_menu();
 void draw_ingame_interface();

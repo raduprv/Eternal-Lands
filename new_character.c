@@ -56,49 +56,47 @@ char user_str[16];
 int back=0;
 int done_button=0;
 
-	float done_button_unselected_start_u=(float)0/255;
-	float done_button_unselected_start_v=1.0f-(float)161/255;
+float done_button_unselected_start_u=(float)0/255;
+float done_button_unselected_start_v=1.0f-(float)161/255;
 
-	float done_button_unselected_end_u=(float)87/255;
-	float done_button_unselected_end_v=1.0f-(float)196/255;
+float done_button_unselected_end_u=(float)87/255;
+float done_button_unselected_end_v=1.0f-(float)196/255;
 
-	float done_button_selected_start_u=(float)0/255;
-	float done_button_selected_start_v=1.0f-(float)202/255;
+float done_button_selected_start_u=(float)0/255;
+float done_button_selected_start_v=1.0f-(float)202/255;
 
-	float done_button_selected_end_u=(float)87/255;
-	float done_button_selected_end_v=1.0f-(float)237/255;
+float done_button_selected_end_u=(float)87/255;
+float done_button_selected_end_v=1.0f-(float)237/255;
 /////////////////////////
-	float back_unselected_start_u=(float)100/255;
-	float back_unselected_start_v=1.0f-(float)161/255;
+float back_unselected_start_u=(float)100/255;
+float back_unselected_start_v=1.0f-(float)161/255;
 
-	float back_unselected_end_u=(float)188/255;
-	float back_unselected_end_v=1.0f-(float)196/255;
+float back_unselected_end_u=(float)188/255;
+float back_unselected_end_v=1.0f-(float)196/255;
 
-	float back_selected_start_u=(float)100/255;
-	float back_selected_start_v=1.0f-(float)202/255;
+float back_selected_start_u=(float)100/255;
+float back_selected_start_v=1.0f-(float)202/255;
 
-	float back_selected_end_u=(float)188/255;
-	float back_selected_end_v=1.0f-(float)237/255;
+float back_selected_end_u=(float)188/255;
+float back_selected_end_v=1.0f-(float)237/255;
 
 
 void change_actor()
 {
 	//if there is any loaded model, destroy it
 	if(any_model)
-	{
+		{
 			glDeleteTextures(1,&our_model->texture_id);
 			free(our_model->body_parts);
 			free(our_model);
 			our_model=0;
-	}
+		}
 	if(race==race_human)
-	our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
-	else
-	if(race==race_elf)
-	our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
-	else
-	if(race==race_dwarf)
-	our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
+		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
+	else if(race==race_elf)
+		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
+	else if(race==race_dwarf)
+		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
 
 	any_model=1;//we have an actor loaded
 	last_texture=-1;//when we load a new char, we also bind the texture, so...
@@ -142,7 +140,7 @@ void check_for_input()
 	if(mouse_x>10 && mouse_x<90 && mouse_y>197 && mouse_y<235 && done_button)
 		{
 			send_new_char(user_str, pass_str,conf_pass_str,
-					skin_color, hair_color, shirt_color, pants_color, boots_color, head,race+male);
+						  skin_color, hair_color, shirt_color, pants_color, boots_color, head,race+male);
 			return;
 		}
 
@@ -150,14 +148,14 @@ void check_for_input()
 	if(mouse_x>=90 && mouse_y>270 && mouse_y<288 && mouse_x<=108)
 		{
 			if(skin_color==SKIN_BROWN)
-			skin_color=SKIN_TAN;
+				skin_color=SKIN_TAN;
 			else skin_color--;
 			change_actor();
 		}
 	if(mouse_x>=120 && mouse_y>270 && mouse_y<288 && mouse_x<=138)
 		{
 			if(skin_color==SKIN_TAN)
-			skin_color=SKIN_BROWN;
+				skin_color=SKIN_BROWN;
 			else skin_color++;
 			change_actor();
 		}
@@ -166,14 +164,14 @@ void check_for_input()
 	if(mouse_x>=90 && mouse_y>290 && mouse_y<308 && mouse_x<=108)
 		{
 			if(hair_color==HAIR_BLACK)
-			hair_color=HAIR_WHITE;
+				hair_color=HAIR_WHITE;
 			else hair_color--;
 			change_actor();
 		}
 	if(mouse_x>=120 && mouse_y>290 && mouse_y<308 && mouse_x<=138)
 		{
 			if(hair_color==HAIR_WHITE)
-			hair_color=HAIR_BLACK;
+				hair_color=HAIR_BLACK;
 			else hair_color++;
 			change_actor();
 		}
@@ -182,14 +180,14 @@ void check_for_input()
 	if(mouse_x>=90 && mouse_y>310 && mouse_y<328 && mouse_x<=108)
 		{
 			if(shirt_color==SHIRT_BLACK)
-			shirt_color=SHIRT_YELLOW;
+				shirt_color=SHIRT_YELLOW;
 			else shirt_color--;
 			change_actor();
 		}
 	if(mouse_x>=120 && mouse_y>310 && mouse_y<328 && mouse_x<=138)
 		{
 			if(shirt_color==SHIRT_YELLOW)
-			shirt_color=SHIRT_BLACK;
+				shirt_color=SHIRT_BLACK;
 			else shirt_color++;
 			change_actor();
 		}
@@ -198,14 +196,14 @@ void check_for_input()
 	if(mouse_x>=90 && mouse_y>330 && mouse_y<348 && mouse_x<=108)
 		{
 			if(pants_color==PANTS_BLACK)
-			pants_color=PANTS_WHITE;
+				pants_color=PANTS_WHITE;
 			else pants_color--;
 			change_actor();
 		}
 	if(mouse_x>=120 && mouse_y>330 && mouse_y<348 && mouse_x<=138)
 		{
 			if(pants_color==PANTS_WHITE)
-			pants_color=PANTS_BLACK;
+				pants_color=PANTS_BLACK;
 			else pants_color++;
 			change_actor();
 		}
@@ -213,14 +211,14 @@ void check_for_input()
 	if(mouse_x>=90 && mouse_y>350 && mouse_y<368 && mouse_x<=108)
 		{
 			if(boots_color==BOOTS_BLACK)
-			boots_color=BOOTS_ORANGE;
+				boots_color=BOOTS_ORANGE;
 			else boots_color--;
 			change_actor();
 		}
 	if(mouse_x>=120 && mouse_y>350 && mouse_y<368 && mouse_x<=138)
 		{
 			if(boots_color==BOOTS_ORANGE)
-			boots_color=BOOTS_BLACK;
+				boots_color=BOOTS_BLACK;
 			else boots_color++;
 			change_actor();
 		}
@@ -230,9 +228,9 @@ void check_for_input()
 			if(head==HEAD_1)
 				{
 					if(race==race_human)
-					head=HEAD_5;
+						head=HEAD_5;
 					else
-					head=HEAD_4;
+						head=HEAD_4;
 				}
 			else head--;
 			change_actor();
@@ -243,9 +241,8 @@ void check_for_input()
 				{
 					head=HEAD_1;
 				}
-			else
-			if(head==HEAD_5)
-			head=HEAD_1;
+			else if(head==HEAD_5)
+				head=HEAD_1;
 			else head++;
 			change_actor();
 		}
@@ -468,47 +465,47 @@ void draw_new_char_screen()
 
 	//username box
 	if(username)
-	draw_2d_thing(selected_bar_u_start,selected_bar_v_start,
-	selected_bar_u_end,selected_bar_v_end,10,30,200,58);
+		draw_2d_thing(selected_bar_u_start,selected_bar_v_start,
+					  selected_bar_u_end,selected_bar_v_end,10,30,200,58);
 	else
-	draw_2d_thing(unselected_bar_u_start,unselected_bar_v_start,
-	unselected_bar_u_end,unselected_bar_v_end,10,30,200,58);
+		draw_2d_thing(unselected_bar_u_start,unselected_bar_v_start,
+					  unselected_bar_u_end,unselected_bar_v_end,10,30,200,58);
 
 	//password box
 	if(password)
-	draw_2d_thing(selected_bar_u_start,selected_bar_v_start,
-	selected_bar_u_end,selected_bar_v_end,10,88,200,116);
+		draw_2d_thing(selected_bar_u_start,selected_bar_v_start,
+					  selected_bar_u_end,selected_bar_v_end,10,88,200,116);
 	else
-	draw_2d_thing(unselected_bar_u_start,unselected_bar_v_start,
-	unselected_bar_u_end,unselected_bar_v_end,10,88,200,116);
+		draw_2d_thing(unselected_bar_u_start,unselected_bar_v_start,
+					  unselected_bar_u_end,unselected_bar_v_end,10,88,200,116);
 
 	//confirm box
 	if(confirm_pass)
-	draw_2d_thing(selected_bar_u_start,selected_bar_v_start,
-	selected_bar_u_end,selected_bar_v_end,10,146,200,174);
+		draw_2d_thing(selected_bar_u_start,selected_bar_v_start,
+					  selected_bar_u_end,selected_bar_v_end,10,146,200,174);
 	else
-	draw_2d_thing(unselected_bar_u_start,unselected_bar_v_start,
-	unselected_bar_u_end,unselected_bar_v_end,10,146,200,174);
+		draw_2d_thing(unselected_bar_u_start,unselected_bar_v_start,
+					  unselected_bar_u_end,unselected_bar_v_end,10,146,200,174);
 
 	//done_button button
 	if(done_button)
-	draw_2d_thing(done_button_selected_start_u,done_button_selected_start_v,
-	done_button_selected_end_u,done_button_selected_end_v,10,
-	200,97,235);
+		draw_2d_thing(done_button_selected_start_u,done_button_selected_start_v,
+					  done_button_selected_end_u,done_button_selected_end_v,10,
+					  200,97,235);
 	else
-	draw_2d_thing(done_button_unselected_start_u,done_button_unselected_start_v,
-	done_button_unselected_end_u,done_button_unselected_end_v,10,
-	200,97,235);
+		draw_2d_thing(done_button_unselected_start_u,done_button_unselected_start_v,
+					  done_button_unselected_end_u,done_button_unselected_end_v,10,
+					  200,97,235);
 
 	//back button
 	if(back)
-	draw_2d_thing(back_selected_start_u,back_selected_start_v,
-	back_selected_end_u,back_selected_end_v,110,
-	200,197,235);
+		draw_2d_thing(back_selected_start_u,back_selected_start_v,
+					  back_selected_end_u,back_selected_end_v,110,
+					  200,197,235);
 	else
-	draw_2d_thing(back_unselected_start_u,back_unselected_start_v,
-	back_unselected_end_u,back_unselected_end_v,110,
-	200,197,235);
+		draw_2d_thing(back_unselected_start_u,back_unselected_start_v,
+					  back_unselected_end_u,back_unselected_end_v,110,
+					  200,197,235);
 
 	glEnd();
 
@@ -538,78 +535,76 @@ void draw_new_char_screen()
 
 void add_char_2_pass(unsigned char ch)
 {
-        if((ch>=32 && ch<=126) && pass_text_lenght<15)
-            {
-                pass_str[pass_text_lenght]=ch;
-                display_pass_str[pass_text_lenght]='*';
-                pass_str[pass_text_lenght+1]=0;
-                pass_text_lenght++;
-            }
-        if(ch==SDLK_BACKSPACE && pass_text_lenght>0)
-            {
-                pass_text_lenght--;
-                display_pass_str[pass_text_lenght]=0;
-                pass_str[pass_text_lenght]=0;
-            }
+	if((ch>=32 && ch<=126) && pass_text_lenght<15)
+		{
+			pass_str[pass_text_lenght]=ch;
+			display_pass_str[pass_text_lenght]='*';
+			pass_str[pass_text_lenght+1]=0;
+			pass_text_lenght++;
+		}
+	if(ch==SDLK_BACKSPACE && pass_text_lenght>0)
+		{
+			pass_text_lenght--;
+			display_pass_str[pass_text_lenght]=0;
+			pass_str[pass_text_lenght]=0;
+		}
 
-        if(ch==SDLK_TAB)
-            {
-				password=0;
-				confirm_pass=1;
-            }
+	if(ch==SDLK_TAB)
+		{
+			password=0;
+			confirm_pass=1;
+		}
 }
 
 void add_char_2_un(unsigned char ch)
 {
-        if(((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_')) && user_text_lenght<15)
-            {
-                user_str[user_text_lenght]=ch;
-                user_str[user_text_lenght+1]=0;
-                user_text_lenght++;
-            }
-        if(ch==SDLK_BACKSPACE && user_text_lenght>0)
-            {
-                user_text_lenght--;
-                user_str[user_text_lenght]=0;
-            }
-        if(ch==SDLK_TAB)
-            {
-				username=0;
-				password=1;
-            }
+	if(((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_')) && user_text_lenght<15)
+		{
+			user_str[user_text_lenght]=ch;
+			user_str[user_text_lenght+1]=0;
+			user_text_lenght++;
+		}
+	if(ch==SDLK_BACKSPACE && user_text_lenght>0)
+		{
+			user_text_lenght--;
+			user_str[user_text_lenght]=0;
+		}
+	if(ch==SDLK_TAB)
+		{
+			username=0;
+			password=1;
+		}
 }
 
 void add_char_2_conf(unsigned char ch)
 {
-        if((ch>=32 && ch<=126) && conf_pass_text_lenght<15)
-            {
-                conf_pass_str[conf_pass_text_lenght]=ch;
-                display_conf_pass_str[conf_pass_text_lenght]='*';
-                conf_pass_str[conf_pass_text_lenght+1]=0;
-                conf_pass_text_lenght++;
-            }
-        if(ch==SDLK_BACKSPACE && conf_pass_text_lenght>0)
-            {
-                conf_pass_text_lenght--;
-                display_conf_pass_str[conf_pass_text_lenght]=0;
-                conf_pass_str[conf_pass_text_lenght]=0;
-            }
+	if((ch>=32 && ch<=126) && conf_pass_text_lenght<15)
+		{
+			conf_pass_str[conf_pass_text_lenght]=ch;
+			display_conf_pass_str[conf_pass_text_lenght]='*';
+			conf_pass_str[conf_pass_text_lenght+1]=0;
+			conf_pass_text_lenght++;
+		}
+	if(ch==SDLK_BACKSPACE && conf_pass_text_lenght>0)
+		{
+			conf_pass_text_lenght--;
+			display_conf_pass_str[conf_pass_text_lenght]=0;
+			conf_pass_str[conf_pass_text_lenght]=0;
+		}
 
-        if(ch==SDLK_TAB)
-            {
-				confirm_pass=0;
-				username=1;
-            }
+	if(ch==SDLK_TAB)
+		{
+			confirm_pass=0;
+			username=1;
+		}
 }
 
 void add_char_to_new_character(unsigned char ch)
 {
 
-  			if(username)add_char_2_un(ch);
-  			else
-			if(password)add_char_2_pass(ch);
-			else
-			if(confirm_pass)add_char_2_conf(ch);
+	if(username)add_char_2_un(ch);
+	else if(password)add_char_2_pass(ch);
+	else if(confirm_pass)add_char_2_conf(ch);
 }
 
 void login_from_new_char()

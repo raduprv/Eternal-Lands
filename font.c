@@ -35,76 +35,53 @@ void draw_string(int x, int y,unsigned char * our_string,int max_lines)
 			if(cur_char>127+c_grey4)
 				{
 					if(cur_char==252)
-					cur_char=UUML;
-					else
-					if(cur_char==233)
-					cur_char=EACUTE;
-					else
-					if(cur_char==226)
-					cur_char=ACIRC;
-					else
-					if(cur_char==224)
-					cur_char=AGRAVE;
-					else
-					if(cur_char==231)
-					cur_char=CCEDIL;
-					else
-					if(cur_char==234)
-					cur_char=ECIRC;
-					else
-					if(cur_char==235)
-					cur_char=EUML;
-					else
-					if(cur_char==232)
-					cur_char=EGRAVE;
-					else
-					if(cur_char==239)
-					cur_char=IUML;
-					else
-					if(cur_char==244)
-					cur_char=OCIRC;
-					else
-					if(cur_char==251)
-					cur_char=UGRAVE;
-					else
-					if(cur_char==230)
-					cur_char=aELIG;
-					else
-					if(cur_char==248)
-					cur_char=oSLASH;
-					else
-					if(cur_char==229)
-					cur_char=aRING;
-					else
-					if(cur_char==198)
-					cur_char=AELIG;
-					else
-					if(cur_char==216)
-					cur_char=OSLASH;
-					else
-					if(cur_char==197)
-					cur_char=ARING;
-					else
-					if(cur_char==228)
-					cur_char=aUMLAUT;
-					else
-					if(cur_char==246)
-					cur_char=oUMLAUT;
-					else
-					if(cur_char==252)
-					cur_char=uUMLAUT;
-					else
-					if(cur_char==196)
-					cur_char=AUMLAUT;
-					else
-					if(cur_char==214)
-					cur_char=OUMLAUT;
-					else
-					if(cur_char==220)
-					cur_char=UUMLAUT;
-					else
-					if(cur_char==223)
-					cur_char=DOUBLES;
+						cur_char=UUML;
+					else if(cur_char==233)
+						cur_char=EACUTE;
+					else if(cur_char==226)
+						cur_char=ACIRC;
+					else if(cur_char==224)
+						cur_char=AGRAVE;
+					else if(cur_char==231)
+						cur_char=CCEDIL;
+					else if(cur_char==234)
+						cur_char=ECIRC;
+					else if(cur_char==235)
+						cur_char=EUML;
+					else if(cur_char==232)
+						cur_char=EGRAVE;
+					else if(cur_char==239)
+						cur_char=IUML;
+					else if(cur_char==244)
+						cur_char=OCIRC;
+					else if(cur_char==251)
+						cur_char=UGRAVE;
+					else if(cur_char==230)
+						cur_char=aELIG;
+					else if(cur_char==248)
+						cur_char=oSLASH;
+					else if(cur_char==229)
+						cur_char=aRING;
+					else if(cur_char==198)
+						cur_char=AELIG;
+					else if(cur_char==216)
+						cur_char=OSLASH;
+					else if(cur_char==197)
+						cur_char=ARING;
+					else if(cur_char==228)
+						cur_char=aUMLAUT;
+					else if(cur_char==246)
+						cur_char=oUMLAUT;
+					else if(cur_char==252)
+						cur_char=uUMLAUT;
+					else if(cur_char==196)
+						cur_char=AUMLAUT;
+					else if(cur_char==214)
+						cur_char=OUMLAUT;
+					else if(cur_char==220)
+						cur_char=UUMLAUT;
+					else if(cur_char==223)
+						cur_char=DOUBLES;
 					else
 						{
 							i++;
@@ -271,7 +248,8 @@ void draw_string_small(int x, int y,unsigned char * our_string,int max_lines)
 	glDisable(GL_ALPHA_TEST);
 }
 
-void draw_ingame_string(float x, float y,unsigned char * our_string,int max_lines,int big)
+void draw_ingame_string(float x, float y,unsigned char * our_string,
+						int max_lines,int big)
 {
 	float u_start,u_end,v_start,v_end;
 	int col,row;
@@ -318,76 +296,53 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,int max_line
 			if(cur_char>127+c_grey4)
 				{
 					if(cur_char==252)
-					cur_char=UUML;
-					else
-					if(cur_char==233)
-					cur_char=EACUTE;
-					else
-					if(cur_char==226)
-					cur_char=ACIRC;
-					else
-					if(cur_char==224)
-					cur_char=AGRAVE;
-					else
-					if(cur_char==231)
-					cur_char=CCEDIL;
-					else
-					if(cur_char==234)
-					cur_char=ECIRC;
-					else
-					if(cur_char==235)
-					cur_char=EUML;
-					else
-					if(cur_char==232)
-					cur_char=EGRAVE;
-					else
-					if(cur_char==239)
-					cur_char=IUML;
-					else
-					if(cur_char==244)
-					cur_char=OCIRC;
-					else
-					if(cur_char==251)
-					cur_char=UGRAVE;
-					else
-					if(cur_char==230)
-					cur_char=aELIG;
-					else
-					if(cur_char==248)
-					cur_char=oSLASH;
-					else
-					if(cur_char==229)
-					cur_char=aRING;
-					else
-					if(cur_char==198)
-					cur_char=AELIG;
-					else
-					if(cur_char==216)
-					cur_char=OSLASH;
-					else
-					if(cur_char==197)
-					cur_char=ARING;
-					else
-					if(cur_char==228)
-					cur_char=aUMLAUT;
-					else
-					if(cur_char==246)
-					cur_char=oUMLAUT;
-					else
-					if(cur_char==252)
-					cur_char=uUMLAUT;
-					else
-					if(cur_char==196)
-					cur_char=AUMLAUT;
-					else
-					if(cur_char==214)
-					cur_char=OUMLAUT;
-					else
-					if(cur_char==220)
-					cur_char=UUMLAUT;
-					else
-					if(cur_char==223)
-					cur_char=DOUBLES;
+						cur_char=UUML;
+					else if(cur_char==233)
+						cur_char=EACUTE;
+					else if(cur_char==226)
+						cur_char=ACIRC;
+					else if(cur_char==224)
+						cur_char=AGRAVE;
+					else if(cur_char==231)
+						cur_char=CCEDIL;
+					else if(cur_char==234)
+						cur_char=ECIRC;
+					else if(cur_char==235)
+						cur_char=EUML;
+					else if(cur_char==232)
+						cur_char=EGRAVE;
+					else if(cur_char==239)
+						cur_char=IUML;
+					else if(cur_char==244)
+						cur_char=OCIRC;
+					else if(cur_char==251)
+						cur_char=UGRAVE;
+					else if(cur_char==230)
+						cur_char=aELIG;
+					else if(cur_char==248)
+						cur_char=oSLASH;
+					else if(cur_char==229)
+						cur_char=aRING;
+					else if(cur_char==198)
+						cur_char=AELIG;
+					else if(cur_char==216)
+						cur_char=OSLASH;
+					else if(cur_char==197)
+						cur_char=ARING;
+					else if(cur_char==228)
+						cur_char=aUMLAUT;
+					else if(cur_char==246)
+						cur_char=oUMLAUT;
+					else if(cur_char==252)
+						cur_char=uUMLAUT;
+					else if(cur_char==196)
+						cur_char=AUMLAUT;
+					else if(cur_char==214)
+						cur_char=OUMLAUT;
+					else if(cur_char==220)
+						cur_char=UUMLAUT;
+					else if(cur_char==223)
+						cur_char=DOUBLES;
 					else
 						{
 							i++;

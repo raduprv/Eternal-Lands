@@ -111,7 +111,8 @@ void test_for_console_command()
 				{
 					snprintf(extra,20," Beta");
 				}
-			sprintf(str,"Eternal Lands Version %d.%d.%d%s",version_major_digit,version_first_digit,version_second_digit,extra);
+			sprintf(str,"Eternal Lands Version %d.%d.%d%s",version_major_digit,
+					version_first_digit,version_second_digit,extra);
 			log_to_console(c_green1,str);
 			return;
 		}
@@ -232,12 +233,12 @@ void test_for_console_command()
 				}
 		}
 
-////////////////////////
+	////////////////////////
 
-////////////////////////
+	////////////////////////
 	if(my_strncompare(text_loc, "modes_", 5))
 		{
-		  //char str[1000]; unused?
+			//char str[1000]; unused?
 			//see what modes are supported.
 #ifndef WINDOWS
 			log_to_console(c_grey1,"Since you are under Xwindows, you will always get the desktop color depth, wether or not you are in the full screen mode.");
@@ -246,54 +247,78 @@ void test_for_console_command()
 			log_to_console(c_orange2,"\nSupported Full Screen modes:");
 
 			if(SDL_VideoModeOK(640, 480, 16, SDL_OPENGL|SDL_FULLSCREEN))
-			log_to_console(c_green2,"Mode 1: 640x480x16: [Suported]");
+				log_to_console(c_green2,"Mode 1: 640x480x16: [Suported]");
 			else log_to_console(c_red2,"Mode 1: 640x480x16: [Not Suported]");
 
 			if(SDL_VideoModeOK(640, 480, 32, SDL_OPENGL|SDL_FULLSCREEN))
-			log_to_console(c_green2,"Mode 2: 640x480x32: [Suported]");
+				log_to_console(c_green2,"Mode 2: 640x480x32: [Suported]");
 			else log_to_console(c_red2,"Mode 2: 640x480x32: [Not Suported]");
 
 			if(SDL_VideoModeOK(800, 600, 16, SDL_OPENGL|SDL_FULLSCREEN))
-			log_to_console(c_green2,"Mode 3: 800x600x16: [Suported]");
+				log_to_console(c_green2,"Mode 3: 800x600x16: [Suported]");
 			else log_to_console(c_red2,"Mode 3: 800x600x16: [Not Suported]");
 
 			if(SDL_VideoModeOK(800, 600, 32, SDL_OPENGL|SDL_FULLSCREEN))
-			log_to_console(c_green2,"Mode 4: 800x600x32: [Suported]");
+				log_to_console(c_green2,"Mode 4: 800x600x32: [Suported]");
 			else log_to_console(c_red2,"Mode 4: 800x600x32: [Not Suported]");
 
 			if(SDL_VideoModeOK(1024, 768, 16, SDL_OPENGL|SDL_FULLSCREEN))
-			log_to_console(c_green2,"Mode 5: 1024x768x16: [Suported]");
+				log_to_console(c_green2,"Mode 5: 1024x768x16: [Suported]");
 			else log_to_console(c_red2,"Mode 5: 1024x768x16: [Not Suported]");
 
 			if(SDL_VideoModeOK(1024, 768, 32, SDL_OPENGL|SDL_FULLSCREEN))
-			log_to_console(c_green2,"Mode 6: 1024x768x32: [Suported]");
+				log_to_console(c_green2,"Mode 6: 1024x768x32: [Suported]");
 			else log_to_console(c_red2,"Mode 6: 1024x768x32: [Not Suported]");
+
+			if(SDL_VideoModeOK(1152, 864, 16, SDL_OPENGL|SDL_FULLSCREEN))
+				log_to_console(c_green2,"Mode 7: 1152x864x16: [Suported]");
+			else log_to_console(c_red2,"Mode 7: 1152x864x16: [Not Suported]");
+
+			if(SDL_VideoModeOK(1152, 864, 32, SDL_OPENGL|SDL_FULLSCREEN))
+				log_to_console(c_green2,"Mode 8: 1152x864x32: [Suported]");
+			else log_to_console(c_red2,"Mode 8: 1152x864x32: [Not Suported]");
+
+			if(SDL_VideoModeOK(1280, 1024, 16, SDL_OPENGL|SDL_FULLSCREEN))
+				log_to_console(c_green2,"Mode 9: 1280x1024x16: [Suported]");
+			else log_to_console(c_red2,"Mode 9: 1280x1024x16: [Not Suported]");
+
+			if(SDL_VideoModeOK(1280, 1024, 32, SDL_OPENGL|SDL_FULLSCREEN))
+				log_to_console(c_green2,"Mode 10: 1280x1024x32: [Suported]");
+			else log_to_console(c_red2,"Mode 10: 1280x1024x32: [Not Suported]");
 
 			if(bpp==16)log_to_console(c_orange2,"\nSupported Windowed modes: [16 bpp]");
 			else
-			log_to_console(c_orange2,"\nSupported Windowed modes: [32 bpp]");
+				log_to_console(c_orange2,"\nSupported Windowed modes: [32 bpp]");
 			if(SDL_VideoModeOK(640, 480, 16, SDL_OPENGL))
-			log_to_console(c_green2,"Mode 1-2: 640x480: [Suported]");
-			else log_to_console(c_red2,"Mode 1: 640x480: [Not Suported]");
+				log_to_console(c_green2,"Mode 1-2: 640x480: [Suported]");
+			else log_to_console(c_red2,"Mode 1-2: 640x480: [Not Suported]");
 
 			if(SDL_VideoModeOK(800, 600, 16, SDL_OPENGL))
-			log_to_console(c_green2,"Mode 3-4: 800x600: [Suported]");
-			else log_to_console(c_red2,"Mode 3: 800x600: [Not Suported]");
+				log_to_console(c_green2,"Mode 3-4: 800x600: [Suported]");
+			else log_to_console(c_red2,"Mode 3-4: 800x600: [Not Suported]");
 
 			if(SDL_VideoModeOK(1024, 768, 16, SDL_OPENGL))
-			log_to_console(c_green2,"Mode 5-6: 1024x768: [Suported]");
-			else log_to_console(c_red2,"Mode 5: 1024x768: [Not Suported]");
+				log_to_console(c_green2,"Mode 5-6: 1024x768: [Suported]");
+			else log_to_console(c_red2,"Mode 5-6: 1024x768: [Not Suported]");
+
+			if(SDL_VideoModeOK(1152, 864, 16, SDL_OPENGL))
+				log_to_console(c_green2,"Mode 7-8: 1152x864: [Suported]");
+			else log_to_console(c_red2,"Mode 7-8: 1152x864: [Not Suported]");
+
+			if(SDL_VideoModeOK(1280, 1024, 16, SDL_OPENGL))
+				log_to_console(c_green2,"Mode 9-10: 1280x1024: [Suported]");
+			else log_to_console(c_red2,"Mode 9-10: 1280x1024: [Not Suported]");
 
 			return;
 		}
 
-////////////////////////
+	////////////////////////
 	if(my_strncompare(text_loc, "mode ", 5) && text_loc[5]>='1' && text_loc[5]<='6')
 		{
 
 		}
 
-////////////////////////
+	////////////////////////
 	if(my_strncompare(text_loc,"unignore ",9))
 		{
 			Uint8 name[16];
@@ -344,7 +369,7 @@ void test_for_console_command()
 					return;
 				}
 		}
-////////////////////////
+	////////////////////////
 	if(my_strcompare(text_loc,"help_"))
 		{
 			display_help_topic("main");
@@ -371,7 +396,7 @@ void test_for_console_command()
 			display_help_topic(topic);
 			return;
 		}
-////////////////////////
+	////////////////////////
 
 
 	if(my_strcompare(text_loc,"glinfo_"))

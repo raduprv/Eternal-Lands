@@ -28,7 +28,7 @@ void do_paste(Uint8 * buffer)
         	        		input_text_lenght++;
 						}
         	    }
-        	 if(input_text_lenght>=160)return;
+			if(input_text_lenght>=160)return;
 		}
 }
 
@@ -41,7 +41,6 @@ void startpaste() {
 	Atom selection;
 	Atom property;
 
-	//bzero(& wminfo, sizeof wminfo);
 	SDL_VERSION(&wminfo.version);
 	if(SDL_GetWMInfo(&wminfo) && wminfo.subsystem==SDL_SYSWM_X11) {
 		wminfo.info.x11.lock_func();
@@ -73,7 +72,6 @@ void finishpaste(XSelectionEvent event) {
 	unsigned long bytes;
 	unsigned char * value;
 
-	//bzero(& wminfo, sizeof wminfo);
 	SDL_VERSION(&wminfo.version);
 	if(SDL_GetWMInfo(&wminfo) && wminfo.subsystem==SDL_SYSWM_X11) {
 		wminfo.info.x11.lock_func();

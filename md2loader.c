@@ -4,8 +4,7 @@
 
 md2 * load_md2(char * file_name)
 {
-  //int f_size,vertex_no,faces_no; unused?
-  int i,k; //,l; unused?
+  int i,k;
   FILE *f = NULL;
 
   face_md2 *face_pointer;
@@ -124,12 +123,6 @@ md2 * load_md2(char * file_name)
 		translate_x=temp_frame_storage.translate[0];
 		translate_y=temp_frame_storage.translate[1];
 		translate_z=temp_frame_storage.translate[2];
-/*
-
-		translate_x=0;
-		translate_y=0;
-		translate_z=0;
-*/
 
 		//put the frame name too
 		sprintf(frame_pointer[i].name,"%s",temp_frame_storage.name);

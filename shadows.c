@@ -6,53 +6,52 @@ void SetShadowMatrix()
 
 {
 
-               float dot;
-               // dot product of plane and light position
-               dot =      fPlane[0] * fLightPos[0] +
-                          fPlane[1] * fLightPos[1] +
-                          fPlane[2] * fLightPos[2] +
-                          fPlane[3] * fLightPos[3];
+	float dot;
+	// dot product of plane and light position
+	dot = fPlane[0] * fLightPos[0]
+		+ fPlane[1] * fLightPos[1]
+		+ fPlane[2] * fLightPos[2]
+		+ fPlane[3] * fLightPos[3];
 
 
 
-               // first column
-               fDestMat[0] = dot - fLightPos[0] * fPlane[0];
-               fDestMat[4] = 0.0f - fLightPos[0] * fPlane[1];
-               fDestMat[8] = 0.0f - fLightPos[0] * fPlane[2];
-               fDestMat[12] = 0.0f - fLightPos[0] * fPlane[3];
+	// first column
+	fDestMat[0] = dot - fLightPos[0] * fPlane[0];
+	fDestMat[4] = 0.0f - fLightPos[0] * fPlane[1];
+	fDestMat[8] = 0.0f - fLightPos[0] * fPlane[2];
+	fDestMat[12] = 0.0f - fLightPos[0] * fPlane[3];
 
 
-               // second column
-               fDestMat[1] = 0.0f - fLightPos[1] * fPlane[0];
-               fDestMat[5] = dot - fLightPos[1] * fPlane[1];
-               fDestMat[9] = 0.0f - fLightPos[1] * fPlane[2];
-               fDestMat[13] = 0.0f - fLightPos[1] * fPlane[3];
+	// second column
+	fDestMat[1] = 0.0f - fLightPos[1] * fPlane[0];
+	fDestMat[5] = dot - fLightPos[1] * fPlane[1];
+	fDestMat[9] = 0.0f - fLightPos[1] * fPlane[2];
+	fDestMat[13] = 0.0f - fLightPos[1] * fPlane[3];
 
 
-               // third column
-               fDestMat[2] = 0.0f - fLightPos[2] * fPlane[0];
-               fDestMat[6] = 0.0f - fLightPos[2] * fPlane[1];
-               fDestMat[10] = dot - fLightPos[2] * fPlane[2];
-               fDestMat[14] = 0.0f - fLightPos[2] * fPlane[3];
+	// third column
+	fDestMat[2] = 0.0f - fLightPos[2] * fPlane[0];
+	fDestMat[6] = 0.0f - fLightPos[2] * fPlane[1];
+	fDestMat[10] = dot - fLightPos[2] * fPlane[2];
+	fDestMat[14] = 0.0f - fLightPos[2] * fPlane[3];
 
 
-               // fourth column
-               fDestMat[3] = 0.0f - fLightPos[3] * fPlane[0];
-               fDestMat[7] = 0.0f - fLightPos[3] * fPlane[1];
-               fDestMat[11] = 0.0f - fLightPos[3] * fPlane[2];
-               fDestMat[15] = dot - fLightPos[3] * fPlane[3];
+	// fourth column
+	fDestMat[3] = 0.0f - fLightPos[3] * fPlane[0];
+	fDestMat[7] = 0.0f - fLightPos[3] * fPlane[1];
+	fDestMat[11] = 0.0f - fLightPos[3] * fPlane[2];
+	fDestMat[15] = dot - fLightPos[3] * fPlane[3];
 
 }
 
 void draw_3d_object_shadow(object3d * object_id)
 {
 
-	//float x,y,z,u,v;     unused?
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	int materials_no,texture_id;//a,b,c     unused?
-	int i;//k     unused?
+	int materials_no,texture_id;
+	int i;
 	char is_transparent;
 
 	e3d_array_vertex *array_vertex;
@@ -78,11 +77,11 @@ void draw_3d_object_shadow(object3d * object_id)
 	y_rot=object_id->y_rot;
 	z_rot=object_id->z_rot;
 
-  if(is_transparent)
-  	{
-	    glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-	    glAlphaFunc(GL_GREATER,0.05f);
-	}
+	if(is_transparent)
+		{
+			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+			glAlphaFunc(GL_GREATER,0.05f);
+		}
 	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
 
 
@@ -118,13 +117,13 @@ void draw_3d_object_shadow(object3d * object_id)
 
 	glPopMatrix();//restore the scene
 
-  glDisableClientState(GL_VERTEX_ARRAY);
-  if(is_transparent)
-  	{
-  		glDisable(GL_ALPHA_TEST);
-  		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	}
-  else glEnable(GL_TEXTURE_2D);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	if(is_transparent)
+		{
+			glDisable(GL_ALPHA_TEST);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+	else glEnable(GL_TEXTURE_2D);
 
 }
 
@@ -134,10 +133,8 @@ void draw_3d_object_shadow(object3d * object_id)
 void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 {
 	int i,j;
-	//float u,v;     unused?
 	float x,y,z;
 	char *dest_frame_name;
-	//char str[20];     unused?
 	int numFrames;
     int numFaces;
     text_coord_md2 *offsetTexCoords;
@@ -155,16 +152,15 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 	//now, go and find the current frame
 	i=0;
 	while(i<numFrames)
-	{
-		dest_frame_name=(char *)&offsetFrames[i].name;
-		//dest_frame_name=offsetFrames[i].name;
-		if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-			{
-				vertex_pointer=offsetFrames[i].vertex_pointer;
-				break;
-			}
-		i++;
-	}
+		{
+			dest_frame_name=(char *)&offsetFrames[i].name;
+			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
+				{
+					vertex_pointer=offsetFrames[i].vertex_pointer;
+					break;
+				}
+			i++;
+		}
 
 	i=0;
 	if(vertex_pointer==NULL)//if there is no frame, use idle01
@@ -173,15 +169,15 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 			sprintf(str, "couldn't find frame: %s\n",cur_frame);
 			log_error(str);
 			while(i<numFrames)
-			{
-				dest_frame_name=(char *)&offsetFrames[i].name;
-				if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
-					{
-						vertex_pointer=offsetFrames[i].vertex_pointer;
-						break;
-					}
-				i++;
-			}
+				{
+					dest_frame_name=(char *)&offsetFrames[i].name;
+					if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
+						{
+							vertex_pointer=offsetFrames[i].vertex_pointer;
+							break;
+						}
+					i++;
+				}
 		}
 
 	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
@@ -218,20 +214,14 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 
 void draw_enhanced_actor_shadow(actor * actor_id)
 {
-	//int i,j;     unused?
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	//float x,y,z;     unused?
 	char *cur_frame;
-	//char str[20];     unused?
-	//int numFrames;     unused?
-	//char *dest_frame_name;     unused?
 	frame_md2 *offsetFrames;
 
 
 
 	offsetFrames=actor_id->body_parts->head->offsetFrames;
-	//texture_id=texture_cache[actor_id->texture_id].texture_id;
 
 	cur_frame=actor_id->cur_frame;
 
@@ -248,7 +238,7 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 	//now, go and find the current frame
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-	z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glMultMatrixf(fDestMat);
@@ -274,12 +264,9 @@ void draw_actor_shadow(actor * actor_id)
 	int i,j;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	//float u,v;     unused?
 	float x,y,z;
 	char *cur_frame;
 	char *dest_frame_name;
-	//char str[20];     unused?
-
 
 	int numFrames;
     int numFaces;
@@ -305,16 +292,15 @@ void draw_actor_shadow(actor * actor_id)
 	//now, go and find the current frame
 	i=0;
 	while(i<numFrames)
-	{
-		dest_frame_name=(char *)&offsetFrames[i].name;
-		//dest_frame_name=offsetFrames[i].name;
-		if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-			{
-				vertex_pointer=offsetFrames[i].vertex_pointer;
-				break;
-			}
-		i++;
-	}
+		{
+			dest_frame_name=(char *)&offsetFrames[i].name;
+			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
+				{
+					vertex_pointer=offsetFrames[i].vertex_pointer;
+					break;
+				}
+			i++;
+		}
 	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
 		{
 			char str[120];
@@ -324,7 +310,7 @@ void draw_actor_shadow(actor * actor_id)
 		}
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-	z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glMultMatrixf(fDestMat);
@@ -333,7 +319,7 @@ void draw_actor_shadow(actor * actor_id)
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-;
+	;
 	glBegin(GL_TRIANGLES);
 	for(j=0;j<numFaces;j++)
 		{
@@ -366,20 +352,20 @@ void display_actors_shadow()
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
-			 {
-			         int dist1;
-			         int dist2;
+				{
+					int dist1;
+					int dist2;
 
-			         dist1=x-actors_list[i]->x_pos;
-			         dist2=y-actors_list[i]->y_pos;
-			         if(sqrt(dist1*dist1+dist2*dist2)<=12)
-			         if(!actors_list[i]->ghost)
-			         	{
-							if(actors_list[i]->is_enhanced_model)
-							draw_enhanced_actor_shadow(actors_list[i]);
-                     		else draw_actor_shadow(actors_list[i]);
-						}
-             }
+					dist1=x-actors_list[i]->x_pos;
+					dist2=y-actors_list[i]->y_pos;
+					if(sqrt(dist1*dist1+dist2*dist2)<=12)
+						if(!actors_list[i]->ghost)
+							{
+								if(actors_list[i]->is_enhanced_model)
+									draw_enhanced_actor_shadow(actors_list[i]);
+								else draw_actor_shadow(actors_list[i]);
+							}
+				}
 		}
 }
 
@@ -393,18 +379,18 @@ void display_shadows()
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
-			     {
-				if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
-					{
-			    	     int dist1;
-			    	     int dist2;
+				{
+					if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
+						{
+							int dist1;
+							int dist2;
 
-			    	     dist1=x-objects_list[i]->x_pos;
-			    	     dist2=y-objects_list[i]->y_pos;
-			    	     if(dist1*dist1+dist2*dist2<=400)
-                	     draw_3d_object_shadow(objects_list[i]);
-					 }
-                 }
+							dist1=x-objects_list[i]->x_pos;
+							dist2=y-objects_list[i]->y_pos;
+							if(dist1*dist1+dist2*dist2<=400)
+								draw_3d_object_shadow(objects_list[i]);
+						}
+				}
 		}
 	glDisable(GL_CULL_FACE);
 	display_actors_shadow();
@@ -432,36 +418,36 @@ void display_3d_ground_objects()
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
-			     {
-			         int dist1;
-			         int dist2;
+				{
+					int dist1;
+					int dist2;
 
-					 if(objects_list[i]->e3d_data->is_ground)
+					if(objects_list[i]->e3d_data->is_ground)
 					 	{
 
 			         		dist1=x-objects_list[i]->x_pos;
 			         		dist2=y-objects_list[i]->y_pos;
 			         		if(dist1*dist1+dist2*dist2<=700)
-			         		{
-								float x_len;
-								float y_len;
-								float z_len;
-								float radius;
+								{
+									float x_len;
+									float y_len;
+									float z_len;
+									float radius;
 
-								z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
-								x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
-								y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
+									z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
+									x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
+									y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
 
-								radius=x_len/2;
-								if(radius<y_len/2)radius=y_len/2;
-								if(radius<z_len)radius=z_len;
-								//not in the middle of the air
-								if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
-								objects_list[i]->z_pos,radius))
-                     			draw_3d_object(objects_list[i]);
-							}
+									radius=x_len/2;
+									if(radius<y_len/2)radius=y_len/2;
+									if(radius<z_len)radius=z_len;
+									//not in the middle of the air
+									if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
+													   objects_list[i]->z_pos,radius))
+										draw_3d_object(objects_list[i]);
+								}
 						}
-                 }
+				}
 		}
 	if(have_multitexture && clouds_shadows)
 		{
@@ -501,14 +487,14 @@ void display_3d_non_ground_objects()
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
-			     {
-			         int dist1;
-			         int dist2;
+				{
+					int dist1;
+					int dist2;
 
-			         dist1=x-objects_list[i]->x_pos;
-			         dist2=y-objects_list[i]->y_pos;
-					 if(!objects_list[i]->e3d_data->is_ground)
-			         		if(dist1*dist1+dist2*dist2<=900)
+					dist1=x-objects_list[i]->x_pos;
+					dist2=y-objects_list[i]->y_pos;
+					if(!objects_list[i]->e3d_data->is_ground)
+						if(dist1*dist1+dist2*dist2<=900)
 			         		{
 								float x_len;
 								float y_len;
@@ -524,13 +510,13 @@ void display_3d_non_ground_objects()
 								if(radius<z_len)radius=z_len;
 								//not in the middle of the air
 								if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
-								objects_list[i]->z_pos,radius))
+												   objects_list[i]->z_pos,radius))
 									{
                      					draw_3d_object(objects_list[i]);
                      					anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
 									}
 							}
-                 }
+				}
 		}
 	if(have_multitexture && clouds_shadows)
 		{
@@ -547,56 +533,56 @@ void draw_sun_shadowed_scene()
 {
 	int abs_light;
 
-        display_3d_ground_objects();
-		// turning off writing to the color buffer and depth buffer
-		glDisable(GL_DEPTH_TEST);
+	display_3d_ground_objects();
+	// turning off writing to the color buffer and depth buffer
+	glDisable(GL_DEPTH_TEST);
 
-		glDisable(GL_LIGHTING);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDisable(GL_LIGHTING);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-		glEnable(GL_STENCIL_TEST);
-		// write a one to the stencil buffer everywhere we are about to draw
-		glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
-		// this is to always pass a one to the stencil buffer where we draw
-		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+	glEnable(GL_STENCIL_TEST);
+	// write a one to the stencil buffer everywhere we are about to draw
+	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
+	// this is to always pass a one to the stencil buffer where we draw
+	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
-        display_shadows();
+	display_shadows();
 
-		glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
-		// don't modify the contents of the stencil buffer
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        //go to the 2d mode, and draw a black rectangle...
-        Enter2DMode();
-        			glDisable(GL_TEXTURE_2D);
-
-        			abs_light=light_level;
-        			if(light_level>59)abs_light=119-light_level;
-     				abs_light+=weather_light_offset;
-     				if(abs_light<0)abs_light=0;
-     				if(abs_light>59)abs_light=59;
-
-					glColor4f(0.0f,0.0f,0.0f,0.73f+(float)abs_light*0.008f);
-        			glEnable(GL_BLEND);
-        			glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-        			glBegin(GL_QUADS);
-					glVertex3i(0,window_height,0);
-					glVertex3i(0,0,0);
-					glVertex3i(window_width,0,0);
-					glVertex3i(window_width,window_height,0);
-					glEnd();
-					glDisable(GL_BLEND);
-					glEnable(GL_TEXTURE_2D);
-
-        Leave2DMode();
-        glEnable(GL_DEPTH_TEST);
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		glEnable(GL_LIGHTING);
-		glDisable(GL_STENCIL_TEST);
+	glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
+	// don't modify the contents of the stencil buffer
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 
-        display_3d_non_ground_objects();
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//go to the 2d mode, and draw a black rectangle...
+	Enter2DMode();
+	glDisable(GL_TEXTURE_2D);
+
+	abs_light=light_level;
+	if(light_level>59)abs_light=119-light_level;
+	abs_light+=weather_light_offset;
+	if(abs_light<0)abs_light=0;
+	if(abs_light>59)abs_light=59;
+
+	glColor4f(0.0f,0.0f,0.0f,0.73f+(float)abs_light*0.008f);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
+	glBegin(GL_QUADS);
+	glVertex3i(0,window_height,0);
+	glVertex3i(0,0,0);
+	glVertex3i(window_width,0,0);
+	glVertex3i(window_width,window_height,0);
+	glEnd();
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+
+	Leave2DMode();
+	glEnable(GL_DEPTH_TEST);
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+	glEnable(GL_LIGHTING);
+	glDisable(GL_STENCIL_TEST);
+
+
+	display_3d_non_ground_objects();
 
 }

@@ -3,21 +3,21 @@
 
 typedef struct
 {
-  float pos_x;
-  float pos_y;
-  float pos_z;
-  float r;
-  float g;
-  float b;
+	float pos_x;
+	float pos_y;
+	float pos_z;
+	float r;
+	float g;
+	float b;
 
 }light;
 
 typedef struct
 {
-  float x;
-  float y;
-  float z;
-  float w;
+	float x;
+	float y;
+	float z;
+	float w;
 }sun;
 
 
@@ -78,7 +78,8 @@ void reset_material();
 void set_material(float r, float g, float b);
 void draw_global_light();
 void draw_dungeon_light();
-void make_gradient_light(int start,int steps,float *light_table, float r_start, float g_start, float b_start, float r_end, float g_end, float b_end);
+void make_gradient_light(int start,int steps,float *light_table, float r_start, 
+						 float g_start, float b_start, float r_end, float g_end, float b_end);
 void build_global_light_table();
 void build_sun_pos_table();
 void new_minute();

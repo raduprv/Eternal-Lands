@@ -81,150 +81,80 @@ void get_the_stats(Sint16 *stats)
 }
 
 void get_partial_stat(Uint8 name,Sint32 value)
-	{
-		if(name==PHY_CUR)your_info.phy.cur=value;
-		else
-		if(name==PHY_BASE)your_info.phy.base=value;
-		else
-		if(name==COO_CUR)your_info.coo.cur=value;
-		else
-		if(name==COO_BASE)your_info.coo.base=value;
-		else
-		if(name==REAS_CUR)your_info.rea.cur=value;
-		else
-		if(name==REAS_BASE)your_info.rea.base=value;
-		else
-		if(name==WILL_CUR)your_info.wil.cur=value;
-		else
-		if(name==WILL_BASE)your_info.wil.base=value;
-		else
-		if(name==INST_CUR)your_info.ins.cur=value;
-		else
-		if(name==INST_BASE)your_info.ins.base=value;
-		else
-		if(name==VIT_CUR)your_info.vit.cur=value;
-		else
-		if(name==VIT_BASE)your_info.vit.base=value;
-		else
-		if(name==HUMAN_CUR)your_info.human_nex.cur=value;
-		else
-		if(name==HUMAN_BASE)your_info.human_nex.base=value;
-		else
-		if(name==ANIMAL_CUR)your_info.animal_nex.cur=value;
-		else
-		if(name==ANIMAL_BASE)your_info.animal_nex.base=value;
-		else
-		if(name==VEGETAL_CUR)your_info.vegetal_nex.cur=value;
-		else
-		if(name==VEGETAL_BASE)your_info.vegetal_nex.base=value;
-		else
-		if(name==INORG_CUR)your_info.inorganic_nex.cur=value;
-		else
-		if(name==INORG_BASE)your_info.inorganic_nex.base=value;
-		else
-		if(name==ARTIF_CUR)your_info.artificial_nex.cur=value;
-		else
-		if(name==ARTIF_BASE)your_info.artificial_nex.base=value;
-		else
-		if(name==MAGIC_CUR)your_info.magic_nex.cur=value;
-		else
-		if(name==MAGIC_BASE)your_info.magic_nex.base=value;
-		else
-		if(name==MAN_S_CUR)your_info.manufacturing_skill.cur=value;
-		else
-		if(name==MAN_S_BASE)your_info.manufacturing_skill.base=value;
-		else
-		if(name==HARV_S_CUR)your_info.harvesting_skill.cur=value;
-		else
-		if(name==HARV_S_BASE)your_info.harvesting_skill.base=value;
-		else
-		if(name==ALCH_S_CUR)your_info.alchemy_skill.cur=value;
-		else
-		if(name==ALCH_S_BASE)your_info.alchemy_skill.base=value;
-		else
-		if(name==COMB_S_CUR)your_info.combat_skill.cur=value;
-		else
-		if(name==COMB_S_BASE)your_info.combat_skill.base=value;
-		else
-		if(name==ATT_S_CUR)your_info.attack_skill.cur=value;
-		else
-		if(name==ATT_S_BASE)your_info.attack_skill.base=value;
-		else
-		if(name==DEF_S_CUR)your_info.defense_skill.cur=value;
-		else
-		if(name==DEF_S_BASE)your_info.defense_skill.base=value;
-		else
-		if(name==MAG_S_CUR)your_info.magic_skill.cur=value;
-		else
-		if(name==MAG_S_BASE)your_info.magic_skill.base=value;
-		else
-		if(name==POT_S_CUR)your_info.potion_skill.cur=value;
-		else
-		if(name==POT_S_BASE)your_info.potion_skill.base=value;
-		else
-		if(name==CARRY_WGHT_CUR)your_info.carry_capacity.cur=value;
-		else
-		if(name==CARRY_WGHT_BASE)your_info.carry_capacity.base=value;
-		else
-		if(name==MAT_POINT_CUR)your_info.material_points.cur=value;
-		else
-		if(name==MAT_POINT_BASE)your_info.material_points.base=value;
-		else
-		if(name==ETH_POINT_CUR)your_info.ethereal_points.cur=value;
-		else
-		if(name==ETH_POINT_BASE)your_info.ethereal_points.base=value;
-		else
-		if(name==FOOD_LEV)your_info.food_level=value;
-		else
-		if(name==ARMOR_STR)your_info.armor=value;
-		else
-		if(name==MAG_RES)your_info.magic_resistence=value;
-		else
-		if(name==MAN_EXP)your_info.manufacturing_exp=value;
-		else
-		if(name==MAN_EXP_NEXT)your_info.manufacturing_exp_next_lev=value;
-		else
-		if(name==HARV_EXP)your_info.harvesting_exp=value;
-		else
-		if(name==HARV_EXP_NEXT)your_info.harvesting_exp_next_lev=value;
-		else
-		if(name==ALCH_EXP)your_info.alchemy_exp=value;
-		else
-		if(name==ALCH_EXP_NEXT)your_info.alchemy_exp_next_lev=value;
-		else
-		if(name==COMB_EXP)your_info.combat_exp=value;
-		else
-		if(name==COMB_EXP_NEXT)your_info.combat_exp_next_lev=value;
-		else
-		if(name==DEF_EXP)your_info.defense_exp=value;
-		else
-		if(name==DEF_EXP_NEXT)your_info.defense_exp_next_lev=value;
-		else
-		if(name==ATT_EXP)your_info.attack_exp=value;
-		else
-		if(name==ATT_EXP_NEXT)your_info.attack_exp_next_lev=value;
-		else
-		if(name==MAG_EXP)your_info.magic_exp=value;
-		else
-		if(name==MAG_EXP_NEXT)your_info.magic_exp_next_lev=value;
-		else
-		if(name==POT_EXP)your_info.potion_exp=value;
-		else
-		if(name==POT_EXP_NEXT)your_info.potion_exp_next_lev=value;
-		else
-		if(name==WEAP_ACCURACY)your_info.accuracy=value;
-		else
-		if(name==WEAP_DAMAGE)your_info.damage=value;
-		else
-		if(name==SUM_EXP)your_info.summoning_exp=value;
-		else
-		if(name==SUM_EXP_NEXT)your_info.summoning_exp_next_lev=value;
-		else
-		if(name==SUM_S_CUR)your_info.summoning_skill.cur=value;
-		else
-		if(name==SUM_S_BASE)your_info.summoning_skill.base=value;
+{
+	if(name==PHY_CUR)your_info.phy.cur=value;
+	else if(name==PHY_BASE)your_info.phy.base=value;
+	else if(name==COO_CUR)your_info.coo.cur=value;
+	else if(name==COO_BASE)your_info.coo.base=value;
+	else if(name==REAS_CUR)your_info.rea.cur=value;
+	else if(name==REAS_BASE)your_info.rea.base=value;
+	else if(name==WILL_CUR)your_info.wil.cur=value;
+	else if(name==WILL_BASE)your_info.wil.base=value;
+	else if(name==INST_CUR)your_info.ins.cur=value;
+	else if(name==INST_BASE)your_info.ins.base=value;
+	else if(name==VIT_CUR)your_info.vit.cur=value;
+	else if(name==VIT_BASE)your_info.vit.base=value;
+	else if(name==HUMAN_CUR)your_info.human_nex.cur=value;
+	else if(name==HUMAN_BASE)your_info.human_nex.base=value;
+	else if(name==ANIMAL_CUR)your_info.animal_nex.cur=value;
+	else if(name==ANIMAL_BASE)your_info.animal_nex.base=value;
+	else if(name==VEGETAL_CUR)your_info.vegetal_nex.cur=value;
+	else if(name==VEGETAL_BASE)your_info.vegetal_nex.base=value;
+	else if(name==INORG_CUR)your_info.inorganic_nex.cur=value;
+	else if(name==INORG_BASE)your_info.inorganic_nex.base=value;
+	else if(name==ARTIF_CUR)your_info.artificial_nex.cur=value;
+	else if(name==ARTIF_BASE)your_info.artificial_nex.base=value;
+	else if(name==MAGIC_CUR)your_info.magic_nex.cur=value;
+	else if(name==MAGIC_BASE)your_info.magic_nex.base=value;
+	else if(name==MAN_S_CUR)your_info.manufacturing_skill.cur=value;
+	else if(name==MAN_S_BASE)your_info.manufacturing_skill.base=value;
+	else if(name==HARV_S_CUR)your_info.harvesting_skill.cur=value;
+	else if(name==HARV_S_BASE)your_info.harvesting_skill.base=value;
+	else if(name==ALCH_S_CUR)your_info.alchemy_skill.cur=value;
+	else if(name==ALCH_S_BASE)your_info.alchemy_skill.base=value;
+	else if(name==COMB_S_CUR)your_info.combat_skill.cur=value;
+	else if(name==COMB_S_BASE)your_info.combat_skill.base=value;
+	else if(name==ATT_S_CUR)your_info.attack_skill.cur=value;
+	else if(name==ATT_S_BASE)your_info.attack_skill.base=value;
+	else if(name==DEF_S_CUR)your_info.defense_skill.cur=value;
+	else if(name==DEF_S_BASE)your_info.defense_skill.base=value;
+	else if(name==MAG_S_CUR)your_info.magic_skill.cur=value;
+	else if(name==MAG_S_BASE)your_info.magic_skill.base=value;
+	else if(name==POT_S_CUR)your_info.potion_skill.cur=value;
+	else if(name==POT_S_BASE)your_info.potion_skill.base=value;
+	else if(name==CARRY_WGHT_CUR)your_info.carry_capacity.cur=value;
+	else if(name==CARRY_WGHT_BASE)your_info.carry_capacity.base=value;
+	else if(name==MAT_POINT_CUR)your_info.material_points.cur=value;
+	else if(name==MAT_POINT_BASE)your_info.material_points.base=value;
+	else if(name==ETH_POINT_CUR)your_info.ethereal_points.cur=value;
+	else if(name==ETH_POINT_BASE)your_info.ethereal_points.base=value;
+	else if(name==FOOD_LEV)your_info.food_level=value;
+	else if(name==ARMOR_STR)your_info.armor=value;
+	else if(name==MAG_RES)your_info.magic_resistence=value;
+	else if(name==MAN_EXP)your_info.manufacturing_exp=value;
+	else if(name==MAN_EXP_NEXT)your_info.manufacturing_exp_next_lev=value;
+	else if(name==HARV_EXP)your_info.harvesting_exp=value;
+	else if(name==HARV_EXP_NEXT)your_info.harvesting_exp_next_lev=value;
+	else if(name==ALCH_EXP)your_info.alchemy_exp=value;
+	else if(name==ALCH_EXP_NEXT)your_info.alchemy_exp_next_lev=value;
+	else if(name==COMB_EXP)your_info.combat_exp=value;
+	else if(name==COMB_EXP_NEXT)your_info.combat_exp_next_lev=value;
+	else if(name==DEF_EXP)your_info.defense_exp=value;
+	else if(name==DEF_EXP_NEXT)your_info.defense_exp_next_lev=value;
+	else if(name==ATT_EXP)your_info.attack_exp=value;
+	else if(name==ATT_EXP_NEXT)your_info.attack_exp_next_lev=value;
+	else if(name==MAG_EXP)your_info.magic_exp=value;
+	else if(name==MAG_EXP_NEXT)your_info.magic_exp_next_lev=value;
+	else if(name==POT_EXP)your_info.potion_exp=value;
+	else if(name==POT_EXP_NEXT)your_info.potion_exp_next_lev=value;
+	else if(name==WEAP_ACCURACY)your_info.accuracy=value;
+	else if(name==WEAP_DAMAGE)your_info.damage=value;
+	else if(name==SUM_EXP)your_info.summoning_exp=value;
+	else if(name==SUM_EXP_NEXT)your_info.summoning_exp_next_lev=value;
+	else if(name==SUM_S_CUR)your_info.summoning_skill.cur=value;
+	else if(name==SUM_S_BASE)your_info.summoning_skill.base=value;
 
-	}
+}
 
 
 void display_stats(player_attribs cur_stats)
@@ -408,47 +338,47 @@ void display_stats(player_attribs cur_stats)
 	y+=14;
 
 	sprintf(str,"Manufacture: %2i/%-2i [%2i/%-2i]",cur_stats.manufacturing_skill.cur,cur_stats.manufacturing_skill.base,
-	cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
+			cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
 	sprintf(str,"Harvest:     %2i/%-2i [%2i/%-2i]",cur_stats.harvesting_skill.cur,cur_stats.harvesting_skill.base,
-	cur_stats.harvesting_exp,cur_stats.harvesting_exp_next_lev);
+			cur_stats.harvesting_exp,cur_stats.harvesting_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
 	sprintf(str,"Alchemy:     %2i/%-2i [%2i/%-2i]",cur_stats.alchemy_skill.cur,cur_stats.alchemy_skill.base,
-	cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
+			cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
 	sprintf(str,"Combat:      %2i/%-2i [%2i/%-2i]",cur_stats.combat_skill.cur,cur_stats.combat_skill.base,
-	cur_stats.combat_exp,cur_stats.combat_exp_next_lev);
+			cur_stats.combat_exp,cur_stats.combat_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
 	sprintf(str,"Attack:      %2i/%-2i [%2i/%-2i]",cur_stats.attack_skill.cur,cur_stats.attack_skill.base,
-	cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
+			cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
 	sprintf(str,"Defense:     %2i/%-2i [%2i/%-2i]",cur_stats.defense_skill.cur,cur_stats.defense_skill.base,
-	cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
+			cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
 	sprintf(str,"Magic:       %2i/%-2i [%2i/%-2i]",cur_stats.magic_skill.cur,cur_stats.magic_skill.base,
-	cur_stats.magic_exp,cur_stats.magic_exp_next_lev);
+			cur_stats.magic_exp,cur_stats.magic_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
 	sprintf(str,"Potion:      %2i/%-2i [%2i/%-2i]",cur_stats.potion_skill.cur,cur_stats.potion_skill.base,
-	cur_stats.potion_exp,cur_stats.potion_exp_next_lev);
+			cur_stats.potion_exp,cur_stats.potion_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
 	sprintf(str,"Summoning:   %2i/%-2i [%2i/%-2i]",cur_stats.summoning_skill.cur,cur_stats.summoning_skill.base,
-	cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
+			cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
 	draw_string_small(x,y,str,1);
 }
 

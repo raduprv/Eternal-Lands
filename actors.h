@@ -135,74 +135,74 @@ typedef struct
 
 typedef struct
 {
-   int actor_id;
-   int actor_type;
+	int actor_id;
+	int actor_type;
 
-   double x_pos;
-   double y_pos;
-   double z_pos;
+	double x_pos;
+	double y_pos;
+	double z_pos;
 
-   int x_tile_pos;
-   int y_tile_pos;
+	int x_tile_pos;
+	int y_tile_pos;
 
-   double x_speed;
-   double y_speed;
-   double z_speed;
+	double x_speed;
+	double y_speed;
+	double z_speed;
 
-   float x_rot;
-   float y_rot;
-   float z_rot;
+	float x_rot;
+	float y_rot;
+	float z_rot;
 
-   int boots;
-   int hair;
-   int skin;
-   int pants;
-   int shirt;
+	int boots;
+	int hair;
+	int skin;
+	int pants;
+	int shirt;
 
-   int is_enhanced_model;
-   enhanced_actor *body_parts;
+	int is_enhanced_model;
+	enhanced_actor *body_parts;
 
 
 
-   char remapped_colors;
+	char remapped_colors;
 
-   char cur_frame[16];
+	char cur_frame[16];
 
-   md2 *model_data;
-   int texture_id;
-   char skin_name[30];
-   char actor_name[30];
+	md2 *model_data;
+	int texture_id;
+	char skin_name[30];
+	char actor_name[30];
 
-   //for movement/animation
-   char que[10];
-   char last_command;
-   char busy;//if the actor is busy executing the current command
-   char sitting;
-   char fighting;
+	//for movement/animation
+	char que[10];
+	char last_command;
+	char busy;//if the actor is busy executing the current command
+	char sitting;
+	char fighting;
 
-   double move_x_speed;
-   double move_y_speed;
-   double move_z_speed;
-   int movement_frames_left;
-   float rotate_x_speed;
-   float rotate_y_speed;
-   float rotate_z_speed;
-   int rotate_frames_left;
-   int after_move_frames_left;
+	double move_x_speed;
+	double move_y_speed;
+	double move_z_speed;
+	int movement_frames_left;
+	float rotate_x_speed;
+	float rotate_y_speed;
+	float rotate_z_speed;
+	int rotate_frames_left;
+	int after_move_frames_left;
 
-   char moving;
-   char rotating;
-   char stop_animation;//don't loop trough the current animation (like for die, jump, etc.)
-   char stand_idle;
-   char sit_idle;
-   char dead;
-   int damage;
-   int damage_ms;
-   int cur_health;
-   int max_health;
-   char ghost;
-   int cur_weapon;
-   int kind_of_actor;
+	char moving;
+	char rotating;
+	char stop_animation;//don't loop trough the current animation (like for die, jump, etc.)
+	char stand_idle;
+	char sit_idle;
+	char dead;
+	int damage;
+	int damage_ms;
+	int cur_health;
+	int max_health;
+	char ghost;
+	int cur_weapon;
+	int kind_of_actor;
 
 
 }actor;
@@ -214,13 +214,18 @@ extern int	max_actors;
 extern actor_types actors_defs[40];
 
 md2 * load_md2_cache(char * file_name);
-int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, float y_pos, float z_pos, float z_rot, char remappable, short skin_color, short hair_color, short shirt_color, short pants_color, short boots_color, int actor_id);
+int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
+			  float y_pos, float z_pos, float z_rot, char remappable, 
+			  short skin_color, short hair_color, short shirt_color, 
+			  short pants_color, short boots_color, int actor_id);
 void draw_actor(actor * actor_id);
 void display_actors();
 void add_actor_from_server(char * in_data);
 void draw_interface_body_part(md2 *model_data,float scale);
-void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,int z_pos, float x_rot,float y_rot, float z_rot);
-actor * add_actor_interface(int actor_type, short skin, short hair, short shirt, short pants, short boots, short head);
+void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
+						  int z_pos, float x_rot,float y_rot, float z_rot);
+actor * add_actor_interface(int actor_type, short skin, short hair, 
+							short shirt, short pants, short boots, short head);
 extern void	init_actors_lists();
 #define	lock_actors_lists()	SDL_LockMutex(actors_lists_mutex)
 #define	unlock_actors_lists()	SDL_UnlockMutex(actors_lists_mutex);

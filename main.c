@@ -15,44 +15,39 @@
 
 int start_rendering()
 {
-    //static GLuint texture;  unused?
-    //int x=0,y=0; unused?
-    //int i=0;     unused?
     int done=0;
 #ifndef WINDOWS
 	SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
 #endif
 	/* Loop until done. */
 	while( !done )
-    {
-      //GLenum gl_error; unused?
-      //char* sdl_error; unused?
-      SDL_Event event;
+		{
+			SDL_Event event;
 
-		// handle SDL events
-		while( SDL_PollEvent( &event ) )
-        {
-			done = HandleEvent(&event);
+			// handle SDL events
+			while( SDL_PollEvent( &event ) )
+				{
+					done = HandleEvent(&event);
+				}
+			//advance the clock
+			last_time=cur_time;
+			cur_time = SDL_GetTicks();
+			//check for network data
+			get_message_from_server();
+
+			//should we send the heart beat?
+			if(last_heart_beat+25000<cur_time)
+				{
+					Uint8 command;
+					last_heart_beat=cur_time;
+					command=HEART_BEAT;
+					my_tcp_send(my_socket,&command,1);
+				}
+			//draw everything
+			draw_scene();
+			//see if we need to exit
+			if(exit_now)break;
 		}
-		//advance the clock
-        last_time=cur_time;
-		cur_time = SDL_GetTicks();
-		//check for network data
-		get_message_from_server();
-
-		//should we send the heart beat?
-		if(last_heart_beat+25000<cur_time)
-			{
-				Uint8 command;
-				last_heart_beat=cur_time;
-				command=HEART_BEAT;
-				my_tcp_send(my_socket,&command,1);
-			}
-		//draw everything
-        draw_scene();
-		//see if we need to exit
-        if(exit_now)break;
-    }
 
 	save_bin_cfg();
 	/* Destroy our GL context, etc. */
@@ -66,15 +61,12 @@ int start_rendering()
 #ifdef WINDOWS
 Main()
 #else
-int main()
+	 int main()
 #endif
 {
-	int logo; // i unused?
+	int logo;
 	int numtests;
-	//int bpp = 0; unused?
 	int slowly;
-	//float gamma = 0.0; unused?
-	//int noframe = 1;  unused?
 
 	logo = 1;
 	slowly = 1;
@@ -89,8 +81,8 @@ int main()
 #ifdef WINDOWS
 int STDCALL WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
-Main();
-  return 0;
+	Main();
+	return 0;
 }
 
 #endif

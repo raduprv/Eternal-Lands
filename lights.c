@@ -4,15 +4,15 @@
 
 void draw_test_light()
 {
-   GLfloat light_position[] = { 15.0, 15.0, 3.0, 1.0 };
-   GLfloat light_position_2[] = { 5.0, 5.0, -3.0, 1.0 };
-   GLfloat spot_direction[] = { 0.0, 0.0, -1.0f };
+	GLfloat light_position[] = { 15.0, 15.0, 3.0, 1.0 };
+	GLfloat light_position_2[] = { 5.0, 5.0, -3.0, 1.0 };
+	GLfloat spot_direction[] = { 0.0, 0.0, -1.0f };
 
-   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-   glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
 
-   glLightfv(GL_LIGHT1, GL_POSITION, light_position_2);
-   glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
+	glLightfv(GL_LIGHT1, GL_POSITION, light_position_2);
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
 }
 
 void disable_local_lights()
@@ -42,33 +42,33 @@ void draw_lights()
 {
 	GLfloat spot_direction[] = { -0.0, -0.0, -0.0f };
 
-   glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
-   glLightfv(GL_LIGHT0,GL_DIFFUSE,light_0_diffuse);
-   glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
+	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_0_diffuse);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
 
-   glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
-   glLightfv(GL_LIGHT1,GL_DIFFUSE,light_1_diffuse);
-   glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
+	glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
+	glLightfv(GL_LIGHT1,GL_DIFFUSE,light_1_diffuse);
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
 
-   glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
-   glLightfv(GL_LIGHT2,GL_DIFFUSE,light_2_diffuse);
-   glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot_direction);
+	glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
+	glLightfv(GL_LIGHT2,GL_DIFFUSE,light_2_diffuse);
+	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot_direction);
 
-   glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
-   glLightfv(GL_LIGHT3,GL_DIFFUSE,light_3_diffuse);
-   glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot_direction);
+	glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
+	glLightfv(GL_LIGHT3,GL_DIFFUSE,light_3_diffuse);
+	glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot_direction);
 
-   glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
-   glLightfv(GL_LIGHT4,GL_DIFFUSE,light_4_diffuse);
-   glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, spot_direction);
+	glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
+	glLightfv(GL_LIGHT4,GL_DIFFUSE,light_4_diffuse);
+	glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, spot_direction);
 
-   glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
-   glLightfv(GL_LIGHT5,GL_DIFFUSE,light_5_diffuse);
-   glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, spot_direction);
+	glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
+	glLightfv(GL_LIGHT5,GL_DIFFUSE,light_5_diffuse);
+	glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, spot_direction);
 
-   glLightfv(GL_LIGHT6, GL_POSITION, light_6_position);
-   glLightfv(GL_LIGHT6,GL_DIFFUSE,light_6_diffuse);
-   glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
+	glLightfv(GL_LIGHT6, GL_POSITION, light_6_position);
+	glLightfv(GL_LIGHT6,GL_DIFFUSE,light_6_diffuse);
+	glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
 
 }
 
@@ -346,12 +346,12 @@ void update_scene_lights()
 void init_lights()
 {
 
-   GLfloat light_diffuse[] = { 1.7, 1.3, 1.1, 0.0 };
-   GLfloat no_light[] = { 0.0, 0.0, 0.0, 0.0 };
-   float linear_att=1.41f;
-   float cut_off=180;
-   //most of the things in here are redundant, since we kind of set the light sources
-   //to their default values. However, better safe than sorry.
+	GLfloat light_diffuse[] = { 1.7, 1.3, 1.1, 0.0 };
+	GLfloat no_light[] = { 0.0, 0.0, 0.0, 0.0 };
+	float linear_att=1.41f;
+	float cut_off=180;
+	//most of the things in here are redundant, since we kind of set the light sources
+	//to their default values. However, better safe than sorry.
 
 
 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cut_off);
@@ -410,9 +410,9 @@ void init_lights()
 	glEnable(GL_LIGHT7);
 
 
-     glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHTING);
 
-     glNormal3f(0.0f,0.0f,1.0f);
+	glNormal3f(0.0f,0.0f,1.0f);
 }
 
 
@@ -440,54 +440,55 @@ void set_material(float r, float g, float b)
 
 void draw_global_light()
 {
-     int i;
-     GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
-     GLfloat ambient_light[] = { 0.0, 0.0, 0.0, 0.0 };
-     GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
-     i=light_level;
-     if(light_level>59)i=119-light_level;
-     //this is for weather things, when the light level is not the normal light lvel of the current time
-     i+=weather_light_offset;
-     if(i<0)i=0;
-     if(i>59)i=59;
-	 //add the thunder light to the ambient/difuse light
+	int i;
+	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
+	GLfloat ambient_light[] = { 0.0, 0.0, 0.0, 0.0 };
+	GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
+	i=light_level;
+	if(light_level>59)i=119-light_level;
+	//this is for weather things, when the light level is not the normal light lvel of the current time
+	i+=weather_light_offset;
+	if(i<0)i=0;
+	if(i>59)i=59;
+	//add the thunder light to the ambient/difuse light
 
-	 difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90;
-	 difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60;
-	 difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15;
-     //the ambient light should be half of the difuse light
-     ambient_light[0]=difuse_light[0]/1.5f;
-     ambient_light[1]=difuse_light[1]/1.5f;
-     ambient_light[2]=difuse_light[2]/1.5f;
-     ambient_light[3]=1.0f;
-	 glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
-     glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
-	 glLightfv(GL_LIGHT7,GL_DIFFUSE,&difuse_light[0]);
+	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90;
+	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60;
+	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15;
+	//the ambient light should be half of the difuse light
+	ambient_light[0]=difuse_light[0]/1.5f;
+	ambient_light[1]=difuse_light[1]/1.5f;
+	ambient_light[2]=difuse_light[2]/1.5f;
+	ambient_light[3]=1.0f;
+	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
+	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+	glLightfv(GL_LIGHT7,GL_DIFFUSE,&difuse_light[0]);
 
 
 }
 
 void draw_dungeon_light()
 {
-     int i;
-     GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
-     GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
-     GLfloat ambient_light[4];
-     i=light_level;
-     if(light_level>59)i=119-light_level;
-     //the ambient light should be half of the difuse light
-     ambient_light[0]=ambient_r;
-     ambient_light[1]=ambient_g;
-     ambient_light[2]=ambient_b;
-     ambient_light[3]=1.0f;
-	 glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
-     glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
-	 glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);
+	int i;
+	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
+	GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
+	GLfloat ambient_light[4];
+	i=light_level;
+	if(light_level>59)i=119-light_level;
+	//the ambient light should be half of the difuse light
+	ambient_light[0]=ambient_r;
+	ambient_light[1]=ambient_g;
+	ambient_light[2]=ambient_b;
+	ambient_light[3]=1.0f;
+	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
+	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+	glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);
 
 
 }
 
-void make_gradient_light(int start,int steps,float *light_table, float r_start, float g_start, float b_start, float r_end, float g_end, float b_end)
+void make_gradient_light(int start,int steps,float *light_table, float r_start, 
+						 float g_start, float b_start, float r_end, float g_end, float b_end)
 {
 	int i,j;
 	float r_slope,g_slope,b_slope;
@@ -547,16 +548,16 @@ void build_sun_pos_table()
 	x=0;
 	d=400;
 	for(i=0;i<60*3;i++)
-	{
-   		z = d*sin((float)(i+start)*0.6f*3.1415926/180);
-		y = d*cos((float)(i+start)*0.6f*3.1415926/180);
-		x+=0.5f;
+		{
+			z = d*sin((float)(i+start)*0.6f*3.1415926/180);
+			y = d*cos((float)(i+start)*0.6f*3.1415926/180);
+			x+=0.5f;
 
-		sun_pos[i].x=x;
-		sun_pos[i].y=y;
-		sun_pos[i].z=z;
-		sun_pos[i].w=0.0f;
-	}
+			sun_pos[i].x=x;
+			sun_pos[i].y=y;
+			sun_pos[i].z=z;
+			sun_pos[i].w=0.0f;
+		}
 }
 
 void new_minute()
