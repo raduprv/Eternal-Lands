@@ -90,7 +90,7 @@ int HandleEvent(SDL_Event *event)
 #endif
 	    case SDL_KEYDOWN:
 			{
-				(Uint16)key=(Uint16)event->key.keysym.sym;
+				key=(Uint16)event->key.keysym.sym;
 				if(shift_on)key|=(1<<31);
 				if(ctrl_on)key|=(1<<30);
 				if(alt_on)key|=(1<<29);
@@ -400,8 +400,10 @@ int HandleEvent(SDL_Event *event)
 
 				if (key==K_MAP)
 					{
-						if(interface_mode==interface_game)switch_to_game_map();
-						else if(interface_mode==interface_map)switch_from_game_map();
+						if(interface_mode==interface_map)
+							switch_from_game_map();
+						else
+							switch_to_game_map();
 					}
 
 				if (key==K_ROTATELEFT)
