@@ -1,7 +1,7 @@
 #include "global.h"
 
 int wear_items_x_offset=6*51+20;
-int wear_items_y_offset=50;
+int wear_items_y_offset=30;
 
 
 void display_items_menu()
@@ -54,6 +54,18 @@ void display_items_menu()
 
 	glColor3f(0.57f,0.67f,0.49f);
 	//draw the small grid
+#ifdef NEW_VERSION
+	for(y=0;y<5;y++)
+		{
+			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+y*33,0);
+			glVertex3i(items_menu_x+wear_items_x_offset+2*33,items_menu_y+wear_items_y_offset+y*33,0);
+		}
+	for(x=0;x<3;x++)
+		{
+			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset,0);
+			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset+4*33,0);
+		}
+#else
 	for(y=0;y<4;y++)
 		{
 			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+y*33,0);
@@ -64,7 +76,7 @@ void display_items_menu()
 			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset,0);
 			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset+3*33,0);
 		}
-
+#endif
 	glColor3f(0.77f,0.57f,0.39f);
 	//draw the corner, with the X in
 	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+20,0);
@@ -78,47 +90,47 @@ void display_items_menu()
 	glColor3f(0.3f,0.5f,1.0f);
 	for(y=0;y<6;y++)
 		{
-			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+130+y*20,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+2*35,items_menu_y+wear_items_y_offset+130+y*20,0);
+			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+160+y*20,0);
+			glVertex3i(items_menu_x+wear_items_x_offset+2*35,items_menu_y+wear_items_y_offset+160+y*20,0);
 		}
 	for(x=0;x<3;x++)
 		{
-			glVertex3i(items_menu_x+wear_items_x_offset+x*35,items_menu_y+wear_items_y_offset+130,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+x*35,items_menu_y+wear_items_y_offset+130+5*20,0);
+			glVertex3i(items_menu_x+wear_items_x_offset+x*35,items_menu_y+wear_items_y_offset+160,0);
+			glVertex3i(items_menu_x+wear_items_x_offset+x*35,items_menu_y+wear_items_y_offset+160+5*20,0);
 		}
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
 	//draw the quantity string
-	draw_string_small(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+115,"Quantity",1);
+	draw_string_small(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+145,"Quantity",1);
 	//draw the quantity values
 	if(item_quantity==1)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+15,items_menu_y+wear_items_y_offset+133,"1",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+15,items_menu_y+wear_items_y_offset+163,"1",1);
 	if(item_quantity==5)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+50,items_menu_y+wear_items_y_offset+133,"5",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+50,items_menu_y+wear_items_y_offset+163,"5",1);
 	if(item_quantity==10)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+10,items_menu_y+wear_items_y_offset+153,"10",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+10,items_menu_y+wear_items_y_offset+183,"10",1);
 	if(item_quantity==20)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+45,items_menu_y+wear_items_y_offset+153,"20",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+45,items_menu_y+wear_items_y_offset+183,"20",1);
 	if(item_quantity==50)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+10,items_menu_y+wear_items_y_offset+173,"50",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+10,items_menu_y+wear_items_y_offset+203,"50",1);
 	if(item_quantity==100)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+40,items_menu_y+wear_items_y_offset+173,"100",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+40,items_menu_y+wear_items_y_offset+203,"100",1);
 	if(item_quantity==200)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+5,items_menu_y+wear_items_y_offset+193,"200",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+5,items_menu_y+wear_items_y_offset+223,"200",1);
 	if(item_quantity==500)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+40,items_menu_y+wear_items_y_offset+193,"500",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+40,items_menu_y+wear_items_y_offset+223,"500",1);
 	if(item_quantity==1000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+1,items_menu_y+wear_items_y_offset+213,"1000",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+1,items_menu_y+wear_items_y_offset+243,"1000",1);
 	if(item_quantity==2000)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
-	draw_string_small(items_menu_x+wear_items_x_offset+36,items_menu_y+wear_items_y_offset+213,"2000",1);
+	draw_string_small(items_menu_x+wear_items_x_offset+36,items_menu_y+wear_items_y_offset+243,"2000",1);
 	glColor3f(0.77f,0.57f,0.39f);
 	draw_string(items_menu_x+items_menu_x_len-16,items_menu_y+2,"X",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=0;i<36+6;i++)
+	for(i=0;i<36+8;i++)
 		{
 			if(item_list[i].quantity)
 				{
@@ -256,7 +268,7 @@ int check_items_interface()
 		for(x=0;x<2;x++)
 			{
 				x_screen=items_menu_x+wear_items_x_offset+x*35;
-				y_screen=items_menu_y+wear_items_y_offset+130+y*20;
+				y_screen=items_menu_y+wear_items_y_offset+160+y*20;
 				if(mouse_x>x_screen && mouse_x<x_screen+35 && mouse_y>y_screen && mouse_y<y_screen+20)
 					{
 						if(x==0 && y==0)item_quantity=1;
@@ -329,7 +341,7 @@ int check_items_interface()
 												if(quantity-item_quantity>0)quantity=item_quantity;
 												str[0]=DROP_ITEM;
 												str[1]=item_list[i].pos;
-												*((Uint16 *)(str+2))=quantity;//quantity, debug
+												*((Uint16 *)(str+2))=quantity;//quantity
 												my_tcp_send(my_socket,str,4);
 											}
 										else if(action_mode==action_use)
@@ -358,7 +370,11 @@ int check_items_interface()
 			}
 
 	//see if we clicked on any item in the wear category
+#ifdef NEW_VERSION
+	for(y=0;y<4;y++)
+#else
 	for(y=0;y<3;y++)
+#endif
 		for(x=0;x<2;x++)
 			{
 				x_screen=wear_items_x_offset+items_menu_x+x*33;
@@ -370,7 +386,7 @@ int check_items_interface()
 						if(item_dragged!=-1)//we have to drop this item
 							{
 								int any_item=0;
-								for(i=0;i<36+6;i++)
+								for(i=0;i<38+6;i++)
 									{
 										if(item_list[i].quantity && item_list[i].pos==36+y*2+x)
 											{
@@ -393,7 +409,7 @@ int check_items_interface()
 									}
 							}
 
-						for(i=0;i<36+6;i++)
+						for(i=0;i<36+8;i++)
 							{
 								//should we get the info for it?
 								if(item_list[i].quantity && item_list[i].pos==y*2+x+36)
@@ -652,12 +668,17 @@ void get_bag_item(Uint8 *data)
 {
 	//int i; unused?
 	int pos;
+#ifdef NEW_VERSION
+	pos=data[6];
+	ground_item_list[pos].image_id=*((Uint16 *)(data));
+	ground_item_list[pos].quantity=*((Uint32 *)(data+2));
+	ground_item_list[pos].pos=pos;
+#else
 	pos=data[5];
-
 	ground_item_list[pos].image_id=data[0];
 	ground_item_list[pos].quantity=*((Uint32 *)(data+1));
 	ground_item_list[pos].pos=pos;
-
+#endif
 }
 
 //put the flags later on
@@ -677,15 +698,18 @@ void get_bags_items_list(Uint8 *data)
 	items_no=data[0];
 	for(i=0;i<items_no;i++)
 		{
-#ifdef NEW_VERSION
-			my_offset=i*6+1;
-#else
 			my_offset=i*7+1;
-#endif
+#ifdef NEW_VERSION
+			pos=data[my_offset+6];
+			ground_item_list[pos].image_id=*((Uint16 *)(data+my_offset));
+			ground_item_list[pos].quantity=*((Uint32 *)(data+my_offset+2));
+			ground_item_list[pos].pos=pos;
+#else
 			pos=data[my_offset+5];
 			ground_item_list[pos].image_id=data[my_offset];
 			ground_item_list[pos].quantity=*((Uint32 *)(data+my_offset+1));
 			ground_item_list[pos].pos=pos;
+#endif
 		}
 
 }
