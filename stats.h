@@ -73,10 +73,9 @@ typedef struct
 
 extern int attrib_menu_x;
 extern int attrib_menu_y;
-
 extern int attrib_menu_x_len;
 extern int attrib_menu_y_len;
-extern int attrib_menu_dragged;
+//extern int attrib_menu_dragged;
 
 extern int watch_this_stat;
 

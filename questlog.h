@@ -12,7 +12,7 @@ extern int questlog_menu_x;
 extern int questlog_menu_y;
 extern int questlog_menu_x_len;
 extern int questlog_menu_y_len;
-extern int questlog_menu_dragged;
+//extern int questlog_menu_dragged;
 
 void display_questlog();
 void load_questlog();

@@ -11,7 +11,7 @@ extern int buddy_menu_x;
 extern int buddy_menu_y;
 extern int buddy_menu_x_len;
 extern int buddy_menu_y_len;
-extern int buddy_menu_dragged;
+//extern int buddy_menu_dragged;
 extern int buddy_win;
 
 void init_buddy();

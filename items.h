@@ -62,26 +62,26 @@ extern int items_menu_x;
 extern int items_menu_y;
 extern int items_menu_x_len;
 extern int items_menu_y_len;
-extern int items_menu_dragged;
+//extern int items_menu_dragged;
 
 extern int ground_items_win;
 extern int ground_items_menu_x;
 extern int ground_items_menu_y;
 extern int ground_items_menu_x_len;
 extern int ground_items_menu_y_len;
-extern int ground_items_menu_dragged;
+//extern int ground_items_menu_dragged;
 
 extern int manufacture_menu_x;
 extern int manufacture_menu_y;
 extern int manufacture_menu_x_len;
 extern int manufacture_menu_y_len;
-extern int manufacture_menu_dragged;
+//extern int manufacture_menu_dragged;
 
 extern int trade_menu_x;
 extern int trade_menu_y;
 extern int trade_menu_x_len;
 extern int trade_menu_y_len;
-extern int trade_menu_dragged;
+//extern int trade_menu_dragged;
 
 extern int items_text_1;
 extern int items_text_2;

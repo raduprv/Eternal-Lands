@@ -31,7 +31,7 @@ extern int dialogue_menu_x;
 extern int dialogue_menu_y;
 extern int dialogue_menu_x_len;
 extern int dialogue_menu_y_len;
-extern int dialogue_menu_dragged;
+//extern int dialogue_menu_dragged;
 
 extern int no_bounding_box;
 

@@ -613,18 +613,18 @@ int HandleEvent(SDL_Event *event)
 				{
 					if(left_click) end_drag_windows();
 					left_click = 0;
-					attrib_menu_dragged=0;
-					items_menu_dragged=0;
-					ground_items_menu_dragged=0;
-					manufacture_menu_dragged=0;
-					trade_menu_dragged=0;
-					sigil_menu_dragged=0;
-					options_menu_dragged=0;
-					dialogue_menu_dragged=0;
-					knowledge_menu_dragged=0;
-					encyclopedia_menu_dragged=0;
-					buddy_menu_dragged=0;
-					questlog_menu_dragged=0;
+					//attrib_menu_dragged=0;
+					//items_menu_dragged=0;
+					//ground_items_menu_dragged=0;
+					//manufacture_menu_dragged=0;
+					//trade_menu_dragged=0;
+					//sigil_menu_dragged=0;
+					//options_menu_dragged=0;
+					//dialogue_menu_dragged=0;
+					//knowledge_menu_dragged=0;
+					//encyclopedia_menu_dragged=0;
+					//buddy_menu_dragged=0;
+					//questlog_menu_dragged=0;
 					//knowledge_scroll_dragged=0;
 				}
 

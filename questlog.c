@@ -7,7 +7,7 @@ int questlog_menu_x=150;
 int questlog_menu_y=70;
 int questlog_menu_x_len=550;
 int questlog_menu_y_len=300;
-int questlog_menu_dragged=0;
+//int questlog_menu_dragged=0;
 _logdata logdata,*last,*current;
 FILE *qlf = NULL;
 

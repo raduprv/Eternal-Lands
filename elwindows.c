@@ -195,7 +195,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 		if(middle_click)	flags |= ELW_MID_MOUSE;
 		if(left_click)	flags |= ELW_LEFT_MOUSE;
 		// TODO: centralized double click handling
-		// TODO: consider other ways of triggering double clieck, like middle click or shift click
+		// TODO: consider other ways of triggering double click, like middle click or shift click
 		//if(double_click)	flags |= ELW_DBL_CLICK;
 	}
 

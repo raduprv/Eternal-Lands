@@ -18,7 +18,7 @@ int dialogue_menu_x=1;
 int dialogue_menu_y=1;
 int dialogue_menu_x_len=638;
 int dialogue_menu_y_len=160;
-int dialogue_menu_dragged=0;
+//int dialogue_menu_dragged=0;
 
 int no_bounding_box=0;
 

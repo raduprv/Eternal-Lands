@@ -21,32 +21,32 @@ int items_menu_x=10;
 int items_menu_y=20;
 int items_menu_x_len=6*51+110;
 int items_menu_y_len=6*51+60;
-int items_menu_dragged=0;
+//int items_menu_dragged=0;
 
 int ground_items_win= 0;
 int ground_items_menu_x=6*51+100+20;
 int ground_items_menu_y=20;
 int ground_items_menu_x_len=6*33;
 int ground_items_menu_y_len=10*33;
-int ground_items_menu_dragged=0;
+//int ground_items_menu_dragged=0;
 
 int manufacture_menu_x=10;
 int manufacture_menu_y=20;
 int manufacture_menu_x_len=12*33+20;
 int manufacture_menu_y_len=6*33;
-int manufacture_menu_dragged=0;
+//int manufacture_menu_dragged=0;
 
 int trade_menu_x=10;
 int trade_menu_y=20;
 int trade_menu_x_len=13*33;
 int trade_menu_y_len=11*33;
-int trade_menu_dragged=0;
+//int trade_menu_dragged=0;
 
 int options_menu_x=220;
 int options_menu_y=50;
 int options_menu_x_len=390;
 int options_menu_y_len=260;
-int options_menu_dragged=0;
+//int options_menu_dragged=0;
 
 int items_text_1;
 int items_text_2;

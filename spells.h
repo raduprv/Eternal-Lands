@@ -20,7 +20,7 @@ extern int sigil_menu_x;
 extern int sigil_menu_y;
 extern int sigil_menu_x_len;
 extern int sigil_menu_y_len;
-extern int sigil_menu_dragged;
+//extern int sigil_menu_dragged;
 
 extern int sigils_text;
 extern Uint8 spell_text[256];

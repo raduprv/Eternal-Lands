@@ -7,8 +7,8 @@ int knowledge_menu_x=100;
 int knowledge_menu_y=20;
 int knowledge_menu_x_len=500;
 int knowledge_menu_y_len=350;
-int knowledge_menu_dragged=0;
-int knowledge_scroll_dragged=0;
+//int knowledge_menu_dragged=0;
+//int knowledge_scroll_dragged=0;
 
 knowledge knowledge_list[300];
 

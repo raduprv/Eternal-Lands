@@ -8,7 +8,7 @@ int buddy_menu_x=150;
 int buddy_menu_y=70;
 int buddy_menu_x_len=150;
 int buddy_menu_y_len=200;
-int buddy_menu_dragged=0;
+//int buddy_menu_dragged=0;
 _buddy buddy_list[100];
 int bpage_start = 0;
 

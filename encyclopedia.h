@@ -38,7 +38,7 @@ extern int encyclopedia_menu_x;
 extern int encyclopedia_menu_y;
 extern int encyclopedia_menu_x_len;
 extern int encyclopedia_menu_y_len;
-extern int encyclopedia_menu_dragged;
+//extern int encyclopedia_menu_dragged;
 
 
 void display_encyclopedia();
