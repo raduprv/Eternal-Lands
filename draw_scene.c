@@ -413,7 +413,7 @@ void Move()
 
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(cx, cy, cz);
+	glTranslatef(cx/*-0.2f*/, cy/*-0.25f*/, cz-0.5f);
 
 	//test only
 	update_position();
@@ -470,7 +470,7 @@ void update_camera()
 			} else 
 				camera_zoom_frames = 0;
 		} else {
-			if(zoom_level>1.75f){
+			if(zoom_level>0.8f){
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
 			} else 

@@ -127,6 +127,11 @@
 #define CAPE_GOLD 11
 #define CAPE_RED 12
 #define CAPE_ORANGE 13
+#define CAPE_MOD 14
+#define CAPE_MOONSHADOW 15
+#define CAPE_RAVENOD 16
+#define CAPE_ROGUE 17
+#define CAPE_WYTTER 18
 #define CAPE_NONE 30
 
 //heads

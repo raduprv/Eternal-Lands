@@ -132,7 +132,7 @@ int HandleEvent(SDL_Event *event)
 					console_move_page_down();
 
 				if(key==K_ZOOMIN && interface_mode==interface_game){
-					if(zoom_level>2.0f) {
+					if(zoom_level>1.0f) {
 						new_zoom_level=zoom_level-0.25;
 					}
 				}

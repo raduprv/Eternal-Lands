@@ -45,11 +45,15 @@ extern int max_mark;
 void get_world_x_y()
 {
 	float window_ratio;
-	float x,y,x1,y1,a,t;
+	float x,y,x1,y1,a,t,/*lx,ly,*/lz;
+
+/*	lx=((float)(cx/(float)(cx-0.2f)))/(float)(zoom_level*0.5f); //How can we do this properly
+	ly=((float)(cy/(float)(cy-0.25f)))/(float)(zoom_level*0.5f);*/
+	lz=(float)(cz/(float)(cz-0.5f))/(float)(zoom_level*0.5f);
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
-	x=(float)((mouse_x)*2.0f*window_ratio*(float)zoom_level/(float)(window_width-hud_x))-(window_ratio*zoom_level);
-	y=(float)((window_height-hud_y-mouse_y)*2.0f*zoom_level/(window_height-hud_y))-(2.0*zoom_level/2.0f);
+	x=(float)((mouse_x)*2.0f*window_ratio*(float)zoom_level)/(float)(window_width-hud_x)-(window_ratio*zoom_level);
+	y=(float)((window_height-hud_y-(mouse_y-window_height*lz))*2.0f*zoom_level/(window_height-hud_y))-zoom_level;//(2.0*zoom_level/2.0f);
 
 	a=(rz)*3.1415926/180;
 	t=(rx)*3.1415926/180;
