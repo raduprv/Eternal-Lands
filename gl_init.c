@@ -343,6 +343,7 @@ void init_video()
 	SDL_EnableUNICODE(1);
 	build_video_mode_array();
 	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &have_stencil);
+	last_texture=-1;	//no active texture
 }
 
 
@@ -369,6 +370,7 @@ void resize_window()
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix
+	last_texture=-1;	//no active texture
 }
 
 
