@@ -108,8 +108,6 @@ int display_login_handler (window_info *win)
 	float new_char_selected_end_u = (float)238/256;
 	float new_char_selected_end_v = 1.0f-(float)155/256;
 
-	Enter2DMode ();
-
 	draw_console_pic(login_text);
 
 	// ok, start drawing the interface...
@@ -155,7 +153,7 @@ int display_login_handler (window_info *win)
 	glColor3f (1.0f, 0.0f, 0.0f);
 	// print the current error, if any
 	draw_string (0, log_in_y + 40, log_in_error_str, 5);
-
+	
 	check_gl_errors ();
 	draw_delay = 20;
 	return 1;

@@ -10,8 +10,6 @@ int display_console_handler (window_info *win)
 	// are we actively drawing things?
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{
-		Enter2DMode ();
-		
 		draw_console_pic (cons_text);
 		display_console_text ();
 		draw_hud_interface ();

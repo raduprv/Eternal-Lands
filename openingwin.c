@@ -6,10 +6,10 @@ int opening_win = -1;
 
 int display_opening_handler ()
 {
-	Enter2DMode();
 	draw_console_pic (cons_text);
 	display_console_text ();
 	check_gl_errors();
+
 	draw_delay = 20;
 	return 1;
 }

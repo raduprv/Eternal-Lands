@@ -234,6 +234,7 @@ char	reg_error_str[15],
 	failed_sdl_net_init[30],
 	failed_sdl_timer_init[30], 
 	cant_read_elini[50],
+	must_use_tabs[80],
 	/*multiplayer.c*/
 	failed_resolve[150],
 	failed_connect[100], 
@@ -549,6 +550,7 @@ void init_errors()
 	add_xml_identifier(misc,"ascii",not_ascii,"Not ASCII",sizeof(not_ascii));
 	add_xml_identifier(misc,"timer",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", sizeof(timer_lagging_behind));
 	add_xml_identifier(misc,"nameinuse",char_name_in_use,"Character name is already taken",sizeof(char_name_in_use));
+	add_xml_identifier(misc,"notabs",must_use_tabs,"You cannot disable tabbed windows with video mode %d, forcing them",sizeof(must_use_tabs));
 #endif
 
 	//Particle errors

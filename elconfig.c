@@ -156,8 +156,8 @@ void set_afk_time(int time)
 	if(time>0)afk_time=time*60000;
 	else afk_time=0;
 }
-#endif
-#endif
+#endif // not def ELCONFIG
+#endif // def ELC
 
 #ifdef MAP_EDITOR
 

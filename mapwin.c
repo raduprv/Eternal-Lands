@@ -39,13 +39,12 @@ int display_map_handler ()
 	// are we actively drawing things?
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{
-		Enter2DMode ();
 		draw_hud_interface ();
 		Leave2DMode ();
 		draw_game_map (!showing_continent, mouse_over_minimap);
+		Enter2DMode ();
 		check_gl_errors ();
 	}	
-	Enter2DMode ();
 
 	draw_delay = 20;
 	return 1;

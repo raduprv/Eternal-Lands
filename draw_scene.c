@@ -190,13 +190,24 @@ void draw_scene()
 		}
 
 #ifdef WINDOW_CHAT
+	glLoadIdentity ();	// Reset The Matrix
+	
+	Enter2DMode ();
 	display_windows (1);
+
+	// Have to draw the dragged item *after* all windows
+	if (item_dragged != -1)
+		drag_item (item_dragged, 0);
+	if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
+		drag_item (use_item, 1);
+
 	Leave2DMode ();
 
-        if(elwin_mouse >= 0) {
-                if (current_cursor!=elwin_mouse) change_cursor(elwin_mouse);
-                elwin_mouse=-1;
-        }
+	if(elwin_mouse >= 0)
+	{
+		if (current_cursor != elwin_mouse) change_cursor(elwin_mouse);
+		elwin_mouse = -1;
+	}
 #else
 	// XXX (Grum): scheduled for removal, now in the game window display handler	
 	if(!have_a_map)return;

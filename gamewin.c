@@ -415,17 +415,17 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 }
 
 int display_game_handler (window_info *win)
-{
+{	
 	static int main_count = 0;
 	static int old_fps_average = 0;
 	static int fps_average = 0;
 	static int times_FPS_below_3 = 0;
 	unsigned char str[180];
 	int fps;
-	int y_line,i;
+	int y_line, i;
 	int any_reflection = 0;
 	int mouse_rate;
-	
+
 	if (!have_a_map) return 1;
 	if (yourself==-1) return 1; //we don't have ourselves
 	
@@ -479,7 +479,8 @@ int display_game_handler (window_info *win)
 	}
 	
 	// This window is a bit special since it's not fully 2D
-	glLoadIdentity();	// Reset The Matrix
+	Leave2DMode ();
+	glPushMatrix ();
 	
 	Move ();
 	save_scene_matrix ();
@@ -639,8 +640,8 @@ int display_game_handler (window_info *win)
 			glColor3f (1.0f, 1.0f, 1.0f);
 	}
 	draw_string (10, y_line, input_text_line, input_text_lines);
-
 	Leave2DMode ();
+
 	glEnable (GL_LIGHTING);
 
 	// Return to 2D mode to draw the other windows

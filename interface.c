@@ -757,8 +757,10 @@ void draw_ingame_interface()
 #endif
 	//draw_hud_interface();
 	display_spells_we_have();
+#ifndef WINDOW_CHAT
 	if(item_dragged!=-1)drag_item(item_dragged,0);
 	if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM)drag_item(use_item,1);
+#endif
 }
 
 void draw_menu_title_bar(int x, int y, int x_len)

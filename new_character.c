@@ -811,7 +811,6 @@ int newchar_win = -1;
 
 int display_newchar_handler (window_info *win)
 {
-	Enter2DMode ();
 	draw_new_char_screen ();	
 	check_gl_errors ();
 	draw_delay = 20;

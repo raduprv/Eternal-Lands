@@ -178,21 +178,21 @@ void read_config()
 		}
 
 #ifndef WINDOWS
-		chdir(datadir);
+	chdir(datadir);
 #endif
 	
 	if(password_str[0])//We have a password
-		{
-			for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
-			display_password_str[k]=0;
-		}
-	else if(username_str[0])//We have a username but not a password...
-		{
-			username_box_selected=0;
-			password_box_selected=1;
-		}
-
-	
+	{
+		for (k=0; k < (int)strlen(password_str); k++)
+			display_password_str[k] = '*';
+		display_password_str[k] = 0;
+	}
+	else if (username_str[0]) //We have a username but not a password...
+	{
+		username_box_selected = 0;
+		password_box_selected = 1;
+	}
+		
 	fclose(f);
 }
 
@@ -468,6 +468,17 @@ void init_2d_obj_cache()
 	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache));
 }
 
+void check_options ()
+{
+	if ( !use_tabbed_windows && (video_mode == 1 || video_mode == 2) )
+	{
+		char err[120];
+		sprintf (err, must_use_tabs, video_mode);
+		log_to_console (c_red2, err);
+		use_tabbed_windows = 1;
+	}
+}
+
 void init_stuff()
 {
 	int seed;
@@ -487,6 +498,9 @@ void init_stuff()
 
 	//Parse command line options
 	read_command_line();
+	
+	// check for invalid combinations
+	check_options ();
 
 	//OK, we have the video mode settings...
 	setup_video_mode(full_screen,video_mode);

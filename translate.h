@@ -350,6 +350,7 @@ extern char	reg_error_str[15],
 		failed_sdl_net_init[30],
 		failed_sdl_timer_init[30],
 		cant_read_elini[50],
+		must_use_tabs[80],
 		/*multiplayer.c*/
 		failed_resolve[150], 
 		failed_connect[100], 
