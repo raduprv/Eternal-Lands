@@ -45,7 +45,7 @@ void write_to_log(Uint8 * data,int len)
 			strcat(srv_log_file, "srv_log.txt");
 #else
 			strcpy(chat_log_file, "chat_log.txt");
-			strcat(srv_log_file, "srv_log.txt");
+			strcpy(srv_log_file, "srv_log.txt");
 #endif
   			chat_log = fopen (chat_log_file, "a");
   			srv_log = fopen (srv_log_file, "a");
