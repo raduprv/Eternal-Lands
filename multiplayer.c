@@ -898,6 +898,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 						break;
 					case NEW_CHAR_INTERFACE:
 						interface_mode=interface_new_char;
+						connect_to_server();
 						break;
 					default:
 						break;

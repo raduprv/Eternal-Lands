@@ -285,7 +285,12 @@ extern char	reg_error_str[15],
 		snd_media_internal_error[50],
 		snd_media_ogg_error[50], //sound.c
 		stat_no_invalid[50], //stats.c
-		timer_lagging_behind[100]; //timers.c
+		timer_lagging_behind[100], //timers.c
+		you_can_proceed[50],
+		accepted_rules[50],
+		read_rules_str[50],
+		parse_rules_str[50],
+		rules_not_found[100];
 #else
 		;
 #endif

@@ -343,6 +343,12 @@ char	reg_error_str[15],
 #ifdef ELC
 	/*paste.c*/
 	,not_ascii[20],
+	/*rules.c*/
+	you_can_proceed[50],
+	accepted_rules[50],
+	read_rules_str[50],
+	parse_rules_str[50],
+	rules_not_found[100],
 	/*sound.c*/
 	snd_ogg_load_error[50],
 	snd_ogg_stream_error[50],
@@ -370,7 +376,7 @@ char	reg_error_str[15],
 
 #ifdef ELC
 #define CONSOLE_STR 3
-#define ERRORS 6
+#define ERRORS 7
 #define HELP_STR 4
 #define OPTIONS_STR 1
 #define SIGILS_STR 1
@@ -396,7 +402,7 @@ void init_groups()
 {
 #ifdef ELC
 	console_str=add_xml_group(GROUP,CONSOLE_STR,"filter","ignore","misc");
-	errors=add_xml_group(GROUP,ERRORS,"actors","load","misc","particles","snd","video");
+	errors=add_xml_group(GROUP,ERRORS,"actors","load","misc","particles","snd","video","rules");
 	help_str=add_xml_group(GROUP,HELP_STR,"afk","misc","new","tooltips");
 	options_str=add_xml_group(DIGROUP,OPTIONS_STR,"options");
 	sigils_str=add_xml_group(DIGROUP,SIGILS_STR,"sigils");
@@ -540,6 +546,7 @@ void init_errors()
 	group_id * particles=&(errors[3]);
 	group_id * snd=&(errors[4]);
 	group_id * video=&(errors[5]);
+	group_id * rules=&(errors[6]);
 #endif
 #ifdef MAP_EDITOR
 	group_id * particles=&(errors[0]);
@@ -649,6 +656,13 @@ void init_errors()
 	add_xml_identifier(video,"multitex",gl_ext_no_multitexture,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...",150);
 	add_xml_identifier(video,"noshadowmapping",disabled_shadow_mapping,"Shadowmapping disabled (need newer hardware)",50);
 	add_xml_identifier(video,"invalid",invalid_video_mode,"Stop playing with the configuration file and select valid modes!",75);
+
+	//Rule errors
+	add_xml_identifier(rules,"proceed",you_can_proceed,"You can proceed in %d seconds",50);
+	add_xml_identifier(rules,"accept",accepted_rules,"Click on \"I Accept\" to play the game!",50);
+	add_xml_identifier(rules,"read",read_rules_str,"An error occured while reading the rules",50);
+	add_xml_identifier(rules,"parse",parse_rules_str,"An error occored while parsing the rules",50);
+	add_xml_identifier(rules,"notfound",rules_not_found,"The rules.xml file was not found. You will have to redownload your game.",100);
 #endif
 }
 

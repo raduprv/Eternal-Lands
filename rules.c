@@ -87,19 +87,19 @@ int read_rules()
 	
 	if ((doc = xmlReadFile(file_name, NULL, 0)) == NULL) {
 		//report this error:
-		log_error("The rules could not be read!");
+		log_error(read_rules_str);
 		return 0;
 	}
 
 	if ((root = xmlDocGetRootElement(doc))==NULL) {
 		xmlFreeDoc(doc);
-		log_error("The rules could not be read!");
+		log_error(read_rules_str);
 		return 0;
 	}
 
 	if(!parse_rules(root->children)){
 		xmlFreeDoc(doc);
-		log_error("Error while parsing the rules");
+		log_error(parse_rules_str);
 		return 0;
 	}
 
@@ -122,7 +122,6 @@ int click_rules_handler(window_info *win, int mx, int my, Uint32 flags)
 		if(my<=32 && my>=18) {
 			if(rule_offset>1){
 				rule_offset--;
-				reached_end=0;
 			}
 		}  else if(my<=win->len_y-2 && my>=win->len_y-20) 
 			if(!reached_end) {
@@ -186,11 +185,6 @@ void display_rules_window()
 
 void toggle_rules_window(int toggle)
 {
-	if(!rules.no) {
-		log_to_console(c_red2,"Rules were not found!");
-		return;
-	}
-	
 	if(last_display<=0||display_rules==NULL){
 		if(display_rules)free_rules(display_rules);
 		display_rules=get_interface_rules((float)(rules_win_x_len-60)/(12*0.8f));
@@ -319,6 +313,7 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 	int x=0, y=y_in;
 	
 	if(rules_ptr[1].type==-1) reached_end=1;
+	else reached_end=0;
 
 	for(i=0;y<leny;i++){
 		ptr=str;
@@ -597,8 +592,8 @@ void draw_rules_interface()
 
 	glColor3f(0.77f, 0.57f, 0.39f);
 	
-	if(countdown!=0)sprintf(str,"You can proceed in %d seconds...",countdown/2);
-	else sprintf(str,"Click on \"I Accept\" to play the game!");
+	if(countdown!=0)sprintf(str,you_can_proceed,countdown/2);
+	else strcpy(str,accepted_rules);
 	draw_string(diff+window_height/2-strlen(str)*11/2,window_height-40*window_ratio,str,0);
 	
 	draw_rules(display_rules+rule_offset, rule_offset, diff+40*window_ratio,125*window_ratio,window_height+diff/2-50,window_height-140*window_ratio,1.0f);

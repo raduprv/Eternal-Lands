@@ -627,7 +627,7 @@ void init_stuff()
 	
 	have_rules=read_rules();
 	if(!have_rules){
-		log_error("Essential file rules.xml is missing. You have to redownload your game.");
+		log_error(rules_not_found);
 		SDL_Quit();
 		exit(3);
 	}
