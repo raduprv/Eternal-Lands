@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "global.h"
+#include "md5.h"
 
 //find the first string occurance, and return the distance to that string
 //if beggining is 1, it returns the offset to the beginning of the string
@@ -188,3 +189,23 @@ int my_strcompare(Uint8 *dest, Uint8 *src)
 	return(my_strncompare(dest, src, len));
 }
 
+void get_file_digest(char * filename, unsigned char digest[16])
+{
+	MD5 md5;
+	FILE *fp = fopen(filename, "r");
+	char buffer[64];
+	int length;
+	MD5Open(&md5);
+	while ((length = fread(buffer, 1, sizeof(buffer), fp)) > 0)
+		MD5Digest(&md5, buffer, length);
+	MD5Close(&md5, digest);
+	fclose(fp);
+}
+
+void get_string_digest(char * string, unsigned char digest[16])
+{
+	MD5 md5;
+	MD5Open(&md5);
+	MD5Digest(&md5, string, strlen(string));
+	MD5Close(&md5, digest);
+}

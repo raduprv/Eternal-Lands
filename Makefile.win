@@ -5,8 +5,8 @@ CPP  = g++.exe
 CC   = gcc.exe
 WINDRES = windres.exe
 RES  = elc_private.res
-OBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o $(RES)
-LINKOBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o $(RES)
+OBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o $(RES)
+LINKOBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o $(RES)
 LIBS =  -L"C:/Program Files/SDL/SDL_mixer/lib" -L"C:/Program Files/SDL/SDL_net/lib" -L"C:/Program Files/SDL/SDL/lib" -L"C:/Program Files/oglsdk/lib" -L"C:/Program Files/Dev-Cpp/lib" -mwindows -lopengl32 -lSDL -lSDL_mixer -lSDL_net 
 INCS =  -I"C:/Program Files/oglsdk/include"  -I"C:/Program Files/SDL/SDL_mixer/include"  -I"C:/Program Files/SDL/SDL_net/include"  -I"C:/Program Files/SDL/SDL/include"  -I"C:/Program Files/Dev-Cpp/include" 
 CXXINCS =  -I"C:/Program Files/Dev-Cpp/include/c++"  -I"C:/Program Files/Dev-Cpp/include/c++/mingw32"  -I"C:/Program Files/Dev-Cpp/include/c++/backward"  -I"C:/Program Files/Dev-Cpp/include" 
@@ -105,6 +105,9 @@ map_io.o: map_io.c
 
 md2loader.o: md2loader.c
 	$(CC) -c md2loader.c -o md2loader.o $(CFLAGS)
+
+md5.o: md5.c
+	$(CC) -c md5.c -o md5.o $(CFLAGS)
 
 misc.o: misc.c
 	$(CC) -c misc.c -o misc.o $(CFLAGS)

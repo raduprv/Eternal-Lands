@@ -3,7 +3,7 @@
 CFLAGS=-Wall -ggdb -pipe -DLINUX
 _CFLAGS=-mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe -DLINUX
 LIBS=$(shell sdl-config --libs) -lSDL_net -lopenal -lGL 
-OBJS=2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o
+OBJS=2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o
 
 el.x86.linux.bin: $(OBJS)
 	$(CC) $(CFLAGS) $(LIBS) -o el.x86.linux.bin $(OBJS)
