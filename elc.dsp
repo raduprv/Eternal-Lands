@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 shell32.lib libxml2.lib vorbisfile.lib user32.lib SDL_net.lib kernel32.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib /nologo /subsystem:windows /machine:I386 /out:"Release/el.exe"
+# ADD LINK32 shell32.lib libxml2.lib vorbisfile.lib user32.lib SDL_net.lib kernel32.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib cal3d.lib /nologo /subsystem:windows /machine:I386 /out:"Release/el.exe"
 
 !ELSEIF  "$(CFG)" == "elc - Win32 Debug"
 
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 shell32.lib libxml2.lib vorbisfile_d.lib user32.lib SDL_net.lib kernel32.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 shell32.lib libxml2.lib vorbisfile_d.lib user32.lib SDL_net.lib kernel32.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib cal3d.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 
 !ENDIF 
 
@@ -191,6 +191,21 @@ SOURCE=.\cache.c
 !ELSEIF  "$(CFG)" == "elc - Win32 Debug"
 
 # ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\cal3dwrap.c
+
+!IF  "$(CFG)" == "elc - Win32 Release"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj" /Tp
+
+!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
+
+# ADD CPP /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj" /Tp
 
 !ENDIF 
 
@@ -868,6 +883,10 @@ SOURCE=.\buddy.h
 # Begin Source File
 
 SOURCE=.\cache.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\cal3dwrap.h
 # End Source File
 # Begin Source File
 
