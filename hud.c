@@ -3,12 +3,10 @@
 #include <math.h>
 
 
-//int hud_x=64;
-//int hud_y=49;
 int hud_x=64;
 int hud_y=48;
 int hud_text;
-
+int view_digital_clock=0;
 
 // initialize anything related to the hud
 void init_hud_interface()
@@ -841,6 +839,9 @@ void init_misc_display()
 
 void draw_misc_display()
 {
+			int hour=game_minute/60;
+			char str[4];
+			
 
 			glBegin(GL_QUADS);
 			draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, window_width-64,window_height-64,window_width,window_height);
@@ -875,6 +876,13 @@ void draw_misc_display()
 			glEnd();
 			glLoadIdentity();
 			glDisable(GL_ALPHA_TEST);
+
+			//Digital Clock
+			if(view_digital_clock){
+				sprintf(str,"%1d:%2d",hour,game_minute-hour*60);
+				glColor3f(0.77f,0.57f,0.39f);
+				draw_string(window_width-51,window_height-145,str,1);
+			}
 }
 
 int check_misc_display()

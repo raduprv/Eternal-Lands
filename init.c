@@ -304,7 +304,7 @@ void read_config()
 	for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
 	display_password_str[k]=0;
 	item_window_on_drop=get_integer_after_string("#item_window_on_drop",file_mem,ini_file_size);
-
+	view_digital_clock=get_integer_after_string("#view_digital_clock",file_mem,ini_file_size);
 #ifndef WINDOWS
 	if(get_string_after_string("#data_dir",file_mem,ini_file_size,datadir,90)>0)
 		chdir(datadir);
