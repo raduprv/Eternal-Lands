@@ -3,6 +3,8 @@
 
 extern int view_clock;
 extern int view_compass;
+extern int icon_orientation;
+extern int icon_pos;
 
 // the main hud handling
 void init_hud_interface();
