@@ -6,6 +6,7 @@
 #ifndef	__EL_WINDOWS_H
 #define	__EL_WINDOWS_H
 
+#include "keys.h"
 #include "widgets.h"
 
 /*!

@@ -500,7 +500,11 @@ void init_stuff()
 	
 	init_video();
 	// now create the root window
+#ifdef WINDOW_CHAT
 	display_root ();
+#else
+	resize_root_window();
+#endif
 
 	init_gl_extensions();
 #ifdef CAL3D

@@ -652,7 +652,11 @@ int HandleEvent(SDL_Event *event)
 
 			if((left_click==1 || right_click==1) &&
 				interface_mode==interface_game)
+#ifdef WINDOW_CHAT
+				click_in_windows (mouse_x, mouse_y, 0);
+#else
 				check_mouse_click();
+#endif
 			else if( interface_mode==interface_map)
 				{
 				if (left_click==1) 

@@ -217,6 +217,8 @@ void build_cursors()
 	assign_cursor(CURSOR_USE);
 }
 
+// XXX FIXME (Grum): scheduled for removal
+#ifndef WINDOW_CHAT
 void check_cursor_change()
 {
 	int i;
@@ -350,4 +352,4 @@ void check_cursor_change()
 	// when all fails - walk
 	if(current_cursor!=CURSOR_WALK)change_cursor(CURSOR_WALK);
 }
-
+#endif

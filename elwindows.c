@@ -1048,7 +1048,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 
 			//use the handler
 			if(win->click_handler != NULL){
-			    int	ret_val;
+				int	ret_val;
 			    
 				glPushMatrix();
 				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
@@ -1147,8 +1147,9 @@ int	mouseover_window(int win_id, int x, int y)
 			}
 			glPopMatrix();
 
-			//use the handler if present
-			if(windows_list.window[win_id].mouseover_handler){
+			// use the handler if present
+			if(windows_list.window[win_id].mouseover_handler)
+			{
 
 				glPushMatrix();
 				glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);
@@ -1157,10 +1158,12 @@ int	mouseover_window(int win_id, int x, int y)
 
 			} 
 #ifdef	ELC
-			if(!ret_val) {
+			if(!ret_val) 
+			{
 				elwin_mouse = CURSOR_ARROW;
 			}
 #endif	//ELC
+
 			return 1;
 		}
 

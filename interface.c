@@ -86,7 +86,8 @@ int check_scroll_bars()
 	return 0;
 }
 
-// XXX FIXME (Grum): Move this mess into the root windows mouse click handler
+// XXX FIXME (Grum): scheduled for removal, now in the root window click handler
+#ifndef WINDOW_CHAT
 void check_mouse_click()
 {
 	int force_walk=(ctrl_on && right_click);
@@ -323,6 +324,7 @@ void check_mouse_click()
 	left_click=2;
 	right_click=2;
 }
+#endif
 
 void Enter2DMode()
 {

@@ -364,7 +364,14 @@ void draw_scene()
 	Leave2DMode();
 	glEnable(GL_LIGHTING);
 
+#ifdef WINDOW_CHAT
+        if(elwin_mouse >= 0) {
+                if(current_cursor!=elwin_mouse)change_cursor(elwin_mouse);
+                elwin_mouse=-1;
+        }
+#else
 	check_cursor_change();
+#endif
 
 	SDL_GL_SwapBuffers();
 	check_gl_errors();
