@@ -2,7 +2,6 @@
  * \file
  * \brief handling and display of the rules
  * \ingroup interface_rules
- * \todo Complete rules documentation
  */
 #ifndef __RULES_H__
 #define __RULES_H__

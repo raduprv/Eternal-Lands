@@ -2,7 +2,6 @@
  * \file
  * \brief client side implementation of the pathfinding algorithm
  * \ingroup move_actors
- * \todo Finish pathfinder documentation
  */
 #ifndef __PATHFINDER_H__
 #define __PATHFINDER_H__

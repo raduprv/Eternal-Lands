@@ -2,7 +2,6 @@
  * \file
  * \brief copy & paste handling
  * \ingroup hotkey
- * \todo Finish paste.h documentation
  */
 #ifndef __PASTE_H__
 #define __PASTE_H__

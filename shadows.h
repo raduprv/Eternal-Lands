@@ -2,7 +2,6 @@
  * \file
  * \brief Handles the handling of shadows.
  * \ingroup shadows
- * \todo Complete shadows documentation
  */
 #ifndef __SHADOWS_H__
 #define __SHADOWS_H__

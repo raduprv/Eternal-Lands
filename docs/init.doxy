@@ -2,7 +2,7 @@
  * \page initpage Initializing Eternal Lands
  * \section secintro Introduction
  * <p>The initialization module gets started by the call
- * \ref init_vars and \ref init_stuff in \ref main.</p>
+ * \ref init_vars and \ref init_stuff in main.</p>
  *
  * <p>Submodules covered include:
  * <ul>
@@ -16,26 +16,6 @@
  * </ul>
  * </p>
  *
- * \todo Complete init module documentation
+ * \todo Finish documentation
  *
- * \subsection ssecconfig Configuration
- * <p>config</p>
- *
- * \subsection ssecencyc Encyclopedia
- * <p>encyclopedia</p>
- *
- * \subsection ssectranslation Translation
- * <p>i18n</p>
- *
- * \subsection ssecloading Loading/Saving settings
- * <p>loading and saving</p>
- *
- * \subsection ssecvideo Video initialization
- * <p>video init</p>
- *
- * \subsection ssechotkeys Hotkeys
- * <p>hotkeys</p>
- *
- * \subsection ssecotherinit Other
- * <p>other initialization related things</p>
  */

@@ -2,7 +2,6 @@
  * \file
  * \brief handles the data and the display of the quest log.
  * \ingroup quest_win
- * \todo complete questlog documentation
  */
 #ifndef __QUESTLOG_H__
 #define __QUESTLOG_H__

@@ -2,7 +2,6 @@
  * \file
  * \brief Music and sound effects and their handling in EL.
  * \ingroup sound
- * \todo Complete sound documentation
  */
 #ifndef __SOUND_H__
 #define __SOUND_H__

@@ -2,7 +2,6 @@
  * \file
  * \brief handles sectoring and partitioning of maps
  * \ingroup maps
- * \todo Finish documentation
  */
 #ifndef __SECTOR_H__
 #define __SECTOR_H__

@@ -2,7 +2,6 @@
  * \file
  * \brief data structures and functions for the particle system
  * \ingroup particles
- * \todo Finish particles.h documentation
  */
 #ifndef __particles_H__
 #define __particles_H__

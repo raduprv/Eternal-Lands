@@ -2,7 +2,6 @@
  * \file
  * \brief Handling of sigils and spells
  * \ingroup spells_win
- * \todo Complete spells documentation
  */
 #ifndef __SPELLS_H__
 #define __SPELLS_H__

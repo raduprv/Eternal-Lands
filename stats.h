@@ -2,7 +2,6 @@
  * \file
  * \brief Attributes und statistics handling
  * \ingroup stats_win
- * \todo Complete stats documentation
  */
 #ifndef __STATS_H__
 #define __STATS_H__

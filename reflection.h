@@ -2,7 +2,6 @@
  * \file
  * \brief handles the reflection of reflective surfaces
  * \ingroup reflections
- * \todo complete reflections documentation
  */
 #ifndef __REFLECTION_H__
 #define __REFLECTION_H__
