@@ -147,11 +147,15 @@ return -1;//if we are here, it means we didn't find the string...
 
 void my_strcp(char *dest,char * source)
 {
-	int i,l;
+	/*int i,l;
 	l=strlen(source);
 	for(i=0;i<l;i++)dest[i]=source[i];
-	dest[i]=0;
-
+	dest[i]=0;*/
+	while(*source)
+		{
+			*dest++=*source++;
+		}
+	*dest='\0';
 }
 
 void my_strcat(char *dest,char * source)
