@@ -243,7 +243,7 @@ void display_spells_we_have()
 
 					x_start=33*cur_pos;
 					x_end=x_start+32;
-					y_start=window_height-64;
+					y_start=window_height-hud_y-64;
 					y_end=y_start+32;
 
 					get_and_set_texture_id(sigils_text);
