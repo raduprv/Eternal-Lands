@@ -200,11 +200,15 @@ void clone_2d_object(int object_id)
 							dist1=scene_mouse_x-obj_2d_list[i]->x_pos;
 							dist2=scene_mouse_y-obj_2d_list[i]->y_pos;
 							if(dist1*dist1+dist2*dist2<=1)
-								collide=1;
+								collide++;
 						}
 				}
-			if(collide)
-				z_pos+=0.01f;
+			if(collide>1)
+				{
+					z_pos+=(float)(rand()%8-3)*0.01f;
+					z_pos-=0.01f;
+				}
+			if(z_pos<0.01)z_pos=0.01;
 			z_rot=rand()%360;
 		}
 	
