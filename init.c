@@ -197,6 +197,12 @@ void read_config()
 			for(k=0;k<(int)strlen(password_str);k++) display_password_str[k]='*';
 			display_password_str[k]=0;
 		}
+	else if(username_str[0])//We have a username but not a password...
+		{
+			username_box_selected=0;
+			password_box_selected=1;
+		}
+
 	
 	if (video_mode_not_set) setup_video_mode(full_screen,video_mode);//fail safe if we didn't set a video_mode.
 
