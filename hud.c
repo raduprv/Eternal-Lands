@@ -57,11 +57,6 @@ float colored_walk_icon_v_start=1.0f-(float)64/256;
 float colored_walk_icon_u_end=(float)95/256;
 float colored_walk_icon_v_end=1.0f-(float)95/256;
 
-float run_icon_u_start=(float)32/256;
-float run_icon_v_start=1.0f-(float)0/256;
-float run_icon_u_end=(float)63/256;
-float run_icon_v_end=1.0f-(float)31/256;
-
 float eye_icon_u_start=(float)64/256;
 float eye_icon_v_start=1.0f-(float)0/256;
 float eye_icon_u_end=(float)95/256;
@@ -170,7 +165,7 @@ float attack_icon_v_end=1.0f-(float)31/256;
 float colored_attack_icon_u_start=(float)224/256;
 float colored_attack_icon_v_start=1.0f-(float)64/256;
 float colored_attack_icon_u_end=(float)255/256;
-float colored_attack_icon_v_end=1.0f-(float)91/256;
+float colored_attack_icon_v_end=1.0f-(float)95/256;
 
 float knowledge_icon_u_start=(float)96/256;
 float knowledge_icon_v_start=1.0f-(float)64/256;
@@ -192,25 +187,23 @@ float colored_encyclopedia_icon_v_start=1.0f-(float)64/256;
 float colored_encyclopedia_icon_u_end=(float)63/256;
 float colored_encyclopedia_icon_v_end=1.0f-(float)95/256;
 
-float colored_questlog_icon_u_start=(float)192/256;
-float colored_questlog_icon_v_start=1.0f-(float)0/256;
-float colored_questlog_icon_u_end=(float)223/256;
-float colored_questlog_icon_v_end=1.0f-(float)31/256;
-
 float questlog_icon_u_start=(float)96/256;
 float questlog_icon_v_start=1.0f-(float)0/256;
 float questlog_icon_u_end=(float)127/256;
 float questlog_icon_v_end=1.0f-(float)31/256;
 
-float console_icon_u_start=(float)0/256;
-float console_icon_v_start=1.0f-(float)64/256;
-float console_icon_u_end=(float)31/256;
-float console_icon_v_end=1.0f-(float)95/256;
-
-float colored_console_icon_u_start=(float)32/256;
-float colored_console_icon_v_start=1.0f-(float)64/256;
-float colored_console_icon_u_end=(float)63/256;
-float colored_console_icon_v_end=1.0f-(float)95/256;
+float colored_questlog_icon_u_start=(float)192/256;
+float colored_questlog_icon_v_start=1.0f-(float)0/256;
+float colored_questlog_icon_u_end=(float)223/256;
+float colored_questlog_icon_v_end=1.0f-(float)31/256;
+float console_icon_u_start=(float)32/256;
+float console_icon_v_start=1.0f-(float)0/256;
+float console_icon_u_end=(float)63/256;
+float console_icon_v_end=1.0f-(float)31/256;
+float colored_console_icon_u_start=(float)128/256;
+float colored_console_icon_v_start=1.0f-(float)96/256;
+float colored_console_icon_u_end=(float)159/256;
+float colored_console_icon_v_end=1.0f-(float)127/256;
 
 int walk_icon_x_start;
 int walk_icon_x_end;
@@ -686,11 +679,20 @@ void init_hud_frame()
 
 }
 
+float logo_u_start=(float)64/256;
+float logo_v_start=1.0f-(float)128/256;
+
+float logo_u_end=(float)127/256;
+float logo_v_end=1.0f-(float)191/256;
+
+
 void draw_hud_frame()
 {
 	glBegin(GL_QUADS);
 	draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
 	draw_2d_thing_r(horizontal_bar_u_start, horizontal_bar_v_start, horizontal_bar_u_end, horizontal_bar_v_end,0,window_height,window_width-hud_x , window_height-hud_y);
+	//draw the logo
+	draw_2d_thing(logo_u_start, logo_v_start, logo_u_end, logo_v_end,window_width-hud_x, 0, window_width, 64);
 	glEnd();
 
 }
