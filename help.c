@@ -14,7 +14,7 @@ void build_help()
 	i++;
 
 	my_strcp(help_list[i].topic_name,"keys");
-	my_strcp(help_list[i].topic_info,"\n[keys] - The following keys are available in the game:\n~ or F1 to switch to/from [console] mode.\nAlt+x to [exit] the game.\nLeft/Right arrows to rotate the camera around.\nShift + Left/Right arrows to finely rotate the camera.\nPageUp/PageDown to zoom in and out\nIns/Del to rotate your character in place (works only while you don't move, and you stand).\nF2 to go to the last heard URL (works only if you configured the browser properly, in el.ini).\nHome to move one step forward\nEsc to clear the text line you are writing\nTab to bring on the map.");
+	my_strcp(help_list[i].topic_info,"\n[keys] - The following keys are available in the game:\nAlt+x to [exit] the game.\nLeft/Right arrows to rotate the camera around.\nShift + Left/Right arrows to finely rotate the camera.\nPageUp/PageDown to zoom in and out\nIns/Del to rotate your character in place (works only while you don't move, and you stand).\nF2 to go to the last heard URL (works only if you configured the browser properly, in el.ini).\nHome to move one step forward\nEsc to clear the text line you are writing\nTab to bring on the map.\nAlt+h to toggle health bars.\nAlt+n to toggle names.\nCtrl+a to open stAts window.\nCtrl+i to open Inventrory window.\nCtrl+l to do Look action.\nCtrl+m to open Manufacture window.\nCtrl+o to open Options window.\nCtrl+u to do Use action.\nCtrl+s to open trade/Swap window.\nCtrl+w to do Walk action.\n~ or F1 to switch to/from [console] mode.");
 	i++;
 
 	my_strcp(help_list[i].topic_name,"console");
