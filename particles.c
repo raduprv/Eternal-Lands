@@ -602,6 +602,7 @@ void display_particles()
 	glBlendFunc(GL_SRC_ALPHA,GL_SRC_ALPHA_SATURATE);
 	glDisable(GL_CULL_FACE);
 
+	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(particles_list[i])
@@ -615,6 +616,7 @@ void display_particles()
 						draw_particle_sys(particles_list[i]);
 				}
 		}
+	unlock_particles_list();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
 }
