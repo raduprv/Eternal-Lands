@@ -516,6 +516,7 @@ void display_particles()
 				}
 		}
 	unlock_particles_list();
+	glDisable(GL_CULL_FACE); //Intel fix
 	glPopAttrib();
 	check_gl_errors();
 }
