@@ -129,15 +129,13 @@ int HandleEvent(SDL_Event *event)
 
 				if(key==K_ZOOMIN && interface_mode==interface_game){
 					if(zoom_level>2.0f) {
-						zoom_level-=0.25;
-						resize_window();
+						new_zoom_level=zoom_level-0.25;
 					}
 				}
 
 				if(key==K_ZOOMOUT && interface_mode==interface_game){
 					if(zoom_level<3.75f) {
-						zoom_level+=0.25;
-						resize_window();
+						new_zoom_level=zoom_level+0.25;
 					}
 				}
 
