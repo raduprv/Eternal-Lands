@@ -83,10 +83,11 @@ int HandleEvent(SDL_Event *event)
 #endif
 	    case SDL_KEYDOWN:
 			{
+				(Uint16)key=(Uint16)event->key.keysym.sym;
 				if(shift_on)key|=(1<<31);
 				if(ctrl_on)key|=(1<<30);
 				if(alt_on)key|=(1<<29);
-				(Uint16)key=(Uint16)event->key.keysym.sym;
+				
 
 				//first, try to see if we pressed Alt+x, to quit.
 				if ( (event->key.keysym.sym == SDLK_x && alt_on)
