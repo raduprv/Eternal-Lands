@@ -325,6 +325,7 @@ void draw_skill(int len, int x, int y, attrib_16 * lvl, names * name, int exp, i
 	char lvlstr[9];
 	char expstr[25];
 	int offset;
+
 	snprintf(lvlstr,8,"%2i/%-2i",lvl->cur,lvl->base);
 	lvlstr[8]=0;
 	snprintf(expstr,24,"[%2i/%-2i]",exp, exp_next);
@@ -338,6 +339,7 @@ void draw_skill(int len, int x, int y, attrib_16 * lvl, names * name, int exp, i
 void draw_statf(int len, int x, int y, attrib_16f * var, names * name)
 {
 	char str[9];
+
 	snprintf(str,8,"%2i/%-2i",var->cur(),var->base());
 	str[8]=0;
 	draw_stat_final(len,x,y,name->name,str);
@@ -346,6 +348,7 @@ void draw_statf(int len, int x, int y, attrib_16f * var, names * name)
 void draw_stat_final(int len, int x, int y, char * name, char * value)
 {
 	char str[80];
+
 	if(len>80)len=80;
 	snprintf(str,len,"%-15s %s",name,value);
 	str[len]=0;
