@@ -148,7 +148,7 @@ void draw_scene()
         draw_lights();
 
 
-          if(any_reflection)
+        if(any_reflection)
             {
                 if(!dungeon)draw_sky_background();
                 else draw_dungeon_sky_background();
@@ -160,46 +160,46 @@ void draw_scene()
                 glNormal3f(0.0f,0.0f,1.0f);
                 draw_lake_tiles();
             }
-           else
+        else
            {
             glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
             draw_tile_map();
             display_2d_objects();
            }
 
-          anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
+        anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 
-          if(!dungeon)
+        if(!dungeon)
             {
               if(shadows_on && have_stencil)if(day_shadows_on)draw_sun_shadowed_scene();
               //if(shadows_on && have_stencil)if(night_shadows_on)draw_night_shadowed_scene();
             }
-          if(dungeon)
+        if(dungeon)
             {
               //if(shadows_on && have_stencil)draw_night_shadowed_scene();
             }
 
         if(!shadows_on || !have_stencil || night_shadows_on)display_objects();
 
-          display_actors();
+        display_actors();
 
-          //particles should be last, we have no Z writting
-          display_particles();
-          //we do this because we don't want the rain/particles to mess with our cursor
-          anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
-          if(is_raining)render_rain();
-          //we do this because we don't want the rain/particles to mess with our cursor
-          anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
+        //particles should be last, we have no Z writting
+        display_particles();
+        //we do this because we don't want the rain/particles to mess with our cursor
+        anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
+        if(is_raining)render_rain();
+        //we do this because we don't want the rain/particles to mess with our cursor
+        anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
 
-          //we also need no lightening for our interface
-          Enter2DMode();
-          //cur_time = SDL_GetTicks();
-          //get the FPS, etc
-          if((cur_time-last_time))fps=1000/(cur_time-last_time);
-          else fps=1000;
+        //we also need no lightening for our interface
+        Enter2DMode();
+        //cur_time = SDL_GetTicks();
+        //get the FPS, etc
+        if((cur_time-last_time))fps=1000/(cur_time-last_time);
+        else fps=1000;
 
-          if(main_count%10)fps_average+=fps;
-          else
+        if(main_count%10)fps_average+=fps;
+        else
           	{
 				old_fps_average=fps_average/10;
           		fps_average=fps;
@@ -207,46 +207,44 @@ void draw_scene()
 
 
 
-		  if(!no_adjust_shadows)
-          if(fps<5)
+		if(!no_adjust_shadows)
+        if(fps<5)
           	{
           		times_FPS_below_3++;
           		if(times_FPS_below_3>4 && shadows_on)
           		    {
                         shadows_on=0;
-                        str[0]=127+c_red1;
-                        my_strcp(&str[1],"Low framerate detected, shadows disabled!");
-                        put_text_in_buffer(str,strlen(str),0);
+                        put_colored_text_in_buffer(c_red1,"Low framerate detected, shadows disabled!",-1,0);
                         times_FPS_below_3=0;
                     }
 			}
-		  else times_FPS_below_3=0;
+		else times_FPS_below_3=0;
 
-          sprintf(str, "FPS: %i",old_fps_average);
-          glColor3f(1.0f,1.0f,1.0f);
-          draw_string(10,0,str,1);
+        sprintf(str, "FPS: %i",old_fps_average);
+        glColor3f(1.0f,1.0f,1.0f);
+        draw_string(10,0,str,1);
 
-          //we do this because we don't want the rain/particles to mess with our cursor
-          anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
+        //we do this because we don't want the rain/particles to mess with our cursor
+        anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
 
-          if(find_last_lines_time())
-          draw_string(10,20,&display_text_buffer[display_text_buffer_first],max_lines_no);
-          //we do this because we don't want the rain/particles to mess with our cursor
-          anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
+        if(find_last_lines_time())
+        draw_string(10,20,&display_text_buffer[display_text_buffer_first],max_lines_no);
+        //we do this because we don't want the rain/particles to mess with our cursor
+        anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
 
-          draw_ingame_interface();
-          anything_under_the_mouse(0, UNDER_MOUSE_MENU);
-          //print the text line we are currently writting (if any)
-          y_line=window_height-(17*6);
-          glColor3f(1.0f,1.0f,1.0f);
-          draw_string(10,y_line,input_text_line,2);
+        draw_ingame_interface();
+        anything_under_the_mouse(0, UNDER_MOUSE_MENU);
+        //print the text line we are currently writting (if any)
+        y_line=window_height-(17*6);
+        glColor3f(1.0f,1.0f,1.0f);
+        draw_string(10,y_line,input_text_line,2);
 
-          Leave2DMode();
-          glEnable(GL_LIGHTING);
+        Leave2DMode();
+        glEnable(GL_LIGHTING);
 
-          check_cursor_change();
+        check_cursor_change();
 
-          SDL_GL_SwapBuffers();
+        SDL_GL_SwapBuffers();
 }
 
 void Move()
@@ -340,7 +338,7 @@ Uint32 my_timer(unsigned int some_int)
     		animate_actors();
     		//animate_actors();
     		move_to_next_frame();
-    		   if(lake_waves_timer>2)
+    		if(lake_waves_timer>2)
     		    {
     		        lake_waves_timer=0;
     		        make_lake_water_noise();
