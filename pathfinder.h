@@ -3,19 +3,22 @@
 
 enum { SDL_PF_MOVEMENT_TIMER };
 
+enum {
+	PF_STATE_NONE=0,
+	PF_STATE_OPEN,
+	PF_STATE_CLOSED
+};
+
 typedef struct
 {
-	int open;
-	int open_pos;
-	int closed;
-	
-	int x;
-	int y;
-	int z;
-	
-	int f;
-	int g;
-	int h;
+	Uint32 open_pos;
+	Uint16 x;
+	Uint16 y;
+	Uint16 f;
+	Uint16 g;
+
+	Uint8 state;
+	Uint8 z;
 	
 	void *parent;
 } PF_TILE;
@@ -28,7 +31,6 @@ typedef struct
 
 extern PF_TILE *pf_tile_map;
 extern PF_TILE *pf_dst_tile;
-extern int pf_path_length;
 extern int pf_follow_path;
 
 PF_TILE *pf_get_tile(int x, int y);

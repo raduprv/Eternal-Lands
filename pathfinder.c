@@ -30,8 +30,7 @@ PF_TILE *pf_get_next_open_tile()
 	
 	ret = pf_open.tiles[1];
 	
-	ret->open = 0;
-	ret->closed = 1;
+	ret->state = PF_STATE_CLOSED;
 	
 	pf_open.tiles[1] = pf_open.tiles[pf_open.count--];
 	
@@ -81,24 +80,20 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 		h = PF_HEUR(neighbour, pf_dst_tile);
 		f = g + h;
 		
-		if ((neighbour->open || neighbour->closed) && f >= neighbour->f) {
+		if (neighbour->state != PF_STATE_NONE && f >= neighbour->f) {
 			return;
 		}
 		
-		neighbour->closed = 0;
-		
 		neighbour->f = f;
 		neighbour->g = g;
-		neighbour->h = h;
 		neighbour->parent = current;
 	} else {
+		neighbour->f = PF_HEUR(pf_src_tile, pf_dst_tile);
 		neighbour->g = 0;
-		neighbour->h = PF_HEUR(pf_src_tile, pf_dst_tile);
-		neighbour->f = neighbour->g + neighbour->h;
 		neighbour->parent = NULL;
 	}
 		
-	if (!neighbour->open) {
+	if (neighbour->state != PF_STATE_OPEN) {
 		neighbour->open_pos = ++pf_open.count;
 		pf_open.tiles[neighbour->open_pos] = neighbour;
 	}
@@ -114,7 +109,7 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 		}
 	}
 	
-	neighbour->open = 1;
+	neighbour->state = PF_STATE_OPEN;
 }
 
 int pf_find_path(int x, int y)
@@ -136,8 +131,7 @@ int pf_find_path(int x, int y)
 	}
 	
 	for (i = 0; i < tile_map_size_x*tile_map_size_y*6*6; i++) {
-		pf_tile_map[i].open = 0;
-		pf_tile_map[i].closed = 0;
+		pf_tile_map[i].state = PF_STATE_NONE;
 		pf_tile_map[i].parent = NULL;
 	}
 
@@ -167,7 +161,7 @@ int pf_find_path(int x, int y)
 	
 	free(pf_open.tiles);
 	
-	return pf_follow_path ? 1 : 0;
+	return pf_follow_path;
 }
 
 void pf_destroy_path()
@@ -183,6 +177,10 @@ actor *pf_get_our_actor()
 {
 	int i;
 	
+	if (yourself == -1) {
+		return NULL;
+	}
+
 	for (i = 0; i < max_actors; i++) {
 		if (actors_list[i]->actor_id == yourself) {
 			return actors_list[i];
@@ -207,6 +205,34 @@ void pf_move()
 	if ((PF_DIFF(x, pf_dst_tile->x) < 2 && PF_DIFF(y, pf_dst_tile->y) < 2)) {
 		pf_destroy_path();
 	} else {
+		PF_TILE *t = pf_get_tile(x, y);
+		int i = 0, j = 0;
+		
+		for (pf_cur_tile = pf_dst_tile; pf_cur_tile; pf_cur_tile = pf_cur_tile->parent) {
+			if (pf_cur_tile == t) {
+				break;
+			}
+			i++;
+		}
+
+		if (pf_cur_tile == t) {
+			for (pf_cur_tile = pf_dst_tile; pf_cur_tile; pf_cur_tile = pf_cur_tile->parent) {
+				if (j++ == i-12) {
+					break;
+				}
+			}
+			{
+				Uint8 str[5];
+
+				str[0] = MOVE_TO;
+				*((short *)(str+1)) = pf_cur_tile->x;
+				*((short *)(str+3)) = pf_cur_tile->y;
+				my_tcp_send(my_socket, str, 5);
+
+				return;
+			}
+		}
+
 		for (pf_cur_tile = pf_dst_tile; pf_cur_tile; pf_cur_tile = pf_cur_tile->parent) {
 			if (PF_DIFF(x, pf_cur_tile->x) <= 12 && PF_DIFF(y, pf_cur_tile->y) <= 12
 			&& !pf_is_tile_occupied(pf_cur_tile->x, pf_cur_tile->y)) {
@@ -293,3 +319,4 @@ void pf_move_to_mouse_position()
 		}
 	}
 }
+
