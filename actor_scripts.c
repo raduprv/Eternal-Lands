@@ -514,10 +514,10 @@ void destroy_actor(int actor_id)
 							}
 						free(actors_list[i]);
 						actors_list[i]=0;
+						if(i==max_actors-1)max_actors=i;
 						break;
 					}
 		}
-	if(i==max_actors-1)max_actors=i;
 	unlock_actors_lists();	//unlock it since we are done
 }
 
