@@ -86,6 +86,7 @@ int check_scroll_bars()
 	return 0;
 }
 
+// XXX FIXME (Grum): Move this mess into the root windows mouse click handler
 void check_mouse_click()
 {
 	int force_walk=(ctrl_on && right_click);
