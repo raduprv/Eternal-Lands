@@ -136,7 +136,7 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(idx < KNOWLEDGE_LIST_SIZE)
 		{
 			str[0] = GET_KNOWLEDGE_INFO;
-			*(Uint16 *)(str+1) = idx;
+			*(Uint16 *)(str+1) = SDL_SwapLE16((short)idx);
 			my_tcp_send(my_socket,str,3);
 		}
 	return 1;

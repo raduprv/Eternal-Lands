@@ -6,26 +6,39 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
+// For OS X: #define OSX
+
 #ifdef WINDOWS
-#include <windows.h>
-#include <al.h>
-#include <alut.h>
-#ifndef	GNUC	// or should we test for VC
-#define	snprintf _snprintf
-#define strncasecmp _strnicmp
-#define strcasecmp _stricmp
-#define atan2f atan2
-#define acosf acos
-#endif
+	#include <windows.h>
+	#include <al.h>
+	#include <alut.h>
+	#ifndef	GNUC	// or should we test for VC
+		#define	snprintf _snprintf
+		#define strncasecmp _strnicmp
+		#define strcasecmp _stricmp
+		#define atan2f atan2
+		#define acosf acos
+	#endif
 #elif defined(OSX)
-#include <OpenAL/alut.h>
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <OpenGL/glext.h>
+	// XXX Grum: move these defs to a Makefile
+	#define EL_BIG_ENDIAN
+	#define NO_MUSIC
+	#define ELC
+	#define BSD
+	#include <OpenAL/alut.h>
+	#include <OpenGL/gl.h>
+	#include <OpenGL/glu.h>
+	#include <OpenGL/glext.h>
 #else
-#include <AL/al.h>
-#include <AL/alut.h>
+	#include <AL/al.h>
+	#include <AL/alut.h>
 #endif //WINDOWS
+
+#ifdef EL_BIG_ENDIAN
+	#define SwapLEFloat(X) SwapFloat(X)
+#else
+	#define SwapLEFloat(X) (X)
+#endif
 
 #ifndef OSX
 #include <GL/gl.h>

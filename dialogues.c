@@ -42,14 +42,14 @@ void build_response_entries(Uint8 *data,int total_lenght)
 			// break if we don't have a length field
 			if (last_index + 3 > total_lenght)
 				break;
-			len=*((Uint16 *)(data+last_index));
+			len=SDL_SwapLE16(*((Uint16 *)(data+last_index)));
 			// break if we don't have a complete response
 			if (last_index + 3 + len + 2 + 2 > total_lenght)
 				break;
 			dialogue_responces[i].in_use=1;
 			my_strncp(dialogue_responces[i].text,&data[last_index+2], len);
-			dialogue_responces[i].response_id=*((Uint16 *)(data+last_index+2+len));
-			dialogue_responces[i].to_actor=*((Uint16 *)(data+last_index+2+2+len));
+			dialogue_responces[i].response_id=SDL_SwapLE16(*((Uint16 *)(data+last_index+2+len)));
+			dialogue_responces[i].to_actor=SDL_SwapLE16(*((Uint16 *)(data+last_index+2+2+len)));
 			dialogue_responces[i].x_len=len*8;
 			dialogue_responces[i].y_len=14;
 
@@ -188,8 +188,8 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(dialogue_responces[i].in_use && dialogue_responces[i].mouse_over)
 				{
 					str[0]=RESPOND_TO_NPC;
-					*((Uint16 *)(str+1))=dialogue_responces[i].to_actor;
-					*((Uint16 *)(str+3))=dialogue_responces[i].response_id;
+					*((Uint16 *)(str+1))=SDL_SwapLE16((short)dialogue_responces[i].to_actor);
+					*((Uint16 *)(str+3))=SDL_SwapLE16((short)dialogue_responces[i].response_id);
 					my_tcp_send(my_socket,str,5);
 					return 1;
 				}

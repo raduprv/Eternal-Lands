@@ -9,6 +9,15 @@
 /*!
  * \ingroup misc
  * \brief
+ *		Swaps a float properly
+ *
+ * \param t
+ */
+inline float SwapFloat(float t);
+
+/*!
+ * \ingroup misc
+ * \brief
  *
  *      Detail
  *

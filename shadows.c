@@ -1,6 +1,10 @@
 #include <string.h>
-#include "global.h"
 #include <math.h>
+#include "global.h"
+
+#ifdef OSX
+#define GL_EXT_texture_env_combine 1
+#endif
 
 // TODO: pbuffers according to Mesa/progs/xdemos/glxpbdemo.c
 
@@ -89,9 +93,19 @@ void calc_shadow_matrix()
 			sun_position[0]*=div_length;
 			sun_position[1]*=div_length;
 			sun_position[2]*=div_length;
+			// Grumble, Old version of OS X don't have *f trig functions but I'm compiling on a version so I can't just #define my way out
+#ifdef OSX
+			xrot=-acos(sun_position[2]);
+#else
 			xrot=-acosf(sun_position[2]);
+#endif
 			//xrot=-atan2f(sun_position[2],sun_position[0])*180.0f/3.1415926f;
+#ifdef OSX
+			zrot=-90.0f-atan2(sun_position[1],sun_position[0])*180.0f/3.1415926f;
+#else
 			zrot=-90.0f-atan2f(sun_position[1],sun_position[0])*180.0f/3.1415926f;
+#endif
+			
 			glPushMatrix();
 			glLoadIdentity();
 			calc_light_frustum(xrot);
@@ -711,6 +725,20 @@ void setup_shadow_mapping()
 	glTranslatef(cx-(int)cx,cy-(int)cy,cz-(int)cz);
 	glBindTexture(depth_texture_target,depth_map_id);
 	setup_2d_texgen();
+#ifdef OSX
+	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_ARB);
+	glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_ARB,GL_INTERPOLATE_ARB);
+	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_ARB,GL_PREVIOUS_ARB);
+	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_ARB,GL_SRC_COLOR);
+	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_ARB,GL_CONSTANT_ARB);
+	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,sun_ambient_light);
+	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_ARB,GL_SRC_COLOR);
+	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_ARB,GL_TEXTURE);
+	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_ARB,GL_SRC_COLOR);
+	glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_ALPHA_ARB,GL_REPLACE);
+	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_ALPHA_ARB,GL_PREVIOUS_ARB);
+	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_ALPHA_ARB,GL_SRC_ALPHA);
+#else
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_PREVIOUS_EXT);
@@ -723,6 +751,7 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_ALPHA_EXT,GL_REPLACE);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_ALPHA_EXT,GL_PREVIOUS_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_ALPHA_EXT,GL_SRC_ALPHA);
+#endif
 	glPopMatrix();
 }
 

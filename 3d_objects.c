@@ -6,10 +6,8 @@
 object3d *objects_list[MAX_OBJ_3D];
 int highest_obj_3d= 0;
 
-/* forward declarations added due to code cleanup */
 e3d_object * load_e3d(char *file_name);
 void compute_clouds_map(object3d * object_id);
-/* end of added forward declarations */
 
 void draw_3d_object(object3d * object_id)
 {
@@ -317,6 +315,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 		{
 			highest_obj_3d= i+1;
 		}
+		
 	return i;
 }
 
@@ -415,21 +414,31 @@ e3d_object * load_e3d(char *file_name)
 	fread(our_header_pointer, 1, sizeof(e3d_header), f);
 	fclose (f);
 
-	faces_no=our_header.face_no;
-	vertex_no=our_header.vertex_no;
-	materials_no=our_header.material_no;
+	faces_no=SDL_SwapLE32(our_header.face_no);
+	vertex_no=SDL_SwapLE32(our_header.vertex_no);
+	materials_no=SDL_SwapLE32(our_header.material_no);
 
 	// allocate the memory
 	cur_object=calloc(1, sizeof(e3d_object));
 	// and fill in the data
 	my_strncp(cur_object->file_name, file_name, 128);
+	
+#ifdef EL_BIG_ENDIAN
+	cur_object->min_x=SwapFloat(our_header.min_x);
+	cur_object->min_y=SwapFloat(our_header.min_y);
+	cur_object->min_z=SwapFloat(our_header.min_z);
+	cur_object->max_x=SwapFloat(our_header.max_x);
+	cur_object->max_y=SwapFloat(our_header.max_y);
+	cur_object->max_z=SwapFloat(our_header.max_z);
+#else
 	cur_object->min_x=our_header.min_x;
 	cur_object->min_y=our_header.min_y;
 	cur_object->min_z=our_header.min_z;
 	cur_object->max_x=our_header.max_x;
 	cur_object->max_y=our_header.max_y;
 	cur_object->max_z=our_header.max_z;
-
+#endif
+	
 	cur_object->is_transparent=our_header.is_transparent;
 	cur_object->is_ground=our_header.is_ground;
 	cur_object->face_no=faces_no;
@@ -487,15 +496,15 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 
 	//load and parse the header
 	fread(our_header_pointer, 1, sizeof(e3d_header), f);
-	faces_no=our_header.face_no;	// or should we grab from the cur_object?
-	vertex_no=our_header.vertex_no;
-	materials_no=our_header.material_no;
+	faces_no=SDL_SwapLE32(our_header.face_no);	// or should we grab from the cur_object?
+	vertex_no=SDL_SwapLE32(our_header.vertex_no);
+	materials_no=SDL_SwapLE32(our_header.material_no);
 
 	//read the rest of the file (vertex,faces, materials)
-	face_list=calloc(faces_no, our_header.face_size);
-	fread(face_list, faces_no, our_header.face_size, f);
+	face_list=calloc(faces_no, SDL_SwapLE32(our_header.face_size));
+	fread(face_list, faces_no, SDL_SwapLE32(our_header.face_size), f);
 
-	vertex_list=calloc(vertex_no, our_header.vertex_size);
+	vertex_list=calloc(vertex_no, SDL_SwapLE32(our_header.vertex_size));
   	if(!vertex_list)
 		{
 			char str[200];
@@ -505,13 +514,39 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 			fclose(f);
 			return NULL;
 		}
-	fread(vertex_list, vertex_no, our_header.vertex_size, f);
+	fread(vertex_list, vertex_no, SDL_SwapLE32(our_header.vertex_size), f);
 
-	material_list=calloc(materials_no, our_header.material_size);
-	fread(material_list, materials_no, our_header.material_size, f);
+	material_list=calloc(materials_no, SDL_SwapLE32(our_header.material_size));
+	fread(material_list, materials_no, SDL_SwapLE32(our_header.material_size), f);
 
 	fclose (f);
-
+	
+#ifdef EL_BIG_ENDIAN
+	for(i = 0; i < vertex_no; i++)
+	{
+		vertex_list[i].x = SwapFloat(vertex_list[i].x);
+		vertex_list[i].y = SwapFloat(vertex_list[i].y);
+		vertex_list[i].z = SwapFloat(vertex_list[i].z);
+		vertex_list[i].nx = SwapFloat(vertex_list[i].nx);
+		vertex_list[i].ny = SwapFloat(vertex_list[i].ny);
+		vertex_list[i].nz = SwapFloat(vertex_list[i].nz);
+	}
+		
+	for(i = 0; i < faces_no; i++)
+	{
+		face_list[i].au = SwapFloat(face_list[i].au);
+		face_list[i].av = SwapFloat(face_list[i].av);
+		face_list[i].bu = SwapFloat(face_list[i].bu);
+		face_list[i].bv = SwapFloat(face_list[i].bv);
+		face_list[i].cu = SwapFloat(face_list[i].cu);
+		face_list[i].cv = SwapFloat(face_list[i].cv);
+		face_list[i].a = SDL_SwapLE32(face_list[i].a);
+		face_list[i].b = SDL_SwapLE32(face_list[i].b);
+		face_list[i].c = SDL_SwapLE32(face_list[i].c);
+		face_list[i].material = SDL_SwapLE32(face_list[i].material);
+	}
+#endif
+	
 	//now, load all the materials, and use the material ID (which isn't used now) to
 	//temporary store the texture_ids
 

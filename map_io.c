@@ -329,8 +329,32 @@ int load_map(char * file_name)
 
 	destroy_map();
 
+	// XXX (Grum): non-portable
 	fread(mem_map_header, 1, sizeof(cur_map_header), f);//header only
+
+#ifdef EL_BIG_ENDIAN
+	cur_map_header.tile_map_x_len = SDL_SwapLE32(cur_map_header.tile_map_x_len);
+	cur_map_header.tile_map_y_len = SDL_SwapLE32(cur_map_header.tile_map_y_len);
+	cur_map_header.tile_map_offset = SDL_SwapLE32(cur_map_header.tile_map_offset);
+	cur_map_header.height_map_offset = SDL_SwapLE32(cur_map_header.height_map_offset);
+	cur_map_header.obj_3d_struct_len = SDL_SwapLE32(cur_map_header.obj_3d_struct_len);
+	cur_map_header.obj_3d_no = SDL_SwapLE32(cur_map_header.obj_3d_no);
+	cur_map_header.obj_3d_offset = SDL_SwapLE32(cur_map_header.obj_3d_offset);
+	cur_map_header.obj_2d_struct_len = SDL_SwapLE32(cur_map_header.obj_2d_struct_len);
+	cur_map_header.obj_2d_no = SDL_SwapLE32(cur_map_header.obj_2d_no);
+	cur_map_header.obj_2d_offset = SDL_SwapLE32(cur_map_header.obj_2d_offset);
+	cur_map_header.lights_struct_len = SDL_SwapLE32(cur_map_header.lights_struct_len);
+	cur_map_header.lights_no = SDL_SwapLE32(cur_map_header.lights_no);
+	cur_map_header.lights_offset = SDL_SwapLE32(cur_map_header.lights_offset);
+    
+	cur_map_header.ambient_r = SwapFloat(cur_map_header.ambient_r);
+	cur_map_header.ambient_g = SwapFloat(cur_map_header.ambient_g);
+	cur_map_header.ambient_b = SwapFloat(cur_map_header.ambient_b);
 	
+	cur_map_header.particles_struct_len = SDL_SwapLE32(cur_map_header.particles_struct_len);
+	cur_map_header.particles_no = SDL_SwapLE32(cur_map_header.particles_no);
+	cur_map_header.particles_offset = SDL_SwapLE32(cur_map_header.particles_offset);
+#endif 
 	
 	//verify if we have a valid file
 	if(cur_map_header.file_sig[0]!='e'||
@@ -426,7 +450,19 @@ int load_map(char * file_name)
 		{
 			char * cur_3do_pointer=(char *)&cur_3d_obj_io;
 			fread(cur_3do_pointer, 1, obj_3d_io_size, f);
-
+			
+#ifdef EL_BIG_ENDIAN
+			cur_3d_obj_io.x_pos = SwapFloat(cur_3d_obj_io.x_pos);
+			cur_3d_obj_io.y_pos = SwapFloat(cur_3d_obj_io.y_pos);
+			cur_3d_obj_io.z_pos = SwapFloat(cur_3d_obj_io.z_pos);
+			cur_3d_obj_io.x_rot = SwapFloat(cur_3d_obj_io.x_rot);
+			cur_3d_obj_io.y_rot = SwapFloat(cur_3d_obj_io.y_rot);
+			cur_3d_obj_io.z_rot = SwapFloat(cur_3d_obj_io.z_rot);
+			cur_3d_obj_io.r = SwapFloat(cur_3d_obj_io.r);
+			cur_3d_obj_io.g = SwapFloat(cur_3d_obj_io.g);
+			cur_3d_obj_io.b = SwapFloat(cur_3d_obj_io.b);
+#endif
+			
 			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
 					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
 					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
@@ -439,7 +475,16 @@ int load_map(char * file_name)
 		{
 			char * cur_2do_pointer=(char *)&cur_2d_obj_io;
 			fread(cur_2do_pointer, 1, obj_2d_io_size, f);
-
+			
+#ifdef EL_BIG_ENDIAN
+			cur_2d_obj_io.x_pos = SwapFloat(cur_2d_obj_io.x_pos);
+			cur_2d_obj_io.y_pos = SwapFloat(cur_2d_obj_io.y_pos);
+			cur_2d_obj_io.z_pos = SwapFloat(cur_2d_obj_io.z_pos);
+			cur_2d_obj_io.x_rot = SwapFloat(cur_2d_obj_io.x_rot);
+			cur_2d_obj_io.y_rot = SwapFloat(cur_2d_obj_io.y_rot);
+			cur_2d_obj_io.z_rot = SwapFloat(cur_2d_obj_io.z_rot);
+#endif
+			
 			add_2d_obj(cur_2d_obj_io.file_name,cur_2d_obj_io.x_pos,cur_2d_obj_io.y_pos,
 					   cur_2d_obj_io.z_pos,cur_2d_obj_io.x_rot,cur_2d_obj_io.y_rot,cur_2d_obj_io.z_rot);
 		}
@@ -450,6 +495,16 @@ int load_map(char * file_name)
 		{
 			char * cur_light_pointer=(char *)&cur_light_io;
 			fread(cur_light_pointer, 1, lights_io_size, f);
+			
+			#ifdef EL_BIG_ENDIAN
+				cur_light_io.pos_x = SwapFloat(cur_light_io.pos_x);
+				cur_light_io.pos_y = SwapFloat(cur_light_io.pos_y);
+				cur_light_io.pos_z = SwapFloat(cur_light_io.pos_z);
+				cur_light_io.r = SwapFloat(cur_light_io.r);
+				cur_light_io.g = SwapFloat(cur_light_io.g);
+				cur_light_io.b = SwapFloat(cur_light_io.b);
+			#endif
+			
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f);
 		}
 
@@ -458,6 +513,13 @@ int load_map(char * file_name)
 		{
 			char *cur_particles_pointer=(char *)&cur_particles_io;
 			fread(cur_particles_pointer,1,particles_io_size,f);
+			
+			#ifdef EL_BIG_ENDIAN
+				cur_particles_io.x_pos = SwapFloat(cur_particles_io.x_pos);
+				cur_particles_io.y_pos = SwapFloat(cur_particles_io.y_pos);
+				cur_particles_io.z_pos = SwapFloat(cur_particles_io.z_pos);
+			#endif
+			
 			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
 		}
 

@@ -457,11 +457,11 @@ void add_enhanced_actor_from_server(char * in_data)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	actor_id=*((short *)(in_data));
-	x_pos=*((short *)(in_data+2));
-	y_pos=*((short *)(in_data+4));
-	z_pos=*((short *)(in_data+6));
-	z_rot=*((short *)(in_data+8));
+	actor_id=SDL_SwapLE16(*((short *)(in_data)));
+	x_pos=SDL_SwapLE16(*((short *)(in_data+2)));
+	y_pos=SDL_SwapLE16(*((short *)(in_data+4)));
+	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
+	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
 	skin=*(in_data+12);
 	hair=*(in_data+13);
@@ -478,8 +478,8 @@ void add_enhanced_actor_from_server(char * in_data)
 	ERR();
 #endif
 	frame=*(in_data+22);
-	max_health=*((short *)(in_data+23));
-	cur_health=*((short *)(in_data+25));
+	max_health=SDL_SwapLE16(*((short *)(in_data+23)));
+	cur_health=SDL_SwapLE16(*((short *)(in_data+25)));
 	kind_of_actor=*(in_data+27);
 
 	//translate from tile to world

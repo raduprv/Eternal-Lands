@@ -13,6 +13,17 @@ void do_paste(Uint8 * buffer)
 		put_string_in_buffer (&input_text_line, buffer, input_text_line.len);
 }
 
+#ifdef OSX
+void startpaste () 
+{
+	// Todo, actually fill these!
+}
+
+void finishpaste (void* event) 
+{
+	// Todo. This :-)
+}
+#else
 #ifndef WINDOWS
 
 void startpaste() {
@@ -84,7 +95,7 @@ void windows_paste()
 	CloseClipboard();
 }
 
-
+#endif
 #endif
 
 

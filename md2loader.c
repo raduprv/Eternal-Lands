@@ -73,8 +73,29 @@ md2 * load_md2(char * file_name)
 	f = my_fopen (file_name, "rb");
 	if(!f) return NULL;
 
+	// XXX (Grum): Ugh! talk about non-portable
 	fread (&file_header, 1, sizeof(header_file_md2), f);
-
+	
+#ifdef EL_BIG_ENDIAN
+	file_header.magic = SDL_SwapLE32(file_header.magic);
+	file_header.version = SDL_SwapLE32(file_header.version);
+	file_header.skinWidth = SDL_SwapLE32(file_header.skinWidth);
+	file_header.skinHeight = SDL_SwapLE32(file_header.skinHeight);
+	file_header.frameSize = SDL_SwapLE32(file_header.frameSize);
+	file_header.numSkins = SDL_SwapLE32(file_header.numSkins);
+	file_header.numVertices = SDL_SwapLE32(file_header.numVertices);
+	file_header.numTexCoords = SDL_SwapLE32(file_header.numTexCoords);
+	file_header.numFaces = SDL_SwapLE32(file_header.numFaces);
+	file_header.numGlCommands = SDL_SwapLE32(file_header.numGlCommands);
+	file_header.numFrames = SDL_SwapLE32(file_header.numFrames);
+	file_header.offsetSkins = SDL_SwapLE32(file_header.offsetSkins);
+	file_header.offsetTexCoords = SDL_SwapLE32(file_header.offsetTexCoords);
+	file_header.offsetFaces = SDL_SwapLE32(file_header.offsetFaces);
+	file_header.offsetFrames = SDL_SwapLE32(file_header.offsetFrames);
+	file_header.offsetGlCommands = SDL_SwapLE32(file_header.offsetGlCommands);
+	file_header.offsetEnd = SDL_SwapLE32(file_header.offsetEnd);
+#endif
+	
 	//allocate the main memory
 	our_md2 = calloc(1, sizeof(md2));
 	my_strncp(our_md2->file_name, file_name, 128);
@@ -83,21 +104,23 @@ md2 * load_md2(char * file_name)
 	//now, get the faces
 	//alocate the memory for the faces
 	file_face_pointer = calloc(file_header.numFaces, sizeof(faces_file_md2));
+	
 	face_pointer = calloc(file_header.numFaces, sizeof(face_md2));
 	md2_mem_used += file_header.numFaces*sizeof(face_md2);
 	//read the faces, from the file
 	fseek (f, file_header.offsetFaces, SEEK_SET);
 	fread (file_face_pointer, 1, sizeof(faces_file_md2)*file_header.numFaces, f);
+	
 	//convert them from the md2 format to our format
 	for(i=0;i<file_header.numFaces;i++)
 		{
-			face_pointer[i].a= file_face_pointer[i].vertexIndices[0];
-			face_pointer[i].b= file_face_pointer[i].vertexIndices[1];
-			face_pointer[i].c= file_face_pointer[i].vertexIndices[2];
+			face_pointer[i].a= SDL_SwapLE16(file_face_pointer[i].vertexIndices[0]);
+			face_pointer[i].b= SDL_SwapLE16(file_face_pointer[i].vertexIndices[1]);
+			face_pointer[i].c= SDL_SwapLE16(file_face_pointer[i].vertexIndices[2]);
 
-			face_pointer[i].at= file_face_pointer[i].textureIndices[0];
-			face_pointer[i].bt= file_face_pointer[i].textureIndices[1];
-			face_pointer[i].ct= file_face_pointer[i].textureIndices[2];
+			face_pointer[i].at= SDL_SwapLE16(file_face_pointer[i].textureIndices[0]);
+			face_pointer[i].bt= SDL_SwapLE16(file_face_pointer[i].textureIndices[1]);
+			face_pointer[i].ct= SDL_SwapLE16(file_face_pointer[i].textureIndices[2]);
 		}
 	free(file_face_pointer);
 
@@ -111,8 +134,8 @@ md2 * load_md2(char * file_name)
 	fread (file_text_coord_pointer, 1, sizeof(textureCoordinate_file_md2)*file_header.numTexCoords, f);
 	for(i=0;i<file_header.numTexCoords;i++)
 		{
-			text_coord_pointer[i].u= (float)file_text_coord_pointer[i].u/(float)file_header.skinWidth;
-			text_coord_pointer[i].v= 1.0f-(float)file_text_coord_pointer[i].v/(float)file_header.skinHeight;
+			text_coord_pointer[i].u= ((float)SDL_SwapLE16(file_text_coord_pointer[i].u))/(float)file_header.skinWidth;
+			text_coord_pointer[i].v= 1.0f-(((float)SDL_SwapLE16(file_text_coord_pointer[i].v))/(float)file_header.skinHeight);
 		}
 	free(file_text_coord_pointer);
 
@@ -142,15 +165,23 @@ md2 * load_md2(char * file_name)
 		for(k=0;k<file_header.frameSize;k++)
 			*(temp_frame_storage_pointer+k)= *(file_frame_pointer+frame_pointer_offset+k);
 
+#ifdef EL_BIG_ENDIAN
+			scale_x= SwapFloat(temp_frame_storage.scale[0]);
+			scale_y= SwapFloat(temp_frame_storage.scale[1]);
+			scale_z= SwapFloat(temp_frame_storage.scale[2]);
 
-		scale_x= temp_frame_storage.scale[0];
-		scale_y= temp_frame_storage.scale[1];
-		scale_z= temp_frame_storage.scale[2];
+			translate_x= SwapFloat(temp_frame_storage.translate[0]);
+			translate_y= SwapFloat(temp_frame_storage.translate[1]);
+			translate_z= SwapFloat(temp_frame_storage.translate[2]);
+#else
+			scale_x= temp_frame_storage.scale[0];
+			scale_y= temp_frame_storage.scale[1];
+			scale_z= temp_frame_storage.scale[2];
 
-		translate_x= temp_frame_storage.translate[0];
-		translate_y= temp_frame_storage.translate[1];
-		translate_z= temp_frame_storage.translate[2];
-
+			translate_x= temp_frame_storage.translate[0];
+			translate_y= temp_frame_storage.translate[1];
+			translate_z= temp_frame_storage.translate[2];
+#endif
 		//put the frame name too
 		//sprintf(frame_pointer[i].name,"%s",temp_frame_storage.name);
 		strcpy(frame_pointer[i].name, temp_frame_storage.name);

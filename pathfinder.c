@@ -229,8 +229,8 @@ void pf_move()
 				Uint8 str[5];
 
 				str[0] = MOVE_TO;
-				*((short *)(str+1)) = pf_cur_tile->x;
-				*((short *)(str+3)) = pf_cur_tile->y;
+				*((short *)(str+1)) = SDL_SwapLE16((short)pf_cur_tile->x);
+				*((short *)(str+3)) = SDL_SwapLE16((short)pf_cur_tile->y);
 				my_tcp_send(my_socket, str, 5);
 
 				return;
@@ -243,8 +243,8 @@ void pf_move()
 				Uint8 str[5];
 				
 				str[0] = MOVE_TO;
-				*((short *)(str+1)) = pf_cur_tile->x;
-				*((short *)(str+3)) = pf_cur_tile->y;
+				*((short *)(str+1)) = SDL_SwapLE16((short)pf_cur_tile->x);
+				*((short *)(str+3)) = SDL_SwapLE16((short)pf_cur_tile->y);
 				my_tcp_send(my_socket, str, 5);
 				break;
 			}

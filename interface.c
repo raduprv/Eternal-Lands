@@ -274,7 +274,7 @@ void add_char_to_username(unsigned char ch)
 			username_str[username_text_lenght+1]=0;
 			username_text_lenght++;
 		}
-	if(ch==SDLK_BACKSPACE && username_text_lenght>0)
+	if( ( ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && username_text_lenght > 0 )
 		{
 			username_text_lenght--;
 			username_str[username_text_lenght]=0;
@@ -291,7 +291,7 @@ void add_char_to_password(unsigned char ch)
 			display_password_str[password_text_lenght+1]=0;
 			password_text_lenght++;
 		}
-	if(ch==SDLK_BACKSPACE && password_text_lenght>0)
+	if( ( ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && password_text_lenght > 0 )
 		{
 			password_text_lenght--;
 			display_password_str[password_text_lenght]=0;

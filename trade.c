@@ -381,8 +381,8 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				// and send what we currently see as what they have offered us (we don't trust them!)
 				for(i=0; i<16; i++){
 					if (others_trade_list[i].quantity > 0 ){
-						*((Uint16 *)(str+msg_len))= others_trade_list[i].image_id;
-						*((Uint32 *)(str+msg_len+2))= others_trade_list[i].quantity;
+						*((Uint16 *)(str+msg_len))= SDL_SwapLE16(others_trade_list[i].image_id);
+						*((Uint32 *)(str+msg_len+2))= SDL_SwapLE16(others_trade_list[i].quantity);
 						msg_len+= 6;
 					}
 				}
@@ -432,7 +432,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 									{
 										str[0]=PUT_OBJECT_ON_TRADE;
 										str[1]=item_list[i].pos;
-										*((Uint16 *)(str+2))=item_quantity;
+										*((Uint16 *)(str+2))= SDL_SwapLE16(item_quantity);
 										my_tcp_send(my_socket,str,4);
 									}
 
@@ -466,7 +466,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 								{
 									str[0]=REMOVE_OBJECT_FROM_TRADE;
 									str[1]=y*4+x;
-									*((Uint16 *)(str+2))=item_quantity;
+									*((Uint16 *)(str+2))=SDL_SwapLE16(item_quantity);
 									my_tcp_send(my_socket,str,4);
 								}
 
@@ -613,13 +613,13 @@ void put_item_on_trade(Uint8 *data)
 	pos=data[6];
 	if(!data[7])
 	{
-		your_trade_list[pos].image_id=*((Uint16 *)(data));
-		your_trade_list[pos].quantity+=*((Uint32 *)(data+2));
+		your_trade_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data)));
+		your_trade_list[pos].quantity+=SDL_SwapLE32(*((Uint32 *)(data+2)));
 	}
 	else
 	{
-		others_trade_list[pos].image_id=*((Uint16 *)(data));
-		others_trade_list[pos].quantity+=*((Uint32 *)(data+2));
+		others_trade_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data)));
+		others_trade_list[pos].quantity+=SDL_SwapLE32(*((Uint32 *)(data+2)));
 	}
 }
 
@@ -629,7 +629,7 @@ void remove_item_from_trade(Uint8 *data)
 	int quantity;
 
 	pos=data[2];
-	quantity=*((Uint16 *)(data));
+	quantity=SDL_SwapLE16(*((Uint16 *)(data)));
 
 	if(!data[3])
 	{

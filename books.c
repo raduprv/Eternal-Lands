@@ -2,12 +2,13 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <string.h>
+#include "global.h"
+
 #ifdef BSD
 #include <stdlib.h>
 #else
 #include <malloc.h>
 #endif
-#include "global.h"
 #include "books.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -490,8 +491,8 @@ void open_book(int id)
 		char str[5];
 		
 		str[0]=SEND_BOOK;
-		*((Uint16*)(str+1))=id;
-		*((Uint16*)(str+3))=0;
+		*((Uint16*)(str+1))=SDL_SwapLE16((Uint16)id);
+		*((Uint16*)(str+3))=SDL_SwapLE16(0);
 
 		my_tcp_send(my_socket, str, 5);
 	} else display_book_window(b);
@@ -507,8 +508,8 @@ void read_local_book(char * data, int len)
 	strncpy(file_name,data+3, len);
 	file_name[len]=0;
 	
-	b=get_book(*((Uint16*)(data+1)));
-	if(!b) b=read_book(file_name,data[0],*((Uint16*)(data+1)));
+	b=get_book(SDL_SwapLE16(*((Uint16*)(data+1))));
+	if(!b) b=read_book(file_name,data[0], SDL_SwapLE16(*((Uint16*)(data+1))));
 	if(!b) {
 		char str[200];
 		sprintf(str,"Could not open: %s", file_name);
@@ -527,7 +528,7 @@ page * add_image_from_server(char *data, book *b, page *p)
 	int v_start, v_end;
 	char image_path[256];
 	char text[512];
-	int l=*((Uint16*)(data));
+	int l=SDL_SwapLE16(*((Uint16*)(data)));
 	_image *img;
 
 	if(l>254)l=254;
@@ -536,17 +537,17 @@ page * add_image_from_server(char *data, book *b, page *p)
 	
 	data+=l+2;
 
-	l=*((Uint16*)(data));
+	l=SDL_SwapLE16(*((Uint16*)(data)));
 	if(l>510)l=510;
 	memcpy(text, data+2, l);
 	text[l]=0;
 
 	data+=l+2;
 
-	x=*((Uint16*)(data));
-	y=*((Uint16*)(data+2));
-	w=*((Uint16*)(data+4));
-	h=*((Uint16*)(data+6));
+	x=SDL_SwapLE16(*((Uint16*)(data)));
+	y=SDL_SwapLE16(*((Uint16*)(data+2)));
+	w=SDL_SwapLE16(*((Uint16*)(data+4)));
+	h=SDL_SwapLE16(*((Uint16*)(data+6)));
 
 	u_start=data[8];
 	u_end=data[9];
@@ -564,13 +565,14 @@ void read_server_book(char * data, int len)
 	char buffer[8192];
 	book *b;
 	page *p;
-	int l=*((Uint16*)(data+4));
-
+	int l=SDL_SwapLE16(*((Uint16*)(data+4)));
+	if ( l >= sizeof (buffer) ) // Safer
+		l = sizeof (buffer) - 1;
 	memcpy(buffer, data+6, l);
 	buffer[l]=0;
 	
-	b=get_book(*((Uint16*)(data+1)));
-	if(!b) b=create_book(buffer,*data,*((Uint16*)(data+1)));
+	b=get_book(SDL_SwapLE16(*((Uint16*)(data+1))));
+	if(!b) b=create_book(buffer,*data, SDL_SwapLE16(*((Uint16*)(data+1))));
 
 	b->server_pages=data[3];
 	b->have_server_pages++;
@@ -580,7 +582,9 @@ void read_server_book(char * data, int len)
 	len-=l+6;
 	data+=l+6;
 	do {
-		l=*((Uint16*)(data+1));
+		l= SDL_SwapLE16(*((Uint16*)(data+1)));
+		if ( l >= sizeof (buffer) ) // Safer.
+			l = sizeof (buffer) - 1;
 		memcpy(buffer, data+3, l);
 		buffer[l]=0;
 
@@ -805,8 +809,8 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 					char str[5];
 		
 					str[0]=SEND_BOOK;
-					*((Uint16*)(str+1))=b->id;
-					*((Uint16*)(str+3))=b->have_server_pages;
+					*((Uint16*)(str+1))=SDL_SwapLE16(b->id);
+					*((Uint16*)(str+3))=SDL_SwapLE16(b->have_server_pages);
 					my_tcp_send(my_socket, str, 5);
 
 					if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
@@ -830,8 +834,8 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				char str[5];
 		
 				str[0]=SEND_BOOK;
-				*((Uint16*)(str+1))=b->id;
-				*((Uint16*)(str+3))=0xFFFF;
+				*((Uint16*)(str+1))=SDL_Swap16(b->id);
+				*((Uint16*)(str+3))=SDL_Swap16(0xFFFF); // Swap not actually necessary.. But it's cleaner.
 				my_tcp_send(my_socket, str, 5);
 				
 				win->displayed=0;
@@ -861,8 +865,8 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				char str[5];
 		
 				str[0]=SEND_BOOK;
-				*((Uint16*)(str+1))=b->id;
-				*((Uint16*)(str+3))=0xFFFF;
+				*((Uint16*)(str+1))=SDL_SwapLE16(b->id);
+				*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF);
 				my_tcp_send(my_socket, str, 5);
 				
 				win->displayed=0;

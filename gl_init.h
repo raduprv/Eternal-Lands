@@ -60,6 +60,12 @@ extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
  */
 
+// Grum
+// necessary for OSX?
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+
 extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 extern void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);

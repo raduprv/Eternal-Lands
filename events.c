@@ -58,10 +58,11 @@ int HandleEvent (SDL_Event *event)
 	switch( event->type )
 	{
 
-#ifndef WINDOWS
+#if !defined(WINDOWS) && !defined(OSX)
 		case SDL_SYSWMEVENT:
-			if (event->syswm.msg->event.xevent.type == SelectionNotify)
-				finishpaste (event->syswm.msg->event.xevent.xselection);
+		
+			if(event->syswm.msg->event.xevent.type == SelectionNotify)
+				finishpaste(event->syswm.msg->event.xevent.xselection);
 			break;
 #endif
 
@@ -93,19 +94,36 @@ int HandleEvent (SDL_Event *event)
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
 		case SDL_MOUSEMOTION:
-			if (event->type == SDL_MOUSEMOTION)
+			if(event->type==SDL_MOUSEMOTION)
 			{
+#ifdef OSX
+				// Some idiot decided to invert the y axis on mac os x sdl. 
+				// This will no-doubt need to be changed when they fix it in the next version
+				mouse_x= event->motion.x;
+				mouse_y= window_height-event->motion.y;
+
+				mouse_delta_x= event->motion.xrel;
+				mouse_delta_y= -event->motion.yrel;
+#else
 				mouse_x= event->motion.x;
 				mouse_y= event->motion.y;
 
 				mouse_delta_x= event->motion.xrel;
 				mouse_delta_y= event->motion.yrel;
+#endif
 			}
 			else
 			{
+#ifdef OSX
+				// See above comment
+				mouse_x= event->button.x;
+				mouse_y= window_height-event->button.y;
+				mouse_delta_x= mouse_delta_y= 0;
+#else
 				mouse_x= event->button.x;
 				mouse_y= event->button.y;
 				mouse_delta_x= mouse_delta_y= 0;
+#endif
 			}
 
 			if (event->type == SDL_MOUSEBUTTONDOWN)

@@ -243,7 +243,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			quantity = item_quantity;
 		str[0] = DROP_ITEM;
 		str[1] = item_list[item_dragged].pos;
-		*((Uint16 *) (str + 2)) = quantity;
+		*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)quantity);
 		my_tcp_send(my_socket, str, 4);
 		if (item_list[item_dragged].quantity - quantity <= 0)
 			item_dragged = -1;
@@ -269,8 +269,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		
 		str[0] = MOVE_TO;
-		*((short *)(str+1)) = x;
-		*((short *)(str+3)) = y;
+		*((short *)(str+1)) = SDL_SwapLE16((short)x);
+		*((short *)(str+3)) = SDL_SwapLE16((short)y);
 
 		my_tcp_send(my_socket,str,5);
 		return 1;
@@ -288,14 +288,14 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
 				str[0] = GET_PLAYER_INFO;
-				*((int *)(str+1)) = object_under_mouse;
+				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
 				return 1;
 			}
 			else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
 			{
 				str[0] = LOOK_AT_MAP_OBJECT;
-				*((int *)(str+1)) = object_under_mouse;
+				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
 				return 1;
 			}
@@ -312,7 +312,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (thing_under_the_mouse != UNDER_MOUSE_PLAYER)
 				return 1;
 			str[0] = TRADE_WITH;
-			*((int *)(str+1)) = object_under_mouse;
+			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 			my_tcp_send (my_socket, str, 5);
 			return 1;
 			
@@ -330,7 +330,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
 				str[0] = ATTACK_SOMEONE;
-				*((int *)(str+1)) = object_under_mouse;
+				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
 				return 1;
 			}
@@ -353,7 +353,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			{
 				int i;
 				str[0] = TOUCH_PLAYER;
-				*((int *)(str+1)) = object_under_mouse;
+				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
 
 				// clear the previous dialogue entries, so we won't have a left over from some other NPC
@@ -363,16 +363,16 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			}
 			
 			str[0] = USE_MAP_OBJECT;
-			*((int *)(str+1)) = object_under_mouse;
+			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 			if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
 			{
-				*((int *)(str+5)) = item_list[use_item].pos;
+				*((int *)(str+5)) = SDL_SwapLE32((int)item_list[use_item].pos);
 				use_item = -1;
 				action_mode = ACTION_WALK;
 			} 
 			else
 			{
-				*((int *)(str+5)) = -1;
+				*((int *)(str+5)) = SDL_SwapLE32((int)-1);
 			}
 
 			my_tcp_send (my_socket, str, 9);
@@ -397,7 +397,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (object_under_mouse == -1)
 				return 1;
 			str[0] = HARVEST;
-			*((short *)(str+1)) = object_under_mouse;
+			*((short *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 			my_tcp_send (my_socket, str, 3);
 			return 1;
 			break;
@@ -419,8 +419,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			
 			str[0] = MOVE_TO;
-			*((short *)(str+1)) = x;
-			*((short *)(str+3)) = y;
+			*((short *)(str+1)) = SDL_SwapLE16((short)x);
+			*((short *)(str+3)) = SDL_SwapLE16((short)y);
 	
 			my_tcp_send (my_socket, str, 5);
 			return 1;

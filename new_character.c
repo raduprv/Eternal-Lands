@@ -474,7 +474,7 @@ void add_char_to_pass(unsigned char ch)
 			pass_str[pass_text_lenght+1]=0;
 			pass_text_lenght++;
 		}
-	if(ch==SDLK_BACKSPACE && pass_text_lenght>0)
+	if( (ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && pass_text_lenght > 0 )
 		{
 			pass_text_lenght--;
 			display_pass_str[pass_text_lenght]=0;
@@ -490,7 +490,7 @@ void add_char_to_un(unsigned char ch)
 			user_str[user_text_lenght+1]=0;
 			user_text_lenght++;
 		}
-	if(ch==SDLK_BACKSPACE && user_text_lenght>0)
+	if( (ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && user_text_lenght > 0 )
 		{
 			user_text_lenght--;
 			user_str[user_text_lenght]=0;
@@ -506,7 +506,7 @@ void add_char_to_conf(unsigned char ch)
 			conf_pass_str[conf_pass_text_lenght+1]=0;
 			conf_pass_text_lenght++;
 		}
-	if(ch==SDLK_BACKSPACE && conf_pass_text_lenght>0)
+	if( (ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && conf_pass_text_lenght > 0 )
 		{
 			conf_pass_text_lenght--;
 			display_conf_pass_str[conf_pass_text_lenght]=0;

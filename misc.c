@@ -14,6 +14,12 @@ void reset_under_the_mouse()
 		thing_under_the_mouse=UNDER_MOUSE_NOTHING;
 	}
 
+inline float SwapFloat(float t)
+{
+	int ftemp = SDL_Swap32(*((int*)(&t)));
+	return *((float*)(&ftemp));
+}
+
 int anything_under_the_mouse(int object_id, int object_type)
 {
 	char pixels[16]={0};

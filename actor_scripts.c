@@ -993,8 +993,8 @@ void move_self_forward()
 					}
 
 					str[0]=MOVE_TO;
-					*((short *)(str+1))=tx;
-					*((short *)(str+3))=ty;
+					*((short *)(str+1))=SDL_SwapLE16((short)tx);
+					*((short *)(str+3))=SDL_SwapLE16((short)ty);
 
 					my_tcp_send(my_socket,str,5);
 					UNLOCK_ACTORS_LISTS();

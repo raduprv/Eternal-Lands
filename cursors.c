@@ -43,11 +43,11 @@ void load_cursors()
 	fclose (f);
 
 	cursors_mem_bmp += 18;		//x lenght is at offset+18
-	cursors_x_lenght = *((int *) cursors_mem_bmp);
+	cursors_x_lenght = SDL_SwapLE32(*((int *) cursors_mem_bmp));
 	cursors_mem_bmp += 4;		//y lenght is at offset+22
-	cursors_y_lenght = *((int *) cursors_mem_bmp);
+	cursors_y_lenght = SDL_SwapLE32(*((int *) cursors_mem_bmp));
 	cursors_mem_bmp += 46 - 22;
-	cursors_colors_no = *((int *) cursors_mem_bmp);
+	cursors_colors_no = SDL_SwapLE32(*((int *) cursors_mem_bmp));
 	cursors_mem_bmp += 54 - 46 + cursors_colors_no * 4;
 
 	//ok, now transform the bitmap in cursors info

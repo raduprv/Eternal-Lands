@@ -64,18 +64,18 @@ GLuint load_bmp8_color_key(char * FileName)
   	file_mem_start=file_mem;
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-  	if(*((short *) file_mem)!=19778)//BM (the identifier)
+  	if(*((short *) file_mem)!= SDL_SwapLE16(19778))//BM (the identifier)
 		{
 			free(file_mem_start);
 			fclose (f);
 			return 0;
 		}
 	file_mem+=18;
-	x_size=*((int *) file_mem);
+	x_size= SDL_SwapLE32(*((int *) file_mem));
 	file_mem+=4;
-	y_size=*((int *) file_mem);
+	y_size= SDL_SwapLE32(*((int *) file_mem));
 	file_mem+=6;
-	if(*((short *)file_mem)!=8)//8 bit/pixel?
+	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -83,7 +83,7 @@ GLuint load_bmp8_color_key(char * FileName)
 		}
 
 	file_mem+=2;
-	if(*((int *)file_mem)!=0)//any compression?
+	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -91,7 +91,7 @@ GLuint load_bmp8_color_key(char * FileName)
 		}
 	file_mem+=16;
 
-	colors_no=*((int *)file_mem);
+	colors_no=SDL_SwapLE32(*((int *)file_mem));
 	if(!colors_no)colors_no=256;
 	file_mem+=8;//here comes the pallete
 
@@ -189,18 +189,18 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
   	file_mem_start=file_mem;
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-  	if(*((short *) file_mem)!=19778)//BM (the identifier)
+  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
 		{
 			free(file_mem_start);
 			fclose (f);
 			return 0;
 		}
 	file_mem+=18;
-	x_size=*((int *) file_mem);
+	x_size=SDL_SwapLE32(*((int *) file_mem));
 	file_mem+=4;
-	y_size=*((int *) file_mem);
+	y_size=SDL_SwapLE32(*((int *) file_mem));
 	file_mem+=6;
-	if(*((short *)file_mem)!=8)//8 bit/pixel?
+	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -208,7 +208,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 		}
 
 	file_mem+=2;
-	if(*((int *)file_mem)!=0)//any compression?
+	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -216,7 +216,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 		}
 	file_mem+=16;
 
-	colors_no=*((int *)file_mem);
+	colors_no=SDL_SwapLE32(*((int *)file_mem));
 	if(!colors_no)colors_no=256;
 	file_mem+=8;//here comes the pallete
 
@@ -315,7 +315,7 @@ char * load_bmp8_color_key_no_texture(char * FileName)
   	file_mem_start=file_mem;
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-  	if(*((short *) file_mem)!=19778)//BM (the identifier)
+  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -326,7 +326,7 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 	file_mem+=4;
 	y_size=*((int *) file_mem);
 	file_mem+=6;
-	if(*((short *)file_mem)!=8)//8 bit/pixel?
+	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -334,7 +334,7 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 		}
 
 	file_mem+=2;
-	if(*((int *)file_mem)!=0)//any compression?
+	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -342,7 +342,7 @@ char * load_bmp8_color_key_no_texture(char * FileName)
 		}
 	file_mem+=16;
 
-	colors_no=*((int *)file_mem);
+	colors_no=SDL_SwapLE32(*((int *)file_mem));
 	if(!colors_no)colors_no=256;
 	file_mem+=8;//here comes the pallete
 
@@ -405,7 +405,7 @@ char * load_bmp8_alpha_map(char * FileName)
   	file_mem_start=file_mem;
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-  	if(*((short *) file_mem)!=19778)//BM (the identifier)
+  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -416,7 +416,7 @@ char * load_bmp8_alpha_map(char * FileName)
 	file_mem+=4;
 	y_size=*((int *) file_mem);
 	file_mem+=6;
-	if(*((short *)file_mem)!=8)//8 bit/pixel?
+	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -424,7 +424,7 @@ char * load_bmp8_alpha_map(char * FileName)
 		}
 
 	file_mem+=2;
-	if(*((int *)file_mem)!=0)//any compression?
+	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -432,7 +432,7 @@ char * load_bmp8_alpha_map(char * FileName)
 		}
 	file_mem+=16;
 
-	colors_no=*((int *)file_mem);
+	colors_no=SDL_SwapLE32(*((int *)file_mem));
 	if(!colors_no)colors_no=256;
 	file_mem+=8;//here comes the pallete
 
@@ -550,18 +550,18 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
   	file_mem_start=file_mem;
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-  	if(*((short *) file_mem)!=19778)//BM (the identifier)
+  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
 		{
 			free(file_mem_start);
 			fclose (f);
 			return 0;
 		}
 	file_mem+=18;
-	x_size=*((int *) file_mem);
+	x_size=SDL_SwapLE32(*((int *) file_mem));
 	file_mem+=4;
-	y_size=*((int *) file_mem);
+	y_size=SDL_SwapLE32(*((int *) file_mem));
 	file_mem+=6;
-	if(*((short *)file_mem)!=8)//8 bit/pixel?
+	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -569,7 +569,7 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 		}
 
 	file_mem+=2;
-	if(*((int *)file_mem)!=0)//any compression?
+	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -577,7 +577,7 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 		}
 	file_mem+=16;
 
-	colors_no=*((int *)file_mem);
+	colors_no=SDL_SwapLE32(*((int *)file_mem));
 	if(!colors_no)colors_no=256;
 	file_mem+=8;//here comes the pallete
 
@@ -837,18 +837,18 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
   	file_mem_start=file_mem;
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-  	if(*((short *) file_mem)!=19778)//BM (the identifier)
+  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
 		{
 			free(file_mem_start);
 			fclose (f);
 			return;
 		}
 	file_mem+=18;
-	x_size=*((int *) file_mem);
+	x_size=SDL_SwapLE32(*((int *) file_mem));
 	file_mem+=4;
-	y_size=*((int *) file_mem);
+	y_size=SDL_SwapLE32(*((int *) file_mem));
 	file_mem+=6;
-	if(*((short *)file_mem)!=8)//8 bit/pixel?
+	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -856,7 +856,7 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
 		}
 
 	file_mem+=2;
-	if(*((int *)file_mem)!=0)//any compression?
+	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 		{
 			free(file_mem_start);
 			fclose (f);
@@ -864,7 +864,7 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
 		}
 	file_mem+=16;
 
-	colors_no=*((int *)file_mem);
+	colors_no=SDL_SwapLE32(*((int *)file_mem));
 	if(!colors_no)colors_no=256;
 	file_mem+=8;//here comes the pallete
 

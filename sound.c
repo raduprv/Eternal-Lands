@@ -196,7 +196,12 @@ ALuint get_loaded_buffer(int i)
 					have_music=0;
 				}
 
+#ifdef OSX
+			// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
+			alutLoadWAVFile(sound_files[i],&format,&data,&size,&freq);
+#else
 			alutLoadWAVFile(sound_files[i],&format,&data,&size,&freq,&loop);
+#endif
 			alBufferData(sound_buffer[i],format,data,size,freq);
 			alutUnloadWAV(format,data,size,freq);
 		}

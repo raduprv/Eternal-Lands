@@ -72,7 +72,7 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 	last_heart_beat=cur_time;
 
 	new_str[0]=str[0];//copy the protocol
-	*((short *)(new_str+1))=(Uint16)len;//the data lenght
+	*((short *)(new_str+1))= SDL_SwapLE16((Uint16)len);//the data lenght
 	//copy the rest of the data
 	for(i=1;i<len;i++)new_str[i+2]=str[i];
 	return SDLNet_TCP_Send(my_socket,new_str,len+2);
@@ -83,18 +83,28 @@ void send_version_to_server(IPaddress *ip)
 	Uint8 str[20];
 
 	str[0]=SEND_VERSION;
-	*((short *)(str+1))=(short)version_first_digit;
-	*((short *)(str+3))=(short)version_second_digit;
+	*((short *)(str+1))=SDL_SwapLE16((short)version_first_digit);
+	*((short *)(str+3))=SDL_SwapLE16((short)version_second_digit);
 	str[5]=client_version_major;
 	str[6]=client_version_minor;
 	str[7]=client_version_release;
 	str[8]=client_version_patch;
+	// XXX (Grum): is there no better way then swapping host and port twice?
+	#ifdef EL_BIG_ENDIAN
+	ip->host = SDL_Swap32(ip->host);
+	ip->port = SDL_Swap16(ip->port);
+	#endif
 	str[9]=ip->host&0xFF;
 	str[10]=(ip->host >> 8)&0xFF;
 	str[11]=(ip->host >> 16)&0xFF;
 	str[10]=(ip->host >> 24)&0xFF;
 	str[13]=ip->port&0xFF;
-	str[14]=(ip->port >> 8)&0xFF;
+	str[14]=(ip->port >> 8)&0xFF;	
+	#ifdef EL_BIG_ENDIAN
+	ip->host = SDL_Swap32(ip->host);
+	ip->port = SDL_Swap16(ip->port);
+	#endif
+	
 	my_tcp_send(my_socket,str,15);
 }
 
@@ -289,8 +299,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				// extract the channel number
 				if (data_lenght > 7) 
 				{
-					// XXX FIXME (Grum): endianness
-					channel = *( (Uint32*) (&in_data[3]) );
+					channel =  SDL_SwapLE32(*((Uint32*)(&in_data[3])));
 					data_lenght = filter_or_ignore_text (&in_data[7], data_lenght-7) + 7;
 					if (data_lenght > 7)
 					{
@@ -342,7 +351,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				add_command_to_actor(*((short *)(in_data+3)),in_data[5]);
+				add_command_to_actor(SDL_SwapLE16(*((short *)(in_data+3))),in_data[5]);
 			}
 			break;
 
@@ -351,7 +360,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				destroy_actor(*((short *)(in_data+3)));
+				destroy_actor(SDL_SwapLE16(*((short *)(in_data+3))));
 			}
 			break;
 
@@ -369,7 +378,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				game_minute=*((short *)(in_data+3));
+				game_minute=SDL_SwapLE16(*((short *)(in_data+3)));
 				new_minute();
 			}
 			break;
@@ -396,19 +405,19 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case SEND_PARTIAL_STAT:
 			{
-				get_partial_stat(*((Uint8 *)(in_data+3)),*((Sint32 *)(in_data+4)));
+				get_partial_stat(*((Uint8 *)(in_data+3)),SDL_SwapLE32(*((Sint32 *)(in_data+4))));
 			}
 			break;
 
 		case GET_KNOWLEDGE_LIST:
 			{
-				get_knowledge_list(*(Uint16 *)(in_data+1)-1, in_data+3);
+				get_knowledge_list(SDL_SwapLE16(*(Uint16 *)(in_data+1))-1, in_data+3);
 			}
 			break;
 
 		case GET_NEW_KNOWLEDGE:
 			{
-				get_new_knowledge(*(Uint16 *)(in_data+3));
+				get_new_knowledge(SDL_SwapLE16(*(Uint16 *)(in_data+3)));
 			}
 			break;
 
@@ -526,7 +535,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				if(!no_sound)play_music(*((short *)(in_data+3)));
+				if(!no_sound)play_music(SDL_SwapLE16(*((short *)(in_data+3))));
 			}
 			break;
 
@@ -535,7 +544,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				if(!no_sound)add_sound_object(*((short *)(in_data+3)),*((short *)(in_data+5)),*((short *)(in_data+7)),*((char *)(in_data+9)),*((short *)(in_data+10)));
+				if(!no_sound)add_sound_object(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),SDL_SwapLE16(*((short *)(in_data+7))),SDL_SwapLE16(*((char *)(in_data+9))),SDL_SwapLE16(*((short *)(in_data+10))));
 			}
 			break;
 
@@ -544,8 +553,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				add_particle_sys_at_tile("./particles/teleport_in.part",*((short *)(in_data+3)),*((short *)(in_data+5)));
-				if(!no_sound)add_sound_object(snd_tele_out,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
+				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))));
+				if(!no_sound)add_sound_object(snd_tele_out,SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),1,0);
 			}
 			break;
 
@@ -554,8 +563,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				add_particle_sys_at_tile("./particles/teleport_in.part",*((short *)(in_data+3)),*((short *)(in_data+5)));
-				if(!no_sound)add_sound_object(snd_tele_in,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
+				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))));
+				if(!no_sound)add_sound_object(snd_tele_out,SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),1,0);
 			}
 			break;
 
@@ -597,7 +606,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				yourself=*((short *)(in_data+3));
+				yourself=SDL_SwapLE16(*((short *)(in_data+3)));
 			}
 			break;
 
@@ -636,7 +645,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				server_time_stamp=*((int *)(in_data+3));
+				server_time_stamp=SDL_SwapLE32(*((int *)(in_data+3)));
 				client_time_stamp=SDL_GetTicks();
 				client_server_delta_time=server_time_stamp-client_time_stamp;
 			}
@@ -645,7 +654,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case PONG:
 			{
 				Uint8 str[160];
-				sprintf(str,"%s: %i MS",server_latency, SDL_GetTicks()-*((Uint32 *)(in_data+3)));
+				sprintf(str,"%s: %i MS",server_latency, SDL_GetTicks()-SDL_SwapLE32(*((Uint32 *)(in_data+3))));
 				LOG_TO_CONSOLE(c_green1,str);
 			}
 			break;
@@ -670,7 +679,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				put_bag_on_ground(*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)),*((Uint8 *)(in_data+7)));
+				put_bag_on_ground(SDL_SwapLE16(*((Uint16 *)(in_data+3))), SDL_SwapLE16(*((Uint16 *)(in_data+5))),*((Uint8 *)(in_data+7)));
 			}
 			break;
 
@@ -688,7 +697,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	             add_particle_sys_at_tile("./particles/bag_in.part",*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)));
+	             add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16 *)(in_data+5))));
 			}
 			break;
 
@@ -697,13 +706,13 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 				ERR();
 #endif
-				switch(*(Uint16 *)(in_data+7)) {
+				switch(SDL_SwapLE16(*(Uint16 *)(in_data+7))) {
 				case 2:
-					add_particle_sys("./particles/fire_big.part",(float)(*((Uint16 *)(in_data+3)))/2.0 +0.25,(float)(*((Uint16 *)(in_data+5)))/2.0 + 0.25,0.0);
+					add_particle_sys("./particles/fire_big.part",(float)(SDL_SwapLE16(*((Uint16 *)(in_data+3))))/2.0 +0.25,(float)(SDL_SwapLE16(*((Uint16 *)(in_data+5))))/2.0 + 0.25,0.0);
 					break;
 				case 1:
 				default:
-					add_particle_sys("./particles/fire_small.part",(float)(*((Uint16 *)(in_data+3)))/2.0 +0.25,(float)(*((Uint16 *)(in_data+5)))/2.0 + 0.25,0.0);
+					add_particle_sys("./particles/fire_small.part",(float)(SDL_SwapLE16(*((Uint16 *)(in_data+3))))/2.0 +0.25,(float)(SDL_SwapLE16(*((Uint16 *)(in_data+5))))/2.0 + 0.25,0.0);
 				}
 			}
 			break;
@@ -713,7 +722,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				remove_fire_at((float)(*((Uint16 *)(in_data+3)))/2.0 +0.25,(float)(*((Uint16 *)(in_data+5)))/2.0 + 0.25);
+				remove_fire_at((float)(SDL_SwapLE16(*((Uint16 *)(in_data+3))))/2.0 +0.25,(float)(SDL_SwapLE16(*((Uint16 *)(in_data+5))))/2.0 + 0.25);
 			}
 			break;
 
@@ -828,13 +837,13 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_TRADE_PARTNER_NAME:
 			{
-				get_trade_partner_name(&in_data[3],*((Uint16 *)(in_data+1))-1);
+				get_trade_partner_name(&in_data[3],SDL_SwapLE16(*((Uint16 *)(in_data+1)))-1);
 			}
 			break;
 
 		case GET_YOUR_SIGILS:
 			{
-				get_sigils_we_have(*((Uint32 *)(in_data+3)));
+				get_sigils_we_have(SDL_SwapLE32(*((Uint32 *)(in_data+3))));
 			}
 			break;
 
@@ -861,7 +870,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				get_actor_damage(*((Uint16 *)(in_data+3)),*((Uint16*)(in_data+5)));
+				get_actor_damage(SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16*)(in_data+5))));
 			}
 			break;
 
@@ -870,7 +879,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				get_actor_heal(*((Uint16 *)(in_data+3)),*((Uint16*)(in_data+5)));
+				get_actor_heal(SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16*)(in_data+5))));
 			}
 			break;
 
@@ -879,7 +888,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				unwear_item_from_actor(*((Uint16 *)(in_data+3)),in_data[5]);
+				unwear_item_from_actor(SDL_SwapLE16(*((Uint16 *)(in_data+3))),in_data[5]);
 			}
 			break;
 
@@ -888,14 +897,14 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				actor_wear_item(*((Uint16 *)(in_data+3)),in_data[5],in_data[6]);
+				actor_wear_item(SDL_SwapLE16(*((Uint16 *)(in_data+3))),in_data[5],in_data[6]);
 			}
 			break;
 
 		case NPC_SAY_OVERTEXT:
 			{
 				add_displayed_text_to_actor(
-					get_actor_ptr_from_id( *((Uint16 *)(in_data+3)) ), in_data+5 );
+					get_actor_ptr_from_id( SDL_SwapLE16(*((Uint16 *)(in_data+3))) ), in_data+5 );
 			}
 			break;
 
@@ -936,7 +945,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case OPEN_BOOK:
 			{
-				open_book(*((Uint16*)(in_data+3)));
+				open_book(SDL_SwapLE16(*((Uint16*)(in_data+3))));
 			}
 			break;
 
@@ -948,7 +957,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case CLOSE_BOOK:
 			{
-				close_book(*((Uint16*)(in_data+3)));
+				close_book(SDL_SwapLE16(*((Uint16*)(in_data+3))));
 			}
 			break;
 
@@ -971,17 +980,7 @@ static void process_data_from_server()
 		Uint16   size;
 		
 		do { /* while (3 <= in_data_used) (enough data present for the length field) */
-			static const int foo = 1; /* used for run-time byteorder check */
-			
-			/* make a copy of the length field...watch alignment/byteorder */
-			if (*(char *)&foo) { /* little-endian ? */
-				((Uint8 *)&size)[0] = pData[1];
-				((Uint8 *)&size)[1] = pData[2];
-			}
-			else { /* big-endian */
-				((Uint8 *)&size)[0] = pData[2];
-				((Uint8 *)&size)[1] = pData[1];
-			}
+			size = SDL_SwapLE16(*((short*)(pData+1)));
 			
 			if (sizeof (in_data) - 3 >= size) { /* buffer big enough ? */
 				size += 2; /* add length field size */

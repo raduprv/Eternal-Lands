@@ -767,12 +767,12 @@ void add_actor_from_server(char * in_data)
 	char cur_frame[20];
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
 
-	actor_id=*((short *)(in_data));
-	x_pos=*((short *)(in_data+2));
-	y_pos=*((short *)(in_data+4));
-	z_pos=*((short *)(in_data+6));
-	z_rot=*((short *)(in_data+8));
-	actor_type=*((short *)(in_data+10));
+	actor_id=SDL_SwapLE16(*((short *)(in_data)));
+	x_pos=SDL_SwapLE16(*((short *)(in_data+2)));
+	y_pos=SDL_SwapLE16(*((short *)(in_data+4)));
+	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
+	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
+	actor_type=SDL_SwapLE16(*((short *)(in_data+10)));
 	remapable=*(in_data+11);
 	skin=*(in_data+12);
 	hair=*(in_data+13);
@@ -780,8 +780,8 @@ void add_actor_from_server(char * in_data)
 	pants=*(in_data+15);
 	boots=*(in_data+16);
 	frame=*(in_data+17);
-	max_health=*((short *)(in_data+18));
-	cur_health=*((short *)(in_data+20));
+	max_health=SDL_SwapLE16(*((short *)(in_data+18)));
+	cur_health=SDL_SwapLE16(*((short *)(in_data+20)));
 	kind_of_actor=*(in_data+22);
 
 	//translate from tile to world

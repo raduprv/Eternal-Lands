@@ -283,7 +283,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(manufacture_list[i].quantity)
 						{
 							str[items_no*3+2]=manufacture_list[i].pos;
-							*((Uint16 *)(str+items_no*3+2+1))=manufacture_list[i].quantity;
+							*((Uint16 *)(str+items_no*3+2+1))=SDL_SwapLE16(manufacture_list[i].quantity);
 							items_no++;
 						}
 				}

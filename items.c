@@ -284,8 +284,8 @@ void get_your_items(Uint8 *data)
 		}
 	for(i=0;i<total_items;i++)
 		{
-			item_list[i].image_id=*((Uint16 *)(data+i*8+1));
-			item_list[i].quantity=*((Uint32 *)(data+i*8+1+2));
+			item_list[i].image_id=SDL_SwapLE16(*((Uint16 *)(data+i*8+1)));
+			item_list[i].quantity=SDL_SwapLE32(*((Uint32 *)(data+i*8+1+2)));
 			item_list[i].pos=data[i*8+1+6];
 			flags=data[i*8+1+7];
 
@@ -407,7 +407,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 										if(ctrl_on){
 											str[0]=DROP_ITEM;
 											str[1]=item_list[i].pos;
-											*((Uint16 *)(str+2))=item_list[i].quantity;
+											*((Uint16 *)(str+2))=SDL_SwapLE16((short)item_list[i].quantity);
 											my_tcp_send(my_socket, str, 4);
 											return 1;
 										}
@@ -596,8 +596,8 @@ void get_new_inventory_item(Uint8 *data)
 
 	pos= data[6];
 	flags= data[7];
-	image_id=*((Uint16 *)(data));
-	quantity=*((Uint32 *)(data+2));
+	image_id=SDL_SwapLE16(*((Uint16 *)(data)));
+	quantity=SDL_SwapLE32(*((Uint32 *)(data+2)));
 
 	//first, try to see if the items already exists, and replace it
 	for(i=0;i<ITEM_NUM_ITEMS;i++)
@@ -732,8 +732,8 @@ void get_bag_item(Uint8 *data)
 	int	pos;
 	pos= data[6];
 
-	ground_item_list[pos].image_id= *((Uint16 *)(data));
-	ground_item_list[pos].quantity= *((Uint32 *)(data+2));
+	ground_item_list[pos].image_id= SDL_SwapLE16(*((Uint16 *)(data)));
+	ground_item_list[pos].quantity= SDL_SwapLE32(*((Uint32 *)(data+2)));
 	ground_item_list[pos].pos= pos;
 }
 
@@ -759,8 +759,8 @@ void get_bags_items_list(Uint8 *data)
 		{
 			my_offset= i*7+1;
 			pos= data[my_offset+6];
-			ground_item_list[pos].image_id= *((Uint16 *)(data+my_offset));
-			ground_item_list[pos].quantity= *((Uint32 *)(data+my_offset+2));
+			ground_item_list[pos].image_id= SDL_SwapLE16(*((Uint16 *)(data+my_offset)));
+			ground_item_list[pos].quantity= SDL_SwapLE32(*((Uint32 *)(data+my_offset+2)));
 			ground_item_list[pos].pos= pos;
 		}
 }
@@ -805,8 +805,8 @@ void add_bags_from_list(Uint8 *data)
 	for(i=0;i<bags_no;i++)
 		{
 			my_offset=i*5+1;
-			bag_x=*((Uint16 *)(data+my_offset));
-			bag_y=*((Uint16 *)(data+my_offset+2));
+			bag_x=SDL_SwapLE16(*((Uint16 *)(data+my_offset)));
+			bag_y=SDL_SwapLE16(*((Uint16 *)(data+my_offset+2)));
 			bag_id=*((Uint8 *)(data+my_offset+4));
 			if(bag_id>=200)continue;
 			//now, get the Z position
@@ -877,7 +877,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(ground_item_list[pos].quantity){
 				str[0]=PICK_UP_ITEM;
 				str[1]=pos;
-				*((Uint16 *)(str+2))=ground_item_list[pos].quantity;
+				*((Uint16 *)(str+2))=SDL_SwapLE16((short)ground_item_list[pos].quantity);
 				my_tcp_send(my_socket,str,4);
 			}
 		}
@@ -902,7 +902,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 									quantity = item_quantity;
 								str[0] = DROP_ITEM;
 								str[1] = item_list[item_dragged].pos;
-								*((Uint16 *) (str + 2)) = quantity;
+								*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)quantity);
 								my_tcp_send(my_socket, str, 4);
 								if (item_list[item_dragged].quantity - quantity <= 0)
 									item_dragged = -1;
@@ -923,7 +923,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 								str[0]= PICK_UP_ITEM;
 								str[1]= pos;
-								*((Uint16 *)(str+2))= quantity;
+								*((Uint16 *)(str+2))= SDL_SwapLE16((short)quantity);
 								my_tcp_send(my_socket,str,4);
 							}
 						return 1;

@@ -19,8 +19,10 @@
 void do_paste(Uint8 * buffer);
 
 #ifndef WINDOWS
-#include <X11/Xlib.h>
 
+#ifndef OSX
+#include <X11/Xlib.h>
+#endif
 /*!
  * \ingroup hotkey
  * \brief callback used when pasting is started
@@ -53,6 +55,6 @@ void finishpaste(XSelectionEvent event);
  * \callgraph
  */
 void windows_paste();
-#endif
 
+#endif
 #endif
