@@ -533,6 +533,7 @@ void make_lake_water_noise()
 	int x,y;
 	float noise_u,noise_v,noise_z;
 
+	if(no_sound)return;	//ignore the noise if no sound
 	for(x=0;x<16;x++)
 	for(y=0;y<16;y++)
 		{
@@ -553,14 +554,9 @@ void make_lake_water_noise()
 void draw_lake_water_tile(float x_pos, float y_pos)
 {
 	int x,y;
+	float fx,fy;
 	float x_step,y_step;
 	float u_step,v_step;
-
-	float u_noise_start;
-	float u_noise_end;
-	float v_noise_start;
-	float v_noise_end;
-
 	float uv_tile=50;
 
 	x_step=3.0f/16.0f;
@@ -570,11 +566,11 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 	v_step=3.0f/uv_tile;
 
 	glBegin(GL_QUADS);
-	for(y=0;y<16;y++)
+	for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
 		{
-			for(x=0;x<16;x++)
+			for(x=0,fx=x_pos;x<16;fx+=x_step,x++)
 				{
-
+					/*
 					if(y==15 && x!=15)
 					{
  					glTexCoord2f((x_pos+x*x_step)*u_step+noise_array[(y-15)*16+x].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y-15)*16+x].v+water_movement_v);
@@ -631,7 +627,18 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 					glTexCoord2f((x_pos+x*x_step+x_step)*u_step+noise_array[(y+1)*16+x+1].u+water_movement_u, (y_pos+y*y_step+y_step)*v_step+noise_array[(y+1)*16+x+1].v+water_movement_v);
 					glVertex3f(x_pos+x*x_step+x_step, y_pos+y*y_step+y_step,water_deepth_offset);
 					}
+					*/
+ 					glTexCoord2f((fx)*u_step+noise_array[((y+1)&15)*16+x].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+x].v+water_movement_v);
+	 				glVertex3f(fx,fy+y_step, water_deepth_offset);
 
+					glTexCoord2f((fx)*u_step+noise_array[y*16+x].u+water_movement_u, (fy)*v_step+noise_array[y*16+x].v+water_movement_v);
+					glVertex3f(fx,fy, water_deepth_offset);
+
+					glTexCoord2f((fx+x_step)*u_step+noise_array[y*16+((x+1)&15)].u+water_movement_u, (fy)*v_step+noise_array[y*16+((x+1)&15)].v+water_movement_v);
+					glVertex3f(fx+x_step, fy,water_deepth_offset);
+
+					glTexCoord2f((fx+x_step)*u_step+noise_array[((y+1)&15)*16+((x+1)&15)].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+((x+1)&15)].v+water_movement_v);
+					glVertex3f(fx+x_step, fy+y_step,water_deepth_offset);
 
 				}
 
