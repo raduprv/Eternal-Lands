@@ -430,28 +430,35 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				rain_sound=0;//kill local sounds also kills the rain sound
 				weather_light_offset=0;
 				rain_light_offset=0;
-                                { 
-				FILE * fp;
-                                char marks_file[256] , text[600];
+				{ 
+					FILE * fp;
+					char marks_file[256], text[600];
 #ifndef WINDOWS
     				strcpy(marks_file, getenv("HOME"));
     				strcat(marks_file, "/.elc/");
-                                strcat(marks_file,rindex(map_file_name,'/')+1);
+					strcat(marks_file, rindex(map_file_name,'/')+1);
 #else
-                                strcpy(marks_file,rindex(map_file_name,'/')+1);
+					strcpy(marks_file, rindex(map_file_name,'/')+1);
 #endif
-                                strcat(marks_file,".txt");
-                                fp = fopen(marks_file,"r");
-			        max_mark = 0;
-				if ( fp ) {
-				    while ( fgets(text,600,fp) ) {
-				     sscanf(text,"%d %d",&marks[max_mark].x,&marks[max_mark].y);
-				     strncpy(marks[max_mark].text,strstr(strstr(text," ")+1," "),500);
-				     max_mark++;
-				     if ( max_mark >200 ) break;
-				     }
-                            	    fclose(fp);
-				    }
+					strcat(marks_file, ".txt");
+					fp = fopen(marks_file, "r");
+					max_mark = 0;
+					if ( fp )
+					{
+						
+						while ( fgets(text, 600,fp) )
+						{
+							if (strlen (text) > 1) //skip empty lines
+							{
+								sscanf (text, "%d %d", &marks[max_mark].x, &marks[max_mark].y);
+								text[strlen(text)-1] = '\0'; //remove the newline
+								strncpy (marks[max_mark].text, strstr(strstr(text, " ")+1, " ")+1, 500);
+								max_mark++;
+								if ( max_mark > 200 ) break;
+							}
+						}
+						fclose(fp);
+					}
 				}
 
 			}
