@@ -418,8 +418,11 @@ struct cursors_struct cursors_array[20];
 struct harvest_names_struct harvestable_objects[100];
 struct enter_names_struct entrable_objects[100];
 
-int version_first_digit=9;
-int version_second_digit=3;
+char version_string[]=VER_STRING;
+int	version_major_digit=VER_MAJOR;
+int version_first_digit=VER_MINOR;
+int version_second_digit=VER_RELEASE;
+int	version_patch_digit=VER_BUILD;
 
 
 

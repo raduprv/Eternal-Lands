@@ -13,6 +13,7 @@
 #include <SDL/SDL_mixer.h>
 #endif
 
+#include "elc_private.h"
 #include "SDL_opengl.h"
 #include "asc.h"
 #include "md2.h"

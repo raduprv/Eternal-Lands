@@ -102,7 +102,16 @@ void test_for_console_command()
 	if(my_strcompare(text_loc,"ver_"))
 		{
 			char str[128];
-			sprintf(str,"Eternal Lands Version 0.%d.%d Beta",version_first_digit,version_second_digit);
+			char extra[20];
+			if(version_patch_digit > 0)
+				{
+					snprintf(extra,20,".%d Beta",version_patch_digit);
+				}
+			else
+				{
+					snprintf(extra,20," Beta");
+				}
+			sprintf(str,"Eternal Lands Version %d.%d.%d%s",version_major_digit,version_first_digit,version_second_digit,extra);
 			log_to_console(c_green1,str);
 			return;
 		}
