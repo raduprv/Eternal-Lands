@@ -327,6 +327,7 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 	text_message *msg;
 	int nlines = 0, nltmp;
 	int channel = CHANNEL_ALL;
+	int minlen;
 
 	check_chat_text_to_overtext (text_to_add, len);
 	
@@ -352,11 +353,15 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 				nlines--;
 	}
 	
-	if (msg->size < len+8)
+	// Allow for a null byte and a colour code.
+	// If not using windowed chat, allow for up to 8 extra newlines
+	// and colour codes.
+	minlen = use_windowed_chat ? len + 2 : len + 18; 
+	if (msg->size < minlen)
 	{
 		if (msg->data != NULL) free (msg->data);
-		msg->data = malloc (len+8);
-		msg->size = len+8;
+		msg->data = malloc (minlen);
+		msg->size = minlen;
 	}
 	
 	idx = 0;
