@@ -32,6 +32,8 @@ int yourself=-1;
 extern marking marks[200];
 extern int max_mark;
 
+int last_sit=0;
+
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 {
 	int i;
@@ -43,7 +45,11 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 	if(str[0]==MOVE_TO || str[0]==RUN_TO || str[0]==SIT_DOWN || str[0]==HARVEST || str[0]==MANUFACTURE_THIS || str[0]==CAST_SPELL || str[0]==RESPOND_TO_NPC || str[0]==ATTACK_SOMEONE || str[0]==SEND_PM || str[0]==RAW_TEXT)
 		{
 			Uint32	time_limit=600;
-			if( str[0]==SIT_DOWN || str[0]==SEND_PM || str[0]==RAW_TEXT)time_limit=1500;
+			if( str[0]==SEND_PM || str[0]==RAW_TEXT)time_limit=1500;
+			if( str[0]==SIT_DOWN){
+				if(last_sit+1500>cur_time) return 0;
+				last_sit=cur_time;
+			}
 			//if too close together
 			if(len == (int)tcp_cache_len && *str == *tcp_cache && cur_time < tcp_cache_time+time_limit)
 				{
@@ -53,7 +59,6 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 							//ignore this packet
 							return 0;
 						}
-					else if(*str==SIT_DOWN) return 0;
 				}
 			//memorize the data we are sending for next time
 			memcpy(tcp_cache, str, len);
