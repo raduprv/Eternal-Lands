@@ -13,9 +13,9 @@ typedef struct
 typedef struct
 {
 	cache_item_struct	**cached_items;
-	Uint32	num_items;		// the number of active items in the list
-	Uint32	max_item;		// the highest slot used
-	Uint32	num_allocated;	// the allocated space for the list
+	Sint32	num_items;		// the number of active items in the list
+	Sint32	max_item;		// the highest slot used
+	Sint32	num_allocated;	// the allocated space for the list
 	Uint32	LRU_time;		// last time LRU processing done
 	Uint32	total_size;		// total size currently allocated
 	Uint32	time_limit;		// limit on LRU time before forcing a scan

@@ -20,7 +20,7 @@ void cache_system_shutdown()
 
 void cache_dump_sizes(cache_struct *cache)
 {
-	Uint32	i;
+	Sint32	i;
 	Uint8	str[256];
 
 	for(i=0; i<cache->max_item; i++)
@@ -57,7 +57,7 @@ void	cache_system_maint()
 
 Uint32	cache_system_clean()
 {
-	Uint32	i;
+	Sint32	i;
 	Uint32	mem_freed=0;
 
 	if(!cache_system || !cache_system->time_limit || !cache_system->cached_items) return 0;
@@ -76,7 +76,7 @@ Uint32	cache_system_clean()
 
 Uint32	cache_system_compact()
 {
-	Uint32	i;
+	Sint32	i;
 	Uint32	mem_freed=0;
 
 	if(!cache_system || !cache_system->time_limit || !cache_system->cached_items) return 0;
@@ -162,7 +162,7 @@ void cache_set_size_limit(cache_struct *cache, Uint32 size_limit)
 
 void cache_clear_counter(cache_struct *cache)
 {
-	Uint32	i;
+	Sint32	i;
 
 	for(i=0; i<cache->max_item; i++)
 		{
@@ -176,7 +176,7 @@ void cache_clear_counter(cache_struct *cache)
 
 Uint32 cache_clean(cache_struct *cache)
 {
-	Uint32	i;
+	Sint32	i;
 	Uint32	mem_freed=0;
 
 	if(!cache->cached_items || !cache->time_limit || !cache->free_item) return 0;
@@ -201,7 +201,7 @@ Uint32 cache_clean(cache_struct *cache)
 
 Uint32 cache_compact(cache_struct *cache)
 {
-	Uint32	i;
+	Sint32	i;
 	Uint32	freed;
 	Uint32	mem_freed=0;
 
@@ -230,7 +230,7 @@ Uint32 cache_compact(cache_struct *cache)
 // detailed items
 cache_item_struct *cache_find(cache_struct *cache, const Uint8 *name)
 {
-	Uint32	i;
+	Sint32	i;
 
 	if(!cache->cached_items) return 0;
 	for(i=0; i<cache->max_item; i++)
@@ -247,7 +247,7 @@ cache_item_struct *cache_find(cache_struct *cache, const Uint8 *name)
 
 cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item)
 {
-	Uint32	i;
+	Sint32	i;
 
 	if(!cache->cached_items) return 0;
 	for(i=0; i<cache->max_item; i++)
@@ -279,7 +279,7 @@ void *cache_find_item(cache_struct *cache, const Uint8 *name)
 
 void *cache_add_item(cache_struct *cache, Uint8 *name, void *item, Uint32 size)
 {
-	Uint32	i;
+	Sint32	i;
 
 	if(!cache->cached_items) return NULL;
 	//find an empty slot
@@ -390,7 +390,7 @@ void cache_remove(cache_struct *cache, cache_item_struct *item)
 			// special case, at end
 			if(cache->cached_items[cache->max_item-1] == item)
 				{
-					Uint32	i=cache->max_item-1;
+					Sint32	i=cache->max_item-1;
 					// remove it from the list
 					cache->cached_items[i]=NULL;
 					// work backwards to skip over empty slots
@@ -403,7 +403,7 @@ void cache_remove(cache_struct *cache, cache_item_struct *item)
 				}
 			else
 				{
-					Uint32	i;
+					Sint32	i;
 					// start at the end and work backwards
 					for(i=cache->max_item-1; i>=0 ; i--)
 						{
@@ -429,7 +429,7 @@ void cache_remove_item(cache_struct *cache, const Uint8 *name)
 
 void cache_remove_all(cache_struct *cache)
 {
-	Uint32	i;
+	Sint32	i;
 
 	if(!cache->cached_items) return;
 	for(i=cache->max_item-1; i>=0; i--)
@@ -445,7 +445,7 @@ void cache_remove_all(cache_struct *cache)
 
 void cache_remove_unused(cache_struct *cache)
 {
-	Uint32	i;
+	Sint32	i;
 
 	if(!cache->cached_items) return;
 	for(i=cache->max_item-1; i>=0; i--)
