@@ -244,6 +244,10 @@ SOURCE=.\paste.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\pathfinder.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\reflection.c
 # End Source File
 # Begin Source File
@@ -445,6 +449,10 @@ SOURCE=.\particles.h
 # Begin Source File
 
 SOURCE=.\paste.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pathfinder.h
 # End Source File
 # Begin Source File
 
