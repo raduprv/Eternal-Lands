@@ -98,6 +98,35 @@ int widget_set_flags(Uint32 window_id, Uint32 widget_id, Uint32 f)
 	return 0;
 }
 
+int widget_set_size(Uint32 window_id, Uint32 widget_id, float size)
+{
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	while(w->next != NULL){
+		w = w->next;
+		if(w->id == widget_id){
+			w->size = size;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float b)
+{
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	while(w->next != NULL){
+		w = w->next;
+		if(w->id == widget_id){
+			w->r = r;
+			w->g = g;
+			w->b = b;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+
 // Label
 int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 {
@@ -116,10 +145,10 @@ int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 	W->Flags = 0;
 	W->pos_x = x;
 	W->pos_y = y;
-	T->size = 1.0;
-	T->r = -1.0;
-	T->g = -1.0;
-	T->b = -1.0;
+	W->size = 1.0;
+	W->r = -1.0;
+	W->g = -1.0;
+	W->b = -1.0;
 	strncpy(T->text,text,255);
 	W->len_y = (Uint16)(18 * 1.0);
 	W->len_x = (Uint16)(strlen(T->text) * 11 * 1.0);
@@ -139,43 +168,10 @@ int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 int label_draw(widget_list *W)
 {
 	label *l = (label *)W->widget_info;
-	if(l->r != -1.0)
-		glColor3f(l->r,l->g,l->b);
-	draw_string_zoomed(W->pos_x,W->pos_y,(unsigned char *)l->text,1,l->size);
+	if(W->r != -1.0)
+		glColor3f(W->r,W->g,W->b);
+	draw_string_zoomed(W->pos_x,W->pos_y,(unsigned char *)l->text,1,W->size);
 	return 1;
-}
-
-
-int label_set_size(Uint32 window_id, Uint32 widget_id, float size)
-{
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			label *l = (label *)w->widget_info;
-			w->len_y = (Uint16)(18 * size);
-			w->len_x = (Uint16)(strlen(l->text) * 11 * size);
-			l->size = size;
-			return 1;
-		}
-	}
-	return 0;
-}
-
-int label_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float b)
-{
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			label *l = (label *) w->widget_info;
-			l->r = r;
-			l->g = g;
-			l->b = b;
-			return 1;
-		}
-	}
-	return 0;
 }
 
 int label_set_text(Uint32 window_id, Uint32 widget_id, char *text)
@@ -211,7 +207,10 @@ int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uin
 	W->Flags = 0;
 	W->pos_x = x;
 	W->pos_y = y;
-	T->size = 1.0;
+	W->size = 1.0;
+	W->r = 1.0;
+	W->g = 1.0;
+	W->b = 1.0;
 	T->u1 = u1;
 	T->u2 = u2;
 	T->v1 = v1;
@@ -233,30 +232,15 @@ int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uin
 
 }
 
-
 int image_draw(widget_list *W)
 {
 	image *i = (image *)W->widget_info;
 	get_and_set_texture_id(i->id);
-	glColor3f(1.0, 1.0, 1.0);
+	glColor3f(W->r, W->g, W->b);
 	glBegin(GL_QUADS);
-	draw_2d_thing(i->u1, i->v1, i->u2, i->v2, W->pos_x, W->pos_y, W->pos_x + W->len_x, W->pos_y + W->len_y);
+	draw_2d_thing(i->u1, i->v1, i->u2, i->v2, W->pos_x, W->pos_y, W->pos_x + (W->len_x * W->size), W->pos_y + (W->len_y * W->size));
 	glEnd();
 	return 1;
-}
-
-int image_set_size(Uint32 window_id, Uint32 widget_id, float size)
-{
-	widget_list *w = &windows_list.window[window_id].widgetlist;
-	while(w->next != NULL){
-		w = w->next;
-		if(w->id == widget_id){
-			image *l = (image *) w->widget_info;
-			l->size = size;
-			return 1;
-		}
-	}
-	return 0;
 }
 
 int image_set_id(Uint32 window_id, Uint32 widget_id, int id)
