@@ -240,12 +240,13 @@ void turn_music_on();
 void ogg_error(int code);
 
 /*!
- * \addtogroup mutex
- * \name Thread synchronization mutexes */
-/*! \{ */
+ * \ingroup mutex
+ * \name Sound thread synchronization
+ */
+/*! @{ */
 #define	lock_sound_list()	SDL_LockMutex(sound_list_mutex)
 #define	unlock_sound_list()	SDL_UnlockMutex(sound_list_mutex);
-/*! \} */
+/*! @} */
 
 #endif
 
