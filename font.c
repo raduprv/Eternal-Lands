@@ -435,7 +435,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 	glDisable(GL_ALPHA_TEST);	
 }
 
-int reset_soft_breaks (char *str, float zoom, int width)
+int reset_soft_breaks (char *str, int len, float zoom, int width)
 {
 	//displayed_font_x_width=(int)displayed_font_x_size;
 	int font_bit_width;
@@ -451,20 +451,20 @@ int reset_soft_breaks (char *str, float zoom, int width)
 
 	ichar = 0;
 	nlines = 1;
-	while (1)
+	while (ichar < len)
 	{
 		// search the line until it's wider than the screen or
 		// a line break is found
 		line_width = 0.0;
-		for (iline = ichar; str[iline] != '\0'; iline++)
+		for (iline = ichar; iline < len; iline++)
 		{
-			if (str[iline] == '\n') break;
+			if (str[iline] == '\0' || str[iline] == '\n') break;
 			//line_width += zoom * get_char_width (str[iline]);
 			font_bit_width = get_font_width (str[iline]);
 			line_width += (int) (0.5f + font_bit_width * displayed_font_x_size / 12.0f);
 			if (line_width > width) break;
 		}
-		if (str[iline] == '\0') break;
+		if (iline >= len || str[iline] == '\0') break;
 		
 		if (line_width > width)
 		{

@@ -48,18 +48,6 @@ void update_text_windows (int nlines, int channel)
 		update_chat_window (nlines, channel);
 }
 
-void adjust_line_breaks (int new_width)
-{
-	int imsg, ilast;
-	
-	reset_soft_breaks (input_text_line.data, chat_zoom, new_width);
-
-	total_nr_lines = 0;
-	ilast = buffer_full ? DISPLAY_TEXT_BUFFER_SIZE : last_message;
-	for (imsg = 0; imsg <= ilast; imsg++)
-		total_nr_lines += reset_soft_breaks (display_text_buffer[imsg].data, chat_zoom, new_width);
-}
-
 void write_to_log(Uint8 * data,int len)
 {
 	int i,j;
@@ -378,9 +366,9 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 		msg->data[idx++] = 127 + color;
 
 	if (use_windowed_chat)
-		nltmp = reset_soft_breaks (text_to_add, chat_zoom, chat_win_text_width);
+		nltmp = reset_soft_breaks (text_to_add, len, chat_zoom, chat_win_text_width);
 	else if (x_chars_limit <= 0)
-		nltmp = reset_soft_breaks (text_to_add, chat_zoom, window_width - hud_x);
+		nltmp = reset_soft_breaks (text_to_add, len, chat_zoom, window_width - hud_x);
 	else
 		nltmp = 1;
 	

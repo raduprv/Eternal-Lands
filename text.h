@@ -21,6 +21,8 @@ typedef struct
 } text_message;
 
 extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
+extern int last_message;
+extern int buffer_full;
 
 extern float chat_zoom; /*!< zoom factor for chat text */
 
@@ -53,16 +55,6 @@ extern int log_server; /*!< flag stating whether to log server messages or not *
  *      Initializes the text buffers.
  */
 void init_text_buffers ();
-
-/*!
- * \ingroup text_font
- * \brief   Adjusts the soft line breaks in the text buffers
- *
- *      Adjusts the soft line breaks in the text buffers
- *
- * \param new_width the new text width in pixels
- */
-void adjust_line_breaks (int new_width);
 
 /*!
  * \ingroup text_font
