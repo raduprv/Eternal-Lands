@@ -108,7 +108,7 @@ void check_timers()
 			log_to_console(c_red2,"The draw_scene timer is lagging behind or has stopped, restarting it.");
 			SDL_RemoveTimer(draw_scene_timer);
 			draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
-			my_timer_clock=cur_time;
+			last_my_timer=my_timer_clock=SDL_GetTicks();
 		}
 	if((int)(cur_time-misc_timer_clock)>1500)
 		{
@@ -116,7 +116,7 @@ void check_timers()
 			log_to_console(c_red2,"The misc timer is lagging behind or has suddenly stopped, restarting it.");
 			SDL_RemoveTimer(misc_timer);
 			misc_timer = SDL_AddTimer (500, check_misc, NULL);
-			misc_timer_clock=cur_time;
+			misc_timer_clock=SDL_GetTicks();
 		}
 }
 
