@@ -206,7 +206,7 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		create_newchar_root_window ();
 		if (last_display == -1)
 		{
-			create_rules_root_window (newchar_root_win, 15);
+			create_rules_root_window (win->len_x, win->len_y, newchar_root_win, 15);
 			show_window (rules_root_win);
 			interface_mode = INTERFACE_RULES;
 		}
@@ -250,11 +250,11 @@ int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32
 	return 1;
 }
 
-void create_login_root_window ()
+void create_login_root_window (int width, int height)
 {
 	if (login_root_win < 0)
 	{
-		login_root_win = create_window ("Login", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		login_root_win = create_window ("Login", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (login_root_win, ELW_HANDLER_DISPLAY, &display_login_handler);		
 		set_window_handler (login_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_login_handler);		
@@ -262,7 +262,7 @@ void create_login_root_window ()
 		set_window_handler (login_root_win, ELW_HANDLER_KEYPRESS, &keypress_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_RESIZE, &resize_login_handler);
 		
-		resize_window (login_root_win, window_width, window_height);	
+		resize_window (login_root_win, width, height);	
 	}
 }
 

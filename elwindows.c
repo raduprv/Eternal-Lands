@@ -741,9 +741,9 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 	// memorize the size
 	windows_list.window[win_id].len_x= size_x;
 	windows_list.window[win_id].len_y= size_y;
-	// initialize min_len_x and min_len_y to the initial size.
-	windows_list.window[win_id].min_len_x= size_x;
-	windows_list.window[win_id].min_len_y= size_y;
+	// initialize min_len_x and min_len_y to zero. 
+	windows_list.window[win_id].min_len_x= 0;
+	windows_list.window[win_id].min_len_y= 0;
 	// then place the window
 	move_window(win_id, pos_id, pos_loc, pos_x+pwin_x, pos_y+pwin_y);
 
@@ -1067,7 +1067,7 @@ void	toggle_window(int win_id)
 void resize_window (int win_id, int new_width, int new_height)
 {
 	window_info *win;
-	
+		
 	if (win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if (windows_list.window[win_id].window_id != win_id)	return;
 	

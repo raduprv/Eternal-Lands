@@ -4,11 +4,20 @@
 
 int opening_root_win = -1;
 
+int opening_out_id = 40;
+
+int nr_opening_lines;
+
 int display_opening_handler ()
 {
-	draw_console_pic (cons_text);
-	display_console_text ();
-	CHECK_GL_ERRORS();
+	if (SDL_GetAppState () & SDL_APPACTIVE)
+	{
+		int line_start = find_line_nr (nr_text_buffer_lines - nr_opening_lines);
+		
+		text_field_set_buf_offset (opening_root_win, opening_out_id, line_start);
+		draw_console_pic (cons_text);
+		CHECK_GL_ERRORS();
+	}
 
 	draw_delay = 20;
 	return 1;
@@ -53,15 +62,19 @@ int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	return 1;
 }
 
-void create_opening_root_window ()
+void create_opening_root_window (int width, int height)
 {
 	if (opening_root_win < 0)
 	{
-		opening_root_win = create_window ("Opening", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		opening_root_win = create_window ("Opening", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (opening_root_win, ELW_HANDLER_DISPLAY, &display_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_KEYPRESS, &keypress_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_CLICK, &click_opening_handler);
+		
+		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id, NULL, 0, 0, width, height, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, 0, 0, -1.0, -1.0, -1.0);
+		
+		nr_opening_lines = height / 18;
 	}
 }
 

@@ -35,6 +35,17 @@ int current_line = 0;
 int text_changed = 1;
 int nr_displayed_lines;
 
+void sync_chat_and_console ()
+{
+	widget_list *cons = widget_find (console_root_win, console_in_id);
+	widget_list *chat = widget_find (chat_win, chat_in_id);
+	text_field *cons_tf = (text_field *) cons->widget_info;
+	text_field *chat_tf = (text_field *) chat->widget_info;
+
+	cons_tf->buf_fill = chat_tf->buf_fill;
+	cons_tf->cursor = chat_tf->cursor;
+}
+
 void update_chat_scrollbar ()
 {
 	if (chat_win >= 0)
@@ -199,7 +210,7 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 		{
 			if ( (check_var (&(tf->buffer[1]), IN_GAME_VAR) ) < 0)
 			{
-				send_input_text_line (input_text_line, input_text_lenght);
+				send_input_text_line (input_text_line, tf->buf_fill);
 			}
 		}
 		else if ( tf->buffer[0] == '#' || get_show_window (console_root_win) )
@@ -263,6 +274,7 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 		return 0;
 	}
 	
+	sync_chat_and_console ();
 	return 1;
 }
 
@@ -328,6 +340,8 @@ void paste_in_input_field (const Uint8 *text)
 	tf->buf_fill = tf->cursor + nb;
 	
 	reset_soft_breaks (tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+	
+	input_text_lenght = tf->buf_fill;
 }
 
 void display_chat ()

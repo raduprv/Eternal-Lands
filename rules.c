@@ -773,11 +773,11 @@ int resize_rules_root_handler (window_info *win, Uint32 w, Uint32 h)
 	return 1;
 }
 
-void create_rules_root_window (int next, int time)
+void create_rules_root_window (int width, int height, int next, int time)
 {
 	if (rules_root_win < 0)
 	{
-		rules_root_win = create_window ("Rules", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		rules_root_win = create_window ("Rules", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		
 		set_window_handler (rules_root_win, ELW_HANDLER_DISPLAY, &display_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_root_handler);
@@ -786,7 +786,7 @@ void create_rules_root_window (int next, int time)
 		set_window_handler (rules_root_win, ELW_HANDLER_RESIZE, &resize_rules_root_handler);
 		
 		// XXX FIXME (Grum): try to get rid of interface_mode
-		init_rules_interface (next == newchar_root_win ? INTERFACE_NEW_CHAR : INTERFACE_OPENING, 1.0, 2*time, window_width, window_height);
+		init_rules_interface (next == newchar_root_win ? INTERFACE_NEW_CHAR : INTERFACE_OPENING, 1.0, 2*time, width, height);
 		next_win_id = next;
 	}
 }

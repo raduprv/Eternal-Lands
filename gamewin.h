@@ -69,9 +69,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey);
  *
  *      Creates the game window, aka root window of the game
  *
+ * \param width the width of the window
+ * \param height the height of the window
  * \callgraph
  */
-void create_game_root_window ();
+void create_game_root_window (int width, int height);
 
 #endif
 

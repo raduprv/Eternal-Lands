@@ -41,6 +41,14 @@ float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
+#ifndef OLD_EVENT_HANDLER
+void update_text_windows (int nlines)
+{
+	update_console_win (nlines);
+	if (use_windowed_chat) update_chat_scrollbar ();
+}
+#endif
+
 void write_to_log(Uint8 * data,int len)
 {
 	int i,j;
@@ -266,6 +274,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 {
 	int i;
 	Uint8 cur_char;
+	int nlines = 0;
 
 	check_chat_text_to_overtext( text_to_add, len );
 	
@@ -280,7 +289,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 #ifndef OLD_EVENT_HANDLER
 			// First update the nr of lines in the current buffer
 			for (i = 0; i < 1024; i++)
-				if (display_text_buffer[i] == '\n' || display_text_buffer[i] == '\r') nr_text_buffer_lines--;
+				if (display_text_buffer[i] == '\n' || display_text_buffer[i] == '\r') nlines--;
 #endif
 			// Now remove the first 1k characters
 			memmove(display_text_buffer, display_text_buffer+1024, display_text_buffer_last-1024);
@@ -309,8 +318,9 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 			display_text_buffer[i+display_text_buffer_last] = text_to_add[i];
 		display_text_buffer[len+display_text_buffer_last] = '\n';
 		display_text_buffer[len+1+display_text_buffer_last] = '\0';
-		nr_text_buffer_lines += reset_soft_breaks (&(display_text_buffer[display_text_buffer_last]), chat_zoom, chat_win_text_width);
-		update_chat_scrollbar ();
+		nlines = reset_soft_breaks (&(display_text_buffer[display_text_buffer_last]), chat_zoom, chat_win_text_width);
+		nr_text_buffer_lines += nlines;
+		update_text_windows (nlines);
 		display_text_buffer_last += len+1;
 		return;
 	}
@@ -333,16 +343,12 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 						}
 
 					display_text_buffer[i+display_text_buffer_last]=cur_char;
-#ifndef OLD_EVENT_HANDLER
-					if (cur_char == '\n') nr_text_buffer_lines++;
-#endif
+					if (cur_char == '\n') nlines++;
 				}
 			display_text_buffer[display_text_buffer_last+i]='\n';
 			display_text_buffer[display_text_buffer_last+i+1]=0;
 			display_text_buffer_last+=i+1;
-#ifndef OLD_EVENT_HANDLER
-			nr_text_buffer_lines++;
-#endif
+			nlines++;
 		}
 	else//we have to add new lines to our text...
 		{
@@ -403,9 +409,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 							j++;
 							semaphore=0;
 							if(lines_to_show<max_lines_no)lines_to_show++;
-#ifndef OLD_EVENT_HANDLER
-							nr_text_buffer_lines++;
-#endif
+							nlines++;
 						}
 					//don't add another new line, if the current char is already a new line...
 					if(cur_char!='\n')
@@ -418,13 +422,12 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 			display_text_buffer[display_text_buffer_last+j]='\n';
 			display_text_buffer[display_text_buffer_last+j+1]=0;
 			display_text_buffer_last+=j+1;
-#ifndef OLD_EVENT_HANDLER
-			nr_text_buffer_lines++;
-#endif			
+			nlines++;
 		}
 
 #ifndef OLD_EVENT_HANDLER
-	if (use_windowed_chat) update_chat_scrollbar ();
+	nr_text_buffer_lines += nlines;
+	update_text_windows (nlines);
 #endif
 }
 
@@ -723,5 +726,4 @@ void display_console_text()
 											"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^",2);
 	draw_string(0,command_line_y,input_text_line,nr_command_lines);
 }
-
 

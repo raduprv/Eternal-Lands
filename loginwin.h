@@ -5,7 +5,7 @@
 
 extern int login_root_win;
 
-void create_login_root_window ();
+void create_login_root_window (int width, int height);
 
 #endif // not def OLD_EVENT_HANDLER
 

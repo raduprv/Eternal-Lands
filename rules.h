@@ -193,6 +193,19 @@ void reset_rules(rule_string * r);
  */
 void highlight_rule(int type, Uint8 * rules, int no);
 
-void create_rules_root_window ();
+/*!
+ * \ingroup interface_rules
+ * \brief creates and initializes the rules root window
+ *
+ *      Creates and initializes the rules root window
+ *
+ * \param width the width of the window
+ * \param height the height of the window
+ * \param next the ID of the window to open when  the rules are accepted
+ * \param time the timeout in seconds
+ *
+ * \callgraph
+ */
+void create_rules_root_window (int width, int height, int next, int time);
 
 #endif

@@ -6,12 +6,24 @@
 #ifndef __CONSOLE_WIN__
 #define __CONSOLE_WIN__
 
+#ifndef OLD_EVENT_HANDLER
+
 /*! \name windows handlers
  * @{ */
 extern int console_root_win; /*!< handler for the console window */
 /*! @} */
 
-#ifndef OLD_EVENT_HANDLER
+extern int console_in_id; /*!< ID of the console input widget */
+
+/*!
+ * \ingroup interface_console
+ * \brief signals the console window that the text buffer has changed
+ *
+ *      signals the console window that the text buffer has changed
+ *
+ * \callgraph
+ */
+void update_console_win ();
 
 /*!
  * \ingroup interface_console
@@ -19,10 +31,12 @@ extern int console_root_win; /*!< handler for the console window */
  *
  *      Creates and initializes the console window
  *
+ * \param width the width of the window
+ * \param height the height of the window
  * \callgraph
  */
-void create_console_root_window ();
+void create_console_root_window (int width, int height);
 
-#endif
+#endif // not def OLD_EVENT_HANDLER
 
 #endif // def __CONSOLE_WIN__

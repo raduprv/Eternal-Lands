@@ -628,20 +628,23 @@ int display_game_handler (window_info *win)
 	draw_ingame_interface ();
 	
 	CHECK_GL_ERRORS ();
+	
 	// print the text line we are currently writting (if any)
-	y_line = window_height - (17 * (4+input_text_lines));
-	switch(map_type)
-	{
-		case 2:
-			glColor3f (0.6f, 1.0f, 1.0f);
-			break;
-		case 1:
-		default:
-			glColor3f (1.0f, 1.0f, 1.0f);
-	}
-
 	if (!use_windowed_chat)
+	{
+		y_line = win->len_y - (17 * (4+input_text_lines));
+		switch(map_type)
+		{
+			case 2:
+				glColor3f (0.6f, 1.0f, 1.0f);
+				break;
+			case 1:
+			default:
+				glColor3f (1.0f, 1.0f, 1.0f);
+		}
+
 		draw_string (10, y_line, input_text_line, input_text_lines);
+	}
 	
 	Leave2DMode ();
 
@@ -1131,8 +1134,13 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (keysym == SDLK_F10)
 	{
 		int iwin;
+		widget_list *l;
 		for (iwin = 0; iwin < windows_list.num_windows; iwin++)
-			printf ("%s: order = %d, parent = %d, pos = (%d, %d), cur_pos = (%d, %d)\n", windows_list.window[iwin].window_name, windows_list.window[iwin].order, windows_list.window[iwin].pos_id, windows_list.window[iwin].pos_x, windows_list.window[iwin].pos_y, windows_list.window[iwin].cur_x, windows_list.window[iwin].cur_y);
+		{
+			printf ("%s: id = %d, order = %d, parent = %d, pos = (%d, %d), cur_pos = (%d, %d)\n", windows_list.window[iwin].window_name, windows_list.window[iwin].window_id, windows_list.window[iwin].order, windows_list.window[iwin].pos_id, windows_list.window[iwin].pos_x, windows_list.window[iwin].pos_y, windows_list.window[iwin].cur_x, windows_list.window[iwin].cur_y);
+			for (l = windows_list.window[iwin].widgetlist; l; l=l->next)
+				printf ("\t%d\n", l->id);
+		}
 	}
 #endif			
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1170,11 +1178,11 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	return 1;
 }
 
-void create_game_root_window ()
+void create_game_root_window (int width, int height)
 {
 	if (game_root_win < 0)
 	{
-		game_root_win = create_window ("Game", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		game_root_win = create_window ("Game", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		
         	set_window_handler (game_root_win, ELW_HANDLER_DISPLAY, &display_game_handler);
         	set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
@@ -1185,4 +1193,4 @@ void create_game_root_window ()
 	}
 }
 
-#endif
+#endif // not def OLD_EVENT_HANDLER

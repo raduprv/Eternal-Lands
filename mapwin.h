@@ -41,9 +41,11 @@ extern marking marks[200]; /*!< a global array of marks */
  *
  *      Creates the map window
  *
+ * \param width the width of the window
+ * \param height the height of the window
  * \callgraph
  */
-void create_map_root_window ();
+void create_map_root_window (int width, int height);
 
 #endif
 

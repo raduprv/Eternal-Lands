@@ -305,7 +305,7 @@ int draw_font_char_scaled (int font, unsigned char ch, int x, int y, float zoom)
 
 void draw_string_clipped(int x, int y, const unsigned char * our_string, int width, int height)
 {
-	draw_string_zoomed_clipped (x, y, our_string, -1, height, width, 1.0f);
+	draw_string_zoomed_clipped (x, y, our_string, -1, width, height, 1.0f);
 }
 
 void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, int cursor_pos, int width, int height, float text_zoom)
@@ -317,7 +317,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 	int i;
 	int cur_x, cur_y;
 	int cursor_x = x-1, cursor_y = y-1;
-	
+		
 	if (width < displayed_font_x_size || height < displayed_font_y_size)
 		// no point in trying
 		return;
@@ -376,7 +376,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 	{
 		draw_char_scaled ('_', cursor_x, cursor_y, displayed_font_x_size, displayed_font_y_size);
 	}
-
+	
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
 	
