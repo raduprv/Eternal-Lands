@@ -8,10 +8,12 @@ int replace_window_y_len=90;
 int replace_window_win=0;
 
 #ifdef X86_64
-long int oid=-1,nid=-1, mode=1;
+typedef long int INT;
 #else
-int oid=-1,nid=-1, mode=1;
+typedef int INT;
 #endif
+
+INT oid=-1,nid=-1, mode=1;
 char cOid[100],cNid[100];
 
 //buttons
@@ -109,19 +111,13 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
    
    if(x>d1_x1 && x<=d1_x2 && y>d1_y1 && y<=d1_y2){
 	  
-	   if(selected_3d_object!=-1 && mode==3){
-#ifdef X86_64
-		   oid=(long int)objects_list[selected_3d_object]->e3d_data;
-#else
-		   oid=(int)objects_list[selected_3d_object]->e3d_data;
-#endif
-		   strcpy(cOid,objects_list[selected_3d_object]->file_name);
+	   if(selected_particles_object!=-1 && mode==4){
+		   	oid=(INT)particles_list[selected_particles_object]->def;
+	   }else if(selected_3d_object!=-1 && mode==3){
+		   	oid=(INT)objects_list[selected_3d_object]->e3d_data;
+		   	strcpy(cOid,objects_list[selected_3d_object]->file_name);
 	   }else if(selected_2d_object!=-1 && mode==2){
-#ifdef X86_64
-			oid=(long int)obj_2d_list[selected_2d_object]->obj_pointer;
-#else
-			oid=(int)obj_2d_list[selected_2d_object]->obj_pointer;
-#endif
+			oid=(INT)obj_2d_list[selected_2d_object]->obj_pointer;
 			strcpy(cOid,obj_2d_list[selected_2d_object]->file_name);
 	   }else if(selected_tile!=255 && mode==1){
 			oid=selected_tile;
@@ -129,19 +125,13 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 
    }
    if(x>d2_x1 && x<=d2_x2 && y>d2_y1 && y<=d2_y2){
-	   if(selected_3d_object!=-1  && mode==3){
-#ifdef X86_64
-		   nid=(long int)objects_list[selected_3d_object]->e3d_data;
-#else
-		   nid=(int)objects_list[selected_3d_object]->e3d_data;
-#endif
-		   strcpy(cNid,objects_list[selected_3d_object]->file_name);
+	   if(selected_particles_object!=-1 && mode==4){
+		   	nid=(INT)particles_list[selected_particles_object]->def;
+	   }else if(selected_3d_object!=-1  && mode==3){
+		   	nid=(INT)objects_list[selected_3d_object]->e3d_data;
+		   	strcpy(cNid,objects_list[selected_3d_object]->file_name);
 	   }else if(selected_2d_object!=-1 && mode==2){
-#ifdef X86_64
-			nid=(long int)obj_2d_list[selected_2d_object]->obj_pointer;
-#else
-			nid=(int)obj_2d_list[selected_2d_object]->obj_pointer;
-#endif
+			nid=(INT)obj_2d_list[selected_2d_object]->obj_pointer;
 			strcpy(cNid,obj_2d_list[selected_2d_object]->file_name);
 	   }else if(selected_tile!=255 && mode==1){
 			nid=selected_tile;
@@ -151,14 +141,26 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 
 	if(x>d3_x1 && x<=d3_x2 && y>d3_y1 && y<=d3_y2 && oid!=-1 && nid!=-1){
 		int i=0;
-		if(mode==3  && nid!=-1 && oid!=-1){
+		if(mode==4  && nid!=-1 && oid!=-1){
+			lock_particles_list();
+			for(;i<max_particle_systems;i++){
+				if(particles_list[i]){
+					if((INT)particles_list[i]->def==oid){
+						int j;
+						particle_sys_def *def=(particle_sys_def*)nid;
+						particles_list[i]->def=def;
+						particles_list[i]->particle_count=def->total_particle_no;
+						particles_list[i]->ttl=def->ttl;
+						memset(particles_list[i]->particles,0,max_particles);
+						for(j=0;j<def->total_particle_no;j++)create_particle(particles_list[i],&(particles_list[i]->particles[j]));
+					}
+				}
+			}
+			unlock_particles_list();
+		}else if(mode==3  && nid!=-1 && oid!=-1){
 			for(;i<max_obj_3d;i++){
 				if(objects_list[i]){
-#ifdef X86_64
-					if((long int)objects_list[i]->e3d_data==oid){
-#else
-					if((int)objects_list[i]->e3d_data==oid){
-#endif
+					if((INT)objects_list[i]->e3d_data==oid){
 						objects_list[i]->e3d_data=(e3d_object *)nid;
 						strcpy(objects_list[i]->file_name,cNid);
 					}
@@ -167,11 +169,7 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 		}else if(mode==2  && nid!=-1 && oid!=-1){
 			for(;i<max_obj_2d;i++){
 				if(obj_2d_list[i]){
-#ifdef X86_64
-					if((long int)obj_2d_list[i]->obj_pointer==oid){
-#else
-					if((int)obj_2d_list[i]->obj_pointer==oid){
-#endif
+					if((INT)obj_2d_list[i]->obj_pointer==oid){
 						obj_2d_list[i]->obj_pointer=(obj_2d_def *)nid;
 						strcpy(obj_2d_list[i]->file_name,cNid);
 					}
@@ -190,7 +188,7 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 		mode++;
 		nid=-1;
 		oid=-1;
-		if(mode>3)mode=1;
+		if(mode>4)mode=1;
 
 	}
 	  
