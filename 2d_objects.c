@@ -83,11 +83,11 @@ void draw_2d_object(obj_2d * object_id)
 			float cos_m,sin_m;
 
 			//bind the detail texture
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, 
 						  texture_cache[ground_detail_text].texture_id);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
 			glBegin(GL_QUADS);
@@ -103,8 +103,8 @@ void draw_2d_object(obj_2d * object_id)
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
-			glMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_start,v_start);
-			glMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
+			ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_start,v_start);
+			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
 								 +clouds_movement_u,y1/texture_scale 
 								 +clouds_movement_v);
 			glVertex3f(render_x_start,render_y_start,z_pos);
@@ -116,8 +116,8 @@ void draw_2d_object(obj_2d * object_id)
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
-			glMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_start,v_end);
-			glMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale 
+			ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_start,v_end);
+			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale 
 								 +clouds_movement_u,y1/texture_scale
 								 +clouds_movement_v);
 			glVertex3f(render_x_start,render_y_start+y_size,z_pos);
@@ -129,8 +129,8 @@ void draw_2d_object(obj_2d * object_id)
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
-			glMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_end,v_end);
-			glMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
+			ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_end,v_end);
+			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
 								 +clouds_movement_u,y1/texture_scale
 								 +clouds_movement_v);
 			glVertex3f(render_x_start+x_size,render_y_start+y_size,z_pos);
@@ -143,16 +143,16 @@ void draw_2d_object(obj_2d * object_id)
 			y1=y_pos+y1;
 
 
-			glMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_end,v_start);
-			glMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
+			ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,u_end,v_start);
+			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
 								 +clouds_movement_u,y1/texture_scale
 								 +clouds_movement_v);
 			glVertex3f(render_x_start+x_size,render_y_start,z_pos);
     		glEnd();
     		//disable the multitexturing
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glDisable(GL_TEXTURE_2D);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 
     glDisable(GL_ALPHA_TEST);

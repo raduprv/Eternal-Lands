@@ -114,9 +114,9 @@ void draw_3d_object(object3d * object_id)
 									LogError(str);
 								}
 #endif	// DEBUG
-						if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+						if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 						glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-						if(have_compiled_vertex_array)glUnlockArraysEXT();
+						if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 	check_gl_errors();
 						}
 					glDisableClientState(GL_NORMAL_ARRAY);
@@ -145,9 +145,9 @@ void draw_3d_object(object3d * object_id)
 									LogError(str);
 								}
 #endif	// DEBUG
-						if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+						if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 						glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-						if(have_compiled_vertex_array)glUnlockArraysEXT();
+						if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 	check_gl_errors();
 						}
 				}
@@ -156,10 +156,10 @@ void draw_3d_object(object3d * object_id)
 		}
 	else//draw a texture detail
 		{
-			glClientActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglClientActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2,GL_FLOAT,0,clouds_uv);
-			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglClientActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
 
@@ -179,9 +179,9 @@ void draw_3d_object(object3d * object_id)
 									glBindTexture(GL_TEXTURE_2D, texture_id);
 									last_texture=texture_id;
 								}
-							if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-							if(have_compiled_vertex_array)glUnlockArraysEXT();
+							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 	check_gl_errors();
 						}
 					glDisableClientState(GL_NORMAL_ARRAY);
@@ -213,16 +213,16 @@ void draw_3d_object(object3d * object_id)
 									log_error(str);
 								}
 #endif	// DEBUG
-							if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-							if(have_compiled_vertex_array)glUnlockArraysEXT();
+							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 	check_gl_errors();
 						}
 				}
 
-			glClientActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglClientActiveTextureARB(GL_TEXTURE1_ARB);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglClientActiveTextureARB(GL_TEXTURE0_ARB);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	glPopMatrix();//restore the scene
@@ -359,10 +359,10 @@ void display_objects()
 	if(have_multitexture && clouds_shadows)
 		{
 			//bind the detail texture
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
 		}
@@ -411,9 +411,9 @@ void display_objects()
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glDisable(GL_TEXTURE_2D);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 	check_gl_errors();
 

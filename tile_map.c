@@ -12,10 +12,10 @@ void draw_tile_map()
 	if(have_multitexture && clouds_shadows)
 		{
 			//bind the detail texture
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 		}
 
@@ -88,20 +88,20 @@ void draw_tile_map()
 									last_texture=cur_texture;
 								}
 							//draw our normal tile
- 							glMultiTexCoord2fARB(GL_TEXTURE0_ARB,0, 1.0f);
- 							glMultiTexCoord2fARB(GL_TEXTURE1_ARB,x_scaled/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
+ 							ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,0, 1.0f);
+ 							ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x_scaled/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
 			 				glVertex3f(x_scaled,y_scaled+3, 0.0f);
 
-							glMultiTexCoord2fARB(GL_TEXTURE0_ARB,0, 0);
-							glMultiTexCoord2fARB(GL_TEXTURE1_ARB,x_scaled/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
+							ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,0, 0);
+							ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x_scaled/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
 							glVertex3f(x_scaled,y_scaled, 0.0f);
 
-							glMultiTexCoord2fARB(GL_TEXTURE0_ARB,1.0f, 0);
-							glMultiTexCoord2fARB(GL_TEXTURE1_ARB,(x_scaled+3.0f)/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
+							ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,1.0f, 0);
+							ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,(x_scaled+3.0f)/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
 							glVertex3f(x_scaled+3, y_scaled,0.0f);
 
-							glMultiTexCoord2fARB(GL_TEXTURE0_ARB,1.0f, 1.0f);
-							glMultiTexCoord2fARB(GL_TEXTURE1_ARB,(x_scaled+3.0)/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
+							ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,1.0f, 1.0f);
+							ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,(x_scaled+3.0)/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
 							glVertex3f(x_scaled+3, y_scaled+3,0.0f);
 						}
 				}
@@ -111,9 +111,9 @@ void draw_tile_map()
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glDisable(GL_TEXTURE_2D);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 }
 

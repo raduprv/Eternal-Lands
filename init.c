@@ -342,37 +342,53 @@ void init_stuff()
 	if(!no_sound)init_sound();
 
 	//now load the multitexturing extension
-#ifdef WINDOWS
-	glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
-	glMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
-	glMultiTexCoord2fvARB	= (PFNGLMULTITEXCOORD2FVARBPROC)	SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
-	glClientActiveTextureARB= (PFNGLCLIENTACTIVETEXTUREARBPROC)	SDL_GL_GetProcAddress("glClientActiveTextureARB");
-	glLockArraysEXT			= (PFNGLLOCKARRAYSEXTPROC)			SDL_GL_GetProcAddress("glLockArraysEXT");
-	glUnlockArraysEXT		= (PFNGLUNLOCKARRAYSEXTPROC)		SDL_GL_GetProcAddress("glUnlockArraysEXT");
-#endif
+	//#ifdef WINDOWS
+	ELglActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
+	ELglMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
+	ELglMultiTexCoord2fvARB	= (PFNGLMULTITEXCOORD2FVARBPROC)	SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
+	ELglClientActiveTextureARB= (PFNGLCLIENTACTIVETEXTUREARBPROC)	SDL_GL_GetProcAddress("glClientActiveTextureARB");
+	ELglLockArraysEXT			= (PFNGLLOCKARRAYSEXTPROC)			SDL_GL_GetProcAddress("glLockArraysEXT");
+	ELglUnlockArraysEXT		= (PFNGLUNLOCKARRAYSEXTPROC)		SDL_GL_GetProcAddress("glUnlockArraysEXT");
+	//#endif
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
 	ext_str_len=strlen(extensions);
-	have_multitexture=get_string_occurance("GL_ARB_multitexture",extensions,ext_str_len,0);
-	if(have_multitexture==-1)
+	if(ELglActiveTextureARB && ELglMultiTexCoord2fARB && ELglMultiTexCoord2fvARB && ELglClientActiveTextureARB)
 		{
-			have_multitexture=0;
-			log_to_console(c_red1,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...");
+			have_multitexture=get_string_occurance("GL_ARB_multitexture",extensions,ext_str_len,0);
+			if(have_multitexture==-1)
+				{
+					have_multitexture=0;
+					log_to_console(c_red1,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...");
+				}
+			else
+				{
+					have_multitexture=1;
+					log_to_console(c_green2,"GL_ARB_multitexture extension found, using it");
+				}
 		}
 	else
 		{
-			have_multitexture=1;
-			log_to_console(c_green2,"GL_ARB_multitexture extension found, using it");
+			have_multitexture=0;
+			log_to_console(c_red1,"Couldn't find one of the GL_ARB_multitexture functions, giving up clouds shadows, and texture detail...");
 		}
-	have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
-	if(have_compiled_vertex_array < 0)
+	if(ELglLockArraysEXT && ELglUnlockArraysEXT)
+		{
+			have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
+			if(have_compiled_vertex_array < 0)
+				{
+					have_compiled_vertex_array=0;
+					log_to_console(c_red1,"Couldn't find the GL_EXT_compiled_vertex_array extension, not using it...");
+				}
+			else log_to_console(c_green2,"GL_EXT_compiled_vertex_array extension found, using it...");
+		}
+	else
 		{
 			have_compiled_vertex_array=0;
-			log_to_console(c_red1,"Couldn't find the GL_EXT_compiled_vertex_array extension, not using it...");
-		}
-	else log_to_console(c_green2,"GL_EXT_compiled_vertex_array extension found, using it...");
+			log_to_console(c_red1,"Couldn't find one of the GL_EXT_compiled_vertex_array functions, not using it...");
 
+		}
 	check_gl_errors();
 
 

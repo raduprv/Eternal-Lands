@@ -8,12 +8,16 @@
 #ifdef WINDOWS
 #include <al.h>
 #include <alut.h>
+#include "SDL_opengl.h"
 #elif defined(OSX)
 #include <OpenAL/alut.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 #else
 #include <AL/al.h>
 #include <AL/alut.h>
-#define	GL_GLEXT_PROTOTYPES	1
+#include <GL/gl.h>
+#include <GL/glu.h>
 #endif //WINDOWS
 
 #ifndef	NO_MUSIC
@@ -24,7 +28,6 @@
 #endif	//NO_MUSIC
 
 #include "elc_private.h"
-#include "SDL_opengl.h"
 #include "asc.h"
 #include "md2.h"
 #include "actors.h"
@@ -199,14 +202,14 @@ int check_tile_in_frustrum(float x,float y);
 void draw_ingame_string(float x, float y,unsigned char * our_string,int max_lines,int big);
 void init_colors();
 
-#ifdef WINDOWS
-extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
-extern PFNGLMULTITEXCOORD2FVARBPROC		glMultiTexCoord2fvARB;
-extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
-extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
-extern PFNGLLOCKARRAYSEXTPROC			glLockArraysEXT;
-extern PFNGLUNLOCKARRAYSEXTPROC			glUnlockArraysEXT;
-#endif
+//#ifdef WINDOWS
+extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
+extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
+extern void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
+extern void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
+extern void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
+extern void (APIENTRY * ELglUnlockArraysEXT) (void);
+//#endif
 
 extern int shift_on;
 extern int alt_on;

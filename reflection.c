@@ -176,9 +176,9 @@ void draw_3d_reflection(object3d * object_id)
 					glBindTexture(GL_TEXTURE_2D, texture_id);
 				}
 			check_gl_errors();
-			if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+			if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-			if(have_compiled_vertex_array)glUnlockArraysEXT();
+			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 
 	check_gl_errors();

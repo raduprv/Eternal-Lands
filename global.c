@@ -395,14 +395,14 @@ char home[100];
 char datadir[200];
 
 //extensions
-#ifdef WINDOWS//linux has those functins already...
-PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB	= NULL;
-PFNGLMULTITEXCOORD2FVARBPROC	glMultiTexCoord2fvARB	= NULL;
-PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB		= NULL;
-PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB= NULL;
-PFNGLLOCKARRAYSEXTPROC			glLockArraysEXT			= NULL;
-PFNGLUNLOCKARRAYSEXTPROC		glUnlockArraysEXT		= NULL;
-#endif
+//#ifdef WINDOWS//linux has those functins already...
+void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
+void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
+void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
+void (APIENTRY * ELglUnlockArraysEXT) (void);
+//#endif
 
 int have_multitexture=0;
 float clouds_movement_u=-8;

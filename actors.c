@@ -277,9 +277,9 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 
 			check_gl_errors();
-			if(have_compiled_vertex_array)glLockArraysEXT(0, numFaces*3);
+			if(have_compiled_vertex_array)ELglLockArraysEXT(0, numFaces*3);
 			glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
-			if(have_compiled_vertex_array)glUnlockArraysEXT();
+			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 	else
 #endif	//USE_VERTEXARRAYS

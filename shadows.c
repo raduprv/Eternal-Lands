@@ -112,9 +112,9 @@ void draw_3d_object_shadow(object3d * object_id)
 							glBindTexture(GL_TEXTURE_2D, texture_id);
 						}
 				}
-			if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+			if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-			if(have_compiled_vertex_array)glUnlockArraysEXT();
+			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 
 	glPopMatrix();//restore the scene
@@ -147,9 +147,9 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 	if(use_vertex_array && model_data->offsetFrames[frame].vertex_array)
 		{
 			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
-			if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
+			if(have_compiled_vertex_array)ELglLockArraysEXT(0, model_data->numFaces*3);
 			glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
-			if(have_compiled_vertex_array)glUnlockArraysEXT();
+			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 	else
 #endif	//USE_VERTEXARRAYS
@@ -342,10 +342,10 @@ void display_3d_ground_objects()
 	if(have_multitexture && clouds_shadows)
 		{
 			//bind the detail texture
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
 		}
@@ -386,9 +386,9 @@ void display_3d_ground_objects()
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glDisable(GL_TEXTURE_2D);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -411,10 +411,10 @@ void display_3d_non_ground_objects()
 	if(have_multitexture && clouds_shadows)
 		{
 			//bind the detail texture
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
 		}
@@ -455,9 +455,9 @@ void display_3d_non_ground_objects()
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit
-			glActiveTextureARB(GL_TEXTURE1_ARB);
+			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glDisable(GL_TEXTURE_2D);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
