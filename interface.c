@@ -91,7 +91,8 @@ void get_world_x_y()
 
 
 
-	x=(float)(mouse_x*3.0*zoom_level/window_width)-(9.0*zoom_level/6.0f);
+	//x=(float)(mouse_x*3.0*zoom_level/window_width)-(9.0*zoom_level/6.0f);
+	x-=(float)((window_width-mouse_x)*2.8f*zoom_level/window_width)-(2.8*zoom_level/2.0f);
 	y=(float)((window_height-mouse_y)*2.0f*zoom_level/window_height)-(2.0*zoom_level/2.0f);
 
 	a=(rz)*3.1415926/180;
