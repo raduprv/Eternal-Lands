@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-#ifdef	GNUC
+#ifdef	__GNUC__
 #include <unistd.h>
 #endif
 
@@ -108,9 +108,9 @@ extern char *optarg;
 extern int optind, opterr, optopt;
 
 #ifdef WINDOWS
-int Main(int argc, const char **argv)
+int Main(int argc, char **argv)
 #else
-int main(int argc, const char **argv)
+int main(int argc, char **argv)
 #endif
 {
 	int c= 0;
@@ -119,7 +119,7 @@ int main(int argc, const char **argv)
     init_stuff();
 
 	// put this back in after windows compiling doesn't complain
-#ifdef	GNUC
+#ifdef	__GNUC__
 	// args processed after the init to override initialization
 	// NOTE: under Dev-C++ -liberty needs to be added to compile,
 	// 		 other compilers may need different options
@@ -154,7 +154,7 @@ int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 	// supposed to work in theory, untested
 	argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-	Main(argc, (const char **) argv);
+	Main(argc, (char **) argv);
 	return 0;
 }
 
