@@ -532,9 +532,9 @@ void save_bin_cfg()
 		cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
 	}
 
-	if(quest_win) {
-		cfg_mem.questlog_menu_x=windows_list.window[quest_win].cur_x;
-		cfg_mem.questlog_menu_y=windows_list.window[quest_win].cur_y;
+	if(questlog_win) {
+		cfg_mem.questlog_menu_x=windows_list.window[questlog_win].cur_x;
+		cfg_mem.questlog_menu_y=windows_list.window[questlog_win].cur_y;
 	} else {
 		cfg_mem.questlog_menu_x=questlog_menu_x;
 		cfg_mem.questlog_menu_y=questlog_menu_y;

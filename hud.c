@@ -615,7 +615,7 @@ int	display_icons_handler(window_info *win)
 		draw_2d_thing(encyclopedia_icon_u_start, encyclopedia_icon_v_start, encyclopedia_icon_u_end, encyclopedia_icon_v_end,
 					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
 
-	if(get_show_window(quest_win) || (in_window && icon_cursor_x>questlog_icon_x_start && icon_cursor_x<questlog_icon_x_end))
+	if(get_show_window(questlog_win) || (in_window && icon_cursor_x>questlog_icon_x_start && icon_cursor_x<questlog_icon_x_end))
 		draw_2d_thing(colored_questlog_icon_u_start, colored_questlog_icon_v_start, colored_questlog_icon_u_end, colored_questlog_icon_v_end,
 					  questlog_icon_x_start, questlog_icon_y_start, questlog_icon_x_end, questlog_icon_y_end);
 	else
@@ -751,8 +751,8 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	else if(mx>questlog_icon_x_start && mx<questlog_icon_x_end)
 		{
-			if(!quest_win) display_questlog();
-			else toggle_window(quest_win);
+			if(!questlog_win) display_questlog();
+			else toggle_window(questlog_win);
 		}
 	else if(mx>console_icon_x_start && mx<console_icon_x_end)
 		{
