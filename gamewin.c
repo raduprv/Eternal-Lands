@@ -148,6 +148,26 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	int flag_right = flags & ELW_RIGHT_MOUSE;
 	int force_walk = (flag_ctrl && flag_right);
 	
+	if (flags & ELW_WHEEL_UP)
+	{
+		if (camera_zoom_dir == -1)
+			camera_zoom_frames += 5;
+		else
+			camera_zoom_frames = 5;
+		camera_zoom_dir = -1;
+		return 1;
+	}
+	
+	if (flags & ELW_WHEEL_DOWN)
+	{
+		if (camera_zoom_dir == 1)
+			camera_zoom_frames += 5;
+		else
+			camera_zoom_frames = 5;
+		camera_zoom_dir = 1;
+		return 1;
+	}
+	
 	if (!force_walk)
 	{
 		if (flag_right) 

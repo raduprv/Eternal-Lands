@@ -126,8 +126,7 @@ int HandleEvent (SDL_Event *event)
 				if (event->button.button == SDL_BUTTON_RIGHT)
 					right_click++;
 			}
-			else if (event->type == SDL_MOUSEMOTION && (event->motion.state
-													  & SDL_BUTTON(SDL_BUTTON_RIGHT)))
+			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)))
 				right_click++;
 			else
 				right_click= 0;
@@ -137,8 +136,7 @@ int HandleEvent (SDL_Event *event)
 				if (event->button.button == SDL_BUTTON_MIDDLE)
 					middle_click++;
 			}
-			else if (event->type == SDL_MOUSEMOTION && (event->motion.state
-													  & SDL_BUTTON(SDL_BUTTON_MIDDLE)))
+			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_MIDDLE)))
 				middle_click++;
 			else
 				middle_click= 0;
@@ -158,6 +156,14 @@ int HandleEvent (SDL_Event *event)
 			if (middle_click) flags |= ELW_MID_MOUSE;
 			if (right_click) flags |= ELW_RIGHT_MOUSE;
 
+			if (event->type == SDL_MOUSEBUTTONDOWN)
+			{
+				if (event->button.button == SDL_BUTTON_WHEELUP)
+					flags |= ELW_WHEEL_UP;
+				else if (event->button.button == SDL_BUTTON_WHEELDOWN)
+					flags |= ELW_WHEEL_DOWN;
+			}
+
 			if (left_click >= 1)
 			{
 				if (drag_windows (mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)
@@ -166,42 +172,9 @@ int HandleEvent (SDL_Event *event)
 					return done;
 			}
 
-			if(left_click==1 || right_click==1)
+			if ( left_click==1 || right_click==1 || (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
 				click_in_windows (mouse_x, mouse_y, flags);
 
-			if (event->type == SDL_MOUSEBUTTONDOWN)
-			{
-				if (event->button.button == SDL_BUTTON_WHEELUP)
-				{
-					if (interface_mode == INTERFACE_CONSOLE)
-					{
-						console_move_up ();
-					}
-					else
-					{
-						if (camera_zoom_dir == -1)
-							camera_zoom_frames += 5;
-						else
-							camera_zoom_frames = 5;
-						camera_zoom_dir = -1;
-					}
-				}
-				if (event->button.button == SDL_BUTTON_WHEELDOWN)
-				{
-					if (interface_mode == INTERFACE_CONSOLE)
-					{
-						console_move_down();
-					}
-					else
-					{
-						if(camera_zoom_dir == 1)
-							camera_zoom_frames += 5;
-						else
-							camera_zoom_frames = 5;
-						camera_zoom_dir = 1;
-					}
-				}
-			}
 			break;
 			
 		case SDL_USEREVENT:
