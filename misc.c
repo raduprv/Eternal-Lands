@@ -1008,7 +1008,7 @@ void save_particle_def_file()
 		proper_path[0]='.';
 		for(i=app_dir_len;i<fn_len;i++,j++)proper_path[j+1]=szFileName[i];
 		proper_path[j+1]=0;
-
+		strcpy(def.file_name,szFileName);
 		save_particle_def(&def);
     }
 }
