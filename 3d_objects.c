@@ -376,7 +376,7 @@ void display_objects()
                      				draw_3d_object(object_id);
 	//check_gl_errors();
 									if (read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, radius))
-										anything_under_the_mouse(i, UNDER_MOUSE_3D_OBJ);
+										anything_under_the_mouse(sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k], UNDER_MOUSE_3D_OBJ);
 	//check_gl_errors();
 								}
 						}
