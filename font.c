@@ -365,6 +365,11 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 	while(1)
 		{
 			cur_char=our_string[i];
+			//NV testing patch
+			if(cur_char == '-' && our_string[i+1])
+				{
+					cur_char=127+c_yellow2;
+				}
 			if(!cur_char)
 				{
 					break;
@@ -377,6 +382,10 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 					current_lines++;
 					if(current_lines>=max_lines)break;
 					continue;
+				}
+			else if(cur_char >127 && cur_char<=127+c_grey4)
+				{
+					glEnd();	//Ooops - NV bug fix!!
 				}
 			/*
 			if(cur_char>127+c_grey4)
@@ -516,6 +525,10 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 
 					//cur_x+=displayed_font_x_size;
 					cur_x+=displayed_font_x_width;
+				}
+			else if(cur_char >127 && cur_char<=127+c_grey4)
+				{
+					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
 				}
 
 			i++;
