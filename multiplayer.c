@@ -629,8 +629,7 @@ int recvpacket()
 {
 	int len, total, size;
 
-	//int i;
-	//for(i=0;i<4096;i++)in_data[i]=0;
+	//clear the memory if flagged it is a new data packet
 	if(in_data_used == 0)
 		{
 			// clear the buffer
@@ -641,7 +640,7 @@ int recvpacket()
 	if(in_data_used < 3)
 		{
 			total=SDLNet_TCP_Recv(my_socket, in_data+in_data_used, 3-in_data_used);
-			if(total==-1)return 0;	// no data to read - return
+			if(total<=-1)return 0;	// no data to read - return and error
 			in_data_used+=total;	// adjust for what we have already;
 			total=in_data_used;
 			if(total<3)
@@ -653,6 +652,7 @@ int recvpacket()
 						}
 					else
 						{
+							log_to_console(c_red2,"Packet underrun");
 							return 0;	// fatal error, disconnect?
 						}
 				}
@@ -664,19 +664,24 @@ int recvpacket()
 
 	size=(*((short *)(in_data+1)))+2;
 	if(size >= 4096-3){	//watch for fatal errors
-		if(total > 0)log_to_console(c_red2,"Packet overrun ... data lost!");
-		while(total<size) {
+		/*if(total > 0)*/log_to_console(c_red2,"Packet overrun ... data lost!");
+		/*while(total<size) {
 			len=SDLNet_TCP_Recv(my_socket, in_data, (size-total > 4096)?4096:size-total);
 			if(len<=0) return 0; // Disconnected?
 			total+=len;
 		}
 		in_data_used=0;	// get ready for a new packet
-		return 0;
+		*/
+		return 0;	// and force a disconnect
 	}
 	//see if more data needs to be read
 	while(total<size) {
 		len=SDLNet_TCP_Recv(my_socket, in_data+total, size-total);
-		if(len<=0) return 0; // Disconnected?
+		if(len<=0)
+  			{
+  				log_to_console(c_red2,"link loss");
+ 				return 0; // Disconnected?
+ 			}
 		total+=len;
 	}
 	in_data_used=0;	// get ready for a new packet
@@ -705,6 +710,7 @@ void get_message_from_server()
 		{
 			//we got a nasty error, log it
 			log_to_console(c_red2,"Disconnected from server!\nPress any key to attempt to reconnect.\n[Press Alt+x to quit]");
+			in_data_used=0;	// get ready for a new packet
 			disconnected=1;
 			return;
 		}
