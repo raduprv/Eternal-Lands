@@ -473,7 +473,7 @@ void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this te
 	if(stats_win <= 0){
 		stats_win= create_window("Stats", 0, 0, attrib_menu_x, attrib_menu_y, attrib_menu_x_len, attrib_menu_y_len, ELW_WIN_DEFAULT);
 
-		set_window_color(stats_win, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
+		//set_window_color(stats_win, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
 		set_window_handler(stats_win, ELW_HANDLER_DISPLAY, &display_stats_handler );
 		set_window_handler(stats_win, ELW_HANDLER_CLICK, &click_stats_handler );
 	} else {
