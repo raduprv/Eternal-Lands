@@ -250,12 +250,26 @@ int check_browser_interface()
 			if(id<=cc){
 				ccat=id;
 				mc=0;
+				if(Cat[ccat].ns==1){
+					int i=0;
+					for(;i<dc;i++){
+						if(Cat[ccat].Sub[0]==&Dir[i])
+							cd=i;
+					}
+					mc=1;
+				}
+				
 			}
 		}else{
 			if(id==Cat[ccat].ns)
 				mc=1;
-			else if(id<Cat[ccat].ns)
-				cd=id;
+			else if(id<Cat[ccat].ns){
+				int i=0;
+				for(;i<dc;i++){
+					if(Cat[ccat].Sub[id]==&Dir[i])
+						cd=i;
+				}
+			}
 		}
 
 	}else{
