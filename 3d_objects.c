@@ -779,8 +779,8 @@ void flag_for_destruction()
 	int i;
 
 	for(i=0;i<max_e3d_cache;i++)
-	if(e3d_cache[i].file_name[0])
-	e3d_cache[i].flag_for_destruction=1;
+	if(e3d_cache[i].file_name)
+		e3d_cache[i].flag_for_destruction=1;
 }
 
 void destroy_the_flagged()
@@ -789,11 +789,11 @@ void destroy_the_flagged()
 
 	for(i=0;i<max_e3d_cache;i++)
 		{
-			if(e3d_cache[i].file_name[0])
+			if(e3d_cache[i].file_name)
 			if(e3d_cache[i].flag_for_destruction)
 				{
 					destroy_e3d(e3d_cache[i].e3d_id);
-					e3d_cache[i].file_name[0]=0;
+					e3d_cache[i].file_name=NULL;
 					e3d_cache[i].flag_for_destruction=0;
 				}
 		}
