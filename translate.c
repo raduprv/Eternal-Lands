@@ -17,6 +17,7 @@ char	tt_walk[30],
 	tt_stand[30],
 	tt_look[30],
 	tt_use[30],
+	tt_use_witem[30],
 	tt_trade[30],
 	tt_attack[30],
 	tt_inventory[30],
@@ -651,6 +652,7 @@ void init_help()
 	add_xml_identifier(tooltips,"stand",tt_stand,"Stand up",sizeof(tt_stand));
 	add_xml_identifier(tooltips,"look",tt_look,"Look at",sizeof(tt_look));
 	add_xml_identifier(tooltips,"use",tt_use,"Use",sizeof(tt_use));
+	add_xml_identifier(tooltips,"use_witem",tt_use_witem,"Use with",sizeof(tt_use_witem));
 	add_xml_identifier(tooltips,"trade",tt_trade,"Trade",sizeof(tt_trade));
 	add_xml_identifier(tooltips,"attack",tt_attack,"Attack",sizeof(tt_attack));
 	add_xml_identifier(tooltips,"invent",tt_inventory,"View inventory",sizeof(tt_inventory));

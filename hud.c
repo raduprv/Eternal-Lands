@@ -113,6 +113,12 @@ float eye_icon_v_start=1.0f-(float)0/256;
 float colored_eye_icon_u_start=(float)128/256;
 float colored_eye_icon_v_start=1.0f-(float)64/256;
 
+float use_with_item_icon_u_start=(float)224/256;
+float use_with_item_icon_v_start=1.0f-(float)160/256;
+
+float colored_use_with_item_icon_u_start=(float)192/256;
+float colored_use_with_item_icon_v_start=1.0f-(float)160/256;
+
 float trade_icon_u_start=(float)128/256;
 float trade_icon_v_start=1.0f-(float)0/256;
 
@@ -259,6 +265,8 @@ void init_peace_icons()
 	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, tt_look, switch_action_mode, (void *)action_look, DATA_ACTIONMODE);
 
 	add_icon(use_icon_u_start, use_icon_v_start, colored_use_icon_u_start, colored_use_icon_v_start, tt_use, switch_action_mode, (void *)action_use, DATA_ACTIONMODE);
+	
+	add_icon(use_with_item_icon_u_start, use_with_item_icon_v_start, colored_use_with_item_icon_u_start, colored_use_with_item_icon_v_start, tt_use_witem, switch_action_mode, (void *)action_use_witem, DATA_ACTIONMODE);
 
 	add_icon(trade_icon_u_start, trade_icon_v_start, colored_trade_icon_u_start, colored_trade_icon_v_start, tt_trade, switch_action_mode, (void *)action_trade, DATA_ACTIONMODE);
 
