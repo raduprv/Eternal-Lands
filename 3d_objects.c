@@ -259,6 +259,7 @@ e3d_object * load_e3d_cache(char * file_name)
 	if(e3d_id) return(e3d_id);
 	//e3d not found in the cache, so load it, and store it
 	e3d_id=load_e3d(file_name);
+	if(e3d_id==NULL) return NULL;
 	//and remember it
 	e3d_id->cache_ptr=cache_add_item(cache_e3d, e3d_id->file_name, e3d_id, sizeof(*e3d_id));
 #else	//CACHE_SYSTEM
