@@ -93,6 +93,7 @@ int filter_text(Uint8 * input_text, int len)
 	int i,bad_len,rep_len;
 	Uint8 *rloc=input_text;
 	//do we need to do any filtering?
+	if(caps_filter && my_isupper(input_text_line)) my_tolower(input_text_line);
 	if(max_filters == 0)return(len);
 	// get the length of the replacement string
 	rep_len=strlen(text_filter_replace);

@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "global.h"
 #include "md5.h"
 
@@ -196,10 +197,10 @@ void my_strcat(Uint8 *dest,const Uint8 * source)
 	l=strlen(source);
 	dl=strlen(dest);
 	for(i=0;i<l;i++)dest[dl+i]=source[i];
-	dest[dl+i]=0;
+	dest[dl+i]='\0';
 }
 
-Sint32 my_strncompare(Uint8 *dest, const Uint8 *src, Sint32 len)
+Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len)
 {
 	int i;
 	Uint8 ch1,ch2;
@@ -216,7 +217,7 @@ Sint32 my_strncompare(Uint8 *dest, const Uint8 *src, Sint32 len)
 	else return 1;
 }
 
-Sint32 my_strcompare(Uint8 *dest, const Uint8 *src)
+Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src)
 {
 	Sint32 len;
 
@@ -225,6 +226,33 @@ Sint32 my_strcompare(Uint8 *dest, const Uint8 *src)
 	return(my_strncompare(dest, src, len));
 }
 
+// is this string more then one character and all alpha in it are CAPS?
+Sint32 my_isupper(const Uint8 *src)
+{
+	if(!src || !src[0] || !src[1]) return 0;
+	while(*src)
+		{
+			if(*src != toupper(*src)) return 0;	//at least one lower
+			src++;
+		}
+	return 1;	// is all upper or all num
+}
+
+Uint8 *my_tolower(Uint8 *src)
+{
+	Uint8 *dest=src;
+
+	if(!dest || !dest[0]) return dest;
+	while(*src)
+		{
+			*src=tolower(*src);
+			src++;
+		}
+	return dest;
+}
+
+
+// File utilities
 void get_file_digest(const Uint8 * filename, Uint8 digest[16])
 {
 	MD5 md5;

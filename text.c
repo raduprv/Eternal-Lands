@@ -38,11 +38,12 @@ void write_to_log(Uint8 * data,int len)
 
 void send_input_text_line()
 {
-	char str[170];
+	char str[256];
 	int i,j;
 	int len;
 	Uint8 ch;
 
+	if(caps_filter && my_isupper(input_text_line)) my_tolower(input_text_line);
 	i=0;
 	j=1;
 	if(input_text_line[0]!='/')//we don't have a PM
@@ -77,6 +78,7 @@ void send_input_text_line()
 
 int filter_or_ignore_text(unsigned char *text_to_add, int len)
 {
+	checkTimerStop(text_to_add, len);	// SMW - timer testing
 	//check if ignored
 	if(pre_check_if_ignored(text_to_add))return 0;
 	//parse for URLs

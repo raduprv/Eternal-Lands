@@ -91,6 +91,8 @@ void read_config()
 	if(sit_lock==-1)sit_lock=0;
 	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,MAX_INI_FILE);
 	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,MAX_INI_FILE);
+	caps_filter=get_integer_after_string("#caps_filter",file_mem,MAX_INI_FILE);
+	if(caps_filter < 0) caps_filter=1;	//default to on
 	save_ignores=get_integer_after_string("#save_ignores",file_mem,MAX_INI_FILE);
 	log_server=get_integer_after_string("#log_server",file_mem,MAX_INI_FILE);
 	no_sound=get_integer_after_string("#no_sound",file_mem,MAX_INI_FILE);

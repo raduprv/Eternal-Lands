@@ -584,6 +584,7 @@ void add_enhanced_actor_from_server(char * in_data)
 		}
 
 	my_strncp(actors_list[i]->actor_name,&in_data[28],30);
+	if(caps_filter && my_isupper(actors_list[i]->actor_name)) my_tolower(actors_list[i]->actor_name);
 	unlock_actors_lists();  //unlock it
 
 }

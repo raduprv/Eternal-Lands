@@ -13,8 +13,10 @@ Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_poi
 void my_strcp(Uint8 *dest,const Uint8 * source);
 void my_strncp(Uint8 *dest,const Uint8 * source,Sint32 len);
 void my_strcat(Uint8 *dest,const Uint8 * source);
-Sint32 my_strncompare(Uint8 *dest, const Uint8 *src, Sint32 len);
-Sint32 my_strcompare(Uint8 *dest, const Uint8 *src);
+Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len);
+Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src);
+Sint32 my_isupper(const Uint8 *src);
+Uint8 *my_tolower(Uint8 *src);
 
 void get_file_digest(const Uint8 * filename, Uint8 digest[16]);
 void get_string_digest(const Uint8 * string, Uint8 digest[16]);

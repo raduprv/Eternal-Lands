@@ -200,6 +200,7 @@ filter_slot filter_list[max_filters];
 int filtered_so_far=0;
 int use_global_filters=1;
 char text_filter_replace[128]="smeg";
+int caps_filter=1;
 
 //sound
 int have_sound=0;
