@@ -89,11 +89,14 @@ void check_mouse_click()
 		int quantity = item_list[item_dragged].quantity;
 
 		if(right_click){
-			str[0]= USE_MAP_OBJECT;
-			*((int *)(str+1))= object_under_mouse;
-			*((int *)(str+5))= item_list[item_dragged].pos;
-			my_tcp_send(my_socket, str, 9);
-			item_dragged = -1;
+			if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ) {
+				str[0]=USE_MAP_OBJECT;
+				*((int *)(str+1))= object_under_mouse;
+				*((int *)(str+5))= item_list[item_dragged].pos;
+				my_tcp_send(my_socket, str, 9);
+			}
+			else
+				item_dragged = -1;
 			return;
 		}
 		if (quantity - item_quantity > 0)

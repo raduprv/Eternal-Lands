@@ -309,27 +309,29 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 						//see if there is an empty space to drop this item over.
 						if(item_dragged!=-1)//we have to drop this item
 							{
-								int any_item=0;
 								for(i=0;i<ITEM_NUM_ITEMS;i++)
 									{
 										if(item_list[i].quantity && item_list[i].pos==y*6+x)
 											{
-												any_item=1;
-												if(item_dragged==i)//drop the item only over itself
+												if(item_dragged==i)
 													item_dragged=-1;
+												else {
+													str[0]=ITEM_ON_ITEM;
+													str[1]=item_list[item_dragged].pos;
+													str[2]=y*6+x;
+													my_tcp_send(my_socket,str,3);
+													item_dragged=-1;
+												}
 												return 1;
 											}
 									}
-								if(!any_item)
-									{
-										//send the drop info to the server
-										str[0]=MOVE_INVENTORY_ITEM;
-										str[1]=item_list[item_dragged].pos;
-										str[2]=y*6+x;
-										my_tcp_send(my_socket,str,3);
-										item_dragged=-1;
-										return 1;
-									}
+								//send the drop info to the server
+								str[0]=MOVE_INVENTORY_ITEM;
+								str[1]=item_list[item_dragged].pos;
+								str[2]=y*6+x;
+								my_tcp_send(my_socket,str,3);
+								item_dragged=-1;
+								return 1;
 							}
 
 						//see if there is any item there
@@ -488,7 +490,10 @@ void drag_item()
 
 	get_and_set_texture_id(this_texture);
 	glBegin(GL_QUADS);
-	draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+25,mouse_y+25);
+	if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
+		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x,mouse_y,mouse_x+32,mouse_y+32);
+	else
+		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+25,mouse_y+25);
 	glEnd();
 }
 
