@@ -10,7 +10,7 @@ int browser_menu_dragged=0;
 int browser_win=0;
 
 object3d o3d[4];
-_Dir Dir[120];
+_Dir Dir[240];
 _Cat Cat[44];
 
 int dc=-1,cd=-1,cp=0,cc=-1,mc=1,ccat=0;
