@@ -398,10 +398,10 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 			{
 				for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
 					{
-						glMultiTexCoord2f(base_unit,fx*u_step+noise_array[((y+1)&15)*16+(x&15)].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+(x&15)].v+water_movement_v);
+						ELglMultiTexCoord2fARB(base_unit,fx*u_step+noise_array[((y+1)&15)*16+(x&15)].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+(x&15)].v+water_movement_v);
 						glVertex3f(fx,fy+y_step, water_deepth_offset);
 
-						glMultiTexCoord2f(base_unit,fx*u_step+noise_array[y*16+(x&15)].u+water_movement_u, fy*v_step+noise_array[y*16+(x&15)].v+water_movement_v);
+						ELglMultiTexCoord2fARB(base_unit,fx*u_step+noise_array[y*16+(x&15)].u+water_movement_u, fy*v_step+noise_array[y*16+(x&15)].v+water_movement_v);
 						glVertex3f(fx,fy, water_deepth_offset);
 					}
 			}

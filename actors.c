@@ -511,19 +511,19 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 					{
 						float x,y,z;
 
-						glMultiTexCoord2f(base_unit,offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+						ELglMultiTexCoord2fARB(base_unit,offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
 						x=vertex_pointer[offsetFaces[i].a].x;
 	       					y=vertex_pointer[offsetFaces[i].a].y;
 						z=vertex_pointer[offsetFaces[i].a].z;
 						glVertex3f(x,y,z);
 
-						glMultiTexCoord2f(base_unit,offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+						ELglMultiTexCoord2fARB(base_unit,offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
 						x=vertex_pointer[offsetFaces[i].b].x;
 						y=vertex_pointer[offsetFaces[i].b].y;
 						z=vertex_pointer[offsetFaces[i].b].z;
 						glVertex3f(x,y,z);
 
-						glMultiTexCoord2f(base_unit,offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+						ELglMultiTexCoord2fARB(base_unit,offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
 						x=vertex_pointer[offsetFaces[i].c].x;
 						y=vertex_pointer[offsetFaces[i].c].y;
 						z=vertex_pointer[offsetFaces[i].c].z;
