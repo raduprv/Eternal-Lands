@@ -326,7 +326,7 @@ int HandleEvent(SDL_Event *event)
 					{
 						if(interface_mode==interface_map)
 							switch_from_game_map();
-						else if(interface_mode!=interface_log_in)
+						else if(interface_mode!=interface_log_in && interface_mode!=interface_new_char)
 							switch_to_game_map();
 					}
 
