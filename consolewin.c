@@ -23,7 +23,7 @@ void update_console_win (int nlines)
 
 int display_console_handler (window_info *win)
 {
-	static int line_start = 0;
+	static int msg = 0, offset = 0;
 	const char *sep_string = "^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
 	
 	// are we actively drawing things?
@@ -31,35 +31,8 @@ int display_console_handler (window_info *win)
 	{
 		if (console_text_changed)
 		{
-			int ichar;
-			Uint8 ch;
-		
-			line_start = find_line_nr (nr_text_buffer_lines - nr_console_lines - scroll_up_lines);
-			if (line_start < 0) line_start = 0;
-		
-			// see if this line starts with a color code
-			ch = display_text_buffer[line_start];
-			if (ch < 127 || ch > 127 + c_grey4)
-			{
-				// nope, search backwards for the last color
-				// code
-				for (ichar = line_start; ichar >= 0; ichar--)
-				{
-					ch = display_text_buffer[ichar];
-					if (ch >= 127 && ch <= 127 + c_grey4)
-					{
-						float r, g, b;
-						ch -= 127;
-						r = colors_list[ch].r1 / 255.0f;
-						g = colors_list[ch].g1 / 255.0f;
-						b = colors_list[ch].b1 / 255.0f;
-						text_field_set_text_color (console_root_win, console_out_id, r, g, b);
-						break;
-					}
-				}
-			}
-		
-			text_field_set_buf_offset (console_root_win, console_out_id, line_start);
+			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, &msg, &offset);		
+			text_field_set_buf_pos (console_root_win, console_out_id, msg, offset);
 			console_text_changed = 0;
 		}
 		
@@ -86,7 +59,7 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		return 1;
 	}
-	else if (keysym == SDLK_UP && nr_text_buffer_lines > nr_console_lines + scroll_up_lines)
+	else if (keysym == SDLK_UP && total_nr_lines > nr_console_lines + scroll_up_lines)
 	{
 		scroll_up_lines++;
 		console_text_changed = 1;
@@ -96,11 +69,11 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		scroll_up_lines--;
 		console_text_changed = 1;
 	}
-	else if (keysym == SDLK_PAGEUP && nr_text_buffer_lines > nr_console_lines + scroll_up_lines)
+	else if (keysym == SDLK_PAGEUP && total_nr_lines > nr_console_lines + scroll_up_lines)
 	{
 		scroll_up_lines += nr_console_lines - 1;
-		if (nr_console_lines + scroll_up_lines > nr_text_buffer_lines)
-			scroll_up_lines = nr_text_buffer_lines - nr_console_lines;
+		if (nr_console_lines + scroll_up_lines > total_nr_lines)
+			scroll_up_lines = total_nr_lines - nr_console_lines;
 		console_text_changed = 1;
 	}
 	else if (keysym == SDLK_PAGEDOWN && scroll_up_lines > 0)
@@ -128,19 +101,6 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 			show_window (game_root_win);
 			interface_mode = INTERFACE_GAME;
 		}
-		else if (ch == SDLK_RETURN && input_text_lenght > 0)
-		{
-			if (input_text_lenght == 1 || input_text_line[0] != '%') 
-			{
-				test_for_console_command (input_text_line, input_text_lenght);
-				// also clear the buffer
-				clear_input_line ();
-			}
-			else if ( !text_input_handler (key, unikey) )
-			{
-				return 0;
-			}
-		}
 		else if ( !text_input_handler (key, unikey) )
 		{
 			// nothing we can handle
@@ -165,12 +125,12 @@ int resize_console_handler (window_info *win, int width, int height)
 
 int click_console_handler (window_info *win, int mx, int my, Uint32 flags)
 {
-	if (flags & ELW_WHEEL_UP && nr_text_buffer_lines > nr_console_lines + scroll_up_lines)
+	if ( (flags & ELW_WHEEL_UP) && total_nr_lines > nr_console_lines + scroll_up_lines )
 	{
 		scroll_up_lines++;
 		console_text_changed = 1;
 	}
-	else if (flags & ELW_WHEEL_DOWN && scroll_up_lines > 0)
+	else if ( (flags & ELW_WHEEL_DOWN) && scroll_up_lines > 0 )
 	{
 		scroll_up_lines--;
 		console_text_changed = 1;
@@ -195,7 +155,7 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
 		
 		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 0, 0, width - hud_x, height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, 0, 0, -1.0f, -1.0f, -1.0f);
-		console_in_id = text_field_add_extended (console_root_win, console_in_id, NULL, 0, height - CONSOLE_INPUT_HEIGHT - hud_y, width - hud_x, CONSOLE_INPUT_HEIGHT, TEXT_FIELD_EDITABLE, 1.0, -1.0f, -1.0f, -1.0f, input_text_line, sizeof (input_text_line), 0, 0, 1.0f, 1.0f, 1.0f);
+		console_in_id = text_field_add_extended (console_root_win, console_in_id, NULL, 0, height - CONSOLE_INPUT_HEIGHT - hud_y, width - hud_x, CONSOLE_INPUT_HEIGHT, TEXT_FIELD_EDITABLE, 1.0, -1.0f, -1.0f, -1.0f, &input_text_line, 1, 0, 0, 1.0f, 1.0f, 1.0f);
 		
 		nr_console_lines = (height - CONSOLE_INPUT_HEIGHT -  CONSOLE_SEP_HEIGHT - hud_y) / 18;
 	}

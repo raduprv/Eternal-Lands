@@ -488,6 +488,8 @@ void init_stuff()
 #ifdef WRITE_XML
 	load_translatables();//Write to the current working directory - hopefully we'll have write rights here...
 #endif
+	// initialize the text buffers
+	init_text_buffers ();
 	
 	// initialize the fonts, but don't load the textures yet. Do that here
 	// because the messages need the font widths.

@@ -48,10 +48,11 @@ int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(x>win->len_x-20)
 		return 0;
 	// clicked on a buddies name, start apm to them
-	y/= 10;
-	y+= vscrollbar_get_pos(buddy_win,12);
-	sprintf(input_text_line,"/%s ",buddy_list[y].name);
-	input_text_lenght= strlen(input_text_line);
+	y /= 10;
+	y += vscrollbar_get_pos(buddy_win,12);
+	put_char_in_buffer ('/', 0);
+	put_string_in_buffer (buddy_list[y].name, 1);
+	put_char_in_buffer ( ' ', strlen (buddy_list[y].name) );
 	return 1;
 }
 

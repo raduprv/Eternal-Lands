@@ -57,6 +57,9 @@
 extern int	chat_font; /*!< font size used for chat font */
 extern int	name_font; /*!< font size used for name font */
 
+
+void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom);
+
 /*!
  * \ingroup text_font
  * \brief   draws the given string \a our_string at the desired position (\a x, \a y).
@@ -70,7 +73,7 @@ extern int	name_font; /*!< font size used for name font */
  *
  * \callgraph
  */
-void draw_string(int x, int y,const unsigned char * our_string,int max_lines);
+int draw_string(int x, int y, const unsigned char * our_string, int max_lines);
 
 /*!
  * \ingroup text_font
@@ -86,7 +89,7 @@ void draw_string(int x, int y,const unsigned char * our_string,int max_lines);
  *
  * \callgraph
  */
-void draw_string_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float text_zoom);
+int draw_string_zoomed (int x, int y,const unsigned char * our_string,int max_lines, float text_zoom);
 
 /*!
  * \ingroup text_font

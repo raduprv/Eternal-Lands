@@ -633,11 +633,16 @@ int display_game_handler (window_info *win)
 	}
 
 	CHECK_GL_ERRORS ();
-	if (!use_windowed_chat && find_last_lines_time ())
+	if (!use_windowed_chat)
 	{
-		set_font(chat_font);	// switch to the chat font
-        	draw_string_zoomed (10, 20, &display_text_buffer[display_text_buffer_first], max_lines_no, chat_zoom);
-		set_font (0);	// switch to fixed
+		int msg, offset;
+		
+		if ( find_last_lines_time (&msg, &offset) )
+		{
+			set_font(chat_font);	// switch to the chat font
+			draw_messages (10, 20, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
+			set_font (0);	// switch to fixed
+		}
 	}
 	
 	anything_under_the_mouse (0, UNDER_MOUSE_NO_CHANGE);
@@ -650,7 +655,8 @@ int display_game_handler (window_info *win)
 	// print the text line we are currently writting (if any)
 	if (!use_windowed_chat)
 	{
-		y_line = win->len_y - (17 * (4+input_text_lines));
+		//y_line = win->len_y - (17 * (4+input_text_lines));
+		y_line = win->len_y - (17 * (4+2));
 		switch(map_type)
 		{
 			case 2:
@@ -661,7 +667,7 @@ int display_game_handler (window_info *win)
 				glColor3f (1.0f, 1.0f, 1.0f);
 		}
 
-		draw_string (10, y_line, input_text_line, input_text_lines);
+		draw_string (10, y_line, input_text_line.data, 2);
 	}
 	
 	Leave2DMode ();
@@ -972,10 +978,8 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		else
 		{
 			// clear the input buffer
-			clear_input_line ();
-			input_text_lenght =0;
-			input_text_lines = 1;
-			input_text_line[0] = '\0';
+			input_text_line.data[0] = '\0';
+			input_text_line.len = 0;
 		}
 	}
 	else
@@ -994,49 +998,48 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 	{
 		root_key_to_input_field (key, unikey);
 	}
-	else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
+	else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_line.len < 160)
 	{
 		// watch for the '//' shortcut
-		if (input_text_lenght == 1 && ch== '/' && input_text_line[0] == '/' && last_pm_from[0])
+		if (input_text_line.len == 1 && ch== '/' && input_text_line.data[0] == '/' && last_pm_from[0])
 		{
-			int i;
-			int l = strlen (last_pm_from);
-			for (i=0; i<l; i++) input_text_line[input_text_lenght++] = last_pm_from[i];
-			put_char_in_buffer (' ');
+			put_string_in_buffer (last_pm_from, 1);
+			put_char_in_buffer (' ', input_text_line.len);
 		}
 		else
 		{
 			// not the shortcut, add the character to the buffer
-			put_char_in_buffer(ch);
+			put_char_in_buffer (ch, input_text_line.len);
 		}
 	}
-	else if (ch == SDLK_BACKSPACE && input_text_lenght > 0)
+	else if (ch == SDLK_BACKSPACE && input_text_line.len > 0)
 	{
-		input_text_lenght--;
-		if (input_text_line[input_text_lenght] == '\n')
-		{
-			input_text_lenght--;
-			if (input_text_lines > 1) input_text_lines--;
-		}
-		input_text_line[input_text_lenght] = '_';
-		input_text_line[input_text_lenght+1] = '\0';
+		input_text_line.len--;
+		if (input_text_line.data[input_text_line.len] == '\n')
+			input_text_line.len--;
+		input_text_line.data[input_text_line.len] = '\0';
 	}
-	else if (ch == SDLK_RETURN && input_text_lenght > 0)
+	else if (ch == SDLK_RETURN && input_text_line.len > 0)
 	{
-		if (*input_text_line == '%' && input_text_lenght > 1) 
+		if (input_text_line.data[0] == '%' && input_text_line.len > 1) 
 		{
-			input_text_line[input_text_lenght] = '\0';
-			if ( (check_var (input_text_line + 1, IN_GAME_VAR) ) < 0)
-				send_input_text_line (input_text_line, input_text_lenght);
+			if ( (check_var (&(input_text_line.data[1]), IN_GAME_VAR) ) < 0)
+				send_input_text_line (input_text_line.data, input_text_line.len);
+		}
+		else if ( input_text_line.data[0] == '#' || get_show_window (console_root_win) )
+		{
+			test_for_console_command (input_text_line.data, input_text_line.len);
+			// also clear the buffer
+			input_text_line.len = 0;
+			input_text_line.data[0] = '\0';
 		}
 		else
 		{
-			send_input_text_line (input_text_line, input_text_lenght);
+			send_input_text_line (input_text_line.data, input_text_line.len);
 		}
 		// also clear the buffer
-		input_text_lenght = 0;
-		input_text_lines = 1;
-		input_text_line[0] = '\0';
+		input_text_line.data[0] = '\0';
+		input_text_line.len = 0;
 	}
 	else
 	{
@@ -1146,14 +1149,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			hide_window (game_root_win);
 			show_window (console_root_win);
 			interface_mode = INTERFACE_CONSOLE;
-		}
-		else if (ch == SDLK_RETURN && input_text_lenght > 0 && input_text_line[0] == '#')
-		{
-			test_for_console_command (input_text_line, input_text_lenght);
-			// also clear the buffer
-			input_text_lenght = 0;
-			input_text_lines = 1;
-			input_text_line[0] = '\0';
 		}
 		// see if the common text handler can deal with it
 		else if ( text_input_handler (key, unikey) )

@@ -10,9 +10,11 @@ int display_opening_handler ()
 {
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{
-		int line_start = find_line_nr (nr_text_buffer_lines - nr_opening_lines);
+		int msg, offset;
 		
-		text_field_set_buf_offset (opening_root_win, opening_out_id, line_start);
+		find_line_nr (total_nr_lines, total_nr_lines - nr_opening_lines, &msg, &offset);
+		
+		text_field_set_buf_pos (opening_root_win, opening_out_id, msg, offset);
 		draw_console_pic (cons_text);
 		CHECK_GL_ERRORS();
 	}

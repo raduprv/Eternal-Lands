@@ -66,20 +66,25 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 {
 	Uint8 ch = key_to_char (unikey);
 
-	if (ch == SDLK_RETURN && adding_mark && input_text_lenght > 0)
+	if (ch == SDLK_RETURN && adding_mark && input_text_line.len > 0)
 	{
 		int i;
 
 		// if text wrapping just keep the text until the wrap.
-		for (i = 0; i < strlen (input_text_line); i++) 
-			if (input_text_line[i] == '\n') 
-				input_text_line[i] = '\0';
+		for (i = 0; i < input_text_line.len; i++) 
+		{
+			if (input_text_line.data[i] == '\n') 
+			{
+				input_text_line.data[i] = '\0';
+				break;
+			}
+		}
 						    
 		marks[max_mark].x = mark_x;
 		marks[max_mark].y = mark_y;
 		memset ( marks[max_mark].text, 0, sizeof (marks[max_mark].text) );
 						  
-		my_strncp ( marks[max_mark].text, input_text_line, sizeof (marks[max_mark].text) );
+		my_strncp ( marks[max_mark].text, input_text_line.data, sizeof (marks[max_mark].text) );
 		max_mark++;
 		save_markings ();
 		adding_mark = 0;
@@ -107,9 +112,9 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 			show_window (console_root_win);
 			interface_mode = INTERFACE_CONSOLE;
 		}
-		else if (ch == SDLK_RETURN && input_text_lenght > 0 && input_text_line[0] == '#')
+		else if (ch == SDLK_RETURN && input_text_line.len > 0 && input_text_line.data[0] == '#')
 		{
-			test_for_console_command (input_text_line, input_text_lenght);
+			test_for_console_command (input_text_line.data, input_text_line.len);
 			// also clear the buffer
 			clear_input_line (); 
 		}

@@ -1064,12 +1064,12 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 }
 
 // text field
-int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, char *buf, int buf_size, int x_space, int y_space)
+int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space)
 {
 	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, x_space, y_space, -1.0, -1.0, -1.0);
 }
 
-int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *buf, int buf_size, int x_space, int y_space, float text_r, float text_g, float text_b)
+int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, int x_space, int y_space, float text_r, float text_g, float text_b)
 {
 	widget_list *W = malloc ( sizeof (widget_list) );
 	text_field *T = malloc ( sizeof (text_field) );
@@ -1083,11 +1083,11 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 	W->widget_info = T;
 	T->x_space = x_space,
 	T->y_space = y_space,
-	T->buf_offset = 0;
+	T->msg = 0;
+	T->offset = 0;
 	T->buffer = buf;
 	T->buf_size = buf_size;
-	T->buf_fill = strlen (buf);
-	T->cursor = 0;
+	T->cursor = (Flags & TEXT_FIELD_EDITABLE) ? 0 : -1;
 	T->text_r = text_r;
 	T->text_g = text_g;
 	T->text_b = text_b;
@@ -1126,6 +1126,7 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 int text_field_draw (widget_list *w)
 {
 	text_field *tf;
+	Uint8 ch;
 
 	if (w == NULL) return 0;
 	
@@ -1156,45 +1157,69 @@ int text_field_draw (widget_list *w)
 		glEnable (GL_TEXTURE_2D);
 	}
 	
-	if (tf->text_r >= 0.0)
+	if (tf->text_r >= 0.0f)
+	{
 		glColor3f (tf->text_r, tf->text_g, tf->text_b);
-	draw_string_zoomed_clipped (w->pos_x+tf->x_space, w->pos_y+tf->y_space, &(tf->buffer[tf->buf_offset]), (w->Flags & TEXT_FIELD_EDITABLE) ? tf->cursor : -1, w->len_x - 2*tf->x_space, w->len_y - 2*tf->y_space, w->size);
+	}
+	else
+	{		
+		ch = tf->buffer[tf->msg].data[tf->offset];
+		if (ch < 127 || ch > 127 + c_grey4)
+		{
+			// search backwards for the last color
+			int ichar;
+		
+			for (ichar = tf->offset-1; ichar >= 0; ichar--)
+			{
+				ch = tf->buffer[tf->msg].data[ichar];
+				if (ch >= 127 && ch <= 127 + c_grey4)
+				{
+					float r, g, b;
+					ch -= 127;
+					r = colors_list[ch].r1 / 255.0f;
+					g = colors_list[ch].g1 / 255.0f;
+					b = colors_list[ch].b1 / 255.0f;
+					glColor3f (r, g, b);
+					break;
+				}
+			}
+		}
+	}
+	
+	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->msg, tf->offset, tf->cursor, w->len_x - 2 * tf->x_space, w->len_y - 2*tf->y_space, w->size);
 	
 	return 1;
 }
 
-int text_field_set_buf_offset (Uint32 window_id, Uint32 widget_id, int pos)
+int text_field_set_buf_pos (Uint32 window_id, Uint32 widget_id, int msg, int offset)
 {
 	widget_list *w = widget_find (window_id, widget_id);
-	if (w) 
+	if (w == NULL) return 0;
+	
+	text_field *tf = (text_field *) w->widget_info;
+
+	if (msg < 0)
 	{
-		text_field *tf = (text_field *) w->widget_info;
-
-		if (pos < 0)
-			pos = 0;
-		else if (pos >= tf->buf_size)
-			pos = tf->buf_size-1;
-		tf->buf_offset = pos;
-
-		return  1;
+		msg = 0;
 	}
-	return 0;
-}
-
-int text_field_set_text_color (Uint32 window_id, Uint32 widget_id, float r, float g, float b)
-{
-	widget_list *w = widget_find (window_id, widget_id);
-	if (w) 
+	else if (msg >= tf->buf_size)
 	{
-		text_field *tf = (text_field *) w->widget_info;
-
-		tf->text_r = r;
-		tf->text_g = g;
-		tf->text_b = b;
-
-		return  1;
+		msg = tf->buf_size - 1;
 	}
-	return 0;
+		
+	if (offset < 0) 
+	{
+		offset = 0;
+	}
+	else if (offset >= tf->buffer[msg].len)
+	{
+		offset = tf->buffer[msg].len - 1;
+	}
+		
+	tf->msg = msg;
+	tf->offset = offset;
+
+	return  1;
 }
 
 // XML Windows

@@ -40,23 +40,25 @@ void sync_chat_and_console ()
 	text_field *cons_tf = (text_field *) cons->widget_info;
 	text_field *chat_tf = (text_field *) chat->widget_info;
 
+	cons_tf->msg = chat_tf->msg;
+	cons_tf->offset = chat_tf->offset;
 	cons_tf->buf_fill = chat_tf->buf_fill;
 	cons_tf->cursor = chat_tf->cursor;
 }
 
 void clear_input_line ()
 {
-	input_text_line[0] = '\0';
-	input_text_lenght = 0;
-	input_text_lines = 1;
+	widget_list *cons = widget_find (console_root_win, console_in_id);
+	text_field *cons_tf = (text_field *) cons->widget_info;
+	
+	input_text_line.data[0] = '\0';
+	input_text_line.len = 0;
+	cons_tf->cursor = 0;
 	if (use_windowed_chat)
 	{
-		// reset the cursor
 		widget_list *chat = widget_find (chat_win, chat_in_id);
 		text_field *chat_tf = (text_field *) chat->widget_info;
-		chat_tf->buf_fill = 0;
 		chat_tf->cursor = 0;
-		sync_chat_and_console ();
 	}
 }
 
@@ -64,7 +66,7 @@ void update_chat_scrollbar ()
 {
 	if (chat_win >= 0)
 	{
-		int len = nr_text_buffer_lines >= nr_displayed_lines ? nr_text_buffer_lines-nr_displayed_lines : 0;
+		int len = total_nr_lines >= nr_displayed_lines ? total_nr_lines - nr_displayed_lines : 0;
 		vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
 		vscrollbar_set_pos (chat_win, chat_scroll_id, len);
 		current_line = len;
@@ -74,36 +76,13 @@ void update_chat_scrollbar ()
 
 int display_chat_handler (window_info *win)
 {
-	static int line_start = 0;
+	static int msg_start = 0, offset_start = 0;
 	if (text_changed)
 	{
 		int line = vscrollbar_get_pos (chat_win, chat_scroll_id);
-		int ichar;
-		unsigned char ch;
-		line_start = find_line_nr (line);
 
-		// see if this line starts with a color code
-		ch = display_text_buffer[line_start];
-		if (ch < 127 || ch > 127 + c_grey4)
-		{
-			// nope, search backwards for the last color code
-			for (ichar = line_start; ichar >= 0; ichar--)
-			{
-				ch = display_text_buffer[ichar];
-				if (ch >= 127 && ch <= 127 + c_grey4)
-				{
-					float r, g, b;
-					ch -= 127;
-					r = colors_list[ch].r1 / 255.0f;
-					g = colors_list[ch].g1 / 255.0f;
-					b = colors_list[ch].b1 / 255.0f;
-					text_field_set_text_color (chat_tab_ids[0], chat_out_ids[0], r, g, b);
-					break;
-				}
-			}
-		}
-
-		text_field_set_buf_offset (chat_tab_ids[0], chat_out_ids[0], line_start);
+		find_line_nr (total_nr_lines, line, &msg_start, &offset_start);
+		text_field_set_buf_pos (chat_tab_ids[0], chat_out_ids[0], msg_start, offset_start);
 		text_changed = 0;
 	}
 
@@ -173,9 +152,8 @@ int resize_chat_handler(window_info *win, int width, int height)
 	
 	widget_resize (chat_win, chat_in_id, inout_width, input_height);
 	widget_move (chat_win, chat_in_id, CHAT_WIN_SPACE, input_y);
-	
-	reset_soft_breaks (display_text_buffer, chat_zoom, chat_win_text_width);
-	reset_soft_breaks (input_text_line, chat_zoom, chat_win_text_width);
+
+	adjust_line_breaks (chat_win_text_width);
 	
 	nr_displayed_lines = (int) (chat_out_text_height / (18.0f * chat_zoom));
 	update_chat_scrollbar ();
@@ -187,12 +165,14 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 	Uint16 keysym = key & 0xffff;
 	Uint8 ch = key_to_char (unikey);
 	text_field *tf;
+	text_message *msg;
 	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
 	
 	if (w == NULL) return 0;
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0) return 0;
 	
 	tf = (text_field *) w->widget_info;
+	msg = tf->buffer;
 	
 	if (keysym == K_ROTATELEFT)
 	{
@@ -200,7 +180,7 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 	}
 	else if (keysym == K_ROTATERIGHT)
 	{
-		if (tf->cursor < tf->buf_fill) tf->cursor++;
+		if (tf->cursor < msg->len) tf->cursor++;
 	}
 	else if (keysym == SDLK_HOME)
 	{
@@ -208,85 +188,67 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 	}
 	else if (keysym == SDLK_END)
 	{
-		tf->cursor = tf->buf_fill;
+		tf->cursor = msg->len;
 	}
 	else if (keysym == SDLK_ESCAPE)
 	{
-		tf->buffer[0] = '\0';
+		msg->data[0] = '\0';
+		msg->len = 0;
 		tf->cursor = 0;
-		tf->buf_fill = 0;
-		input_text_lenght = 0;
-		input_text_lines = 1;
 	}
-	else if (ch == SDLK_RETURN && tf->buf_fill > 0)
-	{
-		if (tf->buffer[0] == '%' && tf->buf_fill > 1) 
+	else if (ch == SDLK_RETURN && msg->len > 0)
+	{	
+		if (msg->data[0] == '%' && msg->len > 1) 
 		{
-			if ( (check_var (&(tf->buffer[1]), IN_GAME_VAR) ) < 0)
+			if ( (check_var (&(msg->data[1]), IN_GAME_VAR) ) < 0)
 			{
-				send_input_text_line (input_text_line, tf->buf_fill);
+				send_input_text_line (msg->data, msg->len);
 			}
 		}
-		else if ( tf->buffer[0] == '#' || get_show_window (console_root_win) )
+		else if ( msg->data[0] == '#' || get_show_window (console_root_win) )
 		{
-			test_for_console_command (tf->buffer, tf->buf_fill);
+			test_for_console_command (msg->data, msg->len);
 		}
 		else
 		{
-			send_input_text_line (tf->buffer, tf->buf_fill);
+			send_input_text_line (msg->data, msg->len);
 		}
-		tf->buffer[0] = '\0';
+		msg->data[0] = '\0';
+		msg->len = 0;
 		tf->cursor = 0;
-		tf->buf_fill = 0;
-		input_text_lenght = 0;
-		input_text_lines = 1;
 	}
 	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
 	{
 		int i;
-		for (i = tf->cursor; i <= tf->buf_fill; i++)
-			input_text_line[i-1] = input_text_line[i];
+		for (i = tf->cursor; i <= msg->len; i++)
+			msg->data[i-1] = msg->data[i];
 		tf->cursor--;
-		tf->buf_fill--;
-		input_text_lenght--;
-		reset_soft_breaks (tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+		msg->len--;
+		reset_soft_breaks (msg->data, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}
-	else if (ch == SDLK_DELETE && tf->cursor < tf->buf_fill)
+	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
 	{
 		int i;
-		for (i = tf->cursor+1; i <= tf->buf_fill; i++)
-			input_text_line[i-1] = input_text_line[i];
-		tf->buf_fill--;
-		input_text_lenght--;
-		reset_soft_breaks (tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+		for (i = tf->cursor+1; i <= msg->len; i++)
+			msg->data[i-1] = msg->data[i];
+		msg->len--;
+		reset_soft_breaks (msg->data, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}
 	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && ch != '`' )
 	{
 		// watch for the '//' shortcut
-		if (tf->buf_fill == 1 && ch == '/' && tf->buffer[0] == '/' && last_pm_from[0])
+		if (tf->cursor == 1 && ch == '/' && msg->data[0] == '/' && last_pm_from[0])
 		{
-			int i;
-			int l = strlen (last_pm_from);
-			for (i = 0; i < l; i++) 
-				tf->buffer[i+1] = last_pm_from[i];
-			tf->buffer[l+1] = ' ';
-			tf->buffer[l+2] = '\0';
-			tf->buf_fill = l+2;
-			input_text_lenght = l+2;
-			tf->cursor = l+2;
+			tf->cursor += put_string_in_buffer (last_pm_from, 1);
+			tf->cursor += put_char_in_buffer (' ', tf->cursor);
 		}
-		else if (tf->buf_fill < tf->buf_size - 1)
+		else if (msg->len < msg->size - 1)
 		{
-			int i;
-			for (i = tf->buf_fill+1; i > tf->cursor; i--)
-				tf->buffer[i] = tf->buffer[i-1];
-			tf->buffer[tf->cursor] = ch;
-			tf->cursor++;
-			tf->buf_fill++;
-			input_text_lenght++;
-			reset_soft_breaks (tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+			tf->cursor += put_char_in_buffer (ch, tf->cursor);
 		}
+		reset_soft_breaks (msg->data, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}
+
 	else
 	{
 		return 0;
@@ -313,53 +275,12 @@ void paste_in_input_field (const Uint8 *text)
 {
 	widget_list *w = widget_find (chat_win, chat_in_id);
 	text_field *tf;
-	int nr_paste, nr_free, ib, jb, nb;
-	Uint8 ch;
 	
 	if (w == NULL) return;
 	tf = (text_field *) w->widget_info;
 	
-	// find out how many characters to paste
-	nr_free = tf->buf_size - tf->cursor - 1;
-	nr_paste = 0;
-	for (ib = 0; text[ib] && nr_paste < nr_free; ib++)
-	{
-		ch = text[ib];
-		if ( (ch >= 32 && ch <= 126) || ch > 127 + c_grey4)
-			nr_paste++;
-	}
-	
-	if (nr_paste == 0) return;
-
-	// now move the characters right of the cursor (if any)
-	nb = tf->buf_fill - tf->cursor;
-	if (nb > nr_free - nr_paste) nb = nr_free - nr_paste;
-	if (nb > 0)
-	{
-		for (ib = nb-1; ib >= 0; ib--)
-			tf->buffer[tf->cursor+nr_paste+ib] = tf->buffer[tf->cursor+ib];
-	}
-	tf->buffer[tf->cursor+nr_paste+nb] = '\0';
-	
-	// insert the pasted text
-	jb = 0;
-	for (ib = 0; text[ib]; ib++)
-	{
-		ch = text[ib];
-		if ( (ch >= 32 && ch <= 126) || ch > 127 + c_grey4)
-		{
-			tf->buffer[tf->cursor+jb] = text[ib];
-			jb++;
-		}
-	}
-	
-	// update the widget information
-	tf->cursor += nr_paste;
-	tf->buf_fill = tf->cursor + nb;
-	
-	reset_soft_breaks (tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
-	
-	input_text_lenght = tf->buf_fill;
+	put_string_in_buffer (text, tf->cursor);
+	reset_soft_breaks (tf->buffer->data, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 }
 
 void display_chat ()
@@ -380,7 +301,7 @@ void display_chat ()
 		int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (int) ((2+5) * 18.0 * chat_zoom);
 		
 		nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (18.0 * chat_zoom));
-		scroll_len = nr_text_buffer_lines >= nr_displayed_lines ? nr_text_buffer_lines-nr_displayed_lines : 0;
+		scroll_len = total_nr_lines >= nr_displayed_lines ? total_nr_lines - nr_displayed_lines : 0;
 		
 		chat_win = create_window ("chat", game_root_win, 0, chat_win_x, chat_win_y, chat_win_width, chat_win_height, (ELW_WIN_DEFAULT|ELW_RESIZEABLE) & ~ELW_CLOSE_BOX);
 		
@@ -404,7 +325,7 @@ void display_chat ()
 		set_window_min_size (chat_tab_ids[0], 0, 0);
 		chat_out_ids[0] = text_field_add_extended (chat_tab_ids[0], chat_out_ids[0], NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
 		
-		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, chat_zoom, 0.77f, 0.57f, 0.39f, input_text_line, sizeof (input_text_line), CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
 		
 		set_window_min_size (chat_win, min_width, min_height);
 		

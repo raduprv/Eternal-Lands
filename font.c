@@ -210,12 +210,99 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
-void draw_string(int x, int y, const unsigned char * our_string, int max_lines)
+void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
 {
-	draw_string_zoomed(x, y, our_string, max_lines, 1.0f);
+	float displayed_font_x_size = 11.0 * text_zoom;
+	float displayed_font_y_size = 18.0 * text_zoom;
+
+	unsigned char cur_char;
+	int i;
+	int imsg, ichar;
+	int cur_x, cur_y;
+	int cursor_x = x-1, cursor_y = y-1;
+	
+	imsg = msg_start;
+	ichar = offset_start;
+	if (msgs[imsg].data == NULL) return;
+
+	if (width < displayed_font_x_size || height < displayed_font_y_size)
+		// no point in trying
+		return;
+
+   	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
+	glAlphaFunc (GL_GREATER, 0.1f);
+	get_and_set_texture_id (font_text);
+
+	i = 0;
+	cur_x = x;
+	cur_y = y;
+	glBegin (GL_QUADS);
+	while (1)
+	{
+		if (i == cursor)
+		{
+			cursor_x = cur_x;
+			cursor_y = cur_y;
+			if (cursor_x - x > width - displayed_font_x_size)
+			{
+				cursor_x = x;
+				cursor_y = cur_y + displayed_font_y_size;
+			}
+				
+		}
+
+		cur_char = msgs[imsg].data[ichar];
+		// watch for special characters
+		if (cur_char == '\0') 
+		{
+			// end of string
+			if (++imsg >= msgs_size) imsg = 0;
+			if (msgs[imsg].data == NULL || imsg == msg_start) break;
+			ichar = 0;
+		}
+		
+		if (cur_char == '\n' || cur_char == '\r' || cur_char == '\0')
+		{
+			// newline
+			cur_y += displayed_font_y_size;
+			if (cur_y - y > height - displayed_font_y_size) break;
+			cur_x = x;
+			if (cur_char != '\0') ichar++;
+			i++;
+			continue;
+		}
+
+//		cur_x += draw_font_char_scaled (0, cur_char, cur_x, cur_y, text_zoom);
+		cur_x += draw_char_scaled (cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
+		
+		ichar++;
+		i++;
+		if (cur_x - x > width - displayed_font_x_size)
+		{
+			// ignore rest of this line
+			while (msgs[imsg].data[ichar] != '\0' && msgs[imsg].data[ichar] != '\n' && msgs[imsg].data[ichar] != '\r')
+			{
+				ichar++;
+				i++;
+			}
+		}
+	}
+
+	if (cursor_x >= x && cursor_y >= y && cursor_y - y <= height - displayed_font_y_size)
+	{
+		draw_char_scaled ('_', cursor_x, cursor_y, displayed_font_x_size, displayed_font_y_size);
+	}
+	
+	glEnd();
+	glDisable(GL_ALPHA_TEST);	
 }
 
-void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_lines, float text_zoom)
+int draw_string (int x, int y, const unsigned char * our_string, int max_lines)
+{
+	return draw_string_zoomed (x, y, our_string, max_lines, 1.0f);
+}
+
+int draw_string_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float text_zoom)
 {
 	float displayed_font_x_size= 11.0*text_zoom;
 	float displayed_font_y_size= 18.0*text_zoom;
@@ -223,7 +310,7 @@ void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_
 	unsigned char cur_char;
 	int i;
 	int cur_x,cur_y;
-	int current_lines= 0;
+	int current_lines= 1;
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
@@ -247,7 +334,7 @@ void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_
 					cur_x=x;
 					i++;
 					current_lines++;
-					if(current_lines>=max_lines)break;
+					if(current_lines>max_lines)break;
 					continue;
 				}
 
@@ -257,62 +344,11 @@ void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_
 		}
 
 
-    glEnd();
+	glEnd();
 	glDisable(GL_ALPHA_TEST);
-
-}
-
-/*
-// returns how far to move for the next char, or negative on error
-int draw_font_char_scaled (int font, unsigned char ch, int x, int y, float zoom)
-{
-	float u_start, u_end, v_start, v_end;
-	int chr, col, row;
-	int displayed_font_width, displayed_font_height;
-	int font_x_size = FONT_X_SPACING;
-	int font_y_size = FONT_Y_SPACING;
-	int font_bit_width, ignored_bits;
-
-	set_font (font);
-	chr = find_font_char (ch);
-	if(chr < 0)
-	{
-		// watch for illegal/non-display characters
-		return 0;
-	}
-
-	// first, see where that char is, in the font.bmp
-	row = chr / FONT_CHARS_PER_LINE;
-	col = chr % FONT_CHARS_PER_LINE;
-
-	font_bit_width = get_font_width (chr);
-	displayed_font_width = (int) (0.5f + zoom * font_bit_width);
-	displayed_font_height = (int) (zoom * 18);
 	
-	ignored_bits = (12 - font_bit_width) / 2;	// how many bits on each side of the char are ignored?
-
-	//now get the texture coordinates
-	u_start = (float) (col * font_x_size + ignored_bits) / 256.0f;
-	u_end   = (float) (col * font_x_size + font_x_size - 7 - ignored_bits) / 256.0f;
-	v_start = (float) 1.0f - (1 + row * font_y_size) / 256.0f;
-	v_end   = (float) 1.0f - (row * font_y_size + font_y_size - 1) / 256.0f;
-
-	// and place the text from the graphics on the map
-	glTexCoord2f (u_start, v_start);
-	glVertex3i (x, y, 0);
-
-	glTexCoord2f (u_start, v_end);
-	glVertex3i (x, y + displayed_font_height + 1, 0);
-
-	glTexCoord2f (u_end, v_end);
-	glVertex3i (x + displayed_font_width, y + displayed_font_height + 1, 0);
-
-	glTexCoord2f (u_end, v_start);
-	glVertex3i (x + displayed_font_width, y, 0);
-
-	return displayed_font_width;	// return how far to move for the next character
+	return current_lines;
 }
-*/
 
 void draw_string_clipped(int x, int y, const unsigned char * our_string, int width, int height)
 {
@@ -389,8 +425,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 	}
 	
 	glEnd();
-	glDisable(GL_ALPHA_TEST);
-	
+	glDisable(GL_ALPHA_TEST);	
 }
 
 int reset_soft_breaks (char *str, float zoom, int width)
@@ -401,12 +436,14 @@ int reset_soft_breaks (char *str, float zoom, int width)
 	int ichar, iline, nlines;
 	float line_width;
 
+	if (str == NULL) return 0;
+
 	// remove all old soft line breaks
 	for (ichar = 0; str[ichar] != '\0'; ichar++)
 		if (str[ichar] == '\r') str[ichar] = ' ';
 
 	ichar = 0;
-	nlines = 0;
+	nlines = 1;
 	while (1)
 	{
 		// search the line until it's wider than the screen or

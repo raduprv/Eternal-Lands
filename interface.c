@@ -613,7 +613,7 @@ void draw_game_map (int map, int mouse_mini)
 			glEnd();
 		        glEnable(GL_TEXTURE_2D);
 		        glColor3f(1.0f,1.0f,0.0f);
-			draw_string_zoomed(screen_x,screen_y,input_text_line,1,0.3);
+			draw_string_zoomed (screen_x, screen_y, input_text_line.data, 1, 0.3);
 		}
 
 

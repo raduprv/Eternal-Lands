@@ -7,19 +7,28 @@
 #define __TEXT_H__
 
 #define MAX_DISPLAY_TEXT_BUFFER_LENGTH 264128 /*!< max. buffer length for displayable text */
+#define DISPLAY_TEXT_BUFFER_SIZE 5000 /*!< maximum number of lines in the text buffer */
+
+#define CHANNEL_LOCAL	-1	/*!< local chat */
+#define CHANNEL_GM	-2	/*!< guild messages */
+#define CHANNEL_ALL	-3	/*!< personal and mod messages */
+
+typedef struct
+{
+	int chan_nr;
+	Uint16 len, size;
+	Uint8 *data;
+} text_message;
+
+extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 
 extern float chat_zoom; /*!< zoom factor for chat text */
 
-extern char input_text_line[257]; /*!< user input text */
-extern int input_text_lenght; /*!< actual length of \see input_text_line */
-extern int input_text_lines; /*!< number of lines used by \see input_text_line. \todo check this desc. */
-extern char display_text_buffer[MAX_DISPLAY_TEXT_BUFFER_LENGTH]; /*!< buffer to hold the text to display */
-extern int nr_text_buffer_lines; /*!< The number of lines in the text buffer */
+extern text_message input_text_line; /*!< user input text */
+extern int total_nr_lines; /*!< The number of lines in the text buffer */
 
 extern int display_text_buffer_first;
 extern int display_text_buffer_last;
-
-extern int display_console_text_buffer_first;
 
 /*
  * OBSOLETE: Queued for removal from this file.
@@ -33,15 +42,27 @@ extern Uint32 last_server_message_time; /*!< timestamp of the last server messag
 extern int lines_to_show; /*!< number of lines to show at once */
 extern int max_lines_no;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Unused variable.
- */
-//extern char console_mode; /*!< flag that indicates whether we are in console mode or not */
-
 extern char not_from_the_end_console;
 
 extern int log_server; /*!< flag stating whether to log server messages or not */
+
+/*!
+ * \ingroup text_font
+ * \brief   Initializes the text buffers
+ *
+ *      Initializes the text buffers.
+ */
+void init_text_buffers ();
+
+/*!
+ * \ingroup text_font
+ * \brief   Adjusts the soft line breaks in the text buffers
+ *
+ *      Adjusts the soft line breaks in the text buffers
+ *
+ * \param new_width the new text width in pixels
+ */
+void adjust_line_breaks (int new_width);
 
 /*!
  * \ingroup text_font
@@ -80,15 +101,29 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len);
 
 /*!
  * \ingroup text_font
- * \brief   Puts the character ch in a buffer
+ * \brief   Puts a character in a buffer
  *
- *      Puts the given character into the text buffer
+ *      Puts the given character \a ch into the text buffer at position \a pos
  *
  * \param ch    the character to add
- *
+ * \param pos	the position at which the character is to be placed
+ * \retval int	1 if a character is inserted, 0 otherwise
  * \callgraph
  */
-void put_char_in_buffer(unsigned char ch);
+int put_char_in_buffer (Uint8 ch, int pos);
+
+/*!
+ * \ingroup text_font
+ * \brief    Inserts a string in a buffer
+ *
+ *      Inserts the given string \a str into the text buffer at position \a pos
+ *
+ * \param str	the string to add
+ * \param pos	the position at which the string is to be placed
+ * \retval int	the number of characters inserted
+ * \callgraph
+ */
+int put_string_in_buffer (const Uint8 *str, int pos);
 
 /*!
  * \ingroup text_font
@@ -159,11 +194,11 @@ void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit
  * \ingroup text_font
  * \brief find_last_lines_time
  *
- *      find_last_lines_time()
+ *      find_last_lines_time(int *, int *)
  *
  * \retval int
  */
-int find_last_lines_time();
+int find_last_lines_time (int *msg, int *offset);
 
 /* OBSOLETE declaration: queued for removal from this header file */
 //*!
@@ -183,10 +218,13 @@ int find_last_lines_time();
  *
  *	finds the position of the beginning of a line in the text buffer
  *
+ * \param nr_lines The total number of lines
  * \param line The number of the line to be found
+ * \param msg The message in which the lines is located
+ * \param offset The offset in the message at which the line starts
  * \retval The position of the beginning of the line
  */
-int find_line_nr (int line);
+int find_line_nr (int nr_lines, int line, int *msg, int *offset);
 
 /*!
  * \ingroup interface_console
@@ -239,6 +277,16 @@ void console_move_page_up();
  * \callgraph
  */
 void display_console_text();
+
+/*!
+ * \ingroup text_font
+ * \brief clears the text buffer
+ *
+ *      clears the text buffer
+ *
+ * \callgraph
+ */
+void clear_display_text_buffer ();
 
 #define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,buffer,-1,0) /*!< logs the text in buffer with the specified color to the console. */
 

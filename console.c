@@ -11,6 +11,7 @@
 
 char	auto_open_encyclopedia= 1;
 
+/* Currently UNUSED
 //cls - clears the text buffer
 void cls()
 {
@@ -29,6 +30,7 @@ void cls()
 	lines_to_show=0;
 	last_server_message_time=cur_time;
 }
+*/
 
 /* currently UNUSED
 void print_log()
@@ -70,7 +72,7 @@ void test_for_console_command (char *text, int len)
 	//cls?
 	if(my_strcompare(text_loc,"cls"))
 		{
-			cls();
+			clear_display_text_buffer ();
 			return;
 		}
 	if(my_strncompare(text_loc,"goto",4))

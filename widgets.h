@@ -6,6 +6,8 @@
 #ifndef	__WIDGETS_H
 #define	__WIDGETS_H
 
+#include "text.h"
+
 /*!
  * The widget list structure - each window has a widget list.
  */
@@ -143,9 +145,10 @@ typedef struct wl{
  */
 typedef struct
 {
-	int buf_size, buf_fill, buf_offset, cursor;
+	int msg, offset, cursor;
 	float text_r, text_g, text_b;
-	char *buffer;
+	int buf_size, buf_fill;
+	text_message *buffer;
 	Uint16 x_space, y_space;
 } text_field;
 
@@ -1058,7 +1061,7 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
  *
  * \sa text_field_add_extended
  */
-int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, char *buf, int buf_size, int x_space, int y_space);
+int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space);
 
 /*!
  * \ingroup	textfields
@@ -1089,7 +1092,7 @@ int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
  *
  * \sa text_field_add
  */
-int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *buf, int buf_size, int x_space, int y_space, float text_r, float text_g, float text_b);
+int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, int x_space, int y_space, float text_r, float text_g, float text_b);
 
 /*!
  * \ingroup	textfields
@@ -1111,11 +1114,12 @@ int text_field_draw (widget_list *w);
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param	widget_id The unique widget ID
- * \param	pos the new offset
+ * \param	msg the new message nr
+ * \param	offset the new offset within the message
  * \retval int  	Returns 1 on success, 0 on error
  * \callgraph
  */
-int text_field_set_buf_offset (Uint32 window_id, Uint32 widget_id, int pos);
+int text_field_set_buf_pos (Uint32 window_id, Uint32 widget_id, int msg, int offset);
 
 /*!
  * \ingroup	textfields
