@@ -35,6 +35,7 @@ void draw_particle_sys(particle_sys *system_id)
 	glTranslatef (x_pos, y_pos, z_pos);
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 	glBegin(GL_QUADS);
+	lock_particles_list();	//lock it to avoid timing issues
 	for(i=0;i<total_particle_no;i++)
 		if(!system_id->particles[i].free)
 			{
@@ -74,6 +75,7 @@ void draw_particle_sys(particle_sys *system_id)
 
 
 			}
+	unlock_particles_list();	// release now that we are done
 	glEnd();
 
 	glPopMatrix();
@@ -113,6 +115,7 @@ int add_teleporter(float x_pos, float y_pos, float z_pos)
 
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
+	lock_particles_list();	//lock it to avoid timing issues
 	//now, find a place for this system
 	for(i=0;i<max_particle_systems;i++)
 		{
@@ -168,6 +171,7 @@ int add_teleporter(float x_pos, float y_pos, float z_pos)
 				//mark as occupied
 				system_id->particles[j].free=0;
 			}
+	unlock_particles_list();	// release now that we are done
 	return i;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1458,6 +1462,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 	float x,y,z;
 
 	teleporters_no=*((Uint16 *)(teleport_list));
+	lock_particles_list();	//lock it to avoid timing issues
 	for(i=0;i<teleporters_no;i++)
 		{
 			my_offset=i*5+2;
@@ -1481,6 +1486,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 			add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
 
 		}
+	unlock_particles_list();
 
 }
 
