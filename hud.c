@@ -768,28 +768,55 @@ void init_stats_display()
 {
 	mana_bar_start_x=24;
 	mana_bar_start_y=window_height-44;
-	mana_bar_x_len=100;
-	mana_bar_y_len=8;
 
-	food_bar_start_x=mana_bar_start_x+mana_bar_x_len+40;
+	food_bar_start_x=mana_bar_start_x+100+40;
 	food_bar_start_y=mana_bar_start_y;
-	food_bar_x_len=100;
-	food_bar_y_len=8;
 
-	health_bar_start_x=food_bar_start_x+food_bar_x_len+40;
+	health_bar_start_x=food_bar_start_x+100+40;
 	health_bar_start_y=mana_bar_start_y;
-	health_bar_x_len=100;
-	health_bar_y_len=8;
 
-	load_bar_start_x=health_bar_start_x+health_bar_x_len+40;
+	load_bar_start_x=health_bar_start_x+100+40;
 	load_bar_start_y=mana_bar_start_y;
-	load_bar_x_len=100;
-	load_bar_y_len=8;
 
-	exp_bar_start_x=load_bar_start_x+load_bar_x_len+70;
+	exp_bar_start_x=load_bar_start_x+100+70;
 	exp_bar_start_y=mana_bar_start_y;
-	exp_bar_x_len=100;
-	exp_bar_y_len=8;
+}
+
+void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, float r2, float g2, float b2)
+{
+	unsigned char	buf[32];
+
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+	//draw the colored section
+	glColor3f(r2, g2, b2);
+	glVertex3i(x, y+8, 0);
+	glColor3f(r, g, b);
+	glVertex3i(x, y, 0);
+	glColor3f(r, g, b);
+	glVertex3i(x+len, y, 0);
+	glColor3f(r2, g2, b2);
+	glVertex3i(x+len, y+8, 0);
+	glEnd();
+
+	// draw the bar frame
+	glColor3f(0.77f, 0.57f, 0.39f);
+	glBegin(GL_LINES);
+	glVertex3i(x, y, 0);
+	glVertex3i(x+100, y, 0);
+	glVertex3i(x+100, y, 0);
+	glVertex3i(x+100, y+8, 0);
+	glVertex3i(x+100, y+8, 0);
+	glVertex3i(x, y+8, 0);
+	glVertex3i(x, y+8, 0);
+	glVertex3i(x, y, 0);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+
+	// handle the text
+	snprintf(buf, 32, "%d", val);
+	glColor3f(0.8f, 0.8f, 0.8f);
+	draw_string_small(x-(1+8*strlen(buf)), y-3, buf, 1);
 }
 
 void draw_stats_display()
@@ -798,134 +825,33 @@ void draw_stats_display()
 	float food_adjusted_x_len;
 	float mana_adjusted_x_len;
 	float load_adjusted_x_len;
-	char health_str[32];
-	char food_str[32];
-	char mana_str[32];
-	char load_str[32];
-
-	sprintf(health_str, "%3i",your_info.material_points.cur);
-	sprintf(food_str, "%3i",your_info.food_level);
-	sprintf(mana_str, "%3i",your_info.ethereal_points.cur);
-	sprintf(load_str, "%3i",your_info.carry_capacity.base-your_info.carry_capacity.cur);
 
 	//get the adjusted lenght
 
 	if(!your_info.material_points.cur || !your_info.material_points.base)
-	health_adjusted_x_len=0;//we don't want a div by 0
+		health_adjusted_x_len=0;//we don't want a div by 0
 	else
-	health_adjusted_x_len=health_bar_x_len/((float)your_info.material_points.base/(float)your_info.material_points.cur);
+		health_adjusted_x_len=health_bar_x_len/((float)your_info.material_points.base/(float)your_info.material_points.cur);
 
 	if(your_info.food_level<=0)
-	food_adjusted_x_len=0;//we don't want a div by 0
+		food_adjusted_x_len=0;//we don't want a div by 0
 	else
-	food_adjusted_x_len=health_bar_x_len/(45.0f/(float)your_info.food_level);
+		food_adjusted_x_len=health_bar_x_len/(45.0f/(float)your_info.food_level);
 
 	if(!your_info.ethereal_points.cur || !your_info.ethereal_points.base)
-	mana_adjusted_x_len=0;//we don't want a div by 0
+		mana_adjusted_x_len=0;//we don't want a div by 0
 	else
-	mana_adjusted_x_len=health_bar_x_len/((float)your_info.ethereal_points.base/(float)your_info.ethereal_points.cur);
+		mana_adjusted_x_len=health_bar_x_len/((float)your_info.ethereal_points.base/(float)your_info.ethereal_points.cur);
 
 	if(!your_info.carry_capacity.cur || !your_info.carry_capacity.base)
-	load_adjusted_x_len=0;//we don't want a div by 0
+		load_adjusted_x_len=0;//we don't want a div by 0
 	else
-	load_adjusted_x_len=health_bar_x_len/((float)your_info.carry_capacity.base/(float)your_info.carry_capacity.cur);
+		load_adjusted_x_len=health_bar_x_len/((float)your_info.carry_capacity.base/(float)your_info.carry_capacity.cur);
 
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	//draw the healthbar
-	glColor3f(0.5f, 0.2f, 0.2f);
-	glVertex3i(health_bar_start_x,health_bar_start_y+health_bar_y_len,0);
-	glColor3f(1.0f, 0.2f, 0.2f);
-	glVertex3i(health_bar_start_x,health_bar_start_y,0);
-	glColor3f(1.0f, 0.2f, 0.2f);
-	glVertex3i(health_bar_start_x+health_adjusted_x_len,health_bar_start_y,0);
-	glColor3f(0.5f, 0.2f, 0.2f);
-	glVertex3i(health_bar_start_x+health_adjusted_x_len,health_bar_start_y+health_bar_y_len,0);
-
-	//draw the food bar
-	glColor3f(0.5f, 0.5f, 0.2f);
-	glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
-	glColor3f(1.0f, 1.0f, 0.2f);
-	glVertex3i(food_bar_start_x,food_bar_start_y,0);
-	glColor3f(1.0f, 1.0f, 0.2f);
-	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y,0);
-	glColor3f(0.5f, 0.5f, 0.2f);
-	glVertex3i(food_bar_start_x+food_adjusted_x_len,food_bar_start_y+food_bar_y_len,0);
-
-	//draw the mana bar
-	glColor3f(0.2f, 0.2f, 0.5f);
-	glVertex3i(mana_bar_start_x,mana_bar_start_y+mana_bar_y_len,0);
-	glColor3f(0.2f, 0.2f, 1.0f);
-	glVertex3i(mana_bar_start_x,mana_bar_start_y,0);
-	glColor3f(0.2f, 0.2f, 1.0f);
-	glVertex3i(mana_bar_start_x+mana_adjusted_x_len,mana_bar_start_y,0);
-	glColor3f(0.2f, 0.2f, 0.5f);
-	glVertex3i(mana_bar_start_x+mana_adjusted_x_len,mana_bar_start_y+mana_bar_y_len,0);
-
-	//draw the load bar
-	glColor3f(0.4f, 0.2f, 0.2f);
-	glVertex3i(load_bar_start_x,load_bar_start_y+load_bar_y_len,0);
-	glColor3f(0.6f, 0.4f, 0.4f);
-	glVertex3i(load_bar_start_x,load_bar_start_y,0);
-	glColor3f(0.6f, 0.4f, 0.4f);
-	glVertex3i(load_bar_start_x+load_adjusted_x_len,load_bar_start_y,0);
-	glColor3f(0.4f, 0.2f, 0.2f);
-	glVertex3i(load_bar_start_x+load_adjusted_x_len,load_bar_start_y+load_bar_y_len,0);
-
-	glEnd();
-
-
-	//glColor3f(0.4f, 0.4f, 0.4f);
-	glColor3f(0.77f,0.57f,0.39f);
-	glBegin(GL_LINES);
-	//draw the frame for the health bar
-	glVertex3i(health_bar_start_x,health_bar_start_y,0);
-	glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y,0);
-	glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y,0);
-	glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y+health_bar_y_len,0);
-	glVertex3i(health_bar_start_x+health_bar_x_len,health_bar_start_y+health_bar_y_len,0);
-	glVertex3i(health_bar_start_x,health_bar_start_y+health_bar_y_len,0);
-	glVertex3i(health_bar_start_x,health_bar_start_y+health_bar_y_len,0);
-	glVertex3i(health_bar_start_x,health_bar_start_y,0);
-
-	//draw the frame for the food bar
-	glVertex3i(food_bar_start_x,food_bar_start_y,0);
-	glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y,0);
-	glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y,0);
-	glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y+food_bar_y_len,0);
-	glVertex3i(food_bar_start_x+food_bar_x_len,food_bar_start_y+food_bar_y_len,0);
-	glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
-	glVertex3i(food_bar_start_x,food_bar_start_y+food_bar_y_len,0);
-	glVertex3i(food_bar_start_x,food_bar_start_y,0);
-
-	//draw the frame for the mana bar
-	glVertex3i(mana_bar_start_x,mana_bar_start_y,0);
-	glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y,0);
-	glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y,0);
-	glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y+mana_bar_y_len,0);
-	glVertex3i(mana_bar_start_x+mana_bar_x_len,mana_bar_start_y+mana_bar_y_len,0);
-	glVertex3i(mana_bar_start_x,mana_bar_start_y+mana_bar_y_len,0);
-	glVertex3i(mana_bar_start_x,mana_bar_start_y+mana_bar_y_len,0);
-	glVertex3i(mana_bar_start_x,mana_bar_start_y,0);
-
-	//draw the frame for the load bar
-	glVertex3i(load_bar_start_x,load_bar_start_y,0);
-	glVertex3i(load_bar_start_x+load_bar_x_len,load_bar_start_y,0);
-	glVertex3i(load_bar_start_x+load_bar_x_len,load_bar_start_y,0);
-	glVertex3i(load_bar_start_x+load_bar_x_len,load_bar_start_y+load_bar_y_len,0);
-	glVertex3i(load_bar_start_x+load_bar_x_len,load_bar_start_y+load_bar_y_len,0);
-	glVertex3i(load_bar_start_x,load_bar_start_y+load_bar_y_len,0);
-	glVertex3i(load_bar_start_x,load_bar_start_y+load_bar_y_len,0);
-	glVertex3i(load_bar_start_x,load_bar_start_y,0);
-
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-
-	glColor3f(0.8f, 0.8f, 0.8f);
-	draw_string_small(health_bar_start_x-24,health_bar_start_y-3,health_str,1);
-	draw_string_small(food_bar_start_x-24,food_bar_start_y-3,food_str,1);
-	draw_string_small(mana_bar_start_x-24,mana_bar_start_y-3,mana_str,1);
-	draw_string_small(load_bar_start_x-24,load_bar_start_y-3,load_str,1);
+	draw_stats_bar(health_bar_start_x, health_bar_start_y, your_info.material_points.cur, health_adjusted_x_len, 1.0f, 0.2f, 0.2f, 0.5f, 0.2f, 0.2f);
+	draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
+	draw_stats_bar(mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
+	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
 }
 
 int check_stats_display()
@@ -1261,7 +1187,6 @@ void draw_exp_display()
 	int nl_exp, baselev, cur_exp;
 	int delta_exp;
 	float prev_exp;
-	char exp_str[12];
 
 	switch(watch_this_stat){
 	case 1: // attack
@@ -1306,9 +1231,10 @@ void draw_exp_display()
 		baselev = your_info.overall_skill.base;
 	}
 
-	if(!baselev)prev_exp=0;
+	if(!baselev)
+		prev_exp=0;
 	else
-	prev_exp=exp_lev[baselev];
+		prev_exp=exp_lev[baselev];
 
 	nl_exp=exp_lev[baselev+1];
 	delta_exp=nl_exp-prev_exp;
@@ -1319,36 +1245,5 @@ void draw_exp_display()
 		//exp_bar_length = (int)( (((float)cur_exp - prev_exp) / ((float)nl_exp - prev_exp)) * 100.0);
 		exp_adjusted_x_len = 100-100.0f/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
-	glDisable(GL_TEXTURE_2D);
-
-	// draw the exp bar
-	glBegin(GL_QUADS);
-	glColor3f(0.1f, 0.4f, 0.1f);
-	glVertex3i(exp_bar_start_x,exp_bar_start_y+exp_bar_y_len,0);
-	glColor3f(0.1f, 0.8f, 0.1f);
-	glVertex3i(exp_bar_start_x,exp_bar_start_y,0);
-	glColor3f(0.1f, 0.8f, 0.1f);
-	glVertex3i(exp_bar_start_x+exp_adjusted_x_len,exp_bar_start_y,0);
-	glColor3f(0.1f, 0.4f, 0.1f);
-	glVertex3i(exp_bar_start_x+exp_adjusted_x_len,exp_bar_start_y+exp_bar_y_len,0);
-	glEnd();
-
-	// draw the exp bar frame
-	glBegin(GL_LINES);
-	glColor3f(0.77f, 0.57f, 0.39f);
-	// draw the exp bar frame
-	glVertex3i(exp_bar_start_x,exp_bar_start_y,0);
-	glVertex3i(exp_bar_start_x+exp_bar_x_len,exp_bar_start_y,0);
-	glVertex3i(exp_bar_start_x+exp_bar_x_len,exp_bar_start_y,0);
-	glVertex3i(exp_bar_start_x+exp_bar_x_len,exp_bar_start_y+exp_bar_y_len,0);
-	glVertex3i(exp_bar_start_x+exp_bar_x_len,exp_bar_start_y+exp_bar_y_len,0);
-	glVertex3i(exp_bar_start_x,exp_bar_start_y+exp_bar_y_len,0);
-	glVertex3i(exp_bar_start_x,exp_bar_start_y+exp_bar_y_len,0);
-	glVertex3i(exp_bar_start_x,exp_bar_start_y,0);
-	glEnd();
-
-	glEnable(GL_TEXTURE_2D);
-	glColor3f(0.87f, 0.67f, 0.49f);
-	sprintf(exp_str, "%8i", nl_exp - cur_exp);
-	draw_string_small(exp_bar_start_x-64,exp_bar_start_y-3,exp_str,1);
+	draw_stats_bar(exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 1.0f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
 }
