@@ -67,7 +67,6 @@
 #include "sound.h"
 #include "ignore.h"
 #include "filter.h"
-#include "help.h"
 #include "weather.h"
 #include "stats.h"
 #include "items.h"
