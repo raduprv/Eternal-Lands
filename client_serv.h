@@ -334,6 +334,7 @@
 #define LOOK_AT_TRADE_ITEM 38
 #define CAST_SPELL 39
 #define ATTACK_SOMEONE 40
+#define GET_KNOWLEDGE_INFO 41
 
 #define GET_DATE 230
 #define GET_TIME 231
@@ -398,7 +399,8 @@
 #define ACTOR_UNWEAR_ITEM 53
 #define PLAY_MUSIC 54
 #define GET_KNOWLEDGE_LIST 55
-#define GET_RESEARCH_INFO 56
+#define GET_NEW_KNOWLEDGE 56
+#define GET_KNOWLEDGE_TEXT 57 
 
 #define UPGRADE_NEW_VERSION 240
 #define UPGRADE_TOO_OLD 241
@@ -447,8 +449,8 @@
 #define HARV_S_BASE 27
 #define ALCH_S_CUR 28
 #define ALCH_S_BASE 29
-#define COMB_S_CUR 30
-#define COMB_S_BASE 31
+#define OVRL_S_CUR 30
+#define OVRL_S_BASE 31
 #define DEF_S_CUR 32
 #define DEF_S_BASE 33
 #define ATT_S_CUR 34
@@ -464,7 +466,7 @@
 #define ETH_POINT_CUR 44
 #define ETH_POINT_BASE 45
 #define FOOD_LEV 46
-#define ARMOR_STR 47
+#define RESEARCHING 47
 #define MAG_RES 48
 #define MAN_EXP 49
 #define MAN_EXP_NEXT 50
@@ -472,8 +474,8 @@
 #define HARV_EXP_NEXT 52
 #define ALCH_EXP 53
 #define ALCH_EXP_NEXT 54
-#define COMB_EXP 55
-#define COMB_EXP_NEXT 56
+#define OVRL_EXP 55
+#define OVRL_EXP_NEXT 56
 #define DEF_EXP 57
 #define DEF_EXP_NEXT 58
 #define ATT_EXP 59
@@ -482,8 +484,8 @@
 #define MAG_EXP_NEXT 62
 #define POT_EXP 63
 #define POT_EXP_NEXT 64
-#define WEAP_ACCURACY 65
-#define WEAP_DAMAGE 66
+#define RESEARCH_COMPLETED 65
+#define RESEARCH_TOTAL 66
 #define SUM_EXP 67
 #define SUM_EXP_NEXT 68
 #define SUM_S_CUR 69

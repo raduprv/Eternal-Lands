@@ -343,13 +343,13 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_KNOWLEDGE_LIST:
 			{
-				get_knowledge_list(in_data+3);
+				get_knowledge_list(*(Uint16 *)(in_data+1), in_data+3);
 			}
 			break;
 
-		case GET_RESEARCH_INFO:
+		case GET_NEW_KNOWLEDGE:
 			{
-				get_research_info(*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)),in_data+7);
+				get_new_knowledge(*(Uint16 *)(in_data+3));
 			}
 			break;
 
@@ -381,6 +381,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+100,spell_text);
 				have_error_message=1;
+			}
+			break;
+
+		case GET_KNOWLEDGE_TEXT:
+			{
+				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+100,knowledge_string);
 			}
 			break;
 

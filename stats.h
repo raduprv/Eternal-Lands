@@ -26,14 +26,13 @@ typedef struct
 	attrib_16 artificial_nex;
 	attrib_16 magic_nex;
 
-	attrib_16 karma;
 	attrib_16 material_points;
 	attrib_16 ethereal_points;
 
 	attrib_16 manufacturing_skill;
 	attrib_16 harvesting_skill;
 	attrib_16 alchemy_skill;
-	attrib_16 combat_skill;
+	attrib_16 overall_skill;
 	attrib_16 attack_skill;
 	attrib_16 defense_skill;
 	attrib_16 magic_skill;
@@ -43,10 +42,6 @@ typedef struct
 
 	attrib_16 carry_capacity;
 	Sint8 food_level;
-	Sint8 armor;
-	Sint8 damage;
-	Sint8 accuracy;
-	Sint8 magic_resistence;
 
 	Uint32 manufacturing_exp;
 	Uint32 manufacturing_exp_next_lev;
@@ -54,8 +49,8 @@ typedef struct
 	Uint32 harvesting_exp_next_lev;
 	Uint32 alchemy_exp;
 	Uint32 alchemy_exp_next_lev;
-	Uint32 combat_exp;
-	Uint32 combat_exp_next_lev;
+	Uint32 overall_exp;
+	Uint32 overall_exp_next_lev;
 	Uint32 attack_exp;
 	Uint32 attack_exp_next_lev;
 	Uint32 defense_exp;
@@ -69,6 +64,9 @@ typedef struct
 	Uint32 crafting_exp;
 	Uint32 crafting_exp_next_lev;
 
+	Uint16 researching;
+	Uint16 research_completed;
+	Uint16 research_total;
 } player_attribs;
 
 extern int attrib_menu_x;

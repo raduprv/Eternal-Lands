@@ -4,22 +4,23 @@
 int view_knowledge=0;
 int knowledge_menu_x=100;
 int knowledge_menu_y=20;
-int knowledge_menu_x_len=400;
+int knowledge_menu_x_len=500;
 int knowledge_menu_y_len=350;
 int knowledge_menu_dragged=0;
 
-_knowledge knowledge_list[200];
+knowledge knowledge_list[300];
 
-char research_name[16]="none";
-short research_points[2]={0,0};
-char points_string[16]="   0/0   ";
 int page_start = 0;
+
+char knowledge_string[300]="";
 
 void display_knowledge()
 {
 	int i,x=knowledge_menu_x+2,y=knowledge_menu_y+2;
-	int progress = (125*research_points[0]+1)/(research_points[1]+1);
-	int scroll = (130*page_start)/(200-76);
+	int progress = (125*your_info.research_completed+1)/(your_info.research_total+1);
+	int scroll = (120*page_start)/(300-38);
+	char points_string[16];
+	sprintf(points_string,"%4i/%-4i",your_info.research_completed,your_info.research_total);
 	//title bar
 	draw_menu_title_bar(knowledge_menu_x,knowledge_menu_y-16,knowledge_menu_x_len);
 	// window drawing
@@ -66,14 +67,14 @@ void display_knowledge()
 	glVertex3i(knowledge_menu_x+knowledge_menu_x_len-10,knowledge_menu_y+190,0);
 	glVertex3i(knowledge_menu_x+knowledge_menu_x_len-5,knowledge_menu_y+185,0);
 	//progress bar
-	glVertex3i(knowledge_menu_x+250,knowledge_menu_y+315,0);
-	glVertex3i(knowledge_menu_x+375,knowledge_menu_y+315,0);
-	glVertex3i(knowledge_menu_x+250,knowledge_menu_y+335,0);
-	glVertex3i(knowledge_menu_x+375,knowledge_menu_y+335,0);
-	glVertex3i(knowledge_menu_x+250,knowledge_menu_y+315,0);
-	glVertex3i(knowledge_menu_x+250,knowledge_menu_y+335,0);
-	glVertex3i(knowledge_menu_x+375,knowledge_menu_y+315,0);
-	glVertex3i(knowledge_menu_x+375,knowledge_menu_y+335,0);
+	glVertex3i(knowledge_menu_x+330,knowledge_menu_y+315,0);
+	glVertex3i(knowledge_menu_x+455,knowledge_menu_y+315,0);
+	glVertex3i(knowledge_menu_x+330,knowledge_menu_y+335,0);
+	glVertex3i(knowledge_menu_x+455,knowledge_menu_y+335,0);
+	glVertex3i(knowledge_menu_x+330,knowledge_menu_y+315,0);
+	glVertex3i(knowledge_menu_x+330,knowledge_menu_y+335,0);
+	glVertex3i(knowledge_menu_x+455,knowledge_menu_y+315,0);
+	glVertex3i(knowledge_menu_x+455,knowledge_menu_y+335,0);
 	glEnd();
 	glBegin(GL_QUADS);
 	//scroll bar
@@ -83,28 +84,29 @@ void display_knowledge()
 	glVertex3i(knowledge_menu_x+knowledge_menu_x_len-13,knowledge_menu_y+55+scroll,0);
 	//progress bar
 	glColor3f(0.40f,0.40f,1.00f);
-	glVertex3i(knowledge_menu_x+251,knowledge_menu_y+316,0);
-	glVertex3i(knowledge_menu_x+250+progress,knowledge_menu_y+316,0);
+	glVertex3i(knowledge_menu_x+331,knowledge_menu_y+316,0);
+	glVertex3i(knowledge_menu_x+330+progress,knowledge_menu_y+316,0);
 	glColor3f(0.10f,0.10f,0.80f);
-	glVertex3i(knowledge_menu_x+250+progress,knowledge_menu_y+334,0);
-	glVertex3i(knowledge_menu_x+251,knowledge_menu_y+334,0);
+	glVertex3i(knowledge_menu_x+330+progress,knowledge_menu_y+334,0);
+	glVertex3i(knowledge_menu_x+331,knowledge_menu_y+334,0);
 	glColor3f(0.77f,0.57f,0.39f);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	
 	draw_string(knowledge_menu_x+knowledge_menu_x_len-16,knowledge_menu_y+2,"X",1);
 	//draw text
-	draw_string_small(knowledge_menu_x+4,knowledge_menu_y+215,items_string,4);
+	draw_string_small(knowledge_menu_x+4,knowledge_menu_y+215,knowledge_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(knowledge_menu_x+10,knowledge_menu_y+320,"Researching:",1);
-	draw_string_small(knowledge_menu_x+120,knowledge_menu_y+320,research_name,1);
-	draw_string_small(knowledge_menu_x+275,knowledge_menu_y+320,points_string,1);
+	draw_string_small(knowledge_menu_x+120,knowledge_menu_y+320,knowledge_list[your_info.researching].name,1);
+	draw_string_small(knowledge_menu_x+355,knowledge_menu_y+320,points_string,1);
 	// Draw knowledges
-	for(i=page_start;i<page_start+76;i++){
+	for(i=page_start;i<page_start+38;i++){
 		knowledge_list[i].mouse_over ? glColor3f(0.1f,0.1f,0.9f) : glColor3f(0.9f,0.9f,0.9f);
-		draw_string_zoomed(x,y,knowledge_list[i].name,1,0.7);
-		x+=99;
-		if(i%4==3){y+=10;x=knowledge_menu_x+2;}
+		if(knowledge_list[i].present)
+			draw_string_zoomed(x,y,knowledge_list[i].name,1,0.7);
+		x+=240;
+		if(i%2==1){y+=10;x=knowledge_menu_x+2;}
 	}
 	return;
 }
@@ -121,17 +123,17 @@ int knowledge_mouse_over()
 		return 1;
 	if(y>192)
 		return 1;
-	x/=99;
+	x/=240;
 	y/=10;
-	knowledge_list[page_start+y*4+x].mouse_over=1;
+	knowledge_list[page_start+y*2+x].mouse_over=1;
 	return 1;
 }
 
 
 int check_knowledge_interface()
 {
-	int x,y,len,idx;
-	char str[100];
+	int x,y,idx;
+	char str[3];
 	if(!view_knowledge || mouse_x>knowledge_menu_x+knowledge_menu_x_len || mouse_x<knowledge_menu_x
 	   || mouse_y<knowledge_menu_y || mouse_y>knowledge_menu_y+knowledge_menu_y_len)return 0;
 
@@ -147,7 +149,7 @@ int check_knowledge_interface()
 	if(x > knowledge_menu_x_len-16 && x < knowledge_menu_x_len &&
 	   y > 180 && y < 180+16)
 		{
-			if(page_start < 200-76-4)
+			if(page_start < 300-38-4)
 				page_start += 4;
 			return 1;
 		}
@@ -155,53 +157,35 @@ int check_knowledge_interface()
 		return 1;
 	if(y>192)
 		return 1;
-	x/=99;
+	x/=240;
 	y/=10;
-	idx = page_start+y*4+x;
-	if(idx < 200 && *(knowledge_list[idx].name))
+	idx = page_start+y*2+x;
+	if(idx < 200 && knowledge_list[idx].present)
 		{
-			str[0] = RAW_TEXT;
-			len = strlen(knowledge_list[idx].name) + 5;
-			strcpy(str+1,"#ki ");
-			strcpy(str+5,knowledge_list[idx].name);
-			str[len+1]=0;
-			my_tcp_send(my_socket,str,len);
+			str[0] = GET_KNOWLEDGE_INFO;
+			*(Uint16 *)(str+1) = idx;
+			my_tcp_send(my_socket,str,3);
 		}
 	return 1;
 } 
 
-void get_knowledge_list(char *list)
+void get_knowledge_list(Uint16 size, char *list)
 {
-	int i=0,j=0,k;
-	for(k=0;k<200;k++)
+	int i;
+	for(i=0;i<size;i++)
 		{
-			knowledge_list[k].name[0]='\0';
-		}
-	while(*list)
-		{
-			if(*list == ',')
-				{
-					knowledge_list[i].name[j]='\0';
-					j=0;
-					i++;
-				}
-			else
-				{
-					if(j<15)
-						{
-							knowledge_list[i].name[j]=*list;
-							j++;
-						}
-				}
-			list++;
+			knowledge_list[i*8+0].present=list[i] & 0x01;
+			knowledge_list[i*8+1].present=list[i] & 0x02;
+			knowledge_list[i*8+2].present=list[i] & 0x04;
+			knowledge_list[i*8+3].present=list[i] & 0x08;
+			knowledge_list[i*8+4].present=list[i] & 0x10;
+			knowledge_list[i*8+5].present=list[i] & 0x20;
+			knowledge_list[i*8+6].present=list[i] & 0x40;
+			knowledge_list[i*8+7].present=list[i] & 0x80;
 		}
 }
 
-void get_research_info(Uint16 points_remain, Uint16 points_total, char *name)
+void get_new_knowledge(Uint16 idx)
 {
-	research_points[0]=points_remain;
-	research_points[1]=points_total;
-	sprintf(points_string,"%4i/%-4i",points_remain,points_total);
-	strncpy(research_name,name,15);
-	research_name[15]='\0';
+	knowledge_list[idx].present=1;
 }

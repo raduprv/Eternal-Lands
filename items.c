@@ -114,7 +114,6 @@ void display_items_menu()
 
 	glColor3f(0.57f,0.67f,0.49f);
 	//draw the small grid
-#ifdef NEW_VERSION
 	for(y=0;y<5;y++)
 		{
 			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+y*33,0);
@@ -125,18 +124,6 @@ void display_items_menu()
 			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset,0);
 			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset+4*33,0);
 		}
-#else
-	for(y=0;y<4;y++)
-		{
-			glVertex3i(items_menu_x+wear_items_x_offset,items_menu_y+wear_items_y_offset+y*33,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+2*33,items_menu_y+wear_items_y_offset+y*33,0);
-		}
-	for(x=0;x<3;x++)
-		{
-			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset,0);
-			glVertex3i(items_menu_x+wear_items_x_offset+x*33,items_menu_y+wear_items_y_offset+3*33,0);
-		}
-#endif
 	glColor3f(0.77f,0.57f,0.39f);
 	//draw the corner, with the X in
 	glVertex3i(items_menu_x+items_menu_x_len,items_menu_y+20,0);
@@ -272,7 +259,6 @@ void get_your_items(Uint8 *data)
 		{
 			item_list[i].quantity=0;
 		}
-#ifdef NEW_VERSION
 	for(i=0;i<total_items;i++)
 		{
 			item_list[i].image_id=*((Uint16 *)(data+i*8+1));
@@ -287,22 +273,6 @@ void get_your_items(Uint8 *data)
 			if((flags&ITEM_INVENTORY_USABLE))item_list[i].use_with_inventory=1;
 			else item_list[i].use_with_inventory=0;
 		}
-#else
-	for(i=0;i<total_items;i++)
-		{
-			item_list[i].image_id=data[i*5+1];
-			item_list[i].quantity=*((Uint16 *)(data+i*5+1+1));
-			item_list[i].pos=data[i*5+1+3];
-			flags=data[i*5+1+4];
-
-			if((flags&ITEM_RESOURCE))item_list[i].is_resource=1;
-			else item_list[i].is_resource=0;
-			if((flags&ITEM_REAGENT))item_list[i].is_reagent=1;
-			else item_list[i].is_reagent=0;
-			if((flags&ITEM_INVENTORY_USABLE))item_list[i].use_with_inventory=1;
-			else item_list[i].use_with_inventory=0;
-		}
-#endif
 	build_manufacture_list();
 
 }
@@ -424,11 +394,7 @@ int check_items_interface()
 			}
 
 	//see if we clicked on any item in the wear category
-#ifdef NEW_VERSION
 	for(y=0;y<4;y++)
-#else
-	for(y=0;y<3;y++)
-#endif
 		for(x=0;x<2;x++)
 			{
 				x_screen=wear_items_x_offset+items_menu_x+x*33;
@@ -549,17 +515,10 @@ void get_new_inventory_item(Uint8 *data)
 	int quantity;
 	int image_id;
 
-#ifdef NEW_VERSION
 	pos=data[6];
 	flags=data[7];
 	image_id=*((Uint16 *)(data));
 	quantity=*((Uint32 *)(data+2));
-#else
-	pos=data[3];
-	flags=data[4];
-	image_id=data[0];
-	quantity=*((Uint16 *)(data+1));
-#endif
 
 	//first, try to see if the items already exists, and replace it
 	for(i=0;i<36+6;i++)
@@ -709,19 +668,11 @@ void draw_pick_up_menu()
 //do the flags later on
 void get_bag_item(Uint8 *data)
 {
-	//int i; unused?
 	int pos;
-#ifdef NEW_VERSION
 	pos=data[6];
 	ground_item_list[pos].image_id=*((Uint16 *)(data));
 	ground_item_list[pos].quantity=*((Uint32 *)(data+2));
 	ground_item_list[pos].pos=pos;
-#else
-	pos=data[5];
-	ground_item_list[pos].image_id=data[0];
-	ground_item_list[pos].quantity=*((Uint32 *)(data+1));
-	ground_item_list[pos].pos=pos;
-#endif
 }
 
 //put the flags later on
@@ -742,17 +693,10 @@ void get_bags_items_list(Uint8 *data)
 	for(i=0;i<items_no;i++)
 		{
 			my_offset=i*7+1;
-#ifdef NEW_VERSION
 			pos=data[my_offset+6];
 			ground_item_list[pos].image_id=*((Uint16 *)(data+my_offset));
 			ground_item_list[pos].quantity=*((Uint32 *)(data+my_offset+2));
 			ground_item_list[pos].pos=pos;
-#else
-			pos=data[my_offset+5];
-			ground_item_list[pos].image_id=data[my_offset];
-			ground_item_list[pos].quantity=*((Uint32 *)(data+my_offset+1));
-			ground_item_list[pos].pos=pos;
-#endif
 		}
 
 }

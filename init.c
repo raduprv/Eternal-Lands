@@ -92,6 +92,25 @@ void load_entrable_list()
 	fclose(f);
 }
 
+void load_knowledge_list()
+{
+	FILE *f = NULL;
+	int i=0;
+	char strLine[255];
+
+	memset(knowledge_list, 0, sizeof(knowledge_list)); 
+	i=0;
+	f=fopen("knowledge.lst", "rb");
+	if(!f)return;
+	while(1)
+		{
+			if(!fgets(strLine, 100, f))break;
+			strcpy(knowledge_list[i].name,strLine);
+			i++;
+		}
+	fclose(f);
+}
+
 void read_config()
 {
 	FILE *f = NULL;
@@ -401,6 +420,7 @@ void init_stuff()
 	build_help();
 	load_harvestable_list();
 	load_entrable_list();
+	load_knowledge_list();
 	load_cursors();
 	build_cursors();
 	change_cursor(CURSOR_ARROW);

@@ -513,7 +513,6 @@ void put_item_on_trade(Uint8 *data)
 {
 	int pos;
 
-#ifdef NEW_VERSION
 	pos=data[6];
 	if(!data[7])
 	{
@@ -525,19 +524,6 @@ void put_item_on_trade(Uint8 *data)
 		others_trade_list[pos].image_id=*((Uint16 *)(data));
 		others_trade_list[pos].quantity+=*((Uint32 *)(data+2));
 	}
-#else	//NEW_VERSION
-	pos=data[3];
-	if(!data[4])
-	{
-		your_trade_list[pos].image_id=data[0];
-		your_trade_list[pos].quantity+=*((Uint16 *)(data+1));
-	}
-	else
-	{
-		others_trade_list[pos].image_id=data[0];
-		others_trade_list[pos].quantity+=*((Uint16 *)(data+1));
-	}
-#endif	//NEW_VERSION
 }
 
 void remove_item_from_trade(Uint8 *data)
