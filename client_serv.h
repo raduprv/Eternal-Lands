@@ -162,7 +162,7 @@
 #define frame_die1 2
 #define frame_die2 3
 #define frame_pain1 4
-#define frame_pain2 15
+#define frame_pain2 11
 #define frame_pick 5
 #define frame_drop 6
 #define frame_idle 7

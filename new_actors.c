@@ -429,33 +429,53 @@ void add_enhanced_actor_from_server(char * in_data)
 	f_z_rot=z_rot;
 
 	//get the current frame
-	if(frame==frame_walk)my_strcp(cur_frame,actors_defs[actor_type].walk_frame);
-	else if(frame==frame_run)my_strcp(cur_frame,actors_defs[actor_type].run_frame);
-	else if(frame==frame_die1)
+	switch(frame) {
+	case frame_walk:
+		my_strcp(cur_frame,actors_defs[actor_type].walk_frame);break;
+	case frame_run:
+		my_strcp(cur_frame,actors_defs[actor_type].run_frame);break;
+	case frame_die1:
+		my_strcp(cur_frame,actors_defs[actor_type].die1_frame);
+		dead=1;
+		break;
+	case frame_die2:
+		my_strcp(cur_frame,actors_defs[actor_type].die2_frame);
+		dead=1;
+		break;
+	case frame_pain1:
+		my_strcp(cur_frame,actors_defs[actor_type].pain1_frame);break;
+	case frame_pain2:
+		my_strcp(cur_frame,actors_defs[actor_type].pain2_frame);break;
+	case frame_pick:
+		my_strcp(cur_frame,actors_defs[actor_type].pick_frame);break;
+	case frame_drop:
+		my_strcp(cur_frame,actors_defs[actor_type].drop_frame);break;
+	case frame_idle:
+		my_strcp(cur_frame,actors_defs[actor_type].idle_frame);break;
+	case frame_sit_idle:
+		my_strcp(cur_frame,actors_defs[actor_type].idle_sit_frame);break;
+	case frame_harvest:
+		my_strcp(cur_frame,actors_defs[actor_type].harvest_frame);break;
+	case frame_cast:
+		my_strcp(cur_frame,actors_defs[actor_type].attack_cast_frame);break;
+	case frame_attack_up_1:
+		my_strcp(cur_frame,actors_defs[actor_type].attack_up_1_frame);break;
+	case frame_attack_up_2:
+		my_strcp(cur_frame,actors_defs[actor_type].attack_up_2_frame);break;
+	case frame_attack_up_3:
+		my_strcp(cur_frame,actors_defs[actor_type].attack_up_3_frame);break;
+	case frame_attack_up_4:
+		my_strcp(cur_frame,actors_defs[actor_type].attack_up_4_frame);break;
+	case frame_attack_down_1:
+		my_strcp(cur_frame,actors_defs[actor_type].attack_down_1_frame);break;
+	case frame_attack_down_2:
+		my_strcp(cur_frame,actors_defs[actor_type].attack_down_2_frame);break;
+	case frame_combat_idle:
+		my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);break;
+	default:
 		{
-			my_strcp(cur_frame,actors_defs[actor_type].die1_frame);
-			dead=1;
 		}
-	else if(frame==frame_die2)
-		{
-			my_strcp(cur_frame,actors_defs[actor_type].die2_frame);
-			dead=1;
-		}
-	else if(frame==frame_pain1)my_strcp(cur_frame,actors_defs[actor_type].pain1_frame);
-	else if(frame==frame_pain2)my_strcp(cur_frame,actors_defs[actor_type].pain2_frame);
-	else if(frame==frame_pick)my_strcp(cur_frame,actors_defs[actor_type].pick_frame);
-	else if(frame==frame_drop)my_strcp(cur_frame,actors_defs[actor_type].drop_frame);
-	else if(frame==frame_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_frame);
-	else if(frame==frame_sit_idle)my_strcp(cur_frame,actors_defs[actor_type].idle_sit_frame);
-	else if(frame==frame_harvest)my_strcp(cur_frame,actors_defs[actor_type].harvest_frame);
-	else if(frame==frame_cast)my_strcp(cur_frame,actors_defs[actor_type].attack_cast_frame);
-	else if(frame==frame_attack_up_1)my_strcp(cur_frame,actors_defs[actor_type].attack_up_1_frame);
-	else if(frame==frame_attack_up_2)my_strcp(cur_frame,actors_defs[actor_type].attack_up_2_frame);
-	else if(frame==frame_attack_up_3)my_strcp(cur_frame,actors_defs[actor_type].attack_up_3_frame);
-	else if(frame==frame_attack_up_4)my_strcp(cur_frame,actors_defs[actor_type].attack_up_4_frame);
-	else if(frame==frame_attack_down_1)my_strcp(cur_frame,actors_defs[actor_type].attack_down_1_frame);
-	else if(frame==frame_attack_down_2)my_strcp(cur_frame,actors_defs[actor_type].attack_down_2_frame);
-	else if(frame==frame_combat_idle)my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);
+	}
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
