@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include "global.h"
 
 //returns -1 if the name is already ignored, 1 on sucess, -2 if no more ignore slots

@@ -92,5 +92,20 @@ extern char items_string[300];
 
 extern int item_quantity;
 
+void display_items_menu();
+void get_your_items(Uint8 *data);
+int check_items_interface();
+void drag_item();
+void remove_item_from_inventory(int pos);
+void remove_item_from_ground(Uint8 pos);
+void get_new_inventory_item(Uint8 *data);
+void draw_pick_up_menu();
+void get_bag_item(Uint8 *data);
+void get_bags_items_list(Uint8 *data);
+void put_bag_on_ground(int bag_x,int bag_y,int bag_id);
+void add_bags_from_list(Uint8 *data);
+void remove_bag(int which_bag);
+int check_ground_items_interface();
+void open_bag(int object_id);
 #endif
 

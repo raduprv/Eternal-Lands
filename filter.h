@@ -16,4 +16,13 @@ extern int save_filters;
 extern int use_global_filters;
 extern char text_filter_replace[];
 
+int add_to_filter_list(Uint8 *name, char save_name);
+int remove_from_filter_list(Uint8 *name);
+int check_if_filtered(Uint8 *name);
+int filter_text(Uint8 * input_text, int len);
+void load_filters_list(char * file_name);
+void clear_filter_list();
+void load_filters();
+void list_filters();
+
 #endif

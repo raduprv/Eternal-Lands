@@ -1,6 +1,5 @@
 #include "global.h"
 #include <math.h>
-void Move();
 
 int times_FPS_below_3=0;
 int main_count=0;
@@ -12,7 +11,7 @@ void draw_scene()
         unsigned char str [180];
         int fps;
         int y_line,i;
-        Uint8 status;
+        //Uint8 status; unused?
         int any_reflection=0;
 		int mouse_rate;
 
@@ -207,7 +206,7 @@ void draw_scene()
 
 
 
-		if(!no_adjust_shadows)
+	if(!no_adjust_shadows) {
         if(fps<5)
           	{
           		times_FPS_below_3++;
@@ -219,6 +218,7 @@ void draw_scene()
                     }
 			}
 		else times_FPS_below_3=0;
+	}
 
         sprintf(str, "FPS: %i",old_fps_average);
         glColor3f(1.0f,1.0f,1.0f);

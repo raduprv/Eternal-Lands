@@ -17,8 +17,12 @@
 #include "asc.h"
 #include "md2.h"
 #include "actors.h"
+#include "new_actors.h"
+#include "actor_scripts.h"
 #include "e3d.h"
+#include "errors.h"
 #include "2d_objects.h"
+#include "3d_objects.h"
 #include "tiles.h"
 #include "lights.h"
 #include "client_serv.h"
@@ -38,7 +42,19 @@
 #include "stats.h"
 #include "items.h"
 #include "dialogues.h"
-
+#include "draw_scene.h"
+#include "colors.h"
+#include "console.h"
+#include "cursors.h"
+#include "events.h"
+#include "font.h"
+#include "gl_init.h"
+#include "manufacture.h"
+#include "misc.h"
+#include "paste.h"
+#include "textures.h"
+#include "trade.h"
+#include "new_character.h"
 
 //cursors
 #define CURSOR_EYE 0
@@ -163,6 +179,7 @@ Uint32 my_timer(unsigned int some_int);
 int SphereInFrustum(float x, float y, float z, float radius);
 int check_tile_in_frustrum(float x,float y);
 void draw_ingame_string(float x, float y,unsigned char * our_string,int max_lines,int big);
+void init_colors();
 
 #ifdef WINDOWS
 extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;

@@ -11,5 +11,9 @@ typedef struct
 
 extern help_entry help_list[MAX_HELP_ENTRIES];
 
+void build_help();
+int get_help_topic(Uint8 *topic);
+void display_help_topic(Uint8 *topic);
+
 #endif
 

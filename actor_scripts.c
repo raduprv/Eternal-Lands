@@ -1,5 +1,7 @@
-#include "global.h"
+#include <stdlib.h>
 #include <math.h>
+#include <string.h>
+#include "global.h"
 
 float unwindAngle_Degrees( float fAngle )
 {
@@ -87,7 +89,7 @@ void move_to_next_frame()
 							}
 					}
 
-				 if(!frame_exists)//frame doesn't exist, move at the beginning of animation
+				 if(!frame_exists) {//frame doesn't exist, move at the beginning of animation
 				 if(actors_list[i]->stop_animation)
 				 	{
 						actors_list[i]->busy=0;//ok, take the next command
@@ -101,6 +103,7 @@ void move_to_next_frame()
 						frame_name[l-2]=0;
 						my_strcat(frame_name,"01");
 					}
+				 }
 
 				 sprintf(actors_list[i]->cur_frame, "%s",frame_name);
 
@@ -112,12 +115,12 @@ void move_to_next_frame()
 void animate_actors()
 {
 	int i;
-    float rotate_x_speed;
-    float rotate_y_speed;
-    float rotate_z_speed;
+	//float rotate_x_speed; unused?
+	//float rotate_y_speed; unused?
+	//float rotate_z_speed; unused?
 
-    char moving;
-    char rotating;
+	//char moving;          unused?
+	//char rotating;        unused?
 
 	// lock the actors_list so that nothing can interere with this look
 	lock_actors_lists();	//lock it to avoid timing issues
@@ -213,7 +216,7 @@ void next_command()
 		{
 			if(!actors_list[i])continue;//actor exists?
 			//if(!actors_list[i]->is_enhanced_model)//test only
-			if(!actors_list[i]->busy || (actors_list[i]->busy && actors_list[i]->after_move_frames_left && (actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw)))//is it not busy?
+			if(!actors_list[i]->busy || (actors_list[i]->busy && actors_list[i]->after_move_frames_left && (actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw))) {//is it not busy?
 //			if(!actors_list[i]->busy || (actors_list[i]->busy && (actors_list[i]->stand_idle || actors_list[i]->sit_idle)))//is it not busy?
 			if(actors_list[i]->que[0]==nothing)//do we have something in the que?
 			   	 {
@@ -509,6 +512,7 @@ void next_command()
 						}
 					actors_list[i]->que[k]=nothing;
 				 }
+			}
 		}
 	unlock_actors_lists();
 }

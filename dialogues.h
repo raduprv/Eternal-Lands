@@ -32,5 +32,10 @@ extern int dialogue_menu_y;
 extern int dialogue_menu_x_len;
 extern int dialogue_menu_y_len;
 extern int dialogue_menu_dragged;
+
+void build_response_entries(Uint8 *data,int total_lenght);
+void display_dialogue();
+void highlight_dialogue_response();
+int check_dialogue_response();
 #endif
 

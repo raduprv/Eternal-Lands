@@ -1,14 +1,15 @@
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "global.h"
 
 void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
 {
 	int i,j;
-	float u,v;
+	//float u,v;   unused?
 	float x,y,z;
 	char *dest_frame_name;
-	char str[20];
+	//char str[20]; unused?
 	int numFrames;
     int numFaces;
     text_coord_md2 *offsetTexCoords;
@@ -103,7 +104,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	int texture_id;
 	int i;
 	int k;
-	md2 *returned_md2;
+	//md2 *returned_md2;  unused?
 	actor *our_actor;
 	no_bounding_box=1;
 
@@ -277,10 +278,10 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 
 void draw_enhanced_actor(actor * actor_id)
 {
-	int i,j;
+	int i; //,j; unused?
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	float x,y,z;
+	//float x,y,z;  unused?
 	int texture_id;
 	char *cur_frame;
 	char str[20];
@@ -474,7 +475,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 }
 
-actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
+void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
 	int i=0;
 

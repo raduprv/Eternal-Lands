@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "global.h"
 
 Uint32 flags;
@@ -119,7 +120,7 @@ void setup_video_mode()
 #endif
 }
 
-int check_gl_mode()
+void check_gl_mode()
 {
 	char str[400];
 

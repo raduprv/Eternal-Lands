@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "global.h"
 
 void destroy_map()
@@ -58,17 +59,17 @@ int save_map(char * file_name)
 	char * mem_map_header=(char *)&cur_map_header;
 
 	object3d_io cur_3d_obj_io;
-	object3d cur_3d_obj;
+	//object3d cur_3d_obj;    unused?
 	int obj_3d_no=0;
 	int obj_3d_io_size;
 
 	obj_2d_io cur_2d_obj_io;
-	obj_2d cur_2d_obj;
+	//obj_2d cur_2d_obj;      unused?
 	int obj_2d_no=0;
 	int obj_2d_io_size;
 
 	light_io cur_light_io;
-	light cur_light;
+	//light cur_light;        unused?
 	int lights_no=0;
 	int lights_io_size;
 
@@ -226,22 +227,22 @@ int save_map(char * file_name)
 
 int load_map(char * file_name)
 {
-	int i,j;
+	int i; // j; unused?
 	map_header cur_map_header;
 	char * mem_map_header=(char *)&cur_map_header;
 
 	object3d_io cur_3d_obj_io;
-	object3d cur_3d_obj;
+	//object3d cur_3d_obj;  unused?
 	int obj_3d_no=0;
 	int obj_3d_io_size;
 
 	obj_2d_io cur_2d_obj_io;
-	obj_2d cur_2d_obj;
+	//obj_2d cur_2d_obj;    unused?
 	int obj_2d_no=0;
 	int obj_2d_io_size;
 
 	light_io cur_light_io;
-	light cur_light;
+	//light cur_light;      unused?
 	int lights_no=0;
 	int lights_io_size;
 

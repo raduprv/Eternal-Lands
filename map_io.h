@@ -89,4 +89,8 @@ extern float ambient_r;
 extern float ambient_g;
 extern float ambient_b;
 
+void destroy_map();
+int save_map(char * file_name);
+int load_map(char * file_name);
+void new_map(int m_x_size,int m_y_size);
 #endif

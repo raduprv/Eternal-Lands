@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include "global.h"
 
 //find the first string occurance, and return the distance to that string
@@ -13,7 +14,7 @@ int get_string_occurance(char * source_pointer, char * dest_pointer, int max_len
 	char cur_src_char;
 	char cur_dest_char;
 	int source_lenght;
-	char string_found;
+	//char string_found; unused?
 
 	source_lenght=strlen(source_pointer);
 	i=j=0;
@@ -59,7 +60,7 @@ int get_integer_after_string(char * source_pointer, char * dest_pointer, int max
 	char cur_src_char;
 	char cur_dest_char;
 	int source_lenght;
-	char string_found;
+	//char string_found; unused?
 
 	source_lenght=strlen(source_pointer);
 	i=j=0;
@@ -107,7 +108,7 @@ float get_float_after_string(char * source_pointer, char * dest_pointer, int max
 	char cur_src_char;
 	char cur_dest_char;
 	int source_lenght;
-	char string_found;
+	//char string_found; unused?
 
 	source_lenght=strlen(source_pointer);
 	i=j=0;
@@ -181,8 +182,8 @@ int my_strncompare(Uint8 *dest, Uint8 *src, int len)
 
 int my_strcompare(Uint8 *dest, Uint8 *src)
 {
-	int i,len;
-	Uint8 ch1,ch2;
+	int len;//i      unused?
+	//Uint8 ch1,ch2;  unused?
 
 	len=strlen(dest);
 	if(len!=strlen(src))return 0;

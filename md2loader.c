@@ -4,8 +4,8 @@
 
 md2 * load_md2(char * file_name)
 {
-  int f_size,vertex_no,faces_no;
-  int i,k,l;
+  //int f_size,vertex_no,faces_no; unused?
+  int i,k; //,l; unused?
   FILE *f = NULL;
 
   face_md2 *face_pointer;

@@ -44,6 +44,10 @@ extern obj_2d_cache_struct obj_2d_def_cache[max_obj_2d_def];
 
 extern obj_2d *obj_2d_list[max_obj_2d];
 
+void draw_2d_object(obj_2d * object_id);
+obj_2d_def * load_obj_2d_def(char *file_name);
+obj_2d_def * load_obj_2d_def_cache(char * file_name);
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot);
+void display_2d_objects();
 
 #endif

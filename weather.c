@@ -1,21 +1,8 @@
 #include "global.h"
 
-#define MAX_RAIN_DROPS 5000
-#define RAIN_SPEED 2
-#define rain_drop_len 5
-
 int rain_control_counter=0;
 int thunder_control_counter=0;
 
-typedef struct
-{
-  short x;
-  short y;
-  short x2;
-  short y2;
-}rain_drop;
-
-rain_drop rain_drops[MAX_RAIN_DROPS];
 
 void build_rain_table()
 {

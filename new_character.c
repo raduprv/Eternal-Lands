@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include "global.h"
 
 int skin_color=SKIN_NORMAL;

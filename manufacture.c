@@ -256,7 +256,7 @@ int check_manufacture_interface()
 	mouse_y>manufacture_menu_y+manufacture_menu_y_len-30 && mouse_y<manufacture_menu_y+manufacture_menu_y_len-10)
 		{
 			Uint8 str[20];
-			int len;
+			//int len; unused?
 			int items_no=0;
 
 			str[0]=MANUFACTURE_THIS;

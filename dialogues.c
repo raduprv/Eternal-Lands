@@ -1,3 +1,4 @@
+#include <string.h>
 #include "global.h"
 
 
@@ -43,10 +44,10 @@ void build_response_entries(Uint8 *data,int total_lenght)
 
 void display_dialogue()
 {
-	Uint8 str[80];
-	int x,y,i;
+	//Uint8 str[80]; unused?
+	int i; //x,y; unused?
 	float u_start,v_start,u_end,v_end;
-	int this_texture,cur_item,cur_pos;
+	int this_texture; //,cur_item,cur_pos; unused?
 	int x_start,x_end,y_start,y_end;
 	int npc_name_x_start,len;
 
@@ -165,7 +166,7 @@ void display_dialogue()
 	glColor3f(1.0f,1.0f,1.0f);
 }
 
-int highlight_dialogue_response()
+void highlight_dialogue_response()
 {
 		int i;
 

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "global.h"
 
 //Threading support for actors_lists
@@ -151,7 +152,7 @@ void draw_actor(actor * actor_id)
 	int i,j;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	float u,v;
+	//float u,v; unused?
 	float x,y,z;
 	int texture_id;
 	char *cur_frame;
@@ -434,7 +435,7 @@ void add_actor_from_server(char * in_data)
 	short z_rot;
 	short max_health;
 	short cur_health;
-	char actor_type;
+	short actor_type;
 	char remapable;
 	char skin;
 	char hair;
@@ -454,7 +455,7 @@ void add_actor_from_server(char * in_data)
 	y_pos=*((short *)(in_data+4));
 	z_pos=*((short *)(in_data+6));
 	z_rot=*((short *)(in_data+8));
-	actor_type=*(in_data+10);
+	actor_type=*((short *)(in_data+10));
 	remapable=*(in_data+11);
 	skin=*(in_data+12);
 	hair=*(in_data+13);
@@ -564,10 +565,10 @@ void add_actor_from_server(char * in_data)
 void draw_interface_body_part(md2 *model_data,float scale)
 {
 	int i,j;
-	float u,v;
+	//float u,v; unused?
 	float x,y,z;
 	char *dest_frame_name;
-	char str[20];
+	//char str[20]; unused?
 	int numFrames;
     int numFaces;
     text_coord_md2 *offsetTexCoords;
@@ -639,19 +640,19 @@ void draw_interface_body_part(md2 *model_data,float scale)
 //this actor will be resized. We want speed, so that's why we add a different function
 void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,int z_pos, float x_rot,float y_rot, float z_rot)
 {
-	int i,j;
-	float x,y,z;
+	//int i,j;      unused?
+	//float x,y,z;  unused?
 	int texture_id;
-	char *cur_frame;
-	char str[20];
-	float healtbar_x=-0.3f;
-	float healtbar_y=0;
-	float healtbar_z;
-	float healtbar_x_len=0.5f;
-	float healtbar_x_len_converted=0;
-	float healtbar_z_len=0.1f;
-	int numFrames;
-	char *dest_frame_name;
+	//char *cur_frame; unused?
+	//char str[20];    unused?
+	//float healtbar_x=-0.3f; unused?
+	//float healtbar_y=0;    unused?
+	//float healtbar_z;       unused?
+	//float healtbar_x_len=0.5f; unused?
+	//float healtbar_x_len_converted=0; unused?
+	//float healtbar_z_len=0.1f;   unused?
+	//int numFrames;       unused?
+	//char *dest_frame_name; unused?
 	frame_md2 *offsetFrames;
 
 
@@ -684,7 +685,7 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,int z
 	glPopMatrix();//restore the scene}
 }
 
-actor * add_actor_interface(int actor_type, char skin, char hair, char shirt, char pants, char boots, char head)
+actor * add_actor_interface(int actor_type, short skin, short hair, short shirt, short pants, short boots, short head)
 {
 
 

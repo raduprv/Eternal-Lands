@@ -72,8 +72,37 @@ extern int options_menu_x_len;
 extern int options_menu_y_len;
 extern int options_menu_dragged;
 
+
+typedef struct
+{
+	char supported;
+	char selected;
+}mode_flag;
+
+
+void get_world_x_y();
+int check_drag_menus();
+void check_menus_out_of_screen();
+void check_mouse_click();
+void Enter2DMode();
+void Leave2DMode();
+void build_video_mode_array();
+void draw_console_pic(int which_texture);
+void init_opening_interface();
+void draw_login_screen();
+void add_char_to_username(unsigned char ch);
+void add_char_to_password(unsigned char ch);
+void init_peace_icons_position();
+void draw_peace_icons();
+int check_peace_menu();
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,int y_start,int x_end,int y_end);
+void draw_options_menu();
 int check_options_menu();
+void draw_ingame_interface();
+void switch_to_game_map();
+void switch_from_game_map();
+void draw_game_map();
+
 void draw_menu_title_bar(int x, int y, int x_len);
 
 #endif

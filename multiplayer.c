@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include "global.h"
 
 int this_version_is_invalid=0;
@@ -201,7 +203,7 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str,
 	create_char_error_str[0]=0;//no error
 }
 
-process_message_from_server(unsigned char *in_data, int data_lenght)
+void process_message_from_server(unsigned char *in_data, int data_lenght)
 {
 	//see what kind of data we got
 			switch (in_data[PROTOCOL])
@@ -268,7 +270,7 @@ process_message_from_server(unsigned char *in_data, int data_lenght)
 
 	              case HERE_YOUR_STATS:
 	                {
-						get_the_stats(in_data+3);
+						get_the_stats((Sint16 *)(in_data+3));
 	                }
 	              break;
 
@@ -635,7 +637,7 @@ void get_message_from_server()
 {
 	int num_ready;
 	int recived_lenght;
-	int i;
+	//int i; unused?
 	int data_lenght;
 	int start_my_data_pointer=0;
 

@@ -1,4 +1,6 @@
+#include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "global.h"
 
 //cls - clears the text buffer
@@ -168,9 +170,9 @@ void test_for_console_command()
 		}
 
 ////////////////////////
-	if(my_strcompare(text_loc, "modes_", 5))
+	if(my_strncompare(text_loc, "modes_", 5))
 		{
-			char str[1000];
+		  //char str[1000]; unused?
 			//see what modes are supported.
 #ifndef WINDOWS
 			log_to_console(c_grey1,"Since you are under Xwindows, you will always get the desktop color depth, wether or not you are in the full screen mode.");
@@ -288,7 +290,7 @@ void test_for_console_command()
 			Uint8 topic[30];
 			int i;
 			Uint8 ch;
-			int result;
+			//int result; unused?
 
 			for(i=0;i<30 || i<text_lenght;i++)
 				{

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "global.h"
 
 void write_to_log(Uint8 * data,int len)
@@ -339,7 +340,7 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 int find_last_lines_time()
 {
 	int i;
-	Uint8 cur_char;
+	//Uint8 cur_char;    unused?
 	int line_count=0;
 
 	//adjust the lines_no according to the time elapsed since the last message
@@ -368,7 +369,7 @@ int find_last_lines_time()
 int find_last_console_lines(int lines_no)
 {
 	int i;
-	Uint8 cur_char;
+	//Uint8 cur_char;    unused?
 	int line_count=0;
 
 	for(i=display_text_buffer_last-2;i>=0;i--)
@@ -392,8 +393,8 @@ void console_move_up()
 	int i;
 	int total_lines_no=0;
 	int max_lines;
-	Uint8 cur_char;
-	int line_count=0;
+	//Uint8 cur_char;     unused?
+	//int line_count=0;   unused?
 
 	//get the total number of lines
 	for(i=0;i<display_text_buffer_last;i++)
@@ -426,11 +427,11 @@ void console_move_down()
 {
 
 	int i;
-	int lines_to_the_end=0;
+	//int lines_to_the_end=0;   unused?
 	int lines_we_have=0;
 	int max_lines;
-	Uint8 cur_char;
-	int line_count=0;
+	//Uint8 cur_char;           unused?
+	//int line_count=0;         unused?
 
 	if(!not_from_the_end_console)return;//we can't scrool down anymore
 
@@ -495,7 +496,7 @@ void display_console_text()
 	draw_string(0,0,&display_text_buffer[display_console_text_buffer_first],max_lines);
 	glColor3f(1.0f,1.0f,1.0f);
 	if(not_from_the_end_console)draw_string(0,command_line_y-18,
-	"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^");
+	"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^",2);
 	draw_string(0,command_line_y,input_text_line,2);
 
 }

@@ -53,11 +53,21 @@ typedef struct
 extern int particles_text;
 extern particle_sys *particles_list[max_particle_systems];
 
+void draw_particle_sys(particle_sys *system_id);
 float particle_rand(float max);
 int add_teleporter(float x_pos, float y_pos, float z_pos);
 int add_teleport_in(int x_pos, int y_pos);
 int add_teleport_out(int x_pos, int y_pos);
+int add_bag_in(int x_pos, int y_pos);
+int add_bag_out(int x_pos, int y_pos);
+void display_particles();
+void update_teleporter(particle_sys *system_id);
 void update_teleport_in(particle_sys *system_id);
+void update_bag_in(particle_sys *system_id);
 void update_teleport_out(particle_sys *system_id);
+void update_bag_out(particle_sys *system_id);
+void update_particles();
+void add_teleporters_from_list(Uint8 *teleport_list);
+void destroy_all_particles();
 
 #endif

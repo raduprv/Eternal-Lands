@@ -15,9 +15,9 @@
 
 int start_rendering()
 {
-    static GLuint texture;
-    int x=0,y=0;
-    int i=0;
+    //static GLuint texture;  unused?
+    //int x=0,y=0; unused?
+    //int i=0;     unused?
     int done=0;
 #ifndef WINDOWS
 	SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
@@ -25,9 +25,9 @@ int start_rendering()
 	/* Loop until done. */
 	while( !done )
     {
-		GLenum gl_error;
-		char* sdl_error;
-		SDL_Event event;
+      //GLenum gl_error; unused?
+      //char* sdl_error; unused?
+      SDL_Event event;
 
 
 		while( SDL_PollEvent( &event ) )
@@ -55,12 +55,12 @@ Main()
 int main()
 #endif
 {
-	int i, logo;
+	int logo; // i unused?
 	int numtests;
-	int bpp = 0;
+	//int bpp = 0; unused?
 	int slowly;
-	float gamma = 0.0;
- int noframe = 1;
+	//float gamma = 0.0; unused?
+	//int noframe = 1;  unused?
 
 	logo = 1;
 	slowly = 1;

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "global.h"
 #include <math.h>
 
@@ -26,8 +27,7 @@ void get_world_x_y()
 
 int check_drag_menus()
 {
-	if(view_sigils_menu && mouse_x>sigil_menu_x && mouse_x<=sigil_menu_x+sigil_menu_x_len
-	&& mouse_y>sigil_menu_y-16 && mouse_y<=sigil_menu_y || sigil_menu_dragged)
+	if(sigil_menu_dragged || (view_sigils_menu && mouse_x>sigil_menu_x && mouse_x<=sigil_menu_x+sigil_menu_x_len && mouse_y>sigil_menu_y-16 && mouse_y<=sigil_menu_y))
 	if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 	   !trade_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged)
 		{
@@ -40,8 +40,7 @@ int check_drag_menus()
 			return 1;
 		}
 
-	if(options_menu && mouse_x>options_menu_x && mouse_x<=options_menu_x + options_menu_x_len
-	&& mouse_y>options_menu_y-16 && mouse_y<=options_menu_y || options_menu_dragged)
+	if(options_menu_dragged || (options_menu && mouse_x>options_menu_x && mouse_x<=options_menu_x + options_menu_x_len && mouse_y>options_menu_y-16 && mouse_y<=options_menu_y))
 	if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 	   !trade_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged)
 
@@ -55,8 +54,7 @@ int check_drag_menus()
 			return 1;
 		}
 
-	if(view_trade_menu && mouse_x>trade_menu_x && mouse_x<=trade_menu_x+trade_menu_x_len
-	&& mouse_y>trade_menu_y-16 && mouse_y<=trade_menu_y || trade_menu_dragged)
+	if(trade_menu_dragged || (view_trade_menu && mouse_x>trade_menu_x && mouse_x<=trade_menu_x+trade_menu_x_len && mouse_y>trade_menu_y-16 && mouse_y<=trade_menu_y))
 	if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 	   !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged)
 
@@ -70,8 +68,7 @@ int check_drag_menus()
 			return 1;
 		}
 
-	if(view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_x<=manufacture_menu_x+manufacture_menu_x_len
-	&& mouse_y>manufacture_menu_y-16 && mouse_y<=manufacture_menu_y || manufacture_menu_dragged)
+	if(manufacture_menu_dragged || (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_x<=manufacture_menu_x+manufacture_menu_x_len && mouse_y>manufacture_menu_y-16 && mouse_y<=manufacture_menu_y))
 	if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged &&
 	   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged)
 
@@ -85,8 +82,7 @@ int check_drag_menus()
 			return 1;
 		}
 
-	if(view_ground_items && mouse_x>ground_items_menu_x && mouse_x<=ground_items_menu_x+ground_items_menu_x_len
-	&& mouse_y>ground_items_menu_y-16 && mouse_y<=ground_items_menu_y || ground_items_menu_dragged)
+	if(ground_items_menu_dragged || (view_ground_items && mouse_x>ground_items_menu_x && mouse_x<=ground_items_menu_x+ground_items_menu_x_len && mouse_y>ground_items_menu_y-16 && mouse_y<=ground_items_menu_y))
 	if(!attrib_menu_dragged && !items_menu_dragged && !manufacture_menu_dragged &&
 	   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged)
 
@@ -100,8 +96,7 @@ int check_drag_menus()
 			return 1;
 		}
 
-	if(view_my_items && mouse_x>items_menu_x && mouse_x<=items_menu_x+items_menu_x_len
-	&& mouse_y>items_menu_y-16 && mouse_y<=items_menu_y || items_menu_dragged)
+	if(items_menu_dragged || (view_my_items && mouse_x>items_menu_x && mouse_x<=items_menu_x+items_menu_x_len && mouse_y>items_menu_y-16 && mouse_y<=items_menu_y))
 	if(!attrib_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 	   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged)
 		{
@@ -114,8 +109,7 @@ int check_drag_menus()
 			return 1;
 		}
 
-	if(view_self_stats && mouse_x>attrib_menu_x && mouse_x<=attrib_menu_x+attrib_menu_x_len
-	&& mouse_y>attrib_menu_y-16 && mouse_y<=attrib_menu_y || attrib_menu_dragged)
+	if(attrib_menu_dragged || (view_self_stats && mouse_x>attrib_menu_x && mouse_x<=attrib_menu_x+attrib_menu_x_len && mouse_y>attrib_menu_y-16 && mouse_y<=attrib_menu_y))
 	if(!items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 	   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged)
 
@@ -129,8 +123,7 @@ int check_drag_menus()
 			return 1;
 		}
 
-	if(have_dialogue && mouse_x>dialogue_menu_x && mouse_x<=dialogue_menu_x+dialogue_menu_x_len
-	&& mouse_y>dialogue_menu_y-16 && mouse_y<=dialogue_menu_y || dialogue_menu_dragged)
+	if(dialogue_menu_dragged || (have_dialogue && mouse_x>dialogue_menu_x && mouse_x<=dialogue_menu_x+dialogue_menu_x_len && mouse_y>dialogue_menu_y-16 && mouse_y<=dialogue_menu_y))
 	if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 	   !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged)
 		{
@@ -315,7 +308,7 @@ void check_mouse_click()
 	//TRADE
 	if((action_mode==action_trade && right_click) || (current_cursor==CURSOR_TRADE && left_click))
 		{
-			int actor_id;
+		  //int actor_id; unused?
 			Uint8 str[10];
 
 			if(object_under_mouse==-1)return;
@@ -493,11 +486,6 @@ void Leave2DMode()
 	glPopAttrib();
 }
 
-typedef struct
-{
-	char supported;
-	char selected;
-}mode_flag;
 
 mode_flag video_modes[10];
 
@@ -645,7 +633,7 @@ void init_opening_interface()
 
 void draw_login_screen()
 {
-	int i;
+  //int i; unused?
 
 	float selected_bar_u_start=(float)0/255;
 	float selected_bar_v_start=1.0f-(float)0/255;
@@ -1354,7 +1342,7 @@ int check_peace_menu()
 					if(view_trade_menu)
 						{
 							log_to_console(c_red2,"You can't manufacture while on trade.");
-							return;
+							return 0;
 						}
 				}
 			view_manufacture_menu=!view_manufacture_menu;
@@ -1370,7 +1358,7 @@ int check_peace_menu()
 					if(view_trade_menu)
 						{
 							log_to_console(c_red2,"You can't cast spells while on trade.");
-							return;
+							return 0;
 						}
 					view_sigils_menu=!view_sigils_menu;
 		}
@@ -1390,7 +1378,7 @@ int check_peace_menu()
 					if(view_trade_menu)
 						{
 							log_to_console(c_red2,"You can't view your inventory items while on trade.");
-							return;
+							return 0;
 						}
 					view_my_items=1;
 				}
@@ -1398,7 +1386,7 @@ int check_peace_menu()
 		}
 	else
 	if(mouse_x>sit_icon_x_start && mouse_y>sit_icon_y_start &&
-	mouse_x<sit_icon_x_end && mouse_y<sit_icon_y_end)
+	   mouse_x<sit_icon_x_end && mouse_y<sit_icon_y_end) {
 		if(!you_sit)
 			{
 				Uint8 str[4];
@@ -1413,6 +1401,7 @@ int check_peace_menu()
 				str[1]=0;
 				my_tcp_send(my_socket,str,2);
 			}
+	}
 	return 1;
 
 }
@@ -1931,7 +1920,7 @@ int map_text;
 
 void switch_to_game_map()
 {
-	int i;
+  //int i; unused?
 	int len;
 	char map_map_file_name[60];
 

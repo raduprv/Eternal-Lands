@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "global.h"
 
 Uint8 *cursors_mem;

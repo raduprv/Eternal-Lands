@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "global.h"
 /*
 #ifdef WINDOWS
@@ -122,6 +123,7 @@ int go_to_url(void *dummy)
 	system(browser_command);
 	//system("iexplore http://localhost");
 
+	return 0;
 
 }
 

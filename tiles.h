@@ -8,4 +8,7 @@ extern int tile_map_size_x;
 extern int tile_map_size_y;
 extern int tile_list[256];
 extern int ground_detail_text;
+
+void draw_tile_map();
+void load_map_tiles();
 #endif

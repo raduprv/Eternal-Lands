@@ -1,3 +1,4 @@
+#include <string.h>
 #include "global.h"
 
 void clear_error_log()

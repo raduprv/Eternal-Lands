@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include "global.h"
 #include <math.h>
 
@@ -9,10 +11,10 @@ float mrandom(float max)
 void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost)
 {
 	int i,j;
-	float u,v;
+	//float u,v;     unused?
 	float x,y,z;
 	char *dest_frame_name;
-	char str[20];
+	//char str[20];     unused?
 	int numFrames;
     int numFaces;
     text_coord_md2 *offsetTexCoords;
@@ -105,12 +107,12 @@ void draw_actor_reflection(actor * actor_id)
 	int i,j;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	float u,v;
+	//float u,v;     unused?
 	float x,y,z;
 	int texture_id;
 	char *cur_frame;
 	char *dest_frame_name;
-	char str[20];
+	//char str[20];     unused?
 	int numFrames;
     int numFaces;
     text_coord_md2 *offsetTexCoords;
@@ -214,15 +216,15 @@ void draw_actor_reflection(actor * actor_id)
 
 void draw_enhanced_actor_reflection(actor * actor_id)
 {
-	int i,j;
+	//int i,j;     unused?
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	float x,y,z;
+	//float x,y,z;     unused?
 	int texture_id;
 	char *cur_frame;
-	char str[20];
-	int numFrames;
-	char *dest_frame_name;
+	//char str[20];     unused?
+	//int numFrames;     unused?
+	//char *dest_frame_name;     unused?
 	frame_md2 *offsetFrames;
 
 
@@ -277,17 +279,17 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 
 void draw_3d_reflection(object3d * object_id)
 {
-	float x,y,z,u,v;
+	//float x,y,z,u,v;     unused?
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	int faces_no,materials_no,texture_id,a,b,c;
-	int i,k,j;
+	int materials_no,texture_id;//a,b,c,faces_no     unused?
+	int i; //,k,j;     unused?
 
 	e3d_array_vertex *array_vertex;
 	e3d_array_normal *array_normal;
 	e3d_array_uv_main *array_uv_main;
-	e3d_array_uv_detail *clouds_uv;
+	//e3d_array_uv_detail *clouds_uv;     unused?
 	e3d_array_order *array_order;
 
 	int is_transparent;
@@ -652,7 +654,7 @@ void draw_lake_tiles()
 	int x_start,x_end,y_start,y_end;
 	int x,y;
 	float x_scaled,y_scaled;
-	int cur_texture;
+	//int cur_texture;     unused?
 
 	//glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);

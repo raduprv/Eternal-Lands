@@ -1,17 +1,17 @@
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "global.h"
 
-void compute_clouds_map(object3d * object_id);
 
 void draw_3d_object(object3d * object_id)
 {
-	float x,y,z,u,v;
+  //float x,y,z,u,v; unused?
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	int materials_no,texture_id,a,b,c;
-	int i,k;
+	int materials_no,texture_id; //,a,b,c; unused?
+	int i; //,k; unused?
 
 	e3d_array_vertex *array_vertex;
 	e3d_array_normal *array_normal;
@@ -225,11 +225,11 @@ e3d_object * load_e3d_cache(char * file_name)
 
 int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
 {
-	int texture_id;
+  //int texture_id; unused?
 	int i,len,k;
 	e3d_object *returned_e3d;
 	object3d *our_object;
-	short sector;
+	//short sector; unused?
 
 	our_object = calloc(1, sizeof(object3d));
 
@@ -350,7 +350,7 @@ void display_objects()
 
 e3d_object * load_e3d(char *file_name)
 {
-  int f_size,vertex_no,faces_no,materials_no;
+  int vertex_no,faces_no,materials_no; //f_size unused?
   int i,k,l;
   FILE *f = NULL;
   e3d_vertex *vertex_list;
@@ -358,7 +358,7 @@ e3d_object * load_e3d(char *file_name)
   e3d_material *material_list;
   char cur_dir[200]={0};
   e3d_object *cur_object;
-  int transparency=0;
+  //int transparency=0; unused?
   e3d_header our_header;
   char *our_header_pointer=(char *)&our_header;
   e3d_array_vertex *array_vertex;
@@ -569,7 +569,7 @@ return cur_object;
 
 void compute_clouds_map(object3d * object_id)
 {
-	float x1,y1,x,y,z,u,v,m;
+	float x1,y1,x,y,z,m; //u,v; unused?
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int i,face_no;

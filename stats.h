@@ -82,5 +82,9 @@ extern int attrib_menu_dragged;
 player_attribs your_info;
 player_attribs someone_info;
 
+void get_the_stats(Sint16 *stats);
+void get_partial_stat(Uint8 name,Sint32 value);
+void display_stats(player_attribs cur_stats);
+
 #endif
 

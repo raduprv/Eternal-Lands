@@ -197,7 +197,7 @@ void display_items_menu()
 
 void get_your_items(Uint8 *data)
 {
-	int i,j,total_items;
+  int i,total_items; //j unused?
 	Uint8 flags;
 
 	total_items=data[0];
@@ -342,9 +342,9 @@ int check_items_interface()
 													str[0]=USE_INVENTORY_ITEM;
 													str[1]=item_list[i].pos;
 													my_tcp_send(my_socket,str,2);
-													return;
+													return 1;
 												}
-											return;
+											return 1;
 										}
 									else//we might test for other things first, like use or drop
 										{
@@ -650,7 +650,7 @@ void draw_pick_up_menu()
 //do the flags later on
 void get_bag_item(Uint8 *data)
 {
-	int i;
+  //int i; unused?
 	int pos;
 	pos=data[5];
 
@@ -711,7 +711,7 @@ void add_bags_from_list(Uint8 *data)
 {
 	Uint16 bags_no;
 	int i;
-	int bag_x,bag_y,bag_type,my_offset;
+	int bag_x,bag_y,my_offset; //bag_type unused?
 	float x,y,z;
 	int obj_3d_id, bag_id;
 
@@ -751,7 +751,7 @@ void remove_bag(int which_bag)
 
 int check_ground_items_interface()
 {
-	int i,x,y;
+  int x,y; //i unused?
 	int x_screen,y_screen;
 	Uint8 str[10];
 

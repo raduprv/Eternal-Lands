@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "global.h"
 
 
@@ -85,10 +86,10 @@ float particle_rand(float max)
 
 int add_teleporter(float x_pos, float y_pos, float z_pos)
 {
-	int particle_count=800;
+	//int particle_count=800;   unused?
 	int total_particle_no=800;
-	int particles_to_add_per_frame=50;
-	int particles_to_add=0;
+	//int particles_to_add_per_frame=50;   unused?
+	//int particles_to_add=0;   unused?
 
 	particle_sys *system_id;
 
@@ -178,10 +179,10 @@ return i;
 ////////////////////////////////////////////////////////////////////////////
 int add_teleport_in(int x_pos, int y_pos)
 {
-	int particle_count=800;
+	//int particle_count=800;      unused?
 	int total_particle_no=800;
-	int particles_to_add_per_frame=50;
-	int particles_to_add=0;
+	//int particles_to_add_per_frame=50;      unused?
+	//int particles_to_add=0;      unused?
 	float z_pos;
 
 	particle_sys *system_id;
@@ -281,10 +282,10 @@ return i;
 ////////////////////////////////////////////////////////////////////////////
 int add_teleport_out(int x_pos, int y_pos)
 {
-	int particle_count=800;
+	//int particle_count=800;	unused?
 	int total_particle_no=800;
-	int particles_to_add_per_frame=50;
-	int particles_to_add=0;
+	//int particles_to_add_per_frame=50;	unused?
+	//int particles_to_add=0;	unused?
 	float z_pos;
 
 	particle_sys *system_id;
@@ -385,10 +386,10 @@ return i;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int add_bag_in(int x_pos, int y_pos)
 {
-	int particle_count=300;
+	//int particle_count=300;     unused?
 	int total_particle_no=300;
-	int particles_to_add_per_frame=50;
-	int particles_to_add=0;
+	//int particles_to_add_per_frame=50;     unused?
+	//int particles_to_add=0;     unused?
 	float z_pos;
 
 	particle_sys *system_id;
@@ -490,10 +491,10 @@ return i;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int add_bag_out(int x_pos, int y_pos)
 {
-	int particle_count=300;
+	//int particle_count=300;     unused?
 	int total_particle_no=300;
-	int particles_to_add_per_frame=50;
-	int particles_to_add=0;
+	//int particles_to_add_per_frame=50;     unused?
+	//int particles_to_add=0;     unused?
 	float z_pos;
 
 	particle_sys *system_id;
@@ -1483,7 +1484,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 
 }
 
-destroy_all_particles()
+void destroy_all_particles()
 {
 	int i;
 	for(i=0;i<max_particle_systems;i++)

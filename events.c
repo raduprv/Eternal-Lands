@@ -1,10 +1,9 @@
+#include <stdlib.h>
 #include <math.h>
 #include "global.h"
 #ifndef WINDOWS
 #include <SDL/SDL_syswm.h>
 #endif
-
-int go_to_url(void *dummy);
 
 int mod_key_status;
 int last_turn_around=0;
@@ -175,7 +174,7 @@ int HandleEvent(SDL_Event *event)
 				if(view_trade_menu)
 					{
 						log_to_console(c_red2,"You can't cast spells while on trade.");
-						return;
+						return(done);
 					}
 				view_sigils_menu=!view_sigils_menu;
 				break;
@@ -185,7 +184,7 @@ int HandleEvent(SDL_Event *event)
 			{
 				if(!view_manufacture_menu)
 					{
-						Uint8 str[100];
+					  //Uint8 str[100]; unused?
 						if(view_trade_menu)
 							{
 								log_to_console(c_red2,"You can't manufacture while on trade.");
@@ -200,7 +199,7 @@ int HandleEvent(SDL_Event *event)
 			{
 			if(!view_my_items)
 				{
-					Uint8 str[100];
+				  //Uint8 str[100]; unused?
 					if(view_trade_menu)
 						{
 							log_to_console(c_red2,"You can't view your inventory items while on trade.");

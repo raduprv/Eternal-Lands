@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include "init.h"
 #include <time.h>
 #include "global.h"
@@ -18,7 +20,7 @@ void load_harvestable_list()
 	if(!f)return;
 	while(1)
 		{
-			fscanf(f,"%s",&harvestable_objects[i].name);
+			fscanf(f,"%s",harvestable_objects[i].name);
 			i++;
 			if(!fgets(strLine, 100, f))break;
 		}
@@ -41,7 +43,7 @@ void load_entrable_list()
 	if(!f)return;
 	while(1)
 		{
-			fscanf(f,"%s",&entrable_objects[i].name);
+			fscanf(f,"%s",entrable_objects[i].name);
 			i++;
 			if(!fgets(strLine, 100, f))break;
 		}
@@ -53,7 +55,7 @@ void read_config()
 	FILE *f = NULL;
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
-	int i,k,server_address_offset;
+	int k,server_address_offset; //i unused?
 
   	f=fopen("el.ini","rb");
   	if(!f)//oops, the file doesn't exist, use the defaults
@@ -136,37 +138,6 @@ void read_config()
   	fclose(f);
   	free(file_mem_start);
 }
-
-typedef struct
-{
-int items_menu_x;
-int items_menu_y;
-
-int ground_items_menu_x;
-int ground_items_menu_y;
-
-int manufacture_menu_x;
-int manufacture_menu_y;
-
-int trade_menu_x;
-int trade_menu_y;
-
-int options_menu_x;
-int options_menu_y;
-
-int attrib_menu_x;
-int attrib_menu_y;
-
-int sigil_menu_x;
-int sigil_menu_y;
-
-int dialogue_menu_x;
-int dialogue_menu_y;
-
-
-int reserved[20];
-
-}bin_cfg;
 
 void read_bin_cfg()
 {

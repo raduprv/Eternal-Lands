@@ -21,8 +21,14 @@ extern int version_second_digit;
 
 extern int last_heart_beat;
 
-
+int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
+void send_version_to_server();
+void connect_to_server();
 void send_login_info();
+void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, char skin, char hair, char shirt, char pants, char boots,char head, char type);
+void process_message_from_server(unsigned char *in_data, int data_lenght);
+int recvpacket();
+void get_message_from_server();
 
 #endif
 

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "global.h"
 #include <math.h>
 
@@ -18,7 +19,7 @@ void channelDone(int channel)
     as free */
 	for(i=0;i<max_sound_objects;i++)
 		{
-			if(sound_list[i].channel==channel)
+		  if(sound_list[i].channel==channel) {
 			if((sound_list[i].kill && sound_list[i].loops_number==-1) || !sound_list[i].loops_number)
 				{
 					sound_list[i].chunk=0;
@@ -32,6 +33,7 @@ void channelDone(int channel)
 					//after we move the camera
 					return;
 				}
+		  }
 		}
 
 }

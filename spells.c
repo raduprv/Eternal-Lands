@@ -239,7 +239,7 @@ void display_spells_we_have()
 
 void display_sigils_menu()
 {
-	Uint8 str[80];
+	//Uint8 str[80];     unused?
 	int x,y,i;
 	//first of all, draw the actual menu.
 
@@ -393,7 +393,7 @@ void display_sigils_menu()
 			if(on_cast[i]!=-1)
 				{
 					float u_start,v_start,u_end,v_end;
-					int this_texture,cur_item,cur_pos;
+					int cur_item,cur_pos; // this_texture unused?
 					int x_start,x_end,y_start,y_end;
 
 					//get the UV coordinates.
@@ -436,7 +436,7 @@ int check_sigil_interface()
 {
 	int i,x,y;
 	int x_screen,y_screen;
-	Uint8 str[100];
+	//Uint8 str[100];     unused?
 
 	if(!view_sigils_menu || mouse_x>sigil_menu_x+sigil_menu_x_len || mouse_x<sigil_menu_x
 	|| mouse_y<sigil_menu_y || mouse_y>sigil_menu_y+sigil_menu_y_len)return 0;
@@ -455,7 +455,7 @@ int check_sigil_interface()
 			//Cast?
 			Uint8 str[20];
 			int count=0;
-			int len;
+			//int len;       unused?
 			int sigils_no=0;
 
 
@@ -467,7 +467,7 @@ int check_sigil_interface()
 				{
 					sprintf(spell_text,"%cYou need at least 2 sigils for a spell.",127+c_red2);
 					have_error_message=1;
-					return;
+					return 1;
 				}
 			str[0]=CAST_SPELL;
 			for(i=0;i<6;i++)
@@ -479,7 +479,7 @@ int check_sigil_interface()
 
 			str[1]=sigils_no;
 			my_tcp_send(my_socket,str,sigils_no+2);
-			return;
+			return 1;
 			//ok, send it to the server...
 		}
 
@@ -532,7 +532,7 @@ int check_sigil_interface()
 
 void check_sigil_mouseover()
 {
-	int i,x,y;
+	int x,y; //i unused?
 	int x_screen,y_screen;
 	//Uint8 str[100];
 
