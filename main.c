@@ -42,7 +42,6 @@ int start_rendering()
 				}
 			//advance the clock
 			cur_time = SDL_GetTicks();
-			checkTimer();		//SMW - timer special!
 			//check for network data
 			get_message_from_server();
 
