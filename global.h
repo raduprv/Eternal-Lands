@@ -117,6 +117,7 @@ extern double camera_z_speed;
 extern int camera_z_frames;
 extern float fine_camera_rotation_speed;
 extern float normal_camera_rotation_speed;
+extern float zoom_level;
 
 extern float scene_mouse_x;
 extern float scene_mouse_y;

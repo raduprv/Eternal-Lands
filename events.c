@@ -92,11 +92,21 @@ int HandleEvent(SDL_Event *event)
 				if ( event->key.keysym.sym == SDLK_PAGEDOWN )
 					{
 						if(interface_mode==interface_console)console_move_page_down();
+						else if(zoom_level>2.0f)
+							{
+								zoom_level-=0.25f;
+								resize_window();
+							}
 					}
 
 				if ( event->key.keysym.sym == SDLK_PAGEUP )
 					{
 						if(interface_mode==interface_console)console_move_page_up();
+						else if(zoom_level<3.75f)
+							{
+								zoom_level+=0.25f;
+								resize_window();
+							}
 					}
 
 				if ( event->key.keysym.sym == SDLK_INSERT )

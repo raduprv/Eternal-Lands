@@ -359,10 +359,13 @@ void resize_window()
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
 	//reference one
-	glOrtho( -3.0*window_ratio, 3.0*window_ratio, -3.0, 3.0, -40.0, 40.0 );
+	//glOrtho( -3.0*window_ratio, 3.0*window_ratio, -3.0, 3.0, -40.0, 40.0 );
 
 	//some zoom test
 	//glOrtho( -3.6*window_ratio, 3.6*window_ratio, -3.6, 3.6, -40.0, 40.0 );
+
+	//new zoom
+	glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -40.0, 40.0 );
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix
