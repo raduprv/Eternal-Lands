@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include "global.h"
 
 int view_buddy=0;
@@ -21,7 +23,7 @@ int compare2( const void *arg1, const void *arg2)
 
 void display_buddy()
 {
-   int c=0,i=0,j,x=buddy_menu_x+2,y=buddy_menu_y+2;
+   int c=0,i=0,x=buddy_menu_x+2,y=buddy_menu_y+2;
    int scroll = (130*bpage_start)/(100-19);
    //title bar
    draw_menu_title_bar(buddy_menu_x,buddy_menu_y-16,buddy_menu_x_len);

@@ -17,4 +17,4 @@ extern int view_buddy;
 void display_buddy();
 int check_buddy_interface();
 
-#endif 
+#endif

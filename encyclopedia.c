@@ -1,3 +1,4 @@
+#include <string.h>
 #include "global.h"
 
 int view_encyclopedia=1;

@@ -1,21 +1,22 @@
 .PHONY: clean release
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DUSE_VERTEXARRAYS -DCACHE_SYSTEM
+OPTIONS=-DLINUX -DUSE_VERTEXARRAYS -DCACHE_SYSTEM -I/usr/include/libxml2/
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
 # basic compiling and linking - rarely changed
 CFLAGS=$(PLATFORM) -Wall -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags)
 _CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags)
-LDFLAGS=$(shell sdl-config --libs) -lSDL_net -lopenal $(XDIR) -lGLU -lGL  -lvorbis -lvorbisfile
+LDFLAGS=$(shell sdl-config --libs) -lSDL_net -lopenal $(XDIR) -lGLU -lGL  -lvorbis -lvorbisfile -lxml2
 
 # the objects we need
 OBJS=2d_objects.o 3d_objects.o	\
-	 actor_scripts.o actors.o asc.o	\
+	 actor_scripts.o actors.o asc.o	buddy.o \
 	 cache.o colors.o console.o cursors.o	\
 	 dialogues.o draw_scene.o	\
-	 errors.o events.o filter.o font.o frustum.o	\
+	 encyclopedia.o errors.o events.o \
+	 filter.o font.o frustum.o	\
 	 gl_init.o help.o hud.o	\
 	 ignore.o init.o interface.o items.o	\
 	 knowledge.o lights.o	\
