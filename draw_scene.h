@@ -38,5 +38,9 @@ void draw_scene();
 void Move();
 void update_camera();
 
+#ifdef OPTIMIZED_LOCKS
+void get_tmp_actor_data();
+#endif
+
 void CalculateFrustum();
 #endif

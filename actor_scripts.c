@@ -25,21 +25,16 @@ float get_rotation_vector( float fStartAngle, float fEndAngle )
 
 void move_to_next_frame()
 {
-	int i,l,k,dont_add_frame=0;
+	int i,l,k;
 	char frame_name[16];
 	char frame_number[3];
 	int frame_no;
 	int numFrames;
 	char frame_exists;
 
-#ifndef OPTIMIZED_LOCKS
 	lock_actors_lists();
-#endif
 	for(i=0;i<max_actors;i++)
 		{
-#ifdef OPTIMIZED_LOCKS
-			lock_actors_lists();//We have to be careful here - otherwise the network/rendering thread may have freed the actor
-#endif
 			if(actors_list[i]!=0)
 				{
 					//clear the strings
@@ -120,11 +115,7 @@ void move_to_next_frame()
 							if(actors_list[i]->stop_animation)
 								{
 									actors_list[i]->busy=0;//ok, take the next command
-#ifdef OPTIMIZED_LOCKS
-									dont_add_frame=1;
-#else
 									continue;//we are done with this guy
-#endif
 								}
 							else
 								{
@@ -136,31 +127,21 @@ void move_to_next_frame()
 								}
 						}
 					
-					if(!dont_add_frame) sprintf(actors_list[i]->cur_frame, "%s",frame_name);
+					sprintf(actors_list[i]->cur_frame, "%s",frame_name);
 				}
-#ifdef OPTIMIZED_LOCKS
-			unlock_actors_lists();
-#endif
 		}
-#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();
-#endif
 }
 
 void animate_actors()
 {
 	int i;
 	// lock the actors_list so that nothing can interere with this look
-#ifndef OPTIMIZED_LOCKS
 	lock_actors_lists();	//lock it to avoid timing issues
-#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 				{
-#ifdef OPTIMIZED_LOCKS
-					lock_actors_lists();
-#endif
 					if(actors_list[i]->moving)
 						{
 							actors_list[i]->movement_frames_left--;
@@ -240,15 +221,10 @@ void animate_actors()
 							actors_list[i]->y_rot+=actors_list[i]->rotate_y_speed;
 							actors_list[i]->z_rot+=actors_list[i]->rotate_z_speed;
 						}
-#ifdef OPTIMIZED_LOCKS
-					unlock_actors_lists();
-#endif
 				}
 		}
 	// unlock the actors_list since we are done now
-#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();
-#endif
 }
 
 
@@ -260,17 +236,10 @@ void next_command()
 	int i;
 	int max_queue=0;
 
-#ifndef OPTIMIZED_LOCKS
 	lock_actors_lists();
-#endif
 	for(i=0;i<max_actors;i++)
 		{
-#ifdef OPTIMIZED_LOCKS
-			lock_actors_lists();//We have to be careful here otherwise the network/rendering thread mya have freed the actor
-			if(actors_list[i])
-#else
 			if(!actors_list[i])continue;//actor exists?
-#endif
 			if(!actors_list[i]->busy || (actors_list[i]->busy && actors_list[i]->after_move_frames_left && (actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw)))//is it not busy?
 				{
 					if(actors_list[i]->que[0]==nothing)//do we have something in the que?
@@ -525,13 +494,8 @@ void next_command()
 							actors_list[i]->que[k]=nothing;
 						}
 				}
-#ifdef OPTIMIZED_LOCKS
-			unlock_actors_lists();
-#endif
 		}
-#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();
-#endif
 	if(max_queue >= 4)my_timer_adjust+=6+(max_queue-4);	//speed up the timer clock if we are building up too much
 }
 
@@ -585,16 +549,11 @@ void destroy_all_actors()
 {
 	int i=0;
 	actor *to_free;
-#ifndef OPTIMIZED_LOCKS
 	lock_actors_lists();	//lock it to avoid timing issues
-#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 				{
-#ifdef OPTIMIZED_LOCKS
-					lock_actors_lists();
-#endif
 					if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
 					if(actors_list[i]->is_enhanced_model)
 						{
@@ -604,15 +563,10 @@ void destroy_all_actors()
 					to_free = actors_list[i];
 					actors_list[i]=NULL;
 					free(to_free);
-#ifdef OPTIMIZED_LOCKS
-					unlock_actors_lists();
-#endif
 				}
 		}
 	max_actors=0;
-#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();	//unlock it since we are done
-#endif
 }
 
 

@@ -189,14 +189,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor->body_parts=this_actor;
 
 	//find a free spot, in the actors_list
-#ifndef OPTIMIZED_LOCKS
-	/*
-	Likewise it is from the normal thread and not the timer
-	hence we shouldn't have any problems that'd require locking
-	this
-	*/
 	lock_actors_lists();	//lock it to avoid timing issues
-#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])break;
@@ -204,7 +197,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
 	no_bounding_box=0;
-#ifndef OPTIMIZED_LOCKS
+#ifndef OPTIMIZED_LOCKS//Don't unlock it yet - we want to keep it locked till the actor data is completely copied
 	unlock_actors_lists();	//unlock it
 #endif
 
@@ -224,25 +217,45 @@ void draw_enhanced_actor(actor * actor_id)
 	float healtbar_z=0;
 
 	bind_texture_id(actor_id->texture_id);
+#ifdef OPTIMIZED_LOCKS
+	cur_frame=actor_id->tmp.cur_frame;
+#else
 	cur_frame=actor_id->cur_frame;
+#endif
 
 	//now, go and find the current frame
 	i=get_frame_number(actor_id->body_parts->head, cur_frame);;
 	if(i >= 0)healtbar_z=actor_id->body_parts->head->offsetFrames[i].box.max_z;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
+#ifdef OPTIMIZED_LOCKS
+	x_pos=actor_id->tmp.x_pos;
+	y_pos=actor_id->tmp.y_pos;
+	z_pos=actor_id->tmp.z_pos;
+#else
 	x_pos=actor_id->x_pos;
 	y_pos=actor_id->y_pos;
 	z_pos=actor_id->z_pos;
+#endif
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
+#ifdef OPTIMIZED_LOCKS
+		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
+#else
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+#endif
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 
+#ifdef OPTIMIZED_LOCKS
+	x_rot=actor_id->tmp.x_rot;
+	y_rot=actor_id->tmp.y_rot;
+	z_rot=actor_id->tmp.z_rot;
+#else
 	x_rot=actor_id->x_rot;
 	y_rot=actor_id->y_rot;
 	z_rot=actor_id->z_rot;
+#endif
 	z_rot+=180;//test
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
@@ -658,7 +671,9 @@ void add_enhanced_actor_from_server(char * in_data)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+#ifndef OPTIMIZED_LOCKS //It's already locked
 	lock_actors_lists();    //lock it to avoid timing issues
+#endif
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
 	actors_list[i]->actor_type=actor_type;

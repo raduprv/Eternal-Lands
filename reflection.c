@@ -33,26 +33,46 @@ void draw_actor_reflection(actor * actor_id)
 		}
 	bind_texture_id(texture_id);
 
+#ifdef OPTIMIZED_LOCKS
+	cur_frame=actor_id->tmp.cur_frame;
+#else
 	cur_frame=actor_id->cur_frame;
+#endif
 
 	//now, go and find the current frame
 	i= get_frame_number(actor_id->model_data, cur_frame);
 	if(i<0)	return;	//nothing to draw
 
 	glPushMatrix();//we don't want to affect the rest of the scene
+#ifdef OPTIMIZED_LOCKS
+	x_pos=actor_id->tmp.x_pos;
+	y_pos=actor_id->tmp.y_pos;
+	z_pos=actor_id->tmp.z_pos;
+#else
 	x_pos=actor_id->x_pos;
 	y_pos=actor_id->y_pos;
 	z_pos=actor_id->z_pos;
+#endif
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
+#ifdef OPTIMIZED_LOCKS
+		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
+#else
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+#endif
 	z_pos+=-water_deepth_offset*2;
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 
+#ifdef OPTIMIZED_LOCKS
+	x_rot=actor_id->tmp.x_rot;
+	y_rot=actor_id->tmp.y_rot;
+	z_rot=actor_id->tmp.z_rot;
+#else
 	x_rot=actor_id->x_rot;
 	y_rot=actor_id->y_rot;
 	z_rot=actor_id->z_rot;
+#endif
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
@@ -72,24 +92,44 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	char *cur_frame;
 
 	check_gl_errors();
+#ifdef OPTIMIZED_LOCKS
+	cur_frame=actor_id->tmp.cur_frame;
+#else
 	cur_frame=actor_id->cur_frame;
+#endif
 	texture_id=actor_id->texture_id;
 
 	bind_texture_id(texture_id);
 
 	glPushMatrix();//we don't want to affect the rest of the scene
+#ifdef OPTIMIZED_LOCKS
+	x_pos=actor_id->tmp.x_pos;
+	y_pos=actor_id->tmp.y_pos;
+	z_pos=actor_id->tmp.z_pos;
+#else
 	x_pos=actor_id->x_pos;
 	y_pos=actor_id->y_pos;
 	z_pos=actor_id->z_pos;
+#endif
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
+#ifdef OPTIMIZED_LOCKS
+		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
+#else
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+#endif
 	z_pos+=-water_deepth_offset*2;
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+#ifdef OPTIMIZED_LOCKS
+	x_rot=actor_id->tmp.x_rot;
+	y_rot=actor_id->tmp.y_rot;
+	z_rot=actor_id->tmp.z_rot;
+#else
 	x_rot=actor_id->x_rot;
 	y_rot=actor_id->y_rot;
 	z_rot=actor_id->z_rot;
+#endif
 	z_rot+=180;//test
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
@@ -355,10 +395,13 @@ void display_3d_reflection()
 					int dist2;
 
 #ifdef OPTIMIZED_LOCKS
-					lock_actors_lists();
-#endif
+					//lock_actors_lists();
+					dist1=x-actors_list[i]->tmp.x_pos;
+					dist2=y-actors_list[i]->tmp.y_pos;
+#else
 					dist1=x-actors_list[i]->x_pos;
 					dist2=y-actors_list[i]->y_pos;
+#endif
 					if(dist1*dist1+dist2*dist2<=100)
 							{
 								if(actors_list[i]->is_enhanced_model)
@@ -366,7 +409,7 @@ void display_3d_reflection()
 								else draw_actor_reflection(actors_list[i]);
 							}
 #ifdef OPTIMIZED_LOCKS
-					unlock_actors_lists();
+					//unlock_actors_lists();
 #endif
 				}
 		}

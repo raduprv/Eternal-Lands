@@ -819,12 +819,15 @@ void draw_game_map()
 				if(actors_list[i]->actor_id==yourself)
 					{
 #ifdef OPTIMIZED_LOCKS
-						lock_actors_lists();
-#endif
+						//lock_actors_lists();
+						int x=actors_list[i]->tmp.x_tile_pos;
+						int y=actors_list[i]->tmp.y_tile_pos;
+#else
 						int x=actors_list[i]->x_tile_pos;
 						int y=actors_list[i]->y_tile_pos;
+#endif
 #ifdef OPTIMIZED_LOCKS
-						unlock_actors_lists();
+						//unlock_actors_lists();
 #endif
 						screen_x=300-(50+200*x/(tile_map_size_x*6));
 						screen_y=0+200*y/(tile_map_size_y*6);

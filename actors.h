@@ -166,6 +166,23 @@ typedef struct
 	char ghost;
 } actor_types;
 
+#ifdef OPTIMIZED_LOCKS
+typedef struct //Data accessed by both the rendering and the timer threads...
+{
+	char cur_frame[16];
+	
+	double x_pos;
+	double y_pos;
+	double z_pos;
+	
+	short x_tile_pos;
+	short y_tile_pos;
+	
+	float x_rot;
+	float y_rot;
+	float z_rot;
+} tmp_actor_data;
+#endif
 
 typedef struct
 {
@@ -186,6 +203,10 @@ typedef struct
 	float x_rot;
 	float y_rot;
 	float z_rot;
+
+#ifdef OPTIMIZED_LOCKS
+	tmp_actor_data tmp;
+#endif
 
 	int boots;
 	int hair;

@@ -110,6 +110,8 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	//find a free spot, in the actors_list
 #ifndef POSSIBLE_FIX //Well, the timer thread cannot free memory - so it shouldn't be necissary to lock it...
 	lock_actors_lists();	//lock it to avoid timing issues
+#elif defined(OPTIMIZED_LOCKS)
+	lock_actors_lists();
 #endif
 	for(i=0;i<max_actors;i++)
 		{
@@ -119,7 +121,9 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
 #ifndef POSSIBLE_FIX
+#ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();	// release now that we are done
+#endif
 #endif
 	return i;
 }
@@ -575,16 +579,30 @@ void draw_actor(actor * actor_id)
 	bind_texture_id(texture_id);
 
 	//now, go and find the current frame
+#ifdef OPTIMIZED_LOCKS
+	i=get_frame_number(actor_id->model_data, actor_id->tmp.cur_frame);
+#else
 	i=get_frame_number(actor_id->model_data, actor_id->cur_frame);
+#endif
 	if(i >= 0)healtbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
+#ifdef OPTIMIZED_LOCKS
+	x_pos=actor_id->tmp.x_pos;
+	y_pos=actor_id->tmp.y_pos;
+	z_pos=actor_id->tmp.z_pos;
+#else
 	x_pos=actor_id->x_pos;
 	y_pos=actor_id->y_pos;
 	z_pos=actor_id->z_pos;
+#endif
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
+#ifdef OPTIMIZED_LOCKS
+		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
+#else
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+#endif
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 
@@ -647,10 +665,13 @@ void display_actors()
 						int dist2;
 
 #ifdef OPTIMIZED_LOCKS
-						lock_actors_lists();
-#endif
+						//lock_actors_lists();
+						dist1=x-cur_actor->tmp.x_pos;
+						dist2=y-cur_actor->tmp.y_pos;
+#else
 						dist1=x-cur_actor->x_pos;
 						dist2=y-cur_actor->y_pos;
+#endif
 						if(dist1*dist1+dist2*dist2<=12*12)
 							{
 								if(cur_actor->is_enhanced_model)
@@ -678,7 +699,7 @@ void display_actors()
 									else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 							}
 #ifdef OPTIMIZED_LOCKS
-						unlock_actors_lists();
+						//unlock_actors_lists();
 #endif
 					}
 				else
@@ -705,10 +726,13 @@ void display_actors()
 							int dist2;
 
 #ifdef OPTIMIZED_LOCKS
-							lock_actors_lists();
-#endif
+							//lock_actors_lists();
+							dist1=x-cur_actor->tmp.x_pos;
+							dist2=y-cur_actor->tmp.y_pos;
+#else
 							dist1=x-cur_actor->x_pos;
 							dist2=y-cur_actor->y_pos;
+#endif
 							if(dist1*dist1+dist2*dist2<=12*12)
 								{
 									if(cur_actor->is_enhanced_model)
@@ -727,7 +751,7 @@ void display_actors()
 										else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 								}
 #ifdef OPTIMIZED_LOCKS
-							unlock_actors_lists();
+							//unlock_actors_lists();
 #endif
 						}
 			}
@@ -880,12 +904,18 @@ void add_actor_from_server(char * in_data)
 	unlock_actors_lists();
 #endif
 #endif
+
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
 				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
 
 #ifdef POSSIBLE_FIX
+#ifndef OPTIMIZED_LOCKS
+	/*The actors mutex is already locked when here - we don't unlock it in add_actor, 
+	as we don't want the timer thread to know about this actor before it's fully loaded*/
 	lock_actors_lists();
 #endif
+#endif
+	
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
 	actors_list[i]->actor_type=actor_type;

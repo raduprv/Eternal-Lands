@@ -261,9 +261,11 @@ int pf_is_tile_occupied(int x, int y)
 	for (i = 0; i < max_actors && !retval; i++) {
 		if(actors_list[i]) {
 #ifdef OPTIMIZED_LOCKS
-			lock_actors_lists();
-#endif
+			//lock_actors_lists();
+			if (actors_list[i]->tmp.x_tile_pos == x && actors_list[i]->tmp.y_tile_pos == y) {
+#else
 			if (actors_list[i]->x_tile_pos == x && actors_list[i]->y_tile_pos == y) {
+#endif
 #ifndef POSSIBLE_FIX
 				return 1;
 #elif defined(OPTIMIZED_LOCKS)
@@ -273,7 +275,7 @@ int pf_is_tile_occupied(int x, int y)
 #endif
 			}
 #ifdef OPTIMIZED_LOCKS
-			unlock_actors_lists();
+			//unlock_actors_lists();
 #endif
 		}
 	}
