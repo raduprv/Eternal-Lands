@@ -18,8 +18,10 @@ extern int mouse_delta_x;
 extern int mouse_delta_y;
 
 extern int right_click;
+extern int middle_click;
 extern int left_click;
 
+extern int	options_win;
 extern int options_menu;
 extern int view_self_stats;
 extern int view_health_bar;
@@ -102,7 +104,7 @@ int y_start,int x_end,int y_end);
 void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_start,
 int y_start,int x_end,int y_end);
 void draw_options_menu();
-int check_options_menu();
+//int check_options_menu();
 void draw_ingame_interface();
 void switch_to_game_map();
 void switch_from_game_map();

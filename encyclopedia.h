@@ -33,6 +33,8 @@ typedef struct
 
 }_Page;
 
+extern int encyclopedia_win;
+extern int view_encyclopedia;
 extern int encyclopedia_menu_x;
 extern int encyclopedia_menu_y;
 extern int encyclopedia_menu_x_len;

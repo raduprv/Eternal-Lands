@@ -8,6 +8,7 @@ int mouse_y;
 int mouse_delta_x;
 int mouse_delta_y;
 int right_click;
+int middle_click;
 int left_click;
 int open_text;
 int login_screen_menus;
@@ -31,6 +32,7 @@ int view_names=1;
 int view_chat_text_as_overtext=0;
 int show_fps=1;
 int limit_fps=0;
+int	options_win= 0;
 
 int action_mode=action_walk;
 
@@ -63,6 +65,8 @@ void get_world_x_y()
 
 int check_drag_menus()
 {
+	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y))	return 1;
+
 	if(sigil_menu_dragged || (view_sigils_menu && mouse_x>sigil_menu_x && mouse_x<=sigil_menu_x+sigil_menu_x_len && mouse_y>sigil_menu_y-16 && mouse_y<=sigil_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -76,7 +80,7 @@ int check_drag_menus()
 				return 1;
 			}
 
-	if(options_menu_dragged || (options_menu && mouse_x>options_menu_x && mouse_x<=options_menu_x + options_menu_x_len && mouse_y>options_menu_y-16 && mouse_y<=options_menu_y))
+	/*if(options_menu_dragged || (options_menu && mouse_x>options_menu_x && mouse_x<=options_menu_x + options_menu_x_len && mouse_y>options_menu_y-16 && mouse_y<=options_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
 
@@ -89,6 +93,7 @@ int check_drag_menus()
 					}
 				return 1;
 			}
+	*/
 
 	if(trade_menu_dragged || (view_trade_menu && mouse_x>trade_menu_x && mouse_x<=trade_menu_x+trade_menu_x_len && mouse_y>trade_menu_y-16 && mouse_y<=trade_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
@@ -144,7 +149,7 @@ int check_drag_menus()
 					}
 				return 1;
 			}
-
+	/*
 	// TODO: move dragging logic into elwindows.c
 	if(attrib_menu_dragged || (view_self_stats && mouse_x>attrib_menu_x && mouse_x<=attrib_menu_x+attrib_menu_x_len && mouse_y>attrib_menu_y-16 && mouse_y<=attrib_menu_y))
 		if(!items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
@@ -160,7 +165,8 @@ int check_drag_menus()
 					}
 				return 1;
 			}
-
+	*/
+	
 	if(dialogue_menu_dragged || (have_dialogue && mouse_x>dialogue_menu_x && mouse_x<=dialogue_menu_x+dialogue_menu_x_len && mouse_y>dialogue_menu_y-16 && mouse_y<=dialogue_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -187,6 +193,7 @@ int check_drag_menus()
 				return 1;
 			}
 
+	/*
 	if(encyclopedia_menu_dragged || (view_encyclopedia && mouse_x>encyclopedia_menu_x && mouse_x<=encyclopedia_menu_x+encyclopedia_menu_x_len && mouse_y>encyclopedia_menu_y-16 && mouse_y<=encyclopedia_menu_y))
 		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 		   !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
@@ -225,6 +232,7 @@ int check_drag_menus()
                }
 			return 1;
          }
+	*/
 
 	return 0;
 }
@@ -242,6 +250,7 @@ int check_scroll_bars()
 	}
 	return 0;
 }
+
 void check_menus_out_of_screen()
 {
 	if(attrib_menu_y-16<0)attrib_menu_y=16;
@@ -299,16 +308,6 @@ void check_menus_out_of_screen()
 	if(questlog_menu_x+questlog_menu_x_len<10)questlog_menu_x=0-questlog_menu_x_len+11;
 	if(questlog_menu_x>window_width-10)questlog_menu_x=window_width-10;
 
-	if(questlog_menu_y-16<0)questlog_menu_y=16;
-	if(questlog_menu_y>window_height-32)questlog_menu_y=window_height-32;
-	if(questlog_menu_x+questlog_menu_x_len<10)questlog_menu_x=0-questlog_menu_x_len+11;
-	if(questlog_menu_x>window_width-10)questlog_menu_x=window_width-10;
-
-	if(buddy_menu_y-16<0)buddy_menu_y=16;
-	if(buddy_menu_y>window_height-32)buddy_menu_y=window_height-32;
-	if(buddy_menu_x+buddy_menu_x_len<10)buddy_menu_x=0-buddy_menu_x_len+11;
-	if(buddy_menu_x>window_width-10)buddy_menu_x=window_width-10;
-
 	if(buddy_menu_y-16<0)buddy_menu_y=16;
 	if(buddy_menu_y>window_height-32)buddy_menu_y=window_height-32;
 	if(buddy_menu_x+buddy_menu_x_len<10)buddy_menu_x=0-buddy_menu_x_len+11;
@@ -333,7 +332,7 @@ void check_mouse_click()
 			return;
 		}
 	if(check_sigil_interface())return;
-	if(check_options_menu())return;
+	//if(check_options_menu())return;
 	if(check_trade_interface())return;
 
 	if(view_manufacture_menu && mouse_x>(manufacture_menu_x+manufacture_menu_x_len-20) && mouse_x<=(manufacture_menu_x+manufacture_menu_x_len)
@@ -373,6 +372,7 @@ void check_mouse_click()
 		}
 	if(check_knowledge_interface())return;
 
+	/*
 	if(view_encyclopedia && mouse_x>(encyclopedia_menu_x+encyclopedia_menu_x_len-20) && mouse_x<=(encyclopedia_menu_x+encyclopedia_menu_x_len)
 	   && mouse_y>encyclopedia_menu_y && mouse_y<=encyclopedia_menu_y+20)
 		{
@@ -405,9 +405,11 @@ void check_mouse_click()
 			return;
 		}
 	if(check_buddy_interface())return;
+	*/
 
 	// check for a click on the HUD (between scene & windows)
-	if(check_hud_interface()) return;
+	//if(check_hud_interface()) return;
+	if(click_in_windows(mouse_x, mouse_y, 0))	return;	// temporarily here for testing
 
 	//after we test for interface clicks
 	// alternative drop method...
@@ -966,359 +968,316 @@ float unlit_gem_v_start=1.0f-(float)96/256;
 float unlit_gem_u_end=(float)255/256;
 float unlit_gem_v_end=1.0f-(float)111/256;
 
+int display_options_handler(windows_info *win);
+int click_options_handler(int mx, int my, Uint32 flags);
 void draw_options_menu()
 {
-	draw_menu_title_bar(options_menu_x,options_menu_y-16,options_menu_x + options_menu_x_len-options_menu_x);
+	if(options_win <= 0){
+		options_win= create_window("Options", 0, 0, options_menu_x, options_menu_y, options_menu_x_len, options_menu_y_len, ELW_WIN_DEFAULT);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(options_menu_x,options_menu_y + options_menu_y_len,0);
-	glVertex3i(options_menu_x,options_menu_y,0);
-	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y,0);
-	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y + options_menu_y_len,0);
-	glEnd();
+		set_window_color(options_win, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
+		set_window_handler(options_win, ELW_HANDLER_DISPLAY, &display_options_handler );
+		set_window_handler(options_win, ELW_HANDLER_CLICK, &click_options_handler );
+	} else {
+		show_window(options_win);
+		select_window(options_win);
+	}
+	display_window(options_win);
+}
 
-	glDisable(GL_BLEND);
-
-	glColor3f(0.0f,1.0f,0.0f);
-	glBegin(GL_LINES);
-	glVertex3i(options_menu_x,options_menu_y,0);
-	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y,0);
-	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y,0);
-	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y + options_menu_y_len,0);
-	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y + options_menu_y_len,0);
-	glVertex3i(options_menu_x,options_menu_y + options_menu_y_len,0);
-	glVertex3i(options_menu_x,options_menu_y + options_menu_y_len,0);
-	glVertex3i(options_menu_x,options_menu_y,0);
-
-	//draw the corner, with the X in
-	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y+20,0);
-	glVertex3i(options_menu_x + options_menu_x_len-20,options_menu_y+20,0);
-
-	glVertex3i(options_menu_x + options_menu_x_len-20,options_menu_y+20,0);
-	glVertex3i(options_menu_x + options_menu_x_len-20,options_menu_y,0);
-
-	glEnd();
-
-	glEnable(GL_TEXTURE_2D);
-
-	draw_string_small(options_menu_x + options_menu_x_len-16,options_menu_y+2,"X",1);
-
-	glColor3f(1.0f,1.0f,1.0f);
-
+int display_options_handler(windows_info *win)
+{
 	get_and_set_texture_id(icons_text);
 	glBegin(GL_QUADS);
 	if(!have_stencil)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+8, options_menu_y+35, options_menu_x+38, options_menu_y+51);
+					  8, 35, 38, 51);
 	else if(shadows_on)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+35, options_menu_x+38, options_menu_y+51);
+					  8, 35, 38, 51);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+35, options_menu_x+38, options_menu_y+51);
+					  8, 35, 38, 51);
 
 	if(!have_multitexture)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+8, options_menu_y+55, options_menu_x+38, options_menu_y+71);
+					  8, 55, 38, 71);
 	else if(clouds_shadows)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+55, options_menu_x+38, options_menu_y+71);
+					  8, 55, 38, 71);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+55, options_menu_x+38, options_menu_y+71);
+					  8, 55, 38, 71);
 	if(show_reflection)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+75, options_menu_x+38, options_menu_y+91);
+					  8, 75, 38, 91);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+75, options_menu_x+38, options_menu_y+91);
+					  8, 75, 38, 91);
 	if(show_fps)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+95, options_menu_x+38, options_menu_y+111);
+					  8, 95, 38, 111);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+95, options_menu_x+38, options_menu_y+111);
+					  8, 95, 38, 111);
 
 	if(sit_lock)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
+					  8, 115, 38, 131);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
+					  8, 115, 38, 131);
 
 	if(caps_filter)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
+					  8, 135, 38, 151);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
+					  8, 135, 38, 151);
 
 	if(!have_sound)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
+					  8, 155, 38, 171);
 	else if(sound_on)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
+					  8, 155, 38, 171);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
+					  8, 155, 38, 171);
 
 	if(!have_music)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
+					  8, 175, 38, 191);
 	else if(music_on)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
+					  8, 175, 38, 191);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
+					  8, 175, 38, 191);
 
 	if(auto_camera)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
+					  8, 195, 38, 211);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
+					  8, 195, 38, 211);
 
 	//video modes
 	if(full_screen)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+35, options_menu_x+220, options_menu_y+51);
+					  193, 35, 220, 51);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+35, options_menu_x+220, options_menu_y+51);
+					  193, 35, 220, 51);
 
 	if(video_modes[0].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+55, options_menu_x+220, options_menu_y+71);
+					  193, 55, 220, 71);
 	else if(video_modes[0].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+55, options_menu_x+220, options_menu_y+71);
+					  193, 55, 220, 71);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+55, options_menu_x+220, options_menu_y+71);
+					  193, 55, 220, 71);
 
 	if(video_modes[1].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+75, options_menu_x+220, options_menu_y+91);
+					  193, 75, 220, 91);
 	else if(video_modes[1].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+75, options_menu_x+220, options_menu_y+91);
+					  193, 75, 220, 91);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+75, options_menu_x+220, options_menu_y+91);
+					  193, 75, 220, 91);
 
 	if(video_modes[2].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+95, options_menu_x+220, options_menu_y+111);
+					  193, 95, 220, 111);
 	else if(video_modes[2].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+95, options_menu_x+220, options_menu_y+111);
+					  193, 95, 220, 111);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+95, options_menu_x+220, options_menu_y+111);
+					  193, 95, 220, 111);
 
 	if(video_modes[3].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+115, options_menu_x+220, options_menu_y+131);
+					  193, 115, 220, 131);
 	else if(video_modes[3].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+115, options_menu_x+220, options_menu_y+131);
+					  193, 115, 220, 131);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+115, options_menu_x+220, options_menu_y+131);
+					  193, 115, 220, 131);
 
 	if(video_modes[4].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+135, options_menu_x+220, options_menu_y+151);
+					  193, 135, 220, 151);
 	else if(video_modes[4].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+135, options_menu_x+220, options_menu_y+151);
+					  193, 135, 220, 151);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+135, options_menu_x+220, options_menu_y+151);
+					  193, 135, 220, 151);
 
 	if(video_modes[5].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+155, options_menu_x+220, options_menu_y+171);
+					  193, 155, 220, 171);
 	else if(video_modes[5].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+155, options_menu_x+220, options_menu_y+171);
+					  193, 155, 220, 171);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+155, options_menu_x+220, options_menu_y+171);
+					  193, 155, 220, 171);
 
 	if(video_modes[6].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+175, options_menu_x+220, options_menu_y+191);
+					  193, 175, 220, 191);
 	else if(video_modes[6].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+175, options_menu_x+220, options_menu_y+191);
+					  193, 175, 220, 191);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+175, options_menu_x+220, options_menu_y+191);
+					  193, 175, 220, 191);
 
 	if(video_modes[7].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+195, options_menu_x+220, options_menu_y+211);
+					  193, 195, 220, 211);
 	else if(video_modes[7].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+195, options_menu_x+220, options_menu_y+211);
+					  193, 195, 220, 211);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+195, options_menu_x+220, options_menu_y+211);
+					  193, 195, 220, 211);
 
 	if(video_modes[8].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+215, options_menu_x+220, options_menu_y+231);
+					  193, 215, 220, 231);
 	else if(video_modes[8].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+215, options_menu_x+220, options_menu_y+231);
+					  193, 215, 220, 231);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+215, options_menu_x+220, options_menu_y+231);
+					  193, 215, 220, 231);
 
 	if(video_modes[9].selected)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+193, options_menu_y+235, options_menu_x+220, options_menu_y+251);
+					  193, 235, 220, 251);
 	else if(video_modes[9].supported)
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+193, options_menu_y+235, options_menu_x+220, options_menu_y+251);
+					  193, 235, 220, 251);
 	else
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-					  options_menu_x+193, options_menu_y+235, options_menu_x+220, options_menu_y+251);
+					  193, 235, 220, 251);
 
 	glEnd();
-	draw_string(options_menu_x+55,options_menu_y+10,"Options",1);
-	draw_string(options_menu_x+45,options_menu_y+35,"Shadows",1);
-	draw_string(options_menu_x+45,options_menu_y+55,"Clouds",1);
-	draw_string(options_menu_x+45,options_menu_y+75,"Reflections",1);
-	draw_string(options_menu_x+45,options_menu_y+95,"Show FPS",1);
-	draw_string(options_menu_x+45,options_menu_y+115,"Sit Lock",1);
-	draw_string(options_menu_x+45,options_menu_y+135,"Filter CAPS",1);
-	draw_string(options_menu_x+45,options_menu_y+155,"Sound",1);
-	draw_string(options_menu_x+45,options_menu_y+175,"Music",1);
-	draw_string(options_menu_x+45,options_menu_y+195,"Auto Camera",1);
+	draw_string(55,10,"Options",1);
+	draw_string(45,35,"Shadows",1);
+	draw_string(45,55,"Clouds",1);
+	draw_string(45,75,"Reflections",1);
+	draw_string(45,95,"Show FPS",1);
+	draw_string(45,115,"Sit Lock",1);
+	draw_string(45,135,"Filter CAPS",1);
+	draw_string(45,155,"Sound",1);
+	draw_string(45,175,"Music",1);
+	draw_string(45,195,"Auto Camera",1);
 
-	draw_string(options_menu_x+225,options_menu_y+10,"Video Modes",1);
-	draw_string(options_menu_x+225,options_menu_y+35,"Full Screen",1);
-	draw_string(options_menu_x+225,options_menu_y+55,"640x480x16",1);
-	draw_string(options_menu_x+225,options_menu_y+75,"640x480x32",1);
-	draw_string(options_menu_x+225,options_menu_y+95,"800x600x16",1);
-	draw_string(options_menu_x+225,options_menu_y+115,"800x600x32",1);
-	draw_string(options_menu_x+225,options_menu_y+135,"1024x768x16",1);
-	draw_string(options_menu_x+225,options_menu_y+155,"1024x768x32",1);
-	draw_string(options_menu_x+225,options_menu_y+175,"1152x864x16",1);
-	draw_string(options_menu_x+225,options_menu_y+195,"1152x864x32",1);
-	draw_string(options_menu_x+225,options_menu_y+215,"1280x1024x16",1);
-	draw_string(options_menu_x+225,options_menu_y+235,"1280x1024x32",1);
+	draw_string(225,10,"Video Modes",1);
+	draw_string(225,35,"Full Screen",1);
+	draw_string(225,55,"640x480x16",1);
+	draw_string(225,75,"640x480x32",1);
+	draw_string(225,95,"800x600x16",1);
+	draw_string(225,115,"800x600x32",1);
+	draw_string(225,135,"1024x768x16",1);
+	draw_string(225,155,"1024x768x32",1);
+	draw_string(225,175,"1152x864x16",1);
+	draw_string(225,195,"1152x864x32",1);
+	draw_string(225,215,"1280x1024x16",1);
+	draw_string(225,235,"1280x1024x32",1);
+
+	return 1;
 }
 
-int check_options_menu()
+int click_options_handler(int mx, int my, Uint32 flags)
 {
-	if(!options_menu)return 0;
-	if(mouse_x<options_menu_x || mouse_y<options_menu_y ||
-	   mouse_x>options_menu_x + options_menu_x_len || mouse_y>options_menu_y + options_menu_y_len)return 0;
-
-	if(mouse_x>options_menu_x + options_menu_x_len-16 && mouse_y>options_menu_y &&
-	   mouse_x<options_menu_x + options_menu_x_len && mouse_y<options_menu_y+16)
-		options_menu=0;
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+35 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+51)
-		shadows_on=!shadows_on;
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+55 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+71)
-		clouds_shadows=!clouds_shadows;
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+75 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+91)
-		show_reflection=!show_reflection;
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+95 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+111)
-		show_fps=!show_fps;
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+115 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+131)
-		sit_lock=!sit_lock;
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+135 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+151)
-		caps_filter=!caps_filter;
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+155 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+171)
-		if(sound_on)turn_sound_off();
-		else turn_sound_on();
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+175 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+191)
-		if(music_on)turn_music_off();
-		else turn_music_on();
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+195 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+211)
-		auto_camera=!auto_camera;
-
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+35 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+51)
-		toggle_full_screen();
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+55 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+71)
+	// in the first column?
+	if(mouse_x>8 && mouse_x<38)
 		{
-			if(video_modes[0].supported && !video_modes[0].selected)
-				set_new_video_mode(full_screen,1);
+			if(mouse_y>35 && mouse_y<51)
+				shadows_on=!shadows_on;
+			else if(mouse_y>55 && mouse_y<71)
+				clouds_shadows=!clouds_shadows;
+			else if(mouse_y>75 && mouse_y<91)
+				show_reflection=!show_reflection;
+			else if(mouse_y>95 && mouse_y<111)
+				show_fps=!show_fps;
+			else if(mouse_y>115 && mouse_y<131)
+				sit_lock=!sit_lock;
+			else if(mouse_y>135 && mouse_y<151)
+				caps_filter=!caps_filter;
+			else if(mouse_y>155 && mouse_y<171)
+				if(sound_on)turn_sound_off();
+				else turn_sound_on();
+			else if(mouse_y>175 && mouse_y<191)
+				if(music_on)turn_music_off();
+				else turn_music_on();
+			else if(mouse_y>195 && mouse_y<211)
+				auto_camera=!auto_camera;
 		}
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+75 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+91)
+	else if(mouse_x>193 && mouse_x<220)
 		{
-			if(video_modes[1].supported && !video_modes[1].selected)
-				set_new_video_mode(full_screen,2);
-		}
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+95 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+111)
-		{
-			if(video_modes[2].supported && !video_modes[2].selected)
-				set_new_video_mode(full_screen,3);
-		}
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+115 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+131)
-		{
-			if(video_modes[3].supported && !video_modes[3].selected)
-				set_new_video_mode(full_screen,4);
-		}
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+135 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+151)
-		{
-			if(video_modes[4].supported && !video_modes[4].selected)
-				set_new_video_mode(full_screen,5);
-		}
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+155 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+171)
-		{
-			if(video_modes[5].supported && !video_modes[5].selected)
-				set_new_video_mode(full_screen,6);
-		}
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+175 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+191)
-		{
-			if(video_modes[6].supported && !video_modes[6].selected)
-				set_new_video_mode(full_screen,7);
-		}
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+195 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+211)
-		{
-			if(video_modes[7].supported && !video_modes[7].selected)
-				set_new_video_mode(full_screen,8);
-		}
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+215 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+231)
-		{
-			if(video_modes[8].supported && !video_modes[8].selected)
-				set_new_video_mode(full_screen,9);
-		}
-	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+235 &&
-			mouse_x<options_menu_x+220 && mouse_y<options_menu_y+251)
-		{
-			if(video_modes[9].supported && !video_modes[9].selected)
-				set_new_video_mode(full_screen,10);
+			if(mouse_y>35 && mouse_y<51)
+				toggle_full_screen();
+			else if(mouse_y>55 && mouse_y<71)
+				{
+					if(video_modes[0].supported && !video_modes[0].selected)
+						set_new_video_mode(full_screen,1);
+				}
+			else if(mouse_y>75 && mouse_y<91)
+				{
+					if(video_modes[1].supported && !video_modes[1].selected)
+						set_new_video_mode(full_screen,2);
+				}
+			else if(mouse_y>95 && mouse_y<111)
+				{
+					if(video_modes[2].supported && !video_modes[2].selected)
+						set_new_video_mode(full_screen,3);
+				}
+			else if(mouse_y>115 && mouse_y<131)
+				{
+					if(video_modes[3].supported && !video_modes[3].selected)
+						set_new_video_mode(full_screen,4);
+				}
+			else if(mouse_y>135 && mouse_y<151)
+				{
+					if(video_modes[4].supported && !video_modes[4].selected)
+						set_new_video_mode(full_screen,5);
+				}
+			else if(mouse_y>155 && mouse_y<171)
+				{
+					if(video_modes[5].supported && !video_modes[5].selected)
+						set_new_video_mode(full_screen,6);
+				}
+			else if(mouse_y>175 && mouse_y<191)
+				{
+					if(video_modes[6].supported && !video_modes[6].selected)
+						set_new_video_mode(full_screen,7);
+				}
+			else if(mouse_y>195 && mouse_y<211)
+				{
+					if(video_modes[7].supported && !video_modes[7].selected)
+						set_new_video_mode(full_screen,8);
+				}
+			else if(mouse_y>215 && mouse_y<231)
+				{
+					if(video_modes[8].supported && !video_modes[8].selected)
+						set_new_video_mode(full_screen,9);
+				}
+			else if(mouse_y>235 && mouse_y<251)
+				{
+					if(video_modes[9].supported && !video_modes[9].selected)
+						set_new_video_mode(full_screen,10);
+				}
 		}
 	return 1;
 }
@@ -1327,7 +1286,18 @@ void draw_ingame_interface()
 {
 	check_menus_out_of_screen();
 
-	draw_hud_interface();
+	// hack for X & dragging
+	// TODO: finish the conversion process enough to remove these lines
+	if(options_win > 0)	options_menu= get_show_window(options_win);
+	if(stats_win > 0)	view_self_stats= get_show_window(stats_win);
+	if(quest_win > 0)	view_questlog= get_show_window(quest_win);
+	if(buddy_win > 0)	view_buddy= get_show_window(buddy_win);
+	if(encyclopedia_win > 0)	view_encyclopedia= get_show_window(encyclopedia_win);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	draw_hud_frame();
+	display_windows(1);	// Display all the windows handled by the window manager
+	//draw_hud_interface();
     display_spells_we_have();
 
     if(have_dialogue)
@@ -1337,17 +1307,17 @@ void draw_ingame_interface()
 			   && mouse_y>=dialogue_menu_y && mouse_y<=dialogue_menu_y+dialogue_menu_y_len)
 				highlight_dialogue_response();
 		}
-    if(view_self_stats)display_stats(your_info);
+    //if(view_self_stats)display_stats(your_info);
 	if(view_knowledge){knowledge_mouse_over();display_knowledge();}
-	if(view_encyclopedia){encyclopedia_mouse_over();display_encyclopedia();}
-	if(view_questlog)display_questlog();
-	if(view_buddy)display_buddy();
+	//if(view_encyclopedia){encyclopedia_mouse_over();display_encyclopedia();}
+	//if(view_questlog)display_questlog();
+	//if(view_buddy)display_buddy();
     if(view_my_items)display_items_menu();
     if(view_ground_items)draw_pick_up_menu();
     if(item_dragged!=-1)drag_item();
     if(view_manufacture_menu)display_manufacture_menu();
     if(view_trade_menu)display_trade_menu();
-    if(options_menu)draw_options_menu();
+    //if(options_menu)draw_options_menu();
     if(view_sigils_menu)
     	{
 			check_sigil_mouseover();

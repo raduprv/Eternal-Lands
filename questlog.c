@@ -1,6 +1,8 @@
 #include <string.h>
 #include "global.h"
+#include "elwindows.h"
 
+int quest_win=0;
 int view_questlog=0;
 int questlog_menu_x=150;
 int questlog_menu_y=70;
@@ -74,7 +76,7 @@ void unload_questlog()
 void string_fix(char *t)
 {
 	char *s=t;
-	int maxchar=(questlog_menu_x_len-25)/8;// calculate maximum amount of charcters per line
+	int maxchar=(questlog_menu_x_len-25)/8;// calculate maximum amount of characters per line
 	int i=0,j=0,lastspace=0,c=0;
 
 
@@ -145,80 +147,50 @@ int draw_questlog_string(char *t)
 		if(*t!=0)t++;
 		temp[i]=0;
 		i=0;
-		draw_string_small(questlog_menu_x+2,y,temp,1);
+		draw_string_small(2,y,temp,1);
 		y+=15;
-		if(y>(questlog_menu_y+questlog_menu_y_len-15))
+		if(y>(questlog_menu_y_len-15))
 			return 1;
 	}
 	return 0;
 }
 
-
-void display_questlog()
+int	display_quest_handler()
 {
 	_logdata *t=current;
-	//title bar
-	draw_menu_title_bar(questlog_menu_x,questlog_menu_y-16,questlog_menu_x_len);
-	// window drawing
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(questlog_menu_x,questlog_menu_y+questlog_menu_y_len,0);
-	glVertex3i(questlog_menu_x,questlog_menu_y,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len,questlog_menu_y,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len,questlog_menu_y+questlog_menu_y_len,0);
-	glEnd();
+
 	glDisable(GL_BLEND);
 	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
-	glVertex3i(questlog_menu_x,questlog_menu_y,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len,questlog_menu_y,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len,questlog_menu_y,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len,questlog_menu_y+questlog_menu_y_len,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len,questlog_menu_y+questlog_menu_y_len,0);
-	glVertex3i(questlog_menu_x,questlog_menu_y+questlog_menu_y_len,0);
-	glVertex3i(questlog_menu_x,questlog_menu_y+questlog_menu_y_len,0);
-	glVertex3i(questlog_menu_x,questlog_menu_y,0);
-	// X corner
-	glVertex3i(questlog_menu_x+questlog_menu_x_len,questlog_menu_y+20,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y+20,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y+20,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y,0);
-
 	//scroll bar
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y+20,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-20,questlog_menu_y+questlog_menu_y_len,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-15,questlog_menu_y+30,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+25,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+25,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-5,questlog_menu_y+30,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-15,questlog_menu_y+questlog_menu_y_len-15,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+questlog_menu_y_len-10,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-10,questlog_menu_y+questlog_menu_y_len-10,0);
-	glVertex3i(questlog_menu_x+questlog_menu_x_len-5,questlog_menu_y+questlog_menu_y_len-15,0);
+	glVertex3i(questlog_menu_x_len-20,20,0);
+	glVertex3i(questlog_menu_x_len-20,questlog_menu_y_len,0);
+	glVertex3i(questlog_menu_x_len-15,30,0);
+	glVertex3i(questlog_menu_x_len-10,25,0);
+	glVertex3i(questlog_menu_x_len-10,25,0);
+	glVertex3i(questlog_menu_x_len-5,30,0);
+	glVertex3i(questlog_menu_x_len-15,questlog_menu_y_len-15,0);
+	glVertex3i(questlog_menu_x_len-10,questlog_menu_y_len-10,0);
+	glVertex3i(questlog_menu_x_len-10,questlog_menu_y_len-10,0);
+	glVertex3i(questlog_menu_x_len-5,questlog_menu_y_len-15,0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	// The X
-	draw_string(questlog_menu_x+questlog_menu_x_len-16,questlog_menu_y+2,"X",1);
 
 	// Draw all texts from list
-	y=questlog_menu_y;
+	y= 0;
 	while(t!=NULL){
-		if(draw_questlog_string(t->msg))return;
+		if(draw_questlog_string(t->msg))return 1;
 		t=t->Next;
 	}
+	return 1;
 }
 
-int check_questlog_interface()
+int click_quest_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y;
-	if(!view_questlog || mouse_x>questlog_menu_x+questlog_menu_x_len || mouse_x<questlog_menu_x
-	   || mouse_y<questlog_menu_y || mouse_y>questlog_menu_y+questlog_menu_y_len)return 0;
 
-	x=mouse_x-questlog_menu_x;
-	y=mouse_y-questlog_menu_y;
+	x= mx;
+	y= my;
 	if(x > questlog_menu_x_len-16 && x < questlog_menu_x_len &&
 	   y > 18 && y < 18+16)
 		{
@@ -239,4 +211,19 @@ int check_questlog_interface()
 				if(current->Next)current=current->Next;
 		}
 	return 1;
+}
+
+void display_questlog()
+{
+	if(quest_win <= 0)
+		{
+			quest_win= create_window("Quest", 0, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
+			set_window_handler(quest_win, ELW_HANDLER_DISPLAY, &display_quest_handler );
+			set_window_handler(quest_win, ELW_HANDLER_CLICK, &click_quest_handler );
+		}
+	else
+		{
+			show_window(quest_win);
+			select_window(quest_win);
+		}
 }

@@ -1,6 +1,8 @@
 #include <string.h>
 #include "global.h"
+#include "elwindows.h"
 
+int encyclopedia_win=0;
 int view_encyclopedia=0;
 int encyclopedia_menu_x=100;
 int encyclopedia_menu_y=20;
@@ -14,43 +16,10 @@ int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage
 float u,v,uend,vend,xend,yend,r,g,b;
 char *s,*ss;
 
-void display_encyclopedia()
+int display_encyclopedia_handler(window_info *win)
 {
 	_Text *t=Page[currentpage].T.Next;
 	_Image *i=Page[currentpage].I.Next;
-
-	//title bar
-	draw_menu_title_bar(encyclopedia_menu_x,encyclopedia_menu_y-16,encyclopedia_menu_x_len);
-	// window drawing
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(encyclopedia_menu_x,encyclopedia_menu_y+encyclopedia_menu_y_len,0);
-	glVertex3i(encyclopedia_menu_x,encyclopedia_menu_y,0);
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len,encyclopedia_menu_y,0);
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len,encyclopedia_menu_y+encyclopedia_menu_y_len,0);
-	glEnd();
-	glDisable(GL_BLEND);
-	glColor3f(0.77f,0.57f,0.39f);
-	glBegin(GL_LINES);
-	glVertex3i(encyclopedia_menu_x,encyclopedia_menu_y,0);
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len,encyclopedia_menu_y,0);
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len,encyclopedia_menu_y,0);
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len,encyclopedia_menu_y+encyclopedia_menu_y_len,0);
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len,encyclopedia_menu_y+encyclopedia_menu_y_len,0);
-	glVertex3i(encyclopedia_menu_x,encyclopedia_menu_y+encyclopedia_menu_y_len,0);
-	glVertex3i(encyclopedia_menu_x,encyclopedia_menu_y+encyclopedia_menu_y_len,0);
-	glVertex3i(encyclopedia_menu_x,encyclopedia_menu_y,0);
-	// X corner
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len,encyclopedia_menu_y+20,0);
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len-20,encyclopedia_menu_y+20,0);
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len-20,encyclopedia_menu_y+20,0);
-	glVertex3i(encyclopedia_menu_x+encyclopedia_menu_x_len-20,encyclopedia_menu_y,0);
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-	draw_string(encyclopedia_menu_x+encyclopedia_menu_x_len-16,encyclopedia_menu_y+2,"X",1);
 
 	while(t){
 		int ylen=(t->size)?18:15;
@@ -62,26 +31,26 @@ void display_encyclopedia()
 				glColor3f(0.5,0.5,0.5);
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_LINES);
-				glVertex3i(t->x+4+encyclopedia_menu_x,t->y+encyclopedia_menu_y+ylen,0);
-				glVertex3i(t->x+4+encyclopedia_menu_x+xlen-8,t->y+encyclopedia_menu_y+ylen,0);
+				glVertex3i(t->x+4,t->y+ylen,0);
+				glVertex3i(t->x+4+xlen-8,t->y+ylen,0);
 				glEnd();
 				glEnable(GL_TEXTURE_2D);
 			}
 		if(t->size)
 			{
-				if(t->ref && mouse_x>(t->x+encyclopedia_menu_x) && mouse_x<(t->x+xlen+encyclopedia_menu_x) && mouse_y>(t->y+encyclopedia_menu_y) && mouse_y<(t->y+ylen+encyclopedia_menu_y))
+				if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y) && mouse_y<(t->y+ylen+win->cur_y))
 				glColor3f(0.3,0.6,1.0);
 				else
 				glColor3f(t->r,t->g,t->b);
-				draw_string(t->x+encyclopedia_menu_x,t->y+encyclopedia_menu_y,t->text,1);
+				draw_string(t->x,t->y,t->text,1);
 			}
 		else
 			{
-				if(t->ref && mouse_x>(t->x+encyclopedia_menu_x) && mouse_x<(t->x+xlen+encyclopedia_menu_x) && mouse_y>(t->y+encyclopedia_menu_y) && mouse_y<(t->y+ylen+encyclopedia_menu_y))
+				if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y) && mouse_y<(t->y+ylen+win->cur_y))
 				glColor3f(0.3,0.6,1.0);
 				else
 				glColor3f(t->r,t->g,t->b);
-				draw_string_small(t->x+encyclopedia_menu_x,t->y+encyclopedia_menu_y,t->text,1);
+				draw_string_small(t->x,t->y,t->text,1);
 			}
 		t=t->Next;
 	}
@@ -89,35 +58,33 @@ void display_encyclopedia()
 	glColor3f(1.0f,1.0f,1.0f);
 	while(i){
 		if(i->mouseover==1){i=i->Next;continue;}
-		if(mouse_x>(i->x+encyclopedia_menu_x) && mouse_x<(encyclopedia_menu_x+i->xend) && mouse_y>(i->y+encyclopedia_menu_y) && mouse_y<(encyclopedia_menu_y+i->yend)){
+		if(mouse_x>(i->x+win->cur_x) && mouse_x<(win->cur_x+i->xend) && mouse_y>(i->y+win->cur_y) && mouse_y<(win->cur_y+i->yend)){
 			if(i->Next!=NULL){
 				if(i->Next->mouseover==1)
 					i=i->Next;
 			}
 		}
-			get_and_set_texture_id(i->id);
-			glBegin(GL_QUADS);
-			draw_2d_thing(i->u, i->v, i->uend, i->vend,i->x+encyclopedia_menu_x, i->y+encyclopedia_menu_y,encyclopedia_menu_x+i->xend,encyclopedia_menu_y+i->yend);
-			glEnd();
-			i=i->Next;
+		get_and_set_texture_id(i->id);
+		glBegin(GL_QUADS);
+		draw_2d_thing(i->u, i->v, i->uend, i->vend,i->x, i->y,i->xend,i->yend);
+		glEnd();
+		i=i->Next;
 	}
-
-}
-
-int encyclopedia_mouse_over()
-{
 	return 1;
 }
 
-int check_encyclopedia_interface()
+//int encyclopedia_mouse_over()
+//{
+//	return 1;
+//}
+
+int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	_Text *t=Page[currentpage].T.Next;
-	if(!view_encyclopedia || mouse_x>encyclopedia_menu_x+encyclopedia_menu_x_len || mouse_x<encyclopedia_menu_x
-	   || mouse_y<encyclopedia_menu_y || mouse_y>encyclopedia_menu_y+encyclopedia_menu_y_len)return 0;
 
 	while(t){
 		int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
-		if(t->ref && mouse_x>(t->x+encyclopedia_menu_x) && mouse_x<(t->x+xlen+encyclopedia_menu_x) && mouse_y>(t->y+encyclopedia_menu_y) && mouse_y<(t->y+ylen+encyclopedia_menu_y)){
+		if(t->ref && mx>(t->x) && mx<(t->x+xlen) && my>(t->y) && my<(t->y+ylen)){
 				//changing page
 				int i;
 				for(i=0;i<numpage+1;i++){
@@ -131,7 +98,6 @@ int check_encyclopedia_interface()
 		}
 		t=t->Next;
 	}
-
 
 	return 1;
 }
@@ -605,5 +571,20 @@ void FreeXML()
 			free(tmp);
 		}
 	}
-
 }
+
+void display_encyclopedia()
+{
+	if(encyclopedia_win <= 0)
+		{
+			encyclopedia_win= create_window("Encyclopedia", 0, 0, encyclopedia_menu_x, encyclopedia_menu_y, encyclopedia_menu_x_len, encyclopedia_menu_y_len, ELW_WIN_DEFAULT);
+			set_window_handler(encyclopedia_win, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler );
+			set_window_handler(encyclopedia_win, ELW_HANDLER_CLICK, &click_encyclopedia_handler );
+		}
+	else
+		{
+			show_window(encyclopedia_win);
+			select_window(encyclopedia_win);
+		}
+}
+

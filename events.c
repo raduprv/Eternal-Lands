@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include "global.h"
+#include "elwindows.h"
 
 #ifndef WINDOWS
 #include <SDL_syswm.h>
@@ -568,11 +569,20 @@ int HandleEvent(SDL_Event *event)
 		case SDL_MOUSEMOTION:
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
-			mouse_x=event->motion.x;
-			mouse_y=event->motion.y;
+			if(event->type==SDL_MOUSEMOTION)
+				{
+					mouse_x= event->motion.x;
+					mouse_y= event->motion.y;
 
-			mouse_delta_x = event->motion.xrel;
-			mouse_delta_y = event->motion.yrel;
+					mouse_delta_x= event->motion.xrel;
+					mouse_delta_y= event->motion.yrel;
+				}
+			else
+				{
+					mouse_x= event->button.x;
+					mouse_y= event->button.y;
+					mouse_delta_x= mouse_delta_y= 0;
+				}
 
 			if(event->type==SDL_MOUSEBUTTONDOWN) {
 				if(event->button.button==SDL_BUTTON_LEFT)
@@ -582,6 +592,7 @@ int HandleEvent(SDL_Event *event)
 				left_click++;
 			else
 				{
+					if(left_click) end_drag_windows();
 					left_click = 0;
 					attrib_menu_dragged=0;
 					items_menu_dragged=0;
@@ -608,6 +619,16 @@ int HandleEvent(SDL_Event *event)
 			else
 				right_click= 0;
 
+			if(event->type==SDL_MOUSEBUTTONDOWN) {
+				if(event->button.button==SDL_BUTTON_MIDDLE)
+					middle_click++;
+			}
+			else if (event->type==SDL_MOUSEMOTION && (event->motion.state
+													  & SDL_BUTTON(SDL_BUTTON_MIDDLE)))
+				middle_click++;
+			else
+				middle_click= 0;
+
 			if(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2))
 				{
 
@@ -621,13 +642,13 @@ int HandleEvent(SDL_Event *event)
 			}
 
 			if((left_click==1 || right_click==1) &&
-			   interface_mode==interface_game)
+				interface_mode==interface_game)
 				check_mouse_click();
 			else if((left_click==1 || right_click==1) &&
-			   interface_mode==interface_map)
+				interface_mode==interface_map)
 			   	pf_move_to_mouse_position();
 			else if((left_click==1 || right_click==1) &&
-			   interface_mode==interface_console)
+				interface_mode==interface_console)
 				check_hud_interface();
 			else
 				if((left_click==1 || right_click==1) &&

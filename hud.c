@@ -34,27 +34,32 @@ void init_hud_interface()
 // draw everything related to the hud
 void draw_hud_interface()
 {
-    // TODO: get the window manager to handle this
-	get_and_set_texture_id(hud_text);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
+	display_windows(0);	// draw only the non-stacked windows
+	/*
+    // TODO: get the window manager to handle this
     draw_misc_display();
 
-	get_and_set_texture_id(icons_text);
+	//get_and_set_texture_id(icons_text);
     draw_peace_icons();
     draw_stats_display();
 	draw_quickbar();
+	*/
 }
 
 // check to see if a mouse click was on the hud
 //TODO: add the window manager to handle these
 int check_hud_interface()
 {
+	return click_in_windows(mouse_x, mouse_y, 0);	// temporarily here for testing
+	/*
     // TODO: get the window manager to handle this
 	if(check_peace_icons() > 0)return 1;
 	if(check_misc_display() > 0)return 1;
 	if(check_stats_display() > 0)return 1;
 	if(check_quickbar() > 0)return 1;
+	*/
 
 	// nothing done here
 	return 0;
@@ -85,6 +90,7 @@ float logo_v_end=1.0f-(float)191/256;
 
 void draw_hud_frame()
 {
+	get_and_set_texture_id(hud_text);
 	glBegin(GL_QUADS);
 	draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
 	draw_2d_thing_r(horizontal_bar_u_start, horizontal_bar_v_start, horizontal_bar_u_end, horizontal_bar_v_end,0,window_height,window_width-hud_x , window_height-hud_y);
@@ -647,6 +653,8 @@ int	display_icons_handler(window_info *win)
 
 	glEnd();
 	//glDisable(GL_ALPHA_TEST);
+	
+	return 1;
 }
 
 int check_peace_icons()
@@ -659,7 +667,11 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(combat_mode)return 0;
 
 	if(mx>options_icon_x_start && mx<options_icon_x_end)
-		options_menu=!options_menu;
+		{
+			options_menu=!options_menu;
+			if(!options_menu)	hide_window(options_win);
+    		else	draw_options_menu();
+		}
 	else if(mx>knowledge_icon_x_start && mx<knowledge_icon_x_end)
 		{
 			view_knowledge=!view_knowledge;
@@ -698,6 +710,8 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 	else if(mx>stats_icon_x_start && mx<stats_icon_x_end)
 		{
 			view_self_stats=!view_self_stats;
+			if(!view_self_stats)	hide_window(stats_win);
+    		else	display_stats(your_info);
 		}
 	else if(mx>inventory_icon_x_start && mx<inventory_icon_x_end)
 		{
@@ -731,23 +745,29 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 	else if(mx>encyclopedia_icon_x_start && mx<encyclopedia_icon_x_end)
 		{
 			view_encyclopedia=!view_encyclopedia;
+			if(!view_encyclopedia)	hide_window(encyclopedia_win);
+    		else	display_encyclopedia();
 		}
 	else if(mx>questlog_icon_x_start && mx<questlog_icon_x_end)
 		{
 			view_questlog=!view_questlog;
+			if(!view_questlog)	hide_window(quest_win);
+    		else	display_questlog();
 		}
 	else if(mx>console_icon_x_start && mx<console_icon_x_end)
 		{
 			if(interface_mode==interface_console)interface_mode=interface_game;
-						else interface_mode=interface_console;
+			else interface_mode=interface_console;
 		}
 	else if(mx>map_icon_x_start && mx<map_icon_x_end)
 		{
 			if(interface_mode==interface_game)switch_to_game_map();
-						else if(interface_mode==interface_map)switch_from_game_map();
+			else if(interface_mode==interface_map)switch_from_game_map();
 	}else if(mx>buddy_icon_x_start && mx<buddy_icon_x_end)
 		{
 			view_buddy=!view_buddy;
+			if(!view_buddy)	hide_window(buddy_win);
+    		else	display_buddy();
 	}
 	return 1;
 }
@@ -853,6 +873,8 @@ int	display_stats_bar_handler(window_info *win)
 	draw_stats_bar(mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
 	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
 	if(win->len_x>640-64) draw_exp_display();
+
+	return 1;
 }
 
 int check_stats_display()
@@ -902,6 +924,7 @@ void draw_misc_display()
 
 int	display_misc_handler(window_info *win)
 {
+	get_and_set_texture_id(hud_text);
     //draw the compass
 	glBegin(GL_QUADS);
 	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0,win->len_y-64,64,win->len_y);
@@ -945,6 +968,7 @@ int	display_misc_handler(window_info *win)
 		glColor3f(0.77f,0.57f,0.39f);
 		draw_string(3,12,str,1);
 	}
+	return	1;
 }
 
 int check_misc_display()

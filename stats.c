@@ -257,7 +257,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		}
 }
 
-int display_stats_handler()
+int display_stats_handler(window_info *win)
 {
 	player_attribs cur_stats= your_info;
 	Uint8 str[80];
@@ -468,10 +468,10 @@ int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int	stats_win= -1;
+int	stats_win= 0;
 void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this test
 {
-	if(stats_win < 0){
+	if(stats_win <= 0){
 		stats_win= create_window("Stats", 0, 0, attrib_menu_x, attrib_menu_y, attrib_menu_x_len, attrib_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_color(stats_win, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
@@ -479,6 +479,7 @@ void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this te
 		set_window_handler(stats_win, ELW_HANDLER_CLICK, &click_stats_handler );
 	} else {
 		show_window(stats_win);
+		select_window(stats_win);
 	}
 	display_window(stats_win);
 }
