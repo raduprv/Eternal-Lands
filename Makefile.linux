@@ -9,6 +9,8 @@ XDIR=-L/usr/X11R6/lib
 CFLAGS=$(PLATFORM) -Wall -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
 _CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
 LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGLU -lGL  -lvorbis -lvorbisfile
+_LDFLAGS=$(shell sdl-config --libs) $(XDIR) -lGLU -lGL -lz -lm
+STATICLIBS=libs/libSDL_net.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a
 
 # the objects we need
 OBJS=2d_objects.o 3d_objects.o	\
@@ -33,6 +35,9 @@ el.x86.linux.bin: $(OBJS)
 
 release:
 	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
+
+static:
+	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
 
 %.o:	global.h %.c %.h
 	$(CC) $(CFLAGS) -c $*.c
