@@ -78,16 +78,15 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 void update_position()
 {
 	int i,state,relative,error;
-	int x,y,tx,ty,distance;
+	int x,y,distance;
+	int tx=-cx*2;
+	int ty=-cy*2;
 	ALfloat sourcePos[3];
+	ALfloat listenerPos[]={tx,ty,0.0};
 
 	if(!have_sound)return;
 	lock_sound_list();
 
-	tx=-cx*2;
-	ty=-cy*2;
-
-	ALfloat listenerPos[]={tx,ty,0.0};
 	alListenerfv(AL_POSITION,listenerPos);
 
 	/* OpenAL doesn't have a method for culling by distance yet.
@@ -169,8 +168,6 @@ void turn_sound_on()
 void init_sound()
 {
 	int i;
-	have_sound=1;
-	have_music=1;
 	ALsizei size,freq;
 	ALenum  format;
 	ALvoid  *data;
@@ -178,6 +175,8 @@ void init_sound()
 	ALfloat listenerPos[]={-cx*2,-cy*2,0.0};
 	ALfloat listenerVel[]={0.0,0.0,0.0};
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
+	have_sound=1;
+	have_music=1;
 
 	alutInit(0, NULL) ; 
 	sound_list_mutex=SDL_CreateMutex();
