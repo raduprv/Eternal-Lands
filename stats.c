@@ -3,7 +3,6 @@
 #include "elwindows.h"
 
 int	stats_win= 0;
-int view_self_stats=0;
 player_attribs your_info;
 player_attribs someone_info;
 int attrib_menu_x=100;

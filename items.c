@@ -13,10 +13,7 @@ int trade_you_accepted=0;
 int trade_other_accepted=0;
 char other_player_trade_name[20];
 
-int view_my_items=0;
 int view_ground_items=0;
-int view_manufacture_menu=0;
-int view_trade_menu=0;
 int no_view_my_items=0;
 
 int items_win= 0;
@@ -624,7 +621,6 @@ void get_bags_items_list(Uint8 *data)
 	draw_pick_up_menu();
 	if(item_window_on_drop)
 		{
-			view_my_items=1;
 			display_items_menu();
 		}
 	//clear the list

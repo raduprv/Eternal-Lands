@@ -24,7 +24,6 @@ int have_a_map=0;
 char interface_mode=interface_opening;
 char create_char_error_str[520];
 char log_in_error_str[520];
-int options_menu=0;
 int combat_mode=0;
 int auto_camera=0;
 int view_health_bar=1;
@@ -67,177 +66,14 @@ int check_drag_menus()
 {
 	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y))	return 1;
 
-	/*
-	if(sigil_menu_dragged || (view_sigils_menu && mouse_x>sigil_menu_x && mouse_x<=sigil_menu_x+sigil_menu_x_len && mouse_y>sigil_menu_y-16 && mouse_y<=sigil_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-		   !trade_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-			{
-				sigil_menu_dragged=1;
-				if(left_click>1)
-					{
-						sigil_menu_x+=mouse_delta_x;
-						sigil_menu_y+=mouse_delta_y;
-					}
-				return 1;
-			}
-
-	if(options_menu_dragged || (options_menu && mouse_x>options_menu_x && mouse_x<=options_menu_x + options_menu_x_len && mouse_y>options_menu_y-16 && mouse_y<=options_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-		   !trade_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-
-			{
-				options_menu_dragged=1;
-				if(left_click>1)
-					{
-						options_menu_x+=mouse_delta_x;
-						options_menu_y+=mouse_delta_y;
-					}
-				return 1;
-			}
-
-	if(trade_menu_dragged || (view_trade_menu && mouse_x>trade_menu_x && mouse_x<=trade_menu_x+trade_menu_x_len && mouse_y>trade_menu_y-16 && mouse_y<=trade_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-		   !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-
-			{
-				trade_menu_dragged=1;
-				if(left_click>1)
-					{
-						trade_menu_x+=mouse_delta_x;
-						trade_menu_y+=mouse_delta_y;
-					}
-				return 1;
-			}
-
-	if(manufacture_menu_dragged || (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_x<=manufacture_menu_x+manufacture_menu_x_len && mouse_y>manufacture_menu_y-16 && mouse_y<=manufacture_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged &&
-		   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-
-			{
-				manufacture_menu_dragged=1;
-				if(left_click>1)
-					{
-						manufacture_menu_x+=mouse_delta_x;
-						manufacture_menu_y+=mouse_delta_y;
-					}
-				return 1;
-			}
-
-	if(ground_items_menu_dragged || (view_ground_items && mouse_x>ground_items_menu_x && mouse_x<=ground_items_menu_x+ground_items_menu_x_len && mouse_y>ground_items_menu_y-16 && mouse_y<=ground_items_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !manufacture_menu_dragged &&
-		   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-
-			{
-				ground_items_menu_dragged=1;
-				if(left_click>1)
-					{
-						ground_items_menu_x+=mouse_delta_x;
-						ground_items_menu_y+=mouse_delta_y;
-					}
-				return 1;
-			}
-
-	if(items_menu_dragged || (view_my_items && mouse_x>items_menu_x && mouse_x<=items_menu_x+items_menu_x_len && mouse_y>items_menu_y-16 && mouse_y<=items_menu_y))
-		if(!attrib_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-		   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-			{
-				items_menu_dragged=1;
-				if(left_click>1)
-					{
-						items_menu_x+=mouse_delta_x;
-						items_menu_y+=mouse_delta_y;
-					}
-				return 1;
-			}
-
-	if(attrib_menu_dragged || (view_self_stats && mouse_x>attrib_menu_x && mouse_x<=attrib_menu_x+attrib_menu_x_len && mouse_y>attrib_menu_y-16 && mouse_y<=attrib_menu_y))
-		if(!items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-		   !trade_menu_dragged && !sigil_menu_dragged && !options_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-
-			{
-				attrib_menu_dragged=1;
-				if(left_click>1)
-					{
-						attrib_menu_x+=mouse_delta_x;
-						attrib_menu_y+=mouse_delta_y;
-						move_window(stats_win, 0, 0, attrib_menu_x, attrib_menu_y);
-					}
-				return 1;
-			}
-	
-	if(dialogue_menu_dragged || (have_dialogue && mouse_x>dialogue_menu_x && mouse_x<=dialogue_menu_x+dialogue_menu_x_len && mouse_y>dialogue_menu_y-16 && mouse_y<=dialogue_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-		   !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-			{
-				dialogue_menu_dragged=1;
-				if(left_click>1)
-					{
-						dialogue_menu_x+=mouse_delta_x;
-						dialogue_menu_y+=mouse_delta_y;
-					}
-				return 1;
-			}
-
-	if(knowledge_menu_dragged || (view_knowledge && mouse_x>knowledge_menu_x && mouse_x<=knowledge_menu_x+knowledge_menu_x_len && mouse_y>knowledge_menu_y-16 && mouse_y<=knowledge_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-		   !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-			{
-				knowledge_menu_dragged=1;
-				if(left_click>1)
-					{
-						knowledge_menu_x+=mouse_delta_x;
-						knowledge_menu_y+=mouse_delta_y;
-					}
-				return 1;
-			}
-
-	if(encyclopedia_menu_dragged || (view_encyclopedia && mouse_x>encyclopedia_menu_x && mouse_x<=encyclopedia_menu_x+encyclopedia_menu_x_len && mouse_y>encyclopedia_menu_y-16 && mouse_y<=encyclopedia_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-		   !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !questlog_menu_dragged && !questlog_menu_dragged && !buddy_menu_dragged)
-			{
-				encyclopedia_menu_dragged=1;
-				if(left_click>1)
-					{
-						encyclopedia_menu_x+=mouse_delta_x;
-						encyclopedia_menu_y+=mouse_delta_y;
-					}
-				return 1;
-			}
-
-	if(questlog_menu_dragged || (view_questlog && mouse_x>questlog_menu_x && mouse_x<=questlog_menu_x+questlog_menu_x_len && mouse_y>questlog_menu_y-16 && mouse_y<=questlog_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-        !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !buddy_menu_dragged)
-		{
-			questlog_menu_dragged=1;
-            if(left_click>1)
-               {
-                  questlog_menu_x+=mouse_delta_x;
-                  questlog_menu_y+=mouse_delta_y;
-               }
-			return 1;
-         }
-
-	if(buddy_menu_dragged || (view_buddy && mouse_x>buddy_menu_x && mouse_x<=buddy_menu_x+buddy_menu_x_len && mouse_y>buddy_menu_y-16 && mouse_y<=buddy_menu_y))
-		if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
-        !trade_menu_dragged && !options_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged && !knowledge_menu_dragged && !encyclopedia_menu_dragged && !questlog_menu_dragged)
-		{
-			buddy_menu_dragged=1;
-            if(left_click>1)
-               {
-                  buddy_menu_x+=mouse_delta_x;
-                  buddy_menu_y+=mouse_delta_y;
-               }
-			return 1;
-         }
-	*/
-
 	return 0;
 }
 
 int check_scroll_bars()
 {
 	//for knowledge window only. don't modify other scroll bars yet.
-	if(knowledge_scroll_dragged || (view_knowledge && mouse_x>knowledge_menu_x+knowledge_menu_x_len-20 && mouse_x<knowledge_menu_x+knowledge_menu_x_len && mouse_y>knowledge_menu_y+35+(120*knowledge_page_start)/(300-38) && mouse_y<knowledge_menu_y+55+(120*knowledge_page_start)/(300-38))) {
+	//TODO: simplify this logic
+	if(knowledge_scroll_dragged || (mouse_in_window(knowledge_win, mouse_x, mouse_y) && mouse_x>knowledge_menu_x+knowledge_menu_x_len-20 && mouse_x<knowledge_menu_x+knowledge_menu_x_len && mouse_y>knowledge_menu_y+35+(120*knowledge_page_start)/(300-38) && mouse_y<knowledge_menu_y+55+(120*knowledge_page_start)/(300-38))) {
 		knowledge_scroll_dragged=1;
 		if(left_click>1)
 			knowledge_page_start+=mouse_delta_y*2;
@@ -313,102 +149,8 @@ void check_menus_out_of_screen()
 
 void check_mouse_click()
 {
-	/*
-    if(have_dialogue)
-    	{
-    		if(mouse_x>=dialogue_menu_x && mouse_x<=dialogue_menu_x+dialogue_menu_x_len
-			   && mouse_y>=dialogue_menu_y && mouse_y<=dialogue_menu_y+dialogue_menu_y_len)
-				{
-					if (check_dialogue_response()) return;	// avoid click thrus
-				}
-		}
-
-	if(view_sigils_menu && mouse_x>(sigil_menu_x+sigil_menu_x_len-20) && mouse_x<=(sigil_menu_x+sigil_menu_x_len)
-	   && mouse_y>sigil_menu_y && mouse_y<=sigil_menu_y+20)
-		{
-			view_sigils_menu=0;
-			return;
-		}
-	if(check_sigil_interface())return;
-	*/
-	//if(check_options_menu())return;
-	//if(check_trade_interface())return;
-
-	/*
-	if(view_manufacture_menu && mouse_x>(manufacture_menu_x+manufacture_menu_x_len-20) && mouse_x<=(manufacture_menu_x+manufacture_menu_x_len)
-	   && mouse_y>manufacture_menu_y && mouse_y<=manufacture_menu_y+20)
-		{
-			view_manufacture_menu=0;
-			return;
-		}
-	if(check_manufacture_interface())return;
-
-	if(view_ground_items && mouse_x>(ground_items_menu_x+ground_items_menu_x_len-20) && mouse_x<=(ground_items_menu_x+ground_items_menu_x_len)
-	   && mouse_y>ground_items_menu_y && mouse_y<=ground_items_menu_y+20)
-		{
-			unsigned char protocol_name;
-
-			view_ground_items=0;
-			protocol_name=S_CLOSE_BAG;
-			my_tcp_send(my_socket,&protocol_name,1);
-			return;
-		}
-	//if(item_dragged == -1 && check_ground_items_interface())return;
-
-	if(view_my_items && mouse_x>(items_menu_x+items_menu_x_len-20) && mouse_x<=(items_menu_x+items_menu_x_len)
-	   && mouse_y>items_menu_y && mouse_y<=items_menu_y+20)
-		{
-			view_my_items=0;
-
-			return;
-		}
-	if(check_items_interface())return;
-
-	if(view_knowledge && mouse_x>(knowledge_menu_x+knowledge_menu_x_len-20) && mouse_x<=(knowledge_menu_x+knowledge_menu_x_len)
-	   && mouse_y>knowledge_menu_y && mouse_y<=knowledge_menu_y+20)
-		{
-			view_knowledge=0;
-			return;
-		}
-	if(check_knowledge_interface())return;
-
-	if(view_encyclopedia && mouse_x>(encyclopedia_menu_x+encyclopedia_menu_x_len-20) && mouse_x<=(encyclopedia_menu_x+encyclopedia_menu_x_len)
-	   && mouse_y>encyclopedia_menu_y && mouse_y<=encyclopedia_menu_y+20)
-		{
-			view_encyclopedia=0;
-			return;
-		}
-	if(check_encyclopedia_interface())return;
-
-	if(view_self_stats)
-		{
-			if(click_in_window(stats_win, mouse_x, mouse_y, 0)){
-				// is it the close button?
-				view_self_stats= get_show_window(stats_win);
-				return;
-			}
-		}
-
-	if(view_questlog && mouse_x>(questlog_menu_x+questlog_menu_x_len-20) && mouse_x<=(questlog_menu_x+questlog_menu_x_len)
-	   && mouse_y>questlog_menu_y && mouse_y<=questlog_menu_y+20)
-		{
-			view_questlog=0;
-			return;
-		}
-	if(check_questlog_interface())return;
-
-	if(view_buddy && mouse_x>(buddy_menu_x+buddy_menu_x_len-20) && mouse_x<=(buddy_menu_x+buddy_menu_x_len)
-	   && mouse_y>buddy_menu_y && mouse_y<=buddy_menu_y+20)
-		{
-			view_buddy=0;
-			return;
-		}
-	if(check_buddy_interface())return;
-	*/
-
 	// check for a click on the HUD (between scene & windows)
-	//if(check_hud_interface()) return;
-	if(click_in_windows(mouse_x, mouse_y, 0) > 0)	return;	// temporarily here for testing
+	if(click_in_windows(mouse_x, mouse_y, 0) > 0)	return;
 
 	//after we test for interface clicks
 	// alternative drop method...
@@ -1285,17 +1027,7 @@ void draw_ingame_interface()
 {
 	check_menus_out_of_screen();
 
-	// hack for X & dragging
-	// TODO: finish the conversion process enough to remove these lines
-	if(options_win > 0)	options_menu= get_show_window(options_win);
-	if(stats_win > 0)	view_self_stats= get_show_window(stats_win);
-	if(quest_win > 0)	view_questlog= get_show_window(quest_win);
-	if(buddy_win > 0)	view_buddy= get_show_window(buddy_win);
-	if(encyclopedia_win > 0)	view_encyclopedia= get_show_window(encyclopedia_win);
-	if(knowledge_win > 0)	view_knowledge= get_show_window(knowledge_win);
-	if(manufacture_win > 0)	view_manufacture_menu= get_show_window(manufacture_win);
-	if(sigil_win > 0)	view_sigils_menu= get_show_window(sigil_win);
-	if(items_win > 0)	view_my_items= get_show_window(items_win);
+	// watch for closing a bag
 	if(ground_items_win > 0)
 		{
 			int	old_view= view_ground_items;
@@ -1317,33 +1049,6 @@ void draw_ingame_interface()
     display_spells_we_have();
     if(item_dragged!=-1)drag_item();
 
-	/*
-    if(have_dialogue)
-    	{
-    		display_dialogue();
-    		if(mouse_x>=dialogue_menu_x && mouse_x<=dialogue_menu_x+dialogue_menu_x_len
-			   && mouse_y>=dialogue_menu_y && mouse_y<=dialogue_menu_y+dialogue_menu_y_len)
-				highlight_dialogue_response();
-		}
-	*/
-    //if(view_self_stats)display_stats(your_info);
-	//if(view_knowledge){knowledge_mouse_over();display_knowledge();}
-	//if(view_encyclopedia){encyclopedia_mouse_over();display_encyclopedia();}
-	//if(view_questlog)display_questlog();
-	//if(view_buddy)display_buddy();
-    //if(view_my_items)display_items_menu();
-    //if(view_ground_items)draw_pick_up_menu();
-    //if(view_manufacture_menu)display_manufacture_menu();
-    //if(view_trade_menu)display_trade_menu();
-    //if(options_menu)draw_options_menu();
-	/*
-    if(view_sigils_menu)
-    	{
-			check_sigil_mouseover();
-    		display_sigils_menu();
-		}
-	*/
-	
 }
 
 int map_text;

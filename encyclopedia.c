@@ -3,7 +3,6 @@
 #include "elwindows.h"
 
 int encyclopedia_win=0;
-int view_encyclopedia=0;
 int encyclopedia_menu_x=100;
 int encyclopedia_menu_y=20;
 int encyclopedia_menu_x_len=500;
@@ -72,11 +71,6 @@ int display_encyclopedia_handler(window_info *win)
 	}
 	return 1;
 }
-
-//int encyclopedia_mouse_over()
-//{
-//	return 1;
-//}
 
 int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 {

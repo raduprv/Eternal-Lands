@@ -11,7 +11,6 @@ int sigil_menu_dragged=0;
 
 int sigils_text;
 Uint8 spell_text[256];
-int view_sigils_menu=0;
 int sigils_we_have;
 int have_error_message=0;
 Sint8 active_spells[10];

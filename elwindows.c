@@ -82,7 +82,7 @@ void	display_windows(int level)
 }
 
 
-int		click_in_windows(int mx, int my, Uint32 flags)
+int	click_in_windows(int mx, int my, Uint32 flags)
 {
 	int	done= 0;
 	int	id;
@@ -177,7 +177,7 @@ int		click_in_windows(int mx, int my, Uint32 flags)
 }
 
 
-int		drag_windows(int mx, int my, int dx, int dy)
+int	drag_windows(int mx, int my, int dx, int dy)
 {
 	int	next_id;
 	int	id, i;
@@ -278,7 +278,7 @@ void	end_drag_windows()
 }
 
 
-int		select_window(int win_id)
+int	select_window(int win_id)
 {
 	int	i, old;
 

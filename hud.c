@@ -6,7 +6,6 @@
 int	display_icons_handler(window_info *win);
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags);
 int	display_stats_bar_handler(window_info *win);
-//int	click_stats_bar_handler(window_info *win, int mx, int my, Uint32 flags);
 int	display_misc_handler(window_info *win);
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags);
 int	display_quickbar_handler(window_info *win);
@@ -37,32 +36,13 @@ void draw_hud_interface()
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
 	display_windows(0);	// draw only the non-stacked windows
-	/*
-    // TODO: get the window manager to handle this
-    draw_misc_display();
-
-	//get_and_set_texture_id(icons_text);
-    draw_peace_icons();
-    draw_stats_display();
-	draw_quickbar();
-	*/
 }
 
 // check to see if a mouse click was on the hud
-//TODO: add the window manager to handle these
+// used in non-standard modes
 int check_hud_interface()
 {
 	return click_in_windows(mouse_x, mouse_y, 0);	// temporarily here for testing
-	/*
-    // TODO: get the window manager to handle this
-	if(check_peace_icons() > 0)return 1;
-	if(check_misc_display() > 0)return 1;
-	if(check_stats_display() > 0)return 1;
-	if(check_quickbar() > 0)return 1;
-
-	// nothing done here
-	return 0;
-	*/
 }
 
 // hud frame section
@@ -515,7 +495,8 @@ void draw_peace_icons()
 
 int	display_icons_handler(window_info *win)
 {
-    int	in_window= (mouse_y >= win->pos_y && mouse_y < win->pos_y+win->len_y);
+    int	in_window= mouse_in_window(win->window_id, mouse_x, mouse_y);
+
 	get_and_set_texture_id(icons_text);
 	glColor3f(1.0f,1.0f,1.0f);
 
@@ -572,7 +553,7 @@ int	display_icons_handler(window_info *win)
 							  stand_icon_x_start, stand_icon_y_start, stand_icon_x_end, stand_icon_y_end);
 		}
 
-	if(view_sigils_menu || (in_window && mouse_x>spell_icon_x_start && mouse_x<spell_icon_x_end))
+	if(get_show_window(sigil_win) || (in_window && mouse_x>spell_icon_x_start && mouse_x<spell_icon_x_end))
 		draw_2d_thing(colored_spell_icon_u_start, colored_spell_icon_v_start, colored_spell_icon_u_end, colored_spell_icon_v_end,
 					  spell_icon_x_start, spell_icon_y_start, spell_icon_x_end, spell_icon_y_end);
 	else
@@ -587,42 +568,42 @@ int	display_icons_handler(window_info *win)
 					  attack_icon_x_start, attack_icon_y_start, attack_icon_x_end, attack_icon_y_end);
 
 
-	if(view_my_items || (in_window && mouse_x>inventory_icon_x_start && mouse_x<inventory_icon_x_end))
+	if(get_show_window(items_win) || (in_window && mouse_x>inventory_icon_x_start && mouse_x<inventory_icon_x_end))
 		draw_2d_thing(colored_inventory_icon_u_start, colored_inventory_icon_v_start, colored_inventory_icon_u_end, colored_inventory_icon_v_end,
 					  inventory_icon_x_start, inventory_icon_y_start, inventory_icon_x_end, inventory_icon_y_end);
 	else
 		draw_2d_thing(inventory_icon_u_start, inventory_icon_v_start, inventory_icon_u_end, inventory_icon_v_end,
 					  inventory_icon_x_start, inventory_icon_y_start, inventory_icon_x_end, inventory_icon_y_end);
 
-	if(view_manufacture_menu || (in_window && mouse_x>manufacture_icon_x_start && mouse_x<manufacture_icon_x_end))
+	if(get_show_window(manufacture_win) || (in_window && mouse_x>manufacture_icon_x_start && mouse_x<manufacture_icon_x_end))
 		draw_2d_thing(colored_manufacture_icon_u_start, colored_manufacture_icon_v_start, colored_manufacture_icon_u_end, colored_manufacture_icon_v_end,
 					  manufacture_icon_x_start, manufacture_icon_y_start, manufacture_icon_x_end, manufacture_icon_y_end);
 	else
 		draw_2d_thing(manufacture_icon_u_start, manufacture_icon_v_start, manufacture_icon_u_end, manufacture_icon_v_end,
 					  manufacture_icon_x_start, manufacture_icon_y_start, manufacture_icon_x_end, manufacture_icon_y_end);
 
-	if(view_self_stats || (in_window && mouse_x>stats_icon_x_start && mouse_x<stats_icon_x_end ))
+	if(get_show_window(stats_win) || (in_window && mouse_x>stats_icon_x_start && mouse_x<stats_icon_x_end ))
 		draw_2d_thing(colored_stats_icon_u_start, colored_stats_icon_v_start, colored_stats_icon_u_end, colored_stats_icon_v_end,
 					  stats_icon_x_start, stats_icon_y_start, stats_icon_x_end, stats_icon_y_end);
 	else
 		draw_2d_thing(stats_icon_u_start, stats_icon_v_start, stats_icon_u_end, stats_icon_v_end,
 					  stats_icon_x_start, stats_icon_y_start, stats_icon_x_end, stats_icon_y_end);
 
-	if(view_knowledge || (in_window && mouse_x>knowledge_icon_x_start && mouse_x<knowledge_icon_x_end))
+	if(get_show_window(knowledge_win) || (in_window && mouse_x>knowledge_icon_x_start && mouse_x<knowledge_icon_x_end))
 		draw_2d_thing(colored_knowledge_icon_u_start, colored_knowledge_icon_v_start, colored_knowledge_icon_u_end, colored_knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
 	else
 		draw_2d_thing(knowledge_icon_u_start, knowledge_icon_v_start, knowledge_icon_u_end, knowledge_icon_v_end,
 					  knowledge_icon_x_start, knowledge_icon_y_start, knowledge_icon_x_end, knowledge_icon_y_end);
 
-	if(view_encyclopedia || (in_window && mouse_x>encyclopedia_icon_x_start && mouse_x<encyclopedia_icon_x_end))
+	if(get_show_window(encyclopedia_win) || (in_window && mouse_x>encyclopedia_icon_x_start && mouse_x<encyclopedia_icon_x_end))
 		draw_2d_thing(colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, colored_encyclopedia_icon_u_end, colored_encyclopedia_icon_v_end,
 					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
 	else
 		draw_2d_thing(encyclopedia_icon_u_start, encyclopedia_icon_v_start, encyclopedia_icon_u_end, encyclopedia_icon_v_end,
 					  encyclopedia_icon_x_start, encyclopedia_icon_y_start, encyclopedia_icon_x_end, encyclopedia_icon_y_end);
 
-	if(view_questlog || (in_window && mouse_x>questlog_icon_x_start && mouse_x<questlog_icon_x_end))
+	if(get_show_window(quest_win) || (in_window && mouse_x>questlog_icon_x_start && mouse_x<questlog_icon_x_end))
 		draw_2d_thing(colored_questlog_icon_u_start, colored_questlog_icon_v_start, colored_questlog_icon_u_end, colored_questlog_icon_v_end,
 					  questlog_icon_x_start, questlog_icon_y_start, questlog_icon_x_end, questlog_icon_y_end);
 	else
@@ -636,7 +617,7 @@ int	display_icons_handler(window_info *win)
 		draw_2d_thing(console_icon_u_start, console_icon_v_start, console_icon_u_end, console_icon_v_end,
 					  console_icon_x_start, console_icon_y_start, console_icon_x_end, console_icon_y_end);
 
-	if(options_menu || (in_window && mouse_x>options_icon_x_start && mouse_x<options_icon_x_end))
+	if(get_show_window(options_win) || (in_window && mouse_x>options_icon_x_start && mouse_x<options_icon_x_end))
 		draw_2d_thing(colored_options_icon_u_start, colored_options_icon_v_start, colored_options_icon_u_end, colored_options_icon_v_end,
 					  options_icon_x_start, options_icon_y_start, options_icon_x_end, options_icon_y_end);
 	else
@@ -650,7 +631,7 @@ int	display_icons_handler(window_info *win)
 		draw_2d_thing(map_icon_u_start, map_icon_v_start, map_icon_u_end, map_icon_v_end,
 					  map_icon_x_start, map_icon_y_start, map_icon_x_end, map_icon_y_end);
 
-	if(view_buddy || (in_window && mouse_x>buddy_icon_x_start && mouse_x<buddy_icon_x_end))
+	if(get_show_window(buddy_win) || (in_window && mouse_x>buddy_icon_x_start && mouse_x<buddy_icon_x_end))
 		draw_2d_thing(colored_buddy_icon_u_start, colored_buddy_icon_v_start, colored_buddy_icon_u_end, colored_buddy_icon_v_end,
 					  buddy_icon_x_start, buddy_icon_y_start, buddy_icon_x_end, buddy_icon_y_end);
 	else
@@ -674,15 +655,13 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if(mx>options_icon_x_start && mx<options_icon_x_end)
 		{
-			options_menu=!options_menu;
-			if(!options_menu)	hide_window(options_win);
-    		else	display_options_menu();
+			if(!options_win) display_options_menu();
+			else toggle_window(options_win);
 		}
 	else if(mx>knowledge_icon_x_start && mx<knowledge_icon_x_end)
 		{
-			view_knowledge=!view_knowledge;
-			if(!view_knowledge)	hide_window(knowledge_win);
-    		else	display_knowledge();
+			if(!knowledge_win) display_knowledge();
+			else toggle_window(knowledge_win);
 		}
 	else if(mx>eye_icon_x_start && mx<eye_icon_x_end)
 		action_mode=action_look;
@@ -696,49 +675,46 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 		action_mode=action_attack;
 	else if(mx>manufacture_icon_x_start && mx<manufacture_icon_x_end)
 		{
-			if(!view_manufacture_menu)
+			if(!get_show_window(manufacture_win))
 				{
-					if(view_trade_menu)
+					if(get_show_window(trade_win))
 						{
 							log_to_console(c_red2,"You can't manufacture while on trade.");
 							return 0;
 						}
 				}
-			view_manufacture_menu=!view_manufacture_menu;
-			if(!view_manufacture_menu)	hide_window(manufacture_win);
-    		else	display_manufacture_menu();
+			if(!manufacture_win) display_manufacture_menu();
+			else toggle_window(manufacture_win);
+
 		}
 	else if(mx>spell_icon_x_start && mx<spell_icon_x_end)
 		{
-			if(view_trade_menu)
+			if(get_show_window(trade_win))
 				{
 					log_to_console(c_red2,"You can't cast spells while on trade.");
 					return 0;
 				}
-			view_sigils_menu=!view_sigils_menu;
-			if(!view_sigils_menu)	hide_window(sigil_win);
-    		else	display_sigils_menu();
+			if(!sigil_win) display_sigils_menu();
+			else toggle_window(sigil_win);
 		}
 	else if(mx>stats_icon_x_start && mx<stats_icon_x_end)
 		{
-			view_self_stats=!view_self_stats;
-			if(!view_self_stats)	hide_window(stats_win);
-    		else	display_stats(your_info);
+			if(!stats_win) display_stats(your_info);
+			else toggle_window(stats_win);
 		}
 	else if(mx>inventory_icon_x_start && mx<inventory_icon_x_end)
 		{
-			if(!view_my_items)
+			if(!get_show_window(items_win))
 				{
-					if(view_trade_menu)
+					if(get_show_window(trade_win))
 						{
 							log_to_console(c_red2,"You can't view your inventory items while on trade.");
 							return 0;
 						}
-					view_my_items=1;
+					if(!items_win) display_items_menu();
+					else show_window(items_win);
 				}
-			else view_my_items=0;
-			if(!view_my_items)	hide_window(items_win);
-    		else	display_items_menu();
+			else hide_window(items_win);
 		}
 	else if(mx>sit_icon_x_start && mx<sit_icon_x_end) {
 		if(!you_sit)
@@ -758,15 +734,13 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 	else if(mx>encyclopedia_icon_x_start && mx<encyclopedia_icon_x_end)
 		{
-			view_encyclopedia=!view_encyclopedia;
-			if(!view_encyclopedia)	hide_window(encyclopedia_win);
-    		else	display_encyclopedia();
+			if(!encyclopedia_win) display_encyclopedia();
+			else toggle_window(encyclopedia_win);
 		}
 	else if(mx>questlog_icon_x_start && mx<questlog_icon_x_end)
 		{
-			view_questlog=!view_questlog;
-			if(!view_questlog)	hide_window(quest_win);
-    		else	display_questlog();
+			if(!quest_win) display_questlog();
+			else toggle_window(quest_win);
 		}
 	else if(mx>console_icon_x_start && mx<console_icon_x_end)
 		{
@@ -779,9 +753,8 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 			else if(interface_mode==interface_map)switch_from_game_map();
 	}else if(mx>buddy_icon_x_start && mx<buddy_icon_x_end)
 		{
-			view_buddy=!view_buddy;
-			if(!view_buddy)	hide_window(buddy_win);
-    		else	display_buddy();
+			if(!buddy_win) display_buddy();
+			else toggle_window(buddy_win);
 	}
 	return 1;
 }

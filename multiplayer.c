@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "global.h"
+#include "elwindows.h"
 
 int port=2000;
 unsigned char server_address[60];
@@ -160,8 +161,7 @@ void connect_to_server()
     //send the current version to the server
     send_version_to_server(&ip);
     last_heart_beat=cur_time;
-    view_trade_menu=0;
-
+	hide_window(trade_win);
 }
 
 void send_login_info()
@@ -380,8 +380,10 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case INVENTORY_ITEM_TEXT:
 			{
 				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+100,items_string);
-				if(!(view_my_items||view_manufacture_menu||view_trade_menu))
-					put_text_in_buffer(&in_data[3],data_lenght-3,0);
+				if(!(get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
+					{
+						put_text_in_buffer(&in_data[3],data_lenght-3,0);
+					}
 			}
 			break;
 
@@ -570,7 +572,6 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case CLOSE_BAG:
 			{
-				view_ground_items=0;
 				hide_window(ground_items_win);
 			}
 			break;
@@ -626,7 +627,6 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_TRADE_EXIT:
 			{
-				view_trade_menu= 0;
 				hide_window(trade_win);
 			}
 			break;

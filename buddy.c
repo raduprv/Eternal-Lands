@@ -4,7 +4,6 @@
 #include "elwindows.h"
 
 int buddy_win=0;
-int view_buddy=0;
 int buddy_menu_x=150;
 int buddy_menu_y=70;
 int buddy_menu_x_len=150;

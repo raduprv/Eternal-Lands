@@ -60,7 +60,7 @@ int start_rendering()
 					draw_scene();
 					last_time=cur_time;
 				}
-			else
+			//else
 				SDL_Delay(1);//give up timeslice for anyone else
 #ifdef	CACHE_SYSTEM
 			//cache handling

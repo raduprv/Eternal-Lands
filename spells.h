@@ -24,7 +24,6 @@ extern int sigil_menu_dragged;
 
 extern int sigils_text;
 extern Uint8 spell_text[256];
-extern int view_sigils_menu;
 extern int sigils_we_have;
 extern int have_error_message;
 
@@ -35,8 +34,6 @@ void remove_active_spell(int pos);
 void get_active_spell_list(Uint8 *my_spell_list);
 void display_spells_we_have();
 void display_sigils_menu();
-//int check_sigil_interface();
-//void check_sigil_mouseover();
 void get_sigils_we_have(Uint32 sigils_we_have);
 #endif
 

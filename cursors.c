@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "global.h"
+#include "elwindows.h"
 
 actor *actor_under_mouse;
 int object_under_mouse;
@@ -342,20 +343,22 @@ void check_cursor_change()
 				return;
 			}
 
-			if(action_mode==action_look && ((view_my_items && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6)
-											|| (view_ground_items && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)
-											|| (view_my_items && mouse_x>items_menu_x+wear_items_x_offset && mouse_y>items_menu_y+wear_items_y_offset && mouse_x<items_menu_x+wear_items_x_offset+66 && mouse_y<items_menu_y+wear_items_y_offset+99)
-											|| (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y && mouse_x<=manufacture_menu_x+33*12 && mouse_y<=manufacture_menu_y+33*3)
-											|| (view_manufacture_menu && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y+33*5 && mouse_x<=manufacture_menu_x+33*6 && mouse_y<=manufacture_menu_y+33*6)
-											|| (view_trade_menu && mouse_x>trade_menu_x && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*4 && mouse_y<=trade_menu_y+33*8)
-											|| (view_trade_menu && mouse_x>trade_menu_x && mouse_y>trade_menu_y && mouse_x<=trade_menu_x+33*12 && mouse_y<=trade_menu_y+33*3)
-											|| (view_trade_menu && mouse_x>trade_menu_x+33*5 && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*9 && mouse_y<=trade_menu_y+33*8)))
+			//TODO: simplify this - use mouseover function?
+			if(action_mode==action_look && ((get_show_window(items_win) && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6)
+											|| (get_show_window(ground_items_win) && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)
+											|| (get_show_window(items_win) && mouse_x>items_menu_x+wear_items_x_offset && mouse_y>items_menu_y+wear_items_y_offset && mouse_x<items_menu_x+wear_items_x_offset+66 && mouse_y<items_menu_y+wear_items_y_offset+99)
+											|| (get_show_window(manufacture_win) && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y && mouse_x<=manufacture_menu_x+33*12 && mouse_y<=manufacture_menu_y+33*3)
+											|| (get_show_window(manufacture_win) && mouse_x>manufacture_menu_x && mouse_y>manufacture_menu_y+33*5 && mouse_x<=manufacture_menu_x+33*6 && mouse_y<=manufacture_menu_y+33*6)
+											|| (get_show_window(trade_win) && mouse_x>trade_menu_x && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*4 && mouse_y<=trade_menu_y+33*8)
+											|| (get_show_window(trade_win) && mouse_x>trade_menu_x && mouse_y>trade_menu_y && mouse_x<=trade_menu_x+33*12 && mouse_y<=trade_menu_y+33*3)
+											|| (get_show_window(trade_win) && mouse_x>trade_menu_x+33*5 && mouse_y>trade_menu_y+33*4 && mouse_x<=trade_menu_x+33*9 && mouse_y<=trade_menu_y+33*8)))
 				{
 					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
 					return;
 				}
 
-			if(action_mode==action_use && (view_my_items && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6))
+			//TODO: simplify this - use mouseover function?
+			if(action_mode==action_use && (get_show_window(items_win) && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6))
 				{
 					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
 					return;

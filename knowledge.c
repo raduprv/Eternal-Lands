@@ -3,7 +3,6 @@
 #include "elwindows.h"
 
 int knowledge_win= 0;
-int view_knowledge=0;
 int knowledge_menu_x=100;
 int knowledge_menu_y=20;
 int knowledge_menu_x_len=500;

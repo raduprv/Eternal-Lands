@@ -12,7 +12,6 @@ int portraits4_tex;
 int portraits5_tex;
 
 response dialogue_responces[20];
-//int have_dialogue= 0;
 int dialogue_win= 0;
 
 int dialogue_menu_x=1;

@@ -54,10 +54,7 @@ extern int trade_you_accepted;
 extern int trade_other_accepted;
 extern char other_player_trade_name[20];
 
-extern int view_my_items;
 extern int view_ground_items;
-extern int view_manufacture_menu;
-extern int view_trade_menu;
 extern int no_view_my_items;
 
 extern int items_win;
@@ -103,7 +100,6 @@ extern int click_speed;
 
 void display_items_menu();
 void get_your_items(Uint8 *data);
-//int check_items_interface();
 void drag_item();
 void remove_item_from_inventory(int pos);
 void remove_item_from_ground(Uint8 pos);
@@ -114,7 +110,6 @@ void get_bags_items_list(Uint8 *data);
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id);
 void add_bags_from_list(Uint8 *data);
 void remove_bag(int which_bag);
-//int check_ground_items_interface();
 void open_bag(int object_id);
 #endif
 

@@ -34,7 +34,6 @@ typedef struct
 }_Page;
 
 extern int encyclopedia_win;
-extern int view_encyclopedia;
 extern int encyclopedia_menu_x;
 extern int encyclopedia_menu_y;
 extern int encyclopedia_menu_x_len;
@@ -43,7 +42,6 @@ extern int encyclopedia_menu_dragged;
 
 
 void display_encyclopedia();
-int check_encyclopedia_interface();
 int encyclopedia_mouse_over();
 
 void ReadCategoryXML(xmlNode * a_node);
@@ -51,3 +49,4 @@ void ReadIndexXML(xmlNode * a_node);
 void ReadXML(const char *filename);
 void FreeXML();
 #endif
+

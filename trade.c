@@ -476,13 +476,12 @@ void get_your_trade_objects(Uint8 *data)
 	trade_you_accepted=0;
 	trade_other_accepted=0;
 
-	view_trade_menu=1;
 	display_trade_menu();
 
 	//we have to close the inventory and manufacture windows, otherwise bad things can happen.
-	view_my_items=0;
-	view_manufacture_menu=0;
-	view_sigils_menu=0;
+	hide_window(items_win);
+	hide_window(manufacture_win);
+	hide_window(sigil_win);
 }
 
 void put_item_on_trade(Uint8 *data)

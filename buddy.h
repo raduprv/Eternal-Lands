@@ -12,12 +12,10 @@ extern int buddy_menu_y;
 extern int buddy_menu_x_len;
 extern int buddy_menu_y_len;
 extern int buddy_menu_dragged;
-extern int view_buddy;
 extern int buddy_win;
 
 void init_buddy();
 void display_buddy();
-//int check_buddy_interface();
 void add_buddy(char *n, int t);
 void del_buddy(char *n);
 #endif
