@@ -83,20 +83,24 @@ void send_input_text_line()
 
 }
 
+int filter_or_ignore_text(unsigned char *text_to_add, int len)
+{
+	//check if ignored
+	if(pre_check_if_ignored(text_to_add))return 0;
+	//parse for URLs
+	find_last_url(text_to_add,len);
+	//filter any naughty words out
+	return(filter_text(text_to_add, len));
+}
+
 void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit)
 {
 	int i;
 	Uint8 cur_char;
 
-	//check if ignored
-	if(pre_check_if_ignored(text_to_add))return;
-	//parse for URLs
-	find_last_url(text_to_add,len);
-
 	//get the time when we got this line
 	last_server_message_time=cur_time;
 	if(lines_to_show<max_lines_no)lines_to_show++;
-
 
 	//see if the text fits on the screen
 	if(!x_chars_limit)x_chars_limit=window_width/11;
