@@ -74,7 +74,7 @@ void handle_window_resize()
 					texture_cache[i].texture_id=0;//force a reload
 				}
         }
-	if(minimap_tex) glDeleteTextures(1,&minimap_tex);
+	if(minimap_tex) {glDeleteTextures(1,&minimap_tex);minimap_tex=0;}
 	
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	
@@ -93,6 +93,7 @@ void handle_window_resize()
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );
 	glClearStencil(0);
 	SDL_EnableKeyRepeat (200, 100);
+	SDL_EnableUNICODE(1);
 	
 	for(i=0;i<1000;i++)
 		{
@@ -109,4 +110,4 @@ void handle_window_resize()
 	reset_material();
 	init_lights();
 	init_colors();
-}            
+}
