@@ -618,19 +618,37 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		}
 }
 
+int in_data_used=0;
 int recvpacket()
 {
 	int len, total, size;
+
 	//int i;
 	//for(i=0;i<4096;i++)in_data[i]=0;
-	memset(in_data, 0, 4096);
-
-	total=SDLNet_TCP_Recv(my_socket, in_data, 3);
-	if(total==-1)return 0;
-	if(total<3)
+	if(in_data_used == 0)
 		{
-			if(total > 0)log_to_console(c_red2,"Packet underrun ... data lost!");
-			return 0; // didn't even get 3 bytes???
+			// clear the buffer
+			memset(in_data, 0, 4096);
+		}
+
+	//get the header if we don't have it
+	if(in_data_used < 3)
+		{
+			total=SDLNet_TCP_Recv(my_socket, in_data+in_data_used, 3);
+			if(total==-1)return 0;	//no data to read - return
+			total+=in_data_used;	// adjust for what we have already
+			if(total<3)
+				{
+					if(total > 0)
+						{
+							log_to_console(c_red2,"Packet underrun ... recovering!");
+							return -1; // didn't even get 3 bytes? noting new, keep running
+						}
+					else
+						{
+							return 0;	// fatal error, disconnect?
+						}
+				}
 		}
 
 	size=(*((short *)(in_data+1)))+2;
@@ -641,6 +659,7 @@ int recvpacket()
 			if(len<=0) return 0; // Disconnected?
 			total+=len;
 		}
+		in_data_used=0;	// get ready for a new packet
 		return 0;
 	}
 	//see if more data needs to be read
@@ -649,6 +668,7 @@ int recvpacket()
 		if(len<=0) return 0; // Disconnected?
 		total+=len;
 	}
+	in_data_used=0;	// get ready for a new packet
 	return total;
 }
 
