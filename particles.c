@@ -66,6 +66,7 @@ void draw_particle_sys(particle_sys *system_id)
 
 }
 
+/*
 float particle_rand(float max)
 {
   int result;
@@ -81,6 +82,7 @@ float particle_rand(float max)
   if(!sign)return(float)max/result;
   else return -(float)max/result;
 }
+*/
 
 
 
