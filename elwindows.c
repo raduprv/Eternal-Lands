@@ -919,7 +919,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 					if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
 						if(W->OnDrag != NULL)
 						{
-							W->OnDrag(W,dx, dy);
+							W->OnDrag(W, mx - W->pos_x, my - W->pos_y, dx, dy);
 						}
 					}
 				}

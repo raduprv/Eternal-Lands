@@ -638,16 +638,10 @@ int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc)
 	return 0;
 }
 
-int vscrollbar_drag(widget_list *W, int dx, int dy)
+int vscrollbar_drag(widget_list *W, int x, int y, int dx, int dy)
 {
-	vscrollbar *b = (vscrollbar *)W->widget_info;
-	b->pos += dy;
-
-	if(b->pos < 0) b->pos = 0;
-	if(b->pos > (b->bar_len -50)) b->pos = b->bar_len -50;
-
+	vscrollbar_click(W,x,y);
 	return 1;
-
 }
 
 int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id)

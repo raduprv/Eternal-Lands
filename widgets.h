@@ -702,11 +702,13 @@ int vscrollbar_click(widget_list *W, int x, int y);
  * 		The callback for dragging the vertical scrollbar widget
  *
  * \param   	W The vertical scrollbar widget
+ * \param   	x Specifies the x pos
+ * \param   	y Specifies the y pos
  * \param   	dx Specifies the delta x
  * \param   	dy Specifies the delta y
  * \return  	Returns true
  */
-int vscrollbar_drag(widget_list *W, int dx, int dy);
+int vscrollbar_drag(widget_list *W, int x, int y, int dx, int dy);
 
 /*!
  * \ingroup	scrollbars
