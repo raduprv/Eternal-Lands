@@ -267,11 +267,15 @@ char ** get_lines(char * str, int chars_per_line)
 			cur=my_str[lines]=(char*)malloc((chars_per_line+1)*sizeof(char));
 		
 			for(i=0;i<chars_per_line && str[i];i++){
+				if(str[i]==0x0a || str[i]==0x0d){
+					i++;
+					break;
+				}
 				cur[i]=str[i];
 			}
 			if(i==chars_per_line){
 				//go back to the last space
-				while(i>0 && str[i]!='/' && str[i--]!=' ');
+				while(i>0 && str[i]!='/' && str[i]!=' ' && str[i]!=0x0a && str[i--]!=0x0d);
 				if(i){
 					i++;
 					if(str[i]==' ')str++;
