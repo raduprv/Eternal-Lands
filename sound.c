@@ -100,6 +100,7 @@ void play_music(int i) {
 		}
 	
 	load_ogg_file(i);
+	if(!have_music)return;//must double check for error
 
     stream_music(music_buffers[0]);
 	stream_music(music_buffers[1]);
