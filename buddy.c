@@ -8,8 +8,7 @@ int buddy_menu_x=150;
 int buddy_menu_y=70;
 int buddy_menu_x_len=150;
 int buddy_menu_y_len=200;
-//int buddy_menu_dragged=0;
-_buddy buddy_list[100];
+_buddy buddy_list[MAX_BUDDY];
 int buddy_page_start = 0;	// first buddy number to show
 int buddy_page_pos = 0;		// where the scrollbar is
 
@@ -54,12 +53,12 @@ int display_buddy_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	
 	// Draw budies
-	qsort(buddy_list,100,sizeof(_buddy),compare2);
-	i=buddy_page_start;
+	qsort(buddy_list,MAX_BUDDY,sizeof(_buddy),compare2);
+	i= buddy_page_start;
 	// TODO: less code?
 	glColor3f(1.0,1.0,1.0);
 	while(c==buddy_list[i].type){
-		if(i-buddy_page_start>18)return 1;
+		if(i-buddy_page_start>18)	return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -68,7 +67,7 @@ int display_buddy_handler(window_info *win)
 
 	glColor3f(1.0,0,0);
 	while(c==buddy_list[i].type){
-		if(i-buddy_page_start>18)return 1;
+		if(i-buddy_page_start>18)	return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -77,7 +76,7 @@ int display_buddy_handler(window_info *win)
 
 	glColor3f(0,1.0,0);
 	while(c==buddy_list[i].type){
-		if(i-buddy_page_start>18)return 1;
+		if(i-buddy_page_start>18)	return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -85,7 +84,7 @@ int display_buddy_handler(window_info *win)
 	c++;
 	glColor3f(0,0,1.0);
 	while(c==buddy_list[i].type){
-		if(i-buddy_page_start>18)return 1;
+		if(i-buddy_page_start>18)	return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -93,7 +92,7 @@ int display_buddy_handler(window_info *win)
 	c++;
 	glColor3f(1.0,1.0,0);
 	while(c==buddy_list[i].type){
-		if(i-buddy_page_start>18)return 1;
+		if(i-buddy_page_start>18)	return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -115,17 +114,17 @@ int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags)
 				{
 					buddy_page_start--;
 					// calc new pos for scroll bar
-					buddy_page_pos= ((win->len_y-20-30-20)*buddy_page_start)/100;
+					buddy_page_pos= ((win->len_y-20-30-20)*buddy_page_start)/MAX_BUDDY;
 				}
 			return 1;
 		}
 	if(x > win->len_x-16 && y > 180 && y < 180+16)
 		{
-			if(buddy_page_start < 100-19)
+			if(buddy_page_start < MAX_BUDDY-19)
 				{
 					buddy_page_start++;
 					// calc new pos for scroll bar
-					buddy_page_pos= ((win->len_y-20-30-20)*buddy_page_start)/100;
+					buddy_page_pos= ((win->len_y-20-30-20)*buddy_page_start)/MAX_BUDDY;
 				}
 			return 1;
 		}
@@ -152,7 +151,7 @@ int drag_buddy_handler(window_info *win, int mx, int my, Uint32 flags, int dx, i
 		if(buddy_page_pos < 0) buddy_page_pos= 0;
 		if(buddy_page_pos >= scroll_area) buddy_page_pos= scroll_area-1;
 		//and set which item to list first
-		buddy_page_start=(100*buddy_page_pos)/scroll_area;
+		buddy_page_start=(MAX_BUDDY*buddy_page_pos)/scroll_area;
 		return 1;
 	}
 	return 0;
@@ -162,9 +161,9 @@ void init_buddy()
 {
 	int i;
 
-	for(i=0;i<100;i++)
+	for(i=0; i<MAX_BUDDY; i++)
 		{
-			buddy_list[i].type=0xff;
+			buddy_list[i].type= 0xff;
 		}
 	
 }
@@ -217,28 +216,29 @@ void display_buddy()
 		}
 }
 
-void add_buddy(char *n, int t)
+void add_buddy(char *n, int t, int len)
 {
 	int i;
 
 	//find empty space
-	for(i=0;i<100;i++){
-		if(buddy_list[i].type==0xff){//found then add buddy
-			buddy_list[i].type=t;
-			strcpy(buddy_list[i].name,n);
+	for(i=0; i<MAX_BUDDY; i++){
+		if(buddy_list[i].type == 0xff){//found then add buddy
+			buddy_list[i].type= t;
+			strncpy(buddy_list[i].name,n,len);
+			buddy_list[i].name[len]= '\0';
 			break;
 		}
 	}
 }
 
-void del_buddy(char *n)
+void del_buddy(char *n, int len)
 {
 	int i;
 
 	//find buddy
-	for(i=0;i<100;i++){
-		if(!strcmp(n,buddy_list[i].name)){
-			buddy_list[i].type=0xff;
+	for(i=0; i<MAX_BUDDY; i++){
+		if(!strncmp(n,buddy_list[i].name, len)){
+			buddy_list[i].type= 0xff;
 			break;
 		}
 		
