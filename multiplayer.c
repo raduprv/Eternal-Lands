@@ -730,93 +730,84 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 }
 
 int in_data_used=0;
-int recvpacket()
+static void process_data_from_server()
 {
-	int len, total, size;
-
 	//clear the memory if flagged it is a new data packet
 	if(in_data_used == 0)
 		{
 			// clear the buffer
 			memset(in_data, 0, 8192);
 		}
+	/* enough data present for the length field ? */
+	if (3 <= in_data_used) {
+		Uint8   *pData  = in_data;
+		Uint16   size;
+		
+		do { /* while (3 <= in_data_used) (enough data present for the length field) */
+			static const int foo = 1; /* used for run-time byteorder check */
+			
+			/* make a copy of the length field...watch alignment/byteorder */
+			if (*(char *)&foo) { /* little-endian ? */
+				((Uint8 *)&size)[0] = pData[1];
+				((Uint8 *)&size)[1] = pData[2];
+			}
+			else { /* big-endian */
+				((Uint8 *)&size)[0] = pData[2];
+				((Uint8 *)&size)[1] = pData[1];
+			}
+			
+			if (sizeof (in_data) - 3 >= size) { /* buffer big enough ? */
+				size += 2; /* add length field size */
+				
+				if (size <= in_data_used) { /* do we have a complete message ? */
+					process_message_from_server(pData, size);
 
-	//get the header if we don't have it
-	if(in_data_used < 3)
-		{
-			len=SDLNet_TCP_Recv(my_socket, in_data+in_data_used, 3-in_data_used);
-			if(len<=-1)return 0;	// no data to read - return and error
-			in_data_used+=len;	// adjust for what we have already;
-			if(in_data_used<3)
-				{
-					if(in_data_used > 0)
-						{
-							//log_to_console(c_red2,"Packet underrun ... recovering!");
-							return -1; // didn't even get 3 bytes? nothing new, keep running
-						}
-					else
-						{
-							log_to_console(c_red2,"Packet underrun");
-							return 0;	// fatal error, disconnect?
-						}
+					if (log_conn_data)
+						log_conn(pData, size);
+		
+					/* advance to next message */
+					pData         += size;
+					in_data_used  -= size;
 				}
-		}
+				else
+					break;
+			}
+			else { /* sizeof (in_data) - 3 < size */
+				log_to_console(c_red2, "Packet overrun...data lost!");
+	    
+				log_to_console(c_red2, "Disconnected from server!\nPress any key to attempt to reconnect.\n[Press Alt+x to quit]");
+				in_data_used = 0;
+				disconnected = 1;
+			}
+		} while (3 <= in_data_used);
 
-	size=(*((short *)(in_data+1)))+2;
-	if(size >= 8192-3){	//watch for fatal errors
-		log_to_console(c_red2,"Packet overrun ... data lost!");
-		return 0;	// and force a disconnect
+		/* move the remaining data to the start of the buffer...(not tested...never happened to me) */
+		if (in_data_used && pData != in_data)
+			memmove(in_data, pData, in_data_used);
 	}
-	//see if more data needs to be read
-	while(in_data_used<size) {
-		len=SDLNet_TCP_Recv(my_socket, in_data+in_data_used, size-in_data_used);
-		if(len<=0)
-  			{
-  				//log_to_console(c_red2,"link loss");
- 				//return 0; // Disconnected?
- 				return -1; // still not all here, lets come back later
- 			}
-		in_data_used+=len;
-	}
-	total=in_data_used;
-	in_data_used=0;	// get ready for a new packet
-	return total;
 }
 
 void get_message_from_server()
 {
-	int num_ready;
-	int recived_lenght;
-	int data_lenght;
-	int start_my_data_pointer=0;
+	/* data available for reading ? */
+	if (!disconnected && SDLNet_CheckSockets(set, 0) && SDLNet_SocketReady(my_socket)) {
+		int received;
 
- try_get_message_again:
-	if(disconnected)return;//no point in spending the time here
-
-	num_ready=SDLNet_CheckSockets(set, 1);
-	if(!num_ready)return;
-
-	if(!SDLNet_SocketReady(my_socket))return;//we have no activity
-
-	recived_lenght=recvpacket();
-	if(recived_lenght==-1)return;//nothing new under the sun
-
-	if(recived_lenght<=0)
-		{
-			//we got a nasty error, log it
-			log_to_console(c_red2,"Disconnected from server!\nPress any key to attempt to reconnect.\n[Press Alt+x to quit]");
-			in_data_used=0;	// get ready for a new packet
-			disconnected=1;
-			return;
+		if (0 < (received = SDLNet_TCP_Recv(my_socket, &in_data[in_data_used], sizeof (in_data) - in_data_used))) {
+			in_data_used += received;
+      
+			process_data_from_server();
 		}
-
-	//parse the data, and split it in commands
-	data_lenght=*((short *)(in_data+start_my_data_pointer+1));
-	data_lenght+=2;//add also the lenght of the lenght field, which is 2
-	process_message_from_server(&in_data[start_my_data_pointer],data_lenght);
-	if(log_conn_data)
-		log_conn(&in_data[start_my_data_pointer],data_lenght);
-	goto try_get_message_again;
+		else { /* 0 >= received (EOF or some error) */
+			if (received)
+				log_to_console(c_red2, SDLNet_GetError()); //XXX: SDL[Net]_GetError used by timer thread ? i bet its not reentrant...
+		 
+			log_to_console(c_red2,
+						   "Disconnected from server!\nPress any key to attempt to reconnect.\n[Press Alt+x to quit]");
+			in_data_used = 0;
+			disconnected = 1;
+		}
+	}
 }
 
 void get_updates()
