@@ -144,7 +144,7 @@ typedef struct
    e3d_array_uv_detail *clouds_uv;
 
    e3d_object *e3d_data;
-   int last_acessed_time;
+   unsigned int last_acessed_time;
 }object3d;
 
 #ifndef	CACHE_SYSTEM
