@@ -244,7 +244,7 @@ void display_3d_ground_objects()
 	y=-cy;
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	if(have_multitexture && clouds_shadows)
 		{
 			//bind the detail texture
@@ -298,7 +298,7 @@ void display_3d_ground_objects()
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 	glDisableClientState(GL_VERTEX_ARRAY);
-	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisable(GL_CULL_FACE);
 }
 
@@ -405,7 +405,7 @@ void draw_sun_shadowed_scene()
 	if(abs_light<0)abs_light=0;
 	if(abs_light>59)abs_light=59;
 
-
+	glColor4f(0.0f,0.0f,0.0f,0.73f+(float)abs_light*0.008f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 	glBegin(GL_QUADS);
