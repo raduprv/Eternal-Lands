@@ -1,0 +1,24 @@
+/**
+ * <center>
+ * @mainpage Eternal Lands Documentation
+ * Documentation for the free, open sourced MMORPG "Eternal Lands"
+ * </center>
+ * 
+ * @section general General info
+ * <p>This is the documentation for the Open Source MMORPG "Eternal Lands". It is currently under heavy development, so be patient as there are still not that many pages that are documented :-)</p>
+ * 
+ * <p>We hope to finish the documentation within the next 2-3 weeks, so stay tuned, and keep yourself updated:</p>
+ * 
+ * <p>For an overview of the Eternal Lands client, see our \ref startpage.</p>
+ *
+ * <p><pre>
+ * cvs -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc login
+ * &lt;enter blank password&gt;
+ * cvs -z3 -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc co elc
+ * </pre>
+ * </p>
+ * <p>
+ * You are also very welcome to join our discussion forums:<br>
+ * http://www.eternal-lands.com/forum/
+ * </p>
+ */

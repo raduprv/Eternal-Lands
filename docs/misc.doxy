@@ -1,0 +1,5 @@
+/**
+ * \page miscpage Miscellanous
+ * \section Different aspects not handled by the other modules
+ * <p>Is this page necessary? Of course, this depends on what functions will be included with the \ref misc module.</p>
+ */

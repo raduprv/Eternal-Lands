@@ -1,0 +1,16 @@
+/**
+ * \page startpage Getting Started with EL development
+ * \section secgetstarted How to dive into EL development
+ * <p>Description where best to start to get a picture of the whole EL client. The following list is just a hack until the documentation is written out.
+ * <ul>
+ *  <li>\ref initpage</li>
+ *  <li>\ref loadpage</li>
+ *  <li>\ref renderpage</li>
+ *  <li>\ref networkpage</li>
+ *  <li>\ref eventspage</li>
+ *  <li>\ref soundpage</li>
+ *  <li>\ref threadpage</li>
+ *  <li>\ref miscpage</li>
+ * </ul>
+ * </p>
+ */

@@ -1,0 +1,14 @@
+/**
+ * \page eventspage Events
+ * \section secevents Event Handling in EL
+ * <p>Section about which events are available, description of the event handlers, their signatures, etc.</p>
+ *
+ * \subsection ssecxmlwidget The XML format used to describe widgets
+ * <p>Currently a widget has to be declared in the following
+ * format:</p>
+ * <p><code>
+ * \<Window id="23" text="Click!" pos_x="10" pos_y="10" len_x="60" len_y="20" flags="2" size="1.0" r="0.8" g="0.2" b="0.77"\>
+ * </code></p>
+ *
+ * \todo Do I understand the widget parsing function correctly, is this the right format of an xml widget???
+ */

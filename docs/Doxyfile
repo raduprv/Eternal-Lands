@@ -82,7 +82,7 @@ INPUT                  = ../
 FILE_PATTERNS          = *.c \
                          *.h \
                          *.doxy
-RECURSIVE              = NO
+RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 

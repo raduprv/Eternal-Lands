@@ -1,0 +1,6 @@
+/**
+ * \page loadpage Loading of different file formats
+ * \section loadingintro The different file formats used by EL
+ * <p>Description of the file formats, and how they are loaded and further handled
+ * within el.</p>
+ */

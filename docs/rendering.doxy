@@ -1,0 +1,5 @@
+/**
+ * \page renderpage Rendering
+ * \section secrendering The rendering engine of EL
+ * <p>Description of the rendering loop in association with the main loop, how are they connected. How does the rendering loop works internally?</p>
+ */

@@ -1,0 +1,5 @@
+/**
+ * \page threadpage Threads
+ * \section secthreads Threads and thread handling with EL
+ * <p>How is threading implemented in EL?</p>
+ */
