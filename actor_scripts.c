@@ -6771,6 +6771,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[draegoni_female].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_draegonif.md2");
 	my_strcp(actors_defs[draegoni_female].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[draegoni_female].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[draegoni_female].shirt[SHIRT_FUR].model_name,"./md2/torso1_draegonif.md2");
+	my_strcp(actors_defs[draegoni_female].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[draegoni_female].skin[SKIN_BROWN].hands_name,"./md2/hands_draegoniblue.bmp");
 	my_strcp(actors_defs[draegoni_female].skin[SKIN_BROWN].head_name,"./md2/head_draegonifblue.bmp");
 	my_strcp(actors_defs[draegoni_female].skin[SKIN_NORMAL].hands_name,"./md2/hands_draegonigreen.bmp");
@@ -6823,6 +6827,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[draegoni_female].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[draegoni_female].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_draegonif.md2");
+
+	my_strcp(actors_defs[draegoni_female].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[draegoni_female].legs[PANTS_FUR].model_name,"./md2/legs1_draegonif.md2");
 
 	my_strcp(actors_defs[draegoni_female].cape[CAPE_BLACK].model_name,"./md2/cape1_draegonif.md2");
 	my_strcp(actors_defs[draegoni_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
@@ -7359,6 +7366,10 @@ void init_actor_defs()
 	my_strcp(actors_defs[draegoni_male].shirt[SHIRT_IRON_PLATE_ARMOR].model_name,"./md2/torso1_draegonim.md2");
 	my_strcp(actors_defs[draegoni_male].shirt[SHIRT_IRON_PLATE_ARMOR].torso_name,"./md2/torso6.bmp");
 
+	my_strcp(actors_defs[draegoni_male].shirt[SHIRT_FUR].arms_name,"./md2/arms_fur1.bmp");
+	my_strcp(actors_defs[draegoni_male].shirt[SHIRT_FUR].model_name,"./md2/torso1_draegonim.md2");
+	my_strcp(actors_defs[draegoni_male].shirt[SHIRT_FUR].torso_name,"./md2/torso_fur1.bmp");
+
 	my_strcp(actors_defs[draegoni_male].skin[SKIN_BROWN].hands_name,"./md2/hands_draegoniblue.bmp");
 	my_strcp(actors_defs[draegoni_male].skin[SKIN_BROWN].head_name,"./md2/head_draegonimblue.bmp");
 	my_strcp(actors_defs[draegoni_male].skin[SKIN_NORMAL].hands_name,"./md2/hands_draegonigreen.bmp");
@@ -7411,6 +7422,9 @@ void init_actor_defs()
 
 	my_strcp(actors_defs[draegoni_male].legs[PANTS_IRON_CUISSES].legs_name,"./md2/pants3.bmp");
 	my_strcp(actors_defs[draegoni_male].legs[PANTS_IRON_CUISSES].model_name,"./md2/legs1_draegonim.md2");
+
+	my_strcp(actors_defs[draegoni_male].legs[PANTS_FUR].legs_name,"./md2/pants_fur1.bmp");
+	my_strcp(actors_defs[draegoni_male].legs[PANTS_FUR].model_name,"./md2/legs1_draegonim.md2");
 
 	my_strcp(actors_defs[draegoni_male].cape[CAPE_BLACK].model_name,"./md2/cape1_draegonim.md2");
 	my_strcp(actors_defs[draegoni_male].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
