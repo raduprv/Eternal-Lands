@@ -380,6 +380,25 @@ int HandleEvent(SDL_Event *event)
 				//see if we get any text
 				ch = event->key.keysym.unicode;// & 0x7F;
 
+				if ((key>=256 && key<=267) || key==271)
+					{
+						switch (key)
+							{
+							case 266:
+								ch = 46;
+								break;
+							case 267:
+								ch = 47;
+								break;
+							case 271:
+								ch = 13;
+								break;
+							default:
+								ch = key-208;
+								break;
+							}
+					}
+
 				if(interface_mode==interface_log_in)
 					{
 						if(ch==SDLK_RETURN && username_str[0] && password_str[0])
