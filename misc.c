@@ -997,7 +997,7 @@ void save_particle_def_file()
     if (GetSaveFileName (&ofn))
     {
 		strcpy(def.file_name,szFileName);
-		save_particle_def_file(&def);
+		save_particle_def(&def);
     }
 }
 
@@ -1138,7 +1138,7 @@ void save_particle_def_file_continued()
 {
 	if(!selected_file)return;
 	strncpy(def.file_name,selected_file,80);
-	save_particle_def_file(&def);
+	save_particle_def(&def);
 }
 
 FILE *my_fopen (const char *fname, const char *mode)
