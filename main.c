@@ -29,14 +29,28 @@ int start_rendering()
       //char* sdl_error; unused?
       SDL_Event event;
 
-
+		// handle SDL events
 		while( SDL_PollEvent( &event ) )
         {
 			done = HandleEvent(&event);
 		}
-
+		//advance the clock
         last_time=cur_time;
+		cur_time = SDL_GetTicks();
+		//check for network data
+		get_message_from_server();
+
+		//should we send the heart beat?
+		if(last_heart_beat+25000<cur_time)
+			{
+				Uint8 command;
+				last_heart_beat=cur_time;
+				command=HEART_BEAT;
+				my_tcp_send(my_socket,&command,1);
+			}
+		//draw everything
         draw_scene();
+		//see if we need to exit
         if(exit_now)break;
     }
 
