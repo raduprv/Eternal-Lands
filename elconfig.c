@@ -168,7 +168,7 @@ void change_windowed_chat (int *wc)
 	*wc = !*wc;
 	if (*wc)
 	{
-		display_chat ();
+		if (game_root_win >= 0) display_chat ();
 	}
 	else if (chat_win >= 0) 
 	{

@@ -293,9 +293,6 @@ void display_chat ()
 	{
 		int scroll_len;
 		
-		if (game_root_win < 0)
-			create_game_root_window ();
-		
 		nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (18.0 * chat_zoom));
 		scroll_len = nr_text_buffer_lines >= nr_displayed_lines ? nr_text_buffer_lines-nr_displayed_lines : 0;
 		

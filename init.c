@@ -501,10 +501,10 @@ void init_stuff()
 #ifndef OLD_EVENT_HANDLER
 	// XXX FIXME (Grum): Maybe we should do this at a later time, after
 	// we're logged in?
-	if (game_root_win < 0) create_game_root_window ();
-	if (console_root_win < 0) create_console_root_window ();
-	if (map_root_win < 0) create_map_root_window ();
-	if (login_root_win < 0)create_login_root_window ();
+	create_game_root_window ();
+	create_console_root_window ();
+	create_map_root_window ();
+	create_login_root_window ();
 #else
 	resize_root_window();
 #endif
