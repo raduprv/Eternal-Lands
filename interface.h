@@ -388,6 +388,7 @@ struct draw_map{
        unsigned short y_start;
        unsigned short x_end;
        unsigned short y_end;       
+       const char * name;
 };
 
 extern int cur_map; /*!< id of the map we are currently on */

@@ -825,21 +825,22 @@ GLuint legend_text=0;
 int cur_map;  //Is there a better way to do this?
 
 const struct draw_map seridia_maps[] = {
-	{409,107,450,147},//0 - Isla Prima
-	{184,162,395,359},//1 - Whitestone
-	{84,352,180,448}, //2 - Desert Pines
-	{336,118,387,165},//3 - Tirnym
-	{230,405,281,451},//4 - VOTD
-	{84,270,177,357}, //5 - Portland
-	{87,169,175,270}, //6 - Morcraven
-	{130,128,178,168},//7 - Naralik
-	{180,75,275,165}, //8 - Grubani
-	{0,0,0,0},	  //9 -
-	{282,358,385,454},//10 - Tarsengaard
-	{232,359,283,403},//11 - Nordcarn
-	{181,363,231,408},//12 - Southern KF
-	{178,406,227,443},//13 - KF
-	{2,324,75,431}    //14 - Tahraji
+        {409,107,450,147,"./maps/startmap.elm"},//0 - Isla Prima
+	{184,162,395,359,"./maps/map2.elm"},//1 - Whitestone
+	{84,352,180,448,"./maps/map3.elm"}, //2 - Desert Pines
+	{336,118,387,165,"./maps/map4f.elm"},//3 - Tirnym
+	{230,405,281,451,"./maps/map5nf.elm"},//4 - VOTD
+	{84,270,177,357,"./maps/map6nf.elm"}, //5 - Portland
+	{87,169,175,270,"./maps/map7.elm"}, //6 - Morcraven
+	{130,128,178,168,"./maps/map8.elm"},//7 - Naralik
+	{180,75,275,165,"./maps/map9f.elm"}, //8 - Grubani
+	{0,0,0,0,"./maps/map10.elm"},     //9 -
+	{282,358,385,454,"./maps/map11.elm"},//10 - Tarsengaard
+	{232,359,283,403,"./maps/map12.elm"},//11 - Nordcarn
+	{181,363,231,408,"./maps/map13.elm"},//12 - Southern KF
+	{178,406,227,443,"./maps/map14f.elm"},//13 - KF
+	{2,324,75,431,"./maps/map15f.elm"},    //14 - Tahraji
+	{0,0,0,0,NULL} //Last map
 };
 
 int switch_to_game_map()

@@ -280,28 +280,13 @@ int save_map(char * file_name)
 
 int get_cur_map(char * file_name)
 {
-    //Well, where are we? Let's check.
-    //Skip "./maps/"
-    file_name += 7;
-    
-    if(!strcmp("startmap.elm", file_name)) return 0;
-    else if(!strcmp("map2.elm", file_name)) return 1;
-    else if(!strcmp("map3.elm", file_name)) return 2;
-    else if(!strcmp("map4f.elm", file_name)) return 3;
-    else if(!strcmp("map5nf.elm", file_name)) return 4;
-    else if(!strcmp("map6nf.elm", file_name)) return 5;
-    else if(!strcmp("map7.elm", file_name)) return 6;
-    else if(!strcmp("map8.elm", file_name)) return 7;
-    else if(!strcmp("map9f.elm", file_name)) return 8;
-    else if(!strcmp("map10.elm", file_name)) return 9;
-    else if(!strcmp("map11.elm", file_name)) return 10;
-    else if(!strcmp("map12.elm", file_name)) return 11;
-    else if(!strcmp("map13.elm", file_name)) return 12;
-    else if(!strcmp("map14f.elm", file_name)) return 13;
-    else if(!strcmp("map15f.elm", file_name)) return 14;
-    return -1; //We don't know where we are...
+	int i;
+	
+	for(i=0;seridia_maps[i].name;i++){
+		if(!strcmp(seridia_maps[i].name,file_name)) return i;
+	}
+	return -1;
 }
-
 
 int load_map(char * file_name)
 {
