@@ -1,7 +1,9 @@
 #include <string.h>
 #include "global.h"
 
+float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
+
 void write_to_log(Uint8 * data,int len)
 {
 	int i,j;

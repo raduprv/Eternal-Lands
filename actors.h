@@ -3,6 +3,7 @@
 
 extern int yourself;
 extern int you_sit;
+extern float name_zoom;
 
 #define HUMAN 1
 #define NPC 2

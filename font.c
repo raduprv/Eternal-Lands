@@ -133,10 +133,15 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, int displayed
 
 void draw_string(int x, int y,unsigned char * our_string,int max_lines)
 {
+	draw_string_zoomed(x, y,our_string,max_lines, 1.0f);
+}
+
+void draw_string_zoomed(int x, int y,unsigned char * our_string,int max_lines, float text_zoom)
+{
 	//float u_start,u_end,v_start,v_end;
 	//int col,row;
-	int displayed_font_x_size=11;
-	int displayed_font_y_size=18;
+	int displayed_font_x_size=11*text_zoom;
+	int displayed_font_y_size=18*text_zoom;
 
 	//int font_x_size=FONT_X_SPACING;
 	//int font_y_size=FONT_Y_SPACING;
@@ -422,13 +427,13 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 
 	if(big)
 		{
-			displayed_font_x_size=0.17*zoom_level/3.0;
-			displayed_font_y_size=0.25*zoom_level/3.0;
+			displayed_font_x_size=0.17*zoom_level*name_zoom/3.0;
+			displayed_font_y_size=0.25*zoom_level*name_zoom/3.0;
 		}
 	else
 		{
-			displayed_font_x_size=SMALL_INGAME_FONT_X_LEN*zoom_level/3.0;
-			displayed_font_y_size=SMALL_INGAME_FONT_Y_LEN*zoom_level/3.0;
+			displayed_font_x_size=SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0;
+			displayed_font_y_size=SMALL_INGAME_FONT_Y_LEN*zoom_level*name_zoom/3.0;
 		}
 
 

@@ -8,6 +8,7 @@
 #define	FONT_Y_SPACING	21	//Y spacing of font in font.bmp
 
 void draw_string(int x, int y,unsigned char * our_string,int max_lines);
+void draw_string_zoomed(int x, int y,unsigned char * our_string,int max_lines, float text_zoom);
 void draw_string_small(int x, int y,unsigned char * our_string,int max_lines);
 void draw_ingame_string(float x, float y,unsigned char * our_string,
 						int max_lines,int big);

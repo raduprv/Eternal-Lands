@@ -199,7 +199,9 @@ void draw_scene()
 		}
 
 	if(find_last_lines_time())
-        draw_string(10,20,&display_text_buffer[display_text_buffer_first],max_lines_no);
+		{
+        	draw_string_zoomed(10,20,&display_text_buffer[display_text_buffer_first],max_lines_no,chat_zoom);
+		}
 	anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
 
 	draw_ingame_interface();

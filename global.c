@@ -30,6 +30,7 @@ float ry=0;
 float rz=45;
 float terrain_scale=2.0f;
 float zoom_level=3.0f;
+float name_zoom=1.0f;
 
 float fine_camera_rotation_speed;
 float normal_camera_rotation_speed;

@@ -5,6 +5,7 @@
 
 #define SMALL_INGAME_FONT_X_LEN 0.12
 #define SMALL_INGAME_FONT_Y_LEN 0.17
+extern float chat_zoom;
 
 extern char input_text_line[257];
 extern int input_text_lenght;

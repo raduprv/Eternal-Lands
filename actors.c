@@ -173,8 +173,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	if(view_health_bar && actor_id->cur_health>=0)
 		{
 			//get it's lenght
-			if(actor_id->max_health)//we don't want a division by zero, now do we?
-				healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
+			if(actor_id->max_health > 0)//we don't want a division by zero, now do we?
+				{
+					healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
+				}
 			glBegin(GL_QUADS);
 			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
 			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
@@ -219,7 +221,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			else glColor3f(1.0f,1.0f,0.0f);
 			//draw_ingame_string(-(strlen(actor_id->actor_name)*SMALL_INGAME_FONT_X_LEN)/2,healtbar_z-0.7f,actor_id->actor_name,1,0);
 			//TODO: use text length function instead of strlen
-			draw_ingame_string(-((float)strlen(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level/3.0))/2.0,healtbar_z+0.03f,actor_id->actor_name,1,0);
+			draw_ingame_string(-((float)strlen(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0,healtbar_z+0.03f,actor_id->actor_name,1,0);
 		}
 	glColor3f(1,1,1);
 	if(!actor_id->ghost)glEnable(GL_LIGHTING);
