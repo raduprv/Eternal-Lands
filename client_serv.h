@@ -9,8 +9,8 @@
 #define dwarf_male 5
 #define wraith 6
 #define cyclops 7
-#define shop_girl2 8
-#define town_folk1 9
+#define beaver 8
+#define rat 9
 #define town_folk2 10
 #define town_folk3 11
 #define town_folk4 12
@@ -335,13 +335,12 @@
 #define CAST_SPELL 39
 #define ATTACK_SOMEONE 40
 
-
-#define LOG_IN 140
-#define CREATE_CHAR 141
-
 #define GET_DATE 230
 #define GET_TIME 231
 #define SERVER_STATS 232
+#define ORIGINAL_IP 233
+#define LOG_IN 140
+#define CREATE_CHAR 141
 
 //to client commands
 #define ADD_NEW_ACTOR 1
