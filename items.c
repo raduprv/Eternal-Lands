@@ -283,6 +283,22 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	Uint8 str[100];
 
 	if(right_click) {
+		if(item_dragged!=-1){
+			use_item=-1;
+			item_dragged=-1;
+			return 1;
+		}
+		if(mx>=wear_items_x_offset && mx<wear_items_x_offset+66 && my>=wear_items_y_offset && my<wear_items_y_offset+133) {
+			switch(item_action_mode){
+				case action_walk:
+					item_action_mode=action_look;
+					break;
+				case action_look:
+				default:
+					item_action_mode=action_walk;
+			}
+			return 1;
+		}
 		switch(item_action_mode) {
 		case action_walk:
 			item_action_mode=action_look;
@@ -294,19 +310,16 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			item_action_mode=action_use_witem;
 			break;
 		case action_use_witem:
-			if(use_item!=-1)
-				use_item=-1;
-			else
-				item_action_mode=action_walk;
+			item_action_mode=action_walk;
 			break;
 		default:
-			use_item=-1;
 			item_action_mode=action_walk;
 		}
 		return 1;
 	}
-
+	
 	if(item_action_mode==action_use_witem)action_mode=action_use_witem;
+	if(item_action_mode==action_use)action_mode=action_use;
 
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
@@ -904,7 +917,7 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 }
 
 int mouseover_items_handler(window_info *win, int mx, int my) {
-	int x,y,i;
+	int x,y,i,retval=0;
 	int x_screen,y_screen;
 	for(y=0;y<6;y++)
 		for(x=0;x<6;x++)
@@ -927,12 +940,33 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 										} else {
 											elwin_mouse=CURSOR_PICK;
 										}
-										return 1;
+										retval=1;
 									}
 							}
 					}
 			}
-	return 0;
+	for(y=0;y<4;y++)
+		for(x=0;x<2;x++){
+			x_screen=wear_items_x_offset+x*33;
+			y_screen=wear_items_y_offset+y*33;
+			if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33){
+				for(i=0;i<ITEM_NUM_ITEMS;i++){
+					//should we get the info for it?
+					if(item_list[i].quantity && item_list[i].pos==y*2+x+ITEM_WEAR_START){
+						if(item_action_mode==action_look) {
+							elwin_mouse=CURSOR_EYE;
+						} else {
+							elwin_mouse=CURSOR_PICK;
+							if(use_item!=-1){
+								item_action_mode=action_walk;
+							}
+						}
+						retval=1;
+					} 
+				}
+			}
+		}
+	return retval;
 }
 
 void open_bag(int object_id)
