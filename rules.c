@@ -123,7 +123,10 @@ int click_rules_handler(window_info *win, int mx, int my, Uint32 flags)
 				rule_offset--;
 				reached_end=0;
 			}
-		}  else if(my<=win->len_y-2 && my>=win->len_y-20) if(!reached_end) rule_offset++;
+		}  else if(my<=win->len_y-2 && my>=win->len_y-20) 
+			if(!reached_end) {
+				rule_offset++;
+			}
 	}
 	
 	return 1;
@@ -131,8 +134,10 @@ int click_rules_handler(window_info *win, int mx, int my, Uint32 flags)
 
 int display_rules_handler(window_info *win)
 {
-	int len=(float)draw_rules(display_rules+rule_offset, rule_offset, 0, 20, win->len_x, win->len_y-40,0.8f)/(float)rules.no*250;
-	int y=(float)(rule_offset-1)*250/(float)rules.no;
+	int len,y;
+	if(!rule_offset)rule_offset=1;
+	len=(float)draw_rules(display_rules+rule_offset, rule_offset, 0, 20, win->len_x, win->len_y-40,0.8f)/(float)rules.no*250;
+	y=(float)(rule_offset-1)*250/(float)rules.no;
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
@@ -187,8 +192,7 @@ void toggle_rules_window(int toggle)
 	
 	if(display_rules==NULL)display_rules=get_interface_rules((float)(rules_win_x_len-60)/(12*0.8f));
 	if(toggle) reset_rules(display_rules);
-	if(!rule_offset) rule_offset=1;
-	if(toggle && rules_win>0 && windows_list.window[rules_win].displayed) toggle_window(rules_win);
+	if(toggle && rules_win>0) toggle_window(rules_win);
 	else display_rules_window();
 }
 

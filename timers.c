@@ -5,7 +5,10 @@
 int	my_timer_adjust=0;
 int	my_timer_clock=0;
 SDL_TimerID draw_scene_timer=0;
+#ifdef TIMER_CHECK
 static Uint32 last_my_timer=0;
+#endif
+
 Uint32 my_timer(Uint32 interval, void * data)
 {
 	int	new_time;
@@ -15,7 +18,9 @@ Uint32 my_timer(Uint32 interval, void * data)
 	if(my_timer_clock == 0)my_timer_clock=SDL_GetTicks();
 	else my_timer_clock+=(TIMER_RATE-my_timer_adjust);
 
+#ifdef TIMER_CHECK
 	last_my_timer=SDL_GetTicks();
+#endif
 	
 	e.type = SDL_USEREVENT;
 	e.user.code = EVENT_UPDATE_CAMERA;
@@ -66,10 +71,14 @@ Uint32 my_timer(Uint32 interval, void * data)
 that aren't too critical in here...*/
 
 SDL_TimerID misc_timer=0;
+#ifdef TIMER_CHECK
 static Uint32 misc_timer_clock=0;
+#endif
 Uint32 check_misc(Uint32 interval, void * data)
 {
+#ifdef TIMER_CHECK
 	misc_timer_clock=SDL_GetTicks();//This isn't accurate, but it's not needed here...
+#endif
 	
 	//check the rain
 	rain_control();
@@ -101,6 +110,7 @@ Uint32 check_misc(Uint32 interval, void * data)
 	return 500;
 }
 
+#ifdef TIMER_CHECK
 //Checks if any of the timers have suddenly stopped
 void check_timers()
 {
@@ -126,4 +136,4 @@ void check_timers()
 			misc_timer_clock=SDL_GetTicks();
 		}
 }
-
+#endif

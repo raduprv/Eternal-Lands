@@ -79,6 +79,7 @@ int start_rendering()
 	unload_questlog();
 	free_icons();
 	free_vars();
+	cleanup_rules();
 	unload_e3d_list();	// do we really want to overwrite this file??
 	SDL_RemoveTimer(draw_scene_timer);
 	SDL_RemoveTimer(misc_timer);
