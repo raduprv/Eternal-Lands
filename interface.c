@@ -52,14 +52,14 @@ int check_interface_buttons()
 			if(mouse_x>=320 && mouse_x<=351)
 				{
 					SDL_Event event;
-					open_map_file();
+					save_map_file();
 					while (SDL_PollEvent (&event));	//clears all the events
 					left_click=2;
 				}
 			if(mouse_x>=352 && mouse_x<=383)
 				{
 					SDL_Event event;
-					save_map_file();
+					open_map_file();
 					while (SDL_PollEvent (&event));	//clears all the events
 					left_click=2;
 				}
