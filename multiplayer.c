@@ -626,7 +626,11 @@ int recvpacket()
 
 	total=SDLNet_TCP_Recv(my_socket, in_data, 3);
 	if(total==-1)return 0;
-	if(total<3) return -1; // didn't even get 3 bytes???
+	if(total<3)
+		{
+			if(total > 0)log_to_console(c_red2,"Packet under run ... data lost!");
+			return -1; // didn't even get 3 bytes???
+		}
 
 	size=(*((short *)(in_data+1)))+2;
 	while(total<size) {
