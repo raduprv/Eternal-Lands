@@ -259,7 +259,7 @@ int update_music(void *dummy)
 							stream_music(buffer);
 							alSourceQueueBuffers(music_source, 1, &buffer);
 						}
-					if(state != AL_PLAYING)
+					if(state && state != AL_PLAYING)
 						{
 							log_to_console(c_red1, "Skip! Speeding up...\n");
 							//on slower systems, music can skip up to 10 times
