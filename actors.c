@@ -212,8 +212,8 @@ void draw_actor(actor * actor_id)
 		}
 	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
 		{
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
+			char str[256];
+			sprintf(str, "couldn't find frame: %s for %s\n",cur_frame,actor_id->actor_name);
 			log_error(str);
 			return;
 		}
@@ -510,9 +510,15 @@ void add_actor_from_server(char * in_data)
 																		if(frame==frame_attack_down_2)my_strcp(cur_frame,actors_defs[actor_type].attack_down_2_frame);
 																		else
 																			if(frame==frame_combat_idle)my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);
-
+																			else 
+																				{
+																					char str[120];
+																					sprintf(str,"Unknown frame %d for %s\n",frame,&in_data[23]);
+																					log_error(str);
+																				}
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
+	lock_actors_lists();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -522,7 +528,6 @@ void add_actor_from_server(char * in_data)
 
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
 				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
-	lock_actors_lists();	//lock it to avoid timing issues
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
 	actors_list[i]->actor_type=actor_type;
