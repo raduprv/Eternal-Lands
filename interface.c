@@ -73,85 +73,9 @@ int check_drag_menus()
 int check_scroll_bars()
 {
 	if(drag_in_windows(mouse_x, mouse_y, 0, mouse_delta_x, mouse_delta_y) > 0)	return 1;
-	/*
-	//for knowledge window only. don't modify other scroll bars yet.
-	//TODO: simplify this logic
-	if(knowledge_scroll_dragged || (mouse_in_window(knowledge_win, mouse_x, mouse_y) && mouse_x>knowledge_menu_x+knowledge_menu_x_len-20 && mouse_x<knowledge_menu_x+knowledge_menu_x_len && mouse_y>knowledge_menu_y+35+(120*knowledge_page_start)/(300-38) && mouse_y<knowledge_menu_y+55+(120*knowledge_page_start)/(300-38))) {
-		knowledge_scroll_dragged=1;
-		if(left_click>1)
-			knowledge_page_start+=mouse_delta_y*2;
-		if(knowledge_page_start<0)knowledge_page_start=0;
-		if(knowledge_page_start>300-38)knowledge_page_start=300-38;
-		return 1;
-	}
-	*/
+
 	return 0;
 }
-
-/*
-void check_menus_out_of_screen()
-{
-	if(attrib_menu_y-16<0)attrib_menu_y=16;
-	if(attrib_menu_y>window_height-32)attrib_menu_y=window_height-32;
-	if(attrib_menu_x+attrib_menu_x_len<10)attrib_menu_x=0-attrib_menu_x_len+10;
-	if(attrib_menu_x>window_width-10)attrib_menu_x=window_width-10;
-
-	if(items_menu_y-16<0)items_menu_y=16;
-	if(items_menu_y>window_height-32)items_menu_y=window_height-32;
-	if(items_menu_x+items_menu_x_len<10)items_menu_x=0-items_menu_x_len+11;
-	if(items_menu_x>window_width-10)items_menu_x=window_width-10;
-
-	if(ground_items_menu_y-16<0)ground_items_menu_y=16;
-	if(ground_items_menu_y>window_height-32)ground_items_menu_y=window_height-32;
-	if(ground_items_menu_x+ground_items_menu_x_len<10)ground_items_menu_x=0-ground_items_menu_x_len+11;
-	if(ground_items_menu_x>window_width-10)ground_items_menu_x=window_width-10;
-
-	if(manufacture_menu_y-16<0)manufacture_menu_y=16;
-	if(manufacture_menu_y>window_height-32)manufacture_menu_y=window_height-32;
-	if(manufacture_menu_x+manufacture_menu_x_len<10)manufacture_menu_x=0-manufacture_menu_x_len+11;
-	if(manufacture_menu_x>window_width-10)manufacture_menu_x=window_width-10;
-
-	if(trade_menu_y-16<0)trade_menu_y=16;
-	if(trade_menu_y>window_height-32)trade_menu_y=window_height-32;
-	if(trade_menu_x+trade_menu_x_len<10)trade_menu_x=0-trade_menu_x_len+11;
-	if(trade_menu_x>window_width-10)trade_menu_x=window_width-10;
-
-	if(sigil_menu_y-16<0)sigil_menu_y=16;
-	if(sigil_menu_y>window_height-32)sigil_menu_y=window_height-32;
-	if(sigil_menu_x+sigil_menu_x_len<10)sigil_menu_x=0-sigil_menu_x_len+11;
-	if(sigil_menu_x>window_width-10)sigil_menu_x=window_width-10;
-
-	if(dialogue_menu_y-16<0)dialogue_menu_y=16;
-	if(dialogue_menu_y>window_height-32)dialogue_menu_y=window_height-32;
-	if(dialogue_menu_x+dialogue_menu_x_len<10)dialogue_menu_x=0-dialogue_menu_x_len+11;
-	if(dialogue_menu_x>window_width-10)dialogue_menu_x=window_width-10;
-
-	if(options_menu_y-16<0)options_menu_y=16;
-	if(options_menu_y>window_height-32)options_menu_y=window_height-32;
-	if(options_menu_x + options_menu_x_len<10)options_menu_x=0-(options_menu_x + options_menu_x_len-options_menu_x)+11;
-	if(options_menu_x>window_width-10)options_menu_x=window_width-10;
-
-	if(knowledge_menu_y-16<0)knowledge_menu_y=16;
-	if(knowledge_menu_y>window_height-32)knowledge_menu_y=window_height-32;
-	if(knowledge_menu_x+knowledge_menu_x_len<10)knowledge_menu_x=0-knowledge_menu_x_len+11;
-	if(knowledge_menu_x>window_width-10)knowledge_menu_x=window_width-10;
-
-	if(encyclopedia_menu_y-16<0)encyclopedia_menu_y=16;
-	if(encyclopedia_menu_y>window_height-32)encyclopedia_menu_y=window_height-32;
-	if(encyclopedia_menu_x+encyclopedia_menu_x_len<10)encyclopedia_menu_x=0-encyclopedia_menu_x_len+11;
-	if(encyclopedia_menu_x>window_width-10)encyclopedia_menu_x=window_width-10;
-
-	if(questlog_menu_y-16<0)questlog_menu_y=16;
-	if(questlog_menu_y>window_height-32)questlog_menu_y=window_height-32;
-	if(questlog_menu_x+questlog_menu_x_len<10)questlog_menu_x=0-questlog_menu_x_len+11;
-	if(questlog_menu_x>window_width-10)questlog_menu_x=window_width-10;
-
-	if(buddy_menu_y-16<0)buddy_menu_y=16;
-	if(buddy_menu_y>window_height-32)buddy_menu_y=window_height-32;
-	if(buddy_menu_x+buddy_menu_x_len<10)buddy_menu_x=0-buddy_menu_x_len+11;
-	if(buddy_menu_x>window_width-10)buddy_menu_x=window_width-10;
-}
-*/
 
 void check_mouse_click()
 {
