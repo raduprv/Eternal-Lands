@@ -348,7 +348,7 @@ void display_objects()
 			for(k=0;k<100;k++){
 				object3d	*object_id;
 				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
-				if(l==-1)continue;
+				if(l==-1)break;
 				object_id= objects_list[l];
 
 

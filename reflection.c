@@ -317,7 +317,7 @@ void display_3d_reflection()
 		for(j=sy;j<=ey;j++)
 			for(k=0;k<100;k++){
 				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
-				if(l==-1)continue;
+				if(l==-1)break;
 
 				if(objects_list[l])
 					{
