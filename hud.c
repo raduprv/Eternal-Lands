@@ -855,6 +855,7 @@ int	display_quickbar_handler(window_info *win)
 	Uint8 str[80];
 	int y, i;
 
+	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
 	use_window_color(quickbar_win, ELW_COLOR_LINE);
 	//draw the grid
