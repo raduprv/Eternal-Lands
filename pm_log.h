@@ -19,6 +19,8 @@ struct pm_struct pm_log;
 
 extern int afk;
 extern int last_action_time;
+extern int afk_time;
+extern char afk_message[160];
 
 void free_pm_log(void);
 void go_afk(void);
@@ -26,7 +28,11 @@ void go_ifk(void);
 void add_message_to_pm_log(char * msg, int len);
 void add_name_to_pm_log(char *name, int len);
 void send_afk_message(char * server_msg, int type);
+void print_return_message(void);
+void print_message(int no);
 int have_name(char *name, int len);
 int is_talking_about_me(Uint8 * server_msg, int len);
+void print_return_message(void);
+void print_message(int no);
 
 #endif

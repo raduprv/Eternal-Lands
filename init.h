@@ -81,12 +81,6 @@ extern int have_url;
 extern char current_url[160];
 extern char broswer_name[120];
 
-//AFK handling
-extern char afk_message[160];
-extern int afk_time;
-extern int pm_log_type;
-extern int ifk_on_event;
-
 void load_harvestable_list();
 void load_entrable_list();
 void read_config();

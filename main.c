@@ -73,11 +73,10 @@ int start_rendering()
 						{
 							if(!afk)
 								{
-									if(pm_log.ppl)free_pm_log();
 									go_afk();
 								}
 						}
-					else if(ifk_on_event && afk) go_ifk();
+					else if(afk) go_ifk();
 				}
 			
 #ifdef	CACHE_SYSTEM

@@ -81,6 +81,9 @@ int HandleEvent(SDL_Event *event)
 						//break;
 					}
 
+				if(afk_time) 
+					last_action_time=cur_time; //Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
+
 #ifndef WINDOWS
 				if((event->key.keysym.sym == SDLK_v && ctrl_on) ||
 				   (event->key.keysym.sym == SDLK_INSERT && shift_on))
@@ -507,9 +510,6 @@ int HandleEvent(SDL_Event *event)
 						input_text_line[0]=0;
 					}
 				
-				if(key!=K_AFK && (event->key.keysym.sym<303 || event->key.keysym.sym>308)) 
-					last_action_time=cur_time; //Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
-
 				break;
 			}//key down
 
@@ -527,7 +527,7 @@ int HandleEvent(SDL_Event *event)
 
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
-			last_action_time=cur_time;//Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
+			if(afk_time)last_action_time=cur_time;//Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
 		case SDL_MOUSEMOTION:
 			if(event->type==SDL_MOUSEMOTION)
 				{

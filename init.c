@@ -27,11 +27,6 @@ int item_window_on_drop=1;
 int compass_direction=1;
 char configdir[256]="./";
 char datadir[256]=DATA_DIR;
-char afk_message[160]={0};
-
-int ifk_on_event=1;
-int afk_time=0;
-int pm_log_type=0;
 
 extern windows_info	windows_list;
 
@@ -247,9 +242,7 @@ void read_config()
 	get_string_after_string("#text_filter_replace",file_mem,ini_file_size,text_filter_replace,127);
 
 	//AFK handling
-	afk_time=60000*get_integer_after_string("#afk_time",file_mem,ini_file_size);
-	pm_log_type=get_integer_after_string("#pm_log_type",file_mem,ini_file_size);
-	ifk_on_event=get_integer_after_string("#ifk_on_event",file_mem,ini_file_size);
+	afk_time=60000*get_integer_after_string("#auto_afk_time",file_mem,ini_file_size);
 	get_string_after_string("#afk_message",file_mem,ini_file_size,afk_message,127);
 
 	// now the default user and password

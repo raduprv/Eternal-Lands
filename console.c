@@ -388,23 +388,42 @@ void test_for_console_command()
 			return;
 		}
 
+	// TODO: make this automatic or a better command, m is too short
+	if(my_strncompare(text_loc,"msg", 3))
+		{
+			int no, m=-1;
+
+			// find first space, then skip any spaces
+			while(*text_loc && !isspace(*text_loc))	text_loc++;
+			while(*text_loc && isspace(*text_loc))	text_loc++;
+			if(my_strncompare(text_loc, "all", 3)){
+				for(;no<pm_log.ppl;no++) print_message(no);
+				return;
+			}
+			no=atoi(text_loc)-1;
+			if(no<pm_log.ppl && no>=0)	print_message(no);
+			return;
+		}
+	if(my_strncompare(text_loc,"afk",3))
+		{
+			// find first space, then skip any spaces
+			while(*text_loc && !isspace(*text_loc))	text_loc++;
+			while(*text_loc && isspace(*text_loc))	text_loc++;
+			if(!afk)
+				{
+					if(strlen(text_loc)) strncpy(afk_message, text_loc, 160);
+					go_afk();
+					last_action_time=cur_time-afk_time-1;
+				}
+			else go_ifk();
+			return;
+		}
+	
 	if(my_strncompare(text_loc,"help", 4))
 		{
 			// help can open the Enc!
 			if(auto_open_encyclopedia)	display_encyclopedia();
-		}
-	
-	if(my_strncompare(text_loc,"m", 1))
-		{
-			int no, m=-1;
-			text_loc++;
-			no=atoi(text_loc)-1;
-			if(no<pm_log.ppl && no>=0)
-				{
-					while(++m<pm_log.afk_msgs[no].msgs)
-						log_to_console(c_blue1,pm_log.afk_msgs[no].messages[m]);
-				}
-			return;
+			// but fall thru and send it to the server
 		}
 	
 	send_input_text_line();//no command, send it to the server, as plain text
