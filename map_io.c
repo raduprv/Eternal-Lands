@@ -5,6 +5,9 @@
 void destroy_map()
 {
 	int i;
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 
 	//kill the tile and height map
 	if(tile_map)
@@ -290,6 +293,9 @@ int load_map(char * file_name)
 	f=fopen(file_name, "rb");
 	if(!f)return 0;
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	my_strcp(map_file_name,file_name);
 
 	destroy_map();
@@ -411,6 +417,10 @@ int load_map(char * file_name)
 void new_map(int m_x_size,int m_y_size)
 {
 	int i;
+
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	//destroy the previous map, if any
 	destroy_map();
 

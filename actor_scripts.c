@@ -490,6 +490,9 @@ void next_command()
 
 void destroy_actor(int actor_id)
 {
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	int i;
 
 	//lock_actors_lists();	//lock it to avoid timing issues
@@ -630,6 +633,12 @@ void get_actor_damage(int actor_id, Uint8 damage)
 {
 	int i=0;
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	while(i<max_actors)
 		{
 			if(actors_list[i])
@@ -649,7 +658,13 @@ void get_actor_damage(int actor_id, Uint8 damage)
 void get_actor_heal(int actor_id, Uint8 quantity)
 {
 	int i=0;
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	while(i<max_actors)
 		{
 			if(actors_list[i])

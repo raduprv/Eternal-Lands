@@ -302,24 +302,36 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case ADD_NEW_ACTOR:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				add_actor_from_server(&in_data[3]);
 			}
 			break;
 
 		case ADD_NEW_ENHANCED_ACTOR:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				add_enhanced_actor_from_server(&in_data[3]);
 			}
 			break;
 
 		case ADD_ACTOR_COMMAND:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				add_command_to_actor(*((short *)(in_data+3)),in_data[5]);
 			}
 			break;
 
 		case REMOVE_ACTOR:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				lock_actors_lists();	//lock it to avoid timing issues
 				destroy_actor(*((short *)(in_data+3)));
 				unlock_actors_lists();	//unlock it
@@ -328,12 +340,18 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case KILL_ALL_ACTORS:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				destroy_all_actors();
 			}
 			break;
 
 		case NEW_MINUTE:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				game_minute=*((short *)(in_data+3));
 				new_minute();
 			}
@@ -413,6 +431,9 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case CHANGE_MAP:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 				close_dialogue();	// close the dialogue window if open
 				destroy_all_particles();
@@ -466,24 +487,36 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_TELEPORTERS_LIST:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				add_teleporters_from_list(&in_data[3]);
 			}
 			break;
 
 		case PLAY_MUSIC:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				if(!no_sound)play_music(*((short *)(in_data+3)));
 			}
 			break;
 
 		case PLAY_SOUND:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				if(!no_sound)add_sound_object(*((short *)(in_data+3)),*((short *)(in_data+5)),*((short *)(in_data+7)),*((char *)(in_data+9)),*((short *)(in_data+10)));
 			}
 			break;
 
 		case TELEPORT_OUT:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				add_particle_sys_at_tile("./particles/teleport_in.part",*((short *)(in_data+3)),*((short *)(in_data+5)));
 				if(!no_sound)add_sound_object(snd_tele_out,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
 			}
@@ -491,6 +524,9 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case TELEPORT_IN:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				add_particle_sys_at_tile("./particles/teleport_in.part",*((short *)(in_data+3)),*((short *)(in_data+5)));
 				if(!no_sound)add_sound_object(snd_tele_in,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
 			}
@@ -531,12 +567,18 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case YOU_ARE:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				yourself=*((short *)(in_data+3));
 			}
 			break;
 
 		case START_RAIN:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				seconds_till_rain_starts=*((Uint8 *)(in_data+3));
 				seconds_till_rain_stops=-1;
 			}
@@ -544,6 +586,9 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case STOP_RAIN:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				seconds_till_rain_stops=*((Uint8 *)(in_data+3));
 				seconds_till_rain_starts=-1;
 			}
@@ -551,6 +596,9 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case THUNDER:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				add_thunder(rand()%5,*((Uint8 *)(in_data+3)));
 			}
 			break;
@@ -558,6 +606,9 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case SYNC_CLOCK:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				server_time_stamp=*((int *)(in_data+3));
 				client_time_stamp=SDL_GetTicks();
 				client_server_delta_time=server_time_stamp-client_time_stamp;
@@ -589,48 +640,72 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_NEW_BAG:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				put_bag_on_ground(*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)),*((Uint8 *)(in_data+7)));
 			}
 			break;
 
 		case GET_BAGS_LIST:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				add_bags_from_list(&in_data[3]);
 			}
 			break;
 
 		case SPAWN_BAG_PARTICLES:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 			  add_particle_sys_at_tile("./particles/bag_in.part",*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)));
 			}
 			break;
 
 		case GET_NEW_GROUND_ITEM:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				get_bag_item(in_data+3);
 			}
 			break;
 
 		case HERE_YOUR_GROUND_ITEMS:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				get_bags_items_list(&in_data[3]);
 			}
 			break;
 
 		case CLOSE_BAG:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				hide_window(ground_items_win);
 			}
 			break;
 
 		case REMOVE_ITEM_FROM_GROUND:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				remove_item_from_ground(in_data[3]);
 			}
 			break;
 
 		case DESTROY_BAG:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				remove_bag(in_data[3]);
 			}
 			break;
@@ -731,24 +806,36 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_ACTOR_DAMAGE:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				get_actor_damage(*((Uint16 *)(in_data+3)),in_data[5]);
 			}
 			break;
 
 		case GET_ACTOR_HEAL:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				get_actor_heal(*((Uint16 *)(in_data+3)),in_data[5]);
 			}
 			break;
 
 		case ACTOR_UNWEAR_ITEM:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				unwear_item_from_actor(*((Uint16 *)(in_data+3)),in_data[5]);
 			}
 			break;
 
 		case ACTOR_WEAR_ITEM:
 			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 				actor_wear_item(*((Uint16 *)(in_data+3)),in_data[5],in_data[6]);
 			}
 			break;

@@ -38,6 +38,10 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	md2 *returned_md2;
 	actor *our_actor;
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+
 	our_actor = calloc(1, sizeof(actor));
 
 	//find a free spot, in the actors_list
@@ -731,6 +735,10 @@ void add_actor_from_server(char * in_data)
 	char cur_frame[20];
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+	
 	actor_id=*((short *)(in_data));
 	x_pos=*((short *)(in_data+2));
 	y_pos=*((short *)(in_data+4));
@@ -897,6 +905,9 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 	enhanced_actor *this_actor;
 	int texture_id;
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	this_actor=calloc(1,sizeof(enhanced_actor));
 	our_actor = calloc(1, sizeof(actor));
 

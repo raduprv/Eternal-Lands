@@ -51,6 +51,29 @@ void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *fu
   	fflush (err_file);
 }
 
+#ifdef EXTRA_DEBUG
+FILE *func_file = NULL;
+void clear_func_log()
+{
+        char func_log[256];
+
+	strcpy(func_log, configdir);
+	strcat(func_log, "function_log.txt");
+	if(!func_file) func_file = fopen(func_log, "wb");
+	fflush(func_file);
+}
+
+void log_func_err(const Uint8 * file, const Uint8 * func, Uint32 line)
+{
+	if(!func_file) clear_func_log();
+	if(func_file)
+		{
+			fprintf(func_file,"%s.%s:%d\n",file,func,line);
+			fflush(func_file);
+		}
+}
+#endif
+
 
 FILE *conn_file = NULL;
 void clear_conn_log()
