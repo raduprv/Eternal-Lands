@@ -234,10 +234,11 @@ void update_position()
 void update_music()
 {
 #ifndef	NO_MUSIC
-    int error,processed;
+    int error,processed,state;
 	if(!have_music || !playing_music)return;
 
     alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
+	alGetSourcei(music_source, AL_SOURCE_STATE, &state);
 
 	if(!processed)return; //skip error checking et al
     while(processed--)
@@ -246,9 +247,11 @@ void update_music()
         
         alSourceUnqueueBuffers(music_source, 1, &buffer);
 		stream_music(buffer);
-        alSourceQueueBuffers(music_source, 1, &buffer);
+		alSourceQueueBuffers(music_source, 1, &buffer);
     }
-	if((error=alGetError()) != AL_NO_ERROR) 
+	if(state == AL_STOPPED)
+		alSourcePlay(music_source);
+	if((error=alGetError()) != AL_NO_ERROR)
     	{
      		char	str[256];
     		sprintf(str, "update_music error: %s\n", alGetString(error));
@@ -274,8 +277,7 @@ void stream_music(ALuint buffer) {
     
         if(result > 0)
             size += result;
-        else
-            break;
+        else if(!result) break;
     }
 	if(!size)return;
 
@@ -458,19 +460,15 @@ void destroy_sound()
 
 #ifndef	NO_MUSIC
 	alSourceStop(music_source);
-#endif	//NO_MUSIC
-	alSourceStopv(used_sources, sound_source);
-	alDeleteSources(used_sources, sound_source);
-#ifndef	NO_MUSIC
     alDeleteSources(1, &music_source);
-#endif	//NO_MUSIC
-	for(i=0;i<max_buffers;i++)
-		if(alIsBuffer(sound_buffer[i]))
-			alDeleteBuffers(1, sound_buffer+i);
-#ifndef	NO_MUSIC
     alDeleteBuffers(2, music_buffers);
     ov_clear(&ogg_stream);
 #endif	//NO_MUSIC
+	alSourceStopv(used_sources, sound_source);
+	alDeleteSources(used_sources, sound_source);
+	for(i=0;i<max_buffers;i++)
+		if(alIsBuffer(sound_buffer[i]))
+			alDeleteBuffers(1, sound_buffer+i);
     alutExit();
 }
 
