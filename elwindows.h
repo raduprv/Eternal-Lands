@@ -49,6 +49,7 @@ typedef	struct	{
 	int (*mouseover_handler)();		/*!< handle mouseovers */
 	int (*resize_handler)();	/*!< handle window resize events */
 	int (*keypress_handler)();	/*!< handle key presses */
+        int (*destroy_handler)();	/*!< executed upon window destruction */
     /*! @} */
 
 	/*

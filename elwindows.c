@@ -638,6 +638,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		win->mouseover_handler = NULL;
 		win->resize_handler = NULL;
 		win->keypress_handler = NULL;
+                win->destroy_handler = NULL;
 		
 		win->widgetlist = NULL;
 		
@@ -651,9 +652,29 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 
 void	destroy_window(int win_id)
 {
+	window_info *win;
+	widget_list *widget, *next;
+
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 	// mark the window as unused
+	
+	win = &(windows_list.window[win_id]);
+
+	// destroy our widgets
+	widget = win->widgetlist;
+	while (widget != NULL)
+	{
+		if (widget->OnDestroy != NULL)
+			widget->OnDestroy (widget);
+		next = widget->next;
+		free (widget);
+		widget = next;
+	}             
+        
+	if (win->destroy_handler != NULL)
+		win->destroy_handler (win);
+	
 	windows_list.window[win_id].window_id= -1;
 	windows_list.window[win_id].order= -1;
 	windows_list.window[win_id].displayed= 0;

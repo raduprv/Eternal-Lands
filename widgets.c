@@ -215,6 +215,12 @@ int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
 }
 
+int free_widget_info (widget_list *widget)
+{
+	free (widget->widget_info);
+	return 1;
+}
+
 int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
@@ -240,6 +246,7 @@ int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, 
 	W->len_y = (Uint16)(18 * 1.0);
 	W->len_x = (Uint16)(strlen(T->text) * 11 * 1.0);
 	W->OnDraw = label_draw;
+	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
@@ -314,6 +321,7 @@ int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x,
 	W->len_y = lx;
 	W->len_x = ly;
 	W->OnDraw = image_draw;
+	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
@@ -403,6 +411,7 @@ int checkbox_add_extended(Uint32 window_id,  Uint32 wid, int (*OnInit)(), Uint16
 	W->len_x = ly;
 	W->OnDraw = checkbox_draw;
 	W->OnClick = checkbox_click;
+	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
@@ -498,6 +507,7 @@ int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x
 	W->len_y = (Uint16)(18 * 1.0) + 2;
 	W->len_x = (Uint16)(strlen(T->text) * 11 * 1.0) + 4;
 	W->OnDraw = button_draw;
+	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
@@ -579,6 +589,7 @@ int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 	W->len_x = lx;
 	T->progress = progress;
 	W->OnDraw = progressbar_draw;
+	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
@@ -688,6 +699,7 @@ int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint
 	W->OnClick = vscrollbar_click;
 	W->OnDraw = vscrollbar_draw;
 	W->OnDrag = vscrollbar_drag;
+	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
@@ -886,6 +898,14 @@ int tab_collection_close_tab (Uint32 window_id, Uint32 widget_id, int tab)
 	return -1;
 }
 
+int free_tab_collection (widget_list *widget)
+{
+	tab_collection *col = (tab_collection *) widget->widget_info;
+	free (col->tabs);
+	free (col);
+	return 1;
+}
+
 int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height, Uint16 tag_space)
 {
 	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, tag_height, tag_space);
@@ -928,7 +948,7 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 	W->len_x = lx;
 	W->OnClick = tab_collection_click;
 	W->OnDraw = tab_collection_draw;
-	W->OnDrag = NULL;
+	W->OnDestroy = free_tab_collection;
 	W->OnInit = OnInit;
 	W->OnResize = tab_collection_resize;
 	if(W->OnInit != NULL)
@@ -1190,8 +1210,8 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 	W->b = b;
 	W->len_y = ly;
 	W->len_x = lx;
-	W->OnClick = NULL;
 	W->OnDraw = text_field_draw;
+	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
