@@ -11,6 +11,7 @@
 #include <GL/glext.h>
 #endif
 #ifdef WINDOWS
+#include <windows.h>
 #include <al.h>
 #include <alut.h>
 #elif defined(OSX)
