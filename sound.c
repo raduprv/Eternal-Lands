@@ -231,10 +231,7 @@ void check_range_sounds()
 
 						if(sound_list[i].channel==-1)
 							{
-								Uint8 str[160];
-								str[0]=127+c_red1;
-								my_strcp(&str[1],"Huston, we have a problem...");
-								put_text_in_buffer(str,strlen(str),0);
+								log_to_console(c_red1,"Huston, we have a problem...");
 	                		}
 
 						sound_list[i].is_playing=1;

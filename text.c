@@ -101,9 +101,16 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 
 void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit)
 {
+	put_colored_text_in_buffer(c_grey1, text_to_add, len, x_chars_limit);
+}
+
+void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len, int x_chars_limit)
+{
 	int i;
 	Uint8 cur_char;
 
+	// check for auto-length
+	if(len<0)len=strlen(text_to_add);
 	//get the time when we got this line
 	last_server_message_time=cur_time;
 	if(lines_to_show<max_lines_no)lines_to_show++;
@@ -135,7 +142,7 @@ void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit)
 			int new_line_pos=0;
 			int text_lines;
 			char semaphore=0;
-			unsigned char current_color=127+c_grey1;
+			unsigned char current_color=127+color;	// switch to the color specified
 
 			//how many lines of text do we have?
 			text_lines=len/x_chars_limit;
@@ -211,6 +218,11 @@ void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit)
 
 void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, char *buffer)
 {
+	put_small_colored_text_in_box(c_grey1, text_to_add, len, pixels_limit, buffer);
+}
+
+void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len, int pixels_limit, char *buffer)
+{
 	int i;
 	Uint8 cur_char;
 	int last_text=0;
@@ -243,7 +255,7 @@ void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit
 			int new_line_pos=0;
 			int text_lines;
 			char semaphore=0;
-			unsigned char current_color=127+c_grey1;
+			unsigned char current_color=127+color;
 
 			//how many lines of text do we have?
 			text_lines=len/x_chars_limit;

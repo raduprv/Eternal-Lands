@@ -424,27 +424,20 @@ process_message_from_server(unsigned char *in_data, int data_lenght)
 	              case PONG:
 	                {
 						Uint8 str[160];
-						str[0]=127+c_green1;
-						sprintf(&str[1],"Server latency: %i MS",SDL_GetTicks()-*((Uint32 *)(in_data+3)));
-						put_text_in_buffer(str,strlen(str),0);
+						sprintf(str,"Server latency: %i MS",SDL_GetTicks()-*((Uint32 *)(in_data+3)));
+						log_to_console(c_green1,str);
 	                }
 	              break;
 
 	              case UPGRADE_NEW_VERSION:
 	                {
-						Uint8 str[160];
-						str[0]=127+c_red1;
-						my_strcp(&str[1],"There is a new version of the client, please update it\nhttp://www.eternal-lands.com/update.php");
-						put_text_in_buffer(str,strlen(str),0);
+						log_to_console(c_red1,"There is a new version of the client, please update it\nhttp://www.eternal-lands.com/update.php");
 	                }
 	              break;
 
 	              case UPGRADE_TOO_OLD:
 	                {
-						Uint8 str[160];
-						str[0]=127+c_red1;
-						my_strcp(&str[1],"This version is no longer supported, please update!\nhttp://www.eternal-lands.com/update.php");
-						put_text_in_buffer(str,strlen(str),0);
+						log_to_console(c_red1,"This version is no longer supported, please update!\nhttp://www.eternal-lands.com/update.php");
 						this_version_is_invalid=1;
 	                }
 	              break;
@@ -661,11 +654,8 @@ void get_message_from_server()
 
 	if(recived_lenght<=0)
 		{
-			Uint8 str[100];
 			//we got a nasty error, log it
-			str[0]=127+c_red2;
-			my_strcp(&str[1],"Disconnected from server!\nPress any key to attempt to reconnect.\n[Press Alt+x to quit]");
-			put_text_in_buffer(&str[put_new_data_offset],strlen(str)+1,0);
+			log_to_console(c_red2,"Disconnected from server!\nPress any key to attempt to reconnect.\n[Press Alt+x to quit]");
 			disconnected=1;
 			return;
 		}

@@ -169,13 +169,10 @@ void list_filters()
 
 	if(!filtered_so_far)
 		{
-			str[0]=127+c_grey1;
-			my_strcp(&str[1],"You are filtering nothing!");
-			put_text_in_buffer(str,strlen(str),0);
+			log_to_console(c_grey1,"You are filtering nothing!");
 			return;
 		}
-	str[0]=127+c_grey1;
-	my_strcp(&str[1],"You are currently filtering:\n");
+	str[0]=0;
 	for(i=0;i<max_filters;i++)
 		{
 			if(filter_list[i].len > 0)
@@ -187,7 +184,7 @@ void list_filters()
 
 	str[strlen(str)-2]=0;//get rid of the last ", " thingy
 
-	put_text_in_buffer(str,strlen(str),0);
+	log_to_console(c_grey1,"You are currently filtering:\n");
 
 }
 

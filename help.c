@@ -125,32 +125,28 @@ void display_help_topic(Uint8 *topic)
 
 	if(result==-1)
 		{
-			str[0]=127+c_red1;
-			my_strcp(&str[1],"No such help topic!");
-			put_text_in_buffer(str,strlen(str),0);
+			log_to_console(c_red1,"No such help topic!");
 			return;
 		}
 
 	if(result==-2)
 		{
-			str[0]=127+c_red1;
-			my_strcp(&str[1],"Ambigous topic, please provide more letters!");
-			put_text_in_buffer(str,strlen(str),0);
+			log_to_console(c_red1,"Ambigous topic, please provide more letters!");
 			return;
 		}
 
 	//if we are here, it means we did find the topic...
 
-	str[0]=127+c_grey1;
+	str[0]=0;
 	for(i=0;i<strlen(help_list[result].topic_info);i++)
 		{
 			ch=help_list[result].topic_info[i];
 			if(ch=='[')ch=127+c_orange2;
 			else
 			if(ch==']')ch=127+c_grey1;
-			str[i+1]=ch;
+			str[i]=ch;
 		}
 	str[i+1]=0;
-	put_text_in_buffer(str,strlen(str),0);
+	log_to_console(c_grey1,str);
 }
 

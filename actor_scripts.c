@@ -559,9 +559,7 @@ void update_all_actors()
 	Uint8 str[40];
 
 	//we got a nasty error, log it
-	str[0]=127+c_red2;
-	my_strcp(&str[1],"Resync with the server...");
-	put_text_in_buffer(str,strlen(str),0);
+	log_to_console(c_red2,"Resync with the server...");
 
 	destroy_all_actors();
 	str[0]=SEND_ME_MY_ACTORS;

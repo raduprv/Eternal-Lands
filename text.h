@@ -28,5 +28,7 @@ extern int log_server;
 
 int filter_or_ignore_text(unsigned char *text_to_add, int len);
 void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit);
+void put_colored_text_in_buffer(Uint8 color,unsigned char *text_to_add, int len, int x_chars_limit);
+#define log_to_console(color,buffer)	put_colored_text_in_buffer(color,buffer,-1,0)
 
 #endif

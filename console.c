@@ -1,9 +1,6 @@
 #include <time.h>
 #include "global.h"
 
-void log_to_console(Uint8 color,Uint8 *buffer);
-
-
 //cls - clears the text buffer
 void cls()
 {
@@ -102,10 +99,7 @@ void test_for_console_command()
 		}
 	if(my_strcompare(text_loc,"ver_"))
 		{
-			char version[60];
-			version[0]=127+c_green1;
-			my_strcp(&version[1],"Eternal Lands Version 0.9.3 Beta");
-			put_text_in_buffer(version, strlen(version), 0);
+			log_to_console(c_green1,"Eternal Lands Version 0.9.3 Beta");
 			return;
 		}
 
@@ -136,18 +130,12 @@ void test_for_console_command()
 
 			if(i==15 && !ch)
 				{
-					Uint8 str[100];
-					str[0]=127+c_red1;
-					my_strcp(&str[1],"Name too long, the max limit is 15 characters. Name not added to the ignore list!");
-					put_text_in_buffer(str,strlen(str),0);
+					log_to_console(c_red1,"Name too long, the max limit is 15 characters. Name not added to the ignore list!");
 					return;
 				}
 			if(i<3)
 				{
-					Uint8 str[100];
-					str[0]=127+c_red1;
-					my_strcp(&str[1],"Name too short, only names>=3 characters can be used! Name not added to the ignore list!");
-					put_text_in_buffer(str,strlen(str),0);
+					log_to_console(c_red1,"Name too short, only names>=3 characters can be used! Name not added to the ignore list!");
 					return;
 				}
 
@@ -155,25 +143,20 @@ void test_for_console_command()
 			if(result==-1)
 				{
 					Uint8 str[100];
-					str[0]=127+c_red1;
-					sprintf(&str[1],"You are already ignoring %s!",name);
-					put_text_in_buffer(str,strlen(str),0);
+					sprintf(str,"You are already ignoring %s!",name);
+					log_to_console(c_red1,str);
 					return;
 				}
 			if(result==-2)
 				{
-					Uint8 str[100];
-					str[0]=127+c_red1;
-					my_strcp(&str[1],"Wow, your ignore list is full, this is impossible!");
-					put_text_in_buffer(str,strlen(str),0);
+					log_to_console(c_red1,"Wow, your ignore list is full, this is impossible!");
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
-					str[0]=127+c_green1;
-					sprintf(&str[1],"Ok, %s was added to your ignore list!",name);
-					put_text_in_buffer(str,strlen(str),0);
+					sprintf(str,"Ok, %s was added to your ignore list!",name);
+					log_to_console(c_green1,str);
 					return;
 				}
 		}
@@ -267,51 +250,46 @@ void test_for_console_command()
 			if(i==15 && !ch)
 				{
 					Uint8 str[200];
-					str[0]=127+c_red1;
-					my_strcp(&str[1],"Name too long, the max limit is 15 characters. Name not removed from the ignore list!");
-					put_text_in_buffer(str,strlen(str),0);
+					my_strcp(str,"Name too long, the max limit is 15 characters. Name not removed from the ignore list!");
+					log_to_console(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[200];
-					str[0]=127+c_red1;
-					my_strcp(&str[1],"Name too short, only names>=3 characters can be used! Name not removed from the ignore list!");
-					put_text_in_buffer(str,strlen(str),0);
+					my_strcp(str,"Name too short, only names>=3 characters can be used! Name not removed from the ignore list!");
+					log_to_console(c_red1,str);
 					return;
 				}
 			result=remove_from_ignore_list(name);
 			if(result==-1)
 				{
 					Uint8 str[200];
-					str[0]=127+c_red1;
-					sprintf(&str[1],"You are NOT ignoring %s in the first place!",name);
-					put_text_in_buffer(str,strlen(str),0);
+					sprintf(str,"You are NOT ignoring %s in the first place!",name);
+					log_to_console(c_red1,str);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
-					str[0]=127+c_green1;
-					sprintf(&str[1],"Ok, %s was removed from your ignore list!",name);
-					put_text_in_buffer(str,strlen(str),0);
+					sprintf(str,"Ok, %s was removed from your ignore list!",name);
+					log_to_console(c_green1,str);
 					return;
 				}
 		}
 ////////////////////////
-	if((text_lenght>=5 && my_strncompare(text_loc,"help ",5)) ||
-	(text_lenght==4 && my_strncompare(text_loc,"help",4)))
+	if(my_strcompare(text_loc,"help_"))
+		{
+			display_help_topic("main");
+			return;
+		}
+	if(my_strncompare(text_loc,"help ",5))
 		{
 			Uint8 topic[30];
 			int i;
 			Uint8 ch;
 			int result;
 
-			if(text_lenght==4)
-				{
-					display_help_topic("main");
-					return;
-				}
 			for(i=0;i<30 || i<text_lenght;i++)
 				{
 					ch=text_loc[i+5];//5 because there is a space after "help"
@@ -335,41 +313,32 @@ void test_for_console_command()
 			Uint8 this_string[8192];
 
 			my_string=(GLubyte *)glGetString(GL_RENDERER);
-			this_string[0]=127+c_red2;
+			this_string[0]=0;
 			my_strcp(&this_string[1],"Video Card: ");
 			my_strcp(&this_string[strlen(this_string)],my_string);
-			put_text_in_buffer(this_string, strlen(this_string), 0);
+			log_to_console(c_red2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VENDOR);
-			this_string[0]=127+c_yellow3;
+			this_string[0]=0;
 			my_strcp(&this_string[1],"Vendor: ");
 			my_strcp(&this_string[strlen(this_string)],my_string);
-			put_text_in_buffer(this_string, strlen(this_string), 0);
+			log_to_console(c_yellow3,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VERSION);
-			this_string[0]=127+c_yellow2;
+			this_string[0]=0;
 			my_strcp(&this_string[1],"OpenGL Version: ");
 			my_strcp(&this_string[strlen(this_string)],my_string);
-			put_text_in_buffer(this_string, strlen(this_string), 0);
+			log_to_console(c_yellow2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_EXTENSIONS);
-			this_string[0]=127+c_grey1;
+			this_string[0]=0;
 			my_strcp(&this_string[1],"Supported Extensions: ");
 			my_strcp(&this_string[strlen(this_string)],my_string);
-			put_text_in_buffer(this_string, strlen(this_string), 0);
+			log_to_console(c_grey1,this_string);
 
 			return;
 		}
 	send_input_text_line();//no command, send it to the server, as plain text
 
 }
-
-void log_to_console(Uint8 color,Uint8 *buffer)
-{
-			Uint8 str[9000];
-			str[0]=127+color;
-			my_strcp(&str[1],buffer);
-			put_text_in_buffer(str,strlen(str),0);
-}
-
 
