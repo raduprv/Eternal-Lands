@@ -144,7 +144,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 
 	tx=-cx*2;
 	ty=-cy*2;
-	distance=sqrt((tx-x)*(tx-x)+(ty-y)*(ty-y));
+	distance=(tx-x)*(tx-x)+(ty-y)*(ty-y);
 
 	alGenSources(1, &sound_source[i]);
 
@@ -177,7 +177,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 		{
 			alSourcei(sound_source[i], AL_LOOPING, AL_TRUE);
 			alSourcePlay(sound_source[i]);
-			if(!sound_on || (positional && (distance > 30)))
+			if(!sound_on || (positional && (distance > 30*30)))
 				alSourcePause(sound_source[i]);
 		}
 	else
@@ -213,10 +213,10 @@ void update_position()
 			alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
 			alGetSourcefv(sound_source[i], AL_POSITION, sourcePos);
 			x=sourcePos[0];y=sourcePos[1];
-			distance=sqrt((tx-x)*(tx-x)+(ty-y)*(ty-y));
-			if((state == AL_PLAYING) && (distance > 30))
+			distance=(tx-x)*(tx-x)+(ty-y)*(ty-y);
+			if((state == AL_PLAYING) && (distance > 30*30))
 				alSourcePause(sound_source[i]);
-			else if (sound_on && (state == AL_PAUSED) && (distance < 25))
+			else if (sound_on && (state == AL_PAUSED) && (distance < 25*25))
 				alSourcePlay(sound_source[i]);
 		}
 	if((error=alGetError()) != AL_NO_ERROR) 
