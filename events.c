@@ -103,7 +103,7 @@ int HandleEvent(SDL_Event *event)
 					case mode_light:
 					{
 						light *o = (light *) undo_object;
-						add_light(o->pos_x, o->pos_y, o->pos_z, o->r, o->g, o->b, 1.0f);
+						add_light(o->pos_x, o->pos_y, o->pos_z, o->r, o->g, o->b, 1.0f, o->locked);
 						free(undo_object);
 						undo_object = NULL;
 						break;
@@ -253,13 +253,20 @@ int HandleEvent(SDL_Event *event)
 			if(shift_on)obj_2d_list[selected_2d_object]->z_pos+=0.01f;
 			else obj_2d_list[selected_2d_object]->z_pos+=0.1f;
 
-			if(cur_mode==mode_light && selected_light!=-1)
+			if(cur_mode==mode_light && selected_light!=-1 && !lights_list[selected_light]->locked)
 			if(shift_on)lights_list[selected_light]->pos_z+=0.01f;
 			else lights_list[selected_light]->pos_z+=0.1f;
 
 			if(cur_mode==mode_particles && selected_particles_object!=-1)
-			if(shift_on)particles_list[selected_particles_object]->z_pos+=0.01f;
-			else particles_list[selected_particles_object]->z_pos+=0.1f;
+			if(shift_on){
+				particles_list[selected_particles_object]->z_pos+=0.01f;
+				if(particles_list[selected_particles_object]->def->use_light) 
+					lights_list[particles_list[selected_particles_object]->light]->pos_z+=0.01f;
+			} else {
+				particles_list[selected_particles_object]->z_pos+=0.1f;
+				if(particles_list[selected_particles_object]->def->use_light) 
+					lights_list[particles_list[selected_particles_object]->light]->pos_z+=0.1f;
+			}
 
 			if(cur_mode==mode_particles && view_particles_window)
 				if(shift_on)particles_win_move_preview(0.01f);
@@ -280,13 +287,20 @@ int HandleEvent(SDL_Event *event)
 			if(shift_on)obj_2d_list[selected_2d_object]->z_pos-=0.01f;
 			else obj_2d_list[selected_2d_object]->z_pos-=0.1f;
 
-			if(cur_mode==mode_light && selected_light!=-1)
+			if(cur_mode==mode_light && selected_light!=-1 && !lights_list[selected_light]->locked)
 			if(shift_on)lights_list[selected_light]->pos_z-=0.01f;
 			else lights_list[selected_light]->pos_z-=0.1f;
 
 			if(cur_mode==mode_particles && selected_particles_object!=-1)
-			if(shift_on)particles_list[selected_particles_object]->z_pos-=0.01f;
-			else particles_list[selected_particles_object]->z_pos-=0.1f;
+			if(shift_on){
+				particles_list[selected_particles_object]->z_pos-=0.01f;
+				if(particles_list[selected_particles_object]->def->use_light) 
+					lights_list[particles_list[selected_particles_object]->light]->pos_z-=0.01f;
+			} else {
+				particles_list[selected_particles_object]->z_pos-=0.1f;
+				if(particles_list[selected_particles_object]->def->use_light) 
+					lights_list[particles_list[selected_particles_object]->light]->pos_z-=0.1f;
+			}
 
 			if(cur_mode==mode_particles && view_particles_window)
 				if(shift_on)particles_win_move_preview(-0.01f);
@@ -371,17 +385,17 @@ int HandleEvent(SDL_Event *event)
   		if(ch=='3' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
   		if(objects_list[selected_3d_object]->b>0.0f)objects_list[selected_3d_object]->b-=0.05f;
 		//for lights now
-  		if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && !alt_on)
+  		if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)
   		if(lights_list[selected_light]->r<5.0f)lights_list[selected_light]->r+=0.1f;
-  		if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && alt_on)
+  		if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && alt_on && !lights_list[selected_light]->locked)
   		if(lights_list[selected_light]->r>0.0f)lights_list[selected_light]->r-=0.1f;
-  		if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && !alt_on)
+  		if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)
   		if(lights_list[selected_light]->g<5.0f)lights_list[selected_light]->g+=0.1f;
-  		if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && alt_on)
+  		if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && alt_on && !lights_list[selected_light]->locked)
   		if(lights_list[selected_light]->g>0.0f)lights_list[selected_light]->g-=0.1f;
-  		if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && !alt_on)
+  		if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)
   		if(lights_list[selected_light]->b<5.0f)lights_list[selected_light]->b+=0.1f;
-  		if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && alt_on)
+  		if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && alt_on && !lights_list[selected_light]->locked)
   		if(lights_list[selected_light]->b>0.0f)lights_list[selected_light]->b-=0.1f;
 		//for ambient light
   		if(ch=='1' && cur_mode==mode_map && !alt_on)
@@ -689,7 +703,7 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_kill)
 									{
 										get_light_under_mouse();
-										if(selected_light!=-1){
+										if(selected_light!=-1 && !lights_list[selected_light]->locked){
 											undo_type = mode_light;
 											if(undo_object == NULL)
 												free(undo_object);
@@ -703,7 +717,7 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_clone)
 									{
 										get_light_under_mouse();
-										if(selected_light!=-1)clone_light(selected_light);
+										if(selected_light!=-1 && !lights_list[selected_light]->locked)clone_light(selected_light);
 										return(done);
 									}
 
@@ -784,7 +798,7 @@ int HandleEvent(SDL_Event *event)
 						else
 						if(cur_mode==mode_particles && cur_tool==tool_select && !view_particles_window && selected_particles_object!=-1)move_particles_object(selected_particles_object);
 						else
-						if(cur_mode==mode_light && cur_tool==tool_select && selected_light!=-1)move_light(selected_light);
+						if(cur_mode==mode_light && cur_tool==tool_select && selected_light!=-1 && !lights_list[selected_light]->locked)move_light(selected_light);
 						else
 						if(cur_mode==mode_tile && cur_tool==tool_select && selected_tile!=255)move_tile_a_tile=1;
 						else move_tile_a_tile=0;

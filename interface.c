@@ -55,7 +55,7 @@ int check_interface_buttons()
 					if(cur_mode==mode_light)
 						{
 							cur_tool=tool_select;
-							selected_light=add_light(scene_mouse_x,scene_mouse_y,3.0f,1.0f,1.0f,1.0f,1.0f);
+							selected_light=add_light(scene_mouse_x,scene_mouse_y,3.0f,1.0f,1.0f,1.0f,1.0f,0);
 						}
 				}
 			if(mouse_x>=320 && mouse_x<=351)cur_tool=tool_kill;

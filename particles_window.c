@@ -5,10 +5,13 @@ int view_particles_window=0;
 static int particles_window_x=15;
 static int particles_window_y=50;
 static int particles_window_x_len=600;
-static int particles_window_y_len=440;
+static int particles_window_y_len=470;
 
 particle_sys_def def;
 static int part_sys=-1;
+static GLfloat def_light_position[4];
+static GLfloat def_light_diffuse[4];
+const GLfloat def_light_spot_direction[]={0.0f,0.0f,0.0f};
 
 void reset_def()
 {
@@ -32,6 +35,12 @@ void reset_def()
 	def.acc_maxx=def.acc_maxy=def.acc_maxz=0.0;
 	def.mindr=def.mindg=def.mindb=def.minda=-0.02;
 	def.maxdr=def.maxdg=def.maxdb=def.maxda=-0.02;
+	def.use_light=0;
+	def.lightx=def.lighty=def.lightz=0;
+	def.lightr=def.lightg=def.lightb=0;
+}
+
+void set_and_draw_particle_lights(){
 }
 
 void check_particle_sys_alive()
@@ -178,6 +187,7 @@ static int colorry=COLOR_TOP+20,colorgy=COLOR_TOP+40,colorby=COLOR_TOP+60,colora
 #define PREVIEW_PARTICLE_CONSTRAINT 2
 #define PREVIEW_PARTICLE_STARTVEL 3
 #define PREVIEW_PARTICLE_ACC 4
+#define PREVIEW_PARTICLE_LIGHT 5
 static int preview_display_particle_handles=0;
 
 void draw_velocity(float x,float y,float z,float x2,float y2,float z2)
@@ -227,6 +237,15 @@ void display_particles_window_preview(window_info *win)
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(0.0,0.0, cz);
 	glEnable(GL_LIGHTING);
+	if(def.use_light){
+		draw_dungeon_light();
+		glEnable(GL_LIGHT0);
+		def_light_position[0]=def.lightx;def_light_position[1]=def.lighty;def_light_position[2]=def.lightz;def_light_position[3]=1.0f;
+		def_light_diffuse[0]=def.lightr;def_light_diffuse[1]=def.lightg;def_light_diffuse[2]=def.lightb;def_light_diffuse[3]=1.0f;
+		glLightfv(GL_LIGHT0, GL_POSITION, def_light_position);
+		glLightfv(GL_LIGHT0,GL_DIFFUSE, def_light_diffuse);
+		glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, def_light_spot_direction);
+	}
 	glDepthMask(GL_TRUE);
 	// Draw a few tiles as a background
 	get_and_set_texture_id(tile_list[1]);
@@ -258,6 +277,7 @@ void display_particles_window_preview(window_info *win)
 	glTexCoord2f(1.0f, 1.0f);
 	glVertex2f(3.0,-3.0);
 	glEnd();
+	if(def.use_light)glDisable(GL_LIGHT0);
 	glPopMatrix();
 	glDisable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
@@ -324,6 +344,8 @@ void display_particles_window_preview(window_info *win)
 			draw_velocity(-0.1,0.0,0.0,10.0*def.acc_minx-0.1,10.0*def.acc_miny,10.0*def.acc_minz);
 			draw_velocity(0.1,0.0,0.0,10.0*def.acc_maxx+0.1,10.0*def.acc_maxy,10.0*def.acc_maxz);
 			break;
+		case(PREVIEW_PARTICLE_LIGHT):
+			draw_velocity(0.0,0.0,0.0,def.lightx,def.lighty,def.lightz);
 		}
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
@@ -341,7 +363,7 @@ void display_particles_window_preview(window_info *win)
 int display_particles_window_handler(window_info *win)
 {
 	char temp[100];
-	char *preview_display_handle_strings[]={"Texture","Start position","Constraint","Start velocity","Acceleration"};
+	char *preview_display_handle_strings[]={"Texture","Start position","Constraint","Start velocity","Acceleration","Lights"};
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
@@ -489,60 +511,60 @@ int display_particles_window_handler(window_info *win)
 			draw_string(previewx+2,sel_handle_bottom+2,"Min",1);
 			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+2,"Max",1);
 			snprintf(temp,99,"x: %.2f",def.minx);
-			draw_string(previewx+2,sel_handle_bottom+22,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+32,temp,1);
 			snprintf(temp,99,"y: %.2f",def.miny);
-			draw_string(previewx+2,sel_handle_bottom+42,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+52,temp,1);
 			snprintf(temp,99,"z: %.2f",def.minz);
-			draw_string(previewx+2,sel_handle_bottom+62,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+72,temp,1);
 			snprintf(temp,99,"x: %.2f",def.maxx);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+22,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,temp,1);
 			snprintf(temp,99,"y: %.2f",def.maxy);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+42,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,temp,1);
 			snprintf(temp,99,"z: %.2f",def.maxz);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+62,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,temp,1);
 			break;
 		case(PREVIEW_PARTICLE_CONSTRAINT):
 			if(def.constrain_rad_sq<0.0)
-				draw_string(previewx+2,sel_handle_bottom+22,"No radius constraint",1);
+				draw_string(previewx+2,sel_handle_bottom+32,"No radius constraint",1);
 			else
 				{
 					snprintf(temp,99,"Actual radius: %.3f",sqrt(def.constrain_rad_sq));
 					draw_string(previewx+2,sel_handle_bottom+2,temp,1);
 					snprintf(temp,99,"Squared radius: %.3f",def.constrain_rad_sq);
-					draw_string(previewx+2,sel_handle_bottom+22,temp,1);
+					draw_string(previewx+2,sel_handle_bottom+32,temp,1);
 				}
 			break;
 		case(PREVIEW_PARTICLE_STARTVEL):
 			draw_string(previewx+2,sel_handle_bottom+2,"Min",1);
 			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+2,"Max",1);
 			snprintf(temp,99,"x: %.2f",def.vel_minx);
-			draw_string(previewx+2,sel_handle_bottom+22,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+32,temp,1);
 			snprintf(temp,99,"y: %.2f",def.vel_miny);
-			draw_string(previewx+2,sel_handle_bottom+42,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+52,temp,1);
 			snprintf(temp,99,"z: %.2f",def.vel_minz);
-			draw_string(previewx+2,sel_handle_bottom+62,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+72,temp,1);
 			snprintf(temp,99,"x: %.2f",def.vel_maxx);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+22,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,temp,1);
 			snprintf(temp,99,"y: %.2f",def.vel_maxy);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+42,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,temp,1);
 			snprintf(temp,99,"z: %.2f",def.vel_maxz);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+62,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,temp,1);
 			break;
 		case(PREVIEW_PARTICLE_ACC):
 			draw_string(previewx+2,sel_handle_bottom+2,"Min",1);
 			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+2,"Max",1);
 			snprintf(temp,99,"x: %.2f",def.acc_minx);
-			draw_string(previewx+2,sel_handle_bottom+22,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+32,temp,1);
 			snprintf(temp,99,"y: %.2f",def.acc_miny);
-			draw_string(previewx+2,sel_handle_bottom+42,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+52,temp,1);
 			snprintf(temp,99,"z: %.2f",def.acc_minz);
-			draw_string(previewx+2,sel_handle_bottom+62,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+72,temp,1);
 			snprintf(temp,99,"x: %.2f",def.acc_maxx);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+22,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,temp,1);
 			snprintf(temp,99,"y: %.2f",def.acc_maxy);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+42,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,temp,1);
 			snprintf(temp,99,"z: %.2f",def.acc_maxz);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+62,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,temp,1);
 			break;
 		case(PREVIEW_PARTICLE_TEXTURE):
 			get_and_set_texture_id(particle_textures[def.part_texture]);
@@ -561,23 +583,41 @@ int display_particles_window_handler(window_info *win)
 			glEnd();
 			glDisable(GL_BLEND);
 			break;
+		case(PREVIEW_PARTICLE_LIGHT):
+			draw_string(previewx+2,sel_handle_bottom+4,"Use lights: ",1);
+			snprintf(temp,99,"x: %.2f",def.lightx);
+			draw_string(previewx+2,sel_handle_bottom+32,temp,1);
+			snprintf(temp,99,"y: %.2f",def.lighty);
+			draw_string(previewx+2,sel_handle_bottom+52,temp,1);
+			snprintf(temp,99,"z: %.2f",def.lightz);
+			draw_string(previewx+2,sel_handle_bottom+72,temp,1);
+			snprintf(temp,99,"r: %.2f",def.lightr);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,temp,1);
+			snprintf(temp,99,"g: %.2f",def.lightg);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,temp,1);
+			snprintf(temp,99,"b: %.2f",def.lightb);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,temp,1);
+			break;
 		}
 	switch(preview_display_particle_handles)
 		{
+		case(PREVIEW_PARTICLE_LIGHT):
+			draw_checkbox(previewx+11*12-2,sel_handle_bottom+4,def.use_light);
 		case(PREVIEW_PARTICLE_STARTPOS):
 		case(PREVIEW_PARTICLE_STARTVEL):
 		case(PREVIEW_PARTICLE_ACC):
-			display_plus_minus(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+20);
-			display_plus_minus(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+40);
-			display_plus_minus(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+60);
-			display_plus_minus(previewx2-pm_width,sel_handle_bottom+40);
-			display_plus_minus(previewx2-pm_width,sel_handle_bottom+60);
+			display_plus_minus(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+30);
+			display_plus_minus(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+50);
+			display_plus_minus(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+70);
+			display_plus_minus(previewx2-pm_width,sel_handle_bottom+50);
+			display_plus_minus(previewx2-pm_width,sel_handle_bottom+70);
 		default:
-			display_plus_minus(previewx2-pm_width,sel_handle_bottom+20);
+			display_plus_minus(previewx2-pm_width,sel_handle_bottom+30);
 		}
 
+	glColor3f(1.0f,1.0f,1.0f);
 	snprintf(temp,99,"System info: TTL==%i, #particles==%i",particles_list[part_sys]->ttl,particles_list[part_sys]->particle_count);
-	draw_string(10,420,temp,1);
+	draw_string(10,450,temp,1);
 	unlock_particles_list();
 
 	get_and_set_texture_id(buttons_text);
@@ -703,12 +743,12 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 	else if(tmp==2)def.maxda-=incr;
 
 
-	minx=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+20,x,y);
-	miny=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+40,x,y);
-	minz=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+60,x,y);
-	maxx=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+20,x,y);
-	maxy=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+40,x,y);
-	maxz=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+60,x,y);
+	minx=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+30,x,y);
+	miny=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+50,x,y);
+	minz=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+70,x,y);
+	maxx=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+30,x,y);
+	maxy=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+50,x,y);
+	maxz=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+70,x,y);
 	switch(preview_display_particle_handles)
 		{
 		case(PREVIEW_PARTICLE_STARTPOS):
@@ -769,6 +809,26 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 			if(maxx==1 && def.part_texture<7)def.part_texture++;
 			else if(maxx==2 && def.part_texture>0)def.part_texture--;
 			break;
+		case(PREVIEW_PARTICLE_LIGHT):
+			if(minx==1)def.lightx+=incr;
+			else if(minx==2)def.lightx-=incr;
+			else if(miny==1)def.lighty+=incr;
+			else if(miny==2)def.lighty-=incr;
+			else if(minz==1)def.lightz+=incr;
+			else if(minz==2)def.lightz-=incr;
+			else if(maxx==1){if(def.lightr+incr<=5.0f)def.lightr+=incr;}
+			else if(maxx==2){if(def.lightr-incr>=0.0f)def.lightr-=incr;}
+			else if(maxy==1){if(def.lightg+incr<=5.0f)def.lightg+=incr;}
+			else if(maxy==2){if(def.lightg-incr>=0.0f)def.lightg-=incr;}
+			else if(maxz==1){if(def.lightr+incr<=5.0f)def.lightb+=incr;}
+			else if(maxz==2){if(def.lightr-incr>=0.0f)def.lightb-=incr;}
+			
+			if(mouse_x>previewx+11*12+15 && mouse_x<previewx+11*12+30){
+				if(mouse_y<sel_handle_bottom+72 && mouse_y>sel_handle_bottom+52) {
+				def.use_light=!def.use_light;
+			}}
+	
+			break;
 		}
 
 	// We must make sure that we haven't set up values so that _no_ particles are created within the constraint (since that
@@ -810,7 +870,7 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 		}
 
 	if(x>previewx && x<previewx2 && y>previewy2 && y<sel_handle_bottom)
-		preview_display_particle_handles=(preview_display_particle_handles+1)%5;
+		preview_display_particle_handles=(preview_display_particle_handles+1)%6;
 
 	// Save definition
 	if(x>=10 && x<=42 && y>=380 && y<=412)save_particle_def_file();

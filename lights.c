@@ -71,7 +71,7 @@ void draw_lights()
 
 }
 
-int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity)
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked)
 {
 	int i;
 	light *new_light;
@@ -85,6 +85,8 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 	new_light->r=r*intensity;
 	new_light->g=g*intensity;
 	new_light->b=b*intensity;
+
+	new_light->locked=locked;
 
 	//find a free spot, in the lights list
 	for(i=0;i<max_lights;i++)
@@ -472,7 +474,6 @@ void draw_dungeon_light()
 	 glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
      glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 	 glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);
-
 
 }
 

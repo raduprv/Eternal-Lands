@@ -2,6 +2,31 @@
 
 float grid_height=0.02f;
 
+void draw_checkbox(int startx, int starty, int checked)
+{
+	glPushAttrib(GL_ENABLE_BIT);
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_LINE_LOOP);
+		glVertex2i(startx,starty);
+		glVertex2i(startx+17,starty);
+		glVertex2i(startx+17,starty+17);
+		glVertex2i(startx,starty+17);
+	glEnd();
+
+	if(checked){
+		glBegin(GL_LINES);
+			glVertex2i(startx,starty);
+			glVertex2i(startx+17,starty+17);
+			
+			glVertex2i(startx+17,starty);
+			glVertex2i(startx,starty+17);
+		glEnd();
+	}
+
+	glEnable(GL_TEXTURE_2D);
+	glPopAttrib();
+}
+
 void kill_height_map_at_texture_tile(int tex_pos){
   int start_point;
   int h_x, h_y;
@@ -377,7 +402,12 @@ void get_particles_object_under_mouse() {
 }
 
 void kill_particles_object(int object_id) {
+	if(!particles_list[object_id])return;
 	lock_particles_list();
+	if(particles_list[object_id]->def->use_light){
+		free(lights_list[particles_list[object_id]->light]);
+		lights_list[particles_list[object_id]->light]=NULL;
+	}
 	free(particles_list[object_id]);
 	particles_list[object_id]=0;//kill any reference to it
 	selected_particles_object=-1;//we have no selected object now...
@@ -394,6 +424,9 @@ void move_particles_object(int object_id) {
 		}
 	particles_list[object_id]->x_pos=scene_mouse_x;
 	particles_list[object_id]->y_pos=scene_mouse_y;
+	if(particles_list[object_id]->def->use_light){
+		move_light(particles_list[object_id]->light);
+	}
 	unlock_particles_list();
 }
 
@@ -632,7 +665,7 @@ void clone_light(int object_id)
 	g=lights_list[object_id]->g;
 	b=lights_list[object_id]->b;
 
-	selected_light=add_light(scene_mouse_x,scene_mouse_y,z_pos,r,g,b,1.0f);
+	selected_light=add_light(scene_mouse_x,scene_mouse_y,z_pos,r,g,b,1.0f,lights_list[object_id]->locked);
 	cur_tool=tool_select;//change the current tool
 }
 

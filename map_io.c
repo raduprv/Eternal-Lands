@@ -361,7 +361,7 @@ int load_map(char * file_name)
 		{
 			char * cur_light_pointer=(char *)&cur_light_io;
 			fread(cur_light_pointer, 1, lights_io_size, f);
-			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f);
+			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f,0);
 		}
 
 	//read particle systems

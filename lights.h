@@ -9,6 +9,7 @@ typedef struct
   float r;
   float g;
   float b;
+  int locked;
 }light;
 
 typedef struct
@@ -70,7 +71,7 @@ void draw_test_light();
 void disable_local_lights();
 void enable_local_lights();
 void draw_lights();
-int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity);
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int disabled);
 void update_scene_lights();
 void init_lights();
 void reset_material();
