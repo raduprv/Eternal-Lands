@@ -192,20 +192,21 @@ float colored_encyclopedia_icon_v_start=1.0f-(float)64/256;
 float colored_encyclopedia_icon_u_end=(float)63/256;
 float colored_encyclopedia_icon_v_end=1.0f-(float)95/256;
 
-float questlog_icon_u_start=(float)192/256;
-float questlog_icon_v_start=1.0f-(float)0/256;
-float questlog_icon_u_end=(float)223/256;
-float questlog_icon_v_end=1.0f-(float)31/256;
-
-float colored_questlog_icon_u_start=(float)96/256;
+float colored_questlog_icon_u_start=(float)192/256;
 float colored_questlog_icon_v_start=1.0f-(float)0/256;
-float colored_questlog_icon_u_end=(float)127/256;
+float colored_questlog_icon_u_end=(float)223/256;
 float colored_questlog_icon_v_end=1.0f-(float)31/256;
+
+float questlog_icon_u_start=(float)96/256;
+float questlog_icon_v_start=1.0f-(float)0/256;
+float questlog_icon_u_end=(float)127/256;
+float questlog_icon_v_end=1.0f-(float)31/256;
 
 float console_icon_u_start=(float)0/256;
 float console_icon_v_start=1.0f-(float)64/256;
 float console_icon_u_end=(float)31/256;
-float console_icon_v_end=1.0f-(float)95/256;
+float console_icon_v_end=1.0f-(float)95/256;
+
 float colored_console_icon_u_start=(float)32/256;
 float colored_console_icon_v_start=1.0f-(float)64/256;
 float colored_console_icon_u_end=(float)63/256;
