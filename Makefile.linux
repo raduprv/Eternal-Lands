@@ -1,7 +1,8 @@
-.PHONY: clean release
+.PHONY: clean release docs
 
 # tune these for your setup & compile options
 OPTIONS=-DLINUX -DELC
+#-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
 #-DBOOK
@@ -56,4 +57,7 @@ cal3dwrap.o: cal3dwrap.c cal3dwrap.h
 
 clean:
 	-rm -f $(OBJS) el.x86.linux.bin
+
+docs:	
+	cd docs && doxygen Doxyfile
 

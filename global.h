@@ -1,3 +1,24 @@
+/*!
+ * \defgroup 	init Initialization
+ * 		The initiation phase - loading of variables, parsing files etc.
+ */
+/*!
+ * \defgroup 	load Loading files
+ * 		About loading files and the file formats in the EL
+ */
+/*!
+ * \defgroup 	display Rendering
+ * 		The group contains the functions used in the rendering phase
+ */
+/*!
+ * \defgroup 	render Files
+ * 		The group contains the files used in the rendering process
+ * \ingroup	display
+ */
+/*!
+ * \defgroup	network Network
+ * 		The group contains information about the EL protocol and the network implementation in EL
+ */
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
