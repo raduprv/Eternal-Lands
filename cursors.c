@@ -248,6 +248,11 @@ void check_cursor_change()
 					if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
 					return;
 				}
+			if(action_mode==action_use)
+				{
+					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
+					return;
+				}
 			//see if the object is a harvestable resource.
 			for(i=0;i<100;i++)
 				{
@@ -267,11 +272,6 @@ void check_cursor_change()
 							if(current_cursor!=CURSOR_ENTER)change_cursor(CURSOR_ENTER);
 							return;
 						}
-				}
-			if(action_mode==action_use)
-				{
-					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
-					return;
 				}
 			if(action_mode==action_use_witem)
 				{
