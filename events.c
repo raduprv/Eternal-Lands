@@ -398,6 +398,7 @@ int HandleEvent(SDL_Event *event)
 					return(done);
 				}
 
+			if(left_click==1 && check_replace_window_interface())return done;
 			if(left_click && cur_tool==tool_select && selected_tile!=255  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3 && scene_mouse_x<tile_map_size_x*3)
 			{
 				tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3]=selected_tile;
@@ -407,7 +408,6 @@ int HandleEvent(SDL_Event *event)
 			}
 
 			if(left_click==1 && check_browser_interface())return done;
-			if(left_click==1 && check_replace_window_interface())return done;
 			if(left_click==1 && check_o3dow_interface())return done;
 			if(check_interface_buttons()==1)tool_bar_click=1;
 			if(right_click==1 && cur_tool==tool_select && selected_tile!=255 && cur_mode==mode_tile)selected_tile=255;
