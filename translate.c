@@ -1185,7 +1185,7 @@ void parse_strings(xmlNode * in, group_id * group)
 								if(!xmlStrcasecmp(cur->name,group->strings[i]->xml_id))
 									{
 										int lutf8=xmlUTF8Strlen(cur->children->content);
-										UTF8Toisolat1(group->strings[i]->var, &(group->strings[i]->max_len), cur->children->content, &(group->strings[i]->max_len));
+										UTF8Toisolat1(group->strings[i]->var, &lutf8, cur->children->content, &(group->strings[i]->max_len));
 										if(lutf8 < group->strings[i]->max_len && lutf8!=-1) group->strings[i]->var[lutf8]=0;
 #ifdef WRITE_XML
 										group->strings[i]->saved=1;
