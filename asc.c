@@ -229,7 +229,7 @@ Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src)
 // is this string more then one character and all alpha in it are CAPS?
 Sint32 my_isupper(const Uint8 *src)
 {
-	if(!src || !src[0] || !src[1]) return 0;
+	if(!src || !src[0] || !src[1] || !src[2]) return 0;
 	while(*src)
 		{
 			if(*src != toupper(*src)) return 0;	//at least one lower

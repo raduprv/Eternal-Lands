@@ -114,10 +114,11 @@ int filter_text(Uint8 * input_text, int len)
 			if(*rloc == '[' || rloc[1] == '[') while(*rloc && *rloc != ':') rloc++;
 			// or ignore first word
 			else while(*rloc && *rloc != ' ' && *rloc != ':') rloc++;
+			while(*rloc && (*rloc == ' ' || *rloc == ':' || *rloc >128)) rloc++;
 			// check for hitting the EOS
 			if(!*rloc) rloc=input_text;
 			// if we pass the upper test, entire line goes lower
-			if(my_isupper(rloc)) my_tolower(input_text);
+			if(len-(rloc-input_text) > 4 && my_isupper(rloc)) my_tolower(input_text);
 			rloc=input_text;	// restore the initial value
 		}
 	//do we need to do any content filtering?

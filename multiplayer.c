@@ -251,8 +251,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case RAW_TEXT:
 			{
 				// do filtering and ignoring
-				data_lenght=filter_or_ignore_text(&in_data[3],data_lenght);
-				if(data_lenght > 0)
+				data_lenght=filter_or_ignore_text(&in_data[3],data_lenght-3)+3;
+				if(data_lenght > 3)
 					{
 						//how to display it
 						if(interface_mode!=interface_opening)
