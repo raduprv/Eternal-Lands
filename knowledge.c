@@ -21,7 +21,7 @@ int display_knowledge_handler(window_info *win)
 {
 	int i,x=2,y=2;
 	int progress = (125*your_info.research_completed+1)/(your_info.research_total+1);
-	int scroll = (120*knowledge_page_start)/(win->len_y-38);
+	int scroll = (120*knowledge_page_start)/(300-38);
 	char points_string[16];
 	char *research_string;
 	
@@ -159,7 +159,7 @@ int drag_knowledge_handler(window_info *win, int mx, int my, Uint32 flags, int d
 	if(win->drag_in || (mx>win->len_x-20 && my>35+(120*knowledge_page_start)/(300-38) && my<55+(120*knowledge_page_start)/(300-38))) {
 		win->drag_in= 1;
 		//if(left_click>1)
-		knowledge_page_start+= dy*2;
+		knowledge_page_start+=((300-38)*dy)/120;
 		// bounds checking
 		if(knowledge_page_start < 0) knowledge_page_start= 0;
 		if(knowledge_page_start > 300-38) knowledge_page_start= 300-38;
