@@ -571,7 +571,7 @@ int	draw_window(window_info *win)
 
 	if(!win->displayed)	return 0;
 	// mouse over processing first
-	if(mouseover_window(win->window_id, mouse_x, mouse_y))elwin_mouse=1;
+	elwin_mouse= mouseover_window(win->window_id, mouse_x, mouse_y);
 	// now normal display processing
 	glPushMatrix();
 	glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
@@ -729,9 +729,11 @@ int	mouseover_window(int win_id, int x, int y)
 				glPopMatrix();
 
 			} 
+#ifdef	ELC
 			if(!ret_val) {
 				if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
 			}
+#endif	//ELC
 			return 1;
 		}
 
