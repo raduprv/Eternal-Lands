@@ -114,11 +114,12 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 	int	l, type;
 	unsigned char *ptr;
 
+	checkTimerStop(text_to_add, len);	// SMW - timer testing
 	//check for auto receiving #help
 	for(ptr=text_to_add, l=len; l >0; ptr++, l--){
 		if(!(*ptr&0x80))	break;
 	}
-	if(len > 0 && *ptr == '#' && !strncasecmp(ptr, "#help request", 9)){
+	if(len > 0 && *ptr == '#' && (!strncasecmp(ptr, "#help request", 9) || !strncasecmp(ptr, "#mod chat", 9))){
 		auto_open_encyclopedia= 0;
 	}
 
