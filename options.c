@@ -3,6 +3,29 @@
 #include "options.h"
 #include "global.h"
 
+char	*opt_vid1={"640x480x16"},
+	*opt_vid2={"640x480x32"},
+	*opt_vid3={"800x600x16"},
+	*opt_vid4={"800x600x32"},
+	*opt_vid5={"1024x768x16"},
+	*opt_vid6={"1024x768x32"},
+	*opt_vid7={"1152x864x16"},
+	*opt_vid8={"1152x864x32"},
+	*opt_vid9={"1280x1024x16"},
+	*opt_vid10={"1280x1024x32"},
+	* no_string = {"(error - no str)"},
+	opt_vid1_desc[75],
+	opt_vid2_desc[75],
+	opt_vid3_desc[75],
+	opt_vid4_desc[75],
+	opt_vid5_desc[75],
+	opt_vid6_desc[75],
+	opt_vid7_desc[75],
+	opt_vid8_desc[75],
+	opt_vid9_desc[75],
+	opt_vid10_desc[75];
+
+
 int options_win= 0;
 int show_fps=1;
 
@@ -56,48 +79,60 @@ void init_display_options_menu()
 	int option;
 	if(options.no) return;
 	
-	add_option(OPTION,"Shadows","Enables shadows - disable if you experience performance problems",change_option,&have_stencil,&shadows_on,0);
-	add_option(OPTION,"Clouds","Enables clouds - disable if you experience performance problems",change_option,&have_multitexture,&clouds_shadows,0);
-	add_option(OPTION,"Reflections","Enable reflections - disable if you experience performance problems",change_option,&always_true,&show_reflection,0);
-	add_option(OPTION,"Show FPS","Show the current framerate in upper left corner",change_option,&always_true,&show_fps,0);
-	add_option(OPTION,"Sit Lock","Locks you in a sitting position untill you press the \"Stand\" button or rightclicks to move.",change_option,&always_true,&sit_lock,0);
-	add_option(OPTION,"Filter CAPS","Turns on/off a filter for capitaled letters",change_option,&always_true,&caps_filter,0);
-	add_option(OPTION,"Sound","Turns on/off sound effects",change_sound,&have_sound,&sound_on,0);
-	add_option(OPTION,"Music","Turns on/off in-game music",change_music,&have_music,&music_on,0);
-	add_option(OPTION,"Auto camera","Automatically change the camera according to the actor position",change_option,&always_true,&auto_camera,0);
+	add_option(OPTION,opt_shadows.str,opt_shadows.desc,change_option,&have_stencil,&shadows_on,0);
+	add_option(OPTION,opt_clouds.str,opt_clouds.desc,change_option,&have_multitexture,&clouds_shadows,0);
+	add_option(OPTION,opt_reflections.str,opt_reflections.desc,change_option,&always_true,&show_reflection,0);
+	add_option(OPTION,opt_show_fps.str,opt_show_fps.desc,change_option,&always_true,&show_fps,0);
+	add_option(OPTION,opt_sit_lock.str,opt_sit_lock.desc,change_option,&always_true,&sit_lock,0);
+	add_option(OPTION,opt_caps_filter.str,opt_caps_filter.desc,change_option,&always_true,&caps_filter,0);
+	add_option(OPTION,opt_sound.str,opt_sound.desc,change_sound,&have_sound,&sound_on,0);
+	add_option(OPTION,opt_music.str,opt_music.desc,change_music,&have_music,&music_on,0);
+	add_option(OPTION,opt_autocam.str,opt_autocam.desc,change_option,&always_true,&auto_camera,0);
 	add_option(NONE,NULL,NULL,NULL,NULL,NULL,0);//A hole :0)
-	add_option(OPTION,"Exit","Exits the game",change_option,&always_true,&exit_now,0);
+	add_option(OPTION,opt_exit.str,opt_exit.desc,change_option,&always_true,&exit_now,0);
 
 	//Video mode automatically switches side - should this be changed?
-	add_option(OPTION,"Full Screen","Switches between full screen and windowed",move_to_full_screen,&always_true,&full_screen,1);
+	add_option(OPTION,opt_full_screen.str,opt_full_screen.desc,move_to_full_screen,&always_true,&full_screen,1);
 	option=1;
-	add_option(VIDEO_MODE,"640x480x16","Switches to video mode 640x480x16",switch_video_modes,(int*)&(video_modes[0].supported),&option,1);
+	sprintf(opt_vid1_desc,switch_video_mode,opt_vid1);
+	add_option(VIDEO_MODE,opt_vid1,opt_vid1_desc,switch_video_modes,(int*)&(video_modes[0].supported),&option,1);
 	option=2;
-	add_option(VIDEO_MODE,"640x480x32","Switches to video mode 640x480x32",switch_video_modes,(int*)&(video_modes[1].supported),&option,1);
+	sprintf(opt_vid2_desc,switch_video_mode,opt_vid2);
+	add_option(VIDEO_MODE,opt_vid2,opt_vid2_desc,switch_video_modes,(int*)&(video_modes[1].supported),&option,1);
 	option=3;
-	add_option(VIDEO_MODE,"800x600x16","Switches to video mode 800x600x16",switch_video_modes,(int*)&(video_modes[2].supported),&option,1);
+	sprintf(opt_vid3_desc,switch_video_mode,opt_vid3);
+	add_option(VIDEO_MODE,opt_vid3,opt_vid3_desc,switch_video_modes,(int*)&(video_modes[2].supported),&option,1);
 	option=4;
-	add_option(VIDEO_MODE,"800x600x32","Switches to video mode 800x600x32",switch_video_modes,(int*)&(video_modes[3].supported),&option,1);
+	sprintf(opt_vid4_desc,switch_video_mode,opt_vid4);
+	add_option(VIDEO_MODE,opt_vid4,opt_vid4_desc,switch_video_modes,(int*)&(video_modes[3].supported),&option,1);
 	option=5;
-	add_option(VIDEO_MODE,"1024x768x16","Switches to video mode 1024x768x16",switch_video_modes,(int*)&(video_modes[4].supported),&option,1);
+	sprintf(opt_vid5_desc,switch_video_mode,opt_vid5);
+	add_option(VIDEO_MODE,opt_vid5,opt_vid5_desc,switch_video_modes,(int*)&(video_modes[4].supported),&option,1);
 	option=6;
-	add_option(VIDEO_MODE,"1024x768x32","Switches to video mode 1024x768x32",switch_video_modes,(int*)&(video_modes[5].supported),&option,1);
+	sprintf(opt_vid6_desc,switch_video_mode,opt_vid6);
+	add_option(VIDEO_MODE,opt_vid6,opt_vid6_desc,switch_video_modes,(int*)&(video_modes[5].supported),&option,1);
 	option=7;
-	add_option(VIDEO_MODE,"1152x864x16","Switches to video mode 1152x864x16",switch_video_modes,(int*)&(video_modes[6].supported),&option,1);
+	sprintf(opt_vid7_desc,switch_video_mode,opt_vid7);
+	add_option(VIDEO_MODE,opt_vid7,opt_vid7_desc,switch_video_modes,(int*)&(video_modes[6].supported),&option,1);
 	option=8;
-	add_option(VIDEO_MODE,"1152x864x32","Switches to video mode 1152x864x32",switch_video_modes,(int*)&(video_modes[7].supported),&option,1);
+	sprintf(opt_vid8_desc,switch_video_mode,opt_vid8);
+	add_option(VIDEO_MODE,opt_vid8,opt_vid8_desc,switch_video_modes,(int*)&(video_modes[7].supported),&option,1);
 	option=9;
-	add_option(VIDEO_MODE,"1280x1024x16","Switches to video mode 1280x1024x16",switch_video_modes,(int*)&(video_modes[8].supported),&option,1);
+	sprintf(opt_vid9_desc,switch_video_mode,opt_vid9);
+	add_option(VIDEO_MODE,opt_vid9,opt_vid9_desc,switch_video_modes,(int*)&(video_modes[8].supported),&option,1);
 	option=10;
-	add_option(VIDEO_MODE,"1280x1024x32","Switches to video mode 1280x1024x32",switch_video_modes,(int*)&(video_modes[9].supported),&option,1);
+	sprintf(opt_vid10_desc,switch_video_mode,opt_vid10);
+	add_option(VIDEO_MODE,opt_vid10,opt_vid10_desc,switch_video_modes,(int*)&(video_modes[9].supported),&option,1);
 }
 
 void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2, int column)
 {
 	int no=options.no++;
 	options.option[no]=(option_struct*)calloc(1,sizeof(option_struct));
-	options.option[no]->name=name;
-	options.option[no]->desc=desc;
+	if(name!=NULL)options.option[no]->name=name;
+	else name=no_string;
+	if(desc!=NULL)options.option[no]->desc=desc;
+	else desc=no_string;
 	options.option[no]->type=type;
 	options.option[no]->data_1=data_1;
 	if(type!=VIDEO_MODE) options.option[no]->data_2=data_2;
@@ -172,8 +207,8 @@ int display_options_handler(window_info *win)
 		}
 	glEnd();
 	
-	draw_string(55,10,"Options",1);
-	draw_string(225,10,"Video Modes",1);
+	draw_string(55,10,opt_strings.str,1);//Options
+	draw_string(225,10,opt_strings.desc,1);//Video mode
 
 	x[0]=45;
 	x[1]=225;

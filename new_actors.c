@@ -46,7 +46,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->legs)
 				{
     		        char str[120];
-    		        sprintf(str,"Error: Can't load body part: %s\n",this_actor->legs_fn);
+    		        sprintf(str,"%s: %s: %s\n",error_str,error_body_part,this_actor->legs_fn);
     		        log_error(str);
     		        this_actor->legs=0;
 				}
@@ -60,7 +60,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->head)
 				{
     		        char str[120];
-    		        sprintf(str,"Error: Can't load body part (head): %s\n",this_actor->head_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_head,this_actor->head_fn);
     		        log_error(str);
     		        this_actor->head=0;
 				}
@@ -74,7 +74,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->torso)
 				{
     		        char str[120];
-    		        sprintf(str,"Error: Can't load body part (torso): %s\n",this_actor->torso_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_torso,this_actor->torso_fn);
     		        log_error(str);
     		        this_actor->torso=0;
 				}
@@ -88,7 +88,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->weapon)
 				{
     		        char str[120];
-    		        sprintf(str,"Error: Can't load body part (weapon): %s\n",this_actor->weapon_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_weapon,this_actor->weapon_fn);
     		        log_error(str);
     		        this_actor->weapon=0;
 				}
@@ -102,7 +102,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->shield)
 				{
     		        char str[120];
-    		        sprintf(str,"Error: Can't load body part (shield): %s\n",this_actor->shield_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_weapon,this_actor->shield_fn);
     		        log_error(str);
     		        this_actor->shield=0;
 				}
@@ -116,7 +116,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->helmet)
 				{
     		        char str[120];
-    		        sprintf(str,"Error: Can't load body part (helmet): %s\n",this_actor->helmet_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_helmet,this_actor->helmet_fn);
     		        log_error(str);
     		        this_actor->helmet=0;
 				}
@@ -131,7 +131,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 			if(!this_actor->cape)
 				{
     		        char str[120];
-    		        sprintf(str,"Error: Can't load body part (cape): %s\n",this_actor->cape_fn);
+    		        sprintf(str,"%s: %s (%s): %s\n",error_str,error_body_part,error_cape,this_actor->cape_fn);
     		        log_error(str);
     		        this_actor->cape=0;
 				}
@@ -529,7 +529,7 @@ void add_enhanced_actor_from_server(char * in_data)
 					if(actors_list[i]->actor_id==actor_id)
 						{
 							char str[256];
-							sprintf(str,"Duplicate actor ID %d was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							sprintf(str,"%s %d = %s => %s\n",duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[28]);
 							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
@@ -537,7 +537,7 @@ void add_enhanced_actor_from_server(char * in_data)
 					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
 						{
 							char str[256];
-							sprintf(str,"Duplicate actor Name(%d) was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							sprintf(str,"%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
 							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
@@ -635,7 +635,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	if(strlen(&in_data[28]) >= 30)
 		{
 			char str[120];
-			snprintf(str, 120, "Bad actor name/length (%d): %s/%d\n", actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
+			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
 			log_error(str);
 			return;
 		}

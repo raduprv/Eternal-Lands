@@ -207,10 +207,10 @@ void list_ignores()
 
 	if(!ignored_so_far)
 		{
-			log_to_console(c_grey1,"You are ignoring no one!");
+			log_to_console(c_grey1,no_ignores_str);
 			return;
 		}
-	my_strcp(str,"You are currently ignoring:\n");
+	sprintf(str,"%s:\n",ignores_str);
 	for(i=0;i<max_ignores;i++)
 		{
 			if(ignore_list[i].used)

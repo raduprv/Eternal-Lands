@@ -552,7 +552,7 @@ void update_all_actors()
 	Uint8 str[40];
 
 	//we got a nasty error, log it
-	log_to_console(c_red2,"Resync with the server...");
+	log_to_console(c_red2,resync_server);
 
 	destroy_all_actors();
 	str[0]=SEND_ME_MY_ACTORS;
@@ -620,7 +620,7 @@ void add_command_to_actor(int actor_id, char command)
 	unlock_actors_lists();
 		{
 			char	str[256];
-			sprintf(str, "Unable to add command %d to %d\b", command, actor_id);
+			sprintf(str, "%s %d - %d\b", cant_add_command, command, actor_id);
 			log_error(str);
 		}
 	//update_all_actors();

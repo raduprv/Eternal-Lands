@@ -98,7 +98,7 @@ int display_trade_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 
 	//draw the quantity string
-	draw_string_small(33*9+25,116,"Quantity",1);
+	draw_string_small(33*9+25,116,quantity_str,1);
 	//draw the quantity values
 	if(item_quantity==1)glColor3f(0.0f,1.0f,0.3f); else glColor3f(0.3f,0.5f,1.0f);
 	draw_string_small(33*9+25+15,136,"1",1);
@@ -122,7 +122,7 @@ int display_trade_handler(window_info *win)
 	draw_string_small(33*9+25+36,216,"2000",1);
 
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string(33*5+8,win->len_y-30+2,"Abort",1);
+	draw_string(33*5+8,win->len_y-30+2,abort_str,1);
 	if(trade_you_accepted)draw_string_small(8,4*33-19,"X",1);
 	draw_string_small(24,4*33-19,"You",1);
 	if(trade_other_accepted)draw_string_small(5*33+8,4*33-19,"X",1);

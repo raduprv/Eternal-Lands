@@ -7,6 +7,7 @@ int afk=0;
 int last_action_time=0;
 int afk_time=0;
 char afk_message[160]={0};
+char afk_title[100];
 
 struct pm_struct pm_log;
 
@@ -33,7 +34,7 @@ void free_pm_log()
 void go_afk()
 {
 	if(pm_log.ppl)free_pm_log();
-	log_to_console(c_green1,"Going AFK");
+	log_to_console(c_green1,going_afk);
 	if(!you_sit) 
 		{
 			Uint8 str[4];
@@ -46,9 +47,23 @@ void go_afk()
 
 void go_ifk()
 {
-
 	print_return_message();
 	afk=0;
+}
+
+void print_title(char * no, char * name, char * messages)
+{
+	char * ptr = afk_title;
+	memset(afk_title,' ',100);
+	while(*no)*ptr++=*no++;
+	*ptr=':';
+	ptr=afk_title+12;
+	while(*name)*ptr++=*name++;
+	*ptr=':';
+	ptr=afk_title+27;
+	while(*messages)*ptr++=*messages++;
+	*ptr++=':';
+	*ptr=0;
 }
 
 void print_return_message()
@@ -56,20 +71,20 @@ void print_return_message()
 	char str[65];
 	int m=-1;
 
-	log_to_console(c_green1,"Not AFK any more");
+	log_to_console(c_green1,not_afk);
 	if(pm_log.ppl && pm_log.msgs)
 		{
-			snprintf(str,60,"You have %d new messages from the following people: ",pm_log.msgs);
+			snprintf(str,60,new_messages,pm_log.msgs);
 			log_to_console(c_green2,str);
-			log_to_console(c_green2,"No:         Name:         Messages:");
+			print_title("#",afk_names,afk_messages);
+			log_to_console(c_green2,afk_title);
 			while(++m<pm_log.ppl)
 				{
 					char name[35];
-
 					sprintf(name,"%2d: %16s         %2d",m+1,pm_log.afk_msgs[m].name,pm_log.afk_msgs[m].msgs);
 					log_to_console(c_green2,name);
 				}
-			log_to_console(c_green2,"To print the messages from the different people type #msg <number> or #msg all to view them all");
+			log_to_console(c_green2,afk_print_help);
 		}
 }
 

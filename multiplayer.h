@@ -2,6 +2,8 @@
 #define __MULTIPLAYER_H__
 
 
+extern const char * web_update_address;
+
 extern char our_name[20];
 extern char our_password[20];
 

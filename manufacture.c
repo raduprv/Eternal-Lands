@@ -139,8 +139,8 @@ int	display_manufacture_handler(window_info *win)
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	draw_string(33*6+40+8,win->len_y-30+2,"Mix",1);
-	draw_string(33*9+40+8,win->len_y-30+2,"Clear",1);
+	draw_string(33*6+40+8,win->len_y-30+2,mix_str,1);
+	draw_string(33*9+40+8,win->len_y-30+2,clear_str,1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...

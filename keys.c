@@ -1,7 +1,7 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<sys/stat.h>
-#include    <ctype.h>
+#include	<ctype.h>
 #include	"global.h"
 #include	"keys.h"
 

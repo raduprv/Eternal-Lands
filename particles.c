@@ -71,7 +71,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	if(!f)
 		{
 			char str[120];
-			sprintf(str,"Can't open %s",cleanpath);
+			sprintf(str,"%s %s",cant_open_file,cleanpath);
 			LogError(str);
 			free(def);
 			defs_list[i]=NULL;
@@ -83,7 +83,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	if(version!=PARTICLE_DEF_VERSION)
 		{
 			char str[256];
-			snprintf(str,256,"Particle file %s version (%i) doesn't match file reader version (%i)!",filename,version,PARTICLE_DEF_VERSION);
+			snprintf(str,256,particles_filever_wrong,filename,version,PARTICLE_DEF_VERSION);
 			LogError(str);
 			fclose(f);
 			return NULL;
@@ -119,7 +119,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	if(def->total_particle_no>max_particles)
 		{
 		  char str[256];
-		  snprintf(str,256,"Particle file %s tries to define %i particles, when %i is the maximum!",filename,def->total_particle_no,max_particles);
+		  snprintf(str,256,particle_system_overrun,filename,def->total_particle_no,max_particles);
 		  LogError(str);
 		  def->total_particle_no=max_particles;
 		}
@@ -165,7 +165,7 @@ particle_sys_def *load_particle_def(const char *filename)
 			if(fixed)
 				{
 					 char str[256];
-					 snprintf(str,256,"Particle file %s contained strange position/constraint values. Tried to fix.",filename);
+					 snprintf(str,256,particle_strange_pos,filename);
 					 LogError(str);
 				}
 
@@ -188,7 +188,7 @@ int save_particle_def(particle_sys_def *def)
 	if(!f)
 		{
 			char str[120];
-			sprintf(str,"Can't open %s",cleanpath);
+			sprintf(str,"%s %s",cant_open_file,cleanpath);
 			LogError(str);
 			return 0;
 		}
@@ -951,30 +951,30 @@ void dump_part_sys_info()
 {
 	char str[256];
 	int i,partdefs=0,partsys=0;
-	log_to_console(c_grey1,"-- PARTICLE SYSTEM DUMP --");
+	log_to_console(c_grey1,particle_system_dump);
 	if(!particles_percentage)
 		{
-			log_to_console(c_grey1,"Particles disabled!");
+			log_to_console(c_grey1,particles_disabled_str);
 			return;
 		}
 	if(have_point_sprite)
-	  log_to_console(c_grey1,"Using point sprites");
+	  log_to_console(c_grey1,point_sprites_enabled);
 	else
-	  log_to_console(c_grey1,"Using textured quads");
-	log_to_console(c_grey1,"Definitions:");
+	  log_to_console(c_grey1,using_textured_quads);
+	log_to_console(c_grey1,definitions_str);
 	for(i=0;i<max_particle_defs;i++)
 		if(defs_list[i])
 			{
 				partdefs++;
 				log_to_console(c_grey1,defs_list[i]->file_name);
 			}
-	sprintf(str,"#definitions: %i",partdefs);
+	sprintf(str,"#%s: %i",my_tolower(definitions_str),partdefs);
 	log_to_console(c_grey1,str);
 	for(i=0;i<max_particle_systems;i++)
 		if(particles_list[i])partsys++;
-	sprintf(str,"#systems: %i",partsys);
+	sprintf(str,"#%s: %i",part_sys_str,partsys);
 	log_to_console(c_grey1,str);
-	sprintf(str,"#particles: %i%%",particles_percentage);
+	sprintf(str,"#%s: %i%%",part_part_str,particles_percentage);
 	log_to_console(c_grey1,str);
 }
 #endif

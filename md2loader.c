@@ -107,7 +107,7 @@ md2 * load_md2(char * file_name)
 	if(!f)
 		{
 			char str[120];
-			sprintf(str,"Error: Can't open file: %s\n",file_name);
+			sprintf(str,"%s: %s: %s\n",error_str,cant_open_file,file_name);
 			log_error(str);
 			return NULL;
 		}

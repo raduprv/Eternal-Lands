@@ -3,6 +3,8 @@
 #include "global.h"
 #include "elwindows.h"
 
+const char * web_update_address="http://www.eternal-lands.com/index.php?content=update";
+
 int port=2000;
 unsigned char server_address[60];
 TCPsocket my_socket=0;
@@ -100,7 +102,7 @@ void connect_to_server()
 			my_socket=0;
 		}
 
-	log_to_console(c_red1,"Connecting to Server...");
+	log_to_console(c_red1,connect_to_server_str);
 	draw_scene();	// update the screen
 	set=SDLNet_AllocSocketSet(1);
 	if(!set)
@@ -116,7 +118,7 @@ void connect_to_server()
 
 	if(SDLNet_ResolveHost(&ip,server_address,port)==-1)
 		{
-			log_to_console(c_red2,"Can't resolve server address.\nPerhaps you are not connected to the Internet or your DNS server is down!\n[Press Alt+x to quit]");
+			log_to_console(c_red2,failed_resolve);
 			return;
 		}
 
@@ -127,9 +129,16 @@ void connect_to_server()
 			if(server_address[0]=='1' && server_address[1]=='9' && server_address[2]=='2'
 			   && server_address[3]=='.' && server_address[4]=='1' && server_address[5]=='6'
 			   && server_address[6]=='8')
-				log_to_console(c_red1,"Entropy says: U R 2 g00d 2 r34d +h3 license.txt?\nBTW, that license.txt file is actually there for a reason.\n[Press Alt+x to quit]");
+			  	{
+			   		log_to_console(c_red1,license_check);
+					log_to_console(c_red1,alt_x_quit);
+				}
 			else
-				log_to_console(c_red1,"Can't connect to server :(\nPress any key to retry. [Press Alt+x to quit]");
+				{
+					log_to_console(c_red1,failed_connect);
+					log_to_console(c_red1,reconnect_str);
+					log_to_console(c_red1,alt_x_quit);
+				}
             return;
 		}
 
@@ -175,7 +184,7 @@ void send_login_info()
 	//check for the username lenght
 	if(len<3)
 		{
-			sprintf(log_in_error_str,"ERROR: Username MUST be at least 3 characters long!");
+			sprintf(log_in_error_str,"%s: %s",error_str,error_username_length);
 			return;
 		}
 
@@ -220,19 +229,19 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, ch
 	//check for the username lenght
 	if(len<3)
 		{
-			sprintf(create_char_error_str,"ERROR: Username MUST be at least 3 characters long!");
+			sprintf(create_char_error_str,"%s: %s",error_str,error_username_length);
 			return;
 		}
 	//check if the password is >0
 	if(strlen(pass_str)<4)
 		{
-			sprintf(create_char_error_str,"ERROR: The password MUST be at least 4 characters long!");
+			sprintf(create_char_error_str,"%s: %s",error_str,error_password_length);
 			return;
 		}
 	//check if the password coresponds
 	if(strcmp(pass_str,conf_pass_str)!=0)
 		{
-			sprintf(create_char_error_str,"ERROR: Passwords don't match!");
+			sprintf(create_char_error_str,"%s: %s",error_str,error_pass_no_match);
 			return;
 		}
 
@@ -456,26 +465,26 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case LOG_IN_NOT_OK:
 			{
-				sprintf(log_in_error_str,"ERROR: Invalid password!");
+				sprintf(log_in_error_str,"%s: %s",error_str,invalid_pass);
 			}
 			break;
 
 		case REDEFINE_YOUR_COLORS:
 			{
-				sprintf(log_in_error_str,"You need to update your character, due to the new models!\nGo on the New Character screen, type your existing\nusername and password, update your character, then press\nDone. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*");
+				strcpy(log_in_error_str,redefine_your_colours);
 			}
 			break;
 
 		case YOU_DONT_EXIST:
 			{
-				sprintf(log_in_error_str,"ERROR: You don't exist!");
+				sprintf(log_in_error_str,"%s: %s",error_str,char_dont_exist);
 			}
 			break;
 
 
 		case CREATE_CHAR_NOT_OK:
 			{
-				sprintf(create_char_error_str,"ERROR: Character in use, choose a different name!");
+				sprintf(create_char_error_str,"%s: %s",error_str,char_name_in_use);
 				return;
 			}
 			break;
@@ -525,20 +534,22 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case PONG:
 			{
 				Uint8 str[160];
-				sprintf(str,"Server latency: %i MS",SDL_GetTicks()-*((Uint32 *)(in_data+3)));
+				sprintf(str,"%s: %i MS",server_latency, SDL_GetTicks()-*((Uint32 *)(in_data+3)));
 				log_to_console(c_green1,str);
 			}
 			break;
 
 		case UPGRADE_NEW_VERSION:
 			{
-				log_to_console(c_red1,"There is a new version of the client, please update it\nhttp://www.eternal-lands.com/index.php?content=update");
+				log_to_console(c_red1,update_your_client);
+				log_to_console(c_red1,(char*)web_update_address);
 			}
 			break;
 
 		case UPGRADE_TOO_OLD:
 			{
-				log_to_console(c_red1,"This version is no longer supported, please update!\nhttp://www.eternal-lands.com/index.php?content=update");
+				log_to_console(c_red1,client_ver_not_supported);
+				log_to_console(c_red1,(char*)web_update_address);
 				this_version_is_invalid=1;
 			}
 			break;
@@ -768,9 +779,10 @@ static void process_data_from_server()
 					break;
 			}
 			else { /* sizeof (in_data) - 3 < size */
-				log_to_console(c_red2, "Packet overrun...data lost!");
+				log_to_console(c_red2, packet_overrun);
 	    
-				log_to_console(c_red2, "Disconnected from server!\nPress any key to attempt to reconnect.\n[Press Alt+x to quit]");
+				log_to_console(c_red2, disconnected_from_server);
+				log_to_console(c_red2, alt_x_quit);
 				in_data_used = 0;
 				disconnected = 1;
 			}
@@ -797,8 +809,8 @@ void get_message_from_server()
 			if (received)
 				log_to_console(c_red2, SDLNet_GetError()); //XXX: SDL[Net]_GetError used by timer thread ? i bet its not reentrant...
 		 
-			log_to_console(c_red2,
-						   "Disconnected from server!\nPress any key to attempt to reconnect.\n[Press Alt+x to quit]");
+			log_to_console(c_red2, disconnected_from_server);
+			log_to_console(c_red2, alt_x_quit);
 			in_data_used = 0;
 			disconnected = 1;
 		}

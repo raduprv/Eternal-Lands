@@ -96,34 +96,56 @@ void setup_video_mode()
 			switch(video_mode) {
 			case 1:
 			case 2:
+				if(window_width != 640 || window_height != 550)
+					{
+						Uint8 str[100];
+						sprintf(str,window_size_adjusted_str,"640x480");
+						log_to_console(c_yellow1,str);
+					}
 				window_width=640;
 				window_height=480;
 				break;
 			case 3:
 			case 4:
 				if(window_width != 780 || window_height != 550)
-					log_to_console(c_yellow1,"Window size adjusted to 780x550.");
+					{
+						Uint8 str[100];
+						sprintf(str,window_size_adjusted_str,"780x550");
+						log_to_console(c_yellow1,str);
+					}
 				window_width=780;
 				window_height=550;
 				break;
 			case 5:
 			case 6:
 				if(window_width != 990 || window_height != 720)
-					log_to_console(c_yellow1,"Window size adjusted to 990x720.");
+					{
+						Uint8 str[100];
+						sprintf(str,window_size_adjusted_str,"990x720");
+						log_to_console(c_yellow1,str);
+					}
 				window_width=990;
 				window_height=720;
 				break;
 			case 7:
 			case 8:
 				if(window_width != 1070 || window_height != 785)
-					log_to_console(c_yellow1,"Window size adjusted to 1070x785.");
+					{
+						Uint8 str[100];
+						sprintf(str,window_size_adjusted_str,"1070x785");
+						log_to_console(c_yellow1,str);
+					}
 				window_width=1070;
 				window_height=785;
 				break;
 			case 9:
 			case 10:
 				if(window_width != 1250 || window_height != 990)
-					log_to_console(c_yellow1,"Window size adjusted to 1250x990.");
+					{
+						Uint8 str[100];
+						sprintf(str,window_size_adjusted_str,"1250x990");
+						log_to_console(c_yellow1,str);
+					}
 				window_width=1250;
 				window_height=990;
 				break;
@@ -147,8 +169,9 @@ void check_gl_mode()
 	//now, test if the video mode is OK...
 	if(!SDL_VideoModeOK(window_width, window_height, bpp, flags))
 		{
-
-			sprintf(str,"Video mode %ix%ix%i with a stencil buffer is not available\nTrying this mode without a stencil buffer...",window_width,window_height,bpp);
+			char vid_mode_str[25];
+			sprintf(vid_mode_str,"%ix%ix%i",window_width,window_height,bpp);
+			sprintf(str,no_stencil_str,vid_mode_str);
 			log_to_console(c_red1,str);
 
 			SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
@@ -168,7 +191,8 @@ void check_gl_mode()
 					window_height=480;
 					bpp=32;
 
-					sprintf(str,"Video mode %ix%ix%i without a stencil buffer is not available\nTrying the safemode (640x480x32) Full Screen (no stencil)",old_width,old_height,old_bpp);
+					sprintf(vid_mode_str,"%ix%ix%i",old_width,old_height,old_bpp);
+					sprintf(str,safemode_str,vid_mode_str);
 					log_to_console(c_red1,str);
 
 					full_screen=1;
@@ -188,7 +212,7 @@ void init_video()
 	if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1 )
 		{
 			char str[120];
-			sprintf(str, "Couldn't initialize SDL: %s\n", SDL_GetError());
+			sprintf(str, "%s: %s\n", no_sdl_str, SDL_GetError());
 			log_error(str);
 			SDL_Quit();
 			exit(1);
@@ -251,14 +275,14 @@ void init_video()
 	//try to find a stencil buffer (it doesn't always work on Linux)
     if(!SDL_SetVideoMode(window_width, window_height, bpp, flags))
     	{
-			log_to_console(c_red1,"Couldn't find a hardware accelerated stencil buffer.\nShadows are not available.");
-			if(bpp!=32)log_to_console(c_grey1,"Hint: Try a 32 BPP resolution (if you are under XWindows, set your screen display to 24 or 32 bpp).");
+			log_to_console(c_red1,no_hardware_stencil_str);
+			if(bpp!=32)log_to_console(c_grey1,suggest_24_or_32_bit);
 			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
 			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 			if(!SDL_SetVideoMode( window_width, window_height, bpp, flags))
 			    {
 					char str[120];
-					sprintf(str, "Couldn't set GL mode: %s\n", SDL_GetError());
+					sprintf(str, "%s: %s\n", fail_opengl_mode, SDL_GetError());
 					log_error(str);
 					SDL_Quit();
 					exit(1);
@@ -278,7 +302,7 @@ void init_video()
 		have_hardware=get_string_occurance("gdi generic",my_string,len,0);
 		if(have_hardware==-1)goto all_ok;
 		//let the user know there is a problem
-		log_to_console(c_red1,"Hmm... This mode seems to fall back in software 'acceleration'.\nTrying to disable the stencil buffer.");
+		log_to_console(c_red1,stencil_falls_back_on_software_accel);
 		//first, shut down this mode we have now.
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
 		SDL_Init(SDL_INIT_VIDEO);//restart SDL
@@ -299,7 +323,7 @@ void init_video()
 		if(have_hardware==-1)goto all_ok;
 		//wtf, this really shouldn't happen....
 		//let's try a default mode, maybe Quake 2's mode, and pray it works
-		log_to_console(c_red1,"Hmm... No luck without a stencil buffer either...\nLet's try one more thing...");
+		log_to_console(c_red1,last_chance_str);
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
 		SDL_Init(SDL_INIT_VIDEO);//restart SDL
 		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
@@ -323,7 +347,7 @@ void init_video()
 		if(have_hardware==-1)goto all_ok;
 		//wtf, this really shouldn't happen....
 		//let's try a default mode, maybe Quake 2's mode, and pray it works
-		log_to_console(c_red1,"Damn, it seems that you are out of luck, we are in the software mode now, so the game will be veeeeery slow. If you DO have a 3D accelerated card, try to update your OpenGl drivers...");
+		log_to_console(c_red1,software_mode_str);
 
 
 	all_ok:;
@@ -356,6 +380,7 @@ void init_gl_extensions()
 {
 	Uint8 * extensions;
 	int ext_str_len;
+	char str[150];
 	//now load the multitexturing extension
 	ELglActiveTextureARB = SDL_GL_GetProcAddress("glActiveTextureARB");
 	ELglMultiTexCoord2fARB = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
@@ -373,18 +398,19 @@ void init_gl_extensions()
 			if(have_multitexture==-1)
 				{
 					have_multitexture=0;
-					log_to_console(c_red1,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...");
+					log_to_console(c_red1,gl_ext_no_multitexture);
 				}
 			else
 				{
 					have_multitexture=1;
-					log_to_console(c_green2,"GL_ARB_multitexture extension found, using it");
+					sprintf(str,gl_ext_found,"GL_ARB_multitexture");
+					log_to_console(c_green2,str);
 				}
 		}
 	else
 		{
 			have_multitexture=0;
-			log_to_console(c_red1,"Couldn't find one of the GL_ARB_multitexture functions, giving up clouds shadows, and texture detail...");
+			log_to_console(c_red1,gl_ext_no_multitexture);
 		}
 	if(ELglLockArraysEXT && ELglUnlockArraysEXT)
 		{
@@ -392,14 +418,20 @@ void init_gl_extensions()
 			if(have_compiled_vertex_array < 0)
 				{
 					have_compiled_vertex_array=0;
-					log_to_console(c_red1,"Couldn't find the GL_EXT_compiled_vertex_array extension, not using it...");
+					sprintf(str,gl_ext_not_found,"GL_EXT_compiled_vertex_array");
+					log_to_console(c_red1,str);
 				}
-			else log_to_console(c_green2,"GL_EXT_compiled_vertex_array extension found, using it...");
+			else 
+				{
+					sprintf(str,gl_ext_found,"GL_EXT_compiled_vertex_array");
+					log_to_console(c_green2,str);
+				}
 		}
 	else
 		{
 			have_compiled_vertex_array=0;
-			log_to_console(c_red1,"Couldn't find one of the GL_EXT_compiled_vertex_array functions, not using it...");
+			sprintf(str,gl_ext_not_found,"GL_EXT_compiled_vertex_array");
+			log_to_console(c_red1,str);
 
 		}
 
@@ -407,39 +439,59 @@ void init_gl_extensions()
 		if(have_point_sprite<0)
 			{
 				have_point_sprite=0;
-				log_to_console(c_red1,"Couldn't find GL_*_point_sprite extension, not using it");
+				sprintf(str,gl_ext_not_found,"GL_*_point_sprite");
+				log_to_console(c_red1,str);
 			}
 		else if(!use_point_particles)
 			{
 				have_point_sprite=0;
-				log_to_console(c_green2,"GL_*_point_sprite extension found, NOT using it...");
+				sprintf(str,gl_ext_found_not_used,"GL_*_point_sprite");
+				log_to_console(c_green2,str);
 			}
-		else log_to_console(c_green2,"GL_*_point_sprite extensions found, using it...");
+		else 
+			{
+				sprintf(str,gl_ext_found,"GL_*_point_sprite");
+				log_to_console(c_green2,str);
+			}
 
 
 		have_arb_compression=get_string_occurance("GL_ARB_texture_compression",extensions,ext_str_len,0);
 		if(have_arb_compression<0)
 		have_arb_compression=0;
-		else log_to_console(c_green2,"GL_ARB_texture_compression extension found, using it...");
+		else 
+			{
+				sprintf(str,gl_ext_found,"GL_ARB_texture_compression");
+				log_to_console(c_green2,str);
+			}
 
 		have_s3_compression=get_string_occurance("GL_EXT_texture_compression_s3tc",extensions,ext_str_len,0);
 		if(have_s3_compression<0)
 		have_s3_compression=0;
-		else log_to_console(c_green2,"GL_EXT_texture_compression_s3tc extension found, using it...");
+		else 
+			{
+				sprintf(str,gl_ext_found,"GL_EXT_texture_compression_s3tc");
+				log_to_console(c_green2,str);
+			}
 
 		have_sgis_generate_mipmap=get_string_occurance("GL_SGIS_generate_mipmap",extensions,ext_str_len,0);
 		if(have_sgis_generate_mipmap<0)
 			{
 				have_sgis_generate_mipmap=0;
 				use_mipmaps=0;
-				log_to_console(c_red1,"Couldn't find GL_SGIS_generate_mipmap, not using it...");
+				sprintf(str,gl_ext_not_found,"GL_SGIS_generate_mipmap");
+				log_to_console(c_red1,str);
 			}
 		else if(!use_mipmaps)
 			{
 				have_sgis_generate_mipmap=0;
-				log_to_console(c_green2,"GL_SGIS_generate_mipmap found, NOT using it...");
+				sprintf(str,gl_ext_found_not_used,"GL_SGIS_generate_mipmap");
+				log_to_console(c_green2,str);
 			}
-		else log_to_console(c_green2,"GL_SGIS_generate_mipmap found, using it...");
+		else 
+			{
+				sprintf(str,gl_ext_found,"GL_SGIS_generate_mipmap");
+				log_to_console(c_green2,str);
+			}
 
 	check_gl_errors();
 }

@@ -516,7 +516,7 @@ void ReadIndexXML(xmlNode * a_node)
 				strcpy(Category[num_category++].Name,cur_node->children->content);
 
 				//we load the category now
-				sprintf(tmp,"Encyclopedia/%s.xml",cur_node->children->content);
+				sprintf(tmp,"Encyclopedia/%s/%s.xml",lang,cur_node->children->content);
 				doc=xmlReadFile(tmp, NULL, 0);
 				if (doc==NULL)
 					return;

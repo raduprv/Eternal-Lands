@@ -27,7 +27,9 @@ void load_cursors()
 	f = fopen ("./textures/cursors.bmp", "rb");
 	if(!f)
 		{
-            log_error("Error: Can't open cursors file.\n");
+			char str[100];
+			sprintf(str,"%s %s",error_str,cursors_file_str);
+            		log_error(str);
 			return;
 		}
 	fseek (f, 0, SEEK_END);

@@ -27,6 +27,8 @@ int compass_direction=1;
 char configdir[256]="./";
 char datadir[256]=DATA_DIR;
 
+char lang[10]={"en"};
+
 extern windows_info	windows_list;
 
 e3d_list *e3dlist=NULL;
@@ -48,7 +50,7 @@ void load_e3d_list()
 	fp=fopen("e3dlist.txt","r");
 	if(!fp){
 		char str[120];
-		sprintf(str, "Fatal: couldn't read e3dlist.txt\n");
+		sprintf(str, "%s: %s\n",fatal_error_str,no_e3d_list);
 		log_error(str);
 		SDL_Quit();
 		exit(1);
@@ -164,7 +166,7 @@ void read_config()
 	if(!f)//oops, the file doesn't exist, use the defaults
 		{
 			char str[120];
-			sprintf(str, "Fatal: couldn't read configuration file el.ini\n");
+			sprintf(str, "Fatal: Can't read el.ini\n");
 			log_error(str);
 			SDL_Quit();
 			exit(1);
@@ -192,14 +194,14 @@ void read_config()
 #ifdef	USE_VERTEXARRAYS
 	use_vertex_array=get_integer_after_string("#use_vertex_array",file_mem,ini_file_size);
 	if(use_vertex_array < 0) use_vertex_array=0;
-	else if(use_vertex_array > 0) log_to_console(c_green2,"Vertex Arrays enabled (memory hog on!)...");
+	else if(use_vertex_array > 0) log_to_console(c_green2,enabled_vertex_arrays);
 #endif	//USE_VERTEXARRAYS
 	use_point_particles=get_integer_after_string("#use_point_particles",file_mem,ini_file_size);
 	if(use_point_particles < 0) use_point_particles=1;
-	else if(use_point_particles == 0) log_to_console(c_green2,"Point Particles disabled.");
+	else if(use_point_particles == 0) log_to_console(c_green2,disabled_point_particles);
 	particles_percentage=get_integer_after_string("#particles_percentage",file_mem,ini_file_size);
 	if(particles_percentage<0) particles_percentage=100;
-	else if(particles_percentage==0) log_to_console(c_green2,"Particles completely disabled!");
+	else if(particles_percentage==0) log_to_console(c_green2,disabled_particles_str);
 	use_mipmaps=get_integer_after_string("#use_mipmaps",file_mem,ini_file_size);
 	if(use_mipmaps<0)use_mipmaps=0;
 	sit_lock=get_integer_after_string("#sit_lock",file_mem,ini_file_size);
@@ -223,6 +225,10 @@ void read_config()
 	if(chat_zoom<0.25f)chat_zoom=1.0f;
 	name_font=get_integer_after_string("#name_font",file_mem,ini_file_size);
 	chat_font=get_integer_after_string("#chat_font",file_mem,ini_file_size);
+	
+	show_stats_in_hud=get_integer_after_string("#show_stats_in_hud",file_mem,ini_file_size);
+	show_help_text=get_integer_after_string("#show_help_text",file_mem,ini_file_size);
+	get_string_after_string("#language",file_mem,ini_file_size,lang,8);
 
 	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,ini_file_size);
 	compass_direction=1-2*(get_integer_after_string("#compass_north",file_mem,ini_file_size)>0);
@@ -273,7 +279,7 @@ void read_config()
 			video_mode=2;
 			//warn about this error
 			str[0]=c_red2+128;
-			sprintf(&str[1],"Stop playing with the configuration file and select valid modes!");
+			sprintf(&str[1],invalid_video_mode);
 			put_text_in_buffer(str,strlen(str),0);
 		}
 	setup_video_mode(full_screen,video_mode);
@@ -545,9 +551,17 @@ void init_stuff()
 
 	//TODO: process command line options
 	chdir(datadir);
+	
+	//Initialize all strings
+	init_translatables();
+	
 	//read the config file
 	read_config();
 
+#ifdef LOAD_XML
+	//Good, we should be in the right working directory - load all translatables from their files
+	load_translatables();
+#endif
 	init_video();
 	resize_window();
 	init_gl_extensions();
@@ -645,7 +659,7 @@ void init_stuff()
 	if(SDLNet_Init()<0)
  		{
 			char str[120];
-			sprintf(str,"Couldn't initialize net: %s\n",SDLNet_GetError());
+			sprintf(str,"%s: %s\n",failed_sdl_net_init,SDLNet_GetError());
 			log_error(str);
 			SDLNet_Quit();
 			SDL_Quit();
@@ -655,7 +669,7 @@ void init_stuff()
 	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
 		{
  			char str[120];
-			sprintf(str, "Couldn't initialize the timer: %s\n", SDL_GetError());
+			sprintf(str, "%s: %s\n", failed_sdl_timer_init,SDL_GetError());
 			log_error(str);
 			SDL_Quit();
 		 	exit(1);
@@ -666,6 +680,10 @@ void init_stuff()
 	read_key_config();
 	load_questlog();
 	init_buddy();
+	
+	//initiate function pointers
+	init_attribf();
+	
 	//we might want to do this later.
 	connect_to_server();
 }

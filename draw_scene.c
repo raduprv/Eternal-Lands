@@ -293,7 +293,7 @@ void draw_scene()
 					if(times_FPS_below_3>4 && shadows_on)
 						{
 							shadows_on=0;
-							put_colored_text_in_buffer(c_red1,"Low framerate detected, shadows disabled!",-1,0);
+							put_colored_text_in_buffer(c_red1,low_framerate_str,-1,0);
 							times_FPS_below_3=0;
 						}
 				}

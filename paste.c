@@ -80,7 +80,7 @@ void finishpaste(XSelectionEvent event) {
 		window=wminfo.info.x11.window;
 
 		if(event.property == None) {
-			fprintf(stderr,"Not ascii\n");
+			fprintf(stderr,"%s\n",not_ascii);
 			return;
 		}
 		XGetWindowProperty(dpy,window,event.property,0,256,1,XA_STRING,&type,&actualformat,&items, &bytes, &value);

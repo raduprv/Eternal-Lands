@@ -74,11 +74,16 @@ extern int compass_direction;
 extern char configdir[256];
 extern char datadir[256];
 
+extern int show_stats_in_hud;
+extern int show_help_text;
+
 extern int disconnected;
 extern int exit_now;
 extern int have_url;
 extern char current_url[160];
 extern char broswer_name[120];
+
+extern char lang[10];
 
 void load_harvestable_list();
 void load_entrable_list();

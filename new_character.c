@@ -323,7 +323,7 @@ void draw_new_char_screen()
 		}
 
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(10,270,"Skin:",1);
+	draw_string(10,270,skin_str,1);
 	if(skin_b)glColor3f(0.3f,1.0f,0.3f);
 	else glColor3f(1.0f,0.7f,0.0f);
 	draw_string(90,270,"<<",1);
@@ -332,7 +332,7 @@ void draw_new_char_screen()
 	draw_string(120,270,">>",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(10,290,"Hair:",1);
+	draw_string(10,290,hair_str,1);
 	if(hair_b)glColor3f(0.3f,1.0f,0.3f);
 	else glColor3f(1.0f,0.7f,0.0f);
 	draw_string(90,290,"<<",1);
@@ -341,7 +341,7 @@ void draw_new_char_screen()
 	draw_string(120,290,">>",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(10,310,"Shirt:",1);
+	draw_string(10,310,shirt_str,1);
 	if(shirt_b)glColor3f(0.3f,1.0f,0.3f);
 	else glColor3f(1.0f,0.7f,0.0f);
 	draw_string(90,310,"<<",1);
@@ -350,7 +350,7 @@ void draw_new_char_screen()
 	draw_string(120,310,">>",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(10,330,"Pants:",1);
+	draw_string(10,330,pants_str,1);
 	if(pants_b)glColor3f(0.3f,1.0f,0.3f);
 	else glColor3f(1.0f,0.7f,0.0f);
 	draw_string(90,330,"<<",1);
@@ -359,7 +359,7 @@ void draw_new_char_screen()
 	draw_string(120,330,">>",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(10,350,"Boots:",1);
+	draw_string(10,350,boots_str,1);
 	if(boots_b)glColor3f(0.3f,1.0f,0.3f);
 	else glColor3f(1.0f,0.7f,0.0f);
 	draw_string(90,350,"<<",1);
@@ -368,7 +368,7 @@ void draw_new_char_screen()
 	draw_string(120,350,">>",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(10,370,"Head:",1);
+	draw_string(10,370,head_str,1);
 	if(head_b)glColor3f(0.3f,1.0f,0.3f);
 	else glColor3f(1.0f,0.7f,0.0f);
 	draw_string(90,370,"<<",1);
@@ -377,15 +377,15 @@ void draw_new_char_screen()
 	draw_string(120,370,">>",1);
 
 	glColor3f(1.0f,0.2f,0.2f);
-	draw_string(530,280,"Gender",1);
+	draw_string(530,280,gender_str,1);
 
 	if(male==1)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,300,"Male",1);
+	draw_string(530,300,male_str,1);
 
 	if(male!=1)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,320,"Female",1);
+	draw_string(530,320,female_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	glColor3f(1.0f,0.2f,0.2f);
@@ -393,17 +393,17 @@ void draw_new_char_screen()
 
 	if(race==race_human)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,380,"Human",1);
+	draw_string(530,380,human_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	if(race==race_elf)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,400,"Elf",1);
+	draw_string(530,400,elf_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	if(race==race_dwarf)glColor3f(0.0f,0.5f,1.0f);
 	else glColor3f(1.0f,1.0f,1.0f);
-	draw_string(530,420,"Dwarf",1);
+	draw_string(530,420,dwarf_str,1);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	//draw the player frame
@@ -504,11 +504,11 @@ void draw_new_char_screen()
 
 	//now, draw the text 'labels'
 	glColor3f(0.0f,1.0f,0.5f);
-	draw_string(60,10,"Username",1);
+	draw_string(60,10,login_username_str,1);
 
-	draw_string(60,68,"Password",1);
+	draw_string(60,68,login_password_str,1);
 
-	draw_string(20,126,"Confirm Password",1);
+	draw_string(20,126,confirm_password,1);
 
 	//put the username, pass, and conf pass user text
 	glColor3f(0.0f,0.5f,1.0f);

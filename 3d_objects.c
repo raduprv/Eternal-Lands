@@ -112,8 +112,9 @@ void draw_3d_object(object3d * object_id)
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
 								{
 									char str[256];
-									sprintf(str, "%s[%d] values (%d, %d)",
+									sprintf(str, "%s[%d] %s (%d, %d)",
 										object_id->file_name, i,
+										values_str,
 										array_order[i].start, array_order[i].count);
 									LogError(str);
 								}
@@ -141,8 +142,9 @@ void draw_3d_object(object3d * object_id)
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
 								{
 									char str[256];
-									sprintf(str, "%s[%d] values (%d, %d)",
+									sprintf(str, "%s[%d] %s (%d, %d)",
 										object_id->file_name, i,
+										values_str,
 										array_order[i].start, array_order[i].count);
 									LogError(str);
 								}
@@ -205,8 +207,10 @@ void draw_3d_object(object3d * object_id)
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
 								{
 									char str[256];
-									sprintf(str, "Object error for %s[%d] values (%d, %d)",
+									sprintf(str, "%s: %s[%d] %s (%d, %d)",
+										object_error_str,
 										object_id->file_name, i,
+										values_str,
 										array_order[i].start, array_order[i].count);
 									LogError(str);
 								}
@@ -319,7 +323,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	if(returned_e3d==NULL)
 		{
             char str[256];
-            sprintf(str,"Something nasty happened while trying to process: %s",fname);
+            sprintf(str,nasty_error_str,fname);
             LogError(str);
 
     		//replace it with the null object, to avoid object IDs corruption
@@ -443,7 +447,7 @@ e3d_object * load_e3d(char *file_name)
 	if(!f)
         {
             char str[120];
-            sprintf(str,"Can't open %s",file_name);
+            sprintf(str,"%s: %s: %s",error_str,cant_open_file,file_name);
             LogError(str);
             return NULL;
         }
@@ -523,7 +527,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	if(!f)
         {
             char str[120];
-            sprintf(str,"Can't open %s",cur_object->file_name);
+            sprintf(str,"%s: %s: %s",error_str,cant_open_file,cur_object->file_name);
             LogError(str);
             return NULL;
         }
@@ -542,7 +546,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
   	if(!vertex_list)
 		{
 			char str[200];
-			sprintf(str,"Hmm, object name:%s seems to be corrupted. Skipping the object. Warning: This might cause further problems.",cur_object->file_name);
+			sprintf(str,"%s: %s: %s",error_str,corrupted_object,cur_object->file_name);
 			log_to_console(c_red2,str);
 			free(face_list);
 			fclose(f);
@@ -608,7 +612,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 								char str[200];
 								size=0;
 								start=0;
-								sprintf(str,"Bad object: %s . Two or more materials with the same texture name!",cur_object->file_name);
+								sprintf(str,"%s: %s . %s",bad_object,cur_object->file_name,multiple_material_same_texture);
 								log_to_console(c_red2,str);
 								goto skip_this_mat;
 							}

@@ -159,12 +159,16 @@ void test_for_console_command()
 
 			if(i==15 && !ch)
 				{
-					log_to_console(c_red1,"Name too long, the max limit is 15 characters. Name not added to the ignore list!");
+					Uint8 str[100];
+					sprintf(str,"%s %s",name_too_long,not_added_to_ignores);
+					log_to_console(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
-					log_to_console(c_red1,"Name too short, only names>=3 characters can be used! Name not added to the ignore list!");
+					Uint8 str[100];
+					sprintf(str,"%s %s",name_too_short,not_added_to_ignores);
+					log_to_console(c_red1,name_too_short);
 					return;
 				}
 
@@ -172,19 +176,19 @@ void test_for_console_command()
 			if(result==-1)
 				{
 					Uint8 str[100];
-					sprintf(str,"You are already ignoring %s!",name);
+					sprintf(str,already_ignoring,name);
 					log_to_console(c_red1,str);
 					return;
 				}
 			if(result==-2)
 				{
-					log_to_console(c_red1,"Wow, your ignore list is full, this is impossible!");
+					log_to_console(c_red1,ignore_list_full);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
-					sprintf(str,"Ok, %s was added to your ignore list!",name);
+					sprintf(str,added_to_ignores,name);
 					log_to_console(c_green1,str);
 					return;
 				}
@@ -217,12 +221,16 @@ void test_for_console_command()
 
 			if(i==15 && !ch)
 				{
-					log_to_console(c_red1,"Word too long, the max limit is 15 characters. Word not added to the filter list!");
+					Uint8 str[100];
+					sprintf(str,"%s %s",word_too_long,not_added_to_filter);
+					log_to_console(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
-					log_to_console(c_red1,"Word too short, only words>=3 characters can be used! Word not added to the filter list!");
+					Uint8 str[100];
+					sprintf(str,"%s %s",word_too_short,not_added_to_filter);
+					log_to_console(c_red1,word_too_short);
 					return;
 				}
 
@@ -230,19 +238,19 @@ void test_for_console_command()
 			if(result==-1)
 				{
 					Uint8 str[100];
-					sprintf(str,"You are already filtering %s!",name);
+					sprintf(str,already_filtering,name);
 					log_to_console(c_red1,str);
 					return;
 				}
 			if(result==-2)
 				{
-					log_to_console(c_red1,"Wow, your filter list is full, this is impossible!");
+					log_to_console(c_red1,filter_list_full);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
-					sprintf(str,"Ok, %s was added to your filter list!",name);
+					sprintf(str,added_to_filters,name);
 					log_to_console(c_green1,str);
 					return;
 				}
@@ -272,14 +280,14 @@ void test_for_console_command()
 			if(i==15 && !ch)
 				{
 					Uint8 str[200];
-					my_strcp(str,"Name too long, the max limit is 15 characters. Name not removed from the ignore list!");
+					sprintf(str,"%s %s",name_too_long,not_removed_from_ignores);
 					log_to_console(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[200];
-					my_strcp(str,"Name too short, only names>=3 characters can be used! Name not removed from the ignore list!");
+					sprintf(str,"%s %s",name_too_short,not_removed_from_filter);
 					log_to_console(c_red1,str);
 					return;
 				}
@@ -287,14 +295,14 @@ void test_for_console_command()
 			if(result==-1)
 				{
 					Uint8 str[200];
-					sprintf(str,"You are NOT ignoring %s in the first place!",name);
+					sprintf(str,not_ignoring,name);
 					log_to_console(c_red1,str);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
-					sprintf(str,"Ok, %s was removed from your ignore list!",name);
+					sprintf(str,removed_from_ignores,name);
 					log_to_console(c_green1,str);
 					return;
 				}
@@ -322,14 +330,14 @@ void test_for_console_command()
 			if(i==15 && !ch)
 				{
 					Uint8 str[200];
-					my_strcp(str,"Word too long, the max limit is 15 characters. Word not removed from the filter list!");
+					sprintf(str,"%s %s",word_too_long,not_removed_from_filter);
 					log_to_console(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[200];
-					my_strcp(str,"Word too short, only words>=3 characters can be used! Word not removed from the filter list!");
+					sprintf(str,"%s %s",word_too_short,not_removed_from_filter);
 					log_to_console(c_red1,str);
 					return;
 				}
@@ -337,14 +345,14 @@ void test_for_console_command()
 			if(result==-1)
 				{
 					Uint8 str[200];
-					sprintf(str,"You are NOT filtering %s in the first place!",name);
+					sprintf(str,not_filtering,name);
 					log_to_console(c_red1,str);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
-					sprintf(str,"Ok, %s was removed from your filter list!",name);
+					sprintf(str,removed_from_filter,name);
 					log_to_console(c_green1,str);
 					return;
 				}
@@ -358,33 +366,33 @@ void test_for_console_command()
 
 			my_string=(GLubyte *)glGetString(GL_RENDERER);
 			this_string[0]=0;
-			my_strcp(&this_string[1],"Video Card: ");
-			my_strcp(&this_string[strlen(this_string)],my_string);
+			my_strcp(&this_string[1],video_card_str);
+			my_strcp(&this_string[strlen(&this_string[1])],my_string);
 			log_to_console(c_red2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VENDOR);
 			this_string[0]=0;
-			my_strcp(&this_string[1],"Vendor: ");
-			my_strcp(&this_string[strlen(this_string)],my_string);
+			my_strcp(&this_string[1],video_vendor_str);
+			my_strcp(&this_string[strlen(&this_string[1])],my_string);
 			log_to_console(c_yellow3,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VERSION);
 			this_string[0]=0;
-			my_strcp(&this_string[1],"OpenGL Version: ");
-			my_strcp(&this_string[strlen(this_string)],my_string);
+			my_strcp(&this_string[1],opengl_version_str);
+			my_strcp(&this_string[strlen(&this_string[1])],my_string);
 			log_to_console(c_yellow2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_EXTENSIONS);
 			this_string[0]=0;
-			my_strcp(&this_string[1],"Supported Extensions: ");
-			my_strcp(&this_string[strlen(this_string)],my_string);
+			my_strcp(&this_string[1],supported_extensions_str);
+			my_strcp(&this_string[strlen(&this_string[1])],my_string);
 			log_to_console(c_grey1,this_string);
 
 			return;
 		}
 	if(my_strncompare(text_loc,"log conn data", 8))
 		{
-			log_to_console(c_grey1,"Logging raw connection data");
+			log_to_console(c_grey1,logconn_str);
 			log_conn_data=1;
 			return;
 		}

@@ -27,6 +27,7 @@ int	display_misc_handler(window_info *win);
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags);
 int	display_quickbar_handler(window_info *win);
 int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
+int	mouseover_stats_bar_handler(window_info *win, int mx, int my);
 
 int hud_x= 64;
 int hud_y= 48;
@@ -37,6 +38,8 @@ int	stats_bar_win= -1;
 int	misc_win= -1;
 int	quickbar_win= -1;
 int show_help_text=1;
+
+int show_stats_in_hud=0;
 
 // initialize anything related to the hud
 void init_hud_interface()
@@ -210,6 +213,8 @@ float colored_buddy_icon_v_start=1.0f-(float)96/256;
 // to help highlight the proper icon
 int	icon_cursor_x;
 
+int	statbar_cursor_x;
+
 //stat bars
 int health_bar_start_x;
 int health_bar_start_y;
@@ -247,51 +252,50 @@ void init_peace_icons()
 	icons.y=0;
 	icons.x=0;
 	
-	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, "Walk", switch_action_mode, &type, DATA_ACTIONMODE);
+	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, tt_walk, switch_action_mode, &type, DATA_ACTIONMODE);
 	
 	if(you_sit)
-		add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, "Stand up", sit_button_pressed, NULL, DATA_NONE);
+		add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_stand, sit_button_pressed, NULL, DATA_NONE);
 	else
-		add_icon(sit_icon_u_start, sit_icon_v_start, colored_sit_icon_u_start, colored_sit_icon_v_start, "Sit down", sit_button_pressed, NULL, DATA_NONE);
+		add_icon(sit_icon_u_start, sit_icon_v_start, colored_sit_icon_u_start, colored_sit_icon_v_start, tt_sit, sit_button_pressed, NULL, DATA_NONE);
 	
 	type=action_look;
-	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, "Look at", switch_action_mode, &type, DATA_ACTIONMODE);
+	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, tt_look, switch_action_mode, &type, DATA_ACTIONMODE);
 
 	type=action_use;
-	add_icon(use_icon_u_start, use_icon_v_start, colored_use_icon_u_start, colored_use_icon_v_start, "Use", switch_action_mode, &type, DATA_ACTIONMODE);
+	add_icon(use_icon_u_start, use_icon_v_start, colored_use_icon_u_start, colored_use_icon_v_start, tt_use, switch_action_mode, &type, DATA_ACTIONMODE);
 
 	type=action_trade;
-	add_icon(trade_icon_u_start, trade_icon_v_start, colored_trade_icon_u_start, colored_trade_icon_v_start, "Trade", switch_action_mode, &type, DATA_ACTIONMODE);
+	add_icon(trade_icon_u_start, trade_icon_v_start, colored_trade_icon_u_start, colored_trade_icon_v_start, tt_trade, switch_action_mode, &type, DATA_ACTIONMODE);
 
 	type=action_attack;
-	add_icon(attack_icon_u_start, attack_icon_v_start, colored_attack_icon_u_start, colored_attack_icon_v_start, "Attack", switch_action_mode, &type, DATA_ACTIONMODE);
+	add_icon(attack_icon_u_start, attack_icon_v_start, colored_attack_icon_u_start, colored_attack_icon_v_start, tt_attack, switch_action_mode, &type, DATA_ACTIONMODE);
 
 	//done with the integer variables - now for the windows
 	
-	add_icon(inventory_icon_u_start, inventory_icon_v_start, colored_inventory_icon_u_start, colored_inventory_icon_v_start, "View inventory", view_window, &items_win, DATA_WINDOW);
+	add_icon(inventory_icon_u_start, inventory_icon_v_start, colored_inventory_icon_u_start, colored_inventory_icon_v_start, tt_inventory, view_window, &items_win, DATA_WINDOW);
 	
-	add_icon(spell_icon_u_start, spell_icon_v_start, colored_spell_icon_u_start, colored_spell_icon_v_start, "Open spell window", view_window, &sigil_win, DATA_WINDOW);
+	add_icon(spell_icon_u_start, spell_icon_v_start, colored_spell_icon_u_start, colored_spell_icon_v_start, tt_spell, view_window, &sigil_win, DATA_WINDOW);
 	
-	add_icon(manufacture_icon_u_start, manufacture_icon_v_start, colored_manufacture_icon_u_start, colored_manufacture_icon_v_start, "Display manufacture window", view_window, &manufacture_win, DATA_WINDOW);
+	add_icon(manufacture_icon_u_start, manufacture_icon_v_start, colored_manufacture_icon_u_start, colored_manufacture_icon_v_start, tt_manufacture, view_window, &manufacture_win, DATA_WINDOW);
 	
-	add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, "Display stats window", view_window, &stats_win, DATA_WINDOW);
+	add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, tt_stats, view_window, &stats_win, DATA_WINDOW);
 	
-	add_icon(knowledge_icon_u_start, knowledge_icon_v_start, colored_knowledge_icon_u_start, colored_knowledge_icon_v_start, "Display knowledge window", view_window, &knowledge_win, DATA_WINDOW);
+	add_icon(knowledge_icon_u_start, knowledge_icon_v_start, colored_knowledge_icon_u_start, colored_knowledge_icon_v_start, tt_knowledge, view_window, &knowledge_win, DATA_WINDOW);
 	
-	add_icon(encyclopedia_icon_u_start, encyclopedia_icon_v_start, colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, "Show the EL encyclopedia", view_window, &encyclopedia_win, DATA_WINDOW);
+	add_icon(encyclopedia_icon_u_start, encyclopedia_icon_v_start, colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, tt_encyclopedia, view_window, &encyclopedia_win, DATA_WINDOW);
 	
-	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, "Show the quest log", view_window, &questlog_win, DATA_WINDOW);
+	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
 	
-	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, "Show the map window", view_map_win, &map_win, DATA_WINDOW);
+	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, &map_win, DATA_WINDOW);
 	
-	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, "Show the console", view_console_win, &console_win, DATA_WINDOW);
+	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, &console_win, DATA_WINDOW);
 	
-	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, "Show the buddy window", view_window, &buddy_win, DATA_WINDOW);
+	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 	
-	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, "Set the options", view_window, &options_win, DATA_WINDOW);
+	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &options_win, DATA_WINDOW);
 }
 
-//void	add_icon(float u_start, float u_end, float v_start, float v_end, float colored_u_start, float_colored_u_end, float colored_v_start, float colored_v_end, char *help_message, void * func, int data)
 void	add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type)
 {
 	int no=icons.no++;
@@ -396,8 +400,7 @@ int	display_icons_handler(window_info *win)
 		}
 	glEnd();
 	//glDisable(GL_ALPHA_TEST);
-	if(state>=0 && show_help_text) 
-		show_help(icons.icon[state]->help_message, state+1);//Show the help message
+	if(state>=0 && show_help_text) show_help(icons.icon[state]->help_message, 32*(state+1)+2, 10);//Show the help message
 
 	return 1;
 }
@@ -489,7 +492,7 @@ void view_window(int * window, int id)
 		{
 			if(get_show_window(trade_win))
 				{
-					log_to_console(c_red2,"You can't open this window while on trade.");
+					log_to_console(c_red2,no_open_on_trade);
 					return;
 				}
 		}
@@ -541,19 +544,20 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-void show_help(char *help_message, int pos)
+void show_help(char *help_message, int x, int y)
 {
 	Uint8 str[125];
 	int len=strlen(help_message);
 	
 	glColor4f(0.0f,0.0f,0.0f,0.5f);
 	glDisable(GL_TEXTURE_2D);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 	glBegin(GL_QUADS);
-	glVertex3i(pos*32+1,25,0);
-	glVertex3i(pos*32+1,10,0);
-	glVertex3i(pos*32+2+len*8,10,0);
-	glVertex3i(pos*32+2+len*8,25,0);
+	glVertex3i(x-1,y+15,0);
+	glVertex3i(x-1,y,0);
+	glVertex3i(x+1+len*8,y,0);
+	glVertex3i(x+1+len*8,y+15,0);
 	glEnd();
 	
 	glDisable(GL_BLEND);
@@ -561,7 +565,7 @@ void show_help(char *help_message, int pos)
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	strcpy(str,help_message);
-	draw_string_small(pos*32+2, 10,help_message,1);
+	draw_string_small(x, y,help_message,1);
 }
 
 int translate_win_id(int * win_id)
@@ -585,6 +589,7 @@ void init_stats_display()
 		{
 			stats_bar_win= create_window("Stats Bar", 0, 0, 24, window_height-44, window_width-24-64, 12, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
 			set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
+			set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
 			//set_window_handler(stats_bar_win, ELW_HANDLER_CLICK, &click_stats_bar_handler);
 		}
 	else
@@ -684,8 +689,25 @@ int	display_stats_bar_handler(window_info *win)
 	draw_stats_bar(mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
 	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
 	if(win->len_x>640-64) draw_exp_display();
+	
+	if(show_help_text)
+		{
+        		if(mouse_in_window(win->window_id, mouse_x, mouse_y))
+				{
+					if(statbar_cursor_x>health_bar_start_x && statbar_cursor_x < health_bar_start_x+100) show_help(attributes.material_points.name,health_bar_start_x+110,-3);
+					if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+100) show_help(attributes.food.name,food_bar_start_x+110,-3);
+					if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+100) show_help(attributes.ethereal_points.name,mana_bar_start_x+110,-3);
+					if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+100) show_help(attributes.carry_capacity.name,load_bar_start_x+110,-3);
+				}
+		}
 
 	return 1;
+}
+
+int mouseover_stats_bar_handler(window_info *win, int mx, int my)
+{
+	statbar_cursor_x=mx;
+	return 0;
 }
 
 int check_stats_display()
@@ -789,6 +811,10 @@ int	display_misc_handler(window_info *win)
 		glColor3f(0.77f, 0.57f, 0.39f);
 		draw_string(x, 2, str, 1);
 	}
+	if(show_stats_in_hud>0)
+		{
+			if(video_mode>2)draw_stats();
+		}
 	return	1;
 }
 
@@ -1046,56 +1072,102 @@ void build_levels_table()
     }
 }
 
-
+void draw_stats()
+{
+	char str[20];
+	int y=-20;
+	int x=6;
+	glColor3f(1.0f,1.0f,1.0f);
+	sprintf(str,"%-4s %2i",attributes.attack_skill.shortname,your_info.attack_skill.base);
+	draw_string_small(x, y, str, 1);
+	y-=15;
+	sprintf(str,"%-4s %2i",attributes.defense_skill.shortname,your_info.defense_skill.base);
+	draw_string_small(x, y, str, 1);
+	y-=15;
+	sprintf(str,"%-4s %2i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
+	draw_string_small(x, y, str, 1);
+	y-=15;
+	sprintf(str,"%-4s %2i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
+	draw_string_small(x, y, str, 1);
+	y-=15;
+	sprintf(str,"%-4s %2i",attributes.magic_skill.shortname,your_info.magic_skill.base);
+	draw_string_small(x, y, str, 1);
+	y-=15;
+	sprintf(str,"%-4s %2i",attributes.potion_skill.shortname,your_info.potion_skill.base);
+	draw_string_small(x, y, str, 1);
+	y-=15;
+	sprintf(str,"%-4s %2i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
+	draw_string_small(x, y, str, 1);
+	y-=15;
+	sprintf(str,"%-4s %2i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
+	draw_string_small(x, y, str, 1);
+	y-=15;
+	sprintf(str,"%-4s %2i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
+	draw_string_small(x, y, str, 1);
+	y-=15;
+	sprintf(str,"%-4s %2i",attributes.overall_skill.shortname,your_info.overall_skill.base);
+	draw_string_small(x, y, str, 1);
+}
 
 void draw_exp_display()
 {
 	int exp_adjusted_x_len;
 	int nl_exp, baselev, cur_exp;
 	int delta_exp;
+	char * name;
 	float prev_exp;
 
 	switch(watch_this_stat){
 	case 1: // attack
 		cur_exp = your_info.attack_exp;
 		baselev = your_info.attack_skill.base;
+		name = attributes.attack_skill.name;
 		break;
 	case 2: // defense
 		cur_exp = your_info.defense_exp;
 		baselev = your_info.defense_skill.base;
+		name = attributes.defense_skill.name;
 		break;
 	case 3: // harvest
 		cur_exp = your_info.harvesting_exp;
 		baselev = your_info.harvesting_skill.base;
+		name = attributes.harvesting_skill.name;
 		break;
 	case 4: // alchemy
 		cur_exp = your_info.alchemy_exp;
 		baselev = your_info.alchemy_skill.base;
+		name = attributes.alchemy_skill.name;
 		break;
 	case 5: // magic
 		cur_exp = your_info.magic_exp;
 		baselev = your_info.magic_skill.base;
+		name = attributes.magic_skill.name;
 		break;
 	case 6: // potion
 		cur_exp = your_info.potion_exp;
 		baselev = your_info.potion_skill.base;
+		name = attributes.potion_skill.name;
 		break;
 	case 7: // summoning
 		cur_exp = your_info.summoning_exp;
 		baselev = your_info.summoning_skill.base;
+		name = attributes.summoning_skill.name;
 		break;
 	case 8: // manufacture
 		cur_exp = your_info.manufacturing_exp;
 		baselev = your_info.manufacturing_skill.base;
+		name = attributes.manufacturing_skill.name;
 		break;
 	case 9: // crafting
 		cur_exp = your_info.crafting_exp;
 		baselev = your_info.crafting_skill.base;
+		name = attributes.crafting_skill.name;
 		break;
 	case 10: // overall
 	default:
 		cur_exp = your_info.overall_exp;
 		baselev = your_info.overall_skill.base;
+		name = attributes.overall_skill.name;
 	}
 
 	if(!baselev)
@@ -1113,4 +1185,5 @@ void draw_exp_display()
 		exp_adjusted_x_len = 100-100.0f/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
 	draw_stats_bar(exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
+	draw_string_small(exp_bar_start_x, exp_bar_start_y+10, name, 1);
 }

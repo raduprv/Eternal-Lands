@@ -40,158 +40,158 @@ void make_sigils_list()
 	i=0;
 
 	sigils_list[i].sigil_img=0;
-	my_strcp(sigils_list[i].name,"Change");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_change.str);
+	my_strcp(sigils_list[i].description,sig_change.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=1;
-	my_strcp(sigils_list[i].name,"Restore");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_restore.str);
+	my_strcp(sigils_list[i].description,sig_restore.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=2;
-	my_strcp(sigils_list[i].name,"Space");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_space.str);
+	my_strcp(sigils_list[i].description,sig_space.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=3;
-	my_strcp(sigils_list[i].name,"Increase");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_increase.str);
+	my_strcp(sigils_list[i].description,sig_increase.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=4;
-	my_strcp(sigils_list[i].name,"Decrease");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_decrease.str);
+	my_strcp(sigils_list[i].description,sig_decrease.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=5;
-	my_strcp(sigils_list[i].name,"Temporary");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_temp.str);
+	my_strcp(sigils_list[i].description,sig_temp.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=6;
-	my_strcp(sigils_list[i].name,"Permanent");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_perm.str);
+	my_strcp(sigils_list[i].description,sig_perm.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=7;
-	my_strcp(sigils_list[i].name,"Move");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_move.str);
+	my_strcp(sigils_list[i].description,sig_move.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=8;
-	my_strcp(sigils_list[i].name,"Local");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_local.str);
+	my_strcp(sigils_list[i].description,sig_local.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=9;
-	my_strcp(sigils_list[i].name,"Global");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_global.str);
+	my_strcp(sigils_list[i].description,sig_global.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=10;
-	my_strcp(sigils_list[i].name,"Fire");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_fire.str);
+	my_strcp(sigils_list[i].description,sig_fire.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=11;
-	my_strcp(sigils_list[i].name,"Water");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_water.str);
+	my_strcp(sigils_list[i].description,sig_water.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=12;
-	my_strcp(sigils_list[i].name,"Air");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_air.str);
+	my_strcp(sigils_list[i].description,sig_air.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=13;
-	my_strcp(sigils_list[i].name,"Earth");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_earth.str);
+	my_strcp(sigils_list[i].description,sig_earth.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=14;
-	my_strcp(sigils_list[i].name,"Spirit");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_spirit.str);
+	my_strcp(sigils_list[i].description,sig_spirit.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=15;
-	my_strcp(sigils_list[i].name,"Matter");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_matter.str);
+	my_strcp(sigils_list[i].description,sig_matter.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=16;
-	my_strcp(sigils_list[i].name,"Energy");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_energy.str);
+	my_strcp(sigils_list[i].description,sig_energy.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=17;
-	my_strcp(sigils_list[i].name,"Magic");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_magic.str);
+	my_strcp(sigils_list[i].description,sig_magic.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=18;
-	my_strcp(sigils_list[i].name,"Destroy");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_destroy.str);
+	my_strcp(sigils_list[i].description,sig_destroy.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=19;
-	my_strcp(sigils_list[i].name,"Create");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_create.str);
+	my_strcp(sigils_list[i].description,sig_create.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=20;
-	my_strcp(sigils_list[i].name,"Knowledge");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_knowledge.str);
+	my_strcp(sigils_list[i].description,sig_knowledge.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=21;
-	my_strcp(sigils_list[i].name,"Protection");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_protection.str);
+	my_strcp(sigils_list[i].description,sig_protection.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=22;
-	my_strcp(sigils_list[i].name,"Remove");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_remove.str);
+	my_strcp(sigils_list[i].description,sig_remove.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=23;
-	my_strcp(sigils_list[i].name,"Health");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_health.str);
+	my_strcp(sigils_list[i].description,sig_health.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=24;
-	my_strcp(sigils_list[i].name,"Life");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_life.str);
+	my_strcp(sigils_list[i].description,sig_life.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=25;
-	my_strcp(sigils_list[i].name,"Death");
-	my_strcp(sigils_list[i].description,"");
+	my_strcp(sigils_list[i].name,sig_death.str);
+	my_strcp(sigils_list[i].description,sig_death.desc);
 	sigils_list[i].have_sigil=1;
 
 	for(i=0;i<6;i++)on_cast[i]=-1;
@@ -429,7 +429,7 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if(count<2)
 				{
-					sprintf(spell_text,"%cYou need at least 2 sigils for a spell.",127+c_red2);
+					sprintf(spell_text,"%c%s",127+c_red2,sig_too_few_sigs);
 					have_error_message=1;
 					return 1;
 				}

@@ -102,7 +102,7 @@ void play_ogg_file(char *file_name) {
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		snprintf(str, 256, "play_ogg_file error: %s", alGetString(error));
+    		snprintf(str, 256,"play_ogg_file %s: %s", my_tolower(error_str), alGetString(error));
     		LogError(str);
 			have_music=0;
 			return;
@@ -129,14 +129,14 @@ void load_ogg_file(char *file_name) {
 
 	if(!ogg_file) {
 		char	str[256];
-		snprintf(str, 256, "Failed to load ogg file: %s", file_name);
+		snprintf(str, 256, "%s: %s", snd_ogg_load_error, file_name);
 		LogError(str);
 		have_music=0;
 		return;
 	}
 
 	if(ov_open(ogg_file, &ogg_stream, NULL, 0) < 0) {
-		LogError("Failed to load ogg stream");
+		LogError(snd_ogg_stream_error);
 		have_music=0;
 	}
 
@@ -158,7 +158,7 @@ ALuint get_loaded_buffer(int i)
 			if((error=alGetError()) != AL_NO_ERROR) 
 				{
 					char	str[256];
-					snprintf(str, 256, "Error creating buffer: %s", alGetString(error));
+					snprintf(str, 256, "%s: %s",snd_buff_error, alGetString(error));
 					LogError(str);
 					have_sound=0;
 					have_music=0;
@@ -215,7 +215,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 
 	if(sound_file >= max_buffers)
 		{
-			LogError("Got invalid sound number\n");
+			LogError(snd_invalid_number);
 			return 0;
 		}
 
@@ -237,7 +237,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
     		char	str[256];
-    		snprintf(str, 256, "Error creating a source %d: %s", i, alGetString(error));
+    		snprintf(str, 256, "%s %d: %s", snd_source_error, i, alGetString(error));
     		LogError(str);
 			have_sound=0;
 			have_music=0;
@@ -307,7 +307,7 @@ void update_position()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		snprintf(str, 256, "update_position error: %s", alGetString(error));
+    		snprintf(str, 256, "update_position %s: %s", my_tolower(error_str), alGetString(error));
     		LogError(str);
 			have_sound=0;
 			have_music=0;
@@ -371,7 +371,7 @@ int update_music(void *dummy)
 						}
 					if(state2 != AL_PLAYING)
 						{
-							log_to_console(c_red1, "Skip! Speeding up...");
+							log_to_console(c_red1, snd_skip_speedup);
 							//on slower systems, music can skip up to 10 times
 							//if it skips more, it just can't play the music...
 							if(sleep > (SLEEP_TIME / 10))
@@ -379,8 +379,8 @@ int update_music(void *dummy)
 							else if(sleep > 1) sleep = 1;
 							else
 								{
-									log_to_console(c_red1, "Sorry, too slow to play music...");
-									LogError("Sorry, too slow to play music...");
+									log_to_console(c_red1, snd_too_slow);
+									LogError(snd_too_slow);
 									turn_music_off();
 									sleep = SLEEP_TIME;
 									break;
@@ -389,7 +389,7 @@ int update_music(void *dummy)
 						}
 					if((error=alGetError()) != AL_NO_ERROR)
 						{
-							snprintf(str, 256, "update_music error: %s", alGetString(error));
+							snprintf(str, 256, "update_music %s: %s", my_tolower(error_str), alGetString(error));
 							LogError(str);
 							have_music=0;
 						}
@@ -451,7 +451,7 @@ void stream_music(ALuint buffer) {
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-    		snprintf(str, 256, "stream_music error: %s", alGetString(error));
+    		snprintf(str, 256, "stream_music %s: %s", my_tolower(error_str), alGetString(error));
     		LogError(str);
 			have_music=0;
     	}
@@ -470,13 +470,13 @@ void kill_local_sounds()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		snprintf(str, 256, "kill_local_sounds error: %s", alGetString(error));
+    		snprintf(str, 256, "kill_local_sounds %s: %s", my_tolower(error_str), alGetString(error));
     		LogError(str);
 			have_sound=0;
 			have_music=0;
     	}
 	if(realloc_sources())
-		LogError("Failed to stop all sounds.");
+		LogError(snd_stop_fail);
 	unlock_sound_list();
 #ifndef	NO_MUSIC
 	if(!have_music)return;
@@ -565,7 +565,7 @@ void init_sound()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		snprintf(str, 256, "Error initializing sound: %s\n", alGetString(error));
+    		snprintf(str, 256, "%s: %s\n", snd_init_error, alGetString(error));
     		log_to_console(c_red1, str);
     		LogError(str);
 			have_sound=0;
@@ -659,15 +659,15 @@ int realloc_sources()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char	str[256];
-    		snprintf(str, 256, "realloc_sources error: %s", alGetString(error));
+    		snprintf(str, 256, "snd_realloc %s: %s", my_tolower(error_str), alGetString(error));
     		LogError(str);
 			have_sound=0;
 			have_music=0;
     	}
 	if(used_sources>=max_sources) 
     	{
-    		log_to_console(c_red1,"Too many sounds.");
-    		LogError("Too many sounds.");
+    		log_to_console(c_red1,snd_sound_overflow);
+    		LogError(snd_sound_overflow);
 			return -1;
     	}
 	else
@@ -681,17 +681,17 @@ void ogg_error(int code)
     switch(code)
     {
         case OV_EREAD:
-            strcpy(error_string, "Read from media."); break;
+            strcpy(error_string, snd_media_read); break;
         case OV_ENOTVORBIS:
-            strcpy(error_string, "Not Vorbis data."); break;
+            strcpy(error_string, snd_media_notvorbis); break;
         case OV_EVERSION:
-            strcpy(error_string, "Vorbis version mismatch."); break;
+            strcpy(error_string, snd_media_ver_mismatch); break;
         case OV_EBADHEADER:
-            strcpy(error_string, "Invalid Vorbis header."); break;
+            strcpy(error_string, snd_media_invalid_header); break;
         case OV_EFAULT:
-            strcpy(error_string, "Internal logic fault (bug or heap/stack corruption."); break;
+            strcpy(error_string, snd_media_internal_error); break;
         default:
-            strcpy(error_string, "Unknown Ogg error.");
+            strcpy(error_string, snd_media_ogg_error);
     }
 	LogError(error_string);
 #endif	//NO_MUSIC

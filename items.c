@@ -1,3 +1,4 @@
+#include <string.h>
 #include "global.h"
 #include "elwindows.h"
 
@@ -12,6 +13,16 @@ item others_trade_list[24];
 int trade_you_accepted=0;
 int trade_other_accepted=0;
 char other_player_trade_name[20];
+
+void strap_word(char * in, char * out)
+{
+	int i = 3;
+	while(i--) *out++=*in++;
+	while(*in==' ')in++;
+	*out++='\n';
+	i=3;
+	while(i--) *out++=*in++;
+}
 
 int view_ground_items=0;
 int no_view_my_items=0;
@@ -217,8 +228,8 @@ int display_items_handler(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//draw the load string
-	sprintf(str,"Load:%i/%i",your_info.carry_capacity.cur,your_info.carry_capacity.base);
-	draw_string_small(6*51+4,6*51+44,str,1);
+	sprintf(str,"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
+	draw_string_small(6*51+4-((strlen(str)-4)*8),6*51+44,str,1);
 	return 1;
 }
 
@@ -557,6 +568,7 @@ void get_new_inventory_item(Uint8 *data)
 int display_ground_items_handler(window_info *win)
 {
 	Uint8 str[80];
+	Uint8 my_str[10];
 	int x,y,i;
 
 	glDisable(GL_TEXTURE_2D);
@@ -587,8 +599,8 @@ int display_ground_items_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 
 	// write "get all" in the "get all" box :)
-	draw_string_small(win->len_x-28, 23, "Get", 1);
-	draw_string_small(win->len_x-28, 36, "All", 1);
+	strap_word(get_all_str,my_str);
+	draw_string_small(win->len_x-28, 23, my_str, 2);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...

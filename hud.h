@@ -66,7 +66,7 @@ void sit_button_pressed(void *unused, int id);
 void view_window(int * win, int id);
 void view_console_win(int * win, int id);//This is not handled by the window manager, so we have to call this function
 void view_map_win(int *win, int id);
-void show_help(char *message, int mx);
+void show_help(char *message, int x, int y);
 
 //stats/health section
 void init_stats_display();
@@ -75,6 +75,7 @@ int check_stats_display();
 void draw_exp_display();
 void build_levels_table();
 extern int	stats_bar_win;
+void draw_stats();
 
 //misc section (compass, clock, ?)
 void init_misc_display();

@@ -1,7 +1,15 @@
 #ifndef __STATS_H__
 #define __STATS_H__
 
+#include "global.h"
+
 extern int	stats_win;
+
+typedef struct
+{
+	char name[20];
+	char shortname[5];
+} names;
 
 typedef struct
 {
@@ -11,7 +19,68 @@ typedef struct
 
 typedef struct
 {
+	Sint16 (*base)(void);
+	Sint16 (*cur)(void);
+} attrib_16f;
+
+struct attributes_struct
+{
+	char base[30];
+	
+	names phy;
+	names coo;
+
+	names rea;
+	names wil;
+	
+	names ins;
+	names vit;
+	
+	char cross[30];
+	names might;
+	names matter;
+	names tough;
+	names react;
+	names charm;
+	names perc;
+	names ration;
+	names dext;
+	names eth;
+	
+	char nexus[30];
+	names human_nex;
+	names animal_nex;
+	names vegetal_nex;
+	names inorganic_nex;
+	names artificial_nex;
+	names magic_nex;
+	
+	char skills[30];
+	names manufacturing_skill;
+	names harvesting_skill;
+	names alchemy_skill;
+	names overall_skill;
+	names attack_skill;
+	names defense_skill;
+	names magic_skill;
+	names potion_skill;
+	names summoning_skill;
+	names crafting_skill;
+	
+	names food;
+	char pickpoints[30];
+	names material_points;
+	names ethereal_points;
+
+	names carry_capacity;
+};
+
+struct attributes_struct attributes;
+
+typedef struct
+{
 	char name[20];
+	
 	attrib_16 phy;
 	attrib_16 coo;
 
@@ -21,6 +90,16 @@ typedef struct
 	attrib_16 ins;
 	attrib_16 vit;
 
+	attrib_16f might;
+	attrib_16f matter;
+	attrib_16f tough;
+	attrib_16f charm;
+	attrib_16f react;
+	attrib_16f perc;
+	attrib_16f ration;
+	attrib_16f dext;
+	attrib_16f eth;
+	
 	attrib_16 human_nex;
 	attrib_16 animal_nex;
 	attrib_16 vegetal_nex;
@@ -43,6 +122,7 @@ typedef struct
 	attrib_16 crafting_skill;
 
 	attrib_16 carry_capacity;
+	
 	Sint8 food_level;
 
 	Uint32 manufacturing_exp;
@@ -86,6 +166,7 @@ player_attribs someone_info;
 void get_the_stats(Sint16 *stats);
 void get_partial_stat(Uint8 name,Sint32 value);
 void display_stats(player_attribs cur_stats);
+void init_attribf(void);
 
 #endif
 

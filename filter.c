@@ -150,7 +150,7 @@ int filter_text(Uint8 * input_text, int len)
 {
 	int i,bad_len,rep_len;
 	Uint8 *rloc=input_text;
-
+	
 	// See if a search term has been added to the #storage command, and if so, 
         // only list those items with that term
 	if (*storage_filter && my_strncompare (input_text+1, "Items you have in your storage:", 31))
@@ -289,10 +289,10 @@ void list_filters()
 
 	if(!filtered_so_far)
 		{
-			log_to_console(c_grey1,"You are filtering nothing!");
+			log_to_console(c_grey1,no_filters_str);
 			return;
 		}
-	my_strcp(str,"You are currently filtering:\n");
+	sprintf(str,"%s:\n",filters_str);
 	for(i=0;i<max_filters;i++)
 		{
 			if(filter_list[i].len > 0)

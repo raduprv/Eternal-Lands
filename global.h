@@ -89,6 +89,7 @@
 #include "init.h"
 #include "pm_log.h"
 #include "options.h"
+#include "translate.h"
 #ifdef CAL3D
 #include "cal3dwrap.h"
 #endif

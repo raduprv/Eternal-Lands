@@ -7,7 +7,7 @@ player_attribs your_info;
 player_attribs someone_info;
 int attrib_menu_x=100;
 int attrib_menu_y=20;
-int attrib_menu_x_len=516;
+int attrib_menu_x_len=596;
 int attrib_menu_y_len=348;
 //int attrib_menu_dragged=0;
 
@@ -18,7 +18,10 @@ int check_grid_x_left=0;
 void get_the_stats(Sint16 *stats)
 {
 	memset(&your_info, 0, sizeof(your_info));	// failsafe incase structure changes
-
+	
+	//initiate the function pointers
+	init_attribf();
+	
 	your_info.phy.cur=stats[0];
 	your_info.phy.base=stats[1];
 	your_info.coo.cur=stats[2];
@@ -257,80 +260,150 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		}
 }
 
+Sint16 get_base_might() { return (your_info.phy.base+your_info.coo.base)/2;}
+Sint16 get_cur_might() { return (your_info.phy.cur+your_info.coo.cur)/2;}
+
+Sint16 get_base_matter() { return (your_info.phy.base+your_info.wil.base)/2;}
+Sint16 get_cur_matter() { return (your_info.phy.cur+your_info.wil.cur)/2;}
+
+Sint16 get_base_tough() { return (your_info.phy.base+your_info.vit.base)/2;}
+Sint16 get_cur_tough() { return (your_info.phy.cur+your_info.vit.cur)/2;}
+
+Sint16 get_base_charm() { return (your_info.ins.base+your_info.vit.base)/2;}
+Sint16 get_cur_charm() { return (your_info.ins.cur+your_info.vit.cur)/2;}
+
+Sint16 get_base_react() { return (your_info.ins.base+your_info.coo.base)/2;}
+Sint16 get_cur_react() { return (your_info.ins.cur+your_info.coo.cur)/2;}
+
+Sint16 get_base_perc() { return (your_info.ins.base+your_info.rea.base)/2;}
+Sint16 get_cur_perc() { return (your_info.ins.cur+your_info.rea.cur)/2;}
+
+Sint16 get_base_rat() { return (your_info.wil.base+your_info.rea.base)/2;}
+Sint16 get_cur_rat() { return (your_info.wil.cur+your_info.rea.cur)/2;}
+
+Sint16 get_base_dext() { return (your_info.coo.base+your_info.rea.base)/2;}
+Sint16 get_cur_dext() { return (your_info.coo.cur+your_info.rea.base)/2;}
+
+Sint16 get_base_eth() { return (your_info.wil.base+your_info.vit.base)/2;}
+Sint16 get_cur_eth() { return (your_info.wil.cur+your_info.vit.cur)/2;}
+
+void init_attribf()
+{
+	your_info.might.base=get_base_might;
+	your_info.might.cur=get_cur_might;
+	your_info.matter.base=get_base_matter;
+	your_info.matter.cur=get_cur_matter;
+	your_info.tough.base=get_base_tough;
+	your_info.tough.cur=get_cur_tough;
+	your_info.charm.base=get_base_charm;
+	your_info.charm.cur=get_cur_charm;
+	your_info.react.base=get_base_react;
+	your_info.react.cur=get_cur_react;
+	your_info.perc.base=get_base_perc;
+	your_info.perc.cur=get_cur_perc;
+	your_info.ration.base=get_base_rat;
+	your_info.ration.cur=get_cur_rat;
+	your_info.dext.base=get_base_dext;
+	your_info.dext.cur=get_cur_dext;
+	your_info.eth.base=get_base_eth;
+	your_info.eth.cur=get_cur_eth;
+}
+
+void draw_stat_final(int len, int x, int y, char * name, char * value);
+
+void draw_stat(int len, int x, int y, attrib_16 * var, names * name)
+{
+	char str[8];
+	snprintf(str,8,"%2i/%-2i",var->cur,var->base);
+	draw_stat_final(len,x,y,name->name,str);
+}
+
+void draw_skill(int len, int x, int y, attrib_16 * lvl, names * name, int exp, int exp_next)
+{
+	char str[36];
+	char lvlstr[8];
+	char expstr[24];
+	int offset;
+	snprintf(lvlstr,8,"%2i/%-2i",lvl->cur,lvl->base);
+	snprintf(expstr,24,"[%2i/%-2i]",exp, exp_next);
+	offset=strlen(str);
+	snprintf(str,36,"%-7s %-22s",lvlstr,expstr);
+	draw_stat_final(len,x,y,name->name,str);
+}
+
+void draw_statf(int len, int x, int y, attrib_16f * var, names * name)
+{
+	char str[8];
+	snprintf(str,8,"%2i/%-2i",var->cur(),var->base());
+	draw_stat_final(len,x,y,name->name,str);
+}
+
+void draw_stat_final(int len, int x, int y, char * name, char * value)
+{
+	char str[80];
+	snprintf(str,len,"%-15s %s",name,value);
+	draw_string_small(x,y,str,1);
+}
+
 int display_stats_handler(window_info *win)
 {
-	player_attribs cur_stats= your_info;
-	Uint8 str[80];
+	player_attribs cur_stats = your_info;
+	Uint8 str[10];
 	int x,y;
-
+	
 	x=5;
 	y=5;
 
-	draw_string_small(x,y,"Basic Attributes",1);
+	draw_string_small(x,y,attributes.base,1);
 	y+=14;
-	sprintf(str,"Physique:     %2i/%-2i",cur_stats.phy.cur,cur_stats.phy.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.phy),&(attributes.phy));
 
 	y+=14;
-	sprintf(str,"Coordination: %2i/%-2i",cur_stats.coo.cur,cur_stats.coo.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.coo),&(attributes.coo));
+	
+	y+=14;
+	draw_stat(24,x,y,&(cur_stats.rea),&(attributes.rea));
 
 	y+=14;
-	sprintf(str,"Reasoning:    %2i/%-2i",cur_stats.rea.cur,cur_stats.rea.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.wil),&(attributes.wil));
 
 	y+=14;
-	sprintf(str,"Will:         %2i/%-2i",cur_stats.wil.cur,cur_stats.wil.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.ins),&(attributes.ins));
 
 	y+=14;
-	sprintf(str,"Instinct:     %2i/%-2i",cur_stats.ins.cur,cur_stats.ins.base);
-	draw_string_small(x,y,str,1);
-
-	y+=14;
-	sprintf(str,"Vitality:     %2i/%-2i",cur_stats.vit.cur,cur_stats.vit.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.vit),&(attributes.vit));
 
 	//cross attributes
 	glColor3f(1.0f,1.0f,0.0f);
 	y+=20;
 
-	draw_string_small(x,y,"Cross Attributes",1);
+	draw_string_small(x,y,attributes.cross,1);
 	y+=14;
-	sprintf(str,"Might:        %2i/%-2i",(cur_stats.phy.cur+cur_stats.coo.cur)/2,(cur_stats.phy.base+cur_stats.coo.base)/2);
-	draw_string_small(x,y,str,1);
+	draw_statf(24,x,y,&(cur_stats.might),&(attributes.might));
 
 	y+=14;
-	sprintf(str,"Matter:       %2i/%-2i",(cur_stats.phy.cur+cur_stats.wil.cur)/2,(cur_stats.phy.base+cur_stats.wil.base)/2);
-	draw_string_small(x,y,str,1);
+	draw_statf(24,x,y,&(cur_stats.matter),&(attributes.matter));
 
 	y+=14;
-	sprintf(str,"Toughness:    %2i/%-2i",(cur_stats.phy.cur+cur_stats.vit.cur)/2,(cur_stats.phy.base+cur_stats.vit.base)/2);
-	draw_string_small(x,y,str,1);
+	draw_statf(24,x,y,&(cur_stats.tough),&(attributes.tough));
 
 	y+=14;
-	sprintf(str,"Charm:        %2i/%-2i",(cur_stats.ins.cur+cur_stats.vit.cur)/2,(cur_stats.ins.base+cur_stats.vit.base)/2);
-	draw_string_small(x,y,str,1);
+	draw_statf(24,x,y,&(cur_stats.charm),&(attributes.charm));
 
 	y+=14;
-	sprintf(str,"Reaction:     %2i/%-2i",(cur_stats.ins.cur+cur_stats.coo.cur)/2,(cur_stats.ins.base+cur_stats.coo.base)/2);
-	draw_string_small(x,y,str,1);
+	draw_statf(24,x,y,&(cur_stats.react),&(attributes.react));
 
 	y+=14;
-	sprintf(str,"Perception:   %2i/%-2i",(cur_stats.ins.cur+cur_stats.rea.cur)/2,(cur_stats.ins.base+cur_stats.rea.base)/2);
-	draw_string_small(x,y,str,1);
+	draw_statf(24,x,y,&(cur_stats.perc),&(attributes.perc));
 
 	y+=14;
-	sprintf(str,"Rationality:  %2i/%-2i",(cur_stats.wil.cur+cur_stats.rea.cur)/2,(cur_stats.wil.base+cur_stats.rea.base)/2);
-	draw_string_small(x,y,str,1);
+	draw_statf(24,x,y,&(cur_stats.ration),&(attributes.ration));
 
 	y+=14;
-	sprintf(str,"Dexterity:    %2i/%-2i",(cur_stats.coo.cur+cur_stats.rea.cur)/2,(cur_stats.coo.base+cur_stats.rea.base)/2);
-	draw_string_small(x,y,str,1);
+	draw_statf(24,x,y,&(cur_stats.dext),&(attributes.dext));
 
 	y+=14;
-	sprintf(str,"Ethereality:  %2i/%-2i",(cur_stats.wil.cur+cur_stats.vit.cur)/2,(cur_stats.wil.base+cur_stats.vit.base)/2);
-	draw_string_small(x,y,str,1);
+	draw_statf(24,x,y,&(cur_stats.eth),&(attributes.eth));
 
 	glColor3f(0.5f,0.5f,1.0f);
 	y+=14;	// blank lines for spacing
@@ -338,56 +411,49 @@ int display_stats_handler(window_info *win)
 
 	//other attribs
 	y+=20;
-	sprintf(str,"Food level:      %i",cur_stats.food_level);
-	draw_string_small(x,y,str,1);
+	sprintf(str,"%i",cur_stats.food_level);
+	draw_stat_final(24,x,y,attributes.food.name,str);
+	
 	y+=14;
-	sprintf(str,"Material Points: %2i/%-2i",cur_stats.material_points.cur,cur_stats.material_points.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.material_points),&(attributes.material_points));
+	
 	y+=14;
-	sprintf(str,"Ethereal Points: %2i/%-2i",cur_stats.ethereal_points.cur,cur_stats.ethereal_points.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.ethereal_points),&(attributes.ethereal_points));
 
 	//other info
 	y-=28;
-	sprintf(str,"Pickpoints: %i",cur_stats.overall_skill.base - cur_stats.overall_skill.cur);
-	draw_string_small(190,y,str,1);
-
+	sprintf(str,"%i",cur_stats.overall_skill.base-cur_stats.overall_skill.cur);
+	draw_stat_final(24,205,y,attributes.pickpoints,str);
 
 	//nexuses here
 	glColor3f(1.0f,1.0f,1.0f);
-	x+=170;
+	x+=200;
 	y=5;
 
-	draw_string_small(x,y,"Nexuses",1);
+	draw_string_small(x,y,attributes.nexus,1);
+	
 	y+=14;
-
-	sprintf(str,"Human:       %2i/%-2i",cur_stats.human_nex.cur,cur_stats.human_nex.base);
-	draw_string_small(x,y,str,1);
-
-	y+=14;
-	sprintf(str,"Animal:      %2i/%-2i",cur_stats.animal_nex.cur,cur_stats.animal_nex.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.human_nex),&(attributes.human_nex));
 
 	y+=14;
-	sprintf(str,"Vegetal:     %2i/%-2i",cur_stats.vegetal_nex.cur,cur_stats.vegetal_nex.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.animal_nex),&(attributes.animal_nex));
 
 	y+=14;
-	sprintf(str,"Inorganic:   %2i/%-2i",cur_stats.inorganic_nex.cur,cur_stats.inorganic_nex.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.vegetal_nex),&(attributes.vegetal_nex));
 
 	y+=14;
-	sprintf(str,"Artificial:  %2i/%-2i",cur_stats.artificial_nex.cur,cur_stats.artificial_nex.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.inorganic_nex),&(attributes.inorganic_nex));
 
 	y+=14;
-	sprintf(str,"Magic:       %2i/%-2i",cur_stats.magic_nex.cur,cur_stats.magic_nex.base);
-	draw_string_small(x,y,str,1);
+	draw_stat(24,x,y,&(cur_stats.artificial_nex),&(attributes.artificial_nex));
+
+	y+=14;
+	draw_stat(24,x,y,&(cur_stats.magic_nex),&(attributes.magic_nex));
 
 	y+=20;
 	//skills
 	glColor3f(1.0f,0.5f,0.2f);
-	draw_string_small(x,y,"Skills",1);
+	draw_string_small(x,y,attributes.skills,1);
 
 	y+=14;
 
@@ -395,67 +461,46 @@ int display_stats_handler(window_info *win)
 	check_grid_y_top=y;
 
 	watch_this_stat==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Attack:      %2i/%-2i [%2i/%-2i]",cur_stats.attack_skill.cur,cur_stats.attack_skill.base,
-			cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.attack_skill),&(attributes.attack_skill),cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==2?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Defense:     %2i/%-2i [%2i/%-2i]",cur_stats.defense_skill.cur,cur_stats.defense_skill.base,
-			cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.defense_skill),&(attributes.defense_skill),cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==3?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Harvest:     %2i/%-2i [%2i/%-2i]",cur_stats.harvesting_skill.cur,cur_stats.harvesting_skill.base,
-			cur_stats.harvesting_exp,cur_stats.harvesting_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.harvesting_skill),&(attributes.harvesting_skill),cur_stats.harvesting_exp,cur_stats.harvesting_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==4?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Alchemy:     %2i/%-2i [%2i/%-2i]",cur_stats.alchemy_skill.cur,cur_stats.alchemy_skill.base,
-			cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.alchemy_skill),&(attributes.alchemy_skill),cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==5?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Magic:       %2i/%-2i [%2i/%-2i]",cur_stats.magic_skill.cur,cur_stats.magic_skill.base,
-			cur_stats.magic_exp,cur_stats.magic_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.magic_skill),&(attributes.magic_skill),cur_stats.magic_exp,cur_stats.magic_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==6?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Potion:      %2i/%-2i [%2i/%-2i]",cur_stats.potion_skill.cur,cur_stats.potion_skill.base,
-			cur_stats.potion_exp,cur_stats.potion_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.potion_skill),&(attributes.potion_skill),cur_stats.potion_exp,cur_stats.potion_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==7?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Summoning:   %2i/%-2i [%2i/%-2i]",cur_stats.summoning_skill.cur,cur_stats.summoning_skill.base,
-			cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.summoning_skill),&(attributes.summoning_skill),cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==8?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Manufacture: %2i/%-2i [%2i/%-2i]",cur_stats.manufacturing_skill.cur,cur_stats.manufacturing_skill.base,
-			cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.manufacturing_skill),&(attributes.manufacturing_skill),cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==9?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Crafting:    %2i/%-2i [%2i/%-2i]",cur_stats.crafting_skill.cur,cur_stats.crafting_skill.base,
-			cur_stats.crafting_exp,cur_stats.crafting_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.crafting_skill),&(attributes.crafting_skill),cur_stats.crafting_exp,cur_stats.crafting_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==10?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-	sprintf(str,"Overall:     %2i/%-2i [%2i/%-2i]",cur_stats.overall_skill.cur,cur_stats.overall_skill.base,
-			cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
-	draw_string_small(x,y,str,1);
+	draw_skill(46,x,y,&(cur_stats.overall_skill),&(attributes.overall_skill),cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
 
 	return 1;
 }
-
 
 int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
 {

@@ -135,7 +135,7 @@ int	display_dialogue_handler(window_info *win)
 	//now, draw the character name
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(npc_name_x_start,win->len_y-16,npc_name,1);
-	draw_string_small(win->len_x-60,win->len_y-16,"[close]",1);
+	draw_string_small(win->len_x-60,win->len_y-16,close_str,1);
 
 	//ok, now draw the responses
 	for(i=0;i<MAX_RESPONSES;i++)

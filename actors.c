@@ -52,7 +52,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 		{
 			char str[120];
 			unlock_actors_lists();	// release now that we are done
-			sprintf(str,"Error: Can't load actor: %s\n",file_name);
+			sprintf(str,"%s: %s: %s\n",error_str,cant_load_actor,file_name);
 			log_error(str);
 			return 0;
 		}
@@ -327,7 +327,7 @@ int get_frame_number(const md2 *model_data, const char *cur_frame)
 					return frame;
 				}
 		}
-	snprintf(str, 256, "couldn't find frame: %s\n",cur_frame);
+	snprintf(str, 256, "%s: %s: %s\n",error_str,cant_find_frame,cur_frame);
 	log_error(str);
 
 	for(frame=0; frame < model_data->numFrames; frame++)
@@ -337,7 +337,7 @@ int get_frame_number(const md2 *model_data, const char *cur_frame)
 					return frame;
 				}
 		}
-	snprintf(str, 256, "couldn't find frame: %s\n","idle01");
+	snprintf(str, 256, "%s: %s: %s\n",error_str,cant_find_frame,"idle01");
 	log_error(str);
 
 	return -1;
@@ -764,7 +764,7 @@ void add_actor_from_server(char * in_data)
 	default:
 		{
 			char str[120];
-			sprintf(str,"Unknown frame %d for %s\n",frame,&in_data[23]);
+			sprintf(str,"%s %d - %s\n",unknown_frame,frame,&in_data[23]);
 			log_error(str);
 		}
 	}
@@ -777,7 +777,7 @@ void add_actor_from_server(char * in_data)
 				if(actors_list[i]->actor_id==actor_id)
 					{
 						char str[256];
-						sprintf(str,"Duplicate actor ID %d was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[23]);
+						sprintf(str,duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[23]);
 						log_error(str);
 						destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 						i--;// last actor was put here, he needs to be checked too
@@ -809,7 +809,7 @@ void add_actor_from_server(char * in_data)
 	if(strlen(&in_data[23]) >= 30)
 		{
 			char str[120];
-			snprintf(str, 120, "Bad actor name/length (%d): %s/%d\n", actors_list[i]->actor_type,&in_data[23], (int)strlen(&in_data[23]));
+			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[23], (int)strlen(&in_data[23]));
 			log_error(str);
 			return;
 		}
@@ -886,7 +886,7 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 			if(!this_actor->legs)
 				{
 					char str[120];
-					sprintf(str,"Error: Can't load body part: %s\n",this_actor->legs_fn);
+					sprintf(str,"%s: %s: %s\n",error_str,error_body_part,this_actor->legs_fn);
 					log_error(str);
 					this_actor->legs=0;
 			        //return 0;
@@ -901,7 +901,7 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 			if(!this_actor->head)
 				{
 					char str[120];
-					sprintf(str,"Error: Can't load body part: %s\n",this_actor->head_fn);
+					sprintf(str,"%s: %s: %s\n",error_str,error_body_part,this_actor->head_fn);
 					log_error(str);
 					this_actor->head=0;
 					//return 0;
@@ -916,7 +916,7 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 			if(!this_actor->torso)
 				{
 					char str[120];
-					sprintf(str,"Error: Can't load body part: %s\n",this_actor->torso_fn);
+					sprintf(str,"%s: %s: %s\n",error_str,error_body_part,this_actor->torso_fn);
 					log_error(str);
 					this_actor->torso=0;
 			        //return 0;

@@ -410,6 +410,7 @@ void init_opening_interface()
 
 void draw_login_screen()
 {
+	char str[20];
 	float selected_bar_u_start=(float)0/256;
 	float selected_bar_v_start=1.0f-(float)0/256;
 
@@ -518,8 +519,10 @@ void draw_login_screen()
 	if(new_char_button_selected && left_click==1)interface_mode=interface_new_char;
 
 	//ok, start drawing the interface...
-	draw_string(username_text_x,username_text_y,"Username: ",1);
-	draw_string(password_text_x,password_text_y,"Password: ",1);
+	sprintf(str,"%s: ",login_username_str);
+	draw_string(username_text_x,username_text_y,str,1);
+	sprintf(str,"%s: ",login_password_str);
+	draw_string(password_text_x,password_text_y,str,1);
 	//start drawing the actual interface pieces
 	get_and_set_texture_id(login_screen_menus);
 	glColor3f(1.0f,1.0f,1.0f);

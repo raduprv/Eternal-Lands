@@ -15,7 +15,6 @@ knowledge knowledge_list[300];
 int knowledge_page_start=0;
 
 char knowledge_string[400]="";
-char *none="nothing";
 
 int display_knowledge_handler(window_info *win)
 {
@@ -27,14 +26,14 @@ int display_knowledge_handler(window_info *win)
 	
 	if(your_info.research_total && 
 	   (your_info.research_completed==your_info.research_total))
-		strcpy(points_string,"COMPLETE");
+		strncpy(points_string,completed_research,10);
 	else
 		sprintf(points_string,"%4i/%-4i",your_info.research_completed,your_info.research_total);
 	if(your_info.researching<300)
 		research_string=knowledge_list[your_info.researching].name;
 	else
 		{
-			research_string=none;
+			research_string=not_researching_anything;
 			points_string[0]='\0';
 			progress=1;
 		}
@@ -88,7 +87,7 @@ int display_knowledge_handler(window_info *win)
 	//draw text
 	draw_string_small(4,210,knowledge_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string_small(10,320,"Researching:",1);
+	draw_string_small(10,320,researching_str,1);
 	draw_string_small(120,320,research_string,1);
 	draw_string_small(355,320,points_string,1);
 	// Draw knowledges
