@@ -411,7 +411,7 @@ int HandleEvent(SDL_Event *event)
 			get_world_x_y();
 			if(!tool_bar_click)
 				{
-					if(left_click)
+					if(left_click==1)
 						{
 							if(cur_mode==mode_3d && left_click == 1)
 							{
