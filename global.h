@@ -13,7 +13,7 @@
 #include <math.h>
 #include <time.h>
 
-#include <GL/glu.h>
+/*#include <GL/glu.h>*/
 
 #include <SDL.h>
 #include "SDL_opengl.h"

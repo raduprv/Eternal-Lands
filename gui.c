@@ -47,7 +47,7 @@ create_fileselection (void)
                       GTK_SIGNAL_FUNC (on_cancel_button1_clicked),
                       NULL);
 
-  gtk_file_selection_hide_fileop_buttons(fileselection);
+  gtk_file_selection_hide_fileop_buttons( GTK_FILE_SELECTION (fileselection));
 
   return fileselection;
 }

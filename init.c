@@ -93,7 +93,7 @@ void init_stuff()
 
 	/* Set the window manager title bar */
 	SDL_WM_SetCaption( "Eternal Lands Editor", "testgl" );
-
+	SDL_WM_SetIcon(SDL_LoadBMP("mapeditor.ico"), NULL);
 
 	resize_window();
 	glEnable(GL_DEPTH_TEST);
