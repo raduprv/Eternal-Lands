@@ -111,7 +111,7 @@ void add_questlog(char *t)
 			qlf=fopen("quest.log","ab");
 		#endif
 	}
-	while(*s){
+	while(*s){ //converting multiline msg in single line
 		if(*s=='\n')*s=' ';
 		s++;
 	}
