@@ -31,8 +31,6 @@ void switch_to_login ()
 	// destroy ourselves, we're no longer needed
 	destroy_window (opening_root_win);
 	opening_root_win = -1;
-
-	interface_mode = INTERFACE_LOG_IN;
 }
 
 int click_opening_handler ()

@@ -79,15 +79,15 @@ void draw_scene()
 	
 	get_tmp_actor_data();
 	
-	if(interface_mode!=INTERFACE_GAME)
+	if ( !get_show_window (game_root_win) )
+	{
+		new_zoom_level = zoom_level;	// No scrolling when switching modes...
+		if (quickbar_relocatable && quickbar_win >= 0)//Hack 
 		{
-			new_zoom_level=zoom_level;//No scrolling when switching modes...
-			if(quickbar_relocatable && quickbar_win >= 0)//Hack 
-				{
-					if(windows_list.window[quickbar_win].cur_x<window_width-hud_x && window_height - windows_list.window[quickbar_win].cur_y>hud_y) windows_list.window[quickbar_win].displayed=0;
-				}
-			
+			if (windows_list.window[quickbar_win].cur_x < window_width - hud_x && window_height - windows_list.window[quickbar_win].cur_y > hud_y)
+				hide_window (quickbar_win);
 		}
+	}
 
 	glLoadIdentity ();	// Reset The Matrix
 	

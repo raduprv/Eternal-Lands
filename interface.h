@@ -44,21 +44,6 @@ extern int view_chat_text_as_overtext; /*!< if this is true, then any text an ac
 
 extern int login_screen_menus;
 
-/*!
- * \name Interface types
- */
-/*! @{ */
-#define INTERFACE_GAME 0
-#define INTERFACE_LOG_IN 1
-#define INTERFACE_NEW_CHAR 2
-#define INTERFACE_CONSOLE 3
-#define INTERFACE_OPENING 4
-#define INTERFACE_MAP 5
-#define INTERFACE_CONT 6
-#define INTERFACE_RULES 7
-/*! @} */
-
-extern char interface_mode; /*!< current interface mode we are in */
 extern char username_box_selected; /*!< true, if the cursor is currently in the username input field */
 extern char password_box_selected; /*!< true, if the cursor is currently in the password input field */
 

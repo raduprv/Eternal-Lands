@@ -651,7 +651,6 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 		// don't destroy this window yet, maybe the use will come back
 		hide_window (newchar_root_win);
 		show_window (login_root_win);
-		interface_mode=INTERFACE_LOG_IN;
 	}
 	else if (mx > done_button_x_start && mx < done_button_x_end && my > done_button_y_start && mouse_y < done_button_y_end && done_selected)
 	{

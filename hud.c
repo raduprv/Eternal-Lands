@@ -370,9 +370,9 @@ void init_peace_icons()
 		add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
 	}
 		
-	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, (void *)INTERFACE_MAP, DATA_MODE);
+	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, &map_root_win, DATA_MODE);
 		
-	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, (void *)INTERFACE_CONSOLE, DATA_MODE);
+	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, &console_root_win, DATA_MODE);
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 	
@@ -398,11 +398,11 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 	switch(data_type)
 		{
 		case DATA_ACTIONMODE:
-		case DATA_MODE:
 			icon_list[no]->data=(int*)calloc(1,sizeof(int));
 			*(int *)icon_list[no]->data=(point)data;
 			icon_list[no]->free_data=1;
 			break;
+		case DATA_MODE:			
 		case DATA_WINDOW:
 			icon_list[no]->data=data;
 			break;
@@ -448,7 +448,7 @@ int	display_icons_handler(window_info *win)
 					icon_list[i]->state = 0;
 				break;
 			case DATA_MODE:
-				icon_list[i]->state=(interface_mode==*z);
+				icon_list[i]->state=get_show_window (*z);
 				break;
 			case DATA_ACTIONMODE:
 				icon_list[i]->state=(action_mode==*z);

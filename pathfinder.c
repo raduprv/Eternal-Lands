@@ -291,14 +291,6 @@ void pf_move_to_mouse_position()
 	
 	int x, y, clicked_x, clicked_y;
 	
-	//if(mouse_x>map_icon_x_start && mouse_y>map_icon_y_start &&
-	//		mouse_x<map_icon_x_end && mouse_y<map_icon_y_end)
-	//	{
-	//		if(interface_mode==INTERFACE_GAME)switch_to_game_map();
-	//					else if(interface_mode==INTERFACE_MAP)switch_from_game_map();
-	//		return;
-	//}
-
 	if (mouse_x < min_mouse_x
 	|| mouse_x > max_mouse_x
 	|| mouse_y < min_mouse_y

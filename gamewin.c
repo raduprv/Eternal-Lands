@@ -1088,7 +1088,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		{
 			hide_window (game_root_win);
 			show_window (map_root_win);
-			interface_mode = INTERFACE_MAP;
 		}
 	}
 	// TEST REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!
@@ -1148,7 +1147,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		{
 			hide_window (game_root_win);
 			show_window (console_root_win);
-			interface_mode = INTERFACE_CONSOLE;
 		}
 		// see if the common text handler can deal with it
 		else if ( text_input_handler (key, unikey) )

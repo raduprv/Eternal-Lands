@@ -572,28 +572,6 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		//windows_list.num_windows = 1;
 	}
 
-/* Grum: Removed in our quest to make the root window a normal one
-	// now, verify that the main window is correct
-	if(windows_list.window[0].window_id != 0 || windows_list.window[0].len_x != window_width)
-		{
-			// this window is currently here only to help position things
-			// this represents the entire screen
-			windows_list.window[0].window_id= 0;
-			windows_list.window[0].order= -1;
-			windows_list.window[0].pos_id= -1;
-			windows_list.window[0].pos_loc= 0;
-			windows_list.window[0].pos_x= 0;
-			windows_list.window[0].pos_y= 0;
-			windows_list.window[0].len_x= window_width;
-			windows_list.window[0].len_y= window_height;
-			windows_list.window[0].cur_x= 0;
-			windows_list.window[0].cur_y= 0;
-
-			windows_list.window[0].flags=0;
-			windows_list.window[0].displayed=0;
-		}
-*/
-
 	// find an empty slot
 	for (i=0; i<windows_list.num_windows; i++)
 	{

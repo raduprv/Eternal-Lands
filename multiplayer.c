@@ -289,7 +289,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				if(data_lenght > 3)
 					{
 						//how to display it
-						if(interface_mode!=INTERFACE_OPENING)
+						if (get_show_window (opening_root_win) )
 							put_text_in_buffer(&in_data[3],data_lenght-3,0);
 						else put_text_in_buffer(&in_data[3],data_lenght-3,54);
 						//lets log it
@@ -363,7 +363,6 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				newchar_root_win = -1;
 				show_window (game_root_win);
 
-				interface_mode=INTERFACE_GAME;
 				previously_logged_in=1;
 			}
 			break;
@@ -455,9 +454,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				rain_sound=0;//kill local sounds also kills the rain sound
 				weather_light_offset=0;
 				rain_light_offset=0;
-				if(interface_mode==INTERFACE_MAP||interface_mode==INTERFACE_CONT){
-					switch_from_game_map();
-				}
+				if ( get_show_window (map_root_win) )
+					switch_from_game_map ();
 				{ 
 					FILE * fp;
 					char marks_file[256], text[600];
@@ -908,7 +906,6 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 						hide_hud_windows ();
 						create_newchar_root_window ();
 						show_window (newchar_root_win);
-						interface_mode = INTERFACE_NEW_CHAR;
 						connect_to_server();
 						break;
 					default:

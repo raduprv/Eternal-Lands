@@ -88,7 +88,6 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		{
 			hide_window (console_root_win);
 			show_window (map_root_win);
-			interface_mode = INTERFACE_MAP;
 		}
 	}
 	else
@@ -99,7 +98,6 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		{
 			hide_window (console_root_win);
 			show_window (game_root_win);
-			interface_mode = INTERFACE_GAME;
 		}
 		else if ( !text_input_handler (key, unikey) )
 		{

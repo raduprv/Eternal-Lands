@@ -10,6 +10,15 @@
 #define RULE	1
 #define INFO 	2
 
+#define INTERFACE_GAME 0
+#define INTERFACE_LOG_IN 1
+#define INTERFACE_NEW_CHAR 2
+#define INTERFACE_CONSOLE 3
+#define INTERFACE_OPENING 4
+#define INTERFACE_MAP 5
+#define INTERFACE_CONT 6
+#define INTERFACE_RULES 7
+
 /*Window*/
 int rules_win=-1;
 int rules_win_x=100;
@@ -26,7 +35,6 @@ int last_display=-1;
 
 /*Interface*/
 int countdown = 0;
-int next_interface=INTERFACE_LOG_IN;
 
 int x_arrow;
 int y_arrow_up;
@@ -273,8 +281,46 @@ void highlight_rule(int type, Uint8 * rule, int no)
 	int cur_rule;
 	
 	if(type==RULE_WIN)toggle_rules_window(0);
-	else if(type==RULE_INTERFACE){
-		init_rules_interface(rule[2], 1.0f, *((Uint16*)(rule)), window_width, window_height);
+	else if(type==RULE_INTERFACE)
+	{
+		switch (rule[2])
+		{
+			case INTERFACE_LOG_IN:
+				if (login_root_win < 0)
+					create_login_root_window (window_width, window_height);
+				next_win_id = login_root_win;
+				break;
+			case INTERFACE_NEW_CHAR:
+				if (newchar_root_win < 0)
+					create_newchar_root_window (window_width, window_height);
+				next_win_id = newchar_root_win;
+				break;
+			case INTERFACE_CONSOLE:
+				if (console_root_win < 0)
+					create_console_root_window (window_width, window_height);
+				next_win_id = console_root_win;
+				break;
+			case INTERFACE_OPENING:
+				if (opening_root_win < 0)
+					create_opening_root_window (window_width, window_height);
+				next_win_id = opening_root_win;
+				break;
+			case INTERFACE_MAP:
+			case INTERFACE_CONT:
+				if (map_root_win < 0)
+					create_map_root_window (window_width, window_height);
+				next_win_id = map_root_win;
+				break;
+			case INTERFACE_RULES: 
+				// doesn't make sense, use the default
+			case INTERFACE_GAME:
+			default:
+				if (game_root_win < 0)
+					create_game_root_window (window_width, window_height);
+				next_win_id = game_root_win; break;
+		}
+			
+		init_rules_interface(1.0f, *((Uint16*)(rule)), window_width, window_height);
 		rule+=3;
 		no-=3;
 	} else return; //Hmm...
@@ -418,11 +464,10 @@ void check_mouse_rules_interface(rule_string * rules_ptr, int lenx, int leny, in
 
 /*Root window*/
 
-void init_rules_interface(int next, float text_size, int count, int len_x, int len_y)
+void init_rules_interface(float text_size, int count, int len_x, int len_y)
 {
 	float window_ratio = (float)len_x / 640.0f;
 	
-	next_interface=next;
 	if(rules.no)
 	{
 		if (last_display)
@@ -437,7 +482,6 @@ void init_rules_interface(int next, float text_size, int count, int len_x, int l
 
 	last_display = 0;
 	has_accepted = 0;
-	interface_mode = INTERFACE_RULES;
 	
 	arrow_size = 32;
 	x_arrow = (len_x + len_y) / 2 - 50 * window_ratio - arrow_size / 2;
@@ -657,7 +701,6 @@ void switch_rules_to_next ()
 	show_window (next_win_id);
 	destroy_window (rules_root_win);
 	rules_root_win = -1;
-	interface_mode = next_interface;
 	if (disconnected) connect_to_server();
 }
 
@@ -732,7 +775,7 @@ int keypress_rules_root_handler (window_info *win, int mx, int my, Uint32 key, U
 
 int resize_rules_root_handler (window_info *win, Uint32 w, Uint32 h)
 {
-	init_rules_interface (next_interface, 1.0, countdown, w, h);
+	init_rules_interface (1.0, countdown, w, h);
 	return 1;
 }
 
@@ -748,8 +791,7 @@ void create_rules_root_window (int width, int height, int next, int time)
 		set_window_handler (rules_root_win, ELW_HANDLER_KEYPRESS, &keypress_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_RESIZE, &resize_rules_root_handler);
 		
-		// XXX FIXME (Grum): try to get rid of interface_mode
-		init_rules_interface (next == newchar_root_win ? INTERFACE_NEW_CHAR : INTERFACE_OPENING, 1.0, 2*time, width, height);
+		init_rules_interface (1.0, 2*time, width, height);
 		next_win_id = next;
 	}
 }

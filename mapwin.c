@@ -100,7 +100,6 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		switch_from_game_map ();
 		hide_window (map_root_win);
 		show_window (game_root_win);
-		interface_mode = INTERFACE_GAME;
 	}
 	else
 	{
@@ -110,7 +109,6 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 			switch_from_game_map ();
 			hide_window (map_root_win);
 			show_window (console_root_win);
-			interface_mode = INTERFACE_CONSOLE;
 		}
 		else if (ch == SDLK_RETURN && input_text_line.len > 0 && input_text_line.data[0] == '#')
 		{

@@ -206,12 +206,10 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			create_rules_root_window (win->len_x, win->len_y, newchar_root_win, 15);
 			show_window (rules_root_win);
-			interface_mode = INTERFACE_RULES;
 		}
 		else 
 		{
 			show_window (newchar_root_win);
-			interface_mode = INTERFACE_NEW_CHAR;
 		}
 	}
 	return 1;

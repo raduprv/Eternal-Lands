@@ -119,7 +119,6 @@ void toggle_rules_window(int toggle);
  *
  *      Initializes the rules interface
  *
- * \param next the interface mode which is selected if the user clicks the accept button
  * \param text_size the size of the text being displayed
  * \param countdown number of seconds to show off the rules.
  * \param len_x the width of the rules window
@@ -127,7 +126,7 @@ void toggle_rules_window(int toggle);
  *
  * \callgraph
  */
-void init_rules_interface(int next, float text_size, int countdown, int len_x, int len_y);
+void init_rules_interface(float text_size, int countdown, int len_x, int len_y);
 
 /* OBSOLETE declaration: queued for removal from this header file */
 //*!

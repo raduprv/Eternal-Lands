@@ -667,7 +667,6 @@ void init_stuff()
 	if (has_accepted)
 	{
 		show_window (opening_root_win);
-		interface_mode=INTERFACE_OPENING;
 		connect_to_server();
 	}
 	else 

@@ -32,7 +32,6 @@ int username_text_lenght=0;
 int password_text_lenght=0;
 
 int have_a_map=0;
-char interface_mode=INTERFACE_RULES;
 char create_char_error_str[520];
 char log_in_error_str[520];
 int combat_mode=0;
@@ -424,7 +423,6 @@ int switch_to_game_map()
 		LOG_TO_CONSOLE(c_yellow2,"There is no map for this place.");
 		return 0;
 	}
-	interface_mode=INTERFACE_MAP;
 	if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
 	return 1;
 }
@@ -432,7 +430,6 @@ int switch_to_game_map()
 void switch_from_game_map()
 {
 	glDeleteTextures(1,&map_text);
-	interface_mode=INTERFACE_GAME;
 }
 
 

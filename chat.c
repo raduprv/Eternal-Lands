@@ -13,6 +13,9 @@
 #define CHAT_WIN_SCROLL_WIDTH	20	/*!< width of the scrollbar for the chat window */
 /*! @} */
 
+#define CHANNEL_LOCAL	-1
+#define CHANNEL_GUILD	-2
+
 int use_windowed_chat = 0;
 
 int chat_win = -1;
@@ -32,6 +35,8 @@ int chat_out_text_height = CHAT_OUT_TEXT_HEIGHT;
 int current_line = 0;
 int text_changed = 1;
 int nr_displayed_lines;
+
+int channel_nrs[CHAT_WIN_MAX_TABS];
 
 void sync_chat_and_console ()
 {
@@ -121,21 +126,21 @@ int resize_chat_handler(window_info *win, int width, int height)
 	int input_y = height - input_height - CHAT_WIN_SPACE;
 	int tabcol_height = input_y - 2 * CHAT_WIN_SPACE;
 	int output_height = tabcol_height - CHAT_WIN_TAG_HEIGHT;
-	int diff = (int) 18*chat_zoom;
+	int line_height = (int) 18*chat_zoom;
 	
-	if (output_height < 5*18*chat_zoom + 2 * CHAT_WIN_SPACE && input_height > 3*diff)
+	if (output_height < 5*line_height + 2 * CHAT_WIN_SPACE && input_height > 3*line_height + 2 * CHAT_WIN_SPACE)
 	{
-		input_height -= 2*diff;
-		input_y += 2*diff;
-		output_height += 2*diff;
-		tabcol_height += 2*diff;
+		input_height -= 2*line_height;
+		input_y += 2*line_height;
+		output_height += 2*line_height;
+		tabcol_height += 2*line_height;
 	}
-	else if (output_height < 8*18*chat_zoom + 2 * CHAT_WIN_SPACE && input_height > 2*diff)
+	else if (output_height < 8*line_height + 2 * CHAT_WIN_SPACE && input_height > 2*line_height + 2 * CHAT_WIN_SPACE)
 	{
-		input_height -= diff;
-		input_y += diff;
-		output_height += diff;
-		tabcol_height += diff;
+		input_height -= line_height;
+		input_y += line_height;
+		output_height += line_height;
+		tabcol_height += line_height;
 	}
 	
 	chat_win_text_width = inout_width - 2 * CHAT_WIN_SPACE;

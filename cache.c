@@ -94,7 +94,7 @@ Uint32	cache_system_clean()
 
 	if(!cache_system || !cache_system->time_limit || !cache_system->cached_items) return 0;
 	// make sure we are in a safe place
-	if(interface_mode != INTERFACE_GAME) return 0;
+	if ( !get_show_window (game_root_win) ) return 0;
 	for(i=0; i<cache_system->max_item; i++)
 		{
 			if(cache_system->cached_items[i] && cache_system->cached_items[i]->cache_item)
