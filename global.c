@@ -324,10 +324,10 @@ int trade_menu_x_len=13*33;
 int trade_menu_y_len=11*33;
 int trade_menu_dragged=0;
 
-int options_menu_x_start=220;
-int options_menu_y_start=50;
-int options_menu_x_end=610;
-int options_menu_y_end=300;
+int options_menu_x=220;
+int options_menu_y=50;
+int options_menu_x_len=390;
+int options_menu_y_len=260;
 int options_menu_dragged=0;
 
 int items_text_1;

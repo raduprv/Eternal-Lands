@@ -40,8 +40,8 @@ int check_drag_menus()
 			return 1;
 		}
 
-	if(options_menu && mouse_x>options_menu_x_start && mouse_x<=options_menu_x_end
-	&& mouse_y>options_menu_y_start-16 && mouse_y<=options_menu_y_start || options_menu_dragged)
+	if(options_menu && mouse_x>options_menu_x && mouse_x<=options_menu_x + options_menu_x_len
+	&& mouse_y>options_menu_y-16 && mouse_y<=options_menu_y || options_menu_dragged)
 	if(!attrib_menu_dragged && !items_menu_dragged && !ground_items_menu_dragged && !manufacture_menu_dragged &&
 	   !trade_menu_dragged && !sigil_menu_dragged && !dialogue_menu_dragged)
 
@@ -49,10 +49,8 @@ int check_drag_menus()
 			options_menu_dragged=1;
 			if(left_click>1)
 				{
-					options_menu_x_start+=mouse_delta_x;
-					options_menu_y_start+=mouse_delta_y;
-					options_menu_x_end+=mouse_delta_x;
-					options_menu_y_end+=mouse_delta_y;
+					options_menu_x+=mouse_delta_x;
+					options_menu_y+=mouse_delta_y;
 				}
 			return 1;
 		}
@@ -185,26 +183,10 @@ void check_menus_out_of_screen()
 	if(dialogue_menu_x+dialogue_menu_x_len<10)dialogue_menu_x=0-dialogue_menu_x_len+11;
 	if(dialogue_menu_x>window_width-10)dialogue_menu_x=window_width-10;
 
-	if(options_menu_y_start-16<0)
-		{
-			options_menu_y_start=16;
-			options_menu_y_end=16+250;
-		}
-	if(options_menu_y_start>window_height-32)
-		{
-			options_menu_y_start=window_height-32;
-			options_menu_y_end=window_height-32+250;
-		}
-	if(options_menu_x_end<10)
-		{
-			options_menu_x_start=0-(options_menu_x_end-options_menu_x_start)+11;
-			options_menu_x_end=0-(options_menu_x_end-options_menu_x_start)+11+390;
-		}
-	if(options_menu_x_start>window_width-10)
-		{
-			options_menu_x_start=window_width-10;
-			options_menu_x_end=window_width-10+390;
-		}
+	if(options_menu_y-16<0)options_menu_y=16;
+	if(options_menu_y>window_height-32)options_menu_y=window_height-32;
+	if(options_menu_x + options_menu_x_len<10)options_menu_x=0-(options_menu_x + options_menu_x_len-options_menu_x)+11;
+	if(options_menu_x>window_width-10)options_menu_x=window_width-10;
 }
 
 void check_mouse_click()
@@ -426,7 +408,7 @@ void check_mouse_click()
 		{
 			if(object_under_mouse==-1)return;
 			open_bag(object_under_mouse);
-			action_mode=action_pick;
+			//action_mode=action_pick;
 			return;
 		}
 	if(action_mode==action_pick && right_click)
@@ -517,7 +499,7 @@ typedef struct
 	char selected;
 }mode_flag;
 
-mode_flag video_modes[8];
+mode_flag video_modes[10];
 
 void build_video_mode_array()
 {
@@ -590,6 +572,20 @@ void build_video_mode_array()
 	if(bpp==32)
 	#endif
 	if(SDL_VideoModeOK(1152, 864, 32, flags))video_modes[7].supported=1;
+
+	#ifdef WINDOWS
+	if(bpp==16 || full_screen)
+	#else
+	if(bpp==16)
+	#endif
+	if(SDL_VideoModeOK(1280, 1024, 16, flags))video_modes[8].supported=1;
+
+	#ifdef WINDOWS
+	if(bpp==32 || full_screen)
+	#else
+	if(bpp==32)
+	#endif
+	if(SDL_VideoModeOK(1280, 1024, 32, flags))video_modes[9].supported=1;
 }
 
 void draw_console_pic(int which_texture)
@@ -1441,45 +1437,45 @@ float unlit_gem_v_end=1.0f-(float)111/255;
 void draw_options_menu()
 {
 
-	draw_menu_title_bar(options_menu_x_start,options_menu_y_start-16,options_menu_x_end-options_menu_x_start);
+	draw_menu_title_bar(options_menu_x,options_menu_y-16,options_menu_x + options_menu_x_len-options_menu_x);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(options_menu_x_start,options_menu_y_end,0);
-	glVertex3i(options_menu_x_start,options_menu_y_start,0);
-	glVertex3i(options_menu_x_end,options_menu_y_start,0);
-	glVertex3i(options_menu_x_end,options_menu_y_end,0);
+	glVertex3i(options_menu_x,options_menu_y + options_menu_y_len,0);
+	glVertex3i(options_menu_x,options_menu_y,0);
+	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y,0);
+	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y + options_menu_y_len,0);
 	glEnd();
 
 	glDisable(GL_BLEND);
 
 	glColor3f(0.0f,1.0f,0.0f);
 	glBegin(GL_LINES);
-	glVertex3i(options_menu_x_start,options_menu_y_start,0);
-	glVertex3i(options_menu_x_end,options_menu_y_start,0);
-	glVertex3i(options_menu_x_end,options_menu_y_start,0);
-	glVertex3i(options_menu_x_end,options_menu_y_end,0);
-	glVertex3i(options_menu_x_end,options_menu_y_end,0);
-	glVertex3i(options_menu_x_start,options_menu_y_end,0);
-	glVertex3i(options_menu_x_start,options_menu_y_end,0);
-	glVertex3i(options_menu_x_start,options_menu_y_start,0);
+	glVertex3i(options_menu_x,options_menu_y,0);
+	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y,0);
+	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y,0);
+	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y + options_menu_y_len,0);
+	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y + options_menu_y_len,0);
+	glVertex3i(options_menu_x,options_menu_y + options_menu_y_len,0);
+	glVertex3i(options_menu_x,options_menu_y + options_menu_y_len,0);
+	glVertex3i(options_menu_x,options_menu_y,0);
 
 	//draw the corner, with the X in
-	glVertex3i(options_menu_x_end,options_menu_y_start+20,0);
-	glVertex3i(options_menu_x_end-20,options_menu_y_start+20,0);
+	glVertex3i(options_menu_x + options_menu_x_len,options_menu_y+20,0);
+	glVertex3i(options_menu_x + options_menu_x_len-20,options_menu_y+20,0);
 
-	glVertex3i(options_menu_x_end-20,options_menu_y_start+20,0);
-	glVertex3i(options_menu_x_end-20,options_menu_y_start,0);
+	glVertex3i(options_menu_x + options_menu_x_len-20,options_menu_y+20,0);
+	glVertex3i(options_menu_x + options_menu_x_len-20,options_menu_y,0);
 
 	glEnd();
 
 
 	glEnable(GL_TEXTURE_2D);
 
-	draw_string_small(options_menu_x_end-16,options_menu_y_start+2,"X",1);
+	draw_string_small(options_menu_x + options_menu_x_len-16,options_menu_y+2,"X",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 
@@ -1493,304 +1489,340 @@ void draw_options_menu()
 	glBegin(GL_QUADS);
 	if(!have_stencil)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+35, options_menu_x_start+38, options_menu_y_start+51);
+		options_menu_x+8, options_menu_y+35, options_menu_x+38, options_menu_y+51);
 		else
 		if(shadows_on)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+35, options_menu_x_start+38, options_menu_y_start+51);
+		options_menu_x+8, options_menu_y+35, options_menu_x+38, options_menu_y+51);
 		else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+35, options_menu_x_start+38, options_menu_y_start+51);
+		options_menu_x+8, options_menu_y+35, options_menu_x+38, options_menu_y+51);
 
 	if(!have_multitexture)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+55, options_menu_x_start+38, options_menu_y_start+71);
+		options_menu_x+8, options_menu_y+55, options_menu_x+38, options_menu_y+71);
 		else
 		if(clouds_shadows)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+55, options_menu_x_start+38, options_menu_y_start+71);
+		options_menu_x+8, options_menu_y+55, options_menu_x+38, options_menu_y+71);
 		else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+55, options_menu_x_start+38, options_menu_y_start+71);
+		options_menu_x+8, options_menu_y+55, options_menu_x+38, options_menu_y+71);
 
 
 	if(view_compas)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+75, options_menu_x_start+38, options_menu_y_start+91);
+	options_menu_x+8, options_menu_y+75, options_menu_x+38, options_menu_y+91);
 	else
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+75, options_menu_x_start+38, options_menu_y_start+91);
+	options_menu_x+8, options_menu_y+75, options_menu_x+38, options_menu_y+91);
 
 	if(view_clock)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+95, options_menu_x_start+38, options_menu_y_start+111);
+	options_menu_x+8, options_menu_y+95, options_menu_x+38, options_menu_y+111);
 	else
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+95, options_menu_x_start+38, options_menu_y_start+111);
+	options_menu_x+8, options_menu_y+95, options_menu_x+38, options_menu_y+111);
 
 	if(!have_sound)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+115, options_menu_x_start+38, options_menu_y_start+131);
+		options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
 		else
 		if(sound_on)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+115, options_menu_x_start+38, options_menu_y_start+131);
+		options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
 		else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+115, options_menu_x_start+38, options_menu_y_start+131);
+		options_menu_x+8, options_menu_y+115, options_menu_x+38, options_menu_y+131);
 
 	if(!have_music)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+135, options_menu_x_start+38, options_menu_y_start+151);
+		options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
 		else
 		if(music_on)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+135, options_menu_x_start+38, options_menu_y_start+151);
+		options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
 		else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-		options_menu_x_start+8, options_menu_y_start+135, options_menu_x_start+38, options_menu_y_start+151);
+		options_menu_x+8, options_menu_y+135, options_menu_x+38, options_menu_y+151);
 
 	if(combat_grid)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+155, options_menu_x_start+38, options_menu_y_start+171);
+	options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
 	else
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+155, options_menu_x_start+38, options_menu_y_start+171);
+	options_menu_x+8, options_menu_y+155, options_menu_x+38, options_menu_y+171);
 
 	if(auto_camera)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+175, options_menu_x_start+38, options_menu_y_start+191);
+	options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
 	else
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+175, options_menu_x_start+38, options_menu_y_start+191);
+	options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
 	if(show_reflection)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+195, options_menu_x_start+38, options_menu_y_start+211);
+	options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
 	else
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+8, options_menu_y_start+195, options_menu_x_start+38, options_menu_y_start+211);
+	options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
 
 
 	//video modes
 
 	if(full_screen)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+35, options_menu_x_start+220, options_menu_y_start+51);
+	options_menu_x+193, options_menu_y+35, options_menu_x+220, options_menu_y+51);
 	else
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+35, options_menu_x_start+220, options_menu_y_start+51);
+	options_menu_x+193, options_menu_y+35, options_menu_x+220, options_menu_y+51);
 
 	if(video_modes[0].selected)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+55, options_menu_x_start+220, options_menu_y_start+71);
+	options_menu_x+193, options_menu_y+55, options_menu_x+220, options_menu_y+71);
 	else if(video_modes[0].supported)
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+55, options_menu_x_start+220, options_menu_y_start+71);
+	options_menu_x+193, options_menu_y+55, options_menu_x+220, options_menu_y+71);
 	else
 	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+55, options_menu_x_start+220, options_menu_y_start+71);
+	options_menu_x+193, options_menu_y+55, options_menu_x+220, options_menu_y+71);
 
 	if(video_modes[1].selected)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+75, options_menu_x_start+220, options_menu_y_start+91);
+	options_menu_x+193, options_menu_y+75, options_menu_x+220, options_menu_y+91);
 	else if(video_modes[1].supported)
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+75, options_menu_x_start+220, options_menu_y_start+91);
+	options_menu_x+193, options_menu_y+75, options_menu_x+220, options_menu_y+91);
 	else
 	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+75, options_menu_x_start+220, options_menu_y_start+91);
+	options_menu_x+193, options_menu_y+75, options_menu_x+220, options_menu_y+91);
 
 	if(video_modes[2].selected)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+95, options_menu_x_start+220, options_menu_y_start+111);
+	options_menu_x+193, options_menu_y+95, options_menu_x+220, options_menu_y+111);
 	else if(video_modes[2].supported)
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+95, options_menu_x_start+220, options_menu_y_start+111);
+	options_menu_x+193, options_menu_y+95, options_menu_x+220, options_menu_y+111);
 	else
 	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+95, options_menu_x_start+220, options_menu_y_start+111);
+	options_menu_x+193, options_menu_y+95, options_menu_x+220, options_menu_y+111);
 
 	if(video_modes[3].selected)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+115, options_menu_x_start+220, options_menu_y_start+131);
+	options_menu_x+193, options_menu_y+115, options_menu_x+220, options_menu_y+131);
 	else if(video_modes[3].supported)
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+115, options_menu_x_start+220, options_menu_y_start+131);
+	options_menu_x+193, options_menu_y+115, options_menu_x+220, options_menu_y+131);
 	else
 	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+115, options_menu_x_start+220, options_menu_y_start+131);
+	options_menu_x+193, options_menu_y+115, options_menu_x+220, options_menu_y+131);
 
 	if(video_modes[4].selected)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+135, options_menu_x_start+220, options_menu_y_start+151);
+	options_menu_x+193, options_menu_y+135, options_menu_x+220, options_menu_y+151);
 	else if(video_modes[4].supported)
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+135, options_menu_x_start+220, options_menu_y_start+151);
+	options_menu_x+193, options_menu_y+135, options_menu_x+220, options_menu_y+151);
 	else
 	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+135, options_menu_x_start+220, options_menu_y_start+151);
+	options_menu_x+193, options_menu_y+135, options_menu_x+220, options_menu_y+151);
 
 	if(video_modes[5].selected)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+155, options_menu_x_start+220, options_menu_y_start+171);
+	options_menu_x+193, options_menu_y+155, options_menu_x+220, options_menu_y+171);
 	else if(video_modes[5].supported)
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+155, options_menu_x_start+220, options_menu_y_start+171);
+	options_menu_x+193, options_menu_y+155, options_menu_x+220, options_menu_y+171);
 	else
 	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+155, options_menu_x_start+220, options_menu_y_start+171);
+	options_menu_x+193, options_menu_y+155, options_menu_x+220, options_menu_y+171);
 
 	if(video_modes[6].selected)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+175, options_menu_x_start+220, options_menu_y_start+191);
+	options_menu_x+193, options_menu_y+175, options_menu_x+220, options_menu_y+191);
 	else if(video_modes[6].supported)
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+175, options_menu_x_start+220, options_menu_y_start+191);
+	options_menu_x+193, options_menu_y+175, options_menu_x+220, options_menu_y+191);
 	else
 	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+175, options_menu_x_start+220, options_menu_y_start+191);
+	options_menu_x+193, options_menu_y+175, options_menu_x+220, options_menu_y+191);
 
 	if(video_modes[7].selected)
 	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+195, options_menu_x_start+220, options_menu_y_start+211);
+	options_menu_x+193, options_menu_y+195, options_menu_x+220, options_menu_y+211);
 	else if(video_modes[7].supported)
 	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+195, options_menu_x_start+220, options_menu_y_start+211);
+	options_menu_x+193, options_menu_y+195, options_menu_x+220, options_menu_y+211);
 	else
 	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
-	options_menu_x_start+193, options_menu_y_start+195, options_menu_x_start+220, options_menu_y_start+211);
+	options_menu_x+193, options_menu_y+195, options_menu_x+220, options_menu_y+211);
+
+	if(video_modes[8].selected)
+	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
+	options_menu_x+193, options_menu_y+215, options_menu_x+220, options_menu_y+231);
+	else if(video_modes[8].supported)
+	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
+	options_menu_x+193, options_menu_y+215, options_menu_x+220, options_menu_y+231);
+	else
+	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
+	options_menu_x+193, options_menu_y+215, options_menu_x+220, options_menu_y+231);
+
+	if(video_modes[9].selected)
+	draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
+	options_menu_x+193, options_menu_y+235, options_menu_x+220, options_menu_y+251);
+	else if(video_modes[9].supported)
+	draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
+	options_menu_x+193, options_menu_y+235, options_menu_x+220, options_menu_y+251);
+	else
+	draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
+	options_menu_x+193, options_menu_y+235, options_menu_x+220, options_menu_y+251);
 
 
 	glEnd();
-	draw_string(options_menu_x_start+55,options_menu_y_start+10,"Options",1);
-	draw_string(options_menu_x_start+45,options_menu_y_start+35,"Shadows",1);
-	draw_string(options_menu_x_start+45,options_menu_y_start+55,"Clouds",1);
-	draw_string(options_menu_x_start+45,options_menu_y_start+75,"Compass",1);
-	draw_string(options_menu_x_start+45,options_menu_y_start+95,"Clock",1);
-	draw_string(options_menu_x_start+45,options_menu_y_start+115,"Sound",1);
-	draw_string(options_menu_x_start+45,options_menu_y_start+135,"Music",1);
-	draw_string(options_menu_x_start+45,options_menu_y_start+155,"Combat Grid",1);
-	draw_string(options_menu_x_start+45,options_menu_y_start+175,"Auto Camera",1);
-	draw_string(options_menu_x_start+45,options_menu_y_start+195,"Reflections",1);
+	draw_string(options_menu_x+55,options_menu_y+10,"Options",1);
+	draw_string(options_menu_x+45,options_menu_y+35,"Shadows",1);
+	draw_string(options_menu_x+45,options_menu_y+55,"Clouds",1);
+	draw_string(options_menu_x+45,options_menu_y+75,"Compass",1);
+	draw_string(options_menu_x+45,options_menu_y+95,"Clock",1);
+	draw_string(options_menu_x+45,options_menu_y+115,"Sound",1);
+	draw_string(options_menu_x+45,options_menu_y+135,"Music",1);
+	draw_string(options_menu_x+45,options_menu_y+155,"Combat Grid",1);
+	draw_string(options_menu_x+45,options_menu_y+175,"Auto Camera",1);
+	draw_string(options_menu_x+45,options_menu_y+195,"Reflections",1);
 
-	draw_string(options_menu_x_start+225,options_menu_y_start+10,"Video Modes",1);
-	draw_string(options_menu_x_start+225,options_menu_y_start+35,"Full Screen",1);
-	draw_string(options_menu_x_start+225,options_menu_y_start+55,"640x480x16",1);
-	draw_string(options_menu_x_start+225,options_menu_y_start+75,"640x480x32",1);
-	draw_string(options_menu_x_start+225,options_menu_y_start+95,"800x600x16",1);
-	draw_string(options_menu_x_start+225,options_menu_y_start+115,"800x600x32",1);
-	draw_string(options_menu_x_start+225,options_menu_y_start+135,"1024x768x16",1);
-	draw_string(options_menu_x_start+225,options_menu_y_start+155,"1024x768x32",1);
-	draw_string(options_menu_x_start+225,options_menu_y_start+175,"1152x864x16",1);
-	draw_string(options_menu_x_start+225,options_menu_y_start+195,"1152x864x32",1);
+	draw_string(options_menu_x+225,options_menu_y+10,"Video Modes",1);
+	draw_string(options_menu_x+225,options_menu_y+35,"Full Screen",1);
+	draw_string(options_menu_x+225,options_menu_y+55,"640x480x16",1);
+	draw_string(options_menu_x+225,options_menu_y+75,"640x480x32",1);
+	draw_string(options_menu_x+225,options_menu_y+95,"800x600x16",1);
+	draw_string(options_menu_x+225,options_menu_y+115,"800x600x32",1);
+	draw_string(options_menu_x+225,options_menu_y+135,"1024x768x16",1);
+	draw_string(options_menu_x+225,options_menu_y+155,"1024x768x32",1);
+	draw_string(options_menu_x+225,options_menu_y+175,"1152x864x16",1);
+	draw_string(options_menu_x+225,options_menu_y+195,"1152x864x32",1);
+	draw_string(options_menu_x+225,options_menu_y+215,"1280x1024x16",1);
+	draw_string(options_menu_x+225,options_menu_y+235,"1280x1024x32",1);
 }
 
 
 int check_options_menu()
 {
 	if(!options_menu)return 0;
-	if(mouse_x<options_menu_x_start || mouse_y<options_menu_y_start ||
-	mouse_x>options_menu_x_end || mouse_y>options_menu_y_end)return 0;
+	if(mouse_x<options_menu_x || mouse_y<options_menu_y ||
+	mouse_x>options_menu_x + options_menu_x_len || mouse_y>options_menu_y + options_menu_y_len)return 0;
 
-	if(mouse_x>options_menu_x_end-16 && mouse_y>options_menu_y_start &&
-	mouse_x<options_menu_x_end && mouse_y<options_menu_y_start+16)
+	if(mouse_x>options_menu_x + options_menu_x_len-16 && mouse_y>options_menu_y &&
+	mouse_x<options_menu_x + options_menu_x_len && mouse_y<options_menu_y+16)
 	options_menu=0;
 	else
-	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+35 &&
-	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+51)
+	if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+35 &&
+	mouse_x<options_menu_x+38 && mouse_y<options_menu_y+51)
 	shadows_on=!shadows_on;
 	else
-	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+55 &&
-	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+71)
+	if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+55 &&
+	mouse_x<options_menu_x+38 && mouse_y<options_menu_y+71)
 	clouds_shadows=!clouds_shadows;
 	else
-	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+75 &&
-	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+91)
+	if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+75 &&
+	mouse_x<options_menu_x+38 && mouse_y<options_menu_y+91)
 	view_compas=!view_compas;
 	else
-	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+95 &&
-	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+111)
+	if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+95 &&
+	mouse_x<options_menu_x+38 && mouse_y<options_menu_y+111)
 	view_clock=!view_clock;
 	else
-	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+115 &&
-	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+131)
+	if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+115 &&
+	mouse_x<options_menu_x+38 && mouse_y<options_menu_y+131)
 		if(sound_on)turn_sound_off();
 		else turn_sound_on();
 	else
-	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+135 &&
-	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+151)
+	if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+135 &&
+	mouse_x<options_menu_x+38 && mouse_y<options_menu_y+151)
 	music_on=!music_on;
 	else
-	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+155 &&
-	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+171)
+	if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+155 &&
+	mouse_x<options_menu_x+38 && mouse_y<options_menu_y+171)
 	combat_grid=!combat_grid;
 	else
-	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+175 &&
-	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+191)
+	if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+175 &&
+	mouse_x<options_menu_x+38 && mouse_y<options_menu_y+191)
 	auto_camera=!auto_camera;
 	else
-	if(mouse_x>options_menu_x_start+8 && mouse_y>options_menu_y_start+195 &&
-	mouse_x<options_menu_x_start+38 && mouse_y<options_menu_y_start+211)
+	if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+195 &&
+	mouse_x<options_menu_x+38 && mouse_y<options_menu_y+211)
 	show_reflection=!show_reflection;
 	else
-	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+35 &&
-	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+51)
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+35 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+51)
 	toggle_full_screen();
 	else
-	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+55 &&
-	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+71)
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+55 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+71)
 		{
 			if(video_modes[0].supported && !video_modes[0].selected)
 			set_new_video_mode(full_screen,1);
 		}
 	else
-	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+75 &&
-	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+91)
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+75 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+91)
 		{
 			if(video_modes[1].supported && !video_modes[1].selected)
 			set_new_video_mode(full_screen,2);
 		}
 	else
-	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+95 &&
-	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+111)
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+95 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+111)
 		{
 			if(video_modes[2].supported && !video_modes[2].selected)
 			set_new_video_mode(full_screen,3);
 		}
 	else
-	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+115 &&
-	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+131)
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+115 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+131)
 		{
 			if(video_modes[3].supported && !video_modes[3].selected)
 			set_new_video_mode(full_screen,4);
 		}
 	else
-	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+135 &&
-	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+151)
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+135 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+151)
 		{
 			if(video_modes[4].supported && !video_modes[4].selected)
 			set_new_video_mode(full_screen,5);
 		}
 	else
-	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+155 &&
-	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+171)
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+155 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+171)
 		{
 			if(video_modes[5].supported && !video_modes[5].selected)
 			set_new_video_mode(full_screen,6);
 		}
 	else
-	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+175 &&
-	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+191)
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+175 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+191)
 		{
 			if(video_modes[6].supported && !video_modes[6].selected)
 			set_new_video_mode(full_screen,7);
 		}
 	else
-	if(mouse_x>options_menu_x_start+193 && mouse_y>options_menu_y_start+195 &&
-	mouse_x<options_menu_x_start+220 && mouse_y<options_menu_y_start+211)
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+195 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+211)
 		{
 			if(video_modes[7].supported && !video_modes[7].selected)
 			set_new_video_mode(full_screen,8);
+		}
+	else
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+215 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+231)
+		{
+			if(video_modes[8].supported && !video_modes[8].selected)
+			set_new_video_mode(full_screen,9);
+		}
+	else
+	if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+235 &&
+	mouse_x<options_menu_x+220 && mouse_y<options_menu_y+251)
+		{
+			if(video_modes[9].supported && !video_modes[9].selected)
+			set_new_video_mode(full_screen,10);
 		}
 
 	return 1;

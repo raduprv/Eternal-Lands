@@ -119,7 +119,7 @@ void read_config()
 	broswer_name[k]=0;
 
 
-  	if(video_mode>8 || video_mode<=0)
+  	if(video_mode>10 || video_mode<=0)
   		{
 			Uint8 str[80];
 			video_mode=2;
@@ -148,10 +148,8 @@ int manufacture_menu_y;
 int trade_menu_x;
 int trade_menu_y;
 
-int options_menu_x_start;
-int options_menu_y_start;
-int options_menu_x_end;
-int options_menu_y_end;
+int options_menu_x;
+int options_menu_y;
 
 int attrib_menu_x;
 int attrib_menu_y;
@@ -201,10 +199,8 @@ void read_bin_cfg()
   	attrib_menu_x=cfg_mem.attrib_menu_x;
   	attrib_menu_y=cfg_mem.attrib_menu_y;
 
-	options_menu_x_start=cfg_mem.options_menu_x_start;
-	options_menu_y_start=cfg_mem.options_menu_y_start;
-	options_menu_x_end=cfg_mem.options_menu_x_end;
-	options_menu_y_end=cfg_mem.options_menu_y_end;
+	options_menu_x=cfg_mem.options_menu_x;
+	options_menu_y=cfg_mem.options_menu_y;
 
 }
 
@@ -238,10 +234,8 @@ void save_bin_cfg()
   	cfg_mem.attrib_menu_x=attrib_menu_x;
   	cfg_mem.attrib_menu_y=attrib_menu_y;
 
-	cfg_mem.options_menu_x_start=options_menu_x_start;
-	cfg_mem.options_menu_y_start=options_menu_y_start;
-	cfg_mem.options_menu_x_end=options_menu_x_end;
-	cfg_mem.options_menu_y_end=options_menu_y_end;
+	cfg_mem.options_menu_x=options_menu_x;
+	cfg_mem.options_menu_y=options_menu_y;
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);

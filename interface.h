@@ -66,10 +66,10 @@ extern float close_button_v_start;
 extern float close_button_u_end;
 extern float close_button_v_end;
 
-extern int options_menu_x_start;
-extern int options_menu_y_start;
-extern int options_menu_x_end;
-extern int options_menu_y_end;
+extern int options_menu_x;
+extern int options_menu_y;
+extern int options_menu_x_len;
+extern int options_menu_y_len;
 extern int options_menu_dragged;
 
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,int y_start,int x_end,int y_end);
