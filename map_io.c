@@ -49,6 +49,8 @@ void destroy_map()
 		}
 
 	destroy_all_particles();
+	
+	selected_3d_object=selected_2d_object=selected_light=selected_particles_object=-1;
 }
 
 int save_map(char * file_name)
@@ -401,7 +403,8 @@ void new_map(int m_x_size,int m_y_size)
 	//reset the camera coordinates
 	cx=0;
 	cy=0;
-
+	
+	dungeon=0;
 
 }
 

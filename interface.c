@@ -1,6 +1,8 @@
 #include "global.h"
 #include <math.h>
 
+int show_position_on_minimap=0;
+
 int check_interface_buttons()
 {
 	if((left_click!=1 && right_click!=1) || mouse_x>=14*32 || mouse_y>=32)return -1;//no interface buttons were selected
@@ -254,7 +256,7 @@ void draw_3d_obj_info()
 {
 	unsigned char str[128];
 	int x_menu,y_menu;
-	if(cur_mode!=mode_3d || selected_3d_object==-1)return;
+	if(cur_mode!=mode_3d || selected_3d_object==-1 || objects_list[selected_3d_object] == NULL)return;
 
 	x_menu=0;
 	y_menu=window_height-72;
@@ -277,6 +279,7 @@ void draw_3d_obj_info()
 	x_menu+=2;
 	y_menu+=2;
 
+	
 	sprintf((char *)str, "X Pos: %03.2f",objects_list[selected_3d_object]->x_pos);
 	draw_string(x_menu,y_menu,str,1);
 
@@ -342,7 +345,7 @@ void draw_2d_obj_info()
 {
 	unsigned char str[128];
 	int x_menu,y_menu;
-	if(cur_mode!=mode_2d || selected_2d_object==-1)return;
+	if(cur_mode!=mode_2d || selected_2d_object==-1||obj_2d_list[selected_2d_object]==NULL)return;
 
 	x_menu=0;
 	y_menu=window_height-72;
@@ -401,7 +404,7 @@ void draw_light_info()
 {
 	unsigned char str[128];
 	int x_menu,y_menu;
-	if(cur_mode!=mode_light || selected_light==-1)return;
+	if(cur_mode!=mode_light || selected_light==-1 || lights_list[selected_light] == NULL)return;
 
 	x_menu=0;
 	y_menu=window_height-72;
@@ -755,7 +758,9 @@ int map_has_changed=1;
 void draw_minimap()
 {
 	int minimap_x_start=window_width/2-128;
+	int minimap_y_end;
 	int scale;//looks ugly if it's accurate :)...
+	float x_map_pos, y_map_pos;
 	
 	if(map_has_changed)
 	        {
@@ -775,18 +780,44 @@ void draw_minimap()
 	if(window_width<window_height) scale=window_width/256;
 	else scale=window_height/256;
 
+        x_map_pos=(float)-cx/(float)(tile_map_size_x*3.0f)*256.0f*scale;
+	y_map_pos=(float)-cy/(float)(tile_map_size_y*3.0f)*256.0f*scale;
+	
+	minimap_x_start/=scale*scale;
+
 	glPushMatrix();
 	glScalef(scale,scale,scale);
+	
 	glBegin(GL_QUADS);
 
-	scale*=scale;
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(minimap_x_start/scale,10+256,0);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(minimap_x_start/scale,10,0);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(minimap_x_start/scale+256,10,0);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(minimap_x_start/scale+256,10+256,0);
+	glTexCoord2f(0.0f, 0.0f); glVertex3i(minimap_x_start,10+256,0);
+	glTexCoord2f(1.0f, 0.0f); glVertex3i(minimap_x_start,10,0);
+	glTexCoord2f(1.0f, 1.0f); glVertex3i(minimap_x_start+256,10,0);
+	glTexCoord2f(0.0f, 1.0f); glVertex3i(minimap_x_start+256,10+256,0);
 	
 	glEnd();
+
 	glPopMatrix();
+	
+	if(show_position_on_minimap)
+		{
+			glDisable(GL_TEXTURE_2D);
+			glColor3f(1.0f,0.0f,0.0f);
+	
+			minimap_x_start*=scale;
+			minimap_y_end=(10+256)*scale;
+	
+			glBegin(GL_LINES);
+			glVertex2i(minimap_x_start+x_map_pos-7,minimap_y_end-y_map_pos+7);
+			glVertex2i(minimap_x_start+x_map_pos+7,minimap_y_end-y_map_pos-7);
+	
+			glVertex2i(minimap_x_start+x_map_pos+7,minimap_y_end-y_map_pos+7);
+			glVertex2i(minimap_x_start+x_map_pos-7,minimap_y_end-y_map_pos-7);
+			glEnd();
+	
+			glColor3f(1.0f,1.0f,1.0f);
+			glEnable(GL_TEXTURE_2D);
+		}
 }
 
 int map_size=0;

@@ -9,8 +9,6 @@ void draw_scene()
 	int y_line;
 	int any_reflection=0;
 
-	cur_time = SDL_GetTicks();
-
 	if(!shadows_on)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 	glLoadIdentity();					// Reset The Matrix
@@ -101,7 +99,7 @@ void draw_scene()
 	Enter2DMode();
 
 	//get the FPS, etc
-	if(cur_time-last_time)fps=1000/(cur_time-last_time);
+	if(cur_time-last_time) fps=1000/(cur_time-last_time);
 	else fps=1000;
 
 	glColor3f(1.0f,1.0f,1.0f);//default color is white

@@ -165,6 +165,10 @@ extern int clouds_shadows;
 
 extern int icons_text;
 
+extern int video_mode;
+extern int auto_save_time;
+extern int limit_fps;
+
 #ifndef POINT_SIZE_MIN_ARB
 #define POINT_SIZE_MIN_ARB 0x8126
 #endif

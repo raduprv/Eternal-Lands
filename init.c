@@ -57,18 +57,18 @@ void read_config()
 	else
 		{
 			strcpy(el_ini, configdir);
-			strcat(el_ini, "el.ini");
+			strcat(el_ini, "mapedit.ini");
 			closedir(d);
 			f=fopen(el_ini,"rb"); //try to load local settings
 		}
 	if(!f) //use global settings
 		{
 			strcpy(el_ini, datadir);
-			strcat(el_ini, "el.ini");
+			strcat(el_ini, "mapedit.ini");
 			f=fopen(el_ini,"rb");
 		}
 #else
-	f=fopen("el.ini","rb");
+	f=fopen("mapedit.ini","rb");
 #endif
 	if(!f)//oops, the file doesn't exist, use the defaults
 		{

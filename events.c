@@ -502,7 +502,7 @@ int HandleEvent(SDL_Event *event)
 						if(ctrl_on)
 							draw_big_height_tile(0);
 						else
-							height_map[(int)(scene_mouse_y/0.5f)*tile_map_size_x*6+(int)(scene_mouse_x/0.5f)]=selected_height;
+							height_map[(int)(scene_mouse_y*2)*tile_map_size_x*6+(int)(scene_mouse_x*2)]=selected_height;
 
 				if(view_heights_list)get_height_under_mouse_from_list();
 			}
@@ -735,13 +735,13 @@ int HandleEvent(SDL_Event *event)
 							{
 								if(cur_tool==tool_kill  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3*6 && scene_mouse_x<tile_map_size_x*3*6)
 									{
-										height_map[(int)(scene_mouse_y/0.5f)*tile_map_size_x*6+(int)(scene_mouse_x/0.5f)]=11;
+										height_map[(int)(scene_mouse_y*2.0f)*tile_map_size_x*6+(int)(scene_mouse_x*2.0f)]=11;
 										return(done);
 									}
 
 								if(cur_tool==tool_clone && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3*6 && scene_mouse_x<tile_map_size_x*3*6)
 									{
-										selected_height=height_map[(int)(scene_mouse_y/0.5f)*tile_map_size_x*6+(int)(scene_mouse_x/0.5f)];
+										selected_height=height_map[(int)(scene_mouse_y*2.0f)*tile_map_size_x*6+(int)(scene_mouse_x*2.0f)];
 										cur_tool=tool_select;
 										return(done);
 									}
@@ -756,7 +756,7 @@ int HandleEvent(SDL_Event *event)
 										else
 										if(ctrl_on)draw_big_height_tile(0);
 										else
-										height_map[(int)(scene_mouse_y/0.5f)*tile_map_size_x*6+(int)(scene_mouse_x/0.5f)]=selected_height;
+										height_map[(int)(scene_mouse_y*2.0f)*tile_map_size_x*6+(int)(scene_mouse_x*2.0f)]=selected_height;
 									}
 								if(view_heights_list)get_height_under_mouse_from_list();
 							}

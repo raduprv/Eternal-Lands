@@ -18,6 +18,10 @@ int bpp;
 Uint32 cur_time=0, last_time=0;//for FPS
 char exec_path[256];
 
+int video_mode=2;
+int limit_fps=60;
+int auto_save_time=0;
+
 float cx=0;
 float cy=0;
 float cz=0;

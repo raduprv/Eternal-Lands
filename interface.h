@@ -66,6 +66,7 @@ extern int buttons_text;
 
 extern int map_has_changed;
 extern GLuint minimap_tex;
+extern int show_position_on_minimap;
 
 int check_interface_buttons();
 void get_world_x_y();
