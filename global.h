@@ -46,9 +46,10 @@
 #include "frustum.h"
 #include "misc.h"
 #include "../elc/client_serv.h"
-#include "../elc/textures.h"
-#include "../elc/font.h"
-#include "../elc/elwindows.h"
+#include "textures.h"
+#include "font.h"
+#include "elwindows.h"
+#include "o3dow.h"
 
 
 #define sector_size_x 15

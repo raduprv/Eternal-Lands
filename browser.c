@@ -191,7 +191,7 @@ int display_browser_handler()
 		draw_string(browser_menu_x+202,browser_menu_y+400-18,(unsigned char *)Dir[cd].Files[i+3],1);
 
    }
-
+	return 1;
 }
 
 

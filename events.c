@@ -67,13 +67,13 @@ int HandleEvent(SDL_Event *event)
 
 		}
 
-		if ( event->key.keysym.sym == SDLK_b && ctrl_on )
-
-		{
-
+		if ( event->key.keysym.sym == SDLK_b && ctrl_on){
 			view_browser=!view_browser;
-
 		}
+		if ( event->key.keysym.sym == SDLK_w && ctrl_on){
+			view_o3dow=!view_o3dow;
+		}
+
 		if ( event->key.keysym.sym == SDLK_LEFT )
 		{
 			if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
@@ -396,6 +396,7 @@ int HandleEvent(SDL_Event *event)
 				}
 
 			if(left_click==1 && check_browser_interface())return done;
+			if(left_click==1 && check_o3dow_interface())return done;
 			if(check_interface_buttons()==1)tool_bar_click=1;
 			if(right_click==1 && cur_tool==tool_select && selected_tile!=255 && cur_mode==mode_tile)selected_tile=255;
 			if(right_click==1 && cur_tool==tool_select && selected_height!=-1 && cur_mode==mode_height)selected_height=-1;
@@ -432,6 +433,15 @@ int HandleEvent(SDL_Event *event)
         							{
 										if(ctrl_on)clone_3d_object(selected_3d_object);
 										else selected_3d_object=-1;
+										
+										if(c1){
+											if(c2)
+												objects_list[selected_3d_object]->x_rot=rand()%360;
+											if(c3)
+												objects_list[selected_3d_object]->y_rot=rand()%360;
+											if(c4)
+												objects_list[selected_3d_object]->z_rot=rand()%360;
+										}
 									}
 								else
 									{
