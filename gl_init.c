@@ -274,7 +274,7 @@ void init_video()
 
 
 	//try to find a stencil buffer (it doesn't always work on Linux)
-    if(!SDL_SetVideoMode(window_width, window_height, bpp, flags))
+	if(!SDL_SetVideoMode(window_width, window_height, bpp, flags))
     	{
 			log_to_console(c_red1,no_hardware_stencil_str);
 			if(bpp!=32)log_to_console(c_grey1,suggest_24_or_32_bit);

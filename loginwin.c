@@ -225,35 +225,15 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 
 int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	Uint8 ch = unikey & 0xff;
+	Uint8 ch = key_to_char (key);
 	
 	// First check key presses common to all root windows. Many of these
 	// don't make sense at this point, but it should be harmless.
 	if ( keypress_root_common (key, unikey) )
 	{
 		return 1;
-	}
-	
-	if ( (key >= 256 && key <= 267) || key==271)
-	{
-		switch (key)
-		{
-			case 266:
-				ch = 46;
-				break;
-			case 267:
-				ch = 47;
-				break;
-			case 271:
-				ch = 13;
-				break;
-			default:
-				ch = key-208;
-				break;
-		}
-	}
-	
-	if (ch == SDLK_RETURN && username_str[0] && password_str[0])
+	}	
+	else if (ch == SDLK_RETURN && username_str[0] && password_str[0])
 	{
 		send_login_info();
 	}
@@ -262,12 +242,13 @@ int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32
 		username_box_selected = !username_box_selected;
 		password_box_selected = !password_box_selected;
 	}
-	else if (isprint (ch) || ch == SDLK_BACKSPACE)
+	else if (username_box_selected)
 	{
-		if (username_box_selected)
-			add_char_to_username (ch);
-		else
-			add_char_to_password (ch);
+		add_char_to_username (ch);
+	} 
+	else
+	{
+		add_char_to_password (ch);
 	}
 	
 	return 1;

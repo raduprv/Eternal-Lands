@@ -1110,21 +1110,14 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 
 int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	Uint16 keysym = key & 0xffff;
-	Uint8 ch = unikey & 0xff;
-	int alt_on = key & ELW_ALT;
-	int ctrl_on = key & ELW_CTRL;
+	Uint8 ch = key_to_char (key);
 	
 	// first, try to see if we pressed Alt+x, to quit.
-	if ( (keysym == SDLK_x && alt_on) || (keysym == SDLK_q && ctrl_on && !alt_on) )
+	if ( check_quit_or_fullscreen (key) )
 	{
-		exit_now = 1;
+		return 1;
 	}
-	else if (keysym == SDLK_RETURN && alt_on)
-	{
-		toggle_full_screen ();
-	}
-	else if (keysym == SDLK_TAB)
+	else if (ch == SDLK_TAB)
 	{
 		if (username_selected)
 		{
@@ -1144,24 +1137,6 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	}
 	else 
 	{
-		if ( (key >= 256 && key <= 267) || key==271)
-		{
-			switch (key)
-			{
-				case 266:
-					ch = 46;
-					break;
-				case 267:
-					ch = 47;
-					break;
-				case 271:
-					ch = 13;
-					break;
-				default:
-					ch = key-208;
-			}
-		}
-		
 		add_char_to_new_character (ch);
 	}
 	

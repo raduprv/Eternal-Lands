@@ -651,16 +651,13 @@ int display_game_handler (window_info *win)
 	return 1;
 }
 
-// keypress handler common to all root windows (at the moment game_win and
-// console_win)
-int keypress_root_common (Uint32 key, Uint32 unikey)
+int check_quit_or_fullscreen (Uint32 key)
 {
 	int alt_on = key & ELW_ALT;
 	int ctrl_on = key & ELW_CTRL;
-	int shift_on = key & ELW_SHIFT;
 	Uint16 keysym = key & 0xffff;
-	
-	//first, try to see if we pressed Alt+x, to quit.
+
+	// first, try to see if we pressed Alt+x or Ctrl+q, to quit.
 	if ( (keysym == SDLK_x && alt_on) || (keysym == SDLK_q && ctrl_on && !alt_on) )
 	{
 		exit_now = 1;
@@ -668,6 +665,48 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (keysym == SDLK_RETURN && alt_on)
 	{
 		toggle_full_screen ();
+	}
+	else
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+Uint8 key_to_char (Uint32 key)
+{
+	if ( (key >= 256 && key <= 267) || key==271)
+	{
+		switch (key)
+		{
+			case 266:
+				return 46;
+			case 267:
+				return 47;
+			case 271:
+				return 13;
+			default:
+				return key-208;
+		}
+	}
+	
+	return key & 0xff;
+}
+
+// keypress handler common to all in-game root windows (game_win, console_win,
+// and map_win)
+int keypress_root_common (Uint32 key, Uint32 unikey)
+{
+	static Uint32 last_turn_around = 0;
+	int alt_on = key & ELW_ALT;
+	int ctrl_on = key & ELW_CTRL;
+	int shift_on = key & ELW_SHIFT;
+	Uint16 keysym = key & 0xffff;
+	
+	if ( check_quit_or_fullscreen (key) )
+	{
+		return 1;
 	}
 	else if (disconnected && !alt_on && !ctrl_on)
 	{
@@ -681,6 +720,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		windows_paste ();
 #endif
 	}
+	// use quickbar items
 	else if (key == K_ITEM1)
 	{
 		quick_use (0);
@@ -705,6 +745,32 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		quick_use(5);
 	}
+	// Okay, let's move, even when in console or map mode
+	else if (key == K_TURNLEFT)
+	{
+		if (!last_turn_around || last_turn_around + 500 < cur_time)
+		{
+			Uint8 str[2];
+			last_turn_around = cur_time;
+			str[0] = TURN_LEFT;
+			my_tcp_send (my_socket, str, 1);
+		}
+	}
+	else if (key == K_TURNRIGHT)
+	{
+		if (!last_turn_around || last_turn_around + 500 < cur_time)
+		{
+			Uint8 str[2];
+			last_turn_around = cur_time;
+			str[0] = TURN_RIGHT;
+			my_tcp_send (my_socket, str, 1);
+		}
+	}
+	else if (key==K_ADVANCE)
+	{
+		move_self_forward();
+	}
+	// hide all windows
 	else if(key==K_HIDEWINS)
 	{
 		if (ground_items_win >= 0)
@@ -740,6 +806,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 				hide_window (help_win);
 		}
 	}
+	// toggle options
 	else if (key == K_HEALTHBAR)
 	{
 		view_health_bar = !view_health_bar;
@@ -760,6 +827,52 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		clouds_shadows = !clouds_shadows;
 	}
+	// open or close windows
+	else if (key == K_STATS)
+	{
+		if (use_tabbed_windows)
+			view_tab (&tab_stats_win, &tab_stats_collection_id, 0);
+		else
+			view_window (&stats_win, 0);
+	}
+	else if (key == K_OPTIONS)
+	{
+		view_window (&options_win, 0);
+	}
+	else if (key == K_KNOWLEDGE)
+	{
+		if (use_tabbed_windows)
+			view_tab (&tab_stats_win, &tab_stats_collection_id, 1);
+		else
+			view_window (&knowledge_win, 0);
+	}
+	else if (key == K_ENCYCLOPEDIA)
+	{
+		if (use_tabbed_windows)
+			view_tab (&tab_help_win, &tab_help_collection_id, 1);
+		else
+			view_window (&encyclopedia_win, 0);
+	}
+	else if (key == K_HELP)
+	{
+		if (use_tabbed_windows)
+			view_tab(&tab_help_win, &tab_help_collection_id, 0);
+		else
+			view_window(&help_win,0);
+	}
+	else if (key == K_SIGILS)
+	{
+		view_window (&sigil_win, -1);
+	}
+	else if (key == K_MANUFACTURE)
+	{
+		view_window (&manufacture_win, -1);
+	}
+	else if(key == K_ITEMS)
+	{
+		view_window (&items_win, -1);
+	}
+	// set action modes
 	else if (key == K_WALK)
 	{
 		item_action_mode = qb_action_mode = action_mode = action_walk;
@@ -772,6 +885,27 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		item_action_mode = qb_action_mode = action_mode = action_use;
 	}
+	// Roja likes to rotate the camera while in console mode :)
+	else if (key == K_ROTATELEFT)
+	{
+		camera_rotation_speed = normal_camera_rotation_speed / 40;
+		camera_rotation_frames = 40;
+	}
+	else if (key == K_FROTATELEFT)
+	{
+		camera_rotation_speed = fine_camera_rotation_speed / 10;
+		camera_rotation_frames = 10;
+	}
+	else if (key == K_ROTATERIGHT)
+	{
+		camera_rotation_speed = -normal_camera_rotation_speed / 40;
+		camera_rotation_frames = 40;
+	}
+	else if (key == K_FROTATERIGHT)
+	{
+		camera_rotation_speed = -fine_camera_rotation_speed / 10;
+		camera_rotation_frames = 10;
+	}
 	else if (key == K_AFK)
 	{
 		if (!afk) 
@@ -783,6 +917,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		{
 			go_ifk ();
 		}
+	}
+	else if (key == K_SIT)
+	{
+		sit_button_pressed (NULL, 0);
 	}
 	else if (key == K_BROWSER)
 	{
@@ -815,12 +953,88 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	return 1; // we handled it
 }
 
+int text_input_handler (Uint8 ch)
+{
+	if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
+	{
+		// watch for the '//' shortcut
+		if (input_text_lenght == 1 && ch== '/' && input_text_line[0] == '/' && last_pm_from[0])
+		{
+			int i;
+			int l = strlen (last_pm_from);
+			for (i=0; i<l; i++) input_text_line[input_text_lenght++] = last_pm_from[i];
+			put_char_in_buffer (' ');
+		}
+		else
+		{
+			// not the shortcut, add the character to the buffer
+			put_char_in_buffer(ch);
+		}
+	}
+	else if (ch == SDLK_BACKSPACE && input_text_lenght > 0)
+	{
+		input_text_lenght--;
+		if (input_text_line[input_text_lenght] == '\n')
+		{
+			input_text_lenght--;
+			if (input_text_lines > 1) input_text_lines--;
+		}
+		input_text_line[input_text_lenght] = '_';
+		input_text_line[input_text_lenght+1] = '\0';
+	}
+	else if (ch == SDLK_RETURN && input_text_lenght > 0)
+	{
+		if ( (adding_mark == 1) && (input_text_lenght > 1) )
+		{
+			// XXX FIXME (Grum): this should probably only happen in map mode,
+			// and shouldn't occur here. Leave it for now.
+			int i;
+		
+			// if text wrapping just keep the text until the wrap.
+			for (i = 0; i < strlen (input_text_line); i++) 
+				if (input_text_line[i] == 0x0a) 
+					input_text_line[i] = 0;
+						    
+			marks[max_mark].x = mark_x;
+			marks[max_mark].y = mark_y;
+			memset(marks[max_mark].text,0,500);
+						  
+			my_strncp (marks[max_mark].text, input_text_line, 500);
+			marks[max_mark].text[strlen (marks[max_mark].text) - 1] = 0;
+			max_mark++;
+			save_markings ();
+			adding_mark = 0;
+			input_text_lenght = 0;
+			input_text_lines = 1;
+			input_text_line[0] = 0;
+		}
+		else if (*input_text_line == '%' && input_text_lenght > 1) 
+		{
+			input_text_line[input_text_lenght] = '\0';
+			if ( (check_var (input_text_line + 1, 1) ) < 0)
+				send_input_text_line();
+		}
+		else
+		{
+			send_input_text_line();
+		}
+		//also clear the buffer
+		input_text_lenght = 0;
+		input_text_lines = 1;
+		input_text_line[0] = 0;
+	}
+	else
+	{
+		// no clue what to do with this character
+		return 0;
+	}
+	
+	return 1;
+}
+
 int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	static Uint32 last_turn_around = 0;
-
 	Uint16 keysym = key & 0xffff;
-	Uint8 ch = unikey & 0xff;
 	
 	// first try the keypress handler for all root windows
 	if ( keypress_root_common (key, unikey) )
@@ -843,81 +1057,12 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		if (zoom_level < 3.75f) new_zoom_level = zoom_level + 0.25;
 	}
-	// XXX (Grum): should we move the next three into common?
-	else if (key == K_TURNLEFT)
-	{
-		if (!last_turn_around || last_turn_around + 500 < cur_time)
-		{
-			Uint8 str[2];
-			last_turn_around = cur_time;
-			str[0] = TURN_LEFT;
-			my_tcp_send (my_socket, str, 1);
-		}
-	}
-	else if (key==K_TURNRIGHT)
-	{
-		if (!last_turn_around || last_turn_around + 500 < cur_time)
-		{
-			Uint8 str[2];
-			last_turn_around = cur_time;
-			str[0] = TURN_RIGHT;
-			my_tcp_send (my_socket, str, 1);
-		}
-	}
-	else if (key==K_ADVANCE)
-	{
-		move_self_forward();
-	}
-	else if (key == K_STATS)
-	{
-		if (use_tabbed_windows)
-			view_tab (&tab_stats_win, &tab_stats_collection_id, 0);
-		else
-			view_window (&stats_win, 0);
-	}
-	else if (key == K_OPTIONS)
-	{
-		view_window (&options_win, 0);
-	}
-	else if (key == K_KNOWLEDGE)
-	{
-		if (use_tabbed_windows)
-			view_tab(&tab_stats_win, &tab_stats_collection_id, 1);
-		else
-			view_window (&knowledge_win, 0);
-	}
-	else if (key == K_ENCYCLOPEDIA)
-	{
-		if (use_tabbed_windows)
-			view_tab(&tab_help_win, &tab_help_collection_id, 1);
-		else
-			view_window(&encyclopedia_win,0);
-	}
-	else if (key == K_HELP)
-	{
-		if (use_tabbed_windows)
-			view_tab(&tab_help_win, &tab_help_collection_id, 0);
-		else
-			view_window(&help_win,0);
-	}
 	else if (key == K_REPEATSPELL)	// REPEAT spell command
 	{
 		if ( get_show_window (sigil_win) && !get_show_window (trade_win) )
 		{
 			repeat_spell();
 		}
-	}
-	else if (key == K_SIGILS)
-	{
-		view_window (&sigil_win, -1);
-	}
-	else if (key == K_MANUFACTURE)
-	{
-		view_window (&manufacture_win, -1);
-	}
-	else if(key == K_ITEMS)
-	{
-		view_window (&items_win, -1);
 	}
 	else if (key == K_MAP)
 	{
@@ -927,32 +1072,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			show_window (map_win);
 			interface_mode = interface_map;
 		}
-	}
-	// Move the next four into common?
-	else if (key == K_ROTATELEFT)
-	{
-		camera_rotation_speed = normal_camera_rotation_speed / 40;
-		camera_rotation_frames = 40;
-	}
-	else if (key == K_FROTATELEFT)
-	{
-		camera_rotation_speed = fine_camera_rotation_speed / 10;
-		camera_rotation_frames = 10;
-	}
-	else if (key == K_ROTATERIGHT)
-	{
-		camera_rotation_speed = -normal_camera_rotation_speed / 40;
-		camera_rotation_frames = 40;
-	}
-	else if (key == K_FROTATERIGHT)
-	{
-		camera_rotation_speed = -fine_camera_rotation_speed / 10;
-		camera_rotation_frames = 10;
-	}
-	// Move into common?
-	else if (key == K_SIT)
-	{
-		sit_button_pressed (NULL, 0);
 	}
 	// TEST REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!
 	else if (keysym == SDLK_F5)
@@ -1002,24 +1121,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	else
 	{
-		if ( (key >= 256 && key <= 267) || key==271)
-		{
-			switch (key)
-			{
-				case 266:
-					ch = 46;
-					break;
-				case 267:
-					ch = 47;
-					break;
-				case 271:
-					ch = 13;
-					break;
-				default:
-					ch = key-208;
-					break;
-			}
-		}
+		Uint8 ch = key_to_char (key);
 
 		if (ch == '`' || key == K_CONSOLE)
 		{
@@ -1027,79 +1129,14 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			show_window (console_win);
 			interface_mode = interface_console;
 		}
-		else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
+		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
 		{
-			// watch for the '//' shortcut
-			if (input_text_lenght == 1 && ch== '/' && input_text_line[0] == '/' && last_pm_from[0])
-			{
-				int i;
-				int l = strlen (last_pm_from);
-				for (i=0; i<l; i++) input_text_line[input_text_lenght++] = last_pm_from[i];
-				put_char_in_buffer (' ');
-			}
-			else
-			{
-				// not the shortcut, add the character to the buffer
-				put_char_in_buffer(ch);
-			}
+			test_for_console_command ();
 		}
-		else if (ch == SDLK_BACKSPACE && input_text_lenght > 0)
+		// see if the common text handler can deal with it
+		else if ( text_input_handler (ch) )
 		{
-			input_text_lenght--;
-			if (input_text_line[input_text_lenght] == 0x0a)
-			{
-				input_text_lenght--;
-				if (input_text_lines > 1) input_text_lines--;
-				input_text_line[input_text_lenght] = '_';
-				input_text_line[input_text_lenght+1] = 0;
-			}
-			input_text_line[input_text_lenght] = '_';
-			input_text_line[input_text_lenght+1] = 0;
-		}
-		else if (ch == SDLK_RETURN && input_text_lenght > 0)
-		{
-			if ( (adding_mark == 1) && (input_text_lenght > 1) )
-			{
-				// XXX FIXME (Grum): this should probably only happen in map mode,
-				// and shouldn't occur here. Leave it for now.
-				int i;
-				
-				// if text wrapping just keep the text until the wrap.
-				for (i = 0; i < strlen (input_text_line); i++) 
-					if (input_text_line[i] == 0x0a) 
-						input_text_line[i] = 0;
-							    
-				marks[max_mark].x = mark_x;
-				marks[max_mark].y = mark_y;
-				memset(marks[max_mark].text,0,500);
-						  
-				my_strncp (marks[max_mark].text, input_text_line, 500);
-				marks[max_mark].text[strlen(marks[max_mark].text)-1] = 0;
-				max_mark++;
-				save_markings ();
-				adding_mark = 0;
-				input_text_lenght = 0;
-				input_text_lines = 1;
-				input_text_line[0] = 0;
-			}
-			else if (*input_text_line == '%' && input_text_lenght > 1) 
-			{
-				input_text_line[input_text_lenght] = 0;
-				if ( (check_var (input_text_line + 1, 1) ) < 0)
-					send_input_text_line();
-			}
-			else if (*input_text_line == '#')
-			{
-				test_for_console_command();
-			}
-			else
-			{
-				send_input_text_line();
-			}
-			//also clear the buffer
-			input_text_lenght = 0;
-			input_text_lines = 1;
-			input_text_line[0] = 0;
+			return 1;
 		}
 		else
 		{

@@ -36,27 +36,28 @@ void	quick_use(int use_id)
 	}
 }
 
-int HandleEvent(SDL_Event *event)
+int HandleEvent (SDL_Event *event)
 {
+#ifndef WINDOW_CHAT
 	static Uint32 last_turn_around = 0;
-	int done=0;
 	Uint8 ch;
+#endif
+	int done=0;
 	Uint32 key=0;
 
 	if (event->type == SDL_NOEVENT) return 0;
 
-	mod_key_status=SDL_GetModState();
-	if(mod_key_status&KMOD_SHIFT)shift_on=1;
-	else shift_on=0;
+	mod_key_status = SDL_GetModState();
 
-	mod_key_status=SDL_GetModState();
-	if(mod_key_status&KMOD_ALT)alt_on=1;
-	else alt_on=0;
+	if (mod_key_status & KMOD_SHIFT) shift_on = 1;
+	else shift_on = 0;
 
-	mod_key_status=SDL_GetModState();
-	if(mod_key_status&KMOD_CTRL)ctrl_on=1;
-	else ctrl_on=0;
+	if (mod_key_status & KMOD_ALT) alt_on = 1;
+	else alt_on = 0;
 
+	if (mod_key_status & KMOD_CTRL) ctrl_on = 1;
+	else ctrl_on = 0;
+	
 	switch( event->type )
 		{
 
@@ -70,22 +71,21 @@ int HandleEvent(SDL_Event *event)
 			break;
 #endif
 
-	    case SDL_KEYDOWN:
+		case SDL_KEYDOWN:
 			{
 				key=(Uint16)event->key.keysym.sym;
 				
-				if(shift_on)key|=SHIFT;
-				if(ctrl_on)key|=CTRL;
-				if(alt_on)key|=ALT;
+				if (shift_on) key |= SHIFT;
+				if (ctrl_on) key |= CTRL;
+				if (alt_on) key |= ALT;
 
 #ifdef WINDOW_CHAT				
-				if(afk_time) 
-					last_action_time=cur_time; //Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
+				if (afk_time) 
+					last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 
-				keypress_in_windows(mouse_x, mouse_y, key, event->key.keysym.unicode);
-					break;
-#endif
-				
+				keypress_in_windows (mouse_x, mouse_y, key, event->key.keysym.unicode);
+				break;
+#else
 				//first, try to see if we pressed Alt+x, to quit.
 				if ( (event->key.keysym.sym == SDLK_x && alt_on)
 					 || (event->key.keysym.sym == SDLK_q && ctrl_on && !alt_on) )
@@ -95,15 +95,12 @@ int HandleEvent(SDL_Event *event)
 					}
 
 				if(afk_time) 
-					last_action_time=cur_time; //Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
+					last_action_time=cur_time; // Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 
 				if(interface_mode==interface_rules) break;
 
 				if(interface_mode==interface_opening && !disconnected)
 					{
-#ifdef WINDOW_CHAT
-						show_window (login_win);
-#endif
 						interface_mode=interface_log_in;
 						break;
 					}
@@ -584,6 +581,7 @@ int HandleEvent(SDL_Event *event)
 					}
 				
 				break;
+#endif
 			}//key down
 
 		case SDL_VIDEORESIZE:

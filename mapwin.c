@@ -64,21 +64,11 @@ int mouseover_map_handler (window_info *win, int mx, int my)
 
 int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	Uint8 ch = unikey & 0xff;
-	
 	// first try the keypress handler for all root windows
 	if ( keypress_root_common (key, unikey) )
 	{
 		return 1;
 	}
-        // handle K_STATS?
-        // handle K_OPTIONS?
-        // handle K_KNOWLEDGE?
-        // handle K_ENCYCLOPEDIA?
-        // handle K_HELP?
-        // handle K_SIGILS
-        // handle K_MANUFACTURE
-        // handle K_ITEMS
 	else if (key == K_MAP)
 	{
 		switch_from_game_map ();
@@ -88,24 +78,7 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	}
 	else
 	{
-		if ( (key >= 256 && key <= 267) || key==271)
-		{
-			switch (key)
-			{
-				case 266:
-					ch = 46;
-					break;
-				case 267:
-					ch = 47;
-					break;
-				case 271:
-					ch = 13;
-					break;
-				default:
-					ch = key-208;
-					break;
-			}
-		}
+		Uint8 ch = key_to_char (key);
 
 		if (ch == '`' || key == K_CONSOLE)
 		{
@@ -114,77 +87,13 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 			show_window (console_win);
 			interface_mode = interface_console;
 		}
-		else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
+		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
 		{
-			// watch for the '//' shortcut
-			if (input_text_lenght == 1 && ch== '/' && input_text_line[0] == '/' && last_pm_from[0])
-			{
-				int i;
-				int l = strlen (last_pm_from);
-				for (i=0; i<l; i++) input_text_line[input_text_lenght++] = last_pm_from[i];
-				put_char_in_buffer (' ');
-			}
-			else
-			{
-				// not the shortcut, add the character to the buffer
-				put_char_in_buffer(ch);
-			}
+			test_for_console_command ();
 		}
-		else if (ch == SDLK_BACKSPACE && input_text_lenght > 0)
+		else if ( text_input_handler (ch) )
 		{
-			input_text_lenght--;
-			if (input_text_line[input_text_lenght] == 0x0a)
-			{
-				input_text_lenght--;
-				if (input_text_lines > 1) input_text_lines--;
-				input_text_line[input_text_lenght] = '_';
-				input_text_line[input_text_lenght+1] = 0;
-			}
-			input_text_line[input_text_lenght] = '_';
-			input_text_line[input_text_lenght+1] = 0;
-		}
-		else if (ch == SDLK_RETURN && input_text_lenght > 0)
-		{
-			if ( (adding_mark == 1) && (input_text_lenght > 1) )
-			{
-				int i;
-				
-				// if text wrapping just keep the text until the wrap.
-				for (i = 0; i < strlen (input_text_line); i++) 
-					if (input_text_line[i] == 0x0a) 
-						input_text_line[i] = 0;
-							    
-				marks[max_mark].x = mark_x;
-				marks[max_mark].y = mark_y;
-				memset(marks[max_mark].text,0,500);
-						  
-				my_strncp (marks[max_mark].text, input_text_line, 500);
-				marks[max_mark].text[strlen(marks[max_mark].text)-1] = 0;
-				max_mark++;
-				save_markings ();
-				adding_mark = 0;
-				input_text_lenght = 0;
-				input_text_lines = 1;
-				input_text_line[0] = 0;
-			}
-			else if (*input_text_line == '%' && input_text_lenght > 1) 
-			{
-				input_text_line[input_text_lenght] = 0;
-				if ( (check_var (input_text_line + 1, 1) ) < 0)
-					send_input_text_line();
-			}
-			else if (*input_text_line == '#')
-			{
-				test_for_console_command();
-			}
-			else
-			{
-				send_input_text_line();
-			}
-			//also clear the buffer
-			input_text_lenght = 0;
-			input_text_lines = 1;
-			input_text_line[0] = 0;
+			return 1;
 		}
 		else
 		{

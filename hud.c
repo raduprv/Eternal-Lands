@@ -392,7 +392,7 @@ int	display_icons_handler(window_info *win)
 			z = (int*)icon_list[i]->data;
 			switch(icon_list[i]->data_type) {
 			case DATA_WINDOW:
-				if (*z >= 0 && windows_list.window[*z].displayed)
+				if ( *z >= 0 && (windows_list.window[*z].displayed || windows_list.window[*z].reinstate) )
 					icon_list[i]->state = 1;
 				else
 					icon_list[i]->state = 0;

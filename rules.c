@@ -735,17 +735,11 @@ int click_rules_root_handler (window_info *win, int mx, int my, Uint32 flags)
 int keypress_rules_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
-	int alt_on = key & ELW_ALT;
-	int ctrl_on = key & ELW_CTRL;
 
 	// first, try to see if we pressed Alt+x, to quit.
-	if ( (keysym == SDLK_x && alt_on) || (keysym == SDLK_q && ctrl_on && !alt_on) )
+	if ( check_quit_or_fullscreen (key) )
 	{
-		exit_now = 1;
-	}
-	else if (keysym == SDLK_RETURN && alt_on)
-	{
-		toggle_full_screen ();
+		return 1;
 	}
 	else if (keysym == SDLK_DOWN && !reached_end)
 	{
