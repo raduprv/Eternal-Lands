@@ -274,7 +274,8 @@ void check_menus_out_of_screen()
 	if(encyclopedia_menu_y-16<0)encyclopedia_menu_y=16;
 	if(encyclopedia_menu_y>window_height-32)encyclopedia_menu_y=window_height-32;
 	if(encyclopedia_menu_x+encyclopedia_menu_x_len<10)encyclopedia_menu_x=0-encyclopedia_menu_x_len+11;
-	if(encyclopedia_menu_x>window_width-10)encyclopedia_menu_x=window_width-10; 
+	if(encyclopedia_menu_x>window_width-10)encyclopedia_menu_x=window_width-10;
+
 	
 	if(buddy_menu_y-16<0)buddy_menu_y=16;
 	if(buddy_menu_y>window_height-32)buddy_menu_y=window_height-32;
@@ -358,10 +359,10 @@ void check_mouse_click()
 
 	if(view_buddy && mouse_x>(buddy_menu_x+buddy_menu_x_len-20) && mouse_x<=(buddy_menu_x+buddy_menu_x_len)
 	   && mouse_y>buddy_menu_y && mouse_y<=buddy_menu_y+20)
-	   {
-	      view_buddy=0;
-	      return;
-	   }
+		{
+			view_buddy=0;
+			return;
+		}
 	if(check_buddy_interface())return;
 
 	// check for a click on the HUD (between scene & windows)
@@ -409,6 +410,11 @@ void check_mouse_click()
 				}
 		}
 
+	//if we're following a path, stop now
+	if (pf_follow_path) {
+		pf_destroy_path();
+	}
+		
 	//TRADE
 	if((action_mode==action_trade && right_click) || (current_cursor==CURSOR_TRADE && left_click))
 		{
@@ -1347,7 +1353,26 @@ void draw_game_map()
 	glVertex3i(250,0,0);
 
 	glEnd();
-
+	
+	//if we're following a path, draw the destination on the map
+	if (pf_follow_path) {
+		int x = pf_dst_tile->x;
+		int y = pf_dst_tile->y;
+		
+		screen_x=300-(50+200*x/(tile_map_size_x*6));
+		screen_y=0+200*y/(tile_map_size_y*6);
+		
+		glColor3f(1.0f,0.0f,0.0f);
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+		glVertex2i(screen_x-3,screen_y-3);
+		glVertex2i(screen_x+2,screen_y+2);
+		
+		glVertex2i(screen_x+2,screen_y-3);
+		glVertex2i(screen_x-3,screen_y+2);
+		glEnd();
+	}
+	
 	//ok, now let's draw our possition...
 	for(i=0;i<max_actors;i++)
 		{

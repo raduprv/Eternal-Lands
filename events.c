@@ -468,6 +468,9 @@ int HandleEvent(SDL_Event *event)
 			if((left_click==1 || right_click==1) &&
 			   interface_mode==interface_game)
 				check_mouse_click();
+			else if((left_click==1 || right_click==1) &&
+			   interface_mode==interface_map)
+			   	pf_move_to_mouse_position();
 			else
 				if((left_click==1 || right_click==1) &&
 				   interface_mode==interface_opening && !disconnected)
@@ -494,7 +497,10 @@ int HandleEvent(SDL_Event *event)
 				}
 			}
 			break;
-
+		case SDL_USEREVENT:
+			if (event->user.code == SDL_PF_MOVEMENT_TIMER) {
+				pf_move();
+			}
 		}
 
 	return(done);

@@ -45,6 +45,7 @@
 #include "actors.h"
 #include "new_actors.h"
 #include "actor_scripts.h"
+#include "pathfinder.h"
 #include "e3d.h"
 #include "errors.h"
 #include "2d_objects.h"

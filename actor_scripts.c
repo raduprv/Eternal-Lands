@@ -694,6 +694,10 @@ void move_self_forward()
 					//check to see if the coordinates are OUTSIDE the map
 					if(ty<0 || tx<0 || tx>=tile_map_size_x*6 || ty>=tile_map_size_y*6)return;
 
+					if (pf_follow_path) {
+						pf_destroy_path();
+					}
+					
 					str[0]=MOVE_TO;
 					*((short *)(str+1))=tx;
 					*((short *)(str+3))=ty;

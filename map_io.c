@@ -19,6 +19,16 @@ void destroy_map()
 			height_map=0;
 		}
 
+	///kill the pathfinding tile map
+	if(pf_tile_map)
+		{
+			free(pf_tile_map);
+			pf_tile_map=0;
+			
+			if (pf_follow_path) {
+				pf_destroy_path();
+			}
+		}
 
 	//kill the 3d objects links
 	for(i=0;i<max_obj_3d;i++)
@@ -322,6 +332,21 @@ int load_map(char * file_name)
 	//read the heights map
 	fread(height_map, 1, tile_map_size_x*tile_map_size_y*6*6, f);
 
+	//create the tile map that will be used for pathfinding
+	pf_tile_map = (PF_TILE *)calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE));
+	{
+		int i, x, y;
+		
+		for (x = 0; x < tile_map_size_x*6; x++) {
+			for (y = 0; y < tile_map_size_y*6; y++) {
+				i = y*tile_map_size_x*6+x;
+				pf_tile_map[i].x = x;
+				pf_tile_map[i].y = y;
+				pf_tile_map[i].z = height_map[i];
+			}
+		}
+	}
+	
 	//see which objects in our cache are not used in this map
 	//flag_for_destruction();
 	//read the 3d objects
@@ -333,7 +358,6 @@ int load_map(char * file_name)
 			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
 					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
 					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
-
 		}
 
 	//delete the unused objects from the cache

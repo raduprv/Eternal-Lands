@@ -1362,6 +1362,9 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 			add_teleporter(x,y,z);
 			add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
 
+			//mark the teleporter as an unwalkable so that the pathfinder
+			//won't try to plot a path through it
+			pf_tile_map[teleport_y*tile_map_size_x*6+teleport_x].z = 0;
 		}
 	unlock_particles_list();
 
