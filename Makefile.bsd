@@ -15,4 +15,4 @@ release:
 	$(CC) $(CFLAGS) -c $*.c
 
 clean:
-	-rm $(OBJS) el.x86.bsd.bin
+	-rm -f $(OBJS) el.x86.bsd.bin
