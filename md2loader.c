@@ -1,6 +1,48 @@
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "global.h"
+
+int md2_mem_used;
+//Tests to see if a MD2 is already loaded. If it is, return the handle.
+//If not, load it, and return the handle
+md2 * load_md2_cache(char * file_name)
+{
+	md2 * md2_id;
+	int i;
+	int j;
+	int file_name_lenght;
+	file_name_lenght=strlen(file_name);
+
+	for(i=0;i<1000;i++)
+		{
+			j=0;
+			while(j<file_name_lenght)
+				{
+					if(md2_cache[i].file_name[j]!=file_name[j])break;
+					j++;
+				}
+			if(file_name_lenght==j)//ok, md2 already loaded
+				return md2_cache[i].md2_id;
+		}
+	//md2 not found in the cache, so load it, and store it
+	md2_id=load_md2(file_name);
+
+	//find a place to store it
+	i=0;
+	while(i<1000)
+		{
+			if(!md2_cache[i].file_name[0])//we found a place to store it
+				{
+					sprintf(md2_cache[i].file_name, "%s", file_name);
+					md2_cache[i].md2_id=md2_id;
+					return md2_id;
+				}
+			i++;
+		}
+
+	return md2_id;
+}
 
 md2 * load_md2(char * file_name)
 {
@@ -44,7 +86,6 @@ md2 * load_md2(char * file_name)
 	int first_box=0;
 
 	temp_frame_storage_pointer=(char *)&temp_frame_storage;
-	our_md2 = calloc(1, sizeof(md2));
 
 	f = fopen (file_name, "rb");
 	if(!f)
@@ -56,10 +97,13 @@ md2 * load_md2(char * file_name)
 		}
 	fread (&file_header, 1, sizeof(header_file_md2), f);
 
+	our_md2 = calloc(1, sizeof(md2));
+	md2_mem_used = 0;
 	//now, get the faces
 	//alocate the memory for the faces
 	file_face_pointer = calloc(file_header.numFaces, sizeof(faces_file_md2));
 	face_pointer = calloc(file_header.numFaces, sizeof(face_md2));
+	md2_mem_used += file_header.numFaces*sizeof(face_md2);
 	//read the faces, from the file
 	fseek (f, file_header.offsetFaces, SEEK_SET);
 	fread (file_face_pointer, 1, sizeof(faces_file_md2)*file_header.numFaces, f);
@@ -80,6 +124,7 @@ md2 * load_md2(char * file_name)
 	//alocate the memory for the texture coordinates
 	file_text_coord_pointer = calloc(file_header.numTexCoords, sizeof(textureCoordinate_file_md2));
 	text_coord_pointer = calloc(file_header.numTexCoords, sizeof(text_coord_md2));
+	md2_mem_used += file_header.numTexCoords*sizeof(text_coord_md2);
 	//read the coords, from the file
 	fseek (f, file_header.offsetTexCoords, SEEK_SET);
 	fread (file_text_coord_pointer, 1, sizeof(textureCoordinate_file_md2)*file_header.numTexCoords, f);
@@ -89,23 +134,6 @@ md2 * load_md2(char * file_name)
 			text_coord_pointer[i].v=1.0f-(float)file_text_coord_pointer[i].v/(float)file_header.skinHeight;
 		}
 	free(file_text_coord_pointer);
-#ifdef	USE_VERTEXARRAYS
-	if(use_vertex_array)
-		{
-			// allocate the space for a full texture coord array
-			our_md2->text_coord_array= calloc(file_header.numFaces, sizeof(text_coord_md2)*3);
-			//now, convert the coords to VA format
-			for(k=0;k<file_header.numFaces;k++)
-				{
-					our_md2->text_coord_array[k*3].u=text_coord_pointer[face_pointer[k].at].u;
-					our_md2->text_coord_array[k*3].v=text_coord_pointer[face_pointer[k].at].v;
-					our_md2->text_coord_array[k*3+1].u=text_coord_pointer[face_pointer[k].bt].u;
-					our_md2->text_coord_array[k*3+1].v=text_coord_pointer[face_pointer[k].bt].v;
-					our_md2->text_coord_array[k*3+2].u=text_coord_pointer[face_pointer[k].ct].u;
-					our_md2->text_coord_array[k*3+2].v=text_coord_pointer[face_pointer[k].ct].v;
-				}
-		}
-#endif	//USE_VERTEXARRAYS
 
 	/*
 	Now, the complicated thing: Load each frame, and convert the vertices, and the
@@ -114,6 +142,7 @@ md2 * load_md2(char * file_name)
 
 	file_frame_pointer = calloc(file_header.numFrames*file_header.frameSize, sizeof(char));
 	frame_pointer = calloc(file_header.numFrames, sizeof(frame_md2));
+	md2_mem_used += file_header.numFrames*sizeof(frame_md2);
 	//read the coords, from the file
 	fseek (f, file_header.offsetFrames, SEEK_SET);
 	fread (file_frame_pointer, 1, file_header.frameSize*file_header.numFrames, f);
@@ -125,6 +154,7 @@ md2 * load_md2(char * file_name)
 		//alocate some memory for OUR list of vertices
 		some_pointer=calloc(file_header.numVertices, sizeof(vertex_md2));
 		frame_pointer[i].vertex_pointer=some_pointer;
+		md2_mem_used += file_header.numVertices*sizeof(vertex_md2);
 
 		//read the current frame into our temp structure
 		frame_pointer_offset=file_header.frameSize*i;
@@ -199,25 +229,6 @@ md2 * load_md2(char * file_name)
 				frame_pointer[i].box.max_y+=y_offset;
 				frame_pointer[i].box.max_z+=z_offset;
 			}
-#ifdef	USE_VERTEXARRAYS
-		if(use_vertex_array)
-			{
-				//now, convert the vertices to VA format
-				frame_pointer[i].vertex_array= calloc(file_header.numFaces, sizeof(vertex_md2)*3);
-				for(k=0;k<file_header.numFaces;k++)
-					{
-						frame_pointer[i].vertex_array[k*3].x=some_pointer[face_pointer[k].a].x;
-						frame_pointer[i].vertex_array[k*3].y=some_pointer[face_pointer[k].a].y;
-						frame_pointer[i].vertex_array[k*3].z=some_pointer[face_pointer[k].a].z;
-						frame_pointer[i].vertex_array[k*3+1].x=some_pointer[face_pointer[k].b].x;
-						frame_pointer[i].vertex_array[k*3+1].y=some_pointer[face_pointer[k].b].y;
-						frame_pointer[i].vertex_array[k*3+1].z=some_pointer[face_pointer[k].b].z;
-						frame_pointer[i].vertex_array[k*3+2].x=some_pointer[face_pointer[k].c].x;
-						frame_pointer[i].vertex_array[k*3+2].y=some_pointer[face_pointer[k].c].y;
-						frame_pointer[i].vertex_array[k*3+2].z=some_pointer[face_pointer[k].c].z;
-					}
-			}
-#endif	//USE_VERTEXARRAYS
 		}
 	free(file_frame_pointer);
 
@@ -233,5 +244,101 @@ md2 * load_md2(char * file_name)
 	//close the file, at exit
 	fclose (f);
 	return our_md2;
+}
+
+Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame)
+{
+	Uint32	k;
+	Uint32	used=0;
+
+#ifdef	USE_VERTEXARRAYS
+	if(use_vertex_array)
+		{
+			// do we need the texture array populated?
+			if (!cur_md2->text_coord_array)
+				{
+					// allocate the space for a full texture coord array
+					cur_md2->text_coord_array= calloc(cur_md2->numFaces, sizeof(text_coord_md2)*3);
+					used += cur_md2->numFaces*sizeof(text_coord_md2)*3;
+					//now, convert the coords to VA format
+					for(k=0;k<cur_md2->numFaces;k++)
+						{
+							cur_md2->text_coord_array[k*3].u=cur_md2->offsetTexCoords[cur_md2->offsetFaces[k].at].u;
+							cur_md2->text_coord_array[k*3].v=cur_md2->offsetTexCoords[cur_md2->offsetFaces[k].at].v;
+							cur_md2->text_coord_array[k*3+1].u=cur_md2->offsetTexCoords[cur_md2->offsetFaces[k].bt].u;
+							cur_md2->text_coord_array[k*3+1].v=cur_md2->offsetTexCoords[cur_md2->offsetFaces[k].bt].v;
+							cur_md2->text_coord_array[k*3+2].u=cur_md2->offsetTexCoords[cur_md2->offsetFaces[k].ct].u;
+							cur_md2->text_coord_array[k*3+2].v=cur_md2->offsetTexCoords[cur_md2->offsetFaces[k].ct].v;
+						}
+				}
+			//do we need to allocate the VA array?
+			if(!cur_frame->vertex_array)
+				{
+					//now, convert the vertices to VA format
+					cur_frame->vertex_array= calloc(cur_md2->numFaces, sizeof(vertex_md2)*3);
+					used += cur_md2->numFaces*sizeof(vertex_md2)*3;
+			}
+			for(k=0;k<cur_md2->numFaces;k++)
+				{
+					cur_frame->vertex_array[k*3].x=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].a].x;
+					cur_frame->vertex_array[k*3].y=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].a].y;
+					cur_frame->vertex_array[k*3].z=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].a].z;
+					cur_frame->vertex_array[k*3+1].x=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].b].x;
+					cur_frame->vertex_array[k*3+1].y=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].b].y;
+					cur_frame->vertex_array[k*3+1].z=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].b].z;
+					cur_frame->vertex_array[k*3+2].x=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].c].x;
+					cur_frame->vertex_array[k*3+2].y=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].c].y;
+					cur_frame->vertex_array[k*3+2].z=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].c].z;
+				}
+		}
+#endif	//USE_VERTEXARRAYS
+
+	return used;
+}
+
+void free_md2(md2 *md2_ptr)
+{
+	Uint32	i;
+
+	for(i=0; i<md2_ptr->numFrames; i++)
+		{
+			if(md2_ptr->offsetFrames->vertex_pointer) free(md2_ptr->offsetFrames->vertex_pointer);
+		}
+#ifdef	USE_VERTEXARRAYS
+	free_md2_va(md2_ptr);
+#endif	//USE_VERTEXARRAYS
+	if(md2_ptr->offsetTexCoords) free(md2_ptr->offsetTexCoords);
+	if(md2_ptr->offsetFaces) free(md2_ptr->offsetFaces);
+	if(md2_ptr->offsetFrames) free(md2_ptr->offsetFrames);
+}
+
+Uint32 free_md2_va(md2 *md2_ptr)
+{
+	Uint32	mem=0;
+#ifdef	USE_VERTEXARRAYS
+	Uint32	i;
+	for(i=0; i<md2_ptr->numFrames; i++)
+		{
+			if(md2_ptr->offsetFrames->vertex_array)
+				{
+					mem+= md2_ptr->numFaces*sizeof(vertex_md2)*3;
+					free(md2_ptr->offsetFrames->vertex_array);
+					md2_ptr->offsetFrames->vertex_array=NULL;
+				}
+		}
+	if(md2_ptr->text_coord_array)
+		{
+			free(md2_ptr->text_coord_array);
+			mem+= md2_ptr->numFaces*sizeof(text_coord_md2)*3;
+			md2_ptr->text_coord_array=NULL;
+		}
+#endif	//USE_VERTEXARRAYS
+	return	mem;
+}
+
+void destroy_md2(md2 *md2_ptr)
+{
+	// release the MD2 memory
+	free_md2(md2_ptr);
 }
 

@@ -144,7 +144,16 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 
 	check_gl_errors();
 #ifdef	USE_VERTEXARRAYS
-	if(use_vertex_array && model_data->offsetFrames[frame].vertex_array)
+	if(use_vertex_array)
+		{
+			//TODO: smarter decision making and maybe trigger cleanup?
+			if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
+				{
+					Uint32	mem_used=build_md2_va(model_data, &model_data->offsetFrames[frame]);
+				}
+		}
+	// determine the drawing method
+	if(use_vertex_array && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
 		{
 			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 			if(have_compiled_vertex_array)ELglLockArraysEXT(0, model_data->numFaces*3);

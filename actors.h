@@ -215,7 +215,6 @@ extern actor *actors_list[1000];
 extern int	max_actors;
 extern actor_types actors_defs[40];
 
-md2 * load_md2_cache(char * file_name);
 int get_frame_number(const md2 *model_data, const char *cur_frame);
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 			  float y_pos, float z_pos, float z_rot, char remappable, 

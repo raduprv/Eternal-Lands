@@ -118,6 +118,11 @@ extern md2_cache_struct md2_cache[1000];
 
 
 //proto
+md2 * load_md2_cache(char * file_name);
 md2 * load_md2(char * file_name);
+void destroy_md2(md2 *md2_ptr);
+void free_md2(md2 *md2_ptr);
+Uint32 free_md2_va(md2 *md2_ptr);
+Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame);
 
 #endif

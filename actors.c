@@ -20,47 +20,6 @@ void end_actors_lists()
 	actors_lists_mutex=NULL;
 }
 
-//Tests to see if a MD2 is already loaded. If it is, return the handle.
-//If not, load it, and return the handle
-md2 * load_md2_cache(char * file_name)
-{
-	int i;
-	int j;
-	int file_name_lenght;
-	md2 * md2_id;
-
-	file_name_lenght=strlen(file_name);
-
-	for(i=0;i<1000;i++)
-		{
-			j=0;
-			while(j<file_name_lenght)
-				{
-					if(md2_cache[i].file_name[j]!=file_name[j])break;
-					j++;
-				}
-			if(file_name_lenght==j)//ok, md2 already loaded
-				return md2_cache[i].md2_id;
-		}
-	//md2 not found in the cache, so load it, and store it
-	md2_id=load_md2(file_name);
-
-	//find a place to store it
-	i=0;
-	while(i<1000)
-		{
-			if(!md2_cache[i].file_name[0])//we found a place to store it
-				{
-					sprintf(md2_cache[i].file_name, "%s", file_name);
-					md2_cache[i].md2_id=md2_id;
-					return md2_id;
-				}
-			i++;
-		}
-
-	return md2_id;
-}
-
 //return the ID (number in the actors_list[]) of the new allocated actor
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 			  float y_pos, float z_pos, float z_rot, char remappable, 
@@ -271,7 +230,16 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 	check_gl_errors();
 	glColor3f(1.0f, 1.0f, 1.0f);
 #ifdef	USE_VERTEXARRAYS
-	if(use_vertex_array && model_data->offsetFrames[frame].vertex_array)
+	if(use_vertex_array)
+		{
+			//TODO: smarter decision making and maybe trigger cleanup?
+			if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
+				{
+					Uint32	mem_used=build_md2_va(model_data, &model_data->offsetFrames[frame]);
+				}
+		}
+	// determine the drawing method
+	if(use_vertex_array && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
 		{
 			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
 			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
