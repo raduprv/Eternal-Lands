@@ -1,14 +1,19 @@
 /*!
  * \file
- * \brief Attributes und statistics handling
  * \ingroup stats_win
+ * \brief Attributes und statistics handling
  */
 #ifndef __STATS_H__
 #define __STATS_H__
 
 #include "global.h"
 
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
 extern int	stats_win; /*!< handle for the stats window */
+/*! @} */
 
 /*!
  * The names structure is used for all sort of attributes, skill, nexi to give them a long and a short name.

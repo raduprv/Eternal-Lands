@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief Handles the handling of shadows.
  * \ingroup shadows
+ * \brief Handles the handling of shadows.
  */
 #ifndef __SHADOWS_H__
 #define __SHADOWS_H__

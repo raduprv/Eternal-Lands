@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief copy & paste handling
  * \ingroup hotkey
+ * \brief copy & paste handling
  */
 #ifndef __PASTE_H__
 #define __PASTE_H__

@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief handles sectoring and partitioning of maps
  * \ingroup maps
+ * \brief handles sectoring and partitioning of maps
  */
 #ifndef __SECTOR_H__
 #define __SECTOR_H__

@@ -1,3 +1,8 @@
+/*!
+ * \file
+ * \ingroup display_2d
+ * \brief loading, handling and displaying MD2 files.
+ */
 #ifndef __file_md2_H__
 #define __file_md2_H__
 

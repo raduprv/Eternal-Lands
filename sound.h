@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief Music and sound effects and their handling in EL.
  * \ingroup sound
+ * \brief Music and sound effects and their handling in EL.
  */
 #ifndef __SOUND_H__
 #define __SOUND_H__

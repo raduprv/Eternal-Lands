@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief Handling of sigils and spells
  * \ingroup spells_win
+ * \brief Handling of sigils and spells
  */
 #ifndef __SPELLS_H__
 #define __SPELLS_H__
@@ -23,7 +23,13 @@ sigil_def sigils_list[SIGILS_NO]; /*!< global variable to store the data up to \
 
 extern Sint8 active_spells[10]; /*!< list of the 10 last used spells */
 
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
 extern int sigil_win; /*!< handle for the sigil (spell) window */
+/*! @} */
+
 extern int sigil_menu_x;
 extern int sigil_menu_y;
 extern int sigil_menu_x_len;
@@ -120,4 +126,3 @@ void display_sigils_menu();
  */
 void get_sigils_we_have(Uint32 sigils_we_have);
 #endif
-

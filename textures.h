@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief 	Texture loading and handling
  * \ingroup     load
+ * \brief 	Texture loading and handling
  */
 #ifndef __TEXTURES_H__
 #define __TEXTURES_H__

@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief handles the data and the display of the quest log.
  * \ingroup quest_win
+ * \brief handles the data and the display of the quest log.
  */
 #ifndef __QUESTLOG_H__
 #define __QUESTLOG_H__
@@ -15,7 +15,13 @@ typedef struct ld
 	struct ld *Next; /*!< link to the element in the list. */
 }_logdata;
 
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
 extern int questlog_win; /*!< handle for the questlog window */
+/*! @} */
+
 extern int questlog_menu_x;
 extern int questlog_menu_y;
 extern int questlog_menu_x_len;

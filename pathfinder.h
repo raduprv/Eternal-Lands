@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief client side implementation of the pathfinding algorithm
  * \ingroup move_actors
+ * \brief client side implementation of the pathfinding algorithm
  */
 #ifndef __PATHFINDER_H__
 #define __PATHFINDER_H__

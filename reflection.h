@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief handles the reflection of reflective surfaces
  * \ingroup reflections
+ * \brief handles the reflection of reflective surfaces
  */
 #ifndef __REFLECTION_H__
 #define __REFLECTION_H__

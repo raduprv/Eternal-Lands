@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief data structures and functions for the particle system
  * \ingroup particles
+ * \brief data structures and functions for the particle system
  */
 #ifndef __particles_H__
 #define __particles_H__

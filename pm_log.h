@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief handling of PMs and AFK messages.
  * \ingroup actor_utils
+ * \brief handling of PMs and AFK messages.
  */
 #ifndef __PM_LOG_H__
 #define __PM_LOG_H__

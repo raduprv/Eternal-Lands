@@ -26,6 +26,11 @@ These notices must be retained in any copies of any part of this
 documentation and/or software.
 */
 
+/*!
+ * \file
+ * \ingroup misc_utils
+ * \brief common functions to handle the MD5 sum of data.
+ */
 #ifndef H__MD5
 #define H__MD5
 

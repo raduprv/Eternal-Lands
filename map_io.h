@@ -1,7 +1,12 @@
+/*!
+ * \file
+ * \ingroup maps
+ * \brief loading, saving and handling of maps
+ */
 #ifndef __MAP_IO_H__
 #define __MAP_IO_H__
 
-extern char map_file_name[60];
+extern char map_file_name[60]; /*!< filename of the current map */
 
 typedef struct
 {

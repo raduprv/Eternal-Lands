@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief   Text handling
  * \ingroup text_font
+ * \brief   Text handling
  */
 #ifndef __TEXT_H__
 #define __TEXT_H__
