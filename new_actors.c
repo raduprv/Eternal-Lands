@@ -177,17 +177,11 @@ void draw_enhanced_actor(actor * actor_id)
 	int i;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	int texture_id;
+	//int texture_id;
 	char *cur_frame;
 	float healtbar_z=0;
 
-	texture_id=actor_id->texture_id;
-	if(last_texture!=texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			last_texture=texture_id;
-    	}
-
+	bind_texture_id(actor_id->texture_id);
 	cur_frame=actor_id->cur_frame;
 
 	//now, go and find the current frame

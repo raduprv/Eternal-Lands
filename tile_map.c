@@ -14,7 +14,7 @@ void draw_tile_map()
 			//bind the detail texture
 			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 		}
@@ -49,9 +49,8 @@ void draw_tile_map()
 							if(last_texture!=cur_texture)
 								{
 									glEnd();
-									glBindTexture(GL_TEXTURE_2D, cur_texture);
+									bind_texture_id(cur_texture);
 									glBegin(GL_QUADS);
-									last_texture=cur_texture;
 								}
 
  							glTexCoord2f(0, 1.0f);
@@ -83,9 +82,8 @@ void draw_tile_map()
 							if(last_texture!=cur_texture)
 								{
 									glEnd();
-									glBindTexture(GL_TEXTURE_2D, cur_texture);
+									bind_texture_id(cur_texture);
 									glBegin(GL_QUADS);
-									last_texture=cur_texture;
 								}
 							//draw our normal tile
  							ELglMultiTexCoord2fARB(GL_TEXTURE0_ARB,0, 1.0f);

@@ -404,10 +404,20 @@ char * load_bmp8_alpha_map(char * FileName)
 
 //Tests to see if a texture is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
-int load_texture_cache(char * file_name,unsigned char alpha)
+int load_texture_cache(char * file_name, unsigned char alpha)
 {
-	int i;
-	int j;
+/*
+#ifdef	CACHE_SYSTEM
+	int texture_id;
+	texture_cache_struct	*texture_ptr;
+
+	// search the cache for this entry
+	texture_ptr=cache_find_item(cache_texture, file_name);
+	// did we find it?
+	if(texture_ptr)	return(texture_ptr->texture_id);
+#else	//CACHE_SYSTEM
+*/
+	int i, j;
 	int file_name_lenght;
 	int texture_id;
 
@@ -424,6 +434,8 @@ int load_texture_cache(char * file_name,unsigned char alpha)
 			if(file_name_lenght==j)//ok, texture already loaded
 				return i;
 		}
+//#endif	//CACHE_SYSTEN
+
 	check_gl_errors();
 	//texture not found in the cache, so load it, and store it
 	if(alpha==0)texture_id=load_bmp8_color_key(file_name);
@@ -455,13 +467,15 @@ int load_texture_cache(char * file_name,unsigned char alpha)
 }
 
 //get a texture id out of the texture cache
-//if null, then reload it (means it was previosly freed)
+//if null, then reload it (means it was previously freed)
 int get_texture_id(int i)
 {
     int new_texture_id;
     unsigned char alpha;
 
+#ifndef	CACHE_SYSTEM
     texture_cache[i].last_access_time=cur_time;
+#endif	//CACHE_SYSTEM
     if(!texture_cache[i].texture_id)
         {
             alpha=texture_cache[i].alpha;
@@ -474,7 +488,22 @@ int get_texture_id(int i)
     return texture_cache[i].texture_id;
 }
 
+void	bind_texture_id(int texture_id)
+{
+	if(last_texture!=texture_id)
+		{
+			last_texture=texture_id;
+			glBindTexture(GL_TEXTURE_2D, texture_id);
+		}
+}
 
+int get_and_set_texture_id(int i)
+{
+	int	texture_id=get_texture_id(i);
+	bind_texture_id(texture_id);
+
+	return(texture_id);
+}
 
 
 
@@ -539,7 +568,7 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	texture_mem = (Uint8 *) calloc ( x_size*y_size*4, sizeof(Uint8));
 	read_buffer = (Uint8 *) calloc ( 2000, sizeof(Uint8));
 
-
+	r=g=b=0;	//keep the compiler happy
 	for(y=0;y<y_size;y++)
 		{
 			fread (read_buffer, 1, x_size-x_padding, f);

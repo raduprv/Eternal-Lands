@@ -171,13 +171,7 @@ void draw_string_zoomed(int x, int y,unsigned char * our_string,int max_lines, f
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.1f);
-
-	if(last_texture!=texture_cache[font_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[font_text].texture_id);
-			last_texture=texture_cache[font_text].texture_id;
-		}
-
+	get_and_set_texture_id(font_text);
 
 	i=0;
 	cur_x=x;
@@ -224,13 +218,7 @@ void draw_string_small(int x, int y,unsigned char * our_string,int max_lines)
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.1f);
-
-	if(last_texture!=texture_cache[font_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[font_text].texture_id);
-			last_texture=texture_cache[font_text].texture_id;
-		}
-
+	get_and_set_texture_id(font_text);
 
 	i=0;
 	cur_x=x;
@@ -296,13 +284,7 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.1f);
-
-	if(last_texture!=texture_cache[font_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[font_text].texture_id);
-			last_texture=texture_cache[font_text].texture_id;
-		}
-
+	get_and_set_texture_id(font_text);
 
 	i=0;
 	cur_x=x;

@@ -100,9 +100,7 @@ void change_actor()
 
 	any_model=1;//we have an actor loaded
 	last_texture=-1;//when we load a new char, we also bind the texture, so...
-
 }
-
 
 
 void check_for_input()
@@ -454,12 +452,7 @@ void draw_new_char_screen()
 	glDisable(GL_DEPTH_TEST);
 
 	//now start putting the dialogue boxes.
-	if(last_texture!=texture_cache[login_screen_menus].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[login_screen_menus].texture_id);
-			last_texture=texture_cache[login_screen_menus].texture_id;
-		}
-
+	get_and_set_texture_id(login_screen_menus);
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_QUADS);
 

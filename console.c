@@ -100,7 +100,7 @@ void test_for_console_command()
 			exit_now=1;
 			return;
 		}
-#ifdef	DEBUG
+//#ifdef	DEBUG
 #ifdef	CACHE_SYSTEM
 	if(my_strcompare(text_loc,"mem") || my_strcompare(text_loc,"cache"))
 		{
@@ -110,7 +110,7 @@ void test_for_console_command()
 			return;
 		}
 #endif	//CACHE_SYSTEM
-#endif	//DEBUG
+//#endif	//DEBUG
 	if(my_strcompare(text_loc,"ver") || my_strcompare(text_loc,"vers"))
 		{
 			char str[128];

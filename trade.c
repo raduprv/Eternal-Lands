@@ -190,12 +190,7 @@ void display_trade_menu()
 					else if(this_texture==5)this_texture=items_text_6;
 					else if(this_texture==6)this_texture=items_text_7;
 
-					if(last_texture!=texture_cache[this_texture].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-							last_texture=texture_cache[this_texture].texture_id;
-						}
-
+					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 					glEnd();
@@ -246,12 +241,7 @@ void display_trade_menu()
 					else
 					if(this_texture==6)this_texture=items_text_7;
 
-					if(last_texture!=texture_cache[this_texture].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-							last_texture=texture_cache[this_texture].texture_id;
-						}
-
+					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 					glEnd();
@@ -302,12 +292,7 @@ void display_trade_menu()
 					else
 					if(this_texture==6)this_texture=items_text_7;
 
-					if(last_texture!=texture_cache[this_texture].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-							last_texture=texture_cache[this_texture].texture_id;
-						}
-
+					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 					glEnd();

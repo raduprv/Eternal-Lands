@@ -225,17 +225,10 @@ void display_spells_we_have()
 					y_start=window_height-64;
 					y_end=y_start+32;
 
-
-					if(last_texture!=texture_cache[sigils_text].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[sigils_text].texture_id);
-							last_texture=texture_cache[sigils_text].texture_id;
-						}
-
+					get_and_set_texture_id(sigils_text);
 					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 					glEnd();
-
 				}
 		}
 	//glDisable(GL_ALPHA_TEST);
@@ -376,19 +369,11 @@ void display_sigils_menu()
 					y_start=sigil_menu_y+33*(cur_pos/12);
 					y_end=y_start+32;
 
-
-					if(last_texture!=texture_cache[sigils_text].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[sigils_text].texture_id);
-							last_texture=texture_cache[sigils_text].texture_id;
-						}
-
+					get_and_set_texture_id(sigils_text);
 					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 					glEnd();
-
 				}
-
 		}
 
 	//ok, now let's draw the sigils on the list
@@ -416,18 +401,11 @@ void display_sigils_menu()
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
-					if(last_texture!=texture_cache[sigils_text].texture_id)
-						{
-							glBindTexture(GL_TEXTURE_2D, texture_cache[sigils_text].texture_id);
-							last_texture=texture_cache[sigils_text].texture_id;
-						}
-
+					get_and_set_texture_id(sigils_text);
 					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 					glEnd();
-
 				}
-
 		}
 
 	//now, draw the inventory text, if any.

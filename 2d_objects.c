@@ -52,12 +52,7 @@ void draw_2d_object(obj_2d * object_id)
     glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.18f);
 
-	texture_id=get_texture_id(obj_def_pointer->texture_id);
-	if(last_texture!=texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			last_texture=texture_id;
-		}
+	texture_id=get_and_set_texture_id(obj_def_pointer->texture_id);
 
 	if(!have_multitexture || !clouds_shadows)
 		{
@@ -84,8 +79,8 @@ void draw_2d_object(obj_2d * object_id)
 			//bind the detail texture
 			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, 
-						  texture_cache[ground_detail_text].texture_id);
+			//glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 

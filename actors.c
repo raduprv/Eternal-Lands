@@ -302,17 +302,13 @@ void draw_actor(actor * actor_id)
 	int texture_id;
 	float healtbar_z=0;
 
-	if(!actor_id->remapped_colors)texture_id=texture_cache[actor_id->texture_id].texture_id;
+	if(!actor_id->remapped_colors)texture_id=get_texture_id(actor_id->texture_id);
 	else
 		{
 			//we have remaped colors, we don't store such textures into the cache
 			texture_id=actor_id->texture_id;
 		}
-	if(last_texture!=texture_id)
-		{
-			last_texture=texture_id;
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-		}
+	bind_texture_id(texture_id);
 
 	//now, go and find the current frame
 	i=get_frame_number(actor_id->model_data, actor_id->cur_frame);
@@ -590,11 +586,7 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 	x_rot+=180;//test
 	z_rot+=180;//test
 
-	if(last_texture!=texture_id)
-		{
-			last_texture=texture_id;
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-		}
+	bind_texture_id(texture_id);
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos, y_pos, z_pos);

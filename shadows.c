@@ -43,7 +43,7 @@ void draw_3d_object_shadow(object3d * object_id)
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	int materials_no,texture_id;
+	int materials_no;
 	int i;
 	char is_transparent;
 
@@ -71,14 +71,6 @@ void draw_3d_object_shadow(object3d * object_id)
 	is_transparent=object_id->e3d_data->is_transparent;
 	materials_no=object_id->e3d_data->materials_no;
 
-	x_pos=object_id->x_pos;
-	y_pos=object_id->y_pos;
-	z_pos=object_id->z_pos;
-
-	x_rot=object_id->x_rot;
-	y_rot=object_id->y_rot;
-	z_rot=object_id->z_rot;
-
 	if(is_transparent)
 		{
 			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
@@ -89,11 +81,17 @@ void draw_3d_object_shadow(object3d * object_id)
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glMultMatrixf(fDestMat);
+	x_pos=object_id->x_pos;
+	y_pos=object_id->y_pos;
+	z_pos=object_id->z_pos;
 	glTranslatef (x_pos, y_pos, z_pos);
+
+	x_rot=object_id->x_rot;
+	y_rot=object_id->y_rot;
+	z_rot=object_id->z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3,GL_FLOAT,0,array_vertex);
@@ -107,12 +105,7 @@ void draw_3d_object_shadow(object3d * object_id)
 		{
 			if(is_transparent)
 				{
-					texture_id=get_texture_id(array_order[i].texture_id);
-    				if(last_texture!=texture_id)
-   						{
-							last_texture=texture_id;
-							glBindTexture(GL_TEXTURE_2D, texture_id);
-						}
+					get_and_set_texture_id(array_order[i].texture_id);
 				}
 			if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
@@ -350,6 +343,7 @@ void display_3d_ground_objects()
 {
 	int i;
 	int x,y;
+
 	x=-cx;
 	y=-cy;
 	glEnable(GL_CULL_FACE);
@@ -360,7 +354,7 @@ void display_3d_ground_objects()
 			//bind the detail texture
 			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
@@ -419,7 +413,7 @@ void display_3d_non_ground_objects()
 	y=-cy;
 
 	//we don't want to be affected by 2d objects and shadows
-	anything_under_the_mouse(i,UNDER_MOUSE_NOTHING);
+	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_CULL_FACE);
@@ -429,7 +423,7 @@ void display_3d_non_ground_objects()
 			//bind the detail texture
 			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 

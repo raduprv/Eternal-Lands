@@ -2,7 +2,6 @@
 #include "global.h"
 
 
-
 void build_response_entries(Uint8 *data,int total_lenght)
 {
 	int i;
@@ -131,12 +130,7 @@ void display_dialogue()
 							if(this_texture==4)this_texture=portraits5_tex;
 
 
-			if(last_texture!=texture_cache[this_texture].texture_id)
-				{
-					glBindTexture(GL_TEXTURE_2D, texture_cache[this_texture].texture_id);
-					last_texture=texture_cache[this_texture].texture_id;
-				}
-
+			get_and_set_texture_id(this_texture);
 			glBegin(GL_QUADS);
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();

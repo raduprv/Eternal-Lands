@@ -499,11 +499,7 @@ void build_video_mode_array()
 
 void draw_console_pic(int which_texture)
 {
-	if(last_texture!=texture_cache[which_texture].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[which_texture].texture_id);
-			last_texture=texture_cache[which_texture].texture_id;
-		}
+	get_and_set_texture_id(which_texture);
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_QUADS);
 	//draw the texture
@@ -670,12 +666,7 @@ void draw_login_screen()
 	draw_string(username_text_x,username_text_y,"Username: ",1);
 	draw_string(password_text_x,password_text_y,"Password: ",1);
 	//start drawing the actual interface pieces
-	if(last_texture!=texture_cache[login_screen_menus].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[login_screen_menus].texture_id);
-			last_texture=texture_cache[login_screen_menus].texture_id;
-		}
-
+	get_and_set_texture_id(login_screen_menus);
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_QUADS);
 
@@ -1086,13 +1077,7 @@ void init_peace_icons_position()
 
 void draw_peace_icons()
 {
-
-	if(last_texture!=texture_cache[icons_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[icons_text].texture_id);
-			last_texture=texture_cache[icons_text].texture_id;
-		}
-
+	get_and_set_texture_id(icons_text);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
@@ -1379,13 +1364,7 @@ void draw_options_menu()
 
 	glColor3f(1.0f,1.0f,1.0f);
 
-	if(last_texture!=texture_cache[icons_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[icons_text].texture_id);
-			last_texture=texture_cache[icons_text].texture_id;
-		}
-
-
+	get_and_set_texture_id(icons_text);
 	glBegin(GL_QUADS);
 	if(!have_stencil)
 		draw_2d_thing(broken_gem_u_start, broken_gem_v_start, broken_gem_u_end, broken_gem_v_end,
@@ -1736,12 +1715,7 @@ void draw_ingame_interface()
     glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.001f);
 
-	if(last_texture!=texture_cache[icons_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[icons_text].texture_id);
-			last_texture=texture_cache[icons_text].texture_id;
-		}
-
+	get_and_set_texture_id(icons_text);
 	glColor3f(1.0f,1.0f,1.0f);
 
 	if(view_compas)
@@ -1850,10 +1824,7 @@ void draw_game_map()
 	glPushMatrix();
 	glLoadIdentity();
 
-
-	glBindTexture(GL_TEXTURE_2D, map_text);
-	last_texture=-1;
-
+	bind_texture_id(map_text);
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_QUADS);
 	//draw the texture
@@ -1937,13 +1908,7 @@ void draw_menu_title_bar(int x, int y, int x_len)
 	//ok, now draw that shit...
 	segments_no=x_len/32;
 
-	if(last_texture!=texture_cache[icons_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[icons_text].texture_id);
-			last_texture=texture_cache[icons_text].texture_id;
-		}
-
-
+	get_and_set_texture_id(icons_text);
 	glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER,0.03f);
 	glBegin(GL_QUADS);

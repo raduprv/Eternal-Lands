@@ -148,12 +148,18 @@ extern int cur_lake_waves_time,last_lake_waves_time;
 typedef struct
 {
 	int texture_id;
+    char file_name[128];
+#ifdef	CACHE_SYSTEM
+	cache_item_struct	*cache_ptr;
+#else	//CACHE_SYSTEM
 	int last_access_time;
-    char file_name[100];
+#endif	//CACHE_SYSTEM
 	unsigned char alpha;
 }texture_cache_struct;
 
+//#ifndef	CACHE_SYSTEM
 extern texture_cache_struct texture_cache[1000];
+//#endif	//CACHE_SYSTEM
 
 extern  Uint8 *e3d_file_mem;
 extern  Uint8 *handle_e3d_file_mem;
@@ -270,6 +276,7 @@ extern struct enter_names_struct entrable_objects[100];
 extern cache_struct	*cache_system;
 extern cache_struct	*cache_md2;
 extern cache_struct	*cache_e3d;
+extern cache_struct	*cache_texture;
 #endif	//cache_system
 
 

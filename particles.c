@@ -645,11 +645,7 @@ void display_particles()
 	y=-cy;
 
 	check_gl_errors();
-	if(last_texture!=texture_cache[particles_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[particles_text].texture_id);
-			last_texture=texture_cache[particles_text].texture_id;
-		}
+	get_and_set_texture_id(particles_text);
 	glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
 	check_gl_errors();

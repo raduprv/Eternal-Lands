@@ -17,17 +17,13 @@ void draw_actor_reflection(actor * actor_id)
 	char *cur_frame;
 
 	check_gl_errors();
-	if(!actor_id->remapped_colors)texture_id=texture_cache[actor_id->texture_id].texture_id;
+	if(!actor_id->remapped_colors)texture_id=get_texture_id(actor_id->texture_id);
 	else
 		{
 			//we have remaped colors, we don't store such textures into the cache
 			texture_id=actor_id->texture_id;
 		}
-	if(last_texture!=texture_id)
-		{
-			last_texture=texture_id;
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-		}
+	bind_texture_id(texture_id);
 
 	cur_frame=actor_id->cur_frame;
 
@@ -71,11 +67,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	cur_frame=actor_id->cur_frame;
 	texture_id=actor_id->texture_id;
 
-	if(last_texture!=texture_id)
-		{
-			last_texture=texture_id;
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-		}
+	bind_texture_id(texture_id);
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->x_pos;
@@ -117,7 +109,7 @@ void draw_3d_reflection(object3d * object_id)
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	int materials_no,texture_id;
+	int materials_no;
 	int i;
 
 	e3d_array_vertex *array_vertex;
@@ -177,13 +169,7 @@ void draw_3d_reflection(object3d * object_id)
 	glNormalPointer(GL_FLOAT,0,array_normal);
 	for(i=0;i<materials_no;i++)
 		{
-			texture_id=get_texture_id(array_order[i].texture_id);
-			if(last_texture!=texture_id)
-				{
-					last_texture=texture_id;
-					glBindTexture(GL_TEXTURE_2D, texture_id);
-				}
-			check_gl_errors();
+			get_and_set_texture_id(array_order[i].texture_id);
 			if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
@@ -429,14 +415,7 @@ void draw_lake_tiles()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-
-	if(last_texture!=texture_cache[sky_text_1].texture_id)
-		{
-			last_texture=texture_cache[sky_text_1].texture_id;
-			glBindTexture(GL_TEXTURE_2D, texture_cache[sky_text_1].texture_id);
-		}
-
+	bind_texture_id(get_texture_id(sky_text_1));
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255

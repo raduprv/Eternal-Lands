@@ -9,7 +9,7 @@ void draw_3d_object(object3d * object_id)
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	int materials_no,texture_id;
+	int materials_no;
 	int i;
 
 	e3d_array_vertex *array_vertex;
@@ -104,12 +104,7 @@ void draw_3d_object(object3d * object_id)
 					for(i=0;i<materials_no;i++)
 						{
 	check_gl_errors();
-							texture_id=get_texture_id(array_order[i].texture_id);
-							if(last_texture!=texture_id)
-								{
-									glBindTexture(GL_TEXTURE_2D, texture_id);
-									last_texture=texture_id;
-								}
+							get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 							// a quick check for errors
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
@@ -135,12 +130,7 @@ void draw_3d_object(object3d * object_id)
 					for(i=0;i<materials_no;i++)
 						{
 	check_gl_errors();
-							texture_id=get_texture_id(array_order[i].texture_id);
-    						if(last_texture!=texture_id)
-   						 		{
-									glBindTexture(GL_TEXTURE_2D, texture_id);
-									last_texture=texture_id;
-								}
+							get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 							// a quick check for errors
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
@@ -180,12 +170,7 @@ void draw_3d_object(object3d * object_id)
 					for(i=0;i<materials_no;i++)
 						{
 	check_gl_errors();
-							texture_id=get_texture_id(array_order[i].texture_id);
-							if(last_texture!=texture_id)
-								{
-									glBindTexture(GL_TEXTURE_2D, texture_id);
-									last_texture=texture_id;
-								}
+							get_and_set_texture_id(array_order[i].texture_id);
 							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
@@ -203,12 +188,7 @@ void draw_3d_object(object3d * object_id)
 					for(i=0;i<materials_no;i++)
 						{
 	check_gl_errors();
-							texture_id=get_texture_id(array_order[i].texture_id);
-    						if(last_texture!=texture_id)
-   						 		{
-									glBindTexture(GL_TEXTURE_2D, texture_id);
-									last_texture=texture_id;
-								}
+							get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 							// a quick check for errors
 							if(array_order[i].start < 0 || array_order[i].count <= 0)
@@ -383,7 +363,8 @@ void display_objects()
 			//bind the detail texture
 			ELglActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
+			//glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
