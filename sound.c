@@ -247,7 +247,10 @@ int update_music(void *dummy)
 					alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
 					alGetSourcei(music_source, AL_SOURCE_STATE, &state);
 					
-					if(!processed)continue; //skip error checking et al
+					if(!processed) {
+						if(sleep < SLEEP_TIME)sleep+=(SLEEP_TIME / 100);
+						continue; //skip error checking et al
+					}
 					while(processed-- > 0)
 						{
 							ALuint buffer;
@@ -258,16 +261,18 @@ int update_music(void *dummy)
 						}
 					if(state != AL_PLAYING)
 						{
+							log_to_console(c_red1, "Skip! Speeding up...\n");
 							//on slower systems, music can skip up to 10 times
 							//if it skips more, it just can't play the music...
-							if(sleep > SLEEP_TIME / 10)
-								sleep -= SLEEP_TIME / 10;
+							if(sleep > (SLEEP_TIME / 10))
+								sleep -= (SLEEP_TIME / 10);
 							else if(sleep > 1) sleep = 1;
 							else
 								{
 									log_to_console(c_red1, "Sorry, too slow to play music\n");
 									LogError("Sorry, too slow to play music\n");
-									have_music = 0;
+									turn_music_off();
+									sleep = SLEEP_TIME;
 									break;
 								}
 							alSourcePlay(music_source);
@@ -307,7 +312,11 @@ void stream_music(ALuint buffer) {
 		else
 			break;
     }
-	if(!size)return;
+	if(!size)
+		{
+			playing_music = 0;//file's done, quit trying to play
+			return;
+		}
 
 	alBufferData(buffer, AL_FORMAT_STEREO16, data, size, ogg_info->rate);
 
@@ -392,13 +401,13 @@ void turn_music_off()
 void turn_music_on()
 {
 #ifndef	NO_MUSIC
-	static int i = ogg_el1 - 1;
+	static int i = ogg_el1 - 1;//for testing
 	//int state
 	if(!have_music)return;
 	music_on=1;
-	i++;
-	if(i >= max_songs) i = 0;
-	play_music(i);
+	i++;                       //for testing
+	if(i >= max_songs) i = 0;  //for testing
+	play_music(i);             //for testing
 	//alGetSourcei(music_source, AL_SOURCE_STATE, &state);
 	//if(state == AL_PAUSED) {
 	//alSourcePlay(music_source);
