@@ -3,6 +3,8 @@
 #include <string.h>
 #include "global.h"
 
+char	auto_open_encyclopedia= 1;
+
 //cls - clears the text buffer
 void cls()
 {
@@ -388,8 +390,8 @@ void test_for_console_command()
 
 	if(my_strncompare(text_loc,"help", 4))
 		{
-			// help always opens the Enc!
-			display_encyclopedia();
+			// help can open the Enc!
+			if(auto_open_encyclopedia)	display_encyclopedia();
 		}
 	
 	if(my_strncompare(text_loc,"m", 1))

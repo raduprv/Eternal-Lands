@@ -47,14 +47,17 @@ void write_to_log(Uint8 * data,int len)
 	j=0;
 	for(i=0;i<len && j < 4090;i++)
 		{
-			ch=data[i];
+			ch= data[i];
+			// remove colorization when writting to the chat log
 			if(ch<127)
 				{
 					str[j]=ch;
 					j++;
 				}
 			else if (ch != 133 && ch != 129 && ch != 128)
-				server_message = 1;
+				{
+					server_message = 1;
+				}
 		}
 	str[j]='\n';
 
@@ -107,10 +110,21 @@ void send_input_text_line()
 
 int filter_or_ignore_text(unsigned char *text_to_add, int len)
 {
+	int	l;
+	unsigned char *ptr;
+
+	//check for auto receiving #help
+	for(ptr=text_to_add, l=len; l >0; ptr++, l--){
+		if(!(*ptr&0x80))	break;
+	}
+	if(len > 0 && *ptr == '#' && !strncasecmp(ptr, "#help request", 9)){
+		auto_open_encyclopedia= 0;
+	}
+
 	//check if ignored
 	int type=strncasecmp(&text_to_add[1],"[PM from",8)?0:1;
 	if(pre_check_if_ignored(text_to_add,type))return 0;
-	//Allright, we do not ignore the person
+	//All right, we do not ignore the person
 	if(afk)
 		{
 			if(type)add_message_to_pm_log(text_to_add,len);
