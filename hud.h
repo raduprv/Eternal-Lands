@@ -19,6 +19,7 @@ void draw_stats_display();
 int check_stats_display();
 
 void draw_exp_display();
+void build_levels_table();
 
 //misc section (compass, clock, ?)
 void init_misc_display();
