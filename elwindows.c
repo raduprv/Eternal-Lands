@@ -199,6 +199,9 @@ int	drag_windows(int mx, int my, int dx, int dy)
 								if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
 									drag_id= i;
 									break;
+								} else if(mouse_in_window(i, mx, my)){
+									// stop processing if we are inside of another window
+									return 0;
 								}
 							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
 								// try to find the next level
@@ -232,6 +235,9 @@ int	drag_windows(int mx, int my, int dx, int dy)
 						if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
 							drag_id= i;
 							break;
+						} else if(mouse_in_window(i, mx, my)){
+							// stop processing if we are inside of another window
+							return 0;
 						}
 					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
 						// try to find the next level
@@ -592,6 +598,8 @@ void	show_window(int win_id)
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
+	// pull to the top if not currently displayed
+	if(!windows_list.window[win_id].displayed)	select_window(win_id);
 	windows_list.window[win_id].displayed= 1;
 }
 
@@ -611,7 +619,11 @@ void	toggle_window(int win_id)
 	if(windows_list.window[win_id].displayed)
 		windows_list.window[win_id].displayed= 0;
 	else
-		windows_list.window[win_id].displayed= 1;
+		{
+			// pull to the top if not currently displayed
+			if(!windows_list.window[win_id].displayed)	select_window(win_id);
+			windows_list.window[win_id].displayed= 1;
+		}
 }
 
 
@@ -690,6 +702,8 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				glPopMatrix();
 
 				return	ret_val;
+			} else {
+				return 1;
 			}
 		}
 
