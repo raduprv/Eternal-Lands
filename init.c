@@ -269,6 +269,7 @@ void read_bin_cfg()
 			if((quickbar_y=cfg_mem.quickbar_y)>window_height||quickbar_y<=0)quickbar_y=64;
 			if((quickbar_dir=cfg_mem.quickbar_flags&0xFF)!=HORIZONTAL)quickbar_dir=VERTICAL;
 			if((quickbar_draggable=(cfg_mem.quickbar_flags&0xFF00)>>8)!=1)quickbar_draggable=0;
+			draw_quickbar();
 		}
 	
 	watch_this_stat=cfg_mem.watch_this_stat;

@@ -885,9 +885,12 @@ void draw_quickbar() {
 	// failsafe until better integrated
 	if(quickbar_dir==VERTICAL) {
 		init_window(quickbar_win, 0, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
+		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
 	}
-	if(quickbar_dir==HORIZONTAL) {
+	else if(quickbar_dir==HORIZONTAL) {
 		init_window(quickbar_win, 0, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len);
+		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
+
 	} 
 	display_window(quickbar_win);
 }
