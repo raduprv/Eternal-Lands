@@ -63,6 +63,8 @@ Uint32	cache_system_clean()
 	Uint32	mem_freed=0;
 
 	if(!cache_system || !cache_system->time_limit || !cache_system->cached_items) return 0;
+	// make sure we are in a safe place
+	if(interface_mode != interface_game) return 0;
 	for(i=0; i<cache_system->max_item; i++)
 		{
 			if(cache_system->cached_items[i] && cache_system->cached_items[i]->cache_item)
