@@ -154,7 +154,6 @@ void draw_scene()
 					check_gl_errors();
 					return;
 				}
-#endif
 
 			if(interface_mode==interface_new_char)
 				{
@@ -167,7 +166,6 @@ void draw_scene()
 					return;
 				}
 
-#ifndef WINDOW_CHAT
 			if(interface_mode==interface_map || interface_mode==interface_cont)
 				{
 					// are we actively drawing things?

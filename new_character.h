@@ -94,4 +94,20 @@ void add_char_to_new_character(unsigned char ch);
  */
 void login_from_new_char();
 
+#ifdef WINDOW_CHAT
+
+extern int newchar_win;
+
+/*!
+ * \ingroup interface_newchar
+ * \brief
+ *
+ *      Detail
+ *
+ * \callgraph
+ */
+void create_newchar_window ();
+
+#endif // def WINDOW_CHAT
+
 #endif

@@ -204,10 +204,19 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	//check to see if we clicked on the ACTIVE New Char button
 	else if (new_char_button_selected && left_click)
 	{
+		// don't destroy the login window just yet, the user might 
+		// click the back button
+		hide_window (login_win);
 		if (last_display == -1)
-			init_rules_interface(interface_new_char, 1.0f, 30);
+		{
+			init_rules_interface (interface_new_char, 1.0f, 30);
+		}
 		else 
+		{
+			create_newchar_window ();
+			show_window (newchar_win);
 			interface_mode = interface_new_char;
+		}
 		// XXX FIXME (Grum): figure out how to do this cleanly
 		//left_click=2;
 	}

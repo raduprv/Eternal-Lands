@@ -363,9 +363,11 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 #ifdef WINDOW_CHAT
 				show_hud_windows ();
-				// login window is no longer needed
-				destroy_window (login_win);
+				// login and/or new character windows are no longer needed
+				if (login_win >= 0) destroy_window (login_win);
 				login_win = -1;
+				if (newchar_win >= 0) destroy_window (newchar_win);
+				newchar_win = -1;
 				show_window (game_win);
 #endif
 				interface_mode=interface_game;

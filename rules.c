@@ -447,6 +447,13 @@ void draw_rules_interface()
 	int x,y,width,height;//Width/Height are 0.5*width/height
 	float window_ratio=(float)window_width/640.0f;
 	if(has_accepted) {
+#ifdef WINDOW_CHAT
+		if (next_interface == interface_new_char)
+		{
+			create_newchar_window ();
+			show_window (newchar_win);
+		}
+#endif
 		interface_mode=next_interface;
 		if(disconnected)connect_to_server();
 		return;
