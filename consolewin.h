@@ -5,7 +5,7 @@ extern int console_win;
 
 #ifdef WINDOW_CHAT
 
-void create_console ();
+void create_console_window ();
 
 #endif
 

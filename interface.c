@@ -869,13 +869,19 @@ void switch_from_game_map()
 }
 
 
+#ifdef WINDOW_CHAT
+void draw_game_map (int map, int mouse_mini)
+#else
 void draw_game_map(int map)
+#endif
 {     
 	int screen_x=0;
 	int screen_y=0;
 	int x=-1,y=-1;
 	int i;
+#ifndef WINDOW_CHAT
 	float scale=(float)(window_width-hud_x)/300.0f;
+#endif
 	float x_size=0,y_size=0;
 	GLuint map_small, map_large;
 	
@@ -917,6 +923,12 @@ void draw_game_map(int map)
 		glTexCoord2f(0.0f,0.0f); glVertex3i(250,0,0);
 	glEnd();
 
+#ifdef WINDOW_CHAT
+	if (mouse_mini)
+		glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
+	else
+		glColor4f (0.7f, 0.7f, 0.7f, 0.7f);
+#else
 	if(mouse_x > 0 && mouse_x < 50*scale && mouse_y > 0 && mouse_y < 55*scale){
 		if(left_click==1){
 			if(map)interface_mode=interface_cont;
@@ -926,10 +938,11 @@ void draw_game_map(int map)
 		glColor4f(1.0f,1.0f,1.0f,1.0f);
 	} else 
 		glColor4f(0.7f,0.7f,0.7f,0.7f);
+#endif
     	
 	glEnable(GL_ALPHA_TEST);
 	
-    bind_texture_id(map_small);
+	bind_texture_id(map_small);
     	
     	glBegin(GL_QUADS);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(250,150,0);
@@ -942,7 +955,7 @@ void draw_game_map(int map)
 	
 	glColor3f(1.0f,1.0f,1.0f);
     	
-    get_and_set_texture_id(legend_text);
+	get_and_set_texture_id(legend_text);
     
     	glBegin(GL_QUADS);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(250,50,0);
@@ -951,8 +964,8 @@ void draw_game_map(int map)
 		glTexCoord2f(0.0f,0.0f); glVertex3i(300,50,0);
 	glEnd();
 
-    //if we're following a path, draw the destination on the map
-    if (pf_follow_path) {
+	//if we're following a path, draw the destination on the map
+	if (pf_follow_path) {
        	   int px = pf_dst_tile->x;
            int py = pf_dst_tile->y;
 

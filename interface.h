@@ -302,7 +302,11 @@ void switch_from_game_map();
  *
  * \sa draw_scene
  */
-void draw_game_map();
+#ifdef WINDOW_CHAT
+void draw_game_map (int map, int mouse_mini);
+#else
+void draw_game_map (int map);
+#endif
 
 /*!
  * \ingroup interfaces

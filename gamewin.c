@@ -916,7 +916,12 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 	else if (key == K_MAP)
 	{
-		view_map_win (&map_win, -1);
+		if ( switch_to_game_map () )
+		{
+			hide_window (game_win);
+			show_window (map_win);
+			interface_mode = interface_map;
+		}
 	}
 	// Move the next four into common?
 	else if (key == K_ROTATELEFT)

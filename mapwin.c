@@ -1,29 +1,70 @@
 #include <string.h>
 #include "global.h"
 
-int console_win = -1;
+int map_win = -1;
+int showing_continent = 0;
+
+int mouse_over_minimap = 0;
 
 #ifdef WINDOW_CHAT
 
-int display_console_handler (window_info *win)
+int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
+{
+	Uint32 ctrl_on = flags & ELW_CTRL;
+	float scale = (float) (win->len_x-hud_x) / 300.0f;
+
+	if (left_click == 1 && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
+	{
+		showing_continent = !showing_continent;
+	} else if (!showing_continent)
+	{
+		if (left_click==1)
+		{
+			pf_move_to_mouse_position ();
+		}
+		else if (right_click == 1)
+		{
+			if (!ctrl_on)
+				put_mark_on_map_on_mouse_position ();
+			else
+				delete_mark_on_map_on_mouse_position ();
+		}
+	}
+	
+	return 1;
+}
+
+int display_map_handler ()
 {
 	// are we actively drawing things?
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{
-		Enter2DMode();
-		
-		draw_console_pic(cons_text);
-		display_console_text();
-		draw_hud_interface();
+		Enter2DMode ();
+		draw_hud_interface ();
+		Leave2DMode ();
+		draw_game_map (!showing_continent, mouse_over_minimap);
+		check_gl_errors ();
 	}
-	
-	SDL_Delay(20);
+	SDL_Delay (20);
+	Enter2DMode ();
+
 	return 1;
 }
 
-int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+int mouseover_map_handler (window_info *win, int mx, int my)
 {
-	Uint16 keysym = key & 0xffff;
+	float scale = (float) (win->len_x-hud_x) / 300.0f;
+	
+	if (mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
+		mouse_over_minimap = 1;
+	else
+		mouse_over_minimap = 0;
+	
+	return 1;
+}	
+
+int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
 	Uint8 ch = unikey & 0xff;
 	
 	// first try the keypress handler for all root windows
@@ -31,38 +72,20 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		return 1;
 	}
-	else if (keysym == SDLK_UP)
-	{
-		console_move_up ();
-	}
-	else if (keysym == SDLK_DOWN)
-	{
-		console_move_down ();
-	}
-	else if (keysym == SDLK_PAGEDOWN)
-	{
-		console_move_page_down ();
-	}
-	else if (keysym == SDLK_PAGEUP)
-	{
-		console_move_page_up();
-	}
-	// handle K_STATS?
-	// handle K_OPTIONS?
-	// handle K_KNOWLEDGE?
-	// handle K_ENCYCLOPEDIA?
-	// handle K_HELP?
-	// handle K_SIGILS
-	// handle K_MANUFACTURE
-	// handle K_ITEMS
+        // handle K_STATS?
+        // handle K_OPTIONS?
+        // handle K_KNOWLEDGE?
+        // handle K_ENCYCLOPEDIA?
+        // handle K_HELP?
+        // handle K_SIGILS
+        // handle K_MANUFACTURE
+        // handle K_ITEMS
 	else if (key == K_MAP)
 	{
-		if ( switch_to_game_map () )
-		{
-			hide_window (console_win);
-			show_window (map_win);
-			interface_mode = interface_map;
-		}
+		switch_from_game_map ();
+		hide_window (map_win);
+		show_window (game_win);
+		interface_mode = interface_game;
 	}
 	else
 	{
@@ -87,9 +110,10 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 
 		if (ch == '`' || key == K_CONSOLE)
 		{
-			hide_window (console_win);
-			show_window (game_win);
-			interface_mode = interface_game;
+			switch_from_game_map ();
+			hide_window (map_win);
+			show_window (console_win);
+			interface_mode = interface_console;
 		}
 		else if (key == K_SHADOWS)
 		{
@@ -128,8 +152,6 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		{
 			if ( (adding_mark == 1) && (input_text_lenght > 1) )
 			{
-				// XXX FIXME (Grum): this should probably only happen in map mode,
-				// and shouldn't occur here. Leave it for now.
 				int i;
 				
 				// if text wrapping just keep the text until the wrap.
@@ -156,9 +178,13 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 				if ( (check_var (input_text_line + 1, 1) ) < 0)
 					send_input_text_line();
 			}
-			else
+			else if (*input_text_line == '#')
 			{
 				test_for_console_command();
+			}
+			else
+			{
+				send_input_text_line();
 			}
 			//also clear the buffer
 			input_text_lenght = 0;
@@ -171,21 +197,21 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 			return 0;
 		}
 	}
-
+	
 	// we handled it, return 1 to let the window manager know
-	return 1;	
+	return 1;
 }
 
-void create_console_window ()
+void create_map_window ()
 {
-	if (console_win < 0)
-	{
-		console_win = create_window ("Console", -1, -1, 0, 0, window_width, window_height, ELW_WIN_INVISIBLE|ELW_SHOW_LAST);
-		
-		set_window_handler (console_win, ELW_HANDLER_DISPLAY, &display_console_handler);
-		set_window_handler (console_win, ELW_HANDLER_KEYPRESS, &keypress_console_handler);
-		hide_window (console_win);
-	}
+	map_win = create_window ("Map", -1, -1, 0, 0, window_width, window_height, ELW_WIN_INVISIBLE|ELW_SHOW_LAST);
+	
+	set_window_handler (map_win, ELW_HANDLER_DISPLAY, &display_map_handler);
+	set_window_handler (map_win, ELW_HANDLER_KEYPRESS, &keypress_map_handler);
+	set_window_handler (map_win, ELW_HANDLER_CLICK, &click_map_handler);
+	set_window_handler (map_win, ELW_HANDLER_MOUSEOVER, &mouseover_map_handler);
+	
+	hide_window (map_win);
 }
 
 #endif

@@ -82,7 +82,7 @@ int HandleEvent(SDL_Event *event)
 				if(afk_time) 
 					last_action_time=cur_time; //Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 
-				if (interface_mode == interface_game || interface_mode == interface_console)
+				if (interface_mode == interface_game || interface_mode == interface_console || interface_mode == interface_map)
 				{
 					keypress_in_windows(mouse_x, mouse_y, key, event->key.keysym.unicode);
 					break;
@@ -662,13 +662,13 @@ int HandleEvent(SDL_Event *event)
 				if(check_scroll_bars())return(done);
 			}
 
-			if((left_click==1 || right_click==1) &&
-				interface_mode==interface_game)
 #ifdef WINDOW_CHAT
+			if( (left_click==1 || right_click==1) && (interface_mode == interface_game || interface_mode == interface_map || interface_mode == interface_console ) )
 				click_in_windows (mouse_x, mouse_y, 0);
 #else
+			if((left_click==1 || right_click==1) &&
+				interface_mode==interface_game)
 				check_mouse_click();
-#endif
 			else if( interface_mode==interface_map)
 				{
 				if (left_click==1) 
@@ -681,6 +681,7 @@ int HandleEvent(SDL_Event *event)
 			else if((left_click==1 || right_click==1) &&
 				(interface_mode==interface_console || interface_mode==interface_cont))
 				check_hud_interface();
+#endif
 			else
 				if((left_click==1 || right_click==1) &&
 				   interface_mode==interface_opening && !disconnected)

@@ -503,7 +503,8 @@ void init_stuff()
 	// XXX FIXME (Grum): Maybe we should do this at a later time, after
 	// we're logged in?
 	display_game ();
-	create_console ();
+	create_console_window ();
+	create_map_window ();
 #else
 	resize_root_window();
 #endif

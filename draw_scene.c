@@ -163,6 +163,7 @@ void draw_scene()
 					return;
 				}
 
+#ifndef WINDOW_CHAT
 			if(interface_mode==interface_map || interface_mode==interface_cont)
 				{
 					// are we actively drawing things?
@@ -170,9 +171,6 @@ void draw_scene()
 						{
 							Enter2DMode();
 							draw_hud_interface();
-#ifdef WINDOW_CHAT
-							display_windows (1);
-#endif
 							Leave2DMode();
 							draw_game_map(interface_mode==interface_map);
 							if(elwin_mouse >= 0) {
@@ -186,6 +184,7 @@ void draw_scene()
 					return;			
 					check_gl_errors();
 				}
+#endif
 		}
 
 #ifdef WINDOW_CHAT

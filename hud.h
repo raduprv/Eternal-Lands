@@ -70,14 +70,6 @@ extern struct icons_struct icons; /*!< global variable of used icons */
 
 extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
 
-/*!
- * \name windows handlers
- */
-/*! @{ */
-extern int map_win; /*!< map windows handler */
-extern int cont_win; /*!< continent map windows handler */
-/*! @} */
-
 // The map icon:
 extern float map_icon_u_start;
 extern float map_icon_v_start;
@@ -315,15 +307,6 @@ void view_console_win(int * win, int id);
  * \callgraph
  */
 void view_map_win(int *win, int id);
-
-/*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- */
-void view_cont_win();
 
 /*!
  * \ingroup windows

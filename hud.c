@@ -11,9 +11,6 @@
 icon_struct * icon_list[30]={NULL};
 int icons_no=0;
 
-//Windows not handled by the window manager:
-int map_win=0;
-
 int	display_icons_handler(window_info *win);
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags);
 int	mouseover_icons_handler(window_info *win, int mx, int my);
