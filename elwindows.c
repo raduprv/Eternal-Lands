@@ -180,16 +180,18 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 
 int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 {
-	int	done= 0;
+	int	done = 0;
 	int	id;
 	int	next_id;
-	int	first_win= 0;
 	int i;
+	window_info *win;
 
 	// ignore a drag of 0, but say we processed
 	if(dx == 0 && dy == 0)	return 0;
+	
 	// watch for needing to convert the globals into the flags
-	if(!flags){
+	if(!flags)
+	{
 		if(shift_on)	flags |= ELW_SHIFT;
 		if(ctrl_on)		flags |= ELW_CTRL;
 		if(alt_on)		flags |= ELW_ALT;
@@ -203,68 +205,84 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
-		{
-			id= 9999;
-			while(done <= 0)
-				{
-					next_id= 0;
-					for(i=1; i<windows_list.num_windows; i++){
-						// only look at displayed windows
-						if(windows_list.window[i].displayed > 0){
-							// at this level?
-							if(windows_list.window[i].order == id){
-								done= drag_in_window(i, mx, my, flags, dx, dy);
-								if(done > 0){
-									if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
-									return i;
-								}
-								if(first_win == 0 && mouse_in_window(i, mx, my))	first_win= i;
-							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
-								// try to find the next level
-								next_id= windows_list.window[i].order;
-							}
-						}
-					}
-					if(next_id <= 0)
-						{
-							break;
-						}
-					else
-						{
-							id= next_id;
-						}
-				}
-		}
-	// now check the background windows in the proper order
-	id= -9999;
-	while(done <= 0)
+	{
+		id= 9999;
+		while (done <= 0)
 		{
 			next_id= 0;
-			for(i=1; i<windows_list.num_windows; i++){
+			for(i=1; i < windows_list.num_windows; i++)
+			{
+				win = &(windows_list.window[i]);				
 				// only look at displayed windows
-				if(windows_list.window[i].displayed > 0){
+				if (win->displayed)
+				{
 					// at this level?
-					if(windows_list.window[i].order == id){
-						done= drag_in_window(i, mx, my, flags, dx, dy);
-						if(done > 0){
-							//select_window(i);	// these never get selected
+					if(win->order == id)
+					{
+						done = drag_in_window (i, mx, my, flags, dx, dy);
+						if (done > 0)
+						{
+							if (win->displayed)
+								select_window(i);	// select this window to the front
 							return i;
 						}
-					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
+						else if (mouse_in_window (i, mx, my))
+						{
+							// drag started in this window
+							return 0;
+						}
+					} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
 						// try to find the next level
 						next_id= windows_list.window[i].order;
 					}
 				}
 			}
-			if(next_id >= 0)
-				{
-					break;
-				}
+			if(next_id <= 0)
+				break;
 			else
-				{
-					id= next_id;
-				}
+				id= next_id;
 		}
+	}
+	
+	// now check the background windows in the proper order
+	id= -9999;
+	while (done <= 0)
+	{
+		next_id= 0;
+		for (i=1; i<windows_list.num_windows; i++)
+		{
+			win = &(windows_list.window[i]);
+			// only look at displayed windows
+			if(win->displayed)
+			{
+				// at this level?
+				if(win->order == id)
+				{
+					done = drag_in_window (i, mx, my, flags, dx, dy);
+					if(done > 0)
+					{
+						//select_window(i);	// these never get selected
+						return i;
+					}
+					else if (mouse_in_window (i, mx, my))
+					{
+						// drag started in this window
+						return 0;
+					}
+				} 
+				else if (win->order > id && win->order < next_id)
+				{
+					// try to find the next level
+					next_id= windows_list.window[i].order;
+				}
+			}
+		}
+		if(next_id >= 0)
+			break;
+		else
+			id= next_id;
+	}
+
 	return 0;	// no drag in a window
 }
 
@@ -424,7 +442,7 @@ void	end_drag_windows()
 int	select_window(int win_id)
 {
 	int	i, old, nchild, idiff;
-
+	
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	
