@@ -3,6 +3,8 @@
 
 int console_win = -1;
 
+#ifdef WINDOW_CHAT
+
 int display_console_handler (window_info *win)
 {
 	// are we actively drawing things?
@@ -180,3 +182,5 @@ void create_console ()
 		hide_window (console_win);
 	}
 }
+
+#endif
