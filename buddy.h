@@ -3,7 +3,7 @@
 
 typedef struct
 {
-   char name[16];//name of your buddy
+   char name[32];//name of your buddy
    unsigned char type;
 }_buddy;
 #define	MAX_BUDDY	100
