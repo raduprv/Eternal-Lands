@@ -1,32 +1,29 @@
-# Project: elc
-# Makefile created by Dev-C++ 4.9.8.5
+# Project: EL
+# Makefile created by Dev-C++ 4.9.8.9
 
 CPP  = g++.exe
 CC   = gcc.exe
 WINDRES = windres.exe
-RES  = elc_private.res
-OBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o $(RES)
-LINKOBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o colors.o console.o cursors.o dialogues.o draw_scene.o errors.o events.o filter.o font.o frustum.o gl_init.o global.o help.o ignore.o init.o interface.o items.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o $(RES)
-LIBS =  -L"C:/Program Files/SDL/SDL_mixer/lib" -L"C:/Program Files/SDL/SDL_net/lib" -L"C:/Program Files/SDL/SDL/lib" -L"C:/Program Files/oglsdk/lib" -L"C:/Program Files/Dev-Cpp/lib" -mwindows -lopengl32 -lSDL -lSDL_mixer -lSDL_net 
-INCS =  -I"C:/Program Files/oglsdk/include"  -I"C:/Program Files/SDL/SDL_mixer/include"  -I"C:/Program Files/SDL/SDL_net/include"  -I"C:/Program Files/SDL/SDL/include"  -I"C:/Program Files/Dev-Cpp/include" 
-CXXINCS =  -I"C:/Program Files/Dev-Cpp/include/c++"  -I"C:/Program Files/Dev-Cpp/include/c++/mingw32"  -I"C:/Program Files/Dev-Cpp/include/c++/backward"  -I"C:/Program Files/Dev-Cpp/include" 
-BIN  = elc.exe
-CXXFLAGS = $(CXXINCS)  -fexpensive-optimizations -O3
-CFLAGS = $(INCS)-DWINDOWS -march=i686 -fomit-frame-pointer -ffast-math -pipe   -fexpensive-optimizations -O3
+RES  = 
+OBJ  = 3d_objects.o actor_scripts.o actors.o asc.o buddy.o cache.o colors.o console.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o $(RES)
+LINKOBJ  = 3d_objects.o actor_scripts.o actors.o asc.o buddy.o cache.o colors.o console.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" -mwindows -lSDL -lopengl32  -lxml2 -lSDL_net -lALut -lOpenAL32 -lvorbisfile -liberty 
+INCS =  -I"C:/Dev-Cpp/include" 
+CXXINCS =  -I"C:/Dev-Cpp/include/c++"  -I"C:/Dev-Cpp/include/c++/mingw32"  -I"C:/Dev-Cpp/include/c++/backward"  -I"C:/Dev-Cpp/include" 
+BIN  = Debug/EL.exe
+CXXFLAGS = $(CXXINCS)  -O3
+CFLAGS = $(INCS)-DWINDOWS  -D_WIN32 -Wall -DELC   -O3
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before elc.exe all-after
+all: all-before Debug/EL.exe all-after
 
 
 clean: clean-custom
 	rm -f $(OBJ) $(BIN)
 
 $(BIN): $(OBJ)
-	$(CC) $(LINKOBJ) -o "elc.exe" $(LIBS)
-
-2d_objects.o: 2d_objects.c
-	$(CC) -c 2d_objects.c -o 2d_objects.o $(CFLAGS)
+	$(CC) $(LINKOBJ) -o "Debug\EL.exe" $(LIBS)
 
 3d_objects.o: 3d_objects.c
 	$(CC) -c 3d_objects.c -o 3d_objects.o $(CFLAGS)
@@ -39,6 +36,12 @@ actors.o: actors.c
 
 asc.o: asc.c
 	$(CC) -c asc.c -o asc.o $(CFLAGS)
+
+buddy.o: buddy.c
+	$(CC) -c buddy.c -o buddy.o $(CFLAGS)
+
+cache.o: cache.c
+	$(CC) -c cache.c -o cache.o $(CFLAGS)
 
 colors.o: colors.c
 	$(CC) -c colors.c -o colors.o $(CFLAGS)
@@ -54,6 +57,9 @@ dialogues.o: dialogues.c
 
 draw_scene.o: draw_scene.c
 	$(CC) -c draw_scene.c -o draw_scene.o $(CFLAGS)
+
+encyclopedia.o: encyclopedia.c
+	$(CC) -c encyclopedia.c -o encyclopedia.o $(CFLAGS)
 
 errors.o: errors.c
 	$(CC) -c errors.c -o errors.o $(CFLAGS)
@@ -73,11 +79,8 @@ frustum.o: frustum.c
 gl_init.o: gl_init.c
 	$(CC) -c gl_init.c -o gl_init.o $(CFLAGS)
 
-global.o: global.c
-	$(CC) -c global.c -o global.o $(CFLAGS)
-
-help.o: help.c
-	$(CC) -c help.c -o help.o $(CFLAGS)
+hud.o: hud.c
+	$(CC) -c hud.c -o hud.o $(CFLAGS)
 
 ignore.o: ignore.c
 	$(CC) -c ignore.c -o ignore.o $(CFLAGS)
@@ -90,6 +93,9 @@ interface.o: interface.c
 
 items.o: items.c
 	$(CC) -c items.c -o items.o $(CFLAGS)
+
+knowledge.o: knowledge.c
+	$(CC) -c knowledge.c -o knowledge.o $(CFLAGS)
 
 lights.o: lights.c
 	$(CC) -c lights.c -o lights.o $(CFLAGS)
@@ -127,6 +133,9 @@ particles.o: particles.c
 paste.o: paste.c
 	$(CC) -c paste.c -o paste.o $(CFLAGS)
 
+pathfinder.o: pathfinder.c
+	$(CC) -c pathfinder.c -o pathfinder.o $(CFLAGS)
+
 reflection.o: reflection.c
 	$(CC) -c reflection.c -o reflection.o $(CFLAGS)
 
@@ -157,5 +166,17 @@ trade.o: trade.c
 weather.o: weather.c
 	$(CC) -c weather.c -o weather.o $(CFLAGS)
 
-elc_private.res: elc_private.rc 
-	$(WINDRES) -i elc_private.rc -I rc -o elc_private.res -O coff 
+2d_objects.o: 2d_objects.c
+	$(CC) -c 2d_objects.c -o 2d_objects.o $(CFLAGS)
+
+questlog.o: questlog.c
+	$(CC) -c questlog.c -o questlog.o $(CFLAGS)
+
+pm_log.o: pm_log.c
+	$(CC) -c pm_log.c -o pm_log.o $(CFLAGS)
+
+keys.o: keys.c
+	$(CC) -c keys.c -o keys.o $(CFLAGS)
+
+elwindows.o: elwindows.c
+	$(CC) -c elwindows.c -o elwindows.o $(CFLAGS)

@@ -127,14 +127,16 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 	y= my;
 	if(x > win->len_x-16 && y > 18 && y < 18+16)
 		{
-			if(knowledge_page_start > 0)
-				knowledge_page_start -= 16;
+			knowledge_page_start -= 16;
+			if(knowledge_page_start < 0)
+				knowledge_page_start = 0;
 			return 1;
 		}
 	if(x > win->len_x-16 && y > 180 && y < 180+16)
 		{
-			if(knowledge_page_start < 300-38-16)
-				knowledge_page_start += 16;
+			knowledge_page_start += 16;
+			if(knowledge_page_start > 262)
+				knowledge_page_start = 262;
 			return 1;
 		}
 	if(x>win->len_x-20)
@@ -161,6 +163,7 @@ int drag_knowledge_handler(window_info *win, int mx, int my, Uint32 flags, int d
 		//if(left_click>1)
 		knowledge_page_start+=((300-38)*dy)/120;
 		// bounds checking
+		if(knowledge_page_start%2==1) knowledge_page_start--;
 		if(knowledge_page_start < 0) knowledge_page_start= 0;
 		if(knowledge_page_start > 300-38) knowledge_page_start= 300-38;
 		return 1;
