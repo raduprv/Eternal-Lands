@@ -356,35 +356,39 @@
 ///////////////////////////////////////////////////////////////////////////////
 /*!
  * \defgroup	labels Labels
- * 		Widget labels
+ * 		A label widget
  * \ingroup	widgets
  */
 /*!
  * \defgroup	images Images
- * 		Widget images
+ * 		An image widge
  * \ingroup	widgets
  */
 /*!
  * \defgroup	checkboxes Checkboxes
- * 		Widget checkboxes
+ * 		A checkbox widget
  * \ingroup	widgets
  */
 /*!
  * \defgroup	buttons Buttons
- * 		Widget buttons
+ * 		A button widget
  * \ingroup	widgets
  */
 /*!
  * \defgroup	progressbars Progressbars
- * 		Widget progressbars
+ * 		A widget for a progressbar
  * \ingroup	widgets
  */
 /*!
  * \defgroup	scrollbars Scrollbars
- * 		Widget scrollbars
+ * 		A scrollbar widget
  * \ingroup	widgets
  */
-
+/*!
+ * \defgroup    tabs    Tabwindows
+ *      A tabbed window widget
+ * \ingroup widgets
+ */
 
 ///////////////////////////////////////////////////////////////////////////////
 //		      	         Sound and music			     //
