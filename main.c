@@ -97,6 +97,9 @@ int main(int argc, const char *argv[])
 
 	// do basic initialization
     init_stuff();
+
+	// put this back in after windows compiling doesn't complain
+#ifndef WINDOWS
 	// args processed after the init to override initialization
 	while((c=getopt(argc, argv, "u:p:")) >= 0)
 		{
@@ -114,6 +117,7 @@ int main(int argc, const char *argv[])
 				break;
 			}
 		}
+#endif
     start_rendering();
 
 	return 0;
