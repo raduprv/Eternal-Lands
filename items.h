@@ -54,6 +54,8 @@ extern int trade_you_accepted;
 extern int trade_other_accepted;
 extern char other_player_trade_name[20];
 
+extern int item_action_mode;
+
 extern int view_ground_items;
 extern int no_view_my_items;
 

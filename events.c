@@ -252,19 +252,19 @@ int HandleEvent(SDL_Event *event)
 
 				if(key==K_WALK)
 					{
-						action_mode=action_walk;
+						item_action_mode=qb_action_mode=action_mode=action_walk;
 						break;
 					}
 
 				if(key==K_LOOK)
 					{
-						action_mode=action_look;
+						item_action_mode=qb_action_mode=action_mode=action_look;
 						break;
 					}
 
 				if(key==K_USE)
 					{
-						action_mode=action_use;
+						item_action_mode=qb_action_mode=action_mode=action_use;
 						break;
 					}
 

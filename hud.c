@@ -447,7 +447,7 @@ void you_stand_up()
 
 void switch_action_mode(int * mode, int id)
 {
-	action_mode=*mode;
+	item_action_mode=qb_action_mode=action_mode=*mode;
 }
 
 void view_console_win(int * win, int id)

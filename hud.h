@@ -35,13 +35,14 @@ typedef struct
 
 extern struct icons_struct icons;
 
+extern int qb_action_mode;
+
 //These aren't handled by the windowmanager - yet?
 extern int map_win;
 extern int console_win;
 extern int cont_win;
 
 // The map icon:
-
 extern float map_icon_u_start;
 extern float map_icon_v_start;
 
