@@ -19,7 +19,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	global.o gui.o gui_callbacks.o	\
 	init.o interface.o lights.o	\
 	main.o map_io.o misc.o o3dow.o reflection.o	\
-	shadows.o textures.o tile_map.o
+	shadows.o textures.o tile_map.o replace_window.o edit_window.o particles.o
 
 mapedit.x86.linux.bin: $(OBJS)
 	$(CC) $(CFLAGS) $(LIBS) -o mapedit.x86.linux.bin $(OBJS)
