@@ -313,35 +313,42 @@ void draw_stat_final(int len, int x, int y, char * name, char * value);
 
 void draw_stat(int len, int x, int y, attrib_16 * var, names * name)
 {
-	char str[8];
+	char str[9];
 	snprintf(str,8,"%2i/%-2i",var->cur,var->base);
+	str[8]=0;
 	draw_stat_final(len,x,y,name->name,str);
 }
 
 void draw_skill(int len, int x, int y, attrib_16 * lvl, names * name, int exp, int exp_next)
 {
-	char str[36];
-	char lvlstr[8];
-	char expstr[24];
+	char str[37];
+	char lvlstr[9];
+	char expstr[25];
 	int offset;
 	snprintf(lvlstr,8,"%2i/%-2i",lvl->cur,lvl->base);
+	lvlstr[8]=0;
 	snprintf(expstr,24,"[%2i/%-2i]",exp, exp_next);
+	expstr[24]=0;
 	offset=strlen(str);
 	snprintf(str,36,"%-7s %-22s",lvlstr,expstr);
+	str[36]=0;
 	draw_stat_final(len,x,y,name->name,str);
 }
 
 void draw_statf(int len, int x, int y, attrib_16f * var, names * name)
 {
-	char str[8];
+	char str[9];
 	snprintf(str,8,"%2i/%-2i",var->cur(),var->base());
+	str[8]=0;
 	draw_stat_final(len,x,y,name->name,str);
 }
 
 void draw_stat_final(int len, int x, int y, char * name, char * value)
 {
 	char str[80];
+	if(len>80)len=80;
 	snprintf(str,len,"%-15s %s",name,value);
+	str[len]=0;
 	draw_string_small(x,y,str,1);
 }
 
