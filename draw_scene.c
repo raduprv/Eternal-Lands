@@ -463,13 +463,16 @@ void update_camera()
 			} else 
 				camera_zoom_frames = 0;
 		} else {
-			if(zoom_level>0.8f){
+			if(zoom_level>sitting){
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
 			} else 
 				camera_zoom_frames = 0;
 		}
 	}
-
+	if(zoom_level<sitting) {
+		new_zoom_level=zoom_level=sitting;
+		resize_window();
+	}
 }
 

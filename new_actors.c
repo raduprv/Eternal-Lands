@@ -3,7 +3,7 @@
 #include <string.h>
 #include "global.h"
 
-float sitting=0;
+float sitting=1.0f;
 glow_color glow_colors[10];
 
 //build the glow color table
