@@ -817,7 +817,7 @@ struct xml_struct load_strings_file(char * filename)
 {
 	struct xml_struct file={NULL,NULL};
 	
-	if ((file.file = xmlParseFile(filename)) == NULL)
+	if ((file.file = xmlReadFile(filename, NULL, 0)) == NULL)
 		{
 			xmlFreeDoc(file.file);
 			file.file=NULL;
