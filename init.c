@@ -588,7 +588,7 @@ void init_stuff()
 	sigils_text=load_texture_cache("./textures/sigils.bmp",0);
 
 	//Load the map legend and continent map
-	legend_text=load_texture_cache("./textures/legend.bmp",0);
+	legend_text=load_texture_cache("./maps/legend.bmp",0);
 	cont_text=load_texture_cache("./maps/seridia.bmp",128);
 
 	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);

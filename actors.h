@@ -166,7 +166,6 @@ typedef struct
 	char ghost;
 } actor_types;
 
-#ifdef OPTIMIZED_LOCKS
 typedef struct //Data accessed by both the rendering and the timer threads...
 {
 	int have_tmp;
@@ -184,7 +183,6 @@ typedef struct //Data accessed by both the rendering and the timer threads...
 	float y_rot;
 	float z_rot;
 } tmp_actor_data;
-#endif
 
 typedef struct
 {
@@ -206,9 +204,7 @@ typedef struct
 	float y_rot;
 	float z_rot;
 
-#ifdef OPTIMIZED_LOCKS
 	tmp_actor_data tmp;
-#endif
 
 	int boots;
 	int hair;
@@ -229,11 +225,7 @@ typedef struct
 	char actor_name[30];
 
 	//for movement/animation
-#ifdef POSSIBLE_FIX
 	char que[11];
-#else
-	char que[10];
-#endif
 	char last_command;
 	char busy;//if the actor is busy executing the current command
 	char sitting;

@@ -197,10 +197,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
 	no_bounding_box=0;
-#ifndef OPTIMIZED_LOCKS//Don't unlock it yet - we want to keep it locked till the actor data is completely copied
-	unlock_actors_lists();	//unlock it
-#endif
-
+	//Will be unlocked later
 	return i;
 }
 
@@ -217,45 +214,25 @@ void draw_enhanced_actor(actor * actor_id)
 	float healtbar_z=0;
 
 	bind_texture_id(actor_id->texture_id);
-#ifdef OPTIMIZED_LOCKS
 	cur_frame=actor_id->tmp.cur_frame;
-#else
-	cur_frame=actor_id->cur_frame;
-#endif
 
 	//now, go and find the current frame
 	i=get_frame_number(actor_id->body_parts->head, cur_frame);;
 	if(i >= 0)healtbar_z=actor_id->body_parts->head->offsetFrames[i].box.max_z;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
-#ifdef OPTIMIZED_LOCKS
 	x_pos=actor_id->tmp.x_pos;
 	y_pos=actor_id->tmp.y_pos;
 	z_pos=actor_id->tmp.z_pos;
-#else
-	x_pos=actor_id->x_pos;
-	y_pos=actor_id->y_pos;
-	z_pos=actor_id->z_pos;
-#endif
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-#ifdef OPTIMIZED_LOCKS
 		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
-#else
-		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
-#endif
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 
-#ifdef OPTIMIZED_LOCKS
 	x_rot=actor_id->tmp.x_rot;
 	y_rot=actor_id->tmp.y_rot;
 	z_rot=actor_id->tmp.z_rot;
-#else
-	x_rot=actor_id->x_rot;
-	y_rot=actor_id->y_rot;
-	z_rot=actor_id->z_rot;
-#endif
 	z_rot+=180;//test
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
@@ -568,13 +545,6 @@ void add_enhanced_actor_from_server(char * in_data)
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
-#ifndef OPTIMIZED_LOCKS
-	/*
-	Well, the timer threads doesn't change any of these vars, so
-	locking it isn't needed...
-	*/
-	lock_actors_lists();    //lock it to avoid timing issues
-#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -597,9 +567,6 @@ void add_enhanced_actor_from_server(char * in_data)
 						}
 				}
 		}
-#ifndef OPTIMIZED_LOCKS
-	unlock_actors_lists();  //unlock it
-#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -671,9 +638,8 @@ void add_enhanced_actor_from_server(char * in_data)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-#ifndef OPTIMIZED_LOCKS //It's already locked
-	lock_actors_lists();    //lock it to avoid timing issues
-#endif
+	//The actors list is already locked here
+	
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
 	actors_list[i]->actor_type=actor_type;
@@ -704,11 +670,11 @@ void add_enhanced_actor_from_server(char * in_data)
 			char str[120];
 			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
 			log_error(str);
-			return;
 		}
-
-	my_strncp(actors_list[i]->actor_name,&in_data[28],30);
-	if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
+	else 	{
+			my_strncp(actors_list[i]->actor_name,&in_data[28],30);
+			if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
+		}
 	unlock_actors_lists();  //unlock it
 
 #ifdef EXTRA_DEBUG

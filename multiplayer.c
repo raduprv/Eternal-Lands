@@ -332,13 +332,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-#ifndef OPTIMIZED_LOCKS
-				lock_actors_lists();	//lock it to avoid timing issues
-#endif
 				destroy_actor(*((short *)(in_data+3)));
-#ifndef OPTIMIZED_LOCKS
-				unlock_actors_lists();	//unlock it
-#endif
 			}
 			break;
 

@@ -74,9 +74,7 @@ void draw_scene()
 	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 	
-#ifdef OPTIMIZED_LOCKS
 	get_tmp_actor_data();
-#endif
 	
 	if(interface_mode!=interface_game)
 		{
@@ -336,7 +334,6 @@ void draw_scene()
 
 }
 
-#ifdef OPTIMIZED_LOCKS
 void get_tmp_actor_data()
 {
 	int i;
@@ -363,33 +360,17 @@ void get_tmp_actor_data()
 		}
 	unlock_actors_lists();
 }
-#endif
 
 void Move()
 {
     int i;
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-	lock_actors_lists();
-#endif
-#endif
 	for(i=0;i<max_actors;i++)
 		{
-#ifdef OPTIMIZED_LOCKS
 			if(actors_list[i] && actors_list[i]->actor_id==yourself&& actors_list[i]->tmp.have_tmp)
-#else
-			if(actors_list[i] && actors_list[i]->actor_id==yourself)
-#endif
 				{
-#ifdef OPTIMIZED_LOCKS
 					float x=actors_list[i]->tmp.x_pos;
 					float y=actors_list[i]->tmp.y_pos;
 					float z=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f;
-#else
-					float x=actors_list[i]->x_pos;
-					float y=actors_list[i]->y_pos;
-					float z=-2.2f+height_map[actors_list[i]->y_tile_pos*tile_map_size_x*6+actors_list[i]->x_tile_pos]*0.2f;
-#endif
 					//move near the actor, but smoothly
 					camera_x_speed=(x-(-cx))/16.0;
 					camera_x_frames=16;
@@ -400,11 +381,6 @@ void Move()
 					break;
 				}
 		}
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-	unlock_actors_lists();
-#endif
-#endif
     //check to see if we are out of the map
     if(cx>-7.5f)cx=-7.5f;
     if(cy>-7.5f)cy=-7.5f;
@@ -413,7 +389,7 @@ void Move()
 
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(cx/*-0.2f*/, cy/*-0.25f*/, cz-0.5f);
+	glTranslatef(cx/*-0.25f*/,cy/*-0.25f*/, cz-0.5f);
 
 	//test only
 	update_position();

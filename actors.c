@@ -48,7 +48,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 			char str[120];
 			sprintf(str,"%s: %s: %s\n",reg_error_str,cant_load_actor,file_name);
 			log_error(str);
-			return 0;
+			return -1;
 		}
 	if(!remappable)texture_id=load_texture_cache(skin_name,150);
 	else
@@ -108,11 +108,8 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	our_actor->sit_idle=0;
 
 	//find a free spot, in the actors_list
-#ifndef POSSIBLE_FIX //Well, the timer thread cannot free memory - so it shouldn't be necissary to lock it...
-	lock_actors_lists();	//lock it to avoid timing issues
-#elif defined(OPTIMIZED_LOCKS)
 	lock_actors_lists();
-#endif
+	
 	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])break;
@@ -120,11 +117,9 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
-#ifndef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS //Don't release it yet...
-	unlock_actors_lists();	// release now that we are done
-#endif
-#endif
+	
+	//It's unlocked later
+	
 	return i;
 }
 
@@ -579,42 +574,23 @@ void draw_actor(actor * actor_id)
 	bind_texture_id(texture_id);
 
 	//now, go and find the current frame
-#ifdef OPTIMIZED_LOCKS
 	i=get_frame_number(actor_id->model_data, actor_id->tmp.cur_frame);
-#else
-	i=get_frame_number(actor_id->model_data, actor_id->cur_frame);
-#endif
 	if(i >= 0)healtbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
-#ifdef OPTIMIZED_LOCKS
 	x_pos=actor_id->tmp.x_pos;
 	y_pos=actor_id->tmp.y_pos;
 	z_pos=actor_id->tmp.z_pos;
-#else
-	x_pos=actor_id->x_pos;
-	y_pos=actor_id->y_pos;
-	z_pos=actor_id->z_pos;
-#endif
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-#ifdef OPTIMIZED_LOCKS
 		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
-#else
-		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
-#endif
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 
-#ifdef OPTIMIZED_LOCKS
 	x_rot=actor_id->tmp.x_rot;
 	y_rot=actor_id->tmp.y_rot;
 	z_rot=-actor_id->tmp.z_rot;
-#else
-	x_rot=actor_id->x_rot;
-	y_rot=actor_id->y_rot;
-	z_rot=-actor_id->z_rot;
-#endif
+	
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
@@ -654,13 +630,6 @@ void display_actors()
 		}
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-	lock_actors_lists();	//lock it to avoid timing issues
-#endif
-#else
-	lock_actors_lists();	//lock it to avoid timing issues
-#endif
 	//display only the non ghosts
 	for(i=0;i<max_actors;i++)
 		{
@@ -671,14 +640,10 @@ void display_actors()
 						int dist1;
 						int dist2;
 
-#ifdef OPTIMIZED_LOCKS
 						if(!cur_actor->tmp.have_tmp)continue;
 						dist1=x-cur_actor->tmp.x_pos;
 						dist2=y-cur_actor->tmp.y_pos;
-#else
-						dist1=x-cur_actor->x_pos;
-						dist2=y-cur_actor->y_pos;
-#endif
+						
 						if(dist1*dist1+dist2*dist2<=12*12)
 							{
 								if(cur_actor->is_enhanced_model)
@@ -686,9 +651,7 @@ void display_actors()
 										draw_enhanced_actor(cur_actor);
 										//check for network data - reduces resyncs
 										get_message_from_server();
-#ifdef POSSIBLE_FIX
 										if(cur_actor==NULL)continue;//The server might destroy our actor in that very moment...
-#endif
 									}
 								else
 									{
@@ -725,14 +688,10 @@ void display_actors()
 							int dist1;
 							int dist2;
 
-#ifdef OPTIMIZED_LOCKS
 							if (!cur_actor->tmp.have_tmp) continue;
 							dist1=x-cur_actor->tmp.x_pos;
 							dist2=y-cur_actor->tmp.y_pos;
-#else
-							dist1=x-cur_actor->x_pos;
-							dist2=y-cur_actor->y_pos;
-#endif
+							
 							if(dist1*dist1+dist2*dist2<=12*12)
 								{
 									if(cur_actor->is_enhanced_model)
@@ -753,13 +712,6 @@ void display_actors()
 						}
 			}
 	}
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-	unlock_actors_lists();	//lock it to avoid timing issues
-#endif
-#else
-	unlock_actors_lists();	//lock it to avoid timing issues
-#endif
 
 	glDisable(GL_BLEND);
 	if(have_multitexture) ELglClientActiveTextureARB(base_unit);
@@ -873,15 +825,7 @@ void add_actor_from_server(char * in_data)
 	
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
-#ifndef OPTIMIZED_LOCKS
-	/*
-	We shouldn't have to lock the actors mutex here - we're merely checking 
-	for duplicate actors, and they will not be freed by any other thread...
-	Once found it'll be destroyed (and destroy actor is responsible for 
-	locking the mutex in OPTIMIZED_LOCKS)
-	*/
-	lock_actors_lists();	//lock it to avoid timing issues
-#endif
+	
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -894,22 +838,13 @@ void add_actor_from_server(char * in_data)
 						i--;// last actor was put here, he needs to be checked too
 					}
 		}
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-	unlock_actors_lists();
-#endif
-#endif
 
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
 				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
-
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-	/*The actors mutex is already locked when here - we don't unlock it in add_actor, 
-	as we don't want the timer thread to know about this actor before it's fully loaded*/
-	lock_actors_lists();
-#endif
-#endif
+	
+	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
+	
+	//The actors list is locked when we get here...
 	
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
@@ -936,10 +871,10 @@ void add_actor_from_server(char * in_data)
 			char str[120];
 			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[23], (int)strlen(&in_data[23]));
 			log_error(str);
-			return;
 		}
-	my_strncp(actors_list[i]->actor_name,&in_data[23],30);
+	else my_strncp(actors_list[i]->actor_name,&in_data[23],30);
 	unlock_actors_lists();	//unlock it
+	
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif

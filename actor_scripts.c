@@ -55,7 +55,6 @@ void move_to_next_frame()
 						}
 					//get the frame number out of the frame name
 					l=strlen(actors_list[i]->cur_frame);
-#ifdef POSSIBLE_FIX
 					if(l<2)//Perhaps this is the bug we've been looking for all along?
 #ifndef EXTRA_DEBUG
 						continue;
@@ -64,7 +63,6 @@ void move_to_next_frame()
 							continue;
 							ERR();
 						}
-#endif
 #endif
 					frame_no=atoi(&actors_list[i]->cur_frame[l-2]);
 					//get the frame name
@@ -122,9 +120,7 @@ void move_to_next_frame()
 									//frame_name has 2 extra numbers, at this point, due to the previous
 									//strcat. So, remove those 2 extra numbers
 									l=strlen(frame_name);
-#ifdef POSSIBLE_FIX
 									if(l<2)continue;
-#endif
 									frame_name[l-2]=0;
 									my_strcat(frame_name,"01");
 								}
@@ -293,12 +289,10 @@ void next_command()
 
 							switch(actors_list[i]->que[0]) {
 							case kill_me:
-#ifndef POSSIBLE_FIX //Isn't this obsolete?
-								if(actors_list[i]->remapped_colors)
+/*								if(actors_list[i]->remapped_colors)
 									glDeleteTextures(1,&actors_list[i]->texture_id);
 								free(actors_list[i]);
-								actors_list[i]=0;
-#endif
+								actors_list[i]=0;*/ //Obsolete
 								break;			
 							case die1:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
@@ -510,17 +504,12 @@ void destroy_actor(int actor_id)
 #endif
 	int i;
 
-#ifdef POSSIBLE_FIX
-	//lock_actors_lists();	//lock it to avoid timing issues - the mutex _should_ always be locked when entering here...
-#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])//The timer thread doesn't free memory
 				if(actors_list[i]->actor_id==actor_id)
 					{
-#ifdef OPTIMIZED_LOCKS
 						lock_actors_lists();
-#endif
 						if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
 						if(actors_list[i]->is_enhanced_model)
 							{
@@ -537,15 +526,10 @@ void destroy_actor(int actor_id)
 								actors_list[i]=actors_list[max_actors];
 								actors_list[max_actors]=NULL;
 						}
-#ifdef OPTIMIZED_LOCKS
 						unlock_actors_lists();
-#endif
 						break;
 					}
 		}
-#ifdef POSSIBLE_FIX
-	//unlock_actors_lists();	//unlock it since we are done
-#endif
 }
 
 void destroy_all_actors()
@@ -591,13 +575,7 @@ void add_command_to_actor(int actor_id, char command)
 {
 	int i=0;
 	int k=0;
-#ifdef POSSIBLE_FIX
 	int have_actor=0;
-#endif
-
-#ifndef OPTIMIZED_LOCKS
-	lock_actors_lists();
-#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -607,24 +585,13 @@ void add_command_to_actor(int actor_id, char command)
 			if(actors_list[i])
 				if(actors_list[i]->actor_id==actor_id)//The timer thread can't free so this should be np...
 					{
-#ifdef OPTIMIZED_LOCKS
 						lock_actors_lists();
-#endif
 						for(k=0;k<10;k++)
 							{
 								if(actors_list[i]->que[k]==nothing)
 									{
 										//we are SEVERLY behind, just update all the actors in range
-										if(k>8)
-											{
-#ifndef POSSIBLE_FIX
-												unlock_actors_lists();
-												update_all_actors();
-												return;
-#else
-												break;
-#endif
-											}
+										if(k>8) break;
 										else if(k>6)
 											{
 												// is the front a sit/stand spam?
@@ -655,16 +622,9 @@ void add_command_to_actor(int actor_id, char command)
 										break;
 									}
 							}
-#ifndef POSSIBLE_FIX
 						unlock_actors_lists();
-						return;
-#else
-#ifdef OPTIMIZED_LOCKS
-						unlock_actors_lists();
-#endif
 						have_actor=1;
 						break;
-#endif
 					}
 			i++;
 		}
@@ -673,13 +633,7 @@ void add_command_to_actor(int actor_id, char command)
 	ERR();
 #endif
 
-#ifndef OPTIMIZED_LOCKS
-	unlock_actors_lists();
-#endif
-
-#ifdef POSSIBLE_FIX
 	if(!have_actor)
-#endif
 		{
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -689,12 +643,10 @@ void add_command_to_actor(int actor_id, char command)
 			sprintf(str, "%s %d - %d\n", cant_add_command, command, actor_id);
 			log_error(str);
 		}
-#ifdef POSSIBLE_FIX
 	else if (k>8)
 		{
 			update_all_actors();
 		}
-#endif
 }
 
 void get_actor_damage(int actor_id, Uint8 damage)
@@ -746,16 +698,11 @@ void move_self_forward()
 	int i,x,y,rot,tx,ty;
 	Uint8 str[10];
 
-#ifndef OPTIMIZED_LOCKS
-	lock_actors_lists();
-#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i] && actors_list[i]->actor_id==yourself)
 				{
-#ifdef OPTIMIZED_LOCKS
 					lock_actors_lists();
-#endif
 					x=actors_list[i]->x_tile_pos;
 					y=actors_list[i]->y_tile_pos;
 					rot=actors_list[i]->z_rot;
@@ -810,21 +757,10 @@ void move_self_forward()
 					*((short *)(str+3))=ty;
 
 					my_tcp_send(my_socket,str,5);
-#ifndef POSSIBLE_FIX
 					unlock_actors_lists();
 					return;
-#elif defined(OPTIMIZED_LOCKS)
-					unlock_actors_lists();
-					return;
-#else
-					break;
-#endif
 				}
 		}
-#ifndef OPTIMIZED_LOCKS
-	unlock_actors_lists();
-#endif
-
 }
 
 

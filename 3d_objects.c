@@ -268,6 +268,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	//but first convert any '\' in '/'
 	clean_file_name(fname, file_name, 128);
+	my_tolower(fname);
 
 	returned_e3d=load_e3d_cache(fname);
 	if(returned_e3d==NULL)

@@ -890,35 +890,16 @@ void draw_game_map(int map)
 	    glEnd();
      }
 	//ok, now let's draw our possition...
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-    lock_actors_lists();
-#endif
-#endif
     for(i=0;i<max_actors;i++)
 	{
 		if(actors_list[i])
-#ifdef OPTIMIZED_LOCKS
 			if(actors_list[i]->actor_id==yourself && actors_list[i]->tmp.have_tmp)
-#else
-			if(actors_list[i]->actor_id==yourself)
-#endif
 				{
-#ifdef OPTIMIZED_LOCKS
 						x=actors_list[i]->tmp.x_tile_pos;
 						y=actors_list[i]->tmp.y_tile_pos;
-#else
-						x=actors_list[i]->x_tile_pos;
-						y=actors_list[i]->y_tile_pos;
-#endif
 						break;
 					}
 		}
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-	    unlock_actors_lists();
-#endif
-#endif
 
 	if(!map){
 		if(cur_map!=-1){

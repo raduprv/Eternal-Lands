@@ -1164,7 +1164,7 @@ void reset_quickbar()
 }
 
 
-Uint32 exp_lev[140];
+Uint32 exp_lev[200];
 
 void build_levels_table()
 {
@@ -1172,7 +1172,7 @@ void build_levels_table()
   int exp=100;
 
   exp_lev[0]=0;
-  for(i=1;i<120;i++)
+  for(i=1;i<180;i++)
     {
         if(i<=10)exp+=exp*40/100;
         else
@@ -1181,9 +1181,9 @@ void build_levels_table()
         if(i<=30)exp+=exp*20/100;
         else
         if(i<=40)exp+=exp*14/100;
-        else
-        if(i<=90)exp+=exp*7/100;
-        else exp+=exp*4/100;
+	else 
+	if(i<=90)exp+=exp*7/100;
+	else exp+=exp*5/100;
 
         exp_lev[i]=exp;
     }
