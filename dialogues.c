@@ -158,7 +158,7 @@ int	display_dialogue_handler(window_info *win)
 
 void close_dialogue()
 {
-	if(dialogue_win > 0)
+	if(dialogue_win >= 0)
 	{
 		hide_window(dialogue_win);
 	}

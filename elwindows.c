@@ -578,7 +578,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	int	i;
 	
 	// verify that we are setup and space allocated
-	if(!windows_list.window)
+	if(windows_list.window == NULL)
 		{
 			// allocate the space
 			windows_list.num_windows= 0;

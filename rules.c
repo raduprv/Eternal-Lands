@@ -190,7 +190,7 @@ void toggle_rules_window(int toggle)
 		if(display_rules)free_rules(display_rules);
 		display_rules=get_interface_rules((float)(rules_win_x_len-70)/(12*0.8f)-1);
 	}
-	if(toggle && rules_win>0) toggle_window(rules_win);
+	if(toggle && rules_win>=0) toggle_window(rules_win);
 	else display_rules_window();
 
 	last_display=1;

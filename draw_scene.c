@@ -210,7 +210,7 @@ void draw_scene()
 	
 	main_count++;
 	
-	if(quickbar_win>0)windows_list.window[quickbar_win].displayed=1;
+	if(quickbar_win>=0)windows_list.window[quickbar_win].displayed=1;
 
 	if(old_fps_average<5)
 		{

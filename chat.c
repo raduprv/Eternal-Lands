@@ -19,7 +19,7 @@ int nr_displayed_lines;
 
 void update_chat_scrollbar ()
 {
-	if (chat_win > 0)
+	if (chat_win >= 0)
 	{
 		int len = nr_text_buffer_lines >= nr_displayed_lines ? nr_text_buffer_lines-nr_displayed_lines : 0;
 		vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);

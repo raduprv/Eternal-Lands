@@ -730,7 +730,7 @@ void draw_ingame_interface()
 	//check_menus_out_of_screen();
 
 	// watch for closing a bag
-	if(ground_items_win > 0)
+	if(ground_items_win >= 0)
 		{
 			int	old_view= view_ground_items;
 

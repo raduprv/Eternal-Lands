@@ -139,7 +139,7 @@ void add_questlog_line(char *t, int len)
 	// keep track of the counter
 	logdata_length++;
 	// update the scrollbar length in the questlog window
-	if (questlog_win > 0)
+	if (questlog_win >= 0)
 	{
 		// XXX FIXME (Grum)
 		// Ack, since questlog lines can span over more than one on-screen 
