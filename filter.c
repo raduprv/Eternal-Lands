@@ -174,7 +174,7 @@ void list_filters()
 			log_to_console(c_grey1,"You are filtering nothing!");
 			return;
 		}
-	str[0]=0;
+	my_strcp(str,"You are currently filtering:\n");
 	for(i=0;i<max_filters;i++)
 		{
 			if(filter_list[i].len > 0)
@@ -186,7 +186,7 @@ void list_filters()
 
 	str[strlen(str)-2]=0;//get rid of the last ", " thingy
 
-	log_to_console(c_grey1,"You are currently filtering:\n");
+	log_to_console(c_grey1,str);
 
 }
 
