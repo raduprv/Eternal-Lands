@@ -564,7 +564,7 @@ void draw_rules_interface()
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_SRC_ALPHA);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
+	glColor4f(0.5f,0.5f,0.5f,0.5f);
 	glBegin(GL_QUADS);
 		glVertex2i(x,y);
 		glVertex2i(x+width,y);
@@ -651,7 +651,6 @@ void draw_rules_interface()
 	glEnd();
 	glPopMatrix();
 	
-    	glDisable(GL_ALPHA_TEST);
 
 	glColor3f(0.77f, 0.57f, 0.39f);
 	
@@ -662,6 +661,7 @@ void draw_rules_interface()
 	glPopMatrix();//We have to use the real coordinates, as the mouseover/click depend on them
 	
 	draw_rules(display_rules+rule_offset, rule_offset, diff+30*window_ratio,120*window_ratio,window_height+diff/2-50,window_height-140*window_ratio,1.0f);
+    	glDisable(GL_ALPHA_TEST);
 	
 	check_mouse_rules_interface(display_rules+rule_offset, window_height-50, window_height, mouse_x, mouse_y);
 }

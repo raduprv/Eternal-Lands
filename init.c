@@ -268,6 +268,8 @@ void read_bin_cfg()
 	if(watch_this_stat<0 || watch_this_stat>=NUM_WATCH_STAT)
 		watch_this_stat=0;
 
+	has_accepted=cfg_mem.has_accepted_rules;
+	
 	cx=cfg_mem.camera_x;
 	cy=cfg_mem.camera_y;
 	cz=cfg_mem.camera_z;
@@ -429,6 +431,8 @@ void save_bin_cfg()
 
 	cfg_mem.watch_this_stat=watch_this_stat;
 
+	cfg_mem.has_accepted_rules=has_accepted;
+	
 	cfg_mem.camera_x=cx;
 	cfg_mem.camera_y=cy;
 	cfg_mem.camera_z=cz;

@@ -1,7 +1,7 @@
 #ifndef __INIT_H__
 #define __INIT_H__
 
-#define	CFG_VERSION	4
+#define	CFG_VERSION	5
 
 #ifndef DATA_DIR
 #define DATA_DIR "./"
@@ -49,6 +49,8 @@ typedef struct
 	int quickbar_flags;
 	
 	int watch_this_stat;
+
+	int has_accepted_rules;
 
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
 	int reserved[16];

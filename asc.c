@@ -277,7 +277,7 @@ char ** get_lines(char * str, int chars_per_line)
 			if(i>=chars_per_line){//Wrap it
 				//go back to the last space
 				while(i){
-					if(str[i]=='/' || str[i]==' ' || str[i]==0x0a || str[i]==0x0d) break;
+					if(str[i]=='/' || str[i]=='?' || str[i]=='!' || str[i]==' ' || str[i]==0x0a || str[i]==0x0d) break;
 					i--;
 				}
 				if(i){
