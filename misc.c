@@ -181,11 +181,31 @@ void clone_2d_object(int object_id)
 {
 	float z_pos,x_rot,z_rot;
 	char self_lit,blended;
+	int i;
 
 	z_pos=obj_2d_list[object_id]->z_pos;
 	x_rot=obj_2d_list[object_id]->x_rot;
 	z_rot=obj_2d_list[object_id]->z_rot;
-
+	
+	if(ctrl_on)
+		{
+			for(i=0;i<max_obj_2d;i++)
+				{
+					if(obj_2d_list[i])
+						{
+							int dist1;
+							int dist2;
+							
+							dist1=scene_mouse_x-obj_2d_list[i]->x_pos;
+							dist2=scene_mouse_y-obj_2d_list[i]->y_pos;
+							if(dist1*dist1+dist2*dist2<=1)
+								z_pos+=0.01f;
+						}
+				}
+			z_pos-=0.01f;
+			z_rot=rand()%360;
+		}
+	
 	selected_2d_object=add_2d_obj(obj_2d_list[object_id]->file_name,scene_mouse_x,scene_mouse_y,z_pos,x_rot,0,z_rot);
 	cur_tool=tool_select;//change the current tool
 }
