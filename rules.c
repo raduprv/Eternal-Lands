@@ -24,7 +24,7 @@ rule_string * display_rules;
 int last_display=-1;
 
 /*Interface*/
-int countdown=-1;
+int countdown=0;
 int next_interface=interface_log_in;
 
 /* Rule parser */
@@ -413,12 +413,11 @@ void init_rules_interface(int next, float text_size, int count)
 			display_rules=get_interface_rules((float)(window_height-140)/(12*text_size));
 		}
 		countdown=count;//Countdown in 0.5 seconds...
-	} else {
-		countdown=0;//Just switch now, there are no rules
 	}
 
 	last_display=0;
 	has_accepted=0;
+	interface_mode=interface_rules;
 }
 
 float rules_u_start=(float)3/256;
@@ -452,12 +451,9 @@ void draw_rules_interface()
 	float diff=(window_width-window_height)>>1;
 	int x,y,width,height;//Width/Height are 0.5*width/height
 	float window_ratio=window_width/640.0f;
-	if(countdown==-1) init_rules_interface(disconnected?interface_opening:interface_new_char, 1.0f, 10);
 	if(has_accepted) {
 		interface_mode=next_interface;
-		free_rules(display_rules);
-		display_rules=NULL;
-		if(next_interface==interface_opening)connect_to_server();
+		if(disconnected)connect_to_server();
 		return;
 	}
 

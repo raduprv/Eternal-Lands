@@ -635,6 +635,11 @@ void init_stuff()
 	
 	//we might want to do this later.
 //	connect_to_server();
+	if(!has_accepted)init_rules_interface(interface_opening, 1.0f, 10);//has_accepted is loaded from el.cfg
+	else {
+		interface_mode=interface_opening;
+		connect_to_server();
+	}
 }
 
 void add_key(Uint32 *key,Uint32 n)

@@ -28,6 +28,7 @@ typedef struct {
 
 extern int have_rules;
 extern int countdown;
+extern int has_accepted;
 
 int read_rules(void);
 void free_rules(rule_string * d);
