@@ -119,7 +119,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	GLuint texture;
 
   	f = fopen (FileName, "rb");
-  	if (!f) return;
+  	if (!f) return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
   	fread (file_mem, 1, 50, f);//header only
@@ -412,6 +412,7 @@ int load_texture_cache(char * file_name,unsigned char alpha)
 			if(file_name_lenght==j)//ok, texture already loaded
 			return i;
 		}
+
 	//texture not found in the cache, so load it, and store it
 	if(alpha==0)texture_id=load_bmp8_color_key(file_name);
 	else
