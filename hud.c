@@ -911,24 +911,24 @@ void draw_quickbar() {
 							x_end=x_start+50;
 							y_start=quickbar_y+51*(cur_pos%6)+1;
 							y_end=y_start+50;
+
+							//get the texture this item belongs to
+							this_texture=item_list[i].image_id/25;
+							if(this_texture==0)this_texture=items_text_1;
+							else if(this_texture==1)this_texture=items_text_2;
+							else if(this_texture==2)this_texture=items_text_3;
+							else if(this_texture==3)this_texture=items_text_4;
+							else if(this_texture==4)this_texture=items_text_5;
+							else if(this_texture==5)this_texture=items_text_6;
+							else if(this_texture==6)this_texture=items_text_7;
+
+							get_and_set_texture_id(this_texture);
+							glBegin(GL_QUADS);
+							draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
+							glEnd();
+							sprintf(str,"%i",item_list[i].quantity);
+							draw_string_small(x_start,y_end-15,str,1);
 						}
-
-					//get the texture this item belongs to
-					this_texture=item_list[i].image_id/25;
-					if(this_texture==0)this_texture=items_text_1;
-					else if(this_texture==1)this_texture=items_text_2;
-					else if(this_texture==2)this_texture=items_text_3;
-					else if(this_texture==3)this_texture=items_text_4;
-					else if(this_texture==4)this_texture=items_text_5;
-					else if(this_texture==5)this_texture=items_text_6;
-					else if(this_texture==6)this_texture=items_text_7;
-
-					get_and_set_texture_id(this_texture);
-					glBegin(GL_QUADS);
-					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-					glEnd();
-					sprintf(str,"%i",item_list[i].quantity);
-					draw_string_small(x_start,y_end-15,str,1);
 				}
 		}
 }
