@@ -623,9 +623,9 @@ void display_actors()
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 #ifdef POSSIBLE_FIX
-#ifdef EXPENSIVE_CHECKING
+//#ifdef EXPENSIVE_CHECKING
 	lock_actors_lists();	//lock it to avoid timing issues
-#endif
+//#endif
 #else
 	lock_actors_lists();	//lock it to avoid timing issues
 #endif
@@ -707,9 +707,9 @@ void display_actors()
 			}
 	}
 #ifdef POSSIBLE_FIX
-#ifdef EXPENSIVE_CHECKING
+//#ifdef EXPENSIVE_CHECKING
 	lock_actors_lists();	//lock it to avoid timing issues
-#endif
+//#endif
 #else
 	lock_actors_lists();	//lock it to avoid timing issues
 #endif
