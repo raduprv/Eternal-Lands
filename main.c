@@ -33,7 +33,6 @@ char **  gargv;
 int start_rendering()
 {
     int done=0;
-    Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
 
 	SDL_Thread *music_thread=SDL_CreateThread(update_music, 0);
 #ifndef WINDOWS
@@ -49,19 +48,11 @@ int start_rendering()
 				{
 					done = HandleEvent(&event);
 				}
+
 			//advance the clock
 			cur_time = SDL_GetTicks();
 			//check for network data
 			get_message_from_server();
-
-			//should we send the heart beat?
-			if(last_heart_beat+25000<cur_time)
-				{
-					Uint8 command;
-					last_heart_beat=cur_time;
-					command=HEART_BEAT;
-					my_tcp_send(my_socket,&command,1);
-				}
 
 			if(!limit_fps || ((cur_time-last_time) && (800/(cur_time-last_time) < limit_fps)))
 				{
@@ -72,26 +63,8 @@ int start_rendering()
 			else
 				SDL_Delay(1);//give up timeslice for anyone else
 
-			//AFK?
-			if(afk_time)
-				{
-					if(cur_time-last_action_time>afk_time) 
-						{
-							if(!afk)
-								{
-									go_afk();
-								}
-						}
-					else if(afk) go_ifk();
-				}
-			
-			if((int)cur_time-my_timer_clock>500)//Timer failure! log it and restart the timer
-				{
-					log_error("Timer failure!");
-					log_to_console(c_red2,"!!! Timer has suddenly stopped - we're restarting it !!!");
-					SDL_SetTimer (1000/(18*4), my_timer_pointer);
-					my_timer_clock=cur_time;
-				}
+			//Check the timers to make sure that they are all still alive...
+			check_timers();
 			
 			//cache handling
 			if(cache_system)cache_system_maint();
@@ -106,7 +79,8 @@ int start_rendering()
 	free_icons();
 	free_vars();
 	unload_e3d_list();	// do we really want to overwrite this file??
-	SDL_SetTimer(0,NULL);
+	SDL_RemoveTimer(draw_scene_timer);
+	SDL_RemoveTimer(misc_timer);
 	end_particles_list();
 #ifdef CAL3D
 	destroy_cal3d_model();

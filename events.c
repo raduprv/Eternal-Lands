@@ -36,7 +36,6 @@ void	quick_use(int use_id)
 	}
 }
 
-
 int HandleEvent(SDL_Event *event)
 {
 	int done=0;

@@ -474,8 +474,6 @@ void init_stuff()
 {
 	int seed;
 
-	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
-
 	//TODO: process command line options
 	chdir(datadir);
 	
@@ -609,8 +607,6 @@ void init_stuff()
 			SDL_Quit();
 		 	exit(1);
 		}
-	SDL_SetTimer (1000/(18*4), my_timer_pointer);
-
 	ReadXML("languages/en/Encyclopedia/index.xml");
 	read_key_config();
 	load_questlog();
@@ -618,6 +614,9 @@ void init_stuff()
 	
 	//initiate function pointers
 	init_attribf();
+	
+	draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
+	misc_timer = SDL_AddTimer (500, check_misc, NULL);
 	
 	//we might want to do this later.
 	connect_to_server();

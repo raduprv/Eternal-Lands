@@ -168,6 +168,5 @@ int go_to_url(void *dummy)
 	system(browser_command);
 
 	return 0;
-
 }
 
