@@ -125,7 +125,7 @@ void load_map_tiles()
 				if(!cur_tile && dungeon) cur_tile=231;
 				sprintf(str,"./tiles/tile%i.bmp",cur_tile);
 				if(is_water_tile(i))
-					tile_list[cur_tile]=load_texture_cache(str,70);
+					tile_list[cur_tile]=load_texture_cache(str,water_alpha);
 				else
 					tile_list[cur_tile]=load_texture_cache(str,255);
 			}
