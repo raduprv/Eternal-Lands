@@ -133,7 +133,6 @@ void free_book(book * b);
  * 
  * 		Frees all memory allocated by books - parses through the \c books variable and frees every loaded book. (books->next)
  *
- * \param	None
  * \return	None
  */
 void free_books(void);
@@ -253,7 +252,6 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p);
  *		If the UTF8Toisolat1 fails converting the text into iso-8859-1, it will log an error telling in which tag and at what line the error occured.
  *
  * \param	cur The current xmlNode
- * \param	in The text you are adding
  * \param	type The type of text
  * \param	b The current book
  * \param	p The current page

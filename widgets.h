@@ -7,7 +7,7 @@
 #define	__WIDGETS_H
 
 /*!
- * \name    LABEL, IMAGE, CHECKBOX, BUTTON, PROGRESSBAR, VSCROLLBAR
+ * \name    Available Widget types
  */
 /*! \{ */
 #define LABEL		0x01     /*!< LABEL */

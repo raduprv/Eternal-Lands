@@ -74,7 +74,6 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
  *
  * 		Cycles through the objects_list, and displays the 3d object if it's within a visible distance (dist_x^2+dist_y^2<=29*29)
  * 		
- * \param	None
  * \return	None
  */
 void display_objects();
@@ -97,7 +96,6 @@ void compute_clouds_map(object3d * object_id);
  * 		The function clears the clouds cache, which leads to the clouds map will have to be recalculated for the given object. 
  * 		It is called every 10 seconds.
  * 		
- * \param	None
  * \return	None
  */
 void clear_clouds_cache();

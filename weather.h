@@ -69,7 +69,6 @@ rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
  *
  * 		Builds the current rain table, called on init. Defines where the raindrops will go in the screen.
  *
- * \param   	None
  * \return  	None
  */
 void build_rain_table();
@@ -80,7 +79,6 @@ void build_rain_table();
  *
  * 		Updates the rain on the screen (moves the location a bit, it's just a 2d effect).
  *
- * \param   	None
  * \return  	None
  */
 void update_rain();
@@ -91,7 +89,6 @@ void update_rain();
  *
  *      	Draws the raindrops on the screen.
  *
- * \param   	None
  * \return  	None
  */
 void render_rain();
@@ -102,7 +99,6 @@ void render_rain();
  *
  *      	The function checks every second if it should begin raining.
  *
- * \param   	None
  * \return  	None
  */
 void rain_control();
@@ -113,7 +109,6 @@ void rain_control();
  *
  * 		Checks if it needs to start a thunder nearby.
  *
- * \param   	None
  * \return  	None
  */
 void thunder_control();
@@ -136,7 +131,6 @@ void add_thunder(int type,int sound_delay);
  *
  * 		Gets the current light level for the weather.
  *
- * \param   	None
  * \return  	None
  */
 void get_weather_light_level();
@@ -147,7 +141,6 @@ void get_weather_light_level();
  *
  *      	Resets the thunders.
  *
- * \param   	None
  * \return  	None
  */
 void clear_thunders();

@@ -425,7 +425,6 @@ extern char	reg_error_str[15],
  *
  * 		Initiates the translatable strings - uses the "See Also" subfunctions.
  *
- * \param   	None
  * \return  	None
  * \sa	init_console
  * \sa	init_help
@@ -443,7 +442,6 @@ void init_translatables();
  *
  *      	Loads the translatable strings from their xml-files. Uses the "See also" subfunctions.
  *
- * \param   	None
  * \return  	None
  * \sa		parse_errors
  * \sa		parse_console
@@ -461,7 +459,6 @@ void load_translatables();
  * 
  * 		Initiates the console strings.
  *
- * \param	None
  * \return	None
  */
 void init_console(void);
@@ -472,7 +469,6 @@ void init_console(void);
  * 		
  * 		Initiates the help strings.
  * 
- * \param	None
  * \return 	None
  */
 void init_help(void);
@@ -483,7 +479,6 @@ void init_help(void);
  * 
  * 		Initiates the options strings.
  *
- * \param	None
  * \return 	None
  */
 void init_options(void);
@@ -494,7 +489,6 @@ void init_options(void);
  *
  * 		Initiates the spells/sigils strings.
  *
- * \param	None
  * \return	None
  */
 void init_spells(void);
@@ -505,7 +499,6 @@ void init_spells(void);
  * 
  * 		Initiates the stats strings
  *
- * \param	None
  * \return	None
  */
 void init_stats(void);
@@ -517,7 +510,6 @@ void init_stats(void);
  *
  * 		Initiates the error strings
  *
- * \param	None
  * \return	None
  */
 void init_errors(void);

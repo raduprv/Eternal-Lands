@@ -102,7 +102,6 @@ void draw_2d_object(obj_2d * object_id);
  *
  *         	Parses through the obj_2d_list, checking for an object within the viewing distance (dist_x^2+dist_y^2<=220)
  *         	
- * \param	None
  * \return 	None
  * \sa 		draw_2d_object
  * \sa		obj_2d_list

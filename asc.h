@@ -7,7 +7,7 @@
 #define __ASC_H__
 
 /*!
- * A macro for the my_xmlstrncopy function that copies and converts an xml-string. Sets the length to 0, hence it will copy untill \0 is reached.
+ * A macro for the my_xmlstrncopy function that copies and converts an xml-string. Sets the length to 0, hence it will copy untill \\0 is reached.
  */
 #define my_xmlStrcpy(d,s) my_xmlStrncopy(d,s,0)
 

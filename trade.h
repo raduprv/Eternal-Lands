@@ -14,7 +14,6 @@ extern int trade_win;   /*!< trade_win */
  *
  * 		Displays the trade window (initiates the window if it hasn't been done before).
  *
- * \param   	None
  * \return  	None
  */
 void display_trade_menu();

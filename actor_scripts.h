@@ -35,7 +35,6 @@ float get_rotation_vector( float fStartAngle, float fEndAngle );
  *
  * 		The move_to_next_frame function goes through the actors list and sets the cur_frame that's used when rendering.
  *
- * \param	None
  * \return	None
  */
 void move_to_next_frame();
@@ -47,7 +46,6 @@ void move_to_next_frame();
  * 		This function is called from the display/network loop, when the timer thread calls SDL_PushEvent EVENT_ANIMATE_ACTORS. 
  * 		It's purpose is to animate the actors - that is, to change their x,y,z positions according to their current movement frames
  *
- * \param	None
  * \return	None
  */
 void animate_actors();
@@ -58,7 +56,6 @@ void animate_actors();
  *
  * 		The function is called from the timer thread and parses through the command queue. If no new commands have been found or the actor is idle, it will copy that frame to the actor. Furthermore it changes the x, y, z movement speed and rotation speeds.
  *
- * \param	None
  * \return	None
  */
 void next_command();
@@ -82,7 +79,6 @@ void destroy_actor(int actor_id);
  *
  * 		The function destroys all actors, free()s the memory/textures and sets the *actors_list=NULL
  *
- * \param	None
  * \return	None
  * \sa		destroy_actor
  */
@@ -94,7 +90,6 @@ void destroy_all_actors();
  *
  * 		The function is called whenever the client gets a message called "Resyncing with the server". It will call destroy_all_actors and send a SEND_ME_MY_ACTORS to the server hence getting the actors in range again.
  *
- * \param	None
  * \return	None
  * \sa		destroy_all_actors
  */
@@ -142,7 +137,6 @@ void get_actor_heal(int actor_id, int quantity);
  *
  * 		First it finds yourself in the actors_list, then moves you a step forward (sends a MOVE_TO to the server).
  *
- * \param	None
  * \return	None
  */
 void move_self_forward();

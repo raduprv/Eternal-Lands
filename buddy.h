@@ -29,7 +29,6 @@ extern int buddy_win; /*!< The identifier of the buddy window*/
  *
  * 		Inititates the buddy list (sets all types to 255)
  *
- * \param	None
  * \return	None
  */
 void init_buddy();
@@ -49,7 +48,7 @@ int compare2( const void *arg1, const void *arg2);
  * \ingroup	buddy_win
  * \brief	The callback for handling mouseclicks in the buddy-list
  *
- * 		The callback for handling mouseclicks in the buddy-list - will display a buddy's name at the bottom of the screen (/<name> ) ready for writing him/her a message.
+ * 		The callback for handling mouseclicks in the buddy-list - will display a buddy's name at the bottom of the screen (/\<name\> ) ready for writing him/her a message.
  * 
  * \param	win The window that called the function
  * \param	mx The mouse' x position
@@ -92,7 +91,6 @@ int drag_buddy_handler(window_info *win, int mx, int my, Uint32 flags, int dx, i
  *
  * 		The function is used for initiating the buddy window or setting an existing buddy window to be displayed.
  *
- * \param	None
  * \return	None
  */
 void display_buddy();

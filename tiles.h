@@ -20,7 +20,6 @@ extern int ground_detail_text;      /*!< The texture for ground details (clouds 
  *
  *      TODO: draw_tile_map
  *
- * \param   None
  * \return  None
  */
 void draw_tile_map();
@@ -31,7 +30,6 @@ void draw_tile_map();
  *
  *      	Loads the map tiles - tile_list[tile]==0 && tile!=255 it will load the tile (from tiles/tile\<tile_id\>.bmp).
  *
- * \param   	None
  * \return  	None
  */
 void load_map_tiles();

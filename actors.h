@@ -466,7 +466,6 @@ void draw_actor(actor * actor_id);
  * 
  * 		The function draws the actor if it's within a range of 12*12
  *
- * \param	None
  * \return	None
  */
 void display_actors();
@@ -528,7 +527,6 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
  *
  * 		Sets all actor pointers in the actors_list to NULL and creates the actors_list mutex.
  *
- * \param	None
  * \return	None
  * \sa		actors_list
  * \sa		lock_actors_lists
@@ -563,7 +561,6 @@ extern void	init_actors_lists();
  *
  * 		Destroys the actors_list mutex and sets the pointer to NULL
  * 
- * \param	None
  * \return 	None
  */
 extern void	end_actors_lists();
