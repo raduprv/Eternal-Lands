@@ -7,11 +7,13 @@
 
 void do_paste(Uint8 * buffer)
 {
+#ifndef OLD_EVENT_HANDLER
 	if (use_windowed_chat)
 	{
 		paste_in_input_field (buffer);
 	}
 	else
+#endif
 	{	
 		Uint32 i;
 		Uint8 ch;
