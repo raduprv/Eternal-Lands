@@ -690,7 +690,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	destroy_all_fires();
+				destroy_all_fires();
 			}
 			break;
 

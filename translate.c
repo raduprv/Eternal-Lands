@@ -932,6 +932,7 @@ void load_translatables()
 			xmlFreeDoc(file.file);
 		}
 #endif
+#ifndef WRITE_XML
 //There's no need for these variables to be hanging around any more...
 	free_xml_parser(GROUP,errors,ERRORS);
 #ifdef ELC
@@ -941,6 +942,7 @@ void load_translatables()
 	free_xml_parser(DIGROUP,sigils_str,SIGILS_STR);
 	free_xml_parser(STAT_GROUP,stats_str,STATS_STR);
 	free_xml_parser(GROUP,stats_extra,STATS_EXTRA);
+#endif
 #endif
 }
 
@@ -1038,7 +1040,10 @@ void copy_strings(xmlNode * in, distring_item * string)
 		}
 #ifdef WRITE_XML
 	if(!string->var->saved_str) xmlNewTextChild(in, NULL, "name", string->var->str);
-	if(!string->var->saved_desc) xmlNewTextChild(in, NULL, "desc", string->var->desc?string->var->desc:" ");
+	if(!string->var->saved_desc) {
+		if(string->var->desc!=NULL) xmlNewTextChild(in, NULL, "desc", string->var->desc);
+		else xmlNewTextChild(in, NULL, "desc", " ");
+	}
 #endif
 }
 #ifdef ELC
