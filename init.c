@@ -72,9 +72,11 @@ void read_config()
   	video_mode=get_integer_after_string("#video_mode",file_mem,5499);
   	shadows_on=get_integer_after_string("#shadows_on",file_mem,5499);
   	poor_man=get_integer_after_string("#poor_man",file_mem,5499);
+  	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,5499);
   	full_screen=get_integer_after_string("#full_screen",file_mem,5499);
   	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,5499);
   	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,5499);
+  	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,5499);
   	save_ignores=get_integer_after_string("#save_ignores",file_mem,5499);
   	no_sound=get_integer_after_string("#no_sound",file_mem,5499);
   	normal_camera_rotation_speed=get_float_after_string("normal_camera_rotation_speed",file_mem,5499);
@@ -320,6 +322,7 @@ void init_stuff()
 	init_e3d_cache();
 	init_2d_obj_cache();
 	load_ignores();
+	load_filters();
 	build_help();
 	load_harvestable_list();
 	load_entrable_list();
