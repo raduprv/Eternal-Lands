@@ -8,9 +8,9 @@ XDIR=-L/usr/X11R6/lib
 # basic compiling and linking - rarely changed
 CFLAGS=$(PLATFORM) -Wall -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
 _CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
-LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGLU -lGL  -lvorbis -lvorbisfile
-_LDFLAGS=$(shell sdl-config --libs) $(XDIR) -lGLU -lGL -lz -lm
-STATICLIBS=libs/libSDL_net.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a
+LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL  -lvorbis -lvorbisfile
+_LDFLAGS=$(XDIR) -lGL -lpthread -lz
+STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a
 
 # the objects we need
 OBJS=2d_objects.o 3d_objects.o	\
