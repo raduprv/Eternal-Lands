@@ -472,8 +472,12 @@ int print_gl_errors(char *file, char *func, int line)
 	while ((glErr=glGetError()) != GL_NO_ERROR )
 		 {
 			anyErr=glErr;
-			sprintf(str, "OpenGL Error in file %s %s() line %d err %d: %s\n", file, func, line, glErr, gluErrorString(glErr));
-			log_error(str);
+#ifdef	GLUT
+			snprintf(str, 1024, "OpenGL %s", gluErrorString(glErr));
+#else	// GLUT
+			snprintf(str, 1024, "OpenGL error %d", glErr);
+#endif	// GLUT
+			log_error_detailed(str, file, func, line);
 		}
 	return anyErr;
 }
