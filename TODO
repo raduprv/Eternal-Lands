@@ -1,7 +1,11 @@
 Cicero:
 Port sound engine to OpenAL
-Get File signature (MD5 or CRC32 of a specified filename) used with server to decide if a file will need uploading?
+Get File signature (MD5 or CRC32 of a specified filename) 
+	-used with server to decide if a file will need uploading?
+	-used to detect modified/corrupt files?
+	-used to send encrypted passwords?
 FreeBSD version
+log, cfg, & ini in user directory tree
 
 
 Learner:
@@ -26,6 +30,5 @@ MultiChannel Chat (needs server support)
 Upload File to client
 S/W version check & upload
 User defined keyboard/mouse bindings
-log, cfg, & ini in user directory tree
 Server selection screen
 
