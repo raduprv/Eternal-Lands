@@ -86,9 +86,11 @@ int read_rules()
 	sprintf(file_name,"languages/%s/rules.xml",lang);
 	
 	if ((doc = xmlReadFile(file_name, NULL, 0)) == NULL) {
-		//report this error:
-		log_error(read_rules_str);
-		return 0;
+		if((doc=xmlReadFile("languages/en/rules.xml",NULL,0))==NULL){
+			//report this error:
+			log_error(read_rules_str);
+			return 0;
+		}
 	}
 
 	if ((root = xmlDocGetRootElement(doc))==NULL) {
