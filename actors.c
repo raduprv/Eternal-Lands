@@ -603,7 +603,12 @@ void add_actor_from_server(char * in_data)
 		{
 			if(actors_list[i])
 				if(actors_list[i]->actor_id==actor_id)
-					destroy_actor(i);//we don't want two actors with thesame ID
+					{
+						char str[256];
+						sprintf(str,"Duplicate actor ID %d was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[23]);
+						log_error(str);
+						destroy_actor(i);//we don't want two actors with the same ID
+					}
 		}
 
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
@@ -628,6 +633,13 @@ void add_actor_from_server(char * in_data)
 	actors_list[i]->dead=dead;
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->kind_of_actor=kind_of_actor;
+	if(strlen(&in_data[23]) >= 30)
+		{
+			char str[120];
+			snprintf(str, 120, "Bad actor name/length (%d): %s/%d\n", actors_list[i]->actor_type,&in_data[23], strlen(&in_data[23]));
+			log_error(str);
+			return;
+		}
 	my_strncp(actors_list[i]->actor_name,&in_data[23],30);
 	unlock_actors_lists();	//unlock it
 }

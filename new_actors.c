@@ -637,20 +637,29 @@ void add_enhanced_actor_from_server(char * in_data)
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
+	lock_actors_lists();    //lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 				{
 					if(actors_list[i]->actor_id==actor_id)
 						{
-							destroy_actor(i);//we don't want two actors with thesame ID
+							char str[256];
+							sprintf(str,"Duplicate actor ID %d was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							log_error(str);
+							destroy_actor(i);//we don't want two actors with the same ID
+
 						}
 					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
 						{
-							destroy_actor(i);//we don't want two actors with thesame ID
+							char str[256];
+							sprintf(str,"Duplicate actor Name(%d) was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							log_error(str);
+							destroy_actor(i);//we don't want two actors with the same ID
 						}
 				}
 		}
+	unlock_actors_lists();  //unlock it
 
 	this_actor=calloc(1,sizeof(enhanced_actor));
 

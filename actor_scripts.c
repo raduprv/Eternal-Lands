@@ -485,7 +485,7 @@ void destroy_actor(int actor_id)
 {
 	int i;
 
-	lock_actors_lists();	//lock it to avoid timing issues
+	//lock_actors_lists();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -510,7 +510,7 @@ void destroy_actor(int actor_id)
 						break;
 					}
 		}
-	unlock_actors_lists();	//unlock it since we are done
+	//unlock_actors_lists();	//unlock it since we are done
 }
 
 void destroy_all_actors()
@@ -584,6 +584,12 @@ void add_command_to_actor(int actor_id, char command)
 		}
 	//if we got here, it means we don't have this actor, so get it from the server...
 	unlock_actors_lists();
+		{
+			char	str[256];
+			sprintf(str, "Unable to add command %d to %d\b", command, actor_id);
+			log_error(str);
+		}
+	//update_all_actors();
 }
 
 void get_actor_damage(int actor_id, Uint8 damage)
@@ -598,6 +604,7 @@ void get_actor_damage(int actor_id, Uint8 damage)
 						actors_list[i]->damage=damage;
 						actors_list[i]->damage_ms=2000;
 						actors_list[i]->cur_health-=damage;
+						unlock_actors_lists();
 						return;
 					}
 			i++;
@@ -615,6 +622,7 @@ void get_actor_heal(int actor_id, Uint8 quantity)
 				if(actors_list[i]->actor_id==actor_id)
 					{
 						actors_list[i]->cur_health+=quantity;
+						unlock_actors_lists();
 						return;
 					}
 			i++;
@@ -628,6 +636,7 @@ void move_self_forward()
 	int i,x,y,rot,tx,ty;
 	Uint8 str[10];
 
+	lock_actors_lists();
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i] && actors_list[i]->actor_id==yourself)
@@ -690,9 +699,11 @@ void move_self_forward()
 					*((short *)(str+3))=ty;
 
 					my_tcp_send(my_socket,str,5);
+					unlock_actors_lists();
 					return;
 				}
 		}
+	unlock_actors_lists();
 
 }
 
