@@ -10,7 +10,7 @@ int encyclopedia_menu_dragged=0;
 
 _Category Category[100];
 _Page Page[100];
-int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0,isize,tsize,tid,ssize,mouseover=0,posupdate=0;
+int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0,isize,tsize,tid,ssize,mouseover=0,xposupdate,yposupdate,lastextlen=0;
 float u,v,uend,vend,xend,yend,r,g,b;
 char *s,*ss;
 
@@ -251,9 +251,13 @@ void ParseImage(xmlAttr *a_node)
 			if(!xmlStrcasecmp(cur_attr->name,"mouseover")){
 				mouseover=atoi(cur_attr->children->content);
 			}
-			//posupdate=""
-			if(!xmlStrcasecmp(cur_attr->name,"posupdate")){
-				posupdate=atoi(cur_attr->children->content);
+			//xposupdate=""
+			if(!xmlStrcasecmp(cur_attr->name,"xposupdate")){
+				xposupdate=atoi(cur_attr->children->content);
+			}
+			//yposupdate=""
+			if(!xmlStrcasecmp(cur_attr->name,"yposupdate")){
+				yposupdate=atoi(cur_attr->children->content);
 			}
 		}
 	}
@@ -297,9 +301,13 @@ void ParseSimage(xmlAttr *a_node)
 			if(!xmlStrcasecmp(cur_attr->name,"mouseover")){
 				mouseover=atoi(cur_attr->children->content);
 			}
-			//posupdate=""
-			if(!xmlStrcasecmp(cur_attr->name,"posupdate")){
-				posupdate=atoi(cur_attr->children->content);
+			//xposupdate=""
+			if(!xmlStrcasecmp(cur_attr->name,"xposupdate")){
+				xposupdate=atoi(cur_attr->children->content);
+			}
+			//yposupdate=""
+			if(!xmlStrcasecmp(cur_attr->name,"yposupdate")){
+				yposupdate=atoi(cur_attr->children->content);
 			}
 
 		}
@@ -403,6 +411,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
 				x+=strlen(T->text)*((T->size)?11:8);
+				lastextlen=strlen(T->text)*((T->size)?11:8);
 			}
 
 			//<nl>
@@ -410,12 +419,18 @@ void ReadCategoryXML(xmlNode * a_node)
 				x=2;
 				y+=(size)?18:15;
 			}
+			
+			//<nlkx>
+			if(!xmlStrcasecmp(cur_node->name,"nlkx")){
+				y+=(size)?18:15;
+				x-=lastextlen;
+			}
 
 			//<Image>
 			if(!xmlStrcasecmp(cur_node->name,"image")){
 				_Image *I=(_Image*)malloc(sizeof(_Image));
 				_Image *i=&Page[numpage].I;
-				posupdate=1;
+				xposupdate=1; yposupdate=1;
 				ParseImage(cur_node->properties);
 				I->mouseover=mouseover;
 				mouseover=0;
@@ -428,10 +443,11 @@ void ReadCategoryXML(xmlNode * a_node)
 					I->y=y;
 					I->xend=x+xend;
 					I->yend=y+yend;
-					if(posupdate){
+					if(xposupdate)
 						x+=xend;
+					if(yposupdate)
 						y+=yend-((size)?18:15);
-					}
+					
 				}else{
 					I->x=i->x;
 					I->y=i->y;
@@ -452,7 +468,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				_Image *i=&Page[numpage].I;
 				int picsperrow,xtile,ytile;
 				float ftsize;
-				posupdate=1;
+				xposupdate=1; yposupdate=1;
 				ParseSimage(cur_node->properties);
 				if(size==99)
 					size=99;
@@ -476,10 +492,10 @@ void ReadCategoryXML(xmlNode * a_node)
 					I->y=y;
 					I->xend=x+(tsize*((float)ssize/100));
 					I->yend=y+(tsize*((float)ssize/100));
-					if(posupdate){
+					if(xposupdate)
 						x+=(tsize*((float)ssize/100));
+					if(yposupdate)
 						y+=(tsize*((float)ssize/100))-((size)?18:15);
-					}
 				}else{
 					I->x=i->x;
 					I->y=i->y;
@@ -517,6 +533,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
 				x+=strlen(T->text)*((T->size)?11:8);
+				lastextlen=strlen(T->text)*((T->size)?11:8);
 			}
 
 
