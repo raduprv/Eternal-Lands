@@ -1249,7 +1249,7 @@ void init_actor_defs()
 
 		my_strcp(actors_defs[human_male].helmet[HELMET_IRON].model_name,"./md2/helmet1_tall.md2");
 		my_strcp(actors_defs[human_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
-		my_strcp(actors_defs[human_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tallm.md2");
+		my_strcp(actors_defs[human_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tall.md2");
 		my_strcp(actors_defs[human_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
 
 		actors_defs[human_male].walk_speed=default_walk_speed;
@@ -1758,7 +1758,7 @@ void init_actor_defs()
 
 		my_strcp(actors_defs[elf_male].helmet[HELMET_IRON].model_name,"./md2/helmet1_tall.md2");
 		my_strcp(actors_defs[elf_male].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
-		my_strcp(actors_defs[elf_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tallm.md2");
+		my_strcp(actors_defs[elf_male].helmet[HELMET_FUR].model_name,"./md2/hat1_tall.md2");
 		my_strcp(actors_defs[elf_male].helmet[HELMET_FUR].skin_name,"./md2/hat1.bmp");
 
 		actors_defs[elf_male].walk_speed=default_walk_speed;
@@ -2082,7 +2082,7 @@ void init_actor_defs()
 		my_strcp(actors_defs[dwarf_male].shirt[SHIRT_CHAIN_ARMOR].model_name,"./md2/torso1_dwarfm.md2");
 		my_strcp(actors_defs[dwarf_male].shirt[SHIRT_CHAIN_ARMOR].torso_name,"./md2/torso3.bmp");
 		my_strcp(actors_defs[dwarf_male].shirt[SHIRT_STEEL_CHAIN_ARMOR].arms_name,"./md2/arms4.bmp");
-		my_strcp(actors_defs[dwarf_male].shirt[SHIRT_STEEL_CHAIN_ARMOR].model_name,"./md2/torso1_dwarfn.md2");
+		my_strcp(actors_defs[dwarf_male].shirt[SHIRT_STEEL_CHAIN_ARMOR].model_name,"./md2/torso1_dwarfm.md2");
 		my_strcp(actors_defs[dwarf_male].shirt[SHIRT_STEEL_CHAIN_ARMOR].torso_name,"./md2/torso4.bmp");
 		my_strcp(actors_defs[dwarf_male].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].arms_name,"./md2/arms5.bmp");
 		my_strcp(actors_defs[dwarf_male].shirt[SHIRT_TITANIUM_CHAIN_ARMOR].model_name,"./md2/torso1_dwarfm.md2");
