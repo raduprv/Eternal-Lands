@@ -31,7 +31,7 @@ int sector_add_3do(int objectid)
 
 	if(sector_no>=num_sectors) return -1;
 
-	for(i=0;i<100;i++){
+	for(i=0;i<MAX_3D_OBJECTS;i++){
 		if(sectors[sector_no].e3d_local[i]==-1){
 			sectors[sector_no].e3d_local[i]=objectid;
 //			add_change();

@@ -4,7 +4,7 @@
 typedef struct{
 	Uint32 objects_checksum;
 	Uint32 tiles_checksum;
-	short e3d_local[100];
+	short e3d_local[300];
 	short e2d_local[20];
 	short lights_local[4];
 	short particles_local[8];
@@ -17,4 +17,6 @@ int sector_add_2do(int objectid);
 int sector_add_light(int objectid);
 int sector_add_particle(int objectid);
 void sector_add_map();
+
+#define MAX_3D_OBJECTS 300
 #endif
