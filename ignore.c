@@ -42,17 +42,35 @@ int add_to_ignore_list(Uint8 *name, char save_name)
 int remove_from_ignore_list(Uint8 *name)
 {
 	int i;
+	int found = 0;
+	FILE *f = NULL;
 	//see if this name is on the list
 	for(i=0;i<max_ignores;i++)
 		{
-			if(ignore_list[i].used)
+			if(!found && ignore_list[i].used)
 				if(my_strcompare(ignore_list[i].name,name))
 					{
 						ignore_list[i].used=0;
-						return 1;
+						found = 1;
+						ignored_so_far--;
 					}
 		}
-	return -1;
+	if(found)
+		{
+			f=fopen("local_ignores.txt", "w");
+			for(i=0;i<max_ignores;i++)
+				{
+					if(ignore_list[i].used)
+						{
+							fwrite(ignore_list[i].name, strlen(ignore_list[i].name), 1, f);
+							fwrite("\n", 1, 1, f);	
+						}
+				}
+			fclose(f);
+			return 1;
+		}
+	else
+		return -1;
 }
 
 
