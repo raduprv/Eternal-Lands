@@ -169,7 +169,7 @@ void init_buddy()
 	
 }
 
-
+/*
 int clika(widget_list *w){
 	w->pos_x+=10;
 	return 0;
@@ -179,7 +179,7 @@ int clikaa(widget_list *w){
 	b->progress++;
 	return 0;
 }
-
+*/
 void display_buddy()
 {
 	if(buddy_win <= 0)
@@ -207,7 +207,8 @@ void display_buddy()
 			progressbar_add(buddy_win,NULL,50,50,20,200);
 			progressbar_set_progress(buddy_win,4,25);
 			widget_set_OnClick(buddy_win,4,clikaa);
-		*/	vscrollbar_add(buddy_win,NULL,10,10,20,100,100,10);
+			vscrollbar_add(buddy_win,NULL,10,10,20,100,100,10);
+		*/
 		}
 	else
 		{

@@ -6,6 +6,7 @@
 #define CHECKBOX	0x03
 #define BUTTON		0x04
 #define PROGRESSBAR	0x05
+#define VSCROLLBAR	0x06
 
 typedef struct wl{
 	// Common widget data
@@ -48,6 +49,10 @@ typedef struct {
 	float progress;
 }progressbar;
 
+typedef struct {
+	int lenght, pos, vlenght;
+}vscrollbar;
+
 // Common widget functions
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id);
 int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
@@ -66,13 +71,13 @@ int label_draw(widget_list *W);
 int label_set_text(Uint32 window_id, Uint32 widget_id, char *text);
 
 // Image
-int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 xe, Uint16 ye, float u1, float v1, float u2, float v2);
+int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2);
 int image_draw(widget_list *W);
 int image_set_id(Uint32 window_id, Uint32 widget_id, int id);
 int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u2, float v2);
 
 // Checkbox
-int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 xe, Uint16 ye, int checked);
+int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int checked);
 int checkbox_draw(widget_list *W);
 int checkbox_click(widget_list *W);
 int checkbox_get_checked(Uint32 window_id, Uint32 widget_id);
@@ -84,9 +89,12 @@ int button_draw(widget_list *W);
 int button_set_text(Uint32 window_id, Uint32 widget_id, char *text);
 
 // Progressbar
-int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 xe, Uint16 ye);
+int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly);
 int progressbar_draw(widget_list *W);
 float progressbar_get_progress(Uint32 window_id, Uint32 widget_id);
 int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress);
 
+// Vertical Scrollbar
+int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int lenght, int vlenght);
+int vscrollbar_draw(widget_list *W);
 #endif

@@ -302,6 +302,7 @@ int checkbox_draw(widget_list *W)
 	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
 	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
 	glEnd();
+	glEnable(GL_TEXTURE_2D);
 	return 1;
 }
 
@@ -407,7 +408,7 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	progressbar *T = (progressbar *) malloc(sizeof(label));
+	progressbar *T = (progressbar *) malloc(sizeof(progressbar));
 	widget_list *w = &windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
@@ -425,8 +426,8 @@ int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
 	W->r = -1.0;
 	W->g = -1.0;
 	W->b = -1.0;
-	W->len_y = lx;
-	W->len_x = ly;
+	W->len_y = ly;
+	W->len_x = lx;
 	W->OnDraw = progressbar_draw;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
@@ -469,6 +470,7 @@ int progressbar_draw(widget_list *W)
 	glColor3f(0.77f,0.57f,0.39f);
 	glEnd();
 	
+	glEnable(GL_TEXTURE_2D);
 	return 0;
 }
 
@@ -494,3 +496,75 @@ int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
 	return 0;
 }
 
+
+// Vertical scrollbar
+int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int lenght, int vlenght)
+{
+	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
+	vscrollbar *T = (vscrollbar *) malloc(sizeof(vscrollbar));
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	
+	// Clearing everything
+	memset(W,0,sizeof(widget_list));
+	memset(T,0,sizeof(vscrollbar));
+
+	// Filling the widget info
+	W->widget_info = T;
+	T->lenght = lenght;
+	T->vlenght = vlenght;
+	W->id=widget_id++;
+	W->type = VSCROLLBAR;
+	W->Flags = 0;
+	W->pos_x = x;
+	W->pos_y = y;
+	W->size = 1.0;
+	W->r = -1.0;
+	W->g = -1.0;
+	W->b = -1.0;
+	W->len_y = ly;
+	W->len_x = lx;
+	W->OnDraw = vscrollbar_draw;
+	W->OnInit = OnInit;
+	if(W->OnInit != NULL)
+		W->OnInit(W);
+
+	// Adding the widget to the list
+	while(w->next != NULL)
+		w = w->next;
+	w->next = W;
+
+	return W->id;
+}
+
+int vscrollbar_draw(widget_list *W)
+{
+	vscrollbar *c = (vscrollbar *)W->widget_info;
+	glDisable(GL_TEXTURE_2D);
+	if(W->r!=-1.0)
+		glColor3f(W->r, W->g, W->b);
+	glBegin(GL_LINES);
+
+	// scrollbar border
+	glVertex3i(W->pos_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
+	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
+	glVertex3i(W->pos_x,W->pos_y,0);
+	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
+
+	// scrollbar arrows
+	glVertex3i(W->pos_x + 5, W->pos_y + 10,0);
+	glVertex3i(W->pos_x + 10, W->pos_y + 5,0);
+	glVertex3i(W->pos_x + 10, W->pos_y + 5,0);
+	glVertex3i(W->pos_x + 15, W->pos_y + 10,0);
+	glVertex3i(W->pos_x + 5, W->pos_y + W->len_y - 10,0);
+	glVertex3i(W->pos_x + 10, W->pos_y + W->len_y - 5,0);
+	glVertex3i(W->pos_x + 10, W->pos_y + W->len_y - 5,0);
+	glVertex3i(W->pos_x + 15, W->pos_y + W->len_y - 10,0);
+	glEnd();
+
+	glEnable(GL_TEXTURE_2D);
+	return 0;
+}

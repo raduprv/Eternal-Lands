@@ -441,7 +441,6 @@ void * add_xml_group(int type, int no, ...)
 
 void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char * str, char * desc)
 {
-	if(!group)return;
 	group->distrings=(distring_item**)realloc(group->distrings,(group->no+1)*sizeof(distring_item*));
 	group->distrings[group->no]=(distring_item*)calloc(1,sizeof(distring_item));
 	strcpy(group->distrings[group->no]->xml_id,xml_id);
@@ -1344,10 +1343,10 @@ void free_xml_parser(int type, void * gPtr, int no)
 			case DIGROUP:
 				for(;i<no;i++)
 					{
-//						for(j=0;j<Grp[i].no;j++)
-//							{
-//								free(Grp[i].distrings[j]);
-//							}
+						for(j=0;j<Grp[i].no;j++)
+							{
+								free(Grp[i].distrings[j]);
+							}
 						free(Grp[i].distrings);
 					}
 				free(Grp);
