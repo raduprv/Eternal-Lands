@@ -246,7 +246,7 @@ void draw_scene()
 	display_actors();
 	check_gl_errors();
 #ifdef CAL3D
-	cal3d_render();
+	render_cal3d_model();
 #endif
 	//check for network data - reduces resyncs
 	get_message_from_server();
@@ -411,7 +411,7 @@ Uint32 my_timer(unsigned int some_int)
     		next_command();
     		animate_actors();
 #ifdef CAL3D
-			cal3d_tick();
+			update_cal3d_model();
 #endif
     		move_to_next_frame();
     		if(lake_waves_timer>2)

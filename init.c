@@ -547,7 +547,8 @@ void init_stuff()
 	resize_window();
 	init_gl_extensions();
 #ifdef CAL3D
-	cal3d_init();
+	create_cal3d_model();
+	init_cal3d_model();
 #endif
 	seed = time (NULL);
 	srand (seed);

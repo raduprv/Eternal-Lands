@@ -95,7 +95,9 @@ int start_rendering()
 	//unload_e3d_list();	// do we really want to overwrite this file??
 	SDL_SetTimer(0,NULL);
 	end_particles_list();
-
+#ifdef CAL3D
+	destroy_cal3d_model();
+#endif
 	/* Destroy our GL context, etc. */
 	destroy_sound();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
