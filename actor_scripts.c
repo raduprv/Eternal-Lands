@@ -193,6 +193,7 @@ void animate_actors()
 void next_command()
 {
 	int i;
+	int max_queue=0;
 
 	lock_actors_lists();
 	for(i=0;i<max_actors;i++)
@@ -455,6 +456,7 @@ void next_command()
 							//move que down with one command
 							for(k=0;k<10-1;k++)
 								{
+									if(k>max_queue && actors_list[i]->que[k]!=nothing)max_queue=k;
 									actors_list[i]->que[k]=actors_list[i]->que[k+1];
 								}
 							actors_list[i]->que[k]=nothing;
@@ -462,6 +464,7 @@ void next_command()
 				}
 		}
 	unlock_actors_lists();
+	if(max_queue > 4)my_timer_adjust+=4+(max_queue-4);	//speed up the timer clock if we are building up too much
 }
 
 

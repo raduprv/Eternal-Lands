@@ -280,8 +280,17 @@ void update_camera()
 
 }
 
+#define	TIMER_RATE 20
+int	my_timer_adjust=0;
+int	my_timer_clock=0;
 Uint32 my_timer(unsigned int some_int)
 {
+	int	new_time;
+
+	// adjust the timer clock
+	if(my_timer_clock == 0)my_timer_clock=SDL_GetTicks();
+	else	my_timer_clock+=(TIMER_RATE-my_timer_adjust);
+
 	update_camera();
 	//check the thunders
 	thunder_control();
@@ -291,6 +300,7 @@ Uint32 my_timer(unsigned int some_int)
 	if(is_raining)update_rain();
 	if(normal_animation_timer>2)
 		{
+			if(my_timer_adjust > 0)my_timer_adjust--;
 			normal_animation_timer=0;
     		update_particles();
     		next_command();
@@ -312,5 +322,8 @@ Uint32 my_timer(unsigned int some_int)
 		}
 	normal_animation_timer++;
 
-    return some_int;
+	// find the new interval
+	new_time=TIMER_RATE-(SDL_GetTicks()-my_timer_clock);
+	if(new_time<10)	new_time=10;	//put an absoute minimume in
+    return new_time;
 }
