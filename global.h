@@ -5,11 +5,6 @@
 #include <SDL_net.h>
 #include <SDL_thread.h>
 
-#ifndef OSX
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glext.h>
-#endif
 #ifdef WINDOWS
 #include <windows.h>
 #include <al.h>
@@ -23,6 +18,12 @@
 #include <AL/al.h>
 #include <AL/alut.h>
 #endif //WINDOWS
+
+#ifndef OSX
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glext.h>
+#endif
 
 #ifndef	NO_MUSIC
 #include <ogg/ogg.h>
