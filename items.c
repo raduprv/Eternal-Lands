@@ -63,6 +63,7 @@ int item_quantity=1;
 int wear_items_x_offset=6*51+20;
 int wear_items_y_offset=30;
 
+Uint32 click_time=0;
 
 void display_items_menu()
 {
@@ -354,6 +355,15 @@ int check_items_interface()
 
 										if(action_mode==action_look || right_click)
 											{
+												if(cur_time<(click_time+500))
+													if(item_list[i].use_with_inventory)
+														{
+															str[0]=USE_INVENTORY_ITEM;
+															str[1]=item_list[i].pos;
+															my_tcp_send(my_socket,str,2);
+															return 1;
+														}
+												click_time=cur_time;
 												str[0]=LOOK_AT_INVENTORY_ITEM;
 												str[1]=item_list[i].pos;
 												my_tcp_send(my_socket,str,2);
