@@ -290,7 +290,7 @@ void highlight_rule(int type, Uint8 * rule, int no)
 rule_string * get_interface_rules(int chars_per_line)
 {
 	int i;
-	rule_string * _rules=(rule_string*)malloc((rules.no+1)*sizeof(rule_string));
+	rule_string * _rules=(rule_string*)calloc((rules.no+1),sizeof(rule_string));
 	
 	for(i=0;i<rules.no;i++){
 		_rules[i].type=rules.rule[i].type;
@@ -308,7 +308,7 @@ rule_string * get_interface_rules(int chars_per_line)
 int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int lenx, int leny, float text_size)
 {
 	int xdiff=0,ydiff=18,i,j=0,tmplen=0,len=0;
-	char str[200];
+	char str[1024];
 	char *ptr;
 	float zoom=text_size;
 	int x=0, y=y_in;
@@ -443,7 +443,7 @@ float colored_arrow_v_end=1.0f-(float)31/256;
 
 void draw_rules_interface()
 {
-	char str[100];
+	char str[200];
 	float diff=(float)(window_width-window_height)/2;
 	int x,y,width,height;//Width/Height are 0.5*width/height
 	float window_ratio=(float)window_width/640.0f;
