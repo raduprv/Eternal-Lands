@@ -4,6 +4,11 @@
 #include <ctype.h>
 #include "global.h"
 
+extern marking marks[200];
+extern int adding_mark;
+extern int mark_x , mark_y;
+extern int max_mark;
+
 char	auto_open_encyclopedia= 1;
 
 //cls - clears the text buffer
@@ -192,6 +197,28 @@ void test_for_console_command()
 			log_to_console(c_orange1,str);
 		}
 		return;		
+	}
+	if (my_strncompare(text_loc,"unmark",6))
+	{
+		int i;
+		while (!isspace(*text_loc))
+			*text_loc++;
+		while (isspace(*text_loc))
+			*text_loc++;
+
+		for (i = 0 ; i < max_mark ; i ++)
+		{
+			if (my_strcompare(marks[i].text, text_loc))
+			{
+				char str[520];
+				marks[i].x = marks[i].y = -1;
+				save_markings();
+				sprintf(str,"%s removed", marks[i].text);
+				log_to_console(c_orange1,str);
+				break;
+			}
+		}
+		return;
 	}
 	//stats ?
 	if(my_strcompare(text_loc,"stats"))
