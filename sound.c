@@ -456,15 +456,19 @@ void destroy_sound()
 	SDL_DestroyMutex(sound_list_mutex);
 	sound_list_mutex=NULL;
 
+#ifndef	NO_MUSIC
 	alSourceStop(music_source);
+#endif	//NO_MUSIC
 	alSourceStopv(used_sources, sound_source);
 	alDeleteSources(used_sources, sound_source);
+#ifndef	NO_MUSIC
     alDeleteSources(1, &music_source);
+#endif	//NO_MUSIC
 	for(i=0;i<max_buffers;i++)
 		if(alIsBuffer(sound_buffer[i]))
 			alDeleteBuffers(1, sound_buffer+i);
-    alDeleteBuffers(2, music_buffers);
 #ifndef	NO_MUSIC
+    alDeleteBuffers(2, music_buffers);
     ov_clear(&ogg_stream);
 #endif	//NO_MUSIC
     alutExit();
