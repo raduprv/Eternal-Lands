@@ -946,7 +946,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		if (use_windowed_chat)
 		{
-			handle_root_key (key, unikey);
+			root_key_to_input_field (key, unikey);
 		}
 		else
 		{
@@ -970,7 +970,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 
 	if (use_windowed_chat)
 	{
-		handle_root_key (key, unikey);
+		root_key_to_input_field (key, unikey);
 	}
 	else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
 	{

@@ -161,6 +161,21 @@ void set_afk_time(int time)
 	else afk_time=0;
 }
 #endif // not def ELCONFIG
+
+#ifndef OLD_EVENT_HANDLER
+void change_windowed_chat (int *wc)
+{
+	*wc = !*wc;
+	if (*wc)
+	{
+		display_chat ();
+	}
+	else if (chat_win >= 0) 
+	{
+		hide_window (chat_win);
+	}
+}
+#endif // not def OLD_EVENT_HANDLER
 #endif // def ELC
 
 #ifdef MAP_EDITOR
@@ -439,7 +454,7 @@ void init_vars()
 	
 	add_var(BOOL,"use_tabbed_windows","tabs",&use_tabbed_windows,change_var,0);
 #ifndef OLD_EVENT_HANDLER
-	add_var(BOOL,"windowed_chat", "winchat", &use_windowed_chat, change_var, 0);
+	add_var(BOOL,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 0);
 #endif
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0);
 #endif // def ELC

@@ -229,10 +229,15 @@ int keypress_chat_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	return 0;
 }
 
-int handle_root_key (Uint32 key, Uint32 unikey)
+int root_key_to_input_field (Uint32 key, Uint32 unikey)
 {
 	widget_list *w = widget_find (chat_win, chat_in_id);
+	if (w == NULL) return 0;
 	return chat_in_key_handler (w, 0, 0, key, unikey);
+}
+
+void paste_in_input_field (Uint8 *text)
+{
 }
 
 void display_chat ()
@@ -240,6 +245,9 @@ void display_chat ()
 	if (chat_win < 0)
 	{
 		int scroll_len;
+		
+		if (game_root_win < 0)
+			create_game_root_window ();
 		
 		nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (18.0 * chat_zoom));
 		scroll_len = nr_text_buffer_lines >= nr_displayed_lines ? nr_text_buffer_lines-nr_displayed_lines : 0;

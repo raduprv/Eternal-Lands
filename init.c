@@ -475,6 +475,9 @@ void init_stuff()
 	load_translatables();//Write to the current working directory - hopefully we'll have write rights here...
 #endif
 	
+	// initialize the fonts, but don't load the textures yet
+	init_fonts();
+
 	//read the config file
 	read_config();
 
@@ -483,9 +486,6 @@ void init_stuff()
 	
 	// check for invalid combinations
 	check_options ();
-
-	// initialize the fonts, but don't load the textures yet
-	init_fonts();
 
 	//OK, we have the video mode settings...
 	setup_video_mode(full_screen,video_mode);
@@ -500,10 +500,10 @@ void init_stuff()
 #ifndef OLD_EVENT_HANDLER
 	// XXX FIXME (Grum): Maybe we should do this at a later time, after
 	// we're logged in?
-	create_game_root_window ();
-	create_console_root_window ();
-	create_map_root_window ();
-	create_login_root_window ();
+	if (game_root_win < 0) create_game_root_window ();
+	if (console_root_win < 0) create_console_root_window ();
+	if (map_root_win < 0) create_map_root_window ();
+	if (login_root_win < 0)create_login_root_window ();
 #else
 	resize_root_window();
 #endif

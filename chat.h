@@ -10,6 +10,8 @@
 
 extern int use_windowed_chat; /*!< flag indicating whether we use the new windowed chat window or not */
 
+extern int chat_win; /*!< handler for the chat window */
+
 extern int chat_win_text_width; /*!< width of the chat window */
 
 /*!
@@ -34,7 +36,19 @@ void update_chat_scrollbar ();
  * \retval int 1 if handled, 0 otherwise
  * \callgraph
  */
-int handle_root_key (Uint32 key, Uint32 unikey);
+int root_key_to_input_field (Uint32 key, Uint32 unikey);
+
+/*!
+ * \ingroup chat_win
+ * \brief   Paste a text into the input field
+ *
+ *      Pastes a text line at the current cursor position in the input field
+ *
+ * \param text the text to paste
+ *
+ * \callgraph
+ */
+void paste_in_input_field (Uint8 *text);
 
 /*!
  * \ingroup chat_win
