@@ -36,110 +36,96 @@ void setup_video_mode()
 {
 	if(full_screen)
 		{
-			if(video_mode==1)
-				{
-					window_width=640;
-					window_height=480;
-					bpp=16;
-				}
-			else if(video_mode==2)
-				{
-					window_width=640;
-					window_height=480;
-					bpp=32;
-				}
-			else if(video_mode==3)
-				{
-					window_width=800;
-					window_height=600;
-					bpp=16;
-				}
-			else if(video_mode==4)
-				{
-					window_width=800;
-					window_height=600;
-					bpp=32;
-				}
-			else if(video_mode==5)
-				{
-					window_width=1024;
-					window_height=768;
-					bpp=16;
-				}
-			else if(video_mode==6)
-				{
-					window_width=1024;
-					window_height=768;
-					bpp=32;
-				}
-			else if(video_mode==7)
-				{
-					window_width=1152;
-					window_height=864;
-					bpp=16;
-				}
-			else if(video_mode==8)
-				{
-					window_width=1152;
-					window_height=864;
-					bpp=32;
-				}
-			else if(video_mode==9)
-				{
-					window_width=1280;
-					window_height=1024;
-					bpp=16;
-				}
-			else if(video_mode==10)
-				{
-					window_width=1280;
-					window_height=1024;
-					bpp=32;
-				}
+			switch(video_mode) {
+			case 1:
+				window_width=640;
+				window_height=480;
+				bpp=16;
+				break;
+			case 2:
+				window_width=640;
+				window_height=480;
+				bpp=32;
+				break;
+			case 3:
+				window_width=800;
+				window_height=600;
+				bpp=16;
+				break;
+			case 4:
+				window_width=800;
+				window_height=600;
+				bpp=32;
+				break;
+			case 5:
+				window_width=1024;
+				window_height=768;
+				bpp=16;
+				break;
+			case 6:
+				window_width=1024;
+				window_height=768;
+				bpp=32;
+				break;
+			case 7:
+				window_width=1152;
+				window_height=864;
+				bpp=16;
+				break;
+			case 8:
+				window_width=1152;
+				window_height=864;
+				bpp=32;
+				break;
+			case 9:
+				window_width=1280;
+				window_height=1024;
+				bpp=16;
+				break;
+			case 10:
+				window_width=1280;
+				window_height=1024;
+				bpp=32;
+				break;
+			}
 		}
 	else //windowed mode
 		{
-			if(video_mode==1 || video_mode==2)
-				{
-					window_width=640;
-					window_height=480;
-				}
-			else if(video_mode==3 || video_mode==4)
-				{
-					if(window_width != 780 || window_height != 550)
-						{
-							log_to_console(c_yellow1,"Window size adjusted to 780x550.");
-					}
-					window_width=780;
-					window_height=550;
-				}
-			else if(video_mode==5 || video_mode==6)
-				{
-					if(window_width != 990 || window_height != 720)
-						{
-							log_to_console(c_yellow1,"Window size adjusted to 990x720.");
-						}
-					window_width=990;
-					window_height=720;
-				}
-			else if(video_mode==7 || video_mode==8)
-				{
-					if(window_width != 1070 || window_height != 785)
-						{
-							log_to_console(c_yellow1,"Window size adjusted to 1070x785.");
-						}
-					window_width=1070;
-					window_height=785;
-				}
-			else if(video_mode==9 || video_mode==10)
-				{
-					if(window_width != 1250 || window_height != 990)
-						{
-							log_to_console(c_yellow1,"Window size adjusted to 1250x990.");
-						}
-					window_width=1250;
-					window_height=990;
-				}
+			switch(video_mode) {
+			case 1:
+			case 2:
+				window_width=640;
+				window_height=480;
+				break;
+			case 3:
+			case 4:
+				if(window_width != 780 || window_height != 550)
+					log_to_console(c_yellow1,"Window size adjusted to 780x550.");
+				window_width=780;
+				window_height=550;
+				break;
+			case 5:
+			case 6:
+				if(window_width != 990 || window_height != 720)
+					log_to_console(c_yellow1,"Window size adjusted to 990x720.");
+				window_width=990;
+				window_height=720;
+				break;
+			case 7:
+			case 8:
+				if(window_width != 1070 || window_height != 785)
+					log_to_console(c_yellow1,"Window size adjusted to 1070x785.");
+				window_width=1070;
+				window_height=785;
+				break;
+			case 9:
+			case 10:
+				if(window_width != 1250 || window_height != 990)
+					log_to_console(c_yellow1,"Window size adjusted to 1250x990.");
+				window_width=1250;
+				window_height=990;
+				break;
+			}
 			bpp=0;//autodetect
 		}
 #ifndef WINDOWS
@@ -224,23 +210,13 @@ void init_video()
 		}
 
 	//adjust the video mode accordingly
-	if(bpp==16)
-		{
-			if(video_mode==2)video_mode=1;
-			if(video_mode==4)video_mode=3;
-			if(video_mode==6)video_mode=5;
-			if(video_mode==8)video_mode=7;
-			if(video_mode==10)video_mode=9;
-		}
-	else
-		{
-			if(video_mode==1)video_mode=2;
-			if(video_mode==3)video_mode=4;
-			if(video_mode==5)video_mode=6;
-			if(video_mode==7)video_mode=8;
-			if(video_mode==9)video_mode=10;
-
-		}
+	if(bpp==16) {
+		if(!(video_mode%2))
+			video_mode-=1;
+	} else {
+		if(video_mode%2)
+			video_mode+=1;
+	}
 	/* Initialize the display */
 	switch (bpp) {
 	case 8:

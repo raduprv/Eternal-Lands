@@ -183,11 +183,23 @@ void thunder_control()
 							thunders[i].seconds_till_sound--;
 							if(!thunders[i].seconds_till_sound)
 								{
-									if(thunders[i].thunder_type==0)add_sound_object(snd_thndr_1,0,0,0,0);
-									else if(thunders[i].thunder_type==1)add_sound_object(snd_thndr_2,0,0,0,0);
-									else if(thunders[i].thunder_type==2)add_sound_object(snd_thndr_3,0,0,0,0);
-									else if(thunders[i].thunder_type==3)add_sound_object(snd_thndr_4,0,0,0,0);
-									else if(thunders[i].thunder_type==4)add_sound_object(snd_thndr_5,0,0,0,0);
+									switch(thunders[i].thunder_type) {
+									case 0:
+										add_sound_object(snd_thndr_1,0,0,0,0);
+										break;
+									case 1:
+										add_sound_object(snd_thndr_2,0,0,0,0);
+										break;
+									case 2:
+										add_sound_object(snd_thndr_3,0,0,0,0);
+										break;
+									case 3:
+										add_sound_object(snd_thndr_4,0,0,0,0);
+										break;
+									case 4:
+										add_sound_object(snd_thndr_5,0,0,0,0);
+										break;
+									}
 									thunders[i].seconds_till_sound=-1;//we are done with this sound
 
 								}

@@ -57,26 +57,24 @@ void load_cursors()
 			for(x=0;x<cursors_x_lenght;x++)
 				{
 					cur_color=*(cursors_mem_bmp+y*cursors_x_lenght+x);
-					if(cur_color==0)//transparent
-						{
-							*(cursors_mem+(i+x)*2)=0;
-							*(cursors_mem+(i+x)*2+1)=0;
-						}
-					else if(cur_color==1)//white
-						{
-							*(cursors_mem+(i+x)*2)=0;
-							*(cursors_mem+(i+x)*2+1)=1;
-						}
-					else if(cur_color==2)//black
-						{
-							*(cursors_mem+(i+x)*2)=1;
-							*(cursors_mem+(i+x)*2+1)=1;
-						}
-					else if(cur_color==3)//reverse
-						{
-							*(cursors_mem+(i+x)*2)=1;
-							*(cursors_mem+(i+x)*2+1)=0;
-						}
+					switch(cur_color) {
+					case 0: //transparent
+						*(cursors_mem+(i+x)*2)=0;
+						*(cursors_mem+(i+x)*2+1)=0;
+						break;
+					case 1: //white
+						*(cursors_mem+(i+x)*2)=0;
+						*(cursors_mem+(i+x)*2+1)=1;
+						break;
+					case 2: //black
+						*(cursors_mem+(i+x)*2)=1;
+						*(cursors_mem+(i+x)*2+1)=1;
+						break;
+					case 3: //reverse
+						*(cursors_mem+(i+x)*2)=1;
+						*(cursors_mem+(i+x)*2+1)=0;
+						break;
+					}
 				}
 
 		}
@@ -114,14 +112,24 @@ void assign_cursor(int cursor_id)
 			cur_bit=i%8;
 			if(cur_color)//if it is 0, let it alone, no point in setting it
 				{
-					if(cur_bit==0)cur_mask=128;
-					else if(cur_bit==1)cur_mask=64;
-					else if(cur_bit==2)cur_mask=32;
-					else if(cur_bit==3)cur_mask=16;
-					else if(cur_bit==4)cur_mask=8;
-					else if(cur_bit==5)cur_mask=4;
-					else if(cur_bit==6)cur_mask=2;
-					else if(cur_bit==7)cur_mask=1;
+					switch(cur_bit) {
+					case 0:
+						cur_mask=128;break;
+					case 1:
+						cur_mask=64;break;
+					case 2:
+						cur_mask=32;break;
+					case 3:
+						cur_mask=16;break;
+					case 4:
+						cur_mask=8;break;
+					case 5:
+						cur_mask=4;break;
+					case 6:
+						cur_mask=2;break;
+					case 7:
+						cur_mask=1;break;
+					}
 					cursor_data[cur_byte]|=cur_mask;
 				}
 

@@ -142,22 +142,40 @@ void animate_actors()
 									//now, we need to update the x/y_tile_pos, and round off
 									//the x/y_pos according to x/y_tile_pos
 									last_command=actors_list[i]->last_command;
-									if(last_command==move_n || last_command==run_n)
-										actors_list[i]->y_tile_pos++;
-									else if(last_command==move_s || last_command==run_s)
-										actors_list[i]->y_tile_pos--;
-									else if(last_command==move_e || last_command==run_e)
+									switch(last_command) {
+									case move_n:
+									case run_n:
+										actors_list[i]->y_tile_pos++;break;
+									case move_s:
+									case run_s:
+										actors_list[i]->y_tile_pos--;break;
+									case move_e:
+									case run_e:
+										actors_list[i]->x_tile_pos++;break;
+									case move_w:
+									case run_w:
+										actors_list[i]->x_tile_pos--;break;
+									case move_ne:
+									case run_ne:
 										actors_list[i]->x_tile_pos++;
-									else if(last_command==move_w || last_command==run_w)
+										actors_list[i]->y_tile_pos++;
+										break;
+									case move_se:
+									case run_se:
+										actors_list[i]->x_tile_pos++;
+										actors_list[i]->y_tile_pos--;
+										break;
+									case move_sw:
+									case run_sw:
 										actors_list[i]->x_tile_pos--;
-									else if(last_command==move_ne || last_command==run_ne)
-										{actors_list[i]->x_tile_pos++;actors_list[i]->y_tile_pos++;}
-									else if(last_command==move_se || last_command==run_se)
-										{actors_list[i]->x_tile_pos++;actors_list[i]->y_tile_pos--;}
-									else if(last_command==move_sw || last_command==run_sw)
-										{actors_list[i]->x_tile_pos--;actors_list[i]->y_tile_pos--;}
-									else if(last_command==move_nw || last_command==run_nw)
-										{actors_list[i]->x_tile_pos--;actors_list[i]->y_tile_pos++;}
+										actors_list[i]->y_tile_pos--;
+										break;
+									case move_nw:
+									case run_nw:
+										actors_list[i]->x_tile_pos--;
+										actors_list[i]->y_tile_pos++;
+										break;
+									}
 									//ok, now update the x/y_pos
 
 									actors_list[i]->x_pos=actors_list[i]->x_tile_pos*0.5;
@@ -260,161 +278,149 @@ void next_command()
 
 							actor_type=actors_list[i]->actor_type;
 
-							if(actors_list[i]->que[0]==kill_me)
-								{
-									if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
-									free(actors_list[i]);
-									actors_list[i]=0;
-								}
-							else if(actors_list[i]->que[0]==die1)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->dead=1;
-								}
-							else if(actors_list[i]->que[0]==die2)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die2_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->dead=1;
-								}
-							else if(actors_list[i]->que[0]==pain1)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain1_frame);
-									actors_list[i]->stop_animation=1;
-								}
-							else if(actors_list[i]->que[0]==pain2)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain2_frame);
-									actors_list[i]->stop_animation=1;
-								}
-							else if(actors_list[i]->que[0]==pick)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pick_frame);
-									actors_list[i]->stop_animation=1;
-								}
-							else if(actors_list[i]->que[0]==drop)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].drop_frame);
-									actors_list[i]->stop_animation=1;
-								}
-							else if(actors_list[i]->que[0]==harvest)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].harvest_frame);
-									actors_list[i]->stop_animation=1;
-								}
-							else if(actors_list[i]->que[0]==cast)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_cast_frame);
-									actors_list[i]->stop_animation=1;
-								}
-							else if(actors_list[i]->que[0]==ranged)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_ranged_frame);
-									actors_list[i]->stop_animation=1;
-								}
-							else if(actors_list[i]->que[0]==sit_down)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].sit_down_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->sitting=1;
-									if(actors_list[i]->actor_id==yourself)you_sit_down();
-								}
-							else if(actors_list[i]->que[0]==stand_up)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].stand_up_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->sitting=0;
-									if(actors_list[i]->actor_id==yourself)you_stand_up();
-								}
-							else if(actors_list[i]->que[0]==enter_combat)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].in_combat_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->fighting=1;
-								}
-							else if(actors_list[i]->que[0]==leave_combat)
-								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].out_combat_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->fighting=0;
-								}
-							else if(actors_list[i]->que[0]==attack_up_1)
-								{
-									if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
-									else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_1_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->fighting=1;
-								}
-							else if(actors_list[i]->que[0]==attack_up_2)
-								{
-									if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
-									else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_2_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->fighting=1;
-
-								}
-							else if(actors_list[i]->que[0]==attack_up_3)
-								{
-									if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
-									else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_3_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->fighting=1;
-								}
-							else if(actors_list[i]->que[0]==attack_up_4)
-								{
-									if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
-									else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_4_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->fighting=1;
-								}
-							else if(actors_list[i]->que[0]==attack_down_1)
-								{
-									if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down1);
-									else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_1_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->fighting=1;
-								}
-							else if(actors_list[i]->que[0]==attack_down_2)
-								{
-									if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down2);
-									else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_2_frame);
-									actors_list[i]->stop_animation=1;
-									actors_list[i]->fighting=1;
-								}
-							else if(actors_list[i]->que[0]==turn_left)
-								{
-									actors_list[i]->rotate_z_speed=45.0/9.0;
-									actors_list[i]->rotate_frames_left=9;
-									actors_list[i]->rotating=1;
-									//generate a fake movement, so we will know when to make the actor
-									//not busy
-									actors_list[i]->move_x_speed=0;
-									actors_list[i]->move_y_speed=0;
-									actors_list[i]->movement_frames_left=9;
-									actors_list[i]->moving=1;
-									//test
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
-									actors_list[i]->stop_animation=1;
-								}
-							else if(actors_list[i]->que[0]==turn_right)
-								{
-									actors_list[i]->rotate_z_speed=-45.0/9.0;
-									actors_list[i]->rotate_frames_left=9;
-									actors_list[i]->rotating=1;
-									//generate a fake movement, so we will know when to make the actor
-									//not busy
-									actors_list[i]->move_x_speed=0;
-									actors_list[i]->move_y_speed=0;
-									actors_list[i]->movement_frames_left=9;
-									actors_list[i]->moving=1;
-									//test
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
-									actors_list[i]->stop_animation=1;
-								}
+							switch(actors_list[i]->que[0]) {
+							case kill_me:
+								if(actors_list[i]->remapped_colors)
+									glDeleteTextures(1,&actors_list[i]->texture_id);
+								free(actors_list[i]);
+								actors_list[i]=0;
+								break;
+							case die1:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->dead=1;
+								break;
+							case die2:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die2_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->dead=1;
+								break;
+							case pain1:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain1_frame);
+								actors_list[i]->stop_animation=1;
+								break;
+							case pain2:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain2_frame);
+								actors_list[i]->stop_animation=1;
+								break;
+							case pick:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pick_frame);
+								actors_list[i]->stop_animation=1;
+								break;
+							case drop:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].drop_frame);
+								actors_list[i]->stop_animation=1;
+								break;
+							case harvest:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].harvest_frame);
+								actors_list[i]->stop_animation=1;
+								break;
+							case cast:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_cast_frame);
+								actors_list[i]->stop_animation=1;
+								break;
+							case ranged:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_ranged_frame);
+								actors_list[i]->stop_animation=1;
+								break;
+							case sit_down:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].sit_down_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->sitting=1;
+								if(actors_list[i]->actor_id==yourself)
+									you_sit_down();
+								break;
+							case stand_up:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].stand_up_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->sitting=0;
+								if(actors_list[i]->actor_id==yourself)
+									you_stand_up();
+								break;
+							case enter_combat:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].in_combat_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->fighting=1;
+								break;
+							case leave_combat:
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].out_combat_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->fighting=0;
+								break;
+							case attack_up_1:
+								if(actors_list[i]->is_enhanced_model)
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
+								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_1_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->fighting=1;
+								break;
+							case attack_up_2:
+								if(actors_list[i]->is_enhanced_model)
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
+								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_2_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->fighting=1;
+								break;
+							case attack_up_3:
+								if(actors_list[i]->is_enhanced_model)
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
+								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_3_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->fighting=1;
+								break;
+							case attack_up_4:
+								if(actors_list[i]->is_enhanced_model)
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
+								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_4_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->fighting=1;
+								break;
+							case attack_down_1:
+								if(actors_list[i]->is_enhanced_model)
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down1);
+								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_1_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->fighting=1;
+								break;
+							case attack_down_2:
+								if(actors_list[i]->is_enhanced_model)
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down2);
+								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_2_frame);
+								actors_list[i]->stop_animation=1;
+								actors_list[i]->fighting=1;
+								break;
+							case turn_left:
+								actors_list[i]->rotate_z_speed=45.0/9.0;
+								actors_list[i]->rotate_frames_left=9;
+								actors_list[i]->rotating=1;
+								//generate a fake movement, so we will know when to make the actor
+								//not busy
+								actors_list[i]->move_x_speed=0;
+								actors_list[i]->move_y_speed=0;
+								actors_list[i]->movement_frames_left=9;
+								actors_list[i]->moving=1;
+								//test
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+								actors_list[i]->stop_animation=1;
+								break;
+							case turn_right:
+								actors_list[i]->rotate_z_speed=-45.0/9.0;
+								actors_list[i]->rotate_frames_left=9;
+								actors_list[i]->rotating=1;
+								//generate a fake movement, so we will know when to make the actor
+								//not busy
+								actors_list[i]->move_x_speed=0;
+								actors_list[i]->move_y_speed=0;
+								actors_list[i]->movement_frames_left=9;
+								actors_list[i]->moving=1;
+								//test
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+								actors_list[i]->stop_animation=1;
+								break;
 							//ok, now the movement, this is the tricky part
-							else if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw)
-								{
+							default:
+								if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw)
+									{
 									float rotation_angle;
 
 									if(last_command<move_n || last_command>move_nw)//update the frame name too
@@ -461,6 +467,7 @@ void next_command()
 									actors_list[i]->rotating=1;
 									actors_list[i]->stop_animation=1;
 								}
+							}
 
 							//mark the actor as being busy
 							actors_list[i]->busy=1;
@@ -646,51 +653,43 @@ void move_self_forward()
 					y=actors_list[i]->y_tile_pos;
 					rot=actors_list[i]->z_rot;
 					rot=unwindAngle_Degrees(rot);
-					if(rot==0)
-						{
-							tx=x;
-							ty=y+1;
-						}
-					else if(rot==45)
-						{
-							tx=x+1;
-							ty=y+1;
-						}
-					else if(rot==90)
-						{
-							tx=x+1;
-							ty=y;
-						}
-					else if(rot==135)
-						{
-							tx=x+1;
-							ty=y-1;
-						}
-					else if(rot==180)
-						{
-							tx=x;
-							ty=y-1;
-						}
-					else if(rot==225)
-						{
-							tx=x-1;
-							ty=y-1;
-						}
-					else if(rot==270)
-						{
-							tx=x-1;
-							ty=y;
-						}
-					else if(rot==315)
-						{
-							tx=x-1;
-							ty=y+1;
-						}
-					else
-						{
-							tx=x;
-							ty=y;
-						}
+					switch(rot) {
+					case 0:
+						tx=x;
+						ty=y+1;
+						break;
+					case 45:
+						tx=x+1;
+						ty=y+1;
+						break;
+					case 90:
+						tx=x+1;
+						ty=y;
+						break;
+					case 135:
+						tx=x+1;
+						ty=y-1;
+						break;
+					case 180:
+						tx=x;
+						ty=y-1;
+						break;
+					case 225:
+						tx=x-1;
+						ty=y-1;
+						break;
+					case 270:
+						tx=x-1;
+						ty=y;
+						break;
+					case 315:
+						tx=x-1;
+						ty=y+1;
+						break;
+					default:
+						tx=x;
+						ty=y;
+					}
 
 					//check to see if the coordinates are OUTSIDE the map
 					if(ty<0 || tx<0 || tx>=tile_map_size_x*6 || ty>=tile_map_size_y*6)return;

@@ -41,58 +41,59 @@ int get_font_char(unsigned char cur_char)
 				}
 			else if(cur_char>127+c_grey4)
 				{
-					if(cur_char==252)
-						cur_char=UUML;
-					else if(cur_char==233)
-						cur_char=EACUTE;
-					else if(cur_char==226)
-						cur_char=ACIRC;
-					else if(cur_char==224)
-						cur_char=AGRAVE;
-					else if(cur_char==231)
-						cur_char=CCEDIL;
-					else if(cur_char==234)
-						cur_char=ECIRC;
-					else if(cur_char==235)
-						cur_char=EUML;
-					else if(cur_char==232)
-						cur_char=EGRAVE;
-					else if(cur_char==239)
-						cur_char=IUML;
-					else if(cur_char==244)
-						cur_char=OCIRC;
-					else if(cur_char==251)
-						cur_char=UGRAVE;
-					else if(cur_char==230)
-						cur_char=aELIG;
-					else if(cur_char==248)
-						cur_char=oSLASH;
-					else if(cur_char==229)
-						cur_char=aRING;
-					else if(cur_char==198)
-						cur_char=AELIG;
-					else if(cur_char==216)
-						cur_char=OSLASH;
-					else if(cur_char==197)
-						cur_char=ARING;
-					else if(cur_char==228)
-						cur_char=aUMLAUT;
-					else if(cur_char==246)
-						cur_char=oUMLAUT;
-					else if(cur_char==252)
-						cur_char=uUMLAUT;
-					else if(cur_char==196)
-						cur_char=AUMLAUT;
-					else if(cur_char==214)
-						cur_char=OUMLAUT;
-					else if(cur_char==220)
-						cur_char=UUMLAUT;
-					else if(cur_char==223)
-						cur_char=DOUBLES;
-					else
-						{
-							return -1;	//ignore it
-						}
+					switch(cur_char) {
+					case 196:
+						cur_char=AUMLAUT;break;
+					case 197:
+						cur_char=ARING;break;
+					case 198:
+						cur_char=AELIG;break;
+					case 214:
+						cur_char=OUMLAUT;break;
+					case 216:
+						cur_char=OSLASH;break;
+					case 220:
+						cur_char=UUMLAUT;break;
+					case 223:
+						cur_char=DOUBLES;break;
+					case 224:
+						cur_char=AGRAVE;break;
+					case 226:
+						cur_char=ACIRC;break;
+					case 228:
+						cur_char=aUMLAUT;break;
+					case 229:
+						cur_char=aRING;break;
+					case 230:
+						cur_char=aELIG;break;
+					case 231:
+						cur_char=CCEDIL;break;
+					case 232:
+						cur_char=EGRAVE;break;
+					case 233:
+						cur_char=EACUTE;break;
+					case 234:
+						cur_char=ECIRC;break;
+					case 235:
+						cur_char=EUML;break;
+					case 239:
+						cur_char=IUML;break;
+					case 244:
+						cur_char=OCIRC;break;
+					case 246:
+						cur_char=oUMLAUT;break;
+					case 248:
+						cur_char=oSLASH;break;
+					case 251:
+						cur_char=UGRAVE;break;
+					case 252:
+						cur_char=UUML;break;
+					/* this case is redundant. which one is right?
+					case 252:
+						cur_char=uUMLAUT;break; */
+					default:
+						return -1;	//ignore it
+					}
 					if(cur_char>=UUML && cur_char<=ARING)
 						{
 							cur_char-=(UUML-127);

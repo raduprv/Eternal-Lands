@@ -894,15 +894,26 @@ int	display_quickbar_handler(window_info *win)
 
 							//get the texture this item belongs to
 							this_texture=item_list[i].image_id/25;
-							if(this_texture==0)this_texture=items_text_1;
-							else if(this_texture==1)this_texture=items_text_2;
-							else if(this_texture==2)this_texture=items_text_3;
-							else if(this_texture==3)this_texture=items_text_4;
-							else if(this_texture==4)this_texture=items_text_5;
-							else if(this_texture==5)this_texture=items_text_6;
-							else if(this_texture==6)this_texture=items_text_7;
-							else if(this_texture==7)this_texture=items_text_8;
-							else if(this_texture==8)this_texture=items_text_9;
+							switch(this_texture) {
+							case 0:
+								this_texture=items_text_1;break;
+							case 1:
+								this_texture=items_text_2;break;
+							case 2:
+								this_texture=items_text_3;break;
+							case 3:
+								this_texture=items_text_4;break;
+							case 4:
+								this_texture=items_text_5;break;
+							case 5:
+								this_texture=items_text_6;break;
+							case 6:
+								this_texture=items_text_7;break;
+							case 7:
+								this_texture=items_text_8;break;
+							case 8:
+								this_texture=items_text_9;break;
+							}
 
 							get_and_set_texture_id(this_texture);
 							glBegin(GL_QUADS);
