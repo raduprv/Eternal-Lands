@@ -7,7 +7,7 @@ actor *actors_list[1000];
 int max_actors=0;
 SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main threads
 
-actor_types actors_defs[43];
+actor_types actors_defs[100];
 
 //Threading support for actors_lists
 void init_actors_lists()
