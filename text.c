@@ -1,16 +1,19 @@
 #include <string.h>
 #include "global.h"
 
+FILE	*chat_log=NULL;
 void write_to_log(Uint8 * data,int len)
 {
 	int i,j;
 	Uint8 ch;
 	char str[1000];
-	FILE *f = NULL;
 
 	int server_message = 0;
 
-  	f = fopen ("chat_log.txt", "a");
+	if (chat_log == NULL)
+		{
+  			chat_log = fopen ("chat_log.txt", "a");
+		}
 
 	j=0;
 	for(i=0;i<len;i++)
@@ -27,8 +30,8 @@ void write_to_log(Uint8 * data,int len)
 	str[j]='\n';
 
 	if(!server_message || log_server)
-		fwrite(str, j+1, 1, f);
-  	fclose(f);
+		fwrite(str, j+1, 1, chat_log);
+  	fflush(chat_log);
 }
 
 void send_input_text_line()
@@ -293,7 +296,7 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 								{
 									cur_char=text_to_add[k];
 									if(k>len)continue;
-									if(cur_char==' ')
+									if(cur_char==' ' || cur_char=='\n')
 										{
 											k++;//let the space on the previous line
 											break;
@@ -316,7 +319,7 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 
 					if(cur_char>=127)	//we have a color, save it
 						current_color=cur_char;
-					if(cur_char=='\n')
+					else if(cur_char=='\n')
 						{
 							new_line_pos=i;
 						}
