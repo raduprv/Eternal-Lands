@@ -63,7 +63,7 @@ void get_map_playlist()
 
 	while(1)
 		{
-			fscanf(fp,"%d %d %d %d %s",&playlist[i].min_x,&playlist[i].max_x,&playlist[i].min_y,&playlist[i].max_y,playlist[i].file_name);
+			fscanf(fp,"%d %d %d %d %s",&playlist[i].min_x,&playlist[i].min_y,&playlist[i].max_x,&playlist[i].max_y,playlist[i].file_name);
 			i++;
 			if(!fgets(strLine, 100, fp))break;
 		}
@@ -190,8 +190,8 @@ void play_music(int list) {
 		{
 			fscanf(fp,"%s",playlist[i].file_name);
 			playlist[i].min_x=0;
-			playlist[i].max_x=10000;
 			playlist[i].min_y=0;
+			playlist[i].max_x=10000;
 			playlist[i].max_y=10000;
 			i++;
 			if(!fgets(strLine, 100, fp))break;
