@@ -322,17 +322,31 @@ int HandleEvent(SDL_Event *event)
 			game_minute--;
 		}
 
-		if(view_tiles_list && event->key.keysym.sym == SDLK_KP_PLUS)
+		if(event->key.keysym.sym == SDLK_KP_PLUS)
 			{
-				if(tile_offset<192)tile_offset+=64;
+				if(view_tiles_list)
+					{
+						if(tile_offset<192)tile_offset+=64;
+					}
+				else
+					{
+						grid_height+=0.1f;
+					}
 			}
-
-		if(view_tiles_list && event->key.keysym.sym == SDLK_KP_MINUS)
+		
+		if(event->key.keysym.sym == SDLK_KP_MINUS)
 			{
-				if(tile_offset>0)tile_offset-=64;
+				if(view_tiles_list)
+					{
+						if(tile_offset>0)tile_offset-=64;
+					}
+				else
+					{
+						grid_height-=0.1f;
+					}
 			}
-
-        //see if we get any text
+        
+	//see if we get any text
         if ((event->key.keysym.unicode & 0xFF80)==0)
   		ch = event->key.keysym.unicode & 0x7F;
   		//check wehter we should switch shadows on/off

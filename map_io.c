@@ -284,9 +284,15 @@ int load_map(char * file_name)
 	f=fopen(file_name, "rb");
 	if(!f)return 0;
 
-	destroy_map();
-
 	fread(mem_map_header, 1, sizeof(cur_map_header), f);//header only
+	
+	//verify if we have a valid file
+	if(cur_map_header.file_sig[0]!='e')return 0;
+	if(cur_map_header.file_sig[1]!='l')return 0;
+	if(cur_map_header.file_sig[2]!='m')return 0;
+	if(cur_map_header.file_sig[3]!='f')return 0;
+
+	destroy_map();//Only destroy the map now....
 
 	//get the map size
 	tile_map_size_x=cur_map_header.tile_map_x_len;
@@ -317,14 +323,6 @@ int load_map(char * file_name)
 
 	//this is useful if we go in/out a dungeon
 	new_minute();
-
-
-
-	//verify if we have a valid file
-	if(cur_map_header.file_sig[0]!='e')return 0;
-	if(cur_map_header.file_sig[1]!='l')return 0;
-	if(cur_map_header.file_sig[2]!='m')return 0;
-	if(cur_map_header.file_sig[3]!='f')return 0;
 
 	//read the tiles map
 	fread(tile_map, 1, tile_map_size_x*tile_map_size_y, f);
@@ -372,13 +370,12 @@ int load_map(char * file_name)
 			char *cur_particles_pointer=(char *)&cur_particles_io;
 			fread(cur_particles_pointer,1,particles_io_size,f);
 			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
-			particles_list[i]->ttl=-1;
+			if(particles_list[i]) particles_list[i]->ttl=-1;//Fail-safe if things fuck up...
 		}
 
 	fclose(f);
 
 	return 1;
-
 }
 
 void new_map(int m_x_size,int m_y_size)
@@ -405,7 +402,6 @@ void new_map(int m_x_size,int m_y_size)
 	cy=0;
 	
 	dungeon=0;
-
 }
 
 

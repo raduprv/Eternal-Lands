@@ -1,5 +1,7 @@
 #include "global.h"
 
+float grid_height=0.02f;
+
 void kill_height_map_at_texture_tile(int tex_pos){
   int start_point;
   int h_x, h_y;
@@ -828,10 +830,10 @@ void draw_heights_wireframe()
 				{
 					x_scaled=x*0.5f;
 					glBegin(GL_LINE_LOOP);
-					glVertex3f(x_scaled,y_scaled+0.5f, 0.02f);
-					glVertex3f(x_scaled,y_scaled, 0.02f);
-					glVertex3f(x_scaled+0.5f, y_scaled,0.02f);
-					glVertex3f(x_scaled+0.5f, y_scaled+0.5f,0.02f);
+					glVertex3f(x_scaled,y_scaled+0.5f, grid_height);
+					glVertex3f(x_scaled,y_scaled, grid_height);
+					glVertex3f(x_scaled+0.5f, y_scaled, grid_height);
+					glVertex3f(x_scaled+0.5f, y_scaled+0.5f, grid_height);
 					glEnd();
 				}
 		}

@@ -1,6 +1,8 @@
 #ifndef	__MISC_H
 #define	__MISC_H
 
+extern float grid_height;
+
 void open_3d_obj();
 void open_2d_obj();
 void open_map_file();
