@@ -1,7 +1,7 @@
 #ifndef __E3D_H__
 #define __E3D_H__
 
-#define max_obj_3d 10000
+#define max_obj_3d 15000
 #define max_e3d_cache 1000
 
 //the new array structures
