@@ -2,8 +2,10 @@
 #include <math.h>
 #include <string.h>
 #include "global.h"
-#ifndef WINDOWS
+#ifdef LINUX
 #include <SDL/SDL_syswm.h>
+#elif defined(BSD)
+#include <SDL_syswm.h>
 #endif
 
 int mod_key_status;
