@@ -91,7 +91,7 @@ void test_for_console_command()
 		{
 			char version[60];
 			version[0]=127+c_green1;
-			my_strcp(&version[1],"Eternal Lands Version 0.9.2 Beta");
+			my_strcp(&version[1],"Eternal Lands Version 0.9.3 Beta");
 			put_text_in_buffer(version, strlen(version), 0);
 			return;
 		}

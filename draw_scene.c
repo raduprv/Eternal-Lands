@@ -102,17 +102,16 @@ void draw_scene()
 
         if(fps<5)
         	{
-        		if(!(main_count%2))read_mouse_now=1;
-        		else read_mouse_now=0;
+        		read_mouse_now=1;
 			}
         else if(fps<10)
         	{
-        		if(!(main_count%4))read_mouse_now=1;
+        		if(!(main_count%2))read_mouse_now=1;
         		else read_mouse_now=0;
 			}
         else if(fps<20)
         	{
-        		if(!(main_count%6))read_mouse_now=1;
+        		if(!(main_count%4))read_mouse_now=1;
         		else read_mouse_now=0;
 			}
         else if(fps<30)

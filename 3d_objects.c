@@ -251,8 +251,12 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot
             char str[120];
             sprintf(str,"Error: Something nasty happened while trying to process: %s\n",file_name);
             log_error(str);
-            return 0;
+
+    		//replace it with the null object, to avoid object IDs corruption
+    		returned_e3d=load_e3d_cache("./3dobjects/misc_objects/badobject.e3d");
+    		if(returned_e3d==NULL)return 0;//umm, not even found the place holder, this is teh SUKC!!!
        }
+
 
 	sprintf(our_object->file_name,"%s",file_name);
 	our_object->x_pos=x_pos;

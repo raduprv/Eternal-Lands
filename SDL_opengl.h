@@ -22,7 +22,7 @@
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: SDL_opengl.h,v 1.1 2003/12/24 01:02:01 learner Exp $";
+ "@(#) $Id: SDL_opengl.h,v 1.2 2003/12/24 01:04:04 learner Exp $";
 #endif
 
 /* This is a simple file to encapsulate the OpenGL API headers */

@@ -406,7 +406,7 @@ struct harvest_names_struct harvestable_objects[100];
 struct enter_names_struct entrable_objects[100];
 
 int version_first_digit=9;
-int version_second_digit=2;
+int version_second_digit=3;
 
 
 
