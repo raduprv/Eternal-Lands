@@ -1013,7 +1013,7 @@ void copy_strings(xmlNode * in, distring_item * string)
 									int length=30;
 									int lutf8=xmlUTF8Strlen(cur->children->content);
 									UTF8Toisolat1(string->var->str, &lutf8, cur->children->content, &length);
-									if(lutf8<length)string->var->str[lutf8]=0;
+									if(lutf8<length && lutf8!=-1)string->var->str[lutf8]=0;
 #ifdef WRITE_XML
 									string->var->saved_str=1;
 #endif
@@ -1023,7 +1023,7 @@ void copy_strings(xmlNode * in, distring_item * string)
 									int length=100;
 									int lutf8=xmlUTF8Strlen(cur->children->content);
 									UTF8Toisolat1(string->var->desc, &lutf8, cur->children->content, &length); 
-									if(lutf8<length)string->var->desc[lutf8]=0;
+									if(lutf8<length && lutf8!=-1)string->var->desc[lutf8]=0;
 #ifdef WRITE_XML
 									string->var->saved_desc=1;
 #endif
@@ -1051,7 +1051,7 @@ void copy_stats(xmlNode * in, statstring_item * string)
 									int len=20;
 									int lutf8=xmlUTF8Strlen(cur->children->content);
 									UTF8Toisolat1(string->var->name, &len, cur->children->content, &len);
-									if(lutf8<len)string->var->name[lutf8]=0;
+									if(lutf8<len && lutf8!=-1)string->var->name[lutf8]=0;
 #ifdef WRITE_XML
 									string->var->saved_name=1;
 #endif
@@ -1061,7 +1061,7 @@ void copy_stats(xmlNode * in, statstring_item * string)
 									int len=5;
 									int lutf8=xmlUTF8Strlen(cur->children->content);
 									UTF8Toisolat1(string->var->shortname, &len, cur->children->content, &len);
-									if(lutf8<len)string->var->shortname[lutf8]=0;
+									if(lutf8<len && lutf8!=-1)string->var->shortname[lutf8]=0;
 #ifdef WRITE_XML
 									string->var->saved_shortname=1;
 #endif
@@ -1161,7 +1161,7 @@ void parse_strings(xmlNode * in, group_id * group)
 									{
 										int lutf8=xmlUTF8Strlen(cur->children->content);
 										UTF8Toisolat1(group->strings[i]->var, &(group->strings[i]->max_len), cur->children->content, &(group->strings[i]->max_len));
-										if(lutf8 < group->strings[i]->max_len) group->strings[i]->var[lutf8]=0;
+										if(lutf8 < group->strings[i]->max_len && lutf8!=-1) group->strings[i]->var[lutf8]=0;
 #ifdef WRITE_XML
 										group->strings[i]->saved=1;
 #endif
