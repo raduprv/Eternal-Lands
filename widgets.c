@@ -3,7 +3,7 @@
 #include "elwindows.h"
 #include <string.h>
 
-Uint32 widget_id = 0;
+Uint32 widget_id = 0x0000FFFF;
 
 // Common widget functions
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id)
@@ -115,10 +115,10 @@ int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float
 // Label
 int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 {
-	return label_add_extended(window_id, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
+	return label_add_extended(window_id, widget_id++, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
 }
 
-int label_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
+int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	label *T = (label *) malloc(sizeof(label));
@@ -130,7 +130,7 @@ int label_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Ui
 
 	// Filling the widget info
 	W->widget_info = T;
-	W->id=widget_id++;
+	W->id = wid;
 	W->type = LABEL;
 	W->Flags = Flags;
 	W->pos_x = x;
@@ -179,10 +179,10 @@ int label_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 // Image
 int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2)
 {
-	return image_add_extended(window_id, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2); 
+	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2); 
 }
 
-int image_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float id, float u1, float v1, float u2, float v2)
+int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float id, float u1, float v1, float u2, float v2)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	image *T = (image *) malloc(sizeof(label));
@@ -194,7 +194,7 @@ int image_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Ui
 
 	// Filling the widget info
 	W->widget_info = T;
-	W->id=widget_id++;
+	W->id = wid;
 	W->type = IMAGE;
 	W->Flags = Flags;
 	W->pos_x = x;
@@ -264,10 +264,10 @@ int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u
 // Checkbox
 int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int checked)
 {
-	return checkbox_add_extended(window_id, NULL, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, checked);
+	return checkbox_add_extended(window_id, widget_id++, NULL, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, checked);
 }
 
-int checkbox_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int checked)
+int checkbox_add_extended(Uint32 window_id,  Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int checked)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	checkbox *T = (checkbox *) malloc(sizeof(label));
@@ -279,7 +279,7 @@ int checkbox_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y,
 
 	// Filling the widget info
 	W->widget_info = T;
-	W->id=widget_id++;
+	W->id = wid;
 	W->type = CHECKBOX;
 	W->Flags = Flags;
 	W->pos_x = x;
@@ -353,10 +353,10 @@ int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked)
 // Button
 int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 {
-	return button_add_extended(window_id, NULL, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
+	return button_add_extended(window_id, widget_id++, NULL, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
 }
 
-int button_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
+int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	button *T = (button *) malloc(sizeof(button));
@@ -368,7 +368,7 @@ int button_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, U
 
 	// Filling the widget info
 	W->widget_info = T;
-	W->id=widget_id++;
+	W->id = wid;
 	W->type = BUTTON;
 	W->Flags = Flags;
 	W->pos_x = x;
@@ -427,10 +427,10 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 // Progressbar
 int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return progressbar_add_extended(window_id, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0);
+	return progressbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0);
 }
 
-int progressbar_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress)
+int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	progressbar *T = (progressbar *) malloc(sizeof(progressbar));
@@ -442,7 +442,7 @@ int progressbar_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16
 
 	// Filling the widget info
 	W->widget_info = T;
-	W->id=widget_id++;
+	W->id = wid;
 	W->type = PROGRESSBAR;
 	W->Flags = Flags;
 	W->pos_x = x;
@@ -525,10 +525,10 @@ int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
 // Vertical scrollbar
 int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return vscrollbar_add_extended(window_id, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, 1);
+	return vscrollbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, 1);
 }
 
-int vscrollbar_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc)
+int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	vscrollbar *T = (vscrollbar *) malloc(sizeof(vscrollbar));
@@ -542,7 +542,7 @@ int vscrollbar_add_extended(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 
 	W->widget_info = T;
 	T->pos_inc = pos_inc;
 	T->pos = pos;
-	W->id=widget_id++;
+	W->id = wid;
 	W->type = VSCROLLBAR;
 	W->Flags = Flags;
 	W->pos_x = x;
@@ -651,11 +651,6 @@ int vscrollbar_drag(widget_list *W, int dx, int dy)
 
 
 
-
-
-
-
-
 // XML Windows
 
 int AddXMLWindow(char *fn)
@@ -742,7 +737,7 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node)
 	xmlAttr *cur_attr=NULL;
 
 	int pos_x = 0, pos_y = 0, len_x = 0, len_y = 0, type = GetWidgetType(wn), checked = 1, pos = 0, pos_inc = 1;
-	Uint32 flags = 0, id = 0, tid = 0;
+	Uint32 flags = 0, id = widget_id++, tid = 0;
 	float size = 1.0, r = 1.0, g = 1.0, b = 1.0, u1 = 0.0, u2 = 1.0, v1 = 0.0, v2 = 1.0, progress = 0;
 	char text[256];
 
@@ -796,6 +791,7 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node)
 			//id=""
 			if(!xmlStrcasecmp(cur_attr->name,"id")){
 				id = atof(cur_attr->children->content);
+				widget_id--;
 				continue;
 			}
 
@@ -873,22 +869,22 @@ int ParseWidget(char *wn, int winid, xmlAttr *a_node)
 
 	switch(type){
 		case LABEL:
-			label_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
+			label_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
 			break;
 		case IMAGE:
-			image_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, tid, u1, v1, u2, v2);
+			image_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, tid, u1, v1, u2, v2);
 			break;
 		case CHECKBOX:
-			checkbox_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, checked);
+			checkbox_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, checked);
 			break;
 		case BUTTON:
-			button_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
+			button_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
 			break;
 		case PROGRESSBAR:
-			progressbar_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress);
+			progressbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress);
 			break;
 		case VSCROLLBAR:
-			vscrollbar_add_extended(winid, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc);
+			vscrollbar_add_extended(winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc);
 			break;
 
 	}
