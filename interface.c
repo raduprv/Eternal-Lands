@@ -189,7 +189,7 @@ void check_mouse_click()
     		if(mouse_x>=dialogue_menu_x && mouse_x<=dialogue_menu_x+dialogue_menu_x_len
 			   && mouse_y>=dialogue_menu_y && mouse_y<=dialogue_menu_y+dialogue_menu_y_len)
 				{
-					check_dialogue_response();
+					if (check_dialogue_response()) return;	// avoid cloick thrus
 				}
 		}
 
