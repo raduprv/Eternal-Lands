@@ -89,14 +89,7 @@ void check_mouse_click()
 		int quantity = item_list[item_dragged].quantity;
 
 		if(right_click){
-			if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ) {
-				str[0]=USE_MAP_OBJECT;
-				*((int *)(str+1))= object_under_mouse;
-				*((int *)(str+5))= item_list[item_dragged].pos;
-				my_tcp_send(my_socket, str, 9);
-			}
-			else
-				item_dragged = -1;
+			item_dragged = -1;
 			return;
 		}
 		if (quantity - item_quantity > 0)
@@ -182,10 +175,10 @@ void check_mouse_click()
 					for(i=0;i<20;i++)dialogue_responces[i].in_use=0;
 					return;
 				}
-			action_mode=action_walk;
+			//action_mode=action_walk;
 			str[0]=USE_MAP_OBJECT;
 			*((int *)(str+1))=object_under_mouse;
-			*((int *)(str+5))=-1;
+			*((int *)(str+5))=use_item;
 			my_tcp_send(my_socket,str,9);
 			return;
 		}
@@ -659,8 +652,9 @@ void draw_ingame_interface()
 	display_windows(1);	// Display all the windows handled by the window manager
 	//draw_hud_interface();
     display_spells_we_have();
-    if(item_dragged!=-1)drag_item();
-
+    if(item_dragged!=-1)drag_item(item_dragged,0);
+	if(use_item!=-1 && action_mode!=action_use)use_item=-1;
+    if(use_item!=-1)drag_item(use_item,1);
 }
 
 int map_text;

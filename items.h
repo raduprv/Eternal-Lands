@@ -95,6 +95,8 @@ extern int items_text_9;
 
 extern int item_dragged;
 
+extern int use_item;
+
 extern char items_string[300];
 
 extern int item_quantity;
@@ -103,7 +105,7 @@ extern int click_speed;
 
 void display_items_menu();
 void get_your_items(Uint8 *data);
-void drag_item();
+void drag_item(int item, int mini);
 void remove_item_from_inventory(int pos);
 void remove_item_from_ground(Uint8 pos);
 void get_new_inventory_item(Uint8 *data);

@@ -74,6 +74,8 @@ char items_string[300];
 int item_dragged=-1;
 int item_quantity=1;
 
+int use_item=-1;
+
 int wear_items_x_offset=6*51+20;
 int wear_items_y_offset=30;
 
@@ -372,6 +374,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 														my_tcp_send(my_socket,str,2);
 														return 1;
 													}
+												else
+													use_item=i;
 												return 1;
 											}
 										else//we might test for other things first, like use or drop
@@ -454,19 +458,19 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 
 
-void drag_item()
+void drag_item(int item, int mini)
 {
 	float u_start,v_start,u_end,v_end;
 	int cur_item,this_texture;
 
-	cur_item=item_list[item_dragged].image_id%25;
+	cur_item=item_list[item].image_id%25;
 	u_start=0.2f*(cur_item%5);
 	u_end=u_start+(float)50/256;
 	v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
 	v_end=v_start-(float)50/256;
 
 	//get the texture this item belongs to
-	this_texture=item_list[item_dragged].image_id/25;
+	this_texture=item_list[item].image_id/25;
 	switch(this_texture) {
 	case 0:
 		this_texture=items_text_1;break;
@@ -490,7 +494,7 @@ void drag_item()
 
 	get_and_set_texture_id(this_texture);
 	glBegin(GL_QUADS);
-	if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
+	if(mini)
 		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x,mouse_y,mouse_x+32,mouse_y+32);
 	else
 		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+25,mouse_y+25);
