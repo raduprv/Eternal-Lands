@@ -14,7 +14,14 @@ void write_to_log(Uint8 * data,int len)
 
 	if (chat_log == NULL)
 		{
-  			chat_log = fopen ("chat_log.txt", "a");
+			char chat_log_file[100];
+#ifndef WINDOWS
+			strcpy(chat_log_file, configdir);
+			strcat(chat_log_file, "chat_log.txt");
+#else
+			strcpy(chat_log_file, "chat_log.txt");
+#endif
+  			chat_log = fopen (chat_log_file, "a");
 		}
 
 	j=0;
