@@ -369,14 +369,14 @@ void display_actors_shadow()
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
+			if(!actors_list[i]->ghost)
 				{
 					int dist1;
 					int dist2;
 
 					dist1=x-actors_list[i]->x_pos;
 					dist2=y-actors_list[i]->y_pos;
-					if(sqrt(dist1*dist1+dist2*dist2)<=12)
-						if(!actors_list[i]->ghost)
+					if(dist1*dist1+dist2*dist2<=12*12)
 							{
 								if(actors_list[i]->is_enhanced_model)
 									draw_enhanced_actor_shadow(actors_list[i]);

@@ -486,6 +486,7 @@ void display_3d_reflection()
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
+			if(!actors_list[i]->ghost)
 				{
 					int dist1;
 					int dist2;
@@ -493,7 +494,6 @@ void display_3d_reflection()
 					dist1=x-actors_list[i]->x_pos;
 					dist2=y-actors_list[i]->y_pos;
 					if(dist1*dist1+dist2*dist2<=100)
-						if(!actors_list[i]->ghost)
 							{
 								if(actors_list[i]->is_enhanced_model)
 									draw_enhanced_actor_reflection(actors_list[i]);
