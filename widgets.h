@@ -38,67 +38,97 @@ typedef struct wl{
 }widget_list;
 
 
-/*!
- * Widget label
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in widgets.c, no need to declare it here.
  */
-typedef struct {
-	char text[256]; /*!< Text */
-}label;
+//*!
+// * Widget label
+// */
+//typedef struct {
+//	char text[256]; /*!< Text */
+//}label;
 
-
-/*!
- * Image structure
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in widgets.c, no need to declare it here.
  */
-typedef struct {
-	float u1,v1,u2,v2; /*!< Texture coordinates */
-	int id;            /*!< Texture id */
-}image;
+//*!
+// * Image structure
+// */
+//typedef struct {
+//	float u1,v1,u2,v2; /*!< Texture coordinates */
+//	int id;            /*!< Texture id */
+//}image;
 
-/*!
- *  Checkbox structure
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in widgets.c, no need to declare it here.
  */
-typedef struct {
-	int checked;
-}checkbox;
+//*!
+// *  Checkbox structure
+// */
+//typedef struct {
+//	int checked;
+//}checkbox;
 
-/*!
- *  Button structure
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in widgets.c, no need to declare it here.
  */
-typedef struct {
-	char text[256];
-}button;
+//*!
+// *  Button structure
+// */
+//typedef struct {
+//	char text[256];
+//}button;
 
-/*!
- *  Progressbar structure
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in widgets.c, no need to declare it here.
  */
-typedef struct {
-	float progress;
-}progressbar;
+//*!
+// *  Progressbar structure
+// */
+//typedef struct {
+//	float progress;
+//}progressbar;
 
-/*!
- *  Vertical scrollbar structure
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in widgets.c, no need to declare it here.
  */
-typedef struct {
-	int pos, pos_inc, bar_len;
-}vscrollbar;
+//*!
+// *  Vertical scrollbar structure
+// */
+//typedef struct {
+//	int pos, pos_inc, bar_len;
+//}vscrollbar;
 
-/*!
- *  Tabbed window structure
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in widgets.c, no need to declare it here.
  */
-typedef struct {
-	Sint8 label[64];
-	Uint16 tag_width;
-	Uint32 content_id;
-} tab;
+//*!
+// *  Tabbed window structure
+// */
+//typedef struct {
+//	Sint8 label[64];
+//	Uint16 tag_width;
+//	Uint32 content_id;
+//} tab;
 
-/*!
- *  Tab collection structure
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in widgets.c, no need to declare it here.
  */
-typedef struct
-{
-	int tag_height, tag_space, nr_tabs, max_tabs, cur_tab;
-	tab *tabs;
-} tab_collection;
+//*!
+// *  Tab collection structure
+// */
+//typedef struct {
+//	int tag_height, tag_space, nr_tabs, max_tabs, cur_tab;
+//	tab *tabs;
+//} tab_collection;
 
 /*!
  * \name	Flags for the text field

@@ -78,8 +78,12 @@ extern obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF]; /*!< The 2d object 
 
 extern obj_2d *obj_2d_list[MAX_OBJ_2D]; /*!< The 2d object array - holds all 2d objects on that map*/
 
+/* 
+ * OBOSOLETE: They are queued for removal from this file.
+ * Only used in 2d_objects.c, no need to declare them here.
 extern int map_meters_size_x;
 extern int map_meters_size_y;
+ */
 extern float texture_scale; /*!< scaling factor for textures */
 
 /*!

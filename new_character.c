@@ -173,7 +173,6 @@ float back_selected_start_v=1.0f-(float)202/256;
 float back_selected_end_u=(float)188/256;
 float back_selected_end_v=1.0f-(float)237/256;
 
-
 void change_actor ()
 {
 	// if there is any loaded model, destroy it

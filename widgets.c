@@ -17,6 +17,66 @@
 #define TEXTFIELD	8	/*!< text field widget */
 /*! \} */
 
+/*!
+ * Widget label
+ */
+typedef struct {
+	char text[256]; /*!< Text */
+}label;
+
+/*!
+ * Image structure
+ */
+typedef struct {
+	float u1,v1,u2,v2; /*!< Texture coordinates */
+	int id;            /*!< Texture id */
+}image;
+
+/*!
+ *  Checkbox structure
+ */
+typedef struct {
+	int checked;
+}checkbox;
+
+/*!
+ *  Button structure
+ */
+typedef struct {
+	char text[256];
+}button;
+
+/*!
+ *  Progressbar structure
+ */
+typedef struct {
+	float progress;
+}progressbar;
+
+/*!
+ *  Vertical scrollbar structure
+ */
+typedef struct {
+	int pos, pos_inc, bar_len;
+}vscrollbar;
+
+/*!
+ *  Tabbed window structure
+ */
+typedef struct {
+	Sint8 label[64];
+	Uint16 tag_width;
+	Uint32 content_id;
+} tab;
+
+/*!
+ *  Tab collection structure
+ */
+typedef struct {
+	int tag_height, tag_space, nr_tabs, max_tabs, cur_tab;
+	tab *tabs;
+} tab_collection;
+
 Uint32 widget_id = 0x0000FFFF;
 
 // Common widget functions

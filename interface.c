@@ -10,7 +10,13 @@ int mouse_delta_y;
 int right_click;
 int middle_click;
 int left_click;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Unused variable.
 int open_text;
+ */
+
 int login_screen_menus;
 char username_box_selected=1;
 char password_box_selected=0;

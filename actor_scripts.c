@@ -243,7 +243,6 @@ const dict_elem head_number_dict[] =
 	};
 
 
-
 float unwindAngle_Degrees( float fAngle )
 {
 	fAngle -= 360.0f * (int)( fAngle / 360.0f );

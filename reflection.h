@@ -6,20 +6,29 @@
 #ifndef __REFLECTION_H__
 #define __REFLECTION_H__
 
-/*!
- * a water_vertex
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in reflection.c, no need to declare it here.
  */
-typedef struct
-{
-	float u; /*!< u coordinate */
-	float v; /*!< v coordinate */
-	float z; /*!< z coordinage */
+//*!
+// * a water_vertex
+// */
+//typedef struct
+//{
+//	float u; /*!< u coordinate */
+//	float v; /*!< v coordinate */
+//	float z; /*!< z coordinage */
+//
+//}water_vertex;
 
-}water_vertex;
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in reflection.c, no need to declare them here.
+ */
+//extern water_vertex noise_array[16*16]; /*!< an array of noise values for water reflections */
+//extern int sky_text_1;
+//extern float water_deepth_offset;
 
-extern water_vertex noise_array[16*16]; /*!< an array of noise values for water reflections */
-extern int sky_text_1;
-extern float water_deepth_offset;
 extern int lake_waves_timer;
 extern float water_movement_u; /*!< movement of the water in u direction */
 extern float water_movement_v; /*!< movement of the water in v direction */

@@ -16,10 +16,14 @@ typedef struct
    unsigned char type;
 }_buddy;
 
-extern int buddy_menu_x; /*!< The default x position of the buddy window*/
-extern int buddy_menu_y; /*!< The default y position of the buddy window*/
-extern int buddy_menu_x_len; /*!< The buddy window width*/
-extern int buddy_menu_y_len; /*!< The buddy window height*/
+/*
+ * OBSOLETE: They are queued for removal from this file. 
+ * Only used in buddy.c, no need to declare them here.
+ */
+//extern int buddy_menu_x; /*!< The default x position of the buddy window*/
+//extern int buddy_menu_y; /*!< The default y position of the buddy window*/
+//extern int buddy_menu_x_len; /*!< The buddy window width*/
+//extern int buddy_menu_y_len; /*!< The buddy window height*/
 
 /*!
  * \name windows handlers

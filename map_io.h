@@ -178,7 +178,7 @@ typedef struct
 extern char dungeon; /*!< inidicates whether we are in a dungeon (no sun) or not */
 
 /*! \name ambient color values 
- * @{ */
+/ * @{ */
 extern float ambient_r;
 extern float ambient_g;
 extern float ambient_b;

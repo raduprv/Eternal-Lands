@@ -3,6 +3,17 @@
 #include "global.h"
 #include <math.h>
 
+/*!
+ * a water_vertex
+ */
+typedef struct
+{
+	float u; /*!< u coordinate */
+	float v; /*!< v coordinate */
+	float z; /*!< z coordinage */
+
+}water_vertex;
+
 water_vertex noise_array[16*16];
 int sky_text_1;
 float water_deepth_offset=-0.25f;

@@ -60,7 +60,11 @@ extern texture_cache_struct texture_cache[1000]; /*!< global texture cache */
 extern cache_struct	*cache_system; /*!< system cache */
 extern cache_struct	*cache_md2; /*!< md2 cache */
 extern cache_struct	*cache_e3d; /*!< e3d cache */
-extern cache_struct	*cache_texture; /*!< texture cache */
+/* 
+ * OBSOLETE: Queued for removal from this file.
+ * Unused resp. redundant variables.
+ */
+//extern cache_struct	*cache_texture; /*!< texture cache */
 //extern cache_struct *cache_system; // commented out due to redundant declaration */
 
 //proto

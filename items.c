@@ -2,6 +2,26 @@
 #include "global.h"
 #include "elwindows.h"
 
+/*!
+ * items that may appear on the ground
+ */
+typedef struct
+{
+	int pos;
+	int image_id; /*!< id of the image for this ground item */
+	int quantity;
+} ground_item;
+
+/*!
+ * a bag item is a special item
+ */
+typedef struct
+{
+	int x; /*!< x coordinate of the bag's position */
+	int y; /*!< y coordinate of the bag's position */
+	int obj_3d_id; /*!< id of the associated \see object3d object */
+} bag;
+
 item item_list[ITEM_NUM_ITEMS];
 item manufacture_list[ITEM_NUM_ITEMS];
 ground_item ground_item_list[50];

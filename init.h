@@ -133,8 +133,12 @@ typedef struct
 
 }bin_cfg;
 
-extern int ini_file_size; /*!< file size of the ini file */
-extern int have_stencil; /*!< flag that indicates whether we have the stencil extension or not. \todo shouldn't this go to gl_init.h to all the other OpenGL related variables? */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in init.c, no need to declare it here.
+ */
+//extern int ini_file_size; /*!< file size of the ini file */
+
 extern int poor_man; /*!< this flag, if set to true, indicates we are running on a really poor machine */
 extern int show_reflection; /*!< flag that indicates whether to display reflections or not */
 extern int mouse_limit;
@@ -146,9 +150,19 @@ extern int clouds_shadows; /*!< flag that indicates whether the shadows of cloud
 extern int compass_direction;
 extern char configdir[256]; /*!< the default directory where we look for configuration files */
 extern char datadir[256]; /*!< the default directory where we look for data files (aka installation dir) */
+extern int show_help_text;
 
-extern int show_stats_in_hud; /*!< flag that indicates whether we should display the stats in the hud or not */
-extern int show_help_text; /*!< flag that inidicates whether to show the help text or not. \todo does this mean to display the #hints? */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Moved to gl_init.h
+extern int have_stencil;
+ */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Moved to hud.h
+extern int show_stats_in_hud;
+ */
 
 extern int disconnected; /*!< indicates whether we are currently connected or not */
 extern int exit_now; /*!< a flag that indicates we should exit the programm immediately */
@@ -157,6 +171,22 @@ extern char current_url[160]; /*!< contains the last URL that was opened by hitt
 extern char browser_name[120]; /*!< a buffer that contains the name of the browser we should use */
 
 extern char lang[10]; /*!< contains the identifier for the current language. \todo Shouldn't this go into translate.h? */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Used only in init.c, no need to declare them here.
+ */
+//*!
+// * a list of ids and associated function names used for e3d models
+// */
+//typedef struct{
+//	int id;
+//	char *fn;
+//}e3d_list;
+//extern e3d_list *e3dlist; /*!< a global list of e3d_list objects. */
+//extern int e3dlistsize; /*!< the current size of \see e3dlist */
+
+extern int video_mode_set;
 
 /*!
  * \ingroup init
@@ -274,18 +304,6 @@ void load_e3d_list();
  * \sa start_rendering
  */
 void unload_e3d_list();
-
-/*!
- * a list of ids and associated function names used for e3d models
- */
-typedef struct{
-	int id;
-	char *fn;
-}e3d_list;
-extern e3d_list *e3dlist; /*!< a global list of e3d_list objects. */
-extern int e3dlistsize; /*!< the current size of \see e3dlist */
-
-extern int video_mode_set;
 
 /*!
  * \ingroup init

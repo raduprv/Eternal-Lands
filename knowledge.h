@@ -27,11 +27,23 @@ extern int knowledge_win; /*!< knowledge windows handler */
 
 extern int knowledge_menu_x;
 extern int knowledge_menu_y;
-extern int knowledge_menu_x_len;
-extern int knowledge_menu_y_len;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in knowledge.c, no need to declare them here.
+ */
+//extern int knowledge_menu_x_len;
+//extern int knowledge_menu_y_len;
+
+/* The next two variables have been commented before. I think that we can safely remove them too. */
 //extern int knowledge_menu_dragged;
 //extern int knowledge_scroll_dragged;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Unused variable
 extern int knowledge_page_start;
+ */
 
 extern knowledge knowledge_list[KNOWLEDGE_LIST_SIZE]; /*!< global array of knowledgeable items */
 extern char knowledge_string[400];

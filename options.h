@@ -7,27 +7,44 @@
 #define __OPTIONS_H__
 
 /*!
- * option_struct is used to store information related to one single option.
+ * \name Option Modes
  */
-typedef struct
-{
-	char * name; /*!< the name of the option */
-	char * desc; /*!< description of the option */
-	int type; /*!< type of the option */
-	int column;
-	void (*func)(int*,int*); /*!< pointer to a callback function executed when the option is clicked */
-	int * data_1; /*!< ***reserved??? */
-	int * data_2; /*!< ***reserved??? */
-} option_struct;
+/*! @{ */
+#define NONE 0		//0000b
+#define OPTION 1	//0001b
+#define VIDEO_MODE 2 	//0010b
+/*! @} */
 
-/*!
- * a list of \see option_struct options.
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in options.c, no need to declare it here.
  */
-struct options_struct
-{
-	int no; /*!< current number of options in \a option */
-	option_struct * option[25]; /*!< fixed size array of \see option_struct options. The actual number of used options is stored in \a no. */
-};
+//*!
+// * option_struct is used to store information related to one single option.
+// */
+//typedef struct
+//{
+//	char * name; /*!< the name of the option */
+//	char * desc; /*!< description of the option */
+//	int type; /*!< type of the option */
+//	int column;
+//	void (*func)(int*,int*); /*!< pointer to a callback function executed when the option is clicked */
+//	int * data_1; /*!< ***reserved??? */
+//	int * data_2; /*!< ***reserved??? */
+//} option_struct;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in options.c, no need to declare it here.
+ */
+//*!
+// * a list of \see option_struct options.
+// */
+//struct options_struct
+//{
+//	int no; /*!< current number of options in \a option */
+//	option_struct * option[25]; /*!< fixed size array of \see option_struct options. The actual number of used options is stored in \a no. */
+//};
 
 /*!
  * \name windows handlers
@@ -40,7 +57,7 @@ extern int options_menu_x;
 extern int options_menu_y;
 extern int options_menu_x_len;
 extern int options_menu_y_len;
-//extern int options_menu_dragged;
+//extern int options_menu_dragged; // has been commented before, IMO safe for removal.
 
 /*!
  * \ingroup options_win
@@ -142,14 +159,5 @@ void change_sound(int  * unused, int * unused2);
  * \callgraph
  */
 void change_music(int  * unused, int * unused2);
-
-/*!
- * \name Option Modes
- */
-/*! @{ */
-#define NONE 0		//0000b
-#define OPTION 1	//0001b
-#define VIDEO_MODE 2 	//0010b
-/*! @} */
 
 #endif

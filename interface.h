@@ -65,18 +65,33 @@ extern char password_box_selected; /*!< true, if the cursor is currently in the 
 extern char username_str[16]; /*!< the username of the actor */
 extern char password_str[16]; /*!< the password of the actor */
 extern char display_password_str[16]; /*!< a string that will be displayed when entering a password */
-extern int username_text_lenght; /*!< actual length of the \see username_str */
-extern int password_text_lenght; /*!< actual length of the \see password_str */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Used only in interface.c, no need to declare them here.
+ */
+//extern int username_text_lenght; /*!< actual length of the \see username_str */
+//extern int password_text_lenght; /*!< actual length of the \see password_str */
 
 extern int font_text;
 extern int cons_text;
 extern int icons_text;
 extern int hud_text;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Unused variable
 extern int open_text;
+ */
+
 extern int login_text;
 
-extern int selected_3d_object; /*!< if a 3d object is selected by the actor, this variable will contain the id of this object */
-extern int selected_inventory_object; /*!< if an inventory object is selected by the actor, this variable will contain the id of this object */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Unused variables
+ */
+//extern int selected_3d_object; /*!< if a 3d object is selected by the actor, this variable will contain the id of this object */
+//extern int selected_inventory_object; /*!< if an inventory object is selected by the actor, this variable will contain the id of this object */
 
 /*!
  * a flag for a mode, that show whether a mode is supported and/or selected.
@@ -91,6 +106,28 @@ extern mode_flag video_modes[10]; /*!< global array of available video modes */
 
 extern Uint32 click_time;
 extern int click_speed;
+
+/*!
+ * stores the start and end coordinates of a map
+ */
+struct draw_map{
+       unsigned short x_start;
+       unsigned short y_start;
+       unsigned short x_end;
+       unsigned short y_end;       
+       const char * name;
+};
+
+extern int cur_map; /*!< id of the map we are currently on */
+extern GLuint cont_text;
+extern GLuint legend_text;
+
+#ifdef OLD_EVENT_HANDLER
+extern GLuint map_text;
+#endif
+
+extern const struct draw_map seridia_maps[]; /*!< global array of maps for the continet seridia */
+
 
 /*!
  * \ingroup interfaces
@@ -379,23 +416,6 @@ void put_mark_on_map_on_mouse_position();
  * \callgraph
  */
 void put_mark_on_current_position(char *name);
-
-/*!
- * stores the start and end coordinates of a map
- */
-struct draw_map{
-       unsigned short x_start;
-       unsigned short y_start;
-       unsigned short x_end;
-       unsigned short y_end;       
-       const char * name;
-};
-
-extern int cur_map; /*!< id of the map we are currently on */
-extern GLuint cont_text;
-extern GLuint legend_text;
-extern GLuint map_text;
-extern const struct draw_map seridia_maps[]; /*!< global array of maps for the continet seridia */
 
 #ifndef OLD_EVENT_HANDLER
 void hide_all_root_windows ();

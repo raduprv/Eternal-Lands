@@ -2,6 +2,15 @@
 #include "global.h"
 #include "elwindows.h"
 
+/*!
+ * the _logdata structure is a linked list with a string as its data.
+ */
+typedef struct ld
+{
+	char *msg; /*!< the message to log */
+	struct ld *Next; /*!< link to the element in the list. */
+}_logdata;
+
 int questlog_win=-1;
 int questlog_menu_x=150;
 int questlog_menu_y=70;

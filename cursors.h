@@ -50,7 +50,12 @@ struct cursors_struct
 	int hot_y; /*!< y coordinate of the hot spot point. */
 	Uint8 *cursor_pointer; /*!< pointer to the actual cursor */
 };
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in cursors.c, no need to declare it here.
 extern struct cursors_struct cursors_array[20];
+ */
 
 /*!
  * contains the names of harvestable items

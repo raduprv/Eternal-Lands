@@ -44,13 +44,61 @@ typedef struct
 	char free_data; /*!< inidicator whether to free the data after use or not */
 } icon_struct;
 
-extern struct icons_struct icons; /*!< global variable of used icons */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in hud.c, no need to declare it here.
+ */
+//extern struct icons_struct icons; /*!< global variable of used icons */
 
 extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
 
+extern int show_stats_in_hud;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in hud.c, no need to declare them here.
+ */
 // The map icon:
-extern float map_icon_u_start;
-extern float map_icon_v_start;
+//extern float map_icon_u_start;
+//extern float map_icon_v_start;
+
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in hud.c, no need to declare them here.
+ */
+//extern int	icons_win; /*!< icons window handler */
+//extern int	stats_bar_win; /*!< stats bar windows handler */
+//extern int	misc_win; /*!< misc. windows handler */
+
+extern int	quickbar_win; /*!< quickbar windows handler */
+/*! @} */
+
+extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar is relocatable. */
+
+extern int hud_x;
+extern int hud_y;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Unused variable or redundant declaration
+ */
+//extern int hud_y;
+//extern int map_icon_x_start;
+//extern int map_icon_y_start;
+//extern int map_icon_x_end;
+//extern int map_icon_y_end;
+
+extern int view_digital_clock;
+
+extern int quickbar_x;
+extern int quickbar_y;
+extern int quickbar_dir;
+extern int quickbar_draggable;
 
 // the main hud handling
 
@@ -210,13 +258,6 @@ int translate_win_id(int * win_id);
  */
 void free_icons();
 
-/*!
- * \name windows handlers
- */
-/*! @{ */
-extern int	icons_win; /*!< icons window handler */
-/*! @} */
-
 //Functions for the function pointers
 
 /*!
@@ -353,13 +394,6 @@ void draw_exp_display();
 void build_levels_table();
 
 /*!
- * \name windows handlers
- */
-/*! @{ */
-extern int	stats_bar_win; /*!< stats bar windows handler */
-/*! @} */
-
-/*!
  * \ingroup display_2d
  * \brief
  *
@@ -391,13 +425,6 @@ void init_misc_display();
  * \callgraph
  */
 int check_misc_display();
-
-/*!
- * \name windows handlers
- */
-/*! @{ */
-extern int	misc_win; /*!< misc. windows handler */
-/*! @} */
 
 //quickbar section
 
@@ -431,15 +458,6 @@ void draw_quickbar();
  * \callgraph
  */
 int check_quickbar();
-
-/*!
- * \name windows handlers
- */
-/*! @{ */
-extern int	quickbar_win; /*!< quickbar windows handler */
-/*! @} */
-
-extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar is relocatable. */
 
 /*!
  * \ingroup windows
@@ -484,19 +502,5 @@ void change_flags(int win_id, Uint32 flags);
  * \sa click_quickbar_handler
  */
 Uint32 get_flags(int win_id);
-
-extern int hud_x;
-extern int hud_y;
-extern int hud_y;
-extern int map_icon_x_start;
-extern int map_icon_y_start;
-extern int map_icon_x_end;
-extern int map_icon_y_end;
-extern int view_digital_clock;
-
-extern int quickbar_x;
-extern int quickbar_y;
-extern int quickbar_dir;
-extern int quickbar_draggable;
 
 #endif	//__HUD_H

@@ -6,15 +6,27 @@
 #ifndef __SHADOWS_H__
 #define __SHADOWS_H__
 
-extern float fDestMat[16];
+/*
+ * OBSOLETE: Queued for removal
+ * Unused variables
+ */
+//extern float fDestMat[16];
+//extern float fPlane[4];
+
 extern float sun_position[4];
-extern float fPlane[4];
 
 extern int shadows_on; /*!< flag indicating whether shadows are enabled or disabled */
 extern int is_day; /*!< this flag shows whether it's day or night */
+
+/*
+ * OBSOLETE: Queued for removal
+ * Only used in shadows.c, no need to declare them here
 extern int shadows_texture;
+extern GLenum z_texture_id;
+ */
+
 extern int use_shadow_mapping; /*!< flag whether to use shadow mapping or not */
-extern GLuint depth_map_id,z_texture_id;
+extern GLuint depth_map_id;
 extern GLenum depth_texture_target;
 extern int max_shadow_map_size; /*!< max. size of the shadow maps in byte */
 

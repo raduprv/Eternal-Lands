@@ -7,17 +7,21 @@
 #ifndef __SOUND_H__
 #define __SOUND_H__
 
-/*!
- * playlist_entry is used to read and write the entries for a playlist.
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in sound.c, no need to declare it here.
  */
-typedef struct {
-	char file_name[64]; /*!< the filename of the sound file for this entry */
-	int min_x;
-	int max_x;
-	int min_y;
-	int max_y;
-	int time; /*!< duration of this sound file */
-} playlist_entry;
+//*!
+// * playlist_entry is used to read and write the entries for a playlist.
+// */
+//typedef struct {
+//	char file_name[64]; /*!< the filename of the sound file for this entry */
+//	int min_x;
+//	int max_x;
+//	int min_y;
+//	int max_y;
+//	int time; /*!< duration of this sound file */
+//} playlist_entry;
 
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */

@@ -2,6 +2,9 @@
  * \file
  * \ingroup event_handle
  * \brief global event handling.
+ *
+ * \note Struct marking, and the variables adding_mark, mark_x, mark_y, max_mark and marks have been
+ *       moved to mapwin.h
  */
 #ifndef __EVENTS_H__
 #define __EVENTS_H__
@@ -20,7 +23,12 @@ enum {
 extern int shift_on; /*!< flag indicating whether the Shift key is pressed. */
 extern int alt_on; /*!< flag indicating whether the Alt key is pressed. */
 extern int ctrl_on; /*!< flag indicating whether the Ctrl key is pressd. */
-extern SDL_TimerID event_timer_clock; /*!< a timer for the clock events */
+
+/*
+ * OBSOLETE: Queue for removal from this file.
+ * Unused variable
+ */
+//extern SDL_TimerID event_timer_clock; /*!< a timer for the clock events */
 
 /*!
  * \ingroup event_handle
@@ -55,27 +63,5 @@ Uint32 event_timer(Uint32 interval, void * data);
  * \callgraph
  */
 int HandleEvent(SDL_Event *event);
-
-/*!
- * \ingroup interface_map
- * stores the position and the text for markings on the map.
- * \todo this struct should be moved to some place where it belongs, like map.h or sector.h
- */
-typedef struct
-{
-    /*!
-     * \name marking position
-     */
-    /*! @{ */
-    int x ;
-    int y;
-    /*! @} */
-    char text[512]; /*!< text of the marking */
-}marking;
-
-extern int adding_mark; /*!< flag that indicates we are currently adding a mark to a map */
-extern int mark_x, mark_y; /*!< map coordinates of the position of the mark */
-extern int max_mark; /*!< max. number of marks we can handle */
-extern marking marks[200]; /*!< a global array of marks */
 
 #endif	// __EVENTS_H__

@@ -2,6 +2,19 @@
 #include "global.h"
 #include "elwindows.h"
 
+#define SIGILS_NO 50 /*!< maximum number of sigils available to a player */
+
+/*!
+ * sigil_def is used to store items of a sigil like its image, name and description.
+ */
+typedef struct
+{
+	int sigil_img; /*!< a handle for the image to use with this sigil */
+	char name[32]; /*!< the name of the sigil */
+	char description[64]; /*!< description for a sigil */
+	int have_sigil; /*!< flag, indicating whether a player has bought this sigil or not */
+}sigil_def;
+
 sigil_def sigils_list[SIGILS_NO];
 int sigil_win=-1;
 int sigil_menu_x=10;

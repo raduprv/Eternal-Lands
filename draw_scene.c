@@ -45,7 +45,13 @@ int last_texture=-2;
 int font_text;
 int cons_text;
 int icons_text;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Unused variable
 int open_text;
+ */
+
 int login_text;
 int ground_detail_text;
 

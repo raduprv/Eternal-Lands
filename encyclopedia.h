@@ -58,9 +58,15 @@ extern int encyclopedia_win; /*!< encyclopedia windows handler */
 
 extern int encyclopedia_menu_x;
 extern int encyclopedia_menu_y;
-extern int encyclopedia_menu_x_len;
-extern int encyclopedia_menu_y_len;
-extern _Category Category[100]; /*!< array of categories used in the encyclopedia */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in encyclopedia.c, no need to declare them here.
+ */
+//extern int encyclopedia_menu_x_len;
+//extern int encyclopedia_menu_y_len;
+//extern _Category Category[100]; /*!< array of categories used in the encyclopedia */
+
 extern _Page Page[500]; /*!< fixed array of pages for the encyclopedia */
 extern int numpage;
 

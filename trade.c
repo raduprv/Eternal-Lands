@@ -3,6 +3,16 @@
 
 int trade_win=-1;
 
+extern item your_trade_list[24]; /*!< array of items in your trade list */
+extern item others_trade_list[24]; /*!< array of items in the trade partners trade list */
+
+extern char other_player_trade_name[20]; /*!< playername of the trade partner in question */
+
+extern int no_view_my_items;
+
+extern int trade_menu_x_len;
+extern int trade_menu_y_len;
+
 int display_trade_handler(window_info *win)
 {
 	Uint8 str[80];

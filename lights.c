@@ -2,6 +2,17 @@
 #include "global.h"
 #include <math.h>
 
+/*!
+ * a position for the sun
+ */
+typedef struct
+{
+	float x; /*<! x coordinate of the suns position */
+	float y; /*<! y coordinate of the suns position */
+	float z; /*<! z coordinate of the suns position */
+	float w; /*<! w coordinate of the suns position */
+}sun;
+
 GLfloat global_lights[GLOBAL_LIGHTS_NO][4];
 
 GLfloat sky_lights_c1[GLOBAL_LIGHTS_NO*2][4];

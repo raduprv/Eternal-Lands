@@ -51,6 +51,8 @@ extern int last_display; /*! indicates when the rules were last displayed */
 extern int countdown; /*!< number of seconds how long the rules should be displayed */
 extern int has_accepted; /*!< flag indicating whether the rules are accepted or rejected */
 
+extern int rules_root_win;
+
 /*!
  * \ingroup other
  * \brief reads in the rules
@@ -190,8 +192,6 @@ void reset_rules(rule_string * r);
  * \callgraph
  */
 void highlight_rule(int type, Uint8 * rules, int no);
-
-extern int rules_root_win;
 
 void create_rules_root_window ();
 

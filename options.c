@@ -3,6 +3,29 @@
 #include "options.h"
 #include "global.h"
 
+/*!
+ * option_struct is used to store information related to one single option.
+ */
+typedef struct
+{
+	char * name; /*!< the name of the option */
+	char * desc; /*!< description of the option */
+	int type; /*!< type of the option */
+	int column;
+	void (*func)(int*,int*); /*!< pointer to a callback function executed when the option is clicked */
+	int * data_1; /*!< ***reserved??? */
+	int * data_2; /*!< ***reserved??? */
+} option_struct;
+
+/*!
+ * a list of \see option_struct options.
+ */
+struct options_struct
+{
+	int no; /*!< current number of options in \a option */
+	option_struct * option[25]; /*!< fixed size array of \see option_struct options. The actual number of used options is stored in \a no. */
+};
+
 char	*opt_vid1={"640x480x16"},
 	*opt_vid2={"640x480x32"},
 	*opt_vid3={"800x600x16"},

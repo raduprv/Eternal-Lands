@@ -8,25 +8,38 @@
 
 #include	"ignore.h"	/* just in case it hasn't been included */
 
-/*!
- * \name    max. number of filters for filter_list
- * @{
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in filter.c, no need to declare it here.
  */
-#define MAX_FILTERS 1000
-/*! @} */
+//*!
+// * \name    max. number of filters for filter_list
+// * @{
+// */
+//#define MAX_FILTERS 1000
+//*! @} */
 
-/*!
- * a single entry in the filter_list
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in filter.c, no need to declare it here.
  */
-typedef struct
-{
-	Uint8 name[16]; /*!< the name of the filter entry */
-	int len; /*!< length of \a name */
-}filter_slot;
+//*!
+// * a single entry in the filter_list
+// */
+//typedef struct
+//{
+//	Uint8 name[16]; /*!< the name of the filter entry */
+//	int len; /*!< length of \a name */
+//}filter_slot;
 
-extern filter_slot filter_list[MAX_FILTERS]; /*!< global variable of filters */
-extern int filtered_so_far; /*!< number of items that have been filter duing the current execution */
-extern int save_filters; /*!< global flag, indicating whether filters should be saved between executions or not */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in filter.c, no need to declare them here.
+ */
+//extern filter_slot filter_list[MAX_FILTERS]; /*!< global variable of filters */
+//extern int filtered_so_far; /*!< number of items that have been filter duing the current execution */
+//extern int save_filters; /*!< global flag, indicating whether filters should be saved between executions or not */
+
 extern int use_global_filters; /*!< global flag, indicating whether global filtering is used or not */
 extern char text_filter_replace[]; /*!< string, that contains the word to replace each entry in \see filter_list with */
 extern int caps_filter; /*!< global flag, indicating whether filter of caps is enabled or not */

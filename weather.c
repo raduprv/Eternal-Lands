@@ -1,8 +1,47 @@
 #include <stdlib.h>
 #include "global.h"
 
+/*!
+ * \name    	Maximum number of thunders in one place
+ */
+/*! \{ */
+#define MAX_THUNDERS 5
+/*! \} */
+
+/*!
+ * \name	Rain related constant
+ */
+/*! \{ */
+#define MAX_RAIN_DROPS 5000 /*!< The maximum number of rain drops in one place */
 #define RAIN_SPEED 2        /*!< The speed of the rain drops -> moved to weather.c */
 #define RAIN_DROP_LEN 5     /*!< The length of the rain drops -> moved to weather.c */
+/*! \} */
+
+/*!
+ * The thunder structure
+ */
+typedef struct
+{
+	int in_use;
+	int light_offset;
+	int seconds_till_sound;
+	int thunder_type;
+	int time_since_started;
+	int x;
+	int y;
+	int rot;
+}thunder;
+
+/*!
+ * The rain drop structure - defines the start and end position
+ */
+typedef struct
+{
+	short x;
+	short y;
+	short x2;
+	short y2;
+}rain_drop;
 
 int seconds_till_rain_starts=-1;
 int seconds_till_rain_stops=-1;
@@ -18,6 +57,8 @@ Uint32 rain_control_counter=0;
 Uint32 thunder_control_counter=0;
 int num_rain_drops=MAX_RAIN_DROPS;
 char rand_rain[8192];
+
+rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 
 void build_rain_table()
 {

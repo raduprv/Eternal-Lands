@@ -14,13 +14,25 @@ int display_text_buffer_first=0;
 int display_text_buffer_last=0;
 
 int display_console_text_buffer_first=0;
-int display_console_text_buffer_last=0;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Unused variable.
+ */
+//int display_console_text_buffer_last=0;
+
 char last_pm_from[32];
 
 Uint32 last_server_message_time;
 int lines_to_show=0;
 int max_lines_no=10;
-char console_mode=0;
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Unused variable.
+ */
+//char console_mode=0;
+
 char not_from_the_end_console=0;
 
 int log_server = 1;

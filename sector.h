@@ -26,7 +26,12 @@ typedef struct{
 }map_sector;
 
 extern map_sector sectors[256*256]; /*!< the global variable sectors stores all the currently loaded \see map_sector. */
-extern int num_sectors; /*!< current number of sectors in \see sectors */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in sector.c, no need to declare it here.
+ */
+//extern int num_sectors; /*!< current number of sectors in \see sectors */
 
 /*!
  * \ingroup maps

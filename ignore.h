@@ -24,7 +24,13 @@ typedef struct
 }ignore_slot;
 
 extern ignore_slot ignore_list[MAX_IGNORES]; /*!< global array of names to ignore */
-extern int ignored_so_far; /*!< number of players ignored so far in this execution */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in ignore.c, no need to declare it here.
+ */
+//extern int ignored_so_far; /*!< number of players ignored so far in this execution */
+
 extern int save_ignores; /*!< flag, inidicating whether the ignores should be persisted between different executions. */
 extern int use_global_ignores; /*!< flag, indicating whether to use global ignores file or not */
 

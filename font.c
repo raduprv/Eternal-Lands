@@ -2,7 +2,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*!
+ * \name constants for fonts
+ */
+/*! @{ */
+#define FONT_START_CHAR	32	/*!< first character in font.bmp */
+#define FONT_CHARS_PER_LINE	14	/*!< how manu chars per line in font.bmp? */
+#define	FONT_X_SPACING	18	/*!< X spacing of font in font.bmp */
+#define	FONT_Y_SPACING	21	/*!< Y spacing of font in font.bmp */
 #define FONTS_ARRAY_SIZE	10
+/*! @} */
+
+/*!
+ * font info structure
+ */
+typedef struct	{
+	int	spacing;
+	int texture_id; /*!< id of the texture used for the font */
+	int	widths[10*FONT_CHARS_PER_LINE];
+	char name[32]; /*!< name of the font */
+} font_info;
 
 int	cur_font_num=0;
 int	max_fonts=0;

@@ -12,11 +12,15 @@ extern int window_width; /*!< width of the window */
 extern int window_height; /*!< height of the window */
 /*! @} */
 
-/*! \name desktop dimensions 
- * @{ */
-extern int desktop_width; /*!< width of the desktop */
-extern int desktop_height; /*!< height of the desktop */
-/*! @} */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in gl_init.c, no need to declare them here.
+ */
+//*! \name desktop dimensions 
+// * @{ */
+//extern int desktop_width; /*!< width of the desktop */
+//extern int desktop_height; /*!< height of the desktop */
+//*! @} */
 
 extern int bpp; /*!< color depth to use */
 extern int video_mode; /*!< currently selected video mode */
@@ -24,6 +28,7 @@ extern int full_screen; /*!< flag that inidicates whether we are in fullscreen o
 
 /*! \name OpenGL extensions variables 
  * @{ */
+extern int have_stencil; /*!< flag that indicates whether we have the stencil extension or not. \todo shouldn't this go to gl_init.h to all the other OpenGL related variables? */
 extern int have_multitexture; /*! indicates whether we have the multitexture extension or not */
 extern int use_vertex_array; /*!< specifies if we use vertex arrays or not */
 extern int use_point_particles; /*!< specifies if we use point particles or not */
@@ -32,13 +37,30 @@ extern int have_compiled_vertex_array; /*!< indicates whether we have the compil
 extern int have_point_sprite; /*!< indicates whether we have point sprites or not */
 extern int have_arb_compression; /*!< flag that indicates whether we have the ARB compression extension or not */
 extern int have_s3_compression; /*!< flag that indicates whether we have the S3 compression extension or not */
-extern int have_sgis_generate_mipmap; /*!< flag that indicates if we have the SGIS generate mipmap extension or not */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in gl_init.c, no need to declare it here.
+ */
+//extern int have_sgis_generate_mipmap; /*!< flag that indicates if we have the SGIS generate mipmap extension or not */
+
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
-extern int have_arb_shadow; /*!< flat that indicates whether we have the ARB shadow extension or not */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in gl_init.c, no need to declare it here.
+ */
+//extern int have_arb_shadow; /*!< flat that indicates whether we have the ARB shadow extension or not */
 /*! @} */
 
 extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
-extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in gl_init.c, no need to declare it here.
+ */
+//extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
+
 extern void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);

@@ -6,15 +6,19 @@
 #ifndef __FONT_H__
 #define __FONT_H__
 
-/*!
- * \name constants for fonts
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in font.c, no need to declare them here.
  */
-/*! @{ */
-#define FONT_START_CHAR	32	/*!< first character in font.bmp */
-#define FONT_CHARS_PER_LINE	14	/*!< how manu chars per line in font.bmp? */
-#define	FONT_X_SPACING	18	/*!< X spacing of font in font.bmp */
-#define	FONT_Y_SPACING	21	/*!< Y spacing of font in font.bmp */
-/*! @} */
+//*!
+// * \name constants for fonts
+// */
+//*! @{ */
+//#define FONT_START_CHAR	32	/*!< first character in font.bmp */
+//#define FONT_CHARS_PER_LINE	14	/*!< how manu chars per line in font.bmp? */
+//#define	FONT_X_SPACING	18	/*!< X spacing of font in font.bmp */
+//#define	FONT_Y_SPACING	21	/*!< Y spacing of font in font.bmp */
+//*! @} */
 
 /*!
  * \name contstant sizes
@@ -28,19 +32,27 @@
 #define ALT_INGAME_FONT_Y_LEN 0.15
 /*! @} */
 
-/*!
- * font info structure
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in font.c, no need to declare it here.
  */
-typedef struct	{
-	int	spacing;
-	int texture_id; /*!< id of the texture used for the font */
-	int	widths[10*FONT_CHARS_PER_LINE];
-	char name[32]; /*!< name of the font */
-} font_info;
+//*!
+// * font info structure
+// */
+//typedef struct	{
+//	int	spacing;
+//	int texture_id; /*!< id of the texture used for the font */
+//	int	widths[10*FONT_CHARS_PER_LINE];
+//	char name[32]; /*!< name of the font */
+//} font_info;
 
-extern int	cur_font_num; /*!< font index of currently used font */
-extern int	max_fonts; /*!< max. number of fonts in \see fonts */
-extern	font_info	*fonts[]; /*!< an array of pointers to \see font_info structs. Contains max. \see max_fonts fonts. */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in font.c, no need to declare them here.
+ */
+//extern int	cur_font_num; /*!< font index of currently used font */
+//extern int	max_fonts; /*!< max. number of fonts in \see fonts */
+//extern	font_info	*fonts[]; /*!< an array of pointers to \see font_info structs. Contains max. \see max_fonts fonts. */
 
 extern int	chat_font; /*!< font size used for chat font */
 extern int	name_font; /*!< font size used for name font */
@@ -161,14 +173,18 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
  */
 void draw_ingame_string(float x, float y, const unsigned char * our_string, int max_lines, float font_x_scale, float font_y_scale);
 
-/*!
- * \name ingame text drawing macros
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in actors.c, no need to declare them here. They are declared in actors.c however.
  */
-/*! @{ */
-#define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
-#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
-#define DRAW_INGAME_ALT(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
-/*! @} */
+//*!
+// * \name ingame text drawing macros
+// */
+//*! @{ */
+//#define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
+//#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
+//#define DRAW_INGAME_ALT(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
+//*! @} */
 #endif	//ELC
 
 /*!

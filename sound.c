@@ -17,6 +17,18 @@
 #define	UNLOCK_SOUND_LIST()	SDL_UnlockMutex(sound_list_mutex);
 /*! @} */
 
+/*!
+ * playlist_entry is used to read and write the entries for a playlist.
+ */
+typedef struct {
+	char file_name[64]; /*!< the filename of the sound file for this entry */
+	int min_x;
+	int max_x;
+	int min_y;
+	int max_y;
+	int time; /*!< duration of this sound file */
+} playlist_entry;
+
 int have_sound=0;
 int have_music=0;
 int sound_on=1;

@@ -3,6 +3,17 @@
 #include <string.h>
 #include "global.h"
 
+#ifdef ELC
+/*!
+ * \name ingame text drawing macros
+ */
+/*! @{ */
+#define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
+#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
+#define DRAW_INGAME_ALT(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
+/*! @} */
+#endif
+
 actor *actors_list[1000];
 int max_actors=0;
 SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main threads

@@ -39,6 +39,16 @@ int video_mode_set=0;
 
 extern windows_info	windows_list;
 
+/*!
+ * a list of ids and associated function names used for e3d models
+ */
+typedef struct{
+	int id;
+	char *fn;
+}e3d_list;
+//extern e3d_list *e3dlist; /*!< a global list of e3d_list objects. */
+//extern int e3dlistsize; /*!< the current size of \see e3dlist */
+
 e3d_list *e3dlist=NULL;
 int e3dlistsize=0;
 

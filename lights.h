@@ -30,18 +30,24 @@ typedef struct
     /*! @} */
 }light;
 
-/*!
- * a position for the sun
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Used only in lights.c, no need to declare it here.
  */
-typedef struct
-{
-	float x; /*<! x coordinate of the suns position */
-	float y; /*<! y coordinate of the suns position */
-	float z; /*<! z coordinate of the suns position */
-	float w; /*<! w coordinate of the suns position */
-}sun;
+//*!
+// * a position for the sun
+// */
+//typedef struct
+//{
+//	float x; /*<! x coordinate of the suns position */
+//	float y; /*<! y coordinate of the suns position */
+//	float z; /*<! z coordinate of the suns position */
+//	float w; /*<! w coordinate of the suns position */
+//}sun;
 
-
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Used only in lights.c, no need to declare them here.
 extern GLfloat light_0_position[4];
 extern GLfloat light_0_diffuse[4];
 extern GLfloat light_0_dist;
@@ -69,6 +75,7 @@ extern GLfloat light_5_dist;
 extern GLfloat light_6_position[4];
 extern GLfloat light_6_diffuse[4];
 extern GLfloat light_6_dist;
+*/
 
 //for the lights
 
@@ -79,20 +86,33 @@ extern GLfloat light_6_dist;
 #define GLOBAL_LIGHTS_NO 60
 /*! @} */
 
-extern GLfloat global_lights[GLOBAL_LIGHTS_NO][4]; /*!< stores the lights that are global used */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Used only in lights.c, no need to declare it here.
+ */
+//extern GLfloat global_lights[GLOBAL_LIGHTS_NO][4]; /*!< stores the lights that are global used */
 
 /*! \name Sky lights arrays 
- * @{ */
+/ * @{ */
 extern GLfloat sky_lights_c1[GLOBAL_LIGHTS_NO*2][4];
 extern GLfloat sky_lights_c2[GLOBAL_LIGHTS_NO*2][4];
 extern GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
 extern GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 /*! @} */
 
-extern sun sun_pos[60*3]; /*!< an array of sun positions */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Used only in lights.c, no need to declare it here.
+ */
+//extern sun sun_pos[60*3]; /*!< an array of sun positions */
 
 extern GLfloat sun_ambient_light[];
-extern int sun_use_static_position; /*!< flag that indicates whether the sun should stay on a static position or move over the sky */
+
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Used only in lights.c, no need to declare it here.
+ */
+//extern int sun_use_static_position; /*!< flag that indicates whether the sun should stay on a static position or move over the sky */
 
 /*!
  * \name Lights limits
@@ -103,7 +123,12 @@ extern int sun_use_static_position; /*!< flag that indicates whether the sun sho
 
 extern light *lights_list[MAX_LIGHTS]; /*!< global lights list */
 
-extern char lights_on; /*!< this indicates whether lights are on or not */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Unused variable
+ */
+//extern char lights_on; /*!< this indicates whether lights are on or not */
+
 extern unsigned char light_level; /*!< the light level */
 extern short game_minute; /*!< the current game minute */
 

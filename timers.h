@@ -7,9 +7,14 @@
 #define __TIMERS_H__
 
 extern int	my_timer_adjust;             /*!< my_timer_adjust */
-extern int	my_timer_clock;              /*!< my_timer_clock */
-extern SDL_TimerID draw_scene_timer;     /*!< draw_scene_timer */
 
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in timers.c, no need to declare it here.
+ */
+//extern int	my_timer_clock;              /*!< my_timer_clock */
+
+extern SDL_TimerID draw_scene_timer;     /*!< draw_scene_timer */
 extern SDL_TimerID misc_timer;           /*!< misc_timer */
 
 /*!

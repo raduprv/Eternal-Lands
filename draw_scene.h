@@ -15,12 +15,17 @@ extern int camera_rotation_frames;
 extern float camera_tilt_speed;
 extern int camera_tilt_frames;
 extern int normal_animation_timer;
-extern double camera_x_speed; /*!< speed of the camera in x direction */
-extern int camera_x_frames;
-extern double camera_y_speed; /*!< speed of the camera in y direction */
-extern int camera_y_frames;
-extern double camera_z_speed; /*!< speed of the camera in z direction */
-extern int camera_z_frames;
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * They are only used in draw_scene.c, no need to declare them here.
+ */
+//extern double camera_x_speed; /*!< speed of the camera in x direction */
+//extern int camera_x_frames;
+//extern double camera_y_speed; /*!< speed of the camera in y direction */
+//extern int camera_y_frames;
+//extern double camera_z_speed; /*!< speed of the camera in z direction */
+//extern int camera_z_frames;
+
 extern float fine_camera_rotation_speed; /*!< configurable fine grained speed for rotating the camera */
 extern float normal_camera_rotation_speed; /*!< configurable normal speed for rotating the camera */
 extern float zoom_level; /*!< current displayed zoom level */
@@ -30,7 +35,12 @@ extern float new_zoom_level;
 extern float scene_mouse_x; /*!< x coordinate of the mouse position */
 extern float scene_mouse_y; /*!< y coordinate of the mouse position */
 
-extern float terrain_scale; /*!< scaling factor for terrain objects */
+/*
+ * OBSOLETE: Queued for removal from this file.
+ * Only used in draw_scene.c, no need to declare it here.
+ */
+//extern float terrain_scale; /*!< scaling factor for terrain objects */
+
 extern int last_texture; /*!< id of the last used texture */
 
 /*! \name texture offset for movement of clouds. 
