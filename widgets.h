@@ -10,12 +10,12 @@
  * \name    Available Widget types
  */
 /*! \{ */
-#define LABEL		0x01     /*!< LABEL */
-#define IMAGE		0x02     /*!< IMAGE */
-#define CHECKBOX	0x03     /*!< CHECKBOX */
-#define BUTTON		0x04     /*!< BUTTON */
-#define PROGRESSBAR	0x05     /*!< PROGRESSBAR */
-#define VSCROLLBAR	0x06     /*!< VSCROLLBAR */
+#define LABEL		0x01     /*!< a label widget (static text) */
+#define IMAGE		0x02     /*!< image widget */
+#define CHECKBOX	0x03     /*!< checkbox widget type */
+#define BUTTON		0x04     /*!< button widget */
+#define PROGRESSBAR	0x05     /*!< progressbar widget */
+#define VSCROLLBAR	0x06     /*!< vertical scrollbar widget */
 /*! \} */
 
 
