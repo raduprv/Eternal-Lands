@@ -32,6 +32,7 @@
 #include "spells.h"
 #include "sound.h"
 #include "ignore.h"
+#include "filter.h"
 #include "help.h"
 #include "weather.h"
 #include "stats.h"
@@ -71,6 +72,7 @@ extern int full_screen;
 extern int have_stencil;
 extern int poor_man;
 extern int show_reflection;
+extern int mouse_limit;
 
 extern Uint32 cur_time, last_time;
 extern int server_time_stamp;

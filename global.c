@@ -188,6 +188,12 @@ int ignored_so_far=0;
 int save_ignores=1;
 int use_global_ignores=1;
 
+// text filtering
+filter_slot filter_list[max_filters];
+int filtered_so_far=0;
+int use_global_filters=1;
+char text_filter_replace[128]="smeg";
+
 //sound
 int have_sound=0;
 int have_music=0;
@@ -375,9 +381,11 @@ int have_url=0;
 char current_url[160];
 char broswer_name[120];
 int poor_man=0;
+int mouse_limit=15;
 int no_adjust_shadows=0;
 int clouds_shadows=1;
 help_entry help_list[MAX_HELP_ENTRIES];
+
 //extensions
 #ifdef WINDOWS//linux has those functins already...
 PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB	= NULL;
