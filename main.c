@@ -79,6 +79,10 @@ int start_rendering()
 	save_bin_cfg();
 	// save el.ini if asked
 	if (write_ini_on_exit) write_el_ini ();
+	#ifdef NOTEPAD
+	// save notepad contents if the file was loaded
+	if (notepad_loaded) notepadSaveFile();
+	#endif
 	
 	unload_questlog();
 	free_icons();

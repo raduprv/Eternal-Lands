@@ -32,13 +32,13 @@ void display_tab_stats ()
 		
 		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, STATS_TAB_WIDTH, STATS_TAB_HEIGHT+TAB_TAG_HEIGHT, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT, TAB_SPACING);
 
-		stats_win = tab_add (tab_stats_win, tab_stats_collection_id, title_statistics, 0, 0);
+		stats_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_statistics, 0, 0);
 		fill_stats_win ();
 		
-		knowledge_win = tab_add (tab_stats_win, tab_stats_collection_id, title_knowledge, 0, 0);
+		knowledge_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_knowledge, 0, 0);
 		fill_knowledge_win ();
 
-		questlog_win = tab_add (tab_stats_win, tab_stats_collection_id, title_questlog, 0, 0);
+		questlog_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_questlog, 0, 0);
 		fill_questlog_win ();
 		
 		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, 0);
@@ -65,10 +65,10 @@ void display_tab_help ()
 		
 		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, HELP_TAB_WIDTH, HELP_TAB_HEIGHT+TAB_TAG_HEIGHT, 0, 0.7, 0.77f, 0.57f, 0.39f, 2, TAB_TAG_HEIGHT, TAB_SPACING);
 
-		help_win = tab_add (tab_help_win, tab_help_collection_id, title_help, 0, 0);
+		help_win = tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0);
 		fill_help_win ();
 		
-		encyclopedia_win = tab_add (tab_help_win, tab_help_collection_id, title_encyclopedia, 0, 0);
+		encyclopedia_win = tab_add (tab_help_win, tab_help_collection_id, tab_encyclopedia, 0, 0);
 		fill_encyclopedia_win ();
 
 		tab_collection_select_tab (tab_help_win, tab_help_collection_id, 0);

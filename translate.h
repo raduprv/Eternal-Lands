@@ -404,7 +404,14 @@ extern char	reg_error_str[15],
 		accepted_rules[50],
 		read_rules_str[50],
 		parse_rules_str[50],
-		rules_not_found[100];
+		rules_not_found[100],
+		/* notepad.c */
+		cant_parse_notes[100],
+		notes_wrong[100],
+		too_many_notes[100],
+		wrong_note_node[100],
+		cant_save_notes[100],
+		exceed_note_buffer[100];
 #else
 		;
 #endif  // ELC
@@ -413,14 +420,24 @@ extern char	reg_error_str[15],
 
 #ifdef ELC
 #ifndef DOXYGEN_SKIP_THIS
-extern char	title_help[10],
-		title_encyclopedia[20],
-		title_statistics[20],
-		title_knowledge[20],
-		title_questlog[20],
-		title_local[20],
-		title_channel[20],
-		title_guild[20];
+// window/widget titles
+extern char	win_notepad[20],
+		win_prompt[10],
+		tab_help[10],
+		tab_encyclopedia[20],
+		tab_statistics[20],
+		tab_knowledge[20],
+		tab_questlog[20],
+		tab_local[20],
+		tab_channel[20],
+		tab_guild[20],
+		tab_main[20],
+		button_okay[10],
+		button_cancel[10],
+		button_new_category[30],
+		button_remove_category[30],
+		button_save_notes[30],
+		label_note_name[20];
 #endif  // DOXYGEN_SKIP_THIS
 #endif  // ELC
 

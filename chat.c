@@ -185,13 +185,13 @@ void update_chat_window (int nlines, int channel)
 			switch (channel)
 			{
 				case CHANNEL_LOCAL:
-					my_strncp (title, title_local, sizeof (title) );
+					my_strncp (title, tab_local, sizeof (title) );
 					break;
 				case CHANNEL_GM:
-					my_strncp (title, title_guild, sizeof (title) );
+					my_strncp (title, tab_guild, sizeof (title) );
 					break;
 				default:
-					my_strncp (title, title_channel, sizeof (title) );
+					my_strncp (title, tab_channel, sizeof (title) );
 			}
 
 			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1);
@@ -520,7 +520,7 @@ void display_chat ()
 		
 		chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, CHAT_WIN_MAX_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
 		
-		channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, title_local, 0, 0);
+		channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, tab_local, 0, 0);
 		set_window_min_size (channels[0].tab_id, 0, 0);
 		channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHANNEL_LOCAL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);		
 		channels[0].chan_nr = CHANNEL_LOCAL;

@@ -272,6 +272,22 @@ int widget_set_OnKey ( Uint32 window_id, Uint32 widget_id, int (*handler)() );
 int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
 
 /*!
+ * \ingroup 	widgets
+ * \brief 	Moves the widget relative to it's current position
+ *
+ *      	Finds the widget in the window and moves the widget relative to it's current position.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \param   	dx The shift in the x-direction
+ * \param   	dy The shift in the y-direction
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int widget_move_rel (Uint32 window_id, Uint32 widget_id, Sint16 dx, Sint16 dy);
+
+/*!
  * \ingroup	widgets
  * \brief 	Resizes the widget
  *
@@ -989,6 +1005,20 @@ int tab_set_label_color_by_id (Uint32 window_id, Uint32 col_id, Uint32 tab_id, f
  * \callgraph
  */
 int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	Closes a tab in the tab collection
+ *
+ * 		Closes a tab from the tab collection and destroys the associated window.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The unique widget ID of the tab collection
+ * \param	tab The number of the tab to be closed
+ * \retval int  	Returns the tab number on succes, -1 on failure (if the tab number was greater than or equal to the number of tabs in the collection)
+ * \callgraph
+ */
+int tab_collection_close_tab (Uint32 window_id, Uint32 widget_id, int tab);
 
 /*!
  * \ingroup	tabs

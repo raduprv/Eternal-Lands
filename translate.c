@@ -311,7 +311,14 @@ char	reg_error_str[15],
 	/*stats.c*/
 	stat_no_invalid[50],
 	/*timers.c*/
-	timer_lagging_behind[100];
+	timer_lagging_behind[100],
+	/* notepad.c */
+	cant_parse_notes[100],
+	notes_wrong[100],
+	too_many_notes[100],
+	wrong_note_node[100],
+	cant_save_notes[100],
+	exceed_note_buffer[100];
 #else
 	;
 #endif  // ELC
@@ -320,14 +327,23 @@ char	reg_error_str[15],
 #ifdef ELC
 /*! \name Window/Tab titles */
 /*! \{ */
-char	title_help[10],
-	title_encyclopedia[20],
-	title_statistics[20],
-	title_knowledge[20],
-	title_questlog[20],
-	title_local[20],
-	title_channel[20],
-	title_guild[20];
+char	win_notepad[20],
+	win_prompt[10],
+	tab_help[10],
+	tab_encyclopedia[20],
+	tab_statistics[20],
+	tab_knowledge[20],
+	tab_questlog[20],
+	tab_local[20],
+	tab_channel[20],
+	tab_guild[20],
+	tab_main[20],
+	button_okay[10],
+	button_cancel[10],
+	button_new_category[30],
+	button_remove_category[30],
+	button_save_notes[30],
+	label_note_name[20];
 #endif  // ELC
 /*! \} */
 
@@ -555,7 +571,14 @@ void init_errors()
 	add_xml_identifier(load,"noe3d",no_e3d_list,"Couldn't read e3dlist.txt",sizeof(no_e3d_list));
 	add_xml_identifier(load,"elini",cant_read_elini,"Couldn't read configuration file el.ini",sizeof(cant_read_elini));
 	add_xml_identifier(load,"invmap",invalid_map,"%s is an invalid map!",sizeof(invalid_map));
-	
+	add_xml_identifier(load,"parsenotes",cant_parse_notes,"Unable to parse xml notepad. It will be overwritten.",sizeof(cant_parse_notes));
+	add_xml_identifier(load,"parsenotes",cant_parse_notes,"Unable to parse xml notepad. It will be overwritten.",sizeof(cant_parse_notes));
+	add_xml_identifier(load,"noteswrong",notes_wrong,"Document of the wrong type. It will be overwritten.",sizeof(notes_wrong));
+	add_xml_identifier(load,"manynotes",too_many_notes,"Too many notes - Last nodes were ignored.",sizeof(too_many_notes));
+	add_xml_identifier(load,"notenode",wrong_note_node,"Incorrect node type - could not copy.",sizeof(wrong_note_node));
+	add_xml_identifier(load,"savenotes",cant_save_notes,"Unable to write notes to file %s",sizeof(cant_save_notes));
+	add_xml_identifier(load,"exceednotes",exceed_note_buffer,"Tried to exceed notepad buffer! Ignored.",sizeof(exceed_note_buffer));
+
 	//Miscellaneous errors
 	add_xml_identifier(misc,"error",reg_error_str,"Error",sizeof(reg_error_str));
 	add_xml_identifier(misc,"objerr",object_error_str,"Object error",sizeof(object_error_str));
@@ -838,14 +861,23 @@ void init_stats()
 #ifdef ELC
 void init_titles ()
 {
-	add_xml_identifier (titles_str, "t_help", title_help, "Help", sizeof(title_help));
-	add_xml_identifier (titles_str, "t_ency", title_encyclopedia, "Encyclopedia", sizeof(title_encyclopedia));
-	add_xml_identifier (titles_str, "t_stats", title_statistics, "Statistics", sizeof(title_statistics));
-	add_xml_identifier (titles_str, "t_know", title_knowledge, "Knowledge", sizeof(title_knowledge));
-	add_xml_identifier (titles_str, "t_qlog", title_questlog, "Quest log", sizeof(title_questlog));
-	add_xml_identifier (titles_str, "t_local", title_local, "Local", sizeof(title_local));
-	add_xml_identifier (titles_str, "t_channel", title_channel, "Channel", sizeof(title_channel));
-	add_xml_identifier (titles_str, "t_guild", title_guild, "Guild", sizeof(title_guild));
+	add_xml_identifier (titles_str, "w_note", win_notepad, "Notepad", sizeof(win_notepad));
+	add_xml_identifier (titles_str, "w_prompt", win_prompt, "Prompt", sizeof(win_prompt));
+	add_xml_identifier (titles_str, "t_help", tab_help, "Help", sizeof(tab_help));
+	add_xml_identifier (titles_str, "t_ency", tab_encyclopedia, "Encyclopedia", sizeof(tab_encyclopedia));
+	add_xml_identifier (titles_str, "t_stats", tab_statistics, "Statistics", sizeof(tab_statistics));
+	add_xml_identifier (titles_str, "t_know", tab_knowledge, "Knowledge", sizeof(tab_knowledge));
+	add_xml_identifier (titles_str, "t_qlog", tab_questlog, "Quest log", sizeof(tab_questlog));
+	add_xml_identifier (titles_str, "t_local", tab_local, "Local", sizeof(tab_local));
+	add_xml_identifier (titles_str, "t_channel", tab_channel, "Channel", sizeof(tab_channel));
+	add_xml_identifier (titles_str, "t_guild", tab_guild, "Guild", sizeof(tab_guild));
+	add_xml_identifier (titles_str, "t_main", tab_main, "Main", sizeof(tab_main));
+	add_xml_identifier (titles_str, "b_okay", button_okay, "Okay", sizeof(button_okay));
+	add_xml_identifier (titles_str, "b_cancel", button_cancel, "Cancel", sizeof(button_cancel));
+	add_xml_identifier (titles_str, "b_new_cat", button_new_category, "New Category", sizeof(button_new_category));
+	add_xml_identifier (titles_str, "b_rm_cat", button_remove_category, "Remove Category", sizeof(button_remove_category));
+	add_xml_identifier (titles_str, "b_save", button_save_notes, "Save Notes", sizeof(button_save_notes));
+	add_xml_identifier (titles_str, "l_nname", label_note_name, "Note name", sizeof(label_note_name));
 }
 #endif // ELC
 

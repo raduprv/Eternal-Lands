@@ -195,6 +195,17 @@ int widget_set_OnKey ( Uint32 window_id, Uint32 widget_id, int (*handler)() )
 	return 0;
 }
 
+int widget_set_OnDestroy (Uint32 window_id, Uint32 widget_id, int (*handler)())
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w)
+	{
+		w->OnDestroy = handler;
+		return 1;
+	}
+	return 0;
+}
+
 int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 {
 	widget_list *w = widget_find(window_id, widget_id);
@@ -206,12 +217,13 @@ int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 	return 0;
 }
 
-int widget_set_OnDestroy (Uint32 window_id, Uint32 widget_id, int (*handler)())
+int widget_move_rel (Uint32 window_id, Uint32 widget_id, Sint16 dx, Sint16 dy)
 {
-	widget_list *w = widget_find(window_id, widget_id);
+	widget_list *w = widget_find (window_id, widget_id);
 	if(w)
 	{
-		w->OnDestroy = handler;
+		w->pos_x += dx;
+		w->pos_y += dy;
 		return 1;
 	}
 	return 0;
