@@ -219,7 +219,7 @@ void draw_scene()
 		get_message_from_server();
 
 		glEnable(GL_FOG);
-		if(any_reflection)
+		if(any_reflection>1)
 			{
 			  	if(!dungeon)draw_sky_background();
 			  	else draw_dungeon_sky_background();

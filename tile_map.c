@@ -53,7 +53,7 @@ void draw_tile_map()
 					for(x=x_start;x<=x_end;x++)
 						{
 							x_scaled=x*3.0f;
-							if(is_water_tile(y*tile_map_size_x+x))continue;//lake, skip
+							if(is_water_tile(tile_map[y*tile_map_size_x+x]))continue;//lake, skip
 							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
 							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
 							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
@@ -86,7 +86,7 @@ void draw_tile_map()
 					for(x=x_start;x<=x_end;x++)
 						{
 							x_scaled=x*3.0f;
-							if(is_water_tile(y*tile_map_size_x+x))continue;//lake, skip
+							if(is_water_tile(tile_map[y*tile_map_size_x+x]))continue;//lake, skip
 							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
 							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
 							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
@@ -147,7 +147,8 @@ void load_map_tiles()
 							cur_tile=231;
 						}
 					sprintf(str,"./tiles/tile%i.bmp",cur_tile);
-					if(is_water_tile(i))tile_list[cur_tile]=load_texture_cache(str,70);
+					if(is_water_tile(cur_tile) && is_reflecting(cur_tile))
+					  tile_list[cur_tile]=load_texture_cache(str,70);
 					else tile_list[cur_tile]=load_texture_cache(str,255);
 				}
 		}

@@ -16,7 +16,9 @@ extern int lake_waves_timer;
 extern float water_movement_u;
 extern float water_movement_v;
 
-#define is_water_tile(i) (!tile_map[i] || (tile_map[i]>230 && tile_map[i]<255))
+#define is_water_tile(i) (!i || (i>230 && i<255))
+// The following macro tests if a _water tile_ is reflecting
+#define is_reflecting(i) (i<240)
 
 float mrandom(float max);
 void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost);
