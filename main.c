@@ -9,6 +9,7 @@
 
 #ifdef WINDOWS
 #include <windows.h>
+#undef WRITE_XML
 #endif
 
 #include "global.h"

@@ -780,13 +780,14 @@ struct xml_struct
 struct xml_struct load_strings(char * file);
 struct xml_struct load_strings_file(char * filename);
 
+#ifdef WRITE_XML
 void save_strings(xmlDoc * doc, char * name)
 {
 	char str[50]={"strings/en/"};//default language is en - change this if you want to save the strings to another folder...
 	strcat(str,name);
-	xmlSaveFormatFileEnc ("-", doc, "UTF-8", 1);//We'll save the file in UTF-8
-	xmlSaveFormatFile(str,doc, 0);
+	xmlSaveFormatFileEnc (str, doc, "UTF-8", 1);//We'll save the file in UTF-8
 }
+#endif
 
 void load_translatables()
 {
