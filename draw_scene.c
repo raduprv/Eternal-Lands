@@ -55,20 +55,13 @@ int open_text;
 int login_text;
 int ground_detail_text;
 
-//int times_FPS_below_3=0;
-//int main_count=0;
-//int fps_average=0;
-//int old_fps_average=0;
-
 float clouds_movement_u=-8;
 float clouds_movement_v=-3;
 Uint32 last_clear_clouds=0;
 
 GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXTURE2_ARB;
 
-#ifndef OLD_EVENT_HANDLER
 Uint32 draw_delay = 0;
-#endif
 
 /* forward declaration added due to code cleanup */
 void get_tmp_actor_data();
@@ -76,18 +69,6 @@ void get_tmp_actor_data();
 
 void draw_scene()
 {
-#ifdef OLD_EVENT_HANDLER
-	static int main_count = 0;
-	static int old_fps_average = 0;
-	static int fps_average = 0;
-	static int times_FPS_below_3 = 0;
-	unsigned char str [180];
-	int fps;
-	int y_line,i;
-	int any_reflection=0;
-	int mouse_rate;
-#endif
-
 	CHECK_GL_ERRORS();
 
 	//clear the clouds cache too...
@@ -106,100 +87,8 @@ void draw_scene()
 					if(windows_list.window[quickbar_win].cur_x<window_width-hud_x && window_height - windows_list.window[quickbar_win].cur_y>hud_y) windows_list.window[quickbar_win].displayed=0;
 				}
 			
-#ifdef OLD_EVENT_HANDLER
-			if(interface_mode==INTERFACE_RULES)
-				{
-					if(SDL_GetAppState()&SDL_APPACTIVE)
-						{
-							Enter2DMode();
-							draw_rules_interface (window_width, window_height);
-							SDL_GL_SwapBuffers();
-							Leave2DMode();
-							CHECK_GL_ERRORS();
-						}
-					SDL_Delay(20);
-					return;
-				}
-
-			if(interface_mode==INTERFACE_CONSOLE)
-				{
-					// are we actively drawing things?
-					if(SDL_GetAppState()&SDL_APPACTIVE)
-						{
-							Enter2DMode();
-							draw_console_pic(cons_text);
-							display_console_text();
-							draw_hud_interface();
-							SDL_GL_SwapBuffers();
-							Leave2DMode();
-							if(elwin_mouse >= 0) {//Make sure that mouse changes in the quickbar
-								if(current_cursor!=elwin_mouse) change_cursor(elwin_mouse);
-								elwin_mouse=-1;
-							} else if(current_cursor!=CURSOR_ARROW) change_cursor(CURSOR_ARROW);
-							CHECK_GL_ERRORS();
-						}
-					SDL_Delay(20);
-					return;
-				}
-
-			if(interface_mode==INTERFACE_OPENING)
-				{
-					Enter2DMode();
-					draw_console_pic(cons_text);
-					display_console_text();
-					SDL_Delay(20);
-					SDL_GL_SwapBuffers();
-					Leave2DMode();
-					CHECK_GL_ERRORS();
-					return;
-				}
-
-			if(interface_mode==INTERFACE_LOG_IN)
-				{
-					Enter2DMode();
-					draw_login_screen();
-					SDL_Delay(20);
-					SDL_GL_SwapBuffers();
-					Leave2DMode();
-					CHECK_GL_ERRORS();
-					return;
-				}
-
-			if(interface_mode==INTERFACE_NEW_CHAR)
-				{
-					Enter2DMode();
-					draw_new_char_screen();
-					SDL_Delay(20);
-					SDL_GL_SwapBuffers();
-					Leave2DMode();
-					CHECK_GL_ERRORS();
-					return;
-				}
-
-			if(interface_mode==INTERFACE_MAP || interface_mode==INTERFACE_CONT)
-				{
-					// are we actively drawing things?
-					if(SDL_GetAppState()&SDL_APPACTIVE)
-						{
-							Enter2DMode();
-							draw_hud_interface();
-							Leave2DMode();
-							draw_game_map(interface_mode==INTERFACE_MAP);
-							if(elwin_mouse >= 0) {
-								if(current_cursor!=elwin_mouse) change_cursor(elwin_mouse);
-								elwin_mouse=-1;
-							} else if(current_cursor!=CURSOR_ARROW) change_cursor(CURSOR_ARROW);
-							SDL_GL_SwapBuffers();
-							CHECK_GL_ERRORS();
-						}
-					SDL_Delay(20);
-					return;			
-					CHECK_GL_ERRORS();
-				}
-#endif
 		}
 
-#ifndef OLD_EVENT_HANDLER
 	glLoadIdentity ();	// Reset The Matrix
 	
 	Enter2DMode ();
@@ -218,205 +107,15 @@ void draw_scene()
 		if (current_cursor != elwin_mouse) change_cursor(elwin_mouse);
 		elwin_mouse = -1;
 	}
-#else
-	// XXX (Grum): scheduled for removal, now in the game window display handler	
-	if(!have_a_map)return;
-	if(yourself==-1)return;//we don't have ourselves
-	for(i=0; i<max_actors; i++)
-		{
-        	if(actors_list[i] && actors_list[i]->actor_id==yourself) break;
-		}
-	if(i > max_actors) return;//we still don't have ourselves
-	
-	main_count++;
-	
-	if(quickbar_win>=0)windows_list.window[quickbar_win].displayed=1;
-
-	if(old_fps_average<5)
-		{
-			mouse_rate=1;
-			read_mouse_now=1;
-		}
-	else if(old_fps_average<10)
-		{
-			mouse_rate=3;
-		}
-	else if(old_fps_average<20)
-		{
-			mouse_rate=6;
-		}
-	else if(old_fps_average<30)
-		{
-			mouse_rate=10;
-		}
-	else if(old_fps_average<40)
-		{
-			mouse_rate=15;
-		}
-	else
-		{
-			mouse_rate=20;
-		}
-	if(mouse_rate > mouse_limit)mouse_rate=mouse_limit;
-	if(!(main_count%mouse_rate))read_mouse_now=1;
-	else read_mouse_now=0;
-	reset_under_the_mouse();
-
-	if(new_zoom_level != zoom_level) {
-		zoom_level=new_zoom_level;
-		resize_root_window();
-	}
-	glLoadIdentity();					// Reset The Matrix
-	Move();
-	save_scene_matrix();
-
-	CalculateFrustum();
-	any_reflection=find_reflection();
-	CHECK_GL_ERRORS();
-
-	// are we actively drawing things?
-	if(SDL_GetAppState()&SDL_APPACTIVE){
-
-		//now, determine the current weather light level
-		get_weather_light_level();
-
-		if(!dungeon)draw_global_light();
-		else draw_dungeon_light();
-		update_scene_lights();
-		draw_lights();
-		CHECK_GL_ERRORS();
-
-		if(!dungeon && shadows_on && is_day)render_light_view();
-		CHECK_GL_ERRORS();
-
-		//check for network data
-		get_message_from_server();
-
-		glEnable(GL_FOG);
-		if(any_reflection>1)
-			{
-			  	if(!dungeon)draw_sky_background();
-			  	else draw_dungeon_sky_background();
-				CHECK_GL_ERRORS();
-				if(show_reflection)display_3d_reflection();
-			}
-		CHECK_GL_ERRORS();
-
-		//check for network data - reduces resyncs
-		get_message_from_server();
-
-		if(!dungeon && shadows_on && is_day)draw_sun_shadowed_scene(any_reflection);
-		else {
-			glNormal3f(0.0f,0.0f,1.0f);
-			if(any_reflection)draw_lake_tiles();
-			draw_tile_map();
-			CHECK_GL_ERRORS();
-			display_2d_objects();
-			CHECK_GL_ERRORS();
-			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
-			display_objects();
-			display_actors();
-		}
-		glDisable(GL_FOG);
-		CHECK_GL_ERRORS();
-
-		//check for network data - reduces resyncs
-		get_message_from_server();
-	}	// end of active display check
-	else display_actors();	// we need to 'touch' all the actors even if not drawing to avoid problems
-
-	CHECK_GL_ERRORS();
-
-	//check for network data - reduces resyncs
-	get_message_from_server();
-
-	// if not active, dont bother drawing any more
-	if(!(SDL_GetAppState()&SDL_APPACTIVE))
-		{
-			SDL_Delay(20);
-			return;
-		}
-
-	//particles should be last, we have no Z writting
-	display_particles();
-	CHECK_GL_ERRORS();
-	if(is_raining)render_rain();
-	CHECK_GL_ERRORS();
-	//we do this because we don't want the rain/particles to mess with our cursor
-
-	Enter2DMode();
-	//get the FPS, etc
-	if((cur_time-last_time))fps=1000/(cur_time-last_time);
-	else fps=1000;
-
-	if(main_count%10)fps_average+=fps;
-	else
-		{
-			old_fps_average=fps_average/10;
-			fps_average=0;
-		}
-	if(!no_adjust_shadows)
-		{
-			if(fps<5)
-				{
-					times_FPS_below_3++;
-					if(times_FPS_below_3>4 && shadows_on)
-						{
-							shadows_on=0;
-							put_colored_text_in_buffer(c_red1,low_framerate_str,-1,0);
-							times_FPS_below_3=0;
-						}
-				}
-			else times_FPS_below_3=0;
-		}
-	if(show_fps)
-		{
-			sprintf(str, "FPS: %i",old_fps_average);
-			glColor3f(1.0f,1.0f,1.0f);
-			draw_string(10,0,str,1);
-		}
-
-	CHECK_GL_ERRORS();
-	if(find_last_lines_time())
-	{
-		set_font(chat_font);	// switch to the chat font
-        	draw_string_zoomed(10,20,&display_text_buffer[display_text_buffer_first],max_lines_no,chat_zoom);
-		set_font(0);	// switch to fixed
-	}
-	
-	anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
-	CHECK_GL_ERRORS();
-
-	draw_ingame_interface();
-	CHECK_GL_ERRORS();
-	//print the text line we are currently writting (if any)
-	y_line=window_height-(17*(4+input_text_lines));
-	switch(map_type){
-		case 2:
-			glColor3f(0.6f,1.0f,1.0f);
-			break;
-		case 1:
-		default:
-			glColor3f(1.0f,1.0f,1.0f);
-	}
-	draw_string(10,y_line,input_text_line,input_text_lines);
-
-	Leave2DMode();
-	glEnable(GL_LIGHTING);
-
-	check_cursor_change();
-#endif
 
 	SDL_GL_SwapBuffers();
 	CHECK_GL_ERRORS();
 	
-#ifndef OLD_EVENT_HANDLER
 	if (draw_delay > 0)
 	{
 		SDL_Delay (draw_delay);
 		draw_delay = 0;
 	}
-#endif
 }
 
 void get_tmp_actor_data()

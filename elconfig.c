@@ -162,7 +162,7 @@ void set_afk_time(int time)
 }
 #endif // not def ELCONFIG
 
-#if !defined(OLD_EVENT_HANDLER) && !defined(ELCONFIG)
+#ifndef ELCONFIG
 void change_windowed_chat (int *wc)
 {
 	*wc = !*wc;
@@ -175,7 +175,7 @@ void change_windowed_chat (int *wc)
 		hide_window (chat_win);
 	}
 }
-#endif // not def OLD_EVENT_HANDLER
+#endif // not def ELCONFIG
 #endif // def ELC
 
 #ifdef MAP_EDITOR
@@ -454,9 +454,7 @@ void init_vars()
 
 #ifndef ELCONFIG // FIXME: currently not implemented in gtk-elconfig
 	add_var(BOOL,"use_tabbed_windows","tabs",&use_tabbed_windows,change_var,0);
-#ifndef OLD_EVENT_HANDLER
 	add_var(BOOL,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 0);
-#endif
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0);
 #endif // ELCONFIG
 #endif // def ELC

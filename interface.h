@@ -122,10 +122,6 @@ extern int cur_map; /*!< id of the map we are currently on */
 extern GLuint cont_text;
 extern GLuint legend_text;
 
-#ifdef OLD_EVENT_HANDLER
-extern GLuint map_text;
-#endif
-
 extern const struct draw_map seridia_maps[]; /*!< global array of maps for the continet seridia */
 
 
@@ -336,7 +332,6 @@ int switch_to_game_map();
  */
 void switch_from_game_map();
 
-#ifndef OLD_EVENT_HANDLER
 /*!
  * \ingroup interface_map
  * \brief
@@ -349,19 +344,6 @@ void switch_from_game_map();
  * \callgraph
  */
 void draw_game_map (int map, int mouse_mini);
-#else
-/*!
- * \ingroup interface_map
- * \brief
- *
- *      Detail
- *
- * \param map
- * \sa draw_scene
- * \callgraph
- */
-void draw_game_map (int map);
-#endif
 
 /* OBSOLETE declaration: queued for removal from this header file */
 //*!
@@ -418,9 +400,27 @@ void put_mark_on_map_on_mouse_position();
  */
 void put_mark_on_current_position(char *name);
 
-#ifndef OLD_EVENT_HANDLER
+/*!
+ * \ingroup interfaces
+ * \brief
+ *
+ *      Detail
+ *
+ * \callgraph
+ */
 void hide_all_root_windows ();
+
+/*!
+ * \ingroup interfaces
+ * \brief
+ *
+ *      Detail
+ *
+ * \param w
+ * \param h
+ *
+ * \callgraph
+ */
 void resize_all_root_windows (Uint32 w, Uint32 h);
-#endif
 
 #endif

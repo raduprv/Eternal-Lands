@@ -356,14 +356,13 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case LOG_IN_OK:
 			{
 				show_hud_windows ();
-#ifndef OLD_EVENT_HANDLER
 				// login and/or new character windows are no longer needed
 				if (login_root_win >= 0) destroy_window (login_root_win);
 				login_root_win = -1;
 				if (newchar_root_win >= 0) destroy_window (newchar_root_win);
 				newchar_root_win = -1;
 				show_window (game_root_win);
-#endif
+
 				interface_mode=INTERFACE_GAME;
 				previously_logged_in=1;
 			}
@@ -905,12 +904,10 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 						highlight_rule(in_data[3],in_data+4,data_lenght-4);
 						break;
 					case NEW_CHAR_INTERFACE:
-#ifndef OLD_EVENT_HANDLER
 						hide_all_root_windows ();
 						hide_hud_windows ();
 						create_newchar_root_window ();
 						show_window (newchar_root_win);
-#endif
 						interface_mode = INTERFACE_NEW_CHAR;
 						connect_to_server();
 						break;

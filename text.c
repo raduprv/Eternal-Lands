@@ -6,9 +6,7 @@ char input_text_line[257];
 int input_text_lenght=0;
 int input_text_lines=1;
 char display_text_buffer[MAX_DISPLAY_TEXT_BUFFER_LENGTH];
-#ifndef OLD_EVENT_HANDLER
 int nr_text_buffer_lines = 0;
-#endif
 
 int display_text_buffer_first=0;
 int display_text_buffer_last=0;
@@ -46,13 +44,11 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 								   int pixels_limit, char *buffer);
 /* end of added forward declaration */
 
-#ifndef OLD_EVENT_HANDLER
 void update_text_windows (int nlines)
 {
 	update_console_win (nlines);
 	if (use_windowed_chat) update_chat_scrollbar ();
 }
-#endif
 
 void write_to_log(Uint8 * data,int len)
 {
@@ -291,11 +287,10 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 	//watch for the end of buffer!
 	while(display_text_buffer_last+len+8 >= MAX_DISPLAY_TEXT_BUFFER_LENGTH)
 		{
-#ifndef OLD_EVENT_HANDLER
 			// First update the nr of lines in the current buffer
 			for (i = 0; i < 1024; i++)
 				if (display_text_buffer[i] == '\n' || display_text_buffer[i] == '\r') nlines--;
-#endif
+
 			// Now remove the first 1k characters
 			memmove(display_text_buffer, display_text_buffer+1024, display_text_buffer_last-1024);
 			display_text_buffer_last-=1024;
@@ -316,7 +311,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 		}
 
 	// see if the text fits on the screen
-#ifndef OLD_EVENT_HANDLER
+
 	if (use_windowed_chat)
 	{
 		for (i = 0; i < len; i++)
@@ -329,7 +324,6 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 		display_text_buffer_last += len+1;
 		return;
 	}
-#endif	
 
 	// not using windowed chat
 	if (x_chars_limit <= 0)
@@ -430,10 +424,8 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 			nlines++;
 		}
 
-#ifndef OLD_EVENT_HANDLER
 	nr_text_buffer_lines += nlines;
 	update_text_windows (nlines);
-#endif
 }
 
 void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, 
@@ -599,7 +591,6 @@ int find_last_console_lines(int lines_no)
 	return 1;
 }
 
-#ifndef OLD_EVENT_HANDLER
 int find_line_nr (int line)
 {
 	int i = -1;
@@ -616,23 +607,12 @@ int find_line_nr (int line)
 	}
 	return i+1;
 }
-#endif
 
 void console_move_up()
 {
 	int i;
 	int max_lines;
-#ifndef OLD_EVENT_HANDLER
 	int total_lines_no=nr_text_buffer_lines;
-#else
-	int total_lines_no=0;
-
-	//get the total number of lines
-	for(i=0;i<display_text_buffer_last;i++)
-		{
-			if(display_text_buffer[i]=='\n')total_lines_no++;
-		}
-#endif
 
 	//get the number of lines we have - the last one, which is the command line
 	max_lines=(window_height-hud_y)/18-1;

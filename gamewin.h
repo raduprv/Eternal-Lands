@@ -6,7 +6,6 @@
 #ifndef __GAMEWIN_H__
 #define __GAMEWIN_H__
 
-#ifndef OLD_EVENT_HANDLER
 
 /*! \name windows handlers 
  * @{ */
@@ -74,7 +73,5 @@ int keypress_root_common (Uint32 key, Uint32 unikey);
  * \callgraph
  */
 void create_game_root_window (int width, int height);
-
-#endif
 
 #endif // def __GAMEWIN_H__

@@ -17,9 +17,8 @@ windows_info	windows_list;	// the master list of windows
 int display_window(int win_id);
 int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
 int	mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
-#ifndef OLD_EVENT_HANDLER
 int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
-#endif
+
 /* end of added forward declarations */
 
 /*
@@ -104,22 +103,6 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 	int	next_id;
 	int	first_win= -1;
 	int i;
-
-#ifdef OLD_EVENT_HANDLER
-	// watch for needing to convert the globals into the flags
-	if(!flags)
-	{
-		if(shift_on)	flags |= ELW_SHIFT;
-		if(ctrl_on)		flags |= ELW_CTRL;
-		if(alt_on)		flags |= ELW_ALT;
-		if(right_click)	flags |= ELW_RIGHT_MOUSE;
-		if(middle_click)	flags |= ELW_MID_MOUSE;
-		if(left_click)	flags |= ELW_LEFT_MOUSE;
-		// TODO: centralized double click handling
-		// TODO: consider other ways of triggering double clieck, like middle click or shift click
-		//if(double_click)	flags |= ELW_DBL_CLICK;
-	}
-#endif
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
@@ -211,22 +194,6 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 
 	// ignore a drag of 0, but say we processed
 	if(dx == 0 && dy == 0)	return -1;
-
-#ifdef OLD_EVENT_HANDLER
-	// watch for needing to convert the globals into the flags
-	if(!flags)
-	{
-		if(shift_on)	flags |= ELW_SHIFT;
-		if(ctrl_on)		flags |= ELW_CTRL;
-		if(alt_on)		flags |= ELW_ALT;
-		if(right_click)	flags |= ELW_RIGHT_MOUSE;
-		if(middle_click)	flags |= ELW_MID_MOUSE;
-		if(left_click)	flags |= ELW_LEFT_MOUSE;
-		// TODO: centralized double click handling
-		// TODO: consider other ways of triggering double click, like middle click or shift click
-		//if(double_click)	flags |= ELW_DBL_CLICK;
-	}
-#endif
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
@@ -450,7 +417,6 @@ int drag_windows (int mx, int my, int dx, int dy)
 	return drag_id;
 }
 
-#ifndef OLD_EVENT_HANDLER
 int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
 {
 	int	done= 0;
@@ -530,7 +496,6 @@ int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
 	
 	return -1;	// no keypress in a window
 }
-#endif
 
 void	end_drag_windows()
 {
@@ -1149,19 +1114,6 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 	W = win->widgetlist;
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
-#ifdef OLD_EVENT_HANDLER
-			// watch for needing to convert the globals into the flags
-			// TODO: put this in the window manager
-			if(!flags){
-				if(shift_on)	flags |= ELW_SHIFT;
-				if(ctrl_on)		flags |= ELW_CTRL;
-				if(alt_on)		flags |= ELW_ALT;
-				if(right_click)	flags |= ELW_RIGHT_MOUSE;
-				//if(mid_click)	flags |= ELW_MID_MOUSE;
-				if(left_click)	flags |= ELW_LEFT_MOUSE;
-				//if(double_click)	flags |= ELW_DBL_CLICK;
-			}
-#endif
 			mx= x - win->cur_x;
 			my= y - win->cur_y;
 			//check the X for close - but hide it
@@ -1226,19 +1178,6 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 			if(win->drag_handler != NULL){
 				int	ret_val;
 
-#ifdef OLD_EVENT_HANDLER
-				// watch for needing to convert the globals into the flags
-				// TODO: put this in the window manager
-				if(!flags){
-					if(shift_on)	flags |= ELW_SHIFT;
-					if(ctrl_on)		flags |= ELW_CTRL;
-					if(alt_on)		flags |= ELW_ALT;
-					if(right_click)	flags |= ELW_RIGHT_MOUSE;
-					//if(mid_click)	flags |= ELW_MID_MOUSE;
-					if(left_click)	flags |= ELW_LEFT_MOUSE;
-					//if(double_click)	flags |= ELW_DBL_CLICK;
-				}
-#endif
 				mx= x - win->cur_x;
 				my= y - win->cur_y;
 							    
@@ -1316,7 +1255,6 @@ int	mouseover_window(int win_id, int x, int y)
 	return 0;
 }
 
-#ifndef OLD_EVENT_HANDLER
 int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 {
 	window_info *win;
@@ -1363,8 +1301,6 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 
 	return 0;
 }
-#endif
-
 
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 {

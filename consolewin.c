@@ -1,8 +1,6 @@
 #include <string.h>
 #include "global.h"
 
-#ifndef OLD_EVENT_HANDLER
-
 #define CONSOLE_INPUT_HEIGHT	(3*18)
 #define CONSOLE_SEP_HEIGHT	18
 
@@ -183,5 +181,3 @@ void create_console_root_window (int width, int height)
 		nr_console_lines = (height - CONSOLE_INPUT_HEIGHT -  CONSOLE_SEP_HEIGHT - hud_y) / 18;
 	}
 }
-
-#endif // not def OLD_EVENT_HANDLER

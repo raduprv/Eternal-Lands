@@ -14,9 +14,7 @@ extern char input_text_line[257]; /*!< user input text */
 extern int input_text_lenght; /*!< actual length of \see input_text_line */
 extern int input_text_lines; /*!< number of lines used by \see input_text_line. \todo check this desc. */
 extern char display_text_buffer[MAX_DISPLAY_TEXT_BUFFER_LENGTH]; /*!< buffer to hold the text to display */
-#ifndef OLD_EVENT_HANDLER
 extern int nr_text_buffer_lines; /*!< The number of lines in the text buffer */
-#endif
 
 extern int display_text_buffer_first;
 extern int display_text_buffer_last;
@@ -179,7 +177,6 @@ int find_last_lines_time();
 // */
 //int find_last_console_lines(int lines_no);
 
-#ifndef OLD_EVENT_HANDLER
 /*!
  * \ingroup text_font
  * \brief finds the position of the beginning of a line
@@ -190,7 +187,6 @@ int find_last_lines_time();
  * \retval The position of the beginning of the line
  */
 int find_line_nr (int line);
-#endif
 
 /*!
  * \ingroup interface_console

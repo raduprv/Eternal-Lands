@@ -92,11 +92,7 @@ char options_help_text[400]={0};
 void display_options_menu()
 {
 	if(options_win < 0){
-#ifndef OLD_EVENT_HANDLER
 		options_win= create_window("Options", game_root_win, 0, options_menu_x, options_menu_y, options_menu_x_len, options_menu_y_len, ELW_WIN_DEFAULT);
-#else
-		options_win= create_window("Options", -1, 0, options_menu_x, options_menu_y, options_menu_x_len, options_menu_y_len, ELW_WIN_DEFAULT);
-#endif
 
 		set_window_color(options_win, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
 		set_window_handler(options_win, ELW_HANDLER_DISPLAY, &display_options_handler );

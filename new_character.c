@@ -204,228 +204,6 @@ void change_actor ()
 	last_texture = -1;	// when we load a new char, we also bind the texture, so...
 }
 
-// XXX FIXME (Grum): scheduled for removal
-#ifdef OLD_EVENT_HANDLER
-void check_for_input()
-{
-
-	if(mouse_x>110 && mouse_x<200 && mouse_y>197 && mouse_y<235)back_selected=1;
-	else back_selected=0;
-
-	if(mouse_x>10 && mouse_x<90 && mouse_y>197 && mouse_y<235)done_selected=1;
-	else done_selected=0;
-
-	if(mouse_x>=90 && mouse_y>270 && mouse_y<288 && mouse_x<=108)skin_back=1;else skin_back=0;
-	if(mouse_x>=120 && mouse_y>270 && mouse_y<288 && mouse_x<=138)skin_forward=1;else skin_forward=0;
-	if(mouse_x>=90 && mouse_y>290 && mouse_y<308 && mouse_x<=108)hair_back=1;else hair_back=0;
-	if(mouse_x>=120 && mouse_y>290 && mouse_y<308 && mouse_x<=138)hair_forward=1;else hair_forward=0;
-	if(mouse_x>=90 && mouse_y>310 && mouse_y<328 && mouse_x<=108)shirt_back=1;else shirt_back=0;
-	if(mouse_x>=120 && mouse_y>310 && mouse_y<328 && mouse_x<=138)shirt_forward=1;else shirt_forward=0;
-	if(mouse_x>=90 && mouse_y>330 && mouse_y<348 && mouse_x<=108)pants_back=1;else pants_back=0;
-	if(mouse_x>=120 && mouse_y>330 && mouse_y<348 && mouse_x<=138)pants_forward=1;else pants_forward=0;
-	if(mouse_x>=90 && mouse_y>350 && mouse_y<368 && mouse_x<=108)boots_back=1;else boots_back=0;
-	if(mouse_x>=120 && mouse_y>350 && mouse_y<368 && mouse_x<=138)boots_forward=1;else boots_forward=0;
-	if(mouse_x>=90 && mouse_y>370 && mouse_y<388 && mouse_x<=108)head_back=1;else head_back=0;
-	if(mouse_x>=120 && mouse_y>370 && mouse_y<388 && mouse_x<=138)head_forward=1;else head_forward=0;
-
-
-
-	if(left_click!=1)return;
-	left_click=2;//to avoid further rechecks while the mouse button is down
-
-	if(mouse_x>110 && mouse_x<200 && mouse_y>197 && mouse_y<235 && back_selected)
-		{
-			interface_mode=INTERFACE_LOG_IN;
-			return;
-		}
-	if(mouse_x>10 && mouse_x<90 && mouse_y>197 && mouse_y<235 && done_selected)
-		{
-			send_new_char(user_str, pass_str,conf_pass_str,
-						  skin_color, hair_color, shirt_color, pants_color, boots_color, head,race+male);
-			return;
-		}
-
-	//check skin color change
-	if(mouse_x>=90 && mouse_y>270 && mouse_y<288 && mouse_x<=108)
-		{
-			if(skin_color==SKIN_BROWN)
-				skin_color=SKIN_TAN;
-			else skin_color--;
-			change_actor();
-		}
-	if(mouse_x>=120 && mouse_y>270 && mouse_y<288 && mouse_x<=138)
-		{
-			if(skin_color==SKIN_TAN)
-				skin_color=SKIN_BROWN;
-			else skin_color++;
-			change_actor();
-		}
-
-	//check hair color change
-	if(mouse_x>=90 && mouse_y>290 && mouse_y<308 && mouse_x<=108)
-		{
-			int wrap;
-			if(race==RACE_DRAEGONI)wrap=HAIR_PURPLE;
-			else wrap=HAIR_WHITE;
-			if(hair_color==HAIR_BLACK)
-				hair_color=wrap;
-			else hair_color--;
-			if(hair_color==HAIR_BLOND) if((race==RACE_DRAEGONI && male)||race==RACE_ORCHAN) hair_color--;
-			change_actor();
-		}
-	if(mouse_x>=120 && mouse_y>290 && mouse_y<308 && mouse_x<=138)
-		{
-			int wrap;
-			if(race==RACE_DRAEGONI)wrap=HAIR_PURPLE;
-			else wrap=HAIR_WHITE;
-			if(hair_color==wrap)
-				hair_color=HAIR_BLACK;
-			else hair_color++;
-			if(hair_color==HAIR_BLOND) if((race==RACE_DRAEGONI && male)||race==RACE_ORCHAN) hair_color++;
-			change_actor();
-		}
-
-	//check shirt color change
-	if(mouse_x>=90 && mouse_y>310 && mouse_y<328 && mouse_x<=108)
-		{
-			if(shirt_color==SHIRT_BLACK)
-				shirt_color=SHIRT_YELLOW;
-			else shirt_color--;
-			if(shirt_color==SHIRT_PINK) if(male)shirt_color--;
-			change_actor();
-		}
-	if(mouse_x>=120 && mouse_y>310 && mouse_y<328 && mouse_x<=138)
-		{
-			if(shirt_color==SHIRT_YELLOW)
-				shirt_color=SHIRT_BLACK;
-			else shirt_color++;
-			if(shirt_color==SHIRT_PINK) if(male)shirt_color++;
-			change_actor();
-		}
-
-	//check pants color change
-	if(mouse_x>=90 && mouse_y>330 && mouse_y<348 && mouse_x<=108)
-		{
-			if(pants_color==PANTS_BLACK)
-				pants_color=PANTS_WHITE;
-			else pants_color--;
-			change_actor();
-		}
-	if(mouse_x>=120 && mouse_y>330 && mouse_y<348 && mouse_x<=138)
-		{
-			if(pants_color==PANTS_WHITE)
-				pants_color=PANTS_BLACK;
-			else pants_color++;
-			change_actor();
-		}
-	//check boots color change
-	if(mouse_x>=90 && mouse_y>350 && mouse_y<368 && mouse_x<=108)
-		{
-			if(boots_color==BOOTS_BLACK)
-				boots_color=BOOTS_ORANGE;
-			else boots_color--;
-			change_actor();
-		}
-	if(mouse_x>=120 && mouse_y>350 && mouse_y<368 && mouse_x<=138)
-		{
-			if(boots_color==BOOTS_ORANGE)
-				boots_color=BOOTS_BLACK;
-			else boots_color++;
-			change_actor();
-		}
-	//check head change
-	if(mouse_x>=90 && mouse_y>370 && mouse_y<388 && mouse_x<=108)
-		{
-			if(head==HEAD_1)
-				{
-					if(race==RACE_HUMAN)
-						head=HEAD_5;
-					else
-						head=HEAD_4;
-				}
-			else head--;
-			change_actor();
-		}
-	if(mouse_x>=120 && mouse_y>370 && mouse_y<388 && mouse_x<=138)
-		{
-			if(head==HEAD_4 &&!(race==RACE_HUMAN))
-				{
-					head=HEAD_1;
-				}
-			else if(head==HEAD_5)
-				head=HEAD_1;
-			else head++;
-			change_actor();
-		}
-	//check to see if we changed the gender
-	//460,300
-	if(mouse_x>460 && mouse_x<590 && mouse_y>300 && mouse_y<320)
-		{
-			male=1;
-			change_actor();
-		}
-
-	if(mouse_x>460 && mouse_x<590 && mouse_y>320 && mouse_y<340)
-		{
-			male=0;
-			change_actor();
-		}
-	//check to see if we changed the race
-	if(mouse_x>240 && mouse_x<300 && mouse_y>300 && mouse_y<320)
-		{
-			race=RACE_HUMAN;
-			change_actor();
-		}
-	if(mouse_x>240 && mouse_x<300 && mouse_y>320 && mouse_y<340)
-		{
-			race=RACE_ELF;
-			change_actor();
-		}
-	if(mouse_x>240 && mouse_x<300 && mouse_y>340 && mouse_y<360)
-		{
-			race=RACE_DWARF;
-			change_actor();
-		}
-	if(mouse_x>310 && mouse_x<400 && mouse_y>300 && mouse_y<320)
-		{
-			race=RACE_GNOME;
-			change_actor();
-		}
-	if(mouse_x>310 && mouse_x<400 && mouse_y>320 && mouse_y<340)
-		{
-			race=RACE_ORCHAN;
-			change_actor();
-		}
-	if(mouse_x>310 && mouse_x<400 && mouse_y>340 && mouse_y<360)
-		{
-			race=RACE_DRAEGONI;
-			change_actor();
-		}
-	//check to see the selected dialogue boxes
-	if(mouse_x>10 && mouse_x<200 && mouse_y>30 && mouse_y<58)
-		{
-			username_selected = 1;
-			password_selected = 0;
-			confirm_pass_selected = 0;
-		}
-	if(mouse_x>10 && mouse_x<200 && mouse_y>88 && mouse_y<116)
-		{
-			username_selected = 0;
-			password_selected = 1;
-			confirm_pass_selected = 0;
-		}
-
-	if(mouse_x>10 && mouse_x<200 && mouse_y>146 && mouse_y<174)
-		{
-			username_selected = 0;
-			password_selected = 0;
-			confirm_pass_selected = 1;
-		}
-
-
-}
-#endif
-
 void draw_new_char_screen()
 {
 	float selected_bar_u_start=(float)0/256;
@@ -440,10 +218,6 @@ void draw_new_char_screen()
 
 	float unselected_bar_u_end=(float)170/256;
 	float unselected_bar_v_end=1.0f-(float)63/256;
-
-#ifdef OLD_EVENT_HANDLER
-	check_for_input();
-#endif
 
 	//see if we have to load a model (male or female)
 	if (!any_model)
@@ -712,13 +486,6 @@ void add_char_to_pass(unsigned char ch)
 			display_pass_str[pass_text_lenght]=0;
 			pass_str[pass_text_lenght]=0;
 		}
-#ifdef OLD_EVENT_HANDLER
-	if(ch==SDLK_TAB)
-		{
-			password_selected = 0;
-			confirm_pass_selected = 1;
-		}
-#endif
 }
 
 void add_char_to_un(unsigned char ch)
@@ -734,13 +501,6 @@ void add_char_to_un(unsigned char ch)
 			user_text_lenght--;
 			user_str[user_text_lenght]=0;
 		}
-#ifdef OLD_EVENT_HANDLER
-	if(ch==SDLK_TAB)
-		{
-			username_selected = 0;
-			password_selected = 1;
-		}
-#endif
 }
 
 void add_char_to_conf(unsigned char ch)
@@ -758,14 +518,6 @@ void add_char_to_conf(unsigned char ch)
 			display_conf_pass_str[conf_pass_text_lenght]=0;
 			conf_pass_str[conf_pass_text_lenght]=0;
 		}
-
-#ifdef OLD_EVENT_HANDLER
-	if(ch==SDLK_TAB)
-		{
-			confirm_pass_selected = 0;
-			username_selected = 1;
-		}
-#endif
 }
 
 void add_char_to_new_character(unsigned char ch)
@@ -803,8 +555,6 @@ void login_from_new_char()
 //////////////////////////////////////////////////////////////////////////
 
 // New character window code below.
-
-#ifndef OLD_EVENT_HANDLER
 
 int newchar_root_win = -1;
 
@@ -1154,5 +904,3 @@ void create_newchar_root_window ()
 		set_window_handler (newchar_root_win, ELW_HANDLER_KEYPRESS, &keypress_newchar_handler);
 	}
 }
-
-#endif

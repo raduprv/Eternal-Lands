@@ -78,263 +78,6 @@ void get_old_world_x_y()
 	scene_mouse_y=p->y_pos+y1;
 }
 
-// XXX FIXME (Grum): scheduled for removal
-#ifdef OLD_EVENT_HANDLER
-int check_drag_menus()
-{
-	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)	return 1;
-
-	return 0;
-}
-
-int check_scroll_bars()
-{
-	if(drag_in_windows(mouse_x, mouse_y, 0, mouse_delta_x, mouse_delta_y) >= 0)	return 1;
-
-	return 0;
-}
-#endif
-
-// XXX FIXME (Grum): scheduled for removal, now in the root window click handler
-#ifdef OLD_EVENT_HANDLER
-void check_mouse_click()
-{
-	int force_walk=(ctrl_on && right_click);
-	// check for a click on the HUD (between scene & windows)
-	if(click_in_windows(mouse_x, mouse_y, 0) >= 0)	return;
-
-	if(!force_walk)
-	if(right_click) {
-		if(item_dragged!=-1 || use_item!=-1 || object_under_mouse==-1){
-			use_item=-1;
-			item_dragged=-1;
-			action_mode=ACTION_WALK;
-			return;
-		}
-		switch(current_cursor) {
-		case CURSOR_EYE:
-			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER)
-				action_mode=ACTION_TRADE;
-			else if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
-				action_mode=ACTION_USE;
-			else
-				action_mode=ACTION_WALK;
-			break;
-		case CURSOR_HARVEST:
-			action_mode=ACTION_LOOK;
-			break;
-		case CURSOR_TRADE:
-			action_mode=ACTION_ATTACK;
-			break;
-		case CURSOR_USE_WITEM:
-			if(use_item!=-1)
-				use_item=-1;
-			else
-				action_mode=ACTION_WALK;
-			break;
-		case CURSOR_ATTACK:
-			if(thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
-				action_mode=ACTION_LOOK;
-			else
-				action_mode=ACTION_WALK;
-			break;
-		case CURSOR_ENTER:
-		case CURSOR_PICK:
-		case CURSOR_WALK:
-			if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
-				action_mode=ACTION_LOOK;
-			else
-				action_mode=ACTION_WALK;
-			break;
-		case CURSOR_USE:
-		case CURSOR_TALK:
-		case CURSOR_ARROW:
-		default:
-			action_mode=ACTION_WALK;
-			break;
-		}
-		return;
-	}
-
-	//after we test for interface clicks
-	// alternative drop method...
-	if (item_dragged != -1){
-		Uint8 str[10];
-		int quantity = item_list[item_dragged].quantity;
-
-		if(right_click) {
-			item_dragged=-1;
-			return;
-		}
-
-		if (quantity - item_quantity > 0)
-			quantity = item_quantity;
-		str[0] = DROP_ITEM;
-		str[1] = item_list[item_dragged].pos;
-		*((Uint16 *) (str + 2)) = quantity;
-		my_tcp_send(my_socket, str, 4);
-		if (item_list[item_dragged].quantity - quantity <= 0)
-			item_dragged = -1;
-		return;
-	}
-
-	//if we're following a path, stop now
-	if (pf_follow_path) {
-		pf_destroy_path();
-	}
-
-	if(force_walk){
-		Uint8 str[10];
-		short x,y;
-		
-		get_old_world_x_y();
-		x=scene_mouse_x/0.5f;
-		y=scene_mouse_y/0.5f;
-		//check to see if the coordinates are OUTSIDE the map
-		if(y<0 || x<0 || x>=tile_map_size_x*6 || y>=tile_map_size_y*6)return;
-		
-		str[0]=MOVE_TO;
-		*((short *)(str+1))=x;
-		*((short *)(str+3))=y;
-
-		my_tcp_send(my_socket,str,5);
-		return;
-	}
-	
-	switch(current_cursor) {
-	case CURSOR_EYE:
-		{
-			Uint8 str[10];
-
-			if(object_under_mouse==-1)return;
-
-			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER || thing_under_the_mouse==UNDER_MOUSE_NPC || thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
-				{
-					str[0]=GET_PLAYER_INFO;
-					*((int *)(str+1))=object_under_mouse;
-					my_tcp_send(my_socket,str,5);
-					return;
-				}
-			if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
-				{
-					str[0]=LOOK_AT_MAP_OBJECT;
-					*((int *)(str+1))=object_under_mouse;
-					my_tcp_send(my_socket,str,5);
-					return;
-				}
-		}
-		break;
-
-	case CURSOR_TRADE:
-		{
-			Uint8 str[10];
-
-			if(object_under_mouse==-1)return;
-			if(thing_under_the_mouse!=UNDER_MOUSE_PLAYER)return;
-			str[0]=TRADE_WITH;
-			*((int *)(str+1))=object_under_mouse;
-			my_tcp_send(my_socket,str,5);
-			return;
-		}
-		break;
-
-	case CURSOR_ATTACK:
-		{
-			Uint8 str[10];
-
-			if(object_under_mouse==-1)return;
-			if(you_sit && sit_lock && !ctrl_on) return;
-			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER || thing_under_the_mouse==UNDER_MOUSE_NPC || thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
-				{
-					str[0]=ATTACK_SOMEONE;
-					*((int *)(str+1))=object_under_mouse;
-					my_tcp_send(my_socket,str,5);
-					return;
-				}
-		}
-		break;
-
-	case CURSOR_ENTER:
-			if(you_sit && sit_lock && !ctrl_on) return;
-	case CURSOR_USE:
-	case CURSOR_USE_WITEM:
-	case CURSOR_TALK:
-		{
-			Uint8 str[10];
-
-			if(object_under_mouse==-1)return;
-			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER || thing_under_the_mouse==UNDER_MOUSE_NPC || thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
-				{
-					int i;
-					str[0]=TOUCH_PLAYER;
-					*((int *)(str+1))=object_under_mouse;
-					my_tcp_send(my_socket,str,5);
-
-					//clear the previous dialogue entries, so we won't have a left over from some other NPC
-					for(i=0;i<20;i++)dialogue_responces[i].in_use=0;
-					return;
-				}
-			str[0]=USE_MAP_OBJECT;
-			*((int *)(str+1))=object_under_mouse;
-			if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM){
-				*((int *)(str+5))=item_list[use_item].pos;
-				use_item=-1;
-				action_mode=ACTION_WALK;
-			} else
-				*((int *)(str+5))=-1;
-			my_tcp_send(my_socket,str,9);
-			return;
-		}
-		break;
-
-	case CURSOR_PICK:
-		{
-			if(object_under_mouse==-1)return;
-			if(you_sit && sit_lock && !ctrl_on) return;
-			open_bag(object_under_mouse);
-			return;
-		}
-		break;
-
-	case CURSOR_HARVEST:
-		{
-			Uint8 str[10];
-
-			if(object_under_mouse==-1)return;
-			str[0]=HARVEST;
-			*((short *)(str+1))=object_under_mouse;
-			my_tcp_send(my_socket,str,3);
-			return;
-		}
-		break;
-
-	case CURSOR_WALK:
-	default:
-		{
-			Uint8 str[10];
-			short x,y;
-		
-			if(you_sit && sit_lock && !ctrl_on) return;
-			get_world_x_y();
-			x=scene_mouse_x/0.5f;
-			y=scene_mouse_y/0.5f;
-			//check to see if the coordinates are OUTSIDE the map
-			if(y<0 || x<0 || x>=tile_map_size_x*6 || y>=tile_map_size_y*6)return;
-			
-			str[0]=MOVE_TO;
-			*((short *)(str+1))=x;
-			*((short *)(str+3))=y;
-	
-			my_tcp_send(my_socket,str,5);
-			return;
-		}
-	}
-
-	left_click=2;
-	right_click=2;
-}
-#endif
-
 void Enter2DMode()
 {
 	glPushAttrib(GL_LIGHTING_BIT|GL_DEPTH_BUFFER_BIT);
@@ -517,186 +260,6 @@ void init_opening_interface()
 	CHECK_GL_ERRORS();
 }
 
-// XXX FIXME (Grum): scheduled for removal, now in the login window 
-// display handler
-#ifdef OLD_EVENT_HANDLER
-void draw_login_screen()
-{
-	char str[20];
-	float selected_bar_u_start=(float)0/256;
-	float selected_bar_v_start=1.0f-(float)0/256;
-
-	float selected_bar_u_end=(float)174/256;
-	float selected_bar_v_end=1.0f-(float)28/256;
-
-	float unselected_bar_u_start=(float)0/256;
-	float unselected_bar_v_start=1.0f-(float)40/256;
-
-	float unselected_bar_u_end=(float)170/256;
-	float unselected_bar_v_end=1.0f-(float)63/256;
-	/////////////////////////
-	float log_in_unselected_start_u=(float)0/256;
-	float log_in_unselected_start_v=1.0f-(float)80/256;
-
-	float log_in_unselected_end_u=(float)87/256;
-	float log_in_unselected_end_v=1.0f-(float)115/256;
-
-	float log_in_selected_start_u=(float)0/256;
-	float log_in_selected_start_v=1.0f-(float)120/256;
-
-	float log_in_selected_end_u=(float)87/256;
-	float log_in_selected_end_v=1.0f-(float)155/256;
-	/////////////////////////
-	float new_char_unselected_start_u=(float)100/256;
-	float new_char_unselected_start_v=1.0f-(float)80/256;
-
-	float new_char_unselected_end_u=(float)238/256;
-	float new_char_unselected_end_v=1.0f-(float)115/256;
-
-	float new_char_selected_start_u=(float)100/256;
-	float new_char_selected_start_v=1.0f-(float)120/256;
-
-	float new_char_selected_end_u=(float)238/256;
-	float new_char_selected_end_v=1.0f-(float)155/256;
-
-	/////////////////////////////////////////////
-	/////////////////////////////////////////////
-	int half_screen_x=window_width/2;
-	int half_screen_y=window_height/2;
-	int len1=strlen(login_username_str);
-	int len2=strlen(login_password_str);
-	int offset=20+(len1>len2?(len1+1)*16:(len2+1)*16);
-	int username_text_x=half_screen_x-offset;
-	int username_text_y=half_screen_y-130;
-	int password_text_x=half_screen_x-offset;
-	int password_text_y=half_screen_y-100;
-	int username_bar_x=half_screen_x-50;
-	int username_bar_y=username_text_y-7;
-	int username_bar_x_len=174;
-	int username_bar_y_len=28;
-	int password_bar_x=half_screen_x-50;
-	int password_bar_y=password_text_y-7;
-	int password_bar_x_len=174;
-	int password_bar_y_len=28;
-	int log_in_x=half_screen_x-125;
-	int log_in_y=half_screen_y-50;
-	int log_in_x_len=87;
-	int log_in_y_len=35;
-	int new_char_x=half_screen_x+50;
-	int new_char_y=half_screen_y-50;
-	int new_char_x_len=138;
-	int new_char_y_len=35;
-
-	char log_in_button_selected=0;
-	char new_char_button_selected=0;
-
-	draw_console_pic(login_text);
-
-	//check to see if the log in button is active, or not
-	if(mouse_x>=log_in_x && mouse_x<=log_in_x+log_in_x_len && mouse_y>=log_in_y &&
-	   mouse_y<=log_in_y+log_in_y_len && username_str[0] && password_str[0])
-		log_in_button_selected=1;
-	else
-		log_in_button_selected=0;
-
-	//check to see if the new char button is active, or not
-	if(mouse_x>=new_char_x && mouse_x<=new_char_x+new_char_x_len && mouse_y>=new_char_y &&
-	   mouse_y<=new_char_y+new_char_y_len)
-		new_char_button_selected=1;
-	else
-		new_char_button_selected=0;
-
-	//check to see if we clicked on the username/password box
-	if(mouse_x>=username_bar_x && mouse_x<=username_bar_x+username_bar_x_len
-	   && mouse_y>=username_bar_y && mouse_y<=username_bar_y+username_bar_y_len && left_click==1)
-		{
-			username_box_selected=1;
-			password_box_selected=0;
-		}
-
-	if(mouse_x>=password_bar_x && mouse_x<=password_bar_x+password_bar_x_len
-	   && mouse_y>=password_bar_y && mouse_y<=password_bar_y+password_bar_y_len && left_click==1)
-		{
-			username_box_selected=0;
-			password_box_selected=1;
-		}
-
-	//check to see if we clicked on the ACTIVE Log In button
-	if(log_in_button_selected && left_click==1)
-		{
-			send_login_info();
-			left_click=2;//don't relogin 100 times like a moron
-		}
-
-	//check to see if we clicked on the ACTIVE New Char button
-	if(new_char_button_selected && left_click==1) {
-		if(last_display==-1)init_rules_interface(INTERFACE_NEW_CHAR, 1.0f, 30, window_width, window_height);
-		else interface_mode=INTERFACE_NEW_CHAR;
-		left_click=2;
-	}
-
-	//ok, start drawing the interface...
-	sprintf(str,"%s: ",login_username_str);
-	draw_string(username_text_x,username_text_y,str,1);
-	sprintf(str,"%s: ",login_password_str);
-	draw_string(password_text_x,password_text_y,str,1);
-	//start drawing the actual interface pieces
-	get_and_set_texture_id(login_screen_menus);
-	glColor3f(1.0f,1.0f,1.0f);
-	glBegin(GL_QUADS);
-
-	//username box
-	if(username_box_selected)
-		draw_2d_thing(selected_bar_u_start,selected_bar_v_start,
-					  selected_bar_u_end,selected_bar_v_end,username_bar_x,
-					  username_bar_y,username_bar_x+username_bar_x_len,username_bar_y+username_bar_y_len);
-	else
-		draw_2d_thing(unselected_bar_u_start,unselected_bar_v_start,
-					  unselected_bar_u_end,unselected_bar_v_end,username_bar_x,
-					  username_bar_y,username_bar_x+username_bar_x_len,username_bar_y+username_bar_y_len);
-
-	//password box
-	if(password_box_selected)
-		draw_2d_thing(selected_bar_u_start,selected_bar_v_start,
-					  selected_bar_u_end,selected_bar_v_end,password_bar_x,
-					  password_bar_y,password_bar_x+password_bar_x_len,password_bar_y+password_bar_y_len);
-	else
-		draw_2d_thing(unselected_bar_u_start,unselected_bar_v_start,
-					  unselected_bar_u_end,unselected_bar_v_end,password_bar_x,
-					  password_bar_y,password_bar_x+password_bar_x_len,password_bar_y+password_bar_y_len);
-
-	//log in button
-	if(log_in_button_selected)
-		draw_2d_thing(log_in_selected_start_u,log_in_selected_start_v,
-					  log_in_selected_end_u,log_in_selected_end_v,log_in_x,
-					  log_in_y,log_in_x+log_in_x_len,log_in_y+log_in_y_len);
-	else
-		draw_2d_thing(log_in_unselected_start_u,log_in_unselected_start_v,
-					  log_in_unselected_end_u,log_in_unselected_end_v,log_in_x,
-					  log_in_y,log_in_x+log_in_x_len,log_in_y+log_in_y_len);
-
-	//new char button
-	if(new_char_button_selected)
-		draw_2d_thing(new_char_selected_start_u,new_char_selected_start_v,
-					  new_char_selected_end_u,new_char_selected_end_v,new_char_x,
-					  new_char_y,new_char_x+new_char_x_len,new_char_y+new_char_y_len);
-	else
-		draw_2d_thing(new_char_unselected_start_u,new_char_unselected_start_v,
-					  new_char_unselected_end_u,new_char_unselected_end_v,new_char_x,
-					  new_char_y,new_char_x+new_char_x_len,new_char_y+new_char_y_len);
-	glEnd();
-
-	glColor3f(0.0f,0.9f,1.0f);
-	draw_string(username_bar_x+4,username_text_y,username_str,1);
-	draw_string(password_bar_x+4,password_text_y,display_password_str,1);
-	glColor3f(1.0f,1.0f,1.0f);
-
-	glColor3f(1.0f,0.0f,0.0f);
-	//print the current error, if any
-	draw_string(0,log_in_y+40,log_in_error_str,5);
-}
-#endif
-
 void add_char_to_username(unsigned char ch)
 {
 	if(((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_')) && username_text_lenght<15)
@@ -710,13 +273,6 @@ void add_char_to_username(unsigned char ch)
 			username_text_lenght--;
 			username_str[username_text_lenght]=0;
 		}
-#ifdef OLD_EVENT_HANDLER
-	if(ch==SDLK_TAB)
-		{
-			username_box_selected=0;
-			password_box_selected=1;
-		}
-#endif
 }
 
 void add_char_to_password(unsigned char ch)
@@ -735,13 +291,6 @@ void add_char_to_password(unsigned char ch)
 			display_password_str[password_text_lenght]=0;
 			password_str[password_text_lenght]=0;
 		}
-#ifdef OLD_EVENT_HANDLER
-	if(ch==SDLK_TAB)
-		{
-			username_box_selected=1;
-			password_box_selected=0;
-		}
-#endif
 }
 
 void draw_ingame_interface()
@@ -766,15 +315,9 @@ void draw_ingame_interface()
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
-#ifdef OLD_EVENT_HANDLER
-	display_windows(1);	// Display all the windows handled by the window manager
-#endif
+
 	//draw_hud_interface();
 	display_spells_we_have();
-#ifdef OLD_EVENT_HANDLER
-	if(item_dragged!=-1)drag_item(item_dragged,0);
-	if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM)drag_item(use_item,1);
-#endif
 }
 
 /* currently UNUSED
@@ -893,19 +436,12 @@ void switch_from_game_map()
 }
 
 
-#ifndef OLD_EVENT_HANDLER
 void draw_game_map (int map, int mouse_mini)
-#else
-void draw_game_map(int map)
-#endif
 {     
 	int screen_x=0;
 	int screen_y=0;
 	int x=-1,y=-1;
 	int i;
-#ifdef OLD_EVENT_HANDLER
-	float scale=(float)(window_width-hud_x)/300.0f;
-#endif
 	float x_size=0,y_size=0;
 	GLuint map_small, map_large;
 	
@@ -947,22 +483,10 @@ void draw_game_map(int map)
 		glTexCoord2f(0.0f,0.0f); glVertex3i(250,0,0);
 	glEnd();
 
-#ifndef OLD_EVENT_HANDLER
 	if (mouse_mini)
 		glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
 	else
 		glColor4f (0.7f, 0.7f, 0.7f, 0.7f);
-#else
-	if(mouse_x > 0 && mouse_x < 50*scale && mouse_y > 0 && mouse_y < 55*scale){
-		if(left_click==1){
-			if(map)interface_mode=INTERFACE_CONT;
-			else interface_mode=INTERFACE_MAP;
-			left_click=2;
-		}
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-	} else 
-		glColor4f(0.7f,0.7f,0.7f,0.7f);
-#endif
     	
 	glEnable(GL_ALPHA_TEST);
 	
@@ -1222,7 +746,6 @@ void save_markings()
         };
 }
 
-#ifndef OLD_EVENT_HANDLER
 void hide_all_root_windows ()
 {
 	if (game_root_win >= 0) hide_window (game_root_win);
@@ -1244,4 +767,3 @@ void resize_all_root_windows (Uint32 w, Uint32 h)
 	if (opening_root_win >= 0) resize_window (opening_root_win, w, h);
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
 }
-#endif

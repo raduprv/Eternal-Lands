@@ -1,8 +1,6 @@
 #include <string.h>
 #include "global.h"
 
-#ifndef OLD_EVENT_HANDLER
-
 int game_root_win = -1;
 
 // This is the main part of the old check_cursor_change ()
@@ -1190,5 +1188,3 @@ void create_game_root_window (int width, int height)
 		resize_root_window();
 	}
 }
-
-#endif // not def OLD_EVENT_HANDLER

@@ -116,9 +116,6 @@ void draw_hud_interface()
 {
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
-#ifdef OLD_EVENT_HANDLER
-	display_windows(0);	// draw only the non-stacked windows
-#endif
 }
 
 // check to see if a mouse click was on the hud
@@ -536,7 +533,6 @@ void switch_action_mode(int * mode, int id)
 	item_action_mode=qb_action_mode=action_mode=*mode;
 }
 
-#ifndef OLD_EVENT_HANDLER
 void view_console_win (int *win, int id)
 {
 	if ( get_show_window (console_root_win) )
@@ -556,25 +552,7 @@ void view_console_win (int *win, int id)
 		show_window (console_root_win);
 	}
 }
-#else
-void view_console_win(int * win, int id)
-{
-	if (interface_mode == INTERFACE_CONSOLE)
-	{
-		interface_mode = INTERFACE_GAME;
-	} 
-	else 
-	{
-		if (interface_mode == INTERFACE_MAP || interface_mode == INTERFACE_CONT)
-			glDeleteTextures(1,&map_text);
-		interface_mode = INTERFACE_CONSOLE;
-		if (current_cursor != CURSOR_ARROW) 
-			change_cursor(CURSOR_ARROW);
-	}
-}
-#endif
 
-#ifndef OLD_EVENT_HANDLER
 void view_map_win (int * win, int id)
 {
 	if ( get_show_window (map_root_win) )
@@ -592,19 +570,6 @@ void view_map_win (int * win, int id)
 		show_window (map_root_win);
 	}
 }
-#else
-void view_map_win (int * win, int id)
-{
-	if(interface_mode==INTERFACE_GAME || interface_mode==INTERFACE_CONSOLE)
-	{
-		switch_to_game_map ();
-	}
-	else if (interface_mode == INTERFACE_MAP || interface_mode == INTERFACE_CONT)
-	{
-		switch_from_game_map();
-	}
-}
-#endif
 
 void view_window(int * window, int id)
 {

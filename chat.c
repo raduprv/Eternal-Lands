@@ -1,8 +1,6 @@
 #include <string.h>
 #include "global.h"
 
-#ifndef OLD_EVENT_HANDLER
-
 /*! \name chat text constants
  * @{ */
 #define CHAT_WIN_MAX_TABS	5	/*< the maximum number of channels */
@@ -398,5 +396,3 @@ void display_chat ()
 		select_window (chat_win);
 	}
 }
-
-#endif // not def OLD_EVENT_HANDLER

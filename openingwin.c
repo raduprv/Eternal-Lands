@@ -1,7 +1,5 @@
 #include "global.h"
 
-#ifndef OLD_EVENT_HANDLER
-
 int opening_root_win = -1;
 
 int opening_out_id = 40;
@@ -77,5 +75,3 @@ void create_opening_root_window (int width, int height)
 		nr_opening_lines = height / 18;
 	}
 }
-
-#endif // not def OLD_EVENT_HANDLER

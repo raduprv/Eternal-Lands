@@ -6,8 +6,6 @@ int showing_continent = 0;
 
 int mouse_over_minimap = 0;
 
-#ifndef OLD_EVENT_HANDLER
-
 int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	Uint32 ctrl_on = flags & ELW_CTRL;
@@ -122,5 +120,3 @@ void create_map_root_window (int width, int height)
 		set_window_handler (map_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_map_handler);
 	}
 }
-
-#endif

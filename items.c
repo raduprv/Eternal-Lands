@@ -1032,11 +1032,7 @@ void open_bag(int object_id)
 void display_items_menu()
 {
 	if(items_win < 0){
-#ifndef OLD_EVENT_HANDLER
 		items_win= create_window("Inventory", game_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
-#else
-		items_win= create_window("Inventory", -1, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
-#endif
 
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
@@ -1051,11 +1047,7 @@ void display_items_menu()
 void draw_pick_up_menu()
 {
 	if(ground_items_win < 0){
-#ifndef OLD_EVENT_HANDLER
 		ground_items_win= create_window("Bag", game_root_win, 0, ground_items_menu_x, ground_items_menu_y, ground_items_menu_x_len, ground_items_menu_y_len, ELW_WIN_DEFAULT);
-#else
-		ground_items_win= create_window("Bag", -1, 0, ground_items_menu_x, ground_items_menu_y, ground_items_menu_x_len, ground_items_menu_y_len, ELW_WIN_DEFAULT);
-#endif
 
 		set_window_handler(ground_items_win, ELW_HANDLER_DISPLAY, &display_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_CLICK, &click_ground_items_handler );

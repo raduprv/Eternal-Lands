@@ -2,8 +2,6 @@
 #include <ctype.h>
 #include "global.h"
 
-#ifndef OLD_EVENT_HANDLER
-
 int login_root_win = -1;
 
 int username_text_x;
@@ -265,5 +263,3 @@ void create_login_root_window (int width, int height)
 		resize_window (login_root_win, width, height);	
 	}
 }
-
-#endif // not def OLD_EVENT_HANDLER

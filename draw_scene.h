@@ -53,9 +53,7 @@ extern Uint32 last_clear_clouds; /*!< timestamp when the clouds cache gets clear
 
 extern int read_mouse_now; /*!< flag to indicate to reread the status of the mouse */
 
-#ifndef OLD_EVENT_HANDLER
 extern Uint32 draw_delay; /*< the number of milliseconds to wait after drawing a frame */
-#endif
 
 extern GLenum base_unit,detail_unit,shadow_unit;
 

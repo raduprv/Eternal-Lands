@@ -258,7 +258,6 @@ int		drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy);
  */
 int		drag_windows(int mx, int my, int dx, int dy);
 
-#ifndef OLD_EVENT_HANDLER
 /*!
  * \ingroup elwindows
  * \brief   callback function used when a key is pressed in a window.
@@ -273,7 +272,6 @@ int		drag_windows(int mx, int my, int dx, int dy);
  * \callgraph
  */
 int		keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey);
-#endif
 
 /*!
  * \ingroup elwindows
@@ -580,7 +578,6 @@ int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coo
 //int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
 
 /* OBSOLETE declaration: queued for removal from this header file */
-//#ifndef OLD_EVENT_HANDLER
 //*!
 // * \ingroup elwindows
 // * \brief
@@ -596,7 +593,6 @@ int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coo
 // * \callgraph
 // */
 //int		keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
-//#endif
 
 // low level functions
 //window_info	*get_window_info(int win_id);

@@ -6,8 +6,6 @@
 #ifndef __CHAT_H__
 #define __CHAT_H__
 
-#ifndef OLD_EVENT_HANDLER
-
 extern int use_windowed_chat; /*!< flag indicating whether we use the new windowed chat window or not */
 
 extern int chat_win; /*!< handler for the chat window */
@@ -59,7 +57,5 @@ void paste_in_input_field (const Uint8 *text);
  * \callgraph
  */
 void display_chat ();
-
-#endif // not def OLD_EVENT_HANDLER
 
 #endif // def __CHAT_H__

@@ -41,9 +41,7 @@ int accept_y;
 int accept_width;
 int accept_height;
 
-#ifndef OLD_EVENT_HANDLER
 int next_win_id;
-#endif
 
 /* Rule parser */
 static struct rules_struct rules = {0,{{NULL,0,NULL,0,0}}};
@@ -194,11 +192,8 @@ int display_rules_handler(window_info *win)
 void display_rules_window()
 {
 	if(rules_win<0){
-#ifndef OLD_EVENT_HANDLER
 		rules_win=create_window("Rules", game_root_win, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
-#else
-		rules_win=create_window("Rules", -1, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
-#endif
+
 		set_window_handler(rules_win, ELW_HANDLER_DISPLAY, &display_rules_handler);
 		set_window_handler(rules_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
 		set_window_handler(rules_win, ELW_HANDLER_CLICK, &click_rules_handler);
@@ -487,14 +482,6 @@ void draw_rules_interface (int len_x, int len_y)
 	int y, width, height;	// Width/Height are 0.5*width/height
 	float window_ratio = (float) len_x / 640.0f;
 
-#ifdef OLD_EVENT_HANDLER
-	if(has_accepted) {
-		interface_mode=next_interface;
-		if(disconnected)connect_to_server();
-		return;
-	}
-#endif
-
     	glColor3f(1.0f,1.0f,1.0f);
 	
 	get_and_set_texture_id(paper1_text);
@@ -551,9 +538,6 @@ void draw_rules_interface (int len_x, int len_y)
 			glTexCoord2f (colored_accept_u_end, colored_accept_v_start);	glVertex2i (accept_width, 0);
 			glTexCoord2f (colored_accept_u_start, colored_accept_v_start);	glVertex2i (0, 0);
 		
-#ifdef OLD_EVENT_HANDLER
-		if(mouse_x > accept_x && mouse_x < accept_x+accept_width && mouse_y > accept_y && mouse_y < accept_y+accept_height && left_click) has_accepted=1;
-#endif
 	}
 	glEnd();
 	glPopMatrix();
@@ -562,19 +546,9 @@ void draw_rules_interface (int len_x, int len_y)
 	
 	glPushMatrix();
 	glTranslatef (x_arrow, y_arrow_up, 0);
-#ifndef OLD_EVENT_HANDLER
+
 	if (mouse_over_up)
 	{
-#else
-	if (mouse_x > x_arrow && x_arrow+arrow_size && mouse_y > y_arrow_up && mouse_y < y_arrow_up+arrow_size)
-	{	
-		if (left_click == 1) 
-			if (rule_offset > 1)
-			{
-				rule_offset--;
-				left_click = 2;
-			}
-#endif
 		glAlphaFunc (GL_GREATER, 0.04f);
 	
 		glBegin (GL_QUADS);
@@ -599,20 +573,8 @@ void draw_rules_interface (int len_x, int len_y)
 	glPushMatrix ();
 	glTranslatef (x_arrow+arrow_size, y_arrow_down+arrow_size, 0);
 	glRotatef (180.0f, 0.0f, 0.0f, 1.0f);
-#ifndef OLD_EVENT_HANDLER
 	if (mouse_over_down)
 	{
-#else
-	if (mouse_x > x_arrow && mouse_x < x_arrow+arrow_size && mouse_y > y_arrow_down && mouse_y < y_arrow_down+arrow_size)
-	{	
-		if (left_click == 1) 
-			if (!reached_end)
-			{
-				rule_offset++;
-				left_click = 2;
-			}
-#endif
-
 		glAlphaFunc (GL_GREATER, 0.04f);
 	
 		glBegin(GL_QUADS);
@@ -643,13 +605,7 @@ void draw_rules_interface (int len_x, int len_y)
 	
 	draw_rules (display_rules + rule_offset, rule_offset, diff + 30 * window_ratio, 120 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.0f);
     	glDisable (GL_ALPHA_TEST);
-
-#ifdef OLD_EVENT_HANDLER	
-	check_mouse_rules_interface(display_rules+rule_offset, len_y-50, len_y, mouse_x, mouse_y);
-#endif
 }
-
-#ifndef OLD_EVENT_HANDLER
 
 int rules_root_win = -1;
 
@@ -797,5 +753,3 @@ void create_rules_root_window (int width, int height, int next, int time)
 		next_win_id = next;
 	}
 }
-
-#endif

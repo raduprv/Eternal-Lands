@@ -5,9 +5,6 @@ OPTIONS=-DBSD -DELC -I/usr/X11R6/include
 #-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
-#-DBOOK
-## use -DOLD_EVENT_HANDLER only to check if an error is caused by the new root windows!!!
-#-DOLD_EVENT_HANDLER 
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
@@ -36,7 +33,6 @@ OBJS=2d_objects.o 3d_objects.o	\
 	sector.o shadows.o sound.o spells.o stats.o tabs.o	\
 	text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	weather.o widgets.o
-	#books.o
 
 el.x86.bsd.bin: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o el.x86.bsd.bin $(OBJS)

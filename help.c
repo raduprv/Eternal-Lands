@@ -107,11 +107,8 @@ void display_help()
 {
 	if(help_win < 0)
 	{
-#ifndef OLD_EVENT_HANDLER
 		help_win = create_window("help", game_root_win, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
-#else
-		help_win = create_window("help", -1, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
-#endif
+
 		fill_help_win ();
 	}
 	else

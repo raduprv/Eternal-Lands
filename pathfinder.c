@@ -291,10 +291,6 @@ void pf_move_to_mouse_position()
 	
 	int x, y, clicked_x, clicked_y;
 	
-#ifdef OLD_EVENT_HANDLER
-	// XXX (Grum): what is this doing here anyway?
-	if(check_hud_interface() >= 0);
-#endif
 	//if(mouse_x>map_icon_x_start && mouse_y>map_icon_y_start &&
 	//		mouse_x<map_icon_x_end && mouse_y<map_icon_y_end)
 	//	{

@@ -6,8 +6,6 @@
 #ifndef __CONSOLE_WIN__
 #define __CONSOLE_WIN__
 
-#ifndef OLD_EVENT_HANDLER
-
 /*! \name windows handlers
  * @{ */
 extern int console_root_win; /*!< handler for the console window */
@@ -36,7 +34,5 @@ void update_console_win ();
  * \callgraph
  */
 void create_console_root_window (int width, int height);
-
-#endif // not def OLD_EVENT_HANDLER
 
 #endif // def __CONSOLE_WIN__

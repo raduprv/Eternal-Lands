@@ -641,10 +641,8 @@ void set_new_video_mode(int fs,int mode)
 	init_hud_interface();
 	new_minute();
 
-#ifndef OLD_EVENT_HANDLER
 	// resize the EL root windows
 	resize_all_root_windows (window_width, window_height);
-#endif
 }
 
 void toggle_full_screen()

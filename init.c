@@ -512,16 +512,13 @@ void init_stuff()
 	
 	init_video();
 	// now create the root window
-#ifndef OLD_EVENT_HANDLER
+
 	// XXX FIXME (Grum): Maybe we should do this at a later time, after
 	// we're logged in?
 	create_game_root_window (window_width, window_height);
 	create_console_root_window (window_width, window_height);
 	create_map_root_window (window_width, window_height);
 	create_login_root_window (window_width, window_height);
-#else
-	resize_root_window();
-#endif
 
 	init_gl_extensions();
 #ifdef CAL3D
@@ -663,31 +660,22 @@ void init_stuff()
 	
 	//we might want to do this later.
 //	connect_to_server();
-#ifndef OLD_EVENT_HANDLER
+
 	create_opening_root_window (window_width, window_height);
-#endif
 	if (has_accepted)
 	{
-#ifndef OLD_EVENT_HANDLER
 		show_window (opening_root_win);
-#endif
 		interface_mode=INTERFACE_OPENING;
 		connect_to_server();
 	}
 	else 
 	{
-#ifndef OLD_EVENT_HANDLER
 		create_rules_root_window (window_width, window_height, opening_root_win, 5);
 		show_window (rules_root_win);
-#else		
-		init_rules_interface(INTERFACE_OPENING, 1.0f, 10, window_width, window_height);	// has_accepted is loaded from el.cfg
-#endif
 	}
 
-#ifndef OLD_EVENT_HANDLER	
 	// initialize the chat window
 	if (use_windowed_chat) display_chat ();
-#endif
 }
 
 void add_key(Uint32 *key,Uint32 n)

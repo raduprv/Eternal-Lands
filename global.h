@@ -115,9 +115,7 @@ typedef int point;
 #include "loginwin.h"
 #include "openingwin.h"
 #include "books.h"
-#ifndef OLD_EVENT_HANDLER
 #include "chat.h"
-#endif
 #ifdef CAL3D
 #include "cal3dwrap.h"
 #endif

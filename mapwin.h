@@ -33,8 +33,6 @@ extern int mark_x, mark_y; /*!< map coordinates of the position of the mark */
 extern int max_mark; /*!< max. number of marks we can handle */
 extern marking marks[200]; /*!< a global array of marks */
 
-#ifndef OLD_EVENT_HANDLER
-
 /*!
  * \ingroup interface_map
  * \brief creates the map window
@@ -46,7 +44,5 @@ extern marking marks[200]; /*!< a global array of marks */
  * \callgraph
  */
 void create_map_root_window (int width, int height);
-
-#endif
 
 #endif // def __MAPWIN_H__

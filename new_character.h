@@ -98,8 +98,6 @@ void add_char_to_new_character(unsigned char ch);
  */
 void login_from_new_char();
 
-#ifndef OLD_EVENT_HANDLER
-
 extern int newchar_root_win;
 
 /*!
@@ -111,7 +109,5 @@ extern int newchar_root_win;
  * \callgraph
  */
 void create_newchar_root_window ();
-
-#endif // not def OLD_EVENT_HANDLER
 
 #endif

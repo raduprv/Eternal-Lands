@@ -5,8 +5,6 @@ OPTIONS=-DLINUX -DELC
 #-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
-## use -DOLD_EVENT_HANDLER only to check if an error is caused by the new root windows!!!
-#-DOLD_EVENT_HANDLER 
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

@@ -26,11 +26,7 @@ void display_tab_stats ()
 {
 	if (tab_stats_win < 0)
 	{
-#ifndef OLD_EVENT_HANDLER
 		tab_stats_win = create_window ("statistics", game_root_win, 0, tab_stats_x, tab_stats_y, tab_stats_len_x, tab_stats_len_y, ELW_WIN_DEFAULT);
-#else
-		tab_stats_win = create_window ("statistics", -1, 0, tab_stats_x, tab_stats_y, tab_stats_len_x, tab_stats_len_y, ELW_WIN_DEFAULT);
-#endif
 
 		set_window_handler (tab_stats_win, ELW_HANDLER_DISPLAY, &display_tab_stats_handler);
 		
@@ -63,11 +59,7 @@ void display_tab_help ()
 {
 	if (tab_help_win < 0)
 	{
-#ifndef OLD_EVENT_HANDLER
 		tab_help_win = create_window ("help", game_root_win, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
-#else
-		tab_help_win = create_window ("help", -1, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
-#endif
 
 		set_window_handler (tab_help_win, ELW_HANDLER_DISPLAY, &display_tab_help_handler);
 		
