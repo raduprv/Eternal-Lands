@@ -1,35 +1,51 @@
+/*!
+ * \file
+ * \ingroup item
+ * \brief item handling and storing
+ */
 #ifndef __ITEMS_H__
 #define __ITEMS_H__
 
+/*!
+ * any item in EL has assigned an item struct
+ */
 typedef struct
 {
-	int image_id;
+	int image_id; /*!< id of the image for this item */
 	int pos;
 	int quantity;
-	int is_reagent;//can be used for spells?
-	int is_resource;//does it appear on the manufacturing menu?
+	int is_reagent; /*!< can be used for spells? */
+	int is_resource; /*!< does it appear on the manufacturing menu? */
 	int use_with_inventory;
-
 } item;
 
+/*!
+ * items that may appear on the ground
+ */
 typedef struct
 {
 	int pos;
-	int image_id;
+	int image_id; /*!< id of the image for this ground item */
 	int quantity;
 } ground_item;
 
+/*!
+ * a bag item is a special item
+ */
 typedef struct
 {
-	int x;
-	int y;
-	int obj_3d_id;
+	int x; /*!< x coordinate of the bag's position */
+	int y; /*!< y coordinate of the bag's position */
+	int obj_3d_id; /*!< id of the associated \see object3d object */
 } bag;
 
-
+/*!
+ * \name Item definition flags
+ */
+/*! @{ */
 typedef enum {
-	ITEM_REAGENT           = 1,//can be used in magic
-	ITEM_RESOURCE          = 2,//can be used to manufacture
+	ITEM_REAGENT           = 1, /*!< can be used in magic */
+	ITEM_RESOURCE          = 2, /*!< can be used to manufacture */
 	ITEM_STACKABLE         = 4,
 	ITEM_INVENTORY_USABLE  = 8,
 	ITEM_TILE_USABLE       = 16,
@@ -37,36 +53,54 @@ typedef enum {
 	ITEM_OBJECT_USABLE     = 64,
 	ITEM_ON_OFF            = 128,
 } item_definition_flags;
+/*! @} */
 
+/*!
+ * \name Item constants
+ */
+/*! @{ */
 #define	ITEM_WEAR_START	36
 #define	ITEM_NUM_WEAR	8
 #define	ITEM_NUM_ITEMS	(ITEM_WEAR_START+ITEM_NUM_WEAR)
+/*! @} */
 
-extern item item_list[ITEM_NUM_ITEMS];
-extern item manufacture_list[ITEM_NUM_ITEMS];
-extern ground_item ground_item_list[50];
-extern bag bag_list[200];
+extern item item_list[ITEM_NUM_ITEMS]; /*!< global list of items */
+extern item manufacture_list[ITEM_NUM_ITEMS]; /*!< global list of manufacturable items */
+extern ground_item ground_item_list[50]; /*!< global list of current ground items */
+extern bag bag_list[200]; /*!< global list of current bags */
 
-extern item inventory_trade_list[ITEM_WEAR_START];
-extern item your_trade_list[24];
-extern item others_trade_list[24];
-extern int trade_you_accepted;
-extern int trade_other_accepted;
-extern char other_player_trade_name[20];
+extern item inventory_trade_list[ITEM_WEAR_START]; /*!< list of items in the trade windows */
+extern item your_trade_list[24]; /*!< array of items in your trade list */
+extern item others_trade_list[24]; /*!< array of items in the trade partners trade list */
+extern int trade_you_accepted; /*!< flag, indicating whether you have accepted the trade or not */
+extern int trade_other_accepted; /*!< flag, indicating whether the trade partner has accepted the trade or not */
+extern char other_player_trade_name[20]; /*!< playername of the trade partner in question */
 
 extern int item_action_mode;
 
 extern int view_ground_items;
 extern int no_view_my_items;
 
-extern int items_win;
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
+extern int items_win; /*!< inventory windows handler */
+/*! @} */
+
 extern int items_menu_x;
 extern int items_menu_y;
 extern int items_menu_x_len;
 extern int items_menu_y_len;
 //extern int items_menu_dragged;
 
-extern int ground_items_win;
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
+extern int ground_items_win; /*!< ground items windows handler */
+/*! @} */
+
 extern int ground_items_menu_x;
 extern int ground_items_menu_y;
 extern int ground_items_menu_x_len;
@@ -106,18 +140,147 @@ extern int item_quantity;
 
 extern int click_speed;
 
+/*!
+ * \ingroup items_win
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void display_items_menu();
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param data
+ * \return None
+ */
 void get_your_items(Uint8 *data);
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param item
+ * \param mini
+ * \return None
+ */
 void drag_item(int item, int mini);
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param pos
+ * \return None
+ */
 void remove_item_from_inventory(int pos);
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param pos
+ * \return None
+ */
 void remove_item_from_ground(Uint8 pos);
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param data
+ * \return None
+ */
 void get_new_inventory_item(Uint8 *data);
+
+/*!
+ * \ingroup items_win
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_pick_up_menu();
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param data
+ * \return None
+ */
 void get_bag_item(Uint8 *data);
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param data
+ * \return None
+ */
 void get_bags_items_list(Uint8 *data);
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param bag_x
+ * \param bag_y
+ * \param bag_id
+ * \return None
+ */
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id);
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param data
+ * \return None
+ */
 void add_bags_from_list(Uint8 *data);
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param which_bag
+ * \return None
+ */
 void remove_bag(int which_bag);
+
+/*!
+ * \ingroup item
+ * \brief
+ *
+ *      Detail
+ *
+ * \param object_id
+ * \return None
+ */
 void open_bag(int object_id);
 #endif
-

@@ -1,53 +1,121 @@
+/*!
+ * \file
+ * \ingroup init
+ * \brief initialization related functions.
+ */
 #ifndef __INIT_H__
 #define __INIT_H__
 
-#define	CFG_VERSION	5
+#define	CFG_VERSION	5 /*!< version of the \see bin_cfg we are using */
 
 #ifndef DATA_DIR
 #define DATA_DIR "./"
 #endif
 
+/*!
+ * binary configuration data
+ */
 typedef struct
 {
-	int cfg_version_num;
+	int cfg_version_num; /*!< version number of the configuration */
 
+    /*!
+     * \name inventory window position
+     */
+    /*! @{ */
 	int items_menu_x;
 	int items_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name ground items menu position
+     */
+    /*! @{ */
 	int ground_items_menu_x;
 	int ground_items_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name manufacture window position
+     */
+    /*! @{ */
 	int manufacture_menu_x;
 	int manufacture_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name trade window position
+     */
+    /*! @{ */
 	int trade_menu_x;
 	int trade_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name options window position
+     */
+    /*! @{ */
 	int options_menu_x;
 	int options_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name stats window position
+     */
+    /*! @{ */
 	int attrib_menu_x;
 	int attrib_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name sigils window position
+     */
+    /*! @{ */
 	int sigil_menu_x;
 	int sigil_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name dialogues window position
+     */
+    /*! @{ */
 	int dialogue_menu_x;
 	int dialogue_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name knowledge window position
+     */
+    /*! @{ */
 	int knowledge_menu_x;
 	int knowledge_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name encyclopedia window position
+     */
+    /*! @{ */
 	int encyclopedia_menu_x;
 	int encyclopedia_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name questlog window position
+     */
+    /*! @{ */
 	int questlog_menu_x;
 	int questlog_menu_y;
-
+    /*! @} */
+    
+    /*!
+     * \name quickbar location and flags
+     */
+    /*! @{ */
 	int quickbar_x;
 	int quickbar_y;
 	int quickbar_flags;
-	
+	/*! @} */
+    
 	int watch_this_stat;
 
 	int has_accepted_rules;
@@ -55,12 +123,17 @@ typedef struct
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
 	int reserved[16];
 
+    /*!
+     * \name camera position and attributes
+     */
+    /*! @{ */
 	float camera_x;
 	float camera_y;
 	float camera_z;
 	float zoom_level;
 	float camera_angle;
-
+    /*! @} */
+    
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
 	float freserved[20];
 
@@ -91,20 +164,139 @@ extern char broswer_name[120];
 
 extern char lang[10];
 
+/*!
+ * \ingroup init
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void load_harvestable_list();
+
+/*!
+ * \ingroup init
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void load_entrable_list();
+
+/*!
+ * \ingroup loadsave
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void read_config();
+
+/*!
+ * \ingroup loadsave
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void read_bin_cfg();
+
+/*!
+ * \ingroup loadsave
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void save_bin_cfg();
+
+/*!
+ * \ingroup init
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_md2_cache();
+
+/*!
+ * \ingroup init
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_texture_cache();
+
+/*!
+ * \ingroup init
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_e3d_cache();
+
+/*!
+ * \ingroup init
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_2d_obj_cache();
+
+/*!
+ * \ingroup init
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_stuff();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void resize_window();
 
+/*!
+ * \ingroup load
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void load_e3d_list();
+
+/*!
+ * \ingroup load
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void unload_e3d_list();
+
+/*!
+ * a list of ids and associated function names used for e3d models
+ */
 typedef struct{
 	int id;
 	char *fn;
@@ -114,7 +306,14 @@ extern int e3dlistsize;
 
 extern int video_mode_set;
 
+/*!
+ * \ingroup init
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void read_command_line(); //from main.c
 
 #endif	//__INIT_H__
-

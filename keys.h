@@ -1,10 +1,24 @@
+/*!
+ * \file
+ * \ingroup hotkey
+ * \brief handling of hotkeys.
+ */
 #ifndef __KEYS_H__
 #define __KEYS_H__
 
+/*!
+ * \name Key Modifiers
+ */
+/*! @{ */
 #define SHIFT (1<<31)
 #define CTRL (1<<30)
 #define ALT (1<<29)
+/*! @} */
 
+/*!
+ * \name Predefined keys
+ */
+/*! @{ */
 extern Uint32 K_CAMERAUP;
 extern Uint32 K_CAMERADOWN;
 extern Uint32 K_ZOOMOUT;
@@ -46,12 +60,62 @@ extern Uint32 K_ITEM6;
 extern Uint32 K_VIEWTEXTASOVERTEXT;
 extern Uint32 K_AFK;
 extern Uint32 K_SIT;
+/*! @} */
 
+/*!
+ * \ingroup loadsave
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void read_key_config();
-unsigned int CRC32(unsigned char *, int);
-unsigned short get_key_code(char *);
+
+/*!
+ * \ingroup misc_utils
+ * \brief
+ *
+ *      Detail
+ *
+ * \param data
+ * \param len
+ * \return unsigned int
+ */
+unsigned int CRC32(unsigned char *data, int len);
+
+/*!
+ * \ingroup hotkey
+ * \brief
+ *
+ *      Detail
+ *
+ * \param key
+ * \return unsigned short
+ */
+unsigned short get_key_code(char *key);
+
+/*!
+ * \ingroup hotkey
+ * \brief
+ *
+ *      Detail
+ *
+ * \param s
+ * \return unsigned int
+ */
 unsigned int parse_key_string(char *s);
+
+/*!
+ * \ingroup hotkey
+ * \brief
+ *
+ *      Detail
+ *
+ * \param key
+ * \param n
+ * \return None
+ */
 void add_key(unsigned int *key,unsigned int n);
 
 #endif	//__KEYS_H__
-

@@ -1,3 +1,8 @@
+/*!
+ * \file
+ * \ingroup display
+ * \brief handles the (re-)drawing of the scene
+ */
 #ifndef __DRAW_SCENE_H__
 #define __DRAW_SCENE_H__
 
@@ -36,11 +41,53 @@ extern int read_mouse_now;
 
 extern GLenum base_unit,detail_unit,shadow_unit;
 
+/*!
+ * \ingroup display
+ * \brief       draws the current scene and updates the display.
+ *
+ *      Draws the current scene and updates the display.
+ *
+ * \return None
+ */
 void draw_scene();
+
+/*!
+ * \ingroup move_actors
+ * \brief       moves all actors in view range
+ *
+ *      Moves all actors in view range
+ *
+ * \return None
+ */
 void Move();
+
+/*!
+ * \ingroup display
+ * \brief   updates the camera and redraws the scene
+ *
+ *      Updates the camera and redraws the scene
+ *
+ * \return None
+ */
 void update_camera();
 
+/*!
+ * \ingroup network_actors
+ * \brief      get_tmp_actor_data
+ *
+ *      get_tmp_actor_data() to be documented
+ *
+ * \return None
+ */
 void get_tmp_actor_data();
 
+/*!
+ * \ingroup misc_utils
+ * \brief   CalculateFrustum
+ *
+ *      CalculateFrustum() to be documented
+ *
+ * \return None
+ */
 void CalculateFrustum();
 #endif

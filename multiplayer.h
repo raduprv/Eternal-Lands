@@ -1,3 +1,8 @@
+/*!
+ * \file
+ * \ingroup network_actors
+ * \brief multiplayer related functions
+ */
 #ifndef __MULTIPLAYER_H__
 #define __MULTIPLAYER_H__
 
@@ -37,15 +42,110 @@ extern int client_server_delta_time;
 
 extern int log_conn_data;
 
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \param my_socket
+ * \param str
+ * \param len
+ * \return int
+ */
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
+
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \param ip
+ * \return None
+ */
 void send_version_to_server(IPaddress *ip);
+
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void connect_to_server();
+
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void send_login_info();
+
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \param user_str
+ * \param pass_str
+ * \param conf_pass_str
+ * \param skin
+ * \param hair
+ * \param shirt
+ * \param pants
+ * \param boots
+ * \param head
+ * \param type
+ * \return None
+ */
 void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, char skin, 
 				   char hair, char shirt, char pants, char boots,char head, char type);
+
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \param in_data
+ * \param data_lenght
+ * \return None
+ */
 void process_message_from_server(unsigned char *in_data, int data_lenght);
+
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \return int
+ */
 int recvpacket();
+
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void get_message_from_server();
+
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void get_updates();
 #endif
-

@@ -1,102 +1,517 @@
+/*!
+ * \file
+ * \ingroup windows
+ * \brief handling and displaying the HUD
+ */
 #ifndef	__HUD_H
 #define	__HUD_H
 
 #include "elwindows.h"
 
+/*!
+ * \name action types
+ */
+/*! @{ */
 #define WALK 0
 #define SIT 1
 #define LOOK 2
 #define TRADE 3
 #define ATTACK 4
 #define USE 5
+/*! @} */
 
+/*!
+ * \name data flags
+ */
+/*! @{ */
 #define DATA_NONE -1
 #define DATA_WINDOW 0
 #define DATA_ACTIONMODE 1
 #define DATA_MODE 2
+/*! @} */
 
+/*!
+ * \name orientation constants
+ */
+/*! @{ */
 #define HORIZONTAL 2
 #define VERTICAL 1
+/*! @} */
 
+/*!
+ * structure to store the data and event handlers for an icon
+ */
 typedef struct
 {
-	int state;
-	//Image position
+	int state; /*!< the state of the icon, some icons are toggable */
+	/*!
+     * \name icon image position
+     */
+    /*! @{ */
 	float u[2];
 	float v[2];
-	//Help message
-	char * help_message;
-	//Function pointer and data
+    /*! @} */
+    
+	char * help_message; /*!< icon help message */
+    
+    /*!
+     * \name Function pointer and data
+     */
+    /*! @{ */
 	int (*func)(void*, int);
 	void * data;
-	char data_type;
-	char free_data;
+    /*! @} */
+    
+	char data_type; /*!< data type indicator for \a data */
+	char free_data; /*!< inidicator whether to free the data after use or not */
 } icon_struct;
 
-extern struct icons_struct icons;
+extern struct icons_struct icons; /*!< global variable of used icons */
 
-extern int qb_action_mode;
+extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
 
-//These aren't handled by the windowmanager - yet?
-extern int map_win;
-extern int console_win;
-extern int cont_win;
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
+extern int map_win; /*!< map windows handler */
+extern int console_win; /*!< console windows handler */
+extern int cont_win; /*!< continent map windows handler */
+/*! @} */
 
 // The map icon:
 extern float map_icon_u_start;
 extern float map_icon_v_start;
 
 // the main hud handling
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_hud_interface();
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_hud_interface();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return int
+ */
 int check_hud_interface();
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_hud_frame();
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_hud_frame();
 
 // icons subsection
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_peace_icons();
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_peace_icons();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return int
+ */
 int check_peace_icons();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param u_start
+ * \param v_start
+ * \param colored_u_start
+ * \param colored_v_start
+ * \param help_message
+ * \param func
+ * \param data
+ * \param data_type
+ * \return None
+ */
 void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param no
+ * \param ...
+ * \return None
+ */
 void set_icon_order(int no, ...);
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param id
+ * \param state
+ * \return None
+ */
 void reset_states(int id, int state);
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param win_id
+ * \return int
+ */
 int translate_win_id(int * win_id);
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void free_icons();
-extern int	icons_win;
+
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
+extern int	icons_win; /*!< icons window handler */
+/*! @} */
 
 //Functions for the function pointers
+
+/*!
+ * \ingroup network_actors
+ * \brief
+ *
+ *      Detail
+ *
+ * \param mode
+ * \param id
+ * \return None
+ */
 void switch_action_mode(int * mode, int id);
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param unused
+ * \param id
+ * \return None
+ */
 void sit_button_pressed(void *unused, int id);
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param win
+ * \param id
+ * \return None
+ */
 void view_window(int * win, int id);
-void view_console_win(int * win, int id);//This is not handled by the window manager, so we have to call this function
+
+/*!
+ * \ingroup windows
+ * \brief   views the console window (i.e. switch to console mode)
+ *
+ *      This is not handled by the window manager, so we have to call this function
+ *
+ * \param win
+ * \param id
+ * \return None
+ */
+void view_console_win(int * win, int id);
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param win
+ * \param id
+ * \return None
+ */
 void view_map_win(int *win, int id);
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void view_cont_win();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param message
+ * \param x
+ * \param y
+ * \return None
+ */
 void show_help(char *message, int x, int y);
 
 //stats/health section
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_stats_display();
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_stats_display();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return int
+ */
 int check_stats_display();
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_exp_display();
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void build_levels_table();
-extern int	stats_bar_win;
+
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
+extern int	stats_bar_win; /*!< stats bar windows handler */
+/*! @} */
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_stats();
 
 //misc section (compass, clock, ?)
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_misc_display();
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_misc_display();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return int
+ */
 int check_misc_display();
-extern int	misc_win;
+
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
+extern int	misc_win; /*!< misc. windows handler */
+/*! @} */
 
 //quickbar section
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_quickbar();
+
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_quickbar();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return int
+ */
 int check_quickbar();
-extern int	quickbar_win;
-extern int 	quickbar_relocatable;
+
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
+extern int	quickbar_win; /*!< quickbar windows handler */
+/*! @} */
+
+extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar is relocatable. */
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void flip_quickbar();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void reset_quickbar();
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param win_id
+ * \param flags
+ * \return None
+ */
 void change_flags(int win_id, Uint32 flags);
+
+/*!
+ * \ingroup windows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param win_id
+ * \return Uint32
+ */
 Uint32 get_flags(int win_id);
 
 extern int hud_x;
@@ -107,7 +522,6 @@ extern int map_icon_y_start;
 extern int map_icon_x_end;
 extern int map_icon_y_end;
 extern int view_digital_clock;
-void build_levels_table();
 
 extern int quickbar_x;
 extern int quickbar_y;

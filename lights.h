@@ -1,23 +1,44 @@
+/*!
+ * \file
+ * \ingroup lights
+ * \brief light and sun handling
+ */
 #ifndef __LIGHTS_H__
 #define __LIGHTS_H__
 
+/*!
+ * a light structure stores the position and color of a light
+ */
 typedef struct
 {
-	float pos_x;
+    /*!
+     * \name light position
+     */
+    /*! @{ */
+  	float pos_x;
 	float pos_y;
 	float pos_z;
+    /*! @} */
+    
+    /*!
+     * \name light color
+     */
+    /*! @{ */
 	float r;
 	float g;
 	float b;
-
+    /*! @} */
 }light;
 
+/*!
+ * a position for the sun
+ */
 typedef struct
 {
-	float x;
-	float y;
-	float z;
-	float w;
+	float x; /*<! x coordinate of the suns position */
+	float y; /*<! y coordinate of the suns position */
+	float z; /*<! z coordinate of the suns position */
+	float w; /*<! w coordinate of the suns position */
 }sun;
 
 
@@ -50,7 +71,14 @@ extern GLfloat light_6_diffuse[4];
 extern GLfloat light_6_dist;
 
 //for the lights
+
+/*!
+ * \name Lights limits
+ */
+/*! @{ */
 #define global_lights_no 60
+/*! @} */
+
 extern GLfloat global_lights[global_lights_no][4];
 extern GLfloat sky_lights_c1[global_lights_no*2][4];
 extern GLfloat sky_lights_c2[global_lights_no*2][4];
@@ -60,34 +88,189 @@ extern GLfloat sky_lights_c4[global_lights_no*2][4];
 extern sun sun_pos[60*3];
 
 extern GLfloat sun_ambient_light[];
-
-//for the lights
-#define global_lights_no 60
-extern GLfloat global_lights[global_lights_no][4];
 extern int sun_use_static_position;
 
+/*!
+ * \name Lights limits
+ */
+/*! @{ */
 #define max_lights 1000
-extern light *lights_list[max_lights];
+/*! @} */
+
+extern light *lights_list[max_lights]; /*!< global lights list */
 
 extern char lights_on;
 extern unsigned char light_level;
 extern short game_minute;
 
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_test_light();
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void disable_local_lights();
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void enable_local_lights();
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_lights();
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \param x
+ * \param y
+ * \param z
+ * \param r
+ * \param g
+ * \param b
+ * \param intensity
+ * \return int
+ */
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity);
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void update_scene_lights();
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void init_lights();
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void reset_material();
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \param r
+ * \param g
+ * \param b
+ * \return None
+ */
 void set_material(float r, float g, float b);
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_global_light();
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void draw_dungeon_light();
+
+/*!
+ * \ingroup lights
+ * \brief
+ *
+ *      Detail
+ *
+ * \param start
+ * \param steps
+ * \param light_table
+ * \param r_start
+ * \param g_start
+ * \param b_start
+ * \param r_end
+ * \param g_end
+ * \param b_end
+ * \return None
+ */
 void make_gradient_light(int start,int steps,float *light_table, float r_start, 
 						 float g_start, float b_start, float r_end, float g_end, float b_end);
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void build_global_light_table();
+
+/*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void build_sun_pos_table();
+
+/*!
+ * \ingroup event_handle
+ * \brief
+ *
+ *      Detail
+ *
+ * \return None
+ */
 void new_minute();
 
 #endif

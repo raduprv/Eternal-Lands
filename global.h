@@ -1,3 +1,8 @@
+/*!
+ * \file
+ * \ingroup init
+ * \brief global include file
+ */
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
