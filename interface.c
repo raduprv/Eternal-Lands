@@ -451,15 +451,18 @@ void draw_login_screen()
 	/////////////////////////////////////////////
 	int half_screen_x=window_width/2;
 	int half_screen_y=window_height/2;
-	int username_text_x=half_screen_x-125;
+	int len1=strlen(login_username_str);
+	int len2=strlen(login_password_str);
+	int offset=20+(len1>len2?(len1+1)*16:(len2+1)*16);
+	int username_text_x=half_screen_x-offset;
 	int username_text_y=half_screen_y-130;
-	int password_text_x=half_screen_x-125;
+	int password_text_x=half_screen_x-offset;
 	int password_text_y=half_screen_y-100;
-	int username_bar_x=username_text_x+100;
+	int username_bar_x=half_screen_x-50;
 	int username_bar_y=username_text_y-7;
 	int username_bar_x_len=174;
 	int username_bar_y_len=28;
-	int password_bar_x=password_text_x+100;
+	int password_bar_x=half_screen_x-50;
 	int password_bar_y=password_text_y-7;
 	int password_bar_x_len=174;
 	int password_bar_y_len=28;

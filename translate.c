@@ -967,7 +967,7 @@ struct xml_struct load_strings(char * file)
 	sprintf(file_name,"strings/%s/%s",lang,file);
 #endif
 	tmp=load_strings_file(file_name);
-	if(tmp.file==NULL||tmp.root)
+	if(tmp.file==NULL||tmp.root==NULL)
 		{
 #ifdef NEW_STRUCTURE
 			sprintf(file_name,"languages/en/strings/%s",file);
@@ -1025,6 +1025,16 @@ struct xml_struct load_strings_file(char * filename)
 	return file;
 }
 
+void elstrncpy(unsigned char *dest, unsigned char *src, int len)
+{
+	while(*src && len--)
+		{
+			if(*src<=127)*dest++=*src;//Failsafe untill we know what to do with the special EL encoding
+			src++;
+		}
+	*dest=0;
+}
+
 void copy_strings(xmlNode * in, distring_item * string)
 {
 	xmlNode *cur = in->children?in->children:in;
@@ -1036,14 +1046,14 @@ void copy_strings(xmlNode * in, distring_item * string)
 						{
 							if(!xmlStrcasecmp(cur->name,"name")) 
 								{
-									strncpy(string->var->str,cur->children->content,30);
+									elstrncpy(string->var->str,cur->children->content,30);
 #ifdef WRITE_XML
 									string->var->saved_str=1;
 #endif
 								}
 							else if (!xmlStrcasecmp(cur->name,"desc")) 
 								{
-									strncpy(string->var->desc,cur->children->content,100);
+									elstrncpy(string->var->desc,cur->children->content,100);
 #ifdef WRITE_XML
 									string->var->saved_desc=1;
 #endif
@@ -1068,14 +1078,14 @@ void copy_stats(xmlNode * in, statstring_item * string)
 						{
 							if(!xmlStrcasecmp(cur->name,"name")) 
 								{
-									strncpy(string->var->name,cur->children->content,20);
+									elstrncpy(string->var->name,cur->children->content,20);
 #ifdef WRITE_XML
 									string->var->saved_name=1;
 #endif
 								}
 							else if (!xmlStrcasecmp(cur->name,"shortname"))	
 								{
-									strncpy(string->var->shortname,cur->children->content,5);
+									elstrncpy(string->var->shortname,cur->children->content,5);
 #ifdef WRITE_XML
 									string->var->saved_shortname=1;
 #endif
@@ -1173,7 +1183,7 @@ void parse_strings(xmlNode * in, group_id * group)
 							for(i=0;i<group->no;i++)
 								if(!xmlStrcasecmp(cur->name,group->strings[i]->xml_id))
 									{
-										strncpy(group->strings[i]->var,cur->children->content,group->strings[i]->max_len-1);
+										elstrncpy(group->strings[i]->var,cur->children->content,group->strings[i]->max_len-1);
 #ifdef WRITE_XML
 										group->strings[i]->saved=1;
 #endif

@@ -3,11 +3,11 @@
 
 typedef struct
 {
-	char str[31];
+	unsigned char str[31];
 #ifdef WRITE_XML
 	int saved_str;
 #endif
-	char desc[101];
+	unsigned char desc[101];
 #ifdef WRITE_XML
 	int saved_desc;
 #endif

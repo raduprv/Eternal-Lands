@@ -281,7 +281,7 @@ void init_vars()
 	add_var(BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1);
 	add_var(BOOL,"save_ignores","sign",&save_ignores,change_var,1);
 	add_var(BOOL,"use_global_filters","gfil",&use_global_filters,change_var,1);
-	add_var(STRING,"text_filter_replace","trepl",text_filter_replace,change_var,1);
+	add_var(STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127);
 	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1);
 	
 	add_var(STRING,"server_address","sa",server_address,change_string,70);

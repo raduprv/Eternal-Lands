@@ -7,11 +7,11 @@ extern int	stats_win;
 
 typedef struct
 {
-	char name[21];
+	unsigned char name[21];
 #ifdef WRITE_XML
 	int saved_name;
 #endif
-	char shortname[6];
+	unsigned char shortname[6];
 #ifdef WRITE_XML
 	int saved_shortname;
 #endif
@@ -31,7 +31,7 @@ typedef struct
 
 struct attributes_struct
 {
-	char base[30];
+	unsigned char base[30];
 	
 	names phy;
 	names coo;
@@ -42,7 +42,7 @@ struct attributes_struct
 	names ins;
 	names vit;
 	
-	char cross[30];
+	unsigned char cross[30];
 	names might;
 	names matter;
 	names tough;
@@ -53,7 +53,7 @@ struct attributes_struct
 	names dext;
 	names eth;
 	
-	char nexus[30];
+	unsigned char nexus[30];
 	names human_nex;
 	names animal_nex;
 	names vegetal_nex;
@@ -61,7 +61,7 @@ struct attributes_struct
 	names artificial_nex;
 	names magic_nex;
 	
-	char skills[30];
+	unsigned char skills[30];
 	names manufacturing_skill;
 	names harvesting_skill;
 	names alchemy_skill;
@@ -74,7 +74,7 @@ struct attributes_struct
 	names crafting_skill;
 	
 	names food;
-	char pickpoints[30];
+	unsigned char pickpoints[30];
 	names material_points;
 	names ethereal_points;
 
@@ -85,7 +85,7 @@ struct attributes_struct attributes;
 
 typedef struct
 {
-	char name[20];
+	unsigned char name[20];
 	
 	attrib_16 phy;
 	attrib_16 coo;
@@ -170,7 +170,7 @@ player_attribs your_info;
 player_attribs someone_info;
 
 void get_the_stats(Sint16 *stats);
-void get_partial_stat(Uint8 name,Sint32 value);
+void get_partial_stat(unsigned char name,Sint32 value);
 void display_stats(player_attribs cur_stats);
 void init_attribf(void);
 
