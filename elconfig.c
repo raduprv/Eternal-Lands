@@ -162,7 +162,7 @@ void set_afk_time(int time)
 }
 #endif // not def ELCONFIG
 
-#ifndef OLD_EVENT_HANDLER
+#if !defined(OLD_EVENT_HANDLER) && !defined(ELCONFIG)
 void change_windowed_chat (int *wc)
 {
 	*wc = !*wc;
@@ -451,12 +451,14 @@ void init_vars()
 	add_var(INT,"log_server","log",&log_server,change_int,1);
 	add_var(STRING,"language","lang",lang,change_string,8);
 	add_var(STRING,"browser","b",browser_name,change_string,70);
-	
+
+#ifndef ELCONFIG // FIXME: currently not implemented in gtk-elconfig
 	add_var(BOOL,"use_tabbed_windows","tabs",&use_tabbed_windows,change_var,0);
 #ifndef OLD_EVENT_HANDLER
 	add_var(BOOL,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 0);
 #endif
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0);
+#endif // ELCONFIG
 #endif // def ELC
 
 	//Global vars...
@@ -506,6 +508,7 @@ void write_var (FILE *fout, int ivar)
 	our_vars.var[ivar]->saved = 1;	// keep only one copy of this setting
 }
 
+#ifndef ELCONFIG
 FILE* open_el_ini (const char *mode)
 {
 #ifdef WINDOWS
@@ -515,7 +518,7 @@ FILE* open_el_ini (const char *mode)
 	FILE *f;
 	
 	snprintf (el_ini, sizeof (el_ini), "%s/el.ini", configdir);
-	f = fopen (el_ini, mode);	// try local file first
+	f = my_fopen (el_ini, mode);	// try local file first
 	if (f == NULL)
 	{
 		snprintf (el_ini, sizeof (el_ini), "%s/el.ini", datadir);
@@ -611,3 +614,4 @@ int write_el_ini ()
 	free (cont);
 	return 1;
 }
+#endif // ELCONFIG
