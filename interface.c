@@ -693,8 +693,11 @@ GLuint generate_minimap()
                                                 {
                                                 for(j=0;j<scale;j++)
                                                         {
-                                                                if((cur_img=&map_tiles[tile_map[x*tile_map_size_y+y]])==NULL) break;//fuck, drop it
-                                                                *((Uint32 *)(map+(((x*(int)scale+j)+(i+y*(int)scale)*256)*4)))=*((Uint32 *)(cur_img->img+(((i+y*(int)scale)&(cur_img->y-1))*cur_img->x+((j+x*(int)scale)&(cur_img->x-1)))*4));
+                                                                if((cur_img=&map_tiles[tile_map[x*tile_map_size_y+y]])==NULL||
+                                                                    cur_img->img==NULL)
+                                                                	*((Uint32 *)(map+(((x*(int)scale+j)+(i+y*(int)scale)*256)*4)))=0x00000000;
+								else
+                                                                	*((Uint32 *)(map+(((x*(int)scale+j)+(i+y*(int)scale)*256)*4)))=*((Uint32 *)(cur_img->img+(((i+y*(int)scale)&(cur_img->y-1))*cur_img->x+((j+x*(int)scale)&(cur_img->x-1)))*4));
                                                         }
                                                 }
                                         }
