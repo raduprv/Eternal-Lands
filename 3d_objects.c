@@ -114,8 +114,9 @@ void draw_3d_object(object3d * object_id)
 									LogError(str);
 								}
 #endif	// DEBUG
-							glDrawArrays(GL_TRIANGLES,array_order[i].start,
-										 array_order[i].count);
+						if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+						glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+						if(have_compiled_vertex_array)glUnlockArraysEXT();
 	check_gl_errors();
 						}
 					glDisableClientState(GL_NORMAL_ARRAY);
@@ -144,8 +145,9 @@ void draw_3d_object(object3d * object_id)
 									LogError(str);
 								}
 #endif	// DEBUG
-							glDrawArrays(GL_TRIANGLES,array_order[i].start,
-										 array_order[i].count);
+						if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+						glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+						if(have_compiled_vertex_array)glUnlockArraysEXT();
 	check_gl_errors();
 						}
 				}
@@ -177,8 +179,9 @@ void draw_3d_object(object3d * object_id)
 									glBindTexture(GL_TEXTURE_2D, texture_id);
 									last_texture=texture_id;
 								}
-							glDrawArrays(GL_TRIANGLES,array_order[i].start,
-										 array_order[i].count);
+							if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+							if(have_compiled_vertex_array)glUnlockArraysEXT();
 	check_gl_errors();
 						}
 					glDisableClientState(GL_NORMAL_ARRAY);
@@ -208,8 +211,9 @@ void draw_3d_object(object3d * object_id)
 										array_order[i].start, array_order[i].count);
 									log_error(str);
 								}
-							glDrawArrays(GL_TRIANGLES,array_order[i].start,
-										 array_order[i].count);
+							if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
+							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+							if(have_compiled_vertex_array)glUnlockArraysEXT();
 	check_gl_errors();
 						}
 				}
@@ -276,7 +280,7 @@ e3d_object * load_e3d_cache(char * file_name)
 	return e3d_id;
 }
 
-int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos, 
+int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 			float x_rot, float y_rot, float z_rot, char self_lit, char blended,
 			float r, float g, float b)
 {

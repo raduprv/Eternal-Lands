@@ -96,7 +96,6 @@ typedef struct
    int numTexCoords;
    int numFaces;
    int numFrames;
-   text_coord_md2 *offsetTexCoords;
    face_md2 *offsetFaces;
    frame_md2 *offsetFrames;
 	text_coord_md2	*text_coord_array;

@@ -102,6 +102,7 @@ md2 * load_md2(char * file_name)
 			our_md2->text_coord_array[k*3+2].u=text_coord_pointer[face_pointer[k].ct].u;
 			our_md2->text_coord_array[k*3+2].v=text_coord_pointer[face_pointer[k].ct].v;
 		}
+	free(text_coord_pointer);//free the old uv data
 
 	/*
 	Now, the complicated thing: Load each frame, and convert the vertices, and the
@@ -212,6 +213,7 @@ md2 * load_md2(char * file_name)
 		free(some_pointer);	//get rid of the memory
 		}
 	free(file_frame_pointer);
+	free(face_pointer);
 
 	our_md2->numVertices=file_header.numVertices;
 	our_md2->numFaces=file_header.numFaces;
@@ -220,7 +222,6 @@ md2 * load_md2(char * file_name)
 
 	our_md2->offsetFrames=frame_pointer;
 	our_md2->offsetFaces=face_pointer;
-	our_md2->offsetTexCoords=text_coord_pointer;
 
 	//close the file, at exit
 	fclose (f);
