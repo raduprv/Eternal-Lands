@@ -71,34 +71,36 @@ int display_browser_handler(window_info *win)
    glColor3f(0.77f,0.57f,0.39f);
    glBegin(GL_LINES);
 
-   if(cd!=-1){
 		//scroll bar
-		glVertex3i(win->len_x-20,20,0);
-		glVertex3i(win->len_x-20,400,0);
-		glVertex3i(win->len_x-15,30,0);
-		glVertex3i(win->len_x-10,25,0);
-		glVertex3i(win->len_x-10,25,0);
-		glVertex3i(win->len_x-5,30,0);
-		glVertex3i(win->len_x-15,385,0);
-		glVertex3i(win->len_x-10,390,0);
-		glVertex3i(win->len_x-10,390,0);
-		glVertex3i(win->len_x-5,385,0);
-		//separators
-		glVertex3i(0+200,0,0);
-		glVertex3i(0+200,0+400,0);
-		glVertex3i(0,0+200,0);
-		glVertex3i(0+400,0+200,0);
-	}
+   if(!mc){
+	glVertex3i(win->len_x-20,20,0);
+	glVertex3i(win->len_x-20,400,0);
+   }
+   if(cd!=-1){
+	glVertex3i(win->len_x-15,30,0);
+	glVertex3i(win->len_x-10,25,0);
+	glVertex3i(win->len_x-10,25,0);
+	glVertex3i(win->len_x-5,30,0);
+	glVertex3i(win->len_x-15,385,0);
+	glVertex3i(win->len_x-10,390,0);
+	glVertex3i(win->len_x-10,390,0);
+	glVertex3i(win->len_x-5,385,0);
+	//separators
+	glVertex3i(0+200,0,0);
+	glVertex3i(0+200,0+400,0);
+	glVertex3i(0,0+200,0);
+	glVertex3i(0+400,0+200,0);
+   }
 
    glEnd();
    glEnable(GL_TEXTURE_2D);
    // The X
 	
-	if(cd!=-1){
-		draw_string(win->len_x-16,160,(unsigned char *)"B",1);
-		draw_string(win->len_x-16,180,(unsigned char *)"A",1);
-		draw_string(win->len_x-16,200,(unsigned char *)"C",1);
-		draw_string(win->len_x-16,220,(unsigned char *)"K",1);
+   if(!mc){
+	draw_string(win->len_x-16,160,(unsigned char *)"B",1);
+	draw_string(win->len_x-16,180,(unsigned char *)"A",1);
+	draw_string(win->len_x-16,200,(unsigned char *)"C",1);
+	draw_string(win->len_x-16,220,(unsigned char *)"K",1);
    }
 
    draw_string(0+win->len_x-16,0+2,(unsigned char *)"X",1);
@@ -106,7 +108,6 @@ int display_browser_handler(window_info *win)
    if(cd==-1){ //display dir select menu
 	   int i,x=0,y=2;
 	   if(mc==1){
-		   glColor3f(0.5f,0.5f,0.5f);
 			for(i=0;i<=cc;i++){
 				draw_string(x+2,0+y,(unsigned char *)Cat[i].Name,1);
 				y+=18;
@@ -124,8 +125,6 @@ int display_browser_handler(window_info *win)
 					y=2;
 				}
 			}
-			glColor3f(0.5f,0.5f,0.5f);
-			draw_string(x+2,0+y,"Back",1);
 	   }
    }else{ // display specified dir
 		int i=cp,valid_object=0;
@@ -263,14 +262,14 @@ int check_browser_interface(window_info *win, int mx, int my, Uint32 flags)
 				
 			}
 		}else{
-			if(id==Cat[ccat].ns)
-				mc=1;
-			else if(id<Cat[ccat].ns){
+			if(id<Cat[ccat].ns){
 				int i=0;
 				for(;i<dc;i++){
 					if(Cat[ccat].Sub[id]==&Dir[i])
 						cd=i;
 				}
+			} else if(x > win->len_x-16 && x < win->len_x && y > 160 && y < 240){
+				mc=1;
 			}
 		}
 
