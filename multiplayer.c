@@ -732,12 +732,6 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 int in_data_used=0;
 static void process_data_from_server()
 {
-	//clear the memory if flagged it is a new data packet
-	if(in_data_used == 0)
-		{
-			// clear the buffer
-			memset(in_data, 0, 8192);
-		}
 	/* enough data present for the length field ? */
 	if (3 <= in_data_used) {
 		Uint8   *pData  = in_data;
