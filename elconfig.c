@@ -456,6 +456,8 @@ void init_vars()
 	add_var(BOOL,"use_tabbed_windows","tabs",&use_tabbed_windows,change_var,0);
 	add_var(BOOL,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 0);
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0);
+	// Grum: attempt to work around bug in Ati linux drivers.
+	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0);
 #endif // ELCONFIG
 #endif // def ELC
 

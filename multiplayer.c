@@ -284,17 +284,38 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		{
 		case RAW_TEXT:
 			{
+#ifdef MULTI_CHANNEL
+				Uint32 channel;
+				// extract the channel number
+				if (data_lenght > 7) 
+				{
+					// XXX FIXME (Grum): endianness
+					channel = *( (Uint32*) (&in_data[3]) );
+					data_lenght = filter_or_ignore_text (&in_data[7], data_lenght-7) + 7;
+					if (data_lenght > 7)
+					{
+						//how to display it
+						if (get_show_window (opening_root_win) )
+							put_text_in_buffer (&in_data[7], data_lenght-7, 54);
+						else 
+							put_text_in_buffer (&in_data[7], data_lenght - 7, 0);
+						// let's log it
+						write_to_log (&in_data[7], data_lenght - 7);
+					}
+				}
+#else			
 				// do filtering and ignoring
 				data_lenght=filter_or_ignore_text(&in_data[3],data_lenght-3)+3;
 				if(data_lenght > 3)
 					{
 						//how to display it
 						if (get_show_window (opening_root_win) )
-							put_text_in_buffer(&in_data[3],data_lenght-3,0);
-						else put_text_in_buffer(&in_data[3],data_lenght-3,54);
+							put_text_in_buffer(&in_data[3],data_lenght-3,54);
+						else put_text_in_buffer(&in_data[3],data_lenght-3,0);
 						//lets log it
 						write_to_log(&in_data[3],data_lenght-3);
 					}
+#endif
 			}
 			break;
 
