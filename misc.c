@@ -996,18 +996,6 @@ void save_particle_def_file()
 
     if (GetSaveFileName (&ofn))
     {
-		char proper_path[128];
-		int fn_len;
-		int app_dir_len;
-		int i,j;
-
-		//get the proper path
-		fn_len=strlen(szFileName);
-		app_dir_len=strlen(exec_path);
-		j=0;
-		proper_path[0]='.';
-		for(i=app_dir_len;i<fn_len;i++,j++)proper_path[j+1]=szFileName[i];
-		proper_path[j+1]=0;
 		strcpy(def.file_name,szFileName);
 		save_particle_def(&def);
     }
