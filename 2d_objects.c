@@ -434,7 +434,7 @@ void display_2d_objects()
 	get_supersector(sector_get(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 	for(i=sx;i<=ex;i++)
 		for(j=sy;j<=ey;j++)
-			for(k=0;k<100;k++){
+			for(k=0;k<20;k++){
 				int l=sectors[(j*(tile_map_size_x>>2))+i].e2d_local[k];
 				if(l==-1)continue;
 				if(obj_2d_list[l])

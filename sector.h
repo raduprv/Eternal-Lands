@@ -11,4 +11,10 @@ typedef struct{
 }map_sector;
 extern map_sector sectors[256*256];
 extern int num_sectors;
+void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey);
+int sector_add_3do(int objectid);
+int sector_add_2do(int objectid);
+int sector_add_light(int objectid);
+int sector_add_particle(int objectid);
+void sector_add_map();
 #endif
