@@ -672,7 +672,8 @@ int	draw_window(window_info *win)
 	if(win->cur_x+win->len_x < ELW_BOX_SIZE) win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
 	if(win->cur_x > window_width-ELW_BOX_SIZE) win->cur_x= window_width-ELW_BOX_SIZE;
 	// mouse over processing first
-	elwin_mouse= mouseover_window(win->window_id, mouse_x, mouse_y);
+	if(mouseover_window(win->window_id, mouse_x, mouse_y))
+		elwin_mouse= 1;
 	// now normal display processing
 	glPushMatrix();
 	glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);

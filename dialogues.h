@@ -25,7 +25,7 @@ typedef struct{
 }response;
 
 extern response dialogue_responces[20];
-extern int dialog_win;
+extern int dialogue_win;
 
 extern int dialogue_menu_x;
 extern int dialogue_menu_y;
