@@ -318,7 +318,7 @@ void update_position()
 int update_music(void *dummy)
 {
 #ifndef	NO_MUSIC
-    int error,processed,state,state2,sleep,fade;
+    int error,processed,state,state2,sleep,fade=0;
     char str[256];
    	sleep = SLEEP_TIME;
 	while(have_music)

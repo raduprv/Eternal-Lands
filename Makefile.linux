@@ -6,7 +6,7 @@ PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
 # basic compiling and linking - rarely changed
-CFLAGS=$(PLATFORM) -Wall -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
+CFLAGS=$(PLATFORM) -Wall -O -Werror -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
 _CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
 LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL  -lvorbis -lvorbisfile
 _LDFLAGS=$(XDIR) -lGL -lpthread -lz
