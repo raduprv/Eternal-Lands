@@ -27,7 +27,6 @@ On card that support VBO, make the 3d objects and models VBO.
 Make use of other extensions
 Server selection screen -- don't have multiple servers yet :p
 Exit game back to Server Selection screen
-Fix windows (layering)
 Chat Window -- would like multiple channel support first
 Allow setting el.ini values on command line
 
