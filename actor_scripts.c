@@ -30,7 +30,7 @@ void move_to_next_frame()
 	int numFrames;
 	char frame_exists;
 
-
+	lock_actors_lists();
 	for(i=0;i<1000;i++)
 		{
 			//clear the strings
@@ -106,6 +106,7 @@ void move_to_next_frame()
 
 			  }
 		}
+	unlock_actors_lists();
 }
 
 void animate_actors()
@@ -207,6 +208,7 @@ void next_command()
 {
 	int i;
 
+	lock_actors_lists();
 	for(i=0;i<1000;i++)
 		{
 			if(!actors_list[i])continue;//actor exists?
@@ -508,6 +510,7 @@ void next_command()
 					actors_list[i]->que[k]=nothing;
 				 }
 		}
+	unlock_actors_lists();
 }
 
 
