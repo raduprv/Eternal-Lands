@@ -489,15 +489,16 @@ void add_enhanced_actor_from_server(char * in_data)
 							char str[256];
 							sprintf(str,"Duplicate actor ID %d was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[28]);
 							log_error(str);
-							destroy_actor(i);//we don't want two actors with the same ID
-
+							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
+							i--;// last actor was put here, he needs to be checked too 
 						}
 					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
 						{
 							char str[256];
 							sprintf(str,"Duplicate actor Name(%d) was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[28]);
 							log_error(str);
-							destroy_actor(i);//we don't want two actors with the same ID
+							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
+							i--;// last actor was put here, he needs to be checked too 
 						}
 				}
 		}

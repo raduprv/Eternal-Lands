@@ -548,7 +548,8 @@ void add_actor_from_server(char * in_data)
 						char str[256];
 						sprintf(str,"Duplicate actor ID %d was %s now is %s\n",actor_id, actors_list[i]->actor_name ,&in_data[23]);
 						log_error(str);
-						destroy_actor(i);//we don't want two actors with the same ID
+						destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
+						i--;// last actor was put here, he needs to be checked too 
 					}
 		}
 
