@@ -1034,7 +1034,7 @@ void copy_strings(xmlNode * in, distring_item * string)
 								{
 									int length=30;
 									int lutf8=xmlUTF8Strlen(cur->children->content);
-									if(lutf8>length||lutf8==-1)lutf8=length
+									if(lutf8>length||lutf8==-1)lutf8=length;
 									UTF8Toisolat1(string->var->str, &lutf8, cur->children->content, &length);
 									string->var->str[lutf8]=0;
 #ifdef WRITE_XML
@@ -1045,7 +1045,7 @@ void copy_strings(xmlNode * in, distring_item * string)
 								{
 									int length=100;
 									int lutf8=xmlUTF8Strlen(cur->children->content);
-									if(lutf8>length||lutf8==-1)lutf8=length
+									if(lutf8>length||lutf8==-1)lutf8=length;
 									UTF8Toisolat1(string->var->desc, &lutf8, cur->children->content, &length); 
 									string->var->str[lutf8]=0;
 #ifdef WRITE_XML
