@@ -7,19 +7,26 @@
 
 void do_paste(Uint8 * buffer)
 {
-	Uint32 i;
-	Uint8 ch;
+	if (use_windowed_chat)
+	{
+		paste_in_input_field (buffer);
+	}
+	else
+	{	
+		Uint32 i;
+		Uint8 ch;
 
-	if(!buffer)return;
-	for(i=0;i<strlen(buffer);i++)
+		if (!buffer) return;
+		for (i=0; i < strlen(buffer); i++)
 		{
-			ch=buffer[i];
-        	if(((ch>=32 && ch<=126) || (ch>127+c_grey4)) && input_text_lenght<160)
-        	    {
-        	    	put_char_in_buffer(ch);
-		    }
-			if(input_text_lenght>=160)return;
+			ch = buffer[i];
+			if(((ch>=32 && ch<=126) || (ch>127+c_grey4)) && input_text_lenght<160)
+			{
+        	    		put_char_in_buffer(ch);
+			}
+			if (input_text_lenght >= 160) return;
 		}
+	}
 }
 
 #ifndef WINDOWS

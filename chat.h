@@ -48,7 +48,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey);
  *
  * \callgraph
  */
-void paste_in_input_field (Uint8 *text);
+void paste_in_input_field (const Uint8 *text);
 
 /*!
  * \ingroup chat_win

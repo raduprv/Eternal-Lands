@@ -475,7 +475,8 @@ void init_stuff()
 	load_translatables();//Write to the current working directory - hopefully we'll have write rights here...
 #endif
 	
-	// initialize the fonts, but don't load the textures yet
+	// initialize the fonts, but don't load the textures yet. Do that here
+	// because the messages need the font widths.
 	init_fonts();
 
 	//read the config file

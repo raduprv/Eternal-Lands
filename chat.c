@@ -236,8 +236,55 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	return chat_in_key_handler (w, 0, 0, key, unikey);
 }
 
-void paste_in_input_field (Uint8 *text)
+void paste_in_input_field (const Uint8 *text)
 {
+	widget_list *w = widget_find (chat_win, chat_in_id);
+	text_field *tf;
+	int nr_paste, nr_free, ib, jb, nb;
+	Uint8 ch;
+	
+	if (w == NULL) return;
+	tf = (text_field *) w->widget_info;
+	
+	// find out how many characters to paste
+	nr_free = tf->buf_size - tf->cursor - 1;
+	nr_paste = 0;
+	for (ib = 0; text[ib] && nr_paste < nr_free; ib++)
+	{
+		ch = text[ib];
+		if ( (ch >= 32 && ch <= 126) || ch > 127 + c_grey4)
+			nr_paste++;
+	}
+	
+	if (nr_paste == 0) return;
+
+	// now move the characters right of the cursor (if any)
+	nb = tf->buf_fill - tf->cursor;
+	if (nb > nr_free - nr_paste) nb = nr_free - nr_paste;
+	if (nb > 0)
+	{
+		for (ib = nb-1; ib >= 0; ib--)
+			tf->buffer[tf->cursor+nr_paste+ib] = tf->buffer[tf->cursor+ib];
+	}
+	tf->buffer[tf->cursor+nr_paste+nb] = '\0';
+	
+	// insert the pasted text
+	jb = 0;
+	for (ib = 0; text[ib]; ib++)
+	{
+		ch = text[ib];
+		if ( (ch >= 32 && ch <= 126) || ch > 127 + c_grey4)
+		{
+			tf->buffer[tf->cursor+jb] = text[ib];
+			jb++;
+		}
+	}
+	
+	// update the widget information
+	tf->cursor += nr_paste;
+	tf->buf_fill = tf->cursor + nb;
+	
+	reset_soft_breaks (tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 }
 
 void display_chat ()
