@@ -113,6 +113,7 @@ void draw_string_clipped(int x, int y, const unsigned char * our_string, int wid
  * \param x             x coordinate of the position to draw the string
  * \param y             y coordinate of the position to draw the string
  * \param our_string    the string to draw
+ * \param cursor_pos    if true, the string will be drawn at the current cursor position
  * \param width		the maximum width
  * \param height	the maximum height
  * \param text_zoom     the zoom factor to use

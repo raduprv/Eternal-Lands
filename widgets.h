@@ -1016,8 +1016,8 @@ int tab_collection_click (widget_list *W, int x, int y);
  * 		The callback for resizing the tabbed window collection widget
  *
  * \param   	W The widget
- * \param   	width the new width
- * \param   	height the new height
+ * \param   	w the new width
+ * \param   	h the new height
  * \retval int  	Returns 1 on success, 0 on failure
  * \callgraph
  */
