@@ -621,7 +621,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 int recvpacket()
 {
 	int len, total, size;
-	int i;
+	//int i;
 	//for(i=0;i<4096;i++)in_data[i]=0;
 	memset(in_data, 4096, 0);
 
