@@ -108,6 +108,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor = calloc(1, sizeof(actor));
 
 	//find a free spot, in the actors_list
+	lock_actors_lists();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])break;
@@ -256,6 +257,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
 	no_bounding_box=0;
+	unlock_actors_lists();	//unlock it
 	return i;
 }
 
