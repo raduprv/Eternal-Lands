@@ -875,7 +875,9 @@ void init_quickbar() {
 		}
 	else
 		{
-			move_window(quickbar_win, 0, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y);
+			if(quickbar_draggable) show_window(quickbar_win);
+			else if(quickbar_y>window_height||quickbar_x>window_width) move_window(quickbar_win, 0, 0, 200, 64);//The player has done something stupid... let him/her correct it
+			else move_window(quickbar_win, 0, 0, window_width-quickbar_x, quickbar_y);
 		}
 }
 
@@ -1052,6 +1054,8 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 										{
 											change_flags(quickbar_win, (ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST));
 											quickbar_draggable=0;
+											quickbar_x=window_width-windows_list.window[quickbar_win].cur_x;
+											quickbar_y=windows_list.window[quickbar_win].cur_y;
 										}
 								}
 							else if (((flags&trigger)==(ELW_LEFT_MOUSE|ELW_SHIFT)) && (get_flags(quickbar_win)==(ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE)))
