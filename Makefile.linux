@@ -23,7 +23,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o frustum.o	\
-	gl_init.o hud.o	\
+	gl_init.o hud.o help.o	\
 	ignore.o init.o interface.o items.o	\
 	keys.o knowledge.o lights.o	\
 	main.o manufacture.o map_io.o md2loader.o md5.o misc.o multiplayer.o	\
@@ -31,7 +31,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	options.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
 	questlog.o reflection.o	rules.o \
-	shadows.o sound.o spells.o stats.o	\
+	sector.o shadows.o sound.o spells.o stats.o	\
 	text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	weather.o widgets.o sector.o help.o
 	#books.o
