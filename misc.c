@@ -725,7 +725,7 @@ void draw_height_map()
 }
 
 #ifndef LINUX
-void save_map_file()
+void open_map_file()
 {
   OPENFILENAME ofn;
   char szFileName[MAX_PATH];
@@ -763,7 +763,7 @@ void save_map_file()
 }
 #endif
 #ifndef LINUX
-void open_map_file()
+void save_map_file()
 {
   OPENFILENAME ofn;
   char szFileName[MAX_PATH];
