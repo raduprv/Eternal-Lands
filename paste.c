@@ -7,7 +7,7 @@
 
 void do_paste(Uint8 * buffer)
 {
-	int i;
+	Uint32 i;
 	Uint8 ch;
 
 	if(!buffer)return;

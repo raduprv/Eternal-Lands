@@ -1808,8 +1808,8 @@ void switch_from_game_map()
 
 void draw_game_map()
 {
-	int screen_x;
-	int screen_y;
+	int screen_x=0;
+	int screen_y=0;
 	int i;
 
    	glDisable(GL_DEPTH_TEST);

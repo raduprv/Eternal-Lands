@@ -86,7 +86,7 @@ int save_map(char * file_name)
 
 	//ok, now build the header...
 	//clear the header
-	for(i=0;i<sizeof(map_header);i++)mem_map_header[i]=0;
+	memset(mem_map_header, 0, sizeof(mem_map_header));
 
 	//build the file signature
 	cur_map_header.file_sig[0]='e';
@@ -133,7 +133,7 @@ int save_map(char * file_name)
 			if(objects_list[i])
 				{
 					char * cur_3do_pointer=(char *)&cur_3d_obj_io;
-					int k=0;
+					Uint32 k=0;
 
 					//clear the object
 					for(k=0;k<sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
@@ -169,7 +169,7 @@ int save_map(char * file_name)
 			if(obj_2d_list[i])
 				{
 					char * cur_2do_pointer=(char *)&cur_2d_obj_io;
-					int k=0;
+					Uint32 k=0;
 
 					//clear the object
 					for(k=0;k<sizeof(obj_2d_io);k++)cur_2do_pointer[k]=0;
@@ -197,7 +197,7 @@ int save_map(char * file_name)
 			if(lights_list[i])
 				{
 					char * cur_light_pointer=(char *)&cur_light_io;
-					int k=0;
+					Uint32 k=0;
 
 					//clear the object
 					for(k=0;k<sizeof(light_io);k++)cur_light_pointer[k]=0;

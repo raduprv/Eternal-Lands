@@ -21,7 +21,7 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 			Uint32	time_limit=600;
 			if( str[0]==SEND_PM || str[0]==RAW_TEXT)time_limit=1500;
 			//if too close together
-			if(len == tcp_cache_len && *str == *tcp_cache && cur_time < tcp_cache_time+time_limit)
+			if(len == (int)tcp_cache_len && *str == *tcp_cache && cur_time < tcp_cache_time+time_limit)
 				{
 					//and the same packet
 					if(!memcmp(str, tcp_cache, len))

@@ -254,7 +254,7 @@ TCPsocket my_socket=0;
 SDLNet_SocketSet set=0;
 Uint8 in_data[8192];
 int previously_logged_in=0;
-int last_heart_beat;
+Uint32 last_heart_beat;
 
 //debuging info
 int debug_info=0;

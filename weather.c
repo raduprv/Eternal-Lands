@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "global.h"
 
-int rain_control_counter=0;
-int thunder_control_counter=0;
+Uint32 rain_control_counter=0;
+Uint32 thunder_control_counter=0;
 int num_rain_drops=MAX_RAIN_DROPS;
 char rand_rain[8192];
 

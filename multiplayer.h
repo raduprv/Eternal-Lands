@@ -23,7 +23,7 @@ extern int client_version_release;
 extern int client_version_patch;
 extern int version_first_digit;
 extern int version_second_digit;
-extern int last_heart_beat;
+extern Uint32 last_heart_beat;
 
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
 void send_version_to_server(IPaddress *ip);

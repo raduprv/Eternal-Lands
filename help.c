@@ -118,7 +118,8 @@ int get_help_topic(Uint8 *topic)
 
 void display_help_topic(Uint8 *topic)
 {
-	int result,i;
+	int result;
+	Uint32	i;
 	Uint8 str[1024];
 	Uint8 ch;
 

@@ -602,7 +602,7 @@ void add_char_to_new_character(unsigned char ch)
 
 void login_from_new_char()
 {
-	int i;
+	Uint32 i;
 	char ch;
 	for(i=0;i<strlen(pass_str);i++)
 		{
