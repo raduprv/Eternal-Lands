@@ -88,7 +88,7 @@ int find_font_char(unsigned char cur_char)
 }
 
 // returns how far to move for the next char, or negative on error
-int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, int displayed_font_x_size, int displayed_font_y_size)
+int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float displayed_font_x_size, float displayed_font_y_size)
 {
 	float u_start,u_end,v_start,v_end;
 	int chr,col,row;
@@ -107,7 +107,7 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, int displayed
 	row=chr%FONT_CHARS_PER_LINE;
 
 	// TODO:get the font width for this character
-	displayed_font_x_width=displayed_font_x_size;
+	displayed_font_x_width=(int)displayed_font_x_size;
 
 	//now get the texture coordinates
 	u_start=(float)(row*font_x_size)/256.0f;
@@ -140,8 +140,8 @@ void draw_string_zoomed(int x, int y,unsigned char * our_string,int max_lines, f
 {
 	//float u_start,u_end,v_start,v_end;
 	//int col,row;
-	int displayed_font_x_size=11*text_zoom;
-	int displayed_font_y_size=18*text_zoom;
+	float displayed_font_x_size=11*text_zoom;
+	float displayed_font_y_size=18*text_zoom;
 
 	//int font_x_size=FONT_X_SPACING;
 	//int font_y_size=FONT_Y_SPACING;
