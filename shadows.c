@@ -631,7 +631,7 @@ void render_light_view()
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
 			glLoadMatrixd(light_view_mat);
-			glTranslatef(cx,cy,cz);
+			glTranslatef((int)cx,(int)cy,(int)cz);
 			display_shadows();
 
 			glBindTexture(depth_texture_target,depth_map_id);
@@ -689,6 +689,7 @@ void setup_shadow_mapping()
 	glLoadIdentity();
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
+	glTranslatef(cx-(int)cx,cy-(int)cy,cz-(int)cz);
 	glBindTexture(depth_texture_target,depth_map_id);
 	setup_2d_texgen();
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
