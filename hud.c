@@ -878,7 +878,7 @@ void draw_misc_display()
 			glDisable(GL_ALPHA_TEST);
 
 			//Digital Clock
-			if(view_digital_clock){
+			if(view_digital_clock==1){
 				sprintf(str,"%1d:%2d",hour,game_minute-hour*60);
 				glColor3f(0.77f,0.57f,0.39f);
 				draw_string(window_width-51,window_height-145,str,1);
