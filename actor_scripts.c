@@ -25,7 +25,7 @@ float get_rotation_vector( float fStartAngle, float fEndAngle )
 
 void move_to_next_frame()
 {
-	int i,l,k;
+	int i,l,k,dont_add_frame=0;
 	char frame_name[16];
 	char frame_number[3];
 	int frame_no;
@@ -120,7 +120,9 @@ void move_to_next_frame()
 							if(actors_list[i]->stop_animation)
 								{
 									actors_list[i]->busy=0;//ok, take the next command
-#ifndef OPTIMIZED_LOCKS
+#ifdef OPTIMIZED_LOCKS
+									dont_add_frame=1;
+#else
 									continue;//we are done with this guy
 #endif
 								}
@@ -133,10 +135,8 @@ void move_to_next_frame()
 									my_strcat(frame_name,"01");
 								}
 						}
-#ifdef OPTIMIZED_LOCKS
-					else
-#endif
-					sprintf(actors_list[i]->cur_frame, "%s",frame_name);
+					
+					if(!dont_add_frame) sprintf(actors_list[i]->cur_frame, "%s",frame_name);
 				}
 #ifdef OPTIMIZED_LOCKS
 			unlock_actors_lists();
