@@ -321,7 +321,7 @@ Uint32 my_timer(unsigned int some_int)
 		{
 			normal_animation_timer=0;
     		update_particles();
-    		update_rain();
+    		//if(is_raining)update_rain();
     		next_command();
     		animate_actors();
     		move_to_next_frame();
