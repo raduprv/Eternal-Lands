@@ -22,7 +22,7 @@ void end_particles_list()
 	particles_list_mutex=NULL;
 }
 
-
+/*
 void draw_particle_sys(particle_sys *system_id)
 {
 	float x_pos,y_pos,z_pos;
@@ -88,6 +88,46 @@ void draw_particle_sys(particle_sys *system_id)
 	glPopMatrix();
 
 }
+*/
+
+void draw_particle_sys(particle_sys *system_id)
+{
+	float x_pos,y_pos,z_pos;
+	int total_particle_no;
+	int i,part_type;
+
+	x_pos=system_id->x_pos;
+	y_pos=system_id->y_pos;
+	z_pos=system_id->z_pos;
+	total_particle_no=system_id->total_particle_no;
+
+	check_gl_errors();
+	glPushMatrix();//we don't want to affect the rest of the scene
+	glTranslatef (x_pos, y_pos, z_pos);
+	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
+	check_gl_errors();
+	glDisable(GL_TEXTURE_2D);
+
+	if(have_point_parameter)ELglPointParameterfARB(POINT_SIZE_MIN_ARB,3.0f);
+
+	glBegin(GL_POINTS);
+	lock_particles_list();	//lock it to avoid timing issues
+	for(i=0;i<total_particle_no;i++)
+		if(!system_id->particles[i].free)
+		if(system_id->particles[i].z >= 0.0f)
+			{
+				glColor4f(system_id->particles[i].r,system_id->particles[i].g,system_id->particles[i].b,system_id->particles[i].a);
+				glVertex3f(system_id->particles[i].x,system_id->particles[i].y,system_id->particles[i].z);
+			}
+	unlock_particles_list();	// release now that we are done
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+	check_gl_errors();
+
+	glPopMatrix();
+
+}
+
 
 particle_sys *create_particle_sys(float x, float y, float z, int sys_type, int part_type, int num_particles, int ttl)
 {
@@ -153,31 +193,7 @@ int add_teleporter(float x_pos, float y_pos, float z_pos)
 
 
 	lock_particles_list();	//lock it to avoid timing issues
-	/*
-	//allocate memory for this particle system
-	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
-	//now, find a place for this system
-	for(i=0;i<max_particle_systems;i++)
-		{
-			if(!particles_list[i])
-				{
-					particles_list[i]=system_id;
-					break;
-				}
-		}
 
-
-	//now set the free flag, on all the particles
-	for(j=0;j<total_particle_no;j++)system_id->particles[j].free=1;
-
-	system_id->x_pos=x_pos;
-	system_id->y_pos=y_pos;
-	system_id->z_pos=z_pos;
-	system_id->part_sys_type=TELEPORTER_PARTICLE_SYS;
-	system_id->part_type=TELEPORTER_PARTICLE;
-	system_id->particle_count=800;
-	system_id->total_particle_no=800;
-	*/
 	system_id=create_particle_sys(x_pos, y_pos, z_pos, TELEPORTER_PARTICLE_SYS, TELEPORTER_PARTICLE, total_particle_no, 0);
 
 
@@ -218,7 +234,7 @@ int add_teleporter(float x_pos, float y_pos, float z_pos)
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-int add_teleport_in(int x_pos, int y_pos)
+int add_teleport_in(int x_pos, int y_pos, float start_r, float start_g, float start_b, float start_a)
 {
 	int total_particle_no=800;
 	float z_pos;
@@ -228,11 +244,6 @@ int add_teleport_in(int x_pos, int y_pos)
 	float x,y,z,r,g,b,a;
 	int size;
 	int j;	//,i;
-
-	float start_r=0.4f;
-	float start_g=1.0f;
-	float start_b=0.6f;
-	float start_a=0.5f;
 
 	float start_x=0.0f;
 	float start_y=0.0f;
@@ -245,40 +256,18 @@ int add_teleport_in(int x_pos, int y_pos)
 	float start_r_random_deviation=0.3f;
 	float start_g_random_deviation=0.3f;
 	float start_b_random_deviation=0.1f;
-	float start_a_random_deviation=0.3f;
 
 	//get the Z
 	z_pos=-2.2f+height_map[y_pos*tile_map_size_x*6+x_pos]*0.2f;
 
-
 	lock_particles_list();
-	/*
-	//allocate memory for this particle system
-	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
-	//now, find a place for this system
-	for(i=0;i<max_particle_systems;i++)
-		{
-			if(!particles_list[i])
-				{
-					particles_list[i]=system_id;
-					break;
-				}
-		}
-
-
-	//now set the free flag, on all the particles
-	for(j=0;j<total_particle_no;j++)system_id->particles[j].free=1;
-
-	system_id->x_pos=(float)x_pos/2+0.25f;
-	system_id->y_pos=(float)y_pos/2+0.25f;
-	system_id->z_pos=z_pos;
-	system_id->part_sys_type=TELEPORT_OUT_PARTICLE_SYS;
-	system_id->part_type=SPARKS_PARTICLE;
-	system_id->particle_count=800;
-	system_id->total_particle_no=800;
-	system_id->system_ttl=8;
-	*/
 	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, TELEPORT_IN_PARTICLE_SYS, SPARKS_PARTICLE, total_particle_no, 8);
+
+	system_id->r=start_r;
+	system_id->g=start_g;
+	system_id->b=start_b;
+	system_id->a=start_a;
+	system_id->z_start=z_pos;
 
 	//find a free space
 	for(j=0;j<total_particle_no;j++)
@@ -289,7 +278,7 @@ int add_teleport_in(int x_pos, int y_pos)
 				r=start_r+particle_rand(start_r_random_deviation);
 				g=start_g+particle_rand(start_g_random_deviation);
 				b=start_b+particle_rand(start_b_random_deviation);
-				a=start_a+particle_rand(start_a_random_deviation);
+				a=start_a;
 				//get the position
 				while(1)
 					{
@@ -320,93 +309,55 @@ int add_teleport_in(int x_pos, int y_pos)
 	unlock_particles_list();
 	return j;
 }
+
+
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-int add_teleport_out(int x_pos, int y_pos)
+int add_circular_burst(int x_pos, int y_pos, int particles_no, float base_color_r, float base_color_g, float base_color_b, float base_alpha)
 {
-	int total_particle_no=800;
 	float z_pos;
 
 	particle_sys *system_id;
 
 	float x,y,z,r,g,b,a;
 	int size;
-	int j;	//,i;
-
-	float start_r=0.9f;
-	float start_g=0.6f;
-	float start_b=0.0f;
-	float start_a=0.5f;
-
-	float start_x=0.0f;
-	float start_y=0.0f;
-	float start_z=0.5f;
-
-	float start_x_random_deviation=7.4f;
-	float start_y_random_deviation=7.4f;
-	float start_z_random_deviation=6.5f;
-
-	float start_r_random_deviation=0.3f;
-	float start_g_random_deviation=0.3f;
-	float start_b_random_deviation=0.1f;
-	float start_a_random_deviation=0.3f;
+	int j;//,i;
+	float float_rand;
 
 	//get the Z
-	z_pos=-2.2f+height_map[y_pos*tile_map_size_x*6+x_pos]*0.2f;
+	z_pos=-1.2f+height_map[y_pos*tile_map_size_x*6+x_pos]*0.2f;
 
 
 	lock_particles_list();
-	/*
-	//allocate memory for this particle system
-	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
-	//now, find a place for this system
-	for(i=0;i<max_particle_systems;i++)
-		{
-			if(!particles_list[i])
-				{
-					particles_list[i]=system_id;
-					break;
-				}
-		}
+	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, CIRCULAR_BURST, TELEPORTER_PARTICLE, particles_no, 8);
 
-
-	//now set the free flag, on all the particles
-	for(j=0;j<total_particle_no;j++)system_id->particles[j].free=1;
-
-	system_id->x_pos=(float)x_pos/2+0.25f;
-	system_id->y_pos=(float)y_pos/2+0.25f;
-	system_id->z_pos=z_pos;
-	system_id->part_sys_type=TELEPORT_OUT_PARTICLE_SYS;
-	system_id->part_type=SPARKS_PARTICLE;
-	system_id->particle_count=800;
-	system_id->total_particle_no=800;
-	system_id->system_ttl=8;
-	*/
-	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, TELEPORT_OUT_PARTICLE_SYS, SPARKS_PARTICLE, total_particle_no, 8);
+	system_id->r=base_color_r;
+	system_id->g=base_color_g;
+	system_id->b=base_color_b;
+	system_id->a=base_alpha;
+	system_id->z_start=z_pos;
 
 	//find a free space
-	for(j=0;j<total_particle_no;j++)
+	for(j=0;j<particles_no;j++)
 		if(system_id->particles[j].free)
 			{
 				//finally, we found a spot
 				//calculate the color
-				r=start_r+particle_rand(start_r_random_deviation);
-				g=start_g+particle_rand(start_g_random_deviation);
-				b=start_b+particle_rand(start_b_random_deviation);
-				a=start_a+particle_rand(start_a_random_deviation);
-				//get the position
-				while(1)
-					{
-						x=start_x+particle_rand(start_x_random_deviation);
-						y=start_y+particle_rand(start_y_random_deviation);
-						z=start_z+particle_rand(start_z_random_deviation);
-						if(x*x+y*y<0.0625f || z<-2)break;//try again, the particle is out of our circular range
-					}
+				r=base_color_r;
+				g=base_color_g;
+				b=base_color_b;
+				a=base_alpha;
 				size=rand()%7;
+
 				//ok, now put the things there
-				system_id->particles[j].x=x;
-				system_id->particles[j].y=y;
-				system_id->particles[j].z=z;
+				float_rand=particle_rand(15.2f);
+				system_id->particles[j].x=sin(j)*float_rand;
+				system_id->particles[j].y=cos(j)*float_rand;
+				system_id->particles[j].dx=sin(j)*0.15f;
+				system_id->particles[j].dy=cos(j)*0.15f;
+				system_id->particles[j].dz=0;
+
+				system_id->particles[j].z=z_pos;
 				system_id->particles[j].r=r;
 				system_id->particles[j].g=g;
 				system_id->particles[j].b=b;
@@ -417,12 +368,106 @@ int add_teleport_out(int x_pos, int y_pos)
 				system_id->particles[j].free=0;
 			}
 
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
-	update_teleport_out(system_id);
 	unlock_particles_list();
+	update_circular_burst(system_id);
+	update_circular_burst(system_id);
 	return j;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+void update_circular_burst(particle_sys *system_id)
+{
+	int i,j;
+	int particle_count;
+	int total_particle_no;
+	int particles_to_add_per_frame=800;
+	int particles_to_add=0;
+	int size,rand_size;
+
+	float x,y,z;
+	float float_rand;
+
+
+
+	particle_count=system_id->particle_count;
+	total_particle_no=system_id->total_particle_no;
+
+	lock_particles_list();
+
+	if(system_id->system_ttl)
+		{
+			for(j=0;j<2000;j++)
+				if(system_id->particles[j].free)
+					{
+						size=rand()%7;
+
+						//ok, now put the things there
+						float_rand=particle_rand(5.2f);
+						system_id->particles[j].x=sin(j);//*float_rand;
+						system_id->particles[j].y=cos(j);//*float_rand;
+						system_id->particles[j].dx=sin(j)*0.15f;
+						system_id->particles[j].dy=cos(j)*0.15f;
+						system_id->particles[j].dz=0;
+
+						system_id->particles[j].z=system_id->z_start;
+						system_id->particles[j].r=system_id->r+0.2f;
+						system_id->particles[j].g=system_id->g+0.2f;
+						system_id->particles[j].b=system_id->b+0.2f;
+						system_id->particles[j].a=system_id->a;
+						system_id->particles[j].size=size;
+
+						//mark as occupied
+						system_id->particles[j].free=0;
+			}
+		}
+
+	//now we have to actually update the particles
+	//find an used particle
+	for(j=0;j<total_particle_no;j++)
+		if(!system_id->particles[j].free)
+			{
+				if(system_id->particles[j].x*system_id->particles[j].x+system_id->particles[j].y*system_id->particles[j].y>20)
+					{
+						//poor particle, it died :(
+						system_id->particles[j].free=1;
+						if(system_id->particle_count)system_id->particle_count--;
+						continue;
+					}
+				x=system_id->particles[j].x;
+				y=system_id->particles[j].y;
+				z=system_id->particles[j].z;
+				size=system_id->particles[j].size;
+
+				x+=system_id->particles[j].dx;
+				y+=system_id->particles[j].dy;
+				z+=system_id->particles[j].dz;
+
+				rand_size=rand()%3;
+				if(rand_size==1 && size>0)size--;
+				if(rand_size==2 && size<6)size++;
+				//ok, now put the things there
+				system_id->particles[j].x=x;
+				system_id->particles[j].y=y;
+				system_id->particles[j].z=z;
+				system_id->particles[j].a-=0.001f;
+				system_id->particles[j].size=size;
+			}
+	if(system_id->system_ttl)system_id->system_ttl--;
+
+	if(!system_id->system_ttl && !system_id->particle_count)
+		//if there are no more particles to add, and the TTL expired, then kill this evil system
+		for(i=0;i<max_particle_systems;i++)
+			if(particles_list[i]==system_id)
+				{
+					free(system_id);
+					particles_list[i]=0;
+					break;
+				}
+	unlock_particles_list();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -461,32 +506,7 @@ int add_bag_in(int x_pos, int y_pos)
 
 
 	lock_particles_list();
-	/*
-	//allocate memory for this particle system
-	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
-	//now, find a place for this system
-	for(i=0;i<max_particle_systems;i++)
-		{
-			if(!particles_list[i])
-				{
-					particles_list[i]=system_id;
-					break;
-				}
-		}
 
-
-	//now set the free flag, on all the particles
-	for(j=0;j<total_particle_no;j++)system_id->particles[j].free=1;
-
-	system_id->x_pos=(float)x_pos/2+0.25f;
-	system_id->y_pos=(float)y_pos/2+0.25f;
-	system_id->z_pos=z_pos;
-	system_id->part_sys_type=BAG_IN_PARTICLE_SYS;
-	system_id->part_type=SPARKS_PARTICLE;
-	system_id->particle_count=300;
-	system_id->total_particle_no=300;
-	system_id->system_ttl=8;
-	*/
 	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, BAG_IN_PARTICLE_SYS, SPARKS_PARTICLE, total_particle_no, 8);
 
 
@@ -568,32 +588,7 @@ int add_bag_out(int x_pos, int y_pos)
 
 
 	lock_particles_list();
-	/*
-	//allocate memory for this particle system
-	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
-	//now, find a place for this system
-	for(i=0;i<max_particle_systems;i++)
-		{
-			if(!particles_list[i])
-				{
-					particles_list[i]=system_id;
-					break;
-				}
-		}
 
-
-	//now set the free flag, on all the particles
-	for(j=0;j<total_particle_no;j++)system_id->particles[j].free=1;
-
-	system_id->x_pos=(float)x_pos/2+0.25f;
-	system_id->y_pos=(float)y_pos/2+0.25f;
-	system_id->z_pos=z_pos;
-	system_id->part_sys_type=BAG_OUT_PARTICLE_SYS;
-	system_id->part_type=SPARKS_PARTICLE;
-	system_id->particle_count=300;
-	system_id->total_particle_no=300;
-	system_id->system_ttl=8;
-	*/
 	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, BAG_OUT_PARTICLE_SYS, SPARKS_PARTICLE, total_particle_no, 8);
 
 
@@ -649,7 +644,6 @@ void display_particles()
 	y=-cy;
 
 	check_gl_errors();
-	get_and_set_texture_id(particles_text);
 	glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
 	check_gl_errors();
@@ -852,14 +846,9 @@ void update_teleport_in(particle_sys *system_id)
 	int particles_to_add_per_frame=800;
 	int particles_to_add=0;
 
-	float x,y,z,r,g,b,a;
+	float x,y,z;
 	int size,rand_size;
 	int j;
-
-	float start_r=0.4f;
-	float start_g=1.0f;
-	float start_b=0.8f;
-	float start_a=0.5f;
 
 	float start_x=0.0f;
 	float start_y=0.0f;
@@ -870,11 +859,6 @@ void update_teleport_in(particle_sys *system_id)
 	float start_y_random_deviation=3.6f;
 	float start_z_random_deviation=3.1f;
 
-	float start_r_random_deviation=0.3f;
-	float start_g_random_deviation=0.3f;
-	float start_b_random_deviation=0.1f;
-	float start_a_random_deviation=0.3f;
-
 	float path_x_deviation=0.0f;
 	float path_y_deviation=0.0f;
 	float path_z_deviation=0.04f;
@@ -882,11 +866,6 @@ void update_teleport_in(particle_sys *system_id)
 	float path_x_random_deviation=0.1f;
 	float path_y_random_deviation=0.1f;
 	float path_z_random_deviation=0.1f;
-
-	float path_r_random_deviation=0.01f;
-	float path_g_random_deviation=0.01f;
-	float path_b_random_deviation=0.01f;
-	float path_a_random_deviation=0.01f;
 
 
 	particle_count=system_id->particle_count;
@@ -909,16 +888,12 @@ void update_teleport_in(particle_sys *system_id)
 							{
 								//finally, we found a spot
 								//calculate the color
-								r=start_r+particle_rand(start_r_random_deviation);
-								g=start_g+particle_rand(start_g_random_deviation);
-								b=start_b+particle_rand(start_b_random_deviation);
-								a=start_a+particle_rand(start_a_random_deviation);
 								//get the position
 								while(1)
 									{
-										x=start_x+particle_rand(start_x_random_deviation);
-										y=start_y+particle_rand(start_y_random_deviation);
-										z=start_z+particle_rand(start_z_random_deviation);
+										x=start_x;
+										y=start_y;
+										z=start_z;
 										if(z<0)z=0;
 										if(x*x+y*y<0.15f || z<0)break;//try again, the particle is out of our circular range
 									}
@@ -927,10 +902,10 @@ void update_teleport_in(particle_sys *system_id)
 								system_id->particles[j].x=x;
 								system_id->particles[j].y=y;
 								system_id->particles[j].z=z;
-								system_id->particles[j].r=r;
-								system_id->particles[j].g=g;
-								system_id->particles[j].b=b;
-								system_id->particles[j].a=a;
+								system_id->particles[j].r=system_id->r+0.2f;
+								system_id->particles[j].g=system_id->g+0.2f;
+								system_id->particles[j].b=system_id->b+0.2f;
+								system_id->particles[j].a=system_id->a;
 								system_id->particles[j].size=size;
 
 								//mark as occupied
@@ -957,17 +932,8 @@ void update_teleport_in(particle_sys *system_id)
 				x=system_id->particles[j].x;
 				y=system_id->particles[j].y;
 				z=system_id->particles[j].z;
-				r=system_id->particles[j].r;
-				g=system_id->particles[j].g;
-				b=system_id->particles[j].b;
-				a=system_id->particles[j].a;
 				size=system_id->particles[j].size;
 
-				//calculate the color
-				r+=particle_rand(path_r_random_deviation);
-				g+=particle_rand(path_g_random_deviation);
-				b+=particle_rand(path_b_random_deviation);
-				a+=particle_rand(path_a_random_deviation);
 				//get the position
 
 				x+=path_x_deviation+particle_rand(path_x_random_deviation);
@@ -981,10 +947,10 @@ void update_teleport_in(particle_sys *system_id)
 				system_id->particles[j].x=x;
 				system_id->particles[j].y=y;
 				system_id->particles[j].z=z;
-				system_id->particles[j].r=r;
-				system_id->particles[j].g=g;
-				system_id->particles[j].b=b;
-				system_id->particles[j].a=a;
+				system_id->particles[j].r=system_id->r+0.2f;
+				system_id->particles[j].g=system_id->g+0.2f;
+				system_id->particles[j].b=system_id->b+0.2f;
+				system_id->particles[j].a=system_id->a;
 				system_id->particles[j].size=size;
 			}
 	if(system_id->system_ttl)system_id->system_ttl--;
@@ -1327,167 +1293,6 @@ void update_bag_out(particle_sys *system_id)
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
-void update_teleport_out(particle_sys *system_id)
-{
-	int i;
-	int particle_count;
-	int total_particle_no=800;
-	int particles_to_add_per_frame=800;
-	int particles_to_add=0;
-
-	float x,y,z,r,g,b,a;
-	int size,rand_size;
-	int j;
-
-	float start_r=0.9f;
-	float start_g=0.6f;
-	float start_b=0.1f;
-	float start_a=0.5f;
-
-	float start_x=0.0f;
-	float start_y=0.0f;
-	float start_z=0.0f;
-
-
-	float start_x_random_deviation=3.6f;
-	float start_y_random_deviation=3.6f;
-	float start_z_random_deviation=3.1f;
-
-	float start_r_random_deviation=0.3f;
-	float start_g_random_deviation=0.3f;
-	float start_b_random_deviation=0.1f;
-	float start_a_random_deviation=0.3f;
-
-	float path_x_deviation=0.0f;
-	float path_y_deviation=0.0f;
-	float path_z_deviation=0.04f;
-
-	float path_x_random_deviation=0.1f;
-	float path_y_random_deviation=0.1f;
-	float path_z_random_deviation=0.1f;
-
-	float path_r_random_deviation=0.01f;
-	float path_g_random_deviation=0.01f;
-	float path_b_random_deviation=0.01f;
-	float path_a_random_deviation=0.01f;
-
-
-	particle_count=system_id->particle_count;
-
-	if(particle_count < system_id->total_particle_no)
-		{
-			particles_to_add=system_id->total_particle_no-particle_count;
-			if(particles_to_add>particles_to_add_per_frame)
-				particles_to_add=particles_to_add_per_frame;
-		}
-	//see if we need to add new particles
-	lock_particles_list();
-	if(system_id->system_ttl)
-		if(particles_to_add)
-			for(j=i=0;i<particles_to_add;i++)
-				{
-					//find a free space
-					for(;j<total_particle_no;j++)
-						if(system_id->particles[j].free)
-							{
-								//finally, we found a spot
-								//calculate the color
-								r=start_r+particle_rand(start_r_random_deviation);
-								g=start_g+particle_rand(start_g_random_deviation);
-								b=start_b+particle_rand(start_b_random_deviation);
-								a=start_a+particle_rand(start_a_random_deviation);
-								//get the position
-								while(1)
-									{
-										x=start_x+particle_rand(start_x_random_deviation);
-										y=start_y+particle_rand(start_y_random_deviation);
-										z=start_z+particle_rand(start_z_random_deviation);
-										if(z<0)z=0;
-										if(x*x+y*y<0.15f || z<-2)break;//try again, the particle is out of our circular range
-									}
-								size=rand()%7;
-								//ok, now put the things there
-								system_id->particles[j].x=x;
-								system_id->particles[j].y=y;
-								system_id->particles[j].z=z;
-								system_id->particles[j].r=r;
-								system_id->particles[j].g=g;
-								system_id->particles[j].b=b;
-								system_id->particles[j].a=a;
-								system_id->particles[j].size=size;
-
-								//mark as occupied
-								system_id->particles[j].free=0;
-								//increase the particle count
-								system_id->particle_count++;
-								break;	//done looping
-							}
-
-				}
-
-	//excellent, now we have to actually update the particles
-	//find an used particle
-	for(j=0;j<total_particle_no;j++)
-		if(!system_id->particles[j].free)
-			{
-				if(system_id->particles[j].z>2.0f)
-					{
-						//poor particle, it died :(
-						system_id->particles[j].free=1;
-						if(system_id->particle_count)system_id->particle_count--;
-						continue;
-					}
-				x=system_id->particles[j].x;
-				y=system_id->particles[j].y;
-				z=system_id->particles[j].z;
-				r=system_id->particles[j].r;
-				g=system_id->particles[j].g;
-				b=system_id->particles[j].b;
-				a=system_id->particles[j].a;
-				size=system_id->particles[j].size;
-
-				//calculate the color
-				r+=particle_rand(path_r_random_deviation);
-				g+=particle_rand(path_g_random_deviation);
-				b+=particle_rand(path_b_random_deviation);
-				a+=particle_rand(path_a_random_deviation);
-				//get the position
-
-				x+=path_x_deviation+particle_rand(path_x_random_deviation);
-				y+=path_y_deviation+particle_rand(path_y_random_deviation);
-				z+=path_z_deviation+particle_rand(path_z_random_deviation);
-
-				rand_size=rand()%3;
-				if(rand_size==1 && size>0)size--;
-				if(rand_size==2 && size<6)size++;
-				//ok, now put the things there
-				system_id->particles[j].x=x;
-				system_id->particles[j].y=y;
-				system_id->particles[j].z=z;
-				system_id->particles[j].r=r;
-				system_id->particles[j].g=g;
-				system_id->particles[j].b=b;
-				system_id->particles[j].a=a;
-				system_id->particles[j].size=size;
-			}
-	if(system_id->system_ttl)system_id->system_ttl--;
-
-	if(!system_id->system_ttl && !system_id->particle_count)
-		//if there are no more particles to add, and the TTL expired, then kill this evil system
-		for(i=0;i<max_particle_systems;i++)
-			if(particles_list[i]==system_id)
-				{
-					free(system_id);
-					particles_list[i]=0;
-					break;
-				}
-	unlock_particles_list();
-
-}
-///////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 void update_particles()
 {
@@ -1513,12 +1318,12 @@ void update_particles()
 								update_teleporter(particles_list[i]);
                      		else if(particles_list[i]->part_sys_type==TELEPORT_IN_PARTICLE_SYS)
 								update_teleport_in(particles_list[i]);
-							else if(particles_list[i]->part_sys_type==TELEPORT_OUT_PARTICLE_SYS)
-								update_teleport_out(particles_list[i]);
 							else if(particles_list[i]->part_sys_type==BAG_IN_PARTICLE_SYS)
 								update_bag_in(particles_list[i]);
 							else if(particles_list[i]->part_sys_type==BAG_OUT_PARTICLE_SYS)
 								update_bag_out(particles_list[i]);
+							else if(particles_list[i]->part_sys_type==CIRCULAR_BURST)
+								update_circular_burst(particles_list[i]);
 					//	}
 				}
 		}

@@ -206,7 +206,7 @@ void send_login_info()
 }
 
 
-void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, char skin, 
+void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, char skin,
 				   char hair, char shirt, char pants, char boots,char head, char type)
 {
 	int i;
@@ -427,14 +427,14 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case TELEPORT_OUT:
 			{
-				add_teleport_out(*((short *)(in_data+3)),*((short *)(in_data+5)));
+				add_teleport_in(*((short *)(in_data+3)),*((short *)(in_data+5)),0.9f,0.6f,0.2f,0.1f);
 				if(!no_sound)add_sound_object(snd_tele_out,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
 			}
 			break;
 
 		case TELEPORT_IN:
 			{
-				add_teleport_in(*((short *)(in_data+3)),*((short *)(in_data+5)));
+				add_teleport_in(*((short *)(in_data+3)),*((short *)(in_data+5)),0.4f,1.0f,0.6f,0.2f);
 				if(!no_sound)add_sound_object(snd_tele_in,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
 			}
 			break;

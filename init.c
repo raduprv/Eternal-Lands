@@ -35,6 +35,8 @@ void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
 void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 void (APIENTRY * ELglUnlockArraysEXT) (void);
+void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglPointParameterfARB) (GLenum parameter, GLfloat value);
 
 int have_multitexture=0;
 float clouds_movement_u=-8;
@@ -44,6 +46,7 @@ int reflection_texture;
 int use_vertex_array=0;
 int vertex_arrays_built=0;
 int have_compiled_vertex_array=0;
+int have_point_parameter=0;
 
 int shift_on;
 int alt_on;
@@ -60,7 +63,7 @@ void load_harvestable_list()
 	int i=0;
 	char strLine[255];
 
-	memset(harvestable_objects, 0, sizeof(harvestable_objects)); 
+	memset(harvestable_objects, 0, sizeof(harvestable_objects));
 	i=0;
 	f=fopen("harvestable.lst", "rb");
 	if(!f)return;
@@ -79,7 +82,7 @@ void load_entrable_list()
 	int i=0;
 	char strLine[255];
 
-	memset(entrable_objects, 0, sizeof(entrable_objects)); 
+	memset(entrable_objects, 0, sizeof(entrable_objects));
 	i=0;
 	f=fopen("entrable.lst", "rb");
 	if(!f)return;
@@ -98,7 +101,7 @@ void load_knowledge_list()
 	int i=0;
 	char strLine[255];
 
-	memset(knowledge_list, 0, sizeof(knowledge_list)); 
+	memset(knowledge_list, 0, sizeof(knowledge_list));
 	i=0;
 	f=fopen("knowledge.lst", "rb");
 	if(!f)return;
@@ -365,13 +368,13 @@ void init_md2_cache()
 	cache_set_time_limit(cache_md2, 5*60*1000);	// check every 5 minutes
 	cache_set_size_limit(cache_md2, 64*1024*1024);
 #else	//CACHE_SYSTEM
-	memset(md2_cache, 0, sizeof(md2_cache)); 
+	memset(md2_cache, 0, sizeof(md2_cache));
 #endif	//CACHE_SYSTEM
 }
 
 void init_texture_cache()
 {
-	memset(texture_cache, 0, sizeof(texture_cache)); 
+	memset(texture_cache, 0, sizeof(texture_cache));
 }
 
 void init_e3d_cache()
@@ -384,13 +387,13 @@ void init_e3d_cache()
 	cache_set_time_limit(cache_e3d, 5*60*1000);
 	cache_set_size_limit(cache_e3d, 8*1024*1024);
 #else	//CACHE_SYSTEM
-	memset(e3d_cache, 0, sizeof(e3d_cache)); 
+	memset(e3d_cache, 0, sizeof(e3d_cache));
 #endif	//CACHE_SYSTEM
 }
 
 void init_2d_obj_cache()
 {
-	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache)); 
+	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache));
 }
 
 void init_stuff()
@@ -433,10 +436,10 @@ void init_stuff()
 
 
 	init_actors_lists();
-	memset(tile_list, 0, sizeof(tile_list)); 
-	memset(lights_list, 0, sizeof(lights_list)); 
+	memset(tile_list, 0, sizeof(tile_list));
+	memset(lights_list, 0, sizeof(lights_list));
 	init_particles_list();
-	memset(actors_defs, 0, sizeof(actors_defs)); 
+	memset(actors_defs, 0, sizeof(actors_defs));
 	init_actor_defs();
 
 	load_map_tiles();
@@ -464,6 +467,7 @@ void init_stuff()
 	ELglClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
 	ELglLockArraysEXT = SDL_GL_GetProcAddress("glLockArraysEXT");
 	ELglUnlockArraysEXT = SDL_GL_GetProcAddress("glUnlockArraysEXT");
+	ELglPointParameterfARB= SDL_GL_GetProcAddress("glPointParameterfARB");
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
@@ -503,6 +507,22 @@ void init_stuff()
 			log_to_console(c_red1,"Couldn't find one of the GL_EXT_compiled_vertex_array functions, not using it...");
 
 		}
+	if(ELglPointParameterfARB)
+		{
+			have_point_parameter=get_string_occurance("GL_ARB_point_parameters",extensions,ext_str_len,0);
+			if(have_point_parameter<0)
+				{
+					have_point_parameter=0;
+					log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
+				}
+			else log_to_console(c_green2,"GL_ARB_point_parameters extension found, using it...");
+		}
+	else
+		{
+			have_point_parameter=0;
+			log_to_console(c_red1,"Couldn't find the GL_ARB_point_parameters extension, not using it (particles will kind of suck tho)");
+		}
+
 	check_gl_errors();
 
 

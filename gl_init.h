@@ -14,4 +14,8 @@ int print_gl_errors(char *file, char *func, int line);
 #define check_gl_errors()	//NOP
 #endif	//DEBUG
 
+#ifndef POINT_SIZE_MIN_ARB
+#define POINT_SIZE_MIN_ARB 0x8126
+#endif
+
 #endif

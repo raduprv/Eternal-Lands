@@ -6,7 +6,7 @@
 #include <al.h>
 #include <alut.h>
 #ifndef	GNUC	// or should we test for VC
-#define	snprintf _snprintf 
+#define	snprintf _snprintf
 #endif
 #elif defined(OSX)
 #include <OpenAL/alut.h>
@@ -229,6 +229,8 @@ extern void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 extern void (APIENTRY * ELglUnlockArraysEXT) (void);
+extern void (APIENTRY * ELglPointParameterfARB) (GLenum parameter, GLfloat value);
+
 
 extern int shift_on;
 extern int alt_on;
@@ -243,6 +245,7 @@ extern int reflection_texture;
 extern int use_vertex_array;
 extern int vertex_arrays_built;
 extern int have_compiled_vertex_array;
+extern int have_point_parameter;
 
 #define UNDER_MOUSE_NPC 0
 #define UNDER_MOUSE_PLAYER 1
