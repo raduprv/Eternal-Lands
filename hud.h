@@ -12,7 +12,8 @@
 
 #define DATA_NONE -1
 #define DATA_WINDOW 0
-#define DATA_MODE 1
+#define DATA_ACTIONMODE 1
+#define DATA_MODE 2
 
 #define HORIZONTAL 2
 #define VERTICAL 1
@@ -31,14 +32,6 @@ typedef struct
 	char data_type;
 	char free_data;
 } icon_struct;
-
-struct icons_struct
-{
-	int no;
-	int y;
-	int x;
-	icon_struct *icon[25];
-};
 
 extern struct icons_struct icons;
 
