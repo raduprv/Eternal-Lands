@@ -220,6 +220,10 @@ void build_cursors()
 	cursors_array[CURSOR_USE].hot_x=3;
 	cursors_array[CURSOR_USE].hot_y=0;
 	assign_cursor(CURSOR_USE);
+
+	cursors_array[CURSOR_USE_WITEM].hot_x=3;
+	cursors_array[CURSOR_USE_WITEM].hot_y=0;
+	assign_cursor(CURSOR_USE_WITEM);
 }
 
 void check_cursor_change()
@@ -237,21 +241,15 @@ void check_cursor_change()
 		}
 	if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 		{
-			//see if it is a bag. (bag1.e3d)
-			if(get_string_occurance("bag1.e3d",objects_list[object_under_mouse]->file_name, 80,0)!=-1)
-				{
-					if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
-					return;
-				}
-
 			if(action_mode==action_look)
 				{
 					if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
 					return;
 				}
-			if(action_mode==action_use)
+			//see if it is a bag. (bag1.e3d)
+			if(get_string_occurance("bag1.e3d",objects_list[object_under_mouse]->file_name, 80,0)!=-1)
 				{
-					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
+					if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
 					return;
 				}
 			//see if the object is a harvestable resource.
@@ -264,7 +262,6 @@ void check_cursor_change()
 							return;
 						}
 				}
-
 			//see if the object is an entrable resource.
 			for(i=0;i<100;i++)
 				{
@@ -274,6 +271,16 @@ void check_cursor_change()
 							if(current_cursor!=CURSOR_ENTER)change_cursor(CURSOR_ENTER);
 							return;
 						}
+				}
+			if(action_mode==action_use)
+				{
+					if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
+					return;
+				}
+			if(action_mode==action_use_witem)
+				{
+					if(current_cursor!=CURSOR_USE_WITEM)change_cursor(CURSOR_USE_WITEM);
+					return;
 				}
 
 			//hmm, no usefull object, so select walk....

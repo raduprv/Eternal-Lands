@@ -31,6 +31,7 @@ int	display_misc_handler(window_info *win);
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags);
 int	display_quickbar_handler(window_info *win);
 int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
+int	mouseover_quickbar_handler(window_info *win, int mx, int my);
 int	mouseover_stats_bar_handler(window_info *win, int mx, int my);
 
 int hud_x= 64;
@@ -881,6 +882,7 @@ void init_quickbar() {
 				quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len, quickbar_draggable?ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE:ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
 			set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 			set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
+			set_window_handler(quickbar_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickbar_handler );
 		}
 	else
 		{
@@ -1000,6 +1002,45 @@ int	display_quickbar_handler(window_info *win)
 	return 1;
 }
 
+int mouseover_quickbar_handler(window_info *win, int mx, int my) {
+	int y,i;
+	int x_screen,y_screen;
+	for(y=0;y<6;y++)
+		{
+			if(quickbar_dir==VERTICAL)
+				{
+					x_screen=0;
+					y_screen=y*30;
+				}
+			else
+				{
+					x_screen=y*30;
+					y_screen=0;
+				}
+			if(mx>x_screen && mx<x_screen+30 && my>y_screen && my<y_screen+30)
+					{
+						for(i=0;i<ITEM_NUM_ITEMS;i++)
+							{
+								//should we get the info for it?
+								if(item_list[i].quantity && item_list[i].pos==y)
+									{
+										if(action_mode==action_look) {
+											elwin_mouse=CURSOR_EYE;
+										} else if(action_mode==action_use) {
+											elwin_mouse=CURSOR_USE;
+										} else if(action_mode==action_use_witem) {
+											elwin_mouse=CURSOR_USE_WITEM;
+										} else {
+											elwin_mouse=CURSOR_PICK;
+										}
+										return 1;
+									}
+							}
+					}
+			}
+	return 0;
+}
+
 int check_quickbar() {
 	return(click_in_window(quickbar_win, mouse_x, mouse_y, 0));
 }
@@ -1010,6 +1051,30 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 	int x_screen,y_screen;
 	Uint8 str[100];
 	int trigger=ELW_LEFT_MOUSE|ELW_CTRL|ELW_SHIFT;//flags we'll use for the quickbar relocation handling
+
+	if(right_click) {
+		switch(action_mode) {
+		case action_walk:
+			action_mode=action_look;
+			break;
+		case action_look:
+			action_mode=action_use;
+			break;
+		case action_use:
+			action_mode=action_use_witem;
+			break;
+		case action_use_witem:
+			if(use_item!=-1)
+				use_item=-1;
+			else
+				action_mode=action_walk;
+			break;
+		default:
+			use_item=-1;
+			action_mode=action_walk;
+		}
+		return 1;
+	}
 
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
@@ -1088,16 +1153,8 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 							if(item_list[i].quantity && item_list[i].pos==y)
 								{
 
-									if(action_mode==action_look || (flags&ELW_RIGHT_MOUSE))
+									if(action_mode==action_look)
 										{
-											if(cur_time<(click_time+click_speed))
-												if(item_list[i].use_with_inventory)
-													{
-														str[0]=USE_INVENTORY_ITEM;
-														str[1]=item_list[i].pos;
-														my_tcp_send(my_socket,str,2);
-														return 1;
-													}
 											click_time=cur_time;
 											str[0]=LOOK_AT_INVENTORY_ITEM;
 											str[1]=item_list[i].pos;
@@ -1114,6 +1171,17 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 												}
 											return 1;
 										}
+									else if(action_mode==action_use_witem) {
+										if(use_item!=-1) {
+											str[0]=ITEM_ON_ITEM;
+											str[1]=item_list[use_item].pos;
+											str[2]=item_list[i].pos;
+											my_tcp_send(my_socket,str,3);
+										}
+										else
+											use_item=i;
+										return 1;
+									}
 									else//we might test for other things first, like use or drop
 										{
 											if(item_dragged==-1)//we have to drag this item

@@ -7,8 +7,10 @@ extern int auto_camera;
 #define action_walk 0
 #define action_look 1
 #define action_use 2
-#define action_trade 3
-#define action_attack 4
+#define action_use_witem 3
+#define action_trade 4
+#define action_attack 5
+
 
 extern int action_mode;
 

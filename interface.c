@@ -83,13 +83,63 @@ int check_scroll_bars()
 
 void check_mouse_click()
 {
-	if(use_item != -1 && right_click) {
-		use_item = -1;
-		return;
-	}
-
 	// check for a click on the HUD (between scene & windows)
 	if(click_in_windows(mouse_x, mouse_y, 0) > 0)	return;
+
+	if(right_click) {
+		if(object_under_mouse==-1) {
+			action_mode=action_walk;
+			if(use_item!=-1)
+				use_item=-1;
+			if(item_dragged!=-1)
+				item_dragged=-1;
+			return;
+		}
+		switch(current_cursor) {
+		case CURSOR_EYE:
+			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER)
+				action_mode=action_trade;
+			else if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
+				action_mode=action_use;
+			else
+				action_mode=action_walk;
+			break;
+		case CURSOR_HARVEST:
+			action_mode=action_look;
+			break;
+		case CURSOR_TRADE:
+			action_mode=action_attack;
+			break;
+		case CURSOR_USE_WITEM:
+			if(use_item!=-1)
+				use_item=-1;
+			else
+				action_mode=action_walk;
+			break;
+		case CURSOR_ATTACK:
+			if(thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
+				action_mode=action_look;
+			else
+				action_mode=action_walk;
+			break;
+		case CURSOR_ENTER:
+		case CURSOR_PICK:
+		case CURSOR_WALK:
+			if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
+				action_mode=action_look;
+			else
+				action_mode=action_walk;
+			break;
+		case CURSOR_USE:
+		case CURSOR_MAGIC:
+		case CURSOR_TALK:
+		case CURSOR_ARROW:
+		default:
+			action_mode=action_walk;
+			break;
+		}
+		return;
+	}
 
 	//after we test for interface clicks
 	// alternative drop method...
@@ -97,10 +147,11 @@ void check_mouse_click()
 		Uint8 str[10];
 		int quantity = item_list[item_dragged].quantity;
 
-		if(right_click){
-			item_dragged = -1;
+		if(right_click) {
+			item_dragged=-1;
 			return;
 		}
+
 		if (quantity - item_quantity > 0)
 			quantity = item_quantity;
 		str[0] = DROP_ITEM;
@@ -112,8 +163,13 @@ void check_mouse_click()
 		return;
 	}
 
-	//LOOK AT
-	if((current_cursor==CURSOR_EYE && left_click) || (action_mode==action_look && right_click))
+	//if we're following a path, stop now
+	if (pf_follow_path) {
+		pf_destroy_path();
+	}
+
+	switch(current_cursor) {
+	case CURSOR_EYE:
 		{
 			Uint8 str[10];
 
@@ -134,14 +190,9 @@ void check_mouse_click()
 					return;
 				}
 		}
+		break;
 
-	//if we're following a path, stop now
-	if (pf_follow_path) {
-		pf_destroy_path();
-	}
-
-	//TRADE
-	if((action_mode==action_trade && right_click) || (current_cursor==CURSOR_TRADE && left_click))
+	case CURSOR_TRADE:
 		{
 			Uint8 str[10];
 
@@ -152,9 +203,9 @@ void check_mouse_click()
 			my_tcp_send(my_socket,str,5);
 			return;
 		}
+		break;
 
-	//ATTACK
-	if((current_cursor==CURSOR_ATTACK && left_click) || (action_mode==action_attack && right_click))
+	case CURSOR_ATTACK:
 		{
 			Uint8 str[10];
 
@@ -167,9 +218,12 @@ void check_mouse_click()
 					return;
 				}
 		}
+		break;
 
-	//USE
-	if(((current_cursor==CURSOR_TALK || (current_cursor==CURSOR_ENTER && (!you_sit||!sit_lock)) || current_cursor==CURSOR_USE) && left_click) || (action_mode==action_use && right_click))
+	case CURSOR_USE:
+	case CURSOR_USE_WITEM:
+	case CURSOR_TALK:
+	case CURSOR_ENTER:
 		{
 			Uint8 str[10];
 
@@ -185,24 +239,23 @@ void check_mouse_click()
 					for(i=0;i<20;i++)dialogue_responces[i].in_use=0;
 					return;
 				}
-			//action_mode=action_walk;
 			str[0]=USE_MAP_OBJECT;
 			*((int *)(str+1))=object_under_mouse;
 			*((int *)(str+5))=use_item;
 			my_tcp_send(my_socket,str,9);
 			return;
 		}
+		break;
 
-	//OPEN BAG
-	if(current_cursor==CURSOR_PICK && left_click && (!you_sit || !sit_lock))
+	case CURSOR_PICK:
 		{
 			if(object_under_mouse==-1)return;
 			open_bag(object_under_mouse);
 			return;
 		}
+		break;
 
-	//HARVEST
-	if(current_cursor==CURSOR_HARVEST && left_click)
+	case CURSOR_HARVEST:
 		{
 			Uint8 str[10];
 
@@ -212,9 +265,10 @@ void check_mouse_click()
 			my_tcp_send(my_socket,str,3);
 			return;
 		}
+		break;
 
-	//WALK
-	if((action_mode==action_walk && right_click) || (current_cursor==CURSOR_WALK && left_click && (!you_sit || !sit_lock)))
+	case CURSOR_WALK:
+	default:
 		{
 			Uint8 str[10];
 			short x,y;
@@ -232,6 +286,7 @@ void check_mouse_click()
 			my_tcp_send(my_socket,str,5);
 			return;
 		}
+	}
 
 	left_click=2;
 	right_click=2;
@@ -661,10 +716,9 @@ void draw_ingame_interface()
 	draw_hud_frame();
 	display_windows(1);	// Display all the windows handled by the window manager
 	//draw_hud_interface();
-    display_spells_we_have();
-    if(item_dragged!=-1)drag_item(item_dragged,0);
-	if(use_item!=-1 && action_mode!=action_use)use_item=-1;
-    if(use_item!=-1)drag_item(use_item,1);
+	display_spells_we_have();
+	if(item_dragged!=-1)drag_item(item_dragged,0);
+	if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM)drag_item(use_item,1);
 }
 
 void draw_menu_title_bar(int x, int y, int x_len)

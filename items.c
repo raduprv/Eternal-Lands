@@ -278,6 +278,30 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int x_screen,y_screen;
 	Uint8 str[100];
 
+	if(right_click) {
+		switch(action_mode) {
+		case action_walk:
+			action_mode=action_look;
+			break;
+		case action_look:
+			action_mode=action_use;
+			break;
+		case action_use:
+			action_mode=action_use_witem;
+			break;
+		case action_use_witem:
+			if(use_item!=-1)
+				use_item=-1;
+			else
+				action_mode=action_walk;
+			break;
+		default:
+			use_item=-1;
+			action_mode=action_walk;
+		}
+		return 1;
+	}
+
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
 		for(x=0;x<2;x++)
@@ -343,16 +367,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 											my_tcp_send(my_socket, str, 4);
 											return 1;
 										}
-										if(action_mode==action_look || right_click)
+										if(action_mode==action_look)
 											{
-												if(cur_time<(click_time+click_speed))
-													if(item_list[i].use_with_inventory)
-														{
-															str[0]=USE_INVENTORY_ITEM;
-															str[1]=item_list[i].pos;
-															my_tcp_send(my_socket,str,2);
-															return 1;
-														}
 												click_time=cur_time;
 												str[0]=LOOK_AT_INVENTORY_ITEM;
 												str[1]=item_list[i].pos;
@@ -360,22 +376,25 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 											}
 										else if(action_mode==action_use)
 											{
+												if(item_list[i].use_with_inventory)
+													{
+														str[0]=USE_INVENTORY_ITEM;
+														str[1]=item_list[i].pos;
+														my_tcp_send(my_socket,str,2);
+													}
+												return 1;
+											}
+										else if(action_mode==action_use_witem) {
 												if(use_item!=-1) {
 													str[0]=ITEM_ON_ITEM;
 													str[1]=item_list[use_item].pos;
 													str[2]=item_list[i].pos;
 													my_tcp_send(my_socket,str,3);
 												}
-												else if(item_list[i].use_with_inventory)
-													{
-														str[0]=USE_INVENTORY_ITEM;
-														str[1]=item_list[i].pos;
-														my_tcp_send(my_socket,str,2);
-													}
 												else
 													use_item=i;
 												return 1;
-											}
+										}
 										else//we might test for other things first, like use or drop
 											{
 												if(item_dragged==-1)//we have to drag this item
@@ -780,6 +799,14 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int x_screen,y_screen;
 	Uint8 str[10];
 
+	if(right_click) {
+		if(action_mode==action_look)
+			action_mode=action_walk;
+		else
+			action_mode=action_look;
+		return 1;
+	}
+
 	// see if we clicked on the "Get All" box
 	if(mx>(win->len_x-33) && mx<win->len_x && my>20 && my<53){
 		int pos;
@@ -820,7 +847,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 							}
 							return 1;
 						}
-						if(action_mode==action_look || right_click)
+						if(action_mode==action_look)
 							{
 								str[0]= LOOK_AT_GROUND_ITEM;
 								str[1]= pos;
@@ -888,6 +915,8 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 											elwin_mouse=CURSOR_EYE;
 										} else if(action_mode==action_use) {
 											elwin_mouse=CURSOR_USE;
+										} else if(action_mode==action_use_witem) {
+											elwin_mouse=CURSOR_USE_WITEM;
 										} else {
 											elwin_mouse=CURSOR_PICK;
 										}

@@ -13,6 +13,7 @@
 #define CURSOR_TRADE 8
 #define CURSOR_MAGIC 9
 #define CURSOR_USE 10
+#define CURSOR_USE_WITEM 11
 
 #define UNDER_MOUSE_NPC 0
 #define UNDER_MOUSE_PLAYER 1
