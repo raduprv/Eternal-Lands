@@ -398,9 +398,9 @@ int HandleEvent(SDL_Event *event)
 			if(left_click && cur_tool==tool_select && selected_tile!=255  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3 && scene_mouse_x<tile_map_size_x*3)
 			{
 				tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3]=selected_tile;
-					if(selected_tile == 0 || selected_tile == 20 || selected_tile == 21){
+				if(selected_tile == 0 || selected_tile == 20 || selected_tile == 21)
 					kill_height_map_at_texture_tile((int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3);
-				}
+				return(done);
 			}
 
 			if(left_click==1 && check_browser_interface())return done;
