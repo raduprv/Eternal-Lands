@@ -503,7 +503,7 @@ void display_console_text()
 	int command_line_y;
 
 	//get the number of lines we have - the last one, which is the command line
-	max_lines=window_height-hud_y/18-2;
+	max_lines=(window_height-hud_y)/18-2;
 	if(not_from_the_end_console)max_lines--;
 	command_line_y=window_height-hud_y-36;
 
