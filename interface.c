@@ -587,7 +587,10 @@ void draw_login_screen()
 		}
 
 	//check to see if we clicked on the ACTIVE New Char button
-	if(new_char_button_selected && left_click==1) init_rules_interface(interface_new_char, 1.0f, 30);
+	if(new_char_button_selected && left_click==1) {
+		init_rules_interface(interface_new_char, 1.0f, 30);
+		left_click=2;
+	}
 
 	//ok, start drawing the interface...
 	sprintf(str,"%s: ",login_username_str);

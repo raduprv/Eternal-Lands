@@ -255,7 +255,6 @@ void highlight_rule(int type, Uint8 * rule, int no)
 	if(type==RULE_WIN)toggle_rules_window(0);
 	else if(type==RULE_INTERFACE){
 		init_rules_interface(rule[2], 1.0f, *((Uint16*)(rule)));
-		interface_mode=interface_rules;
 		rule+=3;
 		no-=3;
 	} else return; //Hmm...
