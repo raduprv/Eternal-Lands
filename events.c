@@ -57,6 +57,23 @@ Uint8 quick_use_str[2];
 int i=0;
 
 
+void	quick_use(int use_id)
+{
+	int	i;
+
+	for(i=0; i<ITEM_NUM_ITEMS; i++){
+		if(item_list[i].pos==use_id &&
+			item_list[i].quantity &&
+			item_list[i].use_with_inventory){
+				quick_use_str[0]=USE_INVENTORY_ITEM;
+				quick_use_str[1]=5;
+				my_tcp_send(my_socket,quick_use_str,2);
+				break;
+		}
+	}
+}
+
+
 int HandleEvent(SDL_Event *event)
 {
 	int done=0;
@@ -126,26 +143,26 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if ( event->key.keysym.sym == SDLK_RETURN && alt_on)
+				if (event->key.keysym.sym == SDLK_RETURN && alt_on)
 					{
 						toggle_full_screen();
 						break;
 					}
 
-				if ( event->key.keysym.sym == SDLK_UP && interface_mode==interface_console)
+				if (event->key.keysym.sym == SDLK_UP && interface_mode==interface_console)
 					console_move_up();
 
 				if(key==K_CAMERAUP && interface_mode==interface_game)
 					if(rx>-60)rx-=1.0f;
 
 
-				if ( event->key.keysym.sym == SDLK_DOWN && interface_mode==interface_console)
+				if (event->key.keysym.sym == SDLK_DOWN && interface_mode==interface_console)
 					console_move_down();
 						
 				if(key==K_CAMERADOWN && interface_mode==interface_game)
 					if(rx<-45)rx +=1.0f;
 
-				if ( event->key.keysym.sym == SDLK_PAGEDOWN && interface_mode==interface_console)
+				if (event->key.keysym.sym == SDLK_PAGEDOWN && interface_mode==interface_console)
 					console_move_page_down();
 
 				if(key==K_ZOOMOUT && interface_mode==interface_game){
@@ -155,86 +172,27 @@ int HandleEvent(SDL_Event *event)
 					}
 				}
 
-				if ( event->key.keysym.sym == SDLK_PAGEUP && interface_mode==interface_console)
+				if (event->key.keysym.sym == SDLK_PAGEUP && interface_mode==interface_console)
 					console_move_page_up();
 
 				if(key==K_ITEM1){
-				  for(i=0;i<ITEM_NUM_ITEMS;i++){
-				    if(item_list[i].pos==0 &&
-				       item_list[i].quantity &&
-				       item_list[i].use_with_inventory){
-				      quick_use_str[0]=USE_INVENTORY_ITEM;
-				      quick_use_str[1]=0;
-				      my_tcp_send(my_socket,quick_use_str,2);
-				      break;
-				    }
-				  }
-				  break;
-				}
-				if(key==K_ITEM2){
-				  for(i=0;i<ITEM_NUM_ITEMS;i++){
-				    if(item_list[i].pos==1 &&
-				       item_list[i].quantity &&
-				       item_list[i].use_with_inventory){
-				      quick_use_str[0]=USE_INVENTORY_ITEM;
-				      quick_use_str[1]=1;
-				      my_tcp_send(my_socket,quick_use_str,2);
-				      break;
-				    }
-				  }
-				  break;
-				}
-				if(key==K_ITEM3){
-				  for(i=0;i<ITEM_NUM_ITEMS;i++){
-				    if(item_list[i].pos==2 &&
-				       item_list[i].quantity &&
-				       item_list[i].use_with_inventory){
-				      quick_use_str[0]=USE_INVENTORY_ITEM;
-				      quick_use_str[1]=2;
-				      my_tcp_send(my_socket,quick_use_str,2);
-				      break;
-				    }
-				  }
-				  break;
-				}
-				if(key==K_ITEM4){
-				  for(i=0;i<ITEM_NUM_ITEMS;i++){
-				    if(item_list[i].pos==3 &&
-				       item_list[i].quantity &&
-				       item_list[i].use_with_inventory){
-				      quick_use_str[0]=USE_INVENTORY_ITEM;
-				      quick_use_str[1]=3;
-				      my_tcp_send(my_socket,quick_use_str,2);
-				      break;
-				    }
-				  }
-				  break;
-				}
-				if(key==K_ITEM5){
-				  for(i=0;i<ITEM_NUM_ITEMS;i++){
-				    if(item_list[i].pos==4 &&
-				       item_list[i].quantity &&
-				       item_list[i].use_with_inventory){
-				      quick_use_str[0]=USE_INVENTORY_ITEM;
-				      quick_use_str[1]=4;
-				      my_tcp_send(my_socket,quick_use_str,2);
-				      break;
-				    }
-				  }
-				  break;
-				}
-				if(key==K_ITEM6){
-				  for(i=0;i<ITEM_NUM_ITEMS;i++){
-				    if(item_list[i].pos==5 &&
-				       item_list[i].quantity &&
-				       item_list[i].use_with_inventory){
-				      quick_use_str[0]=USE_INVENTORY_ITEM;
-				      quick_use_str[1]=5;
-				      my_tcp_send(my_socket,quick_use_str,2);
-				      break;
-				    }
-				  }
-				  break;
+					quick_use(0);
+					break;
+				} else if(key==K_ITEM2){
+					quick_use(1);
+					break;
+				} else if(key==K_ITEM3){
+					quick_use(2);
+					break;
+				} else if(key==K_ITEM4){
+					quick_use(3);
+					break;
+				} else if(key==K_ITEM5){
+					quick_use(4);
+					break;
+				} else if(key==K_ITEM6){
+					quick_use(5);
+					break;
 				}
 
 
