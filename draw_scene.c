@@ -357,6 +357,8 @@ void get_tmp_actor_data()
 					actors_list[i]->tmp.x_rot=actors_list[i]->x_rot;
 					actors_list[i]->tmp.y_rot=actors_list[i]->y_rot;
 					actors_list[i]->tmp.z_rot=actors_list[i]->z_rot;
+					
+					actors_list[i]->tmp.have_tmp=1;
 				}
 		}
 	unlock_actors_lists();
@@ -373,7 +375,7 @@ void Move()
 #endif
 	for(i=0;i<max_actors;i++)
 		{
-			if(actors_list[i] && actors_list[i]->actor_id==yourself)
+			if(actors_list[i] && actors_list[i]->actor_id==yourself && actors_list[i]->tmp.have_tmp)
 				{
 #ifdef OPTIMIZED_LOCKS
 					//lock_actors_lists();

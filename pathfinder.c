@@ -186,7 +186,6 @@ actor *pf_get_our_actor()
 			return actors_list[i];
 		}
 	}
-	if(i<max_actors) return actors_list[i];
 	return NULL;
 }
 
@@ -262,7 +261,7 @@ int pf_is_tile_occupied(int x, int y)
 		if(actors_list[i]) {
 #ifdef OPTIMIZED_LOCKS
 			//lock_actors_lists();
-			if (actors_list[i]->tmp.x_tile_pos == x && actors_list[i]->tmp.y_tile_pos == y) {
+			if (actors_list[i]->tmp.have_tmp && actors_list[i]->tmp.x_tile_pos == x && actors_list[i]->tmp.y_tile_pos == y) {
 #else
 			if (actors_list[i]->x_tile_pos == x && actors_list[i]->y_tile_pos == y) {
 #endif

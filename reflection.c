@@ -379,13 +379,7 @@ void display_3d_reflection()
 
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0.0f,0.0f,1.0f);
-#ifdef POSSIBLE_FIX
-#ifdef EXPENSIVE_CHECKING
-#ifndef OPTIMIZED_LOCKS
-	lock_actors_lists();
-#endif
-#endif
-#endif
+	
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -395,6 +389,7 @@ void display_3d_reflection()
 					int dist2;
 
 #ifdef OPTIMIZED_LOCKS
+					if(!actors_list[i]->tmp.have_tmp)continue;
 					//lock_actors_lists();
 					dist1=x-actors_list[i]->tmp.x_pos;
 					dist2=y-actors_list[i]->tmp.y_pos;
@@ -408,18 +403,9 @@ void display_3d_reflection()
 									draw_enhanced_actor_reflection(actors_list[i]);
 								else draw_actor_reflection(actors_list[i]);
 							}
-#ifdef OPTIMIZED_LOCKS
-					//unlock_actors_lists();
-#endif
 				}
 		}
-#ifdef POSSIBLE_FIX
-#ifdef EXPENSIVE_CHECKING
-#ifdef OPTIMIZED_LOCKS
-	unlock_actors_lists();
-#endif
-#endif
-#endif
+	
 	glPopMatrix();
 	reset_material();
 

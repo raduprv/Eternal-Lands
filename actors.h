@@ -169,6 +169,8 @@ typedef struct
 #ifdef OPTIMIZED_LOCKS
 typedef struct //Data accessed by both the rendering and the timer threads...
 {
+	int have_tmp;
+	
 	char cur_frame[16];
 	
 	double x_pos;

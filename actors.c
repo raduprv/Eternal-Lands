@@ -121,7 +121,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
 #ifndef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
+#ifndef OPTIMIZED_LOCKS //Don't release it yet...
 	unlock_actors_lists();	// release now that we are done
 #endif
 #endif
@@ -649,10 +649,8 @@ void display_actors()
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 #ifdef POSSIBLE_FIX
-#ifdef EXPENSIVE_CHECKING
 #ifndef OPTIMIZED_LOCKS
 	lock_actors_lists();	//lock it to avoid timing issues
-#endif
 #endif
 #else
 	lock_actors_lists();	//lock it to avoid timing issues
@@ -668,7 +666,7 @@ void display_actors()
 						int dist2;
 
 #ifdef OPTIMIZED_LOCKS
-						//lock_actors_lists();
+						if(!cur_actor->tmp.have_tmp)continue;
 						dist1=x-cur_actor->tmp.x_pos;
 						dist2=y-cur_actor->tmp.y_pos;
 #else
@@ -680,14 +678,10 @@ void display_actors()
 								if(cur_actor->is_enhanced_model)
 									{
 										draw_enhanced_actor(cur_actor);
-#ifndef POSSIBLE_FIX 
-	/*I am not sure it's wise to do that while the actors_list is locked 
-	- what do you say Mihai? I think that SDL allows it to bypass the mutex 
-	as it's created in the same thread, hence we might get cur_actor==NULL! 
-	Which would of course crash the next if(cur_actor->...)
-	We'd at least need a check to see if we should drop the cur_actor...*/
 										//check for network data - reduces resyncs
 										get_message_from_server();
+#ifdef POSSIBLE_FIX
+										if(cur_actor==NULL)continue;//The server might destroy our actor in that very moment...
 #endif
 									}
 								else
@@ -701,9 +695,6 @@ void display_actors()
 										anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
 									else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 							}
-#ifdef OPTIMIZED_LOCKS
-						//unlock_actors_lists();
-#endif
 					}
 				else
 					{
@@ -729,7 +720,7 @@ void display_actors()
 							int dist2;
 
 #ifdef OPTIMIZED_LOCKS
-							//lock_actors_lists();
+							if (!cur_actor->tmp.have_tmp) continue;
 							dist1=x-cur_actor->tmp.x_pos;
 							dist2=y-cur_actor->tmp.y_pos;
 #else
@@ -753,17 +744,12 @@ void display_actors()
 											anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
 										else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 								}
-#ifdef OPTIMIZED_LOCKS
-							//unlock_actors_lists();
-#endif
 						}
 			}
 	}
 #ifdef POSSIBLE_FIX
-#ifdef EXPENSIVE_CHECKING
 #ifndef OPTIMIZED_LOCKS
 	unlock_actors_lists();	//lock it to avoid timing issues
-#endif
 #endif
 #else
 	unlock_actors_lists();	//lock it to avoid timing issues
