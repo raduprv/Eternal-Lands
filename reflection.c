@@ -191,7 +191,6 @@ void draw_3d_reflection(object3d * object_id)
 				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 				if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 			}
-
 	check_gl_errors();
 	glPopMatrix();//restore the scene
 	check_gl_errors();
@@ -386,33 +385,25 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 	float fx,fy;
 	float x_step,y_step;
 	float u_step,v_step;
-	float uv_tile=50;
+	float uv_tile=1.0f/50.0f;
 
 	x_step=3.0f/16.0f;
 	y_step=3.0f/16.0f;
 
-	u_step=3.0f/uv_tile;
-	v_step=3.0f/uv_tile;
+	u_step=3.0f*uv_tile;
+	v_step=3.0f*uv_tile;
 
-	glBegin(GL_QUADS);
+	glBegin(GL_TRIANGLE_STRIP);
 	for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
 		{
-			for(x=0,fx=x_pos;x<16;fx+=x_step,x++)
+			for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
 				{
- 					glTexCoord2f((fx)*u_step+noise_array[((y+1)&15)*16+x].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+x].v+water_movement_v);
+ 					glTexCoord2f(fx*u_step+noise_array[((y+1)&15)*16+(x&15)].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+(x&15)].v+water_movement_v);
 	 				glVertex3f(fx,fy+y_step, water_deepth_offset);
 
-					glTexCoord2f((fx)*u_step+noise_array[y*16+x].u+water_movement_u, (fy)*v_step+noise_array[y*16+x].v+water_movement_v);
+					glTexCoord2f(fx*u_step+noise_array[y*16+(x&15)].u+water_movement_u, fy*v_step+noise_array[y*16+(x&15)].v+water_movement_v);
 					glVertex3f(fx,fy, water_deepth_offset);
-
-					glTexCoord2f((fx+x_step)*u_step+noise_array[y*16+((x+1)&15)].u+water_movement_u, (fy)*v_step+noise_array[y*16+((x+1)&15)].v+water_movement_v);
-					glVertex3f(fx+x_step, fy,water_deepth_offset);
-
-					glTexCoord2f((fx+x_step)*u_step+noise_array[((y+1)&15)*16+((x+1)&15)].u+water_movement_u, (fy+y_step)*v_step+noise_array[((y+1)&15)*16+((x+1)&15)].v+water_movement_v);
-					glVertex3f(fx+x_step, fy+y_step,water_deepth_offset);
-
 				}
-
 		}
 	glEnd();
 }
@@ -424,6 +415,7 @@ void draw_lake_tiles()
 	int x,y;
 	float x_scaled,y_scaled;
 
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	bind_texture_id(get_texture_id(sky_text_1));
@@ -443,6 +435,7 @@ void draw_lake_tiles()
 			int actualy=y;
 			if(actualy<0)actualy=0;
 			else if(actualy>=tile_map_size_y)actualy=tile_map_size_y-1;
+			actualy*=tile_map_size_x;
 			y_scaled=y*3.0f;
 			for(x=x_start;x<=x_end;x++)
 				{
@@ -450,12 +443,12 @@ void draw_lake_tiles()
 					if(actualx<0)actualx=0;
 					else if(actualx>=tile_map_size_x)actualx=tile_map_size_x-1;
 					x_scaled=x*3.0f;
-					if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
-					if(!tile_map[actualy*tile_map_size_x+actualx])draw_lake_water_tile(x_scaled,y_scaled);
+					if(!tile_map[actualy+actualx] && check_tile_in_frustrum(x_scaled,y_scaled))draw_lake_water_tile(x_scaled,y_scaled);
 				}
 		}
 
 	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
 }
 
 void draw_sky_background()
