@@ -182,7 +182,7 @@ void send_login_info()
 	//join the username and password, and send them to the server
 	str[0]=LOG_IN;
 
-	if(caps_filter && my_isupper(username_str)) my_tolower(username_str);
+	if(caps_filter && my_isupper(username_str, len)) my_tolower(username_str);
 	for(i=0;i<len;i++)str[i+1]=username_str[i];
 	str[i+1]=' ';
 	i++;

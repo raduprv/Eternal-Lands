@@ -139,16 +139,9 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	else this_actor->cape=0;
 
 	//get the skin
-	texture_id=load_bmp8_enhanced_actor(this_actor, 255);
+	texture_id= load_bmp8_enhanced_actor(this_actor, 255);
 
 	our_actor = calloc(1, sizeof(actor));
-
-	//find a free spot, in the actors_list
-	lock_actors_lists();	//lock it to avoid timing issues
-	for(i=0;i<max_actors;i++)
-		{
-			if(!actors_list[i])break;
-		}
 
 	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
 	our_actor->current_displayed_text_time_left =  0;
@@ -191,10 +184,18 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor->sit_idle=0;
 	our_actor->body_parts=this_actor;
 
+	//find a free spot, in the actors_list
+	lock_actors_lists();	//lock it to avoid timing issues
+	for(i=0;i<max_actors;i++)
+		{
+			if(!actors_list[i])break;
+		}
+
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
 	no_bounding_box=0;
 	unlock_actors_lists();	//unlock it
+
 	return i;
 }
 
@@ -639,7 +640,7 @@ void add_enhanced_actor_from_server(char * in_data)
 		}
 
 	my_strncp(actors_list[i]->actor_name,&in_data[28],30);
-	if(caps_filter && my_isupper(actors_list[i]->actor_name)) my_tolower(actors_list[i]->actor_name);
+	if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
 	unlock_actors_lists();  //unlock it
 
 }

@@ -227,13 +227,15 @@ Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src)
 }
 
 // is this string more then one character and all alpha in it are CAPS?
-Sint32 my_isupper(const Uint8 *src)
+Sint32 my_isupper(const Uint8 *src, int len)
 {
-	if(!src || !src[0] || !src[1] || !src[2]) return 0;
-	while(*src)
+	if (len < 0)	len=strlen(src);
+	if(!src || !src[0] || !src[1] || !src[2] || len == 0) return 0;
+	while(*src && len > 0)
 		{
 			if(*src != toupper(*src)) return 0;	//at least one lower
 			src++;
+			len--;
 		}
 	return 1;	// is all upper or all num
 }

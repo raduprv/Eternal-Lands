@@ -107,17 +107,36 @@ int filter_text(Uint8 * input_text, int len)
 
 	//do we need to do CAPS filtering?
 	if(caps_filter)
-		{
+		{ 
+			int	clen=len;
+			// skip any coloring
+			if(*rloc >= 128) while(*rloc && *rloc >= 128 && clen > 0)
+				{
+					rloc++;
+					clen--;
+				}
 			// handle PM's
-			if(*rloc == '[' || rloc[1] == '[') while(*rloc && *rloc != ':') rloc++;
+			if(*rloc == '[' || rloc[1] == '[') while(*rloc && *rloc != ':' && clen > 0)
+				{
+					rloc++;
+					clen--;
+				}
 			// or ignore first word
-			else while(*rloc && *rloc != ' ' && *rloc != ':') rloc++;
-			while(*rloc && (*rloc == ' ' || *rloc == ':' || *rloc >128)) rloc++;
+			else while(*rloc && *rloc != ' ' && *rloc != ':' && clen > 0)
+				{
+					rloc++;
+					clen--;
+				}
+			while(*rloc && (*rloc == ' ' || *rloc == ':' || *rloc >= 128) && clen > 0)
+				{
+					rloc++;
+					clen--;
+				}
 			// check for hitting the EOS
-			if(!*rloc) rloc=input_text;
+			if(!*rloc) rloc= input_text;
 			// if we pass the upper test, entire line goes lower
-			if(len-(rloc-input_text) > 4 && my_isupper(rloc)) my_tolower(input_text);
-			rloc=input_text;	// restore the initial value
+			if(len-(rloc-input_text) > 4 && my_isupper(rloc, clen)) my_tolower(input_text);
+			rloc= input_text;	// restore the initial value
 		}
 	//do we need to do any content filtering?
 	if(max_filters == 0)return(len);

@@ -72,7 +72,7 @@ void send_input_text_line()
 	int len;
 	Uint8 ch;
 
-	if(caps_filter && strlen(input_text_line) > 4 && my_isupper(input_text_line)) my_tolower(input_text_line);
+	if(caps_filter && strlen(input_text_line) > 4 && my_isupper(input_text_line, -1)) my_tolower(input_text_line);
 	i=0;
 	j=1;
 	if(input_text_line[0]!='/')//we don't have a PM

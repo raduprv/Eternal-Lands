@@ -15,7 +15,7 @@ void my_strncp(Uint8 *dest,const Uint8 * source,Sint32 len);
 void my_strcat(Uint8 *dest,const Uint8 * source);
 Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len);
 Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src);
-Sint32 my_isupper(const Uint8 *src);
+Sint32 my_isupper(const Uint8 *src, int len);
 Uint8 *my_tolower(Uint8 *src);
 
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len);
