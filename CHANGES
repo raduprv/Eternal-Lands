@@ -1,3 +1,7 @@
+09-02-04
+Reduced CPU usage when game is not being dsiplayed (minimized, etc)
+Added additional network polling into draw_scene() and display_actors() to reduce resyncs
+
 06-22-04
 Total revamp of windows handling to use a single window manager interface
 

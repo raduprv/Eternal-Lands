@@ -8,11 +8,9 @@ Exit game back to Server Selection screen
 
 Learner:
 OSX support - finally in progress again
-Reduce memory usage when VA's are enabled for MD2's - testing
-Smarter caching system for MD2's and E3D's - testing
-Improve screen windows handling for more consistent look and less duplicated code - testing
 Investigate variable width fonts - preliminary testing
 Faster mouse icon switch without dropping FPS
+
 
 
 Others:
@@ -25,7 +23,6 @@ Depth shadows
 Various spell effects.
 On card that support VBO, make the 3d objects and models VBO.
 Make use of other extensions
-Make some NICE looking particle system.
 Support for missiles 
 Finish synchronize ELC & map_editor code
 
