@@ -172,13 +172,10 @@ void list_ignores()
 
 	if(!ignored_so_far)
 		{
-			str[0]=127+c_grey1;
-			my_strcp(&str[1],"You are ignoring no one!");
-			put_text_in_buffer(str,strlen(str),0);
+			log_to_console(c_grey1,"You are ignoring no one!");
 			return;
 		}
-	str[0]=127+c_grey1;
-	my_strcp(&str[1],"You are currently ignoring:\n");
+	my_strcp(str,"You are currently ignoring:\n");
 	for(i=0;i<max_ignores;i++)
 		{
 			if(ignore_list[i].used)
@@ -190,7 +187,7 @@ void list_ignores()
 
 	str[strlen(str)-2]=0;//get rid of the last ", " thingy
 
-	put_text_in_buffer(str,strlen(str),0);
+	log_to_console(c_grey1,str);
 
 }
 
