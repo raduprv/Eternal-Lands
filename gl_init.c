@@ -370,7 +370,6 @@ void init_video()
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );
 	glClearStencil(0);
 
-	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE,GL_LINEAR);
 	glFogf(GL_FOG_START,5.0);
 	glFogf(GL_FOG_END,35.0);

@@ -218,6 +218,7 @@ void draw_scene()
 		//check for network data
 		get_message_from_server();
 
+		glEnable(GL_FOG);
 		if(any_reflection)
 			{
 			  	if(!dungeon)draw_sky_background();
@@ -242,7 +243,7 @@ void draw_scene()
 			display_objects();
 			display_actors();
 		}
-
+		glDisable(GL_FOG);
 		check_gl_errors();
 
 		//check for network data - reduces resyncs
