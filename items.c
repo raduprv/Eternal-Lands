@@ -872,7 +872,6 @@ void display_items_menu()
 		show_window(items_win);
 		select_window(items_win);
 	}
-	display_window(items_win);
 }
 
 
@@ -888,6 +887,5 @@ void draw_pick_up_menu()
 		show_window(ground_items_win);
 		select_window(ground_items_win);
 	}
-	display_window(ground_items_win);
 }
 
