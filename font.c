@@ -154,12 +154,12 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
-void draw_string(int x, int y,unsigned char * our_string,int max_lines)
+void draw_string(int x, int y,const unsigned char * our_string,int max_lines)
 {
 	draw_string_zoomed(x, y,our_string,max_lines, 1.0f);
 }
 
-void draw_string_zoomed(int x, int y,unsigned char * our_string,int max_lines, float text_zoom)
+void draw_string_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float text_zoom)
 {
 	float displayed_font_x_size=11.0*text_zoom;
 	float displayed_font_y_size=18.0*text_zoom;
@@ -206,7 +206,7 @@ void draw_string_zoomed(int x, int y,unsigned char * our_string,int max_lines, f
 
 }
 
-void draw_string_small(int x, int y,unsigned char * our_string,int max_lines)
+void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
 {
 	int displayed_font_x_size=8;
 	int displayed_font_y_size=15;
@@ -251,7 +251,7 @@ void draw_string_small(int x, int y,unsigned char * our_string,int max_lines)
 	glDisable(GL_ALPHA_TEST);
 }
 
-void draw_ingame_string(float x, float y,unsigned char * our_string,
+void draw_ingame_string(float x, float y,const unsigned char * our_string,
 						int max_lines,int big)
 {
 	float u_start,u_end,v_start,v_end;
@@ -373,13 +373,13 @@ int get_char_width(unsigned char cur_char)
 }
 
 
-int get_string_width(unsigned char *str)
+int get_string_width(const unsigned char *str)
 {
 	return get_nstring_width(str, strlen(str));
 }
 
 
-int get_nstring_width(unsigned char *str, int len)
+int get_nstring_width(const unsigned char *str, int len)
 {
 	int	i, wdt=0;
 	for(i=0; i<len; i++) wdt+=get_char_width(str[i]);
