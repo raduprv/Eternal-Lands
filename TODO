@@ -1,33 +1,28 @@
 Cicero:
-Add music (Ogg vorbis player) -- testing
+Add music (Ogg vorbis player) -- testing + need server support
 log, cfg, & ini in user directory tree
 	-Specify alternate directory to load games files from
-S/W version check & upload -- testing
-	-Check for newer versions of files by comparing MD5 sums
-	-http download of a file
+S/W version check & upload -- need server support to finish
+	-check MD5 sum of a file -- testing
+	-http download of a file -- testing
 User defined keyboard/mouse bindings
+add option to limit fps
+
 
 Learner:
 OSX support - delayed :(
 Faster mouse icon switch without dropping FPS
 Investigate variable width fonts - preliminary testing
-save zoom level and angle in el.cfg
 Better faq support
 Change the internal way MD2s are loaded, and make them vertex arrays. - TESTING
 
 
-Ent's original list:
-Depth shadows (very complicated) 
-Various spell effects. (medium-hard) 
-Buddy list menu (will do the server part myself) 
-On card that support OVB, make the 3d objects and models VBO.
-Make use of other extensions, if supported (such as texture compression, bump mapping, etc.) 
-
-
 Unassigned:
-Chat Window
-MultiChannel Chat (needs server support)
-Server selection screen (we only have one server right now...)
-rework internal windowing system to keep track of which window is on top and
-	to draw them and catch clicks accordingly
-
+Depth shadows
+Various spell effects.
+Buddy list menu
+On card that support OVB, make the 3d objects and models VBO.
+Make use of other extensions
+Server selection screen -- don't have multiple servers yet :p
+Fix windows (layering)
+Chat Window -- would like multiple channel support first
