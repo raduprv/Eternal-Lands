@@ -391,6 +391,7 @@ int poor_man=0;
 int mouse_limit=15;
 int no_adjust_shadows=0;
 int clouds_shadows=1;
+int no_alpha_sat=0;
 help_entry help_list[MAX_HELP_ENTRIES];
 char home[100];
 char datadir[200];
