@@ -112,9 +112,21 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 
 	// check for auto-length
 	if(len<0)len=strlen(text_to_add);
-	//get the time when we got this line
+	//set the time when we got this line
 	last_server_message_time=cur_time;
 	if(lines_to_show<max_lines_no)lines_to_show++;
+	//watch for the end of buffer!
+	if (display_text_buffer_last+len+8 >= max_display_text_buffer_lenght)
+		{
+			memmove(display_text_buffer, display_text_buffer+1024, display_text_buffer_last-1024);
+			display_text_buffer_last-=1024;
+			display_text_buffer_first-=1024;
+			if(display_console_text_buffer_first<0)
+				{
+					display_console_text_buffer_first=0;
+				}
+		}
+	
 	// force the color
 	display_text_buffer[display_text_buffer_last]=127+color;
 	display_text_buffer_last++;
