@@ -103,7 +103,7 @@ void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_sta
 int y_start,int x_end,int y_end);
 void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_start,
 int y_start,int x_end,int y_end);
-void draw_options_menu();
+void display_options_menu();
 //int check_options_menu();
 void draw_ingame_interface();
 void switch_to_game_map();

@@ -670,11 +670,13 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			options_menu=!options_menu;
 			if(!options_menu)	hide_window(options_win);
-    		else	draw_options_menu();
+    		else	display_options_menu();
 		}
 	else if(mx>knowledge_icon_x_start && mx<knowledge_icon_x_end)
 		{
 			view_knowledge=!view_knowledge;
+			if(!view_knowledge)	hide_window(knowledge_win);
+    		else	display_knowledge();
 		}
 	else if(mx>eye_icon_x_start && mx<eye_icon_x_end)
 		action_mode=action_look;

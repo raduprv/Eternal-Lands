@@ -25,7 +25,8 @@ typedef struct{
 }response;
 
 extern response dialogue_responces[20];
-extern int have_dialogue;
+//extern int have_dialogue;
+extern int dialog_win;
 
 extern int dialogue_menu_x;
 extern int dialogue_menu_y;
@@ -37,7 +38,7 @@ extern int no_bounding_box;
 
 void build_response_entries(Uint8 *data,int total_lenght);
 void display_dialogue();
-void highlight_dialogue_response();
-int check_dialogue_response();
+//void highlight_dialogue_response();
+//int check_dialogue_response();
 #endif
 

@@ -1,5 +1,6 @@
 #include <string.h>
 #include "global.h"
+#include "elwindows.h"
 
 char dialogue_string[1024];
 char npc_name[20];
@@ -11,7 +12,8 @@ int portraits4_tex;
 int portraits5_tex;
 
 response dialogue_responces[20];
-int have_dialogue=0;
+//int have_dialogue= 0;
+int dialogue_win= 0;
 
 int dialogue_menu_x=1;
 int dialogue_menu_y=1;
@@ -61,7 +63,7 @@ void build_response_entries(Uint8 *data,int total_lenght)
 		}
 }
 
-void display_dialogue()
+int	display_dialogue_handler(window_info *win)
 {
 	int i;
 	float u_start,v_start,u_end,v_end;
@@ -69,54 +71,23 @@ void display_dialogue()
 	int x_start,x_end,y_start,y_end;
 	int npc_name_x_start,len;
 
-	draw_menu_title_bar(dialogue_menu_x,dialogue_menu_y-16,dialogue_menu_x_len);
-
 	//calculate the npc_name_x_start (to have it centered on the screen)
-	len=strlen(npc_name);
-	npc_name_x_start=dialogue_menu_x+dialogue_menu_x_len/2-(len*8)/2;
-
-	//first of all, draw the actual menu.
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.3f);
-	glVertex3i(dialogue_menu_x,dialogue_menu_y+dialogue_menu_y_len,0);
-	glVertex3i(dialogue_menu_x,dialogue_menu_y,0);
-	glVertex3i(dialogue_menu_x+dialogue_menu_x_len,dialogue_menu_y,0);
-	glVertex3i(dialogue_menu_x+dialogue_menu_x_len,dialogue_menu_y+dialogue_menu_y_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-
-	glColor3f(0.0f,1.0f,0.3f);
-	glBegin(GL_LINES);
-	glVertex3i(dialogue_menu_x,dialogue_menu_y,0);
-	glVertex3i(dialogue_menu_x+dialogue_menu_x_len,dialogue_menu_y,0);
-
-	glVertex3i(dialogue_menu_x+dialogue_menu_x_len,dialogue_menu_y,0);
-	glVertex3i(dialogue_menu_x+dialogue_menu_x_len,dialogue_menu_y+dialogue_menu_y_len,0);
-
-	glVertex3i(dialogue_menu_x+dialogue_menu_x_len,dialogue_menu_y+dialogue_menu_y_len,0);
-	glVertex3i(dialogue_menu_x,dialogue_menu_y+dialogue_menu_y_len,0);
-
-	glVertex3i(dialogue_menu_x,dialogue_menu_y+dialogue_menu_y_len,0);
-	glVertex3i(dialogue_menu_x,dialogue_menu_y,0);
-
+	len= strlen(npc_name);
+	npc_name_x_start= dialogue_menu_x_len/2-(len*8)/2;
 
 	//draw the character frame
 	glColor3f(0.0f,1.0f,1.0f);
-	glVertex3i(dialogue_menu_x,dialogue_menu_y,0);
-	glVertex3i(dialogue_menu_x+66,dialogue_menu_y,0);
+	glVertex3i(0,0,0);
+	glVertex3i(66,0,0);
 
-	glVertex3i(dialogue_menu_x+66,dialogue_menu_y,0);
-	glVertex3i(dialogue_menu_x+66,dialogue_menu_y+66,0);
+	glVertex3i(66,0,0);
+	glVertex3i(66,66,0);
 
-	glVertex3i(dialogue_menu_x+66,dialogue_menu_y+66,0);
-	glVertex3i(dialogue_menu_x,dialogue_menu_y+66,0);
+	glVertex3i(66,66,0);
+	glVertex3i(0,66,0);
 
-	glVertex3i(dialogue_menu_x,dialogue_menu_y+66,0);
-	glVertex3i(dialogue_menu_x,dialogue_menu_y,0);
+	glVertex3i(0,66,0);
+	glVertex3i(0,0,0);
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -132,9 +103,9 @@ void display_dialogue()
 			v_end=v_start-0.25f;
 
 			//get the x and y
-			x_start=dialogue_menu_x+1;
+			x_start=1;
 			x_end=x_start+64;
-			y_start=dialogue_menu_y+1;
+			y_start=1;
 			y_end=y_start+64;
 
 			//get the texture this item belongs to
@@ -156,11 +127,11 @@ void display_dialogue()
 			glEnd();
 		}
 	//draw the main text
-	draw_string_small(dialogue_menu_x+70,dialogue_menu_y+2,dialogue_string,8);
+	draw_string_small(70,2,dialogue_string,8);
 	//now, draw the character name
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string_small(npc_name_x_start,dialogue_menu_y+dialogue_menu_y_len-16,npc_name,1);
-	draw_string_small(dialogue_menu_x+dialogue_menu_x_len-60,dialogue_menu_y+dialogue_menu_y_len-16,"[close]",1);
+	draw_string_small(npc_name_x_start,dialogue_menu_y_len-16,npc_name,1);
+	draw_string_small(dialogue_menu_x_len-60,dialogue_menu_y_len-16,"[close]",1);
 
 	//ok, now draw the responses
 	for(i=0;i<20;i++)
@@ -171,15 +142,16 @@ void display_dialogue()
 						glColor3f(1.0f,0.5f,0.0f);
 					else
 						glColor3f(1.0f,1.0f,0.0f);
-					draw_string_small(dialogue_responces[i].x_start+dialogue_menu_x+5,dialogue_responces[i].y_start+dialogue_menu_y+7*14,dialogue_responces[i].text,1);
+					draw_string_small(dialogue_responces[i].x_start+5,dialogue_responces[i].y_start+7*14,dialogue_responces[i].text,1);
 				}
 
 		}
 
 	glColor3f(1.0f,1.0f,1.0f);
+	return 0;
 }
 
-void highlight_dialogue_response()
+int mouseover_dialogue_handler(window_info *win, int mx, int my)
 {
 	int i;
 
@@ -190,17 +162,18 @@ void highlight_dialogue_response()
 		{
 			if(dialogue_responces[i].in_use)
 				{
-					if(mouse_x>=dialogue_responces[i].x_start+dialogue_menu_x+5 && mouse_x<=dialogue_responces[i].x_start+dialogue_menu_x+5+dialogue_responces[i].x_len &&
-					   mouse_y>=dialogue_responces[i].y_start+dialogue_menu_y+7*14 && mouse_y<=dialogue_responces[i].y_start+dialogue_menu_y+7*14+dialogue_responces[i].y_len)
+					if(mx>=dialogue_responces[i].x_start+5 && mx<=dialogue_responces[i].x_start+5+dialogue_responces[i].x_len &&
+					   my>=dialogue_responces[i].y_start+7*14 && my<=dialogue_responces[i].y_start+7*14+dialogue_responces[i].y_len)
 						{
 							dialogue_responces[i].mouse_over=1;
-							return;
+							return 1;
 						}
 				}
 		}
+	return 1;
 }
 
-int check_dialogue_response()
+int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int i;
 	Uint8 str[16];
@@ -209,8 +182,8 @@ int check_dialogue_response()
 		{
 			if(dialogue_responces[i].in_use)
 				{
-					if(mouse_x>=dialogue_responces[i].x_start+dialogue_menu_x+5 && mouse_x<=dialogue_responces[i].x_start+dialogue_menu_x+5+dialogue_responces[i].x_len &&
-					   mouse_y>=dialogue_responces[i].y_start+dialogue_menu_y+7*14 && mouse_y<=dialogue_responces[i].y_start+dialogue_menu_y+7*14+dialogue_responces[i].y_len)
+					if(mx>=dialogue_responces[i].x_start+5 && mx<=dialogue_responces[i].x_start+5+dialogue_responces[i].x_len &&
+					   my>=dialogue_responces[i].y_start+7*14 && my<=dialogue_responces[i].y_start+7*14+dialogue_responces[i].y_len)
 						{
 							str[0]=RESPOND_TO_NPC;
 							*((Uint16 *)(str+1))=dialogue_responces[i].to_actor;
@@ -220,19 +193,28 @@ int check_dialogue_response()
 						}
 				}
 		}
-
-	if(mouse_x>=dialogue_menu_x+dialogue_menu_x_len-60 && mouse_x<=dialogue_menu_x+dialogue_menu_x_len
-	   && mouse_y>=dialogue_menu_y+dialogue_menu_y_len-16 && mouse_y<=dialogue_menu_y+dialogue_menu_y_len)
+	if(mx>=dialogue_menu_x_len-60 && mx<=dialogue_menu_x_len
+	&& my>=dialogue_menu_y_len-16 && my<=dialogue_menu_y_len)
 		{
-			have_dialogue=0;
+			hide_window(win->window_id);
 			return 1;
 		}
-	return 0;
 
+	return 0;
 }
 
+void display_dialogue()
+{
+	if(dialogue_win <= 0){
+		dialogue_win= create_window("Dialogue", 0, 0, dialogue_menu_x, dialogue_menu_y, dialogue_menu_x_len, dialogue_menu_y_len, ELW_WIN_DEFAULT);
 
-
-
-
+		set_window_handler(dialogue_win, ELW_HANDLER_DISPLAY, &display_dialogue_handler );
+		set_window_handler(dialogue_win, ELW_HANDLER_MOUSEOVER, &mouseover_dialogue_handler );
+		set_window_handler(dialogue_win, ELW_HANDLER_CLICK, &click_dialogue_handler );
+	} else {
+		show_window(dialogue_win);
+		select_window(dialogue_win);
+	}
+	display_window(dialogue_win);
+}
 
