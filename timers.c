@@ -1,17 +1,21 @@
 #include "global.h"
+#include "timers.h"
 
 #define	TIMER_RATE 20
 int	my_timer_adjust=0;
 int	my_timer_clock=0;
 SDL_TimerID draw_scene_timer=0;
-Uint32 my_timer(unsigned int some_int, void * data)
+static Uint32 last_my_timer=0;
+Uint32 my_timer(Uint32 interval, void * data)
 {
 	int	new_time;
 	SDL_Event e;
 
 	// adjust the timer clock
 	if(my_timer_clock == 0)my_timer_clock=SDL_GetTicks();
-	else	my_timer_clock+=(TIMER_RATE-my_timer_adjust);
+	else my_timer_clock+=(TIMER_RATE-my_timer_adjust);
+
+	last_my_timer=SDL_GetTicks();
 	
 	e.type = SDL_USEREVENT;
 	e.user.code = EVENT_UPDATE_CAMERA;
@@ -62,10 +66,10 @@ Uint32 my_timer(unsigned int some_int, void * data)
 that aren't too critical in here...*/
 
 SDL_TimerID misc_timer=0;
-Uint32 misc_timer_clock=0;
+static Uint32 misc_timer_clock=0;
 Uint32 check_misc(Uint32 interval, void * data)
 {
-	misc_timer_clock=cur_time;
+	misc_timer_clock=SDL_GetTicks();//This isn't accurate, but it's not needed here...
 	
 	//check the rain
 	rain_control();
@@ -91,24 +95,25 @@ Uint32 check_misc(Uint32 interval, void * data)
 				}
 			else if(afk) go_ifk();
 		}
-	return interval;
+	
+	return 500;
 }
 
 //Checks if any of the timers have suddenly stopped
 void check_timers()
 {
-	if((int)cur_time-my_timer_clock>500)//Timer failure! log it and restart the timer
+	if((int)(cur_time-last_my_timer)>500)//OK, too long has passed, this is most likely a timer failure! log it and restart the timer
 		{
-			log_error("Draw scene timer failure!\n");
-			log_to_console(c_red2,"!!! The draw_scene timer has suddenly stopped - we're restarting it !!!");
+			log_error("Draw scene timer is lagging behind!\n");
+			log_to_console(c_red2,"The draw_scene timer is lagging behind or has stopped, restarting it.");
 			SDL_RemoveTimer(draw_scene_timer);
 			draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
 			my_timer_clock=cur_time;
 		}
-	if((int)cur_time-misc_timer_clock>1500)
+	if((int)(cur_time-misc_timer_clock)>1500)
 		{
-			log_error("Misc timer failure!\n");
-			log_to_console(c_red2,"!!! The misc timer has suddenly stopped - we're restarting it !!!");
+			log_error("Misc timer is lagging behind!\n");
+			log_to_console(c_red2,"The misc timer is lagging behind or has suddenly stopped, restarting it.");
 			SDL_RemoveTimer(misc_timer);
 			misc_timer = SDL_AddTimer (500, check_misc, NULL);
 			misc_timer_clock=cur_time;

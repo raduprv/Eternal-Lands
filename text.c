@@ -56,7 +56,7 @@ void write_to_log(Uint8 * data,int len)
 		{
 			ch= data[i];
 			// remove colorization when writting to the chat log
-			if(ch<127)
+			if(ch < 127 || ch > 127+c_grey4)
 				{
 					str[j]=ch;
 					j++;
@@ -264,7 +264,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 		}
 	
 	// force the color
-	if(*text_to_add <= 127 || *text_to_add > 127+c_grey4)
+	if(*text_to_add < 127 || *text_to_add > 127+c_grey4)
 		{
 			display_text_buffer[display_text_buffer_last]=127+color;
 			display_text_buffer_last++;
@@ -336,14 +336,10 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 							break;
 						}
 
-					if(cur_char>=127)	//we have a color, save it
+					if(cur_char>=127 && cur_char <= 127+c_grey4)	//we have a color, save it
 						current_color=cur_char;
-					if(cur_char=='\n')
-						{
-							new_line_pos=i;
-						}
-
-
+					else if(cur_char=='\n')
+						new_line_pos=i;
 
 					if(i==new_line_pos)
 						{
@@ -383,7 +379,7 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 	int x_chars_limit;
 
 	// force the color
-	if(*text_to_add <= 127)
+	if(*text_to_add < 127 || *text_to_add > 127+c_grey4)
 		{
 			buffer[last_text]=127+color;
 			last_text++;
@@ -454,14 +450,10 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 							break;
 						}
 
-					if(cur_char>=127)	//we have a color, save it
+					if(cur_char>=127 && cur_char <= 127+c_grey4)	//we have a color, save it
 						current_color=cur_char;
 					else if(cur_char=='\n')
-						{
-							new_line_pos=i;
-						}
-
-
+						new_line_pos=i;
 
 					if(i==new_line_pos)
 						{
