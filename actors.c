@@ -225,6 +225,10 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 
 	frame = get_frame_number(model_data, cur_frame);
 	if(frame < 0)	return;
+#ifdef	CACHE_SYSTEM
+	//track the usage
+	cache_use(cache_md2, model_data->cache_ptr);
+#endif	//CACHE_SYSTEM
 
 	numFaces=model_data->numFaces;
 	check_gl_errors();
@@ -235,7 +239,7 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 			//TODO: smarter decision making and maybe trigger cleanup?
 			if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
 				{
-					Uint32	mem_used=build_md2_va(model_data, &model_data->offsetFrames[frame]);
+					build_md2_va(model_data, &model_data->offsetFrames[frame]);
 				}
 		}
 	// determine the drawing method

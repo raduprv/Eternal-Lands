@@ -21,6 +21,11 @@ void draw_3d_object(object3d * object_id)
 	int is_transparent;
 	int is_ground;
 
+#ifdef	CACHE_SYSTEM
+	//track the usage
+	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
+#endif	//CACHE_SYSTEM
+
 	// check for having to load the arrays
 	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
 		{
@@ -248,6 +253,15 @@ e3d_object * load_e3d_cache(char * file_name)
 {
 	e3d_object * e3d_id;
 
+#ifdef	CACHE_SYSTEM
+	//do we have it already?
+	e3d_id=cache_find_item(cache_e3d, file_name);
+	if(e3d_id) return(e3d_id);
+	//e3d not found in the cache, so load it, and store it
+	e3d_id=load_e3d(file_name);
+	//and remember it
+	e3d_id->cache_ptr=cache_add_item(cache_e3d, e3d_id->file_name, e3d_id, sizeof(*e3d_id));
+#else	//CACHE_SYSTEM
 	int i;
 	int j;
 	int file_name_lenght;
@@ -287,6 +301,7 @@ e3d_object * load_e3d_cache(char * file_name)
 				}
 			i++;
 		}
+#endif	//CACHE_SYSTEM
 
 	return e3d_id;
 }
@@ -489,6 +504,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	e3d_array_normal *array_normal;
 	e3d_array_uv_main *array_uv_main;
 	e3d_array_order *array_order;
+	int	mem=0;
 
 	//get the current directory
 	l=strlen(cur_object->file_name);
@@ -577,6 +593,8 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	array_vertex=calloc(faces_no*3, sizeof(e3d_array_vertex));
 	array_normal=calloc(faces_no*3, sizeof(e3d_array_normal));
 	array_uv_main=calloc(faces_no*3, sizeof(e3d_array_uv_main));
+	mem+=(materials_no*sizeof(e3d_array_order))+
+		(faces_no*3*(sizeof(e3d_array_vertex)+sizeof(e3d_array_normal)+sizeof(e3d_array_uv_main)));
 
 	//ok, now do the reconversion, into our vertex arrays...
 	{
@@ -669,12 +687,17 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	free(vertex_list);
 	free(face_list);
 
+#ifdef	CACHE_SYSTEM
+	//cache_use_item(cache_e3d, cur_object);
+	cache_adj_size(cache_e3d, mem, cur_object);
+#endif	//CACHE_SYSTEM
 	return cur_object;
 }
 
 void compute_clouds_map(object3d * object_id)
 {
-	float x1,y1,x,y,z,m;
+	//float x1,y1,x,y,z,m;
+	float m;
 	float cos_m,sin_m;
 	float x_pos,y_pos;	//,z_pos;
 	float z_rot	;//x_rot,y_rot,z_rot;
@@ -705,11 +728,11 @@ void compute_clouds_map(object3d * object_id)
 
 	for(i=0;i<face_no*3;i++)
 		{
-			x=array_vertex[i].x;
-			y=array_vertex[i].y;
-			z=array_vertex[i].z;
-			x1=x*cos_m+y*sin_m;
-			y1=y*cos_m-x*sin_m;
+			float x=array_vertex[i].x;
+			float y=array_vertex[i].y;
+			float z=array_vertex[i].z;
+			float x1=x*cos_m+y*sin_m;
+			float y1=y*cos_m-x*sin_m;
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
@@ -776,15 +799,18 @@ void destroy_e3d(e3d_object *e3d_id)
 
 void flag_for_destruction()
 {
+#ifndef	CACHE_SYSTEM
 	int i;
 
 	for(i=0;i<max_e3d_cache;i++)
 	if(e3d_cache[i].file_name)
 		e3d_cache[i].flag_for_destruction=1;
+#endif	//CACHE_SYSTEM
 }
 
 void destroy_the_flagged()
 {
+#ifndef	CACHE_SYSTEM
 	int i;
 
 	for(i=0;i<max_e3d_cache;i++)
@@ -797,5 +823,6 @@ void destroy_the_flagged()
 					e3d_cache[i].flag_for_destruction=0;
 				}
 		}
+#endif	//CACHE_SYSTEM
 }
 

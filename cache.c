@@ -107,6 +107,7 @@ cache_struct *cache_init(Uint32 max_items, void (*free_item)())
 			free(cache);
 			return NULL;	//oops, not enough memory
 		}
+	cache->recent_item=NULL;
 	cache->num_allocated=max_items;
 	cache->LRU_time=cur_time;
 	cache->time_limit=0;	// 0 == no time based LRU check
@@ -130,6 +131,7 @@ void cache_delete(cache_struct *cache)
 			cache_remove_all(cache);
 			free(cache->cached_items);
 			cache->cached_items=NULL;	//failsafe
+			cache->recent_item=NULL;	//failsafe
 		}
 	if(cache_system && cache != cache_system && !cache_delete_loop_block)
 		{
@@ -228,17 +230,45 @@ Uint32 cache_compact(cache_struct *cache)
 
 
 // detailed items
+void	cache_use(cache_struct *cache, cache_item_struct *item_ptr)
+{
+	if(item_ptr)
+		{
+			item_ptr->access_time=cur_time;
+			item_ptr->access_count++;
+		}
+}
+
+void cache_use_item(cache_struct *cache, const void *item_data)
+{
+	cache_item_struct *item_ptr=NULL;
+
+	if(!cache->cached_items) return;
+	item_ptr=cache_find_ptr(cache, item_data);
+	//if(item_ptr)
+	//	{
+	//		item_ptr->access_time=cur_time;
+	//		item_ptr->access_count++;
+	//	}
+}
+
 cache_item_struct *cache_find(cache_struct *cache, const Uint8 *name)
 {
 	Sint32	i;
 
 	if(!cache->cached_items) return 0;
+	// quick check for the most recent item
+	if(cache->recent_item && cache->recent_item->name && !strcmp(cache->recent_item->name, name))
+		{
+			cache_use(cache, cache->recent_item);
+			return(cache->recent_item);
+		}
 	for(i=0; i<cache->max_item; i++)
 		{
 			if(cache->cached_items[i] && cache->cached_items[i]->name && !strcmp(cache->cached_items[i]->name, name))
 				{
-					cache->cached_items[i]->access_time=cur_time;	// adjust the access time
-					cache->cached_items[i]->access_count++;		// and the counter
+					cache_use(cache, cache->cached_items[i]);
+					cache->recent_item=cache->cached_items[i];
 					return(cache->cached_items[i]);
 				}
 		}
@@ -250,12 +280,18 @@ cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item)
 	Sint32	i;
 
 	if(!cache->cached_items) return 0;
+	// quick check for the most recent item
+	if(cache->recent_item && cache->recent_item->name && cache->recent_item->cache_item == item)
+		{
+			cache_use(cache, cache->recent_item);
+			return(cache->recent_item);
+		}
 	for(i=0; i<cache->max_item; i++)
 		{
 			if(cache->cached_items[i] && cache->cached_items[i]->name && cache->cached_items[i]->cache_item == item)
 				{
-					cache->cached_items[i]->access_time=cur_time;	// adjust the access time
-					cache->cached_items[i]->access_count++;		// and the counter
+					cache_use(cache, cache->cached_items[i]);
+					cache->recent_item=cache->cached_items[i];
 					return(cache->cached_items[i]);
 				}
 		}
@@ -264,20 +300,19 @@ cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item)
 
 void *cache_find_item(cache_struct *cache, const Uint8 *name)
 {
-	cache_item_struct	*item;
+	cache_item_struct	*item_ptr;
 
 	if(!cache->cached_items) return NULL;
-	item=cache_find(cache, name);
-	if(item)
+	item_ptr=cache_find(cache, name);
+	if(item_ptr)
 		{
-			item->access_time=cur_time;	// adjust the access time
-			item->access_count++;		// and the counter
-			return(item->cache_item);
+			//cache_use(cache, item_ptr);
+			return(item_ptr->cache_item);
 		}
 	return(NULL);
 }
 
-void *cache_add_item(cache_struct *cache, Uint8 *name, void *item, Uint32 size)
+cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, Uint32 size)
 {
 	Sint32	i;
 
@@ -308,12 +343,13 @@ void *cache_add_item(cache_struct *cache, Uint8 *name, void *item, Uint32 size)
 	cache->cached_items[i]->size=size;
 	cache->cached_items[i]->name=name;
 	cache->cached_items[i]->access_time=cur_time;
-	cache->cached_items[i]->access_count=0;
+	cache->cached_items[i]->access_count=1;	//start at 0 or 1? Is this a usage
 	cache->num_items++;
 	cache->total_size+=size;
 	if(cache != cache_system) cache_adj_size(cache_system, size, cache);
 	//return the pointer to the detailed item
-	return(cache->cached_items[i]->cache_item);
+	cache->recent_item = cache->cached_items[i];
+	return(cache->recent_item);
 }
 
 void cache_set_name(cache_struct *cache, Uint8 *name, void *item)
@@ -416,6 +452,7 @@ void cache_remove(cache_struct *cache, cache_item_struct *item)
 						}
 				}
 		}
+	cache->recent_item = NULL;	//forget where we are just incase
 }
 
 void cache_remove_item(cache_struct *cache, const Uint8 *name)
@@ -441,6 +478,7 @@ void cache_remove_all(cache_struct *cache)
 				}
 		}
 	cache->num_items= cache->max_item= 0;
+	cache->recent_item = NULL;	//forget where we are just incase
 }
 
 void cache_remove_unused(cache_struct *cache)
@@ -456,19 +494,6 @@ void cache_remove_unused(cache_struct *cache)
 					cache->cached_items[i]=NULL;
 				}
 		}
-	cache->num_items= cache->max_item= 0;
-}
-
-void cache_use_item(cache_struct *cache, const void *item_data)
-{
-	cache_item_struct *item_ptr=NULL;
-
-	if(!cache->cached_items) return;
-	item_ptr=cache_find_ptr(cache, item_data);
-	if(item_ptr)
-		{
-			item_ptr->access_time=cur_time;
-			item_ptr->access_count++;
-		}
+	cache->recent_item = NULL;	//forget where we are just incase
 }
 

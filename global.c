@@ -66,9 +66,11 @@ SDL_mutex *particles_list_mutex;	//used for locking between the timer and main t
 int particles_text;
 particle_sys *particles_list[max_particle_systems];
 
-texture_cache_struct texture_cache[1000];
+#ifndef	CACHE_SYSTEM
 md2_cache_struct md2_cache[1000];
 e3d_cache_struct e3d_cache[1000];
+#endif	//CACHE_SYSTEM
+texture_cache_struct texture_cache[1000];
 obj_2d_cache_struct obj_2d_def_cache[max_obj_2d_def];
 
 int yourself=-1;

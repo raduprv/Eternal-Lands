@@ -47,6 +47,10 @@ int start_rendering()
 			draw_scene();
 			//update the music buffers
 			update_music();
+#ifdef	CACHE_SYSTEM
+			//cache handling
+			if(cache_system)cache_system_maint();
+#endif	//CACHE_SYSTEM
 			//see if we need to exit
 			if(exit_now)break;
 		}

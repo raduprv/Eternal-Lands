@@ -3,7 +3,6 @@
 #include <math.h>
 
 void SetShadowMatrix()
-
 {
 
 	float dot;
@@ -13,14 +12,11 @@ void SetShadowMatrix()
 		+ fPlane[2] * fLightPos[2]
 		+ fPlane[3] * fLightPos[3];
 
-
-
 	// first column
 	fDestMat[0] = dot - fLightPos[0] * fPlane[0];
 	fDestMat[4] = 0.0f - fLightPos[0] * fPlane[1];
 	fDestMat[8] = 0.0f - fLightPos[0] * fPlane[2];
 	fDestMat[12] = 0.0f - fLightPos[0] * fPlane[3];
-
 
 	// second column
 	fDestMat[1] = 0.0f - fLightPos[1] * fPlane[0];
@@ -28,20 +24,17 @@ void SetShadowMatrix()
 	fDestMat[9] = 0.0f - fLightPos[1] * fPlane[2];
 	fDestMat[13] = 0.0f - fLightPos[1] * fPlane[3];
 
-
 	// third column
 	fDestMat[2] = 0.0f - fLightPos[2] * fPlane[0];
 	fDestMat[6] = 0.0f - fLightPos[2] * fPlane[1];
 	fDestMat[10] = dot - fLightPos[2] * fPlane[2];
 	fDestMat[14] = 0.0f - fLightPos[2] * fPlane[3];
 
-
 	// fourth column
 	fDestMat[3] = 0.0f - fLightPos[3] * fPlane[0];
 	fDestMat[7] = 0.0f - fLightPos[3] * fPlane[1];
 	fDestMat[11] = 0.0f - fLightPos[3] * fPlane[2];
 	fDestMat[15] = dot - fLightPos[3] * fPlane[3];
-
 }
 
 void draw_3d_object_shadow(object3d * object_id)
@@ -61,6 +54,10 @@ void draw_3d_object_shadow(object3d * object_id)
     if(object_id->blended)return;//blended objects can't have shadows
     if(object_id->self_lit)return;//light sources can't have shadows
     if(!(object_id->e3d_data->min_z-object_id->e3d_data->max_z))return;//we have a flat object
+#ifdef	CACHE_SYSTEM
+	//track the usage
+	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
+#endif	//CACHE_SYSTEM
 
 	// check for having to load the arrays
 	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
@@ -137,7 +134,7 @@ void draw_3d_object_shadow(object3d * object_id)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
+void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
 {
 	int frame;
 	int numFaces;
@@ -145,6 +142,11 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 	//now, go and find the current frame
 	frame = get_frame_number(model_data, cur_frame);
 	if(frame < 0)return;	//can't draw it
+#ifdef	CACHE_SYSTEM
+	//track the usage
+	cache_use(cache_md2, model_data->cache_ptr);
+#endif	//CACHE_SYSTEM
+
 	numFaces=model_data->numFaces;
 
 	check_gl_errors();
@@ -154,7 +156,7 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 			//TODO: smarter decision making and maybe trigger cleanup?
 			if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
 				{
-					Uint32	mem_used=build_md2_va(model_data, &model_data->offsetFrames[frame]);
+					build_md2_va(model_data, &model_data->offsetFrames[frame]);
 				}
 		}
 	// determine the drawing method
@@ -229,13 +231,13 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if(actor_id->body_parts->legs)draw_body_part_shadow(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->torso)draw_body_part_shadow(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->head)draw_body_part_shadow(actor_id->body_parts->head,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->weapon)draw_body_part_shadow(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->shield)draw_body_part_shadow(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->helmet)draw_body_part_shadow(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->cape)draw_body_part_shadow(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->legs)draw_model_shadow(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->torso)draw_model_shadow(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->head)draw_model_shadow(actor_id->body_parts->head,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->weapon)draw_model_shadow(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->shield)draw_model_shadow(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->helmet)draw_model_shadow(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->cape)draw_model_shadow(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
 
 	glPopMatrix();//restore the scene
 }
@@ -271,7 +273,7 @@ void draw_actor_shadow(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	draw_body_part_shadow(actor_id->model_data,cur_frame,actor_id->ghost);
+	draw_model_shadow(actor_id->model_data,cur_frame,actor_id->ghost);
 
 	glPopMatrix();//restore the scene
 	check_gl_errors();
@@ -530,7 +532,5 @@ void draw_sun_shadowed_scene()
 	glEnable(GL_LIGHTING);
 	glDisable(GL_STENCIL_TEST);
 
-
 	display_3d_non_ground_objects();
-
 }

@@ -295,7 +295,7 @@ void init_md2_cache()
 	int i;
 	for(i=0;i<1000;i++)
 		{
-			md2_cache[i].file_name[0]=0;
+			md2_cache[i].file_name=NULL;
 			md2_cache[i].md2_id=0;
 		}
 #endif	//CACHE_SYSTEM

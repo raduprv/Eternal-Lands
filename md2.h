@@ -105,16 +105,21 @@ typedef struct
 #ifdef	USE_VERTEXARRAYS
 	text_coord_md2	*text_coord_array;
 #endif	//USE_VERTEXARRAYS
+#ifdef	CACHE_SYSTEM
+   cache_item_struct	*cache_ptr;
+#endif	//CACHE_SYSTEM
+	char file_name[128];
 }md2;
 
-
+#ifndef	CACHE_SYSTEM
 typedef struct
 {
-	char file_name[128];
+	char *file_name;
 	md2 * md2_id;
 }md2_cache_struct;
 
 extern md2_cache_struct md2_cache[1000];
+#endif	//CACHE_SYSTEM
 
 
 //proto

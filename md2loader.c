@@ -9,6 +9,17 @@ int md2_mem_used;
 md2 * load_md2_cache(char * file_name)
 {
 	md2 * md2_id;
+
+#ifdef	CACHE_SYSTEM
+	//do we have it already?
+	md2_id=cache_find_item(cache_md2, file_name);
+	if(md2_id) return(md2_id);
+	//md2 not found in the cache, so load it, and store it
+	md2_id=load_md2(file_name);
+	//and remember it
+	md2_id->cache_ptr=cache_add_item(cache_md2, md2_id->file_name, md2_id, md2_mem_used+sizeof(*md2_id));
+
+#else	//CACHE_SYSTEM
 	int i;
 	int j;
 	int file_name_lenght;
@@ -16,14 +27,17 @@ md2 * load_md2_cache(char * file_name)
 
 	for(i=0;i<1000;i++)
 		{
-			j=0;
-			while(j<file_name_lenght)
+			if(md2_cache[i].file_name)
 				{
-					if(md2_cache[i].file_name[j]!=file_name[j])break;
-					j++;
+					j=0;
+					while(j<file_name_lenght)
+						{
+							if(md2_cache[i].file_name[j]!=file_name[j])break;
+							j++;
+						}
+					if(file_name_lenght==j)//ok, md2 already loaded
+						return md2_cache[i].md2_id;
 				}
-			if(file_name_lenght==j)//ok, md2 already loaded
-				return md2_cache[i].md2_id;
 		}
 	//md2 not found in the cache, so load it, and store it
 	md2_id=load_md2(file_name);
@@ -32,14 +46,15 @@ md2 * load_md2_cache(char * file_name)
 	i=0;
 	while(i<1000)
 		{
-			if(!md2_cache[i].file_name[0])//we found a place to store it
+			if(!md2_cache[i].file_name)//we found a place to store it
 				{
-					sprintf(md2_cache[i].file_name, "%s", file_name);
+					md2_cache[i].file_name=md2_id->file_name;
 					md2_cache[i].md2_id=md2_id;
 					return md2_id;
 				}
 			i++;
 		}
+#endif	//CACHE_SYSTEM
 
 	return md2_id;
 }
@@ -97,7 +112,9 @@ md2 * load_md2(char * file_name)
 		}
 	fread (&file_header, 1, sizeof(header_file_md2), f);
 
+	//allocate the main memory
 	our_md2 = calloc(1, sizeof(md2));
+	my_strncp(our_md2->file_name, file_name, 128);
 	md2_mem_used = 0;
 	//now, get the faces
 	//alocate the memory for the faces
@@ -291,6 +308,11 @@ Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame)
 					cur_frame->vertex_array[k*3+2].z=cur_frame->vertex_pointer[cur_md2->offsetFaces[k].c].z;
 				}
 		}
+#ifdef	CACHE_SYSTEM
+	//cache_use_item(cache_md2, cur_md2);
+	cache_adj_size(cache_md2, used, cur_md2);
+#endif	//CACHE_SYSTEM
+
 #endif	//USE_VERTEXARRAYS
 
 	return used;
