@@ -72,6 +72,7 @@ void read_config()
   	video_mode=get_integer_after_string("#video_mode",file_mem,5499);
   	shadows_on=get_integer_after_string("#shadows_on",file_mem,5499);
   	poor_man=get_integer_after_string("#poor_man",file_mem,5499);
+  	show_reflection=get_integer_after_string("#show_reflection",file_mem,5499);
   	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,5499);
   	full_screen=get_integer_after_string("#full_screen",file_mem,5499);
   	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,5499);
@@ -85,6 +86,7 @@ void read_config()
   	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,5499);
   	port=get_integer_after_string("#server_port",file_mem,5499);
 
+	//handle multiple setting changes if poor_man is on
 	if(poor_man)
 		{
 			show_reflection=0;
