@@ -19,6 +19,8 @@ extern int have_compiled_vertex_array;
 extern int have_point_sprite;
 extern int have_arb_compression;
 extern int have_s3_compression;
+extern int have_sgis_generate_mipmap;
+extern int use_mipmaps;
 
 extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
@@ -52,6 +54,5 @@ int print_gl_errors(char *file, char *func, int line);
 #ifndef COMPRESSED_RGBA_S3TC_DXT5_EXT
 #define COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
 #endif
-
 
 #endif

@@ -200,6 +200,8 @@ void read_config()
 	particles_percentage=get_integer_after_string("#particles_percentage",file_mem,ini_file_size);
 	if(particles_percentage<0) particles_percentage=100;
 	else if(particles_percentage==0) log_to_console(c_green2,"Particles completely disabled!");
+	use_mipmaps=get_integer_after_string("#use_mipmaps",file_mem,ini_file_size);
+	if(use_mipmaps<0)use_mipmaps=0;
 	sit_lock=get_integer_after_string("#sit_lock",file_mem,ini_file_size);
 	if(sit_lock==-1)sit_lock=0;
 	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,ini_file_size);

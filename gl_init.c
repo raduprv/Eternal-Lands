@@ -23,6 +23,8 @@ int have_compiled_vertex_array=0;
 int have_point_sprite=0;
 int have_arb_compression=0;
 int have_s3_compression=0;
+int have_sgis_generate_mipmap=0;
+int use_mipmaps=0;
 
 void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
@@ -424,6 +426,20 @@ void init_gl_extensions()
 		if(have_s3_compression<0)
 		have_s3_compression=0;
 		else log_to_console(c_green2,"GL_EXT_texture_compression_s3tc extension found, using it...");
+
+		have_sgis_generate_mipmap=get_string_occurance("GL_SGIS_generate_mipmap",extensions,ext_str_len,0);
+		if(have_sgis_generate_mipmap<0)
+			{
+				have_sgis_generate_mipmap=0;
+				use_mipmaps=0;
+				log_to_console(c_red1,"Couldn't find GL_SGIS_generate_mipmap, not using it...");
+			}
+		else if(!use_mipmaps)
+			{
+				have_sgis_generate_mipmap=0;
+				log_to_console(c_green2,"GL_SGIS_generate_mipmap found, NOT using it...");
+			}
+		else log_to_console(c_green2,"GL_SGIS_generate_mipmap found, using it...");
 
 	check_gl_errors();
 }
