@@ -157,13 +157,11 @@ void my_strcat(char *dest,char * source)
 	dest[dl+i]=0;
 }
 
-int my_strcompare(Uint8 *dest, Uint8 *src)
+int my_strncompare(Uint8 *dest, Uint8 *src, int len)
 {
-	int i,len;
+	int i;
 	Uint8 ch1,ch2;
 
-	len=strlen(dest);
-	if(len!=strlen(src))return 0;
 	for(i=0;i<len;i++)
 		{
 			ch1=src[i];
@@ -174,5 +172,15 @@ int my_strcompare(Uint8 *dest, Uint8 *src)
 		}
 	if(i!=len)return 0;
 	else return 1;
+}
+
+int my_strcompare(Uint8 *dest, Uint8 *src)
+{
+	int i,len;
+	Uint8 ch1,ch2;
+
+	len=strlen(dest);
+	if(len!=strlen(src))return 0;
+	return(my_strncompare(dest, src, len));
 }
 
