@@ -329,9 +329,15 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 #endif
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 
+#ifdef OPTIMIZED_LOCKS
+	x_rot=actor_id->tmp.x_rot;
+	y_rot=actor_id->tmp.y_rot;
+	z_rot=actor_id->tmp.z_rot;
+#else
 	x_rot=actor_id->x_rot;
 	y_rot=actor_id->y_rot;
 	z_rot=actor_id->z_rot;
+#endif
 	z_rot+=180;//test
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);

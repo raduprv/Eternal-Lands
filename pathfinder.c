@@ -250,41 +250,20 @@ void pf_move()
 int pf_is_tile_occupied(int x, int y)
 {
 	int i;
-	int retval=0;
 
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-	lock_actors_lists();
-#endif
-#endif
-	for (i = 0; i < max_actors && !retval; i++) {
+	for (i = 0; i < max_actors; i++) {
 		if(actors_list[i]) {
 #ifdef OPTIMIZED_LOCKS
-			//lock_actors_lists();
 			if (actors_list[i]->tmp.have_tmp && actors_list[i]->tmp.x_tile_pos == x && actors_list[i]->tmp.y_tile_pos == y) {
 #else
 			if (actors_list[i]->x_tile_pos == x && actors_list[i]->y_tile_pos == y) {
 #endif
-#ifndef POSSIBLE_FIX
 				return 1;
-#elif defined(OPTIMIZED_LOCKS)
-				retval=1;
-#else
-				break;
-#endif
 			}
-#ifdef OPTIMIZED_LOCKS
-			//unlock_actors_lists();
-#endif
 		}
 	}
-#ifdef POSSIBLE_FIX
-#ifndef OPTIMIZED_LOCKS
-	unlock_actors_lists();
-#endif
-#endif
 	
-	return (i<max_actors);
+	return 0;
 }
 
 Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
