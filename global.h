@@ -113,6 +113,7 @@ extern int show_reflection;
 extern int no_alpha_sat;
 extern int mouse_limit;
 extern int show_fps;
+extern int limit_fps;
 
 extern Uint32 cur_time, last_time;
 extern int server_time_stamp;

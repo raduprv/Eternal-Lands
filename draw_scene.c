@@ -194,7 +194,6 @@ void draw_scene()
 			old_fps_average=fps_average/10;
 			fps_average=0;
 		}
-
 	if(!no_adjust_shadows)
 		{
 			if(fps<5)
@@ -241,6 +240,7 @@ void draw_scene()
 
 	SDL_GL_SwapBuffers();
 	check_gl_errors();
+	if(limit_fps && fps > 100)SDL_Delay(cur_time-last_time);
 }
 
 void Move()

@@ -94,6 +94,8 @@ void read_config()
 	if(show_reflection==-1)show_reflection=1;
 	show_fps=get_integer_after_string("#show_fps",file_mem,MAX_INI_FILE);
 	if(show_fps==-1)show_fps=1;
+	limit_fps=get_integer_after_string("#limit_fps",file_mem,MAX_INI_FILE);
+	if(limit_fps==-1)limit_fps=0;
 	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,MAX_INI_FILE);
 	if(mouse_limit==-1)mouse_limit=15;
 	full_screen=get_integer_after_string("#full_screen",file_mem,MAX_INI_FILE);
@@ -315,7 +317,6 @@ void init_2d_obj_cache()
 
 void init_stuff()
 {
-	int i;
 	int seed;
 	Uint8 * extensions;
 	int ext_str_len;
@@ -374,14 +375,12 @@ void init_stuff()
 	if(!no_sound)init_sound();
 
 	//now load the multitexturing extension
-	//#ifdef WINDOWS
 	ELglActiveTextureARB = SDL_GL_GetProcAddress("glActiveTextureARB");
 	ELglMultiTexCoord2fARB = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
 	ELglMultiTexCoord2fvARB	= SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
 	ELglClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
 	ELglLockArraysEXT = SDL_GL_GetProcAddress("glLockArraysEXT");
 	ELglUnlockArraysEXT = SDL_GL_GetProcAddress("glUnlockArraysEXT");
-	//#endif
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
@@ -479,10 +478,6 @@ void init_stuff()
 
 	//we might want to do this later.
 	connect_to_server();
-
-	//VERY test
-	//play_music();
-
 }
 
 

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "global.h"
 
 void destroy_map()
