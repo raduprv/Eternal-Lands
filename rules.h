@@ -118,7 +118,7 @@ rule_string * get_interface_rules(int chars_per_line);
  * \param next the interface mode which is selected if the user clicks the accept button
  * \param text_size the size of the text being displayed
  * \param countdown number of seconds to show off the rules.
- * \param len_y the width of the rules window
+ * \param len_x the width of the rules window
  * \param len_y the height of the rules window
  *
  * \callgraph

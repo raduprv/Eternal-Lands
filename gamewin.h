@@ -17,10 +17,9 @@ extern int game_root_win; /*!< the root (game) window */
  * \ingroup events
  * \brief Converts a 32-bit key code to an unsigned character
  *
- *	Utility function for keypress handlers that converts the 32-bit key code
- to an unsigned character
+ *	Utility function for keypress handlers that converts the 32-bit key code to an unsigned character
  *
- * \param key The full key code
+ * \param unikey The full key code
  * \retval Uint8
  * \callgraph
  */
