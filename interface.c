@@ -503,6 +503,9 @@ void init_opening_interface()
 	check_gl_errors();
 }
 
+// XXX FIXME (Grum): scheduled for removal, now in the login window 
+// display handler
+#ifndef WINDOW_CHAT
 void draw_login_screen()
 {
 	char str[20];
@@ -582,7 +585,6 @@ void draw_login_screen()
 	else
 		log_in_button_selected=0;
 
-
 	//check to see if the new char button is active, or not
 	if(mouse_x>=new_char_x && mouse_x<=new_char_x+new_char_x_len && mouse_y>=new_char_y &&
 	   mouse_y<=new_char_y+new_char_y_len)
@@ -604,7 +606,6 @@ void draw_login_screen()
 			username_box_selected=0;
 			password_box_selected=1;
 		}
-
 
 	//check to see if we clicked on the ACTIVE Log In button
 	if(log_in_button_selected && left_click==1)
@@ -680,6 +681,7 @@ void draw_login_screen()
 	//print the current error, if any
 	draw_string(0,log_in_y+40,log_in_error_str,5);
 }
+#endif
 
 void add_char_to_username(unsigned char ch)
 {
@@ -694,11 +696,13 @@ void add_char_to_username(unsigned char ch)
 			username_text_lenght--;
 			username_str[username_text_lenght]=0;
 		}
+#ifndef WINDOW_CHAT
 	if(ch==SDLK_TAB)
 		{
 			username_box_selected=0;
 			password_box_selected=1;
 		}
+#endif
 }
 
 void add_char_to_password(unsigned char ch)
@@ -717,12 +721,13 @@ void add_char_to_password(unsigned char ch)
 			display_password_str[password_text_lenght]=0;
 			password_str[password_text_lenght]=0;
 		}
-
+#ifndef WINDOW_CHAT
 	if(ch==SDLK_TAB)
 		{
 			username_box_selected=1;
 			password_box_selected=0;
 		}
+#endif
 }
 
 void draw_ingame_interface()

@@ -502,9 +502,10 @@ void init_stuff()
 #ifdef WINDOW_CHAT
 	// XXX FIXME (Grum): Maybe we should do this at a later time, after
 	// we're logged in?
-	display_game ();
+	create_game_window ();
 	create_console_window ();
 	create_map_window ();
+	create_login_window ();
 #else
 	resize_root_window();
 #endif

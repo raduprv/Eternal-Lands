@@ -10,14 +10,14 @@ int display_console_handler (window_info *win)
 	// are we actively drawing things?
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{
-		Enter2DMode();
+		Enter2DMode ();
 		
-		draw_console_pic(cons_text);
-		display_console_text();
-		draw_hud_interface();
+		draw_console_pic (cons_text);
+		display_console_text ();
+		draw_hud_interface ();
 	}
 	
-	SDL_Delay(20);
+	draw_delay = 20;
 	return 1;
 }
 
@@ -90,10 +90,6 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 			hide_window (console_win);
 			show_window (game_win);
 			interface_mode = interface_game;
-		}
-		else if (key == K_SHADOWS)
-		{
-			clouds_shadows = !clouds_shadows;
 		}
 		else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
 		{
@@ -180,11 +176,10 @@ void create_console_window ()
 {
 	if (console_win < 0)
 	{
-		console_win = create_window ("Console", -1, -1, 0, 0, window_width, window_height, ELW_WIN_INVISIBLE|ELW_SHOW_LAST);
+		console_win = create_window ("Console", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		
 		set_window_handler (console_win, ELW_HANDLER_DISPLAY, &display_console_handler);
 		set_window_handler (console_win, ELW_HANDLER_KEYPRESS, &keypress_console_handler);
-		hide_window (console_win);
 	}
 }
 

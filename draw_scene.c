@@ -60,6 +60,10 @@ Uint32 last_clear_clouds=0;
 
 GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXTURE2_ARB;
 
+#ifdef WINDOW_CHAT
+Uint32 draw_delay = 0;
+#endif
+
 void draw_scene()
 {
 #ifndef WINDOW_CHAT
@@ -141,6 +145,8 @@ void draw_scene()
 					return;
 				}
 		
+
+#ifndef WINDOW_CHAT
 			if(interface_mode==interface_log_in)
 				{
 					Enter2DMode();
@@ -151,6 +157,7 @@ void draw_scene()
 					check_gl_errors();
 					return;
 				}
+#endif
 
 			if(interface_mode==interface_new_char)
 				{
@@ -188,8 +195,6 @@ void draw_scene()
 		}
 
 #ifdef WINDOW_CHAT
-	// We need to resize before we start drawing
-
 	display_windows (1);
 	Leave2DMode ();
 
@@ -198,7 +203,7 @@ void draw_scene()
                 elwin_mouse=-1;
         }
 #else
-	// XXX (Grum): scheduled for removal, now in the root window display handler	
+	// XXX (Grum): scheduled for removal, now in the game window display handler	
 	if(!have_a_map)return;
 	if(yourself==-1)return;//we don't have ourselves
 	for(i=0; i<max_actors; i++)
@@ -388,6 +393,14 @@ void draw_scene()
 
 	SDL_GL_SwapBuffers();
 	check_gl_errors();
+	
+#ifdef WINDOW_CHAT
+	if (draw_delay > 0)
+	{
+		SDL_Delay (draw_delay);
+		draw_delay = 0;
+	}
+#endif
 }
 
 void get_tmp_actor_data()

@@ -641,6 +641,11 @@ void set_new_video_mode(int fs,int mode)
 	init_hud_interface();
 	new_minute();
 
+	// resize the EL root windows
+	if (game_win >= 0) resize_window (game_win, window_width, window_height);
+	if (console_win >= 0) resize_window (console_win, window_width, window_height);
+	if (map_win >= 0) resize_window (map_win, window_width, window_height);
+	if (login_win >= 0) resize_window (login_win, window_width, window_height);
 }
 
 void toggle_full_screen()

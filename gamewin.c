@@ -559,7 +559,7 @@ int display_game_handler (window_info *win)
 	// if not active, dont bother drawing any more
 	if (!(SDL_GetAppState () & SDL_APPACTIVE))
 	{
-		SDL_Delay (20);
+		draw_delay = 20;
 		// Return to 2D mode to draw the other windows
 		glPopMatrix (); // restore the state
 		Enter2DMode ();
@@ -675,9 +675,9 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if ( (keysym == SDLK_v && ctrl_on) || (keysym == SDLK_INSERT && shift_on) )
 	{
 #ifndef WINDOWS
-		startpaste();
+		startpaste ();
 #else
-		windows_paste();
+		windows_paste ();
 #endif
 	}
 	else if (key == K_ITEM1)
@@ -754,6 +754,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (key == K_VIEWHP)
 	{
 		view_hp = !view_hp;
+	}
+	else if (key == K_SHADOWS)
+	{
+		clouds_shadows = !clouds_shadows;
 	}
 	else if (key == K_WALK)
 	{
@@ -1022,10 +1026,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			show_window (console_win);
 			interface_mode = interface_console;
 		}
-		else if (key == K_SHADOWS)
-		{
-			clouds_shadows = !clouds_shadows;
-		}
 		else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
 		{
 			// watch for the '//' shortcut
@@ -1111,11 +1111,11 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	return 1;
 }
 
-void display_game ()
+void create_game_window ()
 {
 	if (game_win < 0)
 	{
-		game_win = create_window ("Game", -1, -1, 0, 0, window_width, window_height, ELW_WIN_INVISIBLE|ELW_SHOW_LAST);
+		game_win = create_window ("Game", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		
         	set_window_handler (game_win, ELW_HANDLER_DISPLAY, &display_game_handler);
         	set_window_handler (game_win, ELW_HANDLER_CLICK, &click_game_handler);

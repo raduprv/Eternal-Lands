@@ -106,6 +106,7 @@
 #include "gamewin.h"
 #include "consolewin.h"
 #include "mapwin.h"
+#include "loginwin.h"
 #ifdef WINDOW_CHAT
 #include "chat.h"
 #endif

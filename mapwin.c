@@ -44,10 +44,10 @@ int display_map_handler ()
 		Leave2DMode ();
 		draw_game_map (!showing_continent, mouse_over_minimap);
 		check_gl_errors ();
-	}
-	SDL_Delay (20);
+	}	
 	Enter2DMode ();
 
+	draw_delay = 20;
 	return 1;
 }
 
@@ -114,10 +114,6 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 			hide_window (map_win);
 			show_window (console_win);
 			interface_mode = interface_console;
-		}
-		else if (key == K_SHADOWS)
-		{
-			clouds_shadows = !clouds_shadows;
 		}
 		else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
 		{
@@ -204,14 +200,15 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 
 void create_map_window ()
 {
-	map_win = create_window ("Map", -1, -1, 0, 0, window_width, window_height, ELW_WIN_INVISIBLE|ELW_SHOW_LAST);
+	if (map_win < 0)
+	{
+		map_win = create_window ("Map", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 	
-	set_window_handler (map_win, ELW_HANDLER_DISPLAY, &display_map_handler);
-	set_window_handler (map_win, ELW_HANDLER_KEYPRESS, &keypress_map_handler);
-	set_window_handler (map_win, ELW_HANDLER_CLICK, &click_map_handler);
-	set_window_handler (map_win, ELW_HANDLER_MOUSEOVER, &mouseover_map_handler);
-	
-	hide_window (map_win);
+		set_window_handler (map_win, ELW_HANDLER_DISPLAY, &display_map_handler);
+		set_window_handler (map_win, ELW_HANDLER_KEYPRESS, &keypress_map_handler);
+		set_window_handler (map_win, ELW_HANDLER_CLICK, &click_map_handler);
+		set_window_handler (map_win, ELW_HANDLER_MOUSEOVER, &mouseover_map_handler);
+	}
 }
 
 #endif

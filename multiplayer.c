@@ -361,6 +361,13 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case LOG_IN_OK:
 			{
+#ifdef WINDOW_CHAT
+				show_hud_windows ();
+				// login window is no longer needed
+				destroy_window (login_win);
+				login_win = -1;
+				show_window (game_win);
+#endif
 				interface_mode=interface_game;
 				previously_logged_in=1;
 			}

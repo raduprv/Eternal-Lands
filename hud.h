@@ -87,6 +87,16 @@ extern float map_icon_v_start;
 void init_hud_interface();
 
 /*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \callgraph
+ */
+void show_hud_windows ();
+
+/*!
  * \ingroup display_2d
  * \brief
  *

@@ -28,13 +28,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey);
 
 /*!
  * \ingroup root_win
- * \brief Displays the game (root) window of the game.
+ * \brief Creates the game (root) window of the game.
  *
- *      Displays the game window, aka root window of the game
+ *      Creates the game window, aka root window of the game
  *
  * \callgraph
  */
-void display_game ();
+void create_game_window ();
 
 #endif
 
