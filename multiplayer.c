@@ -349,7 +349,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_KNOWLEDGE_LIST:
 			{
-				get_knowledge_list(*(Uint16 *)(in_data+1), in_data+3);
+				get_knowledge_list(*(Uint16 *)(in_data+1)-1, in_data+3);
 			}
 			break;
 
@@ -653,7 +653,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case GET_TRADE_PARTNER_NAME:
 			{
-				get_trade_partner_name(&in_data[3],*((Uint16 *)(in_data+1)));
+				get_trade_partner_name(&in_data[3],*((Uint16 *)(in_data+1))-1);
 			}
 			break;
 
