@@ -90,7 +90,7 @@ md2 * load_md2(char * file_name)
 		}
 	free(file_text_coord_pointer);
 
-#if defined(USE_VERTEXARRAYS)
+#ifdef	USE_VERTEXARRAYS
 	// allocate the space for a full texture coord array
 	our_md2->text_coord_array= calloc(file_header.numFaces, sizeof(text_coord_md2)*3);
 	//now, convert the coords to VA format
@@ -119,9 +119,6 @@ md2 * load_md2(char * file_name)
 	for(i=0;i<file_header.numFrames;i++)
 		{
 		vertex_md2 *some_pointer;
-#if defined(USE_VERTEXARRAYS)
-		frame_pointer[i].vertex_array= calloc(file_header.numFaces, sizeof(vertex_md2)*3);
-#endif	//USE_VERTEXARRAYS
 
 		//alocate some memory for OUR list of vertices
 		some_pointer=calloc(file_header.numVertices, sizeof(vertex_md2));
@@ -166,21 +163,18 @@ md2 * load_md2(char * file_name)
 
 				//do the bounding box
 				if(frame_pointer[i].box.min_x>x)frame_pointer[i].box.min_x=x;
-
 				if(frame_pointer[i].box.max_x<x)frame_pointer[i].box.max_x=x;
 
 				if(frame_pointer[i].box.min_y>y)frame_pointer[i].box.min_y=y;
-
 				if(frame_pointer[i].box.max_y<y)frame_pointer[i].box.max_y=y;
 
 				if(frame_pointer[i].box.min_z>z)frame_pointer[i].box.min_z=z;
-
 				if(frame_pointer[i].box.max_z<z)frame_pointer[i].box.max_z=z;
-
 			}
 
-#if defined(USE_VERTEXARRAYS)
+#ifdef	USE_VERTEXARRAYS
 		//now, convert the vertices to VA format
+		frame_pointer[i].vertex_array= calloc(file_header.numFaces, sizeof(vertex_md2)*3);
 		for(k=0;k<file_header.numFaces;k++)
 			{
 				frame_pointer[i].vertex_array[k*3].x=frame_pointer[i].vertex_pointer[face_pointer[k].a].x;
@@ -219,10 +213,7 @@ md2 * load_md2(char * file_name)
 				frame_pointer[i].box.max_x+=x_offset;
 				frame_pointer[i].box.max_y+=y_offset;
 				frame_pointer[i].box.max_z+=z_offset;
-
 			}
-
-
 		}
 	free(file_frame_pointer);
 
@@ -239,3 +230,4 @@ md2 * load_md2(char * file_name)
 	fclose (f);
 	return our_md2;
 }
+
