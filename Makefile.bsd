@@ -1,7 +1,7 @@
 .PHONY: clean release
 
 # tune these for your setup & compile options
-OPTIONS=-DBSD -DUSE_VERTEXARRAYS -I/usr/X11R6/include
+OPTIONS=-DBSD -DUSE_VERTEXARRAYS -DCACHE_SYSTEM -DNEW_VERSION -I/usr/X11R6/include
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 
