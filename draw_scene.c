@@ -84,7 +84,6 @@ void draw_scene()
 			return;
 		}
 
-
 	if(!have_a_map)return;
 	if(yourself==-1)return;//we don't have ourselves
 	for(i=0;i<max_actors;i++)
@@ -240,7 +239,6 @@ void draw_scene()
 
 	SDL_GL_SwapBuffers();
 	check_gl_errors();
-	if(limit_fps && fps > 100)SDL_Delay(cur_time-last_time);
 }
 
 void Move()

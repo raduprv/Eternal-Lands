@@ -31,7 +31,6 @@ int start_rendering()
 					done = HandleEvent(&event);
 				}
 			//advance the clock
-			last_time=cur_time;
 			cur_time = SDL_GetTicks();
 			//check for network data
 			get_message_from_server();
@@ -44,10 +43,13 @@ int start_rendering()
 					command=HEART_BEAT;
 					my_tcp_send(my_socket,&command,1);
 				}
-			//draw everything
-			draw_scene();
-			//update the music buffers
-			//update_music();
+
+			if(limit_fps && 1000/(cur_time-last_time) < limit_fps)
+				{
+					//draw everything
+					draw_scene();
+					last_time=cur_time;
+				}
 #ifdef	CACHE_SYSTEM
 			//cache handling
 			if(cache_system)cache_system_maint();
