@@ -350,7 +350,13 @@ int check_items_interface()
 								//should we get the info for it?
 								if(item_list[i].quantity && item_list[i].pos==y*6+x)
 									{
-
+										if(ctrl_on){
+											str[0]=DROP_ITEM;
+											str[1]=item_list[i].pos;
+											*((Uint16 *)(str+2))=item_list[i].quantity;
+											my_tcp_send(my_socket, str, 4);
+											return 1;
+										}
 										if(action_mode==action_look || right_click)
 											{
 												if(cur_time<(click_time+click_speed))
