@@ -30,7 +30,10 @@ int anything_under_the_mouse(int object_id, int object_type)
 
 			if(object_type==UNDER_MOUSE_PLAYER || object_type==UNDER_MOUSE_NPC || object_type==UNDER_MOUSE_ANIMAL)
 				{
+					actor_under_mouse=actors_list[object_id];
 					object_id=actors_list[object_id]->actor_id;
+				} else {
+					actor_under_mouse=NULL;
 				}
 			object_under_mouse=object_id;
 

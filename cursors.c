@@ -309,8 +309,11 @@ void check_cursor_change()
 					return;
 				}
 
-			if(current_cursor!=CURSOR_ATTACK)change_cursor(CURSOR_ATTACK);
-			return;
+			if(alt_on || action_mode==action_attack || (actor_under_mouse && !actor_under_mouse->dead))
+				{
+					if(current_cursor!=CURSOR_ATTACK)change_cursor(CURSOR_ATTACK);
+					return;
+				}
 		}
 
 

@@ -209,6 +209,7 @@ extern int reflection_texture;
 #define UNDER_MOUSE_MENU 5
 #define UNDER_MOUSE_NO_CHANGE 6
 
+extern actor *actor_under_mouse;
 extern int object_under_mouse;
 extern int thing_under_the_mouse;
 extern int current_cursor;

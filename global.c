@@ -411,6 +411,7 @@ int alt_on;
 int ctrl_on;
 
 //cursors
+actor *actor_under_mouse;
 int object_under_mouse;
 int thing_under_the_mouse;
 int current_cursor;
