@@ -38,12 +38,16 @@ typedef enum {
 	ITEM_ON_OFF            = 128,
 } item_definition_flags;
 
-extern item item_list[36+8];
-extern item manufacture_list[36+8];
+#define	ITEM_WEAR_START	36
+#define	ITEM_NUM_WEAR	8
+#define	ITEM_NUM_ITEMS	(ITEM_WEAR_START+ITEM_NUM_WEAR)
+
+extern item item_list[ITEM_NUM_ITEMS];
+extern item manufacture_list[ITEM_NUM_ITEMS];
 extern ground_item ground_item_list[50];
 extern bag bag_list[200];
 
-extern item inventory_trade_list[36];
+extern item inventory_trade_list[ITEM_WEAR_START];
 extern item your_trade_list[24];
 extern item others_trade_list[24];
 extern int trade_you_accepted;

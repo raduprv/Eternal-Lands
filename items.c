@@ -1,11 +1,11 @@
 #include "global.h"
 
-item item_list[36+8];
-item manufacture_list[36+8];
+item item_list[ITEM_NUM_ITEMS];
+item manufacture_list[ITEM_NUM_ITEMS];
 ground_item ground_item_list[50];
 bag bag_list[200];
 
-item inventory_trade_list[36];
+item inventory_trade_list[ITEM_WEAR_START];
 item your_trade_list[24];
 item others_trade_list[24];
 int trade_you_accepted=0;
@@ -177,7 +177,7 @@ void display_items_menu()
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=0;i<36+8;i++)
+	for(i=0;i<ITEM_NUM_ITEMS;i++)
 		{
 			if(item_list[i].quantity)
 				{
@@ -194,9 +194,9 @@ void display_items_menu()
 
 					//get the x and y
 					cur_pos=item_list[i].pos;
-					if(cur_pos>35)//the items we 'wear' are smaller
+					if(cur_pos>=ITEM_WEAR_START)//the items we 'wear' are smaller
 						{
-							cur_pos-=36;
+							cur_pos-=ITEM_WEAR_START;
 							item_is_weared=1;
 							x_start=items_menu_x+wear_items_x_offset+33*(cur_pos%2)+1;
 							x_end=x_start+32;
@@ -255,7 +255,7 @@ void get_your_items(Uint8 *data)
 	items_string[0]=0;
 
 	//clear the items first
-	for(i=0;i<36+6;i++)
+	for(i=0;i<ITEM_NUM_ITEMS;i++)
 		{
 			item_list[i].quantity=0;
 		}
@@ -322,7 +322,7 @@ int check_items_interface()
 						if(item_dragged!=-1)//we have to drop this item
 							{
 								int any_item=0;
-								for(i=0;i<36+6;i++)
+								for(i=0;i<ITEM_NUM_ITEMS;i++)
 									{
 										if(item_list[i].quantity && item_list[i].pos==y*6+x)
 											{
@@ -346,7 +346,7 @@ int check_items_interface()
 
 						//see if there is any item there
 
-						for(i=0;i<36+6;i++)
+						for(i=0;i<ITEM_NUM_ITEMS;i++)
 							{
 								//should we get the info for it?
 								if(item_list[i].quantity && item_list[i].pos==y*6+x)
@@ -406,9 +406,9 @@ int check_items_interface()
 						if(item_dragged!=-1)//we have to drop this item
 							{
 								int any_item=0;
-								for(i=0;i<38+6;i++)
+								for(i=0;i<ITEM_NUM_ITEMS;i++)
 									{
-										if(item_list[i].quantity && item_list[i].pos==36+y*2+x)
+										if(item_list[i].quantity && item_list[i].pos==ITEM_WEAR_START+y*2+x)
 											{
 												any_item=1;
 												if(item_dragged==i)//drop the item only over itself
@@ -422,17 +422,17 @@ int check_items_interface()
 										//send the drop info to the server
 										str[0]=MOVE_INVENTORY_ITEM;
 										str[1]=item_list[item_dragged].pos;
-										str[2]=36+y*2+x;
+										str[2]=ITEM_WEAR_START+y*2+x;
 										my_tcp_send(my_socket,str,3);
 										item_dragged=-1;
 										return 1;
 									}
 							}
 
-						for(i=0;i<36+8;i++)
+						for(i=0;i<ITEM_NUM_ITEMS;i++)
 							{
 								//should we get the info for it?
-								if(item_list[i].quantity && item_list[i].pos==y*2+x+36)
+								if(item_list[i].quantity && item_list[i].pos==y*2+x+ITEM_WEAR_START)
 									{
 										if(action_mode==action_look || right_click)
 											{
@@ -490,7 +490,7 @@ void drag_item()
 void remove_item_from_inventory(int pos)
 {
 	int i;
-	for(i=0;i<36+6;i++)
+	for(i=0;i<ITEM_NUM_ITEMS;i++)
 		{
 			if(item_list[i].quantity)
 				if(item_list[i].pos==pos)
@@ -521,7 +521,7 @@ void get_new_inventory_item(Uint8 *data)
 	quantity=*((Uint32 *)(data+2));
 
 	//first, try to see if the items already exists, and replace it
-	for(i=0;i<36+6;i++)
+	for(i=0;i<ITEM_NUM_ITEMS;i++)
 		{
 			if(item_list[i].quantity)
 				if(item_list[i].pos==pos)
@@ -534,7 +534,7 @@ void get_new_inventory_item(Uint8 *data)
 					}
 		}
 
-	for(i=0;i<36+6;i++)
+	for(i=0;i<ITEM_NUM_ITEMS;i++)
 		{
 			if(!item_list[i].quantity)
 				{
