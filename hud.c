@@ -486,7 +486,7 @@ void view_console_win(int * win, int id)
 void view_map_win(int * win, int id)
 {
 	if(interface_mode==interface_game || interface_mode==interface_console)	{
-		if(switch_to_game_map(1)) {
+		if(switch_to_game_map()) {
 			icon_list[13]->state=PRESSED;
 			icon_list[14]->state=0;
 		}
