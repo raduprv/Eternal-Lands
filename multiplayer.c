@@ -396,6 +396,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				load_map(&in_data[3]);
 				destroy_all_particles();
 				kill_local_sounds();
+				get_map_playlist();
 				have_a_map=1;
 				//also, stop the rain
 				seconds_till_rain_starts=-1;

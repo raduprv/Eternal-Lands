@@ -70,6 +70,7 @@ void draw_scene()
 			glClear(GL_COLOR_BUFFER_BIT);
 			draw_console_pic(cons_text);
 			display_console_text();
+			draw_hud_interface();
 			SDL_Delay(20);
 			SDL_GL_SwapBuffers();
 			Leave2DMode();

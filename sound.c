@@ -28,12 +28,111 @@ ALuint music_buffers[4];
 ALuint music_source;
 
 int playing_music=0;
+
+playlist_entry playlist[20];
+int list_pos=-1;
 #endif	//NO_MUSIC
 
 void stop_sound(int i)
 {
 	if(!have_sound)return;
 	alSourceStop(i);
+}
+
+void get_map_playlist()
+{
+#ifndef	NO_MUSIC
+	int len,i;
+	char map_list_file_name[256];
+	FILE *fp;
+	char strLine[255];
+
+	memset(playlist,0,sizeof(playlist));
+
+	strcpy(map_list_file_name,"./music");
+	strcat(map_list_file_name,map_file_name+6);
+	len=strlen(map_list_file_name);
+	map_list_file_name[len-3]='p';
+	map_list_file_name[len-2]='l';
+	map_list_file_name[len-1]='l';
+
+	fp=fopen(map_list_file_name,"r");
+	if(!fp)
+		{
+			fp=fopen("./music/default.pll","r");
+			if(!fp)return;
+		}
+	i=0;
+	while(1)
+		{
+			fscanf(fp,"%d %d %s",&playlist[i].always,&playlist[i].prob,playlist[i].file_name);
+			i++;
+			if(!fgets(strLine, 100, fp))break;
+		}
+	fclose(fp);
+#endif	//NO_MUSIC
+}
+
+void play_ogg_file(char *file_name) {
+#ifndef	NO_MUSIC
+	int error,queued;
+	char file_name2[64];
+    if(!have_music)return;
+
+	alSourceStop(music_source);
+	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
+	while(queued-- > 0)
+		{
+			ALuint buffer;
+			
+			alSourceUnqueueBuffers(music_source, 1, &buffer);
+		}
+
+	ov_clear(&ogg_stream);
+
+	if(file_name[0]!='.' && file_name[0]!='/') {
+		strcpy(file_name2,"./music/");
+		strcat(file_name2,file_name);
+	} else
+		strcpy(file_name2,file_name);
+	ogg_file = fopen(file_name2, "rb");
+	if(!ogg_file) {
+		char	str[256];
+		snprintf(str, 256, "Failed to load ogg file: %s\n", file_name);
+		log_to_console(c_red1, str);
+		LogError(str);
+		have_music=0;
+		return;
+	}
+
+	if(ov_open(ogg_file, &ogg_stream, NULL, 0) < 0) {
+		log_to_console(c_red1, "Failed to load ogg stream\n");
+		LogError("Failed to load ogg stream");
+		have_music=0;
+		return;
+	}
+
+	ogg_info = ov_info(&ogg_stream, -1);
+
+    stream_music(music_buffers[0]);
+	stream_music(music_buffers[1]);
+	stream_music(music_buffers[2]);
+	stream_music(music_buffers[3]);
+    
+    alSourceQueueBuffers(music_source, 4, music_buffers);
+    alSourcePlay(music_source);
+
+	if((error=alGetError()) != AL_NO_ERROR) 
+    	{
+     		char	str[256];
+    		snprintf(str, 256, "play_ogg_file error: %s\n", alGetString(error));
+    		log_to_console(c_red1, str);
+    		LogError(str);
+			have_music=0;
+			return;
+    	}
+	playing_music = 1;	
+#endif	//NO_MUSIC
 }
 
 void load_ogg_file(int i) {
@@ -295,6 +394,18 @@ int update_music(void *dummy)
 							have_music=0;
 						}
 				}
+			else 
+				{
+					if(playlist[list_pos+1].file_name[0]) {
+						list_pos++;
+						if(playlist[list_pos].always ||
+						   rand()%100 < playlist[list_pos].prob) {
+							play_ogg_file(playlist[list_pos].file_name);
+						}
+					} else
+						list_pos=-1;
+					continue;
+				}
 		}
 #endif	//NO_MUSIC
 	return 0;
@@ -410,18 +521,14 @@ void turn_music_off()
 void turn_music_on()
 {
 #ifndef	NO_MUSIC
-	static int i = ogg_el1 - 1;//for testing
-	//int state
+	int state;
 	if(!have_music)return;
 	music_on=1;
-	i++;                       //for testing
-	if(i >= max_songs) i = 0;  //for testing
-	play_music(i);             //for testing
-	//alGetSourcei(music_source, AL_SOURCE_STATE, &state);
-	//if(state == AL_PAUSED) {
-	//alSourcePlay(music_source);
-	playing_music = 1;
-	//}
+	alGetSourcei(music_source, AL_SOURCE_STATE, &state);
+	if(state == AL_PAUSED) {
+		alSourcePlay(music_source);
+		playing_music = 1;
+	}
 #endif	//NO_MUSIC
 }
 

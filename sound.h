@@ -9,6 +9,12 @@
 
 #define max_songs 12
 
+typedef struct {
+	char file_name[64];
+	int always;
+	int prob;
+} playlist_entry;
+
 extern int have_sound;
 extern int have_music;
 extern int sound_on;
@@ -17,6 +23,8 @@ extern int no_sound;
 
 extern ALfloat sound_gain;
 extern ALfloat music_gain;
+
+extern playlist_entry playlist[20];
 
 void stop_sound(int i);
 int add_sound_object(int sound_file,int x, int y,int positional,int loops);
@@ -29,6 +37,7 @@ void destroy_sound();
 int realloc_sources();
 ALuint get_loaded_buffer(int i);
 
+void get_map_playlist();
 void load_ogg_file(int i);
 void play_music(int i);
 int update_music(void *dummy);
