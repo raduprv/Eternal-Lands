@@ -335,28 +335,18 @@ int buddy_icon_y_end;
 //stat bars
 int health_bar_start_x;
 int health_bar_start_y;
-int health_bar_x_len;
-int health_bar_y_len;
 
 int mana_bar_start_x;
 int mana_bar_start_y;
-int mana_bar_x_len;
-int mana_bar_y_len;
 
 int food_bar_start_x;
 int food_bar_start_y;
-int food_bar_x_len;
-int food_bar_y_len;
 
 int load_bar_start_x;
 int load_bar_start_y;
-int load_bar_x_len;
-int load_bar_y_len;
 
 int exp_bar_start_x;
 int exp_bar_start_y;
-int exp_bar_x_len;
-int exp_bar_y_len;
 
 void init_peace_icons()
 {
@@ -831,22 +821,22 @@ void draw_stats_display()
 	if(!your_info.material_points.cur || !your_info.material_points.base)
 		health_adjusted_x_len=0;//we don't want a div by 0
 	else
-		health_adjusted_x_len=health_bar_x_len/((float)your_info.material_points.base/(float)your_info.material_points.cur);
+		health_adjusted_x_len=100/((float)your_info.material_points.base/(float)your_info.material_points.cur);
 
 	if(your_info.food_level<=0)
 		food_adjusted_x_len=0;//we don't want a div by 0
 	else
-		food_adjusted_x_len=health_bar_x_len/(45.0f/(float)your_info.food_level);
+		food_adjusted_x_len=100/(45.0f/(float)your_info.food_level);
 
 	if(!your_info.ethereal_points.cur || !your_info.ethereal_points.base)
 		mana_adjusted_x_len=0;//we don't want a div by 0
 	else
-		mana_adjusted_x_len=health_bar_x_len/((float)your_info.ethereal_points.base/(float)your_info.ethereal_points.cur);
+		mana_adjusted_x_len=100/((float)your_info.ethereal_points.base/(float)your_info.ethereal_points.cur);
 
 	if(!your_info.carry_capacity.cur || !your_info.carry_capacity.base)
 		load_adjusted_x_len=0;//we don't want a div by 0
 	else
-		load_adjusted_x_len=health_bar_x_len/((float)your_info.carry_capacity.base/(float)your_info.carry_capacity.cur);
+		load_adjusted_x_len=100/((float)your_info.carry_capacity.base/(float)your_info.carry_capacity.cur);
 
 	draw_stats_bar(health_bar_start_x, health_bar_start_y, your_info.material_points.cur, health_adjusted_x_len, 1.0f, 0.2f, 0.2f, 0.5f, 0.2f, 0.2f);
 	draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
