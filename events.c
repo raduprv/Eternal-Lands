@@ -238,7 +238,7 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if ( event->key.keysym.sym == SDLK_TAB )
+				if ( event->key.keysym.sym == SDLK_TAB && !alt_on)
 					{
 						if(interface_mode==interface_game)switch_to_game_map();
 						else if(interface_mode==interface_map)switch_from_game_map();
