@@ -24,7 +24,14 @@ int add_to_filter_list(Uint8 *name, char save_name)
 					if(save_name)
 						{
 							FILE *f = NULL;
-							f=fopen("local_filters.txt", "a");
+							char local_filters[100];
+#ifndef WINDOWS
+							strcpy(local_filters, configdir);
+							strcat(local_filters, "local_filters.txt");
+#else
+							strcpy(local_filters, "local_filters.txt");
+#endif
+							f=fopen(local_filters, "a");
 							fwrite(name, strlen(name), 1, f);
 							fwrite("\n", 1, 1, f);
 							fclose(f);
@@ -57,7 +64,14 @@ int remove_from_filter_list(Uint8 *name)
 		}
 	if(found)
 		{
-			f=fopen("local_filters.txt", "w");
+			char local_filters[100];
+#ifndef WINDOWS
+			strcpy(local_filters, configdir);
+			strcat(local_filters, "local_filters.txt");
+#else
+			strcpy(local_filters, "local_filters.txt");
+#endif
+			f=fopen(local_filters, "w");
 			for(i=0;i<max_filters;i++)
 				{
 					if(filter_list[i].len > 0)
@@ -191,8 +205,15 @@ void clear_filter_list()
 
 void load_filters()
 {
+	char local_filters[100];
+#ifndef WINDOWS
+	strcpy(local_filters, configdir);
+	strcat(local_filters, "local_filters.txt");
+#else
+	strcpy(local_filters, "local_filters.txt");
+#endif
 	clear_filter_list();
-	load_filters_list("local_filters.txt");
+	load_filters_list(local_filters);
 	if(use_global_filters)load_filters_list("global_filters.txt");
 }
 

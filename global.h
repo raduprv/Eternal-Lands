@@ -195,8 +195,10 @@ extern int no_adjust_shadows;
 extern int clouds_shadows;
 extern int selected_3d_object;
 extern int selected_inventory_object;
-extern char home[100];
-extern char datadir[200];
+#ifndef WINDOWS
+extern char configdir[100];
+extern char datadir[100];
+#endif
 
 extern int no_bounding_box;
 

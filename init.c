@@ -1,4 +1,7 @@
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
 #include <string.h>
 #include "init.h"
 #include <time.h>
@@ -56,7 +59,23 @@ void read_config()
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	int k,server_address_offset;
-
+#ifndef WINDOWS
+	DIR *d = NULL;
+	strcpy(configdir, getenv("HOME"));
+	strcat(configdir, "/.elc/");
+	d=opendir(configdir);
+	if(!d)
+			mkdir(configdir,0755);
+	else
+		{
+			char el_ini[100];
+			strcpy(el_ini, configdir);
+			strcat(el_ini, "el.ini");
+			closedir(d);
+			f=fopen(el_ini,"rb"); //try to load local settings
+		}
+	if(!f) //use global settings
+#endif
 	f=fopen("el.ini","rb");
 	if(!f)//oops, the file doesn't exist, use the defaults
 		{
@@ -131,6 +150,11 @@ void read_config()
 	for(k=0;k<strlen(password_str);k++) display_password_str[k]='*';
 	display_password_str[k]=0;
 
+#ifndef WINDOWS
+	if(get_string_after_string("#data_dir",file_mem,MAX_INI_FILE,datadir,90)>0)
+		chdir(datadir);
+#endif
+
 	if(video_mode>10 || video_mode<=0)
 		{
 			Uint8 str[80];
@@ -150,8 +174,14 @@ void read_bin_cfg()
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
-
+#ifndef WINDOWS
+	char el_cfg[100];
+	strcpy(el_cfg, configdir);
+	strcat(el_cfg, "el.cfg");
+	f=fopen(el_cfg,"rb");
+#else
 	f=fopen("el.cfg","rb");
+#endif
 	if(!f)return;//no config file, use defaults
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
@@ -198,8 +228,14 @@ void save_bin_cfg()
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
-
+#ifndef WINDOWS
+	char el_cfg[100];
+	strcpy(el_cfg, configdir);
+	strcat(el_cfg, "el.cfg");
+	f=fopen(el_cfg,"wb");
+#else
 	f=fopen("el.cfg","wb");
+#endif
 	if(!f)return;//blah, whatever
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 

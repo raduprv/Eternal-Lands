@@ -1,7 +1,7 @@
 Cicero:
 Add music (Ogg vorbis player) -- testing + need server support
-log, cfg, & ini in user directory tree
-	-Specify alternate directory to load games files from
+log, cfg, & ini in user directory tree --testing on linux
+	-Specify alternate directory to load games files from --testing on linux
 S/W version check & upload -- need server support to finish
 	-check MD5 sum of a file -- testing
 	-http download of a file -- testing
