@@ -1,12 +1,10 @@
 Cicero:
-Port sound engine to OpenAL - TESTING
-	-add music
-FreeBSD version
+Add music (Ogg vorbis player)
 log, cfg, & ini in user directory tree
 	-Specify alternate directory to load games files from
 S/W version check & upload
-	-Get File signature (MD5 of a specified filename)
-	-Upload File to client
+	-Check for newer versions of files by comparing MD5 sums
+	-http/ftp download of a file
 
 
 Learner:
