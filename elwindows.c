@@ -269,97 +269,140 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 }
 
 
-int	drag_windows(int mx, int my, int dx, int dy)
+int drag_windows (int mx, int my, int dx, int dy)
 {
 	int	next_id;
 	int	id, i;
-	int	drag_id= 0;
+	int	drag_id = 0;
+	int dragable, resizeable;
+	int x, y;
+	window_info *win;
 
 	// check each window in the proper order for which one might be getting dragged
 	if(windows_list.display_level > 0)
-		{
-			id= 9999;
-			while(drag_id <= 0)
-				{
-					next_id= 0;
-					for(i=1; i<windows_list.num_windows; i++){
-						// only look at displayed windows
-						if(windows_list.window[i].displayed > 0 && (windows_list.window[i].flags&ELW_DRAGGABLE)){
-							// at this level?
-							if(windows_list.window[i].order == id){
-								// check for being actively dragging or on the top bar
-								if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
-									drag_id= i;
-									break;
-								} else if(mouse_in_window(i, mx, my)){
-									// stop processing if we are inside of another window
-									return 0;
-								}
-							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
-								// try to find the next level
-								next_id= windows_list.window[i].order;
-							}
-						}
-					}
-					if(next_id <= 0)
-						{
-							break;
-						}
-					else
-						{
-							id= next_id;
-						}
-				}
-		}
-
-	// this section probably won't be needed, included to be complete
-	// now check the background windows in the proper order for which one might be getting dragged
-	id= -9999;
-	while(drag_id <= 0)
+	{
+		id= 9999;
+		while(drag_id <= 0)
 		{
 			next_id= 0;
-			for(i=1; i<windows_list.num_windows; i++){
+			for(i=1; i<windows_list.num_windows; i++)
+			{
+				win = &(windows_list.window[i]);
+				dragable = win->flags & ELW_DRAGGABLE;
+				resizeable = win->flags & ELW_RESIZEABLE;
 				// only look at displayed windows
-				if(windows_list.window[i].displayed > 0 && (windows_list.window[i].flags&ELW_DRAGGABLE)){
+				if (win->displayed && (dragable || resizeable) )
+				{
 					// at this level?
-					if(windows_list.window[i].order == id){
-						// check for being actively dragging or on the top bar
-						if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
-							drag_id= i;
+					if(win->order == id)
+					{
+						// position relative to window
+						x = mx - win->cur_x;
+						y = my - win->cur_y;
+						
+						// first check for being actively dragging or on the top bar
+						if (win->dragged || (dragable && mouse_in_window(i, mx, my) && y < 0) )
+						{
+							drag_id = i;
+							win->dragged = 1;
 							break;
-						} else if(mouse_in_window(i, mx, my)){
-							// stop processing if we are inside of another window
+						} 
+						// check if we are resizing this window
+						else if (win->resized || (resizeable && mouse_in_window(i, mx, my) && x > win->len_x - ELW_BOX_SIZE && y > win->len_y - ELW_BOX_SIZE) )
+						{
+							drag_id = i;
+							win->resized = 1;
+							break;
+						}
+						// check if we're dragging inside a window 
+						else if(mouse_in_window(i, mx, my))
+						{
 							return 0;
 						}
-					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
+					} 
+					else if (win->order < id && win->order > next_id)
+					{
 						// try to find the next level
-						next_id= windows_list.window[i].order;
+						next_id = win->order;
 					}
 				}
 			}
-			if(next_id >= 0)
-				{
-					break;
-				}
+			if(next_id <= 0)
+				break;
 			else
-				{
-					id= next_id;
-				}
+				id= next_id;
 		}
+	}
+
+	// this section probably won't be needed, included to be complete
+	// now check the background windows in the proper order for which one might be getting dragged
+	id = -9999;
+	while (drag_id <= 0)
+	{
+		next_id = 0;
+		for (i=1; i<windows_list.num_windows; i++)
+		{
+			win = &(windows_list.window[i]);
+			dragable = win->flags & ELW_DRAGGABLE;
+			resizeable = win->flags & ELW_RESIZEABLE;
+			// only look at displayed windows
+			if (win->displayed && (dragable || resizeable) )
+			{
+				// at this level?
+				if(win->order == id)
+				{
+					// position relative to window
+					x = mx - win->cur_x;
+					y = my - win->cur_y;
+
+					// check for being actively dragging or on the top bar
+					if(win->dragged || (mouse_in_window(i, mx, my) && y < 0) )
+					{
+						drag_id = i;
+						win->dragged = 1;
+						break;
+					} 
+					// check if we are resizing this window
+					else if (resizeable && mouse_in_window(i, mx, my) && x > win->len_x - ELW_BOX_SIZE && y > win->len_y - ELW_BOX_SIZE) 
+					{
+						drag_id = i;
+						win->resized = 1;
+						break;
+					} 
+					// check if we're dragging inside a window 
+					else if (mouse_in_window(i, mx, my))
+					{
+						return 0;
+					}
+				} 
+				else if (win->order > id && win->order < next_id){
+					// try to find the next level
+					next_id = win->order;
+				}
+			}
+		}
+		if (next_id >= 0)
+			break;
+		else
+			id= next_id;
+	}
 
 	// are we dragging a window?
-	if(drag_id <= 0)	return 0;
+	if (drag_id <= 0) return 0;
 
 	// dragged window is always on top
-	select_window(drag_id);
-	// flag we are dragging
-	windows_list.window[drag_id].dragged= 1;
+	select_window (drag_id);
+	
 	if(left_click>1 && (dx != 0 || dy != 0))	// TODO: avoid globals?
-		{
+	{
+		win = &(windows_list.window[drag_id]);
+		if (win->dragged)
 			// move to new location
-			move_window(drag_id, windows_list.window[drag_id].pos_id, windows_list.window[drag_id].pos_loc,
-					windows_list.window[drag_id].pos_x+dx, windows_list.window[drag_id].pos_y+dy);
-		}
+			move_window (drag_id, win->pos_id, win->pos_loc, win->pos_x+dx, win->pos_y+dy);
+		else
+			// resize this window
+			resize_window (drag_id, win->len_x + dx, win->len_y + dy); 
+	}
 
 	return 1;
 }
@@ -369,11 +412,12 @@ void	end_drag_windows()
 {
 	int	i;
 
-	for(i= 0; i<windows_list.num_windows; i++)
-		{
-			windows_list.window[i].dragged= 0;
-			windows_list.window[i].drag_in= 0;
-		}
+	for(i=0; i<windows_list.num_windows; i++)
+	{
+		windows_list.window[i].dragged= 0;
+		windows_list.window[i].resized= 0;
+		windows_list.window[i].drag_in= 0;
+	}
 }
 
 
@@ -484,7 +528,8 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 			win->flags= property_flags;
 			win->displayed= (property_flags&ELW_SHOW)?1:0;
 			//win->collapsed= 0;
-			win->dragged= 0;
+			win->dragged = 0;
+			win->resized = 0;
 			my_strncp(win->window_name, name, 34);
 
 			win->back_color[0]= 0.0f;
@@ -559,6 +604,9 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 	// memorize the size
 	windows_list.window[win_id].len_x= size_x;
 	windows_list.window[win_id].len_y= size_y;
+	// initialize min_len_x and min_len_y to the initial size.
+	windows_list.window[win_id].min_len_x= size_x;
+	windows_list.window[win_id].min_len_y= size_y;
 	// then place the window
 	move_window(win_id, pos_id, pos_loc, pos_x+pwin_x, pos_y+pwin_y);
 
@@ -635,7 +683,7 @@ int	draw_window_title(window_info *win)
 
 	get_and_set_texture_id(icons_text);
 	glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER,0.03f);
+	glAlphaFunc(GL_GREATER,0.03f);
 	glBegin(GL_QUADS);
 
 	glTexCoord2f(u_first_end, v_first_start);
@@ -705,50 +753,69 @@ int	draw_window_border(window_info *win)
 {
 	glDisable(GL_TEXTURE_2D);
 	if(win->flags&ELW_USE_BACKGROUND)
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE, GL_SRC_ALPHA);
-			glColor4f(win->back_color[0],win->back_color[1],win->back_color[2],win->back_color[3]);
-			glBegin(GL_QUADS);
-			glVertex3i(0, win->len_y, 0);
-			glVertex3i(0, 0, 0);
-			glVertex3i(win->len_x, 0, 0);
-			glVertex3i(win->len_x, win->len_y, 0);
-			glEnd();
-
-			glDisable(GL_BLEND);
-		}
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+		glColor4f(win->back_color[0],win->back_color[1],win->back_color[2],win->back_color[3]);
+		glBegin(GL_QUADS);
+		glVertex3i(0, win->len_y, 0);
+		glVertex3i(0, 0, 0);
+		glVertex3i(win->len_x, 0, 0);
+		glVertex3i(win->len_x, win->len_y, 0);
+		glEnd();
+		glDisable(GL_BLEND);
+	}
 
 	if(win->flags&ELW_USE_BORDER)
-		{
-			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
-			glBegin(GL_LINES);
-			glVertex3i(0, 0, 0);
-			glVertex3i(win->len_x, 0, 0);
-			glVertex3i(win->len_x, 0, 0);
-			glVertex3i(win->len_x, win->len_y, 0);
-			glVertex3i(win->len_x, win->len_y, 0);
-			glVertex3i(0, win->len_y, 0);
-			glVertex3i(0, win->len_y, 0);
-			glVertex3i(0, 0, 0);
-			glEnd();
-		}
+	{
+		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
+		glBegin(GL_LINES);
+		glVertex3i(0, 0, 0);
+		glVertex3i(win->len_x, 0, 0);
+		glVertex3i(win->len_x, 0, 0);
+		glVertex3i(win->len_x, win->len_y, 0);
+		glVertex3i(win->len_x, win->len_y, 0);
+		glVertex3i(0, win->len_y, 0);
+		glVertex3i(0, win->len_y, 0);
+		glVertex3i(0, 0, 0);
+		glEnd();
+	}
 
+	if (win->flags&ELW_RESIZEABLE)
+	{
+		// draw the diagonal drag stripes
+		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
+		glBegin(GL_LINES);
+		glVertex3i(win->len_x-ELW_BOX_SIZE/4, win->len_y, 0);
+		glVertex3i(win->len_x, win->len_y-ELW_BOX_SIZE/4, 0);
+
+		glVertex3i(win->len_x-ELW_BOX_SIZE/2, win->len_y, 0);
+		glVertex3i(win->len_x, win->len_y-ELW_BOX_SIZE/2, 0);
+
+		glVertex3i(win->len_x-(3*ELW_BOX_SIZE)/4, win->len_y, 0);
+		glVertex3i(win->len_x, win->len_y-(3*ELW_BOX_SIZE)/4, 0);
+
+		glVertex3i(win->len_x-ELW_BOX_SIZE, win->len_y, 0);
+		glVertex3i(win->len_x, win->len_y-ELW_BOX_SIZE, 0);
+		glEnd();
+	}
+	
 	if(win->flags&ELW_CLOSE_BOX)
-		{
-			//draw the corner, with the X in
-			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
-			glBegin(GL_LINES);
-			glVertex3i(win->len_x, ELW_BOX_SIZE, 0);
-			glVertex3i(win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE, 0);
+	{
+		//draw the corner, with the X in
+		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
+		glBegin(GL_LINES);
+		glVertex3i(win->len_x, ELW_BOX_SIZE, 0);
+		glVertex3i(win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE, 0);
 
-			glVertex3i(win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE, 0);
-			glVertex3i(win->len_x-ELW_BOX_SIZE, 0, 0);
-			glEnd();
+		glVertex3i(win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE, 0);
+		glVertex3i(win->len_x-ELW_BOX_SIZE, 0, 0);
+		glEnd();
 
-			glEnable(GL_TEXTURE_2D);
-			draw_string(win->len_x-(ELW_BOX_SIZE-4), 2, "X", 1);
-		}
+		glEnable(GL_TEXTURE_2D);
+		draw_string(win->len_x-(ELW_BOX_SIZE-4), 2, "X", 1);
+	}
+	
 	else glEnable(GL_TEXTURE_2D);
 
 	return 1;
@@ -836,6 +903,29 @@ void	toggle_window(int win_id)
 		show_window (win_id);
 }
 
+void resize_window (int win_id, int new_width, int new_height)
+{
+	window_info *win;
+
+	if (win_id <=0 || win_id >= windows_list.num_windows)	return;
+	if (windows_list.window[win_id].window_id != win_id)	return;
+	
+	win = &(windows_list.window[win_id]);
+
+	if (new_width < win->min_len_x) new_width = win->min_len_x;
+	if (new_height < win->min_len_y) new_height = win->min_len_y;
+	
+	win->len_x = new_width;
+	win->len_y = new_height;
+	
+	if (win->resize_handler != NULL)
+	{
+		glPushMatrix ();
+		glTranslatef ((float)win->cur_x, (float)win->cur_y, 0.0f);
+		(*win->resize_handler) (win, new_width, new_height);
+		glPopMatrix  ();
+	}
+}
 
 int	get_show_window(int win_id)
 {
@@ -970,7 +1060,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 				}
 				mx= x - win->cur_x;
 				my= y - win->cur_y;
-			    
+							    
 				// widgets
 				glPushMatrix();
 				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
@@ -1071,6 +1161,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 			old_handler= (void *)windows_list.window[win_id].mouseover_handler;
 			windows_list.window[win_id].mouseover_handler=handler;
 			break;
+		case	ELW_HANDLER_RESIZE:
+			old_handler= (void *)windows_list.window[win_id].resize_handler;
+			windows_list.window[win_id].resize_handler=handler;
+			break;
 		default:
 			old_handler=NULL;
 	}
@@ -1099,6 +1193,9 @@ void	*get_window_handler(int win_id, int handler_id)
 			break;
 		case	ELW_HANDLER_MOUSEOVER:
 			old_handler= (void *)windows_list.window[win_id].mouseover_handler;
+			break;
+		case	ELW_HANDLER_RESIZE:
+			old_handler= (void *)windows_list.window[win_id].resize_handler;
 			break;
 		default:
 			old_handler=NULL;

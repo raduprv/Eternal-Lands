@@ -436,7 +436,7 @@ int HandleEvent(SDL_Event *event)
 								hud_x=0;
 								hud_y=0;
 							}
-						resize_window();
+						resize_root_window();
 					}
 				
 //END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
@@ -578,7 +578,7 @@ int HandleEvent(SDL_Event *event)
 	    	{
 	    	 	window_width = event->resize.w;
 	      		window_height = event->resize.h;
-		  		resize_window();
+		  		resize_root_window();
 	    	}
 			break;
 

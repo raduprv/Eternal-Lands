@@ -20,6 +20,7 @@ typedef	struct	{
 	int	pos_loc;	/*!< where is it compared to the pos id?	NOT SUPPORTED YET */
 	int	pos_x, pos_y;	/*!< logical location on screen */
 	int	len_x, len_y;	/*!< the size of the window in pixels */
+	int	min_len_x, min_len_y;	/*!< for resizable windows, the minimum width and height */
 	int	cur_x, cur_y;	/*!< current location on screen */
 
 	Uint32	flags; /*!< window flags */
@@ -33,6 +34,7 @@ typedef	struct	{
 	char	displayed;	/*!< is the window currently being displayed? */
 	//char	collapsed;	// is it collapsed or expanded?
 	char	dragged;	/*!< are we dragging the window? */
+	char	resized;	/*!< are we resizing the window? */
 	char	drag_in;	/*!< are we dragging inside the window? */
 
     /*!
@@ -44,6 +46,7 @@ typedef	struct	{
 	int (*click_handler)();		/*!< handle mouse clicks */
 	int (*drag_handler)();		/*!< handle dragging inside windows */
 	int (*mouseover_handler)();		/*!< handle mouseovers */
+	int (*resize_handler)();	/*!< handle window resize events */
     /*! @} */
 
 	/*
@@ -79,10 +82,11 @@ typedef	struct	{
 #define	ELW_DRAGGABLE	0x0020
 //#define	ELW_COLLAPSABLE	0x0040
 #define	ELW_SHOW_LAST	0x0080
+#define ELW_RESIZEABLE	0x0100
 
-#define	ELW_USE_BACKGROUND	0x0100
-#define	ELW_USE_BORDER		0x0200
-//#define	ELW_USE_LINES		0x0400
+#define	ELW_USE_BACKGROUND	0x0200
+#define	ELW_USE_BORDER		0x0400
+//#define	ELW_USE_LINES		0x0800
 /*! @} */
 
 /*!
@@ -163,6 +167,7 @@ typedef	struct	{
 #define	ELW_HANDLER_CLICK	2
 #define	ELW_HANDLER_DRAG	3
 #define	ELW_HANDLER_MOUSEOVER	4
+#define	ELW_HANDLER_RESIZE	5
 /*! @} */
 
 /*!
@@ -435,6 +440,20 @@ void	hide_window(int win_id);
  * \callgraph
  */
 void	toggle_window(int win_id);
+
+/*!
+ * \ingroup elwindows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param win_id
+ * \param new_width
+ * \param new_height
+ *
+ * \callgraph
+ */
+void resize_window (int win_id, int new_width, int new_height);
 
 /*!
  * \ingroup elwindows

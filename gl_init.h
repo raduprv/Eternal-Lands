@@ -83,7 +83,7 @@ void init_gl_extensions();
  *      Resizes the window, after selecting a new video mode.
  *
  */
-void resize_window();
+void resize_root_window();
 
 /*!
  * \ingroup video

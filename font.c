@@ -230,6 +230,67 @@ void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_
 
 }
 
+#ifdef WINDOW_CHAT
+void draw_string_clipped(int x, int y, const unsigned char * our_string, int width, int height)
+{
+	draw_string_zoomed_clipped(x, y, our_string, height, width, 1.0f);
+}
+
+void draw_string_zoomed_clipped(int x, int y, const unsigned char * our_string, int width, int height, float text_zoom)
+{
+	float displayed_font_x_size= 11.0*text_zoom;
+	float displayed_font_y_size= 18.0*text_zoom;
+
+	unsigned char cur_char;
+	int i;
+	int cur_x,cur_y;
+	
+	if (width < displayed_font_x_size || height < displayed_font_y_size)
+		// no point in trying
+		return;
+
+   	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER,0.1f);
+	get_and_set_texture_id(font_text);
+
+	i=0;
+	cur_x=x;
+	cur_y=y;
+	glBegin(GL_QUADS);
+	while(1)
+	{
+		cur_char=our_string[i];
+		// watch for special characters
+		if(!cur_char) 
+		{
+			// end of string
+			break;
+		}
+		else if (cur_char == '\n')
+		{
+			// newline
+			cur_y+=displayed_font_y_size;
+			if (cur_y > height) break;
+			cur_x=x;
+			i++;
+			continue;
+		}
+
+		cur_x += draw_char_scaled(cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
+		
+		i++;
+		if (cur_x > width-displayed_font_x_size)
+		{
+			// ignore rest of this line
+			while (our_string[i] != '\0' && our_string[i] != '\n') i++;
+		}
+	}
+
+	glEnd();
+	glDisable(GL_ALPHA_TEST);
+}
+#endif
+
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
 {
 	int displayed_font_x_size=8;

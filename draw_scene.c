@@ -220,7 +220,7 @@ void draw_scene()
 
 	if(new_zoom_level != zoom_level) {
 		zoom_level=new_zoom_level;
-		resize_window();
+		resize_root_window();
 	}
 	glLoadIdentity();					// Reset The Matrix
 	Move();
@@ -492,7 +492,7 @@ void update_camera()
 	}
 	if(zoom_level<sitting) {
 		new_zoom_level=zoom_level=sitting;
-		resize_window();
+		resize_root_window();
 	}
 }
 

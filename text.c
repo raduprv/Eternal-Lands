@@ -295,7 +295,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 	// argh, if the value that's passed is larger than our screen 
 	// width, it will happily write outside the window. Override in
 	// this case. 
-	tmp_chars_limit = (int) ((use_windowed_chat ? CHAT_WIN_TEXT_WIDTH : (window_width-hud_x)) / (11.0f * chat_zoom));
+	tmp_chars_limit = (int) ((use_windowed_chat ? chat_win_text_width : (window_width-hud_x)) / (11.0f * chat_zoom));
 	if(x_chars_limit == 0 || x_chars_limit> tmp_chars_limit)
 		x_chars_limit = tmp_chars_limit;
 #else

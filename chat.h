@@ -9,6 +9,8 @@
 
 extern int use_windowed_chat;
 
+extern int chat_win_text_width;
+
 void update_chat_scrollbar ();
 
 void display_chat ();

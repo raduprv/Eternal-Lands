@@ -268,7 +268,7 @@ void init_stuff();
  *      Detail
  *
  */
-void resize_window();
+void resize_root_window();
 
 /*!
  * \ingroup load

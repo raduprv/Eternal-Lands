@@ -271,7 +271,7 @@ void read_bin_cfg()
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 	rz=cfg_mem.camera_angle;
 
-	if(zoom_level != 0.0f) resize_window();
+	if(zoom_level != 0.0f) resize_root_window();
 }
 
 void save_bin_cfg()
@@ -499,7 +499,7 @@ void init_stuff()
 
 	
 	init_video();
-	resize_window();
+	resize_root_window();
 	init_gl_extensions();
 #ifdef CAL3D
 	create_cal3d_model();

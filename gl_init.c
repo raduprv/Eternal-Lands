@@ -518,7 +518,7 @@ void init_gl_extensions()
 	check_gl_errors();
 }
 
-void resize_window()
+void resize_root_window()
 {
 	float window_ratio;
 	//float hud_x_adjust=0;
@@ -594,7 +594,7 @@ void set_new_video_mode(int fs,int mode)
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 	init_video();
-	resize_window();
+	resize_root_window();
 	init_lights();
 	disable_local_lights();
 	reset_material();
