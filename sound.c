@@ -18,7 +18,7 @@ vorbis_info* ogg_info;
 ALuint music_buffers[4];
 ALuint music_source;
 
-int playing_music = 0;
+int playing_music=0;
 #endif	//NO_MUSIC
 
 void stop_sound(int i)
@@ -423,7 +423,6 @@ void init_sound()
 	ALfloat listenerVel[]={0.0,0.0,0.0};
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
 	have_sound=1;
-	playing_music = 0;
 #ifndef	NO_MUSIC
 	have_music=1;
 #else

@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <sys/stat.h>
+#ifndef WINDOWS
 #include <dirent.h>
 #include <unistd.h>
+#endif
 #include <string.h>
 #include "init.h"
 #include <time.h>
