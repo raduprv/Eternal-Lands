@@ -26,6 +26,9 @@ int camera_y_frames;
 double camera_z_speed;
 int camera_z_frames;
 
+int camera_zoom_dir;
+int camera_zoom_frames=0;
+
 int normal_animation_timer=0;
 
 float scene_mouse_x;
@@ -321,6 +324,9 @@ void draw_scene()
 
 	SDL_GL_SwapBuffers();
 	check_gl_errors();
+
+
+	if(camera_zoom_frames) resize_window();
 }
 
 void Move()
@@ -355,6 +361,7 @@ void Move()
 
 	//test only
 	update_position();
+
 }
 
 void update_camera()
@@ -382,6 +389,21 @@ void update_camera()
 				cz-=camera_z_speed;
 			camera_z_frames--;
 		}
+	if(camera_zoom_frames) {
+		if(camera_zoom_dir == 1) {
+			if(zoom_level<3.75f){
+				zoom_level+=0.05f;
+				camera_zoom_frames--;
+			} else 
+				camera_zoom_frames = 0;
+		} else {
+			if(zoom_level>2.0f){
+				zoom_level-=0.05f;
+				camera_zoom_frames--;
+			} else 
+				camera_zoom_frames = 0;
+		}
+	}
 
 }
 
