@@ -561,7 +561,6 @@ void init_stuff()
 	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
 	hud_text=load_texture_cache("./textures/gamebuttons2.bmp",0);
 	cons_text=load_texture_cache("./textures/console.bmp",255);
-	sky_text_1=load_texture_cache("./textures/sky.bmp",70);
 	particle_textures[0]=load_texture_cache("./textures/particle0.bmp",0);
 	particle_textures[1]=load_texture_cache("./textures/particle1.bmp",0);
 	particle_textures[2]=particle_textures[3]=particle_textures[4]=0;

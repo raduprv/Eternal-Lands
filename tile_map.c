@@ -53,7 +53,7 @@ void draw_tile_map()
 					for(x=x_start;x<=x_end;x++)
 						{
 							x_scaled=x*3.0f;
-							if(!tile_map[y*tile_map_size_x+x])continue;//lake, skip
+							if(is_water_tile(y*tile_map_size_x+x))continue;//lake, skip
 							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
 							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
 							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
@@ -86,7 +86,7 @@ void draw_tile_map()
 					for(x=x_start;x<=x_end;x++)
 						{
 							x_scaled=x*3.0f;
-							if(!tile_map[y*tile_map_size_x+x])continue;//lake, skip
+							if(is_water_tile(y*tile_map_size_x+x))continue;//lake, skip
 							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
 							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
 							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
@@ -124,6 +124,8 @@ void draw_tile_map()
 			glDisable(GL_TEXTURE_2D);
 			ELglActiveTextureARB(base_unit);
 		}
+
+	glEnable(GL_TEXTURE_2D);
 }
 
 //load only the tiles that are on the map
@@ -136,12 +138,17 @@ void load_map_tiles()
 		{
 			cur_tile=tile_map[i];
 			//check to see if we already have the current tile loaded
-			if(!tile_list[cur_tile] && cur_tile && cur_tile!=255)//if it is 255, it's a null tile, don't load it
-				//if it is 0, it's a lake tile, don't load it
+			if(!tile_list[cur_tile] && cur_tile!=255)//if it is 255, it's a null tile, don't load it
 				{
 					//tile not loaded, so load it
+					if(!cur_tile && dungeon)
+						{
+							if(tile_list[231])continue;
+							cur_tile=231;
+						}
 					sprintf(str,"./tiles/tile%i.bmp",cur_tile);
-					tile_list[cur_tile]=load_texture_cache(str,255);
+					if(is_water_tile(i))tile_list[cur_tile]=load_texture_cache(str,70);
+					else tile_list[cur_tile]=load_texture_cache(str,255);
 				}
 		}
 

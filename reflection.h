@@ -16,6 +16,8 @@ extern int lake_waves_timer;
 extern float water_movement_u;
 extern float water_movement_v;
 
+#define is_water_tile(i) (!tile_map[i] || (tile_map[i]>230 && tile_map[i]<255))
+
 float mrandom(float max);
 void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost);
 void draw_actor_reflection(actor * actor_id);
