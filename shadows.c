@@ -145,7 +145,7 @@ void display_shadows()
 
 			    	     dist1=x-objects_list[i]->x_pos;
 			    	     dist2=y-objects_list[i]->y_pos;
-			    	     if(sqrt(dist1*dist1+dist2*dist2)<=20)
+			    	     if(dist1*dist1+dist2*dist2<=20*20)
                 	     draw_3d_object_shadow(objects_list[i]);
 					 }
                  }
@@ -185,7 +185,7 @@ void display_night_shadows(int phase)
 			         y_pos=objects_list[i]->y_pos;
 			         dist1=x-x_pos;
 			         dist2=y-y_pos;
-			         if(sqrt(dist1*dist1+dist2*dist2)<=20)
+			         if(dist1*dist1+dist2*dist2<=20*20)
 			         	{
 							//now, find the closest, or next closest light source, according to
 							//the phase value
@@ -255,6 +255,8 @@ void display_3d_ground_objects()
 	x=-cx;
 	y=-cy;
 	glEnable(GL_CULL_FACE);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
@@ -266,11 +268,13 @@ void display_3d_ground_objects()
 					 	{
 			         		dist1=x-objects_list[i]->x_pos;
 			         		dist2=y-objects_list[i]->y_pos;
-			         		if(sqrt(dist1*dist1+dist2*dist2)<=20)
+			         		if(dist1*dist1+dist2*dist2<=20*20)
                      		draw_3d_object(objects_list[i]);
 						}
                  }
 		}
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisable(GL_CULL_FACE);
 }
 
@@ -281,6 +285,7 @@ void display_3d_non_ground_objects()
 	x=-cx;
 	y=-cy;
 	glEnable(GL_CULL_FACE);
+	glEnableClientState(GL_VERTEX_ARRAY);
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
@@ -292,11 +297,12 @@ void display_3d_non_ground_objects()
 					 	{
 			         		dist1=x-objects_list[i]->x_pos;
 			         		dist2=y-objects_list[i]->y_pos;
-			         		if(sqrt(dist1*dist1+dist2*dist2)<=20)
+			         		if(dist1*dist1+dist2*dist2<=20*20)
                      		draw_3d_object(objects_list[i]);
 						}
                  }
 		}
+	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
 }
 
