@@ -1,0 +1,835 @@
+<actor type="orchan male">
+	<skin>./md2/orchan_male.bmp</skin>
+	<model>./md2/orchan_male.md2</model>
+	<frames>
+		<walk>walk01</walk>
+		<run>run01</run>
+		<die1>dief01</die1>
+		<die2>dieb11</die2>
+		<pain1>pain01</pain1>
+		<pick>pickup01</pick>
+		<drop>drop01</drop>
+		<idle>idle01</idle>
+		<idle_sit>sitidle01</idle_sit>
+		<harvest>harvest01</harvest>
+		<attack_cast>cast01</attack_cast>
+		<sit_down>intosit01</sit_down>
+		<stand_up>outsit01</stand_up>
+		<in_combat>intofight01</in_combat>
+		<out_combat>outfight01</out_combat>
+		<combat_idle>fightidle01</combat_idle>
+	</frames>
+	<head number="1">
+		<model>./md2/head1_orchanm.md2</model>
+		<skin></skin>
+		<glow>none</glow>
+	</head>
+	<head number="2">
+		<model>./md2/head2_orchanm.md2</model>
+		<skin></skin>
+		<glow>none</glow>
+	</head>
+	<head number="3">
+		<model>./md2/head3_orchanm.md2</model>
+		<skin></skin>
+		<glow>none</glow>
+	</head>
+	<head number="4">
+		<model>./md2/head4_orchanm.md2</model>
+		<skin></skin>
+		<glow>none</glow>
+	</head>
+	<head number="5">
+		<model>./md2/head1_orchanm.md2</model>
+		<skin></skin>
+		<glow>none</glow>
+	</head>
+	<shield type="wood">
+		<model>./md2/shield1_tall.md2</model>
+		<skin>./md2/shield1_wood1.bmp</skin>
+		<glow>none</glow>
+	</shield>
+	<shield type="wood enhanced">
+		<model>./md2/shield1_tall.md2</model>
+		<skin>./md2/shield1_wood2.bmp</skin>
+		<glow>none</glow>
+	</shield>
+	<shield type="iron">
+		<model>./md2/shield1_tall.md2</model>
+		<skin>./md2/shield1_iron.bmp</skin>
+		<glow>none</glow>
+	</shield>
+	<shield type="steel">
+		<model>./md2/shield1_tall.md2</model>
+		<skin>./md2/shield1_steel.bmp</skin>
+		<glow>none</glow>
+	</shield>
+	<cape color="black">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_black.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="blue">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_blue.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="blue grey">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_bluegray.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="brown">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_brown.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="brown grey">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_browngray.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="grey">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_gray.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="green">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_green.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="green grey">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_greengray.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="purple">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_purple.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="white">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_white.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="fur">
+		<model>./md2/cape2_orchanm.md2</model>
+		<skin>./md2/cape2.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="gold">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_gold.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="red">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_red.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="orange">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape1_orange.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="mod">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape_mod.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="moonshadow">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape_moonshadow.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="ravenod">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape_ravenod.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="rogue">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape_rogue.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="wytter">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape_wytter.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<cape color="quell">
+		<model>./md2/cape1_orchanm.md2</model>
+		<skin>./md2/cape_quell.bmp</skin>
+		<glow>none</glow>
+	</cape>
+	<helmet type="iron">
+		<model>./md2/helmet1_orchan.md2</model>
+		<skin>./md2/helmet1.bmp</skin>
+		<glow>none</glow>
+	</helmet>
+	<helmet type="fur">
+		<model>./md2/hat1_orchan.md2</model>
+		<skin>./md2/hat1.bmp</skin>
+		<glow>none</glow>
+	</helmet>
+	<helmet type="leather">
+		<model>./md2/helmet2_orchan.md2</model>
+		<skin>./md2/helmet2.bmp</skin>
+		<glow>none</glow>
+	</helmet>
+	<weapon type="none">
+		<model></model>
+		<skin></skin>
+		<attack_up1>punchone01</attack_up1>
+		<attack_up2>punchtwo01</attack_up2>
+		<attack_down1>kickone01</attack_down1>
+		<attack_down2>kicktwo01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="sword 1">
+		<model>./md2/sword1_tall.md2</model>
+		<skin>./md2/sword1.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="sword 2">
+		<model>./md2/sword2_tall.md2</model>
+		<skin>./md2/sword2.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="sword 3">
+		<model>./md2/sword3_tall.md2</model>
+		<skin>./md2/sword3.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="sword 4">
+		<model>./md2/sword4_tall.md2</model>
+		<skin>./md2/sword4.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="sword 5">
+		<model>./md2/sword5_tall.md2</model>
+		<skin>./md2/sword5.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="sword 6">
+		<model>./md2/sword6_tall.md2</model>
+		<skin>./md2/sword6.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="sword 7">
+		<model>./md2/sword7_tall.md2</model>
+		<skin>./md2/sword7.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="staff 1">
+		<model>./md2/staff1_tall.md2</model>
+		<skin>./md2/staff1_brown.bmp</skin>
+		<attack_up1>slashtwo01</attack_up1>
+		<attack_up2>slashtwo01</attack_up2>
+		<attack_down1>hacktwo01</attack_down1>
+		<attack_down2>hacktwo01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="staff 2">
+		<model>./md2/staff1_tall.md2</model>
+		<skin>./md2/staff1_green.bmp</skin>
+		<attack_up1>slashtwo01</attack_up1>
+		<attack_up2>slashtwo01</attack_up2>
+		<attack_down1>hacktwo01</attack_down1>
+		<attack_down2>hacktwo01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="staff 3">
+		<model>./md2/staff2_tall.md2</model>
+		<skin>./md2/staff3.bmp</skin>
+		<attack_up1>slashtwo01</attack_up1>
+		<attack_up2>slashtwo01</attack_up2>
+		<attack_down1>hacktwo01</attack_down1>
+		<attack_down2>hacktwo01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="staff 4">
+		<model>./md2/staff3_tall.md2</model>
+		<skin>./md2/staff4.bmp</skin>
+		<attack_up1>slashtwo01</attack_up1>
+		<attack_up2>slashtwo01</attack_up2>
+		<attack_down1>hacktwo01</attack_down1>
+		<attack_down2>hacktwo01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="hammer 1">
+		<model>./md2/warhammer1_tall.md2</model>
+		<skin>./md2/warhammer1.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="hammer 2">
+		<model>./md2/warhammer2_tall.md2</model>
+		<skin>./md2/warhammer2.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="pickaxe">
+		<model>./md2/pickaxe1_tall.md2</model>
+		<skin>./md2/pickaxe1.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="sword 1 of fire">
+		<model>./md2/sword1_tall.md2</model>
+		<skin>./md2/sword1.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="sword 2 of fire">
+		<model>./md2/sword2_tall.md2</model>
+		<skin>./md2/sword2.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="sword 2 of ice">
+		<model>./md2/sword2_tall.md2</model>
+		<skin>./md2/sword2.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>ice</glow>
+	</weapon>
+	<weapon type="sword 3 of fire">
+		<model>./md2/sword3_tall.md2</model>
+		<skin>./md2/sword3.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="sword 3 of ice">
+		<model>./md2/sword3_tall.md2</model>
+		<skin>./md2/sword3.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>ice</glow>
+	</weapon>
+	<weapon type="sword 3 of magic">
+		<model>./md2/sword3_tall.md2</model>
+		<skin>./md2/sword3.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>magic</glow>
+	</weapon>
+	<weapon type="sword 4 of fire">
+		<model>./md2/sword4_tall.md2</model>
+		<skin>./md2/sword4.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="sword 4 of ice">
+		<model>./md2/sword4_tall.md2</model>
+		<skin>./md2/sword4.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>ice</glow>
+	</weapon>
+	<weapon type="sword 4 of magic">
+		<model>./md2/sword4_tall.md2</model>
+		<skin>./md2/sword4.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>magic</glow>
+	</weapon>
+	<weapon type="thermal sword 4">
+		<model>./md2/sword4_tall.md2</model>
+		<skin>./md2/sword4.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>thermal</glow>
+	</weapon>
+	<weapon type="sword 5 of fire">
+		<model>./md2/sword5_tall.md2</model>
+		<skin>./md2/sword5.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="sword 5 of ice">
+		<model>./md2/sword5_tall.md2</model>
+		<skin>./md2/sword5.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>ice</glow>
+	</weapon>
+	<weapon type="sword 5 of magic">
+		<model>./md2/sword5_tall.md2</model>
+		<skin>./md2/sword5.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>magic</glow>
+	</weapon>
+	<weapon type="thermal sword 5">
+		<model>./md2/sword5_tall.md2</model>
+		<skin>./md2/sword5.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>thermal</glow>
+	</weapon>
+	<weapon type="sword 6 of fire">
+		<model>./md2/sword6_tall.md2</model>
+		<skin>./md2/sword6.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="sword 6 of ice">
+		<model>./md2/sword6_tall.md2</model>
+		<skin>./md2/sword6.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>ice</glow>
+	</weapon>
+	<weapon type="sword 6 of magic">
+		<model>./md2/sword6_tall.md2</model>
+		<skin>./md2/sword6.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>magic</glow>
+	</weapon>
+	<weapon type="thermal sword 6">
+		<model>./md2/sword6_tall.md2</model>
+		<skin>./md2/sword6.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>thermal</glow>
+	</weapon>
+	<weapon type="sword 7 of fire">
+		<model>./md2/sword7_tall.md2</model>
+		<skin>./md2/sword7.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="sword 7 of ice">
+		<model>./md2/sword7_tall.md2</model>
+		<skin>./md2/sword7.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>ice</glow>
+	</weapon>
+	<weapon type="sword 7 of magic">
+		<model>./md2/sword7_tall.md2</model>
+		<skin>./md2/sword7.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>magic</glow>
+	</weapon>
+	<weapon type="thermal sword 7">
+		<model>./md2/sword7_tall.md2</model>
+		<skin>./md2/sword7.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>thermal</glow>
+	</weapon>
+	<weapon type="pickaxe of magic">
+		<model>./md2/pickaxe1_tall.md2</model>
+		<skin>./md2/pickaxe1.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>magic</glow>
+	</weapon>
+	<weapon type="iron battle axe">
+		<model>./md2/axe1_tall.md2</model>
+		<skin>./md2/axe1.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="steel battle axe">
+		<model>./md2/axe2_tall.md2</model>
+		<skin>./md2/axe2.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="titanium battle axe">
+		<model>./md2/axe3_tall.md2</model>
+		<skin>./md2/axe3.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="iron battle axe of fire">
+		<model>./md2/axe1_tall.md2</model>
+		<skin>./md2/axe1.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="steel battle axe of ice">
+		<model>./md2/axe2_tall.md2</model>
+		<skin>./md2/axe2.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>ice</glow>
+	</weapon>
+	<weapon type="steel battle axe of fire">
+		<model>./md2/axe2_tall.md2</model>
+		<skin>./md2/axe2.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="titanium battle axe of ice">
+		<model>./md2/axe3_tall.md2</model>
+		<skin>./md2/axe3.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>ice</glow>
+	</weapon>
+	<weapon type="titanium battle axe of fire">
+		<model>./md2/axe3_tall.md2</model>
+		<skin>./md2/axe3.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>fire</glow>
+	</weapon>
+	<weapon type="titanium battle axe of magic">
+		<model>./md2/axe3_tall.md2</model>
+		<skin>./md2/axe3.bmp</skin>
+		<attack_up1>slashone01</attack_up1>
+		<attack_up2>slashone01</attack_up2>
+		<attack_down1>hackone01</attack_down1>
+		<attack_down2>hackone01</attack_down2>
+		<glow>magic</glow>
+	</weapon>
+	<weapon type="fur gloves">
+		<model></model>
+		<skin>./md2/gloves_fur.bmp</skin>
+		<attack_up1>punchone01</attack_up1>
+		<attack_up2>punchtwo01</attack_up2>
+		<attack_down1>kickone01</attack_down1>
+		<attack_down2>kicktwo01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<weapon type="leather gloves">
+		<model></model>
+		<skin>./md2/gloves_leather.bmp</skin>
+		<attack_up1>punchone01</attack_up1>
+		<attack_up2>punchtwo01</attack_up2>
+		<attack_down1>kickone01</attack_down1>
+		<attack_down2>kicktwo01</attack_down2>
+		<glow>none</glow>
+	</weapon>
+	<shirt color="black">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_black.bmp</arms>
+		<torso>./md2/torso1_black.bmp</torso>
+	</shirt>
+	<shirt color="blue">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_blue.bmp</arms>
+		<torso>./md2/torso1_blue.bmp</torso>
+	</shirt>
+	<shirt color="brown">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_brown.bmp</arms>
+		<torso>./md2/torso1_brown.bmp</torso>
+	</shirt>
+	<shirt color="grey">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_gray.bmp</arms>
+		<torso>./md2/torso1_gray.bmp</torso>
+	</shirt>
+	<shirt color="green">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_green.bmp</arms>
+		<torso>./md2/torso1_green.bmp</torso>
+	</shirt>
+	<shirt color="light brown">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_lightbrown.bmp</arms>
+		<torso>./md2/torso1_lightbrown.bmp</torso>
+	</shirt>
+	<shirt color="orange">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_orange.bmp</arms>
+		<torso>./md2/torso1_orange.bmp</torso>
+	</shirt>
+	<shirt color="pink">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_pink.bmp</arms>
+		<torso>./md2/torso1_pink.bmp</torso>
+	</shirt>
+	<shirt color="purple">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_purple.bmp</arms>
+		<torso>./md2/torso1_purple.bmp</torso>
+	</shirt>
+	<shirt color="red">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_red.bmp</arms>
+		<torso>./md2/torso1_red.bmp</torso>
+	</shirt>
+	<shirt color="white">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_white.bmp</arms>
+		<torso>./md2/torso1_white.bmp</torso>
+	</shirt>
+	<shirt color="yellow">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms1_yellow.bmp</arms>
+		<torso>./md2/torso1_yellow.bmp</torso>
+	</shirt>
+	<shirt color="leather armor">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms2.bmp</arms>
+		<torso>./md2/torso2.bmp</torso>
+	</shirt>
+	<shirt color="chain armor">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms3.bmp</arms>
+		<torso>./md2/torso3.bmp</torso>
+	</shirt>
+	<shirt color="steel chain armor">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms4.bmp</arms>
+		<torso>./md2/torso4.bmp</torso>
+	</shirt>
+	<shirt color="titanium chain armor">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms5.bmp</arms>
+		<torso>./md2/torso5.bmp</torso>
+	</shirt>
+	<shirt color="iron plate armor">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms6.bmp</arms>
+		<torso>./md2/torso6.bmp</torso>
+	</shirt>
+	<shirt color="fur">
+		<model>./md2/torso1_orchanm.md2</model>
+		<arms>./md2/arms_fur1.bmp</arms>
+		<torso>./md2/torso_fur1.bmp</torso>
+	</shirt>
+	<hskin color="brown">
+		<hands>./md2/hands_orchanblue.bmp</hands>
+		<head>./md2/head_orchanmblue.bmp</head>
+	</hskin>
+	<hskin color="normal">
+		<hands>./md2/hands_orchangreen.bmp</hands>
+		<head>./md2/head_orchanmgreen.bmp</head>
+	</hskin>
+	<hskin color="pale">
+		<hands>./md2/hands_orchanpurple.bmp</hands>
+		<head>./md2/head_orchanmpurple.bmp</head>
+	</hskin>
+	<hskin color="tan">
+		<hands>./md2/hands_tan.bmp</hands>
+		<head>./md2/head_orchanmtan.bmp</head>
+	</hskin>
+	<hair color="black">./md2/hair_black.bmp</hair>
+	<hair color="blond">./md2/hair_blond.bmp</hair>
+	<hair color="brown">./md2/hair_brown.bmp</hair>
+	<hair color="grey">./md2/hair_gray.bmp</hair>
+	<hair color="red">./md2/hair_red.bmp</hair>
+	<hair color="white">./md2/hair_white.bmp</hair>
+	<boots color="black">
+		<skin>./md2/boots1_black.bmp</skin>
+		<glow>none</glow>
+	</boots>
+	<boots color="brown">
+		<skin>./md2/boots1_brown.bmp</skin>
+		<glow>none</glow>
+	</boots>
+	<boots color="dark brown">
+		<skin>./md2/boots1_darkbrown.bmp</skin>
+		<glow>none</glow>
+	</boots>
+	<boots color="dull brown">
+		<skin>./md2/boots1_dullbrown.bmp</skin>
+		<glow>none</glow>
+	</boots>
+	<boots color="light brown">
+		<skin>./md2/boots1_lightbrown.bmp</skin>
+		<glow>none</glow>
+	</boots>
+	<boots color="orange">
+		<skin>./md2/boots1_orange.bmp</skin>
+		<glow>none</glow>
+	</boots>
+	<boots color="leather">
+		<skin>./md2/boots2.bmp</skin>
+		<glow>none</glow>
+	</boots>
+	<boots color="fur">
+		<skin>./md2/boots3.bmp</skin>
+		<glow>none</glow>
+	</boots>
+	<boots color="iron greaves">
+		<skin>./md2/boots4.bmp</skin>
+		<glow>none</glow>
+	</boots>
+	<legs color="black">
+		<skin>./md2/pants1_black.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="blue">
+		<skin>./md2/pants1_blue.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="brown">
+		<skin>./md2/pants1_brown.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="dark brown">
+		<skin>./md2/pants1_darkbrown.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="grey">
+		<skin>./md2/pants1_gray.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="green">
+		<skin>./md2/pants1_green.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="light brown">
+		<skin>./md2/pants1_lightbrown.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="red">
+		<skin>./md2/pants1_red.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="white">
+		<skin>./md2/pants1_white.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="leather">
+		<skin>./md2/pants2.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="iron cuisses">
+		<skin>./md2/pants3.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<legs color="fur">
+		<skin>./md2/pants_fur1.bmp</skin>
+		<model>./md2/legs1_orchanm.md2</model>
+		<glow>none</glow>
+	</legs>
+	<ghost>no</ghost>
+	<walk_speed>0.1111111119</walk_speed>
+	<run_speed>0.1111111111</run_speed>
+</actor>
+

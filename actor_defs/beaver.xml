@@ -1,0 +1,27 @@
+<actor type="beaver">
+	<skin>./md2/smallanimals.bmp</skin>
+	<model>./md2/beaver.md2</model>
+	<frames>
+		<walk>walk01</walk>
+		<die1>die01</die1>
+		<pain1>pain01</pain1>
+		<idle>idle01</idle>
+		<idle_sit>sleep01</idle_sit>
+		<attack_cast>cast01</attack_cast>
+		<sit_down>insleep01</sit_down>
+		<stand_up>outsleep01</stand_up>
+		<in_combat>default01</in_combat>
+		<out_combat>default01</out_combat>
+		<combat_idle>default01</combat_idle>
+		<attack_up_1>attack01</attack_up_1>
+		<attack_up_2>attack01</attack_up_2>
+		<attack_up_3>attack01</attack_up_3>
+		<attack_up_4>attack01</attack_up_4>
+		<attack_down_1>attack01</attack_down_1>
+		<attack_down_2>attack01</attack_down_2>
+	</frames>
+	<ghost>no</ghost>
+	<walk_speed>0.1111111119</walk_speed>
+	<run_speed>0.1111111111</run_speed>
+</actor>
+

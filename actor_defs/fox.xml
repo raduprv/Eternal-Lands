@@ -1,0 +1,26 @@
+<actor type="fox">
+	<skin>./md2/animals4.bmp</skin>
+	<model>./md2/fox.md2</model>
+	<frames>
+		<walk>walk01</walk>
+		<die1>die01</die1>
+		<die2>dietwo01</die2>
+		<pain1>pain01</pain1>
+		<pain2>paintwo01</pain2>
+		<idle>idle01</idle>
+		<attack_cast>cast01</attack_cast>
+		<in_combat>idletwo01</in_combat>
+		<out_combat>idletwo01</out_combat>
+		<combat_idle>idletwo01</combat_idle>
+		<attack_up_1>attack01</attack_up_1>
+		<attack_up_2>attack01</attack_up_2>
+		<attack_up_3>attack01</attack_up_3>
+		<attack_up_4>attack01</attack_up_4>
+		<attack_down_1>attacktwo01</attack_down_1>
+		<attack_down_2>attacktwo01</attack_down_2>
+	</frames>
+	<ghost>no</ghost>
+	<walk_speed>0.1111111119</walk_speed>
+	<run_speed>0.1111111111</run_speed>
+</actor>
+
