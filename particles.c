@@ -288,7 +288,7 @@ void destroy_all_particles()
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(!particles_list[i])continue;
-			if(particles_list[i]->def && particles_list[i]->def->use_light) {
+			if(particles_list[i]->def && particles_list[i]->def->use_light && lights_list[particles_list[i]->light]) {
 				free(lights_list[particles_list[i]->light]);
 				lights_list[particles_list[i]->light]=NULL;
 			}
@@ -304,7 +304,7 @@ void destroy_all_fires()
 	int i;
 	for(i=0;i<max_particle_systems;i++){
 		if(particles_list[i] && !strncmp(particles_list[i]->def->file_name,"./particles/fire_",17)) {
-			if(particles_list[i]->def->use_light){
+			if(particles_list[i]->def->use_light && lights_list[particles_list[i]->light]){
 				free(lights_list[particles_list[i]->light]);
 				lights_list[particles_list[i]->light]=NULL;
 			}
@@ -944,7 +944,7 @@ void update_particles() {
 			  if(!particles_list[i]->ttl && !particles_list[i]->particle_count)
 			  //if there are no more particles to add, and the TTL expired, then kill this evil system
 				{
-					if(particles_list[i]->def->use_light) {
+					if(particles_list[i]->def->use_light && lights_list[particles_list[i]->light]) {
 						free(lights_list[particles_list[i]->light]);
 						lights_list[particles_list[i]->light]=NULL;
 					}
