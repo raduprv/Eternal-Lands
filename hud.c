@@ -36,6 +36,8 @@ int	misc_win= -1;
 int	quickbar_win= -1;
 int show_help_text=1;
 
+int qb_action_mode=action_use;
+
 int show_stats_in_hud=0;
 
 // initialize anything related to the hud
@@ -976,8 +978,10 @@ int	display_quickbar_handler(window_info *win)
 	return 1;
 }
 
+int last_type=0;
+
 int mouseover_quickbar_handler(window_info *win, int mx, int my) {
-	int y,i;
+	int y,i=0;
 	int x_screen,y_screen;
 	for(y=0;y<6;y++)
 		{
@@ -992,25 +996,23 @@ int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 					y_screen=0;
 				}
 			if(mx>x_screen && mx<x_screen+30 && my>y_screen && my<y_screen+30)
-					{
-						for(i=0;i<ITEM_NUM_ITEMS;i++)
+				{
+					for(i=0;i<ITEM_NUM_ITEMS;i++){
+						if(item_list[i].quantity && item_list[i].pos==y)
 							{
-								//should we get the info for it?
-								if(item_list[i].quantity && item_list[i].pos==y)
-									{
-										if(action_mode==action_look) {
-											elwin_mouse=CURSOR_EYE;
-										} else if(action_mode==action_use) {
-											elwin_mouse=CURSOR_USE;
-										} else if(action_mode==action_use_witem) {
-											elwin_mouse=CURSOR_USE_WITEM;
-										} else {
-											elwin_mouse=CURSOR_PICK;
-										}
-										return 1;
-									}
+								if(qb_action_mode==action_look) {
+									elwin_mouse=CURSOR_EYE;
+								} else if(qb_action_mode==action_use) {
+									elwin_mouse=CURSOR_USE;
+								} else if(qb_action_mode==action_use_witem) {
+									elwin_mouse=CURSOR_USE_WITEM;
+								} else {
+									elwin_mouse=CURSOR_PICK;
+								}
+								return 1;
 							}
 					}
+				}
 			}
 	return 0;
 }
@@ -1027,29 +1029,29 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 	int trigger=ELW_LEFT_MOUSE|ELW_CTRL|ELW_SHIFT;//flags we'll use for the quickbar relocation handling
 
 	if(right_click) {
-		switch(action_mode) {
+		switch(qb_action_mode) {
 		case action_walk:
-			action_mode=action_look;
+			qb_action_mode=action_look;
 			break;
 		case action_look:
-			action_mode=action_use;
+			qb_action_mode=action_use;
 			break;
 		case action_use:
-			action_mode=action_use_witem;
+			qb_action_mode=action_use_witem;
 			break;
 		case action_use_witem:
 			if(use_item!=-1)
 				use_item=-1;
 			else
-				action_mode=action_walk;
+				qb_action_mode=action_walk;
 			break;
 		default:
 			use_item=-1;
-			action_mode=action_walk;
+			qb_action_mode=action_walk;
 		}
 		return 1;
 	}
-
+	
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
 	for(y=0;y<6;y++)
@@ -1127,14 +1129,20 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 							if(item_list[i].quantity && item_list[i].pos==y)
 								{
 
-									if(action_mode==action_look)
+									if(ctrl_on){
+										str[0]=DROP_ITEM;
+										str[1]=item_list[i].pos;
+										*((Uint16 *)(str+2))=item_list[i].quantity;
+										my_tcp_send(my_socket, str, 4);
+										return 1;
+									} else if(qb_action_mode==action_look)
 										{
 											click_time=cur_time;
 											str[0]=LOOK_AT_INVENTORY_ITEM;
 											str[1]=item_list[i].pos;
 											my_tcp_send(my_socket,str,2);
 										}
-									else if(action_mode==action_use)
+									else if(qb_action_mode==action_use)
 										{
 											if(item_list[i].use_with_inventory)
 												{
@@ -1145,7 +1153,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 												}
 											return 1;
 										}
-									else if(action_mode==action_use_witem) {
+									else if(qb_action_mode==action_use_witem) {
 										if(use_item!=-1) {
 											str[0]=ITEM_ON_ITEM;
 											str[1]=item_list[use_item].pos;

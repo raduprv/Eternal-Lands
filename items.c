@@ -25,6 +25,8 @@ void strap_word(char * in, char * out)
 	*out=0;
 }
 
+int item_action_mode;
+
 int view_ground_items=0;
 int no_view_my_items=0;
 
@@ -281,28 +283,30 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	Uint8 str[100];
 
 	if(right_click) {
-		switch(action_mode) {
+		switch(item_action_mode) {
 		case action_walk:
-			action_mode=action_look;
+			item_action_mode=action_look;
 			break;
 		case action_look:
-			action_mode=action_use;
+			item_action_mode=action_use;
 			break;
 		case action_use:
-			action_mode=action_use_witem;
+			item_action_mode=action_use_witem;
 			break;
 		case action_use_witem:
 			if(use_item!=-1)
 				use_item=-1;
 			else
-				action_mode=action_walk;
+				item_action_mode=action_walk;
 			break;
 		default:
 			use_item=-1;
-			action_mode=action_walk;
+			item_action_mode=action_walk;
 		}
 		return 1;
 	}
+
+	if(item_action_mode==action_use_witem)action_mode=action_use_witem;
 
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
@@ -369,14 +373,14 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 											my_tcp_send(my_socket, str, 4);
 											return 1;
 										}
-										if(action_mode==action_look)
+										if(item_action_mode==action_look)
 											{
 												click_time=cur_time;
 												str[0]=LOOK_AT_INVENTORY_ITEM;
 												str[1]=item_list[i].pos;
 												my_tcp_send(my_socket,str,2);
 											}
-										else if(action_mode==action_use)
+										else if(item_action_mode==action_use)
 											{
 												if(item_list[i].use_with_inventory)
 													{
@@ -386,7 +390,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 													}
 												return 1;
 											}
-										else if(action_mode==action_use_witem) {
+										else if(item_action_mode==action_use_witem) {
 												if(use_item!=-1) {
 													str[0]=ITEM_ON_ITEM;
 													str[1]=item_list[use_item].pos;
@@ -452,7 +456,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 								//should we get the info for it?
 								if(item_list[i].quantity && item_list[i].pos==y*2+x+ITEM_WEAR_START)
 									{
-										if(action_mode==action_look || right_click)
+										if(item_action_mode==action_look || right_click)
 											{
 												str[0]=LOOK_AT_INVENTORY_ITEM;
 												str[1]=item_list[i].pos;
@@ -803,10 +807,10 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	Uint8 str[10];
 
 	if(right_click) {
-		if(action_mode==action_look)
-			action_mode=action_walk;
+		if(item_action_mode==action_look)
+			item_action_mode=action_walk;
 		else
-			action_mode=action_look;
+			item_action_mode=action_look;
 		return 1;
 	}
 
@@ -850,7 +854,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 							}
 							return 1;
 						}
-						if(action_mode==action_look)
+						if(item_action_mode==action_look)
 							{
 								str[0]= LOOK_AT_GROUND_ITEM;
 								str[1]= pos;
@@ -860,7 +864,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 							{
 								int quantity;
 								quantity= ground_item_list[pos].quantity;
-								if(quantity > item_quantity) quantity= item_quantity;
+								if(quantity > item_quantity && !ctrl_on) quantity= item_quantity;
 
 								str[0]= PICK_UP_ITEM;
 								str[1]= pos;
@@ -887,7 +891,7 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 					int pos;
 					pos= y*5+x;
 					if(ground_item_list[pos].quantity) {
-						if(action_mode==action_look) {
+						if(item_action_mode==action_look) {
 							elwin_mouse=CURSOR_EYE;
 						} else {
 							elwin_mouse=CURSOR_PICK;
@@ -914,11 +918,11 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 								//should we get the info for it?
 								if(item_list[i].quantity && item_list[i].pos==y*6+x)
 									{
-										if(action_mode==action_look) {
+										if(item_action_mode==action_look) {
 											elwin_mouse=CURSOR_EYE;
-										} else if(action_mode==action_use) {
+										} else if(item_action_mode==action_use) {
 											elwin_mouse=CURSOR_USE;
-										} else if(action_mode==action_use_witem) {
+										} else if(item_action_mode==action_use_witem) {
 											elwin_mouse=CURSOR_USE_WITEM;
 										} else {
 											elwin_mouse=CURSOR_PICK;

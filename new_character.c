@@ -101,7 +101,7 @@ void change_actor()
 	else if(race==race_dwarf)
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
 	else if(race==race_gnome)*/
-	if(hair_color==HAIR_BLOND) if(race==race_draegoni||race==race_orchan) hair_color++;
+	if(hair_color==HAIR_BLOND) if((race==race_draegoni && male)||race==race_orchan) hair_color++;
 	if(hair_color>HAIR_WHITE && race != race_draegoni) hair_color=HAIR_BLACK;
 	if(shirt_color==SHIRT_PINK) if(male) shirt_color++;
 		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
@@ -175,7 +175,7 @@ void check_for_input()
 			if(hair_color==HAIR_BLACK)
 				hair_color=wrap;
 			else hair_color--;
-			if(hair_color==HAIR_BLOND) if(race==race_draegoni||race==race_orchan) hair_color--;
+			if(hair_color==HAIR_BLOND) if((race==race_draegoni && male)||race==race_orchan) hair_color--;
 			change_actor();
 		}
 	if(mouse_x>=120 && mouse_y>290 && mouse_y<308 && mouse_x<=138)
@@ -186,7 +186,7 @@ void check_for_input()
 			if(hair_color==wrap)
 				hair_color=HAIR_BLACK;
 			else hair_color++;
-			if(hair_color==HAIR_BLOND) if(race==race_draegoni||race==race_orchan) hair_color++;
+			if(hair_color==HAIR_BLOND) if((race==race_draegoni && male)||race==race_orchan) hair_color++;
 			change_actor();
 		}
 

@@ -65,9 +65,11 @@ int check_scroll_bars()
 
 void check_mouse_click()
 {
+	int force_walk=(ctrl_on && right_click);
 	// check for a click on the HUD (between scene & windows)
 	if(click_in_windows(mouse_x, mouse_y, 0) > 0)	return;
 
+	if(!force_walk)
 	if(right_click) {
 		if(object_under_mouse==-1) {
 			action_mode=action_walk;
@@ -149,6 +151,24 @@ void check_mouse_click()
 		pf_destroy_path();
 	}
 
+	if(force_walk){
+		Uint8 str[10];
+		short x,y;
+		
+		get_world_x_y();
+		x=scene_mouse_x/0.5f;
+		y=scene_mouse_y/0.5f;
+		//check to see if the coordinates are OUTSIDE the map
+		if(y<0 || x<0 || x>=tile_map_size_x*6 || y>=tile_map_size_y*6)return;
+		
+		str[0]=MOVE_TO;
+		*((short *)(str+1))=x;
+		*((short *)(str+3))=y;
+
+		my_tcp_send(my_socket,str,5);
+		return;
+	}
+	
 	switch(current_cursor) {
 	case CURSOR_EYE:
 		{
@@ -191,6 +211,7 @@ void check_mouse_click()
 			Uint8 str[10];
 
 			if(object_under_mouse==-1)return;
+			if(you_sit && sit_lock && !ctrl_on) return;
 			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER || thing_under_the_mouse==UNDER_MOUSE_NPC || thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
 				{
 					str[0]=ATTACK_SOMEONE;
@@ -220,11 +241,14 @@ void check_mouse_click()
 					for(i=0;i<20;i++)dialogue_responces[i].in_use=0;
 					return;
 				}
+			if(you_sit && sit_lock && !ctrl_on) return;
 			str[0]=USE_MAP_OBJECT;
 			*((int *)(str+1))=object_under_mouse;
-			if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM)
+			if(use_item!=-1 && current_cursor==CURSOR_USE_WITEM){
 				*((int *)(str+5))=item_list[use_item].pos;
-			else
+				use_item=-1;
+				action_mode=action_walk;
+			} else
 				*((int *)(str+5))=-1;
 			my_tcp_send(my_socket,str,9);
 			return;
@@ -234,6 +258,7 @@ void check_mouse_click()
 	case CURSOR_PICK:
 		{
 			if(object_under_mouse==-1)return;
+			if(you_sit && sit_lock && !ctrl_on) return;
 			open_bag(object_under_mouse);
 			return;
 		}
@@ -253,21 +278,21 @@ void check_mouse_click()
 
 	case CURSOR_WALK:
 	default:
-		if(!you_sit || !sit_lock)
 		{
 			Uint8 str[10];
 			short x,y;
-
+		
+			if(you_sit && sit_lock && !ctrl_on) return;
 			get_world_x_y();
 			x=scene_mouse_x/0.5f;
 			y=scene_mouse_y/0.5f;
 			//check to see if the coordinates are OUTSIDE the map
 			if(y<0 || x<0 || x>=tile_map_size_x*6 || y>=tile_map_size_y*6)return;
-
+			
 			str[0]=MOVE_TO;
 			*((short *)(str+1))=x;
 			*((short *)(str+3))=y;
-
+	
 			my_tcp_send(my_socket,str,5);
 			return;
 		}
