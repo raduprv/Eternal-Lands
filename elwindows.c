@@ -837,10 +837,10 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				W = W->next;
 				if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
 					if(W->OnClick != NULL)
-						W->OnClick(W,mx,my);
+					{
+						W->OnClick(W,mx - W->pos_x, my - W->pos_y);
+					}
 				}
-
-				
 			}
 			glPopMatrix();
 
@@ -868,10 +868,12 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 {
     window_info *win;
     int	mx, my;
-   
+    widget_list *W; 
+
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	win= &windows_list.window[win_id];
+	W = &win->widgetlist;
 	if(win->drag_in || mouse_in_window(win_id, x, y) > 0)
 		{
 			//use the handler
@@ -892,6 +894,20 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 				mx= x - win->cur_x;
 				my= y - win->cur_y;
 			    
+					// widgets
+			glPushMatrix();
+			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+			while(W->next != NULL){
+				W = W->next;
+				if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
+					if(W->OnDrag != NULL)
+					{
+						W->OnDrag(W,dx, dy);
+					}
+				}
+			}
+			glPopMatrix();
+
 				glPushMatrix();
 				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
 				ret_val= (*win->drag_handler)(win, mx, my, flags, dx, dy);
