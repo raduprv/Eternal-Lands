@@ -10,8 +10,6 @@
  * A macro for the my_xmlstrncopy function that copies and converts an xml-string. Sets the length to 0, hence it will copy untill \0 is reached.
  */
 #define my_xmlStrcpy(d,s) my_xmlStrncopy(d,s,0)
-#define UTF8Toisolat1(d,ld,s,ls) my_UTF8Toisolat1(d,ld,s,ls)
-int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
 
 /*!
  * \ingroup	misc_utils
@@ -248,14 +246,35 @@ int xmlGetInt(xmlNode *n, xmlChar *p);
  * \ingroup	xml_utils
  * \brief	Copies and converts the UTF8-string pointed to by src into the destination.
  *
- * 		Copies and converts the UTF8-string pointed to by src into the destination. It will max copy n characters, but if n is 0 it will copy the entire string. If the pointer pointed to by dest is NULL it will allocate the memory for the pointer, however you will still need to free the memory.
+ * 		Copies and converts the UTF8-string pointed to by src into the destination. It will max copy n characters, but if n is 0 it will copy the entire string. 
+ * 		The function allocates appropriate buffer sizes using strlen and xmlUTF8Strlen. The src is copied to the in-buffer, then the in-buffer is converted using iconv() to iso-8859-1 and the converted string is put in the outbuffer.
+ * 		The main case is where the pointer pointed to by dest is non-NULL. In that case it will copy the content of the out-buffer to the *dest. Next it will free() the allocated buffers.
+ * 		A second case is where the pointer pointed to by dest is NULL - here it will set the pointer to the out-buffer and only free() the in-buffer.
  *
- * \param	dest A pointer to the destination character array pointer :)
+ * \param	dest A pointer to the destination character array pointer
  * \param	src The source string
  * \param	len The maximum length of chars that will be copied
  * \return	Returns the number of characters that have been copied, or -1 on failure.
  */
 int my_xmlStrncopy(char ** dest, const char * src, int len);
 
+/*!
+ * \ingroup	xml_utils
+ * \brief	Converts a UTF-8 encoded string to an iso-8859-1 encoded string.
+ *
+ * 		Converts a UTF-8 encoded string to an iso-8859-1 encoded string using iconv(). It does not allocate any buffers, you must do that prior to calling the function.
+ *
+ * \param	dest A pointer to the destination pointer
+ * \param	lu The max. length of the characters converted and added to the destination buffer
+ * \param	src A pointer to the source pointer
+ * \param	len The maximum number of bytes to convert
+ * \return	Returns true
+ * \todo	Add more return values depending on the situation
+ */
+#ifdef WINDOWS
+int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * len);
+#else
+int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
 #endif
 
+#endif

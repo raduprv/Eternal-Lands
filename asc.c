@@ -431,7 +431,11 @@ int my_xmlStrncopy(char ** out, const char * in, int len)
 		l1=lin;
 		l2=lout;
 
-		if(UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
+#ifdef WINDOWS
+		if(my_UTF8Toisolat1(&outbuf2,&lout,(const char **)&inbuf2,&lin)<0) {
+#else
+		if(my_UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
+#endif
 			retval=-1;
 		}
 
@@ -450,7 +454,11 @@ int my_xmlStrncopy(char ** out, const char * in, int len)
 	} else return -1;
 }
 
+#ifdef WINDOWS
+int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * l)
+#else
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
+#endif
 {
 	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
 
