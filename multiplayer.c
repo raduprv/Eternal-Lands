@@ -380,6 +380,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case INVENTORY_ITEM_TEXT:
 			{
 				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+100,items_string);
+				if(!(view_my_items||view_manufacture_menu||view_trade_menu))
+					put_text_in_buffer(&in_data[3],data_lenght-3,0);
 			}
 			break;
 
