@@ -293,7 +293,6 @@ int HandleEvent(SDL_Event *event)
 				if (key==K_MAP)
 					{
 						view_map_win(&map_win,-1);
-						break;
 					}
 
 				if (key==K_ROTATELEFT)

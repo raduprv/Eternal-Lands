@@ -155,7 +155,7 @@ void read_key_config()
 	if((t=get_string_occurance("#K_VIEWTEXTASOVERTEXT",file_mem,key_file_size,0))!=-1)
 		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_AFK",file_mem,key_file_size,0))!=-1)
-		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
+		K_AFK = parse_key_string(&file_mem[t]);
 }
 
 Uint32 parse_key_string(char *s)
