@@ -2,7 +2,6 @@
 #include <math.h>
 
 void SetShadowMatrix()
-
 {
 	float dot;
 	// dot product of plane and light position
@@ -39,12 +38,10 @@ void SetShadowMatrix()
 	fDestMat[7] = 0.0f - fLightPos[3] * fPlane[1];
 	fDestMat[11] = 0.0f - fLightPos[3] * fPlane[2];
 	fDestMat[15] = dot - fLightPos[3] * fPlane[3];
-
 }
 
 void draw_3d_object_shadow(object3d * object_id)
 {
-
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
@@ -247,7 +244,6 @@ void display_night_shadows(int phase)
 }
 
 
-
 void display_3d_ground_objects()
 {
 	int i;
@@ -257,6 +253,16 @@ void display_3d_ground_objects()
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	if(have_multitexture && clouds_shadows)
+		{
+			//bind the detail texture
+			glActiveTextureARB(GL_TEXTURE1_ARB);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+			glActiveTextureARB(GL_TEXTURE0_ARB);
+			glEnable(GL_TEXTURE_2D);
+
+		}
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
@@ -269,9 +275,16 @@ void display_3d_ground_objects()
 			         		dist1=x-objects_list[i]->x_pos;
 			         		dist2=y-objects_list[i]->y_pos;
 			         		if(dist1*dist1+dist2*dist2<=20*20)
-                     		draw_3d_object(objects_list[i]);
+                     			draw_3d_object(objects_list[i]);
 						}
                  }
+		}
+	if(have_multitexture && clouds_shadows)
+		{
+			//disable the second texture unit
+			glActiveTextureARB(GL_TEXTURE1_ARB);
+			glDisable(GL_TEXTURE_2D);
+			glActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -286,6 +299,16 @@ void display_3d_non_ground_objects()
 	y=-cy;
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	if(have_multitexture && clouds_shadows)
+		{
+			//bind the detail texture
+			glActiveTextureARB(GL_TEXTURE1_ARB);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+			glActiveTextureARB(GL_TEXTURE0_ARB);
+			glEnable(GL_TEXTURE_2D);
+
+		}
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
@@ -298,9 +321,16 @@ void display_3d_non_ground_objects()
 			         		dist1=x-objects_list[i]->x_pos;
 			         		dist2=y-objects_list[i]->y_pos;
 			         		if(dist1*dist1+dist2*dist2<=20*20)
-                     		draw_3d_object(objects_list[i]);
+                     			draw_3d_object(objects_list[i]);
 						}
                  }
+		}
+	if(have_multitexture && clouds_shadows)
+		{
+			//disable the second texture unit
+			glActiveTextureARB(GL_TEXTURE1_ARB);
+			glDisable(GL_TEXTURE_2D);
+			glActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
