@@ -448,7 +448,7 @@ void set_new_video_mode(int fs,int mode)
 							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 						}
 				}
-			i++;
+			//i++; this shouldn't be here...
 		}
 
 	//it is dependent on the window height...
