@@ -141,9 +141,9 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		}
 	if(x>knowledge_menu_x_len-20)
-		return 1;
+		return 0;
 	if(y>192)
-		return 1;
+		return 0;
 	x/=240;
 	y/=10;
 	idx = knowledge_page_start+y*2+x;

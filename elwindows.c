@@ -115,7 +115,7 @@ int		click_in_windows(int mx, int my, Uint32 flags)
 							// at this level?
 							if(windows_list.window[i].order == id){
 								done= click_in_window(i, mx, my, flags);
-								if(done){
+								if(done > 0){
 									if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
 									return i;
 								}
@@ -146,7 +146,7 @@ int		click_in_windows(int mx, int my, Uint32 flags)
 					// at this level?
 					if(windows_list.window[i].order == id){
 						done= click_in_window(i, mx, my, flags);
-						if(done){
+						if(done > 0){
 							//select_window(i);	// these never get selected
 							return i;
 						}

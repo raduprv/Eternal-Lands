@@ -59,10 +59,10 @@ int check_hud_interface()
 	if(check_misc_display() > 0)return 1;
 	if(check_stats_display() > 0)return 1;
 	if(check_quickbar() > 0)return 1;
-	*/
 
 	// nothing done here
 	return 0;
+	*/
 }
 
 // hud frame section

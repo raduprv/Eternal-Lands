@@ -292,7 +292,6 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 				y_screen=y*33;
 				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 					{
-
 						//see if there is any item there
 						//should we get the info for it?
 						if(manufacture_list[y*12+x].quantity)
@@ -345,7 +344,6 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 			y_screen=5*33;
 			if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
 				{
-
 					//see if there is any item there
 					//should we get the info for it?
 					if(manufacture_list[36+x].quantity)
@@ -390,7 +388,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 						}
 				}
 		}
-	return 1;
+	return 0;
 }
 
 void display_manufacture_menu()

@@ -2,6 +2,7 @@
 #include "global.h"
 #include "elwindows.h"
 
+int	stats_win= 0;
 int view_self_stats=0;
 player_attribs your_info;
 player_attribs someone_info;
@@ -465,10 +466,9 @@ int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
 		watch_this_stat = 1+(my - check_grid_y_top)/14;
 		return 1;
 	}
-	return 1;
+	return 0;
 }
 
-int	stats_win= 0;
 void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this test
 {
 	if(stats_win <= 0){

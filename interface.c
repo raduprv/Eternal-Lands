@@ -413,7 +413,7 @@ void check_mouse_click()
 
 	// check for a click on the HUD (between scene & windows)
 	//if(check_hud_interface()) return;
-	if(click_in_windows(mouse_x, mouse_y, 0))	return;	// temporarily here for testing
+	if(click_in_windows(mouse_x, mouse_y, 0) > 0)	return;	// temporarily here for testing
 
 	//after we test for interface clicks
 	// alternative drop method...

@@ -122,7 +122,7 @@ int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		}
 	if(x>buddy_menu_x_len-20)
-		return 1;
+		return 0;
 	
 	y/= 10;
 	y+= bpage_start;

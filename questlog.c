@@ -202,15 +202,16 @@ int click_quest_handler(window_info *win, int mx, int my, Uint32 flags)
 					t=t->Next;
 				}
 			}
-
+			return 1;
 		}
 	if(x > questlog_menu_x_len-16 && x < questlog_menu_x_len &&
 	   y > questlog_menu_y_len-15 && y < questlog_menu_y_len-4)
 		{
 			if(current)
 				if(current->Next)current=current->Next;
+			return 1;
 		}
-	return 1;
+	return 0;
 }
 
 void display_questlog()
