@@ -13,3 +13,4 @@ int display_replace_window_handler();
 int check_replace_window_interface();
 
 #endif
+
