@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief	The implementation of the buddy list
  * \ingroup	network_text
+ * \brief	The implementation of the buddy list
  */
 #ifndef __BUDDY_H__
 #define __BUDDY_H__
@@ -21,7 +21,13 @@ extern int buddy_menu_x; /*!< The default x position of the buddy window*/
 extern int buddy_menu_y; /*!< The default y position of the buddy window*/
 extern int buddy_menu_x_len; /*!< The buddy window width*/
 extern int buddy_menu_y_len; /*!< The buddy window height*/
+
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
 extern int buddy_win; /*!< The identifier of the buddy window*/
+/*! @} */
 
 /*!
  * \ingroup	other

@@ -1,12 +1,17 @@
 /*!
  * \file
+ * \ingroup	network_trade
  * \brief 	Trading related functions
- * \ingroup	misc
  */
 #ifndef __TRADE_H__
 #define __TRADE_H__
 
-extern int trade_win;   /*!< trade_win */
+/*!
+ * \name windows handlers
+ */
+/*! @{ */
+extern int trade_win;   /*!< trade windows handler */
+/*! @} */
 
 /*!
  * \ingroup 	trade_win

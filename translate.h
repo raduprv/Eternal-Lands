@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief 	Functions related to internationalization of the client.
  * \ingroup 	translation
+ * \brief 	Functions related to internationalization of the client.
  */
 #ifndef __TRANSLATE_H__
 #define __TRANSLATE_H__

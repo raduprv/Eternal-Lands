@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief Used for the implementation of books in EL
  * \ingroup misc
+ * \brief Used for the implementation of books in EL
  */
 #ifndef __BOOKS_H__
 #define __BOOKS_H__

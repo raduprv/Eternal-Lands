@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief Functions for the widgets used by EL
  * \ingroup widgets
+ * \brief Functions for the widgets used by EL
  */
 #ifndef	__WIDGETS_H
 #define	__WIDGETS_H

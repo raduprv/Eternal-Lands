@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief	Miscellaneous functions used for file handling and string utilities.
  * \ingroup	misc
+ * \brief	Miscellaneous functions used for file handling and string utilities.
  */
 #ifndef __ASC_H__
 #define __ASC_H__

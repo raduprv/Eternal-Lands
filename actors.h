@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief	This file holds information about actors appearance etc. used for displaying the actors.
  * \ingroup	display
+ * \brief	This file holds information about actors appearance etc. used for displaying the actors.
  */
 #ifndef __actors_H__
 #define __actors_H__
@@ -15,7 +15,6 @@ extern float name_zoom; /*!< The name_zoom defines how large the text used for d
  * \name	Actor types
  * 		Defines the colour of the name.
  */
-
 /*! \{ */
 #define HUMAN 1 			/*!< Draw the actors name in white*/
 #define NPC 2				/*!< Draw the actors name in blue*/
@@ -40,14 +39,12 @@ typedef struct
 	float b; /*!< Blue (0<=b<=1)*/
 }glow_color;
 
-
 //GLOWS
 #define GLOW_NONE 0 	/*!< RGB: 0.0, 0.0, 0.0*/
 #define GLOW_FIRE 1 	/*!< RGB: 0.5, 0.1, 0.1*/
 #define GLOW_COLD 2 	/*!< RGB: 0.1, 0.1, 0.5*/
 #define GLOW_THERMAL 3 	/*!< RGB: 0.5, 0.1, 0.5*/
 #define GLOW_MAGIC 4	/*!< RGB: 0.5, 0.4, 0.0*/
-
 extern glow_color glow_colors[10]; /*!< Holds the glow colours defined in GLOW_**/
 /*! \} */
 

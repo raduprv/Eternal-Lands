@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief 	Structures and functions for the EL weather
  * \ingroup	misc
+ * \brief 	Structures and functions for the EL weather
  */
 #ifndef __WEATHER_H__
 #define __WEATHER_H__

@@ -1,7 +1,7 @@
 /*!
  * \file
- * \brief	Contains the timers used in EL
  * \ingroup 	thread
+ * \brief	Contains the timers used in EL
  */
 #ifndef __TIMERS_H__
 #define __TIMERS_H__
