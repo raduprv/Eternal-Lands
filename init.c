@@ -17,7 +17,7 @@ int disconnected=1;
 int exit_now=0;
 int have_url=0;
 char current_url[160];
-char broswer_name[120];
+char browser_name[120];
 int poor_man=0;
 int mouse_limit=15;
 int no_adjust_shadows=0;
@@ -136,46 +136,22 @@ void load_knowledge_list()
 
 void read_config()
 {
-	FILE *f = NULL;
-	int k;
-	char str[250];
 #ifndef WINDOWS
-	char el_ini[256];
 	DIR *d = NULL;
-	strcpy(configdir, getenv("HOME"));
-	strcat(configdir, "/.elc/");
-	d=opendir(configdir);
-	if(!d)
-			mkdir(configdir,0755);
-	else
-		{
-			strcpy(el_ini, configdir);
-			strcat(el_ini, "el.ini");
-			closedir(d);
-			// don't use my_fopen, not everyone keeps local settings
-			f=fopen(el_ini,"rb"); //try to load local settings
-		}
-	if(!f) //use global settings
-		{
-			strcpy(el_ini, datadir);
-			strcat(el_ini, "el.ini");
-			f=my_fopen(el_ini,"rb");
-		}
-#else
-	f=my_fopen("el.ini","rb");
+	my_strcp ( configdir, getenv ("HOME") );
+	strcat (configdir, "/.elc/");
+	d = opendir (configdir);
+	if (!d)
+	{
+		mkdir (configdir, 0755);
+	}
 #endif
-	if(!f)//oops, the file doesn't exist, give up
-		{
-			SDL_Quit();
-			exit(1);
-		}
-	while(fgets(str,250,f))
-		{
-			if(str[0]=='#')	
-				{
-					check_var(str+1,1);//check only for the long strings
-				}
-		}
+	if ( !read_el_ini () )
+	{
+		// oops, the file doesn't exist, give up
+		SDL_Quit ();
+		exit (1);
+	}
 
 #ifndef WINDOWS
 	chdir(datadir);
@@ -183,7 +159,9 @@ void read_config()
 	
 	if(password_str[0])//We have a password
 	{
-		for (k=0; k < (int)strlen(password_str); k++)
+		size_t k;
+		
+		for (k=0; k < strlen (password_str); k++)
 			display_password_str[k] = '*';
 		display_password_str[k] = 0;
 	}
@@ -192,8 +170,6 @@ void read_config()
 		username_box_selected = 0;
 		password_box_selected = 1;
 	}
-		
-	fclose(f);
 }
 
 void read_bin_cfg()

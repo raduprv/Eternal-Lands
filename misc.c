@@ -182,7 +182,7 @@ int go_to_url(void *dummy)
 
 	if(!have_url)return 0;
 
-	my_strcp(browser_command,broswer_name);
+	my_strcp(browser_command,browser_name);
 	my_strcat(browser_command," \"");
 	my_strcat(browser_command,current_url);
 	my_strcat(browser_command,"\"");

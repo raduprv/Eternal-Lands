@@ -928,7 +928,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		char browser_command[400];
 		if (have_url)
 		{
-			my_strcp( browser_command, broswer_name);
+			my_strcp( browser_command, browser_name);
 			my_strcat (browser_command, " \"");
 			my_strcat (browser_command, current_url);
 			my_strcat (browser_command, "\"&");
@@ -1012,7 +1012,7 @@ int text_input_handler (Uint8 ch)
 		else if (*input_text_line == '%' && input_text_lenght > 1) 
 		{
 			input_text_line[input_text_lenght] = '\0';
-			if ( (check_var (input_text_line + 1, 1) ) < 0)
+			if ( (check_var (input_text_line + 1, IN_GAME_VAR) ) < 0)
 				send_input_text_line();
 		}
 		else

@@ -20,7 +20,11 @@
 #define FLOAT		5 	//Change float									func(float*,float)
 #define INT		6	//Change int									func(int*,int)
 
+typedef char input_line[256];
+
 struct variables our_vars={0,{NULL}};
+
+int write_ini_on_exit = 1;
 
 void change_var(int * var)
 {
@@ -204,83 +208,112 @@ void change_srv_string(char *s)
 
 #endif
 
-int check_var(char * str, int type)
+int find_var (char *str, var_name_type type)
 {
-	int i,*p;
-	char * ptr=str;
+	int i, isvar;
+
+	for(i = 0; i < our_vars.no; i++)
+	{
+		if (type != COMMAND_LINE_SHORT_VAR)
+			isvar = !strncmp(str, our_vars.var[i]->name, our_vars.var[i]->nlen);
+		else
+			isvar = !strncmp(str, our_vars.var[i]->shortname, our_vars.var[i]->snlen);
+		if (isvar) 
+			return i;
+	}
+	return -1;
+}
+
+int check_var (char *str, var_name_type type)
+{
+	int i, *p;
+	char *ptr = str;
 	float foo;
-	for(i=0;i<our_vars.no;i++)
+	
+	i = find_var (str, type);
+	if (i < 0) return -1;
+	
+	ptr += (type != COMMAND_LINE_SHORT_VAR) ? our_vars.var[i]->nlen : our_vars.var[i]->snlen;
+	
+	while (*ptr && (*ptr== ' ' || *ptr == '='))
+		ptr++;	// go to the string occurence
+	if (!*ptr || *ptr == 0x0d || *ptr == 0x0a)
+		return -1;	// hmm, why would you do such a stupid thing?
+
+	if (*ptr == '"')
+	{
+		//Accurate quoting
+		char *tptr = ++ptr;
+		while (*tptr && *tptr != '"')
 		{
-			if(type?!strncmp(str,our_vars.var[i]->name,our_vars.var[i]->nlen):!strncmp(str,our_vars.var[i]->shortname,our_vars.var[i]->snlen))
-				{
-					//Allright, it's the right variable... now move ptr forward
-					ptr+=type?our_vars.var[i]->nlen:our_vars.var[i]->snlen;
-					while(*ptr && (*ptr==' '||*ptr=='='))ptr++;//go to the string occurence
-					if(!*ptr||*ptr==0x0d||*ptr==0x0a)return -1;//hmm, why would you do such a stupid thing?
-					if(*ptr=='"')
-						{
-							//Accurate quoting
-							char *tptr=++ptr;
-							while(*tptr && *tptr!='"')
-								{
-									if(*tptr==0x0a||*tptr==0x0d) 
-										{
+			if (*tptr == 0x0a || *tptr == 0x0d) 
+			{
 #ifdef ELC
 #ifndef ELCONFIG
-											char str[200];
-											snprintf(str,200,"Reached newline without an ending \" in %s",our_vars.var[i]->name);
-											LOG_TO_CONSOLE(c_red2,str);
+				char str[200];
+				snprintf (str, 200, "Reached newline without an ending \" in %s", our_vars.var[i]->name);
+				LOG_TO_CONSOLE(c_red2,str);
 #endif
 #endif
-											break;
-										}
-									tptr++;
-								}
-							*tptr=0;
-						}
-					else
-						{
-							//Strip it
-							char our_string[200];
-							char *tptr=our_string;
-							while(*ptr && *ptr!=0x0a && *ptr!=0x0d)
-								{
-									if(*ptr!=' ')*tptr++=*ptr++; //Strip all spaces
-									else ptr++;
-								}
-							*tptr=0;
-							ptr=our_string;
-						}
-					switch(our_vars.var[i]->type)
-						{
-							case SPECINT:
-								our_vars.var[i]->func(atoi(ptr));
-								return 1;
-							case SPECCHAR:
-								our_vars.var[i]->func(ptr);
-								return 1;
-							case INT:
-								our_vars.var[i]->func(our_vars.var[i]->var,atoi(ptr));
-								return 1;
-							case SPEC:
-								p=our_vars.var[i]->var;
-								if(*p!=atoi(ptr))our_vars.var[i]->func();//the variable has changed
-								return 1;
-							case BOOL:
-								p=our_vars.var[i]->var;
-								if((atoi(ptr)>0)!=*p) our_vars.var[i]->func(our_vars.var[i]->var);
-								return 1;
-							case STRING:
-								our_vars.var[i]->func(our_vars.var[i]->var,ptr,our_vars.var[i]->len);
-								return 1;
-							case FLOAT:
-								foo=atof(ptr);
-								our_vars.var[i]->func(our_vars.var[i]->var,&foo);
-								return 1;
-						}
-				}
+				break;
+			}
+			tptr++;
 		}
-	return -1;//no variable was found
+		*tptr = 0;
+	}
+	else
+	{
+		// Strip it
+		char our_string[200];
+		char *tptr = our_string;
+		while (*ptr && *ptr != 0x0a && *ptr != 0x0d)
+		{
+			if (*ptr != ' ')
+				*tptr++ = *ptr++; //Strip all spaces
+			else
+				ptr++;
+		}
+		*tptr = 0;
+		ptr = our_string;
+	}
+
+	if (type == INI_FILE_VAR)
+		our_vars.var[i]->saved = 1;
+	else if (type == IN_GAME_VAR)
+		// make sure in-game changes are stored in el.ini
+		our_vars.var[i]->saved = 0;
+		
+	switch (our_vars.var[i]->type)
+	{
+		case SPECINT:
+			our_vars.var[i]->func ( atoi (ptr) );
+			return 1;
+		case SPECCHAR:
+			our_vars.var[i]->func (ptr);
+			return 1;
+		case INT:
+			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
+			return 1;
+		case SPEC:
+			p = our_vars.var[i]->var;
+			if (*p != atoi (ptr))
+				our_vars.var[i]->func ();	// the variable has changed
+			return 1;
+		case BOOL:
+			p = our_vars.var[i]->var;
+			if ((atoi (ptr) > 0) != *p)
+				our_vars.var[i]->func (our_vars.var[i]->var);
+			return 1;
+		case STRING:
+			our_vars.var[i]->func (our_vars.var[i]->var, ptr, our_vars.var[i]->len);
+			return 1;
+		case FLOAT:
+			foo = atof (ptr);
+			our_vars.var[i]->func (our_vars.var[i]->var, &foo);
+			return 1;
+	}
+	
+	return -1;
 }
 
 void free_vars()
@@ -322,6 +355,7 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 	strncpy(our_vars.var[no]->shortname,shortname,10);
 	our_vars.var[no]->nlen=strlen(our_vars.var[no]->name);
 	our_vars.var[no]->snlen=strlen(our_vars.var[no]->shortname);
+	our_vars.var[no]->saved = 0;
 }
 
 void init_vars()
@@ -401,15 +435,17 @@ void init_vars()
 #endif
 	add_var(INT,"log_server","log",&log_server,change_int,1);
 	add_var(STRING,"language","lang",lang,change_string,8);
-	add_var(STRING,"browser","b",broswer_name,change_string,70);
+	add_var(STRING,"browser","b",browser_name,change_string,70);
 	
 	add_var(BOOL,"use_tabbed_windows","tabs",&use_tabbed_windows,change_var,0);
 #ifndef OLD_EVENT_HANDLER
 	add_var(BOOL,"windowed_chat", "winchat", &use_windowed_chat, change_var, 0);
 #endif
+	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0);
 #endif // def ELC
+
 	//Global vars...
-	add_var(STRING,"data_dir","dir",datadir,change_string,90);//Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
+	add_var(STRING,"data_dir","dir",datadir,change_string,90);	// Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4);
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0);
 
@@ -420,4 +456,138 @@ void init_vars()
 	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0);
 #endif
 
+}
+
+void write_var (FILE *fout, int ivar)
+{
+	if (fout == NULL) return;
+	
+	switch (our_vars.var[ivar]->type)
+	{
+		case SPECINT:
+		case INT:
+		case BOOL:
+		{
+			int *p = our_vars.var[ivar]->var;
+			fprintf (fout, "#%s = %d\n", our_vars.var[ivar]->name, *p);
+			break;
+		}
+		case SPECCHAR:
+		case STRING:
+			if (strcmp (our_vars.var[ivar]->name, "password") == 0)
+				// Do not write the password to the file. If the user really wants it
+				// s/he should edit the file.
+				fprintf (fout, "#%s = \"\"\n", our_vars.var[ivar]->name);
+			else
+				fprintf (fout, "#%s = \"%s\"\n", our_vars.var[ivar]->name, (char *)our_vars.var[ivar]->var);
+			break;
+		case FLOAT:
+		{
+			float *g = our_vars.var[ivar]->var;
+			fprintf (fout, "#%s = %g\n", our_vars.var[ivar]->name, *g);
+			break;
+		}
+	}
+	our_vars.var[ivar]->saved = 1;	// keep only one copy of this setting
+}
+
+FILE* open_el_ini (const char *mode)
+{
+#ifdef WINDOWS
+	return my_fopen ("el.ini", mode);
+#else
+	char el_ini[256];
+	FILE *f;
+	
+	snprintf (el_ini, sizeof (el_ini), "%s/el.ini", configdir);
+	f = fopen (el_ini, mode);	// try local file first
+	if (f == NULL)
+	{
+		snprintf (el_ini, sizeof (el_ini), "%s/el.ini", datadir);
+		f = my_fopen (el_ini, mode);
+	}
+	return f;
+#endif
+}
+
+int read_el_ini ()
+{
+	input_line line;
+	FILE *fin = open_el_ini ("r");
+	
+	if (fin == NULL) return 0;
+	
+	while ( fgets (line, sizeof (input_line), fin) )
+	{
+		if (line[0] == '#')	
+			check_var (&(line[1]), INI_FILE_VAR);	//check only for the long strings
+	}
+
+	fclose (fin);
+	return 1;
+}
+
+int write_el_ini ()
+{
+	int nlines = 0, maxlines = 0, iline, ivar;
+	input_line *cont = NULL;
+	FILE *file = open_el_ini ("r");
+	
+	// first check if we need to change anything
+	for (ivar = 0; ivar < our_vars.no; ivar++)
+	{
+		if (!our_vars.var[ivar]->saved)
+			break;
+	}
+	if (ivar >= our_vars.no) return 1; // nothing changed, no need to write
+	
+	// read the ini file
+	if (file != NULL)
+	{
+		maxlines = 300;
+	 	cont = malloc (maxlines * sizeof (input_line));
+		while (fgets (cont[nlines], sizeof (input_line), file) != NULL)
+		{
+			if (++nlines >= maxlines)
+			{
+				maxlines *= 2;
+				cont = realloc (cont, maxlines * sizeof (input_line));
+			}
+		}
+	}	
+	fclose (file);
+	
+	// Now write the contents of the file, updating those variables that have been changed
+	file = open_el_ini ("w");
+	if (file == NULL) return 0;
+	
+	for (iline = 0; iline < nlines; iline++)
+	{
+		if (cont[iline][0] != '#')
+		{
+			fprintf (file, "%s", cont[iline]);
+		}
+		else
+		{
+			ivar = find_var (&(cont[iline][1]), 1);
+			if (ivar < 0 || our_vars.var[ivar]->saved)
+				fprintf (file, "%s", cont[iline]);
+			else
+				write_var (file, ivar);
+		}	
+	}
+	
+	// now write all variables that still haven't been saved yet
+	for (ivar = 0; ivar < our_vars.no; ivar++)
+	{
+		if (!our_vars.var[ivar]->saved)
+		{
+			fprintf (file, "\n");
+			write_var (file, ivar);
+		}
+	}
+	
+	fclose (file);
+	free (cont);
+	return 1;
 }

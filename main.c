@@ -75,7 +75,11 @@ int start_rendering()
 	have_music=0;
 	SDL_WaitThread(music_thread,&done);
 	if(pm_log.ppl)free_pm_log();
+	
 	save_bin_cfg();
+	// save el.ini if asked
+	if (write_ini_on_exit) write_el_ini ();
+	
 	unload_questlog();
 	free_icons();
 	free_vars();
@@ -108,12 +112,12 @@ void	read_command_line()
 		{
 			if(gargv[i][0]=='-')
 				{
-					if(gargv[i][1]=='-')check_var(gargv[i]+2,1);
+					if(gargv[i][1]=='-')check_var(gargv[i]+2,COMMAND_LINE_LONG_VAR);
 					else
 						{
 							char str[200];
 							snprintf(str,198,"%s %s",gargv[i],gargv[i+1]);
-							check_var(str+1,0);
+							check_var(str+1,COMMAND_LINE_SHORT_VAR);
 						}
 				}
 		}

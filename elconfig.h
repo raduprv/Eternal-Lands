@@ -19,9 +19,7 @@ typedef struct
 	void 	(*func)(); /*!< routine to execute when this variable is selected. */
 	void 	*var; /*!< data for this variable */
 	int 	len; /*!< length of the variable */
-#ifdef ELCONFIG
 	int	saved;
-#endif
 //	char 	*message; //In case you want a message to be written when a setting is changed
 } var_struct;
 
@@ -34,7 +32,20 @@ struct variables
 	var_struct * var[100]; /*!< fixed array of \a no \see var_struct structures */
 };
 
+/*!
+ * The type of variable name.
+ */
+typedef enum
+{
+	COMMAND_LINE_SHORT_VAR,	/*!< for abbreviated variable names from the command line */
+	COMMAND_LINE_LONG_VAR,	/*!< for full variable names from the command line */
+	INI_FILE_VAR,		/*!< for variables names from el.ini */
+	IN_GAME_VAR		/*!< for names of variables chenged in the games */
+} var_name_type;
+
 extern struct variables our_vars; /*!< global variable containing all defined variables */
+
+extern int write_ini_on_exit; /*< variable that determines if el.ini file is rewritten on exit of the program */
 
 /*!
  * \ingroup config
@@ -43,13 +54,13 @@ extern struct variables our_vars; /*!< global variable containing all defined va
  *      Checks whether we have a variable with the given \a str as name and the given \a type.
  *
  * \param str       the name of the variable to check
- * \param type      the type of the variable
+ * \param type      the type of the variable name
  * \retval int      0 if \a str is found, else !=0.
  *
  * \sa read_command_line
  * \sa read_config
  */
-int check_var(char * str, int type);
+int check_var(char * str, var_name_type type);
 
 /*!
  * \ingroup other
@@ -70,5 +81,27 @@ void init_vars();
  * \sa start_rendering
  */
 void free_vars();
+
+/*!
+ * \ingroup config
+ * \brief   Reads the el.ini configuration file
+ *
+ *     Reads the el.ini configuration file
+ *
+ * \retval int      0 if reading fails, 1 if successful
+ *
+ */
+int read_el_ini ();
+
+/*!
+ * \ingroup config
+ * \brief   Writes the el.ini configuration file
+ *
+ *     Writes the current configuration to the el.ini file
+ *
+ * \retval int      0 if writing fails, 1 if successful
+ *
+ */
+int write_el_ini ();
 
 #endif
