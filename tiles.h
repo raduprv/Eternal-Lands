@@ -29,7 +29,7 @@ void draw_tile_map();
  * \ingroup 	maps
  * \brief 	Loads the map tiles
  *
- *      	Loads the map tiles - tile_list[tile]==0 && tile!=255 it will load the tile (from tiles/tile<tile_id>.bmp).
+ *      	Loads the map tiles - tile_list[tile]==0 && tile!=255 it will load the tile (from tiles/tile\<tile_id\>.bmp).
  *
  * \param   	None
  * \return  	None

@@ -788,7 +788,7 @@ void parse_strings(xmlNode * in, group_id * group);
  * \param	in The current xmlNode
  * \param	gPtr The current group
  * \param	size The size of the group
- * \param	The type of the group
+ * \param	type The type of the group
  * \return	None
  * \todo	An idea might be to improve the groups to also have function *, to tell them what function it should call depending on the kind of group. group->parse(xmlNode *, group *), would look better than the current switch statement.
  */
