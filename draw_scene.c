@@ -66,6 +66,9 @@ void draw_scene()
 
 	if(interface_mode==interface_console)
 		{
+			// are we actively drawing things?
+			if(!SDL_GetAppState()&SDL_APPACTIVE)	return;
+
 			Enter2DMode();
 			glClear(GL_COLOR_BUFFER_BIT);
 			draw_console_pic(cons_text);
@@ -116,6 +119,9 @@ void draw_scene()
 
 	if(interface_mode==interface_map)
 		{
+			// are we actively drawing things?
+			if(!SDL_GetAppState()&SDL_APPACTIVE)	return;
+
 			glClear(GL_COLOR_BUFFER_BIT);
 			Enter2DMode();
 			draw_hud_interface();
