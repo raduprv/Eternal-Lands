@@ -1,10 +1,6 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
-#include <SDL.h>
-#include <SDL_net.h>
-#include <SDL_thread.h>
-
 #ifdef WINDOWS
 #include <windows.h>
 #include <al.h>
@@ -35,9 +31,14 @@
 #include <vorbis/vorbisfile.h>
 #endif	//NO_MUSIC
 
+#include <SDL.h>
+#include <SDL_net.h>
+#include <SDL_thread.h>
+
 #ifdef	CACHE_SYSTEM
 #include "cache.h"
 #endif
+#include "knowledge.h"
 #include "elc_private.h"
 #include "asc.h"
 #include "md2.h"

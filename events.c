@@ -432,6 +432,7 @@ int HandleEvent(SDL_Event *event)
 					sigil_menu_dragged=0;
 					options_menu_dragged=0;
 					dialogue_menu_dragged=0;
+					knowledge_menu_dragged=0;
 				}
 
 			if(event->type==SDL_MOUSEBUTTONDOWN) {

@@ -278,6 +278,14 @@ int sigils_we_have;
 int have_error_message=0;
 Sint8 active_spells[10];
 
+// Knowledge
+int view_knowledge=0;
+int knowledge_menu_x=100;
+int knowledge_menu_y=20;
+int knowledge_menu_x_len=400;
+int knowledge_menu_y_len=350;
+int knowledge_menu_dragged=0;
+
 //stats
 int view_self_stats=0;
 player_attribs your_info;
