@@ -8,9 +8,10 @@ OPTIONS=-DBSD -DELC -I/usr/X11R6/include
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
+WARN=-Wdeclaration-after-statement -Wall -Werror
 
 # basic compiling and linking - rarely changed
-CFLAGS=$(PLATFORM) -Wall -ggdb -pipe $(OPTIONS) $(shell sdl11-config --cflags) $(shell xml2-config --cflags)
+CFLAGS=$(PLATFORM) $(WARN) -ggdb -pipe $(OPTIONS) $(shell sdl11-config --cflags) $(shell xml2-config --cflags)
 _CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl11-config --cflags) $(shell xml2-config --cflags)
 LDFLAGS=$(shell sdl11-config --libs) $(XDIR) -lSDL_net -lopenal -lGLU -lGL -lvorbis -lvorbisfile $(shell xml2-config --libs)
 
