@@ -12,7 +12,7 @@ extern int port;
 extern unsigned char server_address[60];
 
 extern TCPsocket my_socket;
-SDLNet_SocketSet set;
+extern SDLNet_SocketSet set;
 
 extern Uint8 in_data[8192];
 
