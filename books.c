@@ -6,9 +6,9 @@
 #include "global.h"
 #include "books.h"
 
-#define TITLE 0
-#define AUTHOR 1
-#define TEXT 2
+#define _TITLE 0
+#define _AUTHOR 1
+#define _TEXT 2
 #define _IMAGE 3
 #define _IMAGE_TEXT 4
 
@@ -154,17 +154,17 @@ void add_str_to_page(char * str, int type, book *b, page *p)
 	
 	for(i=0;*lines;i++,lines++);
 
-	if(type==AUTHOR){
+	if(type==_AUTHOR){
 		*lines++=(char*)calloc(1,sizeof(char));
-	} else if (type==TITLE){
+	} else if (type==_TITLE){
 		*lines++=(char*)calloc(1,sizeof(char));
 	}
 
 	for(;*newlines;i++) {
-		if(type==AUTHOR){
+		if(type==_AUTHOR){
 			memmove(*newlines+1,*newlines,strlen(*newlines)+1);
 			**newlines=127+c_orange3;
-		} else if(type==TITLE){
+		} else if(type==_TITLE){
 			memmove(*newlines+1,*newlines,strlen(*newlines)+1);
 			**newlines=127+c_orange4;
 		}
@@ -177,9 +177,9 @@ void add_str_to_page(char * str, int type, book *b, page *p)
 		*lines++=*newlines++;
 	}
 	if(i<b->max_lines){
-		if(type==AUTHOR){
+		if(type==_AUTHOR){
 			*lines++=(char*)calloc(1,sizeof(char));
-		} else if (type==TITLE){
+		} else if (type==_TITLE){
 			*lines++=(char*)calloc(1,sizeof(char));
 		}
 	}
@@ -326,11 +326,11 @@ void add_xml_page(xmlNode *cur, book * b)
 	for(;cur;cur=cur->next){
 		if(cur->type == XML_ELEMENT_NODE){
 			if (!xmlStrcasecmp(cur->name,"title")){
-				add_xml_str_to_page(cur,cur->children->content,TITLE,b,p);
+				add_xml_str_to_page(cur,cur->children->content,_TITLE,b,p);
 			} else if (!xmlStrcasecmp(cur->name,"author")){
-				add_xml_str_to_page(cur,cur->children->content,AUTHOR,b,p);
+				add_xml_str_to_page(cur,cur->children->content,_AUTHOR,b,p);
 			} else if (!xmlStrcasecmp(cur->name,"text")){
-				add_xml_str_to_page(cur,cur->children->content,TEXT,b,p);
+				add_xml_str_to_page(cur,cur->children->content,_TEXT,b,p);
 			} else if (!xmlStrcasecmp(cur->name,"image")){
 				add_xml_image_to_page(cur, b, p);
 			}
@@ -462,6 +462,7 @@ void display_page(book * b, page * p)
 {
 	char ** l;
 	int i;
+	char str[20];
 	
 	if(!p)return;
 	
@@ -477,7 +478,6 @@ void display_page(book * b, page * p)
 	
 	glColor3f(0.385f,0.285f, 0.19f);
 	
-	char str[20];
 	sprintf(str,"%d",p->page_no);
 	if(b->type==1)draw_string_zoomed(140,b->max_lines*18*0.9f+2,str,0,1.0);
 	else if(b->type==2)draw_string_zoomed(110,b->max_lines*18*0.9f+2,str,0,1.0);
