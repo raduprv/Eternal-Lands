@@ -17,30 +17,35 @@ int get_string_occurance(char * source_pointer, char * dest_pointer, int max_len
 
 	source_lenght=strlen(source_pointer);
 	i=j=0;
-for(i=0;i<max_len;i++)
-  {
-	k=0;
-	j=0;
-	while(k<source_lenght)
+	for(i=0;i<max_len;i++)
 		{
-			cur_src_char=*(source_pointer+j);
-			cur_dest_char=*(dest_pointer+i);
+			k=0;
+			j=0;//how if j different from k?
+			while(k<source_lenght)
+				{
+					cur_src_char=*(source_pointer+j);
+					cur_dest_char=*(dest_pointer+i);
 
-			if(cur_src_char>=65 && cur_src_char<=90)cur_src_char+=32;
-			if(cur_dest_char>=65 && cur_dest_char<=90)cur_dest_char+=32;
+					if(cur_src_char>=65 && cur_src_char<=90)cur_src_char+=32;
+					if(cur_dest_char>=65 && cur_dest_char<=90)cur_dest_char+=32;
 
-			if(cur_src_char!=cur_dest_char)break;//not found, sorry
-			i++;
-			j++;
-			k++;
-		}
-	if(k==source_lenght)//we found the string
-		{
-			if(!beginning)return i;
-			else return i-k+1;
-		}
-  }//end of the for
-return -1;//if we are here, it means we didn't find the string...
+					if(cur_src_char!=cur_dest_char)break;//not found, sorry
+					i++;
+					j++;
+					k++;
+				}
+			if(k==source_lenght)//we found the string
+				{
+					// skip optional space or equal
+					while(dest_pointer[i]==' ' || dest_pointer[i]=='=')
+						{
+							i++;
+						}
+					if(!beginning)return i;
+					else return i-k+1;
+				}
+  		}//end of the for
+	return -1;//if we are here, it means we didn't find the string...
 }
 
 //this function returns an integer, after the source string in the destination string

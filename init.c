@@ -65,26 +65,26 @@ void read_config()
 			exit(1);
 		}
 
-  	file_mem = (Uint8 *) calloc ( 6000, sizeof(Uint8));
+  	file_mem = (Uint8 *) calloc(MAX_INI_FILE+2, sizeof(Uint8));
   	file_mem_start=file_mem;
-  	fread (file_mem, 1, 5500, f);
+  	fread (file_mem, 1, MAX_INI_FILE+1, f);
   	//ok, now start to parse the file...
-  	video_mode=get_integer_after_string("#video_mode",file_mem,5499);
-  	shadows_on=get_integer_after_string("#shadows_on",file_mem,5499);
-  	poor_man=get_integer_after_string("#poor_man",file_mem,5499);
-  	show_reflection=get_integer_after_string("#show_reflection",file_mem,5499);
-  	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,5499);
-  	full_screen=get_integer_after_string("#full_screen",file_mem,5499);
-  	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,5499);
-  	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,5499);
-  	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,5499);
-  	save_ignores=get_integer_after_string("#save_ignores",file_mem,5499);
-  	no_sound=get_integer_after_string("#no_sound",file_mem,5499);
-  	normal_camera_rotation_speed=get_float_after_string("normal_camera_rotation_speed",file_mem,5499);
-  	fine_camera_rotation_speed=get_float_after_string("fine_camera_rotation_speed",file_mem,5499);
+  	video_mode=get_integer_after_string("#video_mode",file_mem,MAX_INI_FILE);
+  	shadows_on=get_integer_after_string("#shadows_on",file_mem,MAX_INI_FILE);
+  	poor_man=get_integer_after_string("#poor_man",file_mem,MAX_INI_FILE);
+  	show_reflection=get_integer_after_string("#show_reflection",file_mem,MAX_INI_FILE);
+  	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,MAX_INI_FILE);
+  	full_screen=get_integer_after_string("#full_screen",file_mem,MAX_INI_FILE);
+  	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,MAX_INI_FILE);
+  	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,MAX_INI_FILE);
+  	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,MAX_INI_FILE);
+  	save_ignores=get_integer_after_string("#save_ignores",file_mem,MAX_INI_FILE);
+  	no_sound=get_integer_after_string("#no_sound",file_mem,MAX_INI_FILE);
+  	normal_camera_rotation_speed=get_float_after_string("normal_camera_rotation_speed",file_mem,MAX_INI_FILE);
+  	fine_camera_rotation_speed=get_float_after_string("fine_camera_rotation_speed",file_mem,MAX_INI_FILE);
 
-  	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,5499);
-  	port=get_integer_after_string("#server_port",file_mem,5499);
+  	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,MAX_INI_FILE);
+  	port=get_integer_after_string("#server_port",file_mem,MAX_INI_FILE);
 
 	//handle multiple setting changes if poor_man is on
 	if(poor_man)
@@ -95,37 +95,24 @@ void read_config()
 		}
 
   	//ok, now get the server address
-  	server_address_offset=get_string_occurance("#server_address",file_mem,5499,0);
-  	for(i=0;i<200;i++)
-  		{
-			Uint8 ch;
-			ch=file_mem[server_address_offset+i];
-			if(ch!=' ' && ch!='=')break;
-		}
+  	server_address_offset=get_string_occurance("#server_address",file_mem,MAX_INI_FILE,0);
 	//we should be at the beginning of the server address
 	for(k=0;k<70;k++)
 		{
 			Uint8 ch;
-			ch=file_mem[server_address_offset+i+k];
+			ch=file_mem[server_address_offset+k];
 			if(ch==' ' || ch==0x0a || ch==0x0d)break;
   			server_address[k]=ch;
 		}
 	server_address[k]=0;
 
-
   	//ok, now get the current browser
-  	server_address_offset=get_string_occurance("#browser",file_mem,5499,0);
-  	for(i=0;i<200;i++)
-  		{
-			Uint8 ch;
-			ch=file_mem[server_address_offset+i];
-			if(ch!=' ' && ch!='=')break;
-		}
+  	server_address_offset=get_string_occurance("#browser",file_mem,MAX_INI_FILE,0);
 	//we should be at the beginning of the browser path
 	for(k=0;k<70;k++)
 		{
 			Uint8 ch;
-			ch=file_mem[server_address_offset+i+k];
+			ch=file_mem[server_address_offset+k];
 			if(ch==0x0a || ch==0x0d)break;
   			broswer_name[k]=ch;
 		}
@@ -138,7 +125,7 @@ void read_config()
 			video_mode=2;
 			//warn about this error
 			str[0]=c_red2+128;
-			sprintf(&str[1],"Stop playing with the configuration file and select invalid modes!");
+			sprintf(&str[1],"Stop playing with the configuration file and select valid modes!");
 			put_text_in_buffer(str,strlen(str),0);
 		}
 	setup_video_mode(full_screen,video_mode);
