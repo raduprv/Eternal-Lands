@@ -635,7 +635,7 @@ void display_trade_menu()
 {
 	if(trade_win < 0){
 #ifdef WINDOW_CHAT
-		trade_win= create_window("Trade", root_win, 0, trade_menu_x, trade_menu_y, trade_menu_x_len, trade_menu_y_len, (ELW_WIN_DEFAULT& ~ELW_CLOSE_BOX));
+		trade_win= create_window("Trade", game_win, 0, trade_menu_x, trade_menu_y, trade_menu_x_len, trade_menu_y_len, (ELW_WIN_DEFAULT& ~ELW_CLOSE_BOX));
 #else
 		trade_win= create_window("Trade", -1, 0, trade_menu_x, trade_menu_y, trade_menu_x_len, trade_menu_y_len, (ELW_WIN_DEFAULT& ~ELW_CLOSE_BOX));
 #endif

@@ -486,7 +486,7 @@ void view_console_win(int * win, int id)
 {
 #ifdef WINDOW_CHAT
 	if(interface_mode==interface_console || interface_mode==interface_game)
-		toggle_window (root_win);
+		toggle_window (game_win);
 #endif
 	if(interface_mode==interface_console) {
 		interface_mode=interface_game;
@@ -502,13 +502,13 @@ void view_map_win(int * win, int id)
 {
 #ifdef WINDOW_CHAT
 	if (interface_mode==interface_game || interface_mode==interface_map || interface_mode==interface_cont)
-		toggle_window (root_win);
+		toggle_window (game_win);
 	if(interface_mode==interface_game || interface_mode==interface_console)
 	{
 		if (switch_to_game_map() == 0)
 		{
 			// map load failed, toggle root window back in
-			toggle_window (root_win);
+			toggle_window (game_win);
 		}
 	}
 #else

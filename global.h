@@ -103,7 +103,7 @@
 #include "sector.h"
 #include "help.h"
 #include "tabs.h"
-#include "root.h"
+#include "gamewin.h"
 #ifdef WINDOW_CHAT
 #include "chat.h"
 #endif

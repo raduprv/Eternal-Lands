@@ -27,7 +27,7 @@ void display_tab_stats ()
 	if (tab_stats_win < 0)
 	{
 #ifdef WINDOW_CHAT
-		tab_stats_win = create_window ("statistics", root_win, 0, tab_stats_x, tab_stats_y, tab_stats_len_x, tab_stats_len_y, ELW_WIN_DEFAULT);
+		tab_stats_win = create_window ("statistics", game_win, 0, tab_stats_x, tab_stats_y, tab_stats_len_x, tab_stats_len_y, ELW_WIN_DEFAULT);
 #else
 		tab_stats_win = create_window ("statistics", -1, 0, tab_stats_x, tab_stats_y, tab_stats_len_x, tab_stats_len_y, ELW_WIN_DEFAULT);
 #endif
@@ -64,7 +64,7 @@ void display_tab_help ()
 	if (tab_help_win < 0)
 	{
 #ifdef WINDOW_CHAT
-		tab_help_win = create_window ("help", root_win, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
+		tab_help_win = create_window ("help", game_win, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
 #else
 		tab_help_win = create_window ("help", -1, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
 #endif

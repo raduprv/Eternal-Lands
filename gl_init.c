@@ -651,7 +651,7 @@ void toggle_full_screen()
 }
 
 
-int print_gl_errors(char *file, char *func, int line)
+int print_gl_errors(const char *file, const char *func, int line)
 {
 	char str[1024];
 	int	glErr, anyErr=GL_NO_ERROR;

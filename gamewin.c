@@ -3,10 +3,10 @@
 
 #ifdef WINDOW_CHAT
 
-int root_win = -1;
+int game_win = -1;
 
 // This is the main part of the old check_cursor_change ()
-int mouseover_root_handler (window_info *win, int mx, int my)
+int mouseover_game_handler (window_info *win, int mx, int my)
 {
 	if(object_under_mouse == -1)
 	{
@@ -144,7 +144,7 @@ int mouseover_root_handler (window_info *win, int mx, int my)
 }
 
 // this is the main part of the old check_mouse_click ()
-int click_root_handler (window_info *win, int mx, int my, Uint32 flags)
+int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int flag_ctrl = flags & ELW_CTRL;
 	int flag_right = flags & ELW_RIGHT_MOUSE;
@@ -414,7 +414,7 @@ int click_root_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int display_root_handler (window_info *win)
+int display_game_handler (window_info *win)
 {
 	static int main_count = 0;
 	static int old_fps_average = 0;
@@ -479,9 +479,8 @@ int display_root_handler (window_info *win)
 	}
 	
 	// This window is a bit special since it's not fully 2D
-	glPushMatrix (); // save the current state
-	Leave2DMode ();
-		
+	glLoadIdentity();	// Reset The Matrix
+	
 	Move ();
 	save_scene_matrix ();
 
@@ -651,7 +650,7 @@ int display_root_handler (window_info *win)
 	return 1;
 }
 
-int keypress_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	static Uint32 last_turn_around = 0;
 
@@ -954,13 +953,14 @@ int keypress_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 		resize_root_window ();
 	}
+#ifdef DEBUG
 	else if (keysym == SDLK_F10)
 	{
-		// XXX FIXME (Grum): remove this, debug code
 		int iwin;
 		for (iwin = 0; iwin < windows_list.num_windows; iwin++)
-			printf ("%s: %d\n", windows_list.window[iwin].window_name, windows_list.window[iwin].order);
-	}				
+			printf ("%s: order = %d, parent = %d, pos = (%d, %d), cur_pos = (%d, %d)\n", windows_list.window[iwin].window_name, windows_list.window[iwin].order, windows_list.window[iwin].pos_id, windows_list.window[iwin].pos_x, windows_list.window[iwin].pos_y, windows_list.window[iwin].cur_x, windows_list.window[iwin].cur_y);
+	}
+#endif			
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	else if (keysym == SDLK_ESCAPE)
 	{
@@ -1033,6 +1033,8 @@ int keypress_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 				// XXX FIXME (Grum): this probably only happens in map mode,
 				// so it shouldn't occur here. Leave it for now.
 				int i;
+				
+				printf ("adding mark1?!\n");
 				// if text wrapping just keep the text until the wrap.
 				for (i = 0; i < strlen (input_text_line); i++) 
 					if (input_text_line[i] == 0x0a) 
@@ -1081,16 +1083,16 @@ int keypress_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	return 1;
 }
 
-void display_root ()
+void display_game ()
 {
-	if (root_win < 0)
+	if (game_win < 0)
 	{
-		root_win = create_window ("root", -1, -1, 0, 0, window_width, window_height, ELW_WIN_INVISIBLE|ELW_SHOW_LAST);
+		game_win = create_window ("Game", -1, -1, 0, 0, window_width, window_height, ELW_WIN_INVISIBLE|ELW_SHOW_LAST);
 		
-        	set_window_handler (root_win, ELW_HANDLER_DISPLAY, &display_root_handler);
-        	set_window_handler (root_win, ELW_HANDLER_CLICK, &click_root_handler);
-        	set_window_handler (root_win, ELW_HANDLER_MOUSEOVER, &mouseover_root_handler);
-        	set_window_handler (root_win, ELW_HANDLER_KEYPRESS, &keypress_root_handler);
+        	set_window_handler (game_win, ELW_HANDLER_DISPLAY, &display_game_handler);
+        	set_window_handler (game_win, ELW_HANDLER_CLICK, &click_game_handler);
+        	set_window_handler (game_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
+        	set_window_handler (game_win, ELW_HANDLER_KEYPRESS, &keypress_game_handler);
 		
 		resize_root_window();
 	}

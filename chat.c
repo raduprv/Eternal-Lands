@@ -85,7 +85,7 @@ void display_chat ()
 		nr_displayed_lines = (int) (CHAT_WIN_TEXT_HEIGHT / (18.0 * chat_zoom));
 		scroll_len = nr_text_buffer_lines >= nr_displayed_lines ? nr_text_buffer_lines-nr_displayed_lines : 0;
 		
-		chat_win = create_window ("chat", root_win, 0, chat_win_x, chat_win_y, chat_win_len_x, chat_win_len_y, (ELW_WIN_DEFAULT|ELW_RESIZEABLE) & ~ELW_CLOSE_BOX);
+		chat_win = create_window ("chat", game_win, 0, chat_win_x, chat_win_y, chat_win_len_x, chat_win_len_y, (ELW_WIN_DEFAULT|ELW_RESIZEABLE) & ~ELW_CLOSE_BOX);
 		
 		set_window_handler(chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
 		set_window_handler(chat_win, ELW_HANDLER_DRAG, &drag_chat_handler);

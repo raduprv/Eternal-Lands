@@ -120,7 +120,7 @@ void toggle_full_screen();
  * \retval int
  * \callgraph
  */
-int print_gl_errors(char *file, char *func, int line);
+int print_gl_errors(const char *file, const char *func, int line);
 
 /*!
  * \name check_gl_errors macro

@@ -223,7 +223,6 @@ void read_bin_cfg()
 	ground_items_menu_x=cfg_mem.ground_items_menu_x;
 	ground_items_menu_y=cfg_mem.ground_items_menu_y;
 
-
 	trade_menu_x=cfg_mem.trade_menu_x;
 	trade_menu_y=cfg_mem.trade_menu_y;
 
@@ -323,7 +322,7 @@ void save_bin_cfg()
 	cfg_mem.questlog_menu_x=questlog_menu_x;
 	cfg_mem.questlog_menu_y=questlog_menu_y;
 */
-	if(items_win) {
+	if(items_win >= 0) {
 		cfg_mem.items_menu_x=windows_list.window[items_win].cur_x;
 		cfg_mem.items_menu_y=windows_list.window[items_win].cur_y;
 	} else {
@@ -331,7 +330,7 @@ void save_bin_cfg()
 		cfg_mem.items_menu_y=items_menu_y;
 	}
 
-	if(ground_items_win) {
+	if(ground_items_win >= 0) {
 		cfg_mem.ground_items_menu_x=windows_list.window[ground_items_win].cur_x;
 		cfg_mem.ground_items_menu_y=windows_list.window[ground_items_win].cur_y;
 	} else {
@@ -339,7 +338,7 @@ void save_bin_cfg()
 		cfg_mem.ground_items_menu_y=ground_items_menu_y;
 	}
 
-	if(trade_win) {
+	if(trade_win >= 0) {
 		cfg_mem.trade_menu_x=windows_list.window[trade_win].cur_x;
 		cfg_mem.trade_menu_y=windows_list.window[trade_win].cur_y;
 	} else {
@@ -347,7 +346,7 @@ void save_bin_cfg()
 		cfg_mem.trade_menu_y=trade_menu_y;
 	}
 
-	if(sigil_win) {
+	if(sigil_win >= 0) {
 		cfg_mem.sigil_menu_x=windows_list.window[sigil_win].cur_x;
 		cfg_mem.sigil_menu_y=windows_list.window[sigil_win].cur_y;
 	} else {
@@ -355,7 +354,7 @@ void save_bin_cfg()
 		cfg_mem.sigil_menu_y=sigil_menu_y;
 	}
 
-	if(dialogue_win) {
+	if(dialogue_win >= 0) {
 		cfg_mem.dialogue_menu_x=windows_list.window[dialogue_win].cur_x;
 		cfg_mem.dialogue_menu_y=windows_list.window[dialogue_win].cur_y;
 	} else {
@@ -363,7 +362,7 @@ void save_bin_cfg()
 		cfg_mem.dialogue_menu_y=dialogue_menu_y;
 	}
 
-	if(manufacture_win) {
+	if(manufacture_win >= 0) {
 		cfg_mem.manufacture_menu_x=windows_list.window[manufacture_win].cur_x;
 		cfg_mem.manufacture_menu_y=windows_list.window[manufacture_win].cur_y;
 	} else {
@@ -371,7 +370,7 @@ void save_bin_cfg()
 		cfg_mem.manufacture_menu_y=manufacture_menu_y;
 	}
 
-	if(!use_tabbed_windows && stats_win) {
+	if(!use_tabbed_windows && stats_win >= 0) {
 		cfg_mem.attrib_menu_x=windows_list.window[stats_win].cur_x;
 		cfg_mem.attrib_menu_y=windows_list.window[stats_win].cur_y;
 	} else {
@@ -379,7 +378,7 @@ void save_bin_cfg()
 		cfg_mem.attrib_menu_y=attrib_menu_y;
 	}
 
-	if(options_win) {
+	if(options_win >= 0) {
 		cfg_mem.options_menu_x=windows_list.window[options_win].cur_x;
 		cfg_mem.options_menu_y=windows_list.window[options_win].cur_y;
 	} else {
@@ -387,7 +386,7 @@ void save_bin_cfg()
 		cfg_mem.options_menu_y=options_menu_y;
 	}
 
-	if(!use_tabbed_windows && knowledge_win) {
+	if(!use_tabbed_windows && knowledge_win >= 0) {
 		cfg_mem.knowledge_menu_x=windows_list.window[knowledge_win].cur_x;
 		cfg_mem.knowledge_menu_y=windows_list.window[knowledge_win].cur_y;
 	} else {
@@ -395,7 +394,7 @@ void save_bin_cfg()
 		cfg_mem.knowledge_menu_y=knowledge_menu_y;
 	}
 
-	if(!use_tabbed_windows && encyclopedia_win) {
+	if(!use_tabbed_windows && encyclopedia_win >= 0) {
 		cfg_mem.encyclopedia_menu_x=windows_list.window[encyclopedia_win].cur_x;
 		cfg_mem.encyclopedia_menu_y=windows_list.window[encyclopedia_win].cur_y;
 	} else {
@@ -403,7 +402,7 @@ void save_bin_cfg()
 		cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
 	}
 
-	if(!use_tabbed_windows && questlog_win) {
+	if(!use_tabbed_windows && questlog_win >= 0) {
 		cfg_mem.questlog_menu_x=windows_list.window[questlog_win].cur_x;
 		cfg_mem.questlog_menu_y=windows_list.window[questlog_win].cur_y;
 	} else {
@@ -413,7 +412,7 @@ void save_bin_cfg()
 
 	if(quickbar_relocatable>0)
 		{
-			if(quickbar_win){
+			if(quickbar_win >= 0){
 				cfg_mem.quickbar_x=window_width-windows_list.window[quickbar_win].cur_x;
 				cfg_mem.quickbar_y=windows_list.window[quickbar_win].cur_y;
 				cfg_mem.quickbar_flags=quickbar_dir|(quickbar_draggable<<8);
@@ -501,7 +500,7 @@ void init_stuff()
 	init_video();
 	// now create the root window
 #ifdef WINDOW_CHAT
-	display_root ();
+	display_game ();
 #else
 	resize_root_window();
 #endif

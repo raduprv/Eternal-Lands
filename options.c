@@ -61,7 +61,7 @@ void display_options_menu()
 {
 	if(options_win < 0){
 #ifdef WINDOW_CHAT
-		options_win= create_window("Options", root_win, 0, options_menu_x, options_menu_y, options_menu_x_len, options_menu_y_len, ELW_WIN_DEFAULT);
+		options_win= create_window("Options", game_win, 0, options_menu_x, options_menu_y, options_menu_x_len, options_menu_y_len, ELW_WIN_DEFAULT);
 #else
 		options_win= create_window("Options", -1, 0, options_menu_x, options_menu_y, options_menu_x_len, options_menu_y_len, ELW_WIN_DEFAULT);
 #endif

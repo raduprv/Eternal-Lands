@@ -108,7 +108,7 @@ void display_help()
 	if(help_win < 0)
 	{
 #ifdef WINDOW_CHAT
-		help_win = create_window("help", root_win, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
+		help_win = create_window("help", game_win, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
 #else
 		help_win = create_window("help", -1, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
 #endif
