@@ -64,6 +64,7 @@ int wear_items_x_offset=6*51+20;
 int wear_items_y_offset=30;
 
 Uint32 click_time=0;
+int click_speed=300;
 
 void display_items_menu()
 {
@@ -355,7 +356,7 @@ int check_items_interface()
 
 										if(action_mode==action_look || right_click)
 											{
-												if(cur_time<(click_time+500))
+												if(cur_time<(click_time+click_speed))
 													if(item_list[i].use_with_inventory)
 														{
 															str[0]=USE_INVENTORY_ITEM;

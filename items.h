@@ -97,6 +97,8 @@ extern char items_string[300];
 
 extern int item_quantity;
 
+extern int click_speed;
+
 void display_items_menu();
 void get_your_items(Uint8 *data);
 int check_items_interface();

@@ -169,6 +169,8 @@ void read_config()
 	if(limit_fps==-1)limit_fps=0;
 	mouse_limit=get_integer_after_string("#mouse_limit",file_mem,ini_file_size);
 	if(mouse_limit==-1)mouse_limit=15;
+	click_speed=get_integer_after_string("#click_speed",file_mem,ini_file_size);
+	if(click_speed==-1)click_speed=300;
 	full_screen=get_integer_after_string("#full_screen",file_mem,ini_file_size);
 	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,ini_file_size);
 #ifdef	USE_VERTEXARRAYS
