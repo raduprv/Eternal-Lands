@@ -570,6 +570,9 @@ void add_command_to_actor(int actor_id, char command)
 {
 	int i=0;
 	int k=0;
+#ifdef POSSIBLE_FIX
+	int have_actor=0;
+#endif
 
 	lock_actors_lists();
 	while(i<max_actors)
@@ -584,9 +587,14 @@ void add_command_to_actor(int actor_id, char command)
 										//we are SEVERLY behind, just update all the actors in range
 										if(k>8)
 											{
+#ifndef POSSIBLE_FIX
 												unlock_actors_lists();
 												update_all_actors();
 												return;
+#else
+												i=max_actors;
+												break;
+#endif
 											}
 										else if(k>6)
 											{
@@ -618,19 +626,34 @@ void add_command_to_actor(int actor_id, char command)
 										break;
 									}
 							}
+#ifndef POSSIBLE_FIX
 						unlock_actors_lists();
 						return;
+#else
+						have_actor=1;
+						break;
+#endif
 					}
 			i++;
 		}
-	//if we got here, it means we don't have this actor, so get it from the server...
+
 	unlock_actors_lists();
+
+#ifdef POSSIBLE_FIX
+	if(!have_actor)
+#endif
 		{
+			//if we got here, it means we don't have this actor, so get it from the server...
 			char	str[256];
 			sprintf(str, "%s %d - %d\n", cant_add_command, command, actor_id);
 			log_error(str);
 		}
-	//update_all_actors();
+#ifdef POSSIBLE_FIX
+	else if (k>8)
+		{
+			update_all_actors();
+		}
+#endif
 }
 
 void get_actor_damage(int actor_id, Uint8 damage)
@@ -763,8 +786,12 @@ void move_self_forward()
 					*((short *)(str+3))=ty;
 
 					my_tcp_send(my_socket,str,5);
+#ifndef POSSIBLE_FIX
 					unlock_actors_lists();
 					return;
+#else
+					break;
+#endif
 				}
 		}
 	unlock_actors_lists();
