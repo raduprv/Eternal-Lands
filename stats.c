@@ -277,27 +277,27 @@ void display_stats(player_attribs cur_stats)
 
 	draw_string_small(x,y,"Basic Attributes",1);
 	y+=14;
-	sprintf(str,"Physique:    %i/%i",cur_stats.phy.cur,cur_stats.phy.base);
+	sprintf(str,"Physique:     %2i/%-2i",cur_stats.phy.cur,cur_stats.phy.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Coordination: %i/%i",cur_stats.coo.cur,cur_stats.coo.base);
+	sprintf(str,"Coordination: %2i/%-2i",cur_stats.coo.cur,cur_stats.coo.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Reasoning:    %i/%i",cur_stats.rea.cur,cur_stats.rea.base);
+	sprintf(str,"Reasoning:    %2i/%-2i",cur_stats.rea.cur,cur_stats.rea.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Will:         %i/%i",cur_stats.wil.cur,cur_stats.wil.base);
+	sprintf(str,"Will:         %2i/%-2i",cur_stats.wil.cur,cur_stats.wil.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Instinct:     %i/%i",cur_stats.ins.cur,cur_stats.ins.base);
+	sprintf(str,"Instinct:     %2i/%-2i",cur_stats.ins.cur,cur_stats.ins.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Vitality:     %i/%i",cur_stats.vit.cur,cur_stats.vit.base);
+	sprintf(str,"Vitality:     %2i/%-2i",cur_stats.vit.cur,cur_stats.vit.base);
 	draw_string_small(x,y,str,1);
 
 	//cross attributes
@@ -306,39 +306,39 @@ void display_stats(player_attribs cur_stats)
 
 	draw_string_small(x,y,"Cross Attributes",1);
 	y+=14;
-	sprintf(str,"Might:       %i/%i",(cur_stats.phy.cur+cur_stats.coo.cur)/2,(cur_stats.phy.base+cur_stats.coo.base)/2);
+	sprintf(str,"Might:        %2i/%-2i",(cur_stats.phy.cur+cur_stats.coo.cur)/2,(cur_stats.phy.base+cur_stats.coo.base)/2);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Matter:      %i/%i",(cur_stats.phy.cur+cur_stats.wil.cur)/2,(cur_stats.phy.base+cur_stats.wil.base)/2);
+	sprintf(str,"Matter:       %2i/%-2i",(cur_stats.phy.cur+cur_stats.wil.cur)/2,(cur_stats.phy.base+cur_stats.wil.base)/2);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Toughness:   %i/%i",(cur_stats.phy.cur+cur_stats.vit.cur)/2,(cur_stats.phy.base+cur_stats.vit.base)/2);
+	sprintf(str,"Toughness:    %2i/%-2i",(cur_stats.phy.cur+cur_stats.vit.cur)/2,(cur_stats.phy.base+cur_stats.vit.base)/2);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Charm:       %i/%i",(cur_stats.ins.cur+cur_stats.vit.cur)/2,(cur_stats.ins.base+cur_stats.vit.base)/2);
+	sprintf(str,"Charm:        %2i/%-2i",(cur_stats.ins.cur+cur_stats.vit.cur)/2,(cur_stats.ins.base+cur_stats.vit.base)/2);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Reaction:    %i/%i",(cur_stats.ins.cur+cur_stats.coo.cur)/2,(cur_stats.ins.base+cur_stats.coo.base)/2);
+	sprintf(str,"Reaction:     %2i/%-2i",(cur_stats.ins.cur+cur_stats.coo.cur)/2,(cur_stats.ins.base+cur_stats.coo.base)/2);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Perception:  %i/%i",(cur_stats.ins.cur+cur_stats.rea.cur)/2,(cur_stats.ins.base+cur_stats.rea.base)/2);
+	sprintf(str,"Perception:   %2i/%-2i",(cur_stats.ins.cur+cur_stats.rea.cur)/2,(cur_stats.ins.base+cur_stats.rea.base)/2);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Rationality: %i/%i",(cur_stats.wil.cur+cur_stats.rea.cur)/2,(cur_stats.wil.base+cur_stats.rea.base)/2);
+	sprintf(str,"Rationality:  %2i/%-2i",(cur_stats.wil.cur+cur_stats.rea.cur)/2,(cur_stats.wil.base+cur_stats.rea.base)/2);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Dexterity:   %i/%i",(cur_stats.coo.cur+cur_stats.rea.cur)/2,(cur_stats.coo.base+cur_stats.rea.base)/2);
+	sprintf(str,"Dexterity:    %2i/%-2i",(cur_stats.coo.cur+cur_stats.rea.cur)/2,(cur_stats.coo.base+cur_stats.rea.base)/2);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Ethereality: %i/%i",(cur_stats.wil.cur+cur_stats.vit.cur)/2,(cur_stats.wil.base+cur_stats.vit.base)/2);
+	sprintf(str,"Ethereality:  %2i/%-2i",(cur_stats.wil.cur+cur_stats.vit.cur)/2,(cur_stats.wil.base+cur_stats.vit.base)/2);
 	draw_string_small(x,y,str,1);
 
 	glColor3f(0.5f,0.5f,1.0f);
@@ -348,10 +348,10 @@ void display_stats(player_attribs cur_stats)
 	sprintf(str,"Food level:      %i",cur_stats.food_level);
 	draw_string_small(x,y,str,1);
 	y+=14;
-	sprintf(str,"Material Points: %i/%i",cur_stats.material_points.cur,cur_stats.material_points.base);
+	sprintf(str,"Material Points: %2i/%-2i",cur_stats.material_points.cur,cur_stats.material_points.base);
 	draw_string_small(x,y,str,1);
 	y+=14;
-	sprintf(str,"Ethereal Points:  %i/%i",cur_stats.ethereal_points.cur,cur_stats.ethereal_points.base);
+	sprintf(str,"Ethereal Points: %2i/%-2i",cur_stats.ethereal_points.cur,cur_stats.ethereal_points.base);
 	draw_string_small(x,y,str,1);
 
 	//armor and magic protection
@@ -359,11 +359,11 @@ void display_stats(player_attribs cur_stats)
 	sprintf(str,"Armor: %i",cur_stats.armor);
 	draw_string_small(attrib_menu_x+230,y,str,1);
 	y+=14;
-	sprintf(str,"Weapon Accuracy: %i",cur_stats.accuracy);
+	sprintf(str,"Weapon Accuracy:  %i",cur_stats.accuracy);
 	draw_string_small(attrib_menu_x+230,y,str,1);
 	y+=14;
 	if(cur_stats.damage<3)cur_stats.damage=3;
-	sprintf(str,"Weapon Damage: %i",cur_stats.damage);
+	sprintf(str,"Weapon Damage:    %i",cur_stats.damage);
 	draw_string_small(attrib_menu_x+230,y,str,1);
 	y+=14;
 	sprintf(str,"Magic Protection: %i",cur_stats.magic_resistence);
@@ -378,27 +378,27 @@ void display_stats(player_attribs cur_stats)
 	draw_string_small(x,y,"Nexuses",1);
 	y+=14;
 
-	sprintf(str,"Human:      %i/%i",cur_stats.human_nex.cur,cur_stats.human_nex.base);
+	sprintf(str,"Human:       %2i/%-2i",cur_stats.human_nex.cur,cur_stats.human_nex.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Animal:     %i/%i",cur_stats.animal_nex.cur,cur_stats.animal_nex.base);
+	sprintf(str,"Animal:      %2i/%-2i",cur_stats.animal_nex.cur,cur_stats.animal_nex.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Vegetal:    %i/%i",cur_stats.vegetal_nex.cur,cur_stats.vegetal_nex.base);
+	sprintf(str,"Vegetal:     %2i/%-2i",cur_stats.vegetal_nex.cur,cur_stats.vegetal_nex.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Inorganic:  %i/%i",cur_stats.inorganic_nex.cur,cur_stats.inorganic_nex.base);
+	sprintf(str,"Inorganic:   %2i/%-2i",cur_stats.inorganic_nex.cur,cur_stats.inorganic_nex.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Artificial: %i/%i",cur_stats.artificial_nex.cur,cur_stats.artificial_nex.base);
+	sprintf(str,"Artificial:  %2i/%-2i",cur_stats.artificial_nex.cur,cur_stats.artificial_nex.base);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Magic:      %i/%i",cur_stats.magic_nex.cur,cur_stats.magic_nex.base);
+	sprintf(str,"Magic:       %2i/%-2i",cur_stats.magic_nex.cur,cur_stats.magic_nex.base);
 	draw_string_small(x,y,str,1);
 
 	y+=20;
@@ -407,47 +407,47 @@ void display_stats(player_attribs cur_stats)
 	draw_string_small(x,y,"Skills",1);
 	y+=14;
 
-	sprintf(str,"Manufacture: %i/%i [%i/%i]",cur_stats.manufacturing_skill.cur,cur_stats.manufacturing_skill.base,
+	sprintf(str,"Manufacture: %2i/%-2i [%2i/%-2i]",cur_stats.manufacturing_skill.cur,cur_stats.manufacturing_skill.base,
 	cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Harvest:     %i/%i [%i/%i]",cur_stats.harvesting_skill.cur,cur_stats.harvesting_skill.base,
+	sprintf(str,"Harvest:     %2i/%-2i [%2i/%-2i]",cur_stats.harvesting_skill.cur,cur_stats.harvesting_skill.base,
 	cur_stats.harvesting_exp,cur_stats.harvesting_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Alchemy:     %i/%i [%i/%i]",cur_stats.alchemy_skill.cur,cur_stats.alchemy_skill.base,
+	sprintf(str,"Alchemy:     %2i/%-2i [%2i/%-2i]",cur_stats.alchemy_skill.cur,cur_stats.alchemy_skill.base,
 	cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Combat:      %i/%i [%i/%i]",cur_stats.combat_skill.cur,cur_stats.combat_skill.base,
+	sprintf(str,"Combat:      %2i/%-2i [%2i/%-2i]",cur_stats.combat_skill.cur,cur_stats.combat_skill.base,
 	cur_stats.combat_exp,cur_stats.combat_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Attack:      %i/%i [%i/%i]",cur_stats.attack_skill.cur,cur_stats.attack_skill.base,
+	sprintf(str,"Attack:      %2i/%-2i [%2i/%-2i]",cur_stats.attack_skill.cur,cur_stats.attack_skill.base,
 	cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Defense:     %i/%i [%i/%i]",cur_stats.defense_skill.cur,cur_stats.defense_skill.base,
+	sprintf(str,"Defense:     %2i/%-2i [%2i/%-2i]",cur_stats.defense_skill.cur,cur_stats.defense_skill.base,
 	cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Magic:       %i/%i [%i/%i]",cur_stats.magic_skill.cur,cur_stats.magic_skill.base,
+	sprintf(str,"Magic:       %2i/%-2i [%2i/%-2i]",cur_stats.magic_skill.cur,cur_stats.magic_skill.base,
 	cur_stats.magic_exp,cur_stats.magic_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Potion:      %i/%i [%i/%i]",cur_stats.potion_skill.cur,cur_stats.potion_skill.base,
+	sprintf(str,"Potion:      %2i/%-2i [%2i/%-2i]",cur_stats.potion_skill.cur,cur_stats.potion_skill.base,
 	cur_stats.potion_exp,cur_stats.potion_exp_next_lev);
 	draw_string_small(x,y,str,1);
 
 	y+=14;
-	sprintf(str,"Summoning:   %i/%i [%i/%i]",cur_stats.summoning_skill.cur,cur_stats.summoning_skill.base,
+	sprintf(str,"Summoning:   %2i/%-2i [%2i/%-2i]",cur_stats.summoning_skill.cur,cur_stats.summoning_skill.base,
 	cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
 	draw_string_small(x,y,str,1);
 }
