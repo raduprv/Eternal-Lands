@@ -266,7 +266,8 @@ void destroy_all_particle_defs()
 	int i;
 	for(i=0;i<max_particle_defs;i++)
 		{
-			free(defs_list[i]);
+			if(defs_list[i])
+				free(defs_list[i]);
 			defs_list[i]=NULL;
 		}
 }
@@ -277,11 +278,25 @@ void destroy_all_particles()
 	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
-			free(particles_list[i]);
+			if(particles_list[i])
+			   free(particles_list[i]);
 			particles_list[i]=0;
 		}
 	unlock_particles_list();
 
+}
+
+void destroy_all_fires() {
+	int i;
+	lock_particles_list();
+	for(i=0;i<max_particle_systems;i++)
+		{
+			if(particles_list[i] && !strncmp(particles_list[i]->def->file_name,"./particles/fire_",17)) {
+				free(particles_list[i]);
+				particles_list[i]=0;
+			}
+		}
+	unlock_particles_list();
 }
 
 /*********************************************************************

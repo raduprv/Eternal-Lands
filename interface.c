@@ -79,6 +79,11 @@ int check_scroll_bars()
 
 void check_mouse_click()
 {
+	if(use_item != -1 && right_click) {
+		use_item = -1;
+		return;
+	}
+
 	// check for a click on the HUD (between scene & windows)
 	if(click_in_windows(mouse_x, mouse_y, 0) > 0)	return;
 
@@ -100,11 +105,6 @@ void check_mouse_click()
 		my_tcp_send(my_socket, str, 4);
 		if (item_list[item_dragged].quantity - quantity <= 0)
 			item_dragged = -1;
-		return;
-	}
-
-	if(use_item != -1 && right_click) {
-		use_item = -1;
 		return;
 	}
 

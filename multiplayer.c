@@ -665,7 +665,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-			  add_particle_sys_at_tile("./particles/bag_in.part",*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)));
+	             add_particle_sys_at_tile("./particles/bag_in.part",*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)));
 			}
 			break;
 
@@ -674,7 +674,16 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-			  add_particle_sys_at_tile("./particles/fire_small.part",*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)));
+	add_particle_sys("./particles/fire_small.part",(float)(*((Uint16 *)(in_data+3)))/2.0 +0.25,(float)(*((Uint16 *)(in_data+5)))/2.0 + 0.25,0.0);
+			}
+			break;
+
+		case DESTROY_ALL_FIRES:
+			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+	destroy_all_fires();
 			}
 			break;
 
