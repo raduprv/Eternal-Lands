@@ -112,7 +112,7 @@ void load_ignores_list(char * file_name)
 	FILE *f = NULL;
 	Uint8 * ignore_list_mem;
 	int i,j;
-	Uint8 name[16];
+	Uint8 name[64];
 	Uint8 ch;
 
 	f = fopen(file_name, "rb");

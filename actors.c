@@ -151,7 +151,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 
 void draw_actor_banner(actor * actor_id, float offset_z)
 {
-	char str[20];
+	char str[60];
 	float healtbar_x=-0.25f*zoom_level/3.0f;
 	float healtbar_y=0;
 	float healtbar_z=offset_z+0.1f;	//was 0.2f

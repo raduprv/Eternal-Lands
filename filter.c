@@ -108,7 +108,7 @@ void load_filters_list(char * file_name)
 	FILE *f = NULL;
 	Uint8 * filter_list_mem;
 	int i,j;
-	Uint8 name[16];
+	Uint8 name[64];
 	Uint8 ch;
 
 	f = fopen(file_name, "rb");
