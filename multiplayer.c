@@ -166,7 +166,7 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, ch
 	int i;
 	int j;
 	int len;
-	unsigned char str[40];
+	unsigned char str[120];
 
 	//join the user and pass, and send them to the server
 	len=strlen(user_str);
