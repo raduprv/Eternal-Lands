@@ -80,7 +80,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 SDL_net.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib GLU32.lib comdlg32.lib /nologo /subsystem:windows /pdb:"Debug/el.pdb" /debug /machine:I386 /out:"Debug/mapedit.exe" /pdbtype:sept
+# ADD LINK32 SDL_net.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib GLU32.lib comdlg32.lib /nologo /subsystem:windows /pdb:"Debug/el.pdb" /debug /machine:I386 /out:"../elc/Debug/mapedit.exe" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -163,6 +163,10 @@ SOURCE=.\draw_scene.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\elc\elwindows.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\errors.c
 
 !IF  "$(CFG)" == "map_editor - Win32 Release"
@@ -189,7 +193,7 @@ SOURCE=.\events.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\font.c
+SOURCE=..\elc\font.c
 # End Source File
 # Begin Source File
 
@@ -323,16 +327,7 @@ SOURCE=.\shadows.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\textures.c
-
-!IF  "$(CFG)" == "map_editor - Win32 Release"
-
-# ADD CPP /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_map_5Feditor_2Evprj"
-
-!ELSEIF  "$(CFG)" == "map_editor - Win32 Debug"
-
-!ENDIF 
-
+SOURCE=..\elc\textures.c
 # End Source File
 # Begin Source File
 
@@ -357,11 +352,23 @@ SOURCE=.\2d_objects.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\3d_objects.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\asc.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\elc\browser.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\browser.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\draw_scene.h
 # End Source File
 # Begin Source File
 
@@ -373,7 +380,31 @@ SOURCE=.\editor.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\errors.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\events.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\frustum.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\global.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gui.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gui_callbacks.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gui_support.h
 # End Source File
 # Begin Source File
 

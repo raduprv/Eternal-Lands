@@ -1,5 +1,10 @@
 #include "global.h"
 
+int have_arb_compression=0;
+int have_s3_compression=0;
+int elwin_mouse;
+int name_zoom=1;
+
 int map_meters_size_x;
 int map_meters_size_y;
 
@@ -95,8 +100,13 @@ float ambient_b=0;
 //interface
 int mouse_x;
 int mouse_y;
+int mouse_delta_x;
+int mouse_delta_y;
 int right_click;
 int left_click;
+int middle_click;
+
+int icons_text;
 
 float scene_mouse_x;
 float scene_mouse_y;

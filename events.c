@@ -342,15 +342,21 @@ int HandleEvent(SDL_Event *event)
  		     mouse_y=event->motion.y;
 
  		           //get the buttons state
-			       if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_LEFT))
+			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_LEFT))
 				   left_click++;
-			       else
+			    else
 			 	   left_click = 0;
 
-			       if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_RIGHT))
+			     if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_RIGHT))
 			 	   right_click++;
-			       else
+			     else
 				   right_click= 0;
+
+			
+			     if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_MIDDLE))
+			 	   middle_click++;
+			     else
+				   middle_click= 0;
 
 			       if(shift_on && left_click==1){
 				 get_world_x_y();

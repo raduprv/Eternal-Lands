@@ -41,12 +41,13 @@
 #include "shadows.h"
 #include "reflection.h"
 #include "draw_scene.h"
-#include "textures.h"
 #include "browser.h"
 #include "events.h"
 #include "frustum.h"
-#include "font.h"
 #include "misc.h"
+#include "../elc/textures.h"
+#include "../elc/font.h"
+#include "../elc/elwindows.h"
 
 
 #define sector_size_x 15
@@ -152,6 +153,8 @@ extern float clouds_movement_v;
 extern Uint32 last_clear_clouds;
 extern float texture_scale;
 extern int clouds_shadows;
+
+extern int icons_text;
 
 #define check_gl_errors()       //NOP
 

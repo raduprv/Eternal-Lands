@@ -156,11 +156,8 @@ void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_sta
 
 void draw_toolbar()
 {
-	if(last_texture!=texture_cache[buttons_text].texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[buttons_text].texture_id);
-			last_texture=texture_cache[buttons_text].texture_id;
-		}
+
+	get_and_set_texture_id(buttons_text);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_QUADS);

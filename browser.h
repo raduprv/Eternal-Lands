@@ -16,6 +16,7 @@ extern int view_browser;
 
 void init_browser();
 void display_browser();
+int display_browser_handler();
 int check_browser_interface();
 
 #endif

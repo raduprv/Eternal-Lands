@@ -151,8 +151,10 @@ void init_stuff()
 #endif
 	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 
+	init_fonts();
 	//load the fonts texture
-	font_text=load_texture_cache("./textures/font.bmp",0);
+	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
+	//font_text=load_texture_cache("./textures/font.bmp",0);
 	buttons_text=load_texture_cache("./textures/buttons.bmp",0);
 	sky_text_1=load_texture_cache("./textures/sky.bmp",70);
 	//get the application home dir

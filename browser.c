@@ -14,6 +14,7 @@ int browser_menu_y=70;
 int browser_menu_x_len=420;
 int browser_menu_y_len=400;
 int browser_menu_dragged=0;
+int browser_win=0;
 
 object3d o3d[4];
 _Dir Dir[24];
@@ -42,8 +43,22 @@ void setobject(int n, char *fn)
 
 }
 
-
 void display_browser()
+{
+	if(browser_win <= 0){
+		browser_win= create_window("browser", 0, 0, browser_menu_x, browser_menu_y, browser_menu_x_len, browser_menu_y_len, ELW_WIN_DEFAULT);
+
+		set_window_handler(browser_win, ELW_HANDLER_DISPLAY, &display_browser_handler );
+		set_window_handler(browser_win, ELW_HANDLER_CLICK, &check_browser_interface );
+		
+	} else {
+		show_window(browser_win);
+		select_window(browser_win);
+	}
+	display_window(browser_win);
+}
+
+int display_browser_handler()
 {
    int i=0,x=browser_menu_x+2,y=browser_menu_y+2;
 
@@ -53,47 +68,28 @@ void display_browser()
    glEnable(GL_BLEND);
    glBlendFunc(GL_ONE,GL_SRC_ALPHA);
    glDisable(GL_TEXTURE_2D);
-   glBegin(GL_QUADS);
-   glColor4f(0.0f,0.0f,0.0f,0.5f);
-   glVertex3i(browser_menu_x,browser_menu_y+browser_menu_y_len,0);
-   glVertex3i(browser_menu_x,browser_menu_y,0);
-   glVertex3i(browser_menu_x+browser_menu_x_len,browser_menu_y,0);
-   glVertex3i(browser_menu_x+browser_menu_x_len,browser_menu_y+browser_menu_y_len,0);
-   glEnd();
+  
    glDisable(GL_BLEND);
    glColor3f(0.77f,0.57f,0.39f);
    glBegin(GL_LINES);
-   glVertex3i(browser_menu_x,browser_menu_y,0);
-   glVertex3i(browser_menu_x+browser_menu_x_len,browser_menu_y,0);
-   glVertex3i(browser_menu_x+browser_menu_x_len,browser_menu_y,0);
-   glVertex3i(browser_menu_x+browser_menu_x_len,browser_menu_y+browser_menu_y_len,0);
-   glVertex3i(browser_menu_x+browser_menu_x_len,browser_menu_y+browser_menu_y_len,0);
-   glVertex3i(browser_menu_x,browser_menu_y+browser_menu_y_len,0);
-   glVertex3i(browser_menu_x,browser_menu_y+browser_menu_y_len,0);
-   glVertex3i(browser_menu_x,browser_menu_y,0);
-   // X corner
-   glVertex3i(browser_menu_x+browser_menu_x_len,browser_menu_y+20,0);
-   glVertex3i(browser_menu_x+browser_menu_x_len-20,browser_menu_y+20,0);
-   glVertex3i(browser_menu_x+browser_menu_x_len-20,browser_menu_y+20,0);
-   glVertex3i(browser_menu_x+browser_menu_x_len-20,browser_menu_y,0);
 
    if(cd!=-1){
 		//scroll bar
-		glVertex3i(browser_menu_x+browser_menu_x_len-20,browser_menu_y+20,0);
-		glVertex3i(browser_menu_x+browser_menu_x_len-20,browser_menu_y+400,0);
-		glVertex3i(browser_menu_x+browser_menu_x_len-15,browser_menu_y+30,0);
-		glVertex3i(browser_menu_x+browser_menu_x_len-10,browser_menu_y+25,0);
-		glVertex3i(browser_menu_x+browser_menu_x_len-10,browser_menu_y+25,0);
-		glVertex3i(browser_menu_x+browser_menu_x_len-5,browser_menu_y+30,0);
-		glVertex3i(browser_menu_x+browser_menu_x_len-15,browser_menu_y+385,0);
-		glVertex3i(browser_menu_x+browser_menu_x_len-10,browser_menu_y+390,0);
-		glVertex3i(browser_menu_x+browser_menu_x_len-10,browser_menu_y+390,0);
-		glVertex3i(browser_menu_x+browser_menu_x_len-5,browser_menu_y+385,0);
+		glVertex3i(browser_menu_x_len-20,20,0);
+		glVertex3i(browser_menu_x_len-20,400,0);
+		glVertex3i(browser_menu_x_len-15,30,0);
+		glVertex3i(browser_menu_x_len-10,25,0);
+		glVertex3i(browser_menu_x_len-10,25,0);
+		glVertex3i(browser_menu_x_len-5,30,0);
+		glVertex3i(browser_menu_x_len-15,385,0);
+		glVertex3i(browser_menu_x_len-10,390,0);
+		glVertex3i(browser_menu_x_len-10,390,0);
+		glVertex3i(browser_menu_x_len-5,385,0);
 		//separators
-		glVertex3i(browser_menu_x+200,browser_menu_y,0);
-		glVertex3i(browser_menu_x+200,browser_menu_y+400,0);
-		glVertex3i(browser_menu_x,browser_menu_y+200,0);
-		glVertex3i(browser_menu_x+400,browser_menu_y+200,0);
+		glVertex3i(0+200,0,0);
+		glVertex3i(0+200,0+400,0);
+		glVertex3i(0,0+200,0);
+		glVertex3i(0+400,0+200,0);
 	}
 
    glEnd();
@@ -101,18 +97,18 @@ void display_browser()
    // The X
 	
 	if(cd!=-1){
-		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+160,(unsigned char *)"B",1);
-		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+180,(unsigned char *)"A",1);
-		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+200,(unsigned char *)"C",1);
-		draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+220,(unsigned char *)"K",1);
+		draw_string(browser_menu_x_len-16,160,(unsigned char *)"B",1);
+		draw_string(browser_menu_x_len-16,180,(unsigned char *)"A",1);
+		draw_string(browser_menu_x_len-16,200,(unsigned char *)"C",1);
+		draw_string(browser_menu_x_len-16,220,(unsigned char *)"K",1);
    }
 
-   draw_string(browser_menu_x+browser_menu_x_len-16,browser_menu_y+2,(unsigned char *)"X",1);
+   draw_string(0+browser_menu_x_len-16,0+2,(unsigned char *)"X",1);
 
    if(cd==-1){ //display dir select menu
 	   int i,y=2;
 	   for(i=0;i<dc;i++){
-		   draw_string(browser_menu_x+2,browser_menu_y+y,(unsigned char *)Dir[i].DirName,1);
+		   draw_string(0+2,0+y,(unsigned char *)Dir[i].DirName,1);
 		   y+=18;
 	   }
 
@@ -196,7 +192,6 @@ void display_browser()
 
    }
 
-   
 }
 
 

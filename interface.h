@@ -17,8 +17,11 @@
 
 extern int mouse_x;
 extern int mouse_y;
+extern int mouse_delta_x;
+extern int mouse_delta_y;
 extern int right_click;
 extern int left_click;
+extern int middle_click;
 
 extern float scene_mouse_x;
 extern float scene_mouse_y;
