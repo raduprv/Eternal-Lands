@@ -43,6 +43,7 @@ typedef struct wl{
 	int (*OnDrag)();
 	int (*OnInit)();
 	int (*OnMouseover)();
+	int (*OnKey)();
 	/*! \} */
 
 	void *widget_info; /*!< Pointer to specific widget data */

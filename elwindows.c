@@ -431,6 +431,87 @@ int drag_windows (int mx, int my, int dx, int dy)
 	return drag_id;
 }
 
+#ifdef WINDOW_CHAT
+int	keypress_in_windows(int x, int y, Uint32 key)
+{
+	int	done= 0;
+	int	id;
+	int	next_id;
+	int i;
+
+	// check each window in the proper order
+	if(windows_list.display_level > 0)
+	{
+		id= 9999;
+		while(done <= 0)
+		{
+			next_id= 0;
+			for (i=0; i<windows_list.num_windows; i++)
+			{
+				// only look at displayed windows
+				if (windows_list.window[i].displayed > 0)
+				{
+					// at this level?
+					if(windows_list.window[i].order == id)
+					{
+						done = keypress_in_window (i, x, y, key);
+						if(done > 0)
+						{
+							if (windows_list.window[i].displayed > 0)
+								select_window(i);	// select this window to the front
+							return i;
+						}
+					}
+					else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id)
+					{
+						// try to find the next level
+						next_id = windows_list.window[i].order;
+					}
+				}
+			}
+			if(next_id <= 0)
+				break;
+			else
+				id= next_id;
+		}
+	}
+	
+	// now check the background windows in the proper order
+	id= -9999;
+	while(done <= 0)
+	{
+		next_id= 0;
+		for(i=0; i<windows_list.num_windows; i++)
+		{
+			// only look at displayed windows
+			if(windows_list.window[i].displayed > 0)
+			{
+				// at this level?
+				if(windows_list.window[i].order == id)
+				{
+					done = keypress_in_window(i, x, y, key);
+					if(done > 0)
+					{
+						//select_window(i);	// these never get selected
+						return i;
+					}
+				} 
+				else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id)
+				{
+					// try to find the next level
+					next_id= windows_list.window[i].order;
+				}
+			}
+		}
+		if(next_id >= 0)
+			break;
+		else
+			id= next_id;
+	}
+	
+	return -1;	// no keypress in a window
+}
+#endif
 
 void	end_drag_windows()
 {
@@ -1169,6 +1250,58 @@ int	mouseover_window(int win_id, int x, int y)
 
 	return 0;
 }
+
+#ifdef WINDOW_CHAT
+int	keypress_in_window(int win_id, int x, int y, Uint32 key)
+{
+	window_info *win;
+	int	mx, my;
+   	widget_list *W; 
+
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
+	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	win = &windows_list.window[win_id];
+	W = &win->widgetlist;
+
+	if (mouse_in_window(win_id, x, y) > 0)
+	{
+		mx= x - win->cur_x;
+		my= y - win->cur_y;
+			
+		// widgets
+		glPushMatrix();
+		glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+		while(W->next != NULL)
+		{
+			W = W->next;
+			if(mx > W->pos_x && mx <= (W->pos_x+W->len_x) && my > W->pos_y && my <= (W->pos_y+W->len_y))
+			{
+				if(W->OnKey != NULL)
+				{
+					W->OnKey (W, mx - W->pos_x, my - W->pos_y, key);
+				}
+			}
+		}
+		glPopMatrix();
+
+		//use the handler
+		if(win->keypress_handler != NULL)
+		{
+			int	ret_val;
+			    
+			glPushMatrix();
+			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+			ret_val= (*win->keypress_handler)(win, mx, my, key);
+			glPopMatrix();
+
+			return	ret_val; // keypresses are fall-through
+		} 
+	}
+
+	return 0;
+}
+#endif
+
 
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 {

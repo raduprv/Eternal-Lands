@@ -256,6 +256,22 @@ int		drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy);
  */
 int		drag_windows(int mx, int my, int dx, int dy);
 
+#ifdef WINDOW_CHAT
+/*!
+ * \ingroup elwindows
+ * \brief   callback function used when a key is pressed in a window.
+ *
+ *      This event handler gets called when a keypress is reported in a window. The coordinates \a mx and \a my denotes the (x,y) position of the mouse within the window.
+ *
+ * \param x       x coordinate of the mouse position where the click occurred
+ * \param y       y coordinate of the mouse position where the click occurred
+ * \param key     the key or key combination that is pressed
+ * \retval int
+ * \callgraph
+ */
+int		keypress_in_windows(int x, int y, Uint32 key);
+#endif
+
 /*!
  * \ingroup elwindows
  * \brief
@@ -541,6 +557,23 @@ int		drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
  * \callgraph
  */
 int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
+
+#ifdef WINDOW_CHAT
+/*!
+ * \ingroup elwindows
+ * \brief
+ *
+ *      Detail
+ *
+ * \param win_id
+ * \param x
+ * \param y
+ * \param key
+ * \retval int
+ * \callgraph
+ */
+int		keypress_in_window(int win_id, int x, int y, Uint32 key);	// keypress in the window
+#endif
 
 // low level functions
 //window_info	*get_window_info(int win_id);
