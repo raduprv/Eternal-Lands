@@ -467,8 +467,10 @@ int HandleEvent(SDL_Event *event)
 								else
 									{
 										get_3d_object_under_mouse();
-										if(alt_on){
+										if(alt_on && selected_3d_object!=-1){
 											ew_selected_object=selected_3d_object;
+											ew_object_type=0;
+											memcpy(&o3t,objects_list[ew_selected_object],sizeof(object3d));
 											selected_3d_object=-1;
 										}
 									}
@@ -493,8 +495,15 @@ int HandleEvent(SDL_Event *event)
 								if(left_click==1 && cur_tool==tool_select && selected_2d_object!=-1)clone_2d_object(selected_2d_object);
 								else
 								{
-									if(selected_2d_object==-1)
+									if(selected_2d_object==-1){
 										get_2d_object_under_mouse();
+										if(alt_on && selected_2d_object!=-1){
+											ew_selected_object=selected_2d_object;
+											ew_object_type=1;
+											memcpy(&o2t,obj_2d_list[ew_selected_object],sizeof(obj_2d));
+											selected_2d_object=-1;
+										}
+									}
 								}
 
 							}
