@@ -168,15 +168,35 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 	type=strncasecmp(&text_to_add[1],"[PM from",8)?0:1;
 	if(pre_check_if_ignored(text_to_add,type))return 0;
 	//All right, we do not ignore the person
-	if(afk)
+	if (afk)
+	{
+		if (type)
 		{
-			if(type)add_message_to_pm_log(text_to_add,len);
-			else if(*text_to_add==(c_grey1+127) && is_talking_about_me(text_to_add+1,len-1))send_afk_message(&text_to_add[1], type);
+			// player sent us a PM
+			add_message_to_pm_log (text_to_add, len);
 		}
-	//parse for URLs
-	find_last_url(text_to_add,len);
-	//filter any naughty words out
-	return(filter_text(text_to_add, len));
+		else if (text_to_add[0] == (c_grey1+127) && is_talking_about_me ( &text_to_add[1], len-1) )
+		{
+			// player mentions our name in local chat
+			send_afk_message (&text_to_add[1], type);
+		}
+		else
+		{
+			// check if this was a trade attempt
+			int i;
+			for (i = 1; i < len; i++)
+				if ( text_to_add[i] == ' ' || text_to_add[i] == ':' || (text_to_add[i] > 127+c_red1 && text_to_add[i] < 127+c_grey4) )
+					break;
+			if (i < len-15 && strncasecmp (&text_to_add[i], " wants to trade", 15) == 0)
+				send_afk_message (&text_to_add[1], type);
+		}
+	}
+	
+	// parse for URLs
+	find_last_url (text_to_add, len);
+	
+	// filter any naughty words out
+	return filter_text (text_to_add, len);
 }
 
 void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit)

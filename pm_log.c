@@ -174,25 +174,38 @@ int is_talking_about_me(Uint8 *server_msg, int len)
 	return 0;
 }
 
-void send_afk_message(Uint8 * server_msg, int type)
+void send_afk_message (Uint8 *server_msg, int type)
 {
 	Uint8 sendtext[MAX_TEXT_MESSAGE_LENGTH]={0};
-	if(!afk_message[0]) return;
-	if(type) sprintf(sendtext,"%c%s %s",2,last_pm_from,afk_message);
+	
+	if (afk_message[0] == '\0') return;
+	
+	if (type)
+	{
+		sprintf (sendtext, "%c%s %s", SEND_PM, last_pm_from, afk_message);
+	}
 	else 
+	{
+		int i=0;
+		char *name = calloc ( 20, sizeof (char) );
+		
+		// Copy the name. This ought to work for both local chat and
+		// trade attempts
+		while (*server_msg < 127+c_red1 || *server_msg > 127+c_grey4)
 		{
-			int i=0;
-			char * name=(char*)calloc(20,sizeof(char));
-			
-			while((*server_msg>127+c_grey4||*server_msg<127+c_red1) && (*(name+i++)=*server_msg++)!=':');
-			*(name+i-1)=0;
-			if(have_name(name,i-1)<0)
-				{
-					sprintf(sendtext,"%c%s %s",2,name,afk_message);
-			
-					add_name_to_pm_log(name, i-1);
-				}
+			name[i++] = *server_msg;
+			if (*server_msg == ':' || *server_msg == ' ') break;
+			server_msg++;
+		}		
+		name[i-1] = '\0';
+		
+		if (have_name (name, i-1) < 0)
+		{
+			sprintf (sendtext, "%c%s %s", SEND_PM, name, afk_message);
+			add_name_to_pm_log (name, i-1);
 		}
-	if(sendtext[1])my_tcp_send(my_socket,sendtext,strlen(&sendtext[1])+1);
+	}
+	if (sendtext[1] != '\0') 
+		my_tcp_send (my_socket, sendtext, strlen (&sendtext[1]) + 1);
 }
 
