@@ -1,7 +1,32 @@
 #include "global.h"
+#include <stdlib.h>
+#include <string.h>
+
+int	cur_font_num=0;
+int	max_fonts=0;
+font_info	*fonts[10];
+int	chat_font=0;
+int	name_font=0;
+
 
 // converts a character into which entry in font.bmp to use, negative on error or no output
 int find_font_char(unsigned char cur_char)
+{
+	if(cur_char >= 127 && cur_char<=127+c_grey4)
+		{
+			float r,g,b;
+			//must be a color
+			cur_char-=127;
+			r=(float)colors_list[cur_char].r1/255.0f;
+			g=(float)colors_list[cur_char].g1/255.0f;
+			b=(float)colors_list[cur_char].b1/255.0f;
+			glColor3f(r,g,b);
+			return(-1);	// nothing to do
+		}
+	return(get_font_char(cur_char));
+}
+
+int get_font_char(unsigned char cur_char)
 {
 	if(cur_char<FONT_START_CHAR)	//null or invalid character
 		{
@@ -11,15 +36,9 @@ int find_font_char(unsigned char cur_char)
 		{
 			if(cur_char<=127+c_grey4)
 				{
-					float r,g,b;
-					//must be a color
-					cur_char-=127;
-					r=(float)colors_list[cur_char].r1/255.0f;
-					g=(float)colors_list[cur_char].g1/255.0f;
-					b=(float)colors_list[cur_char].b1/255.0f;
-					glColor3f(r,g,b);
-					return(-1);	// nothing to do
-			 	}
+					//color, won't show
+					return -1;
+				}
 			else if(cur_char>127+c_grey4)
 				{
 					if(cur_char==252)
@@ -95,6 +114,7 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	int displayed_font_x_width;
 	int font_x_size=FONT_X_SPACING;
 	int font_y_size=FONT_Y_SPACING;
+	int	font_bit_width, ignored_bits;
 
 	chr= find_font_char(cur_char);
 	if(chr < 0)	// watch for illegal/non-display characters
@@ -107,13 +127,26 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	row=chr%FONT_CHARS_PER_LINE;
 
 	// TODO:get the font width for this character
-	displayed_font_x_width=(int)displayed_font_x_size;
+	//displayed_font_x_width=(int)displayed_font_x_size;
+	font_bit_width=get_font_width(chr);
+	displayed_font_x_width=(int)(((float)font_bit_width)*displayed_font_x_size/12.0);
+	ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
+	//ignored_bits=0;	
 
 	//now get the texture coordinates
-	u_start=(float)(row*font_x_size)/256.0f;
-	u_end=(float)(row*font_x_size+font_x_size-7)/256.0f;
+	//if(cur_font_num == 0)
+	//	{
+	//		u_start=(float)(row*font_x_size)/256.0f;
+	//		u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
+	//	}
+	//else
+	//	{
+			u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
+			u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
+	//	}
 	v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
-	v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
+	v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
+	//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
 
 	// and place the text from the graphics on the map
 	glTexCoord2f(u_start,v_start);
@@ -140,8 +173,8 @@ void draw_string_zoomed(int x, int y,unsigned char * our_string,int max_lines, f
 {
 	//float u_start,u_end,v_start,v_end;
 	//int col,row;
-	float displayed_font_x_size=11*text_zoom;
-	float displayed_font_y_size=18*text_zoom;
+	float displayed_font_x_size=11.0*text_zoom;
+	float displayed_font_y_size=18.0*text_zoom;
 
 	//int font_x_size=FONT_X_SPACING;
 	//int font_y_size=FONT_Y_SPACING;
@@ -416,8 +449,10 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 	float displayed_font_x_size;
 	float displayed_font_y_size;
 
+	float displayed_font_x_width;
 	int font_x_size=FONT_X_SPACING;
 	int font_y_size=FONT_Y_SPACING;
+	int	font_bit_width, ignored_bits;
 
 	unsigned char cur_char;
 	int chr;
@@ -565,11 +600,19 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 					col=chr/FONT_CHARS_PER_LINE;
 					row=chr%FONT_CHARS_PER_LINE;
 
+
+					font_bit_width=get_font_width(chr);
+					displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
+					ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
+
 					//now get the texture coordinates
-					u_start=(float)(row*font_x_size)/256.0f;
-					u_end=(float)(row*font_x_size+font_x_size-7)/256.0f;
+					//u_start=(float)(row*font_x_size)/256.0f;
+					//u_end=(float)(row*font_x_size+font_x_size-7)/256.0f;
+					u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
+					u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
 					v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
-					v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
+					v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
+					//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
 
 
 					/*glTexCoord2f(u_start,v_start);
@@ -591,13 +634,14 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 					glVertex3f(cur_x,0,cur_y);
 
 					glTexCoord2f(u_end,v_end);
-					glVertex3f(cur_x+displayed_font_x_size,0,cur_y);
+					glVertex3f(cur_x+displayed_font_x_width,0,cur_y);
 
 					glTexCoord2f(u_end,v_start);
-					glVertex3f(cur_x+displayed_font_x_size,0,cur_y+displayed_font_y_size);
+					glVertex3f(cur_x+displayed_font_x_width,0,cur_y+displayed_font_y_size);
 					
 
-					cur_x+=displayed_font_x_size;
+					//cur_x+=displayed_font_x_size;
+					cur_x+=displayed_font_x_width;
 				}
 
 			i++;
@@ -610,3 +654,118 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 
 
 
+// font handling
+int get_font_width(int cur_char)
+{
+	if (cur_char < 0)	return 0;
+	return (fonts[cur_font_num]->widths[cur_char] + fonts[cur_font_num]->spacing);
+}
+
+int get_char_width(unsigned char cur_char)
+{
+	return get_font_width(get_font_char(cur_char));
+}
+
+
+int get_string_width(unsigned char *str)
+{
+	return get_nstring_width(str, strlen(str));
+}
+
+
+int get_nstring_width(unsigned char *str, int len)
+{
+	int	i, wdt=0;
+	for(i=0; i<len; i++) wdt+=get_char_width(str[i]);
+	return wdt;
+}
+
+
+int init_fonts()
+{
+	int	i;
+	max_fonts=0;
+	for(i=0; i<10; i++)	fonts[i]=NULL;
+	load_font(0, "./textures/font.bmp");
+	load_font(1, "./textures/fontv.bmp");
+	font_text=fonts[0]->texture_id;
+
+	return(0);
+}
+
+int load_font(int num, char *file)
+{
+	int	i;
+
+	// error checking
+	if(num < 0 || num >= 10)
+		{
+			return -1;
+		}
+	// allocate space if needed
+	if(num >= max_fonts)
+		{
+			max_fonts=num+1;
+		}
+	if(fonts[num] == NULL)
+		{
+			fonts[num]=(font_info *)calloc(1, sizeof(font_info));
+			if(fonts[num] == NULL)
+				{
+					log_error("Unable to load font");
+					return -1;
+				}
+		}
+	// set default font info
+	strcpy(fonts[num]->name, "default");
+	fonts[num]->spacing=0;
+	for(i=0; i<9*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
+	// load texture
+	fonts[num]->texture_id=load_texture_cache(file, 0);
+	// load font information
+	// TODO: write this and remove the hack!
+	if(num > 0){
+		static int widths[]={
+			4,2,7,11,8,12,12,2,7,7,9,10,3,8,
+			2,10,10,10,8,8,10,7,9,9,9,9,3,3,
+			10,10,10,9,12,12,9,10,10,9,9,10,9,8,
+			7,11,8,11,10,11,9,11,11,9,10,9,12,12,
+			12,12,10,6,10,6,10,12,3,11,9,9,9,9,
+			8,9,9,4,6,10,4,11,9,10,9,9,8,8,
+			8,9,10,12,10,10,9,8,2,8,10,8,12,12,
+			12,12,12,12,12,12,12,12,12,12,12,12,12,12,
+			12,12,12,12,12,12,12,12,12,12,12,12,12,12,
+		};
+		memcpy(fonts[num]->widths, widths, sizeof(widths));
+		fonts[num]->spacing=4;
+	}
+
+	//and return
+	return num;
+}
+
+
+int	set_font(int num)
+{
+	if(num >= 0 && num < max_fonts && fonts[num])
+		{
+			cur_font_num=num;
+			font_text=fonts[cur_font_num]->texture_id;
+		}
+
+	return cur_font_num;
+}
+
+
+void remove_font(int num)
+{
+	if(num < max_fonts && fonts[num])
+		{
+			free(fonts[num]);
+			fonts[num]=NULL;
+			if (num == max_fonts-1)
+				{
+					max_fonts--;
+				}
+		}
+}
