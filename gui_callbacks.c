@@ -35,6 +35,9 @@ on_ok_button1_clicked                  (GtkButton       *button,
       case OPEN_PARTICLES_OBJ:
 	open_particles_obj_continued();
 	break;
+      case SAVE_PARTICLE_DEF:
+	save_particle_def_file_continued();
+	break;
       }
 }
 

@@ -57,6 +57,9 @@ int HandleEvent(SDL_Event *event)
 		if ( event->key.keysym.sym == SDLK_b && ctrl_on){
 			view_browser=!view_browser;
 		}
+		if ( event->key.keysym.sym == SDLK_p && ctrl_on) {
+			toggle_particles_window();
+		}
 		if ( event->key.keysym.sym == SDLK_w && ctrl_on){
 			view_o3dow=!view_o3dow;
 		}
@@ -157,7 +160,8 @@ int HandleEvent(SDL_Event *event)
 			//if(!ctrl_on && !shift_on && !alt_on)
 			if(!shift_on && !ctrl_on)
 				{
-				  zoomin();
+					if(view_particles_window)particles_win_zoomin();
+					else zoomin();
 				}
 			else
 				{
@@ -171,7 +175,8 @@ int HandleEvent(SDL_Event *event)
 			//if(!ctrl_on && !shift_on && !alt_on)
 			if(!shift_on && !ctrl_on)
 				{
-				  zoomout();
+					if(view_particles_window)particles_win_zoomout();
+					else zoomout();
 				}
 			else
 				{
@@ -200,6 +205,10 @@ int HandleEvent(SDL_Event *event)
 			if(shift_on)particles_list[selected_particles_object]->z_pos+=0.01f;
 			else particles_list[selected_particles_object]->z_pos+=0.1f;
 
+			if(cur_mode==mode_particles && view_particles_window)
+				if(shift_on)particles_win_move_preview(0.01f);
+				else particles_win_move_preview(0.1f);
+
 			if(cur_mode==mode_height && selected_height!=-1)
 			if(selected_height<31)selected_height++;
 
@@ -222,6 +231,10 @@ int HandleEvent(SDL_Event *event)
 			if(cur_mode==mode_particles && selected_particles_object!=-1)
 			if(shift_on)particles_list[selected_particles_object]->z_pos-=0.01f;
 			else particles_list[selected_particles_object]->z_pos-=0.1f;
+
+			if(cur_mode==mode_particles && view_particles_window)
+				if(shift_on)particles_win_move_preview(-0.01f);
+				else particles_win_move_preview(-0.1f);
 
 			if(cur_mode==mode_height && selected_height!=-1)
 			if(selected_height>0)selected_height--;
@@ -348,10 +361,12 @@ int HandleEvent(SDL_Event *event)
 	// zooming with mousewheel...
 	if(event->type==SDL_MOUSEBUTTONDOWN){
 	  if(event->button.button == SDL_BUTTON_WHEELUP){
-	    zoomin();
+	    if(view_particles_window)particles_win_zoomin();
+	    else zoomin();
 	  }
 	  if(event->button.button == SDL_BUTTON_WHEELDOWN){
-	    zoomout();
+	    if(view_particles_window)particles_win_zoomout();
+	    else zoomout();
 	  }
 	} // *
 
@@ -378,6 +393,8 @@ int HandleEvent(SDL_Event *event)
 				middle_click= 0;
 
 			if(left_click==1 && check_edit_window_interface())return done;
+
+			if(left_click==1 && check_particles_window_interface())return done;
 
 			if(shift_on && left_click==1){
 				get_world_x_y();
@@ -622,7 +639,7 @@ int HandleEvent(SDL_Event *event)
 						else
 						if(cur_mode==mode_2d && cur_tool==tool_select && selected_2d_object!=-1)move_2d_object(selected_2d_object);
 						else
-						if(cur_mode==mode_particles && cur_tool==tool_select && selected_particles_object!=-1)move_particles_object(selected_particles_object);
+						if(cur_mode==mode_particles && cur_tool==tool_select && !view_particles_window && selected_particles_object!=-1)move_particles_object(selected_particles_object);
 						else
 						if(cur_mode==mode_light && cur_tool==tool_select && selected_light!=-1)move_light(selected_light);
 						else

@@ -1095,4 +1095,19 @@ void save_map_file_continued()
   if (selected_file)save_map(selected_file);
 }
 
+void save_particle_def_file()
+{
+	gtk_window_set_title(GTK_WINDOW(file_selector), "save particle system definition");
+	continue_with = SAVE_PARTICLE_DEF;
+	gtk_widget_show(file_selector);
+}
+
+extern particle_sys_def def;
+void save_particle_def_file_continued()
+{
+	if(!selected_file)return;
+	strncpy(def.file_name,selected_file,80);
+	save_particle_def(&def);
+}
+
 #endif
