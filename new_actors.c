@@ -638,6 +638,7 @@ void add_enhanced_actor_from_server(char * in_data)
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
+	lock_actors_lists();    //lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -728,6 +729,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	actors_list[i]->cur_weapon=weapon;
 	actors_list[i]->kind_of_actor=kind_of_actor;
 	sprintf(actors_list[i]->actor_name,&in_data[28]);
+	unlock_actors_lists();  //unlock it
 
 }
 

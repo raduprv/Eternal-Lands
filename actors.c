@@ -513,7 +513,6 @@ void add_actor_from_server(char * in_data)
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
-	i=0;
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -544,9 +543,8 @@ void add_actor_from_server(char * in_data)
 	actors_list[i]->dead=dead;
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->kind_of_actor=kind_of_actor;
-	sprintf(actors_list[i]->actor_name,&in_data[23]);
-	unlock_actors_lists();	//lock it to avoid timing issues
-
+	my_strcp(actors_list[i]->actor_name,&in_data[23]);
+	unlock_actors_lists();	//unlock it
 }
 
 
