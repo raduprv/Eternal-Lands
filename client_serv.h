@@ -38,6 +38,12 @@
 #define gargoyle3 34
 #define troll 35
 #define chimeran_wolf_mountain 36
+#define gnome_female 37
+#define gnome_male 38
+#define orchan_female 39
+#define orchan_male 40
+#define draegoni_female 41
+#define draegoni_male 42
 
 //skin colors
 #define SKIN_BROWN 0
@@ -76,6 +82,9 @@
 #define HAIR_GRAY 3
 #define HAIR_RED 4
 #define HAIR_WHITE 5
+#define HAIR_BLUE 6		// for Draegoni
+#define HAIR_GREEN 7	// for Draegoni
+#define HAIR_PURPLE 8	// for Draegoni
 
 //boots color
 #define BOOTS_BLACK 0
@@ -113,6 +122,9 @@
 #define CAPE_PURPLE 8
 #define CAPE_WHITE 9
 #define CAPE_FUR 10
+#define CAPE_GOLD 11
+#define CAPE_RED 12
+#define CAPE_ORANGE 13
 #define CAPE_NONE 30
 
 //heads
