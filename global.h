@@ -39,6 +39,7 @@
 #include "cache.h"
 #endif
 #include "encyclopedia.h"
+#include "buddy.h"
 #include "knowledge.h"
 #include "elc_private.h"
 #include "asc.h"

@@ -112,6 +112,10 @@ SOURCE=.\asc.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\buddy.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\cache.c
 # End Source File
 # Begin Source File
@@ -301,6 +305,10 @@ SOURCE=.\actors.h
 # Begin Source File
 
 SOURCE=.\asc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\buddy.h
 # End Source File
 # Begin Source File
 
