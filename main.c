@@ -16,6 +16,7 @@
 int start_rendering()
 {
     int done=0;
+	SDL_Thread *music_thread=SDL_CreateThread(update_music, 0);
 #ifndef WINDOWS
 	SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
 #endif
@@ -46,7 +47,7 @@ int start_rendering()
 			//draw everything
 			draw_scene();
 			//update the music buffers
-			update_music();
+			//update_music();
 #ifdef	CACHE_SYSTEM
 			//cache handling
 			if(cache_system)cache_system_maint();
@@ -54,7 +55,8 @@ int start_rendering()
 			//see if we need to exit
 			if(exit_now)break;
 		}
-
+	have_music=0;
+	SDL_WaitThread(music_thread,&done);
 	save_bin_cfg();
 	/* Destroy our GL context, etc. */
 	destroy_sound();

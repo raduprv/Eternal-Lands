@@ -27,7 +27,7 @@ ALuint get_loaded_buffer(int i);
 
 void load_ogg_file(int i);
 void play_music(int i);
-void update_music();
+int update_music(void *dummy);
 void stream_music(ALuint buffer);
 void turn_music_off();
 void turn_music_on();

@@ -169,15 +169,15 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 	else 
 		{
 			alSourcei(sound_source[i], AL_SOURCE_RELATIVE, AL_FALSE);
-			alSourcef(sound_source[i], AL_REFERENCE_DISTANCE , 15.0f);
-			alSourcef(sound_source[i], AL_ROLLOFF_FACTOR , 5.0f);
+			alSourcef(sound_source[i], AL_REFERENCE_DISTANCE , 10.0f);
+			alSourcef(sound_source[i], AL_ROLLOFF_FACTOR , 4.0f);
 		}
 
 	if (loops)
 		{
 			alSourcei(sound_source[i], AL_LOOPING, AL_TRUE);
 			alSourcePlay(sound_source[i]);
-			if(!sound_on || (positional && (distance > 30*30)))
+			if(!sound_on || (positional && (distance > 35*35)))
 				alSourcePause(sound_source[i]);
 		}
 	else
@@ -214,9 +214,9 @@ void update_position()
 			alGetSourcefv(sound_source[i], AL_POSITION, sourcePos);
 			x=sourcePos[0];y=sourcePos[1];
 			distance=(tx-x)*(tx-x)+(ty-y)*(ty-y);
-			if((state == AL_PLAYING) && (distance > 30*30))
+			if((state == AL_PLAYING) && (distance > 35*35))
 				alSourcePause(sound_source[i]);
-			else if (sound_on && (state == AL_PAUSED) && (distance < 25*25))
+			else if (sound_on && (state == AL_PAUSED) && (distance < 30*30))
 				alSourcePlay(sound_source[i]);
 		}
 	if((error=alGetError()) != AL_NO_ERROR) 
@@ -231,35 +231,41 @@ void update_position()
 	unlock_sound_list();
 }
 
-void update_music()
+int update_music(void *dummy)
 {
 #ifndef	NO_MUSIC
     int error,processed,state;
-	if(!have_music || !playing_music)return;
-
-    alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
-	alGetSourcei(music_source, AL_SOURCE_STATE, &state);
-
-	if(!processed)return; //skip error checking et al
-    while(processed-- > 0)
-    {
-        ALuint buffer;
-        
-        alSourceUnqueueBuffers(music_source, 1, &buffer);
-		stream_music(buffer);
-		alSourceQueueBuffers(music_source, 1, &buffer);
-    }
-	if(state == AL_STOPPED)
-		alSourcePlay(music_source);
-	if((error=alGetError()) != AL_NO_ERROR)
-    	{
-     		char	str[256];
-    		snprintf(str, 256, "update_music error: %s\n", alGetString(error));
-    		log_to_console(c_red1, str);
-    		LogError(str);
-			have_music=0;
-    	}
+	while(have_music)
+		{
+			SDL_Delay(100);
+			if(playing_music)
+				{
+					alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
+					alGetSourcei(music_source, AL_SOURCE_STATE, &state);
+					
+					if(!processed)continue; //skip error checking et al
+					while(processed-- > 0)
+						{
+							ALuint buffer;
+							
+							alSourceUnqueueBuffers(music_source, 1, &buffer);
+							stream_music(buffer);
+							alSourceQueueBuffers(music_source, 1, &buffer);
+						}
+					if(state != AL_PLAYING)
+						alSourcePlay(music_source);
+					if((error=alGetError()) != AL_NO_ERROR)
+						{
+							char	str[256];
+							snprintf(str, 256, "update_music error: %s\n", alGetString(error));
+							log_to_console(c_red1, str);
+							LogError(str);
+							have_music=0;
+						}
+				}
+		}
 #endif	//NO_MUSIC
+	return 0;
 }
 
 void stream_music(ALuint buffer) {
@@ -390,6 +396,7 @@ void init_sound()
 	ALfloat listenerVel[]={0.0,0.0,0.0};
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
 	have_sound=1;
+	playing_music = 0;
 #ifndef	NO_MUSIC
 	have_music=1;
 #else
@@ -437,6 +444,7 @@ void init_sound()
 	alListenerfv(AL_POSITION,listenerPos);
 	alListenerfv(AL_VELOCITY,listenerVel);
 	alListenerfv(AL_ORIENTATION,listenerOri);
+	alListenerf(AL_GAIN,0.9f);
 
 	//poison data
 	for(i=0;i<max_sources;i++)

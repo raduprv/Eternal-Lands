@@ -44,7 +44,8 @@ int HandleEvent(SDL_Event *event)
 	    case SDL_KEYDOWN:
 			{
 				//first, try to see if we pressed Alt+x, to quit.
-				if ( event->key.keysym.sym == SDLK_x && alt_on )
+				if ( (event->key.keysym.sym == SDLK_x && alt_on)
+					 || (event->key.keysym.sym == SDLK_q && ctrl_on) )
 					{
 						done = 1;
 						//break;
@@ -65,11 +66,14 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
-				if(disconnected && !alt_on)
+				if(disconnected && !alt_on && !ctrl_on)
 					{
 						connect_to_server();
 						break;
 					}
+
+				if ( event->key.keysym.sym == SDLK_RETURN && alt_on)
+					toggle_full_screen();
 
 				if ( event->key.keysym.sym == SDLK_UP)
 					{
