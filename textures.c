@@ -2,6 +2,46 @@
 #include <string.h>
 #include "global.h"
 
+//get a texture id out of the texture cache
+//if null, then reload it (means it was previously freed)
+int get_texture_id(int i)
+{
+    int new_texture_id;
+    unsigned char alpha;
+
+#ifndef	CACHE_SYSTEM
+    texture_cache[i].last_access_time=cur_time;
+#endif	//CACHE_SYSTEM
+    if(!texture_cache[i].texture_id)
+        {
+            alpha=texture_cache[i].alpha;
+            //our texture was freed, we have to reload it
+        	if(alpha==0)new_texture_id=load_bmp8_color_key(texture_cache[i].file_name);
+            else
+				new_texture_id=load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
+        	texture_cache[i].texture_id=new_texture_id;
+        }
+    return texture_cache[i].texture_id;
+}
+
+void	bind_texture_id(int texture_id)
+{
+	if(last_texture!=texture_id)
+		{
+			last_texture=texture_id;
+			glBindTexture(GL_TEXTURE_2D, texture_id);
+		}
+}
+
+int get_and_set_texture_id(int i)
+{
+	int	texture_id=get_texture_id(i);
+	bind_texture_id(texture_id);
+
+	return(texture_id);
+}
+
+
 //load a bmp texture, in respect to the color key
 GLuint load_bmp8_color_key(char * FileName)
 {
@@ -89,7 +129,8 @@ GLuint load_bmp8_color_key(char * FileName)
 	//so, assign the texture, and such
 
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	bind_texture_id(texture);
 	if(poor_man)
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -202,7 +243,8 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	//so, assign the texture, and such
 
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	bind_texture_id(texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -466,46 +508,6 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 	return texture_id;
 }
 
-//get a texture id out of the texture cache
-//if null, then reload it (means it was previously freed)
-int get_texture_id(int i)
-{
-    int new_texture_id;
-    unsigned char alpha;
-
-#ifndef	CACHE_SYSTEM
-    texture_cache[i].last_access_time=cur_time;
-#endif	//CACHE_SYSTEM
-    if(!texture_cache[i].texture_id)
-        {
-            alpha=texture_cache[i].alpha;
-            //our texture was freed, we have to reload it
-        	if(alpha==0)new_texture_id=load_bmp8_color_key(texture_cache[i].file_name);
-            else
-				new_texture_id=load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
-        	texture_cache[i].texture_id=new_texture_id;
-        }
-    return texture_cache[i].texture_id;
-}
-
-void	bind_texture_id(int texture_id)
-{
-	if(last_texture!=texture_id)
-		{
-			last_texture=texture_id;
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-		}
-}
-
-int get_and_set_texture_id(int i)
-{
-	int	texture_id=get_texture_id(i);
-	bind_texture_id(texture_id);
-
-	return(texture_id);
-}
-
-
 
 //load a bmp texture, and remaps it
 GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short shirt,
@@ -755,7 +757,8 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	//so, assign the texture, and such
 
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	bind_texture_id(texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -890,7 +893,8 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	if(this_actor->cape_tex[0])load_bmp8_to_coordinates(this_actor->cape_tex,texture_mem,131,0,a);
 
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	bind_texture_id(texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
