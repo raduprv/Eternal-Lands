@@ -1,17 +1,19 @@
 #include "global.h"
 
 void zoomin(){
-  if(zoom_level>2.0f){
-    zoom_level-=0.25f;
-    resize_window();
-  }
+	if(zoom_level>2.0f){
+		zoom_level-=0.25f;
+		resize_window();
+	}
 }
 
 void zoomout(){
-  if(zoom_level<15.75f){
-    zoom_level+=0.25f;
-    resize_window();
-  }
+	
+// zoom limit removed to help in getting the overall view
+	//if(zoom_level<15.75f){
+		zoom_level+=0.25f;
+		resize_window();
+	//}
 }
 
 int HandleEvent(SDL_Event *event)
