@@ -108,13 +108,13 @@ int mouseover_knowledge_handler(window_info *win, int mx, int my)
 
 	for(i=0;i<200;i++)knowledge_list[i].mouse_over=0;
 	if(mx>knowledge_menu_x_len-20)
-		return 1;
+		return 0;
 	if(my>192)
-		return 1;
+		return 0;
 	mx/=240;
 	my/=10;
 	knowledge_list[knowledge_page_start+my*2+mx].mouse_over=1;
-	return 1;
+	return 0;
 }
 
 

@@ -714,7 +714,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 int	mouseover_window(int win_id, int x, int y)
 {
 	int	mx,	my;
-	int	ret_val;
+	int	ret_val=0;
 	
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
@@ -728,11 +728,11 @@ int	mouseover_window(int win_id, int x, int y)
 				ret_val= (*windows_list.window[win_id].mouseover_handler)(&windows_list.window[win_id], mx, my);
 				glPopMatrix();
 
-				return	ret_val;
-			} else {
+			} 
+			if(!ret_val) {
 				if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
-				return 1;
 			}
+			return 1;
 		}
 
 	return 0;

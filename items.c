@@ -767,12 +767,12 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 int mouseover_items_handler(window_info *win, int mx, int my) {
 	if(action_mode==action_look) {
 		if(current_cursor!=CURSOR_EYE)change_cursor(CURSOR_EYE);
+		return 1;
 	} else if(action_mode==action_use) {
 		if(current_cursor!=CURSOR_USE)change_cursor(CURSOR_USE);
-	} else {
-		if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
 void open_bag(int object_id)
