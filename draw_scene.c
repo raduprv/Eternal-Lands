@@ -110,8 +110,6 @@ void draw_scene()
 
 	display_windows(1);
 
-	if(view_tiles_list)display_tiles_list();
-	if(view_heights_list)display_heights_list();
 	draw_3d_obj_info();
 	draw_2d_obj_info();
 	draw_light_info();

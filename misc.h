@@ -40,7 +40,6 @@ void move_particles_object(int object_id);
 void clone_particles_object(int object_id);
 
 void load_all_tiles();
-void get_tile_under_mouse_from_list();
 void move_tile();
 void draw_light_source(light * object_id);
 void visualise_lights();

@@ -531,8 +531,6 @@ int HandleEvent(SDL_Event *event)
 							draw_big_height_tile(0);
 						else
 							height_map[(int)(scene_mouse_y*2)*tile_map_size_x*6+(int)(scene_mouse_x*2)]=selected_height;
-
-				//if(view_heights_list)get_height_under_mouse_from_list(); // Window should handle it
 			}
 
 
@@ -756,7 +754,6 @@ int HandleEvent(SDL_Event *event)
 										  kill_height_map_at_texture_tile((int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3);
 										}
 									}
-								if(view_tiles_list)get_tile_under_mouse_from_list();
 							}
 							// heights /////////////////
 							if(cur_mode==mode_height)
@@ -786,7 +783,6 @@ int HandleEvent(SDL_Event *event)
 										else
 										height_map[(int)(scene_mouse_y*2.0f)*tile_map_size_x*6+(int)(scene_mouse_x*2.0f)]=selected_height;
 									}
-								//if(view_heights_list)get_height_under_mouse_from_list(); // Window should handle it
 							}
 
 						}

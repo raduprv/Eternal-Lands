@@ -1,4 +1,5 @@
 #include "global.h"
+extern char* selected_file;
 
 char* selected_file;
 float grid_height=0.02f;
@@ -458,27 +459,6 @@ void load_all_tiles()
 	map_tiles[255].img=NULL;
 }
 
-
-void get_tile_under_mouse_from_list()
-{
-	int tile_id;
-	int mx,my;
-
-	mx=mouse_x-(int)x_tile_menu_offset;
-	my=mouse_y-(int)y_tile_menu_offset;
-
-	if(mx>64*8 || my>64*8 || mx<0 || my<0)return;//check to see if we clicked outside our rectangle
-
-	mx/=64;
-	my/=64;
-	tile_id=my*8+mx;
-	tile_id+=tile_offset;
-	if(tile_id>tiles_no)return;//check to see if we clicked on an empty tile
-
-	view_tiles_list=0;
-	cur_tool=tool_select;
-	selected_tile=tile_id;
-}
 
 void move_tile()
 {
