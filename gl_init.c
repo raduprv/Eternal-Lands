@@ -464,7 +464,6 @@ void toggle_full_screen()
 }
 
 
-extern const char *gluErrorString(int);
 int print_gl_errors(char *file, char *func, int line)
 {
 	char str[1024];
