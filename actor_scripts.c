@@ -291,11 +291,13 @@ void next_command()
 
 							switch(actors_list[i]->que[0]) {
 							case kill_me:
+#ifndef POSSIBLE_FIX //Isn't this obsolete?
 								if(actors_list[i]->remapped_colors)
 									glDeleteTextures(1,&actors_list[i]->texture_id);
 								free(actors_list[i]);
 								actors_list[i]=0;
-								break;
+#endif
+								break;			
 							case die1:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
 								actors_list[i]->stop_animation=1;
