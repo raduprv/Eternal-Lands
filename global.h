@@ -7,10 +7,15 @@
 #include <SDL_thread.h>
 #include <al.h>
 #include <alut.h>
-#else	//WINDOWS
+#elif defined(BSD)
+#include "/usr/local/include/SDL11/SDL.h"
+#include "/usr/local/include/SDL11/SDL_net.h"
+#include "/usr/local/include/SDL11/SDL_thread.h" 
+#else //if LINUX
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
 #include <SDL/SDL_thread.h>
+#endif //WINDOWS
 
 #ifdef OSX
 #include <OpenAL/alut.h>
@@ -18,7 +23,7 @@
 #include <AL/al.h>
 #include <AL/alut.h>
 #endif	//OSX
-#endif	//WINDOWS
+
 
 #include "elc_private.h"
 #include "SDL_opengl.h"
