@@ -711,9 +711,8 @@ void get_message_from_server()
 	data_lenght=*((short *)(in_data+start_my_data_pointer+1));
 	data_lenght+=2;//add also the lenght of the lenght field, which is 2
 	process_message_from_server(&in_data[start_my_data_pointer],data_lenght);
-#ifdef	DEBUG
-	log_conn(&in_data[start_my_data_pointer],data_lenght);
-#endif
+	if(log_conn_data)
+		log_conn(&in_data[start_my_data_pointer],data_lenght);
 	goto try_get_message_again;
 }
 

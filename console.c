@@ -431,6 +431,12 @@ void test_for_console_command()
 
 			return;
 		}
+	if(my_strcompare(text_loc,"log conn data"))
+		{
+			log_to_console(c_grey1,"Logging raw connection data");
+			log_conn_data=1;
+			return;
+		}
 	send_input_text_line();//no command, send it to the server, as plain text
 
 }

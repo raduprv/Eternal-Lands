@@ -171,6 +171,8 @@ extern float debug_float;
 extern int triangles_normal;
 extern int triangles_shadow;
 
+extern int log_conn_data;
+
 //others
 extern int disconnected;
 extern int exit_now;

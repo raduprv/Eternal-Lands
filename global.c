@@ -139,6 +139,7 @@ char map_file_name[60];
 //multiplayer stuff
 char our_name[20];
 char our_password[20];
+int log_conn_data=0;
 
 //text stuff
 char input_text_line[257];
