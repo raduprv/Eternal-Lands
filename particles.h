@@ -57,6 +57,7 @@ extern particle_sys *particles_list[max_particle_systems];
 void draw_particle_sys(particle_sys *system_id);
 //float particle_rand(float max);
 #define particle_rand(max) ((float)max/((rand()%200)-100));
+particle_sys *create_particle_sys(float x, float y, float z, int sys_type, int part_type, int num_particles, int ttl);
 int add_teleporter(float x_pos, float y_pos, float z_pos);
 int add_teleport_in(int x_pos, int y_pos);
 int add_teleport_out(int x_pos, int y_pos);

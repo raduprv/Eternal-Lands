@@ -84,6 +84,40 @@ void draw_particle_sys(particle_sys *system_id)
 }
 
 
+particle_sys *create_particle_sys(float x, float y, float z, int sys_type, int part_type, int num_particles, int ttl)
+{
+	int	i;
+	particle_sys *system_id;
+
+	//lock_particles_list();	// leave the lock BEFORE we call this function
+	//allocate memory for this particle system
+	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
+	//now, find a place for this system
+	for(i=0;i<max_particle_systems;i++)
+		{
+			if(!particles_list[i])
+				{
+					particles_list[i]=system_id;
+					break;
+				}
+		}
+
+
+	//now set the free flag, on all the particles
+	for(i=0;i<num_particles;i++)system_id->particles[i].free=1;
+
+	system_id->x_pos=x;
+	system_id->y_pos=y;
+	system_id->z_pos=z;
+	system_id->part_sys_type=sys_type;
+	system_id->part_type=part_type;
+	system_id->particle_count=num_particles;
+	system_id->total_particle_no=num_particles;
+	system_id->system_ttl=ttl;
+
+	return(system_id);
+}
+
 
 int add_teleporter(float x_pos, float y_pos, float z_pos)
 {
@@ -114,9 +148,10 @@ int add_teleporter(float x_pos, float y_pos, float z_pos)
 	float start_a_random_deviation=0.3f;
 
 
+	lock_particles_list();	//lock it to avoid timing issues
+	/*
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
-	lock_particles_list();	//lock it to avoid timing issues
 	//now, find a place for this system
 	for(i=0;i<max_particle_systems;i++)
 		{
@@ -138,6 +173,8 @@ int add_teleporter(float x_pos, float y_pos, float z_pos)
 	system_id->part_type=TELEPORTER_PARTICLE;
 	system_id->particle_count=800;
 	system_id->total_particle_no=800;
+	*/
+	system_id=create_particle_sys(x_pos, y_pos, z_pos, TELEPORTER_PARTICLE_SYS, TELEPORTER_PARTICLE, 800, 0);
 
 
 	//find a free space
@@ -210,10 +247,11 @@ int add_teleport_in(int x_pos, int y_pos)
 	z_pos=-2.2f+height_map[y_pos*tile_map_size_x*6+x_pos]*0.2f;
 
 
+	lock_particles_list();
+	/*
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 	//now, find a place for this system
-	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(!particles_list[i])
@@ -235,7 +273,8 @@ int add_teleport_in(int x_pos, int y_pos)
 	system_id->particle_count=800;
 	system_id->total_particle_no=800;
 	system_id->system_ttl=8;
-
+	*/
+	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, TELEPORT_OUT_PARTICLE_SYS, SPARKS_PARTICLE, 800, 8);
 
 	//find a free space
 	for(j=0;j<total_particle_no;j++)
@@ -312,10 +351,11 @@ int add_teleport_out(int x_pos, int y_pos)
 	z_pos=-2.2f+height_map[y_pos*tile_map_size_x*6+x_pos]*0.2f;
 
 
+	lock_particles_list();
+	/*
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 	//now, find a place for this system
-	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(!particles_list[i])
@@ -337,7 +377,8 @@ int add_teleport_out(int x_pos, int y_pos)
 	system_id->particle_count=800;
 	system_id->total_particle_no=800;
 	system_id->system_ttl=8;
-
+	*/
+	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, TELEPORT_OUT_PARTICLE_SYS, SPARKS_PARTICLE, 800, 8);
 
 	//find a free space
 	for(j=0;j<total_particle_no;j++)
@@ -415,10 +456,11 @@ int add_bag_in(int x_pos, int y_pos)
 	z_pos=-2.2f+height_map[y_pos*tile_map_size_x*6+x_pos]*0.2f;
 
 
+	lock_particles_list();
+	/*
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 	//now, find a place for this system
-	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(!particles_list[i])
@@ -440,6 +482,8 @@ int add_bag_in(int x_pos, int y_pos)
 	system_id->particle_count=300;
 	system_id->total_particle_no=300;
 	system_id->system_ttl=8;
+	*/
+	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, BAG_IN_PARTICLE_SYS, SPARKS_PARTICLE, 800, 8);
 
 
 	//find a free space
@@ -519,10 +563,11 @@ int add_bag_out(int x_pos, int y_pos)
 	z_pos=-2.2f+height_map[y_pos*tile_map_size_x*6+x_pos]*0.2f;
 
 
+	lock_particles_list();
+	/*
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 	//now, find a place for this system
-	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
 			if(!particles_list[i])
@@ -544,6 +589,8 @@ int add_bag_out(int x_pos, int y_pos)
 	system_id->particle_count=300;
 	system_id->total_particle_no=300;
 	system_id->system_ttl=8;
+	*/
+	system_id=create_particle_sys((float)x_pos/2.0+0.25f, (float)y_pos/2.0+0.25f, z_pos, BAG_OUT_PARTICLE_SYS, SPARKS_PARTICLE, 800, 8);
 
 
 	//find a free space
@@ -1436,13 +1483,13 @@ void update_particles()
 		{
 			if(particles_list[i])
 				{
-					int dist1;
-					int dist2;
+					//int dist1;
+					//int dist2;
 
-					dist1=x-particles_list[i]->x_pos;
-					dist2=y-particles_list[i]->y_pos;
-					if(dist1*dist1+dist2*dist2<=15*15)
-			         	{
+					//dist1=x-particles_list[i]->x_pos;
+					//dist2=y-particles_list[i]->y_pos;
+					//if(dist1*dist1+dist2*dist2 <= 15*15)
+			        //	{
 							if(particles_list[i]->part_sys_type==TELEPORTER_PARTICLE_SYS)
 								update_teleporter(particles_list[i]);
                      		else if(particles_list[i]->part_sys_type==TELEPORT_IN_PARTICLE_SYS)
@@ -1453,7 +1500,7 @@ void update_particles()
 								update_bag_in(particles_list[i]);
 							else if(particles_list[i]->part_sys_type==BAG_OUT_PARTICLE_SYS)
 								update_bag_out(particles_list[i]);
-						}
+					//	}
 				}
 		}
 	unlock_particles_list();
