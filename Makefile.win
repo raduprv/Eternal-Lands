@@ -12,7 +12,7 @@ INCS =  -I"F:/Dev-Cpp/include"  -I"F:/c++/include/sdl"
 CXXINCS =  -I"F:/Dev-Cpp/include/c++"  -I"F:/Dev-Cpp/include/c++/mingw32"  -I"F:/Dev-Cpp/include/c++/backward"  -I"F:/Dev-Cpp/include"  -I"F:/c++/include/sdl" 
 BIN  = el.exe
 CXXFLAGS = $(CXXINCS) 
-CFLAGS = $(INCS) 
+CFLAGS = $(INCS) -DWINDOWS
 
 .PHONY: all all-before all-after clean clean-custom
 

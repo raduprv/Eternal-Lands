@@ -1,8 +1,6 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
-#define WINDOWS
-
 #ifdef WINDOWS
 #include <SDL.h>
 #include <SDL_net.h>
