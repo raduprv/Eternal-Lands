@@ -1,3 +1,9 @@
+03-02-04
+Added username & password to el.ini and disabled by default
+Activated GL error checking in several places when DEBUG defined
+Makefile.linux change to help compiles on 'default' systems
+Added no_alpha_sat flag to reduce GL errors on some broken drivers, automatically set in particles.c
+
 02-24-04
 FreeBSD port
 
