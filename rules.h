@@ -78,9 +78,12 @@ void free_rules(rule_string * d);
  *
  *      Draws the interface to show up the rules at the start of the game
  *
+ * \param len_x The width of the rules window
+ * \param len_y The height of the rules window
+ *
  * \callgraph
  */
-void draw_rules_interface(void);
+void draw_rules_interface (int len_x, int len_y);
 
 /*!
  * \ingroup rules_win
@@ -112,13 +115,15 @@ rule_string * get_interface_rules(int chars_per_line);
  *
  *      Initializes the rules interface
  *
- * \param next  ***complete this
+ * \param next the interface mode which is selected if the user clicks the accept button
  * \param text_size the size of the text being displayed
  * \param countdown number of seconds to show off the rules.
+ * \param len_y the width of the rules window
+ * \param len_y the height of the rules window
  *
  * \callgraph
  */
-void init_rules_interface(int next, float text_size, int countdown);
+void init_rules_interface(int next, float text_size, int countdown, int len_x, int len_y);
 
 /*!
  * \ingroup interface_rules
@@ -185,5 +190,9 @@ void reset_rules(rule_string * r);
  * \callgraph
  */
 void highlight_rule(int type, Uint8 * rules, int no);
+
+extern int rules_root_win;
+
+void create_rules_root_window ();
 
 #endif

@@ -25,8 +25,25 @@ rule_string * display_rules;
 int last_display=-1;
 
 /*Interface*/
-int countdown=0;
+int countdown = 0;
 int next_interface=interface_log_in;
+
+int x_arrow;
+int y_arrow_up;
+int y_arrow_down;
+int arrow_size;
+
+int mouse_over_up = 1;
+int mouse_over_down = 1;
+
+int accept_x;
+int accept_y;
+int accept_width;
+int accept_height;
+
+#ifdef WINDOW_CHAT
+int next_win_id;
+#endif
 
 /* Rule parser */
 static struct rules_struct rules = {0,{{NULL,0,NULL,0,0}}};
@@ -255,7 +272,7 @@ void highlight_rule(int type, Uint8 * rule, int no)
 	
 	if(type==RULE_WIN)toggle_rules_window(0);
 	else if(type==RULE_INTERFACE){
-		init_rules_interface(rule[2], 1.0f, *((Uint16*)(rule)));
+		init_rules_interface(rule[2], 1.0f, *((Uint16*)(rule)), window_width, window_height);
 		rule+=3;
 		no-=3;
 	} else return; //Hmm...
@@ -399,20 +416,36 @@ void check_mouse_rules_interface(rule_string * rules_ptr, int lenx, int leny, in
 
 /*Root window*/
 
-void init_rules_interface(int next, float text_size, int count)
+void init_rules_interface(int next, float text_size, int count, int len_x, int len_y)
 {
+	float window_ratio = (float)len_x / 640.0f;
+	
 	next_interface=next;
-	if(rules.no){
-		if(last_display){//We need to format the rules again..
-			if(display_rules) free_rules(display_rules);
-			display_rules=get_interface_rules((float)(window_height-120*window_height/480.0f)/(12*text_size)-1);
+	if(rules.no)
+	{
+		if (last_display)
+		{
+			//We need to format the rules again..
+			if (display_rules)
+				free_rules (display_rules);
+			display_rules = get_interface_rules ((float)(len_y - 120 * len_y / 480.0f) / (12 * text_size) - 1);
 		}
-		countdown=count;//Countdown in 0.5 seconds...
+		countdown = count;	// Countdown in 0.5 seconds...
 	}
 
-	last_display=0;
-	has_accepted=0;
-	interface_mode=interface_rules;
+	last_display = 0;
+	has_accepted = 0;
+	interface_mode = interface_rules;
+	
+	arrow_size = 32;
+	x_arrow = (len_x + len_y) / 2 - 50 * window_ratio - arrow_size / 2;
+	y_arrow_up = 128 * window_ratio - arrow_size / 2;
+	y_arrow_down = len_y - 128 * window_ratio - arrow_size / 2;
+
+	accept_x = len_x / 2 - 50 * window_ratio;
+	accept_y = len_y - 95 * window_ratio;
+	accept_width = 100 * window_ratio;
+	accept_height = 40 * window_ratio;
 }
 
 float rules_u_start=(float)1/256;
@@ -440,28 +473,24 @@ float colored_arrow_v_start=1.0f;
 float colored_arrow_u_end=(float)95/256;
 float colored_arrow_v_end=1.0f-(float)31/256;
 
-void draw_rules_interface()
+void draw_rules_interface (int len_x, int len_y)
 {
 	char str[200];
-	float diff=(float)(window_width-window_height)/2;
-	int x,y,width,height;//Width/Height are 0.5*width/height
-	float window_ratio=(float)window_width/640.0f;
+	float diff = (float) (len_x - len_y) / 2;
+	int y, width, height;	// Width/Height are 0.5*width/height
+	float window_ratio = (float) len_x / 640.0f;
+
+#ifndef WINDOW_CHAT
 	if(has_accepted) {
-#ifdef WINDOW_CHAT
-		if (next_interface == interface_new_char)
-		{
-			create_newchar_window ();
-			show_window (newchar_win);
-		}
-#endif
 		interface_mode=next_interface;
 		if(disconnected)connect_to_server();
 		return;
 	}
+#endif
 
     	glColor3f(1.0f,1.0f,1.0f);
 	
-    get_and_set_texture_id(paper1_text);
+	get_and_set_texture_id(paper1_text);
 	
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER,0.05f);
@@ -471,149 +500,301 @@ void draw_rules_interface()
 	glBegin(GL_QUADS);
 	//draw the texture
 		glTexCoord2f(0.0f,1.0f); glVertex3i(0,0,0);
-		glTexCoord2f(0.0f,0.0f); glVertex3i(0,window_height,0);
-		glTexCoord2f(1.0f,0.0f); glVertex3i(window_height,window_height,0);
-		glTexCoord2f(1.0f,1.0f); glVertex3i(window_height,0,0);
+		glTexCoord2f(0.0f,0.0f); glVertex3i(0,len_y,0);
+		glTexCoord2f(1.0f,0.0f); glVertex3i(len_y,len_y,0);
+		glTexCoord2f(1.0f,1.0f); glVertex3i(len_y,0,0);
 	glEnd();
+	glPopMatrix ();
 	
-    get_and_set_texture_id(hud_text);
+	get_and_set_texture_id(hud_text);
     	
-	width=120*window_ratio;
-	height=40*window_ratio;
-	x=window_height/2;
-	y=66*window_ratio;
+	width = 120*window_ratio;
+	height = 40*window_ratio;
+	y = 66*window_ratio;
     
-	glPushMatrix();
-	glTranslatef(x,y,0);
-	glBegin(GL_QUADS);
-		glTexCoord2f(rules_u_start,rules_v_end);	glVertex2i(-width,height);
-		glTexCoord2f(rules_u_end,rules_v_end);		glVertex2i(width,height);
-		glTexCoord2f(rules_u_end,rules_v_start);	glVertex2i(width,-height);
-		glTexCoord2f(rules_u_start,rules_v_start);	glVertex2i(-width,-height);
+	glPushMatrix ();
+	glTranslatef (len_x / 2, y, 0);
+	glBegin (GL_QUADS);
+		glTexCoord2f (rules_u_start, rules_v_end);	glVertex2i (-width, height);
+		glTexCoord2f (rules_u_end, rules_v_end);	glVertex2i (width, height);
+		glTexCoord2f (rules_u_end, rules_v_start);	glVertex2i (width, -height);
+		glTexCoord2f (rules_u_start, rules_v_start);	glVertex2i (-width, -height);
 	glEnd();
 	glPopMatrix();
 
-	width=50*window_ratio;//Actually 0.5*width
-	height=20*window_ratio;//Actually 0.5*height
-	x=window_height/2;
-	y=window_height-75*window_ratio;
-	
-	if(countdown!=0){
-		glAlphaFunc(GL_GREATER,0.04f);
-		glPushMatrix();
-		glTranslatef(x,y,0);
+	glPushMatrix ();
+	glTranslatef (accept_x, accept_y, 0);
+	if (countdown > 0)
+	{
+		glAlphaFunc (GL_GREATER, 0.04f);
+		
+		glBegin (GL_QUADS);
+			glTexCoord2f (accept_u_start, accept_v_end);	glVertex2i (0, accept_height);
+			glTexCoord2f (accept_u_end, accept_v_end);	glVertex2i (accept_width, accept_height);
+			glTexCoord2f (accept_u_end, accept_v_start);	glVertex2i (accept_width, 0);
+			glTexCoord2f (accept_u_start, accept_v_start);	glVertex2i (0, 0);
+	}
+	else 
+	{
+		glAlphaFunc (GL_GREATER, 0.02f);
 		
 		glBegin(GL_QUADS);
-			glTexCoord2f(accept_u_start,accept_v_end);	glVertex2i(-width,height);
-			glTexCoord2f(accept_u_end,accept_v_end);	glVertex2i(width,height);
-			glTexCoord2f(accept_u_end,accept_v_start);	glVertex2i(width,-height);
-			glTexCoord2f(accept_u_start,accept_v_start);	glVertex2i(-width,-height);
-	} else {
-		glAlphaFunc(GL_GREATER,0.02f);
-		glPushMatrix();
-		glTranslatef(x,y,0);
+			glTexCoord2f (colored_accept_u_start, colored_accept_v_end);	glVertex2i (0, accept_height);
+			glTexCoord2f (colored_accept_u_end, colored_accept_v_end);	glVertex2i (accept_width, accept_height);
+			glTexCoord2f (colored_accept_u_end, colored_accept_v_start);	glVertex2i (accept_width, 0);
+			glTexCoord2f (colored_accept_u_start, colored_accept_v_start);	glVertex2i (0, 0);
 		
-		glBegin(GL_QUADS);
-			glTexCoord2f(colored_accept_u_start,colored_accept_v_end);	glVertex2i(-width,height);
-			glTexCoord2f(colored_accept_u_end,colored_accept_v_end);	glVertex2i(width,height);
-			glTexCoord2f(colored_accept_u_end,colored_accept_v_start);	glVertex2i(width,-height);
-			glTexCoord2f(colored_accept_u_start,colored_accept_v_start);	glVertex2i(-width,-height);
-		
-		x+=diff;
-		if(mouse_x>x-50-width && mouse_x<x+width && mouse_y>y-height && mouse_y<y+height && left_click) has_accepted=1;
+#ifndef WINDOW_CHAT
+		if(mouse_x > accept_x && mouse_x < accept_x+accept_width && mouse_y > accept_y && mouse_y < accept_y+accept_height && left_click) has_accepted=1;
+#endif
 	}
 	glEnd();
 	glPopMatrix();
 
-	x=window_height+diff-50*window_ratio;
-	y=128*window_ratio;
-	
 	glColor3f(1.0f,1.0f,1.0f);
 	
-	if(mouse_x>x-16&&mouse_x<x+16&&mouse_y>y-16&&mouse_y<y+16){
-		
-		if(left_click==1) 
-			if(rule_offset>1){
+	glPushMatrix();
+	glTranslatef (x_arrow, y_arrow_up, 0);
+#ifdef WINDOW_CHAT
+	if (mouse_over_up)
+	{
+#else
+	if (mouse_x > x_arrow && x_arrow+arrow_size && mouse_y > y_arrow_up && mouse_y < y_arrow_up+arrow_size)
+	{	
+		if (left_click == 1) 
+			if (rule_offset > 1)
+			{
 				rule_offset--;
-				left_click=2;
+				left_click = 2;
 			}
-		
-		x-=diff;
-		glAlphaFunc(GL_GREATER,0.04f);
+#endif
+		glAlphaFunc (GL_GREATER, 0.04f);
 	
-		glPushMatrix();
-		glTranslatef(x,y,0);
-		glBegin(GL_QUADS);
-			glTexCoord2f(colored_arrow_u_start,colored_arrow_v_end);	glVertex2i(-16,16);
-			glTexCoord2f(colored_arrow_u_end,colored_arrow_v_end);		glVertex2i(16,16);
-			glTexCoord2f(colored_arrow_u_end,colored_arrow_v_start);	glVertex2i(16,-16);
-			glTexCoord2f(colored_arrow_u_start,colored_arrow_v_start);	glVertex2i(-16,-16);
-	} else {
-		glAlphaFunc(GL_GREATER,0.01f);
-		
-		x-=diff;
-		glPushMatrix();
-		glTranslatef(x,y,0);
-		glBegin(GL_QUADS);	
-			glTexCoord2f(arrow_u_start,arrow_v_end);	glVertex2i(-16,16);
-			glTexCoord2f(arrow_u_end,arrow_v_end);		glVertex2i(16,16);
-			glTexCoord2f(arrow_u_end,arrow_v_start);	glVertex2i(16,-16);
-			glTexCoord2f(arrow_u_start,arrow_v_start);	glVertex2i(-16,-16);
+		glBegin (GL_QUADS);
+			glTexCoord2f (colored_arrow_u_start, colored_arrow_v_end);	glVertex2i(0, arrow_size);
+			glTexCoord2f (colored_arrow_u_end, colored_arrow_v_end);	glVertex2i(arrow_size, arrow_size);
+			glTexCoord2f (colored_arrow_u_end, colored_arrow_v_start);	glVertex2i(arrow_size, 0);
+			glTexCoord2f (colored_arrow_u_start, colored_arrow_v_start);	glVertex2i(0, 0);
 	}
-	glEnd();
-	glPopMatrix();
-	
-	x=window_height+diff-50*window_ratio;
-	y=window_height-128*window_ratio;
-	
-	if(mouse_x>x-16&&mouse_x<x+16&&mouse_y>y-16&&mouse_y<y+16){
+	else
+	{
+		glAlphaFunc (GL_GREATER, 0.01f);
 		
-		if(left_click==1) 
-			if(!reached_end){
+		glBegin (GL_QUADS);	
+			glTexCoord2f (arrow_u_start, arrow_v_end);	glVertex2i(0, arrow_size);
+			glTexCoord2f (arrow_u_end, arrow_v_end);	glVertex2i(arrow_size, arrow_size);
+			glTexCoord2f (arrow_u_end, arrow_v_start);	glVertex2i(arrow_size, 0);
+			glTexCoord2f (arrow_u_start, arrow_v_start);	glVertex2i(0, 0);
+	}
+	glEnd ();
+	glPopMatrix ();
+	
+	glPushMatrix ();
+	glTranslatef (x_arrow+arrow_size, y_arrow_down+arrow_size, 0);
+	glRotatef (180.0f, 0.0f, 0.0f, 1.0f);
+#ifdef WINDOW_CHAT
+	if (mouse_over_down)
+	{
+#else
+	if (mouse_x > x_arrow && mouse_x < x_arrow+arrow_size && mouse_y > y_arrow_down && mouse_y < y_arrow_down+arrow_size)
+	{	
+		if (left_click == 1) 
+			if (!reached_end)
+			{
 				rule_offset++;
-				left_click=2;
+				left_click = 2;
 			}
-		
-		x-=diff;
-		glAlphaFunc(GL_GREATER,0.04f);
+#endif
+
+		glAlphaFunc (GL_GREATER, 0.04f);
 	
-		glPushMatrix();
-		glTranslatef(x,y,0);
-		glRotatef(180.0f,0.0f,0.0f,1.0f);
 		glBegin(GL_QUADS);
-			glTexCoord2f(colored_arrow_u_start,colored_arrow_v_end);	glVertex2i(-16,16);
-			glTexCoord2f(colored_arrow_u_end,colored_arrow_v_end);		glVertex2i(16,16);
-			glTexCoord2f(colored_arrow_u_end,colored_arrow_v_start);	glVertex2i(16,-16);
-			glTexCoord2f(colored_arrow_u_start,colored_arrow_v_start);	glVertex2i(-16,-16);
+			glTexCoord2f (colored_arrow_u_start, colored_arrow_v_end);	glVertex2i(0, arrow_size);
+			glTexCoord2f (colored_arrow_u_end, colored_arrow_v_end);	glVertex2i(arrow_size, arrow_size);
+			glTexCoord2f (colored_arrow_u_end, colored_arrow_v_start);	glVertex2i(arrow_size, 0);
+			glTexCoord2f (colored_arrow_u_start, colored_arrow_v_start);	glVertex2i(0, 0);
 	} else {
-		glAlphaFunc(GL_GREATER,0.01f);
+		glAlphaFunc(GL_GREATER, 0.01f);
 		
-		x-=diff;
-
-		glPushMatrix();
-		glTranslatef(x,y,0);
-		glRotatef(180.0f,0.0f,0.0f,1.0f);
-		glBegin(GL_QUADS);	
-			glTexCoord2f(arrow_u_start,arrow_v_end);	glVertex2i(-16,16);
-			glTexCoord2f(arrow_u_end,arrow_v_end);		glVertex2i(16,16);
-			glTexCoord2f(arrow_u_end,arrow_v_start);	glVertex2i(16,-16);
-			glTexCoord2f(arrow_u_start,arrow_v_start);	glVertex2i(-16,-16);
+		glBegin(GL_QUADS);
+			glTexCoord2f (arrow_u_start, arrow_v_end);	glVertex2i(0, arrow_size);
+			glTexCoord2f (arrow_u_end, arrow_v_end);	glVertex2i(arrow_size, arrow_size);
+			glTexCoord2f (arrow_u_end, arrow_v_start);	glVertex2i(arrow_size, 0);
+			glTexCoord2f (arrow_u_start, arrow_v_start);	glVertex2i(0, 0);
 	}
-	glEnd();
-	glPopMatrix();
+	glEnd ();
+	glPopMatrix ();
 	
+	glColor3f (0.77f, 0.57f, 0.39f);
+	
+	if (countdown != 0) 
+		sprintf (str, you_can_proceed, countdown / 2);
+	else 
+		strcpy (str, accepted_rules);
+		
+	draw_string (len_x / 2 - strlen (str) * 11 / 2, len_y - 40 * window_ratio, str, 0);
+	
+	draw_rules (display_rules + rule_offset, rule_offset, diff + 30 * window_ratio, 120 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.0f);
+    	glDisable (GL_ALPHA_TEST);
 
-	glColor3f(0.77f, 0.57f, 0.39f);
-	
-	if(countdown!=0)sprintf(str,you_can_proceed,countdown/2);
-	else strcpy(str,accepted_rules);
-	draw_string(window_height/2-strlen(str)*11/2,window_height-40*window_ratio,str,0);
-	
-	glPopMatrix();//We have to use the real coordinates, as the mouseover/click depend on them
-	
-	draw_rules(display_rules+rule_offset, rule_offset, diff+30*window_ratio,120*window_ratio,window_height+diff/2-50,window_height-140*window_ratio,1.0f);
-    	glDisable(GL_ALPHA_TEST);
-	
-	check_mouse_rules_interface(display_rules+rule_offset, window_height-50, window_height, mouse_x, mouse_y);
+#ifndef WINDOW_CHAT	
+	check_mouse_rules_interface(display_rules+rule_offset, len_y-50, len_y, mouse_x, mouse_y);
+#endif
 }
 
+#ifdef WINDOW_CHAT
+
+int rules_root_win = -1;
+
+int display_rules_root_handler (window_info *win)
+{
+	if (SDL_GetAppState () & SDL_APPACTIVE)
+	{	
+		draw_rules_interface (win->len_x, win->len_y);
+		check_gl_errors();
+	}
+	
+	draw_delay = 20;
+	return 1;
+}
+
+int mouseover_rules_root_handler (window_info *win, int mx, int my)
+{
+	int i;
+	rule_string *rules_ptr = display_rules + rule_offset;
+	
+	mouse_over_up = 0;
+	mouse_over_down = 0;
+	
+	if (mx > x_arrow && mx < x_arrow + arrow_size)
+	{
+		if (my > y_arrow_up && my < y_arrow_up + arrow_size)
+		{
+			mouse_over_up = 1;
+		}
+		else if (my > y_arrow_down && my < y_arrow_down + arrow_size)
+		{
+			mouse_over_down = 1;
+		}
+	}
+	
+	for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
+	{
+		if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end && rules_ptr[i].long_str)
+			rules_ptr[i].mouseover = 1;
+		else 
+			rules_ptr[i].mouseover = 0;
+	}
+	return 1;
+}
+
+void switch_rules_to_next ()
+{
+	has_accepted = 1;
+	show_window (next_win_id);
+	destroy_window (rules_root_win);
+	rules_root_win = -1;
+	interface_mode = next_interface;
+	if (disconnected) connect_to_server();
+}
+
+int click_rules_root_handler (window_info *win, int mx, int my, Uint32 flags)
+{
+	int i;
+	rule_string *rules_ptr = display_rules + rule_offset;
+	
+	for (i=0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
+	{
+		if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
+		{
+			rules_ptr[i].show_long_desc = !rules_ptr[i].show_long_desc;
+			break;
+		}
+	}
+	if (mx > x_arrow && mx < x_arrow + arrow_size)
+	{
+		if (my > y_arrow_up && my < y_arrow_up + arrow_size)
+		{
+			if (rule_offset > 1)
+				rule_offset--;
+		}
+		else if (my > y_arrow_down && my < y_arrow_down + arrow_size)
+		{
+			if (!reached_end)
+				rule_offset++;
+		}
+	}
+	else if (countdown <= 0 && mx > accept_x && mx < accept_x + accept_width && my > accept_y && my < accept_y + accept_height)
+	{
+		switch_rules_to_next ();
+	}
+	
+	return 1;
+}
+
+int keypress_rules_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	Uint16 keysym = key & 0xffff;
+	int alt_on = key & ELW_ALT;
+	int ctrl_on = key & ELW_CTRL;
+
+	// first, try to see if we pressed Alt+x, to quit.
+	if ( (keysym == SDLK_x && alt_on) || (keysym == SDLK_q && ctrl_on && !alt_on) )
+	{
+		exit_now = 1;
+	}
+	else if (keysym == SDLK_RETURN && alt_on)
+	{
+		toggle_full_screen ();
+	}
+	else if (keysym == SDLK_DOWN && !reached_end)
+	{
+		rule_offset++;
+	}
+	else if (keysym == SDLK_UP && rule_offset > 1)
+	{
+		rule_offset--;
+	}
+	else if (keysym == SDLK_PAGEUP)
+	{
+		rule_offset = rule_offset < 4 ? 1 : rule_offset-3;
+	}
+	else if (keysym == SDLK_PAGEDOWN)
+	{
+		int i;
+		for (i = 0; i < 3 && display_rules[rule_offset+1].type != -1; i++)
+			rule_offset++;
+	}
+	else if (keysym == SDLK_RETURN && countdown <= 0)
+	{
+		switch_rules_to_next ();
+	}
+	
+	return 1;
+}
+
+int resize_rules_root_handler (window_info *win, Uint32 w, Uint32 h)
+{
+	init_rules_interface (next_interface, 1.0, countdown, w, h);
+	return 1;
+}
+
+void create_rules_root_window (int next, int time)
+{
+	if (rules_root_win < 0)
+	{
+		rules_root_win = create_window ("Rules", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		
+		set_window_handler (rules_root_win, ELW_HANDLER_DISPLAY, &display_rules_root_handler);
+		set_window_handler (rules_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_root_handler);
+		set_window_handler (rules_root_win, ELW_HANDLER_CLICK, &click_rules_root_handler);
+		set_window_handler (rules_root_win, ELW_HANDLER_KEYPRESS, &keypress_rules_root_handler);
+		set_window_handler (rules_root_win, ELW_HANDLER_RESIZE, &resize_rules_root_handler);
+		
+		// XXX FIXME (Grum): try to get rid of interface_mode
+		init_rules_interface (next == newchar_win ? interface_new_char : interface_opening, 1.0, 2*time, window_width, window_height);
+		next_win_id = next;
+	}
+}
+
+#endif

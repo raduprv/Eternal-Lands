@@ -205,13 +205,15 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		// don't destroy the login window just yet, the user might 
 		// click the back button
 		hide_window (login_win);
+		create_newchar_window ();
 		if (last_display == -1)
 		{
-			init_rules_interface (interface_new_char, 1.0f, 30);
+			create_rules_root_window (newchar_win, 15);
+			show_window (rules_root_win);
+			interface_mode = interface_rules;
 		}
 		else 
 		{
-			create_newchar_window ();
 			show_window (newchar_win);
 			interface_mode = interface_new_char;
 		}

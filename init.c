@@ -520,7 +520,6 @@ void init_stuff()
 	create_console_window ();
 	create_map_window ();
 	create_login_window ();
-	create_opening_window ();
 #else
 	resize_root_window();
 #endif
@@ -667,13 +666,25 @@ void init_stuff()
 	
 	//we might want to do this later.
 //	connect_to_server();
-	if(!has_accepted)init_rules_interface(interface_opening, 1.0f, 10);//has_accepted is loaded from el.cfg
-	else {
+#ifdef WINDOW_CHAT
+	create_opening_window ();
+#endif
+	if (has_accepted)
+	{
 #ifdef WINDOW_CHAT
 		show_window (opening_win);
 #endif
 		interface_mode=interface_opening;
 		connect_to_server();
+	}
+	else 
+	{
+#ifdef WINDOW_CHAT
+		create_rules_root_window (opening_win, 5);
+		show_window (rules_root_win);
+#else		
+		init_rules_interface(interface_opening, 1.0f, 10, window_width, window_height);	// has_accepted is loaded from el.cfg
+#endif
 	}
 
 #ifdef WINDOW_CHAT	

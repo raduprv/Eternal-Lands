@@ -96,12 +96,13 @@ void draw_scene()
 					if(windows_list.window[quickbar_win].cur_x<window_width-hud_x && window_height - windows_list.window[quickbar_win].cur_y>hud_y) windows_list.window[quickbar_win].displayed=0;
 				}
 			
+#ifndef WINDOW_CHAT
 			if(interface_mode==interface_rules)
 				{
 					if(SDL_GetAppState()&SDL_APPACTIVE)
 						{
 							Enter2DMode();
-							draw_rules_interface();
+							draw_rules_interface (window_width, window_height);
 							SDL_GL_SwapBuffers();
 							Leave2DMode();
 							check_gl_errors();
@@ -110,7 +111,6 @@ void draw_scene()
 					return;
 				}
 
-#ifndef WINDOW_CHAT
 			if(interface_mode==interface_console)
 				{
 					// are we actively drawing things?
