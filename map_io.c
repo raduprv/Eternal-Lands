@@ -12,6 +12,7 @@ void destroy_map()
 			free(tile_map);
 			tile_map=0;
 		}
+	memset(tile_list,0,sizeof(tile_list));
 
 	if(height_map)
 		{
