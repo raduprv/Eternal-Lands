@@ -394,7 +394,7 @@ int update_music(void *dummy)
 							have_music=0;
 						}
 				}
-			else 
+			else if(music_on)
 				{
 					if(playlist[list_pos+1].file_name[0]) {
 						list_pos++;
