@@ -10,7 +10,6 @@ static int particles_window_y_len=440;
 particle_sys_def def;
 static int part_sys=-1;
 
-//TODO: Maybe add support for finer/coarser changes by using modifier keys (alt, shift, ctrl)??
 void reset_def()
 {
 	def.file_name[0]=0;
@@ -583,10 +582,7 @@ int display_particles_window_handler(window_info *win)
 
 	get_and_set_texture_id(buttons_text);
 	glBegin(GL_QUADS);
-	glColor3f(def.minr,def.ming,def.minb);
-	draw_2d_thing((float)128/255,1.0f-(float)32/255,(float)160/255,1.0f-(float)64/255, 10,380,42,412);
-	glColor3f(def.maxr,def.ming,def.minb);
-	draw_2d_thing((float)64/255,1.0f-(float)32/255,(float)96/255,1.0f-(float)64/255, 74,380,106,412);
+       	draw_2d_thing((float)64/255,1.0f-(float)32/255,(float)96/255,1.0f-(float)64/255, 10,380,42,412);
 	glEnd();
 
 	return 1;
@@ -816,16 +812,8 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 	if(x>previewx && x<previewx2 && y>previewy2 && y<sel_handle_bottom)
 		preview_display_particle_handles=(preview_display_particle_handles+1)%5;
 
-	// Reset system
-	if(x>=10 && x<=42 && y>=380 && y<=412)
-		{
-			particles_list[part_sys]->ttl=0;
-			particles_list[part_sys]->particle_count=0;				      
-			part_sys=-1;
-		}
-
 	// Save definition
-	if(x>=74 && x<=106 && y>=380 && y<=412)save_particle_def_file();
+	if(x>=10 && x<=42 && y>=380 && y<=412)save_particle_def_file();
 
 	unlock_particles_list();
 	return 1;
