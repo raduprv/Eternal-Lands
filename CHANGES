@@ -1,5 +1,10 @@
 03-11-04
 Fixed unignore and unfilter
+Added anti DOS features to prevent excess packets to server
+Support for Crafting skill
+
+03-10-04
+Initial support for VA lists id -DUSE_VERTEXTARRYS defined
 
 03-08-04
 Added music player
