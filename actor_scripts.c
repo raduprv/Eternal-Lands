@@ -647,11 +647,18 @@ void get_actor_damage(int actor_id, Uint8 damage)
 						actors_list[i]->damage=damage;
 						actors_list[i]->damage_ms=2000;
 						actors_list[i]->cur_health-=damage;
+#ifndef POSSIBLE_FIX
 						unlock_actors_lists();
 						return;
+#else
+						break;
+#endif
 					}
 			i++;
 		}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 	//if we got here, it means we don't have this actor, so get it from the server...
 }
 
@@ -671,12 +678,20 @@ void get_actor_heal(int actor_id, Uint8 quantity)
 				if(actors_list[i]->actor_id==actor_id)
 					{
 						actors_list[i]->cur_health+=quantity;
+#ifndef POSSIBLE_FIX
 						unlock_actors_lists();
 						return;
+#else
+						break;
+#endif
 					}
 			i++;
 		}
 	//if we got here, it means we don't have this actor, so get it from the server...
+
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 }
 
 
