@@ -13,6 +13,11 @@ void load_cursors()
 	Uint8 *handle_cursors_mem_bmp;
 	Uint8 cur_color;
 	f = fopen ("./textures/cursors.bmp", "rb");
+	if(!f)
+		{
+            log_error("Error: Can't open cursors file.\n");
+			return;
+		}
 	fseek (f, 0, SEEK_END);
 	f_size = ftell (f);
 	//ok, allocate memory for it
