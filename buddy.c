@@ -10,7 +10,8 @@ int buddy_menu_x_len=150;
 int buddy_menu_y_len=200;
 //int buddy_menu_dragged=0;
 _buddy buddy_list[100];
-int bpage_start = 0;
+int buddy_page_start = 0;	// first buddy number to show
+int buddy_page_pos = 0;		// where the scrollbar is
 
 
 int compare2( const void *arg1, const void *arg2)
@@ -25,9 +26,10 @@ int compare2( const void *arg1, const void *arg2)
 int display_buddy_handler(window_info *win)
 {
 	int c=0,i=0,x=2,y=2;
-	int scroll = (130*bpage_start)/(100-19);
+	int scroll = buddy_page_pos;
 
-	glDisable(GL_BLEND);
+	//glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
 	//scroll bar
 	glBegin(GL_LINES);
@@ -53,10 +55,11 @@ int display_buddy_handler(window_info *win)
 	
 	// Draw budies
 	qsort(buddy_list,100,sizeof(_buddy),compare2);
-	i=bpage_start;
+	i=buddy_page_start;
+	// TODO: less code?
 	glColor3f(1.0,1.0,1.0);
 	while(c==buddy_list[i].type){
-		if(i-bpage_start>18)return 1;
+		if(i-buddy_page_start>18)return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -65,7 +68,7 @@ int display_buddy_handler(window_info *win)
 
 	glColor3f(1.0,0,0);
 	while(c==buddy_list[i].type){
-		if(i-bpage_start>18)return 1;
+		if(i-buddy_page_start>18)return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -74,7 +77,7 @@ int display_buddy_handler(window_info *win)
 
 	glColor3f(0,1.0,0);
 	while(c==buddy_list[i].type){
-		if(i-bpage_start>18)return 1;
+		if(i-buddy_page_start>18)return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -82,7 +85,7 @@ int display_buddy_handler(window_info *win)
 	c++;
 	glColor3f(0,0,1.0);
 	while(c==buddy_list[i].type){
-		if(i-bpage_start>18)return 1;
+		if(i-buddy_page_start>18)return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -90,7 +93,7 @@ int display_buddy_handler(window_info *win)
 	c++;
 	glColor3f(1.0,1.0,0);
 	while(c==buddy_list[i].type){
-		if(i-bpage_start>18)return 1;
+		if(i-buddy_page_start>18)return 1;
 		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 		y+=10;
 		i++;
@@ -108,24 +111,51 @@ int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if(x > win->len_x-16 && y > 18 && y < 18+16)
 		{
-			if(bpage_start > 0)
-				bpage_start--;
+			if(buddy_page_start > 0)
+				{
+					buddy_page_start--;
+					// calc new pos for scroll bar
+					buddy_page_pos= ((win->len_y-20-30-20)*buddy_page_start)/100;
+				}
 			return 1;
 		}
 	if(x > win->len_x-16 && y > 180 && y < 180+16)
 		{
-			if(bpage_start < 100-19)
-				bpage_start++;
+			if(buddy_page_start < 100-19)
+				{
+					buddy_page_start++;
+					// calc new pos for scroll bar
+					buddy_page_pos= ((win->len_y-20-30-20)*buddy_page_start)/100;
+				}
 			return 1;
 		}
 	if(x>win->len_x-20)
 		return 0;
 	
+	// clicked on a buddies name, start apm to them
 	y/= 10;
-	y+= bpage_start;
+	y+= buddy_page_start;
 	sprintf(input_text_line,"/%s ",buddy_list[y].name);
 	input_text_lenght= strlen(input_text_line);
 	return 1;
+}
+
+int drag_buddy_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy)
+{
+	int scroll_area= win->len_y-20-30-20;	// account for the X ^ V and bar height
+
+	if(win->drag_in || (mx>win->len_x-20 && my>35+buddy_page_pos && my<55+buddy_page_pos)) {
+		win->drag_in= 1;
+		//if(left_click>1)
+		buddy_page_pos+= dy;
+		// bounds checking
+		if(buddy_page_pos < 0) buddy_page_pos= 0;
+		if(buddy_page_pos >= scroll_area) buddy_page_pos= scroll_area-1;
+		//and set which item to list first
+		buddy_page_start=(100*buddy_page_pos)/scroll_area;
+		return 1;
+	}
+	return 0;
 }
 
 void init_buddy()
@@ -146,6 +176,7 @@ void display_buddy()
 			buddy_win= create_window("Buddy", 0, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
+			set_window_handler(buddy_win, ELW_HANDLER_DRAG, &drag_buddy_handler );
 		}
 	else
 		{
@@ -180,6 +211,5 @@ void del_buddy(char *n)
 		}
 		
 	}
-
 }
 

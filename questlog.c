@@ -2,22 +2,26 @@
 #include "global.h"
 #include "elwindows.h"
 
-int quest_win=0;
+int questlog_win=0;
 int questlog_menu_x=150;
 int questlog_menu_y=70;
 int questlog_menu_x_len=550;
 int questlog_menu_y_len=300;
 //int questlog_menu_dragged=0;
 _logdata logdata,*last,*current;
+int	logdata_length=0;
+int	quest_page_start=0;
+int	quest_page_pos=0;
 FILE *qlf = NULL;
 
-int y;
+int questlog_y;
+
 
 void load_questlog()
 {
 	FILE *f = NULL;
 	char temp[1000];
-	_logdata *L;
+	//_logdata *L;
 
 #ifndef WINDOWS
 	char questlog_ini[256];
@@ -30,20 +34,22 @@ void load_questlog()
 #else
 	f=fopen("quest.log","rb");
 #endif
-	L=&logdata;
+	//L=&logdata;
 	logdata.msg=NULL;
-	last=&logdata;
-	current=NULL;
+	current= last= &logdata;
+	//current=NULL;
 
 	if(!f)return;
 
 	while(!feof(f)){//loads and adds to a list all the quest log messages
-		_logdata *l;
-		int len;
+		//_logdata *l;
+		//int len;
 
 		temp[0]=0;
 		fgets(temp,999,f);
 		if(temp[0]==0)break;
+		add_questlog_line(temp);
+		/*
 		l=(_logdata*)malloc(sizeof(_logdata));
 		L->Next=l;
 		L=l;
@@ -52,12 +58,13 @@ void load_questlog()
 		l->msg=(char*)malloc(len+1);
 		string_fix(temp);
 		strcpy(l->msg,temp);
+		*/
 	}
-	last=L;
+	//last=L;
 	current=logdata.Next;
 	fclose(f);
-
 }
+
 
 void unload_questlog()
 {
@@ -71,6 +78,7 @@ void unload_questlog()
 	}
 	if(qlf!=NULL)fclose(qlf);
 }
+
 
 void string_fix(char *t)
 {
@@ -89,13 +97,13 @@ void string_fix(char *t)
 		j++;
 		c++;
 	}
-
 }
+
 
 void add_questlog(char *t)
 {
-	_logdata *l;
 	char *s=t;
+
 	//write on file
 	if(qlf==NULL){
 		#ifndef WINDOWS
@@ -119,15 +127,50 @@ void add_questlog(char *t)
 	fwrite(t,sizeof(char),strlen(t),qlf);
 	fputc(10,qlf);
 	//add to list
-	l=(_logdata*)malloc(sizeof(_logdata));
-	l->Next=NULL;
-	l->msg=(char*)malloc(strlen(t)+1);
-	string_fix(t);
-	strcpy(l->msg,t);
-	last->Next=l;
-	last=l;
-	if(current==NULL)current=l;
+	add_questlog_line(t);
+}
 
+
+void add_questlog_line(char *t)
+{
+	_logdata *l;
+
+	l= (_logdata*)malloc(sizeof(_logdata));
+	l->Next= NULL;
+	l->msg= (char*)malloc(strlen(t)+1);
+	string_fix(t);
+	strcpy(l->msg, t);
+	last->Next= l;
+	last= l;
+	if(current==NULL) current=l;
+	// keep track of the counter
+	logdata_length++;
+}
+
+
+void goto_questlog_entry(int ln)
+{
+	int	cnt= ln;
+
+	if(ln <= 0)
+		{
+			// at or before the start
+			current= &logdata;
+			return;
+		}
+	else if (ln >= logdata_length)
+		{
+			// at or after then end
+			current= last;
+			return;
+		}
+	//reset to the start
+	current= &logdata;
+	// loop thru allof the entries
+	while(current->Next && cnt-- > 0)
+		{
+			current= current->Next;
+		}
 }
 
 
@@ -146,19 +189,23 @@ int draw_questlog_string(char *t)
 		if(*t!=0)t++;
 		temp[i]=0;
 		i=0;
-		draw_string_small(2,y,temp,1);
-		y+=15;
-		if(y>(questlog_menu_y_len-15))
+		draw_string_small(2,questlog_y,temp,1);
+		questlog_y+=15;
+		if(questlog_y>(questlog_menu_y_len-15))
 			return 1;
 	}
 	return 0;
 }
 
-int	display_quest_handler(window_info *win)
+
+int	display_questlog_handler(window_info *win)
 {
 	_logdata *t=current;
+	//calc where the scroll bar goes
+	int scroll= quest_page_pos;
 
-	glDisable(GL_BLEND);
+	//glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
 	//scroll bar
@@ -173,18 +220,26 @@ int	display_quest_handler(window_info *win)
 	glVertex3i(win->len_x-10,win->len_y-10,0);
 	glVertex3i(win->len_x-5,win->len_y-15,0);
 	glEnd();
+	glBegin(GL_QUADS);
+	//scroll bar
+	glVertex3i(win->len_x-13,35+scroll,0);
+	glVertex3i(win->len_x-7,35+scroll,0);
+	glVertex3i(win->len_x-7,55+scroll,0);
+	glVertex3i(win->len_x-13,55+scroll,0);
+	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
 	// Draw all texts from list
-	y= 0;
+	questlog_y= 0;
 	while(t!=NULL){
-		if(draw_questlog_string(t->msg))return 1;
+		if(t->msg && draw_questlog_string(t->msg))return 1;
 		t=t->Next;
 	}
 	return 1;
 }
 
-int click_quest_handler(window_info *win, int mx, int my, Uint32 flags)
+
+int click_questlog_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y;
 
@@ -192,6 +247,13 @@ int click_quest_handler(window_info *win, int mx, int my, Uint32 flags)
 	y= my;
 	if(x > win->len_x-16 && y > 18 && y < 18+16)
 		{
+			if(quest_page_start > 0)
+				{
+					quest_page_start--;
+					goto_questlog_entry(quest_page_start);
+					quest_page_pos= ((win->len_y-20-30-20)*quest_page_start)/logdata_length;
+				}
+			/*
 			_logdata *t;
 			if(logdata.Next && current!=logdata.Next && current!=NULL){
 				t=logdata.Next;
@@ -200,28 +262,57 @@ int click_quest_handler(window_info *win, int mx, int my, Uint32 flags)
 					t=t->Next;
 				}
 			}
+			*/
 			return 1;
 		}
 	if(x > win->len_x-16 && y > win->len_y-15 && y < win->len_y-4)
 		{
-			if(current)
-				if(current->Next)current=current->Next;
+			if(current && current->Next)
+				{
+					current=current->Next;
+					quest_page_start++;
+					quest_page_pos= ((win->len_y-20-30-20)*quest_page_start)/logdata_length;
+				}
 			return 1;
 		}
 	return 0;
 }
 
+
+int drag_questlog_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy)
+{
+	int scroll_area= win->len_y-20-30-20;	// account for the X ^ V and the scrollbar
+
+	if(win->drag_in || (logdata_length > 0 && mx>win->len_x-20 && my>35+quest_page_pos && my<55+quest_page_pos)) {
+		win->drag_in= 1;
+		//if(left_click>1)
+		quest_page_pos+= dy;
+		// bounds checking
+		if(quest_page_pos < 0) quest_page_pos= 0;
+		if(quest_page_pos >= scroll_area) quest_page_pos= scroll_area-1;
+		//and set which item to list first
+		quest_page_start=(logdata_length*quest_page_pos)/scroll_area;
+		goto_questlog_entry(quest_page_start);
+		return 1;
+	}
+
+	return 0;
+}
+
+
 void display_questlog()
 {
-	if(quest_win <= 0)
+	if(questlog_win <= 0)
 		{
-			quest_win= create_window("Quest", 0, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
-			set_window_handler(quest_win, ELW_HANDLER_DISPLAY, &display_quest_handler );
-			set_window_handler(quest_win, ELW_HANDLER_CLICK, &click_quest_handler );
+			questlog_win= create_window("Quest", 0, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
+			set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, &display_questlog_handler );
+			set_window_handler(questlog_win, ELW_HANDLER_CLICK, &click_questlog_handler );
+			set_window_handler(questlog_win, ELW_HANDLER_DRAG, &drag_questlog_handler );
 		}
 	else
 		{
-			show_window(quest_win);
-			select_window(quest_win);
+			show_window(questlog_win);
+			select_window(questlog_win);
 		}
 }
+

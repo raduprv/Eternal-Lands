@@ -7,7 +7,7 @@ typedef struct ld
 	struct ld *Next;
 }_logdata;
 
-extern int quest_win;
+extern int questlog_win;
 extern int questlog_menu_x;
 extern int questlog_menu_y;
 extern int questlog_menu_x_len;
@@ -18,6 +18,9 @@ void display_questlog();
 void load_questlog();
 void unload_questlog();
 void add_questlog(char *t);
+void add_questlog_line(char *t);
+void goto_questlog_entry(int ln);
 void string_fix(char *t);
-#endif
+
+#endif	//__QUESTLOG_H__
 
