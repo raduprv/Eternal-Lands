@@ -30,6 +30,7 @@ typedef struct
 	int (*func)(void*, int);
 	void * data;
 	char data_type;
+	char free_data;
 } icon_struct;
 
 struct icons_struct

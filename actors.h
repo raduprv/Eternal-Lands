@@ -266,7 +266,7 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 							short shirt, short pants, short boots, short head);
 extern void	init_actors_lists();
 #define	lock_actors_lists()	SDL_LockMutex(actors_lists_mutex)
-#define	unlock_actors_lists()	SDL_UnlockMutex(actors_lists_mutex);
+#define	unlock_actors_lists()	SDL_UnlockMutex(actors_lists_mutex)
 extern void	end_actors_lists();
 
 void	draw_actor_overtext( actor* actor_ptr );

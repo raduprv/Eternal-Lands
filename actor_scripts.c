@@ -516,7 +516,7 @@ void destroy_actor(int actor_id)
 void destroy_all_actors()
 {
 	int i=0;
-
+	actor *to_free;
 	lock_actors_lists();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
 		{
@@ -528,8 +528,9 @@ void destroy_all_actors()
 							glDeleteTextures(1,&actors_list[i]->texture_id);
 							free(actors_list[i]->body_parts);
 						}
-					free(actors_list[i]);
-					actors_list[i]=0;
+					to_free = actors_list[i];
+					actors_list[i]=NULL;
+					free(to_free);
 				}
 		}
 	max_actors=0;

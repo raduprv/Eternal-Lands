@@ -217,7 +217,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	f_size = ftell (f);
 
 	//ok, allocate memory for it
-	obj_file_mem = calloc ( f_size, sizeof(char) );
+	obj_file_mem = calloc ( f_size+1, sizeof(char) );
 	handle_obj_file_mem = obj_file_mem;
 	fseek (f, 0, SEEK_SET);
 	fread (obj_file_mem, 1, f_size, f);
@@ -314,10 +314,10 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 				}
 		}
 
-	return cur_object;
 	free(texture_file_name);
 	free(handle_obj_file_mem);
 
+	return cur_object;
 }
 
 //Tests to see if an obj_2d object is already loaded.

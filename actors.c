@@ -16,7 +16,7 @@ void init_actors_lists()
 
 	actors_lists_mutex=SDL_CreateMutex();
 	lock_actors_lists();	//lock it to avoid timing issues
-	for(i=0;i<1000;i++)actors_list[i]=0;
+	for(i=0;i<1000;i++)actors_list[i]=NULL;
 	unlock_actors_lists();	// release now that we are done
 }
 
@@ -585,6 +585,7 @@ void display_actors()
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
+	lock_actors_lists();	//lock it to avoid timing issues
 	//display only the non ghosts
 	for(i=0;i<max_actors;i++)
 		{
@@ -658,6 +659,7 @@ void display_actors()
 						}
 			}
 	}
+	unlock_actors_lists();	//unlock it since we are done
 
 	glDisable(GL_BLEND);
 	glDisableClientState(GL_VERTEX_ARRAY);

@@ -92,7 +92,7 @@ int start_rendering()
 	save_bin_cfg();
 	unload_questlog();
 	free_icons();
-	//unload_e3d_list();	// do we really want to overwrite this file??
+	unload_e3d_list();	// do we really want to overwrite this file??
 	SDL_SetTimer(0,NULL);
 	end_particles_list();
 #ifdef CAL3D

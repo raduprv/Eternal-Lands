@@ -13,7 +13,7 @@ struct cursors_struct cursors_array[20];
 struct harvest_names_struct harvestable_objects[100];
 struct enter_names_struct entrable_objects[100];
 
-Uint8 *cursors_mem;
+Uint8 *cursors_mem=NULL;
 int cursors_x_lenght;
 int cursors_y_lenght;
 
@@ -48,6 +48,7 @@ void load_cursors()
 	cursors_mem_bmp += 54 - 46 + cursors_colors_no * 4;
 
 	//ok, now transform the bitmap in cursors info
+	if(cursors_mem) free(cursors_mem);
 	cursors_mem = (Uint8 *)calloc ( cursors_x_lenght*cursors_y_lenght*2, sizeof(char));
 
 	for(y=cursors_y_lenght-1;y>=0;y--)

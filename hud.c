@@ -306,11 +306,13 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 	icons.icon[no]->v[1]=colored_v_start;
 	icons.icon[no]->func=func;
 	strcpy(icons.icon[no]->help_message,help_message);
+	icons.icon[no]->free_data=0;
 	switch(data_type)
 		{
 			case DATA_ACTIONMODE:
 				icons.icon[no]->data=(int*)calloc(1,sizeof(int));
 				memcpy(icons.icon[no]->data,data,sizeof(int));
+				icons.icon[no]->free_data=1;
 				break;
 			case DATA_WINDOW:
 				icons.icon[no]->data=(int*)data;
@@ -325,8 +327,11 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 void free_icons()
 {
 	int i;
-	for(i=0;i<icons.no;i++)
+	for(i=0;i<icons.no;i++) {
+		if(icons.icon[i]->free_data)
+			free(icons.icon[i]->data);
 		free(icons.icon[i]);
+	}
 }
 
 int	mouseover_icons_handler(window_info *win, int mx, int my)
