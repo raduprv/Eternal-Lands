@@ -28,6 +28,7 @@ int HandleEvent(SDL_Event *event)
 	if(mod_key_status&KMOD_ALT)alt_on=1;
 	else alt_on=0;
 
+	view_particles_window=get_show_window(particles_window);
 	switch( event->type ) {
 
 	    case SDL_KEYDOWN:
