@@ -27,14 +27,16 @@ int display_knowledge_handler(window_info *win)
 		strncpy(points_string,completed_research,10);
 	else
 		sprintf(points_string,"%4i/%-4i",your_info.research_completed,your_info.research_total);
-	if(your_info.researching<KNOWLEDGE_LIST_SIZE)
-		research_string=knowledge_list[your_info.researching].name;
+	if(your_info.researching < KNOWLEDGE_LIST_SIZE)
+	{
+		research_string = knowledge_list[your_info.researching].name;
+	}
 	else
-		{
-			research_string=not_researching_anything;
-			points_string[0]='\0';
-			progress=1;
-		}
+	{
+		research_string = not_researching_anything;
+		points_string[0] = '\0';
+		progress = 1;
+	}
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
@@ -73,12 +75,29 @@ int display_knowledge_handler(window_info *win)
 	draw_string_small(120,320,research_string,1);
 	draw_string_small(355,320,points_string,1);
 	// Draw knowledges
-	for(i=2*scroll; i < 2*(scroll+19); i++){
-		knowledge_list[i].mouse_over ? glColor3f(0.1f,0.1f,0.9f) : glColor3f(0.9f,0.9f,0.9f);
-		if(knowledge_list[i].present)
-			draw_string_zoomed(x,y,knowledge_list[i].name,1,0.7);
-		x+=240;
-		if(i%2==1){y+=10;x=2;}
+	for(i = 2*scroll; i < 2 * (scroll + 19); i++)
+	{
+		if (knowledge_list[i].mouse_over)
+		{
+			glColor3f (0.1f,0.1f,0.9f);
+		}
+		else if (knowledge_list[i].present)
+		{
+			glColor3f (0.9f, 0.9f, 0.9f);
+		}
+		else
+		{
+			glColor3f (0.5f, 0.5f, 0.5f);
+		}
+
+		draw_string_zoomed(x,y,knowledge_list[i].name,1,0.7);
+
+		x += 240;
+		if (i % 2 == 1)
+		{
+			y += 10;
+			x = 2;
+		}
 	}
 	return 1;
 }
@@ -114,7 +133,7 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 	x/=240;
 	y/=10;
 	idx = x + 2 *(y + vscrollbar_get_pos (knowledge_win, knowledge_scroll_id));
-	if(idx < KNOWLEDGE_LIST_SIZE && knowledge_list[idx].present)
+	if(idx < KNOWLEDGE_LIST_SIZE)
 		{
 			str[0] = GET_KNOWLEDGE_INFO;
 			*(Uint16 *)(str+1) = idx;
