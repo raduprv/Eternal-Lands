@@ -931,6 +931,7 @@ void open_map_file()
     }
 }
 #endif
+extern particle_sys_def def;
 #ifndef LINUX
 void save_map_file()
 {
@@ -972,6 +973,46 @@ void save_map_file()
     }
 }
 
+void save_particle_def_file()
+{
+  OPENFILENAME ofn;
+  char szFileName[MAX_PATH], temp[MAX_PATH];
+
+  ZeroMemory (&ofn, sizeof (ofn));
+  szFileName[0] = 0;
+
+  ofn.lStructSize = sizeof (ofn);
+  ofn.hwndOwner = 0;
+  ofn.lpstrFilter = "Particle File (*.part)\0*.part\0\0";
+  ofn.lpstrFile = szFileName;
+  ofn.nMaxFile = MAX_PATH;
+  ofn.lpstrDefExt = "part";
+  strcpy(temp,exec_path);
+  strcat(temp,"\\particles\\");
+  ofn.lpstrInitialDir = temp;
+
+    ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY |
+      OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
+
+    if (GetSaveFileName (&ofn))
+    {
+		char proper_path[128];
+		int fn_len;
+		int app_dir_len;
+		int i,j;
+
+		//get the proper path
+		fn_len=strlen(szFileName);
+		app_dir_len=strlen(exec_path);
+		j=0;
+		proper_path[0]='.';
+		for(i=app_dir_len;i<fn_len;i++,j++)proper_path[j+1]=szFileName[i];
+		proper_path[j+1]=0;
+
+		save_particle_def(&def);
+    }
+}
+
 void open_particles_obj()
 {
   OPENFILENAME ofn;
@@ -985,7 +1026,7 @@ void open_particles_obj()
   ofn.lpstrFilter = "Particle File (*.part)\0*.part\0\0";
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
-  ofn.lpstrDefExt = "2d0";
+  ofn.lpstrDefExt = "part";
   strcpy(temp,exec_path);
   strcat(temp,"\\particles\\");
   ofn.lpstrInitialDir = temp;
@@ -1102,7 +1143,7 @@ void save_particle_def_file()
 	gtk_widget_show(file_selector);
 }
 
-extern particle_sys_def def;
+
 void save_particle_def_file_continued()
 {
 	if(!selected_file)return;
