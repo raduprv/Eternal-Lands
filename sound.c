@@ -15,7 +15,7 @@ FILE* ogg_file;
 OggVorbis_File ogg_stream;
 vorbis_info* ogg_info;
 
-ALuint music_buffers[2];
+ALuint music_buffers[4];
 ALuint music_source;
 
 int playing_music = 0;
@@ -104,8 +104,10 @@ void play_music(int i) {
 
     stream_music(music_buffers[0]);
 	stream_music(music_buffers[1]);
+	stream_music(music_buffers[2]);
+	stream_music(music_buffers[3]);
     
-    alSourceQueueBuffers(music_source, 2, music_buffers);
+    alSourceQueueBuffers(music_source, 4, music_buffers);
     alSourcePlay(music_source);
 
 	if((error=alGetError()) != AL_NO_ERROR) 
@@ -472,7 +474,7 @@ void init_sound()
 #ifndef	NO_MUSIC
 	ogg_file = NULL;
 
-    alGenBuffers(2, music_buffers);
+    alGenBuffers(4, music_buffers);
 	alGenSources(1, &music_source);
     alSource3f(music_source, AL_POSITION,        0.0, 0.0, 0.0);
     alSource3f(music_source, AL_VELOCITY,        0.0, 0.0, 0.0);
@@ -492,7 +494,7 @@ void destroy_sound()
 #ifndef	NO_MUSIC
 	alSourceStop(music_source);
     alDeleteSources(1, &music_source);
-    alDeleteBuffers(2, music_buffers);
+    alDeleteBuffers(4, music_buffers);
     ov_clear(&ogg_stream);
 #endif	//NO_MUSIC
 	alSourceStopv(used_sources, sound_source);

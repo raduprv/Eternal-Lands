@@ -5,7 +5,7 @@
 #define max_sources 16
 
 #define BUFFER_SIZE (4096 * 16)
-#define SLEEP_TIME 300
+#define SLEEP_TIME 500
 
 #define max_songs 12
 
