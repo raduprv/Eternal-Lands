@@ -189,6 +189,14 @@ void draw_scene()
 		}
 
 #ifdef WINDOW_CHAT
+	// We need to resize before we start drawing
+	if (new_zoom_level != zoom_level)
+	{
+		zoom_level = new_zoom_level;
+		resize_root_window ();
+	}
+	glLoadIdentity();					// Reset The Matrix
+
 	Enter2DMode ();
 	display_windows (1);
 	Leave2DMode ();

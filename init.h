@@ -262,15 +262,6 @@ void init_2d_obj_cache();
 void init_stuff();
 
 /*!
- * \ingroup windows
- * \brief
- *
- *      Detail
- *
- */
-void resize_root_window();
-
-/*!
  * \ingroup load
  * \brief
  *

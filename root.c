@@ -482,7 +482,6 @@ int display_root_handler (window_info *win)
 	glPushMatrix (); // save the current state
 	Leave2DMode ();
 		
-	glLoadIdentity ();				// Reset The Matrix
 	Move ();
 	save_scene_matrix ();
 
@@ -954,6 +953,13 @@ int keypress_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			hud_y=0;
 		}
 		resize_root_window ();
+	}
+	else if (keysym == SDLK_F10)
+	{
+		// XXX FIXME (Grum): remove this, debug code
+		int iwin;
+		for (iwin = 0; iwin < windows_list.num_windows; iwin++)
+			printf ("%s: %d\n", windows_list.window[iwin].window_name, windows_list.window[iwin].order);
 	}				
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	else if (keysym == SDLK_ESCAPE)
