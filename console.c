@@ -49,14 +49,20 @@ void test_for_console_command()
 			text_loc++;
 			text_lenght--;
 		}
+	//remove trailing '_'
+	if(text_loc[text_lenght] == '_')
+		{
+			text_loc[text_lenght]='\0';
+			text_lenght--;
+		}
 	//cls?
-	if(my_strcompare(text_loc,"cls_"))
+	if(my_strcompare(text_loc,"cls"))
 		{
 			cls();
 			return;
 		}
 	//stats ?
-	if(my_strcompare(text_loc,"stats_"))
+	if(my_strcompare(text_loc,"stats"))
 		{
 			unsigned char protocol_name;
 			protocol_name=SERVER_STATS;
@@ -64,7 +70,7 @@ void test_for_console_command()
 			return;
 		}
 	//time?
-	if(my_strcompare(text_loc,"time_"))
+	if(my_strcompare(text_loc,"time"))
 		{
 			unsigned char protocol_name;
 			protocol_name=GET_TIME;
@@ -72,7 +78,7 @@ void test_for_console_command()
 			return;
 		}
 	//ping?
-	if(my_strcompare(text_loc,"ping_"))
+	if(my_strcompare(text_loc,"ping"))
 		{
 			Uint8 str[8];
 			str[0]=PING;
@@ -82,24 +88,19 @@ void test_for_console_command()
 		}
 
 	//date?
-	if(my_strcompare(text_loc,"date_"))
+	if(my_strcompare(text_loc,"date"))
 		{
 			unsigned char protocol_name;
 			protocol_name=GET_DATE;
 			my_tcp_send(my_socket,&protocol_name,1);
 			return;
 		}
-	if(my_strcompare(text_loc,"quit_"))
+	if(my_strcompare(text_loc,"quit") || my_strcompare(text_loc,"exit"))
 		{
 			exit_now=1;
 			return;
 		}
-	if(my_strcompare(text_loc,"exit_"))
-		{
-			exit_now=1;
-			return;
-		}
-	if(my_strcompare(text_loc,"ver_"))
+	if(my_strcompare(text_loc,"ver_") || my_strcompare(text_loc,"vers"))
 		{
 			char str[128];
 			char extra[20];
@@ -117,7 +118,7 @@ void test_for_console_command()
 			return;
 		}
 
-	if(my_strcompare(text_loc,"ignores_"))
+	if(my_strcompare(text_loc,"ignores"))
 		{
 			list_ignores();
 			return;
@@ -132,7 +133,7 @@ void test_for_console_command()
 			for(i=0;i<15;i++)
 				{
 					ch=text_loc[i+7];//7 because there is a space after "ignore"
-					if(ch==' ' || ch=='_')
+					if(ch==' ' || ch=='\0')
 						{
 							ch=0;
 							break;
@@ -175,7 +176,7 @@ void test_for_console_command()
 				}
 		}
 
-	if(my_strcompare(text_loc,"filters_"))
+	if(my_strcompare(text_loc,"filters"))
 		{
 			list_filters();
 			return;
@@ -190,7 +191,7 @@ void test_for_console_command()
 			for(i=0;i<15;i++)
 				{
 					ch=text_loc[i+7];//7 because there is a space after "ignore"
-					if(ch==' ' || ch=='_')
+					if(ch==' ' || ch=='\0')
 						{
 							ch=0;
 							break;
@@ -236,7 +237,7 @@ void test_for_console_command()
 	////////////////////////
 
 	////////////////////////
-	if(my_strncompare(text_loc, "modes_", 5))
+	if(my_strncompare(text_loc, "modes", 5))
 		{
 			//char str[1000]; unused?
 			//see what modes are supported.
@@ -329,7 +330,7 @@ void test_for_console_command()
 			for(i=0;i<15;i++)
 				{
 					ch=text_loc[i+9];//9 because there is a space after "ignore"
-					if(ch==' ' || ch=='_')
+					if(ch==' ' || ch=='\0')
 						{
 							ch=0;
 							break;
@@ -370,7 +371,7 @@ void test_for_console_command()
 				}
 		}
 	////////////////////////
-	if(my_strcompare(text_loc,"help_"))
+	if(my_strcompare(text_loc,"help"))
 		{
 			display_help_topic("main");
 			return;
@@ -385,7 +386,7 @@ void test_for_console_command()
 			for(i=0;i<30 || i<text_lenght;i++)
 				{
 					ch=text_loc[i+5];//5 because there is a space after "help"
-					if(ch==' ' || ch=='_')
+					if(ch==' ' || ch=='\0')
 						{
 							ch=0;
 							break;
@@ -399,7 +400,7 @@ void test_for_console_command()
 	////////////////////////
 
 
-	if(my_strcompare(text_loc,"glinfo_"))
+	if(my_strcompare(text_loc,"glinfo"))
 		{
 			GLubyte *my_string;
 			Uint8 this_string[8192];
