@@ -248,3 +248,42 @@ void get_string_digest(const Uint8 * string, Uint8 digest[16])
 	MD5Close(&md5, digest);
 }
 
+void http_get_file(char *file_name)
+{
+	IPaddress http_ip;
+	TCPsocket http_sock;
+	char message[1024];
+	int len;
+	int got_header = 0;
+	FILE *fp = fopen(file_name, "w");
+	SDLNet_ResolveHost(&http_ip,"no-exit.org",80);
+	http_sock = SDLNet_TCP_Open(&http_ip);
+	strcpy(message, "GET /el/files/");
+	strcat(message, file_name);
+	strcat(message, " HTTP/1.0\n\n");
+	len = strlen(message);
+	SDLNet_TCP_Send(http_sock,message,len);
+	while(len > 0)
+		{
+			char buf[1024];
+			memset(buf, 0, 1024);
+			len=SDLNet_TCP_Recv(http_sock, buf, 1024);
+			if(!got_header)
+				{
+					int i;
+					for(i = 0; i < len; i++)
+						{
+							if(!got_header &&
+							   buf[i] == 0x0D && buf[i+1] == 0x0A &&
+							   buf[i+2] == 0x0D && buf[i+3] == 0x0A) {
+								fwrite(buf + i + 4, 1, len - i - 4, fp);
+								got_header = 1;
+							}
+						}
+				}
+			else
+				fwrite(buf, 1, len, fp);
+		}
+	SDLNet_TCP_Close(http_sock);
+	fclose(fp);
+}

@@ -4,7 +4,7 @@ log, cfg, & ini in user directory tree
 	-Specify alternate directory to load games files from
 S/W version check & upload
 	-Check for newer versions of files by comparing MD5 sums
-	-http/ftp download of a file
+	-http download of a file -- testing
 
 
 Learner:

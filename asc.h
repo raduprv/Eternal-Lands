@@ -16,5 +16,9 @@ void my_strcat(Uint8 *dest,const Uint8 * source);
 Sint32 my_strncompare(Uint8 *dest, const Uint8 *src, Sint32 len);
 Sint32 my_strcompare(Uint8 *dest, const Uint8 *src);
 
+void get_file_digest(const Uint8 * filename, Uint8 digest[16]);
+void get_string_digest(const Uint8 * string, Uint8 digest[16]);
+
+void http_get_file(char *file_name);
 #endif
 
