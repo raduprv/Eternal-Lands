@@ -3,6 +3,10 @@
 
 #include "global.h"
 
+#ifndef DATA_DIR
+#define DATA_DIR "./"
+#endif
+
 char lang[10];
 extern char datadir[256];
 
