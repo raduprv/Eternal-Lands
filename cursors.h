@@ -26,6 +26,7 @@ extern actor *actor_under_mouse;
 extern int object_under_mouse;
 extern int thing_under_the_mouse;
 extern int current_cursor;
+extern int elwin_mouse;
 
 struct cursors_struct
 {

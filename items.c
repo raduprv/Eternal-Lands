@@ -719,8 +719,21 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					{
 						int pos;
 						pos=y*5+x;
-						if(!ground_item_list[pos].quantity)return 1;
-
+						if(!ground_item_list[pos].quantity) {
+							if (item_dragged != -1){
+								Uint8 str[10];
+								int quantity = item_list[item_dragged].quantity;
+								if (quantity - item_quantity > 0)
+									quantity = item_quantity;
+								str[0] = DROP_ITEM;
+								str[1] = item_list[item_dragged].pos;
+								*((Uint16 *) (str + 2)) = quantity;
+								my_tcp_send(my_socket, str, 4);
+								if (item_list[item_dragged].quantity - quantity <= 0)
+									item_dragged = -1;
+							}
+							return 1;
+						}
 						if(right_click)
 							{
 								str[0]=LOOK_AT_GROUND_ITEM;
@@ -742,6 +755,12 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					}
 			}
 
+	return 1;
+}
+
+
+int mouseover_ground_items_handler(window_info *win, int mx, int my) {
+	if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
 	return 1;
 }
 
@@ -786,12 +805,10 @@ void draw_pick_up_menu()
 
 		set_window_handler(ground_items_win, ELW_HANDLER_DISPLAY, &display_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_CLICK, &click_ground_items_handler );
-		//set_window_handler(ground_items_win, ELW_HANDLER_MOUSEOVER, &mouseover_ground_items_handler );
+		set_window_handler(ground_items_win, ELW_HANDLER_MOUSEOVER, &mouseover_ground_items_handler );
 	} else {
 		show_window(ground_items_win);
 		select_window(ground_items_win);
 	}
 	display_window(ground_items_win);
 }
-
-

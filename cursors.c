@@ -6,6 +6,7 @@ int object_under_mouse;
 int thing_under_the_mouse;
 int current_cursor;
 int read_mouse_now=0;
+int elwin_mouse=0;
 
 struct cursors_struct cursors_array[20];
 struct harvest_names_struct harvestable_objects[100];
@@ -217,13 +218,6 @@ void check_cursor_change()
 			if(current_cursor!=CURSOR_WALK)change_cursor(CURSOR_WALK);
 			return;
 		}
-	if(view_ground_items && mouse_x<ground_items_menu_x+ground_items_menu_x_len
-	   && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y &&
-	   mouse_y<ground_items_menu_y+ground_items_menu_y_len)
-		{
-			if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
-			return;
-		}
 	if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 		{
 			//see if it is a bag. (bag1.e3d)
@@ -342,12 +336,11 @@ void check_cursor_change()
 		{
 			int wear_items_x_offset=6*51+20;
 			int wear_items_y_offset=50;
-
-			if(view_ground_items && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)
-				{
-					if(current_cursor!=CURSOR_PICK)change_cursor(CURSOR_PICK);
-					return;
-				}
+			
+			if(elwin_mouse) {
+				elwin_mouse=0;
+				return;
+			}
 
 			if(action_mode==action_look && ((view_my_items && mouse_x>items_menu_x && mouse_y>items_menu_y && mouse_x<=items_menu_x+51*6 && mouse_y<=items_menu_y+51*6)
 											|| (view_ground_items && mouse_x>ground_items_menu_x && mouse_y>ground_items_menu_y && mouse_x<=ground_items_menu_x+33*5 && mouse_y<=ground_items_menu_y+33*10)
