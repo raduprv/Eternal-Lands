@@ -72,6 +72,7 @@ typedef struct
 extern SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
 extern int particle_textures[8];
 extern particle_sys *particles_list[max_particle_systems];
+extern int particles_percentage;
 
 #define particle_random(min,max) (min+(max-min)*(rand()/(float)RAND_MAX))
 #define particle_random2(min,max) (min+0.5*(max-min)+0.5*(max-min)/(float)((rand()%200)-100+0.5))
@@ -90,7 +91,6 @@ int add_particle_sys(char *file_name,float x_pos,float y_pos,float z_pos);
 int add_particle_sys_at_tile(char *file_name,int x_tile,int y_tile);
 
 //RENDERING FUNCTIONS
-void draw_particle_sys(particle_sys *system_id);
 void display_particles();
 
 //UPDATE FUNCTIONS
@@ -107,5 +107,6 @@ void update_particles();
 void add_teleporters_from_list(Uint8 *teleport_list);
 void dump_part_sys_info();
 #endif
+int save_particle_def(particle_sys_def *def);
 
 #endif
