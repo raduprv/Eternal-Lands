@@ -217,6 +217,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glDepthFunc(GL_LESS);
 	if(actor_id->actor_name[0] && view_names)
 		{
+			if(actor_id->ghost)glDisable(GL_BLEND);
 			if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
 			else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)glColor3f(1.0f,1.0f,1.0f);
 			else glColor3f(1.0f,1.0f,0.0f);
@@ -226,6 +227,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			set_font(name_font);	// to variable length
 			draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
 			set_font(0);	// back to fixed pitch
+			if(actor_id->ghost)glEnable(GL_BLEND);
 		}
 	glColor3f(1,1,1);
 	if(!actor_id->ghost)glEnable(GL_LIGHTING);
@@ -262,79 +264,81 @@ int get_frame_number(const md2 *model_data, const char *cur_frame)
 
 void draw_model(md2 *model_data,char *cur_frame, int ghost)
 {
-#if defined(USE_VERTEXARRAYS)
 	int frame;
 
 	frame = get_frame_number(model_data, cur_frame);
 	if (frame >= 0)
 		{
-			check_gl_errors();
-			glColor3f(1.0f, 1.0f, 1.0f);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
-			check_gl_errors();
-			if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
-			glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
-			if(have_compiled_vertex_array)glUnlockArraysEXT();
-			check_gl_errors();
-			glDisableClientState(GL_VERTEX_ARRAY);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			check_gl_errors();
+			int numFaces;
 
+			numFaces=model_data->numFaces;
+#if defined(USE_VERTEXARRAYS)
+			if(!ghost)	// why are ghosts broken?
+				{
+					check_gl_errors();
+					glColor3f(1.0f, 1.0f, 1.0f);
+					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
+					glEnableClientState(GL_VERTEX_ARRAY);
+					glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
+					check_gl_errors();
+					if(have_compiled_vertex_array)glLockArraysEXT(0, numFaces*3);
+					glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
+					if(have_compiled_vertex_array)glUnlockArraysEXT();
+					check_gl_errors();
+					glDisableClientState(GL_VERTEX_ARRAY);
+					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+					check_gl_errors();
+				}
+			else
+#endif	//USE_VERTEXARRAYS
+				{
+					int i;	//,j;
+					text_coord_md2 *offsetTexCoords;
+					face_md2 *offsetFaces;
+					//frame_md2 *offsetFrames;
+					vertex_md2 *vertex_pointer=NULL;
+
+					//find where we are
+					//offsetFrames=model_data->offsetFrames;
+					//and then start
+					glColor3f(1.0f,1.0f,1.0f);
+					glBegin(GL_TRIANGLES);
+					vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
+					offsetFaces=model_data->offsetFaces;
+					offsetTexCoords=model_data->offsetTexCoords;
+					for(i=0;i<numFaces;i++)
+						{
+							float x,y,z;
+
+							glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+							x=vertex_pointer[offsetFaces[i].a].x;
+							y=vertex_pointer[offsetFaces[i].a].y;
+							z=vertex_pointer[offsetFaces[i].a].z;
+							glVertex3f(x,y,z);
+
+							glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+							x=vertex_pointer[offsetFaces[i].b].x;
+							y=vertex_pointer[offsetFaces[i].b].y;
+							z=vertex_pointer[offsetFaces[i].b].z;
+							glVertex3f(x,y,z);
+
+							glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+							x=vertex_pointer[offsetFaces[i].c].x;
+							y=vertex_pointer[offsetFaces[i].c].y;
+							z=vertex_pointer[offsetFaces[i].c].z;
+							glVertex3f(x,y,z);
+						}
+					glEnd();
+				}
 		}
-#else	//USE_VERTEXARRAYS
-	int i;	//,j;
-	int numFaces;
-	text_coord_md2 *offsetTexCoords;
-	face_md2 *offsetFaces;
-	frame_md2 *offsetFrames;
-	vertex_md2 *vertex_pointer=NULL;
-
-	//now, go and find the current frame
-	i=get_frame_number(model_data, cur_frame);
-	// check for an error
-	if(i < 0)
+	else
 		{
 			char str[120];
 			sprintf(str, "couldn't find frame: %s\n",cur_frame);
 			log_error(str);
 			return;
 		}
-	//find where we are
-	offsetFrames=model_data->offsetFrames;
-	vertex_pointer=offsetFrames[i].vertex_pointer;
-	//and then start
-	glColor3f(1.0f,1.0f,1.0f);
-	glBegin(GL_TRIANGLES);
-	offsetFaces=model_data->offsetFaces;
-	offsetTexCoords=model_data->offsetTexCoords;
-	numFaces=model_data->numFaces;
-	for(i=0;i<numFaces;i++)
-		{
-			float x,y,z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
-			x=vertex_pointer[offsetFaces[i].a].x;
-			y=vertex_pointer[offsetFaces[i].a].y;
-			z=vertex_pointer[offsetFaces[i].a].z;
-			glVertex3f(x,y,z);
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
-			x=vertex_pointer[offsetFaces[i].b].x;
-			y=vertex_pointer[offsetFaces[i].b].y;
-			z=vertex_pointer[offsetFaces[i].b].z;
-			glVertex3f(x,y,z);
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
-			x=vertex_pointer[offsetFaces[i].c].x;
-			y=vertex_pointer[offsetFaces[i].c].y;
-			z=vertex_pointer[offsetFaces[i].c].z;
-			glVertex3f(x,y,z);
-		}
-	glEnd();
-#endif	//USE_VERTEXARRAYS
 }
 
 
@@ -343,23 +347,8 @@ void draw_actor(actor * actor_id)
 	int i;	//,j;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	//float u,v; unused?
 	int texture_id;
-	char *cur_frame;
-	//char str[20];
-	//float healtbar_x=-0.3f;
-	//float healtbar_y=0;
 	float healtbar_z=0;
-	//float healtbar_x_len=0.5f;
-	//float healtbar_x_len_converted=0;
-	//float healtbar_z_len=0.05f;
-
-	//int numFrames;
-	int numFaces;
-	text_coord_md2 *offsetTexCoords;
-	face_md2 *offsetFaces;
-	//frame_md2 *offsetFrames;
-	vertex_md2 *vertex_pointer=NULL;
 
 	if(!actor_id->remapped_colors)texture_id=texture_cache[actor_id->texture_id].texture_id;
 	else
@@ -367,170 +356,43 @@ void draw_actor(actor * actor_id)
 			//we have remaped colors, we don't store such textures into the cache
 			texture_id=actor_id->texture_id;
 		}
-
-	cur_frame=actor_id->cur_frame;
-
-	//now, go and find the current frame
-	i=get_frame_number(actor_id->model_data, cur_frame);;
-	if(i >= 0)healtbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
-	vertex_pointer=actor_id->model_data->offsetFrames[i].vertex_pointer;
-	/*
-	//now, go and find the current frame
-	offsetFrames=actor_id->model_data->offsetFrames;
-	numFrames=actor_id->model_data->numFrames;
-	i=0;
-	while(i<numFrames)
-		{
-			char *dest_frame_name;
-
-			dest_frame_name=(char *)&offsetFrames[i].name;
-			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-				{
-					vertex_pointer=offsetFrames[i].vertex_pointer;
-					healtbar_z=offsetFrames[i].box.max_z;
-					break;
-				}
-			i++;
-		}
-	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
-		{
-			char str[256];
-			sprintf(str, "couldn't find frame: %s for %s\n",cur_frame,actor_id->actor_name);
-			log_error(str);
-			return;
-		}
-	*/
-
 	if(last_texture!=texture_id)
 		{
 			glBindTexture(GL_TEXTURE_2D, texture_id);
 			last_texture=texture_id;
 		}
 
+	//now, go and find the current frame
+	i=get_frame_number(actor_id->model_data, actor_id->cur_frame);
+	if(i >= 0)healtbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
+
+	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->x_pos;
 	y_pos=actor_id->y_pos;
 	z_pos=actor_id->z_pos;
 
-	x_rot=actor_id->x_rot;
-	y_rot=actor_id->y_rot;
-	z_rot=actor_id->z_rot;
-
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
-	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
-	z_rot=-z_rot;
+
+	x_rot=actor_id->x_rot;
+	y_rot=actor_id->y_rot;
+	z_rot=-actor_id->z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-#ifdef	USE_VERTEXARRAYS
-	draw_model(actor_id->model_data, cur_frame, 0);
-#else	//USE_VERTEXARRAYS
-	glColor3f(1.0f,1.0f,1.0f);
-	glBegin(GL_TRIANGLES);
-	offsetFaces=actor_id->model_data->offsetFaces;
-	offsetTexCoords=actor_id->model_data->offsetTexCoords;
-	numFaces=actor_id->model_data->numFaces;
-	for(i=0;i<numFaces;i++)
-		{
-			float x,y,z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
-			x=vertex_pointer[offsetFaces[i].a].x;
-			y=vertex_pointer[offsetFaces[i].a].y;
-			z=vertex_pointer[offsetFaces[i].a].z;
-			glVertex3f(x,y,z);
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
-			x=vertex_pointer[offsetFaces[i].b].x;
-			y=vertex_pointer[offsetFaces[i].b].y;
-			z=vertex_pointer[offsetFaces[i].b].z;
-			glVertex3f(x,y,z);
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
-			x=vertex_pointer[offsetFaces[i].c].x;
-			y=vertex_pointer[offsetFaces[i].c].y;
-			z=vertex_pointer[offsetFaces[i].c].z;
-			glVertex3f(x,y,z);
-		}
-	glEnd();
-#endif	//USE_VERTEXARRAYS
+	draw_model(actor_id->model_data, actor_id->cur_frame, actor_id->ghost);
 
 	glPopMatrix();//restore the scene
-	//now, draw their damage
+	//now, draw their damage & nametag
 	glPushMatrix();
 	//glTranslatef(x_pos, y_pos, z_pos);
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
 	draw_actor_banner(actor_id, healtbar_z);
-	/*
-	//draw the health bar
-	glDisable(GL_TEXTURE_2D);
-	//choose color for the bar
-	if(actor_id->cur_health>=actor_id->max_health/2)
-		glColor3f(0,1,0);//green life bar
-	else if(actor_id->cur_health>=actor_id->max_health/4 && actor_id->cur_health<actor_id->max_health/2)
-		glColor3f(1,1,0);//yellow life bar
-	else glColor3f(1,0,0);
-	if(!actor_id->ghost)glDisable(GL_LIGHTING);
-
-	if(view_health_bar && actor_id->cur_health>=0)
-		{
-			//get it's lenght
-			if(actor_id->max_health)//we don't want a division by zero, now do we?
-				healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
-			glBegin(GL_QUADS);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-			glEnd();
-
-			//draw the frame
-			healtbar_y=0.001;
-			glDepthFunc(GL_LEQUAL);
-			glColor3f(0,0,0);
-			glBegin(GL_LINES);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
-
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
-			glEnd();
-		}
-
-	glEnable(GL_TEXTURE_2D);
-	glColor3f(1,0,0);
-
-	glDepthFunc(GL_ALWAYS);
-	if(actor_id->damage_ms)
-		{
-			sprintf(str,"%i",actor_id->damage);
-			glColor3f(1,0.3f,0.3f);
-			draw_ingame_string(-0.1,healtbar_z-2.0f,str,1,1);
-		}
-	glDepthFunc(GL_LESS);
-	if(actor_id->actor_name[0] && view_names)
-		{
-			if(actor_id->ghost)glDisable(GL_BLEND);
-			if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
-			else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)glColor3f(1.0f,1.0f,1.0f);
-			else glColor3f(1.0f,1.0f,0.0f);
-			//draw_ingame_string(-(strlen(actor_id->actor_name)*(int)((float)SMALL_INGAME_FONT_X_LEN*zoom_level/3.0))/2,healtbar_z-0.7f,actor_id->actor_name,1,0);
-			draw_ingame_string(-(strlen(actor_id->actor_name)*(int)(((float)SMALL_INGAME_FONT_X_LEN)*zoom_level/3.0))/2,healtbar_z+0.0f,actor_id->actor_name,1,0);
-			if(actor_id->ghost)glEnable(GL_BLEND);
-		}
-	glColor3f(1,1,1);
-	*/
 	glPopMatrix();//we don't want to affect the rest of the scene
 	//if(!actor_id->ghost)glEnable(GL_LIGHTING);
 
