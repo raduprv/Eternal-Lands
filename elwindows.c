@@ -530,8 +530,10 @@ int	select_window(int win_id)
 {
 	int	i, old, nchild, idiff;
 	
-	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
-	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	if (win_id < 0 || win_id >= windows_list.num_windows)	return -1;
+	if (windows_list.window[win_id].window_id != win_id)	return -1;
+	// never select background windows
+	if (windows_list.window[win_id].order < 0)		return 0;
 	
 	// if this is a child window, raise the parent first
 	if (windows_list.window[win_id].pos_id >= 0)
@@ -548,8 +550,7 @@ int	select_window(int win_id)
 	// shuffle the order of the windows. Children are raised together with
 	// this window
 	old = windows_list.window[win_id].order;
-	if(old <= 0)	return 0;	// show last are never shuffled
-	idiff = (windows_list.num_windows-1-nchild) - old;
+	idiff = (windows_list.num_windows-nchild) - old;
 	for (i=0; i<windows_list.num_windows; i++)
 	{
 		if(windows_list.window[i].order > old)
@@ -641,6 +642,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 			win->dragged = 0;
 			win->resized = 0;
 			win->drag_in = 0;
+			win->reinstate = 0;
 			my_strncp(win->window_name, name, sizeof (win->window_name));
 
 			win->back_color[0]= 0.0f;
@@ -757,7 +759,7 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	win->cur_y= pos_y;	//TODO: calc based on pos_id & pos_loc
 
 	// don't check child windows for visibility
-	if (pos_id < 0) {
+	if (pos_id < 0 || windows_list.window[pos_id].order < 0) {
 		// check for the window actually being on the screen, if not, move it
 		if(win->cur_y < ((win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0)) win->cur_y= (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0;
 		if(win->cur_y >= window_height) win->cur_y= window_height;	// had -32, but do we want that?
@@ -979,12 +981,19 @@ int	draw_window(window_info *win)
 
 void	show_window(int win_id)
 {
+	int iwin;
+	
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
 	// pull to the top if not currently displayed
 	if(!windows_list.window[win_id].displayed)	select_window(win_id);
-	windows_list.window[win_id].displayed= 1;
+	windows_list.window[win_id].displayed = 1;
+	
+	// see if child windows need to be reinstated
+	for (iwin = 0; iwin < windows_list.num_windows; iwin++)
+		if (windows_list.window[iwin].pos_id == win_id && windows_list.window[iwin].reinstate)
+			show_window (iwin);
 }
 
 void	hide_window(int win_id)
@@ -994,12 +1003,16 @@ void	hide_window(int win_id)
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
-	windows_list.window[win_id].displayed= 0;
+	windows_list.window[win_id].displayed = 0;
+	windows_list.window[win_id].reinstate = 0;
 	
 	// hide child windows
 	for (iwin = 0; iwin < windows_list.num_windows; iwin++)
-		if (windows_list.window[iwin].pos_id == win_id)
+		if (windows_list.window[iwin].pos_id == win_id && windows_list.window[iwin].displayed)
+		{
 			hide_window (iwin);
+			windows_list.window[iwin].reinstate = 1;
+		}
 }
 
 void	toggle_window(int win_id)
@@ -1244,7 +1257,7 @@ int	mouseover_window(int win_id, int x, int y)
 				elwin_mouse = CURSOR_ARROW;
 			}
 #endif	//ELC
-
+						
 			return 1;
 		}
 

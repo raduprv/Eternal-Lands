@@ -55,7 +55,9 @@ void draw_hud_interface()
 {
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
+#ifndef WINDOW_CHAT
 	display_windows(0);	// draw only the non-stacked windows
+#endif
 }
 
 // check to see if a mouse click was on the hud
@@ -482,6 +484,10 @@ void switch_action_mode(int * mode, int id)
 
 void view_console_win(int * win, int id)
 {
+#ifdef WINDOW_CHAT
+	if(interface_mode==interface_console || interface_mode==interface_game)
+		toggle_window (root_win);
+#endif
 	if(interface_mode==interface_console) {
 		interface_mode=interface_game;
 	} else {
@@ -494,6 +500,10 @@ void view_console_win(int * win, int id)
 
 void view_map_win(int * win, int id)
 {
+#ifdef WINDOW_CHAT
+	if (interface_mode==interface_game || interface_mode==interface_map || interface_mode==interface_cont)
+		toggle_window (root_win);
+#endif
 	if(interface_mode==interface_game || interface_mode==interface_console)
 		switch_to_game_map();
 	else if(interface_mode==interface_map || interface_mode==interface_cont)

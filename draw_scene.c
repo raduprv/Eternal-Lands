@@ -49,10 +49,10 @@ int open_text;
 int login_text;
 int ground_detail_text;
 
-int times_FPS_below_3=0;
-int main_count=0;
-int fps_average=0;
-int old_fps_average=0;
+//int times_FPS_below_3=0;
+//int main_count=0;
+//int fps_average=0;
+//int old_fps_average=0;
 
 float clouds_movement_u=-8;
 float clouds_movement_v=-3;
@@ -62,11 +62,17 @@ GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXT
 
 void draw_scene()
 {
+#ifndef WINDOW_CHAT
+	static int main_count = 0;
+	static int old_fps_average = 0;
+	static int fps_average = 0;
+	static int times_FPS_below_3 = 0;
 	unsigned char str [180];
 	int fps;
 	int y_line,i;
 	int any_reflection=0;
 	int mouse_rate;
+#endif
 
 	check_gl_errors();
 
@@ -109,6 +115,9 @@ void draw_scene()
 							draw_console_pic(cons_text);
 							display_console_text();
 							draw_hud_interface();
+#ifdef WINDOW_CHAT
+							display_windows (1);
+#endif
 							SDL_GL_SwapBuffers();
 							Leave2DMode();
 							if(elwin_mouse >= 0) {//Make sure that mouse changes in the quickbar
@@ -161,6 +170,9 @@ void draw_scene()
 						{
 							Enter2DMode();
 							draw_hud_interface();
+#ifdef WINDOW_CHAT
+							display_windows (1);
+#endif
 							Leave2DMode();
 							draw_game_map(interface_mode==interface_map);
 							if(elwin_mouse >= 0) {
@@ -175,7 +187,18 @@ void draw_scene()
 					check_gl_errors();
 				}
 		}
-	
+
+#ifdef WINDOW_CHAT
+	Enter2DMode ();
+	display_windows (1);
+	Leave2DMode ();
+
+        if(elwin_mouse >= 0) {
+                if (current_cursor!=elwin_mouse) change_cursor(elwin_mouse);
+                elwin_mouse=-1;
+        }
+#else
+	// XXX (Grum): scheduled for removal, now in the root window display handler	
 	if(!have_a_map)return;
 	if(yourself==-1)return;//we don't have ourselves
 	for(i=0; i<max_actors; i++)
@@ -333,11 +356,7 @@ void draw_scene()
 		}
 
 	check_gl_errors();
-#ifdef WINDOW_CHAT
-	if (!use_windowed_chat && find_last_lines_time())
-#else
 	if(find_last_lines_time())
-#endif
 	{
 		set_font(chat_font);	// switch to the chat font
         	draw_string_zoomed(10,20,&display_text_buffer[display_text_buffer_first],max_lines_no,chat_zoom);
@@ -364,18 +383,11 @@ void draw_scene()
 	Leave2DMode();
 	glEnable(GL_LIGHTING);
 
-#ifdef WINDOW_CHAT
-        if(elwin_mouse >= 0) {
-                if(current_cursor!=elwin_mouse)change_cursor(elwin_mouse);
-                elwin_mouse=-1;
-        }
-#else
 	check_cursor_change();
 #endif
 
 	SDL_GL_SwapBuffers();
 	check_gl_errors();
-
 }
 
 void get_tmp_actor_data()

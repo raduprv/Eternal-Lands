@@ -37,6 +37,7 @@ typedef	struct	{
 	char	dragged;	/*!< are we dragging the window? */
 	char	resized;	/*!< are we resizing the window? */
 	char	drag_in;	/*!< are we dragging inside the window? */
+	char	reinstate;	/*!< reinstate this window if the parent is shown again */
 
     /*!
 	 * \name the handlers
@@ -52,7 +53,7 @@ typedef	struct	{
     /*! @} */
 
 	/*
-	// and optional list/data storage - future explansion??
+	// and optional list/data storage - future expansion??
 	void	*list;
 	int	list_size;	// width of list items
 	int	num_list;	// number of items usable in list

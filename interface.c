@@ -752,7 +752,9 @@ void draw_ingame_interface()
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
+#ifndef WINDOW_CHAT
 	display_windows(1);	// Display all the windows handled by the window manager
+#endif
 	//draw_hud_interface();
 	display_spells_we_have();
 	if(item_dragged!=-1)drag_item(item_dragged,0);
