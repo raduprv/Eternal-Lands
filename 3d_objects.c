@@ -741,7 +741,7 @@ void flag_for_destruction()
 void destroy_the_flagged()
 {
 	int i;
-
+	
 	for(i=0;i<max_e3d_cache;i++)
 		{
 			if(e3d_cache[i].file_name[0])
@@ -755,6 +755,70 @@ void destroy_the_flagged()
 }
 
 
+void MulMatrix(float mat1[4][4], float mat2[4][4], float dest[4][4])
+{
+   int i,j;
+   for(i=0; i<4; i++)
+      for(j=0; j<4; j++)
+         dest[i][j]=mat1[i][0]*mat2[0][j]+mat1[i][1]*mat2[1][j]+mat1[i][2]*mat2[2][j]+mat1[i][3]*mat2[3][j];
+}
+
+void VecMulMatrix(float s[3],float mat[4][4],float d[3])
+{
+    d[0]=s[0]*mat[0][0]+s[1]*mat[1][0]+s[2]*mat[2][0]+mat[3][0];
+    d[1]=s[0]*mat[0][1]+s[1]*mat[1][1]+s[2]*mat[2][1]+mat[3][1];
+    d[2]=s[0]*mat[0][2]+s[1]*mat[1][2]+s[2]*mat[2][2]+mat[3][2];
+}
+
+void CreateIdentityMatrix(float mat[4][4])
+{
+    mat[0][0]=1; mat[0][1]=0; mat[0][2]=0; mat[0][3]=0;
+    mat[1][0]=0; mat[1][1]=1; mat[1][2]=0; mat[1][3]=0;
+    mat[2][0]=0; mat[2][1]=0; mat[2][2]=1; mat[2][3]=0;
+    mat[3][0]=0; mat[3][1]=0; mat[3][2]=0; mat[3][3]=1;
+}
+
+void CreateRotationMatrix(float matrix[4][4],float ax,float ay,float az)
+{
+   float xmat[4][4], ymat[4][4], zmat[4][4];
+   float mat1[4][4], mat2[4][4];
+   xmat[0][0]=1;	xmat[0][1]=0;		xmat[0][2]=0;		xmat[0][3]=0;
+   xmat[1][0]=0;	xmat[1][1]=cos(ax); xmat[1][2]=sin(ax); xmat[1][3]=0;
+   xmat[2][0]=0;	xmat[2][1]=-sin(ax);xmat[2][2]=cos(ax); xmat[2][3]=0;
+   xmat[3][0]=0;    xmat[3][1]=0;		xmat[3][2]=0;		xmat[3][3]=1;
+
+   ymat[0][0]=cos(ay);	ymat[0][1]=0;	ymat[0][2]=-sin(ay);ymat[0][3]=0;
+   ymat[1][0]=0;		ymat[1][1]=1;	ymat[1][2]=0;		ymat[1][3]=0;
+   ymat[2][0]=sin(ay);  ymat[2][1]=0;	ymat[2][2]=cos(ay); ymat[2][3]=0;
+   ymat[3][0]=0;        ymat[3][1]=0;	ymat[3][2]=0;	ymat[3][3]=1;
+
+   zmat[0][0]=cos(az);	zmat[0][1]=sin(az);	zmat[0][2]=0;	zmat[0][3]=0;
+   zmat[1][0]=-sin(az); zmat[1][1]=cos(az); zmat[1][2]=0;	zmat[1][3]=0;
+   zmat[2][0]=0;        zmat[2][1]=0;       zmat[2][2]=1;	zmat[2][3]=0;
+   zmat[3][0]=0;        zmat[3][1]=0;       zmat[3][2]=0;	zmat[3][3]=1;
+
+   MulMatrix(matrix,ymat,mat1);
+   MulMatrix(mat1,xmat,mat2);
+   MulMatrix(mat2,zmat,matrix);
+}
+
+
+void rotatehm(float xrot, float yrot, float zrot, e3d_array_vertex *T, int nv)
+{
+	float TT[4][4];
+	int i;
+	CreateIdentityMatrix(TT);
+	CreateRotationMatrix(TT,xrot,yrot,zrot);
+
+	for(i=0;i<nv;i++){
+		float t[3] = {T[i].x,T[i].y,T[i].z};
+		float d[3];
+		VecMulMatrix(t,TT,d);
+		T[i].x=d[0]; T[i].y=d[1]; T[i].z=d[2];
+	}
+
+}
+
 void add_e3d_heightmap(int K, int D)
 {
 	int face_no = objects_list[K]->e3d_data->face_no;
@@ -765,6 +829,17 @@ void add_e3d_heightmap(int K, int D)
 	int minx, miny, maxx, maxy;							
 	int i, j, k, h;
 	float b0, b1, b2, b3, x0, x1, x2, x3, y0, y1, y2, y3;
+	
+	e3d_array_vertex *TT = NULL;
+	
+	// Check if we need to rotate the vertex
+	if(objects_list[K]->x_rot!=0.0 || objects_list[K]->y_rot!=0.0 || objects_list[K]->z_rot!=0.0)
+	{
+		TT = (e3d_array_vertex *)malloc(face_no*3*sizeof(e3d_array_vertex));
+		memcpy(TT,T,face_no*3*sizeof(e3d_array_vertex));
+		T = TT;
+		rotatehm(objects_list[K]->x_rot*(3.14159265/180),objects_list[K]->y_rot*(3.14159265/180),objects_list[K]->z_rot*(3.14159265/180),T,face_no*3);
+	}
 
 	// Calculating min and max x and y values of the object
 	for(k = 0; k < face_no*3; k++){
@@ -833,4 +908,7 @@ void add_e3d_heightmap(int K, int D)
 			}
 		}
 	}
+	// Freeing if there is rotation
+	if(TT!=NULL)
+		free(TT);
 }
