@@ -19,16 +19,20 @@ void log_error(char * message)
 
 void clear_conn_log()
 {
+#ifdef	DEBUG
 	FILE *f = NULL;
 	f = fopen ("connection_log.txt", "wb");
 	fclose (f);
+#endif
 }
 
 void log_conn(unsigned char *in_data, int data_lenght)
 {
+#ifdef	DEBUG
 	FILE *f = NULL;
 
   	f = fopen ("connection_log.txt", "ab");
   	fwrite (in_data, data_lenght, 1, f);
   	fclose (f);
+#endif
 }
