@@ -23,18 +23,8 @@ void get_3d_object_under_mouse()
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-	check_gl_errors();
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	if(have_multitexture && clouds_shadows)
-		{
-			//bind the detail texture
-			glActiveTextureARB(GL_TEXTURE1_ARB);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-			glEnable(GL_TEXTURE_2D);
-		}
 	glPushMatrix();
 	glLoadIdentity();					// Reset The Matrix
     Move();
@@ -60,14 +50,6 @@ void get_3d_object_under_mouse()
 	glPopMatrix();
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
-	if(have_multitexture && clouds_shadows)
-		{
-			//disable the second texture unit
-			glActiveTextureARB(GL_TEXTURE1_ARB);
-			glDisable(GL_TEXTURE_2D);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-		}
-	check_gl_errors();
 }
 
 
@@ -80,7 +62,6 @@ void kill_3d_object(int object_id)
 
 void move_3d_object(int object_id)
 {
-
 	objects_list[object_id]->x_pos=scene_mouse_x;
 	objects_list[object_id]->y_pos=scene_mouse_y;
 }
