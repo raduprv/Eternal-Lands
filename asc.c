@@ -277,7 +277,7 @@ char ** get_lines(char * str, int chars_per_line)
 			if(i>=chars_per_line){//Wrap it
 				//go back to the last space
 				while(i){
-					if(str[i]=='/' || str[i]=='?' || str[i]=='!' || str[i]==' ' || str[i]==0x0a || str[i]==0x0d) break;
+					if(str[i]=='/' || str[i]=='-' || str[i]=='?' || str[i]=='!' || str[i]==' ' || str[i]==0x0a || str[i]==0x0d) break;
 					i--;
 				}
 				if(i){
@@ -383,6 +383,22 @@ void http_get_file(char *server, char *path, FILE *fp)
 }
 
 /*XML*/
+
+float xmlGetFloat(xmlNode * n, xmlChar * c)
+{
+	char * t=xmlGetProp(n,c);
+	float f=t?atof(t):0;
+	free(t);
+	return f;
+}
+
+int xmlGetInt(xmlNode *n, xmlChar *c)
+{
+	char *t=xmlGetProp(n,c);
+	int i=t?atoi(t):0;
+	free(t);
+	return i;
+}
 
 int my_xmlstrncopy(char ** dest, char * src, int len)
 {

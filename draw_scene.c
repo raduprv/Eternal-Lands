@@ -385,9 +385,9 @@ void Move()
 		{
 			if(actors_list[i] && actors_list[i]->actor_id==yourself&& actors_list[i]->tmp.have_tmp)
 				{
-					float x=actors_list[i]->tmp.x_pos;
-					float y=actors_list[i]->tmp.y_pos;
-					float z=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f;
+					float x=actors_list[i]->tmp.x_pos+0.25f;
+					float y=actors_list[i]->tmp.y_pos+0.25f;
+					float z=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f+sitting;
 					//move near the actor, but smoothly
 					camera_x_speed=(x-(-cx))/16.0;
 					camera_x_frames=16;
@@ -406,7 +406,7 @@ void Move()
 
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(cx/*-0.25f*/,cy/*-0.25f*/, cz/*-0.5f*/);
+	glTranslatef(cx,cy, cz);
 
 	//test only
 	update_position();

@@ -607,6 +607,7 @@ void init_errors()
 	add_xml_identifier(misc,"stat",stat_no_invalid,"Server sent invalid stat number",50);
 	add_xml_identifier(misc,"ascii",not_ascii,"Not ASCII",20);
 	add_xml_identifier(misc,"timer",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", 100);
+	add_xml_identifier(misc,"nameinuse",char_name_in_use,"Character name is already taken",50);
 #endif
 
 	//Particle errors

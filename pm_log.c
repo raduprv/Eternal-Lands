@@ -154,6 +154,7 @@ int is_talking_about_me(Uint8 *server_msg, int len)
 {
 	int a=0;
 	unsigned char msg[200];
+	if(len>198)return 0;
 	strncpy(msg,server_msg,len);
 	msg[len]=0;
 	my_tolower(msg);

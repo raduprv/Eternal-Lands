@@ -29,6 +29,8 @@ void get_string_digest(const Uint8 * string, Uint8 digest[16]);
 
 void http_get_file(char *server, char *path, FILE *fp);
 
+float xmlGetFloat(xmlNode * n, xmlChar * p);
+int xmlGetInt(xmlNode *n, xmlChar *p);
 int my_xmlstrncopy(char ** dest, char * src, int len);
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef __NEW_ACTORS_H__
 #define __NEW_ACTORS_H__
 
+extern float sitting;
+
 void draw_body_part(md2 *model_data,char *cur_frame, int ghost);
 int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos, float y_pos,
 					   float z_pos, float z_rot, int actor_id);

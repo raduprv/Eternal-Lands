@@ -3,6 +3,7 @@
 #include <string.h>
 #include "global.h"
 
+float sitting=0;
 glow_color glow_colors[10];
 
 //build the glow color table
@@ -218,7 +219,10 @@ void draw_enhanced_actor(actor * actor_id)
 
 	//now, go and find the current frame
 	i=get_frame_number(actor_id->body_parts->head, cur_frame);;
-	if(i >= 0)healtbar_z=actor_id->body_parts->head->offsetFrames[i].box.max_z;
+	if(i >= 0){
+		healtbar_z=actor_id->body_parts->head->offsetFrames[i].box.max_z;
+		if(actor_id->actor_id==yourself)sitting=healtbar_z/2.0f;
+	}
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->tmp.x_pos;

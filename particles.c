@@ -11,7 +11,7 @@
 #endif
 #include "string.h"
 
-#define PART_SYS_VISIBLE_DIST_SQ 10*10
+#define PART_SYS_VISIBLE_DIST_SQ 18*18
 
 int particles_percentage=100;
 SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
