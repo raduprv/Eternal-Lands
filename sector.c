@@ -14,13 +14,13 @@ void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey)
 	int fy=sector/(tile_map_size_y_4);
 	int fx=sector%(tile_map_size_x_4);
 
-	*sx=fx-1;
+	*sx=fx-2;
 	if(*sx<0)*sx=0;
-	*sy=fy-1;
+	*sy=fy-2;
 	if(*sy<0)*sy=0;
-	*ex=fx+1;
+	*ex=fx+2;
 	if(*ex==tile_map_size_x_4)*ex=tile_map_size_x_4-1;
-	*ey=fy+1;
+	*ey=fy+2;
 	if(*ey==tile_map_size_y_4)*ey=tile_map_size_y_4-1;
 }
 
