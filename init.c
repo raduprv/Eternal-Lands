@@ -82,6 +82,8 @@ void read_config()
 	if(mouse_limit==-1)mouse_limit=15;
   	full_screen=get_integer_after_string("#full_screen",file_mem,MAX_INI_FILE);
   	clouds_shadows=get_integer_after_string("#clouds_shadows",file_mem,MAX_INI_FILE);
+	sit_lock=get_integer_after_string("#sit_lock",file_mem,MAX_INI_FILE);
+	if(sit_lock==-1)sit_lock=0;
   	use_global_ignores=get_integer_after_string("#use_global_ignores",file_mem,MAX_INI_FILE);
   	use_global_filters=get_integer_after_string("#use_global_filters",file_mem,MAX_INI_FILE);
   	save_ignores=get_integer_after_string("#save_ignores",file_mem,MAX_INI_FILE);

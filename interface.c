@@ -249,7 +249,7 @@ void check_mouse_click()
 			my_tcp_send(my_socket,&protocol_name,1);
 			return;
 		}
-	//check to see if we clicked on the compas
+	//check to see if we clicked on the compass
 	if(view_compas && mouse_x>window_width-64 && mouse_x<window_width
 	   && mouse_y>window_height-64 && mouse_y<window_height)
 		{
@@ -262,7 +262,7 @@ void check_mouse_click()
 
 	//after we test for interface clicks
 	//LOOK AT
-	if(current_cursor==CURSOR_EYE && left_click)
+	if((current_cursor==CURSOR_EYE && left_click) || (action_mode==action_look && right_click))
 		{
 			Uint8 str[10];
 
@@ -283,27 +283,7 @@ void check_mouse_click()
 					return;
 				}
 		}
-	if(action_mode==action_look && right_click)
-		{
-			Uint8 str[10];
 
-			if(object_under_mouse==-1)return;
-
-			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER || thing_under_the_mouse==UNDER_MOUSE_NPC || thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
-				{
-					str[0]=GET_PLAYER_INFO;
-					*((int *)(str+1))=object_under_mouse;
-					my_tcp_send(my_socket,str,5);
-					return;
-				}
-			if(thing_under_the_mouse==UNDER_MOUSE_3D_OBJ)
-				{
-					str[0]=LOOK_AT_MAP_OBJECT;
-					*((int *)(str+1))=object_under_mouse;
-					my_tcp_send(my_socket,str,5);
-					return;
-				}
-		}
 	//TRADE
 	if((action_mode==action_trade && right_click) || (current_cursor==CURSOR_TRADE && left_click))
 		{
@@ -318,7 +298,7 @@ void check_mouse_click()
 		}
 
 	//ATTACK
-	if(current_cursor==CURSOR_ATTACK && left_click)
+	if((current_cursor==CURSOR_ATTACK && left_click) || (action_mode==action_attack && right_click))
 		{
 			Uint8 str[10];
 
@@ -330,47 +310,10 @@ void check_mouse_click()
 					my_tcp_send(my_socket,str,5);
 					return;
 				}
-		}
-	if(action_mode==action_attack && right_click)
-		{
-			Uint8 str[10];
-
-			if(object_under_mouse==-1)return;
-			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER || thing_under_the_mouse==UNDER_MOUSE_NPC || thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
-				{
-					str[0]=ATTACK_SOMEONE;
-					*((int *)(str+1))=object_under_mouse;
-					my_tcp_send(my_socket,str,5);
-					return;
-				}
-
 		}
 
 	//USE
-	if((current_cursor==CURSOR_TALK || current_cursor==CURSOR_ENTER) && left_click)
-		{
-			Uint8 str[10];
-
-			if(object_under_mouse==-1)return;
-			if(thing_under_the_mouse==UNDER_MOUSE_PLAYER || thing_under_the_mouse==UNDER_MOUSE_NPC || thing_under_the_mouse==UNDER_MOUSE_ANIMAL)
-				{
-					int i;
-					str[0]=TOUCH_PLAYER;
-					*((int *)(str+1))=object_under_mouse;
-					my_tcp_send(my_socket,str,5);
-
-					//clear the previous dialogue entries, so we won't have a left over from some othr NPC
-					for(i=0;i<20;i++)dialogue_responces[i].in_use=0;
-					return;
-				}
-			action_mode=action_walk;
-			str[0]=USE_MAP_OBJECT;
-			*((int *)(str+1))=object_under_mouse;
-			*((int *)(str+5))=selected_inventory_object;
-			my_tcp_send(my_socket,str,9);
-			return;
-		}
-	if(action_mode==action_use && right_click)
+	if(((current_cursor==CURSOR_TALK || current_cursor==CURSOR_ENTER) && left_click) || (action_mode==action_use && right_click))
 		{
 			Uint8 str[10];
 
@@ -395,32 +338,16 @@ void check_mouse_click()
 		}
 
 	//OPEN BAG
-	if(current_cursor==CURSOR_PICK && left_click)
+	if((current_cursor==CURSOR_PICK && left_click) || (action_mode==action_pick && right_click))
 		{
 			if(object_under_mouse==-1)return;
 			open_bag(object_under_mouse);
 			action_mode=action_pick;
 			return;
 		}
-	if(action_mode==action_pick && right_click)
-		{
-			if(object_under_mouse==-1)return;
-			open_bag(object_under_mouse);
-			return;
-		}
 
 	//HARVEST
-	if(current_cursor==CURSOR_HARVEST && left_click)
-		{
-			Uint8 str[10];
-
-			if(object_under_mouse==-1)return;
-			str[0]=HARVEST;
-			*((short *)(str+1))=object_under_mouse;
-			my_tcp_send(my_socket,str,3);
-			return;
-		}
-	if(action_mode==action_harvest && right_click)
+	if((current_cursor==CURSOR_HARVEST && left_click) || (action_mode==action_harvest && right_click))
 		{
 			Uint8 str[10];
 
@@ -431,8 +358,8 @@ void check_mouse_click()
 			return;
 		}
 
-
-	if((action_mode==action_walk && right_click) || (current_cursor==CURSOR_WALK && left_click))
+	//WALK
+	if((action_mode==action_walk && right_click) || (current_cursor==CURSOR_WALK && left_click && (!you_sit || !sit_lock)))
 		{
 			Uint8 str[10];
 			short x,y;
@@ -619,8 +546,11 @@ void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_sta
 
 void init_opening_interface()
 {
+	check_gl_errors();
 	login_screen_menus=load_texture_cache("./textures/login_menu.bmp",0);
+	check_gl_errors();
 	login_text=load_texture_cache("./textures/login_back.bmp",255);
+	check_gl_errors();
 
 }
 
@@ -1877,7 +1807,7 @@ int map_text;
 void switch_to_game_map()
 {
 	int len;
-	char map_map_file_name[60];
+	char map_map_file_name[256];
 
 	//try to see if we can find a valid map
 	my_strcp(map_map_file_name,map_file_name);
