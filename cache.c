@@ -9,7 +9,7 @@ cache_struct	*cache_md2=NULL;
 cache_struct	*cache_e3d=NULL;
 
 texture_cache_struct texture_cache[1000];
-obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_def];
+obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF];
 
 // top level cache system routines
 void cache_system_init(Uint32 max_items)

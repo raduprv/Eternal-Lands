@@ -12,7 +12,7 @@
  */
 /*! \{ */
 #define MAX_OBJ_2D 15000 /*!<Maximum number of 2d objects in a map*/
-#define MAX_OBJ_2D_def 1000 /*!<Maximum number of loaded 2d object definitions*/
+#define MAX_OBJ_2D_DEF 1000 /*!<Maximum number of loaded 2d object definitions*/
 /*! \} */
 
 /*!
@@ -93,7 +93,7 @@ typedef struct
 	obj_2d_def *obj_2d_def_id; /*!< a pointer to the header structure of this object */
 }obj_2d_cache_struct;
 
-extern obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_def]; /*!< The 2d object cache array - holds all loaded 2d object definitions*/
+extern obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF]; /*!< The 2d object cache array - holds all loaded 2d object definitions*/
 
 extern obj_2d *obj_2d_list[MAX_OBJ_2D]; /*!< The 2d object array - holds all 2d objects on that map*/
 

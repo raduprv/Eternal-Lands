@@ -332,7 +332,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 	file_name_lenght=strlen(file_name);
 
-	for(i=0;i<MAX_OBJ_2D_def;i++)
+	for(i=0;i<MAX_OBJ_2D_DEF;i++)
 		{
 			if(!strcasecmp(obj_2d_def_cache[i].file_name, file_name))
 				{
@@ -355,7 +355,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 	//find a place to store it
 	i=0;
-	while(i<MAX_OBJ_2D_def)
+	while(i<MAX_OBJ_2D_DEF)
 		{
 			if(!obj_2d_def_cache[i].file_name[0])//we found a place to store it
 				{
