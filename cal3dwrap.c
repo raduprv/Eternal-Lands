@@ -1,5 +1,6 @@
-#include "global.h"
+#include <GL/gl.h>
 #include <cal3d/cal3d.h>
+#include <SDL.h>
 
 
 CalCoreModel testcore;

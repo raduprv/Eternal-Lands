@@ -88,6 +88,9 @@
 #include "new_character.h"
 #include "init.h"
 #include "pm_log.h"
+#ifdef CAL3D
+#include "cal3dwrap.h"
+#endif
 
 //some prototypes, that won't fit somewhere else
 int SphereInFrustum(float x, float y, float z, float radius);
