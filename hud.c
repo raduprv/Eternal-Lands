@@ -325,7 +325,7 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 {
 	int no=icons_no++;
 	icon_list[no]=(icon_struct*)calloc(1,sizeof(icon_struct));
-	if(!no)
+	if(no == 0)
 		icon_list[no]->state=PRESSED;
 	else
 		icon_list[no]->state=0;
@@ -349,7 +349,7 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 			icon_list[no]->free_data=1;
 			break;
 		case DATA_WINDOW:
-			icon_list[no]->data=(int*)data;
+			icon_list[no]->data=data;
 			break;
 		case DATA_NONE:
 			icon_list[no]->data=NULL;
@@ -382,7 +382,6 @@ void draw_peace_icons()
 
 int	display_icons_handler(window_info *win)
 {
-
 	int i, state=-1, *z;
 
 	//glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
@@ -393,7 +392,7 @@ int	display_icons_handler(window_info *win)
 			z = (int*)icon_list[i]->data;
 			switch(icon_list[i]->data_type) {
 			case DATA_WINDOW:
-				icon_list[i]->state=windows_list.window[*z].displayed;
+				icon_list[i]->state = (*z) >= 0 ? windows_list.window[*z].displayed : 0;
 				break;
 			case DATA_MODE:
 				icon_list[i]->state=(interface_mode==*z);
