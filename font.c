@@ -480,6 +480,7 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 					font_bit_width=get_font_width(chr);
 					displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
 					ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
+					if(ignored_bits < 0)ignored_bits=0;
 
 					//now get the texture coordinates
 					u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
@@ -487,7 +488,6 @@ void draw_ingame_string(float x, float y,unsigned char * our_string,
 					v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
 					v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
 					//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
-
 
 					/*glTexCoord2f(u_start,v_start);
 					glVertex3f(cur_x,cur_y,1+displayed_font_y_size);
@@ -562,6 +562,8 @@ int init_fonts()
 	for(i=0; i<10; i++)	fonts[i]=NULL;
 	load_font(0, "./textures/font.bmp");
 	load_font(1, "./textures/fontv.bmp");
+	//set the default font
+	cur_font_num=0;
 	font_text=fonts[0]->texture_id;
 
 	return(0);
@@ -577,10 +579,6 @@ int load_font(int num, char *file)
 			return -1;
 		}
 	// allocate space if needed
-	if(num >= max_fonts)
-		{
-			max_fonts=num+1;
-		}
 	if(fonts[num] == NULL)
 		{
 			fonts[num]=(font_info *)calloc(1, sizeof(font_info));
@@ -589,6 +587,11 @@ int load_font(int num, char *file)
 					log_error("Unable to load font");
 					return -1;
 				}
+		}
+	//watch the highest font
+	if(num >= max_fonts)
+		{
+			max_fonts=num+1;
 		}
 	// set default font info
 	strcpy(fonts[num]->name, "default");
@@ -621,7 +624,7 @@ int load_font(int num, char *file)
 
 int	set_font(int num)
 {
-	if(num >= 0 && num < max_fonts && fonts[num])
+	if(num >= 0 && num < max_fonts && fonts[num] && fonts[num]->texture_id >= 0)
 		{
 			cur_font_num=num;
 			font_text=fonts[cur_font_num]->texture_id;
