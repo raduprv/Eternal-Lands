@@ -210,9 +210,9 @@ void clone_2d_object(int object_id)
 					z_incrementation=0;
 
 					if(z_incrementation)
-					z_pos+=0.001f;
+					z_pos+=0.003f;
 					else
-					z_pos-=0.001f;
+					z_pos-=0.003f;
 
 					if(z_pos<0.001f)
 						{
