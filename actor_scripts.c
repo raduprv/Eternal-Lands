@@ -60,14 +60,16 @@ void move_to_next_frame()
 					for(k=0;k<l-2;k++)frame_name[k]=actors_list[i]->cur_frame[k];
 					//increment the frame_no
 					frame_no++;
-					//9 frames, not moving, and another command is queued
-					if(frame_no > 9 && !actors_list[i]->moving && !actors_list[i]->rotating && actors_list[i]->que[0]!=nothing)
+					//9 frames, not moving, and another command is queued farther on (based on how long we've done this action)
+					if(frame_no > 9 && !actors_list[i]->moving && !actors_list[i]->rotating)
 						{
-							//if(actors_list[i]->last_command==nothing)
-							//{
+							//if(actors_list[i]->que[0]!=nothing)
+							if(actors_list[i]->que[(frame_no<35?7-(frame_no/5):0)]!=nothing)
+							//(actors_list[i]->que[(frame_no<63?7-(frame_no/9):0)]!=nothing)
+							{
 								actors_list[i]->stop_animation=1;	//force stopping, not looping
 								actors_list[i]->busy=0;	//ok, take the next command
-							//}
+							}
 						}
 
 					//transform back into string
