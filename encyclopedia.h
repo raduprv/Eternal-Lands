@@ -20,6 +20,7 @@ typedef struct _Texts
 typedef struct _Images
 {
 	int id,x,y,xend,yend;
+	Uint8 mouseover;
 	float u,v,uend,vend;
 	struct _Images *Next;
 }_Image;

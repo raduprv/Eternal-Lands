@@ -10,7 +10,7 @@ int encyclopedia_menu_dragged=0;
 
 _Category Category[100];
 _Page Page[100];
-int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0,isize,tsize,tid,size;
+int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0,isize,tsize,tid,ssize,mouseover=0;
 float u,v,uend,vend,xend,yend,r,g,b;
 char *s,*ss;
 
@@ -88,11 +88,18 @@ void display_encyclopedia()
 
 	glColor3f(1.0f,1.0f,1.0f);
 	while(i){
-		get_and_set_texture_id(i->id);
-		glBegin(GL_QUADS);
-		draw_2d_thing(i->u, i->v, i->uend, i->vend,i->x+encyclopedia_menu_x, i->y+encyclopedia_menu_y,encyclopedia_menu_x+i->xend,encyclopedia_menu_y+i->yend);
-		glEnd();
-		i=i->Next;
+		if(i->mouseover==1){i=i->Next;continue;}
+		if(mouse_x>(i->x+encyclopedia_menu_x) && mouse_x<(encyclopedia_menu_x+i->xend) && mouse_y>(i->y+encyclopedia_menu_y) && mouse_y<(encyclopedia_menu_y+i->yend)){
+			if(i->Next!=NULL){
+				if(i->Next->mouseover==1)
+					i=i->Next;
+			}
+		}
+			get_and_set_texture_id(i->id);
+			glBegin(GL_QUADS);
+			draw_2d_thing(i->u, i->v, i->uend, i->vend,i->x+encyclopedia_menu_x, i->y+encyclopedia_menu_y,encyclopedia_menu_x+i->xend,encyclopedia_menu_y+i->yend);
+			glEnd();
+			i=i->Next;
 	}
 
 }
@@ -240,6 +247,10 @@ void ParseImage(xmlAttr *a_node)
 			if(!xmlStrcasecmp(cur_attr->name,"y")){
 				y=atoi(cur_attr->children->content);
 			}
+			//mouseover=""
+			if(!xmlStrcasecmp(cur_attr->name,"mouseover")){
+				mouseover=atoi(cur_attr->children->content);
+			}
 		}
 	}
 }
@@ -268,7 +279,7 @@ void ParseSimage(xmlAttr *a_node)
 			}
 			//size=""
 			if(!xmlStrcasecmp(cur_attr->name,"size")){
-				size=atoi(cur_attr->children->content);
+				ssize=atoi(cur_attr->children->content);
 			}
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,"x")){
@@ -277,6 +288,10 @@ void ParseSimage(xmlAttr *a_node)
 			//y=""
 			if(!xmlStrcasecmp(cur_attr->name,"y")){
 				y=atoi(cur_attr->children->content);
+			}
+			//mouseover=""
+			if(!xmlStrcasecmp(cur_attr->name,"mouseover")){
+				mouseover=atoi(cur_attr->children->content);
 			}
 
 		}
@@ -393,20 +408,30 @@ void ReadCategoryXML(xmlNode * a_node)
 				_Image *I=(_Image*)malloc(sizeof(_Image));
 				_Image *i=&Page[numpage].I;
 				ParseImage(cur_node->properties);
-				I->Next=NULL;
+				I->mouseover=mouseover;
+				mouseover=0;
+			
+				while(i->Next!=NULL)i=i->Next;
 				I->id=id;
+				I->Next=NULL;
+				if(!I->mouseover){
+					I->x=x;
+					I->y=y;
+					I->xend=x+xend;
+					I->yend=y+yend;
+					x+=xend;
+					y+=yend-((size)?18:15);
+				}else{
+					I->x=i->x;
+					I->y=i->y;
+					I->xend=i->xend;
+					I->yend=i->yend;
+				}
 				I->u=u;
 				I->v=v;
 				I->uend=uend;
 				I->vend=vend;
-				I->xend=x+xend;
-				I->yend=y+yend;
-				I->x=x;
-				I->y=y;
-				while(i->Next!=NULL)i=i->Next;
 				i->Next=I;
-				x+=xend;
-				y+=yend-((size)?18:15);
 				numimage++;
 			}
 
@@ -417,6 +442,8 @@ void ReadCategoryXML(xmlNode * a_node)
 				int picsperrow,xtile,ytile;
 				float ftsize;
 				ParseSimage(cur_node->properties);
+				if(size==99)
+					size=99;
 
 				picsperrow=isize/tsize;
 				xtile=tid%picsperrow;
@@ -426,21 +453,31 @@ void ReadCategoryXML(xmlNode * a_node)
 				v=-ftsize*ytile;
 				uend=u+ftsize;
 				vend=v-ftsize;
-
-				I->Next=NULL;
+				I->mouseover=mouseover;
+				mouseover=0;
+				
+				while(i->Next!=NULL)i=i->Next;
 				I->id=id;
+				I->Next=NULL;
+				if(!I->mouseover){
+					I->x=x;
+					I->y=y;
+					I->xend=x+(tsize*((float)ssize/100));
+					I->yend=y+(tsize*((float)ssize/100));
+					x+=(tsize*((float)ssize/100));
+					y+=(tsize*((float)ssize/100))-((size)?18:15);
+				}else{
+					I->x=i->x;
+					I->y=i->y;
+					I->xend=i->xend;
+					I->yend=i->yend;
+				}
 				I->u=u;
 				I->v=v;
 				I->uend=uend;
 				I->vend=vend;
-				I->xend=x+(tsize*(size/100));
-				I->yend=y+(tsize*(size/100));
-				I->x=x;
-				I->y=y;
-				while(i->Next!=NULL)i=i->Next;
 				i->Next=I;
-				x+=xend;
-				y+=yend-((size)?18:15);
+				
 				numimage++;
 			}
 
