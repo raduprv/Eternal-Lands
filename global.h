@@ -7,18 +7,19 @@
 #include <SDL_thread.h>
 #include <al.h>
 #include <alut.h>
-#else //if LINUX
+#elif defined(LINUX)
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
 #include <SDL/SDL_thread.h>
-#endif //WINDOWS
-
-#ifdef OSX
-#include <OpenAL/alut.h>
-#else	//OSX
+#elif defined(BSD)
+#include <SDL.h>
+#include <SDL_net.h>
+#include <SDL_thread.h>
 #include <AL/al.h>
 #include <AL/alut.h>
-#endif	//OSX
+#elif defined(OSX)
+#include <OpenAL/alut.h>
+#endif //WINDOWS
 
 
 #include "elc_private.h"
