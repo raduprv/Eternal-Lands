@@ -329,7 +329,8 @@ void init_browser()
 				Dir[dc].Files[Dir[dc].nf][i++]=temp[j++];
 			}
 
-			sscanf(&temp[j+1],"%g,%g,%g,%g\n",&Dir[dc].xrot[Dir[dc].nf],&Dir[dc].yrot[Dir[dc].nf],&Dir[dc].zrot[Dir[dc].nf],&Dir[dc].size[Dir[dc].nf++]);
+			sscanf(&temp[j+1],"%g,%g,%g,%g\n",&Dir[dc].xrot[Dir[dc].nf],&Dir[dc].yrot[Dir[dc].nf],&Dir[dc].zrot[Dir[dc].nf],&Dir[dc].size[Dir[dc].nf]);
+			Dir[dc].nf++;
 		}
 	}
 	dc++;
