@@ -990,7 +990,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 
 
 			add_particle_sys("./particles/teleporter.part",x,y,z);
-			add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
+			sector_add_3do(add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
 
 			//mark the teleporter as an unwalkable so that the pathfinder
 			//won't try to plot a path through it
