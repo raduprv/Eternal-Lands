@@ -442,9 +442,9 @@ float colored_arrow_v_end=1.0f-(float)31/256;
 void draw_rules_interface()
 {
 	char str[20];
-	float diff=(window_width-window_height)>>1;
+	float diff=(float)(window_width-window_height)/2;
 	int x,y,width,height;//Width/Height are 0.5*width/height
-	float window_ratio=window_width/640.0f;
+	float window_ratio=(float)window_width/640.0f;
 	if(has_accepted) {
 		interface_mode=next_interface;
 		if(disconnected)connect_to_server();
@@ -472,7 +472,7 @@ void draw_rules_interface()
     	
 	width=120*window_ratio;
 	height=40*window_ratio;
-	x=(window_height>>1);
+	x=window_height/2;
 	y=66*window_ratio;
     
 	glPushMatrix();
@@ -518,10 +518,46 @@ void draw_rules_interface()
 	glEnd();
 	glPopMatrix();
 
-	x=40*window_ratio;
-	y=100*window_ratio;
+	x=30*window_ratio;
+	y=110*window_ratio;
 	width=window_height-60*window_ratio;
-	height=window_height-120*window_ratio-diff;
+	switch(video_mode){//Hmm...
+		case 1:
+		case 2:
+			x=30;
+			y=110;
+			height=270;
+			width=420;
+			break;
+		case 3:
+		case 4:
+			x=40;
+			y=135;
+			width=470;
+			height=290;
+			break;
+		case 5:
+		case 6:
+			x=48;
+			y=176;
+			height=380;
+			width=610;
+			break;
+		case 7:
+		case 8:
+			x=54;
+			y=180;
+			height=420;
+			width=670;
+			break;
+		case 9:
+		case 10:
+			x=60;
+			y=220;
+			height=560;
+			width=860;
+			break;
+	}
 	
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
@@ -536,8 +572,8 @@ void draw_rules_interface()
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 
-	x=window_height+diff-40*window_ratio;
-	y=125*window_ratio;
+	x=window_height+diff-50*window_ratio;
+	y=128*window_ratio;
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	
@@ -574,8 +610,8 @@ void draw_rules_interface()
 	glEnd();
 	glPopMatrix();
 	
-	x=window_height+diff-40*window_ratio;
-	y=window_height-131*window_ratio;
+	x=window_height+diff-50*window_ratio;
+	y=window_height-128*window_ratio;
 	
 	if(mouse_x>x-16&&mouse_x<x+16&&mouse_y>y-16&&mouse_y<y+16){
 		
@@ -623,7 +659,7 @@ void draw_rules_interface()
 	
 	glPopMatrix();//We have to use the real coordinates, as the mouseover/click depend on them
 	
-	draw_rules(display_rules+rule_offset, rule_offset, diff+40*window_ratio,120*window_ratio,window_height+diff/2-50,window_height-140*window_ratio,1.0f);
+	draw_rules(display_rules+rule_offset, rule_offset, diff+30*window_ratio,120*window_ratio,window_height+diff/2-50,window_height-140*window_ratio,1.0f);
 	
 	check_mouse_rules_interface(display_rules+rule_offset, window_height-50, window_height, mouse_x, mouse_y);
 }
