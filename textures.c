@@ -891,7 +891,7 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	if(this_actor->hands_tex[0])load_bmp8_to_coordinates(this_actor->hands_tex,texture_mem,67,64,a);
 	if(this_actor->head_tex[0])load_bmp8_to_coordinates(this_actor->head_tex,texture_mem,67,0,a);
 	if(this_actor->hair_tex[0])load_bmp8_to_coordinates(this_actor->hair_tex,texture_mem,0,0,a);
-	if(this_actor->weapon_tex[0])load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,158,77,a);
+	if(!strncmp(this_actor->weapon_tex,"none", 5) && this_actor->weapon_tex[0])load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,158,77,a);
 	if(this_actor->shield_tex[0])load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,80,96,a);
 	if(this_actor->helmet_tex[0])load_bmp8_to_coordinates(this_actor->helmet_tex,texture_mem,80,149,a);
 	if(this_actor->cape_tex[0])load_bmp8_to_coordinates(this_actor->cape_tex,texture_mem,131,0,a);

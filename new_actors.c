@@ -162,7 +162,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	else this_actor->torso=0;
 
 	//ok, load the weapon
-	if(this_actor->weapon_fn[0])
+	if(!strncmp(this_actor->weapon_fn,"none", 5) && this_actor->weapon_fn[0])
 		{
 			this_actor->weapon=(md2*)load_md2_cache(this_actor->weapon_fn);
 			if(!this_actor->weapon)

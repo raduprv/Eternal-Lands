@@ -877,8 +877,8 @@ void init_actor_defs()
 		sprintf(actors_defs[human_female].shield[SHIELD_STEEL].skin_name,"./md2/shield1_steel.bmp");
 
 
-		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].model_name,"");
-		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].skin_name,"");
+		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].model_name,"none");
+		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].skin_name,"none");
 		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_up1,"punchone01");
 		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
@@ -1117,8 +1117,8 @@ void init_actor_defs()
 		sprintf(actors_defs[human_male].shield[SHIELD_STEEL].skin_name,"./md2/shield1_steel.bmp");
 
 
-		sprintf(actors_defs[human_male].weapon[WEAPON_NONE].model_name,"");
-		sprintf(actors_defs[human_male].weapon[WEAPON_NONE].skin_name,"");
+		sprintf(actors_defs[human_male].weapon[WEAPON_NONE].model_name,"none");
+		sprintf(actors_defs[human_male].weapon[WEAPON_NONE].skin_name,"none");
 		sprintf(actors_defs[human_male].weapon[WEAPON_NONE].attack_up1,"punchone01");
 		sprintf(actors_defs[human_male].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 		sprintf(actors_defs[human_male].weapon[WEAPON_NONE].attack_down1,"kickone01");
@@ -1357,8 +1357,8 @@ void init_actor_defs()
 		sprintf(actors_defs[elf_female].shield[SHIELD_STEEL].skin_name,"./md2/shield1_steel.bmp");
 
 
-		sprintf(actors_defs[elf_female].weapon[WEAPON_NONE].model_name,"");
-		sprintf(actors_defs[elf_female].weapon[WEAPON_NONE].skin_name,"");
+		sprintf(actors_defs[elf_female].weapon[WEAPON_NONE].model_name,"none");
+		sprintf(actors_defs[elf_female].weapon[WEAPON_NONE].skin_name,"none");
 		sprintf(actors_defs[elf_female].weapon[WEAPON_NONE].attack_up1,"punchone01");
 		sprintf(actors_defs[elf_female].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 		sprintf(actors_defs[elf_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
@@ -1597,8 +1597,8 @@ void init_actor_defs()
 		sprintf(actors_defs[elf_male].shield[SHIELD_STEEL].skin_name,"./md2/shield1_steel.bmp");
 
 
-		sprintf(actors_defs[elf_male].weapon[WEAPON_NONE].model_name,"");
-		sprintf(actors_defs[elf_male].weapon[WEAPON_NONE].skin_name,"");
+		sprintf(actors_defs[elf_male].weapon[WEAPON_NONE].model_name,"none");
+		sprintf(actors_defs[elf_male].weapon[WEAPON_NONE].skin_name,"none");
 		sprintf(actors_defs[elf_male].weapon[WEAPON_NONE].attack_up1,"punchone01");
 		sprintf(actors_defs[elf_male].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 		sprintf(actors_defs[elf_male].weapon[WEAPON_NONE].attack_down1,"kickone01");
@@ -1837,8 +1837,8 @@ void init_actor_defs()
 		sprintf(actors_defs[dwarf_female].shield[SHIELD_STEEL].skin_name,"./md2/shield1_steel.bmp");
 
 
-		sprintf(actors_defs[dwarf_female].weapon[WEAPON_NONE].model_name,"");
-		sprintf(actors_defs[dwarf_female].weapon[WEAPON_NONE].skin_name,"");
+		sprintf(actors_defs[dwarf_female].weapon[WEAPON_NONE].model_name,"none");
+		sprintf(actors_defs[dwarf_female].weapon[WEAPON_NONE].skin_name,"none");
 		sprintf(actors_defs[dwarf_female].weapon[WEAPON_NONE].attack_up1,"punchone01");
 		sprintf(actors_defs[dwarf_female].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 		sprintf(actors_defs[dwarf_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
@@ -2077,8 +2077,8 @@ void init_actor_defs()
 		sprintf(actors_defs[dwarf_male].shield[SHIELD_STEEL].skin_name,"./md2/shield1_steel.bmp");
 
 
-		sprintf(actors_defs[dwarf_male].weapon[WEAPON_NONE].model_name,"");
-		sprintf(actors_defs[dwarf_male].weapon[WEAPON_NONE].skin_name,"");
+		sprintf(actors_defs[dwarf_male].weapon[WEAPON_NONE].model_name,"none");
+		sprintf(actors_defs[dwarf_male].weapon[WEAPON_NONE].skin_name,"none");
 		sprintf(actors_defs[dwarf_male].weapon[WEAPON_NONE].attack_up1,"punchone01");
 		sprintf(actors_defs[dwarf_male].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 		sprintf(actors_defs[dwarf_male].weapon[WEAPON_NONE].attack_down1,"kickone01");
