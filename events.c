@@ -433,11 +433,11 @@ int HandleEvent(SDL_Event *event)
         							{
 										if(c1){
 											if(c2)
-												objects_list[selected_3d_object]->x_rot=randomangle?((mina + (int)(((double)(maxa-mina+1) * rand()) / (RAND_MAX+1.0)))):(rand()%360);
+												objects_list[selected_3d_object]->x_rot=randomanglex?((minax + (int)(((double)(maxax-minax+1) * rand()) / (RAND_MAX+1.0)))):(rand()%360);
 											if(c3)
-												objects_list[selected_3d_object]->y_rot=randomangle?((mina + (int)(((double)(maxa-mina+1) * rand()) / (RAND_MAX+1.0)))):(rand()%360);
+												objects_list[selected_3d_object]->y_rot=randomangley?((minay + (int)(((double)(maxay-minay+1) * rand()) / (RAND_MAX+1.0)))):(rand()%360);
 											if(c4)
-												objects_list[selected_3d_object]->z_rot=randomangle?((mina + (int)(((double)(maxa-mina+1) * rand()) / (RAND_MAX+1.0)))):(rand()%360);
+												objects_list[selected_3d_object]->z_rot=randomanglez?((minaz + (int)(((double)(maxaz-minaz+1) * rand()) / (RAND_MAX+1.0)))):(rand()%360);
 										}
 										if(randomheight){
 												objects_list[selected_3d_object]->z_pos=(float)(minh + (int)(((double)(maxh-minh+1) * rand()) / (RAND_MAX+1.0)))/10 ;
