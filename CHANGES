@@ -1,3 +1,7 @@
+01-10-04
+Fix console history buffer ofverlow bug
+Fixed another timing issue in particle system, added additional mutexs
+
 01-07-04
 Added in PM autocomplete
 Added button and ini option to disable FPS display
