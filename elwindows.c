@@ -701,7 +701,8 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				ret_val= (*win->click_handler)(win, mx, my, flags);
 				glPopMatrix();
 
-				return	ret_val;
+				//return	ret_val;	// with click-thru
+				return	1;	// no click-thru permitted
 			} else {
 				return 1;
 			}
