@@ -134,19 +134,19 @@ void draw_3d_object_shadow(object3d * object_id)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 {
-	int i;
+	int frame;
 	int numFaces;
 
 	//now, go and find the current frame
-	i = get_frame_number(model_data, cur_frame);
-	if(i < 0)return;	//can't draw it
+	frame = get_frame_number(model_data, cur_frame);
+	if(frame < 0)return;	//can't draw it
 	numFaces=model_data->numFaces;
 
 	check_gl_errors();
 #ifdef	USE_VERTEXARRAYS
-	if(use_vertex_array && model_data->offsetFrames[i].vertex_array)
+	if(use_vertex_array && model_data->offsetFrames[frame].vertex_array)
 		{
-			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[i].vertex_array);
+			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 			if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
 			glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
 			if(have_compiled_vertex_array)glUnlockArraysEXT();
@@ -159,7 +159,7 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 			vertex_md2 *vertex_pointer=NULL;
 			//setup
 			glBegin(GL_TRIANGLES);
-			vertex_pointer=model_data->offsetFrames[i].vertex_pointer;
+			vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
 			offsetFaces=model_data->offsetFaces;
 			//draw each triangle
 			for(i=0;i<numFaces;i++)
@@ -271,8 +271,13 @@ void display_actors_shadow()
 	int x,y;
 	x=-cx;
 	y=-cy;
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
+#ifdef	USE_VERTEXARRAYS
+	if(use_vertex_array)
+		{
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);
+		}
+#endif	//USE_VERTEXARRAYS
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -291,8 +296,13 @@ void display_actors_shadow()
 							}
 				}
 		}
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
+#ifdef	USE_VERTEXARRAYS
+	if(use_vertex_array)
+		{
+			glDisableClientState(GL_NORMAL_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+		}
+#endif	//USE_VERTEXARRAYS
 }
 
 void display_shadows()
