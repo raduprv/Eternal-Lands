@@ -1523,19 +1523,12 @@ void draw_options_menu()
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
 					  options_menu_x+8, options_menu_y+175, options_menu_x+38, options_menu_y+191);
 
-	if(combat_grid)
-		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
-	else
-		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
-
 	if(auto_camera)
 		draw_2d_thing(lit_gem_u_start, lit_gem_v_start, lit_gem_u_end, lit_gem_v_end,
-					  options_menu_x+8, options_menu_y+215, options_menu_x+38, options_menu_y+231);
+					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
 	else
 		draw_2d_thing(unlit_gem_u_start, unlit_gem_v_start, unlit_gem_u_end, unlit_gem_v_end,
-					  options_menu_x+8, options_menu_y+215, options_menu_x+38, options_menu_y+231);
+					  options_menu_x+8, options_menu_y+195, options_menu_x+38, options_menu_y+211);
 
 
 	//video modes
@@ -1658,8 +1651,7 @@ void draw_options_menu()
 	draw_string(options_menu_x+45,options_menu_y+135,"Clock",1);
 	draw_string(options_menu_x+45,options_menu_y+155,"Sound",1);
 	draw_string(options_menu_x+45,options_menu_y+175,"Music",1);
-	draw_string(options_menu_x+45,options_menu_y+195,"Combat Grid",1);
-	draw_string(options_menu_x+45,options_menu_y+215,"Auto Camera",1);
+	draw_string(options_menu_x+45,options_menu_y+195,"Auto Camera",1);
 
 	draw_string(options_menu_x+225,options_menu_y+10,"Video Modes",1);
 	draw_string(options_menu_x+225,options_menu_y+35,"Full Screen",1);
@@ -1712,9 +1704,6 @@ int check_options_menu()
 		music_on=!music_on;
 	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+195 &&
 			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+211)
-		combat_grid=!combat_grid;
-	else if(mouse_x>options_menu_x+8 && mouse_y>options_menu_y+215 &&
-			mouse_x<options_menu_x+38 && mouse_y<options_menu_y+231)
 		auto_camera=!auto_camera;
 
 	else if(mouse_x>options_menu_x+193 && mouse_y>options_menu_y+35 &&

@@ -170,7 +170,6 @@ int view_compas=1;
 int options_menu=0;
 int combat_mode=0;
 int auto_camera=0;
-int combat_grid=0;
 int selected_3d_object;
 int selected_inventory_object=-1;
 int view_health_bar=1;

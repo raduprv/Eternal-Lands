@@ -25,7 +25,6 @@ extern int left_click;
 extern int view_clock;
 extern int view_compas;
 extern int options_menu;
-extern int combat_grid;
 extern int view_self_stats;
 extern int view_health_bar;
 extern int view_names;

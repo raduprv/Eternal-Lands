@@ -96,12 +96,12 @@ void setup_video_mode()
 				}
 			else if(video_mode==7 || video_mode==8)
 				{
-					if(window_width != 1120 || window_height != 830)
+					if(window_width != 1070 || window_height != 785)
 						{
-							log_to_console(c_yellow1,"Window size adjusted to 1120x830.");
+							log_to_console(c_yellow1,"Window size adjusted to 1070x785.");
 						}
-					window_width=1120;
-					window_height=830;
+					window_width=1070;
+					window_height=785;
 				}
 			else if(video_mode==9 || video_mode==10)
 				{
