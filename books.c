@@ -411,9 +411,6 @@ void open_book(int id)
 		*((Uint16*)(str+3))=0;
 
 		my_tcp_send(my_socket, str, 5);
-
-		*((Uint16*)(str+3))=1;
-		my_tcp_send(my_socket, str, 5);
 	} else display_book_window(b);
 }
 
@@ -543,6 +540,7 @@ void read_network_book(char * in_data, int data_length)
 			break;
 	}
 }
+
 
 /*Generic display*/
 
@@ -728,11 +726,6 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 					*((Uint16*)(str+3))=b->have_server_pages;
 					my_tcp_send(my_socket, str, 5);
 
-					if(b->have_server_pages+1<b->server_pages){
-						*((Uint16*)(str+3))=b->have_server_pages+1;
-						my_tcp_send(my_socket, str, 5);
-					}
-
 					if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
 					else b->pages_to_scroll=b->type;
 			} else if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
@@ -791,8 +784,13 @@ void display_book_window(book *b)
 {
 	int *p;
 	if(!b)return;
-	if(b->type==1)p=&paper_win;
-	else p=&book_win;
+	if(b->type==1){
+		p=&paper_win;
+		if(book_win!=-1) windows_list.window[book_win].displayed=0;
+	} else {
+		p=&book_win;
+		if(paper_win!=-1) windows_list.window[paper_win].displayed=0;
+	}
         if(*p<0){
                 if(b->type==1)
 #ifndef OLD_EVENT_HANDLER
@@ -814,7 +812,16 @@ void display_book_window(book *b)
 			strcpy(windows_list.window[*p].window_name,b->title);
 			windows_list.window[*p].data=b;
 			if(!windows_list.window[*p].displayed) show_window(*p);
-		}//else toggle_window(*p);
+		} else if(!windows_list.window[*p].displayed)show_window(*p);
         }
+}
+
+void close_book(int book_id)
+{
+	book *b=get_book(book_id);
+
+	if(!b) return;
+	if(book_win!=-1)if((point)windows_list.window[book_win].data==(point)b) windows_list.window[book_win].displayed=0;
+	if(paper_win!=-1)if((point)windows_list.window[paper_win].data==(point)b) windows_list.window[paper_win].displayed=0;
 }
 

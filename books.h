@@ -476,4 +476,14 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags);
  */
 void display_book_window(book *b);
 
+/*!
+ * \ingroup	books_win
+ * \brief	Closes the book window with the given id
+ *
+ * 		Closes the book window with the given id, if it's opened
+ *
+ * \param	book_id The unique book ID
+ */
+void close_book(int book_id);
+
 #endif

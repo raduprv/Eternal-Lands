@@ -929,6 +929,13 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 				read_network_book(in_data+3, data_lenght-3);
 			}
+			break;
+
+		case CLOSE_BOOK:
+			{
+				close_book(*((Uint16*)(in_data+3)));
+			}
+			break;
 
 		default:
 			{
