@@ -221,7 +221,7 @@ void pf_move()
 					break;
 				}
 			}
-			{
+			if (pf_cur_tile) {
 				Uint8 str[5];
 
 				str[0] = MOVE_TO;
