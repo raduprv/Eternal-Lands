@@ -119,8 +119,6 @@ int display_browser_handler()
 		float tz=zoom_level;
 		char fn[256];
 		
-		//zoom_level=3.0;
-		//resize_window();
 		// Prepare to render
 		glEnable(GL_CULL_FACE);
 		glEnableClientState(GL_VERTEX_ARRAY);

@@ -318,6 +318,10 @@ SOURCE=.\reflection.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\replace_window.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\shadows.c
 
 !IF  "$(CFG)" == "map_editor - Win32 Release"
@@ -433,6 +437,10 @@ SOURCE=.\o3dow.h
 # Begin Source File
 
 SOURCE=.\reflection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\replace_window.h
 # End Source File
 # Begin Source File
 

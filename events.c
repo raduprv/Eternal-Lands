@@ -73,6 +73,9 @@ int HandleEvent(SDL_Event *event)
 		if ( event->key.keysym.sym == SDLK_w && ctrl_on){
 			view_o3dow=!view_o3dow;
 		}
+		if ( event->key.keysym.sym == SDLK_r && ctrl_on){
+			view_replace_window=!view_replace_window;
+		}
 
 		if ( event->key.keysym.sym == SDLK_LEFT )
 		{
@@ -404,6 +407,7 @@ int HandleEvent(SDL_Event *event)
 			}
 
 			if(left_click==1 && check_browser_interface())return done;
+			if(left_click==1 && check_replace_window_interface())return done;
 			if(left_click==1 && check_o3dow_interface())return done;
 			if(check_interface_buttons()==1)tool_bar_click=1;
 			if(right_click==1 && cur_tool==tool_select && selected_tile!=255 && cur_mode==mode_tile)selected_tile=255;

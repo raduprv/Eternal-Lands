@@ -121,6 +121,7 @@ void draw_scene()
 	draw_string(10,40,(unsigned char*)str,2);
 	draw_toolbar();
 	if(view_o3dow)display_o3dow();
+	if(view_replace_window)display_replace_window();
 	if(view_browser)display_browser();
 	if(view_tiles_list)display_tiles_list();
 	if(view_heights_list)display_heights_list();
