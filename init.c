@@ -173,6 +173,18 @@ void read_key_config()
 		K_KNOWLEDGE = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ENCYCLOPEDIA",file_mem,key_file_size,0))!=-1)
 		K_ENCYCLOPEDIA = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM1",file_mem,key_file_size,0))!=-1)
+		K_ITEM1 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM2",file_mem,key_file_size,0))!=-1)
+		K_ITEM2 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM3",file_mem,key_file_size,0))!=-1)
+		K_ITEM3 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM4",file_mem,key_file_size,0))!=-1)
+		K_ITEM4 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM5",file_mem,key_file_size,0))!=-1)
+		K_ITEM5 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM6",file_mem,key_file_size,0))!=-1)
+		K_ITEM6 = parse_key_string(&file_mem[t]);
 
 }
 

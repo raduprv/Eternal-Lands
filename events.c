@@ -47,6 +47,15 @@ Uint32 K_CONSOLE=282;
 Uint32 K_SHADOWS=284;
 Uint32 K_KNOWLEDGE=CTRL|'k';
 Uint32 K_ENCYCLOPEDIA=CTRL|'e';
+Uint32 K_ITEM1=CTRL|'1';
+Uint32 K_ITEM2=CTRL|'2';
+Uint32 K_ITEM3=CTRL|'3';
+Uint32 K_ITEM4=CTRL|'4';
+Uint32 K_ITEM5=CTRL|'5';
+Uint32 K_ITEM6=CTRL|'6';
+
+Uint8 quick_use_str[2];
+int i=0;
 
 
 int HandleEvent(SDL_Event *event)
@@ -149,6 +158,87 @@ int HandleEvent(SDL_Event *event)
 
 				if ( event->key.keysym.sym == SDLK_PAGEUP && interface_mode==interface_console)
 					console_move_page_up();
+
+				if(key==K_ITEM1){
+				  for(i=0;i<ITEM_NUM_ITEMS;i++){
+				    if(item_list[i].pos==0 &&
+				       item_list[i].quantity &&
+				       item_list[i].use_with_inventory){
+				      quick_use_str[0]=USE_INVENTORY_ITEM;
+				      quick_use_str[1]=0;
+				      my_tcp_send(my_socket,quick_use_str,2);
+				      break;
+				    }
+				  }
+				  break;
+				}
+				if(key==K_ITEM2){
+				  for(i=0;i<ITEM_NUM_ITEMS;i++){
+				    if(item_list[i].pos==1 &&
+				       item_list[i].quantity &&
+				       item_list[i].use_with_inventory){
+				      quick_use_str[0]=USE_INVENTORY_ITEM;
+				      quick_use_str[1]=1;
+				      my_tcp_send(my_socket,quick_use_str,2);
+				      break;
+				    }
+				  }
+				  break;
+				}
+				if(key==K_ITEM3){
+				  for(i=0;i<ITEM_NUM_ITEMS;i++){
+				    if(item_list[i].pos==2 &&
+				       item_list[i].quantity &&
+				       item_list[i].use_with_inventory){
+				      quick_use_str[0]=USE_INVENTORY_ITEM;
+				      quick_use_str[1]=2;
+				      my_tcp_send(my_socket,quick_use_str,2);
+				      break;
+				    }
+				  }
+				  break;
+				}
+				if(key==K_ITEM4){
+				  for(i=0;i<ITEM_NUM_ITEMS;i++){
+				    if(item_list[i].pos==3 &&
+				       item_list[i].quantity &&
+				       item_list[i].use_with_inventory){
+				      quick_use_str[0]=USE_INVENTORY_ITEM;
+				      quick_use_str[1]=3;
+				      my_tcp_send(my_socket,quick_use_str,2);
+				      break;
+				    }
+				  }
+				  break;
+				}
+				if(key==K_ITEM5){
+				  for(i=0;i<ITEM_NUM_ITEMS;i++){
+				    if(item_list[i].pos==4 &&
+				       item_list[i].quantity &&
+				       item_list[i].use_with_inventory){
+				      quick_use_str[0]=USE_INVENTORY_ITEM;
+				      quick_use_str[1]=4;
+				      my_tcp_send(my_socket,quick_use_str,2);
+				      break;
+				    }
+				  }
+				  break;
+				}
+				if(key==K_ITEM6){
+				  for(i=0;i<ITEM_NUM_ITEMS;i++){
+				    if(item_list[i].pos==5 &&
+				       item_list[i].quantity &&
+				       item_list[i].use_with_inventory){
+				      quick_use_str[0]=USE_INVENTORY_ITEM;
+				      quick_use_str[1]=5;
+				      my_tcp_send(my_socket,quick_use_str,2);
+				      break;
+				    }
+				  }
+				  break;
+				}
+
+
 
 				if(key==K_ZOOMIN && interface_mode==interface_game){
 					if(zoom_level>2.0f){
