@@ -649,7 +649,7 @@ void add_command_to_actor(int actor_id, char command)
 		}
 }
 
-void get_actor_damage(int actor_id, Uint8 damage)
+void get_actor_damage(int actor_id, int damage)
 {
 	int i=0;
 
@@ -671,7 +671,7 @@ void get_actor_damage(int actor_id, Uint8 damage)
 	//if we got here, it means we don't have this actor, so get it from the server...
 }
 
-void get_actor_heal(int actor_id, Uint8 quantity)
+void get_actor_heal(int actor_id, int quantity)
 {
 	int i=0;
 #ifdef EXTRA_DEBUG

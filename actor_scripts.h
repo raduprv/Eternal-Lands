@@ -122,7 +122,7 @@ void add_command_to_actor(int actor_id, char command);
  * \param	damage The damage given by the actor
  * \return	None
  */
-void get_actor_damage(int actor_id, Uint8 damage);
+void get_actor_damage(int actor_id, int damage);
 
 /*!
  * \ingroup	network_actors
@@ -134,7 +134,7 @@ void get_actor_damage(int actor_id, Uint8 damage);
  * \param	quantity The amount of healthpoints healed.
  * \return	None
  */
-void get_actor_heal(int actor_id, Uint8 quantity);
+void get_actor_heal(int actor_id, int quantity);
 
 /*!
  * \ingroup	events_actors
