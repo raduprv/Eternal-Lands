@@ -2,26 +2,24 @@ Cicero:
 Add music (Ogg vorbis player) -- testing
 log, cfg, & ini in user directory tree
 	-Specify alternate directory to load games files from
-S/W version check & upload
+S/W version check & upload -- testing
 	-Check for newer versions of files by comparing MD5 sums
-	-http download of a file -- testing
-
+	-http download of a file
+User defined keyboard/mouse bindings
 
 Learner:
 OSX support
-unignore saving to file
-unfilter support
 Faster mouse icon switch without dropping FPS
 Investigate variable width fonts
 save zoom level and angle in el.cfg
 Better faq support
+Change the internal way MD2s are loaded, and make them vertex arrays.
 
 
 Ent's original list:
 Depth shadows (very complicated) 
 Various spell effects. (medium-hard) 
 Buddy list menu (will do the server part myself) 
-Change the internal way MD2s are loaded, and make them vertex arrays.
 On card that support OVB, make the 3d objects and models VBO.
 Make use of other extensions, if supported (such as texture compression, bump mapping, etc.) 
 
@@ -29,7 +27,6 @@ Make use of other extensions, if supported (such as texture compression, bump ma
 Unassigned:
 Chat Window
 MultiChannel Chat (needs server support)
-User defined keyboard/mouse bindings
-Server selection screen
+Server selection screen (we only have one server right now...)
 rework internal windowing system to keep track of which window is on top and
 	to draw them and catch clicks accordingly
