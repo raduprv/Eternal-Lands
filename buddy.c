@@ -124,7 +124,6 @@ void display_buddy()
       y+=10;
       i++;
    }
-
 }
 
 int check_buddy_interface()
@@ -159,3 +158,4 @@ int check_buddy_interface()
    input_text_lenght=strlen(input_text_line);
    return 1;
 }
+

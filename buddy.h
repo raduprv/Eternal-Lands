@@ -18,3 +18,4 @@ void display_buddy();
 int check_buddy_interface();
 
 #endif
+
