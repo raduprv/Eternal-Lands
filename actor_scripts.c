@@ -464,7 +464,7 @@ void next_command()
 				}
 		}
 	unlock_actors_lists();
-	if(max_queue > 4)my_timer_adjust+=4+(max_queue-4);	//speed up the timer clock if we are building up too much
+	if(max_queue >= 4)my_timer_adjust+=6+(max_queue-4);	//speed up the timer clock if we are building up too much
 }
 
 
