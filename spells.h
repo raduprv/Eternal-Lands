@@ -27,6 +27,7 @@ extern int view_sigils_menu;
 extern int sigils_we_have;
 extern int have_error_message;
 
+void repeat_spell();
 void make_sigils_list();
 void get_active_spell(int pos, int spell);
 void remove_active_spell(int pos);

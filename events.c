@@ -180,6 +180,15 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
+				if( event->key.keysym.sym == SDLK_r && ctrl_on)	// REPEAT spell command
+					{
+						if(view_sigils_menu)
+							{
+								repeat_spell();
+							}
+						break;
+					}
+
 				if( event->key.keysym.sym == SDLK_s && ctrl_on)
 					{
 						if(view_trade_menu)
@@ -303,7 +312,6 @@ int HandleEvent(SDL_Event *event)
 
 				if(ch=='`' || event->key.keysym.sym==SDLK_F1)
 					{
-
 						if(interface_mode==interface_console)interface_mode=interface_game;
 						else interface_mode=interface_console;
 						break;

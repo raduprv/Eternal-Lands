@@ -1,8 +1,13 @@
 #include "global.h"
 
 Sint8 on_cast[6];
+Sint8 cast_cache[6];
 int clear_mouseover=0;
 int cast_mouseover=0;
+
+void repeat_spell()
+{
+}
 
 void make_sigils_list()
 {
@@ -444,6 +449,7 @@ int check_sigil_interface()
 	   mouse_y>sigil_menu_y+sigil_menu_y_len-30 && mouse_y<sigil_menu_y+sigil_menu_y_len-10)
 		{
 			for(i=0;i<6;i++)on_cast[i]=-1;
+			for(i=0;i<6;i++)cast_cache[i]=-1;
 			return 1;
 		}
 
@@ -457,8 +463,10 @@ int check_sigil_interface()
 
 
 			for(i=0;i<6;i++)
-				if(on_cast[i]!=-1)
-					count++;
+				{
+					if(on_cast[i]!=-1)
+						count++;
+				}
 
 			if(count<2)
 				{
@@ -468,11 +476,14 @@ int check_sigil_interface()
 				}
 			str[0]=CAST_SPELL;
 			for(i=0;i<6;i++)
-				if(on_cast[i]!=-1)
-					{
-						str[sigils_no+2]=on_cast[i];
-						sigils_no++;
-					}
+				{
+					if(on_cast[i]!=-1)
+						{
+							str[sigils_no+2]=on_cast[i];
+							sigils_no++;
+						}
+					cast_cache[i]=on_cast[i];	// cache this spell
+				}
 
 			str[1]=sigils_no;
 			my_tcp_send(my_socket,str,sigils_no+2);

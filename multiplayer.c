@@ -55,6 +55,8 @@ void connect_to_server()
 			my_socket=0;
 		}
 
+	log_to_console(c_red1,"Connecting to Server...");
+	draw_scene();	// update the screen
 	set=SDLNet_AllocSocketSet(1);
 	if(!set)
         {
