@@ -670,6 +670,10 @@ SOURCE=.\pathfinder.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\pm_log.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\questlog.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"
@@ -1004,6 +1008,10 @@ SOURCE=.\paste.h
 # Begin Source File
 
 SOURCE=.\pathfinder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pm_log.h
 # End Source File
 # Begin Source File
 

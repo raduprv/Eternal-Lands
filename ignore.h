@@ -16,7 +16,7 @@ extern int use_global_ignores;
 int add_to_ignore_list(Uint8 *name, char save_name);
 int remove_from_ignore_list(Uint8 *name);
 int check_if_ignored(Uint8 *name);
-int pre_check_if_ignored(Uint8 * input_text);
+int pre_check_if_ignored(Uint8 * input_text, int type);
 void load_ignores_list(char * file_name);
 void clear_ignore_list();
 void load_ignores();

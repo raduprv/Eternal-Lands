@@ -42,6 +42,7 @@ Uint32 K_ITEM4=CTRL|'4';
 Uint32 K_ITEM5=CTRL|'5';
 Uint32 K_ITEM6=CTRL|'6';
 Uint32 K_VIEWTEXTASOVERTEXT=ALT|'o';
+Uint32 K_AFK=CTRL|ALT|'a';
 
 
 // load the dynamic definitions for keys
@@ -151,6 +152,8 @@ void read_key_config()
 	if((t=get_string_occurance("#K_ITEM6",file_mem,key_file_size,0))!=-1)
 		K_ITEM6 = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_VIEWTEXTASOVERTEXT",file_mem,key_file_size,0))!=-1)
+		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_AFK",file_mem,key_file_size,0))!=-1)
 		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
 }
 

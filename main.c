@@ -65,6 +65,21 @@ int start_rendering()
 				}
 			else
 				SDL_Delay(1);//give up timeslice for anyone else
+
+			//AFK?
+			if(afk_time)
+				{
+					if(cur_time-last_action_time>afk_time) 
+						{
+							if(!afk)
+								{
+									if(pm_log.ppl)free_pm_log();
+									go_afk();
+								}
+						}
+					else if(ifk_on_event && afk) go_ifk();
+				}
+			
 #ifdef	CACHE_SYSTEM
 			//cache handling
 			if(cache_system)cache_system_maint();
@@ -74,6 +89,7 @@ int start_rendering()
 		}
 	have_music=0;
 	SDL_WaitThread(music_thread,&done);
+	if(pm_log.ppl)free_pm_log();
 	save_bin_cfg();
 	unload_questlog();
 	unload_e3d_list();

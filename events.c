@@ -14,7 +14,6 @@ int shift_on;
 int alt_on;
 int ctrl_on;
 
-
 void	quick_use(int use_id)
 {
 	Uint8 quick_use_str[2];
@@ -68,11 +67,11 @@ int HandleEvent(SDL_Event *event)
 	    case SDL_KEYDOWN:
 			{
 				key=(Uint16)event->key.keysym.sym;
+				
 				if(shift_on)key|=(1<<31);
 				if(ctrl_on)key|=(1<<30);
 				if(alt_on)key|=(1<<29);
 				
-
 				//first, try to see if we pressed Alt+x, to quit.
 				if ( (event->key.keysym.sym == SDLK_x && alt_on)
 					 || (event->key.keysym.sym == SDLK_q && ctrl_on && !alt_on) )
@@ -354,6 +353,16 @@ int HandleEvent(SDL_Event *event)
 					}
 
 
+				if(key==K_AFK)
+					{
+						if(!afk) 
+							{
+								go_afk();
+								last_action_time=cur_time-afk_time;
+							}
+						else go_ifk();
+					}
+				
 				if(key==K_BROWSER)
 					{
 #ifndef WINDOWS
@@ -496,6 +505,10 @@ int HandleEvent(SDL_Event *event)
 						input_text_lenght=0;
 						input_text_line[0]=0;
 					}
+				
+				if(key!=K_AFK && (event->key.keysym.sym<303 || event->key.keysym.sym>308)) 
+					last_action_time=cur_time; //Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
+
 				break;
 			}//key down
 
@@ -507,13 +520,14 @@ int HandleEvent(SDL_Event *event)
 	    	}
 			break;
 
-	    case SDL_QUIT:
+		case SDL_QUIT:
 			done = 1;
 			break;
 
-		case SDL_MOUSEMOTION:
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
+			last_action_time=cur_time;//Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
+		case SDL_MOUSEMOTION:
 			if(event->type==SDL_MOUSEMOTION)
 				{
 					mouse_x= event->motion.x;

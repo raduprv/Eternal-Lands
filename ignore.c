@@ -99,17 +99,18 @@ int check_if_ignored(Uint8 *name)
 
 
 //returns 1 if ignored, 0 if not ignored
-int pre_check_if_ignored(Uint8 * input_text)
+int pre_check_if_ignored(Uint8 * input_text, int type)
 {
 	int i=0;
 	Uint8 name[16];
 	Uint8 ch;
-	if(my_strncompare(&input_text[1],"[PM from",8))
+	if(type)
 		{
 			//now find the name portion
+			input_text+=10;
 			for(i=0;i<15;i++)
 				{
-					ch=input_text[i+10];	//skip over the prefix
+					ch=input_text[i];	//skip over the prefix
 					if(ch==':' || ch==' ')break;
 					name[i]=ch;
 				}

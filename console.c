@@ -391,7 +391,20 @@ void test_for_console_command()
 			// help always opens the Enc!
 			display_encyclopedia();
 		}
-
+	
+	if(my_strncompare(text_loc,"m", 1))
+		{
+			int no, m=-1;
+			text_loc++;
+			no=atoi(text_loc)-1;
+			if(no<pm_log.ppl && no>=0)
+				{
+					while(++m<pm_log.afk_msgs[no].msgs)
+						log_to_console(c_blue1,pm_log.afk_msgs[no].messages[m]);
+				}
+			return;
+		}
+	
 	send_input_text_line();//no command, send it to the server, as plain text
 
 }

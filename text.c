@@ -108,7 +108,14 @@ void send_input_text_line()
 int filter_or_ignore_text(unsigned char *text_to_add, int len)
 {
 	//check if ignored
-	if(pre_check_if_ignored(text_to_add))return 0;
+	int type=strncasecmp(&text_to_add[1],"[PM from",8)?0:1;
+	if(pre_check_if_ignored(text_to_add,type))return 0;
+	//Allright, we do not ignore the person
+	if(afk)
+		{
+			if(type)add_message_to_pm_log(text_to_add,len);
+			else if(is_talking_about_me(&text_to_add[1],len-1))send_afk_message(&text_to_add[1], type);
+		}
 	//parse for URLs
 	find_last_url(text_to_add,len);
 	//filter any naughty words out

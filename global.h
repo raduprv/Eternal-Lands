@@ -7,6 +7,8 @@
 #include <alut.h>
 #ifndef	GNUC	// or should we test for VC
 #define	snprintf _snprintf
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
 #endif
 #elif defined(OSX)
 #include <OpenAL/alut.h>
@@ -85,6 +87,7 @@
 #include "trade.h"
 #include "new_character.h"
 #include "init.h"
+#include "pm_log.h"
 
 //some prototypes, that won't fit somewhere else
 int SphereInFrustum(float x, float y, float z, float radius);
