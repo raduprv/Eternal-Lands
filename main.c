@@ -88,6 +88,7 @@ int start_rendering()
 			if((int)cur_time-my_timer_clock>500)//Timer failure! log it and restart the timer
 				{
 					log_error("Timer failure!");
+					log_to_console(c_red2,"!!! Timer has suddenly stopped - we're restarting it !!!");
 					SDL_SetTimer (1000/(18*4), my_timer_pointer);
 					my_timer_clock=cur_time;
 				}
