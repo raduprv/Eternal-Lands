@@ -612,7 +612,7 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 	y=mouse_y-win->pos_y;
 
 	tmp=check_plus_minus_hit(systypex2,systypey,x,y);
-	if(tmp==1)def.part_sys_type++;
+	if(tmp==1 && def.part_sys_type<5)def.part_sys_type++;
 	else if(tmp==2 && def.part_sys_type>0)def.part_sys_type--;
 
 	if(x>blendx && x<blendx2 && y>blendy && y<blendy3)
