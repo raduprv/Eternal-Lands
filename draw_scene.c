@@ -15,20 +15,9 @@ void draw_scene()
         int any_reflection=0;
 		int mouse_rate;
 
-        cur_time = SDL_GetTicks();
-        get_message_from_server();
+	//debug
+	triangles_normal=0;
 
-        //debug
-        triangles_normal=0;
-
-	//should we send the heart beat?
-	if(last_heart_beat+25000<cur_time)
-		{
-			Uint8 command;
-			last_heart_beat=cur_time;
-			command=HEART_BEAT;
-			my_tcp_send(my_socket,&command,1);
-		}
 	//clear the clouds cache too...
 	if(last_clear_clouds+10000<cur_time)clear_clouds_cache();
 
@@ -201,7 +190,7 @@ void draw_scene()
         else
           	{
 				old_fps_average=fps_average/10;
-          		fps_average=fps;
+          		fps_average=0;
 			}
 
 
@@ -249,8 +238,8 @@ void draw_scene()
 
 void Move()
 {
-    int i=0;
-	while(i<1000)
+    int i;
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==yourself)
@@ -275,7 +264,6 @@ void Move()
 			camera_z_frames=16;
                 break;
              }
-			i++;
 		}
     //check to see if we are out of the map
     if(cx>-7.5f)cx=-7.5f;
@@ -336,7 +324,6 @@ Uint32 my_timer(unsigned int some_int)
     		update_rain();
     		next_command();
     		animate_actors();
-    		//animate_actors();
     		move_to_next_frame();
     		if(lake_waves_timer>2)
     		    {
