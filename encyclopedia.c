@@ -519,7 +519,20 @@ void ReadIndexXML(xmlNode * a_node)
 				sprintf(tmp,"Encyclopedia/%s/%s.xml",lang,cur_node->children->content);
 				doc=xmlReadFile(tmp, NULL, 0);
 				if (doc==NULL)
-					return;
+					{
+						sprintf(tmp,"Encyclopedia/en/%s.xml",cur_node->children->content);
+						doc=xmlReadFile(tmp, NULL, 0);
+						if(doc==NULL)
+							{
+								//Falling back on the old method - remove once the normal method is looking in Encyclopedia/<lang>/<filename>.xml
+								sprintf(tmp,"Encyclopedia/%s.xml",cur_node->children->content);
+								doc=xmlReadFile(tmp, NULL, 0);
+								if(doc==NULL)
+									{
+										return;
+									}
+							}
+					}
 				ReadCategoryXML(xmlDocGetRootElement(doc));
 				xmlFreeDoc(doc);
 
