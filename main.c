@@ -44,12 +44,14 @@ int start_rendering()
 					my_tcp_send(my_socket,&command,1);
 				}
 
-			if(limit_fps && 1000/(cur_time-last_time) < limit_fps)
+			if(!limit_fps || 1000/(cur_time-last_time) < limit_fps)
 				{
 					//draw everything
 					draw_scene();
 					last_time=cur_time;
 				}
+			else
+				SDL_Delay(1);//give up timeslice for anyone else
 #ifdef	CACHE_SYSTEM
 			//cache handling
 			if(cache_system)cache_system_maint();
