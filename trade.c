@@ -322,12 +322,12 @@ void display_trade_menu()
 
 int check_trade_interface()
 {
-	int x,y; //i unused?
+	int x,y;
 	int x_screen,y_screen;
 	Uint8 str[10];
 
 	if(!view_trade_menu || mouse_x>trade_menu_x+trade_menu_x_len || mouse_x<trade_menu_x
-	|| mouse_y<trade_menu_y || mouse_y>trade_menu_y+trade_menu_x_len)return 0;
+	|| mouse_y<trade_menu_y || mouse_y>trade_menu_y+trade_menu_y_len)return 0;
 
 	//see if we changed the quantity
 	for(y=0;y<5;y++)
@@ -521,7 +521,6 @@ void get_your_trade_objects(Uint8 *data)
 
 void put_item_on_trade(Uint8 *data)
 {
-	//int i; unused?
 	int pos;
 	pos=data[3];
 
@@ -539,10 +538,8 @@ void put_item_on_trade(Uint8 *data)
 
 void remove_item_from_trade(Uint8 *data)
 {
-	//int i; unused?
 	int pos;
 	int quantity;
-	//int old_pos; unused?
 
 	pos=data[2];
 	quantity=*((Uint16 *)(data));
