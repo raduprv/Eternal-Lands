@@ -14,7 +14,7 @@
  */
 
 /* forward declaration added due to code cleanup */
-#ifdef WINDOWS
+#ifndef LINUX
 int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * len);
 #else
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
@@ -454,7 +454,7 @@ int my_xmlStrncopy(char ** out, const char * in, int len)
 		l1=lin;
 		l2=lout;
 
-#ifdef WINDOWS
+#ifndef LINUX
 		if(my_UTF8Toisolat1(&outbuf2,&lout,(const char **)&inbuf2,&lin)<0) {
 #else
 		if(my_UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
@@ -477,7 +477,7 @@ int my_xmlStrncopy(char ** out, const char * in, int len)
 	} else return -1;
 }
 
-#ifdef WINDOWS
+#ifndef LINUX
 int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * l)
 #else
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)

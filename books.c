@@ -2,7 +2,11 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <string.h>
+#ifdef BSD
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 #include "global.h"
 #include "books.h"
 

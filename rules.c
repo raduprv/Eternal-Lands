@@ -4,7 +4,9 @@
 #include <libxml/tree.h>
 #include <string.h>
 #include <stdlib.h>
+#ifndef BSD
 #include <malloc.h>
+#endif
 
 #define TITLE 	0
 #define RULE	1

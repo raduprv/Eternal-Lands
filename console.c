@@ -92,9 +92,9 @@ void test_for_console_command (char *text, int len)
 		char tmp_name[512] = {0};
 
 		while (!isspace(*text_loc))
-			*text_loc++;
+			text_loc++;
 		while (isspace(*text_loc))
-			*text_loc++;
+			text_loc++;
 		for (i = 0; text_loc[i] != '\0'; i++)
 		{
 			if (!isdigit(text_loc[i]) && text_loc[i] != ' ' && text_loc[i] != ',')
@@ -210,9 +210,9 @@ void test_for_console_command (char *text, int len)
 	{
 		int i;
 		while (!isspace(*text_loc))
-			*text_loc++;
+			text_loc++;
 		while (isspace(*text_loc))
-			*text_loc++;
+			text_loc++;
 
 		for (i = 0 ; i < max_mark ; i ++)
 		{
