@@ -544,6 +544,8 @@ int HandleEvent(SDL_Event *event)
 												free(undo_object);
 											undo_object = (object3d *) malloc(sizeof(object3d));
 											memcpy(undo_object,objects_list[selected_3d_object],sizeof(object3d));
+											if(calhm)
+												clear_e3d_heightmap(selected_3d_object);
 											kill_3d_object(selected_3d_object);
 										}
 
