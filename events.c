@@ -664,7 +664,7 @@ int HandleEvent (SDL_Event *event)
 					return done;
 			}
 #else
-			if((left_click>=1) && interface_mode==interface_game) {
+			if((left_click>=1) && interface_mode==INTERFACE_GAME) {
 				if(check_drag_menus())return(done);
 				if(check_scroll_bars())return(done);
 			}

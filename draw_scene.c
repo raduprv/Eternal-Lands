@@ -97,7 +97,7 @@ void draw_scene()
 				}
 			
 #ifdef OLD_EVENT_HANDLER
-			if(interface_mode==interface_rules)
+			if(interface_mode==INTERFACE_RULES)
 				{
 					if(SDL_GetAppState()&SDL_APPACTIVE)
 						{

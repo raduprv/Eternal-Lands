@@ -54,6 +54,14 @@ void show_hud_windows ()
 	if (quickbar_win >= 0) show_window (quickbar_win);
 }
 
+void hide_hud_windows ()
+{
+	if (icons_win >= 0) hide_window (icons_win);
+	if (stats_bar_win >= 0) hide_window (stats_bar_win);
+	if (misc_win >= 0) hide_window (misc_win);
+	if (quickbar_win >= 0) hide_window (quickbar_win);
+}
+
 // draw everything related to the hud
 void draw_hud_interface()
 {

@@ -913,6 +913,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					case NEW_CHAR_INTERFACE:
 #ifndef OLD_EVENT_HANDLER
 						hide_all_root_windows ();
+						hide_hud_windows ();
 						create_newchar_root_window ();
 						show_window (newchar_root_win);
 #endif

@@ -97,6 +97,16 @@ void init_hud_interface();
 void show_hud_windows ();
 
 /*!
+ * \ingroup other
+ * \brief
+ *
+ *      Detail
+ *
+ * \callgraph
+ */
+void hide_hud_windows ();
+
+/*!
  * \ingroup display_2d
  * \brief
  *
