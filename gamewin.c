@@ -471,16 +471,16 @@ int display_game_handler (window_info *win)
 	else 
 		read_mouse_now=0;
 	reset_under_the_mouse();
+	
+	// This window is a bit special since it's not fully 2D
+	Leave2DMode ();
+	glPushMatrix ();
 
 	if (new_zoom_level != zoom_level)
 	{
 		zoom_level = new_zoom_level;
 		resize_root_window ();
 	}
-	
-	// This window is a bit special since it's not fully 2D
-	Leave2DMode ();
-	glPushMatrix ();
 	
 	Move ();
 	save_scene_matrix ();
