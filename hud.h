@@ -45,6 +45,12 @@ extern struct icons_struct icons;
 //These aren't handled by the windowmanager - yet?
 extern int map_win;
 extern int console_win;
+extern int cont_win;
+
+// The map icon:
+
+extern float map_icon_u_start;
+extern float map_icon_v_start;
 
 // the main hud handling
 void init_hud_interface();
@@ -70,6 +76,7 @@ void sit_button_pressed(void *unused, int id);
 void view_window(int * win, int id);
 void view_console_win(int * win, int id);//This is not handled by the window manager, so we have to call this function
 void view_map_win(int *win, int id);
+void view_cont_win();
 void show_help(char *message, int x, int y);
 
 //stats/health section

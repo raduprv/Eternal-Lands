@@ -667,35 +667,6 @@ void draw_ingame_interface()
     if(use_item!=-1)drag_item(use_item,1);
 }
 
-int map_text;
-
-int switch_to_game_map()
-{
-	int len;
-	char map_map_file_name[256];
-
-	//try to see if we can find a valid map
-	my_strcp(map_map_file_name,map_file_name);
-	len=strlen(map_map_file_name);
-	map_map_file_name[len-3]='b';
-	map_map_file_name[len-2]='m';
-	map_map_file_name[len-1]='p';
-	map_text=load_bmp8_fixed_alpha(map_map_file_name,128);
-	if(!map_text)//this map has no map (sounds so stupid)
-		{
-			log_to_console(c_yellow2,"There is no map for this place.");
-			return 0;
-		}
-	interface_mode=interface_map;
-	if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
-	return 1;
-}
-
-void switch_from_game_map()
-{
-	glDeleteTextures(1,&map_text);
-	interface_mode=interface_game;
-}
 void draw_menu_title_bar(int x, int y, int x_len)
 {
 	float u_first_start=(float)31/256;
@@ -759,108 +730,219 @@ void draw_menu_title_bar(int x, int y, int x_len)
 	glDisable(GL_ALPHA_TEST);
 }
 
-void draw_game_map()
+GLuint map_text;
+GLuint cont_text;
+GLuint legend_text=0;
+int cur_map;  //Is there a better way to do this?
+
+const struct draw_map seridia_maps[] = {
+	{409,107,450,147},//0 - Isla Prima
+	{184,162,395,359},//1 - Whitestone
+	{84,352,160,448}, //2 - Desert Pines
+	{336,118,387,165},//3 - Tirnym
+	{245,405,281,451},//4 - VOTD
+	{84,270,177,357}, //5 - Portland
+	{87,169,175,270}, //6 - Morcraven
+	{130,128,178,168},//7 - Naralik
+	{180,75,275,165}, //8 - Grubani
+	{0,0,0,0},	  //9 -
+	{282,358,385,454},//10 - Tarsengaard
+	{232,359,283,403},//11 - Nordcarn
+	{181,363,231,408},//12 - Southern KF
+	{178,406,227,443},//13 - KF
+	{2,324,75,431}    //14 - Tahraji
+};
+
+int switch_to_game_map()
 {
+	int len;
+	char map_map_file_name[256];
+
+	my_strcp(map_map_file_name,map_file_name);
+	len=strlen(map_map_file_name);
+	map_map_file_name[len-3]='b';
+	map_map_file_name[len-2]='m';
+	map_map_file_name[len-1]='p';
+	map_text=load_bmp8_fixed_alpha(map_map_file_name,128);
+	if(!map_text){
+		log_to_console(c_yellow2,"There is no map for this place.");
+		return 0;
+	}
+	interface_mode=interface_map;
+	if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+	return 1;
+}
+
+void switch_from_game_map()
+{
+	glDeleteTextures(1,&map_text);
+	interface_mode=interface_game;
+}
+
+
+void draw_game_map(int map)
+{     
 	int screen_x=0;
 	int screen_y=0;
+	int x=-1,y=-1;
 	int i;
-
+	float scale=(float)(window_width-hud_x)/300.0f;
+	float x_size=0,y_size=0;
+	GLuint map_small, map_large;
+	
+	if(map){
+		map_small=get_texture_id(cont_text);
+		map_large=map_text;
+	} else {
+		map_small=map_text;
+		map_large=get_texture_id(cont_text);
+		if(cur_map!=-1){
+			x_size=(float)((float)(seridia_maps[cur_map].x_end - seridia_maps[cur_map].x_start))/(float)tile_map_size_x;
+			y_size=(float)((float)(seridia_maps[cur_map].y_end - seridia_maps[cur_map].y_start))/(float)tile_map_size_y;
+		} else {
+			x_size=y_size=0;
+		}
+	}
+	
    	glDisable(GL_DEPTH_TEST);
    	glDisable(GL_LIGHTING);
-
-   	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
+    
+	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
+	
 	glOrtho(300, (GLdouble)0, (GLdouble)0, 200, -250.0, 250.0);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 
-	bind_texture_id(map_text);
 	glColor3f(1.0f,1.0f,1.0f);
+    	
+    bind_texture_id(map_large);
+    
 	glBegin(GL_QUADS);
-	//draw the texture
-
-	glTexCoord2f(1.0f,0.0f);
-	glVertex3i(50,0,0);
-
-	glTexCoord2f(1.0f,1.0f);
-	glVertex3i(50,200,0);
-
-	glTexCoord2f(0.0f,1.0f);
-	glVertex3i(250,200,0);
-
-	glTexCoord2f(0.0f,0.0f);
-	glVertex3i(250,0,0);
-
+		glTexCoord2f(1.0f,0.0f); glVertex3i(50,0,0); 
+		glTexCoord2f(1.0f,1.0f); glVertex3i(50,200,0);
+		glTexCoord2f(0.0f,1.0f); glVertex3i(250,200,0);
+		glTexCoord2f(0.0f,0.0f); glVertex3i(250,0,0);
 	glEnd();
 
-	//if we're following a path, draw the destination on the map
-	if (pf_follow_path) {
-		int x = pf_dst_tile->x;
-		int y = pf_dst_tile->y;
+	if(mouse_x > 0 && mouse_x < 50*scale && mouse_y > 0 && mouse_y < 55*scale){
+		if(left_click==1){
+			if(map)interface_mode=interface_cont;
+			else interface_mode=interface_map;
+			left_click=2;
+		}
+		glColor4f(1.0f,1.0f,1.0f,1.0f);
+	} else 
+		glColor4f(0.7f,0.7f,0.7f,0.7f);
+    	
+	glEnable(GL_ALPHA_TEST);
+	
+    bind_texture_id(map_small);
+    	
+    	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f,0.0f); glVertex3i(250,150,0);
+		glTexCoord2f(1.0f,1.0f); glVertex3i(250,200,0);
+		glTexCoord2f(0.0f,1.0f); glVertex3i(300,200,0);
+		glTexCoord2f(0.0f,0.0f); glVertex3i(300,150,0);
+	glEnd();
+	
+	glDisable(GL_ALPHA_TEST);
+	
+	glColor3f(1.0f,1.0f,1.0f);
+    	
+    get_and_set_texture_id(legend_text);
+    
+    	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f,0.0f); glVertex3i(250,50,0);
+		glTexCoord2f(1.0f,1.0f); glVertex3i(250,150,0);
+		glTexCoord2f(0.0f,1.0f); glVertex3i(300,150,0);
+		glTexCoord2f(0.0f,0.0f); glVertex3i(300,50,0);
+	glEnd();
 
-		screen_x=300-(50+200*x/(tile_map_size_x*6));
-		screen_y=0+200*y/(tile_map_size_y*6);
+    //if we're following a path, draw the destination on the map
+    if (pf_follow_path) {
+       	   int px = pf_dst_tile->x;
+           int py = pf_dst_tile->y;
 
-		glColor3f(1.0f,0.0f,0.0f);
-		glDisable(GL_TEXTURE_2D);
-		glBegin(GL_LINES);
-		glVertex2i(screen_x-3,screen_y-3);
-		glVertex2i(screen_x+2,screen_y+2);
+	   if(!map){
+		if(cur_map!=-1){
+			screen_x=300-(50+200*((x_size/6 * px)+(seridia_maps[cur_map].x_start))/(512));
+			screen_y=0+200*((y_size/6 * py)+(seridia_maps[cur_map].y_start))/(512);
+		} else {
+			screen_x=screen_y=0;
+		}
+	   } else {
+		screen_x=300-(50+200*px/(tile_map_size_x*6));
+		screen_y=0+200*py/(tile_map_size_y*6);
+	   }
 
-		glVertex2i(screen_x+2,screen_y-3);
-		glVertex2i(screen_x-3,screen_y+2);
-		glEnd();
-	}
+        glColor3f(1.0f,0.0f,0.0f);
+	    glDisable(GL_TEXTURE_2D);
+	    glBegin(GL_LINES);
+		    glVertex2i(screen_x-3,screen_y-3);
+		    glVertex2i(screen_x+2,screen_y+2);
+
+		    glVertex2i(screen_x+2,screen_y-3);
+		    glVertex2i(screen_x-3,screen_y+2);
+	    glEnd();
+     }
 	//ok, now let's draw our possition...
 #ifdef POSSIBLE_FIX
 #ifndef OPTIMIZED_LOCKS
-	lock_actors_lists();
+    lock_actors_lists();
 #endif
 #endif
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i])
+    for(i=0;i<max_actors;i++)
+	{
+		if(actors_list[i])
 #ifdef OPTIMIZED_LOCKS
-				if(actors_list[i]->actor_id==yourself && actors_list[i]->tmp.have_tmp)
+			if(actors_list[i]->actor_id==yourself && actors_list[i]->tmp.have_tmp)
 #else
-				if(actors_list[i]->actor_id==yourself)
+			if(actors_list[i]->actor_id==yourself)
 #endif
-					{
+				{
 #ifdef OPTIMIZED_LOCKS
-						//lock_actors_lists();
-						int x=actors_list[i]->tmp.x_tile_pos;
-						int y=actors_list[i]->tmp.y_tile_pos;
+						x=actors_list[i]->tmp.x_tile_pos;
+						y=actors_list[i]->tmp.y_tile_pos;
 #else
-						int x=actors_list[i]->x_tile_pos;
-						int y=actors_list[i]->y_tile_pos;
+						x=actors_list[i]->x_tile_pos;
+						y=actors_list[i]->y_tile_pos;
 #endif
-#ifdef OPTIMIZED_LOCKS
-						//unlock_actors_lists();
-#endif
-						screen_x=300-(50+200*x/(tile_map_size_x*6));
-						screen_y=0+200*y/(tile_map_size_y*6);
 						break;
 					}
 		}
 #ifdef POSSIBLE_FIX
 #ifndef OPTIMIZED_LOCKS
-	unlock_actors_lists();
+	    unlock_actors_lists();
 #endif
 #endif
 
-	glColor3f(0.0f,0.0f,1.0f);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_LINES);
-	glVertex2i(screen_x-3,screen_y-3);
-	glVertex2i(screen_x+2,screen_y+2);
+	if(!map){
+		if(cur_map!=-1){
+			screen_x=300-(50+200*((x_size/6 * x)+(seridia_maps[cur_map].x_start))/(512));
+			screen_y=0+200*((y_size/6 * y)+(seridia_maps[cur_map].y_start))/(512);
+		} else {
+			screen_x=screen_y=0;
+		}
+	} else {
+		screen_x=300-(50+200*x/(tile_map_size_x*6));
+		screen_y=0+200*y/(tile_map_size_y*6);
+	}
+	if((map||!dungeon)&&x!=-1){
+		glColor3f(0.0f,0.0f,1.0f);
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+			glVertex2i(screen_x-3,screen_y-3);
+			glVertex2i(screen_x+2,screen_y+2);
 
-	glVertex2i(screen_x+2,screen_y-3);
-	glVertex2i(screen_x-3,screen_y+2);
-	glEnd();
-
+			glVertex2i(screen_x+2,screen_y-3);
+			glVertex2i(screen_x-3,screen_y+2);
+		glEnd();
+	}
+	
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
 
@@ -870,74 +952,70 @@ void draw_game_map()
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_LIGHTING);
-
 // this is necessary for the text over map
+	if(map&&(adding_mark||max_mark>0)){
+   		glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		glOrtho((GLdouble)0, (GLdouble)300, (GLdouble)200, (GLdouble)0, -250.0, 250.0);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+ 
+		// draw a temporary mark until the text is entered
+		if (adding_mark) {
+        	        int x = mark_x;
+        	        int y = mark_y;
 
-   	glDisable(GL_DEPTH_TEST);
-   	glDisable(GL_LIGHTING);
+			screen_x=(50+200*x/(tile_map_size_x*6));
+			screen_y=200-200*y/(tile_map_size_y*6);
 
-   	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho((GLdouble)0, (GLdouble)300, (GLdouble)200, (GLdouble)0, -250.0, 250.0);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
+			glColor3f(1.0f,1.0f,0.0f);
+			glDisable(GL_TEXTURE_2D);
+			glBegin(GL_LINES);
+				glVertex2i(screen_x-3,screen_y-3);
+				glVertex2i(screen_x+2,screen_y+2);
 
-	// draw a temporary mark until the text is entered
-	if (adding_mark) {
-                int x = mark_x;
-                int y = mark_y;
-
-		screen_x=(50+200*x/(tile_map_size_x*6));
-		screen_y=200-200*y/(tile_map_size_y*6);
-
-		glColor3f(1.0f,1.0f,0.0f);
-		glDisable(GL_TEXTURE_2D);
-		glBegin(GL_LINES);
-		glVertex2i(screen_x-3,screen_y-3);
-		glVertex2i(screen_x+2,screen_y+2);
-
-		glVertex2i(screen_x+2,screen_y-3);
-		glVertex2i(screen_x-3,screen_y+2);
-		glEnd();
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(1.0f,1.0f,0.0f);
-	draw_string_zoomed(screen_x,screen_y,input_text_line,1,0.3);
-	}
-
-
-// crave the markings
-	for(i=0;i<max_mark;i++)
-	 {
-		int x = marks[i].x;
-		int y = marks[i].y;
-		if ( x > 0 ) {
-		screen_x=(50+200*x/(tile_map_size_x*6));
-		screen_y=200-200*y/(tile_map_size_y*6);
-
-		glColor3f(0.4f,1.0f,0.0f);
-		glDisable(GL_TEXTURE_2D);
-		glBegin(GL_LINES);
-		glVertex2i(screen_x-3,screen_y-3);
-		glVertex2i(screen_x+2,screen_y+2);
-		glVertex2i(screen_x+2,screen_y-3);
-		glVertex2i(screen_x-3,screen_y+2);
-		glEnd();
-        glEnable(GL_TEXTURE_2D);
-        glColor3f(0.2f,1.0f,0.0f);
-	draw_string_zoomed(screen_x,screen_y,marks[i].text,1,0.3);
+				glVertex2i(screen_x+2,screen_y-3);
+				glVertex2i(screen_x-3,screen_y+2);
+			glEnd();
+		        glEnable(GL_TEXTURE_2D);
+		        glColor3f(1.0f,1.0f,0.0f);
+			draw_string_zoomed(screen_x,screen_y,input_text_line,1,0.3);
 		}
-	 }
 
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+
+		// crave the markings
+		for(i=0;i<max_mark;i++)
+		 {
+			int x = marks[i].x;
+			int y = marks[i].y;
+			if ( x > 0 ) {
+				screen_x=(50+200*x/(tile_map_size_x*6));
+				screen_y=200-200*y/(tile_map_size_y*6);
+
+				glColor3f(0.4f,1.0f,0.0f);
+				glDisable(GL_TEXTURE_2D);
+				glBegin(GL_LINES);
+					glVertex2i(screen_x-3,screen_y-3);
+					glVertex2i(screen_x+2,screen_y+2);
+				
+					glVertex2i(screen_x+2,screen_y-3);
+					glVertex2i(screen_x-3,screen_y+2);
+				glEnd();
+	        		glEnable(GL_TEXTURE_2D);
+	        		glColor3f(0.2f,1.0f,0.0f);
+				draw_string_zoomed(screen_x,screen_y,marks[i].text,1,0.3);
+			}
+	 	}
+
+	    	glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+	}
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);

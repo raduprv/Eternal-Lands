@@ -135,7 +135,7 @@ void draw_scene()
 					return;
 				}
 
-			if(interface_mode==interface_map)
+			if(interface_mode==interface_map || interface_mode==interface_cont)
 				{
 					// are we actively drawing things?
 					if(SDL_GetAppState()&SDL_APPACTIVE)
@@ -143,7 +143,7 @@ void draw_scene()
 							Enter2DMode();
 							draw_hud_interface();
 							Leave2DMode();
-							draw_game_map();
+							draw_game_map(interface_mode==interface_map);
 							SDL_GL_SwapBuffers();
 							check_gl_errors();
 						}

@@ -533,7 +533,7 @@ void init_stuff()
 	init_actor_defs();
 
 	load_map_tiles();
-
+	
 	//lights setup
 	build_global_light_table();
 	build_sun_pos_table();
@@ -586,6 +586,10 @@ void init_stuff()
 	portraits5_tex=load_texture_cache("./textures/portraits5.bmp",0);
 
 	sigils_text=load_texture_cache("./textures/sigils.bmp",0);
+
+	//Load the map legend and continent map
+	legend_text=load_texture_cache("./textures/legend.bmp",0);
+	cont_text=load_texture_cache("./maps/seridia.bmp",128);
 
 	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 	check_gl_errors();

@@ -292,7 +292,7 @@ void init_peace_icons()
 	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
 	
 	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, &map_win, DATA_WINDOW);
-	
+		
 	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, &console_win, DATA_WINDOW);
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
@@ -470,36 +470,30 @@ void switch_action_mode(int * mode, int id)
 
 void view_console_win(int * win, int id)
 {
-	if(id<0)id=translate_win_id(&console_win);
-	if(interface_mode==interface_console)
-		{
-			interface_mode=interface_game;
-			icons.icon[id]->state=0;
-		}
-	else
-		{
-			interface_mode=interface_console;
-			if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
-			icons.icon[id]->state=PRESSED;
-			icon_list[13]->state=0;
-		}
+	if(interface_mode==interface_console) {
+		interface_mode=interface_game;
+		icon_list[14]->state=0;
+	} else {
+		if(interface_mode==interface_map||interface_mode==interface_cont)
+			glDeleteTextures(1,&map_text);
+		interface_mode=interface_console;
+		if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+		icon_list[14]->state=PRESSED;
+		icon_list[13]->state=0;
+	}
 }
 
 void view_map_win(int * win, int id)
 {
-	if(id<0)id=translate_win_id(&map_win);
-	if(interface_mode==interface_game || interface_mode==interface_console)
-		{
-			if(switch_to_game_map()) {
-				icons.icon[id]->state=PRESSED;
-				icon_list[14]->state=0;
-			}
+	if(interface_mode==interface_game || interface_mode==interface_console)	{
+		if(switch_to_game_map(1)) {
+			icon_list[13]->state=PRESSED;
+			icon_list[14]->state=0;
 		}
-	else if(interface_mode==interface_map)
-		{
-			switch_from_game_map();
-			icons.icon[id]->state=0;
-		}
+	} else if(interface_mode==interface_map||interface_mode==interface_cont) {
+		switch_from_game_map();
+		icon_list[13]->state=0;
+	}
 }
 
 void view_window(int * window, int id)

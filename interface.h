@@ -34,6 +34,7 @@ extern int login_screen_menus;
 #define interface_console 3
 #define interface_opening 4
 #define interface_map 5
+#define interface_cont 6
 
 extern char interface_mode;
 extern char username_box_selected;
@@ -93,6 +94,19 @@ void draw_menu_title_bar(int x, int y, int x_len);
 void save_markings();
 void delete_mark_on_map_on_mouse_position();
 void put_mark_on_map_on_mouse_position();
+
+struct draw_map{
+       unsigned short x_start;
+       unsigned short y_start;
+       unsigned short x_end;
+       unsigned short y_end;       
+};
+
+extern int cur_map;
+extern GLuint cont_text;
+extern GLuint legend_text;
+extern GLuint map_text;
+extern const struct draw_map seridia_maps[];
 
 #endif
 

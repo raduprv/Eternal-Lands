@@ -396,6 +396,7 @@ int HandleEvent(SDL_Event *event)
 							}
 						resize_window();
 					}
+
 //END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
 				if ( event->key.keysym.sym == SDLK_ESCAPE)
@@ -623,7 +624,7 @@ int HandleEvent(SDL_Event *event)
 				 delete_mark_on_map_on_mouse_position();
 				}
 			else if((left_click==1 || right_click==1) &&
-				interface_mode==interface_console)
+				(interface_mode==interface_console || interface_mode==interface_cont))
 				check_hud_interface();
 			else
 				if((left_click==1 || right_click==1) &&

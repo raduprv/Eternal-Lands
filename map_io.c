@@ -267,6 +267,32 @@ int save_map(char * file_name)
 
 }
 
+
+int get_cur_map(char * file_name)
+{
+    //Well, where are we? Let's check.
+    //Skip "./maps/"
+    file_name += 7;
+    
+    if(!strcmp("startmap.elm", file_name)) return 0;
+    else if(!strcmp("map2.elm", file_name)) return 1;
+    else if(!strcmp("map3.elm", file_name)) return 2;
+    else if(!strcmp("map4f.elm", file_name)) return 3;
+    else if(!strcmp("map5nf.elm", file_name)) return 4;
+    else if(!strcmp("map6nf.elm", file_name)) return 5;
+    else if(!strcmp("map7.elm", file_name)) return 6;
+    else if(!strcmp("map8.elm", file_name)) return 7;
+    else if(!strcmp("map9f.elm", file_name)) return 8;
+    else if(!strcmp("map10.elm", file_name)) return 9;
+    else if(!strcmp("map11.elm", file_name)) return 10;
+    else if(!strcmp("map12.elm", file_name)) return 11;
+    else if(!strcmp("map13.elm", file_name)) return 12;
+    else if(!strcmp("map14f.elm", file_name)) return 13;
+    else if(!strcmp("map15f.elm", file_name)) return 14;
+    return -1; //We don't know where we are...
+}
+
+
 int load_map(char * file_name)
 {
 	int i;
@@ -316,7 +342,7 @@ int load_map(char * file_name)
 			exit_now=1;//We might as well quit...
 			return 0;
 		}
-
+    
 	//get the map size
 	tile_map_size_x=cur_map_header.tile_map_x_len;
 	tile_map_size_y=cur_map_header.tile_map_y_len;
@@ -343,6 +369,9 @@ int load_map(char * file_name)
 	ambient_r=cur_map_header.ambient_r;
 	ambient_g=cur_map_header.ambient_g;
 	ambient_b=cur_map_header.ambient_b;
+
+	if(!dungeon) cur_map=get_cur_map(file_name);//Otherwise we pretend that we don't know where we are - if anyone wants to do the work and input all coordinates it's fine by me however :o)
+	else cur_map=-1;
 
 	//this is useful if we go in/out a dungeon
 	new_minute();
@@ -447,5 +476,4 @@ void new_map(int m_x_size,int m_y_size)
 
 
 }
-
 

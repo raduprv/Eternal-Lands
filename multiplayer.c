@@ -455,6 +455,9 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				rain_sound=0;//kill local sounds also kills the rain sound
 				weather_light_offset=0;
 				rain_light_offset=0;
+				if(interface_mode==interface_map||interface_mode==interface_cont){
+					switch_from_game_map();
+				}
 				{ 
 					FILE * fp;
 					char marks_file[256], text[600];
