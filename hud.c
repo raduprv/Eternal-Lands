@@ -846,10 +846,11 @@ void init_quickbar() {
 }
 
 void draw_quickbar() {
-	quickbar_x=window_width-quickbar_x_len-4;
-	quickbar_y=window_height-100-6*52;
 	Uint8 str[80];
 	int y,i;
+	quickbar_x=window_width-quickbar_x_len-4;
+	quickbar_y=window_height-100-6*52;
+	
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
