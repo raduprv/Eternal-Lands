@@ -4,7 +4,7 @@ int view_replace_window=0;
 int replace_window_x=20;
 int replace_window_y=100;
 int replace_window_x_len=360;
-int replace_window_y_len=200;
+int replace_window_y_len=90;
 int replace_window_win=0;
 
 int oid=-1,nid=-1, mode=1;
@@ -111,7 +111,7 @@ int check_replace_window_interface()
 	   }else if(selected_2d_object!=-1 && mode==2){
 			oid=(int)obj_2d_list[selected_2d_object]->obj_pointer;
 			strcpy(cOid,obj_2d_list[selected_2d_object]->file_name);
-	   }else if(selected_tile!=-1 && mode==1){
+	   }else if(selected_tile!=255 && mode==1){
 			oid=selected_tile;
 	   }
 
@@ -123,7 +123,7 @@ int check_replace_window_interface()
 	   }else if(selected_2d_object!=-1 && mode==2){
 			nid=(int)obj_2d_list[selected_2d_object]->obj_pointer;
 			strcpy(cNid,obj_2d_list[selected_2d_object]->file_name);
-	   }else if(selected_tile!=-1 && mode==1){
+	   }else if(selected_tile!=255 && mode==1){
 			nid=selected_tile;
 	   }
 
@@ -131,7 +131,7 @@ int check_replace_window_interface()
 
 	if(x>d3_x1 && x<=d3_x2 && y>d3_y1 && y<=d3_y2 && oid!=-1 && nid!=-1){
 		int i=0;
-		if(mode==3){
+		if(mode==3  && nid!=-1 && oid!=-1){
 			for(;i<max_obj_3d;i++){
 				if(objects_list[i]){
 					if((int)objects_list[i]->e3d_data==oid){
@@ -140,7 +140,7 @@ int check_replace_window_interface()
 					}
 				}
 			}
-		}else if(mode==2){
+		}else if(mode==2  && nid!=-1 && oid!=-1){
 			for(;i<max_obj_2d;i++){
 				if(obj_2d_list[i]){
 					if((int)obj_2d_list[i]->obj_pointer==oid){
@@ -149,7 +149,7 @@ int check_replace_window_interface()
 					}
 				}
 			}
-		}else if(selected_tile!=-1 && mode==1){
+		}else if(mode==1 && nid!=-1 && oid!=-1){
 			for(i=0;i<tile_map_size_x*tile_map_size_y;i++){
 				if(tile_map[i]==oid)
 					tile_map[i]=nid;
