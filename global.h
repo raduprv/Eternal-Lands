@@ -7,10 +7,6 @@
 #include <SDL_thread.h>
 #include <al.h>
 #include <alut.h>
-#elif defined(BSD)
-#include "/usr/local/include/SDL11/SDL.h"
-#include "/usr/local/include/SDL11/SDL_net.h"
-#include "/usr/local/include/SDL11/SDL_thread.h" 
 #else //if LINUX
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
