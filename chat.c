@@ -44,6 +44,22 @@ void sync_chat_and_console ()
 	cons_tf->cursor = chat_tf->cursor;
 }
 
+void clear_input_line ()
+{
+	input_text_line[0] = '\0';
+	input_text_lenght = 0;
+	input_text_lines = 1;
+	if (use_windowed_chat)
+	{
+		// reset the cursor
+		widget_list *chat = widget_find (chat_win, chat_in_id);
+		text_field *chat_tf = (text_field *) chat->widget_info;
+		chat_tf->buf_fill = 0;
+		chat_tf->cursor = 0;
+		sync_chat_and_console ();
+	}
+}
+
 void update_chat_scrollbar ()
 {
 	if (chat_win >= 0)
@@ -232,6 +248,7 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 			input_text_line[i-1] = input_text_line[i];
 		tf->cursor--;
 		tf->buf_fill--;
+		input_text_lenght--;
 		reset_soft_breaks (tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}
 	else if (ch == SDLK_DELETE && tf->cursor < tf->buf_fill)
@@ -240,6 +257,7 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 		for (i = tf->cursor+1; i <= tf->buf_fill; i++)
 			input_text_line[i-1] = input_text_line[i];
 		tf->buf_fill--;
+		input_text_lenght--;
 		reset_soft_breaks (tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}
 	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && ch != '`' )
@@ -254,6 +272,7 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 			tf->buffer[l+1] = ' ';
 			tf->buffer[l+2] = '\0';
 			tf->buf_fill = l+2;
+			input_text_lenght = l+2;
 			tf->cursor = l+2;
 		}
 		else if (tf->buf_fill < tf->buf_size - 1)
@@ -264,6 +283,7 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 			tf->buffer[tf->cursor] = ch;
 			tf->cursor++;
 			tf->buf_fill++;
+			input_text_lenght++;
 			reset_soft_breaks (tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 		}
 	}

@@ -972,7 +972,8 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		else
 		{
 			// clear the input buffer
-			input_text_lenght = 0;
+			clear_input_line ();
+			input_text_lenght =0;
 			input_text_lines = 1;
 			input_text_line[0] = '\0';
 		}
@@ -1022,31 +1023,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 	}
 	else if (ch == SDLK_RETURN && input_text_lenght > 0)
 	{
-		if ( (adding_mark == 1) && (input_text_lenght > 1) )
-		{
-			// XXX FIXME (Grum): this should probably only happen in map mode,
-			// and shouldn't occur here. Leave it for now.
-			int i;
-		
-			// if text wrapping just keep the text until the wrap.
-			for (i = 0; i < strlen (input_text_line); i++) 
-				if (input_text_line[i] == 0x0a) 
-					input_text_line[i] = 0;
-						    
-			marks[max_mark].x = mark_x;
-			marks[max_mark].y = mark_y;
-			memset(marks[max_mark].text,0,500);
-						  
-			my_strncp (marks[max_mark].text, input_text_line, 500);
-			marks[max_mark].text[strlen (marks[max_mark].text) - 1] = 0;
-			max_mark++;
-			save_markings ();
-			adding_mark = 0;
-			input_text_lenght = 0;
-			input_text_lines = 1;
-			input_text_line[0] = 0;
-		}
-		else if (*input_text_line == '%' && input_text_lenght > 1) 
+		if (*input_text_line == '%' && input_text_lenght > 1) 
 		{
 			input_text_line[input_text_lenght] = '\0';
 			if ( (check_var (input_text_line + 1, IN_GAME_VAR) ) < 0)
@@ -1170,7 +1147,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			show_window (console_root_win);
 			interface_mode = INTERFACE_CONSOLE;
 		}
-		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
+		else if (ch == SDLK_RETURN && input_text_lenght > 0 && input_text_line[0] == '#')
 		{
 			test_for_console_command (input_text_line, input_text_lenght);
 			// also clear the buffer

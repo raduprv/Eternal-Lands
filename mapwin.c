@@ -9,18 +9,20 @@ int mouse_over_minimap = 0;
 int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	Uint32 ctrl_on = flags & ELW_CTRL;
+	Uint32 left_click = flags & ELW_LEFT_MOUSE;
+	Uint32 right_click = flags & ELW_RIGHT_MOUSE;
 	float scale = (float) (win->len_x-hud_x) / 300.0f;
 
-	if (left_click == 1 && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
+	if (left_click && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
 	{
 		showing_continent = !showing_continent;
 	} else if (!showing_continent)
 	{
-		if (left_click==1)
+		if (left_click)
 		{
 			pf_move_to_mouse_position ();
 		}
-		else if (right_click == 1)
+		else if (right_click)
 		{
 			if (!ctrl_on)
 				put_mark_on_map_on_mouse_position ();
@@ -62,8 +64,29 @@ int mouseover_map_handler (window_info *win, int mx, int my)
 
 int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	// first try the keypress handler for all root windows
-	if ( keypress_root_common (key, unikey) )
+	Uint8 ch = key_to_char (unikey);
+
+	if (ch == SDLK_RETURN && adding_mark && input_text_lenght > 0)
+	{
+		int i;
+
+		// if text wrapping just keep the text until the wrap.
+		for (i = 0; i < strlen (input_text_line); i++) 
+			if (input_text_line[i] == '\n') 
+				input_text_line[i] = '\0';
+						    
+		marks[max_mark].x = mark_x;
+		marks[max_mark].y = mark_y;
+		memset ( marks[max_mark].text, 0, sizeof (marks[max_mark].text) );
+						  
+		my_strncp ( marks[max_mark].text, input_text_line, sizeof (marks[max_mark].text) );
+		max_mark++;
+		save_markings ();
+		adding_mark = 0;
+		clear_input_line ();
+	}
+	// now try the keypress handler for all root windows
+	else if ( keypress_root_common (key, unikey) )
 	{
 		return 1;
 	}
@@ -76,7 +99,6 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	}
 	else
 	{
-		Uint8 ch = key_to_char (unikey);
 
 		if (ch == '`' || key == K_CONSOLE)
 		{
@@ -85,13 +107,11 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 			show_window (console_root_win);
 			interface_mode = INTERFACE_CONSOLE;
 		}
-		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
+		else if (ch == SDLK_RETURN && input_text_lenght > 0 && input_text_line[0] == '#')
 		{
 			test_for_console_command (input_text_line, input_text_lenght);
 			// also clear the buffer
-			input_text_lenght = 0;
-			input_text_lines = 1;
-			input_text_line[0] = '\0';
+			clear_input_line (); 
 		}
 		else if ( text_input_handler (key, unikey) )
 		{

@@ -14,6 +14,16 @@ extern int chat_win_text_width; /*!< width of the chat window */
 
 /*!
  * \ingroup chat_win
+ * \brief   clear_input_line
+ *
+ *      Detail
+ *
+ * \callgraph
+ */
+void clear_input_line ();
+
+/*!
+ * \ingroup chat_win
  * \brief   Update handler for the scrollbar position of the chat window
  *
  *      Updates the scrollbar of the chat window
