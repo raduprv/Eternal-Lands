@@ -55,6 +55,17 @@ void move_to_next_frame()
 						}
 					//get the frame number out of the frame name
 					l=strlen(actors_list[i]->cur_frame);
+#ifdef POSSIBLE_FIX
+					if(l<2)//Perhaps this is the bug we've been looking for all along?
+#ifndef EXTRA_DEBUG
+						l=2;
+#else
+						{
+							l=2;
+							ERR();
+						}
+#endif
+#endif
 					frame_no=atoi(&actors_list[i]->cur_frame[l-2]);
 					//get the frame name
 					for(k=0;k<l-2;k++)frame_name[k]=actors_list[i]->cur_frame[k];
@@ -575,6 +586,9 @@ void add_command_to_actor(int actor_id, char command)
 #endif
 
 	lock_actors_lists();
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	while(i<max_actors)
 		{
 			if(actors_list[i])
@@ -636,12 +650,18 @@ void add_command_to_actor(int actor_id, char command)
 			i++;
 		}
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	unlock_actors_lists();
 
 #ifdef POSSIBLE_FIX
 	if(!have_actor)
 #endif
 		{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 			//if we got here, it means we don't have this actor, so get it from the server...
 			char	str[256];
 			sprintf(str, "%s %d - %d\n", cant_add_command, command, actor_id);

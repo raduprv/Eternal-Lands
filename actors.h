@@ -206,7 +206,11 @@ typedef struct
 	char actor_name[30];
 
 	//for movement/animation
+#ifdef POSSIBLE_FIX
+	char que[11];
+#else
 	char que[10];
+#endif
 	char last_command;
 	char busy;//if the actor is busy executing the current command
 	char sitting;
