@@ -280,6 +280,9 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 					{
 						if(which_part==KIND_OF_WEAPON)
 							{
+								//if(actors_list[i]->body_parts->weapon == GLOVE_FUR || actors_list[i]->body_parts->weapon == GLOVE_LEATHER){
+								//	my_strcp(actors_list[i]->body_parts->hands_tex,actors_defs[actors_list[i]->actor_type].skin[skin].hands_name);
+								//}
 								actors_list[i]->body_parts->weapon=0;
 								actors_list[i]->body_parts->weapon_fn[0]=0;
 								actors_list[i]->body_parts->weapon_tex[0]=0;
@@ -327,6 +330,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 					{
 						if(which_part==KIND_OF_WEAPON)
 							{
+								if(which_id == GLOVE_FUR || which_id == GLOVE_LEATHER){
+									my_strcp(actors_list[i]->body_parts->hands_tex, actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
+								}
 								my_strcp(actors_list[i]->body_parts->weapon_tex,actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
 								my_strcp(actors_list[i]->body_parts->weapon_fn,actors_defs[actors_list[i]->actor_type].weapon[which_id].model_name);
 								no_bounding_box=1;
