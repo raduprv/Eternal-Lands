@@ -339,9 +339,8 @@ input_text_lenght<160)
 
         	if(ch==SDLK_RETURN && input_text_lenght>0)
         	    {
-
-if(interface_mode!=interface_console)send_input_text_line();
-        	        else test_for_console_command();
+					if(*input_text_line=='#' || interface_mode==interface_console) test_for_console_command();
+					else send_input_text_line();
         	        //also clear the buffer
         	        input_text_lenght=0;
         	        input_text_line[0]=0;

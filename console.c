@@ -36,15 +36,28 @@ void print_log()
 //if not, send the text to the server
 void test_for_console_command()
 {
-
+	char *text_loc=input_text_line;
+	int text_lenght=input_text_lenght;
+	//skip a leading #
+	if(*text_loc=='#')
+		{
+			text_loc++;
+			text_lenght--;
+		}
+	// skip leading spaces
+	while(*text_loc==' ')
+		{
+			text_loc++;
+			text_lenght--;
+		}
 	//cls?
-	if(strcmp(input_text_line,"cls_")==0)
+	if(my_strcompare(text_loc,"cls_"))
 		{
 			cls();
 			return;
 		}
 	//stats ?
-	if(strcmp(input_text_line,"stats_")==0)
+	if(my_strcompare(text_loc,"stats_"))
 		{
 			unsigned char protocol_name;
 			protocol_name=SERVER_STATS;
@@ -52,7 +65,7 @@ void test_for_console_command()
 			return;
 		}
 	//time?
-	if(strcmp(input_text_line,"time_")==0)
+	if(my_strcompare(text_loc,"time_"))
 		{
 			unsigned char protocol_name;
 			protocol_name=GET_TIME;
@@ -60,7 +73,7 @@ void test_for_console_command()
 			return;
 		}
 	//ping?
-	if(strcmp(input_text_line,"ping_")==0)
+	if(my_strcompare(text_loc,"ping_"))
 		{
 			Uint8 str[8];
 			str[0]=PING;
@@ -70,24 +83,24 @@ void test_for_console_command()
 		}
 
 	//date?
-	if(strcmp(input_text_line,"date_")==0)
+	if(my_strcompare(text_loc,"date_"))
 		{
 			unsigned char protocol_name;
 			protocol_name=GET_DATE;
 			my_tcp_send(my_socket,&protocol_name,1);
 			return;
 		}
-	if(strcmp(input_text_line,"quit_")==0)
+	if(my_strcompare(text_loc,"quit_"))
 		{
 			exit_now=1;
 			return;
 		}
-	if(strcmp(input_text_line,"exit_")==0)
+	if(my_strcompare(text_loc,"exit_"))
 		{
 			exit_now=1;
 			return;
 		}
-	if(strcmp(input_text_line,"ver_")==0)
+	if(my_strcompare(text_loc,"ver_"))
 		{
 			char version[60];
 			version[0]=127+c_green1;
@@ -96,13 +109,12 @@ void test_for_console_command()
 			return;
 		}
 
-	if(strcmp(input_text_line,"ignores_")==0)
+	if(my_strcompare(text_loc,"ignores_"))
 		{
 			list_ignores();
 			return;
 		}
-	if(input_text_line[0]=='i' && input_text_line[1]=='g' && input_text_line[2]=='n'
-	&& input_text_line[3]=='o' && input_text_line[4]=='r' && input_text_line[5]=='e')
+	if(my_strncompare(text_loc,"ignore ", 7))
 		{
 			Uint8 name[16];
 			int i;
@@ -111,7 +123,7 @@ void test_for_console_command()
 
 			for(i=0;i<15;i++)
 				{
-					ch=input_text_line[i+7];//7 because there is a space after "ignore"
+					ch=text_loc[i+7];//7 because there is a space after "ignore"
 					if(ch==' ' || ch=='_')
 						{
 							ch=0;
@@ -166,15 +178,14 @@ void test_for_console_command()
 				}
 		}
 
-	if(strcmp(input_text_line,"filters_")==0)
+	if(my_strcompare(text_loc,"filters_"))
 		{
 			list_filters();
 			return;
 		}
 
 ////////////////////////
-	if(input_text_line[0]=='m' && input_text_line[1]=='o' && input_text_line[2]=='d' &&
-	input_text_line[3]=='e' && input_text_line[4]=='s' && input_text_line[5]=='_')
+	if(my_strcompare(text_loc, "modes_", 5))
 		{
 			char str[1000];
 			//see what modes are supported.
@@ -227,16 +238,13 @@ void test_for_console_command()
 		}
 
 ////////////////////////
-	if(input_text_line[0]=='m' && input_text_line[1]=='o' && input_text_line[2]=='d' &&
-	input_text_line[3]=='e' && input_text_line[4]==' ' && input_text_line[5]>='1' && input_text_line[5]<='6')
+	if(my_strncompare(text_loc, "mode ", 5) && text_loc[5]>='1' && text_loc[5]<='6')
 		{
 
 		}
 
 ////////////////////////
-	if(input_text_line[0]=='u' && input_text_line[1]=='n' && input_text_line[2]=='i' &&
-	input_text_line[3]=='g' && input_text_line[4]=='n' && input_text_line[5]=='o' &&
-	input_text_line[6]=='r' && input_text_line[7]=='e')
+	if(my_strncompare(text_loc,"unignore ",9))
 		{
 			Uint8 name[16];
 			int i;
@@ -245,7 +253,7 @@ void test_for_console_command()
 
 			for(i=0;i<15;i++)
 				{
-					ch=input_text_line[i+9];//9 because there is a space after "ignore"
+					ch=text_loc[i+9];//9 because there is a space after "ignore"
 					if(ch==' ' || ch=='_')
 						{
 							ch=0;
@@ -291,24 +299,22 @@ void test_for_console_command()
 				}
 		}
 ////////////////////////
-	if((input_text_lenght>=5 && input_text_line[0]=='h' && input_text_line[1]=='e' && input_text_line[2]=='l' &&
-	input_text_line[3]=='p' && input_text_line[4]==' ') ||
-	(input_text_lenght==4 && input_text_line[0]=='h' && input_text_line[1]=='e' && input_text_line[2]=='l' &&
-	input_text_line[3]=='p'))
+	if((text_lenght>=5 && my_strncompare(text_loc,"help ",5)) ||
+	(text_lenght==4 && my_strncompare(text_loc,"help",4)))
 		{
 			Uint8 topic[30];
 			int i;
 			Uint8 ch;
 			int result;
 
-			if(input_text_lenght==4)
+			if(text_lenght==4)
 				{
 					display_help_topic("main");
 					return;
 				}
-			for(i=0;i<30 || i<input_text_lenght;i++)
+			for(i=0;i<30 || i<text_lenght;i++)
 				{
-					ch=input_text_line[i+5];//5 because there is a space after "help"
+					ch=text_loc[i+5];//5 because there is a space after "help"
 					if(ch==' ' || ch=='_')
 						{
 							ch=0;
@@ -323,7 +329,7 @@ void test_for_console_command()
 ////////////////////////
 
 
-	if(strcmp(input_text_line,"glinfo_")==0)
+	if(my_strcompare(text_loc,"glinfo_"))
 		{
 			GLubyte *my_string;
 			Uint8 this_string[8192];
