@@ -842,8 +842,8 @@ void copy_strings(xmlNode * in, distring_item * string)
 		{
 			if(cur->type == XML_ELEMENT_NODE)
 				{
-					if(!xmlStrcasecmp(cur->name,"name")) strncpy(cur->children->content,string->var->str,30);
-					else if (!xmlStrcasecmp(cur->name,"desc")) strncpy(cur->children->content,string->var->desc,100);
+					if(!xmlStrcasecmp(cur->name,"name")) strncpy(string->var->str,cur->children->content,30);
+					else if (!xmlStrcasecmp(cur->name,"desc")) strncpy(string->var->str,cur->children->content,100);
 				}
 		}
 }
