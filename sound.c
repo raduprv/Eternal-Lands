@@ -33,6 +33,7 @@ void load_ogg_file(int i) {
 		return;
 	}
 
+#ifndef	NO_MUSIC
 	ov_clear(&ogg_stream);
 
 	if(ov_open(ogg_file, &ogg_stream, NULL, 0) < 0) {
@@ -40,6 +41,7 @@ void load_ogg_file(int i) {
 		log_error("Failed to load ogg stream\n");
 		have_music=0;
 	}
+#endif	//NO_MUSIC
 }
 
 ALuint get_loaded_buffer(int i)
@@ -255,6 +257,7 @@ void stream_music(ALuint buffer) {
     int  result = 0;
 	int error;
 
+#ifndef	NO_MUSIC
     while(size < BUFFER_SIZE)
     {
         result = ov_read(&ogg_stream, data + size, BUFFER_SIZE - size, 0, 2, 1,
@@ -277,6 +280,7 @@ void stream_music(ALuint buffer) {
     		log_error(str);
 			have_music=0;
     	}
+#endif	//NO_MUSIC
 }
 
 
@@ -432,7 +436,9 @@ void destroy_sound()
 		if(alIsBuffer(sound_buffer[i]))
 			alDeleteBuffers(1, sound_buffer+i);
     alDeleteBuffers(2, music_buffers);
+#ifndef	NO_MUSIC
     ov_clear(&ogg_stream);
+#endif	//NO_MUSIC
     alutExit();
 }
 
