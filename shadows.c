@@ -62,6 +62,11 @@ void draw_3d_object_shadow(object3d * object_id)
     if(object_id->self_lit)return;//light sources can't have shadows
     if(!(object_id->e3d_data->min_z-object_id->e3d_data->max_z))return;//we have a flat object
 
+	// check for having to load the arrays
+	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
+		{
+			load_e3d_detail(object_id->e3d_data);
+		}
 	array_vertex=object_id->e3d_data->array_vertex;
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;

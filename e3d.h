@@ -121,6 +121,7 @@ typedef struct
 	char is_transparent;
 	char is_ground;
 
+	char file_name[128];
 }e3d_object;
 
 typedef struct
@@ -145,7 +146,7 @@ typedef struct
 
 typedef struct
 {
-	char file_name[128];
+	char *file_name;
 	e3d_object * e3d_id;
 	int flag_for_destruction;
 }e3d_cache_struct;
@@ -158,6 +159,7 @@ extern object3d *objects_list[max_obj_3d];
 
 //proto
 e3d_object * load_e3d(char *file_name);
+e3d_object * load_e3d_detail(e3d_object *cur_object);
 int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b);
 
 #endif

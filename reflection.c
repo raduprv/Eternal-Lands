@@ -129,6 +129,11 @@ void draw_3d_reflection(object3d * object_id)
 	is_transparent=object_id->e3d_data->is_transparent;
 	materials_no=object_id->e3d_data->materials_no;
 
+	// check for having to load the arrays
+	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
+		{
+			load_e3d_detail(object_id->e3d_data);
+		}
 	array_vertex=object_id->e3d_data->array_vertex;
 	array_normal=object_id->e3d_data->array_normal;
 	array_uv_main=object_id->e3d_data->array_uv_main;
