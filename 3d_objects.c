@@ -32,10 +32,12 @@ void draw_3d_object(object3d * object_id)
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;
 
+	check_gl_errors();
 	if(have_multitexture && clouds_shadows)
 		if(!object_id->clouds_uv)
 			compute_clouds_map(object_id);
 
+	check_gl_errors();
 	//also, update the last time this object was used
 	object_id->last_acessed_time=cur_time;
 
@@ -72,6 +74,7 @@ void draw_3d_object(object3d * object_id)
 			else glAlphaFunc(GL_GREATER,0.06f);
 			glDisable(GL_CULL_FACE);
 		}
+	check_gl_errors();
 
 
 	glPushMatrix();//we don't want to affect the rest of the scene
@@ -80,6 +83,7 @@ void draw_3d_object(object3d * object_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
+	check_gl_errors();
 	if(!have_multitexture || !clouds_shadows)
 		{
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -89,16 +93,28 @@ void draw_3d_object(object3d * object_id)
 				{
 					glEnableClientState(GL_NORMAL_ARRAY);
 					glNormalPointer(GL_FLOAT,0,array_normal);
+	check_gl_errors();
 					for(i=0;i<materials_no;i++)
 						{
+	check_gl_errors();
 							texture_id=get_texture_id(array_order[i].texture_id);
 							if(last_texture!=texture_id)
 								{
 									glBindTexture(GL_TEXTURE_2D, texture_id);
 									last_texture=texture_id;
 								}
+							// a quick check for errors
+							if(array_order[i].start < 0 || array_order[i].count <= 0)
+								{
+									char str[256];
+									sprintf(str, "Object error for %s[%d] values (%d, %d)\n",
+										object_id->file_name, i,
+										array_order[i].start, array_order[i].count);
+									log_error(str);
+								}
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,
 										 array_order[i].count);
+	check_gl_errors();
 						}
 					glDisableClientState(GL_NORMAL_ARRAY);
 				}//is ground
@@ -108,14 +124,25 @@ void draw_3d_object(object3d * object_id)
 
 					for(i=0;i<materials_no;i++)
 						{
+	check_gl_errors();
 							texture_id=get_texture_id(array_order[i].texture_id);
     						if(last_texture!=texture_id)
    						 		{
 									glBindTexture(GL_TEXTURE_2D, texture_id);
 									last_texture=texture_id;
 								}
+							// a quick check for errors
+							if(array_order[i].start < 0 || array_order[i].count <= 0)
+								{
+									char str[256];
+									sprintf(str, "Object error for %s[%d] values (%d, %d)\n",
+										object_id->file_name, i,
+										array_order[i].start, array_order[i].count);
+									log_error(str);
+								}
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,
 										 array_order[i].count);
+	check_gl_errors();
 						}
 				}
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -135,9 +162,11 @@ void draw_3d_object(object3d * object_id)
 					glEnableClientState(GL_NORMAL_ARRAY);
 					glVertexPointer(3,GL_FLOAT,0,array_vertex);
 					glNormalPointer(GL_FLOAT,0,array_normal);
+	check_gl_errors();
 
 					for(i=0;i<materials_no;i++)
 						{
+	check_gl_errors();
 							texture_id=get_texture_id(array_order[i].texture_id);
 							if(last_texture!=texture_id)
 								{
@@ -146,6 +175,7 @@ void draw_3d_object(object3d * object_id)
 								}
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,
 										 array_order[i].count);
+	check_gl_errors();
 						}
 					glDisableClientState(GL_NORMAL_ARRAY);
 				}//is ground
@@ -154,17 +184,29 @@ void draw_3d_object(object3d * object_id)
 					glNormal3f(0,0,1);
 					glVertexPointer(3,GL_FLOAT,0,array_vertex);
 					glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
+	check_gl_errors();
 
 					for(i=0;i<materials_no;i++)
 						{
+	check_gl_errors();
 							texture_id=get_texture_id(array_order[i].texture_id);
     						if(last_texture!=texture_id)
    						 		{
 									glBindTexture(GL_TEXTURE_2D, texture_id);
 									last_texture=texture_id;
 								}
+							// a quick check for errors
+							if(array_order[i].start < 0 || array_order[i].count <= 0)
+								{
+									char str[256];
+									sprintf(str, "Object error for %s[%d] values (%d, %d)\n",
+										object_id->file_name, i,
+										array_order[i].start, array_order[i].count);
+									log_error(str);
+								}
 							glDrawArrays(GL_TRIANGLES,array_order[i].start,
 										 array_order[i].count);
+	check_gl_errors();
 						}
 				}
 
@@ -174,6 +216,7 @@ void draw_3d_object(object3d * object_id)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	glPopMatrix();//restore the scene
+	check_gl_errors();
 
 
 	if(object_id->blended)glDisable(GL_BLEND);
@@ -183,6 +226,7 @@ void draw_3d_object(object3d * object_id)
 			glDisable(GL_ALPHA_TEST);
 			glEnable(GL_CULL_FACE);
 		}
+	check_gl_errors();
 
 }
 
@@ -295,6 +339,7 @@ void display_objects()
 	int x,y;
 	x=-cx;
 	y=-cy;
+	check_gl_errors();
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	if(have_multitexture && clouds_shadows)
@@ -308,6 +353,7 @@ void display_objects()
 
 		}
 
+	check_gl_errors();
 	for(i=0;i<max_obj_3d;i++)
 		{
 			if(objects_list[i])
@@ -338,11 +384,14 @@ void display_objects()
 											   objects_list[i]->z_pos,radius))
 								{
                      				draw_3d_object(objects_list[i]);
+	check_gl_errors();
 									anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
+	check_gl_errors();
 								}
 						}
 				}
 		}
+	check_gl_errors();
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	if(have_multitexture && clouds_shadows)
@@ -352,6 +401,7 @@ void display_objects()
 			glDisable(GL_TEXTURE_2D);
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 		}
+	check_gl_errors();
 
 }
 
