@@ -347,10 +347,10 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 void free_icons()
 {
 	int i;
-	for(i=0;i<icons.no;i++) {
-		if(icons.icon[i]->free_data)
-			free(icons.icon[i]->data);
-		free(icons.icon[i]);
+	for(i=0;i<icons_no;i++) {
+		if(icon_list[i]->free_data)
+			free(icon_list[i]->data);
+		free(icon_list[i]);
 	}
 }
 
@@ -446,21 +446,21 @@ void sit_button_pressed(void * none, int id)
 void you_sit_down()
 {
 	you_sit=1;
-	icons.icon[1]->u[0]=stand_icon_u_start;//Change the icon to stand
-	icons.icon[1]->u[1]=colored_stand_icon_u_start;
-	icons.icon[1]->v[0]=stand_icon_v_start;
-	icons.icon[1]->v[1]=colored_stand_icon_v_start;
-	icons.icon[1]->help_message=tt_stand;
+	icon_list[1]->u[0]=stand_icon_u_start;//Change the icon to stand
+	icon_list[1]->u[1]=colored_stand_icon_u_start;
+	icon_list[1]->v[0]=stand_icon_v_start;
+	icon_list[1]->v[1]=colored_stand_icon_v_start;
+	icon_list[1]->help_message=tt_stand;
 }
 
 void you_stand_up()
 {
 	you_sit=0;
-	icons.icon[1]->u[0]=sit_icon_u_start;
-	icons.icon[1]->u[1]=colored_sit_icon_u_start;
-	icons.icon[1]->v[0]=sit_icon_v_start;
-	icons.icon[1]->v[1]=colored_sit_icon_v_start;
-	icons.icon[1]->help_message=tt_sit;
+	icon_list[1]->u[0]=sit_icon_u_start;
+	icon_list[1]->u[1]=colored_sit_icon_u_start;
+	icon_list[1]->v[0]=sit_icon_v_start;
+	icon_list[1]->v[1]=colored_sit_icon_v_start;
+	icon_list[1]->help_message=tt_sit;
 }
 
 void switch_action_mode(int * mode, int id)
@@ -481,7 +481,7 @@ void view_console_win(int * win, int id)
 			interface_mode=interface_console;
 			if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
 			icons.icon[id]->state=PRESSED;
-			icons.icon[id-1]->state=0;
+			icon_list[13]->state=0;
 		}
 }
 
@@ -492,7 +492,7 @@ void view_map_win(int * win, int id)
 		{
 			if(switch_to_game_map()) {
 				icons.icon[id]->state=PRESSED;
-				icons.icon[id+1]->state=0;
+				icon_list[14]->state=0;
 			}
 		}
 	else if(interface_mode==interface_map)
