@@ -657,7 +657,8 @@ void display_actors()
 								if(cur_actor->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
 								else
 									if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
-									   cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+									   (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)))
+										anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
 									else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 							}
 					}
@@ -699,7 +700,8 @@ void display_actors()
 									if(cur_actor->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
 									else
 										if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
-										   cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+										   (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)))
+											anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
 										else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 								}
 						}
