@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "global.h"
+#include "keys.h"
 #include "elwindows.h"
 
 windows_info	windows_list;	// the master list of windows
@@ -553,8 +554,8 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	win->pos_loc= pos_loc;	//NOT SUPPORTED YET
 	win->pos_x= pos_x;
 	win->pos_y= pos_y;
-	win->cur_x= pos_x;
-	win->cur_y= pos_y;
+	win->cur_x= pos_x;	//TODO: calc based on pos_id & pos_loc
+	win->cur_y= pos_y;	//TODO: calc based on pos_id & pos_loc
 
 	// check for the window actually being on the screen, if not, move it
 	if(win->cur_y < (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0) win->cur_y= (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0;
