@@ -35,6 +35,7 @@ int check_interface_buttons()
 						{
 							SDL_Event event;
 							open_particles_obj();
+							particles_list[selected_particles_object]->ttl=-1; // we dont want the particle sys to disapear
 							while (SDL_PollEvent (&event));	//clears all the events
 							left_click=2;
 						}
