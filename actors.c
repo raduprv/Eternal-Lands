@@ -602,6 +602,8 @@ void display_actors()
 								if(cur_actor->is_enhanced_model)
 									{
 										draw_enhanced_actor(cur_actor);
+										//check for network data - reduces resyncs
+										get_message_from_server();
 									}
 								else
 									{
