@@ -114,6 +114,9 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 	//get the time when we got this line
 	last_server_message_time=cur_time;
 	if(lines_to_show<max_lines_no)lines_to_show++;
+	// force the color
+	display_text_buffer[display_text_buffer_last]=127+color;
+	display_text_buffer_last++;
 
 	//see if the text fits on the screen
 	if(!x_chars_limit)x_chars_limit=window_width/11;
@@ -142,7 +145,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 			int new_line_pos=0;
 			int text_lines;
 			char semaphore=0;
-			unsigned char current_color=127+color;	// switch to the color specified
+			unsigned char current_color=127+color;
 
 			//how many lines of text do we have?
 			text_lines=len/x_chars_limit;
@@ -228,6 +231,9 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 	int last_text=0;
 	int x_chars_limit;
 
+	// force the color
+	display_text_buffer[display_text_buffer_last]=127+color;
+	display_text_buffer_last++;
 	//see if the text fits on the screen
 	x_chars_limit=pixels_limit/8;
 	if(len<=x_chars_limit)
