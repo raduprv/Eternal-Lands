@@ -272,23 +272,23 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 			int numFaces;
 
 			numFaces=model_data->numFaces;
-#if defined(USE_VERTEXARRAYS)
-			if(!ghost)	// why are ghosts broken?
+			check_gl_errors();
+#ifdef	USE_VERTEXARRAYS
+			if(have_vertex_array && !ghost)	// why are ghosts broken?
+			//if(have_vertex_array)
 				{
-					check_gl_errors();
 					glColor3f(1.0f, 1.0f, 1.0f);
-					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 					glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
-					glEnableClientState(GL_VERTEX_ARRAY);
+					//glEnableClientState(GL_VERTEX_ARRAY);
 					glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
 					check_gl_errors();
 					if(have_compiled_vertex_array)glLockArraysEXT(0, numFaces*3);
 					glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
 					if(have_compiled_vertex_array)glUnlockArraysEXT();
-					check_gl_errors();
-					glDisableClientState(GL_VERTEX_ARRAY);
-					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-					check_gl_errors();
+					//glDisableClientState(GL_VERTEX_ARRAY);
+					//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+					//check_gl_errors();
 				}
 			else
 #endif	//USE_VERTEXARRAYS
@@ -296,17 +296,15 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 					int i;	//,j;
 					text_coord_md2 *offsetTexCoords;
 					face_md2 *offsetFaces;
-					//frame_md2 *offsetFrames;
 					vertex_md2 *vertex_pointer=NULL;
 
-					//find where we are
-					//offsetFrames=model_data->offsetFrames;
-					//and then start
+					//setup
 					glColor3f(1.0f,1.0f,1.0f);
 					glBegin(GL_TRIANGLES);
 					vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
 					offsetFaces=model_data->offsetFaces;
 					offsetTexCoords=model_data->offsetTexCoords;
+					//draw each triangle
 					for(i=0;i<numFaces;i++)
 						{
 							float x,y,z;
@@ -331,14 +329,9 @@ void draw_model(md2 *model_data,char *cur_frame, int ghost)
 						}
 					glEnd();
 				}
+				check_gl_errors();
 		}
-	else
-		{
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
-			log_error(str);
-			return;
-		}
+	// error condition already handled in subroutine
 }
 
 
@@ -358,8 +351,8 @@ void draw_actor(actor * actor_id)
 		}
 	if(last_texture!=texture_id)
 		{
-			glBindTexture(GL_TEXTURE_2D, texture_id);
 			last_texture=texture_id;
+			glBindTexture(GL_TEXTURE_2D, texture_id);
 		}
 
 	//now, go and find the current frame
@@ -409,6 +402,8 @@ void display_actors()
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	//MD2s don't have real normals...
 	glNormal3f(0.0f,0.0f,1.0f);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
 
 	//display only the non ghosts
 	for(i=0;i<max_actors;i++)
@@ -471,7 +466,10 @@ void display_actors()
 							}
 					}
 		}
+
 	glDisable(GL_BLEND);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 
@@ -666,30 +664,23 @@ void draw_interface_body_part(md2 *model_data,float scale)
 	glBegin(GL_TRIANGLES);
 	for(j=0;j<numFaces;j++)
 		{
+			glTexCoord2f(offsetTexCoords[offsetFaces[j].at].u,offsetTexCoords[offsetFaces[j].at].v);
 			x=vertex_pointer[offsetFaces[j].a].x*scale;
 			y=vertex_pointer[offsetFaces[j].a].y*scale;
 			z=vertex_pointer[offsetFaces[j].a].z*scale;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].at].u,offsetTexCoords[offsetFaces[j].at].v);
 			glVertex3f(x,y,z);
 
-
+			glTexCoord2f(offsetTexCoords[offsetFaces[j].bt].u,offsetTexCoords[offsetFaces[j].bt].v);
 			x=vertex_pointer[offsetFaces[j].b].x*scale;
 			y=vertex_pointer[offsetFaces[j].b].y*scale;
 			z=vertex_pointer[offsetFaces[j].b].z*scale;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].bt].u,offsetTexCoords[offsetFaces[j].bt].v);
 			glVertex3f(x,y,z);
 
-
+			glTexCoord2f(offsetTexCoords[offsetFaces[j].ct].u,offsetTexCoords[offsetFaces[j].ct].v);
 			x=vertex_pointer[offsetFaces[j].c].x*scale;
 			y=vertex_pointer[offsetFaces[j].c].y*scale;
 			z=vertex_pointer[offsetFaces[j].c].z*scale;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[j].ct].u,offsetTexCoords[offsetFaces[j].ct].v);
 			glVertex3f(x,y,z);
-
-
 		}
 	glEnd();
 
@@ -703,9 +694,9 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 						  int z_pos, float x_rot,float y_rot, float z_rot)
 {
 	int texture_id;
-	frame_md2 *offsetFrames;
+	//frame_md2 *offsetFrames;
 
-	offsetFrames=actor_id->body_parts->head->offsetFrames;
+	//offsetFrames=actor_id->body_parts->head->offsetFrames;
 	texture_id=actor_id->texture_id;
 
 	x_rot+=180;//test
@@ -713,11 +704,13 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 
 	if(last_texture!=texture_id)
 		{
-			glBindTexture(GL_TEXTURE_2D, texture_id);
 			last_texture=texture_id;
+			glBindTexture(GL_TEXTURE_2D, texture_id);
 		}
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-		glPushMatrix();//we don't want to affect the rest of the scene
+		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+
+	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos, y_pos, z_pos);
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
@@ -735,8 +728,6 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 actor * add_actor_interface(int actor_type, short skin, short hair, 
 							short shirt, short pants, short boots, short head)
 {
-
-
 	actor *our_actor;
 	enhanced_actor *this_actor;
 	int texture_id;

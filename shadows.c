@@ -108,8 +108,8 @@ void draw_3d_object_shadow(object3d * object_id)
 					texture_id=get_texture_id(array_order[i].texture_id);
     				if(last_texture!=texture_id)
    						{
-							glBindTexture(GL_TEXTURE_2D, texture_id);
 							last_texture=texture_id;
+							glBindTexture(GL_TEXTURE_2D, texture_id);
 						}
 				}
 			if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
@@ -134,99 +134,62 @@ void draw_3d_object_shadow(object3d * object_id)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 {
-	int i,j;
-	float x,y,z;
-	char *dest_frame_name;
-	int numFrames;
+	int i;
+	//char *dest_frame_name;
+	//int numFrames;
     int numFaces;
-    text_coord_md2 *offsetTexCoords;
-    face_md2 *offsetFaces;
-    frame_md2 *offsetFrames;
-    vertex_md2 *vertex_pointer=NULL;
-
-	numFaces=model_data->numFaces;
-	numFrames=model_data->numFrames;
-	offsetFaces=model_data->offsetFaces;
-	offsetTexCoords=model_data->offsetTexCoords;
-	offsetFrames=model_data->offsetFrames;
-
 
 	//now, go and find the current frame
-	i=0;
-	while(i<numFrames)
-		{
-			dest_frame_name=(char *)&offsetFrames[i].name;
-			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-				{
-					vertex_pointer=offsetFrames[i].vertex_pointer;
-					break;
-				}
-			i++;
-		}
+	i = get_frame_number(model_data, cur_frame);
+	if(i < 0)return;	//can't draw it
+	numFaces=model_data->numFaces;
 
-	i=0;
-	if(vertex_pointer==NULL)//if there is no frame, use idle01
-		{
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
-			log_error(str);
-			while(i<numFrames)
-				{
-					dest_frame_name=(char *)&offsetFrames[i].name;
-					if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
-						{
-							vertex_pointer=offsetFrames[i].vertex_pointer;
-							break;
-						}
-					i++;
-				}
-		}
-
-	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
-		{
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
-			log_error(str);
-			return;
-		}
 #ifdef	USE_VERTEXARRAYS
 	check_gl_errors();
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[i].vertex_array);
-	check_gl_errors();
-	if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
-	glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
-	if(have_compiled_vertex_array)glUnlockArraysEXT();
-	check_gl_errors();
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	check_gl_errors();
-#else	//USE_VERTEXARRAYS
-	glBegin(GL_TRIANGLES);
-	for(j=0;j<numFaces;j++)
+	if(have_vertex_array)
 		{
-			x=vertex_pointer[offsetFaces[j].a].x;
-			y=vertex_pointer[offsetFaces[j].a].y;
-			z=vertex_pointer[offsetFaces[j].a].z;
-			glVertex3f(x,y,z);
-			x=vertex_pointer[offsetFaces[j].b].x;
-			y=vertex_pointer[offsetFaces[j].b].y;
-			z=vertex_pointer[offsetFaces[j].b].z;
-			glVertex3f(x,y,z);
-			x=vertex_pointer[offsetFaces[j].c].x;
-			y=vertex_pointer[offsetFaces[j].c].y;
-			z=vertex_pointer[offsetFaces[j].c].z;
-			glVertex3f(x,y,z);
-
-
+			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[i].vertex_array);
+			if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
+			glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
+			if(have_compiled_vertex_array)glUnlockArraysEXT();
 		}
-	glEnd();
+	else
 #endif	//USE_VERTEXARRAYS
+		{
+    		face_md2 *offsetFaces;
+    		frame_md2 *offsetFrames;
+    		vertex_md2 *vertex_pointer=NULL;
 
+    		text_coord_md2 *offsetTexCoords;
+			//numFrames=model_data->numFrames;
+			offsetFaces=model_data->offsetFaces;
+			offsetTexCoords=model_data->offsetTexCoords;
+			offsetFrames=model_data->offsetFrames;
+
+			vertex_pointer=offsetFrames[i].vertex_pointer;
+
+			glBegin(GL_TRIANGLES);
+			for(i=0;i<numFaces;i++)
+				{
+					float x,y,z;
+
+					x=vertex_pointer[offsetFaces[i].a].x;
+					y=vertex_pointer[offsetFaces[i].a].y;
+					z=vertex_pointer[offsetFaces[i].a].z;
+					glVertex3f(x,y,z);
+					x=vertex_pointer[offsetFaces[i].b].x;
+					y=vertex_pointer[offsetFaces[i].b].y;
+					z=vertex_pointer[offsetFaces[i].b].z;
+					glVertex3f(x,y,z);
+					x=vertex_pointer[offsetFaces[i].c].x;
+					y=vertex_pointer[offsetFaces[i].c].y;
+					z=vertex_pointer[offsetFaces[i].c].z;
+					glVertex3f(x,y,z);
+				}
+			glEnd();
+		}
+	check_gl_errors();
 }
-
-
 
 
 void draw_enhanced_actor_shadow(actor * actor_id)
@@ -234,32 +197,27 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	char *cur_frame;
-	frame_md2 *offsetFrames;
+	//frame_md2 *offsetFrames;
 
-
-
-	offsetFrames=actor_id->body_parts->head->offsetFrames;
+	//offsetFrames=actor_id->body_parts->head->offsetFrames;
 
 	cur_frame=actor_id->cur_frame;
+
+	glPushMatrix();//we don't want to affect the rest of the scene
+	glMultMatrixf(fDestMat);
 
 	x_pos=actor_id->x_pos;
 	y_pos=actor_id->y_pos;
 	z_pos=actor_id->z_pos;
 
+	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
+		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+
 	x_rot=actor_id->x_rot;
 	y_rot=actor_id->y_rot;
 	z_rot=actor_id->z_rot;
-
 	z_rot+=180;//test
-
-	//now, go and find the current frame
-
-	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	glMultMatrixf(fDestMat);
-	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
@@ -278,86 +236,83 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 
 void draw_actor_shadow(actor * actor_id)
 {
-	int i,j;
+	int i;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	float x,y,z;
 	char *cur_frame;
-	char *dest_frame_name;
+	//char *dest_frame_name;
 
-	int numFrames;
+	//int numFrames;
     int numFaces;
-    face_md2 *offsetFaces;
-    frame_md2 *offsetFrames;
-    vertex_md2 *vertex_pointer=NULL;
 
+	//now, go and find the current frame
 	cur_frame=actor_id->cur_frame;
+	i = get_frame_number(actor_id->model_data, cur_frame);
+	if(i < 0)return;	//can't draw it
 
-	numFaces=actor_id->model_data->numFaces;
-	numFrames=actor_id->model_data->numFrames;
-	offsetFaces=actor_id->model_data->offsetFaces;
-	offsetFrames=actor_id->model_data->offsetFrames;
+	glPushMatrix();//we don't want to affect the rest of the scene
+	glMultMatrixf(fDestMat);
 
 	x_pos=actor_id->x_pos;
 	y_pos=actor_id->y_pos;
 	z_pos=actor_id->z_pos;
+	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
+		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
+
+	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 
 	x_rot=actor_id->x_rot;
 	y_rot=actor_id->y_rot;
 	z_rot=actor_id->z_rot;
-
-	//now, go and find the current frame
-	i=0;
-	while(i<numFrames)
-		{
-			dest_frame_name=(char *)&offsetFrames[i].name;
-			if(strcmp(cur_frame,dest_frame_name)==0)//we found the current frame
-				{
-					vertex_pointer=offsetFrames[i].vertex_pointer;
-					break;
-				}
-			i++;
-		}
-	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
-		{
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
-			log_error(str);
-			return;
-		}
-
-	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	glMultMatrixf(fDestMat);
-	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-	;
-	glBegin(GL_TRIANGLES);
-	for(j=0;j<numFaces;j++)
+
+	numFaces=actor_id->model_data->numFaces;
+	check_gl_errors();
+#ifdef	USE_VERTEXARRAYS
+	if(have_vertex_array)
 		{
-			x=vertex_pointer[offsetFaces[j].a].x;
-			y=vertex_pointer[offsetFaces[j].a].y;
-			z=vertex_pointer[offsetFaces[j].a].z;
-			glVertex3f(x,y,z);
-			x=vertex_pointer[offsetFaces[j].b].x;
-			y=vertex_pointer[offsetFaces[j].b].y;
-			z=vertex_pointer[offsetFaces[j].b].z;
-			glVertex3f(x,y,z);
-			x=vertex_pointer[offsetFaces[j].c].x;
-			y=vertex_pointer[offsetFaces[j].c].y;
-			z=vertex_pointer[offsetFaces[j].c].z;
-			glVertex3f(x,y,z);
-
-
+			glVertexPointer(3,GL_FLOAT,0,actor_id->model_data->offsetFrames[i].vertex_array);
+			if(have_compiled_vertex_array)glLockArraysEXT(0, actor_id->model_data->numFaces*3);
+			glDrawArrays(GL_TRIANGLES, 0, actor_id->model_data->numFaces*3);
+			if(have_compiled_vertex_array)glUnlockArraysEXT();
 		}
-	glEnd();
+	else
+#endif	//USE_VERTEXARRAYS
+		{
+    		face_md2 *offsetFaces;
+    		//frame_md2 *offsetFrames;
+    		vertex_md2 *vertex_pointer=NULL;
+
+			//numFrames=actor_id->model_data->numFrames;
+			offsetFaces=actor_id->model_data->offsetFaces;
+			//offsetFrames=actor_id->model_data->offsetFrames;
+
+			vertex_pointer=actor_id->model_data->offsetFrames[i].vertex_pointer;
+			glBegin(GL_TRIANGLES);
+			for(i=0;i<numFaces;i++)
+				{
+					float x,y,z;
+					x=vertex_pointer[offsetFaces[i].a].x;
+					y=vertex_pointer[offsetFaces[i].a].y;
+					z=vertex_pointer[offsetFaces[i].a].z;
+					glVertex3f(x,y,z);
+					x=vertex_pointer[offsetFaces[i].b].x;
+					y=vertex_pointer[offsetFaces[i].b].y;
+					z=vertex_pointer[offsetFaces[i].b].z;
+					glVertex3f(x,y,z);
+					x=vertex_pointer[offsetFaces[i].c].x;
+					y=vertex_pointer[offsetFaces[i].c].y;
+					z=vertex_pointer[offsetFaces[i].c].z;
+					glVertex3f(x,y,z);
+				}
+			glEnd();
+		}
 
 	glPopMatrix();//restore the scene
+	check_gl_errors();
 }
 
 void display_actors_shadow()
@@ -366,10 +321,12 @@ void display_actors_shadow()
 	int x,y;
 	x=-cx;
 	y=-cy;
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
-			if(!actors_list[i]->ghost)
+			if(!actors_list[i]->ghost)	//of course ghosts don't get shadows
 				{
 					int dist1;
 					int dist2;
@@ -384,6 +341,8 @@ void display_actors_shadow()
 							}
 				}
 		}
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void display_shadows()

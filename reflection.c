@@ -8,6 +8,7 @@ float mrandom(float max)
 	return ((float) max * (rand () % 8 ));
 }
 
+/*
 void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost)
 {
 	int i,j;
@@ -28,9 +29,14 @@ void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost)
 
 
 #ifdef	USE_VERTEXARRAYS
-	glColor3f(1.0f,1.0f,1.0f);
-	draw_model(model_data, cur_frame, 0);
-#else	//USE_VERTEXARRAYS
+	if(have_vertex_array)
+		{
+			glColor3f(1.0f,1.0f,1.0f);
+			draw_model(model_data, cur_frame, 0);
+		}
+	else
+		{
+#endif	//USE_VERTEXARRAYS
 	//now, go and find the current frame
 	i=0;
 	while(i<numFrames)
@@ -100,51 +106,52 @@ void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost)
 
 		}
 	glEnd();
-#endif	//USE_VERTEXARRAYS
+	}
 
 }
+*/
 
 void draw_actor_reflection(actor * actor_id)
 {
-	int i,j;
+	int i;	//,j;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	float x,y,z;
+	//float x,y,z;
 	int texture_id;
 	char *cur_frame;
-	char *dest_frame_name;
-	int numFrames;
-    int numFaces;
-    text_coord_md2 *offsetTexCoords;
-    face_md2 *offsetFaces;
-    frame_md2 *offsetFrames;
-    vertex_md2 *vertex_pointer=NULL;
+	//char *dest_frame_name;
+	//int numFrames;
+    //int numFaces;
+    //text_coord_md2 *offsetTexCoords;
+    //face_md2 *offsetFaces;
+    //frame_md2 *offsetFrames;
+    //vertex_md2 *vertex_pointer=NULL;
 
+	check_gl_errors();
 	if(!actor_id->remapped_colors)texture_id=texture_cache[actor_id->texture_id].texture_id;
 	else
 		{
 			//we have remaped colors, we don't store such textures into the cache
 			texture_id=actor_id->texture_id;
 		}
+	if(last_texture!=texture_id)
+		{
+			last_texture=texture_id;
+			glBindTexture(GL_TEXTURE_2D, texture_id);
+		}
 
 	cur_frame=actor_id->cur_frame;
 
-	numFaces=actor_id->model_data->numFaces;
-	numFrames=actor_id->model_data->numFrames;
-	offsetFaces=actor_id->model_data->offsetFaces;
-	offsetTexCoords=actor_id->model_data->offsetTexCoords;
-	offsetFrames=actor_id->model_data->offsetFrames;
-
-	x_pos=actor_id->x_pos;
-	y_pos=actor_id->y_pos;
-	z_pos=actor_id->z_pos;
-
-	x_rot=actor_id->x_rot;
-	y_rot=actor_id->y_rot;
-	z_rot=actor_id->z_rot;
+	//numFaces=actor_id->model_data->numFaces;
+	//numFrames=actor_id->model_data->numFrames;
+	//offsetFaces=actor_id->model_data->offsetFaces;
+	//offsetTexCoords=actor_id->model_data->offsetTexCoords;
+	//offsetFrames=actor_id->model_data->offsetFrames;
 
 	//now, go and find the current frame
-	i=0;
+	i= get_frame_number(actor_id->model_data, cur_frame);
+	if(i<0)	return;	//nothing to draw
+	/*
 	while(i<numFrames)
 		{
 			dest_frame_name=(char *)&offsetFrames[i].name;
@@ -162,23 +169,28 @@ void draw_actor_reflection(actor * actor_id)
 			log_error(str);
 			return;
 		}
+	*/
 
-	if(last_texture!=texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			last_texture=texture_id;
-		}
+	glPushMatrix();//we don't want to affect the rest of the scene
+	x_pos=actor_id->x_pos;
+	y_pos=actor_id->y_pos;
+	z_pos=actor_id->z_pos;
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
-	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+
+	x_rot=actor_id->x_rot;
+	y_rot=actor_id->y_rot;
+	z_rot=actor_id->z_rot;
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
+	draw_model(actor_id->model_data, cur_frame, actor_id->ghost);
+	/*
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_TRIANGLES);
 	for(j=0;j<numFaces;j++)
@@ -209,8 +221,10 @@ void draw_actor_reflection(actor * actor_id)
 
 		}
 	glEnd();
+	*/
 
 	glPopMatrix();
+	check_gl_errors();
 }
 
 void draw_enhanced_actor_reflection(actor * actor_id)
@@ -219,36 +233,32 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	float x_rot,y_rot,z_rot;
 	int texture_id;
 	char *cur_frame;
-	frame_md2 *offsetFrames;
+	//frame_md2 *offsetFrames;
 
-
-
-	offsetFrames=actor_id->body_parts->head->offsetFrames;
+	check_gl_errors();
+	cur_frame=actor_id->cur_frame;
+	//offsetFrames=actor_id->body_parts->head->offsetFrames;
 	texture_id=actor_id->texture_id;
 
-	cur_frame=actor_id->cur_frame;
+	if(last_texture!=texture_id)
+		{
+			last_texture=texture_id;
+			glBindTexture(GL_TEXTURE_2D, texture_id);
+		}
 
+	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->x_pos;
 	y_pos=actor_id->y_pos;
 	z_pos=actor_id->z_pos;
 
-	x_rot=actor_id->x_rot;
-	y_rot=actor_id->y_rot;
-	z_rot=actor_id->z_rot;
-
-	z_rot+=180;//test
-
-	if(last_texture!=texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			last_texture=texture_id;
-		}
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
-
-	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+	x_rot=actor_id->x_rot;
+	y_rot=actor_id->y_rot;
+	z_rot=actor_id->z_rot;
+	z_rot+=180;//test
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
@@ -265,6 +275,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 
 	//////
 	glPopMatrix();//restore the scene
+	check_gl_errors();
 }
 
 
@@ -284,25 +295,14 @@ void draw_3d_reflection(object3d * object_id)
 
 	int is_transparent;
 
+	check_gl_errors();
 	is_transparent=object_id->e3d_data->is_transparent;
 	materials_no=object_id->e3d_data->materials_no;
-
 
 	array_vertex=object_id->e3d_data->array_vertex;
 	array_normal=object_id->e3d_data->array_normal;
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;
-
-
-	x_pos=object_id->x_pos;
-	y_pos=object_id->y_pos;
-	z_pos=object_id->z_pos;
-
-	if(z_pos<0)z_pos+=-water_deepth_offset*2;
-
-	x_rot=object_id->x_rot;
-	y_rot=object_id->y_rot;
-	z_rot=object_id->z_rot;
 
 	if(object_id->self_lit && (night_shadows_on || dungeon))
 		{
@@ -318,13 +318,22 @@ void draw_3d_reflection(object3d * object_id)
 		}
 
 
+	check_gl_errors();
 	glPushMatrix();//we don't want to affect the rest of the scene
+	x_pos=object_id->x_pos;
+	y_pos=object_id->y_pos;
+	z_pos=object_id->z_pos;
+	if(z_pos<0)z_pos+=-water_deepth_offset*2;
+
 	glTranslatef (x_pos, y_pos,z_pos);
+	x_rot=object_id->x_rot;
+	y_rot=object_id->y_rot;
+	z_rot=object_id->z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-
+	check_gl_errors();
 	glVertexPointer(3,GL_FLOAT,0,array_vertex);
 	glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
 	glNormalPointer(GL_FLOAT,0,array_normal);
@@ -333,15 +342,18 @@ void draw_3d_reflection(object3d * object_id)
 			texture_id=get_texture_id(array_order[i].texture_id);
 			if(last_texture!=texture_id)
 				{
-					glBindTexture(GL_TEXTURE_2D, texture_id);
 					last_texture=texture_id;
+					glBindTexture(GL_TEXTURE_2D, texture_id);
 				}
+			check_gl_errors();
 			if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
 			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 			if(have_compiled_vertex_array)glUnlockArraysEXT();
 		}
 
+	check_gl_errors();
 	glPopMatrix();//restore the scene
+	check_gl_errors();
 
 
 	if(object_id->self_lit && (night_shadows_on || dungeon))glEnable(GL_LIGHTING);
@@ -350,6 +362,7 @@ void draw_3d_reflection(object3d * object_id)
 			glDisable(GL_ALPHA_TEST);
 		}
 
+	check_gl_errors();
 }
 
 //if there is any reflecting tile, returns 1, otherwise 0
@@ -426,6 +439,7 @@ void display_3d_reflection()
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
 
+	check_gl_errors();
 	x=-cx;
 	y=-cy;
 
@@ -479,8 +493,6 @@ void display_3d_reflection()
 				}
 		}
 
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0.0f,0.0f,1.0f);
 	for(i=0;i<max_actors;i++)
@@ -505,6 +517,9 @@ void display_3d_reflection()
 	reset_material();
 
 	glDisable(GL_CLIP_PLANE0);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	check_gl_errors();
 }
 
 void make_lake_water_noise()
@@ -580,8 +595,8 @@ void draw_lake_tiles()
 
 	if(last_texture!=texture_cache[sky_text_1].texture_id)
 		{
-			glBindTexture(GL_TEXTURE_2D, texture_cache[sky_text_1].texture_id);
 			last_texture=texture_cache[sky_text_1].texture_id;
+			glBindTexture(GL_TEXTURE_2D, texture_cache[sky_text_1].texture_id);
 		}
 
 

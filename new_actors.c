@@ -186,26 +186,19 @@ void draw_enhanced_actor(actor * actor_id)
 	//float healtbar_x_len=0.5f*zoom_level/3.0f;
 	//float healtbar_x_len_converted=0;
 	//float healtbar_z_len=0.05f*zoom_level/3.0f;
-	int numFrames;
-	char *dest_frame_name;
+	//int numFrames;
+	//char *dest_frame_name;
 	//frame_md2 *offsetFrames;
-
-
 
 	//offsetFrames=actor_id->body_parts->head->offsetFrames;
 	texture_id=actor_id->texture_id;
+	if(last_texture!=texture_id)
+		{
+			glBindTexture(GL_TEXTURE_2D, texture_id);
+			last_texture=texture_id;
+    	}
 
 	cur_frame=actor_id->cur_frame;
-
-	x_pos=actor_id->x_pos;
-	y_pos=actor_id->y_pos;
-	z_pos=actor_id->z_pos;
-
-	x_rot=actor_id->x_rot;
-	y_rot=actor_id->y_rot;
-	z_rot=actor_id->z_rot;
-
-	z_rot+=180;//test
 
 	//now, go and find the current frame
 	i=get_frame_number(actor_id->body_parts->head, cur_frame);;
@@ -225,16 +218,19 @@ void draw_enhanced_actor(actor * actor_id)
 		}
 	*/
 
-	if(last_texture!=texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			last_texture=texture_id;
-    	}
+	glPushMatrix();//we don't want to affect the rest of the scene
+	x_pos=actor_id->x_pos;
+	y_pos=actor_id->y_pos;
+	z_pos=actor_id->z_pos;
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
-	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+
+	x_rot=actor_id->x_rot;
+	y_rot=actor_id->y_rot;
+	z_rot=actor_id->z_rot;
+	z_rot+=180;//test
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
