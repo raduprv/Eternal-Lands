@@ -94,7 +94,7 @@ int save_map(char * file_name)
 
 	//ok, now build the header...
 	//clear the header
-	for(i=0;i<sizeof(map_header);i++)mem_map_header[i]=0;
+	for(i=0;i<(int)sizeof(map_header);i++)mem_map_header[i]=0;
 
 	//build the file signature
 	cur_map_header.file_sig[0]='e';
@@ -147,7 +147,7 @@ int save_map(char * file_name)
 					int k=0;
 
 					//clear the object
-					for(k=0;k<sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
+					for(k=0;k<(int)sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
 
 					sprintf(cur_3d_obj_io.file_name,"%s",objects_list[i]->file_name);
 					cur_3d_obj_io.x_pos=objects_list[i]->x_pos;
@@ -183,7 +183,7 @@ int save_map(char * file_name)
 					int k=0;
 
 					//clear the object
-					for(k=0;k<sizeof(obj_2d_io);k++)cur_2do_pointer[k]=0;
+					for(k=0;k<(int)sizeof(obj_2d_io);k++)cur_2do_pointer[k]=0;
 
 					sprintf(cur_2d_obj_io.file_name,"%s",obj_2d_list[i]->file_name);
 					cur_2d_obj_io.x_pos=obj_2d_list[i]->x_pos;
@@ -211,7 +211,7 @@ int save_map(char * file_name)
 					int k=0;
 
 					//clear the object
-					for(k=0;k<sizeof(light_io);k++)cur_light_pointer[k]=0;
+					for(k=0;k<(int)sizeof(light_io);k++)cur_light_pointer[k]=0;
 
 					cur_light_io.pos_x=lights_list[i]->pos_x;
 					cur_light_io.pos_y=lights_list[i]->pos_y;

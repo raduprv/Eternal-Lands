@@ -880,7 +880,16 @@ int ccw(float p1x, float p1y, float p2x, float p2y, float p3x, float p3y)
     double d = ((p1y - p2y) * (p3x - p2x)) - ((p3y - p2y) * (p1x - p2x));
 	return (d > 0) ? 1 : ((d < 0) ? 2 : 3);
 }
- 
+
+
+int between(float pax, float pay, float pbx, float pby, float pcx, float pcy)
+{
+
+	float p1x = pbx - pax, p1y = pby - pay, p2x = pcx - pax, p2y = pcy - pay;
+	if (ccw (pax, pay, pbx, pby, pcx, pcy) != 3)
+		return 0;
+	return (p2x * p1x + p2y * p1y >= 0) && (p2x * p2x + p2y * p2y <= p1x * p1x + p1y * p1y);
+}
 
 int TestLines(float pax, float pay, float pbx, float pby, float pcx, float pcy, float pdx, float pdy)
 {
@@ -899,15 +908,6 @@ int TestLines(float pax, float pay, float pbx, float pby, float pcx, float pcy, 
 	return 0;
 }
  
-int between(float pax, float pay, float pbx, float pby, float pcx, float pcy)
-{
-
-	float p1x = pbx - pax, p1y = pby - pay, p2x = pcx - pax, p2y = pcy - pay;
-	if (ccw (pax, pay, pbx, pby, pcx, pcy) != 3)
-		return 0;
-	return (p2x * p1x + p2y * p1y >= 0) && (p2x * p2x + p2y * p2y <= p1x * p1x + p1y * p1y);
-}
-
 void change_heightmap(unsigned char *hm, unsigned char h)
 {
 	//if(*hm==11 && h>21)return;
