@@ -1,3 +1,10 @@
+03-30-04
+Added #faq to dump faq.txt to the console
+Changed #mem to work without -DDEBUG if -DCACHE_SYSTEM, but only do detail dumps on debug
+Checked VC vs DevC++ changes
+Have windows use configdir & data dir, but just deault to current
+MD2 with VA now limits how many VA's it'll create in a single frame based on use_vertex_array setting
+
 03-27-04
 Added code for caching with basic LRU support for E3D & MD2
 

@@ -11,7 +11,6 @@ Learner:
 OSX support - delayed :(
 Faster mouse icon switch without dropping FPS
 Investigate variable width fonts - preliminary testing
-Better faq support - testing
 Reduce memory usage when VA's are enabled for MD2's - testing
 Smarter caching system for MD2's and E3D's - in progress - testing (-DCACHE_SYSTEM)
 Synchronize ELC & map_editor code - E3D in progress
@@ -26,4 +25,6 @@ Make use of other extensions
 Server selection screen -- don't have multiple servers yet :p
 Fix windows (layering)
 Chat Window -- would like multiple channel support first
+Allow setting el.ini values on command line
+
 
