@@ -13,7 +13,6 @@
 #include <math.h>
 #include <time.h>
 
-/*#include <GL/glu.h>*/
 #ifndef	__GNUC__	// or should we test for VC
 #define	snprintf _snprintf
 #endif
@@ -28,6 +27,7 @@
 #include "gui_support.h"
 #endif
 
+#include "errors.h"
 #include "init.h"
 #include "asc.h"
 #include "e3d.h"
@@ -40,8 +40,13 @@
 #include "map_io.h"
 #include "shadows.h"
 #include "reflection.h"
-#include "misc.h"
+#include "draw_scene.h"
+#include "textures.h"
 #include "browser.h"
+#include "events.h"
+#include "frustum.h"
+#include "font.h"
+#include "misc.h"
 
 
 #define sector_size_x 15
@@ -76,7 +81,7 @@ extern int texture3;
 
 typedef struct
 {
-	int texture_id;
+	GLuint texture_id;
 	int last_access_time;
     char file_name[100];
 	unsigned char alpha;
@@ -107,12 +112,6 @@ typedef struct
 extern color_rgb colors_list[25];
 
 
-//some prototypes, that won't fit somewhere else
-Uint32 my_timer(unsigned int some_int);
-
-
-
-
 //colors
 #define c_red 0
 #define c_blue 1
@@ -137,12 +136,12 @@ Uint32 my_timer(unsigned int some_int);
 #define c_steel 20
 #define c_bronze 21
 
-#ifndef LINUX //extensions
-PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
-PFNGLMULTITEXCOORD2FVARBPROC	glMultiTexCoord2fvARB;
-PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
-PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
-#endif
+//#ifndef LINUX //extensions
+extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
+extern PFNGLMULTITEXCOORD2FVARBPROC	glMultiTexCoord2fvARB;
+extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
+extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
+//#endif
 
 extern int have_multitexture;
 extern int poor_man;
