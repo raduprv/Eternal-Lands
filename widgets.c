@@ -599,10 +599,10 @@ int vscrollbar_draw(widget_list *W)
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 7, W->pos_y + 15 + (c->pos*((float)(W->len_y+30)/c->bar_len)), 0);
-	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y +  15 + (c->pos*((float)(W->len_y+30)/c->bar_len)), 0);
-	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y + 35 + (c->pos*((float)(W->len_y+30)/c->bar_len)), 0);
-	glVertex3i(W->pos_x + 7, W->pos_y + 35 + (c->pos*((float)(W->len_y+30)/c->bar_len)), 0);
+	glVertex3i(W->pos_x + 7, W->pos_y + 15 + (c->pos*((float)(W->len_y-50)/c->bar_len)), 0);
+	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y +  15 + (c->pos*((float)(W->len_y-50)/c->bar_len)), 0);
+	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/c->bar_len)), 0);
+	glVertex3i(W->pos_x + 7, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/c->bar_len)), 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
@@ -618,10 +618,10 @@ int vscrollbar_click(widget_list *W, int x, int y)
 		if(y>(W->len_y-15))
 			b->pos += b->pos_inc;
 		else
-			b->pos = (y - 20)/((float)(W->len_y+30)/b->bar_len);
+			b->pos = (y - 25)/((float)(W->len_y-50)/b->bar_len);
 
 	if(b->pos < 0) b->pos = 0;
-	if(b->pos > (b->bar_len -50)) b->pos = b->bar_len -50;
+	if(b->pos > (b->bar_len)) b->pos = b->bar_len;
 
 	return 1;
 }
@@ -632,6 +632,18 @@ int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc)
 	if(w){
 		vscrollbar *c = (vscrollbar *)w->widget_info;
 		c->pos_inc = pos_inc;
+		return 1;
+	}
+
+	return 0;
+}
+
+int vscrollbar_set_bar_len (Uint32 window_id, Uint32 widget_id, int bar_len)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		vscrollbar *c = (vscrollbar *)w->widget_info;
+		c->bar_len = bar_len;
 		return 1;
 	}
 
