@@ -713,7 +713,7 @@ void add_bags_from_list(Uint8 *data)
 
 void remove_bag(int which_bag)
 {
-	add_bag_out(bag_list[which_bag].x,bag_list[which_bag].y);
+	add_particle_sys_at_tile("./particles/bag_out.part",bag_list[which_bag].x,bag_list[which_bag].y);
 	destroy_3d_object(bag_list[which_bag].obj_3d_id);
 	bag_list[which_bag].obj_3d_id=-1;
 }

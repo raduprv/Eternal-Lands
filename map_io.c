@@ -83,6 +83,10 @@ int save_map(char * file_name)
 	int lights_no=0;
 	int lights_io_size;
 
+	particles_io cur_particles_io;
+	int particles_no=0;
+	int particles_io_size;
+
 	FILE *f = NULL;
 
 
@@ -90,12 +94,14 @@ int save_map(char * file_name)
 	obj_3d_io_size=sizeof(object3d_io);
 	obj_2d_io_size=sizeof(obj_2d_io);
 	lights_io_size=sizeof(light_io);
+	particles_io_size=sizeof(particles_io);
 
 	//get the number of objects and lights
 	for(i=0;i<highest_obj_3d;i++)if(objects_list[i])obj_3d_no++;
 	for(i=0;i<max_obj_2d;i++)if(obj_2d_list[i])obj_2d_no++;
 	for(i=0;i<max_lights;i++)if(lights_list[i])lights_no++;
-
+	// We ignore temporary particle systems (i.e. ones with a ttl>=0)
+	for(i=0;i<max_particle_systems;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)particles_no++;
 
 	//ok, now build the header...
 	//clear the header
@@ -124,6 +130,9 @@ int save_map(char * file_name)
 	cur_map_header.ambient_r=ambient_r;
 	cur_map_header.ambient_g=ambient_g;
 	cur_map_header.ambient_b=ambient_b;
+	cur_map_header.particles_struct_len=particles_io_size;
+	cur_map_header.particles_no=particles_no;
+	cur_map_header.particles_offset=cur_map_header.lights_offset+lights_no*lights_io_size;
 
 	//ok, now let's open/create the file, and start writting the header...
 	f=fopen(file_name, "wb");
@@ -229,6 +238,25 @@ int save_map(char * file_name)
 				}
 		}
 
+	// Write the particle systems
+	j=0;
+	for(i=0;i<max_particle_systems;i++)
+		{
+			if(j>particles_no)break;
+			if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)
+				{
+					char *cur_particles_pointer=(char *)&cur_particles_io;
+					Uint32 k=0;
+					for(k=0;k<sizeof(particles_io);k++)cur_particles_pointer[k]=0;
+					sprintf(cur_particles_io.file_name,"%s",particles_list[i]->def->file_name);
+					cur_particles_io.x_pos=particles_list[i]->x_pos;
+					cur_particles_io.y_pos=particles_list[i]->y_pos;
+					cur_particles_io.z_pos=particles_list[i]->z_pos;
+					fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
+					j++;
+				}
+		}
+
 	fclose(f);
 
 	return 1;
@@ -253,6 +281,10 @@ int load_map(char * file_name)
 	int lights_no=0;
 	int lights_io_size;
 
+	particles_io cur_particles_io;
+	int particles_no=0;
+	int particles_io_size;
+
 	FILE *f = NULL;
 	f=fopen(file_name, "rb");
 	if(!f)return 0;
@@ -276,11 +308,13 @@ int load_map(char * file_name)
 	obj_3d_io_size=cur_map_header.obj_3d_struct_len;
 	obj_2d_io_size=cur_map_header.obj_2d_struct_len;
 	lights_io_size=cur_map_header.lights_struct_len;
+	particles_io_size=cur_map_header.particles_struct_len;
 
 	//get the number of objects and lights
 	obj_3d_no=cur_map_header.obj_3d_no;
 	obj_2d_no=cur_map_header.obj_2d_no;
 	lights_no=cur_map_header.lights_no;
+	particles_no=cur_map_header.particles_no;
 
 	//see if we have to change the water texture (when we get from dungeon to surface or
 	//the other way around
@@ -386,6 +420,14 @@ int load_map(char * file_name)
 			char * cur_light_pointer=(char *)&cur_light_io;
 			fread(cur_light_pointer, 1, lights_io_size, f);
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f);
+		}
+
+	//read particle systems
+	for(i=0;i<particles_no;i++)
+		{
+			char *cur_particles_pointer=(char *)&cur_particles_io;
+			fread(cur_particles_pointer,1,particles_io_size,f);
+			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
 		}
 
 	fclose(f);

@@ -22,7 +22,7 @@
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: SDL_opengl.h,v 1.2 2003/12/24 01:04:04 learner Exp $";
+ "@(#) $Id: SDL_opengl.h,v 1.3 2004/09/22 22:48:03 cicero Exp $";
 #endif
 
 /* This is a simple file to encapsulate the OpenGL API headers */
@@ -93,6 +93,7 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
+#ifndef GL_GLEXT_VERSION
 #define GL_GLEXT_VERSION 6
 
 #ifndef GL_VERSION_1_2
@@ -1337,6 +1338,11 @@ extern "C" {
 #define GL_SOURCE3_ALPHA_NV               0x858B
 #define GL_OPERAND3_RGB_NV                0x8593
 #define GL_OPERAND3_ALPHA_NV              0x859B
+#endif
+
+#ifndef GL_NV_point_sprite
+#define GL_POINT_SPRITE_NV                0x8861
+#define GL_COORD_REPLACE_NV               0x8862
 #endif
 
 #ifndef GL_MESA_resize_buffers
@@ -2965,6 +2971,7 @@ extern void APIENTRY glTextureColorMaskSGIS (GLboolean, GLboolean, GLboolean, GL
 typedef void (APIENTRY * PFNGLTEXTURECOLORMASKSGISPROC) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 #endif
 
+#endif
 
 #ifdef __cplusplus
 }

@@ -347,15 +347,25 @@ int HandleEvent(SDL_Event *event)
 #endif
 					}
 //TEST REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!
-				if(event->key.keysym.sym==SDLK_F4)
-					{
-						add_circular_burst(102, 142,1900, 0.5f, 0.5f, 1.0f, 0.3f);
-					}
-
-				if(event->key.keysym.sym==SDLK_F5)
-					{
-						add_circular_burst(102, 142,1900, 0.9f, 0.2f, 0.3f, 0.3f);
-					}
+				if(event->key.keysym.sym==SDLK_F8)
+				  have_point_sprite=!have_point_sprite;
+				if(event->key.keysym.sym==SDLK_F9) {
+				  actor *me=get_actor_ptr_from_id(yourself);
+				  add_particle_sys("./particles/fire_small.part",me->x_pos+0.25f,me->y_pos+0.25f,-2.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+0.1f);
+				}
+				if(event->key.keysym.sym==SDLK_F10) {
+				  actor *me=get_actor_ptr_from_id(yourself);
+				  add_particle_sys("./particles/circular_burst.part",me->x_pos+0.25f,me->y_pos+0.25f,-1.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+0.1f);
+				}
+				if(event->key.keysym.sym==SDLK_F11) {
+				  actor *me=get_actor_ptr_from_id(yourself);
+				  add_particle_sys("./particles/spherical_burst.part",me->x_pos+0.25f,me->y_pos+0.25f,-1.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+0.1f);
+				}
+				if(event->key.keysym.sym==SDLK_F12) {
+				  actor *me=get_actor_ptr_from_id(yourself);
+				  add_particle_sys("./particles/fountain.part",me->x_pos+0.25f,me->y_pos+0.25f,-1.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+0.1f);
+				}
+				if(event->key.keysym.sym==SDLK_F4)dump_part_sys_info();
 
 				if(event->key.keysym.sym==SDLK_F6)
 					{
@@ -371,12 +381,6 @@ int HandleEvent(SDL_Event *event)
 							}
 						resize_window();
 					}
-				if(event->key.keysym.sym==SDLK_F8)
-					have_point_sprite=!have_point_sprite;
-				if(event->key.keysym.sym==SDLK_F9) {
-					actor *me=get_actor_ptr_from_id(yourself);
-					add_fire(me->x_pos+0.25f,me->y_pos+0.25f,-2.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+0.1f);
-				}
 //END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
 				if ( event->key.keysym.sym == SDLK_ESCAPE)
@@ -419,7 +423,6 @@ int HandleEvent(SDL_Event *event)
 						clouds_shadows=!clouds_shadows;
 						break;
 					}
-
 
 
 				if(((ch>=32 && ch<=126) || (ch>127+c_grey4)) &&

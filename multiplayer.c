@@ -404,8 +404,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 				object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 				close_dialogue();	// close the dialogue window if open
-				load_map(&in_data[3]);
 				destroy_all_particles();
+				load_map(&in_data[3]);
 				kill_local_sounds();
 #ifndef	NO_MUSIC
 				playing_music=0;
@@ -442,14 +442,14 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case TELEPORT_OUT:
 			{
-				add_teleport_in(*((short *)(in_data+3)),*((short *)(in_data+5)),0.9f,0.6f,0.2f,0.1f);
+				add_particle_sys_at_tile("./particles/teleport_in.part",*((short *)(in_data+3)),*((short *)(in_data+5)));
 				if(!no_sound)add_sound_object(snd_tele_out,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
 			}
 			break;
 
 		case TELEPORT_IN:
 			{
-				add_teleport_in(*((short *)(in_data+3)),*((short *)(in_data+5)),0.4f,1.0f,0.6f,0.2f);
+				add_particle_sys_at_tile("./particles/teleport_in.part",*((short *)(in_data+3)),*((short *)(in_data+5)));
 				if(!no_sound)add_sound_object(snd_tele_in,*((short *)(in_data+3)),*((short *)(in_data+5)),1,0);
 			}
 			break;
@@ -557,7 +557,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case SPAWN_BAG_PARTICLES:
 			{
-				add_bag_in(*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)));
+			  add_particle_sys_at_tile("./particles/bag_in.part",*((Uint16 *)(in_data+3)),*((Uint16 *)(in_data+5)));
 			}
 			break;
 

@@ -22,7 +22,6 @@ int poor_man=0;
 int mouse_limit=15;
 int no_adjust_shadows=0;
 int clouds_shadows=1;
-int no_alpha_sat=0;
 int item_window_on_drop=1;
 int compass_direction=1;
 char configdir[256]="./";

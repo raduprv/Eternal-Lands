@@ -64,7 +64,6 @@ extern int ini_file_size;
 extern int have_stencil;
 extern int poor_man;
 extern int show_reflection;
-extern int no_alpha_sat;
 extern int mouse_limit;
 extern int show_fps;
 extern int limit_fps;
