@@ -153,6 +153,7 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 			playerName[j] = 0;
 			while ((j>0)&&(!allowedCharInName(playerName[j])))
 				playerName[j--] = 0;
+			j = 0;
 			while (i<len)
 			{
 				textbuffer[j] = (char)text_to_add[i];
@@ -167,10 +168,10 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 				while (allowedCharInName(actors_list[i]->actor_name[j]))
 					actorName[j] = actors_list[i]->actor_name[j++];
 				actorName[j] = 0;
-				
 				if (strcmp(actorName, playerName)==0)
 				{
 					add_displayed_text_to_actor( actors_list[i], textbuffer );
+					break;
 				}
 			}
 			
