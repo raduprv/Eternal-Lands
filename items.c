@@ -992,7 +992,7 @@ void open_bag(int object_id)
 {
 	int i;
 	Uint8 str[4];
-	for(i=0;i<100;i++)
+	for(i=0;i<200;i++)
 		{
 			if(bag_list[i].obj_3d_id==object_id)
 				{
