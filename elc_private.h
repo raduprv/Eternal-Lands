@@ -5,11 +5,11 @@
 #define ELC_PRIVATE_H
 
 // VERSION DEFINITIONS
-#define VER_STRING	"0.9.5.4"
+#define VER_STRING	"0.9.5.5"
 #define VER_MAJOR	0
 #define VER_MINOR	9
 #define VER_RELEASE	5
-#define VER_BUILD	4
+#define VER_BUILD	5
 #define COMPANY_NAME	""
 #define FILE_VERSION	""
 #define FILE_DESCRIPTION	"Developed using the Dev-C++ IDE"
@@ -18,6 +18,6 @@
 #define LEGAL_TRADEMARKS	""
 #define ORIGINAL_FILENAME	""
 #define PRODUCT_NAME	"Eternal-Lands client"
-#define PRODUCT_VERSION	"0.9.5p4"
+#define PRODUCT_VERSION	"0.9.5p5"
 
 #endif //ELC_PRIVATE_H

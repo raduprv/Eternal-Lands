@@ -93,6 +93,8 @@ void read_config()
 	if(name_zoom<0.25f)name_zoom=1.0f;
   	chat_zoom=get_float_after_string("#chat_text_size",file_mem,MAX_INI_FILE);
 	if(chat_zoom<0.25f)chat_zoom=1.0f;
+  	name_font=get_integer_after_string("#name_font",file_mem,MAX_INI_FILE);
+  	chat_font=get_integer_after_string("#chat_font",file_mem,MAX_INI_FILE);
 
   	no_adjust_shadows=get_integer_after_string("#no_adjust_shadows",file_mem,MAX_INI_FILE);
   	port=get_integer_after_string("#server_port",file_mem,MAX_INI_FILE);
@@ -358,9 +360,11 @@ void init_stuff()
 	else have_multitexture=1;
 
 
+	//initialize the fonts
+	init_fonts();
 
 	//load the necesary textures
-	font_text=load_texture_cache("./textures/font.bmp",0);
+	//font_text=load_texture_cache("./textures/font.bmp",0);
 	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
 	cons_text=load_texture_cache("./textures/console.bmp",255);
 	sky_text_1=load_texture_cache("./textures/sky.bmp",70);

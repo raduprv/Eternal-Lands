@@ -200,7 +200,9 @@ void draw_scene()
 
 	if(find_last_lines_time())
 		{
+			set_font(chat_font);	// switch to the chat font
         	draw_string_zoomed(10,20,&display_text_buffer[display_text_buffer_first],max_lines_no,chat_zoom);
+			set_font(0);	// switch to fixed
 		}
 	anything_under_the_mouse(0, UNDER_MOUSE_NO_CHANGE);
 

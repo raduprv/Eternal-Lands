@@ -222,7 +222,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			else glColor3f(1.0f,1.0f,0.0f);
 			//draw_ingame_string(-(strlen(actor_id->actor_name)*SMALL_INGAME_FONT_X_LEN)/2,healtbar_z-0.7f,actor_id->actor_name,1,0);
 			//TODO: use text length function instead of strlen
-			draw_ingame_string(-((float)strlen(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0,healtbar_z+0.05f,actor_id->actor_name,1,0);
+			//draw_ingame_string(-((float)strlen(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0,healtbar_z+0.05f,actor_id->actor_name,1,0);
+			set_font(name_font);	// to variable length
+			draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
+			set_font(0);	// back to fixed pitch
 		}
 	glColor3f(1,1,1);
 	if(!actor_id->ghost)glEnable(GL_LIGHTING);
