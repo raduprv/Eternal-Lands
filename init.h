@@ -2,7 +2,7 @@
 #define __INIT_H__
 
 #define MAX_INI_FILE 6000
-#define	CFG_VERSION	1
+#define	CFG_VERSION	2
 
 typedef struct
 {
@@ -32,6 +32,8 @@ typedef struct
 	int dialogue_menu_x;
 	int dialogue_menu_y;
 
+	int knowledge_menu_x;
+	int knowledge_menu_y;
 
 	int reserved[20];
 

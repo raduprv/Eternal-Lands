@@ -188,7 +188,8 @@ void read_bin_cfg()
 	fclose(f);
 
 	//verify the version number
-	if(cfg_mem.cfg_version_num != CFG_VERSION) return;	//oops! ignore the file
+	if(cfg_mem.cfg_version_num != CFG_VERSION) return; //oops! ignore the file
+
 	//good, retrive the data
 	items_menu_x=cfg_mem.items_menu_x;
 	items_menu_y=cfg_mem.items_menu_y;
@@ -214,6 +215,9 @@ void read_bin_cfg()
 
 	options_menu_x=cfg_mem.options_menu_x;
 	options_menu_y=cfg_mem.options_menu_y;
+
+	knowledge_menu_x=cfg_mem.knowledge_menu_x;
+	knowledge_menu_y=cfg_mem.knowledge_menu_y;
 
 	cx=cfg_mem.camera_x;
 	cy=cfg_mem.camera_y;
@@ -262,6 +266,9 @@ void save_bin_cfg()
 
 	cfg_mem.options_menu_x=options_menu_x;
 	cfg_mem.options_menu_y=options_menu_y;
+
+	cfg_mem.knowledge_menu_x=knowledge_menu_x;
+	cfg_mem.knowledge_menu_y=knowledge_menu_y;
 
 	cfg_mem.camera_x=cx;
 	cfg_mem.camera_y=cy;
