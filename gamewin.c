@@ -639,7 +639,10 @@ int display_game_handler (window_info *win)
 		default:
 			glColor3f (1.0f, 1.0f, 1.0f);
 	}
-	draw_string (10, y_line, input_text_line, input_text_lines);
+
+	if (!use_windowed_chat)
+		draw_string (10, y_line, input_text_line, input_text_lines);
+	
 	Leave2DMode ();
 
 	glEnable (GL_LIGHTING);
@@ -941,10 +944,17 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (keysym == SDLK_ESCAPE)
 	{
-		// clear the input buffer
-		input_text_lenght = 0;
-		input_text_lines = 1;
-		input_text_line[0] = '\0';
+		if (use_windowed_chat)
+		{
+			handle_root_key (key, unikey);
+		}
+		else
+		{
+			// clear the input buffer
+			input_text_lenght = 0;
+			input_text_lines = 1;
+			input_text_line[0] = '\0';
+		}
 	}
 	else
 	{
@@ -954,9 +964,15 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	return 1; // we handled it
 }
 
-int text_input_handler (Uint8 ch)
+int text_input_handler (Uint32 key, Uint32 unikey)
 {
-	if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
+	Uint8 ch = key_to_char (unikey);
+
+	if (use_windowed_chat)
+	{
+		handle_root_key (key, unikey);
+	}
+	else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_lenght < 160)
 	{
 		// watch for the '//' shortcut
 		if (input_text_lenght == 1 && ch== '/' && input_text_line[0] == '/' && last_pm_from[0])
@@ -1013,11 +1029,11 @@ int text_input_handler (Uint8 ch)
 		{
 			input_text_line[input_text_lenght] = '\0';
 			if ( (check_var (input_text_line + 1, IN_GAME_VAR) ) < 0)
-				send_input_text_line();
+				send_input_text_line (input_text_line, input_text_lenght);
 		}
 		else
 		{
-			send_input_text_line();
+			send_input_text_line (input_text_line, input_text_lenght);
 		}
 		// also clear the buffer
 		input_text_lenght = 0;
@@ -1132,14 +1148,14 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 		else if (ch == SDLK_RETURN && !adding_mark && input_text_lenght > 0 && input_text_line[0] == '#')
 		{
-			test_for_console_command ();
+			test_for_console_command (input_text_line, input_text_lenght);
 			// also clear the buffer
 			input_text_lenght = 0;
 			input_text_lines = 1;
 			input_text_line[0] = '\0';
 		}
 		// see if the common text handler can deal with it
-		else if ( text_input_handler (ch) )
+		else if ( text_input_handler (key, unikey) )
 		{
 			return 1;
 		}

@@ -24,6 +24,20 @@ void update_chat_scrollbar ();
 
 /*!
  * \ingroup chat_win
+ * \brief   Handle a keypress of the root window 
+ *
+ *      Handles a keypress in the root window as if it were pressed in the chat window input field. 
+ *
+ * \param key
+ * \param unikey
+ *
+ * \retval int 1 if handled, 0 otherwise
+ * \callgraph
+ */
+int handle_root_key (Uint32 key, Uint32 unikey);
+
+/*!
+ * \ingroup chat_win
  * \brief   Displays the chat window
  *
  *      Displays the chat window

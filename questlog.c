@@ -10,6 +10,7 @@ int questlog_menu_y_len=STATS_TAB_HEIGHT;
 _logdata logdata,*last,*current;
 int	logdata_length=0;
 int quest_scroll_id = 14;
+int nr_screen_lines = 0;
 FILE *qlf = NULL;
 
 int questlog_y;
@@ -64,19 +65,24 @@ void unload_questlog()
 
 void string_fix(char *t, int len)
 {
-	char *s= t;
-	int maxchar= (questlog_menu_x_len-25)/8;// calculate maximum amount of characters per line
-	int i=0, j=0, lastspace=0, c=0;
+	char *s = t;
+	int maxchar = (questlog_menu_x_len - 25) / 8;	// calculate maximum amount of characters per line
+	int i = 0, j = 0, lastspace = 0, c = 0;
 
 
-	while(s[i]!=0 && len >= 0){ //breaking the string in parts
-		if(s[i]==' '){
-			c= 0;
-			lastspace= i;
+	while (s[i] != '\0' && len >= 0)
+	{
+		//breaking the string in parts
+		if (s[i] == ' ')
+		{
+			c = 0;
+			lastspace = i;
 		}
-		if(j>maxchar){
-			j= c;
-			t[lastspace]= '\n';
+		if (j > maxchar)
+		{
+			j = c;
+			t[lastspace] = '\n';
+			nr_screen_lines++;
 		}
 		i++;
 		j++;
@@ -138,17 +144,10 @@ void add_questlog_line(char *t, int len)
 	if(current==NULL)	current= l;
 	// keep track of the counter
 	logdata_length++;
+
 	// update the scrollbar length in the questlog window
 	if (questlog_win >= 0)
-	{
-		// XXX FIXME (Grum)
-		// Ack, since questlog lines can span over more than one on-screen 
-		// line, there's no way of knowing how large the scroll bar should be 
-		// without looking at the questlog lines themselves. Let's be 
-		// conservative and allocate 5 lines for each quest log item.	
-		int scroll_len = 5*logdata_length;
-		vscrollbar_set_bar_len (questlog_win, quest_scroll_id, scroll_len);
-	}
+		vscrollbar_set_bar_len (questlog_win, quest_scroll_id, logdata_length);
 }
 
 
@@ -195,20 +194,24 @@ int draw_questlog_string(char *t)
 	int i= 0;
 
 	//we split the string in lines and draw it.
-	while(*t!=0){
-		while(*t!=10 && *t!=0){
-			temp[i]= *t;
+	while (*t != 0)
+	{
+		while (*t != '\n' && *t != '\0')
+		{
+			temp[i] = *t;
 			t++;
 			i++;
 		}
-		if(*t!=0)	t++;
-		temp[i]= 0;
-		i= 0;
-		draw_string_small(2,questlog_y,temp,1);
-		questlog_y+= 15;
-		if(questlog_y > (questlog_menu_y_len-15))
+		if (*t != '\0')
+			t++;
+		temp[i] = '\0';
+		i = 0;
+		draw_string_small (2, questlog_y, temp, 1);
+		questlog_y += 15;
+		if (questlog_y > questlog_menu_y_len - 15)
 			return 1;
 	}
+	
 	return 0;
 }
 
@@ -246,21 +249,14 @@ int drag_questlog_handler(window_info *win, int mx, int my, Uint32 flags, int dx
 
 void fill_questlog_win ()
 {
-	// XXX FIXME (Grum)
-	// Ack, since questlog lines can span over more than one on-screen 
-	// line, there's no way of knowing how large the scroll bar should be 
-	// without looking at the questlog lines themselves. Let's be 
-	// conservative and allocate 5 lines for each quest log item.	
-	int scroll_len = 5*logdata_length;
-
 	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, &display_questlog_handler );
 	set_window_handler(questlog_win, ELW_HANDLER_CLICK, &click_questlog_handler );
 	set_window_handler(questlog_win, ELW_HANDLER_DRAG, &drag_questlog_handler );
 
         if (use_tabbed_windows)
-                quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20,  0, 20, questlog_menu_y_len     , 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, scroll_len);
+                quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20,  0, 20, questlog_menu_y_len     , 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, logdata_length);
         else
-                quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20, 20, 20, questlog_menu_y_len - 20, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, scroll_len);
+                quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20, 20, 20, questlog_menu_y_len - 20, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, logdata_length);
 }
 
 void display_questlog()

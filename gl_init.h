@@ -50,10 +50,13 @@ extern void (APIENTRY * ELglUnlockArraysEXT) (void);
  *
  *      Initializes and sets up the selected video mode
  *
+ * \param fs 0 for windowed mode, non-zero for fullscreen
+ * \param mode the number of the video mode
+ *
  * \sa init_stuff
  * \sa init_video
  */
-void setup_video_mode();
+void setup_video_mode(int fs, int mode);
 
 /*!
  * \ingroup video

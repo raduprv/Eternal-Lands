@@ -35,11 +35,11 @@ void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 void (APIENTRY * ELglUnlockArraysEXT) (void);
 void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 
-void setup_video_mode()
+void setup_video_mode(int fs, int mode)
 {
-	if(full_screen)
+	if(fs)
 		{
-			switch(video_mode) {
+			switch(mode) {
 			case 1:
 				window_width=640;
 				window_height=480;
@@ -94,7 +94,7 @@ void setup_video_mode()
 		}
 	else //windowed mode
 		{
-			switch(video_mode) {
+			switch(mode) {
 			case 1:
 			case 2:
 				if(window_width != 640 || window_height != 550)
@@ -219,7 +219,7 @@ void init_video()
 			exit(1);
 		}
 
-	setup_video_mode();
+	setup_video_mode(full_screen, video_mode);
 
 	/* Detect the display depth */
 	if(!bpp)

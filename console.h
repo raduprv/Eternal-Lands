@@ -29,7 +29,9 @@ void print_log();
  *
  *      Checks whether a console command is waiting in the que and executes it if necessary.
  *
+ * \param text The input line
+ * \param len the length of the input line
  * \callgraph
  */
-void test_for_console_command();
+void test_for_console_command (char *text, int len);
 #endif

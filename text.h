@@ -51,8 +51,10 @@ void write_to_log(Uint8 * data,int len);
  *
  *      Sends the current text in input_text_line to the server.
  *
+ * \param line The text to send
+ * \param len The length of the text
  */
-void send_input_text_line();
+void send_input_text_line (char *line, int len);
 
 /*!
  * \ingroup text_font

@@ -91,44 +91,46 @@ void write_to_log(Uint8 * data,int len)
   	fflush(srv_log);
 }
 
-void send_input_text_line()
+void send_input_text_line (char *line, int line_len)
 {
 	char str[256];
 	int i,j;
 	int len;
 	Uint8 ch;
 
-	if(caps_filter && strlen(input_text_line) > 4 && my_isupper(input_text_line, -1)) my_tolower(input_text_line);
+	if ( caps_filter && line_len > 4 && my_isupper (line, -1) )
+		my_tolower (line);
+		
 	i=0;
 	j=1;
-	if(input_text_line[0]!='/')//we don't have a PM
-		{
-			str[0]=RAW_TEXT;
-		}
+	if (line[0] != '/')	//we don't have a PM
+	{
+		str[0] = RAW_TEXT;
+	}
 	else
+	{
+		str[0] = SEND_PM;
+		i++;	// skip the leading /
+	}
+	
+	for ( ; i < line_len && j < sizeof (str) - 1; i++)	// copy it, but ignore the enter
+	{
+		ch = line[i];
+		if (ch != '\n')
 		{
-			str[0]=SEND_PM;
-			i++;	// skip the leading /
+			str[j] = ch;
+			j++;
 		}
-	for(;i<input_text_lenght;i++)	// copy it, but ignore the enter
-		{
-			ch=input_text_line[i];
-			if(ch!=0x0a)
-				{
-					str[j]=ch;
-					j++;
-				}
+	}	
+	str[j] = 0;	// always a NULL at the end
 
-		}
-	str[j]=0;	// always a NULL at the end
-
-	len=strlen(&str[1]);
-	if(my_tcp_send(my_socket,str,len+1)<len+1)
-		{
-			//we got a nasty error, log it
-		}
+	len = strlen (&str[1]);
+	if (my_tcp_send (my_socket, str, len+1) < len+1)
+	{
+		//we got a nasty error, log it
+	}
+	
 	return;
-
 }
 
 int filter_or_ignore_text(unsigned char *text_to_add, int len)
@@ -251,9 +253,6 @@ void put_char_in_buffer(unsigned char ch)
 void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len, int x_chars_limit)
 {
 	int i;
-#ifndef OLD_EVENT_HANDLER
-	int tmp_chars_limit;
-#endif
 	Uint8 cur_char;
 
 	check_chat_text_to_overtext( text_to_add, len );
@@ -269,7 +268,7 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 #ifndef OLD_EVENT_HANDLER
 			// First update the nr of lines in the current buffer
 			for (i = 0; i < 1024; i++)
-				if (display_text_buffer[i] == '\n') nr_text_buffer_lines--;
+				if (display_text_buffer[i] == '\n' || display_text_buffer[i] == '\r') nr_text_buffer_lines--;
 #endif
 			// Now remove the first 1k characters
 			memmove(display_text_buffer, display_text_buffer+1024, display_text_buffer_last-1024);
@@ -290,18 +289,26 @@ void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len
 			display_text_buffer_last++;
 		}
 
-	//see if the text fits on the screen
+	// see if the text fits on the screen
 #ifndef OLD_EVENT_HANDLER
-	// argh, if the value that's passed is larger than our screen 
-	// width, it will happily write outside the window. Override in
-	// this case. 
-	tmp_chars_limit = (int) ((use_windowed_chat ? chat_win_text_width : (window_width-hud_x)) / (11.0f * chat_zoom));
-	if(x_chars_limit == 0 || x_chars_limit> tmp_chars_limit)
-		x_chars_limit = tmp_chars_limit;
-#else
-	if(!x_chars_limit)x_chars_limit=(window_width-hud_x)/11;
-#endif
-	if(len<=x_chars_limit)
+	if (use_windowed_chat)
+	{
+		for (i = 0; i < len; i++)
+			display_text_buffer[i+display_text_buffer_last] = text_to_add[i];
+		display_text_buffer[len+display_text_buffer_last] = '\n';
+		display_text_buffer[len+1+display_text_buffer_last] = '\0';
+		nr_text_buffer_lines += reset_soft_breaks (&(display_text_buffer[display_text_buffer_last]), chat_zoom, chat_win_text_width);
+		update_chat_scrollbar ();
+		display_text_buffer_last += len+1;
+		return;
+	}
+#endif	
+
+	// not using windowed chat
+	if (x_chars_limit <= 0)
+		x_chars_limit = (int) ( (window_width - hud_x) / (11.0f * chat_zoom) );
+
+	if (len <= x_chars_limit)
 		{
 			for(i=0;i<len;i++)
 				{
@@ -555,17 +562,20 @@ int find_last_console_lines(int lines_no)
 	int i;
 	int line_count=0;
 
-	for(i=display_text_buffer_last-2;i>=0;i--)
+	for (i = display_text_buffer_last - 2; i >= 0; i--)
+	{
+		//parse the text backwards, until we meet the 10'th \n
+		if (display_text_buffer[i] == '\n' || display_text_buffer[i] == '\r')
 		{
-			//parse the text backwards, until we meet the 10'th \n
-			if(display_text_buffer[i]=='\n')
-				{
-					line_count++;
-					if(line_count>=lines_no)break;
-				}
+			line_count++;
+			if (line_count >= lines_no)
+				break;
 		}
-	display_console_text_buffer_first=i+1;//after the new line
-	if(display_console_text_buffer_first<0)display_console_text_buffer_first=0;
+	}
+	display_console_text_buffer_first = i+1;	// after the new line
+	if (display_console_text_buffer_first < 0)
+		display_console_text_buffer_first = 0;
+		
 	return 1;
 }
 
@@ -578,7 +588,7 @@ int find_line_nr (int line)
 	for (i = display_text_buffer_last - 2; i >= 0; i--)
 	{
 		//parse the text backwards, until we meet the right \n
-		if (display_text_buffer[i] == '\n')
+		if (display_text_buffer[i] == '\n' || display_text_buffer[i] == '\r')
 		{
 			line_count--;
 			if (line_count <= 0) break;
@@ -682,11 +692,16 @@ void display_console_text()
 {
 	int max_lines;
 	int command_line_y;
+	int nr_command_lines = 1;
+	int i;
+	
+	for (i = 0; input_text_line[i]; i++)
+		if (i == '\n' || i == '\r') nr_command_lines++;
 
 	//get the number of lines we have - the last one, which is the command line
-	max_lines=(window_height-17*(2+input_text_lines))/18-2;
+	max_lines=(window_height-17*(2+nr_command_lines))/18-2;
 	if(not_from_the_end_console)max_lines--;
-	command_line_y=window_height-17*(4+input_text_lines);
+	command_line_y=window_height-17*(4+nr_command_lines);
 
 	if(!not_from_the_end_console)
 		find_last_console_lines(max_lines);
@@ -694,7 +709,7 @@ void display_console_text()
 	glColor3f(1.0f,1.0f,1.0f);
 	if(not_from_the_end_console)draw_string(0,command_line_y-18,
 											"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^",2);
-	draw_string(0,command_line_y,input_text_line,input_text_lines);
+	draw_string(0,command_line_y,input_text_line,nr_command_lines);
 }
 
 

@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define FONTS_ARRAY_SIZE	10
+
 int	cur_font_num=0;
 int	max_fonts=0;
-font_info	*fonts[10];
+font_info	*fonts[FONTS_ARRAY_SIZE];
 int	chat_font=0;
 int	name_font=0;
 int	book_font=0;
@@ -194,7 +196,7 @@ void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_
 	int current_lines= 0;
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-    glAlphaFunc(GL_GREATER,0.1f);
+	glAlphaFunc(GL_GREATER,0.1f);
 	get_and_set_texture_id(font_text);
 
 	i=0;
@@ -209,7 +211,7 @@ void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_
 				{
 					break;
 				}
-			else if (cur_char == '\n')	// newline
+			else if (cur_char == '\n' || cur_char == '\r')	// newline
 				{
 					cur_y+=displayed_font_y_size;
 					cur_x=x;
@@ -231,64 +233,183 @@ void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_
 }
 
 #ifndef OLD_EVENT_HANDLER
+/*
+// returns how far to move for the next char, or negative on error
+int draw_font_char_scaled (int font, unsigned char ch, int x, int y, float zoom)
+{
+	float u_start, u_end, v_start, v_end;
+	int chr, col, row;
+	int displayed_font_width, displayed_font_height;
+	int font_x_size = FONT_X_SPACING;
+	int font_y_size = FONT_Y_SPACING;
+	int font_bit_width, ignored_bits;
+
+	set_font (font);
+	chr = find_font_char (ch);
+	if(chr < 0)
+	{
+		// watch for illegal/non-display characters
+		return 0;
+	}
+
+	// first, see where that char is, in the font.bmp
+	row = chr / FONT_CHARS_PER_LINE;
+	col = chr % FONT_CHARS_PER_LINE;
+
+	font_bit_width = get_font_width (chr);
+	displayed_font_width = (int) (0.5f + zoom * font_bit_width);
+	displayed_font_height = (int) (zoom * 18);
+	
+	ignored_bits = (12 - font_bit_width) / 2;	// how many bits on each side of the char are ignored?
+
+	//now get the texture coordinates
+	u_start = (float) (col * font_x_size + ignored_bits) / 256.0f;
+	u_end   = (float) (col * font_x_size + font_x_size - 7 - ignored_bits) / 256.0f;
+	v_start = (float) 1.0f - (1 + row * font_y_size) / 256.0f;
+	v_end   = (float) 1.0f - (row * font_y_size + font_y_size - 1) / 256.0f;
+
+	// and place the text from the graphics on the map
+	glTexCoord2f (u_start, v_start);
+	glVertex3i (x, y, 0);
+
+	glTexCoord2f (u_start, v_end);
+	glVertex3i (x, y + displayed_font_height + 1, 0);
+
+	glTexCoord2f (u_end, v_end);
+	glVertex3i (x + displayed_font_width, y + displayed_font_height + 1, 0);
+
+	glTexCoord2f (u_end, v_start);
+	glVertex3i (x + displayed_font_width, y, 0);
+
+	return displayed_font_width;	// return how far to move for the next character
+}
+*/
+
 void draw_string_clipped(int x, int y, const unsigned char * our_string, int width, int height)
 {
-	draw_string_zoomed_clipped(x, y, our_string, height, width, 1.0f);
+	draw_string_zoomed_clipped (x, y, our_string, -1, height, width, 1.0f);
 }
 
-void draw_string_zoomed_clipped(int x, int y, const unsigned char * our_string, int width, int height, float text_zoom)
+void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, int cursor_pos, int width, int height, float text_zoom)
 {
-	float displayed_font_x_size= 11.0*text_zoom;
-	float displayed_font_y_size= 18.0*text_zoom;
+	float displayed_font_x_size = 11.0 * text_zoom;
+	float displayed_font_y_size = 18.0 * text_zoom;
 
 	unsigned char cur_char;
 	int i;
-	int cur_x,cur_y;
+	int cur_x, cur_y;
+	int cursor_x = x-1, cursor_y = y-1;
 	
 	if (width < displayed_font_x_size || height < displayed_font_y_size)
 		// no point in trying
 		return;
 
-   	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-	glAlphaFunc(GL_GREATER,0.1f);
-	get_and_set_texture_id(font_text);
+   	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
+	glAlphaFunc (GL_GREATER, 0.1f);
+	get_and_set_texture_id (font_text);
 
-	i=0;
-	cur_x=x;
-	cur_y=y;
-	glBegin(GL_QUADS);
-	while(1)
+	i = 0;
+	cur_x = x;
+	cur_y = y;
+	glBegin (GL_QUADS);
+	while (1)
 	{
-		cur_char=our_string[i];
+		if (i == cursor_pos)
+		{
+			cursor_x = cur_x;
+			cursor_y = cur_y;
+			if (cursor_x - x > width - displayed_font_x_size)
+			{
+				cursor_x = x;
+				cursor_y = cur_y + displayed_font_y_size;
+			}
+				
+		}
+
+		cur_char = our_string[i];
 		// watch for special characters
-		if(!cur_char) 
+		if (!cur_char) 
 		{
 			// end of string
 			break;
 		}
-		else if (cur_char == '\n')
+		else if (cur_char == '\n' || cur_char == '\r')
 		{
 			// newline
-			cur_y+=displayed_font_y_size;
-			if (cur_y > height) break;
-			cur_x=x;
+			cur_y += displayed_font_y_size;
+			if (cur_y - y > height - displayed_font_y_size) break;
+			cur_x = x;
 			i++;
 			continue;
 		}
 
-		cur_x += draw_char_scaled(cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
+//		cur_x += draw_font_char_scaled (0, cur_char, cur_x, cur_y, text_zoom);
+		cur_x += draw_char_scaled (cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
 		
 		i++;
-		if (cur_x > width-displayed_font_x_size)
+		if (cur_x - x > width - displayed_font_x_size)
 		{
 			// ignore rest of this line
-			while (our_string[i] != '\0' && our_string[i] != '\n') i++;
+			while (our_string[i] != '\0' && our_string[i] != '\n' && our_string[i] != '\r') i++;
 		}
+	}
+
+	if (cursor_x >= x && cursor_y >= y && cursor_y - y <= height - displayed_font_y_size)
+	{
+		draw_char_scaled ('_', cursor_x, cursor_y, displayed_font_x_size, displayed_font_y_size);
 	}
 
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
+	
 }
+
+int reset_soft_breaks (char *str, float zoom, int width)
+{
+	float displayed_font_x_size = 11.0 * zoom;
+	int ichar, iline, nlines;
+	float line_width;
+
+	// remove all old soft line breaks
+	for (ichar = 0; str[ichar] != '\0'; ichar++)
+		if (str[ichar] == '\r') str[ichar] = ' ';
+
+	ichar = 0;
+	nlines = 0;
+	while (1)
+	{
+		// search the line until it's wider than the screen or
+		// a line break is found
+		line_width = 0.0;
+		for (iline = ichar; str[iline] != '\0'; iline++)
+		{
+			if (str[iline] == '\n') break;
+			//line_width += zoom * get_char_width (str[iline]);
+			line_width += get_char_width (str[iline]) > 0 ? displayed_font_x_size : 0.0;
+			if (line_width > width) break;
+		}
+		if (str[iline] == '\0') break;
+		
+		if (line_width > width)
+		{
+			// now search back again for the last space
+			for ( ; iline > ichar; iline--)
+			{
+				if (str[iline] == ' ')
+				{
+					str[iline] = '\r';
+					break;
+				}
+			}
+		}
+		
+		nlines++;
+		ichar = iline + 1;
+	}
+	
+	return nlines;
+}
+
 #endif
 
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
@@ -479,28 +600,49 @@ int get_nstring_width(const unsigned char *str, int len)
 }
 
 
-int init_fonts()
+int init_fonts ()
 {
 	int	i;
 
-	max_fonts=0;
-	for(i=0; i<10; i++)	fonts[i]= NULL;
-	load_font(0, "./textures/font.bmp");
-	load_font(1, "./textures/fontv.bmp");
-	load_font(2, "./textures/font2.bmp");
-	//set the default font
-	cur_font_num= 0;
-	font_text= fonts[0]->texture_id;
+	max_fonts = 0;
+	for(i = 0; i < FONTS_ARRAY_SIZE; i++)
+		fonts[i] = NULL;
+	
+	if (set_font_parameters (0) < 0) return 0;
+	if (set_font_parameters (1) < 0) return 0;
+	if (set_font_parameters (2) < 0) return 0;
 
-	return(0);
+	cur_font_num = 0;
+
+	return 1;
 }
 
-int load_font(int num, char *file)
+int load_font_textures ()
+{
+	if (fonts[0] == NULL || fonts[1] == NULL || fonts[2] == NULL)
+	{
+		int i;
+		for (i = 0; i < FONTS_ARRAY_SIZE; i++)
+			if (fonts[i] != NULL) free (fonts[i]);
+		if ( !init_fonts () ) return 0;
+	}
+	fonts[0]->texture_id = load_texture_cache ("./textures/font.bmp", 0);
+	fonts[1]->texture_id = load_texture_cache ("./textures/fontv.bmp", 0);
+	fonts[2]->texture_id = load_texture_cache ("./textures/font2.bmp", 0);
+
+	//set the default font
+	cur_font_num = 0;
+	font_text = fonts[0]->texture_id;
+	
+	return 1;
+}
+
+int set_font_parameters (int num)
 {
 	int	i;
 
 	// error checking
-	if(num < 0 || num >= 10)
+	if(num < 0 || num >= FONTS_ARRAY_SIZE)
 		{
 			return -1;
 		}
@@ -520,10 +662,9 @@ int load_font(int num, char *file)
 			max_fonts=num+1;
 		}
 	// set default font info
-	strcpy(fonts[num]->name, "default");
+	my_strcp (fonts[num]->name, "default");
 	fonts[num]->spacing=0;
-	// load texture
-	fonts[num]->texture_id=load_texture_cache(file, 0);
+
 	// load font information
 	// TODO: write this and remove the hack!
 	if(num==0)for(i=0; i<10*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;

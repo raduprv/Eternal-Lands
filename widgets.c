@@ -7,13 +7,14 @@
  * \name    Available Widget types -> moved to widgets.c
  */
 /*! \{ */
-#define LABEL		0x01     /*!< a label widget (static text) */
-#define IMAGE		0x02     /*!< image widget */
-#define CHECKBOX	0x03     /*!< checkbox widget type */
-#define BUTTON		0x04     /*!< button widget */
-#define PROGRESSBAR	0x05     /*!< progressbar widget */
-#define VSCROLLBAR	0x06     /*!< vertical scrollbar widget */
-#define TABCOLLECTION	0x07     /*!< tabbed windows collection widget */
+#define LABEL		1	/*!< a label widget (static text) */
+#define IMAGE		2	/*!< image widget */
+#define CHECKBOX	3	/*!< checkbox widget type */
+#define BUTTON		4	/*!< button widget */
+#define PROGRESSBAR	5	/*!< progressbar widget */
+#define VSCROLLBAR	6	/*!< vertical scrollbar widget */
+#define TABCOLLECTION	7	/*!< tabbed windows collection widget */
+#define TEXTFIELD	8	/*!< text field widget */
 /*! \} */
 
 Uint32 widget_id = 0x0000FFFF;
@@ -70,6 +71,17 @@ int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)())
 	return 0;
 }
 
+int widget_set_OnKey ( Uint32 window_id, Uint32 widget_id, int (*handler)() )
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w)
+	{
+		w->OnKey = handler;
+		return 1;
+	}
+	return 0;
+}
+
 int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 {
 	widget_list *w = widget_find(window_id, widget_id);
@@ -83,8 +95,9 @@ int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 
 int widget_resize(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 {
-	widget_list *w = widget_find(window_id, widget_id);
-	if(w){
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w)
+	{
 		w->len_x = x;
 		w->len_y = y;
 		return 1;
@@ -104,8 +117,9 @@ int widget_set_flags(Uint32 window_id, Uint32 widget_id, Uint32 f)
 
 int widget_set_size(Uint32 window_id, Uint32 widget_id, float size)
 {
-	widget_list *w = widget_find(window_id, widget_id);
-	if(w){
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w)
+	{
 		w->size = size;
 		return 1;
 	}
@@ -128,7 +142,7 @@ int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float
 // Label
 int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
 {
-	return label_add_extended(window_id, widget_id++, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
+	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
 }
 
 int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
@@ -696,6 +710,7 @@ int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id)
 	return -1;
 }
 
+// Tab collection
 int tab_collection_get_tab (Uint32 window_id, Uint32 widget_id) 
 {
 	widget_list *w = widget_find (window_id, widget_id);
@@ -912,6 +927,133 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
 	
 	return col->tabs[nr].content_id;
+}
+
+// text field
+int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, char *buf, int buf_size, int x_space, int y_space)
+{
+	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, x_space, y_space, -1.0, -1.0, -1.0);
+}
+
+int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *buf, int buf_size, int x_space, int y_space, float text_r, float text_g, float text_b)
+{
+	widget_list *W = malloc ( sizeof (widget_list) );
+	text_field *T = malloc ( sizeof (text_field) );
+	widget_list *w = &windows_list.window[window_id].widgetlist;
+	
+	// Clearing everything
+	memset ( W, 0, sizeof (widget_list) );
+	memset ( T, 0, sizeof (text_field) );
+	
+	// Filling the widget info
+	W->widget_info = T;
+	T->x_space = x_space,
+	T->y_space = y_space,
+	T->buf_offset = 0;
+	T->buffer = buf;
+	T->buf_size = buf_size;
+	T->buf_fill = strlen (buf);
+	T->cursor = 0;
+	T->text_r = text_r;
+	T->text_g = text_g;
+	T->text_b = text_b;
+	W->id = wid;
+	W->type = TEXTFIELD;
+	W->Flags = Flags;
+	W->pos_x = x;
+	W->pos_y = y;
+	W->size = size;
+	W->r = r;
+	W->g = g;
+	W->b = b;
+	W->len_y = ly;
+	W->len_x = lx;
+	W->OnClick = NULL;
+	W->OnDraw = text_field_draw;
+	W->OnInit = OnInit;
+	if(W->OnInit != NULL)
+		W->OnInit(W);
+
+	// Adding the widget to the list
+	while(w->next != NULL)
+		w = w->next;
+	w->next = W;
+
+	return W->id;
+}
+
+int text_field_draw (widget_list *w)
+{
+	text_field *tf;
+
+	if (w == NULL) return 0;
+	
+	tf = (text_field *) w->widget_info;
+	if (w->Flags & TEXT_FIELD_BORDER)
+	{
+		// draw the frame
+		glDisable (GL_TEXTURE_2D);
+		if(w->r!=-1.0)
+			glColor3f (w->r, w->g, w->b);
+
+		glBegin (GL_LINES);
+
+		glVertex3i (w->pos_x, w->pos_y, 0);
+		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
+
+		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
+		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
+
+		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
+		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
+
+		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
+		glVertex3i (w->pos_x, w->pos_y, 0);
+
+		glEnd ();
+		
+		glEnable (GL_TEXTURE_2D);
+	}
+	
+	if (tf->text_r >= 0.0)
+		glColor3f (tf->text_r, tf->text_g, tf->text_b);
+	draw_string_zoomed_clipped (w->pos_x+tf->x_space, w->pos_y+tf->y_space, &(tf->buffer[tf->buf_offset]), (w->Flags & TEXT_FIELD_EDITABLE) ? tf->cursor : -1, w->len_x - 2*tf->x_space, w->len_y - 2*tf->y_space, w->size);
+	
+	return 1;
+}
+
+int text_field_set_buf_offset (Uint32 window_id, Uint32 widget_id, int pos)
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w) 
+	{
+		text_field *tf = (text_field *) w->widget_info;
+
+		if (pos < 0)
+			pos = 0;
+		else if (pos >= tf->buf_size)
+			pos = tf->buf_size-1;
+		tf->buf_offset = pos;
+
+		return  1;
+	}
+	return 0;
+}
+
+int text_field_set_text_color (Uint32 window_id, Uint32 widget_id, float r, float g, float b)
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w) 
+	{
+		text_field *tf = (text_field *) w->widget_info;
+
+		tf->text_r = r;
+		tf->text_g = g;
+		tf->text_b = b;
+
+		return  1;
+	}
+	return 0;
 }
 
 // XML Windows

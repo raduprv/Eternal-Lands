@@ -43,11 +43,12 @@ int check_quit_or_fullscreen (Uint32 key);
  *
  *      Handles normal characters for the game, console and map windows
  *
- * \param ch
+ * \param key
+ * \param unikey
  * \retval int
  * \callgraph
  */
-int text_input_handler (Uint8 ch);
+int text_input_handler (Uint32 key, Uint32 unikey);
 
 /*!
  * \ingroup events

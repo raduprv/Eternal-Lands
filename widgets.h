@@ -93,10 +93,30 @@ typedef struct {
 /*!
  *  Tab collection structure
  */
-typedef struct {
+typedef struct
+{
 	int tag_height, tag_space, nr_tabs, max_tabs, cur_tab;
 	tab *tabs;
 } tab_collection;
+
+/*!
+ * \name	Flags for the text field
+ */
+/*! \{ */
+#define TEXT_FIELD_BORDER	0x01
+#define TEXT_FIELD_EDITABLE	0x02
+/*! \} */
+
+/*!
+ * Text field structure
+ */
+typedef struct
+{
+	int buf_size, buf_fill, buf_offset, cursor;
+	float text_r, text_g, text_b;
+	char *buffer;
+	Uint16 x_space, y_space;
+} text_field;
 
 // Common widget functions
 
@@ -171,6 +191,21 @@ int widget_set_OnDrag(Uint32 window_id, Uint32 widget_id, int (*handler)());
  * \sa widget_find
  */
 int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)());
+
+/*!
+ * \ingroup	widgets
+ * \brief 	Sets the widget's on-keypress handler
+ *
+ * 		Finds the widget in the window and sets the widget's on-keypress handler.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \param   	handler A function pointer to the handler.
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int widget_set_OnKey ( Uint32 window_id, Uint32 widget_id, int (*handler)() );
 
 /*!
  * \ingroup 	widgets
@@ -958,6 +993,100 @@ int tab_collection_click (widget_list *W, int x, int y);
  */
 int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width);
 
+/*!
+ * \ingroup	textfields
+ * \brief 	Creates a text field
+ *
+ * 		Creates a text field and adds it to the given window
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	OnInit The function used when initializing the widget
+ * \param   	x The x position
+ * \param   	y The y position
+ * \param   	lx The width
+ * \param   	ly The height
+ * \param	buf the text buffer
+ * \param 	buf_size the size of the text buffer
+ * \param	x_space the number of pixels in the x-direction between the border and the text
+ * \param	y_space the number of pixels in the y-direction between the border and the text
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa text_field_add_extended
+ */
+int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, char *buf, int buf_size, int x_space, int y_space);
+
+/*!
+ * \ingroup	textfields
+ * \brief 	Creates an extended text field
+ *
+ * 		Creates an extended text field and adds it to the given window
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	wid The unique widget ID
+ * \param   	OnInit The function used when initializing the widget
+ * \param   	x The x position
+ * \param   	y The y position
+ * \param   	lx The width
+ * \param   	ly The height
+ * \param   	Flags The flags
+ * \param   	size The text size
+ * \param   	r (0<=r<=1)
+ * \param   	g (0<=g<=1)
+ * \param   	b (0<=b<=1)
+ * \param	buf the text buffer
+ * \param 	buf_size the size of the text buffer
+ * \param	x_space the number of pixels in the x-direction between the border and the text
+ * \param	y_space the number of pixels in the y-direction between the border and the text
+ * \param	text_r red component of the text color, or -1.0 for default
+ * \param	text_g green component of the text color, or -1.0 for default
+ * \param	text_b blue component of the text color, or -1.0 for default
+ * \retval int  	Returns the new widgets unique ID 
+ *
+ * \sa text_field_add
+ */
+int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *buf, int buf_size, int x_space, int y_space, float text_r, float text_g, float text_b);
+
+/*!
+ * \ingroup	textfields
+ * \brief 	Draws a text field
+ *
+ * 		Draws the vertical textfield given by \a *w
+ *
+ * \param   	w A pointer to the text field you wish to draw
+ * \retval int  	Returns 1 on success, 0 on error
+ * \callgraph
+ */
+int text_field_draw (widget_list *w);
+
+/*!
+ * \ingroup	textfields
+ * \brief 	Sets the offset in the text buffer
+ *
+ * 		Sets the offset in the buffer at which the text_field starts drawing
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param	widget_id The unique widget ID
+ * \param	pos the new offset
+ * \retval int  	Returns 1 on success, 0 on error
+ * \callgraph
+ */
+int text_field_set_buf_offset (Uint32 window_id, Uint32 widget_id, int pos);
+
+/*!
+ * \ingroup	textfields
+ * \brief 	Sets the text color
+ *
+ * 		Sets the color with which the text is drawn. Not that color characters in the text override this setting.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param	widget_id The unique widget ID
+ * \param	r the red component of the text color
+ * \param	g the green component of the text color
+ * \param	b the blue component of the text color
+ * \retval int  	Returns 1 on success, 0 on error
+ * \callgraph
+ */
+int text_field_set_text_color (Uint32 window_id, Uint32 widget_id, float r, float g, float b);
 
 // XML Windows
 

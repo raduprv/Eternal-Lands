@@ -573,10 +573,10 @@ int HandleEvent (SDL_Event *event)
 						if(*input_text_line=='%' && input_text_lenght>1) 
 							{
 								input_text_line[input_text_lenght]=0;
-								if((check_var(input_text_line+1,IN_GAME_VAR))<0) send_input_text_line();
+								if((check_var(input_text_line+1,IN_GAME_VAR))<0) send_input_text_line (input_text_line, input_text_lenght);
 							}
-						else if(*input_text_line=='#' || interface_mode==INTERFACE_CONSOLE) test_for_console_command();
-						else send_input_text_line();
+						else if(*input_text_line=='#' || interface_mode==INTERFACE_CONSOLE) test_for_console_command (input_text_line, input_text_lenght);
+						else send_input_text_line (input_text_line, input_text_lenght);
 						//also clear the buffer
 						input_text_lenght=0;
 						input_text_lines=1;

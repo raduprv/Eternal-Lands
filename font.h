@@ -107,7 +107,26 @@ void draw_string_clipped(int x, int y, const unsigned char * our_string, int wid
  *
  * \callgraph
  */
-void draw_string_zoomed_clipped(int x, int y, const unsigned char * our_string, int width, int height, float text_zoom);
+void draw_string_zoomed_clipped(int x, int y, const unsigned char * our_string, int cursor_pos, int width, int height, float text_zoom);
+
+/*
+void draw_window_string (int x, int y, const unsigned char *str, int width, int height, float text_zoom);
+*/
+
+/*!
+ * \ingroup text_font
+ * \brief   recompute where the line breaks in a string should occur
+ *
+ *      Recomputes the positions in the string where line breaks should be placed so that the string fits into a window.
+ *
+ * \param str	the string
+ * \param zoom	the scale factor for the text
+ * \param width	the width of the text window
+ *
+ * \retval int the number of window lines the string will use
+ * \callgraph
+ */
+int reset_soft_breaks (char *str, float zoom, int width);
 
 /*!
  * \ingroup text_font
@@ -243,17 +262,16 @@ int get_string_width(const unsigned char *str);
 int get_nstring_width(const unsigned char *str, int len);
 
 /*!
- * \ingroup load
- * \brief   load \a num number of fonts from the given \a file.
+ * \ingroup text_font
+ * \brief   sets parameters for font \a num
  *
- *      Loads \a num number of fonts from the given \a file.
+ *      sets parameters for font \a num, but does not load the texture yet
  *
- * \param num       number of fonts suspected to load from \a file
- * \param file      filename of the fonts file.
- * \retval int
+ * \param num       the number of the font
+ * \retval int -1 on failure, \a num on success
  * \callgraph
  */
-int load_font(int num, char *file);
+int set_font_parameters (int num);
 
 /*!
  * \ingroup text_font
@@ -283,8 +301,22 @@ void remove_font(int num);
  *      Initializes the font engine
  *
  * \sa init_stuff
+ * \retval int 0 on failure, 1 on success
  * \callgraph
  */
 int init_fonts();
+
+/*!
+ * \ingroup other
+ * \brief   loads the font textures
+ *
+ *      loads the font textures
+ *
+ * \sa init_fonts
+ * \sa init_stuff
+ * \retval int 0 on failure, 1 on success
+ * \callgraph
+ */
+int load_font_textures ();
 
 #endif

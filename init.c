@@ -484,6 +484,9 @@ void init_stuff()
 	// check for invalid combinations
 	check_options ();
 
+	// initialize the fonts, but don't load the textures yet
+	init_fonts();
+
 	//OK, we have the video mode settings...
 	setup_video_mode(full_screen,video_mode);
 	//now you may set the video mode using the %<foo> in-game
@@ -491,7 +494,6 @@ void init_stuff()
 
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
-
 	
 	init_video();
 	// now create the root window
@@ -556,8 +558,8 @@ void init_stuff()
 
 	if(!no_sound)init_sound();
 
-	//initialize the fonts
-	init_fonts();
+	// now load the font textures
+	load_font_textures ();
 	CHECK_GL_ERRORS();
 
 	//load the necesary textures

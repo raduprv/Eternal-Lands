@@ -38,10 +38,10 @@ void print_log()
 
 //do we have any console commands?
 //if not, send the text to the server
-void test_for_console_command()
+void test_for_console_command (char *text, int len)
 {
-	char *text_loc=input_text_line;
-	int text_lenght=input_text_lenght;
+	char *text_loc = text;
+	int text_lenght = len;
 	//skip a leading #
 	if(*text_loc=='#')
 		{
@@ -565,10 +565,10 @@ void test_for_console_command()
 			while(*text_loc && isspace(*text_loc))	text_loc++;
 			if(!afk)
 				{
-					if((text_lenght=input_text_lenght-(text_loc-input_text_line))) 
+					if ((text_lenght = len - (text_loc-text)) > 0) 
 						{
 							strncpy(afk_message, text_loc, text_lenght);
-							afk_message[text_lenght]=0;
+							afk_message[text_lenght]='\0';
 						}
 					go_afk();
 					last_action_time=cur_time-afk_time-1;
@@ -599,12 +599,12 @@ void test_for_console_command()
 			else
 				{
 					my_strncp (storage_filter, text_loc+8, 128-1);
-					sprintf (input_text_line, "#storage");
-					input_text_lenght = 8;
+					sprintf (text, "#storage");
+					len = 8;
 				}
 		}
 	
-	send_input_text_line();//no command, send it to the server, as plain text
+	send_input_text_line (text, len);	// no command, send it to the server, as plain text
 
 }
 
