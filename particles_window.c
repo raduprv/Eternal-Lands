@@ -73,12 +73,12 @@ void display_particles_window()
 
 void toggle_particles_window()
 {
-	if(part_sys>=0)
+	if(part_sys>=0 && particles_list[part_sys])
 		{
 			particles_list[part_sys]->ttl=0;
 			particles_list[part_sys]->particle_count=0;				      
-			part_sys=-1;
 		}
+	part_sys=-1;
 	view_particles_window=!view_particles_window;
 }
 
