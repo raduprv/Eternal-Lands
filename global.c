@@ -184,6 +184,6 @@ float clouds_movement_v=-3;
 Uint32 last_clear_clouds=0;
 float texture_scale=12.0;
 int clouds_shadows=1;
-
+int use_mipmaps=0;
 
 

@@ -1,5 +1,11 @@
 #include "global.h"
 
+int undo_type;
+void *undo_object = NULL;
+int undo_tile_value;
+int undo_tile_height;
+int undo_tile = -1;
+
 void zoomin(){
 	zoom_level -= ctrl_on ? 2.5f : 0.25f;
 	if(zoom_level<1.0f) zoom_level = 1.0f;
@@ -71,6 +77,50 @@ int HandleEvent(SDL_Event *event)
 		if ( event->key.keysym.sym == SDLK_e && ctrl_on){
 			toggle_window(edit_window_win);
 		}
+		if ( event->key.keysym.sym == SDLK_z && ctrl_on){
+			if(undo_object != NULL){
+				switch (undo_type){
+					case mode_3d:
+					{
+						object3d *o = (object3d *) undo_object;
+						add_e3d(o->file_name, o->x_pos, o->y_pos, o->z_pos, o->x_rot, o->y_rot, o->z_rot, o->self_lit, o->blended, o->r, o->g, o->b);
+						free(undo_object);
+						undo_object = NULL;
+						break;
+					}
+					case mode_2d:
+					{
+						obj_2d *o = (obj_2d *) undo_object;
+						add_2d_obj(o->file_name, o->x_pos, o->y_pos, o->z_pos, o->x_rot, o->y_rot, o->z_rot);
+						free(undo_object);
+						undo_object = NULL;
+						break;
+					}
+					case mode_light:
+					{
+						light *o = (light *) undo_object;
+						add_light(o->pos_x, o->pos_y, o->pos_z, o->r, o->g, o->b, 1.0f);
+						free(undo_object);
+						undo_object = NULL;
+						break;
+					}
+					case mode_particles:
+					{
+						particle_sys *o = (particle_sys *) undo_object;
+						create_particle_sys(o->def,o->x_pos,o->y_pos,o->z_pos);
+						free(undo_object);
+						undo_object = NULL;
+						break;
+					}
+				}
+			}else{
+				if(undo_tile != -1 && undo_type == mode_tile){
+					tile_map[undo_tile] = undo_tile_value;
+					undo_tile = -1;
+				}
+			}
+		}
+
 
 		if ( event->key.keysym.sym == SDLK_LEFT )
 		{
@@ -484,7 +534,15 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_kill)
 									{
 										get_3d_object_under_mouse();
-										if(selected_3d_object!=-1)kill_3d_object(selected_3d_object);
+										if(selected_3d_object!=-1){
+											undo_type = mode_3d;
+											if(undo_object == NULL)
+												free(undo_object);
+											undo_object = (object3d *) malloc(sizeof(object3d));
+											memcpy(undo_object,objects_list[selected_3d_object],sizeof(object3d));
+											kill_3d_object(selected_3d_object);
+										}
+
 										return(done);
 									}
 								if(cur_tool==tool_clone)
@@ -530,7 +588,14 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_kill)
 									{
 										get_2d_object_under_mouse();
-										if(selected_2d_object!=-1)kill_2d_object(selected_2d_object);
+										if(selected_2d_object!=-1){
+											undo_type = mode_2d;
+											if(undo_object == NULL)
+												free(undo_object);
+											undo_object = (obj_2d *) malloc(sizeof(obj_2d));
+											memcpy(undo_object,obj_2d_list[selected_2d_object],sizeof(obj_2d));
+											kill_2d_object(selected_2d_object);
+										}
 										return(done);
 									}
 								if(cur_tool==tool_clone)
@@ -562,7 +627,14 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_kill)
 									{
 										get_particles_object_under_mouse();
-										if(selected_particles_object!=-1)kill_particles_object(selected_particles_object);
+										if(selected_particles_object!=-1){
+											undo_type = mode_particles;
+											if(undo_object == NULL)
+												free(undo_object);
+											undo_object = (particle_sys *) malloc(sizeof(particle_sys));
+											memcpy(undo_object,particles_list[selected_particles_object],sizeof(particle_sys));
+											kill_particles_object(selected_particles_object);
+										}
 										return(done);
 									}
 								if(cur_tool==tool_clone)
@@ -592,7 +664,15 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_kill)
 									{
 										get_light_under_mouse();
-										if(selected_light!=-1)kill_light(selected_light);
+										if(selected_light!=-1){
+											undo_type = mode_light;
+											if(undo_object == NULL)
+												free(undo_object);
+											undo_object = (light *) malloc(sizeof(light));
+											memcpy(undo_object,lights_list[selected_light],sizeof(light));
+											kill_light(selected_light);
+										}
+										
 										return(done);
 									}
 								if(cur_tool==tool_clone)
@@ -614,6 +694,9 @@ int HandleEvent(SDL_Event *event)
 							{
 								if(cur_tool==tool_kill && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3 && scene_mouse_x<tile_map_size_x*3)
 									{
+										undo_type = mode_tile;
+										undo_tile = (int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3;
+										undo_tile_value = tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3];
 										tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3]=255;
 										kill_height_map_at_texture_tile((int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3);
 										return(done);
