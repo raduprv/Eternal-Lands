@@ -581,6 +581,23 @@ void add_command_to_actor(int actor_id, char command)
 												update_all_actors();
 												return;
 											}
+										else if(k>6)
+											{
+												if((actors_list[i]->que[0]==stand_up||actors_list[i]->que[0]==sit_down)
+												&&(actors_list[i]->que[1]==stand_up||actors_list[i]->que[1]==sit_down))
+													{
+														int	j;
+														//move que down with one command
+														for(j=0;j<=k;j++)
+															{
+																actors_list[i]->que[j]=actors_list[i]->que[j+1];
+															}
+														actors_list[i]->que[j]=nothing;
+														//backup one entry
+														k--;
+													}
+
+											}
 										actors_list[i]->que[k]=command;
 										break;
 									}
