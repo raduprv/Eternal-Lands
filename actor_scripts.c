@@ -37,7 +37,7 @@ void move_to_next_frame()
 		{
 			//clear the strings
 			for(k=0;k<16;k++)frame_name[k]=0;
-			for(k=0;k<3;k++)frame_name[k]=0;
+			for(k=0;k<3;k++)frame_number[k]=0;
 
 			if(actors_list[i]!=0)
 			  {
