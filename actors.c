@@ -85,11 +85,11 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	returned_md2=load_md2_cache(file_name);
 	if(!returned_md2)
 		{
-            char str[120];
+			char str[120];
 			unlock_actors_lists();	// release now that we are done
-            sprintf(str,"Error: Can't load actor: %s\n",file_name);
-            log_error(str);
-	        return 0;
+			sprintf(str,"Error: Can't load actor: %s\n",file_name);
+			log_error(str);
+			return 0;
 		}
 	if(!remappable)texture_id=load_texture_cache(skin_name,150);
 	else
@@ -114,10 +114,10 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	our_actor->z_rot=z_rot;
 
 	//reset the script related things
-    our_actor->move_x_speed=0;
+	our_actor->move_x_speed=0;
 	our_actor->move_y_speed=0;
 	our_actor->move_z_speed=0;
-    our_actor->rotate_x_speed=0;
+	our_actor->rotate_x_speed=0;
 	our_actor->rotate_y_speed=0;
 	our_actor->rotate_z_speed=0;
 	our_actor->movement_frames_left=0;
@@ -232,6 +232,112 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 }
 
+int get_frame_number(const md2 *model_data, const char *cur_frame)
+{
+	int frame;
+	char str[256];
+
+	for(frame=0; frame < model_data->numFrames; frame++)
+		{
+			if (!strcmp(cur_frame, (char *)&model_data->offsetFrames[frame].name))
+				{
+					return frame;
+				}
+		}
+	snprintf(str, 256, "couldn't find frame: %s\n",cur_frame);
+	log_error(str);
+
+	for(frame=0; frame < model_data->numFrames; frame++)
+		{
+			if(!strcmp("idle01", (char *)&model_data->offsetFrames[frame].name))
+				{
+					return frame;
+				}
+		}
+	snprintf(str, 256, "couldn't find frame: %s\n","idle01");
+	log_error(str);
+
+	return -1;
+}
+
+void draw_model(md2 *model_data,char *cur_frame, int ghost)
+{
+#if defined(USE_VERTEXARRAYS)
+	int frame;
+
+	frame = get_frame_number(model_data, cur_frame);
+	if (frame >= 0)
+		{
+			check_gl_errors();
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
+			check_gl_errors();
+			if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
+			glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
+			if(have_compiled_vertex_array)glUnlockArraysEXT();
+			check_gl_errors();
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			check_gl_errors();
+
+		}
+#else	//USE_VERTEXARRAYS
+	int i;	//,j;
+	int numFaces;
+	text_coord_md2 *offsetTexCoords;
+	face_md2 *offsetFaces;
+	frame_md2 *offsetFrames;
+	vertex_md2 *vertex_pointer=NULL;
+
+	//now, go and find the current frame
+	i=get_frame_number(model_data, cur_frame);
+	// check for an error
+	if(i < 0)
+		{
+			char str[120];
+			sprintf(str, "couldn't find frame: %s\n",cur_frame);
+			log_error(str);
+			return;
+		}
+	//find where we are
+	offsetFrames=model_data->offsetFrames;
+	vertex_pointer=offsetFrames[i].vertex_pointer;
+	//and then start
+	glColor3f(1.0f,1.0f,1.0f);
+	glBegin(GL_TRIANGLES);
+	offsetFaces=model_data->offsetFaces;
+	offsetTexCoords=model_data->offsetTexCoords;
+	numFaces=model_data->numFaces;
+	for(i=0;i<numFaces;i++)
+		{
+			float x,y,z;
+
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
+			x=vertex_pointer[offsetFaces[i].a].x;
+			y=vertex_pointer[offsetFaces[i].a].y;
+			z=vertex_pointer[offsetFaces[i].a].z;
+			glVertex3f(x,y,z);
+
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
+			x=vertex_pointer[offsetFaces[i].b].x;
+			y=vertex_pointer[offsetFaces[i].b].y;
+			z=vertex_pointer[offsetFaces[i].b].z;
+			glVertex3f(x,y,z);
+
+			glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
+			x=vertex_pointer[offsetFaces[i].c].x;
+			y=vertex_pointer[offsetFaces[i].c].y;
+			z=vertex_pointer[offsetFaces[i].c].z;
+			glVertex3f(x,y,z);
+		}
+	glEnd();
+#endif	//USE_VERTEXARRAYS
+}
+
+
 void draw_actor(actor * actor_id)
 {
 	int i;	//,j;
@@ -248,12 +354,12 @@ void draw_actor(actor * actor_id)
 	//float healtbar_x_len_converted=0;
 	//float healtbar_z_len=0.05f;
 
-	int numFrames;
-    int numFaces;
-    text_coord_md2 *offsetTexCoords;
-    face_md2 *offsetFaces;
-    frame_md2 *offsetFrames;
-    vertex_md2 *vertex_pointer=NULL;
+	//int numFrames;
+	int numFaces;
+	text_coord_md2 *offsetTexCoords;
+	face_md2 *offsetFaces;
+	//frame_md2 *offsetFrames;
+	vertex_md2 *vertex_pointer=NULL;
 
 	if(!actor_id->remapped_colors)texture_id=texture_cache[actor_id->texture_id].texture_id;
 	else
@@ -264,6 +370,10 @@ void draw_actor(actor * actor_id)
 
 	cur_frame=actor_id->cur_frame;
 
+	//now, go and find the current frame
+	i=get_frame_number(actor_id->model_data, cur_frame);;
+	if(i >= 0)healtbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
+	/*
 	//now, go and find the current frame
 	offsetFrames=actor_id->model_data->offsetFrames;
 	numFrames=actor_id->model_data->numFrames;
@@ -288,6 +398,7 @@ void draw_actor(actor * actor_id)
 			log_error(str);
 			return;
 		}
+	*/
 
 	if(last_texture!=texture_id)
 		{
@@ -313,6 +424,9 @@ void draw_actor(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
+#ifdef	USE_VERTEXARRAYS
+	draw_model(actor_id->model_data, cur_frame, 0);
+#else	//USE_VERTEXARRAYS
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_TRIANGLES);
 	offsetFaces=actor_id->model_data->offsetFaces;
@@ -341,6 +455,7 @@ void draw_actor(actor * actor_id)
 			glVertex3f(x,y,z);
 		}
 	glEnd();
+#endif	//USE_VERTEXARRAYS
 
 	glPopMatrix();//restore the scene
 	//now, draw their damage
@@ -464,8 +579,8 @@ void display_actors()
 
 	//display only the ghosts
 	glEnable(GL_BLEND);
-    //we don't need the light, for ghosts
-    glDisable(GL_LIGHTING);
+	//we don't need the light, for ghosts
+	glDisable(GL_LIGHTING);
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -653,11 +768,11 @@ void draw_interface_body_part(md2 *model_data,float scale)
 	float x,y,z;
 	char *dest_frame_name;
 	int numFrames;
-    int numFaces;
-    text_coord_md2 *offsetTexCoords;
-    face_md2 *offsetFaces;
-    frame_md2 *offsetFrames;
-    vertex_md2 *vertex_pointer=NULL;
+	int numFaces;
+	text_coord_md2 *offsetTexCoords;
+	face_md2 *offsetFaces;
+	frame_md2 *offsetFrames;
+	vertex_md2 *vertex_pointer=NULL;
 
 	numFaces=model_data->numFaces;
 	numFrames=model_data->numFrames;
@@ -785,10 +900,10 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 			this_actor->legs=(md2*)load_md2_cache(this_actor->legs_fn);
 			if(!this_actor->legs)
 				{
-    		        char str[120];
-    		        sprintf(str,"Error: Can't load body part: %s\n",this_actor->legs_fn);
-    		        log_error(str);
-    		        this_actor->legs=0;
+					char str[120];
+					sprintf(str,"Error: Can't load body part: %s\n",this_actor->legs_fn);
+					log_error(str);
+					this_actor->legs=0;
 			        //return 0;
 				}
 		}
@@ -800,11 +915,11 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 			this_actor->head=(md2*)load_md2_cache(this_actor->head_fn);
 			if(!this_actor->head)
 				{
-    		        char str[120];
-    		        sprintf(str,"Error: Can't load body part: %s\n",this_actor->head_fn);
-    		        log_error(str);
-    		        this_actor->head=0;
-			        //return 0;
+					char str[120];
+					sprintf(str,"Error: Can't load body part: %s\n",this_actor->head_fn);
+					log_error(str);
+					this_actor->head=0;
+					//return 0;
 				}
 		}
 	else this_actor->head=0;
@@ -815,10 +930,10 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 			this_actor->torso=(md2*)load_md2_cache(this_actor->torso_fn);
 			if(!this_actor->torso)
 				{
-    		        char str[120];
-    		        sprintf(str,"Error: Can't load body part: %s\n",this_actor->torso_fn);
-    		        log_error(str);
-    		        this_actor->torso=0;
+					char str[120];
+					sprintf(str,"Error: Can't load body part: %s\n",this_actor->torso_fn);
+					log_error(str);
+					this_actor->torso=0;
 			        //return 0;
 				}
 		}

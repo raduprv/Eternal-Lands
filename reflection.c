@@ -27,6 +27,10 @@ void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost)
 	offsetFrames=model_data->offsetFrames;
 
 
+#ifdef	USE_VERTEXARRAYS
+	glColor3f(1.0f,1.0f,1.0f);
+	draw_model(model_data, cur_frame, 0);
+#else	//USE_VERTEXARRAYS
 	//now, go and find the current frame
 	i=0;
 	while(i<numFrames)
@@ -96,6 +100,7 @@ void draw_body_part_reflection(md2 *model_data,char *cur_frame, int ghost)
 
 		}
 	glEnd();
+#endif	//USE_VERTEXARRAYS
 
 }
 
@@ -249,13 +254,13 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if(actor_id->body_parts->legs)draw_body_part_reflection(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->torso)draw_body_part_reflection(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->head)draw_body_part_reflection(actor_id->body_parts->head,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->weapon)draw_body_part_reflection(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->shield)draw_body_part_reflection(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->helmet)draw_body_part_reflection(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->cape)draw_body_part_reflection(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->legs)draw_model(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->torso)draw_model(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->head)draw_model(actor_id->body_parts->head,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->weapon)draw_model(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->shield)draw_model(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->helmet)draw_model(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->cape)draw_model(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
 
 
 	//////
@@ -331,7 +336,9 @@ void draw_3d_reflection(object3d * object_id)
 					glBindTexture(GL_TEXTURE_2D, texture_id);
 					last_texture=texture_id;
 				}
+			if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
 			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+			if(have_compiled_vertex_array)glUnlockArraysEXT();
 		}
 
 	glPopMatrix();//restore the scene

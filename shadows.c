@@ -112,7 +112,9 @@ void draw_3d_object_shadow(object3d * object_id)
 							last_texture=texture_id;
 						}
 				}
+			if(have_compiled_vertex_array)glLockArraysEXT(array_order[i].start, array_order[i].count);
 			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+			if(have_compiled_vertex_array)glUnlockArraysEXT();
 		}
 
 	glPopMatrix();//restore the scene
@@ -187,6 +189,20 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 			log_error(str);
 			return;
 		}
+#ifdef	USE_VERTEXARRAYS
+	check_gl_errors();
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[i].vertex_array);
+	check_gl_errors();
+	if(have_compiled_vertex_array)glLockArraysEXT(0, model_data->numFaces*3);
+	glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
+	if(have_compiled_vertex_array)glUnlockArraysEXT();
+	check_gl_errors();
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	check_gl_errors();
+#else	//USE_VERTEXARRAYS
 	glBegin(GL_TRIANGLES);
 	for(j=0;j<numFaces;j++)
 		{
@@ -206,6 +222,7 @@ void draw_body_part_shadow(md2 *model_data,char *cur_frame, int ghost)
 
 		}
 	glEnd();
+#endif	//USE_VERTEXARRAYS
 
 }
 

@@ -3,91 +3,6 @@
 #include <string.h>
 #include "global.h"
 
-void draw_body_part(md2 *model_data,char *cur_frame, int ghost)
-{
-	int i;	//,j;
-	int numFrames;
-	int numFaces;
-	text_coord_md2 *offsetTexCoords;
-	face_md2 *offsetFaces;
-	frame_md2 *offsetFrames;
-	vertex_md2 *vertex_pointer=NULL;
-
-	//now, go and find the current frame
-	offsetFrames=model_data->offsetFrames;
-	numFrames=model_data->numFrames;
-	i=0;
-	while(i<numFrames)
-		{
-			char *dest_frame_name;
-			dest_frame_name=(char *)&offsetFrames[i].name;
-			if(strcmp(cur_frame, dest_frame_name)==0)//we found the current frame
-				{
-					vertex_pointer=offsetFrames[i].vertex_pointer;
-					break;
-				}
-			i++;
-		}
-
-	i=0;
-	if(vertex_pointer==NULL)//if there is no frame, use idle01
-		{
-			char *dest_frame_name;
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
-			log_error(str);
-			while(i<numFrames)
-				{
-					dest_frame_name=(char *)&offsetFrames[i].name;
-					if(strcmp("idle01",dest_frame_name)==0)//we found the current frame
-						{
-							vertex_pointer=offsetFrames[i].vertex_pointer;
-							break;
-						}
-					i++;
-				}
-		}
-
-	if(vertex_pointer==NULL)// this REALLY shouldn't happen...
-		{
-			char str[120];
-			sprintf(str, "couldn't find frame: %s\n",cur_frame);
-			log_error(str);
-			return;
-		}
-
-	glColor3f(1.0f,1.0f,1.0f);
-	glBegin(GL_TRIANGLES);
-	offsetFaces=model_data->offsetFaces;
-	offsetTexCoords=model_data->offsetTexCoords;
-	numFaces=model_data->numFaces;
-	for(i=0;i<numFaces;i++)
-		{
-			float x,y,z;
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
-			x=vertex_pointer[offsetFaces[i].a].x;
-			y=vertex_pointer[offsetFaces[i].a].y;
-			z=vertex_pointer[offsetFaces[i].a].z;
-			glVertex3f(x,y,z);
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
-			x=vertex_pointer[offsetFaces[i].b].x;
-			y=vertex_pointer[offsetFaces[i].b].y;
-			z=vertex_pointer[offsetFaces[i].b].z;
-			glVertex3f(x,y,z);
-
-			glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
-			x=vertex_pointer[offsetFaces[i].c].x;
-			y=vertex_pointer[offsetFaces[i].c].y;
-			z=vertex_pointer[offsetFaces[i].c].z;
-			glVertex3f(x,y,z);
-		}
-	glEnd();
-
-}
-
-
 //return the ID (number in the actors_list[]) of the new allocated actor
 int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos, float y_pos,
 					   float z_pos, float z_rot, int actor_id)
@@ -273,11 +188,11 @@ void draw_enhanced_actor(actor * actor_id)
 	//float healtbar_z_len=0.05f*zoom_level/3.0f;
 	int numFrames;
 	char *dest_frame_name;
-	frame_md2 *offsetFrames;
+	//frame_md2 *offsetFrames;
 
 
 
-	offsetFrames=actor_id->body_parts->head->offsetFrames;
+	//offsetFrames=actor_id->body_parts->head->offsetFrames;
 	texture_id=actor_id->texture_id;
 
 	cur_frame=actor_id->cur_frame;
@@ -293,7 +208,10 @@ void draw_enhanced_actor(actor * actor_id)
 	z_rot+=180;//test
 
 	//now, go and find the current frame
-	i=0;
+	i=get_frame_number(actor_id->body_parts->head, cur_frame);;
+	if(i >= 0)healtbar_z=actor_id->body_parts->head->offsetFrames[i].box.max_z;
+
+	/*
 	numFrames=actor_id->body_parts->head->numFrames;
 	while(i<numFrames)
 		{
@@ -305,12 +223,13 @@ void draw_enhanced_actor(actor * actor_id)
 				}
 			i++;
 		}
+	*/
 
 	if(last_texture!=texture_id)
 		{
 			glBindTexture(GL_TEXTURE_2D, texture_id);
 			last_texture=texture_id;
-		}
+    	}
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->y_tile_pos*tile_map_size_x*6+actor_id->x_tile_pos]*0.2f;
 
@@ -321,13 +240,13 @@ void draw_enhanced_actor(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if(actor_id->body_parts->legs)draw_body_part(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->torso)draw_body_part(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->head)draw_body_part(actor_id->body_parts->head,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->weapon)draw_body_part(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->shield)draw_body_part(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->helmet)draw_body_part(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->cape)draw_body_part(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->legs)draw_model(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->torso)draw_model(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->head)draw_model(actor_id->body_parts->head,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->weapon)draw_model(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->shield)draw_model(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->helmet)draw_model(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
+	if(actor_id->body_parts->cape)draw_model(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
 
 
 	//////
