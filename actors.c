@@ -198,10 +198,105 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			set_font(0);	// back to fixed pitch
 			if(actor_id->ghost)glEnable(GL_BLEND);
 		}
+
+	
+	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0))
+	{
+		draw_actor_overtext( actor_id );
+	}
+
 	glColor3f(1,1,1);
 	if(!actor_id->ghost)glEnable(GL_LIGHTING);
 
 }
+
+//-- Logan Dugenoux [5/26/2004]
+void draw_actor_overtext( actor* actor_ptr )
+{
+	float z, w, h, fmargin, bulleZ;
+	float ptx[10];
+	float pty[10];
+	float taillepicx, taillepicy;
+	float delalageX, delalagePicX;
+	float tailleTexteWidth, tailleTexteHeight;
+	float decalageTexteX, decalageTexteY;
+	int i;
+	
+	//-- decrease display time
+	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
+	bulleZ = 0.01f;// put text a little bit closer than the bubble
+	
+	tailleTexteWidth = ((float)get_string_width(actor_ptr->current_displayed_text)
+		*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+	tailleTexteHeight = (0.06f*zoom_level/3.0)*4;
+	fmargin = 0.02f*zoom_level;// border of the bubble size
+	delalageX = 0.5f;// position of the bubble
+	taillepicy = 0.5f;// size of the bubble 'leg'
+	taillepicx = 0.1f;
+	delalagePicX = 0.3f;
+	z = 1.2f;// distance over the player
+	if (actor_ptr->sitting)		z = 0.8f; // close if he's sitting
+	w = tailleTexteWidth+fmargin*2;
+	h = tailleTexteHeight+fmargin*2;
+	
+	// define bubble pts
+	ptx[0] = 0;		pty[0] = z;
+	ptx[1] = taillepicx+delalagePicX;	pty[1] = z+taillepicy;
+	ptx[2] = w/2+delalageX+delalagePicX;	pty[2] = z+taillepicy;
+	ptx[3] = w/2+delalageX+delalagePicX;	pty[3] = z+taillepicy+h;
+	ptx[4] = -w/2+delalageX+delalagePicX;	pty[4] = z+taillepicy+h;
+	ptx[5] = -w/2+delalageX+delalagePicX;	pty[5] = z+taillepicy;
+	ptx[6] = -taillepicx+delalagePicX;	pty[6] = z+taillepicy;
+	if (ptx[6]<=ptx[5])
+	{// small texts
+		ptx[6] = ptx[5];
+		ptx[1] = ptx[5]+taillepicx*2;
+	}
+	
+	decalageTexteX = -w/2+delalageX+delalagePicX+fmargin;
+	decalageTexteY = z+taillepicy-fmargin+tailleTexteHeight/2;
+	
+	glDepthFunc(GL_ALWAYS);// always draw bubbles over text
+	//---
+	// Draw bubble (white 80% blended)
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.8f);
+	
+	glBegin(GL_TRIANGLES);
+	glVertex3f(ptx[0],		bulleZ,		pty[0]);
+	glVertex3f(ptx[1],		bulleZ,		pty[1]);
+	glVertex3f(ptx[6],		bulleZ,		pty[6]);
+	glEnd();
+	
+	glBegin(GL_TRIANGLES);
+	glVertex3f(ptx[2],		bulleZ,		pty[2]);
+	glVertex3f(ptx[3],		bulleZ,		pty[3]);
+	glVertex3f(ptx[5],		bulleZ,		pty[5]);
+	glEnd();
+	
+	glBegin(GL_TRIANGLES);
+	glVertex3f(ptx[3],		bulleZ,		pty[3]);
+	glVertex3f(ptx[4],		bulleZ,		pty[4]);
+	glVertex3f(ptx[5],		bulleZ,		pty[5]);
+	glEnd();
+	
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+	
+	//---
+	// Draw text
+	glColor3f(0.4f,0.4f,0.4f);
+	draw_ingame_string(decalageTexteX,	decalageTexteY,actor_ptr->current_displayed_text,1,0);
+	
+	glDepthFunc(GL_LESS);
+	if (actor_ptr->current_displayed_text_time_left<=0)
+	{	// clear if needed
+		actor_ptr->current_displayed_text_time_left = 0;
+		actor_ptr->current_displayed_text[0] = 0;
+	}
+}
+
 
 int get_frame_number(const md2 *model_data, const char *cur_frame)
 {
@@ -699,3 +794,54 @@ actor * add_actor_interface(int actor_type, short skin, short hair,
 	return our_actor;
 }
 
+
+//--- LoganDugenoux [5/25/2004]
+#define ms_per_char	200		
+#define mini_bubble_ms	500		
+void	add_displayed_text_to_actor( actor * actor_ptr, const char* text )
+{
+	int actual_len;
+	int len_to_add;
+	char tempBuff[max_current_displayed_text_len];//sorry for the stack:)
+	
+	actual_len = strlen(actor_ptr->current_displayed_text);
+	len_to_add = strlen(text);
+	
+	if (len_to_add>max_current_displayed_text_len)
+	{		// Warning, text too long !
+		strncpy(tempBuff, text, max_current_displayed_text_len-5);
+		tempBuff[max_current_displayed_text_len-5] = '.';
+		tempBuff[max_current_displayed_text_len-4] = '.';
+		tempBuff[max_current_displayed_text_len-2] = '.';
+		tempBuff[max_current_displayed_text_len-1] = 0;
+		actor_ptr->current_displayed_text_time_left = max_current_displayed_text_len*ms_per_char;
+	}
+	else if (actual_len+len_to_add+1>=max_current_displayed_text_len)
+	{		// Strip the other text
+		strcpy(tempBuff, "...");
+		strcat(tempBuff, actor_ptr->current_displayed_text+max_current_displayed_text_len-len_to_add-5 );
+		strcat(tempBuff, " " );
+		strcat(tempBuff, text );
+		memcpy( actor_ptr->current_displayed_text, tempBuff, max_current_displayed_text_len );
+		actor_ptr->current_displayed_text_time_left = len_to_add*ms_per_char;
+	}
+	else
+	{		// ok, add it, or set it.
+		strcat(actor_ptr->current_displayed_text, " " );
+		strcat( actor_ptr->current_displayed_text, text );
+		actor_ptr->current_displayed_text_time_left += len_to_add*ms_per_char;
+	}
+	actor_ptr->current_displayed_text_time_left += mini_bubble_ms;
+}
+
+//--- LoganDugenoux [5/25/2004]
+actor *	get_actor_ptr_from_id( int actor_id )
+{
+	int i;
+	for (i = 0; i < max_actors; i++)
+	{
+		if (actors_list[i]->actor_id =  actor_id)
+			return actors_list[i];
+	}
+	return NULL;
+}

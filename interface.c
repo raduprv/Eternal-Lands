@@ -29,6 +29,7 @@ int selected_3d_object;
 int selected_inventory_object=-1;
 int view_health_bar=1;
 int view_names=1;
+int view_chat_text_as_overtext=0;
 int show_fps=1;
 int limit_fps=0;
 

@@ -53,6 +53,7 @@ Uint32 K_ITEM3=CTRL|'3';
 Uint32 K_ITEM4=CTRL|'4';
 Uint32 K_ITEM5=CTRL|'5';
 Uint32 K_ITEM6=CTRL|'6';
+Uint32 K_VIEWTEXTASOVERTEXT=ALT|'o';
 
 Uint8 quick_use_str[2];
 int i=0;
@@ -280,6 +281,12 @@ int HandleEvent(SDL_Event *event)
 						break;
 					}
 
+
+				if(key==K_VIEWTEXTASOVERTEXT)
+				{
+					view_chat_text_as_overtext=!view_chat_text_as_overtext;
+					break;
+				}
 
 				if(key==K_VIEWNAMES)
 					{

@@ -262,6 +262,12 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, ch
 	create_char_error_str[0]=0;//no error
 }
 
+// TEMP LOGAND [5/25/2004]
+#ifndef NPC_SAY_OVERTEXT
+#define NPC_SAY_OVERTEXT 58 
+#endif
+//---
+
 void process_message_from_server(unsigned char *in_data, int data_lenght)
 {
 	//see what kind of data we got
@@ -691,6 +697,13 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			}
 			break;
 
+		case NPC_SAY_OVERTEXT:
+			{
+				add_displayed_text_to_actor(
+					get_actor_ptr_from_id( *((Uint16 *)(in_data+3)) ), in_data+5 );
+			}
+			break;
+			
 		default:
 			{
 				/* Unknown data type?? */;

@@ -10,6 +10,9 @@ extern float name_zoom;
 #define NPC 2
 #define COMPUTER_CONTROLLED_HUMAN 3
 
+// Max text len to display into bubbles overhead
+#define max_current_displayed_text_len	60
+
 typedef struct
 {
 	char legs_fn[32];
@@ -206,6 +209,8 @@ typedef struct
 	int cur_weapon;
 	int kind_of_actor;
 
+	char current_displayed_text[max_current_displayed_text_len];
+	int current_displayed_text_time_left;
 
 }actor;
 
@@ -234,5 +239,10 @@ extern void	init_actors_lists();
 #define	lock_actors_lists()	SDL_LockMutex(actors_lists_mutex)
 #define	unlock_actors_lists()	SDL_UnlockMutex(actors_lists_mutex);
 extern void	end_actors_lists();
+
+void	draw_actor_overtext( actor* actor_ptr );
+void	add_displayed_text_to_actor( actor * actor_ptr, const char* text );
+actor *	get_actor_ptr_from_id( int actor_id );
+
 
 #endif

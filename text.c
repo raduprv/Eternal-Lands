@@ -119,11 +119,79 @@ void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit)
 	put_colored_text_in_buffer(c_grey1, text_to_add, len, x_chars_limit);
 }
 
+
+//-- Logan Dugenoux [5/26/2004]
+// Checks chat string, if it begins with an actor name, 
+// and the actor is displayed, put said sentence into an overtext bubble
+#define allowedCharInName(_x_)		(isalnum(_x_)||(_x_=='_'))
+void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
+{
+	int i;
+	
+	if (!view_chat_text_as_overtext)
+		return;		// disabled
+
+	if (text_to_add[0] == 133)
+	{
+		char playerName[128];
+		char textbuffer[1024];
+		int i;
+		int j;
+		j = 0;
+		i = 1;
+		while ((text_to_add[i]<128)&&(i<len))
+		{
+			if (text_to_add[i] != '[')
+			{
+				playerName[j] = (char)text_to_add[i];
+				j++;
+			}
+			i++;
+		}
+		if (i!=len)
+		{
+			playerName[j] = 0;
+			while ((j>0)&&(!allowedCharInName(playerName[j])))
+				playerName[j--] = 0;
+			while (i<len)
+			{
+				textbuffer[j] = (char)text_to_add[i];
+				i++;j++;
+			}
+			textbuffer[j]=0;
+			for (i = 0; i < max_actors; i++)
+			{
+				char actorName[128];
+				j = 0;
+				// Strip clan info
+				while (allowedCharInName(actors_list[i]->actor_name[j]))
+					actorName[j] = actors_list[i]->actor_name[j++];
+				actorName[j] = 0;
+				
+				if (strcmp(actorName, playerName)==0)
+				{
+					add_displayed_text_to_actor( actors_list[i], textbuffer );
+				}
+			}
+			
+		}
+		
+	}
+}
+
+
+
+
+
+
+
 void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len, 
 								int x_chars_limit)
 {
 	int i;
 	Uint8 cur_char;
+
+	check_chat_text_to_overtext( text_to_add, len );
 
 	// check for auto-length
 	if(len<0)len=strlen(text_to_add);
