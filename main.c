@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+
+#ifdef	GNUC
 #include <unistd.h>
+#endif
 
 #ifdef WINDOWS
 #include <windows.h>
@@ -98,7 +101,7 @@ int main(int argc, const char **argv)
     init_stuff();
 
 	// put this back in after windows compiling doesn't complain
-//#ifndef WINDOWS	//may be a compiler specific issue?
+#ifdef	GNUC
 	// args processed after the init to override initialization
 	// NOTE: under Dev-C++ -liberty needs to be added to compile,
 	// 		 other compilers may need different options
@@ -118,7 +121,7 @@ int main(int argc, const char **argv)
 				break;
 			}
 		}
-//#endif
+#endif
     start_rendering();
 
 	return 0;
@@ -127,14 +130,13 @@ int main(int argc, const char **argv)
 #ifdef WINDOWS
 int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
-	//LPWSTR	*argv;
-	//int	argc;
+	LPWSTR	*argv;
+	int	argc;
 
 	// supposed to work in theory, untested
-	//argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-	//Main(argc, (const char **) argv);
-	Main(_argc, (const char **)_argv);
+	Main(argc, (const char **) argv);
 	return 0;
 }
 
