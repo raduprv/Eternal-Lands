@@ -1,14 +1,12 @@
 Cicero:
 Port sound engine to OpenAL - TESTING
-Get File signature (MD5 or CRC32 of a specified filename) 
-	-used with server to decide if a file will need uploading?
-	-used to detect modified/corrupt files?
-	-used to send encrypted passwords?
+	-add music
 FreeBSD version
 log, cfg, & ini in user directory tree
-Specify alternate directory to load games files from
-Upload File to client
+	-Specify alternate directory to load games files from
 S/W version check & upload
+	-Get File signature (MD5 of a specified filename)
+	-Upload File to client
 
 
 Learner:
@@ -20,13 +18,13 @@ Faster mouse icon switch without dropping FPS
 Investigate variable width fonts
 
 
-Ent's list:
-2. Depth shadows (very complicated) 
-5. Various spell effects. (medium-hard) 
-11. Buddy list menu (will do the server part myself) 
-12. Change the internal way MD2s are loaded, and make them vertex arrays.
-13. On card that support OVB, make the 3d objects and models VBO.
-14. Make use of other extensions, if supported (such as texture compression, bump mapping, etc.) 
+Ent's original list:
+Depth shadows (very complicated) 
+Various spell effects. (medium-hard) 
+Buddy list menu (will do the server part myself) 
+Change the internal way MD2s are loaded, and make them vertex arrays.
+On card that support OVB, make the 3d objects and models VBO.
+Make use of other extensions, if supported (such as texture compression, bump mapping, etc.) 
 
 
 Unassigned:
@@ -34,4 +32,5 @@ Chat Window
 MultiChannel Chat (needs server support)
 User defined keyboard/mouse bindings
 Server selection screen
-
+rework internal windowing system to keep track of which window is on top and
+	to draw them and catch clicks accordingly
