@@ -138,3 +138,68 @@ for(i=0;i<max_len;i++)
   }//end of the for
 return -1;//if we are here, it means we didn't find the string...
 }
+
+int my_xmlStrncopy(char ** out, const char * in, int len)
+{
+	if(in) {
+		size_t lin=0;
+		size_t lout=0;
+		int l1=0;
+		int l2=0;
+		int retval=1;
+		char *inbuf;
+		char *inbuf2;
+		char *outbuf;
+		char *outbuf2;
+		
+		lin=strlen(in);
+		l2=xmlUTF8Strlen(in);
+		
+		if(l2<0) lout=l1;
+		else if (len>0 && len<l2) lout=len;
+		else lout=l2;
+		
+		inbuf=inbuf2=(char *)malloc((lin+1)*sizeof(char));
+		outbuf=outbuf2=(char *)malloc((lout+1)*sizeof(char));
+
+		memcpy(inbuf,in,lin);
+
+		l1=lin;
+		l2=lout;
+
+#ifdef WINDOWS
+		if(my_UTF8Toisolat1(&outbuf2,&lout,(const char **)&inbuf2,&lin)<0) {
+#else
+		if(my_UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
+#endif
+			retval=-1;
+		}
+
+		free(inbuf);
+
+		outbuf[l2]=0;
+
+		if(*out) {
+			memcpy(*out,outbuf,l2+1);
+			free(outbuf);
+		} else {
+			*out=outbuf;
+		}
+
+		return retval<0?-1:l2;
+	} else return -1;
+}
+
+#ifdef WINDOWS
+int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * l)
+#else
+int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
+#endif
+{
+	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
+
+	iconv(t, src, l, dest, lu);
+
+	iconv_close(t);
+	return 1;
+}
