@@ -371,35 +371,35 @@ void draw_enhanced_actor(actor * actor_id)
 	if(!actor_id->ghost)glDisable(GL_LIGHTING);
 
 	if(view_health_bar && actor_id->cur_health>=0)
-	{
-	//get it's lenght
-	if(actor_id->max_health)//we don't want a division by zero, now do we?
-	healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
-	glBegin(GL_QUADS);
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-	glEnd();
+		{
+			//get it's lenght
+			if(actor_id->max_health)//we don't want a division by zero, now do we?
+			healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
+			glBegin(GL_QUADS);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+			glEnd();
 
-	//draw the frame
-	healtbar_y=0.001;
-	glDepthFunc(GL_LEQUAL);
-	glColor3f(0,0,0);
-	glBegin(GL_LINES);
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
+			//draw the frame
+			healtbar_y=0.001;
+			glDepthFunc(GL_LEQUAL);
+			glColor3f(0,0,0);
+			glBegin(GL_LINES);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
 
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
-	glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
 
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
 
-	glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-	glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
-	glEnd();
-	}
+			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
+			glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
+			glEnd();
+		}
 
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1,0,0);
@@ -751,11 +751,5 @@ void add_enhanced_actor_from_server(char * in_data)
 	sprintf(actors_list[i]->actor_name,&in_data[28]);
 
 }
-
-
-
-
-
-
 
 

@@ -354,14 +354,14 @@ void display_actors()
 	for(i=0;i<1000;i++)
 		{
 			if(actors_list[i])
-			 {
-			         int dist1;
-			         int dist2;
+			if(!actors_list[i]->ghost)
+				{
+					int dist1;
+					int dist2;
 
-			         dist1=x-actors_list[i]->x_pos;
-			         dist2=y-actors_list[i]->y_pos;
-			         if(sqrt(dist1*dist1+dist2*dist2)<=12)
-			         if(!actors_list[i]->ghost)
+					dist1=x-actors_list[i]->x_pos;
+					dist2=y-actors_list[i]->y_pos;
+					if(sqrt(dist1*dist1+dist2*dist2)<=12)
 			         	{
 							if(actors_list[i]->is_enhanced_model)
 								{
@@ -392,15 +392,15 @@ void display_actors()
 	for(i=0;i<1000;i++)
 		{
 			if(actors_list[i])
-			 {
-			         int dist1;
-			         int dist2;
+			if(actors_list[i]->ghost)
+				{
+					int dist1;
+					int dist2;
 
-			         dist1=x-actors_list[i]->x_pos;
-			         dist2=y-actors_list[i]->y_pos;
-			         if(sqrt(dist1*dist1+dist2*dist2)<=12)
-			         if(actors_list[i]->ghost)
-			         	{
+					dist1=x-actors_list[i]->x_pos;
+					dist2=y-actors_list[i]->y_pos;
+					if(sqrt(dist1*dist1+dist2*dist2)<=12)
+			  			{
 							if(actors_list[i]->is_enhanced_model)
 								{
 									draw_enhanced_actor(actors_list[i]);
