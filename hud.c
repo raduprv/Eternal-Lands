@@ -917,7 +917,7 @@ float clock_needle_v_end=1.0f-(float)223/256;
 
 void init_misc_display()
 {
-	//create the icon window
+	//create the misc window
 	if(misc_win <= 0)
 		{
 			misc_win= create_window("Misc", 0, 0, window_width-64, window_height-145, 64, 145, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
@@ -966,7 +966,7 @@ int	display_misc_handler(window_info *win)
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.05f);
 	glPushMatrix();
-	glTranslatef(32, win->len_y-98, 0);
+	glTranslatef(32, win->len_y-96, 0);
 	glRotatef(game_minute, 0.0f, 0.0f, 1.0f);
 	glBegin(GL_QUADS);
 	draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -5, -24,5, 6);
@@ -975,11 +975,14 @@ int	display_misc_handler(window_info *win)
 	glDisable(GL_ALPHA_TEST);
 
 	//Digital Clock
-	if(view_digital_clock==1){
-		char str[5];
-		snprintf(str,5,"%1d:%02d", game_minute/60, game_minute%60);
-		glColor3f(0.77f,0.57f,0.39f);
-		draw_string(3,12,str,1);
+	if(view_digital_clock > 0){
+		char str[6];	// one extra incase the length of the day ever changes
+		int	x;
+
+		snprintf(str, 6, "%1d:%02d", game_minute/60, game_minute%60);
+		x= 3+(win->len_x - (get_string_width(str)*11)/12)/2;
+		glColor3f(0.77f, 0.57f, 0.39f);
+		draw_string(x, 2, str, 1);
 	}
 	return	1;
 }
@@ -1061,7 +1064,7 @@ int	display_quickbar_handler(window_info *win)
 	//ok, now let's draw the objects...
 	for(i=0;i<ITEM_NUM_ITEMS;i++)
 		{
-			if(item_list[i].quantity)
+			if(item_list[i].quantity > 0)
 				{
 					float u_start,v_start,u_end,v_end;
 					int this_texture,cur_item,cur_pos;
