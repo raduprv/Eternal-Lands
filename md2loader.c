@@ -266,10 +266,10 @@ md2 * load_md2(char * file_name)
 
 Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame)
 {
-	Uint32	k;
 	Uint32	used=0;
 
 #ifdef	USE_VERTEXARRAYS
+	Uint32	k;
 	if(use_vertex_array)
 		{
 			// do we need the texture array populated?

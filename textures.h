@@ -13,4 +13,5 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,int y_pos,
 							  Uint8 alpha);
 int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a);
+int get_and_set_texture_id(int i);
 #endif

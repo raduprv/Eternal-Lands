@@ -291,7 +291,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 			float x_rot, float y_rot, float z_rot, char self_lit, char blended,
 			float r, float g, float b)
 {
-	int i,len,k;
+	int i;//,len,k;
 	char fname[128];
 	e3d_object *returned_e3d;
 	object3d *our_object;

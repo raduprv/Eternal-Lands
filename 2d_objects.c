@@ -351,7 +351,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, 
 			   float x_rot, float y_rot, float z_rot)
 {
-	int i,k,len;
+	int i;//,len,k;
 	char	fname[128];
 	obj_2d_def *returned_obj_2d_def;
 	obj_2d *our_object;
