@@ -5,6 +5,8 @@
 
 extern int game_win;
 
+int keypress_root_common (Uint32 key, Uint32 unikey);
+
 void display_game ();
 
 #endif

@@ -20,7 +20,7 @@ STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a
 # the objects we need
 OBJS=2d_objects.o 3d_objects.o	\
 	actor_scripts.o actors.o asc.o buddy.o \
-	cache.o chat.o colors.o console.o cursors.o	\
+	cache.o chat.o colors.o console.o consolewin.o cursors.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o frustum.o	\

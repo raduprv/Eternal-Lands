@@ -75,7 +75,6 @@ extern int qb_action_mode; /*!< flag indicating whether we are in quickbar actio
  */
 /*! @{ */
 extern int map_win; /*!< map windows handler */
-extern int console_win; /*!< console windows handler */
 extern int cont_win; /*!< continent map windows handler */
 /*! @} */
 

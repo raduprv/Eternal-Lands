@@ -82,7 +82,7 @@ int HandleEvent(SDL_Event *event)
 				if(afk_time) 
 					last_action_time=cur_time; //Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 
-				if (interface_mode == interface_game)
+				if (interface_mode == interface_game || interface_mode == interface_console)
 				{
 					keypress_in_windows(mouse_x, mouse_y, key, event->key.keysym.unicode);
 					break;

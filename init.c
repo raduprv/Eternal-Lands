@@ -500,7 +500,10 @@ void init_stuff()
 	init_video();
 	// now create the root window
 #ifdef WINDOW_CHAT
+	// XXX FIXME (Grum): Maybe we should do this at a later time, after
+	// we're logged in?
 	display_game ();
+	create_console ();
 #else
 	resize_root_window();
 #endif

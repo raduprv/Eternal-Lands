@@ -13,7 +13,6 @@ int icons_no=0;
 
 //Windows not handled by the window manager:
 int map_win=0;
-int console_win=0;
 
 int	display_icons_handler(window_info *win);
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags);
@@ -488,6 +487,8 @@ void view_console_win(int * win, int id)
 	if(interface_mode==interface_console || interface_mode==interface_game)
 		toggle_window (game_win);
 #endif
+	toggle_window (console_win);
+	
 	if(interface_mode==interface_console) {
 		interface_mode=interface_game;
 	} else {
@@ -501,14 +502,21 @@ void view_console_win(int * win, int id)
 void view_map_win(int * win, int id)
 {
 #ifdef WINDOW_CHAT
-	if (interface_mode==interface_game || interface_mode==interface_map || interface_mode==interface_cont)
+	int mode = interface_mode;
+
+	if (mode==interface_console)
+		toggle_window (console_win);
+	else if (mode==interface_game || mode==interface_map || mode==interface_cont)
 		toggle_window (game_win);
-	if(interface_mode==interface_game || interface_mode==interface_console)
+	if(mode==interface_game || mode==interface_console)
 	{
 		if (switch_to_game_map() == 0)
 		{
 			// map load failed, toggle root window back in
-			toggle_window (game_win);
+			if(mode==interface_game)
+				toggle_window (game_win);
+			else
+				toggle_window (console_win);
 		}
 	}
 #else

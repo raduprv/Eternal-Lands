@@ -104,6 +104,7 @@
 #include "help.h"
 #include "tabs.h"
 #include "gamewin.h"
+#include "consolewin.h"
 #ifdef WINDOW_CHAT
 #include "chat.h"
 #endif

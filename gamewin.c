@@ -650,15 +650,14 @@ int display_game_handler (window_info *win)
 	return 1;
 }
 
-int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+// keypress handler common to all root windows (at the moment game_win and
+// console_win)
+int keypress_root_common (Uint32 key, Uint32 unikey)
 {
-	static Uint32 last_turn_around = 0;
-
 	int alt_on = key & ELW_ALT;
 	int ctrl_on = key & ELW_CTRL;
 	int shift_on = key & ELW_SHIFT;
 	Uint16 keysym = key & 0xffff;
-	Uint8 ch = unikey & 0xff;
 	
 	//first, try to see if we pressed Alt+x, to quit.
 	if ( (keysym == SDLK_x && alt_on) || (keysym == SDLK_q && ctrl_on && !alt_on) )
@@ -680,22 +679,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #else
 		windows_paste();
 #endif
-	}
-	else if (key == K_CAMERAUP)
-	{
-		if (rx > -60) rx -= 1.0f;
-	}
-	else if (key == K_CAMERADOWN)
-	{
-		if (rx < -45) rx += 1.0f;
-	}
-	else if (key == K_ZOOMIN)
-	{
-		if (zoom_level > 1.0f) new_zoom_level = zoom_level - 0.25;
-	}
-	else if (key == K_ZOOMOUT)
-	{
-		if (zoom_level < 3.75f) new_zoom_level = zoom_level + 0.25;
 	}
 	else if (key == K_ITEM1)
 	{
@@ -720,30 +703,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (key == K_ITEM6)
 	{
 		quick_use(5);
-	}
-	else if (key == K_TURNLEFT)
-	{
-		if (!last_turn_around || last_turn_around + 500 < cur_time)
-		{
-			Uint8 str[2];
-			last_turn_around = cur_time;
-			str[0] = TURN_LEFT;
-			my_tcp_send (my_socket, str, 1);
-		}
-	}
-	else if (key==K_TURNRIGHT)
-	{
-		if (!last_turn_around || last_turn_around + 500 < cur_time)
-		{
-			Uint8 str[2];
-			last_turn_around = cur_time;
-			str[0] = TURN_RIGHT;
-			my_tcp_send (my_socket, str, 1);
-		}
-	}
-	else if (key==K_ADVANCE)
-	{
-		move_self_forward();
 	}
 	else if(key==K_HIDEWINS)
 	{
@@ -796,13 +755,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		view_hp = !view_hp;
 	}
-	else if (key == K_STATS)
-	{
-		if (use_tabbed_windows)
-			view_tab (&tab_stats_win, &tab_stats_collection_id, 0);
-		else
-			view_window (&stats_win, 0);
-	}
 	else if (key == K_WALK)
 	{
 		item_action_mode = qb_action_mode = action_mode = action_walk;
@@ -814,6 +766,109 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (key == K_USE)
 	{
 		item_action_mode = qb_action_mode = action_mode = action_use;
+	}
+	else if (key == K_AFK)
+	{
+		if (!afk) 
+		{
+			go_afk ();
+			last_action_time = cur_time - afk_time;
+		}
+		else
+		{
+			go_ifk ();
+		}
+	}
+	else if (key == K_BROWSER)
+	{
+#ifndef WINDOWS
+		char browser_command[400];
+		if (have_url)
+		{
+			my_strcp( browser_command, broswer_name);
+			my_strcat (browser_command, " \"");
+			my_strcat (browser_command, current_url);
+			my_strcat (browser_command, "\"&");
+			system (browser_command);
+		}
+#else
+		SDL_Thread *go_to_url_thread;
+		go_to_url_thread = SDL_CreateThread (go_to_url, 0);
+#endif
+	}
+	else if (keysym == SDLK_ESCAPE)
+	{
+		input_text_lenght = 0;
+		input_text_line[0] = 0;
+		input_text_lines = 1;
+	}
+	else
+	{
+		return 0; // nothing we can handle
+	}
+
+	return 1; // we handled it
+}
+
+int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	static Uint32 last_turn_around = 0;
+
+	Uint16 keysym = key & 0xffff;
+	Uint8 ch = unikey & 0xff;
+	
+	// first try the keypress handler for all root windows
+	if ( keypress_root_common (key, unikey) )
+	{
+		return 1;
+	}
+	else if (key == K_CAMERAUP)
+	{
+		if (rx > -60) rx -= 1.0f;
+	}
+	else if (key == K_CAMERADOWN)
+	{
+		if (rx < -45) rx += 1.0f;
+	}
+	else if (key == K_ZOOMIN)
+	{
+		if (zoom_level > 1.0f) new_zoom_level = zoom_level - 0.25;
+	}
+	else if (key == K_ZOOMOUT)
+	{
+		if (zoom_level < 3.75f) new_zoom_level = zoom_level + 0.25;
+	}
+	// XXX (Grum): should we move the next three into common?
+	else if (key == K_TURNLEFT)
+	{
+		if (!last_turn_around || last_turn_around + 500 < cur_time)
+		{
+			Uint8 str[2];
+			last_turn_around = cur_time;
+			str[0] = TURN_LEFT;
+			my_tcp_send (my_socket, str, 1);
+		}
+	}
+	else if (key==K_TURNRIGHT)
+	{
+		if (!last_turn_around || last_turn_around + 500 < cur_time)
+		{
+			Uint8 str[2];
+			last_turn_around = cur_time;
+			str[0] = TURN_RIGHT;
+			my_tcp_send (my_socket, str, 1);
+		}
+	}
+	else if (key==K_ADVANCE)
+	{
+		move_self_forward();
+	}
+	else if (key == K_STATS)
+	{
+		if (use_tabbed_windows)
+			view_tab (&tab_stats_win, &tab_stats_collection_id, 0);
+		else
+			view_window (&stats_win, 0);
 	}
 	else if (key == K_OPTIONS)
 	{
@@ -863,6 +918,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		view_map_win (&map_win, -1);
 	}
+	// Move the next four into common?
 	else if (key == K_ROTATELEFT)
 	{
 		camera_rotation_speed = normal_camera_rotation_speed / 40;
@@ -883,38 +939,10 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		camera_rotation_speed = -fine_camera_rotation_speed / 10;
 		camera_rotation_frames = 10;
 	}
-	else if (key == K_AFK)
-	{
-		if (!afk) 
-		{
-			go_afk ();
-			last_action_time = cur_time - afk_time;
-		}
-		else
-		{
-			go_ifk ();
-		}
-	}
+	// Move into common?
 	else if (key == K_SIT)
 	{
 		sit_button_pressed (NULL, 0);
-	}
-	else if (key == K_BROWSER)
-	{
-#ifndef WINDOWS
-		char browser_command[400];
-		if (have_url)
-		{
-			my_strcp( browser_command, broswer_name);
-			my_strcat (browser_command, " \"");
-			my_strcat (browser_command, current_url);
-			my_strcat (browser_command, "\"&");
-			system (browser_command);
-		}
-#else
-		SDL_Thread *go_to_url_thread;
-		go_to_url_thread = SDL_CreateThread (go_to_url, 0);
-#endif
 	}
 	// TEST REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!
 	else if (keysym == SDLK_F5)
@@ -962,12 +990,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 #endif			
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	else if (keysym == SDLK_ESCAPE)
-	{
-		input_text_lenght = 0;
-		input_text_line[0] = 0;
-		input_text_lines = 1;
-	}
 	else
 	{
 		if ( (key >= 256 && key <= 267) || key==271)
@@ -991,7 +1013,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 
 		if (ch == '`' || key == K_CONSOLE)
 		{
-			view_console_win (&console_win, -1);
+			hide_window (game_win);
+			show_window (console_win);
+			interface_mode = interface_console;
 		}
 		else if (key == K_SHADOWS)
 		{
@@ -1030,11 +1054,10 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		{
 			if ( (adding_mark == 1) && (input_text_lenght > 1) )
 			{
-				// XXX FIXME (Grum): this probably only happens in map mode,
-				// so it shouldn't occur here. Leave it for now.
+				// XXX FIXME (Grum): this should probably only happen in map mode,
+				// and shouldn't occur here. Leave it for now.
 				int i;
 				
-				printf ("adding mark1?!\n");
 				// if text wrapping just keep the text until the wrap.
 				for (i = 0; i < strlen (input_text_line); i++) 
 					if (input_text_line[i] == 0x0a) 
@@ -1044,7 +1067,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 				marks[max_mark].y = mark_y;
 				memset(marks[max_mark].text,0,500);
 						  
-				strncpy (marks[max_mark].text, input_text_line, 500);
+				my_strncp (marks[max_mark].text, input_text_line, 500);
 				marks[max_mark].text[strlen(marks[max_mark].text)-1] = 0;
 				max_mark++;
 				save_markings ();

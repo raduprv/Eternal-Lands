@@ -87,7 +87,7 @@ void draw_scene()
 	if(interface_mode!=interface_game)
 		{
 			new_zoom_level=zoom_level;//No scrolling when switching modes...
-			if(quickbar_relocatable && quickbar_win)//Hack 
+			if(quickbar_relocatable && quickbar_win >= 0)//Hack 
 				{
 					if(windows_list.window[quickbar_win].cur_x<window_width-hud_x && window_height - windows_list.window[quickbar_win].cur_y>hud_y) windows_list.window[quickbar_win].displayed=0;
 				}
@@ -106,6 +106,7 @@ void draw_scene()
 					return;
 				}
 
+#ifndef WINDOW_CHAT
 			if(interface_mode==interface_console)
 				{
 					// are we actively drawing things?
@@ -115,9 +116,6 @@ void draw_scene()
 							draw_console_pic(cons_text);
 							display_console_text();
 							draw_hud_interface();
-#ifdef WINDOW_CHAT
-							display_windows (1);
-#endif
 							SDL_GL_SwapBuffers();
 							Leave2DMode();
 							if(elwin_mouse >= 0) {//Make sure that mouse changes in the quickbar
@@ -129,6 +127,8 @@ void draw_scene()
 					SDL_Delay(20);
 					return;
 				}
+#endif
+
 			if(interface_mode==interface_opening)
 				{
 					Enter2DMode();
