@@ -3,971 +3,982 @@
 #include <string.h>
 #include "global.h"
 
-	float unwindAngle_Degrees( float fAngle )
+float unwindAngle_Degrees( float fAngle )
 	{
 		fAngle -= 360.0f * (int)( fAngle / 360.0f );
 		if( fAngle < 0.0f )
-			{
-				fAngle += 360.0f;
-			}
-		return fAngle;
-	}
+		{
+			fAngle += 360.0f;
+		}
+	return fAngle;
+}
 
 
-	float get_rotation_vector( float fStartAngle, float fEndAngle )
-	{
-		float ccw = unwindAngle_Degrees( fStartAngle - fEndAngle );
-		float cw = unwindAngle_Degrees( fEndAngle - fStartAngle );
-		if(cw<ccw)return cw;
-		else return -ccw;
-	}
+float get_rotation_vector( float fStartAngle, float fEndAngle )
+{
+	float ccw = unwindAngle_Degrees( fStartAngle - fEndAngle );
+	float cw = unwindAngle_Degrees( fEndAngle - fStartAngle );
+	if(cw<ccw)return cw;
+	else return -ccw;
+}
 
 
-	void move_to_next_frame()
-	{
-		int i,j,l,k;
-		char frame_name[16];
-		char frame_number[3];
-		int frame_no;
-		int numFrames;
-		char frame_exists;
+void move_to_next_frame()
+{
+	int i,j,l,k;
+	char frame_name[16];
+	char frame_number[3];
+	int frame_no;
+	int numFrames;
+	char frame_exists;
 
-		lock_actors_lists();
-		for(i=0;i<max_actors;i++)
-			{
-				//clear the strings
-				for(k=0;k<16;k++)frame_name[k]=0;
-				for(k=0;k<3;k++)frame_number[k]=0;
+	lock_actors_lists();
+	for(i=0;i<max_actors;i++)
+		{
+			if(actors_list[i]!=0)
+				{
+					//clear the strings
+					for(k=0;k<16;k++)frame_name[k]=0;
+					for(k=0;k<3;k++)frame_number[k]=0;
 
-				if(actors_list[i]!=0)
-				  {
-					  //first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
-					  if(actors_list[i]->damage_ms)
-						{
-							actors_list[i]->damage_ms-=80;
-							if(actors_list[i]->damage_ms<0)actors_list[i]->damage_ms=0;
-						}
-					  //get the frame number out of the frame name
-					  l=strlen(actors_list[i]->cur_frame);
-					  //get the frame number
-					  j=0;
-					  for(k=l-2;k<=l;k++)
-						{
-						  frame_number[j]=actors_list[i]->cur_frame[k];
-						  j++;
-						}
-					  frame_no=atoi(frame_number);
-					  //get the frame name
-					  for(k=0;k<l-2;k++)frame_name[k]=actors_list[i]->cur_frame[k];
-					  //increment the frame_no
-					  frame_no++;
-					  //transform back into string
-					  frame_number[0]=(unsigned int)48+frame_no/10;
-					  frame_number[1]=(unsigned int)48+frame_no%10;
-					  //create the name of the next frame to look for
-					  my_strcat(frame_name,frame_number);
-					  //now see if we can find that frame
-					  if(!actors_list[i]->is_enhanced_model)
-					  numFrames=actors_list[i]->model_data->numFrames;
-					  else
-					  numFrames=actors_list[i]->body_parts->torso->numFrames;
+				  //first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
+				  if(actors_list[i]->damage_ms)
+					{
+						actors_list[i]->damage_ms-=80;
+						if(actors_list[i]->damage_ms<0)actors_list[i]->damage_ms=0;
+					}
+				  //get the frame number out of the frame name
+				  l=strlen(actors_list[i]->cur_frame);
+				  /*
+				  //get the frame number
+				  j=0;
+				  for(k=l-2;k<=l;k++)
+					{
+					  frame_number[j]=actors_list[i]->cur_frame[k];
+					  j++;
+					}
+				  frame_no=atoi(frame_number);
+				  */
+				  frame_no=atoi(&actors_list[i]->cur_frame[l-2]);
+				  //get the frame name
+				  for(k=0;k<l-2;k++)frame_name[k]=actors_list[i]->cur_frame[k];
+				  //increment the frame_no
+				  frame_no++;
+				  //transform back into string
+				  frame_number[0]=(unsigned int)48+frame_no/10;
+				  frame_number[1]=(unsigned int)48+frame_no%10;
+				  //create the name of the next frame to look for
+				  my_strcat(frame_name,frame_number);
+				  //now see if we can find that frame
+				  if(!actors_list[i]->is_enhanced_model)
+				  numFrames=actors_list[i]->model_data->numFrames;
+				  else
+				  numFrames=actors_list[i]->body_parts->torso->numFrames;
 
-					  frame_exists=0;
-					  for(k=0;k<numFrames;k++)
-						{
-							if(!actors_list[i]->is_enhanced_model)
+				  frame_exists=0;
+				  for(k=0;k<numFrames;k++)
+					{
+						if(!actors_list[i]->is_enhanced_model)
+							{
 							if(strcmp(frame_name,actors_list[i]->model_data->offsetFrames[k].name)==0)
 								{
 									frame_exists=1;
 									break;
 								}
-							if(actors_list[i]->is_enhanced_model)
+							}
+						else
+							{
 							if(strcmp(frame_name,actors_list[i]->body_parts->torso->offsetFrames[k].name)==0)
 								{
 									frame_exists=1;
 									break;
 								}
-						}
-
-					 if(!frame_exists) {//frame doesn't exist, move at the beginning of animation
-					 if(actors_list[i]->stop_animation)
-						{
-							actors_list[i]->busy=0;//ok, take the next command
-							continue;//we are done with this guy
-						}
-					 else
-						{
-							//frame_name has 2 extra numbers, at this point, due to the previous
-							//strcat. So, remove those 2 extra numbers
-							l=strlen(frame_name);
-							frame_name[l-2]=0;
-							my_strcat(frame_name,"01");
-						}
-					 }
-
-					 sprintf(actors_list[i]->cur_frame, "%s",frame_name);
-
-				  }
-			}
-		unlock_actors_lists();
-	}
-
-	void animate_actors()
-	{
-		int i;
-		//float rotate_x_speed; unused?
-		//float rotate_y_speed; unused?
-		//float rotate_z_speed; unused?
-
-		//char moving;          unused?
-		//char rotating;        unused?
-
-		// lock the actors_list so that nothing can interere with this look
-		lock_actors_lists();	//lock it to avoid timing issues
-		for(i=0;i<max_actors;i++)
-			{
-				if(actors_list[i])
-					 {
-						if(actors_list[i]->moving)
-							{
-								actors_list[i]->movement_frames_left--;
-								if(!actors_list[i]->movement_frames_left)//we moved all the way
-									{
-										Uint8 last_command;
-										actors_list[i]->moving=0;//don't move next time, ok?
-										actors_list[i]->after_move_frames_left=3;//this is done to prevent going to idle imediatelly
-										//now, we need to update the x/y_tile_pos, and round off
-										//the x/y_pos according to x/y_tile_pos
-										last_command=actors_list[i]->last_command;
-										if(last_command==move_n || last_command==run_n)
-										actors_list[i]->y_tile_pos++;
-										else
-										if(last_command==move_s || last_command==run_s)
-										actors_list[i]->y_tile_pos--;
-										else
-										if(last_command==move_e || last_command==run_e)
-										actors_list[i]->x_tile_pos++;
-										else
-										if(last_command==move_w || last_command==run_w)
-										actors_list[i]->x_tile_pos--;
-										else
-										if(last_command==move_ne || last_command==run_ne)
-										{actors_list[i]->x_tile_pos++;actors_list[i]->y_tile_pos++;}
-										else
-										if(last_command==move_se || last_command==run_se)
-										{actors_list[i]->x_tile_pos++;actors_list[i]->y_tile_pos--;}
-										else
-										if(last_command==move_sw || last_command==run_sw)
-										{actors_list[i]->x_tile_pos--;actors_list[i]->y_tile_pos--;}
-										else
-										if(last_command==move_nw || last_command==run_nw)
-										{actors_list[i]->x_tile_pos--;actors_list[i]->y_tile_pos++;}
-										//ok, now update the x/y_pos
-
-										actors_list[i]->x_pos=actors_list[i]->x_tile_pos*0.5;
-										actors_list[i]->y_pos=actors_list[i]->y_tile_pos*0.5;
-
-
-									}
-								else
-									{
-										actors_list[i]->x_pos+=actors_list[i]->move_x_speed;
-										actors_list[i]->y_pos+=actors_list[i]->move_y_speed;
-										actors_list[i]->z_pos+=actors_list[i]->move_z_speed;
-									}
-
 							}
-						 else //not moving
-							{
-								if(actors_list[i]->after_move_frames_left)
-									{
-										actors_list[i]->after_move_frames_left--;
-										if(!actors_list[i]->after_move_frames_left)actors_list[i]->busy=0;
+					}
 
-									}
-							}
-
-						if(actors_list[i]->rotating)
-							{
-								actors_list[i]->rotate_frames_left--;
-								if(!actors_list[i]->rotate_frames_left)//we rotated all the way
-								actors_list[i]->rotating=0;//don't rotate next time, ok?
-
-								actors_list[i]->x_rot+=actors_list[i]->rotate_x_speed;
-								actors_list[i]->y_rot+=actors_list[i]->rotate_y_speed;
-								actors_list[i]->z_rot+=actors_list[i]->rotate_z_speed;
-							}
-					 }
-			}
-		// unlock the actors_list since we are done now
-		unlock_actors_lists();
-	}
-
-
-
-
-	//in case the actor is not busy, and has commands in it's que, execute them
-	void next_command()
-	{
-		int i;
-
-		lock_actors_lists();
-		for(i=0;i<max_actors;i++)
-			{
-				if(!actors_list[i])continue;//actor exists?
-				//if(!actors_list[i]->is_enhanced_model)//test only
-				if(!actors_list[i]->busy || (actors_list[i]->busy && actors_list[i]->after_move_frames_left && (actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw))) {//is it not busy?
-	//			if(!actors_list[i]->busy || (actors_list[i]->busy && (actors_list[i]->stand_idle || actors_list[i]->sit_idle)))//is it not busy?
-				if(actors_list[i]->que[0]==nothing)//do we have something in the que?
+				 if(!frame_exists) {//frame doesn't exist, move at the beginning of animation
+				 if(actors_list[i]->stop_animation)
 					{
-						//if que is empty, set on idle
-						if(!actors_list[i]->dead)
+						actors_list[i]->busy=0;//ok, take the next command
+						continue;//we are done with this guy
+					}
+				 else
+					{
+						//frame_name has 2 extra numbers, at this point, due to the previous
+						//strcat. So, remove those 2 extra numbers
+						l=strlen(frame_name);
+						frame_name[l-2]=0;
+						my_strcat(frame_name,"01");
+					}
+				 }
+
+				 sprintf(actors_list[i]->cur_frame, "%s",frame_name);
+			  }
+		}
+	unlock_actors_lists();
+}
+
+void animate_actors()
+{
+	int i;
+	//float rotate_x_speed; unused?
+	//float rotate_y_speed; unused?
+	//float rotate_z_speed; unused?
+
+	//char moving;          unused?
+	//char rotating;        unused?
+
+	// lock the actors_list so that nothing can interere with this look
+	lock_actors_lists();	//lock it to avoid timing issues
+	for(i=0;i<max_actors;i++)
+		{
+			if(actors_list[i])
+				 {
+					if(actors_list[i]->moving)
 						{
-							actors_list[i]->stop_animation=0;
-
-							if(actors_list[i]->fighting)
+							actors_list[i]->movement_frames_left--;
+							if(!actors_list[i]->movement_frames_left)//we moved all the way
 								{
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].combat_idle_frame);
-								}
+									Uint8 last_command;
+									actors_list[i]->moving=0;//don't move next time, ok?
+									actors_list[i]->after_move_frames_left=3;//this is done to prevent going to idle imediatelly
+									//now, we need to update the x/y_tile_pos, and round off
+									//the x/y_pos according to x/y_tile_pos
+									last_command=actors_list[i]->last_command;
+									if(last_command==move_n || last_command==run_n)
+									actors_list[i]->y_tile_pos++;
+									else
+									if(last_command==move_s || last_command==run_s)
+									actors_list[i]->y_tile_pos--;
+									else
+									if(last_command==move_e || last_command==run_e)
+									actors_list[i]->x_tile_pos++;
+									else
+									if(last_command==move_w || last_command==run_w)
+									actors_list[i]->x_tile_pos--;
+									else
+									if(last_command==move_ne || last_command==run_ne)
+									{actors_list[i]->x_tile_pos++;actors_list[i]->y_tile_pos++;}
+									else
+									if(last_command==move_se || last_command==run_se)
+									{actors_list[i]->x_tile_pos++;actors_list[i]->y_tile_pos--;}
+									else
+									if(last_command==move_sw || last_command==run_sw)
+									{actors_list[i]->x_tile_pos--;actors_list[i]->y_tile_pos--;}
+									else
+									if(last_command==move_nw || last_command==run_nw)
+									{actors_list[i]->x_tile_pos--;actors_list[i]->y_tile_pos++;}
+									//ok, now update the x/y_pos
 
-							else if(!actors_list[i]->sitting)
-								{
-									if(!actors_list[i]->sit_idle)
-										{
-											my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_frame);
-											actors_list[i]->sit_idle=1;
-										}
+									actors_list[i]->x_pos=actors_list[i]->x_tile_pos*0.5;
+									actors_list[i]->y_pos=actors_list[i]->y_tile_pos*0.5;
+
+
 								}
 							else
 								{
-									if(!actors_list[i]->stand_idle)
-										{
-											my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_sit_frame);
-											actors_list[i]->stand_idle=1;
-										}
+									actors_list[i]->x_pos+=actors_list[i]->move_x_speed;
+									actors_list[i]->y_pos+=actors_list[i]->move_y_speed;
+									actors_list[i]->z_pos+=actors_list[i]->move_z_speed;
 								}
 
 						}
+					 else //not moving
+						{
+							if(actors_list[i]->after_move_frames_left)
+								{
+									actors_list[i]->after_move_frames_left--;
+									if(!actors_list[i]->after_move_frames_left)actors_list[i]->busy=0;
 
-						actors_list[i]->last_command=nothing;//prevents us from not updating the walk/run animation
-					 }
-				else
-					 {
-						 int actor_type;
-						 int last_command=actors_list[i]->last_command;
-						 float z_rot=actors_list[i]->z_rot;
-						 float targeted_z_rot;
-						 int k;
+								}
+						}
 
-						 actors_list[i]->sit_idle=0;
-						 actors_list[i]->stand_idle=0;
+					if(actors_list[i]->rotating)
+						{
+							actors_list[i]->rotate_frames_left--;
+							if(!actors_list[i]->rotate_frames_left)//we rotated all the way
+							actors_list[i]->rotating=0;//don't rotate next time, ok?
 
-						 actor_type=actors_list[i]->actor_type;
+							actors_list[i]->x_rot+=actors_list[i]->rotate_x_speed;
+							actors_list[i]->y_rot+=actors_list[i]->rotate_y_speed;
+							actors_list[i]->z_rot+=actors_list[i]->rotate_z_speed;
+						}
+				 }
+		}
+	// unlock the actors_list since we are done now
+	unlock_actors_lists();
+}
 
-						 if(actors_list[i]->que[0]==kill_me)
-							{
-								if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
-								free(actors_list[i]);
-								actors_list[i]=0;
-							}
-						 else
-						 if(actors_list[i]->que[0]==die1)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->dead=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==die2)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die2_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->dead=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==pain1)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain1_frame);
-								actors_list[i]->stop_animation=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==pain2)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain2_frame);
-								actors_list[i]->stop_animation=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==pick)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pick_frame);
-								actors_list[i]->stop_animation=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==drop)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].drop_frame);
-								actors_list[i]->stop_animation=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==harvest)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].harvest_frame);
-								actors_list[i]->stop_animation=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==cast)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_cast_frame);
-								actors_list[i]->stop_animation=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==ranged)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_ranged_frame);
-								actors_list[i]->stop_animation=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==sit_down)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].sit_down_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->sitting=1;
-								if(actors_list[i]->actor_id==yourself)you_sit=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==stand_up)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].stand_up_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->sitting=0;
-								if(actors_list[i]->actor_id==yourself)you_sit=0;
-							}
-						 else
-						 if(actors_list[i]->que[0]==enter_combat)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].in_combat_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->fighting=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==leave_combat)
-							{
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].out_combat_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->fighting=0;
-							}
-						 else
-						 if(actors_list[i]->que[0]==attack_up_1)
-							{
-								if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_1_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->fighting=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==attack_up_2)
-							{
-								if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_2_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->fighting=1;
 
-							}
-						 else
-						 if(actors_list[i]->que[0]==attack_up_3)
-							{
-								if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_3_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->fighting=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==attack_up_4)
-							{
-								if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_4_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->fighting=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==attack_down_1)
-							{
-								if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down1);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_1_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->fighting=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==attack_down_2)
-							{
-								if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down2);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_2_frame);
-								actors_list[i]->stop_animation=1;
-								actors_list[i]->fighting=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==turn_left)
-							{
-								actors_list[i]->rotate_z_speed=45.0/9.0;
-								actors_list[i]->rotate_frames_left=9;
-								actors_list[i]->rotating=1;
-								//generate a fake movement, so we will know when to make the actor
-								//not busy
-								actors_list[i]->move_x_speed=0;
-								actors_list[i]->move_y_speed=0;
-								actors_list[i]->movement_frames_left=9;
-								actors_list[i]->moving=1;
-								//test
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
-								actors_list[i]->stop_animation=1;
-							}
-						 else
-						 if(actors_list[i]->que[0]==turn_right)
-							{
-								actors_list[i]->rotate_z_speed=-45.0/9.0;
-								actors_list[i]->rotate_frames_left=9;
-								actors_list[i]->rotating=1;
-								//generate a fake movement, so we will know when to make the actor
-								//not busy
-								actors_list[i]->move_x_speed=0;
-								actors_list[i]->move_y_speed=0;
-								actors_list[i]->movement_frames_left=9;
-								actors_list[i]->moving=1;
-								//test
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
-								actors_list[i]->stop_animation=1;
-							}
-						//ok, now the movement, this is the tricky part
-						 else
-						 if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw)
-							{
-								float rotation_angle;
 
-								if(last_command<move_n || last_command>move_nw)//update the frame name too
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
-								actors_list[i]->stop_animation=0;
-								if(last_command!=actors_list[i]->que[0])//we need to calculate the rotation...
+
+//in case the actor is not busy, and has commands in it's que, execute them
+void next_command()
+{
+	int i;
+
+	lock_actors_lists();
+	for(i=0;i<max_actors;i++)
+		{
+			if(!actors_list[i])continue;//actor exists?
+			//if(!actors_list[i]->is_enhanced_model)//test only
+			if(!actors_list[i]->busy || (actors_list[i]->busy && actors_list[i]->after_move_frames_left && (actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw))) {//is it not busy?
+//			if(!actors_list[i]->busy || (actors_list[i]->busy && (actors_list[i]->stand_idle || actors_list[i]->sit_idle)))//is it not busy?
+			if(actors_list[i]->que[0]==nothing)//do we have something in the que?
+				{
+					//if que is empty, set on idle
+					if(!actors_list[i]->dead)
+					{
+						actors_list[i]->stop_animation=0;
+
+						if(actors_list[i]->fighting)
+							{
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].combat_idle_frame);
+							}
+
+						else if(!actors_list[i]->sitting)
+							{
+								if(!actors_list[i]->sit_idle)
 									{
-										targeted_z_rot=(actors_list[i]->que[0]-move_n)*45.0f;
-										rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
-										actors_list[i]->rotate_z_speed=rotation_angle/6;
-										if(auto_camera)
-										if(actors_list[i]->actor_id==yourself)
-											{
-												camera_rotation_speed=rotation_angle/18;
-												camera_rotation_frames=18;
-											}
-
-										actors_list[i]->rotate_frames_left=6;
-										actors_list[i]->rotating=1;
+										my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_frame);
+										actors_list[i]->sit_idle=1;
 									}
-								else targeted_z_rot=z_rot;
-								//ok, now calculate the motion vector...
-								actors_list[i]->move_x_speed=actors_defs[actor_type].walk_speed*sin(targeted_z_rot*3.1415926/180.0);
-								actors_list[i]->move_y_speed=actors_defs[actor_type].walk_speed*cos(targeted_z_rot*3.1415926/180.0);
-								actors_list[i]->movement_frames_left=18/4;
-								actors_list[i]->after_move_frames_left=0;
-								actors_list[i]->moving=1;
-								//test to see if we have a diagonal movement, and if we do, adjust the speeds
-
-								if((actors_list[i]->move_x_speed>0.01f || actors_list[i]->move_x_speed<-0.01f)
-								&& (actors_list[i]->move_y_speed>0.01f || actors_list[i]->move_y_speed<-0.01f))
-									{
-										actors_list[i]->move_x_speed*=1.4142315;
-										actors_list[i]->move_y_speed*=1.4142315;
-									}
-
-	/*
-								if(actors_list[i]->actor_id==yourself)
-									{
-										camera_x_speed=actors_list[i]->move_x_speed/3.0;
-										camera_x_frames=36;
-										camera_y_speed=actors_list[i]->move_y_speed/3.0;
-										camera_y_frames=36;
-									}
-	*/
 							}
 						else
-						if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw)
 							{
-								float rotation_angle;
-								targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
-								rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
-								actors_list[i]->rotate_z_speed=rotation_angle/6.0f;
-								actors_list[i]->rotate_frames_left=6;
-								actors_list[i]->rotating=1;
-								actors_list[i]->stop_animation=1;
-							}
-
-						//mark the actor as being busy
-						actors_list[i]->busy=1;
-						//save the last command. It is especially good for run and walk
-						actors_list[i]->last_command=actors_list[i]->que[0];
-						//move que down with one command
-						for(k=0;k<10-1;k++)
-							{
-								actors_list[i]->que[k]=actors_list[i]->que[k+1];
-							}
-						actors_list[i]->que[k]=nothing;
-					 }
-				}
-			}
-		unlock_actors_lists();
-	}
-
-
-	void destroy_actor(int actor_id)
-	{
-		int i;
-
-		lock_actors_lists();	//lock it to avoid timing issues
-		for(i=0;i<max_actors;i++)
-			{
-				if(actors_list[i])
-				if(actors_list[i]->actor_id==actor_id)
-					{
-						if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
-						if(actors_list[i]->is_enhanced_model)
-							{
-								glDeleteTextures(1,&actors_list[i]->texture_id);
-								free(actors_list[i]->body_parts);
-							}
-						free(actors_list[i]);
-						actors_list[i]=0;
-						break;
-					}
-			}
-		if(i==max_actors-1)max_actors=i;
-		unlock_actors_lists();	//unlock it since we are done
-	}
-
-	void destroy_all_actors()
-	{
-		int i=0;
-
-		lock_actors_lists();	//lock it to avoid timing issues
-		for(i=0;i<max_actors;i++)
-			{
-				if(actors_list[i])
-					{
-						if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
-						if(actors_list[i]->is_enhanced_model)
-							{
-								glDeleteTextures(1,&actors_list[i]->texture_id);
-								free(actors_list[i]->body_parts);
-							}
-						free(actors_list[i]);
-						actors_list[i]=0;
-					}
-			}
-		max_actors=0;
-		unlock_actors_lists();	//unlock it since we are done
-	}
-
-
-
-
-	void update_all_actors()
-	{
-		Uint8 str[40];
-
-		//we got a nasty error, log it
-		log_to_console(c_red2,"Resync with the server...");
-
-		destroy_all_actors();
-		str[0]=SEND_ME_MY_ACTORS;
-		my_tcp_send(my_socket,str,1);
-	}
-
-	void add_command_to_actor(int actor_id, char command)
-	{
-		int i=0;
-		int k=0;
-
-		lock_actors_lists();
-		while(i<max_actors)
-			{
-				if(actors_list[i])
-				if(actors_list[i]->actor_id==actor_id)
-					{
-						for(k=0;k<10;k++)
-							{
-								if(actors_list[i]->que[k]==nothing)
+								if(!actors_list[i]->stand_idle)
 									{
-										//we are SEVERLY behind, just update all the actors in range
-										if(k>8)
-											{
-												update_all_actors();
-												unlock_actors_lists();
-												return;
-											}
-										actors_list[i]->que[k]=command;
-										break;
+										my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_sit_frame);
+										actors_list[i]->stand_idle=1;
 									}
 							}
-						unlock_actors_lists();
-						return;
+
 					}
-				i++;
+
+					actors_list[i]->last_command=nothing;//prevents us from not updating the walk/run animation
+				 }
+			else
+				 {
+					 int actor_type;
+					 int last_command=actors_list[i]->last_command;
+					 float z_rot=actors_list[i]->z_rot;
+					 float targeted_z_rot;
+					 int k;
+
+					 actors_list[i]->sit_idle=0;
+					 actors_list[i]->stand_idle=0;
+
+					 actor_type=actors_list[i]->actor_type;
+
+					 if(actors_list[i]->que[0]==kill_me)
+						{
+							if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
+							free(actors_list[i]);
+							actors_list[i]=0;
+						}
+					 else
+					 if(actors_list[i]->que[0]==die1)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->dead=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==die2)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die2_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->dead=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==pain1)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain1_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==pain2)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain2_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==pick)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pick_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==drop)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].drop_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==harvest)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].harvest_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==cast)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_cast_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==ranged)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_ranged_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==sit_down)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].sit_down_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->sitting=1;
+							if(actors_list[i]->actor_id==yourself)you_sit=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==stand_up)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].stand_up_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->sitting=0;
+							if(actors_list[i]->actor_id==yourself)you_sit=0;
+						}
+					 else
+					 if(actors_list[i]->que[0]==enter_combat)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].in_combat_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==leave_combat)
+						{
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].out_combat_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=0;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_up_1)
+						{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_1_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_up_2)
+						{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_2_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_up_3)
+						{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_3_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_up_4)
+						{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_4_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_down_1)
+						{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down1);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_1_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==attack_down_2)
+						{
+							if(actors_list[i]->is_enhanced_model)my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down2);
+							else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_2_frame);
+							actors_list[i]->stop_animation=1;
+							actors_list[i]->fighting=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==turn_left)
+						{
+							actors_list[i]->rotate_z_speed=45.0/9.0;
+							actors_list[i]->rotate_frames_left=9;
+							actors_list[i]->rotating=1;
+							//generate a fake movement, so we will know when to make the actor
+							//not busy
+							actors_list[i]->move_x_speed=0;
+							actors_list[i]->move_y_speed=0;
+							actors_list[i]->movement_frames_left=9;
+							actors_list[i]->moving=1;
+							//test
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					 else
+					 if(actors_list[i]->que[0]==turn_right)
+						{
+							actors_list[i]->rotate_z_speed=-45.0/9.0;
+							actors_list[i]->rotate_frames_left=9;
+							actors_list[i]->rotating=1;
+							//generate a fake movement, so we will know when to make the actor
+							//not busy
+							actors_list[i]->move_x_speed=0;
+							actors_list[i]->move_y_speed=0;
+							actors_list[i]->movement_frames_left=9;
+							actors_list[i]->moving=1;
+							//test
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+							actors_list[i]->stop_animation=1;
+						}
+					//ok, now the movement, this is the tricky part
+					 else
+					 if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw)
+						{
+							float rotation_angle;
+
+							if(last_command<move_n || last_command>move_nw)//update the frame name too
+							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+							actors_list[i]->stop_animation=0;
+							if(last_command!=actors_list[i]->que[0])//we need to calculate the rotation...
+								{
+									targeted_z_rot=(actors_list[i]->que[0]-move_n)*45.0f;
+									rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
+									actors_list[i]->rotate_z_speed=rotation_angle/6;
+									if(auto_camera)
+									if(actors_list[i]->actor_id==yourself)
+										{
+											camera_rotation_speed=rotation_angle/18;
+											camera_rotation_frames=18;
+										}
+
+									actors_list[i]->rotate_frames_left=6;
+									actors_list[i]->rotating=1;
+								}
+							else targeted_z_rot=z_rot;
+							//ok, now calculate the motion vector...
+							actors_list[i]->move_x_speed=actors_defs[actor_type].walk_speed*sin(targeted_z_rot*3.1415926/180.0);
+							actors_list[i]->move_y_speed=actors_defs[actor_type].walk_speed*cos(targeted_z_rot*3.1415926/180.0);
+							actors_list[i]->movement_frames_left=18/4;
+							actors_list[i]->after_move_frames_left=0;
+							actors_list[i]->moving=1;
+							//test to see if we have a diagonal movement, and if we do, adjust the speeds
+
+							if((actors_list[i]->move_x_speed>0.01f || actors_list[i]->move_x_speed<-0.01f)
+							&& (actors_list[i]->move_y_speed>0.01f || actors_list[i]->move_y_speed<-0.01f))
+								{
+									actors_list[i]->move_x_speed*=1.4142315;
+									actors_list[i]->move_y_speed*=1.4142315;
+								}
+
+/*
+							if(actors_list[i]->actor_id==yourself)
+								{
+									camera_x_speed=actors_list[i]->move_x_speed/3.0;
+									camera_x_frames=36;
+									camera_y_speed=actors_list[i]->move_y_speed/3.0;
+									camera_y_frames=36;
+								}
+*/
+						}
+					else
+					if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw)
+						{
+							float rotation_angle;
+							targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
+							rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
+							actors_list[i]->rotate_z_speed=rotation_angle/6.0f;
+							actors_list[i]->rotate_frames_left=6;
+							actors_list[i]->rotating=1;
+							actors_list[i]->stop_animation=1;
+						}
+
+					//mark the actor as being busy
+					actors_list[i]->busy=1;
+					//save the last command. It is especially good for run and walk
+					actors_list[i]->last_command=actors_list[i]->que[0];
+					//move que down with one command
+					for(k=0;k<10-1;k++)
+						{
+							actors_list[i]->que[k]=actors_list[i]->que[k+1];
+						}
+					actors_list[i]->que[k]=nothing;
+				 }
 			}
-		//if we got here, it means we don't have this actor, so get it from the server...
-		unlock_actors_lists();
-	}
-
-	void get_actor_damage(int actor_id, Uint8 damage)
-	{
-		int i=0;
-
-		while(i<max_actors)
-			{
-				if(actors_list[i])
-				if(actors_list[i]->actor_id==actor_id)
-					{
-						actors_list[i]->damage=damage;
-						actors_list[i]->damage_ms=2000;
-						actors_list[i]->cur_health-=damage;
-						return;
-					}
-				i++;
-			}
-		//if we got here, it means we don't have this actor, so get it from the server...
-	}
-
-	void get_actor_heal(int actor_id, Uint8 quantity)
-	{
-		int i=0;
-
-		while(i<max_actors)
-			{
-				if(actors_list[i])
-				if(actors_list[i]->actor_id==actor_id)
-					{
-						actors_list[i]->cur_health+=quantity;
-						return;
-					}
-				i++;
-			}
-		//if we got here, it means we don't have this actor, so get it from the server...
-	}
+		}
+	unlock_actors_lists();
+}
 
 
-	void move_self_forward()
-	{
-		int i,x,y,rot,tx,ty;
-		Uint8 str[10];
+void destroy_actor(int actor_id)
+{
+	int i;
 
-		for(i=0;i<max_actors;i++)
+	lock_actors_lists();	//lock it to avoid timing issues
+	for(i=0;i<max_actors;i++)
+		{
+			if(actors_list[i])
+			if(actors_list[i]->actor_id==actor_id)
 				{
-					if(actors_list[i])
-					if(actors_list[i]->actor_id==yourself)
-						 {
-							x=actors_list[i]->x_tile_pos;
-							y=actors_list[i]->y_tile_pos;
-							rot=actors_list[i]->z_rot;
-							rot=unwindAngle_Degrees(rot);
-							if(rot==0)
-								{
-									tx=x;
-									ty=y+1;
-								}
-							else
-							if(rot==45)
-								{
-									tx=x+1;
-									ty=y+1;
-								}
-							else
-							if(rot==90)
-								{
-									tx=x+1;
-									ty=y;
-								}
-							else
-							if(rot==135)
-								{
-									tx=x+1;
-									ty=y-1;
-								}
-							else
-							if(rot==180)
-								{
-									tx=x;
-									ty=y-1;
-								}
-							else
-							if(rot==225)
-								{
-									tx=x-1;
-									ty=y-1;
-								}
-							else
-							if(rot==270)
-								{
-									tx=x-1;
-									ty=y;
-								}
-							if(rot==315)
-								{
-									tx=x-1;
-									ty=y+1;
-								}
-
-							//check to see if the coordinates are OUTSIDE the map
-							if(ty<0 || tx<0 || tx>=tile_map_size_x*6 || ty>=tile_map_size_y*6)return;
-
-							str[0]=MOVE_TO;
-							*((short *)(str+1))=tx;
-							*((short *)(str+3))=ty;
-
-							my_tcp_send(my_socket,str,5);
-							return;
-						 }
+					if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
+					if(actors_list[i]->is_enhanced_model)
+						{
+							glDeleteTextures(1,&actors_list[i]->texture_id);
+							free(actors_list[i]->body_parts);
+						}
+					free(actors_list[i]);
+					actors_list[i]=0;
+					break;
 				}
+		}
+	if(i==max_actors-1)max_actors=i;
+	unlock_actors_lists();	//unlock it since we are done
+}
 
-	}
+void destroy_all_actors()
+{
+	int i=0;
 
-
-	//speed=0.5/0.4;
-
-
-	void init_actor_defs()
-	{
-			float default_walk_speed;
-			char *none = "";
-
-			default_walk_speed=2.0/18;
-
-			actors_defs[human_female].ghost=0;
-			sprintf(actors_defs[human_female].walk_frame,"walk01");
-			sprintf(actors_defs[human_female].run_frame,"run01");
-			sprintf(actors_defs[human_female].die1_frame,"dief01");
-			sprintf(actors_defs[human_female].die2_frame,"dieb11");
-			sprintf(actors_defs[human_female].pain1_frame,"pain01");
-			sprintf(actors_defs[human_female].pick_frame,"pickup01");
-			sprintf(actors_defs[human_female].drop_frame,"drop01");
-			sprintf(actors_defs[human_female].idle_frame,"idle01");
-			sprintf(actors_defs[human_female].idle_sit_frame,"sitidle01");
-			sprintf(actors_defs[human_female].harvest_frame,"harvest01");
-			sprintf(actors_defs[human_female].attack_cast_frame,"cast01");
-			sprintf(actors_defs[human_female].sit_down_frame,"intosit01");
-			sprintf(actors_defs[human_female].stand_up_frame,"outsit01");
-			sprintf(actors_defs[human_female].in_combat_frame,"intofight01");
-			sprintf(actors_defs[human_female].out_combat_frame,"outfight01");
-			sprintf(actors_defs[human_female].combat_idle_frame,"fightidle01");
-
-			sprintf(actors_defs[human_female].shirt[SHIRT_BLACK].arms_name,"./md2/arms1_black.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_BLACK].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_BLACK].torso_name,"./md2/torso1_black.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_BLUE].arms_name,"./md2/arms1_blue.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_BLUE].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_BLUE].torso_name,"./md2/torso1_blue.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_BROWN].arms_name,"./md2/arms1_brown.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_BROWN].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_BROWN].torso_name,"./md2/torso1_brown.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_GREY].arms_name,"./md2/arms1_gray.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_GREY].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_GREY].torso_name,"./md2/torso1_gray.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_GREEN].arms_name,"./md2/arms1_green.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_GREEN].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_GREEN].torso_name,"./md2/torso1_green.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_LIGHTBROWN].arms_name,"./md2/arms1_lightbrown.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_LIGHTBROWN].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_LIGHTBROWN].torso_name,"./md2/torso1_lightbrown.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_ORANGE].arms_name,"./md2/arms1_orange.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_ORANGE].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_ORANGE].torso_name,"./md2/torso1_orange.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_PINK].arms_name,"./md2/arms1_pink.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_PINK].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_PINK].torso_name,"./md2/torso1_pink.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_PURPLE].arms_name,"./md2/arms1_purple.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_PURPLE].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_PURPLE].torso_name,"./md2/torso1_purple.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_RED].arms_name,"./md2/arms1_red.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_RED].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_RED].torso_name,"./md2/torso1_red.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_WHITE].arms_name,"./md2/arms1_white.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_WHITE].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_WHITE].torso_name,"./md2/torso1_white.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_YELLOW].arms_name,"./md2/arms1_yellow.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_YELLOW].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_YELLOW].torso_name,"./md2/torso1_yellow.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_LEATHER_ARMOR].arms_name,"./md2/arms2.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_LEATHER_ARMOR].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_LEATHER_ARMOR].torso_name,"./md2/torso2.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_CHAIN_ARMOR].arms_name,"./md2/arms3.bmp");
-			sprintf(actors_defs[human_female].shirt[SHIRT_CHAIN_ARMOR].model_name,"./md2/torso1_humanf.md2");
-			sprintf(actors_defs[human_female].shirt[SHIRT_CHAIN_ARMOR].torso_name,"./md2/torso3.bmp");
+	lock_actors_lists();	//lock it to avoid timing issues
+	for(i=0;i<max_actors;i++)
+		{
+			if(actors_list[i])
+				{
+					if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
+					if(actors_list[i]->is_enhanced_model)
+						{
+							glDeleteTextures(1,&actors_list[i]->texture_id);
+							free(actors_list[i]->body_parts);
+						}
+					free(actors_list[i]);
+					actors_list[i]=0;
+				}
+		}
+	max_actors=0;
+	unlock_actors_lists();	//unlock it since we are done
+}
 
 
-			sprintf(actors_defs[human_female].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
-			sprintf(actors_defs[human_female].skin[SKIN_BROWN].head_name,"./md2/head_humanfbrown.bmp");
-			sprintf(actors_defs[human_female].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
-			sprintf(actors_defs[human_female].skin[SKIN_NORMAL].head_name,"./md2/head_humanfnormal.bmp");
-			sprintf(actors_defs[human_female].skin[SKIN_PALE].hands_name,"./md2/hands_pale.bmp");
-			sprintf(actors_defs[human_female].skin[SKIN_PALE].head_name,"./md2/head_humanfpale.bmp");
-			sprintf(actors_defs[human_female].skin[SKIN_TAN].hands_name,"./md2/hands_tan.bmp");
-			sprintf(actors_defs[human_female].skin[SKIN_TAN].head_name,"./md2/head_humanftan.bmp");
-
-			sprintf(actors_defs[human_female].hair[HAIR_BLACK].hair_name,"./md2/hair_black.bmp");
-			sprintf(actors_defs[human_female].hair[HAIR_BLOND].hair_name,"./md2/hair_blond.bmp");
-			sprintf(actors_defs[human_female].hair[HAIR_BROWN].hair_name,"./md2/hair_brown.bmp");
-			sprintf(actors_defs[human_female].hair[HAIR_GRAY].hair_name,"./md2/hair_gray.bmp");
-			sprintf(actors_defs[human_female].hair[HAIR_RED].hair_name,"./md2/hair_red.bmp");
-			sprintf(actors_defs[human_female].hair[HAIR_WHITE].hair_name,"./md2/hair_white.bmp");
-
-			sprintf(actors_defs[human_female].boots[BOOTS_BLACK].boots_name,"./md2/boots1_black.bmp");
-			sprintf(actors_defs[human_female].boots[BOOTS_BROWN].boots_name,"./md2/boots1_brown.bmp");
-			sprintf(actors_defs[human_female].boots[BOOTS_DARKBROWN].boots_name,"./md2/boots1_darkbrown.bmp");
-			sprintf(actors_defs[human_female].boots[BOOTS_DULLBROWN].boots_name,"./md2/boots1_dullbrown.bmp");
-			sprintf(actors_defs[human_female].boots[BOOTS_LIGHTBROWN].boots_name,"./md2/boots1_lightbrown.bmp");
-			sprintf(actors_defs[human_female].boots[BOOTS_ORANGE].boots_name,"./md2/boots1_orange.bmp");
-
-			sprintf(actors_defs[human_female].legs[PANTS_BLACK].legs_name,"./md2/pants1_black.bmp");
-			sprintf(actors_defs[human_female].legs[PANTS_BLACK].model_name,"./md2/legs1_humanf.md2");
-			sprintf(actors_defs[human_female].legs[PANTS_BLUE].legs_name,"./md2/pants1_blue.bmp");
-			sprintf(actors_defs[human_female].legs[PANTS_BLUE].model_name,"./md2/legs1_humanf.md2");
-			sprintf(actors_defs[human_female].legs[PANTS_BROWN].legs_name,"./md2/pants1_brown.bmp");
-			sprintf(actors_defs[human_female].legs[PANTS_BROWN].model_name,"./md2/legs1_humanf.md2");
-			sprintf(actors_defs[human_female].legs[PANTS_DARKBROWN].legs_name,"./md2/pants1_darkbrown.bmp");
-			sprintf(actors_defs[human_female].legs[PANTS_DARKBROWN].model_name,"./md2/legs1_humanf.md2");
-			sprintf(actors_defs[human_female].legs[PANTS_GREY].legs_name,"./md2/pants1_gray.bmp");
-			sprintf(actors_defs[human_female].legs[PANTS_GREY].model_name,"./md2/legs1_humanf.md2");
-			sprintf(actors_defs[human_female].legs[PANTS_GREEN].legs_name,"./md2/pants1_green.bmp");
-			sprintf(actors_defs[human_female].legs[PANTS_GREEN].model_name,"./md2/legs1_humanf.md2");
-			sprintf(actors_defs[human_female].legs[PANTS_LIGHTBROWN].legs_name,"./md2/pants1_lightbrown.bmp");
-			sprintf(actors_defs[human_female].legs[PANTS_LIGHTBROWN].model_name,"./md2/legs1_humanf.md2");
-			sprintf(actors_defs[human_female].legs[PANTS_RED].legs_name,"./md2/pants1_red.bmp");
-			sprintf(actors_defs[human_female].legs[PANTS_RED].model_name,"./md2/legs1_humanf.md2");
-			sprintf(actors_defs[human_female].legs[PANTS_WHITE].legs_name,"./md2/pants1_white.bmp");
-			sprintf(actors_defs[human_female].legs[PANTS_WHITE].model_name,"./md2/legs1_humanf.md2");
-
-			sprintf(actors_defs[human_female].cape[CAPE_BLACK].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
-			sprintf(actors_defs[human_female].cape[CAPE_BLUE].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_BLUE].skin_name,"./md2/cape1_blue.bmp");
-			sprintf(actors_defs[human_female].cape[CAPE_BLUEGRAY].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_BLUEGRAY].skin_name,"./md2/cape1_bluegray.bmp");
-			sprintf(actors_defs[human_female].cape[CAPE_BROWN].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_BROWN].skin_name,"./md2/cape1_brown.bmp");
-			sprintf(actors_defs[human_female].cape[CAPE_BROWNGRAY].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_BROWNGRAY].skin_name,"./md2/cape1_browngray.bmp");
-			sprintf(actors_defs[human_female].cape[CAPE_GRAY].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_GRAY].skin_name,"./md2/cape1_gray.bmp");
-			sprintf(actors_defs[human_female].cape[CAPE_GREEN].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_GREEN].skin_name,"./md2/cape1_green.bmp");
-			sprintf(actors_defs[human_female].cape[CAPE_GREENGRAY].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_GREENGRAY].skin_name,"./md2/cape1_greengray.bmp");
-			sprintf(actors_defs[human_female].cape[CAPE_PURPLE].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_PURPLE].skin_name,"./md2/cape1_purple.bmp");
-			sprintf(actors_defs[human_female].cape[CAPE_WHITE].model_name,"./md2/cape1_tallf.md2");
-			sprintf(actors_defs[human_female].cape[CAPE_WHITE].skin_name,"./md2/cape1_white.bmp");
-
-			sprintf(actors_defs[human_female].head[HEAD_1].model_name,"./md2/head1_humanf.md2");
-			sprintf(actors_defs[human_female].head[HEAD_2].model_name,"./md2/head2_humanf.md2");
-			sprintf(actors_defs[human_female].head[HEAD_3].model_name,"./md2/head3_humanf.md2");
-			sprintf(actors_defs[human_female].head[HEAD_4].model_name,"./md2/head4_humanf.md2");
-			sprintf(actors_defs[human_female].head[HEAD_5].model_name,"./md2/head5_humanf.md2");
-
-			sprintf(actors_defs[human_female].shield[SHIELD_WOOD].model_name,"./md2/shield1_tall.md2");
-			sprintf(actors_defs[human_female].shield[SHIELD_WOOD].skin_name,"./md2/shield1_wood1.bmp");
-			sprintf(actors_defs[human_female].shield[SHIELD_WOOD_ENHANCED].model_name,"./md2/shield1_tall.md2");
-			sprintf(actors_defs[human_female].shield[SHIELD_WOOD_ENHANCED].skin_name,"./md2/shield1_wood2.bmp");
-			sprintf(actors_defs[human_female].shield[SHIELD_IRON].model_name,"./md2/shield1_tall.md2");
-			sprintf(actors_defs[human_female].shield[SHIELD_IRON].skin_name,"./md2/shield1_iron.bmp");
-			sprintf(actors_defs[human_female].shield[SHIELD_STEEL].model_name,"./md2/shield1_tall.md2");
-			sprintf(actors_defs[human_female].shield[SHIELD_STEEL].skin_name,"./md2/shield1_steel.bmp");
 
 
-			sprintf(actors_defs[human_female].weapon[WEAPON_NONE].model_name,none);
-			sprintf(actors_defs[human_female].weapon[WEAPON_NONE].skin_name,none);
-			sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_up1,"punchone01");
-			sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
-			sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
-			sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
-			sprintf(actors_defs[human_female].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
-			sprintf(actors_defs[human_female].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
-			sprintf(actors_defs[human_female].weapon[SWORD_1].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_1].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_1].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_1].attack_down2,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_2].model_name,"./md2/sword2_tall.md2");
-			sprintf(actors_defs[human_female].weapon[SWORD_2].skin_name,"./md2/sword3.bmp");
-			sprintf(actors_defs[human_female].weapon[SWORD_2].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_2].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_2].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_2].attack_down2,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_3].model_name,"./md2/sword3_tall.md2");
-			sprintf(actors_defs[human_female].weapon[SWORD_3].skin_name,"./md2/sword3.bmp");
-			sprintf(actors_defs[human_female].weapon[SWORD_3].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_3].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_3].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_3].attack_down2,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_4].model_name,"./md2/sword4_tall.md2");
-			sprintf(actors_defs[human_female].weapon[SWORD_4].skin_name,"./md2/sword4.bmp");
-			sprintf(actors_defs[human_female].weapon[SWORD_4].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_4].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_4].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_4].attack_down2,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_5].model_name,"./md2/sword5_tall.md2");
-			sprintf(actors_defs[human_female].weapon[SWORD_5].skin_name,"./md2/sword5.bmp");
-			sprintf(actors_defs[human_female].weapon[SWORD_5].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_5].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_5].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_5].attack_down2,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_6].model_name,"./md2/sword6_tall.md2");
-			sprintf(actors_defs[human_female].weapon[SWORD_6].skin_name,"./md2/sword6.bmp");
-			sprintf(actors_defs[human_female].weapon[SWORD_6].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_6].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_6].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_6].attack_down2,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_7].model_name,"./md2/sword7_tall.md2");
-			sprintf(actors_defs[human_female].weapon[SWORD_7].skin_name,"./md2/sword7.bmp");
-			sprintf(actors_defs[human_female].weapon[SWORD_7].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_7].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_7].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[SWORD_7].attack_down2,"hackone01");
-			sprintf(actors_defs[human_female].weapon[STAFF_1].model_name,"./md2/staff1_tall.md2");
-			sprintf(actors_defs[human_female].weapon[STAFF_1].skin_name,"./md2/staff1_brown.bmp");
-			sprintf(actors_defs[human_female].weapon[STAFF_1].attack_up1,"slashtwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_1].attack_up2,"slashtwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_1].attack_down1,"hacktwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_1].attack_down2,"hacktwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_2].model_name,"./md2/staff1_tall.md2");
-			sprintf(actors_defs[human_female].weapon[STAFF_2].skin_name,"./md2/staff1_green.bmp");
-			sprintf(actors_defs[human_female].weapon[STAFF_2].attack_up1,"slashtwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_2].attack_up2,"slashtwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_2].attack_down1,"hacktwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_2].attack_down2,"hacktwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_3].model_name,"./md2/staff2_tall.md2");
-			sprintf(actors_defs[human_female].weapon[STAFF_3].skin_name,"./md2/staff3.bmp");
-			sprintf(actors_defs[human_female].weapon[STAFF_3].attack_up1,"slashtwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_3].attack_up2,"slashtwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_3].attack_down1,"hacktwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_3].attack_down2,"hacktwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_4].model_name,"./md2/staff3_tall.md2");
-			sprintf(actors_defs[human_female].weapon[STAFF_4].skin_name,"./md2/staff4.bmp");
-			sprintf(actors_defs[human_female].weapon[STAFF_4].attack_up1,"slashtwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_4].attack_up2,"slashtwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_4].attack_down1,"hacktwo01");
-			sprintf(actors_defs[human_female].weapon[STAFF_4].attack_down2,"hacktwo01");
-			sprintf(actors_defs[human_female].weapon[HAMMER_1].model_name,"./md2/warhammer1_tall.md2");
-			sprintf(actors_defs[human_female].weapon[HAMMER_1].skin_name,"./md2/warhammer1.bmp");
-			sprintf(actors_defs[human_female].weapon[HAMMER_1].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[HAMMER_1].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[HAMMER_1].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[HAMMER_1].attack_down2,"hackone01");
-			sprintf(actors_defs[human_female].weapon[HAMMER_2].model_name,"./md2/warhammer2_tall.md2");
-			sprintf(actors_defs[human_female].weapon[HAMMER_2].skin_name,"./md2/warhammer2.bmp");
-			sprintf(actors_defs[human_female].weapon[HAMMER_2].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[HAMMER_2].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[HAMMER_2].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[HAMMER_2].attack_down2,"hackone01");
-			sprintf(actors_defs[human_female].weapon[PICKAX].model_name,"./md2/pickaxe1_tall.md2");
-			sprintf(actors_defs[human_female].weapon[PICKAX].skin_name,"./md2/pickaxe1.bmp");
-			sprintf(actors_defs[human_female].weapon[PICKAX].attack_up1,"slashone01");
-			sprintf(actors_defs[human_female].weapon[PICKAX].attack_up2,"slashone01");
-			sprintf(actors_defs[human_female].weapon[PICKAX].attack_down1,"hackone01");
-			sprintf(actors_defs[human_female].weapon[PICKAX].attack_down2,"hackone01");
+void update_all_actors()
+{
+	Uint8 str[40];
+
+	//we got a nasty error, log it
+	log_to_console(c_red2,"Resync with the server...");
+
+	destroy_all_actors();
+	str[0]=SEND_ME_MY_ACTORS;
+	my_tcp_send(my_socket,str,1);
+}
+
+void add_command_to_actor(int actor_id, char command)
+{
+	int i=0;
+	int k=0;
+
+	lock_actors_lists();
+	while(i<max_actors)
+		{
+			if(actors_list[i])
+			if(actors_list[i]->actor_id==actor_id)
+				{
+					for(k=0;k<10;k++)
+						{
+							if(actors_list[i]->que[k]==nothing)
+								{
+									//we are SEVERLY behind, just update all the actors in range
+									if(k>8)
+										{
+											update_all_actors();
+											unlock_actors_lists();
+											return;
+										}
+									actors_list[i]->que[k]=command;
+									break;
+								}
+						}
+					unlock_actors_lists();
+					return;
+				}
+			i++;
+		}
+	//if we got here, it means we don't have this actor, so get it from the server...
+	unlock_actors_lists();
+}
+
+void get_actor_damage(int actor_id, Uint8 damage)
+{
+	int i=0;
+
+	while(i<max_actors)
+		{
+			if(actors_list[i])
+			if(actors_list[i]->actor_id==actor_id)
+				{
+					actors_list[i]->damage=damage;
+					actors_list[i]->damage_ms=2000;
+					actors_list[i]->cur_health-=damage;
+					return;
+				}
+			i++;
+		}
+	//if we got here, it means we don't have this actor, so get it from the server...
+}
+
+void get_actor_heal(int actor_id, Uint8 quantity)
+{
+	int i=0;
+
+	while(i<max_actors)
+		{
+			if(actors_list[i])
+			if(actors_list[i]->actor_id==actor_id)
+				{
+					actors_list[i]->cur_health+=quantity;
+					return;
+				}
+			i++;
+		}
+	//if we got here, it means we don't have this actor, so get it from the server...
+}
+
+
+void move_self_forward()
+{
+	int i,x,y,rot,tx,ty;
+	Uint8 str[10];
+
+	for(i=0;i<max_actors;i++)
+		{
+			if(actors_list[i] && actors_list[i]->actor_id==yourself)
+				 {
+					x=actors_list[i]->x_tile_pos;
+					y=actors_list[i]->y_tile_pos;
+					rot=actors_list[i]->z_rot;
+					rot=unwindAngle_Degrees(rot);
+					if(rot==0)
+						{
+							tx=x;
+							ty=y+1;
+						}
+					else
+					if(rot==45)
+						{
+							tx=x+1;
+							ty=y+1;
+						}
+					else
+					if(rot==90)
+						{
+							tx=x+1;
+							ty=y;
+						}
+					else
+					if(rot==135)
+						{
+							tx=x+1;
+							ty=y-1;
+						}
+					else
+					if(rot==180)
+						{
+							tx=x;
+							ty=y-1;
+						}
+					else
+					if(rot==225)
+						{
+							tx=x-1;
+							ty=y-1;
+						}
+					else
+					if(rot==270)
+						{
+							tx=x-1;
+							ty=y;
+						}
+					else
+					if(rot==315)
+						{
+							tx=x-1;
+							ty=y+1;
+						}
+					else
+						{
+							tx=x;
+							ty=y;
+						}
+
+					//check to see if the coordinates are OUTSIDE the map
+					if(ty<0 || tx<0 || tx>=tile_map_size_x*6 || ty>=tile_map_size_y*6)return;
+
+					str[0]=MOVE_TO;
+					*((short *)(str+1))=tx;
+					*((short *)(str+3))=ty;
+
+					my_tcp_send(my_socket,str,5);
+					return;
+				 }
+			}
+
+}
+
+
+//speed=0.5/0.4;
+
+
+void init_actor_defs()
+{
+		float default_walk_speed;
+		char *none = "";
+
+		default_walk_speed=2.0/18;
+
+		actors_defs[human_female].ghost=0;
+		sprintf(actors_defs[human_female].walk_frame,"walk01");
+		sprintf(actors_defs[human_female].run_frame,"run01");
+		sprintf(actors_defs[human_female].die1_frame,"dief01");
+		sprintf(actors_defs[human_female].die2_frame,"dieb11");
+		sprintf(actors_defs[human_female].pain1_frame,"pain01");
+		sprintf(actors_defs[human_female].pick_frame,"pickup01");
+		sprintf(actors_defs[human_female].drop_frame,"drop01");
+		sprintf(actors_defs[human_female].idle_frame,"idle01");
+		sprintf(actors_defs[human_female].idle_sit_frame,"sitidle01");
+		sprintf(actors_defs[human_female].harvest_frame,"harvest01");
+		sprintf(actors_defs[human_female].attack_cast_frame,"cast01");
+		sprintf(actors_defs[human_female].sit_down_frame,"intosit01");
+		sprintf(actors_defs[human_female].stand_up_frame,"outsit01");
+		sprintf(actors_defs[human_female].in_combat_frame,"intofight01");
+		sprintf(actors_defs[human_female].out_combat_frame,"outfight01");
+		sprintf(actors_defs[human_female].combat_idle_frame,"fightidle01");
+
+		sprintf(actors_defs[human_female].shirt[SHIRT_BLACK].arms_name,"./md2/arms1_black.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_BLACK].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_BLACK].torso_name,"./md2/torso1_black.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_BLUE].arms_name,"./md2/arms1_blue.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_BLUE].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_BLUE].torso_name,"./md2/torso1_blue.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_BROWN].arms_name,"./md2/arms1_brown.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_BROWN].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_BROWN].torso_name,"./md2/torso1_brown.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_GREY].arms_name,"./md2/arms1_gray.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_GREY].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_GREY].torso_name,"./md2/torso1_gray.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_GREEN].arms_name,"./md2/arms1_green.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_GREEN].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_GREEN].torso_name,"./md2/torso1_green.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_LIGHTBROWN].arms_name,"./md2/arms1_lightbrown.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_LIGHTBROWN].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_LIGHTBROWN].torso_name,"./md2/torso1_lightbrown.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_ORANGE].arms_name,"./md2/arms1_orange.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_ORANGE].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_ORANGE].torso_name,"./md2/torso1_orange.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_PINK].arms_name,"./md2/arms1_pink.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_PINK].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_PINK].torso_name,"./md2/torso1_pink.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_PURPLE].arms_name,"./md2/arms1_purple.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_PURPLE].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_PURPLE].torso_name,"./md2/torso1_purple.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_RED].arms_name,"./md2/arms1_red.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_RED].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_RED].torso_name,"./md2/torso1_red.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_WHITE].arms_name,"./md2/arms1_white.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_WHITE].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_WHITE].torso_name,"./md2/torso1_white.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_YELLOW].arms_name,"./md2/arms1_yellow.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_YELLOW].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_YELLOW].torso_name,"./md2/torso1_yellow.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_LEATHER_ARMOR].arms_name,"./md2/arms2.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_LEATHER_ARMOR].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_LEATHER_ARMOR].torso_name,"./md2/torso2.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_CHAIN_ARMOR].arms_name,"./md2/arms3.bmp");
+		sprintf(actors_defs[human_female].shirt[SHIRT_CHAIN_ARMOR].model_name,"./md2/torso1_humanf.md2");
+		sprintf(actors_defs[human_female].shirt[SHIRT_CHAIN_ARMOR].torso_name,"./md2/torso3.bmp");
+
+
+		sprintf(actors_defs[human_female].skin[SKIN_BROWN].hands_name,"./md2/hands_brown.bmp");
+		sprintf(actors_defs[human_female].skin[SKIN_BROWN].head_name,"./md2/head_humanfbrown.bmp");
+		sprintf(actors_defs[human_female].skin[SKIN_NORMAL].hands_name,"./md2/hands_normal.bmp");
+		sprintf(actors_defs[human_female].skin[SKIN_NORMAL].head_name,"./md2/head_humanfnormal.bmp");
+		sprintf(actors_defs[human_female].skin[SKIN_PALE].hands_name,"./md2/hands_pale.bmp");
+		sprintf(actors_defs[human_female].skin[SKIN_PALE].head_name,"./md2/head_humanfpale.bmp");
+		sprintf(actors_defs[human_female].skin[SKIN_TAN].hands_name,"./md2/hands_tan.bmp");
+		sprintf(actors_defs[human_female].skin[SKIN_TAN].head_name,"./md2/head_humanftan.bmp");
+
+		sprintf(actors_defs[human_female].hair[HAIR_BLACK].hair_name,"./md2/hair_black.bmp");
+		sprintf(actors_defs[human_female].hair[HAIR_BLOND].hair_name,"./md2/hair_blond.bmp");
+		sprintf(actors_defs[human_female].hair[HAIR_BROWN].hair_name,"./md2/hair_brown.bmp");
+		sprintf(actors_defs[human_female].hair[HAIR_GRAY].hair_name,"./md2/hair_gray.bmp");
+		sprintf(actors_defs[human_female].hair[HAIR_RED].hair_name,"./md2/hair_red.bmp");
+		sprintf(actors_defs[human_female].hair[HAIR_WHITE].hair_name,"./md2/hair_white.bmp");
+
+		sprintf(actors_defs[human_female].boots[BOOTS_BLACK].boots_name,"./md2/boots1_black.bmp");
+		sprintf(actors_defs[human_female].boots[BOOTS_BROWN].boots_name,"./md2/boots1_brown.bmp");
+		sprintf(actors_defs[human_female].boots[BOOTS_DARKBROWN].boots_name,"./md2/boots1_darkbrown.bmp");
+		sprintf(actors_defs[human_female].boots[BOOTS_DULLBROWN].boots_name,"./md2/boots1_dullbrown.bmp");
+		sprintf(actors_defs[human_female].boots[BOOTS_LIGHTBROWN].boots_name,"./md2/boots1_lightbrown.bmp");
+		sprintf(actors_defs[human_female].boots[BOOTS_ORANGE].boots_name,"./md2/boots1_orange.bmp");
+
+		sprintf(actors_defs[human_female].legs[PANTS_BLACK].legs_name,"./md2/pants1_black.bmp");
+		sprintf(actors_defs[human_female].legs[PANTS_BLACK].model_name,"./md2/legs1_humanf.md2");
+		sprintf(actors_defs[human_female].legs[PANTS_BLUE].legs_name,"./md2/pants1_blue.bmp");
+		sprintf(actors_defs[human_female].legs[PANTS_BLUE].model_name,"./md2/legs1_humanf.md2");
+		sprintf(actors_defs[human_female].legs[PANTS_BROWN].legs_name,"./md2/pants1_brown.bmp");
+		sprintf(actors_defs[human_female].legs[PANTS_BROWN].model_name,"./md2/legs1_humanf.md2");
+		sprintf(actors_defs[human_female].legs[PANTS_DARKBROWN].legs_name,"./md2/pants1_darkbrown.bmp");
+		sprintf(actors_defs[human_female].legs[PANTS_DARKBROWN].model_name,"./md2/legs1_humanf.md2");
+		sprintf(actors_defs[human_female].legs[PANTS_GREY].legs_name,"./md2/pants1_gray.bmp");
+		sprintf(actors_defs[human_female].legs[PANTS_GREY].model_name,"./md2/legs1_humanf.md2");
+		sprintf(actors_defs[human_female].legs[PANTS_GREEN].legs_name,"./md2/pants1_green.bmp");
+		sprintf(actors_defs[human_female].legs[PANTS_GREEN].model_name,"./md2/legs1_humanf.md2");
+		sprintf(actors_defs[human_female].legs[PANTS_LIGHTBROWN].legs_name,"./md2/pants1_lightbrown.bmp");
+		sprintf(actors_defs[human_female].legs[PANTS_LIGHTBROWN].model_name,"./md2/legs1_humanf.md2");
+		sprintf(actors_defs[human_female].legs[PANTS_RED].legs_name,"./md2/pants1_red.bmp");
+		sprintf(actors_defs[human_female].legs[PANTS_RED].model_name,"./md2/legs1_humanf.md2");
+		sprintf(actors_defs[human_female].legs[PANTS_WHITE].legs_name,"./md2/pants1_white.bmp");
+		sprintf(actors_defs[human_female].legs[PANTS_WHITE].model_name,"./md2/legs1_humanf.md2");
+
+		sprintf(actors_defs[human_female].cape[CAPE_BLACK].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_BLACK].skin_name,"./md2/cape1_black.bmp");
+		sprintf(actors_defs[human_female].cape[CAPE_BLUE].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_BLUE].skin_name,"./md2/cape1_blue.bmp");
+		sprintf(actors_defs[human_female].cape[CAPE_BLUEGRAY].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_BLUEGRAY].skin_name,"./md2/cape1_bluegray.bmp");
+		sprintf(actors_defs[human_female].cape[CAPE_BROWN].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_BROWN].skin_name,"./md2/cape1_brown.bmp");
+		sprintf(actors_defs[human_female].cape[CAPE_BROWNGRAY].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_BROWNGRAY].skin_name,"./md2/cape1_browngray.bmp");
+		sprintf(actors_defs[human_female].cape[CAPE_GRAY].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_GRAY].skin_name,"./md2/cape1_gray.bmp");
+		sprintf(actors_defs[human_female].cape[CAPE_GREEN].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_GREEN].skin_name,"./md2/cape1_green.bmp");
+		sprintf(actors_defs[human_female].cape[CAPE_GREENGRAY].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_GREENGRAY].skin_name,"./md2/cape1_greengray.bmp");
+		sprintf(actors_defs[human_female].cape[CAPE_PURPLE].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_PURPLE].skin_name,"./md2/cape1_purple.bmp");
+		sprintf(actors_defs[human_female].cape[CAPE_WHITE].model_name,"./md2/cape1_tallf.md2");
+		sprintf(actors_defs[human_female].cape[CAPE_WHITE].skin_name,"./md2/cape1_white.bmp");
+
+		sprintf(actors_defs[human_female].head[HEAD_1].model_name,"./md2/head1_humanf.md2");
+		sprintf(actors_defs[human_female].head[HEAD_2].model_name,"./md2/head2_humanf.md2");
+		sprintf(actors_defs[human_female].head[HEAD_3].model_name,"./md2/head3_humanf.md2");
+		sprintf(actors_defs[human_female].head[HEAD_4].model_name,"./md2/head4_humanf.md2");
+		sprintf(actors_defs[human_female].head[HEAD_5].model_name,"./md2/head5_humanf.md2");
+
+		sprintf(actors_defs[human_female].shield[SHIELD_WOOD].model_name,"./md2/shield1_tall.md2");
+		sprintf(actors_defs[human_female].shield[SHIELD_WOOD].skin_name,"./md2/shield1_wood1.bmp");
+		sprintf(actors_defs[human_female].shield[SHIELD_WOOD_ENHANCED].model_name,"./md2/shield1_tall.md2");
+		sprintf(actors_defs[human_female].shield[SHIELD_WOOD_ENHANCED].skin_name,"./md2/shield1_wood2.bmp");
+		sprintf(actors_defs[human_female].shield[SHIELD_IRON].model_name,"./md2/shield1_tall.md2");
+		sprintf(actors_defs[human_female].shield[SHIELD_IRON].skin_name,"./md2/shield1_iron.bmp");
+		sprintf(actors_defs[human_female].shield[SHIELD_STEEL].model_name,"./md2/shield1_tall.md2");
+		sprintf(actors_defs[human_female].shield[SHIELD_STEEL].skin_name,"./md2/shield1_steel.bmp");
+
+
+		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].model_name,none);
+		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].skin_name,none);
+		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_up1,"punchone01");
+		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
+		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
+		sprintf(actors_defs[human_female].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+		sprintf(actors_defs[human_female].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
+		sprintf(actors_defs[human_female].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
+		sprintf(actors_defs[human_female].weapon[SWORD_1].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_1].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_1].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_1].attack_down2,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_2].model_name,"./md2/sword2_tall.md2");
+		sprintf(actors_defs[human_female].weapon[SWORD_2].skin_name,"./md2/sword3.bmp");
+		sprintf(actors_defs[human_female].weapon[SWORD_2].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_2].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_2].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_2].attack_down2,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_3].model_name,"./md2/sword3_tall.md2");
+		sprintf(actors_defs[human_female].weapon[SWORD_3].skin_name,"./md2/sword3.bmp");
+		sprintf(actors_defs[human_female].weapon[SWORD_3].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_3].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_3].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_3].attack_down2,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_4].model_name,"./md2/sword4_tall.md2");
+		sprintf(actors_defs[human_female].weapon[SWORD_4].skin_name,"./md2/sword4.bmp");
+		sprintf(actors_defs[human_female].weapon[SWORD_4].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_4].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_4].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_4].attack_down2,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_5].model_name,"./md2/sword5_tall.md2");
+		sprintf(actors_defs[human_female].weapon[SWORD_5].skin_name,"./md2/sword5.bmp");
+		sprintf(actors_defs[human_female].weapon[SWORD_5].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_5].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_5].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_5].attack_down2,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_6].model_name,"./md2/sword6_tall.md2");
+		sprintf(actors_defs[human_female].weapon[SWORD_6].skin_name,"./md2/sword6.bmp");
+		sprintf(actors_defs[human_female].weapon[SWORD_6].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_6].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_6].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_6].attack_down2,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_7].model_name,"./md2/sword7_tall.md2");
+		sprintf(actors_defs[human_female].weapon[SWORD_7].skin_name,"./md2/sword7.bmp");
+		sprintf(actors_defs[human_female].weapon[SWORD_7].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_7].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_7].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[SWORD_7].attack_down2,"hackone01");
+		sprintf(actors_defs[human_female].weapon[STAFF_1].model_name,"./md2/staff1_tall.md2");
+		sprintf(actors_defs[human_female].weapon[STAFF_1].skin_name,"./md2/staff1_brown.bmp");
+		sprintf(actors_defs[human_female].weapon[STAFF_1].attack_up1,"slashtwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_1].attack_up2,"slashtwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_1].attack_down1,"hacktwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_1].attack_down2,"hacktwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_2].model_name,"./md2/staff1_tall.md2");
+		sprintf(actors_defs[human_female].weapon[STAFF_2].skin_name,"./md2/staff1_green.bmp");
+		sprintf(actors_defs[human_female].weapon[STAFF_2].attack_up1,"slashtwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_2].attack_up2,"slashtwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_2].attack_down1,"hacktwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_2].attack_down2,"hacktwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_3].model_name,"./md2/staff2_tall.md2");
+		sprintf(actors_defs[human_female].weapon[STAFF_3].skin_name,"./md2/staff3.bmp");
+		sprintf(actors_defs[human_female].weapon[STAFF_3].attack_up1,"slashtwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_3].attack_up2,"slashtwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_3].attack_down1,"hacktwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_3].attack_down2,"hacktwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_4].model_name,"./md2/staff3_tall.md2");
+		sprintf(actors_defs[human_female].weapon[STAFF_4].skin_name,"./md2/staff4.bmp");
+		sprintf(actors_defs[human_female].weapon[STAFF_4].attack_up1,"slashtwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_4].attack_up2,"slashtwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_4].attack_down1,"hacktwo01");
+		sprintf(actors_defs[human_female].weapon[STAFF_4].attack_down2,"hacktwo01");
+		sprintf(actors_defs[human_female].weapon[HAMMER_1].model_name,"./md2/warhammer1_tall.md2");
+		sprintf(actors_defs[human_female].weapon[HAMMER_1].skin_name,"./md2/warhammer1.bmp");
+		sprintf(actors_defs[human_female].weapon[HAMMER_1].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[HAMMER_1].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[HAMMER_1].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[HAMMER_1].attack_down2,"hackone01");
+		sprintf(actors_defs[human_female].weapon[HAMMER_2].model_name,"./md2/warhammer2_tall.md2");
+		sprintf(actors_defs[human_female].weapon[HAMMER_2].skin_name,"./md2/warhammer2.bmp");
+		sprintf(actors_defs[human_female].weapon[HAMMER_2].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[HAMMER_2].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[HAMMER_2].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[HAMMER_2].attack_down2,"hackone01");
+		sprintf(actors_defs[human_female].weapon[PICKAX].model_name,"./md2/pickaxe1_tall.md2");
+		sprintf(actors_defs[human_female].weapon[PICKAX].skin_name,"./md2/pickaxe1.bmp");
+		sprintf(actors_defs[human_female].weapon[PICKAX].attack_up1,"slashone01");
+		sprintf(actors_defs[human_female].weapon[PICKAX].attack_up2,"slashone01");
+		sprintf(actors_defs[human_female].weapon[PICKAX].attack_down1,"hackone01");
+		sprintf(actors_defs[human_female].weapon[PICKAX].attack_down2,"hackone01");
 
 		my_strcp(actors_defs[human_female].helmet[HELMET_IRON].model_name,"./md2/helmet1_tallf.md2");
 		my_strcp(actors_defs[human_female].helmet[HELMET_IRON].skin_name,"./md2/helmet1.bmp");
