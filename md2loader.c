@@ -172,23 +172,6 @@ md2 * load_md2(char * file_name)
 				if(frame_pointer[i].box.max_z<z)frame_pointer[i].box.max_z=z;
 			}
 
-#ifdef	USE_VERTEXARRAYS
-		//now, convert the vertices to VA format
-		frame_pointer[i].vertex_array= calloc(file_header.numFaces, sizeof(vertex_md2)*3);
-		for(k=0;k<file_header.numFaces;k++)
-			{
-				frame_pointer[i].vertex_array[k*3].x=frame_pointer[i].vertex_pointer[face_pointer[k].a].x;
-				frame_pointer[i].vertex_array[k*3].y=frame_pointer[i].vertex_pointer[face_pointer[k].a].y;
-				frame_pointer[i].vertex_array[k*3].z=frame_pointer[i].vertex_pointer[face_pointer[k].a].z;
-				frame_pointer[i].vertex_array[k*3+1].x=frame_pointer[i].vertex_pointer[face_pointer[k].b].x;
-				frame_pointer[i].vertex_array[k*3+1].y=frame_pointer[i].vertex_pointer[face_pointer[k].b].y;
-				frame_pointer[i].vertex_array[k*3+1].z=frame_pointer[i].vertex_pointer[face_pointer[k].b].z;
-				frame_pointer[i].vertex_array[k*3+2].x=frame_pointer[i].vertex_pointer[face_pointer[k].c].x;
-				frame_pointer[i].vertex_array[k*3+2].y=frame_pointer[i].vertex_pointer[face_pointer[k].c].y;
-				frame_pointer[i].vertex_array[k*3+2].z=frame_pointer[i].vertex_pointer[face_pointer[k].c].z;
-			}
-#endif	//USE_VERTEXARRAYS
-
 		//make sure the object is centered around the 0,0,0 coordinates
 		if(!first_box)
 			{
@@ -214,6 +197,23 @@ md2 * load_md2(char * file_name)
 				frame_pointer[i].box.max_y+=y_offset;
 				frame_pointer[i].box.max_z+=z_offset;
 			}
+
+#ifdef	USE_VERTEXARRAYS
+		//now, convert the vertices to VA format
+		frame_pointer[i].vertex_array= calloc(file_header.numFaces, sizeof(vertex_md2)*3);
+		for(k=0;k<file_header.numFaces;k++)
+			{
+				frame_pointer[i].vertex_array[k*3].x=frame_pointer[i].vertex_pointer[face_pointer[k].a].x;
+				frame_pointer[i].vertex_array[k*3].y=frame_pointer[i].vertex_pointer[face_pointer[k].a].y;
+				frame_pointer[i].vertex_array[k*3].z=frame_pointer[i].vertex_pointer[face_pointer[k].a].z;
+				frame_pointer[i].vertex_array[k*3+1].x=frame_pointer[i].vertex_pointer[face_pointer[k].b].x;
+				frame_pointer[i].vertex_array[k*3+1].y=frame_pointer[i].vertex_pointer[face_pointer[k].b].y;
+				frame_pointer[i].vertex_array[k*3+1].z=frame_pointer[i].vertex_pointer[face_pointer[k].b].z;
+				frame_pointer[i].vertex_array[k*3+2].x=frame_pointer[i].vertex_pointer[face_pointer[k].c].x;
+				frame_pointer[i].vertex_array[k*3+2].y=frame_pointer[i].vertex_pointer[face_pointer[k].c].y;
+				frame_pointer[i].vertex_array[k*3+2].z=frame_pointer[i].vertex_pointer[face_pointer[k].c].z;
+			}
+#endif	//USE_VERTEXARRAYS
 		}
 	free(file_frame_pointer);
 
