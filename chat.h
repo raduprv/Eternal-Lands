@@ -14,6 +14,16 @@ extern int chat_win_text_width; /*!< width of the chat window */
 
 /*!
  * \ingroup chat_win
+ * \brief   Initializes the structures for the chat channels
+ *
+ *      Initializes the structures for the chat channels.
+ *
+ * \callgraph
+ */
+void init_chat_channels ();
+
+/*!
+ * \ingroup chat_win
  * \brief   clear_input_line
  *
  *      Detail
@@ -24,13 +34,15 @@ void clear_input_line ();
 
 /*!
  * \ingroup chat_win
- * \brief   Update handler for the scrollbar position of the chat window
+ * \brief   Updates the chat window
  *
- *      Updates the scrollbar of the chat window
+ *      Updates the chat window.
  *
+ * \param nlines The number of new lines
+ * \param channel The channel in which the change occurred
  * \callgraph
  */
-void update_chat_scrollbar ();
+void update_chat_window (int nlines, int channel);
 
 /*!
  * \ingroup chat_win

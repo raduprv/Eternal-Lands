@@ -38,12 +38,14 @@ void init_text_buffers ()
 	input_text_line.size = 256;
 	input_text_line.data = malloc (input_text_line.size);
 	input_text_line.data[0] = '\0';
+	if (use_windowed_chat) init_chat_channels ();
 }
 
-void update_text_windows (int nlines)
+void update_text_windows (int nlines, int channel)
 {
 	update_console_win (nlines);
-	if (use_windowed_chat) update_chat_scrollbar ();
+	if (use_windowed_chat)
+		update_chat_window (nlines, channel);
 }
 
 void adjust_line_breaks (int new_width)
@@ -337,6 +339,7 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 	Uint8 cur_char;
 	text_message *msg;
 	int nlines = 0, nltmp;
+	int channel = CHANNEL_ALL;
 
 	check_chat_text_to_overtext (text_to_add, len);
 	
@@ -385,7 +388,7 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 	if (lines_to_show > max_lines_no)
 		lines_to_show = max_lines_no;
 	nlines += nltmp;
-		
+	
 	if (use_windowed_chat || x_chars_limit <= 0 || len <= x_chars_limit)
 	{
 		for (i = 0; i < len; i++)
@@ -397,7 +400,46 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 		msg->data[idx++] = '\0';
 		msg->len = idx;
 		total_nr_lines += nlines;
-		update_text_windows (nlines);
+		if (use_windowed_chat)
+		{
+			// determine the proper channel
+			// XXX FIXME (Grum): hack
+			if (msg->data[0] == 127+c_orange1 && strncmp (&(msg->data[1]), "[PM ", 4) == 0)
+			{
+				// Personal message
+				channel = CHANNEL_ALL;
+			} 
+			else if (msg->data[0] == 127+c_blue2)
+			{
+				if (strncmp (&(msg->data[1]), "#GM ", 4) == 0)
+				{
+					// Guild message
+					channel = CHANNEL_GM;
+				}
+				else if (strncmp (&(msg->data[1]), "#Message ", 9) == 0)
+				{
+					// Mod message
+					channel = CHANNEL_ALL;
+				}
+				else
+				{
+					// Unknown, show it as local
+					channel = CHANNEL_LOCAL;
+				}
+			}
+			else if (msg->data[0] == 127+c_grey1 && msg->data[1] == '[')
+			{
+				// Channel chat
+				channel = 0;
+			}
+			else
+			{
+				// all else, show it as local
+				channel = CHANNEL_LOCAL;
+			}
+		}
+		msg->chan_nr = channel;
+		update_text_windows (nlines, channel);
 		return;
 	}
 	else
@@ -474,7 +516,7 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 	}
 
 	total_nr_lines += nlines;
-	update_text_windows (nlines);
+	update_text_windows (nlines, channel);
 }
 
 void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, 
@@ -603,49 +645,59 @@ int find_last_lines_time (int *msg, int *offset)
 	}
 	if (lines_to_show <= 0) return 0;
 	
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, msg, offset);
+	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, CHANNEL_ALL, msg, offset);
 }
 
 int find_last_console_lines (int lines_no)
 {
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, &console_msg_nr, &console_msg_offset);
+	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, CHANNEL_ALL, &console_msg_nr, &console_msg_offset);
 }
 
-int find_line_nr (int nr_lines, int line, int *msg, int *offset)
+int find_line_nr (int nr_lines, int line, int channel, int *msg, int *offset)
 {
 	int line_count = 0, lines_no = nr_lines - line;	
 	int imsg, ichar;
 	char *data;
-
+	
 	imsg = last_message;
-	while (imsg >= 0)
+	do 
 	{
-		data = display_text_buffer[imsg].data;
-		for (ichar = display_text_buffer[imsg].len - 1; ichar >= 0; ichar--)
-		{
-			if (data[ichar] == '\n' || data[ichar] == '\r')
-			{
-				line_count++;
-				if (line_count >= lines_no)
-				{
-					*msg = imsg;
-					*offset = ichar+1;
-					return 1;
-				}
-			}
-		}		
+		int msgchan = display_text_buffer[imsg].chan_nr;
 
-		line_count++;
-		if (line_count >= lines_no)
+		if (msgchan == channel || msgchan == CHANNEL_ALL || channel == CHANNEL_ALL)
 		{
-			*msg = imsg;
-			*offset = 0;
-			return 1;
+			data = display_text_buffer[imsg].data;
+			if (data == NULL)
+				// Hmmm... we messed up. This should not be
+				// happening.
+				break;
+			
+			for (ichar = display_text_buffer[imsg].len - 1; ichar >= 0; ichar--)
+			{
+				if (data[ichar] == '\n' || data[ichar] == '\r')
+				{
+					line_count++;
+					if (line_count >= lines_no)
+					{
+						*msg = imsg;
+						*offset = ichar+1;
+						return 1;
+					}
+				}
+			}		
+
+			line_count++;
+			if (line_count >= lines_no)
+			{
+				*msg = imsg;
+				*offset = 0;
+				return 1;
+			}
 		}
 
 		if (--imsg < 0 && buffer_full)
 			imsg = DISPLAY_TEXT_BUFFER_SIZE - 1;
-	}
+	} while (imsg >= 0 && imsg != last_message);
 	
 	*msg = 0;
 	*offset = 0;
@@ -759,6 +811,8 @@ void console_move_page_up()
 		}
 }
 
+// XXX FIXME (Grum): obsolete
+/*
 void display_console_text ()
 {
 	int max_lines;
@@ -785,6 +839,7 @@ void display_console_text ()
 		draw_string (0, command_line_y - 18, "^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^", 2);
 	draw_string (0, command_line_y, input_text_line.data, nr_command_lines);
 }
+*/
 
 void clear_display_text_buffer ()
 {

@@ -216,15 +216,16 @@ int find_last_lines_time (int *msg, int *offset);
  * \ingroup text_font
  * \brief finds the position of the beginning of a line
  *
- *	finds the position of the beginning of a line in the text buffer
+ *	finds the position of the beginning of a line in the text message buffer
  *
  * \param nr_lines The total number of lines
  * \param line The number of the line to be found
  * \param msg The message in which the lines is located
+ * \param channel the channel in which to search for the line, or CHANNEL_ALL to search in all channels
  * \param offset The offset in the message at which the line starts
  * \retval The position of the beginning of the line
  */
-int find_line_nr (int nr_lines, int line, int *msg, int *offset);
+int find_line_nr (int nr_lines, int line, int channel, int *msg, int *offset);
 
 /*!
  * \ingroup interface_console
@@ -268,15 +269,17 @@ void console_move_page_down();
  */
 void console_move_page_up();
 
-/*!
- * \ingroup interface_console
- * \brief displays the console text
- *
- *      Switches to console mode and displays the txt.
- *
- * \callgraph
- */
-void display_console_text();
+// XXX FIXME (Grum): obsolete
+///*!
+// * \ingroup interface_console
+// * \brief displays the console text
+// *
+// *      Switches to console mode and displays the txt.
+// *
+// * \callgraph
+// */
+//void display_console_text();
+
 
 /*!
  * \ingroup text_font

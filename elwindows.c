@@ -661,6 +661,10 @@ void	destroy_window(int win_id)
 	
 	win = &(windows_list.window[win_id]);
 
+	// call destruction handler        
+	if (win->destroy_handler != NULL)
+		win->destroy_handler (win);
+
 	// destroy our widgets
 	widget = win->widgetlist;
 	while (widget != NULL)
@@ -671,9 +675,6 @@ void	destroy_window(int win_id)
 		free (widget);
 		widget = next;
 	}             
-        
-	if (win->destroy_handler != NULL)
-		win->destroy_handler (win);
 	
 	windows_list.window[win_id].window_id= -1;
 	windows_list.window[win_id].order= -1;
@@ -1338,6 +1339,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 			old_handler= (void *)windows_list.window[win_id].keypress_handler;
 			windows_list.window[win_id].keypress_handler=handler;
 			break;
+		case	ELW_HANDLER_DESTROY:
+			old_handler= (void *)windows_list.window[win_id].destroy_handler;
+			windows_list.window[win_id].destroy_handler=handler;
+			break;
 		default:
 			old_handler=NULL;
 	}
@@ -1372,6 +1377,9 @@ void	*get_window_handler(int win_id, int handler_id)
 			break;
 		case	ELW_HANDLER_KEYPRESS:
 			old_handler= (void *)windows_list.window[win_id].keypress_handler;
+			break;
+		case	ELW_HANDLER_DESTROY:
+			old_handler= (void *)windows_list.window[win_id].destroy_handler;
 			break;
 		default:
 			old_handler=NULL;

@@ -172,6 +172,7 @@ typedef	struct	{
 #define	ELW_HANDLER_MOUSEOVER	4
 #define	ELW_HANDLER_RESIZE	5
 #define	ELW_HANDLER_KEYPRESS	6
+#define	ELW_HANDLER_DESTROY	7
 /*! @} */
 
 /*!

@@ -31,7 +31,7 @@ int display_console_handler (window_info *win)
 	{
 		if (console_text_changed)
 		{
-			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, &msg, &offset);		
+			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, CHANNEL_ALL, &msg, &offset);		
 			text_field_set_buf_pos (console_root_win, console_out_id, msg, offset);
 			console_text_changed = 0;
 		}
@@ -152,8 +152,8 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_RESIZE, &resize_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
 		
-		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 0, 0, width - hud_x, height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, 0, 0, -1.0f, -1.0f, -1.0f);
-		console_in_id = text_field_add_extended (console_root_win, console_in_id, NULL, 0, height - CONSOLE_INPUT_HEIGHT - hud_y, width - hud_x, CONSOLE_INPUT_HEIGHT, TEXT_FIELD_EDITABLE, 1.0, -1.0f, -1.0f, -1.0f, &input_text_line, 1, 0, 0, 1.0f, 1.0f, 1.0f);
+		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 0, 0, width - hud_x, height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHANNEL_ALL, 0, 0, -1.0f, -1.0f, -1.0f);
+		console_in_id = text_field_add_extended (console_root_win, console_in_id, NULL, 0, height - CONSOLE_INPUT_HEIGHT - hud_y, width - hud_x, CONSOLE_INPUT_HEIGHT, TEXT_FIELD_EDITABLE, 1.0, -1.0f, -1.0f, -1.0f, &input_text_line, 1, CHANNEL_ALL, 0, 0, 1.0f, 1.0f, 1.0f);
 		
 		nr_console_lines = (height - CONSOLE_INPUT_HEIGHT -  CONSOLE_SEP_HEIGHT - hud_y) / 18;
 	}

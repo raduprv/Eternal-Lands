@@ -13,8 +13,14 @@
 #define CHAT_WIN_SCROLL_WIDTH	20	/*!< width of the scrollbar for the chat window */
 /*! @} */
 
-#define CHANNEL_LOCAL	-1
-#define CHANNEL_GUILD	-2
+typedef struct
+{
+	int tab_id;
+	int out_id;
+	int chan_nr;
+	int nr_lines;
+	char open, new;
+} chat_channel;
 
 int use_windowed_chat = 0;
 
@@ -23,8 +29,6 @@ int chat_scroll_id = 15;
 int chat_in_id = 19;
 int chat_tabcollection_id = 20;
 int chat_out_start_id = 21;
-int chat_tab_ids[CHAT_WIN_MAX_TABS];
-int chat_out_ids[CHAT_WIN_MAX_TABS];
 
 int chat_win_x = 0; // upper left corner by default
 int chat_win_y = 0;
@@ -36,7 +40,23 @@ int current_line = 0;
 int text_changed = 1;
 int nr_displayed_lines;
 
-int channel_nrs[CHAT_WIN_MAX_TABS];
+chat_channel channels[CHAT_WIN_MAX_TABS];
+int active_tab = -1;
+
+void init_chat_channels ()
+{
+	int itab;
+	
+	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
+	{
+		channels[itab].tab_id = -1;
+		channels[itab].out_id = chat_out_start_id + itab;
+		channels[itab].chan_nr = CHANNEL_LOCAL;
+		channels[itab].nr_lines = 0;
+		channels[itab].open = 0;
+		channels[itab].new = 0;
+	}
+}
 
 void sync_chat_and_console ()
 {
@@ -67,15 +87,150 @@ void clear_input_line ()
 	}
 }
 
-void update_chat_scrollbar ()
+int close_channel (window_info *win)
 {
+	int id = win->window_id;
+	int ichan;
+	
+	for (ichan = 0; ichan < CHAT_WIN_MAX_TABS; ichan++)
+	{
+		if (channels[ichan].tab_id == id)
+		{
+			channels[ichan].tab_id = -1;
+			channels[ichan].chan_nr = CHANNEL_LOCAL;
+			channels[ichan].nr_lines = 0;
+			channels[ichan].open = 0;
+			channels[ichan].new = 0;
+			return 1;
+		}
+	}
+	
+	// we shouldn't get here
+	LOG_ERROR ("Trying to close non-existant channel\n");
+	return 0;
+}
+
+void update_chat_window (int nlines, int channel)
+{
+	int ichan, len;
+	
+	// first check if we need to display in all open channels
+	if (channel == CHANNEL_ALL)
+	{
+		for (ichan = 0; ichan < CHAT_WIN_MAX_TABS; ichan++)
+		{
+			if (channels[ichan].open)
+				channels[ichan].nr_lines += nlines;
+			channels[ichan].new = 1;
+			// don't set label color in active tab, since the user
+			// will already see the message appear
+			if (chat_win >= 0 && ichan != active_tab)
+				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
+		}
+		
+		if (chat_win >= 0)
+		{
+			len = channels[active_tab].nr_lines - nr_displayed_lines;
+			if (len < 0) len = 0;
+			vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
+			vscrollbar_set_pos (chat_win, chat_scroll_id, len);
+			current_line = channels[ichan].nr_lines;
+			text_changed = 1;
+		}
+		return;
+	}
+	
+	// not for all channels, see if this channel is already open
+	for (ichan = 0; ichan < CHAT_WIN_MAX_TABS; ichan++)
+	{
+		if (channels[ichan].open && channels[ichan].chan_nr == channel)
+		{
+			channels[ichan].nr_lines += nlines;
+			channels[ichan].new = 1;
+			if (chat_win >= 0)
+			{
+				if (ichan == active_tab)
+				{
+					len = channels[ichan].nr_lines - nr_displayed_lines;
+					if (len < 0) len = 0;
+			
+					vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
+					vscrollbar_set_pos (chat_win, chat_scroll_id, len);
+					current_line = channels[ichan].nr_lines;
+					text_changed = 1;
+				}
+				else
+				{
+					tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
+				}
+			}
+			return;
+		}
+	}
+	
+	// channel not found, try to create a new one
+	for (ichan = 0; ichan < CHAT_WIN_MAX_TABS; ichan++)
+	{
+		if (!channels[ichan].open)
+		{
+			// yay, found an empty slot
+			char title[64];
+			int inout_width = chat_win_text_width + 2 * CHAT_WIN_SPACE;
+			int output_height = chat_out_text_height + 2 * CHAT_WIN_SPACE;
+
+			channels[ichan].chan_nr = channel;
+			channels[ichan].nr_lines = nlines;
+			channels[ichan].open = 1;
+			channels[ichan].new = 1;
+			
+			if (chat_win >= 0)
+			{
+				switch (channel)
+				{
+					case CHANNEL_LOCAL:
+						my_strncp (title, "Local", sizeof (title) );
+						break;
+					case CHANNEL_GM:
+						my_strncp (title, "Guild", sizeof (title) );
+						break;
+					default:
+						my_strncp (title, "Channel", sizeof (title) );
+				}
+
+				channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1);
+				
+				set_window_min_size (channels[ichan].tab_id, 0, 0);
+				channels[ichan].out_id = text_field_add_extended (channels[ichan].tab_id, channels[ichan].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, channel, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
+
+				set_window_handler (channels[ichan].tab_id, ELW_HANDLER_DESTROY, close_channel);
+				
+				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
+			}
+			
+			return;
+		}
+	}
+	
+	// uh oh, no empty slot found. this shouldn't really be happening...
+	// log as local
+	channels[0].nr_lines += nlines;	
+	channels[0].new = 1;
 	if (chat_win >= 0)
 	{
-		int len = total_nr_lines >= nr_displayed_lines ? total_nr_lines - nr_displayed_lines : 0;
-		vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
-		vscrollbar_set_pos (chat_win, chat_scroll_id, len);
-		current_line = len;
-		text_changed = 1;
+		if (0 == active_tab)
+		{
+			len = channels[0].nr_lines - nr_displayed_lines;
+			if (len < 0) len = 0;
+	
+			vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
+			vscrollbar_set_pos (chat_win, chat_scroll_id, len);
+			current_line = channels[ichan].nr_lines;
+			text_changed = 1;
+		}
+		else
+		{
+			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[0].tab_id, 1.0, 1.0, 0.0);
+		}
 	}
 }
 
@@ -86,8 +241,8 @@ int display_chat_handler (window_info *win)
 	{
 		int line = vscrollbar_get_pos (chat_win, chat_scroll_id);
 
-		find_line_nr (total_nr_lines, line, &msg_start, &offset_start);
-		text_field_set_buf_pos (chat_tab_ids[0], chat_out_ids[0], msg_start, offset_start);
+		find_line_nr (channels[active_tab].nr_lines, line, channels[active_tab].chan_nr, &msg_start, &offset_start);
+		text_field_set_buf_pos (channels[active_tab].tab_id, channels[active_tab].out_id, msg_start, offset_start);
 		text_changed = 0;
 	}
 
@@ -96,13 +251,44 @@ int display_chat_handler (window_info *win)
 
 int click_chat_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-	int line = vscrollbar_get_pos (chat_win, chat_scroll_id);
-	if (line != current_line)
+	int id;
+	int line;
+	
+	id = tab_collection_get_tab_id (chat_win, chat_tabcollection_id);
+	
+	// reset the tab's label color to default
+	tab_set_label_color_by_id (chat_win, chat_tabcollection_id, id, -1.0, -1.0, -1.0);
+	
+	if (id != channels[active_tab].tab_id)
 	{
+		for (active_tab = 0; active_tab < CHAT_WIN_MAX_TABS; active_tab++)
+		{
+			if (channels[active_tab].tab_id == id && channels[active_tab].open)
+				break;
+		}
+		if (active_tab >= CHAT_WIN_MAX_TABS)
+		{
+			// This shouldn't be happening
+			LOG_ERROR ("Trying to switch to non-existant channel");
+			active_tab = 0;
+		}
+		current_line = channels[active_tab].nr_lines - nr_displayed_lines;
+		if (current_line < 0) current_line = 0;
+		vscrollbar_set_bar_len (chat_win, chat_scroll_id, current_line);
+		vscrollbar_set_pos (chat_win, chat_scroll_id, current_line);
 		text_changed = 1;
-		current_line = line;
 	}
-        return 0;
+	else
+	{
+		line = vscrollbar_get_pos (chat_win, chat_scroll_id);
+		if (line != current_line)
+		{
+			current_line = line;
+			text_changed = 1;
+		}
+	}
+	
+        return 1;
 }
 
 int drag_chat_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy)
@@ -152,16 +338,22 @@ int resize_chat_handler(window_info *win, int width, int height)
 	widget_resize (chat_win, chat_tabcollection_id, inout_width, tabcol_height);
 	
 	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
-		if (chat_tab_ids[itab] >= 0)
-			widget_resize (chat_tab_ids[itab], chat_out_ids[itab], inout_width, output_height);
+		if (channels[itab].tab_id >= 0)
+			widget_resize (channels[itab].tab_id, channels[itab].out_id, inout_width, output_height);
 	
 	widget_resize (chat_win, chat_in_id, inout_width, input_height);
 	widget_move (chat_win, chat_in_id, CHAT_WIN_SPACE, input_y);
 
 	adjust_line_breaks (chat_win_text_width);
 	
+	// adjust the text position and scroll bar
 	nr_displayed_lines = (int) (chat_out_text_height / (18.0f * chat_zoom));
-	update_chat_scrollbar ();
+	current_line = channels[active_tab].nr_lines - nr_displayed_lines;
+	if (current_line < 0) current_line = 0;
+	vscrollbar_set_bar_len (chat_win, chat_scroll_id, current_line);
+	vscrollbar_set_pos (chat_win, chat_scroll_id, current_line);
+	text_changed = 1;
+
 	return 0;
 }
 
@@ -292,7 +484,7 @@ void display_chat ()
 {
 	if (chat_win < 0)
 	{
-		int scroll_len, itab;
+		int scroll_len;
 		
 		int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
 		int chat_win_height = CHAT_OUT_TEXT_HEIGHT + CHAT_IN_TEXT_HEIGHT + 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
@@ -320,17 +512,13 @@ void display_chat ()
 		
 		chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, CHAT_WIN_MAX_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
 		
-		for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
-		{
-			chat_tab_ids[itab] = -1;
-			chat_out_ids[itab] = chat_out_start_id + itab;
-		}
+		channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, "Local", 0, 0);
+		set_window_min_size (channels[0].tab_id, 0, 0);
+		channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHANNEL_LOCAL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);		
+		channels[0].open = 1;
+		active_tab = 0;		
 
-		chat_tab_ids[0] = tab_add (chat_win, chat_tabcollection_id, "Local", 0, 0);
-		set_window_min_size (chat_tab_ids[0], 0, 0);
-		chat_out_ids[0] = text_field_add_extended (chat_tab_ids[0], chat_out_ids[0], NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
-		
-		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHANNEL_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
 		
 		set_window_min_size (chat_win, min_width, min_height);
 		

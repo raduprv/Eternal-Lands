@@ -210,7 +210,7 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
-void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
+void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int channel, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
 {
 	float displayed_font_x_size = 11.0 * text_zoom;
 	float displayed_font_y_size = 18.0 * text_zoom;
@@ -255,8 +255,16 @@ void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int m
 		// watch for special characters
 		if (cur_char == '\0') 
 		{
-			// end of string
+			// end of message
 			if (++imsg >= msgs_size) imsg = 0;
+			if (channel != CHANNEL_ALL)
+			{
+				while (msgs[imsg].chan_nr != channel && msgs[imsg].chan_nr != CHANNEL_ALL)
+				{
+					if (++imsg >= msgs_size) imsg = 0;
+					if (msgs[imsg].data == NULL || imsg == msg_start) break;
+				}
+			}
 			if (msgs[imsg].data == NULL || imsg == msg_start) break;
 			ichar = 0;
 		}
@@ -272,7 +280,6 @@ void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int m
 			continue;
 		}
 
-//		cur_x += draw_font_char_scaled (0, cur_char, cur_x, cur_y, text_zoom);
 		cur_x += draw_char_scaled (cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
 		
 		ichar++;

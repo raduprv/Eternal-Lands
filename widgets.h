@@ -150,6 +150,7 @@ typedef struct
 	float text_r, text_g, text_b;
 	int buf_size, buf_fill;
 	text_message *buffer;
+	int chan_nr;
 	Uint16 x_space, y_space;
 } text_field;
 
@@ -925,6 +926,34 @@ int tab_collection_get_tab (Uint32 window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	tabs
+ * \brief 	Returns the window ID of the currently selected tab
+ *
+ * 		Returns the window ID of the currently selected tab in a tabbed window collection.
+ *		
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The unique widget ID of the tab collection
+ * \retval int  	Returns the tab's window ID number on succes, -1 on failure
+ */
+int tab_collection_get_tab_id (Uint32 window_id, Uint32 widget_id);
+
+/*!
+ * \ingroup	tabs
+ * \brief 	Sets the label color for a tab
+ *
+ * 		Sets the color with which the label of the tab belonging to the window with ID \a tab_id is drawn.
+ *		
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	col_id The unique widget ID of the tab collection
+ * \param	tab_id The window ID of the tab window
+ * \param	r the red component of the color
+ * \param	g the green component of the color
+ * \param	b the blue component of the color
+ * \retval int  	Returns the tab's window ID number on succes, -1 on failure
+ */
+int tab_set_label_color_by_id (Uint32 window_id, Uint32 col_id, Uint32 tab_id, float r, float g, float b);
+
+/*!
+ * \ingroup	tabs
  * \brief 	Selects a tab in the tab collection
  *
  * 		Select a tab from the tab collection and bring it to the front
@@ -1055,8 +1084,9 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \param	buf the text buffer
- * \param 	buf_size the size of the text buffer
+ * \param	buf the message buffer
+ * \param 	buf_size the size of the message buffer
+ * \param	chan_nr the channel of which messages are drawn
  * \param	x_space the number of pixels in the x-direction between the border and the text
  * \param	y_space the number of pixels in the y-direction between the border and the text
  * \retval int  	Returns the new widgets unique ID 
@@ -1094,7 +1124,7 @@ int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
  *
  * \sa text_field_add
  */
-int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, int x_space, int y_space, float text_r, float text_g, float text_b);
+int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, int chan_nr, int x_space, int y_space, float text_r, float text_g, float text_b);
 
 /*!
  * \ingroup	textfields

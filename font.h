@@ -57,8 +57,27 @@
 extern int	chat_font; /*!< font size used for chat font */
 extern int	name_font; /*!< font size used for name font */
 
-
-void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief  draws messages in a buffer to the screen
+ *
+ *      Draws the messages in buffer \a msgs to the screen, starting with character \a offset_start in message number \a nr_start.
+ *
+ * \param x		x coordinate of the position to start drawing
+ * \param y		y coordinate of the position to start drawing
+ * \param msgs		the message buffer
+ * \param msgs_size	the total number of messages that \a msgs can hold
+ * \param channel	draw only message in channel \a channel. Choose CHANNEL_ALL for displaying all messages
+ * \param nr_start	the first message to display
+ * \param offset_start	the first character in message \a nr_start to display
+ * \param cursor	if >= 0, the position at which to draw the cursor
+ * \param width		the width of the draw area
+ * \param height	the height of the draw area
+ * \param text_zoom	the size of the text
+ *
+ * \callgraph
+ */
+void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int channel, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom);
 
 /*!
  * \ingroup text_font

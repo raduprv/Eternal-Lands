@@ -67,6 +67,7 @@ typedef struct {
 	Sint8 label[64];
 	Uint32 content_id;
 	Uint16 tag_x, tag_width;
+	float label_r, label_g, label_b;
 	char closable;
 } tab;
 
@@ -91,12 +92,17 @@ int GetWidgetType (const char *w);
 // Common widget functions
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id)
 {
+	if (window_id < 0 || window_id >= windows_list.num_windows) return NULL;
+	if (windows_list.window[window_id].window_id != window_id) return NULL;
+	
 	widget_list *w = windows_list.window[window_id].widgetlist;
-	while(w != NULL){
+	while(w != NULL)
+	{
 		if(w->id == widget_id)
 			return w;
 		w = w->next;
 	}
+	
 	return NULL;
 }
 
@@ -845,6 +851,42 @@ int tab_collection_get_tab (Uint32 window_id, Uint32 widget_id)
 	return -1;
 }
 
+int tab_collection_get_tab_id (Uint32 window_id, Uint32 widget_id) 
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	if (w) 
+	{
+		tab_collection *col = (tab_collection *) w->widget_info;
+		int tab = col->cur_tab;
+		if (tab >= 0 && tab < col->nr_tabs)
+			return col->tabs[tab].content_id;
+	}
+	return -1;
+}
+
+int tab_set_label_color_by_id (Uint32 window_id, Uint32 col_id, Uint32 tab_id, float r, float g, float b)
+{
+	widget_list *w = widget_find (window_id, col_id);
+	
+	if (w) 
+	{
+		int itab;
+		tab_collection *col = (tab_collection *) w->widget_info;
+		
+		for (itab = 0; itab < col->nr_tabs; itab++)
+		{
+			if (col->tabs[itab].content_id == tab_id)
+			{
+				col->tabs[itab].label_r = r;
+				col->tabs[itab].label_g = g;
+				col->tabs[itab].label_b = b;
+				return tab_id;
+			}
+		}
+	}
+	return -1;
+}
+
 int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab) 
 {
 	widget_list *w = widget_find (window_id, widget_id);
@@ -983,15 +1025,16 @@ int tab_collection_draw (widget_list *w)
 	h = col->tag_height;
 	ytagtop = w->pos_y;
 	ytagbot = w->pos_y + h;
-
-	glDisable(GL_TEXTURE_2D);
-	if(w->r!=-1.0)
-		glColor3f(w->r, w->g, w->b);
 	
+	glDisable(GL_TEXTURE_2D);
+
 	if (col->nr_tabs > 0) {
 		// draw the tags
 		for (itab = 0; itab < col->nr_tabs; itab++) 
 		{
+			if(w->r!=-1.0)
+				glColor3f(w->r, w->g, w->b);
+
 			xstart = w->pos_x + col->tabs[itab].tag_x;
 			xend = xstart + col->tabs[itab].tag_width;
 
@@ -1024,6 +1067,10 @@ int tab_collection_draw (widget_list *w)
 			glEnd ();
 
 			glEnable(GL_TEXTURE_2D);
+			
+			if (col->tabs[itab].label_r >= 0.0f)
+				glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b); 
+				
 			if (col->tabs[itab].closable)
 				draw_string_zoomed (xstart+h, ytagtop+2, (unsigned char *)col->tabs[itab].label, 1, w->size);
 			else
@@ -1031,6 +1078,9 @@ int tab_collection_draw (widget_list *w)
 			glDisable(GL_TEXTURE_2D);
 		}
 	}
+
+	if(w->r!=-1.0)
+		glColor3f(w->r, w->g, w->b);
 
 	xstart = w->pos_x + col->tabs[col->cur_tab].tag_x;
 	xend = xstart + col->tabs[col->cur_tab].tag_width;
@@ -1168,16 +1218,21 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 			col->tabs[nr].tag_width += col->tag_height;
 	}
 	
+	// set label color to default values
+	col->tabs[nr].label_r = -1.0f;
+	col->tabs[nr].label_g = -1.0f;
+	col->tabs[nr].label_b = -1.0f;
+	
 	return col->tabs[nr].content_id;
 }
 
 // text field
 int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space)
 {
-	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, x_space, y_space, -1.0, -1.0, -1.0);
+	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, CHANNEL_ALL, x_space, y_space, -1.0, -1.0, -1.0);
 }
 
-int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, int x_space, int y_space, float text_r, float text_g, float text_b)
+int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, int chan_nr, int x_space, int y_space, float text_r, float text_g, float text_b)
 {
 	widget_list *W = malloc ( sizeof (widget_list) );
 	text_field *T = malloc ( sizeof (text_field) );
@@ -1195,6 +1250,7 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 	T->offset = 0;
 	T->buffer = buf;
 	T->buf_size = buf_size;
+	T->chan_nr = chan_nr;
 	T->cursor = (Flags & TEXT_FIELD_EDITABLE) ? 0 : -1;
 	T->text_r = text_r;
 	T->text_g = text_g;
@@ -1294,7 +1350,7 @@ int text_field_draw (widget_list *w)
 		}
 	}
 	
-	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->msg, tf->offset, tf->cursor, w->len_x - 2 * tf->x_space, w->len_y - 2*tf->y_space, w->size);
+	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, tf->cursor, w->len_x - 2 * tf->x_space, w->len_y - 2*tf->y_space, w->size);
 	
 	return 1;
 }

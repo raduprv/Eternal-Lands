@@ -10,10 +10,12 @@ int display_opening_handler ()
 {
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{
-		int msg, offset;
+		int msg, offset, iline;
 		
-		find_line_nr (total_nr_lines, total_nr_lines - nr_opening_lines, &msg, &offset);
+		iline = total_nr_lines - nr_opening_lines;
+		if (iline < 0) iline = 0;
 		
+		find_line_nr (total_nr_lines, iline, CHANNEL_ALL, &msg, &offset);
 		text_field_set_buf_pos (opening_root_win, opening_out_id, msg, offset);
 		draw_console_pic (cons_text);
 		CHECK_GL_ERRORS();
@@ -70,7 +72,7 @@ void create_opening_root_window (int width, int height)
 		set_window_handler (opening_root_win, ELW_HANDLER_KEYPRESS, &keypress_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_CLICK, &click_opening_handler);
 		
-		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id, NULL, 0, 0, width, height, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, 0, 0, -1.0, -1.0, -1.0);
+		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id, NULL, 0, 0, width, height, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHANNEL_ALL, 0, 0, -1.0, -1.0, -1.0);
 		
 		nr_opening_lines = height / 18;
 	}

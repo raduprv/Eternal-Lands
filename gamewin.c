@@ -640,7 +640,7 @@ int display_game_handler (window_info *win)
 		if ( find_last_lines_time (&msg, &offset) )
 		{
 			set_font(chat_font);	// switch to the chat font
-			draw_messages (10, 20, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
+			draw_messages (10, 20, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_ALL, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
 			set_font (0);	// switch to fixed
 		}
 	}
