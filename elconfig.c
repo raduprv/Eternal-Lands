@@ -75,7 +75,8 @@ void change_poor_man(int value)
 
 void change_vertex_array(int value)
 {
-	use_vertex_array=(value>0);
+	if(value>0)use_vertex_array=value;
+	else value=0;
 	if(use_vertex_array)
 		{
 			log_to_console(c_green2,enabled_vertex_arrays);
