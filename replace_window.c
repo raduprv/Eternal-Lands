@@ -31,7 +31,7 @@ void display_replace_window()
 	display_window(replace_window_win);
 }
 
-int display_replace_window_handler()
+int display_replace_window_handler(window_info *win)
 {
 	char temp[100];
 
@@ -70,7 +70,7 @@ int display_replace_window_handler()
 	glEnable(GL_TEXTURE_2D);
    
 	// The X
-	draw_string(0+replace_window_x_len-16,0+2,(unsigned char *)"X",1);
+	draw_string(0+win->len_x-16,0+2,(unsigned char *)"X",1);
 	sprintf(temp,"Original: %d",oid);
 	draw_string(10,10,temp,1);
 	draw_string(250,10,"Select",1);
@@ -87,21 +87,21 @@ int display_replace_window_handler()
 }
 
 
-int check_replace_window_interface()
+int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y;
-	if(mouse_x>replace_window_x+replace_window_x_len || mouse_x<replace_window_x
-      || mouse_y<replace_window_y || mouse_y>replace_window_y+replace_window_y_len)return 0;
+	if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x
+      || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
 
-   	if(view_replace_window && mouse_x>(replace_window_x+replace_window_x_len-20) && mouse_x<=(replace_window_x+replace_window_x_len)
-	&& mouse_y>replace_window_y && mouse_y<=replace_window_y+20)
+   	if(view_replace_window && mouse_x>(win->pos_x+win->len_x-20) && mouse_x<=(win->pos_x+win->len_x)
+	&& mouse_y>win->pos_y && mouse_y<=win->pos_y+20)
 	{
 		view_replace_window=0;
 		return 1;
 	}
 
-   x=mouse_x-replace_window_x;
-   y=mouse_y-replace_window_y;
+   x=mouse_x-win->pos_x;
+   y=mouse_y-win->pos_y;
    
    if(x>d1_x1 && x<=d1_x2 && y>d1_y1 && y<=d1_y2){
 	  

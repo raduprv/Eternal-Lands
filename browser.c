@@ -55,9 +55,9 @@ void display_browser()
 	display_window(browser_win);
 }
 
-int display_browser_handler()
+int display_browser_handler(window_info *win)
 {
-   int i=0,x=browser_menu_x+2,y=browser_menu_y+2;
+   int i=0,x=win->pos_x+2,y=win->pos_y+2;
 
    //title bar
    //draw_menu_title_bar(browser_menu_x,browser_menu_y-16,browser_menu_x_len);
@@ -72,16 +72,16 @@ int display_browser_handler()
 
    if(cd!=-1){
 		//scroll bar
-		glVertex3i(browser_menu_x_len-20,20,0);
-		glVertex3i(browser_menu_x_len-20,400,0);
-		glVertex3i(browser_menu_x_len-15,30,0);
-		glVertex3i(browser_menu_x_len-10,25,0);
-		glVertex3i(browser_menu_x_len-10,25,0);
-		glVertex3i(browser_menu_x_len-5,30,0);
-		glVertex3i(browser_menu_x_len-15,385,0);
-		glVertex3i(browser_menu_x_len-10,390,0);
-		glVertex3i(browser_menu_x_len-10,390,0);
-		glVertex3i(browser_menu_x_len-5,385,0);
+		glVertex3i(win->len_x-20,20,0);
+		glVertex3i(win->len_x-20,400,0);
+		glVertex3i(win->len_x-15,30,0);
+		glVertex3i(win->len_x-10,25,0);
+		glVertex3i(win->len_x-10,25,0);
+		glVertex3i(win->len_x-5,30,0);
+		glVertex3i(win->len_x-15,385,0);
+		glVertex3i(win->len_x-10,390,0);
+		glVertex3i(win->len_x-10,390,0);
+		glVertex3i(win->len_x-5,385,0);
 		//separators
 		glVertex3i(0+200,0,0);
 		glVertex3i(0+200,0+400,0);
@@ -94,13 +94,13 @@ int display_browser_handler()
    // The X
 	
 	if(cd!=-1){
-		draw_string(browser_menu_x_len-16,160,(unsigned char *)"B",1);
-		draw_string(browser_menu_x_len-16,180,(unsigned char *)"A",1);
-		draw_string(browser_menu_x_len-16,200,(unsigned char *)"C",1);
-		draw_string(browser_menu_x_len-16,220,(unsigned char *)"K",1);
+		draw_string(win->len_x-16,160,(unsigned char *)"B",1);
+		draw_string(win->len_x-16,180,(unsigned char *)"A",1);
+		draw_string(win->len_x-16,200,(unsigned char *)"C",1);
+		draw_string(win->len_x-16,220,(unsigned char *)"K",1);
    }
 
-   draw_string(0+browser_menu_x_len-16,0+2,(unsigned char *)"X",1);
+   draw_string(0+win->len_x-16,0+2,(unsigned char *)"X",1);
 
    if(cd==-1){ //display dir select menu
 	   int i,x=0,y=2;
@@ -151,7 +151,7 @@ int display_browser_handler()
 		glRotatef(0, 0.0f, 0.0f, 1.0f);
 		glRotatef(45, 0.0f, 0.0f, 1.0f);
 
-		glViewport(browser_menu_x,window_height-browser_menu_y-150,200,150);
+		glViewport(win->pos_x,window_height-win->pos_y-150,200,150);
 		glClearStencil(0);
 		glClear (GL_DEPTH_BUFFER_BIT);
 		strcpy(fn,exec_path);
@@ -166,7 +166,7 @@ int display_browser_handler()
 		
 
 		if(i+1<Dir[cd].nf){
-			glViewport(browser_menu_x+200,window_height-browser_menu_y-150,200,150);	
+			glViewport(win->pos_x+200,window_height-win->pos_y-150,200,150);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
@@ -181,7 +181,7 @@ int display_browser_handler()
 		}
 
 		if(i+2<Dir[cd].nf){
-			glViewport(browser_menu_x,window_height-browser_menu_y-350,200,150);	
+			glViewport(win->pos_x,window_height-win->pos_y-350,200,150);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
@@ -196,7 +196,7 @@ int display_browser_handler()
 		}
 
 		if(i+3<Dir[cd].nf){
-			glViewport(browser_menu_x+200,window_height-browser_menu_y-350,200,150);	
+			glViewport(win->pos_x+200,window_height-win->pos_y-350,200,150);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 			strcpy(fn,exec_path);
@@ -217,31 +217,31 @@ int display_browser_handler()
 		Enter2DMode();
 
 		// Object names
-		draw_string(browser_menu_x+2,browser_menu_y+200-18,(unsigned char *)Dir[cd].Names[i],1);
-		draw_string(browser_menu_x+2,browser_menu_y+400-18,(unsigned char *)Dir[cd].Names[i+2],1);
-		draw_string(browser_menu_x+202,browser_menu_y+200-18,(unsigned char *)Dir[cd].Names[i+1],1);
-		draw_string(browser_menu_x+202,browser_menu_y+400-18,(unsigned char *)Dir[cd].Names[i+3],1);
+		draw_string(win->pos_x+2,win->pos_y+200-18,(unsigned char *)Dir[cd].Names[i],1);
+		draw_string(win->pos_x+2,win->pos_y+400-18,(unsigned char *)Dir[cd].Names[i+2],1);
+		draw_string(win->pos_x+202,win->pos_y+200-18,(unsigned char *)Dir[cd].Names[i+1],1);
+		draw_string(win->pos_x+202,win->pos_y+400-18,(unsigned char *)Dir[cd].Names[i+3],1);
 
    }
 	return 1;
 }
 
 
-int check_browser_interface()
+int check_browser_interface(window_info *win, int mx, int my, Uint32 flags)
 {
    int x,y;
-   if(/*!view_browser || */mouse_x>browser_menu_x+browser_menu_x_len || mouse_x<browser_menu_x
-      || mouse_y<browser_menu_y || mouse_y>browser_menu_y+browser_menu_y_len)return 0;
+   if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x
+      || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
 
-   	if(view_browser && mouse_x>(browser_menu_x+browser_menu_x_len-20) && mouse_x<=(browser_menu_x+browser_menu_x_len)
-	&& mouse_y>browser_menu_y && mouse_y<=browser_menu_y+20)
+   	if(view_browser && mouse_x>(win->pos_x+win->len_x-20) && mouse_x<=(win->pos_x+win->len_x)
+	&& mouse_y>win->pos_y && mouse_y<=win->pos_y+20)
 	{
 		view_browser=0;
 		return 1;
 	}
 
-   x=mouse_x-browser_menu_x;
-   y=mouse_y-browser_menu_y;
+   x=mouse_x-win->pos_x;
+   y=mouse_y-win->pos_y;
 	
 	if(cd==-1){
 		int id=y/18;
@@ -304,15 +304,15 @@ int check_browser_interface()
 		}
 	
 
-		if(x > browser_menu_x_len-16 && x < browser_menu_x_len && y > 18 && y < 18+16){
+		if(x > win->len_x-16 && x < win->len_x && y > 18 && y < 18+16){
 			if(cp>=4)cp-=4;	
 		}
 
-		if(x > browser_menu_x_len-16 && x < browser_menu_x_len && y > 380 && y < 380+16){
+		if(x > win->len_x-16 && x < win->len_x && y > 380 && y < 380+16){
 			if(cp<(Dir[cd].nf-4))cp+=4;
 		}
 
-		if(x > browser_menu_x_len-16 && x < browser_menu_x_len && y > 160 && y < 240){
+		if(x > win->len_x-16 && x < win->len_x && y > 160 && y < 240){
 			cp=0;
 			cd=-1;
 		}

@@ -53,7 +53,7 @@ void display_edit_window()
 	display_window(edit_window_win);
 }
 
-int display_edit_window_handler()
+int display_edit_window_handler(window_info *win)
 {
 	char temp[100];
 	glColor3f(0.77f,0.57f,0.39f);
@@ -248,27 +248,27 @@ int display_edit_window_handler()
 		
 	}
 	// The X
-	draw_string(0+edit_window_x_len-16,0+2,(unsigned char *)"X",1);
+	draw_string(0+win->len_x-16,0+2,(unsigned char *)"X",1);
 	return 1;
 }
 
 
-int check_edit_window_interface()
+int check_edit_window_interface(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y;
-	if(mouse_x>edit_window_x+edit_window_x_len || mouse_x<edit_window_x
-      || mouse_y<edit_window_y || mouse_y>edit_window_y+edit_window_y_len)return 0;
+	if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x
+      || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
 
-   	if(view_edit_window && mouse_x>(edit_window_x+edit_window_x_len-20) && mouse_x<=(edit_window_x+edit_window_x_len)
-	&& mouse_y>edit_window_y && mouse_y<=edit_window_y+20)
+   	if(view_edit_window && mouse_x>(win->pos_x+win->len_x-20) && mouse_x<=(win->pos_x+win->len_x)
+	&& mouse_y>win->pos_y && mouse_y<=win->pos_y+20)
 	{
 		view_edit_window=0;
 		return 1;
 	}
 
 	if(ew_selected_object==-1)return 0;
-   x=mouse_x-edit_window_x;
-   y=mouse_y-edit_window_y;
+   x=mouse_x-win->pos_x;
+   y=mouse_y-win->pos_y;
    
    if(x>g1_x1 && x<=g1_x2 && y>g1_y1 && y<=g1_y2){
 		if(ew_object_type)

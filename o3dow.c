@@ -55,7 +55,7 @@ void display_o3dow()
 	display_window(o3dow_win);
 }
 
-int display_o3dow_handler()
+int display_o3dow_handler(window_info *win)
 {
 	char temp[100];
 
@@ -224,7 +224,7 @@ int display_o3dow_handler()
 	glEnable(GL_TEXTURE_2D);
    
 	// The X
-	draw_string(0+o3dow_x_len-16,0+2,(unsigned char *)"X",1);
+	draw_string(0+win->len_x-16,0+2,(unsigned char *)"X",1);
 
 	draw_string(10,30,"Random Rotation: ",1);
 	draw_string(250,10,"X axis: ",1);
@@ -266,21 +266,21 @@ int display_o3dow_handler()
 }
 
 
-int check_o3dow_interface()
+int check_o3dow_interface(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y;
-	if(mouse_x>o3dow_x+o3dow_x_len || mouse_x<o3dow_x
-      || mouse_y<o3dow_y || mouse_y>o3dow_y+o3dow_y_len)return 0;
+	if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x
+      || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
 
-   	if(view_o3dow && mouse_x>(o3dow_x+o3dow_x_len-20) && mouse_x<=(o3dow_x+o3dow_x_len)
-	&& mouse_y>o3dow_y && mouse_y<=o3dow_y+20)
+   	if(view_o3dow && mouse_x>(win->pos_x+win->len_x-20) && mouse_x<=(win->pos_x+win->len_x)
+	&& mouse_y>win->pos_y && mouse_y<=win->pos_y+20)
 	{
 		view_o3dow=0;
 		return 1;
 	}
 
-   x=mouse_x-o3dow_x;
-   y=mouse_y-o3dow_y;
+   x=mouse_x-win->pos_x;
+   y=mouse_y-win->pos_y;
    
 	if(x>c1_x1 && x<=c1_x2 && y>c1_y1 && y<=c1_y2)c1=!c1;
 	if(x>c2_x1 && x<=c2_x2 && y>c2_y1 && y<=c2_y2)c2=!c2;
