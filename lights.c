@@ -493,10 +493,23 @@ void draw_global_light()
 	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90-0.15f;
 	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60-0.15f;
 	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15-0.15f;
-	//the ambient light should be half of the difuse light
-	sun_ambient_light[0]=difuse_light[0]/1.5f+0.15f;
-	sun_ambient_light[1]=difuse_light[1]/1.5f+0.15f;
-	sun_ambient_light[2]=difuse_light[2]/1.5f+0.15f;
+
+	if(map_type==2)
+		{
+			//the ambient light should be almost as the normal light, but a little bluer
+			sun_ambient_light[0]=difuse_light[0]+.01f;
+			sun_ambient_light[1]=difuse_light[1]+.01f;
+			sun_ambient_light[2]=difuse_light[2];
+		}
+		else
+		{
+			//the ambient light should be half of the difuse light
+			sun_ambient_light[0]=difuse_light[0]/1.5f+0.15f;
+			sun_ambient_light[1]=difuse_light[1]/1.5f+0.15f;
+			sun_ambient_light[2]=difuse_light[2]/1.5f+0.15f;
+		}
+
+
 	sun_ambient_light[3]=1.0f;
 	glLightfv(GL_LIGHT7,GL_AMBIENT,sun_ambient_light);
 	//We add (0.2,0.2,0.2) because that's the global ambient color, and we need it for shadows
@@ -528,7 +541,7 @@ void draw_dungeon_light()
 
 }
 
-void make_gradient_light(int start,int steps,float *light_table, float r_start, 
+void make_gradient_light(int start,int steps,float *light_table, float r_start,
 						 float g_start, float b_start, float r_end, float g_end, float b_end)
 {
 	int i,j;
