@@ -31,9 +31,11 @@ void draw_particle_sys(particle_sys *system_id)
 	total_particle_no=system_id->total_particle_no;
 	part_type=system_id->part_type;
 
+	check_gl_errors();
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef (x_pos, y_pos, z_pos);
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
+	check_gl_errors();
 	glBegin(GL_QUADS);
 	lock_particles_list();	//lock it to avoid timing issues
 	for(i=0;i<total_particle_no;i++)
@@ -74,10 +76,10 @@ void draw_particle_sys(particle_sys *system_id)
 				glTexCoord2f(u_end,v_start);
 				glVertex3f(x+x_len,y,z);
 
-
 			}
 	unlock_particles_list();	// release now that we are done
 	glEnd();
+	check_gl_errors();
 
 	glPopMatrix();
 
@@ -125,7 +127,7 @@ int add_teleporter(float x_pos, float y_pos, float z_pos)
 
 	float x,y,z,r,g,b,a;
 	int size;
-	int j,i;
+	int j;	//,i;
 
 	float start_r=0.3f;
 	float start_g=0.6f;
@@ -208,7 +210,7 @@ int add_teleporter(float x_pos, float y_pos, float z_pos)
 				system_id->particles[j].free=0;
 			}
 	unlock_particles_list();	// release now that we are done
-	return i;
+	return j;
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -221,7 +223,7 @@ int add_teleport_in(int x_pos, int y_pos)
 
 	float x,y,z,r,g,b,a;
 	int size;
-	int j,i;
+	int j;	//,i;
 
 	float start_r=0.4f;
 	float start_g=1.0f;
@@ -312,7 +314,7 @@ int add_teleport_in(int x_pos, int y_pos)
 	update_teleport_in(system_id);
 	update_teleport_in(system_id);
 	unlock_particles_list();
-	return i;
+	return j;
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -325,7 +327,7 @@ int add_teleport_out(int x_pos, int y_pos)
 
 	float x,y,z,r,g,b,a;
 	int size;
-	int j,i;
+	int j;	//,i;
 
 	float start_r=0.9f;
 	float start_g=0.6f;
@@ -416,7 +418,7 @@ int add_teleport_out(int x_pos, int y_pos)
 	update_teleport_out(system_id);
 	update_teleport_out(system_id);
 	unlock_particles_list();
-	return i;
+	return j;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -430,7 +432,7 @@ int add_bag_in(int x_pos, int y_pos)
 
 	float x,y,z,r,g,b,a;
 	int size;
-	int j,i;
+	int j;	//,i;
 
 	float start_r=0.8f;
 	float start_g=0.6f;
@@ -522,7 +524,7 @@ int add_bag_in(int x_pos, int y_pos)
 	update_bag_in(system_id);
 	update_bag_in(system_id);
 	unlock_particles_list();
-	return i;
+	return j;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -537,7 +539,7 @@ int add_bag_out(int x_pos, int y_pos)
 
 	float x,y,z,r,g,b,a;
 	int size;
-	int j,i;
+	int j;	//,i;
 
 	float start_r=0.8f;
 	float start_g=0.2f;
@@ -629,7 +631,7 @@ int add_bag_out(int x_pos, int y_pos)
 	update_bag_out(system_id);
 	update_bag_out(system_id);
 	unlock_particles_list();
-	return i;
+	return j;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -642,6 +644,7 @@ void display_particles()
 	x=-cx;
 	y=-cy;
 
+	check_gl_errors();
 	if(last_texture!=texture_cache[particles_text].texture_id)
 		{
 			glBindTexture(GL_TEXTURE_2D, texture_cache[particles_text].texture_id);
@@ -649,9 +652,24 @@ void display_particles()
 		}
 	glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_SRC_ALPHA_SATURATE);
+	check_gl_errors();
+
+	if(!no_alpha_sat)
+		{
+			glBlendFunc(GL_SRC_ALPHA,GL_SRC_ALPHA_SATURATE);
+			// watch for not supported and switch modes if not
+			if (glGetError() != GL_NO_ERROR)
+				{
+					no_alpha_sat++;
+				}
+		}
+	if(no_alpha_sat)
+		{
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		}
 	glDisable(GL_CULL_FACE);
 
+	check_gl_errors();
 	lock_particles_list();
 	for(i=0;i<max_particle_systems;i++)
 		{
@@ -663,10 +681,13 @@ void display_particles()
 					dist1=x-particles_list[i]->x_pos;
 					dist2=y-particles_list[i]->y_pos;
 					if(dist1*dist1+dist2*dist2<=15*15)
-						draw_particle_sys(particles_list[i]);
+						{
+							draw_particle_sys(particles_list[i]);
+						}
 				}
 		}
 	unlock_particles_list();
+	check_gl_errors();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
 }
