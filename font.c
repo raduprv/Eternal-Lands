@@ -154,20 +154,20 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
-void draw_string(int x, int y,const unsigned char * our_string,int max_lines)
+void draw_string(int x, int y, const unsigned char * our_string, int max_lines)
 {
-	draw_string_zoomed(x, y,our_string,max_lines, 1.0f);
+	draw_string_zoomed(x, y, our_string, max_lines, 1.0f);
 }
 
-void draw_string_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float text_zoom)
+void draw_string_zoomed(int x, int y, const unsigned char * our_string, int max_lines, float text_zoom)
 {
-	float displayed_font_x_size=11.0*text_zoom;
-	float displayed_font_y_size=18.0*text_zoom;
+	float displayed_font_x_size= 11.0*text_zoom;
+	float displayed_font_y_size= 18.0*text_zoom;
 
 	unsigned char cur_char;
 	int i;
 	int cur_x,cur_y;
-	int current_lines=0;
+	int current_lines= 0;
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.1f);
@@ -386,7 +386,10 @@ int get_string_width(const unsigned char *str)
 int get_nstring_width(const unsigned char *str, int len)
 {
 	int	i, wdt=0;
-	for(i=0; i<len; i++) wdt+=get_char_width(str[i]);
+	for(i=0; i<len; i++) wdt+= get_char_width(str[i]);
+	// adjust to ignore the final spacing
+	wdt-= fonts[cur_font_num]->spacing;
+
 	return wdt;
 }
 
@@ -394,13 +397,14 @@ int get_nstring_width(const unsigned char *str, int len)
 int init_fonts()
 {
 	int	i;
+
 	max_fonts=0;
-	for(i=0; i<10; i++)	fonts[i]=NULL;
+	for(i=0; i<10; i++)	fonts[i]= NULL;
 	load_font(0, "./textures/font.bmp");
 	load_font(1, "./textures/fontv.bmp");
 	//set the default font
-	cur_font_num=0;
-	font_text=fonts[0]->texture_id;
+	cur_font_num= 0;
+	font_text= fonts[0]->texture_id;
 
 	return(0);
 }
