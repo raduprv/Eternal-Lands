@@ -39,6 +39,10 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	actor *our_actor;
 	no_bounding_box=1;
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+
 	//ok, load the legs
 	if(this_actor->legs_fn[0])
 		{
@@ -273,6 +277,9 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 {
 	int i;
 
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -288,7 +295,11 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->weapon=0;
 								actors_list[i]->body_parts->weapon_fn[0]=0;
 								actors_list[i]->body_parts->weapon_tex[0]=0;
-								return;
+#ifndef POSSIBLE_FIX
+								return
+#else
+								break;
+#endif
 							}
 
 						if(which_part==KIND_OF_SHIELD)
@@ -296,7 +307,11 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->shield=0;
 								actors_list[i]->body_parts->shield_fn[0]=0;
 								actors_list[i]->body_parts->shield_tex[0]=0;
-								return;
+#ifndef POSSIBLE_FIX
+								return
+#else
+								break;
+#endif
 							}
 
 						if(which_part==KIND_OF_CAPE)
@@ -304,7 +319,11 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->cape=0;
 								actors_list[i]->body_parts->cape_fn[0]=0;
 								actors_list[i]->body_parts->cape_tex[0]=0;
-								return;
+#ifndef POSSIBLE_FIX
+								return
+#else
+								break;
+#endif
 							}
 
 						if(which_part==KIND_OF_HELMET)
@@ -312,12 +331,22 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->helmet=0;
 								actors_list[i]->body_parts->helmet_fn[0]=0;
 								actors_list[i]->body_parts->helmet_tex[0]=0;
-								return;
+#ifndef POSSIBLE_FIX
+								return
+#else
+								break;
+#endif
 							}
-
+#ifndef POSSIBLE_FIX
 						return;
+#else
+						break;
+#endif
 					}
 		}
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 
 }
 
@@ -325,6 +354,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
 	int i;
 
+#ifdef POSSIBLE_FIX
+	lock_actors_lists();
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -345,8 +377,11 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								actors_list[i]->cur_weapon=which_id;
 
 								actors_list[i]->body_parts->weapon_glow=actors_defs[actors_list[i]->actor_type].weapon[which_id].glow;
-
+#ifndef POSSIBLE_FIX
 								return;
+#else
+								break;
+#endif
 							}
 
 						if(which_part==KIND_OF_SHIELD)
@@ -358,7 +393,11 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#ifndef POSSIBLE_FIX
 								return;
+#else
+								break;
+#endif
 							}
 
 						if(which_part==KIND_OF_CAPE)
@@ -370,7 +409,11 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#ifndef POSSIBLE_FIX
 								return;
+#else
+								break;
+#endif
 							}
 
 						if(which_part==KIND_OF_HELMET)
@@ -382,7 +425,11 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#ifndef POSSIBLE_FIX
 								return;
+#else
+								break;
+#endif
 							}
 
 						if(which_part==KIND_OF_BODY_ARMOR)
@@ -395,7 +442,11 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#ifndef POSSIBLE_FIX
 								return;
+#else
+								break;
+#endif
 							}
 						if(which_part==KIND_OF_LEG_ARMOR)
 							{
@@ -406,19 +457,33 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#ifndef POSSIBLE_FIX
 								return;
+#else
+								break;
+#endif
 							}
 
 						if(which_part==KIND_OF_BOOT_ARMOR)
 							{
 								my_strcp(actors_list[i]->body_parts->boots_tex,actors_defs[actors_list[i]->actor_type].boots[which_id].boots_name);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#ifndef POSSIBLE_FIX
 								return;
+#else
+								break;
+#endif
 							}
+#ifndef POSSIBLE_FIX
 						return;
+#else
+						break;
+#endif
 					}
 		}
-
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
+#endif
 }
 
 void add_enhanced_actor_from_server(char * in_data)
@@ -450,6 +515,9 @@ void add_enhanced_actor_from_server(char * in_data)
 	char cur_frame[20];
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	actor_id=*((short *)(in_data));
 	x_pos=*((short *)(in_data+2));
 	y_pos=*((short *)(in_data+4));
@@ -467,6 +535,9 @@ void add_enhanced_actor_from_server(char * in_data)
 	cape=*(in_data+20);
 	helmet=*(in_data+21);
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	frame=*(in_data+22);
 	max_health=*((short *)(in_data+23));
 	cur_health=*((short *)(in_data+25));
@@ -478,6 +549,9 @@ void add_enhanced_actor_from_server(char * in_data)
 	f_z_pos=z_pos;
 	f_z_rot=z_rot;
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	//get the current frame
 	switch(frame) {
 	case frame_walk:
@@ -524,8 +598,16 @@ void add_enhanced_actor_from_server(char * in_data)
 		my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);break;
 	default:
 		{
+			char str[120];
+			sprintf(str,"%s %d - %s\n",unknown_frame,frame,&in_data[28]);
+			log_error(str);
 		}
 	}
+
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
@@ -553,6 +635,10 @@ void add_enhanced_actor_from_server(char * in_data)
 				}
 		}
 	unlock_actors_lists();  //unlock it
+
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 
 	this_actor=calloc(1,sizeof(enhanced_actor));
 
@@ -615,9 +701,11 @@ void add_enhanced_actor_from_server(char * in_data)
 			my_strcp(this_actor->helmet_tex,"");
 			my_strcp(this_actor->helmet_fn,"");
 		}
-
 	i=add_enhanced_actor(this_actor,cur_frame,f_x_pos,f_y_pos,f_z_pos,f_z_rot,actor_id);
 
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	lock_actors_lists();    //lock it to avoid timing issues
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
@@ -655,6 +743,10 @@ void add_enhanced_actor_from_server(char * in_data)
 	my_strncp(actors_list[i]->actor_name,&in_data[28],30);
 	if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
 	unlock_actors_lists();  //unlock it
+
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 
 }
 

@@ -41,21 +41,11 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-
-	our_actor = calloc(1, sizeof(actor));
-
-	//find a free spot, in the actors_list
-	lock_actors_lists();	//lock it to avoid timing issues
-	for(i=0;i<max_actors;i++)
-		{
-			if(!actors_list[i])break;
-		}
-
+	
 	returned_md2=load_md2_cache(file_name);
 	if(!returned_md2)
 		{
 			char str[120];
-			unlock_actors_lists();	// release now that we are done
 			sprintf(str,"%s: %s: %s\n",reg_error_str,cant_load_actor,file_name);
 			log_error(str);
 			return 0;
@@ -65,6 +55,9 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 		{
 			texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,shirt_color,pants_color,boots_color);
 		}
+
+
+	our_actor = calloc(1, sizeof(actor));
 
 	memset(our_actor->current_displayed_text, 0, max_current_displayed_text_len);
 	our_actor->current_displayed_text_time_left =  0;
@@ -113,6 +106,13 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	our_actor->shirt=shirt_color;
 	our_actor->stand_idle=0;
 	our_actor->sit_idle=0;
+
+	//find a free spot, in the actors_list
+	lock_actors_lists();	//lock it to avoid timing issues
+	for(i=0;i<max_actors;i++)
+		{
+			if(!actors_list[i])break;
+		}
 
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
@@ -606,7 +606,6 @@ void draw_actor(actor * actor_id)
 	glPopMatrix();//we don't want to affect the rest of the scene
 }
 
-
 void display_actors()
 {
 	int i;
@@ -735,10 +734,6 @@ void add_actor_from_server(char * in_data)
 	char cur_frame[20];
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
 
-#ifdef EXTRA_DEBUG
-	ERR();
-#endif
-	
 	actor_id=*((short *)(in_data));
 	x_pos=*((short *)(in_data+2));
 	y_pos=*((short *)(in_data+4));
@@ -813,6 +808,11 @@ void add_actor_from_server(char * in_data)
 			log_error(str);
 		}
 	}
+
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+	
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
 	lock_actors_lists();	//lock it to avoid timing issues
@@ -828,9 +828,12 @@ void add_actor_from_server(char * in_data)
 						i--;// last actor was put here, he needs to be checked too
 					}
 		}
-
+#ifdef POSSIBLE_FIX
+	unlock_actors_lists();
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
-				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
+				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);//This will do a lock_actors_lists()...
+	lock_actors_lists();
+#endif
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
 	actors_list[i]->actor_type=actor_type;
@@ -860,6 +863,10 @@ void add_actor_from_server(char * in_data)
 		}
 	my_strncp(actors_list[i]->actor_name,&in_data[23],30);
 	unlock_actors_lists();	//unlock it
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+	
 }
 
 
@@ -1014,7 +1021,7 @@ actor *	get_actor_ptr_from_id( int actor_id )
 	}
 #ifdef POSSIBLE_FIX
 	unlock_actors_lists();
-#endif
 	if(i<max_actors) return actors_list[i];
+#endif
 	return NULL;
 }

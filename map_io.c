@@ -296,11 +296,26 @@ int load_map(char * file_name)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+	
 	my_strcp(map_file_name,file_name);
 
 	destroy_map();
 
 	fread(mem_map_header, 1, sizeof(cur_map_header), f);//header only
+	
+	
+	//verify if we have a valid file
+	if(cur_map_header.file_sig[0]!='e'||
+	   cur_map_header.file_sig[1]!='l'||
+	   cur_map_header.file_sig[2]!='m'||
+	   cur_map_header.file_sig[3]!='f')
+		{
+			char str[200];
+			sprintf(str,invalid_map,map_file_name);
+			log_error(str);
+			exit_now=1;//We might as well quit...
+			return 0;
+		}
 
 	//get the map size
 	tile_map_size_x=cur_map_header.tile_map_x_len;
@@ -331,17 +346,6 @@ int load_map(char * file_name)
 
 	//this is useful if we go in/out a dungeon
 	new_minute();
-
-
-
-
-
-	//verify if we have a valid file
-	if(cur_map_header.file_sig[0]!='e')return 0;
-	if(cur_map_header.file_sig[1]!='l')return 0;
-	if(cur_map_header.file_sig[2]!='m')return 0;
-	if(cur_map_header.file_sig[3]!='f')return 0;
-
 
 	//read the tiles map
 	fread(tile_map, 1, tile_map_size_x*tile_map_size_y, f);
@@ -410,6 +414,9 @@ int load_map(char * file_name)
 
 	fclose(f);
 
+#ifdef EXTRA_DEBUG
+	ERR();//We finished loading the new map apparently...
+#endif
 	return 1;
 
 }

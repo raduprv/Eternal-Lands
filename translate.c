@@ -260,6 +260,7 @@ char	reg_error_str[15],
 	corrupted_object[100],
 	bad_object[30],
 	multiple_material_same_texture[100], 	
+	invalid_map[40],
 #ifdef ELC
 	/*actors.c*/
 	cant_load_actor[30],
@@ -568,6 +569,7 @@ void init_errors()
 	add_xml_identifier(load,"fatal",fatal_error_str,"Fatal",10);
 	add_xml_identifier(load,"noe3d",no_e3d_list,"Couldn't read e3dlist.txt",50);
 	add_xml_identifier(load,"elini",cant_read_elini,"Couldn't read configuration file el.ini",50);
+	add_xml_identifier(load,"invmap",invalid_map,"%s is an invalid map!",40);
 	
 	//Miscellaneous errors
 	add_xml_identifier(misc,"error",reg_error_str,"Error",15);

@@ -496,7 +496,7 @@ void destroy_actor(int actor_id)
 	int i;
 
 #ifdef POSSIBLE_FIX
-	//lock_actors_lists();	//lock it to avoid timing issues
+	//lock_actors_lists();	//lock it to avoid timing issues - the mutex _should_ always be locked when entering here...
 #endif
 	for(i=0;i<max_actors;i++)
 		{

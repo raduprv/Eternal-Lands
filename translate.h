@@ -159,6 +159,7 @@ extern char	reg_error_str[15],
 		corrupted_object[100], 
 		bad_object[30],
 		multiple_material_same_texture[100],
+		invalid_map[40],
 #ifdef ELC
 		/*actors.c*/
 		cant_load_actor[30],

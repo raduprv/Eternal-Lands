@@ -603,6 +603,9 @@ void build_sun_pos_table()
 
 void new_minute()
 {
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
 	//morning starts at 0
 	//is it morning?
 	if(game_minute<60)light_level=game_minute+60;
