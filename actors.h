@@ -1,0 +1,218 @@
+#ifndef __actors_H__
+#define __actors_H__
+
+extern int yourself;
+extern int you_sit;
+
+#define HUMAN 1
+#define NPC 2
+#define COMPUTER_CONTROLLED_HUMAN 3
+
+typedef struct
+{
+	char legs_fn[32];
+	char head_fn[32];
+	char torso_fn[32];
+	char weapon_fn[32];
+	char shield_fn[32];
+	char helmet_fn[32];
+	char cape_fn[32];
+
+	md2 *legs;
+	md2 *head;
+	md2 *torso;
+	md2 *weapon;
+	md2 *shield;
+	md2 *helmet;
+	md2 *cape;
+
+	char pants_tex[32];
+	char boots_tex[32];
+	char torso_tex[32];
+	char arms_tex[32];
+	char hands_tex[32];
+	char head_tex[32];
+	char hair_tex[32];
+	char weapon_tex[32];
+	char shield_tex[32];
+	char helmet_tex[32];
+	char cape_tex[32];
+
+}enhanced_actor;
+
+typedef struct
+{
+	char model_name[30];
+	char skin_name[30];
+}body_part;
+
+typedef struct
+{
+	char model_name[30];
+	char skin_name[30];
+	char attack_up1[30];
+	char attack_down1[30];
+	char attack_up2[30];
+	char attack_down2[30];
+}weapon_part;
+
+typedef struct
+{
+	char model_name[30];
+	char arms_name[30];
+	char torso_name[30];
+}shirt_part;
+
+typedef struct
+{
+	char hands_name[30];
+	char head_name[30];
+}skin_part;
+
+typedef struct
+{
+	char hair_name[30];
+}hair_part;
+
+typedef struct
+{
+	char boots_name[30];
+}boots_part;
+
+typedef struct
+{
+	char legs_name[30];
+	char model_name[30];
+}legs_part;
+
+typedef struct
+{
+	char skin_name[50];
+	char file_name[50];
+	char walk_frame[20];
+	char run_frame[20];
+	char die1_frame[20];
+	char die2_frame[20];
+	char pain1_frame[20];
+	char pain2_frame[20];
+	char pick_frame[20];
+	char drop_frame[20];
+	char idle_frame[20];
+	char idle_sit_frame[20];
+	char harvest_frame[20];
+	char attack_cast_frame[20];
+	char attack_ranged_frame[20];
+	char sit_down_frame[20];
+	char stand_up_frame[20];
+	char in_combat_frame[20];
+	char out_combat_frame[20];
+	char combat_idle_frame[20];
+	char attack_up_1_frame[20];
+	char attack_up_2_frame[20];
+	char attack_up_3_frame[20];
+	char attack_up_4_frame[20];
+	char attack_down_1_frame[20];
+	char attack_down_2_frame[20];
+
+	body_part head[5];
+	body_part shield[10];
+	body_part cape[10];
+	body_part helmet[4];
+	weapon_part weapon[20];
+
+	shirt_part shirt[18];
+	skin_part  skin[4];
+	hair_part  hair[6];
+	boots_part boots[6];
+	legs_part legs[16];
+
+	double walk_speed;
+	double run_speed;
+	char ghost;
+
+} actor_types;
+
+
+typedef struct
+{
+   int actor_id;
+   int actor_type;
+
+   double x_pos;
+   double y_pos;
+   double z_pos;
+
+   int x_tile_pos;
+   int y_tile_pos;
+
+   double x_speed;
+   double y_speed;
+   double z_speed;
+
+   float x_rot;
+   float y_rot;
+   float z_rot;
+
+   int boots;
+   int hair;
+   int skin;
+   int pants;
+   int shirt;
+
+   int is_enhanced_model;
+   enhanced_actor *body_parts;
+
+
+
+   char remapped_colors;
+
+   char cur_frame[16];
+
+   md2 *model_data;
+   int texture_id;
+   char skin_name[30];
+   char actor_name[30];
+
+   //for movement/animation
+   char que[10];
+   char last_command;
+   char busy;//if the actor is busy executing the current command
+   char sitting;
+   char fighting;
+
+   double move_x_speed;
+   double move_y_speed;
+   double move_z_speed;
+   int movement_frames_left;
+   float rotate_x_speed;
+   float rotate_y_speed;
+   float rotate_z_speed;
+   int rotate_frames_left;
+   int after_move_frames_left;
+
+   char moving;
+   char rotating;
+   char stop_animation;//don't loop trough the current animation (like for die, jump, etc.)
+   char stand_idle;
+   char sit_idle;
+   char dead;
+   int damage;
+   int damage_ms;
+   int cur_health;
+   int max_health;
+   char ghost;
+   int cur_weapon;
+   int kind_of_actor;
+
+
+}actor;
+
+
+extern actor *actors_list[1000];
+extern actor_types actors_defs[40];
+
+int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, float y_pos, float z_pos, float z_rot, char remappable, char skin_color, char hair_color, char shirt_color, char pants_color, char boots_color, int actor_id);
+void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,int z_pos, float x_rot,float y_rot, float z_rot);
+actor * add_actor_interface(int actor_type, char skin, char hair, char shirt, char pants, char boots, char head);
+
+#endif
