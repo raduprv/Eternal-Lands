@@ -87,6 +87,7 @@ int		click_in_windows(int mx, int my, Uint32 flags)
 	int	done= 0;
 	int	id;
 	int	next_id;
+	int	first_win= 0;
 	int i;
 
 	// watch for needing to convert the globals into the flags
@@ -119,6 +120,7 @@ int		click_in_windows(int mx, int my, Uint32 flags)
 									if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
 									return i;
 								}
+								if(first_win == 0 && mouse_in_window(i, mx, my))	first_win= i;
 							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
 								// try to find the next level
 								next_id= windows_list.window[i].order;
@@ -164,6 +166,12 @@ int		click_in_windows(int mx, int my, Uint32 flags)
 				{
 					id= next_id;
 				}
+		}
+	// nothing to click on, do a select instead
+	if(first_win > 0)
+		{
+			select_window(first_win);
+			return 1;
 		}
 	return 0;	// no click in a window
 }
@@ -556,6 +564,9 @@ int	draw_window(window_info *win)
 	if(win == NULL || win->window_id < 0)	return -1;
 
 	if(!win->displayed)	return 0;
+	// mouse over processing first
+	mouseover_window(win->window_id, mouse_x, mouse_y);
+	// now normal display processing
 	glPushMatrix();
 	glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
 
@@ -573,7 +584,6 @@ int	draw_window(window_info *win)
 		}
 	glPopMatrix();
 	
-	mouseover_window(win->window_id, mouse_x, mouse_y);
 	return(ret_val);
 }
 
