@@ -73,12 +73,10 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, 
 	our_actor = calloc(1, sizeof(actor));
 
 	//find a free spot, in the actors_list
-	i=0;
 	lock_actors_lists();	//lock it to avoid timing issues
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])break;
-			i++;
 		}
 
 	returned_md2=load_md2_cache(file_name);
@@ -142,6 +140,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos, 
 	our_actor->sit_idle=0;
 
 	actors_list[i]=our_actor;
+	if(i>=max_actors)max_actors=i+1;
 	unlock_actors_lists();	// release now that we are done
 	return i;
 }
@@ -160,7 +159,7 @@ void draw_actor(actor * actor_id)
 	char str[20];
 	float healtbar_x=-0.3f;
 	float healtbar_y=0;
-	float healtbar_z;
+	float healtbar_z=0;
 	float healtbar_x_len=0.5f;
 	float healtbar_x_len_converted=0;
 	float healtbar_z_len=0.05f;
@@ -347,12 +346,12 @@ void display_actors()
 	x=-cx;
 	y=-cy;
 
-
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	//MD2s don't have real normals...
 	glNormal3f(0.0f,0.0f,1.0f);
+
 	//display only the non ghosts
-	for(i=0;i<1000;i++)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			if(!actors_list[i]->ghost)
@@ -367,22 +366,17 @@ void display_actors()
 							if(actors_list[i]->is_enhanced_model)
 								{
 									draw_enhanced_actor(actors_list[i]);
-                     				if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
-                     				else
-                     				if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
-                     				else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
-
 								}
                      		else
                      			{
                      				draw_actor(actors_list[i]);
-                     				if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
-                     				else
-                     				if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
-                     				else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 								}
+                     		if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+                     		else
+                     		if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+                     		else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 						}
-             }
+             	}
 		}
 
 
@@ -390,7 +384,7 @@ void display_actors()
 	glEnable(GL_BLEND);
     //we don't need the light, for ghosts
     glDisable(GL_LIGHTING);
-	for(i=0;i<1000;i++)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->ghost)
@@ -405,22 +399,17 @@ void display_actors()
 							if(actors_list[i]->is_enhanced_model)
 								{
 									draw_enhanced_actor(actors_list[i]);
-                     				if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
-                     				else
-                     				if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
-                     				else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
-
 								}
                      		else
                      			{
                      				draw_actor(actors_list[i]);
-                     				if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
-                     				else
-                     				if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
-                     				else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 								}
+                     		if(actors_list[i]->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+                     		else
+                     		if(actors_list[i]->kind_of_actor==HUMAN || actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN)anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+                     		else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
 						}
-             }
+             	}
 		}
 	glDisable(GL_BLEND);
 }
@@ -523,12 +512,11 @@ void add_actor_from_server(char * in_data)
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
 	i=0;
-	while(i<1000)
+	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 			if(actors_list[i]->actor_id==actor_id)
 			destroy_actor(i);//we don't want two actors with thesame ID
-			i++;
 		}
 
 	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
@@ -655,8 +643,6 @@ void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,int z
 	//char *dest_frame_name; unused?
 	frame_md2 *offsetFrames;
 
-
-
 	offsetFrames=actor_id->body_parts->head->offsetFrames;
 	texture_id=actor_id->texture_id;
 	//texture_id=texture_cache[actor_id->texture_id].texture_id;
@@ -764,3 +750,4 @@ actor * add_actor_interface(int actor_type, short skin, short hair, short shirt,
 
 
 }
+
