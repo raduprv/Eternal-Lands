@@ -8,11 +8,11 @@
 #ifdef WINDOWS
 #include <al.h>
 #include <alut.h>
-#elif defined(LINUX)
-#include <AL/al.h>
-#include <AL/alut.h>
 #elif defined(OSX)
 #include <OpenAL/alut.h>
+#else
+#include <AL/al.h>
+#include <AL/alut.h>
 #endif //WINDOWS
 
 
