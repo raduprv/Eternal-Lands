@@ -188,6 +188,8 @@ int	display_manufacture_handler(window_info *win)
 						this_texture=items_text_8;break;
 					case 8:
 						this_texture=items_text_9;break;
+					case 9:
+						this_texture=items_text_10;break;
 					}
 
 					get_and_set_texture_id(this_texture);
@@ -236,6 +238,7 @@ int	display_manufacture_handler(window_info *win)
 					else if(this_texture==6)this_texture=items_text_7;
 					else if(this_texture==7)this_texture=items_text_8;
 					else if(this_texture==8)this_texture=items_text_9;
+					else if(this_texture==9)this_texture=items_text_10;
 
 					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
