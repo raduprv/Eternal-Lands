@@ -589,7 +589,7 @@ void display_actors()
 	for(i=0;i<max_actors;i++)
 		{
 			actor *cur_actor= actors_list[i];
-			if(cur_actor)
+			if(cur_actor) {
 				if(!cur_actor->ghost)
 					{
 						int dist1;
@@ -619,6 +619,7 @@ void display_actors()
 					{
 						has_ghosts++;
 					}
+			}
 		}
 
 	//we don't need the light, for ghosts

@@ -326,7 +326,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 obj_2d_def * load_obj_2d_def_cache(char * file_name)
 {
 	int i;
-	int j;
+	//int j;
 	int file_name_lenght;
 	obj_2d_def * obj_2d_def_id;
 

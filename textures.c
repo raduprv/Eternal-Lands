@@ -467,7 +467,7 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 	if(texture_ptr)	return(texture_ptr->texture_id);
 #else	//CACHE_SYSTEM
 */
-	int i, j;
+	int i;//, j;
 	int file_name_lenght;
 	int texture_id;
 	int texture_slot= -1;
