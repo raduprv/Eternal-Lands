@@ -45,6 +45,16 @@ Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
 }
 #endif
 
+int part_strcmp(char * s1, char *s2)
+{
+	while(*s1 && *s2)
+		{
+			if(*s1!=*s2 && (*s1!='/' && *s1!='\\' && *s2!='/' && *s2!='\\' )) return 1;
+			s1++;s2++;
+		}
+	return *s1!=*s2;
+}
+
 #define PARTICLE_DEF_VERSION 2
 particle_sys_def *load_particle_def(const char *filename)
 {
@@ -57,7 +67,7 @@ particle_sys_def *load_particle_def(const char *filename)
 
 	//Check if it's already loaded
 	for(i=0;i<max_particle_defs;i++)
-		if(defs_list[i] && !strcmp(cleanpath,defs_list[i]->file_name))
+		if(defs_list[i] && !part_strcmp(cleanpath,defs_list[i]->file_name))
 			return defs_list[i];
 
 	//Check if we have a free slot for it
