@@ -17,10 +17,12 @@ extern int combat_mode;
 extern int previously_logged_in;
 
 extern char version_string[];
-extern int version_major_digit;
+extern int client_version_major;
+extern int client_version_minor;
+extern int client_version_release;
+extern int client_version_patch;
 extern int version_first_digit;
 extern int version_second_digit;
-extern int version_patch_digit;
 extern int last_heart_beat;
 
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);

@@ -421,10 +421,12 @@ struct harvest_names_struct harvestable_objects[100];
 struct enter_names_struct entrable_objects[100];
 
 char version_string[]=VER_STRING;
-int	version_major_digit=VER_MAJOR;
-int version_first_digit=VER_MINOR;
-int version_second_digit=VER_RELEASE;
-int	version_patch_digit=VER_BUILD;
+int	client_version_major=VER_MAJOR;
+int client_version_minor=VER_MINOR;
+int client_version_release=VER_RELEASE;
+int	client_version_patch=VER_BUILD;
+int version_first_digit=9;	//protocol/game version sent to server
+int version_second_digit=4;
 
 
 
