@@ -218,6 +218,10 @@ SOURCE=.\frustum.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\gl_init.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\global.c
 
 !IF  "$(CFG)" == "map_editor - Win32 Release"
