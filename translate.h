@@ -10,15 +10,6 @@
 #include "stats.h"
 #endif
 
-/*! \name Group types*/
-/*! \{ */
-#define GROUP 0
-#define DIGROUP 1
-#ifdef ELC
-#define STAT_GROUP 2
-#endif
-/*! \} */
-
 /*!
  * This is used for setting a short name and description - used for i.e. options and sigils
  */

@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include "global.h"
 
+#define RAIN_SPEED 2        /*!< The speed of the rain drops -> moved to weather.c */
+#define RAIN_DROP_LEN 5     /*!< The length of the rain drops -> moved to weather.c */
+
 int seconds_till_rain_starts=-1;
 int seconds_till_rain_stops=-1;
 int is_raining=0;

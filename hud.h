@@ -9,28 +9,6 @@
 #include "elwindows.h"
 
 /*!
- * \name action types
- */
-/*! @{ */
-#define WALK 0
-#define SIT 1
-#define LOOK 2
-#define TRADE 3
-#define ATTACK 4
-#define USE 5
-/*! @} */
-
-/*!
- * \name data flags
- */
-/*! @{ */
-#define DATA_NONE -1
-#define DATA_WINDOW 0
-#define DATA_ACTIONMODE 1
-#define DATA_MODE 2
-/*! @} */
-
-/*!
  * \name orientation constants
  */
 /*! @{ */

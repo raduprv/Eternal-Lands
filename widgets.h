@@ -7,20 +7,6 @@
 #define	__WIDGETS_H
 
 /*!
- * \name    Available Widget types
- */
-/*! \{ */
-#define LABEL		0x01     /*!< a label widget (static text) */
-#define IMAGE		0x02     /*!< image widget */
-#define CHECKBOX	0x03     /*!< checkbox widget type */
-#define BUTTON		0x04     /*!< button widget */
-#define PROGRESSBAR	0x05     /*!< progressbar widget */
-#define VSCROLLBAR	0x06     /*!< vertical scrollbar widget */
-#define TABCOLLECTION	0x07     /*!< tabbed windows collection widget */
-/*! \} */
-
-
-/*!
  * The widget list structure - each window has a widget list.
  */
 typedef struct wl{

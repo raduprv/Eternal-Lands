@@ -3,6 +3,8 @@
 #include "global.h"
 #include "elwindows.h"
 
+#define	MAX_BUDDY	100 /*!< Maximum number of buddies on the buddy list*/
+
 int buddy_win=-1;
 int buddy_menu_x=150;
 int buddy_menu_y=70;

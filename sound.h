@@ -7,12 +7,6 @@
 #ifndef __SOUND_H__
 #define __SOUND_H__
 
-#define MAX_BUFFERS 9 /*!< max number of buffers */
-#define MAX_SOURCES 16 /*!< max. number of sources */
-
-#define BUFFER_SIZE (4096 * 16) /*!< size of one buffer */
-#define SLEEP_TIME 500 /*! sleep time in ms, between music or sound effects */
-
 /*!
  * playlist_entry is used to read and write the entries for a playlist.
  */
@@ -231,13 +225,13 @@ void turn_music_on();
  */
 void ogg_error(int code);
 
-/*!
- * \ingroup mutex
- * \name Sound thread synchronization
- */
-/*! @{ */
-#define	LOCK_SOUND_LIST()	SDL_LockMutex(sound_list_mutex)
-#define	UNLOCK_SOUND_LIST()	SDL_UnlockMutex(sound_list_mutex);
-/*! @} */
+//*!
+// * \ingroup mutex
+// * \name Sound thread synchronization -> moved to sound.c
+// */
+//*! @{ */
+//#define	LOCK_SOUND_LIST()	SDL_LockMutex(sound_list_mutex)
+//#define	UNLOCK_SOUND_LIST()	SDL_UnlockMutex(sound_list_mutex);
+//*! @} */
 
 #endif

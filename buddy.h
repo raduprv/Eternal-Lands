@@ -15,7 +15,6 @@ typedef struct
    char name[32]; /*!< name of your buddy */
    unsigned char type;
 }_buddy;
-#define	MAX_BUDDY	100 /*!< Maximum number of buddies on the buddy list*/
 
 extern int buddy_menu_x; /*!< The default x position of the buddy window*/
 extern int buddy_menu_y; /*!< The default y position of the buddy window*/

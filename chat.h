@@ -8,13 +8,6 @@
 
 #ifndef OLD_EVENT_HANDLER
 
-/*! \name chat text constants 
- * @{ */
-#define CHAT_WIN_TEXT_WIDTH   500 /*!< width of the text */
-#define CHAT_WIN_TEXT_HEIGHT  (18*10) /*!< height of the text: 10 lines in normal font size */
-#define CHAT_WIN_SCROLL_WIDTH 20 /*!< width of the scrollbar for the chat window */
-/*! @} */
-
 extern int use_windowed_chat; /*!< flag indicating whether we use the new windowed chat window or not */
 
 extern int chat_win_text_width; /*!< width of the chat window */

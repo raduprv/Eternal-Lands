@@ -14,12 +14,10 @@
 /*! \} */
 
 /*!
- * \name	Rain related constants
+ * \name	Rain related constant
  */
 /*! \{ */
 #define MAX_RAIN_DROPS 5000 /*!< The maximum number of rain drops in one place */
-#define RAIN_SPEED 2        /*!< The speed of the rain drops */
-#define RAIN_DROP_LEN 5     /*!< The length of the rain drops */
 /*! \} */
 
 

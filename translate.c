@@ -9,6 +9,16 @@
 #include "global.h"
 #endif
 
+/*! \name Group types */
+/*! \{ */
+#define GROUP 0
+#define DIGROUP 1
+#ifdef ELC
+#define STAT_GROUP 2
+#endif
+/*! \} */
+
+
 /*! \name Tooltips*/
 /*! \{ */
 #ifdef ELC

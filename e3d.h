@@ -11,7 +11,7 @@
  */
 /*! @{ */
 #define MAX_OBJ_3D 15000
-#define MAX_E3D_CACHE 1000
+//#define MAX_E3D_CACHE 1000 /* unused */
 /*! @} */
 
 extern int highest_obj_3d;  /*!< pointer to the highes 3D object in map */

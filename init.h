@@ -6,12 +6,6 @@
 #ifndef __INIT_H__
 #define __INIT_H__
 
-#define	CFG_VERSION	5 /*!< version of the \see bin_cfg we are using */
-
-#ifndef DATA_DIR
-#define DATA_DIR "./"
-#endif
-
 /*!
  * binary configuration data
  */

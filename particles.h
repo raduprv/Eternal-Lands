@@ -15,18 +15,6 @@
 /*! \} */
 
 /*!
- * \name Particle system kinds
- */
-/*! \{ */
-#define TELEPORTER_PARTICLE_SYS 0 /*!< particle system used by teleportes */
-#define TELEPORT_PARTICLE_SYS 1 /*!< particle system used when teleporting by either spell or by using #beam me up */
-#define BAG_PARTICLE_SYS 2 /*!< particle system used when bags (dis)appear. */
-#define BURST_PARTICLE_SYS 3 /*!< burst particle system */
-#define FIRE_PARTICLE_SYS 4 /*!< particle system used by fires/fireplaces */
-#define FOUNTAIN_PARTICLE_SYS 5 /*!< particle system used by fountains */
-/*! \} */
-
-/*!
  * stores the data of a single particle
  */
 typedef struct
@@ -133,17 +121,8 @@ extern particle_sys *particles_list[MAX_PARTICLE_SYSTEMS]; /*!< array of particl
 extern int particles_percentage;
 
 /*!
- * \name randomization of particles
- */
-/*! \{ */
-#define PARTICLE_RANDOM(min,max) (min+(max-min)*(rand()/(float)RAND_MAX))
-#define PARTICLE_RANDOM2(min,max) (min+0.5*(max-min)+0.5*(max-min)/(float)((rand()%200)-100+0.5))
-/*! \} */
-
-
-/*!
  * \ingroup mutex
- * \name Particle rendering thread synchronization
+ * \name Particle rendering thread synchronization -> moved to particles.c
  */
 /*! @{ */
 #define	LOCK_PARTICLES_LIST()	SDL_LockMutex(particles_list_mutex)

@@ -11,6 +11,12 @@
 #include "elwindows.h"
 #include "keys.h"
 
+#define	CFG_VERSION	5
+
+#ifndef DATA_DIR
+#define DATA_DIR "./"
+#endif
+
 int ini_file_size=0;
 
 int disconnected=1;

@@ -200,7 +200,7 @@ typedef	struct	{
 
 extern	windows_info	windows_list; /*!< global variable defining the list of windows */
 
-#define	SCREEN	0 /*!< defines the SCREEN */
+//#define	SCREEN	0 /*!< defines the SCREEN (unused) */
 
 // windows manager function
 

@@ -2,6 +2,21 @@
 #include <math.h>
 #include "global.h"
 
+#define MAX_BUFFERS 9 /*!< max number of buffers -> moved to sound.c */
+#define MAX_SOURCES 16 /*!< max. number of sources -> moved to sound.c */
+
+#define BUFFER_SIZE (4096 * 16) /*!< size of one buffer -> moved to sound.c */
+#define SLEEP_TIME 500 /*! sleep time in ms, between music or sound effects -> moved to sound.c */
+
+/*!
+ * \ingroup mutex
+ * \name Sound thread synchronization -> moved to sound.c
+ */
+/*! @{ */
+#define	LOCK_SOUND_LIST()	SDL_LockMutex(sound_list_mutex)
+#define	UNLOCK_SOUND_LIST()	SDL_UnlockMutex(sound_list_mutex);
+/*! @} */
+
 int have_sound=0;
 int have_music=0;
 int sound_on=1;
