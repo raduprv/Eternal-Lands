@@ -87,6 +87,7 @@ int check_scroll_bars()
 	return 0;
 }
 
+/*
 void check_menus_out_of_screen()
 {
 	if(attrib_menu_y-16<0)attrib_menu_y=16;
@@ -149,6 +150,7 @@ void check_menus_out_of_screen()
 	if(buddy_menu_x+buddy_menu_x_len<10)buddy_menu_x=0-buddy_menu_x_len+11;
 	if(buddy_menu_x>window_width-10)buddy_menu_x=window_width-10;
 }
+*/
 
 void check_mouse_click()
 {
@@ -1028,7 +1030,7 @@ int click_options_handler(window_info *win, int mx, int my, Uint32 flags)
 
 void draw_ingame_interface()
 {
-	check_menus_out_of_screen();
+	//check_menus_out_of_screen();
 
 	// watch for closing a bag
 	if(ground_items_win > 0)

@@ -449,7 +449,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		{
 			if(windows_list.num_windows < windows_list.max_windows-1)
 				{
-					win_id=windows_list.num_windows++;
+					win_id= windows_list.num_windows++;
 				}
 		}
 
@@ -483,6 +483,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 			windows_list.window[win_id].click_handler= NULL;
 			windows_list.window[win_id].drag_handler= NULL;
 			windows_list.window[win_id].mouseover_handler= NULL;
+			// now call the routine to place it properly
 			init_window(win_id, pos_id, pos_loc, pos_x, pos_y, size_x, size_y);
 		}
 
@@ -504,10 +505,13 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 
+	// do the move first
 	move_window(win_id, pos_id, pos_loc, pos_x, pos_y);
+	// then memorize the size
 	windows_list.window[win_id].len_x= size_x;
 	windows_list.window[win_id].len_y= size_y;
 
+	// finally, call any init_handler that was defined
 	if(windows_list.window[win_id].init_handler)
 		{
 			return((*windows_list.window[win_id].init_handler)(&windows_list.window[win_id]));
@@ -662,6 +666,11 @@ int	draw_window(window_info *win)
 	if(win == NULL || win->window_id < 0)	return -1;
 
 	if(!win->displayed)	return 0;
+	// check for the window actually being on the screen, if not, move it
+	if(win->cur_y < (win->flags&ELW_TITLE_HEIGHT)?ELW_TITLE_HEIGHT:0) win->cur_y= (win->flags&ELW_TITLE_HEIGHT)?ELW_TITLE_HEIGHT:0;
+	if(win->cur_y >= window_height) win->cur_y= window_height;	// had -32, but do we want that?
+	if(win->cur_x+win->len_x < ELW_BOX_SIZE) win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
+	if(win->cur_x > window_width-ELW_BOX_SIZE) win->cur_x= window_width-ELW_BOX_SIZE;
 	// mouse over processing first
 	elwin_mouse= mouseover_window(win->window_id, mouse_x, mouse_y);
 	// now normal display processing
@@ -721,6 +730,7 @@ void	toggle_window(int win_id)
 
 int	get_show_window(int win_id)
 {
+	// unititialized windows always fail as if not shown, not an error
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return 0;
 	if(windows_list.window[win_id].window_id != win_id)	return 0;
 
@@ -731,7 +741,7 @@ int	display_window(int win_id)
 {
 	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
-	// is it active?
+	// is it active/displayed?
 	if(windows_list.window[win_id].displayed)
 		{
 			return(draw_window(&windows_list.window[win_id]));
