@@ -31,6 +31,7 @@ void draw_hud_interface()
 	get_and_set_texture_id(icons_text);
     draw_peace_icons();
     draw_stats_display();
+	draw_load_exp_display();
 	draw_quickbar();
 }
 
@@ -1051,4 +1052,156 @@ int check_quickbar() {
 				}
 		}
 	return 1;
+}
+
+
+void draw_load_exp_display(){
+	int load_bar_bottom = window_height - 21;
+	int load_bar_left = window_width-215;
+	int exp_bar_bottom = window_height - 4;
+	int exp_bar_left = window_width-215;
+	int load_bar_length;
+	int exp_bar_length;
+	int nl_exp, baselev, cur_exp, curlev;
+	float prev_exp;
+	char str[10];
+	char stat_id[10][4]={"Atk", "Def", "Har", "Alc", "Mag",
+ 		       "Pot", "Sum", "Man", "Cra", "Lev"};
+	if(!your_info.carry_capacity.cur || !your_info.carry_capacity.base)
+		load_bar_length = 0;
+	else
+		load_bar_length = (int)(((float)your_info.carry_capacity.cur / (float)your_info.carry_capacity.base) * 100.0);
+ 
+	switch(watch_this_stat){
+	case 1: // attack
+		nl_exp = your_info.attack_exp_next_lev;
+		cur_exp = your_info.attack_exp;
+		baselev = your_info.attack_skill.base;
+		break;
+	case 2: // defense
+		nl_exp = your_info.defense_exp_next_lev;
+		cur_exp = your_info.defense_exp;
+		baselev = your_info.defense_skill.base;
+		break;
+	case 3: // harvest
+		nl_exp = your_info.harvesting_exp_next_lev;
+		cur_exp = your_info.harvesting_exp;
+		baselev = your_info.harvesting_skill.base;
+		break;
+	case 4: // alchemy
+		nl_exp = your_info.alchemy_exp_next_lev;
+		cur_exp = your_info.alchemy_exp;
+		baselev = your_info.alchemy_skill.base;
+		break;
+	case 5: // magic
+		nl_exp = your_info.magic_exp_next_lev;
+		cur_exp = your_info.magic_exp;
+		baselev = your_info.magic_skill.base;
+		break;
+	case 6: // potion
+		nl_exp = your_info.potion_exp_next_lev;
+		cur_exp = your_info.potion_exp;
+		baselev = your_info.potion_skill.base;
+		break;
+	case 7: // summoning
+		nl_exp = your_info.summoning_exp_next_lev;
+		cur_exp = your_info.summoning_exp;
+		baselev = your_info.summoning_skill.base;
+		break;
+	case 8: // manufacture
+		nl_exp = your_info.manufacturing_exp_next_lev;
+		cur_exp = your_info.manufacturing_exp;
+		baselev = your_info.manufacturing_skill.base;
+		break;
+	case 9: // crafting
+		nl_exp = your_info.crafting_exp_next_lev;
+		cur_exp = your_info.crafting_exp;
+		baselev = your_info.crafting_skill.base;
+		break;
+	case 10: // overall
+	default:
+		nl_exp = your_info.overall_exp_next_lev;
+		cur_exp = your_info.overall_exp;
+		baselev = your_info.overall_skill.base;
+		curlev = your_info.overall_skill.cur;
+	}
+	if(watch_this_stat != 10) curlev = baselev;
+	prev_exp = (float)nl_exp;
+	if(baselev < 10) prev_exp /= 1.4f;
+	else if(baselev < 20) prev_exp /= 1.3f;
+	else if(baselev < 30) prev_exp /= 1.2f;
+	else if(baselev < 40) prev_exp /= 1.14f;
+	else if(baselev < 90) prev_exp /= 1.07f;
+	else prev_exp /= 1.04f;
+
+	if(!cur_exp || !nl_exp)
+		exp_bar_length = 0;
+	else
+		exp_bar_length = (int)( (((float)cur_exp - prev_exp) / ((float)nl_exp - prev_exp)) * 100.0);
+ 
+	glDisable(GL_TEXTURE_2D);
+	// draw the load bar
+	glBegin(GL_QUADS);
+	if(load_bar_length >= 100)
+		glColor3f(0.8f, 0.0f, 0.0f);
+	else glColor3f(0.6f, 0.4f, 0.0f);
+	glVertex3i(load_bar_left, load_bar_bottom-15, 0);
+	glVertex3i(load_bar_left+load_bar_length, load_bar_bottom-15, 0);
+	if(load_bar_length >= 100)
+		glColor3f(0.5f, 0.0f, 0.0f);
+	else glColor3f(0.4f, 0.2f, 0.0f);
+	glVertex3i(load_bar_left+load_bar_length, load_bar_bottom, 0);
+	glVertex3i(load_bar_left, load_bar_bottom, 0);
+	glEnd();
+	// draw the exp bar
+	glBegin(GL_QUADS);
+	if(exp_bar_length >= 100)
+		glColor3f(0.9f, 0.8f, 0.0f);
+	else glColor3f(0.0f, 0.8f, 0.0f);
+	glVertex3i(exp_bar_left, exp_bar_bottom-15, 0);
+	glVertex3i(exp_bar_left+exp_bar_length, exp_bar_bottom-15, 0);
+	if(exp_bar_length >= 100)
+		glColor3f(0.6f, 0.5f, 0.0f);
+	else glColor3f(0.0f, 0.5f, 0.0f);
+	glVertex3i(exp_bar_left+exp_bar_length, exp_bar_bottom, 0);
+	glVertex3i(exp_bar_left, exp_bar_bottom, 0);
+	glEnd();
+ 
+	// draw the load bar frame
+	glBegin(GL_LINES);
+	glColor3f(0.77f, 0.57f, 0.39f);
+	glVertex3i(load_bar_left, load_bar_bottom-15, 0);
+	glVertex3i(load_bar_left+100, load_bar_bottom-15, 0);
+	glVertex3i(load_bar_left+100, load_bar_bottom-15, 0);
+	glVertex3i(load_bar_left+100, load_bar_bottom, 0);
+	glVertex3i(load_bar_left+100, load_bar_bottom, 0);
+	glVertex3i(load_bar_left, load_bar_bottom, 0);
+	glVertex3i(load_bar_left, load_bar_bottom, 0);
+	glVertex3i(load_bar_left, load_bar_bottom-15, 0);
+	// draw the exp bar frame
+	glVertex3i(exp_bar_left, exp_bar_bottom-15, 0);
+	glVertex3i(exp_bar_left+100, exp_bar_bottom-15, 0);
+	glVertex3i(exp_bar_left+100, exp_bar_bottom-15, 0);
+	glVertex3i(exp_bar_left+100, exp_bar_bottom, 0);
+	glVertex3i(exp_bar_left+100, exp_bar_bottom, 0);
+	glVertex3i(exp_bar_left, exp_bar_bottom, 0);
+	glVertex3i(exp_bar_left, exp_bar_bottom, 0);
+	glVertex3i(exp_bar_left, exp_bar_bottom-15, 0);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+	sprintf(str, "%s", stat_id[watch_this_stat-1]);
+	glColor3f(0.77f, 0.57f, 0.39f);
+	draw_string(exp_bar_left+102, exp_bar_bottom-33, str, 1);
+	sprintf(str, "%i", baselev);
+	if(exp_bar_length >=100)
+		glColor3f(0.8f, 0.8f, 0.8f);
+	else if (curlev < baselev)
+		glColor3f(0.7f, 0.2f, 0.2f);
+	else glColor3f(0.77f, 0.57f, 0.39f);
+	draw_string(exp_bar_left+102, exp_bar_bottom-15, str, 1);
+	glColor3f(0.87f, 0.67f, 0.49f);
+	sprintf(str, "Load:%4i", your_info.carry_capacity.base - your_info.carry_capacity.cur);
+	draw_string_small(load_bar_left+13, load_bar_bottom-15, str, 1);
+	sprintf(str, "Exp:%8li", nl_exp - cur_exp);
+	draw_string_small(exp_bar_left+3, exp_bar_bottom-15, str, 1);
 }

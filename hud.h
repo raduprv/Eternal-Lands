@@ -18,6 +18,8 @@ void init_stats_display();
 void draw_stats_display();
 int check_stats_display();
 
+void draw_load_exp_display();
+
 //misc section (compass, clock, ?)
 void init_misc_display();
 void draw_misc_display();

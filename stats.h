@@ -76,6 +76,7 @@ extern int attrib_menu_x_len;
 extern int attrib_menu_y_len;
 extern int attrib_menu_dragged;
 
+extern int watch_this_stat;
 
 player_attribs your_info;
 player_attribs someone_info;
