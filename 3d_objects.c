@@ -9,9 +9,6 @@ void draw_3d_object(object3d * object_id)
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	int materials_no;
-	int i;
-
 	e3d_array_vertex *array_vertex;
 	e3d_array_normal *array_normal;
 	e3d_array_uv_main *array_uv_main;
@@ -38,7 +35,6 @@ void draw_3d_object(object3d * object_id)
 
 	is_transparent=object_id->e3d_data->is_transparent;
 	is_ground=object_id->e3d_data->is_ground;
-	materials_no=object_id->e3d_data->materials_no;
 
 	check_gl_errors();
 	if(have_multitexture && clouds_shadows)
@@ -76,7 +72,6 @@ void draw_3d_object(object3d * object_id)
 		}
 	check_gl_errors();
 
-
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
@@ -98,9 +93,13 @@ void draw_3d_object(object3d * object_id)
 			glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
 			if(!is_ground)
 				{
+					int i;
+					int materials_no;
+
 					glEnableClientState(GL_NORMAL_ARRAY);
 					glNormalPointer(GL_FLOAT,0,array_normal);
 	check_gl_errors();
+					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
 	check_gl_errors();
@@ -125,8 +124,11 @@ void draw_3d_object(object3d * object_id)
 				}//is ground
 			else
 				{
-					glNormal3f(0,0,1);
+					int i;
+					int materials_no;
 
+					glNormal3f(0,0,1);
+					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
 	check_gl_errors();
@@ -149,7 +151,6 @@ void draw_3d_object(object3d * object_id)
 						}
 				}
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
 		}
 	else//draw a texture detail
 		{
@@ -162,11 +163,14 @@ void draw_3d_object(object3d * object_id)
 
 			if(!is_ground)
 				{
+					int i;
+					int materials_no;
+
 					glEnableClientState(GL_NORMAL_ARRAY);
 					glVertexPointer(3,GL_FLOAT,0,array_vertex);
 					glNormalPointer(GL_FLOAT,0,array_normal);
 	check_gl_errors();
-
+					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
 	check_gl_errors();
@@ -180,11 +184,14 @@ void draw_3d_object(object3d * object_id)
 				}//is ground
 			else
 				{
+					int i;
+					int materials_no;
+
 					glNormal3f(0,0,1);
 					glVertexPointer(3,GL_FLOAT,0,array_vertex);
 					glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
 	check_gl_errors();
-
+					materials_no=object_id->e3d_data->materials_no;
 					for(i=0;i<materials_no;i++)
 						{
 	check_gl_errors();
@@ -206,7 +213,6 @@ void draw_3d_object(object3d * object_id)
 	check_gl_errors();
 						}
 				}
-
 			ELglClientActiveTextureARB(GL_TEXTURE1_ARB);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			ELglClientActiveTextureARB(GL_TEXTURE0_ARB);
@@ -224,7 +230,6 @@ void draw_3d_object(object3d * object_id)
 			glEnable(GL_CULL_FACE);
 		}
 	check_gl_errors();
-
 }
 
 //Tests to see if an e3d object is already loaded. If it is, return the handle.
@@ -244,7 +249,6 @@ e3d_object * load_e3d_cache(char * file_name)
 	e3d_id->cache_ptr=cache_add_item(cache_e3d, e3d_id->file_name, e3d_id, sizeof(*e3d_id));
 #else	//CACHE_SYSTEM
 	int i;
-	int j;
 	int file_name_lenght;
 	file_name_lenght=strlen(file_name);
 
@@ -252,7 +256,7 @@ e3d_object * load_e3d_cache(char * file_name)
 		{
 			if(e3d_cache[i].file_name)
 				{
-					j=0;
+					int j=0;
 					while(j<file_name_lenght)
 						{
 							if(e3d_cache[i].file_name[j]!=file_name[j])break;
@@ -305,8 +309,6 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 		}
 
 	//but first convert any '\' in '/'
-	//len=strlen(file_name);
-	//for(k=0;k<len;k++)if(file_name[k]=='\\')file_name[k]='/';
 	clean_file_name(fname, file_name, 128);
 
 	returned_e3d=load_e3d_cache(fname);
@@ -377,16 +379,12 @@ void display_objects()
 				{
 					int dist1;
 					int dist2;
-					int dist;
 
 					dist1=x-objects_list[i]->x_pos;
 					dist2=y-objects_list[i]->y_pos;
-					dist=dist1*dist1+dist2*dist2;
-					if(dist<=29*29)
+					if(dist1*dist1+dist2*dist2<=29*29)
 			         	{
-							float x_len;
-							float y_len;
-							float z_len;
+							float x_len, y_len, z_len;
 							float radius;
 
 							z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
@@ -419,7 +417,6 @@ void display_objects()
 			ELglActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 	check_gl_errors();
-
 }
 
 e3d_object * load_e3d(char *file_name)
@@ -475,7 +472,7 @@ e3d_object * load_e3d(char *file_name)
 e3d_object * load_e3d_detail(e3d_object *cur_object)
 {
 	int vertex_no,faces_no,materials_no;
-	int i,k,l;
+	int i,l;
 	FILE *f = NULL;
 	e3d_vertex *vertex_list;
 	e3d_face *face_list;
@@ -553,7 +550,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	for(i=0;i<materials_no;i++)
 		{
 			char text_file_name[200];
-			int j;
+			int j,k;
 
 			l=strlen(cur_dir);
 			for(k=0;k<l;k++)text_file_name[k]=cur_dir[k];
@@ -583,15 +580,12 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	//ok, now do the reconversion, into our vertex arrays...
 	{
 		int cur_index_array=0;
-		int cur_mat;
-		int start;
-		int size;
-
 		for(i=0;i<materials_no;i++)
 			{
-				size=0;
-				start=-1;
-				cur_mat=material_list[i].material_id;
+				int	k;
+				int size=0;
+				int start=-1;
+				int cur_mat=material_list[i].material_id;
 				//some horses put two materials with the same name
 				//check to see if this si the case, and if it is, skip it
 				for(l=0;l<materials_no;l++)
