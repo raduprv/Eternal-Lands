@@ -1,3 +1,7 @@
+04-14-04
+The cache option (-DCACHE_SYSTEM) has been working well in combination with VA's and releasing unused memory. VA is still a memory hog, but better.
+Needs more testing by users with & without VA now.
+
 03-30-04
 Added #faq to dump faq.txt to the console
 Changed #mem to work without -DDEBUG if -DCACHE_SYSTEM, but only do detail dumps on debug
