@@ -731,7 +731,7 @@ void init_options()
 	add_xml_distringid(options_str,"clouds",&opt_clouds,"Clouds","Enables clouds - disable if you experience performance problems");
 	add_xml_distringid(options_str,"reflections",&opt_reflections,"Reflections","Enable reflections - disable if you experience performance problems");
 	add_xml_distringid(options_str,"fps",&opt_show_fps,"Show FPS","Show the current framerate in upper left corner");
-	add_xml_distringid(options_str,"sitlock",&opt_sit_lock,"Sit lock","Locks you in a sitting position untill you press the \"Stand\" button or rightclicks to move.");
+	add_xml_distringid(options_str,"sitlock",&opt_sit_lock,"Sit lock","Locks you in a sitting position until you press the \"Stand\" button or right click to move.");
 	add_xml_distringid(options_str,"caps",&opt_caps_filter,"Filter CAPS","Turns on/off a filter for capitalized letters");
 	add_xml_distringid(options_str,"sound",&opt_sound,"Sound","Turns on/off sound effects");
 	add_xml_distringid(options_str,"music",&opt_music,"Music","Turns on/off in-game music");
