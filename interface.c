@@ -819,7 +819,11 @@ void draw_game_map()
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
+#ifdef OPTIMIZED_LOCKS
 				if(actors_list[i]->actor_id==yourself && actors_list[i]->tmp.have_tmp)
+#else
+				if(actors_list[i]->actor_id==yourself)
+#endif
 					{
 #ifdef OPTIMIZED_LOCKS
 						//lock_actors_lists();

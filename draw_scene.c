@@ -375,10 +375,13 @@ void Move()
 #endif
 	for(i=0;i<max_actors;i++)
 		{
-			if(actors_list[i] && actors_list[i]->actor_id==yourself && actors_list[i]->tmp.have_tmp)
+#ifdef OPTIMIZED_LOCKS
+			if(actors_list[i] && actors_list[i]->actor_id==yourself&& actors_list[i]->tmp.have_tmp)
+#else
+			if(actors_list[i] && actors_list[i]->actor_id==yourself)
+#endif
 				{
 #ifdef OPTIMIZED_LOCKS
-					//lock_actors_lists();
 					float x=actors_list[i]->tmp.x_pos;
 					float y=actors_list[i]->tmp.y_pos;
 					float z=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f;
@@ -386,9 +389,6 @@ void Move()
 					float x=actors_list[i]->x_pos;
 					float y=actors_list[i]->y_pos;
 					float z=-2.2f+height_map[actors_list[i]->y_tile_pos*tile_map_size_x*6+actors_list[i]->x_tile_pos]*0.2f;
-#endif
-#ifdef OPTIMIZED_LOCKS
-					//unlock_actors_lists();
 #endif
 					//move near the actor, but smoothly
 					camera_x_speed=(x-(-cx))/16.0;
