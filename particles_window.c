@@ -595,6 +595,7 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 {
 	int x,y,tmp,i;
 	int minx,miny,minz,maxx,maxy,maxz;
+	float incr=0.01;
 
 	if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
 
@@ -604,6 +605,8 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 		return 1;
 	}
 
+	if(shift_on/*flags&ELW_SHIFT*/)incr=0.1;
+	if(ctrl_on/*flags&ELW_CTRL*/)incr=1.0;
 
 	lock_particles_list();
 	check_particle_sys_alive();
@@ -653,54 +656,54 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 	else if(tmp==2 && def.part_size>0.1)def.part_size-=0.1;
 
 	tmp=check_plus_minus_hit(colorx3-pm_width,colorry,x,y);
-	if(tmp==1)def.minr+=0.05;
-	else if(tmp==2)def.minr-=0.05;
+	if(tmp==1)def.minr+=incr;
+	else if(tmp==2)def.minr-=incr;
 	tmp=check_plus_minus_hit(colorx3-pm_width,colorgy,x,y);
-	if(tmp==1)def.ming+=0.05;
-	else if(tmp==2)def.ming-=0.05;
+	if(tmp==1)def.ming+=incr;
+	else if(tmp==2)def.ming-=incr;
 	tmp=check_plus_minus_hit(colorx3-pm_width,colorby,x,y);
-	if(tmp==1)def.minb+=0.05;
-	else if(tmp==2)def.minb-=0.05;
+	if(tmp==1)def.minb+=incr;
+	else if(tmp==2)def.minb-=incr;
 	tmp=check_plus_minus_hit(colorx3-pm_width,coloray,x,y);
-	if(tmp==1)def.mina+=0.05;
-	else if(tmp==2)def.mina-=0.05;
+	if(tmp==1)def.mina+=incr;
+	else if(tmp==2)def.mina-=incr;
 	tmp=check_plus_minus_hit(colorx4-pm_width,colorry,x,y);
-	if(tmp==1)def.maxr+=0.05;
-	else if(tmp==2)def.maxr-=0.05;
+	if(tmp==1)def.maxr+=incr;
+	else if(tmp==2)def.maxr-=incr;
 	tmp=check_plus_minus_hit(colorx4-pm_width,colorgy,x,y);
-	if(tmp==1)def.maxg+=0.05;
-	else if(tmp==2)def.maxg-=0.05;
+	if(tmp==1)def.maxg+=incr;
+	else if(tmp==2)def.maxg-=incr;
 	tmp=check_plus_minus_hit(colorx4-pm_width,colorby,x,y);
-	if(tmp==1)def.maxb+=0.05;
-	else if(tmp==2)def.maxb-=0.05;
+	if(tmp==1)def.maxb+=incr;
+	else if(tmp==2)def.maxb-=incr;
 	tmp=check_plus_minus_hit(colorx4-pm_width,coloray,x,y);
-	if(tmp==1)def.maxa+=0.05;
-	else if(tmp==2)def.maxa-=0.05;
+	if(tmp==1)def.maxa+=incr;
+	else if(tmp==2)def.maxa-=incr;
 
 	tmp=check_plus_minus_hit(colorx3-pm_width,colorry+110,x,y);
-	if(tmp==1)def.mindr+=0.01;
-	else if(tmp==2)def.mindr-=0.01;
+	if(tmp==1)def.mindr+=incr;
+	else if(tmp==2)def.mindr-=incr;
 	tmp=check_plus_minus_hit(colorx3-pm_width,colorgy+110,x,y);
-	if(tmp==1)def.mindg+=0.01;
-	else if(tmp==2)def.mindg-=0.01;
+	if(tmp==1)def.mindg+=incr;
+	else if(tmp==2)def.mindg-=incr;
 	tmp=check_plus_minus_hit(colorx3-pm_width,colorby+110,x,y);
-	if(tmp==1)def.mindb+=0.01;
-	else if(tmp==2)def.mindb-=0.01;
+	if(tmp==1)def.mindb+=incr;
+	else if(tmp==2)def.mindb-=incr;
 	tmp=check_plus_minus_hit(colorx3-pm_width,coloray+110,x,y);
-	if(tmp==1)def.minda+=0.01;
-	else if(tmp==2)def.minda-=0.01;
+	if(tmp==1)def.minda+=incr;
+	else if(tmp==2)def.minda-=incr;
 	tmp=check_plus_minus_hit(colorx4-pm_width,colorry+110,x,y);
-	if(tmp==1)def.maxdr+=0.01;
-	else if(tmp==2)def.maxdr-=0.01;
+	if(tmp==1)def.maxdr+=incr;
+	else if(tmp==2)def.maxdr-=incr;
 	tmp=check_plus_minus_hit(colorx4-pm_width,colorgy+110,x,y);
-	if(tmp==1)def.maxdg+=0.01;
-	else if(tmp==2)def.maxdg-=0.01;
+	if(tmp==1)def.maxdg+=incr;
+	else if(tmp==2)def.maxdg-=incr;
 	tmp=check_plus_minus_hit(colorx4-pm_width,colorby+110,x,y);
-	if(tmp==1)def.maxdb+=0.01;
-	else if(tmp==2)def.maxdb-=0.01;
+	if(tmp==1)def.maxdb+=incr;
+	else if(tmp==2)def.maxdb-=incr;
 	tmp=check_plus_minus_hit(colorx4-pm_width,coloray+110,x,y);
-	if(tmp==1)def.maxda+=0.01;
-	else if(tmp==2)def.maxda-=0.01;
+	if(tmp==1)def.maxda+=incr;
+	else if(tmp==2)def.maxda-=incr;
 
 
 	minx=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+20,x,y);
@@ -712,46 +715,46 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 	switch(preview_display_particle_handles)
 		{
 		case(PREVIEW_PARTICLE_STARTPOS):
-			if(minx==1)def.minx+=0.1;
-			else if(minx==2)def.minx-=0.1;
-			else if(miny==1)def.miny+=0.1;
-			else if(miny==2)def.miny-=0.1;
-			else if(minz==1)def.minz+=0.1;
-			else if(minz==2)def.minz-=0.1;
-			else if(maxx==1)def.maxx+=0.1;
-			else if(maxx==2)def.maxx-=0.1;
-			else if(maxy==1)def.maxy+=0.1;
-			else if(maxy==2)def.maxy-=0.1;
-			else if(maxz==1)def.maxz+=0.1;
-			else if(maxz==2)def.maxz-=0.1;
+			if(minx==1)def.minx+=incr;
+			else if(minx==2)def.minx-=incr;
+			else if(miny==1)def.miny+=incr;
+			else if(miny==2)def.miny-=incr;
+			else if(minz==1)def.minz+=incr;
+			else if(minz==2)def.minz-=incr;
+			else if(maxx==1)def.maxx+=incr;
+			else if(maxx==2)def.maxx-=incr;
+			else if(maxy==1)def.maxy+=incr;
+			else if(maxy==2)def.maxy-=incr;
+			else if(maxz==1)def.maxz+=incr;
+			else if(maxz==2)def.maxz-=incr;
 			break;
 		case(PREVIEW_PARTICLE_STARTVEL):
-			if(minx==1)def.vel_minx+=0.01;
-			else if(minx==2)def.vel_minx-=0.01;
-			else if(miny==1)def.vel_miny+=0.01;
-			else if(miny==2)def.vel_miny-=0.01;
-			else if(minz==1)def.vel_minz+=0.01;
-			else if(minz==2)def.vel_minz-=0.01;
-			else if(maxx==1)def.vel_maxx+=0.01;
-			else if(maxx==2)def.vel_maxx-=0.01;
-			else if(maxy==1)def.vel_maxy+=0.01;
-			else if(maxy==2)def.vel_maxy-=0.01;
-			else if(maxz==1)def.vel_maxz+=0.01;
-			else if(maxz==2)def.vel_maxz-=0.01;
+			if(minx==1)def.vel_minx+=incr;
+			else if(minx==2)def.vel_minx-=incr;
+			else if(miny==1)def.vel_miny+=incr;
+			else if(miny==2)def.vel_miny-=incr;
+			else if(minz==1)def.vel_minz+=incr;
+			else if(minz==2)def.vel_minz-=incr;
+			else if(maxx==1)def.vel_maxx+=incr;
+			else if(maxx==2)def.vel_maxx-=incr;
+			else if(maxy==1)def.vel_maxy+=incr;
+			else if(maxy==2)def.vel_maxy-=incr;
+			else if(maxz==1)def.vel_maxz+=incr;
+			else if(maxz==2)def.vel_maxz-=incr;
 			break;
 		case(PREVIEW_PARTICLE_ACC):
-			if(minx==1)def.acc_minx+=0.01;
-			else if(minx==2)def.acc_minx-=0.01;
-			else if(miny==1)def.acc_miny+=0.01;
-			else if(miny==2)def.acc_miny-=0.01;
-			else if(minz==1)def.acc_minz+=0.01;
-			else if(minz==2)def.acc_minz-=0.01;
-			else if(maxx==1)def.acc_maxx+=0.01;
-			else if(maxx==2)def.acc_maxx-=0.01;
-			else if(maxy==1)def.acc_maxy+=0.01;
-			else if(maxy==2)def.acc_maxy-=0.01;
-			else if(maxz==1)def.acc_maxz+=0.01;
-			else if(maxz==2)def.acc_maxz-=0.01;
+			if(minx==1)def.acc_minx+=incr;
+			else if(minx==2)def.acc_minx-=incr;
+			else if(miny==1)def.acc_miny+=incr;
+			else if(miny==2)def.acc_miny-=incr;
+			else if(minz==1)def.acc_minz+=incr;
+			else if(minz==2)def.acc_minz-=incr;
+			else if(maxx==1)def.acc_maxx+=incr;
+			else if(maxx==2)def.acc_maxx-=incr;
+			else if(maxy==1)def.acc_maxy+=incr;
+			else if(maxy==2)def.acc_maxy-=incr;
+			else if(maxz==1)def.acc_maxz+=incr;
+			else if(maxz==2)def.acc_maxz-=incr;
 			break;
 		case(PREVIEW_PARTICLE_CONSTRAINT):
 			if(maxx==1)
