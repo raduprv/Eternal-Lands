@@ -2,6 +2,7 @@
  * \file
  * \ingroup sound
  * \brief Music and sound effects and their handling in EL.
+ * \sa soundpage
  */
 #ifndef __SOUND_H__
 #define __SOUND_H__
@@ -40,31 +41,31 @@ extern ALfloat music_gain; /*!< gain for playing music */
  *
  *      Stops playing the sound that is specified by the given index.
  *
- * \param i index
+ * \param i index of the sound to stop
  * \return None
  */
 void stop_sound(int i);
 
 /*!
  * \ingroup sound_effects
- * \brief add_sound_object
+ * \brief adds the file \a sound_file at the position (\a x, \a y) to the list of sounds to play.
  *
- *      add_sound_object(int,int,int,int,int)
+ *      Adds the file \a sound_file at the position (\a x, \a y) to the list of sounds to play. The parameter \a positional determines whether we should use positional sound. The parameter \a loops is a flag to indicicate whether we should play the sound in a loop or not.
  *
  * \param sound_file    A handle for the sound file to use
- * \param x             x
- * \param y             y
- * \param positional    positional
- * \param loops         loops
- * \return int          int
+ * \param x             the x coordinate of the position where the sound should be audible.
+ * \param y             the y coordinate of the position where the sound should be audible.
+ * \param positional    boolean flag, indicating whether we shall play the sound positional.
+ * \param loops         boolean flag, indicating whether we shall play the sound in a loop.
+ * \return int          int returns the added sound_object
  */
 int add_sound_object(int sound_file,int x, int y,int positional,int loops);
 
 /*!
  * \ingroup sound_effects
- * \brief update_position
+ * \brief updates the position change of sound played.
  *
- *      update_position()
+ *      Updates the position change of sound played.
  *
  * \return None
  */
@@ -72,9 +73,9 @@ void update_position();
 
 /*!
  * \ingroup sound_effects
- * \brief kill_local_sounds
+ * \brief kill all sounds that loop infinitely
  *
- *      kill_local_sounds()
+ *      kill all the sounds that loop infinitely; usefull when we change maps, etc.
  *
  * \return None
  */
@@ -126,7 +127,7 @@ void destroy_sound();
  *
  *      Reallocates the sources of playlist entries.
  *
- * \return int
+ * \return int  the number of sound sources still in use.
  */
 int realloc_sources();
 
@@ -134,10 +135,10 @@ int realloc_sources();
  * \ingroup sound
  * \brief retrieves a previously loaded buffer at the given index.
  *
- *      Retrieves a previously loaded buffer at the given index.
+ *      Retrieves a previously loaded buffer at the given index. If the sound file at the index \a i is not buffered already, it will be loaded and buffered for future use.
  *
- * \param i index
- * \return ALuint
+ * \param i index of the file to load
+ * \return ALuint   a handle into the sound buffer.
  */
 ALuint get_loaded_buffer(int i);
 
@@ -187,20 +188,20 @@ void play_music(int list);
 
 /*!
  * \ingroup music
- * \brief update_music
+ * \brief updates the music and brings the sound system in sync.
  *
- *      update_music(void*)
+ *      Updates the music and brings the sound system in sync.
  *
  * \param dummy currently not used
- * \return int
+ * \return int  always returns 0.
  */
 int update_music(void *dummy);
 
 /*!
  * \ingroup music
- * \brief creates a sound stream from the data in buffer
+ * \brief creates a sound stream from the data pointed to by \a buffer
  *
- *      Creates a sound stream, ready for playback, from the given data.
+ *      Creates a sound stream, ready for playback, from the data pointed to by \a buffer.
  *
  * \param buffer    handle to a buffer with the sound data
  * \return None
