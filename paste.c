@@ -16,18 +16,8 @@ void do_paste(Uint8 * buffer)
 			ch=buffer[i];
         	if(((ch>=32 && ch<=126) || (ch>127+c_grey4)) && input_text_lenght<160)
         	    {
-        	        input_text_line[input_text_lenght]=ch;
-        	        input_text_line[input_text_lenght+1]='_';
-        	        input_text_line[input_text_lenght+2]=0;
-        	        input_text_lenght++;
-        	        if(input_text_lenght==window_width/11-1)
-        	        	{
-        	        		input_text_line[input_text_lenght]=0x0a;
-        	        		input_text_line[input_text_lenght+1]='_';
-        	        		input_text_line[input_text_lenght+2]=0;
-        	        		input_text_lenght++;
-						}
-        	    }
+        	    	put_char_in_buffer(ch);
+		    }
 			if(input_text_lenght>=160)return;
 		}
 }

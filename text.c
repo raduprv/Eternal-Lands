@@ -4,6 +4,7 @@
 
 char input_text_line[257];
 int input_text_lenght=0;
+int input_text_lines=1;
 char display_text_buffer[max_display_text_buffer_lenght];
 
 int display_text_buffer_first=0;
@@ -209,10 +210,21 @@ void check_chat_text_to_overtext(unsigned char *text_to_add, int len)
 	}
 }
 
-
-
-
-
+void put_char_in_buffer(unsigned char ch)
+{
+	input_text_line[input_text_lenght]=ch;
+	input_text_line[input_text_lenght+1]='_';
+	input_text_line[input_text_lenght+2]=0;
+	input_text_lenght++;
+	if(input_text_lenght==(input_text_lines*(window_width-hud_x))/(get_char_width(ch)-1)-1)
+		{
+			input_text_line[input_text_lenght]=0x0a;
+			input_text_line[input_text_lenght+1]='_';
+			input_text_line[input_text_lenght+2]=0;
+			input_text_lenght++;
+			input_text_lines++;
+		}
+}
 
 
 void put_colored_text_in_buffer(Uint8 color, unsigned char *text_to_add, int len, 

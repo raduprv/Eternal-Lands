@@ -319,9 +319,9 @@ void draw_scene()
 	draw_ingame_interface();
 	check_gl_errors();
 	//print the text line we are currently writting (if any)
-	y_line=window_height-(17*6);
+	y_line=window_height-(17*(4+input_text_lines));
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(10,y_line,input_text_line,2);
+	draw_string(10,y_line,input_text_line,input_text_lines);
 
 	Leave2DMode();
 	glEnable(GL_LIGHTING);

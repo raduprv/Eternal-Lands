@@ -383,6 +383,7 @@ int HandleEvent(SDL_Event *event)
 					{
 						input_text_lenght=0;
 						input_text_line[0]=0;
+						input_text_lines=1;
 					}
 
 				//see if we get any text
@@ -430,25 +431,12 @@ int HandleEvent(SDL_Event *event)
 								int i;
 								int l=strlen(last_pm_from);
 								for(i=0;i<l;i++)input_text_line[input_text_lenght++]=last_pm_from[i];
-								input_text_line[input_text_lenght]=' ';	//and a space after it
-								input_text_line[input_text_lenght+1]='_';
-								input_text_line[input_text_lenght+2]=0;
-								input_text_lenght++;
+								put_char_in_buffer(' ');
 							}
 						else
 							{
 								//not the shortcut, add the character to the buffer
-								input_text_line[input_text_lenght]=ch;
-								input_text_line[input_text_lenght+1]='_';
-								input_text_line[input_text_lenght+2]=0;
-								input_text_lenght++;
-								if(input_text_lenght==(window_width-hud_x)/11-1)
-									{
-										input_text_line[input_text_lenght]=0x0a;
-										input_text_line[input_text_lenght+1]='_';
-										input_text_line[input_text_lenght+2]=0;
-										input_text_lenght++;
-									}
+								put_char_in_buffer(ch);
 							}
 					}
 				if(ch==SDLK_BACKSPACE && input_text_lenght>0)
@@ -457,6 +445,7 @@ int HandleEvent(SDL_Event *event)
 						if(input_text_line[input_text_lenght]==0x0a)
 							{
 								input_text_lenght--;
+								if(input_text_lines>1)input_text_lines--;
 								input_text_line[input_text_lenght]='_';
 								input_text_line[input_text_lenght+1]=0;
 							}
@@ -470,6 +459,7 @@ int HandleEvent(SDL_Event *event)
 						else send_input_text_line();
 						//also clear the buffer
 						input_text_lenght=0;
+						input_text_lines=1;
 						input_text_line[0]=0;
 					}
 				

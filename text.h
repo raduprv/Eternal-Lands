@@ -7,6 +7,7 @@ extern float chat_zoom;
 
 extern char input_text_line[257];
 extern int input_text_lenght;
+extern int input_text_lines;
 extern char display_text_buffer[max_display_text_buffer_lenght];
 
 extern int display_text_buffer_first;
@@ -28,6 +29,7 @@ extern int log_server;
 void write_to_log(Uint8 * data,int len);
 void send_input_text_line();
 int filter_or_ignore_text(unsigned char *text_to_add, int len);
+void put_char_in_buffer(unsigned char ch);
 void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit);
 void put_colored_text_in_buffer(Uint8 color,unsigned char *text_to_add, int len, 
 								int x_chars_limit);
