@@ -193,17 +193,13 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	for(i=0;i<MAX_RESPONSES;i++)
 		{
-			if(dialogue_responces[i].in_use)
+			if(dialogue_responces[i].in_use && dialogue_responces[i].mouse_over)
 				{
-					if(mx>=dialogue_responces[i].x_start+5 && mx<=dialogue_responces[i].x_start+5+dialogue_responces[i].x_len &&
-					   my>=dialogue_responces[i].y_start+7*14 && my<=dialogue_responces[i].y_start+7*14+dialogue_responces[i].y_len)
-						{
-							str[0]=RESPOND_TO_NPC;
-							*((Uint16 *)(str+1))=dialogue_responces[i].to_actor;
-							*((Uint16 *)(str+3))=dialogue_responces[i].response_id;
-							my_tcp_send(my_socket,str,5);
-							return 1;
-						}
+					str[0]=RESPOND_TO_NPC;
+					*((Uint16 *)(str+1))=dialogue_responces[i].to_actor;
+					*((Uint16 *)(str+3))=dialogue_responces[i].response_id;
+					my_tcp_send(my_socket,str,5);
+					return 1;
 				}
 		}
 	if(mx>=win->len_x-60 && my>=win->len_y-16)
@@ -227,6 +223,5 @@ void display_dialogue()
 		show_window(dialogue_win);
 		select_window(dialogue_win);
 	}
-	display_window(dialogue_win);
 }
 
