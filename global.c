@@ -281,7 +281,7 @@ player_attribs someone_info;
 int attrib_menu_x=100;
 int attrib_menu_y=20;
 int attrib_menu_x_len=516;
-int attrib_menu_y_len=320;
+int attrib_menu_y_len=348;
 int attrib_menu_dragged=0;
 
 //items
