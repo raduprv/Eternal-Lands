@@ -1,13 +1,6 @@
 #include "global.h"
 #include <string.h>
 
-#ifdef WINDOWS
-#include <io.h>
-#else
-#include <dirent.h>
-#include <sys/types.h>
-#endif
-
 int view_browser=0;
 int browser_menu_x=150;
 int browser_menu_y=70;
@@ -328,35 +321,6 @@ int check_browser_interface()
    return 1;
 }
 
-
-void add_dir(char *n)
-{
-#ifdef	WINDOWS
-	char execp[256];
-	struct _finddata_t c_file;
-    long hFile;
-	int i=0;
-
-	strcpy(execp,exec_path);
-	strcat(execp,"/3dobjects/");
-	strcat(execp,n);
-	strcat(execp,"/*.e3d");
-
-	strcpy(Dir[dc].DirName,n);
-	Dir[dc].nf=1;
-
-	hFile = _findfirst(execp, &c_file );
-	strcpy(Dir[dc].Files[i++],c_file.name);
-
-    while(_findnext(hFile, &c_file)==0)
-    {
-		strcpy(Dir[dc].Files[i++],c_file.name);
-		Dir[dc].nf++;
-	}
-	dc++;
-#endif
-}
-
 void init_browser()
 {
 	char temp[512];
@@ -393,64 +357,4 @@ void init_browser()
 		}
 	}
 	dc++;
-/*
-#ifdef WINDOWS
-	char execp[256];
-	struct _finddata_t c_file;
-    long hFile;
-
-	strcpy(execp,exec_path);
-	strcat(execp,"/3dobjects/*");
-	hFile = _findfirst(execp, &c_file );
-
-    while(_findnext(hFile, &c_file)==0)
-    {
-		if(c_file.attrib & _A_SUBDIR){
-			if(c_file.name[0]!='.')
-				add_dir(c_file.name);
-		}
-	}
-
-	_findclose( hFile );
-#else
-	char execp[256];
-	struct dirent * ffile;
-	DIR * dir;
-	
-	strcpy(execp,exec_path);
-	strcat(execp,"/3dobjects/");
-
-	if (!(dir = opendir(execp)))
-		return;
-
-	while ((ffile = readdir(dir))){
-		struct dirent * ffile2;
-		DIR * dir2;
-		char temp[256];
-		int i=0;
-
-		strcpy(temp,exec_path);
-		strcat(temp,"/3dobjects/");
-		strcat(temp,ffile->d_name);
-
-		if (ffile->d_name[0]=='.' || !(dir2 = opendir(temp)))
-			continue;
-		strcpy(Dir[dc].DirName,ffile->d_name);
-		Dir[dc].nf=0;
-		while ((ffile2 = readdir(dir2))){
-			char *t=ffile2->d_name;
-			
-			while(*t!='.')t++;
-			if(!strcmp(t,".e3d")){//its an e3d add to list
-				strcpy(Dir[dc].Files[i++],ffile2->d_name);
-				Dir[dc].nf++;
-			}    
-		}
-		closedir(dir2);
-		dc++;
-  }
-  closedir(dir);
-  
-#endif
-*/
 }
