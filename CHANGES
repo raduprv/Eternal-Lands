@@ -1,3 +1,6 @@
+02-05-04
+Added name_text_size and chat_text_size to el.ini to adjust the font sizes
+
 02-02-04
 Fixed name tag & healthbar positioning issues
 Name & healthbar no longer zoom
