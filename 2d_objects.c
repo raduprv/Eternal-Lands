@@ -19,7 +19,7 @@ void draw_2d_object(obj_2d * object_id)
 	int object_type;
 	obj_2d_def *obj_def_pointer;
 
-	int texture_id;
+	//int texture_id;
 
 	obj_def_pointer=object_id->obj_pointer;
 
@@ -63,7 +63,7 @@ void draw_2d_object(obj_2d * object_id)
     else
     glAlphaFunc(GL_GREATER,0.18f);
 
-	texture_id=get_and_set_texture_id(obj_def_pointer->texture_id);
+	get_and_set_texture_id(obj_def_pointer->texture_id);
 
 	if(!have_multitexture || !clouds_shadows)
 		{
@@ -112,7 +112,7 @@ void draw_2d_object(obj_2d * object_id)
 			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
 								 +clouds_movement_u,y1/texture_scale
 								 +clouds_movement_v);
-			glVertex3f(render_x_start,render_y_start,z_pos);
+			glVertex3f(x,y,z_pos);
 
 			x=render_x_start;
 			y=render_y_start+y_size;
@@ -125,7 +125,7 @@ void draw_2d_object(obj_2d * object_id)
 			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
 								 +clouds_movement_u,y1/texture_scale
 								 +clouds_movement_v);
-			glVertex3f(render_x_start,render_y_start+y_size,z_pos);
+			glVertex3f(x,y,z_pos);
 
 			x=render_x_start+x_size;
 			y=render_y_start+y_size;
@@ -138,7 +138,7 @@ void draw_2d_object(obj_2d * object_id)
 			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
 								 +clouds_movement_u,y1/texture_scale
 								 +clouds_movement_v);
-			glVertex3f(render_x_start+x_size,render_y_start+y_size,z_pos);
+			glVertex3f(x,y,z_pos);
 
 			x=render_x_start+x_size;
 			y=render_y_start;
@@ -152,7 +152,7 @@ void draw_2d_object(obj_2d * object_id)
 			ELglMultiTexCoord2fARB(GL_TEXTURE1_ARB,x1/texture_scale
 								 +clouds_movement_u,y1/texture_scale
 								 +clouds_movement_v);
-			glVertex3f(render_x_start+x_size,render_y_start,z_pos);
+			glVertex3f(x,y,z_pos);
     		glEnd();
     		//disable the multitexturing
 			ELglActiveTextureARB(GL_TEXTURE1_ARB);
@@ -334,6 +334,12 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 	for(i=0;i<max_obj_2d_def;i++)
 		{
+			if(!strcasecmp(obj_2d_def_cache[i].file_name, file_name))
+				{
+					// we found a cached copy, use it
+					return obj_2d_def_cache[i].obj_2d_def_id;
+				}
+			/*
 			j=0;
 			while(j<file_name_lenght)
 				{
@@ -342,9 +348,10 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 				}
 			if(file_name_lenght==j)//ok, obj_2d_def already loaded
 				return obj_2d_def_cache[i].obj_2d_def_id;
+			*/
 		}
 	//asc not found in the cache, so load it, and store it
-	obj_2d_def_id=load_obj_2d_def(file_name);
+	obj_2d_def_id= load_obj_2d_def(file_name);
 
 	//find a place to store it
 	i=0;
@@ -371,14 +378,10 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	obj_2d *our_object;
 	short sector;
 
-	our_object = calloc(1, sizeof(obj_2d));
-
 	//find a free spot, in the obj_2d_list
-	i=0;
-	while(i<max_obj_2d)
+	for(i=0; i<max_obj_2d; i++)
 		{
 			if(!obj_2d_list[i])break;
-			i++;
 		}
 
 	//but first convert any '\' in '/'
@@ -390,10 +393,10 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
             char str[256];
             sprintf(str,"Can't load 2d object: %s",fname);
             LogError(str);
-            free(our_object);
 	        return 0;
 		}
 
+	our_object = calloc(1, sizeof(obj_2d));
 	my_strncp(our_object->file_name, fname, 80);
 	our_object->x_pos=x_pos;
 	our_object->y_pos=y_pos;
