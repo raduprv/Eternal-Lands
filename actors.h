@@ -210,6 +210,7 @@ typedef struct
 
 extern SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main threads
 extern actor *actors_list[1000];
+extern int	max_actors;
 extern actor_types actors_defs[40];
 
 md2 * load_md2_cache(char * file_name);
