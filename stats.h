@@ -39,6 +39,7 @@ typedef struct
 	attrib_16 magic_skill;
 	attrib_16 potion_skill;
 	attrib_16 summoning_skill;
+	attrib_16 crafting_skill;
 
 	attrib_16 carry_capacity;
 	Sint8 food_level;
@@ -65,6 +66,8 @@ typedef struct
 	Uint32 potion_exp_next_lev;
 	Uint32 summoning_exp;
 	Uint32 summoning_exp_next_lev;
+	Uint32 crafting_exp;
+	Uint32 crafting_exp_next_lev;
 
 } player_attribs;
 

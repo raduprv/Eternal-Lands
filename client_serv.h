@@ -487,6 +487,10 @@
 #define SUM_EXP_NEXT 68
 #define SUM_S_CUR 69
 #define SUM_S_BASE 70
+#define CRA_EXP 71
+#define CRA_EXP_NEXT 72
+#define CRA_S_CUR 73
+#define CRA_S_BASE 74
 
 //SOUND
 #define snd_rain     0

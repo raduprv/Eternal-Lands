@@ -2,6 +2,8 @@
 
 void get_the_stats(Sint16 *stats)
 {
+	memset(&your_info, 0, sizeof(your_info));	// failsafe incase structure changes
+
 	your_info.phy.cur=stats[0];
 	your_info.phy.base=stats[1];
 	your_info.coo.cur=stats[2];
@@ -77,6 +79,10 @@ void get_the_stats(Sint16 *stats)
 	your_info.summoning_skill.base=stats[84];
 	your_info.summoning_exp=*((Uint32 *)(stats+85));
 	your_info.summoning_exp_next_lev=*((Uint32 *)(stats+87));
+	your_info.crafting_skill.cur=stats[89];
+	your_info.crafting_skill.base=stats[90];
+	your_info.crafting_exp=*((Uint32 *)(stats+91));
+	your_info.crafting_exp_next_lev=*((Uint32 *)(stats+93));
 
 }
 
@@ -153,6 +159,10 @@ void get_partial_stat(Uint8 name,Sint32 value)
 	else if(name==SUM_EXP_NEXT)your_info.summoning_exp_next_lev=value;
 	else if(name==SUM_S_CUR)your_info.summoning_skill.cur=value;
 	else if(name==SUM_S_BASE)your_info.summoning_skill.base=value;
+	else if(name==CRA_EXP)your_info.crafting_exp=value;
+	else if(name==CRA_EXP_NEXT)your_info.crafting_exp_next_lev=value;
+	else if(name==CRA_S_CUR)your_info.crafting_skill.cur=value;
+	else if(name==CRA_S_BASE)your_info.crafting_skill.base=value;
 
 }
 
@@ -272,6 +282,8 @@ void display_stats(player_attribs cur_stats)
 	draw_string_small(x,y,str,1);
 
 	glColor3f(0.5f,0.5f,1.0f);
+	y+=14;	// blank lines for spacing
+	y+=14;	// blank lines for spacing
 
 	//other attribs
 	y+=20;
@@ -380,18 +392,11 @@ void display_stats(player_attribs cur_stats)
 	sprintf(str,"Summoning:   %2i/%-2i [%2i/%-2i]",cur_stats.summoning_skill.cur,cur_stats.summoning_skill.base,
 			cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
 	draw_string_small(x,y,str,1);
+
+	y+=14;
+	sprintf(str,"Crafting:    %2i/%-2i [%2i/%-2i]",cur_stats.crafting_skill.cur,cur_stats.crafting_skill.base,
+			cur_stats.crafting_exp,cur_stats.crafting_exp_next_lev);
+	draw_string_small(x,y,str,1);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
