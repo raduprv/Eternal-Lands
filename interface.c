@@ -74,14 +74,14 @@ void get_old_world_x_y()
 
 int check_drag_menus()
 {
-	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) > 0)	return 1;
+	if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)	return 1;
 
 	return 0;
 }
 
 int check_scroll_bars()
 {
-	if(drag_in_windows(mouse_x, mouse_y, 0, mouse_delta_x, mouse_delta_y) > 0)	return 1;
+	if(drag_in_windows(mouse_x, mouse_y, 0, mouse_delta_x, mouse_delta_y) >= 0)	return 1;
 
 	return 0;
 }
@@ -90,7 +90,7 @@ void check_mouse_click()
 {
 	int force_walk=(ctrl_on && right_click);
 	// check for a click on the HUD (between scene & windows)
-	if(click_in_windows(mouse_x, mouse_y, 0) > 0)	return;
+	if(click_in_windows(mouse_x, mouse_y, 0) >= 0)	return;
 
 	if(!force_walk)
 	if(right_click) {

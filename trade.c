@@ -1,7 +1,7 @@
 #include "global.h"
 #include "elwindows.h"
 
-int trade_win=0;
+int trade_win=-1;
 
 int display_trade_handler(window_info *win)
 {
@@ -633,8 +633,8 @@ void remove_item_from_trade(Uint8 *data)
 
 void display_trade_menu()
 {
-	if(trade_win <= 0){
-		trade_win= create_window("Trade", 0, 0, trade_menu_x, trade_menu_y, trade_menu_x_len, trade_menu_y_len, (ELW_WIN_DEFAULT& ~ELW_CLOSE_BOX));
+	if(trade_win < 0){
+		trade_win= create_window("Trade", -1, 0, trade_menu_x, trade_menu_y, trade_menu_x_len, trade_menu_y_len, (ELW_WIN_DEFAULT& ~ELW_CLOSE_BOX));
 
 		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );

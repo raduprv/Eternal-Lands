@@ -3,14 +3,14 @@
 
 int use_tabbed_windows = 1;
 
-int tab_stats_win = 0;
+int tab_stats_win = -1;
 int tab_stats_collection_id = 16;
 Uint16 tab_stats_x = 150;
 Uint16 tab_stats_y = 70;
 Uint16 tab_stats_len_x = STATS_TAB_WIDTH + 2*TAB_MARGIN;
 Uint16 tab_stats_len_y = STATS_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
 
-int tab_help_win = 0;
+int tab_help_win = -1;
 int tab_help_collection_id = 17;
 Uint16 tab_help_x = 150;
 Uint16 tab_help_y = 70;
@@ -24,9 +24,9 @@ int display_tab_stats_handler ()
 
 void display_tab_stats ()
 {
-	if (tab_stats_win <= 0)
+	if (tab_stats_win < 0)
 	{
-		tab_stats_win = create_window ("statistics", 0, 0, tab_stats_x, tab_stats_y, tab_stats_len_x, tab_stats_len_y, ELW_WIN_DEFAULT);
+		tab_stats_win = create_window ("statistics", -1, 0, tab_stats_x, tab_stats_y, tab_stats_len_x, tab_stats_len_y, ELW_WIN_DEFAULT);
 
 		set_window_handler (tab_stats_win, ELW_HANDLER_DISPLAY, &display_tab_stats_handler);
 		
@@ -57,9 +57,9 @@ int display_tab_help_handler ()
 
 void display_tab_help ()
 {
-	if (tab_help_win <= 0)
+	if (tab_help_win < 0)
 	{
-		tab_help_win = create_window ("help", 0, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
+		tab_help_win = create_window ("help", -1, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
 
 		set_window_handler (tab_help_win, ELW_HANDLER_DISPLAY, &display_tab_help_handler);
 		

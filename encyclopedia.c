@@ -2,7 +2,7 @@
 #include "global.h"
 #include "elwindows.h"
 
-int encyclopedia_win=0;
+int encyclopedia_win=-1;
 int encyclopedia_menu_x=100;
 int encyclopedia_menu_y=20;
 int encyclopedia_menu_x_len=500;
@@ -582,9 +582,9 @@ void fill_encyclopedia_win ()
 
 void display_encyclopedia()
 {
-	if(encyclopedia_win <= 0)
+	if(encyclopedia_win < 0)
 		{
-			encyclopedia_win= create_window("Encyclopedia", 0, 0, encyclopedia_menu_x, encyclopedia_menu_y, encyclopedia_menu_x_len, encyclopedia_menu_y_len, ELW_WIN_DEFAULT);
+			encyclopedia_win= create_window("Encyclopedia", -1, 0, encyclopedia_menu_x, encyclopedia_menu_y, encyclopedia_menu_x_len, encyclopedia_menu_y_len, ELW_WIN_DEFAULT);
 			fill_encyclopedia_win ();
 		}
 	else

@@ -11,8 +11,6 @@ windows_info	windows_list;	// the master list of windows
  * The intent of the windows system is to create the window once
  * and then hide the window when you don't wantto use it.
  *
- * Window #0 is special ... it represents the entire screen
- *
  * Note: In the handlers, all cursor coordinates are relative to the window
  *
  */
@@ -31,7 +29,7 @@ void	display_windows(int level)
 	while(1)
 		{
 			next_id= -9999;
-			for(i=1; i<windows_list.num_windows; i++){
+			for(i=0; i<windows_list.num_windows; i++){
 				// only look at displayed windows
 				if(windows_list.window[i].displayed > 0){
 					// at this level?
@@ -55,11 +53,11 @@ void	display_windows(int level)
 	if(level > 0)
 		{
 			// now display each window in the proper order
-			id= 1;
+			id= 0;
 			while(1)
 				{
 					next_id= 9999;
-					for(i=1; i<windows_list.num_windows; i++){
+					for(i=0; i<windows_list.num_windows; i++){
 						// only look at displayed windows
 						if(windows_list.window[i].displayed > 0){
 							// at this level?
@@ -89,11 +87,12 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 	int	done= 0;
 	int	id;
 	int	next_id;
-	int	first_win= 0;
+	int	first_win= -1;
 	int i;
 
 	// watch for needing to convert the globals into the flags
-	if(!flags){
+	if(!flags)
+	{
 		if(shift_on)	flags |= ELW_SHIFT;
 		if(ctrl_on)		flags |= ELW_CTRL;
 		if(alt_on)		flags |= ELW_ALT;
@@ -107,75 +106,82 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
-		{
-			id= 9999;
-			while(done <= 0)
-				{
-					next_id= 0;
-					for(i=1; i<windows_list.num_windows; i++){
-						// only look at displayed windows
-						if(windows_list.window[i].displayed > 0){
-							// at this level?
-							if(windows_list.window[i].order == id){
-								done= click_in_window(i, mx, my, flags);
-								if(done > 0){
-									if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
-									return i;
-								}
-								if(first_win == 0 && mouse_in_window(i, mx, my))	first_win= i;
-							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
-								// try to find the next level
-								next_id= windows_list.window[i].order;
-							}
-						}
-					}
-					if(next_id <= 0)
-						{
-							break;
-						}
-					else
-						{
-							id= next_id;
-						}
-				}
-		}
-	// now check the background windows in the proper order
-	id= -9999;
-	while(done <= 0)
+	{
+		id= 9999;
+		while(done <= 0)
 		{
 			next_id= 0;
-			for(i=1; i<windows_list.num_windows; i++){
+			for (i=0; i<windows_list.num_windows; i++)
+			{
 				// only look at displayed windows
-				if(windows_list.window[i].displayed > 0){
+				if (windows_list.window[i].displayed > 0)
+				{
 					// at this level?
-					if(windows_list.window[i].order == id){
+					if(windows_list.window[i].order == id)
+					{
 						done= click_in_window(i, mx, my, flags);
-						if(done > 0){
-							//select_window(i);	// these never get selected
+						if(done > 0)
+						{
+							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
 							return i;
 						}
-					} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
+						if(first_win < 0 && mouse_in_window(i, mx, my))	first_win= i;
+					}
+					else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id)
+					{
 						// try to find the next level
 						next_id= windows_list.window[i].order;
 					}
 				}
 			}
-			if(next_id >= 0)
-				{
-					break;
-				}
+			if(next_id <= 0)
+				break;
 			else
-				{
-					id= next_id;
-				}
+				id= next_id;
 		}
-	// nothing to click on, do a select instead
-	if(first_win > 0)
+	}
+	
+	// now check the background windows in the proper order
+	id= -9999;
+	while(done <= 0)
+	{
+		next_id= 0;
+		for(i=0; i<windows_list.num_windows; i++)
 		{
-			select_window(first_win);
-			return 1;
+			// only look at displayed windows
+			if(windows_list.window[i].displayed > 0)
+			{
+				// at this level?
+				if(windows_list.window[i].order == id)
+				{
+					done= click_in_window(i, mx, my, flags);
+					if(done > 0)
+					{
+						//select_window(i);	// these never get selected
+						return i;
+					}
+				} 
+				else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id)
+				{
+					// try to find the next level
+					next_id= windows_list.window[i].order;
+				}
+			}
 		}
-	return 0;	// no click in a window
+		if(next_id >= 0)
+			break;
+		else
+			id= next_id;
+	}
+	
+	// nothing to click on, do a select instead
+	if(first_win >= 0)
+	{
+		select_window(first_win);
+		return first_win;
+	}
+
+	return -1;	// no click in a window
 }
 
 int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
@@ -187,7 +193,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 	window_info *win;
 
 	// ignore a drag of 0, but say we processed
-	if(dx == 0 && dy == 0)	return 0;
+	if(dx == 0 && dy == 0)	return -1;
 	
 	// watch for needing to convert the globals into the flags
 	if(!flags)
@@ -210,7 +216,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 		while (done <= 0)
 		{
 			next_id= 0;
-			for(i=1; i < windows_list.num_windows; i++)
+			for(i=0; i < windows_list.num_windows; i++)
 			{
 				win = &(windows_list.window[i]);				
 				// only look at displayed windows
@@ -229,7 +235,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 						else if (mouse_in_window (i, mx, my))
 						{
 							// drag started in this window
-							return 0;
+							return -1;
 						}
 					} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
 						// try to find the next level
@@ -249,7 +255,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 	while (done <= 0)
 	{
 		next_id= 0;
-		for (i=1; i<windows_list.num_windows; i++)
+		for (i=0; i<windows_list.num_windows; i++)
 		{
 			win = &(windows_list.window[i]);
 			// only look at displayed windows
@@ -267,7 +273,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 					else if (mouse_in_window (i, mx, my))
 					{
 						// drag started in this window
-						return 0;
+						return -1;
 					}
 				} 
 				else if (win->order > id && win->order < next_id)
@@ -283,7 +289,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 			id= next_id;
 	}
 
-	return 0;	// no drag in a window
+	return -1;	// no drag in a window
 }
 
 
@@ -291,7 +297,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 {
 	int	next_id;
 	int	id, i;
-	int	drag_id = 0;
+	int	drag_id = -1;
 	int dragable, resizeable;
 	int x, y;
 	window_info *win;
@@ -300,10 +306,10 @@ int drag_windows (int mx, int my, int dx, int dy)
 	if(windows_list.display_level > 0)
 	{
 		id= 9999;
-		while(drag_id <= 0)
+		while(drag_id < 0)
 		{
 			next_id= 0;
-			for(i=1; i<windows_list.num_windows; i++)
+			for(i=0; i<windows_list.num_windows; i++)
 			{
 				win = &(windows_list.window[i]);
 				dragable = win->flags & ELW_DRAGGABLE;
@@ -335,7 +341,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 						// check if we're dragging inside a window 
 						else if(mouse_in_window(i, mx, my))
 						{
-							return 0;
+							return -1;
 						}
 					} 
 					else if (win->order < id && win->order > next_id)
@@ -355,10 +361,10 @@ int drag_windows (int mx, int my, int dx, int dy)
 	// this section probably won't be needed, included to be complete
 	// now check the background windows in the proper order for which one might be getting dragged
 	id = -9999;
-	while (drag_id <= 0)
+	while (drag_id < 0)
 	{
 		next_id = 0;
-		for (i=1; i<windows_list.num_windows; i++)
+		for (i=0; i<windows_list.num_windows; i++)
 		{
 			win = &(windows_list.window[i]);
 			dragable = win->flags & ELW_DRAGGABLE;
@@ -390,7 +396,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 					// check if we're dragging inside a window 
 					else if (mouse_in_window(i, mx, my))
 					{
-						return 0;
+						return -1;
 					}
 				} 
 				else if (win->order > id && win->order < next_id){
@@ -406,7 +412,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 	}
 
 	// are we dragging a window?
-	if (drag_id <= 0) return 0;
+	if (drag_id < 0) return -1;
 
 	// dragged window is always on top
 	select_window (drag_id);
@@ -422,7 +428,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 			resize_window (drag_id, win->len_x + dx, win->len_y + dy); 
 	}
 
-	return 1;
+	return drag_id;
 }
 
 
@@ -430,7 +436,7 @@ void	end_drag_windows()
 {
 	int	i;
 
-	for(i=0; i<windows_list.num_windows; i++)
+	for (i=0; i<windows_list.num_windows; i++)
 	{
 		windows_list.window[i].dragged= 0;
 		windows_list.window[i].resized= 0;
@@ -443,16 +449,16 @@ int	select_window(int win_id)
 {
 	int	i, old, nchild, idiff;
 	
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	
 	// if this is a child window, raise the parent first
-	if (windows_list.window[win_id].pos_id > 0)
+	if (windows_list.window[win_id].pos_id >= 0)
 		select_window(windows_list.window[win_id].pos_id);
 		
 	// count the number of children
 	nchild = 0;
-	for(i=1; i<windows_list.num_windows; i++)
+	for(i=0; i<windows_list.num_windows; i++)
 	{
 		if (windows_list.window[i].pos_id == win_id)
 			nchild++;
@@ -460,11 +466,13 @@ int	select_window(int win_id)
 
 	// shuffle the order of the windows. Children are raised together with
 	// this window
-	old= windows_list.window[win_id].order;
+	old = windows_list.window[win_id].order;
 	if(old <= 0)	return 0;	// show last are never shuffled
 	idiff = (windows_list.num_windows-1-nchild) - old;
-	for(i=1; i<windows_list.num_windows; i++){
-		if(windows_list.window[i].order > old){
+	for (i=0; i<windows_list.num_windows; i++)
+	{
+		if(windows_list.window[i].order > old)
+		{
 			if (windows_list.window[i].pos_id != win_id)
 				windows_list.window[i].order -= (nchild+1);
 			else
@@ -486,7 +494,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	window_info *win;
 	int	win_id=-1;
 	int	i;
-
+	
 	// verify that we are setup and space allocated
 	if(!windows_list.window)
 		{
@@ -494,9 +502,11 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 			windows_list.num_windows= 0;
 			windows_list.max_windows= 32;
 			windows_list.window=(window_info *)calloc(32, sizeof(window_info));
-			windows_list.window[0].window_id= -1;	// force a rebuild of this
-			windows_list.num_windows= 1;
+			//windows_list.window[0].window_id= -1;	// force a rebuild of this
+			//windows_list.num_windows= 1;
 		}
+
+/* Grum: Removed in our quest to make the root window a normal one
 	// now, verify that the main window is correct
 	if(windows_list.window[0].window_id != 0 || windows_list.window[0].len_x != window_width)
 		{
@@ -516,9 +526,10 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 			windows_list.window[0].flags=0;
 			windows_list.window[0].displayed=0;
 		}
+*/
 
 	// find an empty slot
-	for(i=1; i<windows_list.num_windows; i++)
+	for(i=0; i<windows_list.num_windows; i++)
 		{
 			if(windows_list.window[i].window_id < 0)
 				{
@@ -537,18 +548,19 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		}
 
 	// fill in the information
-	if(win_id > 0)
+	if(win_id >= 0)
 		{
 			win= &windows_list.window[win_id];
 			win->window_id= win_id;
-			win->order= (property_flags&ELW_SHOW_LAST)?-win_id:win_id;
+			win->order= (property_flags&ELW_SHOW_LAST)?-win_id-1:win_id+1;
 
 			win->flags= property_flags;
 			win->displayed= (property_flags&ELW_SHOW)?1:0;
 			//win->collapsed= 0;
 			win->dragged = 0;
 			win->resized = 0;
-			my_strncp(win->window_name, name, 34);
+			win->drag_in = 0;
+			my_strncp(win->window_name, name, sizeof (win->window_name));
 
 			win->back_color[0]= 0.0f;
 			win->back_color[1]= 0.0f;
@@ -568,6 +580,8 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 			win->click_handler= NULL;
 			win->drag_handler= NULL;
 			win->mouseover_handler= NULL;
+			win->resize_handler = NULL;
+			win->keypress_handler = NULL;
 			// now call the routine to place it properly
 			init_window(win_id, pos_id, pos_loc, pos_x, pos_y, size_x, size_y);
 		}
@@ -578,7 +592,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 
 void	destroy_window(int win_id)
 {
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 	// mark the window as unused
 	windows_list.window[win_id].window_id= -1;
@@ -587,7 +601,7 @@ void	destroy_window(int win_id)
 }
 
 
-int		find_window(const char *name)
+int	find_window(const char *name)
 {
 	int	win_id= -1;
 	int	i;
@@ -609,15 +623,19 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 {
 	int pwin_x, pwin_y;
 	
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
-	if(pos_id < 0 || pos_id >= windows_list.num_windows)	return -1;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
-	if(windows_list.window[pos_id].window_id != pos_id)	return -1;
-	
+	if (pos_id >= 0)
+	{
+		if (pos_id >= windows_list.num_windows)			return -1;
+		if (windows_list.window[pos_id].window_id != pos_id)	return -1;
+	}
+			
 	// parent window position. The new window is placed relative to these
-	// coordinates
-	pwin_x = windows_list.window[pos_id].cur_x;
-	pwin_y = windows_list.window[pos_id].cur_y;
+	// coordinates. If pos_id < 0, the values are taken to be absolute
+	// (i.e. relative to (0, 0) )
+	pwin_x = pos_id >= 0 ? windows_list.window[pos_id].cur_x : 0;
+	pwin_y = pos_id >= 0 ? windows_list.window[pos_id].cur_y : 0;
 
 	// memorize the size
 	windows_list.window[win_id].len_x= size_x;
@@ -633,6 +651,7 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 		{
 			return((*windows_list.window[win_id].init_handler)(&windows_list.window[win_id]));
 		}
+
 	return 1;
 }
 
@@ -641,10 +660,8 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	window_info *win;
 	int dx, dy, i;
 
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
-	if(pos_id < 0 || pos_id >= windows_list.num_windows)	return -1;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
-	if(windows_list.window[pos_id].window_id != pos_id)	return -1;
 	
 	win= &windows_list.window[win_id];
 
@@ -659,7 +676,7 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	win->cur_y= pos_y;	//TODO: calc based on pos_id & pos_loc
 
 	// don't check child windows for visibility
-	if (pos_id == 0) {
+	if (pos_id < 0) {
 		// check for the window actually being on the screen, if not, move it
 		if(win->cur_y < ((win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0)) win->cur_y= (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0;
 		if(win->cur_y >= window_height) win->cur_y= window_height;	// had -32, but do we want that?
@@ -859,13 +876,13 @@ int	draw_window(window_info *win)
 	glColor3f(1.0f, 1.0f, 1.0f);
 
 	if(win->display_handler)
-		{
-			ret_val=(*win->display_handler)(win);
-		}
+	{
+		ret_val=(*win->display_handler)(win);
+	}
 	else
-		{
+	{
 		ret_val=1;
-		}
+	}
 
 	// widget drawing
 	while(W->next != NULL){
@@ -881,7 +898,7 @@ int	draw_window(window_info *win)
 
 void	show_window(int win_id)
 {
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
 	// pull to the top if not currently displayed
@@ -893,7 +910,7 @@ void	hide_window(int win_id)
 {
 	int iwin;
 	
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
 	windows_list.window[win_id].displayed= 0;
@@ -906,7 +923,7 @@ void	hide_window(int win_id)
 
 void	toggle_window(int win_id)
 {
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 
 	if(!windows_list.window[win_id].displayed)
@@ -925,7 +942,7 @@ void resize_window (int win_id, int new_width, int new_height)
 {
 	window_info *win;
 
-	if (win_id <=0 || win_id >= windows_list.num_windows)	return;
+	if (win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if (windows_list.window[win_id].window_id != win_id)	return;
 	
 	win = &(windows_list.window[win_id]);
@@ -948,7 +965,7 @@ void resize_window (int win_id, int new_width, int new_height)
 int	get_show_window(int win_id)
 {
 	// unititialized windows always fail as if not shown, not an error
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return 0;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return 0;
 	if(windows_list.window[win_id].window_id != win_id)	return 0;
 
 	return windows_list.window[win_id].displayed;
@@ -956,7 +973,7 @@ int	get_show_window(int win_id)
 
 int	display_window(int win_id)
 {
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	// is it active/displayed?
 	if(windows_list.window[win_id].displayed)
@@ -970,7 +987,7 @@ int	mouse_in_window(int win_id, int x, int y)
 {
 	// NOTE: these tests do not take depth into account, just location
 	// Returns -1 on error, 0 No, 1 yes
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 
 	if(x<windows_list.window[win_id].cur_x || x>=windows_list.window[win_id].cur_x+windows_list.window[win_id].len_x)	return 0;
@@ -981,11 +998,11 @@ int	mouse_in_window(int win_id, int x, int y)
 
 int	click_in_window(int win_id, int x, int y, Uint32 flags)
 {
-    window_info *win;
-    int	mx, my;
+	window_info *win;
+	int	mx, my;
    	widget_list *W; 
 
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	win= &windows_list.window[win_id];
 	W = &win->widgetlist;
@@ -1051,11 +1068,11 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 
 int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 {
-    window_info *win;
-    int	mx, my;
-    widget_list *W; 
+	window_info *win;
+	int	mx, my;
+	widget_list *W; 
 
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return -1;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
 	win= &windows_list.window[win_id];
 	W = &win->widgetlist;
@@ -1063,7 +1080,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 		{
 			//use the handler
 			if(win->drag_handler != NULL){
-			    int	ret_val;
+				int	ret_val;
 
 				// watch for needing to convert the globals into the flags
 				// TODO: put this in the window manager
@@ -1154,7 +1171,7 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 {
 	void	*old_handler;
 
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return NULL;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return NULL;
 	if(windows_list.window[win_id].window_id != win_id)	return NULL;
 
 	// save the information
@@ -1182,6 +1199,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_RESIZE:
 			old_handler= (void *)windows_list.window[win_id].resize_handler;
 			windows_list.window[win_id].resize_handler=handler;
+			break;
+		case	ELW_HANDLER_KEYPRESS:
+			old_handler= (void *)windows_list.window[win_id].keypress_handler;
+			windows_list.window[win_id].keypress_handler=handler;
 			break;
 		default:
 			old_handler=NULL;
@@ -1215,6 +1236,9 @@ void	*get_window_handler(int win_id, int handler_id)
 		case	ELW_HANDLER_RESIZE:
 			old_handler= (void *)windows_list.window[win_id].resize_handler;
 			break;
+		case	ELW_HANDLER_KEYPRESS:
+			old_handler= (void *)windows_list.window[win_id].keypress_handler;
+			break;
 		default:
 			old_handler=NULL;
 	}
@@ -1225,7 +1249,7 @@ void	*get_window_handler(int win_id, int handler_id)
 
 int	set_window_color(int win_id, Uint32 color_id, float r, float g, float b, float a)
 {
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return 0;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return 0;
 	if(windows_list.window[win_id].window_id != win_id)	return 0;
 
 	// save the information
@@ -1254,9 +1278,9 @@ int	set_window_color(int win_id, Uint32 color_id, float r, float g, float b, flo
 	return 0;
 }
 
-int		use_window_color(int win_id, Uint32 color_id)
+int	use_window_color(int win_id, Uint32 color_id)
 {
-	if(win_id <=0 || win_id >= windows_list.num_windows)	return 0;
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return 0;
 	if(windows_list.window[win_id].window_id != win_id)	return 0;
 
 	// save the information

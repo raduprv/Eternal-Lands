@@ -3,7 +3,7 @@
 #include "elwindows.h"
 
 sigil_def sigils_list[SIGILS_NO];
-int sigil_win=0;
+int sigil_win=-1;
 int sigil_menu_x=10;
 int sigil_menu_y=20;
 int sigil_menu_x_len=12*33+20;
@@ -571,8 +571,8 @@ void get_sigils_we_have(Uint32 sigils_we_have)
 
 void display_sigils_menu()
 {
-	if(sigil_win <= 0){
-		sigil_win= create_window("Sigils", 0, 0, sigil_menu_x, sigil_menu_y, sigil_menu_x_len, sigil_menu_y_len, ELW_WIN_DEFAULT);
+	if(sigil_win < 0){
+		sigil_win= create_window("Sigils", -1, 0, sigil_menu_x, sigil_menu_y, sigil_menu_x_len, sigil_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(sigil_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
 		set_window_handler(sigil_win, ELW_HANDLER_CLICK, &click_sigils_handler );

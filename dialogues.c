@@ -12,7 +12,7 @@ int portraits4_tex;
 int portraits5_tex;
 
 response dialogue_responces[MAX_RESPONSES];
-int dialogue_win= 0;
+int dialogue_win= -1;
 
 int dialogue_menu_x=1;
 int dialogue_menu_y=1;
@@ -213,8 +213,8 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 
 void display_dialogue()
 {
-	if(dialogue_win <= 0){
-		dialogue_win= create_window("Dialogue", 0, 0, dialogue_menu_x, dialogue_menu_y, dialogue_menu_x_len, dialogue_menu_y_len, ELW_WIN_DEFAULT);
+	if(dialogue_win < 0){
+		dialogue_win= create_window("Dialogue", -1, 0, dialogue_menu_x, dialogue_menu_y, dialogue_menu_x_len, dialogue_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(dialogue_win, ELW_HANDLER_DISPLAY, &display_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_MOUSEOVER, &mouseover_dialogue_handler );

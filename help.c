@@ -3,7 +3,7 @@
 #include "global.h"
 #include "elwindows.h"
 
-int help_win=0;
+int help_win=-1;
 int help_menu_x=150;
 int help_menu_y=70;
 int help_menu_x_len=HELP_TAB_WIDTH;
@@ -105,9 +105,9 @@ void fill_help_win ()
 
 void display_help()
 {
-	if(help_win <= 0)
+	if(help_win < 0)
 	{
-		help_win = create_window("help", 0, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
+		help_win = create_window("help", -1, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
 		fill_help_win ();
 	}
 	else

@@ -2,7 +2,7 @@
 #include "global.h"
 #include "elwindows.h"
 
-int	stats_win= 0;
+int	stats_win= -1;
 player_attribs your_info;
 player_attribs someone_info;
 int attrib_menu_x=100;
@@ -537,8 +537,8 @@ void fill_stats_win ()
 
 void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this test
 {
-	if(stats_win <= 0){
-		stats_win= create_window("Stats", 0, 0, attrib_menu_x, attrib_menu_y, attrib_menu_x_len, attrib_menu_y_len, ELW_WIN_DEFAULT);
+	if(stats_win < 0){
+		stats_win= create_window("Stats", -1, 0, attrib_menu_x, attrib_menu_y, attrib_menu_x_len, attrib_menu_y_len, ELW_WIN_DEFAULT);
 		fill_stats_win ();
 	} else {
 		show_window(stats_win);

@@ -499,7 +499,9 @@ void init_stuff()
 
 	
 	init_video();
-	resize_root_window();
+	// now create the root window
+	display_root ();
+
 	init_gl_extensions();
 #ifdef CAL3D
 	create_cal3d_model();

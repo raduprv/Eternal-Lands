@@ -11,7 +11,7 @@
 #define INFO 	2
 
 /*Window*/
-int rules_win;
+int rules_win=-1;
 int rules_win_x=100;
 int rules_win_y=100;
 int rules_win_x_len=400;
@@ -169,8 +169,8 @@ int display_rules_handler(window_info *win)
 
 void display_rules_window()
 {
-	if(rules_win<=0){
-		rules_win=create_window("Rules", 0, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
+	if(rules_win<0){
+		rules_win=create_window("Rules", -1, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
 		set_window_handler(rules_win, ELW_HANDLER_DISPLAY, &display_rules_handler);
 		set_window_handler(rules_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
 		set_window_handler(rules_win, ELW_HANDLER_CLICK, &click_rules_handler);

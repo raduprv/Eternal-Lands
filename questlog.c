@@ -2,7 +2,7 @@
 #include "global.h"
 #include "elwindows.h"
 
-int questlog_win=0;
+int questlog_win=-1;
 int questlog_menu_x=150;
 int questlog_menu_y=70;
 int questlog_menu_x_len=STATS_TAB_WIDTH;
@@ -265,9 +265,9 @@ void fill_questlog_win ()
 
 void display_questlog()
 {
-	if(questlog_win <= 0)
+	if(questlog_win < 0)
 	{
-		questlog_win= create_window("Quest", 0, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
+		questlog_win= create_window("Quest", -1, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
 		fill_questlog_win ();
 	}
 	else

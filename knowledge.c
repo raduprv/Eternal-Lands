@@ -1,7 +1,7 @@
 #include <string.h>
 #include "global.h"
 
-int knowledge_win= 0;
+int knowledge_win= -1;
 int knowledge_menu_x=100;
 int knowledge_menu_y=20;
 int knowledge_menu_x_len=STATS_TAB_WIDTH;
@@ -166,9 +166,9 @@ void fill_knowledge_win ()
 
 void display_knowledge()
 {
-	if(knowledge_win <= 0)
+	if(knowledge_win < 0)
 	{
-		knowledge_win= create_window("Knowledge", 0, 0, knowledge_menu_x, knowledge_menu_y, knowledge_menu_x_len, knowledge_menu_y_len, ELW_WIN_DEFAULT);		
+		knowledge_win= create_window("Knowledge", -1, 0, knowledge_menu_x, knowledge_menu_y, knowledge_menu_x_len, knowledge_menu_y_len, ELW_WIN_DEFAULT);		
 		fill_knowledge_win ();
 	} 
 	else 

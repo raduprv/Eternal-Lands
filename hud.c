@@ -245,9 +245,9 @@ int exp_bar_start_y;
 void init_peace_icons()
 {
 	//create the icon window
-	if(icons_win <= 0)
+	if(icons_win < 0)
 		{
-			icons_win= create_window("Icons", 0, 0, 0, window_height-32, window_width-64, 32, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
+			icons_win= create_window("Icons", -1, 0, 0, window_height-32, window_width-64, 32, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
 			set_window_handler(icons_win, ELW_HANDLER_DISPLAY, &display_icons_handler);
 			set_window_handler(icons_win, ELW_HANDLER_CLICK, &click_icons_handler);
 			set_window_handler(icons_win, ELW_HANDLER_MOUSEOVER, &mouseover_icons_handler);
@@ -510,7 +510,7 @@ void view_window(int * window, int id)
 					return;
 				}
 		}
-	if(!*window)
+	if(*window < 0)
 		{
 			//OK, the window has not been created yet - use the standard functions
 			if(window==&items_win)display_items_menu();
@@ -632,9 +632,9 @@ int translate_win_id(int * win_id)
 void init_stats_display()
 {
 	//create the stats bar window
-	if(stats_bar_win <= 0)
+	if(stats_bar_win < 0)
 		{
-			stats_bar_win= create_window("Stats Bar", 0, 0, 24, window_height-44, window_width-24-64, 12, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
+			stats_bar_win= create_window("Stats Bar", -1, 0, 24, window_height-44, window_width-24-64, 12, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
 			set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
 			set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
 			//set_window_handler(stats_bar_win, ELW_HANDLER_CLICK, &click_stats_bar_handler);
@@ -792,9 +792,9 @@ float clock_needle_v_end=1.0f-(float)223/256;
 void init_misc_display()
 {
 	//create the misc window
-	if(misc_win <= 0)
+	if(misc_win < 0)
 		{
-			misc_win= create_window("Misc", 0, 0, window_width-64, window_height-145, 64, 145, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
+			misc_win= create_window("Misc", -1, 0, window_width-64, window_height-145, 64, 145, ELW_TITLE_NONE|ELW_SHOW|ELW_SHOW_LAST);
 			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 		}
@@ -907,12 +907,12 @@ int quickbar_relocatable=0;
 void init_quickbar() {
 	quickbar_x_len= 30;
 	quickbar_y_len= 6*30+1;
-	if(quickbar_win <= 0)
+	if(quickbar_win < 0)
 		{
 			if(quickbar_dir==VERTICAL)
-				quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len, quickbar_draggable?ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE:ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
+				quickbar_win= create_window("Quickbar", -1, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len, quickbar_draggable?ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE:ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
 			else
-				quickbar_win= create_window("Quickbar", 0, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len, quickbar_draggable?ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE:ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
+				quickbar_win= create_window("Quickbar", -1, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len, quickbar_draggable?ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE:ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
 			set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 			set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
 			set_window_handler(quickbar_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickbar_handler );

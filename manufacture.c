@@ -2,7 +2,7 @@
 #include "elwindows.h"
 
 item manu_recipe[6];
-int	manufacture_win= 0;
+int	manufacture_win= -1;
 
 void build_manufacture_list()
 {
@@ -411,8 +411,8 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 
 void display_manufacture_menu()
 {
-	if(manufacture_win <= 0){
-		manufacture_win= create_window("Manufacture", 0, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
+	if(manufacture_win < 0){
+		manufacture_win= create_window("Manufacture", -1, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );

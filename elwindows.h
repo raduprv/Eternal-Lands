@@ -16,7 +16,7 @@
 typedef	struct	{
 	int	window_id;	/*!< the unique window id */
 	int	order;		/*!< the order the windows are to be displayed (layering) */
-	int	pos_id;		/*!< id of item position is compared to	NOT SUPPORTED YET */
+	int	pos_id;		/*!< id of parent window, pos_id < 0 for normal windows */
 	int	pos_loc;	/*!< where is it compared to the pos id?	NOT SUPPORTED YET */
 	int	pos_x, pos_y;	/*!< logical location on screen */
 	int	len_x, len_y;	/*!< the size of the window in pixels */
@@ -47,6 +47,7 @@ typedef	struct	{
 	int (*drag_handler)();		/*!< handle dragging inside windows */
 	int (*mouseover_handler)();		/*!< handle mouseovers */
 	int (*resize_handler)();	/*!< handle window resize events */
+	int (*keypress_handler)();	/*!< handle key presses */
     /*! @} */
 
 	/*
@@ -168,6 +169,7 @@ typedef	struct	{
 #define	ELW_HANDLER_DRAG	3
 #define	ELW_HANDLER_MOUSEOVER	4
 #define	ELW_HANDLER_RESIZE	5
+#define	ELW_HANDLER_KEYPRESS	6
 /*! @} */
 
 /*!

@@ -724,6 +724,7 @@ int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, U
 
 int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height, Uint16 tag_space)
 {
+	int itab;
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	tab_collection *T = (tab_collection *) malloc(sizeof(tab_collection));
 	widget_list *w = &windows_list.window[window_id].widgetlist;
@@ -735,6 +736,9 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 	// Filling the widget info
 	T->tabs = malloc (max_tabs * sizeof (tab));
 	memset (T->tabs, 0, max_tabs * sizeof (tab));
+	// initialize all tabs content ids to -1 (unitialized window
+	for (itab = 0; itab < max_tabs; itab++)
+		T->tabs[itab].content_id = -1;
 	
 	W->widget_info = T;
 	T->nr_tabs = 0;
@@ -960,7 +964,7 @@ int ParseWindow(xmlAttr *a_node)
 			}
 		}
 	}
-	return create_window(name, 0, 0, pos_x, pos_y, size_x, size_y, flags);
+	return create_window(name, -1, 0, pos_x, pos_y, size_x, size_y, flags);
 }
 
 

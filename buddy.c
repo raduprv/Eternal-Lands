@@ -3,7 +3,7 @@
 #include "global.h"
 #include "elwindows.h"
 
-int buddy_win=0;
+int buddy_win=-1;
 int buddy_menu_x=150;
 int buddy_menu_y=70;
 int buddy_menu_x_len=150;
@@ -82,10 +82,10 @@ int clikaa(widget_list *w){
 */
 void display_buddy()
 {
-	if(buddy_win <= 0)
+	if(buddy_win < 0)
 		{
 			//buddy_win = AddXMLWindow("buddy.xml");
-			buddy_win = create_window("Buddy", 0, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
+			buddy_win = create_window("Buddy", -1, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_DRAG, &drag_buddy_handler );

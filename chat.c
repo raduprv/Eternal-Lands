@@ -4,7 +4,7 @@
 
 int use_windowed_chat = 0;
 
-int chat_win = 0;
+int chat_win = -1;
 int chat_scroll_id = 15;
 int chat_win_x = 0; // upper left corner by default
 int chat_win_y = 0;
@@ -78,14 +78,14 @@ int resize_chat_handler(window_info *win, int width, int height)
 
 void display_chat ()
 {
-	if (chat_win <= 0)
+	if (chat_win < 0)
 	{
 		int scroll_len;
 		
 		nr_displayed_lines = (int) (CHAT_WIN_TEXT_HEIGHT / (18.0 * chat_zoom));
 		scroll_len = nr_text_buffer_lines >= nr_displayed_lines ? nr_text_buffer_lines-nr_displayed_lines : 0;
 		
-		chat_win = create_window ("chat", 0, 0, chat_win_x, chat_win_y, chat_win_len_x, chat_win_len_y, (ELW_WIN_DEFAULT|ELW_RESIZEABLE) & ~ELW_CLOSE_BOX);
+		chat_win = create_window ("chat", -1, 0, chat_win_x, chat_win_y, chat_win_len_x, chat_win_len_y, (ELW_WIN_DEFAULT|ELW_RESIZEABLE) & ~ELW_CLOSE_BOX);
 		
 		set_window_handler(chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
 		set_window_handler(chat_win, ELW_HANDLER_DRAG, &drag_chat_handler);
