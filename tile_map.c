@@ -137,15 +137,11 @@ void load_map_tiles()
 	for(i=0;i<tile_map_size_x*tile_map_size_y;i++)
 		{
 			cur_tile=tile_map[i];
+			if(!cur_tile && dungeon)cur_tile=231;
 			//check to see if we already have the current tile loaded
 			if(!tile_list[cur_tile] && cur_tile!=255)//if it is 255, it's a null tile, don't load it
 				{
 					//tile not loaded, so load it
-					if(!cur_tile && dungeon)
-						{
-							if(tile_list[231])continue;
-							cur_tile=231;
-						}
 					sprintf(str,"./tiles/tile%i.bmp",cur_tile);
 					if(is_water_tile(cur_tile) && is_reflecting(cur_tile))
 					  tile_list[cur_tile]=load_texture_cache(str,70);
