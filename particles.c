@@ -14,7 +14,7 @@ particle_sys *particles_list[max_particle_systems];
 /******************************************************
  *           PARTICLE SYSTEM DEFINITIONS              *
  ******************************************************/
-#define max_particle_defs 50
+#define max_particle_defs 500
 particle_sys_def *defs_list[max_particle_defs];
 
 #ifndef ELC

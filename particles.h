@@ -1,7 +1,7 @@
 #ifndef __particles_H__
 #define __particles_H__
 
-#define max_particle_systems 200
+#define max_particle_systems 500
 #define max_particles 2000
 
 //system kinds
