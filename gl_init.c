@@ -320,7 +320,7 @@ void init_video()
 		log_to_console(c_red1,"Damn, it seems that you are out of luck, we are in the software mode now, so the game will be veeeeery slow. If you DO have a 3D accelerated card, try to update your OpenGl drivers...");
 
 
-	all_ok:
+	all_ok:;
 	}
 #endif
 

@@ -106,11 +106,11 @@ void test_for_console_command()
 			char extra[20];
 			if(client_version_patch > 0)
 				{
-					snprintf(extra,20,"p%d Beta",client_version_patch);
+					sprintf(extra,"p%d Beta",client_version_patch);
 				}
 			else
 				{
-					snprintf(extra,20," Beta");
+					sprintf(extra," Beta");
 				}
 			sprintf(str,"Eternal Lands Version %d.%d.%d%s",client_version_major,
 					client_version_minor,client_version_release,extra);
