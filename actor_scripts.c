@@ -912,6 +912,36 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[human_female].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
 
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].model_name,none);
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].skin_name,"./md2/glove_fur.bmp");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].attack_up1,"punchone01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].attack_down1,"kickone01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].attack_down2,"kicktwo01");
+
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].model_name,none);
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].skin_name,"./md2/glove_leather.bmp");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].attack_up1,"punchone01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].attack_down1,"kickone01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].attack_down2,"kicktwo01");
+
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].model_name,none);
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].skin_name,"./md2/glove_fur.bmp");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].attack_up1,"punchone01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].attack_down1,"kickone01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_FUR].attack_down2,"kicktwo01");
+	actors_defs[human_female].weapon[GLOVE_FUR].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].model_name,none);
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].skin_name,"./md2/glove_leather.bmp");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].attack_up1,"punchone01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].attack_down1,"kickone01");
+	my_strcp(actors_defs[human_female].weapon[GLOVE_LEATHER].attack_down2,"kicktwo01");
+	actors_defs[human_female].weapon[GLOVE_LEATHER].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[human_female].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
 	my_strcp(actors_defs[human_female].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
 	my_strcp(actors_defs[human_female].weapon[SWORD_1].attack_up1,"slashone01");
@@ -1453,6 +1483,38 @@ void init_actor_defs()
 	my_strcp(actors_defs[human_male].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 	my_strcp(actors_defs[human_male].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[human_male].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].model_name,none);
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].skin_name,"./md2/glove_fur.bmp");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].attack_up1,"punchone01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].attack_down1,"kickone01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].attack_down2,"kicktwo01");
+	actors_defs[human_male].weapon[GLOVE_FUR].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].model_name,none);
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].skin_name,"./md2/glove_leather.bmp");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].attack_up1,"punchone01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].attack_down1,"kickone01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].attack_down2,"kicktwo01");
+	actors_defs[human_male].weapon[GLOVE_FUR].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].model_name,none);
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].skin_name,"./md2/glove_fur.bmp");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].attack_up1,"punchone01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].attack_down1,"kickone01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_FUR].attack_down2,"kicktwo01");
+	actors_defs[human_male].weapon[GLOVE_FUR].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].model_name,none);
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].skin_name,"./md2/glove_leather.bmp");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].attack_up1,"punchone01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].attack_down1,"kickone01");
+	my_strcp(actors_defs[human_male].weapon[GLOVE_LEATHER].attack_down2,"kicktwo01");
+	actors_defs[human_male].weapon[GLOVE_LEATHER].glow=GLOW_NONE;
 
 	my_strcp(actors_defs[human_male].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
 	my_strcp(actors_defs[human_male].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
@@ -2005,6 +2067,22 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[elf_female].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
 
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_FUR].model_name,none);
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_FUR].skin_name,"./md2/glove_fur.bmp");
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_FUR].attack_up1,"punchone01");
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_FUR].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_FUR].attack_down1,"kickone01");
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_FUR].attack_down2,"kicktwo01");
+	actors_defs[elf_female].weapon[GLOVE_FUR].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_LEATHER].model_name,none);
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_LEATHER].skin_name,"./md2/glove_leather.bmp");
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_LEATHER].attack_up1,"punchone01");
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_LEATHER].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_LEATHER].attack_down1,"kickone01");
+	my_strcp(actors_defs[elf_female].weapon[GLOVE_LEATHER].attack_down2,"kicktwo01");
+	actors_defs[elf_female].weapon[GLOVE_LEATHER].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_female].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
 	my_strcp(actors_defs[elf_female].weapon[SWORD_1].attack_up1,"slashone01");
@@ -2555,6 +2633,22 @@ void init_actor_defs()
 	my_strcp(actors_defs[elf_male].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[elf_male].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
 
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_FUR].model_name,none);
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_FUR].skin_name,"./md2/glove_fur.bmp");
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_FUR].attack_up1,"punchone01");
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_FUR].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_FUR].attack_down1,"kickone01");
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_FUR].attack_down2,"kicktwo01");
+	actors_defs[elf_male].weapon[GLOVE_FUR].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_LEATHER].model_name,none);
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_LEATHER].skin_name,"./md2/glove_leather.bmp");
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_LEATHER].attack_up1,"punchone01");
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_LEATHER].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_LEATHER].attack_down1,"kickone01");
+	my_strcp(actors_defs[elf_male].weapon[GLOVE_LEATHER].attack_down2,"kicktwo01");
+	actors_defs[elf_male].weapon[GLOVE_LEATHER].glow=GLOW_NONE;
+
 	my_strcp(actors_defs[elf_male].weapon[SWORD_1].model_name,"./md2/sword1_tall.md2");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
 	my_strcp(actors_defs[elf_male].weapon[SWORD_1].attack_up1,"slashone01");
@@ -3102,6 +3196,22 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_female].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 	my_strcp(actors_defs[dwarf_female].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[dwarf_female].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_FUR].model_name,none);
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_FUR].skin_name,"./md2/glove_fur.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_FUR].attack_up1,"punchone01");
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_FUR].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_FUR].attack_down1,"kickone01");
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_FUR].attack_down2,"kicktwo01");
+	actors_defs[dwarf_female].weapon[GLOVE_FUR].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_LEATHER].model_name,none);
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_LEATHER].skin_name,"./md2/glove_leather.bmp");
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_LEATHER].attack_up1,"punchone01");
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_LEATHER].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_LEATHER].attack_down1,"kickone01");
+	my_strcp(actors_defs[dwarf_female].weapon[GLOVE_LEATHER].attack_down2,"kicktwo01");
+	actors_defs[dwarf_female].weapon[GLOVE_LEATHER].glow=GLOW_NONE;
 
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1].model_name,"./md2/sword1_short.md2");
 	my_strcp(actors_defs[dwarf_female].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");
@@ -3651,6 +3761,22 @@ void init_actor_defs()
 	my_strcp(actors_defs[dwarf_male].weapon[WEAPON_NONE].attack_up2,"punchtwo01");
 	my_strcp(actors_defs[dwarf_male].weapon[WEAPON_NONE].attack_down1,"kickone01");
 	my_strcp(actors_defs[dwarf_male].weapon[WEAPON_NONE].attack_down2,"kicktwo01");
+
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_FUR].model_name,none);
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_FUR].skin_name,"./md2/glove_fur.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_FUR].attack_up1,"punchone01");
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_FUR].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_FUR].attack_down1,"kickone01");
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_FUR].attack_down2,"kicktwo01");
+	actors_defs[dwarf_male].weapon[GLOVE_FUR].glow=GLOW_NONE;
+
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_LEATHER].model_name,none);
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_LEATHER].skin_name,"./md2/glove_leather.bmp");
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_LEATHER].attack_up1,"punchone01");
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_LEATHER].attack_up2,"punchtwo01");
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_LEATHER].attack_down1,"kickone01");
+	my_strcp(actors_defs[dwarf_male].weapon[GLOVE_LEATHER].attack_down2,"kicktwo01");
+	actors_defs[dwarf_male].weapon[GLOVE_LEATHER].glow=GLOW_NONE;
 
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1].model_name,"./md2/sword1_short.md2");
 	my_strcp(actors_defs[dwarf_male].weapon[SWORD_1].skin_name,"./md2/sword1.bmp");

@@ -534,7 +534,7 @@ void add_enhanced_actor_from_server(char * in_data)
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
 						}
-					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
+					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && (actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor==PKABLE_COMPUTER_CONTROLLED) && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
 						{
 							char str[256];
 							sprintf(str,"%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
@@ -591,6 +591,9 @@ void add_enhanced_actor_from_server(char * in_data)
 	my_strcp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name);
 	my_strcp(this_actor->weapon_fn,actors_defs[actor_type].weapon[weapon].model_name);
 	this_actor->weapon_glow=actors_defs[actor_type].weapon[weapon].glow;
+	if(weapon == GLOVE_FUR || weapon == GLOVE_LEATHER){
+		my_strcp(this_actor->hands_tex, actors_defs[actor_type].weapon[weapon].skin_name);
+	}
 
 	//helmet
 	if(helmet!=HELMET_NONE)

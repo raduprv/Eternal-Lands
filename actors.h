@@ -9,6 +9,8 @@ extern float name_zoom;
 #define HUMAN 1
 #define NPC 2
 #define COMPUTER_CONTROLLED_HUMAN 3
+#define PKABLE_HUMAN 4
+#define PKABLE_COMPUTER_CONTROLLED 5
 
 // Max text len to display into bubbles overhead
 #define max_current_displayed_text_len	60
