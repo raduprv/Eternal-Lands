@@ -379,7 +379,7 @@ int check_items_interface()
 						for(i=0;i<36+6;i++)
 							{
 								//should we get the info for it?
-								if(item_list[i].pos==y*2+x+36)
+								if(item_list[i].quantity && item_list[i].pos==y*2+x+36)
 									{
 										if(action_mode==action_look || right_click)
 											{
