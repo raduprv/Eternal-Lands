@@ -66,8 +66,8 @@ e3d_object * load_e3d_cache(char * file_name);
  * \param	self_lit Whether the object is self-lit (enables/disables lightning)
  * \param	blended Whether the object is blended (enables/disables blending - GL_ONE,GL_ONE)
  * \param	r Red (0<=r<=1)
- * \param	g Green (0<=r<=1)
- * \param	b Blue (0<=r<=1)
+ * \param	g Green (0<=g<=1)
+ * \param	b Blue (0<=b<=1)
  * \return	Returns 0 on error or the position in the objects_list on succes.
  */
 int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos, 

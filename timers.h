@@ -1,3 +1,15 @@
+/*!
+ * \file
+ * \ingroup Threading
+ */
+/*!
+ * \defgroup 	mutex Mutexes
+ * 		The mutexes used in EL
+ */
+/*!
+ * \defgroup	timers Timers
+ * 		The timers in EL
+ */
 #ifndef __TIMERS_H__
 #define __TIMERS_H__
 

@@ -1,3 +1,11 @@
+/*!
+ * \file
+ * \ingroup misc
+ */
+/*!
+ * \defgroup 	misc_utils Miscellaneous Utilities
+ * 		Miscellaneous functions that are useful when you're working with the client
+ */
 #ifndef __MISC_H__
 #define __MISC_H__
 

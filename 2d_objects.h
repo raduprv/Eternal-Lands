@@ -16,8 +16,8 @@
 #define __obj_2d_H__
 
 /*!
- *	\name 2D Object array sizes
- *	The sizes of the arrays where we keep 2d objects and 2d object definitions
+ *\name 	2D Object array sizes
+ *		The sizes of the arrays where we keep 2d objects and 2d object definitions
  */
 /*! \{ */
 #define max_obj_2d 15000 /*!<Maximum number of 2d objects in a map*/
@@ -26,8 +26,8 @@
 /*! \} */
 
 /*!
- *	\name 2D object types
- *	These defines sets the 2d object types
+ *\name 	2D object types
+ *		These defines sets the 2d object types
  */
 
 /*! \{ */

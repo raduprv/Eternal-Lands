@@ -19,6 +19,10 @@
  * \defgroup	network Network
  * 		The group contains information about the EL protocol and the network implementation in EL
  */
+/*!
+ * \defgroup 	misc Miscellaneous
+ * 		The group contains miscellaneous functions/utilities and files
+ */
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 

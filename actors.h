@@ -1,39 +1,71 @@
+/*!
+ * \file
+ * \brief	This file holds information about actors appearance etc. used for displaying the actors.
+ * \ingroup	render
+ */
+/*!
+ * \defgroup 	display_actors Display actors
+ * \ingroup 	display
+ */
+/*!
+ * \defgroup	network_actors Actors and network data
+ * \ingroup	network
+ */
 #ifndef __actors_H__
 #define __actors_H__
 
-extern int yourself;
-extern int you_sit;
-extern int sit_lock;
-extern float name_zoom;
+extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
+extern int you_sit; 	/*!< Specifies if you are currently sitting down.*/
+extern int sit_lock; 	/*!< The sit_lock variable holds you in a sitting position.*/
+extern float name_zoom; /*!< The name_zoom defines how large the text used for drawing the names should be*/
 
-#define HUMAN 1
-#define NPC 2
-#define COMPUTER_CONTROLLED_HUMAN 3
-#define PKABLE_HUMAN 4
-#define PKABLE_COMPUTER_CONTROLLED 5
+/*!
+ * \name	Actor types
+ * 		Defines the colour of the name.
+ */
 
-// Max text len to display into bubbles overhead
+/*! \{ */
+#define HUMAN 1 			/*!< Draw the actors name in white*/
+#define NPC 2				/*!< Draw the actors name in blue*/
+#define COMPUTER_CONTROLLED_HUMAN 3	/*!< Draw the actors name in white*/
+#define PKABLE_HUMAN 4			/*!< Draw the actors name in red*/
+#define PKABLE_COMPUTER_CONTROLLED 5	/*!< Draw the actors name in red*/
+/*! \} */
+
+/*! Max text len to display into bubbles overhead*/
 #define max_current_displayed_text_len	60
 
+/*!
+ * \name	Glow colours
+ * 		The colours used for giving the items a glowing halo
+ */
+/*! \{ */
+/*! The colours used in the glowing swords (magic, thermal, ice, fire)*/
 typedef struct
 {
-	float r;
-	float g;
-	float b;
+	float r; /*!< Red (0<=r<=1)*/
+	float g; /*!< Green (0<=g<=1)*/
+	float b; /*!< Blue (0<=b<=1)*/
 }glow_color;
 
 
 //GLOWS
-#define GLOW_NONE 0
-#define GLOW_FIRE 1
-#define GLOW_COLD 2
-#define GLOW_THERMAL 3
-#define GLOW_MAGIC 4
+#define GLOW_NONE 0 	/*!< RGB: 0.0, 0.0, 0.0*/
+#define GLOW_FIRE 1 	/*!< RGB: 0.5, 0.1, 0.1*/
+#define GLOW_COLD 2 	/*!< RGB: 0.1, 0.1, 0.5*/
+#define GLOW_THERMAL 3 	/*!< RGB: 0.5, 0.1, 0.5*/
+#define GLOW_MAGIC 4	/*!< RGB: 0.5, 0.4, 0.0*/
 
-extern glow_color glow_colors[10];
+extern glow_color glow_colors[10]; /*!< Holds the glow colours defined in GLOW_**/
+/*! \} */
 
+/*!
+ * The enhanced actor structure holds information about the actors md2 extensions such as if the actor is wearing any armour, weapons etc.
+ */
 typedef struct
 {
+	/*! \name filenames for the currently loaded md2s*/
+	/*! \{ */
 	char legs_fn[32];
 	char head_fn[32];
 	char torso_fn[32];
@@ -41,7 +73,10 @@ typedef struct
 	char shield_fn[32];
 	char helmet_fn[32];
 	char cape_fn[32];
+	/*! \} */
 
+	/*! \name The extended md2s (for more complex models that can carry and remove weapons, armour etc.)*/
+	/*! \{ */
 	md2 *legs;
 	md2 *head;
 	md2 *torso;
@@ -49,7 +84,10 @@ typedef struct
 	md2 *shield;
 	md2 *helmet;
 	md2 *cape;
+	/*! \} */
 
+	/*! \name The texture names*/
+	/*! \{ */
 	char pants_tex[32];
 	char boots_tex[32];
 	char torso_tex[32];
@@ -61,16 +99,21 @@ typedef struct
 	char shield_tex[32];
 	char helmet_tex[32];
 	char cape_tex[32];
+	/*! \} */
 
+	/*! \name Specifies the glow of each worn item*/
+	/*! \{ */
 	int weapon_glow;
 	int shield_glow;
 	int helmet_glow;
 	int cape_glow;
 	int legs_glow;
+	/*! \} */
 
 	char hands_tex_save[32];
 }enhanced_actor;
 
+/*! Sets the main model type*/
 typedef struct
 {
 	char model_name[30];
@@ -78,6 +121,7 @@ typedef struct
 	int glow;
 }body_part;
 
+/*! Sets the weapon type (including animation frame names)*/
 typedef struct
 {
 	char model_name[30];
@@ -89,6 +133,7 @@ typedef struct
 	int glow;
 }weapon_part;
 
+/*! Defines the main models looks*/
 typedef struct
 {
 	char model_name[35];
@@ -96,23 +141,27 @@ typedef struct
 	char torso_name[35];
 }shirt_part;
 
+/*! Sets the models hands and head*/
 typedef struct
 {
 	char hands_name[35];
 	char head_name[35];
 }skin_part;
 
+/*! Sets the models hair name*/
 typedef struct
 {
 	char hair_name[35];
 }hair_part;
 
+/*! Holds info about the boots md2*/
 typedef struct
 {
 	char boots_name[35];
 	int glow;
 }boots_part;
 
+/*! Holds info about the legs type*/
 typedef struct
 {
 	char legs_name[35];
@@ -120,10 +169,18 @@ typedef struct
 	int glow;
 }legs_part;
 
+/*! A structure used when loading the actor definitions
+ * \sa init_actor_defs*/
 typedef struct
 {
+	/*! \name Model data*/
+	/*! \{ */
 	char skin_name[50];
 	char file_name[50];
+	/*! \} */
+	
+	/*! \name Frame names*/
+	/*! \{ */
 	char walk_frame[20];
 	char run_frame[20];
 	char die1_frame[20];
@@ -148,139 +205,342 @@ typedef struct
 	char attack_up_4_frame[20];
 	char attack_down_1_frame[20];
 	char attack_down_2_frame[20];
+	/*! \} */
 
+	/*! \name The different body parts (different head shapes, different armour/weapon shapes etc.)*/
+	/*! \{ */
 	body_part head[5];
 	body_part shield[10];
 	body_part cape[20];
 	body_part helmet[20];
 	weapon_part weapon[80];
+	/*! \} */
 
+	/*! \name Clothing*/
+	/*! \{ */
 	shirt_part shirt[22];
 	skin_part  skin[4];
 	hair_part  hair[9];
 	boots_part boots[20];
 	legs_part legs[16];
+	/*! \} */
 
+	/*! \name The current actors walk/run speeds*/
+	/*! \{ */
 	double walk_speed;
 	double run_speed;
 	char ghost;
+	/*! \} */
 } actor_types;
 
-typedef struct //Data accessed by both the rendering and the timer threads...
+/*!
+ * This structure holds data that is frequently accessed by both the timer and render thread. On each new frame the data is copied from the actor structure, partly to prevent timing issues, partly to make sure that the same picture is rendered throughout all frames in the scene.
+ */
+typedef struct 
 {
-	int have_tmp;
+	int have_tmp;		/*!< Specifies if the temporary structure is ready*/
 	
-	char cur_frame[16];
+	char cur_frame[16]; 	/*!< Sets the current frame name*/
 	
-	double x_pos;
-	double y_pos;
-	double z_pos;
+	/*! \name Actor positions*/
+	/*! \{ */
+	double x_pos;		/*!< The actors x position*/
+	double y_pos;		/*!< The actors y position*/
+	double z_pos;		/*!< The actors z position*/
+	/*! \} */
 	
-	short x_tile_pos;
-	short y_tile_pos;
+	/*! \name Actors tile position*/
+	/*! \{ */
+	short x_tile_pos;	/*!< The actors x tile position - i.e. used for getting the heightmap from the map file at the actors position*/
+	short y_tile_pos;	/*!< The actors y tile position - i.e. used for getting the heightmap from the map file at the actors position*/
+	/*! \} */
 	
-	float x_rot;
-	float y_rot;
-	float z_rot;
+	/*! \name Actors rotation*/
+	/*! \{ */
+	float x_rot;		/*!< The actors x rotation...*/
+	float y_rot;		/*!< The actors y rotation.*/
+	float z_rot;		/*!< The actors z position*/
+	/*! \} */
 } tmp_actor_data;
 
+/*! The main actor structure.*/
 typedef struct
 {
-	int actor_id;
-	int actor_type;
+	/*! \name Misc.*/
+	/*! \{ */
+	int actor_id;		/*!< The actor ID from the server*/
+	int actor_type;		/*!< Specifies the type of actor (race, sex etc.)*/
+	tmp_actor_data tmp;	/*!< The actors temporary data used for rendering*/
+	/*! \} */
 
-	double x_pos;
-	double y_pos;
-	double z_pos;
+	/*! \name Actors positions
+	 *  \brief Updated in the timer thread
+	 */
+	/*! \{ */
+	double x_pos;		/*!< Specifies the x position of the actor */
+	double y_pos;		/*!< Specifies the y position of the actor */
+	double z_pos;		/*!< Specifies the z position of the actor */
 
-	int x_tile_pos;
-	int y_tile_pos;
+	int x_tile_pos;		/*!< Specifies the x tile position - updated in the timer thread*/
+	int y_tile_pos;		/*!< Specifies the y tile position - updated in the timer thread \n*/
+	/*! \} */
 
-	double x_speed;
-	double y_speed;
-	double z_speed;
+	/*! \name Actor rotation*/
+	/*! \{ */
+	float x_rot;		/*!< Sets the current x rotation*/
+	float y_rot;		/*!< Sets the current y rotation*/
+	float z_rot;		/*!< Sets the current z rotation*/
+	/*! \} */
 
-	float x_rot;
-	float y_rot;
-	float z_rot;
+	/*! \name Actors worn item IDs*/
+	/*! \{ */
+	int boots;		/*!< Sets the boots ID (loaded from the actor_defs array)*/
+	int hair;		/*!< Sets the hair ID (loaded from the actor_defs array)*/
+	int skin;		/*!< Sets the skin ID (loaded from the actor_defs array)*/
+	int pants;		/*!< Sets the pants ID (loaded from the actor_defs array)*/
+	int shirt;		/*!< Sets the shirt ID (loaded from the actor_defs array)*/
+	int cur_weapon;		/*!< Sets the current weapon of the actor*/
+	/*! \} */
 
-	tmp_actor_data tmp;
+	/*! \{ */
+	int is_enhanced_model;		/*!< Specifies if we have the enhanced_actor structure below*/
+	enhanced_actor *body_parts;	/*!< A pointer to the enhanced actor extension (holds information about weapons, helmets etc)*/
+	/*! \} */
 
-	int boots;
-	int hair;
-	int skin;
-	int pants;
-	int shirt;
+	char cur_frame[16];	/*!< Sets the current frame name that will be rendered*/
+	
+	/*! \{ */
+	md2 *model_data;	/*!< Is a pointer to the md2 model data loaded when the actor was first added*/
+	char remapped_colors;	/*!< If the actors colours are remapped it will holds the texture in actor->texture_id*/
+	int texture_id;		/*!< Sets the texture ID, if the remapped_colors==1 - remember to glDeleteTextures*/
+	char skin_name[30];	/*!< Sets the skin name*/
+	char actor_name[30];	/*!< Sets the actors name - holds the guild name as well after a special 127+color character*/
+	/*! \} */
 
-	int is_enhanced_model;
-	enhanced_actor *body_parts;
+	/*! \name Command queue and current animations*/
+	/*! \{ */
+	char que[11];		/*!< Holds the current command queue*/
+	char last_command;	/*!< Holds the last command*/
+	char busy;		/*!< if the actor is busy executing the current command*/
+	char sitting;		/*!< Specifies if the actor is currently sitting*/
+	char fighting;		/*!< Specifies if the actor is currently fighting*/
+	/*! \} */
 
-	char remapped_colors;
+	/*!
+	 * \name Movement
+	 */
+	/*! \{ */
+	double move_x_speed;	/*!< Sets the current movement speed in the x direction (used for updating the actor in the timer thread)*/
+	double move_y_speed;	/*!< Sets the current movement speed in the y direction (used for updating the actor in the timer thread)*/
+	double move_z_speed;	/*!< Sets the current movement speed in the z direction (used for updating the actor in the timer thread)*/
+	int movement_frames_left;	/*!< Specifies how many movement frames the actor has to do before it goes idle*/
+	float rotate_x_speed;	/*!< Sets the x rotation speed (used for updating the actor in the timer thread)*/
+	float rotate_y_speed;	/*!< Sets the y rotation speed (used for updating the actor in the timer thread)*/
+	float rotate_z_speed;	/*!< Sets the z rotation speed (used for updating the actor in the timer thread)*/
+	int rotate_frames_left;	/*!< Specifies how many rotation frames it needs to do*/
+	int after_move_frames_left; /*!< When the actor is done moving, it does a small animation before idleing - specifies how many frames it needs to render of that animation*/
+	/*! \} */
 
-	char cur_frame[16];
+	/*! \name Misc. animations*/
+	/*! \{ */
+	char moving;		/*!< Specifies if the actor is currently on the move*/
+	char rotating;		/*!< Specifies if the actor is currently rotating*/
+	char stop_animation;	/*!< Don't loop trough the current animation (like for die, jump, etc.)*/
+	char stand_idle;	/*!< Sets the actor in an idle stand position*/
+	char sit_idle;		/*!< Sets the actor in an idle sit position*/
+	char dead;		/*!< Used when the actor is dead (render the dead position)*/
+	int damage;		/*!< Sets the damage the actor has been given*/
+	int damage_ms;		/*!< Defines the remaining time in which the actor damage will be shown*/
+	int cur_health;		/*!< Sets the current health of the actor*/
+	int max_health;		/*!< Sets the maximum health of the actor*/
+	char ghost;		/*!< Sets the actor type to ghost (Disable lightning, enable blending (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA))*/
+	int kind_of_actor;	/*!< Defines the kind_of_actor (NPC, HUMAN, COMPUTER_CONTROLLED_HUMAN, PKABLE, PKABLE_COMPUTER_CONTROLLED)*/
+	/*! \} */
 
-	md2 *model_data;
-	int texture_id;
-	char skin_name[30];
-	char actor_name[30];
+	/*! \name Overhead text (text bubbles)*/
+	/*! \{ */
+	char current_displayed_text[max_current_displayed_text_len]; /*!< If the text is displayed in a bubble over the actor, this holds the text*/
+	int current_displayed_text_time_left;	/*!< Defines the remaining time the overhead text should be displayed*/
+	/*! \} */
+	
+	/*! \name Unused variables*/
+	/*! \{ */
+	double x_speed;		/*!< Unused?*/
+	double y_speed;		/*!< Unused?*/
+	double z_speed;		/*!< Unused?*/
+	/*! \} */
 
-	//for movement/animation
-	char que[11];
-	char last_command;
-	char busy;//if the actor is busy executing the current command
-	char sitting;
-	char fighting;
-
-	double move_x_speed;
-	double move_y_speed;
-	double move_z_speed;
-	int movement_frames_left;
-	float rotate_x_speed;
-	float rotate_y_speed;
-	float rotate_z_speed;
-	int rotate_frames_left;
-	int after_move_frames_left;
-
-	char moving;
-	char rotating;
-	char stop_animation;//don't loop trough the current animation (like for die, jump, etc.)
-	char stand_idle;
-	char sit_idle;
-	char dead;
-	int damage;
-	int damage_ms;
-	int cur_health;
-	int max_health;
-	char ghost;
-	int cur_weapon;
-	int kind_of_actor;
-
-	char current_displayed_text[max_current_displayed_text_len];
-	int current_displayed_text_time_left;
 }actor;
 
 
-extern SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main threads
-extern actor *actors_list[1000];
-extern int	max_actors;
-extern actor_types actors_defs[100];
+extern SDL_mutex *actors_lists_mutex;	/*!< Used for locking between the timer and main threads*/
+extern actor *actors_list[1000];	/*!< A list holding all of the actors*/
+extern int	max_actors;		/*!< The current number of actors in the actors_list + 1*/
+extern actor_types actors_defs[100];	/*!< The actor definitions*/
 
+/*!
+ * \ingroup 	display_actors
+ * \brief	Gets the frame number in the md2 file from the current frame
+ * 
+ * 		Gets the frame number in the md2 file from the current frame - called when displaying the given actor.
+ *
+ * \param	model_data The MD2 model data, we wish to find the position of the cur_frame in
+ * \param	cur_frame The name of the current frame.
+ * \return	Returns the position of the frame on succes, -1 on failure (if the given frame was not found)
+ */
 int get_frame_number(const md2 *model_data, const char *cur_frame);
+
+/*!
+ * \ingroup	network_actors
+ * \brief	Adds an actor to the actors_list
+ *
+ * 		This function is called from the add_actor_from_server, after having parsed the network data. It adds the given actor to the actors_list, if the model data is found.
+ *
+ * \param	file_name The file-name from which the main model will be loaded from.
+ * \param	skin_name The skin-name the actor is using
+ * \param	frame_name The current frame-name.
+ * \param	x_pos The x position
+ * \param	y_pos The y position
+ * \param	z_pos The z position
+ * \param	z_rot The z rotation
+ * \param	remappable Defines if the actor can get a different texture
+ * \param	skin_color Sets the actors skin colour
+ * \param	hair_color Sets the actors hair colour
+ * \param	shirt_color Sets the actors shirt colour
+ * \param	pants_color Sets the actors pants colour
+ * \param	boots_color Sets the actors boots colour (This is the "naked" actors boots, not i.e. fur or leather boots)
+ * \param	actor_id The current actors actor_id as the server sees it
+ * \return	Returns the position in the actors_list or -1 on failure
+ */
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 			  float y_pos, float z_pos, float z_rot, char remappable,
 			  short skin_color, short hair_color, short shirt_color,
 			  short pants_color, short boots_color, int actor_id);
+
+/*!
+ * \ingroup	display_actors
+ * \brief	Draws the actors banner (healthbar, name, etc)
+ *
+ * 		This function is used for drawing the healthbar, the name, the damage, the healthpoints (cur/max) and the text bubbles
+ *
+ * \param	actor_id Is a pointer to the actor we wish to draw
+ * \param	offset_z Is the z offset, found by the current MD2 frames max_z.
+ * \return	None
+ */
 void draw_actor_banner(actor * actor_id, float offset_z);
+
+/*!
+ * \ingroup	display_actors
+ * \brief	Draws a halo around the md2 with the colours given by r g b
+ *
+ * 		Draws a halo around the model given by the md2 pointer and the cur_frame. The r g b values define what colour the halo will be
+ *
+ * \param	model_data A pointer to the md2 model data
+ * \param	cur_frame The current frame in the model_data
+ * \param	r (0<=r<=1)
+ * \param	g (0<=g<=1)
+ * \param	b (0<=b<=1)
+ * \return	None
+ */
 void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b);
+
+/*!
+ * \ingroup	display_actors
+ * \brief	Draws the model from the data given by the md2*
+ *
+ * 		Draws the cur_frame of the md2 model pointed to with model_data. The ghost parameter is not used yet.
+ *
+ * \param	model_data A pointer to the md2 model
+ * \param	cur_frame The current frame
+ * \param	ghost Whether the model is a "ghost" or not
+ * \return 	None
+ */
 void draw_model(md2 *model_data,char *cur_frame, int ghost);
+
+/*!
+ * \ingroup	display_actors
+ * \brief	Draws the actor pointed to by actor_id
+ *
+ * 		The function draws the actor pointed to by actor_id. It is usually called from display_actors().
+ *
+ * \param	actor_id A pointer to the actor in the actors_list
+ * \return	None
+ */
 void draw_actor(actor * actor_id);
+
+/*!
+ * \ingroup	display_actors
+ * \brief	The main actor loop - draws all actors within range
+ * 
+ * 		The function draws the actor if it's within a range of 12*12
+ *
+ * \param	None
+ * \return	None
+ */
 void display_actors();
+
+/*!
+ * \ingroup	network_actors
+ * \brief	Adds an actor from the in_data
+ *
+ * 		Is called when the client gets an ADD_NEW_ACTOR command from the server. Parses the data pointed to by in_data, then adds the actor to the actors list
+ *
+ * \param	in_data The data from the server
+ * \return	None
+ */
 void add_actor_from_server(char * in_data);
 //void draw_interface_body_part(md2 *model_data);
+
+/*!
+ * \ingroup 	display_actors
+ * \brief	Draws the actor at a given position - is used for the characters creation screen
+ *
+ * 		Draws an actor pointed to by actor_id at the given scale, position and rotation
+ *
+ * \param	actor_id A pointer to the actor that the function will draw
+ * \param	scale The scale at which the actor will be drawn.
+ * \param	x_pos The x position
+ * \param	y_pos The y position
+ * \param 	z_pos The z position
+ * \param	x_rot The x rotation
+ * \param	y_rot The y rotation
+ * \param 	z_rot The z rotation
+ * \return 	None
+ * \sa		add_actor_interface
+ */
 void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
 						  int z_pos, float x_rot,float y_rot, float z_rot);
+
+/*!
+ * \ingroup	display_actors
+ * \brief	Adds an actor with the given types of skin, head, hair and clothes.
+ *
+ * 		The function is called from the new character creation screen. It adds an actor with the given parameters that can be displayed later using draw_interface_actor
+ *
+ * \param	actor_type The race and sex
+ * \param	skin The skin type
+ * \param	hair The hair type
+ * \param	shirt The shirt type
+ * \param	pants The pants type
+ * \param	boots The type of boots
+ * \param	head The head type
+ * \return	A pointer to the actor created
+ * \sa		client_serv.h
+ */
 actor * add_actor_interface(int actor_type, short skin, short hair,
 							short shirt, short pants, short boots, short head);
+
+/*!
+ * \ingroup	display_actors
+ * \brief	Inititates the actors_list (sets all pointers to NULL).
+ *
+ * 		Sets all actor pointers in the actors_list to NULL and creates the actors_list mutex.
+ *
+ * \param	None
+ * \return	None
+ * \sa		actors_list
+ * \sa		lock_actors_lists
+ */
 extern void	init_actors_lists();
 
 #ifdef MUTEX_DEBUG
@@ -295,14 +555,59 @@ extern void	init_actors_lists();
 		if(SDL_UnlockMutex(actors_lists_mutex)==-1)fprintf(stderr,"We're fucked!! The mutex on %s %s %d was not unlocked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__);\
 	}
 #else
+/*!
+ * \ingroup mutex
+ * \name Thread syncronization mutexs
+ */
+/*! \{ */
 #define lock_actors_lists()	SDL_LockMutex(actors_lists_mutex)
 #define unlock_actors_lists()	SDL_UnlockMutex(actors_lists_mutex)
+/*! \} */
 #endif
 
+/*!
+ * \ingroup	display_actors
+ * \brief	Destroys the actors list mutex
+ *
+ * 		Destroys the actors_list mutex and sets the pointer to NULL
+ * 
+ * \param	None
+ * \return 	None
+ */
 extern void	end_actors_lists();
 
+/*!
+ * \ingroup	display_actors
+ * \brief	Draws the bubble-text above the actor
+ *
+ * 		When an actor speaks in local chat and the function is called (only if the view_chat_to_overtext variable is 1) the function draws a bubble containing the text above the head of the actor.
+ *
+ * \param	actor_ptr A pointer to the actor we wish to draw the overtext of
+ * \return	None
+ */
 void	draw_actor_overtext( actor* actor_ptr );
+
+/*!
+ * \ingroup	network_text
+ * \brief	Adds the text to the actor given by actor_ptr
+ *
+ * 		Adds text from the actor to overhead text.
+ *
+ * \param	actor_ptr A pointer to the actor
+ * \param	text The text we wish to add to the current_displayed_text buffer in the actors structure.
+ */
 void	add_displayed_text_to_actor( actor * actor_ptr, const char* text );
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets a pointer to the actor given by the actor_id
+ *
+ * 		The function is used for getting a pointer to the actor with the given actor_id (the server-side actor id).
+ *
+ * \param	actor_id The server-side actor_id - NOT the position in the actors_list
+ * \return	A pointer to the actor with the given ID. If the actor is not found it returns NULL
+ * \sa		pf_get_our_actor
+ */
 actor *	get_actor_ptr_from_id( int actor_id );
 
 
