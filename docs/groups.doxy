@@ -321,6 +321,11 @@
  *      Shows the chat window
  * \ingroup windows
  */
+/*!
+ * \defgroup    notepad_win The new in-game notepad
+ *      Handles the in-game notepad
+ * \ingroup windows
+ */
 
 ///////////////////////////////////////////////////////////////////////////////
 //		      Interfaces (root windows) in EL			     //
