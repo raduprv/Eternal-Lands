@@ -7,20 +7,29 @@
 #define __NEW_CHARACTER_H__
 
 /*!
+ * \name Windows handlers
+ */
+/*! @{ */
+extern int newchar_root_win; /*!< window handler for the character creation interface root window. */
+/*! @} */
+
+/*!
  * \ingroup interface_newchar
- * \brief
+ * \brief   Sets the error string for errors during character creation.
  *
- *      Detail
+ *      If some errors occur in character creation interface, this functions sets the error string to be \a msg. This function will get called from \ref process_message_from_server whenever the server sends a \ref CREATE_CHAR_NOT_OK signal.
  *
+ * \param msg   the string for the character creation error message
+ * \param len   the length of \a msg
  * \callgraph
  */
 void set_create_char_error (const char *msg, int len);
 
 /*!
  * \ingroup interface_newchar
- * \brief
+ * \brief   Initializes the actor after changes
  *
- *      Detail
+ *      Initializes the actors data to reflect changes. Called from \ref click_newchar_handler. The current actor (if any) will get destroyed before the changes.
  *
  * \callgraph
  */
@@ -39,9 +48,9 @@ void change_actor();
 
 /*!
  * \ingroup interface_newchar
- * \brief
+ * \brief   Initializes and draws the New Character screen.
  *
- *      Detail
+ *      Initializes and draws the screen to create new characters.
  *
  * \callgraph
  */
@@ -88,11 +97,11 @@ void draw_new_char_screen();
 
 /*!
  * \ingroup interface_newchar
- * \brief
+ * \brief   Adds the char \a ch to the selected input box in the character creation interface.
  *
- *      Detail
+ *      The char \a ch will get added to either of the username, password or password confirmation input fields, depending on which input field is currently selected.
  *
- * \param ch
+ * \param ch    the char to add
  *
  * \callgraph
  */
@@ -100,23 +109,23 @@ void add_char_to_new_character(unsigned char ch);
 
 /*!
  * \ingroup interface_newchar
- * \brief
+ * \brief   Verifies the username and password from the character creation interface and calls \ref send_login_info.
  *
- *      Detail
+ *      The username and password are verified and copied before \ref send_login_info is called.
  *
  * \callgraph
  */
 void login_from_new_char();
 
-extern int newchar_root_win;
-
 /*!
  * \ingroup interface_newchar
- * \brief
+ * \brief   Creates the character creation interface screen.
  *
- *      Detail
+ *      Creates the character creation interface root window, if it was not created earlier, and initializes the event handlers for this window.
  *
  * \callgraph
+ *
+ * \pre If the character creation interface root window was created before (\ref newchar_root_win < 0), this function won't perform any actions.
  */
 void create_newchar_root_window ();
 

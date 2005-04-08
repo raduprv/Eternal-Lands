@@ -64,14 +64,20 @@ extern int log_conn_data; /*!< indicates whether we should log connection data o
 
 /*!
  * \ingroup network_actors
- * \brief
+ * \brief   Sends the given message \a str using the socket \a my_socket to the server.
  *
- *      Detail
+ *      The message \a str will be sent to the server using the socket \a my_socket. The max. length of \a str is given in \a len.
  *
- * \param my_socket
- * \param str
- * \param len
- * \retval int
+ * \param my_socket the socket used to communicate with the server
+ * \param str       the message to sent
+ * \param len       the length of \a str
+ * \retval int      0, if the client is not connected, or if the actor has been sitting for a specific amount of time, or if the packet is already stored in the \ref tcp_cache, 
+ *                  else the return value of SDLNet_TCP_Send will be returned.
+ * \callgraph
+ *
+ * \pre If the client is \ref disconnected, this function will return 0, without performing any actions.
+ * \pre If the actor is already sitting this function will return 0, when the \ref SIT_DOWN command is sent.
+ * \pre If the message given in \a str was already sent during a specific amount of time, meaning it is still in the \ref tcp_cache, this function will return 0.
  */
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
 
@@ -90,19 +96,21 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
 
 /*!
  * \ingroup network_actors
- * \brief
+ * \brief   Tries to connect to the server.
  *
- *      Detail
+ *      Connects the client to the server.
  *
  * \callgraph
+ *
+ * \pre If the client version is too old, this function will return without performing any action.
  */
 void connect_to_server();
 
 /*!
  * \ingroup network_actors
- * \brief
+ * \brief   Sends the login information from the username and password input fields to the server.
  *
- *      Detail
+ *      Sends the login information from the username and password input fields together with a \ref LOG_IN command to the server.
  *
  * \sa my_tcp_send
  */
@@ -110,22 +118,26 @@ void send_login_info();
 
 /*!
  * \ingroup network_actors
- * \brief
+ * \brief   Sends a \ref CREATE_CHAR command to the server.
  *
- *      Detail
+ *      Sends the \ref CREATE_CHAR command to the server. The data sent, will be combined from the given parameters.
  *
- * \param user_str
- * \param pass_str
- * \param conf_pass_str
- * \param skin
- * \param hair
- * \param shirt
- * \param pants
- * \param boots
- * \param head
- * \param type
+ * \param user_str          the username for the char
+ * \param pass_str          the password for the char
+ * \param conf_pass_str     the confirmation password for the char
+ * \param skin              the skin id used by the char
+ * \param hair              the hair id used by the char
+ * \param shirt             the shirt id used by the char
+ * \param pants             the pants id used by the char
+ * \param boots             the boots id used by the char
+ * \param head              the head id used by the char
+ * \param type              the actor type id used by the char.
  *
  * \sa my_tcp_send
+ *
+ * \pre If the length of \a user_str is less than 3, this function will create an error and returns.
+ * \pre If the length of \a pass_str is less than 4, this function will create an error and returns.
+ * \pre If the \a conf_pass_str doesn't match the \a pass_str, this function will create an error and returns.
  */
 void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, char skin, 
 				   char hair, char shirt, char pants, char boots,char head, char type);
@@ -157,10 +169,13 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, ch
 
 /*!
  * \ingroup network_actors
- * \brief
+ * \brief   Checks for new server messages.
  *
- *      Detail
+ *      Checks whether there are new messages from the server waiting and processes them where necessary.
  *
+ * \pre If the client is disconnected, this function won't perform any actions.
+ * \pre If the socket set is invalid, this function won't perform any actions.
+ * \pre If the socket is not ready, this function won't perform any actions.
  */
 void get_message_from_server();
 
