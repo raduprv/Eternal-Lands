@@ -178,13 +178,16 @@ typedef struct
 
 /*!
  * \ingroup cache
- * \brief
+ * \brief   Loads the file given by \a file_name.
  *
- *      Detail
+ *      Loads the file given by \a file_name. The functions first looks up the cache whether the file is already loaded. If the file was not loaded before, load_md2_cache tries to load the fike and stores it in cache for future use.
  *
- * \param file_name
- * \return md2*
+ * \param file_name the filename of the MD2 file to load
+ * \return md2*     a pointer to the newly created \ref md2 structure, or NULL if the loading fails
  * \callgraph
+ *
+ * \pre If the \a file_name was loaded before, this function returns the pointer that is stored in the cache.
+ * \pre If the functions fails to load the file via \ref load_md2, NULL will be returned.
  */
 md2 * load_md2_cache(char * file_name);
 
@@ -202,13 +205,14 @@ md2 * load_md2_cache(char * file_name);
 
 /*!
  * \ingroup display_2d
- * \brief
+ * \brief   Frees the memory that is used by \a md2_ptr.
  *
- *      Detail
+ *      Frees the memory that is used by the \ref md2 object pointed to by \a md2_ptr.
  *
- * \param md2_ptr
+ * \param md2_ptr   the pointer to an \ref md2 object to free.
  *
  * \callgraph
+ * \note This function simply calls \ref free_md2 with the given parameter \a md2_ptr.
  */
 void destroy_md2(md2 *md2_ptr);
 
@@ -227,24 +231,24 @@ void destroy_md2(md2 *md2_ptr);
 
 /*!
  * \ingroup display_2d
- * \brief
+ * \brief   Frees the memory that is used by the vertex arrays of the given \a md2_ptr.
  *
- *      Detail
+ *      Frees the memory used by the vertex arrays of the \ref md2 object pointed to by \a md2_ptr. The amount of memory freed will be returned.
  *
- * \param md2_ptr
- * \return Uint32
+ * \param md2_ptr   a pointer to an \ref md2 object to free
+ * \return Uint32   the amount of memory freed
  */
 Uint32 free_md2_va(md2 *md2_ptr);
 
 /*!
  * \ingroup display_2d
- * \brief
+ * \brief   Builds the vertex arrays for the given \ref md2 object \a cur_md2 and the \ref frame_md2 \a cur_frame
  *
- *      Detail
+ *      Builds the vertex arrays for the given \ref md2 object \a cur_md2 and the \ref frame_md2 \a cur_frame. The built vertex arrays will be stored in the cache for future use.
  *
- * \param cur_md2
- * \param cur_frame
- * \return Uint32
+ * \param cur_md2       the \ref md2 object for which to build the vertex arrays
+ * \param cur_frame     the \ref frame_md2 frame object for which to build the vertex arrays
+ * \return Uint32       the amount of memory used by the built vertex arrays.
  * \callgraph
  */
 Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame);

@@ -8,25 +8,27 @@
 
 /*!
  * \ingroup misc
- * \brief
- *		Swaps a float properly
+ * \brief Swaps a float properly
  *
- * \param t
+ *      Swaps the given float \a t
+ *
+ * \param t         the float to swap
+ * \retval float    the swapped float
  */
 inline float SwapFloat(float t);
 
 /*!
  * \ingroup misc
- * \brief
+ * \brief   Computes the reverse orthographic projection.
  *
- *      Detail
+ *      Computes the reverse orthographic projection from the parameters (\a wx, \a wy, \a wz) and stores the result in (\a ox, \a oy, \a oz).
  *
- * \param wx
- * \param wy
- * \param wz
- * \param ox
- * \param oy
- * \param oz
+ * \param wx    x coordinate of the projection
+ * \param wy    y coordinate of the projection
+ * \param wz    z coordinate of the projection
+ * \param ox    reverse x coordinate of the projection
+ * \param oy    reverse y coordinate of the projection
+ * \param oz    reverse z coordinate of the projection
  */
 void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GLfloat *oz);
 
@@ -47,70 +49,77 @@ void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GL
 
 /*!
  * \ingroup misc
- * \brief
+ * \brief   Resets the mouse values
  *
- *      Detail
+ *      Resets the pixel value at the mouse position, as well as the \ref thing_under_the_mouse and \ref object_under_mouse.
  *
+ * \pre If \ref read_mouse_now is false, this function returns without performing any action.
  */
 void reset_under_the_mouse();
 
 /*!
  * \ingroup misc
- * \brief
+ * \brief   Checks if there any objects at the mouse cursor position.
  *
- *      Detail
+ *      Checks if there are any objects at the current mouse cursor position. If the test succeeds, \ref thing_under_the_mouse will be set to \a object_type and \ref object_under_mouse will be set to \a object_id.
  *
- * \param object_id
- * \param object_type
- * \retval int
+ * \param object_id     the id of the object under the mouse
+ * \param object_type   the type of object under the mouse
+ * \retval int          0, if there are no objects under the mouse, else 1.
+ *
+ * \pre If \ref read_mouse_now is false, this function returns 0, without performing any actions.
+ * \pre If \a object_type equals \ref UNDER_MOUSE_NO_CHANGE, this function will return 0, after storing the pixel values at the current mouse position.
  */
 int anything_under_the_mouse(int object_id, int object_type);
 
 /*!
  * \ingroup misc
- * \brief
+ * \brief   Saves the scene matrices for later use.
  *
- *      Detail
+ *      Saves the scene matrices for the model, projection and viewport for later use.
  *
  */
 void save_scene_matrix();
 
 /*!
  * \ingroup misc
- * \brief
+ * \brief   Checks if the mouse cursor is within a sphere with center in (\a x, \a y, \a z) and the given \a radius.
  *
- *      Detail
+ *      Checks the current mouse position against a sphere with center in (\a x, \a y, \a z) and the given \a radius.
  *
- * \param x
- * \param y
- * \param z
- * \param radius
- * \retval int
+ * \param x         x coordinate of the sphere center
+ * \param y         y coordinate of the sphere center
+ * \param z         z coordinate of the sphere center
+ * \param radius    radius of the sphere
+ * \retval int      1 (true), if the mouse is inside the given sphere, else 0 (false).
  * \callgraph
  */
 int mouse_in_sphere(float x, float y, float z, float radius);
 
 /*!
  * \ingroup misc
- * \brief
+ * \brief   Checks, if the \a source_string contains an URL.
  *
- *      Detail
+ *      Checks the given \a source_string up to a length of \a len for being an URL and sets \ref have_url if this the case.
  *
- * \param source_string
- * \param len
- *
+ * \param source_string the string that contains the URL
+ * \param len           the length of \a source_string.
  * \callgraph
+ *
+ * \pre If \a source_string does not contain a valid URL, this function will return without setting \ref have_url to true.
  */
 void find_last_url(char * source_string, int len);
 
 /*!
  * \ingroup misc
- * \brief
+ * \brief   Sends a system command to open a browser with the last seen URL.
  *
- *      Detail
+ *      Sends a system command to open a browser window using the current URL.
  *
- * \param dummy
- * \retval int
+ * \param dummy     unused
+ * \retval int      always 0.
+ *
+ * \pre If \ref have_url is false, this function returns 0, without performing any actions.
  */
 int go_to_url(void *dummy);
 
@@ -118,27 +127,27 @@ int go_to_url(void *dummy);
 
 /*!
  * \ingroup misc
- * \brief
+ * \brief   Checks if a sphere with center at (\a x, \a y, \a z) with the given \a radius is inside the view frustum.
  *
- *      Detail
+ *      Checks if a sphere with center at (\a x, \a y, \a z) with the given \a radius is inside the view frustum.
  *
- * \param x
- * \param y
- * \param z
- * \param radius
- * \retval int
+ * \param x         the x coordinate of the sphere
+ * \param y         the y coordinate of the sphere
+ * \param z         the z coordinate of the sphere
+ * \param radius    the radius of the sphere
+ * \retval int      0 (false), if the sphere is outside the frustum, else 1 (true).
  */
 int SphereInFrustum(float x, float y, float z, float radius);
 
 /*!
  * \ingroup misc
- * \brief
+ * \brief   Checks if the tile with the given coordinates \a x and \a y is inside the view frustum.
  *
- *      Detail
+ *      Checks if the tile with the given coordinates \a x and \a y is inside the view frustum.
  *
- * \param x
- * \param y
- * \retval int
+ * \param x         the x coordinate of the tile
+ * \param y         the y coordiante of the tile
+ * \retval int      1 (true), if the sphere with center in (\a x + 1.5, \a y + 1.5, 0) and radius 2.5 is inside the view frustum, else 0 (false)
  * \callgraph
  */
 int check_tile_in_frustrum(float x,float y);
@@ -150,7 +159,7 @@ int check_tile_in_frustrum(float x,float y);
  *      Tries to open a file, and logs an error message if it fails
  *
  * \param fname The file name
- * \param mode The mode in which the file is to be opened
+ * \param mode  The mode in which the file is to be opened
  * \retval FILE* Pointer to the file on success, NULL otherwise
  */
 FILE *my_fopen (const char *fname, const char *mode);
