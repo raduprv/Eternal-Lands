@@ -508,7 +508,7 @@ void	end_drag_windows()
 }
 
 
-int	select_window(int win_id)
+int	select_window (int win_id)
 {
 	int	i, old, nchild, idiff;
 	

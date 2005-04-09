@@ -50,6 +50,7 @@ extern Uint32 K_SHADOWS;
 extern Uint32 K_KNOWLEDGE;
 extern Uint32 K_ENCYCLOPEDIA;
 extern Uint32 K_HELP;
+extern Uint32 K_NOTEPAD;
 extern Uint32 K_HIDEWINS;
 extern Uint32 K_ITEM1;
 extern Uint32 K_ITEM2;

@@ -37,6 +37,7 @@ Uint32 K_SHADOWS=284;
 Uint32 K_KNOWLEDGE=CTRL|'k';
 Uint32 K_ENCYCLOPEDIA=CTRL|'e';
 Uint32 K_HELP=CTRL|'h';
+Uint32 K_NOTEPAD=CTRL|'n';
 Uint32 K_HIDEWINS=ALT|'d';
 Uint32 K_ITEM1=CTRL|'1';
 Uint32 K_ITEM2=CTRL|'2';
@@ -150,6 +151,8 @@ void read_key_config()
 		K_ENCYCLOPEDIA = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_HELP",file_mem,key_file_size,0))!=-1)
 		K_HELP = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_NOTEPAD",file_mem,key_file_size,0))!=-1)
+		K_NOTEPAD = parse_key_string(&file_mem[t]);	
 	if((t=get_string_occurance("#K_HIDEWINS",file_mem,key_file_size,0))!=-1)
 		K_HIDEWINS = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ITEM1",file_mem,key_file_size,0))!=-1)

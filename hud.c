@@ -577,6 +577,9 @@ void view_window(int * window, int id)
 			else if(window==&options_win) display_options_menu();
 			else if(window==&buddy_win) display_buddy();
 			else if(window==&trade_win) display_trade_menu();
+#ifdef NOTEPAD
+			else if(window==&notepad_win) display_notepad();
+#endif
 			else if(use_tabbed_windows)
 			{
 				if(window==&tab_stats_win) display_tab_stats();

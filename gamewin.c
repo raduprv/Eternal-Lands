@@ -890,6 +890,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		else
 			view_window(&help_win,0);
 	}
+	#ifdef NOTEPAD
+	else if (key == K_NOTEPAD)
+	{
+		view_window (&notepad_win, 0);
+	}
+	#endif
 	else if (key == K_SIGILS)
 	{
 		view_window (&sigil_win, -1);
@@ -1136,12 +1142,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			for (l = windows_list.window[iwin].widgetlist; l; l=l->next)
 				printf ("\t%d\n", l->id);
 		}
-	}
-#endif			
-#ifdef NOTEPAD
-	else if (keysym == SDLK_F12)
-	{
-		display_notepad ();
 	}
 #endif
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -7,6 +7,7 @@
 #define __NOTEPAD_H__
 
 #ifdef NOTEPAD
+extern int notepad_win; /*!< ID of the notepad window */
 extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was loaded before. */
 
 /*!
