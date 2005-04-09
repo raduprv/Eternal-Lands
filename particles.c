@@ -12,29 +12,20 @@
 #include "string.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * void dump_part_sys_info();
  */
 
-/*!
- * \name Particle system kinds
- */
-/*! \{ */
-#define TELEPORTER_PARTICLE_SYS 0 /*!< particle system used by teleportes */
-#define TELEPORT_PARTICLE_SYS 1 /*!< particle system used when teleporting by either spell or by using #beam me up */
-#define BAG_PARTICLE_SYS 2 /*!< particle system used when bags (dis)appear. */
-#define BURST_PARTICLE_SYS 3 /*!< burst particle system */
-#define FIRE_PARTICLE_SYS 4 /*!< particle system used by fires/fireplaces */
-#define FOUNTAIN_PARTICLE_SYS 5 /*!< particle system used by fountains */
-/*! \} */
+#define TELEPORTER_PARTICLE_SYS 0
+#define TELEPORT_PARTICLE_SYS 1
+#define BAG_PARTICLE_SYS 2
+#define BURST_PARTICLE_SYS 3
+#define FIRE_PARTICLE_SYS 4
+#define FOUNTAIN_PARTICLE_SYS 5
 
-/*!
- * \name randomization of particles
- */
-/*! \{ */
 #define PARTICLE_RANDOM(min,max) (min+(max-min)*(rand()/(float)RAND_MAX))
 #define PARTICLE_RANDOM2(min,max) (min+0.5*(max-min)+0.5*(max-min)/(float)((rand()%200)-100+0.5))
-/*! \} */
 
 #define PART_SYS_VISIBLE_DIST_SQ 18*18
 
@@ -49,10 +40,8 @@ particle_sys *particles_list[MAX_PARTICLE_SYSTEMS];
 #define MAX_PARTICLE_DEFS 500
 particle_sys_def *defs_list[MAX_PARTICLE_DEFS];
 
-/* forward declarations added due to code cleanup */
 void destroy_all_particle_defs();
 int create_particle_sys(particle_sys_def *def,float x,float y,float z);
-/* end of added forward declarations */
 
 #ifndef ELC
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)

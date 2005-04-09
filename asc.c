@@ -7,19 +7,18 @@
 #include "md5.h"
 
 /* NOTE: This file contains implementations of the following, currently unused and commented functions:
+ *          Look at the end of the file.
  *
  * Sint32 get_string_after_string(const Uint8*, const Uint8*, Sint32, Uint*, int);
  * void get_file_digest(const Uint8*, Uint8[16]);
  * void get_string_digest(const Uint8*, Uint8[16]);
  */
 
-/* forward declaration added due to code cleanup */
 #ifndef LINUX
 int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * len);
 #else
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
 #endif
-/* end of added forward declaration */
 
 //find the first string occurance, and return the distance to that string
 //if beggining is 1, it returns the offset to the beginning of the string
@@ -65,32 +64,6 @@ Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_poi
   		}//end of the for
 	return -1;//if we are here, it means we didn't find the string...
 }
-
-/* currently UNUSED
-//find & copy a string into memory
-//return the length or -1 if not found
-Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, Sint32 max_len, Uint8 *value, Sint32 value_len)
-{
-	int i;
-	int loc=get_string_occurance(source_pointer, dest_pointer, max_len, 0);
-
-	if (loc < 0)
-		{
-			return -1;
-		}
-	// now copy the string
-	for(i=0;i<value_len-1;i++)
-		{
-			Uint8 ch;
-			ch=dest_pointer[loc+i];
-			if(ch==0x0a || ch==0x0d)break;
-  			value[i]=ch;
-		}
-	value[i]=0;	// always place a NULL
-
-	return(i);
-}
-*/
 
 //this function returns an integer, after the source string in the destination string
 //if the string is not found, after max_len, the function returns -1.
@@ -341,35 +314,6 @@ Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
 	return(len);
 }
 
-/* the next two functions are currently UNUSED
-void get_file_digest(const Uint8 * filename, Uint8 digest[16])
-{
-	MD5 md5;
-	FILE *fp = my_fopen(filename, "r");
-	Uint8 buffer[64];
-	Sint32 length;
-	MD5Open(&md5);
-	
-	memset (digest, 0, sizeof (digest));	
-	if (fp == NULL) return;
-	
-	while ((length = fread(buffer, 1, sizeof(buffer), fp)) > 0)
-		{
-			MD5Digest(&md5, buffer, length);
-		}
-	MD5Close(&md5, digest);
-	fclose(fp);
-}
-
-void get_string_digest(const Uint8 * string, Uint8 digest[16])
-{
-	MD5 md5;
-	MD5Open(&md5);
-	MD5Digest(&md5, string, strlen(string));
-	MD5Close(&md5, digest);
-}
-*/
-
 void http_get_file(char *server, char *path, FILE *fp)
 {
 	IPaddress http_ip;
@@ -490,3 +434,56 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 	iconv_close(t);
 	return 1;
 }
+
+/* currently UNUSED
+//find & copy a string into memory
+//return the length or -1 if not found
+Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, Sint32 max_len, Uint8 *value, Sint32 value_len)
+{
+	int i;
+	int loc=get_string_occurance(source_pointer, dest_pointer, max_len, 0);
+
+	if (loc < 0)
+		{
+			return -1;
+		}
+	// now copy the string
+	for(i=0;i<value_len-1;i++)
+		{
+			Uint8 ch;
+			ch=dest_pointer[loc+i];
+			if(ch==0x0a || ch==0x0d)break;
+  			value[i]=ch;
+		}
+	value[i]=0;	// always place a NULL
+
+	return(i);
+}
+
+void get_file_digest(const Uint8 * filename, Uint8 digest[16])
+{
+	MD5 md5;
+	FILE *fp = my_fopen(filename, "r");
+	Uint8 buffer[64];
+	Sint32 length;
+	MD5Open(&md5);
+	
+	memset (digest, 0, sizeof (digest));	
+	if (fp == NULL) return;
+	
+	while ((length = fread(buffer, 1, sizeof(buffer), fp)) > 0)
+		{
+			MD5Digest(&md5, buffer, length);
+		}
+	MD5Close(&md5, digest);
+	fclose(fp);
+}
+
+void get_string_digest(const Uint8 * string, Uint8 digest[16])
+{
+	MD5 md5;
+	MD5Open(&md5);
+	MD5Digest(&md5, string, strlen(string));
+	MD5Close(&md5, digest);
+}
+*/

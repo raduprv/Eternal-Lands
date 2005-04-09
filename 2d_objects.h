@@ -78,27 +78,7 @@ extern obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF]; /*!< The 2d object 
 
 extern obj_2d *obj_2d_list[MAX_OBJ_2D]; /*!< The 2d object array - holds all 2d objects on that map*/
 
-/* 
- * OBOSOLETE: They are queued for removal from this file.
- * Only used in 2d_objects.c, no need to declare them here.
-extern int map_meters_size_x;
-extern int map_meters_size_y;
- */
 extern float texture_scale; /*!< scaling factor for textures */
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	display_2d
-// * \brief	Draws the 2D object pointed to by object_id
-// * 
-// * 		Draws the 2D object given with object_id. It is called from display_2d_objects(); if it's within the viewing distance
-// * 		
-// * \param	object_id A pointer to the 2d object id
-// *
-// * \sa		display_2d_objects
-// * \callgraph
-// */
-//void draw_2d_object(obj_2d * object_id);
 
 /*! 
  * \ingroup	display_2d
@@ -111,36 +91,6 @@ extern float texture_scale; /*!< scaling factor for textures */
  * \callgraph
  */
 void display_2d_objects();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*! 
-// * \ingroup	load_2d
-// * \brief  	Loads the 2d object definition from a .2d0-file (ascii)
-// * 
-// * 	   	This function parses the .2do-file as given by file_name. The .2do file has informaton about the texture, x, y, z sizes and rotations used by the 2d object
-// * 	   	Have a look at the objects in ./2dobjects/ground/ 
-// * 	   	
-// * \param 	file_name The filename of the object we wish to load
-// * \retval obj_2d_def* 	A pointer to the loaded 2d object on succes, otherwise NULL
-// * \sa		obj_2d_def
-// * \sa		obj_2d_def_cache_struct
-// * \sa		obj_2d_def_cache
-// * \callgraph
-// */
-//obj_2d_def * load_obj_2d_def(char *file_name);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	load_2d
-// * \brief	Finds the 2d object in the 2d object cache, or adds it to it.
-// * 
-// * 		Checks for an already existing instance of the object given with file_name in the 2d object cache.
-// * 		
-// * \param	file_name The filename of the 2d object definition we wish to load
-// * \retval obj_2d_def* 	On succes it returns a pointer to the loaded 2d object, otherwise it tries loading it using load_obj_2d_def - if this fails as well, it returns NULL
-// * \callgraph
-// */
-//obj_2d_def * load_obj_2d_def_cache(char * file_name);
 
 /*!
  * \ingroup	load_2d

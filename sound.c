@@ -2,31 +2,22 @@
 #include <math.h>
 #include "global.h"
 
-#define MAX_BUFFERS 9 /*!< max number of buffers -> moved to sound.c */
-#define MAX_SOURCES 16 /*!< max. number of sources -> moved to sound.c */
+#define MAX_BUFFERS 9
+#define MAX_SOURCES 16
 
-#define BUFFER_SIZE (4096 * 16) /*!< size of one buffer -> moved to sound.c */
-#define SLEEP_TIME 500 /*! sleep time in ms, between music or sound effects -> moved to sound.c */
+#define BUFFER_SIZE (4096 * 16)
+#define SLEEP_TIME 500
 
-/*!
- * \ingroup mutex
- * \name Sound thread synchronization -> moved to sound.c
- */
-/*! @{ */
 #define	LOCK_SOUND_LIST()	SDL_LockMutex(sound_list_mutex)
 #define	UNLOCK_SOUND_LIST()	SDL_UnlockMutex(sound_list_mutex);
-/*! @} */
 
-/*!
- * playlist_entry is used to read and write the entries for a playlist.
- */
 typedef struct {
-	char file_name[64]; /*!< the filename of the sound file for this entry */
+	char file_name[64];
 	int min_x;
 	int max_x;
 	int min_y;
 	int max_y;
-	int time; /*!< duration of this sound file */
+	int time;
 } playlist_entry;
 
 int have_sound=0;
@@ -60,12 +51,10 @@ int loop_list=1;
 int list_pos=-1;
 #endif	//NO_MUSIC
 
-/* forward declaration added due to code cleanup */
 int realloc_sources();
 void load_ogg_file(char *file_name);
 void stream_music(ALuint buffer);
 void ogg_error(int code);
-/* end of added forward declarations */
 
 void stop_sound(int i)
 {

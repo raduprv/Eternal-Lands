@@ -3,6 +3,7 @@
 #include "global.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * int save_map(char*);
  * void new_map(int, int);
@@ -76,214 +77,6 @@ void destroy_map()
 		}
 
 }
-
-/* currently UNUSED
-int save_map(char * file_name)
-{
-	int i,j;
-	map_header cur_map_header;
-	char * mem_map_header=(char *)&cur_map_header;
-
-	object3d_io cur_3d_obj_io;
-	int obj_3d_no=0;
-	int obj_3d_io_size;
-
-	obj_2d_io cur_2d_obj_io;
-	int obj_2d_no=0;
-	int obj_2d_io_size;
-
-	light_io cur_light_io;
-	int lights_no=0;
-	int lights_io_size;
-
-	particles_io cur_particles_io;
-	int particles_no=0;
-	int particles_io_size;
-
-	FILE *f = NULL;
-
-
-	//get the sizes of structures (they might change in the future)
-	obj_3d_io_size=sizeof(object3d_io);
-	obj_2d_io_size=sizeof(obj_2d_io);
-	lights_io_size=sizeof(light_io);
-	particles_io_size=sizeof(particles_io);
-
-	//get the number of objects and lights
-	for(i=0;i<highest_obj_3d;i++)if(objects_list[i])obj_3d_no++;
-	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
-	for(i=0;i<MAX_LIGHTS;i++)if(lights_list[i])lights_no++;
-	// We ignore temporary particle systems (i.e. ones with a ttl>=0)
-	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)particles_no++;
-
-	//ok, now build the header...
-	//clear the header
-	memset(mem_map_header, 0, sizeof(mem_map_header));
-
-	//build the file signature
-	cur_map_header.file_sig[0]='e';
-	cur_map_header.file_sig[1]='l';
-	cur_map_header.file_sig[2]='m';
-	cur_map_header.file_sig[3]='f';
-
-	cur_map_header.tile_map_x_len=tile_map_size_x;
-	cur_map_header.tile_map_y_len=tile_map_size_y;
-	cur_map_header.tile_map_offset=sizeof(map_header);
-	cur_map_header.height_map_offset=cur_map_header.tile_map_offset+tile_map_size_x*tile_map_size_y;
-	cur_map_header.obj_3d_struct_len=obj_3d_io_size;
-	cur_map_header.obj_3d_no=obj_3d_no;
-	cur_map_header.obj_3d_offset=cur_map_header.height_map_offset+tile_map_size_x*tile_map_size_y*6*6;
-	cur_map_header.obj_2d_struct_len=obj_2d_io_size;
-	cur_map_header.obj_2d_no=obj_2d_no;
-	cur_map_header.obj_2d_offset=cur_map_header.obj_3d_offset+obj_3d_no*obj_3d_io_size;
-	cur_map_header.lights_struct_len=lights_io_size;
-	cur_map_header.lights_no=lights_no;
-	cur_map_header.lights_offset=cur_map_header.obj_2d_offset+obj_2d_no*obj_2d_io_size;
-	cur_map_header.dungeon=dungeon;
-	cur_map_header.ambient_r=ambient_r;
-	cur_map_header.ambient_g=ambient_g;
-	cur_map_header.ambient_b=ambient_b;
-	cur_map_header.particles_struct_len=particles_io_size;
-	cur_map_header.particles_no=particles_no;
-	cur_map_header.particles_offset=cur_map_header.lights_offset+lights_no*lights_io_size;
-
-	//ok, now let's open/create the file, and start writting the header...
-	f=my_fopen(file_name, "wb");
-	if (f == NULL)
-	{
-		// unable to open output file
-		// Let's quit now before our user spends a whole lot of time
-		// creating a map that can't be saved.
-		SDL_Quit ();
-		exit (1);
-	}
-
-	//write the header
-	fwrite(mem_map_header, sizeof(map_header), 1, f);
-
-	//write the tiles map
-	fwrite(tile_map, tile_map_size_x*tile_map_size_y, 1, f);
-
-	//write the heights map
-	fwrite(height_map, tile_map_size_x*tile_map_size_y*6*6, 1, f);
-
-	//write the 3d objects
-	j=0;
-	for(i=0;i<highest_obj_3d;i++)
-		{
-
-			if(j>obj_3d_no)break;
-			if(objects_list[i])
-				{
-					char * cur_3do_pointer=(char *)&cur_3d_obj_io;
-					Uint32 k=0;
-
-					//clear the object
-					for(k=0;k<sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
-
-					sprintf(cur_3d_obj_io.file_name,"%s",objects_list[i]->file_name);
-					cur_3d_obj_io.x_pos=objects_list[i]->x_pos;
-					cur_3d_obj_io.y_pos=objects_list[i]->y_pos;
-					cur_3d_obj_io.z_pos=objects_list[i]->z_pos;
-
-					cur_3d_obj_io.x_rot=objects_list[i]->x_rot;
-					cur_3d_obj_io.y_rot=objects_list[i]->y_rot;
-					cur_3d_obj_io.z_rot=objects_list[i]->z_rot;
-
-					cur_3d_obj_io.self_lit=objects_list[i]->self_lit;
-					cur_3d_obj_io.blended=objects_list[i]->blended;
-
-					cur_3d_obj_io.r=objects_list[i]->r;
-					cur_3d_obj_io.g=objects_list[i]->g;
-					cur_3d_obj_io.b=objects_list[i]->b;
-
-					fwrite(cur_3do_pointer, sizeof(object3d_io), 1, f);
-
-					j++;
-				}
-		}
-
-	//write the 2d objects
-	j=0;
-	for(i=0;i<MAX_OBJ_2D;i++)
-		{
-
-			if(j>obj_2d_no)break;
-			if(obj_2d_list[i])
-				{
-					char * cur_2do_pointer=(char *)&cur_2d_obj_io;
-					Uint32 k=0;
-
-					//clear the object
-					for(k=0;k<sizeof(obj_2d_io);k++)cur_2do_pointer[k]=0;
-
-					sprintf(cur_2d_obj_io.file_name,"%s",obj_2d_list[i]->file_name);
-					cur_2d_obj_io.x_pos=obj_2d_list[i]->x_pos;
-					cur_2d_obj_io.y_pos=obj_2d_list[i]->y_pos;
-					cur_2d_obj_io.z_pos=obj_2d_list[i]->z_pos;
-
-					cur_2d_obj_io.x_rot=obj_2d_list[i]->x_rot;
-					cur_2d_obj_io.y_rot=obj_2d_list[i]->y_rot;
-					cur_2d_obj_io.z_rot=obj_2d_list[i]->z_rot;
-
-					fwrite(cur_2do_pointer, sizeof(obj_2d_io), 1, f);
-
-					j++;
-				}
-		}
-
-	//write the lights
-	j=0;
-	for(i=0;i<MAX_LIGHTS;i++)
-		{
-			if(j>lights_no)break;
-			if(lights_list[i])
-				{
-					char * cur_light_pointer=(char *)&cur_light_io;
-					Uint32 k=0;
-
-					//clear the object
-					for(k=0;k<sizeof(light_io);k++)cur_light_pointer[k]=0;
-
-					cur_light_io.pos_x=lights_list[i]->pos_x;
-					cur_light_io.pos_y=lights_list[i]->pos_y;
-					cur_light_io.pos_z=lights_list[i]->pos_z;
-
-					cur_light_io.r=lights_list[i]->r;
-					cur_light_io.g=lights_list[i]->g;
-					cur_light_io.b=lights_list[i]->b;
-
-					fwrite(cur_light_pointer, sizeof(light_io), 1, f);
-
-					j++;
-				}
-		}
-
-	// Write the particle systems
-	j=0;
-	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
-		{
-			if(j>particles_no)break;
-			if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)
-				{
-					char *cur_particles_pointer=(char *)&cur_particles_io;
-					Uint32 k=0;
-					for(k=0;k<sizeof(particles_io);k++)cur_particles_pointer[k]=0;
-					sprintf(cur_particles_io.file_name,"%s",particles_list[i]->def->file_name);
-					cur_particles_io.x_pos=particles_list[i]->x_pos;
-					cur_particles_io.y_pos=particles_list[i]->y_pos;
-					cur_particles_io.z_pos=particles_list[i]->z_pos;
-					fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
-					j++;
-				}
-		}
-
-	fclose(f);
-
-	return 1;
-
-}
-*/
 
 int get_cur_map(char * file_name)
 {
@@ -558,6 +351,212 @@ void new_map(int m_x_size,int m_y_size)
 
 	load_map_tiles();
 
+
+}
+
+int save_map(char * file_name)
+{
+	int i,j;
+	map_header cur_map_header;
+	char * mem_map_header=(char *)&cur_map_header;
+
+	object3d_io cur_3d_obj_io;
+	int obj_3d_no=0;
+	int obj_3d_io_size;
+
+	obj_2d_io cur_2d_obj_io;
+	int obj_2d_no=0;
+	int obj_2d_io_size;
+
+	light_io cur_light_io;
+	int lights_no=0;
+	int lights_io_size;
+
+	particles_io cur_particles_io;
+	int particles_no=0;
+	int particles_io_size;
+
+	FILE *f = NULL;
+
+
+	//get the sizes of structures (they might change in the future)
+	obj_3d_io_size=sizeof(object3d_io);
+	obj_2d_io_size=sizeof(obj_2d_io);
+	lights_io_size=sizeof(light_io);
+	particles_io_size=sizeof(particles_io);
+
+	//get the number of objects and lights
+	for(i=0;i<highest_obj_3d;i++)if(objects_list[i])obj_3d_no++;
+	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
+	for(i=0;i<MAX_LIGHTS;i++)if(lights_list[i])lights_no++;
+	// We ignore temporary particle systems (i.e. ones with a ttl>=0)
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)particles_no++;
+
+	//ok, now build the header...
+	//clear the header
+	memset(mem_map_header, 0, sizeof(mem_map_header));
+
+	//build the file signature
+	cur_map_header.file_sig[0]='e';
+	cur_map_header.file_sig[1]='l';
+	cur_map_header.file_sig[2]='m';
+	cur_map_header.file_sig[3]='f';
+
+	cur_map_header.tile_map_x_len=tile_map_size_x;
+	cur_map_header.tile_map_y_len=tile_map_size_y;
+	cur_map_header.tile_map_offset=sizeof(map_header);
+	cur_map_header.height_map_offset=cur_map_header.tile_map_offset+tile_map_size_x*tile_map_size_y;
+	cur_map_header.obj_3d_struct_len=obj_3d_io_size;
+	cur_map_header.obj_3d_no=obj_3d_no;
+	cur_map_header.obj_3d_offset=cur_map_header.height_map_offset+tile_map_size_x*tile_map_size_y*6*6;
+	cur_map_header.obj_2d_struct_len=obj_2d_io_size;
+	cur_map_header.obj_2d_no=obj_2d_no;
+	cur_map_header.obj_2d_offset=cur_map_header.obj_3d_offset+obj_3d_no*obj_3d_io_size;
+	cur_map_header.lights_struct_len=lights_io_size;
+	cur_map_header.lights_no=lights_no;
+	cur_map_header.lights_offset=cur_map_header.obj_2d_offset+obj_2d_no*obj_2d_io_size;
+	cur_map_header.dungeon=dungeon;
+	cur_map_header.ambient_r=ambient_r;
+	cur_map_header.ambient_g=ambient_g;
+	cur_map_header.ambient_b=ambient_b;
+	cur_map_header.particles_struct_len=particles_io_size;
+	cur_map_header.particles_no=particles_no;
+	cur_map_header.particles_offset=cur_map_header.lights_offset+lights_no*lights_io_size;
+
+	//ok, now let's open/create the file, and start writting the header...
+	f=my_fopen(file_name, "wb");
+	if (f == NULL)
+	{
+		// unable to open output file
+		// Let's quit now before our user spends a whole lot of time
+		// creating a map that can't be saved.
+		SDL_Quit ();
+		exit (1);
+	}
+
+	//write the header
+	fwrite(mem_map_header, sizeof(map_header), 1, f);
+
+	//write the tiles map
+	fwrite(tile_map, tile_map_size_x*tile_map_size_y, 1, f);
+
+	//write the heights map
+	fwrite(height_map, tile_map_size_x*tile_map_size_y*6*6, 1, f);
+
+	//write the 3d objects
+	j=0;
+	for(i=0;i<highest_obj_3d;i++)
+		{
+
+			if(j>obj_3d_no)break;
+			if(objects_list[i])
+				{
+					char * cur_3do_pointer=(char *)&cur_3d_obj_io;
+					Uint32 k=0;
+
+					//clear the object
+					for(k=0;k<sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
+
+					sprintf(cur_3d_obj_io.file_name,"%s",objects_list[i]->file_name);
+					cur_3d_obj_io.x_pos=objects_list[i]->x_pos;
+					cur_3d_obj_io.y_pos=objects_list[i]->y_pos;
+					cur_3d_obj_io.z_pos=objects_list[i]->z_pos;
+
+					cur_3d_obj_io.x_rot=objects_list[i]->x_rot;
+					cur_3d_obj_io.y_rot=objects_list[i]->y_rot;
+					cur_3d_obj_io.z_rot=objects_list[i]->z_rot;
+
+					cur_3d_obj_io.self_lit=objects_list[i]->self_lit;
+					cur_3d_obj_io.blended=objects_list[i]->blended;
+
+					cur_3d_obj_io.r=objects_list[i]->r;
+					cur_3d_obj_io.g=objects_list[i]->g;
+					cur_3d_obj_io.b=objects_list[i]->b;
+
+					fwrite(cur_3do_pointer, sizeof(object3d_io), 1, f);
+
+					j++;
+				}
+		}
+
+	//write the 2d objects
+	j=0;
+	for(i=0;i<MAX_OBJ_2D;i++)
+		{
+
+			if(j>obj_2d_no)break;
+			if(obj_2d_list[i])
+				{
+					char * cur_2do_pointer=(char *)&cur_2d_obj_io;
+					Uint32 k=0;
+
+					//clear the object
+					for(k=0;k<sizeof(obj_2d_io);k++)cur_2do_pointer[k]=0;
+
+					sprintf(cur_2d_obj_io.file_name,"%s",obj_2d_list[i]->file_name);
+					cur_2d_obj_io.x_pos=obj_2d_list[i]->x_pos;
+					cur_2d_obj_io.y_pos=obj_2d_list[i]->y_pos;
+					cur_2d_obj_io.z_pos=obj_2d_list[i]->z_pos;
+
+					cur_2d_obj_io.x_rot=obj_2d_list[i]->x_rot;
+					cur_2d_obj_io.y_rot=obj_2d_list[i]->y_rot;
+					cur_2d_obj_io.z_rot=obj_2d_list[i]->z_rot;
+
+					fwrite(cur_2do_pointer, sizeof(obj_2d_io), 1, f);
+
+					j++;
+				}
+		}
+
+	//write the lights
+	j=0;
+	for(i=0;i<MAX_LIGHTS;i++)
+		{
+			if(j>lights_no)break;
+			if(lights_list[i])
+				{
+					char * cur_light_pointer=(char *)&cur_light_io;
+					Uint32 k=0;
+
+					//clear the object
+					for(k=0;k<sizeof(light_io);k++)cur_light_pointer[k]=0;
+
+					cur_light_io.pos_x=lights_list[i]->pos_x;
+					cur_light_io.pos_y=lights_list[i]->pos_y;
+					cur_light_io.pos_z=lights_list[i]->pos_z;
+
+					cur_light_io.r=lights_list[i]->r;
+					cur_light_io.g=lights_list[i]->g;
+					cur_light_io.b=lights_list[i]->b;
+
+					fwrite(cur_light_pointer, sizeof(light_io), 1, f);
+
+					j++;
+				}
+		}
+
+	// Write the particle systems
+	j=0;
+	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
+		{
+			if(j>particles_no)break;
+			if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)
+				{
+					char *cur_particles_pointer=(char *)&cur_particles_io;
+					Uint32 k=0;
+					for(k=0;k<sizeof(particles_io);k++)cur_particles_pointer[k]=0;
+					sprintf(cur_particles_io.file_name,"%s",particles_list[i]->def->file_name);
+					cur_particles_io.x_pos=particles_list[i]->x_pos;
+					cur_particles_io.y_pos=particles_list[i]->y_pos;
+					cur_particles_io.z_pos=particles_list[i]->z_pos;
+					fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
+					j++;
+				}
+		}
+
+	fclose(f);
+
+	return 1;
 
 }
 */

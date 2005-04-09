@@ -27,12 +27,6 @@ typedef struct{
 
 extern map_sector sectors[256*256]; /*!< the global variable sectors stores all the currently loaded \see map_sector. */
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in sector.c, no need to declare it here.
- */
-//extern int num_sectors; /*!< current number of sectors in \see sectors */
-
 /*!
  * \ingroup maps
  * \brief returns the <em>parent</em> sector of the given sector and stores the start and end coordinates in the given parameters.
@@ -57,30 +51,6 @@ void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey);
  * \retval int
  */
 int sector_add_3do(int objectid);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup maps
-// * \brief adds an 2d object, specified by objectid to the current sector
-// *
-// *      Adds an 2d object, specified by objectid to the current sector
-// *
-// * \param objectid  points to the 2d object to add.
-// * \retval int
-// */
-//int sector_add_2do(int objectid);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup maps
-// * \brief adds the given light to the current sector
-// *
-// *      Adds the light given by objectid to the current sector
-// *
-// * \param objectid  points to the light to add
-// * \retval int
-// */
-//int sector_add_light(int objectid);
 
 /*!
  * \ingroup maps

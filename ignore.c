@@ -232,4 +232,3 @@ void list_ignores()
 	LOG_TO_CONSOLE(c_grey1,str);
 
 }
-

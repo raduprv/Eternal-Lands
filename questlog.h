@@ -6,19 +6,6 @@
 #ifndef __QUESTLOG_H__
 #define __QUESTLOG_H__
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in questlog.c, no need to declare it here.
- */
-//*!
-// * the _logdata structure is a linked list with a string as its data.
-// */
-//typedef struct ld
-//{
-//	char *msg; /*!< the message to log */
-//	struct ld *Next; /*!< link to the element in the list. */
-//}_logdata;
-
 /*!
  * \name windows handlers
  */
@@ -28,13 +15,6 @@ extern int questlog_win; /*!< handle for the questlog window */
 
 extern int questlog_menu_x;
 extern int questlog_menu_y;
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in questlog.c, no need to declare it here.
- */
-//extern int questlog_menu_x_len;
-//extern int questlog_menu_y_len;
 
 /*!
  * \ingroup quest_win
@@ -78,20 +58,6 @@ void unload_questlog();
  */
 void add_questlog(char *t, int len);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup quest_win
-// * \brief adds the string t up to the given length as a new line to the questlog.
-// *
-// *      Adds the string t up to the given length as a new line to the questlog
-// *
-// * \param t     the log to add
-// * \param len   the length of t
-// *
-// * \callgraph
-// */
-//void add_questlog_line(char *t, int len);
-
 /*!
  * \ingroup quest_win
  * \brief goes to the entry in the questlog with the specified index.
@@ -101,18 +67,6 @@ void add_questlog(char *t, int len);
  * \param ln    the index for the entry to search for.
  */
 void goto_questlog_entry(int ln);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup misc_utils
-// * \brief string_fix
-// *
-// *      string_fix(char*,int)
-// *
-// * \param t
-// * \param len
-// */
-//void string_fix(char *t, int len);
 
 /*!
  * \ingroup quest_win

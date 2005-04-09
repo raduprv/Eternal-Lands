@@ -3,6 +3,7 @@
 #include "global.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * char* load_bmp8_color_key_no_texture(char*);
  * char* load_bmp8_alpha_map(char*);
@@ -295,181 +296,6 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	free(texture_mem);
 	return texture;
 }
-
-/* currently UNUSED
-/////////////////////////////////////////////////////////////////////////////////////
-//load a bmp file, convert it to the rgba format, but don't assign it to any texture object
-char * load_bmp8_color_key_no_texture(char * FileName)
-{
-	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry; //i unused?
-	Uint8 * file_mem;
-	Uint8 * file_mem_start;
-	Uint8 * read_buffer;
-	Uint8 * color_pallete;
-	FILE *f = NULL;
-	Uint8 *texture_mem;
-
-  	f = my_fopen (FileName, "rb");
-  	if (!f) return NULL;
-  	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
-  	file_mem_start=file_mem;
-  	fread (file_mem, 1, 50, f);//header only
-  	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
-		{
-			free(file_mem_start);
-			fclose (f);
-			return NULL;
-		}
-	file_mem+=18;
-	x_size=*((int *) file_mem);
-	file_mem+=4;
-	y_size=*((int *) file_mem);
-	file_mem+=6;
-	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
-		{
-			free(file_mem_start);
-			fclose (f);
-			return NULL;
-		}
-
-	file_mem+=2;
-	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
-		{
-			free(file_mem_start);
-			fclose (f);
-			return NULL;
-		}
-	file_mem+=16;
-
-	colors_no=SDL_SwapLE32(*((int *)file_mem));
-	if(!colors_no)colors_no=256;
-	file_mem+=8;//here comes the pallete
-
-	color_pallete=file_mem+4;
-	fread (file_mem, 1, colors_no*4+4, f);//header only
-	file_mem+=colors_no*4;
-
-	x_padding=x_size%4;
-	if(x_padding)x_padding=4-x_padding;
-
-	//now, allocate the memory for the file
-	texture_mem = (Uint8 *) calloc ( x_size*y_size*4, sizeof(Uint8));
-	read_buffer = (Uint8 *) calloc ( 2000, sizeof(Uint8));
-
-
-	for(y=0;y<y_size;y++)
-		{
-			fread (read_buffer, 1, x_size-x_padding, f);
-
-			for(x=0;x<x_size;x++)
-				{
-					current_pallete_entry=*(read_buffer+x);
-					b=*(color_pallete+current_pallete_entry*4);
-					g=*(color_pallete+current_pallete_entry*4+1);
-					r=*(color_pallete+current_pallete_entry*4+2);
-					*(texture_mem+(y*x_size+x)*4)=r;
-					*(texture_mem+(y*x_size+x)*4+1)=g;
-					*(texture_mem+(y*x_size+x)*4+2)=b;
-					a=(r+b+g)/3;
-					*(texture_mem+(y*x_size+x)*4+3)=a;
-				}
-
-		}
-
-	free(file_mem_start);
-	free(read_buffer);
-	fclose (f);
-	return texture_mem;
-	//ok, now, hopefully, the file is loaded and converted...
-	//so, assign the texture, and such
-}
-*/
-
-/* currently UNUSED
-/////////////////////////////////////////////////////////////////////////////////////
-//load a bmp file, convert it to an alpha map
-char * load_bmp8_alpha_map(char * FileName)
-{
-	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry;
-	Uint8 * file_mem;
-	Uint8 * file_mem_start;
-	Uint8 * read_buffer;
-	Uint8 * color_pallete;
-	FILE *f = NULL;
-	Uint8 *texture_mem;
-
-  	f = my_fopen (FileName, "rb");
-  	if (!f) return NULL;
-  	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
-  	file_mem_start=file_mem;
-  	fread (file_mem, 1, 50, f);//header only
-  	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
-		{
-			free(file_mem_start);
-			fclose (f);
-			return NULL;
-		}
-	file_mem+=18;
-	x_size=*((int *) file_mem);
-	file_mem+=4;
-	y_size=*((int *) file_mem);
-	file_mem+=6;
-	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
-		{
-			free(file_mem_start);
-			fclose (f);
-			return NULL;
-		}
-
-	file_mem+=2;
-	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
-		{
-			free(file_mem_start);
-			fclose (f);
-			return NULL;
-		}
-	file_mem+=16;
-
-	colors_no=SDL_SwapLE32(*((int *)file_mem));
-	if(!colors_no)colors_no=256;
-	file_mem+=8;//here comes the pallete
-
-	color_pallete=file_mem+4;
-	fread (file_mem, 1, colors_no*4+4, f);//header only
-	file_mem+=colors_no*4;
-
-	x_padding=x_size%4;
-	if(x_padding)x_padding=4-x_padding;
-
-	//now, allocate the memory for the file
-	texture_mem = (Uint8 *) calloc ( x_size*y_size, sizeof(Uint8));
-	read_buffer = (Uint8 *) calloc ( 2000, sizeof(Uint8));
-
-
-	for(y=0;y<y_size;y++)
-		{
-			fread (read_buffer, 1, x_size-x_padding, f);
-
-			for(x=0;x<x_size;x++)
-				{
-					current_pallete_entry=*(read_buffer+x);
-					b=*(color_pallete+current_pallete_entry*4);
-					g=*(color_pallete+current_pallete_entry*4+1);
-					r=*(color_pallete+current_pallete_entry*4+2);
-					a=(r+b+g)/3;
-					*(texture_mem+(y*x_size+x))=a;
-				}
-
-		}
-
-	free(file_mem_start);
-	free(read_buffer);
-	fclose(f);
-	return texture_mem;
-}
-*/
 
 //Tests to see if a texture is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
@@ -964,4 +790,175 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 }
 #endif	//ELC
 
+/* currently UNUSED
+/////////////////////////////////////////////////////////////////////////////////////
+//load a bmp file, convert it to the rgba format, but don't assign it to any texture object
+char * load_bmp8_color_key_no_texture(char * FileName)
+{
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry; //i unused?
+	Uint8 * file_mem;
+	Uint8 * file_mem_start;
+	Uint8 * read_buffer;
+	Uint8 * color_pallete;
+	FILE *f = NULL;
+	Uint8 *texture_mem;
 
+  	f = my_fopen (FileName, "rb");
+  	if (!f) return NULL;
+  	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
+  	file_mem_start=file_mem;
+  	fread (file_mem, 1, 50, f);//header only
+  	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
+  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
+	file_mem+=18;
+	x_size=*((int *) file_mem);
+	file_mem+=4;
+	y_size=*((int *) file_mem);
+	file_mem+=6;
+	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
+
+	file_mem+=2;
+	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
+	file_mem+=16;
+
+	colors_no=SDL_SwapLE32(*((int *)file_mem));
+	if(!colors_no)colors_no=256;
+	file_mem+=8;//here comes the pallete
+
+	color_pallete=file_mem+4;
+	fread (file_mem, 1, colors_no*4+4, f);//header only
+	file_mem+=colors_no*4;
+
+	x_padding=x_size%4;
+	if(x_padding)x_padding=4-x_padding;
+
+	//now, allocate the memory for the file
+	texture_mem = (Uint8 *) calloc ( x_size*y_size*4, sizeof(Uint8));
+	read_buffer = (Uint8 *) calloc ( 2000, sizeof(Uint8));
+
+
+	for(y=0;y<y_size;y++)
+		{
+			fread (read_buffer, 1, x_size-x_padding, f);
+
+			for(x=0;x<x_size;x++)
+				{
+					current_pallete_entry=*(read_buffer+x);
+					b=*(color_pallete+current_pallete_entry*4);
+					g=*(color_pallete+current_pallete_entry*4+1);
+					r=*(color_pallete+current_pallete_entry*4+2);
+					*(texture_mem+(y*x_size+x)*4)=r;
+					*(texture_mem+(y*x_size+x)*4+1)=g;
+					*(texture_mem+(y*x_size+x)*4+2)=b;
+					a=(r+b+g)/3;
+					*(texture_mem+(y*x_size+x)*4+3)=a;
+				}
+
+		}
+
+	free(file_mem_start);
+	free(read_buffer);
+	fclose (f);
+	return texture_mem;
+	//ok, now, hopefully, the file is loaded and converted...
+	//so, assign the texture, and such
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+//load a bmp file, convert it to an alpha map
+char * load_bmp8_alpha_map(char * FileName)
+{
+	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry;
+	Uint8 * file_mem;
+	Uint8 * file_mem_start;
+	Uint8 * read_buffer;
+	Uint8 * color_pallete;
+	FILE *f = NULL;
+	Uint8 *texture_mem;
+
+  	f = my_fopen (FileName, "rb");
+  	if (!f) return NULL;
+  	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
+  	file_mem_start=file_mem;
+  	fread (file_mem, 1, 50, f);//header only
+  	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
+  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
+	file_mem+=18;
+	x_size=*((int *) file_mem);
+	file_mem+=4;
+	y_size=*((int *) file_mem);
+	file_mem+=6;
+	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
+
+	file_mem+=2;
+	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
+		{
+			free(file_mem_start);
+			fclose (f);
+			return NULL;
+		}
+	file_mem+=16;
+
+	colors_no=SDL_SwapLE32(*((int *)file_mem));
+	if(!colors_no)colors_no=256;
+	file_mem+=8;//here comes the pallete
+
+	color_pallete=file_mem+4;
+	fread (file_mem, 1, colors_no*4+4, f);//header only
+	file_mem+=colors_no*4;
+
+	x_padding=x_size%4;
+	if(x_padding)x_padding=4-x_padding;
+
+	//now, allocate the memory for the file
+	texture_mem = (Uint8 *) calloc ( x_size*y_size, sizeof(Uint8));
+	read_buffer = (Uint8 *) calloc ( 2000, sizeof(Uint8));
+
+
+	for(y=0;y<y_size;y++)
+		{
+			fread (read_buffer, 1, x_size-x_padding, f);
+
+			for(x=0;x<x_size;x++)
+				{
+					current_pallete_entry=*(read_buffer+x);
+					b=*(color_pallete+current_pallete_entry*4);
+					g=*(color_pallete+current_pallete_entry*4+1);
+					r=*(color_pallete+current_pallete_entry*4+2);
+					a=(r+b+g)/3;
+					*(texture_mem+(y*x_size+x))=a;
+				}
+
+		}
+
+	free(file_mem_start);
+	free(read_buffer);
+	fclose(f);
+	return texture_mem;
+}
+*/

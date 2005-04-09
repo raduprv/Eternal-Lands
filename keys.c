@@ -48,12 +48,10 @@ Uint32 K_VIEWTEXTASOVERTEXT=ALT|'o';
 Uint32 K_AFK=CTRL|ALT|'a';
 Uint32 K_SIT=ALT|'s';
 
-/* forward declarations added due to code cleanup  */
 unsigned int CRC32(unsigned char *data, int len);
 unsigned short get_key_code(char *key);
 unsigned int parse_key_string(char *s);
 void add_key(unsigned int *key,unsigned int n);
-/* end of added forward declarations */
 
 // load the dynamic definitions for keys
 void read_key_config()
@@ -378,5 +376,3 @@ Uint32 CRC32(unsigned char *data, int len)
     }
     return ~result;
 }
-
-

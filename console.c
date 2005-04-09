@@ -5,45 +5,13 @@
 #include "global.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * void print_log();
+ * void cls();
  */
 
 char	auto_open_encyclopedia= 1;
-
-/* Currently UNUSED
-//cls - clears the text buffer
-void cls()
-{
-	int i;
-
-	display_console_text_buffer_first=0;
-	display_text_buffer_first=0;
-	display_text_buffer_last=0;
-
-	//clear the buffer
-	for(i=0;i<MAX_DISPLAY_TEXT_BUFFER_LENGTH;i++)display_text_buffer[i]=0;
-	not_from_the_end_console=0;
-
-	//also update the lines to show, and the last server message thing
-	//without it, the text would dissapear very slowly...
-	lines_to_show=0;
-	last_server_message_time=cur_time;
-}
-*/
-
-/* currently UNUSED
-void print_log()
-{
-	FILE *f = NULL;
-
-  	f = my_fopen ("text_log.txt", "ab");
-	if (!f) return;
-	
-  	fwrite (display_text_buffer, display_text_buffer_last, 1, f);
-  	fclose (f);
-}
-*/
 
 //do we have any console commands?
 //if not, send the text to the server
@@ -617,3 +585,34 @@ void test_for_console_command (char *text, int len)
 
 }
 
+/* Currently UNUSED
+//cls - clears the text buffer
+void cls()
+{
+	int i;
+
+	display_console_text_buffer_first=0;
+	display_text_buffer_first=0;
+	display_text_buffer_last=0;
+
+	//clear the buffer
+	for(i=0;i<MAX_DISPLAY_TEXT_BUFFER_LENGTH;i++)display_text_buffer[i]=0;
+	not_from_the_end_console=0;
+
+	//also update the lines to show, and the last server message thing
+	//without it, the text would dissapear very slowly...
+	lines_to_show=0;
+	last_server_message_time=cur_time;
+}
+
+void print_log()
+{
+	FILE *f = NULL;
+
+  	f = my_fopen ("text_log.txt", "ab");
+	if (!f) return;
+	
+  	fwrite (display_text_buffer, display_text_buffer_last, 1, f);
+  	fclose (f);
+}
+*/

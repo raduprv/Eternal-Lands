@@ -2,13 +2,10 @@
 #include "global.h"
 #include "elwindows.h"
 
-/*!
- * the _logdata structure is a linked list with a string as its data.
- */
 typedef struct ld
 {
-	char *msg; /*!< the message to log */
-	struct ld *Next; /*!< link to the element in the list. */
+	char *msg;
+	struct ld *Next;
 }_logdata;
 
 int questlog_win=-1;
@@ -24,9 +21,7 @@ FILE *qlf = NULL;
 
 int questlog_y;
 
-/* forward declaration added due to code cleanup */
-void add_questlog_line(char *t, int len);
-/* end of added forward declaration */
+void add_questlog_line(char *t, int len);   /* forward declaration */
 
 void load_questlog()
 {
@@ -284,4 +279,3 @@ void display_questlog()
 		select_window(questlog_win);
 	}
 }
-

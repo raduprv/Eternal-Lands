@@ -202,8 +202,6 @@ typedef	struct	{
 
 extern	windows_info	windows_list; /*!< global variable defining the list of windows */
 
-//#define	SCREEN	0 /*!< defines the SCREEN (unused) */
-
 // windows manager function
 
 /*!
@@ -303,9 +301,6 @@ void	end_drag_windows();
  */
 int		select_window(int win_id);
 
-/* UNUSED */
-//void	close_windows();
-
 // individual functions
 
 /*!
@@ -341,18 +336,6 @@ int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int
  * \pre If the \ref window_info::window_id of the window stored at the index \a win_id into the \ref windows_list variable is not equal to \a win_id, this function returns without performing any actions.
  */
 void	destroy_window(int win_id);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup elwindows
-// * \brief
-// *
-// *      Detail
-// *
-// * \param name
-// * \retval int
-// */
-//int		find_window(const char *name);
 
 /*!
  * \ingroup elwindows
@@ -478,19 +461,6 @@ int set_window_min_size (int win_id, int width, int height);
  */
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() );
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup elwindows
-// * \brief
-// *
-// *      Detail
-// *
-// * \param win_id
-// * \param handler_id
-// * \retval void*
-// */
-//void	*get_window_handler(int win_id, int handler_id);
-
 /*!
  * \ingroup elwindows
  * \brief   Selects and shows the given window
@@ -574,19 +544,6 @@ int		get_show_window(int win_id);
 //void	collapse_window(int win_id);	// future expansion
 //void	expand_window(int win_id);		// future expansion
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup elwindows
-// * \brief
-// *
-// *      Detail
-// *
-// * \param win_id
-// * \retval int
-// * \callgraph
-// */
-//int		display_window(int win_id);
-
 /*!
  * \ingroup elwindows
  * \brief   Checks if the mouse coordinates are inside a window.
@@ -629,97 +586,9 @@ int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
  */
 int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coord in the window
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup elwindows
-// * \brief
-// *
-// *      Detail
-// *
-// * \param win_id
-// * \param x
-// * \param y
-// * \param flags
-// * \param dx
-// * \param dy
-// * \retval int
-// * \callgraph
-// */
-//int		drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup elwindows
-// * \brief
-// *
-// *      Detail
-// *
-// * \param win_id
-// * \param x
-// * \param y
-// * \retval int
-// * \callgraph
-// */
-//int		mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup elwindows
-// * \brief
-// *
-// *      Detail
-// *
-// * \param win_id
-// * \param x
-// * \param y
-// * \param key
-// * \param unikey
-// * \retval int
-// * \callgraph
-// */
-//int		keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
-
 // low level functions
 //window_info	*get_window_info(int win_id);
 //window_info	*get_window_by_name(const Uint8 *name);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup elwindows
-// * \brief
-// *
-// *      Detail
-// *
-// * \param win
-// * \retval int
-// * \callgraph
-// */
-//int		draw_window(window_info *win);		// the complete window, including display_handler
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup elwindows
-// * \brief
-// *
-// *      Detail
-// *
-// * \param win
-// * \retval int
-// * \callgraph
-// */
-//int		draw_window_title(window_info *win);// just the title bar if enabled
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup elwindows
-// * \brief
-// *
-// *      Detail
-// *
-// * \param win
-// * \retval int
-// */
-//int		draw_window_base(window_info *win);	// border & background
 
 // default handlers - VERY basic
 //int	init_handler(window_info *win);

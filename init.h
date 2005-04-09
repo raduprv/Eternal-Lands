@@ -133,12 +133,6 @@ typedef struct
 
 }bin_cfg;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in init.c, no need to declare it here.
- */
-//extern int ini_file_size; /*!< file size of the ini file */
-
 extern int poor_man; /*!< this flag, if set to true, indicates we are running on a really poor machine */
 extern int show_reflection; /*!< flag that indicates whether to display reflections or not */
 extern int mouse_limit;
@@ -152,18 +146,6 @@ extern char configdir[256]; /*!< the default directory where we look for configu
 extern char datadir[256]; /*!< the default directory where we look for data files (aka installation dir) */
 extern int show_help_text;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Moved to gl_init.h
-extern int have_stencil;
- */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Moved to hud.h
-extern int show_stats_in_hud;
- */
-
 extern int disconnected; /*!< indicates whether we are currently connected or not */
 extern int exit_now; /*!< a flag that indicates we should exit the programm immediately */
 extern int have_url;
@@ -172,63 +154,7 @@ extern char browser_name[120]; /*!< a buffer that contains the name of the brows
 
 extern char lang[10]; /*!< contains the identifier for the current language. \todo Shouldn't this go into translate.h? */
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Used only in init.c, no need to declare them here.
- */
-//*!
-// * a list of ids and associated function names used for e3d models
-// */
-//typedef struct{
-//	int id;
-//	char *fn;
-//}e3d_list;
-//extern e3d_list *e3dlist; /*!< a global list of e3d_list objects. */
-//extern int e3dlistsize; /*!< the current size of \see e3dlist */
-
 extern int video_mode_set;
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup init
-// * \brief
-// *
-// *      Detail
-// *
-// */
-//void load_harvestable_list();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup init
-// * \brief
-// *
-// *      Detail
-// *
-// */
-//void load_entrable_list();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup loadsave
-// * \brief
-// *
-// *      Detail
-// *
-// * \callgraph
-// */
-//void read_config();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup loadsave
-// * \brief
-// *
-// *      Detail
-// *
-// * \callgraph
-// */
-//void read_bin_cfg();
 
 /*!
  * \ingroup loadsave
@@ -238,50 +164,6 @@ extern int video_mode_set;
  *
  */
 void save_bin_cfg();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief
-// *
-// *      Detail
-// *
-// * \callgraph
-// */
-//void init_md2_cache();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief
-// *
-// *      Detail
-// *
-// * \sa init_stuff
-// */
-//void init_texture_cache();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief
-// *
-// *      Detail
-// *
-// * \callgraph
-// */
-//void init_e3d_cache();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup init
-// * \brief
-// *
-// *      Detail
-// *
-// * \sa init_stuff
-// */
-//void init_2d_obj_cache();
 
 /*!
  * \ingroup init
@@ -293,17 +175,6 @@ void save_bin_cfg();
  */
 void init_stuff();
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup load
-// * \brief
-// *
-// *      Detail
-// *
-// * \sa init_stuff
-// */
-//void load_e3d_list();
-
 /*!
  * \ingroup load
  * \brief
@@ -313,17 +184,5 @@ void init_stuff();
  * \sa start_rendering
  */
 void unload_e3d_list();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup init
-// * \brief
-// *
-// *      Detail
-// *
-// * \sa init_stuff
-// * \callgraph
-// */
-//void read_command_line(); //from main.c
 
 #endif	//__INIT_H__

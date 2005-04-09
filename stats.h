@@ -187,23 +187,9 @@ typedef struct
 extern int attrib_menu_x;
 extern int attrib_menu_y;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in stats.c, no need to declare them here.
- */
-//extern int attrib_menu_x_len;
-//extern int attrib_menu_y_len;
-//extern int attrib_menu_dragged; // has been commented before, imo safe for removal too.
-
 extern int watch_this_stat; /*!< indicator to select the stat that get's displayed in the hud */
 
 player_attribs your_info; /*!< the players attributes */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in stats.c, no need to declare them here.
- */
-//player_attribs someone_info; /*!< attributes of someone else the player interacts with */
 
 /*!
  * \ingroup stats_win

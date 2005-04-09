@@ -11,10 +11,8 @@ SDL_TimerID pf_movement_timer = NULL;
 #define PF_DIFF(a, b) ((a > b) ? a - b : b - a)
 #define PF_HEUR(a, b) ((PF_DIFF(a->x, b->x) + PF_DIFF(a->y, b->y)) * 10)
 
-/* forward declarations added due to code cleanup */
 int pf_is_tile_occupied(int x, int y);
 Uint32 pf_movement_timer_callback(Uint32 interval, void *param);
-/* end of added forward declarations */
 
 PF_TILE *pf_get_tile(int x, int y)
 {

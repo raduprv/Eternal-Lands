@@ -32,21 +32,6 @@ inline float SwapFloat(float t);
  */
 void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GLfloat *oz);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup misc
-// * \brief
-// *
-// *      Detail
-// *
-// * \param ox
-// * \param oy
-// * \param oz
-// * \param wx
-// * \param wy
-// */
-//void project_ortho(GLfloat ox, GLfloat oy, GLfloat oz, GLfloat * wx, GLfloat * wy);
-
 /*!
  * \ingroup misc
  * \brief   Resets the mouse values

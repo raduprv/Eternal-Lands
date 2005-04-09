@@ -9,14 +9,11 @@
 #include "global.h"
 #endif
 
-/*! \name Group types */
-/*! \{ */
 #define GROUP 0
 #define DIGROUP 1
 #ifdef ELC
 #define STAT_GROUP 2
 #endif
-/*! \} */
 
 
 /*! \name Tooltips*/
@@ -373,7 +370,6 @@ group_id * stats_extra;
 group_id * titles_str;
 #endif
 
-/* forward declarations added due to code cleanup */
 void init_console(void);
 void init_help(void);
 void init_options(void);
@@ -394,7 +390,6 @@ void parse_titles(xmlNode * in);
 #endif
 struct xml_struct load_strings(char * file);
 struct xml_struct load_strings_file(char * filename);
-/* end of added forward declarations */
 
 void init_groups()
 {

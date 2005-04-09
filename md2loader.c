@@ -5,9 +5,7 @@
 
 int md2_mem_used;
 
-/* forward declaration added due to code cleanup */
 md2 * load_md2(char * file_name);
-/* end of added forward declaration */
 
 //Tests to see if a MD2 is already loaded. If it is, return the handle.
 //If not, load it, and return the handle

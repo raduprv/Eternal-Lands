@@ -39,23 +39,6 @@ Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest
 float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
 							 Sint32 max_len);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	misc_utils
-// * \brief	Gets a string after a string
-// *
-// * 		The function finds the string given by source_pointer in dest_pointer, then returns the string after =.
-// *
-// * \param	source_pointer The string you wish to find
-// * \param	dest_pointer The char array that you wish to search
-// * \param	max_len The maximum length
-// * \param	value The string to copy to
-// * \param	value_len The max length of the new string
-// * \retval Sint32	Returns the length of the string copied, or -1 on failure.
-// */
-//Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
-//						 Sint32 max_len, Uint8 * value, int value_len);
-
 /*!
  * \ingroup	misc_utils
  * \brief	Gets the offset of a string in a char array
@@ -181,32 +164,6 @@ char ** get_lines(char * str, int chars_per_line);
  */
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	misc_utils
-// * \brief	Gets the md5sum of the file and puts it in digest
-// *
-// * 		Gets the md5sum of the file and puts it in digest
-// *
-// * \param	filename The name of the file you wish to open
-// * \param	digest The digest array in which the md5sum will be stored
-// * \callgraph
-// */
-//void get_file_digest(const Uint8 * filename, Uint8 digest[16]);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	misc_utils
-// * \brief	Gets the md5sum of the given string and copies it to the digest
-// *
-// * 		Gets the md5sum of the given string and copies it to the digest
-// *
-// * \param	string The string you wish to get the md5sum of
-// * \param	digest The digest array in which the md5sum will be stored
-// * \callgraph
-// */
-//void get_string_digest(const Uint8 * string, Uint8 digest[16]);
-
 /*!
  * \ingroup	misc_utils
  * \brief	A simple implementation of the http-GET
@@ -259,25 +216,4 @@ int xmlGetInt(xmlNode *n, xmlChar *p);
  * \sa my_UTF8Toisolat1
  */
 int my_xmlStrncopy(char ** dest, const char * src, int len);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	xml_utils
-// * \brief	Converts a UTF-8 encoded string to an iso-8859-1 encoded string.
-// *
-// * 		Converts a UTF-8 encoded string to an iso-8859-1 encoded string using iconv(). It does not allocate any buffers, you must do that prior to calling the function.
-// *
-// * \param	dest A pointer to the destination pointer
-// * \param	lu The max. length of the characters converted and added to the destination buffer
-// * \param	src A pointer to the source pointer
-// * \param	len The maximum number of bytes to convert
-// * \retval int	Returns true
-// * \todo	Add more return values depending on the situation
-// */
-//#ifdef WINDOWS
-//int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * len);
-//#else
-//int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
-//#endif
-
 #endif

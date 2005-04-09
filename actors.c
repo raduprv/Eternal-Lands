@@ -4,19 +4,15 @@
 #include "global.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * void end_actors_list();
  */
 
 #ifdef ELC
-/*!
- * \name ingame text drawing macros
- */
-/*! @{ */
 #define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
 #define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
 #define DRAW_INGAME_ALT(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
-/*! @} */
 #endif
 
 actor *actors_list[1000];
@@ -25,9 +21,7 @@ SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main thr
 
 actor_types actors_defs[100];
 
-/* forward declaration add due to code cleanup */
-void draw_actor_overtext( actor* actor_ptr );
-/* end of added forward declaration */
+void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
 
 //Threading support for actors_lists
 void init_actors_lists()
@@ -39,14 +33,6 @@ void init_actors_lists()
 	for(i=0;i<1000;i++)actors_list[i]=NULL;
 	UNLOCK_ACTORS_LISTS();	// release now that we are done
 }
-
-/* currently UNUSED
-void end_actors_lists()
-{
-	SDL_DestroyMutex(actors_lists_mutex);
-	actors_lists_mutex=NULL;
-}
-*/
 
 //return the ID (number in the actors_list[]) of the new allocated actor
 int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
@@ -1049,3 +1035,11 @@ actor *	get_actor_ptr_from_id( int actor_id )
 	}
 	return NULL;
 }
+
+/* currently UNUSED
+void end_actors_lists()
+{
+	SDL_DestroyMutex(actors_lists_mutex);
+	actors_lists_mutex=NULL;
+}
+*/

@@ -7,22 +7,6 @@
 #ifndef __SOUND_H__
 #define __SOUND_H__
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in sound.c, no need to declare it here.
- */
-//*!
-// * playlist_entry is used to read and write the entries for a playlist.
-// */
-//typedef struct {
-//	char file_name[64]; /*!< the filename of the sound file for this entry */
-//	int min_x;
-//	int max_x;
-//	int min_y;
-//	int max_y;
-//	int time; /*!< duration of this sound file */
-//} playlist_entry;
-
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */
 extern int sound_on; /*!< flag indicating whether sound is enabled */
@@ -114,30 +98,6 @@ void init_sound();
  */
 void destroy_sound();
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup sound
-// * \brief reallocates the sources of playlist entries.
-// *
-// *      Reallocates the sources of playlist entries.
-// *
-// * \retval int  the number of sound sources still in use.
-// */
-//int realloc_sources();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup sound
-// * \brief retrieves a previously loaded buffer at the given index.
-// *
-// *      Retrieves a previously loaded buffer at the given index. If the sound file at the index \a i is not buffered already, it will be loaded and buffered for future use.
-// *
-// * \param i index of the file to load
-// * \retval ALuint   a handle into the sound buffer.
-// */
-//ALuint get_loaded_buffer(int i);
-
-
 /*!
  * \ingroup music
  * \brief Retrieves the playlist for the current map.
@@ -146,30 +106,6 @@ void destroy_sound();
  *
  */
 void get_map_playlist();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup music
-// * \brief plays the ogg file with the given filename.
-// *
-// *      Plays an ogg file, specified by a filename
-// *
-// * \param file_name name of the ogg file to play
-// *
-// * \callgraph
-// */
-//void play_ogg_file(char *file_name);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup music
-// * \brief loads the ogg file with the given filename.
-// *
-// *      Loads an ogg file, specified by a filename.
-// *
-// * \param file_name name of the ogg file to load
-// */
-//void load_ogg_file(char *file_name);
 
 /*!
  * \ingroup music
@@ -195,19 +131,6 @@ void play_music(int list);
  */
 int update_music(void *dummy);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup music
-// * \brief creates a sound stream from the data pointed to by \a buffer
-// *
-// *      Creates a sound stream, ready for playback, from the data pointed to by \a buffer.
-// *
-// * \param buffer    handle to a buffer with the sound data
-// *
-// * \sa ogg_error
-// */
-//void stream_music(ALuint buffer);
-
 /*!
  * \ingroup music
  * \brief Turns music off and stops playback of music.
@@ -223,25 +146,5 @@ void turn_music_off();
  *      Turns music on and starts playback of music.
  */
 void turn_music_on();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup music
-// * \brief creates an error with the specified code.
-// *
-// *      Creates an ogg error with the specified code.
-// *
-// * \param code  error code used to create this error.
-// */
-//void ogg_error(int code);
-
-//*!
-// * \ingroup mutex
-// * \name Sound thread synchronization -> moved to sound.c
-// */
-//*! @{ */
-//#define	LOCK_SOUND_LIST()	SDL_LockMutex(sound_list_mutex)
-//#define	UNLOCK_SOUND_LIST()	SDL_UnlockMutex(sound_list_mutex);
-//*! @} */
 
 #endif

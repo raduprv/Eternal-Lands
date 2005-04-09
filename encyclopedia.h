@@ -59,14 +59,6 @@ extern int encyclopedia_win; /*!< encyclopedia windows handler */
 extern int encyclopedia_menu_x;
 extern int encyclopedia_menu_y;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in encyclopedia.c, no need to declare them here.
- */
-//extern int encyclopedia_menu_x_len;
-//extern int encyclopedia_menu_y_len;
-//extern _Category Category[100]; /*!< array of categories used in the encyclopedia */
-
 extern _Page Page[500]; /*!< fixed array of pages for the encyclopedia */
 extern int numpage;
 
@@ -80,17 +72,6 @@ extern int numpage;
  */
 void display_encyclopedia();
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup encyclopedia
-// * \brief   mouse over event handler for encyclopedia
-// *
-// *      Mouse over event handler for encyclopedia
-// *
-// * \retval int
-// */
-//int encyclopedia_mouse_over();
-
 /*!
  * \ingroup encyclopedia
  * \brief Sets the window handler functions for the encyclopedia window
@@ -100,32 +81,6 @@ void display_encyclopedia();
  * \return None
  */
 void fill_encyclopedia_win ();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup xml_utils
-// * \brief   reads a category from the xml node \a a_node
-// *
-// *      Reads a category from the xml node element \a a_node
-// *
-// * \param a_node    the xml node element that contains the declaration of the category
-// *
-// * \callgraph
-// */
-//void ReadCategoryXML(xmlNode * a_node);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup xml_utils
-// * \brief   reads the index.xml file for the encyclopedia
-// *
-// *      Reads and parses the index.xml file used by the encyclopedia
-// *
-// * \param a_node    the root xml node element of the index.
-// *
-// * \callgraph
-// */
-//void ReadIndexXML(xmlNode * a_node);
 
 /*!
  * \ingroup xml_utils

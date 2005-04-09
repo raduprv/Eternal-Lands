@@ -6,29 +6,6 @@
 #ifndef __WEATHER_H__
 #define __WEATHER_H__
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in weather.c, no need to declare it here.
- */
-//*!
-// * \name    	Maximum number of thunders in one place
-// */
-//*! \{ */
-//#define MAX_THUNDERS 5
-//*! \} */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in weather.c, no need to declare it here.
- */
-//*!
-// * \name	Rain related constant
-// */
-//*! \{ */
-//#define MAX_RAIN_DROPS 5000 /*!< The maximum number of rain drops in one place */
-//*! \} */
-
-
 extern int seconds_till_rain_starts;    /*!< Seconds till the rain starts */
 extern int seconds_till_rain_stops;     /*!< Seconts till the rain stops */
 extern int is_raining;                  /*!< Specifies if it's raining - if it is, draw the raindrops */
@@ -36,59 +13,6 @@ extern int rain_sound;                  /*!< Specifies the rain sound */
 extern int weather_light_offset;        /*!< Sets the current light offset */
 extern int rain_light_offset;           /*!< Sets the current rain offset */
 extern int thunder_light_offset;        /*!< Sets the current thunder light offset */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Unused variable
- */
-//extern int lightning_text;              /*!< Sets the lightning texture */
-
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in weather.c, no need to declare it here.
- */
-//*!
-// * The thunder structure
-// */
-//typedef struct
-//{
-//	int in_use;
-//	int light_offset;
-//	int seconds_till_sound;
-//	int thunder_type;
-//	int time_since_started;
-//	int x;
-//	int y;
-//	int rot;
-//}thunder;
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in weather.c, no need to declare it here.
- */
-//thunder thunders[MAX_THUNDERS];         /*!< The array containing the current thunders */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in weather.c, no need to declare it here.
- */
-//*!
-// * The rain drop structure - defines the start and end position
-// */
-//typedef struct
-//{
-//	short x;
-//	short y;
-//	short x2;
-//	short y2;
-//}rain_drop;
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in weather.c, no need to declare it here.
- */
-//rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 
 /*!
  * \ingroup	other

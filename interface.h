@@ -51,32 +51,11 @@ extern char username_str[16]; /*!< the username of the actor */
 extern char password_str[16]; /*!< the password of the actor */
 extern char display_password_str[16]; /*!< a string that will be displayed when entering a password */
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Used only in interface.c, no need to declare them here.
- */
-//extern int username_text_lenght; /*!< actual length of the \see username_str */
-//extern int password_text_lenght; /*!< actual length of the \see password_str */
-
 extern int font_text;
 extern int cons_text;
 extern int icons_text;
 extern int hud_text;
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Unused variable
-extern int open_text;
- */
-
 extern int login_text;
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Unused variables
- */
-//extern int selected_3d_object; /*!< if a 3d object is selected by the actor, this variable will contain the id of this object */
-//extern int selected_inventory_object; /*!< if an inventory object is selected by the actor, this variable will contain the id of this object */
 
 /*!
  * a flag for a mode, that show whether a mode is supported and/or selected.
@@ -331,21 +310,6 @@ void switch_from_game_map();
  * \callgraph
  */
 void draw_game_map (int map, int mouse_mini);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interfaces
-// * \brief
-// *
-// *      Detail
-// *
-// * \param x
-// * \param y
-// * \param x_len
-// *
-// * \callgraph
-// */
-//void draw_menu_title_bar(int x, int y, int x_len);
 
 /*!
  * \ingroup interfaces

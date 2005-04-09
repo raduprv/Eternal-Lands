@@ -3,14 +3,11 @@
 #include "global.h"
 #include <math.h>
 
-/*!
- * a water_vertex
- */
 typedef struct
 {
-	float u; /*!< u coordinate */
-	float v; /*!< v coordinate */
-	float z; /*!< z coordinage */
+	float u;
+	float v;
+	float z;
 
 }water_vertex;
 
@@ -565,6 +562,3 @@ void draw_dungeon_sky_background()
 	glEnable(GL_TEXTURE_2D);
 	Leave2DMode();
 }
-
-
-

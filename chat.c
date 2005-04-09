@@ -1,17 +1,14 @@
 #include <string.h>
 #include "global.h"
 
-/*! \name chat text constants
- * @{ */
-#define CHAT_WIN_MAX_TABS	5	/*< the maximum number of channels */
-#define CHAT_WIN_SPACE		4	/*< spacing between widget and window borders */
-#define CHAT_WIN_TAG_HEIGHT	20	/*!< height of a tab */
-#define CHAT_WIN_TAG_SPACE	3	/*!< spacing between tabs */
-#define CHAT_WIN_TEXT_WIDTH  	500	/*!< width of the text */
-#define CHAT_OUT_TEXT_HEIGHT 	(18*8)	/*!< height of the output text: 8 lines in normal font size */
-#define CHAT_IN_TEXT_HEIGHT 	(18*3)	/*!< height of the input text: 3 lines in normal font size */
-#define CHAT_WIN_SCROLL_WIDTH	20	/*!< width of the scrollbar for the chat window */
-/*! @} */
+#define CHAT_WIN_MAX_TABS	5
+#define CHAT_WIN_SPACE		4
+#define CHAT_WIN_TAG_HEIGHT	20
+#define CHAT_WIN_TAG_SPACE	3
+#define CHAT_WIN_TEXT_WIDTH  	500
+#define CHAT_OUT_TEXT_HEIGHT 	(18*8)
+#define CHAT_IN_TEXT_HEIGHT 	(18*3)
+#define CHAT_WIN_SCROLL_WIDTH	20
 
 typedef struct
 {

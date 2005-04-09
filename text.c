@@ -26,9 +26,8 @@ float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
-/* forward declaration added due to code cleanup */
+/* forward declaration */
 void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len, int pixels_limit, char *buffer);
-/* end of added forward declaration */
 
 void init_text_buffers ()
 {
@@ -875,4 +874,3 @@ void clear_display_text_buffer ()
 	
 	not_from_the_end_console = 0;
 }
-

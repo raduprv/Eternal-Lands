@@ -3,27 +3,21 @@
 #include "options.h"
 #include "global.h"
 
-/*!
- * option_struct is used to store information related to one single option.
- */
 typedef struct
 {
-	char * name; /*!< the name of the option */
-	char * desc; /*!< description of the option */
-	int type; /*!< type of the option */
+	char * name;
+	char * desc;
+	int type;
 	int column;
-	void (*func)(int*,int*); /*!< pointer to a callback function executed when the option is clicked */
-	int * data_1; /*!< ***reserved??? */
-	int * data_2; /*!< ***reserved??? */
+	void (*func)(int*,int*);
+	int * data_1;
+	int * data_2;
 } option_struct;
 
-/*!
- * a list of \see option_struct options.
- */
 struct options_struct
 {
-	int no; /*!< current number of options in \a option */
-	option_struct * option[25]; /*!< fixed size array of \see option_struct options. The actual number of used options is stored in \a no. */
+	int no;
+	option_struct * option[25];
 };
 
 char	*opt_vid1={"640x480x16"},
@@ -77,7 +71,6 @@ float unlit_gem_v_end=1.0f-(float)111/256;
 int display_options_handler(window_info *win);
 int click_options_handler(window_info *win, int mx, int my, Uint32 flags);
 int mouseover_options_handler(window_info * win, int mx, int my);
-/* forward declarations added due to code cleanup */
 void init_display_options_menu();
 void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2, int column);
 void change_option(int * data_1, int * data_2);
@@ -85,7 +78,6 @@ void move_to_full_screen(int  * unused, int * unused2);
 void switch_video_modes(int * unused, int * mode);
 void change_sound(int  * unused, int * unused2);
 void change_music(int  * unused, int * unused2);
-/* end of added forward declarations */
 
 char options_help_text[400]={0};
 

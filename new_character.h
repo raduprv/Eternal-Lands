@@ -35,17 +35,6 @@ void set_create_char_error (const char *msg, int len);
  */
 void change_actor();
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interface_newchar
-// * \brief
-// *
-// *      Detail
-// *
-// * \callgraph
-// */
-//void check_for_input();
-
 /*!
  * \ingroup interface_newchar
  * \brief   Initializes and draws the New Character screen.
@@ -55,45 +44,6 @@ void change_actor();
  * \callgraph
  */
 void draw_new_char_screen();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interface_newchar
-// * \brief
-// *
-// *      Detail
-// *
-// * \param ch
-// *
-// * \sa add_char_to_new_character
-// */
-//void add_char_2_pass(unsigned char ch);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interface_newchar
-// * \brief
-// *
-// *      Detail
-// *
-// * \param ch
-// *
-// * \sa add_char_to_new_character
-// */
-//void add_char_2_un(unsigned char ch);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interface_newchar
-// * \brief
-// *
-// *      Detail
-// *
-// * \param ch
-// *
-// * \sa add_char_to_new_character
-// */
-//void add_char_2_conf(unsigned char ch);
 
 /*!
  * \ingroup interface_newchar

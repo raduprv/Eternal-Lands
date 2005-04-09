@@ -2,6 +2,7 @@
 #include "string.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * int sector_add_light(int);
  */
@@ -64,25 +65,6 @@ int sector_add_2do(int objectid)
 	}
 	return -1;
 }
-
-/* currently UNUSED
-int sector_add_light(int objectid)
-{
-	int i;
-	int sector_no=SECTOR_GET(lights_list[objectid]->pos_x, lights_list[objectid]->pos_y);
-
-	if(sector_no>=num_sectors) return -1;
-
-	for(i=0;i<4;i++){
-		if(sectors[sector_no].lights_local[i]==-1){
-			sectors[sector_no].lights_local[i]=objectid;
-	//		add_change();
-			return i;
-		}
-	}
-	return -1;
-}
-*/
 
 int sector_add_particle(int objectid)
 {
@@ -165,3 +147,22 @@ void sector_add_map()
 */
 
 }
+
+/* currently UNUSED
+int sector_add_light(int objectid)
+{
+	int i;
+	int sector_no=SECTOR_GET(lights_list[objectid]->pos_x, lights_list[objectid]->pos_y);
+
+	if(sector_no>=num_sectors) return -1;
+
+	for(i=0;i<4;i++){
+		if(sectors[sector_no].lights_local[i]==-1){
+			sectors[sector_no].lights_local[i]=objectid;
+	//		add_change();
+			return i;
+		}
+	}
+	return -1;
+}
+*/

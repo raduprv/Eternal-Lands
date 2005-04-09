@@ -18,37 +18,6 @@
  */
 void draw_3d_object(object3d * object_id);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup 	load_3d
-// * \brief	Loads an e3d object from file_name.
-// *
-// * 		The function loads an e3d object as specified with file_name. 
-// *      e3d-objects are binary objects (the e3d_object structure with an e3d_header as the header).
-// *
-// * \param	file_name The filename we wish to load
-// * \retval e3d_object* 	On success the function returns a pointer to the loaded object, otherwise it returns NULL.
-// *
-// * \sa		e3d_object
-// * \sa		e3d_header
-// * \sa		object3d
-// */
-//e3d_object * load_e3d(char *file_name);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	load_3d
-// * \brief	Finds the e3d-file given by file_name in the e3d object cache.
-// * 
-// * 		The function tries finding the e3d object given by file_name in the 3d objects cache
-// * 		If it fails it will try loading the file using load_e3d.
-// * 		
-// * \param	file_name The name of the e3d-file we wish to open
-// * \retval e3d_object*	Returns a pointer to the e3d object or NULL if it's not found.
-// * \callgraph
-// */
-//e3d_object * load_e3d_cache(char * file_name);
-
 /*!
  * \ingroup	load_3d
  * \brief	Adds a 3d object to the map.
@@ -83,19 +52,6 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
  * \callgraph
  */
 void display_objects();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	display_3d
-// * \brief	Calculates the clouds map for multi-texturing
-// * 
-// * 		Calculate the clouds map for multi-texturing for the given 3d object.
-// *
-// * \param	object_id The 3d objects we wish to calculate the clouds map over.
-// *
-// * \callgraph
-// */
-//void compute_clouds_map(object3d * object_id);
 
 /*! 
  * \ingroup	display_3d

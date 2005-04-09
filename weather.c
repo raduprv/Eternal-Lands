@@ -1,25 +1,12 @@
 #include <stdlib.h>
 #include "global.h"
 
-/*!
- * \name    	Maximum number of thunders in one place
- */
-/*! \{ */
 #define MAX_THUNDERS 5
-/*! \} */
 
-/*!
- * \name	Rain related constant
- */
-/*! \{ */
-#define MAX_RAIN_DROPS 5000 /*!< The maximum number of rain drops in one place */
-#define RAIN_SPEED 2        /*!< The speed of the rain drops -> moved to weather.c */
-#define RAIN_DROP_LEN 5     /*!< The length of the rain drops -> moved to weather.c */
-/*! \} */
+#define MAX_RAIN_DROPS 5000
+#define RAIN_SPEED 2
+#define RAIN_DROP_LEN 5
 
-/*!
- * The thunder structure
- */
 typedef struct
 {
 	int in_use;
@@ -32,9 +19,6 @@ typedef struct
 	int rot;
 }thunder;
 
-/*!
- * The rain drop structure - defines the start and end position
- */
 typedef struct
 {
 	short x;
@@ -304,6 +288,3 @@ void clear_thunders()
 			thunders[i].in_use=0;
 		}
 }
-
-
-

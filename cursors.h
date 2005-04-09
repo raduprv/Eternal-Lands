@@ -51,12 +51,6 @@ struct cursors_struct
 	Uint8 *cursor_pointer; /*!< pointer to the actual cursor */
 };
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in cursors.c, no need to declare it here.
-extern struct cursors_struct cursors_array[20];
- */
-
 /*!
  * contains the names of harvestable items
  */
@@ -84,19 +78,6 @@ extern struct enter_names_struct entrable_objects[100];
  */
 void load_cursors();
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup display_2d
-// * \brief assigns the given \a cursor_id to the current cursor.
-// *
-// *      Assigns the given \a cursor_id to the current cursos.
-// *
-// * \param cursor_id     the cursor to use
-// *
-// * \sa build_cursors
-// */
-//void assign_cursor(int cursor_id);
-
 /*!
  * \ingroup display_2d
  * \brief changes the current cursor to the cursor given in \a cursor_id.
@@ -106,17 +87,6 @@ void load_cursors();
  * \param cursor_id     the cursor to switch to
  */
 void change_cursor(int cursor_id);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup display_2d
-// * \brief changes the currently shown cursor to the one given in \a cursor_id.
-// *
-// *      Changes the currently displayed cursor to the one given in \a cursor_id.
-// *
-// * \param cursor_id     the cursor to show
-// */
-//void change_cursor_show(int cursor_id);
 
 /*!
  * \ingroup other

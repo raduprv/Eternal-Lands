@@ -6,32 +6,6 @@
 #ifndef __ACTOR_SCRIPTS_H__
 #define __ACTOR_SCRIPTS_H__
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup 	actor_utils
-// * \brief	Calculates the current rotation from a float to degree
-// *
-// * 		This function is used for calculating the rotation in degrees instead of a floating point number from 0<=fAngle<=1
-// *
-// * \param	fAngle Denotes the floating point rotation (0<=fAngle<=1)
-// * \retval float	The angle in degrees
-// */
-//float unwindAngle_Degrees( float fAngle );
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	actor_utils
-// * \brief	Gets the rotation vector from fStartAngle to fEndAngle in degrees
-// *
-// * 		Used for getting the rotation vector between fStartAngle and fEndAngle in degrees. Calls unwindAngle_Degrees.
-// *
-// * \param	fStartAngle Sets the starting angle (0<=fAngle<=1)
-// * \param	fEndAngle Sets the end angle (0<=fAngle<=1)
-// * \retval float	The rotation vector in degrees
-// * \sa unwindAngle_Degrees
-// */
-//float get_rotation_vector( float fStartAngle, float fEndAngle );
-
 /*!
  * \ingroup	move_actors
  * \brief	Finds the next frame in the md2-file for the current command.
@@ -83,17 +57,6 @@ void destroy_actor(int actor_id);
  * \sa		destroy_actor
  */
 void destroy_all_actors();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup	network_actors
-// * \brief	The function requests all actors from the server.
-// *
-// * 		The function is called whenever the client gets a message called "Resyncing with the server". It will call destroy_all_actors and send a SEND_ME_MY_ACTORS to the server hence getting the actors in range again.
-// *
-// * \sa		destroy_all_actors
-// */
-//void update_all_actors();
 
 /*!
  * \ingroup	network_actors

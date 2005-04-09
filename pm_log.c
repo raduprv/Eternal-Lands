@@ -12,9 +12,7 @@ char afk_title[100];
 
 struct pm_struct pm_log;
 
-/* forward declaration added due to code cleanup */
-void print_return_message(void);
-/* end of added forward declaration */
+void print_return_message(void);    /* forward declaration */
 
 void free_pm_log()
 {
@@ -208,4 +206,3 @@ void send_afk_message (Uint8 *server_msg, int type)
 	if (sendtext[1] != '\0') 
 		my_tcp_send (my_socket, sendtext, strlen (&sendtext[1]) + 1);
 }
-

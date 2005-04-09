@@ -19,34 +19,6 @@ typedef struct
 	int use_with_inventory;
 } item;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in items.c, no need to declare it here.
- */
-//*!
-// * items that may appear on the ground
-// */
-//typedef struct
-//{
-//	int pos;
-//	int image_id; /*!< id of the image for this ground item */
-//	int quantity;
-//} ground_item;
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in items.c, no need to declare it here.
- */
-//*!
-// * a bag item is a special item
-// */
-//typedef struct
-//{
-//	int x; /*!< x coordinate of the bag's position */
-//	int y; /*!< y coordinate of the bag's position */
-//	int obj_3d_id; /*!< id of the associated \see object3d object */
-//} bag;
-
 /*!
  * \name Item definition flags
  */
@@ -75,39 +47,12 @@ typedef enum {
 extern item item_list[ITEM_NUM_ITEMS]; /*!< global list of items */
 extern item manufacture_list[ITEM_NUM_ITEMS]; /*!< global list of manufacturable items */
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in items.c, no need to declare them here.
- */
-//extern ground_item ground_item_list[50]; /*!< global list of current ground items */
-//extern bag bag_list[200]; /*!< global list of current bags */
-//extern item inventory_trade_list[ITEM_WEAR_START]; /*!< list of items in the trade windows */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in trade.c, no need to declare them here (declared in trade.c)
- */
-//extern item your_trade_list[24]; /*!< array of items in your trade list */
-//extern item others_trade_list[24]; /*!< array of items in the trade partners trade list */
-
 extern int trade_you_accepted; /*!< flag, indicating whether you have accepted the trade or not */
 extern int trade_other_accepted; /*!< flag, indicating whether the trade partner has accepted the trade or not */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in trade.c, no need to declare it here (declared in trade.c)
- */
-//extern char other_player_trade_name[20]; /*!< playername of the trade partner in question */
 
 extern int item_action_mode;
 
 extern int view_ground_items; /*!< flag that indicates whether we should display ground items or not */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in trade.c, no need to declare it here (declared in trade.c)
- */
-//extern int no_view_my_items;
 
 /*!
  * \name windows handlers
@@ -119,14 +64,6 @@ extern int items_win; /*!< inventory windows handler */
 extern int items_menu_x;
 extern int items_menu_y;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in items.c, no need to declare them here
- */
-//extern int items_menu_x_len;
-//extern int items_menu_y_len;
-//extern int items_menu_dragged; // has been commented before my cleanup. Think it can get removed too.
-
 /*!
  * \name windows handlers
  */
@@ -137,14 +74,6 @@ extern int ground_items_win; /*!< ground items windows handler */
 extern int ground_items_menu_x;
 extern int ground_items_menu_y;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in items.c, no need to declare them here
- */
-//extern int ground_items_menu_x_len;
-//extern int ground_items_menu_y_len;
-//extern int ground_items_menu_dragged; // has been commented before my cleanup. Think it can get removed too.
-
 extern int manufacture_menu_x;
 extern int manufacture_menu_y;
 extern int manufacture_menu_x_len;
@@ -153,14 +82,6 @@ extern int manufacture_menu_y_len;
 
 extern int trade_menu_x;
 extern int trade_menu_y;
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in trade.c, no need to declare them here (declared in trade.c)
- */
-//extern int trade_menu_x_len;
-//extern int trade_menu_y_len;
-//extern int trade_menu_dragged; // has been commented before my cleanup. Think it can get removed too.
 
 /*! \name text fields for items 
  * @{ */
@@ -183,12 +104,6 @@ extern int use_item;
 extern char items_string[300];
 
 extern int item_quantity;
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Redundant declaration. Already declared in interface.h
-extern int click_speed;
- */
 
 /*!
  * \ingroup items_win
@@ -260,17 +175,6 @@ void remove_item_from_ground(Uint8 pos);
  * \callgraph
  */
 void get_new_inventory_item(Uint8 *data);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup items_win
-// * \brief
-// *
-// *      Detail
-// *
-// * \callgraph
-// */
-//void draw_pick_up_menu();
 
 /*!
  * \ingroup item

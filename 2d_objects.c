@@ -3,26 +3,13 @@
 #include <string.h>
 #include "global.h"
 
-//*!
-// *\name 	2D object types
-// *		These defines sets the 2d object types
-// */
-//*! \{ */
-#define INVALID -1 /*!< Invalid object*/
-#define GROUND 0 /*!< Ground object*/
-#define PLANT 1 /*!< Plants and other items that needs to follow the cameras z rotation*/
-#define FENCE 2 /*!< Fences - will be put in 90 degrees angle (x_rot+=90)*/
-//*! \} */
+#define INVALID -1
+#define GROUND 0
+#define PLANT 1
+#define FENCE 2
 
-//*!
-// * \name    2D sector size
-// *      These defines sets the size of a 2D sector.
-// */
-//*! \{ */  
-#define SECTOR_SIZE_X 15 /*!< Equivalent to 5 tiles - is not used yet apparently...*/
-#define SECTOR_SIZE_Y 15 /*!< Equivalent to 5 tiles - is not used yet apparently...*/
-//*! \} */
-
+#define SECTOR_SIZE_X 15
+#define SECTOR_SIZE_Y 15
 
 obj_2d *obj_2d_list[MAX_OBJ_2D];
 

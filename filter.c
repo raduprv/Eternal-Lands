@@ -2,20 +2,12 @@
 #include <string.h>
 #include "global.h"
 
-/*!
- * \name    max. number of filters for filter_list
- * @{
- */
 #define MAX_FILTERS 1000
-/*! @} */
 
-/*!
- * a single entry in the filter_list
- */
 typedef struct
 {
-	Uint8 name[16]; /*!< the name of the filter entry */
-	int len; /*!< length of \a name */
+	Uint8 name[16];
+	int len;
 }filter_slot;
 
 filter_slot filter_list[MAX_FILTERS];
@@ -330,4 +322,3 @@ void list_filters()
 	LOG_TO_CONSOLE(c_grey1,str);
 
 }
-

@@ -12,16 +12,6 @@ extern int window_width; /*!< width of the window */
 extern int window_height; /*!< height of the window */
 /*! @} */
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in gl_init.c, no need to declare them here.
- */
-//*! \name desktop dimensions 
-// * @{ */
-//extern int desktop_width; /*!< width of the desktop */
-//extern int desktop_height; /*!< height of the desktop */
-//*! @} */
-
 extern int bpp; /*!< color depth to use */
 extern int video_mode; /*!< currently selected video mode */
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
@@ -38,27 +28,7 @@ extern int have_point_sprite; /*!< indicates whether we have point sprites or no
 extern int have_arb_compression; /*!< flag that indicates whether we have the ARB compression extension or not */
 extern int have_s3_compression; /*!< flag that indicates whether we have the S3 compression extension or not */
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in gl_init.c, no need to declare it here.
- */
-//extern int have_sgis_generate_mipmap; /*!< flag that indicates if we have the SGIS generate mipmap extension or not */
-
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in gl_init.c, no need to declare it here.
- */
-//extern int have_arb_shadow; /*!< flat that indicates whether we have the ARB shadow extension or not */
-/*! @} */
-
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in gl_init.c, no need to declare it here.
-extern void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
- */
 
 // Grum
 // necessary for OSX?
@@ -85,17 +55,6 @@ extern void (APIENTRY * ELglUnlockArraysEXT) (void);
  * \sa init_video
  */
 void setup_video_mode(int fs, int mode);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup video
-// * \brief   checks if the selected mode is available via OpenGL.
-// *
-// *      Checks if the selected mode is available via OpenGL.
-// *
-// * \sa init_video
-// */
-//void check_gl_mode();
 
 /*!
  * \ingroup video

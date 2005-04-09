@@ -3,66 +3,40 @@
 #include "elwindows.h"
 #include <string.h>
 
-/*!
- * \name    Available Widget types -> moved to widgets.c
- */
-/*! \{ */
-#define LABEL		1	/*!< a label widget (static text) */
-#define IMAGE		2	/*!< image widget */
-#define CHECKBOX	3	/*!< checkbox widget type */
-#define BUTTON		4	/*!< button widget */
-#define PROGRESSBAR	5	/*!< progressbar widget */
-#define VSCROLLBAR	6	/*!< vertical scrollbar widget */
-#define TABCOLLECTION	7	/*!< tabbed windows collection widget */
-#define TEXTFIELD	8	/*!< text field widget */
-/*! \} */
+#define LABEL		1
+#define IMAGE		2
+#define CHECKBOX	3
+#define BUTTON		4
+#define PROGRESSBAR	5
+#define VSCROLLBAR	6
+#define TABCOLLECTION	7
+#define TEXTFIELD	8
 
-/*!
- * Widget label
- */
 typedef struct {
-	char text[256]; /*!< Text */
+	char text[256];
 }label;
 
-/*!
- * Image structure
- */
 typedef struct {
-	float u1,v1,u2,v2; /*!< Texture coordinates */
-	int id;            /*!< Texture id */
+	float u1,v1,u2,v2;
+	int id;
 }image;
 
-/*!
- *  Checkbox structure
- */
 typedef struct {
 	int checked;
 }checkbox;
 
-/*!
- *  Button structure
- */
 typedef struct {
 	char text[256];
 }button;
 
-/*!
- *  Progressbar structure
- */
 typedef struct {
 	float progress;
 }progressbar;
 
-/*!
- *  Vertical scrollbar structure
- */
 typedef struct {
 	int pos, pos_inc, bar_len;
 }vscrollbar;
 
-/*!
- *  Tabbed window structure
- */
 typedef struct {
 	Sint8 label[64];
 	Uint32 content_id;
@@ -71,9 +45,6 @@ typedef struct {
 	char closable;
 } tab;
 
-/*!
- *  Tab collection structure
- */
 typedef struct {
 	int tag_height, tag_space, nr_tabs, max_tabs, cur_tab;
 	tab *tabs;
@@ -81,13 +52,11 @@ typedef struct {
 
 Uint32 widget_id = 0x0000FFFF;
 
-/* forward declarations added due to code cleanup */
 int ReadXMLWindow(xmlNode * a_node);
 int ParseWindow (xmlNode *node);
 int ParseWidget (xmlNode *node, int winid);
 int ParseTab (xmlNode *node, int winid, int colid);
 int GetWidgetType (const char *w);
-/* end of added forward declarations */
 
 // Common widget functions
 widget_list * widget_find(Uint32 window_id, Uint32 widget_id)
@@ -2004,5 +1973,3 @@ int GetWidgetType (const char *w)
 
 	return 0;
 }
-
-

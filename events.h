@@ -24,12 +24,6 @@ extern int shift_on; /*!< flag indicating whether the Shift key is pressed. */
 extern int alt_on; /*!< flag indicating whether the Alt key is pressed. */
 extern int ctrl_on; /*!< flag indicating whether the Ctrl key is pressd. */
 
-/*
- * OBSOLETE: Queue for removal from this file.
- * Unused variable
- */
-//extern SDL_TimerID event_timer_clock; /*!< a timer for the clock events */
-
 /*!
  * \ingroup event_handle
  * \brief   gets called when a use mouse click occurs in the quickbar.
@@ -39,19 +33,6 @@ extern int ctrl_on; /*!< flag indicating whether the Ctrl key is pressd. */
  * \param use_id    the id of the item to use
  */
 void	quick_use(int use_id);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup timers
-// * \brief   event_timer
-// *
-// *      event_timer(Uint32,void*) to be documented
-// *
-// * \param interval
-// * \param data
-// * \retval Uint32
-// */
-//Uint32 event_timer(Uint32 interval, void * data);
 
 /*!
  * \ingroup event_handle

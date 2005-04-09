@@ -8,24 +8,6 @@
 
 extern char	auto_open_encyclopedia; /*!< flag, that indicates whether the encyclopedia window should be opened automatically upon startup of the client */
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \brief Clears the screen.
-// *
-// *      Clears the screen. As a side effect the chat log get's cleared too.
-// *
-// */
-//void cls();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \brief prints the current log
-// *
-// *      Prints the current log
-// *
-// */
-//void print_log();
-
 /*!
  * \brief checks whether a console command is waiting and executes it if necessary.
  *

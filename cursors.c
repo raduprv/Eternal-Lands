@@ -3,6 +3,7 @@
 #include "elwindows.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * void change_cursor_show(int);
  */
@@ -168,15 +169,6 @@ void change_cursor(int cursor_id)
 	current_cursor=cursor_id;
 }
 
-/* currently UNUSED
-void change_cursor_show(int cursor_id)
-{
-	SDL_SetCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
-	current_cursor=cursor_id;
-	SDL_WarpMouse(mouse_x,mouse_y);
-}
-*/
-
 void build_cursors()
 {
 	cursors_array[CURSOR_EYE].hot_x=3;
@@ -223,3 +215,12 @@ void build_cursors()
 	cursors_array[CURSOR_USE].hot_y=0;
 	assign_cursor(CURSOR_USE);
 }
+
+/* currently UNUSED
+void change_cursor_show(int cursor_id)
+{
+	SDL_SetCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
+	current_cursor=cursor_id;
+	SDL_WarpMouse(mouse_x,mouse_y);
+}
+*/

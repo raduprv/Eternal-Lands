@@ -2,24 +2,18 @@
 #include "global.h"
 #include "elwindows.h"
 
-/*!
- * items that may appear on the ground
- */
 typedef struct
 {
 	int pos;
-	int image_id; /*!< id of the image for this ground item */
+	int image_id;
 	int quantity;
 } ground_item;
 
-/*!
- * a bag item is a special item
- */
 typedef struct
 {
-	int x; /*!< x coordinate of the bag's position */
-	int y; /*!< y coordinate of the bag's position */
-	int obj_3d_id; /*!< id of the associated \see object3d object */
+	int x;
+	int y;
+	int obj_3d_id;
 } bag;
 
 item item_list[ITEM_NUM_ITEMS];
@@ -34,9 +28,7 @@ int trade_you_accepted=0;
 int trade_other_accepted=0;
 char other_player_trade_name[20];
 
-/* forward declaration added due to code cleanup */
-void draw_pick_up_menu();
-/* end of added forward declaration */
+void draw_pick_up_menu();   /* forward declaration */
 
 void strap_word(char * in, char * out)
 {

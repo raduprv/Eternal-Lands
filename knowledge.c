@@ -189,4 +189,3 @@ void display_knowledge()
 		select_window(knowledge_win);
 	}
 }
-

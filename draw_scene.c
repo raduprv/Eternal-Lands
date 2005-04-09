@@ -46,12 +46,6 @@ int font_text;
 int cons_text;
 int icons_text;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Unused variable
-int open_text;
- */
-
 int login_text;
 int ground_detail_text;
 
@@ -63,9 +57,7 @@ GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXT
 
 Uint32 draw_delay = 0;
 
-/* forward declaration added due to code cleanup */
-void get_tmp_actor_data();
-/* end of forward declaration */
+void get_tmp_actor_data();  /* forward declaration */
 
 void draw_scene()
 {

@@ -5,10 +5,9 @@
 #include "keys.h" //Avoid problems with SHIFT, ALT, CTRL
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * int check_peace_icons();
- * void set_icon_order(int, ...);
- * void reset_states(int, int);
  * int translate_win_id(int*);
  * int check_stats_display();
  * int check_misc_display();
@@ -16,27 +15,17 @@
  * void check_quickbar();
  */
 
-/*!
- * \name action types
- */
-/*! @{ */
 #define WALK 0
 #define SIT 1
 #define LOOK 2
 #define TRADE 3
 #define ATTACK 4
 #define USE 5
-/*! @} */
 
-/*!
- * \name data flags
- */
-/*! @{ */
 #define DATA_NONE -1
 #define DATA_WINDOW 0
 #define DATA_ACTIONMODE 1
 #define DATA_MODE 2
-/*! @} */
 
 #define STATE(I) (icon_list[I]->state&0x0F)
 #define PRESSED (1|(1<<31))
@@ -55,7 +44,6 @@ int	display_quickbar_handler(window_info *win);
 int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
 int	mouseover_quickbar_handler(window_info *win, int mx, int my);
 int	mouseover_stats_bar_handler(window_info *win, int mx, int my);
-/* forward declarations added due to code cleanup */
 void init_hud_frame();
 void init_peace_icons();
 void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
@@ -69,7 +57,6 @@ void flip_quickbar();
 void reset_quickbar();
 void change_flags(int win_id, Uint32 flags);
 Uint32 get_flags(int win_id);
-/* end of added forward declarations */
 
 int hud_x= 64;
 int hud_y= 48;
@@ -627,13 +614,6 @@ void view_tab (int *window, int *col_id, int tab)
 	}
 }
 
-/* currently UNUSED
-int check_peace_icons()
-{
-    return(click_in_window(icons_win, mouse_x, mouse_y, 0));
-}
-*/
-
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int id=mx/32;//Icons are always 32 bit wide
@@ -687,21 +667,6 @@ void show_help(char *help_message, int x, int y)
 	strcpy(str,help_message);
 	draw_string_small(x, y,help_message,1);
 }
-
-/* currently UNUSED
-int translate_win_id(int * win_id)
-{
-	int i=0;
-	for(;i<icons_no;i++)
-		{
-			if(icon_list[i]->data_type==DATA_WINDOW)
-				{
-					if(icon_list[i]->data==win_id) return i;
-				}
-		}
-	return -1;
-}
-*/
 
 // the stats display
 void init_stats_display()
@@ -823,13 +788,6 @@ int mouseover_stats_bar_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
-/* currently UNUSED
-int check_stats_display()
-{
-	return 0;
-}
-*/
-
 // the misc section (compass, clock, ?)
 float compass_u_start=(float)32/256;
 float compass_v_start=1.0f-(float)192/256;
@@ -927,13 +885,6 @@ int	display_misc_handler(window_info *win)
 	return	1;
 }
 
-/* currently UNUSED
-int check_misc_display()
-{
-	return(click_in_window(misc_win, mouse_x, mouse_y, 0));
-}
-*/
-
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 {
     //check to see if we clicked on the clock
@@ -1009,22 +960,6 @@ void init_quickbar() {
 		}
 	}
 }
-
-/* currently UNUSED
-void draw_quickbar() {
-	// failsafe until better integrated
-	if(quickbar_dir==VERTICAL) {
-		init_window(quickbar_win, -1, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
-		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
-	}
-	else if(quickbar_dir==HORIZONTAL) {
-		init_window(quickbar_win, -1, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len);
-		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
-
-	} 
-	show_window(quickbar_win);
-}
-*/
 
 int	display_quickbar_handler(window_info *win)
 {
@@ -1162,12 +1097,6 @@ int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 			}
 	return 0;
 }
-
-/* currently UNUSED
-int check_quickbar() {
-	return(click_in_window(quickbar_win, mouse_x, mouse_y, 0));
-}
-*/
 
 int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 {
@@ -1517,3 +1446,51 @@ void change_flags(int win_id, Uint32 flags) {
 Uint32 get_flags(int win_id) {
 	return windows_list.window[win_id].flags;
 }
+
+/* currently UNUSED
+int check_peace_icons()
+{
+    return(click_in_window(icons_win, mouse_x, mouse_y, 0));
+}
+
+int translate_win_id(int * win_id)
+{
+	int i=0;
+	for(;i<icons_no;i++)
+		{
+			if(icon_list[i]->data_type==DATA_WINDOW)
+				{
+					if(icon_list[i]->data==win_id) return i;
+				}
+		}
+	return -1;
+}
+
+int check_stats_display()
+{
+	return 0;
+}
+
+int check_misc_display()
+{
+	return(click_in_window(misc_win, mouse_x, mouse_y, 0));
+}
+
+void draw_quickbar() {
+	// failsafe until better integrated
+	if(quickbar_dir==VERTICAL) {
+		init_window(quickbar_win, -1, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
+		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
+	}
+	else if(quickbar_dir==HORIZONTAL) {
+		init_window(quickbar_win, -1, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len);
+		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
+
+	} 
+	show_window(quickbar_win);
+}
+
+int check_quickbar() {
+	return(click_in_window(quickbar_win, mouse_x, mouse_y, 0));
+}
+*/

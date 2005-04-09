@@ -6,6 +6,7 @@
 #include "widgets.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * int find_window(const char*);
  * void* get_window_handler(int, int);
@@ -13,13 +14,10 @@
 
 windows_info	windows_list;	// the master list of windows
 
-/* forward declarations added due to code cleanup */
 int display_window(int win_id);
 int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
 int	mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
 int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
-
-/* end of added forward declarations */
 
 /*
  * The intent of the windows system is to create the window once
@@ -681,25 +679,6 @@ void	destroy_window(int win_id)
 	windows_list.window[win_id].displayed= 0;
 }
 
-/* currently UNUSED
-int	find_window(const char *name)
-{
-	int	win_id= -1;
-	int	i;
-
-	for(i=0; i<windows_list.num_windows; i++)
-		{
-			if(!strcmp(windows_list.window[win_id].window_name, name))
-				{
-					win_id= i;
-					break;
-				}
-		}
-
-	return win_id;
-}
-*/
-
 int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y)
 {
 	int pwin_x, pwin_y;
@@ -1359,45 +1338,6 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 	return old_handler;
 }
 
-/* currently UNUSED
-void	*get_window_handler(int win_id, int handler_id)
-{
-	void	*old_handler;
-
-	// get the information
-	switch(handler_id){
-		case	ELW_HANDLER_INIT:
-			old_handler= (void *)windows_list.window[win_id].init_handler;
-			break;
-		case	ELW_HANDLER_DISPLAY:
-			old_handler= (void *)windows_list.window[win_id].display_handler;
-			break;
-		case	ELW_HANDLER_CLICK:
-			old_handler= (void *)windows_list.window[win_id].click_handler;
-			break;
-		case	ELW_HANDLER_DRAG:
-			old_handler= (void *)windows_list.window[win_id].drag_handler;
-			break;
-		case	ELW_HANDLER_MOUSEOVER:
-			old_handler= (void *)windows_list.window[win_id].mouseover_handler;
-			break;
-		case	ELW_HANDLER_RESIZE:
-			old_handler= (void *)windows_list.window[win_id].resize_handler;
-			break;
-		case	ELW_HANDLER_KEYPRESS:
-			old_handler= (void *)windows_list.window[win_id].keypress_handler;
-			break;
-		case	ELW_HANDLER_DESTROY:
-			old_handler= (void *)windows_list.window[win_id].destroy_handler;
-			break;
-		default:
-			old_handler=NULL;
-	}
-
-	return old_handler;
-}
-*/
-
 int	set_window_color(int win_id, Uint32 color_id, float r, float g, float b, float a)
 {
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return 0;
@@ -1462,3 +1402,59 @@ int set_window_min_size (int win_id, int width, int height)
 	
 	return 1;
 }
+
+/* currently UNUSED
+int	find_window(const char *name)
+{
+	int	win_id= -1;
+	int	i;
+
+	for(i=0; i<windows_list.num_windows; i++)
+		{
+			if(!strcmp(windows_list.window[win_id].window_name, name))
+				{
+					win_id= i;
+					break;
+				}
+		}
+
+	return win_id;
+}
+
+void	*get_window_handler(int win_id, int handler_id)
+{
+	void	*old_handler;
+
+	// get the information
+	switch(handler_id){
+		case	ELW_HANDLER_INIT:
+			old_handler= (void *)windows_list.window[win_id].init_handler;
+			break;
+		case	ELW_HANDLER_DISPLAY:
+			old_handler= (void *)windows_list.window[win_id].display_handler;
+			break;
+		case	ELW_HANDLER_CLICK:
+			old_handler= (void *)windows_list.window[win_id].click_handler;
+			break;
+		case	ELW_HANDLER_DRAG:
+			old_handler= (void *)windows_list.window[win_id].drag_handler;
+			break;
+		case	ELW_HANDLER_MOUSEOVER:
+			old_handler= (void *)windows_list.window[win_id].mouseover_handler;
+			break;
+		case	ELW_HANDLER_RESIZE:
+			old_handler= (void *)windows_list.window[win_id].resize_handler;
+			break;
+		case	ELW_HANDLER_KEYPRESS:
+			old_handler= (void *)windows_list.window[win_id].keypress_handler;
+			break;
+		case	ELW_HANDLER_DESTROY:
+			old_handler= (void *)windows_list.window[win_id].destroy_handler;
+			break;
+		default:
+			old_handler=NULL;
+	}
+
+	return old_handler;
+}
+*/

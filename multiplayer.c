@@ -4,6 +4,7 @@
 #include "elwindows.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * void get_updates();
  */

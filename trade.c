@@ -3,10 +3,10 @@
 
 int trade_win=-1;
 
-extern item your_trade_list[24]; /*!< array of items in your trade list */
-extern item others_trade_list[24]; /*!< array of items in the trade partners trade list */
+extern item your_trade_list[24];
+extern item others_trade_list[24];
 
-extern char other_player_trade_name[20]; /*!< playername of the trade partner in question */
+extern char other_player_trade_name[20];
 
 extern int no_view_my_items;
 
@@ -654,4 +654,3 @@ void display_trade_menu()
 		select_window(trade_win);
 	}
 }
-

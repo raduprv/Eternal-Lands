@@ -3,29 +3,22 @@
 #include <string.h>
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * void remove_font(int);
  */
 
-/*!
- * \name constants for fonts
- */
-/*! @{ */
-#define FONT_START_CHAR	32	/*!< first character in font.bmp */
-#define FONT_CHARS_PER_LINE	14	/*!< how manu chars per line in font.bmp? */
-#define	FONT_X_SPACING	18	/*!< X spacing of font in font.bmp */
-#define	FONT_Y_SPACING	21	/*!< Y spacing of font in font.bmp */
+#define FONT_START_CHAR	32
+#define FONT_CHARS_PER_LINE	14
+#define	FONT_X_SPACING	18
+#define	FONT_Y_SPACING	21
 #define FONTS_ARRAY_SIZE	10
-/*! @} */
 
-/*!
- * font info structure
- */
 typedef struct	{
 	int	spacing;
-	int texture_id; /*!< id of the texture used for the font */
+	int texture_id;
 	int	widths[10*FONT_CHARS_PER_LINE];
-	char name[32]; /*!< name of the font */
+	char name[32];
 } font_info;
 
 int	cur_font_num=0;
@@ -35,12 +28,10 @@ int	chat_font=0;
 int	name_font=0;
 int	book_font=0;
 
-/* forward declarations added due to code cleanup */
 int get_font_char(unsigned char cur_char);
 int get_font_width(int cur_char);
 int get_nstring_width(const unsigned char *str, int len);
 int set_font_parameters (int num);
-/* end of added forward declarations */
 
 // converts a character into which entry in font.bmp to use, negative on error or no output
 int find_font_char(unsigned char cur_char)

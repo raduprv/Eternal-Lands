@@ -6,34 +6,6 @@
 #ifndef __SPELLS_H__
 #define __SPELLS_H__
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in spells.c, no need to declare it here.
- */
-//#define SIGILS_NO 50 /*!< maximum number of sigils available to a player */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in spells.c, no need to declare it here.
- */
-//*!
-// * sigil_def is used to store items of a sigil like its image, name and description.
-// */
-//typedef struct
-//{
-//	int sigil_img; /*!< a handle for the image to use with this sigil */
-//	char name[32]; /*!< the name of the sigil */
-//	char description[64]; /*!< description for a sigil */
-//	int have_sigil; /*!< flag, indicating whether a player has bought this sigil or not */
-//}sigil_def;
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in spells.c, no need to declare them here.
- */
-//sigil_def sigils_list[SIGILS_NO]; /*!< global variable to store the data up to \see SIGILS_NO sigil */
-//extern Sint8 active_spells[10]; /*!< list of the 10 last used spells */
-
 /*!
  * \name windows handlers
  */
@@ -44,22 +16,8 @@ extern int sigil_win; /*!< handle for the sigil (spell) window */
 extern int sigil_menu_x;
 extern int sigil_menu_y;
 
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in spells.c, no need to declare them here.
- */
-//extern int sigil_menu_x_len;
-//extern int sigil_menu_y_len;
-//extern int sigil_menu_dragged; // has been commented before, imo safe for removal too.
-
 extern int sigils_text; /*!< an index for the sigils text */
 extern Uint8 spell_text[256]; /*!< buffer for the spell text */
-
-/*
- * OBSOLETE: Queued for removal from this file.
- * Only used in spells.c, no need to declare them here.
- */
-//extern int sigils_we_have; /*!< the number of sigils the player has */
 
 extern int have_error_message; /*!< flag that indicates whether we got an error message */
 

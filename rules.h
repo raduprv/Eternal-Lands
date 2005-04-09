@@ -64,17 +64,6 @@ extern int rules_root_win;
  */
 int read_rules(void);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interface_rules
-// * \brief releases the given rule_string
-// *
-// *      Releases the given rule_string and frees the memory used.
-// *
-// * \param d pointer to the rule_string to release
-// */
-//void free_rules(rule_string * d);
-
 /*!
  * \ingroup interface_rules
  * \brief draws the interface to show up the rules
@@ -100,19 +89,6 @@ void draw_rules_interface (int len_x, int len_y);
  */
 void toggle_rules_window(int toggle);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interface_rules
-// * \brief reads the interface rules into a rule_string structure and returns it.
-// *
-// *      Reads in the interface rules into a rule_string structure and returns it.
-// *
-// * \param chars_per_line    number of characters in a line.
-// * \retval rule_string*     a pointer to a rule_string structure allocated and filled by the function.
-// * \callgraph
-// */
-//rule_string * get_interface_rules(int chars_per_line);
-
 /*!
  * \ingroup interface_rules
  * \brief initializes the rules interface
@@ -128,40 +104,6 @@ void toggle_rules_window(int toggle);
  */
 void init_rules_interface(float text_size, int countdown, int len_x, int len_y);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interface_rules
-// * \brief checks the position of the mouse within the rules interface
-// *
-// *      Checks the position of the mouse within the rules interface
-// *
-// * \param rules An array containing the rule_string structures to display
-// * \param lenx
-// * \param leny
-// * \param mx
-// * \param my
-// */
-//void check_mouse_rules_interface(rule_string * rules, int lenx, int leny, int mx, int my);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interface_rules
-// * \brief draws all the rules to the rules interface
-// *
-// *      Draws all rules specified in the parameter rules to the rules interface
-// *
-// * \param rules An array of rule_string structures to be displayed
-// * \param rules_no  Number of rules in the rules parameter
-// * \param x
-// * \param y
-// * \param lenx
-// * \param leny
-// * \param text_size the size of the text to display
-// * \retval int
-// * \callgraph
-// */
-//int draw_rules(rule_string * rules, int rules_no, int x, int y, int lenx, int leny, float text_size);
-
 /*!
  * \ingroup other
  * \brief cleans up and frees the memory used by the rules.
@@ -171,17 +113,6 @@ void init_rules_interface(float text_size, int countdown, int len_x, int len_y);
  * \callgraph
  */
 void cleanup_rules(void);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup interface_rules
-// * \brief Resets the rules to the ones specified in the parameter r.
-// *
-// *      Resets the rules to the ones specified in the parameter.
-// *
-// * \param r An array of \see rule_string structures which will be used to replace the current rules.
-// */
-//void reset_rules(rule_string * r);
 
 /*!
  * \ingroup interface_rules

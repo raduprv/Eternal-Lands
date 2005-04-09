@@ -60,12 +60,6 @@ extern texture_cache_struct texture_cache[1000]; /*!< global texture cache */
 extern cache_struct	*cache_system; /*!< system cache */
 extern cache_struct	*cache_md2; /*!< md2 cache */
 extern cache_struct	*cache_e3d; /*!< e3d cache */
-/* 
- * OBSOLETE: Queued for removal from this file.
- * Unused resp. redundant variables.
- */
-//extern cache_struct	*cache_texture; /*!< texture cache */
-//extern cache_struct *cache_system; // commented out due to redundant declaration */
 
 //proto
 
@@ -81,17 +75,6 @@ extern cache_struct	*cache_e3d; /*!< e3d cache */
  */
 void cache_system_init(Uint32 max_items);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief clears and shuts down the cache system.
-// *
-// *      Clears and shuts down the cache system.
-// *
-// * \callgraph
-// */
-//void cache_system_shutdown();
-
 /*!
  * \ingroup cache
  * \brief      runs a cache maintenance routine
@@ -101,30 +84,6 @@ void cache_system_init(Uint32 max_items);
  * \callgraph
  */
 void cache_system_maint();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief   cleans out the cache system.
-// *
-// *      Cleans out the cache system of items no longer used.
-// *
-// * \retval Uint32
-// * \callgraph
-// */
-//Uint32 cache_system_clean();
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief compacts the cache system.
-// *
-// *      Compacts the cache system.
-// *
-// * \retval Uint32
-// * \callgraph
-// */
-//Uint32 cache_system_compact();
 
 /*!
  * \ingroup cache
@@ -138,7 +97,6 @@ void cache_system_maint();
  */
 void cache_dump_sizes(cache_struct *cache);
 
-
 /*!
  * \ingroup cache
  * \brief   initializes a new cache system with \a max_items items and the given callback routine to free an item.
@@ -151,18 +109,6 @@ void cache_dump_sizes(cache_struct *cache);
  * \callgraph
  */
 cache_struct *cache_init(Uint32 max_items, void (*free_item)());
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief   sets the free item handler for the given \see cache_struct \a cache.
-// *
-// *      Sets the routine to handle freeing of items for the given \a cache.
-// *
-// * \param cache     the cache for which to set the free item handler.
-// * \param free_item routine to use when items in \a cache get freed.
-// */
-//void cache_set_free(cache_struct *cache, void (*free_item)());
 
 /*!
  * \ingroup cache
@@ -197,56 +143,6 @@ void cache_set_time_limit(cache_struct *cache, Uint32 time_limit);
  */
 void cache_set_size_limit(cache_struct *cache, Uint32 size_limit);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       cleans the given \a cache.
-// *
-// *      Cleans the given \a cache.
-// *
-// * \param cache     cache to clean.
-// * \retval Uint32
-// * \callgraph
-// */
-//Uint32 cache_clean(cache_struct *cache);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       compacts the given \a cache.
-// *
-// *      Compacts the given \a cache.
-// *
-// * \param cache     the cache to compact.
-// * \retval Uint32
-// * \callgraph
-// */
-//Uint32 cache_compact(cache_struct *cache);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       deletes the given \a cache.
-// *
-// *      Deletes the given \a cache and frees up used memory.
-// *
-// * \param cache     the cache to delete.
-// *
-// * \callgraph
-// */
-//void cache_delete(cache_struct *cache);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       clears all the counters in the given \a cache.
-// *
-// *      Clears all the counters in the given \a cache.
-// *
-// * \param cache     the cache for which the counters should get cleared.
-// */
-//void cache_clear_counter(cache_struct *cache);
-
 /*!
  * \ingroup cache
  * \brief adds the given \a item to \a cache with the given \a name.
@@ -276,21 +172,6 @@ cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, 
  */
 void cache_set_name(cache_struct *cache, Uint8 *name, void *item);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       sets the \a size of the given \a item in \a cache.
-// *
-// *      Sets the \a size of the given \a item in \a cache.
-// *
-// * \param cache     the cache which contains the \a item to the the \a size.
-// * \param size      the new size of \a item in \a cache.
-// * \param item      a pointer to the item which \a size should get changed.
-// *
-// * \callgraph
-// */
-//void cache_set_size(cache_struct *cache, Uint32 size, void *item);
-
 /*!
  * \ingroup cache
  * \brief       adjusts the \a size of the given \a item in \a cache.
@@ -316,48 +197,6 @@ void cache_adj_size(cache_struct *cache, Uint32 size, void *item);
  */
 void cache_use(cache_struct *cache, cache_item_struct *item);
 
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief   determines whether the data in \a item_data belongs to a given item in \a cache.
-// *
-// *      Determines whether the data in \a item_data belongs to a given item in \a cache.
-// *
-// * \param cache         the cache to search
-// * \param item_data     data of which item to search for
-// *
-// * \callgraph
-// */
-//void cache_use_item(cache_struct *cache, const void *item_data);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       looks up the \a cache for an item with the given \a name.
-// *
-// *      Looks up the given \a cache for an item with the given \a name.
-// *
-// * \param cache                 the cache to search
-// * \param name                  the name to look for in \a cache.
-// * \retval cache_item_struct*   a pointer to a cache item with the given \a name.
-// * \callgraph
-// */
-//cache_item_struct *cache_find(cache_struct *cache, const Uint8 *name);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       retrieves the \a item at the given address in \a cache.
-// *
-// *      Retrieves the \a item at the given address in \a cache.
-// *
-// * \param cache                 the cache to search
-// * \param item                  address of the item to look for
-// * \retval cache_item_struct*   a pointer to a cache item stored at location of \a item.
-// * \callgraph
-// */
-//cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item);
-
 /*!
  * \ingroup cache
  * \brief       looks up the item with the given \a name in \a cache.
@@ -370,59 +209,5 @@ void cache_use(cache_struct *cache, cache_item_struct *item);
  * \callgraph
  */
 void *cache_find_item(cache_struct *cache, const Uint8 *name);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       removes the given \a item from \a cache.
-// *
-// *      Removes the given \a item from \a cache.
-// *
-// * \param cache         the cache which gets \a item removed.
-// * \param item          the item to remove from \a cache.
-// *
-// * \callgraph
-// */
-//void cache_remove(cache_struct *cache, cache_item_struct *item);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       removes the item with the given \a name from \a cache.
-// *
-// *      Removes the item with the given \a name from \a cache.
-// *
-// * \param cache         the cache whichs gets \a name removed
-// * \param name          the name to lookup in \a cache and delete.
-// *
-// * \callgraph
-// */
-//void cache_remove_item(cache_struct *cache, const Uint8 *name);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       clears the given \a cache.
-// *
-// *      Clears the given \a cache, removes all entries and frees up consumed memory.
-// *
-// * \param cache         the cache from which to remove all items.
-// *
-// * \callgraph
-// */
-//void cache_remove_all(cache_struct *cache);
-
-/* OBSOLETE declaration: queued for removal from this header file */
-//*!
-// * \ingroup cache
-// * \brief       cleans up the given \a cache by removing unused items.
-// *
-// *      Clears up the given \a cache by removing any unused items.
-// *
-// * \param cache     the cache to clear
-// *
-// * \callgraph
-// */
-//void cache_remove_unused(cache_struct *cache);
 
 #endif

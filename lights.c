@@ -3,19 +3,17 @@
 #include <math.h>
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
+ *          Look at the end of the file.
  *
  * void draw_test_light();
  */
 
-/*!
- * a position for the sun
- */
 typedef struct
 {
-	float x; /*<! x coordinate of the suns position */
-	float y; /*<! y coordinate of the suns position */
-	float z; /*<! z coordinate of the suns position */
-	float w; /*<! w coordinate of the suns position */
+	float x;
+	float y;
+	float z;
+	float w;
 }sun;
 
 GLfloat global_lights[GLOBAL_LIGHTS_NO][4];
@@ -57,21 +55,6 @@ light *lights_list[MAX_LIGHTS];
 unsigned char light_level=58;
 sun sun_pos[60*3];
 short game_minute=60;
-
-/* currently UNUSED
-void draw_test_light()
-{
-	GLfloat light_position[] = { 15.0, 15.0, 3.0, 1.0 };
-	GLfloat light_position_2[] = { 5.0, 5.0, -3.0, 1.0 };
-	GLfloat spot_direction[] = { 0.0, 0.0, -1.0f };
-
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
-
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position_2);
-	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
-}
-*/
 
 void disable_local_lights()
 {
@@ -665,3 +648,18 @@ void new_minute()
 			sun_position[0]=sun_position[1]=sun_position[2]=0.0;
 		}
 }
+
+/* currently UNUSED
+void draw_test_light()
+{
+	GLfloat light_position[] = { 15.0, 15.0, 3.0, 1.0 };
+	GLfloat light_position_2[] = { 5.0, 5.0, -3.0, 1.0 };
+	GLfloat spot_direction[] = { 0.0, 0.0, -1.0f };
+
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
+
+	glLightfv(GL_LIGHT1, GL_POSITION, light_position_2);
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
+}
+*/

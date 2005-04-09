@@ -97,5 +97,3 @@ void windows_paste()
 
 #endif
 #endif
-
-
