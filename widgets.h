@@ -139,6 +139,7 @@ typedef struct wl{
 /*! \{ */
 #define TEXT_FIELD_BORDER	0x01
 #define TEXT_FIELD_EDITABLE	0x02
+#define TEXT_FIELD_NOKEYPRESS	0x04
 /*! \} */
 
 /*!
@@ -853,11 +854,10 @@ int vscrollbar_draw(widget_list *W);
  * 		The callback for mouseclicks in the vertical scrollbar widget
  *
  * \param   	W The widget
- * \param   	x The mouse x position
  * \param   	y The mouse y position
  * \retval int  	Returns true
  */
-int vscrollbar_click(widget_list *W, int x, int y);
+int vscrollbar_click (widget_list *W, int y);
 
 /*!
  * \ingroup	scrollbars
@@ -1222,6 +1222,64 @@ int text_field_set_buf_pos (Uint32 window_id, Uint32 widget_id, int msg, int off
  * \callgraph
  */
 int text_field_set_text_color (Uint32 window_id, Uint32 widget_id, float r, float g, float b);
+
+/*!
+ * \ingroup	widgets
+ * \brief 	Handles a mouseover event
+ *
+ * 		Handles a mousover event for a widget.
+ *
+ * \param   	widget pointer to the widget structure
+ * \param   	mx the mouse x position relative to the widgets origin
+ * \param   	my the mouse y position relative to the widgets origin
+ * \retval 	1 if the event is handled, 0 otherwise
+ */
+int widget_handle_mouseover (widget_list *widget, int mx, int my);
+
+/*!
+ * \ingroup	widgets
+ * \brief 	Handles a mouse click event
+ *
+ * 		Handles a mous click event for a widget.
+ *
+ * \param   	widget pointer to the widget structure
+ * \param   	mx the mouse x position relative to the widgets origin
+ * \param   	my the mouse y position relative to the widgets origin
+ * \param	flags flags specifying the mouse button and modifier state
+ * \retval 	1 if the event is handled, 0 otherwise
+ */
+int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags);
+
+/*!
+ * \ingroup	widgets
+ * \brief 	Handles a mouse drag event
+ *
+ * 		Handles a mouse drag event for a widget.
+ *
+ * \param   	widget pointer to the widget structure
+ * \param   	mx the mouse x position relative to the widgets origin
+ * \param   	my the mouse y position relative to the widgets origin
+ * \param	flags flags specifying the mouse button and modifier state
+ * \param   	dx the change in mouse position in the x direction
+ * \param   	dy the change in mouse position in the y direction
+ * \retval 	1 if the event is handled, 0 otherwise
+ */
+int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy);
+
+/*!
+ * \ingroup	widgets
+ * \brief 	Handles a keypess event
+ *
+ * 		Handles a keypress event for a widget.
+ *
+ * \param   	widget pointer to the widget structure
+ * \param   	mx the mouse x position relative to the widgets origin
+ * \param   	my the mouse y position relative to the widgets origin
+ * \param	key the SDL key code
+ * \param	unikey the unicode representation of the key pressed
+ * \retval 	1 if the event is handled, 0 otherwise
+ */
+int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey);
 
 // XML Windows
 

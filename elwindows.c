@@ -1107,37 +1107,41 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 	win= &windows_list.window[win_id];
 	W = win->widgetlist;
 	if(mouse_in_window(win_id, x, y) > 0)
-		{
-			mx= x - win->cur_x;
-			my= y - win->cur_y;
-			//check the X for close - but hide it
-			if(win->flags&ELW_CLOSE_BOX)
-				{
+	{
+		mx = x - win->cur_x;
+		my = y - win->cur_y;
+		//check the X for close - but hide it
+		if(win->flags&ELW_CLOSE_BOX)
+			{
         			if(my>0 && my<=20 && mx>(win->len_x-20) && mx<=win->len_x)
-						{
-							// the X was hit, hide this window
-							hide_window(win_id);
-							return 1;
-						}				
-				}
+				{
+					// the X was hit, hide this window
+					hide_window(win_id);
+					return 1;
+				}				
+			}
 			
-			// widgets
+			// check the widgets
 			glPushMatrix();
 			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
 			while (W != NULL)
 			{
-				if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
-					if(W->OnClick != NULL)
+				if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y + W->len_y)
+				{
+					if ( widget_handle_click (W, mx - W->pos_x, my - W->pos_y, flags) )
 					{
-						W->OnClick(W,mx - W->pos_x, my - W->pos_y);
+						// widget handled it
+						glPopMatrix ();
+						return 1;
 					}
 				}
 				W = W->next;
 			}
 			glPopMatrix();
 
-			//use the handler
-			if(win->click_handler != NULL){
+			// widgets don't deal with it, try the window handler
+			if (win->click_handler != NULL)
+			{
 				int	ret_val;
 			    
 				glPushMatrix();
@@ -1167,84 +1171,91 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 	win= &windows_list.window[win_id];
 	W = win->widgetlist;
 	if(win->drag_in || mouse_in_window(win_id, x, y) > 0)
-		{
-			//use the handler
-			if(win->drag_handler != NULL){
-				int	ret_val;
+	{
+		int	ret_val;
 
-				mx= x - win->cur_x;
-				my= y - win->cur_y;
+		mx = x - win->cur_x;
+		my = y - win->cur_y;
 							    
-				// widgets
-				glPushMatrix();
-				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-				while(W != NULL)
+		// widgets
+		glPushMatrix();
+		glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+		while (W != NULL)
+		{
+			if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my> W ->pos_y && my <= W->pos_y+W->len_y)
+			{
+				if ( widget_handle_drag (W, mx - W->pos_x, my - W->pos_y, flags, dx, dy) )
 				{
-					if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
-						if(W->OnDrag != NULL)
-						{
-							W->OnDrag(W, mx - W->pos_x, my - W->pos_y, dx, dy);
-						}
-					}
-					W = W->next;
+					// widget handled it
+					glPopMatrix ();
+					return 1;
 				}
-				glPopMatrix();
-
-				glPushMatrix();
-				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-				ret_val= (*win->drag_handler)(win, mx, my, flags, dx, dy);
-				glPopMatrix();
-
-				return	1;	// drag has been processed
 			}
+			W = W->next;
 		}
+		glPopMatrix();
+
+		// widgets don't deal with it, try the window handler
+		if (win->drag_handler != NULL)
+		{
+			glPushMatrix();
+			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+			ret_val = (*win->drag_handler)(win, mx, my, flags, dx, dy);
+			glPopMatrix();
+		}
+		return	1;	// drag has been processed	
+	}
 
 	return 0;
 }
 
-int	mouseover_window(int win_id, int x, int y)
+int	mouseover_window (int win_id, int x, int y)
 {
-	int	mx,	my;
+	window_info *win;
+	int	mx, my;
 	int	ret_val=0;
-	widget_list *W = windows_list.window[win_id].widgetlist;
+	widget_list *W;
 
-	if(mouse_in_window(win_id, x, y) > 0)
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
+	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	win = &windows_list.window[win_id];
+	W = win->widgetlist;
+	
+	if (mouse_in_window (win_id, x, y) > 0)
+	{
+		mx = x - win->cur_x;
+		my = y - win->cur_y;
+
+		// widgets
+		glPushMatrix();
+		glTranslatef ((float)win->cur_x, (float)win->cur_y, 0.0f);
+		while (W != NULL)
 		{
-			mx= x - windows_list.window[win_id].cur_x;
-			my= y - windows_list.window[win_id].cur_y;
-
-			// widgets
-			glPushMatrix();
-			glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);
-			while(W != NULL)
+			if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y+W->len_y)
 			{
-				if(mx>W->pos_x && mx<=(W->pos_x+W->len_x) && my>W->pos_y && my<=(W->pos_y+W->len_y)){
-					if(W->OnMouseover != NULL)
-						W->OnMouseover(W,mx,my);
-				}
-				W = W->next;
+				// don't return on mouseover. hopefully it 
+				// won't destroy our window...
+				widget_handle_mouseover (W, mx, my);
 			}
+			W = W->next;
+		}
+		glPopMatrix();
+
+		// use the handler if present
+		if(win->mouseover_handler)
+		{
+			glPushMatrix();
+			glTranslatef ((float)win->cur_x, (float)win->cur_y, 0.0f);
+			ret_val = (*win->mouseover_handler)(win, mx, my);
 			glPopMatrix();
 
-			// use the handler if present
-			if(windows_list.window[win_id].mouseover_handler)
-			{
-
-				glPushMatrix();
-				glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);
-				ret_val= (*windows_list.window[win_id].mouseover_handler)(&windows_list.window[win_id], mx, my);
-				glPopMatrix();
-
-			} 
+		} 
 #ifdef	ELC
-			if(!ret_val) 
-			{
-				elwin_mouse = CURSOR_ARROW;
-			}
+		if (!ret_val) elwin_mouse = CURSOR_ARROW;
 #endif	//ELC
 						
-			return 1;
-		}
+		return 1;
+	}
 
 	return 0;
 }
@@ -1252,7 +1263,7 @@ int	mouseover_window(int win_id, int x, int y)
 int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 {
 	window_info *win;
-	int	mx, my, ret_val = 0;
+	int	mx, my;
    	widget_list *W;
 
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
@@ -1262,34 +1273,38 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 
 	if (mouse_in_window (win_id, x, y) > 0)
 	{
-		mx= x - win->cur_x;
-		my= y - win->cur_y;
+		mx = x - win->cur_x;
+		my = y - win->cur_y;
 			
 		// widgets
 		glPushMatrix();
 		glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
 		while(W != NULL)
 		{
-			if(mx > W->pos_x && mx <= (W->pos_x+W->len_x) && my > W->pos_y && my <= (W->pos_y+W->len_y))
+			if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y+W->len_y)
 			{
-				if(W->OnKey != NULL)
+				if ( widget_handle_keypress (W, mx - W->pos_x, my - W->pos_y, key, unikey) )
 				{
-					ret_val |= W->OnKey (W, mx - W->pos_x, my - W->pos_y, key, unikey);
+					// widget handled it 
+					glPopMatrix ();
+					return 1;
 				}
 			}
 			W = W->next;
 		}
 		glPopMatrix();
 
-		//use the handler
+		// widgets don't deal with it, try the window handler
 		if(win->keypress_handler != NULL)
 		{
+			int ret_val;
+			
 			glPushMatrix();
 			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-			ret_val |= (*win->keypress_handler) (win, mx, my, key, unikey);
+			ret_val = (*win->keypress_handler) (win, mx, my, key, unikey);
 			glPopMatrix();
 
-			return	ret_val; // keypresses are fall-through
+			return ret_val; // keypresses are fall-through
 		} 
 	}
 

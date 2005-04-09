@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <libxml/parser.h>
+#include <ctype.h>
 #include "global.h"
 
 #ifdef NOTEPAD
@@ -15,16 +16,6 @@
 void notepadAddContinued (const char *name);
 
 int notepad_loaded = 0;
-
-/******************************************
- *             MISC Functions             *
- ******************************************/
- 
-//Return 1 so we don't go into the input buffer
-int keypress_input_window_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
-{
-	return 1;
-}
 
 /******************************************
  *             Popup Section              *
@@ -61,7 +52,27 @@ int clear_popup_window ()
 
 int accept_popup_window ()
 {
-	notepadAddContinued (popup_text.data);
+	int istart, iend, len = popup_text.len;
+	char *data = popup_text.data;
+
+	// skip leading spaces
+	istart = 0;
+	while ( istart <len && isspace (data[istart]) )
+		istart++;
+	if (istart >= len)
+		// empty string
+		return 1;
+		
+	// stop at first character that's not a letter, digit, or space
+	iend = istart;
+	while ( iend < len && (isalnum (data[iend]) || data[iend] == ' ') )
+		iend++;
+	if (iend == istart)
+		// empty string
+		return 1;
+	
+	data[len] = '\0';
+	notepadAddContinued (&data[istart]);
 	clear_popup_window ();
 	return 1;
 }
@@ -97,8 +108,6 @@ void display_popup_win (char* label, int maxlen)
 		popup_no = button_add (popup_win, NULL, button_cancel, popup_x_len/2-10 , popup_y_len-25);
 		widget_set_OnClick (popup_win, popup_no, clear_popup_window);
 		widget_set_color (popup_win, popup_no, 0.77f, 0.57f, 0.39f);
-      	  
-		set_window_handler (popup_win, ELW_HANDLER_KEYPRESS, keypress_input_window_handler);
 	}
 	else
 	{
@@ -508,8 +517,6 @@ void display_notepad()
 			widget_set_OnClick (main_note_tab_id, note_buttons[i], openNoteTab);
 			widget_set_color(main_note_tab_id, note_buttons[i], 0.77f, 0.57f, 0.39f);
 		}
-        
-		set_window_handler (notepad_win, ELW_HANDLER_KEYPRESS, keypress_input_window_handler);	
 	}
 	else
 	{

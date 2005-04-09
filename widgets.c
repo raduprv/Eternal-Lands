@@ -130,7 +130,7 @@ int widget_destroy (Uint32 window_id, Uint32 widget_id)
 		{
 			w = n;
 			n = n->next;
-			if(n->id == widget_id)
+			if (n->id == widget_id)
 			{
 				if (n->OnDestroy != NULL)
 					n->OnDestroy (n);
@@ -140,7 +140,7 @@ int widget_destroy (Uint32 window_id, Uint32 widget_id)
 			}
 		}
 	}
-	
+		
 	return 0;
 }
 
@@ -477,7 +477,6 @@ int checkbox_add_extended(Uint32 window_id,  Uint32 wid, int (*OnInit)(), Uint16
 	W->len_y = lx;
 	W->len_x = ly;
 	W->OnDraw = checkbox_draw;
-	W->OnClick = checkbox_click;
 	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
@@ -514,7 +513,7 @@ int checkbox_draw(widget_list *W)
 	return 1;
 }
 
-int checkbox_click(widget_list *W)
+int checkbox_click (widget_list *W)
 {
 	checkbox *c = (checkbox *)W->widget_info;
 	c->checked = !c->checked;
@@ -759,9 +758,7 @@ int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint
 	W->len_y = ly;
 	W->len_x = lx;
 	T->bar_len = bar_len;
-	W->OnClick = vscrollbar_click;
 	W->OnDraw = vscrollbar_draw;
-	W->OnDrag = vscrollbar_drag;
 	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
@@ -820,20 +817,25 @@ int vscrollbar_draw(widget_list *W)
 	return 0;
 }
 
-int vscrollbar_click(widget_list *W, int x, int y)
+int vscrollbar_click (widget_list *W, int my)
 {
 	vscrollbar *b = (vscrollbar *)W->widget_info;
-	if (y<15)
-			b->pos -= b->pos_inc;
+	if (my < 15)
+	{
+		b->pos -= b->pos_inc;
+	}
+	else if (my > W->len_y - 15)
+	{
+		b->pos += b->pos_inc;
+	}
 	else
-		if(y>(W->len_y-15))
-			b->pos += b->pos_inc;
-		else
-			b->pos = (y - 25)/((float)(W->len_y-50)/b->bar_len);
+	{
+		b->pos = (my - 25)/((float)(W->len_y-50)/b->bar_len);
+	}
 
-	if(b->pos < 0) b->pos = 0;
-	if(b->pos > (b->bar_len)) b->pos = b->bar_len;
-
+	if (b->pos < 0) b->pos = 0;
+	if (b->pos > b->bar_len) b->pos = b->bar_len;
+	
 	return 1;
 }
 
@@ -880,7 +882,7 @@ int vscrollbar_set_bar_len (Uint32 window_id, Uint32 widget_id, int bar_len)
 
 int vscrollbar_drag(widget_list *W, int x, int y, int dx, int dy)
 {
-	vscrollbar_click(W,x,y);
+	vscrollbar_click(W,y);
 	return 1;
 }
 
@@ -1054,7 +1056,6 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 	W->b = b;
 	W->len_y = ly;
 	W->len_x = lx;
-	W->OnClick = tab_collection_click;
 	W->OnDraw = tab_collection_draw;
 	W->OnDestroy = free_tab_collection;
 	W->OnInit = OnInit;
@@ -1171,6 +1172,7 @@ int tab_collection_draw (widget_list *w)
 int tab_collection_click (widget_list *W, int x, int y)
 {
 	tab_collection *col = (tab_collection *) W->widget_info;
+	
 	if (y < col->tag_height) 
 	{
 		int itag, ctag = col->cur_tab;
@@ -1297,7 +1299,8 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
 	
 	if (w == NULL) return 0;
-	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0) return 0;
+	if ( !(w->Flags & TEXT_FIELD_EDITABLE) ) return 0;
+	if (w->Flags & TEXT_FIELD_NOKEYPRESS) return 0;
 	
 	tf = (text_field *) w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
@@ -1410,6 +1413,8 @@ int text_field_click (widget_list *w, int mx, int my)
 	text_field *tf;
 	text_message *msg;
         
+	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0) return 0;
+
 	tf = (text_field *) w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
 	tf->cursor = get_edit_pos (mx, my, msg->data, msg->len, 1);
@@ -1458,11 +1463,6 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 	W->len_x = lx;
 	W->OnDraw = text_field_draw;
 	W->OnDestroy = free_widget_info;
-	if (Flags & TEXT_FIELD_EDITABLE)
-	{
-		W->OnKey = text_field_keypress;
-		W->OnClick = text_field_click;
-	}
 	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
@@ -1572,6 +1572,75 @@ int text_field_set_buf_pos (Uint32 window_id, Uint32 widget_id, int msg, int off
 
 	return  1;
 }
+
+int widget_handle_mouseover (widget_list *widget, int mx, int my)
+{
+	if (widget->OnMouseover != NULL)
+		return widget->OnMouseover (widget, mx, my);
+	
+	return 0;
+}
+
+int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
+{
+	int res = 0;
+
+	switch (widget->type)
+	{
+		case CHECKBOX:
+			res = checkbox_click (widget);
+			break;
+		case VSCROLLBAR:
+			res = vscrollbar_click (widget, my);
+			break;
+		case TABCOLLECTION:
+			res = tab_collection_click (widget, mx, my);
+			break;
+		case TEXTFIELD:
+			res = text_field_click (widget, mx, my);
+			break;
+	}
+
+	if (widget->OnClick != NULL)
+		res |= widget->OnClick (widget, mx, my, flags);
+	
+	return res;
+}
+
+int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
+{
+	int res = 0;
+
+	switch (widget->type)
+	{
+		case VSCROLLBAR:
+			res = vscrollbar_drag (widget, mx, my, dx, dy);
+			break;
+	}
+
+	if (widget->OnDrag != NULL)
+		res |= widget->OnDrag (widget, mx, my);
+	
+	return res;
+}
+
+int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	int res = 0;
+
+	switch (widget->type)
+	{
+		case TEXTFIELD:
+			res = text_field_keypress (widget, mx, my, key, unikey);
+			break;
+	}
+
+	if (widget->OnKey != NULL)
+		res |= widget->OnKey (widget, mx, my, key, unikey);
+	
+	return res;
+}
+
 
 // XML Windows
 

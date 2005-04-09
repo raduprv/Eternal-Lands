@@ -143,12 +143,6 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 } 
 
 
-int drag_knowledge_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy)
-{
-	return 0;
-}
-
-
 void get_knowledge_list(Uint16 size, char *list)
 {
 	int i;
@@ -174,7 +168,6 @@ void fill_knowledge_win ()
 {
 	set_window_handler(knowledge_win, ELW_HANDLER_DISPLAY, &display_knowledge_handler );
 	set_window_handler(knowledge_win, ELW_HANDLER_CLICK, &click_knowledge_handler );
-	set_window_handler(knowledge_win, ELW_HANDLER_DRAG, &drag_knowledge_handler );
 	set_window_handler(knowledge_win, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	
 	if (use_tabbed_windows)

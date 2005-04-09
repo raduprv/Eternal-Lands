@@ -232,7 +232,6 @@ int	display_questlog_handler(window_info *win)
 {
 	_logdata *t= current;
 	//calc where the scroll bar goes
-//	int scroll= vscrollbar_get_pos (questlog_win, quest_scroll_id);
 
 	// Draw all texts from list
 	questlog_y= 0;
@@ -244,31 +243,31 @@ int	display_questlog_handler(window_info *win)
 }
 
 
-int click_questlog_handler(window_info *win, int mx, int my, Uint32 flags)
+int questlog_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
-	int scroll = vscrollbar_get_pos (questlog_win, quest_scroll_id);
+	int scroll = vscrollbar_get_pos (questlog_win, widget->id);
 	goto_questlog_entry (scroll);
-	return 0;
+	return 1;
 }
 
 
-int drag_questlog_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy)
+int questlog_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
 {
-	int scroll = vscrollbar_get_pos (questlog_win, quest_scroll_id);
+	int scroll = vscrollbar_get_pos (questlog_win, widget->id);
 	goto_questlog_entry (scroll);
-	return 0;
+	return 1;
 }
 
 void fill_questlog_win ()
 {
-	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, &display_questlog_handler );
-	set_window_handler(questlog_win, ELW_HANDLER_CLICK, &click_questlog_handler );
-	set_window_handler(questlog_win, ELW_HANDLER_DRAG, &drag_questlog_handler );
+	int boxlen = use_tabbed_windows ? 0 : 20;
 
-        if (use_tabbed_windows)
-                quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20,  0, 20, questlog_menu_y_len     , 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, logdata_length);
-        else
-                quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20, 20, 20, questlog_menu_y_len - 20, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, logdata_length);
+	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, &display_questlog_handler );
+
+	quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20, boxlen, 20, questlog_menu_y_len - boxlen, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, logdata_length);
+	
+	widget_set_OnClick (questlog_win, quest_scroll_id, questlog_click);
+	widget_set_OnDrag (questlog_win, quest_scroll_id, questlog_drag);
 }
 
 void display_questlog()

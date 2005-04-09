@@ -42,7 +42,7 @@ int display_buddy_handler(window_info *win)
 	return 1;
 }
 
-int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags)
+int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int x=mx,y=my;
 	if(x>win->len_x-20)
@@ -54,11 +54,6 @@ int click_buddy_handler(window_info *win, int mx, int my, Uint32 flags)
 	put_string_in_buffer (&input_text_line, buddy_list[y].name, 1);
 	put_char_in_buffer ( &input_text_line, ' ', strlen (buddy_list[y].name) );
 	return 1;
-}
-
-int drag_buddy_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy)
-{
-	return 0;
 }
 
 void init_buddy()
@@ -92,27 +87,8 @@ void display_buddy()
 
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
-			set_window_handler(buddy_win, ELW_HANDLER_DRAG, &drag_buddy_handler );
-		/*	
-			label_add(buddy_win,NULL,"Hello!",0,0);
-			widget_set_size(buddy_win,0,2.0);
-			widget_set_color(buddy_win,0,0.5,0.5,0.5);
-			widget_move(buddy_win,0,20,20);
-			label_set_text(buddy_win,0,"Bye!");
-			widget_set_OnClick(buddy_win,0,clika);
-			widget_set_OnMouseover(buddy_win,0,clika);
-			image_add(buddy_win,NULL,load_texture_cache("./textures/sky.bmp",70),0,30,64,64,0.0,0.0,1.0,1.0);
-			widget_set_OnClick(buddy_win,1,clika);
-			widget_set_OnMouseover(buddy_win,1,clika);
-			widget_resize(buddy_win,1,128,128);
-			checkbox_add(buddy_win, NULL, 2, 100,20,20,0);
-			button_add(buddy_win,NULL,"Hello!",0,150);
-			widget_set_color(buddy_win,3,1.5,0.0,0.5);
-			widget_set_OnClick(buddy_win,3,clika);
-			progressbar_add(buddy_win,NULL,50,50,20,200);
-			progressbar_set_progress(buddy_win,4,25);
-			widget_set_OnClick(buddy_win,4,clikaa);
-		*/	vscrollbar_add_extended(buddy_win,12,NULL,130,20,20,180,0,1.0,0.77f,0.57f,0.39f,0,1,MAX_BUDDY-19);
+
+			vscrollbar_add_extended (buddy_win, 12, NULL, 130, 20, 20, 180, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, MAX_BUDDY-19);
 		
 		}
 	else

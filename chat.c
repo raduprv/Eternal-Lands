@@ -242,15 +242,14 @@ int display_chat_handler (window_info *win)
 	return 1;
 }
 
-int click_chat_handler(window_info *win, int mx, int my, Uint32 flags)
+int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int id;
-	int line;
 	
-	id = tab_collection_get_tab_id (chat_win, chat_tabcollection_id);
+	id = tab_collection_get_tab_id (chat_win, widget->id);
 	
 	// reset the tab's label color to default
-	tab_set_label_color_by_id (chat_win, chat_tabcollection_id, id, -1.0, -1.0, -1.0);
+	tab_set_label_color_by_id (chat_win, widget->id, id, -1.0, -1.0, -1.0);
 	
 	if (id != channels[active_tab].tab_id)
 	{
@@ -271,22 +270,13 @@ int click_chat_handler(window_info *win, int mx, int my, Uint32 flags)
 		vscrollbar_set_pos (chat_win, chat_scroll_id, current_line);
 		text_changed = 1;
 	}
-	else
-	{
-		line = vscrollbar_get_pos (chat_win, chat_scroll_id);
-		if (line != current_line)
-		{
-			current_line = line;
-			text_changed = 1;
-		}
-	}
 	
         return 1;
 }
 
-int drag_chat_handler(window_info *win, int mx, int my, Uint32 flags, int dx, int dy)
+int chat_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
 {
-	int line = vscrollbar_get_pos (chat_win, chat_scroll_id);
+	int line = vscrollbar_get_pos (chat_win, widget->id);
 	if (line != current_line)
 	{
 		text_changed = 1;
@@ -294,6 +284,52 @@ int drag_chat_handler(window_info *win, int mx, int my, Uint32 flags, int dx, in
 	}
         return 0;
 }
+
+int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
+{
+	int line = vscrollbar_get_pos (chat_win, widget->id);
+	if (line != current_line)
+	{
+		text_changed = 1;
+		current_line = line;
+	}
+        return 0;
+}
+
+int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	Uint16 keysym = key & 0xffff;
+	text_field *tf;
+	text_message *msg;
+
+	if (widget == NULL) return 0;
+	tf = (text_field *) widget->widget_info;
+	msg = tf->buffer;
+
+	if (keysym == K_ROTATELEFT)
+	{
+		if (tf->cursor > 0) tf->cursor--;
+	}
+	else if (keysym == K_ROTATERIGHT)
+	{
+		if (tf->cursor < msg->len) tf->cursor++;
+	}
+	else if (keysym == SDLK_HOME)
+	{
+		tf->cursor = 0;
+	}
+	else if (keysym == SDLK_END)
+	{
+		tf->cursor = msg->len;
+	}
+	else
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
 
 int resize_chat_handler(window_info *win, int width, int height)
 {
@@ -366,8 +402,9 @@ int resize_chat_handler(window_info *win, int width, int height)
 	return 0;
 }
 
-int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey)
+int root_key_to_input_field (Uint32 key, Uint32 unikey)
 {
+	widget_list *w = widget_find (chat_win, chat_in_id);
 	Uint16 keysym = key & 0xffff;
 	Uint8 ch = key_to_char (unikey);
 	text_field *tf;
@@ -380,23 +417,7 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 	tf = (text_field *) w->widget_info;
 	msg = tf->buffer;
 	
-	if (keysym == K_ROTATELEFT)
-	{
-		if (tf->cursor > 0) tf->cursor--;
-	}
-	else if (keysym == K_ROTATERIGHT)
-	{
-		if (tf->cursor < msg->len) tf->cursor++;
-	}
-	else if (keysym == SDLK_HOME)
-	{
-		tf->cursor = 0;
-	}
-	else if (keysym == SDLK_END)
-	{
-		tf->cursor = msg->len;
-	}
-	else if (keysym == SDLK_ESCAPE)
+	if (keysym == SDLK_ESCAPE)
 	{
 		msg->data[0] = '\0';
 		msg->len = 0;
@@ -464,19 +485,6 @@ int chat_in_key_handler (widget_list *w, int x, int y, Uint32 key, Uint32 unikey
 	return 1;
 }
 
-
-int keypress_chat_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
-{
-	return 0;
-}
-
-int root_key_to_input_field (Uint32 key, Uint32 unikey)
-{
-	widget_list *w = widget_find (chat_win, chat_in_id);
-	if (w == NULL) return 0;
-	return chat_in_key_handler (w, 0, 0, key, unikey);
-}
-
 void paste_in_input_field (const Uint8 *text)
 {
 	widget_list *w = widget_find (chat_win, chat_in_id);
@@ -511,14 +519,14 @@ void display_chat ()
 		chat_win = create_window ("Chat", game_root_win, 0, chat_win_x, chat_win_y, chat_win_width, chat_win_height, (ELW_WIN_DEFAULT|ELW_RESIZEABLE) & ~ELW_CLOSE_BOX);
 		
 		set_window_handler (chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
-		set_window_handler (chat_win, ELW_HANDLER_DRAG, &drag_chat_handler);
-		set_window_handler (chat_win, ELW_HANDLER_CLICK, &click_chat_handler);
 		set_window_handler (chat_win, ELW_HANDLER_RESIZE, &resize_chat_handler);
-		set_window_handler (chat_win, ELW_HANDLER_KEYPRESS, &keypress_chat_handler);
 
 		chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, 0, CHAT_WIN_SCROLL_WIDTH, chat_win_height - ELW_BOX_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+		widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
+		widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
 		
 		chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, CHAT_WIN_MAX_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
+		widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
 		
 		channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, tab_local, 0, 0);
 		set_window_min_size (channels[0].tab_id, 0, 0);
@@ -529,11 +537,10 @@ void display_chat ()
 		channels[0].new = 0;
 		active_tab = 0;		
 
-		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHANNEL_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NOKEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHANNEL_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+		widget_set_OnKey (chat_win, chat_in_id, chat_input_key);
 		
 		set_window_min_size (chat_win, min_width, min_height);
-		
-		widget_set_OnKey (chat_win, chat_in_id, chat_in_key_handler);
 		
 		// update the channel information
 		ntot = 0;
