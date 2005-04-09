@@ -3,12 +3,46 @@
  * \section secevents Event Handling in EL
  * <p>Section about which events are available, description of the event handlers, their signatures, etc.</p>
  *
- * \subsection ssecxmlwidget The XML format used to describe widgets
- * <p>Currently a widget has to be declared in the following
- * format:</p>
- * <p><code>
- * \<Window id="23" text="Click!" pos_x="10" pos_y="10" len_x="60" len_y="20" flags="2" size="1.0" r="0.8" g="0.2" b="0.77"\>
- * </code></p>
+ * \subsection savedbookdoc Saved documentation from books.h
+ * <p>Those are some documentation that I saved from the books.h file during the cleanup. They may get included into the documentation.</p>
+ * <p>From \ref add_xml_image_to_page
+ * \code
+ * 		<image x="50" y="120" w="120" h="120" src="./maps/seridia.bmp">Seridia is the first continent in EL</image>
+ * \endcode
+ *		
+ *		The above would add an image at 50,120 (px) in the book with the width and height 120px. Furthermore it'd add the text "Seridia is the first continent in EL" to the next of the image - at least as much of the text as the wrapper allows. 
+ * </p>
  *
- * \todo Do I understand the widget parsing function correctly, is this the right format of an xml widget???
+ * <p>From \ref add_xml_str_to_page
+ * \code
+ * 		<text>This text will show up as normal dark-brown text...</text>
+ * 		<author>Whilst this text will be highlighted in yellow/brown colour</author>
+ * 		<title>And finally this text will be highlighted in a red/brown colour</title>
+ * \endcode
+ *
+ *		The parser understands newlines (both unix and windows) and will automatically add a new line if such is found.
+ *
+ *		If the UTF8Toisolat1 fails converting the text into iso-8859-1, it will log an error telling in which tag and at what line the error occured.
+ * </p>
+ *
+ * <p>From \ref read_book
+ * 		An example book would be the following:
+ *
+ * \code
+ * <?xml version="1.0" encoding="utf8"?>
+ * <book title="The rise and fall of Sedicolis" id="1" type="2">
+ *	 <page>
+ *	 	<title>A small sheep</title>
+ *		<author>       Unknown</author>
+ *		<image x="50" y="120" w="120" h="120" src="./maps/seridia.bmp"></image>
+ *	</page>
+ *	<page>
+ *		Once upon a time there was a country of milk and honey...
+ *	</page>
+ * </book>	                                                                
+ * \endcode
+ * </p>
+ *
+ * <p>
+ * </p>
  */
