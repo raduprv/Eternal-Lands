@@ -1,6 +1,6 @@
 /*!
  * \file
- * \ingroup notepad_win
+ * \ingroup notepad_window
  * \brief   Handling of the in-game notepad.
  */
 #ifndef __NOTEPAD_H__
@@ -11,7 +11,7 @@ extern int notepad_win; /*!< ID of the notepad window */
 extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was loaded before. */
 
 /*!
- * \ingroup notepad_win
+ * \ingroup notepad_window
  * \brief
  *
  *      Detail
@@ -26,7 +26,7 @@ extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was
 unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigned int maxchar, float text_zoom);
 
 /*!
- * \ingroup notepad_win
+ * \ingroup notepad_window
  * \brief   Displays a popup window
  *
  *      Displays a popup window using the given \a label.
@@ -41,7 +41,7 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 void display_popup_win(int parent, int x, int y, char* label, int maxlen);
 
 /*!
- * \ingroup notepad_win
+ * \ingroup notepad_window
  * \brief   Displays the in-game notepad window.
  *
  *      Displays the in-game notepad window. The window will be created if it was not used before.
@@ -51,7 +51,7 @@ void display_popup_win(int parent, int x, int y, char* label, int maxlen);
 void display_notepad();
 
 /*!
- * \ingroup notepad_win
+ * \ingroup notepad_window
  * \brief   Saves the current content of the notepad window into a default file.
  *
  *      Saves the current notepad content into the file notes.xml.

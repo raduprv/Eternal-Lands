@@ -1,6 +1,6 @@
 /*!
  * \file
- * \ingroup spells_win
+ * \ingroup spells_window
  * \brief Handling of sigils and spells
  */
 #ifndef __SPELLS_H__
@@ -22,7 +22,7 @@ extern Uint8 spell_text[256]; /*!< buffer for the spell text */
 extern int have_error_message; /*!< flag that indicates whether we got an error message */
 
 /*!
- * \ingroup spells_win
+ * \ingroup spells_window
  * \brief Repeats the last used spell.
  *
  *      Repeats the spell that was last used. This is initiated by pressing Ctrl+R. hotkey
@@ -40,7 +40,7 @@ void repeat_spell();
 void make_sigils_list();
 
 /*!
- * \ingroup spells_win
+ * \ingroup spells_window
  * \brief changes the active_spell at the given \a pos to the given \a spell.
  *
  *      Changes the active_spell at the given \a pos to the given \a spell.
@@ -51,7 +51,7 @@ void make_sigils_list();
 void get_active_spell(int pos, int spell);
 
 /*!
- * \ingroup spells_win
+ * \ingroup spells_window
  * \brief removes the spell at the given \a pos from the list of active spells
  *
  *      Removes the spell at the given \a pos from the list of active spells
@@ -61,7 +61,7 @@ void get_active_spell(int pos, int spell);
 void remove_active_spell(int pos);
 
 /*!
- * \ingroup spells_win
+ * \ingroup spells_window
  * \brief sets the list of active_spells to the given list \a my_spell_list.
  *
  *      Sets the list of active_spells to the given list \a my_spell_list.
@@ -71,7 +71,7 @@ void remove_active_spell(int pos);
 void get_active_spell_list(Uint8 *my_spell_list);
 
 /*!
- * \ingroup spells_win
+ * \ingroup spells_window
  * \brief draws the sigils that the actor currently owns
  *
  *      Draws the sigils that the actor currently owns
@@ -81,7 +81,7 @@ void get_active_spell_list(Uint8 *my_spell_list);
 void display_spells_we_have();
 
 /*!
- * \ingroup spells_win
+ * \ingroup spells_window
  * \brief displays the spells window
  *
  *      Displays the spells window
@@ -91,7 +91,7 @@ void display_spells_we_have();
 void display_sigils_menu();
 
 /*!
- * \ingroup spells_win
+ * \ingroup spells_window
  * \brief sets the sigils in sigil_list according the mask in \a sigils_we_have.
  *
  *      sets the sigils in sigil_list according the mask in \a sigils_we_have.

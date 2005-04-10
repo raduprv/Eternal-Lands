@@ -34,7 +34,7 @@ extern int buddy_win; /*!< The identifier of the buddy window */
 void init_buddy();
 
 /*!
- * \ingroup	buddy_win
+ * \ingroup	buddy_window
  * \brief	Initiates the buddy window
  *
  * 		The function is used for initiating the buddy window or setting an existing buddy window to be displayed.

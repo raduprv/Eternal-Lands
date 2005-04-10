@@ -1,6 +1,6 @@
 /*!
  * \file
- * \ingroup quest_win
+ * \ingroup quest_window
  * \brief handles the data and the display of the quest log.
  */
 #ifndef __QUESTLOG_H__
@@ -17,7 +17,7 @@ extern int questlog_menu_x;
 extern int questlog_menu_y;
 
 /*!
- * \ingroup quest_win
+ * \ingroup quest_window
  * \brief displays the questlog window
  *
  *      Displays the questlog window
@@ -27,7 +27,7 @@ extern int questlog_menu_y;
 void display_questlog();
 
 /*!
- * \ingroup quest_win
+ * \ingroup quest_window
  * \brief loads the questlog from the users filesystem.
  *
  *      Loads the questlog from the users filesystem.
@@ -37,7 +37,7 @@ void display_questlog();
 void load_questlog();
 
 /*!
- * \ingroup quest_win
+ * \ingroup quest_window
  * \brief unloads the questlog and frees up the memory used.
  *
  *      Unloads the questlog and frees up the memory used.
@@ -46,7 +46,7 @@ void load_questlog();
 void unload_questlog();
 
 /*!
- * \ingroup quest_win
+ * \ingroup quest_window
  * \brief adds the log specified in t up to the specified length to the users questlog.
  *
  *      Adds the log specified in the parameter t up to the specified length len to the users questlog.
@@ -59,7 +59,7 @@ void unload_questlog();
 void add_questlog(char *t, int len);
 
 /*!
- * \ingroup quest_win
+ * \ingroup quest_window
  * \brief goes to the entry in the questlog with the specified index.
  *
  *      Goes to the entry in the questlog with the specified index.
@@ -69,7 +69,7 @@ void add_questlog(char *t, int len);
 void goto_questlog_entry(int ln);
 
 /*!
- * \ingroup quest_win
+ * \ingroup quest_window
  * \brief Sets the window handler functions for the quest log window
  *
  *      Sets the window handler functions for the quest log window

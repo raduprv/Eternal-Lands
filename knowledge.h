@@ -1,12 +1,12 @@
 /*!
  * \file
- * \ingroup knowledge_win
- * \brief knowledge and knowledge window handling
+ * \ingroup knowledge_window
+ * \brief Knowledge and knowledge window handling
  */
 #ifndef __KNOWLEDGE_H__
 #define __KNOWLEDGE_H__
 
-#define KNOWLEDGE_LIST_SIZE 200
+#define KNOWLEDGE_LIST_SIZE 200 /*!< maximum size of the \ref knowledge_list */
 
 /*!
  * knowledge structure
@@ -22,7 +22,7 @@ typedef struct
  * \name windows handlers
  */
 /*! @{ */
-extern int knowledge_win; /*!< knowledge windows handler */
+extern int knowledge_win; /*!< knowledge window handler */
 /*! @} */
 
 extern int knowledge_menu_x;
@@ -32,10 +32,10 @@ extern knowledge knowledge_list[KNOWLEDGE_LIST_SIZE]; /*!< global array of knowl
 extern char knowledge_string[400];
 
 /*!
- * \ingroup knowledge_win
- * \brief
+ * \ingroup knowledge_window
+ * \brief   Displays the knowledge window
  *
- *      Detail
+ *      Displays the knowledge window. If \ref knowledge_win is less than 0, this function creates and fills the knowledge window first, else it simply selects and shows the already created window.
  *
  * \callgraph
  */
@@ -45,35 +45,35 @@ void display_knowledge();
 //int check_knowledge_interface();
 
 /*!
- * \ingroup knowledge_win
- * \brief
+ * \ingroup knowledge_window
+ * \brief   Gets the known knowledges from the \a list and stores the state in \ref knowledge_list.
  *
- *      Detail
+ *      Gets the known knowledges from the given \a list and stores the state in \ref knowledge_list.
  *
- * \param size
- * \param list
+ * \param size  the size of \a list
+ * \param list  a list of knowledges that are already known by the player.
  *
- * \sa process_message_from_server
  */
 void get_knowledge_list(Uint16 size, char *list);
 
 /*!
- * \ingroup knowledge_win
- * \brief
+ * \ingroup knowledge_window
+ * \brief   Marks the entry in \ref knowledge_list at the given index \a idx as present.
  *
- *      Detail
+ *      Marks the entry at index \a idx in the \ref knowledge_list as present, aka known to the player.
  *
- * \param idx
+ * \param idx   the index into \ref knowledge_list that should be marked as present.
  *
- * \sa process_message_from_server
+ * \note This function does not perform any sanity checks on \a idx. This is a possible bug.
+ * \bug Possible bug, because this function doesn't do any sanity checks on the parameter \a idx.
  */
 void get_new_knowledge(Uint16 idx);
 
 /*! 
- * \ingroup knowledge_win
+ * \ingroup knowledge_window
  * \brief Sets the window handler functions for the knowledge window
  *
- * 	Sets the window handler functions for the knowledge window
+ * 	Sets the \ref ELW_HANDLER_DISPLAY, \ref ELW_HANDLER_CLICK and \ref ELW_HANDLER_MOUSEOVER event handler functions for the knowledge window.
  *
  * \callgraph
  */

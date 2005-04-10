@@ -1,6 +1,6 @@
 /*!
  * \file
- * \ingroup stats_win
+ * \ingroup stats_window
  * \brief Attributes und statistics handling
  */
 #ifndef __STATS_H__
@@ -192,7 +192,7 @@ extern int watch_this_stat; /*!< indicator to select the stat that get's display
 player_attribs your_info; /*!< the players attributes */
 
 /*!
- * \ingroup stats_win
+ * \ingroup stats_window
  * \brief   Retrieves the statistics of the player.
  *
  *      Retrieves all the statistics of the player and stores them in the parameter stats.
@@ -204,7 +204,7 @@ player_attribs your_info; /*!< the players attributes */
 void get_the_stats(Sint16 *stats);
 
 /*!
- * \ingroup stats_win
+ * \ingroup stats_window
  * \brief   gets the part of the stats that is specified by name.
  *
  *      Gets the part of the stats that is specified by name.
@@ -215,7 +215,7 @@ void get_the_stats(Sint16 *stats);
 void get_partial_stat(unsigned char name,Sint32 value);
 
 /*!
- * \ingroup stats_win
+ * \ingroup stats_window
  * \brief   Opens the statistics window and displays it.
  *
  *      Opens the statistics window, and displays it. The current values will be used from the parameter cur_stats.
@@ -236,7 +236,7 @@ void display_stats(player_attribs cur_stats);
 void init_attribf(void);
 
 /*!
- * \ingroup stats_win
+ * \ingroup stats_window
  * \brief Sets the window handler functions for the statistics window
  *
  *      Sets the window handler functions for the statistics window

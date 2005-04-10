@@ -247,82 +247,82 @@
  * \ingroup	elwindows
  */
 /*!
- * \defgroup    root_win The root window of the client
+ * \defgroup    root_window The root window of the client
  *      Displays the root window the client. The root window handles all the other possible windows as its client windows.
  * \ingroup windows
  */
 /*!
- * \defgroup	books_win Displaying books
+ * \defgroup	books_window Displaying books
  * 		About displaying the book windows
  * \ingroup	windows
  */
 /*!
- * \defgroup	buddy_win The buddy window
+ * \defgroup	buddy_window The buddy window
  * 		About the buddy window
  * \ingroup	windows
  */
 /*!
- * \defgroup	encyclopedia_win The Encyclopedia window
+ * \defgroup	encyclopedia_window The Encyclopedia window
  * 		The Encyclopedia window
  * \ingroup	windows
  */
 /*!
- * \defgroup	knowledge_win The knowledge window
+ * \defgroup	knowledge_window The knowledge window
  * 		The knowledge window displays the characters current knowledges
  * \ingroup	windows
  */
 /*!
- * \defgroup	items_win The inventory window
+ * \defgroup	items_window The inventory window
  *		The inventory window shows your inventory items + what you are currently wearing.
  * \ingroup	windows
  */
 /*!
- * \defgroup	manufacture_win The manufacture window
+ * \defgroup	manufacture_window The manufacture window
  *		About displaying the manufacture window
  * \ingroup	windows
  */
 /*!
- * \defgroup	options_win Options
+ * \defgroup	options_window Options
  *		Shows the game options
  * \ingroup	windows
  */
 /*!
- * \defgroup	quest_win The Questlog
+ * \defgroup	quest_window The Questlog
  * 		Shows the questlog window
  * \ingroup	windows
  */
 /*!
- * \defgroup	rules_win The rules window
+ * \defgroup	rules_window The rules window
  * 		About the rules window (see also the rules interface)
  * \ingroup	windows
  */
 /*!
- * \defgroup	spells_win The spell window
+ * \defgroup	spells_window The spell window
  * 		The spell window displays sigils and the current spell combination
  * \ingroup	windows
  */
 /*!
- * \defgroup	stats_win The statistics window
+ * \defgroup	stats_window The statistics window
  * 		The statistics window shows your characters current levels
  * \ingroup	windows
  */
 /*!
- * \defgroup	trade_win The trade window
+ * \defgroup	trade_window The trade window
  * 		Shows the trade window
  * \ingroup	windows
  */
 /*!
- * \defgroup    help_win The help window
+ * \defgroup    help_window The help window
  *      Shows the help window
  * \ingroup windows
  */
 /*!
- * \defgroup    chat_win    The new chat window
+ * \defgroup    chat_window    The new chat window
  *      Shows the chat window
  * \ingroup windows
  */
 /*!
- * \defgroup    notepad_win The new in-game notepad
+ * \defgroup    notepad_window The new in-game notepad
  *      Handles the in-game notepad
  * \ingroup windows
  */

@@ -1,6 +1,6 @@
 /*!
  * \file
- * \ingroup root_win
+ * \ingroup root_window
  * \brief   Handles the root window (game window) display.
  */
 #ifndef __GAMEWIN_H__
@@ -63,7 +63,7 @@ int text_input_handler (Uint32 key, Uint32 unikey);
 int keypress_root_common (Uint32 key, Uint32 unikey);
 
 /*!
- * \ingroup root_win
+ * \ingroup root_window
  * \brief Creates the game (root) window of the game.
  *
  *      Creates the game window, aka root window of the game

@@ -1,6 +1,6 @@
 /*!
  * \file
- * \ingroup manufacture_win
+ * \ingroup manufacture_window
  * \brief display of the manufacture window
  */
 #ifndef __MANUFACTURE_H__
@@ -14,7 +14,7 @@ extern int manufacture_win; /*!< manufacture windows handler */
 /*! @} */
 
 /*!
- * \ingroup manufacture_win
+ * \ingroup manufacture_window
  * \brief
  *
  *      Detail
@@ -23,7 +23,7 @@ extern int manufacture_win; /*!< manufacture windows handler */
 void build_manufacture_list();
 
 /*!
- * \ingroup manufacture_win
+ * \ingroup manufacture_window
  * \brief
  *
  *      Detail

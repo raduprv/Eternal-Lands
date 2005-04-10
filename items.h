@@ -106,7 +106,7 @@ extern char items_string[300];
 extern int item_quantity;
 
 /*!
- * \ingroup items_win
+ * \ingroup items_window
  * \brief
  *
  *      Detail

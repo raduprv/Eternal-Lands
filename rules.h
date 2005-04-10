@@ -78,7 +78,7 @@ int read_rules(void);
 void draw_rules_interface (int len_x, int len_y);
 
 /*!
- * \ingroup rules_win
+ * \ingroup rules_window
  * \brief toggles the rules window visibile or invisible
  *
  *      Toggles the state of the rules window from visible to invisible and vice versa.

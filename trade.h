@@ -14,7 +14,7 @@ extern int trade_win;   /*!< trade windows handler */
 /*! @} */
 
 /*!
- * \ingroup 	trade_win
+ * \ingroup 	trade_window
  * \brief 	Displays the trade window.
  *
  * 		Displays the trade window (initiates the window if it hasn't been done before).

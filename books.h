@@ -48,7 +48,7 @@ void read_network_book(char * data, int len);
 void open_book(int id);
 
 /*!
- * \ingroup	books_win
+ * \ingroup	books_window
  * \brief	Closes the book window with the given id
  *
  * 		Closes the book window with the given id, if it's opened

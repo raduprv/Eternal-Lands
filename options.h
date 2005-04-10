@@ -1,6 +1,6 @@
 /*!
  * \file
- * \ingroup options_win
+ * \ingroup options_window
  * \brief handles the display of the options window.
  */
 #ifndef __OPTIONS_H__
@@ -29,7 +29,7 @@ extern int options_menu_y_len;
 //extern int options_menu_dragged; // has been commented before, IMO safe for removal.
 
 /*!
- * \ingroup options_win
+ * \ingroup options_window
  * \brief displays the options window.
  * 
  *      Displays the options window.

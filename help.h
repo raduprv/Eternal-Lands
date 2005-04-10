@@ -1,6 +1,6 @@
 /*!
  * \file
- * \ingroup help_win
+ * \ingroup help_window
  * \brief handles the display of the help window
  */
 #ifndef __HELP_H__
@@ -21,7 +21,7 @@ int help_menu_y_len=200;
 */
 
 /*!
- * \ingroup help_win
+ * \ingroup help_window
  * \brief       displays the help window
  *
  *      Displays the help window.
@@ -32,7 +32,7 @@ int help_menu_y_len=200;
 void display_help();
 
 /*!
- * \ingroup help_win
+ * \ingroup help_window
  * \brief Sets the window handler functions for the help window
  *
  *      Sets the window handler functions for the help window
