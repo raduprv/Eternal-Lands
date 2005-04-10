@@ -31,11 +31,14 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
  *
  *      Displays a popup window using the given \a label.
  *
+ * \param parent
+ * \param x
+ * \param y
  * \param label
  * \param maxlen
  * \callgraph
  */
-void display_popup_win(char* label, int maxlen);
+void display_popup_win(int parent, int x, int y, char* label, int maxlen);
 
 /*!
  * \ingroup notepad_win

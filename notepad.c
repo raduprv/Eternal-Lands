@@ -33,8 +33,6 @@ int popup_no = -1;
 text_message popup_text;
 
 // Coordinates
-int popup_x = 60;
-int popup_y = 60;
 int popup_x_len = 200;
 int popup_y_len = 100;
 
@@ -77,7 +75,7 @@ int accept_popup_window ()
 	return 1;
 }
 
-void display_popup_win (char* label, int maxlen)
+void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 {
 	//int i = 0;
 
@@ -87,7 +85,7 @@ void display_popup_win (char* label, int maxlen)
 
 	if(popup_win < 0)
 	{		  
-		popup_win = create_window (win_prompt, game_root_win, 0, popup_x, popup_y, popup_x_len, popup_y_len, ELW_WIN_DEFAULT);	 
+		popup_win = create_window (win_prompt, parent, 0, x, y, popup_x_len, popup_y_len, ELW_WIN_DEFAULT);	 
           
 		// clear the buffer
 		popup_text.data = calloc ( popup_text.size, sizeof (char) );
@@ -476,7 +474,9 @@ void notepadAddContinued (const char *name)
 
 int notepadAddCategory()
 {
-	display_popup_win (label_note_name, 16);
+	int x = (note_win_x_len - popup_x_len) / 2;
+	int y = (note_win_y_len - popup_y_len) / 2;
+	display_popup_win (main_note_tab_id, x, y, label_note_name, 16);
 	return 1;
 }   
 

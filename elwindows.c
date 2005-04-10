@@ -38,59 +38,70 @@ void	display_windows(int level)
 	glColor3f(1.0f, 1.0f, 1.0f);
 	// first draw everything that is last under everything
 	id= -1;
-	while(1)
+	while (1)
+	{
+		next_id = -9999;
+		for (i=0; i < windows_list.num_windows; i++)
 		{
-			next_id= -9999;
-			for(i=0; i<windows_list.num_windows; i++){
+			// only look at displayed windows
+			if (windows_list.window[i].displayed > 0)
+			{
+				// at this level?
+				if (windows_list.window[i].order == id)
+				{
+					display_window(i);
+				} else if (windows_list.window[i].order < id && windows_list.window[i].order > next_id)
+				{
+					// try to find the next level
+					next_id = windows_list.window[i].order;
+				}
+			}
+		}
+		
+		if(next_id <= -9999)
+		{
+			break;
+		}
+		else
+		{
+			id= next_id;
+		}
+	}
+	
+	if(level > 0)
+	{
+		// now display each window in the proper order
+		id = 0;
+		while (1)
+		{
+			next_id = 9999;
+			for (i = 0; i < windows_list.num_windows; i++)
+			{
 				// only look at displayed windows
-				if(windows_list.window[i].displayed > 0){
+				if (windows_list.window[i].displayed > 0)
+				{
 					// at this level?
-					if(windows_list.window[i].order == id){
+					if (windows_list.window[i].order == id)
+					{
 						display_window(i);
-					} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
+					} 
+					else if (windows_list.window[i].order > id && windows_list.window[i].order < next_id)
+					{
 						// try to find the next level
-						next_id= windows_list.window[i].order;
+						next_id = windows_list.window[i].order;
 					}
 				}
 			}
-			if(next_id <= -9999)
-				{
-					break;
-				}
+			if (next_id >= 9999)
+			{
+				break;
+			}
 			else
-				{
-					id= next_id;
-				}
+			{
+				id = next_id;
+			}
 		}
-	if(level > 0)
-		{
-			// now display each window in the proper order
-			id= 0;
-			while(1)
-				{
-					next_id= 9999;
-					for(i=0; i<windows_list.num_windows; i++){
-						// only look at displayed windows
-						if(windows_list.window[i].displayed > 0){
-							// at this level?
-							if(windows_list.window[i].order == id){
-								display_window(i);
-							} else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id){
-								// try to find the next level
-								next_id= windows_list.window[i].order;
-							}
-						}
-					}
-					if(next_id >= 9999)
-						{
-							break;
-						}
-					else
-						{
-							id= next_id;
-						}
-				}
-		}
+	}
 }
 
 
@@ -508,9 +519,9 @@ void	end_drag_windows()
 }
 
 
-int	select_window (int win_id)
+int	select_window_with (int win_id, int raise_parent, int raise_children)
 {
-	int	i, old, nchild, idiff;
+	int	i, old, idiff;
 	
 	if (win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if (windows_list.window[win_id].window_id != win_id)	return -1;
@@ -518,36 +529,37 @@ int	select_window (int win_id)
 	if (windows_list.window[win_id].order < 0)		return 0;
 	
 	// if this is a child window, raise the parent first
-	if (windows_list.window[win_id].pos_id >= 0)
-		select_window(windows_list.window[win_id].pos_id);
-		
-	// count the number of children
-	nchild = 0;
-	for(i=0; i<windows_list.num_windows; i++)
-	{
-		if (windows_list.window[i].pos_id == win_id)
-			nchild++;
-	}	
+	if (raise_parent && windows_list.window[win_id].pos_id >= 0)
+		select_window_with (windows_list.window[win_id].pos_id, 1, 0);
 
-	// shuffle the order of the windows. Children are raised together with
-	// this window
+	// shuffle the order of the windows
 	old = windows_list.window[win_id].order;
-	idiff = (windows_list.num_windows-nchild) - old;
+	idiff = windows_list.num_windows - old;
 	for (i=0; i<windows_list.num_windows; i++)
 	{
 		if(windows_list.window[i].order > old)
-		{
-			if (windows_list.window[i].pos_id != win_id)
-				windows_list.window[i].order -= (nchild+1);
-			else
-				windows_list.window[i].order += idiff;
-		}
+			windows_list.window[i].order--;
 	}
 	
 	// and put it on top
 	windows_list.window[win_id].order += idiff;
+	
+	// now raise all children
+	if (raise_children)
+	{
+		for (i=0; i<windows_list.num_windows; i++)
+		{
+			if (windows_list.window[i].pos_id == win_id)
+				select_window_with (i, 0, 1);
+		}
+	}
 
 	return 1;
+}
+
+int	select_window (int win_id)
+{
+	return select_window_with (win_id, 1, 1);
 }
 
 
