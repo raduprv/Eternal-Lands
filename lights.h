@@ -1,18 +1,20 @@
 /*!
  * \file
  * \ingroup lights
- * \brief light and sun handling
+ * \brief Light and sun handling.
+ *
+ *      This file contains datatypes and functions to use lights and the sun with the client.
  */
 #ifndef __LIGHTS_H__
 #define __LIGHTS_H__
 
 /*!
- * a light structure stores the position and color of a light
+ * A light structure stores the position and color of a light
  */
 typedef struct
 {
     /*!
-     * \name light position
+     * \name Light position
      */
     /*! @{ */
   	float pos_x;
@@ -21,7 +23,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name light color
+     * \name Light color
      */
     /*! @{ */
 	float r;
@@ -30,31 +32,21 @@ typedef struct
     /*! @} */
 }light;
 
-//for the lights
-
-/*!
- * \name Lights limits
- */
+/*! \name Lights limits */
 /*! @{ */
-#define GLOBAL_LIGHTS_NO 60
+#define GLOBAL_LIGHTS_NO 60 /*!< The maximum number of global lights to use */
+#define MAX_LIGHTS 1000     /*!< The maximum amount of lights (global and local) */
 /*! @} */
 
-/*! \name Sky lights arrays 
-/ * @{ */
+/*! \name Sky lights arrays */
+/*! @{ */
 extern GLfloat sky_lights_c1[GLOBAL_LIGHTS_NO*2][4];
 extern GLfloat sky_lights_c2[GLOBAL_LIGHTS_NO*2][4];
 extern GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
 extern GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 /*! @} */
 
-extern GLfloat sun_ambient_light[];
-
-/*!
- * \name Lights limits
- */
-/*! @{ */
-#define MAX_LIGHTS 1000
-/*! @} */
+extern GLfloat sun_ambient_light[]; /*!< An array for the ambient lights radiating from the sun */
 
 extern light *lights_list[MAX_LIGHTS]; /*!< global lights list */
 
@@ -63,45 +55,46 @@ extern short game_minute; /*!< the current game minute */
 
 /*!
  * \ingroup lights
- * \brief
+ * \brief   Disables all local lightning.
  *
- *      Detail
+ *      Disables all local lightning.
  *
  */
 void disable_local_lights();
 
 /*!
  * \ingroup lights
- * \brief
+ * \brief   Draws the default local lights.
  *
- *      Detail
+ *      Draws all default local lights. The lights must be enabled first.
  *
  * \sa draw_scene
+ * \sa enable_local_lights
  */
 void draw_lights();
 
 /*!
  * \ingroup lights
- * \brief
+ * \brief   Adds a new light using the given position and color.
  *
- *      Detail
+ *      Adds a new light.using the given position (\a x, \a y, \a z) and the color (\a r, \a g, \a b, \a intensity) to the global \ref lights_list.
  *
- * \param x
- * \param y
- * \param z
- * \param r
- * \param g
- * \param b
- * \param intensity
- * \retval int
+ * \param x             x coordinate of the lighs position
+ * \param y             y coordinate of the lighs position
+ * \param z             z coordinate of the lighs position
+ * \param r             r (red) value of the lights color
+ * \param g             g (green) value of the lights color
+ * \param b             b (blue) value of the lights color
+ * \param intensity     a (intensity) value of the lights color
+ * \retval int          the index into the \ref lights_list array, where the light was added.
  */
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity);
 
 /*!
  * \ingroup lights
- * \brief
+ * \brief   Gets the lights visible in the scene.
  *
- *      Detail
+ *      Gets the lights visible in the scene.
  *
  * \sa draw_scene
  */
@@ -109,9 +102,9 @@ void update_scene_lights();
 
 /*!
  * \ingroup other
- * \brief
+ * \brief   Initializes the default lights and enables lighting.
  *
- *      Detail
+ *      Initializes the default lights and enables lighting.
  *
  * \sa init_stuff
  * \sa set_new_video_mode
@@ -120,30 +113,30 @@ void init_lights();
 
 /*!
  * \ingroup lights
- * \brief
+ * \brief   Resets the material attributes to its default values.
  *
- *      Detail
+ *      Resets the material attributes to the default values.
  *
  */
 void reset_material();
 
 /*!
  * \ingroup lights
- * \brief
+ * \brief   Sets the material attributes to the given color.
  *
- *      Detail
+ *      Sets the material attributes to the given color (\a r, \a g, \a b).
  *
- * \param r
- * \param g
- * \param b
+ * \param r     red component of the material color
+ * \param g     green component of the material color
+ * \param b     blue component of the material color
  */
 void set_material(float r, float g, float b);
 
 /*!
  * \ingroup lights
- * \brief
+ * \brief   Draws the global light.
  *
- *      Detail
+ *      Draws the global light, i.e. the sun and the diffuse light.
  *
  * \sa draw_scene
  */
@@ -151,9 +144,9 @@ void draw_global_light();
 
 /*!
  * \ingroup lights
- * \brief
+ * \brief   Draws the ambient light of dungeons.
  *
- *      Detail
+ *      Draws the ambient light of dungeons.
  *
  * \sa draw_scene
  */
@@ -161,19 +154,18 @@ void draw_dungeon_light();
 
 /*!
  * \ingroup other
- * \brief
+ * \brief   Initializies the global lights for the sun and lakes.
  *
- *      Detail
+ *      Initializes the global lights for the sun and lakes using \ref make_gradient_light.
  *
- * \callgraph
  */
 void build_global_light_table();
 
 /*!
  * \ingroup other
- * \brief
+ * \brief   Computes the table for the sun positions.
  *
- *      Detail
+ *      Computes the global table of sun positions.
  *
  * \sa init_stuff
  */
@@ -181,9 +173,9 @@ void build_sun_pos_table();
 
 /*!
  * \ingroup event_handle
- * \brief
+ * \brief   Sets the \ref light_level depending on the current \ref game_minute
  *
- *      Detail
+ *      Sets the \ref light_level depending on the current \ref game_minute and adjusts the light.
  *
  * \callgraph
  */

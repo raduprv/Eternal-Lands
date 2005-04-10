@@ -1,10 +1,37 @@
+/*!
+ * \file
+ * \ingroup interface_login
+ * \brief   Functions to handle the login.
+ */
 #ifndef __LOGINWIN_H__
 #define __LOGINWIN_H__
 
-extern int login_root_win;
+extern int login_root_win; /*!< ID for the login root window */
 
+/*!
+ * \ingroup interface_login
+ * \brief   Sets the error string used when a login error occurs.
+ *
+ *      Sets the error string used when a login error occurs to be \a msg.
+ *
+ * \param msg   the message for the login error
+ * \param len   the length of \a msg
+ * \callgraph
+ */
 void set_login_error (const char *msg, int len);
 
+/*!
+ * \ingroup interface_login
+ * \brief   Creates the root window for the login interface.
+ *
+ *      Creates the root window for the login interface using the given \a width and \a height, if it was not created before. This functions also sets the event handlers for the \ref ELW_HANDLER_DISPLAY, \ref ELW_HANDLER_MOUSEOVER, \ref ELW_HANDLER_CLICK, \ref ELW_HANDLER_KEYPRESS and \ref ELW_HANDLER_RESIZE events.
+ *
+ * \param width     the width of the login window
+ * \param height    the height of the login window
+ * \callgraph
+ *
+ * \pre If \ref login_root_win >= 0, this function won't perform any action.
+ */
 void create_login_root_window (int width, int height);
 
 #endif // def __LOGINWIN_H__
