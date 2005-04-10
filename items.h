@@ -1,13 +1,13 @@
 /*!
  * \file
  * \ingroup item
- * \brief item handling and storing
+ * \brief Item handling and storing
  */
 #ifndef __ITEMS_H__
 #define __ITEMS_H__
 
 /*!
- * any item in EL has assigned an item struct
+ * Any item in EL has assigned an item struct
  */
 typedef struct
 {
@@ -54,22 +54,14 @@ extern int item_action_mode;
 
 extern int view_ground_items; /*!< flag that indicates whether we should display ground items or not */
 
-/*!
- * \name windows handlers
- */
+/*! \name windows handlers */
 /*! @{ */
 extern int items_win; /*!< inventory windows handler */
+extern int ground_items_win; /*!< ground items windows handler */
 /*! @} */
 
 extern int items_menu_x;
 extern int items_menu_y;
-
-/*!
- * \name windows handlers
- */
-/*! @{ */
-extern int ground_items_win; /*!< ground items windows handler */
-/*! @} */
 
 extern int ground_items_menu_x;
 extern int ground_items_menu_y;
@@ -83,8 +75,8 @@ extern int manufacture_menu_y_len;
 extern int trade_menu_x;
 extern int trade_menu_y;
 
-/*! \name text fields for items 
- * @{ */
+/*! \name Text fields for items */
+/*! @{ */
 extern int items_text_1;
 extern int items_text_2;
 extern int items_text_3;
@@ -107,9 +99,9 @@ extern int item_quantity;
 
 /*!
  * \ingroup items_window
- * \brief
+ * \brief   Displays the items (inventory) window.
  *
- *      Detail
+ *      Displays the items (inventory) window. If the window was not displayed before, it will first created and the event handlers for the window initialized accordingly. \ref items_window recognizes the following events: \ref ELW_HANDLER_DISPLAY, \ref ELW_HANDLER_CLICK and \ref ELW_HANDLER_MOUSEOVER.
  *
  * \callgraph
  */
@@ -117,11 +109,11 @@ void display_items_menu();
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Gets the items for \ref item_list from the parameter \a data.
  *
- *      Detail
+ *      Initializes the \ref item_list from the \a data given. Calls \ref build_manufacture_list after the initializing is done.
  *
- * \param data
+ * \param data  the data for the \ref item_list
  *
  * \callgraph
  */
@@ -129,12 +121,12 @@ void get_your_items(Uint8 *data);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Drags the given \a item
  *
- *      Detail
+ *      Drags the given \a item. If \a mini is true, the dragged item will be drawn smaller.
  *
- * \param item
- * \param mini
+ * \param item  the index into \ref item_list of the item being dragged
+ * \param mini  boolean flag, indicating whether the dragged item will be drawn smaller
  *
  * \callgraph
  */
@@ -142,73 +134,83 @@ void drag_item(int item, int mini);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Removes the item at the given inventory position \a pos from the items menu.
  *
- *      Detail
+ *      Removes the item at the given inventory position \a pos from the inventory. Calls \ref build_manufacture_list after the item was removed.
  *
- * \param pos
+ * \param pos   the position into the items menu
  *
  * \callgraph
+ *
  */
 void remove_item_from_inventory(int pos);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Sets the quantity of the \ref ground_item_list at index \a pos to be 0.
  *
- *      Detail
+ *      Sets the quantity of the \ref ground_item_list at index \a pos to be 0. No sanity checks are performed.
  *
- * \param pos
+ * \param pos   the index into \ref ground_item_list that should get removed.
  *
- * \sa process_message_from_server
+ * \note No sanity checks whether \a pos is a valid index are performed. This is possibly a bug.
+ * \bug Does not perform sanity checks for the parameter \a pos.
  */
 void remove_item_from_ground(Uint8 pos);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Gets a new item from the given \a data.
  *
- *      Detail
+ *      Gets a new inventory item from the given \a data. If we already have such an item, only the quantity will get updated. Calls \ref build_manufacture_list after the item has been updated or added.
  *
- * \param data
+ * \param data  teh data for the new item
  *
  * \callgraph
+ *
+ * \note Assumes that \a data is valid and not NULL. This may be a possible bug.
+ * \bug Assumes that \a data is valid and not NULL and does not perform any sanity checks.
  */
 void get_new_inventory_item(Uint8 *data);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Gets a new item in a bag on the ground.
  *
- *      Detail
+ *      Gets a new item for a bag on the ground from the given \a data.
  *
- * \param data
+ * \param data  the data for the new ground item aka bag
  *
- * \sa process_message_from_server
+ * \note No sanity checks for \a data are performed. This may be a possible bug.
+ * \bug Doesn't perform any sanity checks on the given \a data.
+ *
  */
 void get_bag_item(Uint8 *data);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Gets the contents of a bag.
  *
- *      Detail
+ *      Gets the contents of a bag on the ground from the given \a data.
  *
- * \param data
+ * \param data  the data of the bags items
  *
  * \callgraph
+ *
+ * \note No sanity checks for \a data are performed. This may be a possible bug.
+ * \bug Doesn't perform any sanity checks on the given \a data.
  */
 void get_bags_items_list(Uint8 *data);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Puts the bag \a bag_id on the ground at coordinates (\a bag_x, \a bag_y).
  *
- *      Detail
+ *      Puts the bag \a bag_id at the coordinates (\a bag_x, \a bag_y) on the ground.
  *
- * \param bag_x
- * \param bag_y
- * \param bag_id
+ * \param bag_x     x coordinate of the bags position
+ * \param bag_y     y coordinate of the bags position
+ * \param bag_id    index into \ref bag_list to be used for the bag
  *
  * \callgraph
  */
@@ -216,23 +218,26 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Adds the bags given in \a data.
  *
- *      Detail
+ *      Adds the bags that are given in \a data.
  *
- * \param data
+ * \param data  the data from the server for the bags to add
  *
  * \callgraph
+ *
+ * \note No sanity checks on \a data are performed. This may be a possible bug.
+ * \bug No sanity checks on \a data are performed.
  */
 void add_bags_from_list(Uint8 *data);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Removes the bag with the given index \a which_bag from the \ref bag_list.
  *
- *      Detail
+ *      Removes the bag at the given index \a which_bag from the \ref bag_list. The list of bags will be adjusted accordingly.
  *
- * \param which_bag
+ * \param which_bag the index into \ref bag_list for the bag to remove
  *
  * \callgraph
  */
@@ -240,11 +245,14 @@ void remove_bag(int which_bag);
 
 /*!
  * \ingroup item
- * \brief
+ * \brief   Sends an \ref INSPECT_BAG message for the given \a object_id to the server.
  *
- *      Detail
+ *      Sends an \ref INSPECT_BAG message for the given \a object_id to the server.
  *
- * \param object_id
+ * \param object_id the id of the bag to open
+ *
+ * \note Uses a fixed upper limit to search the \ref bag_list. This may be a possible bug.
+ * \bug Uses a fixed upper limit to search \ref bag_list. We should use a defined constant instead.
  */
 void open_bag(int object_id);
 #endif
