@@ -1,17 +1,15 @@
 /*!
  * \file
  * \ingroup interfaces
- * \brief handling of the different interfaces in EL.
+ * \brief Handling of the different interfaces in EL.
  */
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
 
-extern int have_a_map;
+extern int have_a_map;  /*!< flag indicating whether a map is available or not */
 extern int auto_camera; /*!< if this is true, we are using the auto camera */
 
-/*!
- * \name Action types
- */
+/*! \name Action types */
 /*! @{ */
 #define ACTION_WALK 0
 #define ACTION_LOOK 1
@@ -23,14 +21,14 @@ extern int auto_camera; /*!< if this is true, we are using the auto camera */
 
 extern int action_mode; /*!< contains the current action type */
 
-/*! \name mouse movement coordinates 
+/*! \name Mouse movement coordinates 
  * @{ */
 extern int mouse_x; /*!< current x coordinate of the mouse */
 extern int mouse_y; /*!< current y coordinate of the mouse */
 extern int mouse_delta_x; /*!< current difference between the last saved mouse_x and the current mouse positions x coordinate */
 extern int mouse_delta_y; /*!< current difference between the last saved mouse_y and the current mouse positions y coordinate */
 
-/*! \name mouse buttons 
+/*! \name Mouse buttons 
  * @{ */
 extern int right_click; /*!< indicates the right mouse button was clicked */
 extern int middle_click; /*!< indicates the middle mouse button was clicked */
@@ -58,7 +56,7 @@ extern int hud_text;
 extern int login_text;
 
 /*!
- * a flag for a mode, that show whether a mode is supported and/or selected.
+ * A flag for a mode, that show whether a mode is supported and/or selected.
  */
 typedef struct
 {
@@ -74,7 +72,7 @@ extern int click_speed;
 extern int ati_click_workaround; /*!< if non-zero, arbitrarily multiply the read depth value by 256 to hopefully get a more reasonable value */
 
 /*!
- * stores the start and end coordinates of a map
+ * Stores the start and end coordinates of a map
  */
 struct draw_map{
        unsigned short x_start;
@@ -93,94 +91,103 @@ extern const struct draw_map seridia_maps[]; /*!< global array of maps for the c
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Reads the \ref scene_mouse_x and \ref scene_mouse_y mouse coordinates.
  *
- *      Detail
+ *      Gets the \ref scene_mouse_x and \ref scene_mouse_y mouse coordinates. This function will be used when a player is walking.
  *
  * \callgraph
+ *
+ * \bug Contains a workaround for ATI drivers to fix.
  */
 void get_world_x_y();
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Reads the \ref scene_mouse_x and \ref scene_mouse_y mouse coordinates.
  *
- *      Detail
+ *      Gets the \ref scene_mouse_x and \ref scene_mouse_y mouse coordinates. In contrast to \ref get_world_x_y this functions gets only called when walking is forced, i.e. the CTRL key is pressed when clicking.
  *
  * \callgraph
+ *
+ * \pre If there is no active actor, this function returns immediately.
  */
 void get_old_world_x_y();
 
-/*!
- * \ingroup interfaces
- * \brief
- *
- *      Detail
- *
- * \retval int
- * \callgraph
- */
-int check_drag_menus();
+//*! OBSOLETE? (Malaclypse)
+// * \ingroup interfaces
+// * \brief   Currently not implemented
+// *
+// *      Currently not implemented
+// *
+// * \retval int
+// * \callgraph
+// *
+// * \bug Currently not implemented
+// */
+//int check_drag_menus();
 
-/*!
- * \ingroup interfaces
- * \brief
- *
- *      Detail
- *
- * \retval int
- * \callgraph
- */
-int check_scroll_bars();
+//*! OBSOLETE? (Malaclypse)
+// * \ingroup interfaces
+// * \brief   Currently not implemented
+// *
+// *      Currently not implemented
+// *
+// * \retval int
+// * \callgraph
+// *
+// * \bug Currently not implemented
+// */
+//int check_scroll_bars();
 
 //void check_menus_out_of_screen();
 
-/*!
- * \ingroup interfaces
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void check_mouse_click();
+//*! OBSOLETE? (Malaclypse)
+// * \ingroup interfaces
+// * \brief   Currently not implemented
+// *
+// *      Currently not implemented
+// *
+// * \callgraph
+// *
+// * \bug Currently not implemented
+// */
+//void check_mouse_click();
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Puts the client into 2D mode.
  *
- *      Detail
+ *      Puts the client into 2D mode. Stores the current attributes for lighting and depth tests and then disables them, then stores the projection matrix and performs an orthographic projection and finally stores the modelview matrix.
  *
  */
 void Enter2DMode();
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Puts the client back into 3D mode.
  *
- *      Detail
+ *      Puts the client back into 3D mode. Restores the modelview and projection matrices as well as the attributes, saved with \ref Enter2DMode and resets the viewport.
  *
  */
 void Leave2DMode();
 
 /*!
  * \ingroup other
- * \brief
+ * \brief   Checks the available video modes and initializes the \ref video_modes array.
  *
- *      Detail
+ *      Checks the available video modes and initializes the \ref video_modes array accordingly.
  *
  * \sa init_video
- * \sa toggle_full_screen
  */
 void build_video_mode_array();
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Sets the texture given in \a which_texture and draws it.
  *
- *      Detail
+ *      Sets the texture given in \a which_texture by calling \ref get_and_set_texture_id and then draws a full window picture of the texture.
  *
- * \param which_texture
+ * \param which_texture the texture to draw
  *
  * \callgraph
  */
@@ -188,91 +195,88 @@ void draw_console_pic(int which_texture);
 
 /*!
  * \ingroup interface_opening
- * \brief
+ * \brief   Loads the screen menus and text for the opening interface.
  *
- *      Detail
+ *      Loads the screen menus and text for the opening interface by calling \ref load_texture_cache with the appropriate bitmaps.
  *
  * \callgraph
  */
 void init_opening_interface();
 
-/*!
- * \ingroup interface_login
- * \brief
- *
- *      Detail
- *
- * \callgraph
- */
-void draw_login_screen();
+//*! OBSOLETE? (Malaclypse)
+// * \ingroup interface_login
+// * \brief   Currently not implemented
+// *
+// *      Currently not implemented
+// *
+// * \callgraph
+// *
+// * \bug Currently not implemented
+// */
+//void draw_login_screen();
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Adds the char \a ch to the \ref username_str.
  *
- *      Detail
+ *      Adds the char \a ch to the \ref username_str. If \a ch is either of delete or backspace key, the last char in \ref username_str will get deleted.
  *
- * \param ch
- *
- * \sa HandleEvent
+ * \param ch    the char to add to \ref username_str
  */
 void add_char_to_username(unsigned char ch);
 
 /*!
  * \ingroup interface
- * \brief
+ * \brief   Adds the char \a ch to the \ref password_str.
  *
- *      Detail
+ *      Adds the char \a ch to the \ref password_str. If \a ch is either of delete or backspace key, the last char in \ref password_str will get deleted.
  *
- * \param ch
- *
- * \sa HandleEvent
+ * \param ch    the char to add to \ref password_str
  */
 void add_char_to_password(unsigned char ch);
 
 /*!
  * \ingroup display_2d
- * \brief
+ * \brief   Draws a rectangular area with the given texture and scene coordinates.
  *
- *      Detail
+ *      Draws a rectangular area with the given texture and scene coordinates.
  *
- * \param u_start
- * \param v_start
- * \param u_end
- * \param v_end
- * \param x_start
- * \param y_start
- * \param x_end
- * \param y_end
+ * \param u_start   u coordinate of the textures start
+ * \param v_start   v coordinate of the textures start
+ * \param u_end     u coordinate of the textures end
+ * \param v_end     v coordinate of the textures end
+ * \param x_start   x coordinate of the scene start
+ * \param y_start   y coordinate of the scene start
+ * \param x_end     x coordinate of the scene end
+ * \param y_end     y coordinate of the scene end
  */
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start, 
 int y_start,int x_end,int y_end);
 
 /*!
  * \ingroup display_2d
- * \brief
+ * \brief   Draws a rectangular area with the given texture and scene coordinates in reverse mode.
  *
- *      Detail
+ *      Drasw a rectangular area with the given texture and scene coordinates in reverse mode. This function is only used to draw the hud frame.
  *
- * \param u_start
- * \param v_start
- * \param u_end
- * \param v_end
- * \param x_start
- * \param y_start
- * \param x_end
- * \param y_end
+ * \param u_start   u coordinate of the textures start
+ * \param v_start   v coordinate of the textures start
+ * \param u_end     u coordinate of the textures end
+ * \param v_end     v coordinate of the textures end
+ * \param x_start   x coordinate of the scene start
+ * \param y_start   y coordinate of the scene start
+ * \param x_end     x coordinate of the scene end
+ * \param y_end     y coordinate of the scene end
  *
- * \sa draw_hud_frame
  */
 void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_start,
 int y_start,int x_end,int y_end);
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Draws the in-game interface.
  *
- *      Detail
+ *      Draws the in-game interface by calling \ref draw_hud_frame and \ref display_spells_we_have. If a bag is currently being closed, this function will send an \ref S_CLOSE_BAG command to the server before actually drawing anything.
  *
  * \callgraph
  */
@@ -280,32 +284,32 @@ void draw_ingame_interface();
 
 /*!
  * \ingroup interface_map
- * \brief
+ * \brief   Switches to the map interface.
  *
- *      Detail
+ *      Switches to the map interface and changes the cursor to \ref CURSOR_ARROW. The map will be stored in \ref map_text.
  *
- * \retval int
+ * \retval int  0, if there's no map available for the current place, else 1.
  * \callgraph
  */
 int switch_to_game_map();
 
 /*!
  * \ingroup interface_map
- * \brief
+ * \brief   Switches back from map interface to game interface.
  *
- *      Detail
+ *      Switches back from map interface to game interface, by deleting the texture in \ref map_text.
  *
  */
 void switch_from_game_map();
 
 /*!
  * \ingroup interface_map
- * \brief
+ * \brief   Draws the map interface.
  *
- *      Detail
+ *      Draws the map interface. Also responsible for drawing the user defined markings on a map as well as the current position of the actor.
  *
- * \param map
- * \param mouse_mini
+ * \param map           if true, the actual map will be drawn in the big window else the continent map will be drawn in the big window
+ * \param mouse_mini    if true, the mouse will be drawn smaller than usual
  * \sa draw_scene
  * \callgraph
  */
@@ -313,49 +317,54 @@ void draw_game_map (int map, int mouse_mini);
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Saves the user defined markings on maps.
  *
- *      Detail
+ *      Saves the user defined markings on maps. The markings are stored on a per map basis, i.e. each map gets its own save file, based on the maps .elm filename.
  *
  */
 void save_markings();
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Deletes the mark at the current mouse position and saves the changes.
  *
- *      Detail
+ *      Deletes the mark at the current mouse position and saves the changes by calling \ref save_markings.
  *
  * \callgraph
+ *
+ * \pre If the mouse is outside the map area, this function will return without performing any actions.
  */
 void delete_mark_on_map_on_mouse_position();
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Adds a mark at the current mouse position.
  *
- *      Detail
+ *      Adds a mark at the current mouse position.
  *
+ * \pre If the mouse is outside the map area, this function will return without performing any actions.
  */
 void put_mark_on_map_on_mouse_position();
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Adds a mark at the actors current position.
  *
- *      Detail
+ *      Adds a mark with the text \a name at the actors current position.
  *
- * \param name
+ * \param name  the text for the mark.
  *
  * \callgraph
+ *
+ * \pre If we don't have an active actor, this function won't perform any actions further actions.
  */
 void put_mark_on_current_position(char *name);
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Hides all of the root windows if necessary.
  *
- *      Detail
+ *      Hides all the root windows, if necessary, i.e. if the associated *_root_win variables are greater than or equal to zero, by calling \ref hide_window for each of them.
  *
  * \callgraph
  */
@@ -363,12 +372,12 @@ void hide_all_root_windows ();
 
 /*!
  * \ingroup interfaces
- * \brief
+ * \brief   Resizes all of the root windows to the new width \a w and height \a h, if necessary.
  *
- *      Detail
+ *      Resizes all of the root windows to the new width \a w and height \a h, if necessary, i.e if the associated *_root_win variables are greater than or equal to zero, by calling \ref resize_window for each of them.
  *
- * \param w
- * \param h
+ * \param w     the new width of the root windows
+ * \param h     the new height of the root windows
  *
  * \callgraph
  */
