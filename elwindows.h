@@ -179,15 +179,16 @@ typedef	struct	{
  * \name mouse click flags - first ones from events
  */
 /*! @{ */
-#define	ELW_SHIFT	SHIFT
-#define	ELW_CTRL	CTRL
-#define	ELW_ALT		ALT
-#define ELW_RIGHT_MOUSE	(1<<28)
-#define ELW_MID_MOUSE	(1<<27)	// future expansion
-#define ELW_LEFT_MOUSE	(1<<26)
-#define ELW_DBL_CLICK	(1<<25)	// future expansion
-#define ELW_WHEEL_UP	(1<<24)
-#define ELW_WHEEL_DOWN	(1<<23)
+#define	ELW_SHIFT		SHIFT
+#define	ELW_CTRL		CTRL
+#define	ELW_ALT			ALT
+#define ELW_RIGHT_MOUSE		(1<<28)
+#define ELW_MID_MOUSE		(1<<27)	// future expansion
+#define ELW_LEFT_MOUSE		(1<<26)
+#define ELW_MOUSE_BUTTON	(ELW_RIGHT_MOUSE|ELW_MID_MOUSE|ELW_LEFT_MOUSE)
+#define ELW_DBL_CLICK		(1<<25)	// future expansion
+#define ELW_WHEEL_UP		(1<<24)
+#define ELW_WHEEL_DOWN		(1<<23)
 /*! @} */
 
 /*!

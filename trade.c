@@ -336,6 +336,10 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	int x,y;
 	int x_screen,y_screen;
 	Uint8 str[256];
+	int left_click = flags & ELW_LEFT_MOUSE;
+	int right_click = flags & ELW_RIGHT_MOUSE;
+	
+	if ( !(left_click || right_click) ) return 0;
 
 	//see if we changed the quantity
 	for(y=0;y<5;y++)

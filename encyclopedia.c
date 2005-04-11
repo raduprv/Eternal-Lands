@@ -76,6 +76,9 @@ int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	_Text *t=Page[currentpage].T.Next;
 
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
 	while(t){
 		int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
 		if(t->ref && mx>(t->x) && mx<(t->x+xlen) && my>(t->y) && my<(t->y+ylen)){

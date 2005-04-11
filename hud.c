@@ -620,6 +620,10 @@ void view_tab (int *window, int *col_id, int tab)
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int id=mx/32;//Icons are always 32 bit wide
+	
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
 	if(combat_mode)return 0;
 
 	if(id<icons_no)
@@ -680,7 +684,6 @@ void init_stats_display()
 			stats_bar_win= create_window("Stats Bar", -1, 0, 24, window_height-44, window_width-24-64, 12, ELW_TITLE_NONE|ELW_SHOW_LAST);
 			set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
 			set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
-			//set_window_handler(stats_bar_win, ELW_HANDLER_CLICK, &click_stats_bar_handler);
 		}
 	else
 		{
@@ -890,7 +893,10 @@ int	display_misc_handler(window_info *win)
 
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-    //check to see if we clicked on the clock
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
+	//check to see if we clicked on the clock
 	if(my>win->len_y-128 && my<win->len_y-64)
 		{
 			unsigned char protocol_name;
@@ -1107,6 +1113,10 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 	int x_screen,y_screen;
 	Uint8 str[100];
 	int trigger=ELW_LEFT_MOUSE|ELW_CTRL|ELW_SHIFT;//flags we'll use for the quickbar relocation handling
+	int right_click = flags & ELW_RIGHT_MOUSE;
+
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	if(right_click) {
 		switch(qb_action_mode) {

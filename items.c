@@ -297,6 +297,10 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int i,x,y;
 	int x_screen,y_screen;
 	Uint8 str[100];
+	int right_click = flags & ELW_RIGHT_MOUSE;
+	
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	if(right_click) {
 		if(item_dragged!=-1 || use_item!=-1){
@@ -852,6 +856,10 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int x,y;
 	int x_screen,y_screen;
 	Uint8 str[10];
+	int right_click = flags & ELW_RIGHT_MOUSE;
+	
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	if(right_click) {
 		if(item_action_mode==ACTION_LOOK)

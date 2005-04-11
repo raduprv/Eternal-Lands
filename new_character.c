@@ -660,6 +660,9 @@ int mouseover_newchar_handler (window_info *win, int mx, int my)
 
 int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 {
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
 	if (mx > back_button_x_start && mx < back_button_x_end && my > back_button_y_start && my < back_button_y_end && back_selected)
 	{
 		// don't destroy this window yet, maybe the use will come back

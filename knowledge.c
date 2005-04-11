@@ -122,6 +122,9 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y,idx;
 	char str[3];
+	
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	x= mx;
 	y= my;

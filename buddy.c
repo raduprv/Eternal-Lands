@@ -45,6 +45,10 @@ int display_buddy_handler(window_info *win)
 int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int x=mx,y=my;
+
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
 	if(x>win->len_x-20)
 		return 0;
 	// clicked on a buddies name, start apm to them

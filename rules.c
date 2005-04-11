@@ -145,6 +145,10 @@ int mouseover_rules_handler(window_info * win, int mx, int my)
 
 int click_rules_handler(window_info *win, int mx, int my, Uint32 flags)
 {
+	// XXX FIXME: make a proper scrollbar
+	
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	
 	if(mx > win->len_x-16){
 		if(my<=32 && my>=18) {
 			if(rule_offset>1){
@@ -709,6 +713,9 @@ int click_rules_root_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int i;
 	rule_string *rules_ptr = display_rules + rule_offset;
+	
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 	
 	for (i=0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
 	{

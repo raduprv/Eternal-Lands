@@ -183,6 +183,9 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 	int i;
 	Uint8 str[16];
 
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
 	for(i=0;i<MAX_RESPONSES;i++)
 		{
 			if(dialogue_responces[i].in_use && dialogue_responces[i].mouse_over)

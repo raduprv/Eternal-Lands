@@ -494,17 +494,6 @@ int checkbox_draw(widget_list *W);
 
 /*!
  * \ingroup	checkboxes
- * \brief 	The callback function for the checkbox
- *
- * 		When the checkbox is clicked this function will be called.
- *
- * \param   	W The widget that called the checkbox
- * \retval int  	Returns true
- */
-int checkbox_click(widget_list *W);
-
-/*!
- * \ingroup	checkboxes
  * \brief 	Checks if the given checkbox is checked
  *
  * 		Is used for checking if the given checkbox widget is checked or not.
@@ -756,35 +745,6 @@ int vscrollbar_draw(widget_list *W);
 
 /*!
  * \ingroup	scrollbars
- * \brief 	The callback for mouseclicks in the vertical scrollbar widget
- *
- * 		The callback for mouseclicks in the vertical scrollbar widget
- *
- * \param   	W The widget
- * \param   	y The mouse y position
- * \retval int  	Returns true
- */
-int vscrollbar_click (widget_list *W, int y);
-
-/*!
- * \ingroup	scrollbars
- * \brief 	The callback for dragging the vertical scrollbar widget
- *
- * 		The callback for dragging the vertical scrollbar widget
- *
- * \param   	W The vertical scrollbar widget
- * \param	x Specifies the x pos
- * \param	y Specifies the y pos
- * \param   	dx Specifies the delta x
- * \param   	dy Specifies the delta y
- * \retval int  	Returns true
- *
- * \sa vscrollbar_click
- */
-int vscrollbar_drag(widget_list *W, int x, int y, int dx, int dy);
-
-/*!
- * \ingroup	scrollbars
  * \brief 	Sets the position of the vertical scrollbar
  *
  * 		Finds the vertical scrollbar widget and sets the position.
@@ -988,20 +948,6 @@ float size, float r, float g, float b, int max_tabs, Uint16 tag_height, Uint16 t
  * \callgraph
  */
 int tab_collection_draw (widget_list *W);
-
-/*!
- * \ingroup	tabs
- * \brief 	The callback for mouseclicks in the tabbed window collection widget
- *
- * 		The callback for mouseclicks in the tabbed window collection widget
- *
- * \param   	W The widget
- * \param   	x The mouse x position
- * \param   	y The mouse y position
- * \retval int  	Returns 1 if a new tab is selected, 0 otherwise
- * \callgraph
- */
-int tab_collection_click (widget_list *W, int x, int y);
 
 /*!
  * \ingroup	tabs

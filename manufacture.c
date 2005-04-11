@@ -261,6 +261,9 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	int x_screen,y_screen;
 	Uint8 str[100];
 
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
 	//Clear
 	if(mx>33*9+40 && mx<33*9+40+70 &&
 	   my>win->len_y-30 && my<win->len_y-10)

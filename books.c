@@ -749,8 +749,12 @@ int display_book_handler(window_info *win)
 
 int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-	int i,x,p;
+	int i,x,p;	
 	book *b=win->data;
+
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	
 	my-=win->len_y;
 	if(my<-2 && my>-18) {
 		if(mx>10 && mx < 20){

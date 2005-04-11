@@ -515,16 +515,20 @@ int display_stats_handler(window_info *win)
 int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int	i;
+	int is_button = flags & ELW_MOUSE_BUTTON;
 
-	if(mx > check_grid_x_left && mx < check_grid_x_left+105 &&
-		my > check_grid_y_top && my < check_grid_y_top+140){
+	if(is_button && mx > check_grid_x_left && mx < check_grid_x_left+105 && my > check_grid_y_top && my < check_grid_y_top+140)
+	{
 		// we don't care which click did the select
+		// Grum: as long as it's not a wheel move
 		i = 1+(my - check_grid_y_top)/14;
-		if (i < NUM_WATCH_STAT){
+		if (i < NUM_WATCH_STAT)
+		{
 			watch_this_stat = i;
 		}
 		return 1;
 	}
+
 	return 0;
 }
 

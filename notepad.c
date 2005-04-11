@@ -39,8 +39,11 @@ int popup_y_len = 100;
 // widget id
 int note_widget_id = 0;
 
-int clear_popup_window ()
+int clear_popup_window (widget_list *w, int mx, int my, Uint32 flags)
 {
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
 	memset (popup_text.data, 0, popup_text.size);
 	popup_text.len = 0;
 
@@ -48,10 +51,13 @@ int clear_popup_window ()
 	return 1;
 }
 
-int accept_popup_window ()
+int accept_popup_window (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int istart, iend, len = popup_text.len;
 	char *data = popup_text.data;
+	
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	// skip leading spaces
 	istart = 0;
@@ -71,7 +77,7 @@ int accept_popup_window ()
 	
 	data[len] = '\0';
 	notepadAddContinued (&data[istart]);
-	clear_popup_window ();
+	clear_popup_window (w, mx, my, flags);
 	return 1;
 }
 
@@ -265,12 +271,15 @@ int notepadLoadFile ()
 }
 
 
-int notepadSaveFile()
+int notepadSaveFile (widget_list *w, int mx, int m, Uint32 flags)
 {
 	int i = 0;
 	char file[256];
 	xmlDocPtr doc = NULL;                      // document pointer
 	xmlNodePtr root_node = NULL, node = NULL;  // node pointers
+
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
     
 #ifndef WINDOWS
 	strcpy ( file, getenv ("HOME") );
@@ -309,9 +318,12 @@ int notepadSaveFile()
 	return 1;
 }
 
-int notepadRemoveCategory (widget_list *w)
+int notepadRemoveCategory (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i, id = -1, cur_tab, t, inote;
+
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	t = tab_collection_get_tab_id (notepad_win, note_tabcollection_id);
 	cur_tab = tab_collection_get_tab (notepad_win, note_tabcollection_id);
@@ -409,9 +421,12 @@ void openNoteTabContinued (int id)
 }
      
 
-int openNoteTab (widget_list *w)
+int openNoteTab (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i = 0, id = -1;
+
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	for(i = 0; i < no_notes; i++)
 	{
@@ -472,10 +487,14 @@ void notepadAddContinued (const char *name)
 }
 
 
-int notepadAddCategory()
+int notepadAddCategory (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int x = (note_win_x_len - popup_x_len) / 2;
 	int y = (note_win_y_len - popup_y_len) / 2;
+	
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
 	display_popup_win (main_note_tab_id, x, y, label_note_name, 16);
 	return 1;
 }   

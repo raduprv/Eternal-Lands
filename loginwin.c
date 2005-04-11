@@ -197,26 +197,28 @@ int mouseover_login_handler (window_info *win, int mx, int my)
 int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int left_click = flags & ELW_LEFT_MOUSE;
+	
+	if (left_click == 0) return 0;
 
 	// check to see if we clicked on the username box
-	if (mx >= username_bar_x && mx <= username_bar_x + username_bar_x_len && my >= username_bar_y && my <= username_bar_y + username_bar_y_len && left_click)
+	if (mx >= username_bar_x && mx <= username_bar_x + username_bar_x_len && my >= username_bar_y && my <= username_bar_y + username_bar_y_len)
 	{
 		username_box_selected = 1;
 		password_box_selected = 0;
 	}
 	// check to see if we clicked on the password box
-	else if (mx >= password_bar_x && mx <= password_bar_x + password_bar_x_len && my >= password_bar_y && my <= password_bar_y + password_bar_y_len && left_click)
+	else if (mx >= password_bar_x && mx <= password_bar_x + password_bar_x_len && my >= password_bar_y && my <= password_bar_y + password_bar_y_len)
 	{
 		username_box_selected = 0;
 		password_box_selected = 1;
 	}
 	// check to see if we clicked on the ACTIVE Log In button
-	if (log_in_button_selected && left_click)
+	if (log_in_button_selected)
 	{
 		send_login_info ();
 	}
 	//check to see if we clicked on the ACTIVE New Char button
-	else if (new_char_button_selected && left_click)
+	else if (new_char_button_selected)
 	{
 		// don't destroy the login window just yet, the user might 
 		// click the back button

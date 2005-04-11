@@ -482,9 +482,13 @@ int checkbox_draw(widget_list *W)
 	return 1;
 }
 
-int checkbox_click (widget_list *W)
+int checkbox_click (widget_list *W, Uint32 flags)
 {
 	checkbox *c = (checkbox *)W->widget_info;
+
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
 	c->checked = !c->checked;
 	return 1;
 }
@@ -786,14 +790,14 @@ int vscrollbar_draw(widget_list *W)
 	return 0;
 }
 
-int vscrollbar_click (widget_list *W, int my)
+int vscrollbar_click (widget_list *W, int my, Uint32 flags)
 {
 	vscrollbar *b = (vscrollbar *)W->widget_info;
-	if (my < 15)
+	if ( my < 15 || (flags & ELW_WHEEL_UP) )
 	{
 		b->pos -= b->pos_inc;
 	}
-	else if (my > W->len_y - 15)
+	else if (my > W->len_y - 15 || (flags & ELW_WHEEL_DOWN) )
 	{
 		b->pos += b->pos_inc;
 	}
@@ -849,9 +853,9 @@ int vscrollbar_set_bar_len (Uint32 window_id, Uint32 widget_id, int bar_len)
 	return 0;
 }
 
-int vscrollbar_drag(widget_list *W, int x, int y, int dx, int dy)
+int vscrollbar_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy)
 {
-	vscrollbar_click(W,y);
+	vscrollbar_click(W,y,flags);
 	return 1;
 }
 
@@ -1138,9 +1142,12 @@ int tab_collection_draw (widget_list *w)
 	return 1;
 }
 
-int tab_collection_click (widget_list *W, int x, int y)
+int tab_collection_click (widget_list *W, int x, int y, Uint32 flags)
 {
 	tab_collection *col = (tab_collection *) W->widget_info;
+	
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 	
 	if (y < col->tag_height) 
 	{
@@ -1377,10 +1384,13 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 	return i+k;
 } 
 
-int text_field_click (widget_list *w, int mx, int my)
+int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 {
 	text_field *tf;
 	text_message *msg;
+
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
         
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0) return 0;
 
@@ -1557,16 +1567,16 @@ int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 	switch (widget->type)
 	{
 		case CHECKBOX:
-			res = checkbox_click (widget);
+			res = checkbox_click (widget, flags);
 			break;
 		case VSCROLLBAR:
-			res = vscrollbar_click (widget, my);
+			res = vscrollbar_click (widget, my, flags);
 			break;
 		case TABCOLLECTION:
-			res = tab_collection_click (widget, mx, my);
+			res = tab_collection_click (widget, mx, my, flags);
 			break;
 		case TEXTFIELD:
-			res = text_field_click (widget, mx, my);
+			res = text_field_click (widget, mx, my, flags);
 			break;
 	}
 
@@ -1583,7 +1593,7 @@ int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int d
 	switch (widget->type)
 	{
 		case VSCROLLBAR:
-			res = vscrollbar_drag (widget, mx, my, dx, dy);
+			res = vscrollbar_drag (widget, mx, my, flags, dx, dy);
 			break;
 	}
 

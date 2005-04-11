@@ -413,6 +413,9 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int i,x,y;
 	int x_screen,y_screen;
+	
+	// only handle real clicks, not scroll wheel moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0 ) return 0;
 
 	//clear button pressed?
 	if(mx>33*9+40 && mx<33*9+40+70 &&
