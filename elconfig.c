@@ -178,6 +178,17 @@ void change_windowed_chat (int *wc)
 #endif // not def ELCONFIG
 #endif // def ELC
 
+void change_dir_name (char *var, const char *str, int len)
+{
+	int idx;
+	
+	for (idx = 0; idx < len && str[idx]; idx++)
+		var[idx] = str[idx];
+	if (var[idx-1] != '/')
+		var[idx++] = '/';
+	var[idx] = '\0';
+}
+
 #ifdef MAP_EDITOR
 
 void set_auto_save_interval(int time)
@@ -462,7 +473,7 @@ void init_vars()
 #endif // def ELC
 
 	//Global vars...
-	add_var(STRING,"data_dir","dir",datadir,change_string,90);	// Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
+	add_var(STRING,"data_dir","dir",datadir,change_dir_name,90);	// Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4);
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0);
 
