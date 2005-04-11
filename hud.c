@@ -825,7 +825,7 @@ void init_misc_display()
 	//create the misc window
 	if(misc_win < 0)
 		{
-			misc_win= create_window("Misc", -1, 0, window_width-64, window_height-145, 64, 145, ELW_TITLE_NONE|ELW_SHOW_LAST);
+			misc_win= create_window("Misc", -1, 0, window_width-64, window_height-300, 64, 300, ELW_TITLE_NONE|ELW_SHOW_LAST);
 			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 		}
@@ -838,14 +838,14 @@ void init_misc_display()
 int	display_misc_handler(window_info *win)
 {
 	get_and_set_texture_id(hud_text);
-    //draw the compass
+	//draw the compass
 	glBegin(GL_QUADS);
 	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0,win->len_y-64,64,win->len_y);
 	glEnd();
 
 	//draw the compass needle
-    glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-    glAlphaFunc(GL_GREATER, 0.09f);
+	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER, 0.09f);
 	glPushMatrix();
 	glTranslatef(32, win->len_y-32, 0);
 	glRotatef(compass_direction*rz, 0.0f, 0.0f, 1.0f);
@@ -882,12 +882,95 @@ int	display_misc_handler(window_info *win)
 		snprintf(str, 6, "%1d:%02d", game_minute/60, game_minute%60);
 		x= 3+(win->len_x - (get_string_width(str)*11)/12)/2;
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string(x, 2, str, 1);
+		draw_string(x, 157, str, 1);
 	}
-	if(show_stats_in_hud>0)
-		{
-			if(video_mode>2)draw_stats();
-		}
+	if(show_stats_in_hud && video_mode > 2)
+	{
+		char str[20];
+		int y=0;
+		int x=6;
+		int stat = 0;
+		glColor3f(1.0f,1.0f,1.0f);
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.attack_skill.shortname,your_info.attack_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+		
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.defense_skill.shortname,your_info.defense_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.magic_skill.shortname,your_info.magic_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.potion_skill.shortname,your_info.potion_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		sprintf(str,"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
+		draw_string_small(x, y, str, 1);
+	}	
 	return	1;
 }
 
@@ -898,22 +981,28 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	//check to see if we clicked on the clock
 	if(my>win->len_y-128 && my<win->len_y-64)
-		{
-			unsigned char protocol_name;
+	{
+		unsigned char protocol_name;
 
-			protocol_name= GET_TIME;
-			my_tcp_send(my_socket,&protocol_name,1);
-			return 1;
-		}
+		protocol_name= GET_TIME;
+		my_tcp_send(my_socket,&protocol_name,1);
+		return 1;
+	}	
 	//check to see if we clicked on the compass
 	if(my>win->len_y-64 && my<win->len_y)
-		{
-			unsigned char protocol_name;
+	{
+		unsigned char protocol_name;
 
-			protocol_name= LOCATE_ME;
-			my_tcp_send(my_socket,&protocol_name,1);
-			return 1;
-		}
+		protocol_name= LOCATE_ME;
+		my_tcp_send(my_socket,&protocol_name,1);
+		return 1;
+	}
+	//check to see if we clicked on the stats
+	if (show_stats_in_hud && video_mode > 2 && my < (9+1)*15)
+	{
+		watch_this_stat = (my / 15) + 1;
+		return 1;
+	}
 
 	return 0;
 }
@@ -1331,43 +1420,6 @@ void build_levels_table()
 
         exp_lev[i]=exp;
     }
-}
-
-void draw_stats()
-{
-	char str[20];
-	int y=-20;
-	int x=6;
-	glColor3f(1.0f,1.0f,1.0f);
-	sprintf(str,"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
-	draw_string_small(x, y, str, 1);
-	y-=15;
-	sprintf(str,"%-3s %3i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
-	draw_string_small(x, y, str, 1);
-	y-=15;
-	sprintf(str,"%-3s %3i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
-	draw_string_small(x, y, str, 1);
-	y-=15;
-	sprintf(str,"%-3s %3i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
-	draw_string_small(x, y, str, 1);
-	y-=15;
-	sprintf(str,"%-3s %3i",attributes.potion_skill.shortname,your_info.potion_skill.base);
-	draw_string_small(x, y, str, 1);
-	y-=15;
-	sprintf(str,"%-3s %3i",attributes.magic_skill.shortname,your_info.magic_skill.base);
-	draw_string_small(x, y, str, 1);
-	y-=15;
-	sprintf(str,"%-3s %3i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
-	draw_string_small(x, y, str, 1);
-	y-=15;
-	sprintf(str,"%-3s %3i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
-	draw_string_small(x, y, str, 1);
-	y-=15;
-	sprintf(str,"%-3s %3i",attributes.defense_skill.shortname,your_info.defense_skill.base);
-	draw_string_small(x, y, str, 1);
-	y-=15;
-	sprintf(str,"%-3s %3i",attributes.attack_skill.shortname,your_info.attack_skill.base);
-	draw_string_small(x, y, str, 1);
 }
 
 void draw_exp_display()
