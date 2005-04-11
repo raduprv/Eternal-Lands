@@ -598,6 +598,7 @@ void put_mark_on_map_on_mouse_position()
         int screen_map_width = max_mouse_x - min_mouse_x;
         int screen_map_height = max_mouse_y - min_mouse_y;
 
+        // FIXME (Malaclypse): should be moved above the screen_map_* init, to avoid additional computation
         if (mouse_x < min_mouse_x
         || mouse_x > max_mouse_x
         || mouse_y < min_mouse_y
@@ -637,6 +638,7 @@ void delete_mark_on_map_on_mouse_position()
         int screen_map_width = max_mouse_x - min_mouse_x;
         int screen_map_height = max_mouse_y - min_mouse_y;
 
+        // FIXME (Malaclypse): should be moved above the screen_map_* init, to avoid additional computation
         if (mouse_x < min_mouse_x
         || mouse_x > max_mouse_x
         || mouse_y < min_mouse_y
