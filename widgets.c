@@ -1213,6 +1213,34 @@ int tab_collection_resize (widget_list *W, Uint32 width, Uint32 height)
 	return 1;
 }
 
+int tab_collection_keypress (widget_list *W, Uint32 key)
+{
+	int shift_on = key & ELW_SHIFT;
+	Uint16 keysym = key & 0xffff;
+	tab_collection *col = (tab_collection *) W->widget_info;
+	
+	if (col->nr_tabs <= 0) return 0;
+	
+	if (shift_on && keysym == K_ROTATERIGHT)
+	{
+		if (col->nr_tabs == 1) return 1;
+		hide_window (col->tabs[col->cur_tab].content_id);
+		if (++col->cur_tab >= col->nr_tabs)
+			col->cur_tab = 0;
+		return 1;
+	}
+	else if (shift_on && keysym == K_ROTATELEFT)
+	{
+		if (col->nr_tabs == 1) return 1;
+		hide_window (col->tabs[col->cur_tab].content_id);
+		if (--col->cur_tab < 0)
+			col->cur_tab = col->nr_tabs - 1;
+		return 1;
+	}
+
+	return 0;	
+}
+
 int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable)
 {
 	widget_list *w = widget_find(window_id, col_id);
@@ -1609,6 +1637,9 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uin
 
 	switch (widget->type)
 	{
+		case TABCOLLECTION:
+			res = tab_collection_keypress (widget, key);
+			break;
 		case TEXTFIELD:
 			res = text_field_keypress (widget, mx, my, key, unikey);
 			break;
