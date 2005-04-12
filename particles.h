@@ -110,6 +110,7 @@ typedef struct
 	int ttl; /*!< indicates how long the particle systems duration should be */
 
 	int light; /*!< If we have a light this will be the position in the lights list */
+	int sound; /*!< If we have a sound this will be the sound object */
 
 	particle particles[MAX_PARTICLES]; /*!< an array of particles for this particle system */
 
@@ -144,14 +145,28 @@ void destroy_all_particles();
 
 /*!
  * \ingroup other
+ * \brief adds a fire
+ *
+ *      Adds a fire using the information from the server
+ *
+ * \param kind		the kind of fire (1: small, 2: big)
+ * \param x_tile	the x value of the tile
+ * \param y_tile	the y value of the tile
+ *
+ * \callgraph
+ */
+void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile);
+
+/*!
+ * \ingroup other
  * \brief removes a fire particle system at the given location
  *
  *      Removes a fire particle system at the location (x,y)
  *
- * \param x     x coordinate of the position of the fire to remove
- * \param y     y coordinate of the position of the fire to remove
+ * \param x_tile	x value of the tile the fire is on
+ * \param y_tile	y value of the tile the fire is on
  */
-void remove_fire_at(float x,float y);
+void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile);
 
 /*!
  * \ingroup other
@@ -184,13 +199,16 @@ extern void	end_particles_list();
  *      Adds a new particle system from the file givein in file_name at the position (x_pos,y_pos,z_pos).
  *
  * \param file_name filename of the file that contains the particle systems description.
- * \param x_pos     x coordinate where the particle system should appear
- * \param y_pos     y coordinate where the particle system should appear
- * \param z_pos     z coordinate where the particle system should appear
+ * \param x_pos	x coordinate where the particle system should appear
+ * \param y_pos	y coordinate where the particle system should appear
+ * \param z_pos	z coordinate where the particle system should appear
+ * \param sound	the number of the sound file to play, or -1 for no sounds
+ * \param positional	boolean flag, indicating whether we shall play the sound positional.
+ * \param loop		boolean flag, indicating whether we shall play the sound in a loop.
  * \retval int
  * \callgraph
  */
-int add_particle_sys(char *file_name,float x_pos,float y_pos,float z_pos);
+int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, int sound, int positional, int loop);
 
 /*!
  * \ingroup particles
@@ -198,13 +216,16 @@ int add_particle_sys(char *file_name,float x_pos,float y_pos,float z_pos);
  *
  *      Adds a new particle system from the given file file_name at the specified tile position.
  *
- * \param file_name     filename of the file that contains the particly systems definition.
- * \param x_tile        x coordinate of the tile where the particle system should be added
- * \param y_tile        y coordinate of the tile where the particle system should be added
+ * \param file_name	filename of the file that contains the particly systems definition.
+ * \param x_tile	x coordinate of the tile where the particle system should be added
+ * \param y_tile	y coordinate of the tile where the particle system should be added
+ * \param sound		the number of the sound file to play, or -1 for no sounds
+ * \param positional	boolean flag, indicating whether we shall play the sound positional.
+ * \param loop		boolean flag, indicating whether we shall play the sound in a loop.
  * \retval int
  * \callgraph
  */
-int add_particle_sys_at_tile(char *file_name,int x_tile,int y_tile);
+int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, int sound, int positional, int loop);
 
 
 //RENDERING FUNCTIONS
@@ -244,6 +265,7 @@ void update_particles();
  * \callgraph
  */
 void add_teleporters_from_list(Uint8 *teleport_list);
+
 #endif
 
 #ifdef MAP_EDITOR

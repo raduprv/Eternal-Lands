@@ -692,6 +692,7 @@
 #define snd_thndr_3  6
 #define snd_thndr_4  7
 #define snd_thndr_5  8
+#define snd_fire     9
 /*! @} */
 
 #endif

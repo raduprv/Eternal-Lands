@@ -554,8 +554,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))));
-				if(!no_sound)add_sound_object(snd_tele_out,SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),1,0);
+				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))), snd_tele_out, 1, 0);
 			}
 			break;
 
@@ -564,8 +563,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))));
-				if(!no_sound)add_sound_object(snd_tele_out,SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),1,0);
+				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))), snd_tele_out, 1, 0);
 			}
 			break;
 
@@ -698,7 +696,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	             add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16 *)(in_data+5))));
+	             add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16 *)(in_data+5))), -1, 0, 0);
 			}
 			break;
 
@@ -707,14 +705,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 				ERR();
 #endif
-				switch(SDL_SwapLE16(*(Uint16 *)(in_data+7))) {
-				case 2:
-					add_particle_sys("./particles/fire_big.part",(float)(SDL_SwapLE16(*((Uint16 *)(in_data+3))))/2.0 +0.25,(float)(SDL_SwapLE16(*((Uint16 *)(in_data+5))))/2.0 + 0.25,0.0);
-					break;
-				case 1:
-				default:
-					add_particle_sys("./particles/fire_small.part",(float)(SDL_SwapLE16(*((Uint16 *)(in_data+3))))/2.0 +0.25,(float)(SDL_SwapLE16(*((Uint16 *)(in_data+5))))/2.0 + 0.25,0.0);
-				}
+				add_fire_at_tile (SDL_SwapLE16(*(Uint16 *)(in_data+7)), SDL_SwapLE16(*((Uint16 *)(in_data+3))), SDL_SwapLE16(*((Uint16 *)(in_data+5))));
 			}
 			break;
 
@@ -723,7 +714,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				remove_fire_at((float)(SDL_SwapLE16(*((Uint16 *)(in_data+3))))/2.0 +0.25,(float)(SDL_SwapLE16(*((Uint16 *)(in_data+5))))/2.0 + 0.25);
+				remove_fire_at_tile (SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16 *)(in_data+5))));
 			}
 			break;
 

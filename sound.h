@@ -45,6 +45,17 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops);
 
 /*!
  * \ingroup sound_effects
+ * \brief removes a sound from the sound list
+ *
+ *	Removes a sound from the sound list, and frees up the space associated with it.
+ *
+ * \param sound	The sound to be removed
+ * \callgraph
+ */
+void remove_sound_object (int sound);
+
+/*!
+ * \ingroup sound_effects
  * \brief updates the position change of sound played.
  *
  *      Updates the position change of sound played.

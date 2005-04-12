@@ -144,7 +144,7 @@ void rain_control()
 			if(seconds_till_rain_stops<30)
 				{
 					is_raining=0;
-					if(rain_sound)
+					if(rain_sound != 0)
 						{
 							stop_sound(rain_sound);
 							rain_sound=0;

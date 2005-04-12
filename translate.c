@@ -289,6 +289,7 @@ char	reg_error_str[15],
 	parse_rules_str[50],
 	rules_not_found[100],
 	/*sound.c*/
+	snd_wav_load_error[50],
 	snd_ogg_load_error[50],
 	snd_ogg_stream_error[50],
 	snd_buff_error[50],
@@ -621,6 +622,7 @@ void init_errors()
 
 #ifdef ELC
 	//Sound errors
+	add_xml_identifier(snd,"loadwav",snd_wav_load_error,"Failed to load wav file %s",sizeof(snd_wav_load_error));
 	add_xml_identifier(snd,"loadfile",snd_ogg_load_error,"Failed to load ogg file",sizeof(snd_ogg_load_error));
 	add_xml_identifier(snd,"loadstream",snd_ogg_stream_error,"Failed to load ogg stream",sizeof(snd_ogg_stream_error));
 	add_xml_identifier(snd,"buffer",snd_buff_error,"Error creating buffer",sizeof(snd_buff_error));

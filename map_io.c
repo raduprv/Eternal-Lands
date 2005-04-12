@@ -313,7 +313,7 @@ int load_map(char * file_name)
 				cur_particles_io.z_pos = SwapFloat(cur_particles_io.z_pos);
 			#endif
 			
-			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
+			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos, -1, 0, 0);
 		}
 
 	fclose(f);

@@ -2,7 +2,7 @@
 #include <math.h>
 #include "global.h"
 
-#define MAX_BUFFERS 9
+#define MAX_BUFFERS 10
 #define MAX_SOURCES 16
 
 #define BUFFER_SIZE (4096 * 16)
@@ -59,7 +59,8 @@ void ogg_error(int code);
 void stop_sound(int i)
 {
 	if(!have_sound)return;
-	alSourceStop(i);
+	if (i < 0 || i >= used_sources) return;
+	alSourceStop(sound_source[i]);
 }
 
 void get_map_playlist()
@@ -172,28 +173,46 @@ ALuint get_loaded_buffer(int i)
 	ALenum  format;
 	ALvoid  *data;
 	ALboolean loop;
+	FILE *fin;
+	
 	if(!alIsBuffer(sound_buffer[i]))
-		{
-			alGenBuffers(1, sound_buffer+i);
+	{
+		alGenBuffers(1, sound_buffer+i);
 			
-			if((error=alGetError()) != AL_NO_ERROR) 
-				{
-					char	str[256];
-					snprintf(str, 256, "%s: %s",snd_buff_error, alGetString(error));
-					LOG_ERROR(str);
-					have_sound=0;
-					have_music=0;
-				}
-
-#ifdef OSX
-			// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
-			alutLoadWAVFile(sound_files[i],&format,&data,&size,&freq);
-#else
-			alutLoadWAVFile(sound_files[i],&format,&data,&size,&freq,&loop);
-#endif
-			alBufferData(sound_buffer[i],format,data,size,freq);
-			alutUnloadWAV(format,data,size,freq);
+		if((error=alGetError()) != AL_NO_ERROR) 
+		{
+			char	str[256];
+			snprintf(str, 256, "%s: %s",snd_buff_error, alGetString(error));
+			LOG_ERROR(str);
+			have_sound=0;
+			have_music=0;
 		}
+		
+		// XXX FIXME (Grum): You have got to be kidding me...
+		// alutLoadWAVFile doesn't provide any way to check if loading
+		// a file succeeded. Well, at least, let's check if the file
+		// actually exists...
+		// Maybe use alutLoadWAV? But that doesn't seem to exist on 
+		// OS/X...
+		fin = fopen (sound_files[i], "r");
+		if (fin == NULL) 
+		{
+			char errmsg[256];
+			snprintf (errmsg, sizeof (errmsg), snd_wav_load_error, sound_files[i]);
+			LOG_ERROR (errmsg);
+			return 0;
+		}
+		// okay, the file exists and is readable, close it
+		fclose (fin);
+#ifdef OSX
+		// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
+		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq);
+#else
+		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq, &loop);
+#endif
+		alBufferData(sound_buffer[i],format,data,size,freq);
+		alutUnloadWAV(format,data,size,freq);
+	}
 	return sound_buffer[i];
 }
 
@@ -234,9 +253,11 @@ void play_music(int list) {
 
 int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 {
+	// XXX FIXME (Grum): do we really need to use tile coordinates?
 	int error,tx,ty,distance,i;
 	ALfloat sourcePos[]={ x, y, 0.0};
 	ALfloat sourceVel[]={ 0.0, 0.0, 0.0};
+	ALuint buffer;
 
 	if(!have_sound)return 0;
 
@@ -248,59 +269,97 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 
 	LOCK_SOUND_LIST();
 
-	i=used_sources++;
-
-	if(used_sources>MAX_SOURCES)
-		i=realloc_sources();
-	if(i<0)
-		return 0;
+	i = used_sources;
+	if (i>=MAX_SOURCES)
+	{
+		i = realloc_sources();
+		if (i < 0)
+		{
+			// too much noise already (buffer full)
+			UNLOCK_SOUND_LIST ();
+			return 0;
+		}
+	}
 
 	tx=-cx*2;
 	ty=-cy*2;
 	distance=(tx-x)*(tx-x)+(ty-y)*(ty-y);
 
 	alGenSources(1, &sound_source[i]);
-
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
     		char	str[256];
     		snprintf(str, 256, "%s %d: %s", snd_source_error, i, alGetString(error));
     		LOG_ERROR(str);
-			have_sound=0;
-			have_music=0;
-			return 0;
+		have_sound=0;
+		have_music=0;
+		UNLOCK_SOUND_LIST ();
+		return 0;
+    	}
+	
+	buffer = get_loaded_buffer (sound_file);
+	if (buffer == 0)
+	{
+		// can't read file
+		UNLOCK_SOUND_LIST ();
+		return 0;
     	}
 
 	alSourcef(sound_source[i], AL_PITCH, 1.0f);
 	alSourcef(sound_source[i], AL_GAIN, sound_gain);
-	alSourcei(sound_source[i], AL_BUFFER,get_loaded_buffer(sound_file));
+	alSourcei(sound_source[i], AL_BUFFER, buffer);
 	alSourcefv(sound_source[i], AL_VELOCITY, sourceVel);
 	alSourcefv(sound_source[i], AL_POSITION, sourcePos);
-	if(!positional)
+	if (!positional)
+	{
 		alSourcei(sound_source[i], AL_SOURCE_RELATIVE, AL_TRUE);
+	}
 	else 
-		{
-			alSourcei(sound_source[i], AL_SOURCE_RELATIVE, AL_FALSE);
-			alSourcef(sound_source[i], AL_REFERENCE_DISTANCE , 10.0f);
-			alSourcef(sound_source[i], AL_ROLLOFF_FACTOR , 4.0f);
-		}
+	{
+		alSourcei(sound_source[i], AL_SOURCE_RELATIVE, AL_FALSE);
+		alSourcef(sound_source[i], AL_REFERENCE_DISTANCE , 10.0f);
+		alSourcef(sound_source[i], AL_ROLLOFF_FACTOR , 4.0f);
+	}
 
 	if (loops)
-		{
-			alSourcei(sound_source[i], AL_LOOPING, AL_TRUE);
-			alSourcePlay(sound_source[i]);
-			if(!sound_on || (positional && (distance > 35*35)))
-				alSourcePause(sound_source[i]);
-		}
+	{
+		alSourcei(sound_source[i], AL_LOOPING, AL_TRUE);
+		alSourcePlay(sound_source[i]);
+		if(!sound_on || (positional && (distance > 35*35)))
+			alSourcePause(sound_source[i]);
+	}
 	else
-		{
-			alSourcei(sound_source[i], AL_LOOPING, AL_FALSE);
-			if(sound_on)
-				alSourcePlay(sound_source[i]);
-		}
+	{
+		alSourcei(sound_source[i], AL_LOOPING, AL_FALSE);
+		if(sound_on)
+			alSourcePlay(sound_source[i]);
+	}
+	
+	used_sources++;
+
 	UNLOCK_SOUND_LIST();
 	return sound_source[i];
 }
+
+void remove_sound_object (int sound)
+{
+	int i;
+	
+	for (i = 0; i < used_sources; i++)
+	{
+		if (sound_source[i] == sound)
+		{
+			int j;
+			alSourceStop (sound_source[i]);
+			alDeleteSources(1, &sound_source[i]);
+			for (j = i+1; j < used_sources; j++)
+				sound_source[j-1] = sound_source[j];
+			used_sources--;
+			break;
+		}
+	}
+}
+	
 
 void update_position()
 {
@@ -599,7 +658,7 @@ void init_sound()
 			have_music=0;
     	}
 
-    // TODO: get this information from a file, sound.ini?	
+	// TODO: get this information from a file, sound.ini?	
 	my_strcp(sound_files[snd_rain],"./sound/rain1.wav");
 	my_strcp(sound_files[snd_tele_in],"./sound/teleport_in.wav");
 	my_strcp(sound_files[snd_tele_out],"./sound/teleport_out.wav");
@@ -609,6 +668,7 @@ void init_sound()
 	my_strcp(sound_files[snd_thndr_3],"./sound/thunder3.wav");
 	my_strcp(sound_files[snd_thndr_4],"./sound/thunder4.wav");
 	my_strcp(sound_files[snd_thndr_5],"./sound/thunder5.wav");
+	my_strcp(sound_files[snd_fire],"./sound/fire.wav");
 
 	alListenerfv(AL_POSITION,listenerPos);
 	alListenerfv(AL_VELOCITY,listenerVel);
@@ -625,13 +685,13 @@ void init_sound()
 #ifndef	NO_MUSIC
 	ogg_file = NULL;
 
-    alGenBuffers(4, music_buffers);
+	alGenBuffers(4, music_buffers);
 	alGenSources(1, &music_source);
-    alSource3f(music_source, AL_POSITION,        0.0, 0.0, 0.0);
-    alSource3f(music_source, AL_VELOCITY,        0.0, 0.0, 0.0);
-    alSource3f(music_source, AL_DIRECTION,       0.0, 0.0, 0.0);
-    alSourcef (music_source, AL_ROLLOFF_FACTOR,  0.0          );
-    alSourcei (music_source, AL_SOURCE_RELATIVE, AL_TRUE      );
+	alSource3f(music_source, AL_POSITION,        0.0, 0.0, 0.0);
+	alSource3f(music_source, AL_VELOCITY,        0.0, 0.0, 0.0);
+	alSource3f(music_source, AL_DIRECTION,       0.0, 0.0, 0.0);
+	alSourcef (music_source, AL_ROLLOFF_FACTOR,  0.0          );
+	alSourcei (music_source, AL_SOURCE_RELATIVE, AL_TRUE      );
 	alSourcef (music_source, AL_GAIN,            music_gain);
 #endif	//NO_MUSIC
 }

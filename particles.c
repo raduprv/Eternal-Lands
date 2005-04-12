@@ -41,7 +41,7 @@ particle_sys *particles_list[MAX_PARTICLE_SYSTEMS];
 particle_sys_def *defs_list[MAX_PARTICLE_DEFS];
 
 void destroy_all_particle_defs();
-int create_particle_sys(particle_sys_def *def,float x,float y,float z);
+int create_particle_sys (particle_sys_def *def, float x, float y, float z, int sound, int positional, int loop);
 
 #ifndef ELC
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
@@ -311,17 +311,44 @@ void destroy_all_particles()
 
 }
 
-void remove_fire_at(float x_pos, float y_pos)
+void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 {
+	float x = 0.5f * x_tile + 0.25f;
+	float y = 0.5f * y_tile + 0.25f;
+	float z = 0.0;
+
+	switch (kind)
+	{
+		case 2:
+			add_particle_sys ("./particles/fire_big.part", x, y, z, snd_fire, 1, 1);
+			break;
+		case 1:
+		default:
+			add_particle_sys ("./particles/fire_small.part", x, y, z, snd_fire, 1, 1);
+	}
+}
+
+void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
+{
+	float x = 0.5f * x_tile + 0.25f;
+	float y = 0.5f * y_tile + 0.25f;
 	int i;
-	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++){
-		if(particles_list[i] && !strncmp(particles_list[i]->def->file_name,"./particles/fire_",17) && particles_list[i]->x_pos==x_pos && particles_list[i]->y_pos==y_pos) {
-			if(particles_list[i]->def->use_light && lights_list[particles_list[i]->light]){
-				free(lights_list[particles_list[i]->light]);
-				lights_list[particles_list[i]->light]=NULL;
+	particle_sys *sys;
+	
+	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
+	{
+		sys = particles_list[i];
+		if (particles_list[i] && strncmp (sys->def->file_name, "./particles/fire_", 17) == 0 && sys->x_pos == x && sys->y_pos == y)
+		{
+			if (sys->def->use_light && lights_list[sys->light])
+			{
+				free (lights_list[sys->light]);
+				lights_list[sys->light] = NULL;
 			}
-			free(particles_list[i]);
-			particles_list[i]=0;
+			if (sys->sound != 0)
+				remove_sound_object (sys->sound);
+			free (sys);
+			particles_list[i] = NULL;
 		}
 	}
 }
@@ -329,17 +356,17 @@ void remove_fire_at(float x_pos, float y_pos)
 /*********************************************************************
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/
-int add_particle_sys(char *file_name,float x_pos,float y_pos,float z_pos)
+int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, int sound, int positional, int loop)
 {
 	particle_sys_def *def=load_particle_def(file_name);
 	if(!def)return -1;
 
-	return create_particle_sys(def,x_pos,y_pos,z_pos);
+	return create_particle_sys (def, x_pos, y_pos, z_pos, sound, positional, loop);
 }
 
-int add_particle_sys_at_tile(char *file_name,int x_tile,int y_tile)
+int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, int sound, int positional, int loop)
 {
-  return add_particle_sys(file_name,(float)x_tile/2.0+0.25f,(float)y_tile/2.0+0.25f,-2.2f+height_map[y_tile*tile_map_size_x*6+x_tile]*0.2f);
+	return add_particle_sys (file_name, (float)x_tile/2.0+0.25f, (float)y_tile/2.0+0.25f, -2.2f+height_map[y_tile*tile_map_size_x*6+x_tile]*0.2f, sound, positional, loop);
 }
 
 
@@ -384,7 +411,7 @@ void create_particle(particle_sys *sys,particle *result)
 	result->free=0;
 }
 
-int create_particle_sys(particle_sys_def *def,float x,float y,float z)
+int create_particle_sys (particle_sys_def *def, float x, float y, float z, int sound, int positional, int loop)
 {
 	int	i,psys;
 	particle_sys *system_id;
@@ -428,6 +455,11 @@ int create_particle_sys(particle_sys_def *def,float x,float y,float z)
 	}
 
 	for(i=0,p=&system_id->particles[0];i<def->total_particle_no;i++,p++)create_particle(system_id,p);
+	
+	if (sound < 0 || no_sound)
+		system_id->sound = 0;
+	else
+		system_id->sound = add_sound_object (sound, (int)(x+x-0.5), (int)(y+y-0.5), positional, loop);
 	UNLOCK_PARTICLES_LIST();
 
 	return psys;
@@ -988,8 +1020,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 			teleport_x=SDL_SwapLE16(*((Uint16 *)(teleport_list+my_offset)));
 			teleport_y=SDL_SwapLE16(*((Uint16 *)(teleport_list+my_offset+2)));
 			teleport_type=SDL_SwapLE16(*((Uint16 *)(teleport_list+my_offset+4)));
-			//put the sound
-			add_sound_object(snd_teleprtr,teleport_x,teleport_y,1,1);
+						
 			//later on, maybe we want to have different visual types
 			//now, get the Z position
 			if(teleport_y*tile_map_size_x*6+teleport_x<tile_map_size_y*6*tile_map_size_x*6)
@@ -1002,8 +1033,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 			x=x+0.25f;
 			y=y+0.25f;
 
-
-			add_particle_sys("./particles/teleporter.part",x,y,z);
+			add_particle_sys ("./particles/teleporter.part", x, y, z, snd_teleprtr, 1, 1);
 			sector_add_3do(add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
 
 			//mark the teleporter as an unwalkable so that the pathfinder

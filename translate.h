@@ -382,6 +382,7 @@ extern char	reg_error_str[15],
 		/*paste.c*/
 		,not_ascii[20],
 		/*sound.c*/
+		snd_wav_load_error[50],
 		snd_ogg_load_error[50],
 		snd_ogg_stream_error[50],
 		snd_buff_error[50],
