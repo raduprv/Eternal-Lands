@@ -46,65 +46,71 @@ void update_text_windows (int nlines, int channel)
 		update_chat_window (nlines, channel);
 }
 
-void write_to_log(Uint8 * data,int len)
+void write_to_log (Uint8 *data, int len)
 {
-	int i,j;
+	int i, j;
 	Uint8 ch;
 	char str[4096];
 
 	int server_message = 0;
 
 	if (chat_log == NULL)
-		{
-			char chat_log_file[100];
-			char srv_log_file[100];
+	{
+		char chat_log_file[100];
+		char srv_log_file[100];
 #ifndef WINDOWS
-			strcpy(chat_log_file, configdir);
-			strcat(chat_log_file, "chat_log.txt");
-			strcpy(srv_log_file, configdir);
-			strcat(srv_log_file, "srv_log.txt");
+		strcpy (chat_log_file, configdir);
+		strcat (chat_log_file, "chat_log.txt");
+		strcpy (srv_log_file, configdir);
+		strcat (srv_log_file, "srv_log.txt");
 #else
-			strcpy(chat_log_file, "chat_log.txt");
-			strcpy(srv_log_file, "srv_log.txt");
+		strcpy (chat_log_file, "chat_log.txt");
+		strcpy (srv_log_file, "srv_log.txt");
 #endif
-  			chat_log = my_fopen (chat_log_file, "a");
-  			srv_log = my_fopen (srv_log_file, "a");
+  		chat_log = my_fopen (chat_log_file, "a");
+  		srv_log = my_fopen (srv_log_file, "a");
 			
-			if (chat_log == NULL || srv_log == NULL)
-			{
-				// quit to prevent error log filling up with messages caused
-				// by unability to open chat log
-				SDL_Quit ();
-				exit (1);
-			}
+		if (chat_log == NULL || srv_log == NULL)
+		{
+			// quit to prevent error log filling up with messages
+			// caused by unability to open chat log
+			SDL_Quit ();
+			exit (1);
 		}
+	}
 
 	j=0;
-	for(i=0;i<len && j < 4090;i++)
+	for (i = 0; i < len && j < sizeof (str) - 1; i++)
+	{
+		ch = data[i];
+		// remove colorization when writting to the chat log
+		// Grum: remove '\r' and replace by space
+		if (ch == '\r')
 		{
-			ch= data[i];
-			// remove colorization when writting to the chat log
-			if(ch < 127 || ch > 127+c_grey4)
-				{
-					str[j]=ch;
-					j++;
-				}
-			else if (ch != 133 && ch != 129 && ch != 128)
-				{
-					server_message = 1;
-				}
+			str[j++] = ' ';
 		}
-	str[j]='\n';
+		else if (ch < 127 || ch > 127 + c_grey4)
+		{
+			str[j]=ch;
+			j++;
+		}
+		else if (ch != 133 && ch != 129 && ch != 128)
+		{
+			server_message = 1;
+		}
+	}
+	str[j++]='\n';
 
-	if(server_message && log_server==2)
-		{
-			fwrite(str, j+1, 1, srv_log);
-		}
+	if (server_message && log_server==2)
+	{
+		fwrite(str, j, 1, srv_log);
+	}
 	else if (!server_message || log_server==1)
-		{
-                        fwrite(str, j+1, 1, chat_log);
-		}
-  	fflush(chat_log);
+	{
+		fwrite(str, j, 1, chat_log);
+	}
+  	
+	fflush(chat_log);
   	fflush(srv_log);
 }
 
