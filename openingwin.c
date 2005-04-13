@@ -72,7 +72,7 @@ void create_opening_root_window (int width, int height)
 		set_window_handler (opening_root_win, ELW_HANDLER_KEYPRESS, &keypress_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_CLICK, &click_opening_handler);
 		
-		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id, NULL, 0, 0, width, height, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, MAX_DISPLAY_TEXT_BUFFER_LENGTH, CHANNEL_ALL, 0, 0, -1.0, -1.0, -1.0);
+		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id, NULL, 0, 0, width, height, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_ALL, 0, 0, -1.0, -1.0, -1.0);
 		
 		nr_opening_lines = height / 18;
 	}

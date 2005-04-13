@@ -6,7 +6,6 @@
 #ifndef __TEXT_H__
 #define __TEXT_H__
 
-#define MAX_DISPLAY_TEXT_BUFFER_LENGTH 264128 /*!< max. buffer length for displayable text */
 #define DISPLAY_TEXT_BUFFER_SIZE 5000 /*!< maximum number of lines in the text buffer */
 
 #define CHANNEL_LOCAL	-1	/*!< local chat */
