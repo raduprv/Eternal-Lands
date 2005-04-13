@@ -463,12 +463,12 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		// watch for the '//' shortcut
 		if (tf->cursor == 1 && ch == '/' && msg->data[0] == '/' && last_pm_from[0])
 		{
-			tf->cursor += put_string_in_buffer (&input_text_line, last_pm_from, 1);
-			tf->cursor += put_char_in_buffer (&input_text_line, ' ', tf->cursor);
+			tf->cursor += put_string_in_buffer (msg, last_pm_from, 1);
+			tf->cursor += put_char_in_buffer (msg, ' ', tf->cursor);
 		}
 		else if (msg->len < msg->size - 1)
 		{
-			tf->cursor += put_char_in_buffer (&input_text_line, ch, tf->cursor);
+			tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
 		}
 		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}

@@ -275,7 +275,7 @@ int put_char_in_buffer (text_message *buf, Uint8 ch, int pos)
 {
 	int i, nlen;
 	
-	if (pos < 0 || pos > buf->len) return 0;
+	if (pos < 0 || pos > buf->len || pos >= buf->size) return 0;
 	
 	// First shift everything after pos to the right
 	nlen = buf->len + 1;
