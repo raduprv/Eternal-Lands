@@ -831,7 +831,7 @@ void init_misc_display()
 		}
 	else
 		{
-			move_window(misc_win, -1, 0, window_width-64, window_height-145);
+			move_window(misc_win, -1, 0, window_width-64, window_height-300);
 		}
 }
 
