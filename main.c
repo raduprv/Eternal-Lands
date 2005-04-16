@@ -81,7 +81,7 @@ int start_rendering()
 	if (write_ini_on_exit) write_el_ini ();
 	#ifdef NOTEPAD
 	// save notepad contents if the file was loaded
-	if (notepad_loaded) notepadSaveFile();
+	if (notepad_loaded) notepadSaveFile (NULL, 0, 0, 0);
 	#endif
 	
 	unload_questlog();

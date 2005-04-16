@@ -158,7 +158,7 @@ void create_console_root_window (int width, int height)
 		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 0, 0, width - hud_x, height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_ALL, 0, 0, -1.0f, -1.0f, -1.0f);
 		// initialize the input field without the default keypress
 		// handler, since that's not really applicable here
-		console_in_id = text_field_add_extended (console_root_win, console_in_id, NULL, 0, height - CONSOLE_INPUT_HEIGHT - hud_y, width - hud_x, CONSOLE_INPUT_HEIGHT, TEXT_FIELD_EDITABLE|TEXT_FIELD_NOKEYPRESS, 1.0, -1.0f, -1.0f, -1.0f, &input_text_line, 1, CHANNEL_ALL, 0, 0, 1.0f, 1.0f, 1.0f);
+		console_in_id = text_field_add_extended (console_root_win, console_in_id, NULL, 0, height - CONSOLE_INPUT_HEIGHT - hud_y, width - hud_x, CONSOLE_INPUT_HEIGHT, TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, 1.0, -1.0f, -1.0f, -1.0f, &input_text_line, 1, CHANNEL_ALL, 0, 0, 1.0f, 1.0f, 1.0f);
 		
 		nr_console_lines = (height - CONSOLE_INPUT_HEIGHT -  CONSOLE_SEP_HEIGHT - hud_y) / 18;
 	}

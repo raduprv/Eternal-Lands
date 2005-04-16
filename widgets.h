@@ -46,7 +46,8 @@ typedef struct wl{
 /*! \{ */
 #define TEXT_FIELD_BORDER	0x01
 #define TEXT_FIELD_EDITABLE	0x02
-#define TEXT_FIELD_NOKEYPRESS	0x04
+#define TEXT_FIELD_NO_KEYPRESS	0x04
+#define TEXT_FIELD_CAN_GROW	0x08
 /*! \} */
 
 /*!

@@ -1304,7 +1304,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	
 	if (w == NULL) return 0;
 	if ( !(w->Flags & TEXT_FIELD_EDITABLE) ) return 0;
-	if (w->Flags & TEXT_FIELD_NOKEYPRESS) return 0;
+	if (w->Flags & TEXT_FIELD_NO_KEYPRESS) return 0;
 	
 	tf = (text_field *) w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
@@ -1357,6 +1357,14 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	}
 	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && ch != '`' )
 	{
+		if (msg->len >= msg->size-1)
+		{
+			if (w->Flags & TEXT_FIELD_CAN_GROW)
+			{
+				msg->size *= 2;
+				msg->data = realloc (msg->data, msg->size * sizeof (char) );
+			}
+		}
 		tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
 		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x);
 		return 1;

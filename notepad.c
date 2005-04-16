@@ -271,7 +271,7 @@ int notepadLoadFile ()
 }
 
 
-int notepadSaveFile (widget_list *w, int mx, int m, Uint32 flags)
+int notepadSaveFile (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i = 0;
 	char file[256];
@@ -279,7 +279,8 @@ int notepadSaveFile (widget_list *w, int mx, int m, Uint32 flags)
 	xmlNodePtr root_node = NULL, node = NULL;  // node pointers
 
 	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	// Update: don't check when saving on exit (w == NULL)
+	if ( (flags & ELW_MOUSE_BUTTON) == 0 && w != NULL) return 0;
     
 #ifndef WINDOWS
 	strcpy ( file, getenv ("HOME") );
@@ -408,7 +409,7 @@ void openNoteTabContinued (int id)
 	widget_set_color (notepad_win, note[id]->window, 0.77f, 0.57f, 0.39f);
 
 	// input text field
-	note[id]->input = text_field_add_extended (note[id]->window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, 1.0f, 0.77f, 0.57f, 0.39f, &data[id], 1, CHANNEL_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+	note[id]->input = text_field_add_extended (note[id]->window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW, 1.0f, 0.77f, 0.57f, 0.39f, &data[id], 1, CHANNEL_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
 	// scroll bar
 	note[id]->scroll = vscrollbar_add (note[id]->window, NULL, tf_x + tf_width, tf_y, 20, tf_height);
 	widget_set_color (note[id]->window, note[id]->scroll, 0.77f, 0.57f, 0.39f);

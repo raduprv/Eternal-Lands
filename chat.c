@@ -534,7 +534,7 @@ void display_chat ()
 		channels[0].new = 0;
 		active_tab = 0;		
 
-		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NOKEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHANNEL_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHANNEL_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
 		widget_set_OnKey (chat_win, chat_in_id, chat_input_key);
 		
 		set_window_min_size (chat_win, min_width, min_height);
