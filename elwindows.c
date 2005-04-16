@@ -684,11 +684,12 @@ void	destroy_window(int win_id)
 		next = widget->next;
 		free (widget);
 		widget = next;
-	}             
+	}
+	win->widgetlist = NULL;
 	
-	windows_list.window[win_id].window_id= -1;
-	windows_list.window[win_id].order= -1;
-	windows_list.window[win_id].displayed= 0;
+	win->window_id = -1;
+	win->order = -1;
+	win->displayed = 0;
 }
 
 int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y)
@@ -999,7 +1000,7 @@ void	hide_window(int win_id)
 	
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
-
+	
 	windows_list.window[win_id].displayed = 0;
 	windows_list.window[win_id].reinstate = 0;
 	

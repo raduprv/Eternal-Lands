@@ -98,6 +98,9 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		{
 			hide_window (console_root_win);
 			show_window (game_root_win);
+			// Undo stupid quickbar hack
+			if ( !get_show_window (quickbar_win) )
+				show_window (quickbar_win);
 		}
 		else if ( !text_input_handler (key, unikey) )
 		{

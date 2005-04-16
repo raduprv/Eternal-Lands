@@ -74,9 +74,9 @@ void draw_scene()
 	if ( !get_show_window (game_root_win) )
 	{
 		new_zoom_level = zoom_level;	// No scrolling when switching modes...
-		if (quickbar_relocatable && quickbar_win >= 0)//Hack 
+		if (quickbar_relocatable && quickbar_win >= 0) // Hack 
 		{
-			if (windows_list.window[quickbar_win].cur_x < window_width - hud_x && window_height - windows_list.window[quickbar_win].cur_y > hud_y)
+			if (get_show_window (quickbar_win) && windows_list.window[quickbar_win].cur_x < window_width - hud_x && window_height - windows_list.window[quickbar_win].cur_y > hud_y)
 				hide_window (quickbar_win);
 		}
 	}

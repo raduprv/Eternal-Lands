@@ -526,6 +526,9 @@ void view_console_win (int *win, int id)
 	{
 		hide_window (console_root_win);
 		show_window (game_root_win);
+		// Undo stupid quickbar hack
+		if ( !get_show_window (quickbar_win) )
+			show_window (quickbar_win);
 	}
 	else
 	{
@@ -547,6 +550,10 @@ void view_map_win (int * win, int id)
 		switch_from_game_map ();
 		hide_window (map_root_win);
 		show_window (game_root_win);
+		// Undo stupid quickbar hack
+		if ( !get_show_window (quickbar_win) )
+			show_window (quickbar_win);
+
 	}
 	else if ( switch_to_game_map () )
 	{
@@ -1017,26 +1024,26 @@ int quickbar_relocatable=0;
 
 
 //quickbar section
-void init_quickbar() {
+void init_quickbar ()
+{
+	Uint32 flags = ELW_USE_BACKGROUND | ELW_USE_BORDER;
+
 	quickbar_x_len = 30;
 	quickbar_y_len = 6 * 30 + 1;
+	
+	if (!quickbar_relocatable)
+	{
+		flags |= ELW_SHOW_LAST;
+		quickbar_draggable = 0;
+	}
+	if (quickbar_draggable) flags |= ELW_TITLE_BAR | ELW_DRAGGABLE;	
 	
 	if (quickbar_win < 0)
 	{
 		if (quickbar_dir == VERTICAL)
-		{
-			if (quickbar_draggable)
-				quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len, ELW_TITLE_BAR|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE);
-			else
-				quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len, ELW_TITLE_NONE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
-		}
+			quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len, flags);
 		else
-		{
-			if (quickbar_draggable)
-				quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len, ELW_TITLE_BAR|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE);
-			else
-				quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len, ELW_TITLE_NONE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
-		}
+			quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len, flags);
 		
 		set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 		set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
@@ -1044,9 +1051,10 @@ void init_quickbar() {
 	}
 	else
 	{
+		change_flags (quickbar_win, flags);
 		if (quickbar_draggable) 
 		{
-			show_window(quickbar_win);
+			show_window (quickbar_win);
 		}
 		else if (quickbar_y > window_height || quickbar_x > window_width) 
 		{
@@ -1278,21 +1286,27 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(quickbar_relocatable>0)
 						{
 							if((flags&trigger)==(ELW_LEFT_MOUSE|ELW_CTRL))
+							{
+								//toggle draggable
+								Uint32 flags = get_flags(quickbar_win);
+								
+								if (!quickbar_draggable)
 								{
-									//toggle draggable
-									if((get_flags(quickbar_win)!=(ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE)))
-										{
-											change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
-											quickbar_draggable=1;
-										}
-									else 
-										{
-											change_flags(quickbar_win, (ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST));
-											quickbar_draggable=0;
-											quickbar_x=window_width-windows_list.window[quickbar_win].cur_x;
-											quickbar_y=windows_list.window[quickbar_win].cur_y;
-										}
+									flags &= ~ELW_SHOW_LAST;
+									flags |= ELW_DRAGGABLE | ELW_TITLE_BAR;
+									change_flags (quickbar_win, flags);
+									quickbar_draggable = 1;
 								}
+								else 
+								{
+									flags |= ELW_SHOW_LAST;
+									flags &= ~(ELW_DRAGGABLE | ELW_TITLE_BAR);
+									change_flags (quickbar_win, flags);
+									quickbar_draggable = 0;
+									quickbar_x = window_width - windows_list.window[quickbar_win].cur_x;
+									quickbar_y = windows_list.window[quickbar_win].cur_y;
+								}
+							}
 							else if (((flags&trigger)==(ELW_LEFT_MOUSE|ELW_SHIFT)) && (get_flags(quickbar_win)==(ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE)))
 								{
 									//toggle vertical/horisontal
@@ -1503,8 +1517,13 @@ void draw_exp_display()
 
 /*Flag manipulation-I hate doing this by hand*/
 /*Change flags*/
-void change_flags(int win_id, Uint32 flags) {
-	windows_list.window[win_id].flags=flags;     
+void change_flags(int win_id, Uint32 flags)
+{
+	int order = windows_list.window[win_id].order;
+	
+	windows_list.window[win_id].flags = flags;
+	if ( (order > 0 && (flags & ELW_SHOW_LAST)) || (order < 0 && !(flags & ELW_SHOW_LAST)) )
+		windows_list.window[win_id].order = -order;
 }
 
 /*Return flags*/

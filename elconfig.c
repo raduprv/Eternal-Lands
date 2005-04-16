@@ -160,9 +160,7 @@ void set_afk_time(int time)
 	if(time>0)afk_time=time*60000;
 	else afk_time=0;
 }
-#endif // not def ELCONFIG
 
-#ifndef ELCONFIG
 void change_windowed_chat (int *wc)
 {
 	*wc = !*wc;
@@ -176,6 +174,13 @@ void change_windowed_chat (int *wc)
 	}
 }
 #endif // not def ELCONFIG
+
+void change_quickbar_relocatable (int *rel)
+{
+	*rel = !*rel;
+	init_quickbar ();
+}
+
 #endif // def ELC
 
 void change_dir_name (char *var, const char *str, int len)
@@ -427,7 +432,7 @@ void init_vars()
 	add_var(BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1);
 	add_var(BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0);
 	add_var(BOOL,"show_help_text","shelp",&show_help_text,change_var,1);
-	add_var(BOOL,"relocate_quickbar","requick",&quickbar_relocatable,change_var,0);
+	add_var (BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0);
 #ifndef ELCONFIG
 	add_var(SPECINT,"compass_north","comp",&compass_direction,change_compass_direction,1);
 #else

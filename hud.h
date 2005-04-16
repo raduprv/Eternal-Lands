@@ -57,6 +57,16 @@ extern int	quickbar_win; /*!< quickbar windows handler */
 
 extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar is relocatable. */
 
+/*!
+ * \ingroup display_2d
+ * \brief
+ *
+ *      Detail
+ *
+ * \callgraph
+ */
+void init_quickbar();
+
 extern int hud_x;
 extern int hud_y;
 

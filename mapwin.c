@@ -100,6 +100,9 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		switch_from_game_map ();
 		hide_window (map_root_win);
 		show_window (game_root_win);
+		// Undo stupid quickbar hack
+		if ( !get_show_window (quickbar_win) )
+			show_window (quickbar_win);
 	}
 	else
 	{
