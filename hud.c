@@ -1307,11 +1307,11 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 									quickbar_y = windows_list.window[quickbar_win].cur_y;
 								}
 							}
-							else if (((flags&trigger)==(ELW_LEFT_MOUSE|ELW_SHIFT)) && (get_flags(quickbar_win)==(ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE)))
-								{
-									//toggle vertical/horisontal
-									flip_quickbar();
-								}
+							else if ( (flags & trigger)== (ELW_LEFT_MOUSE | ELW_SHIFT) && (get_flags (quickbar_win) & (ELW_TITLE_BAR | ELW_DRAGGABLE)) == (ELW_TITLE_BAR | ELW_DRAGGABLE) )
+							{
+								//toggle vertical/horisontal
+								flip_quickbar();
+							}
 							else if (((flags&trigger)==trigger))
 								{
 									//reset

@@ -258,7 +258,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 	ALfloat sourcePos[]={ x, y, 0.0};
 	ALfloat sourceVel[]={ 0.0, 0.0, 0.0};
 	ALuint buffer;
-
+	
 	if(!have_sound)return 0;
 
 	if(sound_file >= MAX_BUFFERS)

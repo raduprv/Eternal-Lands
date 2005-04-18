@@ -87,6 +87,17 @@ typedef struct
 	float lightx,lighty,lightz;
 	float lightr,lightg,lightb;
     /*! \} */
+
+#ifdef PARTICLE_SYS_SOUND    
+	/*!
+    	* \name Sounds for this system
+	*/
+	/*! \{ */
+	int sound_nr;
+	int positional;
+	int loop;
+	/*! \} */
+#endif
 }particle_sys_def;
 
 /*!

@@ -78,7 +78,11 @@ int part_strcmp(char * s1, char *s2)
 	return *s1!=*s2;
 }
 
+#ifdef PARTICLE_SYS_SOUND
+#define PARTICLE_DEF_VERSION 3
+#else
 #define PARTICLE_DEF_VERSION 2
+#endif
 particle_sys_def *load_particle_def(const char *filename)
 {
 	int version=0,i;
@@ -153,6 +157,9 @@ particle_sys_def *load_particle_def(const char *filename)
 	fscanf(f,"%i\n",&def->use_light);
 	fscanf(f,"%f,%f,%f\n",&def->lightx,&def->lighty,&def->lightz);
 	fscanf(f,"%f,%f,%f\n",&def->lightr,&def->lightg,&def->lightb);
+#ifdef PARTICLE_SYS_SOUND
+	fscanf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loops);
+#endif
 	
 	if(def->total_particle_no>MAX_PARTICLES)
 		{
@@ -252,6 +259,9 @@ int save_particle_def(particle_sys_def *def)
 	fprintf(f,"%i\n",def->use_light);
 	fprintf(f,"%f,%f,%f\n",def->lightx,def->lighty,def->lightz);
 	fprintf(f,"%f,%f,%f\n",def->lightr,def->lightg,def->lightb);
+#ifdef PARTICLE_SYS_SOUND
+	fprintf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loops);
+#endif
 
 	fclose(f);
 	return 1;
