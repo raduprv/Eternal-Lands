@@ -1027,7 +1027,7 @@ int quickbar_relocatable=0;
 void init_quickbar ()
 {
 	Uint32 flags = ELW_USE_BACKGROUND | ELW_USE_BORDER;
-
+	
 	quickbar_x_len = 30;
 	quickbar_y_len = 6 * 30 + 1;
 	

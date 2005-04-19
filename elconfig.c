@@ -178,7 +178,7 @@ void change_windowed_chat (int *wc)
 void change_quickbar_relocatable (int *rel)
 {
 	*rel = !*rel;
-	init_quickbar ();
+	if (quickbar_win >= 0) init_quickbar ();
 }
 
 #endif // def ELC
