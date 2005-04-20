@@ -446,77 +446,6 @@ void draw_game_map (int map, int mouse_mini)
 		glTexCoord2f(0.0f,0.0f); glVertex3i(300,50,0);
 	glEnd();
 
-	//if we're following a path, draw the destination on the map
-	if (pf_follow_path) {
-       	   int px = pf_dst_tile->x;
-           int py = pf_dst_tile->y;
-
-	   if(!map){
-		if(cur_map!=-1){
-			screen_x=300-(50+200*((x_size/6 * px)+(seridia_maps[cur_map].x_start))/(512));
-			screen_y=0+200*((y_size/6 * py)+(seridia_maps[cur_map].y_start))/(512);
-		} else {
-			screen_x=screen_y=0;
-		}
-	   } else {
-		screen_x=300-(50+200*px/(tile_map_size_x*6));
-		screen_y=0+200*py/(tile_map_size_y*6);
-	   }
-
-        glColor3f(1.0f,0.0f,0.0f);
-	    glDisable(GL_TEXTURE_2D);
-	    glBegin(GL_LINES);
-		    glVertex2i(screen_x-3,screen_y-3);
-		    glVertex2i(screen_x+2,screen_y+2);
-
-		    glVertex2i(screen_x+2,screen_y-3);
-		    glVertex2i(screen_x-3,screen_y+2);
-	    glEnd();
-     }
-	//ok, now let's draw our possition...
-    for(i=0;i<max_actors;i++)
-	{
-		if(actors_list[i])
-			if(actors_list[i]->actor_id==yourself && actors_list[i]->tmp.have_tmp)
-				{
-						x=actors_list[i]->tmp.x_tile_pos;
-						y=actors_list[i]->tmp.y_tile_pos;
-						break;
-					}
-		}
-
-	if(!map){
-		if(cur_map!=-1){
-			screen_x=300-(50+200*((x_size/6 * x)+(seridia_maps[cur_map].x_start))/(512));
-			screen_y=0+200*((y_size/6 * y)+(seridia_maps[cur_map].y_start))/(512);
-		} else {
-			screen_x=screen_y=0;
-		}
-	} else {
-		screen_x=300-(50+200*x/(tile_map_size_x*6));
-		screen_y=0+200*y/(tile_map_size_y*6);
-	}
-	if((map||!dungeon)&&x!=-1){
-		glColor3f(0.0f,0.0f,1.0f);
-		glDisable(GL_TEXTURE_2D);
-		glBegin(GL_LINES);
-			glVertex2i(screen_x-3,screen_y-3);
-			glVertex2i(screen_x+2,screen_y+2);
-
-			glVertex2i(screen_x+2,screen_y-3);
-			glVertex2i(screen_x-3,screen_y+2);
-		glEnd();
-	}
-	
-	glEnable(GL_TEXTURE_2D);
-	glColor3f(1.0f,1.0f,1.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-
 // this is necessary for the text over map
 	if(map&&(adding_mark||max_mark>0)){
    		glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
@@ -581,6 +510,97 @@ void draw_game_map (int map, int mouse_mini)
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
 	}
+
+	//if we're following a path, draw the destination on the map
+	if (pf_follow_path)
+	{
+		int px = pf_dst_tile->x;
+		int py = pf_dst_tile->y;
+
+		if (!map)
+		{
+			if (cur_map!=-1)
+			{
+				screen_x = 300 - (50 + 200 * ( (x_size / 6 * px) + seridia_maps[cur_map].x_start) / 512);
+				screen_y = 200 * ( (y_size / 6 * py) + seridia_maps[cur_map].y_start) / 512;
+			}
+			else
+			{
+				screen_x = screen_y = 0;
+			}
+		} 
+		else
+		{
+			screen_x = 300 - ( 50 + 200 * px / (tile_map_size_x * 6) );
+			screen_y = 200 * py / (tile_map_size_y * 6);
+		}
+
+		glColor3f(1.0f,0.0f,0.0f);
+		
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+
+		glVertex2i(screen_x-3,screen_y-3);
+		glVertex2i(screen_x+2,screen_y+2);
+
+		glVertex2i(screen_x+2,screen_y-3);
+		glVertex2i(screen_x-3,screen_y+2);
+
+		glEnd();
+	}
+	
+	//ok, now let's draw our possition...
+	for (i = 0; i < max_actors; i++)
+	{
+		if (actors_list[i] && actors_list[i]->actor_id == yourself && actors_list[i]->tmp.have_tmp)
+		{
+			x = actors_list[i]->tmp.x_tile_pos;
+			y = actors_list[i]->tmp.y_tile_pos;
+			break;
+		}
+	}
+
+	if (!map)
+	{
+		if (cur_map != -1)
+		{
+			screen_x = 300 - (50 + 200 * ( (x_size / 6 * x) + seridia_maps[cur_map].x_start) / 512);
+			screen_y = 200 * ( (y_size / 6 * y) + seridia_maps[cur_map].y_start) / 512;
+		} 
+		else 
+		{
+			screen_x = screen_y = 0;
+		}
+	} 
+	else 
+	{
+		screen_x = 300 - ( 50 + 200 * x / (tile_map_size_x * 6) );
+		screen_y = 200 * y / (tile_map_size_y * 6);
+	}
+	
+	if ( (map || !dungeon) && x != -1 )
+	{
+		glColor3f (0.0f, 0.0f, 1.0f);
+		glDisable (GL_TEXTURE_2D);
+		glBegin (GL_LINES);
+			
+		glVertex2i (screen_x-3, screen_y-3);
+		glVertex2i (screen_x+2, screen_y+2);
+
+		glVertex2i (screen_x+2, screen_y-3);
+		glVertex2i (screen_x-3, screen_y+2);
+
+		glEnd();
+	}
+	
+	glEnable (GL_TEXTURE_2D);
+	glColor3f (1.0f, 1.0f, 1.0f);
+
+	glMatrixMode (GL_MODELVIEW);
+	glPopMatrix ();
+	glMatrixMode (GL_PROJECTION);
+	glPopMatrix ();
+	glMatrixMode (GL_MODELVIEW);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
