@@ -163,6 +163,34 @@ void test_for_console_command (char *text, int len)
 		}
 		return;
 	}
+	if(my_strncompare(text_loc,"markpos", 7))
+	{
+		if (strlen(text_loc) > 5) //check for empty marks
+		{
+			int map_x, map_y;
+			char * ptr = text_loc + 8;
+			while (*ptr == ' ') ptr++;
+			if (sscanf(ptr, "%d,%d ", &map_x, &map_y) != 2) {
+				LOG_TO_CONSOLE(c_red2, "Usage: #markpos <x-coord>,<y-coord> <name>");
+				return;
+			}
+			while (*ptr != ' ' && *ptr) ptr++;
+			while (*ptr == ' ') ptr++;
+			if (!*ptr) {
+				LOG_TO_CONSOLE(c_red2, "Usage: #markpos <x-coord>,<y-coord> <name>");
+				return;
+			}
+			char msg[540];
+			if (put_mark_on_position(map_x, map_y, ptr)) {
+				sprintf (msg, "Location %d,%d marked with %s", map_x, map_y, ptr);
+				LOG_TO_CONSOLE(c_orange1,msg);
+			} else {
+				sprintf (msg, "Invalid location %d,%d", map_x, map_y);
+				LOG_TO_CONSOLE(c_red2,msg);
+			}
+		}
+		return;		
+	}
 	if(my_strncompare(text_loc,"mark", 4))
 	{
 		if (strlen(text_loc) > 5) //check for empty marks

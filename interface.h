@@ -338,6 +338,23 @@ void delete_mark_on_map_on_mouse_position();
 
 /*!
  * \ingroup interfaces
+ * \brief   Adds a mark at the given position.
+ *
+ *      Adds a mark at the given position.
+ *
+ * \param map_x x coordinate of tile to be marked
+ * \param map_y y coordinate of tile to be marked
+ * \param name  name for the mark to set
+ * \retval int returns 1 if the location is valid, and 0 otherwise.
+ *
+ * \callgraph
+ *
+ * \pre If the position is outside the map area, this function will return without performing any actions.
+ */
+int put_mark_on_position(int map_x, int map_y, char * name);
+
+/*!
+ * \ingroup interfaces
  * \brief   Adds a mark at the current mouse position.
  *
  *      Adds a mark at the current mouse position.
