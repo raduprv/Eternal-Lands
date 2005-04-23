@@ -355,8 +355,10 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 				free (lights_list[sys->light]);
 				lights_list[sys->light] = NULL;
 			}
+#ifndef MAP_EDITOR
 			if (sys->sound != 0)
 				remove_sound_object (sys->sound);
+#endif
 			free (sys);
 			particles_list[i] = NULL;
 		}
@@ -466,10 +468,13 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z, int s
 
 	for(i=0,p=&system_id->particles[0];i<def->total_particle_no;i++,p++)create_particle(system_id,p);
 	
+#ifndef MAP_EDITOR
 	if (sound < 0 || no_sound)
 		system_id->sound = 0;
 	else
 		system_id->sound = add_sound_object (sound, (int)(x+x-0.5), (int)(y+y-0.5), positional, loop);
+#endif
+
 	UNLOCK_PARTICLES_LIST();
 
 	return psys;

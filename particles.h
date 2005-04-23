@@ -200,7 +200,6 @@ extern void	init_particles_list();
 extern void	end_particles_list();
 
 
-
 //CREATION OF NEW PARTICLES AND SYSTEMS 
 
 /*!
