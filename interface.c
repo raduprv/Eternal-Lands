@@ -374,6 +374,7 @@ void draw_game_map (int map, int mouse_mini)
 {     
 	int screen_x=0;
 	int screen_y=0;
+	int map_x, map_y;
 	int x=-1,y=-1;
 	int i;
 	float x_size=0,y_size=0;
@@ -507,7 +508,6 @@ void draw_game_map (int map, int mouse_mini)
 	 	}
 
 		// draw coordinates
-		int map_x, map_y;
 		if (pf_get_mouse_position(mouse_x, mouse_y, &map_x, &map_y)) {
 			// we're pointing on the map, display position
 			char buf[10];
