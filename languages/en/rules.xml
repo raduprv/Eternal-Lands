@@ -1,5 +1,9 @@
 <text>
 	<title>In-Game Rules</title>
+	<info>
+		<short>Click on a rule to see its full text. Use the scrollbar on the right in order to view additional rules.
+		</short>
+	</info>
 	<rule>
 		<short>Do not SPAM. </short>
 		<long>SPAM means, in this context, either advertising something multiple times, or simply repeat the same message (or lack of message (such as empty spaces)) over and over, flooding people's screen.</long>
