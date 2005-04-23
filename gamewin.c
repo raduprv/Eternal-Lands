@@ -172,10 +172,17 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		if (flag_right) 
 		{
-			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1)
+			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1 
+#ifdef STORAGE
+					|| storage_item_dragged != -1
+#endif
+					)
 			{
 				use_item = -1;
 				item_dragged = -1;
+#ifdef STORAGE
+				storage_item_dragged = -1;
+#endif
 				action_mode = ACTION_WALK;
 				return 1;
 			}
@@ -249,6 +256,13 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			item_dragged = -1;
 		return 1;
 	}
+
+#ifdef STORAGE
+	if (storage_item_dragged != -1)
+	{
+		//TODO: Withdraw from storage, drop on ground...
+	}
+#endif
 
 	// if we're following a path, stop now
 	if (pf_follow_path) 

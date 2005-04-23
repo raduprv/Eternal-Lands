@@ -952,7 +952,25 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				close_book(SDL_SwapLE16(*((Uint16*)(in_data+3))));
 			}
 			break;
+#ifdef STORAGE
+		case STORAGE_LIST:
+			{
+				get_storage_categories(in_data+3, data_lenght-3);
+			}
+			break;
 
+		case STORAGE_ITEMS:
+			{
+				get_storage_items(in_data+3, data_lenght-3);
+			}
+			break;
+
+		case STORAGE_TEXT:
+			{
+				get_storage_text(in_data+3, data_lenght-3);
+			}
+			break;
+#endif
 		default:
 			{
 				// Unknown data type??

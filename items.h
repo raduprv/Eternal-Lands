@@ -19,6 +19,14 @@ typedef struct
 	int use_with_inventory;
 } item;
 
+typedef struct
+{
+	int pos;
+	int image_id;
+	int quantity;
+} ground_item;
+
+
 /*!
  * \name Item definition flags
  */
@@ -97,6 +105,8 @@ extern char items_string[300];
 
 extern int item_quantity;
 
+inline GLuint get_items_texture(int no);
+
 /*!
  * \ingroup items_window
  * \brief   Displays the items (inventory) window.
@@ -125,12 +135,13 @@ void get_your_items(Uint8 *data);
  *
  *      Drags the given \a item. If \a mini is true, the dragged item will be drawn smaller.
  *
- * \param item  the index into \ref item_list of the item being dragged
+ * \param item  the index into array of the item being dragged
+ * \param storage specifies if it's taken from the storage or the inventory items array
  * \param mini  boolean flag, indicating whether the dragged item will be drawn smaller
  *
  * \callgraph
  */
-void drag_item(int item, int mini);
+void drag_item(int item, int storage, int mini);
 
 /*!
  * \ingroup item

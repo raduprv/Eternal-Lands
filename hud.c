@@ -587,6 +587,9 @@ void view_window(int * window, int id)
 #ifdef NOTEPAD
 			else if(window==&notepad_win) display_notepad();
 #endif
+#ifdef STORAGE
+			else if(window==&storage_win) display_storage_menu();
+#endif
 			else if(use_tabbed_windows)
 			{
 				if(window==&tab_stats_win) display_tab_stats();

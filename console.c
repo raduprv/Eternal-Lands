@@ -170,6 +170,7 @@ void test_for_console_command (char *text, int len)
 			int map_x, map_y;
 			char * ptr = text_loc + 8;
 			char msg[540];
+			
 			while (*ptr == ' ') ptr++;
 			if (sscanf(ptr, "%d,%d ", &map_x, &map_y) != 2) {
 				LOG_TO_CONSOLE(c_red2, "Usage: #markpos <x-coord>,<y-coord> <name>");

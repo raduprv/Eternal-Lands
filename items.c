@@ -4,13 +4,6 @@
 
 typedef struct
 {
-	int pos;
-	int image_id;
-	int quantity;
-} ground_item;
-
-typedef struct
-{
 	int x;
 	int y;
 	int obj_3d_id;
@@ -97,6 +90,44 @@ int use_item=-1;
 
 int wear_items_x_offset=6*51+20;
 int wear_items_y_offset=30;
+
+inline GLuint get_items_texture(int no)
+{
+	GLuint retval=-1;
+	
+	switch(no){
+		case 0:
+			retval=items_text_1;
+			break;
+		case 1:
+			retval=items_text_2;
+			break;
+		case 2:
+			retval=items_text_3;
+			break;
+		case 3:
+			retval=items_text_4;
+			break;
+		case 4:
+			retval=items_text_5;
+			break;
+		case 5:
+			retval=items_text_6;
+			break;
+		case 6:
+			retval=items_text_7;
+			break;
+		case 7:
+			retval=items_text_8;
+			break;
+		case 8:
+			retval=items_text_9;
+			break;
+	}
+
+	return retval;
+}
+
 
 int display_items_handler(window_info *win)
 {
@@ -303,9 +334,16 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	if(right_click) {
-		if(item_dragged!=-1 || use_item!=-1){
+		if(item_dragged!=-1 || use_item!=-1 
+#ifdef STORAGE 
+			|| storage_item_dragged!=-1
+#endif 
+			){
 			use_item=-1;
 			item_dragged=-1;
+#ifdef STORAGE
+			storage_item_dragged=-1;
+#endif
 			item_action_mode=ACTION_WALK;
 			return 1;
 		}
@@ -374,7 +412,11 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				if(mx>x_screen && mx<x_screen+51 && my>y_screen && my<y_screen+51)
 					{
 						//see if there is an empty space to drop this item over.
-						if(item_dragged!=-1)//we have to drop this item
+						if(item_dragged!=-1
+#ifdef STORAGE
+								||storage_item_dragged!=-1
+#endif
+								)//we have to drop this item
 							{
 								for(i=0;i<ITEM_NUM_ITEMS;i++)
 									{
@@ -384,11 +426,24 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 												return 1;
 											}
 									}
-								//send the drop info to the server
-								str[0]=MOVE_INVENTORY_ITEM;
-								str[1]=item_list[item_dragged].pos;
-								str[2]=y*6+x;
-								my_tcp_send(my_socket,str,3);
+#ifdef STORAGE
+								if(item_dragged!=-1){
+#endif
+									//send the drop info to the server
+									str[0]=MOVE_INVENTORY_ITEM;
+									str[1]=item_list[item_dragged].pos;
+									str[2]=y*6+x;
+									my_tcp_send(my_socket,str,3);
+#ifdef STORAGE
+								} else {
+									str[0]=WITHDRAW_ITEM;
+									str[1]=storage_items[storage_item_dragged].pos;
+									*((Uint32*)(str+2))=SDL_SwapLE32(item_quantity);
+									my_tcp_send(my_socket, str, 6);
+								}
+								
+								storage_item_dragged=-1;
+#endif
 								item_dragged=-1;
 								return 1;
 							}
@@ -516,19 +571,27 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 
 
-void drag_item(int item, int mini)
+void drag_item(int item, int storage, int mini)
 {
 	float u_start,v_start,u_end,v_end;
 	int cur_item,this_texture;
+	int cur_item_img;
 
-	cur_item=item_list[item].image_id%25;
-	u_start=0.2f*(cur_item%5);
+#ifdef STORAGE
+	if(storage) 
+		cur_item=storage_items[item].image_id;
+	else
+#endif
+	cur_item=item_list[item].image_id;
+
+	cur_item_img=cur_item%25;
+	u_start=0.2f*(cur_item_img%5);
 	u_end=u_start+(float)50/256;
-	v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
+	v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item_img/5));
 	v_end=v_start-(float)50/256;
 
 	//get the texture this item belongs to
-	this_texture=item_list[item].image_id/25;
+	this_texture=cur_item/25;
 	switch(this_texture) {
 	case 0:
 		this_texture=items_text_1;break;

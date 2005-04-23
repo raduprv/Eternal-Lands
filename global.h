@@ -129,6 +129,9 @@ typedef int point;
 #include "openingwin.h"
 #include "books.h"
 #include "chat.h"
+#ifdef STORAGE
+#include "storage.h"
+#endif
 #ifdef CAL3D
 #include "cal3dwrap.h"
 #endif
