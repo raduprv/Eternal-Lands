@@ -447,7 +447,9 @@ void draw_game_map (int map, int mouse_mini)
 	glEnd();
 
 // this is necessary for the text over map
-	if(map&&(adding_mark||max_mark>0)){
+// need to execute this for any map now
+// because of the coordinate display - Lachesis
+	if(map/*&&(adding_mark||max_mark>0)*/){
    		glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
@@ -512,8 +514,11 @@ void draw_game_map (int map, int mouse_mini)
 			sprintf(buf, "%d,%d", map_x, map_y);
 			glColor3f(1.0f,1.0f,0.0f);
 			screen_x = 25 - 1.5*strlen(buf);
-			screen_y = 150 + 1;
+			screen_y = 150 + 11;
 			draw_string_zoomed(screen_x, screen_y, buf, 1, 0.3);
+			screen_x = 25 - 1.5*strlen("Cursor Position");
+			screen_y = 150 + 4;
+			draw_string_zoomed(screen_x, screen_y, "Cursor Position", 1, 0.3);
 		}
 
    	glMatrixMode(GL_MODELVIEW);
