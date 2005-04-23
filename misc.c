@@ -435,7 +435,7 @@ void move_particles_object(int object_id) {
 void clone_particles_object(int object_id) {
 	LOCK_PARTICLES_LIST();
 	if(!particles_list[object_id])return;
-	selected_particles_object=create_particle_sys(particles_list[object_id]->def,scene_mouse_x,scene_mouse_y,particles_list[object_id]->z_pos);
+	selected_particles_object=create_particle_sys(particles_list[object_id]->def,scene_mouse_x,scene_mouse_y,particles_list[object_id]->z_pos,0,0,0);
 	UNLOCK_PARTICLES_LIST();
 }
 
@@ -1077,7 +1077,7 @@ void open_particles_obj_continued()
   if (selected_file)
     {
 
-		selected_particles_object=add_particle_sys(selected_file,scene_mouse_x,scene_mouse_y,0.0);
+		selected_particles_object=add_particle_sys(selected_file,scene_mouse_x,scene_mouse_y,0.0,0,0,0);
 		cur_tool=tool_select;//change the current tool
     }
 }

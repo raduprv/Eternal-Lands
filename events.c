@@ -111,7 +111,7 @@ int HandleEvent(SDL_Event *event)
 					case mode_particles:
 					{
 						particle_sys *o = (particle_sys *) undo_object;
-						create_particle_sys(o->def,o->x_pos,o->y_pos,o->z_pos);
+						create_particle_sys(o->def,o->x_pos,o->y_pos,o->z_pos,0,0,0);
 						free(undo_object);
 						undo_object = NULL;
 						break;

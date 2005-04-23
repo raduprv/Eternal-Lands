@@ -593,10 +593,12 @@ int check_tiles_interface(window_info *win, int mx, int my, Uint32 flags)
 	tile_id=y*8+x;
 	
 	tile_id+=tile_offset;
-	if(tile_id>tiles_no)return;//check to see if we clicked on an empty tile
+	if(tile_id>tiles_no)return 0;//check to see if we clicked on an empty tile
 
 	cur_tool=tool_select;
 	selected_tile=tile_id;
+
+	return 1;
 }
 
 void display_tiles_list()
