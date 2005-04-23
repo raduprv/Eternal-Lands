@@ -100,4 +100,21 @@ void pf_move();
  */
 void pf_move_to_mouse_position();
 
+/*!
+ * \ingroup move_actors
+ * \brief calulates the tile coordinates of the given mouse position
+ *
+ *      Calculates the tile coordinates of the given mouse position.
+ *      If the return value is zero, *px and *py are undefined.
+ *      
+ * \param mouse_x  x coordinate of mouse
+ * \param mouse_y  y coordinate of mouse
+ * \param px       return address for x tile coordinate
+ * \param py       return address for y tile coordinate
+ * \retval int     1 if the mouse over the map, 0 otherwise.
+ *
+ * \callgraph
+ */
+int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py);
+
 #endif /* __PATHFINDER_H__ */

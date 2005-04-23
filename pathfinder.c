@@ -276,7 +276,7 @@ Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
 	return interval;
 }
 
-void pf_move_to_mouse_position()
+int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py)
 {
 	int min_mouse_x = (window_width-hud_x)/6;
 	int min_mouse_y = 0;
@@ -286,18 +286,24 @@ void pf_move_to_mouse_position()
 	
 	int screen_map_width = max_mouse_x - min_mouse_x;
 	int screen_map_height = max_mouse_y - min_mouse_y;
-	
-	int x, y, clicked_x, clicked_y;
-	
+
 	if (mouse_x < min_mouse_x
 	|| mouse_x > max_mouse_x
 	|| mouse_y < min_mouse_y
 	|| mouse_y > max_mouse_y) {
-		return;
+		return 0;
 	}
 	
-	x = clicked_x = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
-	y = clicked_y = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
+	*px = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
+	*py = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
+	return 1;
+}
+
+void pf_move_to_mouse_position()
+{
+	int x, y, clicked_x, clicked_y;
+	if (!pf_get_mouse_position(mouse_x, mouse_y, &clicked_x, &clicked_y)) return;
+	x = clicked_x; y = clicked_y;
 	
 	if (pf_find_path(x, y)) {
 		return;

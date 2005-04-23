@@ -504,7 +504,19 @@ void draw_game_map (int map, int mouse_mini)
 			}
 	 	}
 
-	    	glMatrixMode(GL_MODELVIEW);
+		// draw coordinates
+		int map_x, map_y;
+		if (pf_get_mouse_position(mouse_x, mouse_y, &map_x, &map_y)) {
+			// we're pointing on the map, display position
+			char buf[10];
+			sprintf(buf, "%d,%d", map_x, map_y);
+			glColor3f(1.0f,1.0f,0.0f);
+			screen_x = 25 - 1.5*strlen(buf);
+			screen_y = 150 + 1;
+			draw_string_zoomed(screen_x, screen_y, buf, 1, 0.3);
+		}
+
+   	glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
