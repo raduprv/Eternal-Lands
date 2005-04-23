@@ -341,7 +341,8 @@ char	win_notepad[20],
 	button_new_category[30],
 	button_remove_category[30],
 	button_save_notes[30],
-	label_note_name[20];
+	label_note_name[20],
+	label_cursor_coords[17];
 #endif  // ELC
 /*! \} */
 
@@ -875,6 +876,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "b_rm_cat", button_remove_category, "Remove Category", sizeof(button_remove_category));
 	add_xml_identifier (titles_str, "b_save", button_save_notes, "Save Notes", sizeof(button_save_notes));
 	add_xml_identifier (titles_str, "l_nname", label_note_name, "Note name", sizeof(label_note_name));
+	add_xml_identifier (titles_str, "l_cursor_coords", label_cursor_coords, "Cursor position", sizeof(label_cursor_coords));
 }
 #endif // ELC
 

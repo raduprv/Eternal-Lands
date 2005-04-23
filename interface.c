@@ -516,9 +516,9 @@ void draw_game_map (int map, int mouse_mini)
 			screen_x = 25 - 1.5*strlen(buf);
 			screen_y = 150 + 11;
 			draw_string_zoomed(screen_x, screen_y, buf, 1, 0.3);
-			screen_x = 25 - 1.5*strlen("Cursor Position");
+			screen_x = 25 - 1.5*strlen(label_cursor_coords);
 			screen_y = 150 + 4;
-			draw_string_zoomed(screen_x, screen_y, "Cursor Position", 1, 0.3);
+			draw_string_zoomed(screen_x, screen_y, label_cursor_coords, 1, 0.3);
 		}
 
    	glMatrixMode(GL_MODELVIEW);

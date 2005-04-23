@@ -438,7 +438,8 @@ extern char	win_notepad[20],
 		button_new_category[30],
 		button_remove_category[30],
 		button_save_notes[30],
-		label_note_name[20];
+		label_note_name[20],
+		label_cursor_coords[17];
 #endif  // DOXYGEN_SKIP_THIS
 #endif  // ELC
 
