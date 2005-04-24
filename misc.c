@@ -16,8 +16,17 @@ void reset_under_the_mouse()
 
 inline float SwapFloat(float t)
 {
+	union {
+		float f;
+		int i;
+	} intOrFloat;
+	intOrFloat.f = t;
+	intOrFloat.i = SDL_Swap32(intOrFloat.i);
+	return intOrFloat.f;
+	/*
 	int ftemp = SDL_Swap32(*((int*)(&t)));
 	return *((float*)(&ftemp));
+	*/
 }
 
 int anything_under_the_mouse(int object_id, int object_type)
