@@ -261,7 +261,6 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 			} else {
 				if(cur_item_over!=-1){
 					storage_item_dragged=cur_item_over;
-					printf("%d\n",storage_item_dragged);
 				}
 			}
 		}
@@ -331,6 +330,6 @@ void display_storage_menu()
 		for(i=0;i<no_storage_categories;i++)storage_categories[i].name[0]=127+c_orange1;
 	
 		show_window(storage_win);
-	//	select_window(storage_win);
+		select_window(storage_win);
 	}
 }
