@@ -16,14 +16,14 @@ CFLAGS = $(INCS) -DWINDOWS  -D_WIN32 -Wall -DELC
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before Debug/EL.exe all-after
+all: all-before $(BIN) all-after
 
 
 clean: clean-custom
 	rm -f $(OBJ) $(BIN)
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o "Debug\EL.exe" $(LIBS)
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
 
 3d_objects.o: 3d_objects.c
 	$(CC) -c 3d_objects.c -o 3d_objects.o $(CFLAGS)
