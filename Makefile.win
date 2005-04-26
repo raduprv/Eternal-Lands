@@ -204,3 +204,9 @@ rules.o: rules.c
 
 timers.o: timers.c
 	$(CC) -c timers.c -o timers.o $(CFLAGS)
+
+# Lachesis: all header files are prerequisites, they're included via global.h
+$(OBJ): *.h
+
+# Lachesis: seems we need rules for headers and c files on Windows
+*.c *.h:;
