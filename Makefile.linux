@@ -2,7 +2,7 @@
 
 CC=gcc
 
-OPTIONS=-DLINUX -DMAP_EDITOR #-DX86_64
+OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND #-DX86_64
 GTK_CFLAGS = $(shell gtk-config --cflags)
 
 CFLAGS=$(OPTIONS) $(GTK_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g -W

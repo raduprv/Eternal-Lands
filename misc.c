@@ -1077,7 +1077,7 @@ void open_particles_obj_continued()
   if (selected_file)
     {
 
-		selected_particles_object=add_particle_sys(selected_file,scene_mouse_x,scene_mouse_y,0.0,0,0,0);
+		selected_particles_object=add_particle_sys(selected_file,scene_mouse_x,scene_mouse_y,0.0);
 		cur_tool=tool_select;//change the current tool
     }
 }
