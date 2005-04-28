@@ -896,7 +896,12 @@ void add_bags_from_list(Uint8 *data)
 void remove_bag(int which_bag)
 {
 	int sector, i, j=MAX_3D_OBJECTS-1, k=-1;
+
+#ifdef PARTICLE_SYS_SOUND
+	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
+#else
 	add_particle_sys_at_tile("./particles/bag_out.part",bag_list[which_bag].x,bag_list[which_bag].y, -1, 0, 0);
+#endif
 	sector=SECTOR_GET(objects_list[bag_list[which_bag].obj_3d_id]->x_pos, objects_list[bag_list[which_bag].obj_3d_id]->y_pos);
 	for(i=0;i<MAX_3D_OBJECTS;i++){
 		if(k!=-1 && sectors[sector].e3d_local[i]==-1){

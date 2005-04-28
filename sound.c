@@ -561,7 +561,7 @@ void kill_local_sounds()
 			have_sound=0;
 			have_music=0;
     	}
-	if(realloc_sources())
+	if (realloc_sources () != 0)
 		LOG_ERROR(snd_stop_fail);
 	UNLOCK_SOUND_LIST();
 #ifndef	NO_MUSIC

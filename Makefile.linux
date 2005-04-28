@@ -7,6 +7,7 @@ OPTIONS=-DLINUX -DELC
 #-DWRITE_XML
 #-DNOTEPAD
 #-DSTORAGE
+#-DPARTICLE_SYS_SOUND # requires updated particle systems for teleport_in, teleport_out, teleporter and fire to hear their sounds
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

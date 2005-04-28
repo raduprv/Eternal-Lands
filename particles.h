@@ -88,7 +88,7 @@ typedef struct
 	float lightr,lightg,lightb;
     /*! \} */
 
-#ifdef PARTICLE_SYS_SOUND    
+#ifdef PARTICLE_SYS_SOUND
 	/*!
     	* \name Sounds for this system
 	*/
@@ -202,6 +202,22 @@ extern void	end_particles_list();
 
 //CREATION OF NEW PARTICLES AND SYSTEMS 
 
+#ifdef PARTICLE_SYS_SOUND
+/*!
+ * \ingroup particles
+ * \brief adds a new particle system from the file given in file_name at the given position.
+ *
+ *      Adds a new particle system from the file givein in file_name at the position (x_pos,y_pos,z_pos).
+ *
+ * \param file_name filename of the file that contains the particle systems description.
+ * \param x_pos	x coordinate where the particle system should appear
+ * \param y_pos	y coordinate where the particle system should appear
+ * \param z_pos	z coordinate where the particle system should appear
+ * \retval int
+ * \callgraph
+ */
+int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
+#else
 /*!
  * \ingroup particles
  * \brief adds a new particle system from the file given in file_name at the given position.
@@ -219,7 +235,23 @@ extern void	end_particles_list();
  * \callgraph
  */
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, int sound, int positional, int loop);
+#endif
 
+#ifdef PARTICLE_SYS_SOUND
+/*!
+ * \ingroup particles
+ * \brief adds a new particle system from the given file file_name at the specified tile position.
+ *
+ *      Adds a new particle system from the given file file_name at the specified tile position.
+ *
+ * \param file_name	filename of the file that contains the particly systems definition.
+ * \param x_tile	x coordinate of the tile where the particle system should be added
+ * \param y_tile	y coordinate of the tile where the particle system should be added
+ * \retval int
+ * \callgraph
+ */
+int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile);
+#else
 /*!
  * \ingroup particles
  * \brief adds a new particle system from the given file file_name at the specified tile position.
@@ -236,7 +268,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, in
  * \callgraph
  */
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, int sound, int positional, int loop);
-
+#endif
 
 //RENDERING FUNCTIONS
 

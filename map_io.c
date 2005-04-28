@@ -307,13 +307,18 @@ int load_map(char * file_name)
 			char *cur_particles_pointer=(char *)&cur_particles_io;
 			fread(cur_particles_pointer,1,particles_io_size,f);
 			
-			#ifdef EL_BIG_ENDIAN
-				cur_particles_io.x_pos = SwapFloat(cur_particles_io.x_pos);
-				cur_particles_io.y_pos = SwapFloat(cur_particles_io.y_pos);
-				cur_particles_io.z_pos = SwapFloat(cur_particles_io.z_pos);
-			#endif
+#ifdef EL_BIG_ENDIAN
+			cur_particles_io.x_pos = SwapFloat(cur_particles_io.x_pos);
+			cur_particles_io.y_pos = SwapFloat(cur_particles_io.y_pos);
+			cur_particles_io.z_pos = SwapFloat(cur_particles_io.z_pos);
+#endif
 			
+
+#ifdef PARTICLE_SYS_SOUND
+			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos);
+#else
 			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos, -1, 0, 0);
+#endif
 		}
 
 	fclose(f);

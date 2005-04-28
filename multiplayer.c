@@ -554,7 +554,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+
+#ifdef PARTICLE_SYS_SOUND
+				add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );
+#else
 				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))), snd_tele_out, 1, 0);
+#endif
 			}
 			break;
 
@@ -563,7 +568,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+
+#ifdef PARTICLE_SYS_SOUND
+			add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );	
+#else
 				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))), snd_tele_out, 1, 0);
+#endif
 			}
 			break;
 
@@ -696,7 +706,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	             add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16 *)(in_data+5))), -1, 0, 0);
+
+#ifdef PARTICLE_SYS_SOUND
+				add_particle_sys_at_tile ( "./particles/bag_in.part", SDL_SwapLE16 ( *( (Uint16 *)(in_data+3) ) ), SDL_SwapLE16 ( *( (Uint16 *)(in_data+5) ) ) );
+#else
+add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16 *)(in_data+5))), -1, 0, 0);
+#endif
 			}
 			break;
 

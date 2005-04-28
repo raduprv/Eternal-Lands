@@ -41,7 +41,11 @@ particle_sys *particles_list[MAX_PARTICLE_SYSTEMS];
 particle_sys_def *defs_list[MAX_PARTICLE_DEFS];
 
 void destroy_all_particle_defs();
+#ifdef PARTICLE_SYS_SOUND
+int create_particle_sys (particle_sys_def *def, float x, float y, float z);
+#else
 int create_particle_sys (particle_sys_def *def, float x, float y, float z, int sound, int positional, int loop);
+#endif
 
 #ifndef ELC
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
@@ -78,11 +82,11 @@ int part_strcmp(char * s1, char *s2)
 	return *s1!=*s2;
 }
 
-#ifdef PARTICLE_SYS_SOUND
-#define PARTICLE_DEF_VERSION 3
-#else
+// Grum: perhaps the addition of a sound definition to the files would warrant
+// a version number update (from 2 to 3), but it'll still work with v. 2 system
+// (without sound, of course), so I'll leave it
 #define PARTICLE_DEF_VERSION 2
-#endif
+
 particle_sys_def *load_particle_def(const char *filename)
 {
 	int version=0,i;
@@ -158,7 +162,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	fscanf(f,"%f,%f,%f\n",&def->lightx,&def->lighty,&def->lightz);
 	fscanf(f,"%f,%f,%f\n",&def->lightr,&def->lightg,&def->lightb);
 #ifdef PARTICLE_SYS_SOUND
-	fscanf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loops);
+	fscanf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loop);
 #endif
 	
 	if(def->total_particle_no>MAX_PARTICLES)
@@ -227,7 +231,7 @@ int save_particle_def(particle_sys_def *def)
 	char cleanpath[128];
 	FILE *f=NULL;
 
-	clean_file_name(cleanpath,def->file_name,128);
+	clean_file_name ( cleanpath, def->file_name, sizeof (cleanpath) );
 
 	f=my_fopen(cleanpath,"w");
 	if(!f) return 0;
@@ -260,7 +264,7 @@ int save_particle_def(particle_sys_def *def)
 	fprintf(f,"%f,%f,%f\n",def->lightx,def->lighty,def->lightz);
 	fprintf(f,"%f,%f,%f\n",def->lightr,def->lightg,def->lightb);
 #ifdef PARTICLE_SYS_SOUND
-	fprintf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loops);
+	fprintf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loop);
 #endif
 
 	fclose(f);
@@ -330,11 +334,19 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	switch (kind)
 	{
 		case 2:
+#ifdef PARTICLE_SYS_SOUND
+			add_particle_sys ("./particles/fire_big.part", x, y, z);
+#else
 			add_particle_sys ("./particles/fire_big.part", x, y, z, snd_fire, 1, 1);
+#endif
 			break;
 		case 1:
 		default:
+#ifdef PARTICLE_SYS_SOUND
+			add_particle_sys ("./particles/fire_small.part", x, y, z);
+#else
 			add_particle_sys ("./particles/fire_small.part", x, y, z, snd_fire, 1, 1);
+#endif
 	}
 }
 
@@ -368,6 +380,15 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 /*********************************************************************
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/
+#ifdef PARTICLE_SYS_SOUND
+int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
+{
+	particle_sys_def *def = load_particle_def(file_name);
+	if (!def) return -1;
+
+	return create_particle_sys (def, x_pos, y_pos, z_pos);
+}
+#else
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, int sound, int positional, int loop)
 {
 	particle_sys_def *def=load_particle_def(file_name);
@@ -375,12 +396,19 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, in
 
 	return create_particle_sys (def, x_pos, y_pos, z_pos, sound, positional, loop);
 }
+#endif
 
+#ifdef PARTICLE_SYS_SOUND
+int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile)
+{
+	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height_map[y_tile*tile_map_size_x*6+x_tile] * 0.2f);
+}
+#else
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, int sound, int positional, int loop)
 {
 	return add_particle_sys (file_name, (float)x_tile/2.0+0.25f, (float)y_tile/2.0+0.25f, -2.2f+height_map[y_tile*tile_map_size_x*6+x_tile]*0.2f, sound, positional, loop);
 }
-
+#endif
 
 void create_particle(particle_sys *sys,particle *result)
 {
@@ -423,7 +451,11 @@ void create_particle(particle_sys *sys,particle *result)
 	result->free=0;
 }
 
+#ifdef PARTICLE_SYS_SOUND
+int create_particle_sys (particle_sys_def *def, float x, float y, float z)
+#else
 int create_particle_sys (particle_sys_def *def, float x, float y, float z, int sound, int positional, int loop)
+#endif
 {
 	int	i,psys;
 	particle_sys *system_id;
@@ -469,10 +501,17 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z, int s
 	for(i=0,p=&system_id->particles[0];i<def->total_particle_no;i++,p++)create_particle(system_id,p);
 	
 #ifndef MAP_EDITOR
+#ifdef PARTICLE_SYS_SOUND
+	if (def->sound_nr < 0 || no_sound)
+		system_id->sound = 0;
+	else
+		system_id->sound = add_sound_object (def->sound_nr, (int)(x+x-0.5), (int)(y+y-0.5), def->positional, def->loop);
+#else
 	if (sound < 0 || no_sound)
 		system_id->sound = 0;
 	else
 		system_id->sound = add_sound_object (sound, (int)(x+x-0.5), (int)(y+y-0.5), positional, loop);
+#endif
 #endif
 
 	UNLOCK_PARTICLES_LIST();
@@ -1048,7 +1087,11 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 			x=x+0.25f;
 			y=y+0.25f;
 
+#ifdef PARTICLE_SYS_SOUND
+			add_particle_sys ("./particles/teleporter.part", x, y, z);
+#else
 			add_particle_sys ("./particles/teleporter.part", x, y, z, snd_teleprtr, 1, 1);
+#endif
 			sector_add_3do(add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
 
 			//mark the teleporter as an unwalkable so that the pathfinder
