@@ -189,7 +189,7 @@ void set_create_char_error (const char *msg, int len)
 		sprintf (create_char_error_str, "%s: ", reg_error_str);
 		strncat (create_char_error_str, msg, len);
 		create_char_error_str[len+prelen] = '\0';
-		reset_soft_breaks (create_char_error_str, len+prelen, 1.0, window_width - 20);
+		reset_soft_breaks (create_char_error_str, len+prelen, sizeof (create_char_error_str), 1.0, window_width - 20);
 	}
 }
 

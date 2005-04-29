@@ -120,13 +120,14 @@ void draw_window_string (int x, int y, const unsigned char *str, int width, int 
  *
  * \param str	the string
  * \param len	the length of the string
+ * \param size	the size of the string buffer
  * \param zoom	the scale factor for the text
  * \param width	the width of the text window
  *
  * \retval int the number of window lines the string will use
  * \callgraph
  */
-int reset_soft_breaks (char *str, int len, float zoom, int width);
+int reset_soft_breaks (char *str, int len, int size, float zoom, int width);
 
 /*!
  * \ingroup text_font

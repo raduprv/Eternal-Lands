@@ -1343,7 +1343,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			msg->data[i-1] = msg->data[i];
 		tf->cursor--;
 		msg->len--;
-		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x);
+		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x);
 		return 1;
 	}
 	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
@@ -1352,7 +1352,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		for (i = tf->cursor+1; i <= msg->len; i++)
 			msg->data[i-1] = msg->data[i];
 		msg->len--;
-		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x);
+		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x);
 		return 1;
 	}
 	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && ch != '`' )
@@ -1366,7 +1366,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			}
 		}
 		tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
-		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x);
+		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x);
 		return 1;
 	}
 	return 0;

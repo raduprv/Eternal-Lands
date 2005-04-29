@@ -425,7 +425,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 	glEnd();
 	glDisable(GL_ALPHA_TEST);	
 }
-
+/*
 int reset_soft_breaks (char *str, int len, float zoom, int width)
 {
 	//displayed_font_x_width=(int)displayed_font_x_size;
@@ -477,6 +477,125 @@ int reset_soft_breaks (char *str, int len, float zoom, int width)
 		
 		nlines++;
 		ichar = iline + 1;
+	}
+	
+	return nlines;
+}
+*/
+
+#ifdef DEBUG
+void print_string_escaped (const char *str)
+{
+	int i;
+	
+	for (i=0; str[i]; i++)
+		if (str[i]=='\r')
+			printf ("\\r");
+		else if (str[i] == '\n')
+			printf ("\\n\n");
+		else if ((unsigned char)str[i] < 127+c_red1 || (unsigned char)str[i] > 127+c_grey4)
+			printf ("%c", str[i]);
+	
+	printf ("\nlen = %d\n", i);
+}
+#endif
+
+int reset_soft_breaks (char *str, int len, int size, float zoom, int width)
+{
+	char buf[1024]; 
+	int font_bit_width;
+	float displayed_font_x_size = 11.0 * zoom;
+	int nlines;
+	float line_width;
+	int isrc, ibuf, idst;
+	int lastline, lastsrc;
+	int nchar;
+
+	if (str == NULL) return 0;
+	
+	nlines = 1;
+	isrc = ibuf = idst = 0;
+	line_width = 0;
+	lastsrc = 0;
+	while (1)
+	{
+		lastline = 0;
+	
+		// fill the buffer
+		while (isrc < len && str[isrc] != '\0')
+		{
+			// skip old line breaks
+			if (str[isrc] == '\r')
+			{
+				isrc++;
+				continue;
+			}
+			
+			font_bit_width = get_font_width (str[isrc]);
+			line_width += (int) (0.5f + font_bit_width * displayed_font_x_size / 12.0f);
+			if (line_width > width)
+			{
+				// search back for a space
+				for (nchar = 0; ibuf-nchar-1 > lastline; nchar++)
+					if (buf[ibuf-nchar-1] == ' ') break;
+				if (ibuf-nchar-1 <= lastline)
+					// no space found, introduce a break in 
+					// the middle of the word
+					nchar = 0;
+				
+				// introduce the break, and reset the counters
+				ibuf -= nchar;
+				isrc -= nchar;
+				while (str[isrc] == '\r') isrc++;
+
+				buf[ibuf] = '\r';
+				nlines++;
+				if (++ibuf >= sizeof (buf) - 1) break;
+				
+				lastline = isrc;
+				line_width = 0;
+			}
+
+			// see if it's an explicit line break
+			if (str[isrc] == '\n')
+			{
+				nlines++;
+				line_width = 0;
+			}
+			
+			// copy the character into the buffer
+			buf[ibuf] = str[isrc];
+			isrc++;
+			if (++ibuf >= sizeof (buf) - 1) break;
+		}
+		if (str[isrc] == '\0') isrc = len;
+		
+		// buffer is full or end of string, let's copy back
+		nchar = ibuf;
+		if (isrc < len && isrc - lastsrc < nchar)
+			nchar = isrc - lastsrc;
+
+		for (idst = 0; idst < nchar; idst++)
+		{
+			if (lastsrc + idst >= size - 1) break;
+			str[lastsrc+idst] = buf[idst];
+		}
+		
+		// see if we're done
+		if (isrc >= len) 
+		{
+			str[lastsrc+idst] = '\0';
+			break;
+		}
+				
+		// move stuff to the beginning of the buffer, if necessary
+		nchar = sizeof (buf) - ibuf - 1;
+		for (idst = 0; idst < nchar; idst++)
+			buf[idst] = buf[ibuf+idst];
+		
+		// update the counters
+		ibuf = nchar;
+		lastsrc = isrc;
 	}
 	
 	return nlines;

@@ -252,7 +252,7 @@ int notepadLoadFile ()
 				my_strcp (data[no_notes].data, cur->children->content);
 			data[no_notes].len = len;
 				    
-			reset_soft_breaks (data[no_notes].data, data[no_notes].len, 1, note_win_x_len - 70);
+			reset_soft_breaks (data[no_notes].data, data[no_notes].len, data[no_notes].size, 1, note_win_x_len - 70);
 			
 			note[no_notes] = malloc ( sizeof (struct Note) );
 			name = xmlGetProp (cur, "NAME");

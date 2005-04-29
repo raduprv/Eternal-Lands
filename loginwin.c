@@ -49,7 +49,7 @@ void set_login_error (const char *msg, int len)
                 sprintf (log_in_error_str, "%s: ", reg_error_str);
                 strncat (log_in_error_str, msg, len);
                 log_in_error_str[len+prelen] = '\0';
-                reset_soft_breaks (log_in_error_str, len+prelen, 1.0, window_width);
+                reset_soft_breaks (log_in_error_str, len+prelen, sizeof (log_in_error_str), 1.0, window_width);
         }
 }
 

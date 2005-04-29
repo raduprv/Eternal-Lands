@@ -379,7 +379,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 	if (imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
 	while (1)
 	{
-		nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, chat_zoom, chat_win_text_width);
+		nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, chat_win_text_width);
 		update_chat_window (nlines, display_text_buffer[imsg].chan_nr);
 		ntot += nlines;
 		if (imsg == last_message) break;
@@ -448,7 +448,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 			msg->data[i-1] = msg->data[i];
 		tf->cursor--;
 		msg->len--;
-		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}
 	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
 	{
@@ -456,7 +456,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		for (i = tf->cursor+1; i <= msg->len; i++)
 			msg->data[i-1] = msg->data[i];
 		msg->len--;
-		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}
 	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && ch != '`' )
 	{
@@ -470,7 +470,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		{
 			tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
 		}
-		reset_soft_breaks (msg->data, msg->len, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 	}
 
 	else
@@ -491,7 +491,7 @@ void paste_in_input_field (const Uint8 *text)
 	tf = (text_field *) w->widget_info;
 	
 	put_string_in_buffer (&input_text_line, text, tf->cursor);
-	reset_soft_breaks (tf->buffer->data, tf->buffer->len, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+	reset_soft_breaks (tf->buffer->data, tf->buffer->len, tf->buffer->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
 }
 
 void display_chat ()
@@ -545,7 +545,7 @@ void display_chat ()
 		if (imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
 		while (1)
 		{
-			nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, chat_zoom, chat_win_text_width);
+			nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, chat_win_text_width);
 			update_chat_window (nlines, display_text_buffer[imsg].chan_nr);
 			ntot += nlines;
 			if (imsg == last_message) break;

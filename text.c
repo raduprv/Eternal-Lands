@@ -84,12 +84,8 @@ void write_to_log (Uint8 *data, int len)
 	{
 		ch = data[i];
 		// remove colorization when writting to the chat log
-		// Grum: remove '\r' and replace by space
-		if (ch == '\r')
-		{
-			str[j++] = ' ';
-		}
-		else if (ch < 127 || ch > 127 + c_grey4)
+		// Grum: don't log '\r'
+		if ( (ch < 127 || ch > 127 + c_grey4) && ch != '\r')
 		{
 			str[j]=ch;
 			j++;
@@ -139,9 +135,9 @@ void send_input_text_line (char *line, int line_len)
 	for ( ; i < line_len && j < sizeof (str) - 1; i++)	// copy it, but ignore the enter
 	{
 		ch = line[i];
-		if (ch != '\n')
+		if (ch != '\n' && ch != '\r')
 		{
-			str[j] = ch == '\r' ? ' ' : ch;
+			str[j] = ch;
 			j++;
 		}
 	}	
@@ -378,10 +374,8 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 				nlines--;
 	}
 	
-	// Allow for a null byte and a colour code.
-	// If not using windowed chat, allow for up to 8 extra newlines
-	// and colour codes.
-	minlen = use_windowed_chat ? len + 2 : len + 18; 
+	// Allow for a null byte and up to 8 extra newlines and colour codes.
+	minlen = len + 18; 
 	if (msg->size < minlen)
 	{
 		if (msg->data != NULL) free (msg->data);
@@ -393,18 +387,6 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 	// force the color
 	if(text_to_add[0] < 127 || text_to_add[0] > 127 + c_grey4)
 		msg->data[idx++] = 127 + color;
-
-	if (use_windowed_chat)
-		nltmp = reset_soft_breaks (text_to_add, len, chat_zoom, chat_win_text_width);
-	else if (x_chars_limit <= 0)
-		nltmp = reset_soft_breaks (text_to_add, len, chat_zoom, window_width - hud_x);
-	else
-		nltmp = 1;
-	
-	lines_to_show += nltmp;
-	if (lines_to_show > max_lines_no)
-		lines_to_show = max_lines_no;
-	nlines += nltmp;
 	
 	if (use_windowed_chat || x_chars_limit <= 0 || len <= x_chars_limit)
 	{
@@ -415,8 +397,22 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 			msg->data[idx++] = text_to_add[i];
 		}
 		msg->data[idx++] = '\0';
-		msg->len = idx;
+		
+		if (use_windowed_chat)
+			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, chat_win_text_width);
+		else if (x_chars_limit <= 0)
+			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, window_width - hud_x);
+		else
+			nltmp = 1;
+		
+		msg->len = strlen (msg->data);
+		
+		nlines += nltmp;
+		lines_to_show += nltmp;
+		if (lines_to_show > max_lines_no)
+			lines_to_show = max_lines_no;
 		total_nr_lines += nlines;
+
 		if (use_windowed_chat)
 		{
 			// determine the proper channel
