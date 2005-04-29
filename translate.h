@@ -257,7 +257,9 @@ extern char
 		afk_print_help[150],
 		/*trade.c*/
 		quantity_str[30],
-		abort_str[10];
+		abort_str[10],
+		/* new_character.c */
+		use_appropriate_name[500];
 #endif  //DOXYGEN_SKIP_THIS
 #endif  //ELC
 

@@ -480,9 +480,18 @@ void draw_new_char_screen()
 	draw_string (box_x_start + 5, confirm_box_y_start + 8, display_conf_pass_str,1);
 	draw_string (box_x_start + 5, username_box_y_start + 8, user_str,1);
 
-	glColor3f (1.0f, 0.0f, 0.0f);
 	// print the current error, if any
-	draw_string (10, 400, create_char_error_str, 3);
+	if (create_char_error_str[0] != '\0')
+	{
+		glColor3f (1.0f, 0.0f, 0.0f);
+		draw_string (10, 400, create_char_error_str, 3);
+	}
+	else
+	{
+		glColor3f (0.0f, 1.0f, 0.0f);
+		draw_string_zoomed (10, 390, use_appropriate_name, 7, 0.8);
+	}
+		
 }
 
 void add_char_to_pass(unsigned char ch)
@@ -918,5 +927,7 @@ void create_newchar_root_window ()
 		set_window_handler (newchar_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_CLICK, &click_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_KEYPRESS, &keypress_newchar_handler);
+		
+		reset_soft_breaks (use_appropriate_name, strlen (use_appropriate_name), sizeof (use_appropriate_name), 0.8, window_width - 20);
 	}
 }
