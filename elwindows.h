@@ -90,6 +90,8 @@ typedef	struct	{
 #define	ELW_USE_BACKGROUND	0x0200
 #define	ELW_USE_BORDER		0x0400
 //#define	ELW_USE_LINES		0x0800
+
+#define ELW_CLICK_TRANSPARENT	0x1000
 /*! @} */
 
 /*!
@@ -442,6 +444,17 @@ int		use_window_color(int win_id, Uint32 color_id);
  * \pre If either \a width or \a height is less than 0 this function returns 0 without performing any actions.
  */
 int set_window_min_size (int win_id, int width, int height);
+
+/*!
+ * \ingroup elwindows
+ * \brief Sets one or more window flags
+ *
+ *     Sets the window flags in \a flag
+ *
+ * \param win_id the number of the window
+ * \param flag the flag(s) to set
+ */
+int set_window_flag (int win_id, Uint32 flag);
 
 /*!
  * \ingroup elwindows

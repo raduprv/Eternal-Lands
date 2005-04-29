@@ -1092,7 +1092,8 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 {
 	window_info *win;
 	int	mx, my;
-   	widget_list *W; 
+   	widget_list *W;
+	int ret_val = 0;
 
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
@@ -1134,18 +1135,15 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 			// widgets don't deal with it, try the window handler
 			if (win->click_handler != NULL)
 			{
-				int	ret_val;
-			    
 				glPushMatrix();
 				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-				ret_val= (*win->click_handler)(win, mx, my, flags);
+				ret_val = (*win->click_handler)(win, mx, my, flags);
 				glPopMatrix();
-
-				//return	ret_val;	// with click-thru
-				return	1;	// no click-thru permitted
-			} else {
-				return 1;
 			}
+			
+			if ( !ret_val && (win->flags & ELW_CLICK_TRANSPARENT) )
+				return 0;	// click is not handled, and the window is transparent
+			return	1;	// click is handled
 		}
 
 	return 0;
@@ -1414,6 +1412,15 @@ int set_window_min_size (int win_id, int width, int height)
 	windows_list.window[win_id].min_len_y = height;
 	
 	return 1;
+}
+
+int set_window_flag (int win_id, Uint32 flag)
+{
+	if (win_id < 0 || win_id >= windows_list.num_windows)	return 0;
+	if (windows_list.window[win_id].window_id != win_id)	return 0;
+	
+	windows_list.window[win_id].flags |= flag;
+	return windows_list.window[win_id].flags; 
 }
 
 /* currently UNUSED
