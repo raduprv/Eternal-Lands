@@ -77,7 +77,7 @@ int check_interface_buttons()
 
 			if(mouse_x>=416 && mouse_x<=447)
 				{
-					new_map_menu=1;
+					display_new_map_menu ();
 				}
 
 		}
@@ -916,101 +916,114 @@ void draw_minimap()
 
 int map_size=0;
 
+int new_map_display_handler (window_info *win)
+{
+	glColor3f (1.0f,1.0f,0.0f);
+	draw_string (2, 2, "    Map Size", 1);
+		
+	if (map_size == 0)
+		glColor3f (0.0f, 0.5f, 1.0f);
+	else 
+		glColor3f (1.0f, 1.0f, 1.0f);
+	draw_string (2, 2*17+2, "Very Small [16x16]", 1);
+
+	if (map_size == 1)
+		glColor3f (0.0f, 0.5f, 1.0f);
+	else
+		glColor3f (1.0f, 1.0f, 1.0f);
+	draw_string (2, 3*17+2, "Small      [32x32]", 1);
+		
+	if (map_size == 2)
+		glColor3f (0.0f, 0.5f, 1.0f);
+	else 
+		glColor3f (1.0f, 1.0f, 1.0f);
+	draw_string (2, 4*17+2, "Medium     [64x64]", 1);
+
+	if (map_size == 3)
+		glColor3f (0.0f, 0.5f, 1.0f);
+	else 
+		glColor3f (1.0f, 1.0f, 1.0f);
+	draw_string (2, 5*17+2, "Large      [128x128]", 1);
+
+	if (map_size == 4)
+		glColor3f (0.0f, 0.5f, 1.0f);
+	else 
+		glColor3f (1.0f, 1.0f, 1.0f);
+	draw_string (2, 6*17+2, "Huge       [256x256]", 1);
+
+	glColor3f (1.0f, 1.0f, 1.0f);
+	draw_string (2, 8*17+2, "   [Ok]    [Cancel]", 1);
+}
+
+int new_map_click_handler (window_info *win, int mx, int my)
+{
+	if (my > 2*17+2 && my < 3*17+2)
+	{
+		map_size = 0;
+	}
+	else if (my > 3*17+2 && my < 4*17+2)
+	{
+		map_size = 1;
+	}
+	else if (my > 4*17+2 && my < 5*17+2)
+	{
+		map_size = 2;
+	}
+	else if (my > 5*17+2 && my < 6*17+2)
+	{
+		map_size = 3;
+	}
+	else if (my > 6*17+2 && my < 7*17+2)
+	{
+		map_size = 4;
+	}
+	else if (my > 8*17+2 && my < 9*17+2)
+	{
+		if (mx > 3*12+2 && mx < 7*12+2)
+		{
+			hide_window (new_map_menu);
+			switch (map_size)
+			{
+				case 0: new_map (16, 16); break;
+				case 1: new_map (32, 32); break;
+				case 2: new_map (64, 64); break;
+				case 3: new_map (128, 128); break;
+				case 4: new_map (256, 256); break;
+				default: LOG_ERROR ("Unknown map size!");
+			}
+		}
+		else if (mx > 11*12+2 && mx < 19*12+2)
+		{
+			hide_window (new_map_menu);
+		}
+	}
+}
+
 void display_new_map_menu()
 {
 	char str[128];
 	int x_menu,y_menu;
-	if(!new_map_menu)return;
-
-	x_menu=90;
-	y_menu=82;
-	//draw a black rectangle
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glVertex3i(x_menu,y_menu+170,0);
-	glVertex3i(x_menu,y_menu,0);
-	glVertex3i(x_menu+240,y_menu,0);
-	glVertex3i(x_menu+240,y_menu+170,0);
-	glColor3f(1.0f,1.0f,1.0f);
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-
-
-	x_menu+=2;
-	y_menu+=2;
-
-	glColor3f(1.0f,1.0f,0.0f);
-	draw_string(x_menu,y_menu,(unsigned char *)"    Map Size",1);
-
-	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
-	map_size=0;
-
-	if(map_size==0)glColor3f(0.0f,0.5f,1.0f);
-	else glColor3f(1.0f,1.0f,1.0f);
-	y_menu+=17;
-	draw_string(x_menu,y_menu,(unsigned char *)"Very Small [16x16]",1);
-
-	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
-	map_size=1;
-
-	if(map_size==1)glColor3f(0.0f,0.5f,1.0f);
-	else glColor3f(1.0f,1.0f,1.0f);
-	y_menu+=17;
-	draw_string(x_menu,y_menu,(unsigned char *)"Small      [32x32]",1);
-
-	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
-	map_size=2;
-
-	if(map_size==2)glColor3f(0.0f,0.5f,1.0f);
-	else glColor3f(1.0f,1.0f,1.0f);
-	y_menu+=17;
-	draw_string(x_menu,y_menu,(unsigned char *)"Medium     [64x64]",1);
-
-	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
-	map_size=3;
-
-
-	if(map_size==3)glColor3f(0.0f,0.5f,1.0f);
-	else glColor3f(1.0f,1.0f,1.0f);
-	y_menu+=17;
-	draw_string(x_menu,y_menu,(unsigned char *)"Large      [128x128]",1);
-
-	if(mouse_x>x_menu && mouse_x<x_menu+240 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
-	map_size=4;
-
-	if(map_size==4)glColor3f(0.0f,0.5f,1.0f);
-	else glColor3f(1.0f,1.0f,1.0f);
-	y_menu+=17;
-	draw_string(x_menu,y_menu,(unsigned char *)"Huge       [256x256]",1);
-
-	y_menu+=17;
-	//test for OK
-	if(mouse_x>x_menu+3*12 && mouse_x<x_menu+7*12 && mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)
+	
+	if (new_map_menu < 0)
 	{
-		if(map_size==0)new_map(16,16);
-		else
-		if(map_size==1)new_map(32,32);
-		else
-		if(map_size==2)new_map(64,64);
-		else
-		if(map_size==3)new_map(128,128);
-		else
-		if(map_size==4)new_map(256,256);
-
-		new_map_menu=0;
+		printf("me2\n");
+		int x_menu, y_menu, w_menu, h_menu;
+		
+		x_menu = 90;
+		y_menu = 82;
+		w_menu = 240;
+		h_menu = 170;
+		new_map_menu = create_window ("New map", -1, 0, x_menu, y_menu, w_menu, h_menu, ELW_WIN_DEFAULT);
+		
+		set_window_handler (new_map_menu, ELW_HANDLER_DISPLAY, new_map_display_handler);
+		set_window_handler (new_map_menu, ELW_HANDLER_CLICK, new_map_click_handler);
+		
+		show_window (new_map_menu);select_window (new_map_menu);
 	}
-	//test for Cancel
-	if(mouse_x>x_menu+11*12 && mouse_x<x_menu+19*12 &&
-	mouse_y>y_menu+17 && mouse_y<y_menu+17+17 && left_click==1)new_map_menu=0;
-
-	y_menu+=17;
-	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(x_menu,y_menu,(unsigned char *)"   [Ok]    [Cancel]",1);
-
+	else
+	{
+		show_window (new_map_menu);
+	}
 }
 
 void display_map_settings()

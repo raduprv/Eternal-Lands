@@ -114,7 +114,7 @@ void draw_scene()
 	draw_2d_obj_info();
 	draw_light_info();
 	draw_height_info();
-	display_new_map_menu();
+	//display_new_map_menu();
 	display_map_settings();
 
 	Leave2DMode();

@@ -152,7 +152,7 @@ int buttons_text;
 unsigned char *height_map;
 char heights_3d=0;
 char minimap_on=0;
-char new_map_menu=0;
+int new_map_menu = -1;
 
 //shadows
 
