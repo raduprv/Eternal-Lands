@@ -12,7 +12,7 @@
 	#include <windows.h>
 	#include <al.h>
 	#include <alut.h>
-	#ifndef	GNUC	// or should we test for VC
+	#ifndef	__GNUC__	// or should we test for VC
 		#define	snprintf _snprintf
 		#define strncasecmp _strnicmp
 		#define strcasecmp _stricmp
