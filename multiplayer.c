@@ -98,7 +98,7 @@ void send_version_to_server(IPaddress *ip)
 	str[9]=ip->host&0xFF;
 	str[10]=(ip->host >> 8)&0xFF;
 	str[11]=(ip->host >> 16)&0xFF;
-	str[10]=(ip->host >> 24)&0xFF;
+	str[12]=(ip->host >> 24)&0xFF;
 	str[13]=ip->port&0xFF;
 	str[14]=(ip->port >> 8)&0xFF;	
 	#ifdef EL_BIG_ENDIAN
