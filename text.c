@@ -399,9 +399,9 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 		msg->data[idx++] = '\0';
 		
 		if (use_windowed_chat)
-			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, chat_win_text_width);
+			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, chat_win_text_width, NULL);
 		else if (x_chars_limit <= 0)
-			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, window_width - hud_x);
+			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, window_width - hud_x, NULL);
 		else
 			nltmp = 1;
 		

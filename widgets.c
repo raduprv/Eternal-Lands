@@ -1311,12 +1311,26 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	
 	if (keysym == K_ROTATELEFT)
 	{
-		if (tf->cursor > 0) tf->cursor--;
+		if (tf->cursor > 0) 
+		{
+			do
+			{
+				tf->cursor--;
+			}
+			while (tf->cursor > 0 && msg->data[tf->cursor] == '\r');
+		}
+			
 		return 1;
 	}
 	else if (keysym == K_ROTATERIGHT)
 	{
-		if (tf->cursor < msg->len) tf->cursor++;
+		if (tf->cursor < msg->len)
+		{
+			do
+			{
+				tf->cursor++;
+			} while (tf->cursor < msg->len && msg->data[tf->cursor] == '\r');
+		}
 		return 1;
 	}
 	else if (keysym == SDLK_HOME)
@@ -1329,35 +1343,42 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		tf->cursor = msg->len;
 		return 1;
 	}
-	else if (ch == SDLK_RETURN)
-	{	
-		put_char_in_buffer (msg, '\n', tf->cursor);
-		msg->len++;
-		tf->cursor++;
-		return 1;
-	}
 	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
 	{
-		int i;
-		for (i = tf->cursor; i <= msg->len; i++)
-			msg->data[i-1] = msg->data[i];
-		tf->cursor--;
-		msg->len--;
-		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x);
+		int i = tf->cursor, n = 1;
+		
+		while (n < i && msg->data[i-n] == '\r') n++;
+		
+		for ( ; i <= msg->len; i++)
+			msg->data[i-n] = msg->data[i];
+
+		tf->cursor -= n;
+		msg->len -= n;
+		tf->nr_lines = reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x, &tf->cursor);	
 		return 1;
 	}
 	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
 	{
-		int i;
-		for (i = tf->cursor+1; i <= msg->len; i++)
-			msg->data[i-1] = msg->data[i];
-		msg->len--;
-		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x);
+		int i = tf->cursor, n = 1;
+		
+		while (i+n <= msg->len && msg->data[i+n] == '\r') n++;
+		
+		for (i += n; i <= msg->len; i++)
+			msg->data[i-n] = msg->data[i];
+
+		msg->len -= n;
+		tf->nr_lines = reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x, &tf->cursor);
 		return 1;
 	}
-	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && ch != '`' )
+	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) || ch == SDLK_RETURN ) && ch != '`' )
 	{
-		if (msg->len >= msg->size-1)
+		int nr_lines;
+	
+		if (ch == SDLK_RETURN) ch = '\n';
+		
+		// keep one position free, so that we can always introduce a
+		// soft line break if necessary.
+		if (msg->len >= msg->size-2)
 		{
 			if (w->Flags & TEXT_FIELD_CAN_GROW)
 			{
@@ -1366,7 +1387,14 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			}
 		}
 		tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
-		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x);
+		nr_lines = reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x, &tf->cursor);
+		
+		if (nr_lines != tf->nr_lines)
+		{
+			msg->len += nr_lines - tf->nr_lines;
+			tf->nr_lines = nr_lines;
+		}
+
 		return 1;
 	}
 	return 0;
@@ -1460,6 +1488,7 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 	T->offset = 0;
 	T->buffer = buf;
 	T->buf_size = buf_size;
+	T->nr_lines = 0;
 	T->chan_nr = chan_nr;
 	T->cursor = (Flags & TEXT_FIELD_EDITABLE) ? 0 : -1;
 	T->text_r = text_r;

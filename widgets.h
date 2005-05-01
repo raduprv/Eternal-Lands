@@ -58,6 +58,7 @@ typedef struct
 	int msg, offset, cursor;
 	float text_r, text_g, text_b;
 	int buf_size, buf_fill;
+	int nr_lines;
 	text_message *buffer;
 	int chan_nr;
 	Uint16 x_space, y_space;

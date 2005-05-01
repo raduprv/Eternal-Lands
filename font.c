@@ -425,63 +425,6 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 	glEnd();
 	glDisable(GL_ALPHA_TEST);	
 }
-/*
-int reset_soft_breaks (char *str, int len, float zoom, int width)
-{
-	//displayed_font_x_width=(int)displayed_font_x_size;
-	int font_bit_width;
-	float displayed_font_x_size = 11.0 * zoom;
-	int ichar, iline, nlines;
-	float line_width;
-
-	if (str == NULL) return 0;
-
-	// remove all old soft line breaks
-	for (ichar = 0; ichar < len; ichar++)
-	{
-		if (str[ichar] == '\r') 
-			str[ichar] = ' ';
-		else if (str[ichar] == '\0') 
-			break;
-	}
-
-	ichar = 0;
-	nlines = 1;
-	while (ichar < len)
-	{
-		// search the line until it's wider than the screen or
-		// a line break is found
-		line_width = 0.0;
-		for (iline = ichar; iline < len; iline++)
-		{
-			if (str[iline] == '\0' || str[iline] == '\n') break;
-			//line_width += zoom * get_char_width (str[iline]);
-			font_bit_width = get_font_width (str[iline]);
-			line_width += (int) (0.5f + font_bit_width * displayed_font_x_size / 12.0f);
-			if (line_width > width) break;
-		}
-		if (iline >= len || str[iline] == '\0') break;
-		
-		if (line_width > width)
-		{
-			// now search back again for the last space
-			for ( ; iline > ichar; iline--)
-			{
-				if (str[iline] == ' ')
-				{
-					str[iline] = '\r';
-					break;
-				}
-			}
-		}
-		
-		nlines++;
-		ichar = iline + 1;
-	}
-	
-	return nlines;
-}
-*/
 
 #ifdef DEBUG
 void print_string_escaped (const char *str)
@@ -500,7 +443,7 @@ void print_string_escaped (const char *str)
 }
 #endif
 
-int reset_soft_breaks (char *str, int len, int size, float zoom, int width)
+int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int *cursor)
 {
 	char buf[1024]; 
 	int font_bit_width;
@@ -510,6 +453,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width)
 	int isrc, ibuf, idst;
 	int lastline, lastsrc;
 	int nchar;
+	int dcursor = 0;
 
 	if (str == NULL) return 0;
 	
@@ -527,6 +471,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width)
 			// skip old line breaks
 			if (str[isrc] == '\r')
 			{
+				if (cursor && isrc < *cursor) dcursor--;
 				isrc++;
 				continue;
 			}
@@ -550,6 +495,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width)
 
 				buf[ibuf] = '\r';
 				nlines++;
+				if (cursor && isrc < *cursor) dcursor++;
 				if (++ibuf >= sizeof (buf) - 1) break;
 				
 				lastline = isrc;
@@ -598,6 +544,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width)
 		lastsrc = isrc;
 	}
 	
+	if (cursor) *cursor += dcursor;
 	return nlines;
 }
 

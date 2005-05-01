@@ -189,7 +189,7 @@ void set_create_char_error (const char *msg, int len)
 		sprintf (create_char_error_str, "%s: ", reg_error_str);
 		strncat (create_char_error_str, msg, len);
 		create_char_error_str[len+prelen] = '\0';
-		reset_soft_breaks (create_char_error_str, len+prelen, sizeof (create_char_error_str), 1.0, window_width - 20);
+		reset_soft_breaks (create_char_error_str, len+prelen, sizeof (create_char_error_str), 1.0, window_width - 20, NULL);
 	}
 }
 
@@ -928,6 +928,6 @@ void create_newchar_root_window ()
 		set_window_handler (newchar_root_win, ELW_HANDLER_CLICK, &click_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_KEYPRESS, &keypress_newchar_handler);
 		
-		reset_soft_breaks (use_appropriate_name, strlen (use_appropriate_name), sizeof (use_appropriate_name), 0.8, window_width - 20);
+		reset_soft_breaks (use_appropriate_name, strlen (use_appropriate_name), sizeof (use_appropriate_name), 0.8, window_width - 20, NULL);
 	}
 }

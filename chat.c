@@ -309,11 +309,27 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 
 	if (keysym == K_ROTATELEFT)
 	{
-		if (tf->cursor > 0) tf->cursor--;
+		if (tf->cursor > 0) 
+		{
+			do
+			{
+				tf->cursor--;
+			}
+			while (tf->cursor > 0 && msg->data[tf->cursor] == '\r');
+		}
+			
+		return 1;
 	}
 	else if (keysym == K_ROTATERIGHT)
 	{
-		if (tf->cursor < msg->len) tf->cursor++;
+		if (tf->cursor < msg->len)
+		{
+			do
+			{
+				tf->cursor++;
+			} while (tf->cursor < msg->len && msg->data[tf->cursor] == '\r');
+		}
+		return 1;
 	}
 	else if (keysym == SDLK_HOME)
 	{
@@ -383,7 +399,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 	if (imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
 	while (1)
 	{
-		nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, chat_win_text_width);
+		nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, chat_win_text_width, NULL);
 		update_chat_window (nlines, display_text_buffer[imsg].chan_nr);
 		ntot += nlines;
 		if (imsg == last_message) break;
@@ -444,26 +460,41 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		msg->data[0] = '\0';
 		msg->len = 0;
 		tf->cursor = 0;
+		tf->nr_lines = 0;
 	}
 	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
 	{
-		int i;
-		for (i = tf->cursor; i <= msg->len; i++)
-			msg->data[i-1] = msg->data[i];
-		tf->cursor--;
-		msg->len--;
-		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+		int i = tf->cursor, n = 1;
+		
+		while (n < i && msg->data[i-n] == '\r') n++;
+		
+		for ( ; i <= msg->len; i++)
+			msg->data[i-n] = msg->data[i];
+
+		tf->cursor -= n;
+		msg->len -= n;
+		tf->nr_lines = reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x, &tf->cursor);
+		
+		return 1;
 	}
 	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
 	{
-		int i;
-		for (i = tf->cursor+1; i <= msg->len; i++)
-			msg->data[i-1] = msg->data[i];
-		msg->len--;
-		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+		int i = tf->cursor, n = 1;
+		
+		while (i+n <= msg->len && msg->data[i+n] == '\r') n++;
+		
+		for (i += n; i <= msg->len; i++)
+			msg->data[i-n] = msg->data[i];
+
+		msg->len -= n;
+		tf->nr_lines = reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x, &tf->cursor);
+		
+		return 1;
 	}
 	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && ch != '`' )
 	{
+		int nr_lines;
+	
 		// watch for the '//' shortcut
 		if (tf->cursor == 1 && ch == '/' && msg->data[0] == '/' && last_pm_from[0])
 		{
@@ -474,9 +505,14 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		{
 			tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
 		}
-		reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+		nr_lines = reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE, &tf->cursor);
+		
+		if (nr_lines != tf->nr_lines)
+		{
+			msg->len += nr_lines - tf->nr_lines;
+			tf->nr_lines = nr_lines;
+		}
 	}
-
 	else
 	{
 		return 0;
@@ -495,7 +531,7 @@ void paste_in_input_field (const Uint8 *text)
 	tf = (text_field *) w->widget_info;
 	
 	put_string_in_buffer (&input_text_line, text, tf->cursor);
-	reset_soft_breaks (tf->buffer->data, tf->buffer->len, tf->buffer->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE);
+	tf->nr_lines = reset_soft_breaks (tf->buffer->data, tf->buffer->len, tf->buffer->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE, &tf->cursor);
 }
 
 void display_chat ()
@@ -550,7 +586,7 @@ void display_chat ()
 		if (imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
 		while (1)
 		{
-			nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, chat_win_text_width);
+			nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, chat_win_text_width, NULL);
 			update_chat_window (nlines, display_text_buffer[imsg].chan_nr);
 			ntot += nlines;
 			if (imsg == last_message) break;
