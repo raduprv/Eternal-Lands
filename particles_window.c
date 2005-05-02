@@ -1,6 +1,6 @@
 #include "global.h"
 
-int particles_window=0;
+int particles_window = -1;
 int view_particles_window=0;
 static int particles_window_x=15;
 static int particles_window_y=50;
@@ -62,15 +62,24 @@ void check_particle_sys_alive()
 		part_sys=create_particle_sys(&def,-666.0,-666.0,1.0,0,0,0);
 }
 
+void create_particles_window ()
+{
+	if (particles_window < 0)
+	{
+		particles_window = create_window ("particles", 0, 0, particles_window_x, particles_window_y, particles_window_x_len, particles_window_y_len, ELW_WIN_DEFAULT & ~ELW_SHOW);
+
+		set_window_handler (particles_window, ELW_HANDLER_DISPLAY, &display_particles_window_handler);
+		set_window_handler (particles_window, ELW_HANDLER_CLICK, &check_particles_window_interface);
+		reset_def();
+	}
+}
+
 void display_particles_window()
 {
-	if(particles_window<=0)
-		{
-			particles_window=create_window("particles",0,0,particles_window_x,particles_window_y,particles_window_x_len,particles_window_y_len,ELW_WIN_DEFAULT);
-			set_window_handler(particles_window,ELW_HANDLER_DISPLAY,&display_particles_window_handler);
-			set_window_handler(particles_window,ELW_HANDLER_CLICK,&check_particles_window_interface);
-			reset_def();
-		}
+	if(particles_window < 0)
+	{
+		create_particles_window ();
+	}
 	else
 		{
 			show_window(particles_window);

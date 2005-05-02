@@ -211,8 +211,7 @@ void init_stuff()
 	toggle_window(replace_window_win);
 	display_edit_window();
 	toggle_window(edit_window_win);
-	display_particles_window();
-	toggle_window(particles_window);
+	create_particles_window ();
 
 }
 
