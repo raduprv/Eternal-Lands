@@ -127,6 +127,36 @@ void clone_3d_object(int object_id)
 }
 
 #ifndef LINUX
+void get_proper_path (const char *path, const char *dir, char *proper_path, int size)
+{
+	int i, j;
+	int dir_len = strlen (dir);
+	
+	if (strncmp (path, dir, dir_len) != 0)
+	{
+		LOG_ERROR ("Unable to strip off relative path!");
+		exit (1);
+	}
+	
+	j = 0;
+	proper_path[j++] = '.';
+	if (path[dir_len] != '\\' && path[dir_len] != '/')
+		proper_path[j++] = '/';
+	for (i = dir_len; path[i] != '\0'; i++)
+	{
+		if (path[i] == '\\')
+			proper_path[j++] = '/';
+		else
+			proper_path[j++] = path[i];
+		if (j >= size)
+		{
+			LOG_ERROR ("buffer for proper path too small!");
+			exit (1);
+		}
+	}
+	proper_path[j] = '\0';
+}	
+
 void open_3d_obj()
 {
   OPENFILENAME ofn;
@@ -149,19 +179,8 @@ void open_3d_obj()
     if (GetOpenFileName (&ofn))
     {
 		char proper_path[128];
-		int fn_len;
-		int app_dir_len;
-		int i,j;
-
-		//get the proper path
-		fn_len=strlen(szFileName);
-		app_dir_len=strlen(exec_path);
-		j=0;
-		proper_path[0]='.';
-		for(i=app_dir_len;i<fn_len;i++,j++)proper_path[j+1]=szFileName[i];
-		proper_path[j+1]=0;
-
-		selected_3d_object=add_e3d(proper_path,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
+		get_proper_path (szFileName, exec_path, proper_path, sizeof (proper_path) );
+selected_3d_object=add_e3d(proper_path,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 		cur_tool=tool_select;//change the current tool
     }
 
@@ -289,19 +308,8 @@ void open_2d_obj()
     if (GetOpenFileName (&ofn))
     {
 		char proper_path[128];
-		int fn_len;
-		int app_dir_len;
-		int i,j;
-
-		//get the proper path
-		fn_len=strlen(szFileName);
-		app_dir_len=strlen(exec_path);
-		j=0;
-		proper_path[0]='.';
-		for(i=app_dir_len;i<fn_len;i++,j++)proper_path[j+1]=szFileName[i];
-		proper_path[j+1]=0;
-
-		selected_2d_object=add_2d_obj(proper_path,scene_mouse_x,scene_mouse_y,0.001f,0,0,0);
+		get_proper_path (szFileName, exec_path, proper_path, sizeof (proper_path) );
+				selected_2d_object=add_2d_obj(proper_path,scene_mouse_x,scene_mouse_y,0.001f,0,0,0);
 		cur_tool=tool_select;//change the current tool
     }
 }
@@ -915,18 +923,7 @@ void open_map_file()
     if (GetOpenFileName (&ofn))
     {
 		char proper_path[128];
-		int fn_len;
-		int app_dir_len;
-		int i,j;
-
-		//get the proper path
-		fn_len=strlen(szFileName);
-		app_dir_len=strlen(exec_path);
-		j=0;
-		proper_path[0]='.';
-		for(i=app_dir_len;i<fn_len;i++,j++)proper_path[j+1]=szFileName[i];
-		proper_path[j+1]=0;
-
+		get_proper_path ( szFileName, exec_path, proper_path, sizeof (proper_path) );
 		load_map(proper_path);
     }
 }
@@ -957,18 +954,7 @@ void save_map_file()
     if (GetSaveFileName (&ofn))
     {
 		char proper_path[128];
-		int fn_len;
-		int app_dir_len;
-		int i,j;
-
-		//get the proper path
-		fn_len=strlen(szFileName);
-		app_dir_len=strlen(exec_path);
-		j=0;
-		proper_path[0]='.';
-		for(i=app_dir_len;i<fn_len;i++,j++)proper_path[j+1]=szFileName[i];
-		proper_path[j+1]=0;
-
+		get_proper_path ( szFileName, exec_path, proper_path, sizeof (proper_path) );
 		save_map(proper_path);
     }
 }
@@ -996,7 +982,9 @@ void save_particle_def_file()
 
     if (GetSaveFileName (&ofn))
     {
-		strcpy(def.file_name,szFileName);
+    		char proper_path[128];
+		get_proper_path ( szFileName, exec_path, proper_path, sizeof (proper_path) );
+		strcpy(def.file_name,proper_path);
 		save_particle_def(&def);
     }
 }
@@ -1023,19 +1011,8 @@ void open_particles_obj()
     if (GetOpenFileName (&ofn))
     {
 		char proper_path[128];
-		int fn_len;
-		int app_dir_len;
-		int i,j;
-
-		//get the proper path
-		fn_len=strlen(szFileName);
-		app_dir_len=strlen(exec_path);
-		j=0;
-		proper_path[0]='.';
-		for(i=app_dir_len;i<fn_len;i++,j++)proper_path[j+1]=szFileName[i];
-		proper_path[j+1]=0;
-
-		selected_particles_object=add_particle_sys(proper_path,scene_mouse_x,scene_mouse_y,0.0);
+		get_proper_path ( szFileName, exec_path, proper_path, sizeof (proper_path) );
+selected_particles_object=add_particle_sys(proper_path,scene_mouse_x,scene_mouse_y,0.0);
 		cur_tool=tool_select;//change the current tool
 		particles_list[selected_particles_object]->ttl=-1; // we dont want the particle sys to disapear
     }

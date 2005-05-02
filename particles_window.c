@@ -74,20 +74,6 @@ void create_particles_window ()
 	}
 }
 
-void display_particles_window()
-{
-	if(particles_window < 0)
-	{
-		create_particles_window ();
-	}
-	else
-		{
-			show_window(particles_window);
-			select_window(particles_window);
-		}
-	display_window(particles_window);
-}
-
 void toggle_particles_window()
 {
 	if(part_sys>=0 && particles_list[part_sys])
