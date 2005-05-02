@@ -27,6 +27,7 @@ int rules_win_x=100;
 int rules_win_y=100;
 int rules_win_x_len=400;
 int rules_win_y_len=300;
+int rules_scroll_id = 0;
 
 /*Shared*/
 int reached_end=0;
@@ -58,7 +59,6 @@ static struct rules_struct rules = {0,{{NULL,0,NULL,0,0}}};
 
 void free_rules(rule_string * d);
 rule_string * get_interface_rules(int chars_per_line);
-void check_mouse_rules_interface(rule_string * rules, int lenx, int leny, int mx, int my);
 int draw_rules(rule_string * rules, int rules_no, int x, int y, int lenx, int leny, float text_size);
 
 void add_rule(char * short_desc, char * long_desc, int type)
@@ -137,27 +137,47 @@ int read_rules()
 
 /*Rules window interface*/
 
-int mouseover_rules_handler(window_info * win, int mx, int my)
+int rules_scroll_handler ()
 {
-	check_mouse_rules_interface(display_rules+rule_offset, win->len_x, win->len_y, mx, my);
+	rule_offset = 1 + vscrollbar_get_pos (rules_win, rules_scroll_id);
+	return 1;
+}
+
+int click_rules_handler (window_info *win, int mx, int my, Uint32 flags)
+{
+	rule_string *rules_ptr = display_rules + rule_offset;
+	int i;
+
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
+	for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
+	{
+		if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
+		{
+			rules_ptr[i].show_long_desc = !rules_ptr[i].show_long_desc;
+			return 1;
+		}
+	}
+
 	return 0;
 }
 
-int click_rules_handler(window_info *win, int mx, int my, Uint32 flags)
+int mouseover_rules_handler (window_info *win, int mx, int my)
 {
-	// XXX FIXME: make a proper scrollbar
-	
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-	
-	if(mx > win->len_x-16){
-		if(my<=32 && my>=18) {
-			if(rule_offset>1){
-				rule_offset--;
-			}
-		}  else if(my<=win->len_y-2 && my>=win->len_y-20) 
-			if(!reached_end) {
-				rule_offset++;
-			}
+	rule_string *rules_ptr = display_rules + rule_offset;
+	int i;
+
+	for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
+	{
+		if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
+		{
+			if(rules_ptr[i].long_str)
+				rules_ptr[i].mouseover = 1;
+		}
+		else
+		{
+			rules_ptr[i].mouseover=0;
+		}
 	}
 	
 	return 1;
@@ -166,47 +186,23 @@ int click_rules_handler(window_info *win, int mx, int my, Uint32 flags)
 int display_rules_handler(window_info *win)
 {
 	int len,y;
-	if(!rule_offset)rule_offset=1;
-	len=(float)draw_rules(display_rules+rule_offset, rule_offset, 0, 20, win->len_x, win->len_y-40,0.8f)/(float)rules.no*250;
+	if(rule_offset <= 0)rule_offset=1;
+	len=(float)draw_rules(display_rules, rule_offset, 0, 20, win->len_x, win->len_y-40,0.8f)/(float)rules.no*250;
 	y=(float)(rule_offset-1)*250/(float)rules.no;
 
-	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
-	// XXX FIXME (Grum): replace by scrollbar widget
-	//scroll bar
-	glBegin(GL_LINES);
-		glVertex3i(win->len_x-20,20,0);
-		glVertex3i(win->len_x-20,win->len_y,0);
-		
-		glVertex3i(win->len_x-15,30,0);
-		glVertex3i(win->len_x-10,25,0);
-		glVertex3i(win->len_x-10,25,0);
-		glVertex3i(win->len_x-5,30,0);
-		
-		glVertex3i(win->len_x-15,win->len_y-15,0);
-		glVertex3i(win->len_x-10,win->len_y-10,0);
-		glVertex3i(win->len_x-10,win->len_y-10,0);
-		glVertex3i(win->len_x-5,win->len_y-15,0);
-	glEnd();
-
-	glBegin(GL_QUADS);
-	//scroll bar
-		glVertex3i(win->len_x-13,35+y,0);
-		glVertex3i(win->len_x-7,35+y,0);
-		glVertex3i(win->len_x-7,35+len+y,0);
-		glVertex3i(win->len_x-13,35+len+y,0);
-	glEnd();
-
-	glEnable(GL_TEXTURE_2D);
-	
 	return 1;
 }
 
 void display_rules_window()
 {
-	if(rules_win<0){
-		rules_win=create_window("Rules", game_root_win, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
+	if (rules_win < 0)
+	{
+		rules_win = create_window ("Rules", game_root_win, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
 
+		rules_scroll_id = vscrollbar_add_extended (rules_win, rules_scroll_id, NULL, rules_win_x_len - 20, ELW_BOX_SIZE, 20, rules_win_y_len - ELW_BOX_SIZE, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, rules.no-2);
+		widget_set_OnClick (rules_win, rules_scroll_id, rules_scroll_handler);
+		widget_set_OnDrag (rules_win, rules_scroll_id, rules_scroll_handler);
+		
 		set_window_handler(rules_win, ELW_HANDLER_DISPLAY, &display_rules_handler);
 		set_window_handler(rules_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
 		set_window_handler(rules_win, ELW_HANDLER_CLICK, &click_rules_handler);
@@ -325,7 +321,11 @@ void highlight_rule(int type, Uint8 * rule, int no)
 				next_win_id = game_root_win; break;
 		}
 			
-		init_rules_interface(1.0f, *((Uint16*)(rule)), window_width, window_height);
+		create_rules_root_window ( window_width, window_height, next_win_id, *((Uint16*)(rule)) );
+		hide_all_root_windows ();
+		hide_hud_windows ();
+		show_window (rules_root_win);
+
 		rule+=3;
 		no-=3;
 	} else return; //Hmm...
@@ -351,6 +351,8 @@ void highlight_rule(int type, Uint8 * rule, int no)
 		for(i=0;display_rules[i].type!=-1;i++)
 			if(display_rules[i].type == RULE && display_rules[i].highlight) {
 				rule_offset=i;//Get the first highlighted entry
+				if (type == RULE_WIN)
+					vscrollbar_set_pos (rules_win, rules_scroll_id, rule_offset - 1);
 				return;
 			}
 	}
@@ -381,11 +383,12 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 	char *ptr;
 	float zoom=text_size;
 	int x=0, y=y_in;
+	int nr = rules_no > 2 ? rules_no - 1 : 1;
 	
-	if(rules_ptr[1].type==-1) reached_end=1;
+	if(rules_ptr[rules_no+1].type==-1) reached_end=1;
 	else reached_end=0;
 
-	for(i=0;y<leny;i++){
+	for(i=rules_no;y<leny;i++){
 		ptr=str;
 		len=0;
 		switch(rules_ptr[i].type){
@@ -403,7 +406,7 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 				if(rules_ptr[i].highlight) glColor3f(1.0f,0.0f,0.0f);
 				else if(rules_ptr[i].mouseover) glColor3f(0.77f,0.5f,0.4f);
 				else glColor3f(0.77f, 0.57f, 0.39f);
-				sprintf(str,"%d: ",rules_no++);
+				sprintf(str,"%d: ", nr++);
 				ptr+=strlen(str);
 				zoom=text_size;
 				xdiff=(ptr-str)*11*zoom;
@@ -451,21 +454,6 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 }
 
 int has_accepted=0;
-
-void check_mouse_rules_interface(rule_string * rules_ptr, int lenx, int leny, int mx, int my)
-{
-	int i;
-	for(i=0;rules_ptr[i].type!=-1 && rules_ptr[i].y_start<leny;i++){
-		if(mx>rules_ptr[i].x_start && mx<rules_ptr[i].x_end &&
-				my>rules_ptr[i].y_start && my<rules_ptr[i].y_end){
-			if(left_click==1) {
-				rules_ptr[i].show_long_desc=!rules_ptr[i].show_long_desc;
-				left_click=2;
-			}
-			if(rules_ptr[i].long_str)rules_ptr[i].mouseover=1;
-		} else rules_ptr[i].mouseover=0;
-	}
-}
 
 /*Root window*/
 
@@ -652,7 +640,7 @@ void draw_rules_interface (int len_x, int len_y)
 		
 	draw_string (len_x / 2 - strlen (str) * 11 / 2, len_y - 40 * window_ratio, str, 0);
 	
-	draw_rules (display_rules + rule_offset, rule_offset, diff + 30 * window_ratio, 120 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.0f);
+	draw_rules (display_rules, rule_offset, diff + 30 * window_ratio, 120 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.0f);
     	glDisable (GL_ALPHA_TEST);
 }
 
@@ -797,9 +785,9 @@ void create_rules_root_window (int width, int height, int next, int time)
 		set_window_handler (rules_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_CLICK, &click_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_KEYPRESS, &keypress_rules_root_handler);
-		set_window_handler (rules_root_win, ELW_HANDLER_RESIZE, &resize_rules_root_handler);
-		
-		init_rules_interface (1.0, 2*time, width, height);
-		next_win_id = next;
+		set_window_handler (rules_root_win, ELW_HANDLER_RESIZE, &resize_rules_root_handler);		
 	}
+	
+	init_rules_interface (1.0, 2*time, width, height);
+	next_win_id = next;
 }
