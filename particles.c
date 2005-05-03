@@ -41,11 +41,6 @@ particle_sys *particles_list[MAX_PARTICLE_SYSTEMS];
 particle_sys_def *defs_list[MAX_PARTICLE_DEFS];
 
 void destroy_all_particle_defs();
-#ifdef PARTICLE_SYS_SOUND
-int create_particle_sys (particle_sys_def *def, float x, float y, float z);
-#else
-int create_particle_sys (particle_sys_def *def, float x, float y, float z, int sound, int positional, int loop);
-#endif
 
 #ifndef ELC
 Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)

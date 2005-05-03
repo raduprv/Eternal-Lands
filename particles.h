@@ -270,6 +270,13 @@ int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile);
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, int sound, int positional, int loop);
 #endif
 
+// Grum: included here for the map editor
+#ifdef PARTICLE_SYS_SOUND
+int create_particle_sys (particle_sys_def *def, float x, float y, float z);
+#else
+int create_particle_sys (particle_sys_def *def, float x, float y, float z, int sound, int positional, int loop);
+#endif // def PARTICLE_SYS_SOUND
+
 //RENDERING FUNCTIONS
 
 /*!
