@@ -1003,9 +1003,9 @@ void update_particles() {
 		{
 		if(particles_list[i])
 			{
+#ifdef ELC
 			int xdist=x-particles_list[i]->x_pos;
 			int ydist=y-particles_list[i]->y_pos;
-#ifdef ELC
 			// Systems with a TTL need to be updated, even if they are far away
 			// Though, if we're using the map editor we always want to update, otherwise the preview int the
 			// particles window won't update correctly...
