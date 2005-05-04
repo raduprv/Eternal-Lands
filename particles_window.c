@@ -59,7 +59,7 @@ void check_particle_sys_alive()
 		}
 	// If the current system has died, recreate it.
 	if(part_sys<0 || !particles_list[part_sys])
-		part_sys=create_particle_sys(&def,-666.0,-666.0,1.0,0,0,0);
+		part_sys=create_particle_sys(&def,-666.0,-666.0,1.0);
 }
 
 void create_particles_window ()
@@ -623,40 +623,38 @@ int display_particles_window_handler(window_info *win)
 	return 1;
 }
 
-int check_particles_window_interface(window_info *win, int mx, int my, Uint32 flags)
+int check_particles_window_interface(window_info *win, int mx, int my)
 {
-	int x,y,tmp,i;
+	int tmp,i;
 	int minx,miny,minz,maxx,maxy,maxz;
 	float incr=0.01;
 
-	if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
-
-   	if(mouse_x>(win->pos_x+win->len_x-20) && mouse_y<=win->pos_y+20)
+	// Grum: should this happen ?
+	// Grum: no it shouldn't
+   	if (mx > win->len_x-20 && my <= 20)
 	{
 		toggle_particles_window();
 		return 1;
 	}
 
+	// XXX (Grum): what's wrong with using the flags!?
 	if(shift_on/*flags&ELW_SHIFT*/)incr=0.1;
 	if(ctrl_on/*flags&ELW_CTRL*/)incr=1.0;
 
 	LOCK_PARTICLES_LIST();
 	check_particle_sys_alive();
 
-	x=mouse_x-win->pos_x;
-	y=mouse_y-win->pos_y;
-
-	tmp=check_plus_minus_hit(systypex2,systypey,x,y);
+	tmp = check_plus_minus_hit (systypex2, systypey, mx, my);
 	if(tmp==1 && def.part_sys_type<5)def.part_sys_type++;
 	else if(tmp==2 && def.part_sys_type>0)def.part_sys_type--;
 
-	if(x>blendx && x<blendx2 && y>blendy && y<blendy3)
+	if(mx>blendx && mx<blendx2 && my>blendy && my<blendy3)
 		{
-			if(y<blendy2)def.sblend=get_next_src_blend_func(def.sblend);
+			if(my<blendy2)def.sblend=get_next_src_blend_func(def.sblend);
 			else def.dblend=get_next_dst_blend_func(def.dblend);
 		}
 
-	tmp=check_plus_minus_hit(particlenox2,particlenoy,x,y);
+	tmp=check_plus_minus_hit(particlenox2,particlenoy,mx,my);
 	if(tmp==1 && def.total_particle_no<MAX_PARTICLES)
 		{
 			// If we add particles to an existing system, we must make sure they are free
@@ -665,7 +663,7 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 		}
 	else if(tmp==2 && def.total_particle_no>0)def.total_particle_no-=50;
 
-	tmp=check_plus_minus_hit(ttlx2,ttly,x,y);
+	tmp=check_plus_minus_hit(ttlx2,ttly,mx,my);
 	if(tmp==1)
 		{
 			if(def.ttl>0)def.ttl++;
@@ -679,71 +677,71 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 			particles_list[part_sys]->ttl=def.ttl;
 		}
 
-	tmp=check_plus_minus_hit(randx2,randy,x,y);
+	tmp=check_plus_minus_hit(randx2,randy,mx,my);
 	if(tmp==1)def.random_func=1;
 	else if(tmp==2)def.random_func=0;
 
-	tmp=check_plus_minus_hit(sizex2,sizey,x,y);
+	tmp=check_plus_minus_hit(sizex2,sizey,mx,my);
 	if(tmp==1)def.part_size+=0.1;
 	else if(tmp==2 && def.part_size>0.1)def.part_size-=0.1;
 
-	tmp=check_plus_minus_hit(colorx3-pm_width,colorry,x,y);
+	tmp=check_plus_minus_hit(colorx3-pm_width,colorry,mx,my);
 	if(tmp==1)def.minr+=incr;
 	else if(tmp==2)def.minr-=incr;
-	tmp=check_plus_minus_hit(colorx3-pm_width,colorgy,x,y);
+	tmp=check_plus_minus_hit(colorx3-pm_width,colorgy,mx,my);
 	if(tmp==1)def.ming+=incr;
 	else if(tmp==2)def.ming-=incr;
-	tmp=check_plus_minus_hit(colorx3-pm_width,colorby,x,y);
+	tmp=check_plus_minus_hit(colorx3-pm_width,colorby,mx,my);
 	if(tmp==1)def.minb+=incr;
 	else if(tmp==2)def.minb-=incr;
-	tmp=check_plus_minus_hit(colorx3-pm_width,coloray,x,y);
+	tmp=check_plus_minus_hit(colorx3-pm_width,coloray,mx,my);
 	if(tmp==1)def.mina+=incr;
 	else if(tmp==2)def.mina-=incr;
-	tmp=check_plus_minus_hit(colorx4-pm_width,colorry,x,y);
+	tmp=check_plus_minus_hit(colorx4-pm_width,colorry,mx,my);
 	if(tmp==1)def.maxr+=incr;
 	else if(tmp==2)def.maxr-=incr;
-	tmp=check_plus_minus_hit(colorx4-pm_width,colorgy,x,y);
+	tmp=check_plus_minus_hit(colorx4-pm_width,colorgy,mx,my);
 	if(tmp==1)def.maxg+=incr;
 	else if(tmp==2)def.maxg-=incr;
-	tmp=check_plus_minus_hit(colorx4-pm_width,colorby,x,y);
+	tmp=check_plus_minus_hit(colorx4-pm_width,colorby,mx,my);
 	if(tmp==1)def.maxb+=incr;
 	else if(tmp==2)def.maxb-=incr;
-	tmp=check_plus_minus_hit(colorx4-pm_width,coloray,x,y);
+	tmp=check_plus_minus_hit(colorx4-pm_width,coloray,mx,my);
 	if(tmp==1)def.maxa+=incr;
 	else if(tmp==2)def.maxa-=incr;
 
-	tmp=check_plus_minus_hit(colorx3-pm_width,colorry+110,x,y);
+	tmp=check_plus_minus_hit(colorx3-pm_width,colorry+110,mx,my);
 	if(tmp==1)def.mindr+=incr;
 	else if(tmp==2)def.mindr-=incr;
-	tmp=check_plus_minus_hit(colorx3-pm_width,colorgy+110,x,y);
+	tmp=check_plus_minus_hit(colorx3-pm_width,colorgy+110,mx,my);
 	if(tmp==1)def.mindg+=incr;
 	else if(tmp==2)def.mindg-=incr;
-	tmp=check_plus_minus_hit(colorx3-pm_width,colorby+110,x,y);
+	tmp=check_plus_minus_hit(colorx3-pm_width,colorby+110,mx,my);
 	if(tmp==1)def.mindb+=incr;
 	else if(tmp==2)def.mindb-=incr;
-	tmp=check_plus_minus_hit(colorx3-pm_width,coloray+110,x,y);
+	tmp=check_plus_minus_hit(colorx3-pm_width,coloray+110,mx,my);
 	if(tmp==1)def.minda+=incr;
 	else if(tmp==2)def.minda-=incr;
-	tmp=check_plus_minus_hit(colorx4-pm_width,colorry+110,x,y);
+	tmp=check_plus_minus_hit(colorx4-pm_width,colorry+110,mx,my);
 	if(tmp==1)def.maxdr+=incr;
 	else if(tmp==2)def.maxdr-=incr;
-	tmp=check_plus_minus_hit(colorx4-pm_width,colorgy+110,x,y);
+	tmp=check_plus_minus_hit(colorx4-pm_width,colorgy+110,mx,my);
 	if(tmp==1)def.maxdg+=incr;
 	else if(tmp==2)def.maxdg-=incr;
-	tmp=check_plus_minus_hit(colorx4-pm_width,colorby+110,x,y);
+	tmp=check_plus_minus_hit(colorx4-pm_width,colorby+110,mx,my);
 	if(tmp==1)def.maxdb+=incr;
 	else if(tmp==2)def.maxdb-=incr;
-	tmp=check_plus_minus_hit(colorx4-pm_width,coloray+110,x,y);
+	tmp=check_plus_minus_hit(colorx4-pm_width,coloray+110,mx,my);
 	if(tmp==1)def.maxda+=incr;
 	else if(tmp==2)def.maxda-=incr;
 
 
-	minx=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+30,x,y);
-	miny=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+50,x,y);
-	minz=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+70,x,y);
-	maxx=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+30,x,y);
-	maxy=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+50,x,y);
-	maxz=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+70,x,y);
+	minx=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+30,mx,my);
+	miny=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+50,mx,my);
+	minz=check_plus_minus_hit(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+70,mx,my);
+	maxx=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+30,mx,my);
+	maxy=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+50,mx,my);
+	maxz=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+70,mx,my);
 	switch(preview_display_particle_handles)
 		{
 		case(PREVIEW_PARTICLE_STARTPOS):
@@ -818,6 +816,7 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 			else if(maxz==1){if(def.lightr+incr<=5.0f)def.lightb+=incr;}
 			else if(maxz==2){if(def.lightr-incr>=0.0f)def.lightb-=incr;}
 			
+			// XXX FIXME (Grum): get rid of mouse_x/y
 			if(mouse_x>previewx+11*12+15 && mouse_x<previewx+11*12+30){
 				if(mouse_y<sel_handle_bottom+72 && mouse_y>sel_handle_bottom+52) {
 				def.use_light=!def.use_light;
@@ -864,11 +863,11 @@ int check_particles_window_interface(window_info *win, int mx, int my, Uint32 fl
 				}
 		}
 
-	if(x>previewx && x<previewx2 && y>previewy2 && y<sel_handle_bottom)
+	if(mx>previewx && mx<previewx2 && my>previewy2 && my<sel_handle_bottom)
 		preview_display_particle_handles=(preview_display_particle_handles+1)%6;
 
 	// Save definition
-	if(x>=10 && x<=42 && y>=380 && y<=412)save_particle_def_file();
+	if(mx>=10 && mx<=42 && my>=380 && my<=412)save_particle_def_file();
 
 	UNLOCK_PARTICLES_LIST();
 	return 1;

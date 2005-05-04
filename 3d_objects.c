@@ -837,7 +837,7 @@ void clear_e3d_heightmap(int K)
 	float min_x = 0, min_y = 0, max_x = 0, max_y = 0;
 	e3d_array_vertex *T = objects_list[K]->e3d_data->array_vertex;
 	int minx, miny, maxx, maxy;							
-	int i, j, h;
+	int i, j;
 	
 	e3d_array_vertex *TT = NULL;
 	
@@ -1005,8 +1005,7 @@ void add_e3d_heightmap(int K, int D)
 	float min_x = 0, min_y = 0, max_x = 0, max_y = 0;
 	e3d_array_vertex *T = objects_list[K]->e3d_data->array_vertex, *TT = NULL;
 	int minx, miny, maxx, maxy;							
-	int i, j, k, h;
-	float b3, x0, x1, x2, x3, y0, y1, y2, y3;
+	int i, j, k;
 	void (*method)(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, int j);
 	
 	

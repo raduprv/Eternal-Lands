@@ -41,6 +41,95 @@ int setobject(int n, char *fn,float xrot, float yrot, float zrot)
 
 }
 
+int check_browser_interface (window_info *win, int mx, int my)
+{
+   	if (view_browser && mx > win->len_x-20 && my <= 20)
+	{
+		view_browser = 0;
+		return 1;
+	}
+
+	if(cd==-1){
+		int id = my / 18;
+		if (mx > 210) id += 22;
+
+		if(mc==1){
+			if(id<=cc){
+				ccat=id;
+				mc=0;
+				if(Cat[ccat].ns==1){
+					int i=0;
+					for(;i<dc;i++){
+						if(Cat[ccat].Sub[0]==&Dir[i])
+							cd=i;
+					}
+					mc=1;
+				}
+				
+			}
+		}else{
+			if(id<Cat[ccat].ns){
+				int i=0;
+				for(;i<dc;i++){
+					if(Cat[ccat].Sub[id]==&Dir[i])
+						cd=i;
+				}
+			} else if(mx > win->len_x-16 && my > 160 && my < 240){
+				mc=1;
+			}
+		}
+
+	}else{
+		if(mx>0 && mx<200 && my>0 && my<200){
+			char fn[256];
+			strcpy(fn,".");
+			strcat(fn,Dir[cd].Files[cp]);
+			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
+			cur_tool=tool_select;
+			if(close_browser_on_select) toggle_window(browser_win);
+		}
+		if(cp+2<Dir[cd].nf && mx>0 && mx<200 && my>200 && my<400){
+			char fn[256];
+			strcpy(fn,".");
+			strcat(fn,Dir[cd].Files[cp+2]);
+			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
+			cur_tool=tool_select;
+			if(close_browser_on_select) toggle_window(browser_win);
+		}
+		if(cp+1<Dir[cd].nf && mx>200 && mx<400 && my>0 && my<200){
+			char fn[256];
+			strcpy(fn,".");
+			strcat(fn,Dir[cd].Files[cp+1]);
+			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
+			cur_tool=tool_select;
+			if(close_browser_on_select) toggle_window(browser_win);
+		}
+		if(cp+3<Dir[cd].nf && mx>200 && mx<400 && my>200 && my<400){
+			char fn[256];
+			strcpy(fn,".");
+			strcat(fn,Dir[cd].Files[cp+3]);
+			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
+			cur_tool=tool_select;
+			if(close_browser_on_select) toggle_window(browser_win);
+		}
+	
+
+		if(mx > win->len_x-16 && mx < win->len_x && my > 18 && my < 18+16){
+			if(cp>=4)cp-=4;	
+		}
+
+		if(mx > win->len_x-16 && mx < win->len_x && my > 380 && my < 380+16){
+			if(cp<(Dir[cd].nf-4))cp+=4;
+		}
+
+		if(mx > win->len_x-16 && mx < win->len_x && my > 160 && my < 240){
+			cp=0;
+			cd=-1;
+		}
+   }
+   return 1;
+}
+
 void display_browser()
 {
 	if(browser_win <= 0){
@@ -58,8 +147,6 @@ void display_browser()
 
 int display_browser_handler(window_info *win)
 {
-   int i=0,x=win->pos_x+2,y=win->pos_y+2;
-
    //title bar
    //draw_menu_title_bar(browser_menu_x,browser_menu_y-16,browser_menu_x_len);
    // window drawing
@@ -224,104 +311,6 @@ int display_browser_handler(window_info *win)
 
    }
 	return 1;
-}
-
-
-int check_browser_interface(window_info *win, int mx, int my, Uint32 flags)
-{
-   int x,y;
-   if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x
-      || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
-
-   	if(view_browser && mouse_x>(win->pos_x+win->len_x-20) && mouse_x<=(win->pos_x+win->len_x)
-	&& mouse_y>win->pos_y && mouse_y<=win->pos_y+20)
-	{
-		view_browser=0;
-		return 1;
-	}
-
-   x=mouse_x-win->pos_x;
-   y=mouse_y-win->pos_y;
-	
-	if(cd==-1){
-		int id=y/18;
-		if(x>210)id+=22;
-
-		if(mc==1){
-			if(id<=cc){
-				ccat=id;
-				mc=0;
-				if(Cat[ccat].ns==1){
-					int i=0;
-					for(;i<dc;i++){
-						if(Cat[ccat].Sub[0]==&Dir[i])
-							cd=i;
-					}
-					mc=1;
-				}
-				
-			}
-		}else{
-			if(id<Cat[ccat].ns){
-				int i=0;
-				for(;i<dc;i++){
-					if(Cat[ccat].Sub[id]==&Dir[i])
-						cd=i;
-				}
-			} else if(x > win->len_x-16 && x < win->len_x && y > 160 && y < 240){
-				mc=1;
-			}
-		}
-
-	}else{
-		if(x>0 && x<200 && y>0 && y<200){
-			char fn[256];
-			strcpy(fn,".");
-			strcat(fn,Dir[cd].Files[cp]);
-			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
-			cur_tool=tool_select;
-			if(close_browser_on_select) toggle_window(browser_win);
-		}
-		if(cp+2<Dir[cd].nf && x>0 && x<200 && y>200 && y<400){
-			char fn[256];
-			strcpy(fn,".");
-			strcat(fn,Dir[cd].Files[cp+2]);
-			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
-			cur_tool=tool_select;
-			if(close_browser_on_select) toggle_window(browser_win);
-		}
-		if(cp+1<Dir[cd].nf && x>200 && x<400 && y>0 && y<200){
-			char fn[256];
-			strcpy(fn,".");
-			strcat(fn,Dir[cd].Files[cp+1]);
-			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
-			cur_tool=tool_select;
-			if(close_browser_on_select) toggle_window(browser_win);
-		}
-		if(cp+3<Dir[cd].nf && x>200 && x<400 && y>200 && y<400){
-			char fn[256];
-			strcpy(fn,".");
-			strcat(fn,Dir[cd].Files[cp+3]);
-			selected_3d_object=add_e3d(fn,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
-			cur_tool=tool_select;
-			if(close_browser_on_select) toggle_window(browser_win);
-		}
-	
-
-		if(x > win->len_x-16 && x < win->len_x && y > 18 && y < 18+16){
-			if(cp>=4)cp-=4;	
-		}
-
-		if(x > win->len_x-16 && x < win->len_x && y > 380 && y < 380+16){
-			if(cp<(Dir[cd].nf-4))cp+=4;
-		}
-
-		if(x > win->len_x-16 && x < win->len_x && y > 160 && y < 240){
-			cp=0;
-			cd=-1;
-		}
-   }
-   return 1;
 }
 
 void init_browser()

@@ -13,5 +13,6 @@ void clear_clouds_cache();
 void destroy_3d_object(int i);
 void flag_for_destruction();
 void destroy_the_flagged();
+void clear_e3d_heightmap (int K);
 void add_e3d_heightmap(int K, int D);
 #endif

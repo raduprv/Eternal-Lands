@@ -288,7 +288,6 @@ void draw_lake_tiles()
 	int x_start,x_end,y_start,y_end;
 	int x,y;
 	float x_scaled,y_scaled;
-	int cur_texture;
 
 	//glDisable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);

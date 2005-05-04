@@ -77,15 +77,15 @@ int display_replace_window_handler(window_info *win)
    
 	// The X
 	draw_string(0+win->len_x-16,0+2,(unsigned char *)"X",1);
-	sprintf(temp,"Original: %d",oid);
+	sprintf(temp,"Original: %d",(int)oid);
 	draw_string(10,10,temp,1);
 	draw_string(250,10,"Select",1);
-	sprintf(temp,"New: %d",nid);
+	sprintf(temp,"New: %d",(int)nid);
 	draw_string(10,30,temp,1);
 	draw_string(250,30,"Select",1);
 	draw_string(10,50,"Replace!",1);
 	
-	sprintf(temp,"Mode: %d",mode);
+	sprintf(temp,"Mode: %d",(int)mode);
 	draw_string(130,50,temp,1);
 	draw_string(250,50,"Change",1);
 
@@ -93,23 +93,17 @@ int display_replace_window_handler(window_info *win)
 }
 
 
-int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flags)
+int check_replace_window_interface(window_info *win, int mx, int my)
 {
-	int x,y;
-	if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x
-      || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
-
-   	if(view_replace_window && mouse_x>(win->pos_x+win->len_x-20) && mouse_x<=(win->pos_x+win->len_x)
-	&& mouse_y>win->pos_y && mouse_y<=win->pos_y+20)
+	// Grum: this shouldn't happen
+   	if (view_replace_window && mx > win->len_x-20 && my <= 20)
 	{
 		view_replace_window=0;
 		return 1;
 	}
 
-   x=mouse_x-win->pos_x;
-   y=mouse_y-win->pos_y;
-   
-   if(x>d1_x1 && x<=d1_x2 && y>d1_y1 && y<=d1_y2){
+	if (mx > d1_x1 && mx <= d1_x2 && my > d1_y1 && my <= d1_y2)
+	{
 	  
 	   if(selected_particles_object!=-1 && mode==4){
 		   	oid=(INT)particles_list[selected_particles_object]->def;
@@ -123,8 +117,10 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 			oid=selected_tile;
 	   }
 
-   }
-   if(x>d2_x1 && x<=d2_x2 && y>d2_y1 && y<=d2_y2){
+	}
+	
+	if (mx > d2_x1 && mx <= d2_x2 && my > d2_y1 && my <= d2_y2)
+	{
 	   if(selected_particles_object!=-1 && mode==4){
 		   	nid=(INT)particles_list[selected_particles_object]->def;
 	   }else if(selected_3d_object!=-1  && mode==3){
@@ -137,9 +133,10 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 			nid=selected_tile;
 	   }
 
-   }
+	}
 
-	if(x>d3_x1 && x<=d3_x2 && y>d3_y1 && y<=d3_y2 && oid!=-1 && nid!=-1){
+	if (mx > d3_x1 && mx <= d3_x2 && my > d3_y1 && my <= d3_y2 && oid != -1 && nid != -1)
+	{
 		int i=0;
 		if(mode==4  && nid!=-1 && oid!=-1){
 			LOCK_PARTICLES_LIST();
@@ -182,9 +179,10 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 			}
 				
 	   }
-   }
+	}
 
-	if(x>d4_x1 && x<=d4_x2 && y>d4_y1 && y<=d4_y2){
+	if (mx > d4_x1 && mx <= d4_x2 && my > d4_y1 && my <= d4_y2)
+	{
 		mode++;
 		nid=-1;
 		oid=-1;
@@ -192,5 +190,5 @@ int check_replace_window_interface(window_info *win, int mx, int my, Uint32 flag
 
 	}
 	  
-   return 1;
+	return 1;
 }

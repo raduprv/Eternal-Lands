@@ -266,52 +266,45 @@ int display_o3dow_handler(window_info *win)
 }
 
 
-int check_o3dow_interface(window_info *win, int mx, int my, Uint32 flags)
+int check_o3dow_interface(window_info *win, int mx, int my)
 {
-	int x,y;
-	if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x
-      || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)return 0;
-
-   	if(view_o3dow && mouse_x>(win->pos_x+win->len_x-20) && mouse_x<=(win->pos_x+win->len_x)
-	&& mouse_y>win->pos_y && mouse_y<=win->pos_y+20)
+	// Grum: guess this shouldn't happen
+   	if (view_o3dow && mx > win->len_x - 20 && my <= 20)
 	{
 		view_o3dow=0;
 		return 1;
 	}
-
-   x=mouse_x-win->pos_x;
-   y=mouse_y-win->pos_y;
    
-	if(x>c1_x1 && x<=c1_x2 && y>c1_y1 && y<=c1_y2)c1=!c1;
-	if(x>c2_x1 && x<=c2_x2 && y>c2_y1 && y<=c2_y2)c2=!c2;
-	if(x>c3_x1 && x<=c3_x2 && y>c3_y1 && y<=c3_y2)c3=!c3;
-	if(x>c4_x1 && x<=c4_x2 && y>c4_y1 && y<=c4_y2)c4=!c4;
-	if(x>c5_x1 && x<=c5_x2 && y>c5_y1 && y<=c5_y2)randomheight=!randomheight;
-	if(x>c6_x1 && x<=c6_x2 && y>c6_y1 && y<=c6_y2)randomanglex=!randomanglex;
-	if(x>c7_x1 && x<=c7_x2 && y>c7_y1 && y<=c7_y2)randomangley=!randomangley;
-	if(x>c8_x1 && x<=c8_x2 && y>c8_y1 && y<=c8_y2)randomanglez=!randomanglez;
+	if(mx>c1_x1 && mx<=c1_x2 && my>c1_y1 && my<=c1_y2)c1=!c1;
+	if(mx>c2_x1 && mx<=c2_x2 && my>c2_y1 && my<=c2_y2)c2=!c2;
+	if(mx>c3_x1 && mx<=c3_x2 && my>c3_y1 && my<=c3_y2)c3=!c3;
+	if(mx>c4_x1 && mx<=c4_x2 && my>c4_y1 && my<=c4_y2)c4=!c4;
+	if(mx>c5_x1 && mx<=c5_x2 && my>c5_y1 && my<=c5_y2)randomheight=!randomheight;
+	if(mx>c6_x1 && mx<=c6_x2 && my>c6_y1 && my<=c6_y2)randomanglex=!randomanglex;
+	if(mx>c7_x1 && mx<=c7_x2 && my>c7_y1 && my<=c7_y2)randomangley=!randomangley;
+	if(mx>c8_x1 && mx<=c8_x2 && my>c8_y1 && my<=c8_y2)randomanglez=!randomanglez;
 
 
-	if(x>b1_x1 && x<=b1_x2 && y>b1_y1 && y<=b1_y2)minh+=ctrl_on?100:alt_on?10:1;
-	if(x>b2_x1 && x<=b2_x2 && y>b2_y1 && y<=b2_y2)minh-=ctrl_on?100:alt_on?10:1;
-	if(x>b3_x1 && x<=b3_x2 && y>b3_y1 && y<=b3_y2)maxh+=ctrl_on?100:alt_on?10:1;
-	if(x>b4_x1 && x<=b4_x2 && y>b4_y1 && y<=b4_y2)maxh-=ctrl_on?100:alt_on?10:1;
+	if(mx>b1_x1 && mx<=b1_x2 && my>b1_y1 && my<=b1_y2)minh+=ctrl_on?100:alt_on?10:1;
+	if(mx>b2_x1 && mx<=b2_x2 && my>b2_y1 && my<=b2_y2)minh-=ctrl_on?100:alt_on?10:1;
+	if(mx>b3_x1 && mx<=b3_x2 && my>b3_y1 && my<=b3_y2)maxh+=ctrl_on?100:alt_on?10:1;
+	if(mx>b4_x1 && mx<=b4_x2 && my>b4_y1 && my<=b4_y2)maxh-=ctrl_on?100:alt_on?10:1;
 
-	if(x>b5_x1 && x<=b5_x2 && y>b5_y1 && y<=b5_y2)minax+=ctrl_on?100:alt_on?10:1;
-	if(x>b6_x1 && x<=b6_x2 && y>b6_y1 && y<=b6_y2)minax-=ctrl_on?100:alt_on?10:1;
-	if(x>b7_x1 && x<=b7_x2 && y>b7_y1 && y<=b7_y2)maxax+=ctrl_on?100:alt_on?10:1;
-	if(x>b8_x1 && x<=b8_x2 && y>b8_y1 && y<=b8_y2)maxax-=ctrl_on?100:alt_on?10:1;
+	if(mx>b5_x1 && mx<=b5_x2 && my>b5_y1 && my<=b5_y2)minax+=ctrl_on?100:alt_on?10:1;
+	if(mx>b6_x1 && mx<=b6_x2 && my>b6_y1 && my<=b6_y2)minax-=ctrl_on?100:alt_on?10:1;
+	if(mx>b7_x1 && mx<=b7_x2 && my>b7_y1 && my<=b7_y2)maxax+=ctrl_on?100:alt_on?10:1;
+	if(mx>b8_x1 && mx<=b8_x2 && my>b8_y1 && my<=b8_y2)maxax-=ctrl_on?100:alt_on?10:1;
 
-	if(x>b9_x1 && x<=b9_x2 && y>b9_y1 && y<=b9_y2)minay+=ctrl_on?100:alt_on?10:1;
+	if(mx>b9_x1 && mx<=b9_x2 && my>b9_y1 && my<=b9_y2)minay+=ctrl_on?100:alt_on?10:1;
 
-	if(x>b10_x1 && x<=b10_x2 && y>b10_y1 && y<=b10_y2)minay-=ctrl_on?100:alt_on?10:1;
-	if(x>b11_x1 && x<=b11_x2 && y>b11_y1 && y<=b11_y2)maxay+=ctrl_on?100:alt_on?10:1;
-	if(x>b12_x1 && x<=b12_x2 && y>b12_y1 && y<=b12_y2)maxay-=ctrl_on?100:alt_on?10:1;
+	if(mx>b10_x1 && mx<=b10_x2 && my>b10_y1 && my<=b10_y2)minay-=ctrl_on?100:alt_on?10:1;
+	if(mx>b11_x1 && mx<=b11_x2 && my>b11_y1 && my<=b11_y2)maxay+=ctrl_on?100:alt_on?10:1;
+	if(mx>b12_x1 && mx<=b12_x2 && my>b12_y1 && my<=b12_y2)maxay-=ctrl_on?100:alt_on?10:1;
 
-	if(x>b13_x1 && x<=b13_x2 && y>b13_y1 && y<=b13_y2)minaz+=ctrl_on?100:alt_on?10:1;
-	if(x>b14_x1 && x<=b14_x2 && y>b14_y1 && y<=b14_y2)minaz-=ctrl_on?100:alt_on?10:1;
-	if(x>b15_x1 && x<=b15_x2 && y>b15_y1 && y<=b15_y2)maxaz+=ctrl_on?100:alt_on?10:1;
-	if(x>b16_x1 && x<=b16_x2 && y>b16_y1 && y<=b16_y2)maxaz-=ctrl_on?100:alt_on?10:1;
+	if(mx>b13_x1 && mx<=b13_x2 && my>b13_y1 && my<=b13_y2)minaz+=ctrl_on?100:alt_on?10:1;
+	if(mx>b14_x1 && mx<=b14_x2 && my>b14_y1 && my<=b14_y2)minaz-=ctrl_on?100:alt_on?10:1;
+	if(mx>b15_x1 && mx<=b15_x2 && my>b15_y1 && my<=b15_y2)maxaz+=ctrl_on?100:alt_on?10:1;
+	if(mx>b16_x1 && mx<=b16_x2 && my>b16_y1 && my<=b16_y2)maxaz-=ctrl_on?100:alt_on?10:1;
 
 
    return 1;

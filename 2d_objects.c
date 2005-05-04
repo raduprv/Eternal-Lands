@@ -13,7 +13,6 @@ void draw_2d_object(obj_2d * object_id)
 	obj_2d_def *obj_def_pointer;
 
 	int texture_id;
-	int i,k;
 
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
@@ -349,7 +348,6 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot)
 {
-	int texture_id;
 	int i,k,len;
 	obj_2d_def *returned_obj_2d_def;
 	obj_2d *our_object;

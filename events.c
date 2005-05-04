@@ -111,7 +111,7 @@ int HandleEvent(SDL_Event *event)
 					case mode_particles:
 					{
 						particle_sys *o = (particle_sys *) undo_object;
-						create_particle_sys(o->def,o->x_pos,o->y_pos,o->z_pos,0,0,0);
+						create_particle_sys(o->def,o->x_pos,o->y_pos,o->z_pos);
 						free(undo_object);
 						undo_object = NULL;
 						break;
@@ -214,102 +214,151 @@ int HandleEvent(SDL_Event *event)
 		if ( event->key.keysym.sym == SDLK_PAGEUP )
 		{
 			//if(!ctrl_on && !shift_on && !alt_on)
-			if(!shift_on && !ctrl_on)
-				{
-					if(view_particles_window)particles_win_zoomin();
-					else zoomin();
-				}
-			else
-				{
-					if(cur_mode==mode_3d && selected_3d_object!=-1)
-						if(shift_on)objects_list[selected_3d_object]->y_rot-=1.0f;
-						else objects_list[selected_3d_object]->y_rot-=10.0f;
-				}
+			if (!shift_on && !ctrl_on)
+			{
+				if (view_particles_window)
+					particles_win_zoomin();
+				else 
+					zoomin();
+			}
+			else if (cur_mode == mode_3d && selected_3d_object != -1)
+			{
+				if (shift_on)
+					objects_list[selected_3d_object]->y_rot -= 1.0f;
+				else
+					objects_list[selected_3d_object]->y_rot -= 10.0f;
+			}
 		}
 		if ( event->key.keysym.sym == SDLK_PAGEDOWN )
 		{
 			//if(!ctrl_on && !shift_on && !alt_on)
-			if(!shift_on && !ctrl_on)
-				{
-					if(view_particles_window)particles_win_zoomout();
-					else zoomout();
-				}
-			else
-				{
-					if(cur_mode==mode_3d && selected_3d_object!=-1)
-						if(shift_on)objects_list[selected_3d_object]->y_rot+=1.0f;
-						else objects_list[selected_3d_object]->y_rot+=10.0f;
-				}
+			if (!shift_on && !ctrl_on)
+			{
+				if (view_particles_window)
+					particles_win_zoomout ();
+				else
+					zoomout ();
+			}
+			else if (cur_mode == mode_3d && selected_3d_object != -1)
+			{
+				if (shift_on)
+					objects_list[selected_3d_object]->y_rot += 1.0f;
+				else
+					objects_list[selected_3d_object]->y_rot += 10.0f;
+			}
 		}
 
 
 		if ( event->key.keysym.sym == SDLK_INSERT )
 		{
-			if(cur_mode==mode_3d && selected_3d_object!=-1)
-			if(shift_on)objects_list[selected_3d_object]->z_pos+=0.01f;
-			else objects_list[selected_3d_object]->z_pos+=0.1f;
-
-			if(cur_mode==mode_2d && selected_2d_object!=-1)
-			if(shift_on)obj_2d_list[selected_2d_object]->z_pos+=0.01f;
-			else obj_2d_list[selected_2d_object]->z_pos+=0.1f;
-
-			if(cur_mode==mode_light && selected_light!=-1 && !lights_list[selected_light]->locked)
-			if(shift_on)lights_list[selected_light]->pos_z+=0.01f;
-			else lights_list[selected_light]->pos_z+=0.1f;
-
-			if(cur_mode==mode_particles && selected_particles_object!=-1)
-			if(shift_on){
-				particles_list[selected_particles_object]->z_pos+=0.01f;
-				if(particles_list[selected_particles_object]->def->use_light) 
-					lights_list[particles_list[selected_particles_object]->light]->pos_z+=0.01f;
-			} else {
-				particles_list[selected_particles_object]->z_pos+=0.1f;
-				if(particles_list[selected_particles_object]->def->use_light) 
-					lights_list[particles_list[selected_particles_object]->light]->pos_z+=0.1f;
+			if (cur_mode == mode_3d && selected_3d_object != -1)
+			{
+				if (shift_on)
+					objects_list[selected_3d_object]->z_pos += 0.01f;
+				else
+					objects_list[selected_3d_object]->z_pos += 0.1f;
 			}
-
-			if(cur_mode==mode_particles && view_particles_window)
-				if(shift_on)particles_win_move_preview(0.01f);
-				else particles_win_move_preview(0.1f);
-
-			if(cur_mode==mode_height && selected_height!=-1)
-			if(selected_height<31)selected_height++;
+			else if (cur_mode == mode_2d && selected_2d_object != -1)
+			{
+				if (shift_on)
+					obj_2d_list[selected_2d_object]->z_pos += 0.01f;
+				else 
+					obj_2d_list[selected_2d_object]->z_pos += 0.1f;
+			}
+			else if (cur_mode == mode_light && selected_light != -1 && !lights_list[selected_light]->locked)
+			{
+				if (shift_on)
+					lights_list[selected_light]->pos_z += 0.01f;
+				else 
+					lights_list[selected_light]->pos_z += 0.1f;
+			}
+			else if (cur_mode == mode_particles)
+			{
+				if (selected_particles_object != -1)
+				{
+					if (shift_on)
+					{
+						particles_list[selected_particles_object]->z_pos += 0.01f;
+						if (particles_list[selected_particles_object]->def->use_light) 
+							lights_list[particles_list[selected_particles_object]->light]->pos_z += 0.01f;
+					}
+					else 
+					{
+						particles_list[selected_particles_object]->z_pos += 0.1f;
+						if (particles_list[selected_particles_object]->def->use_light) 
+							lights_list[particles_list[selected_particles_object]->light]->pos_z += 0.1f;
+					}
+				}
+				
+				if (view_particles_window)
+				{
+					if (shift_on)
+						particles_win_move_preview (0.01f);
+					else 
+						particles_win_move_preview (0.1f);
+				}
+			}
+			else if (cur_mode == mode_height && selected_height != -1)
+			{
+				if (selected_height < 31) selected_height++;
+			}
 
 		}
 
 		if ( event->key.keysym.sym == SDLK_DELETE )
 		{
-			if(cur_mode==mode_3d && selected_3d_object!=-1)
-			if(shift_on)objects_list[selected_3d_object]->z_pos-=0.01f;
-			else objects_list[selected_3d_object]->z_pos-=0.1f;
-
-			if(cur_mode==mode_2d && selected_2d_object!=-1)
-			if(shift_on)obj_2d_list[selected_2d_object]->z_pos-=0.01f;
-			else obj_2d_list[selected_2d_object]->z_pos-=0.1f;
-
-			if(cur_mode==mode_light && selected_light!=-1 && !lights_list[selected_light]->locked)
-			if(shift_on)lights_list[selected_light]->pos_z-=0.01f;
-			else lights_list[selected_light]->pos_z-=0.1f;
-
-			if(cur_mode==mode_particles && selected_particles_object!=-1)
-			if(shift_on){
-				particles_list[selected_particles_object]->z_pos-=0.01f;
-				if(particles_list[selected_particles_object]->def->use_light) 
-					lights_list[particles_list[selected_particles_object]->light]->pos_z-=0.01f;
-			} else {
-				particles_list[selected_particles_object]->z_pos-=0.1f;
-				if(particles_list[selected_particles_object]->def->use_light) 
-					lights_list[particles_list[selected_particles_object]->light]->pos_z-=0.1f;
+			if (cur_mode == mode_3d && selected_3d_object != -1)
+			{
+				if (shift_on)
+					objects_list[selected_3d_object]->z_pos -= 0.01f;
+				else 
+					objects_list[selected_3d_object]->z_pos -= 0.1f;
 			}
-
-			if(cur_mode==mode_particles && view_particles_window)
-				if(shift_on)particles_win_move_preview(-0.01f);
-				else particles_win_move_preview(-0.1f);
-
-			if(cur_mode==mode_height && selected_height!=-1)
-			if(selected_height>0)selected_height--;
-
-
+			else if (cur_mode == mode_2d && selected_2d_object != -1)
+			{
+				if (shift_on)
+					obj_2d_list[selected_2d_object]->z_pos -= 0.01f;
+				else 
+					obj_2d_list[selected_2d_object]->z_pos -= 0.1f;
+			}
+			else if (cur_mode == mode_light && selected_light != -1 && !lights_list[selected_light]->locked)
+			{
+				if (shift_on)
+					lights_list[selected_light]->pos_z -= 0.01f;
+				else 
+					lights_list[selected_light]->pos_z -= 0.1f;
+			}
+			else if (cur_mode==mode_particles)
+			{
+				if (selected_particles_object != -1)
+				{
+					if (shift_on)
+					{
+						particles_list[selected_particles_object]->z_pos -= 0.01f;
+						if (particles_list[selected_particles_object]->def->use_light) 
+							lights_list[particles_list[selected_particles_object]->light]->pos_z -= 0.01f;
+					}
+					else
+					{
+						particles_list[selected_particles_object]->z_pos -= 0.1f;
+						if (particles_list[selected_particles_object]->def->use_light) 
+							lights_list[particles_list[selected_particles_object]->light]->pos_z -= 0.1f;
+					}
+				}
+				
+				if (view_particles_window)
+				{
+					if (shift_on)
+						particles_win_move_preview (-0.01f);
+					else
+						particles_win_move_preview (-0.1f);
+				}
+			}
+			else if (cur_mode == mode_height && selected_height != -1)
+			{
+				if (selected_height > 0)
+					selected_height--;
+			}
 		}
 
 		if ( event->key.keysym.sym == SDLK_F1 )
@@ -582,7 +631,6 @@ int HandleEvent(SDL_Event *event)
 								//if we have an object attached to us, drop it
 								if(cur_tool==tool_select && selected_3d_object!=-1)
         							{
-										int K = selected_3d_object;
 										///
 										if(c1){
 											if(c2)

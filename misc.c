@@ -242,7 +242,6 @@ void move_2d_object(int object_id)
 void clone_2d_object(int object_id)
 {
 	float z_pos,x_rot,z_rot;
-	char self_lit,blended;
 	int i,collide;
 	static int up=0;
 
@@ -443,7 +442,7 @@ void move_particles_object(int object_id) {
 void clone_particles_object(int object_id) {
 	LOCK_PARTICLES_LIST();
 	if(!particles_list[object_id])return;
-	selected_particles_object=create_particle_sys(particles_list[object_id]->def,scene_mouse_x,scene_mouse_y,particles_list[object_id]->z_pos,0,0,0);
+	selected_particles_object=create_particle_sys(particles_list[object_id]->def,scene_mouse_x,scene_mouse_y,particles_list[object_id]->z_pos);
 	UNLOCK_PARTICLES_LIST();
 }
 
@@ -510,10 +509,7 @@ void move_tile()
 
 void draw_light_source(light * object_id)
 {
-	float x,y,z,u,v;
 	float x_pos,y_pos,z_pos;
-
-	int i,k;
 
 	x_pos=object_id->pos_x;
 	y_pos=object_id->pos_y;
@@ -1012,7 +1008,7 @@ void open_particles_obj()
     {
 		char proper_path[128];
 		get_proper_path ( szFileName, exec_path, proper_path, sizeof (proper_path) );
-selected_particles_object=add_particle_sys(proper_path,scene_mouse_x,scene_mouse_y,0.0);
+		selected_particles_object=add_particle_sys(proper_path,scene_mouse_x,scene_mouse_y,0.0);
 		cur_tool=tool_select;//change the current tool
 		particles_list[selected_particles_object]->ttl=-1; // we dont want the particle sys to disapear
     }

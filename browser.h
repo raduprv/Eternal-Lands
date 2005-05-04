@@ -27,7 +27,6 @@ extern int close_browser_on_select;
 void init_browser();
 void display_browser();
 int display_browser_handler();
-int check_browser_interface();
 
 #endif
 

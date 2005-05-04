@@ -28,6 +28,8 @@
 #endif
 
 #include "../elc/translate.h"
+#include "../elc/elconfig.h"
+#include "colors.h"
 #include "errors.h"
 #include "init.h"
 #include "asc.h"

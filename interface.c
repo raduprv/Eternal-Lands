@@ -510,8 +510,6 @@ int display_tiles_handler(window_info *win)
 
 	int i,j;
 	int x_start,y_start,x_end,y_end;
-	int pos_x = win->pos_x, pos_y = win->pos_y + 16;
-
 
 	//draw a black rectangle
 	glDisable(GL_TEXTURE_2D);
@@ -569,29 +567,23 @@ int display_tiles_handler(window_info *win)
 				glEnd();
 			}
 		}
+
+	return 1;
 }
 
-int check_tiles_interface(window_info *win, int mx, int my, Uint32 flags)
+int check_tiles_interface (window_info *win, int mx, int my)
 {
 	int tile_id;
-	int x, y;
 
-    if(mouse_x < win->pos_x+win->len_x-20 && mouse_x > win->pos_x+win->len_x
-      && mouse_y > win->pos_y && mouse_y < win->pos_y+20)
-    {
-          view_tiles_list = 0;
-          return 0;
-    }
-    if(mouse_x > win->pos_x+win->len_x || mouse_x < win->pos_x
-      || mouse_y-20 < win->pos_y || mouse_y-20 > win->pos_y+win->len_y)return 0; 
-      //check to see if we clicked outside our rectangle
-    x=mouse_x-win->pos_x;
-    y=mouse_y-win->pos_y - 20;
-
-	x/=48;
-	y/=48;
-	tile_id=y*8+x;
+	if (mx > win->len_x - 20 && mouse_y < 20)
+	{
+		view_tiles_list = 0;
+		return 0;
+	}
 	
+	if (my < 20) return 0; 
+
+	tile_id = 8 * ( (my-20) / 48 ) + mx / 48;	
 	tile_id+=tile_offset;
 	if(tile_id>tiles_no)return 0;//check to see if we clicked on an empty tile
 
@@ -625,7 +617,6 @@ int display_heights_handler(window_info *win)
 
 	int i;
 	int x_start,y_start,x_end,y_end;
-	int pos_x = win->pos_x, pos_y = win->pos_y + 16;
 
 	//draw a black rectangle
 	//n_tile_menu_offset isn't needed in a window...
@@ -660,25 +651,21 @@ int display_heights_handler(window_info *win)
 			glEnd();
 		}
 	glEnable(GL_TEXTURE_2D);
+	
+	return 1;
 }
 
-int check_height_interface(window_info *win, int mx, int my, Uint32 flags)
+int check_height_interface (window_info *win, int mx, int my)
 {
-   int x, y;
-   int height_id;
-   if(mouse_x>win->pos_x+win->len_x || mouse_x<win->pos_x
-      || mouse_y-20<win->pos_y || mouse_y-20>win->pos_y+win->len_y)return 0; 
-      //check to see if we clicked outside our rectangle
+	int height_id;
+	
+	if (my < 20) return 0; 
+	//check to see if we clicked outside our rectangle
 
-
-    x=mouse_x-win->pos_x;
-    y=mouse_y-win->pos_y - 20;
-
-	x/=32;
-	y/=32;
-	height_id=y*8+x;
+	height_id = 8 * ( (my - 20) / 32 ) + mx / 32;
 	cur_tool=tool_select;
 	selected_height=height_id;
+	
 	return 1;                 // Disable clickthroughs?
 }
 
@@ -704,7 +691,6 @@ void check_mouse_minimap()
 	int minimap_y_start;
 	int x_map_pos;
 	int y_map_pos;
-	int y_map_alt;
 	int scale;
 
 	if(window_width<window_height) scale=window_width/256;
@@ -763,13 +749,10 @@ void draw_mouse_minimap()
 //Generates a minimap and returns the texture's integer value
 GLuint generate_minimap()
 {
-        int x=0,y=0,i,j,offset,offset2;
-        float scale=(float)256/tile_map_size_x,addy=0,addx=0;//Set the scale...
+        int x=0,y=0,i,j;
+        float scale=(float)256/tile_map_size_x;//Set the scale...
         img_struct * cur_img;
-        int last_tile=256;
         GLuint texture;
-        int written=0;
-        int lasty=0;
 
         char map[256*256*4]={0};
 
@@ -916,7 +899,7 @@ void draw_minimap()
 
 int map_size=0;
 
-int new_map_display_handler (window_info *win)
+int new_map_display_handler ()
 {
 	glColor3f (1.0f,1.0f,0.0f);
 	draw_string (2, 2, "    Map Size", 1);
@@ -953,6 +936,8 @@ int new_map_display_handler (window_info *win)
 
 	glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (2, 8*17+2, "   [Ok]    [Cancel]", 1);
+	
+	return 1;
 }
 
 int new_map_click_handler (window_info *win, int mx, int my)
@@ -997,16 +982,18 @@ int new_map_click_handler (window_info *win, int mx, int my)
 			hide_window (new_map_menu);
 		}
 	}
+	else
+	{
+		return 0;
+	}
+	
+	return 1;
 }
 
 void display_new_map_menu()
 {
-	char str[128];
-	int x_menu,y_menu;
-	
 	if (new_map_menu < 0)
 	{
-		printf("me2\n");
 		int x_menu, y_menu, w_menu, h_menu;
 		
 		x_menu = 90;

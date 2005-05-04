@@ -1,5 +1,7 @@
+#include <sys/stat.h>
 #ifndef WINDOWS
 #include <dirent.h>
+#include <unistd.h>
 #include <locale.h>
 #endif
 #include "global.h"
@@ -44,7 +46,6 @@ void init_2d_obj_cache()
 void read_config()
 {
 	FILE *f = NULL;
-	int k;
 	char str[250];
 #ifndef WINDOWS
 	char el_ini[256];
@@ -90,7 +91,6 @@ void read_config()
 void init_stuff()
 {
 	int i;
-	int rgb_size[3];
 	int seed;
 	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
 

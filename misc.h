@@ -3,6 +3,8 @@
 
 extern float grid_height;
 
+void draw_checkbox (int startx, int starty, int checked);
+
 void open_3d_obj();
 void open_2d_obj();
 void open_map_file();
@@ -34,6 +36,7 @@ void kill_2d_object(int object_id);
 void move_2d_object(int object_id);
 void clone_2d_object(int object_id);
 
+void display_particle_handles ();
 void get_particles_object_under_mouse();
 void kill_particles_object(int object_id);
 void move_particles_object(int object_id);

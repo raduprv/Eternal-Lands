@@ -21,7 +21,6 @@ int get_string_occurance(char * source_pointer, char * dest_pointer, int max_len
 	char cur_src_char;
 	char cur_dest_char;
 	int source_lenght;
-	char string_found;
 
 	source_lenght=strlen(source_pointer);
 	i=j=0;
@@ -62,7 +61,6 @@ int get_integer_after_string(char * source_pointer, char * dest_pointer, int max
 	char cur_src_char;
 	char cur_dest_char;
 	int source_lenght;
-	char string_found;
 
 	source_lenght=strlen(source_pointer);
 	i=j=0;
@@ -110,7 +108,6 @@ float get_float_after_string(char * source_pointer, char * dest_pointer, int max
 	char cur_src_char;
 	char cur_dest_char;
 	int source_lenght;
-	char string_found;
 
 	source_lenght=strlen(source_pointer);
 	i=j=0;

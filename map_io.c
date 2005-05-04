@@ -60,17 +60,14 @@ int save_map(char * file_name)
 	char * mem_map_header=(char *)&cur_map_header;
 
 	object3d_io cur_3d_obj_io;
-	object3d cur_3d_obj;
 	int obj_3d_no=0;
 	int obj_3d_io_size;
 
 	obj_2d_io cur_2d_obj_io;
-	obj_2d cur_2d_obj;
 	int obj_2d_no=0;
 	int obj_2d_io_size;
 
 	light_io cur_light_io;
-	light cur_light;
 	int lights_no=0;
 	int lights_io_size;
 
@@ -90,7 +87,7 @@ int save_map(char * file_name)
 	//get the number of objects and lights
 	for(i=0;i<max_obj_3d;i++)if(objects_list[i])obj_3d_no++;
 	for(i=0;i<max_obj_2d;i++)if(obj_2d_list[i])obj_2d_no++;
-	for(i=0;i<max_lights;i++)if(lights_list[i])lights_no++;
+	for(i=0;i<max_lights;i++)if(lights_list[i] && !lights_list[i]->locked) lights_no++;
 	// We ignore temporary particle systems (i.e. ones with a ttl)
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)particles_no++;
 
@@ -256,23 +253,20 @@ int save_map(char * file_name)
 
 int load_map(char * file_name)
 {
-	int i,j;
+	int i;
 	map_header cur_map_header;
 	char * mem_map_header=(char *)&cur_map_header;
 
 
 	object3d_io cur_3d_obj_io;
-	object3d cur_3d_obj;
 	int obj_3d_no=0;
 	int obj_3d_io_size;
 
 	obj_2d_io cur_2d_obj_io;
-	obj_2d cur_2d_obj;
 	int obj_2d_no=0;
 	int obj_2d_io_size;
 
 	light_io cur_light_io;
-	light cur_light;
 	int lights_no=0;
 	int lights_io_size;
 
@@ -369,6 +363,7 @@ int load_map(char * file_name)
 		{
 			char *cur_particles_pointer=(char *)&cur_particles_io;
 			fread(cur_particles_pointer,1,particles_io_size,f);
+
 			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
 			if(particles_list[i]) particles_list[i]->ttl=-1;//Fail-safe if things fuck up...
 		}

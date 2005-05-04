@@ -6,7 +6,6 @@ void draw_scene()
 {
 	char str [256];
 	int fps;
-	int y_line;
 	int any_reflection=0;
 
 	if(!shadows_on)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
