@@ -259,7 +259,7 @@ int save_particle_def(particle_sys_def *def)
 	fprintf(f,"%f,%f,%f\n",def->lightx,def->lighty,def->lightz);
 	fprintf(f,"%f,%f,%f\n",def->lightr,def->lightg,def->lightb);
 #ifdef PARTICLE_SYS_SOUND
-	fprintf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loop);
+	fprintf (f, "%d,%d,%d\n", def->sound_nr, def->positional, def->loop);
 #endif
 
 	fclose(f);
@@ -995,7 +995,11 @@ void update_bag_part_sys(particle_sys *system_id)
 }
 
 void update_particles() {
-	int i,x=-cx,y=-cy;
+	int i;
+#ifdef ELC
+	int x = -cx, y = -cy;
+#endif
+
 	if(!particles_percentage)
 	  return;
 	LOCK_PARTICLES_LIST();
