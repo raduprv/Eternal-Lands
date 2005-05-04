@@ -271,6 +271,7 @@ int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, int sound
 #endif
 
 // Grum: included here for the map editor
+void create_particle (particle_sys *sys, particle *result);
 #ifdef PARTICLE_SYS_SOUND
 int create_particle_sys (particle_sys_def *def, float x, float y, float z);
 #else
