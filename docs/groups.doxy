@@ -326,6 +326,11 @@
  *      Handles the in-game notepad
  * \ingroup windows
  */
+/*!
+ * \defgroup    storage_window The new storage interface
+ *      Handles the new storage interface
+ * \ingroup windows
+ */
 
 ///////////////////////////////////////////////////////////////////////////////
 //		      Interfaces (root windows) in EL			     //
