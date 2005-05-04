@@ -55,7 +55,7 @@ extern int rules_root_win;
 
 /*!
  * \ingroup other
- * \brief reads in the rules
+ * \brief Reads in the rules
  *
  *      Reads in the rules from the rules.xml file
  *
@@ -66,7 +66,7 @@ int read_rules(void);
 
 /*!
  * \ingroup interface_rules
- * \brief draws the interface to show up the rules
+ * \brief Draws the interface to show up the rules
  *
  *      Draws the interface to show up the rules at the start of the game
  *
@@ -79,7 +79,7 @@ void draw_rules_interface (int len_x, int len_y);
 
 /*!
  * \ingroup rules_window
- * \brief toggles the rules window visibile or invisible
+ * \brief Toggles the rules window visibile or invisible
  *
  *      Toggles the state of the rules window from visible to invisible and vice versa.
  *
@@ -91,7 +91,7 @@ void toggle_rules_window(int toggle);
 
 /*!
  * \ingroup interface_rules
- * \brief initializes the rules interface
+ * \brief Initializes the rules interface
  *
  *      Initializes the rules interface
  *
@@ -106,7 +106,7 @@ void init_rules_interface(float text_size, int countdown, int len_x, int len_y);
 
 /*!
  * \ingroup other
- * \brief cleans up and frees the memory used by the rules.
+ * \brief Cleans up and frees the memory used by the rules.
  *
  *      Cleans up and frees the memory used by the rules.
  *
@@ -116,7 +116,7 @@ void cleanup_rules(void);
 
 /*!
  * \ingroup interface_rules
- * \brief highlights the specified rule with the type specified.
+ * \brief Highlights the specified rule with the type specified.
  *
  *      Highlights a particular rule, specified by no with a given highlighing type.
  *
@@ -130,7 +130,7 @@ void highlight_rule(int type, Uint8 * rules, int no);
 
 /*!
  * \ingroup interface_rules
- * \brief creates and initializes the rules root window
+ * \brief Creates and initializes the rules root window
  *
  *      Creates and initializes the rules root window
  *

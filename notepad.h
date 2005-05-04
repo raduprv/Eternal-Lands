@@ -12,16 +12,16 @@ extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was
 
 /*!
  * \ingroup notepad_window
- * \brief
+ * \brief Computes and returns the current edit position in the notepad window.
  *
- *      Detail
+ *      Gets the current edit position in the notepad window.
  *
- * \param x
- * \param y
- * \param str
- * \param maxchar
- * \param text_zoom
- * \retval unsigned int
+ * \param x                 current x coordinate
+ * \param y                 current y coordinate
+ * \param str               the string to search for the current edit position
+ * \param maxchar           the highest character index into \a str that will be considered
+ * \param text_zoom         zoom factor for the text
+ * \retval unsigned int     the edit position within \a str
  */
 unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigned int maxchar, float text_zoom);
 
@@ -31,11 +31,11 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
  *
  *      Displays a popup window using the given \a label.
  *
- * \param parent
- * \param x
- * \param y
- * \param label
- * \param maxlen
+ * \param parent    id of the parent window
+ * \param x         x coordinate of the position where the popup window will be shown
+ * \param y         y coordinate of the position where the popup window will be shown
+ * \param label     the label of the popup window
+ * \param maxlen    the maximum length of the popup window text.
  * \callgraph
  */
 void display_popup_win(int parent, int x, int y, char* label, int maxlen);

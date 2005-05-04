@@ -69,6 +69,8 @@ void thunder_control();
  * 
  * \param   	type
  * \param   	sound_delay
+ *
+ * \todo Fix documentation
  */
 void add_thunder(int type,int sound_delay);
 

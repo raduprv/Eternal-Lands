@@ -22,7 +22,7 @@ extern float water_movement_v; /*!< movement of the water in v direction */
 
 /*!
  * \ingroup reflections
- * \brief finds all reflections on the current map
+ * \brief Finds all reflections on the current map
  *
  *      Finds all reflections on the current map.
  *
@@ -33,7 +33,7 @@ int find_reflection();
 
 /*!
  * \ingroup reflections
- * \brief displays all reflections caused by 3d objects.
+ * \brief Displays all reflections caused by 3d objects.
  *
  *      Displays all reflections caused by 3d objects.
  *
@@ -43,7 +43,7 @@ void display_3d_reflection();
 
 /*!
  * \ingroup reflections
- * \brief adds noise to the water of lakes.
+ * \brief Adds noise to the water of lakes.
  *
  *      Adds noise to the water of lakes to make them look more realistic.
  *
@@ -53,7 +53,7 @@ void make_lake_water_noise();
 
 /*!
  * \ingroup reflections
- * \brief draws the tiles of all lakes on the map
+ * \brief Draws the tiles of all lakes on the map
  *
  *      Draws all the tiles of all lakes on the current map
  *
@@ -63,7 +63,7 @@ void draw_lake_tiles();
 
 /*!
  * \ingroup reflections
- * \brief draws the sky background in open areas
+ * \brief Draws the sky background in open areas
  *
  *      Draws the sky background in open areas
  *
@@ -73,7 +73,7 @@ void draw_sky_background();
 
 /*!
  * \ingroup reflections
- * \brief draws the sky background in dungeons
+ * \brief Draws the sky background in dungeons
  *
  *      Draws the sky background in dungeons
  *

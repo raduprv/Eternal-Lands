@@ -113,45 +113,7 @@ void get_world_x_y();
  */
 void get_old_world_x_y();
 
-//*! OBSOLETE? (Malaclypse)
-// * \ingroup interfaces
-// * \brief   Currently not implemented
-// *
-// *      Currently not implemented
-// *
-// * \retval int
-// * \callgraph
-// *
-// * \bug Currently not implemented
-// */
-//int check_drag_menus();
-
-//*! OBSOLETE? (Malaclypse)
-// * \ingroup interfaces
-// * \brief   Currently not implemented
-// *
-// *      Currently not implemented
-// *
-// * \retval int
-// * \callgraph
-// *
-// * \bug Currently not implemented
-// */
-//int check_scroll_bars();
-
 //void check_menus_out_of_screen();
-
-//*! OBSOLETE? (Malaclypse)
-// * \ingroup interfaces
-// * \brief   Currently not implemented
-// *
-// *      Currently not implemented
-// *
-// * \callgraph
-// *
-// * \bug Currently not implemented
-// */
-//void check_mouse_click();
 
 /*!
  * \ingroup interfaces
@@ -202,18 +164,6 @@ void draw_console_pic(int which_texture);
  * \callgraph
  */
 void init_opening_interface();
-
-//*! OBSOLETE? (Malaclypse)
-// * \ingroup interface_login
-// * \brief   Currently not implemented
-// *
-// *      Currently not implemented
-// *
-// * \callgraph
-// *
-// * \bug Currently not implemented
-// */
-//void draw_login_screen();
 
 /*!
  * \ingroup interfaces

@@ -8,7 +8,7 @@
 
 /*!
  * \ingroup hotkey
- * \brief pastes the contents of the given buffer to the chat window
+ * \brief Pastes the contents of the given buffer to the chat window
  *
  *      Pastes the contents of the given buffer to the chat window
  *
@@ -24,7 +24,7 @@ void do_paste(Uint8 * buffer);
 #include <X11/Xlib.h>
 /*!
  * \ingroup hotkey
- * \brief callback used when pasting is started
+ * \brief Callback used when pasting is started
  *
  *      A callback function used when pasting is started. This function is specific to the X Window system.
  *
@@ -33,7 +33,7 @@ void startpaste();
 
 /*!
  * \ingroup hotkey
- * \brief callback used when pasting is finishing.
+ * \brief Callback used when pasting is finishing.
  *
  *      A callback function used when pasting is finishing. This function is specific to the X Window system.
  *
@@ -47,7 +47,7 @@ void finishpaste(XSelectionEvent event);
 
 /*!
  * \ingroup hotkey
- * \brief the callback used for pasting.
+ * \brief The callback used for pasting.
  *
  *      A callback function used for pasting. This function is specific to Windows.
  *

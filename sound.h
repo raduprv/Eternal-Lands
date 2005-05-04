@@ -19,7 +19,7 @@ extern ALfloat music_gain; /*!< gain for playing music */
 
 /*!
  * \ingroup sound_effects
- * \brief   stops playing the specified sound effect.
+ * \brief   Stops playing the specified sound effect.
  *
  *      Stops playing the sound that is specified by the given index.
  *
@@ -29,7 +29,7 @@ void stop_sound(int i);
 
 /*!
  * \ingroup sound_effects
- * \brief adds the file \a sound_file at the position (\a x, \a y) to the list of sounds to play.
+ * \brief Adds the file \a sound_file at the position (\a x, \a y) to the list of sounds to play.
  *
  *      Adds the file \a sound_file at the position (\a x, \a y) to the list of sounds to play. The parameter \a positional determines whether we should use positional sound. The parameter \a loops is a flag to indicicate whether we should play the sound in a loop or not.
  *
@@ -45,7 +45,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops);
 
 /*!
  * \ingroup sound_effects
- * \brief removes a sound from the sound list
+ * \brief Removes a sound from the sound list
  *
  *	Removes a sound from the sound list, and frees up the space associated with it.
  *
@@ -56,7 +56,7 @@ void remove_sound_object (int sound);
 
 /*!
  * \ingroup sound_effects
- * \brief updates the position change of sound played.
+ * \brief Updates the position change of sound played.
  *
  *      Updates the position change of sound played.
  *
@@ -65,7 +65,7 @@ void update_position();
 
 /*!
  * \ingroup sound_effects
- * \brief kill all sounds that loop infinitely
+ * \brief Kill all sounds that loop infinitely
  *
  *      kill all the sounds that loop infinitely; usefull when we change maps, etc.
  *
@@ -75,7 +75,7 @@ void kill_local_sounds();
 
 /*!
  * \ingroup sound_effects
- * \brief turns off playback of sound.
+ * \brief Turns off playback of sound.
  *
  *      Turns off the playback of sound (effects).
  *
@@ -84,7 +84,7 @@ void turn_sound_off();
 
 /*!
  * \ingroup sound_effects
- * \brief turns on playback of sound
+ * \brief Turns on playback of sound
  *
  *      Turns on the playback of sound (effects).
  *
@@ -93,7 +93,7 @@ void turn_sound_on();
 
 /*!
  * \ingroup other
- * \brief initializes the sound system of EL
+ * \brief Initializes the sound system of EL
  *
  *      Initializes the sound system of EL
  *
@@ -102,7 +102,7 @@ void init_sound();
 
 /*!
  * \ingroup other
- * \brief closes the sound system of EL
+ * \brief Closes the sound system of EL
  *
  *      Shuts down the sound system of EL.
  *
@@ -120,7 +120,7 @@ void get_map_playlist();
 
 /*!
  * \ingroup music
- * \brief starts playing music according the entries in the given playlist
+ * \brief Starts playing music according the entries in the given playlist
  *
  *      Start music playback, according the playlist entries in the given playlist.
  *
@@ -132,7 +132,7 @@ void play_music(int list);
 
 /*!
  * \ingroup music
- * \brief updates the music and brings the sound system in sync.
+ * \brief Updates the music and brings the sound system in sync.
  *
  *      Updates the music and brings the sound system in sync.
  *

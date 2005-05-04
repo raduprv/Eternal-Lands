@@ -30,7 +30,7 @@ extern int options_menu_y_len;
 
 /*!
  * \ingroup options_window
- * \brief displays the options window.
+ * \brief Displays the options window.
  * 
  *      Displays the options window.
  *

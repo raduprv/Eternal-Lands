@@ -35,7 +35,7 @@ extern int tab_help_collection_id; /*!< pointer to the \see tab_collection for h
 
 /*!
  * \ingroup tabs
- * \brief displays the tabbed stats window.
+ * \brief Displays the tabbed stats window.
  *
  *      Displays the tabbed stats window.
  *
@@ -45,7 +45,7 @@ void display_tab_stats ();
 
 /*!
  * \ingroup tabs
- * \brief displays the tabbed help window.
+ * \brief Displays the tabbed help window.
  *
  *      Displays the tabbed help window.
  *

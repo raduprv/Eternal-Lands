@@ -12,15 +12,12 @@ extern int map_root_win; /*!< handler for the map window */
 /*! @} */
 
 /*!
- * \ingroup interface_map
- * stores the position and the text for markings on the map.
+ * Stores the position and the text for markings on the map.
  * \todo this struct should be moved to some place where it belongs, like map.h or sector.h
  */
 typedef struct
 {
-    /*!
-     * \name marking position
-     */
+    /*! \name marking position */
     /*! @{ */
     int x ;
     int y;
@@ -35,7 +32,7 @@ extern marking marks[200]; /*!< a global array of marks */
 
 /*!
  * \ingroup interface_map
- * \brief creates the map window
+ * \brief Creates the map window
  *
  *      Creates the map window
  *

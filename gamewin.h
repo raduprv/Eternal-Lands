@@ -38,7 +38,7 @@ Uint8 key_to_char (Uint32 unikey);
 int check_quit_or_fullscreen (Uint32 key);
 /*!
  * \ingroup events
- * \brief common handler for normal character input
+ * \brief Common handler for normal character input
  *
  *      Handles normal characters for the game, console and map windows
  *
@@ -51,7 +51,7 @@ int text_input_handler (Uint32 key, Uint32 unikey);
 
 /*!
  * \ingroup events
- * \brief handles common keyboard events for the root window
+ * \brief Handles common keyboard events for the root window
  *
  *      Handles common keyboard events for the root window
  *

@@ -50,7 +50,7 @@ extern int pf_follow_path; /*!< flag, that indicates whether we should follow th
 
 /*!
  * \ingroup move_actors
- * \brief finds a path to the given position
+ * \brief Finds a path to the given position
  *
  *      Finds a path from the current position to the given target position (x,y).
  *
@@ -63,7 +63,7 @@ int pf_find_path(int x, int y);
 
 /*!
  * \ingroup move_actors
- * \brief clears the current path and frees up the memory used
+ * \brief Clears the current path and frees up the memory used
  *
  *      Clears the current path and frees up the memory used
  *
@@ -72,7 +72,7 @@ void pf_destroy_path();
 
 /*!
  * \ingroup move_actors
- * \brief returns the current actor
+ * \brief Returns the current actor
  *
  *      Returns a pointer to the current actor.
  *
@@ -82,7 +82,7 @@ actor *pf_get_our_actor();
 
 /*!
  * \ingroup move_actors
- * \brief moves the actor along the calculated path
+ * \brief Moves the actor along the calculated path
  *
  *      Moves the actor along the calculated path
  *
@@ -92,7 +92,7 @@ void pf_move();
 
 /*!
  * \ingroup move_actors
- * \brief moves the actor to the mouse position where the last click occurred
+ * \brief Moves the actor to the mouse position where the last click occurred
  *
  *      Moves the actor to the mouse position where the last click occurred
  *
@@ -102,7 +102,7 @@ void pf_move_to_mouse_position();
 
 /*!
  * \ingroup move_actors
- * \brief calulates the tile coordinates of the given mouse position
+ * \brief Calulates the tile coordinates of the given mouse position
  *
  *      Calculates the tile coordinates of the given mouse position.
  *      If the return value is zero, *px and *py are undefined.

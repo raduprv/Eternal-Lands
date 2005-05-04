@@ -1,21 +1,18 @@
 /*!
  * \file
  * \ingroup actors_utils
- * \brief handling of local and global ignore lists.
+ * \brief Handling of local and global ignore lists.
  */
 #ifndef __IGNORE_H__
 #define __IGNORE_H__
 
-/*!
- * \name Array size
- *      defines the max. number of entries in ignore_list
- */
+/*! \name Array size */
 /*! @{ */
-#define MAX_IGNORES 1000
+#define MAX_IGNORES 1000  /*!< defines the max. number of entries in ignore_list */
 /*! @} */
 
 /*!
- * structure to store information on ignored players.
+ * Structure to store information on ignored players.
  */
 typedef struct
 {
@@ -30,46 +27,46 @@ extern int use_global_ignores; /*!< flag, indicating whether to use global ignor
 
 /*!
  * \ingroup actors_utils
- * \brief
+ * \brief   Saves the given \a name in the \ref ignore_list.
  *
- *      Detail
+ *      Saves the given \a name in the \ref ignore_list. If \a save_name is true, the name will also be saved in the local_ignores.txt file.
  *
- * \param name
- * \param save_name
- * \retval int
+ * \param name          the name to save in the \ref ignore_list
+ * \param save_name     flag, indicating whether the list should be saved in the local_ignores.txt file.
+ * \retval int          1, if \a name was successfully added; -1, if \a name is already present in the list; -2, if \ref ignore_list is full.
+ *
+ * \pre If \a name is already present in \ref ignore_list, the function will return -1.
  */
 int add_to_ignore_list(Uint8 *name, char save_name);
 
 /*!
  * \ingroup actors_utils
- * \brief
+ * \brief   Removes the given \a name from the \ref ignore_list.
  *
- *      Detail
+ *      Removes the given \a name from the \ref ignore_list. If the name is found, the changes will be saved to the local_ignores.txt file.
  *
- * \param name
- * \retval int
+ * \param name  the name to remove from \ref ignore_list
+ * \retval int  1, if the entry was found and removed, else -1
  */
 int remove_from_ignore_list(Uint8 *name);
 
 /*!
  * \ingroup actors_utils
- * \brief
+ * \brief   Does a preliminary check if the sender of \a input_text is already ignored.
  *
- *      Detail
+ *      Does a preliminary check if the sender of \a input_text is already ignored. If \a type is true, then \a input_text refers to a PM, else it refers to a channel message.
  *
- * \param input_text
- * \param type
- * \retval int
- *
- * \sa check_if_ignored
+ * \param input_text    the message to check for ignored users
+ * \param type          if true, this indicates \a input_text is a PM message, else it's a channel message.
+ * \retval int          true (1) if the sender of \a input_text is already ignored, else false (0).
  */
 int pre_check_if_ignored(Uint8 * input_text, int type);
 
 /*!
  * \ingroup loadsave
- * \brief
+ * \brief   Loads the ignore lists. The function is called from \ref init_stuff.
  *
- *      Detail
+ *      Called from \ref init_stuff, the function loads the ignore lists. First the local_ignores.txt file will be loaded and if the \ref use_global_ignores setting is true, the global_ignores.txt file will also be loaded.
  *
  * \callgraph
  */
@@ -77,9 +74,9 @@ void load_ignores();
 
 /*!
  * \ingroup actors_utils
- * \brief
+ * \brief   Lists the names that are currently ignored by the actor, or a message stating that the actor is not ignoring anyone.
  *
- *      Detail
+ *      Lists the names that are currently ignored by the actor, if any. The function is called, when the actor uses the #ignores command.
  *
  */
 void list_ignores();

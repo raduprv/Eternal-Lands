@@ -73,7 +73,7 @@ void send_input_text_line (char *line, int len);
 
 /*!
  * \ingroup text_font
- * \brief adds the string in text_to_add up to the specified length to the filtered text.
+ * \brief Adds the string in text_to_add up to the specified length to the filtered text.
  *
  *      Adds the string in text_to_add up to the specified length to the filtered text.
  *
@@ -114,7 +114,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos);
 
 /*!
  * \ingroup text_font
- * \brief adds the string in text_to_add up to the specified length in the text buffer.
+ * \brief Adds the string in text_to_add up to the specified length in the text buffer.
  *
  *      Adds the string in text_to_add up to the specified length to the text buffer. If x_chars_limit is !=0 then words in the filter list will get filtered and replaced.
  *
@@ -128,16 +128,15 @@ void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit);
 
 /*!
  * \ingroup text_font
- * \brief works like put_text_in_buffer, but the text will be in the specified color.
+ * \brief Works like \ref put_text_in_buffer, but the text will be in the specified color.
  *
- *      Works like put_text_in_buffer, but the text will be in the specified color.
+ *      Works like \ref put_text_in_buffer, but the text will be in the specified color.
  *
  * \param color         the color of the text
  * \param text_to_add   the string to add to the buffer
  * \param len           the length of text_to_add
  * \param x_chars_limit flag indicating whether the text should be filtered (!=0) or not (==0).
  *
- * \sa put_text_in_buffer
  * \callgraph
  */
 void put_colored_text_in_buffer(Uint8 color,unsigned char *text_to_add, int len, 
@@ -155,6 +154,8 @@ void put_colored_text_in_buffer(Uint8 color,unsigned char *text_to_add, int len,
  * \param buffer
  *
  * \callgraph
+ *
+ * \todo Fix documentation
  */
 void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, 
 						   char *buffer);
@@ -166,12 +167,14 @@ void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit
  *      find_last_lines_time(int *, int *)
  *
  * \retval int
+ *
+ * \todo Fix documentation
  */
 int find_last_lines_time (int *msg, int *offset);
 
 /*!
  * \ingroup text_font
- * \brief finds the position of the beginning of a line
+ * \brief Finds the position of the beginning of a line
  *
  *	finds the position of the beginning of a line in the text message buffer
  *
@@ -186,7 +189,7 @@ int find_line_nr (int nr_lines, int line, int channel, int *msg, int *offset);
 
 /*!
  * \ingroup interface_console
- * \brief moves the screen up one line in console mode.
+ * \brief Moves the screen up one line in console mode.
  *
  *      Moves the screen in console mode one line up.
  *
@@ -196,7 +199,7 @@ void console_move_up();
 
 /*!
  * \ingroup interface_console
- * \brief moves the screen in console mode one line down
+ * \brief Moves the screen in console mode one line down
  *
  *      Moves the screen down one line in console mode.
  *
@@ -217,7 +220,7 @@ void console_move_page_down();
 
 /*!
  * \ingroup interface_console
- * \brief moves the screen up one page in console mode
+ * \brief Moves the screen up one page in console mode
  *
  *      Moves the screen in console mode up one page.
  *
@@ -240,7 +243,7 @@ void console_move_page_up();
 
 /*!
  * \ingroup text_font
- * \brief clears the text buffer
+ * \brief Clears the text buffer
  *
  *      clears the text buffer
  *

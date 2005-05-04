@@ -29,6 +29,7 @@ extern int have_arb_compression; /*!< flag that indicates whether we have the AR
 extern int have_s3_compression; /*!< flag that indicates whether we have the S3 compression extension or not */
 
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
+/*! @} */
 
 // Grum
 // necessary for OSX?
@@ -36,11 +37,14 @@ extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 #define APIENTRY
 #endif
 
+/*! \name Function pointers to GLX implementation functions
+ * @{ */
 extern void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 extern void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 extern void (APIENTRY * ELglUnlockArraysEXT) (void);
+/*! @} */
 
 /*!
  * \ingroup video

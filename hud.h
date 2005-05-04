@@ -59,11 +59,9 @@ extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar 
 
 /*!
  * \ingroup display_2d
- * \brief
+ * \brief Initializes the quickbar
  *
- *      Detail
- *
- * \callgraph
+ *      Initializes the quickbar, it's event handlers and shows it. If the quickbar has been moved by the player it will be drawn in its new position.
  */
 void init_quickbar();
 
@@ -81,9 +79,9 @@ extern int quickbar_draggable;
 
 /*!
  * \ingroup other
- * \brief
+ * \brief Initializes anything hud related
  *
- *      Detail
+ *      Initializes anything related to the hud, i.e. the hud frame, icons, stats display, quickbar and misc. items like compass and clock.
  *
  * \callgraph
  */
@@ -91,9 +89,11 @@ void init_hud_interface();
 
 /*!
  * \ingroup other
- * \brief
+ * \brief Shows the different hud related windows if they have already been created.
  *
- *      Detail
+ *      Shows the different hud related windows, i.e. the icons, the stats bar, the miscellaneous (compass and clock) and the quickbar window if they have been created before. If none of them has been created nothing will be done.
+ *
+ * \pre If any of \ref icons_win, \ref stats_bar_win, \ref misc_win and \ref quickbar_win is <= 0, no action will be performed.
  *
  * \callgraph
  */
@@ -101,19 +101,20 @@ void show_hud_windows ();
 
 /*!
  * \ingroup other
- * \brief
+ * \brief Hides the different hud related windows, if they are visible.
  *
- *      Detail
+ *      Hides the different hud related windows, i.e. the icons, the stats bar, the miscellaneous (compass and clock) and the quickbar window if they are visible. If none of them is visible nothing will be done.
  *
+ * \pre If none of \ref icons_win, \ref stats_bar_win, \ref misc_win and \ref quickbar_win is >= 0 (i.e. created before and visible) no action will be performed.
  * \callgraph
  */
 void hide_hud_windows ();
 
 /*!
  * \ingroup display_2d
- * \brief
+ * \brief Draws the hud interface related items.
  *
- *      Detail
+ *      Draws the hud related items by setting the background color before calling \ref draw_hud_frame.
  *
  * \callgraph
  */
@@ -121,20 +122,20 @@ void draw_hud_interface();
 
 /*!
  * \ingroup windows
- * \brief
+ * \brief Checks whether a mouse click occurred in the hud.
  *
- *      Detail
+ *      Checks whether a mouse click occurred in the hud. Only used in non-standard (for example map) modes.
  *
- * \retval int
+ * \retval int  the return value of \ref click_in_windows
  * \callgraph
  */
 int check_hud_interface();
 
 /*!
  * \ingroup display_2d
- * \brief
+ * \brief Draws the hud frame.
  *
- *      Detail
+ *      Draws the hud frame, by setting the texture, then draws the horizontal and vertical bar of the hud and finally the EL logo.
  *
  * \callgraph
  */
@@ -144,11 +145,9 @@ void draw_hud_frame();
 
 /*!
  * \ingroup windows
- * \brief
+ * \brief Frees the data used by the icons.
  *
- *      Detail
- *
- * \sa start_rendering
+ *      Frees the data used by \ref icon_list.
  */
 void free_icons();
 
@@ -156,50 +155,53 @@ void free_icons();
 
 /*!
  * \ingroup windows
- * \brief
+ * \brief Sends the sit down command to the server.
  *
- *      Detail
+ *      Sends the \ref SIT_DOWN command to the server, causing the actor to either sit down or stand up, depending on the value of \ref you_sit.
  *
- * \param unused
- * \param id
+ * \param unused    unused
+ * \param id        unused
  */
 void sit_button_pressed(void *unused, int id);
 
 /*!
  * \ingroup windows
- * \brief
+ * \brief Shows the window pointed to by \a win
  *
- *      Detail
+ *      Shows the window pointed to by \a win by calling the appropriate display_*_win function if \a win was not created before, else \ref toggle_window is called.
  *
- * \param win
- * \param id
+ * \param win   the id of the window to show
+ * \param id    unused
  *
+ * \pre If \a win is either of \ref items_win, \ref sigil_win or \ref manufacture_win and the \ref trade_win is currently active, and error message will get logged to the console and the functions returns.
  * \callgraph
  */
 void view_window(int * win, int id);
 
 /*!
  * \ingroup windows
- * \brief
+ * \brief Shows the selected \a tab of the given \a window.
  *
- *      Detail
+ *      Shows the selected \a tab of the given \a window.
  *
- * \param window
- * \param col_id
- * \param tab
+ * \param window    the id of the window
+ * \param col_id    the id of the tab collection
+ * \param tab       the id of the tab to show
  *
+ * \pre If \a window is already visisble and \a tab is the currently selected tab, the window will be hidden.
+ * \pre If \a window is already visisble but \a tab is currently not selected, then \a tab will be selected.
  * \callgraph
  */
 void view_tab (int *window, int *col_id, int tab);
 
 /*!
  * \ingroup windows
- * \brief   views the console window (i.e. switch to console mode)
+ * \brief   Views the console window (i.e. switch to console mode)
  *
  *      This is not handled by the window manager, so we have to call this function
  *
- * \param win
- * \param id
+ * \param win   unused
+ * \param id    unused
  *
  * \callgraph
  */
@@ -207,12 +209,12 @@ void view_console_win(int * win, int id);
 
 /*!
  * \ingroup windows
- * \brief
+ * \brief Views the map window (i.e. switch to map mode)
  *
- *      Detail
+ *      Shows or hides the map window depending on which mode is currently active.
  *
- * \param win
- * \param id
+ * \param win   unused
+ * \param id    unused
  *
  * \callgraph
  */
@@ -220,13 +222,13 @@ void view_map_win(int *win, int id);
 
 /*!
  * \ingroup windows
- * \brief
+ * \brief Shows the \a message at the given position (\a x, \a y).
  *
- *      Detail
+ *      Shows the \a message at the given position (\a x, \a y).
  *
- * \param message
- * \param x
- * \param y
+ * \param message   the help message to show
+ * \param x         the x coordinate of the position to draw the help message
+ * \param y         the y coordinate of the position to draw the help message
  *
  * \callgraph
  */
@@ -236,9 +238,9 @@ void show_help(char *message, int x, int y);
 
 /*!
  * \ingroup other
- * \brief
+ * \brief   Initializes the levels table.
  *
- *      Detail
+ *      Initializes the experience levels table.
  *
  * \sa init_stuff
  */

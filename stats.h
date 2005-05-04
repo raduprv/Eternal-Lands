@@ -205,7 +205,7 @@ void get_the_stats(Sint16 *stats);
 
 /*!
  * \ingroup stats_window
- * \brief   gets the part of the stats that is specified by name.
+ * \brief   Gets the part of the stats that is specified by name.
  *
  *      Gets the part of the stats that is specified by name.
  *
@@ -228,7 +228,7 @@ void display_stats(player_attribs cur_stats);
 
 /*!
  * \ingroup other
- * \brief   initializes the callbacks used to calculate base and current value of the cross attributes.
+ * \brief   Initializes the callbacks used to calculate base and current value of the cross attributes.
  *
  *      Initializes the callbacks used to calculate base and current value of the cross attributes.
  *

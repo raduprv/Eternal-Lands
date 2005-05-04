@@ -38,7 +38,7 @@ extern char afk_message[MAX_TEXT_MESSAGE_LENGTH]; /*!< buffer for the afk messag
 
 /*!
  * \ingroup other
- * \brief frees up the memory used by the pm log.
+ * \brief Frees up the memory used by the pm log.
  *
  *      Frees up the memory used by the PM log.
  *
@@ -47,7 +47,7 @@ void free_pm_log(void);
 
 /*!
  * \ingroup actor_utils
- * \brief sets the players status to AFK.
+ * \brief Sets the players status to AFK.
  *
  *      Sets the players status to AFK.
  *
@@ -57,7 +57,7 @@ void go_afk(void);
 
 /*!
  * \ingroup actor_utils
- * \brief returns the players status from AFK to normal.
+ * \brief Returns the players status from AFK to normal.
  *
  *      Returns the players status from AFK to normal.
  *
@@ -67,7 +67,7 @@ void go_ifk(void);
 
 /*!
  * \ingroup actor_utils
- * \brief adds the given message up to the speciifed length to the PM log.
+ * \brief Adds the given message up to the speciifed length to the PM log.
  *
  *      Adds the given message msg, up to the specified length len to the PM log.
  *
@@ -80,7 +80,7 @@ void add_message_to_pm_log(char * msg, int len);
 
 /*!
  * \ingroup network_actors
- * \brief sends an AFK message to the server
+ * \brief Sends an AFK message to the server
  *
  *      Sends an AFK message to the server to inform it about a player going into AFK state.
  *
@@ -93,7 +93,7 @@ void send_afk_message(Uint8 * server_msg, int type);
 
 /*!
  * \ingroup actor_utils
- * \brief prints the specified message.
+ * \brief Prints the specified message.
  *
  *     Prints the specified message from the users \see afk_struct.
  *

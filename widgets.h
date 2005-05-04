@@ -124,7 +124,7 @@ int widget_set_OnClick(Uint32 window_id, Uint32 widget_id, int (*handler)());
  * \ingroup	widgets
  * \brief 	Sets the widget's on-drag handler
  *
- * 		Finds the widget in the window and sets the widget's on-click handler
+ * 		Finds the widget in the window and sets the widget's on-drag handler
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID

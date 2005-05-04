@@ -15,18 +15,18 @@ extern int manufacture_win; /*!< manufacture windows handler */
 
 /*!
  * \ingroup manufacture_window
- * \brief
+ * \brief Sets up the \ref manufacture_list.
  *
- *      Detail
+ *      Initializes the \ref manufacture_list used when an actor is manufacturing items with the \ref manufacture_win window.
  *
  */
 void build_manufacture_list();
 
 /*!
  * \ingroup manufacture_window
- * \brief
+ * \brief Displays the manufacture window.
  *
- *      Detail
+ *      Displays the \ref manufacture_win window. If the window was not shown before it will first initialized.
  *
  * \callgraph
  */

@@ -1,20 +1,20 @@
 /*!
  * \file
  * \ingroup init
- * \brief initialization related functions.
+ * \brief Initialization related functions.
  */
 #ifndef __INIT_H__
 #define __INIT_H__
 
 /*!
- * binary configuration data
+ * Binary configuration data
  */
 typedef struct
 {
 	int cfg_version_num; /*!< version number of the configuration */
 
     /*!
-     * \name inventory window position
+     * \name Inventory window position
      */
     /*! @{ */
 	int items_menu_x;
@@ -22,7 +22,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name ground items menu position
+     * \name Ground items menu position
      */
     /*! @{ */
 	int ground_items_menu_x;
@@ -30,7 +30,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name manufacture window position
+     * \name Manufacture window position
      */
     /*! @{ */
 	int manufacture_menu_x;
@@ -38,7 +38,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name trade window position
+     * \name Trade window position
      */
     /*! @{ */
 	int trade_menu_x;
@@ -46,7 +46,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name options window position
+     * \name Options window position
      */
     /*! @{ */
 	int options_menu_x;
@@ -54,7 +54,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name stats window position
+     * \name Stats window position
      */
     /*! @{ */
 	int attrib_menu_x;
@@ -62,7 +62,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name sigils window position
+     * \name Sigils window position
      */
     /*! @{ */
 	int sigil_menu_x;
@@ -70,7 +70,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name dialogues window position
+     * \name Dialogues window position
      */
     /*! @{ */
 	int dialogue_menu_x;
@@ -78,7 +78,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name knowledge window position
+     * \name Knowledge window position
      */
     /*! @{ */
 	int knowledge_menu_x;
@@ -86,7 +86,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name encyclopedia window position
+     * \name Encyclopedia window position
      */
     /*! @{ */
 	int encyclopedia_menu_x;
@@ -94,7 +94,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name questlog window position
+     * \name Questlog window position
      */
     /*! @{ */
 	int questlog_menu_x;
@@ -102,7 +102,7 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name quickbar location and flags
+     * \name Quickbar location and flags
      */
     /*! @{ */
 	int quickbar_x;
@@ -118,7 +118,7 @@ typedef struct
 	int reserved[16];
 
     /*!
-     * \name camera position and attributes
+     * \name Camera position and attributes
      */
     /*! @{ */
 	float camera_x;
@@ -158,30 +158,34 @@ extern int video_mode_set;
 
 /*!
  * \ingroup loadsave
- * \brief
+ * \brief   Stores the window layout in the binary el.cfg file.
  *
- *      Detail
+ *      Stores the window layout and related information in the binary el.cfg file.
  *
+ * \pre If el.cfg could be opened for writing, the function returns without performing any actions.
  */
 void save_bin_cfg();
 
 /*!
  * \ingroup init
- * \brief
+ * \brief   Does all the necessary initialization at program startup time.
  *
- *      Detail
+ *      The function will be called from \ref main and does all necessary initialization at program startup time.
  *
  * \callgraph
+ *
+ * \pre If the rules.xml file is missing, the function will terminate the program with an exit code of 3.
+ *
+ * \note If SDLNet_Init fails the function will terminate the program with an exit code of 2. If the SDL timer subsystem initialization fails, it will terminate with an exit code of 1.
  */
 void init_stuff();
 
 /*!
  * \ingroup load
- * \brief
+ * \brief   Frees the memory used by \ref e3dlist.
  *
- *      Detail
+ *      Frees the memory used by \ref e3dlist
  *
- * \sa start_rendering
  */
 void unload_e3d_list();
 

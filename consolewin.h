@@ -15,9 +15,9 @@ extern int console_in_id; /*!< ID of the console input widget */
 
 /*!
  * \ingroup interface_console
- * \brief signals the console window that the text buffer has changed
+ * \brief Signals the console window that the text buffer has changed
  *
- *      signals the console window that the text buffer has changed
+ *      Signals the console window that the text buffer has changed
  *
  * \callgraph
  */
@@ -25,7 +25,7 @@ void update_console_win ();
 
 /*!
  * \ingroup interface_console
- * \brief creates and initializes the console window
+ * \brief Creates and initializes the console window
  *
  *      Creates and initializes the console window
  *

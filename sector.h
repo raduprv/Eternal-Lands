@@ -29,7 +29,7 @@ extern map_sector sectors[256*256]; /*!< the global variable sectors stores all 
 
 /*!
  * \ingroup maps
- * \brief returns the <em>parent</em> sector of the given sector and stores the start and end coordinates in the given parameters.
+ * \brief Returns the <em>parent</em> sector of the given sector and stores the start and end coordinates in the given parameters.
  *
  *      Returns the supersector of the given sector and stores the start coordinates in sx and sy and the end coordinates in ex and ey.
  *
@@ -43,7 +43,7 @@ void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey);
 
 /*!
  * \ingroup maps
- * \brief adds an 3d object, specified by objectid to the current sector.
+ * \brief Adds an 3d object, specified by objectid to the current sector.
  *
  *      Adds an 3d object, specified by objectid to the current sector.
  *
@@ -54,7 +54,7 @@ int sector_add_3do(int objectid);
 
 /*!
  * \ingroup maps
- * \brief adds the given particle to the current sector
+ * \brief Adds the given particle to the current sector
  *
  *      Adds the particle given by objectid to the current sector
  *
@@ -65,9 +65,9 @@ int sector_add_particle(int objectid);
 
 /*!
  * \ingroup maps
- * \brief adds a map to the sector
+ * \brief Adds a map to the sector
  *
- *      Adds a map to the current sector
+ *      Adds a previously loaded map to the current sector
  *
  * \callgraph
  */

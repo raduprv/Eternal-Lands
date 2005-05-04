@@ -105,6 +105,15 @@ extern char items_string[300];
 
 extern int item_quantity;
 
+/*!
+ * \ingroup item
+ * \brief Gets the textures associated with the item \a no.
+ *
+ *      Returns the texture id associated with the item given by \a no.
+ *
+ * \param no        id of the item
+ * \retval GLuint   the texture id associated with \a no.
+ */
 inline GLuint get_items_texture(int no);
 
 /*!

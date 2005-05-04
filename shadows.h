@@ -18,7 +18,7 @@ extern int max_shadow_map_size; /*!< max. size of the shadow maps in byte */
 
 /*!
  * \ingroup shadows
- * \brief computes the shadow transformation matrix
+ * \brief Computes the shadow transformation matrix
  *
  *      Computes the shadow transformation matrix
  *
@@ -28,7 +28,7 @@ void calc_shadow_matrix();
 
 /*!
  * \ingroup shadows
- * \brief redraws the scene with shadows casted by the sun.
+ * \brief Redraws the scene with shadows casted by the sun.
  *
  *      Draws the scene with shadows enabled that are cast by the sun.
  *
@@ -40,7 +40,7 @@ void draw_sun_shadowed_scene(int any_reflection);
 
 /*!
  * \ingroup shadows
- * \brief render_light_view to be documented
+ * \brief Render_light_view to be documented
  *
  *      render_light_view to be documented
  *
@@ -50,7 +50,7 @@ void render_light_view();
 
 /*!
  * \ingroup shadows
- * \brief disables generation of textures
+ * \brief Disables generation of textures
  *
  *      Disables generation of textures
  *
@@ -59,7 +59,7 @@ void disable_texgen();
 
 /*!
  * \ingroup shadows
- * \brief computes and sets the size of the shadow maps
+ * \brief Computes and sets the size of the shadow maps
  *
  *      Computes and sets the size of the shadow maps
  *

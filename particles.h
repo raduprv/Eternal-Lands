@@ -147,7 +147,7 @@ extern int particles_percentage;
 
 /*!
  * \ingroup other
- * \brief destroys all particles of all particles systems and frees up memory used.
+ * \brief Destroys all particles of all particles systems and frees up memory used.
  *
  *      Destroys all particles of all particle systems and frees up memory used.
  *
@@ -156,7 +156,7 @@ void destroy_all_particles();
 
 /*!
  * \ingroup other
- * \brief adds a fire
+ * \brief Adds a fire
  *
  *      Adds a fire using the information from the server
  *
@@ -170,7 +170,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile);
 
 /*!
  * \ingroup other
- * \brief removes a fire particle system at the given location
+ * \brief Removes a fire particle system at the given location
  *
  *      Removes a fire particle system at the location (x,y)
  *
@@ -181,7 +181,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile);
 
 /*!
  * \ingroup other
- * \brief initializes the list of particle systems
+ * \brief Initializes the list of particle systems
  *
  *      Initializes the list of particle systems.
  *
@@ -191,9 +191,9 @@ extern void	init_particles_list();
 
 /*!
  * \ingroup other
- * \brief end_particles_list
+ * \brief Destroys all particle systems and frees up the used memory.
  *
- *      end_particles_list()
+ *      Destroys all particle systems and frees up the used memory.
  *
  * \callgraph
  */
@@ -205,7 +205,7 @@ extern void	end_particles_list();
 #ifdef PARTICLE_SYS_SOUND
 /*!
  * \ingroup particles
- * \brief adds a new particle system from the file given in file_name at the given position.
+ * \brief Adds a new particle system from the file given in file_name at the given position.
  *
  *      Adds a new particle system from the file givein in file_name at the position (x_pos,y_pos,z_pos).
  *
@@ -220,7 +220,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
 #else
 /*!
  * \ingroup particles
- * \brief adds a new particle system from the file given in file_name at the given position.
+ * \brief Adds a new particle system from the file given in file_name at the given position.
  *
  *      Adds a new particle system from the file givein in file_name at the position (x_pos,y_pos,z_pos).
  *
@@ -240,7 +240,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, in
 #ifdef PARTICLE_SYS_SOUND
 /*!
  * \ingroup particles
- * \brief adds a new particle system from the given file file_name at the specified tile position.
+ * \brief Adds a new particle system from the given file file_name at the specified tile position.
  *
  *      Adds a new particle system from the given file file_name at the specified tile position.
  *
@@ -254,7 +254,7 @@ int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile);
 #else
 /*!
  * \ingroup particles
- * \brief adds a new particle system from the given file file_name at the specified tile position.
+ * \brief Adds a new particle system from the given file file_name at the specified tile position.
  *
  *      Adds a new particle system from the given file file_name at the specified tile position.
  *
@@ -281,7 +281,7 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z, int s
 
 /*!
  * \ingroup display_utils
- * \brief displays the particle systems
+ * \brief Displays the particle systems
  *
  *      Displays the particle systems
  *
@@ -293,7 +293,7 @@ void display_particles();
 
 /*!
  * \ingroup particles
- * \brief updates all particles
+ * \brief Updates all particles
  *
  *      Updates all particles
  *
@@ -305,7 +305,7 @@ void update_particles();
 #ifdef ELC
 /*!
  * \ingroup misc_utils
- * \brief adds all teleporters from the given list.
+ * \brief Adds all teleporters from the given list.
  *
  *      Adds all teleporters from the given list.
  *
@@ -320,7 +320,7 @@ void add_teleporters_from_list(Uint8 *teleport_list);
 #ifdef MAP_EDITOR
 /*!
  * \ingroup loadsave
- * \brief saves the given particle system definition to a file
+ * \brief Saves the given particle system definition to a file
  *
  *      Saves the given particle system definition to a file.
  *

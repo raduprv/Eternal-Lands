@@ -178,7 +178,7 @@ typedef struct
 extern char dungeon; /*!< inidicates whether we are in a dungeon (no sun) or not */
 
 /*! \name ambient color values 
-/ * @{ */
+ * @{ */
 extern float ambient_r;
 extern float ambient_g;
 extern float ambient_b;
@@ -188,12 +188,12 @@ extern int map_type; /*!< id of the type of map we are currently using */
 
 /*!
  * \ingroup maps
- * \brief
+ * \brief Loads the map given by \a file_name
  *
- *      Detail
+ *      Loads the map given by \a file_name, initializes the necessary data for the map and adds the map to the current sector.
  *
- * \param file_name
- * \retval int
+ * \param file_name the filename of the map to load.
+ * \retval int  0, if the file given by \a file_name could not be opened, or if the file is invalid, i.e. has an invalid magic number, else 1 is returned.
  * \callgraph
  */
 int load_map(char * file_name);
