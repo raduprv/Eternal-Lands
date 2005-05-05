@@ -56,6 +56,30 @@ void load_ogg_file(char *file_name);
 void stream_music(ALuint buffer);
 void ogg_error(int code);
 
+#ifdef DEBUG
+struct sound_object
+{
+	int file, x, y, positional, loops;
+};
+
+struct sound_object sound_objects[MAX_SOURCES];
+
+void print_sound_objects ()
+{
+	int i;
+	
+	for (i = 0; i < MAX_SOURCES; i++)
+	{
+		struct sound_object *obj = &(sound_objects[i]);
+		if (obj->file >= 0)
+		{
+			printf ("position = %d, file = %d, x = %d, y = %d, positional = %d, loops = %d\n", i, obj->file, obj->x, obj->y, obj->positional, obj->loops);
+		}
+	}
+	printf ("\n");
+}
+#endif // def DEBUG
+
 void stop_sound(int i)
 {
 	if(!have_sound)return;
@@ -334,6 +358,14 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 		if(sound_on)
 			alSourcePlay(sound_source[i]);
 	}
+
+#ifdef DEBUG
+	sound_objects[i].file = sound_file;
+	sound_objects[i].x = x;
+	sound_objects[i].y = y;
+	sound_objects[i].positional = positional;
+	sound_objects[i].loops = loops;
+#endif
 	
 	used_sources++;
 
@@ -353,8 +385,16 @@ void remove_sound_object (int sound)
 			alSourceStop (sound_source[i]);
 			alDeleteSources(1, &sound_source[i]);
 			for (j = i+1; j < used_sources; j++)
+			{
 				sound_source[j-1] = sound_source[j];
+#ifdef DEBUG
+				sound_objects[j-1] = sound_objects[j];
+#endif
+			}
 			used_sources--;
+#ifdef DEBUG
+			sound_objects[used_sources].file = -1;
+#endif
 			break;
 		}
 	}
@@ -677,7 +717,12 @@ void init_sound()
 
 	//poison data
 	for(i=0;i<MAX_SOURCES;i++)
+	{
 		sound_source[i] = -1;
+#ifdef DEBUG
+		sound_objects[i].file = -1;
+#endif
+	}
 	for(i=0;i<MAX_BUFFERS;i++)
 		sound_buffer[i] = -1;
 
@@ -723,6 +768,10 @@ int realloc_sources()
 	int state,error;
 	int still_used=0;
 	ALuint new_sources[MAX_SOURCES];
+#ifdef DEBUG
+	struct sound_object new_sound_objects[MAX_SOURCES];
+#endif
+	
 	if(used_sources>MAX_SOURCES)
 		used_sources=MAX_SOURCES;
 	for(i=0;i<used_sources;i++)
@@ -731,6 +780,9 @@ int realloc_sources()
 			if((state == AL_PLAYING) || (state == AL_PAUSED))
 				{
 					new_sources[still_used] = sound_source[i];
+#ifdef DEBUG
+					new_sound_objects[still_used] = sound_objects[i];
+#endif
 					still_used++;
 				}
 			else
@@ -738,9 +790,19 @@ int realloc_sources()
 		}
 
 	for(i=0;i<still_used;i++)
+	{
 		sound_source[i] = new_sources[i];
+#ifdef DEBUG
+		sound_objects[i] = new_sound_objects[i];
+#endif
+	}
 	for(i=still_used;i<MAX_SOURCES;i++)
+	{
 		sound_source[i]=-1;
+#ifdef DEBUG
+		sound_objects[i].file = -1;
+#endif
+	}
 	used_sources=still_used;
 	
 	if((error=alGetError()) != AL_NO_ERROR) 

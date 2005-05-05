@@ -138,5 +138,6 @@ typedef int point;
 #ifdef NOTEPAD
 #include "notepad.h"
 #endif
+#include "alphamap.h"
 
 #endif

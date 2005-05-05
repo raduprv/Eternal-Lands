@@ -1152,13 +1152,20 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #ifdef DEBUG
 	else if (keysym == SDLK_F10)
 	{
-		int iwin;
-		widget_list *l;
-		for (iwin = 0; iwin < windows_list.num_windows; iwin++)
+		if (key & ELW_SHIFT)
 		{
-			printf ("%s: id = %d, order = %d, parent = %d, pos = (%d, %d), cur_pos = (%d, %d), displayed = %d\n", windows_list.window[iwin].window_name, windows_list.window[iwin].window_id, windows_list.window[iwin].order, windows_list.window[iwin].pos_id, windows_list.window[iwin].pos_x, windows_list.window[iwin].pos_y, windows_list.window[iwin].cur_x, windows_list.window[iwin].cur_y, windows_list.window[iwin].displayed);
-			for (l = windows_list.window[iwin].widgetlist; l; l = l->next)
-				printf ("\t%d\n", l->id);
+			print_sound_objects ();
+		}
+		else
+		{
+			int iwin;
+			widget_list *l;
+			for (iwin = 0; iwin < windows_list.num_windows; iwin++)
+			{
+				printf ("%s: id = %d, order = %d, parent = %d, pos = (%d, %d), cur_pos = (%d, %d), displayed = %d\n", windows_list.window[iwin].window_name, windows_list.window[iwin].window_id, windows_list.window[iwin].order, windows_list.window[iwin].pos_id, windows_list.window[iwin].pos_x, windows_list.window[iwin].pos_y, windows_list.window[iwin].cur_x, windows_list.window[iwin].cur_y, windows_list.window[iwin].displayed);
+				for (l = windows_list.window[iwin].widgetlist; l; l = l->next)
+					printf ("\t%d\n", l->id);
+			}
 		}
 	}
 #endif

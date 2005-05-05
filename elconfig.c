@@ -474,6 +474,7 @@ void init_vars()
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0);
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0);
+	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1);
 #endif // ELCONFIG
 #endif // def ELC
 

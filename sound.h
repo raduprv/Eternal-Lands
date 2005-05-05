@@ -17,6 +17,10 @@ extern int playing_music; /*!< flag indicating if music is currently playing */
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
 
+#ifdef DEBUG
+void print_sound_objects ();
+#endif // def DEBUG
+
 /*!
  * \ingroup sound_effects
  * \brief   Stops playing the specified sound effect.
