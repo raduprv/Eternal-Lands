@@ -543,8 +543,8 @@ int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x
 	W->g = g;
 	W->b = b;
 	strncpy(T->text,text,255);
-	W->len_y = (Uint16)(18 * 1.0) + 2;
-	W->len_x = (Uint16)(strlen(T->text) * 11 * 1.0) + 4;
+	W->len_y = ly > 0 ? ly : (Uint16)(18 * size) + 4;
+	W->len_x = lx > 0 ? lx : (Uint16)(strlen(T->text) * 11 * size) + 4;
 	W->OnDraw = button_draw;
 	W->OnDestroy = free_widget_info;
 	W->OnInit = OnInit;

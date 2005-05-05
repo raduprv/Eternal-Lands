@@ -128,6 +128,32 @@ inline GLuint get_items_texture(int no)
 	return retval;
 }
 
+int drop_all_handler ()
+{
+	Uint8 str[4] = {0};
+#ifndef SERVER_DROP_ALL
+	int i;
+#endif
+
+#ifndef SERVER_DROP_ALL
+	for(i = 0; i < ITEM_NUM_ITEMS; i++)
+	{
+		if (item_list[i].quantity != 0 && item_list[i].pos < ITEM_WEAR_START) // only drop stuff that we're not wearing
+		{
+			str[0] = DROP_ITEM;
+			str[1] = item_list[i].pos;
+			*((Uint16 *)(str+2)) = item_list[i].quantity;
+			my_tcp_send (my_socket, str, 4);
+		}
+	}
+#else
+	str[0] = DROP_ALL;
+	my_tcp_send (my_socket, str, 1); // this may need to be altered depending on server implementation
+#endif
+
+	return 1;
+}
+
 
 int display_items_handler(window_info *win)
 {
@@ -284,7 +310,8 @@ int display_items_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	//draw the load string
 	sprintf(str,"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
-	draw_string_small(6*51+4-((strlen(str)-4)*8),6*51+44,str,1);
+	//draw_string_small(6*51+4-((strlen(str)-4)*8),6*51+44,str,1);
+	draw_string_small (items_menu_x_len -  8 * strlen (str) - 4, items_menu_y_len - 18, str, 1);
 	return 1;
 }
 
@@ -1099,12 +1126,18 @@ void open_bag(int object_id)
 
 void display_items_menu()
 {
+	int drop_button_id = 0;
+
 	if(items_win < 0){
 		items_win= create_window("Inventory", game_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
+		
+		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 10, 320, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, "Drop All");
+		widget_set_OnClick (items_win, drop_button_id, drop_all_handler);
+		
 	} else {
 		show_window(items_win);
 		select_window(items_win);
