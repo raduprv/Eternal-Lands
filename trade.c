@@ -20,97 +20,11 @@ int trade_menu_y_len=11*33;
 int display_trade_handler(window_info *win)
 {
 	Uint8 str[80];
-	int x,y,i,j;
+	int i,j;
 
-	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
-	glBegin(GL_LINES);
-	//draw the grid
-	for(y=1;y<4;y++)
-		{
-			glVertex3i(0,y*33,0);
-			glVertex3i(12*33,y*33,0);
-		}
-	for(x=1;x<13;x++)
-		{
-			glVertex3i(x*33,0,0);
-			glVertex3i(x*33,3*33,0);
-		}
-
-	glColor3f(0.57f,0.67f,0.49f);
-	//draw the you have grid
-	for(y=1;y<6;y++)
-		{
-			glVertex3i(0,(y+3)*33,0);
-			glVertex3i(4*33,(y+3)*33,0);
-		}
-	for(x=0;x<5;x++)
-		{
-			glVertex3i(x*33,4*33,0);
-			glVertex3i(x*33,8*33,0);
-		}
-	//draw the what the other player has
-	for(y=1;y<6;y++)
-		{
-			glVertex3i(5*33,(y+3)*33,0);
-			glVertex3i(9*33,(y+3)*33,0);
-		}
-	for(x=5;x<10;x++)
-		{
-			glVertex3i(x*33,4*33,0);
-			glVertex3i(x*33,8*33,0);
-		}
-
-	glColor3f(0.77f,0.57f,0.39f);
-
-	//draw the button frame
-
-	//Clear button
-	glVertex3i(33*5,win->len_y-30,0);
-	glVertex3i(33*5+70,win->len_y-30,0);
-	glVertex3i(33*5,win->len_y-10,0);
-	glVertex3i(33*5+70,win->len_y-10,0);
-	glVertex3i(33*5+70,win->len_y-30,0);
-	glVertex3i(33*5+70,win->len_y-9,0);
-	glVertex3i(33*5,win->len_y-30,0);
-	glVertex3i(33*5,win->len_y-10,0);
-
-	//the players accept boxes
-	glVertex3i(5,4*33-20,0);
-	glVertex3i(20,4*33-20,0);
-	glVertex3i(5,4*33-5,0);
-	glVertex3i(20,4*33-5,0);
-	glVertex3i(20,4*33-20,0);
-	glVertex3i(20,4*33-4,0);
-	glVertex3i(5,4*33-20,0);
-	glVertex3i(5,4*33-5,0);
-
-	glVertex3i(5*33+5,4*33-20,0);
-	glVertex3i(5*33+20,4*33-20,0);
-	glVertex3i(5*33+5,4*33-5,0);
-	glVertex3i(5*33+20,4*33-5,0);
-	glVertex3i(5*33+20,4*33-20,0);
-	glVertex3i(5*33+20,4*33-4,0);
-	glVertex3i(5*33+5,4*33-20,0);
-	glVertex3i(5*33+5,4*33-5,0);
-
-
-	//now, draw the quantity boxes
-	glColor3f(0.3f,0.5f,1.0f);
-	for(y=0;y<6;y++)
-		{
-			glVertex3i(33*9+25,133+y*20,0);
-			glVertex3i(33*9+25+2*35,133+y*20,0);
-		}
-	for(x=0;x<3;x++)
-		{
-			glVertex3i(33*9+25+x*35,133,0);
-			glVertex3i(33*9+25+x*35,133+5*20,0);
-		}
-
-	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
+	glColor3f(0.3f,0.5f,1.0f);
 	//draw the quantity string
 	draw_string_small(33*9+25,116,quantity_str,1);
 	//draw the quantity values
@@ -331,6 +245,51 @@ int display_trade_handler(window_info *win)
 	//now, draw the inventory text, if any.
 	draw_string_small(4,win->len_y-75,items_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
+
+	// Render the grid *after* the images. It seems impossible to code
+	// it such that images are rendered exactly within the boxes on all 
+	// cards
+	glDisable(GL_TEXTURE_2D);
+
+	// inventory grid
+	glColor3f(0.77f,0.57f,0.39f);	
+	rendergrid (12, 3, 0, 0, 33, 33);
+	
+	// grids for goods on trade
+	glColor3f(0.57f,0.67f,0.49f);
+	rendergrid (4, 4, 0, 4*33, 33, 33);
+	rendergrid (4, 4, 5*33, 4*33, 33, 33);
+
+	// the quantity boxes
+	glColor3f(0.3f,0.5f,1.0f);
+	rendergrid (2, 5, 33*9+25, 133, 35, 20);
+	
+	// Abort button
+	glColor3f(0.77f,0.57f,0.39f);	
+	glBegin (GL_LINE_LOOP);
+	glVertex3i(33*5,win->len_y-30,0);
+	glVertex3i(33*5+70,win->len_y-30,0);
+	glVertex3i(33*5+70,win->len_y-10,0);
+	glVertex3i(33*5,win->len_y-10,0);
+	glEnd ();
+
+	// the players accept boxes
+	glBegin (GL_LINE_LOOP);
+	glVertex3i(5,4*33-20,0);
+	glVertex3i(20,4*33-20,0);
+	glVertex3i(20,4*33-5,0);
+	glVertex3i(5,4*33-5,0);
+	glEnd ();
+
+	glBegin (GL_LINE_LOOP);
+	glVertex3i(5*33+5,4*33-20,0);
+	glVertex3i(5*33+20,4*33-20,0);
+	glVertex3i(5*33+20,4*33-5,0);
+	glVertex3i(5*33+5,4*33-5,0);
+	glEnd ();
+
+	glEnable(GL_TEXTURE_2D);
+
 	return 1;
 }
 
