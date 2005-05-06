@@ -190,6 +190,7 @@ void read_bin_cfg()
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
 	char el_cfg[256];
+	int i;
 
 	strcpy(el_cfg, configdir);
 	strcat(el_cfg, "el.cfg");
@@ -259,6 +260,14 @@ void read_bin_cfg()
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 	rz=cfg_mem.camera_angle;
 
+	for(i=0;i<6;i++){
+		if(cfg_mem.quantity[i]){
+			quantities.quantity[i].val=cfg_mem.quantity[i];
+			sprintf(quantities.quantity[i].str, "%d", cfg_mem.quantity[i]);
+			quantities.quantity[i].len=strlen(quantities.quantity[i].str);
+		}
+	}
+
 	if(zoom_level != 0.0f) resize_root_window();
 }
 
@@ -267,6 +276,7 @@ void save_bin_cfg()
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
 	char el_cfg[256];
+	int i;
 
 	strcpy(el_cfg, configdir);
 	strcat(el_cfg, "el.cfg");
@@ -421,6 +431,10 @@ void save_bin_cfg()
 	cfg_mem.camera_z=cz;
 	cfg_mem.zoom_level=zoom_level;
 	cfg_mem.camera_angle=rz;
+	
+	for(i=0;i<6;i++){
+		cfg_mem.quantity[i]=quantities.quantity[i].val;
+	}
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);

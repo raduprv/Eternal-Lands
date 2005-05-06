@@ -54,39 +54,6 @@ void get_storage_text(Uint8 * in_data, int len);
 
 /*!
  * \ingroup storage_window
- * \brief   Renders the storage grid
- *
- *      Renders a storage grid with up to \a columns columns and \a rows rows. The parameters \a left and \a top indicate the starting position and \a width and \a height indicate the size of the grid window.
- *
- * \param columns   number of columns to use for the grid
- * \param rows      number of rows to use for the grid
- * \param left      x coordinate of the grid window
- * \param top       y coordinate of the grid window
- * \param width     width of the grid window
- * \param height    height of the grid window
- */
-void rendergrid(int columns, int rows, int left, int top, int width, int height);
-
-/*!
- * \ingroup storage_window
- * \brief   Gets the mouse position within the storage grid window
- *
- *      Gets the mouse position within the storage grid window.
- *
- * \param mx        x coordinate of the mouse position
- * \param my        y coordinate of the mouse position
- * \param columns   number of columns of the grid window
- * \param rows      number of rows of the grid window
- * \param left      x coordinate of the grid window
- * \param top       y coordinate of the grid window
- * \param width     width of the grid window
- * \param height    height of the grid window
- * \retval int      the grid position of the mouse, i.e. the grid number where the mouse cursor currently is, or -1 if the mouse cursor is outside the grid window
- */
-int get_mouse_pos_in_grid(int mx, int my, int columns, int rows, int left, int top, int width, int height);
-
-/*!
- * \ingroup storage_window
  * \brief Displays the new storage window
  *
  *      Displays the new storage window. If the window hasn't been created before it will first created.

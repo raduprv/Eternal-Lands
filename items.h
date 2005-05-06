@@ -17,6 +17,7 @@ typedef struct
 	int is_reagent; /*!< can be used for spells? */
 	int is_resource; /*!< does it appear on the manufacturing menu? */
 	int use_with_inventory;
+	int is_stackable;
 } item;
 
 typedef struct
@@ -44,6 +45,18 @@ typedef enum {
 /*! @} */
 
 /*!
+ * \name The quantities are located within this struct 
+*/
+struct quantities {
+	int selected;
+	struct tmp {
+		int val;
+		int len;
+		char str[10];
+	} quantity[6];
+};
+
+/*!
  * \name Item constants
  */
 /*! @{ */
@@ -54,6 +67,8 @@ typedef enum {
 
 extern item item_list[ITEM_NUM_ITEMS]; /*!< global list of items */
 extern item manufacture_list[ITEM_NUM_ITEMS]; /*!< global list of manufacturable items */
+
+extern struct quantities quantities; /*!< Quantities displayed in the items window*/
 
 extern int trade_you_accepted; /*!< flag, indicating whether you have accepted the trade or not */
 extern int trade_other_accepted; /*!< flag, indicating whether the trade partner has accepted the trade or not */
@@ -104,6 +119,39 @@ extern int use_item;
 extern char items_string[300];
 
 extern int item_quantity;
+
+/*!
+ * \ingroup display_utils
+ * \brief   Renders the storage grid
+ *
+ *      Renders a storage grid with up to \a columns columns and \a rows rows. The parameters \a left and \a top indicate the starting position and \a width and \a height indicate the size of the grid window.
+ *
+ * \param columns   number of columns to use for the grid
+ * \param rows      number of rows to use for the grid
+ * \param left      x coordinate of the grid window
+ * \param top       y coordinate of the grid window
+ * \param width     width of the grid window
+ * \param height    height of the grid window
+ */
+void rendergrid(int columns, int rows, int left, int top, int width, int height);
+
+/*!
+ * \ingroup display_utils
+ * \brief   Gets the mouse position within the storage grid window
+ *
+ *      Gets the mouse position within the storage grid window.
+ *
+ * \param mx        x coordinate of the mouse position
+ * \param my        y coordinate of the mouse position
+ * \param columns   number of columns of the grid window
+ * \param rows      number of rows of the grid window
+ * \param left      x coordinate of the grid window
+ * \param top       y coordinate of the grid window
+ * \param width     width of the grid window
+ * \param height    height of the grid window
+ * \retval int      the grid position of the mouse, i.e. the grid number where the mouse cursor currently is, or -1 if the mouse cursor is outside the grid window
+ */
+int get_mouse_pos_in_grid(int mx, int my, int columns, int rows, int left, int top, int width, int height);
 
 /*!
  * \ingroup item

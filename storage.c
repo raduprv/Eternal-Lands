@@ -12,6 +12,8 @@ struct storage_category {
 int no_storage_categories=0;
 int selected_category=-1;
 
+int active_storage_item=-1;
+
 ground_item storage_items[200]={{0,0,0}};
 int no_storage;
 
@@ -41,6 +43,8 @@ void get_storage_categories(char * in_data, int len)
 	storage_categories[i].id=-1;
 	
 	no_storage_categories=in_data[0];
+	selected_category=-1;
+	active_storage_item=-1;
 
 	display_storage_menu();
 }
@@ -62,7 +66,7 @@ void move_to_category(int cat)
 		
 	if(cat<0||cat>=no_storage_categories) return;
 	storage_categories[cat].name[0]=127+c_red3;
-	if(selected_category!=-1) storage_categories[selected_category].name[0]=127+c_orange1;
+	if(selected_category!=-1 && cat!=selected_category) storage_categories[selected_category].name[0]=127+c_orange1;
 	sprintf(windows_list.window[storage_win].window_name, "Storage - %s", storage_categories[cat].name+1);
 	selected_category=cat;
 
@@ -80,17 +84,29 @@ void get_storage_items(Uint8 * in_data, int len)
 	if(in_data[0]==255){
 		//It's just an update - make sure we're in the right category
 		ptr=in_data+2;
+		active_storage_item=ptr[6];
+		
 		if(selected_category==-1||storage_categories[selected_category].id!=in_data[1]) {
 			move_to_category(find_category(in_data[1]));
 			return;
 		}
+		
 		for(i=0;i<200;i++){
 			if(storage_items[i].pos==*((Uint8*)(ptr+6))){
 				storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
 				storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
+				return;
 			}
 		}
-		return;
+
+		for(i=0;i<200;i++){
+			if(!storage_items[i].quantity){
+				storage_items[i].pos=*((Uint8*)(ptr+6));
+				storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
+				storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
+				return;
+			}
+		}
 	}
 	
 	no_storage=0;
@@ -98,54 +114,16 @@ void get_storage_items(Uint8 * in_data, int len)
 	ptr=in_data+1;
 	
 	for(i=0;i<in_data[0] && no_storage<200;i++,ptr+=7){
-		storage_items[no_storage].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
-		storage_items[no_storage].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
-		storage_items[no_storage].pos=*((Uint8*)(ptr+6));
-		no_storage++;
+		storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
+		storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
+		storage_items[i].pos=*((Uint8*)(ptr+6));
 	}
 	
 	no_storage=i;
-}
 
-void rendergrid(int columns, int rows, int left, int top, int width, int height)
-{
-	int x, y;
-	int temp;
-
-	glBegin(GL_LINES);
-
-	for(y=0; y<=rows; y++){
-		temp = top + y * height;
-		glVertex2i(left,         temp);
-		glVertex2i(left + width*columns, temp);
+	for(;i<200;i++){
+		storage_items[i].quantity=0;
 	}
-
-	for(x=0; x<columns+1; x++){
-		temp = left + x * width;
-		glVertex2i(temp, top);
-		glVertex2i(temp, top + height*rows);
-	}
-
-	glEnd();
-}
-
-int get_mouse_pos_in_grid(int mx, int my, int columns, int rows, int left, int top, int width, int height)
-{
-	int x, y, i=0;
-
-	mx-=left;
-	my-=top;
-	columns*=width;
-	rows*=height;
-
-	for(y=0; y<=rows; y+=height, i--){
-		for(x=0; x<=columns; x+=width, i++){
-			if(mx>=x && mx<=x+width && my>=y && my<=y+height)
-				return i;
-		}
-	}
-
-	return -1;
 }
 
 int storage_win=-1;
@@ -185,22 +163,22 @@ int display_storage_handler(window_info * win)
 
 	glEnable(GL_TEXTURE_2D);
 	
-	for(i=pos=vscrollbar_get_pos(storage_win,1200); i<200 && storage_categories[i].id!=-1 && i<pos+13; i++,n++){
+	for(i=pos=vscrollbar_get_pos(storage_win,1200); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+13; i++,n++){
 		draw_string_small(20, 20+n*13, storage_categories[i].name,1);
 	}
-
 	if(storage_text[0]){
 		draw_string_small(18, 220, storage_text, 1);
 	}
-
+	
 	glColor3f(1.0f,1.0f,1.0f);
 	
-	for(i=pos=6*vscrollbar_get_pos(storage_win, 1201); i<no_storage && i<pos+36 && storage_items[i].quantity;i++){
+	for(i=pos=6*vscrollbar_get_pos(storage_win, 1201); i<pos+36;i++){
 		GLfloat u_start, v_start, u_end, v_end;
 		int x_start, x_end, y_start, y_end;
 		int cur_item;
 		GLuint this_texture;
 
+		if(!storage_items[i].quantity)continue;
 		cur_item=storage_items[i].image_id%25;
 		u_start=0.2f*(cur_item%5);
 		u_end=u_start+(float)50/255;
@@ -219,9 +197,24 @@ int display_storage_handler(window_info * win)
 		glBegin(GL_QUADS);
 		draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 		glEnd();
+
+		if(storage_items[i].pos==active_storage_item){
+			char str[20];
+			int x=x_start+16;
+			int l;
+
+			sprintf(str,"%d",storage_items[i].quantity);
+			l=strlen(str)*8;
+
+			if(x-l>161){
+				x-=l;
+			} else if(x+l>161+6*32)x=x+l-(x+l-(161+5*32+16));
+
+			show_help(str,x,y_start+8);
+		}
 	}
 
-	if(cur_item_over!=-1){
+	if(cur_item_over!=-1 && active_storage_item!=storage_items[cur_item_over].pos){
 		char str[20];
 
 		sprintf(str,"%d",storage_items[cur_item_over].quantity);
@@ -241,7 +234,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 			cat=(my-20)/13 + vscrollbar_get_pos(storage_win, 1200);
 			move_to_category(cat);
 		} else if(mx>150 && mx<352){
-			if(item_dragged!=-1){
+			if(item_dragged!=-1 && left_click){
 				char str[6];
 
 				str[0]=DEPOSITE_ITEM;
@@ -250,18 +243,24 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 
 				my_tcp_send(my_socket, str, 6);
 
-				item_dragged=-1;
+				if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
 			} else if(right_click){
-				char str[2];
+				storage_item_dragged=-1;
+				item_dragged=-1;
 
-				str[0]=LOOK_AT_STORAGE_ITEM;
-				str[1]=storage_items[cur_item_over].pos;
+				if(cur_item_over!=-1) {
+					char str[2];
+					
+					str[0]=LOOK_AT_STORAGE_ITEM;
+					str[1]=storage_items[cur_item_over].pos;
 
-				my_tcp_send(my_socket, str, 2);
-			} else {
-				if(cur_item_over!=-1){
-					storage_item_dragged=cur_item_over;
+					my_tcp_send(my_socket, str, 2);
+
+					active_storage_item=storage_items[cur_item_over].pos;
 				}
+			} else if(cur_item_over!=-1){
+				storage_item_dragged=cur_item_over;
+				active_storage_item=storage_items[cur_item_over].pos;
 			}
 		}
 	}
@@ -291,7 +290,7 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 			return 0;
 		} else if (mx>150 && mx<352){
 			cur_item_over = get_mouse_pos_in_grid(mx, my, 6, 6, 160, 10, 32, 32)+vscrollbar_get_pos(storage_win, 1201)*6;
-			if(!storage_items[cur_item_over].quantity||cur_item_over>=no_storage) cur_item_over=-1;
+			if(cur_item_over>=no_storage||cur_item_over<0||!storage_items[cur_item_over].quantity) cur_item_over=-1;
 		}
 	}
 	
@@ -306,20 +305,13 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 void display_storage_menu()
 {
 	if(storage_win<=0){
-		int sb_len=20;
-		
 		storage_win=create_window("Storage", game_root_win, 0, storage_win_x, storage_win_y, storage_win_x_len, storage_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
 
 		set_window_handler(storage_win, ELW_HANDLER_DISPLAY, &display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_CLICK, &click_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_MOUSEOVER, &mouseover_storage_handler);
 
-		if(no_storage_categories) {
-			sb_len=no_storage_categories-13;
-			if(sb_len<=0)sb_len=1;
-		}
-
-		vscrollbar_add_extended(storage_win, 1200, NULL, 130, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, sb_len);
+		vscrollbar_add_extended(storage_win, 1200, NULL, 130, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 10);
 		vscrollbar_add_extended(storage_win, 1201, NULL, 352, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
 	} else {
 		int i;
@@ -328,7 +320,7 @@ void display_storage_menu()
 		no_storage=0;
 		
 		for(i=0;i<no_storage_categories;i++)storage_categories[i].name[0]=127+c_orange1;
-	
+
 		show_window(storage_win);
 		select_window(storage_win);
 	}

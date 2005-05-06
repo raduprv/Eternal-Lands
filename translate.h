@@ -220,6 +220,7 @@ extern char
 		login_password_str[20],
 		/*items.c*/
 		get_all_str[8],
+		quantity_edit_str[100],
 		/*knowledge.c*/
 		completed_research[12],
 		researching_str[30],

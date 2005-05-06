@@ -95,7 +95,7 @@ void draw_scene()
 		drag_item (use_item, 0, 1);
 #ifdef STORAGE
 	else if (storage_item_dragged != -1) 
-		drag_item (storage_item_dragged, 1, 1);
+		drag_item (storage_item_dragged, 1, 0);
 #endif
 
 	Leave2DMode ();

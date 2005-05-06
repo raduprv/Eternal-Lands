@@ -114,8 +114,9 @@ typedef struct
 
 	int has_accepted_rules;
 
+	int quantity[6];
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[16];
+	int reserved[10];
 
     /*!
      * \name Camera position and attributes
