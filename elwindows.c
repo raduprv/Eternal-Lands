@@ -521,7 +521,7 @@ void	end_drag_windows()
 
 int	select_window_with (int win_id, int raise_parent, int raise_children)
 {
-	int	i, old, idiff, ord;
+	int	i, old;
 	
 	if (win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if (windows_list.window[win_id].window_id != win_id)	return -1;
@@ -534,23 +534,14 @@ int	select_window_with (int win_id, int raise_parent, int raise_children)
 
 	// shuffle the order of the windows
 	old = windows_list.window[win_id].order;
-	idiff = windows_list.num_windows - old;
 	for (i=0; i<windows_list.num_windows; i++)
 	{
 		if(windows_list.window[i].order > old)
-		{
-			// lower the order of the windows on top of the
-			// selected window by one, but skip those orders
-			// at which a new window can be created
-			do
-			{
-				ord = --windows_list.window[i].order;
-			} while (ord > 1 && windows_list.window[ord-1].window_id != ord - 1);
-		}
+			windows_list.window[i].order--;
 	}
 	
 	// and put it on top
-	windows_list.window[win_id].order += idiff;
+	windows_list.window[win_id].order = windows_list.num_windows;
 	
 	// now raise all children
 	if (raise_children)
@@ -578,6 +569,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	window_info *win;
 	int	win_id=-1;
 	int	i;
+	int isold = 1;
 	
 	// verify that we are setup and space allocated
 	if (windows_list.window == NULL)
@@ -603,6 +595,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	// need a new_entry?
 	if (win_id < 0)
 	{
+		isold = 0;
 		if (windows_list.num_windows < windows_list.max_windows - 1)
 		{
 			win_id = windows_list.num_windows++;
@@ -614,7 +607,6 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	{
 		win = &windows_list.window[win_id];
 		win->window_id = win_id;
-		win->order = (property_flags & ELW_SHOW_LAST) ? -win_id-1 : win_id+1;
 
 		win->flags = property_flags;
 		//win->collapsed = 0;
@@ -662,6 +654,32 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		
 		// now call the routine to place it properly
 		init_window (win_id, pos_id, pos_loc, pos_x, pos_y, size_x, size_y);
+
+		win->order = (property_flags & ELW_SHOW_LAST) ? -win_id-1 : win_id+1;
+		// make sure the order is unique if this is not a background 
+		// window
+		if (isold && win->order > 0)
+		{
+			// determine the highest unused order
+			int order = windows_list.num_windows;
+			
+			while (1)
+			{
+				for (i = 0; i < windows_list.num_windows; i++)
+				{
+					if (windows_list.window[i].order == order)
+						break;
+				}
+				if (i < windows_list.num_windows)
+					order--;
+				else
+					break;
+			}
+			
+			win->order = order;
+			// select the window to the foreground
+			select_window (win_id);
+		}
 	}
 
 	return	win_id;
