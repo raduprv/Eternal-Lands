@@ -3,15 +3,19 @@
 
 int trade_win=-1;
 
-extern item your_trade_list[24];
-extern item others_trade_list[24];
+item inventory_trade_list[ITEM_WEAR_START];
+item your_trade_list[24];
+item others_trade_list[24];
+int trade_you_accepted=0;
+int trade_other_accepted=0;
+char other_player_trade_name[20];
 
-extern char other_player_trade_name[20];
+int no_view_my_items=0;
 
-extern int no_view_my_items;
-
-extern int trade_menu_x_len;
-extern int trade_menu_y_len;
+int trade_menu_x=10;
+int trade_menu_y=20;
+int trade_menu_x_len=13*33;
+int trade_menu_y_len=11*33;
 
 int display_trade_handler(window_info *win)
 {

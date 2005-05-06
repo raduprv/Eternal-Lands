@@ -68,6 +68,11 @@ float unlit_gem_v_start=1.0f-(float)96/256;
 float unlit_gem_u_end=(float)255/256;
 float unlit_gem_v_end=1.0f-(float)111/256;
 
+int options_menu_x=220;
+int options_menu_y=50;
+int options_menu_x_len=390;
+int options_menu_y_len=300;
+
 int display_options_handler(window_info *win);
 int click_options_handler(window_info *win, int mx, int my, Uint32 flags);
 int mouseover_options_handler(window_info * win, int mx, int my);

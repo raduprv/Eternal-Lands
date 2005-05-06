@@ -2,7 +2,13 @@
 #include "elwindows.h"
 
 item manu_recipe[6];
+item manufacture_list[ITEM_NUM_ITEMS];
 int	manufacture_win= -1;
+
+int manufacture_menu_x=10;
+int manufacture_menu_y=20;
+int manufacture_menu_x_len=12*33+20;
+int manufacture_menu_y_len=6*33;
 
 void build_manufacture_list()
 {

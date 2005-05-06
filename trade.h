@@ -6,6 +6,12 @@
 #ifndef __TRADE_H__
 #define __TRADE_H__
 
+extern int trade_you_accepted; /*!< flag, indicating whether you have accepted the trade or not */
+extern int trade_other_accepted; /*!< flag, indicating whether the trade partner has accepted the trade or not */
+
+extern int trade_menu_x;
+extern int trade_menu_y;
+
 /*!
  * \name windows handlers
  */

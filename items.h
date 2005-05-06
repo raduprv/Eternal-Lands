@@ -20,14 +20,6 @@ typedef struct
 	int is_stackable;
 } item;
 
-typedef struct
-{
-	int pos;
-	int image_id;
-	int quantity;
-} ground_item;
-
-
 /*!
  * \name Item definition flags
  */
@@ -66,37 +58,18 @@ struct quantities {
 /*! @} */
 
 extern item item_list[ITEM_NUM_ITEMS]; /*!< global list of items */
-extern item manufacture_list[ITEM_NUM_ITEMS]; /*!< global list of manufacturable items */
 
 extern struct quantities quantities; /*!< Quantities displayed in the items window*/
 
-extern int trade_you_accepted; /*!< flag, indicating whether you have accepted the trade or not */
-extern int trade_other_accepted; /*!< flag, indicating whether the trade partner has accepted the trade or not */
-
 extern int item_action_mode;
-
-extern int view_ground_items; /*!< flag that indicates whether we should display ground items or not */
 
 /*! \name windows handlers */
 /*! @{ */
 extern int items_win; /*!< inventory windows handler */
-extern int ground_items_win; /*!< ground items windows handler */
 /*! @} */
 
 extern int items_menu_x;
 extern int items_menu_y;
-
-extern int ground_items_menu_x;
-extern int ground_items_menu_y;
-
-extern int manufacture_menu_x;
-extern int manufacture_menu_y;
-extern int manufacture_menu_x_len;
-extern int manufacture_menu_y_len;
-//extern int manufacture_menu_dragged; // has been commented before my cleanup. Think it can get removed too.
-
-extern int trade_menu_x;
-extern int trade_menu_y;
 
 /*! \name Text fields for items */
 /*! @{ */
@@ -215,19 +188,6 @@ void remove_item_from_inventory(int pos);
 
 /*!
  * \ingroup item
- * \brief   Sets the quantity of the \ref ground_item_list at index \a pos to be 0.
- *
- *      Sets the quantity of the \ref ground_item_list at index \a pos to be 0. No sanity checks are performed.
- *
- * \param pos   the index into \ref ground_item_list that should get removed.
- *
- * \note No sanity checks whether \a pos is a valid index are performed. This is possibly a bug.
- * \bug Does not perform sanity checks for the parameter \a pos.
- */
-void remove_item_from_ground(Uint8 pos);
-
-/*!
- * \ingroup item
  * \brief   Gets a new item from the given \a data.
  *
  *      Gets a new inventory item from the given \a data. If we already have such an item, only the quantity will get updated. Calls \ref build_manufacture_list after the item has been updated or added.
@@ -241,86 +201,4 @@ void remove_item_from_ground(Uint8 pos);
  */
 void get_new_inventory_item(Uint8 *data);
 
-/*!
- * \ingroup item
- * \brief   Gets a new item in a bag on the ground.
- *
- *      Gets a new item for a bag on the ground from the given \a data.
- *
- * \param data  the data for the new ground item aka bag
- *
- * \note No sanity checks for \a data are performed. This may be a possible bug.
- * \bug Doesn't perform any sanity checks on the given \a data.
- *
- */
-void get_bag_item(Uint8 *data);
-
-/*!
- * \ingroup item
- * \brief   Gets the contents of a bag.
- *
- *      Gets the contents of a bag on the ground from the given \a data.
- *
- * \param data  the data of the bags items
- *
- * \callgraph
- *
- * \note No sanity checks for \a data are performed. This may be a possible bug.
- * \bug Doesn't perform any sanity checks on the given \a data.
- */
-void get_bags_items_list(Uint8 *data);
-
-/*!
- * \ingroup item
- * \brief   Puts the bag \a bag_id on the ground at coordinates (\a bag_x, \a bag_y).
- *
- *      Puts the bag \a bag_id at the coordinates (\a bag_x, \a bag_y) on the ground.
- *
- * \param bag_x     x coordinate of the bags position
- * \param bag_y     y coordinate of the bags position
- * \param bag_id    index into \ref bag_list to be used for the bag
- *
- * \callgraph
- */
-void put_bag_on_ground(int bag_x,int bag_y,int bag_id);
-
-/*!
- * \ingroup item
- * \brief   Adds the bags given in \a data.
- *
- *      Adds the bags that are given in \a data.
- *
- * \param data  the data from the server for the bags to add
- *
- * \callgraph
- *
- * \note No sanity checks on \a data are performed. This may be a possible bug.
- * \bug No sanity checks on \a data are performed.
- */
-void add_bags_from_list(Uint8 *data);
-
-/*!
- * \ingroup item
- * \brief   Removes the bag with the given index \a which_bag from the \ref bag_list.
- *
- *      Removes the bag at the given index \a which_bag from the \ref bag_list. The list of bags will be adjusted accordingly.
- *
- * \param which_bag the index into \ref bag_list for the bag to remove
- *
- * \callgraph
- */
-void remove_bag(int which_bag);
-
-/*!
- * \ingroup item
- * \brief   Sends an \ref INSPECT_BAG message for the given \a object_id to the server.
- *
- *      Sends an \ref INSPECT_BAG message for the given \a object_id to the server.
- *
- * \param object_id the id of the bag to open
- *
- * \note Uses a fixed upper limit to search the \ref bag_list. This may be a possible bug.
- * \bug Uses a fixed upper limit to search \ref bag_list. We should use a defined constant instead.
- */
-void open_bag(int object_id);
 #endif

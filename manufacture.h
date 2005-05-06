@@ -6,6 +6,13 @@
 #ifndef __MANUFACTURE_H__
 #define __MANUFACTURE_H__
 
+extern item manufacture_list[ITEM_NUM_ITEMS]; /*!< global list of manufacturable items */
+
+extern int manufacture_menu_x;
+extern int manufacture_menu_y;
+extern int manufacture_menu_x_len;
+extern int manufacture_menu_y_len;
+
 /*!
  * \name windows handlers
  */

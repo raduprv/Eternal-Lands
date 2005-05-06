@@ -129,6 +129,7 @@ typedef int point;
 #include "openingwin.h"
 #include "books.h"
 #include "chat.h"
+#include "bags.h"
 #ifdef STORAGE
 #include "storage.h"
 #endif
