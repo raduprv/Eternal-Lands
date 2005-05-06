@@ -521,7 +521,7 @@ void	end_drag_windows()
 
 int	select_window_with (int win_id, int raise_parent, int raise_children)
 {
-	int	i, old, idiff;
+	int	i, old, idiff, ord;
 	
 	if (win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if (windows_list.window[win_id].window_id != win_id)	return -1;
@@ -538,7 +538,15 @@ int	select_window_with (int win_id, int raise_parent, int raise_children)
 	for (i=0; i<windows_list.num_windows; i++)
 	{
 		if(windows_list.window[i].order > old)
-			windows_list.window[i].order--;
+		{
+			// lower the order of the windows on top of the
+			// selected window by one, but skip those orders
+			// at which a new window can be created
+			do
+			{
+				ord = --windows_list.window[i].order;
+			} while (ord > 1 && windows_list.window[ord-1].window_id != ord - 1);
+		}
 	}
 	
 	// and put it on top
