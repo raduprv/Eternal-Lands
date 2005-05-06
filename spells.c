@@ -268,62 +268,8 @@ void display_spells_we_have()
 
 int display_sigils_handler(window_info *win)
 {
-	int x,y,i;
+	int i;
 
-	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
-	glBegin(GL_LINES);
-	for(y=1;y<4;y++)
-		{
-			glVertex3i(0,y*33,0);
-			glVertex3i(12*33,y*33,0);
-		}
-	for(x=1;x<13;x++)
-		{
-			glVertex3i(x*33,0,0);
-			glVertex3i(x*33,3*33,0);
-		}
-
-	//draw the bottom grid
-	for(y=1;y<2;y++)
-		{
-			glVertex3i(0,y*5*33,0);
-			glVertex3i(6*33,y*5*33,0);
-		}
-	for(x=1;x<7;x++)
-		{
-			glVertex3i(x*33,5*33,0);
-			glVertex3i(x*33,6*33,0);
-		}
-
-	//draw the buttons frame
-	//Mix button
-	glVertex3i(33*6+40,win->len_y-30,0);
-	glVertex3i(33*6+40+50,win->len_y-30,0);
-
-	glVertex3i(33*6+40,win->len_y-10,0);
-	glVertex3i(33*6+40+50,win->len_y-10,0);
-
-	glVertex3i(33*6+40+50,win->len_y-30,0);
-	glVertex3i(33*6+40+50,win->len_y-9,0);
-
-	glVertex3i(33*6+40,win->len_y-30,0);
-	glVertex3i(33*6+40,win->len_y-10,0);
-
-	//Clear button
-	glVertex3i(33*9+40,win->len_y-30,0);
-	glVertex3i(33*9+40+70,win->len_y-30,0);
-
-	glVertex3i(33*9+40,win->len_y-10,0);
-	glVertex3i(33*9+40+70,win->len_y-10,0);
-
-	glVertex3i(33*9+40+70,win->len_y-30,0);
-	glVertex3i(33*9+40+70,win->len_y-9,0);
-
-	glVertex3i(33*9+40,win->len_y-30,0);
-	glVertex3i(33*9+40,win->len_y-10,0);
-
-	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
 	if(cast_mouseover)
@@ -404,7 +350,35 @@ int display_sigils_handler(window_info *win)
 
 	//now, draw the inventory text, if any.
 	draw_string_small(4,win->len_y-90,spell_text,4);
-	glColor3f(1.0f,1.0f,1.0f);
+
+	// Render the grid *after* the images. It seems impossible to code
+	// it such that images are rendered exactly within the boxes on all 
+	// cards
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(0.77f,0.57f,0.39f);
+	
+	rendergrid (12, 3, 0, 0, 33, 33);
+	rendergrid (6, 1, 0, 5*33, 33, 33);
+	
+	//draw the buttons frame
+	//Mix button
+	glBegin(GL_LINE_LOOP);
+	glVertex3i(33*6+40,win->len_y-30,0);
+	glVertex3i(33*6+40+50,win->len_y-30,0);
+	glVertex3i(33*6+40+50,win->len_y-10,0);
+	glVertex3i(33*6+40,win->len_y-10,0);
+	glEnd ();
+
+	//Clear button
+	glBegin(GL_LINE_LOOP);
+	glVertex3i(33*9+40,win->len_y-30,0);
+	glVertex3i(33*9+40+70,win->len_y-30,0);
+	glVertex3i(33*9+40+70,win->len_y-10,0);
+	glVertex3i(33*9+40,win->len_y-10,0);
+	glEnd();
+
+	glEnable(GL_TEXTURE_2D);
+
 	return 1;
 }
 

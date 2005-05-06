@@ -189,24 +189,11 @@ int display_ground_items_handler(window_info *win)
 	Uint8 my_str[10];
 	int i;
 
-	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
-
-	rendergrid(5,10,0,0,33,33);
-	
-	glBegin(GL_LINE_LOOP);
-	
-		// draw the "get all" box
-		glVertex3i(win->len_x, 20,0);
-		glVertex3i(win->len_x-33, 20,0);
-		glVertex3i(win->len_x-33, 53,0);
-		glVertex3i(win->len_x, 53,0);
-
-	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
 	// write "get all" in the "get all" box :)
 	strap_word(get_all_str,my_str);
+	glColor3f(0.77f,0.57f,0.39f);
 	draw_string_small(win->len_x-28, 23, my_str, 2);
 
 	glColor3f(1.0f,1.0f,1.0f);
@@ -244,6 +231,25 @@ int display_ground_items_handler(window_info *win)
 			draw_string_small(x_start,y_end-15,str,1);
 		}
 	}
+	
+	// Render the grid *after* the images. It seems impossible to code
+	// it such that images are rendered exactly within the boxes on all 
+	// cards
+	glDisable(GL_TEXTURE_2D);
+
+	glColor3f(0.77f,0.57f,0.39f);
+	rendergrid(5,10,0,0,33,33);
+	
+	glBegin(GL_LINE_LOOP);
+	
+		// draw the "get all" box
+		glVertex3i(win->len_x, 20,0);
+		glVertex3i(win->len_x-33, 20,0);
+		glVertex3i(win->len_x-33, 53,0);
+		glVertex3i(win->len_x, 53,0);
+
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
 	
 	return 1;
 }

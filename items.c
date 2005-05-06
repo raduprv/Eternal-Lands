@@ -277,23 +277,11 @@ int display_items_handler(window_info *win)
 	int x,y,i;
 	int item_is_weared=0;
 
-	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
-
-	//draw the grids
-	rendergrid(6, 6, 0, 0, 51, 51);
-	
-	glColor3f(0.57f,0.67f,0.49f);
-	rendergrid(2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
-	
-	//now, draw the quantity boxes
-	glColor3f(0.3f,0.5f,1.0f);
-	rendergrid(1, 6, quantity_x_offset, quantity_y_offset, 66, 20);
-
 	glEnable(GL_TEXTURE_2D);
 
 	x=quantity_x_offset+33;
 	y=quantity_y_offset+3;
+	glColor3f(0.3f,0.5f,1.0f);
 	for(i=0;i<6;i++,y+=20){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
@@ -366,6 +354,23 @@ int display_items_handler(window_info *win)
 		show_help(quantity_edit_str, quantity_x_offset+70-strlen(quantity_edit_str)*8, quantity_y_offset+125);
 	}
 	
+	// Render the grid *after* the images. It seems impossible to code
+	// it such that images are rendered exactly within the boxes on all 
+	// cards
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(0.77f,0.57f,0.39f);
+
+	//draw the grids
+	rendergrid(6, 6, 0, 0, 51, 51);
+	
+	glColor3f(0.57f,0.67f,0.49f);
+	rendergrid(2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
+	
+	//now, draw the quantity boxes
+	glColor3f(0.3f,0.5f,1.0f);
+	rendergrid(1, 6, quantity_x_offset, quantity_y_offset, 66, 20);
+	glEnable(GL_TEXTURE_2D);
+
 	return 1;
 }
 

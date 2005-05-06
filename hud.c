@@ -1075,27 +1075,6 @@ int	display_quickbar_handler(window_info *win)
 	Uint8 str[80];
 	int y, i;
 
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_LINES);
-	use_window_color(quickbar_win, ELW_COLOR_LINE);
-	//draw the grid
-	if(quickbar_dir==VERTICAL)
-		{
-			for(y=1;y<6;y++)
-				{
-					glVertex3i(0, y*30+1, 0);
-					glVertex3i(quickbar_x_len, y*30+1, 0);
-				}
-		}
-	else
-		{
-			for(y=1;y<6;y++)
-				{
-					glVertex3i(y*30+1, 0, 0);
-					glVertex3i(y*30+1, quickbar_x_len, 0);
-				}
-		}
-	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -1165,6 +1144,34 @@ int	display_quickbar_handler(window_info *win)
 						}
 				}
 		}
+
+	
+	// Render the grid *after* the images. It seems impossible to code
+	// it such that images are rendered exactly within the boxes on all 
+	// cards
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_LINES);
+	use_window_color(quickbar_win, ELW_COLOR_LINE);
+	//draw the grid
+	if(quickbar_dir==VERTICAL)
+		{
+			for(y=1;y<6;y++)
+				{
+					glVertex3i(0, y*30+1, 0);
+					glVertex3i(quickbar_x_len, y*30+1, 0);
+				}
+		}
+	else
+		{
+			for(y=1;y<6;y++)
+				{
+					glVertex3i(y*30+1, 0, 0);
+					glVertex3i(y*30+1, quickbar_x_len, 0);
+				}
+		}
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+
 	return 1;
 }
 

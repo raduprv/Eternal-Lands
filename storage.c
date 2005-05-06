@@ -141,26 +141,7 @@ int display_storage_handler(window_info * win)
 	int n=0;
 	int pos;
 
-	glDisable(GL_TEXTURE_2D);
-	
 	glColor3f(0.77f, 0.57f, 0.39f);
-	
-	glBegin(GL_LINE_LOOP);
-		glVertex2i(10,  10);
-		glVertex2i(10,  202);
-		glVertex2i(130, 202);
-		glVertex2i(130, 10);
-	glEnd();
-
-	glBegin(GL_LINE_LOOP);
-		glVertex2i(10, 212);
-		glVertex2i(10, 262);
-		glVertex2i(392, 262);
-		glVertex2i(392, 212);
-	glEnd();
-
-	rendergrid(6, 6, 160, 10, 32, 32);
-
 	glEnable(GL_TEXTURE_2D);
 	
 	for(i=pos=vscrollbar_get_pos(storage_win,1200); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+13; i++,n++){
@@ -221,6 +202,30 @@ int display_storage_handler(window_info * win)
 
 		show_help(str,mouse_x-win->pos_x-(strlen(str)/2)*8,mouse_y-win->pos_y-14);
 	}
+
+	// Render the grid *after* the images. It seems impossible to code
+	// it such that images are rendered exactly within the boxes on all 
+	// cards
+	glDisable(GL_TEXTURE_2D);
+	
+	glColor3f(0.77f, 0.57f, 0.39f);
+	
+	glBegin(GL_LINE_LOOP);
+		glVertex2i(10,  10);
+		glVertex2i(10,  202);
+		glVertex2i(130, 202);
+		glVertex2i(130, 10);
+	glEnd();
+
+	glBegin(GL_LINE_LOOP);
+		glVertex2i(10, 212);
+		glVertex2i(10, 262);
+		glVertex2i(392, 262);
+		glVertex2i(392, 212);
+	glEnd();
+
+	rendergrid(6, 6, 160, 10, 32, 32);
+	glEnable(GL_TEXTURE_2D);
 
 	return 1;
 }

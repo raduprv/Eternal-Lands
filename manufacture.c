@@ -71,33 +71,8 @@ int	display_manufacture_handler(window_info *win)
 {
 	Uint8 str[80];
 	int i;
-	//first of all, draw the actual menu.
 
-	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
-	
-	//draw the grid
-	rendergrid(12,3,0,0,33,33);
-	
-	//Draw the bottom grid
-	rendergrid(6,1,0, win->len_y-33, 33, 33);
-
-	glBegin(GL_LINE_LOOP);
-	//draw the buttons frame
-	//Mix button
-		glVertex2i(33*6+40,win->len_y-30);
-		glVertex2i(33*6+40+50,win->len_y-30);
-		glVertex2i(33*6+40+50,win->len_y-10);
-		glVertex2i(33*6+40,win->len_y-10);
-	glEnd();
-
-	glBegin(GL_LINE_LOOP);
-	//Clear button
-		glVertex3i(33*9+40,win->len_y-30,0);
-		glVertex3i(33*9+40+70,win->len_y-30,0);
-		glVertex3i(33*9+40+70,win->len_y-10,0);
-		glVertex3i(33*9+40,win->len_y-10,0);
-	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
 	draw_string(33*6+40+8,win->len_y-30+2,mix_str,1);
@@ -177,6 +152,37 @@ int	display_manufacture_handler(window_info *win)
 	
 	//now, draw the inventory text, if any.
 	draw_string_small(4,win->len_y-85,items_string,4);
+
+	// Render the grid *after* the images. It seems impossible to code
+	// it such that images are rendered exactly within the boxes on all 
+	// cards
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(0.77f,0.57f,0.39f);
+	
+	//draw the grid
+	rendergrid(12,3,0,0,33,33);
+	
+	//Draw the bottom grid
+	rendergrid(6,1,0, win->len_y-33, 33, 33);
+
+	glBegin(GL_LINE_LOOP);
+	//draw the buttons frame
+	//Mix button
+		glVertex2i(33*6+40,win->len_y-30);
+		glVertex2i(33*6+40+50,win->len_y-30);
+		glVertex2i(33*6+40+50,win->len_y-10);
+		glVertex2i(33*6+40,win->len_y-10);
+	glEnd();
+
+	glBegin(GL_LINE_LOOP);
+	//Clear button
+		glVertex3i(33*9+40,win->len_y-30,0);
+		glVertex3i(33*9+40+70,win->len_y-30,0);
+		glVertex3i(33*9+40+70,win->len_y-10,0);
+		glVertex3i(33*9+40,win->len_y-10,0);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+
 	return 1;
 }
 
