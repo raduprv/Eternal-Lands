@@ -236,6 +236,10 @@ SOURCE=.\console.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\consolewin.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\cursors.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"
@@ -381,6 +385,10 @@ SOURCE=.\frustum.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\gamewin.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\gl_init.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"
@@ -510,6 +518,10 @@ SOURCE=.\lights.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\loginwin.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\main.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"
@@ -552,6 +564,10 @@ SOURCE=.\map_io.c
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=.\mapwin.c
 # End Source File
 # Begin Source File
 
@@ -642,6 +658,10 @@ SOURCE=.\new_character.c
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=.\openingwin.c
 # End Source File
 # Begin Source File
 

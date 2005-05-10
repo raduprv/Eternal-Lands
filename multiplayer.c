@@ -921,16 +921,16 @@ add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_
 				my_tcp_send(my_socket,in_data,data_lenght);
 			}
 			break;
-
+			
 		case BUDDY_EVENT:
 			{
 				if(in_data[3]==1)
-					add_buddy(&in_data[5],in_data[4],data_lenght-3);
+					add_buddy(&in_data[5],in_data[4],data_lenght-5);
 				else if(in_data[3]==0)
-					del_buddy(&in_data[4],data_lenght-2);
+					del_buddy(&in_data[4],data_lenght-4);
 			}
 			break;
-			
+
 		case DISPLAY_CLIENT_WINDOW:
 			{
 				switch(in_data[3]){
