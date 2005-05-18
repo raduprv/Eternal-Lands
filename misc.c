@@ -54,6 +54,7 @@ void get_3d_object_under_mouse()
 	//ok, first of all, let's see what objects we have in range...
 	int i;
 	int x,y;
+	int lit_bak;
 
 	selected_3d_object=-1;
 	x=(int)-cx;
@@ -69,23 +70,30 @@ void get_3d_object_under_mouse()
     Move();
 
 	for(i=0;i<max_obj_3d;i++)
+	{
+		if (objects_list[i])
 		{
-			if(objects_list[i])
-			     {
-			         int dist1;
-			         int dist2;
+			int dist1;
+			int dist2;
 
-			         dist1=x-(int)objects_list[i]->x_pos;
-			         dist2=y-(int)objects_list[i]->y_pos;
-			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
-                     	draw_3d_object(objects_list[i]);
-                     if(evaluate_colision())
-                     	{
-                     		selected_3d_object=i;
-                     		glClear(GL_COLOR_BUFFER_BIT);
-						}
-                 }
+			dist1=x-(int)objects_list[i]->x_pos;
+			dist2=y-(int)objects_list[i]->y_pos;
+			if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
+			{
+				// disable self-lighting so that we can detect this object
+				lit_bak = objects_list[i]->self_lit;
+				objects_list[i]->self_lit = 0;
+				draw_3d_object(objects_list[i]);
+				objects_list[i]->self_lit = lit_bak;
+			}
+			if(evaluate_colision())
+			{
+				selected_3d_object=i;
+				glClear(GL_COLOR_BUFFER_BIT);
+			}
 		}
+	}
+	
 	glPopMatrix();
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
