@@ -24,7 +24,7 @@ int items_win= -1;
 int items_menu_x=10;
 int items_menu_y=20;
 int items_menu_x_len=6*51+110;
-int items_menu_y_len=6*51+60;
+int items_menu_y_len=6*51+90;
 
 int items_text_1;
 int items_text_2;
@@ -345,7 +345,7 @@ int display_items_handler(window_info *win)
 	
 	//draw the load string
 	sprintf(str,"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
-	draw_string_small (items_menu_x_len -  8 * strlen (str) - 4, items_menu_y_len - 18, str, 1);
+	draw_string_small (win->len_x -  8 * strlen (str) - 4, 6*51+10, str, 1);
 	
 	//now, draw the inventory text, if any.
 	draw_string_small(4,win->len_y-59,items_string,4);
@@ -672,7 +672,7 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
 		
-		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 5, items_menu_y_len-25, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, "Drop All");
+		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 0, 6*51+10, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, "Drop All");
 		widget_set_OnClick (items_win, drop_button_id, drop_all_handler);
 	} else {
 		show_window(items_win);
