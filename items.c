@@ -639,9 +639,7 @@ int drop_all_handler ()
 	Uint8 str[4] = {0};
 #ifndef SERVER_DROP_ALL
 	int i;
-#endif
 
-#ifndef SERVER_DROP_ALL
 	for(i = 0; i < ITEM_NUM_ITEMS; i++)
 	{
 		if (item_list[i].quantity != 0 && item_list[i].pos < ITEM_WEAR_START) // only drop stuff that we're not wearing

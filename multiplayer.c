@@ -42,8 +42,48 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 {
 	int i;
 	Uint8 new_str[1024];//should be enough
+	//static int spamcount = 0;
 
 	if(disconnected)return 0;
+	
+	// LabRat anti-bagspam code:
+	if(str[0]==MOVE_TO && !pf_follow_path)
+	{
+		// I know this looks weird, but it converts all short paths into pf_ paths
+		// doing this ensures a path, toggles pf_follow_path and prevents a slowdown.
+		// pf_follow_path on almost* every walk type allows us to prevent bagspamming
+		// *almost does not include clicking on an animal to fight, as the move command
+		// in this instance is sent from the server
+		if (!pf_find_path (*((short *)(str+1)), *((short *)(str+3))))
+			return 1;
+	}
+#ifdef SERVER_DROP_ALL
+	else if ( (str[0] == DROP_ITEM || str[0] == DROP_ALL) && pf_follow_path )
+#else
+	else if (str[0] == DROP_ITEM && pf_follow_path)
+#endif
+	{
+		// I thought about having a bit of code here that counts attempts, and after say 5,
+		// announces on #abuse something like "#abuse I attempted to bagspam, but was thwarted,
+		// please teach me the error of my ways so I refrain from doing so in the future"
+		/*if((spamcount++)>4)
+		{
+			Uint8 badstr[256];
+			sprintf (badstr, "#abuse I attempted to bagspam %i bags, but was thwarted, please correct me", spamcount);
+			send_input_text_line (badstr, strlen(badstr));
+			spamcount = 0;  /reset spam count so the #abuse staff don't get swamped..
+		}*/
+		
+		// The anti bagspam code in all its glory - don't allow us to drop a bag if following
+		// a path - I tried coding every DROP_ALL part of the code, but it was longwinded and
+		// this way, after a couple of hours break, seemed the more logical and straightforward
+		// solution.
+		// 1% of the produce from manufacturers may be donated to Labrat for this patch,
+		// or for the bagspammers, sell the items you were going to spam and give the proceeds
+		// to a noob on IP :)
+		return 1;
+	}
+	
 	//check to see if we have too many packets being sent of the same to reduce server flood
 	if(len < 256)	// only if it fits
 	if(str[0]==MOVE_TO || str[0]==RUN_TO || str[0]==SIT_DOWN || str[0]==HARVEST || str[0]==MANUFACTURE_THIS || str[0]==CAST_SPELL || str[0]==RESPOND_TO_NPC || str[0]==ATTACK_SOMEONE || str[0]==SEND_PM || str[0]==RAW_TEXT)
