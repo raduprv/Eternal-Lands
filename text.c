@@ -290,7 +290,7 @@ int put_char_in_buffer (text_message *buf, Uint8 ch, int pos)
 	// insert the new character, and update the length
 	buf->data[pos] = ch;
 	buf->len = nlen;
-	
+
 	return 1;
 }
 

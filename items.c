@@ -173,9 +173,17 @@ void drag_item(int item, int storage, int mini)
 	
 	if(storage) {
 		cur_item=storage_items[item].image_id;
+		if(!storage_items[item].quantity) {
+			storage_item_dragged=-1;
+			return;
+		}
 		if(quantity>storage_items[item].quantity)quantity=storage_items[item].quantity;
 	} else {
 		cur_item=item_list[item].image_id;
+		if(!item_list[item].quantity) {
+			item_dragged=-1;
+			return;
+		}
 		if(item_list[item].is_stackable){
 			if(quantity>item_list[item].quantity)quantity=item_list[item].quantity;
 		} else quantity=-1;//The quantity for non-stackable items is misleading so don't show it...

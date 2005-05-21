@@ -2,6 +2,7 @@
 #include "global.h"
 
 int game_root_win = -1;
+int gamewin_in_id = 4442;
 
 // This is the main part of the old check_cursor_change ()
 int mouseover_game_handler (window_info *win, int mx, int my)
@@ -670,7 +671,7 @@ int display_game_handler (window_info *win)
 	if (!use_windowed_chat)
 	{
 		//y_line = win->len_y - (17 * (4+input_text_lines));
-		y_line = win->len_y - (17 * (4+2));
+		y_line = win->len_y - (17 * (4+(int)((get_string_width(input_text_line.data)*11.0f/12.0f)/(win->len_x-82))));
 		switch(map_type)
 		{
 			case 2:
@@ -681,7 +682,7 @@ int display_game_handler (window_info *win)
 				glColor3f (1.0f, 1.0f, 1.0f);
 		}
 
-		draw_string (10, y_line, input_text_line.data, 2);
+		draw_string_zoomed_width (10, y_line, input_text_line.data, win->len_x-82, 4, chat_zoom);
 	}
 	
 	Leave2DMode ();

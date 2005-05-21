@@ -58,7 +58,7 @@ cal3dwrap.o: cal3dwrap.c cal3dwrap.h
 	g++ $(CFLAGS) -c cal3dwrap.c
 
 clean:
-	-rm -f $(OBJS) el.x86.linux.bin
+	-rm -f $(OBJS) el.x86.linux.bin .depend
 
 docs:	
 	cd docs && doxygen Doxyfile

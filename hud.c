@@ -567,7 +567,11 @@ void view_map_win (int * win, int id)
 
 void view_window(int * window, int id)
 {
+#ifdef NEW_TRADE
+	if(window==&sigil_win||window==&manufacture_win)
+#else
 	if(window==&items_win||window==&sigil_win||window==&manufacture_win)
+#endif
 		{
 			if(get_show_window(trade_win))
 				{

@@ -74,6 +74,8 @@ int draw_string(int x, int y, const unsigned char * our_string, int max_lines);
  */
 int draw_string_zoomed (int x, int y,const unsigned char * our_string,int max_lines, float text_zoom);
 
+int draw_string_zoomed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float text_zoom);
+int draw_string_width(int x, int y, const unsigned char * our_string, int max_width, int max_lines);
 /*!
  * \ingroup text_font
  * \brief   draws the given string \a our_string at the desired position (\a x, \a y).

@@ -1,6 +1,353 @@
 #include "global.h"
 #include "elwindows.h"
 
+#ifdef NEW_TRADE
+#include "string.h"
+int trade_win=-1;
+
+item your_trade_list[24];
+item others_trade_list[24];
+int trade_you_accepted=0;
+int trade_other_accepted=0;
+char other_player_trade_name[20];
+
+int no_view_my_items=0;
+
+int trade_menu_x=10;
+int trade_menu_y=20;
+int trade_menu_x_len=9*33+20;
+int trade_menu_y_len=4*33+100;
+
+char * accept_str={"Accept"};
+
+int show_abort_help=0;
+
+int display_trade_handler(window_info *win)
+{
+	int x=10+33;
+	int no_trade_items=0;
+	int i;
+	char str[20];
+	
+	//Draw the names in the accept boxes
+	if(trade_you_accepted){
+		glColor3f(0.0f,1.0f,0.0f);
+	} else {
+		glColor3f(1.0f,0.0f,0.0f);
+	}
+	
+	draw_string_small(x+33-strlen(accept_str)*4, win->len_y-58, accept_str, 1);
+	
+	if(trade_other_accepted){
+		glColor3f(0.0f,1.0f,0.0f);
+	} else {
+		glColor3f(1.0f,0.0f,0.0f);
+	}
+	
+	draw_string_small(x+6*33-strlen(accept_str)*4, win->len_y-58, accept_str, 1);
+	
+	glColor3f(0.77f,0.57f,0.39f);	
+	
+	//Draw the trade session names
+	draw_string_small(10+2*33-strlen(you_str)*4,11,you_str,1);
+	draw_string_small(10+7*33-strlen(other_player_trade_name)*4,11,other_player_trade_name,1);
+
+	//Draw the X for aborting the trade
+	draw_string(win->len_x-(ELW_BOX_SIZE-4), 2, "X", 1);
+	
+	glColor3f(1.0f,1.0f,1.0f);
+	
+	//Now let's draw the goods on trade...
+	
+	for(i=0; i<16; i++){
+		if(your_trade_list[i].quantity){
+			GLfloat u_start, v_start, u_end, v_end;
+			int x_start, x_end, y_start, y_end;
+			int cur_item;
+			GLuint this_texture;
+
+			cur_item=your_trade_list[i].image_id%25;
+			u_start=0.2f*(cur_item%5);
+			u_end=u_start+(float)50/255;
+			v_start=(1.0f+((float)50/255)/255.0f)-((float)50/255*(cur_item/5));
+			v_end=v_start-(float)50/255;
+		
+			this_texture=get_items_texture(your_trade_list[i].image_id/25);
+
+			if(this_texture!=-1) get_and_set_texture_id(this_texture);
+
+			x_start=(no_trade_items%6)*32+10;
+			x_end=x_start+31;
+			y_start=(no_trade_items/6)*32+30;
+			y_end=y_start+31;
+
+			glBegin(GL_QUADS);
+			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
+			glEnd();
+			
+			sprintf(str,"%i",your_trade_list[i].quantity);
+			draw_string_small(x_start,y_end-15,str,1);
+
+			no_trade_items++;
+		}
+	}
+
+	no_trade_items=0;
+
+	for(i=0; i<16; i++){
+		if(others_trade_list[i].quantity){
+			GLfloat u_start, v_start, u_end, v_end;
+			int x_start, x_end, y_start, y_end;
+			int cur_item;
+			GLuint this_texture;
+
+			cur_item=others_trade_list[i].image_id%25;
+			u_start=0.2f*(cur_item%5);
+			u_end=u_start+(float)50/255;
+			v_start=(1.0f+((float)50/255)/255.0f)-((float)50/255*(cur_item/5));
+			v_end=v_start-(float)50/255;
+		
+			this_texture=get_items_texture(others_trade_list[i].image_id/25);
+
+			if(this_texture!=-1) get_and_set_texture_id(this_texture);
+
+			x_start=(no_trade_items%6)*32+10+5*33;
+			x_end=x_start+31;
+			y_start=(no_trade_items/6)*32+30;
+			y_end=y_start+31;
+
+			glBegin(GL_QUADS);
+			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
+			glEnd();
+			
+			sprintf(str,"%i",others_trade_list[i].quantity);
+			draw_string_small(x_start,y_end-15,str,1);
+
+			no_trade_items++;
+		}
+	}
+	
+	glDisable(GL_TEXTURE_2D);
+	
+	glColor3f(0.77f,0.57f,0.39f);	
+	// grids for goods on trade
+	rendergrid (4, 4, 10, 30, 33, 33);
+	rendergrid (4, 4, 10+5*33, 30, 33, 33);
+
+	// Accept buttons
+	x=10+33;
+	
+	glBegin (GL_LINE_LOOP);
+		glVertex3i(x,win->len_y-60,0);
+		glVertex3i(x+66,win->len_y-60,0);
+		glVertex3i(x+66,win->len_y-40,0);
+		glVertex3i(x,win->len_y-40,0);
+	glEnd ();
+	
+	x+=5*33;
+
+	glBegin (GL_LINE_LOOP);
+		glVertex3i(x,win->len_y-60,0);
+		glVertex3i(x+66,win->len_y-60,0);
+		glVertex3i(x+66,win->len_y-40,0);
+		glVertex3i(x,win->len_y-40,0);
+	glEnd ();
+
+
+	//Draw the border for the "X"
+	glBegin(GL_LINE_STRIP);
+		glVertex3i(win->len_x, ELW_BOX_SIZE, 0);
+		glVertex3i(win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE, 0);
+		glVertex3i(win->len_x-ELW_BOX_SIZE, 0, 0);
+	glEnd();
+	
+	//Draw the help text
+	if(show_help_text && show_abort_help) show_help(abort_str, win->len_x-(ELW_BOX_SIZE-4)/2-strlen(abort_str)*4, 4+ELW_BOX_SIZE);
+
+	glEnable(GL_TEXTURE_2D);
+	
+	//now, draw the inventory text, if any.
+	draw_string_small(4,win->len_y-35,items_string,3);
+
+	return 1;
+}
+
+
+int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+	Uint8 str[256];
+	int left_click = flags & ELW_LEFT_MOUSE;
+	int right_click = flags & ELW_RIGHT_MOUSE;
+	
+	if ( !(left_click || right_click) ) return 0;
+
+	if(left_click && mx>win->len_x-ELW_BOX_SIZE && my<ELW_BOX_SIZE){
+		str[0]=EXIT_TRADE;
+		my_tcp_send(my_socket,str,1);
+
+		hide_window(trade_win);
+		return 1;
+	}
+	
+	if(right_click && item_dragged!=-1)item_dragged=-1;
+	
+	if(mx>10 && mx<10+4*33 && my>10 && my<10+4*33){
+		int pos=get_mouse_pos_in_grid (mx, my, 4, 4, 10, 30, 33, 33);
+
+		if(item_dragged!=-1){
+			str[0]=PUT_OBJECT_ON_TRADE;
+			str[1]=item_list[item_dragged].pos;
+			*((Uint16 *)(str+2))= SDL_SwapLE16(item_quantity);
+			my_tcp_send(my_socket,str,4);
+		} else if(your_trade_list[pos].quantity){
+			if(action_mode==ACTION_LOOK || right_click) {
+				str[0]=LOOK_AT_TRADE_ITEM;
+				str[1]=pos;
+				str[2]=0;//your trade
+				my_tcp_send(my_socket,str,3);
+			} else {
+				str[0]=REMOVE_OBJECT_FROM_TRADE;
+				str[1]=pos;
+				*((Uint16 *)(str+2))=SDL_SwapLE16(item_quantity);
+				my_tcp_send(my_socket,str,4);
+			}
+		}
+
+		return 1;
+	}
+	
+	if(mx>10+5*33 && mx<10+9*33 && my>10 && my<10+4*33){
+		int pos=get_mouse_pos_in_grid(mx, my, 4, 4, 10+5*33, 30, 33, 33);
+
+		if(others_trade_list[pos].quantity){
+			if(action_mode==ACTION_LOOK || right_click) {
+				str[0]=LOOK_AT_TRADE_ITEM;
+				str[1]=pos;
+				str[2]=1;//their trade
+				my_tcp_send(my_socket,str,3);
+			}
+		}
+
+		return 1;
+	}
+	
+	//check to see if we hit the Accept box
+	if(mx>10+33 && mx<10+33+66 && my>win->len_y-60 && my<win->len_y-40) {
+		if(trade_you_accepted){
+			str[0]= REJECT_TRADE;
+			my_tcp_send(my_socket, str, 1);
+		} else {
+			int i;
+			int	msg_len= 1;
+	
+			str[0]= ACCEPT_TRADE;
+			// and send what we currently see as what they have offered us (we don't trust them!)
+			for(i=0; i<16; i++){
+				if (others_trade_list[i].quantity > 0 ){
+					*((Uint16 *)(str+msg_len))= SDL_SwapLE16(others_trade_list[i].image_id);
+					*((Uint32 *)(str+msg_len+2))= SDL_SwapLE16(others_trade_list[i].quantity);
+					msg_len+= 6;
+				}
+			}
+			my_tcp_send(my_socket, str, msg_len);
+		}
+		
+		return 1;
+	}
+
+	return 1;
+}
+
+int mouseover_trade_handler(window_info *win, int mx, int my) 
+{
+	if(mx>win->len_x-ELW_BOX_SIZE && my<ELW_BOX_SIZE) show_abort_help=1;
+	else show_abort_help=0;
+
+	return 0;
+}
+
+void get_trade_partner_name(Uint8 *player_name,int len)
+{
+	int i;
+	for(i=0;i<len;i++)
+		{
+			other_player_trade_name[i]=player_name[i];
+		}
+	other_player_trade_name[i]=0;
+}
+
+
+void get_your_trade_objects(Uint8 *data)
+{
+	int i;
+
+	//clear the items first
+	for(i=0;i<16;i++)your_trade_list[i].quantity=0;
+	for(i=0;i<16;i++)others_trade_list[i].quantity=0;
+
+	no_view_my_items=1;
+	get_your_items(data);
+
+	//reset the accepted flags too
+	trade_you_accepted=0;
+	trade_other_accepted=0;
+
+	view_window(&trade_win, -1);
+
+	//we have to close the manufacture window, otherwise bad things can happen.
+	hide_window(manufacture_win);
+	hide_window(sigil_win);
+}
+
+void put_item_on_trade(Uint8 *data)
+{
+	int pos;
+
+	pos=data[6];
+	if(!data[7])
+	{
+		your_trade_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data)));
+		your_trade_list[pos].quantity+=SDL_SwapLE32(*((Uint32 *)(data+2)));
+	}
+	else
+	{
+		others_trade_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data)));
+		others_trade_list[pos].quantity+=SDL_SwapLE32(*((Uint32 *)(data+2)));
+	}
+}
+
+void remove_item_from_trade(Uint8 *data)
+{
+	int pos;
+	int quantity;
+
+	pos=data[2];
+	quantity=SDL_SwapLE16(*((Uint16 *)(data)));
+
+	if(!data[3])
+	{
+		your_trade_list[pos].quantity-=quantity;
+	}
+	else
+	{
+		others_trade_list[pos].quantity-=quantity;
+	}
+}
+
+void display_trade_menu()
+{
+	if(trade_win < 0){
+		trade_win= create_window("Trade", game_root_win, 0, trade_menu_x, trade_menu_y, trade_menu_x_len, trade_menu_y_len, (ELW_WIN_DEFAULT& ~ELW_CLOSE_BOX));
+
+		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
+		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
+		set_window_handler(trade_win, ELW_HANDLER_MOUSEOVER, &mouseover_trade_handler );
+	} else {
+		show_window(trade_win);
+		select_window(trade_win);
+	}
+}
+#else
 int trade_win=-1;
 
 item inventory_trade_list[ITEM_WEAR_START];
@@ -53,6 +400,7 @@ int display_trade_handler(window_info *win)
 	draw_string(33*5+8,win->len_y-30+2,abort_str,1);
 	if(trade_you_accepted)draw_string_small(8,4*33-19,"X",1);
 	draw_string_small(24,4*33-19,"You",1);
+	
 	if(trade_other_accepted)draw_string_small(5*33+8,4*33-19,"X",1);
 	draw_string_small(5*33+24,4*33-19,other_player_trade_name,1);
 
@@ -621,3 +969,4 @@ void display_trade_menu()
 		select_window(trade_win);
 	}
 }
+#endif

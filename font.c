@@ -297,10 +297,20 @@ void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int c
 
 int draw_string (int x, int y, const unsigned char * our_string, int max_lines)
 {
-	return draw_string_zoomed (x, y, our_string, max_lines, 1.0f);
+	return draw_string_zoomed_width (x, y, our_string, window_width, max_lines, 1.0f);
+}
+
+int draw_string_width(int x, int y, const unsigned char * our_string, int max_width, int max_lines)
+{
+	return draw_string_zoomed_width (x, y, our_string, max_width, max_lines, 1.0f);
 }
 
 int draw_string_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float text_zoom)
+{
+	return draw_string_zoomed_width (x, y, our_string, window_width, max_lines, text_zoom);
+}
+
+int draw_string_zoomed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float text_zoom)
 {
 	float displayed_font_x_size= 11.0*text_zoom;
 	float displayed_font_y_size= 18.0*text_zoom;
@@ -335,6 +345,12 @@ int draw_string_zoomed (int x, int y, const unsigned char * our_string, int max_
 					if(current_lines>max_lines)break;
 					continue;
 				}
+			else if (cur_x+displayed_font_x_size-x>=max_width){
+				cur_y+=displayed_font_y_size;
+				cur_x=x;
+				current_lines++;
+				if(current_lines>max_lines)break;
+			}
 
 			cur_x+=draw_char_scaled(cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
 
@@ -728,7 +744,11 @@ int get_string_width(const unsigned char *str)
 int get_nstring_width(const unsigned char *str, int len)
 {
 	int	i, wdt=0;
-	for(i=0; i<len; i++) wdt+= get_char_width(str[i]);
+	
+	for(i=0; i<len; i++) {
+		wdt+= get_char_width(str[i]);
+	}
+
 	// adjust to ignore the final spacing
 	wdt-= fonts[cur_font_num]->spacing;
 
