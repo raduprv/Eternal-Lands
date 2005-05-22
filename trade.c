@@ -18,8 +18,6 @@ int trade_menu_y=20;
 int trade_menu_x_len=9*33+20;
 int trade_menu_y_len=4*33+100;
 
-char * accept_str={"Accept"};
-
 int show_abort_help=0;
 
 int display_trade_handler(window_info *win)
@@ -76,10 +74,10 @@ int display_trade_handler(window_info *win)
 
 			if(this_texture!=-1) get_and_set_texture_id(this_texture);
 
-			x_start=(no_trade_items%6)*32+10;
-			x_end=x_start+31;
-			y_start=(no_trade_items/6)*32+30;
-			y_end=y_start+31;
+			x_start=(no_trade_items%4)*33+10;
+			x_end=x_start+32;
+			y_start=(no_trade_items/4)*33+30;
+			y_end=y_start+32;
 
 			glBegin(GL_QUADS);
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
@@ -111,10 +109,10 @@ int display_trade_handler(window_info *win)
 
 			if(this_texture!=-1) get_and_set_texture_id(this_texture);
 
-			x_start=(no_trade_items%6)*32+10+5*33;
-			x_end=x_start+31;
-			y_start=(no_trade_items/6)*32+30;
-			y_end=y_start+31;
+			x_start=(no_trade_items%4)*33+10+5*33;
+			x_end=x_start+32;
+			y_start=(no_trade_items/4)*33+30;
+			y_end=y_start+32;
 
 			glBegin(GL_QUADS);
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
@@ -191,15 +189,16 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	
 	if(right_click && item_dragged!=-1)item_dragged=-1;
 	
-	if(mx>10 && mx<10+4*33 && my>10 && my<10+4*33){
+	if(left_click && item_dragged!=-1){
+		str[0]=PUT_OBJECT_ON_TRADE;
+		str[1]=item_list[item_dragged].pos;
+		*((Uint16 *)(str+2))= SDL_SwapLE16(item_quantity);
+		my_tcp_send(my_socket,str,4);
+		return 1;
+	} else if(mx>10 && mx<10+4*33 && my>10 && my<10+4*33){
 		int pos=get_mouse_pos_in_grid (mx, my, 4, 4, 10, 30, 33, 33);
 
-		if(item_dragged!=-1){
-			str[0]=PUT_OBJECT_ON_TRADE;
-			str[1]=item_list[item_dragged].pos;
-			*((Uint16 *)(str+2))= SDL_SwapLE16(item_quantity);
-			my_tcp_send(my_socket,str,4);
-		} else if(your_trade_list[pos].quantity){
+		if(your_trade_list[pos].quantity){
 			if(action_mode==ACTION_LOOK || right_click) {
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;
@@ -214,9 +213,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 
 		return 1;
-	}
-	
-	if(mx>10+5*33 && mx<10+9*33 && my>10 && my<10+4*33){
+	} else if(mx>10+5*33 && mx<10+9*33 && my>10 && my<10+4*33){
 		int pos=get_mouse_pos_in_grid(mx, my, 4, 4, 10+5*33, 30, 33, 33);
 
 		if(others_trade_list[pos].quantity){
@@ -229,10 +226,8 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 
 		return 1;
-	}
-	
-	//check to see if we hit the Accept box
-	if(mx>10+33 && mx<10+33+66 && my>win->len_y-60 && my<win->len_y-40) {
+	} else if(mx>10+33 && mx<10+33+66 && my>win->len_y-60 && my<win->len_y-40) {
+		//check to see if we hit the Accept box
 		if(trade_you_accepted){
 			str[0]= REJECT_TRADE;
 			my_tcp_send(my_socket, str, 1);
@@ -292,11 +287,20 @@ void get_your_trade_objects(Uint8 *data)
 	trade_you_accepted=0;
 	trade_other_accepted=0;
 
-	view_window(&trade_win, -1);
-
+#ifdef NEW_TRADE
 	//we have to close the manufacture window, otherwise bad things can happen.
 	hide_window(manufacture_win);
 	hide_window(sigil_win);
+	//Open the inventory window
+	display_items_menu();
+	view_window(&trade_win, -1);
+#else
+	view_window(&trade_win, -1);
+	
+	hide_window(items_win);
+	hide_window(manufacture_win);
+	hide_window(sigil_win);
+#endif
 }
 
 void put_item_on_trade(Uint8 *data)

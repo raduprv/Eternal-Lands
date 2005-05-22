@@ -154,6 +154,7 @@ char
 	quantity_str[30],
 	abort_str[10],
 	you_str[10],
+	accept_str[12],
 	/* new_character.c */
 	use_appropriate_name[500];
 #endif
@@ -712,6 +713,7 @@ void init_help()
 	add_xml_identifier (misc, "appropriate_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 3 numbers, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Rightclick on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"you",you_str,"You",sizeof(you_str));
+	add_xml_identifier(misc,"accept",accept_str,"Accept",sizeof(accept_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));
