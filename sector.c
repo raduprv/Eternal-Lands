@@ -56,7 +56,7 @@ int sector_add_2do(int objectid)
 
 	if(sector_no>=num_sectors) return -1;
 
-	for(i=0;i<20;i++){
+	for(i=0;i<100;i++){
 		if(sectors[sector_no].e2d_local[i]==-1){
 			sectors[sector_no].e2d_local[i]=objectid;
 	//		add_change();

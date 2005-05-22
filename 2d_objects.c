@@ -12,6 +12,10 @@
 #define SECTOR_SIZE_Y 15
 
 obj_2d *obj_2d_list[MAX_OBJ_2D];
+obj_2d *nearby_2d_objects[MAX_NEARBY_2D_OBJECTS];
+
+int no_nearby_2d_objects=0;
+int regenerate_near_2d_objects=1;
 
 int map_meters_size_x;
 int map_meters_size_y;
@@ -23,11 +27,8 @@ void draw_2d_object(obj_2d * object_id)
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	float x_size,y_size;
-	float alpha_test;
 	int object_type;
 	obj_2d_def *obj_def_pointer;
-
-	//int texture_id;
 
 	obj_def_pointer=object_id->obj_pointer;
 
@@ -37,7 +38,6 @@ void draw_2d_object(obj_2d * object_id)
 	v_end=obj_def_pointer->v_end;
 	x_size=obj_def_pointer->x_size;
 	y_size=obj_def_pointer->y_size;
-	alpha_test=obj_def_pointer->alpha_test;
 	render_x_start=-x_size/2.0f;
 
 	object_type=obj_def_pointer->object_type;
@@ -64,12 +64,6 @@ void draw_2d_object(obj_2d * object_id)
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
-    glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-    if(alpha_test!=0)
-    glAlphaFunc(GL_GREATER,alpha_test);
-    else
-    glAlphaFunc(GL_GREATER,0.18f);
 
 	get_and_set_texture_id(obj_def_pointer->texture_id);
 
@@ -170,8 +164,6 @@ void draw_2d_object(obj_2d * object_id)
 			glDisable(GL_TEXTURE_2D);
 			ELglActiveTextureARB(base_unit);
 		}
-
-    glDisable(GL_ALPHA_TEST);
 	glPopMatrix();//restore the scene
 }
 
@@ -423,35 +415,73 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 		+(x_pos/SECTOR_SIZE_X);
 	our_object->sector=sector;
 
+	regenerate_near_2d_objects=1;//We've added a new object...
+	
 	return i;
 }
 
-void display_2d_objects()
+int get_nearby_2d_objects()
 {
 	int i;
 	int x,y;
 	int sx,sy,ex,ey,j,k;
 	actor *xxx=pf_get_our_actor();
-	if(!xxx)return;
+	
+	no_nearby_2d_objects=0;
+	
+	if(!xxx)return 0;
 	x=-cx;
 	y=-cy;
-	glDisable(GL_CULL_FACE);
+	
 	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 	for(i=sx;i<=ex;i++)
 		for(j=sy;j<=ey;j++)
-			for(k=0;k<20;k++){
+			for(k=0;k<100;k++){
 				int l=sectors[(j*(tile_map_size_x>>2))+i].e2d_local[k];
 				if(l==-1)break;
-				if(obj_2d_list[l])
-				{
+				if(obj_2d_list[l]){
 					int dist1;
 					int dist2;
 
 					dist1=x-obj_2d_list[l]->x_pos;
 					dist2=y-obj_2d_list[l]->y_pos;
-					if(dist1*dist1+dist2*dist2<=220)
-						draw_2d_object(obj_2d_list[l]);
+					if(dist1*dist1+dist2*dist2<=220){
+						nearby_2d_objects[no_nearby_2d_objects]=obj_2d_list[l];
+						no_nearby_2d_objects++;
+					}
 				}
-		}
+			}
+
+	regenerate_near_2d_objects=0;
+
+	return no_nearby_2d_objects;
 }
 
+void display_2d_objects()
+{
+	int i;
+
+	if(regenerate_near_2d_objects)
+		if(!get_nearby_2d_objects())
+			return;
+
+	//First draw everyone with the same alpha test
+    	
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER,0.18f);
+	
+	for(i=0;i<no_nearby_2d_objects;i++){
+		if(nearby_2d_objects[i] && nearby_2d_objects[i]->obj_pointer && !nearby_2d_objects[i]->obj_pointer->alpha_test)
+			draw_2d_object(nearby_2d_objects[i]);
+	}
+
+	//Then draw all that needs a change
+	for(i=0;i<no_nearby_2d_objects;i++){
+		if(nearby_2d_objects[i] && nearby_2d_objects[i]->obj_pointer && nearby_2d_objects[i]->obj_pointer->alpha_test){
+    			glAlphaFunc(GL_GREATER,nearby_2d_objects[i]->obj_pointer->alpha_test);
+			draw_2d_object(nearby_2d_objects[i]);
+		}
+	}
+	
+	glDisable(GL_ALPHA_TEST);
+}

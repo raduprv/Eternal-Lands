@@ -186,14 +186,20 @@ void update_camera()
 		}
 	if(camera_x_frames)
 		{
-			if(camera_x_speed>0.005 || camera_x_speed<-0.005)
+			if(camera_x_speed>0.005 || camera_x_speed<-0.005){
 				cx-=camera_x_speed;
+				regenerate_near_objects=
+				regenerate_near_2d_objects=1;
+			}
 			camera_x_frames--;
 		}
 	if(camera_y_frames)
 		{
-			if(camera_y_speed>0.0005 || camera_y_speed<-0.005)
+			if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
 				cy-=camera_y_speed;
+				regenerate_near_objects=
+				regenerate_near_2d_objects=1;
+			}
 			camera_y_frames--;
 		}
 	if(camera_z_frames)

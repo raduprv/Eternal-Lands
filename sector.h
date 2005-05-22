@@ -20,7 +20,7 @@ typedef struct{
 	Uint32 objects_checksum; /*!< a MD5 checksum to check the objects in this sector */
 	Uint32 tiles_checksum; /*!< a MD5 checksum for the tiles in this sector */
 	short e3d_local[300]; /*!< array of local \see e3d objects in this sector */
-	short e2d_local[20]; /*!< array of local \see e2d objects in this sector */
+	short e2d_local[100]; /*!< array of local \see e2d objects in this sector */
 	short lights_local[4]; /*!< up to 4 lights are possible in one sector */
 	short particles_local[8]; /*!< up to 8 particles are possible in one sector */
 }map_sector;

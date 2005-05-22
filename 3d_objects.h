@@ -6,6 +6,17 @@
 #ifndef __OBJ_3D_H__
 #define __OBJ_3D_H__
 
+struct near_3d_object {
+       int dist;
+       float radius;
+       object3d * object;
+       struct near_3d_object * next;
+};
+
+extern struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
+extern struct near_3d_object * first_near_3d_object;
+extern int regenerate_near_objects;
+
 /*!
  * \ingroup 	display_3d
  * \brief 	Draws the 3d object pointed to by object_id
@@ -17,6 +28,16 @@
  * \callgraph
  */
 void draw_3d_object(object3d * object_id);
+
+/*!
+ * \ingroup	display_3d
+ * \brief	Generates a tree of the nearest 3d objects
+ *
+ * 		Generates a linear tree of the nearest 3d objects - the objects that are nearest are located in the beginning of the tree.
+ * 
+ * \return	Returns 1 on succes and 0 on failure.
+ */
+int get_near_3d_objects();
 
 /*!
  * \ingroup	load_3d

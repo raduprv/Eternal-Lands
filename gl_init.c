@@ -26,6 +26,12 @@ int have_s3_compression=0;
 int have_sgis_generate_mipmap=0;
 int use_mipmaps=0;
 int have_arb_shadow=0;
+int have_vertex_buffers=0;
+
+struct list {
+	int i;
+	struct list * next;
+} * list;
 
 void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
@@ -34,6 +40,10 @@ void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 void (APIENTRY * ELglUnlockArraysEXT) (void);
 void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglBindBufferARB)(GLenum target, GLuint buffer);
+void (APIENTRY * ELglBufferDataARB)(GLenum target, GLsizeiptrARB size, const void * data, GLenum usage);
+void (APIENTRY * ELglGenBuffersARB)(GLsizei no, GLuint *buffer);
+void (APIENTRY * ELglDeleteBuffersARB)(GLsizei no, const GLuint *buffer);
 
 void setup_video_mode(int fs, int mode)
 {
@@ -395,6 +405,10 @@ void init_gl_extensions()
 	ELglClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
 	ELglLockArraysEXT = SDL_GL_GetProcAddress("glLockArraysEXT");
 	ELglUnlockArraysEXT = SDL_GL_GetProcAddress("glUnlockArraysEXT");
+	ELglBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+	ELglGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
+	ELglDeleteBuffersARB = SDL_GL_GetProcAddress("glDeleteBuffersARB");
+	ELglBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
@@ -515,6 +529,13 @@ void init_gl_extensions()
 				LOG_TO_CONSOLE(c_red1,disabled_shadow_mapping);
 			}
 
+		if(get_string_occurance("GL_ARB_vertex_buffer_object",extensions,ext_str_len,0)>=0){
+			sprintf(str,gl_ext_found,"GL_ARB_vertex_buffer_object");
+			LOG_TO_CONSOLE(c_green2, str);
+			have_vertex_buffers=1;
+		} else {
+			have_vertex_buffers=0;
+		}
 	CHECK_GL_ERRORS();
 }
 
@@ -586,6 +607,34 @@ void set_new_video_mode(int fs,int mode)
 				}
 		}
 
+	if(have_vertex_buffers){
+		e3d_object * obj;
+		for(i=0;i<cache_e3d->max_item;i++){
+			if(!cache_e3d->cached_items[i])continue;
+			obj=cache_e3d->cached_items[i]->cache_item;
+
+			{
+				const GLuint buf[3]={obj->vbo[0], obj->vbo[1], obj->vbo[2]};
+			
+				ELglDeleteBuffersARB(3, buf);
+
+				obj->vbo[0]=0;
+				obj->vbo[1]=0;
+				obj->vbo[2]=0;
+			}
+		}
+		
+		for(i=0;i<highest_obj_3d;i++){
+			if(objects_list[i] && objects_list[i]->cloud_vbo) {
+				const GLuint l=objects_list[i]->cloud_vbo;
+
+				ELglDeleteBuffersARB(1, &l);
+
+				objects_list[i]->cloud_vbo=0;
+			}
+		}
+	}
+
 	//...and the texture used for shadow mapping
 	glDeleteTextures(1,&depth_map_id);
 	depth_map_id=0;
@@ -636,6 +685,35 @@ void set_new_video_mode(int fs,int mode)
 						}
 				}
 		}
+
+	if(have_vertex_buffers){
+		e3d_object * obj;
+		
+		for(i=0;i<cache_e3d->max_item;i++){
+			if(!cache_e3d->cached_items[i])continue;
+			obj=cache_e3d->cached_items[i]->cache_item;
+
+			ELglGenBuffersARB(3, obj->vbo);
+
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[0]);
+			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, obj->face_no*3*sizeof(e3d_array_uv_main), obj->array_uv_main, GL_STATIC_DRAW_ARB);
+
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[1]);
+			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, obj->face_no*3*sizeof(e3d_array_normal), obj->array_normal, GL_STATIC_DRAW_ARB);
+
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[2]);
+			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, obj->face_no*3*sizeof(e3d_array_vertex), obj->array_vertex, GL_STATIC_DRAW_ARB);
+		}
+		
+		for(i=0;i<highest_obj_3d;i++){
+			if(objects_list[i] && objects_list[i]->clouds_uv) {
+				ELglGenBuffersARB(1, &objects_list[i]->cloud_vbo);
+	
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, objects_list[i]->cloud_vbo);
+				ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, objects_list[i]->e3d_data->face_no*3*sizeof(e3d_array_uv_detail), objects_list[i]->clouds_uv, GL_STATIC_DRAW_ARB);
+			}
+		}
+	}
 	
 	//it is dependent on the window height...
 	init_hud_interface();

@@ -478,6 +478,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 				remove_item_from_inventory(*((Uint8 *)(in_data+3)));
 			}
+				regenerate_near_objects=1;//Regenerate the near 3d objects...
+				regenerate_near_2d_objects=1;//Regenerate the near 3d objects...
 			break;
 
 		case INVENTORY_ITEM_TEXT:
@@ -616,6 +618,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #endif
 			}
 			break;
+				regenerate_near_objects=1;//Regenerate the near 3d objects...
 
 		case LOG_IN_NOT_OK:
 			{

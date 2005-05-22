@@ -11,10 +11,13 @@
  */
 /*! @{ */
 #define MAX_OBJ_3D 15000
+#define MAX_NEAR_3D_OBJECTS 1000
+
 //#define MAX_E3D_CACHE 1000 /* unused */
 /*! @} */
 
 extern int highest_obj_3d;  /*!< pointer to the highes 3D object in map */
+extern int no_near_3d_objects;
 
 //the new array structures
 
@@ -194,6 +197,10 @@ typedef struct
 	e3d_array_order *array_order; /*!< an order array */
 	int materials_no; /*!< number of materials in this object */
 	int face_no; /*!< number of faces for this object */
+
+   	GLuint vbo[3];/*!< Vertex buffer objects*/
+
+	float radius;
     
     /*!
      * \name min/max of x,y,z
@@ -220,6 +227,8 @@ typedef struct
 typedef struct
 {
    char file_name[80]; /*!< filename where the 3d object is stored in */
+   
+   int id; /*!< The object ID */
    /*!
     * \name position vector
     */
@@ -241,6 +250,7 @@ typedef struct
    char blended; /*!< flag determining whether the object is blended with some other objects. */
    float r,g,b; /*!< color values (red, green, blue) for this object */
    e3d_array_uv_detail *clouds_uv; /*!< detailed texture coordinates used by clouds. */
+   GLuint cloud_vbo; /*! the vertex buffer object for the clouds uv*/
 
    e3d_object *e3d_data; /*!< e3d model data */
    unsigned int last_acessed_time; /*!< timestamp when this object was last accessed. */
@@ -248,7 +258,6 @@ typedef struct
 
 
 extern object3d *objects_list[MAX_OBJ_3D]; /*!< global variable containing up to \see max_obj_3d \see object3d objects. */
-
 
 //proto
 

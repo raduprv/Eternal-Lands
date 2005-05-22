@@ -27,6 +27,7 @@ extern int have_compiled_vertex_array; /*!< indicates whether we have the compil
 extern int have_point_sprite; /*!< indicates whether we have point sprites or not */
 extern int have_arb_compression; /*!< flag that indicates whether we have the ARB compression extension or not */
 extern int have_s3_compression; /*!< flag that indicates whether we have the S3 compression extension or not */
+extern int have_vertex_buffers; /*!< flag that indicates whether we have access to using vertex buffer objects or not*/
 
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 /*! @} */
@@ -44,6 +45,10 @@ extern void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 extern void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 extern void (APIENTRY * ELglUnlockArraysEXT) (void);
+extern void (APIENTRY * ELglBindBufferARB)(GLenum target, GLuint buffer);
+extern void (APIENTRY * ELglGenBuffersARB)(GLsizei no, GLuint *buffer);
+extern void (APIENTRY * ELglDeleteBuffersARB)(GLsizei no, const GLuint *buffer);
+extern void (APIENTRY * ELglBufferDataARB)(GLenum target, GLsizeiptrARB size, const void * data, GLenum usage);
 /*! @} */
 
 /*!

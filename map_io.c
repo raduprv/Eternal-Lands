@@ -48,7 +48,15 @@ void destroy_map()
 		{
 			if(objects_list[i])
 				{
-					if(objects_list[i]->clouds_uv)free(objects_list[i]->clouds_uv);
+					if(objects_list[i]->clouds_uv){
+						if(have_vertex_buffers){
+							const GLuint l=objects_list[i]->cloud_vbo;
+
+							ELglDeleteBuffersARB(1, &l);
+							objects_list[i]->cloud_vbo=0;
+						}
+						free(objects_list[i]->clouds_uv);
+					}
 					free(objects_list[i]);
 					objects_list[i]=0;//kill any refference to it
 				}

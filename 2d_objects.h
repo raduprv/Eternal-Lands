@@ -13,6 +13,7 @@
 /*! \{ */
 #define MAX_OBJ_2D 15000 /*!<Maximum number of 2d objects in a map*/
 #define MAX_OBJ_2D_DEF 1000 /*!<Maximum number of loaded 2d object definitions*/
+#define MAX_NEARBY_2D_OBJECTS 1000 /*!<Maximum number of nearby 2d objects*/
 /*! \} */
 
 
@@ -79,6 +80,8 @@ extern obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF]; /*!< The 2d object 
 extern obj_2d *obj_2d_list[MAX_OBJ_2D]; /*!< The 2d object array - holds all 2d objects on that map*/
 
 extern float texture_scale; /*!< scaling factor for textures */
+
+extern int regenerate_near_2d_objects;
 
 /*! 
  * \ingroup	display_2d

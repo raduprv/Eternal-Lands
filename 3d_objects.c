@@ -4,7 +4,12 @@
 #include "global.h"
 
 object3d *objects_list[MAX_OBJ_3D];
+struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
+struct near_3d_object * first_near_3d_object=NULL;
+int no_near_3d_objects=0;
 int highest_obj_3d= 0;
+
+int regenerate_near_objects=1;
 
 e3d_object * load_e3d(char *file_name);
 void compute_clouds_map(object3d * object_id);
@@ -13,12 +18,15 @@ void draw_3d_object(object3d * object_id)
 {
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
+	int i, materials_no;
 
 	e3d_array_vertex *array_vertex;
 	e3d_array_normal *array_normal;
 	e3d_array_uv_main *array_uv_main;
 	e3d_array_uv_detail *clouds_uv;
 	e3d_array_order *array_order;
+
+	GLint * vbo;
 
 	int is_transparent;
 	int is_ground;
@@ -28,20 +36,22 @@ void draw_3d_object(object3d * object_id)
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
 
 	// check for having to load the arrays
-	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
-		{
-			load_e3d_detail(object_id->e3d_data);
-		}
+	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order) {
+		load_e3d_detail(object_id->e3d_data);
+	}
+	
 	array_vertex=object_id->e3d_data->array_vertex;
 	array_normal=object_id->e3d_data->array_normal;
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;
+	
+	vbo=object_id->e3d_data->vbo;
 
 	is_transparent=object_id->e3d_data->is_transparent;
 	is_ground=object_id->e3d_data->is_ground;
 
 	CHECK_GL_ERRORS();
-	if(have_multitexture && clouds_shadows)
+	if(have_multitexture && (clouds_shadows||use_shadow_mapping))
 		if(!object_id->clouds_uv)
 			compute_clouds_map(object_id);
 
@@ -53,26 +63,24 @@ void draw_3d_object(object3d * object_id)
 
 	//debug
 
-	if(object_id->blended)
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE,GL_ONE);
-		}
+	if(object_id->blended) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE,GL_ONE);
+	}
 
-	if(object_id->self_lit && (!is_day || dungeon))
-		{
-			glDisable(GL_LIGHTING);
-			glColor3f(object_id->r,object_id->g,object_id->b);
-		}
+	if(object_id->self_lit && (!is_day || dungeon)) {
+		glDisable(GL_LIGHTING);
+		glColor3f(object_id->r,object_id->g,object_id->b);
+	}
 
-	if(is_transparent)
-		{
-			//enable alpha filtering, so we have some alpha key
-			glEnable(GL_ALPHA_TEST);
-			if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
-			else glAlphaFunc(GL_GREATER,0.06f);
-			glDisable(GL_CULL_FACE);
-		}
+	if(is_transparent) {
+		//enable alpha filtering, so we have some alpha key
+		glEnable(GL_ALPHA_TEST);
+		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
+		else glAlphaFunc(GL_GREATER,0.06f);
+		glDisable(GL_CULL_FACE);
+	}
+	
 	CHECK_GL_ERRORS();
 
 	glPushMatrix();//we don't want to affect the rest of the scene
@@ -89,149 +97,84 @@ void draw_3d_object(object3d * object_id)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 	CHECK_GL_ERRORS();
-	if(!have_multitexture || (!clouds_shadows && !use_shadow_mapping))
-		{
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glVertexPointer(3,GL_FLOAT,0,array_vertex);
-			glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-			if(!is_ground)
-				{
-					int i;
-					int materials_no;
+	
+	if(have_multitexture && (clouds_shadows||use_shadow_mapping)){
+		ELglClientActiveTextureARB(detail_unit);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		if(have_vertex_buffers){
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->cloud_vbo);
+			glTexCoordPointer(2, GL_FLOAT, 0, 0);
+		} else  glTexCoordPointer(2,GL_FLOAT,0,clouds_uv);
+		ELglClientActiveTextureARB(base_unit);
+	}
+	
+	if(have_vertex_buffers) {
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[0]);
+		glTexCoordPointer(2,GL_FLOAT,0,0);
+				
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[2]);
+		glVertexPointer(3,GL_FLOAT,0,0);
+	} else {
+		glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
+		
+		glVertexPointer(3,GL_FLOAT,0,array_vertex);
+	}
+			
+	if(!is_ground) {
+		if(have_vertex_buffers){
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[1]);
+			glNormalPointer(GL_FLOAT,0,0);
+		} else 	glNormalPointer(GL_FLOAT,0,array_normal);
+	}
 
-					glEnableClientState(GL_NORMAL_ARRAY);
-					glNormalPointer(GL_FLOAT,0,array_normal);
 	CHECK_GL_ERRORS();
-					materials_no=object_id->e3d_data->materials_no;
-					for(i=0;i<materials_no;i++)
-						{
-							get_and_set_texture_id(array_order[i].texture_id);
+		
+	materials_no=object_id->e3d_data->materials_no;
+					
+	if(have_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);
+	for(i=0;i<materials_no;i++) {
+		get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
-							// a quick check for errors
-							if(array_order[i].start < 0 || array_order[i].count <= 0)
-								{
-									char str[256];
-									sprintf(str, "%s[%d] %s (%d, %d)",
-										object_id->file_name, i,
-										values_str,
-										array_order[i].start, array_order[i].count);
-									LOG_ERROR(str);
-								}
-#endif	// DEBUG
-							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
-							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-						}
-					glDisableClientState(GL_NORMAL_ARRAY);
-				}//is ground
-			else
-				{
-					int i;
-					int materials_no;
-
-					glNormal3f(0,0,1);
-					materials_no=object_id->e3d_data->materials_no;
-					for(i=0;i<materials_no;i++)
-						{
-							get_and_set_texture_id(array_order[i].texture_id);
-#ifdef	DEBUG
-							// a quick check for errors
-							if(array_order[i].start < 0 || array_order[i].count <= 0)
-								{
-									char str[256];
-									sprintf(str, "%s[%d] %s (%d, %d)",
-										object_id->file_name, i,
-										values_str,
-										array_order[i].start, array_order[i].count);
-									LOG_ERROR(str);
-								}
-#endif	// DEBUG
-							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
-							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-						}
-				}
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		// a quick check for errors
+		if(array_order[i].start < 0 || array_order[i].count <= 0) {
+			char str[256];
+			sprintf(str, "%s[%d] %s (%d, %d)",
+				object_id->file_name, i,
+				values_str,
+				array_order[i].start, array_order[i].count);
+			LOG_ERROR(str);
 		}
-	else//draw a texture detail
-		{
-			if(clouds_shadows)
-				{
-					ELglClientActiveTextureARB(detail_unit);
-					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-					glTexCoordPointer(2,GL_FLOAT,0,clouds_uv);
-				}
-			ELglClientActiveTextureARB(base_unit);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-			if(!is_ground)
-				{
-					int i;
-					int materials_no;
-
-					glEnableClientState(GL_NORMAL_ARRAY);
-					glVertexPointer(3,GL_FLOAT,0,array_vertex);
-					glNormalPointer(GL_FLOAT,0,array_normal);
-	CHECK_GL_ERRORS();
-					materials_no=object_id->e3d_data->materials_no;
-					for(i=0;i<materials_no;i++)
-						if(array_order[i].count>0)
-							{
-								get_and_set_texture_id(array_order[i].texture_id);
-								if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
-								glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-								if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-							}
-					glDisableClientState(GL_NORMAL_ARRAY);
-				}//is ground
-			else
-				{
-					int i;
-					int materials_no;
-
-					glNormal3f(0,0,1);
-					glVertexPointer(3,GL_FLOAT,0,array_vertex);
-					glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-	CHECK_GL_ERRORS();
-					materials_no=object_id->e3d_data->materials_no;
-					for(i=0;i<materials_no;i++)
-						{
-							get_and_set_texture_id(array_order[i].texture_id);
-#ifdef	DEBUG
-							// a quick check for errors
-							if(array_order[i].start < 0 || array_order[i].count <= 0)
-								{
-									char str[256];
-									sprintf(str, "%s: %s[%d] %s (%d, %d)",
-										object_error_str,
-										object_id->file_name, i,
-										values_str,
-										array_order[i].start, array_order[i].count);
-									LOG_ERROR(str);
-								}
 #endif	// DEBUG
-							if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
-							glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-							if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-						}
-				}
-			ELglClientActiveTextureARB(detail_unit);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			ELglClientActiveTextureARB(base_unit);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		}
+		glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+	}
+			
+	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	
+	if(have_multitexture && (clouds_shadows||use_shadow_mapping)){
+		ELglClientActiveTextureARB(detail_unit);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		ELglClientActiveTextureARB(base_unit);
+	}
+	
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
 
-
 	if(object_id->blended)glDisable(GL_BLEND);
 	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
-	if(is_transparent)
-		{
-			glDisable(GL_ALPHA_TEST);
-			glEnable(GL_CULL_FACE);
-		}
+	if(is_transparent) {
+		glDisable(GL_ALPHA_TEST);
+		glEnable(GL_CULL_FACE);
+	}
+
+	if(have_vertex_buffers){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
+	
 	CHECK_GL_ERRORS();
+	
+	//OK, let's check if our mouse is over...
+	if (read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, object_id->e3d_data->radius))
+		anything_under_the_mouse(object_id->id, UNDER_MOUSE_3D_OBJ);
 }
 
 //Tests to see if an e3d object is already loaded. If it is, return the handle.
@@ -308,6 +251,8 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	our_object->blended=blended;
 
 	our_object->e3d_data=returned_e3d;
+	
+	our_object->id=i;
 
 	objects_list[i]=our_object;
 	// watch the top end
@@ -315,23 +260,123 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 		{
 			highest_obj_3d= i+1;
 		}
+     	
+	regenerate_near_objects=1;//We've added an object..
 		
 	return i;
 }
 
+void add_near_3d_object(int dist, float radius, object3d * obj)
+{
+     struct near_3d_object *cur, *nearest, *last;
+     
+     if(!obj||no_near_3d_objects >= MAX_NEAR_3D_OBJECTS){
+	     printf("wtf!?\n");
+          return;
+     }
+     
+     cur=&near_3d_objects[no_near_3d_objects];
+     cur->object=obj;
+     cur->dist=dist;
+     cur->radius=radius;
+     cur->next=NULL;
+     no_near_3d_objects++;
+     
+     near_3d_objects[no_near_3d_objects].dist=0;
+     near_3d_objects[no_near_3d_objects].radius=0;
+     near_3d_objects[no_near_3d_objects].object=NULL;
+     near_3d_objects[no_near_3d_objects].next=NULL;
+
+     if(!first_near_3d_object) {
+          first_near_3d_object=cur;
+          return;
+     } else if(first_near_3d_object->dist>dist){
+          cur->next=first_near_3d_object;
+          first_near_3d_object=cur;
+          
+          return;
+     }
+     
+     for(nearest=first_near_3d_object, last=NULL;nearest;nearest=nearest->next){
+         if(nearest->next && nearest->dist<=dist && nearest->next->dist>=dist){
+		cur->next=nearest->next;
+		nearest->next=cur;
+		return;
+         } else if(!nearest->next){
+		nearest->next=cur;
+		return;
+	 }
+	 last=nearest;
+     }
+}
+
+int get_near_3d_objects()
+{
+     int sx, sy, ex, ey;
+     int x,y;
+     int i,j,k;
+     actor * xxx=pf_get_our_actor();
+     
+     if(!xxx)return 0;
+     
+     no_near_3d_objects=0;
+     first_near_3d_object=NULL;
+     
+     x=-cx;
+     y=-cy;
+     
+     get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+	 for(i=sx;i<=ex;i++)
+		for(j=sy;j<=ey;j++)
+			for(k=0;k<MAX_3D_OBJECTS;k++){
+				object3d	*object_id;
+				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
+				if(l==-1)break;
+				object_id= objects_list[l];
+
+				if(object_id) {
+					int dist1, dist2;
+					int dist;
+
+					dist1= x-object_id->x_pos;
+					dist2= y-object_id->y_pos;
+					dist=dist1*dist1+dist2*dist2;
+					if(dist<=29*29){
+						float x_len, y_len, z_len;
+						float radius;
+
+						z_len= object_id->e3d_data->max_z-object_id->e3d_data->min_z;
+						x_len= object_id->e3d_data->max_x-object_id->e3d_data->min_x;
+						y_len= object_id->e3d_data->max_y-object_id->e3d_data->min_y;
+						//do some checks, to see if we really have to display this object
+						radius=x_len/2;
+						if(radius<y_len/2)radius=y_len/2;
+						if(radius<z_len)radius=z_len;
+						//not in the middle of the air
+						if(SphereInFrustum(object_id->x_pos, object_id->y_pos, object_id->z_pos, radius)){
+							add_near_3d_object(dist, radius, object_id);
+						}
+					}
+				}
+			}
+		
+    regenerate_near_objects=0;
+
+     return 1;
+}
+
 void display_objects()
 {
-	int i;
-	int x,y;
-	int sx,sy,ex,ey,j,k;
-	actor *xxx=pf_get_our_actor();
-	if(!xxx)return;
-
-	x=-cx;
-	y=-cy;
+	struct near_3d_object * nobj;
+	
+	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+	
 	CHECK_GL_ERRORS();
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+			
 	if(have_multitexture && clouds_shadows)
 		{
 			//bind the detail texture
@@ -340,54 +385,27 @@ void display_objects()
 			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 			ELglActiveTextureARB(base_unit);
 			glEnable(GL_TEXTURE_2D);
-
 		}
 
 	CHECK_GL_ERRORS();
 	
-	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
-	for(i=sx;i<=ex;i++)
-		for(j=sy;j<=ey;j++)
-			for(k=0;k<MAX_3D_OBJECTS;k++){
-				object3d	*object_id;
-				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
-				if(l==-1)break;
-				object_id= objects_list[l];
-
-				if(object_id)
-				{
-					int dist1, dist2;
-
-					dist1= x-object_id->x_pos;
-					dist2= y-object_id->y_pos;
-					if(dist1*dist1+dist2*dist2<=29*29)
-			         	{
-							float x_len, y_len, z_len;
-							float radius;
-
-							z_len= object_id->e3d_data->max_z-object_id->e3d_data->min_z;
-							x_len= object_id->e3d_data->max_x-object_id->e3d_data->min_x;
-							y_len= object_id->e3d_data->max_y-object_id->e3d_data->min_y;
-							//do some checks, to see if we really have to display this object
-							radius=x_len/2;
-							if(radius<y_len/2)radius=y_len/2;
-							if(radius<z_len)radius=z_len;
-							//not in the middle of the air
-							if(SphereInFrustum(object_id->x_pos, object_id->y_pos,
-											   object_id->z_pos, radius))
-								{
-                     				draw_3d_object(object_id);
-	//CHECK_GL_ERRORS();
-									if (read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, radius))
-										anything_under_the_mouse(l, UNDER_MOUSE_3D_OBJ);
-	//CHECK_GL_ERRORS();
-								}
-						}
-				}
-		}
+    for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+         if(!nobj->object->e3d_data->is_ground)
+             draw_3d_object(nobj->object);
+    }
+    
+    glDisableClientState(GL_NORMAL_ARRAY);
+    
+    glNormal3f(0,0,1);
+    for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+         if(nobj->object->e3d_data->is_ground)
+             draw_3d_object(nobj->object);
+    }
+	
 	CHECK_GL_ERRORS();
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit
@@ -469,6 +487,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	e3d_array_uv_main *array_uv_main;
 	e3d_array_order *array_order;
 	int	mem=0;
+	float radius, x_len, y_len, z_len;
 
 	//get the current directory
 	l=strlen(cur_object->file_name);
@@ -661,6 +680,20 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 
 	//and memorize the stored arrays
 	cur_object->array_order=array_order;
+	if(have_vertex_buffers){
+		//Generate the buffers
+		ELglGenBuffersARB(3, cur_object->vbo);
+		
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[0]);
+		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_uv_main), array_uv_main, GL_STATIC_DRAW_ARB);
+		
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[1]);
+		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_normal), array_normal, GL_STATIC_DRAW_ARB);
+		
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[2]);
+		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_vertex), array_vertex, GL_STATIC_DRAW_ARB);
+	}
+	
 	cur_object->array_vertex=array_vertex;
 	cur_object->array_normal=array_normal;
 	cur_object->array_uv_main=array_uv_main;
@@ -670,6 +703,16 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	free(vertex_list);
 	free(face_list);
 
+	z_len= cur_object->max_z-cur_object->min_z;
+	x_len= cur_object->max_x-cur_object->min_x;
+	y_len= cur_object->max_y-cur_object->min_y;
+	//do some checks, to see if we really have to display this object
+	radius=x_len/2;
+	if(radius<y_len/2)radius=y_len/2;
+	if(radius<z_len)radius=z_len;
+
+	cur_object->radius=radius;
+	
 	cache_adj_size(cache_e3d, mem, cur_object);
 
 	return cur_object;
@@ -723,6 +766,13 @@ void compute_clouds_map(object3d * object_id)
 
 	object_id->clouds_uv=array_detail;
 
+	if(have_vertex_buffers){
+		ELglGenBuffersARB(1, &object_id->cloud_vbo);
+		
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->cloud_vbo);
+		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, face_no*3*sizeof(e3d_array_uv_detail), array_detail, GL_STATIC_DRAW_ARB);
+	}
+
 }
 
 void clear_clouds_cache()
@@ -736,6 +786,13 @@ void clear_clouds_cache()
 				{
 					if(objects_list[i]->clouds_uv && objects_list[i]->last_acessed_time+20000<cur_time)
 						{
+							if(have_vertex_buffers){
+								const GLuint l=objects_list[i]->cloud_vbo;
+								
+								ELglDeleteBuffersARB(1, &l);
+
+								objects_list[i]->cloud_vbo=0;
+							}
 							free(objects_list[i]->clouds_uv);
 							objects_list[i]->clouds_uv=NULL;
 						}
@@ -747,6 +804,7 @@ void destroy_3d_object(int i)
 {
 	free(objects_list[i]);
 	objects_list[i]=0;
+     	regenerate_near_objects=1;
 	if(i == highest_obj_3d+1)
 		{
 			highest_obj_3d= i;
@@ -755,6 +813,8 @@ void destroy_3d_object(int i)
 
 Uint32 free_e3d_va(e3d_object *e3d_id)
 {
+     	regenerate_near_objects=1;
+
 	if(e3d_id->array_vertex)
 		{
 			free(e3d_id->array_vertex);
@@ -778,6 +838,16 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 			free(e3d_id->array_order);
 			e3d_id->array_order=NULL;
 		}
+
+	if(have_vertex_buffers){
+		const GLuint buf[3]={e3d_id->vbo[0], e3d_id->vbo[1], e3d_id->vbo[2]};
+		ELglDeleteBuffersARB(3, buf);
+
+		e3d_id->vbo[0]=
+		e3d_id->vbo[1]=
+		e3d_id->vbo[2]=0;
+	}
+	
 	return(e3d_id->cache_ptr->size - sizeof(*e3d_id));
 }
 

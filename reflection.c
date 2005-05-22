@@ -195,17 +195,30 @@ void draw_3d_reflection(object3d * object_id)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 	CHECK_GL_ERRORS();
-	glVertexPointer(3,GL_FLOAT,0,array_vertex);
-	glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-	glNormalPointer(GL_FLOAT,0,array_normal);
+
+	if(have_vertex_buffers){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
+		glTexCoordPointer(2,GL_FLOAT,0,0);
+		
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+		glNormalPointer(GL_FLOAT,0,0);
+		
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
+		glVertexPointer(3,GL_FLOAT,0,0);
+	} else {
+		glVertexPointer(3,GL_FLOAT,0,array_vertex);
+		glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
+		glNormalPointer(GL_FLOAT,0,array_normal);
+	}
+	
+	if(have_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);
 	for(i=0;i<materials_no;i++)
 		if(array_order[i].count>0)
 			{
 				get_and_set_texture_id(array_order[i].texture_id);
-				if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-				if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 			}
+	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 	CHECK_GL_ERRORS();
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
@@ -216,6 +229,10 @@ void draw_3d_reflection(object3d * object_id)
 		{
 			glDisable(GL_ALPHA_TEST);
 		}
+
+	if(have_vertex_buffers){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
 
 	CHECK_GL_ERRORS();
 }
@@ -299,14 +316,16 @@ void display_3d_reflection()
 	int x,y;
 	double water_clipping_p[4]={0,0,-1,water_deepth_offset};
 	float window_ratio;
-	int sx,sy,ex,ey,j,k;
-	actor *xxx=pf_get_our_actor();
-	if(!xxx)return;
+	struct near_3d_object * nobj;
+	
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
-	CHECK_GL_ERRORS();
+	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+	
 	x=-cx;
 	y=-cy;
+	
+	CHECK_GL_ERRORS();
 
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
@@ -319,45 +338,11 @@ void display_3d_reflection()
 	set_material(0.1f,0.2f,0.3f);
 	glPushMatrix();
 	glScalef(1.0f, 1.0f, -1.0f);
-	//first, render only the submerged objects, with the clipping plane enabled
-	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
-	for(i=sx;i<=ex;i++)
-		for(j=sy;j<=ey;j++)
-			for(k=0;k<MAX_3D_OBJECTS;k++){
-				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
-				if(l==-1)break;
 
-				if(objects_list[l])
-					{
-						if(!objects_list[l]->e3d_data->is_ground)
-					 	{
-							int dist1;
-							int dist2;
-
-			         		dist1=x-objects_list[l]->x_pos;
-			         		dist2=y-objects_list[l]->y_pos;
-			         		if(dist1*dist1+dist2*dist2<=21*21)
-			         			{
-									float x_len, y_len, z_len;
-									float radius;
-
-									z_len=objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z;
-									x_len=objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x;
-									y_len=objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y;
-									//do some checks, to see if we really have to display this object
-									if(x_len<5 && y_len<5 && z_len<4 && !find_local_reflection(objects_list[l]->x_pos,objects_list[l]->y_pos,1))continue;
-
-									radius=x_len/2;
-									if(radius<y_len/2)radius=y_len/2;
-									if(radius<z_len)radius=z_len;
-									//not in the middle of the air
-									if(SphereInFrustum(objects_list[l]->x_pos,objects_list[l]->y_pos,
-													   objects_list[l]->z_pos,radius))
-										draw_3d_reflection(objects_list[l]);
-								}
-						}
-				}
-		}
+	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+        	if(nobj->object && !nobj->object->e3d_data->is_ground && nobj->dist<=442)
+       	 		draw_3d_object(nobj->object);
+	}
 
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0.0f,0.0f,1.0f);

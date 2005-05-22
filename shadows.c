@@ -179,6 +179,8 @@ void draw_3d_object_shadow(object3d * object_id)
 	e3d_array_uv_main *array_uv_main;
 	e3d_array_order *array_order;
 
+	if(have_vertex_buffers && (!object_id->e3d_data->vbo[0]||!object_id->e3d_data->vbo[1]||!object_id->e3d_data->vbo[2])) return;//Protect from nasty crashes...
+
     if(object_id->blended)return;//blended objects can't have shadows
     //if(object_id->self_lit)return;//light sources can't have shadows
     if(object_id->e3d_data->min_z>=object_id->e3d_data->max_z)return;//we have a flat object
@@ -218,12 +220,18 @@ void draw_3d_object_shadow(object3d * object_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3,GL_FLOAT,0,array_vertex);
+	if(have_vertex_buffers){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
+		glVertexPointer(3,GL_FLOAT,0,0);
+	} else glVertexPointer(3,GL_FLOAT,0,array_vertex);
+	
 	if(is_transparent)
 		{
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
+			if(have_vertex_buffers){
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
+				glTexCoordPointer(2,GL_FLOAT,0,0);
+			} else glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
 		}
 
 	if(have_compiled_vertex_array)ELglLockArraysEXT(0,object_id->e3d_data->face_no);
@@ -232,20 +240,21 @@ void draw_3d_object_shadow(object3d * object_id)
 			{
 				if(is_transparent)
 					get_and_set_texture_id(array_order[i].texture_id);
-				//if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
 				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-				//if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 			}
 	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 	glPopMatrix();//restore the scene
 
-	glDisableClientState(GL_VERTEX_ARRAY);
 	if(is_transparent)
 		{
 			glDisable(GL_ALPHA_TEST);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	else glEnable(GL_TEXTURE_2D);
+				
+	if(have_vertex_buffers){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
 }
 
 void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
@@ -434,36 +443,32 @@ void display_actors_shadow()
 
 void display_shadows()
 {
-	int i;
-	int x,y;
-	int sx,sy,ex,ey,j,k;
-	actor *xxx=pf_get_our_actor();
-	if(!xxx)return;
-	x=-cx;
-	y=-cy;
+	struct near_3d_object * nobj;
+	
+	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+	
 	glEnable(GL_CULL_FACE);
-	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
-	for(i=sx;i<=ex;i++)
-		for(j=sy;j<=ey;j++)
-			for(k=0;k<MAX_3D_OBJECTS;k++){
-				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
-				if(l==-1)break;
-
-				if(objects_list[l])
-					{
-					if(use_shadow_mapping || (!objects_list[l]->e3d_data->is_ground && objects_list[l]->z_pos>-0.20f))
-						{
-							int dist1;
-							int dist2;
-
-							dist1=x-objects_list[l]->x_pos;
-							dist2=y-objects_list[l]->y_pos;
-							if(dist1*dist1+dist2*dist2<=900)
-								draw_3d_object_shadow(objects_list[l]);
-						}
-				}
+	glEnableClientState(GL_VERTEX_ARRAY);
+	
+	glEnableClientState(GL_NORMAL_ARRAY);
+	
+	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+		if(nobj->object && !nobj->object->e3d_data->is_ground && nobj->object->z_pos>-0.20f )//&& nobj->dist<=900 //It's already limited to max 29*29...
+			draw_3d_object_shadow(nobj->object);
+	}
+        
+	glDisableClientState(GL_NORMAL_ARRAY);
+    
+	if(use_shadow_mapping){
+		glNormal3f(0,0,1);
+		for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+			if(nobj->object && nobj->object->e3d_data->is_ground)//&& nobj->dist<=900 //It's already limited to max 29*29...
+				draw_3d_object_shadow(nobj->object);
 		}
-	glDisable(GL_CULL_FACE);
+	}
+	
+    	glDisable(GL_CULL_FACE);
+	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_TEXTURE_2D);
 	display_actors_shadow();
 	glEnable(GL_TEXTURE_2D);
@@ -471,13 +476,10 @@ void display_shadows()
 
 void display_3d_ground_objects()
 {
-	int i;
-	int x,y;
-	int sx,sy,ex,ey,j,k;
-	actor *xxx=pf_get_our_actor();
-	if(!xxx)return;
-	x=-cx;
-	y=-cy;
+	struct near_3d_object *nobj;
+    
+	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+	
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -491,44 +493,15 @@ void display_3d_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
-	for(i=sx;i<=ex;i++)
-		for(j=sy;j<=ey;j++)
-			for(k=0;k<MAX_3D_OBJECTS;k++){
-				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
-				if(l==-1)break;
+		
 
-				if(objects_list[l])
-					{
-					int dist1;
-					int dist2;
+   	glNormal3f(0,0,1);
+    
+    	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+    	    if(nobj->object && nobj->object->e3d_data->is_ground && nobj->dist<=700)
+    	         draw_3d_object(nobj->object);
+    	}
 
-					if(objects_list[l]->e3d_data->is_ground)
-					 	{
-			         		dist1=x-objects_list[l]->x_pos;
-			         		dist2=y-objects_list[l]->y_pos;
-			         		if(dist1*dist1+dist2*dist2<=700)
-								{
-									float x_len;
-									float y_len;
-									float z_len;
-									float radius;
-
-									z_len=objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z;
-									x_len=objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x;
-									y_len=objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y;
-
-									radius=x_len/2;
-									if(radius<y_len/2)radius=y_len/2;
-									if(radius<z_len)radius=z_len;
-									//not in the middle of the air
-									if(SphereInFrustum(objects_list[l]->x_pos,objects_list[l]->y_pos,
-													   objects_list[l]->z_pos,radius))
-										draw_3d_object(objects_list[l]);
-								}
-						}
-				}
-		}
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit
@@ -536,27 +509,26 @@ void display_3d_ground_objects()
 			glDisable(GL_TEXTURE_2D);
 			ELglActiveTextureARB(base_unit);
 		}
-	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
 }
 
 void display_3d_non_ground_objects()
 {
-	int i;
-	int x,y;
-	int sx,sy,ex,ey,j,k;
-	actor *xxx=pf_get_our_actor();
-	if(!xxx)return;
+	struct near_3d_object * nobj;
 
-	x=-cx;
-	y=-cy;
+	//if(regenerate_near_objects)if(!get_near_3d_objects())return;//Already checked in display_3d_ground_objects();
+	if(!first_near_3d_object||regenerate_near_objects) return; //We don't do that in here...
 
 	//we don't want to be affected by 2d objects and shadows
 	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
 
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	
 	if(have_multitexture && clouds_shadows)
 		{
 			//bind the detail texture
@@ -567,46 +539,12 @@ void display_3d_non_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
-	for(i=sx;i<=ex;i++)
-		for(j=sy;j<=ey;j++)
-			for(k=0;k<MAX_3D_OBJECTS;k++){
-				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
-				if(l==-1)break;
-
-				if(objects_list[l])
-					{
-					if(!objects_list[l]->e3d_data->is_ground)
-					{
-						int dist1;
-						int dist2;
-
-						dist1=x-objects_list[l]->x_pos;
-						dist2=y-objects_list[l]->y_pos;
-							if(dist1*dist1+dist2*dist2<=900)
-			         			{
-									float x_len, y_len, z_len;
-									float radius;
-
-									z_len=objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z;
-									x_len=objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x;
-									y_len=objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y;
-
-									radius=x_len/2;
-									if(radius<y_len/2)radius=y_len/2;
-									if(radius<z_len)radius=z_len;
-									//not in the middle of the air
-									if(SphereInFrustum(objects_list[l]->x_pos,objects_list[l]->y_pos,
-												   objects_list[l]->z_pos,radius))
-										{
-                     						draw_3d_object(objects_list[l]);
-											if (read_mouse_now && mouse_in_sphere(objects_list[l]->x_pos, objects_list[l]->y_pos, objects_list[l]->z_pos, radius))
-												anything_under_the_mouse(l,UNDER_MOUSE_3D_OBJ);
-										}
-								}
-						}
-				}
-		}
+	
+    for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+        if(nobj->object && !nobj->object->e3d_data->is_ground)
+             draw_3d_object(nobj->object);
+    }
+		
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit
@@ -614,6 +552,8 @@ void display_3d_non_ground_objects()
 			glDisable(GL_TEXTURE_2D);
 			ELglActiveTextureARB(base_unit);
 		}
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
 }
