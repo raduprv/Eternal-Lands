@@ -61,6 +61,12 @@
 #define sector_size_x 15
 #define sector_size_y 15
 
+#ifdef X86_64
+typedef long int point;
+#else
+typedef int point;
+#endif
+
 extern int font_text;
 
 extern int map_meters_size_x;
