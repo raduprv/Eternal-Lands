@@ -450,17 +450,12 @@ void display_shadows()
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	
-	glEnableClientState(GL_NORMAL_ARRAY);
-	
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(nobj->object && !nobj->object->e3d_data->is_ground && nobj->object->z_pos>-0.20f )//&& nobj->dist<=900 //It's already limited to max 29*29...
 			draw_3d_object_shadow(nobj->object);
 	}
         
-	glDisableClientState(GL_NORMAL_ARRAY);
-    
 	if(use_shadow_mapping){
-		glNormal3f(0,0,1);
 		for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 			if(nobj->object && nobj->object->e3d_data->is_ground)//&& nobj->dist<=900 //It's already limited to max 29*29...
 				draw_3d_object_shadow(nobj->object);
