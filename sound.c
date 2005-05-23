@@ -83,8 +83,8 @@ void print_sound_objects ()
 void stop_sound(int i)
 {
 	if(!have_sound)return;
-	if (i < 0 || i >= used_sources) return;
-	alSourceStop(sound_source[i]);
+	if (i == 0) return;
+	alSourceStop (i);
 }
 
 void get_map_playlist()
