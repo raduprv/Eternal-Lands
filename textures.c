@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "global.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -61,6 +62,8 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 
 	while((*name--!='.' && (point)name!=(point)filename));
 	strcpy(name+1, "_alpha.bmp");
+
+	if(access(filename, F_OK)) return 0;//File doesn't exist...
   	
 	f = my_fopen (filename, "rb");
   	if (!f) return 0;

@@ -450,11 +450,13 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 int display_game_handler (window_info *win)
 {	
 	static int main_count = 0;
-	static int old_fps_average = 0;
-	static int fps_average = 0;
 	static int times_FPS_below_3 = 0;
+	static int next_fps_time = 0;
+	static int last_count = 0;
+	static int fps[5]={100};
+	static float fps_average=100.0f;
+	static int shadows_were_disabled=0;
 	unsigned char str[180];
-	int fps;
 	int y_line, i;
 	int any_reflection = 0;
 	int mouse_rate;
@@ -470,27 +472,28 @@ int display_game_handler (window_info *win)
 	if(i > max_actors) return 1;//we still don't have ourselves
 	
 	main_count++;
+	last_count++;
 	
 	//if (quickbar_win>0) windows_list.window[quickbar_win].displayed=1;
 
-	if (old_fps_average < 5)
+	if (fps[0] < 5)
 	{
 		mouse_rate = 1;
 		read_mouse_now = 1;
 	}
-	else if (old_fps_average<10)
+	else if (fps[0]<10)
 	{
 		mouse_rate = 3;
 	}
-	else if (old_fps_average < 20)
+	else if (fps[0] < 20)
 	{
 		mouse_rate = 6;
 	}
-	else if (old_fps_average < 30)
+	else if (fps[0] < 30)
 	{
 		mouse_rate = 10;
 	}
-	else if (old_fps_average < 40)
+	else if (fps[0] < 40)
 	{
 		mouse_rate = 15;
 	}
@@ -609,23 +612,21 @@ int display_game_handler (window_info *win)
 
 	Enter2DMode ();
 	//get the FPS, etc
-	if ((cur_time-last_time)) 
-		fps = 1000 / (cur_time-last_time);
-	else 
-		fps = 1000;
+	
+	if (next_fps_time<cur_time){
+		fps[4]=fps[3];
+		fps[3]=fps[2];
+		fps[2]=fps[1];
+		fps[1]=fps[0];
+		fps[0]=last_count;
+		last_count=0;
+		next_fps_time=cur_time+1000;
+		fps_average=(fps[0]+fps[1]+fps[2]+fps[3]+fps[4])/5.0f;
+	}
 
-	if (main_count%10)
-	{
-		fps_average += fps;
-	}
-	else
-	{
-		old_fps_average = fps_average / 10;
-		fps_average = 0;
-	}
 	if (!no_adjust_shadows)
 	{
-		if (fps < 5)
+		if (fps_average < 5.0f)
 		{
 			times_FPS_below_3++;
 			if (times_FPS_below_3 > 4 && shadows_on)
@@ -633,16 +634,22 @@ int display_game_handler (window_info *win)
 				shadows_on = 0;
 				put_colored_text_in_buffer (c_red1,low_framerate_str, -1, 0);
 				times_FPS_below_3 = 0;
+				shadows_were_disabled=1;
 			}
 		}
 		else 
 		{
 			times_FPS_below_3 = 0;
+			
+			if(shadows_were_disabled){
+				shadows_on = 1;
+				shadows_were_disabled=0;
+			}
 		}
 	}
 	if (show_fps)
 	{
-		sprintf (str, "FPS: %i", old_fps_average);
+		sprintf (str, "FPS: %i", fps[0]);
 		glColor3f (1.0f, 1.0f, 1.0f);
 		draw_string (10, 0, str, 1);
 	}

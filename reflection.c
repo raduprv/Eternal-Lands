@@ -196,7 +196,7 @@ void draw_3d_reflection(object3d * object_id)
 
 	CHECK_GL_ERRORS();
 
-	if(have_vertex_buffers){
+	if(have_vertex_buffers && object_id->e3d_data->vbo[0] && object_id->e3d_data->vbo[1] && object_id->e3d_data->vbo[2]){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
 		glTexCoordPointer(2,GL_FLOAT,0,0);
 		
@@ -208,7 +208,7 @@ void draw_3d_reflection(object3d * object_id)
 	} else {
 		glVertexPointer(3,GL_FLOAT,0,array_vertex);
 		glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-		glNormalPointer(GL_FLOAT,0,array_normal);
+		glNormalPointer(GL_FLOAT,0,array_normal);	
 	}
 	
 	if(have_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);

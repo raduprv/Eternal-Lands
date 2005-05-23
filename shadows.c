@@ -220,7 +220,7 @@ void draw_3d_object_shadow(object3d * object_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if(have_vertex_buffers){
+	if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
 		glVertexPointer(3,GL_FLOAT,0,0);
 	} else glVertexPointer(3,GL_FLOAT,0,array_vertex);
@@ -228,7 +228,7 @@ void draw_3d_object_shadow(object3d * object_id)
 	if(is_transparent)
 		{
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			if(have_vertex_buffers){
+			if(have_vertex_buffers && object_id->e3d_data->vbo[0]){
 				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
 				glTexCoordPointer(2,GL_FLOAT,0,0);
 			} else glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);

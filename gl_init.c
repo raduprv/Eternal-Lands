@@ -713,6 +713,8 @@ void set_new_video_mode(int fs,int mode)
 				ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, objects_list[i]->e3d_data->face_no*3*sizeof(e3d_array_uv_detail), objects_list[i]->clouds_uv, GL_STATIC_DRAW_ARB);
 			}
 		}
+		
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 	
 	//it is dependent on the window height...

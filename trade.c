@@ -28,15 +28,20 @@ int display_trade_handler(window_info *win)
 	char str[20];
 	
 	//Draw the names in the accept boxes
-	if(trade_you_accepted){
+	
+	if(trade_you_accepted==1){
+		glColor3f(1.0f,1.0f,0.0f);
+	} else if(trade_you_accepted==2){
 		glColor3f(0.0f,1.0f,0.0f);
 	} else {
 		glColor3f(1.0f,0.0f,0.0f);
 	}
 	
 	draw_string_small(x+33-strlen(accept_str)*4, win->len_y-58, accept_str, 1);
-	
-	if(trade_other_accepted){
+
+	if(trade_other_accepted==1){
+		glColor3f(1.0f,1.0f,0.0f);
+	} else if(trade_other_accepted==2){
 		glColor3f(0.0f,1.0f,0.0f);
 	} else {
 		glColor3f(1.0f,0.0f,0.0f);

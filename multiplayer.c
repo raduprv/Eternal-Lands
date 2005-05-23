@@ -847,9 +847,10 @@ add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_
 
 		case GET_TRADE_ACCEPT:
 			{
-				if(!in_data[3])trade_you_accepted=1;
+				if(!in_data[3])
+					trade_you_accepted++;
 				else
-					trade_other_accepted=1;
+					trade_other_accepted++;
 			}
 			break;
 

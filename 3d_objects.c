@@ -36,7 +36,7 @@ void draw_3d_object(object3d * object_id)
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
 
 	// check for having to load the arrays
-	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order) {
+	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order){
 		load_e3d_detail(object_id->e3d_data);
 	}
 	
@@ -51,9 +51,10 @@ void draw_3d_object(object3d * object_id)
 	is_ground=object_id->e3d_data->is_ground;
 
 	CHECK_GL_ERRORS();
-	if(have_multitexture && (clouds_shadows||use_shadow_mapping))
+	if(have_multitexture && (clouds_shadows||use_shadow_mapping)){
 		if(!object_id->clouds_uv)
 			compute_clouds_map(object_id);
+	}
 
 	CHECK_GL_ERRORS();
 	//also, update the last time this object was used
@@ -101,14 +102,14 @@ void draw_3d_object(object3d * object_id)
 	if(have_multitexture && (clouds_shadows||use_shadow_mapping)){
 		ELglClientActiveTextureARB(detail_unit);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		if(have_vertex_buffers){
+		if(have_vertex_buffers && object_id->cloud_vbo){
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->cloud_vbo);
 			glTexCoordPointer(2, GL_FLOAT, 0, 0);
 		} else  glTexCoordPointer(2,GL_FLOAT,0,clouds_uv);
 		ELglClientActiveTextureARB(base_unit);
 	}
 	
-	if(have_vertex_buffers) {
+	if(have_vertex_buffers && vbo[0] && vbo[2]) {
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[0]);
 		glTexCoordPointer(2,GL_FLOAT,0,0);
 				
@@ -121,7 +122,7 @@ void draw_3d_object(object3d * object_id)
 	}
 			
 	if(!is_ground) {
-		if(have_vertex_buffers){
+		if(have_vertex_buffers && vbo[1]){
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[1]);
 			glNormalPointer(GL_FLOAT,0,0);
 		} else 	glNormalPointer(GL_FLOAT,0,array_normal);
@@ -692,6 +693,8 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 		
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[2]);
 		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_vertex), array_vertex, GL_STATIC_DRAW_ARB);
+		
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 	
 	cur_object->array_vertex=array_vertex;
@@ -771,6 +774,7 @@ void compute_clouds_map(object3d * object_id)
 		
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->cloud_vbo);
 		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, face_no*3*sizeof(e3d_array_uv_detail), array_detail, GL_STATIC_DRAW_ARB);
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 
 }
