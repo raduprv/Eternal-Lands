@@ -678,7 +678,7 @@ int display_game_handler (window_info *win)
 	if (!use_windowed_chat)
 	{
 		//y_line = win->len_y - (17 * (4+input_text_lines));
-		y_line = win->len_y - (17 * (4+(int)((get_string_width(input_text_line.data)*11.0f/12.0f)/(win->len_x-82))));
+		y_line = win->len_y - (17 * (4+(int)((get_string_width(input_text_line.data)*11.0f/12.0f)/(win->len_x-hud_x-20))));
 		switch(map_type)
 		{
 			case 2:
@@ -689,7 +689,7 @@ int display_game_handler (window_info *win)
 				glColor3f (1.0f, 1.0f, 1.0f);
 		}
 
-		draw_string_zoomed_width (10, y_line, input_text_line.data, win->len_x-82, 4, chat_zoom);
+		draw_string_zoomed_width (10, y_line, input_text_line.data, win->len_x-hud_x-20, 4, chat_zoom);
 	}
 	
 	Leave2DMode ();
