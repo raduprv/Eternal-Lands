@@ -63,6 +63,7 @@ clean:
 docs:	
 	cd docs && doxygen Doxyfile
 
-.depend: *.c *.h
+.depend: *.h
 	echo $(OBJS) | sed 's/\.o/.c/g' | xargs gcc $(CFLAGS) -MM >.depend
+
 -include .depend
