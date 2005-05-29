@@ -10,6 +10,7 @@ int portraits2_tex;
 int portraits3_tex;
 int portraits4_tex;
 int portraits5_tex;
+int portraits6_tex;
 
 response dialogue_responces[MAX_RESPONSES];
 int dialogue_win= -1;
@@ -106,16 +107,16 @@ int	display_dialogue_handler(window_info *win)
 
 			//get the texture this item belongs to
 			this_texture=cur_portrait/16;
-			if(this_texture==0)this_texture=portraits1_tex;
-			else
-				if(this_texture==1)this_texture=portraits2_tex;
-				else
-					if(this_texture==2)this_texture=portraits3_tex;
-					else
-						if(this_texture==3)this_texture=portraits4_tex;
-						else
-							if(this_texture==4)this_texture=portraits5_tex;
-
+			switch (this_texture)
+			{
+				case 0: this_texture=portraits1_tex; break;
+				case 1: this_texture=portraits2_tex; break;
+				case 2: this_texture=portraits3_tex; break;
+				case 3: this_texture=portraits4_tex; break;
+				case 4: this_texture=portraits5_tex; break;
+				case 5: this_texture=portraits6_tex; break;
+				default: LOG_ERROR ("Invalid portrait texture");
+			}
 
 			get_and_set_texture_id(this_texture);
 			glBegin(GL_QUADS);

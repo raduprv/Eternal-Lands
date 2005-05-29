@@ -24,6 +24,7 @@ extern int portraits2_tex;
 extern int portraits3_tex;
 extern int portraits4_tex;
 extern int portraits5_tex;
+extern int portraits6_tex;
 /*! @} */
 
 /*!

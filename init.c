@@ -619,6 +619,7 @@ void init_stuff()
 	portraits3_tex=load_texture_cache("./textures/portraits3.bmp",0);
 	portraits4_tex=load_texture_cache("./textures/portraits4.bmp",0);
 	portraits5_tex=load_texture_cache("./textures/portraits5.bmp",0);
+	portraits6_tex=load_texture_cache("./textures/portraits6.bmp",0);
 
 	sigils_text=load_texture_cache("./textures/sigils.bmp",0);
 
