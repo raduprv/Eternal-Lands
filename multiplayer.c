@@ -507,6 +507,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case CHANGE_MAP:
 			{
+				regenerate_near_objects=1;//Regenerate the near 3d objects...
+				regenerate_near_2d_objects=1;//Regenerate the near 3d objects...
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
