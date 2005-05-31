@@ -40,6 +40,7 @@ void kill_height_map_at_texture_tile(int tex_pos){
   }
 }
 
+/*
 int evaluate_colision()
 {
 	char pixels[16]={0};
@@ -48,6 +49,20 @@ int evaluate_colision()
 	if(pixels[0])return 1;//there is something
 	return 0;//no collision, sorry
 }
+*/
+
+int evaluate_colision (float *ref)
+{
+	float z;
+	glReadBuffer (GL_BACK);
+	glReadPixels (mouse_x, window_height-mouse_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+	if(z < *ref) 
+	{
+		*ref = z;
+		return 1;//there is something
+	}
+	return 0; //no collision, sorry
+}
 
 void get_3d_object_under_mouse()
 {
@@ -55,19 +70,22 @@ void get_3d_object_under_mouse()
 	int i;
 	int x,y;
 	int lit_bak;
+	float least_z;
 
 	selected_3d_object=-1;
 	x=(int)-cx;
 	y=(int)-cy;
 
 
+	least_z = 1.0;
+	glClearDepth (least_z);
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glPushMatrix();
 	glLoadIdentity();					// Reset The Matrix
-    Move();
+	Move();
 
 	for(i=0;i<max_obj_3d;i++)
 	{
@@ -80,16 +98,13 @@ void get_3d_object_under_mouse()
 			dist2=y-(int)objects_list[i]->y_pos;
 			if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
 			{
-				// disable self-lighting so that we can detect this object
-				lit_bak = objects_list[i]->self_lit;
-				objects_list[i]->self_lit = 0;
 				draw_3d_object(objects_list[i]);
-				objects_list[i]->self_lit = lit_bak;
-			}
-			if(evaluate_colision())
-			{
-				selected_3d_object=i;
-				glClear(GL_COLOR_BUFFER_BIT);
+				if (evaluate_colision (&least_z))
+				{
+					selected_3d_object=i;
+					//glClear(GL_COLOR_BUFFER_BIT);
+					//glClear(GL_DEPTH_BUFFER_BIT);
+				}
 			}
 		}
 	}
@@ -201,35 +216,41 @@ void get_2d_object_under_mouse()
 	//ok, first of all, let's see what objects we have in range...
 	int i;
 	int x,y;
+	float least_z;
 
 	selected_2d_object=-1;
 	x=(int)-cx;
 	y=(int)-cy;
 
+	least_z = 1.0;
+	glClearDepth (least_z);
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
 	glPushMatrix();
 	glLoadIdentity();					// Reset The Matrix
-    Move();
+	Move();
 
-	for(i=0;i<max_obj_2d;i++)
+	for (i = 0; i < max_obj_2d; i++)
+	{
+		if (obj_2d_list[i])
 		{
-			if(obj_2d_list[i])
-			     {
-			         int dist1;
-			         int dist2;
+			int dist1;
+			int dist2;
 
-			         dist1=x-(int)obj_2d_list[i]->x_pos;
-			         dist2=y-(int)obj_2d_list[i]->y_pos;
-			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
-                     	draw_2d_object(obj_2d_list[i]);
-                     if(evaluate_colision())
-                     	{
-                     		selected_2d_object=i;
-                     		glClear(GL_COLOR_BUFFER_BIT);
-						}
-                 }
+			dist1 = x - (int)obj_2d_list[i]->x_pos;
+			dist2 = y - (int)obj_2d_list[i]->y_pos;
+			if ( dist1 * dist1 + dist2 * dist2 <= ( (40 * 40) * (zoom_level / 15.75f) ) )
+			{
+				draw_2d_object (obj_2d_list[i]);
+				if (evaluate_colision (&least_z))
+				{
+                     			selected_2d_object = i;
+					//glClear(GL_COLOR_BUFFER_BIT);
+				}
+			}
 		}
+	}
+	
 	glPopMatrix();
 }
 
@@ -382,11 +403,14 @@ void get_particles_object_under_mouse() {
 	//ok, first of all, let's see what objects we have in range...
 	int i;
 	int x,y;
+	float least_z;
 
 	selected_particles_object=-1;
 	x=(int)-cx;
 	y=(int)-cy;
 
+	least_z = 1.0;
+	glClearDepth (least_z);
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	glDisable(GL_TEXTURE_2D);
 
@@ -395,24 +419,27 @@ void get_particles_object_under_mouse() {
 	Move();
 
 	LOCK_PARTICLES_LIST();
-	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
+	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
+	{
+		if (particles_list[i])
 		{
-			if(particles_list[i])
-			     {
-			         int dist1;
-			         int dist2;
+			int dist1;
+			int dist2;
 
-			         dist1=x-(int)particles_list[i]->x_pos;
-			         dist2=y-(int)particles_list[i]->y_pos;
-			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
-					draw_particle_handle(particles_list[i]);
-				 if(evaluate_colision())
-					{
-						selected_particles_object=i;
-						glClear(GL_COLOR_BUFFER_BIT);
-					}
-			     }
+			dist1 = x - (int)particles_list[i]->x_pos;
+			dist2 = y - (int)particles_list[i]->y_pos;
+			if (dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
+			{
+				draw_particle_handle(particles_list[i]);
+				if (evaluate_colision (&least_z))
+				{
+					selected_particles_object = i;
+					//glClear (GL_COLOR_BUFFER_BIT);
+				}
+			}
 		}
+	}
+	
 	glPopMatrix();
 	UNLOCK_PARTICLES_LIST();
 	glEnable(GL_TEXTURE_2D);
@@ -604,35 +631,41 @@ void get_light_under_mouse()
 	//ok, first of all, let's see what objects we have in range...
 	int i;
 	int x,y;
+	float least_z;
 
 	selected_light=-1;
 	x=(int)-cx;
 	y=(int)-cy;
 
+	least_z = 1.0;
+	glClearDepth (least_z);
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
 	glPushMatrix();
 	glLoadIdentity();					// Reset The Matrix
-    Move();
+	Move();
 
-	for(i=0;i<max_lights;i++)
+	for (i = 0; i < max_lights; i++)
+	{
+		if (lights_list[i])
 		{
-			if(lights_list[i])
-			     {
-			         int dist1;
-			         int dist2;
+			int dist1;
+			int dist2;
 
-			         dist1=x-(int)lights_list[i]->pos_x;
-			         dist2=y-(int)lights_list[i]->pos_y;
-			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
-                     	draw_light_source(lights_list[i]);
-                     if(evaluate_colision())
-                     	{
-                     		selected_light=i;
-                     		glClear(GL_COLOR_BUFFER_BIT);
-						}
-                 }
+			dist1 = x - (int)lights_list[i]->pos_x;
+			dist2 = y - (int)lights_list[i]->pos_y;
+			if (dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
+			{
+				draw_light_source (lights_list[i]);
+				if (evaluate_colision (&least_z))
+				{
+					selected_light = i;
+					//glClear(GL_COLOR_BUFFER_BIT);
+				}
+			}
 		}
+	}
+	
 	glPopMatrix();
 }
 
