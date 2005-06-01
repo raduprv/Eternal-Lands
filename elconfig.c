@@ -11,13 +11,16 @@
 #include "global.h"
 #endif
 #include "elconfig.h"
+#include "text.h"
+#include "chat.h"
+#include "consolewin.h"
 
 #define SPECINT		0 	//Multiple ints, special func							func(int)
 #define SPECCHAR	1 	//Char pointer, special func							func(char*)
 #define SPEC 		2 	//A special function call, bool (is called when value != default value) 	func()
 #define BOOL		3	//Change variable 								func(int*)
 #define STRING		4	//Change string 								func(char*,char*)
-#define FLOAT		5 	//Change float									func(float*,float)
+#define FLOAT		5 	//Change float									func(float*,float*)
 #define INT		6	//Change int									func(int*,int)
 
 typedef char input_line[256];
@@ -179,6 +182,24 @@ void change_quickbar_relocatable (int *rel)
 {
 	*rel = !*rel;
 	if (quickbar_win >= 0) init_quickbar ();
+}
+
+void change_chat_zoom(float *dest, float *value) {
+	if (*value < 0.0f) return;
+	*dest = *value;
+	if (opening_root_win >= 0 || console_root_win >= 0 || chat_win >= 0) {
+		rewrap_messages(current_text_width);
+		if (opening_root_win >= 0) {
+			opening_win_update_zoom();
+		}
+		if (console_root_win >= 0) {
+			widget_set_size(console_root_win, console_out_id, *value);
+			widget_set_size(console_root_win, console_in_id, *value);
+		}
+		if (chat_win >= 0) {
+			chat_win_update_zoom();
+		}
+	}
 }
 
 #endif // def ELC
@@ -420,7 +441,12 @@ void init_vars()
 	
 	add_var(FLOAT,"name_text_size","nsize",&name_zoom,change_float,1);
 	add_var(INT,"name_font","nfont",&name_font,change_int,0);
+#ifdef ELC
+	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1);
+#endif
+#ifdef ELCONFIG
 	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_float,1);
+#endif
 	add_var(INT,"chat_font","cfont",&chat_font,change_int,0);
 	
 	add_var(BOOL,"no_sound","sound",&no_sound,change_var,0);

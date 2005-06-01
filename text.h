@@ -41,6 +41,8 @@ extern char not_from_the_end_console;
 
 extern int log_server; /*!< flag stating whether to log server messages or not */
 
+extern int current_text_width; /*!< Current wrapping width for text buffers */
+
 /*!
  * \ingroup text_font
  * \brief   Initializes the text buffers
@@ -250,6 +252,16 @@ void console_move_page_up();
  * \callgraph
  */
 void clear_display_text_buffer ();
+
+/*!
+ * \ingroup text_font
+ * \brief   Rewraps the text buffers.
+ *
+ *      Rewraps the text buffers.
+ *
+ * \param text_width The line width to wrap for.
+ */
+void rewrap_messages(int text_width);
 
 #define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,buffer,-1,0) /*!< logs the text in buffer with the specified color to the console. */
 

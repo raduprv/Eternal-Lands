@@ -12,6 +12,7 @@ extern int console_root_win; /*!< handler for the console window */
 /*! @} */
 
 extern int console_in_id; /*!< ID of the console input widget */
+extern int console_out_id; /*!< ID of the console output widget */
 
 /*!
  * \ingroup interface_console

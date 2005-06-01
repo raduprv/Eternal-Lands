@@ -49,7 +49,8 @@ typedef	struct	{
 	int (*mouseover_handler)();		/*!< handle mouseovers */
 	int (*resize_handler)();	/*!< handle window resize events */
 	int (*keypress_handler)();	/*!< handle key presses */
-        int (*destroy_handler)();	/*!< executed upon window destruction */
+  int (*destroy_handler)();	/*!< executed upon window destruction */
+	int (*show_handler)(); /*!< executed before the window is shown */
     /*! @} */
 
 	/*
@@ -175,6 +176,7 @@ typedef	struct	{
 #define	ELW_HANDLER_RESIZE	5
 #define	ELW_HANDLER_KEYPRESS	6
 #define	ELW_HANDLER_DESTROY	7
+#define	ELW_HANDLER_SHOW	8
 /*! @} */
 
 /*!

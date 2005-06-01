@@ -648,7 +648,8 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		win->mouseover_handler = NULL;
 		win->resize_handler = NULL;
 		win->keypress_handler = NULL;
-                win->destroy_handler = NULL;
+		win->destroy_handler = NULL;
+		win->show_handler = NULL;
 		
 		win->widgetlist = NULL;
 		
@@ -1001,9 +1002,13 @@ void	show_window(int win_id)
 {
 	int iwin;
 	int ipos;
+	window_info *win;
 	
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
+
+	win = &windows_list.window[win_id];
+	if (win->show_handler) (*win->show_handler)(win);
 	
 	// pull to the top if not currently displayed
 	if(!windows_list.window[win_id].displayed)
@@ -1374,6 +1379,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_DESTROY:
 			old_handler= (void *)windows_list.window[win_id].destroy_handler;
 			windows_list.window[win_id].destroy_handler=handler;
+			break;
+		case	ELW_HANDLER_SHOW:
+			old_handler= (void *)windows_list.window[win_id].show_handler;
+			windows_list.window[win_id].show_handler=handler;
 			break;
 		default:
 			old_handler=NULL;

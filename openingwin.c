@@ -6,6 +6,14 @@ int opening_out_id = 40;
 
 int nr_opening_lines;
 
+int opening_win_text_width = -1;
+int opening_win_text_height = -1;
+
+void opening_win_update_zoom () {
+	nr_opening_lines = opening_win_text_height / (18 * chat_zoom);
+	widget_set_size(opening_root_win, opening_out_id, chat_zoom);
+}
+
 int display_opening_handler ()
 {
 	if (SDL_GetAppState () & SDL_APPACTIVE)
@@ -62,6 +70,11 @@ int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	return 1;
 }
 
+int show_opening_handler (window_info *win) {
+	rewrap_messages(opening_win_text_width);
+	return 1;
+}
+
 void create_opening_root_window (int width, int height)
 {
 	if (opening_root_win < 0)
@@ -71,9 +84,13 @@ void create_opening_root_window (int width, int height)
 		set_window_handler (opening_root_win, ELW_HANDLER_DISPLAY, &display_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_KEYPRESS, &keypress_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_CLICK, &click_opening_handler);
+		set_window_handler (opening_root_win, ELW_HANDLER_SHOW, &show_opening_handler);
 		
-		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id, NULL, 0, 0, width, height, 0, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_ALL, 0, 0, -1.0, -1.0, -1.0);
+		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id, NULL, 0, 0, width, height, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_ALL, 0, 0, -1.0, -1.0, -1.0);
 		
-		nr_opening_lines = height / 18;
+		nr_opening_lines = height / (18 * chat_zoom);
+		opening_win_text_width = width;
+		opening_win_text_height = height;
+		rewrap_messages(width);
 	}
 }

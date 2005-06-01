@@ -26,6 +26,8 @@ float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
+int current_text_width = 500;
+
 /* forward declaration */
 void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len, int pixels_limit, char *buffer);
 
@@ -344,7 +346,7 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 {
 	int i;
 	int idx;
-	Uint8 cur_char;
+	// Uint8 cur_char;
 	text_message *msg;
 	int nlines = 0, nltmp;
 	int channel = CHANNEL_ALL;
@@ -388,8 +390,10 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 	if(text_to_add[0] < 127 || text_to_add[0] > 127 + c_grey4)
 		msg->data[idx++] = 127 + color;
 	
+	/* FIXME: currently unused, commented (Lachesis)
 	if (use_windowed_chat || x_chars_limit <= 0 || len <= x_chars_limit)
 	{
+	*/
 		for (i = 0; i < len; i++)
 		{
 			if (text_to_add[i] == '\0')
@@ -398,12 +402,16 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 		}
 		msg->data[idx++] = '\0';
 		
+		/* FIXME: currently unused, commented (Lachesis)
 		if (use_windowed_chat)
 			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, chat_win_text_width, NULL);
 		else if (x_chars_limit <= 0)
 			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, window_width - hud_x - 20, NULL);
 		else
 			nltmp = 1;
+		*/
+		nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, current_text_width, NULL);
+		
 		
 		msg->len = strlen (msg->data);
 		
@@ -454,6 +462,7 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 		msg->chan_nr = channel;
 		update_text_windows (nlines, channel);
 		return;
+	/* FIXME: currently unused, commented (Lachesis)
 	}
 	else
 	{
@@ -527,6 +536,7 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 		msg->data[idx++] = '\0';
 		msg->len = idx;
 	}
+	*/
 
 	total_nr_lines += nlines;
 	update_text_windows (nlines, channel);
@@ -876,3 +886,27 @@ void clear_display_text_buffer ()
 	
 	not_from_the_end_console = 0;
 }
+
+void rewrap_messages(int text_width)
+{
+	int itab, imsg, nlines, ntot;
+
+	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
+		channels[itab].nr_lines = 0;
+
+	ntot = 0;
+	imsg = buffer_full ? last_message+1 : 0;
+	if (imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
+	while (1)
+	{
+		nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, text_width, NULL);
+		if (chat_win >= 0) update_chat_window (nlines, display_text_buffer[imsg].chan_nr);
+		ntot += nlines;
+		if (imsg == last_message) break;
+		if (++imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
+	}
+	if (console_root_win >= 0) update_console_win (ntot - total_nr_lines);
+	total_nr_lines = ntot;
+	current_text_width = text_width;
+}
+	

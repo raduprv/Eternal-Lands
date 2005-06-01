@@ -12,6 +12,7 @@ int console_in_id = 41;
 int nr_console_lines;
 int scroll_up_lines = 0;
 int console_text_changed = 0;
+int console_text_width = -1;
 
 void update_console_win (int nlines)
 {
@@ -120,6 +121,8 @@ int resize_console_handler (window_info *win, int width, int height)
 	widget_move (console_root_win, console_in_id, 10, height - hud_y - CONSOLE_INPUT_HEIGHT);
 	
 	nr_console_lines = (int) (height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
+	console_text_width = (int) (width - hud_x - 20);
+	rewrap_messages(console_text_width);
 	
 	return 1;
 }
@@ -144,6 +147,11 @@ int click_console_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;	
 }
 
+int show_console_handler (window_info *win) {
+	rewrap_messages(console_text_width);
+	return 1;
+}
+
 void create_console_root_window (int width, int height)
 {
 	if (console_root_win < 0)
@@ -154,12 +162,15 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_KEYPRESS, &keypress_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_RESIZE, &resize_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
-		
+		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
+
 		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 10, 10, width - hud_x - 20, height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_ALL, 0, 0, -1.0f, -1.0f, -1.0f);
 		// initialize the input field without the default keypress
 		// handler, since that's not really applicable here
 		console_in_id = text_field_add_extended (console_root_win, console_in_id, NULL, 10, height - CONSOLE_INPUT_HEIGHT - hud_y, width - hud_x - 20, CONSOLE_INPUT_HEIGHT, TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, -1.0f, -1.0f, -1.0f, &input_text_line, 1, CHANNEL_ALL, 0, 0, 1.0f, 1.0f, 1.0f);
 		
 		nr_console_lines = (int) (height - CONSOLE_INPUT_HEIGHT -  CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
+		console_text_width = (int) (width - hud_x - 20);
+		rewrap_messages(console_text_width);
 	}
 }

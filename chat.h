@@ -7,6 +7,19 @@
 #define __CHAT_H__
 
 #define MAX_TEXT_MESSAGE_LENGTH 160 /*!< The server will disconnect us when we send longer messages */
+#define CHAT_WIN_MAX_TABS	5 /*!< Size of the \see channels array */
+
+/*! Structure to hold infos for a chat window tab  */
+typedef struct
+{
+	int tab_id;
+	int out_id;
+	int chan_nr;
+	int nr_lines;
+	char open, new;
+} chat_channel;
+
+extern chat_channel channels[CHAT_WIN_MAX_TABS]; /*!< Infos about a chat window tabs  */
 
 extern int use_windowed_chat; /*!< flag indicating whether we use the new windowed chat window or not */
 
@@ -74,6 +87,16 @@ void paste_in_input_field (const Uint8 *text);
 
 /*!
  * \ingroup chat_window
+ * \brief   Creates the chat window
+ *
+ *      Creates the chat window
+ *
+ * \callgraph
+ */
+void create_chat_window ();
+
+/*!
+ * \ingroup chat_window
  * \brief   Displays the chat window
  *
  *      Displays the chat window
@@ -81,5 +104,15 @@ void paste_in_input_field (const Uint8 *text);
  * \callgraph
  */
 void display_chat ();
+
+/*!
+ * \ingroup chat_window
+ * \brief   Updates the chat window text zoom
+ *
+ *      Updates the chat window text zoom
+ *
+ * \callgraph
+ */
+void chat_win_update_zoom ();
 
 #endif // def __CHAT_H__

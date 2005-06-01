@@ -1,7 +1,6 @@
 #include <string.h>
 #include "global.h"
 
-#define CHAT_WIN_MAX_TABS	5
 #define CHAT_WIN_SPACE		4
 #define CHAT_WIN_TAG_HEIGHT	20
 #define CHAT_WIN_TAG_SPACE	3
@@ -10,14 +9,6 @@
 #define CHAT_IN_TEXT_HEIGHT 	(18*3)
 #define CHAT_WIN_SCROLL_WIDTH	20
 
-typedef struct
-{
-	int tab_id;
-	int out_id;
-	int chan_nr;
-	int nr_lines;
-	char open, new;
-} chat_channel;
 
 int use_windowed_chat = 0;
 
@@ -347,10 +338,9 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 	return 1;
 }
 
-
 int resize_chat_handler(window_info *win, int width, int height)
 {
-	int itab, imsg, nlines, ntot;
+	int itab;
 	int scroll_x = width - CHAT_WIN_SCROLL_WIDTH;
 	int scroll_height = height - ELW_BOX_SIZE;
 	int inout_width = width - CHAT_WIN_SCROLL_WIDTH - 2 * CHAT_WIN_SPACE;
@@ -391,22 +381,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 	widget_move (chat_win, chat_in_id, CHAT_WIN_SPACE, input_y);
 
 	// recompute line breaks
-	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
-		channels[itab].nr_lines = 0;
-	
-	ntot = 0;
-	imsg = buffer_full ? last_message+1 : 0;
-	if (imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
-	while (1)
-	{
-		nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, chat_win_text_width, NULL);
-		update_chat_window (nlines, display_text_buffer[imsg].chan_nr);
-		ntot += nlines;
-		if (imsg == last_message) break;
-		if (++imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
-	}
-	update_console_win (ntot - total_nr_lines);
-	total_nr_lines = ntot;
+	rewrap_messages(chat_win_text_width);
 	
 	// adjust the text position and scroll bar
 	nr_displayed_lines = (int) (chat_out_text_height / (18.0f * chat_zoom));
@@ -534,70 +509,77 @@ void paste_in_input_field (const Uint8 *text)
 	tf->nr_lines = reset_soft_breaks (tf->buffer->data, tf->buffer->len, tf->buffer->size, w->size, w->len_x - 2 * CHAT_WIN_SPACE, &tf->cursor);
 }
 
+int show_chat_handler(window_info * win) {
+	rewrap_messages(chat_win_text_width);
+	return 1;
+}
+
+void create_chat_window() {
+	int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
+	int chat_win_height = CHAT_OUT_TEXT_HEIGHT + CHAT_IN_TEXT_HEIGHT + 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
+	int inout_width = CHAT_WIN_TEXT_WIDTH + 2 * CHAT_WIN_SPACE;
+	int output_height = CHAT_OUT_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
+	int tabcol_height = output_height + CHAT_WIN_TAG_HEIGHT;
+	int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
+	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
+	
+	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * chat_zoom);
+	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (int) ((2+5) * 18.0 * chat_zoom);
+	
+	nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (18.0 * chat_zoom));
+			
+	chat_win = create_window ("Chat", game_root_win, 0, chat_win_x, chat_win_y, chat_win_width, chat_win_height, (ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT) & ~ELW_CLOSE_BOX);
+	
+	set_window_handler (chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
+	set_window_handler (chat_win, ELW_HANDLER_RESIZE, &resize_chat_handler);
+	set_window_handler (chat_win, ELW_HANDLER_SHOW, &show_chat_handler);
+
+	chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, 0, CHAT_WIN_SCROLL_WIDTH, chat_win_height - ELW_BOX_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+	widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
+	widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
+	
+	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, CHAT_WIN_MAX_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
+	widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
+	
+	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, tab_local, 0, 0);
+	set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
+	set_window_min_size (channels[0].tab_id, 0, 0);
+	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_LOCAL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
+	channels[0].chan_nr = CHANNEL_LOCAL;
+	channels[0].nr_lines = 0;
+	channels[0].open = 1;
+	channels[0].new = 0;
+	active_tab = 0;		
+
+	chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHANNEL_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+	widget_set_OnKey (chat_win, chat_in_id, chat_input_key);
+	
+	set_window_min_size (chat_win, min_width, min_height);
+	
+	// update the channel information
+	rewrap_messages(chat_win_text_width);
+}
+
 void display_chat ()
 {
 	if (chat_win < 0)
 	{
-		int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
-		int chat_win_height = CHAT_OUT_TEXT_HEIGHT + CHAT_IN_TEXT_HEIGHT + 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
-		int inout_width = CHAT_WIN_TEXT_WIDTH + 2 * CHAT_WIN_SPACE;
-		int output_height = CHAT_OUT_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
-		int tabcol_height = output_height + CHAT_WIN_TAG_HEIGHT;
-		int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
-		int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
-		
-		int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * chat_zoom);
-		int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (int) ((2+5) * 18.0 * chat_zoom);
-		
-		int imsg, nlines, ntot;
-		
-		nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (18.0 * chat_zoom));
-				
-		chat_win = create_window ("Chat", game_root_win, 0, chat_win_x, chat_win_y, chat_win_width, chat_win_height, (ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT) & ~ELW_CLOSE_BOX);
-		
-		set_window_handler (chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
-		set_window_handler (chat_win, ELW_HANDLER_RESIZE, &resize_chat_handler);
-
-		chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, 0, CHAT_WIN_SCROLL_WIDTH, chat_win_height - ELW_BOX_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
-		widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
-		widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
-		
-		chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, CHAT_WIN_MAX_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
-		widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
-		
-		channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, tab_local, 0, 0);
-		set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
-		set_window_min_size (channels[0].tab_id, 0, 0);
-		channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_LOCAL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);		
-		channels[0].chan_nr = CHANNEL_LOCAL;
-		channels[0].nr_lines = 0;
-		channels[0].open = 1;
-		channels[0].new = 0;
-		active_tab = 0;		
-
-		chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHANNEL_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
-		widget_set_OnKey (chat_win, chat_in_id, chat_input_key);
-		
-		set_window_min_size (chat_win, min_width, min_height);
-		
-		// update the channel information
-		ntot = 0;
-		imsg = buffer_full ? last_message+1 : 0;
-		if (imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
-		while (1)
-		{
-			nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, chat_win_text_width, NULL);
-			update_chat_window (nlines, display_text_buffer[imsg].chan_nr);
-			ntot += nlines;
-			if (imsg == last_message) break;
-			if (++imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
-		}
-		update_console_win (ntot - total_nr_lines);
-		total_nr_lines = ntot;
+		create_chat_window();
 	}
 	else
 	{
 		show_window (chat_win);
 		select_window (chat_win);
 	}
+}
+
+void chat_win_update_zoom() {
+	int itab;
+	widget_set_size(chat_win, chat_in_id, chat_zoom);
+	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++) {
+		if (channels[itab].open) {
+			widget_set_size(channels[itab].tab_id, channels[itab].out_id, chat_zoom);
+		}
+	}
+	text_changed = 1;
 }

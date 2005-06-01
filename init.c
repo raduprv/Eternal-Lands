@@ -678,6 +678,10 @@ void init_stuff()
 //	connect_to_server();
 
 	create_opening_root_window (window_width, window_height);
+	// initialize the chat window
+	if (use_windowed_chat) display_chat ();
+
+	// display something
 	if (has_accepted)
 	{
 		show_window (opening_root_win);
@@ -689,8 +693,6 @@ void init_stuff()
 		show_window (rules_root_win);
 	}
 
-	// initialize the chat window
-	if (use_windowed_chat) display_chat ();
 }
 
 void add_key(Uint32 *key,Uint32 n)
