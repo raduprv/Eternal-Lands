@@ -201,17 +201,6 @@ ALuint get_loaded_buffer(int i)
 	
 	if(!alIsBuffer(sound_buffer[i]))
 	{
-		alGenBuffers(1, sound_buffer+i);
-			
-		if((error=alGetError()) != AL_NO_ERROR) 
-		{
-			char	str[256];
-			snprintf(str, 256, "%s: %s",snd_buff_error, alGetString(error));
-			LOG_ERROR(str);
-			have_sound=0;
-			have_music=0;
-		}
-		
 		// XXX FIXME (Grum): You have got to be kidding me...
 		// alutLoadWAVFile doesn't provide any way to check if loading
 		// a file succeeded. Well, at least, let's check if the file
@@ -228,6 +217,18 @@ ALuint get_loaded_buffer(int i)
 		}
 		// okay, the file exists and is readable, close it
 		fclose (fin);
+
+		alGenBuffers(1, sound_buffer+i);
+			
+		if((error=alGetError()) != AL_NO_ERROR) 
+		{
+			char	str[256];
+			snprintf(str, 256, "%s: %s",snd_buff_error, alGetString(error));
+			LOG_ERROR(str);
+			have_sound=0;
+			have_music=0;
+		}
+
 #ifdef OSX
 		// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq);
