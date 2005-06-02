@@ -3,7 +3,7 @@
 
 #define true 1
 #define false 0
-#ifndef LINUX
+#ifdef WINDOWS
 #include <windows.h>
 #endif
 

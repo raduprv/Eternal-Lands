@@ -542,7 +542,7 @@ int HandleEvent(SDL_Event *event)
 				if(click_in_windows(mouse_x, mouse_y, 1)>0)
 					return (done);
 
-			if(shift_on && left_click==1){
+			if(shift_on && left_click==1 && cur_mode != mode_height){
 				get_world_x_y();
 				cx=0-scene_mouse_x;
 				cy=0-scene_mouse_y;
@@ -569,17 +569,16 @@ int HandleEvent(SDL_Event *event)
 				return(done);
 			}
 			
-			if(left_click && cur_mode==mode_height && cur_tool==tool_select && selected_height!=-1  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3*6 && scene_mouse_x<tile_map_size_x*3*6){
+			if(left_click > 1 && cur_mode==mode_height && cur_tool==tool_select && selected_height!=-1  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3*6 && scene_mouse_x<tile_map_size_x*3*6)
+			{
 				if(alt_on && ctrl_on)
-					draw_big_height_tile(2);
+					draw_big_height_tile(5);
+				else if(alt_on)
+					draw_big_height_tile(3);
+				else if(ctrl_on)
+					draw_big_height_tile(1);
 				else
-					if(alt_on)
-						draw_big_height_tile(1);
-					else
-						if(ctrl_on)
-							draw_big_height_tile(0);
-						else
-							height_map[(int)(scene_mouse_y*2)*tile_map_size_x*6+(int)(scene_mouse_x*2)]=selected_height;
+					height_map[(int)(scene_mouse_y*2)*tile_map_size_x*6+(int)(scene_mouse_x*2)]=selected_height;
 			}
 
 
@@ -821,16 +820,18 @@ int HandleEvent(SDL_Event *event)
 
 								//if we have a height attached to us, drop it
 								if(cur_tool==tool_select && selected_height!=-1  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3*6 && scene_mouse_x<tile_map_size_x*3*6)
-									{
-									  if(alt_on && ctrl_on)draw_big_height_tile(2);
-
-									  else
-										if(alt_on)draw_big_height_tile(1);
-										else
-										if(ctrl_on)draw_big_height_tile(0);
-										else
+								{
+									if (alt_on && ctrl_on)
+										draw_big_height_tile(5);
+									else if(alt_on)
+										draw_big_height_tile(3);
+									else if(ctrl_on)
+										draw_big_height_tile(1);
+									else if(shift_on) 
+										map_floodfill ();
+									else 
 										height_map[(int)(scene_mouse_y*2.0f)*tile_map_size_x*6+(int)(scene_mouse_x*2.0f)]=selected_height;
-									}
+								}
 							}
 
 						}

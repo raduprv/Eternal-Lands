@@ -804,26 +804,12 @@ void draw_big_height_tile(int size)
 
 	x=(int)(scene_mouse_x/0.5f);
 	y=(int)(scene_mouse_y/0.5f);
-	if(size==2){
-	  x1=x-5;
-	  x2=x+5;
-	  y1=y-5;
-	  y2=y+5;
-	}
-	else if(size==1)
-		{
-			x1=x-3;
-			x2=x+3;
-			y1=y-3;
-			y2=y+3;
-		}
-	else
-		{
-			x1=x-1;
-			x2=x+1;
-			y1=y-1;
-			y2=y+1;
-		}
+
+	x1=x-size;
+	x2=x+size;
+	y1=y-size;
+	y2=y+size;
+
 
 	if(x1<0)x1=0;
 	if(y1<0)y1=0;
@@ -834,6 +820,55 @@ void draw_big_height_tile(int size)
 	for(y=y1;y<=y2;y++)
 	for(x=x1;x<=x2;x++)
 	height_map[y*tile_map_size_x*6+x]=selected_height;
+}
+
+void floodfill (unsigned char new_height, int x, int y)
+{
+	// Grum: in the absolute worst case scenario (checkerboard patterns on
+	// the whole map) we may run into stack problems with this function,
+	// but it's simple, and it's fast.
+
+	int size = tile_map_size_x * 6;
+	unsigned char old_height = height_map[y*size+x];
+	int i, imin, imax;
+	static int nest = 0;
+	
+	for (i = x; i >= 0 && height_map[y*size+i] == old_height; i--)
+		height_map[y*size+i] = new_height;
+	imin = i > 0 ? i : 0;
+	for (i = x+1; i < size && height_map[y*size+i] == old_height; i++)
+		height_map[y*size+i] = new_height;
+	imax = i < size-1 ? i : size-1;
+	
+	if (y > 0)
+	{
+		for (i = x; i >= imin; i--)
+			if (height_map[(y-1)*size+i] == old_height)
+				floodfill (new_height, i, y-1);
+		for (i = x+1; i <= imax; i++)
+			if (height_map[(y-1)*size+i] == old_height)
+				floodfill (new_height, i, y-1);
+	}
+	
+	if (y < size-1)
+	{
+		for (i = x; i >= imin; i--)
+			if (height_map[(y+1)*size+i] == old_height)
+				floodfill (new_height, i, y+1);
+		for (i = x+1; i <= imax; i++)
+			if (height_map[(y+1)*size+i] == old_height)
+				floodfill (new_height, i, y+1);		
+	}
+}
+
+void map_floodfill()
+{
+	int x, y;
+     
+	x=(int)(scene_mouse_x/0.5f);
+	y=(int)(scene_mouse_y/0.5f);
+     
+	floodfill (selected_height, x, y);
 }
 
 void draw_heights_wireframe()
@@ -865,6 +900,7 @@ void draw_heights_wireframe()
 			y_scaled=y*0.5f;
 			for(x=x_start;x<=x_end;x++)
 				{
+
 					x_scaled=x*0.5f;
 					glBegin(GL_LINE_LOOP);
 					glVertex3f(x_scaled,y_scaled+0.5f, grid_height);

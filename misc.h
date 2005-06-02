@@ -54,6 +54,7 @@ void change_color_height(unsigned char cur_height);
 void move_height_tile();
 void get_height_under_mouse_from_list();
 void draw_big_height_tile(int size);
+void map_floodfill ();
 void draw_heights_wireframe();
 void draw_height_map();
 
