@@ -35,17 +35,58 @@ void init_filters()
 	gtk_file_filter_add_pattern(part_filter, "*.part");
 }
 
+void open_button_clicked()
+{
+	GtkFileFilter * filter=gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(gtk_open_win));
+	selected_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtk_open_win));
+	if(selected_file){
+		//What should we do next...
+		if((point)filter==(point)map_filter){
+			strcpy(map_file_name, selected_file);
+			open_map_file_continued();
+		} else if((point)filter==(point)e3d_filter){
+			open_3d_obj_continued();
+		} else if((point)filter==(point)e2d_filter){
+			open_2d_obj_continued();
+		} else if((point)filter==(point)part_filter){
+			strcpy(particle_file_name, selected_file);
+			open_particles_obj_continued();
+		}
+		
+		g_free(selected_file);
+	}
+	
+	gtk_widget_hide(gtk_open_win);
+}
+
+void hide_open_win(GtkWidget * widget, GtkWidget * win)
+{
+	gtk_widget_hide(win);
+}
+
 void show_open_window(char * name, char * folder, GtkFileFilter * filter)
 {
 	if(!gtk_open_win) {
-		gtk_open_win=gtk_file_chooser_dialog_new(name, NULL, GTK_FILE_CHOOSER_ACTION_OPEN,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, //Cancel button
-			GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,//Open button
-			NULL);
+		GList *buttons;
+		GtkWidget *cancel, *ok_button;
+		
+		gtk_open_win=gtk_file_chooser_dialog_new(name, NULL, GTK_FILE_CHOOSER_ACTION_OPEN, 
+				GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, //Cancel button
+				GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,//Open button
+				NULL);
+		
+		buttons=((GtkHButtonBox*)(((GtkDialog*)gtk_open_win)->action_area))->button_box.box.children;
+		cancel=((GtkBoxChild*)buttons->data)->widget;
+		ok_button=((GtkBoxChild*)buttons->next->data)->widget;
+
+		g_signal_connect ((gpointer) cancel, "clicked", G_CALLBACK (hide_open_win), gtk_open_win);
+		g_signal_connect ((gpointer) ok_button, "clicked", G_CALLBACK (open_button_clicked), NULL);
+		
 		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), e3d_filter);
 		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), e2d_filter);
 		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), map_filter);
 		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), part_filter);
+
 	} else {
 		gtk_window_set_title(GTK_WINDOW(gtk_open_win), name);
 	}
@@ -53,39 +94,50 @@ void show_open_window(char * name, char * folder, GtkFileFilter * filter)
 	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(gtk_open_win), filter);
 	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(gtk_open_win), folder);
 	
-	if(gtk_dialog_run(GTK_DIALOG(gtk_open_win)) == GTK_RESPONSE_ACCEPT) {
-		selected_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtk_open_win));
-		filter=gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(gtk_open_win));
-		if(selected_file){
-			//What should we do next...
-			if((point)filter==(point)map_filter){
-				strcpy(map_file_name, selected_file);
-				open_map_file_continued();
-			} else if((point)filter==(point)e3d_filter){
-				open_3d_obj_continued();
-			} else if((point)filter==(point)e2d_filter){
-				open_2d_obj_continued();
-			} else if((point)filter==(point)part_filter){
-				strcpy(particle_file_name, selected_file);
-				open_particles_obj_continued();
-			}
-			
-			g_free(selected_file);
+	gtk_widget_show(gtk_open_win);
+}
+
+void save_button_clicked(GtkWidget * widget, void ** filter)
+{
+	selected_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtk_save_win));
+	if(selected_file){
+		//What should we do next...
+		if((point)*filter==(point)map_filter){
+			strcpy(map_file_name, selected_file);
+			save_map_file_continued();
+		} else if((point)*filter==(point)part_filter){
+			strcpy(particle_file_name, selected_file);
+			save_particle_def_file_continued();
 		}
+
+		gtk_file_chooser_unselect_filename(GTK_FILE_CHOOSER(gtk_save_win), selected_file);
+		g_free(selected_file);
 	}
-	
-	gtk_widget_hide(gtk_open_win);
+
+	gtk_widget_hide(gtk_save_win);
 }
 
 void show_save_window(char * name, char * folder, char * select, GtkFileFilter * filter)
 {
+	static void * cur_filter;
+	
+	cur_filter=filter;
+	
 	if(!gtk_save_win) {
+		GList *buttons;
+		GtkWidget *cancel, *ok_button;
+		
 		gtk_save_win=gtk_file_chooser_dialog_new(name, NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, //Cancel button
 			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,//Open button
 			NULL);
-		/*gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), map_filter);
-		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), part_filter);*/
+		
+		buttons=((GtkHButtonBox*)(((GtkDialog*)gtk_save_win)->action_area))->button_box.box.children;
+		cancel=((GtkBoxChild*)buttons->data)->widget;
+		ok_button=((GtkBoxChild*)buttons->next->data)->widget;
+
+		g_signal_connect ((gpointer) cancel, "clicked", G_CALLBACK (hide_open_win), gtk_save_win);
+		g_signal_connect ((gpointer) ok_button, "clicked", G_CALLBACK (save_button_clicked), &cur_filter);
 	} else {
 		gtk_window_set_title(GTK_WINDOW(gtk_save_win), name);
 	}
@@ -95,25 +147,7 @@ void show_save_window(char * name, char * folder, char * select, GtkFileFilter *
 	if(select[0])gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(gtk_save_win), select);
 	else gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(gtk_save_win), "my_map.elm");
 
-	if(gtk_dialog_run(GTK_DIALOG(gtk_save_win)) == GTK_RESPONSE_ACCEPT) {
-		selected_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtk_save_win));
-		filter=gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(gtk_save_win));
-		if(selected_file){
-			//What should we do next...
-			if((point)filter==(point)map_filter){
-				strcpy(map_file_name, selected_file);
-				save_map_file_continued();
-			} else if((point)filter==(point)part_filter){
-				strcpy(particle_file_name, selected_file);
-				save_particle_def_file_continued();
-			}
-
-			gtk_file_chooser_unselect_filename(GTK_FILE_CHOOSER(gtk_save_win), selected_file);
-			g_free(selected_file);
-		}
-	}
-
-	gtk_widget_hide(gtk_save_win);
+	gtk_widget_show(gtk_save_win);
 }
 
 #else
