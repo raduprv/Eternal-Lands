@@ -2,6 +2,8 @@
 #include <string.h>
 #include "global.h"
 
+#define RAND(min,max) (min + rand () % (max - min + 1))
+
 int skin_color=SKIN_NORMAL;
 int hair_color=HAIR_BLACK;
 int shirt_color=SHIRT_GREEN;
@@ -921,6 +923,15 @@ void create_newchar_root_window ()
 {
 	if (newchar_root_win < 0)
 	{
+		skin_color = RAND (SKIN_BROWN, SKIN_TAN);
+		hair_color = RAND (HAIR_BLACK, HAIR_WHITE);
+		shirt_color = RAND (SHIRT_BLACK, SHIRT_YELLOW);
+		pants_color = RAND (PANTS_BLACK, PANTS_WHITE);
+		boots_color = RAND (BOOTS_BLACK, BOOTS_ORANGE);
+		head = RAND (HEAD_1, HEAD_4);
+		race = 2 * RAND (0, 2);
+		male = RAND (0, 1);
+
 		newchar_root_win = create_window ("New Character", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (newchar_root_win, ELW_HANDLER_DISPLAY, &display_newchar_handler);
