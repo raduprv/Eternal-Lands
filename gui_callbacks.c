@@ -1,3 +1,4 @@
+#ifndef GTK2
 #include	"global.h"
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -47,4 +48,4 @@ on_cancel_button1_clicked              (GtkButton       *button,
 {
     gtk_widget_hide(file_selector);  
 }
-
+#endif

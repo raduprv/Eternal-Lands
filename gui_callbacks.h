@@ -1,3 +1,4 @@
+#ifndef GTK2
 #include <gtk/gtk.h>
 
 
@@ -8,3 +9,4 @@ on_ok_button1_clicked                  (GtkButton       *button,
 void
 on_cancel_button1_clicked              (GtkButton       *button,
                                         gpointer         user_data);
+#endif

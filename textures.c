@@ -140,8 +140,6 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	free(file_mem_start);
 	free(read_buffer);
 
-	printf("%s\n",filename);
-
 	return 1;
 }
 

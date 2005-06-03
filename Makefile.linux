@@ -1,17 +1,19 @@
-.PHONY: clean release
+.PHONY: clean release gtk
 
 CC=gcc
 
 OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND #-DX86_64
-GTK_CFLAGS = $(shell gtk-config --cflags)
+GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
+GTK2_CFLAGS = $(shell pkg-config gtk+-2.0 --cflags) -DGTK2
 
-CFLAGS=$(OPTIONS) $(GTK_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g -W
+CFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g -W
 
 _CFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) 
 
 GTK_LIBS =  $(shell gtk-config --libs) 
+GTK2_LIBS = $(shell pkg-config gtk+-2.0 --libs)
 
-LIBS=$(shell sdl-config --libs) -lGL $(GTK_LIBS) $(shell xml2-config --libs)
+LIBS=$(shell sdl-config --libs) -lGL $(shell xml2-config --libs)
 
 OBJS=2d_objects.o 3d_objects.o	\
 	asc.o colors.o browser.o draw_scene.o	\
@@ -24,10 +26,13 @@ OBJS=2d_objects.o 3d_objects.o	\
 	replace_window.o edit_window.o particles.o particles_window.o
 
 mapedit.x86.linux.bin: $(OBJS)
-	$(CC) $(CFLAGS) $(LIBS) -o mapedit.x86.linux.bin $(OBJS)
+	$(CC) $(CFLAGS) $(LIBS) $(GTK2_LIBS) -o mapedit.x86.linux.bin $(OBJS)
 
 release:
 	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
+
+gtk: 
+	make -f Makefile.linux 'GTK2_CFLAGS=$(GTK_CFLAGS)' 'GTK2_LIBS=$(GTK_LIBS)'
 
 elconfig.o: ../elc/elconfig.c ../elc/elconfig.h
 	$(CC) $(CFLAGS) -c ../elc/elconfig.c

@@ -111,7 +111,11 @@ void init_stuff()
 #endif
 
 #ifdef LINUX
+#ifdef GTK2
+	init_filters();
+#else
 	file_selector = create_fileselection();
+#endif
 #endif	//LINUX
 
 	init_gl();

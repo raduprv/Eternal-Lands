@@ -10,7 +10,21 @@
 #define SAVE_PARTICLE_DEF 6
 
 extern char* selected_file;
+
+#ifdef GTK2
+extern char map_file_name[256];
+extern char particle_file_name[256];
+
+extern GtkFileFilter * e3d_filter;
+extern GtkFileFilter * e2d_filter;
+extern GtkFileFilter * map_filter;
+extern GtkFileFilter * part_filter;
+
+void init_filters();
+void show_open_window(char * name, char * folder, GtkFileFilter * filter);
+void show_save_window(char * name, char * folder, char * select, GtkFileFilter *filter);
+#else
 extern int continue_with;
 extern GtkWidget* file_selector;
 extern GtkWidget* create_fileselection (void);
-
+#endif

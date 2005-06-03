@@ -1098,10 +1098,18 @@ void open_particles_obj()
 
 void open_3d_obj()
 {
-  gtk_window_set_title(GTK_WINDOW(file_selector), "open 3d object");
-  //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.e3d");
-  continue_with = OPEN_3D_OBJ;
-  gtk_widget_show(file_selector);
+#ifdef GTK2
+	char dir[200];
+
+	strcpy(dir, datadir);
+	strcat(dir, "/3dobjects/");
+	show_open_window("Open 3D object", dir, e3d_filter);
+#else
+	gtk_window_set_title(GTK_WINDOW(file_selector), "open 3d object");
+	//gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.e3d");
+	continue_with = OPEN_3D_OBJ;
+	gtk_widget_show(file_selector);
+#endif
 }
 #endif
 void open_3d_obj_continued()
@@ -1112,14 +1120,25 @@ void open_3d_obj_continued()
 		selected_3d_object=add_e3d(selected_file,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 		cur_tool=tool_select;//change the current tool
 		if(selected_particles_object>=0)particles_list[selected_particles_object]->ttl=-1; // we dont want the particle sys to disapear
+#ifdef GTK2
+		cur_mode=mode_3d;
+#endif
     }
 }
 #ifdef LINUX
 void open_particles_obj()
 {
-  gtk_window_set_title(GTK_WINDOW(file_selector), "open particles object");
-  continue_with = OPEN_PARTICLES_OBJ;
-  gtk_widget_show(file_selector);
+#ifdef GTK2
+	char dir[200];
+
+	strcpy(dir, datadir);
+	strcat(dir, "/particles/");
+	show_open_window("Open particle file", dir, part_filter);
+#else
+	gtk_window_set_title(GTK_WINDOW(file_selector), "open particles object");
+	continue_with = OPEN_PARTICLES_OBJ;
+	gtk_widget_show(file_selector);
+#endif
 }
 #endif
 void open_particles_obj_continued()
@@ -1129,16 +1148,27 @@ void open_particles_obj_continued()
 
 		selected_particles_object=add_particle_sys(selected_file,scene_mouse_x,scene_mouse_y,0.0);
 		cur_tool=tool_select;//change the current tool
+#ifdef GTK2
+		cur_mode=mode_particles;
+#endif
     }
 }
 
 #ifdef LINUX
 void open_2d_obj()
 {
+#ifdef GTK2
+	char dir[200];
+
+	strcpy(dir, datadir);
+	strcat(dir, "/2dobjects/");
+	show_open_window("Open 2D object", dir, e2d_filter);
+#else
   gtk_window_set_title(GTK_WINDOW(file_selector), "open 2d object");
   //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.e2d");
   continue_with = OPEN_2D_OBJ;
   gtk_widget_show(file_selector);
+#endif
 }
 #endif
 void open_2d_obj_continued()
@@ -1147,40 +1177,71 @@ void open_2d_obj_continued()
     {
 		selected_2d_object=add_2d_obj(selected_file,scene_mouse_x,scene_mouse_y,0.001f,0,0,0);
 		cur_tool=tool_select;//change the current tool
+#ifdef GTK2
+		cur_mode=mode_2d;
+#endif
     }
 }
 #ifdef LINUX
 void open_map_file()
 {
+#ifdef GTK2
+	char dir[200];
+
+	strcpy(dir, datadir);
+	strcat(dir, "/maps/");
+	show_open_window("Open map", dir, map_filter);
+#else
   gtk_window_set_title(GTK_WINDOW(file_selector), "open map");
   //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.elm");
   continue_with = OPEN_MAP;
   gtk_widget_show(file_selector);
+#endif
 }
 #endif
 void open_map_file_continued()
 {
   if (selected_file)load_map(selected_file);
+#ifdef GTK2
+  cur_mode=mode_3d;
+#endif
 }
 #ifdef LINUX
 void save_map_file()
 {
+#ifdef GTK2
+	char dir[200];
+
+	strcpy(dir, datadir);
+	strcat(dir, "/maps/");
+	show_save_window("Save map", dir, map_file_name, map_filter);
+#else
   gtk_window_set_title(GTK_WINDOW(file_selector), "save map");
   //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.elm");
   continue_with = SAVE_MAP;
   gtk_widget_show(file_selector);
+#endif
 }
 #endif
 void save_map_file_continued()
 {
-  if (selected_file)save_map(selected_file);
+  if (selected_file)
+	  save_map(selected_file);
 }
 #ifdef LINUX
 void save_particle_def_file()
 {
+#ifdef GTK2
+	char dir[200];
+
+	strcpy(dir, datadir);
+	strcat(dir, "/particles/");
+	show_save_window("Save particle effect", dir, particle_file_name, part_filter);
+#else
 	gtk_window_set_title(GTK_WINDOW(file_selector), "save particle system definition");
 	continue_with = SAVE_PARTICLE_DEF;
 	gtk_widget_show(file_selector);
+#endif
 }
 #endif
 
