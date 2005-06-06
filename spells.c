@@ -316,16 +316,13 @@ int display_sigils_handler(window_info *win)
 		y_end=y_start+31;
 		//location in window ready, now for the bitmap..
 		u_start=0.125f*(mqb_data[0]->spell_image%8);//0 to 7 across
-		v_start=0.375f;//3/4 of the way down the image
-		
-		if(mqb_data[0]->spell_image>7)
-			v_start-=((mqb_data[0]->spell_image/8)*0.125f);//add lines if we need to wrap
+		v_start=1.0f-((float)32/256*(mqb_data[0]->spell_image/8));
 		
 		u_end=u_start+0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
 		v_end=v_start-0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
 		
 		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.18f);
+		glAlphaFunc(GL_GREATER, 0.05f);
 		glBegin(GL_QUADS);
 			draw_2d_thing(u_start,v_start,u_end,v_end, x_start,y_start,x_end,y_end);
 		glEnd();
@@ -790,9 +787,7 @@ int display_quickspell_handler(window_info *win)
 			
 			//location in window ready, now for the bitmap..
 			u_start=0.125f*(mqb_data[i]->spell_image%8);//0 to 7 across
-			v_start=0.375f;//3/4 of the way down the image
-			if(mqb_data[i]->spell_image>7)
-				v_start-=0.125f;//add a line if we need to wrap
+			v_start=1.0f-((float)32/256*(mqb_data[i]->spell_image/8));
 			
 			u_end=u_start+0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
 			v_end=v_start-0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
