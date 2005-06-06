@@ -15,6 +15,32 @@ int watch_this_stat=10;  // default to watching overall
 int check_grid_y_top=0;
 int check_grid_x_left=0;
 
+int lastexp_manufacture 	= -1;
+int lastexp_harvest 		= -1;
+int lastexp_alchemy 		= -1;
+int lastexp_attack 			= -1;
+int lastexp_defense 		= -1;
+int lastexp_magic 			= -1;
+int lastexp_potion 			= -1;
+int lastexp_summoning 		= -1;
+int lastexp_crafting 		= -1;
+
+#define MAX_NUMBER_OF_FLOATING_MESSAGES 5
+
+typedef struct {
+	char message[50];
+	int timeleft;
+	short active;
+} floating_message;
+
+floating_message floating_messages[MAX_NUMBER_OF_FLOATING_MESSAGES];
+
+int floatingmessages_enabled = 1;
+
+#define FLOATINGMESSAGE_LIFESPAN		1000
+
+void floatingmessages_compare_stats();
+
 void get_the_stats(Sint16 *stats)
 {
 	memset(&your_info, 0, sizeof(your_info));	// failsafe incase structure changes
@@ -202,15 +228,15 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case FOOD_LEV:
 			your_info.food_level=value;break;
 		case MAN_EXP:
-			your_info.manufacturing_exp=value;break;
+			your_info.manufacturing_exp=value;floatingmessages_compare_stats();break;
 		case MAN_EXP_NEXT:
 			your_info.manufacturing_exp_next_lev=value;break;
 		case HARV_EXP:
-			your_info.harvesting_exp=value;break;
+			your_info.harvesting_exp=value;floatingmessages_compare_stats();break;
 		case HARV_EXP_NEXT:
 			your_info.harvesting_exp_next_lev=value;break;
 		case ALCH_EXP:
-			your_info.alchemy_exp=value;break;
+			your_info.alchemy_exp=value;floatingmessages_compare_stats();break;
 		case ALCH_EXP_NEXT:
 			your_info.alchemy_exp_next_lev=value;break;
 		case OVRL_EXP:
@@ -218,23 +244,23 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case OVRL_EXP_NEXT:
 			your_info.overall_exp_next_lev=value;break;
 		case DEF_EXP:
-			your_info.defense_exp=value;break;
+			your_info.defense_exp=value;floatingmessages_compare_stats();break;
 		case DEF_EXP_NEXT:
 			your_info.defense_exp_next_lev=value;break;
 		case ATT_EXP:
-			your_info.attack_exp=value;break;
+			your_info.attack_exp=value;floatingmessages_compare_stats();break;
 		case ATT_EXP_NEXT:
 			your_info.attack_exp_next_lev=value;break;
 		case MAG_EXP:
-			your_info.magic_exp=value;break;
+			your_info.magic_exp=value;floatingmessages_compare_stats();break;
 		case MAG_EXP_NEXT:
 			your_info.magic_exp_next_lev=value;break;
 		case POT_EXP:
-			your_info.potion_exp=value;break;
+			your_info.potion_exp=value;floatingmessages_compare_stats();break;
 		case POT_EXP_NEXT:
 			your_info.potion_exp_next_lev=value;break;
 		case SUM_EXP:
-			your_info.summoning_exp=value;break;
+			your_info.summoning_exp=value;floatingmessages_compare_stats();break;
 		case SUM_EXP_NEXT:
 			your_info.summoning_exp_next_lev=value;break;
 		case SUM_S_CUR:
@@ -242,7 +268,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case SUM_S_BASE:
 			your_info.summoning_skill.base=value;break;
 		case CRA_EXP:
-			your_info.crafting_exp=value;break;
+			your_info.crafting_exp=value;floatingmessages_compare_stats();break;
 		case CRA_EXP_NEXT:
 			your_info.crafting_exp_next_lev=value;break;
 		case CRA_S_CUR:
@@ -549,4 +575,77 @@ void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this te
 		show_window(stats_win);
 		select_window(stats_win);
 	}
+}
+
+void draw_floatingmessage(floating_message *message, float healthbar_z) {
+	float f, width;
+	if(message->active == 0) return;
+	
+	message->timeleft -= (cur_time - last_time);
+	if (message->timeleft <= 0) {
+		message->active = 0;
+		return;
+	}
+	
+	f = ((float) message->timeleft) / FLOATINGMESSAGE_LIFESPAN;
+	const float cut = 0.5f;
+	glColor4f(0.3f, 1.0f, 0.3f, f > cut ? 1.0f : (f / cut));
+	
+	width = ((float)get_string_width(message->message) * (SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+	draw_ingame_string(-width/2.0f, healthbar_z+0.7f-(f*0.5f), message->message, 1, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN);
+}
+
+void drawactor_floatingmessages(const actor *a, float healthbar_z) {
+	int i;
+	if (!floatingmessages_enabled) return;
+	
+	if (yourself < 0) return;
+	if (a->actor_id != yourself) return;
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glEnable(GL_ALPHA_TEST);
+	
+	for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++) {
+		draw_floatingmessage(&floating_messages[i], healthbar_z);
+	}
+	
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
+}
+
+floating_message *get_free_floatingmessage() {
+	int i;
+	for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++) {
+		if (floating_messages[i].active == 0) {
+			return &floating_messages[i];
+		}
+	}
+	return NULL;
+}
+
+void floatingmessages_compare_stat(int* value, int new_value, const char *skillname) {
+	if (*value != -1 && *value != new_value) {
+		floating_message *m = get_free_floatingmessage();
+		if (m != NULL) {
+			snprintf(m->message, sizeof(m->message), "%s: +%d", skillname, (new_value - *value));
+			m->timeleft = FLOATINGMESSAGE_LIFESPAN;
+			m->active = 1;
+		}
+	}
+	*value = new_value;
+}
+
+void floatingmessages_compare_stats() {
+	if (!floatingmessages_enabled) return;
+	
+	floatingmessages_compare_stat(&lastexp_manufacture, your_info.manufacturing_exp, 	"man");
+	floatingmessages_compare_stat(&lastexp_harvest, 	your_info.harvesting_exp, 		"har");
+	floatingmessages_compare_stat(&lastexp_alchemy, 	your_info.alchemy_exp, 			"alc");
+	floatingmessages_compare_stat(&lastexp_attack, 		your_info.attack_exp, 			"att");
+	floatingmessages_compare_stat(&lastexp_defense, 	your_info.defense_exp, 			"def");
+	floatingmessages_compare_stat(&lastexp_magic, 		your_info.magic_exp, 			"mag");
+	floatingmessages_compare_stat(&lastexp_potion, 		your_info.potion_exp, 			"pot");
+	floatingmessages_compare_stat(&lastexp_summoning, 	your_info.summoning_exp, 		"sum");
+	floatingmessages_compare_stat(&lastexp_crafting, 	your_info.crafting_exp, 		"cra");
 }

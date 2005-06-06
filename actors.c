@@ -258,6 +258,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				draw_actor_overtext( actor_id );
 			}
 
+		drawactor_floatingmessages(actor_id, healtbar_z);
+		
 		glColor3f(1,1,1);
 		if(!actor_id->ghost)glEnable(GL_LIGHTING);
 		if(use_shadow_mapping)

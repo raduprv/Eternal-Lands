@@ -245,4 +245,7 @@ void init_attribf(void);
  */
 void fill_stats_win ();
 
+extern int floatingmessages_enabled;
+void drawactor_floatingmessages(const actor *a, float healthbar_z);
+
 #endif
