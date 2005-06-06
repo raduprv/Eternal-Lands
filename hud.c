@@ -66,6 +66,9 @@ int	icons_win= -1;
 int	stats_bar_win= -1;
 int	misc_win= -1;
 int	quickbar_win= -1;
+#ifdef NEW_CLIENT
+int	quickspell_win= -1;
+#endif
 int show_help_text=1;
 
 int qb_action_mode=ACTION_USE;
@@ -80,6 +83,9 @@ void init_hud_interface()
 	init_misc_display();
 	init_stats_display();
 	init_quickbar();
+#ifdef NEW_CLIENT
+	init_quickspell();
+#endif
 }
 
 void show_hud_windows ()
@@ -88,6 +94,9 @@ void show_hud_windows ()
 	if (stats_bar_win >= 0) show_window (stats_bar_win);
 	if (misc_win >= 0) show_window (misc_win);
 	if (quickbar_win >= 0) show_window (quickbar_win);
+#ifdef NEW_CLIENT
+	if (quickspell_win >= 0) show_window (quickspell_win);
+#endif
 }
 
 void hide_hud_windows ()
@@ -96,6 +105,9 @@ void hide_hud_windows ()
 	if (stats_bar_win >= 0) hide_window (stats_bar_win);
 	if (misc_win >= 0) hide_window (misc_win);
 	if (quickbar_win >= 0) hide_window (quickbar_win);
+#ifdef NEW_CLIENT
+	if (quickspell_win >= 0) hide_window (quickspell_win);
+#endif
 }
 
 // draw everything related to the hud
@@ -529,6 +541,10 @@ void view_console_win (int *win, int id)
 		// Undo stupid quickbar hack
 		if ( !get_show_window (quickbar_win) )
 			show_window (quickbar_win);
+#ifdef NEW_CLIENT
+		if ( !get_show_window (quickspell_win) )
+			show_window (quickspell_win);
+#endif
 	}
 	else
 	{
@@ -567,7 +583,7 @@ void view_map_win (int * win, int id)
 
 void view_window(int * window, int id)
 {
-#ifdef NEW_TRADE
+#ifdef NEW_CLIENT
 	if(window==&sigil_win||window==&manufacture_win)
 #else
 	if(window==&items_win||window==&sigil_win||window==&manufacture_win)
@@ -591,7 +607,7 @@ void view_window(int * window, int id)
 #ifdef NOTEPAD
 			else if(window==&notepad_win) display_notepad();
 #endif
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 			else if(window==&storage_win) display_storage_menu();
 #endif
 			else if(use_tabbed_windows)
@@ -1023,7 +1039,7 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 
 int quickbar_x_len= 30;
 int quickbar_y_len= 6*30;
-int quickbar_x=34;
+int quickbar_x=32;
 int quickbar_y=64;
 int quickbar_draggable=0;
 int quickbar_dir=VERTICAL;
@@ -1107,29 +1123,7 @@ int	display_quickbar_handler(window_info *win)
 							y_end= y_start+29;
 
 							//get the texture this item belongs to
-							this_texture=item_list[i].image_id/25;
-							switch(this_texture) {
-							case 0:
-								this_texture=items_text_1;break;
-							case 1:
-								this_texture=items_text_2;break;
-							case 2:
-								this_texture=items_text_3;break;
-							case 3:
-								this_texture=items_text_4;break;
-							case 4:
-								this_texture=items_text_5;break;
-							case 5:
-								this_texture=items_text_6;break;
-							case 6:
-								this_texture=items_text_7;break;
-							case 7:
-								this_texture=items_text_8;break;
-							case 8:
-								this_texture=items_text_9;break;
-							case 9:
-								this_texture=items_text_10;break;
-							}
+							this_texture=get_items_texture(item_list[i].image_id/25);
 
 							get_and_set_texture_id(this_texture);
 							glBegin(GL_QUADS);
@@ -1529,7 +1523,6 @@ void draw_exp_display()
 	draw_string_small(exp_bar_start_x, exp_bar_start_y+10, name, 1);
 }
 
-/*Flag manipulation-I hate doing this by hand*/
 /*Change flags*/
 void change_flags(int win_id, Uint32 flags)
 {

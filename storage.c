@@ -119,7 +119,7 @@ void get_storage_items(Uint8 * in_data, int len)
 		storage_items[i].pos=*((Uint8*)(ptr+6));
 	}
 	
-	no_storage=i;
+	no_storage=in_data[0];
 
 	for(;i<200;i++){
 		storage_items[i].quantity=0;

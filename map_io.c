@@ -322,7 +322,7 @@ int load_map(char * file_name)
 #endif
 			
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos);
 #else
 			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos, -1, 0, 0);
@@ -337,6 +337,38 @@ int load_map(char * file_name)
 	sector_add_map();
 	return 1;
 
+}
+
+void load_map_marks()
+{ 
+	FILE * fp;
+	char marks_file[256], text[600];
+	
+#ifndef WINDOWS
+    	strcpy(marks_file, getenv("HOME"));
+    	strcat(marks_file, "/.elc/");
+	strcat(marks_file, strrchr(map_file_name,'/')+1);
+#else
+	strcpy(marks_file, strrchr(map_file_name,'/')+1);
+#endif
+	strcat(marks_file, ".txt");
+	// don't use my_fopen here, not everyone uses map markers
+	fp = fopen(marks_file, "r");
+	max_mark = 0;
+	
+	if (!fp ) return;
+	
+	while ( fgets(text, 600,fp) ) {
+		if (strlen (text) > 1) {
+			sscanf (text, "%d %d", &marks[max_mark].x, &marks[max_mark].y);
+			text[strlen(text)-1] = '\0'; //remove the newline
+			strncpy (marks[max_mark].text, strstr(strstr(text, " ")+1, " ")+1, 500);
+			max_mark++;
+			if ( max_mark > 200 ) break;
+		}
+	}
+	
+	fclose(fp);
 }
 
 /* currently UNUSED

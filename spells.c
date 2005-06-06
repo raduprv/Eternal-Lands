@@ -31,6 +31,19 @@ int cast_mouseover=0;
 
 char	last_spell_str[20];
 int		last_spell_len= 0;
+int spell_result=0;
+
+#ifdef NEW_CLIENT
+mqbdata * mqb_data[7]={NULL};//mqb_data will hold the magic quickbar name, image, pos.
+int quickspells=6;
+int quickspell_size=20;//size of displayed icons in pixels
+int quickspell_columns=1;
+int quickspell_rows=6;
+int quickspell_x_len=26;
+int quickspell_y_len=6*30;
+int quickspell_x=60;
+int quickspell_y=64;
+#endif
 
 void repeat_spell()
 {
@@ -266,6 +279,10 @@ void display_spells_we_have()
 	glDisable(GL_BLEND);
 }
 
+#ifdef NEW_CLIENT
+int show_last_spell_help=0;
+#endif
+
 int display_sigils_handler(window_info *win)
 {
 	int i;
@@ -285,6 +302,38 @@ int display_sigils_handler(window_info *win)
 	draw_string(33*9+40+8,win->len_y-30+2,"Clear",1);
 
 	glColor3f(1.0f,1.0f,1.0f);
+	//let's add the new spell icon if we have one
+	get_and_set_texture_id(sigils_text);
+	
+#ifdef NEW_CLIENT
+	if(mqb_data[0] && mqb_data[0]->spell_id!=-1) {
+		int x_start,y_start,x_end,y_end;
+		float u_start,v_start,u_end,v_end;
+		
+	    	x_start=350;
+		x_end=x_start+31;
+		y_start=112;
+		y_end=y_start+31;
+		//location in window ready, now for the bitmap..
+		u_start=0.125f*(mqb_data[0]->spell_image%8);//0 to 7 across
+		v_start=0.375f;//3/4 of the way down the image
+		
+		if(mqb_data[0]->spell_image>7)
+			v_start-=((mqb_data[0]->spell_image/8)*0.125f);//add lines if we need to wrap
+		
+		u_end=u_start+0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
+		v_end=v_start-0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
+		
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.18f);
+		glBegin(GL_QUADS);
+			draw_2d_thing(u_start,v_start,u_end,v_end, x_start,y_start,x_end,y_end);
+		glEnd();
+		glDisable(GL_ALPHA_TEST);
+	}
+#endif
+	
+	glBegin(GL_QUADS);
 	//ok, now let's draw the objects...
 	for(i=0;i<SIGILS_NO;i++)
 		{
@@ -309,12 +358,10 @@ int display_sigils_handler(window_info *win)
 					y_start=33*(cur_pos/12);
 					y_end=y_start+32;
 
-					get_and_set_texture_id(sigils_text);
-					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-					glEnd();
 				}
 		}
+	glEnd();
 
 	//ok, now let's draw the sigils on the list
 	for(i=0;i<6;i++)
@@ -378,6 +425,11 @@ int display_sigils_handler(window_info *win)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
+	
+#ifdef NEW_CLIENT
+	if(show_last_spell_help && mqb_data[0] && mqb_data[0]->spell_id!=-1)show_help(mqb_data[0]->spell_name,350-8*strlen(mqb_data[0]->spell_name),120);
+	show_last_spell_help=0;
+#endif
 
 	return 1;
 }
@@ -385,11 +437,16 @@ int display_sigils_handler(window_info *win)
 
 int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-	int i,x,y;
-	int x_screen,y_screen;
+	int i;
 	
 	// only handle real clicks, not scroll wheel moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0 ) return 0;
+
+#ifdef NEW_CLIENT
+	if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] && mqb_data[0]->spell_id!=-1) {
+		add_spell_to_quickbar();
+	}
+#endif
 
 	//clear button pressed?
 	if(mx>33*9+40 && mx<33*9+40+70 &&
@@ -406,7 +463,6 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 			Uint8 str[20];
 			int count=0;
 			int sigils_no=0;
-
 
 			for(i=0;i<6;i++)
 				{
@@ -431,65 +487,57 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 
 			str[1]=sigils_no;
-			last_spell_len= sigils_no+2;
-			my_tcp_send(my_socket, str, last_spell_len);
+			last_spell_len=sigils_no+2;
+	
+#ifdef NEW_CLIENT
+			if(!mqb_data[0]){
+				mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
+				mqb_data[0]->spell_id=-1;
+			}
+			memcpy(mqb_data[0]->spell_str, str, last_spell_len);//Copy the last spell send to the server
+#endif
+
+			my_tcp_send(my_socket, str, sigils_no+2);
 			memcpy(last_spell_str, str, last_spell_len);
 			return 1;
 			//ok, send it to the server...
 		}
 
 	//see if we clicked on any sigil in the main category
-	for(y=0;y<3;y++)
-		for(x=0;x<12;x++)
-			{
-				x_screen=x*33;
-				y_screen=y*33;
-				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
-					{
+	
+	if(mx>0 && mx<12*33 && my>0 && my<3*33){
+		int pos=get_mouse_pos_in_grid(mx,my, 12, 3, 0, 0, 33, 33);
 
-						//see if there is any sigil there
-						if(sigils_list[y*12+x].have_sigil)
-							{
+		if(sigils_list[pos].have_sigil){
+			int j;
+			int image_id=sigils_list[pos].sigil_img;
 
-								int j;
-								int image_id=sigils_list[y*12+x].sigil_img;
+			//see if it is already on the list
+			for(j=0;j<6;j++)
+				if(on_cast[j]==image_id)return 1;
 
-								//see if it is already on the list
-								for(j=0;j<6;j++)
-									if(on_cast[j]==image_id)return 1;
-
-
-								for(j=0;j<6;j++)
-									if(on_cast[j]==-1)
-										{
-											on_cast[j]=image_id;
-											return 1;
-										}
-								return 1;
-							}
-					}
-			}
-
-	//see if we clicked on any sigil from "on cast"
-	for(x=0;x<6;x++)
-		{
-			x_screen=x*33;
-			y_screen=5*33;
-			if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
-				{
-					on_cast[x]=-1;
+			for(j=0;j<6;j++)
+				if(on_cast[j]==-1){
+					on_cast[j]=image_id;
 					return 1;
 				}
+								
+			return 1;
 		}
+	}
+
+	if(mx>0 && mx<6*33 && my>5*33 && my<6*33){
+		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 0, 5*33, 33, 33);
+
+		on_cast[pos]=-1;
+	}
+
 	return 0;
 }
 
 
 int mouseover_sigils_handler(window_info *win, int mx, int my)
 {
-	int x,y;
-	int x_screen,y_screen;
-
 	if(!have_error_message)spell_text[0]=0;
 
 	//clear button?
@@ -506,38 +554,42 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	else
 		cast_mouseover=0;
 
+#ifdef NEW_CLIENT
+	if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] &&mqb_data[0]->spell_name[0]){
+		show_last_spell_help=1;
+	}
+#endif
+	
 	//see if we clicked on any sigil in the main category
-	for(y=0;y<3;y++)
-		for(x=0;x<12;x++)
-			{
-				x_screen=x*33;
-				y_screen=y*33;
-				if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
-					{
-
-						//see if there is any sigil there
-						if(sigils_list[y*12+x].have_sigil)
-							{
-								my_strcp(spell_text,sigils_list[y*12+x].name);
-								have_error_message=0;
-								return 0;
-							}
-					}
-			}
+	if(mx>0 && mx<12*33 && my>0 && my<3*33){
+		int pos=get_mouse_pos_in_grid(mx,my, 12, 3, 0, 0, 33, 33);
+		
+		if(sigils_list[pos].have_sigil){
+			my_strcp(spell_text,sigils_list[pos].name);
+			have_error_message=0;
+		}
+		
+		return 0;
+	}
 
 	//see if we clicked on any sigil from "on cast"
-	for(x=0;x<6;x++)
-		{
-			x_screen=x*33;
-			y_screen=5*33;
-			if(mx>x_screen && mx<x_screen+33 && my>y_screen && my<y_screen+33)
-				if(on_cast[x]!=-1)
-					{
-						my_strcp(spell_text,sigils_list[on_cast[x]].name);
-						have_error_message=0;
-						return 0;
-					}
+	if(mx>0 && mx<6*33 && my>5*33 && my<6*33){
+		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 0, 5*33, 33, 33);
+		
+		if(on_cast[pos]!=-1){
+			my_strcp(spell_text,sigils_list[on_cast[pos]].name);
+			have_error_message=0;
 		}
+		
+		return 0;
+	}
+	
+	if(mx>=350 && mx<=381 && my>=112 && my<=143) {
+		strcpy(spell_text, "Click to add the spell to the quickbar");
+
+		return 0;
+	}
+
 	return 0;
 }
 
@@ -555,6 +607,253 @@ void get_sigils_we_have(Uint32 sigils_we_have)
 
 }
 
+#ifdef NEW_CLIENT
+//Quickspell I/O start
+char * invalid_spell_str={"Invalid spell"};
+
+int have_spell_name(int spell_id)
+{
+	int i;
+
+	for(i=1;i<7;i++){
+		if(mqb_data[i] && mqb_data[i]->spell_id==spell_id && mqb_data[i]->spell_name[0]){
+			if(mqb_data[0])
+				strcpy(mqb_data[0]->spell_name,mqb_data[i]->spell_name);
+			return 1;
+		}
+	}
+	
+	return 0;
+}
+
+void add_spell_to_quickbar()
+{
+	int i;
+
+	if(!mqb_data[0])return;
+	
+	for(i=1;i<7;i++)
+		if(mqb_data[i] && mqb_data[0]->spell_id==mqb_data[i]->spell_id)
+			return;
+	
+	//Else move the other spells down the quickbar
+	if(mqb_data[6])
+		free(mqb_data[6]);
+			
+	for(i=6; i; i--){
+		mqb_data[i]=mqb_data[i-1];
+	}
+	
+	mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
+	memcpy(mqb_data[0], mqb_data[1], sizeof(mqbdata));
+}
+
+void set_spell_name(int id, char * data, int len)
+{
+	int i;
+
+	if(len>60)return;
+	
+	for(i=0;i<7;i++){
+		if(mqb_data[i] && mqb_data[i]->spell_id==id){
+			strncpy(mqb_data[i]->spell_name, data, len);
+			mqb_data[i]->spell_name[len]=0;
+		}
+	}
+
+}
+
+void process_network_spell(char * data, int len)
+{
+	switch(*data){
+		case S_INVALID:
+			spell_result=0;
+			LOG_TO_CONSOLE(c_red1, invalid_spell_str);
+			return;
+		case S_NAME:
+			set_spell_name(data[1], data+2, len-2);//Will set the spell name of the given ID
+			return;;
+		case S_SELECT_TARGET://spell_result==3
+			spell_result=3;
+			action_mode=ACTION_WAND;
+			break;
+		case S_SELECT_TELE_LOCATION://spell_result==2
+			spell_result=2;
+			action_mode=ACTION_WAND;
+			break;
+		case S_SUCCES://spell_result==1
+			spell_result=1;
+			action_mode=ACTION_WALK;
+			break;
+		case S_FAILED:
+			spell_result=0;
+			action_mode=ACTION_WALK;
+			return;
+	}
+	
+	if(!mqb_data[0]){
+		mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
+		mqb_data[0]->spell_id=-1;
+	}
+	
+	if(mqb_data[0]->spell_id!=data[1]){
+		if(!have_spell_name(data[1])){
+			char str[2];
+			
+			str[0]=SPELL_NAME;
+			str[1]=data[1];
+			my_tcp_send(my_socket, str, 2);
+		} 
+					
+		mqb_data[0]->spell_id=data[1];
+		mqb_data[0]->spell_image=data[2];
+	}
+}
+
+void load_quickspells()
+{
+	Uint8 fname[128];
+	char data[512];
+	FILE *fp;
+	int i;
+	extern char username_str[16];
+	
+	//write to the data file, to ensure data integrity, we will write all the information
+	sprintf(fname,"spells_%s.dat",username_str);
+	my_tolower(fname);
+	
+	fp=fopen(fname,"rb");
+	if(!fp)return;
+
+	fread(data, sizeof(data), sizeof(char), fp);
+	
+	for(i=1;i<(int)data[0];i++){
+		mqb_data[i]=(mqbdata*)calloc(1,sizeof(mqbdata));
+		memcpy(mqb_data[i], data+1+(i-1)*sizeof(mqbdata), sizeof(mqbdata));
+	}
+
+	fclose(fp);
+}
+
+void save_quickspells()
+{
+	Uint8 fname[128];
+	FILE *fp;
+	int i;
+	char data[512];
+	extern char username_str[16];
+	
+	//write to the data file, to ensure data integrity, we will write all the information
+	sprintf(fname,"spells_%s.dat",username_str);
+	my_tolower(fname);
+	
+	fp=fopen(fname,"wb");
+	if(!fp)return;
+
+	for(i=1;i<7;i++) if(!mqb_data[i]) break;
+
+	data[0]=i;
+	
+	for(i=1;i<7;i++){
+		if(!mqb_data[i])break;
+		memcpy(data+1+(i-1)*sizeof(mqbdata), mqb_data[i],sizeof(mqbdata));
+	}
+
+	fwrite(data, sizeof(data), sizeof(char), fp);
+		
+	fclose(fp);
+}
+
+// Quickspell window start
+
+int quickspell_over=-1;
+
+int display_quickspell_handler(window_info *win)
+{
+	int x,y,width,height,i;
+	float u_start,v_start,u_end,v_end;
+	
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.20f);
+	glColor3f(1.0f,1.0f,1.0f);
+
+	get_and_set_texture_id(sigils_text);
+	
+	glBegin(GL_QUADS);
+	for(i=1;i<7;i++) {
+		if(mqb_data[i] && mqb_data[i]->spell_name[0]){
+			x=quickspell_size/2;
+			y=(i-1)*30+15;
+			width=quickspell_size/2;
+			height=quickspell_size/2;
+			
+			//location in window ready, now for the bitmap..
+			u_start=0.125f*(mqb_data[i]->spell_image%8);//0 to 7 across
+			v_start=0.375f;//3/4 of the way down the image
+			if(mqb_data[i]->spell_image>7)
+				v_start-=0.125f;//add a line if we need to wrap
+			
+			u_end=u_start+0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
+			v_end=v_start-0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
+		
+			draw_2d_thing(u_start,v_start,u_end,v_end, x-width,y-height,x+width,y+height);
+		}
+	}
+	
+	glEnd();
+	glDisable(GL_ALPHA_TEST);
+	
+	if(quickspell_over!=-1 && mqb_data[quickspell_over])
+		show_help(mqb_data[quickspell_over]->spell_name,-10-strlen(mqb_data[quickspell_over]->spell_name)*8,(quickspell_over-1)*30+10);
+	quickspell_over=-1;
+
+	return 1;
+}
+
+int mouseover_quickspell_handler(window_info *win, int mx, int my)
+{
+	int pos;
+	
+	pos=my/30+1;
+	if(pos<7 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_name[0]) {
+		quickspell_over=pos;
+		elwin_mouse=CURSOR_WAND;
+		return 1;
+	}
+	
+	return 0;
+}
+
+int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+	int pos;
+	
+	pos=my/30+1;
+
+	if(pos<7 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_str[0] && (flags & ELW_LEFT_MOUSE)) {
+		my_tcp_send(my_socket, mqb_data[pos]->spell_str, 12);
+		return 1;
+	} 
+	
+	return 0;
+}
+
+void init_quickspell()
+{
+	if (quickspell_win < 0){
+		quickspell_win = create_window ("Quickspell", -1, 0, window_width - quickspell_x, quickspell_y, quickspell_x_len, quickspell_y_len, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		set_window_handler(quickspell_win, ELW_HANDLER_DISPLAY, &display_quickspell_handler);
+		set_window_handler(quickspell_win, ELW_HANDLER_CLICK, &click_quickspell_handler);
+		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );
+	} else {
+		show_window (quickspell_win);
+	}
+}
+
+#endif
+
+// Quickspell window end
 
 void display_sigils_menu()
 {

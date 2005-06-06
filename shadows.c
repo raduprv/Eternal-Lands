@@ -179,8 +179,6 @@ void draw_3d_object_shadow(object3d * object_id)
 	e3d_array_uv_main *array_uv_main;
 	e3d_array_order *array_order;
 
-	if(have_vertex_buffers && (!object_id->e3d_data->vbo[0]||!object_id->e3d_data->vbo[1]||!object_id->e3d_data->vbo[2])) return;//Protect from nasty crashes...
-
     if(object_id->blended)return;//blended objects can't have shadows
     //if(object_id->self_lit)return;//light sources can't have shadows
     if(object_id->e3d_data->min_z>=object_id->e3d_data->max_z)return;//we have a flat object
@@ -192,6 +190,7 @@ void draw_3d_object_shadow(object3d * object_id)
 		{
 			load_e3d_detail(object_id->e3d_data);
 		}
+	
 	array_vertex=object_id->e3d_data->array_vertex;
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;
@@ -224,7 +223,7 @@ void draw_3d_object_shadow(object3d * object_id)
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
 		glVertexPointer(3,GL_FLOAT,0,0);
 	} else glVertexPointer(3,GL_FLOAT,0,array_vertex);
-	
+
 	if(is_transparent)
 		{
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -238,6 +237,7 @@ void draw_3d_object_shadow(object3d * object_id)
 	for(i=0;i<materials_no;i++)
 		if(array_order[i].count>0)
 			{
+				CHECK_GL_ERRORS();
 				if(is_transparent)
 					get_and_set_texture_id(array_order[i].texture_id);
 				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
@@ -251,7 +251,7 @@ void draw_3d_object_shadow(object3d * object_id)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	else glEnable(GL_TEXTURE_2D);
-				
+		
 	if(have_vertex_buffers){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
@@ -445,25 +445,30 @@ void display_shadows()
 {
 	struct near_3d_object * nobj;
 	
-	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+	if(regenerate_near_objects)
+		if(!get_near_3d_objects())return;
 	
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-		if(nobj->object && !nobj->object->e3d_data->is_ground && nobj->object->z_pos>-0.20f )//&& nobj->dist<=900 //It's already limited to max 29*29...
-			draw_3d_object_shadow(nobj->object);
+		if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(!objects_list[nobj->pos]->e3d_data->is_ground && objects_list[nobj->pos]->z_pos>-0.20f )//&& nobj->dist<=900 //It's already limited to max 29*29...
+			draw_3d_object_shadow(objects_list[nobj->pos]);
 	}
         
 	if(use_shadow_mapping){
 		for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-			if(nobj->object && nobj->object->e3d_data->is_ground)//&& nobj->dist<=900 //It's already limited to max 29*29...
-				draw_3d_object_shadow(nobj->object);
+			if(!objects_list[nobj->pos])
+				regenerate_near_objects=1;
+			else if(objects_list[nobj->pos]->e3d_data->is_ground)//&& nobj->dist<=900 //It's already limited to max 29*29...
+				draw_3d_object_shadow(objects_list[nobj->pos]);
 		}
 	}
 	
-    	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
+    	glDisable(GL_CULL_FACE);
 	glDisable(GL_TEXTURE_2D);
 	display_actors_shadow();
 	glEnable(GL_TEXTURE_2D);
@@ -493,8 +498,10 @@ void display_3d_ground_objects()
    	glNormal3f(0,0,1);
     
     	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-    	    if(nobj->object && nobj->object->e3d_data->is_ground && nobj->dist<=700)
-    	         draw_3d_object(nobj->object);
+		if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(objects_list[nobj->pos]->e3d_data->is_ground && nobj->dist<=700)
+    	        	draw_3d_object(objects_list[nobj->pos]);
     	}
 
 	if(have_multitexture && clouds_shadows)
@@ -513,8 +520,7 @@ void display_3d_non_ground_objects()
 {
 	struct near_3d_object * nobj;
 
-	//if(regenerate_near_objects)if(!get_near_3d_objects())return;//Already checked in display_3d_ground_objects();
-	if(!first_near_3d_object||regenerate_near_objects) return; //We don't do that in here...
+	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 
 	//we don't want to be affected by 2d objects and shadows
 	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
@@ -535,10 +541,12 @@ void display_3d_non_ground_objects()
 
 		}
 	
-    for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-        if(nobj->object && !nobj->object->e3d_data->is_ground)
-             draw_3d_object(nobj->object);
-    }
+	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+		if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
+			draw_3d_object(objects_list[nobj->pos]);
+	}
 		
 	if(have_multitexture && clouds_shadows)
 		{

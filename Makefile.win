@@ -13,6 +13,7 @@ CXXINCS =  -I"C:/Dev-Cpp/include/c++/3.3.1"  -I"C:/Dev-Cpp/include/c++/3.3.1/min
 BIN  = Debug/EL.exe
 CXXFLAGS = $(CXXINCS) -DWINDOWS  -D_WIN32 -Wall -DELC  
 CFLAGS = $(INCS) -DWINDOWS  -D_WIN32 -Wall -DELC  
+#-DNEW_CLIENT #Adds the storage window, trade window, loads of other things ;)
 
 .PHONY: all all-before all-after clean clean-custom
 

@@ -246,4 +246,24 @@ void show_help(char *message, int x, int y);
  */
 void build_levels_table();
 
+/*!
+ * \ingroup windows
+ * \brief	Sets the flag of the given window
+ *
+ * 	Sets the flag of the given window
+ *
+ * \sa get_flags
+ */
+void change_flags(int win_id, Uint32 flags);
+
+/*!
+ * \ingroup windows
+ * \brief Gets the flags of the given window 
+ *
+ * 	Gets the flag of the given window
+ *
+ * \sa change_flags
+ */
+Uint32 get_flags(int win_id);
+
 #endif	//__HUD_H

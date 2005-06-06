@@ -93,7 +93,7 @@ void draw_scene()
 		drag_item (item_dragged, 0, 0);
 	else if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
 		drag_item (use_item, 0, 1);
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 	else if (storage_item_dragged != -1) 
 		drag_item (storage_item_dragged, 1, 0);
 #endif
@@ -145,24 +145,39 @@ void get_tmp_actor_data()
 
 void move_camera ()
 {
-    int i;
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i] && actors_list[i]->actor_id==yourself&& actors_list[i]->tmp.have_tmp)
-				{
-					float x=actors_list[i]->tmp.x_pos+0.25f;
-					float y=actors_list[i]->tmp.y_pos+0.25f;
-					float z=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f+sitting;
-					//move near the actor, but smoothly
-					camera_x_speed=(x-(-cx))/16.0;
-					camera_x_frames=16;
-					camera_y_speed=(y-(-cy))/16.0;
-					camera_y_frames=16;
-					camera_z_speed=(z-(-cz))/16.0;
-					camera_z_frames=16;
-					break;
-				}
-		}
+	float x, y, z;
+	static int lagged=1;
+	actor * me=pf_get_our_actor();
+	
+	if(!me || !me->tmp.have_tmp){
+		lagged=1;
+		return;
+	}
+
+	x=me->tmp.x_pos+0.25f;
+	y=me->tmp.y_pos+0.25f;
+	z=-2.2f+height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f+sitting;
+
+	if(lagged){
+		cx-=(x-(-cx));
+		cy-=(y-(-cy));
+		cz-=(z-(-cz));
+		camera_x_frames=0;
+		camera_y_frames=0;
+		camera_z_frames=0;
+		lagged=0;
+		regenerate_near_objects=
+		regenerate_near_2d_objects=1;
+	} else {
+		//move near the actor, but smoothly
+		camera_x_speed=(x-(-cx))/16.0;
+		camera_x_frames=16;
+		camera_y_speed=(y-(-cy))/16.0;
+		camera_y_frames=16;
+		camera_z_speed=(z-(-cz))/16.0;
+		camera_z_frames=16;
+	}
+	
 	//check to see if we are out of the map
 	if(cx>-7.5f)cx=-7.5f;
 	if(cy>-7.5f)cy=-7.5f;
@@ -183,6 +198,8 @@ void update_camera()
 		{
 			rz+=camera_rotation_speed;
 			camera_rotation_frames--;
+			regenerate_near_objects=
+			regenerate_near_2d_objects=1;
 		}
 	if(camera_x_frames)
 		{

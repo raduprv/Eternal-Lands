@@ -130,7 +130,7 @@ typedef int point;
 #include "books.h"
 #include "chat.h"
 #include "bags.h"
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 #include "storage.h"
 #endif
 #ifdef CAL3D

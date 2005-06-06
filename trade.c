@@ -1,12 +1,16 @@
 #include "global.h"
 #include "elwindows.h"
 
-#ifdef NEW_TRADE
+#ifdef NEW_CLIENT
 #include "string.h"
+
+#define ITEM_INVENTORY 1
+#define ITEM_BANK 2
+
 int trade_win=-1;
 
-item your_trade_list[24];
-item others_trade_list[24];
+trade_item your_trade_list[24];
+trade_item others_trade_list[24];
 int trade_you_accepted=0;
 int trade_other_accepted=0;
 char other_player_trade_name[20];
@@ -19,6 +23,8 @@ int trade_menu_x_len=9*33+20;
 int trade_menu_y_len=4*33+100;
 
 int show_abort_help=0;
+
+int storage_available=0;
 
 int display_trade_handler(window_info *win)
 {
@@ -126,6 +132,12 @@ int display_trade_handler(window_info *win)
 			sprintf(str,"%i",others_trade_list[i].quantity);
 			draw_string_small(x_start,y_end-15,str,1);
 
+			if(storage_available && others_trade_list[i].type==ITEM_BANK){
+				str[0]='S';
+				str[1]=0;
+				draw_string_small(x_end-9,y_start+2,str,1);
+			}
+
 			no_trade_items++;
 		}
 	}
@@ -192,13 +204,24 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 	
-	if(right_click && item_dragged!=-1)item_dragged=-1;
+	if(right_click) {
+		item_dragged=
+		storage_item_dragged=-1;
+	}
 	
 	if(left_click && item_dragged!=-1){
 		str[0]=PUT_OBJECT_ON_TRADE;
-		str[1]=item_list[item_dragged].pos;
-		*((Uint16 *)(str+2))= SDL_SwapLE16(item_quantity);
-		my_tcp_send(my_socket,str,4);
+		str[1]=ITEM_INVENTORY;
+		str[2]=item_list[item_dragged].pos;
+		*((Uint32 *)(str+3))= SDL_SwapLE32(item_quantity);
+		my_tcp_send(my_socket,str,7);
+		return 1;
+	} else if(storage_available && left_click && storage_item_dragged!=-1){
+		str[0]=PUT_OBJECT_ON_TRADE;
+		str[1]=ITEM_BANK;
+		str[2]=storage_items[storage_item_dragged].pos;
+		*((Uint32 *)(str+3))= SDL_SwapLE32(item_quantity);
+		my_tcp_send(my_socket,str,7);
 		return 1;
 	} else if(mx>10 && mx<10+4*33 && my>10 && my<10+4*33){
 		int pos=get_mouse_pos_in_grid (mx, my, 4, 4, 10, 30, 33, 33);
@@ -212,8 +235,8 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 			} else {
 				str[0]=REMOVE_OBJECT_FROM_TRADE;
 				str[1]=pos;
-				*((Uint16 *)(str+2))=SDL_SwapLE16(item_quantity);
-				my_tcp_send(my_socket,str,4);
+				*((Uint32 *)(str+2))=SDL_SwapLE32(item_quantity);
+				my_tcp_send(my_socket,str,6);
 			}
 		}
 
@@ -222,34 +245,35 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		int pos=get_mouse_pos_in_grid(mx, my, 4, 4, 10+5*33, 30, 33, 33);
 
 		if(others_trade_list[pos].quantity){
-			if(action_mode==ACTION_LOOK || right_click) {
+			if(action_mode==ACTION_LOOK || right_click){
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;
 				str[2]=1;//their trade
 				my_tcp_send(my_socket,str,3);
+			} else if (left_click && storage_available){
+				if(others_trade_list[pos].type==ITEM_BANK)
+					others_trade_list[pos].type=ITEM_INVENTORY;
+				else 
+					others_trade_list[pos].type=ITEM_BANK;
 			}
 		}
 
 		return 1;
 	} else if(mx>10+33 && mx<10+33+66 && my>win->len_y-60 && my<win->len_y-40) {
 		//check to see if we hit the Accept box
-		if(trade_you_accepted){
+		if(trade_you_accepted==2 || right_click){
 			str[0]= REJECT_TRADE;
 			my_tcp_send(my_socket, str, 1);
 		} else {
-			int i;
-			int	msg_len= 1;
-	
 			str[0]= ACCEPT_TRADE;
-			// and send what we currently see as what they have offered us (we don't trust them!)
-			for(i=0; i<16; i++){
-				if (others_trade_list[i].quantity > 0 ){
-					*((Uint16 *)(str+msg_len))= SDL_SwapLE16(others_trade_list[i].image_id);
-					*((Uint32 *)(str+msg_len+2))= SDL_SwapLE16(others_trade_list[i].quantity);
-					msg_len+= 6;
+			if(trade_you_accepted==1){
+				int i;
+			
+				for(i=0;i<16;i++){
+					str[i+1]=(others_trade_list[i].quantity>0)*others_trade_list[i].type;
 				}
 			}
-			my_tcp_send(my_socket, str, msg_len);
+			my_tcp_send(my_socket, str, 17);
 		}
 		
 		return 1;
@@ -269,6 +293,13 @@ int mouseover_trade_handler(window_info *win, int mx, int my)
 void get_trade_partner_name(Uint8 *player_name,int len)
 {
 	int i;
+
+#ifdef NEW_CLIENT
+	storage_available=player_name[0];
+	len--;
+	player_name++;
+#endif
+	
 	for(i=0;i<len;i++)
 		{
 			other_player_trade_name[i]=player_name[i];
@@ -292,36 +323,30 @@ void get_your_trade_objects(Uint8 *data)
 	trade_you_accepted=0;
 	trade_other_accepted=0;
 
-#ifdef NEW_TRADE
 	//we have to close the manufacture window, otherwise bad things can happen.
 	hide_window(manufacture_win);
 	hide_window(sigil_win);
 	//Open the inventory window
 	display_items_menu();
 	view_window(&trade_win, -1);
-#else
-	view_window(&trade_win, -1);
-	
-	hide_window(items_win);
-	hide_window(manufacture_win);
-	hide_window(sigil_win);
-#endif
 }
 
 void put_item_on_trade(Uint8 *data)
 {
 	int pos;
 
-	pos=data[6];
-	if(!data[7])
+	pos=data[7];
+	if(!data[8])
 	{
 		your_trade_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data)));
 		your_trade_list[pos].quantity+=SDL_SwapLE32(*((Uint32 *)(data+2)));
+		your_trade_list[pos].type=data[6];
 	}
 	else
 	{
 		others_trade_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data)));
 		others_trade_list[pos].quantity+=SDL_SwapLE32(*((Uint32 *)(data+2)));
+		others_trade_list[pos].type=data[6];
 	}
 }
 
@@ -331,7 +356,7 @@ void remove_item_from_trade(Uint8 *data)
 	int quantity;
 
 	pos=data[2];
-	quantity=SDL_SwapLE16(*((Uint16 *)(data)));
+	quantity=SDL_SwapLE32(*((Uint32 *)(data)));
 
 	if(!data[3])
 	{

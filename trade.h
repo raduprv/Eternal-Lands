@@ -12,6 +12,12 @@ extern int trade_other_accepted; /*!< flag, indicating whether the trade partner
 extern int trade_menu_x;
 extern int trade_menu_y;
 
+typedef struct {
+	int type;
+	int image_id;
+	int quantity;
+} trade_item;
+
 /*!
  * \name windows handlers
  */

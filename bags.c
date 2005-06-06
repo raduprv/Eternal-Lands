@@ -110,7 +110,7 @@ void remove_bag(int which_bag)
 {
 	int sector, i, j=MAX_3D_OBJECTS-1, k=-1;
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
 #else
 	add_particle_sys_at_tile("./particles/bag_out.part",bag_list[which_bag].x,bag_list[which_bag].y, -1, 0, 0);
@@ -288,6 +288,29 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	pos=get_mouse_pos_in_grid(mx,my,5,10,0,0,33,33);
 
+#ifdef NEW_CLIENT
+	if(!ground_item_list[pos].quantity) {
+		if (item_dragged != -1){
+			str[0] = DROP_ITEM;
+			str[1] = item_dragged;
+			*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_quantity);
+			my_tcp_send(my_socket, str, 4);
+		}
+	} else if(item_action_mode==ACTION_LOOK) {
+		str[0]= LOOK_AT_GROUND_ITEM;
+		str[1]= ground_item_list[pos].pos;
+		my_tcp_send(my_socket,str,2);
+	} else {
+		int quantity;
+		quantity= ground_item_list[pos].quantity;
+		if(quantity > item_quantity && !ctrl_on) quantity= item_quantity;
+
+		str[0]= PICK_UP_ITEM;
+		str[1]= ground_item_list[pos].pos;
+		*((Uint16 *)(str+2))= SDL_SwapLE16((short)quantity);
+		my_tcp_send(my_socket,str,4);
+	}
+#else
 	if(!ground_item_list[pos].quantity) {
 		if (item_dragged != -1){
 			Uint8 str[10];
@@ -315,6 +338,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		*((Uint16 *)(str+2))= SDL_SwapLE16((short)quantity);
 		my_tcp_send(my_socket,str,4);
 	}
+#endif
 		
 	return 1;
 }

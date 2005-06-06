@@ -389,6 +389,8 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
 	glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 	glDisable(GL_LIGHTING);
 
+	//glNormalPointer(2, GL_FLOAT, 0);
+
 	glColor4f(r,g,b,0.99f);
 
 	glPushMatrix();

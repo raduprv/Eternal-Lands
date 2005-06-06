@@ -154,6 +154,7 @@ void draw_3d_reflection(object3d * object_id)
 	is_transparent=object_id->e3d_data->is_transparent;
 	materials_no=object_id->e3d_data->materials_no;
 
+	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
 	// check for having to load the arrays
 	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
 		{
@@ -222,7 +223,6 @@ void draw_3d_reflection(object3d * object_id)
 	CHECK_GL_ERRORS();
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
-
 
 	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
 	if(is_transparent)
@@ -340,8 +340,10 @@ void display_3d_reflection()
 	glScalef(1.0f, 1.0f, -1.0f);
 
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-        	if(nobj->object && !nobj->object->e3d_data->is_ground && nobj->dist<=442)
-       	 		draw_3d_object(nobj->object);
+        	if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(!objects_list[nobj->pos]->e3d_data->is_ground && nobj->dist<=442)
+       	 		draw_3d_object(objects_list[nobj->pos]);
 	}
 
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -370,6 +372,7 @@ void display_3d_reflection()
 	glDisable(GL_CLIP_PLANE0);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnable(GL_CULL_FACE);
 	CHECK_GL_ERRORS();
 }
 

@@ -247,6 +247,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	our_object->b=b;
 
 	our_object->clouds_uv=NULL;
+	our_object->cloud_vbo=0;
 
 	our_object->self_lit=self_lit;
 	our_object->blended=blended;
@@ -267,48 +268,46 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	return i;
 }
 
-void add_near_3d_object(int dist, float radius, object3d * obj)
+void add_near_3d_object(int dist, float radius, int pos)
 {
-     struct near_3d_object *cur, *nearest, *last;
+	struct near_3d_object *cur, *nearest, *last;
      
-     if(!obj||no_near_3d_objects >= MAX_NEAR_3D_OBJECTS){
-	     printf("wtf!?\n");
-          return;
-     }
+	if(no_near_3d_objects >= MAX_NEAR_3D_OBJECTS)
+		return;
      
-     cur=&near_3d_objects[no_near_3d_objects];
-     cur->object=obj;
-     cur->dist=dist;
-     cur->radius=radius;
-     cur->next=NULL;
-     no_near_3d_objects++;
-     
-     near_3d_objects[no_near_3d_objects].dist=0;
-     near_3d_objects[no_near_3d_objects].radius=0;
-     near_3d_objects[no_near_3d_objects].object=NULL;
-     near_3d_objects[no_near_3d_objects].next=NULL;
+	cur=&near_3d_objects[no_near_3d_objects];
+	cur->pos=pos;
+	cur->dist=dist;
+	cur->radius=radius;
+	cur->next=NULL;
+	no_near_3d_objects++;
 
-     if(!first_near_3d_object) {
-          first_near_3d_object=cur;
-          return;
-     } else if(first_near_3d_object->dist>dist){
-          cur->next=first_near_3d_object;
-          first_near_3d_object=cur;
-          
-          return;
-     }
-     
-     for(nearest=first_near_3d_object, last=NULL;nearest;nearest=nearest->next){
-         if(nearest->next && nearest->dist<=dist && nearest->next->dist>=dist){
-		cur->next=nearest->next;
-		nearest->next=cur;
+	near_3d_objects[no_near_3d_objects].dist=0;
+	near_3d_objects[no_near_3d_objects].radius=0;
+	near_3d_objects[no_near_3d_objects].pos=0;
+	near_3d_objects[no_near_3d_objects].next=NULL;
+
+	if(!first_near_3d_object) {
+		first_near_3d_object=cur;
 		return;
-         } else if(!nearest->next){
-		nearest->next=cur;
+	} else if(first_near_3d_object->dist>dist){
+		cur->next=first_near_3d_object;
+		first_near_3d_object=cur;
+
 		return;
-	 }
-	 last=nearest;
-     }
+	}
+
+	for(nearest=first_near_3d_object, last=NULL;nearest;nearest=nearest->next){
+		if(nearest->next && nearest->dist<=dist && nearest->next->dist>=dist){
+			cur->next=nearest->next;
+			nearest->next=cur;
+			return;
+		} else if(!nearest->next){
+			nearest->next=cur;
+			return;
+		}
+		last=nearest;
+	}
 }
 
 int get_near_3d_objects()
@@ -342,7 +341,7 @@ int get_near_3d_objects()
 					dist1= x-object_id->x_pos;
 					dist2= y-object_id->y_pos;
 					dist=dist1*dist1+dist2*dist2;
-					if(dist<=29*29){
+					if(dist<=35*35){
 						float x_len, y_len, z_len;
 						float radius;
 
@@ -355,7 +354,7 @@ int get_near_3d_objects()
 						if(radius<z_len)radius=z_len;
 						//not in the middle of the air
 						if(SphereInFrustum(object_id->x_pos, object_id->y_pos, object_id->z_pos, radius)){
-							add_near_3d_object(dist, radius, object_id);
+							add_near_3d_object(dist, radius, l);
 						}
 					}
 				}
@@ -370,7 +369,8 @@ void display_objects()
 {
 	struct near_3d_object * nobj;
 	
-	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+	if(regenerate_near_objects||!first_near_3d_object)
+		if(!get_near_3d_objects())return;
 	
 	CHECK_GL_ERRORS();
 	glEnable(GL_CULL_FACE);
@@ -378,30 +378,34 @@ void display_objects()
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 			
-	if(have_multitexture && clouds_shadows)
-		{
-			//bind the detail texture
-			ELglActiveTextureARB(detail_unit);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-			ELglActiveTextureARB(base_unit);
-			glEnable(GL_TEXTURE_2D);
-		}
+	if(have_multitexture && clouds_shadows){
+		//bind the detail texture
+		ELglActiveTextureARB(detail_unit);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		ELglActiveTextureARB(base_unit);
+		glEnable(GL_TEXTURE_2D);
+	}
 
 	CHECK_GL_ERRORS();
+
+	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+		if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
+			draw_3d_object(objects_list[nobj->pos]);
+	}
+
+	glDisableClientState(GL_NORMAL_ARRAY);
+
+	glNormal3f(0,0,1);
 	
-    for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-         if(!nobj->object->e3d_data->is_ground)
-             draw_3d_object(nobj->object);
-    }
-    
-    glDisableClientState(GL_NORMAL_ARRAY);
-    
-    glNormal3f(0,0,1);
-    for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-         if(nobj->object->e3d_data->is_ground)
-             draw_3d_object(nobj->object);
-    }
+	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+		if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(objects_list[nobj->pos]->e3d_data->is_ground)
+			draw_3d_object(objects_list[nobj->pos]);
+	}
 	
 	CHECK_GL_ERRORS();
 	glDisable(GL_CULL_FACE);
@@ -467,6 +471,10 @@ e3d_object * load_e3d(char *file_name)
 	cur_object->array_vertex=NULL;
 	cur_object->array_normal=NULL;
 	cur_object->array_uv_main=NULL;
+
+	cur_object->vbo[0]=
+	cur_object->vbo[1]=
+	cur_object->vbo[2]=0;
 
 	return cur_object;
 }
@@ -779,72 +787,72 @@ void compute_clouds_map(object3d * object_id)
 
 }
 
+void destroy_clouds_cache(object3d * obj)
+{
+	if(have_vertex_buffers){
+		const GLuint l=obj->cloud_vbo;
+							
+		ELglDeleteBuffersARB(1, &l);
+
+		obj->cloud_vbo=0;
+	}
+	
+	free(obj->clouds_uv);
+	obj->clouds_uv=NULL;
+}
+
 void clear_clouds_cache()
 {
 	int i;
 
 	last_clear_clouds=cur_time;
-	for(i=0;i<highest_obj_3d;i++)
-		{
-			if(objects_list[i])
-				{
-					if(objects_list[i]->clouds_uv && objects_list[i]->last_acessed_time+20000<cur_time)
-						{
-							if(have_vertex_buffers){
-								const GLuint l=objects_list[i]->cloud_vbo;
-								
-								ELglDeleteBuffersARB(1, &l);
-
-								objects_list[i]->cloud_vbo=0;
-							}
-							free(objects_list[i]->clouds_uv);
-							objects_list[i]->clouds_uv=NULL;
-						}
-				}
+	for(i=0;i<highest_obj_3d;i++) {
+		if(objects_list[i]){
+			if(objects_list[i]->clouds_uv && objects_list[i]->last_acessed_time+20000<cur_time) {
+				destroy_clouds_cache(objects_list[i]);
+			}
 		}
+	}
 }
 
 void destroy_3d_object(int i)
 {
+	destroy_clouds_cache(objects_list[i]);
+	
 	free(objects_list[i]);
 	objects_list[i]=0;
      	regenerate_near_objects=1;
 	if(i == highest_obj_3d+1)
-		{
-			highest_obj_3d= i;
-		}
+		highest_obj_3d= i;
 }
 
 Uint32 free_e3d_va(e3d_object *e3d_id)
 {
      	regenerate_near_objects=1;
 
-	if(e3d_id->array_vertex)
-		{
-			free(e3d_id->array_vertex);
-			e3d_id->array_vertex=NULL;
-		}
+	if(e3d_id->array_vertex) {
+		free(e3d_id->array_vertex);
+		e3d_id->array_vertex=NULL;
+	}
 
-	if(e3d_id->array_normal)
-		{
-			free(e3d_id->array_normal);
-			e3d_id->array_normal=NULL;
-		}
+	if(e3d_id->array_normal) {
+		free(e3d_id->array_normal);
+		e3d_id->array_normal=NULL;
+	}
 
-	if(e3d_id->array_uv_main)
-		{
-			free(e3d_id->array_uv_main);
-			e3d_id->array_uv_main=NULL;
-		}
+	if(e3d_id->array_uv_main) {
+		free(e3d_id->array_uv_main);
+		e3d_id->array_uv_main=NULL;
+	}
 
-	if(e3d_id->array_order)
-		{
-			free(e3d_id->array_order);
-			e3d_id->array_order=NULL;
-		}
+	if(e3d_id->array_order) {
+		free(e3d_id->array_order);
+		e3d_id->array_order=NULL;
+	}
 
 	if(have_vertex_buffers){
 		const GLuint buf[3]={e3d_id->vbo[0], e3d_id->vbo[1], e3d_id->vbo[2]};
+		
 		ELglDeleteBuffersARB(3, buf);
 
 		e3d_id->vbo[0]=

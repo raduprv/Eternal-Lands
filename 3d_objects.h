@@ -9,7 +9,7 @@
 struct near_3d_object {
        int dist;
        float radius;
-       object3d * object;
+       int pos;//pos in the 3d objects list
        struct near_3d_object * next;
 };
 

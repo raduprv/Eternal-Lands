@@ -10,7 +10,7 @@
  */
 
 const char * web_update_address="http://www.eternal-lands.com/index.php?content=update";
-
+int icon_in_spellbar=-1;
 int port=2000;
 unsigned char server_address[60];
 TCPsocket my_socket=0;
@@ -434,6 +434,10 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				newchar_root_win = -1;
 				show_window (game_root_win);
 
+#ifdef NEW_CLIENT
+				load_quickspells();
+#endif
+				
 				previously_logged_in=1;
 			}
 			break;
@@ -478,8 +482,6 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 				remove_item_from_inventory(*((Uint8 *)(in_data+3)));
 			}
-				regenerate_near_objects=1;//Regenerate the near 3d objects...
-				regenerate_near_2d_objects=1;//Regenerate the near 2d objects...
 			break;
 
 		case INVENTORY_ITEM_TEXT:
@@ -491,10 +493,11 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					}
 			}
 			break;
-
 		case SPELL_ITEM_TEXT:
 			{
-				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+100,spell_text);
+				put_small_text_in_box(in_data+3,data_lenght-3,6*51+100,spell_text);
+				if(sigil_win==-1||!windows_list.window[sigil_win].displayed)
+					put_text_in_buffer(in_data+3, data_lenght-3, 0);
 				have_error_message=1;
 			}
 			break;
@@ -512,6 +515,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+				regenerate_near_objects=1;
+				regenerate_near_2d_objects=1;
 				object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 				close_dialogue();	// close the dialogue window if open
 				destroy_all_particles();
@@ -531,38 +536,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				rain_light_offset=0;
 				if ( get_show_window (map_root_win) )
 					switch_from_game_map ();
-				{ 
-					FILE * fp;
-					char marks_file[256], text[600];
-#ifndef WINDOWS
-    				strcpy(marks_file, getenv("HOME"));
-    				strcat(marks_file, "/.elc/");
-					strcat(marks_file, strrchr(map_file_name,'/')+1);
-#else
-					strcpy(marks_file, strrchr(map_file_name,'/')+1);
-#endif
-					strcat(marks_file, ".txt");
-					// don't use my_fopen here, not everyone uses map markers
-					fp = fopen(marks_file, "r");
-					max_mark = 0;
-					if ( fp )
-					{
-						
-						while ( fgets(text, 600,fp) )
-						{
-							if (strlen (text) > 1) //skip empty lines
-							{
-								sscanf (text, "%d %d", &marks[max_mark].x, &marks[max_mark].y);
-								text[strlen(text)-1] = '\0'; //remove the newline
-								strncpy (marks[max_mark].text, strstr(strstr(text, " ")+1, " ")+1, 500);
-								max_mark++;
-								if ( max_mark > 200 ) break;
-							}
-						}
-						fclose(fp);
-					}
-				}
-
+				load_map_marks();//Load the map marks
 			}
 			break;
 
@@ -599,7 +573,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 	ERR();
 #endif
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 				add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );
 #else
 				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))), snd_tele_out, 1, 0);
@@ -613,8 +587,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 	ERR();
 #endif
 
-#ifdef PARTICLE_SYS_SOUND
-			add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );	
+#ifdef NEW_CLIENT
+				add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );	
 #else
 				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))), snd_tele_out, 1, 0);
 #endif
@@ -752,10 +726,10 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 	ERR();
 #endif
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 				add_particle_sys_at_tile ( "./particles/bag_in.part", SDL_SwapLE16 ( *( (Uint16 *)(in_data+3) ) ), SDL_SwapLE16 ( *( (Uint16 *)(in_data+5) ) ) );
 #else
-add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16 *)(in_data+5))), -1, 0, 0);
+				add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16 *)(in_data+5))), -1, 0, 0);
 #endif
 			}
 			break;
@@ -996,6 +970,7 @@ add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_
 				}
 			}
 
+#ifdef NEW_CLIENT
 		case OPEN_BOOK:
 			{
 				open_book(SDL_SwapLE16(*((Uint16*)(in_data+3))));
@@ -1013,7 +988,6 @@ add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_
 				close_book(SDL_SwapLE16(*((Uint16*)(in_data+3))));
 			}
 			break;
-#ifdef STORAGE
 		case STORAGE_LIST:
 			{
 				get_storage_categories(in_data+3, data_lenght-3);
@@ -1031,7 +1005,12 @@ add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_
 				get_storage_text(in_data+3, data_lenght-3);
 			}
 			break;
-#endif
+    		case SPELL_CAST:
+    			{
+				process_network_spell(in_data+3, data_lenght-3);
+        		}
+			break;
+#endif //NEW_CLIENT
 		default:
 			{
 				// Unknown data type??

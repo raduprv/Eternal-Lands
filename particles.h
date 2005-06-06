@@ -88,7 +88,7 @@ typedef struct
 	float lightr,lightg,lightb;
     /*! \} */
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 	/*!
     	* \name Sounds for this system
 	*/
@@ -202,7 +202,7 @@ extern void	end_particles_list();
 
 //CREATION OF NEW PARTICLES AND SYSTEMS 
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 /*!
  * \ingroup particles
  * \brief Adds a new particle system from the file given in file_name at the given position.
@@ -237,7 +237,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, int sound, int positional, int loop);
 #endif
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 /*!
  * \ingroup particles
  * \brief Adds a new particle system from the given file file_name at the specified tile position.
@@ -272,11 +272,11 @@ int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, int sound
 
 // Grum: included here for the map editor
 void create_particle (particle_sys *sys, particle *result);
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 int create_particle_sys (particle_sys_def *def, float x, float y, float z);
 #else
 int create_particle_sys (particle_sys_def *def, float x, float y, float z, int sound, int positional, int loop);
-#endif // def PARTICLE_SYS_SOUND
+#endif // def NEW_CLIENT
 
 //RENDERING FUNCTIONS
 

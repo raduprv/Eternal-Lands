@@ -167,7 +167,7 @@ void drag_item(int item, int storage, int mini)
 	int cur_item,this_texture;
 	int cur_item_img;
 
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 	int quantity=item_quantity;
 	char str[20];
 	
@@ -209,7 +209,7 @@ void drag_item(int item, int storage, int mini)
 		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+25,mouse_y+25);
 	glEnd();
 	
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 	if(!mini && quantity!=-1){
 		sprintf(str,"%i",quantity);
 		draw_string_small(mouse_x-25,mouse_y+10,str,1);
@@ -391,14 +391,14 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	if(right_click) {
-#ifdef STORAGE 
+#ifdef NEW_CLIENT 
 		if(item_dragged!=-1 || use_item!=-1 || storage_item_dragged!=-1){
 #else
 		if(item_dragged!=-1 || use_item!=-1){
 #endif 
 			use_item=-1;
 			item_dragged=-1;
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 			storage_item_dragged=-1;
 #endif
 			item_action_mode=ACTION_WALK;
@@ -488,7 +488,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			
 			item_dragged=-1;
 		}
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 		else if(storage_item_dragged!=-1){
 			str[0]=WITHDRAW_ITEM;
 			str[1]=storage_items[storage_item_dragged].pos;

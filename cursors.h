@@ -21,6 +21,7 @@
 #define CURSOR_TRADE 8
 #define CURSOR_USE_WITEM 9
 #define CURSOR_USE 10
+#define CURSOR_WAND 11
 /*! @} */
 
 /*!

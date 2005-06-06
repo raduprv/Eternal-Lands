@@ -53,7 +53,7 @@ int start_rendering()
 			//check for network data
 			get_message_from_server();
 
-			if(!limit_fps || ((cur_time-last_time) && (800/(cur_time-last_time) < limit_fps)))
+			if(!limit_fps || ((cur_time-last_time) && (1000/(cur_time-last_time) < limit_fps)))
 				{
 					//draw everything
 					draw_scene();
@@ -77,6 +77,10 @@ int start_rendering()
 	if(pm_log.ppl)free_pm_log();
 	
 	save_bin_cfg();
+#ifdef NEW_CLIENT
+	//Save the quickbar spells
+	save_quickspells();
+#endif
 	// save el.ini if asked
 	if (write_ini_on_exit) write_el_ini ();
 	#ifdef NOTEPAD

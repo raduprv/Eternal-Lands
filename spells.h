@@ -6,11 +6,42 @@
 #ifndef __SPELLS_H__
 #define __SPELLS_H__
 
+#ifdef NEW_CLIENT
+/*!
+ * \name Server spell messages
+ */
+/*! @{ */
+typedef enum {
+	S_SUCCES = 1,
+	S_FAILED,
+	S_INVALID,
+	S_SELECT_TARGET,
+	S_SELECT_TELE_LOCATION,
+	S_NAME,
+} spell_errors;
+/*! @} */
+
+typedef struct {
+	unsigned char spell_name[60];//The spell_name
+	int spell_image;//image_id
+	int spell_id;
+	unsigned char spell_str[30];
+	//to be difficult, we will store the entire string ready
+	//to be sent to the server, including CAST_SPELL and len bytes, len will be byte 2
+} mqbdata;
+
+extern mqbdata * mqb_data[7];/*mqb_data holds a spell name, the image and spell ID as well as the data that's being send to the server.*/
+extern int spell_temp,spell_dragged;
+#endif
+
 /*!
  * \name windows handlers
  */
 /*! @{ */
 extern int sigil_win; /*!< handle for the sigil (spell) window */
+#ifdef NEW_CLIENT
+extern int quickspell_win; /*!< quickbar windows handler */
+#endif
 /*! @} */
 
 extern int sigil_menu_x;
@@ -20,6 +51,8 @@ extern int sigils_text; /*!< an index for the sigils text */
 extern Uint8 spell_text[256]; /*!< buffer for the spell text */
 
 extern int have_error_message; /*!< flag that indicates whether we got an error message */
+
+extern int spell_result;
 
 /*!
  * \ingroup spells_window
@@ -99,4 +132,22 @@ void display_sigils_menu();
  * \param sigils_we_have    the mask to determine the sigils which the actor has.
  */
 void get_sigils_we_have(Uint32 sigils_we_have);
+
+/*!
+ * \ingroup spells_window
+ * \brief Processes a message from the server about the last spell
+ * 	
+ * 	Processes a message from the server about the outcome of the last spell, or gets the name of a given spell.
+ *
+ * \param data The network data
+ * \param len The data length
+ */
+void process_network_spell(char * data, int len);
+
+#ifdef NEW_CLIENT
+void load_quickspells();
+void save_quickspells();
+void init_quickspell();
+void add_spell_to_quickbar();
+#endif
 #endif

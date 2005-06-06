@@ -178,6 +178,7 @@ void change_windowed_chat (int *wc)
 }
 #endif // not def ELCONFIG
 
+
 void change_quickbar_relocatable (int *rel)
 {
 	*rel = !*rel;

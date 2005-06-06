@@ -156,7 +156,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	fscanf(f,"%i\n",&def->use_light);
 	fscanf(f,"%f,%f,%f\n",&def->lightx,&def->lighty,&def->lightz);
 	fscanf(f,"%f,%f,%f\n",&def->lightr,&def->lightg,&def->lightb);
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 	fscanf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loop);
 #endif
 	
@@ -258,7 +258,7 @@ int save_particle_def(particle_sys_def *def)
 	fprintf(f,"%i\n",def->use_light);
 	fprintf(f,"%f,%f,%f\n",def->lightx,def->lighty,def->lightz);
 	fprintf(f,"%f,%f,%f\n",def->lightr,def->lightg,def->lightb);
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 	fprintf (f, "%d,%d,%d\n", def->sound_nr, def->positional, def->loop);
 #endif
 
@@ -329,7 +329,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	switch (kind)
 	{
 		case 2:
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 			add_particle_sys ("./particles/fire_big.part", x, y, z);
 #else
 			add_particle_sys ("./particles/fire_big.part", x, y, z, snd_fire, 1, 1);
@@ -337,7 +337,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 			break;
 		case 1:
 		default:
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 			add_particle_sys ("./particles/fire_small.part", x, y, z);
 #else
 			add_particle_sys ("./particles/fire_small.part", x, y, z, snd_fire, 1, 1);
@@ -375,7 +375,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 /*********************************************************************
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
 {
 	particle_sys_def *def = load_particle_def(file_name);
@@ -393,7 +393,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, in
 }
 #endif
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile)
 {
 	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height_map[y_tile*tile_map_size_x*6+x_tile] * 0.2f);
@@ -446,7 +446,7 @@ void create_particle(particle_sys *sys,particle *result)
 	result->free=0;
 }
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 #else
 int create_particle_sys (particle_sys_def *def, float x, float y, float z, int sound, int positional, int loop)
@@ -496,16 +496,11 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z, int s
 	for(i=0,p=&system_id->particles[0];i<def->total_particle_no;i++,p++)create_particle(system_id,p);
 	
 #ifndef MAP_EDITOR
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 	if (def->sound_nr < 0 || no_sound)
 		system_id->sound = 0;
 	else
 		system_id->sound = add_sound_object (def->sound_nr, (int)(x+x-0.5), (int)(y+y-0.5), def->positional, def->loop);
-#else
-	if (sound < 0 || no_sound)
-		system_id->sound = 0;
-	else
-		system_id->sound = add_sound_object (sound, (int)(x+x-0.5), (int)(y+y-0.5), positional, loop);
 #endif
 #endif
 
@@ -1086,7 +1081,7 @@ void add_teleporters_from_list(Uint8 *teleport_list)
 			x=x+0.25f;
 			y=y+0.25f;
 
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 			add_particle_sys ("./particles/teleporter.part", x, y, z);
 #else
 			add_particle_sys ("./particles/teleporter.part", x, y, z, snd_teleprtr, 1, 1);

@@ -591,6 +591,7 @@ void set_new_video_mode(int fs,int mode)
 				{
 					glDeleteTextures(1,&texture_cache[i].texture_id);
 					texture_cache[i].texture_id=0;//force a reload
+					CHECK_GL_ERRORS();
 				}
 		}
 
@@ -603,6 +604,7 @@ void set_new_video_mode(int fs,int mode)
 						{
 							glDeleteTextures(1,&actors_list[i]->texture_id);
 							actors_list[i]->texture_id=0;
+							CHECK_GL_ERRORS();
 						}
 				}
 		}
@@ -613,7 +615,7 @@ void set_new_video_mode(int fs,int mode)
 			if(!cache_e3d->cached_items[i])continue;
 			obj=cache_e3d->cached_items[i]->cache_item;
 
-			{
+			if(obj->vbo[0]){
 				const GLuint buf[3]={obj->vbo[0], obj->vbo[1], obj->vbo[2]};
 			
 				ELglDeleteBuffersARB(3, buf);
@@ -621,6 +623,7 @@ void set_new_video_mode(int fs,int mode)
 				obj->vbo[0]=0;
 				obj->vbo[1]=0;
 				obj->vbo[2]=0;
+				CHECK_GL_ERRORS();
 			}
 		}
 		
@@ -631,6 +634,7 @@ void set_new_video_mode(int fs,int mode)
 				ELglDeleteBuffersARB(1, &l);
 
 				objects_list[i]->cloud_vbo=0;
+				CHECK_GL_ERRORS();
 			}
 		}
 	}
@@ -693,6 +697,8 @@ void set_new_video_mode(int fs,int mode)
 			if(!cache_e3d->cached_items[i])continue;
 			obj=cache_e3d->cached_items[i]->cache_item;
 
+			if(!obj->array_uv_main || !obj->array_normal || !obj->array_vertex)continue;
+
 			ELglGenBuffersARB(3, obj->vbo);
 
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[0]);
@@ -703,6 +709,7 @@ void set_new_video_mode(int fs,int mode)
 
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[2]);
 			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, obj->face_no*3*sizeof(e3d_array_vertex), obj->array_vertex, GL_STATIC_DRAW_ARB);
+					CHECK_GL_ERRORS();
 		}
 		
 		for(i=0;i<highest_obj_3d;i++){
@@ -711,16 +718,21 @@ void set_new_video_mode(int fs,int mode)
 	
 				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, objects_list[i]->cloud_vbo);
 				ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, objects_list[i]->e3d_data->face_no*3*sizeof(e3d_array_uv_detail), objects_list[i]->clouds_uv, GL_STATIC_DRAW_ARB);
+					CHECK_GL_ERRORS();
 			}
 		}
 		
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		CHECK_GL_ERRORS();
 	}
 	
 	//it is dependent on the window height...
 	init_hud_interface();
 	new_minute();
 
+	regenerate_near_objects=1;
+	regenerate_near_2d_objects=1;
+	
 	// resize the EL root windows
 	resize_all_root_windows (window_width, window_height);
 }

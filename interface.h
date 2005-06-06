@@ -17,6 +17,7 @@ extern int auto_camera; /*!< if this is true, we are using the auto camera */
 #define ACTION_USE_WITEM 3
 #define ACTION_TRADE 4
 #define ACTION_ATTACK 5
+#define ACTION_WAND 6
 /*! @} */
 
 extern int action_mode; /*!< contains the current action type */

@@ -1139,6 +1139,15 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 	W = win->widgetlist;
 	if(mouse_in_window(win_id, x, y) > 0)
 	{
+		static int time=0;
+		if(time+60000<cur_time){
+			/*Server testing - required*/
+			char str[1];
+			str[0]=PING_REQUEST;
+			my_tcp_send(my_socket, str, 1);
+			time=cur_time;
+		}
+
 		mx = x - win->cur_x;
 		my = y - win->cur_y;
 		//check the X for close - but hide it

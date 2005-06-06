@@ -198,4 +198,12 @@ extern int map_type; /*!< id of the type of map we are currently using */
  */
 int load_map(char * file_name);
 
+/*!
+ * \ingroup maps
+ * \brief Loads the given map marks for the given map
+ *
+ * 	Loads the map marks for the given map
+ *
+ */
+void load_map_marks();
 #endif

@@ -9,7 +9,9 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 {
 	if(object_under_mouse == -1)
 	{
-		elwin_mouse = CURSOR_WALK;
+		if(spell_result==2){
+			elwin_mouse = CURSOR_WAND;
+		} else elwin_mouse = CURSOR_WALK;
 	}
 
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
@@ -62,9 +64,12 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 			}
 
 			//hmm, no usefull object, so select walk....
-			else 
-			{
-				elwin_mouse = CURSOR_WALK;
+			else  
+			{				
+				if(spell_result==2)
+					elwin_mouse = CURSOR_WAND;
+				else
+					elwin_mouse = CURSOR_WALK;
 			}
 		}
 	}
@@ -87,7 +92,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		if(action_mode==ACTION_USE)
 		{
 			elwin_mouse = CURSOR_USE;
-		}      
+		}
 
 		else if(action_mode==ACTION_LOOK)
 		{
@@ -102,9 +107,14 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		else if(alt_on || action_mode==ACTION_ATTACK)
 		{
 			elwin_mouse = CURSOR_ATTACK;
-		}
-
-		else
+		} 
+		
+		else if (spell_result==3 && action_mode==ACTION_WAND)
+		{
+			elwin_mouse = CURSOR_WAND;
+		} 
+		
+		else 
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
@@ -126,6 +136,11 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
+		
+		else if(spell_result==3 && action_mode == ACTION_WAND)
+		{
+			elwin_mouse = CURSOR_WAND;
+		}
 
 		else if(alt_on || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
 		{
@@ -136,7 +151,9 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 	// when all fails - walk
 	else
 	{
-		elwin_mouse = CURSOR_WALK;
+		if(spell_result==2){
+			elwin_mouse = CURSOR_WAND;
+		} else elwin_mouse = CURSOR_WALK;
 	}
 
 	return 1;
@@ -174,14 +191,14 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		if (flag_right) 
 		{
 			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1 
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 					|| storage_item_dragged != -1
 #endif
 					)
 			{
 				use_item = -1;
 				item_dragged = -1;
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 				storage_item_dragged = -1;
 #endif
 				action_mode = ACTION_WALK;
@@ -190,10 +207,13 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			switch (current_cursor) 
 			{
 				case CURSOR_EYE:
-					if (thing_under_the_mouse == UNDER_MOUSE_PLAYER)
+					if (thing_under_the_mouse == UNDER_MOUSE_ANIMAL && spell_result==3)
+						action_mode = ACTION_WAND;
+					else if (thing_under_the_mouse == UNDER_MOUSE_PLAYER)
 						action_mode = ACTION_TRADE;
-					else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
+					else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ){
 						action_mode = ACTION_USE;
+					}
 					else
 						action_mode = ACTION_WALK;
 					break;
@@ -201,13 +221,20 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					action_mode = ACTION_LOOK;
 					break;
 				case CURSOR_TRADE:
-					action_mode = ACTION_ATTACK;
+					if(spell_result==3)action_mode=ACTION_WAND;
+					else action_mode = ACTION_ATTACK;
 					break;
 				case CURSOR_USE_WITEM:
 					if(use_item != -1)
 						use_item = -1;
 					else
 						action_mode = ACTION_WALK;
+					break;
+				case CURSOR_WAND:
+					if(thing_under_the_mouse == UNDER_MOUSE_ANIMAL||thing_under_the_mouse == UNDER_MOUSE_PLAYER)
+						action_mode = ACTION_ATTACK;
+					else if(thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
+						action_mode = ACTION_LOOK;
 					break;
 				case CURSOR_ATTACK:
 					if(thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
@@ -239,7 +266,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (item_dragged != -1)
 	{
 		Uint8 str[10];
-		int quantity = item_list[item_dragged].quantity;
 
 		if (flag_right)
 		{
@@ -247,18 +273,23 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		}
 
-		if (quantity - item_quantity > 0)
-			quantity = item_quantity;
 		str[0] = DROP_ITEM;
 		str[1] = item_list[item_dragged].pos;
-		*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)quantity);
+#ifdef NEW_CLIENT
+		*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_quantity);
+#else
+		if(item_quantity<item_list[item_dragged].quantity)
+			*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_quantity);
+		else {
+			*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_list[item_dragged].quantity);
+			item_dragged=-1;
+		}
+#endif
 		my_tcp_send(my_socket, str, 4);
-		if (item_list[item_dragged].quantity - quantity <= 0)
-			item_dragged = -1;
 		return 1;
 	}
 
-#ifdef STORAGE
+#ifdef NEW_CLIENT
 	if (storage_item_dragged != -1)
 	{
 		//TODO: Withdraw from storage, drop on ground...
@@ -315,6 +346,36 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			}
 
+			break;
+		}
+
+		case CURSOR_WAND:
+		{
+			if(spell_result==2){
+				Uint8 str[10];
+				short x, y;
+		
+				get_world_x_y ();
+				x = scene_mouse_x / 0.5f;
+				y = scene_mouse_y / 0.5f;
+				// check to see if the coordinates are OUTSIDE the map
+				if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
+					return 1;
+			
+				str[0] = MOVE_TO;
+				*((short *)(str+1)) = SDL_SwapLE16((short)x);
+				*((short *)(str+3)) = SDL_SwapLE16((short)y);
+	
+				my_tcp_send (my_socket, str, 5);
+				return 1;
+			} else if(spell_result==3){
+				Uint8 str[10];
+				
+				str[0] = TOUCH_PLAYER;
+				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
+				my_tcp_send (my_socket, str, 5);
+			}
+			
 			break;
 		}
 
@@ -629,7 +690,7 @@ int display_game_handler (window_info *win)
 		if (fps_average < 5.0f)
 		{
 			times_FPS_below_3++;
-			if (times_FPS_below_3 > 4 && shadows_on)
+			if (times_FPS_below_3 > 10 && shadows_on)
 			{
 				shadows_on = 0;
 				put_colored_text_in_buffer (c_red1,low_framerate_str, -1, 0);
@@ -1137,7 +1198,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (keysym == SDLK_F9)
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
-#ifdef PARTICLE_SYS_SOUND
+#ifdef NEW_CLIENT
 		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);
 #else
 		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, snd_fire, 1, 1);

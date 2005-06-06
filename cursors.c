@@ -214,6 +214,10 @@ void build_cursors()
 	cursors_array[CURSOR_USE].hot_x=3;
 	cursors_array[CURSOR_USE].hot_y=0;
 	assign_cursor(CURSOR_USE);
+
+	cursors_array[CURSOR_WAND].hot_x=3;
+	cursors_array[CURSOR_WAND].hot_y=3;
+	assign_cursor(CURSOR_WAND);
 }
 
 /* currently UNUSED
