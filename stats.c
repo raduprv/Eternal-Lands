@@ -579,6 +579,7 @@ void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this te
 
 void draw_floatingmessage(floating_message *message, float healthbar_z) {
 	float f, width;
+	const float cut = 0.5f;
 	if(message->active == 0) return;
 	
 	message->timeleft -= (cur_time - last_time);
@@ -588,7 +589,6 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
 	}
 	
 	f = ((float) message->timeleft) / FLOATINGMESSAGE_LIFESPAN;
-	const float cut = 0.5f;
 	glColor4f(0.3f, 1.0f, 0.3f, f > cut ? 1.0f : (f / cut));
 	
 	width = ((float)get_string_width(message->message) * (SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
