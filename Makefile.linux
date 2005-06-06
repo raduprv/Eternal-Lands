@@ -27,7 +27,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o frustum.o	\
-	gamewin.o gl_init.o hud.o help.o	\
+	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
 	keys.o knowledge.o lights.o loginwin.o	\
 	main.o manufacture.o map_io.o mapwin.o	\

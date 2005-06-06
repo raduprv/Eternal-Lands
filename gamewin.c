@@ -314,6 +314,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 			return 1;
 		
+		add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
+		
 		str[0] = MOVE_TO;
 		*((short *)(str+1)) = SDL_SwapLE16((short)x);
 		*((short *)(str+3)) = SDL_SwapLE16((short)y);
@@ -494,6 +496,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 				return 1;
 			
+			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
+		
 			str[0] = MOVE_TO;
 			*((short *)(str+1)) = SDL_SwapLE16((short)x);
 			*((short *)(str+3)) = SDL_SwapLE16((short)y);
@@ -755,6 +759,8 @@ int display_game_handler (window_info *win)
 	
 	Leave2DMode ();
 
+	display_highlight_markers();
+	
 	glEnable (GL_LIGHTING);
 
 	// Return to 2D mode to draw the other windows

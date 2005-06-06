@@ -140,5 +140,6 @@ typedef int point;
 #include "notepad.h"
 #endif
 #include "alphamap.h"
+#include "highlight.h"
 
 #endif
