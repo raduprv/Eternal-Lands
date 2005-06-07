@@ -30,7 +30,7 @@ floating_message floating_messages[MAX_NUMBER_OF_FLOATING_MESSAGES];
 
 int floatingmessages_enabled = 1;
 
-#define FLOATINGMESSAGE_LIFESPAN		1000
+#define FLOATINGMESSAGE_LIFESPAN		1500
 
 void floatingmessages_add_level(int actor_id, int level, const char * skillname);
 void floatingmessages_compare_stat(int actor_id, int value, int new_value, const char *skillname);
@@ -613,11 +613,12 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
 	f = ((float)(FLOATINGMESSAGE_LIFESPAN-(cur_time-message->first_time)))/FLOATINGMESSAGE_LIFESPAN;
 	glColor4f(message->color[0], message->color[1], message->color[2], f > cut ? 1.0f : (f / cut));
 	
-	width = ((float)get_string_width(message->message) * (SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+	width = ((float)get_string_width(message->message) * (INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+	
 	switch(message->direction){
 		case FLOATINGMESSAGE_EAST:
 			x=-width/2.0f-(f*0.5f);
-			y=healthbar_z+0.7f;
+			y=healthbar_z+zoom_level*0.2f;
 			break;
 		case FLOATINGMESSAGE_SOUTH:
 			x=-width/2.0f;
@@ -625,19 +626,19 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
 			break;
 		case FLOATINGMESSAGE_WEST:
 			x=-width/2.0f+(f*0.5f);
-			y=healthbar_z+0.7f;
+			y=healthbar_z+zoom_level*0.2f;
 			break;
 		case FLOATINGMESSAGE_MIDDLE:
 			x=-width/2.0f;
-			y=(healthbar_z+0.7f)/2.0f-(f*0.5f);
+			y=(healthbar_z+zoom_level*0.2f)/2.0f-(f*0.5f);
 			break;
 		case FLOATINGMESSAGE_NORTH:
 		default:
 			x=-width/2.0f;
-			y=healthbar_z+0.7f-(f*0.5f);
+			y=healthbar_z+zoom_level*0.2f-(f*0.5f);
 			break;
 	}
-	draw_ingame_string(x, y, message->message, 1, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN);
+	draw_ingame_string(x, y, message->message, 1, 0.14, 0.21);
 }
 
 void drawactor_floatingmessages(int actor_id, float healthbar_z) {
@@ -703,16 +704,16 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
 
 	m->direction=direction;
 
-	if(last_actor[4]==actor_id && last_time_added[4]+350>cur_time)
-		time=m->first_time=last_time_added[4]+350;
-	else if(last_actor[3]==actor_id && last_time_added[3]+350>cur_time)
-		time=m->first_time=last_time_added[3]+350;
-	else if(last_actor[2]==actor_id && last_time_added[2]+350>cur_time)
-		time=m->first_time=last_time_added[2]+350;
-	else if(last_actor[1]==actor_id && last_time_added[1]+350>cur_time)
-		time=m->first_time=last_time_added[1]+350;
-	else if(last_actor[0]==actor_id && last_time_added[0]+350>cur_time)
-		time=m->first_time=last_time_added[0]+350;
+	if(last_actor[4]==actor_id && last_time_added[4]+550>cur_time)
+		time=m->first_time=last_time_added[4]+550;
+	else if(last_actor[3]==actor_id && last_time_added[3]+550>cur_time)
+		time=m->first_time=last_time_added[3]+550;
+	else if(last_actor[2]==actor_id && last_time_added[2]+550>cur_time)
+		time=m->first_time=last_time_added[2]+550;
+	else if(last_actor[1]==actor_id && last_time_added[1]+550>cur_time)
+		time=m->first_time=last_time_added[1]+550;
+	else if(last_actor[0]==actor_id && last_time_added[0]+550>cur_time)
+		time=m->first_time=last_time_added[0]+550;
 	else 
 		time=m->first_time=cur_time;
 
