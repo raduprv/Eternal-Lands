@@ -15,22 +15,15 @@ int watch_this_stat=10;  // default to watching overall
 int check_grid_y_top=0;
 int check_grid_x_left=0;
 
-int lastexp_manufacture 	= -1;
-int lastexp_harvest 		= -1;
-int lastexp_alchemy 		= -1;
-int lastexp_attack 			= -1;
-int lastexp_defense 		= -1;
-int lastexp_magic 			= -1;
-int lastexp_potion 			= -1;
-int lastexp_summoning 		= -1;
-int lastexp_crafting 		= -1;
-
-#define MAX_NUMBER_OF_FLOATING_MESSAGES 5
+#define MAX_NUMBER_OF_FLOATING_MESSAGES 25
 
 typedef struct {
+	int actor_id;//The actor it's related to
 	char message[50];
-	int timeleft;
+	int first_time;
+	int direction;
 	short active;
+	float color[3];
 } floating_message;
 
 floating_message floating_messages[MAX_NUMBER_OF_FLOATING_MESSAGES];
@@ -39,7 +32,8 @@ int floatingmessages_enabled = 1;
 
 #define FLOATINGMESSAGE_LIFESPAN		1000
 
-void floatingmessages_compare_stats();
+void floatingmessages_add_level(int actor_id, int level, const char * skillname);
+void floatingmessages_compare_stat(int actor_id, int value, int new_value, const char *skillname);
 
 void get_the_stats(Sint16 *stats)
 {
@@ -184,34 +178,42 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case MAN_S_CUR:
 			your_info.manufacturing_skill.cur=value;break;
 		case MAN_S_BASE:
+			floatingmessages_add_level(yourself, value, "Manufacturing");
 			your_info.manufacturing_skill.base=value;break;
 		case HARV_S_CUR:
 			your_info.harvesting_skill.cur=value;break;
 		case HARV_S_BASE:
+			floatingmessages_add_level(yourself, value, "Harvesting");
 			your_info.harvesting_skill.base=value;break;
 		case ALCH_S_CUR:
 			your_info.alchemy_skill.cur=value;break;
 		case ALCH_S_BASE:
+			floatingmessages_add_level(yourself, value, "Alchemy");
 			your_info.alchemy_skill.base=value;break;
 		case OVRL_S_CUR:
 			your_info.overall_skill.cur=value;break;
 		case OVRL_S_BASE:
+			floatingmessages_add_level(yourself, value, "Overall");
 			your_info.overall_skill.base=value;break;
 		case ATT_S_CUR:
 			your_info.attack_skill.cur=value;break;
 		case ATT_S_BASE:
+			floatingmessages_add_level(yourself, value, "Attack");
 			your_info.attack_skill.base=value;break;
 		case DEF_S_CUR:
 			your_info.defense_skill.cur=value;break;
 		case DEF_S_BASE:
+			floatingmessages_add_level(yourself, value, "Defense");
 			your_info.defense_skill.base=value;break;
 		case MAG_S_CUR:
 			your_info.magic_skill.cur=value;break;
 		case MAG_S_BASE:
+			floatingmessages_add_level(yourself, value, "Magic");
 			your_info.magic_skill.base=value;break;
 		case POT_S_CUR:
 			your_info.potion_skill.cur=value;break;
 		case POT_S_BASE:
+			floatingmessages_add_level(yourself, value, "Potion");
 			your_info.potion_skill.base=value;break;
 		case CARRY_WGHT_CUR:
 			your_info.carry_capacity.cur=value;break;
@@ -222,21 +224,34 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case MAT_POINT_BASE:
 			your_info.material_points.base=value;break;
 		case ETH_POINT_CUR:
-			your_info.ethereal_points.cur=value;break;
+			{
+				char str[5];
+
+				snprintf(str, sizeof(str), "%d", value-your_info.ethereal_points.cur);
+				add_floating_message(yourself, str, FLOATINGMESSAGE_MIDDLE, 0.3, 0.3, 1.0);
+				your_info.ethereal_points.cur=value;
+				break;
+			}
 		case ETH_POINT_BASE:
 			your_info.ethereal_points.base=value;break;
 		case FOOD_LEV:
 			your_info.food_level=value;break;
 		case MAN_EXP:
-			your_info.manufacturing_exp=value;floatingmessages_compare_stats();break;
+			floatingmessages_compare_stat(yourself, your_info.manufacturing_exp, value, "man");
+			your_info.manufacturing_exp=value;
+			break;
 		case MAN_EXP_NEXT:
 			your_info.manufacturing_exp_next_lev=value;break;
 		case HARV_EXP:
-			your_info.harvesting_exp=value;floatingmessages_compare_stats();break;
+			floatingmessages_compare_stat(yourself, your_info.harvesting_exp, value, "har");
+			your_info.harvesting_exp=value;
+			break;
 		case HARV_EXP_NEXT:
 			your_info.harvesting_exp_next_lev=value;break;
 		case ALCH_EXP:
-			your_info.alchemy_exp=value;floatingmessages_compare_stats();break;
+			floatingmessages_compare_stat(yourself, your_info.alchemy_exp, value, "alc");
+			your_info.alchemy_exp=value;
+			break;
 		case ALCH_EXP_NEXT:
 			your_info.alchemy_exp_next_lev=value;break;
 		case OVRL_EXP:
@@ -244,36 +259,50 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case OVRL_EXP_NEXT:
 			your_info.overall_exp_next_lev=value;break;
 		case DEF_EXP:
-			your_info.defense_exp=value;floatingmessages_compare_stats();break;
+			floatingmessages_compare_stat(yourself, your_info.defense_exp, value, "def");
+			your_info.defense_exp=value;
+			break;
 		case DEF_EXP_NEXT:
 			your_info.defense_exp_next_lev=value;break;
 		case ATT_EXP:
-			your_info.attack_exp=value;floatingmessages_compare_stats();break;
+			floatingmessages_compare_stat(yourself, your_info.attack_exp, value, "att");
+			your_info.attack_exp=value;
+			break;
 		case ATT_EXP_NEXT:
 			your_info.attack_exp_next_lev=value;break;
 		case MAG_EXP:
-			your_info.magic_exp=value;floatingmessages_compare_stats();break;
+			floatingmessages_compare_stat(yourself, your_info.magic_exp, value, "mag");
+			your_info.magic_exp=value;
+			break;
 		case MAG_EXP_NEXT:
 			your_info.magic_exp_next_lev=value;break;
 		case POT_EXP:
-			your_info.potion_exp=value;floatingmessages_compare_stats();break;
+			floatingmessages_compare_stat(yourself, your_info.potion_exp, value, "pot");
+			your_info.potion_exp=value;
+			break;
 		case POT_EXP_NEXT:
 			your_info.potion_exp_next_lev=value;break;
 		case SUM_EXP:
-			your_info.summoning_exp=value;floatingmessages_compare_stats();break;
+			floatingmessages_compare_stat(yourself, your_info.summoning_exp, value, "sum");
+			your_info.summoning_exp=value;
+			break;
 		case SUM_EXP_NEXT:
 			your_info.summoning_exp_next_lev=value;break;
 		case SUM_S_CUR:
 			your_info.summoning_skill.cur=value;break;
 		case SUM_S_BASE:
+			floatingmessages_add_level(yourself, value, "Summoning");
 			your_info.summoning_skill.base=value;break;
 		case CRA_EXP:
-			your_info.crafting_exp=value;floatingmessages_compare_stats();break;
+			floatingmessages_compare_stat(yourself, your_info.crafting_exp, value, "cra");
+			your_info.crafting_exp=value;
+			break;
 		case CRA_EXP_NEXT:
 			your_info.crafting_exp_next_lev=value;break;
 		case CRA_S_CUR:
 			your_info.crafting_skill.cur=value;break;
 		case CRA_S_BASE:
+			floatingmessages_add_level(yourself, value, "Crafting");
 			your_info.crafting_skill.base=value;break;
 		case RESEARCHING:
 			your_info.researching=value;break;
@@ -578,36 +607,70 @@ void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this te
 }
 
 void draw_floatingmessage(floating_message *message, float healthbar_z) {
-	float f, width;
+	float f, width, y, x;
 	const float cut = 0.5f;
-	if(message->active == 0) return;
 	
-	message->timeleft -= (cur_time - last_time);
-	if (message->timeleft <= 0) {
-		message->active = 0;
-		return;
-	}
-	
-	f = ((float) message->timeleft) / FLOATINGMESSAGE_LIFESPAN;
-	glColor4f(0.3f, 1.0f, 0.3f, f > cut ? 1.0f : (f / cut));
+	f = ((float)(FLOATINGMESSAGE_LIFESPAN-(cur_time-message->first_time)))/FLOATINGMESSAGE_LIFESPAN;
+	glColor4f(message->color[0], message->color[1], message->color[2], f > cut ? 1.0f : (f / cut));
 	
 	width = ((float)get_string_width(message->message) * (SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
-	draw_ingame_string(-width/2.0f, healthbar_z+0.7f-(f*0.5f), message->message, 1, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN);
+	switch(message->direction){
+		case FLOATINGMESSAGE_EAST:
+			x=-width/2.0f-(f*0.5f);
+			y=healthbar_z+0.7f;
+			break;
+		case FLOATINGMESSAGE_SOUTH:
+			x=-width/2.0f;
+			y=healthbar_z+(f*0.5f);
+			break;
+		case FLOATINGMESSAGE_WEST:
+			x=-width/2.0f+(f*0.5f);
+			y=healthbar_z+0.7f;
+			break;
+		case FLOATINGMESSAGE_MIDDLE:
+			x=-width/2.0f;
+			y=(healthbar_z+0.7f)/2.0f-(f*0.5f);
+			break;
+		case FLOATINGMESSAGE_NORTH:
+		default:
+			x=-width/2.0f;
+			y=healthbar_z+0.7f-(f*0.5f);
+			break;
+	}
+	draw_ingame_string(x, y, message->message, 1, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN);
 }
 
-void drawactor_floatingmessages(const actor *a, float healthbar_z) {
+void drawactor_floatingmessages(int actor_id, float healthbar_z) {
 	int i;
-	if (!floatingmessages_enabled) return;
 	
-	if (yourself < 0) return;
-	if (a->actor_id != yourself) return;
+	if (actor_id < 0) return;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glEnable(GL_ALPHA_TEST);
 	
+	glDisable(GL_DEPTH_TEST);
 	for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++) {
-		draw_floatingmessage(&floating_messages[i], healthbar_z);
+		if(floating_messages[i].active){
+			if(floating_messages[i].first_time<=cur_time){
+				if(floating_messages[i].first_time+FLOATINGMESSAGE_LIFESPAN<cur_time){
+					floating_messages[i].active=0;
+				} else if(floating_messages[i].actor_id==actor_id)
+					draw_floatingmessage(&floating_messages[i], healthbar_z);
+			}
+		}
+	}
+	glEnable(GL_DEPTH_TEST);
+	
+	for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++) {
+		if(floating_messages[i].active){
+			if(floating_messages[i].first_time<=cur_time){
+				if(floating_messages[i].first_time+FLOATINGMESSAGE_LIFESPAN<cur_time){
+					floating_messages[i].active=0;
+				} else if(floating_messages[i].actor_id==actor_id)
+					draw_floatingmessage(&floating_messages[i], healthbar_z);
+			}
+		}
 	}
 	
 	glDisable(GL_ALPHA_TEST);
@@ -617,35 +680,75 @@ void drawactor_floatingmessages(const actor *a, float healthbar_z) {
 floating_message *get_free_floatingmessage() {
 	int i;
 	for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++) {
-		if (floating_messages[i].active == 0) {
+		if (floating_messages[i].active == 0)
 			return &floating_messages[i];
-		}
 	}
 	return NULL;
 }
 
-void floatingmessages_compare_stat(int* value, int new_value, const char *skillname) {
-	if (*value != -1 && *value != new_value) {
-		floating_message *m = get_free_floatingmessage();
-		if (m != NULL) {
-			snprintf(m->message, sizeof(m->message), "%s: +%d", skillname, (new_value - *value));
-			m->timeleft = FLOATINGMESSAGE_LIFESPAN;
-			m->active = 1;
-		}
-	}
-	*value = new_value;
+void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b) 
+{
+	int time;
+	static int last_time_added[5]={0};
+	static int last_actor[5]={0};//Make sure that we don't see too many messages from that actor
+	floating_message *m=get_free_floatingmessage();
+
+	if(!m) return;
+
+	m->color[0]=r;
+	m->color[1]=g;
+	m->color[2]=b;
+
+	strncpy(m->message, str, sizeof(m->message));
+
+	m->direction=direction;
+
+	if(last_actor[4]==actor_id && last_time_added[4]+350>cur_time)
+		time=m->first_time=last_time_added[4]+350;
+	else if(last_actor[3]==actor_id && last_time_added[3]+350>cur_time)
+		time=m->first_time=last_time_added[3]+350;
+	else if(last_actor[2]==actor_id && last_time_added[2]+350>cur_time)
+		time=m->first_time=last_time_added[2]+350;
+	else if(last_actor[1]==actor_id && last_time_added[1]+350>cur_time)
+		time=m->first_time=last_time_added[1]+350;
+	else if(last_actor[0]==actor_id && last_time_added[0]+350>cur_time)
+		time=m->first_time=last_time_added[0]+350;
+	else 
+		time=m->first_time=cur_time;
+
+	m->active=1;
+	m->actor_id=actor_id;
+
+	last_actor[0]=last_actor[1];
+	last_time_added[0]=last_time_added[1];
+	last_actor[1]=last_actor[2];
+	last_time_added[1]=last_time_added[2];
+	last_actor[2]=last_actor[3];
+	last_time_added[2]=last_time_added[3];
+	last_actor[3]=last_actor[4];
+	last_time_added[3]=last_time_added[4];
+	last_actor[4]=actor_id;
+	last_time_added[4]=time;
 }
 
-void floatingmessages_compare_stats() {
-	if (!floatingmessages_enabled) return;
-	
-	floatingmessages_compare_stat(&lastexp_manufacture, your_info.manufacturing_exp, 	"man");
-	floatingmessages_compare_stat(&lastexp_harvest, 	your_info.harvesting_exp, 		"har");
-	floatingmessages_compare_stat(&lastexp_alchemy, 	your_info.alchemy_exp, 			"alc");
-	floatingmessages_compare_stat(&lastexp_attack, 		your_info.attack_exp, 			"att");
-	floatingmessages_compare_stat(&lastexp_defense, 	your_info.defense_exp, 			"def");
-	floatingmessages_compare_stat(&lastexp_magic, 		your_info.magic_exp, 			"mag");
-	floatingmessages_compare_stat(&lastexp_potion, 		your_info.potion_exp, 			"pot");
-	floatingmessages_compare_stat(&lastexp_summoning, 	your_info.summoning_exp, 		"sum");
-	floatingmessages_compare_stat(&lastexp_crafting, 	your_info.crafting_exp, 		"cra");
+void floatingmessages_add_level(int actor_id, int level, const char * skillname)
+{
+	char str[50];
+
+	snprintf(str,sizeof(str),"%d %s",level, skillname);
+	add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0);
 }
+
+void floatingmessages_compare_stat(int actor_id, int value, int new_value, const char *skillname) 
+{
+	char str[50];
+	int diff=new_value-value;
+
+	snprintf(str, sizeof(str), "%s: %c%d", skillname, diff<0?'-':'+', diff);
+
+	if(diff<0)
+		add_floating_message(actor_id, str, FLOATINGMESSAGE_SOUTH, 1.0, 0.3, 0.3);
+	else 
+		add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 1.0, 0.3);
+}
+

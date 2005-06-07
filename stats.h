@@ -8,6 +8,12 @@
 
 #include "global.h"
 
+#define FLOATINGMESSAGE_NORTH 	1
+#define FLOATINGMESSAGE_EAST  	2
+#define FLOATINGMESSAGE_SOUTH 	3
+#define FLOATINGMESSAGE_WEST  	4
+#define FLOATINGMESSAGE_MIDDLE  5
+
 /*!
  * \name Windows handlers
  */
@@ -246,6 +252,7 @@ void init_attribf(void);
 void fill_stats_win ();
 
 extern int floatingmessages_enabled;
-void drawactor_floatingmessages(const actor *a, float healthbar_z);
+void drawactor_floatingmessages(int actor_id, float healthbar_z);
+void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b);
 
 #endif
