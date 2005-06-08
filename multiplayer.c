@@ -336,21 +336,20 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case RAW_TEXT:
 			{
 #ifdef MULTI_CHANNEL
-				Uint32 channel;
+				Uint8 channel_id;
 				// extract the channel number
-				if (data_lenght > 7) 
+				if (data_lenght > 4) 
 				{
-					channel =  SDL_SwapLE32(*((Uint32*)(&in_data[3])));
-					data_lenght = filter_or_ignore_text (&in_data[7], data_lenght-7) + 7;
-					if (data_lenght > 7)
+					channel_id = in_data[3];									data_lenght = filter_or_ignore_text (&in_data[4], data_lenght-4) + 4;
+					if (data_lenght > 4)
 					{
 						//how to display it
 						if (get_show_window (opening_root_win) )
-							put_text_in_buffer (&in_data[7], data_lenght-7, 54);
+							put_text_in_buffer (&in_data[4], data_lenght-4, 54);
 						else 
-							put_text_in_buffer (&in_data[7], data_lenght - 7, 0);
+							put_text_in_buffer (&in_data[4], data_lenght - 4, 0);
 						// let's log it
-						write_to_log (&in_data[7], data_lenght - 7);
+						write_to_log (&in_data[4], data_lenght - 4);
 					}
 				}
 #else			
