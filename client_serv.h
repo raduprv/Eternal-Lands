@@ -582,6 +582,7 @@
 #define STORAGE_ITEMS 68
 #define STORAGE_TEXT 69
 #define SPELL_CAST 70
+#define GET_ACTIVE_CHANNELS 71
 
 #define UPGRADE_NEW_VERSION 240
 #define UPGRADE_TOO_OLD 241
@@ -702,6 +703,20 @@
 #define snd_thndr_4  7
 #define snd_thndr_5  8
 #define snd_fire     9
+/*! @} */
+
+/*!
+ * \name Text channels
+ */
+/*! @{ */
+#define CHAT_LOCAL	0
+#define CHAT_PERSONAL	1
+#define CHAT_GM		2
+#define CHAT_SERVER	3
+#define CHAT_MOD	4
+#define CHAT_CHANNEL1	5
+#define CHAT_CHANNEL2	6
+#define CHAT_CHANNEL3	7
 /*! @} */
 
 #endif
