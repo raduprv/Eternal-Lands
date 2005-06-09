@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Harvesting>
 <Page name="Tiger_Lilly">
 	<size>Big</size>
@@ -492,7 +493,7 @@
 	<Text>Recommended Harvest Level: 17</Text><nl/>
 	<text>Research Required: Blue Quartz Mining and Prerequisites</text><nl/>
 	<text>Nexus Required: Inorganic 1</text><nl/>
-	<text>Weight: 3 EMU</text><nl/>
+	<text>Weight: 2 EMU</text><nl/>
 	<text>Stackable: Yes</text><nl/>
 	<text>Base Harvest Experience Given: 21</text><nl/>
 	<text>Tool: Pickaxe</text><nl/>

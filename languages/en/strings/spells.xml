@@ -3,107 +3,107 @@
   <sigils>
     <change>
       <name>Change</name>
-      <desc></desc>
+      <desc/>
     </change>
     <restore>
       <name>Restore</name>
-      <desc></desc>
+      <desc/>
     </restore>
     <space>
       <name>Space</name>
-      <desc></desc>
+      <desc/>
     </space>
     <increase>
       <name>Increase</name>
-      <desc></desc>
+      <desc/>
     </increase>
     <decrease>
       <name>Decrease</name>
-      <desc></desc>
+      <desc/>
     </decrease>
     <temporary>
       <name>Temporary</name>
-      <desc></desc>
+      <desc/>
     </temporary>
     <permanent>
       <name>Permanent</name>
-      <desc></desc>
+      <desc/>
     </permanent>
     <move>
       <name>Move</name>
-      <desc></desc>
+      <desc/>
     </move>
     <local>
       <name>Local</name>
-      <desc></desc>
+      <desc/>
     </local>
     <global>
       <name>Global</name>
-      <desc></desc>
+      <desc/>
     </global>
     <fire>
       <name>Fire</name>
-      <desc></desc>
+      <desc/>
     </fire>
     <water>
       <name>Water</name>
-      <desc></desc>
+      <desc/>
     </water>
     <air>
       <name>Air</name>
-      <desc></desc>
+      <desc/>
     </air>
     <earth>
       <name>Earth</name>
-      <desc></desc>
+      <desc/>
     </earth>
     <spirit>
       <name>Spirit</name>
-      <desc></desc>
+      <desc/>
     </spirit>
     <matter>
       <name>Matter</name>
-      <desc></desc>
+      <desc/>
     </matter>
     <energy>
       <name>Energy</name>
-      <desc></desc>
+      <desc/>
     </energy>
     <magic>
       <name>Magic</name>
-      <desc></desc>
+      <desc/>
     </magic>
     <destroy>
       <name>Destroy</name>
-      <desc></desc>
+      <desc/>
     </destroy>
     <create>
       <name>Create</name>
-      <desc></desc>
+      <desc/>
     </create>
     <knowledge>
       <name>Knowledge</name>
-      <desc></desc>
+      <desc/>
     </knowledge>
     <protection>
       <name>Protection</name>
-      <desc></desc>
+      <desc/>
     </protection>
     <remove>
       <name>Remove</name>
-      <desc></desc>
+      <desc/>
     </remove>
     <health>
       <name>Health</name>
-      <desc></desc>
+      <desc/>
     </health>
     <life>
       <name>Life</name>
-      <desc></desc>
+      <desc/>
     </life>
     <death>
       <name>Death</name>
-      <desc></desc>
+      <desc/>
     </death>
   </sigils>
 </root>

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Help>
 <Page Name="HelpPage">
 	<size>Big</size>
@@ -14,26 +15,27 @@
 	<size>Medium</size>
 	<link ref="HP Commands" title="Shortcut Keys"/>
 	<size>Small</size>
-	<Text> - shortcut keys</Text><nl/>
+	<Text> - A list shortcut keys.</Text><nl/>
 	<size>Medium</size>
 	<link ref="text" title="Text Commands"/>
 	<size>Small</size>
-	<Text> - list of commands you can type anywhere.</Text><nl/>
+	<Text> - A list of commands you can type anywhere.</Text><nl/>
 	<size>Medium</size>
-	<link ref="channel" title="chat systems"/>
+	<link ref="channel" title="Chat System"/>
 	<size>Small</size>
-	<Text> - explaination of channels, pms.</Text>
+	<Text> - An explanation of channels, pms.</Text>
 	<nl/>
 	<size>Medium</size>
 	<link ref="HP main_Interface" title="Interface"/>
 	<size>Small</size>
-	<Text> - familiarize yourself with the game interface</Text><nl/>
+	<Text> - Familiarize yourself with the game interface.</Text><nl/>
 	<size>Medium</size>
 	<link ref="HP Tips" title="Tips"/>
 	<size>Small</size>
-	<Text> - some tips on how to get started</Text><nl/>
+	<Text> - Some tips on how to get started.</Text><nl/>
 	<size>Medium</size>
-	<link ref="NFAQ2" title="Newbie FAQ"/><nl/>
+	<link ref="NFAQ2" title="Newbie FAQ"/><size>Small</size>
+	<Text> - Answers to some common newbie questions.</Text><nl/>
 	<nl/>
 </Page>
 <Page Name="HP Commands">
@@ -190,7 +192,7 @@
 	<color r="0" g="1" b="1"/><Text>#ci </Text><color r="0.9" g="0.9" b="0.9"/><Text>= Channel Info</Text><nl/>
 	<color r="0" g="1" b="1"/><Text>@ <messages></messages></Text><color r="0.9" g="0.9" b="0.9"/><Text>= Type this to speak in a channel</Text><nl/>
 	<Text>(Example: @Hey guys, whats up?)</Text><nl/>
-	<nl/><color>yellow</color><Text>                            </Text><link ref="HelpPage" title="Back To Help Index"/>
+	<nl/><color>yellow</color><Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/>
 </Page>
 <Page Name="HP Tips">
 	<size>Big</size>
@@ -207,8 +209,8 @@
 	<Text>             Eternal Lands Help</Text><nl/>
 	<Text>                 INTERFACE</Text><nl/><nl/>
 	<size>Medium</size>
-	<link ref="HP Interface" title="Info on icons"/><Text>  </Text><nl/>
-	<link ref="HP Interfaceinfo" title="What do those different color bars do."/><nl/>
+	<link ref="HP Interface" title="Info about the icons."/><Text>  </Text><nl/>
+	<link ref="HP Interfaceinfo" title="An explanation of the colored bars."/><nl/>
 	<size>Small</size>
 	<color>yellow</color>
 	<Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/>
@@ -220,29 +222,30 @@
 	<Text>                 Newbie FAQ</Text><nl/>
 	<nl/>
 	<size>Medium</size>
-	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I EAT?</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I EAT/READ A BOOK?</Text><nl/>
 	<color r="0.5" g="0.9" b="0.9"/>
 	<Text>Click the use icon at the bottom, then click a food item.</Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I KNOW WHAT LEVEL I AM?</Text><nl/>
 	<color r="0.5" g="0.9" b="0.9"/>
-	<Text>Click the bars icon on the bottom</Text><nl/>
+	<Text>Click the bars icon (stats icon) on the HUD (bottom bar).</Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I SEE MY INVENTORY?</Text><nl/>
-	<color r="0.5" g="0.9" b="0.9"/><Text>Click the bars icon on the bottom</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Click the bag icon (inventory icon) on the HUD.</Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I WALK?</Text><nl/>
 	<color r="0.5" g="0.9" b="0.9"/>
-	<Text>Use the walk icon, and click on the ground next to you.</Text><nl/>
+	<Text>Use the walk icon, and click on the ground where you want to</Text><nl/>
+	
+	<Text>move.</Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I SIT?</Text><nl/>
-	<color r="0.5" g="0.9" b="0.9"/><Text>Click the second icon from the left</Text><nl/>
-	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I READ A BOOK?</Text><nl/>
-	<color r="0.5" g="0.9" b="0.9"/><Text>same as eating food</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Click the second icon from the left, or use alt-s.</Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>CAN YOU GIVE ME FREE STUFF?</Text><nl/>
-	<color r="0.5" g="0.9" b="0.9"/><Text>NO NO NO NO NO NO NO NO NO!!! NEVER EVER EVER ASK THIS IN THE </Text><nl/>
-	<Text>GAME!!</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Please, don't ask this in the game! It only gets people</Text><nl/>
+
+	<Text>annoyed at you. </Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I LOOK AT THE MAP?</Text><nl/>
-	<color r="0.5" g="0.9" b="0.9"/><Text>press the tab key</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Press the TAB key, or click on the map icon on the HUD.</Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/><Text>Page: 1</Text><color>yellow</color>
 	<link ref="NFAQ3" title=" 2"/><nl/>
-	<Text>                            </Text><link ref="HelpPage" title="Back To Help Index"/>
+	<Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/>
 </Page>
 <Page name="NFAQ3">
 	<size>Big</size>
@@ -253,23 +256,25 @@
 	<size>Medium</size>
 	<color r="0.1" g="0.5" b="1"/><Text>WHERE CAN I GET A SWORD OR ARMOR?</Text><nl/>
 	<color r="0.5" g="0.9" b="0.9"/><Text>FROM A BLACKSMITH OR FROM PLAYERS, BUT YOU WILL NEED GOLD </Text><nl/>
-	<Text>COINS FIRST</Text><nl/>
+	<Text>COINS FIRST. (DON'T BEG!)</Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>IS {BLANK} PERK GOOD TO HAVE?</Text><nl/>
 	<color r="0.5" g="0.9" b="0.9"/><Text>Read the wraith's description and decide for yourself.</Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>CAN YOU HEAL ME?</Text><nl/>
-	<color r="0.5" g="0.9" b="0.9"/><Text>Don't ask people that. They will heal you if they want to can.</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Don't ask people that. They will heal you if they want to.</Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I GET MONEY?</Text><nl/>                    
-	<color r="0.5" g="0.9" b="0.9"/><Text>Kill rabbits and sell the meat and furs to taverns</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>Kill rabbits and sell the meat and furs to taverns.</Text><nl/>
 	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I COOK RAW MEAT?</Text><nl/>
-	<color r="0.5" g="0.9" b="0.9"/><Text>You need to Cook it on the campfire, it tkaes wood and fire </Text><nl/>
-	<Text>essence to start a fire(For long explaination click</Text><link ref="CampF" title=" here.)"/><nl/>
-	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I GET A FIRE GOING IN ISLA PRIME?</Text><nl/>
-	<color r="0.5" g="0.9" b="0.9"/><link ref="FireB" title="click here for step by walk through"/><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><Text>You need to Cook it on the campfire, it takes wood and fire </Text><nl/>
+	<Text>essence to start a fire (For a long explanation click</Text><link ref="CampF" title=" here"/>
+	
+	<Text>.)</Text><nl/>
+	<color r="0.1" g="0.5" b="1"/><Text>HOW DO I GET A FIRE GOING ON ISLA PRIMA?</Text><nl/>
+	<color r="0.5" g="0.9" b="0.9"/><link ref="FireB" title="Click here for a step-by-step walkthrough"/><Text>.</Text><nl/>
 	<nl/>
 	<color r="0.9" g="0.9" b="0.9"/><Text>Page:</Text><color>yellow</color>
 	<link ref="NFAQ2" title=" 1"/><color r="0.9" g="0.9" b="0.9"/><Text> 2</Text>
 	<color>yellow</color><nl/>
-	<Text>                            </Text><link ref="HelpPage" title="Back To Help Index"/>
+	<Text>                     </Text><link ref="HelpPage" title="Back To Help Index"/>
 </Page>
 <Page name="CampF">
 	<size>Big</size>
@@ -309,21 +314,23 @@
 	<Text>If the fire is not burning:</Text><nl/><color r="0.9" g="0.9" b="0.9"/>
 	<nl/>
 	<Text>1. Harvest some logs. (Some can be found on the west end of</Text><nl/>
-	<Text>   one of the buildings to the south of the firepit.) You will </Text><nl/>
-	<Text>   need a total of no more than four.</Text><nl/>
+	<Text>   one of the buildings to the south of the campfire.) You will </Text><nl/>
+	<Text>   about four logs in total.</Text><nl/>
 	<nl/>
-	<Text>2. go back to the fire pit and load the logs into the firepit </Text><nl/>
-	<Text>   using the same "use with" procedure as described </Text><nl/>
-	<Text>   earlier. If successful you should see the words 'You put </Text><nl/>
-	<Text>   logs on the fire"</Text><nl/>
+	<Text>2. Return to the campfire and load the logs into the firepit </Text><nl/>
+	<Text>   by clicking the "Use with" icon (closed hand), clicking on logs,  </Text><nl/>
+	
+	<Text>   and then clicking on the campfire. If successful you should   </Text><nl/>
+	<Text>   see the words"You put some logs on the fire". Repeat until</Text><nl/>
+	<Text>   it says "You cannot put anymore logs on the fire!"</Text><nl/>
 	<nl/>
 	<Text>3. Ignite the fire using a fire essence just like you </Text><nl/>
 	<Text>   loaded the firepit with logs earlier. If you do not have </Text><nl/>
 	<Text>   fire essence you can make some or buy some form the magic </Text><nl/>
-	<Text>   shop(15 gc each) or buy from market channel #jc 3. </Text><nl/>
+	<Text>   shop(15 gc each) or buy from market channel (#jc 3). </Text><nl/>
 	<nl/>
 	<nl/>
-	<Text>                            </Text><link ref="NFAQ3" title="Back To FAQ"/>
+	<Text>                     </Text><color>yellow</color><link ref="NFAQ3" title="Back To FAQ"/>
 	<nl/>
 </Page>
 </Help>

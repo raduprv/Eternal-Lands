@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <General>
 <Page name="Index">
 	<size>Big</size>
@@ -6,11 +7,11 @@
 	<nl/>
 	<size>Small</size>
 	<color r="1" g="0.5" b="0"/>
-    <Text>This is the Eternal Lands Encyclopedia! (IN DEVELOPMENT!)</Text>
+    <Text>                    (IN DEVELOPMENT!)</Text>
 	<nl/>
-	<Text>(EN 1.00)Send all errors reports and feedback to Jamesvm:</Text>
+	<Text>Report all errors on the Encyclopedia Forum,</Text>
 	<nl/>
-	<Text>omagaalpha@hotmail.com </Text>
+	<Text>Or via e-mail to crusadingknight@gawab.com. </Text>
 	<nl/>
 	<nl/>								
 	<size>Medium</size>
@@ -54,6 +55,8 @@
 	<nl/>
 	<nl/>
 	<size>Medium</size>
+	<color r="0.1" g="0.5" b="1"/><Text>Essences</Text>
+	<nl/>
 	<color r="0.8" g="0.8" b="0.8"/>
 	<link ref="Fire Essence" title="Fire Essence"/><Text>               </Text>
 	<link ref="Water Essence" title="Water Essence"/>
@@ -70,13 +73,18 @@
 	<link ref="Death Essence" title="Death Essence"/><Text>              </Text>
 	<link ref="Health Essence" title="Health Essence"/>
 	<nl/>
-	<link ref="Magic Essence" title="Magic Essence"/><Text>              </Text>
-	<link ref="Iron Bar" title="Iron Bar"/>
+	<link ref="Magic Essence" title="Magic Essence"/>
 	<nl/>
-	<link ref="Steel Bar" title="Steel Bar"/><Text>                  </Text>
-	<link ref="Silver Bar" title="Silver Bar"/>
 	<nl/>
-	<link ref="Gold Bar" title="Gold Bar"/><Text>                   </Text>
+	<color r="0.1" g="0.5" b="1"/><Text>Metal Bars</Text>
+	<nl/>
+	<color r="0.8" g="0.8" b="0.8"/>
+	<link ref="Iron Bar" title="Iron Bar"/><Text>                   </Text>
+	<link ref="Steel Bar" title="Steel Bar"/>
+	<nl/>
+	<link ref="Silver Bar" title="Silver Bar"/><Text>                 </Text>
+	<link ref="Gold Bar" title="Gold Bar"/>
+	<nl/>
 	<link ref="Titanium Bar" title="Titanium Bar"/>
 	<nl/><nl/>
 	<color>yellow</color>
@@ -396,6 +404,7 @@
 	<link ref="Magic_Immun" title="Magic Immunity"/><nl/>
 	<link ref="Heal_Sum" title="Heal Summoned"/><nl/>
 	<link ref="Smite_Sum" title="Smite Summoned"/><nl/>
+	<link ref="Drain_Mana" title="Drain Mana"/><nl/>
 	<color r="0" g="0.7" b="1"/>
 	<nl/><nl/>
 	<color>yellow</color>
@@ -416,16 +425,16 @@
         <color r="0.9" g="0.9" b="0.9"/>
         <Text>Isla Prima (IP)               Safe.</Text><nl/>
         <Text>White Stone (WS)              Unsafe at night - Gargoyles,</Text><nl/>
-	<Text>                              </Text><Text>storage NPC, PK inside: WSC Arena.</Text><nl/>
+	<Text>                              </Text><Text>storage NPC, PK inside: Arena.</Text><nl/>
         <Text>Desert Pines (DP              Safe, storage NPC.</Text><nl/>
         <Text>Ruins of Tirnym (Tirnym)      Unsafe: PK, high level monsters.</Text><nl/>
         <Text>Valley of the Dwarves (VOTD)  Safe outside, storage NPC.</Text><nl/>
-        <Text>Portland (PL)                 Safe outside, storage NPC.</Text><nl/>
-        <Text>Morcraven Marshlands (MM)     Unsafe: goblins.</Text><nl/>
-        <Text>Naralik (Naralik)             Unsafe: goblins.</Text><nl/>
-        <Text>Grubani Penninsula (Grubani)  Unsafe: high level monsters.</Text><nl/>
-        <Text>Tarsengaard(TG)               Storage NPC, Unsafe insides:</Text><nl/> 
-	<Text>                              </Text><Text>monsters in Magic School.</Text><nl/>
+        <Text>Portland (PL)                 Unsafe: Goblins. Storage NPC </Text><nl/>
+        <Text>Morcraven Marshlands (MM)     Unsafe: Goblins.</Text><nl/>
+        <Text>Naralik (Naralik)             Unsafe: Goblins.</Text><nl/>
+        <Text>Grubani Penninsula (Grubani)  Unsafe: High level monsters.</Text><nl/>
+        <Text>Tarsengaard(TG)               Unsafe Outside and the School:</Text><nl/>
+	 <Text>                              Armed Goblins. Storage NPC.</Text><nl/>
         <Text>Nordcarn (NC)                 Safe ouside, PK insides:</Text><nl/>
 	<Text>                              </Text><Text>Sapphire Cavern, storage NPC.</Text><nl/>
         <Text>Southern Kilaran (SK)         Unsafe: high level monsters.</Text><nl/>
@@ -540,11 +549,15 @@
 	<Text>                   POTIONS</Text><nl/>
 	<size>Small</size>
 	<color r="1" g="0.5" b="0"/>
-	<Text>Potions can restore or temporarly increase your atributes.</Text>
+	<Text>Potions can restore or temporarly increase your attributes.</Text>
 	<nl/><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="P_Mana" title="Potion of Mana"/><nl/>
-	<link ref="P_Healing" title="Potion of Minor Healing"/><nl/>
+	<link ref="P_Mana" title="Potion of Mana"/>
+	<Text>                     </Text>
+	<link ref="P_Craft" title="Potion of Crafting"/><nl/>
+	<link ref="P_Healing" title="Potion of Minor Healing"/>
+	<Text>            </Text>
+	<link ref="P_Magic" title="Potion of Magic"/><nl/>
 	<link ref="P_Reasoning" title="Potion of Reasoning"/><nl/>
 	<link ref="P_Physique" title="Potion of Physique"/><nl/>
 	<link ref="P_Defense" title="Potion of Defense"/><nl/>

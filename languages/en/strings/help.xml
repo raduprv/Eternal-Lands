@@ -24,12 +24,19 @@
     <clear>Clear</clear>
     <connect>Connecting to Server...</connect>
     <reconnect>Press any key to try again.</reconnect>
-    <license>Entropy says: U R 2</license>
+    <license>Entropy says: U R 2 g00d 2 r34d +h3 license.txt?
+BTW, that license.txt file is actually there for a reason.</license>
     <quantity>Quantity</quantity>
     <abort>Abort</abort>
     <sigils>This spell requires at least 2 sigils</sigils>
     <switch>Switches to video mode %s</switch>
     <cache>Cache size</cache>
+    <appropriate_name>Use an appropriate name:
+Please do not create a name that is obscene or offensive, contains more than 3 numbers, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.
+Take into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.</appropriate_name>
+    <edit_quantity>Rightclick on the quantity you wish to edit</edit_quantity>
+    <you>You</you>
+    <accept>Accept</accept>
   </misc>
   <new>
     <skin>Skin</skin>
@@ -53,6 +60,7 @@
     <stand>Stand up</stand>
     <look>Look at</look>
     <use>Use</use>
+    <use_witem>Use with</use_witem>
     <trade>Trade</trade>
     <attack>Attack</attack>
     <invent>View inventory</invent>
@@ -66,5 +74,6 @@
     <console>View console</console>
     <buddy>View buddy</buddy>
     <opts>View options</opts>
+    <help>View help</help>
   </tooltips>
 </root>

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Potions>
 <Page name="P_Mana">
 	<size>Big</size>
@@ -9,7 +10,7 @@
 	<Text>                Potion of Mana</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="15" name="textures/items1.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> Restores 5 etheral points.</Text>
+	<Text> Restores 5 ethereal points.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -21,7 +22,7 @@
 	<text>Experience given: Potion exp: 5</text>
 	<nl/>
 	<text>Stackable: No</text>
-	<nl/>	
+	<nl/>	
 	<text>Base cost: 5 gold coins</text>
 	<nl/><nl/>
 	<color>yellow</color>
@@ -67,7 +68,7 @@
 	<Text>             Potion of Reasoning</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="6" name="textures/items7.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Reasoning.</Text>
+	<Text> Temporarily increases your Reasoning.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -86,7 +87,7 @@
 	<nl/>
 	<text>Food subtracted: 1</text>
 	<nl/>
-	<text>Stackable: Yes</text>	
+	<text>Stackable: Yes</text>	
 	<nl/>
 	<text>Base cost: 30 gold coins</text>
 	<nl/><nl/>
@@ -103,7 +104,7 @@
 	<Text>             Potion of Physique</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="17" name="textures/items1.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Physique.</Text>
+	<Text> Temporarily increases your Physique.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -141,7 +142,7 @@
 	<Text>             Potion of Defense</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="13" name="textures/items1.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Defense.</Text>
+	<Text> Temporarily increases your Defense.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -162,7 +163,7 @@
 	<nl/>
 	<text>Food subtracted: 3</text>
 	<nl/>
-	<text>Stackable: Yes</text>	
+	<text>Stackable: Yes</text>	
 	<nl/>
 	<text>Base cost: 28 gold coins</text>
 	<nl/><nl/>
@@ -179,7 +180,7 @@
 	<Text>             Potion of Coordination</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="12" name="textures/items1.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Coordination.</Text>
+	<Text> Temporarily increases your Coordination.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -200,7 +201,7 @@
 	<nl/>
 	<text>Food subtracted: 4</text>
 	<nl/>
-	<text>Stackable: No</text>	
+	<text>Stackable: No</text>	
 	<nl/>
 	<text>Base cost: 22 gold coins</text>
 	<nl/><nl/>
@@ -217,7 +218,7 @@
 	<Text>             Potion of Wildness</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="10" name="textures/items1.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Instinct.</Text>
+	<Text> Temporarily increases your Instinct.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -236,7 +237,7 @@
 	<nl/>
 	<text>Food subtracted: 5</text>
 	<nl/>
-	<text>Stackable: No</text>	
+	<text>Stackable: No</text>	
 	<nl/>
 	<text>Base cost: 28 gold coins</text>
 	<nl/><nl/>
@@ -253,7 +254,7 @@
 	<Text>             Potion of Will</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="18" name="textures/items1.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Will.</Text>
+	<Text> Temporarily increases your Will.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -274,7 +275,7 @@
 	<nl/>
 	<text>Food subtracted: 6</text>
 	<nl/>
-	<text>Stackable: Yes</text>	
+	<text>Stackable: Yes</text>	
 	<nl/>
 	<text>Base cost: 24 gold coins</text>
 	<nl/><nl/>
@@ -291,7 +292,7 @@
 	<Text>             Potion of Vitality</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="19" name="textures/items1.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Vitality.</Text>
+	<Text> Temporarily increases your Vitality.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -312,7 +313,7 @@
 	<nl/>
 	<text>Food subtracted: 7</text>
 	<nl/>
-	<text>Stackable: Yes</text>	
+	<text>Stackable: Yes</text>	
 	<nl/>
 	<text>Base cost: 25 gold coins</text>
 	<nl/><nl/>
@@ -329,7 +330,7 @@
 	<Text>             Potion of Attack</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="14" name="textures/items1.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Attack.</Text>
+	<Text> Temporarily increases your Attack.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -348,7 +349,7 @@
 	<nl/>
 	<text>Food subtracted: 8</text>
 	<nl/>
-	<text>Stackable: Yes</text>	
+	<text>Stackable: Yes</text>	
 	<nl/>
 	<text>Base cost: 30 gold coins</text>
 	<nl/><nl/>
@@ -365,7 +366,7 @@
 	<Text>        Potion of Spirit Restoration</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="0" name="textures/items7.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> Restores 20 etheral Points.</Text>
+	<Text> Restores 20 ethereal Points.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -384,7 +385,7 @@
 	<nl/>
 	<text>Food subtracted: 9</text>
 	<nl/>
-	<text>Stackable: No</text>	
+	<text>Stackable: No</text>	
 	<nl/>
 	<text>Base cost: 26 gold coins</text>
 	<nl/><nl/>
@@ -422,7 +423,7 @@
 	<nl/>
 	<text>Food subtracted: 10</text>
 	<nl/>
-	<text>Stackable: No</text>	
+	<text>Stackable: No</text>	
 	<nl/>
 	<text>Base cost: 10 gold coins</text>
 	<nl/><nl/>
@@ -460,7 +461,7 @@
 	<nl/>
 	<text>Food subtracted: 11</text>
 	<nl/>
-	<text>Stackable: No</text>	
+	<text>Stackable: No</text>	
 	<nl/>
 	<text>Base cost: 30 gold coins</text>
 	<nl/><nl/>
@@ -477,7 +478,7 @@
 	<Text>             Potion of Harvesting</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="11" name="textures/items1.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Harvesting.</Text>
+	<Text> Temporarily increases your Harvesting.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -496,7 +497,7 @@
 	<nl/>
 	<text>Food subtracted: 12</text>
 	<nl/>
-	<text>Stackable: Yes</text>	
+	<text>Stackable: Yes</text>	
 	<nl/>
 	<text>Base cost: 20 gold coins</text>
 	<nl/><nl/>
@@ -513,7 +514,7 @@
 	<Text>             Potion of Manufacturing</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="1" name="textures/items7.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Manufacturing.</Text>
+	<Text> Temporarily increases your Manufacturing.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -536,7 +537,7 @@
 	<nl/>
 	<text>Food subtracted: 13</text>
 	<nl/>
-	<text>Stackable: No</text>	
+	<text>Stackable: No</text>	
 	<nl/>
 	<text>Base cost: 45 gold coins</text>
 	<nl/><nl/>
@@ -553,7 +554,7 @@
 	<Text>             Potion of Summoning</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="7" name="textures/items7.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> temporarily increases your Summoning.</Text>
+	<Text> Temporarily increases your Summoning.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>
@@ -577,10 +578,90 @@
 	<nl/>
 	<text>Food subtracted: 14</text>
 	<nl/>
-	<text>Stackable: No</text>	
+	<text>Stackable: No</text>	
 	<nl/>
 	<text>Base cost: 40 gold coins</text>
 	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potions" title="Back To Potions Index"/>
+</Page>
+<Page name="P_Craft">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   POTIONS</Text><nl/>
+	<Color>red</Color>
+	<Text>              Potion of Crafting</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Temporarily increases your Crafting.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<text>Items needed:</text>
+	<nl/>
+	<text>1 Empty Vial, 1 Polished Ruby, 2 Blue Quartz,</text><nl/>
+	<text>1 Mead, 1 Mercury</text>
+	<nl/>
+	<text>Items required to have: Mortar and Pestle</text>
+	<nl/>
+	<text>Knowledge needed: Potion of Crafting</text>
+	<nl/>
+	<text>Required Nexuses: Vegetal: 5</text>
+	<nl/>
+	<text>Recommended Skills: Potion: 35</text>
+	<nl/>
+	<text>Experience given:</text>
+	<nl/>
+	<text>Potion exp: 100</text>
+	<nl/>
+	<text>Food subtracted: 20</text>
+	<nl/>
+	<text>Stackable: No</text>	
+	<nl/>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potions" title="Back To Potions Index"/>
+</Page>
+<Page name="P_Magic">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   POTIONS</Text><nl/>
+	<Color>red</Color>
+	<Text>                Potion of Magic</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Temporarily increases your Magic.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<text>Items needed:</text>
+	<nl/>
+	<text>1 Empty Vial, 1 Polished Ruby, 2 Black Roses,</text><nl/>
+	<text>1 Ale, 1 Rat Tail</text>
+	<nl/>
+	<text>Items required to have: Mortar and Pestle</text>
+	<nl/>
+	<text>Knowledge needed: Potion of Magic</text>
+	<nl/>
+	<text>Required Nexuses: Vegetal: 5</text>
+	<nl/>
+	<text>Recommended Skills: Potion: 40</text>
+	<nl/>
+	<text>Experience given:</text>
+	<nl/>
+	<text>Potion exp: 120</text>
+	<nl/>
+	<text>Food subtracted: 30</text>
+	<nl/>
+	<text>Stackable: No</text>	
+	<nl/>
+	<nl/>
+	<nl/>
 	<color>yellow</color>
 	<Text>                      </Text><link ref="Potions" title="Back To Potions Index"/>
 </Page>

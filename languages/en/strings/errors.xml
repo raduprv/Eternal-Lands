@@ -24,7 +24,7 @@
     <noe3d>Couldn't read e3dlist.txt</noe3d>
     <elini>Couldn't read configuration file el.ini</elini>
     <invmap>%s is an invalid map!</invmap>
-  </load>
+  <parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><noteswrong>Document of the wrong type. It will be overwritten.</noteswrong><manynotes>Too many notes - Last nodes were ignored.</manynotes><notenode>Incorrect node type - could not copy.</notenode><savenotes>Unable to write notes to file %s</savenotes><exceednotes>Tried to exceed notepad buffer! Ignored.</exceednotes></load>
   <misc>
     <error>Error</error>
     <objerr>Object error</objerr>
@@ -59,7 +59,7 @@ Done. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*</redefine>
     <ascii>Not ASCII</ascii>
     <timer>The %s timer was lagging severely behind or had stopped, restarted it</timer>
     <nameinuse>Character name is already taken</nameinuse>
-  </misc>
+  <timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><notabs>You cannot disable tabbed windows with video mode %d, forcing them</notabs></misc>
   <particles>
     <version>Particle file %s version (%i) doesn't match file reader version (%i)!</version>
     <overrun>Particle file %s tries to define %i particles, when %i is the maximum!</overrun>
@@ -89,7 +89,7 @@ Done. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*</redefine>
     <header>Invalid Vorbis header.</header>
     <intern>Internal logic fault (bug or heap/stack corruptio</intern>
     <unknown>Unknown Ogg error.</unknown>
-  </snd>
+  <loadwav>Failed to load wav file %s</loadwav></snd>
   <video>
     <nostencil>Video mode %s with a stencil buffer is not available
 Trying this mode without a stencil buffer...</nostencil>

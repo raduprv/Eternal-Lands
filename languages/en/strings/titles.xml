@@ -6,5 +6,5 @@
     <t_stats>Statistics</t_stats>
     <t_know>Knowledge</t_know>
     <t_qlog>Quest log</t_qlog>
-  </titles>
+  <t_local>Local</t_local><t_channel>Channel</t_channel><t_guild>Guild</t_guild><w_note>Notepad</w_note><w_prompt>Prompt</w_prompt><t_main>Main</t_main><b_okay>Okay</b_okay><b_cancel>Cancel</b_cancel><b_new_cat>New Category</b_new_cat><b_rm_cat>Remove Category</b_rm_cat><b_save>Save Notes</b_save><l_nname>Note name</l_nname><l_cursor_coords>Cursor position</l_cursor_coords></titles>
 </root>

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Monsters>
 <Page name="Rabbits">
 	<size>Big</size>
@@ -717,7 +718,10 @@
 	<Text> </Text>
 	<nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
-	<Text>  Dangerous if see one run for your life.</Text>
+	<Text> "Awww, it's a cute fluffy rabbit!"</Text>	<nlkx/>
+	<Text>      --The last words of many unwary heros</Text>	<nlkx/>
+	<Text> These should be approached only by the strongest.</Text>
+	<nlkx/>
 	<nl/>
 	<color r="0" g="0.5" b="1"/>
 	<Text> Summoning:</Text>
@@ -731,9 +735,6 @@
 	<nl/>
 	<Text> Animal Nexus: 5</Text>
 	<nl/><nl/>
-	<nl/>
-	<nl/>
-	<nl/>
 	<nl/>
 	<nl/>
 	<nl/>
@@ -756,13 +757,13 @@
 	<Text> </Text>
 	<nlkx/>
 	<color r="0.9" g="0.9" b="0.9"/>
-	<Text> Dangerous if see one run for your life.</Text>
+	<Text> A large, powerful, ugly wolf, lacking any majesty. They are</Text>
 	<nlkx/>
-	<Text> </Text>
+	<Text> reputed to have been created in a magical accident of</Text>
+	<nlkx/>	<Text> some type. In any case, only the strongest can defeat</Text>
 	<nlkx/>
-	<Text> </Text>
+	<Text> them.</Text>
 	<nlkx/>
-	<Text> </Text>
 	<nl/>
 	<color r="0" g="0.5" b="1"/>
 	<Text> Summoning:</Text>
