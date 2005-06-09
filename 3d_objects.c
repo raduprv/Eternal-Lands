@@ -294,7 +294,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	i=0;
 	while(i<max_obj_3d)
 		{
-			if(!objects_list[i])break;
+			if(!objects_list[i]||objects_list[i]->x_pos==2*tile_map_size_x*6)break;
 			i++;
 		}
 

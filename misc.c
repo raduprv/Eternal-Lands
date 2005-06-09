@@ -117,8 +117,9 @@ void get_3d_object_under_mouse()
 
 void kill_3d_object(int object_id)
 {
-	free(objects_list[object_id]);
-	objects_list[object_id]=0;//kill any refference to it
+	/*free(objects_list[object_id]);
+	objects_list[object_id]=0;//kill any refference to it*/
+	objects_list[object_id]->x_pos=2*tile_map_size_x*6;
 	selected_3d_object=-1;//we have no selected object now...
 }
 

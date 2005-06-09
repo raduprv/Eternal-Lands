@@ -2,7 +2,7 @@
 
 CC=gcc
 
-OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND #-DX86_64
+OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND -DNEW_CLIENT #-DX86_64
 GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
 GTK2_CFLAGS = $(shell pkg-config gtk+-2.0 --cflags) -DGTK2
 
