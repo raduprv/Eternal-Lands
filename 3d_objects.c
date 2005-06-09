@@ -334,7 +334,7 @@ int get_near_3d_objects()
 				if(l==-1)break;
 				object_id= objects_list[l];
 
-				if(object_id) {
+				if(object_id && object_id->blended!=20) {
 					int dist1, dist2;
 					int dist;
 
