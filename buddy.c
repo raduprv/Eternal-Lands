@@ -56,7 +56,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	y += vscrollbar_get_pos(buddy_win,12);
 	put_char_in_buffer (&input_text_line, '/', 0);
 	put_string_in_buffer (&input_text_line, buddy_list[y].name, 1);
-	put_char_in_buffer ( &input_text_line, ' ', strlen (buddy_list[y].name) );
+	put_char_in_buffer ( &input_text_line, ' ', 1+strlen (buddy_list[y].name) );
 	return 1;
 }
 
