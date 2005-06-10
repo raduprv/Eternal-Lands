@@ -125,127 +125,135 @@ int save_map(char * file_name)
 	//ok, now let's open/create the file, and start writting the header...
 	f=fopen(file_name, "wb");
 
-	//write the header
-	fwrite(mem_map_header, sizeof(map_header), 1, f);
+	if (!f) {
+		const msglen = 500;
+		char msg[msglen];
+		snprintf(msg,500,"Could not open file for writing: %s", file_name);
+		LOG_ERROR(msg);
+	} else {
 
-	//write the tiles map
-	fwrite(tile_map, tile_map_size_x*tile_map_size_y, 1, f);
+		//write the header
+		fwrite(mem_map_header, sizeof(map_header), 1, f);
 
-	//write the heights map
-	fwrite(height_map, tile_map_size_x*tile_map_size_y*6*6, 1, f);
+		//write the tiles map
+		fwrite(tile_map, tile_map_size_x*tile_map_size_y, 1, f);
 
-	//write the 3d objects
-	j=0;
-	for(i=0;i<max_obj_3d;i++)
-		{
+		//write the heights map
+		fwrite(height_map, tile_map_size_x*tile_map_size_y*6*6, 1, f);
 
-			if(j>obj_3d_no)break;
-			if(objects_list[i])
-				{
-					char * cur_3do_pointer=(char *)&cur_3d_obj_io;
-					int k=0;
+		//write the 3d objects
+		j=0;
+		for(i=0;i<max_obj_3d;i++)
+			{
 
-					//clear the object
-					for(k=0;k<(int)sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
+				if(j>obj_3d_no)break;
+				if(objects_list[i])
+					{
+						char * cur_3do_pointer=(char *)&cur_3d_obj_io;
+						int k=0;
 
-					sprintf(cur_3d_obj_io.file_name,"%s",objects_list[i]->file_name);
-					cur_3d_obj_io.x_pos=objects_list[i]->x_pos;
-					cur_3d_obj_io.y_pos=objects_list[i]->y_pos;
-					cur_3d_obj_io.z_pos=objects_list[i]->z_pos;
+						//clear the object
+						for(k=0;k<(int)sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
 
-					cur_3d_obj_io.x_rot=objects_list[i]->x_rot;
-					cur_3d_obj_io.y_rot=objects_list[i]->y_rot;
-					cur_3d_obj_io.z_rot=objects_list[i]->z_rot;
+						sprintf(cur_3d_obj_io.file_name,"%s",objects_list[i]->file_name);
+						cur_3d_obj_io.x_pos=objects_list[i]->x_pos;
+						cur_3d_obj_io.y_pos=objects_list[i]->y_pos;
+						cur_3d_obj_io.z_pos=objects_list[i]->z_pos;
 
-					cur_3d_obj_io.self_lit=objects_list[i]->self_lit;
-					cur_3d_obj_io.blended=objects_list[i]->blended;
+						cur_3d_obj_io.x_rot=objects_list[i]->x_rot;
+						cur_3d_obj_io.y_rot=objects_list[i]->y_rot;
+						cur_3d_obj_io.z_rot=objects_list[i]->z_rot;
 
-					cur_3d_obj_io.r=objects_list[i]->r;
-					cur_3d_obj_io.g=objects_list[i]->g;
-					cur_3d_obj_io.b=objects_list[i]->b;
+						cur_3d_obj_io.self_lit=objects_list[i]->self_lit;
+						cur_3d_obj_io.blended=objects_list[i]->blended;
 
-					fwrite(cur_3do_pointer, sizeof(object3d_io), 1, f);
+						cur_3d_obj_io.r=objects_list[i]->r;
+						cur_3d_obj_io.g=objects_list[i]->g;
+						cur_3d_obj_io.b=objects_list[i]->b;
 
-					j++;
-				}
-		}
+						fwrite(cur_3do_pointer, sizeof(object3d_io), 1, f);
 
-	//write the 2d objects
-	j=0;
-	for(i=0;i<max_obj_2d;i++)
-		{
+						j++;
+					}
+			}
 
-			if(j>obj_2d_no)break;
-			if(obj_2d_list[i])
-				{
-					char * cur_2do_pointer=(char *)&cur_2d_obj_io;
-					int k=0;
+		//write the 2d objects
+		j=0;
+		for(i=0;i<max_obj_2d;i++)
+			{
 
-					//clear the object
-					for(k=0;k<(int)sizeof(obj_2d_io);k++)cur_2do_pointer[k]=0;
+				if(j>obj_2d_no)break;
+				if(obj_2d_list[i])
+					{
+						char * cur_2do_pointer=(char *)&cur_2d_obj_io;
+						int k=0;
 
-					sprintf(cur_2d_obj_io.file_name,"%s",obj_2d_list[i]->file_name);
-					cur_2d_obj_io.x_pos=obj_2d_list[i]->x_pos;
-					cur_2d_obj_io.y_pos=obj_2d_list[i]->y_pos;
-					cur_2d_obj_io.z_pos=obj_2d_list[i]->z_pos;
+						//clear the object
+						for(k=0;k<(int)sizeof(obj_2d_io);k++)cur_2do_pointer[k]=0;
 
-					cur_2d_obj_io.x_rot=obj_2d_list[i]->x_rot;
-					cur_2d_obj_io.y_rot=obj_2d_list[i]->y_rot;
-					cur_2d_obj_io.z_rot=obj_2d_list[i]->z_rot;
+						sprintf(cur_2d_obj_io.file_name,"%s",obj_2d_list[i]->file_name);
+						cur_2d_obj_io.x_pos=obj_2d_list[i]->x_pos;
+						cur_2d_obj_io.y_pos=obj_2d_list[i]->y_pos;
+						cur_2d_obj_io.z_pos=obj_2d_list[i]->z_pos;
 
-					fwrite(cur_2do_pointer, sizeof(obj_2d_io), 1, f);
+						cur_2d_obj_io.x_rot=obj_2d_list[i]->x_rot;
+						cur_2d_obj_io.y_rot=obj_2d_list[i]->y_rot;
+						cur_2d_obj_io.z_rot=obj_2d_list[i]->z_rot;
 
-					j++;
-				}
-		}
+						fwrite(cur_2do_pointer, sizeof(obj_2d_io), 1, f);
 
-	//write the lights
-	j=0;
-	for(i=0;i<max_lights;i++)
-		{
-			if(j>lights_no)break;
-			if(lights_list[i] && !lights_list[i]->locked)
-				{
-					char * cur_light_pointer=(char *)&cur_light_io;
-					int k=0;
+						j++;
+					}
+			}
 
-					//clear the object
-					for(k=0;k<(int)sizeof(light_io);k++)cur_light_pointer[k]=0;
+		//write the lights
+		j=0;
+		for(i=0;i<max_lights;i++)
+			{
+				if(j>lights_no)break;
+				if(lights_list[i] && !lights_list[i]->locked)
+					{
+						char * cur_light_pointer=(char *)&cur_light_io;
+						int k=0;
 
-					cur_light_io.pos_x=lights_list[i]->pos_x;
-					cur_light_io.pos_y=lights_list[i]->pos_y;
-					cur_light_io.pos_z=lights_list[i]->pos_z;
+						//clear the object
+						for(k=0;k<(int)sizeof(light_io);k++)cur_light_pointer[k]=0;
 
-					cur_light_io.r=lights_list[i]->r;
-					cur_light_io.g=lights_list[i]->g;
-					cur_light_io.b=lights_list[i]->b;
+						cur_light_io.pos_x=lights_list[i]->pos_x;
+						cur_light_io.pos_y=lights_list[i]->pos_y;
+						cur_light_io.pos_z=lights_list[i]->pos_z;
 
-					fwrite(cur_light_pointer, sizeof(light_io), 1, f);
+						cur_light_io.r=lights_list[i]->r;
+						cur_light_io.g=lights_list[i]->g;
+						cur_light_io.b=lights_list[i]->b;
 
-					j++;
-				}
-		}
+						fwrite(cur_light_pointer, sizeof(light_io), 1, f);
 
-	// Write the particle systems
-	j=0;
-	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
-		{
-			if(j>particles_no)break;
-			if(particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)
-				{
-					char *cur_particles_pointer=(char *)&cur_particles_io;
-					Uint32 k=0;
-					for(k=0;k<sizeof(particles_io);k++)cur_particles_pointer[k]=0;
-					sprintf(cur_particles_io.file_name,"%s",particles_list[i]->def->file_name);
-					cur_particles_io.x_pos=particles_list[i]->x_pos;
-					cur_particles_io.y_pos=particles_list[i]->y_pos;
-					cur_particles_io.z_pos=particles_list[i]->z_pos;
-					fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
-					j++;
-				}
-		}
+						j++;
+					}
+			}
 
-	fclose(f);
+		// Write the particle systems
+		j=0;
+		for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
+			{
+				if(j>particles_no)break;
+				if(particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)
+					{
+						char *cur_particles_pointer=(char *)&cur_particles_io;
+						Uint32 k=0;
+						for(k=0;k<sizeof(particles_io);k++)cur_particles_pointer[k]=0;
+						sprintf(cur_particles_io.file_name,"%s",particles_list[i]->def->file_name);
+						cur_particles_io.x_pos=particles_list[i]->x_pos;
+						cur_particles_io.y_pos=particles_list[i]->y_pos;
+						cur_particles_io.z_pos=particles_list[i]->z_pos;
+						fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
+						j++;
+					}
+			}
+
+		fclose(f);
+	}
 
 	return 1;
 

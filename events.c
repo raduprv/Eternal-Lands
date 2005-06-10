@@ -249,7 +249,7 @@ int HandleEvent(SDL_Event *event)
 		}
 
 
-		if ( event->key.keysym.sym == SDLK_INSERT )
+		if ( event->key.keysym.sym == SDLK_INSERT || event->key.keysym.sym == SDLK_BACKSPACE )
 		{
 			if (cur_mode == mode_3d && selected_3d_object != -1)
 			{
