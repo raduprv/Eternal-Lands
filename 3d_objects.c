@@ -365,7 +365,7 @@ void display_objects()
 	CHECK_GL_ERRORS();
 	for(i=0;i<max_obj_3d;i++)
 		{
-			if(objects_list[i] && objects_list->blended!=20)
+			if(objects_list[i] && objects_list[i]->blended!=20)
 				{
 					int dist1;
 					int dist2;
