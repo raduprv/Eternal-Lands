@@ -7,19 +7,34 @@
 #define __CHAT_H__
 
 #define MAX_TEXT_MESSAGE_LENGTH 160 /*!< The server will disconnect us when we send longer messages */
-#define CHAT_WIN_MAX_TABS	5 /*!< Size of the \see channels array */
+#define MAX_CHAT_TABS		7 /*!< Size of the \see channels array */
+#define MAX_ACTIVE_CHANNELS	3 /*!< Maximum number of channels in use */
+
+/*!
+ * \ingroup chat_window
+ * \brief   Sets the channels that the player is currently subscribed to
+ *
+ *      Sets the channels that the player is currently subscribed to
+ *
+ * \param active The index of the currently active channel
+ * \param channels The channel numbers
+ * \param nchan The number of channels
+ *
+ * \callgraph
+ */
+void set_active_channels (Uint8 active, const Uint32 *channels, int nchan);
 
 /*! Structure to hold infos for a chat window tab  */
 typedef struct
 {
 	int tab_id;
 	int out_id;
-	int chan_nr;
+	Uint8 chan_nr;
 	int nr_lines;
 	char open, new;
 } chat_channel;
 
-extern chat_channel channels[CHAT_WIN_MAX_TABS]; /*!< Infos about a chat window tabs  */
+extern chat_channel channels[MAX_CHAT_TABS]; /*!< Infos about a chat window tabs  */
 
 extern int use_windowed_chat; /*!< flag indicating whether we use the new windowed chat window or not */
 
@@ -57,7 +72,7 @@ void clear_input_line ();
  * \param channel The channel in which the change occurred
  * \callgraph
  */
-void update_chat_window (int nlines, int channel);
+void update_chat_window (int nlines, Uint8 channel);
 
 /*!
  * \ingroup chat_window

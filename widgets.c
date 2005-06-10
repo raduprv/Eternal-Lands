@@ -1467,10 +1467,10 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 
 int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space)
 {
-	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, CHANNEL_ALL, x_space, y_space, -1.0, -1.0, -1.0);
+	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, FILTER_ALL, x_space, y_space, -1.0, -1.0, -1.0);
 }
 
-int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, int chan_nr, int x_space, int y_space, float text_r, float text_g, float text_b)
+int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b)
 {
 	widget_list *W = malloc ( sizeof (widget_list) );
 	text_field *T = malloc ( sizeof (text_field) );
@@ -1489,7 +1489,7 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 	T->buffer = buf;
 	T->buf_size = buf_size;
 	T->nr_lines = 0;
-	T->chan_nr = chan_nr;
+	T->chan_nr = chan_filt;
 	T->cursor = (Flags & TEXT_FIELD_EDITABLE) ? 0 : -1;
 	T->text_r = text_r;
 	T->text_g = text_g;

@@ -8,13 +8,21 @@
 
 #define DISPLAY_TEXT_BUFFER_SIZE 5000 /*!< maximum number of lines in the text buffer */
 
-#define CHANNEL_LOCAL	-1	/*!< local chat */
-#define CHANNEL_GM	-2	/*!< guild messages */
-#define CHANNEL_ALL	-3	/*!< personal and mod messages */
+#define CHAT_ALL	((Uint8) -1)
+
+#define FILTER_LOCAL	CHAT_LOCAL
+#define FILTER_PERSONAL	CHAT_PERSONAL
+#define FILTER_GM	CHAT_GM
+#define FILTER_SERVER	CHAT_SERVER
+#define FILTER_MOD	CHAT_MOD
+#define FILTER_CHANNEL1	CHAT_CHANNEL1
+#define FILTER_CHANNEL2	CHAT_CHANNEL2
+#define FILTER_CHANNEL3	CHAT_CHANNEL3
+#define FILTER_ALL	CHAT_ALL
 
 typedef struct
 {
-	int chan_nr;
+	Uint8 chan_idx;
 	Uint16 len, size;
 	Uint8 *data;
 } text_message;
@@ -120,13 +128,14 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos);
  *
  *      Adds the string in text_to_add up to the specified length to the text buffer. If x_chars_limit is !=0 then words in the filter list will get filtered and replaced.
  *
+ * \param channel	the channel index of the message
  * \param text_to_add   the string to add to the buffer
  * \param len           the length of text_to_add
  * \param x_chars_limit flag indicating whether the text should be filtered (!=0) or not (==0).
  *
  * \callgraph
  */
-void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit);
+void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len, int x_chars_limit);
 
 /*!
  * \ingroup text_font
@@ -135,14 +144,14 @@ void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit);
  *      Works like \ref put_text_in_buffer, but the text will be in the specified color.
  *
  * \param color         the color of the text
+ * \param channel	the channel index of the message
  * \param text_to_add   the string to add to the buffer
  * \param len           the length of text_to_add
  * \param x_chars_limit flag indicating whether the text should be filtered (!=0) or not (==0).
  *
  * \callgraph
  */
-void put_colored_text_in_buffer(Uint8 color,unsigned char *text_to_add, int len, 
-								int x_chars_limit);
+void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len, int x_chars_limit);
 
 /*!
  * \ingroup text_font
@@ -263,6 +272,6 @@ void clear_display_text_buffer ();
  */
 void rewrap_messages(int text_width);
 
-#define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,buffer,-1,0) /*!< logs the text in buffer with the specified color to the console. */
+#define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,buffer,-1,0) /*!< logs the text in buffer with the specified color to the console. */
 
 #endif

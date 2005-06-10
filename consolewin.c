@@ -32,7 +32,7 @@ int display_console_handler (window_info *win)
 	{
 		if (console_text_changed)
 		{
-			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, CHANNEL_ALL, &msg, &offset);		
+			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset);		
 			text_field_set_buf_pos (console_root_win, console_out_id, msg, offset);
 			console_text_changed = 0;
 		}
@@ -168,10 +168,10 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
 
-		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 10, 10, width - hud_x - 20, height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_ALL, 0, 0, -1.0f, -1.0f, -1.0f);
+		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 10, 10, width - hud_x - 20, height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, 0, 0, -1.0f, -1.0f, -1.0f);
 		// initialize the input field without the default keypress
 		// handler, since that's not really applicable here
-		console_in_id = text_field_add_extended (console_root_win, console_in_id, NULL, 10, height - CONSOLE_INPUT_HEIGHT - hud_y, width - hud_x - 20, CONSOLE_INPUT_HEIGHT, TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, -1.0f, -1.0f, -1.0f, &input_text_line, 1, CHANNEL_ALL, 0, 0, 1.0f, 1.0f, 1.0f);
+		console_in_id = text_field_add_extended (console_root_win, console_in_id, NULL, 10, height - CONSOLE_INPUT_HEIGHT - hud_y, width - hud_x - 20, CONSOLE_INPUT_HEIGHT, TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, -1.0f, -1.0f, -1.0f, &input_text_line, 1, FILTER_ALL, 0, 0, 1.0f, 1.0f, 1.0f);
 		
 		nr_console_lines = (int) (height - CONSOLE_INPUT_HEIGHT -  CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
 		console_text_width = (int) (width - hud_x - 20);

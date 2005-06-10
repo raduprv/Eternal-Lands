@@ -61,7 +61,7 @@ void cache_dump_sizes(cache_struct *cache)
 							scale='K';
 						}
 					sprintf(str, "%s %6d%c - %d: %s", cache_size_str, size, scale, i, cache->cached_items[i]->name);
-					put_colored_text_in_buffer(c_yellow1, str, -1, 0);
+					put_colored_text_in_buffer(c_yellow1, CHAT_SERVER, str, -1, 0);
 					write_to_log(str, strlen(str));
 				}
 		}

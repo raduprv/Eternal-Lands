@@ -340,7 +340,10 @@ char	win_notepad[20],
 	tab_questlog[20],
 	tab_local[20],
 	tab_channel[20],
-	tab_guild[20],
+	tab_guild[10],
+	tab_mod[10],
+	tab_personal[10],
+	tab_server[10],
 	tab_main[20],
 	button_okay[10],
 	button_cancel[10],
@@ -879,6 +882,9 @@ void init_titles ()
 	add_xml_identifier (titles_str, "t_local", tab_local, "Local", sizeof(tab_local));
 	add_xml_identifier (titles_str, "t_channel", tab_channel, "Channel", sizeof(tab_channel));
 	add_xml_identifier (titles_str, "t_guild", tab_guild, "Guild", sizeof(tab_guild));
+	add_xml_identifier (titles_str, "t_mod", tab_mod, "Mod", sizeof(tab_mod));
+	add_xml_identifier (titles_str, "t_personal", tab_personal, "PM", sizeof(tab_personal));
+	add_xml_identifier (titles_str, "t_server", tab_server, "Server", sizeof(tab_server));
 	add_xml_identifier (titles_str, "t_main", tab_main, "Main", sizeof(tab_main));
 	add_xml_identifier (titles_str, "b_okay", button_okay, "Okay", sizeof(button_okay));
 	add_xml_identifier (titles_str, "b_cancel", button_cancel, "Cancel", sizeof(button_cancel));

@@ -697,7 +697,7 @@ int display_game_handler (window_info *win)
 			if (times_FPS_below_3 > 10 && shadows_on)
 			{
 				shadows_on = 0;
-				put_colored_text_in_buffer (c_red1,low_framerate_str, -1, 0);
+				put_colored_text_in_buffer (c_red1, CHAT_SERVER, low_framerate_str, -1, 0);
 				times_FPS_below_3 = 0;
 				shadows_were_disabled=1;
 			}
@@ -727,7 +727,7 @@ int display_game_handler (window_info *win)
 		if ( find_last_lines_time (&msg, &offset) )
 		{
 			set_font(chat_font);	// switch to the chat font
-			draw_messages (10, 20, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_ALL, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
+			draw_messages (10, 20, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
 			set_font (0);	// switch to fixed
 		}
 	}

@@ -31,7 +31,7 @@ extern int	name_font; /*!< font size used for name font */
  * \param y		y coordinate of the position to start drawing
  * \param msgs		the message buffer
  * \param msgs_size	the total number of messages that \a msgs can hold
- * \param channel	draw only message in channel \a channel. Choose CHANNEL_ALL for displaying all messages
+ * \param filter	draw only message in channel \a filter. Choose FILTER_ALL for displaying all messages
  * \param nr_start	the first message to display
  * \param offset_start	the first character in message \a nr_start to display
  * \param cursor	if >= 0, the position at which to draw the cursor
@@ -41,7 +41,7 @@ extern int	name_font; /*!< font size used for name font */
  *
  * \callgraph
  */
-void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int channel, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom);
+void draw_messages (int x, int y, const text_message *msgs, int msgs_size, Uint8 filter, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom);
 
 /*!
  * \ingroup text_font

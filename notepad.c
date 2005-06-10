@@ -87,7 +87,7 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 
 	popup_text.len = 0;
 	popup_text.size = maxlen;
-	popup_text.chan_nr = CHANNEL_ALL;
+	popup_text.chan_idx = CHAT_ALL;
 
 	if(popup_win < 0)
 	{		  
@@ -101,7 +101,7 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 		widget_set_color (popup_win, popup_label, 0.77f, 0.57f, 0.39f);
 		
 		// Input
-		popup_field = text_field_add_extended (popup_win, note_widget_id++, NULL, 5, 35, popup_x_len - 20, 28, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, 1.0f, 0.77f, 0.57f, 0.39f, &popup_text, 1, 0, 5, 5, 0.77f, 0.57f, 0.39f);
+		popup_field = text_field_add_extended (popup_win, note_widget_id++, NULL, 5, 35, popup_x_len - 20, 28, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, 1.0f, 0.77f, 0.57f, 0.39f, &popup_text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
 		widget_set_color (popup_win, popup_field, 0.77f, 0.57f, 0.39f);
 
 		// Accept
@@ -171,7 +171,7 @@ void init_notepad_buffers ()
 		data[i].data = NULL;
 		data[i].size = 0;
 		data[i].len = 0;
-		data[i].chan_nr = CHANNEL_ALL;
+		data[i].chan_idx = CHAT_ALL;
 		note_buttons[i] = -1;
 	}
 }
@@ -409,7 +409,7 @@ void openNoteTabContinued (int id)
 	widget_set_color (notepad_win, note[id]->window, 0.77f, 0.57f, 0.39f);
 
 	// input text field
-	note[id]->input = text_field_add_extended (note[id]->window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW, 1.0f, 0.77f, 0.57f, 0.39f, &data[id], 1, CHANNEL_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+	note[id]->input = text_field_add_extended (note[id]->window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW, 1.0f, 0.77f, 0.57f, 0.39f, &data[id], 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
 	// scroll bar
 	note[id]->scroll = vscrollbar_add (note[id]->window, NULL, tf_x + tf_width, tf_y, 20, tf_height);
 	widget_set_color (note[id]->window, note[id]->scroll, 0.77f, 0.57f, 0.39f);
@@ -475,7 +475,7 @@ void notepadAddContinued (const char *name)
 	data[no_notes-1].size = MIN_NOTE_SIZE;
 	data[no_notes-1].data = calloc ( MIN_NOTE_SIZE, sizeof (char) );
 	data[no_notes-1].len = 0;
-	data[no_notes-1].chan_nr = CHANNEL_ALL;
+	data[no_notes-1].chan_idx = CHAT_ALL;
 	
 	note[no_notes-1] = malloc ( sizeof (struct Note) );
 	note[no_notes-1]->window = -1;

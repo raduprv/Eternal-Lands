@@ -34,14 +34,14 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 void init_text_buffers ()
 {
 	memset ( display_text_buffer, 0, sizeof (display_text_buffer) );
-	input_text_line.chan_nr = CHANNEL_ALL;
+	input_text_line.chan_idx = CHAT_ALL;
 	input_text_line.len = 0;
 	input_text_line.size = MAX_TEXT_MESSAGE_LENGTH + 1;
 	input_text_line.data = malloc (input_text_line.size);
 	input_text_line.data[0] = '\0';
 }
 
-void update_text_windows (int nlines, int channel)
+void update_text_windows (int nlines, Uint8 channel)
 {
 	update_console_win (nlines);
 	if (use_windowed_chat)
@@ -202,17 +202,16 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 	return filter_text (text_to_add, len);
 }
 
-void put_text_in_buffer(unsigned char *text_to_add, int len, int x_chars_limit)
+void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len, int x_chars_limit)
 {
-	put_colored_text_in_buffer(c_grey1, text_to_add, len, x_chars_limit);
+	put_colored_text_in_buffer (c_grey1, channel, text_to_add, len, x_chars_limit);
 }
-
 
 //-- Logan Dugenoux [5/26/2004]
 // Checks chat string, if it begins with an actor name, 
 // and the actor is displayed, put said sentence into an overtext bubble
 #define ALLOWED_CHAR_IN_NAME(_x_)		(isalnum(_x_)||(_x_=='_'))
-void check_chat_text_to_overtext (unsigned char *text_to_add, int len)
+void check_chat_text_to_overtext (const unsigned char *text_to_add, int len)
 {	
 	if (!view_chat_text_as_overtext)
 		return;		// disabled
@@ -342,14 +341,13 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 	return nr_paste;	
 }
 
-void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int len, int x_chars_limit)
+void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len, int x_chars_limit)
 {
 	int i;
 	int idx;
 	// Uint8 cur_char;
 	text_message *msg;
 	int nlines = 0, nltmp;
-	int channel = CHANNEL_ALL;
 	int minlen;
 
 	check_chat_text_to_overtext (text_to_add, len);
@@ -423,43 +421,45 @@ void put_colored_text_in_buffer (Uint8 color, unsigned char *text_to_add, int le
 
 		if (use_windowed_chat)
 		{
+#ifndef MULTI_CHANNEL
 			// determine the proper channel
 			// XXX FIXME (Grum): hack
 			if (msg->data[0] == 127+c_orange1 && strncmp (&(msg->data[1]), "[PM ", 4) == 0)
 			{
 				// Personal message
-				channel = CHANNEL_ALL;
+				channel = CHAT_PERSONAL;
 			} 
 			else if (msg->data[0] == 127+c_blue2)
 			{
 				if (strncmp (&(msg->data[1]), "#GM ", 4) == 0)
 				{
 					// Guild message
-					channel = CHANNEL_GM;
+					channel = CHAT_GM;
 				}
 				else if (strncmp (&(msg->data[1]), "#Message ", 9) == 0)
 				{
 					// Mod message
-					channel = CHANNEL_ALL;
+					channel = CHAT_SERVER;
 				}
 				else
 				{
 					// Unknown, show it as local
-					channel = CHANNEL_LOCAL;
+					channel = CHAT_LOCAL;
 				}
 			}
 			else if (msg->data[0] == 127+c_grey1 && msg->data[1] == '[')
 			{
 				// Channel chat
-				channel = 0;
+				channel = CHAT_CHANNEL1;
 			}
 			else
 			{
 				// all else, show it as local
-				channel = CHANNEL_LOCAL;
+				channel = CHAT_LOCAL;
 			}
+#endif
 		}
-		msg->chan_nr = channel;
+		msg->chan_idx = channel;
 		update_text_windows (nlines, channel);
 		return;
 	/* FIXME: currently unused, commented (Lachesis)
@@ -668,15 +668,15 @@ int find_last_lines_time (int *msg, int *offset)
 	}
 	if (lines_to_show <= 0) return 0;
 	
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, CHANNEL_ALL, msg, offset);
+	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, FILTER_ALL, msg, offset);
 }
 
 int find_last_console_lines (int lines_no)
 {
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, CHANNEL_ALL, &console_msg_nr, &console_msg_offset);
+	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, FILTER_ALL, &console_msg_nr, &console_msg_offset);
 }
 
-int find_line_nr (int nr_lines, int line, int channel, int *msg, int *offset)
+int find_line_nr (int nr_lines, int line, int filter, int *msg, int *offset)
 {
 	int line_count = 0, lines_no = nr_lines - line;	
 	int imsg, ichar;
@@ -685,9 +685,9 @@ int find_line_nr (int nr_lines, int line, int channel, int *msg, int *offset)
 	imsg = last_message;
 	do 
 	{
-		int msgchan = display_text_buffer[imsg].chan_nr;
+		int msgchan = display_text_buffer[imsg].chan_idx;
 
-		if (msgchan == channel || msgchan == CHANNEL_ALL || channel == CHANNEL_ALL)
+		if (msgchan == filter || msgchan == CHAT_ALL || filter == FILTER_ALL)
 		{
 			data = display_text_buffer[imsg].data;
 			if (data == NULL)
@@ -891,7 +891,7 @@ void rewrap_messages(int text_width)
 {
 	int itab, imsg, nlines, ntot;
 
-	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
+	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
 		channels[itab].nr_lines = 0;
 
 	ntot = 0;
@@ -900,7 +900,7 @@ void rewrap_messages(int text_width)
 	while (1)
 	{
 		nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, text_width, NULL);
-		if (chat_win >= 0) update_chat_window (nlines, display_text_buffer[imsg].chan_nr);
+		if (chat_win >= 0) update_chat_window (nlines, display_text_buffer[imsg].chan_idx);
 		ntot += nlines;
 		if (imsg == last_message) break;
 		if (++imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;

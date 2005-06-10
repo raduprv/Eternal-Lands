@@ -60,7 +60,7 @@ typedef struct
 	int buf_size, buf_fill;
 	int nr_lines;
 	text_message *buffer;
-	int chan_nr;
+	Uint8 chan_nr;
 	Uint16 x_space, y_space;
 } text_field;
 
@@ -1023,7 +1023,7 @@ int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
  * \param   	b (0<=b<=1)
  * \param	buf the text buffer
  * \param 	buf_size the size of the text buffer
- * \param	chan_nr the channel of which messages are drawn
+ * \param	chan_filt the channel of which messages are drawn
  * \param	x_space the number of pixels in the x-direction between the border and the text
  * \param	y_space the number of pixels in the y-direction between the border and the text
  * \param	text_r red component of the text color, or -1.0 for default
@@ -1033,7 +1033,7 @@ int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
  *
  * \sa text_field_add
  */
-int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, int chan_nr, int x_space, int y_space, float text_r, float text_g, float text_b);
+int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b);
 
 /*!
  * \ingroup	textfields

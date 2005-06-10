@@ -345,9 +345,9 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					{
 						//how to display it
 						if (get_show_window (opening_root_win) )
-							put_text_in_buffer (&in_data[4], data_lenght-4, 54);
+							put_text_in_buffer (channel_id, &in_data[4], data_lenght-4, 54);
 						else 
-							put_text_in_buffer (&in_data[4], data_lenght - 4, 0);
+							put_text_in_buffer (channel_id, &in_data[4], data_lenght - 4, 0);
 						// let's log it
 						write_to_log (&in_data[4], data_lenght - 4);
 					}
@@ -359,8 +359,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					{
 						//how to display it
 						if (get_show_window (opening_root_win) )
-							put_text_in_buffer(&in_data[3],data_lenght-3,54);
-						else put_text_in_buffer(&in_data[3],data_lenght-3,0);
+							put_text_in_buffer(CHAT_ALL, &in_data[3],data_lenght-3,54);
+						else put_text_in_buffer(CHAT_ALL, &in_data[3],data_lenght-3,0);
 						//lets log it
 						write_to_log(&in_data[3],data_lenght-3);
 					}
@@ -488,7 +488,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+100,items_string);
 				if(!(get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
 					{
-						put_text_in_buffer(&in_data[3],data_lenght-3,0);
+						put_text_in_buffer (CHAT_SERVER, &in_data[3], data_lenght-3,0);
 					}
 			}
 			break;
@@ -496,7 +496,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			{
 				put_small_text_in_box(in_data+3,data_lenght-3,6*51+100,spell_text);
 				if(sigil_win==-1||!windows_list.window[sigil_win].displayed)
-					put_text_in_buffer(in_data+3, data_lenght-3, 0);
+					put_text_in_buffer (CHAT_SERVER, in_data+3, data_lenght-3, 0);
 				have_error_message=1;
 			}
 			break;
@@ -1010,6 +1010,11 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
         		}
 			break;
 #endif //NEW_CLIENT
+#ifdef MULTI_CHANNEL
+		case GET_ACTIVE_CHANNELS:
+			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_lenght-2)/4);
+			break;
+#endif
 		default:
 			{
 				// Unknown data type??

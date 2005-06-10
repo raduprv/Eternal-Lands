@@ -1,6 +1,23 @@
 #include <string.h>
 #include "global.h"
 
+#ifdef MULTI_CHANNEL
+
+Uint32 active_channels[MAX_ACTIVE_CHANNELS];
+Uint8 current_channel;
+Uint8 tab[MAX_CHAT_TABS];
+
+void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
+{
+	int i;
+
+	current_channel = active;
+	for (i = 0; i < nchan; i++)
+		active_channels[i] = SDL_SwapLE32(channels[i]);
+}
+
+#endif // def MULTI_CHANNEL
+
 #define CHAT_WIN_SPACE		4
 #define CHAT_WIN_TAG_HEIGHT	20
 #define CHAT_WIN_TAG_SPACE	3
@@ -28,18 +45,18 @@ int current_line = 0;
 int text_changed = 1;
 int nr_displayed_lines;
 
-chat_channel channels[CHAT_WIN_MAX_TABS];
+chat_channel channels[MAX_CHAT_TABS];
 int active_tab = -1;
 
 void init_chat_channels ()
 {
 	int itab;
 	
-	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
+	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
 	{
 		channels[itab].tab_id = -1;
 		channels[itab].out_id = chat_out_start_id + itab;
-		channels[itab].chan_nr = CHANNEL_LOCAL;
+		channels[itab].chan_nr = CHAT_LOCAL;
 		channels[itab].nr_lines = 0;
 		channels[itab].open = 0;
 		channels[itab].new = 0;
@@ -80,12 +97,12 @@ int close_channel (window_info *win)
 	int id = win->window_id;
 	int ichan;
 	
-	for (ichan = 0; ichan < CHAT_WIN_MAX_TABS; ichan++)
+	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 	{
 		if (channels[ichan].tab_id == id)
 		{
 			channels[ichan].tab_id = -1;
-			channels[ichan].chan_nr = CHANNEL_LOCAL;
+			channels[ichan].chan_nr = CHAT_LOCAL;
 			channels[ichan].nr_lines = 0;
 			channels[ichan].open = 0;
 			channels[ichan].new = 0;
@@ -98,17 +115,18 @@ int close_channel (window_info *win)
 	return 0;
 }
 
-void update_chat_window (int nlines, int channel)
+void update_chat_window (int nlines, Uint8 channel)
 {
 	int ichan, len;
-	
+
 	// don't bother if there's no chat window
 	if (chat_win < 0) return;
-	
+
 	// first check if we need to display in all open channels
-	if (channel == CHANNEL_ALL)
+	// XXX TODO: make this configurable
+	if (channel == CHAT_SERVER || channel == CHAT_LOCAL || channel == CHAT_PERSONAL)
 	{
-		for (ichan = 0; ichan < CHAT_WIN_MAX_TABS; ichan++)
+		for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 		{
 			if (channels[ichan].open)
 				channels[ichan].nr_lines += nlines;
@@ -128,9 +146,9 @@ void update_chat_window (int nlines, int channel)
 		text_changed = 1;
 		return;
 	}
-	
+
 	// not for all channels, see if this channel is already open
-	for (ichan = 0; ichan < CHAT_WIN_MAX_TABS; ichan++)
+	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 	{
 		if (channels[ichan].open && channels[ichan].chan_nr == channel)
 		{
@@ -154,9 +172,9 @@ void update_chat_window (int nlines, int channel)
 			return;
 		}
 	}
-	
+
 	// channel not found, try to create a new one
-	for (ichan = 0; ichan < CHAT_WIN_MAX_TABS; ichan++)
+	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 	{
 		if (!channels[ichan].open)
 		{
@@ -172,14 +190,26 @@ void update_chat_window (int nlines, int channel)
 			
 			switch (channel)
 			{
-				case CHANNEL_LOCAL:
+				case CHAT_LOCAL:
 					my_strncp (title, tab_local, sizeof (title) );
 					break;
-				case CHANNEL_GM:
+				case CHAT_PERSONAL:
+					my_strncp (title, tab_personal, sizeof (title) );
+					break;
+				case CHAT_GM:
 					my_strncp (title, tab_guild, sizeof (title) );
 					break;
-				default:
+				case CHAT_SERVER:
+					my_strncp (title, tab_server, sizeof (title) );
+					break;
+				case CHAT_MOD:
+					my_strncp (title, tab_mod, sizeof (title) );
+					break;
+				case CHAT_CHANNEL1:
+				case CHAT_CHANNEL2:
+				case CHAT_CHANNEL3:
 					my_strncp (title, tab_channel, sizeof (title) );
+				break;
 			}
 
 			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1);
@@ -196,7 +226,7 @@ void update_chat_window (int nlines, int channel)
 			return;
 		}
 	}
-	
+
 	// uh oh, no empty slot found. this shouldn't really be happening...
 	// log as local
 	channels[0].nr_lines += nlines;	
@@ -243,12 +273,12 @@ int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 	
 	if (id != channels[active_tab].tab_id)
 	{
-		for (active_tab = 0; active_tab < CHAT_WIN_MAX_TABS; active_tab++)
+		for (active_tab = 0; active_tab < MAX_CHAT_TABS; active_tab++)
 		{
 			if (channels[active_tab].tab_id == id && channels[active_tab].open)
 				break;
 		}
-		if (active_tab >= CHAT_WIN_MAX_TABS)
+		if (active_tab >= MAX_CHAT_TABS)
 		{
 			// This shouldn't be happening
 			LOG_ERROR ("Trying to switch to non-existant channel");
@@ -373,7 +403,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 	
 	widget_resize (chat_win, chat_tabcollection_id, inout_width, tabcol_height);
 	
-	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++)
+	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
 		if (channels[itab].tab_id >= 0)
 			widget_resize (channels[itab].tab_id, channels[itab].out_id, inout_width, output_height);
 	
@@ -538,20 +568,20 @@ void create_chat_window() {
 	widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
 	widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
 	
-	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, CHAT_WIN_MAX_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
+	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_CHAT_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
 	widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
 	
 	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, tab_local, 0, 0);
 	set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
 	set_window_min_size (channels[0].tab_id, 0, 0);
-	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHANNEL_LOCAL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
-	channels[0].chan_nr = CHANNEL_LOCAL;
+	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_LOCAL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
+	channels[0].chan_nr = CHAT_LOCAL;
 	channels[0].nr_lines = 0;
 	channels[0].open = 1;
 	channels[0].new = 0;
 	active_tab = 0;		
 
-	chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, CHANNEL_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+	chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
 	widget_set_OnKey (chat_win, chat_in_id, chat_input_key);
 	
 	set_window_min_size (chat_win, min_width, min_height);
@@ -576,7 +606,7 @@ void display_chat ()
 void chat_win_update_zoom() {
 	int itab;
 	widget_set_size(chat_win, chat_in_id, chat_zoom);
-	for (itab = 0; itab < CHAT_WIN_MAX_TABS; itab++) {
+	for (itab = 0; itab < MAX_CHAT_TABS; itab++) {
 		if (channels[itab].open) {
 			widget_set_size(channels[itab].tab_id, channels[itab].out_id, chat_zoom);
 		}

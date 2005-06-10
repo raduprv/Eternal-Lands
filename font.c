@@ -201,7 +201,7 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
-void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int channel, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
+void draw_messages (int x, int y, const text_message *msgs, int msgs_size, Uint8 filter, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
 {
 	float displayed_font_x_size = 11.0 * text_zoom;
 	float displayed_font_y_size = 18.0 * text_zoom;
@@ -248,9 +248,9 @@ void draw_messages (int x, int y, const text_message *msgs, int msgs_size, int c
 		{
 			// end of message
 			if (++imsg >= msgs_size) imsg = 0;
-			if (channel != CHANNEL_ALL)
+			if (filter != FILTER_ALL)
 			{
-				while (msgs[imsg].chan_nr != channel && msgs[imsg].chan_nr != CHANNEL_ALL)
+				while (msgs[imsg].chan_idx != filter && msgs[imsg].chan_idx != CHAT_ALL)
 				{
 					if (++imsg >= msgs_size) imsg = 0;
 					if (msgs[imsg].data == NULL || imsg == msg_start) break;
