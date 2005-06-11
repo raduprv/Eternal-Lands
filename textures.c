@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-//#include <unistd.h>
+#include <unistd.h>
 #include "global.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
