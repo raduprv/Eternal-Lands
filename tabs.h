@@ -17,8 +17,6 @@
 #define TAB_SPACING      3   /*!< the spacing between two tabs */
 /* @} */
 
-extern int use_tabbed_windows; /*!< flag that indicates whether we use tabbed windows or the old separate windows. Can be set via commandline and in el.ini. */
-
 /*! \name windows handlers 
  * @{ */
 extern int tab_stats_win; /*!< handler for the stats tabbed window */

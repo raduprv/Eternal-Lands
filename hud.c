@@ -355,20 +355,9 @@ void init_peace_icons()
 	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
 	*/
 
-	if (use_tabbed_windows)
-	{
-		add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, tt_stats, view_window, &tab_stats_win, DATA_WINDOW);
-		add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_help_win, DATA_WINDOW);
-	}
-	else
-	{
-		add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, tt_stats, view_window, &stats_win, DATA_WINDOW);
-		add_icon(knowledge_icon_u_start, knowledge_icon_v_start, colored_knowledge_icon_u_start, colored_knowledge_icon_v_start, tt_knowledge, view_window, &knowledge_win, DATA_WINDOW);
-		add_icon(encyclopedia_icon_u_start, encyclopedia_icon_v_start, colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, tt_encyclopedia, view_window, &encyclopedia_win, DATA_WINDOW);
-		add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &help_win, DATA_WINDOW);
-		add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
-	}
-		
+	add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, tt_stats, view_window, &tab_stats_win, DATA_WINDOW);
+	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_help_win, DATA_WINDOW);
+	
 	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, &map_root_win, DATA_MODE);
 		
 	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, &console_root_win, DATA_MODE);
@@ -610,19 +599,8 @@ void view_window(int * window, int id)
 #ifdef NEW_CLIENT
 			else if(window==&storage_win) display_storage_menu();
 #endif
-			else if(use_tabbed_windows)
-			{
-				if(window==&tab_stats_win) display_tab_stats();
-				else if(window==&tab_help_win) display_tab_help();
-			} 
-			else
-			{
-				if(window==&stats_win) display_stats(your_info);
-				else if(window==&knowledge_win) display_knowledge();
-				else if(window==&questlog_win) display_questlog();
-				else if(window==&encyclopedia_win) display_encyclopedia();
-				else if(window==&help_win) display_help();
-			}
+			else if(window==&tab_stats_win) display_tab_stats();
+			else if(window==&tab_help_win) display_tab_help();
 		}
 	else toggle_window(*window);
 }

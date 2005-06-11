@@ -369,44 +369,12 @@ void save_bin_cfg()
 		cfg_mem.manufacture_menu_y=manufacture_menu_y;
 	}
 
-	if(!use_tabbed_windows && stats_win >= 0) {
-		cfg_mem.attrib_menu_x=windows_list.window[stats_win].cur_x;
-		cfg_mem.attrib_menu_y=windows_list.window[stats_win].cur_y;
-	} else {
-		cfg_mem.attrib_menu_x=attrib_menu_x;
-		cfg_mem.attrib_menu_y=attrib_menu_y;
-	}
-
 	if(options_win >= 0) {
 		cfg_mem.options_menu_x=windows_list.window[options_win].cur_x;
 		cfg_mem.options_menu_y=windows_list.window[options_win].cur_y;
 	} else {
 		cfg_mem.options_menu_x=options_menu_x;
 		cfg_mem.options_menu_y=options_menu_y;
-	}
-
-	if(!use_tabbed_windows && knowledge_win >= 0) {
-		cfg_mem.knowledge_menu_x=windows_list.window[knowledge_win].cur_x;
-		cfg_mem.knowledge_menu_y=windows_list.window[knowledge_win].cur_y;
-	} else {
-		cfg_mem.knowledge_menu_x=knowledge_menu_x;
-		cfg_mem.knowledge_menu_y=knowledge_menu_y;
-	}
-
-	if(!use_tabbed_windows && encyclopedia_win >= 0) {
-		cfg_mem.encyclopedia_menu_x=windows_list.window[encyclopedia_win].cur_x;
-		cfg_mem.encyclopedia_menu_y=windows_list.window[encyclopedia_win].cur_y;
-	} else {
-		cfg_mem.encyclopedia_menu_x=encyclopedia_menu_x;
-		cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
-	}
-
-	if(!use_tabbed_windows && questlog_win >= 0) {
-		cfg_mem.questlog_menu_x=windows_list.window[questlog_win].cur_x;
-		cfg_mem.questlog_menu_y=windows_list.window[questlog_win].cur_y;
-	} else {
-		cfg_mem.questlog_menu_x=questlog_menu_x;
-		cfg_mem.questlog_menu_y=questlog_menu_y;
 	}
 
 	if(quickbar_relocatable>0)
@@ -473,13 +441,7 @@ void init_2d_obj_cache()
 
 void check_options ()
 {
-	if ( !use_tabbed_windows && (video_mode == 1 || video_mode == 2) )
-	{
-		char err[120];
-		sprintf (err, must_use_tabs, video_mode);
-		LOG_TO_CONSOLE(c_red2, err);
-		use_tabbed_windows = 1;
-	}
+
 }
 
 void init_stuff()

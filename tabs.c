@@ -1,8 +1,6 @@
 #include "global.h"
 #include "elwindows.h"
 
-int use_tabbed_windows = 1;
-
 int tab_stats_win = -1;
 int tab_stats_collection_id = 16;
 Uint16 tab_stats_x = 150;

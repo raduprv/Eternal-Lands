@@ -173,10 +173,7 @@ void fill_knowledge_win ()
 	set_window_handler(knowledge_win, ELW_HANDLER_CLICK, &click_knowledge_handler );
 	set_window_handler(knowledge_win, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	
-	if (use_tabbed_windows)
-		knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200     , 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, KNOWLEDGE_LIST_SIZE/2-19);
-	else
-		knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20, 20, 20, 200 - 20, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, KNOWLEDGE_LIST_SIZE/2-19);
+	knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200     , 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, KNOWLEDGE_LIST_SIZE/2-19);
 }
 
 void display_knowledge()

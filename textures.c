@@ -64,7 +64,8 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	strcpy(name+1, "_alpha.bmp");
 
 	// Grum: removed. if the file doesn't exist, (my_)fopen will catch it
-	//if(access(filename, F_OK)) return 0;//File doesn't exist...
+	// Wytter: Readded, we don't want 200000 file not found in errors.log...
+	if(access(filename, F_OK)) return 0;//File doesn't exist...
   	
 	f = my_fopen (filename, "rb");
   	if (!f) return 0;

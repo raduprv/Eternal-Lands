@@ -58,7 +58,7 @@ void setup_video_mode(int fs, int mode)
 			case 2:
 				window_width=640;
 				window_height=480;
-				bpp=32;
+				bpp=16;
 				break;
 			case 3:
 				window_width=800;

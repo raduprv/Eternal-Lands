@@ -904,26 +904,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			hide_window (options_win);
 		if (sigil_win >= 0)
 			hide_window (sigil_win);
-		if (use_tabbed_windows)
-		{
-			if (tab_stats_win >= 0)
-				hide_window (tab_stats_win);
-			if (tab_help_win >= 0)
-				hide_window (tab_help_win);
-		}
-		else
-		{
-			if(questlog_win >= 0)
-				hide_window (questlog_win);
-			if(stats_win >= 0)
-				hide_window (stats_win);
-			if (knowledge_win >= 0)
-				hide_window (knowledge_win);
-			if (encyclopedia_win >= 0)
-				hide_window (encyclopedia_win);
-			if (help_win >= 0)
-				hide_window (help_win);
-		}
+		if (tab_stats_win >= 0)
+			hide_window (tab_stats_win);
+		if (tab_help_win >= 0)
+			hide_window (tab_help_win);
 	}
 	// toggle options
 	else if (key == K_HEALTHBAR)
@@ -949,10 +933,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	// open or close windows
 	else if (key == K_STATS)
 	{
-		if (use_tabbed_windows)
-			view_tab (&tab_stats_win, &tab_stats_collection_id, 0);
-		else
-			view_window (&stats_win, 0);
+		view_tab (&tab_stats_win, &tab_stats_collection_id, 0);
 	}
 	else if (key == K_OPTIONS)
 	{
@@ -960,24 +941,15 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_KNOWLEDGE)
 	{
-		if (use_tabbed_windows)
-			view_tab (&tab_stats_win, &tab_stats_collection_id, 1);
-		else
-			view_window (&knowledge_win, 0);
+		view_tab (&tab_stats_win, &tab_stats_collection_id, 1);
 	}
 	else if (key == K_ENCYCLOPEDIA)
 	{
-		if (use_tabbed_windows)
-			view_tab (&tab_help_win, &tab_help_collection_id, 1);
-		else
-			view_window (&encyclopedia_win, 0);
+		view_tab (&tab_help_win, &tab_help_collection_id, 1);
 	}
 	else if (key == K_HELP)
 	{
-		if (use_tabbed_windows)
-			view_tab(&tab_help_win, &tab_help_collection_id, 0);
-		else
-			view_window(&help_win,0);
+		view_tab(&tab_help_win, &tab_help_collection_id, 0);
 	}
 	#ifdef NOTEPAD
 	else if (key == K_NOTEPAD)

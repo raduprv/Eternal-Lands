@@ -255,7 +255,7 @@ int questlog_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, in
 
 void fill_questlog_win ()
 {
-	int boxlen = use_tabbed_windows ? 0 : 20;
+	int boxlen = 0;
 
 	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, &display_questlog_handler );
 
