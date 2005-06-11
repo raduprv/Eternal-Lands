@@ -767,6 +767,7 @@ int init_fonts ()
 	if (set_font_parameters (0) < 0) return 0;
 	if (set_font_parameters (1) < 0) return 0;
 	if (set_font_parameters (2) < 0) return 0;
+	if (set_font_parameters (3) < 0) return 0;
 
 	cur_font_num = 0;
 
@@ -775,7 +776,7 @@ int init_fonts ()
 
 int load_font_textures ()
 {
-	if (fonts[0] == NULL || fonts[1] == NULL || fonts[2] == NULL)
+	if (fonts[0] == NULL || fonts[1] == NULL || fonts[2] == NULL || fonts[3]==NULL )
 	{
 		int i;
 		for (i = 0; i < FONTS_ARRAY_SIZE; i++)
@@ -785,6 +786,7 @@ int load_font_textures ()
 	fonts[0]->texture_id = load_texture_cache ("./textures/font.bmp", 0);
 	fonts[1]->texture_id = load_texture_cache ("./textures/fontv.bmp", 0);
 	fonts[2]->texture_id = load_texture_cache ("./textures/font2.bmp", 0);
+	fonts[3]->texture_id = load_texture_cache ("./textures/font3.bmp", 0);
 
 	//set the default font
 	cur_font_num = 0;
@@ -823,7 +825,7 @@ int set_font_parameters (int num)
 
 	// load font information
 	// TODO: write this and remove the hack!
-	if(num==0)for(i=0; i<10*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
+	if(num==0||num==3)for(i=0; i<10*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
 	if(num==1){
 		static int widths[]={
 			4,2,7,11,8,12,12,2,7,7,9,10,3,8,
