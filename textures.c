@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include "global.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -63,11 +62,7 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	while((*name--!='.' && (point)name!=(point)filename));
 	strcpy(name+1, "_alpha.bmp");
 
-	// Grum: removed. if the file doesn't exist, (my_)fopen will catch it
-	// Wytter: Readded, we don't want 200000 file not found in errors.log...
-	if(access(filename, F_OK)) return 0;//File doesn't exist...
-  	
-	f = my_fopen (filename, "rb");
+	f = fopen (filename, "rb");
   	if (!f) return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
