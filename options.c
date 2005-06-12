@@ -3,6 +3,8 @@
 #include "options.h"
 #include "global.h"
 
+//TODO: Rewrite completely, using widgets and elconfig.c vars.
+
 typedef struct
 {
 	char * name;
@@ -17,7 +19,7 @@ typedef struct
 struct options_struct
 {
 	int no;
-	option_struct * option[25];
+	option_struct * option[30];
 };
 
 char	*opt_vid1={"640x480x16"},
@@ -30,6 +32,8 @@ char	*opt_vid1={"640x480x16"},
 	*opt_vid8={"1152x864x32"},
 	*opt_vid9={"1280x1024x16"},
 	*opt_vid10={"1280x1024x32"},
+	*opt_vid11={"1600x1200x16"},
+	*opt_vid12={"1600x1200x32"},
 	* no_string = {"(error - no str)"},
 	opt_vid1_desc[75],
 	opt_vid2_desc[75],
@@ -40,7 +44,9 @@ char	*opt_vid1={"640x480x16"},
 	opt_vid7_desc[75],
 	opt_vid8_desc[75],
 	opt_vid9_desc[75],
-	opt_vid10_desc[75];
+	opt_vid10_desc[75],
+	opt_vid11_desc[75],
+	opt_vid12_desc[75];
 
 
 int options_win= -1;
@@ -71,7 +77,7 @@ float unlit_gem_v_end=1.0f-(float)111/256;
 int options_menu_x=220;
 int options_menu_y=50;
 int options_menu_x_len=390;
-int options_menu_y_len=300;
+int options_menu_y_len=335;
 
 int display_options_handler(window_info *win);
 int click_options_handler(window_info *win, int mx, int my, Uint32 flags);
@@ -118,6 +124,8 @@ void init_display_options_menu()
 	add_option(OPTION,opt_autocam.str,opt_autocam.desc,change_option,&always_true,&auto_camera,0);
 	add_option(NONE,NULL,NULL,NULL,NULL,NULL,0);//A hole :0)
 	add_option(OPTION,opt_exit.str,opt_exit.desc,change_option,&always_true,&exit_now,0);
+	add_option(NONE,NULL,NULL,NULL,NULL,NULL,0);//A hole :0)
+	add_option(NONE,NULL,NULL,NULL,NULL,NULL,0);//A hole :0)
 
 	//Video mode automatically switches side - should this be changed?
 	add_option(OPTION,opt_full_screen.str,opt_full_screen.desc,move_to_full_screen,&always_true,&full_screen,1);
@@ -151,6 +159,12 @@ void init_display_options_menu()
 	option=10;
 	sprintf(opt_vid10_desc,switch_video_mode,opt_vid10);
 	add_option(VIDEO_MODE,opt_vid10,opt_vid10_desc,switch_video_modes,(int*)&(video_modes[9].supported),&option,1);
+	option=11;
+	sprintf(opt_vid11_desc,switch_video_mode,opt_vid11);
+        add_option(VIDEO_MODE,opt_vid11,opt_vid11_desc,switch_video_modes,(int*)&(video_modes[10].supported),&option,1);
+        option=12;
+        sprintf(opt_vid11_desc,switch_video_mode,opt_vid12);
+        add_option(VIDEO_MODE,opt_vid12,opt_vid12_desc,switch_video_modes,(int*)&(video_modes[11].supported),&option,1);
 }
 
 void add_option(int type, char * name, char * desc, void * func, int * data_1, int * data_2, int column)
@@ -278,12 +292,12 @@ int mouseover_options_handler(window_info *win, int mx, int my)
 		}
 	else if (mx>193 && mx < 355 && my > 35)
 		{
-			no=(my-35)/20+11;
-			if (no>=0 && no < options.no && *(options.option[no]->data_1))
-				{
+			no=(my-35)/20+13;
+			if (no>=0 && no < options.no){
+				if(*(options.option[no]->data_1)) {
 					put_small_text_in_box(options.option[no]->desc,strlen(options.option[no]->desc),200*2,options_help_text);
 				}
-			else options_help_text[0]='\0';
+			} else options_help_text[0]='\0';
 		}
 	else options_help_text[0]='\0';
 	return 0;
@@ -305,7 +319,7 @@ int click_options_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	else if(mx>193 && mx<220 && my > 35)//Second col, VIDEO_MODE
 		{
-			no=(my-35)/20+11;
+			no=(my-35)/20+13;
 			if (*(options.option[no]->data_1)<=0) return 1;
 			if (no>=0 && no < options.no) options.option[no]->func(&full_screen,options.option[no]->data_2);
 		}

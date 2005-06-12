@@ -108,14 +108,14 @@ void Leave2DMode()
 	//glViewport(0, 0, window_width-hud_x, window_height-hud_y);	// Reset The Current Viewport
 }
 
-mode_flag video_modes[10];
+mode_flag video_modes[12];
 
 void build_video_mode_array()
 {
 	int i;
 	int flags;
 
-	for(i=0;i<10;i++)
+	for(i=0;i<12;i++)
 		{
 			video_modes[i].selected=0;
 			video_modes[i].supported=0;
@@ -195,6 +195,18 @@ void build_video_mode_array()
 		if(bpp==32)
 #endif
 			if(SDL_VideoModeOK(1280, 1024, 32, flags))video_modes[9].supported=1;
+#ifdef WINDOWS
+        if(bpp==16 || full_screen)
+#else
+                if(bpp==16)
+#endif
+                        if(SDL_VideoModeOK(1600, 1200, 16, flags))video_modes[10].supported=1;
+#ifdef WINDOWS
+        if(bpp==32 || full_screen)
+#else
+                if(bpp==32)
+#endif
+                        if(SDL_VideoModeOK(1600, 1200, 32, flags))video_modes[11].supported=1;
 }
 
 void draw_console_pic(int which_texture)

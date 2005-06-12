@@ -127,7 +127,7 @@ void change_particles_percentage(int value)
 
 void switch_vidmode(int mode)
 {
-	if(mode>10 || mode<=0)
+	if(mode>12 || mode<=0)
 		{
 #ifndef ELCONFIG
 			//warn about this error
@@ -245,6 +245,10 @@ void switch_vidmode(int mode)
 			case 5:
 				window_width=1250;
 				window_height=990;
+				return;
+			case 6:
+				window_width=1600;
+				window_height=1200;
 			default: return;
 		}
 }
@@ -404,8 +408,8 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 		}
 	our_vars.var[no]->var=var;
 	our_vars.var[no]->func=func;
-	strncpy(our_vars.var[no]->name,name,50);
-	strncpy(our_vars.var[no]->shortname,shortname,10);
+	our_vars.var[no]->name=name;
+	our_vars.var[no]->shortname=shortname;
 	our_vars.var[no]->nlen=strlen(our_vars.var[no]->name);
 	our_vars.var[no]->snlen=strlen(our_vars.var[no]->shortname);
 	our_vars.var[no]->saved = 0;

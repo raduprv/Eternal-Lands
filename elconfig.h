@@ -12,9 +12,9 @@
 typedef struct
 {
 	int 	type; /*!< type of the variable */
-	char	name[52]; /*!< name of the variable */
+	char	*name; /*!< name of the variable */
 	int 	nlen; /*!< length of the \a name */
-	char 	shortname[12]; /*!< shortname of the variable */
+	char 	*shortname; /*!< shortname of the variable */
 	int 	snlen; /*!< length of the \a shortname */
 	void 	(*func)(); /*!< routine to execute when this variable is selected. */
 	void 	*var; /*!< data for this variable */

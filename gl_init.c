@@ -100,6 +100,16 @@ void setup_video_mode(int fs, int mode)
 				window_height=1024;
 				bpp=32;
 				break;
+			case 11:
+				window_width=1600;
+				window_height=1200;
+				bpp=16;
+				break;
+			case 12:
+				window_width=1600;
+				window_width=1200;
+				bpp=32;
+				break;
 			}
 		}
 	else //windowed mode
@@ -160,6 +170,17 @@ void setup_video_mode(int fs, int mode)
 				window_width=1250;
 				window_height=990;
 				break;
+                        case 11:
+			case 12:
+                                if(window_width != 1600 || window_height != 1200)
+                                        {
+                                                Uint8 str[100];
+                                                sprintf(str,window_size_adjusted_str,"1600x1200");
+                                                LOG_TO_CONSOLE(c_yellow1,str);
+                                        }
+                                window_width=1600;
+                                window_height=1200;
+                                break;
 			}
 			bpp=0;//autodetect
 		}
