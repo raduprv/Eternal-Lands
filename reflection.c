@@ -188,7 +188,7 @@ void display_3d_reflection()
 	glScalef(1.0f, 1.0f, -1.0f);
 	for(i=0;i<max_obj_3d;i++)
 		{
-			if(objects_list[i])
+			if(objects_list[i] && objects_list[i]->blended!=20)
 			     {
 					 if(!objects_list[i]->e3d_data->is_ground)
 					 	{

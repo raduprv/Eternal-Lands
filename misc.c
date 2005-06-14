@@ -89,7 +89,7 @@ void get_3d_object_under_mouse()
 
 	for(i=0;i<max_obj_3d;i++)
 	{
-		if (objects_list[i])
+		if (objects_list[i] && objects_list[i]->blended!=20)
 		{
 			int dist1;
 			int dist2;

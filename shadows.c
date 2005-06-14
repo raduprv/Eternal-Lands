@@ -126,7 +126,7 @@ void display_shadows()
 	glEnable(GL_CULL_FACE);
 	for(i=0;i<max_obj_3d;i++)
 		{
-			if(objects_list[i])
+			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
 				if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
 					{
@@ -162,7 +162,7 @@ void display_night_shadows(int phase)
 			closest_light_dist=100.0f;
 			next_closest_light_dist=100.0f;
 
-			if(objects_list[i])
+			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
 				if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
 					{
@@ -257,7 +257,7 @@ void display_3d_ground_objects()
 		}
 	for(i=0;i<max_obj_3d;i++)
 		{
-			if(objects_list[i])
+			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
 					 if(objects_list[i]->e3d_data->is_ground)
 						{
@@ -324,7 +324,7 @@ void display_3d_non_ground_objects()
 		}
 	for(i=0;i<max_obj_3d;i++)
 		{
-			if(objects_list[i])
+			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
 					 if(!objects_list[i]->e3d_data->is_ground)
 						{
