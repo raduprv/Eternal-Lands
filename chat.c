@@ -5,7 +5,6 @@
 
 Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 Uint8 current_channel;
-Uint8 tab[MAX_CHAT_TABS];
 
 void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 {
@@ -123,8 +122,7 @@ void update_chat_window (int nlines, Uint8 channel)
 	if (chat_win < 0) return;
 
 	// first check if we need to display in all open channels
-	// XXX TODO: make this configurable
-	if (channel == CHAT_SERVER || channel == CHAT_LOCAL || channel == CHAT_PERSONAL)
+	if (channel == CHAT_ALL)
 	{
 		for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 		{
@@ -594,7 +592,7 @@ void display_chat ()
 {
 	if (chat_win < 0)
 	{
-		create_chat_window();
+		create_chat_window ();
 	}
 	else
 	{
@@ -603,7 +601,7 @@ void display_chat ()
 	}
 }
 
-void chat_win_update_zoom() {
+void chat_win_update_zoom () {
 	int itab;
 	widget_set_size(chat_win, chat_in_id, chat_zoom);
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++) {
@@ -612,4 +610,162 @@ void chat_win_update_zoom() {
 		}
 	}
 	text_changed = 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+int use_tab_bar = 1;
+int personal_chat_separate = 0;
+int guild_chat_separate = 1;
+int server_chat_separate = 0;
+int mod_chat_separate = 0;
+
+int tab_bar_win = -1;
+Uint8 tabs[MAX_CHAT_TABS];
+int tab_buttons[MAX_CHAT_TABS];
+int button_id_start = 0;
+int tabs_in_use = 0;
+int current_tab = 0;
+
+int tab_bar_width = 0;
+int tab_bar_height = 18;
+
+int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
+{
+	int itab;
+	
+	for (itab = 0; itab < tabs_in_use; itab++)
+	{
+		if (w->id == tab_buttons[itab]) break;
+	}
+	
+	if (itab >= tabs_in_use)
+		// shouldn't happen
+		return 0;
+	
+	current_tab = itab;
+	widget_set_color (tab_bar_win, tab_buttons[itab], 0.77f,0.57f,0.39f);
+	current_filter = tabs[current_tab];
+	lines_to_show = 10;
+	
+	return 1;
+}
+
+char tmp_tab_label[20];
+
+const char *tab_label (Uint8 chan)
+{
+#ifdef MULTI_CHANNEL
+	int cnr;
+#endif
+
+	switch (chan)
+	{
+		case CHAT_LOCAL: return tab_local;
+		case CHAT_PERSONAL: return tab_personal;
+		case CHAT_GM: return tab_guild;
+		case CHAT_SERVER: return tab_server;
+		case CHAT_MOD: return tab_mod;
+		case CHAT_CHANNEL1:
+		case CHAT_CHANNEL2:
+		case CHAT_CHANNEL3:
+#ifdef MULTI_CHANNEL
+			cnr = active_channels[chan-CHAT_CHANNEL1];
+			switch (cnr)
+			{
+				case 1: return tab_newbie_channel;
+				case 2: return tab_help_channel;
+				case 3: return tab_market_channel;
+				case 4: return tab_general_channel;
+				case 5: return tab_offtopic_channel;
+				default: 
+					snprintf (tmp_tab_label, sizeof (tmp_tab_label), tab_channel, cnr);
+					return tmp_tab_label;
+			}
+#else
+			return "Channel";
+#endif
+		default:
+			// shouldn't get here 
+			return "";
+	}
+}
+
+int add_tab_button (Uint8 channel)
+{
+	int itab;
+	const char *label;
+
+	for (itab = 0; itab < tabs_in_use; itab++)
+	{
+		if (tabs[itab] == channel)
+			// already there
+			return itab;
+	}
+	
+	if (tabs_in_use >= MAX_CHAT_TABS)
+		// no more room. Shouldn't happen anyway.
+		return -1;
+
+	tabs[tabs_in_use] = channel;
+	label = tab_label (channel);
+
+	tab_buttons[itab] = button_add_extended (tab_bar_win, button_id_start+itab, NULL, tab_bar_width, 0, 0, tab_bar_height, 0, 0.75, 0.77f, 0.57f, 0.39f, label);
+	widget_set_OnClick (tab_bar_win, tab_buttons[itab], tab_bar_button_click);
+
+	tab_bar_width += widget_get_width (tab_bar_win, tab_buttons[tabs_in_use]);
+	resize_window (tab_bar_win, tab_bar_width, tab_bar_height);
+
+	tabs_in_use++;
+	return tabs_in_use - 1;
+}
+
+void update_tab_bar (Uint8 channel)
+{
+	int itab, button;
+
+	// don't bother if there's no tab bar
+	if (tab_bar_win < 0) return;
+
+	// Only update specific channels
+	if (channel == CHAT_ALL) return;
+
+	for (itab = 0; itab < tabs_in_use; itab++)
+	{
+		if (tabs[itab] == channel)
+		{
+			if (current_tab != itab)
+				widget_set_color (tab_bar_win, tab_buttons[itab], 1.0f, 1.0f, 0.0f);
+			return;
+		}
+	}
+	
+	// we need a new button
+	button = add_tab_button (channel);
+	widget_set_color (tab_bar_win, tab_buttons[button], 1.0f, 1.0f, 0.0f);
+}
+
+void create_tab_bar ()
+{
+	int tab_bar_x = 10;
+	int tab_bar_y = 3;
+
+	tab_bar_win = create_window ("Tab bar", game_root_win, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
+	
+	add_tab_button (CHAT_LOCAL);
+	current_tab = 0;
+	current_filter = tabs[current_tab];
+}
+
+void display_tab_bar ()
+{
+	if (tab_bar_win < 0)
+	{
+		create_tab_bar ();
+	}
+	else
+	{
+		show_window (tab_bar_win);
+		select_window (tab_bar_win);
+	}
 }

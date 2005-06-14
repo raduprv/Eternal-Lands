@@ -130,4 +130,33 @@ void display_chat ();
  */
 void chat_win_update_zoom ();
 
+///////////////////////////////////////////////////////////////////////
+
+extern int use_tab_bar;			/* if non-zero, use the tab bar for channel selection */
+extern int personal_chat_separate;	/* if non-zero, show PMs in a different tab */
+extern int guild_chat_separate;		/* if non-zero, show GMs in a different tab */
+extern int server_chat_separate;	/* if non-zero, show game messages in a different tab */
+extern int mod_chat_separate;		/* for moderators and newbie helpers only: if non-zero, show mod chat in a different tab */
+
+/*!
+ * \ingroup chat_bar
+ * \brief   Show the channel selection bar
+ *
+ *      Show the channel selection bar
+ *
+ * \callgraph
+ */
+void display_tab_bar ();
+
+/*!
+ * \ingroup chat_bar
+ * \brief   Highlight a channel in the channel selection bar
+ *
+ *      Highlight a channel in the channel selection bar when a message arrives in that channel.
+ *
+ * \param channel	a chat channel in which a message has arrived
+ * \callgraph
+ */
+void update_tab_bar (Uint8 channel);
+
 #endif // def __CHAT_H__

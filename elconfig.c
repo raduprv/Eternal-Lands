@@ -505,6 +505,10 @@ void init_vars()
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1);
+	add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0);
+	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1);
+	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0);
+	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0);
 #endif // ELCONFIG
 #endif // def ELC
 

@@ -783,7 +783,7 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 		if(win->cur_x+win->len_x < ELW_BOX_SIZE) win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
 		if(win->cur_x > window_width-ELW_BOX_SIZE) win->cur_x= window_width-ELW_BOX_SIZE;
 	}
-	
+
 	// move child windows, if any
 	dx += win->cur_x;
 	dy += win->cur_y;

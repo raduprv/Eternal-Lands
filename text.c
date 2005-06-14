@@ -6,6 +6,7 @@ text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;
 int buffer_full = 0;
 int total_nr_lines = 0;
+Uint8 current_filter = FILTER_ALL;
 
 int console_msg_nr = 0;
 int console_msg_offset = 0;
@@ -46,6 +47,8 @@ void update_text_windows (int nlines, Uint8 channel)
 	update_console_win (nlines);
 	if (use_windowed_chat)
 		update_chat_window (nlines, channel);
+	else if (use_tab_bar && channel != CHAT_ALL)
+		update_tab_bar (channel);
 }
 
 void write_to_log (Uint8 *data, int len)
@@ -419,9 +422,9 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			lines_to_show = max_lines_no;
 		total_nr_lines += nlines;
 
-		if (use_windowed_chat)
-		{
 #ifndef MULTI_CHANNEL
+		if (use_windowed_chat || use_tab_bar)
+		{
 			// determine the proper channel
 			// XXX FIXME (Grum): hack
 			if (msg->data[0] == 127+c_orange1 && strncmp (&(msg->data[1]), "[PM ", 4) == 0)
@@ -457,7 +460,27 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 				// all else, show it as local
 				channel = CHAT_LOCAL;
 			}
+		}
 #endif
+		
+		switch (channel)
+		{
+			case CHAT_PERSONAL:
+				if (!personal_chat_separate)
+					channel = CHAT_ALL;
+				break;
+			case CHAT_GM:
+				if (!guild_chat_separate)
+					channel = CHAT_ALL;
+				break;
+			case CHAT_SERVER:
+				if (!server_chat_separate)
+					channel = CHAT_ALL;
+				break;
+			case CHAT_MOD:
+				if (!mod_chat_separate)
+					channel = CHAT_ALL;
+				break;
 		}
 		msg->chan_idx = channel;
 		update_text_windows (nlines, channel);
@@ -657,7 +680,7 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 
 
 // find the last lines, according to the current time
-int find_last_lines_time (int *msg, int *offset)
+int find_last_lines_time (int *msg, int *offset, Uint8 filter)
 {
 	// adjust the lines_no according to the time elapsed since the last message
 	if ( (cur_time - last_server_message_time) / 1000 > 3)
@@ -668,7 +691,7 @@ int find_last_lines_time (int *msg, int *offset)
 	}
 	if (lines_to_show <= 0) return 0;
 	
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, FILTER_ALL, msg, offset);
+	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, filter, msg, offset);
 }
 
 int find_last_console_lines (int lines_no)
@@ -676,7 +699,7 @@ int find_last_console_lines (int lines_no)
 	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, FILTER_ALL, &console_msg_nr, &console_msg_offset);
 }
 
-int find_line_nr (int nr_lines, int line, int filter, int *msg, int *offset)
+int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset)
 {
 	int line_count = 0, lines_no = nr_lines - line;	
 	int imsg, ichar;

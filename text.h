@@ -31,6 +31,7 @@ extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 extern int last_message;
 extern int buffer_full;
 extern int total_nr_lines; /*!< The number of lines in the text buffer */
+extern Uint8 current_filter;
 
 extern float chat_zoom; /*!< zoom factor for chat text */
 
@@ -181,7 +182,7 @@ void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit
  *
  * \todo Fix documentation
  */
-int find_last_lines_time (int *msg, int *offset);
+int find_last_lines_time (int *msg, int *offset, Uint8 filter);
 
 /*!
  * \ingroup text_font
@@ -196,7 +197,7 @@ int find_last_lines_time (int *msg, int *offset);
  * \param offset The offset in the message at which the line starts
  * \retval The position of the beginning of the line
  */
-int find_line_nr (int nr_lines, int line, int channel, int *msg, int *offset);
+int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset);
 
 /*!
  * \ingroup interface_console

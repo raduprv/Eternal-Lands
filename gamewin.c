@@ -716,18 +716,19 @@ int display_game_handler (window_info *win)
 	{
 		sprintf (str, "FPS: %i", fps[0]);
 		glColor3f (1.0f, 1.0f, 1.0f);
-		draw_string (10, 0, str, 1);
+		draw_string (win->len_x-hud_x-95, win->len_y-hud_y-25, str, 1);
 	}
 
 	CHECK_GL_ERRORS ();
 	if (!use_windowed_chat)
 	{
-		int msg, offset;
+		int msg, offset, ytext;
 		
-		if ( find_last_lines_time (&msg, &offset) )
+		ytext = use_tab_bar ? 25 : 20;
+		if ( find_last_lines_time (&msg, &offset, current_filter) )
 		{
 			set_font(chat_font);	// switch to the chat font
-			draw_messages (10, 20, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
+			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, current_filter, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
 			set_font (0);	// switch to fixed
 		}
 	}

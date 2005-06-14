@@ -260,7 +260,19 @@ int widget_set_size(Uint32 window_id, Uint32 widget_id, float size);
  */
 int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float b);
 
-
+/*!
+ * \ingroup	widgets
+ * \brief 	Return the widget width
+ *
+ * 		Finds the widget in the given window and returns its width
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \retval int  	Returns the width on succes or -1 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int widget_get_width (Uint32 window_id, Uint32 widget_id);
 
 // Label
 
@@ -550,7 +562,7 @@ int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked);
  *
  * \sa button_add
  */
-int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text);
+int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text);
 
 /*!
  * \ingroup	buttons
@@ -567,7 +579,7 @@ int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x
  *
  * \sa button_add_extended
  */
-int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y);
+int button_add(Uint32 window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y);
 
 /*!
  * \ingroup	buttons

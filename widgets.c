@@ -244,6 +244,15 @@ int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float
 	return 0;
 }
 
+int widget_get_width (Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if (w != NULL)
+	{
+		return w->len_x;
+	}
+	return -1;
+}
 
 // Label
 int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
@@ -516,12 +525,12 @@ int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked)
 
 
 // Button
-int button_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
+int button_add(Uint32 window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
 {
 	return button_add_extended(window_id, widget_id++, NULL, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
 }
 
-int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
+int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	button *T = (button *) malloc(sizeof(button));
