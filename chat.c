@@ -647,9 +647,13 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 		// shouldn't happen
 		return 0;
 	
-	current_tab = itab;
-	widget_set_color (tab_bar_win, tab_buttons[itab], 0.77f,0.57f,0.39f);
-	current_filter = tabs[current_tab];
+	if (current_tab != itab)
+	{
+		widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.77f, 0.57f, 0.39f);
+		current_tab = itab;
+		widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.0f, 0.5f, 1.0f);
+		current_filter = tabs[current_tab];
+	}
 	lines_to_show = 10;
 	
 	return 1;
@@ -758,6 +762,7 @@ void create_tab_bar ()
 	
 	add_tab_button (CHAT_LOCAL);
 	current_tab = 0;
+	widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.0f, 0.5f, 1.0f);
 	current_filter = tabs[current_tab];
 }
 
