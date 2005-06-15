@@ -7,6 +7,11 @@
 char map_file_name[256]={0};
 char particle_file_name[256]={0};
 
+char map_folder[256];
+char obj_2d_folder[256];
+char obj_3d_folder[256];
+char particles_folder[256];
+
 char * selected_file=NULL;
 GtkWidget * gtk_open_win=NULL;
 GtkWidget * gtk_save_win=NULL;
@@ -33,6 +38,32 @@ void init_filters()
 	part_filter=gtk_file_filter_new();
 	gtk_file_filter_set_name(part_filter, "Particle file");
 	gtk_file_filter_add_pattern(part_filter, "*.part");
+	
+	//Now set the correct dir names
+	strcpy(obj_3d_folder, datadir);
+	strcat(obj_3d_folder, "/3dobjects/");
+
+	strcpy(obj_2d_folder, datadir);
+	strcat(obj_2d_folder, "/2dobjects/");
+	
+	strcpy(map_folder, datadir);
+	strcat(map_folder, "/maps/");
+	
+	strcpy(particles_folder, datadir);
+	strcat(particles_folder, "/particles/");
+}
+
+copy_folder(char * folder,  char * file)
+{
+	int i;
+
+	for(i=0;file[i];i++){
+		folder[i]=file[i];
+	}
+
+	for(;file[i]!='/';i--);
+
+	folder[i]=0;
 }
 
 void open_button_clicked()
@@ -43,13 +74,17 @@ void open_button_clicked()
 		//What should we do next...
 		if((point)filter==(point)map_filter){
 			strcpy(map_file_name, selected_file);
+			copy_folder(map_folder, selected_file);
 			open_map_file_continued();
 		} else if((point)filter==(point)e3d_filter){
+			copy_folder(obj_3d_folder, selected_file);
 			open_3d_obj_continued();
 		} else if((point)filter==(point)e2d_filter){
+			copy_folder(obj_2d_folder, selected_file);
 			open_2d_obj_continued();
 		} else if((point)filter==(point)part_filter){
 			strcpy(particle_file_name, selected_file);
+			copy_folder(particles_folder, selected_file);
 			open_particles_obj_continued();
 		}
 		

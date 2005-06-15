@@ -14,6 +14,10 @@ extern char* selected_file;
 #ifdef GTK2
 extern char map_file_name[256];
 extern char particle_file_name[256];
+extern char map_folder[256];
+extern char obj_2d_folder[256];
+extern char obj_3d_folder[256];
+extern char particles_folder[256];
 
 extern GtkFileFilter * e3d_filter;
 extern GtkFileFilter * e2d_filter;

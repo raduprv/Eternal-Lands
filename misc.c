@@ -1100,11 +1100,7 @@ void open_particles_obj()
 void open_3d_obj()
 {
 #ifdef GTK2
-	char dir[200];
-
-	strcpy(dir, datadir);
-	strcat(dir, "/3dobjects/");
-	show_open_window("Open 3D object", dir, e3d_filter);
+	show_open_window("Open 3D object", obj_3d_folder, e3d_filter);
 #else
 	gtk_window_set_title(GTK_WINDOW(file_selector), "open 3d object");
 	//gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.e3d");
@@ -1130,11 +1126,7 @@ void open_3d_obj_continued()
 void open_particles_obj()
 {
 #ifdef GTK2
-	char dir[200];
-
-	strcpy(dir, datadir);
-	strcat(dir, "/particles/");
-	show_open_window("Open particle file", dir, part_filter);
+	show_open_window("Open particle file", particles_folder, part_filter);
 #else
 	gtk_window_set_title(GTK_WINDOW(file_selector), "open particles object");
 	continue_with = OPEN_PARTICLES_OBJ;
@@ -1159,11 +1151,7 @@ void open_particles_obj_continued()
 void open_2d_obj()
 {
 #ifdef GTK2
-	char dir[200];
-
-	strcpy(dir, datadir);
-	strcat(dir, "/2dobjects/");
-	show_open_window("Open 2D object", dir, e2d_filter);
+	show_open_window("Open 2D object", obj_2d_folder, e2d_filter);
 #else
   gtk_window_set_title(GTK_WINDOW(file_selector), "open 2d object");
   //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.e2d");
@@ -1187,11 +1175,7 @@ void open_2d_obj_continued()
 void open_map_file()
 {
 #ifdef GTK2
-	char dir[200];
-
-	strcpy(dir, datadir);
-	strcat(dir, "/maps/");
-	show_open_window("Open map", dir, map_filter);
+	show_open_window("Open map", map_folder, map_filter);
 #else
   gtk_window_set_title(GTK_WINDOW(file_selector), "open map");
   //  gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.elm");
