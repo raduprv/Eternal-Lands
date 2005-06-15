@@ -149,4 +149,15 @@ int check_tile_in_frustrum(float x,float y);
  */
 FILE *my_fopen (const char *fname, const char *mode);
 
+#ifdef PNG_SCREENSHOT
+/*!
+ * \ingroup misc
+ * \brief Takes a screenshot
+ *
+ *      Takes a screenshot
+ *
+ */
+void makeScreenShot ();
+#endif
+
 #endif

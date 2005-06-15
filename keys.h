@@ -52,6 +52,7 @@ extern Uint32 K_ENCYCLOPEDIA;   /*!< key used to toggle display of \ref encyclop
 extern Uint32 K_HELP;           /*!< key used to toggle display of \ref help_window */
 extern Uint32 K_NOTEPAD;        /*!< key used to toggle display of \ref notepad_window */
 extern Uint32 K_HIDEWINS;       /*!< key used to hide all open windows */
+extern Uint32 K_SCREENSHOT;	/*!< key used to make a screenshot */
 extern Uint32 K_VIEWTEXTASOVERTEXT; /*!< key used to toggle display of text bubbles (overtext) */
 extern Uint32 K_AFK;                /*!< key used to display AFK messages */
 extern Uint32 K_SIT;                /*!< key used to toggle sitting status, i.e. sit down/stand up */
