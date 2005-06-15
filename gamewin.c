@@ -720,11 +720,11 @@ int display_game_handler (window_info *win)
 	}
 
 	CHECK_GL_ERRORS ();
-	if (!use_windowed_chat)
+	if (use_windowed_chat != 2)
 	{
 		int msg, offset, ytext;
 		
-		ytext = use_tab_bar ? 25 : 20;
+		ytext = use_windowed_chat == 1 ? 25 : 20;
 		if ( find_last_lines_time (&msg, &offset, current_filter) )
 		{
 			set_font(chat_font);	// switch to the chat font
@@ -741,7 +741,7 @@ int display_game_handler (window_info *win)
 	CHECK_GL_ERRORS ();
 	
 	// print the text line we are currently writting (if any)
-	if (!use_windowed_chat)
+	if (use_windowed_chat != 2)
 	{
 		//y_line = win->len_y - (17 * (4+input_text_lines));
 		y_line = win->len_y - (17 * (4+(int)((get_string_width(input_text_line.data)*11.0f/12.0f)/(win->len_x-hud_x-20))));
@@ -1039,7 +1039,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (keysym == SDLK_ESCAPE)
 	{
-		if (use_windowed_chat)
+		if (use_windowed_chat == 2)
 		{
 			root_key_to_input_field (key, unikey);
 		}
@@ -1062,7 +1062,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 {
 	Uint8 ch = key_to_char (unikey);
 
-	if (use_windowed_chat)
+	if (use_windowed_chat == 2)
 	{
 		root_key_to_input_field (key, unikey);
 	}

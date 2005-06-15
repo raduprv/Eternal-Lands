@@ -164,10 +164,19 @@ void set_afk_time(int time)
 	else afk_time=0;
 }
 
-void change_windowed_chat (int *wc)
+void change_windowed_chat (int *wc, int val)
 {
-	*wc = !*wc;
-	if (*wc)
+	*wc = val;
+	if (*wc == 1)
+	{
+		if (game_root_win >= 0) display_tab_bar ();
+	}
+	else if (tab_bar_win >= 0) 
+	{
+		hide_window (tab_bar_win);
+	}
+	
+	if (*wc == 2)
 	{
 		if (game_root_win >= 0) display_chat ();
 	}
@@ -500,7 +509,7 @@ void init_vars()
 	add_var(STRING,"browser","b",browser_name,change_string,70);
 
 #ifndef ELCONFIG // FIXME: currently not implemented in gtk-elconfig
-	add_var(BOOL,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 0);
+	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1);
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0);
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0);

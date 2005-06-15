@@ -45,10 +45,10 @@ void init_text_buffers ()
 void update_text_windows (int nlines, Uint8 channel)
 {
 	update_console_win (nlines);
-	if (use_windowed_chat)
-		update_chat_window (nlines, channel);
-	else if (use_tab_bar && channel != CHAT_ALL)
+	if (use_windowed_chat == 1 && channel != CHAT_ALL)
 		update_tab_bar (channel);
+	else if (use_windowed_chat == 2)
+		update_chat_window (nlines, channel);
 }
 
 void write_to_log (Uint8 *data, int len)
@@ -392,7 +392,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		msg->data[idx++] = 127 + color;
 	
 	/* FIXME: currently unused, commented (Lachesis)
-	if (use_windowed_chat || x_chars_limit <= 0 || len <= x_chars_limit)
+	if (use_windowed_chat == 2 || x_chars_limit <= 0 || len <= x_chars_limit)
 	{
 	*/
 		for (i = 0; i < len; i++)
@@ -404,7 +404,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		msg->data[idx++] = '\0';
 		
 		/* FIXME: currently unused, commented (Lachesis)
-		if (use_windowed_chat)
+		if (use_windowed_chat == 2)
 			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, chat_win_text_width, NULL);
 		else if (x_chars_limit <= 0)
 			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, window_width - hud_x - 20, NULL);
@@ -423,7 +423,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		total_nr_lines += nlines;
 
 #ifndef MULTI_CHANNEL
-		if (use_windowed_chat || use_tab_bar)
+		if (use_windowed_chat != 0)
 		{
 			// determine the proper channel
 			// XXX FIXME (Grum): hack

@@ -26,7 +26,12 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 #define CHAT_WIN_SCROLL_WIDTH	20
 
 
-int use_windowed_chat = 0;
+/* 
+ * use_windowed_chat == 0: old behaviour, all text is printed
+ * use_windowed_chat == 1: channel selection bar
+ * use_windowed_chat == 2: chat window
+ */
+int use_windowed_chat = 1;
 
 int chat_win = -1;
 int chat_scroll_id = 15;
@@ -83,7 +88,7 @@ void clear_input_line ()
 	input_text_line.data[0] = '\0';
 	input_text_line.len = 0;
 	cons_tf->cursor = 0;
-	if (use_windowed_chat)
+	if (use_windowed_chat == 2)
 	{
 		widget_list *chat = widget_find (chat_win, chat_in_id);
 		text_field *chat_tf = (text_field *) chat->widget_info;
@@ -614,7 +619,6 @@ void chat_win_update_zoom () {
 
 ////////////////////////////////////////////////////////////////////////
 
-int use_tab_bar = 1;
 int personal_chat_separate = 0;
 int guild_chat_separate = 1;
 int server_chat_separate = 0;

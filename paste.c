@@ -7,7 +7,7 @@
 
 void do_paste(Uint8 * buffer)
 {
-	if (use_windowed_chat)
+	if (use_windowed_chat == 2)
 		paste_in_input_field (buffer);
 	else
 		put_string_in_buffer (&input_text_line, buffer, input_text_line.len);

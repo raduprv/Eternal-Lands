@@ -68,7 +68,6 @@ void init_buddy()
 		{
 			buddy_list[i].type= 0xff;
 		}
-	
 }
 
 /*

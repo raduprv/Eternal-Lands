@@ -641,10 +641,10 @@ void init_stuff()
 
 	create_opening_root_window (window_width, window_height);
 	// initialize the chat window
-	if (use_windowed_chat)
-		display_chat ();
-	else if (use_tab_bar)
+	if (use_windowed_chat == 1)
 		display_tab_bar ();
+	else if (use_windowed_chat == 2)
+		display_chat ();
 
 	// display something
 	if (has_accepted)
