@@ -49,6 +49,7 @@ Uint32 K_SCREENSHOT=CTRL|'p';
 Uint32 K_VIEWTEXTASOVERTEXT=ALT|'o';
 Uint32 K_AFK=CTRL|ALT|'a';
 Uint32 K_SIT=ALT|'s';
+Uint32 K_BUDDY=CTRL|'b';
 
 unsigned int CRC32(unsigned char *data, int len);
 unsigned short get_key_code(char *key);
@@ -176,6 +177,8 @@ void read_key_config()
 		K_AFK = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_SIT",file_mem,key_file_size,0))!=-1)
 		K_SIT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_BUDDY",file_mem,key_file_size,0))!=-1)
+		K_BUDDY = parse_key_string(&file_mem[t]);
 }
 
 Uint32 parse_key_string(char *s)

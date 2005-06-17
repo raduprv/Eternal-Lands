@@ -970,6 +970,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		view_window (&items_win, -1);
 	}
+	else if(key == K_BUDDY)
+	{
+		display_buddy();
+	}
 	// set action modes
 	else if (key == K_WALK)
 	{

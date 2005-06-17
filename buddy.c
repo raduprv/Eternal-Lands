@@ -96,8 +96,9 @@ void display_buddy()
 		}
 	else
 		{
+			toggle_window(buddy_win);/*
 			show_window(buddy_win);
-			select_window(buddy_win);
+			select_window(buddy_win);*/
 		}
 }
 
