@@ -73,10 +73,11 @@ void init_buddy()
 {
 	int i;
 
-	for(i=0; i<MAX_BUDDY; i++)
-		{
-			buddy_list[i].type= 0xff;
-		}
+	for (i = 0; i < MAX_BUDDY; i++)
+	{
+		buddy_list[i].type = 0xff;
+		memset (buddy_list[i].name, 0, sizeof (buddy_list[i].name));
+	}
 }
 
 /*
@@ -131,9 +132,12 @@ void del_buddy(char *n, int len)
 	int i;
 
 	//find buddy
-	for(i=0; i<MAX_BUDDY; i++){
-		if(!strncmp(n,buddy_list[i].name, len)){
-			buddy_list[i].type= 0xff;
+	for (i = 0; i < MAX_BUDDY; i++)
+	{
+		if (!strncmp(n,buddy_list[i].name, len))
+		{
+			buddy_list[i].type = 0xff;
+			memset (buddy_list[i].name, 0, sizeof (buddy_list[i].name));
 			break;
 		}
 		
