@@ -6,6 +6,7 @@
 #define	MAX_BUDDY	100
 
 int buddy_win=-1;
+int buddy_scroll_id = 0;
 int buddy_menu_x=150;
 int buddy_menu_y=70;
 int buddy_menu_x_len=150;
@@ -28,7 +29,8 @@ int display_buddy_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	// Draw budies
 	qsort(buddy_list,MAX_BUDDY,sizeof(_buddy),compare2);
-	for(i=vscrollbar_get_pos(buddy_win,12);i<(vscrollbar_get_pos(buddy_win,12)+19);i++){
+	for (i = vscrollbar_get_pos (buddy_win,buddy_scroll_id); i < vscrollbar_get_pos(buddy_win,buddy_scroll_id) + 19; i++)
+	{
 		switch(buddy_list[i].type){
 			case 0:glColor3f(1.0,1.0,1.0);break;
 			case 1:glColor3f(1.0,0,0);break;
@@ -45,18 +47,25 @@ int display_buddy_handler(window_info *win)
 int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int x=mx,y=my;
+	char str[40];
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	if(x>win->len_x-20)
 		return 0;
-	// clicked on a buddies name, start apm to them
+	
+	// clicked on a buddies name, start a pm to them
 	y /= 10;
-	y += vscrollbar_get_pos(buddy_win,12);
-	put_char_in_buffer (&input_text_line, '/', 0);
-	put_string_in_buffer (&input_text_line, buddy_list[y].name, 1);
-	put_char_in_buffer ( &input_text_line, ' ', 1+strlen (buddy_list[y].name) );
+	y += vscrollbar_get_pos(buddy_win,buddy_scroll_id);
+
+	// clear the buffer
+	input_text_line.data[0] = '\0';
+	input_text_line.len = 0;
+	
+	// insert the person's name
+	sprintf (str, "/%s ", buddy_list[y].name);
+	put_string_in_buffer (&input_text_line, str, 0);
 	return 1;
 }
 
@@ -91,7 +100,7 @@ void display_buddy()
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 
-			vscrollbar_add_extended (buddy_win, 12, NULL, 130, 20, 20, 180, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, MAX_BUDDY-19);
+			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 130, 20, 20, 180, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, MAX_BUDDY-19);
 		
 		}
 	else
