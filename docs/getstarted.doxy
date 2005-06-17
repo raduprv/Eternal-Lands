@@ -1,6 +1,52 @@
 /**
  * \page startpage Getting Started with EL development
  * \section secgetstarted How to dive into EL development
+ * <p>The Eternal Lands client is written in C and SDL but also uses the following libraries:
+ * <ul>
+ *    <li>SDL_net</li>
+ *    <li>OpenAL</li>
+ *    <li>libxml2</li>
+ *    <li>libvorbis</li>
+ *    <li>libogg</li>
+ *    <li>(cal3d) - Work is being done to implementing Cal3D support</li>
+ * </ul>
+ * </p>The main compiler is GCC on Linux and Windows, and we aim at supporting GCC 2.95 and up. This means that you can use some C99 features such as inlining, but you still have to declare your variables at the beginning of the scope. This means that:
+ * </p>
+ * <p><code>
+ * int main(int argc, char ** argv)<br>
+ * {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	if(argc<2){<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		printf("You have to provide at least 1 argument\n");<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		return 0;<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	}<br>
+ *
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      int l;
+ *
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      for(l=0;l<argc;l++){<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		printf("%d: %s\n",l,argv[l]);<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	}<br>
+ *
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	return 1;<br>
+ * }<br>
+ * </code>is invalid, whereas</p>
+ * <p><code>
+ * int main(int argc, char ** argv)<br>
+ * {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     int l;<br>
+ *
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	if(argc<2){<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		printf("You have to provide at least 1 argument\n");<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		return 0;<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	}
+ *
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(l=0;l<argc;l++){<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		printf("%d: %s\n",l,argv[l]);<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	}<br>
+ *
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	return 1;<br>
+ * }<br>
+ * </code></p><p>is valid since l is declared at the beginning of the scope. It just means that vars have to be declared after a {, and not after you've started writing your code.</p>
+ * <p>Indenting is a matter of personal preference - just make sure that you remember to indent, otherwise it can make the code almost unreadable.</p>
  * <p>Description where best to start to get a picture of the whole EL client. The following list is just a hack until the documentation is written out.
  * <ul>
  *  <li>\ref initpage</li>

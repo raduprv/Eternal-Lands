@@ -247,12 +247,16 @@ void update_camera()
 			if(zoom_level<3.75f){
 				new_zoom_level+=0.05f;
 				camera_zoom_frames--;
+				regenerate_near_objects=
+				regenerate_near_2d_objects=1;
 			} else 
 				camera_zoom_frames = 0;
 		} else {
 			if(zoom_level>sitting){
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
+				regenerate_near_objects=
+				regenerate_near_2d_objects=1;
 			} else 
 				camera_zoom_frames = 0;
 		}
