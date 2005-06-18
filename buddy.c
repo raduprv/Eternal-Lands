@@ -147,6 +147,8 @@ void del_buddy(char *n, int len)
 void clear_buddy()
 {
 	int i;
-	for(i=0; i<MAX_BUDDY; i++)
-			buddy_list[i].type= 0xff;
+	for(i=0; i<MAX_BUDDY; i++){
+		buddy_list[i].type= 0xff;
+		buddy_list[i].name[0]=0;
+	}
 }
