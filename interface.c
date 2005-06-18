@@ -797,7 +797,7 @@ GLuint generate_minimap()
 	scale=(float)3/scale;//Change the scale for 3d objects...
 	for(i=0;i<max_obj_3d;i++)
 		{
-			if(objects_list[i])
+			if(objects_list[i] && objects_list[i]->blended!=20)
 				{
 					x=(float)objects_list[i]->x_pos/scale;
 					y=(float)objects_list[i]->y_pos/scale;
