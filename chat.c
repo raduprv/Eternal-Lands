@@ -526,7 +526,8 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		return 0;
 	}
 	
-	sync_chat_and_console ();
+	// wytter removed the console text input field
+	//sync_chat_and_console ();
 	return 1;
 }
 
