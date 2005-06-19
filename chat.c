@@ -119,6 +119,64 @@ int close_channel (window_info *win)
 	return 0;
 }
 
+int add_chat_tab(int nlines, Uint8 channel)
+{
+	int ichan;
+	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
+	{
+		if (!channels[ichan].open)
+		{
+			// yay, found an empty slot
+			char title[64];
+			int inout_width = chat_win_text_width + 2 * CHAT_WIN_SPACE;
+			int output_height = chat_out_text_height + 2 * CHAT_WIN_SPACE;
+
+			channels[ichan].chan_nr = channel;
+			channels[ichan].nr_lines = nlines;
+			channels[ichan].open = 1;
+			channels[ichan].new = 1;
+			
+			switch (channel)
+			{
+				case CHAT_LOCAL:
+					my_strncp (title, tab_local, sizeof (title) );
+					break;
+				case CHAT_PERSONAL:
+					my_strncp (title, tab_personal, sizeof (title) );
+					break;
+				case CHAT_GM:
+					my_strncp (title, tab_guild, sizeof (title) );
+					break;
+				case CHAT_SERVER:
+					my_strncp (title, tab_server, sizeof (title) );
+					break;
+				case CHAT_MOD:
+					my_strncp (title, tab_mod, sizeof (title) );
+					break;
+				case CHAT_CHANNEL1:
+				case CHAT_CHANNEL2:
+				case CHAT_CHANNEL3:
+					my_strncp (title, tab_channel, sizeof (title) );
+				break;
+			}
+
+			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1);
+			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);
+				
+			set_window_min_size (channels[ichan].tab_id, 0, 0);
+			channels[ichan].out_id = text_field_add_extended (channels[ichan].tab_id, channels[ichan].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, channel, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
+
+			set_window_handler (channels[ichan].tab_id, ELW_HANDLER_DESTROY, close_channel);
+				
+			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
+			
+			return ichan;
+		}
+	}
+	//no empty slot found
+	return -1;
+}
+
 void update_chat_window (int nlines, Uint8 channel)
 {
 	int ichan, len;
@@ -177,76 +235,26 @@ void update_chat_window (int nlines, Uint8 channel)
 	}
 
 	// channel not found, try to create a new one
-	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
+	if(add_chat_tab(nlines, channel) == -1)
 	{
-		if (!channels[ichan].open)
+		// uh oh, no empty slot found. this shouldn't really be happening...
+		// log as local
+		channels[0].nr_lines += nlines;	
+		channels[0].new = 1;
+		if (0 == active_tab)
 		{
-			// yay, found an empty slot
-			char title[64];
-			int inout_width = chat_win_text_width + 2 * CHAT_WIN_SPACE;
-			int output_height = chat_out_text_height + 2 * CHAT_WIN_SPACE;
-
-			channels[ichan].chan_nr = channel;
-			channels[ichan].nr_lines = nlines;
-			channels[ichan].open = 1;
-			channels[ichan].new = 1;
-			
-			switch (channel)
-			{
-				case CHAT_LOCAL:
-					my_strncp (title, tab_local, sizeof (title) );
-					break;
-				case CHAT_PERSONAL:
-					my_strncp (title, tab_personal, sizeof (title) );
-					break;
-				case CHAT_GM:
-					my_strncp (title, tab_guild, sizeof (title) );
-					break;
-				case CHAT_SERVER:
-					my_strncp (title, tab_server, sizeof (title) );
-					break;
-				case CHAT_MOD:
-					my_strncp (title, tab_mod, sizeof (title) );
-					break;
-				case CHAT_CHANNEL1:
-				case CHAT_CHANNEL2:
-				case CHAT_CHANNEL3:
-					my_strncp (title, tab_channel, sizeof (title) );
-				break;
-			}
-
-			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1);
-			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);
-
-				
-			set_window_min_size (channels[ichan].tab_id, 0, 0);
-			channels[ichan].out_id = text_field_add_extended (channels[ichan].tab_id, channels[ichan].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, channel, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
-
-			set_window_handler (channels[ichan].tab_id, ELW_HANDLER_DESTROY, close_channel);
-				
-			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
-			
-			return;
+			len = channels[0].nr_lines - nr_displayed_lines;
+			if (len < 0) len = 0;
+		
+			vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
+			vscrollbar_set_pos (chat_win, chat_scroll_id, len);
+			current_line = channels[ichan].nr_lines;
+			text_changed = 1;
 		}
-	}
-
-	// uh oh, no empty slot found. this shouldn't really be happening...
-	// log as local
-	channels[0].nr_lines += nlines;	
-	channels[0].new = 1;
-	if (0 == active_tab)
-	{
-		len = channels[0].nr_lines - nr_displayed_lines;
-		if (len < 0) len = 0;
-	
-		vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
-		vscrollbar_set_pos (chat_win, chat_scroll_id, len);
-		current_line = channels[ichan].nr_lines;
-		text_changed = 1;
-	}
-	else
-	{
-		tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[0].tab_id, 1.0, 1.0, 0.0);
+		else
+		{
+			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[0].tab_id, 1.0, 1.0, 0.0);
+		}
 	}
 }
 
@@ -265,38 +273,150 @@ int display_chat_handler (window_info *win)
 	return 1;
 }
 
+void switch_to_chat_tab(int id, char click)
+{
+	if(!click)
+	{
+		//Do what a mouse click would do
+		//moved here
+		int itab;
+		widget_list *widget = widget_find(chat_win, chat_tabcollection_id);
+		tab_collection *collection = widget->widget_info;
+
+		for(itab = 0; itab < collection->nr_tabs; itab++)
+		{
+			if(collection->tabs[itab].content_id == id)
+			{
+				break;
+			}
+		}
+		tab_collection_select_tab(chat_win, chat_tabcollection_id, itab);
+	}
+	tab_set_label_color_by_id (chat_win, chat_tabcollection_id, id, -1.0, -1.0, -1.0);
+
+	//set active_tab
+	for (active_tab = 0; active_tab < MAX_CHAT_TABS; active_tab++)
+	{
+		if (channels[active_tab].tab_id == id && channels[active_tab].open)
+		{
+			break;
+		}
+	}
+	if (active_tab >= MAX_CHAT_TABS)
+	{
+		// This shouldn't be happening
+		LOG_ERROR ("Trying to switch to non-existant channel");
+		active_tab = 0;
+	}
+	current_line = channels[active_tab].nr_lines - nr_displayed_lines;
+	if (current_line < 0)
+	{
+		current_line = 0;
+	}
+	vscrollbar_set_bar_len(chat_win, chat_scroll_id, current_line);
+	vscrollbar_set_pos(chat_win, chat_scroll_id, current_line);
+	text_changed = 1;
+}
+
+void change_to_current_chat_tab(const char *input)
+{
+	Uint8 channel;
+	int ichan;
+	int itab;
+
+	if(input[0] == '@')
+	{
+		//TODO: multi channel support for this
+		channel = CHAT_CHANNEL1;
+	}
+	else if(my_strncompare(input, "#gm", 3))
+	{
+		channel = CHAT_GM;
+	}
+	else if(my_strncompare(input, "#mod", 4))
+	{
+		channel = CHAT_MOD;
+	}
+	else if(my_strncompare(input, "#bc", 3))
+	{
+		channel = CHAT_SERVER;
+	}
+	else if(input[0] == '/')
+	{
+		channel = CHAT_PERSONAL;
+	}
+	else
+	{
+		channel = CHAT_LOCAL;
+	}
+	switch (channel)
+	{
+		case CHAT_PERSONAL:
+			if (!personal_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
+		case CHAT_GM:
+			if (!guild_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
+		case CHAT_SERVER:
+			if (!server_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
+		case CHAT_MOD:
+			if (!mod_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
+	}
+	if(channel != CHAT_ALL)
+	{
+		for(ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
+		{
+			if(channels[ichan].chan_nr == channel)
+			{
+				if(ichan != active_tab) //We don't want to switch to the tab we're already in
+				{
+					//was here
+					switch_to_chat_tab(channels[ichan].tab_id, 0);
+				}
+				return;
+			}
+		}
+		//We didn't find any tab to switch to, create new
+		itab = add_chat_tab(0, channel);
+		if(itab == -1)
+		{
+			//Eek, it failed, switch to local
+			switch_to_chat_tab(channels[0].tab_id, 0);
+		}
+		else
+		{
+			switch_to_chat_tab(channels[itab].tab_id, 0);
+		}
+		//switch_to_tab(itab);
+	}
+}
+
 int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int id;
 	
 	id = tab_collection_get_tab_id (chat_win, widget->id);
-	
-	// reset the tab's label color to default
-	tab_set_label_color_by_id (chat_win, widget->id, id, -1.0, -1.0, -1.0);
-	
 	if (id != channels[active_tab].tab_id)
 	{
-		for (active_tab = 0; active_tab < MAX_CHAT_TABS; active_tab++)
-		{
-			if (channels[active_tab].tab_id == id && channels[active_tab].open)
-				break;
-		}
-		if (active_tab >= MAX_CHAT_TABS)
-		{
-			// This shouldn't be happening
-			LOG_ERROR ("Trying to switch to non-existant channel");
-			active_tab = 0;
-		}
-		current_line = channels[active_tab].nr_lines - nr_displayed_lines;
-		if (current_line < 0) current_line = 0;
-		vscrollbar_set_bar_len (chat_win, chat_scroll_id, current_line);
-		vscrollbar_set_pos (chat_win, chat_scroll_id, current_line);
-		text_changed = 1;
-		
+		//We're not looking at the tab we clicked
+		switch_to_chat_tab(id, 1);
 		return 1;
 	}
-	
-        return 0;
+	return 0;
 }
 
 int chat_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
@@ -635,13 +755,22 @@ int current_tab = 0;
 int tab_bar_width = 0;
 int tab_bar_height = 18;
 
+void switch_to_tab(int id)
+{
+	widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.77f, 0.57f, 0.39f);
+	current_tab = id;
+	widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.57f, 1.0f, 0.59f);
+	current_filter = tabs[current_tab];
+}
+
 int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int itab;
 	
 	for (itab = 0; itab < tabs_in_use; itab++)
 	{
-		if (w->id == tab_buttons[itab]) break;
+		if (w->id == tab_buttons[itab])
+			break;
 	}
 	
 	if (itab >= tabs_in_use)
@@ -650,10 +779,7 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 	
 	if (current_tab != itab)
 	{
-		widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.77f, 0.57f, 0.39f);
-		current_tab = itab;
-		widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.57f, 1.0f, 0.59f);
-		current_filter = tabs[current_tab];
+		switch_to_tab(itab);
 	}
 	lines_to_show = 10;
 	
@@ -777,5 +903,80 @@ void display_tab_bar ()
 	{
 		show_window (tab_bar_win);
 		select_window (tab_bar_win);
+	}
+}
+
+void change_to_current_tab(const char *input)
+{
+	Uint8 channel;
+	int itab;
+
+	if(input[0] == '@')
+	{
+		channel = CHAT_CHANNEL1;
+	}
+	else if(my_strncompare(input, "#gm", 3))
+	{
+		channel = CHAT_GM;
+	}
+	else if(my_strncompare(input, "#mod", 4))
+	{
+		channel = CHAT_MOD;
+	}
+	else if(my_strncompare(input, "#bc", 3))
+	{
+		channel = CHAT_SERVER;
+	}
+	else if(input[0] == '/')
+	{
+		channel = CHAT_PERSONAL;
+	}
+	else
+	{
+		channel = CHAT_LOCAL;
+	}
+	switch (channel)
+	{
+		case CHAT_PERSONAL:
+			if (!personal_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
+		case CHAT_GM:
+			if (!guild_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
+		case CHAT_SERVER:
+			if (!server_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
+		case CHAT_MOD:
+			if (!mod_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
+	}
+	if(channel != CHAT_ALL)
+	{
+		for(itab = 0; itab < tabs_in_use; itab++)
+		{
+			if(tabs[itab] == channel)
+			{
+				if(itab != current_tab) //We don't want to switch to the tab we're already in
+				{
+					switch_to_tab(itab);
+				}
+				return;
+			}
+		}
+		//We didn't find any tab to switch to, create new
+		itab = add_tab_button(channel);
+		switch_to_tab(itab);
 	}
 }

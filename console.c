@@ -43,7 +43,7 @@ void test_for_console_command (char *text, int len)
 			clear_display_text_buffer ();
 			return;
 		}
-	if(my_strncompare(text_loc,"goto",4))
+	else if(my_strncompare(text_loc,"goto",4))
 	{
 		Uint8 sx[3];
 		Uint8 sy[3];
@@ -163,7 +163,7 @@ void test_for_console_command (char *text, int len)
 		}
 		return;
 	}
-	if(my_strncompare(text_loc,"markpos", 7))
+	else if(my_strncompare(text_loc,"markpos", 7))
 	{
 		if (strlen(text_loc) > 5) //check for empty marks
 		{
@@ -192,7 +192,7 @@ void test_for_console_command (char *text, int len)
 		}
 		return;		
 	}
-	if(my_strncompare(text_loc,"mark", 4))
+	else if(my_strncompare(text_loc,"mark", 4))
 	{
 		if (strlen(text_loc) > 5) //check for empty marks
 		{
@@ -203,7 +203,7 @@ void test_for_console_command (char *text, int len)
 		}
 		return;		
 	}
-	if (my_strncompare(text_loc,"unmark",6))
+	else if (my_strncompare(text_loc,"unmark",6))
 	{
 		int i;
 		while (!isspace(*text_loc))
@@ -226,7 +226,7 @@ void test_for_console_command (char *text, int len)
 		return;
 	}
 	//stats ?
-	if(my_strcompare(text_loc,"stats"))
+	else if(my_strcompare(text_loc,"stats"))
 		{
 			unsigned char protocol_name;
 			protocol_name=SERVER_STATS;
@@ -234,7 +234,7 @@ void test_for_console_command (char *text, int len)
 			return;
 		}
 	//time?
-	if(my_strcompare(text_loc,"time"))
+	else if(my_strcompare(text_loc,"time"))
 		{
 			unsigned char protocol_name;
 			protocol_name=GET_TIME;
@@ -242,7 +242,7 @@ void test_for_console_command (char *text, int len)
 			return;
 		}
 	//ping?
-	if(my_strcompare(text_loc,"ping"))
+	else if(my_strcompare(text_loc,"ping"))
 		{
 			Uint8 str[8];
 			str[0]=PING;
@@ -252,19 +252,19 @@ void test_for_console_command (char *text, int len)
 		}
 
 	//date?
-	if(my_strcompare(text_loc,"date"))
+	else if(my_strcompare(text_loc,"date"))
 		{
 			unsigned char protocol_name;
 			protocol_name=GET_DATE;
 			my_tcp_send(my_socket,&protocol_name,1);
 			return;
 		}
-	if(my_strcompare(text_loc,"quit") || my_strcompare(text_loc,"exit"))
+	else if(my_strcompare(text_loc,"quit") || my_strcompare(text_loc,"exit"))
 		{
 			exit_now=1;
 			return;
 		}
-	if(my_strcompare(text_loc,"mem") || my_strcompare(text_loc,"cache"))
+	else if(my_strcompare(text_loc,"mem") || my_strcompare(text_loc,"cache"))
 		{
 			cache_dump_sizes(cache_system);
 #ifdef	DEBUG
@@ -273,7 +273,7 @@ void test_for_console_command (char *text, int len)
 #endif	//DEBUG
 			return;
 		}
-	if(my_strcompare(text_loc,"ver") || my_strcompare(text_loc,"vers"))
+	else if(my_strcompare(text_loc,"ver") || my_strcompare(text_loc,"vers"))
 		{
 			char str[128];
 			char extra[20];
@@ -291,12 +291,12 @@ void test_for_console_command (char *text, int len)
 			return;
 		}
 
-	if(my_strcompare(text_loc,"ignores"))
+	else if(my_strcompare(text_loc,"ignores"))
 		{
 			list_ignores();
 			return;
 		}
-	if(my_strncompare(text_loc,"ignore ", 7))
+	else if(my_strncompare(text_loc,"ignore ", 7))
 		{
 			Uint8 name[16];
 			int i;
@@ -353,12 +353,12 @@ void test_for_console_command (char *text, int len)
 				}
 		}
 
-	if(my_strcompare(text_loc,"filters"))
+	else if(my_strcompare(text_loc,"filters"))
 		{
 			list_filters();
 			return;
 		}
-	if(my_strncompare(text_loc,"filter ", 7))
+	else if(my_strncompare(text_loc,"filter ", 7))
 		{
 			Uint8 name[16];
 			int i;
@@ -385,7 +385,7 @@ void test_for_console_command (char *text, int len)
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
-			if(i<3)
+			else if(i<3)
 				{
 					Uint8 str[100];
 					sprintf(str,"%s %s",word_too_short,not_added_to_filter);
@@ -401,7 +401,7 @@ void test_for_console_command (char *text, int len)
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
-			if(result==-2)
+			else if(result==-2)
 				{
 					LOG_TO_CONSOLE(c_red1,filter_list_full);
 					return;
@@ -416,7 +416,7 @@ void test_for_console_command (char *text, int len)
 		}
 
 	////////////////////////
-	if(my_strncompare(text_loc,"unignore ",9))
+	else if(my_strncompare(text_loc,"unignore ",9))
 		{
 			Uint8 name[16];
 			int i;
@@ -466,7 +466,7 @@ void test_for_console_command (char *text, int len)
 					return;
 				}
 		}
-	if(my_strncompare(text_loc,"unfilter ",9))
+	else if(my_strncompare(text_loc,"unfilter ",9))
 		{
 			Uint8 name[16];
 			int i;
@@ -518,7 +518,7 @@ void test_for_console_command (char *text, int len)
 		}
 
 
-	if(my_strcompare(text_loc,"glinfo"))
+	else if(my_strcompare(text_loc,"glinfo"))
 		{
 			GLubyte *my_string;
 			Uint8 this_string[8192];
@@ -541,7 +541,7 @@ void test_for_console_command (char *text, int len)
 
 			return;
 		}
-	if(my_strncompare(text_loc,"log conn data", 8))
+	else if(my_strncompare(text_loc,"log conn data", 8))
 		{
 			LOG_TO_CONSOLE(c_grey1,logconn_str);
 			log_conn_data=1;
@@ -549,7 +549,7 @@ void test_for_console_command (char *text, int len)
 		}
 
 	// TODO: make this automatic or a better command, m is too short
-	if(my_strncompare(text_loc,"msg", 3))
+	else if(my_strncompare(text_loc,"msg", 3))
 		{
 			int no;//, m=-1;
 
@@ -564,7 +564,7 @@ void test_for_console_command (char *text, int len)
 			if(no<pm_log.ppl && no>=0)	print_message(no);
 			return;
 		}
-	if(my_strncompare(text_loc,"afk",3))
+	else if(my_strncompare(text_loc,"afk",3))
 		{
 			// find first space, then skip any spaces
 			while(*text_loc && !isspace(*text_loc))	text_loc++;
@@ -583,7 +583,7 @@ void test_for_console_command (char *text, int len)
 			return;
 		}
 	
-	if(my_strncompare(text_loc,"help", 4))
+	else if(my_strncompare(text_loc,"help", 4))
 		{
 			// help can open the Enc!
 			if(auto_open_encyclopedia)
@@ -593,7 +593,7 @@ void test_for_console_command (char *text, int len)
 			// but fall thru and send it to the server
 		}
 
-	if (my_strncompare (text_loc, "storage", 7))
+	else if (my_strncompare (text_loc, "storage", 7))
 		{
 			if (text_loc[7] != ' ')
 				{
@@ -606,9 +606,7 @@ void test_for_console_command (char *text, int len)
 					len = 8;
 				}
 		}
-	
 	send_input_text_line (text, len);	// no command, send it to the server, as plain text
-
 }
 
 /* Currently UNUSED

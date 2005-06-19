@@ -37,19 +37,6 @@ typedef struct {
 	int pos, pos_inc, bar_len;
 }vscrollbar;
 
-typedef struct {
-	Sint8 label[64];
-	Uint32 content_id;
-	Uint16 tag_x, tag_width;
-	float label_r, label_g, label_b;
-	char closable;
-} tab;
-
-typedef struct {
-	int tag_height, tag_space, nr_tabs, max_tabs, cur_tab;
-	tab *tabs;
-} tab_collection;
-
 Uint32 widget_id = 0x0000FFFF;
 
 int ReadXMLWindow(xmlNode * a_node);
@@ -895,8 +882,9 @@ int tab_collection_get_tab_id (Uint32 window_id, Uint32 widget_id)
 	widget_list *w = widget_find (window_id, widget_id);
 	if (w) 
 	{
+		int tab;
 		tab_collection *col = (tab_collection *) w->widget_info;
-		int tab = col->cur_tab;
+		tab = col->cur_tab;
 		if (tab >= 0 && tab < col->nr_tabs)
 			return col->tabs[tab].content_id;
 	}

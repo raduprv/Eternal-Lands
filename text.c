@@ -1,6 +1,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "global.h"
+#include "chat.h"
 
 text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;
@@ -121,6 +122,15 @@ void send_input_text_line (char *line, int line_len)
 	int i,j;
 	int len;
 	Uint8 ch;
+
+	if(use_windowed_chat == 1)
+	{
+		change_to_current_tab(line);
+	}
+	else if(use_windowed_chat == 2)
+	{
+		change_to_current_chat_tab(line);
+	}
 
 	if ( caps_filter && line_len > 4 && my_isupper (line, -1) )
 		my_tolower (line);

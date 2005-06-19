@@ -6,7 +6,21 @@
 #ifndef	__WIDGETS_H
 #define	__WIDGETS_H
 
+#include <SDL_types.h>
 #include "text.h"
+
+typedef struct {
+	Sint8 label[64];
+	Uint32 content_id;
+	Uint16 tag_x, tag_width;
+	float label_r, label_g, label_b;
+	char closable;
+} tab;
+
+typedef struct {
+	int tag_height, tag_space, nr_tabs, max_tabs, cur_tab;
+	tab *tabs;
+} tab_collection;
 
 /*!
  * The widget list structure - each window has a widget list.
