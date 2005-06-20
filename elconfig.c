@@ -446,6 +446,7 @@ void init_vars()
 	add_var(SPECINT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100);
 
 	add_var(SPECINT,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0);
+	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0);
 
 	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15);
 	add_var(INT,"click_speed","cspeed",&click_speed,change_int,300);
@@ -514,6 +515,7 @@ void init_vars()
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1);
+	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1);
 	add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0);
 	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1);
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0);

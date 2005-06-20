@@ -16,7 +16,8 @@ int video_mode;
 int full_screen;
 
 int have_multitexture=0;
-int use_vertex_array=0;
+int use_vertex_array=1;
+int use_vertex_buffers=0;
 int use_point_particles=1;
 int vertex_arrays_built=0;
 int have_compiled_vertex_array=0;
@@ -550,7 +551,7 @@ void init_gl_extensions()
 				LOG_TO_CONSOLE(c_red1,disabled_shadow_mapping);
 			}
 
-		if(get_string_occurance("GL_ARB_vertex_buffer_object",extensions,ext_str_len,0)>=0){
+		if(get_string_occurance("GL_ARB_vertex_buffer_object",extensions,ext_str_len,0)>=0 && use_vertex_buffers){
 			sprintf(str,gl_ext_found,"GL_ARB_vertex_buffer_object");
 			LOG_TO_CONSOLE(c_green2, str);
 			have_vertex_buffers=1;
