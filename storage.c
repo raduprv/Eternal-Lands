@@ -153,7 +153,7 @@ int display_storage_handler(window_info * win)
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	
-	for(i=pos=6*vscrollbar_get_pos(storage_win, 1201); i<pos+36;i++){
+	for(i=pos=6*vscrollbar_get_pos(storage_win, 1201); i<pos+36 && i<no_storage;i++){
 		GLfloat u_start, v_start, u_end, v_end;
 		int x_start, x_end, y_start, y_end;
 		int cur_item;
