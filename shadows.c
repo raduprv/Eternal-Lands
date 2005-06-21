@@ -222,7 +222,7 @@ void draw_3d_object_shadow(object3d * object_id)
 	if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
 		glVertexPointer(3,GL_FLOAT,0,0);
-	} else glVertexPointer(3,GL_FLOAT,0,array_vertex);
+	} else  glVertexPointer(3,GL_FLOAT,0,array_vertex);
 
 	if(is_transparent)
 		{
@@ -252,7 +252,7 @@ void draw_3d_object_shadow(object3d * object_id)
 		}
 	else glEnable(GL_TEXTURE_2D);
 		
-	if(have_vertex_buffers){
+	if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 }
