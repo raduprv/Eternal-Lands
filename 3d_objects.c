@@ -693,16 +693,27 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 		//Generate the buffers
 		ELglGenBuffersARB(3, cur_object->vbo);
 		
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[0]);
-		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_uv_main), array_uv_main, GL_STATIC_DRAW_ARB);
+		if(cur_object->vbo[0] && cur_object->vbo[1] && cur_object->vbo[2]){
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[0]);
+			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_uv_main), array_uv_main, GL_STATIC_DRAW_ARB);
 		
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[1]);
-		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_normal), array_normal, GL_STATIC_DRAW_ARB);
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[1]);
+			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_normal), array_normal, GL_STATIC_DRAW_ARB);
 		
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[2]);
-		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_vertex), array_vertex, GL_STATIC_DRAW_ARB);
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, cur_object->vbo[2]);
+			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, faces_no*3*sizeof(e3d_array_vertex), array_vertex, GL_STATIC_DRAW_ARB);
 		
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		} else {
+			if(cur_object->vbo[0])ELglDeleteBuffersARB(1,&cur_object->vbo[0]);
+			if(cur_object->vbo[1])ELglDeleteBuffersARB(1,&cur_object->vbo[1]);
+			if(cur_object->vbo[2])ELglDeleteBuffersARB(1,&cur_object->vbo[2]);
+			cur_object->vbo[0]=
+			cur_object->vbo[1]=
+			cur_object->vbo[2]=0;
+
+			log_error("We could not create all 3 vertex buffers! This is a major bug, so report it to the developers!");
+		}
 	}
 	
 	cur_object->array_vertex=array_vertex;
