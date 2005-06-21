@@ -104,6 +104,7 @@ void get_storage_items(Uint8 * in_data, int len)
 				storage_items[i].pos=*((Uint8*)(ptr+6));
 				storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
 				storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
+				no_storage++;
 				return;
 			}
 		}
