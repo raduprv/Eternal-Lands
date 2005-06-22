@@ -543,8 +543,12 @@ void test_for_console_command (char *text, int len)
 		}
 	else if(my_strncompare(text_loc,"log conn data", 8))
 		{
-			LOG_TO_CONSOLE(c_grey1,logconn_str);
-			log_conn_data=1;
+			if(!log_conn_data){
+				LOG_TO_CONSOLE(c_grey1,logconn_str);
+				log_conn_data=1;
+			} else {
+				log_conn_data=0;
+			}
 			return;
 		}
 
