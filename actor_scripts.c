@@ -901,13 +901,16 @@ void get_actor_damage(int actor_id, int damage)
 			if(actors_list[i])
 				if(actors_list[i]->actor_id==actor_id)
 					{
+						actors_list[i]->damage=damage;
+						
 						if(floatingmessages_enabled){
 							char str[10];
 						
 							snprintf(str,sizeof(str),"%d",damage);
 							add_floating_message(actor_id, str, FLOATINGMESSAGE_MIDDLE, 1.0, 0.1, 0.2);
+
+							actors_list[i]->last_health_loss=cur_time;
 						} else {
-							actors_list[i]->damage=damage;
 							actors_list[i]->damage_ms=2000;
 						}
 
@@ -936,6 +939,9 @@ void get_actor_heal(int actor_id, int quantity)
 						
 							snprintf(str,sizeof(str),"%d",quantity);
 							add_floating_message(actor_id, str, FLOATINGMESSAGE_MIDDLE, 0.3, 1.0, 0.3);
+							
+							actors_list[i]->damage=-quantity;
+							actors_list[i]->last_health_loss=cur_time;
 						}
 
 						actors_list[i]->cur_health+=quantity;

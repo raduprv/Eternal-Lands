@@ -131,6 +131,21 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	return i;
 }
 
+void set_health_color(float percent, float multiplier, float a)
+{
+	float r,g;
+
+	r=(1.0f-percent)*2.0f;
+	g=(percent/1.25f)*2.0f;
+
+	if(r<0.0f)r=0.0f;
+	else if(r>1.0f)r=1.0f;
+	if(g<0.0f)g=0.0f;
+	else if(g>1.0f)g=1.0f;
+
+	glColor4f(r*multiplier,g*multiplier,0.0f, a);
+}
+
 
 void draw_actor_banner(actor * actor_id, float offset_z)
 {
@@ -140,6 +155,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	float healtbar_z=offset_z+0.1f;	//was 0.2f
 	float healtbar_x_len=0.5f*zoom_level/3.0f;
 	float healtbar_x_len_converted=0;
+	float healtbar_x_len_loss=0;
+	float healtbar_x_loss_fade=1.0f;
 	float healtbar_z_len=0.05f*zoom_level/3.0f;
 
 	// are we activley drawing?
@@ -157,35 +174,63 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			}
 		//draw the health bar
 		glDisable(GL_TEXTURE_2D);
-		//choose color for the bar
-		if(actor_id->cur_health>=actor_id->max_health/2)
-			glColor3f(0,0.5,0);	//green life bar
-		//else if(actor_id->cur_health>=actor_id->max_health/4 && actor_id->cur_health<actor_id->max_health/2)
-		else if(actor_id->cur_health>=actor_id->max_health/4)
-			glColor3f(0.5,0.5,0);	//yellow life bar
-		else glColor3f(0.5,0,0);	//red life bar
+
 		if(!actor_id->ghost)glDisable(GL_LIGHTING);
 
-		if(view_health_bar && actor_id->cur_health>=0 && (!actor_id->dead))
+		if(view_health_bar && actor_id->cur_health>=0 && actor_id->max_health>=0 && (!actor_id->dead))
 			{
+				float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 				//get it's lenght
-				if(actor_id->max_health > 0)//we don't want a division by zero, now do we?
-					{
-						healtbar_x_len_converted=healtbar_x_len*(float)((float)actor_id->cur_health/(float)actor_id->max_health);
+				if(actor_id->last_health_loss && cur_time-actor_id->last_health_loss<1000){//only when using floatingmessages
+					if(actor_id->damage>0){
+						healtbar_x_len_converted=healtbar_x_len*percentage;
+						healtbar_x_len_loss=healtbar_x_len*(float)((float)actor_id->damage/(float)actor_id->max_health);
+						healtbar_x_loss_fade=1.0f-((float)(cur_time-actor_id->last_health_loss)/1000.0f);
+					} else {
+						healtbar_x_len_converted=healtbar_x_len*(float)((float)(actor_id->cur_health+actor_id->damage)/(float)actor_id->max_health);
+						healtbar_x_len_loss=healtbar_x_len*(float)((float)(-actor_id->damage)/(float)actor_id->max_health);
+						healtbar_x_loss_fade=((float)(cur_time-actor_id->last_health_loss)/1000.0f);
 					}
+				} else {
+					healtbar_x_len_converted=healtbar_x_len*percentage;
+					actor_id->last_health_loss=0;
+				}
+
 				glBegin(GL_QUADS);
+				
+				//choose tint color
+				set_health_color(percentage, 0.5f, 1.0f);
+				
 				glVertex3f(healtbar_x,healtbar_y,healtbar_z);
 				glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
+				
 				//choose color for the bar
-				if(actor_id->cur_health>=actor_id->max_health/2)
-			  		glColor3f(0,1,0);	//green life bar
-				else if(actor_id->cur_health>=actor_id->max_health/4)
-			  		glColor3f(1,1,0);	//yellow life bar
-				else glColor3f(1,0,0);	//red life bar
+				set_health_color(percentage, 1.0f, 1.0f);
 
 				glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
 				glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+
 				glEnd();
+
+				if(healtbar_x_len_loss){
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					
+					set_health_color(percentage, 0.5f, healtbar_x_loss_fade);
+				
+					glBegin(GL_QUADS);
+						glVertex3f(healtbar_x+healtbar_x_len_converted, healtbar_y, healtbar_z);
+						glVertex3f(healtbar_x+healtbar_x_len_converted+healtbar_x_len_loss, healtbar_y, healtbar_z);
+					
+					set_health_color(percentage, 1.0f, healtbar_x_loss_fade);
+					
+						glVertex3f(healtbar_x+healtbar_x_len_converted+healtbar_x_len_loss, healtbar_y, healtbar_z+healtbar_z_len);
+						glVertex3f(healtbar_x+healtbar_x_len_converted, healtbar_y, healtbar_z+healtbar_z_len);
+					glEnd();
+
+					glDisable(GL_BLEND);
+				}
+
 
 				//draw the frame
 				healtbar_y=0.001*zoom_level/3.0f;

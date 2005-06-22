@@ -340,6 +340,7 @@ typedef struct
 	char dead;		/*!< Used when the actor is dead (render the dead position)*/
 	int damage;		/*!< Sets the damage the actor has been given*/
 	int damage_ms;		/*!< Defines the remaining time in which the actor damage will be shown*/
+	int last_health_loss;	/*!< Defines the time of damage*/
 	int cur_health;		/*!< Sets the current health of the actor*/
 	int max_health;		/*!< Sets the maximum health of the actor*/
 	char ghost;		/*!< Sets the actor type to ghost (Disable lightning, enable blending (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA))*/
