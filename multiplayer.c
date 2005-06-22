@@ -49,13 +49,15 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 	// LabRat anti-bagspam code:
 	if(str[0]==MOVE_TO && !pf_follow_path)
 	{
+		actor * me=pf_get_our_actor();
 		// I know this looks weird, but it converts all short paths into pf_ paths
 		// doing this ensures a path, toggles pf_follow_path and prevents a slowdown.
 		// pf_follow_path on almost* every walk type allows us to prevent bagspamming
 		// *almost does not include clicking on an animal to fight, as the move command
 		// in this instance is sent from the server
-		if (!pf_find_path (*((short *)(str+1)), *((short *)(str+3))))
-			return 1;
+		if(me && !me->fighting)
+			if (!pf_find_path (*((short *)(str+1)), *((short *)(str+3))))
+				return 1;
 	}
 #ifdef SERVER_DROP_ALL
 	else if ( (str[0] == DROP_ITEM || str[0] == DROP_ALL) && pf_follow_path )
