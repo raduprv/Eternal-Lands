@@ -159,7 +159,11 @@ void find_last_url(char * source_string, int len)
 	while(1)
 		{
 			url_start=get_string_occurance("http://",source_string+final_url_2+1,len-last_url_start,1);
-			if(url_start==-1)break;
+			if(url_start<0)
+			url_start=get_string_occurance("https://",source_string+final_url_2+1,len-last_url_start,1);
+			if(url_start<0)
+			url_start=get_string_occurance("ftp://",source_string+final_url_2+1,len-last_url_start,1);
+			if(url_start<0)break;
 			if(final_url_2<url_start+last_url_start)final_url_2=url_start+last_url_start;
 			last_url_start+=url_start;
 		}

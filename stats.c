@@ -21,6 +21,7 @@ typedef struct {
 	int actor_id;//The actor it's related to
 	char message[50];
 	int first_time;
+	int active_time;
 	int direction;
 	short active;
 	float color[3];
@@ -29,8 +30,6 @@ typedef struct {
 floating_message floating_messages[MAX_NUMBER_OF_FLOATING_MESSAGES];
 
 int floatingmessages_enabled = 1;
-
-#define FLOATINGMESSAGE_LIFESPAN		1500
 
 void floatingmessages_add_level(int actor_id, int level, const char * skillname);
 void floatingmessages_compare_stat(int actor_id, int value, int new_value, const char *skillname);
@@ -228,7 +227,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 				char str[5];
 
 				snprintf(str, sizeof(str), "%d", value-your_info.ethereal_points.cur);
-				add_floating_message(yourself, str, FLOATINGMESSAGE_MIDDLE, 0.3, 0.3, 1.0);
+				add_floating_message(yourself, str, FLOATINGMESSAGE_MIDDLE, 0.3, 0.3, 1.0, 1500);
 				your_info.ethereal_points.cur=value;
 				break;
 			}
@@ -608,10 +607,14 @@ void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this te
 
 void draw_floatingmessage(floating_message *message, float healthbar_z) {
 	float f, width, y, x;
-	const float cut = 0.5f;
+	float cut;
+
+	if(!message)return;
 	
-	f = ((float)(FLOATINGMESSAGE_LIFESPAN-(cur_time-message->first_time)))/FLOATINGMESSAGE_LIFESPAN;
+	cut=message->active_time/4000.0f;
+	f = ((float)(message->active_time-(cur_time-message->first_time)))/message->active_time;
 	glColor4f(message->color[0], message->color[1], message->color[2], f > cut ? 1.0f : (f / cut));
+	f /= message->active_time/1000.0f;
 	
 	width = ((float)get_string_width(message->message) * (INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
 	
@@ -630,7 +633,7 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
 			break;
 		case FLOATINGMESSAGE_MIDDLE:
 			x=-width/2.0f;
-			y=(healthbar_z+zoom_level*0.2f)/2.0f-(f*0.5f);
+			y=healthbar_z*0.66-f*0.33f;
 			break;
 		case FLOATINGMESSAGE_NORTH:
 		default:
@@ -648,13 +651,12 @@ void drawactor_floatingmessages(int actor_id, float healthbar_z) {
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glEnable(GL_ALPHA_TEST);
 	
 	glDisable(GL_DEPTH_TEST);
 	for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++) {
 		if(floating_messages[i].active){
 			if(floating_messages[i].first_time<=cur_time){
-				if(floating_messages[i].first_time+FLOATINGMESSAGE_LIFESPAN<cur_time){
+				if(floating_messages[i].first_time+floating_messages[i].active_time<cur_time){
 					floating_messages[i].active=0;
 				} else if(floating_messages[i].actor_id==actor_id)
 					draw_floatingmessage(&floating_messages[i], healthbar_z);
@@ -666,7 +668,7 @@ void drawactor_floatingmessages(int actor_id, float healthbar_z) {
 	for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++) {
 		if(floating_messages[i].active){
 			if(floating_messages[i].first_time<=cur_time){
-				if(floating_messages[i].first_time+FLOATINGMESSAGE_LIFESPAN<cur_time){
+				if(floating_messages[i].first_time+floating_messages[i].active_time<cur_time){
 					floating_messages[i].active=0;
 				} else if(floating_messages[i].actor_id==actor_id)
 					draw_floatingmessage(&floating_messages[i], healthbar_z);
@@ -674,7 +676,6 @@ void drawactor_floatingmessages(int actor_id, float healthbar_z) {
 		}
 	}
 	
-	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 }
 
@@ -687,10 +688,11 @@ floating_message *get_free_floatingmessage() {
 	return NULL;
 }
 
-void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b) 
+void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b, int active_time) 
 {
 	int time;
 	static int last_time_added[5]={0};
+	static int last_direction_added[5]={0};
 	static int last_actor[5]={0};//Make sure that we don't see too many messages from that actor
 	floating_message *m=get_free_floatingmessage();
 
@@ -703,16 +705,17 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
 	strncpy(m->message, str, sizeof(m->message));
 
 	m->direction=direction;
-
-	if(last_actor[4]==actor_id && last_time_added[4]+550>cur_time)
+	m->active_time=active_time;
+	
+	if(last_actor[4]==actor_id && last_time_added[4]+550>cur_time && last_direction_added[4]==direction)
 		time=m->first_time=last_time_added[4]+550;
-	else if(last_actor[3]==actor_id && last_time_added[3]+550>cur_time)
+	else if(last_actor[3]==actor_id && last_time_added[3]+550>cur_time && last_direction_added[3]==direction)
 		time=m->first_time=last_time_added[3]+550;
-	else if(last_actor[2]==actor_id && last_time_added[2]+550>cur_time)
+	else if(last_actor[2]==actor_id && last_time_added[2]+550>cur_time && last_direction_added[2]==direction)
 		time=m->first_time=last_time_added[2]+550;
-	else if(last_actor[1]==actor_id && last_time_added[1]+550>cur_time)
+	else if(last_actor[1]==actor_id && last_time_added[1]+550>cur_time && last_direction_added[1]==direction)
 		time=m->first_time=last_time_added[1]+550;
-	else if(last_actor[0]==actor_id && last_time_added[0]+550>cur_time)
+	else if(last_actor[0]==actor_id && last_time_added[0]+550>cur_time && last_direction_added[0]==direction)
 		time=m->first_time=last_time_added[0]+550;
 	else 
 		time=m->first_time=cur_time;
@@ -722,14 +725,19 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
 
 	last_actor[0]=last_actor[1];
 	last_time_added[0]=last_time_added[1];
+	last_direction_added[0]=last_direction_added[1];
 	last_actor[1]=last_actor[2];
 	last_time_added[1]=last_time_added[2];
+	last_direction_added[1]=last_direction_added[2];
 	last_actor[2]=last_actor[3];
 	last_time_added[2]=last_time_added[3];
+	last_direction_added[2]=last_direction_added[3];
 	last_actor[3]=last_actor[4];
 	last_time_added[3]=last_time_added[4];
+	last_direction_added[3]=last_direction_added[4];
 	last_actor[4]=actor_id;
 	last_time_added[4]=time;
+	last_direction_added[4]=direction;
 }
 
 void floatingmessages_add_level(int actor_id, int level, const char * skillname)
@@ -737,7 +745,7 @@ void floatingmessages_add_level(int actor_id, int level, const char * skillname)
 	char str[50];
 
 	snprintf(str,sizeof(str),"%d %s",level, skillname);
-	add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0);
+	add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0, 2000);
 }
 
 void floatingmessages_compare_stat(int actor_id, int value, int new_value, const char *skillname) 
@@ -745,11 +753,11 @@ void floatingmessages_compare_stat(int actor_id, int value, int new_value, const
 	char str[50];
 	int diff=new_value-value;
 
-	snprintf(str, sizeof(str), "%s: %c%d", skillname, diff<0?'-':'+', diff);
+	snprintf(str, sizeof(str), "%s: %c%d", skillname, diff<0?' ':'+', diff);
 
 	if(diff<0)
-		add_floating_message(actor_id, str, FLOATINGMESSAGE_SOUTH, 1.0, 0.3, 0.3);
+		add_floating_message(actor_id, str, FLOATINGMESSAGE_SOUTH, 1.0, 0.3, 0.3,1500);
 	else 
-		add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 1.0, 0.3);
+		add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 1.0, 0.3,1500);
 }
 

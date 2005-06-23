@@ -253,6 +253,6 @@ void fill_stats_win ();
 
 extern int floatingmessages_enabled;
 void drawactor_floatingmessages(int actor_id, float healthbar_z);
-void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b);
+void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b, int active_time);
 
 #endif

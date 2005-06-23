@@ -250,11 +250,28 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		glDepthFunc(GL_ALWAYS);
 		if(actor_id->damage_ms)
 			{
-				sprintf(str,"%i",actor_id->damage);
-				glColor3f(1,0.3f,0.3f);
-				//draw_ingame_string(-0.1,healtbar_z-2.0f,str,1,1);
-				//draw_ingame_string(-0.1,healtbar_z/2.0f,str,1,1);
-				DRAW_INGAME_NORMAL(-0.1,healtbar_z/2.0f,str,1);
+				if(floatingmessages_enabled){
+					float a=1.0f-(float)(cur_time-actor_id->last_health_loss)/2000.0f;
+					
+					if(actor_id->damage>0){
+						sprintf(str,"%i",actor_id->damage);
+						glColor4f(1.0f, 0.1f, 0.2f, a);
+					} else {
+						sprintf(str,"%i",-actor_id->damage);
+						glColor4f(0.3f, 1.0f, 0.3f, a);
+					}
+					
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					draw_ingame_string(-(((float)get_string_width(str) * (0.17*zoom_level*name_zoom/3.0))/12.0)*0.5f, healtbar_z/2.0f+((1.0f-a)*0.5f), str, 1, 0.14, 0.21);
+					glDisable(GL_BLEND);
+				} else {
+					sprintf(str,"%i",actor_id->damage);
+					glColor3f(1,0.3f,0.3f);
+					//draw_ingame_string(-0.1,healtbar_z-2.0f,str,1,1);
+					//draw_ingame_string(-0.1,healtbar_z/2.0f,str,1,1);
+					DRAW_INGAME_NORMAL(-0.1,healtbar_z/2.0f,str,1);
+				}
 			}
 		glDepthFunc(GL_LESS);
 		if(actor_id->actor_name[0] && (view_names || view_hp))
