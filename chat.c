@@ -82,12 +82,14 @@ void sync_chat_and_console ()
 
 void clear_input_line ()
 {
-	widget_list *cons = widget_find (console_root_win, console_in_id);
-	text_field *cons_tf = (text_field *) cons->widget_info;
+	// XXX FIXME (Grum): when the console input field is reinstated, perhaps
+	// uncomment these lines again
+	//widget_list *cons = widget_find (console_root_win, console_in_id);
+	//text_field *cons_tf = (text_field *) cons->widget_info;
 	
 	input_text_line.data[0] = '\0';
 	input_text_line.len = 0;
-	cons_tf->cursor = 0;
+	//cons_tf->cursor = 0;
 	if (use_windowed_chat == 2)
 	{
 		widget_list *chat = widget_find (chat_win, chat_in_id);
