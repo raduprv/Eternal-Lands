@@ -543,8 +543,8 @@ void add_enhanced_actor_from_server(char * in_data)
 		my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);break;
 	default:
 		{
-#ifdef NEW_CLIENT
 			char str[120];
+#ifdef NEW_CLIENT
 			sprintf (str, "%s %d - %s\n", unknown_frame, frame, &in_data[32]);
 #else
 			sprintf(str,"%s %d - %s\n",unknown_frame,frame,&in_data[28]);
