@@ -42,6 +42,10 @@ extern int chat_win; /*!< handler for the chat window */
 
 extern int chat_win_text_width; /*!< width of the chat window */
 
+extern int active_tab; /*!< active chat window tab */
+
+extern int chat_tabcollection_id;
+
 /*!
  * \ingroup chat_window
  * \brief   Initializes the structures for the chat channels
@@ -74,6 +78,17 @@ void clear_input_line ();
  */
 void update_chat_window (int nlines, Uint8 channel);
 
+/*!
+ * \ingroup chat_window
+ * \brief   Switches to the tab with id id
+ *
+ *      Switches to the tab with id id.
+ *
+ * \param id Id of the tab to switch to
+ * \param click Indicates if we clicked on the tab with the mouse or not
+ * \callgraph
+ */
+void switch_to_chat_tab(int id, char click);
 /*!
  * \ingroup chat_window
  * \brief   Handle a keypress of the root window 
@@ -136,6 +151,8 @@ extern int personal_chat_separate;	/*!< if non-zero, show PMs in a different tab
 extern int guild_chat_separate;		/*!< if non-zero, show GMs in a different tab */
 extern int server_chat_separate;	/*!< if non-zero, show game messages in a different tab */
 extern int mod_chat_separate;		/*!< for moderators and newbie helpers only: if non-zero, show mod chat in a different tab */
+extern int tabs_in_use;
+extern int current_tab;
 
 extern int tab_bar_win;			 /*!< handler for the tab bar window */
 

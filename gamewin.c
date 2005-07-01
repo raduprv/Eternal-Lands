@@ -1054,6 +1054,78 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			input_text_line.len = 0;
 		}
 	}
+	else if(key == K_NEXT_CHAT_TAB)
+	{
+		int next_tab;
+		widget_list *widget;
+		tab_collection *collection;
+		switch(use_windowed_chat)
+		{
+			case 1: //Tabs
+				if(current_tab == tabs_in_use-1)
+				{
+					next_tab = 0;
+				}
+				else
+				{
+					next_tab = current_tab + 1;
+				}
+				switch_to_tab(next_tab);
+			break;
+			case 2: //Window
+				widget = widget_find(chat_win, chat_tabcollection_id);
+				collection = widget->widget_info;
+				if(active_tab == collection->nr_tabs - 1)
+				{
+					next_tab = 0;
+				}
+				else
+				{
+					next_tab = active_tab + 1;
+				}
+				switch_to_chat_tab(channels[next_tab].tab_id, 0);
+			break;
+			default:
+				return 0;
+			break;
+		}
+	}
+	else if(key == K_PREV_CHAT_TAB)
+	{
+		int next_tab;
+		widget_list *widget;
+		tab_collection *collection;
+		switch(use_windowed_chat)
+		{
+			case 1: //Tab
+				if(current_tab == 0)
+				{
+					next_tab = tabs_in_use-1;
+				}
+				else
+				{
+					next_tab = current_tab-1;
+				}
+				switch_to_tab(next_tab);
+				break;
+			case 2: //Window
+				widget = widget_find(chat_win, chat_tabcollection_id);
+				collection = widget->widget_info;
+				if(active_tab == 0)
+				{
+					next_tab = collection->nr_tabs - 1;
+				}
+				else
+				{
+					next_tab = active_tab - 1;
+				}
+				switch_to_chat_tab(channels[next_tab].tab_id, 0);
+			break;
+			default:
+				return 0;
+			break;
+		}
+	}
 	else
 	{
 		return 0; // nothing we can handle

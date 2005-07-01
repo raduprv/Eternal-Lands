@@ -57,6 +57,8 @@ extern Uint32 K_VIEWTEXTASOVERTEXT; /*!< key used to toggle display of text bubb
 extern Uint32 K_AFK;                /*!< key used to display AFK messages */
 extern Uint32 K_SIT;                /*!< key used to toggle sitting status, i.e. sit down/stand up */
 extern Uint32 K_BUDDY;              /*!< key used to toggle the buddy window */
+extern Uint32 K_NEXT_CHAT_TAB;      /*!< key used to switch to next chat tab */
+extern Uint32 K_PREV_CHAT_TAB;      /*!< key used to switch to previous tab */
 /*! @} */
 
 /*! \name Quickbar access keys */

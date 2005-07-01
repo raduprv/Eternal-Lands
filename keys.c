@@ -50,6 +50,8 @@ Uint32 K_VIEWTEXTASOVERTEXT=ALT|'o';
 Uint32 K_AFK=CTRL|ALT|'a';
 Uint32 K_SIT=ALT|'s';
 Uint32 K_BUDDY=CTRL|'b';
+Uint32 K_NEXT_CHAT_TAB=CTRL|280; //PAGE UP
+Uint32 K_PREV_CHAT_TAB=CTRL|281; //PAGE DOWN
 
 unsigned int CRC32(unsigned char *data, int len);
 unsigned short get_key_code(char *key);
@@ -179,6 +181,10 @@ void read_key_config()
 		K_SIT = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_BUDDY",file_mem,key_file_size,0))!=-1)
 		K_BUDDY = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_NEXT_CHAT_TAB",file_mem,key_file_size,0))!=-1)
+		K_NEXT_CHAT_TAB = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_PREV_CHAT_TAB",file_mem,key_file_size,0))!=-1)
+		K_PREV_CHAT_TAB = parse_key_string(&file_mem[t]);
 }
 
 Uint32 parse_key_string(char *s)

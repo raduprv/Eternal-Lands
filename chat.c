@@ -280,7 +280,6 @@ void switch_to_chat_tab(int id, char click)
 	if(!click)
 	{
 		//Do what a mouse click would do
-		//moved here
 		int itab;
 		widget_list *widget = widget_find(chat_win, chat_tabcollection_id);
 		tab_collection *collection = widget->widget_info;
@@ -382,11 +381,10 @@ void change_to_current_chat_tab(const char *input)
 	{
 		for(ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 		{
-			if(channels[ichan].chan_nr == channel)
+			if(channels[ichan].chan_nr == channel && channels[ichan].open)
 			{
 				if(ichan != active_tab) //We don't want to switch to the tab we're already in
 				{
-					//was here
 					switch_to_chat_tab(channels[ichan].tab_id, 0);
 				}
 				return;
@@ -403,7 +401,6 @@ void change_to_current_chat_tab(const char *input)
 		{
 			switch_to_chat_tab(channels[itab].tab_id, 0);
 		}
-		//switch_to_tab(itab);
 	}
 }
 
