@@ -449,6 +449,9 @@ void add_enhanced_actor_from_server(char * in_data)
 	int i;
 	int dead=0;
 	int kind_of_actor;
+#ifdef NEW_CLIENT
+	Uint32 uniq_id;
+#endif
 	enhanced_actor *this_actor;
 
 	char cur_frame[20];
@@ -481,6 +484,9 @@ void add_enhanced_actor_from_server(char * in_data)
 	max_health=SDL_SwapLE16(*((short *)(in_data+23)));
 	cur_health=SDL_SwapLE16(*((short *)(in_data+25)));
 	kind_of_actor=*(in_data+27);
+#ifdef NEW_CLIENT
+	uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
+#endif
 
 	//translate from tile to world
 	f_x_pos=x_pos*0.5;
@@ -537,8 +543,12 @@ void add_enhanced_actor_from_server(char * in_data)
 		my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);break;
 	default:
 		{
+#ifdef NEW_CLIENT
 			char str[120];
+			sprintf (str, "%s %d - %s\n", unknown_frame, frame, &in_data[32]);
+#else
 			sprintf(str,"%s %d - %s\n",unknown_frame,frame,&in_data[28]);
+#endif
 			log_error(str);
 		}
 	}
@@ -557,15 +567,27 @@ void add_enhanced_actor_from_server(char * in_data)
 					if(actors_list[i]->actor_id==actor_id)
 						{
 							char str[256];
+#ifdef NEW_CLIENT
+							sprintf (str, "%s %d = %s => %s\n", duplicate_actors_str, actor_id, actors_list[i]->actor_name, &in_data[32]);
+#else
 							sprintf(str,"%s %d = %s => %s\n",duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[28]);
+#endif
 							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
 						}
+#ifdef NEW_CLIENT
+					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && (actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor==PKABLE_COMPUTER_CONTROLLED) && !my_strcompare(&in_data[32], actors_list[i]->actor_name))
+#else
 					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && (actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor==PKABLE_COMPUTER_CONTROLLED) && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
+#endif
 						{
 							char str[256];
+#ifdef NEW_CLIENT
+							sprintf (str, "%s(%d) = %s => %s\n", duplicate_npc_actor, actor_id, actors_list[i]->actor_name, &in_data[32]);
+#else
 							sprintf(str,"%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
+#endif
 							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
@@ -670,14 +692,26 @@ void add_enhanced_actor_from_server(char * in_data)
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->cur_weapon=weapon;
 	actors_list[i]->kind_of_actor=kind_of_actor;
+#ifdef NEW_CLIENT
+	if (strlen(&in_data[32]) >= 30)
+#else
 	if(strlen(&in_data[28]) >= 30)
+#endif
 		{
 			char str[120];
+#ifdef NEW_CLIENT
+			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[32], (int)strlen(&in_data[32]));
+#else
 			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
+#endif
 			log_error(str);
 		}
 	else 	{
+#ifdef NEW_CLIENT
+			my_strncp(actors_list[i]->actor_name,&in_data[32],30);
+#else
 			my_strncp(actors_list[i]->actor_name,&in_data[28],30);
+#endif
 			if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
 		}
 	UNLOCK_ACTORS_LISTS();  //unlock it
