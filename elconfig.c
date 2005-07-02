@@ -520,6 +520,7 @@ void init_vars()
 	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1);
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0);
+	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1);
 #endif // ELCONFIG
 #endif // def ELC
 

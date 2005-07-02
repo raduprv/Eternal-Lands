@@ -112,6 +112,6 @@ void print_message(int no);
  * \retval int
  * \callgraph
  */
-int is_talking_about_me(Uint8 * server_msg, int len);
+int is_talking_about_me(Uint8 * server_msg, int len, char everywhere);
 
 #endif

@@ -32,6 +32,7 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
  * use_windowed_chat == 2: chat window
  */
 int use_windowed_chat = 1;
+int highlight_tab_on_nick = 1;
 
 int chat_win = -1;
 int chat_scroll_id = 15;
@@ -112,6 +113,7 @@ int close_channel (window_info *win)
 			channels[ichan].nr_lines = 0;
 			channels[ichan].open = 0;
 			channels[ichan].new = 0;
+			channels[ichan].highlighted = 0;
 			return 1;
 		}
 	}
@@ -137,6 +139,7 @@ int add_chat_tab(int nlines, Uint8 channel)
 			channels[ichan].nr_lines = nlines;
 			channels[ichan].open = 1;
 			channels[ichan].new = 1;
+			channels[ichan].highlighted = 0;
 			
 			switch (channel)
 			{
@@ -170,7 +173,10 @@ int add_chat_tab(int nlines, Uint8 channel)
 
 			set_window_handler (channels[ichan].tab_id, ELW_HANDLER_DESTROY, close_channel);
 				
-			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
+			if(!channels[ichan].highlighted)
+			{
+				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
+			}
 			
 			return ichan;
 		}
@@ -193,11 +199,14 @@ void update_chat_window (int nlines, Uint8 channel)
 		{
 			if (channels[ichan].open)
 				channels[ichan].nr_lines += nlines;
+			/* Is this really correct behaviour? someone said something about consistency..
 			channels[ichan].new = 1;
 			// don't set label color in active tab, since the user
-			// will already see the message appear
-			if (ichan != active_tab)
+			// will already see the message appear, and don't change
+			// the color if it's highlighted
+			if (ichan != active_tab && !channels[ichan].highlighted)
 				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
+			*/
 		}
 		
 		len = channels[active_tab].nr_lines - nr_displayed_lines;
@@ -210,7 +219,7 @@ void update_chat_window (int nlines, Uint8 channel)
 		return;
 	}
 
-	// not for all channels, see if this channel is already open
+	// message not for all channels, see if this channel is already open
 	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 	{
 		if (channels[ichan].open && channels[ichan].chan_nr == channel)
@@ -228,7 +237,7 @@ void update_chat_window (int nlines, Uint8 channel)
 				current_line = channels[ichan].nr_lines;
 				text_changed = 1;
 			}
-			else
+			else if (!channels[ichan].highlighted) //Make sure we don't change the color of a highlighted tab
 			{
 				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
 			}
@@ -253,7 +262,7 @@ void update_chat_window (int nlines, Uint8 channel)
 			current_line = channels[ichan].nr_lines;
 			text_changed = 1;
 		}
-		else
+		else if (!channels[0].highlighted) //Make sure we don't change the color of a highlighted tab
 		{
 			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[0].tab_id, 1.0, 1.0, 0.0);
 		}
@@ -279,8 +288,8 @@ void switch_to_chat_tab(int id, char click)
 {
 	if(!click)
 	{
-		//Do what a mouse click would do
 		int itab;
+		//Do what a mouse click would do
 		widget_list *widget = widget_find(chat_win, chat_tabcollection_id);
 		tab_collection *collection = widget->widget_info;
 
@@ -317,6 +326,7 @@ void switch_to_chat_tab(int id, char click)
 	vscrollbar_set_bar_len(chat_win, chat_scroll_id, current_line);
 	vscrollbar_set_pos(chat_win, chat_scroll_id, current_line);
 	text_changed = 1;
+	channels[active_tab].highlighted = 0;
 }
 
 void change_to_current_chat_tab(const char *input)
@@ -745,8 +755,7 @@ int server_chat_separate = 0;
 int mod_chat_separate = 0;
 
 int tab_bar_win = -1;
-Uint8 tabs[MAX_CHAT_TABS];
-int tab_buttons[MAX_CHAT_TABS];
+chat_tab tabs[MAX_CHAT_TABS];
 int button_id_start = 0;
 int tabs_in_use = 0;
 int current_tab = 0;
@@ -754,12 +763,69 @@ int current_tab = 0;
 int tab_bar_width = 0;
 int tab_bar_height = 18;
 
+int highlight_tab(const Uint8 channel)
+{
+	int i;
+	
+	if(!highlight_tab_on_nick || channel == CHAT_ALL)
+	{
+		//We don't want to highlight
+		return 0;
+	}
+	switch(use_windowed_chat)
+	{
+		case 1:
+			if (tab_bar_win < 0)
+			{
+				//it doesn't exist
+				return 0;
+			}
+			for (i = 0; i < tabs_in_use; i++)
+			{
+				if (tabs[i].channel == channel)
+				{
+					if (current_tab != i && tabs[i].highlighted)
+					{
+						widget_set_color (tab_bar_win, tabs[i].button, 1.0f, 0.0f, 0.0f);
+						tabs[i].highlighted = 1;
+					}
+					break;
+				}
+			}
+		break;
+		case 2:
+			if (chat_win < 0)
+			{
+				//it doesn't exist
+				return 0;
+			}
+			for (i = 0; i < MAX_CHAT_TABS; i++)
+			{
+				if (channels[i].open && channels[i].chan_nr == channel)
+				{
+					if (i != active_tab && channels[i].highlighted)
+					{
+						tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, 1.0, 0.0, 0.0);
+						channels[i].highlighted = 1;
+					}
+					break;
+				}
+			}
+		break;
+		default:
+			return 0;
+		break;
+	}
+	return 1;
+}
+
 void switch_to_tab(int id)
 {
-	widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.77f, 0.57f, 0.39f);
+	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.77f, 0.57f, 0.39f);
 	current_tab = id;
-	widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.57f, 1.0f, 0.59f);
-	current_filter = tabs[current_tab];
+	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.57f, 1.0f, 0.59f);
+	current_filter = tabs[current_tab].channel;
+	tabs[current_tab].highlighted = 0;
 }
 
 int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
@@ -768,7 +834,7 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 	
 	for (itab = 0; itab < tabs_in_use; itab++)
 	{
-		if (w->id == tab_buttons[itab])
+		if (w->id == tabs[itab].button)
 			break;
 	}
 	
@@ -832,7 +898,7 @@ int add_tab_button (Uint8 channel)
 
 	for (itab = 0; itab < tabs_in_use; itab++)
 	{
-		if (tabs[itab] == channel)
+		if (tabs[itab].channel == channel)
 			// already there
 			return itab;
 	}
@@ -841,13 +907,14 @@ int add_tab_button (Uint8 channel)
 		// no more room. Shouldn't happen anyway.
 		return -1;
 
-	tabs[tabs_in_use] = channel;
+	tabs[tabs_in_use].channel = channel;
+	tabs[tabs_in_use].highlighted = 0;
 	label = tab_label (channel);
 
-	tab_buttons[itab] = button_add_extended (tab_bar_win, button_id_start+itab, NULL, tab_bar_width, 0, 0, tab_bar_height, 0, 0.75, 0.77f, 0.57f, 0.39f, label);
-	widget_set_OnClick (tab_bar_win, tab_buttons[itab], tab_bar_button_click);
+	tabs[itab].button = button_add_extended (tab_bar_win, button_id_start+itab, NULL, tab_bar_width, 0, 0, tab_bar_height, 0, 0.75, 0.77f, 0.57f, 0.39f, label);
+	widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_bar_button_click);
 
-	tab_bar_width += widget_get_width (tab_bar_win, tab_buttons[tabs_in_use]);
+	tab_bar_width += widget_get_width (tab_bar_win, tabs[tabs_in_use].button);
 	resize_window (tab_bar_win, tab_bar_width, tab_bar_height);
 
 	tabs_in_use++;
@@ -856,7 +923,7 @@ int add_tab_button (Uint8 channel)
 
 void update_tab_bar (Uint8 channel)
 {
-	int itab, button;
+	int itab, new_button;
 
 	// don't bother if there's no tab bar
 	if (tab_bar_win < 0) return;
@@ -866,17 +933,17 @@ void update_tab_bar (Uint8 channel)
 
 	for (itab = 0; itab < tabs_in_use; itab++)
 	{
-		if (tabs[itab] == channel)
+		if (tabs[itab].channel == channel)
 		{
-			if (current_tab != itab)
-				widget_set_color (tab_bar_win, tab_buttons[itab], 1.0f, 1.0f, 0.0f);
+			if (current_tab != itab && !tabs[itab].highlighted)
+				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
 			return;
 		}
 	}
 	
 	// we need a new button
-	button = add_tab_button (channel);
-	widget_set_color (tab_bar_win, tab_buttons[button], 1.0f, 1.0f, 0.0f);
+	new_button = add_tab_button (channel);
+	widget_set_color (tab_bar_win, tabs[new_button].button, 1.0f, 1.0f, 0.0f);
 }
 
 void create_tab_bar ()
@@ -888,8 +955,8 @@ void create_tab_bar ()
 	
 	add_tab_button (CHAT_LOCAL);
 	current_tab = 0;
-	widget_set_color (tab_bar_win, tab_buttons[current_tab], 0.57f, 1.0f, 0.59f);
-	current_filter = tabs[current_tab];
+	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.57f, 1.0f, 0.59f);
+	current_filter = tabs[current_tab].channel;
 }
 
 void display_tab_bar ()
@@ -965,7 +1032,7 @@ void change_to_current_tab(const char *input)
 	{
 		for(itab = 0; itab < tabs_in_use; itab++)
 		{
-			if(tabs[itab] == channel)
+			if(tabs[itab].channel == channel)
 			{
 				if(itab != current_tab) //We don't want to switch to the tab we're already in
 				{

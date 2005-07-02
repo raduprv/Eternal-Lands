@@ -31,12 +31,13 @@ typedef struct
 	int out_id;
 	Uint8 chan_nr;
 	int nr_lines;
-	char open, new;
+	char open, new, highlighted;
 } chat_channel;
 
 extern chat_channel channels[MAX_CHAT_TABS]; /*!< Infos about a chat window tabs  */
 
 extern int use_windowed_chat; /*!< flag indicating whether we use the channel selection bar, the chat window, or neither */
+extern int highlight_tab_on_nick; /*!< flag indicating whether we want to highligh chat tab on nick or not  */
 
 extern int chat_win; /*!< handler for the chat window */
 
@@ -45,6 +46,18 @@ extern int chat_win_text_width; /*!< width of the chat window */
 extern int active_tab; /*!< active chat window tab */
 
 extern int chat_tabcollection_id;
+
+/*!
+ * \brief   Highlights a channel in the channel selection tab
+ *
+ *	Highlights a channel's tab in red. Used when a message with player's name arrives.
+ *
+ * \param channel channel to highlight
+ *
+ * \retval int 1 if highlighted, 0 otherwise
+ * \callgraph
+ */
+int highlight_tab(const Uint8 channel);
 
 /*!
  * \ingroup chat_window
@@ -146,6 +159,13 @@ void display_chat ();
 void chat_win_update_zoom ();
 
 ///////////////////////////////////////////////////////////////////////
+
+typedef struct 
+{
+	Uint8 channel;
+	int button;
+	char highlighted;
+} chat_tab;
 
 extern int personal_chat_separate;	/*!< if non-zero, show PMs in a different tab */
 extern int guild_chat_separate;		/*!< if non-zero, show GMs in a different tab */

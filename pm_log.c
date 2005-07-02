@@ -153,21 +153,30 @@ int my_namecmp(char *check)
 	return 1;
 }
 
-int is_talking_about_me(Uint8 *server_msg, int len)
+int is_talking_about_me (Uint8 *server_msg, int len, char everywhere)
 {
 	int a=0;
 	unsigned char msg[200];
-	if(len>198)return 0;
-	if(*server_msg=='['||*server_msg=='#') return 0;//Only do local chat
+	if(len > 198)
+		return 0;
+	if (!everywhere && (*server_msg == '[' || *server_msg == '#'))
+	{
+		return 0; //Only do local chat
+	}
+
 	strncpy(msg,server_msg,len);
 	msg[len]=0;
 	my_tolower(msg);
 
-	while(msg[a] && msg[a]!=':' && (msg[a]<127+c_red1||msg[a]>127+c_grey4)) a++;
+	while (msg[a] && msg[a] != ':' && (msg[a] < 127+c_red1 || msg[a] > 127+c_grey4))
+		a++;
 	//We do need the name of ourselves...
-	while(a<199 && msg[a]){
-		if((msg[a]==' '||(msg[a]>127+c_red1 && msg[a]<127+c_grey4)) && !my_namecmp(msg+1+a))return 1;
-		else a++;
+	while (a < 199 && msg[a] != '\0')
+	{
+		if((msg[a]==' '||(msg[a]>127+c_red1 && msg[a]<127+c_grey4)) && !my_namecmp(msg+1+a))
+			return 1;
+		else
+			a++;
 	}
 	return 0;
 }

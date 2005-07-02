@@ -191,7 +191,7 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 			// player sent us a PM
 			add_message_to_pm_log (text_to_add, len);
 		}
-		else if (text_to_add[0] == (c_grey1+127) && is_talking_about_me ( &text_to_add[1], len-1) )
+		else if (text_to_add[0] == (c_grey1+127) && is_talking_about_me ( &text_to_add[1], len-1, 0) )
 		{
 			// player mentions our name in local chat
 			send_afk_message (&text_to_add[1], type);
@@ -494,6 +494,11 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		}
 		msg->chan_idx = channel;
 		update_text_windows (nlines, channel);
+		if (use_windowed_chat != 0 && highlight_tab_on_nick && is_talking_about_me(&(msg->data[1]), len, 1))
+		{
+			highlight_tab(channel);
+		}
+		
 		return;
 	/* FIXME: currently unused, commented (Lachesis)
 	}
