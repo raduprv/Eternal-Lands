@@ -719,7 +719,7 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset)
 	int line_count = 0, lines_no = nr_lines - line;	
 	int imsg, ichar;
 	char *data;
-	
+
 	imsg = last_message;
 	do 
 	{

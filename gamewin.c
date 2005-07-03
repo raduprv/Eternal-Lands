@@ -722,13 +722,14 @@ int display_game_handler (window_info *win)
 	CHECK_GL_ERRORS ();
 	if (use_windowed_chat != 2)
 	{
-		int msg, offset, ytext;
+		int msg, offset, ytext, htext;
 		
 		ytext = use_windowed_chat == 1 ? 25 : 20;
+		htext = (int) (lines_to_show * 18 * chat_zoom);
 		if ( find_last_lines_time (&msg, &offset, current_filter) )
 		{
 			set_font(chat_font);	// switch to the chat font
-			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, current_filter, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
+			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, current_filter, msg, offset, -1, win->len_x - 20, htext, chat_zoom);
 			set_font (0);	// switch to fixed
 		}
 	}
