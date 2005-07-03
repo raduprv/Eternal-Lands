@@ -8,12 +8,13 @@ typedef struct
 {
 	Uint8 name[16];
 	int len;
+	Uint8 replacement[32];
+	int rlen;
 }filter_slot;
 
 filter_slot filter_list[MAX_FILTERS];
 int filtered_so_far=0;
 int use_global_filters=1;
-char text_filter_replace[128]="smeg";
 int caps_filter=1;
 char storage_filter[128];
 
@@ -21,6 +22,11 @@ char storage_filter[128];
 int add_to_filter_list(Uint8 *name, char save_name)
 {
 	int i;
+	char left[256];
+	char right[256];
+	char buff[256];
+	int t;
+
 	//see if this name is already on the list
 	for(i=0;i<MAX_FILTERS;i++)
 		{
@@ -35,6 +41,18 @@ int add_to_filter_list(Uint8 *name, char save_name)
 				{
 					//excellent, a free spot
 					my_strcp(filter_list[i].name,name);
+					strcpy(left, name);
+					for(t=0;;t++){
+						if(left[t]==0){
+							strcpy(right, "smeg");
+							break;
+						}
+						if(left[t]=='='){
+							left[t-1]=0;
+							strcpy(right, left+t+2);
+							break;
+						}
+					}
 					//add to the global filter file, if the case
 					if(save_name)
 						{
@@ -45,12 +63,16 @@ int add_to_filter_list(Uint8 *name, char save_name)
 							f=my_fopen(local_filters, "a");
 							if (f != NULL)
 							{
-								fwrite(name, strlen(name), 1, f);
+								sprintf(buff, "%s = %s", left, right);
+								fwrite(buff, strlen(buff), 1, f);
 								fwrite("\n", 1, 1, f);
 								fclose(f);
 							}
 						}
+					my_strcp(filter_list[i].name,left);
+					my_strcp(filter_list[i].replacement,right);
 					filter_list[i].len=strlen(filter_list[i].name);//memorize the length
+					filter_list[i].rlen=strlen(filter_list[i].replacement);//memorize the length
 					filtered_so_far++;
 					return 1;
 				}
@@ -108,9 +130,11 @@ int check_if_filtered(Uint8 *name)
 	for(i=0;i<MAX_FILTERS;i++)
 		{
 			if(filter_list[i].len > 0)
-				if(my_strncompare(filter_list[i].name,name,filter_list[i].len))return filter_list[i].len;//yep, filtered
+				if(my_strncompare(filter_list[i].name,name,filter_list[i].len)){
+					return i;//yep, filtered
+				}
 		}
-	return 0;//nope
+	return -1;//nope
 }
 
 // Filter the lines that contain the desired string from the inventory listing
@@ -162,7 +186,7 @@ int filter_storage_text (Uint8 * input_text, int len) {
 //returns the new length of the text
 int filter_text(Uint8 * input_text, int len)
 {
-	int i,bad_len,rep_len;
+	int i,bad_len,rep_len, idx;
 	Uint8 *rloc=input_text;
 	
 	// See if a search term has been added to the #storage command, and if so, 
@@ -206,21 +230,22 @@ int filter_text(Uint8 * input_text, int len)
 	//do we need to do any content filtering?
 	if(MAX_FILTERS == 0)return(len);
 	// get the length of the replacement string
-	rep_len=strlen(text_filter_replace);
 	// scan the text for any strings
 	for(i=0;i<len;i++,rloc++)
 		{
-			if((bad_len=check_if_filtered(rloc)) > 0)
+			if((idx=check_if_filtered(rloc)) > -1)
 				{
 					//oops, remove this word 
-					if(bad_len <= rep_len)
+					bad_len=filter_list[idx].len;
+					rep_len=filter_list[idx].rlen;
+					if(bad_len == rep_len)
 						{
-							strncpy(rloc, text_filter_replace, bad_len);
+							strncpy(rloc, filter_list[idx].replacement, rep_len);
 						}
 					else
 						{
-							strncpy(rloc, text_filter_replace, rep_len);
 							memmove(rloc+rep_len, rloc+bad_len, len-(i+bad_len));
+							strncpy(rloc, filter_list[idx].replacement, rep_len);
 							// adjust the length
 							len-=(bad_len-rep_len);
 						}
@@ -313,6 +338,8 @@ void list_filters()
 			if(filter_list[i].len > 0)
 				{
 					my_strcp(&str[strlen(str)],filter_list[i].name);
+					my_strcp(&str[strlen(str)]," = ");
+					my_strcp(&str[strlen(str)],filter_list[i].replacement);
 					my_strcp(&str[strlen(str)],", ");
 				}
 		}

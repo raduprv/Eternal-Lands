@@ -368,7 +368,7 @@ void test_for_console_command (char *text, int len)
 			for(i=0;i<15;i++)
 				{
 					ch=text_loc[i+7];//7 because there is a space after "filter"
-					if(ch==' ' || ch=='\0')
+					if(ch=='\0')
 						{
 							ch=0;
 							break;
