@@ -56,8 +56,18 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 		// *almost does not include clicking on an animal to fight, as the move command
 		// in this instance is sent from the server
 		if(me && !me->fighting)
-			if (!pf_find_path (*((short *)(str+1)), *((short *)(str+3))))
-				return 1;
+		{
+			short x = *((short *)(str+1)), y = *((short *)(str+3));
+			if (!pf_find_path (x, y))
+			{
+				// can't find a path, is it because the destination is unwalkable?
+				// if so, it may be a teleporter, and we let the server catch it
+				PF_TILE *t = pf_get_tile (x, y);
+				if (t->z != 0)
+					// other reason, give up
+					return 1;
+			}
+		}
 	}
 #ifdef SERVER_DROP_ALL
 	else if ( (str[0] == DROP_ITEM || str[0] == DROP_ALL) && pf_follow_path )

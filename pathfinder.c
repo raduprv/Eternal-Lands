@@ -128,7 +128,7 @@ int pf_find_path(int x, int y)
 	
 	pf_src_tile = pf_get_tile(me->x_tile_pos, me->y_tile_pos);
 	pf_dst_tile = pf_get_tile(x, y);
-	
+
 	if (!pf_dst_tile || pf_dst_tile->z == 0) {
 		return 0;
 	}
