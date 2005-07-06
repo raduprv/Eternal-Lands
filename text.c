@@ -475,6 +475,10 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		
 		switch (channel)
 		{
+			case CHAT_LOCAL:
+				if (!local_chat_separate)
+					channel = CHAT_ALL;
+				break;
 			case CHAT_PERSONAL:
 				if (!personal_chat_separate)
 					channel = CHAT_ALL;

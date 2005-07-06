@@ -362,6 +362,12 @@ void change_to_current_chat_tab(const char *input)
 	}
 	switch (channel)
 	{
+		case CHAT_LOCAL:
+			if (!local_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
 		case CHAT_PERSONAL:
 			if (!personal_chat_separate)
 			{
@@ -749,6 +755,7 @@ void chat_win_update_zoom () {
 
 ////////////////////////////////////////////////////////////////////////
 
+int local_chat_separate = 0;
 int personal_chat_separate = 0;
 int guild_chat_separate = 1;
 int server_chat_separate = 0;
@@ -1003,6 +1010,12 @@ void change_to_current_tab(const char *input)
 	}
 	switch (channel)
 	{
+		case CHAT_LOCAL:
+			if (!local_chat_separate)
+			{
+				channel = CHAT_ALL;
+			}
+		break;
 		case CHAT_PERSONAL:
 			if (!personal_chat_separate)
 			{

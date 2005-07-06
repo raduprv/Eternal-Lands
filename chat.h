@@ -167,6 +167,7 @@ typedef struct
 	char highlighted;
 } chat_tab;
 
+extern int local_chat_separate;		/*!< if non-zero, show local chat in a separate tab */
 extern int personal_chat_separate;	/*!< if non-zero, show PMs in a different tab */
 extern int guild_chat_separate;		/*!< if non-zero, show GMs in a different tab */
 extern int server_chat_separate;	/*!< if non-zero, show game messages in a different tab */
