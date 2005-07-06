@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <sys/stat.h>
-#ifndef WINDOWS
+#ifdef __GNUC__
 #include <dirent.h>
 #include <unistd.h>
 #endif
