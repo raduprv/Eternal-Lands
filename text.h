@@ -174,6 +174,25 @@ void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit
 
 /*!
  * \ingroup text_font
+ * \brief put_small_colored_text_in_box
+ *
+ *      put_small_colored_text_in_box(unsigned char*,int,int,char*)
+ *
+ * \param color	the color
+ * \param text_to_add   the string to add
+ * \param len           the length of text_to_add
+ * \param pixels_limit
+ * \param buffer
+ *
+ * \callgraph
+ *
+ * \todo Fix documentation
+ */
+void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len,
+						   int pixels_limit, char *buffer);
+
+/*!
+ * \ingroup text_font
  * \brief find_last_lines_time
  *
  *      find_last_lines_time(int *, int *)

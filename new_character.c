@@ -1,182 +1,122 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <ctype.h>
 #include "global.h"
 
 #define RAND(min,max) (min + rand () % (max - min + 1))
 
-int skin_color=SKIN_NORMAL;
-int hair_color=HAIR_BLACK;
-int shirt_color=SHIRT_GREEN;
-int pants_color=PANTS_BLACK;
-int boots_color=BOOTS_BROWN;
-int head=HEAD_1;
+typedef int my_enum;//This enumeration will decrease, then wrap to top, increase and then wrap to bottom, when using the inc() and dec() functions. Special purpose though, since you have to have between 2 and 255 values in the enumeration and you have to have the same value in enum[0] as in enum[max] - otherwise we'll probably segfault...
 
-int actor_creation_menu_x_start=250;
-int actor_creation_menu_y_start=10;
-int actor_creation_menu_x_end=350;
-int actor_creation_menu_y_end=270;
+my_enum     normal_skin_enum[] = { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_BROWN };
+my_enum     normal_hair_enum[] = { HAIR_BLACK, HAIR_BLOND, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_BLACK };
+my_enum  draegonim_hair_enum[] = { HAIR_BLACK, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_BLUE, HAIR_GREEN, HAIR_PURPLE, HAIR_BLACK };
+my_enum  draegonif_hair_enum[] = { HAIR_BLACK, HAIR_BLOND, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_BLUE, HAIR_GREEN, HAIR_PURPLE, HAIR_BLACK };
+my_enum      male_shirt_enum[] = { SHIRT_BLACK, SHIRT_BLUE, SHIRT_BROWN, SHIRT_GREY, SHIRT_GREEN, SHIRT_LIGHTBROWN, SHIRT_ORANGE, SHIRT_PURPLE, SHIRT_RED, SHIRT_WHITE, SHIRT_YELLOW, SHIRT_BLACK };
+my_enum    normal_shirt_enum[] = { SHIRT_BLACK, SHIRT_BLUE, SHIRT_BROWN, SHIRT_GREY, SHIRT_GREEN, SHIRT_LIGHTBROWN, SHIRT_ORANGE, SHIRT_PINK, SHIRT_PURPLE, SHIRT_RED, SHIRT_WHITE, SHIRT_YELLOW, SHIRT_BLACK };
+my_enum     normal_pants_enum[] = { PANTS_BLACK, PANTS_BLUE, PANTS_BROWN, PANTS_DARKBROWN, PANTS_GREY, PANTS_GREEN, PANTS_LIGHTBROWN, PANTS_RED, PANTS_WHITE, PANTS_BLACK };
+my_enum     normal_boots_enum[] = { BOOTS_BLACK, BOOTS_BROWN, BOOTS_DARKBROWN, BOOTS_DULLBROWN, BOOTS_LIGHTBROWN, BOOTS_ORANGE, BOOTS_BLACK };
+my_enum     normal_head_enum[] = { HEAD_1, HEAD_2, HEAD_3, HEAD_4, HEAD_1 };
+my_enum     humanf_head_enum[] = { HEAD_1, HEAD_2, HEAD_3, HEAD_4, HEAD_5, HEAD_1 };
 
-int back_arrow_x_start = 90;
-int back_arrow_x_end = 108;
-int forward_arrow_x_start = 120;
-int forward_arrow_x_end = 138;
+struct race_def {
+	int type;
+	my_enum *skin;
+	my_enum *hair;
+	my_enum *shirts;
+	my_enum *pants;
+	my_enum *boots;
+	my_enum *head;
+	float x, y, z_rot;
+} races[12] = {
+	{human_female, 		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, humanf_head_enum, 43.0f,	156.0f,	140.0f},
+	{human_male, 		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 43.0f,	156.0f,	140.0f},
+	{elf_female, 		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
+	{elf_male,		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
+	{dwarf_female,		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
+	{dwarf_male,		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
+	{gnome_female,		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 43.0f,	156.0f,	180.0f},
+	{gnome_male,		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 43.0f,	156.0f,	180.0f},
+	{orchan_female,		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
+	{orchan_male,		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
+	{draegoni_female,	normal_skin_enum, draegonif_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
+	{draegoni_male,		normal_skin_enum, draegonim_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
+};
 
-int skin_text_y_start = 270;
-int skin_text_y_end = 288;
-int hair_text_y_start = 290;
-int hair_text_y_end = 308;
-int shirt_text_y_start = 310;
-int shirt_text_y_end = 328;
-int pants_text_y_start = 330;
-int pants_text_y_end = 348;
-int boots_text_y_start = 350;
-int boots_text_y_end = 368;
-int head_text_y_start = 370;
-int head_text_y_end = 388;
+struct char_def {
+	int male;
+	int race_id;//races[race_id]
+	int race;
+	int skin;
+	int hair;
+	int shirt;
+	int pants;
+	int boots;
+	int head;
+	struct race_def * def;
+	actor * our_model;
+} our_actor = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0,
+	NULL,
+	NULL
+};
 
-int skin_forward = 0;
-int skin_back = 0;
-int hair_forward = 0;
-int hair_back = 0;
-int shirt_forward = 0;
-int shirt_back = 0;
-int pants_forward = 0;
-int pants_back = 0;
-int boots_forward = 0;
-int boots_back = 0;
-int head_forward = 0;
-int head_back = 0;
+//Enum handling
 
+int find_pos_in_enum(my_enum * def, int val)
+{
+	int i;
 
-#define RACE_HUMAN 0
-#define RACE_ELF 2
-#define RACE_DWARF 4
-#define RACE_GNOME 37
-#define RACE_ORCHAN 39
-#define RACE_DRAEGONI 41
+	for(i=1;i<255;i++){
+		if(def[i]==val) return i;
+		else if(def[i]==def[0])return 0;
+	}
 
-int male=1;
-int race=RACE_HUMAN;
+	return 0;
+}
 
-actor * our_model;
-int any_model=0;
+int inc(my_enum * def, int val, int no_steps)
+{
+	my_enum * here=&def[find_pos_in_enum(def, val)];
 
-int username_label_x_start = 60;
-int username_label_y_start = 10;
-int password_label_x_start = 60;
-int password_label_y_start = 68;
-int confirm_label_x_start = 20;
-int confirm_label_y_start = 126;
+	while(no_steps--){
+		if(*here==def[0])here=&def[1];
+		else here++;
+	}
 
-int error_x_start = 10;
-int error_y_start = 400;
+	return *here;
+}
 
-int box_x_start = 10;
-int box_x_end = 200;
-int username_box_y_start = 30;
-int username_box_y_end = 58;
-int password_box_y_start = 88;
-int password_box_y_end = 116;
-int confirm_box_y_start = 146;
-int confirm_box_y_end = 174;
+int dec(my_enum * def, int val, int no_steps)
+{
+	my_enum * top=&def[find_pos_in_enum(def, def[0])];
+	my_enum * here=&def[find_pos_in_enum(def, val)];
 
-int username_selected = 1;
-int password_selected = 0;
-int confirm_pass_selected = 0;
+	while(no_steps--){
+		if(*here==*top)here=top;
+		here--;
+	}
 
-int pass_text_lenght;
-char pass_str[16];
-char display_pass_str[16];
+	return *here;
+}
 
-int conf_pass_text_lenght;
-char conf_pass_str[16];
-char display_conf_pass_str[16];
+//New char interface
 
-int user_text_lenght;
-char user_str[16];
-
-int back_button_x_start = 110;
-int back_button_x_end = 200;
-int back_button_y_start = 197;
-int back_button_y_end = 235;
-
-int done_button_x_start = 10;
-int done_button_x_end = 90;
-int done_button_y_start = 197;
-int done_button_y_end = 235;
-
-int back_selected = 0;
-int done_selected = 0;
-
-int gender_text_x_start = 460;
-int gender_text_x_end = 590;
-int gender_text_y_start = 280;
-int male_text_y_start = 300;
-int male_text_y_end = 320;
-int female_text_y_start = 320;
-int female_text_y_end = 340;
-
-int race_text_x_start = 240;
-int race_text_y_start = 280;
-int p2p_text_x_start = 310;
-int p2p_text_y_start = 280;
-
-int human_text_x_start = 240;
-int human_text_x_end = 300;
-int human_text_y_start = 300;
-int human_text_y_end = 320;
-
-int elf_text_x_start = 240;
-int elf_text_x_end = 300;
-int elf_text_y_start = 320;
-int elf_text_y_end = 340;
-
-int dwarf_text_x_start = 240;
-int dwarf_text_x_end = 300;
-int dwarf_text_y_start = 340;
-int dwarf_text_y_end = 360;
-
-int gnome_text_x_start = 310;
-int gnome_text_x_end = 400;
-int gnome_text_y_start = 300;
-int gnome_text_y_end = 320;
-
-int orchan_text_x_start = 310;
-int orchan_text_x_end = 400;
-int orchan_text_y_start = 320;
-int orchan_text_y_end = 340;
-
-int draegoni_text_x_start = 310;
-int draegoni_text_x_end = 400;
-int draegoni_text_y_start = 340;
-int draegoni_text_y_end = 360;
-
-float done_button_unselected_start_u=(float)0/256;
-float done_button_unselected_start_v=1.0f-(float)161/256;
-
-float done_button_unselected_end_u=(float)87/256;
-float done_button_unselected_end_v=1.0f-(float)196/256;
-
-float done_button_selected_start_u=(float)0/256;
-float done_button_selected_start_v=1.0f-(float)202/256;
-
-float done_button_selected_end_u=(float)87/256;
-float done_button_selected_end_v=1.0f-(float)237/256;
-/////////////////////////
-float back_unselected_start_u=(float)100/256;
-float back_unselected_start_v=1.0f-(float)161/256;
-
-float back_unselected_end_u=(float)188/256;
-float back_unselected_end_v=1.0f-(float)196/256;
-
-float back_selected_start_u=(float)100/256;
-float back_selected_start_v=1.0f-(float)202/256;
-
-float back_selected_end_u=(float)188/256;
-float back_selected_end_v=1.0f-(float)237/256;
+int display_time=0;
+	
+struct input_text {
+	char str[20];
+	int pos;
+} inputs[3] = {
+	{"Player", 6},
+	{"", 0},
+	{"", 0}
+};
 
 void set_create_char_error (const char *msg, int len)
 {
+	char buf[512];
+	
 	if (len <= 0)
 	{
 		// server didn't send a message, use the default
@@ -193,388 +133,27 @@ void set_create_char_error (const char *msg, int len)
 		create_char_error_str[len+prelen] = '\0';
 		reset_soft_breaks (create_char_error_str, len+prelen, sizeof (create_char_error_str), 1.0, window_width - 20, NULL);
 	}
+
+	LOG_TO_CONSOLE(c_red1, create_char_error_str);
+	
+	put_small_colored_text_in_box(c_red1, create_char_error_str, strlen(create_char_error_str), 200, buf);
+	strncpy(create_char_error_str, buf, sizeof(create_char_error_str));
+	display_time=cur_time+6000;
 }
 
 void change_actor ()
 {
 	// if there is any loaded model, destroy it
-	if (any_model)
-	{
-		glDeleteTextures (1, &our_model->texture_id);
-		free (our_model->body_parts);
-		free (our_model);
-		our_model = 0;
+	if (our_actor.our_model){
+		destroy_actor(0);
+		our_actor.our_model=NULL;
 	}
-	/*if(race==RACE_HUMAN)
-		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
-	else if(race==RACE_ELF)
-		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
-	else if(race==RACE_DWARF)
-		our_model=add_actor_interface(race+male,skin_color,hair_color,shirt_color,pants_color,boots_color,head);
-	else if(race==RACE_GNOME)*/
-	if (hair_color == HAIR_BLOND) 
-		if ((race == RACE_DRAEGONI && male) || race == RACE_ORCHAN) 
-			hair_color++;
-	if (hair_color > HAIR_WHITE && race != RACE_DRAEGONI) 
-		hair_color = HAIR_BLACK;
-	if (shirt_color == SHIRT_PINK && male) 
-		shirt_color++;
 	
-	our_model = add_actor_interface (race+male, skin_color, hair_color, shirt_color, pants_color, boots_color, head);
+	our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 
-	any_model = 1;	// we have an actor loaded
+	strcpy(actors_list[0]->actor_name, inputs[0].str);
+
 	last_texture = -1;	// when we load a new char, we also bind the texture, so...
-}
-
-void draw_new_char_screen()
-{
-	float selected_bar_u_start=(float)0/256;
-	float selected_bar_v_start=1.0f-(float)0/256;
-
-	float selected_bar_u_end=(float)174/256;
-	float selected_bar_v_end=1.0f-(float)28/256;
-
-
-	float unselected_bar_u_start=(float)0/256;
-	float unselected_bar_v_start=1.0f-(float)40/256;
-
-	float unselected_bar_u_end=(float)170/256;
-	float unselected_bar_v_end=1.0f-(float)63/256;
-
-	//see if we have to load a model (male or female)
-	if (!any_model)
-	{
-		our_model = add_actor_interface (race+male, skin_color, hair_color, shirt_color, pants_color, boots_color, head);
-		any_model = 1; // we have an actor loaded
-	}
-
-	glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (10, skin_text_y_start, skin_str, 1);
-	if (skin_back) 
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else 
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (back_arrow_x_start, skin_text_y_start, "<<", 1);
-	if(skin_forward)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (forward_arrow_x_start, skin_text_y_start, ">>", 1);
-
-	glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (10, hair_text_y_start, hair_str, 1);
-	if (hair_back)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (back_arrow_x_start, hair_text_y_start, "<<", 1);
-	if (hair_forward)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (forward_arrow_x_start, hair_text_y_start, ">>", 1);
-
-	glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (10, shirt_text_y_start, shirt_str, 1);
-	if (shirt_back)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else 
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (back_arrow_x_start, shirt_text_y_start, "<<", 1);
-	if (shirt_forward)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else 
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (forward_arrow_x_start, shirt_text_y_start, ">>", 1);
-
-	glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (10, pants_text_y_start, pants_str, 1);
-	if (pants_back)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (back_arrow_x_start, pants_text_y_start, "<<", 1);
-	if (pants_forward)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else 
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (forward_arrow_x_start, pants_text_y_start, ">>", 1);
-
-	glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (10, boots_text_y_start, boots_str, 1);
-	if (boots_back) 
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else 
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (back_arrow_x_start, boots_text_y_start, "<<", 1);
-	if (boots_forward)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else 
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (forward_arrow_x_start, boots_text_y_start, ">>", 1);
-
-	glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (10, head_text_y_start, head_str, 1);
-	if(head_back)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else 
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (back_arrow_x_start, head_text_y_start, "<<", 1);
-	if (head_forward)
-		glColor3f (0.3f, 1.0f, 0.3f);
-	else 
-		glColor3f (1.0f, 0.7f, 0.0f);
-	draw_string (forward_arrow_x_start, head_text_y_start, ">>", 1);
-
-	glColor3f (1.0f, 0.2f, 0.2f);
-	draw_string (gender_text_x_start, gender_text_y_start, gender_str, 1);
-
-	if (male == 1) 
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else 
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (gender_text_x_start, male_text_y_start, male_str, 1);
-
-	if (male != 1)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else 
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (gender_text_x_start, female_text_y_start, female_str, 1);
-
-	glColor3f (1.0f, 0.2f, 0.2f);
-	draw_string (race_text_x_start, race_text_y_start, race_str, 1);
-
-	if (race == RACE_HUMAN)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (human_text_x_start, human_text_y_start, human_str, 1);
-
-	if (race == RACE_ELF)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (elf_text_x_start, elf_text_y_start, elf_str, 1);
-
-	if (race == RACE_DWARF)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (dwarf_text_x_start, dwarf_text_y_start, dwarf_str, 1);
-
-        glColor3f (1.0f, 0.2f, 0.2f);
-	draw_string (p2p_text_x_start, p2p_text_y_start, "P2P Only!", 1);
-	
-	glDisable (GL_TEXTURE_2D);
-	
-	glBegin (GL_LINE_LOOP);
-	glVertex2i (p2p_text_x_start-5, p2p_text_y_start-5);
-	glVertex2i (p2p_text_x_start-5, draegoni_text_y_end);
-	glVertex2i (draegoni_text_x_end + 10, draegoni_text_y_end);
-	glVertex2i (draegoni_text_x_end + 10, p2p_text_y_start-5);
-	glEnd ();
-
-	glEnable (GL_TEXTURE_2D);
-	
-	if (race == RACE_GNOME)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (gnome_text_x_start, gnome_text_y_start, "Gnome", 1);
-
-	if (race == RACE_ORCHAN)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (orchan_text_x_start, orchan_text_y_start, "Orchan", 1);
-	
-	if (race == RACE_DRAEGONI)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (draegoni_text_x_start, draegoni_text_y_start, "Draegoni", 1);
-	
-	//draw the player frame
-	glDisable (GL_TEXTURE_2D);
-	glBegin (GL_QUADS);
-	glColor4f (0.4f, 0.4f, 0.4f, 0.5f);
-	glVertex3i (actor_creation_menu_x_start, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_start, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end, actor_creation_menu_y_end, 0);
-
-	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_end, 0);
-	glEnd ();
-
-	glColor3f (0.2f, 0.2f, 0.2f);
-	glBegin (GL_LINE_LOOP);
-	glVertex3i (actor_creation_menu_x_start, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_start, actor_creation_menu_y_end, 0);
-	glEnd ();
-
-	glBegin (GL_LINE_LOOP);
-	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_start, 0);
-	glVertex3i (actor_creation_menu_x_end + 200, actor_creation_menu_y_end, 0);
-	glVertex3i (actor_creation_menu_x_start + 200, actor_creation_menu_y_end, 0);
-	glEnd ();
-
-	glEnable (GL_TEXTURE_2D);
-
-	//draw the player
-	glEnable (GL_DEPTH_TEST);
-	draw_interface_actor (our_model, 150.0f, actor_creation_menu_x_start + 50, actor_creation_menu_y_end - 10, 0, 90.0f, 0.0f, 0.0f);
-
-	draw_interface_actor (our_model, 150.0f, actor_creation_menu_x_start + 250, actor_creation_menu_y_end - 10, 0, 270.0f, 0.0f, -180.0f);
-	glDisable (GL_DEPTH_TEST);
-
-	//now start putting the dialogue boxes.
-	get_and_set_texture_id (login_screen_menus);
-	glColor3f (1.0f, 1.0f, 1.0f);
-	glBegin (GL_QUADS);
-
-	//username box
-	if (username_selected)
-		draw_2d_thing (selected_bar_u_start, selected_bar_v_start, selected_bar_u_end, selected_bar_v_end, box_x_start, username_box_y_start, box_x_end, username_box_y_end);
-	else
-		draw_2d_thing (unselected_bar_u_start, unselected_bar_v_start, unselected_bar_u_end, unselected_bar_v_end, box_x_start, username_box_y_start, box_x_end, username_box_y_end);
-
-	//password box
-	if (password_selected)
-		draw_2d_thing (selected_bar_u_start, selected_bar_v_start, selected_bar_u_end, selected_bar_v_end, box_x_start, password_box_y_start, box_x_end, password_box_y_end);
-	else
-		draw_2d_thing (unselected_bar_u_start, unselected_bar_v_start, unselected_bar_u_end, unselected_bar_v_end, box_x_start, password_box_y_start, box_x_end, password_box_y_end);
-
-	//confirm box
-	if (confirm_pass_selected)
-		draw_2d_thing (selected_bar_u_start, selected_bar_v_start, selected_bar_u_end, selected_bar_v_end, box_x_start, confirm_box_y_start, box_x_end, confirm_box_y_end);
-	else
-		draw_2d_thing (unselected_bar_u_start, unselected_bar_v_start, unselected_bar_u_end, unselected_bar_v_end, box_x_start, confirm_box_y_start, box_x_end, confirm_box_y_end);
-
-	//done_button button
-	if(done_selected)
-		draw_2d_thing (done_button_selected_start_u, done_button_selected_start_v, done_button_selected_end_u, done_button_selected_end_v, done_button_x_start, done_button_y_start, done_button_x_end, done_button_y_end);
-	else
-		draw_2d_thing (done_button_unselected_start_u, done_button_unselected_start_v, done_button_unselected_end_u, done_button_unselected_end_v, done_button_x_start, done_button_y_start, done_button_x_end, done_button_y_end);
-
-	//back button
-	if(back_selected)
-		draw_2d_thing (back_selected_start_u, back_selected_start_v, back_selected_end_u, back_selected_end_v, back_button_x_start, back_button_y_start, back_button_x_end, back_button_y_end);
-	else
-		draw_2d_thing (back_unselected_start_u, back_unselected_start_v, back_unselected_end_u, back_unselected_end_v, back_button_x_start, back_button_y_start, back_button_x_end, back_button_y_end);
-
-	glEnd();
-
-	// now, draw the text 'labels'
-	glColor3f (0.0f, 1.0f, 0.5f);
-	draw_string (username_label_x_start, username_label_y_start, login_username_str, 1);
-	draw_string (password_label_x_start, password_label_y_start, login_password_str, 1);
-	draw_string (confirm_label_x_start, confirm_label_y_start, confirm_password, 1);
-
-	//put the username, pass, and conf pass user text
-	glColor3f (0.0f, 0.5f, 1.0f);
-	draw_string (box_x_start + 5, password_box_y_start + 8, display_pass_str,1);
-	draw_string (box_x_start + 5, confirm_box_y_start + 8, display_conf_pass_str,1);
-	draw_string (box_x_start + 5, username_box_y_start + 8, user_str,1);
-
-	// print the current error, if any
-	if (create_char_error_str[0] != '\0')
-	{
-		glColor3f (1.0f, 0.0f, 0.0f);
-		draw_string (10, 400, create_char_error_str, 3);
-	}
-	else
-	{
-		glColor3f (0.0f, 1.0f, 0.0f);
-		draw_string_zoomed (10, 390, use_appropriate_name, 7, 0.8);
-	}
-		
-}
-
-void add_char_to_pass(unsigned char ch)
-{
-	if((ch>=32 && ch<=126) && pass_text_lenght<15)
-		{
-			pass_str[pass_text_lenght]=ch;
-			display_pass_str[pass_text_lenght]='*';
-			pass_str[pass_text_lenght+1]=0;
-			pass_text_lenght++;
-		}
-	if( (ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && pass_text_lenght > 0 )
-		{
-			pass_text_lenght--;
-			display_pass_str[pass_text_lenght]=0;
-			pass_str[pass_text_lenght]=0;
-		}
-}
-
-void add_char_to_un(unsigned char ch)
-{
-	if(((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_')) && user_text_lenght<15)
-		{
-			user_str[user_text_lenght]=ch;
-			user_str[user_text_lenght+1]=0;
-			user_text_lenght++;
-		}
-	if( (ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && user_text_lenght > 0 )
-		{
-			user_text_lenght--;
-			user_str[user_text_lenght]=0;
-		}
-}
-
-void add_char_to_conf(unsigned char ch)
-{
-	if((ch>=32 && ch<=126) && conf_pass_text_lenght<15)
-		{
-			conf_pass_str[conf_pass_text_lenght]=ch;
-			display_conf_pass_str[conf_pass_text_lenght]='*';
-			conf_pass_str[conf_pass_text_lenght+1]=0;
-			conf_pass_text_lenght++;
-		}
-	if( (ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && conf_pass_text_lenght > 0 )
-		{
-			conf_pass_text_lenght--;
-			display_conf_pass_str[conf_pass_text_lenght]=0;
-			conf_pass_str[conf_pass_text_lenght]=0;
-		}
-}
-
-void add_char_to_new_character(unsigned char ch)
-{
-	if (username_selected) add_char_to_un(ch);
-	else if (password_selected) add_char_to_pass(ch);
-	else if (confirm_pass_selected) add_char_to_conf(ch);
-}
-
-void login_from_new_char()
-{
-	Uint32 i;
-	char ch;
-	for(i=0;i<strlen(pass_str);i++)
-		{
-			ch=pass_str[i];
-			if(ch)password_str[i]=ch;
-			else break;
-		}
-	password_str[i]=0;
-
-	for(i=0;i<strlen(user_str);i++)
-		{
-			ch=user_str[i];
-			if(ch)username_str[i]=ch;
-			else break;
-		}
-	username_str[i]=0;
-
-	//now send the log in info
-	send_login_info();
-
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -582,303 +161,156 @@ void login_from_new_char()
 // New character window code below.
 
 int newchar_root_win = -1;
+int color_race_win = -1;
+int namepass_win = -1;
 
 int display_newchar_handler (window_info *win)
 {
-	draw_new_char_screen ();	
+	int any_reflection; 
+	static int main_count = 0;
+
+	//see if we have to load a model (male or female)
+	if (!our_actor.our_model){
+		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
+		yourself = 0;
+	}
+
+	if(!have_a_map){
+		game_minute = 90;
+		new_minute();
+		regenerate_near_objects = 1;
+		regenerate_near_2d_objects = 1;
+		load_map("./maps/newcharactermap.elm");
+#ifndef NO_MUSIC
+		playing_music = 0;
+#endif  //NO_MUSIC
+		get_map_playlist();
+		have_a_map = 1;
+		seconds_till_rain_starts = -1;
+		seconds_till_rain_stops = -1;
+		is_raining = 0;
+		rain_sound = 0;//kill local sounds also kills the rain sound
+		weather_light_offset = 0;
+		rain_light_offset = 0;
+	}
+
+	if (!(main_count%10))
+		read_mouse_now = 1;
+	else
+		read_mouse_now = 0;
+	reset_under_the_mouse();
+	
+	//This window is a bit special since it's not fully 2D
+	Leave2DMode ();
+	glPushMatrix ();
+
+	if (new_zoom_level != zoom_level) {
+		zoom_level = new_zoom_level;
+		resize_root_window ();
+	}
+	
+	move_camera ();
+	save_scene_matrix ();
+
+	CalculateFrustum ();
+	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
-	draw_delay = 20;
+	
+	if (SDL_GetAppState() & SDL_APPACTIVE) {
+		//now, determine the current weather light level
+		get_weather_light_level ();
+
+		draw_global_light ();
+		update_scene_lights();
+		draw_lights();
+		CHECK_GL_ERRORS ();
+
+		if (shadows_on && is_day) 
+			render_light_view();
+		CHECK_GL_ERRORS ();
+
+		glEnable (GL_FOG);
+		if (any_reflection > 1) {
+			draw_sky_background ();
+			CHECK_GL_ERRORS ();
+			if (show_reflection) display_3d_reflection ();
+		}
+		
+		CHECK_GL_ERRORS ();
+
+		if (shadows_on && is_day) {
+			draw_sun_shadowed_scene (any_reflection);
+		} else {
+			glNormal3f (0.0f,0.0f,1.0f);
+			if (any_reflection) draw_lake_tiles ();
+			draw_tile_map ();
+			CHECK_GL_ERRORS ();
+			display_2d_objects ();
+			CHECK_GL_ERRORS ();
+			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
+			display_objects ();
+			display_actors ();
+		}
+		glDisable (GL_FOG);
+		CHECK_GL_ERRORS ();
+	}
+
+	//particles should be last, we have no Z writting
+	display_particles ();
+	CHECK_GL_ERRORS ();
+	
+	Enter2DMode ();
+
+	glColor3f(1.0f,1.0f,1.0f);
+
+	draw_hud_frame();
+	
+	CHECK_GL_ERRORS ();
+
+	{
+		int msg, offset, ytext;
+		ytext = use_windowed_chat == 1 ? 25 : 20;
+		if ( find_last_lines_time (&msg, &offset, current_filter) ){
+			set_font(chat_font);    // switch to the chat font
+			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, current_filter, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
+			set_font (0);   // switch to fixed
+		}
+	}
+	
+        Leave2DMode ();
+
+	glEnable (GL_LIGHTING);
+	glPopMatrix (); // restore the state
+	Enter2DMode ();
+
+	main_count++;
+
 	return 1;
 }
 
 int mouseover_newchar_handler (window_info *win, int mx, int my)
 {
-	back_selected = 0;
-	done_selected = 0;
-	
-	skin_back = 0;
-	skin_forward = 0;
-	hair_back = 0;
-	hair_forward = 0;
-	shirt_back = 0;
-	shirt_forward = 0;
-	pants_back = 0;
-	pants_forward = 0;
-	boots_back = 0;
-	boots_forward = 0;
-	head_back = 0;
-	head_forward = 0;
-	
-	if (mx > back_button_x_start && mx < back_button_x_end && my > back_button_y_start && my < back_button_y_end)
-	{
-		back_selected = 1;
-	}
-	else if (mx > done_button_x_start && mx < done_button_x_end && my > done_button_y_start && my < done_button_y_end)
-	{
-		done_selected = 1;
-	}
-	else if (mx >= back_arrow_x_start && my > skin_text_y_start && my < skin_text_y_end && mouse_x <= back_arrow_x_end)
-	{
-		skin_back = 1;
-	}
-	else if (mx >= forward_arrow_x_start && my > skin_text_y_start && my < skin_text_y_end && mx <= forward_arrow_x_end)
-	{
-		skin_forward = 1;
-	}
-	else if (mx >= back_arrow_x_start && my > hair_text_y_start && my < hair_text_y_end && mx <= back_arrow_x_end)
-	{
-		hair_back = 1;
-	}
-	else if (mx >= forward_arrow_x_start && my > hair_text_y_start && my < hair_text_y_end && mx <= forward_arrow_x_end)
-	{
-		hair_forward = 1;
-	}
-	else if (mx >= back_arrow_x_start && my > shirt_text_y_start && my < shirt_text_y_end && mx <= back_arrow_x_end)
-	{
-		shirt_back = 1;
-	}
-	else if (mx >= forward_arrow_x_start && my > shirt_text_y_start && my < shirt_text_y_end && mx <= forward_arrow_x_end)
-	{
-		shirt_forward = 1;
-	}
-	else if (mx >= back_arrow_x_start && my > pants_text_y_start && my < pants_text_y_end && mx <= back_arrow_x_end)
-	{
-		pants_back = 1;
-	}
-	else if (mx >= forward_arrow_x_start && my > pants_text_y_start && my < pants_text_y_end && mx <= forward_arrow_x_end)
-	{
-		pants_forward = 1;
-	}
-	else if (mx >= back_arrow_x_start && my > boots_text_y_start && my < boots_text_y_end && mx <= back_arrow_x_end)
-	{
-		boots_back = 1;
-	}
-	else if (mx >= forward_arrow_x_start && my > boots_text_y_start && my < boots_text_y_end && mx <= forward_arrow_x_end)
-	{
-		boots_forward = 1;
-	}
-	else if (mx >= back_arrow_x_start && my > head_text_y_start && my < head_text_y_end && mx <= back_arrow_x_end)
-	{
-		head_back = 1;
-	}
-	else if (mx >= forward_arrow_x_start && my > head_text_y_start && my < head_text_y_end && mx <= forward_arrow_x_end)
-	{
-		head_forward = 1;
-	}
-
 	return 1;
 }
 
 int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 {
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	if (flags & ELW_WHEEL_UP) {
+		if (camera_zoom_dir == -1)
+			camera_zoom_frames += 5;
+		else
+			camera_zoom_frames = 5;
+		camera_zoom_dir = -1;
+		return 1;
+	}
 
-	if (mx > back_button_x_start && mx < back_button_x_end && my > back_button_y_start && my < back_button_y_end && back_selected)
-	{
-		// don't destroy this window yet, maybe the use will come back
-		hide_window (newchar_root_win);
-		show_window (login_root_win);
-	}
-	else if (mx > done_button_x_start && mx < done_button_x_end && my > done_button_y_start && mouse_y < done_button_y_end && done_selected)
-	{
-		send_new_char (user_str, pass_str, conf_pass_str, skin_color, hair_color, shirt_color, pants_color, boots_color, head, race+male);
-	}
-	//check skin color change
-	else if (mx >= back_arrow_x_start && my > skin_text_y_start && my < skin_text_y_end && mouse_x <= back_arrow_x_end)
-	{
-		if (skin_color == SKIN_BROWN)
-			skin_color = SKIN_TAN;
-		else 
-			skin_color--;
-		change_actor ();
-	}
-	else if (mx >= forward_arrow_x_start && my > skin_text_y_start && my < skin_text_y_end && mx <= forward_arrow_x_end)
-	{
-		if (skin_color == SKIN_TAN)
-			skin_color = SKIN_BROWN;
+	if (flags & ELW_WHEEL_DOWN) {
+		if (camera_zoom_dir == 1)
+			camera_zoom_frames += 5;
 		else
-			skin_color++;
-		change_actor();
-	}
-	//check hair color change
-	else if (mx >= back_arrow_x_start && my > hair_text_y_start && my < hair_text_y_end && mx <= back_arrow_x_end)
-	{
-		int wrap = race == RACE_DRAEGONI ? HAIR_PURPLE : HAIR_WHITE;
-		if(hair_color == HAIR_BLACK)
-			hair_color=wrap;
-		else
-			hair_color--;
-		if(hair_color == HAIR_BLOND)
-			if ((race==RACE_DRAEGONI && male) || race==RACE_ORCHAN)
-				hair_color--;
-		change_actor();
-	}
-	else if(mx >= forward_arrow_x_start && my > hair_text_y_start && my < hair_text_y_end && mx <= forward_arrow_x_end)
-	{
-		int wrap = race == RACE_DRAEGONI ? HAIR_PURPLE : HAIR_WHITE;
-		if(hair_color==wrap)
-			hair_color = HAIR_BLACK;
-		else
-			hair_color++;
-		if (hair_color == HAIR_BLOND)
-			if ((race==RACE_DRAEGONI && male) || race==RACE_ORCHAN)
-				hair_color++;
-		change_actor();
-	}
-	//check shirt color change
-	else if(mx >= back_arrow_x_start && my > shirt_text_y_start && my < shirt_text_y_end && mx <= back_arrow_x_end)
-	{
-		if (shirt_color == SHIRT_BLACK)
-			shirt_color=SHIRT_YELLOW;
-		else
-			shirt_color--;
-		if(shirt_color == SHIRT_PINK && male)
-			shirt_color--;
-		change_actor();
-	}
-	else if (mx >= forward_arrow_x_start && my > shirt_text_y_start && my < shirt_text_y_end && mx <= forward_arrow_x_end)
-	{
-		if (shirt_color == SHIRT_YELLOW)
-			shirt_color = SHIRT_BLACK;
-		else
-			shirt_color++;
-		if (shirt_color == SHIRT_PINK && male)
-			shirt_color++;
-		change_actor();
-	}
-	//check pants color change
-	else if (mx >= back_arrow_x_start && my > pants_text_y_start && my < pants_text_y_end && mx <= back_arrow_x_end)
-	{
-		if (pants_color == PANTS_BLACK)
-			pants_color = PANTS_WHITE;
-		else
-			pants_color--;
-		change_actor();
-	}
-	else if(mx >= forward_arrow_x_start && my > pants_text_y_start && my < pants_text_y_end && mx <= forward_arrow_x_end)
-	{
-		if (pants_color == PANTS_WHITE)
-			pants_color = PANTS_BLACK;
-		else
-			pants_color++;
-		change_actor();
-	}
-	//check boots color change
-	else if (mx >= back_arrow_x_start && my > boots_text_y_start && my < boots_text_y_end && mx <= back_arrow_x_end)
-	{
-		if (boots_color == BOOTS_BLACK)
-			boots_color = BOOTS_ORANGE;
-		else
-			boots_color--;
-		change_actor();
-	}
-	else if (mx >= forward_arrow_x_start && my > boots_text_y_start && my < boots_text_y_end && mx <= forward_arrow_x_end)
-	{
-		if (boots_color == BOOTS_ORANGE)
-			boots_color = BOOTS_BLACK;
-		else
-			boots_color++;
-		change_actor();
-	}
-	//check head change
-	else if (mx >= back_arrow_x_start && my > head_text_y_start && my < head_text_y_end && mx <= back_arrow_x_end)
-	{
-		if(head == HEAD_1)
-		{
-			if (race == RACE_HUMAN)
-				head = HEAD_5;
-			else
-				head = HEAD_4;
-		}
-		else 
-		{
-			head--;
-		}
-		change_actor();
-	}
-	else if (mx >= forward_arrow_x_start && my > head_text_y_start && my < head_text_y_end && mx <= forward_arrow_x_end)
-	{
-		if (head == HEAD_4 && race != RACE_HUMAN)
-		{
-			head = HEAD_1;
-		}
-		else if (head == HEAD_5)
-		{
-			head = HEAD_1;
-		}
-		else
-		{
-			head++;
-		}
-		change_actor();
-	}
-	//check to see if we changed the gender
-	//460,300
-	else if (mx > gender_text_x_start && mx < gender_text_x_end && my > male_text_y_start && my < male_text_y_end)
-	{
-		male = 1;
-		change_actor ();
-	}
-	else if (mx > gender_text_x_start && mx < gender_text_x_end && my > female_text_y_start && my < female_text_y_end)
-	{
-		male = 0;
-		change_actor ();
-	}
-	//check to see if we changed the race
-	else if (mx > human_text_x_start && mx < human_text_x_end && my > human_text_y_start && my < human_text_y_end)
-	{
-		race = RACE_HUMAN;
-		change_actor ();
-	}
-	else if (mx > elf_text_x_start && mx < elf_text_x_end && my > elf_text_y_start && my < elf_text_y_end)
-	{
-		race = RACE_ELF;
-		change_actor ();
-	}
-	else if (mx > dwarf_text_x_start && mx < dwarf_text_x_end && my > dwarf_text_y_start && my < dwarf_text_y_end)
-	{
-		race = RACE_DWARF;
-		change_actor ();
-	}
-	else if (mx > gnome_text_x_start && mx < gnome_text_x_end && my > gnome_text_y_start && my < gnome_text_y_end)
-	{
-		race = RACE_GNOME;
-		change_actor();
-	}
-	else if (mx > orchan_text_x_start && mx < orchan_text_x_end && my > orchan_text_y_start && my < orchan_text_y_end)
-	{
-		race = RACE_ORCHAN;
-		change_actor ();
-	}
-	else if (mx > draegoni_text_x_start && mx < draegoni_text_x_end && my > draegoni_text_y_start && my < draegoni_text_y_end)
-	{
-		race = RACE_DRAEGONI;
-		change_actor();
-	}
-	//check to see the selected dialogue boxes
-	else if (mx > box_x_start && mx < box_x_end && my > username_box_y_start && my < username_box_y_end)
-	{
-		username_selected = 1;
-		password_selected = 0;
-		confirm_pass_selected = 0;
-	}
-	else if(mx > box_x_start && mx < box_x_end && my > password_box_y_start && my < password_box_y_end)
-	{
-		username_selected = 0;
-		password_selected = 1;
-		confirm_pass_selected = 0;
-	}
-	else if(mx > box_x_start && mx < box_x_end && my > confirm_box_y_start && my < confirm_box_y_end)
-	{
-		username_selected = 0;
-		password_selected = 0;
-		confirm_pass_selected = 1;
-	}
-	// we couldn't handle it
-	else
-	{
-		return 0;
+			camera_zoom_frames = 5;
+		camera_zoom_dir = 1;
+		return 1;
 	}
 
 	return 1; // we captured this mouseclick
@@ -886,36 +318,57 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 
 int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	Uint8 ch = key_to_char (unikey);
-	
-	// first, try to see if we pressed Alt+x, to quit.
-	if ( check_quit_or_fullscreen (key) )
-	{
+	static int last_time=0;
+
+	if ( check_quit_or_fullscreen (key) ) {
 		return 1;
-	}
-	else if (ch == SDLK_TAB)
-	{
-		if (username_selected)
-		{
-			username_selected = 0;
-			password_selected = 1;
+	} else if(disconnected && !alt_on && !ctrl_on){
+		connect_to_server();
+	} else if (key == K_CAMERAUP) {
+		if (rx > -60) rx -= 1.0f;
+	} else if (key == K_CAMERADOWN) {
+		if (rx < -45) rx += 1.0f;
+	} else if (key == K_ZOOMIN) {
+		if (zoom_level > 1.0f) new_zoom_level = zoom_level - 0.25;
+	} else if (key == K_ZOOMOUT) {
+		if (zoom_level < 3.75f) new_zoom_level = zoom_level + 0.25;
+	} else if(key==K_OPTIONS){
+		view_window(&options_win, 0);
+	} else if(key==K_ENCYCLOPEDIA){
+		view_tab (&tab_help_win, &tab_help_collection_id, 1);
+	} else if(key==K_HELP) {
+		view_tab(&tab_help_win, &tab_help_collection_id, 0);
+	} else if (key == K_ROTATELEFT) {
+		camera_rotation_speed = normal_camera_rotation_speed / 40;
+		camera_rotation_frames = 40;
+	} else if (key == K_FROTATELEFT) {
+		camera_rotation_speed = fine_camera_rotation_speed / 10;
+		camera_rotation_frames = 10;
+	} else if (key == K_ROTATERIGHT) {
+		camera_rotation_speed = -normal_camera_rotation_speed / 40;
+		camera_rotation_frames = 40;
+	} else if (key == K_FROTATERIGHT) {
+		camera_rotation_speed = -fine_camera_rotation_speed / 10;
+		camera_rotation_frames = 10;
+	} else if(key==K_TURNLEFT){
+		if(last_time+666<cur_time){
+			add_command_to_actor(0, turn_left);
+			last_time=cur_time;
 		}
-		else if (password_selected)
-		{
-			password_selected = 0;
-			confirm_pass_selected = 1;
+	} else if(key==K_TURNRIGHT){
+		if(last_time+666<cur_time){
+			add_command_to_actor(0, turn_right);
+			last_time=cur_time;
 		}
-		else
-		{
-			confirm_pass_selected = 0;
-			username_selected = 1;
-		}
-	}
-	else 
-	{
-		add_char_to_new_character (ch);
-	}
-	
+	} 
+	return 1;
+}
+
+
+int show_newchar_handler (window_info *win) {
+	rewrap_messages(win->len_x-hud_x-20);
+	init_hud_interface(0);
+	show_hud_windows();
 	return 1;
 }
 
@@ -923,14 +376,16 @@ void create_newchar_root_window ()
 {
 	if (newchar_root_win < 0)
 	{
-		skin_color = RAND (SKIN_BROWN, SKIN_TAN);
-		hair_color = RAND (HAIR_BLACK, HAIR_WHITE);
-		shirt_color = RAND (SHIRT_BLACK, SHIRT_YELLOW);
-		pants_color = RAND (PANTS_BLACK, PANTS_WHITE);
-		boots_color = RAND (BOOTS_BLACK, BOOTS_ORANGE);
-		head = RAND (HEAD_1, HEAD_4);
-		race = 2 * RAND (0, 2);
-		male = RAND (0, 1);
+		our_actor.race_id=RAND(0, 5);
+		our_actor.def=&races[our_actor.race_id];//6 "races" - counting women as their own race, of course ;-) We cannot include the new races in the random function since they are p2p
+		our_actor.skin = inc(our_actor.def->skin, SKIN_BROWN, RAND (SKIN_BROWN, SKIN_TAN));//Increment a random # of times. 
+		our_actor.hair = inc(our_actor.def->hair, HAIR_BLACK, RAND (HAIR_BLACK, our_actor.def->type >= draegoni_female ? HAIR_PURPLE:HAIR_WHITE));
+		our_actor.shirt = inc(our_actor.def->shirts, SHIRT_BLACK, RAND (SHIRT_BLACK, SHIRT_YELLOW));
+		our_actor.pants = inc(our_actor.def->pants, PANTS_BLACK, RAND (PANTS_BLACK, PANTS_WHITE));
+		our_actor.boots = inc(our_actor.def->boots, BOOTS_BLACK, RAND (BOOTS_BLACK, BOOTS_ORANGE));
+		our_actor.head = inc(our_actor.def->head, HEAD_1, RAND (HEAD_1, our_actor.def->type==human_female?HEAD_5:HEAD_4));
+		our_actor.race = our_actor.def->type;
+		our_actor.male = our_actor.race<gnome_female?our_actor.race%2:!(our_actor.race%2);
 
 		newchar_root_win = create_window ("New Character", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
@@ -938,7 +393,490 @@ void create_newchar_root_window ()
 		set_window_handler (newchar_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_CLICK, &click_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_KEYPRESS, &keypress_newchar_handler);
-		
-		reset_soft_breaks (use_appropriate_name, strlen (use_appropriate_name), sizeof (use_appropriate_name), 0.8, window_width - 20, NULL);
+		set_window_handler (newchar_root_win, ELW_HANDLER_SHOW, &show_newchar_handler);
+
+		LOG_TO_CONSOLE(c_green1, char_help);
 	}
+}
+
+int active=0;
+int hidden=1;
+
+int are_you_sure=0;
+int numbers_in_name=0;
+
+char * get_pass_str(int l)
+{
+	static char str[20];
+	
+	memset(str, '*', l);
+	str[l]=0;
+
+	return str;
+}
+
+//Returns 1 if it's valid, 0 if invalid and -1 if there's too many numbers in the name
+int check_character(int type, char ch)
+{
+	int retval=0;
+
+	if(type==0){
+		//name
+		if(isdigit(ch)){
+			numbers_in_name++;
+			if(numbers_in_name>3){
+				retval=-1;
+			} else {
+				retval=1;
+			}
+		} else if(isalnum(ch)||ch=='_'){
+			retval=1;
+		}
+	} else {
+		if(ch>=33 && ch<126) retval=1;
+	}
+
+	return retval;
+}
+
+void add_text_to_buffer(int color, char * text, int time_to_display)
+{
+	put_small_colored_text_in_box(color, text, strlen(text), 200, create_char_error_str);
+	display_time=cur_time+time_to_display;
+}
+
+void create_character()
+{
+	if(strcmp(inputs[1].str, inputs[2].str)){
+		add_text_to_buffer(c_red2, error_pass_no_match, 6000);
+		return;
+	} else if(inputs[0].pos<3){
+		add_text_to_buffer(c_red2, error_username_length, 6000);
+		return;
+	} else if(inputs[1].pos<4){
+		add_text_to_buffer(c_red2, error_password_length, 6000);
+		return;
+	}
+
+	if(are_you_sure){
+		send_new_char(inputs[0].str, inputs[1].str, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head, our_actor.race);
+	} else {
+		are_you_sure=1;
+		
+		add_text_to_buffer(c_orange3, error_confirm_create_char, 6000);
+		
+		show_color_race_win();
+	}
+}
+
+void login_from_new_char()
+{
+	strcpy(username_str, inputs[0].str);
+	strcpy(password_str, inputs[1].str);
+
+	//now send the log in info
+	send_login_info();
+}
+
+int display_namepass_handler (window_info * win)
+{
+	glColor3f(0.77f,0.57f,0.39f);
+	
+	draw_string_small(20, 20, login_username_str, 1);
+	draw_string_small(20, 60, login_password_str, 1);
+	draw_string_small(20, 90, confirm_password, 1);
+	draw_smooth_button(inputs[0].str, 100, 16, 120, 1, active == 0, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(hidden?get_pass_str(inputs[1].pos):inputs[1].str, 100, 56, 120, 1, active == 1, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(hidden?get_pass_str(inputs[2].pos):inputs[2].str, 100, 86, 120, 1, active == 2, 0.32f, 0.23f, 0.15f, 0.5f);
+	
+	draw_smooth_button(hidden?show_password:hide_password, 20, 120, 200, 1, hidden, 0.32f, 0.23f, 0.15f, 0.5f);
+
+	draw_box(NULL, 20, 160, 220, 60, 0);
+	
+	draw_smooth_button(char_done, 20, 230, 60, 1, are_you_sure, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(char_back, 160, 230, 60, 1, 0, 0.32f, 0.23f, 0.15f, 0.5f);
+
+	if(display_time>cur_time){
+		draw_string_small(30, 168, create_char_error_str, 3);
+	}
+	
+	return 1;
+}
+
+int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	Uint8 ch = key_to_char (unikey);
+	int ret=0;
+	struct input_text * t=&inputs[active];
+
+	if((ret=check_character(active>0, ch))){
+		if(ret==-1){
+			add_text_to_buffer(c_red1, error_max_digits, 6000);
+		} else if(t->pos>=15){
+			add_text_to_buffer(c_red2, error_length, 6000);
+		} else {
+			t->str[t->pos++]=ch;
+			t->str[t->pos]=0;
+			ret=1;//Reused to show that a letter has been added
+		}
+	} else if(unikey == SDLK_TAB||unikey == SDLK_RETURN){
+		active++;
+		if(active>2) active=0;
+	} else if(unikey == SDLK_BACKSPACE && t->pos>0){
+		t->pos--;
+		if(isdigit(t->str[t->pos]))numbers_in_name--;
+		t->str[t->pos]=0;
+		ret=1;//Reused to show that a letter has been removed
+	}
+
+	if(active>0){
+		//Password/confirm
+		if(ret){
+			if(strcmp(inputs[1].str, inputs[2].str)){
+				add_text_to_buffer(c_red2, error_pass_no_match, 6000);
+			} else {
+				add_text_to_buffer(c_green1, passwords_match, 6000);
+			}
+		}
+	} else strcpy(actors_list[0]->actor_name, inputs[0].str);
+	
+	return 1;
+}
+
+int click_namepass_handler(window_info * win, int mx, int my, Uint32 flags)
+{   
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
+	if(mx>100 && mx<260){
+		if(my>16 && my<38){
+			active=0;
+		} else if(my>56 && my<78){
+			active=1;
+		} else if(my>86 && my<108){
+			active=2;
+		}
+	}
+
+	if(mx>20 && mx<220 && my>120 && my<144){
+		hidden=!hidden;
+	}
+
+	if(my>230 && my<252){
+		if(mx>20 && mx<100){
+			create_character();
+		} if(mx>160 && mx<240){
+			hide_window (newchar_root_win);
+			show_window (login_root_win);
+			hide_hud_windows ();
+		}
+	}
+	
+	
+	return 0;
+}
+
+void show_account_win ()
+{
+	if (namepass_win < 0){
+	        // Create the window
+	        namepass_win = create_window ("Choose name and password", newchar_root_win, 0, 10, 200, 270, 260, ELW_WIN_DEFAULT);
+	        set_window_handler (namepass_win, ELW_HANDLER_DISPLAY, &display_namepass_handler);
+	        set_window_handler (namepass_win, ELW_HANDLER_KEYPRESS, &keypress_namepass_handler);
+	        set_window_handler (namepass_win, ELW_HANDLER_CLICK, &click_namepass_handler);
+    	} else {
+        	show_window(namepass_win);
+		select_window(namepass_win);
+	}
+}
+
+//The character design window
+void change_race(int new_race)
+{
+	if(our_actor.race_id==new_race)return;
+	our_actor.race_id=new_race;
+	our_actor.def=&races[new_race];
+	our_actor.skin = our_actor.def->skin[find_pos_in_enum(our_actor.def->skin, our_actor.skin)];//Increment a random # of times. 
+	our_actor.hair = our_actor.def->hair[find_pos_in_enum(our_actor.def->hair, our_actor.hair)];
+	our_actor.shirt = our_actor.def->shirts[find_pos_in_enum(our_actor.def->shirts, our_actor.shirt)];
+	our_actor.pants = our_actor.def->pants[find_pos_in_enum(our_actor.def->pants, our_actor.pants)];
+	our_actor.boots = our_actor.def->boots[find_pos_in_enum(our_actor.def->boots, our_actor.boots)];
+	our_actor.head = our_actor.def->head[find_pos_in_enum(our_actor.def->head, our_actor.head)];
+	our_actor.race = our_actor.def->type;
+	our_actor.male = our_actor.race<gnome_female?our_actor.race%2:!(our_actor.race%2);
+
+	change_actor();
+}
+
+int race_help=0;
+int book_over=-1;
+
+int book_human=200000;
+int book_dwarf=200001;
+int book_elf=200002;
+int book_gnome=200003;
+int book_orchan=200004;
+int book_draegoni=200005;
+
+void toggle_book(int id)
+{
+	static int book_opened=-1;
+	if(book_opened==id && book_win && windows_list.window[book_win].displayed){
+		close_book(id);
+		book_opened=-1;
+	} else {
+		open_book(id);
+		book_opened=id;
+	}
+}
+
+int display_color_race_handler (window_info *win)
+{
+	int x;
+
+	glColor3f(0.77f,0.57f,0.39f);
+
+	//Gender
+	draw_box(gender_str, 10, 10, 250, 45, 0);
+	draw_smooth_button(male_str, 40, 22, 60, 1, our_actor.male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(female_str, 150, 22, 60, 1, !our_actor.male, 0.32f, 0.23f, 0.15f, 0.5f);
+
+	//Race
+	draw_box(race_str, 10, 65, 250, 98, 0);
+	draw_smooth_button(human_str, 20, 75, 60, 1, our_actor.race==human_female||our_actor.race==human_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(elf_str, 20, 103, 60, 1, our_actor.race==elf_female||our_actor.race==elf_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(dwarf_str, 20, 131, 60, 1, our_actor.race==dwarf_female||our_actor.race==dwarf_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(gnome_str, 140, 75, 60, 1, our_actor.race==gnome_female||our_actor.race==gnome_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(orchan_str, 140, 103, 60, 1, our_actor.race==orchan_female||our_actor.race==orchan_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(draegoni_str, 140, 131, 60, 1, our_actor.race==draegoni_female||our_actor.race==draegoni_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	
+	//Appearance
+	draw_box("Appearance", 270, 10, 120, win->len_y-17, 0);
+	x=330;
+	draw_string_small(x-(get_string_width(head_str)*8.0f/12.0f)/2.0f, 25, head_str, 1);
+	draw_string_small(x-(get_string_width(skin_str)*8.0f/12.0f)/2.0f, 48, skin_str, 1);
+	draw_string_small(x-(get_string_width(hair_str)*8.0f/12.0f)/2.0f, 71, hair_str, 1);
+	draw_string_small(x-(get_string_width(shirt_str)*8.0f/12.0f)/2.0f, 94, shirt_str, 1);
+	draw_string_small(x-(get_string_width(pants_str)*8.0f/12.0f)/2.0f, 117, pants_str, 1);
+	draw_string_small(x-(get_string_width(boots_str)*8.0f/12.0f)/2.0f, 140, boots_str, 1);
+	
+	//<<
+	x=280;
+	draw_string_small(x, 25, "<<", 1);
+	draw_string_small(x, 48, "<<", 1);
+	draw_string_small(x, 71, "<<", 1);
+	draw_string_small(x, 94, "<<", 1);
+	draw_string_small(x, 117, "<<", 1);
+	draw_string_small(x, 140, "<<", 1);
+	
+	//>>
+	x=364;
+	draw_string_small(x, 25, ">>", 1);
+	draw_string_small(x, 48, ">>", 1);
+	draw_string_small(x, 71, ">>", 1);
+	draw_string_small(x, 94, ">>", 1);
+	draw_string_small(x, 117, ">>", 1);
+	draw_string_small(x, 140, ">>", 1);
+	
+	switch(race_help){
+		case 1:
+			show_help(p2p_race, 260, 80);
+			break;
+		case 2:
+			show_help(p2p_race, 260, 110);
+			break;
+		case 3:
+			show_help(p2p_race, 260, 140);
+			break;
+		case 0:
+		default:
+			break;
+	}
+
+	if(book_over==book_human){
+		show_help("About Human", 142, 80);
+	} else if(book_over==book_elf){
+		show_help("About Elves", 142, 108);
+	} else if(book_over==book_dwarf){
+		show_help("About Dwarfs", 142, 136);
+	} else if(book_over==book_gnome){
+		show_help("About Gnomes", 260, 80);
+	} else if(book_over==book_orchan){
+		show_help("About Orchans", 262, 108);
+	} else if(book_over==book_draegoni){
+		show_help("About Draegoni", 262, 136);
+	}
+	
+	glColor3f(1.0f,1.0f,1.0f);
+	glEnable(GL_TEXTURE_2D);
+
+	get_and_set_texture_id(icons_text);
+	glBegin(GL_QUADS);
+	if(book_opened==book_human||book_over==book_human)
+		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 110, 75, 132, 97);
+	else 
+		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 110, 75, 132, 97);
+	if(book_opened==book_elf||book_over==book_elf)
+		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 110, 103, 132, 125);
+	else 
+		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 110, 103, 132, 125);
+	if(book_opened==book_dwarf||book_over==book_dwarf)
+		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 110, 131, 132, 153);
+	else 
+		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 110, 131, 132, 153);
+	if(book_opened==book_gnome||book_over==book_gnome)
+		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 230, 75, 252, 97);
+	else 
+		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 230, 75, 252, 97);
+	if(book_opened==book_orchan||book_over==book_orchan)
+		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 230, 103, 252, 125);
+	else 
+		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 230, 103, 252, 125);
+	if(book_opened==book_draegoni||book_over==book_draegoni)
+		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 230, 131, 252, 153);
+	else 
+		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 230, 131, 252, 153);
+	
+	glEnd();
+	
+	return 1;
+}
+
+int mouseover_color_race_handler (window_info *win, int mx, int my)
+{
+	if(mx>140 && mx<220){
+		//P2P races
+		if(my>75 && my<97){
+			race_help=1;
+		} else if(my>103 && my<125){
+			race_help=2;
+		} else if(my>131 && my<153){
+			race_help=3;
+		} else  race_help=0;
+	} else race_help=0;
+	
+	if(mx>110 && mx<132) {
+		if(my>75 && my<97){
+			book_over=book_human;
+		} else if(my>103 && my<125){
+			book_over=book_elf;
+		} else if(my>131 && my<153){
+			book_over=book_dwarf;
+		} else  book_over=-1;
+	} else if(mx>230 && mx<252){
+		if(my>75 && my<97){
+			book_over=book_gnome;
+		} else if(my>103 && my<125){
+			book_over=book_orchan;
+		} else if(my>131 && my<153){
+			book_over=book_draegoni;
+		} else  book_over=-1;
+	} else book_over=-1;
+	return 1;
+}
+
+int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
+{
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
+	if(my>22 && my<44){
+		if(mx>40 && mx<120){
+			change_race(our_actor.race_id+!our_actor.male);
+		} else if(mx>150 && mx<210){
+			change_race(our_actor.race_id-our_actor.male);
+		}
+	}
+	
+	if(mx>20 && mx<100){
+		if(my>75 && my<97){
+			change_race(0+our_actor.male);
+		} else if(my>103 && my<125){
+			change_race(2+our_actor.male);
+		} else if(my>131 && my<153){
+			change_race(4+our_actor.male);
+		}
+	} else if(mx>110 && mx<132) {
+		if(my>75 && my<97){
+			toggle_book(book_human);
+			return 0;
+		} else if(my>103 && my<125){
+			toggle_book(book_elf);
+			return 0;
+		} else if(my>131 && my<153){
+			toggle_book(book_dwarf);
+			return 0;
+		}
+	} else if(mx>140 && mx<220) {
+		if(my>75 && my<97){
+			change_race(6+our_actor.male);
+		} else if(my>103 && my<125){
+			change_race(8+our_actor.male);
+		} else if(my>131 && my<153){
+			change_race(10+our_actor.male);
+		} 
+	} else if(mx>230 && mx<252){
+		if(my>75 && my<97){
+			toggle_book(book_gnome);
+			return 0;
+		} else if(my>103 && my<125){
+			toggle_book(book_orchan);
+			return 0;
+		} else if(my>131 && my<153){
+			toggle_book(book_draegoni);
+			return 0;
+		}
+	} else if(mx>280 && mx<295){
+		if(my>25 && my<36){
+			our_actor.head=dec(our_actor.def->head, our_actor.head, 1);
+			change_actor();
+		} else if(my>48 && my<59){
+			our_actor.skin=dec(our_actor.def->skin, our_actor.skin, 1);
+			change_actor();
+		} else if(my>71 && my<82){
+			our_actor.hair=dec(our_actor.def->hair, our_actor.hair, 1);
+			change_actor();
+		} else if(my>94 && my<105){
+			our_actor.shirt=dec(our_actor.def->shirts, our_actor.shirt, 1);
+			change_actor();
+		} else if(my>117 && my<128){
+			our_actor.pants=dec(our_actor.def->pants, our_actor.pants, 1);
+			change_actor();
+		} else if(my>140 && my<151){
+			our_actor.boots=dec(our_actor.def->boots, our_actor.boots, 1);
+			change_actor();
+		}
+	} else if(mx>364 && mx<379){
+		if(my>25 && my<40){
+			our_actor.head=inc(our_actor.def->head, our_actor.head, 1);
+			change_actor();
+		} else if(my>48 && my<63){
+			our_actor.skin=inc(our_actor.def->skin, our_actor.skin, 1);
+			change_actor();
+		} else if(my>71 && my<86){
+			our_actor.hair=inc(our_actor.def->hair, our_actor.hair, 1);
+			change_actor();
+		} else if(my>94 && my<109){
+			our_actor.shirt=inc(our_actor.def->shirts, our_actor.shirt, 1);
+			change_actor();
+		} else if(my>117 && my<132){
+			our_actor.pants=inc(our_actor.def->pants, our_actor.pants, 1);
+			change_actor();
+		} else if(my>140 && my<155){
+			our_actor.boots=inc(our_actor.def->boots, our_actor.boots, 1);
+			change_actor();
+		}
+	}
+	return 1;
+}
+
+void show_color_race_win()
+{
+	if(color_race_win < 0){
+		color_race_win = create_window ("Design your character", newchar_root_win, 0, 300, 200, 420, 170, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
+		set_window_handler (color_race_win, ELW_HANDLER_DISPLAY, &display_color_race_handler);
+		set_window_handler (color_race_win, ELW_HANDLER_MOUSEOVER, &mouseover_color_race_handler);
+		set_window_handler (color_race_win, ELW_HANDLER_CLICK, &click_color_race_handler);
+    	} else {
+        	show_window(color_race_win);
+        	select_window(color_race_win);
+    	}
 }

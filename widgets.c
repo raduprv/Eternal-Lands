@@ -11,6 +11,7 @@
 #define VSCROLLBAR	6
 #define TABCOLLECTION	7
 #define TEXTFIELD	8
+#define PWORDFIELD	9
 
 typedef struct {
 	char text[256];
@@ -36,6 +37,11 @@ typedef struct {
 typedef struct {
 	int pos, pos_inc, bar_len;
 }vscrollbar;
+
+typedef struct {
+	char * password;
+	int status;
+}password_entry;
 
 Uint32 widget_id = 0x0000FFFF;
 
@@ -1614,6 +1620,138 @@ int text_field_set_buf_pos (Uint32 window_id, Uint32 widget_id, int msg, int off
 	return  1;
 }
 
+//password entry field. We act like a restricted text entry with multiple modes
+// quite straightforward - we just add or remove from the end
+int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
+{
+       Uint8 ch = key_to_char(unikey);
+       password_entry *pword;
+       int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
+	
+       if (w == NULL) return 0;
+	
+       pword = (password_entry *) w->widget_info;
+
+	if (pword->status == P_NONE) return -1;
+
+	if (ch == SDLK_BACKSPACE) {
+		int i;
+		
+		for(i = 0; pword->password[i] != '\0' && i < 15; i++) ;
+		if(i > 0) pword->password[i-1] = '\0';
+		
+		return 1;
+	} else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) || ch == SDLK_RETURN ) && ch != '`' ) {
+		int i;
+		
+		for(i = 0; pword->password[i] != '\0' && i < 14; i++) ;
+		if(i >= 0){
+				pword->password[i] = ch;
+				pword->password[i+1] = '\0';
+		}
+		
+		return 1;
+	}
+
+	return 0;
+}
+		
+int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
+{
+	password_entry *pword;
+
+	if (w == NULL) return 0;
+	pword = (password_entry*) w->widget_info;
+	if(pword->status == P_NONE) return -1;
+	
+	return 1;   // Don't fall through
+}
+
+int pword_field_draw (widget_list *w)
+{
+	password_entry *pword;
+	unsigned char text[16];
+	int i;
+
+	if (w == NULL) return 0;
+	pword = (password_entry*) w->widget_info;
+	// draw the frame
+	glDisable (GL_TEXTURE_2D);
+	glColor3f (w->r, w->g, w->b);
+	glBegin (GL_LINE_LOOP);
+		glVertex3i (w->pos_x, w->pos_y, 0);
+		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
+		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
+		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
+	glEnd ();
+
+	glEnable (GL_TEXTURE_2D);
+	
+	if (pword->status == P_NONE) {
+		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, "N/A", 1, w->size);
+	} else if(pword->status == P_TEXT) {
+		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char *)pword->password, 1, w->size);
+	} else if(pword->status == P_NORMAL) {
+		for(i = 0; i < 16 && pword->password[i] != '\0'; i++) text[i] = '*';
+		text[i] = '\0';
+		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char *)text, 1, w->size);
+	}
+	
+	return 1;
+}
+
+void pword_set_status(widget_list *w, Uint8 status)
+{
+	password_entry *pword;
+	if (w == NULL) return;
+	pword = (password_entry*) w->widget_info;
+	pword->status = status;
+}
+
+int pword_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer)
+{
+	return pword_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, status, 1.0, -1.0, -1.0, -1.0, buffer);
+}
+		
+int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer)
+{
+	widget_list *W = malloc ( sizeof (widget_list) );
+	password_entry *T = malloc ( sizeof (password_entry) );
+	widget_list *w = windows_list.window[window_id].widgetlist;
+	// Clearing everything
+	memset ( W, 0, sizeof (widget_list) );
+	memset ( T, 0, sizeof (password_entry) );
+	// Filling the widget info
+	W->widget_info = T;
+	T->status = status;
+	T->password = buffer;
+	W->id = wid;
+	W->type = PWORDFIELD;
+	W->pos_x = x;
+	W->pos_y = y;
+	W->size = size;
+	W->r = r;
+	W->g = g;
+	W->b = b;
+	W->len_y = ly;
+	W->len_x = lx;
+	W->OnDraw = pword_field_draw;
+	W->OnDestroy = free_widget_info;
+	W->OnInit = OnInit;
+	if(W->OnInit != NULL)
+	W->OnInit(W);
+	// Adding the widget to the list
+	if (w == NULL) {
+		windows_list.window[window_id].widgetlist = W;
+	} else {
+		while(w->next != NULL)
+			w = w->next;
+		w->next = W;
+	}
+	
+	return W->id;
+}
+
 int widget_handle_mouseover (widget_list *widget, int mx, int my)
 {
 	if (widget->OnMouseover != NULL)
@@ -1639,6 +1777,10 @@ int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 			break;
 		case TEXTFIELD:
 			res = text_field_click (widget, mx, my, flags);
+			break;
+		case PWORDFIELD:
+			res = pword_field_click (widget, mx, my, flags);
+			if ( res == -1 ) return 0;  // Not really there
 			break;
 	}
 
@@ -1676,6 +1818,10 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uin
 			break;
 		case TEXTFIELD:
 			res = text_field_keypress (widget, mx, my, key, unikey);
+			break;
+		case PWORDFIELD:
+			res = pword_keypress (widget, mx, my, key, unikey);
+			if ( res == -1 ) return 0;  // Not really there
 			break;
 	}
 

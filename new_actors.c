@@ -202,9 +202,6 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	return i;
 }
 
-
-
-
 void draw_enhanced_actor(actor * actor_id)
 {
 	int i;
@@ -722,4 +719,38 @@ void add_enhanced_actor_from_server(char * in_data)
 
 }
 
+actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short skin, short hair,
+				short shirt, short pants, short boots, short head)
+{
+	enhanced_actor * this_actor=calloc(1,sizeof(enhanced_actor));
+	actor * a;
+	
+//get the torso         
+	my_strcp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name);
+	my_strcp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name);
+	my_strcp(this_actor->torso_fn,actors_defs[actor_type].shirt[shirt].model_name);
+	my_strcp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name);
+	my_strcp(this_actor->head_tex,actors_defs[actor_type].skin[skin].head_name);
+	my_strcp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name);
+	my_strcp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name);
+	my_strcp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name);
+	my_strcp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name);
+	my_strcp(this_actor->head_fn,actors_defs[actor_type].head[head].model_name);
 
+	a=actors_list[add_enhanced_actor(this_actor, actors_defs[actor_type].idle_frame, x*0.5f, y*0.5f, 0.00000001f, z_rot, 0)];
+
+	a->x_tile_pos=x;
+	a->y_tile_pos=y;
+	a->actor_type=actor_type;
+	//test only
+	a->max_health=20;
+	a->cur_health=20;
+
+	a->stop_animation=1;//helps when the actor is dead...
+	a->kind_of_actor=HUMAN;
+	
+	strcpy(a->actor_name,"Player");
+	UNLOCK_ACTORS_LISTS();  //unlock it
+
+	return a;
+}

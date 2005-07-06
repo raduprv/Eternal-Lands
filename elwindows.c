@@ -631,7 +631,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		win->back_color[0] = 0.0f;
 		win->back_color[1] = 0.0f;
 		win->back_color[2] = 0.0f;
-		win->back_color[3] = 0.2f;
+		win->back_color[3] = 0.4f;
 		win->border_color[0] = 0.77f;
 		win->border_color[1] = 0.57f;
 		win->border_color[2] = 0.39f;

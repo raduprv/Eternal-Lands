@@ -20,9 +20,9 @@ int left_click;
 int login_screen_menus;
 char username_box_selected=1;
 char password_box_selected=0;
-char username_str[16]={0};
-char password_str[16]={0};
-char display_password_str[16]={0};
+char username_str[20]={0};
+char password_str[20]={0};
+char display_password_str[20]={0};
 int username_text_lenght=0;
 int password_text_lenght=0;
 

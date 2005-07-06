@@ -268,6 +268,16 @@ int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32
 	return 1;
 }
 
+int show_login_handler(window_info * win)
+{
+	hide_window(book_win);
+	hide_window(paper_win);
+	hide_window(color_race_win);
+	hide_window(options_win);
+	hide_window(tab_help_win);
+	return 1;
+}
+
 void create_login_root_window (int width, int height)
 {
 	if (login_root_win < 0)
@@ -279,6 +289,7 @@ void create_login_root_window (int width, int height)
 		set_window_handler (login_root_win, ELW_HANDLER_CLICK, &click_login_handler);		
 		set_window_handler (login_root_win, ELW_HANDLER_KEYPRESS, &keypress_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_RESIZE, &resize_login_handler);
+		set_window_handler (login_root_win, ELW_HANDLER_SHOW, &show_login_handler);
 		
 		resize_window (login_root_win, width, height);	
 	}

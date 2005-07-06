@@ -262,13 +262,6 @@ void send_login_info()
 	for(j=0;j<len;j++)str[i+j+1]=password_str[j];
 	str[i+j+1]=0;
 
-	//are we going to use this?
-	//clear the password field, in order not to try to relogin again
-	//password_str[0]=0;
-	//display_password_str[0]=0;
-	//password_text_lenght=0;
-
-
 	len=strlen(str);
 	len++;//send the last 0 too
 	if(my_tcp_send(my_socket,str,len)<len)
@@ -278,36 +271,12 @@ void send_login_info()
 }
 
 
-void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, char skin,
-				   char hair, char shirt, char pants, char boots,char head, char type)
+void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, char shirt, char pants, char boots,char head, char type)
 {
-	int i;
-	int j;
-	int len;
+	int i,j,len;
 	unsigned char str[120];
 
-	//join the user and pass, and send them to the server
 	len=strlen(user_str);
-
-	//check for the username lenght
-	if(len<3)
-		{
-			sprintf(create_char_error_str,"%s: %s",reg_error_str,error_username_length);
-			return;
-		}
-	//check if the password is >0
-	if(strlen(pass_str)<4)
-		{
-			sprintf(create_char_error_str,"%s: %s",reg_error_str,error_password_length);
-			return;
-		}
-	//check if the password coresponds
-	if(strcmp(pass_str,conf_pass_str)!=0)
-		{
-			sprintf(create_char_error_str,"%s: %s",reg_error_str,error_pass_no_match);
-			return;
-		}
-
 	str[0]=CREATE_CHAR;
 	for(i=0;i<len;i++)str[i+1]=user_str[i];
 	str[i+1]=' ';
@@ -315,7 +284,6 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, ch
 	len=strlen(pass_str);
 	for(j=0;j<len;j++)str[i+j+1]=pass_str[j];
 	str[i+j+1]=0;
-
 	//put the colors and gender
 	str[i+j+2]=skin;
 	str[i+j+3]=hair;
@@ -325,12 +293,10 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, ch
 	str[i+j+7]=type;
 	str[i+j+8]=head;
 
-
 	len=i+j+9;
-	if(my_tcp_send(my_socket,str,len)<len)
-		{
-			//we got a nasty error, log it
-		}
+	if(my_tcp_send(my_socket,str,len)<len) {
+		//we got a nasty error, log it
+	}
 	create_char_error_str[0]=0;//no error
 }
 
@@ -437,11 +403,14 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case LOG_IN_OK:
 			{
-				show_hud_windows ();
 				// login and/or new character windows are no longer needed
 				if (login_root_win >= 0) destroy_window (login_root_win);
 				login_root_win = -1;
-				if (newchar_root_win >= 0) destroy_window (newchar_root_win);
+				if (newchar_root_win >= 0) {
+					destroy_window (newchar_root_win);
+					hide_window( namepass_win );
+					hide_window( color_race_win );
+				}
 				newchar_root_win = -1;
 				show_window (game_root_win);
 

@@ -446,3 +446,96 @@ void makeScreenShot ()
 	SDL_FreeSurface (surf);
 }
 #endif
+
+void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int angle_to)
+{
+	const float mul=3.14159265f/180.0f;
+	int angle;
+
+	if(radius==0){
+		glVertex2f(x, y);
+	} else if(interval>0){
+		for(angle=angle_from;angle<angle_to;angle+=interval){
+			float rad=-mul*angle;
+			glVertex2f(x+cos(rad)*radius+radius, y+radius+sin(rad)*radius);
+		}
+	} else { 
+		for(angle=angle_from;angle>angle_to;angle+=interval){
+			float rad=-mul*angle;
+			glVertex2f(x+cos(rad)*radius+radius, y+radius+sin(rad)*radius);
+		}
+	}
+}
+
+void draw_circle(int x, int y, int radius, int interval)
+{
+	draw_circle_ext(x, y, radius, interval, 0, 360);
+}
+
+void draw_box(char * name, int x, int y, int w, int h, int rad)
+{
+	int l=0;
+
+	if(name){
+		l=(w-10-(get_string_width(name)*8.0f/12.0f))/2.0f;
+		draw_string_small(x+l+5, y-6, name, 1);
+	}
+
+	glDisable(GL_TEXTURE_2D);
+	if(l>0){
+		glBegin(GL_LINE_STRIP);
+			glVertex2i(x+l, y);
+			draw_circle_ext(x, y, rad, 5, 90, 180);
+			draw_circle_ext(x, y+h-2*rad, rad, 5, 180, 270);
+			draw_circle_ext(x+w-2*rad, y+h-2*rad, rad, 5, 270, 360);
+			draw_circle_ext(x+w-2*rad, y, rad, 5, 0, 90);
+			glVertex2i(x+w-l, y);
+		glEnd();
+	} else if(l<0){
+		glBegin(GL_LINE_STRIP);
+			glVertex2i(x+l, y);
+			draw_circle_ext(x+rad, y+h-rad, rad, 5, 180, 270);
+			draw_circle_ext(x+w-2*rad, y+h-rad, rad, 5, 270, 360);
+			glVertex2i(x+w-l, y);
+		glEnd();
+	} else {
+		glBegin(GL_LINE_LOOP);
+			draw_circle_ext(x+rad, y, rad, 5, 90, 180);
+			draw_circle_ext(x+rad, y+h-rad, rad, 5, 180, 270);
+			draw_circle_ext(x+w-2*rad, y+h-rad, rad, 5, 270, 360);
+			draw_circle_ext(x+w-2*rad, y, rad, 5, 0, 90);
+		glEnd();
+	}
+	glEnable(GL_TEXTURE_2D);
+}
+
+
+void draw_smooth_button(char * str, int x, int y, int w, int lines, int highlight, float r, float g, float b, float a)
+{
+	int radius=lines*11.0f;
+	int xstr=0;
+	
+	if(str){
+		xstr=x+radius+(w-(get_string_width(str)*8.0f/12.0f))/2.0f;
+	}
+
+	glDisable(GL_TEXTURE_2D);
+
+	glBegin(GL_LINE_LOOP);
+		draw_circle_ext(x, y, radius, 10, 90, 270);
+		draw_circle_ext(x+w, y, radius, 10, -90, 90);
+	glEnd();
+	if(highlight) {
+		glColor4f(r,g,b,a);
+		glBegin(GL_POLYGON);
+			draw_circle_ext(x+1, y+1, radius-1, 10, 90, 270);
+			draw_circle_ext(x+w+1, y+1, radius-1, 10, -90, 90);
+		glEnd();
+	}
+	glEnable(GL_TEXTURE_2D);
+
+	if(highlight) glColor3f(0.77f, 0.57f, 0.39f);
+
+	if(str) draw_string_small(xstr, y+radius/2.0f, str, lines);
+}
+

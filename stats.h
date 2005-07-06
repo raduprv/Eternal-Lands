@@ -195,6 +195,8 @@ extern int attrib_menu_y;
 
 extern int watch_this_stat; /*!< indicator to select the stat that get's displayed in the hud */
 
+extern int have_stats; /*!< indicator for whether or not the stats have been send to us yet*/
+
 player_attribs your_info; /*!< the players attributes */
 
 /*!

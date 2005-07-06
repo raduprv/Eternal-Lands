@@ -15,6 +15,8 @@ int watch_this_stat=10;  // default to watching overall
 int check_grid_y_top=0;
 int check_grid_x_left=0;
 
+int have_stats=0;
+
 #define MAX_NUMBER_OF_FLOATING_MESSAGES 25
 
 typedef struct {
@@ -36,6 +38,8 @@ void floatingmessages_compare_stat(int actor_id, int value, int new_value, const
 
 void get_the_stats(Sint16 *stats)
 {
+	have_stats=1;
+	
 	memset(&your_info, 0, sizeof(your_info));	// failsafe incase structure changes
 	
 	//initiate the function pointers

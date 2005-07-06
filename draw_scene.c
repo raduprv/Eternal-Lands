@@ -71,7 +71,7 @@ void draw_scene()
 	
 	get_tmp_actor_data();
 	
-	if ( !get_show_window (game_root_win) )
+	if ( !get_show_window (game_root_win) && !get_show_window(newchar_root_win) )
 	{
 		new_zoom_level = zoom_level;	// No scrolling when switching modes...
 		if (quickbar_relocatable && quickbar_win >= 0) // Hack 

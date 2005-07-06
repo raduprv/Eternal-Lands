@@ -28,6 +28,8 @@
 #define LOCAL 0
 #define SERVER 1
 
+int book_opened=-1;//The ID of the book opened
+
 typedef struct {
 	char file[200];
 	
@@ -437,6 +439,16 @@ book * read_book(char * file, int type, int id)
 	return b;
 }
 
+void init_books()
+{
+	read_book("./books/races/human.xml", 2, book_human);
+	read_book("./books/races/dwarf.xml", 2, book_dwarf);
+	read_book("./books/races/elf.xml", 2, book_elf);
+	read_book("./books/races/gnome.xml", 2, book_gnome);
+	read_book("./books/races/orchan.xml", 2, book_orchan);
+	read_book("./books/races/draegoni.xml", 2, book_draegoni);
+}
+
 /*Network parser*/
 
 void open_book(int id)
@@ -799,6 +811,7 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				my_tcp_send(my_socket, str, 5);
 				
 				win->displayed=0;
+				book_opened=-1;
 			}
 			
 			x=win->len_x-120;
@@ -830,6 +843,7 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				my_tcp_send(my_socket, str, 5);
 				
 				win->displayed=0;
+				book_opened=-1;
 			}
 			
 			x=win->len_x/2+50;
@@ -856,11 +870,12 @@ void display_book_window(book *b)
 		p=&book_win;
 		if(paper_win!=-1) windows_list.window[paper_win].displayed=0;
 	}
+	book_opened=b->id;
         if(*p<0){
                 if(b->type==1)
-			*p=create_window(b->title, game_root_win, 0, book_win_x, book_win_y, 320, 400, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
+			*p=create_window(b->title, -1, 0, book_win_x, book_win_y, 320, 400, ELW_WIN_DEFAULT^ELW_CLOSE_BOX);
 		else if(b->type==2)
-			*p=create_window(b->title, game_root_win, 0, book_win_x, book_win_y, 528, 320, ELW_TITLE_NAME|ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW); //width/height are different
+			*p=create_window(b->title, -1, 0, book_win_x, book_win_y, 528, 320, ELW_WIN_DEFAULT^ELW_CLOSE_BOX); //width/height are different
 
                 set_window_handler(*p, ELW_HANDLER_DISPLAY, &display_book_handler);
                 set_window_handler(*p, ELW_HANDLER_CLICK, &click_book_handler);
@@ -870,7 +885,11 @@ void display_book_window(book *b)
 			strcpy(windows_list.window[*p].window_name,b->title);
 			windows_list.window[*p].data=b;
 			if(!windows_list.window[*p].displayed) show_window(*p);
-		} else if(!windows_list.window[*p].displayed)show_window(*p);
+			select_window(*p);
+		} else if(!windows_list.window[*p].displayed) {
+			show_window(*p);
+			select_window(*p);
+		}
         }
 }
 
@@ -881,6 +900,8 @@ void close_book(int book_id)
 	if(!b) return;
 	if(book_win!=-1)if((point)windows_list.window[book_win].data==(point)b) windows_list.window[book_win].displayed=0;
 	if(paper_win!=-1)if((point)windows_list.window[paper_win].data==(point)b) windows_list.window[paper_win].displayed=0;
+
+	book_opened=-1;
 }
 
 /* currently UNUSED

@@ -193,33 +193,26 @@ int display_rules_handler(window_info *win)
 	return 1;
 }
 
-void display_rules_window()
+void fill_rules_window()
 {
-	if (rules_win < 0)
-	{
-		rules_win = create_window ("Rules", game_root_win, 0, rules_win_x, rules_win_y, rules_win_x_len, rules_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
-
-		rules_scroll_id = vscrollbar_add_extended (rules_win, rules_scroll_id, NULL, rules_win_x_len - 20, ELW_BOX_SIZE, 20, rules_win_y_len - ELW_BOX_SIZE, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, rules.no-2);
-		widget_set_OnClick (rules_win, rules_scroll_id, rules_scroll_handler);
-		widget_set_OnDrag (rules_win, rules_scroll_id, rules_scroll_handler);
+	rules_scroll_id = vscrollbar_add_extended (rules_win, rules_scroll_id, NULL, HELP_TAB_WIDTH - 20, 0, 20, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, rules.no-2);
+	
+	widget_set_OnClick (rules_win, rules_scroll_id, rules_scroll_handler);
+	widget_set_OnDrag (rules_win, rules_scroll_id, rules_scroll_handler);
 		
-		set_window_handler(rules_win, ELW_HANDLER_DISPLAY, &display_rules_handler);
-		set_window_handler(rules_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
-		set_window_handler(rules_win, ELW_HANDLER_CLICK, &click_rules_handler);
-	} else {
-		show_window(rules_win);
-		select_window(rules_win);
-	}
+	set_window_handler(rules_win, ELW_HANDLER_DISPLAY, &display_rules_handler);
+	set_window_handler(rules_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
+	set_window_handler(rules_win, ELW_HANDLER_CLICK, &click_rules_handler);
 }
 
-void toggle_rules_window(int toggle)
+void toggle_rules_window()
 {
 	if(last_display<=0||display_rules==NULL){
 		if(display_rules)free_rules(display_rules);
 		display_rules=get_interface_rules((float)(rules_win_x_len-70)/(12*0.8f)-1);
 	}
-	if(toggle && rules_win>=0) toggle_window(rules_win);
-	else display_rules_window();
+	
+	view_tab(&tab_help_win, &tab_help_collection_id, 2);
 
 	last_display=1;
 }
@@ -281,7 +274,7 @@ void highlight_rule(int type, Uint8 * rule, int no)
 	int r;
 	int cur_rule;
 	
-	if(type==RULE_WIN)toggle_rules_window(0);
+	if(type==RULE_WIN)toggle_rules_window();
 	else if(type==RULE_INTERFACE)
 	{
 		switch (rule[2])
@@ -366,7 +359,7 @@ rule_string * get_interface_rules(int chars_per_line)
 	for(i=0;i<rules.no;i++){
 		_rules[i].type=rules.rule[i].type;
 		_rules[i].short_str=get_lines(rules.rule[i].short_desc,chars_per_line);
-		_rules[i].long_str=get_lines(rules.rule[i].long_desc,chars_per_line/0.85f);
+		_rules[i].long_str=get_lines(rules.rule[i].long_desc,chars_per_line);
 	}
 
 	_rules[rules.no].type=-1;
@@ -393,7 +386,7 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 		len=0;
 		switch(rules_ptr[i].type){
 			case -1:
-				rules_ptr[i].y_start=2*leny;//hehe ;-)
+				rules_ptr[i].y_start=2*leny;//Minor trick
 				return i;
 			case TITLE:
 				glColor3f(1.0f,0.0f,0.0f);
@@ -441,15 +434,16 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 			if(rules_ptr[i].highlight) glColor3f(0.8f,0.0f,0.0f);
 			else glColor3f(0.76f,0.5f,0.37f);
 			for(j=0;rules_ptr[i].long_str[j]&& y<leny;j++){
-				if(j)y+=18*zoom*0.9f;
+				if(j)y+=18*zoom;
 				strcpy(str,rules_ptr[i].long_str[j]);
-				draw_string_zoomed(x+20,y,str,0,zoom*0.9f);
+				draw_string_zoomed(x+20,y,str,0,zoom);
 			}
 			y+=ydiff;
 		}
 	}
-	rules_ptr[i].y_start=2*leny;//hehe ;-)
 	
+	rules_ptr[i].y_start=2*leny;//hehe ;-)
+
 	return i;//The number of rules we're displaying
 }
 
@@ -470,7 +464,7 @@ void init_rules_interface(float text_size, int count, int len_x, int len_y)
 				free_rules (display_rules);
 			display_rules = get_interface_rules ((float)(len_y - 120 * len_y / 480.0f) / (12 * text_size) - 1);
 		}
-		countdown = count;	// Countdown in 0.5 seconds...
+		countdown = 0/*count*/;	// Countdown in 0.5 seconds...
 	}
 
 	last_display = 0;
@@ -640,7 +634,10 @@ void draw_rules_interface (int len_x, int len_y)
 		
 	draw_string (len_x / 2 - strlen (str) * 11 / 2, len_y - 40 * window_ratio, str, 0);
 	
-	draw_rules (display_rules, rule_offset, diff + 30 * window_ratio, 120 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.0f);
+	set_font(3);
+	draw_rules (display_rules, rule_offset, diff + 30 * window_ratio, 120 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.1f);
+	set_font(0);
+
     	glDisable (GL_ALPHA_TEST);
 }
 

@@ -447,47 +447,6 @@ void add_actor_from_server(char * in_data);
 //void draw_interface_body_part(md2 *model_data);
 
 /*!
- * \ingroup 	display_actors
- * \brief	Draws the actor at a given position - is used for the characters creation screen
- *
- * 		Draws an actor pointed to by actor_id at the given scale, position and rotation
- *
- * \param	actor_id A pointer to the actor that the function will draw
- * \param	scale The scale at which the actor will be drawn.
- * \param	x_pos The x position
- * \param	y_pos The y position
- * \param 	z_pos The z position
- * \param	x_rot The x rotation
- * \param	y_rot The y rotation
- * \param 	z_rot The z rotation
- *
- * \sa		add_actor_interface
- * \callgraph
- */
-void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
-						  int z_pos, float x_rot,float y_rot, float z_rot);
-
-/*!
- * \ingroup	display_actors
- * \brief	Adds an actor with the given types of skin, head, hair and clothes.
- *
- * 		The function is called from the new character creation screen. It adds an actor with the given parameters that can be displayed later using draw_interface_actor
- *
- * \param	actor_type The race and sex
- * \param	skin The skin type
- * \param	hair The hair type
- * \param	shirt The shirt type
- * \param	pants The pants type
- * \param	boots The type of boots
- * \param	head The head type
- * \retval actor*	A pointer to the actor created
- * \sa		client_serv.h
- * \callgraph
- */
-actor * add_actor_interface(int actor_type, short skin, short hair,
-							short shirt, short pants, short boots, short head);
-
-/*!
  * \ingroup	display_actors
  * \brief	Inititates the actors_list (sets all pointers to NULL).
  *

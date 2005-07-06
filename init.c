@@ -597,7 +597,6 @@ void init_stuff()
 	CHECK_GL_ERRORS();
 	create_char_error_str[0]=0;
 	init_opening_interface();
-	init_hud_interface();
 	make_sigils_list();
 
 	if(SDLNet_Init()<0)
@@ -632,6 +631,9 @@ void init_stuff()
 	
 	//initiate function pointers
 	init_attribf();
+
+	//Read the books for i.e. the new char window
+	init_books();
 	
 	draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer = SDL_AddTimer (500, check_misc, NULL);

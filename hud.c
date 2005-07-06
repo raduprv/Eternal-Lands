@@ -45,6 +45,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
 int	mouseover_quickbar_handler(window_info *win, int mx, int my);
 int	mouseover_stats_bar_handler(window_info *win, int mx, int my);
 void init_hud_frame();
+void init_newchar_icons();
 void init_peace_icons();
 void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
 void switch_action_mode(int * mode, int id);
@@ -76,16 +77,25 @@ int qb_action_mode=ACTION_USE;
 int show_stats_in_hud=0;
 
 // initialize anything related to the hud
-void init_hud_interface()
+void init_hud_interface(int type)
 {
+	static int last_interface=0;
+	if(type==2)type=last_interface;
 	init_hud_frame();
-	init_peace_icons();
 	init_misc_display();
-	init_stats_display();
-	init_quickbar();
+	if(type==0){
+		free_icons();
+		init_newchar_icons();
+	} else {
+		free_icons();
+		init_peace_icons();
+		init_stats_display();
+		init_quickbar();
 #ifdef NEW_CLIENT
-	init_quickspell();
+		init_quickspell();
 #endif
+	}
+	last_interface=type;
 }
 
 void show_hud_windows ()
@@ -301,6 +311,32 @@ int load_bar_start_y;
 int exp_bar_start_x;
 int exp_bar_start_y;
 
+void init_newchar_icons()
+{
+	//create the icon window
+	if(icons_win < 0)
+		{
+			icons_win= create_window("Icons", -1, 0, 0, window_height-32, window_width-64, 32, ELW_TITLE_NONE|ELW_SHOW_LAST);
+			set_window_handler(icons_win, ELW_HANDLER_DISPLAY, &display_icons_handler);
+			set_window_handler(icons_win, ELW_HANDLER_CLICK, &click_icons_handler);
+			set_window_handler(icons_win, ELW_HANDLER_MOUSEOVER, &mouseover_icons_handler);
+		}
+	else
+		{
+			move_window(icons_win, -1, 0, 0, window_height-32);
+		}
+
+	if(icons_no) return;
+	
+	add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_name, view_window, &namepass_win, DATA_WINDOW);
+	
+	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, tt_costumize, view_window, &color_race_win, DATA_WINDOW);
+	
+	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_help_win, DATA_WINDOW);
+	
+	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &options_win, DATA_WINDOW);
+}
+
 void init_peace_icons()
 {
 	//create the icon window
@@ -409,6 +445,7 @@ void free_icons()
 			free(icon_list[i]->data);
 		free(icon_list[i]);
 	}
+	icons_no=0;
 }
 
 int	mouseover_icons_handler(window_info *win, int mx, int my)
@@ -601,6 +638,8 @@ void view_window(int * window, int id)
 #endif
 			else if(window==&tab_stats_win) display_tab_stats();
 			else if(window==&tab_help_win) display_tab_help();
+			else if(window==&namepass_win) show_account_win();
+			else if(window==&color_race_win) show_color_race_win();
 		}
 	else toggle_window(*window);
 }
@@ -892,7 +931,7 @@ int	display_misc_handler(window_info *win)
 		glColor3f(0.77f, 0.57f, 0.39f);
 		draw_string(x, 157, str, 1);
 	}
-	if(show_stats_in_hud && video_mode > 2)
+	if(show_stats_in_hud && video_mode > 2 && have_stats)
 	{
 		char str[20];
 		int y=0;

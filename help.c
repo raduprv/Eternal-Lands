@@ -107,17 +107,3 @@ void fill_help_win ()
 	set_window_handler (help_win, ELW_HANDLER_CLICK, &click_help_handler);
 }
 
-void display_help()
-{
-	if(help_win < 0)
-	{
-		help_win = create_window("help", game_root_win, 0, help_menu_x, help_menu_y, help_menu_x_len, help_menu_y_len, ELW_WIN_DEFAULT);
-
-		fill_help_win ();
-	}
-	else
-	{
-		show_window(help_win);
-		select_window(help_win);
-	}
-}

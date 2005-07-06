@@ -52,6 +52,7 @@ extern int countdown; /*!< number of seconds how long the rules should be displa
 extern int has_accepted; /*!< flag indicating whether the rules are accepted or rejected */
 
 extern int rules_root_win;
+extern int rules_win;
 
 /*!
  * \ingroup other
@@ -79,15 +80,21 @@ void draw_rules_interface (int len_x, int len_y);
 
 /*!
  * \ingroup rules_window
- * \brief Toggles the rules window visibile or invisible
+ * \brief Fills the rules tab
  *
- *      Toggles the state of the rules window from visible to invisible and vice versa.
+ * 	Fills the rules tab.
+ */
+void fill_rules_window();
+
+/*!
+ * \ingroup rules_window
+ * \brief Opens the rules tab
  *
- * \param toggle    defines to which state to switch the rules window
+ *      Opens the rules tab.
  *
  * \callgraph
  */
-void toggle_rules_window(int toggle);
+void toggle_rules_window();
 
 /*!
  * \ingroup interface_rules

@@ -1242,10 +1242,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 	}
 	// TEST REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!
-	else if (keysym == SDLK_F5)
-	{
-		toggle_rules_window (1);
-	}
 	else if (keysym == SDLK_F7)
 	{
 		if (ctrl_on) 
@@ -1326,6 +1322,13 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	return 1;
 }
 
+int show_game_handler (window_info *win) {
+	rewrap_messages(win->len_x-hud_x-20);
+	init_hud_interface(1);
+	show_hud_windows();
+	return 1;
+}
+
 void create_game_root_window (int width, int height)
 {
 	if (game_root_win < 0)
@@ -1336,6 +1339,7 @@ void create_game_root_window (int width, int height)
         	set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
         	set_window_handler (game_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
         	set_window_handler (game_root_win, ELW_HANDLER_KEYPRESS, &keypress_game_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_SHOW, &show_game_handler);
 		
 		resize_root_window();
 	}

@@ -83,9 +83,10 @@ extern int quickbar_draggable;
  *
  *      Initializes anything related to the hud, i.e. the hud frame, icons, stats display, quickbar and misc. items like compass and clock.
  *
+ * \param	type Whether it's for the game window or the new character window
  * \callgraph
  */
-void init_hud_interface();
+void init_hud_interface(int type);
 
 /*!
  * \ingroup other

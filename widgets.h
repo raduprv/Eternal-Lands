@@ -1106,6 +1106,35 @@ int text_field_set_text_color (Uint32 window_id, Uint32 widget_id, float r, floa
 
 /*!
  * \ingroup	widgets
+ * \brief	Is called on keypress in the given widget
+ *
+ * 		Is called on keypress in the given widget
+ *
+ * \param	w pointer to the widget structure
+ * \param   	mx the mouse x position relative to the widgets origin
+ * \param   	my the mouse y position relative to the widgets origin
+ * \param	key the SDL key code
+ * \param	unikey the unicode representation of the key pressed
+ * retval	1 if the event is handled 0 otherwise
+ */
+int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey);
+
+
+//FIXME: Write documentation for these...
+#define P_NORMAL    0
+#define P_TEXT      1
+#define P_NONE      2
+
+int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey);
+unsigned char * pword_field_get(widget_list *w);
+int pword_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer);
+int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer);
+int pword_field_click(widget_list *w, int mx, int my, Uint32 flags);
+void pword_set_status(widget_list *w, Uint8 status);
+
+
+/*!
+ * \ingroup	widgets
  * \brief 	Handles a mouseover event
  *
  * 		Handles a mousover event for a widget.

@@ -22,17 +22,6 @@ int help_menu_y_len=200;
 
 /*!
  * \ingroup help_window
- * \brief       displays the help window
- *
- *      Displays the help window.
- *      \bug there's currently a bug associated with this, in that the client causes a segmentation fault, whenever the help icon is clicked.
- *
- * \callgraph
- */
-void display_help();
-
-/*!
- * \ingroup help_window
  * \brief Sets the window handler functions for the help window
  *
  *      Sets the window handler functions for the help window

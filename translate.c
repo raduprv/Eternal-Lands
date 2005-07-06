@@ -38,7 +38,9 @@ char	tt_walk[30],
 	tt_console[30],
 	tt_buddy[30],
 	tt_options[30],
-	tt_help[30];
+	tt_help[30],
+	tt_costumize[60],
+	tt_name[60];
 #endif
 /*! \} */
 
@@ -129,20 +131,44 @@ char
 	alt_x_quit[30],
 	license_check[150], 
 	/*new_character.c*/
-	skin_str[10],
-	hair_str[10],
-	shirt_str[10],
-	pants_str[10],
-	boots_str[10],
-	head_str[10],
-	gender_str[10],
-	male_str[10],
-	female_str[10],
-	race_str[10],
-	human_str[10],
-	elf_str[10],
-	dwarf_str[10],
+	skin_str[15],
+	hair_str[15],
+	shirt_str[15],
+	pants_str[15],
+	boots_str[15],
+	head_str[15],
+	gender_str[15],
+	male_str[15],
+	female_str[15],
+	race_str[15],
+	human_str[15],
+	elf_str[15],
+	dwarf_str[15],
+	gnome_str[15],
+	orchan_str[15],
+	draegoni_str[15],
 	confirm_password[30],
+	error_username_length[50], 
+	error_password_length[50], 
+	error_pass_no_match[30],
+	error_confirm_create_char[100],
+	error_max_digits[30],
+	error_length[30],
+	error_max_digits[30],
+	passwords_match[30],
+	p2p_race[100],
+	char_help[200],
+	invalid_pass[30],
+	show_password[30],
+	hide_password[30],
+	char_done[15],
+	char_back[15],
+	about_human[30],
+	about_elves[30], 
+	about_dwarfs[30],
+	about_gnomes[30],
+	about_orchans[30],
+	about_draegoni[30],
 	/*pm_log.c*/
 	going_afk[30],
 	not_afk[50],
@@ -251,10 +277,6 @@ char	reg_error_str[15],
 	/*multiplayer.c*/
 	failed_resolve[150],
 	failed_connect[100], 
-	error_username_length[50], 
-	error_password_length[50], 
-	error_pass_no_match[30],
-	invalid_pass[30],
 	redefine_your_colours[250],
 	char_dont_exist[30],
 	char_name_in_use[50],
@@ -335,6 +357,7 @@ char	win_notepad[20],
 	win_prompt[10],
 	tab_help[10],
 	tab_encyclopedia[20],
+	tab_rules[20],
 	tab_statistics[20],
 	tab_knowledge[20],
 	tab_questlog[20],
@@ -605,10 +628,6 @@ void init_errors()
 	add_xml_identifier(misc,"timer",failed_sdl_timer_init,"Couldn't initialize the timer",sizeof(failed_sdl_timer_init));
 	add_xml_identifier(misc,"resolve",failed_resolve,"Can't resolve server address.\nPerhaps you are not connected to the Internet or your DNS server is down!",sizeof(failed_resolve));
 	add_xml_identifier(misc,"connect",failed_connect,"Can't connect to server :(",sizeof(failed_connect));
-	add_xml_identifier(misc,"userlen",error_username_length,"Username MUST be at least 3 characters long!",sizeof(error_username_length));
-	add_xml_identifier(misc,"passlen",error_password_length,"The password MUST be at least 4 characters long!",sizeof(error_password_length));
-	add_xml_identifier(misc,"passnomatch",error_pass_no_match,"Passwords don't match!",sizeof(error_pass_no_match));
-	add_xml_identifier(misc,"wrongpass",invalid_pass,"Invalid password!",sizeof(invalid_pass));
 	add_xml_identifier(misc,"redefine",redefine_your_colours,"You need to update your character, due to the new models!\nGo on the New Character screen, type your existing\nusername and password, update your character, then press\nDone. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*",sizeof(redefine_your_colours));
 	add_xml_identifier(misc,"noexist",char_dont_exist,"You don't exist!",sizeof(char_dont_exist));
 	add_xml_identifier(misc,"latency",server_latency,"Server latency",sizeof(server_latency));
@@ -702,8 +721,8 @@ void init_help()
 	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows disabled!",sizeof(low_framerate_str));
 	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",sizeof(window_size_adjusted_str));
 	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",sizeof(no_open_on_trade));
-	add_xml_identifier(misc,"user",login_username_str,"Username",sizeof(login_username_str));
-	add_xml_identifier(misc,"pass",login_password_str,"Password",sizeof(login_password_str));
+	add_xml_identifier(misc,"user",login_username_str,"Username:",sizeof(login_username_str));
+	add_xml_identifier(misc,"pass",login_password_str,"Password:",sizeof(login_password_str));
 	add_xml_identifier(misc,"getall",get_all_str,"Get All",sizeof(get_all_str));
 	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",sizeof(completed_research));
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
@@ -737,7 +756,30 @@ void init_help()
 	add_xml_identifier(new,"human",human_str,"Human",sizeof(human_str));
 	add_xml_identifier(new,"elf",elf_str,"Elf",sizeof(elf_str));
 	add_xml_identifier(new,"dwarf",dwarf_str,"Dwarf",sizeof(dwarf_str));
-	add_xml_identifier(new,"confirm",confirm_password,"Confirm Password",sizeof(confirm_password));
+	add_xml_identifier(new,"gnome",gnome_str,"Gnome",sizeof(gnome_str));
+	add_xml_identifier(new,"orchan",orchan_str,"Orchan",sizeof(orchan_str));
+	add_xml_identifier(new,"draegoni",draegoni_str,"Draegoni",sizeof(draegoni_str));
+	add_xml_identifier(new,"confirm",confirm_password,"Confirm:",sizeof(confirm_password));
+	add_xml_identifier(new,"userlen",error_username_length,"Username MUST be at least 3 characters long!",sizeof(error_username_length));
+	add_xml_identifier(new,"passlen",error_password_length,"The password MUST be at least 4 characters long!",sizeof(error_password_length));
+	add_xml_identifier(new,"passnomatch",error_pass_no_match,"Passwords don't match!",sizeof(error_pass_no_match));
+	add_xml_identifier(new,"passmatch",passwords_match,"Passwords are matching!",sizeof(passwords_match));
+	add_xml_identifier(new,"max_digits",error_max_digits,"You can only have 3 digits in your name!",sizeof(error_max_digits));
+	add_xml_identifier(new,"max_length",error_length,"Names and passwords can max be 15 characters long",sizeof(error_length));
+	add_xml_identifier(new,"p2p_race",p2p_race,"You have to pay to create a char with this race",sizeof(p2p_race));
+	add_xml_identifier(new,"char_help",char_help,"To costumize your character and select name/password, press the buttons at the bottom.",sizeof(char_help));
+	add_xml_identifier(new,"confirmcreate",error_confirm_create_char,"Click done again to create a character with that name and appearance.",sizeof(error_confirm_create_char));
+	add_xml_identifier(new,"wrongpass",invalid_pass,"Invalid password!",sizeof(invalid_pass));
+	add_xml_identifier(new,"showpass",show_password,"Show password",sizeof(show_password));
+	add_xml_identifier(new,"hidepass",hide_password,"Hide password",sizeof(hide_password));
+	add_xml_identifier(new,"done",char_done,"Done",sizeof(char_done));
+	add_xml_identifier(new,"back",char_back,"Back",sizeof(char_back));
+	add_xml_identifier(new,"a_human",about_human,"About Human",sizeof(about_human));
+	add_xml_identifier(new,"a_elf",about_elves,"About Elves",sizeof(about_elves));
+	add_xml_identifier(new,"a_dwarf",about_dwarfs,"About Dwarfs",sizeof(about_dwarfs));
+	add_xml_identifier(new,"a_gnome",about_gnomes,"About Gnomes",sizeof(about_gnomes));
+	add_xml_identifier(new,"a_orchan",about_orchans,"About Orchans",sizeof(about_orchans));
+	add_xml_identifier(new,"a_draegoni",about_draegoni,"About Draegoni",sizeof(about_draegoni));
 	
 	//Icons
 	add_xml_identifier(tooltips,"walk",tt_walk,"Walk",sizeof(tt_walk));
@@ -760,6 +802,8 @@ void init_help()
 	add_xml_identifier(tooltips,"buddy",tt_buddy,"View buddy",sizeof(tt_buddy));
 	add_xml_identifier(tooltips,"opts",tt_options,"View options",sizeof(tt_options));
 	add_xml_identifier(tooltips,"help",tt_help,"View help",sizeof(tt_help));
+	add_xml_identifier(tooltips,"costumize",tt_costumize,"Costumize your character",sizeof(tt_costumize));
+	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
 
 }
 #endif
@@ -881,6 +925,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "w_prompt", win_prompt, "Prompt", sizeof(win_prompt));
 	add_xml_identifier (titles_str, "t_help", tab_help, "Help", sizeof(tab_help));
 	add_xml_identifier (titles_str, "t_ency", tab_encyclopedia, "Encyclopedia", sizeof(tab_encyclopedia));
+	add_xml_identifier (titles_str, "t_rules", tab_rules, "Rules", sizeof(tab_encyclopedia));
 	add_xml_identifier (titles_str, "t_stats", tab_statistics, "Statistics", sizeof(tab_statistics));
 	add_xml_identifier (titles_str, "t_know", tab_knowledge, "Knowledge", sizeof(tab_knowledge));
 	add_xml_identifier (titles_str, "t_qlog", tab_questlog, "Quest log", sizeof(tab_questlog));

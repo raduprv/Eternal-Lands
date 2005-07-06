@@ -749,7 +749,7 @@ void set_new_video_mode(int fs,int mode)
 	}
 	
 	//it is dependent on the window height...
-	init_hud_interface();
+	init_hud_interface(2);//Last interface
 	new_minute();
 
 	regenerate_near_objects=1;

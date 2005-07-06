@@ -72,6 +72,11 @@ int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint
 
 int show_opening_handler (window_info *win) {
 	rewrap_messages(opening_win_text_width);
+	hide_window(book_win);
+	hide_window(paper_win);
+	hide_window(color_race_win);
+	hide_window(options_win);
+	hide_window(tab_help_win);
 	return 1;
 }
 

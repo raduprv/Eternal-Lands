@@ -160,4 +160,83 @@ FILE *my_fopen (const char *fname, const char *mode);
 void makeScreenShot ();
 #endif
 
+/*!
+ * \ingroup misc_utils
+ * \brief Draws a circle from angle_from to angle_to
+ * 
+ * 		Draws a circle from angle_from to angle_to with the given radius from the center x,y. Increments the angle with interval.
+ *
+ * \param x The center x
+ * \param y The center y
+ * \param radius The radius
+ * \param interval The # of steps to increment the angle. Can be negative, but then angle_from has to be higher than angle_to. When it is positive angle_from has to be lower than angle_to
+ * \param angle_from The starting angle
+ * \param angle_to The end angle
+ */
+void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int angle_to);
+
+/*!
+ * \ingroup misc_utils
+ * \brief Draws a circle from angle_from to angle_to
+ * 
+ * 		Draws a circle with the given radius from the center x,y.
+ *
+ * \param x The center x
+ * \param y The center y
+ * \param radius The radius
+ * 
+ * \callgraph
+ */
+void draw_circle(int x, int y, int radius, int interval);
+
+/*!
+ * \ingroup misc_utils
+ * \brief Draws a box, that potentially uses rounded corners
+ *
+ * 	Draws a box that potentially uses rounded corners if a radius is given. The box can have a name, but that is optional. Will look like this:
+ * \code
+ * 	1)
+ * 	+----- box -----+
+ * 	|		|
+ * 	|		|
+ * 	|		|
+ * 	|		|
+ * 	+---------------+
+ *
+ * 	2)
+ * 	+---------------+
+ * 	|		|
+ * 	|		|
+ * 	|		|
+ * 	|		|
+ * 	+---------------+
+ * \endcode
+ *
+ * \param name The potential name of the box. If you don't want a name
+ * \param x The start x position
+ * \param y The start y position
+ * \param w The width
+ * \param h The height
+ * \param rad The radius in the rounded corners - note that they are optional
+ */
+void draw_box(char * name, int x, int y, int w, int h, int rad);
+
+/*!
+ * \ingroup misc_utils
+ * \brief Draws a button with round corners. 
+ *
+ * 	Draws a button with round corners. The box can be highlighted with the chosen highlight colors (r,g,b,a).
+ *
+ * \param str The name to write within the button, optional
+ * \param x The start x position
+ * \param y The start y position
+ * \param w The width
+ * \param l The number of lines (determines the height)
+ * \param highlight If the button is highlighted or not
+ * \param r The red color
+ * \param g The green color
+ * \param b The blue color
+ * \param a The alpha color
+ */
+void draw_smooth_button(char * str, int x, int y, int w, int lines, int highlight, float r, float g, float b, float a);
 #endif

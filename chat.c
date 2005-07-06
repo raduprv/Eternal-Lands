@@ -784,7 +784,7 @@ int highlight_tab(const Uint8 channel)
 			{
 				if (tabs[i].channel == channel)
 				{
-					if (current_tab != i && tabs[i].highlighted)
+					if (current_tab != i && !tabs[i].highlighted)
 					{
 						widget_set_color (tab_bar_win, tabs[i].button, 1.0f, 0.0f, 0.0f);
 						tabs[i].highlighted = 1;

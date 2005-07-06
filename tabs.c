@@ -24,7 +24,7 @@ void display_tab_stats ()
 {
 	if (tab_stats_win < 0)
 	{
-		tab_stats_win = create_window ("statistics", game_root_win, 0, tab_stats_x, tab_stats_y, tab_stats_len_x, tab_stats_len_y, ELW_WIN_DEFAULT);
+		tab_stats_win = create_window ("Statistics", game_root_win, 0, tab_stats_x, tab_stats_y, tab_stats_len_x, tab_stats_len_y, ELW_WIN_DEFAULT);
 
 		set_window_handler (tab_stats_win, ELW_HANDLER_DISPLAY, &display_tab_stats_handler);
 		
@@ -57,17 +57,20 @@ void display_tab_help ()
 {
 	if (tab_help_win < 0)
 	{
-		tab_help_win = create_window ("help", game_root_win, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
+		tab_help_win = create_window ("Help", -1, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
 
 		set_window_handler (tab_help_win, ELW_HANDLER_DISPLAY, &display_tab_help_handler);
 		
-		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, HELP_TAB_WIDTH, HELP_TAB_HEIGHT+TAB_TAG_HEIGHT, 0, 0.7, 0.77f, 0.57f, 0.39f, 2, TAB_TAG_HEIGHT, TAB_SPACING);
+		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, HELP_TAB_WIDTH, HELP_TAB_HEIGHT+TAB_TAG_HEIGHT, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT, TAB_SPACING);
 
 		help_win = tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0);
 		fill_help_win ();
 		
 		encyclopedia_win = tab_add (tab_help_win, tab_help_collection_id, tab_encyclopedia, 0, 0);
 		fill_encyclopedia_win ();
+
+		rules_win = tab_add(tab_help_win, tab_help_collection_id, tab_rules, 0, 0);
+		fill_rules_window();
 
 		tab_collection_select_tab (tab_help_win, tab_help_collection_id, 0);
 	}

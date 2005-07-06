@@ -328,74 +328,90 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	}
 }
 
+void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right, float y_top, float y_bottom, float y_actor)
+{
+	const float r=0.1f;
+	const float mul=3.14159265f/180.0f;
+	int angle;
+	
+	glEnable(GL_BLEND);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+	glBlendFunc(GL_NONE, GL_SRC_ALPHA);
+	glBegin(GL_POLYGON);
+	
+	for(angle=90;angle<180;angle+=10){
+		float rad=-mul*angle;
+		glVertex3f(x_left+cos(rad)*r-r, 0.01f, y_bottom+r+sin(rad)*r);
+	}
+	
+	for(angle=180;angle<270;angle+=10){
+		float rad=-mul*angle;
+		glVertex3f(x_left+cos(rad)*r-r, 0.01f, y_top-r+sin(rad)*r);
+	}
+	
+	for(angle=270;angle<360;angle+=10){
+		float rad=-mul*angle;
+		glVertex3f(x_right+cos(rad)*r+r, 0.01f, y_top-r+sin(rad)*r);
+	}
+	
+	for(angle=0;angle<90;angle+=10){
+		float rad=-mul*angle;
+		glVertex3f(x_right+cos(rad)*r+r, 0.01f, y_bottom+sin(rad)*r+r);
+	}
+	
+	glEnd();
+	
+	glBegin(GL_POLYGON);
+		glVertex3f(x_leg_right, 0.01f, y_bottom+0.02);
+		glVertex3f(x_leg_right, 0.01f, y_actor);
+		glVertex3f(x_leg_left, 0.01f, y_bottom+0.02);
+	glEnd();	
+	
+	glDisable(GL_BLEND);
+}
+
 //-- Logan Dugenoux [5/26/2004]
 void draw_actor_overtext( actor* actor_ptr )
 {
-	float z, w, h, fmargin, bulleZ;
-	float ptx[10];
-	float pty[10];
-	float taillepicx, taillepicy;
-	float delalageX, delalagePicX;
-	float tailleTexteWidth, tailleTexteHeight;
-	float decalageTexteX, decalageTexteY;
-	int i;
+	float z, w, h;
+	float x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y_actor;
+	float textwidth;
+	float textheight;
+	float margin;
 
 	//-- decrease display time
 	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
-	bulleZ = 0.01f;// put text a little bit closer than the bubble
 
-	tailleTexteWidth = ((float)get_string_width(actor_ptr->current_displayed_text)
-		*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
-	tailleTexteHeight = (0.06f*zoom_level/3.0)*4;
-	fmargin = 0.02f*zoom_level;// border of the bubble size
-	delalageX = 0.3f;// position of the bubble
-	taillepicy = 0.7f;// size of the bubble 'leg'
-	taillepicx = 0.1f;
-	//delalagePicX = 0.3f;
-	delalagePicX = 0.2f;
+	textwidth = ((float)get_string_width(actor_ptr->current_displayed_text)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+	textheight = (0.06f*zoom_level/3.0)*4;
+	margin = 0.02f*zoom_level;
 	z = 1.2f;// distance over the player
 	if (actor_ptr->sitting)		z = 0.8f; // close if he's sitting
-	w = tailleTexteWidth+fmargin*2;
-	h = tailleTexteHeight+fmargin*2;
+	w = textwidth+margin*2;
+	h = textheight+margin*2;
 
-	// define bubble pts
-	ptx[0] = 0;		pty[0] = z;
-	ptx[1] = taillepicx+delalagePicX;	pty[1] = z+taillepicy;
-	ptx[2] = w/2+delalageX+delalagePicX;	pty[2] = z+taillepicy;
-	ptx[3] = w/2+delalageX+delalagePicX;	pty[3] = z+taillepicy+h;
-	ptx[4] = -w/2+delalageX+delalagePicX;	pty[4] = z+taillepicy+h;
-	ptx[5] = -w/2+delalageX+delalagePicX;	pty[5] = z+taillepicy;
-	ptx[6] = -taillepicx+delalagePicX;	pty[6] = z+taillepicy;
-	if (ptx[6]<=ptx[5])
-	{// small texts
-		ptx[6] = ptx[5];
-		ptx[1] = ptx[5]+taillepicx*2;
-	}
+	x_left=-w/2.0f;
+	x_right=w/2.0f;
+	x_leg_left=-0.3f;
+	x_leg_right=0.0f;
 
-	decalageTexteX = -w/2+delalageX+delalagePicX+fmargin;
-	decalageTexteY = z+taillepicy-fmargin+tailleTexteHeight/2;
+	y_top=z+0.7f+h;
+	y_bottom=z+0.7f;
+	y_actor=z+0.2f;
 
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glBegin(GL_LINES);
-	for (i=0;i<=5;i++)
-	{
-		glVertex3f(ptx[i],		bulleZ,		pty[i]);
-		glVertex3f(ptx[i+1],	bulleZ,		pty[i+1]);
-	}
-	glVertex3f(ptx[6],		bulleZ,		pty[6]);
-	glVertex3f(ptx[0],		bulleZ,		pty[0]);
-	glEnd();
+	
+	draw_bubble(x_left+0.01f, x_right-0.01f, x_leg_left, x_leg_right, y_top-0.01f, y_bottom+0.01f, y_actor+0.01f);
+		
 	glEnable(GL_TEXTURE_2D);
 
 	//---
 	// Draw text
-	glColor3f(0.4f,0.4f,0.4f);
-
-	//draw_ingame_string(decalageTexteX,	decalageTexteY,actor_ptr->current_displayed_text,1,0);
-	DRAW_INGAME_SMALL(decalageTexteX,	decalageTexteY,actor_ptr->current_displayed_text,1);
-
+	glColor3f(0.77f,0.57f,0.39f);
+	
+	DRAW_INGAME_SMALL(x_left+margin, y_bottom+margin,actor_ptr->current_displayed_text,1);
+	
 	//glDepthFunc(GL_LESS);
 	if (actor_ptr->current_displayed_text_time_left<=0)
 	{	// clear if needed
@@ -949,126 +965,6 @@ void add_actor_from_server(char * in_data)
 #endif
 	
 }
-
-
-//this actor will be resized. We want speed, so that's why we add a different function
-void draw_interface_actor(actor * actor_id,float scale,int x_pos,int y_pos,
-						  int z_pos, float x_rot,float y_rot, float z_rot)
-{
-	int texture_id;
-	//frame_md2 *offsetFrames;
-
-	//offsetFrames=actor_id->body_parts->head->offsetFrames;
-	texture_id=actor_id->texture_id;
-
-	x_rot+=180;//test
-	z_rot+=180;//test
-
-	bind_texture_id(texture_id);
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	glTranslatef(x_pos, y_pos, z_pos);
-	z_rot=-z_rot;
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-	glScalef(scale,scale,scale);	//enlarge the actor
-
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	if(actor_id->body_parts->legs)draw_model(actor_id->body_parts->legs,"idle01",0);
-	if(actor_id->body_parts->torso)draw_model(actor_id->body_parts->torso,"idle01",0);
-	if(actor_id->body_parts->head)draw_model(actor_id->body_parts->head,"idle01",0);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	//////
-	glPopMatrix();//restore the scene}
-}
-
-actor * add_actor_interface(int actor_type, short skin, short hair,
-							short shirt, short pants, short boots, short head)
-{
-	actor *our_actor;
-	enhanced_actor *this_actor;
-	int texture_id;
-
-#ifdef EXTRA_DEBUG
-	ERR();
-#endif
-	this_actor=calloc(1,sizeof(enhanced_actor));
-	our_actor = calloc(1, sizeof(actor));
-
-	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
-	our_actor->current_displayed_text_time_left =  0;
-
-	//get the torso
-	my_strcp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name);
-	my_strcp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name);
-	my_strcp(this_actor->torso_fn,actors_defs[actor_type].shirt[shirt].model_name);
-	my_strcp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name);
-	my_strcp(this_actor->head_tex,actors_defs[actor_type].skin[skin].head_name);
-	my_strcp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name);
-	my_strcp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name);
-	my_strcp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name);
-	my_strcp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name);
-	my_strcp(this_actor->head_fn,actors_defs[actor_type].head[head].model_name);
-
-	no_bounding_box=1;
-	//ok, load the legs
-	if(this_actor->legs_fn[0])
-		{
-			this_actor->legs=(md2*)load_md2_cache(this_actor->legs_fn);
-			if(!this_actor->legs)
-				{
-					char str[120];
-					sprintf(str,"%s: %s: %s\n",reg_error_str,error_body_part,this_actor->legs_fn);
-					log_error(str);
-					this_actor->legs=0;
-			        //return 0;
-				}
-		}
-	else this_actor->legs=0;
-
-	//ok, load the head
-	if(this_actor->head_fn[0])
-		{
-			this_actor->head=(md2*)load_md2_cache(this_actor->head_fn);
-			if(!this_actor->head)
-				{
-					char str[120];
-					sprintf(str,"%s: %s: %s\n",reg_error_str,error_body_part,this_actor->head_fn);
-					log_error(str);
-					this_actor->head=0;
-					//return 0;
-				}
-		}
-	else this_actor->head=0;
-
-	//ok, load the torso
-	if(this_actor->torso_fn[0])
-		{
-			this_actor->torso=(md2*)load_md2_cache(this_actor->torso_fn);
-			if(!this_actor->torso)
-				{
-					char str[120];
-					sprintf(str,"%s: %s: %s\n",reg_error_str,error_body_part,this_actor->torso_fn);
-					log_error(str);
-					this_actor->torso=0;
-			        //return 0;
-				}
-		}
-	else this_actor->torso=0;
-
-	no_bounding_box=0;
-	//get the skin
-	texture_id=load_bmp8_enhanced_actor(this_actor, 255);
-	our_actor->texture_id=texture_id;
-	our_actor->body_parts=this_actor;
-	no_bounding_box=0;
-	return our_actor;
-}
-
 
 //--- LoganDugenoux [5/25/2004]
 #define MS_PER_CHAR	200

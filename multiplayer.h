@@ -82,7 +82,6 @@ void send_login_info();
  *
  * \param user_str          the username for the char
  * \param pass_str          the password for the char
- * \param conf_pass_str     the confirmation password for the char
  * \param skin              the skin id used by the char
  * \param hair              the hair id used by the char
  * \param shirt             the shirt id used by the char
@@ -97,8 +96,7 @@ void send_login_info();
  * \pre If the length of \a pass_str is less than 4, this function will create an error and returns.
  * \pre If the \a conf_pass_str doesn't match the \a pass_str, this function will create an error and returns.
  */
-void send_new_char(Uint8 * user_str, Uint8 * pass_str, Uint8 * conf_pass_str, char skin, 
-				   char hair, char shirt, char pants, char boots,char head, char type);
+void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, char shirt, char pants, char boots,char head, char type);
 
 /*!
  * \ingroup network_actors

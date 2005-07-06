@@ -64,16 +64,6 @@ extern int numpage;
 
 /*!
  * \ingroup encyclopedia_window
- * \brief   displays the encyclopedia window
- *
- *      Displays the encyclopedia window
- *
- * \callgraph
- */
-void display_encyclopedia();
-
-/*!
- * \ingroup encyclopedia_window
  * \brief Sets the window handler functions for the encyclopedia window
  *
  *      Sets the window handler functions for the encyclopedia window

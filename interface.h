@@ -46,9 +46,9 @@ extern int login_screen_menus;
 extern char username_box_selected; /*!< true, if the cursor is currently in the username input field */
 extern char password_box_selected; /*!< true, if the cursor is currently in the password input field */
 
-extern char username_str[16]; /*!< the username of the actor */
-extern char password_str[16]; /*!< the password of the actor */
-extern char display_password_str[16]; /*!< a string that will be displayed when entering a password */
+extern char username_str[20]; /*!< the username of the actor */
+extern char password_str[20]; /*!< the password of the actor */
+extern char display_password_str[20]; /*!< a string that will be displayed when entering a password */
 
 extern int font_text;
 extern int cons_text;

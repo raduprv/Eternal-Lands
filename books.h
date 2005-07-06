@@ -9,6 +9,15 @@
 /*! The book texture*/
 extern int book1_text;
 
+/*! The book window*/
+extern int book_win;
+
+/*! The paper window*/
+extern int paper_win;
+
+/*! The ID of the book currently open*/
+extern int book_opened;
+
 /*!
  * \ingroup	network_books
  * \brief	Opens a local book.
@@ -21,6 +30,14 @@ extern int book1_text;
  * \callgraph
  */
 void read_local_book(char * data, int len);
+
+/*!
+ * \ingroup	books_window
+ * \brief	Reads some books that will not be asked for server-side
+ *
+ * 		Reads a few local books that we will not ask the server about...
+ */
+void init_books();
 
 /*!
  * \ingroup	network_books

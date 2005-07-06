@@ -160,6 +160,11 @@ int click_console_handler (window_info *win, int mx, int my, Uint32 flags)
 
 int show_console_handler (window_info *win) {
 	rewrap_messages(console_text_width);
+	hide_window(book_win);
+	hide_window(paper_win);
+	hide_window(color_race_win);
+	hide_window(options_win);
+	hide_window(tab_help_win);
 	return 1;
 }
 

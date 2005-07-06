@@ -10,7 +10,21 @@
  * \name Windows handlers
  */
 /*! @{ */
+extern int namepass_win;/*! The name & password window*/
+extern int color_race_win;/*! The color and race window*/
 extern int newchar_root_win; /*!< window handler for the character creation interface root window. */
+/*! @} */
+
+/*!
+ * \name Books
+ */
+/*! @{ */
+extern int book_human;
+extern int book_dwarf;
+extern int book_elf;
+extern int book_gnome;
+extern int book_orchan;;
+extern int book_draegoni;
 /*! @} */
 
 /*!
@@ -79,4 +93,6 @@ void login_from_new_char();
  */
 void create_newchar_root_window ();
 
+void show_account_win ();
+void show_color_race_win();
 #endif
