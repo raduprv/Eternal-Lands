@@ -689,7 +689,7 @@ void new_minute()
 	ERR();
 #endif
 	//morning starts at 0
-	game_minute=90;
+	//game_minute=90;
 	//is it morning?
 	if(game_minute<60)light_level=game_minute+60;
 	//check to see if it is full day
