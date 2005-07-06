@@ -26,7 +26,6 @@ float mrandom(float max)
 
 void draw_actor_reflection(actor * actor_id)
 {
-	int i;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int texture_id;
@@ -44,8 +43,6 @@ void draw_actor_reflection(actor * actor_id)
 	cur_frame=actor_id->tmp.cur_frame;
 
 	//now, go and find the current frame
-	i= get_frame_number(actor_id->model_data, cur_frame);
-	if(i<0)	return;	//nothing to draw
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	
@@ -64,11 +61,12 @@ void draw_actor_reflection(actor * actor_id)
 	z_rot=actor_id->tmp.z_rot;
 	
 	z_rot=-z_rot;
+	z_rot+=180;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	draw_model(actor_id->model_data, cur_frame, actor_id->ghost);
+	if (actors_defs[actor_id->actor_type].coremodel!=NULL) cal_render_actor(actor_id);
 
 	glPopMatrix();
 	CHECK_GL_ERRORS();
@@ -111,24 +109,10 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if(actor_id->body_parts->legs)draw_model(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->torso)draw_model(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->head)draw_model(actor_id->body_parts->head,cur_frame,actor_id->ghost);
+	if (actors_defs[actor_id->actor_type].coremodel!=NULL) {
+		cal_render_actor(actor_id);
+	}
 
-	if(actor_id->body_parts->weapon)
-		{
-			int glow;
-			draw_model(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
-			glow=actor_id->body_parts->weapon_glow;
-			if(glow!=GLOW_NONE)draw_model_halo(actor_id->body_parts->weapon,cur_frame,glow_colors[glow].r,glow_colors[glow].g,glow_colors[glow].b);
-		}
-
-	if(actor_id->body_parts->shield)draw_model(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->helmet)draw_model(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->cape)draw_model(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
-
-
-	//////
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
 }

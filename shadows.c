@@ -257,69 +257,6 @@ void draw_3d_object_shadow(object3d * object_id)
 	}
 }
 
-void draw_model_shadow(md2 *model_data,char *cur_frame, int ghost)
-{
-	int frame;
-	int numFaces;
-
-	//now, go and find the current frame
-	frame = get_frame_number(model_data, cur_frame);
-	if(frame < 0)return;	//can't draw it
-	//track the usage
-	cache_use(cache_md2, model_data->cache_ptr);
-
-	numFaces=model_data->numFaces;
-
-	CHECK_GL_ERRORS();
-	if(use_vertex_array > 0)
-		{
-			//TODO: smarter decision making and maybe trigger cleanup?
-			if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
-				{
-					build_md2_va(model_data, &model_data->offsetFrames[frame]);
-				}
-		}
-	// determine the drawing method
-	if(use_vertex_array > 0 && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
-		{
-			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
-			if(have_compiled_vertex_array)ELglLockArraysEXT(0, model_data->numFaces*3);
-			glDrawArrays(GL_TRIANGLES, 0, model_data->numFaces*3);
-			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-		}
-	else
-		{
-			int i;
-			face_md2 *offsetFaces;
-			vertex_md2 *vertex_pointer=NULL;
-			//setup
-			glBegin(GL_TRIANGLES);
-			vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
-			offsetFaces=model_data->offsetFaces;
-			//draw each triangle
-			for(i=0;i<numFaces;i++)
-				{
-					float x,y,z;
-
-					x=vertex_pointer[offsetFaces[i].a].x;
-					y=vertex_pointer[offsetFaces[i].a].y;
-					z=vertex_pointer[offsetFaces[i].a].z;
-					glVertex3f(x,y,z);
-
-					x=vertex_pointer[offsetFaces[i].b].x;
-					y=vertex_pointer[offsetFaces[i].b].y;
-					z=vertex_pointer[offsetFaces[i].b].z;
-					glVertex3f(x,y,z);
-
-					x=vertex_pointer[offsetFaces[i].c].x;
-					y=vertex_pointer[offsetFaces[i].c].y;
-					z=vertex_pointer[offsetFaces[i].c].z;
-					glVertex3f(x,y,z);
-				}
-			glEnd();
-		}
-	CHECK_GL_ERRORS();
-}
 
 
 void draw_enhanced_actor_shadow(actor * actor_id)
@@ -350,30 +287,19 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
-	if(actor_id->body_parts->legs)draw_model_shadow(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->torso)draw_model_shadow(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->head)draw_model_shadow(actor_id->body_parts->head,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->weapon)draw_model_shadow(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->shield)draw_model_shadow(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->helmet)draw_model_shadow(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->cape)draw_model_shadow(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
+	cal_render_actor(actor_id);
 
 	glPopMatrix();//restore the scene
 }
 
 void draw_actor_shadow(actor * actor_id)
 {
-	int i;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	char *cur_frame;
 
 	//now, go and find the current frame
 	cur_frame=actor_id->tmp.cur_frame;
-
-	i = get_frame_number(actor_id->model_data, cur_frame);
-	if(i < 0)return;	//can't draw it
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	if(!use_shadow_mapping)glMultMatrixf(proj_on_ground);
@@ -392,11 +318,12 @@ void draw_actor_shadow(actor * actor_id)
 	z_rot=actor_id->tmp.z_rot;
 
 	z_rot=-z_rot;
+	z_rot+=180;//test
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	draw_model_shadow(actor_id->model_data,cur_frame,actor_id->ghost);
+	if (actors_defs[actor_id->actor_type].coremodel!=NULL) cal_render_actor(actor_id);
 
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
@@ -408,11 +335,6 @@ void display_actors_shadow()
 	int x,y;
 	x=-cx;
 	y=-cy;
-	if(use_vertex_array > 0)
-		{
-			glEnableClientState(GL_VERTEX_ARRAY);
-			//glEnableClientState(GL_NORMAL_ARRAY);
-		}
 
 	for(i=0;i<max_actors;i++)
 		{
@@ -432,12 +354,6 @@ void display_actors_shadow()
 								else draw_actor_shadow(actors_list[i]);
 							}
 				}
-		}
-
-	if(use_vertex_array > 0)
-		{
-			//glDisableClientState(GL_NORMAL_ARRAY);
-			glDisableClientState(GL_VERTEX_ARRAY);
 		}
 }
 

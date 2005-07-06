@@ -39,109 +39,9 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	int k;
 	actor *our_actor;
 	no_bounding_box=1;
-
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-
-	//ok, load the legs
-	if(this_actor->legs_fn[0])
-		{
-			this_actor->legs=(md2*)load_md2_cache(this_actor->legs_fn);
-			if(!this_actor->legs)
-				{
-    		        char str[120];
-    		        sprintf(str,"%s: %s: %s\n",reg_error_str,error_body_part,this_actor->legs_fn);
-    		        log_error(str);
-    		        this_actor->legs=0;
-				}
-		}
-	else this_actor->legs=0;
-
-	//ok, load the head
-	if(this_actor->head_fn[0])
-		{
-			this_actor->head=(md2*)load_md2_cache(this_actor->head_fn);
-			if(!this_actor->head)
-				{
-    		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_head,this_actor->head_fn);
-    		        log_error(str);
-    		        this_actor->head=0;
-				}
-		}
-	else this_actor->head=0;
-
-	//ok, load the torso
-	if(this_actor->torso_fn[0])
-		{
-			this_actor->torso=(md2*)load_md2_cache(this_actor->torso_fn);
-			if(!this_actor->torso)
-				{
-    		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_torso,this_actor->torso_fn);
-    		        log_error(str);
-    		        this_actor->torso=0;
-				}
-		}
-	else this_actor->torso=0;
-
-	//ok, load the weapon
-	if(this_actor->weapon_fn[0])
-		{
-			this_actor->weapon=(md2*)load_md2_cache(this_actor->weapon_fn);
-			if(!this_actor->weapon)
-				{
-    		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_weapon,this_actor->weapon_fn);
-    		        log_error(str);
-    		        this_actor->weapon=0;
-				}
-		}
-	else this_actor->weapon=0;
-
-	//ok, load the shield
-	if(this_actor->shield_fn[0])
-		{
-			this_actor->shield=(md2*)load_md2_cache(this_actor->shield_fn);
-			if(!this_actor->shield)
-				{
-    		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_weapon,this_actor->shield_fn);
-    		        log_error(str);
-    		        this_actor->shield=0;
-				}
-		}
-	else this_actor->shield=0;
-
-	//ok, load the helmet
-	if(this_actor->helmet_fn[0])
-		{
-			this_actor->helmet=(md2*)load_md2_cache(this_actor->helmet_fn);
-			if(!this_actor->helmet)
-				{
-    		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_helmet,this_actor->helmet_fn);
-    		        log_error(str);
-    		        this_actor->helmet=0;
-				}
-		}
-	else this_actor->helmet=0;
-
-
-	//ok, load the cape
-	if(this_actor->cape_fn[0])
-		{
-			this_actor->cape=(md2*)load_md2_cache(this_actor->cape_fn);
-			if(!this_actor->cape)
-				{
-    		        char str[120];
-    		        sprintf(str,"%s: %s (%s): %s\n",reg_error_str,error_body_part,error_cape,this_actor->cape_fn);
-    		        log_error(str);
-    		        this_actor->cape=0;
-				}
-		}
-	else this_actor->cape=0;
 
 	//get the skin
 	texture_id= load_bmp8_enhanced_actor(this_actor, 255);
@@ -165,12 +65,13 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor->x_rot=0;
 	our_actor->y_rot=0;
 	our_actor->z_rot=z_rot;
+		
 
 	//reset the script related things
-    our_actor->move_x_speed=0;
+    	our_actor->move_x_speed=0;
 	our_actor->move_y_speed=0;
 	our_actor->move_z_speed=0;
-    our_actor->rotate_x_speed=0;
+    	our_actor->rotate_x_speed=0;
 	our_actor->rotate_y_speed=0;
 	our_actor->rotate_z_speed=0;
 	our_actor->movement_frames_left=0;
@@ -178,12 +79,11 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor->rotating=0;
 	our_actor->busy=0;
 	our_actor->last_command=nothing;
+	
 	//clear the que
 	for(k=0;k<10;k++)our_actor->que[k]=nothing;
 
-
-
-	our_actor->model_data=0;
+//	our_actor->model_data=0;
 	my_strcp(our_actor->cur_frame,frame_name);
 	our_actor->stand_idle=0;
 	our_actor->sit_idle=0;
@@ -195,31 +95,49 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 		{
 			if(!actors_list[i])break;
 		}
+	
 	actors_list[i]=our_actor;
+	
 	if(i>=max_actors)max_actors=i+1;
+	
 	no_bounding_box=0;
 	//Will be unlocked later
+	
 	return i;
 }
 
+float cal_get_maxz(actor *act)
+{
+	float points[1024][3];
+	int nrPoints;
+	struct CalSkeleton *skel;
+	float maxz;
+	int i;
+
+	skel=CalModel_GetSkeleton(act->calmodel);
+	nrPoints = CalSkeleton_GetBonePoints(skel,&points[0][0]);
+	maxz=points[0][2];
+	for (i=1;i<nrPoints;++i) if (maxz<points[i][2]) maxz=points[i][2];
+	return maxz;
+}
+		
+
 void draw_enhanced_actor(actor * actor_id)
 {
-	int i;
+	int i=0;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	//int texture_id;
 	char *cur_frame;
 	float healtbar_z=0;
-
 	bind_texture_id(actor_id->texture_id);
 	cur_frame=actor_id->tmp.cur_frame;
 
-	//now, go and find the current frame
-	i=get_frame_number(actor_id->body_parts->head, cur_frame);;
-	if(i >= 0){
-		healtbar_z=actor_id->body_parts->head->offsetFrames[i].box.max_z;
-		if(actor_id->actor_id==yourself)sitting=healtbar_z/2.0f;
+	if (actors_defs[actor_id->actor_type].coremodel!=NULL){
+		healtbar_z=cal_get_maxz(actor_id)+0.2;
 	}
+	
+	if(actor_id->actor_id==yourself)sitting=healtbar_z/2.0f;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->tmp.x_pos;
@@ -240,22 +158,9 @@ void draw_enhanced_actor(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if(actor_id->body_parts->legs)draw_model(actor_id->body_parts->legs,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->torso)draw_model(actor_id->body_parts->torso,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->head)draw_model(actor_id->body_parts->head,cur_frame,actor_id->ghost);
-
-	if(actor_id->body_parts->weapon)
-		{
-			int glow;
-			draw_model(actor_id->body_parts->weapon,cur_frame,actor_id->ghost);
-			glow=actor_id->body_parts->weapon_glow;
-			if(glow!=GLOW_NONE)draw_model_halo(actor_id->body_parts->weapon,cur_frame,glow_colors[glow].r,glow_colors[glow].g,glow_colors[glow].b);
-		}
-
-	if(actor_id->body_parts->shield)draw_model(actor_id->body_parts->shield,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->helmet)draw_model(actor_id->body_parts->helmet,cur_frame,actor_id->ghost);
-	if(actor_id->body_parts->cape)draw_model(actor_id->body_parts->cape,cur_frame,actor_id->ghost);
-
+	if (actors_defs[actor_id->actor_type].coremodel!=NULL) {
+		cal_render_actor(actor_id);
+	} 
 
 	//////
 	glPopMatrix();//restore the scene
@@ -268,8 +173,6 @@ void draw_enhanced_actor(actor * actor_id)
 	draw_actor_banner(actor_id, healtbar_z);
 
 	glPopMatrix();//we don't want to affect the rest of the scene
-	//if(!actor_id->ghost)glEnable(GL_LIGHTING);
-
 }
 
 void unwear_item_from_actor(int actor_id,Uint8 which_part)
@@ -287,8 +190,9 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
 									glDeleteTextures(1,&actors_list[i]->texture_id);
 									actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+																	
 								}
-								actors_list[i]->body_parts->weapon=0;
+								CalModel_DetachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].mesh_index);
 								actors_list[i]->body_parts->weapon_fn[0]=0;
 								actors_list[i]->body_parts->weapon_tex[0]=0;
 								actors_list[i]->cur_weapon = WEAPON_NONE;
@@ -297,7 +201,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 						if(which_part==KIND_OF_SHIELD)
 							{
-								actors_list[i]->body_parts->shield=0;
+							    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->shield_meshindex);
 								actors_list[i]->body_parts->shield_fn[0]=0;
 								actors_list[i]->body_parts->shield_tex[0]=0;
 								return;
@@ -305,7 +209,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 						if(which_part==KIND_OF_CAPE)
 							{
-								actors_list[i]->body_parts->cape=0;
+							    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->cape_meshindex);
 								actors_list[i]->body_parts->cape_fn[0]=0;
 								actors_list[i]->body_parts->cape_tex[0]=0;
 								return;
@@ -313,7 +217,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 						if(which_part==KIND_OF_HELMET)
 							{
-								actors_list[i]->body_parts->helmet=0;
+					     		    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->helmet_meshindex);
 								actors_list[i]->body_parts->helmet_fn[0]=0;
 								actors_list[i]->body_parts->helmet_tex[0]=0;
 								return;
@@ -327,7 +231,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
 	int i;
-
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -340,9 +243,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								}
 								my_strcp(actors_list[i]->body_parts->weapon_tex,actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
 								my_strcp(actors_list[i]->body_parts->weapon_fn,actors_defs[actors_list[i]->actor_type].weapon[which_id].model_name);
-								no_bounding_box=1;
-								actors_list[i]->body_parts->weapon=(md2*)load_md2_cache(actors_list[i]->body_parts->weapon_fn);
-								no_bounding_box=0;
+								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index);
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								actors_list[i]->cur_weapon=which_id;
@@ -355,9 +256,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							{
 								my_strcp(actors_list[i]->body_parts->shield_tex,actors_defs[actors_list[i]->actor_type].shield[which_id].skin_name);
 								my_strcp(actors_list[i]->body_parts->shield_fn,actors_defs[actors_list[i]->actor_type].shield[which_id].model_name);
-								no_bounding_box=1;
-								actors_list[i]->body_parts->shield=(md2*)load_md2_cache(actors_list[i]->body_parts->shield_fn);
-								no_bounding_box=0;
+								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index);
+                                actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								return;
@@ -367,9 +267,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							{
 								my_strcp(actors_list[i]->body_parts->cape_tex,actors_defs[actors_list[i]->actor_type].cape[which_id].skin_name);
 								my_strcp(actors_list[i]->body_parts->cape_fn,actors_defs[actors_list[i]->actor_type].cape[which_id].model_name);
-								no_bounding_box=1;
-								actors_list[i]->body_parts->cape=(md2*)load_md2_cache(actors_list[i]->body_parts->cape_fn);
-								no_bounding_box=0;
+								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index);
+								actors_list[i]->body_parts->cape_meshindex=actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								return;
@@ -379,9 +278,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							{
 								my_strcp(actors_list[i]->body_parts->helmet_tex,actors_defs[actors_list[i]->actor_type].helmet[which_id].skin_name);
 								my_strcp(actors_list[i]->body_parts->helmet_fn,actors_defs[actors_list[i]->actor_type].helmet[which_id].model_name);
-								no_bounding_box=1;
-								actors_list[i]->body_parts->helmet=(md2*)load_md2_cache(actors_list[i]->body_parts->helmet_fn);
-								no_bounding_box=0;
+								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index);
+								actors_list[i]->body_parts->helmet_meshindex=actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								return;
@@ -392,9 +290,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								my_strcp(actors_list[i]->body_parts->arms_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].arms_name);
 								my_strcp(actors_list[i]->body_parts->torso_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].torso_name);
 								my_strcp(actors_list[i]->body_parts->torso_fn,actors_defs[actors_list[i]->actor_type].shirt[which_id].model_name);
-								no_bounding_box=1;
-								actors_list[i]->body_parts->torso=(md2*)load_md2_cache(actors_list[i]->body_parts->torso_fn);
-								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								return;
@@ -403,9 +298,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							{
 								my_strcp(actors_list[i]->body_parts->pants_tex,actors_defs[actors_list[i]->actor_type].legs[which_id].legs_name);
 								my_strcp(actors_list[i]->body_parts->legs_fn,actors_defs[actors_list[i]->actor_type].legs[which_id].model_name);
-								no_bounding_box=1;
-								actors_list[i]->body_parts->legs=(md2*)load_md2_cache(actors_list[i]->body_parts->legs_fn);
-								no_bounding_box=0;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								return;
@@ -474,6 +366,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	cape=*(in_data+20);
 	helmet=*(in_data+21);
 
+	
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -597,7 +490,6 @@ void add_enhanced_actor_from_server(char * in_data)
 #endif
 
 	this_actor=calloc(1,sizeof(enhanced_actor));
-
 	//get the torso
 	my_strcp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name);
 	my_strcp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name);
@@ -613,11 +505,13 @@ void add_enhanced_actor_from_server(char * in_data)
 	//legs
 	my_strcp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name);
 	my_strcp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name);
+
 	//cape
 	if(cape!=CAPE_NONE)
 		{
 			my_strcp(this_actor->cape_tex,actors_defs[actor_type].cape[cape].skin_name);
 			my_strcp(this_actor->cape_fn,actors_defs[actor_type].cape[cape].model_name);
+			
 		}
 	else
 		{
@@ -626,7 +520,7 @@ void add_enhanced_actor_from_server(char * in_data)
 		}
 	//head
 	my_strcp(this_actor->head_fn,actors_defs[actor_type].head[head].model_name);
-
+    
 	//shield
 	if(shield!=SHIELD_NONE)
 		{
@@ -657,13 +551,13 @@ void add_enhanced_actor_from_server(char * in_data)
 			my_strcp(this_actor->helmet_tex,"");
 			my_strcp(this_actor->helmet_fn,"");
 		}
-	i=add_enhanced_actor(this_actor,cur_frame,f_x_pos,f_y_pos,f_z_pos,f_z_rot,actor_id);
 
+	i=add_enhanced_actor(this_actor,cur_frame,f_x_pos,f_y_pos,f_z_pos,f_z_rot,actor_id);
+	
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
 	//The actors list is already locked here
-	
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
 	actors_list[i]->actor_type=actor_type;
@@ -711,12 +605,44 @@ void add_enhanced_actor_from_server(char * in_data)
 #endif
 			if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
 		}
-	UNLOCK_ACTORS_LISTS();  //unlock it
 
+	if (actors_defs[actor_type].coremodel!=NULL) 
+		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+
+	if (actors_defs[actor_type].coremodel!=NULL) {
+		//Setup cal3d model
+		//actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+		//Attach meshes
+		CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].head[head].mesh_index);
+		CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[shirt].mesh_index);
+		CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].legs[pants].mesh_index);
+
+		if (cape!=CAPE_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].cape[cape].mesh_index);
+		if (helmet!=HELMET_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].helmet[helmet].mesh_index);
+		if (weapon!=WEAPON_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].weapon[weapon].mesh_index);
+		if (shield!=SHIELD_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shield[shield].mesh_index);
+
+		actors_list[i]->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[helmet].mesh_index;
+		actors_list[i]->body_parts->cape_meshindex=actors_defs[actor_type].cape[cape].mesh_index;
+		actors_list[i]->body_parts->shield_meshindex=actors_defs[actor_type].shield[shield].mesh_index;
+
+		actors_list[i]->cur_anim.anim_index=-1;
+		actors_list[i]->anim_time=0.0;
+		CalModel_Update(actors_list[i]->calmodel,0);
+	}
+
+	/* //DEBUG
+	if (actors_list[i]->actor_id==yourself) {
+		//actor_wear_item(actors_list[i]->actor_id,KIND_OF_WEAPON,SWORD_1);
+		//unwear_item_from_actor(actors_list[i]->actor_id,KIND_OF_WEAPON);
+		//actor_wear_item(actors_list[i]->actor_id,KIND_OF_WEAPON,SWORD_2);
+		//actor_wear_item(actors_list[i]->actor_id,KIND_OF_HELMET,HELMET_IRON);
+	}*/
+
+	UNLOCK_ACTORS_LISTS();  //unlock it
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-
 }
 
 actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short skin, short hair,
@@ -750,6 +676,27 @@ actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short
 	a->kind_of_actor=HUMAN;
 	
 	strcpy(a->actor_name,"Player");
+	
+	if (actors_defs[actor_type].coremodel!=NULL) 
+		a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+
+	if (actors_defs[actor_type].coremodel!=NULL) {
+		//Setup cal3d model
+		//a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+		//Attach meshes
+		CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].head[head].mesh_index);
+		CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].shirt[shirt].mesh_index);
+		CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].legs[pants].mesh_index);
+
+		a->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[HELMET_NONE].mesh_index;
+		a->body_parts->cape_meshindex=actors_defs[actor_type].cape[CAPE_NONE].mesh_index;
+		a->body_parts->shield_meshindex=actors_defs[actor_type].shield[SHIELD_NONE].mesh_index;
+
+		a->cur_anim.anim_index=-1;
+		a->anim_time=0.0;
+		CalModel_Update(a->calmodel,0);
+	}
+	
 	UNLOCK_ACTORS_LISTS();  //unlock it
 
 	return a;

@@ -56,6 +56,74 @@ unsigned char light_level=58;
 sun sun_pos[60*3];
 short game_minute=60;
 
+int test_point_visible(float x,float y,float z)
+{
+	double MV[16];
+	double PROJ[16];
+	int viewp[4];
+	double winx,winy,winz;
+	float z_value;
+
+	glGetDoublev(GL_MODELVIEW_MATRIX,&MV[0]);
+	glGetDoublev(GL_PROJECTION_MATRIX,&PROJ[0]);
+	glGetIntegerv(GL_VIEWPORT,&viewp[0]);
+
+	gluProject(x,y,z,&MV[0],&PROJ[0],&viewp[0],&winx,&winy,&winz);
+	glReadPixels(winx,winy,1,1,GL_DEPTH_COMPONENT,GL_FLOAT,&z_value);
+	
+	if (winz<z_value) 
+		return 1;
+	else 	return 0;
+}
+
+void render_corona(float x,float y,float z,float r,float g,float b)
+{
+	float i;
+	int res;
+
+	res=0;
+	for (i=-0.1;i<0.1;i=i+0.2) {
+		if (test_point_visible(x,y,z+i)) res=1;
+	}
+	
+	if (!res) return;
+
+	glColor3f(r,g,b);
+	glPushMatrix();
+	glTranslatef(x,y,z);
+	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
+	glRotatef(-rx, 1.0f, 0.0f, 0.0f);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0,0);glVertex3f(-2,2,0);
+	glTexCoord2f(1,0);glVertex3f(2,2,0);
+	glTexCoord2f(1,1);glVertex3f(2,-2,0);
+	glTexCoord2f(0,1);glVertex3f(-2,-2,0);
+	glEnd();
+	glPopMatrix();
+}
+
+void render_coronas()
+{
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_COLOR,GL_ONE);
+	get_and_set_texture_id(particle_textures[0]);
+
+	render_corona(light_0_position[0],light_0_position[1],light_0_position[2],1,1,1);
+	render_corona(light_1_position[0],light_1_position[1],light_1_position[2],1,1,1);
+	render_corona(light_2_position[0],light_2_position[1],light_2_position[2],1,1,1);
+	render_corona(light_3_position[0],light_3_position[1],light_3_position[2],1,1,1);
+	render_corona(light_4_position[0],light_4_position[1],light_4_position[2],1,1,1);
+	render_corona(light_5_position[0],light_5_position[1],light_5_position[2],1,1,1);
+	render_corona(light_6_position[0],light_6_position[1],light_6_position[2],1,1,1);
+
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
+
+
+
 void disable_local_lights()
 {
     glDisable(GL_LIGHT0);
@@ -621,6 +689,7 @@ void new_minute()
 	ERR();
 #endif
 	//morning starts at 0
+	game_minute=90;
 	//is it morning?
 	if(game_minute<60)light_level=game_minute+60;
 	//check to see if it is full day
@@ -645,8 +714,9 @@ void new_minute()
 		{
 			is_day=0;
 			enable_local_lights();
-			sun_position[0]=sun_position[1]=sun_position[2]=0.0;
+	    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
 		}
+
 }
 
 /* currently UNUSED

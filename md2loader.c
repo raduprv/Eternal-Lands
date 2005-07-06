@@ -3,6 +3,8 @@
 #include <string.h>
 #include "global.h"
 
+#ifdef FILE_TO_BE_REMOVED
+
 int md2_mem_used;
 
 md2 * load_md2(char * file_name);
@@ -359,3 +361,4 @@ void destroy_md2(md2 *md2_ptr)
 	free_md2(md2_ptr);
 }
 
+#endif

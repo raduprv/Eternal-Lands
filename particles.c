@@ -530,26 +530,31 @@ void draw_text_particle_sys(particle_sys *system_id)
 	CHECK_GL_ERRORS();
 	get_and_set_texture_id(particle_textures[system_id->def->part_texture]);
 
-	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i++,p++)
+	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i=i+5,p=p+5)
 		{
 			if(!p->free)
 				{
+					glPushMatrix();
+					glTranslatef(p->x,p->y,p->z);
+					glScalef((1-p->a*0.4)*7,(1-p->a*0.4)*7,(1-p->a*0.4)*7);
+					glRotatef(p->a*1000.0,0,1,0);
 					glBegin(GL_TRIANGLE_STRIP);
 					glColor4f(p->r,p->g,p->b,p->a);
 
 					glTexCoord2f(0.0f,1.0f);
-					glVertex3f(p->x-x_len,p->y-y_len,p->z+z_len);
+					glVertex3f(-x_len,-y_len,+z_len);
 
 					glTexCoord2f(0.0f,0.0f);
-					glVertex3f(p->x-x_len,p->y-y_len,p->z-z_len);
+					glVertex3f(-x_len,-y_len,-z_len);
 
 					glTexCoord2f(1.0f,1.0f);
-					glVertex3f(p->x+x_len,p->y+y_len,p->z+z_len);
+					glVertex3f(x_len,y_len,+z_len);
 
 					glTexCoord2f(1.0f,0.0f);
-					glVertex3f(p->x+x_len,p->y+y_len,p->z-z_len);
+					glVertex3f(x_len,y_len,-z_len);
 
 					glEnd();
+					glPopMatrix();
 				}
 		}
 	UNLOCK_PARTICLES_LIST();	// release now that we are done

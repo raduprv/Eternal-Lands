@@ -43,21 +43,12 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	int texture_id;
 	int i;
 	int k;
-	md2 *returned_md2;
 	actor *our_actor;
 
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
 	
-	returned_md2=load_md2_cache(file_name);
-	if(!returned_md2)
-		{
-			char str[120];
-			sprintf(str,"%s: %s: %s\n",reg_error_str,cant_load_actor,file_name);
-			log_error(str);
-			return -1;
-		}
 	if(!remappable)texture_id=load_texture_cache(skin_name,150);
 	else
 		{
@@ -101,9 +92,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	//clear the que
 	for(k=0;k<10;k++)our_actor->que[k]=nothing;
 
-
-
-	our_actor->model_data=returned_md2;
+//	our_actor->model_data=returned_md2;
 	our_actor->texture_id=texture_id;
 	my_strcp(our_actor->cur_frame,frame_name);
 	my_strcp(our_actor->skin_name,skin_name);
@@ -158,7 +147,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	float healtbar_x_len_loss=0;
 	float healtbar_x_loss_fade=1.0f;
 	float healtbar_z_len=0.05f*zoom_level/3.0f;
-
+	char temp[255];
 	// are we activley drawing?
 	if(SDL_GetAppState()&SDL_APPACTIVE){
 		if(use_shadow_mapping)
@@ -294,7 +283,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						} else if(actor_id->is_enhanced_model && (actor_id->kind_of_actor==PKABLE_HUMAN || actor_id->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)) glColor3f(1.0f,0.0f,0.0f);
 						else glColor3f(1.0f,1.0f,0.0f);
 						//draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
-						DRAW_INGAME_SMALL(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1);
+						strcpy(temp,actor_id->actor_name);
+						if (actors_defs[actor_id->actor_type].coremodel!=NULL) strcat(temp," <CAL>");
+						DRAW_INGAME_SMALL(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),temp,1);
 					}
 				if(view_hp && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC))
 					{
@@ -420,228 +411,20 @@ void draw_actor_overtext( actor* actor_ptr )
 	}
 }
 
-
-//Always lock the actor mutex before entering this function...
-int get_frame_number(const md2 *model_data, const char *cur_frame)
+float cal_get_maxz2(actor *act)
 {
-	Uint32 frame;
-	Uint8 str[256];
+	float points[1024][3];
+	int nrPoints;
+	struct CalSkeleton *skel;
+	float maxz;
+	int i;
 
-	for(frame=0; frame < model_data->numFrames; frame++)
-		{
-			if (!strcmp(cur_frame, (char *)&model_data->offsetFrames[frame].name))
-				{
-					return frame;
-				}
-		}
-	snprintf(str, 256, "%s: %s: %s\n",reg_error_str,cant_find_frame,cur_frame);
-	log_error(str);
-
-	for(frame=0; frame < model_data->numFrames; frame++)
-		{
-			if(!strcmp("idle01", (char *)&model_data->offsetFrames[frame].name))
-				{
-					return frame;
-				}
-		}
-	snprintf(str, 256, "%s: %s: %s\n",reg_error_str,cant_find_frame,"idle01");
-	log_error(str);
-
-	return -1;
+	skel=CalModel_GetSkeleton(act->calmodel);
+	nrPoints = CalSkeleton_GetBonePoints(skel,&points[0][0]);
+	maxz=points[0][2];
+	for (i=1;i<nrPoints;++i) if (maxz<points[i][2]) maxz=points[i][2];
+	return maxz;
 }
-
-
-
-void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
-{
-	int frame;
-	int numFaces;
-	int k;
-
-	//glDisable(GL_CULL_FACE);
-	glDisable(GL_TEXTURE_2D);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_SRC_ALPHA);
-	glDisable(GL_LIGHTING);
-
-	glColor4f(r,g,b,0.99f);
-
-	glPushMatrix();
-
-	for(k=0;k<2;k++)
-		{
-				//glScalef(1.01f+0.01f*(float)k, 1.01f+0.01f*(float)k, 1.01f+0.01f*(float)k);
-				glScalef(0.98f+0.05f*(float)k, 0.98f+0.05f*(float)k, 0.98f+0.05f*(float)k);
-
-				frame = get_frame_number(model_data, cur_frame);
-				if(frame < 0)	return;
-				//track the usage
-				cache_use(cache_md2, model_data->cache_ptr);
-				if(!(SDL_GetAppState()&SDL_APPACTIVE)) continue;	// not actually drawing, fake it
-
-				numFaces=model_data->numFaces;
-				if(use_vertex_array > 0)
-					{
-						//TODO: smarter decision making and maybe trigger cleanup?
-						if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
-							{
-								build_md2_va(model_data, &model_data->offsetFrames[frame]);
-							}
-					}
-				// determine the drawing method
-				if(use_vertex_array > 0 && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
-					{
-						glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
-						glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
-
-						//CHECK_GL_ERRORS();
-						if(have_compiled_vertex_array)ELglLockArraysEXT(0, numFaces*3);
-						glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
-						if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-					}
-				else
-					{
-						int i;
-						text_coord_md2 *offsetTexCoords;
-						face_md2 *offsetFaces;
-						vertex_md2 *vertex_pointer=NULL;
-						//setup
-						glBegin(GL_TRIANGLES);
-						vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
-						offsetFaces=model_data->offsetFaces;
-						offsetTexCoords=model_data->offsetTexCoords;
-						//draw each triangle
-						for(i=0;i<numFaces;i++)
-							{
-								float x,y,z;
-
-								x=vertex_pointer[offsetFaces[i].a].x;
-								y=vertex_pointer[offsetFaces[i].a].y;
-								z=vertex_pointer[offsetFaces[i].a].z;
-								glVertex3f(x,y,z);
-
-								x=vertex_pointer[offsetFaces[i].b].x;
-								y=vertex_pointer[offsetFaces[i].b].y;
-								z=vertex_pointer[offsetFaces[i].b].z;
-								glVertex3f(x,y,z);
-
-								x=vertex_pointer[offsetFaces[i].c].x;
-								y=vertex_pointer[offsetFaces[i].c].y;
-								z=vertex_pointer[offsetFaces[i].c].z;
-								glVertex3f(x,y,z);
-							}
-						glEnd();
-					}
-				//CHECK_GL_ERRORS();
-		}
-	CHECK_GL_ERRORS();
-
-	glPopMatrix();
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-	glEnable(GL_LIGHTING);
-	//glEnable(GL_CULL_FACE);
-}
-
-
-
-void draw_model(md2 *model_data,char *cur_frame, int ghost)
-{
-	int frame;
-	int numFaces;
-	
-	frame = get_frame_number(model_data, cur_frame);
-	if(frame < 0)	return;
-	//track the usage
-	cache_use(cache_md2, model_data->cache_ptr);
-	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
-
-	numFaces=model_data->numFaces;
-	CHECK_GL_ERRORS();
-	glColor3f(1.0f, 1.0f, 1.0f);
-	if(use_vertex_array > 0)
-		{
-			//TODO: smarter decision making and maybe trigger cleanup?
-			if(!model_data->text_coord_array || !model_data->offsetFrames[frame].vertex_array)
-				{
-					build_md2_va(model_data, &model_data->offsetFrames[frame]);
-				}
-		}
-	// determine the drawing method
-	if(use_vertex_array > 0 && model_data->text_coord_array && model_data->offsetFrames[frame].vertex_array)
-		{
-			glTexCoordPointer(2,GL_FLOAT,0,model_data->text_coord_array);
-			glVertexPointer(3,GL_FLOAT,0,model_data->offsetFrames[frame].vertex_array);
-
-			//CHECK_GL_ERRORS();
-			if(have_compiled_vertex_array)ELglLockArraysEXT(0, numFaces*3);
-			glDrawArrays(GL_TRIANGLES, 0, numFaces*3);
-			if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-		}
-	else
-		{
-			int i;
-			text_coord_md2 *offsetTexCoords;
-			face_md2 *offsetFaces;
-			vertex_md2 *vertex_pointer=NULL;
-			//setup
-			glBegin(GL_TRIANGLES);
-			vertex_pointer=model_data->offsetFrames[frame].vertex_pointer;
-			offsetFaces=model_data->offsetFaces;
-			offsetTexCoords=model_data->offsetTexCoords;
-			//draw each triangle
-			if(have_multitexture)
-				for(i=0;i<numFaces;i++)
-					{
-						float x,y,z;
-
-						ELglMultiTexCoord2fARB(base_unit,offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
-						x=vertex_pointer[offsetFaces[i].a].x;
-	       					y=vertex_pointer[offsetFaces[i].a].y;
-						z=vertex_pointer[offsetFaces[i].a].z;
-						glVertex3f(x,y,z);
-
-						ELglMultiTexCoord2fARB(base_unit,offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
-						x=vertex_pointer[offsetFaces[i].b].x;
-						y=vertex_pointer[offsetFaces[i].b].y;
-						z=vertex_pointer[offsetFaces[i].b].z;
-						glVertex3f(x,y,z);
-
-						ELglMultiTexCoord2fARB(base_unit,offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
-						x=vertex_pointer[offsetFaces[i].c].x;
-						y=vertex_pointer[offsetFaces[i].c].y;
-						z=vertex_pointer[offsetFaces[i].c].z;
-						glVertex3f(x,y,z);
-					}
-			else
-				for(i=0;i<numFaces;i++)
-					{
-						float x,y,z;
-
-						glTexCoord2f(offsetTexCoords[offsetFaces[i].at].u,offsetTexCoords[offsetFaces[i].at].v);
-						x=vertex_pointer[offsetFaces[i].a].x;
-	       					y=vertex_pointer[offsetFaces[i].a].y;
-						z=vertex_pointer[offsetFaces[i].a].z;
-						glVertex3f(x,y,z);
-
-						glTexCoord2f(offsetTexCoords[offsetFaces[i].bt].u,offsetTexCoords[offsetFaces[i].bt].v);
-						x=vertex_pointer[offsetFaces[i].b].x;
-						y=vertex_pointer[offsetFaces[i].b].y;
-						z=vertex_pointer[offsetFaces[i].b].z;
-						glVertex3f(x,y,z);
-
-						glTexCoord2f(offsetTexCoords[offsetFaces[i].ct].u,offsetTexCoords[offsetFaces[i].ct].v);
-						x=vertex_pointer[offsetFaces[i].c].x;
-						y=vertex_pointer[offsetFaces[i].c].y;
-						z=vertex_pointer[offsetFaces[i].c].z;
-						glVertex3f(x,y,z);
-					}
-			glEnd();
-		}
-	CHECK_GL_ERRORS();
-}
-
 
 void draw_actor(actor * actor_id)
 {
@@ -659,8 +442,11 @@ void draw_actor(actor * actor_id)
 	bind_texture_id(texture_id);
 
 	//now, go and find the current frame
-	i=get_frame_number(actor_id->model_data, actor_id->tmp.cur_frame);
-	if(i >= 0)healtbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
+	//i=get_frame_number(actor_id->model_data, actor_id->tmp.cur_frame);
+	//if(i >= 0)healtbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
+	if (actors_defs[actor_id->actor_type].coremodel!=NULL){
+		healtbar_z=cal_get_maxz2(actor_id)+0.2;
+	}
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->tmp.x_pos;
@@ -676,15 +462,26 @@ void draw_actor(actor * actor_id)
 	y_rot=actor_id->tmp.y_rot;
 	z_rot=-actor_id->tmp.z_rot;
 	
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+	//glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
+	//glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
+	//glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-#ifdef CAL3D
-	render_cal3d_model(actor_id);
-#else
-	draw_model(actor_id->model_data, actor_id->cur_frame, actor_id->ghost);
-#endif
+
+	if (actors_defs[actor_id->actor_type].coremodel!=NULL) {
+		glPushMatrix();
+		z_rot+=180;//test
+		glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
+		glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
+		glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+		cal_render_actor(actor_id);
+		glPopMatrix();
+	} else {
+		glPushMatrix();
+		glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
+		glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
+		glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+		glPopMatrix();
+	}
 
 	glPopMatrix();//restore the scene
 	//now, draw their damage & nametag
@@ -958,8 +755,18 @@ void add_actor_from_server(char * in_data)
 			log_error(str);
 		}
 	else my_strncp(actors_list[i]->actor_name,&in_data[23],30);
-	UNLOCK_ACTORS_LISTS();	//unlock it
-	
+
+	if (actors_defs[actor_type].coremodel!=NULL) {
+		//Setup cal3d model
+		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+		//Attach meshes
+		CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[(int)shirt].mesh_index);
+		CalModel_Update(actors_list[i]->calmodel,0);
+		actors_list[i]->cur_anim.anim_index=-1;
+		actors_list[i]->IsOnIdle=0;
+	}
+
+	UNLOCK_ACTORS_LISTS();	//unlock it	
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif

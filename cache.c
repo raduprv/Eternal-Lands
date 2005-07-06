@@ -17,7 +17,6 @@
 
 cache_struct	*cache_system=NULL;
 
-cache_struct	*cache_md2=NULL;
 cache_struct	*cache_e3d=NULL;
 
 texture_cache_struct texture_cache[1000];

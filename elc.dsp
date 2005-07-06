@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /Gi /GX /O2 /D "NDEBUG" /D "WIN32" /D "WINDOWS" /D "ELC" /D "LOAD_XML" /D "NEW_STRUCTURE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /Gi /GX /O2 /D "NDEBUG" /D "WIN32" /D "WINDOWS" /D "ELC" /D "LOAD_XML" /D "NEW_STRUCTURE" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 shell32.lib libxml2.lib vorbisfile.lib user32.lib SDL_net.lib kernel32.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib iconv.lib /nologo /subsystem:windows /profile /machine:I386 /out:"C:\cygwin\EL\elc\Debug\elc.exe"
+# ADD LINK32 shell32.lib libxml2.lib vorbisfile.lib user32.lib SDL_net.lib kernel32.lib opengl32.lib SDL.lib ALut.lib OpenAL32.lib iconv.lib Cal3d.lib glu32.lib /nologo /subsystem:windows /profile /machine:I386 /out:"C:\Eternal Lands\EternalLands.exe"
 
 !ELSEIF  "$(CFG)" == "elc - Win32 Debug"
 
@@ -202,6 +202,10 @@ SOURCE=.\cache.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\cal.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\chat.c
 # End Source File
 # Begin Source File
@@ -233,6 +237,10 @@ SOURCE=.\console.c
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=.\consolewin.c
 # End Source File
 # Begin Source File
 
@@ -389,6 +397,10 @@ SOURCE=.\gamewin.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\gamewin.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\gl_init.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"
@@ -522,6 +534,10 @@ SOURCE=.\loginwin.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\loginwin.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\main.c
 
 !IF  "$(CFG)" == "elc - Win32 Release"
@@ -571,18 +587,7 @@ SOURCE=.\mapwin.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\md2loader.c
-
-!IF  "$(CFG)" == "elc - Win32 Release"
-
-# ADD CPP /w /W0 /D "_CONFIGCP_Win32_20Release" /D "_PRJCP_elc_2Evprj"
-
-!ELSEIF  "$(CFG)" == "elc - Win32 Debug"
-
-# ADD CPP /w /W0 /D "_CONFIGCP_Win32_20Debug" /D "_PRJCP_elc_2Evprj"
-
-!ENDIF 
-
+SOURCE=.\mapwin.c
 # End Source File
 # Begin Source File
 
@@ -658,6 +663,10 @@ SOURCE=.\new_character.c
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=.\openingwin.c
 # End Source File
 # Begin Source File
 
@@ -949,6 +958,14 @@ SOURCE=.\cache.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\cal.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\cal_types.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\chat.h
 # End Source File
 # Begin Source File
@@ -1062,10 +1079,6 @@ SOURCE=.\manufacture.h
 # Begin Source File
 
 SOURCE=.\map_io.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\md2.h
 # End Source File
 # Begin Source File
 

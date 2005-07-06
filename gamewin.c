@@ -593,6 +593,21 @@ int display_game_handler (window_info *win)
 	// are we actively drawing things?
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
+		//Update Cal animations		
+		for(i=0;i<max_actors;i++)
+		{
+			if(actors_list[i] && actors_list[i]->tmp.have_tmp)
+			{
+				if (actors_defs[actors_list[i]->actor_type].coremodel!=NULL)
+				{
+				actors_list[i]->anim_time=actors_list[i]->anim_time+(cur_time-last_time)/1000.0;
+				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_time)/1000.0));
+				}
+			}
+			
+		}
+		
+		
 		//now, determine the current weather light level
 		get_weather_light_level ();
 
@@ -611,7 +626,7 @@ int display_game_handler (window_info *win)
 		//check for network data
 		get_message_from_server ();
 
-		glEnable (GL_FOG);
+//		glEnable (GL_FOG);
 		if (any_reflection > 1)
 		{
 		  	if (!dungeon)
@@ -714,6 +729,17 @@ int display_game_handler (window_info *win)
 	}
 	if (show_fps)
 	{
+		actor * me = pf_get_our_actor();
+
+		if(me){
+ 			sprintf(str,"Busy: %i",me->busy);
+ 			glColor3f (1.0f, 1.0f, 1.0f);
+	 		draw_string (400, 0, str, 1);
+			sprintf(str,"Command: %i",me->last_command);
+ 			glColor3f (1.0f, 1.0f, 1.0f);
+ 			draw_string (400, 20, str, 1);
+		}
+
 		sprintf (str, "FPS: %i", fps[0]);
 		glColor3f (1.0f, 1.0f, 1.0f);
 		draw_string (win->len_x-hud_x-95, win->len_y-hud_y-25, str, 1);

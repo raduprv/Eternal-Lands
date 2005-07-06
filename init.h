@@ -138,6 +138,8 @@ extern int poor_man; /*!< this flag, if set to true, indicates we are running on
 extern int show_reflection; /*!< flag that indicates whether to display reflections or not */
 extern int mouse_limit;
 extern int show_fps; /*!< flag that indicates whether to display FPS or not */
+extern int render_skeleton;
+extern int render_mesh;
 extern int limit_fps; /*!< contains the max FPS number we should use. If this is 0, the highest possible number will be used. */
 extern int item_window_on_drop;
 extern int no_adjust_shadows;

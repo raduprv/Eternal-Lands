@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include "global.h"
+#include <time.h>
 
 // Element type and dictionaries for actor definitions
 typedef struct {
@@ -242,6 +243,60 @@ const dict_elem head_number_dict[] =
 	  { NULL, -1      }
 	};
 
+//Forward declarations
+int cal_load_weapon_mesh(actor_types *act,char *fn);
+int cal_load_mesh(actor_types *act,char *fn);
+
+void cal_actor_set_random_idle(int id)
+{
+	struct CalMixer *mixer;
+	int i;
+	int random_anim;
+	int random_anim_index;
+	
+	if (actors_defs[actors_list[id]->actor_type].coremodel==NULL) return;
+	//LOG_TO_CONSOLE(c_green2,"Randomizing");
+	//if (actors_list[id]->cur_anim.anim_index==anim.anim_index) return;
+	srand( (unsigned)time( NULL ) );
+	mixer=CalModel_GetMixer(actors_list[id]->calmodel);
+	//Stop previous animation if needed
+	if (actors_list[id]->IsOnIdle!=1){
+		if ((actors_list[id]->cur_anim.anim_index!=-1)&&(actors_list[id]->cur_anim.kind==0)) {
+			CalMixer_ClearCycle(mixer,actors_list[id]->cur_anim.anim_index,0.05);
+		}
+		if ((actors_list[id]->cur_anim.anim_index!=-1)&&(actors_list[id]->cur_anim.kind==1)) {
+			CalMixer_RemoveAction(mixer,actors_list[id]->cur_anim.anim_index);
+		}
+	}
+
+	for (i=0;i<actors_defs[actors_list[id]->actor_type].group_count;++i) {
+		random_anim=rand()%(actors_defs[actors_list[id]->actor_type].idle_group[i].count+1);
+		if (random_anim<actors_defs[actors_list[id]->actor_type].idle_group[i].count) random_anim_index=actors_defs[actors_list[id]->actor_type].idle_group[i].anim[random_anim].anim_index;
+		else random_anim_index=-1;
+		if (actors_list[id]->IsOnIdle==1) {
+			if (actors_list[id]->cur_idle_anims[i].anim_index!=random_anim_index) 
+			CalMixer_ClearCycle(mixer,actors_list[id]->cur_idle_anims[i].anim_index,2.0);
+		}
+		if (actors_list[id]->cur_idle_anims[i].anim_index!=random_anim_index) 
+			if (random_anim_index>=0) CalMixer_BlendCycle(mixer,random_anim_index,0.5,0.05);
+		//sprintf(str,"%d",random_anim);
+		//LOG_TO_CONSOLE(c_green2,str);
+		actors_list[id]->cur_idle_anims[i].anim_index=random_anim_index;
+		//anim.anim_index,1.0,0.05);else
+	}
+	
+	//if (anim.kind==0) CalMixer_BlendCycle(mixer,anim.anim_index,1.0,0.05);else
+	//CalMixer_ExecuteAction(mixer,anim.anim_index,0.0,0.0);
+	//actors_list[id]->cur_anim=anim;
+	//actors_list[id]->anim_time=0.0;
+	CalModel_Update(actors_list[id]->calmodel,0.0001);//Make changes take effect now
+	actors_list[id]->IsOnIdle=1;
+	actors_list[id]->cur_anim.duration=0;
+	actors_list[id]->anim_time=0.0;
+	actors_list[id]->cur_anim.anim_index=-1;
+	//if (actors_list[id]->cur_anim.anim_index==-1) actors_list[id]->busy=0;
+}
+
 
 float unwindAngle_Degrees( float fAngle )
 {
@@ -262,119 +317,10 @@ float get_rotation_vector( float fStartAngle, float fEndAngle )
 	else return -ccw;
 }
 
-
-void move_to_next_frame()
-{
-	int i,l,k;
-	char frame_name[16];
-	char frame_number[3];
-	int frame_no;
-	int numFrames;
-	char frame_exists;
-
-	LOCK_ACTORS_LISTS();
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i]!=0)
-				{
-					//clear the strings
-					for(k=0;k<16;k++)frame_name[k]=0;
-					for(k=0;k<3;k++)frame_number[k]=0;
-
-					//now see if we can find that frame
-					if(!actors_list[i]->is_enhanced_model)
-						numFrames=actors_list[i]->model_data->numFrames;
-					else
-						numFrames=actors_list[i]->body_parts->head->numFrames;
-
-					//first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
-					if(actors_list[i]->damage_ms)
-						{
-							actors_list[i]->damage_ms-=80;
-							if(actors_list[i]->damage_ms<0)actors_list[i]->damage_ms=0;
-						}
-					//get the frame number out of the frame name
-					l=strlen(actors_list[i]->cur_frame);
-					if(l<2)//Perhaps this is the bug we've been looking for all along?
-#ifndef EXTRA_DEBUG
-						continue;
-#else
-						{
-							continue;
-							ERR();
-						}
-#endif
-					frame_no=atoi(&actors_list[i]->cur_frame[l-2]);
-					//get the frame name
-					for(k=0;k<l-2;k++)frame_name[k]=actors_list[i]->cur_frame[k];
-					//increment the frame_no
-					frame_no++;
-					//9 frames, not moving, and another command is queued farther on (based on how long we've done this action)
-					if(frame_no > 9 && !actors_list[i]->moving && !actors_list[i]->rotating)
-						{
-							//if(actors_list[i]->que[0]!=nothing)
-							if(actors_list[i]->que[(frame_no<35?7-(frame_no/5):0)]!=nothing)
-							//(actors_list[i]->que[(frame_no<63?7-(frame_no/9):0)]!=nothing)
-							{
-								actors_list[i]->stop_animation=1;	//force stopping, not looping
-								actors_list[i]->busy=0;	//ok, take the next command
-							}
-						}
-
-					//transform back into string
-					frame_number[0]=(unsigned int)48+frame_no/10;
-					frame_number[1]=(unsigned int)48+frame_no%10;
-					//create the name of the next frame to look for
-					my_strcat(frame_name,frame_number);
-
-					frame_exists=0;
-					for(k=0;k<numFrames;k++)
-						{
-							if(!actors_list[i]->is_enhanced_model)
-								{
-									if(strcmp(frame_name,actors_list[i]->model_data->offsetFrames[k].name)==0)
-										{
-											frame_exists=1;
-											break;
-										}
-								}
-							else
-								{
-									if(strcmp(frame_name,actors_list[i]->body_parts->head->offsetFrames[k].name)==0)
-										{
-											frame_exists=1;
-											break;
-										}
-								}
-						}
-
-					if(!frame_exists)//frame doesn't exist, move at the beginning of animation
-						{
-							if(actors_list[i]->stop_animation)
-								{
-									actors_list[i]->busy=0;//ok, take the next command
-									continue;//we are done with this guy
-								}
-							else
-								{
-									//frame_name has 2 extra numbers, at this point, due to the previous
-									//strcat. So, remove those 2 extra numbers
-									l=strlen(frame_name);
-									if(l<2)continue;
-									frame_name[l-2]=0;
-									my_strcat(frame_name,"01");
-								}
-						}
-					
-					sprintf(actors_list[i]->cur_frame, "%s",frame_name);
-				}
-		}
-	UNLOCK_ACTORS_LISTS();
-}
-
 void animate_actors()
 {
 	int i;
+	char str[255];
 	// lock the actors_list so that nothing can interere with this look
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++)
@@ -445,7 +391,19 @@ void animate_actors()
 							if(actors_list[i]->after_move_frames_left)
 								{
 									actors_list[i]->after_move_frames_left--;
-									if(!actors_list[i]->after_move_frames_left)actors_list[i]->busy=0;
+									if (actors_list[i]->actor_id==yourself) 
+									{
+									sprintf(str,"Left: %d",actors_list[i]->after_move_frames_left);
+									}
+									if(!actors_list[i]->after_move_frames_left)
+									{
+										//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Free");
+										actors_list[i]->busy=0;
+										
+									}
+
+
+
 
 								}
 						}
@@ -469,6 +427,93 @@ void animate_actors()
 
 
 
+int coun=0;
+void move_to_next_frame()
+{
+	int i,l,k;
+	char frame_name[16];
+	char frame_number[3];
+	int frame_no;
+	int numFrames=0;
+	char frame_exists;
+	struct CalMixer *mixer;
+	char str[255];
+
+	LOCK_ACTORS_LISTS();
+	for(i=0;i<max_actors;i++) {
+		if(actors_list[i]!=0) {
+			if (actors_defs[actors_list[i]->actor_type].coremodel!=NULL) {
+				if ((actors_list[i]->stop_animation==1)&&(actors_list[i]->anim_time>=actors_list[i]->cur_anim.duration)){
+					actors_list[i]->busy=0;
+				}
+			}
+
+			if ((actors_list[i]->IsOnIdle)&&(actors_list[i]->anim_time>=5.0)&&(actors_list[i]->stop_animation!=1)) {
+				cal_actor_set_random_idle(i);
+			}
+			
+			if (actors_list[i]->cur_anim.anim_index==-1) actors_list[i]->busy=0;
+			} else actors_list[i]->busy=0;
+
+			//clear the strings
+			for(k=0;k<16;k++)frame_name[k]=0;
+			for(k=0;k<3;k++)frame_number[k]=0;
+
+			//first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
+			if(actors_list[i]->damage_ms) {
+				actors_list[i]->damage_ms-=80;
+				if(actors_list[i]->damage_ms<0)actors_list[i]->damage_ms=0;
+			}
+			
+			//get the frame number out of the frame name
+			l=strlen(actors_list[i]->cur_frame);
+			if(l<2)//Perhaps this is the bug we've been looking for all along?
+#ifndef EXTRA_DEBUG
+				continue;
+#else
+				{
+					continue;
+					ERR();
+				}
+#endif
+			frame_no=atoi(&actors_list[i]->cur_frame[l-2]);
+			//get the frame name
+			for(k=0;k<l-2;k++)frame_name[k]=actors_list[i]->cur_frame[k];
+			//increment the frame_no
+			frame_no++;
+			//9 frames, not moving, and another command is queued farther on (based on how long we've done this action)
+			if(frame_no > 9 && !actors_list[i]->moving && !actors_list[i]->rotating){
+				//if(actors_list[i]->que[0]!=nothing)
+				if(actors_list[i]->que[(frame_no<35?7-(frame_no/5):0)]!=nothing)
+				//(actors_list[i]->que[(frame_no<63?7-(frame_no/9):0)]!=nothing)
+					{
+						actors_list[i]->stop_animation=1;	//force stopping, not looping
+						actors_list[i]->busy=0;	//ok, take the next command
+						LOG_TO_CONSOLE(c_green2,"FREE");
+					}
+				}
+
+			//transform back into string
+			frame_number[0]=(unsigned int)48+frame_no/10;
+			frame_number[1]=(unsigned int)48+frame_no%10;
+			//create the name of the next frame to look for
+			my_strcat(frame_name,frame_number);
+
+			if(actors_list[i]->stop_animation) continue;//we are done with this guy
+			else {
+				//frame_name has 2 extra numbers, at this point, due to the previous
+				//strcat. So, remove those 2 extra numbers
+				l=strlen(frame_name);
+				if(l<2)continue;
+				frame_name[l-2]=0;
+				my_strcat(frame_name,"01");
+			}
+					
+			sprintf(actors_list[i]->cur_frame, "%s",frame_name);
+	}
+	UNLOCK_ACTORS_LISTS();
+}
+
 //in case the actor is not busy, and has commands in it's que, execute them
 void next_command()
 {
@@ -491,6 +536,7 @@ void next_command()
 									if(actors_list[i]->fighting)
 										{
 											my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].combat_idle_frame);
+											cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_combat_idle_frame);
 										}
 
 									else if(!actors_list[i]->sitting)
@@ -498,6 +544,13 @@ void next_command()
 											if(!actors_list[i]->sit_idle)
 												{
 													my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_frame);
+													if (actors_defs[actors_list[i]->actor_type].group_count==0) cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle_frame);//normal idle
+													else// complex idles
+													{
+														cal_actor_set_random_idle(i);
+														actors_list[i]->IsOnIdle=1;
+													}
+												
 													actors_list[i]->sit_idle=1;
 												}
 										}
@@ -506,6 +559,7 @@ void next_command()
 											if(!actors_list[i]->stand_idle)
 												{
 													my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_sit_frame);
+													cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle_sit_frame);
 													actors_list[i]->stand_idle=1;
 												}
 										}
@@ -536,51 +590,66 @@ void next_command()
 								break;			
 							case die1:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
+								cal_actor_set_anim(i,actors_defs[actor_type].cal_die1_frame);
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->dead=1;
 								break;
 							case die2:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die2_frame);
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_die2_frame);
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->dead=1;
 								break;
 							case pain1:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain1_frame);
+								cal_actor_set_anim(i,actors_defs[actor_type].cal_pain1_frame);
 								actors_list[i]->stop_animation=1;
 								break;
 							case pain2:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain2_frame);
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_pain2_frame);
 								actors_list[i]->stop_animation=1;
 								break;
 							case pick:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pick_frame);
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_pick_frame);
 								actors_list[i]->stop_animation=1;
 								break;
 							case drop:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].drop_frame);
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_drop_frame);
 								actors_list[i]->stop_animation=1;
 								break;
 							case harvest:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].harvest_frame);
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_harvest_frame);
 								actors_list[i]->stop_animation=1;
+								LOG_TO_CONSOLE(c_green2,"Harvesting!");
 								break;
 							case cast:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_cast_frame);
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_attack_cast_frame);
 								actors_list[i]->stop_animation=1;
 								break;
 							case ranged:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_ranged_frame);
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_attack_ranged_frame);
 								actors_list[i]->stop_animation=1;
 								break;
 							case sit_down:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].sit_down_frame);
+								cal_actor_set_anim(i,actors_defs[actor_type].cal_sit_down_frame);
+								//cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
+								//cal_actor_set_anim(i,actors_defs[actor_type].cal_in_combat_frame);
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->sitting=1;
 								if(actors_list[i]->actor_id==yourself)
 									you_sit_down();
 								break;
 							case stand_up:
+								//LOG_TO_CONSOLE(c_green2,"stand_up");
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].stand_up_frame);
+								cal_actor_set_anim(i,actors_defs[actor_type].cal_stand_up_frame);
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->sitting=0;
 								if(actors_list[i]->actor_id==yourself)
@@ -588,57 +657,112 @@ void next_command()
 								break;
 							case enter_combat:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].in_combat_frame);
+								cal_actor_set_anim(i,actors_defs[actor_type].cal_in_combat_frame);
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->fighting=1;
+								//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Enter Combat");
 								break;
 							case leave_combat:
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].out_combat_frame);
+								cal_actor_set_anim(i,actors_defs[actor_type].cal_out_combat_frame);
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->fighting=0;
 								break;
 							case attack_up_1:
 								if(actors_list[i]->is_enhanced_model)
-									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_1_frame);
+								{
+								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
+								cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
+								}
+								    
+								else 
+								{
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_1_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_1_frame);
+								}
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->fighting=1;
+								
 								break;
 							case attack_up_2:
 								if(actors_list[i]->is_enhanced_model)
+								{
 									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_2_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
+								}
+								else 
+								{
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_2_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_2_frame);
+								}
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->fighting=1;
+								
 								break;
 							case attack_up_3:
 								if(actors_list[i]->is_enhanced_model)
+									
+								{
 									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_3_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_2_frame);
+								}
+								else 
+								{
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_3_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_3_frame);
+								}
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->fighting=1;
+								
 								break;
 							case attack_up_4:
 								if(actors_list[i]->is_enhanced_model)
+								{
 									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_4_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_2_frame);
+								}
+								else 
+								{
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_4_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_4_frame);
+								}
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->fighting=1;
+								
 								break;
 							case attack_down_1:
 								if(actors_list[i]->is_enhanced_model)
+								{
 									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down1);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_1_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_1_frame);
+								}
+								else 
+								{
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_1_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_1_frame);
+								}
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->fighting=1;
+								
 								break;
 							case attack_down_2:
 								if(actors_list[i]->is_enhanced_model)
+								
+								{
 									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down2);
-								else my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_2_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_2_frame);
+								}
+								else 
+								{
+									my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_2_frame);
+									cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_2_frame);
+								}
 								actors_list[i]->stop_animation=1;
 								actors_list[i]->fighting=1;
+								
 								break;
 							case turn_left:
+								//LOG_TO_CONSOLE(c_green2,"turn left");
 								actors_list[i]->rotate_z_speed=45.0/9.0;
 								actors_list[i]->rotate_frames_left=9;
 								actors_list[i]->rotating=1;
@@ -650,9 +774,11 @@ void next_command()
 								actors_list[i]->moving=1;
 								//test
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
 								actors_list[i]->stop_animation=1;
 								break;
 							case turn_right:
+                                 //LOG_TO_CONSOLE(c_green2,"turn right");
 								actors_list[i]->rotate_z_speed=-45.0/9.0;
 								actors_list[i]->rotate_frames_left=9;
 								actors_list[i]->rotating=1;
@@ -664,6 +790,7 @@ void next_command()
 								actors_list[i]->moving=1;
 								//test
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
 								actors_list[i]->stop_animation=1;
 								break;
 							//ok, now the movement, this is the tricky part
@@ -673,7 +800,8 @@ void next_command()
 									float rotation_angle;
 
 									if(last_command<move_n || last_command>move_nw)//update the frame name too
-										my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+								        my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
+									    cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame);
 									actors_list[i]->stop_animation=0;
 									if(last_command!=actors_list[i]->que[0])//we need to calculate the rotation...
 										{
@@ -719,7 +847,8 @@ void next_command()
 							}
 
 							//mark the actor as being busy
-							actors_list[i]->busy=1;
+						   actors_list[i]->busy=1;
+						   //if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Busy");
 							//save the last command. It is especially good for run and walk
 							actors_list[i]->last_command=actors_list[i]->que[0];
 							//move que down with one command
@@ -750,6 +879,7 @@ void destroy_actor(int actor_id)
 				if(actors_list[i]->actor_id==actor_id)
 					{
 						LOCK_ACTORS_LISTS();
+						if (actors_defs[actors_list[i]->actor_type].coremodel!=NULL) CalModel_Delete(actors_list[i]->calmodel);
 						if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
 						if(actors_list[i]->is_enhanced_model)
 							{
@@ -816,7 +946,7 @@ void add_command_to_actor(int actor_id, char command)
 	int i=0;
 	int k=0;
 	int have_actor=0;
-
+//if ((actor_id==yourself)&&(command==enter_combat)) LOG_TO_CONSOLE(c_green2,"FIGHT!");
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -1081,7 +1211,7 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, "arms") == 0) {
 				get_string_value (shirt->arms_name, sizeof (shirt->arms_name), item);
-			} else if (xmlStrcasecmp (item->name, "model") == 0) {
+			} else if (xmlStrcasecmp (item->name, "mesh") == 0) {
 				get_string_value (shirt->model_name, sizeof (shirt->model_name), item);
 			} else if (xmlStrcasecmp (item->name, "torso") == 0) {
 				get_string_value (shirt->torso_name, sizeof (shirt->torso_name), item);
@@ -1143,7 +1273,7 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, "skin") == 0) {
 				get_string_value (legs->legs_name, sizeof (legs->legs_name), item);
-			} else if (xmlStrcasecmp (item->name, "model") == 0) {
+			} else if (xmlStrcasecmp (item->name, "mesh") == 0) {
 				get_string_value (legs->model_name, sizeof (legs->model_name), item);
 			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, item->children->content, "glow mode");
@@ -1163,6 +1293,7 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
 	char errmsg[120];
+	char str[255];
 	int ok, type_idx;
 	weapon_part *weapon;
 
@@ -1175,10 +1306,23 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "model") == 0) {
+			if (xmlStrcasecmp (item->name, "mesh") == 0) {
 				get_string_value (weapon->model_name, sizeof (weapon->model_name), item);
+				weapon->mesh_index=cal_load_weapon_mesh(act,weapon->model_name);
 			} else if (xmlStrcasecmp (item->name, "skin") == 0) {
 				get_string_value (weapon->skin_name, sizeof (weapon->skin_name), item);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_up1") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_1_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_up2") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_2_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_down1") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_1_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_down2") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_2_frame=cal_load_anim(act,str);
 			} else if (xmlStrcasecmp (item->name, "attack_up1") == 0) {
 				get_string_value (weapon->attack_up1, sizeof (weapon->attack_up1), item);
 			} else if (xmlStrcasecmp (item->name, "attack_up2") == 0) {
@@ -1202,7 +1346,7 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 	return ok;
 }
 
-int parse_actor_body_part (body_part *part, xmlNode *cfg, const char *part_name) {
+int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, const char *part_name) {
 	xmlNode *item;
 	char errmsg[120];
 	int ok = 1;
@@ -1211,8 +1355,11 @@ int parse_actor_body_part (body_part *part, xmlNode *cfg, const char *part_name)
 	
 	for (item = cfg; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "model") == 0) {
+			if (xmlStrcasecmp (item->name, "mesh") == 0) {
 				get_string_value (part->model_name, sizeof (part->model_name), item);
+				if (strcmp("shield",part_name)==0) part->mesh_index=cal_load_weapon_mesh(act,part->model_name);
+				else part->mesh_index=cal_load_mesh(act,part->model_name);
+		
 			} else if (xmlStrcasecmp (item->name, "skin") == 0) {
 				get_string_value (part->skin_name, sizeof (part->skin_name), item);
 			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
@@ -1240,7 +1387,7 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg) {
 	if (type_idx < 0) return 0;
 	
 	helmet = &(act->helmet[type_idx]);
-	return parse_actor_body_part (helmet, cfg->children, "helmet");
+	return parse_actor_body_part (act,helmet, cfg->children, "helmet");
 }
 
 int parse_actor_cape (actor_types *act, xmlNode *cfg) {
@@ -1253,7 +1400,7 @@ int parse_actor_cape (actor_types *act, xmlNode *cfg) {
 	if (type_idx < 0) return 0;
 	
 	cape = &(act->cape[type_idx]);
-	return parse_actor_body_part (cape, cfg->children, "cape");
+	return parse_actor_body_part (act,cape, cfg->children, "cape");
 }
 
 int parse_actor_head (actor_types *act, xmlNode *cfg) {
@@ -1266,7 +1413,7 @@ int parse_actor_head (actor_types *act, xmlNode *cfg) {
 	if (idx < 0) return 0;
 	
 	head = &(act->head[idx]);
-	return parse_actor_body_part (head, cfg->children, "head");
+	return parse_actor_body_part (act,head, cfg->children, "head");
 }
 
 int parse_actor_shield (actor_types *act, xmlNode *cfg) {
@@ -1279,7 +1426,7 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg) {
 	if (type_idx < 0) return 0;
 	
 	shield = &(act->shield[type_idx]);
-	return parse_actor_body_part (shield, cfg->children, "shield");
+	return parse_actor_body_part (act,shield, cfg->children, "shield");
 }
 
 int parse_actor_hair (actor_types *act, xmlNode *cfg) {
@@ -1298,16 +1445,162 @@ int parse_actor_hair (actor_types *act, xmlNode *cfg) {
 	return 1;
 }
 
+int cal_get_idle_group(actor_types *act,char *name)
+{
+	int i;
+	int res=-1;
+	
+	for (i=0;i<act->group_count;++i) {
+		if (strcmp(name,act->idle_group[i].name)==0) res=i;
+	}
+	
+	if (res>=0) return res;//Found it, return
+	
+	//Create a new named group
+	res=act->group_count;
+	strcpy(act->idle_group[res].name,name);
+	++act->group_count;
+	
+	return res;
+}
+
+struct cal_anim cal_load_idle(actor_types *act, char *str)
+{
+	char fname[255];
+	struct cal_anim res;
+	char temp[255];
+	struct CalCoreAnimation *coreanim;
+	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,str);
+	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
+	if (coreanim) {
+		CalCoreAnimation_Scale(coreanim,act->scale);
+		res.duration=CalCoreAnimation_GetDuration(coreanim);
+	} else {
+		sprintf(temp,"No Anim: %s\n",fname);
+		log_error(temp);
+	}
+	
+	return res;
+}
+
+void cal_group_addanim(actor_types *act,int gindex, char *fanim)
+{
+	int i;
+	
+	i=act->idle_group[gindex].count;
+	act->idle_group[gindex].anim[i]=cal_load_idle(act,fanim);
+	LOG_TO_CONSOLE(c_green2,fanim);
+	++act->idle_group[gindex].count;
+}
+
+void parse_idle_group(actor_types *act,char *str)
+{
+	char gname[255];
+	char fname[255];
+	char temp[255];
+	int gindex;
+	
+	sscanf(str,"%s%s",gname,fname);
+	gindex=cal_get_idle_group(act,gname);
+	cal_group_addanim(act,gindex,fname);
+	//sprintf(temp,"%d",gindex);
+	//LOG_TO_CONSOLE(c_green2,gname);
+	//LOG_TO_CONSOLE(c_green2,fname);
+	//LOG_TO_CONSOLE(c_green2,temp);
+}
+
 int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
 	char errmsg[120];
-	int ok = 1;
-
-	if (cfg == NULL) return 0;
+	char str[255];
+	char fname[255];
+	char temp[255];
+	int i;
 	
+	int ok = 1;
+	if (cfg == NULL) return 0;
+		
 	for (item = cfg; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "walk") == 0) {
+		    
+			if (xmlStrcasecmp (item->name, "CAL_IDLE_GROUP") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			//act->cal_walk_frame=cal_load_anim(act,str);
+				//LOG_TO_CONSOLE(c_green2,str);
+				parse_idle_group(act,str);
+						
+			} else if (xmlStrcasecmp (item->name, "CAL_walk") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_walk_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_run") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_run_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_die1") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_die1_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_die2") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_die2_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_pain1") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_pain1_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_pain2") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_pain2_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_pick") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_pick_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_drop") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_drop_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_idle") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_idle_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_idle_sit") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_idle_sit_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_harvest") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_harvest_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_cast") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_cast_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_sit_down") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_sit_down_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_stand_up") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_stand_up_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_in_combat") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_in_combat_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_out_combat") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_out_combat_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_combat_idle") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_combat_idle_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_1") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_1_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_2") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_2_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_3") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_3_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_4") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_4_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_down_1") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_1_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_attack_down_2") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_2_frame=cal_load_anim(act,str);
+			
+		
+			} else if (xmlStrcasecmp (item->name, "walk") == 0) {
 				get_string_value (act->walk_frame, sizeof (act->walk_frame), item);
 			} else if (xmlStrcasecmp (item->name, "run") == 0) {
 				get_string_value (act->run_frame, sizeof (act->run_frame), item);
@@ -1396,27 +1689,229 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg) {
 	return ok;
 }
 
+void MD2_to_CMF(char *str)
+{
+	int l;
+	l=strlen(str);
+	
+	if (l<3) return;
+	str[l-3]='c';
+	str[l-2]='m';
+	str[l-1]='f';
+}
+
+//Searches if a mesh is already loaded- TODO:MAKE THIS BETTER
+int cal_search_mesh(actor_types *act, char *fn)
+{
+	int res;
+	int i;
+	res=-1;
+	for (i=0;i<5;++i) {
+		if ((strcmp(fn,act->head[i].model_name)==0)&&(act->head[i].mesh_index!=-1)) res=act->head[i].mesh_index;
+	}
+	
+	for (i=0;i<22;++i) {
+		if ((strcmp(fn,act->shirt[i].model_name)==0)&&(act->shirt[i].mesh_index!=-1)) res=act->shirt[i].mesh_index;
+	}
+	
+	for (i=0;i<16;++i) {
+		if ((strcmp(fn,act->legs[i].model_name)==0)&&(act->legs[i].mesh_index!=-1)) res=act->legs[i].mesh_index;	
+	}
+	
+	return res;
+}
+
+//Loads a Cal3D mesh
+int cal_load_mesh(actor_types *act,char *fn)
+{
+	int i;
+	int meshindex=-1;
+	char fname[255];
+	char str[255];
+	char temp[255];
+	int res;
+	struct CalCoreMesh *mesh;
+	
+	if (fn==0) return -1;
+	if (strlen(fn)==0) return -1;
+	if (act->coremodel==NULL) return -1;
+	res=cal_search_mesh(act,fn);
+	if (res!=-1) return res;
+	//sscanf(fn,"./md2/%s",temp);
+	//MD2_to_CMF(temp);
+	//sprintf(fname,"./Meshes/%s",temp);
+	//LOG_TO_CONSOLE(c_green2,fn);
+	
+	//Load coremesh
+	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
+	
+	//Scale coremesh
+	if (res>=0) {
+		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
+		if ((mesh)&&(act->mesh_scale!=1.0)) CalCoreMesh_Scale(mesh,act->mesh_scale);
+	} else {
+		sprintf(str,"No mesh: %s\n",fn);
+		//log_error(str);
+	}
+	
+	return res;
+}
+
+int cal_load_weapon_mesh(actor_types *act,char *fn)
+{
+	int i;
+	int meshindex=-1;
+	char fname[255];
+	char str[255];
+	char temp[255];
+	int res;
+	struct CalCoreMesh *mesh;
+	
+	if (fn==0) return -1;
+	if (strlen(fn)==0) return -1;
+	if (act->coremodel==NULL) return -1;
+	
+	res=cal_search_mesh(act,fn);
+	
+	if (res!=-1) return res;
+	//sscanf(fn,"./md2/%s",temp);
+	//MD2_to_CMF(temp);
+	//sprintf(fname,"./Meshes/%s",temp);
+	//LOG_TO_CONSOLE(c_green2,fn);
+	
+	//Load coremesh
+	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
+
+	//Scale coremesh
+	if (res>=0) {
+		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
+		if ((mesh)&&(act->skel_scale!=1.0)) CalCoreMesh_Scale(mesh,act->skel_scale);
+	} else {
+		sprintf(str,"No mesh: %s\n",fn);
+		//log_error(str);
+	}
+	
+	return res;
+}
+
+void init_coremodel(int act_idx)
+{
+	actor_types *act;
+	char fname[255];
+	char str[255];
+	char temp[255];
+	int res,i;
+	int aindex;
+	struct CalCoreMesh *mesh;
+	
+	act = &(actors_defs[act_idx]);
+	
+	//If it's not an enhanced actor, load the single mesh and exit
+	if (strcmp(act->head[0].model_name,"")==0) {
+		act->shirt[0].mesh_index=cal_load_mesh(act,act->file_name);//save the single meshindex as torso
+		return;
+	}
+
+	//Init head meshes
+	for (i=0;i<5;++i) {
+		act->head[i].mesh_index=-1;
+	}
+
+	//Init torso meshes
+	for (i=0;i<22;++i) {
+		act->shirt[i].mesh_index=-1;
+	}
+	
+	//Init legs meshes
+	for (i=0;i<16;++i) {
+		act->legs[i].mesh_index=-1;
+	}
+
+	//Load head meshes
+	for (i=0;i<5;++i) {
+		act->head[i].mesh_index=cal_load_mesh(act,act->head[i].model_name);
+	}
+	
+	//Load torso meshes
+	for (i=0;i<22;++i) {
+		act->shirt[i].mesh_index=cal_load_mesh(act,act->shirt[i].model_name);
+	}
+	
+	//Load legs meshes
+	for (i=0;i<16;++i) {
+		act->legs[i].mesh_index=cal_load_mesh(act,act->legs[i].model_name);
+	}
+}
+
+
 int parse_actor_script (xmlNode *cfg) {
 	xmlNode *item;
 	char errmsg[120];
-	int ok, act_idx;
+	char str[255];
+	int ok, act_idx,i;
 	actor_types *act;
+	struct cal_anim *tempanim;
+	struct CalCoreSkeleton *skel;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 	
 	act_idx = get_property (cfg, "type", "actor type", actor_type_dict);
 	if (act_idx < 0) return 0;
-	
+    
 	act = &(actors_defs[act_idx]);
 	ok = 1;
+    //Initialize Cal3D settings
+	act->coremodel=NULL;
+	act->scale=1.0;
+	act->mesh_scale=1.0;
+	act->skel_scale=1.0;
+	act->group_count=0;
+	for (i=0;i<16;++i)
+	{
+	strcpy(act->idle_group[i].name,"");
+	act->idle_group[i].count=0;
+	}
+	tempanim=&act->cal_walk_frame;
+	for (i=0;i<24;++i)
+	{
+	tempanim->anim_index=-1;tempanim->kind=-1;
+	++tempanim;
+	}
+	for (i=0;i<80;++i)
+	{
+	act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
+	act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
+	act->weapon[i].cal_attack_down_1_frame.anim_index=-1;
+	act->weapon[i].cal_attack_down_2_frame.anim_index=-1;
+	}
+	
+	    
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, "ghost") == 0) {
 				act->ghost = get_bool_value (item);
 			} else if (xmlStrcasecmp (item->name, "skin") == 0) {
 				get_string_value (act->skin_name, sizeof (act->skin_name), item);
-			} else if (xmlStrcasecmp (item->name, "model") == 0) {
+			} else if (xmlStrcasecmp (item->name, "mesh") == 0) {
 				get_string_value (act->file_name, sizeof (act->file_name), item);
+			} else if (xmlStrcasecmp (item->name, "scale")==0) {
+				
+				act->scale=get_float_value(item);
+				
+			} else if (xmlStrcasecmp (item->name, "mesh_scale")==0) {
+				
+				act->mesh_scale=get_float_value(item);
+			} else if (xmlStrcasecmp (item->name, "bone_scale")==0) {
+				
+				act->skel_scale=get_float_value(item);
+								
+			} else if (xmlStrcasecmp (item->name, "skeleton")==0) {
+				
+			get_string_value (act->skeleton_name, sizeof (act->skeleton_name), item);
+			act->coremodel=CalCoreModel_New("Model");
+			CalCoreModel_LoadCoreSkeleton(act->coremodel,act->skeleton_name);
+			
+					
 			} else if (xmlStrcasecmp (item->name, "frames") == 0) {
 				ok &= parse_actor_frames (act, item->children);
 			} else if (xmlStrcasecmp (item->name, "shirt") == 0) {
@@ -1450,6 +1945,17 @@ int parse_actor_script (xmlNode *cfg) {
 			}
 		}
 	}
+    //Actor def parsed, now setup the coremodel
+	
+	
+	if (act->coremodel!=NULL) 
+	{	
+		skel=CalCoreModel_GetCoreSkeleton(act->coremodel);
+	    CalCoreSkeleton_Scale(skel,act->skel_scale);
+		init_coremodel(act_idx);
+		
+	}
+	//if (act_idx==human_female) init_coremodel(act_idx);
 	
 	return ok;
 }
@@ -1522,3 +2028,4 @@ void init_actor_defs () {
 
 	ok = read_actor_defs (defdir, idxname);
 }
+

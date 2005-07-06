@@ -433,6 +433,8 @@ void init_vars()
 #else
 	add_var(BOOL,"full_screen","fs",&full_screen,change_var,0);
 #endif
+	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0);
+	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1);
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0);
 	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0);
 	add_var(INT,"max_shadow_map_size","smsize",&max_shadow_map_size,change_int,1024);

@@ -11,7 +11,8 @@ OPTIONS=-DLINUX -DELC
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
-WARN=-Wdeclaration-after-statement -Wall -Werror
+WARN=
+#-Wdeclaration-after-statement -Wall -Werror
 
 # basic compiling and linking - rarely changed
 CFLAGS=$(PLATFORM) $(WARN) -O -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
@@ -39,11 +40,14 @@ OBJS=2d_objects.o 3d_objects.o	\
 	questlog.o reflection.o	rules.o \
 	sector.o shadows.o sound.o spells.o stats.o storage.o tabs.o	\
 	text.o textures.o tile_map.o timers.o translate.o trade.o	\
-	weather.o widgets.o 
+	weather.o widgets.o cal.o
 
 # the compile targets
-el.x86.linux.bin: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o el.x86.linux.bin $(OBJS)
+el.x86.linux.bin: $(OBJS) cal3d_wrapper.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o el.x86.linux.bin $(OBJS) -lcal3d -lGLU  cal3d_wrapper.o
+
+cal3d_wrapper.o: cal3d_wrapper.cpp
+	g++ $(CFLAGS) -c cal3d_wrapper.cpp
 
 release:
 	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
@@ -54,11 +58,12 @@ static:
 cal3d:
 	make -f Makefile.linux 'CFLAGS=$(CFLAGS) -DCAL3D' 'LDFLAGS=$(LDFLAGS) -lcal3d' 'OBJS=$(OBJS) cal3dwrap.o'
 
+
 cal3dwrap.o: cal3dwrap.c cal3dwrap.h
 	g++ $(CFLAGS) -c cal3dwrap.c
 
 clean:
-	-rm -f $(OBJS) el.x86.linux.bin .depend
+	-rm -f $(OBJS) el.x86.linux.bin .depend cal3d_wrapper.o
 
 docs:	
 	cd docs && doxygen Doxyfile

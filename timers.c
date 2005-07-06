@@ -13,7 +13,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 {
 	int	new_time;
 	SDL_Event e;
-
+//animate_actors();
 	// adjust the timer clock
 	if(my_timer_clock == 0)my_timer_clock=SDL_GetTicks();
 	else my_timer_clock+=(TIMER_RATE-my_timer_adjust);
@@ -30,6 +30,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 	thunder_control();
 
 	if(is_raining)update_rain();
+	//next_command();
 	if(normal_animation_timer>2 && have_a_map)
 		{
 			if(my_timer_adjust > 0)my_timer_adjust--;

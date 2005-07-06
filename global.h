@@ -64,6 +64,7 @@ typedef long int point;
 typedef int point;
 #endif
 
+#include "cal_types.h"
 #include "cache.h"
 #include "encyclopedia.h"
 #include "questlog.h"
@@ -71,7 +72,7 @@ typedef int point;
 #include "knowledge.h"
 #include "elc_private.h"
 #include "asc.h"
-#include "md2.h"
+//#include "md2.h"
 #include "actors.h"
 #include "new_actors.h"
 #include "actor_scripts.h"
@@ -133,9 +134,11 @@ typedef int point;
 #ifdef NEW_CLIENT
 #include "storage.h"
 #endif
-#ifdef CAL3D
-#include "cal3dwrap.h"
-#endif
+//#ifdef CAL3D
+//#include "cal3dwrap.h"
+//#endif
+#include "cal.h"
+
 #ifdef NOTEPAD
 #include "notepad.h"
 #endif

@@ -409,16 +409,6 @@ void save_bin_cfg()
 
 }
 
-void init_md2_cache()
-{
-	cache_md2=cache_init(1000, &destroy_md2);	// auto-free permitted
-	//cache_md2=cache_init(1000, NULL);	// no auto-free permitted
-	cache_set_name(cache_system, "MD2 cache", cache_md2);
-	cache_set_compact(cache_md2, &free_md2_va);	// to compact, free VA arrays
-	cache_set_time_limit(cache_md2, 5*60*1000);	// check every 5 minutes
-	cache_set_size_limit(cache_md2, 64*1024*1024);
-}
-
 void init_texture_cache()
 {
 	memset(texture_cache, 0, sizeof(texture_cache));
@@ -496,6 +486,7 @@ void init_stuff()
 	create_console_root_window (window_width, window_height);
 	create_map_root_window (window_width, window_height);
 	create_login_root_window (window_width, window_height);
+	
 
 	init_gl_extensions();
 #ifdef CAL3D
@@ -505,9 +496,9 @@ void init_stuff()
 	seed = time (NULL);
 	srand (seed);
 
+	
 	cache_system_init(MAX_CACHE_SYSTEM);
 	init_texture_cache();
-	init_md2_cache();
 	init_e3d_cache();
 	init_2d_obj_cache();
 	load_ignores();
@@ -520,7 +511,6 @@ void init_stuff()
 	build_cursors();
 	change_cursor(CURSOR_ARROW);
 	build_glow_color_table();
-
 
 	init_actors_lists();
 	memset(tile_list, 0, sizeof(tile_list));
@@ -584,7 +574,6 @@ void init_stuff()
 	portraits6_tex=load_texture_cache("./textures/portraits6.bmp",0);
 
 	sigils_text=load_texture_cache("./textures/sigils.bmp",0);
-    //spellbar_text=load_texture_cache("./textures/sigils.bmp",0);
 	//Load the map legend and continent map
 	legend_text=load_texture_cache("./maps/legend.bmp",0);
 	cont_text=load_texture_cache("./maps/seridia.bmp",128);

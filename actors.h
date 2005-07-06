@@ -52,42 +52,50 @@ extern glow_color glow_colors[10]; /*!< Holds the glow colours defined in GLOW_*
  * The enhanced actor structure holds information about the actors md2 extensions such as if the actor is wearing any armour, weapons etc.
  */
 typedef struct
-{
+{	
 	/*! \name filenames for the currently loaded md2s*/
 	/*! \{ */
-	char legs_fn[32];
-	char head_fn[32];
-	char torso_fn[32];
-	char weapon_fn[32];
-	char shield_fn[32];
-	char helmet_fn[32];
-	char cape_fn[32];
+	char legs_fn[256];
+	char head_fn[256];
+	char torso_fn[256];
+	char weapon_fn[256];
+	char shield_fn[256];
+	char helmet_fn[256];
+	char cape_fn[256];
 	/*! \} */
 
+	int legs_meshindex;
+	int head_meshindex;
+	int torso_meshindex;
+	int weapon_meshindex;
+	int shield_meshindex;
+	int helmet_meshindex;
+	int cape_meshindex;
 	/*! \name The extended md2s (for more complex models that can carry and remove weapons, armour etc.)*/
 	/*! \{ */
-	md2 *legs;
-	md2 *head;
-	md2 *torso;
-	md2 *weapon;
-	md2 *shield;
-	md2 *helmet;
-	md2 *cape;
+	//md2 *legs;
+	//md2 *head;
+	//md2 *torso;
+	//md2 *weapon;
+	//md2 *shield;
+	//md2 *helmet;
+	//md2 *cape;
 	/*! \} */
 
 	/*! \name The texture names*/
 	/*! \{ */
-	char pants_tex[32];
-	char boots_tex[32];
-	char torso_tex[32];
-	char arms_tex[32];
-	char hands_tex[32];
-	char head_tex[32];
-	char hair_tex[32];
-	char weapon_tex[32];
-	char shield_tex[32];
-	char helmet_tex[32];
-	char cape_tex[32];
+	char pants_tex[256];
+	char boots_tex[256];
+	char torso_tex[256];
+	char arms_tex[256];
+	char hands_tex[256];
+	char head_tex[256];
+	char hair_tex[256];
+	char weapon_tex[256];
+	char shield_tex[256];
+	char helmet_tex[256];
+	char cape_tex[256];
+		
 	/*! \} */
 
 	/*! \name Specifies the glow of each worn item*/
@@ -99,74 +107,132 @@ typedef struct
 	int legs_glow;
 	/*! \} */
 
-	char hands_tex_save[32];
+	char hands_tex_save[256];
 }enhanced_actor;
 
 /*! Sets the main model type*/
 typedef struct
 {
-	char model_name[30];
-	char skin_name[30];
+	char model_name[256];
+	char skin_name[256];
 	int glow;
+	int mesh_index;
 }body_part;
 
 /*! Sets the weapon type (including animation frame names)*/
 typedef struct
 {
-	char model_name[30];
-	char skin_name[30];
-	char attack_up1[30];
-	char attack_down1[30];
-	char attack_up2[30];
-	char attack_down2[30];
+	char model_name[256];
+	char skin_name[256];
+	char attack_up1[256];
+	char attack_down1[256];
+	char attack_up2[256];
+	char attack_down2[256];
 	int glow;
+	int mesh_index;
+
+	struct cal_anim cal_attack_up_1_frame;
+	struct cal_anim cal_attack_up_2_frame;
+	struct cal_anim cal_attack_down_1_frame;
+    struct cal_anim cal_attack_down_2_frame;
 }weapon_part;
 
 /*! Defines the main models looks*/
 typedef struct
 {
-	char model_name[35];
-	char arms_name[35];
-	char torso_name[35];
+	char model_name[256];
+	char arms_name[256];
+	char torso_name[256];
+	int mesh_index;
 }shirt_part;
 
 /*! Sets the models hands and head*/
 typedef struct
 {
-	char hands_name[35];
-	char head_name[35];
+	char hands_name[256];
+	char head_name[256];
+	int mesh_index;
 }skin_part;
 
 /*! Sets the models hair name*/
 typedef struct
 {
-	char hair_name[35];
+	char hair_name[256];
+	int mesh_index;
 }hair_part;
 
 /*! Holds info about the boots md2*/
 typedef struct
 {
-	char boots_name[35];
+	char boots_name[256];
 	int glow;
+	int mesh_index;
 }boots_part;
 
 /*! Holds info about the legs type*/
 typedef struct
 {
-	char legs_name[35];
-	char model_name[35];
+	char legs_name[256];
+	char model_name[256];
 	int glow;
+	int mesh_index;
 }legs_part;
 
 /*! A structure used when loading the actor definitions
  * \sa init_actor_defs*/
+
+typedef struct cal_anim_group
+{
+	char name[32];
+	int count;
+	struct cal_anim anim[16];
+} wtf_is_this;
+
+
 typedef struct
 {
 	/*! \name Model data*/
 	/*! \{ */
-	char skin_name[50];
-	char file_name[50];
+	char skin_name[256];
+	char file_name[256];
 	/*! \} */
+
+
+	float scale;
+	float mesh_scale;
+	float skel_scale;
+	char skeleton_name[256];
+
+	struct CalCoreModel *coremodel;
+	//Animation indexes
+	struct cal_anim_group idle_group[16];//16 animation groups
+	int group_count;
+
+
+	struct cal_anim cal_walk_frame;
+	struct cal_anim cal_run_frame;
+	struct cal_anim cal_die1_frame;
+	struct cal_anim cal_die2_frame;
+	struct cal_anim cal_pain1_frame;
+	struct cal_anim cal_pain2_frame;
+	struct cal_anim cal_pick_frame;
+	struct cal_anim cal_drop_frame;
+	struct cal_anim cal_idle_frame;
+	struct cal_anim cal_idle_sit_frame;
+	struct cal_anim cal_harvest_frame;
+	struct cal_anim cal_attack_cast_frame;
+	struct cal_anim cal_attack_ranged_frame;
+	struct cal_anim cal_sit_down_frame;
+	struct cal_anim cal_stand_up_frame;
+	struct cal_anim cal_in_combat_frame;
+	struct cal_anim cal_out_combat_frame;
+	struct cal_anim cal_combat_idle_frame;
+	struct cal_anim cal_attack_up_1_frame;
+	struct cal_anim cal_attack_up_2_frame;
+	struct cal_anim cal_attack_up_3_frame;
+	struct cal_anim cal_attack_up_4_frame;
+	struct cal_anim cal_attack_down_1_frame;
+    struct cal_anim cal_attack_down_2_frame;
 	
 	/*! \name Frame names*/
 	/*! \{ */
@@ -262,6 +328,12 @@ typedef struct
 	tmp_actor_data tmp;	/*!< The actors temporary data used for rendering*/
 	/*! \} */
 
+	struct CalModel *calmodel;
+	struct cal_anim cur_anim;
+	struct cal_anim cur_idle_anims[16];
+	int IsOnIdle;
+	float anim_time;
+
 	/*! \name Actors positions
 	 *  \brief Updated in the timer thread
 	 */
@@ -299,11 +371,11 @@ typedef struct
 	char cur_frame[16];	/*!< Sets the current frame name that will be rendered*/
 	
 	/*! \{ */
-	md2 *model_data;	/*!< Is a pointer to the md2 model data loaded when the actor was first added*/
+	//md2 *model_data;	/*!< Is a pointer to the md2 model data loaded when the actor was first added*/
 	char remapped_colors;	/*!< If the actors colours are remapped it will holds the texture in actor->texture_id*/
 	int texture_id;		/*!< Sets the texture ID, if the remapped_colors==1 - remember to glDeleteTextures*/
-	char skin_name[30];	/*!< Sets the skin name*/
-	char actor_name[30];	/*!< Sets the actors name - holds the guild name as well after a special 127+color character*/
+	char skin_name[256];	/*!< Sets the skin name*/
+	char actor_name[256];	/*!< Sets the actors name - holds the guild name as well after a special 127+color character*/
 	/*! \} */
 
 	/*! \name Command queue and current animations*/
@@ -378,7 +450,7 @@ extern actor_types actors_defs[100];	/*!< The actor definitions*/
  * \param	cur_frame The name of the current frame.
  * \retval int	Returns the position of the frame on succes, -1 on failure (if the given frame was not found)
  */
-int get_frame_number(const md2 *model_data, const char *cur_frame);
+//int get_frame_number(const md2 *model_data, const char *cur_frame);
 
 /*!
  * \ingroup	display_actors
@@ -407,7 +479,7 @@ void draw_actor_banner(actor * actor_id, float offset_z);
  *
  * \callgraph
  */
-void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b);
+//void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b);
 
 /*!
  * \ingroup	display_actors
@@ -421,7 +493,7 @@ void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b)
  *
  * \callgraph
  */
-void draw_model(md2 *model_data,char *cur_frame, int ghost);
+//void draw_model(md2 *model_data,char *cur_frame, int ghost);
 
 /*!
  * \ingroup	display_actors
