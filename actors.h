@@ -52,7 +52,12 @@ extern glow_color glow_colors[10]; /*!< Holds the glow colours defined in GLOW_*
  * The enhanced actor structure holds information about the actors md2 extensions such as if the actor is wearing any armour, weapons etc.
  */
 typedef struct
-{	
+{
+#ifdef CUSTOM_LOOK
+	int uniq_id;
+	int guild_id;
+#endif
+
 	/*! \name filenames for the currently loaded md2s*/
 	/*! \{ */
 	char legs_fn[256];

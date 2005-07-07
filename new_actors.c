@@ -228,20 +228,63 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 }
 
+#ifdef CUSTOM_LOOK
+void custom_path(char * path, char * custom1, char * custom2) {
+	unsigned char buffer[256];
+	FILE * fh;
+
+	/* Check if custom1 has path readable */
+	my_strcp(buffer, custom1);
+	my_strcat(buffer, path);
+	fh = fopen(buffer, "r");
+	if (fh) {
+		fclose(fh);
+		my_strcp(path, buffer);
+		return;
+	}
+
+	/* Check if custom2 has path readable */
+	my_strcp(buffer, custom2);
+	my_strcat(buffer, path);
+	fh = fopen(buffer, "r");
+	if (fh) {
+		fclose(fh);
+		my_strcp(path, buffer);
+		return;
+	}
+
+	/* leave as is */
+	return;
+}
+#endif
+
 void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
 	int i;
+#ifdef CUSTOM_LOOK
+	unsigned char playerpath[256], guildpath[256];
+#endif
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
 				if(actors_list[i]->actor_id==actor_id)
 					{
+#ifdef CUSTOM_LOOK
+						snprintf(playerpath, 256, "custom/player/%d/", actors_list[i]->body_parts->uniq_id);
+						snprintf(playerpath, 256, "custom/guild/%d/", actors_list[i]->body_parts->guild_id);
+#endif
 						if(which_part==KIND_OF_WEAPON)
 							{
 								if(which_id == GLOVE_FUR || which_id == GLOVE_LEATHER){
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
+#ifdef CUSTOM_LOOK
+									custom_path(actors_list[i]->body_parts->hands_tex, playerpath, guildpath);
+#endif
 								}
 								my_strcp(actors_list[i]->body_parts->weapon_tex,actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
+#ifdef CUSTOM_LOOK
+								custom_path(actors_list[i]->body_parts->weapon_tex, playerpath, guildpath);
+#endif
 								my_strcp(actors_list[i]->body_parts->weapon_fn,actors_defs[actors_list[i]->actor_type].weapon[which_id].model_name);
 								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index);
 								glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -255,6 +298,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						if(which_part==KIND_OF_SHIELD)
 							{
 								my_strcp(actors_list[i]->body_parts->shield_tex,actors_defs[actors_list[i]->actor_type].shield[which_id].skin_name);
+#ifdef CUSTOM_LOOK
+								custom_path(actors_list[i]->body_parts->shield_tex, playerpath, guildpath);
+#endif
 								my_strcp(actors_list[i]->body_parts->shield_fn,actors_defs[actors_list[i]->actor_type].shield[which_id].model_name);
 								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index);
                                 actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
@@ -266,6 +312,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						if(which_part==KIND_OF_CAPE)
 							{
 								my_strcp(actors_list[i]->body_parts->cape_tex,actors_defs[actors_list[i]->actor_type].cape[which_id].skin_name);
+#ifdef CUSTOM_LOOK
+								custom_path(actors_list[i]->body_parts->cape_tex, playerpath, guildpath);
+#endif
 								my_strcp(actors_list[i]->body_parts->cape_fn,actors_defs[actors_list[i]->actor_type].cape[which_id].model_name);
 								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index);
 								actors_list[i]->body_parts->cape_meshindex=actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index;
@@ -277,6 +326,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						if(which_part==KIND_OF_HELMET)
 							{
 								my_strcp(actors_list[i]->body_parts->helmet_tex,actors_defs[actors_list[i]->actor_type].helmet[which_id].skin_name);
+#ifdef CUSTOM_LOOK
+								custom_path(actors_list[i]->body_parts->helmet_tex, playerpath, guildpath);
+#endif
 								my_strcp(actors_list[i]->body_parts->helmet_fn,actors_defs[actors_list[i]->actor_type].helmet[which_id].model_name);
 								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index);
 								actors_list[i]->body_parts->helmet_meshindex=actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index;
@@ -289,6 +341,10 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							{
 								my_strcp(actors_list[i]->body_parts->arms_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].arms_name);
 								my_strcp(actors_list[i]->body_parts->torso_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].torso_name);
+#ifdef CUSTOM_LOOK
+								custom_path(actors_list[i]->body_parts->arms_tex, playerpath, guildpath);
+								custom_path(actors_list[i]->body_parts->torso_tex, playerpath, guildpath);
+#endif
 								my_strcp(actors_list[i]->body_parts->torso_fn,actors_defs[actors_list[i]->actor_type].shirt[which_id].model_name);
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
@@ -297,6 +353,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						if(which_part==KIND_OF_LEG_ARMOR)
 							{
 								my_strcp(actors_list[i]->body_parts->pants_tex,actors_defs[actors_list[i]->actor_type].legs[which_id].legs_name);
+#ifdef CUSTOM_LOOK
+								custom_path(actors_list[i]->body_parts->pants_tex, playerpath, guildpath);
+#endif
 								my_strcp(actors_list[i]->body_parts->legs_fn,actors_defs[actors_list[i]->actor_type].legs[which_id].model_name);
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
@@ -306,6 +365,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						if(which_part==KIND_OF_BOOT_ARMOR)
 							{
 								my_strcp(actors_list[i]->body_parts->boots_tex,actors_defs[actors_list[i]->actor_type].boots[which_id].boots_name);
+#ifdef CUSTOM_LOOK
+								custom_path(actors_list[i]->body_parts->boots_tex, playerpath, guildpath);
+#endif
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								return;
 							}
@@ -338,10 +400,11 @@ void add_enhanced_actor_from_server(char * in_data)
 	int i;
 	int dead=0;
 	int kind_of_actor;
-#ifdef NEW_CLIENT
-	Uint32 uniq_id;
-#endif
 	enhanced_actor *this_actor;
+#ifdef CUSTOM_LOOK
+	unsigned char playerpath[256], guildpath[256];
+	Uint32 uniq_id, guild_id;
+#endif
 
 	char cur_frame[20];
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
@@ -374,7 +437,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	max_health=SDL_SwapLE16(*((short *)(in_data+23)));
 	cur_health=SDL_SwapLE16(*((short *)(in_data+25)));
 	kind_of_actor=*(in_data+27);
-#ifdef NEW_CLIENT
+#if defined CUSTOM_LOOK && defined NEW_CLIENT
 	uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
 #endif
 
@@ -490,6 +553,55 @@ void add_enhanced_actor_from_server(char * in_data)
 #endif
 
 	this_actor=calloc(1,sizeof(enhanced_actor));
+
+#ifdef CUSTOM_LOOK
+// FIXME: NEW_CLIENT should have player AND guild id, otherwise BOTH should be guessed (lachesis)
+	/* Guess player and guild id */
+	{
+		/* get the name string into a working buffer */
+		unsigned char buffer[256], *name, *guild;
+#ifdef NEW_CLIENT
+		my_strcp(buffer,&in_data[32]);
+#else
+		my_strcp(buffer,&in_data[28]);
+#endif
+		
+		/* skip leading color codes */
+		for (name = buffer; *name && (*name >= 127 + c_lbound) && (*name <= 127 + c_ubound); name++);
+		
+		/* search for string end or color mark */
+		for (guild = name; *guild && ((*guild < 127 + c_lbound) || (*guild > 127 + c_ubound)); guild++);
+		if (*guild) {
+			/* separate the two strings */
+			*guild = 0;
+			guild++;
+		}
+
+		/* perform case insensitive comparison */
+		my_tolower(name);
+		my_tolower(guild);
+		
+#ifndef NEW_CLIENT
+		uniq_id = 0;
+#endif
+
+		/* guild tags of Erisian Power Foundation (guild 82) */
+		if (!strcmp(guild, "chao") || !strcmp(guild, "eris") || ! strcmp(guild, "kali")) {
+			guild_id = 82;
+		} else {
+			guild_id = 0;
+		}
+	}
+
+	/* precompute the paths to custom files */
+	snprintf(playerpath, 256, "custom/player/%d/", uniq_id);
+	snprintf(guildpath, 256, "custom/guild/%d/", guild_id);
+
+	/* store the ids */
+	this_actor->uniq_id = uniq_id;
+	this_actor->guild_id = guild_id;
+#endif // CUSTOM_LOOK
+
 	//get the torso
 	my_strcp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name);
 	my_strcp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name);
@@ -506,12 +618,32 @@ void add_enhanced_actor_from_server(char * in_data)
 	my_strcp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name);
 	my_strcp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name);
 
+#ifdef CUSTOM_LOOK
+	//torso
+	custom_path(this_actor->arms_tex, playerpath, guildpath);
+	custom_path(this_actor->torso_tex, playerpath, guildpath);
+	custom_path(this_actor->torso_fn, playerpath, guildpath);
+	//skin
+	custom_path(this_actor->hands_tex, playerpath, guildpath);
+	custom_path(this_actor->hands_tex_save, playerpath, guildpath);
+	custom_path(this_actor->head_tex, playerpath, guildpath);
+	//hair
+	custom_path(this_actor->hair_tex, playerpath, guildpath);
+	//boots
+	custom_path(this_actor->boots_tex, playerpath, guildpath);
+	//legs
+	custom_path(this_actor->pants_tex, playerpath, guildpath);
+	custom_path(this_actor->legs_fn, playerpath, guildpath);
+#endif
+
 	//cape
 	if(cape!=CAPE_NONE)
 		{
 			my_strcp(this_actor->cape_tex,actors_defs[actor_type].cape[cape].skin_name);
 			my_strcp(this_actor->cape_fn,actors_defs[actor_type].cape[cape].model_name);
-			
+#ifdef CUSTOM_LOOK
+			custom_path(this_actor->cape_tex, playerpath, guildpath);
+#endif
 		}
 	else
 		{
@@ -526,6 +658,9 @@ void add_enhanced_actor_from_server(char * in_data)
 		{
 			my_strcp(this_actor->shield_tex,actors_defs[actor_type].shield[shield].skin_name);
 			my_strcp(this_actor->shield_fn,actors_defs[actor_type].shield[shield].model_name);
+#ifdef CUSTOM_LOOK
+			custom_path(this_actor->shield_tex, playerpath, guildpath);
+#endif
 		}
 	else
 		{
@@ -534,16 +669,25 @@ void add_enhanced_actor_from_server(char * in_data)
 		}
 
 	my_strcp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name);
+#ifdef CUSTOM_LOOK
+	custom_path(this_actor->weapon_tex, playerpath, guildpath);
+#endif
 	my_strcp(this_actor->weapon_fn,actors_defs[actor_type].weapon[weapon].model_name);
 	this_actor->weapon_glow=actors_defs[actor_type].weapon[weapon].glow;
 	if(weapon == GLOVE_FUR || weapon == GLOVE_LEATHER){
 		my_strcp(this_actor->hands_tex, actors_defs[actor_type].weapon[weapon].skin_name);
+#ifdef CUSTOM_LOOK
+		custom_path(this_actor->hands_tex, playerpath, guildpath);
+#endif
 	}
 
 	//helmet
 	if(helmet!=HELMET_NONE)
 		{
 			my_strcp(this_actor->helmet_tex,actors_defs[actor_type].helmet[helmet].skin_name);
+#ifdef CUSTOM_LOOK
+			custom_path(this_actor->helmet_tex, playerpath, guildpath);
+#endif
 			my_strcp(this_actor->helmet_fn,actors_defs[actor_type].helmet[helmet].model_name);
 		}
 	else

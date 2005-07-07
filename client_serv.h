@@ -308,6 +308,7 @@
  * \name Colors
  */
 /*! @{ */
+#define c_lbound 0
 #define c_red1 0
 #define c_red2 7
 #define c_red3 14
@@ -336,6 +337,7 @@
 #define c_grey2 13
 #define c_grey3 20
 #define c_grey4 27
+#define c_ubound 27
 /*! @} */
 
 /*!
