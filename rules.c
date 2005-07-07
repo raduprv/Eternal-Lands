@@ -199,6 +199,9 @@ void fill_rules_window()
 	
 	widget_set_OnClick (rules_win, rules_scroll_id, rules_scroll_handler);
 	widget_set_OnDrag (rules_win, rules_scroll_id, rules_scroll_handler);
+	
+	if(display_rules)free_rules(display_rules);
+	display_rules=get_interface_rules((float)(rules_win_x_len-70)/(12*0.8f)-1);
 		
 	set_window_handler(rules_win, ELW_HANDLER_DISPLAY, &display_rules_handler);
 	set_window_handler(rules_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
