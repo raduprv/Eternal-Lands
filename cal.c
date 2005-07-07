@@ -58,7 +58,7 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
 		sprintf(temp,"No Anim: %s\n",fname);
-		log_error(temp);
+		log_error((const Uint8*)temp);
 	}
 	
 	return res;
@@ -120,7 +120,7 @@ void cal_render_actor(actor *act)
 	struct CalCoreMesh *_shieldmesh;
 	int boneid=-1;
 	float reverse_scale;
-	char str[255];
+	//char str[255];
 
 	skel=CalModel_GetSkeleton(act->calmodel);
 
