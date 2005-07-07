@@ -270,8 +270,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 				if(actors_list[i]->actor_id==actor_id)
 					{
 #ifdef CUSTOM_LOOK
-						snprintf(playerpath, 256, "custom/player/%d/", actors_list[i]->body_parts->uniq_id);
-						snprintf(playerpath, 256, "custom/guild/%d/", actors_list[i]->body_parts->guild_id);
+						snprintf(guildpath, sizeof(guildpath), "custom/guild/%d/", actors_list[i]->body_parts->guild_id);
+						snprintf(playerpath, sizeof(playerpath), "custom/player/%d/", actors_list[i]->body_parts->uniq_id);
 #endif
 						if(which_part==KIND_OF_WEAPON)
 							{

@@ -710,18 +710,24 @@ void process_network_spell(char * data, int len)
 
 void load_quickspells()
 {
-	Uint8 fname[128];
+	Uint8 fname[256];
 	char data[512];
 	FILE *fp;
 	int i;
-	//extern char username_str[16];
 	
-	//write to the data file, to ensure data integrity, we will write all the information
-	sprintf(fname,"spells_%s.dat",username_str);
+#ifndef WINDOWS
+	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username_str);
 	my_tolower(fname);
-	
-	fp=fopen(fname,"rb");
-	if(!fp)return;
+	fp = my_fopen (fname, "rb"); // try local file first
+	if (!fp)
+#endif
+	{
+		//write to the data file, to ensure data integrity, we will write all the information
+		sprintf(fname,"spells_%s.dat",username_str);
+		my_tolower(fname);
+		fp=fopen(fname,"rb");
+		if(!fp)return;
+	}
 
 	fread(data, sizeof(data), sizeof(char), fp);
 	
@@ -741,12 +747,19 @@ void save_quickspells()
 	char data[512];
 	//extern char username_str[16];
 	
-	//write to the data file, to ensure data integrity, we will write all the information
-	sprintf(fname,"spells_%s.dat",username_str);
+#ifndef WINDOWS
+	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username_str);
 	my_tolower(fname);
-	
-	fp=fopen(fname,"wb");
-	if(!fp)return;
+	fp = my_fopen (fname, "wb"); // try local file first
+	if (!fp)
+#endif
+	{
+		//write to the data file, to ensure data integrity, we will write all the information
+		sprintf(fname,"spells_%s.dat",username_str);
+		my_tolower(fname);
+		fp=fopen(fname,"wb");
+		if(!fp)return;
+	}
 
 	for(i=1;i<7;i++) if(!mqb_data[i]) break;
 
@@ -758,7 +771,7 @@ void save_quickspells()
 	}
 
 	fwrite(data, sizeof(data), sizeof(char), fp);
-		
+	
 	fclose(fp);
 }
 

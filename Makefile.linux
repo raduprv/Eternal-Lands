@@ -59,10 +59,6 @@ static:
 cal3d:
 	make -f Makefile.linux 'CFLAGS=$(CFLAGS) -DCAL3D' 'LDFLAGS=$(LDFLAGS) -lcal3d' 'OBJS=$(OBJS) cal3dwrap.o'
 
-
-cal3dwrap.o: cal3dwrap.c cal3dwrap.h
-	g++ $(CFLAGS) -c cal3dwrap.c
-
 clean:
 	-rm -f $(OBJS) el.x86.linux.bin .depend cal3d_wrapper.o
 
