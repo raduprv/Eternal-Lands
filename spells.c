@@ -716,8 +716,11 @@ void load_quickspells()
 	int i;
 	
 #ifndef WINDOWS
-	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username_str);
-	my_tolower(fname);
+	char username[20];
+	
+	strcpy(username, username_str);
+	my_tolower(username);
+	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "rb"); // try local file first
 	if (!fp)
 #endif
@@ -748,8 +751,11 @@ void save_quickspells()
 	//extern char username_str[16];
 	
 #ifndef WINDOWS
-	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username_str);
-	my_tolower(fname);
+	char username[20];
+	
+	strcpy(username, username_str);
+	my_tolower(username);
+	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "wb"); // try local file first
 	if (!fp)
 #endif
