@@ -64,7 +64,7 @@ void init_chat_channels ()
 		channels[itab].chan_nr = CHAT_LOCAL;
 		channels[itab].nr_lines = 0;
 		channels[itab].open = 0;
-		channels[itab].new = 0;
+		channels[itab].newchan = 0;
 	}
 }
 
@@ -112,7 +112,7 @@ int close_channel (window_info *win)
 			channels[ichan].chan_nr = CHAT_LOCAL;
 			channels[ichan].nr_lines = 0;
 			channels[ichan].open = 0;
-			channels[ichan].new = 0;
+			channels[ichan].newchan = 0;
 			channels[ichan].highlighted = 0;
 			return 1;
 		}
@@ -138,7 +138,7 @@ int add_chat_tab(int nlines, Uint8 channel)
 			channels[ichan].chan_nr = channel;
 			channels[ichan].nr_lines = nlines;
 			channels[ichan].open = 1;
-			channels[ichan].new = 1;
+			channels[ichan].newchan = 1;
 			channels[ichan].highlighted = 0;
 			
 			switch (channel)
@@ -200,7 +200,7 @@ void update_chat_window (int nlines, Uint8 channel)
 			if (channels[ichan].open)
 				channels[ichan].nr_lines += nlines;
 			/* Is this really correct behaviour? someone said something about consistency..
-			channels[ichan].new = 1;
+			channels[ichan].newchan = 1;
 			// don't set label color in active tab, since the user
 			// will already see the message appear, and don't change
 			// the color if it's highlighted
@@ -225,7 +225,7 @@ void update_chat_window (int nlines, Uint8 channel)
 		if (channels[ichan].open && channels[ichan].chan_nr == channel)
 		{
 			channels[ichan].nr_lines += nlines;
-			channels[ichan].new = 1;
+			channels[ichan].newchan = 1;
 
 			if (ichan == active_tab)
 			{
@@ -251,7 +251,7 @@ void update_chat_window (int nlines, Uint8 channel)
 		// uh oh, no empty slot found. this shouldn't really be happening...
 		// log as local
 		channels[0].nr_lines += nlines;	
-		channels[0].new = 1;
+		channels[0].newchan = 1;
 		if (0 == active_tab)
 		{
 			len = channels[0].nr_lines - nr_displayed_lines;
@@ -717,7 +717,7 @@ void create_chat_window() {
 	channels[0].chan_nr = CHAT_LOCAL;
 	channels[0].nr_lines = 0;
 	channels[0].open = 1;
-	channels[0].new = 0;
+	channels[0].newchan = 0;
 	active_tab = 0;		
 
 	chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);

@@ -31,7 +31,7 @@ typedef struct
 	int out_id;
 	Uint8 chan_nr;
 	int nr_lines;
-	char open, new, highlighted;
+	char open, newchan, highlighted;
 } chat_channel;
 
 extern chat_channel channels[MAX_CHAT_TABS]; /*!< Infos about a chat window tabs  */
