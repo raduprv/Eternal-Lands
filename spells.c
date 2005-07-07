@@ -1,6 +1,7 @@
 #include <string.h>
 #include "global.h"
 #include "elwindows.h"
+#include "interface.h"
 
 #define SIGILS_NO 50
 
@@ -713,7 +714,7 @@ void load_quickspells()
 	char data[512];
 	FILE *fp;
 	int i;
-	extern char username_str[16];
+	//extern char username_str[16];
 	
 	//write to the data file, to ensure data integrity, we will write all the information
 	sprintf(fname,"spells_%s.dat",username_str);
@@ -738,7 +739,7 @@ void save_quickspells()
 	FILE *fp;
 	int i;
 	char data[512];
-	extern char username_str[16];
+	//extern char username_str[16];
 	
 	//write to the data file, to ensure data integrity, we will write all the information
 	sprintf(fname,"spells_%s.dat",username_str);
