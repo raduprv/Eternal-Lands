@@ -1,25 +1,21 @@
 <actor type="brown rabbit">
-	<skin>./md2/bear.bmp</skin>
-	<model>./md2/rabbit1.md2</model>
+	<skeleton>./skeletons/rabbit.csf</skeleton>
+	<skin>./meshes/animals1.bmp</skin>
+	<mesh>./meshes/rabbit1.cmf</mesh>
 	<frames>
-		<walk>walk01</walk>
-		<die1>die01</die1>
-		<die2>dietwo01</die2>
-		<pain1>pain01</pain1>
-		<pain2>paintwo01</pain2>
-		<idle>idle01</idle>
-		<idle_sit>eat01</idle_sit>
-		<sit_down>ineat01</sit_down>
-		<stand_up>outeat01</stand_up>
-		<in_combat>idle01</in_combat>
-		<out_combat>idle01</out_combat>
-		<combat_idle>idle01</combat_idle>
-		<attack_up_1>attack01</attack_up_1>
-		<attack_up_2>attack01</attack_up_2>
-		<attack_up_3>attack01</attack_up_3>
-		<attack_up_4>attack01</attack_up_4>
-		<attack_down_1>attack01</attack_down_1>
-		<attack_down_2>attack01</attack_down_2>
+	        <CAL_walk>./animations/rabbit_walk.caf 0</CAL_walk>
+		<CAL_idle>./animations/rabbit_idle1.caf 0</CAL_idle>
+		<CAL_in_combat>./animations/rabbit_idle1.caf 1</CAL_in_combat>
+		<CAL_out_combat>./animations/rabbit_idle1.caf 1</CAL_out_combat>
+		<CAL_combat_idle>./animations/rabbit_idle1.caf 0</CAL_combat_idle>
+		<CAL_pain1>./animations/rabbit_pain.caf 1</CAL_pain1>
+		<CAL_die1>./animations/rabbit_die.caf 1</CAL_die1>
+		<CAL_attack_up_1>./animations/rabbit_attack1.caf 1</CAL_attack_up_1>
+          	<CAL_attack_up_2>./animations/rabbit_attack1.caf 1</CAL_attack_up_2>
+		<CAL_attack_up_3>./animations/rabbit_attack1.caf 1</CAL_attack_up_3>
+		<CAL_attack_up_4>./animations/rabbit_attack1.caf 1</CAL_attack_up_4>
+		<CAL_attack_down_1>./animations/rabbit_attack1.caf 1</CAL_attack_down_1>
+		<CAL_attack_down_2>./animations/rabbit_attack1.caf 1</CAL_attack_down_2>
 	</frames>
 	<ghost>no</ghost>
 	<walk_speed>0.1111111119</walk_speed>

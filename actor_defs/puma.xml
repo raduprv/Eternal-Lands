@@ -1,23 +1,37 @@
 <actor type="puma">
-	<skin>./md2/animals4.bmp</skin>
-	<model>./md2/mountainlion.md2</model>
+	<skin>./meshes/animals4.bmp</skin>
+	<mesh>./meshes/puma.cmf</mesh>
+	<skeleton>./skeletons/feline.csf</skeleton>
+	<scale>1.2</scale>
+	<bone_scale>1.2</bone_scale>
+	<mesh_scale>1.2</mesh_scale>
 	<frames>
-		<walk>walk01</walk>
-		<die1>die01</die1>
-		<die2>dietwo01</die2>
-		<pain1>pain01</pain1>
-		<pain2>paintwo01</pain2>
-		<idle>idle01</idle>
-		<attack_cast>cast01</attack_cast>
-		<in_combat>idletwo01</in_combat>
-		<out_combat>idletwo01</out_combat>
-		<combat_idle>idletwo01</combat_idle>
-		<attack_up_1>attack01</attack_up_1>
-		<attack_up_2>attack01</attack_up_2>
-		<attack_up_3>attack01</attack_up_3>
-		<attack_up_4>attack01</attack_up_4>
-		<attack_down_1>attack01</attack_down_1>
-		<attack_down_2>attack01</attack_down_2>
+		<CAL_walk>./animations/feline_walk.caf 0</CAL_walk>
+		<CAL_idle>./animations/feline_idle1.caf 0</CAL_idle>
+		<CAL_in_combat>./animations/feline_idle1.caf 1</CAL_in_combat>
+		<CAL_out_combat>./animations/feline_idle1.caf 1</CAL_out_combat>
+		<CAL_combat_idle>./animations/feline_idle1.caf 0</CAL_combat_idle>
+		<CAL_pain1>./animations/feline_pain.caf 1</CAL_pain1>
+		<CAL_die1>./animations/feline_die.caf 1</CAL_die1>
+		<CAL_attack_up_1>./animations/feline_attack1.caf 1</CAL_attack_up_1>
+          	<CAL_attack_up_2>./animations/feline_attack1.caf 1</CAL_attack_up_2>
+		<CAL_attack_up_3>./animations/feline_attack1.caf 1</CAL_attack_up_3>
+		<CAL_attack_up_4>./animations/feline_attack1.caf 1</CAL_attack_up_4>
+		<CAL_attack_down_1>./animations/feline_attack1.caf 1</CAL_attack_down_1>
+		<CAL_attack_down_2>./animations/feline_attack1.caf 1</CAL_attack_down_2>
+
+<CAL_IDLE_GROUP>EARS ./Animations/feline_ears_twitch1.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>EARS ./Animations/feline_ears_twitch2.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>HEAD ./Animations/feline_head_breath.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>HEAD ./Animations/feline_head_look1.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>HEAD ./Animations/feline_head_look2.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>LEGS ./Animations/feline_legs_move1.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>LEGS ./Animations/feline_legs_move2.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>MOUTH ./Animations/feline_mouth_yawn.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>TAIL ./Animations/feline_tail_wag1.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>TAIL ./Animations/feline_tail_wag2.xaf</CAL_IDLE_GROUP>
+<CAL_IDLE_GROUP>TAIL ./Animations/feline_tail_wag3.xaf</CAL_IDLE_GROUP>
+
 	</frames>
 	<ghost>no</ghost>
 	<walk_speed>0.1111111119</walk_speed>

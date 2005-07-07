@@ -1,9 +1,9 @@
 <actor type="beaver">
-	<skin>./meshes/animals2.bmp</skin>
+	<skin>./meshes/animals7.bmp</skin>
 	<skeleton>./skeletons/rat.csf</skeleton>
-        <mesh>./meshes/beaver.cmf</mesh>
+        <mesh>./meshes/racoon.cmf</mesh>
 	<scale>1.6</scale>
-	<bone_scale>1.6</bone_scale>
+	<bone_scale>2.2</bone_scale>
         <frames>
 		<CAL_walk>./animations/rat_walk.caf 0</CAL_walk>
 		<CAL_idle>./animations/rat_idle1.caf 0</CAL_idle>

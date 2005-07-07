@@ -1,12 +1,10 @@
 <actor type="wraith">
-	<skin>./md2/wraith.bmp</skin>
-	<model>./md2/wraith.md2</model>
+	<skeleton>./skeletons/wraith.csf</skeleton>
+	<skin>./meshes/wraith1.bmp</skin>
+	<mesh>./meshes/wraith1.cmf</mesh>
 	<frames>
-		<walk>frame01</walk>
-		<idle>frame01</idle>
-		<idle_sit>idledown01</idle_sit>
-		<sit_down>sitdown01</sit_down>
-		<stand_up>getup01</stand_up>
+		<CAL_idle>./animations/wraith_idle1.caf 0</CAL_idle>
+
 	</frames>
 	<ghost>yes</ghost>
 	<walk_speed>0.1111111119</walk_speed>

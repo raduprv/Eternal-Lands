@@ -1,7 +1,7 @@
 <actor type="beaver">
 	<skin>./meshes/animals2.bmp</skin>
 	<skeleton>./skeletons/rat.csf</skeleton>
-        <mesh>./meshes/beaver.cmf</mesh>
+        <mesh>./meshes/skunk.cmf</mesh>
 	<scale>1.6</scale>
 	<bone_scale>1.6</bone_scale>
         <frames>

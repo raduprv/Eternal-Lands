@@ -1,6 +1,6 @@
-<actor type="bear 2">
+<actor type="bear 3">
 	<skin>./meshes/animals6.bmp</skin>
-	<mesh>./meshes/bear2.cmf</mesh>
+	<mesh>./meshes/bear3.cmf</mesh>
         <skeleton>./skeletons/bear.csf</skeleton>
 	<scale>0.3</scale>
 	<bone_scale>0.3</bone_scale>
