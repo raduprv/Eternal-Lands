@@ -763,14 +763,14 @@ void next_command()
 								break;
 							case turn_left:
 								//LOG_TO_CONSOLE(c_green2,"turn left");
-								actors_list[i]->rotate_z_speed=45.0/9.0;
-								actors_list[i]->rotate_frames_left=9;
+								actors_list[i]->rotate_z_speed=45.0/27.0;
+								actors_list[i]->rotate_frames_left=27;
 								actors_list[i]->rotating=1;
 								//generate a fake movement, so we will know when to make the actor
 								//not busy
 								actors_list[i]->move_x_speed=0;
 								actors_list[i]->move_y_speed=0;
-								actors_list[i]->movement_frames_left=9;
+								actors_list[i]->movement_frames_left=27;
 								actors_list[i]->moving=1;
 								//test
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
@@ -779,14 +779,14 @@ void next_command()
 								break;
 							case turn_right:
                                  //LOG_TO_CONSOLE(c_green2,"turn right");
-								actors_list[i]->rotate_z_speed=-45.0/9.0;
-								actors_list[i]->rotate_frames_left=9;
+								actors_list[i]->rotate_z_speed=-45.0/27.0;
+								actors_list[i]->rotate_frames_left=27;
 								actors_list[i]->rotating=1;
 								//generate a fake movement, so we will know when to make the actor
 								//not busy
 								actors_list[i]->move_x_speed=0;
 								actors_list[i]->move_y_speed=0;
-								actors_list[i]->movement_frames_left=9;
+								actors_list[i]->movement_frames_left=27;
 								actors_list[i]->moving=1;
 								//test
 								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
@@ -807,22 +807,22 @@ void next_command()
 										{
 											targeted_z_rot=(actors_list[i]->que[0]-move_n)*45.0f;
 											rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
-											actors_list[i]->rotate_z_speed=rotation_angle/6;
+											actors_list[i]->rotate_z_speed=rotation_angle/18;
 											if(auto_camera)
 												if(actors_list[i]->actor_id==yourself)
 													{
-														camera_rotation_speed=rotation_angle/18;
-														camera_rotation_frames=18;
+														camera_rotation_speed=rotation_angle/54;
+														camera_rotation_frames=54;
 													}
 
-											actors_list[i]->rotate_frames_left=6;
+											actors_list[i]->rotate_frames_left=18;
 											actors_list[i]->rotating=1;
 										}
 									else targeted_z_rot=z_rot;
 									//ok, now calculate the motion vector...
-									actors_list[i]->move_x_speed=actors_defs[actor_type].walk_speed*sin(targeted_z_rot*3.1415926/180.0);
-									actors_list[i]->move_y_speed=actors_defs[actor_type].walk_speed*cos(targeted_z_rot*3.1415926/180.0);
-									actors_list[i]->movement_frames_left=18/4;
+									actors_list[i]->move_x_speed=(actors_defs[actor_type].walk_speed/3.0f)*sin(targeted_z_rot*3.1415926/180.0);
+									actors_list[i]->move_y_speed=(actors_defs[actor_type].walk_speed/3.0f)*cos(targeted_z_rot*3.1415926/180.0);
+									actors_list[i]->movement_frames_left=54/4;
 									actors_list[i]->after_move_frames_left=0;
 									actors_list[i]->moving=1;
 									//test to see if we have a diagonal movement, and if we do, adjust the speeds
@@ -839,8 +839,8 @@ void next_command()
 									float rotation_angle;
 									targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
 									rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
-									actors_list[i]->rotate_z_speed=rotation_angle/6.0f;
-									actors_list[i]->rotate_frames_left=6;
+									actors_list[i]->rotate_z_speed=rotation_angle/18.0f;
+									actors_list[i]->rotate_frames_left=18;
 									actors_list[i]->rotating=1;
 									actors_list[i]->stop_animation=1;
 								}
@@ -868,10 +868,10 @@ void next_command()
 
 void destroy_actor(int actor_id)
 {
+	int i;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	int i;
 
 	for(i=0;i<max_actors;i++)
 		{
