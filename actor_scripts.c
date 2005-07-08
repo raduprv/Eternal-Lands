@@ -961,8 +961,8 @@ void add_command_to_actor(int actor_id, char command)
 								if(actors_list[i]->que[k]==nothing)
 									{
 										//we are SEVERLY behind, just update all the actors in range
-										if(k>8) break;
-										else if(k>6)
+										if(k>MAX_CMD_QUEUE-2) break;
+										else if(k>MAX_CMD_QUEUE-8)
 											{
 												// is the front a sit/stand spam?
 												if((actors_list[i]->que[0]==stand_up||actors_list[i]->que[0]==sit_down)
