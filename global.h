@@ -13,6 +13,7 @@
 	#include <al.h>
 	#include <alut.h>
 	#ifndef	__GNUC__	// or should we test for VC
+		#define inline __inline
 		#define	snprintf _snprintf
 		#define strncasecmp _strnicmp
 		#define strcasecmp _stricmp
