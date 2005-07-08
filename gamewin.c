@@ -622,10 +622,10 @@ int display_game_handler (window_info *win)
 		if (!dungeon && shadows_on && is_day) 
 			render_light_view();
 		CHECK_GL_ERRORS ();
-
+#ifndef NETWORK_THREAD
 		//check for network data
 		get_message_from_server ();
-
+#endif //NETWORK_THREAD
 //		glEnable (GL_FOG);
 		if (any_reflection > 1)
 		{
@@ -637,10 +637,10 @@ int display_game_handler (window_info *win)
 			if (show_reflection) display_3d_reflection ();
 		}
 		CHECK_GL_ERRORS ();
-
+#ifndef NETWORK_THREAD
 		//check for network data - reduces resyncs
 		get_message_from_server ();
-
+#endif //NETWORK_THREAD
 		if (!dungeon && shadows_on && is_day)
 		{
 			draw_sun_shadowed_scene (any_reflection);
@@ -659,9 +659,10 @@ int display_game_handler (window_info *win)
 		}
 		glDisable (GL_FOG);
 		CHECK_GL_ERRORS ();
-
+#ifndef NETWORK_THREAD
 		//check for network data - reduces resyncs
 		get_message_from_server ();
+#endif //NETWORK_THREAD
 	}	// end of active display check
 	else 
 	{
@@ -669,10 +670,10 @@ int display_game_handler (window_info *win)
 	}
 
 	CHECK_GL_ERRORS ();
-
+#ifndef NETWORK_THREAD
 	//check for network data - reduces resyncs
 	get_message_from_server ();
-
+#endif //NETWORK_THREAD
 	// if not active, dont bother drawing any more
 	if (!(SDL_GetAppState () & SDL_APPACTIVE))
 	{

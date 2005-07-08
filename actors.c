@@ -533,8 +533,10 @@ void display_actors()
 								if(cur_actor->is_enhanced_model)
 									{
 										draw_enhanced_actor(cur_actor);
+#ifndef NETWORK_THREAD
 										//check for network data - reduces resyncs
 										get_message_from_server();
+#endif //NETWORK_THREAD
 										if(actors_list[i]==NULL || cur_actor!=actors_list[i])continue;//The server might destroy our actor in that very moment...
 									}
 								else

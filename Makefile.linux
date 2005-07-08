@@ -9,6 +9,7 @@ OPTIONS=-DLINUX -DELC
 #-DNEW_CLIENT #contains the new client interface, with trade, storage windows etc.
 #-DMULTI_CHANNEL # multi-channel support, should go into NEW_CLIENT once it's working
 #-DCUSTOM_LOOK # allows you to customize your look. Still unfinished!
+#-DNETWORK_THREAD
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
@@ -38,7 +39,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	new_actors.o new_character.o notepad.o	\
 	openingwin.o options.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
-	questlog.o reflection.o	rules.o \
+	questlog.o queue.o reflection.o	rules.o \
 	sector.o shadows.o sound.o spells.o stats.o storage.o tabs.o	\
 	text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	weather.o widgets.o cal.o

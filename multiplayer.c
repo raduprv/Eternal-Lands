@@ -2,6 +2,9 @@
 #include <string.h>
 #include "global.h"
 #include "elwindows.h"
+#ifdef NETWORK_THREAD
+ #include "queue.h"
+#endif //NETWORK_THREAD
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -1017,7 +1020,11 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 
 int in_data_used=0;
+#ifdef NETWORK_THREAD
+static void process_data_from_server(queue_t *queue)
+#else
 static void process_data_from_server()
+#endif //NETWORK_THREAD
 {
 	/* enough data present for the length field ? */
 	if (3 <= in_data_used) {
@@ -1031,7 +1038,15 @@ static void process_data_from_server()
 				size += 2; /* add length field size */
 				
 				if (size <= in_data_used) { /* do we have a complete message ? */
+#ifdef NETWORK_THREAD
+					message_t *message = malloc(sizeof *message);
+					message->data = malloc(size*sizeof(unsigned char));
+					message->length = size;
+					memcpy(message->data, pData, size);
+					queue_push(queue, message);
+#else
 					process_message_from_server(pData, size);
+#endif //NETWORK_THREAD
 
 					if (log_conn_data)
 						log_conn(pData, size);
@@ -1039,9 +1054,9 @@ static void process_data_from_server()
 					/* advance to next message */
 					pData         += size;
 					in_data_used  -= size;
-				}
-				else
+				} else {
 					break;
+				}
 			}
 			else { /* sizeof (in_data) - 3 < size */
 				LOG_TO_CONSOLE(c_red2, packet_overrun);
@@ -1059,20 +1074,40 @@ static void process_data_from_server()
 	}
 }
 
+#ifdef NETWORK_THREAD
+int get_message_from_server(void *queue)
+#else
 void get_message_from_server()
+#endif //NETWORK_THREAD
 {
+#ifdef NETWORK_THREAD
+	int received;
+	while(!done)
+	{
+		/* Sleep while disconnected or no data */
+		if(disconnected || SDLNet_CheckSockets(set, 0) <= 0 || !SDLNet_SocketReady(my_socket)) {
+			SDL_Delay(10);
+			continue; //Continue to make the main loop check int done.
+		}
+		if ((received = SDLNet_TCP_Recv(my_socket, &in_data[in_data_used], sizeof (in_data) - in_data_used)) > 0) {
+#else
 	/* data available for reading ? */
 	if (!disconnected && SDLNet_CheckSockets(set, 0) && SDLNet_SocketReady(my_socket)) {
 		int received;
 
 		if (0 < (received = SDLNet_TCP_Recv(my_socket, &in_data[in_data_used], sizeof (in_data) - in_data_used))) {
+#endif //NETWORK_THREAD
 			in_data_used += received;
-      
+#ifdef NETWORK_THREAD
+			process_data_from_server(queue);
+#else
 			process_data_from_server();
+#endif //NETWORK_THREAD
 		}
 		else { /* 0 >= received (EOF or some error) */
-			if (received)
+			if (received) {
 				LOG_TO_CONSOLE(c_red2, SDLNet_GetError()); //XXX: SDL[Net]_GetError used by timer thread ? i bet its not reentrant...
+			}
 		 
 			LOG_TO_CONSOLE(c_red2, disconnected_from_server);
 			LOG_TO_CONSOLE(c_red2, alt_x_quit);
@@ -1080,6 +1115,7 @@ void get_message_from_server()
 			disconnected = 1;
 		}
 	}
+	return 1;
 }
 
 /* currently UNUSED

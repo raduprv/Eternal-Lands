@@ -868,10 +868,10 @@ void next_command()
 
 void destroy_actor(int actor_id)
 {
-	int i;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+	int i;
 
 	for(i=0;i<max_actors;i++)
 		{

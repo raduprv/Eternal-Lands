@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#ifdef NETWORK_THREAD
+ #include "queue.h"
+#endif //NETWORK_THREAD
 
 #ifdef	__GNUC__
 #include <unistd.h>
@@ -24,6 +27,7 @@ int client_version_release=VER_RELEASE;
 int	client_version_patch=VER_BUILD;
 int version_first_digit=10;	//protocol/game version sent to server
 int version_second_digit=10;
+int done = 0;
 
 int gargc;
 char **  gargv;
@@ -31,12 +35,20 @@ char **  gargv;
 
 int start_rendering()
 {
-    int done=0;
-
 	SDL_Thread *music_thread=SDL_CreateThread(update_music, 0);
+#ifdef NETWORK_THREAD
+	SDL_Thread *network_thread;
+	queue_t *message_queue;
+#endif //NETWORK_THREAD
+
 #ifndef WINDOWS
 	SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
 #endif
+#ifdef NETWORK_THREAD
+	queue_initialise(&message_queue);
+	network_thread = SDL_CreateThread(get_message_from_server, message_queue);
+#endif //NETWORK_THREAD
+
 	/* Loop until done. */
 	while( !done )
 		{
@@ -51,8 +63,20 @@ int start_rendering()
 			//advance the clock
 			cur_time = SDL_GetTicks();
 			//check for network data
-			get_message_from_server();
+#ifdef NETWORK_THREAD
+			if(!queue_isempty(message_queue)) {
+				message_t *message;
 
+				while((message = queue_pop(message_queue)) != NULL)
+				{
+					process_message_from_server(message->data, message->length);
+					free(message->data);
+					free(message);
+				}
+			}
+#else
+			get_message_from_server();
+#endif //NETWORK_THREAD
 			if(!limit_fps || ((cur_time-last_time) && (1000/(cur_time-last_time) < limit_fps)))
 				{
 					//draw everything
@@ -70,10 +94,20 @@ int start_rendering()
 			//cache handling
 			if(cache_system)cache_system_maint();
 			//see if we need to exit
-			if(exit_now)break;
+			if(exit_now) {
+				done = 1;
+				break;
+			}
 		}
+	if(!done) {
+		done = 1;
+	}
 	have_music=0;
 	SDL_WaitThread(music_thread,&done);
+#ifdef NETWORK_THREAD
+	SDL_WaitThread(network_thread,&done);
+	queue_destroy(message_queue);
+#endif //NETWORK_THREAD
 	if(pm_log.ppl)free_pm_log();
 	
 	save_bin_cfg();

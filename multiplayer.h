@@ -33,6 +33,8 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 
 extern int log_conn_data; /*!< indicates whether we should log connection data or not */
 
+extern int done; /*!< from main.c. indicates whether the network thread should exit or not */
+
 /*!
  * \ingroup network_actors
  * \brief   Sends the given message \a str using the socket \a my_socket to the server.
@@ -108,6 +110,12 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
  * \pre If the socket set is invalid, this function won't perform any actions.
  * \pre If the socket is not ready, this function won't perform any actions.
  */
+#ifdef NETWORK_THREAD
+int get_message_from_server(void *queue);
+
+void process_message_from_server(unsigned char *in_data, int data_lenght);
+#else
 void get_message_from_server();
+#endif //NETWORK_THREAD
 
 #endif

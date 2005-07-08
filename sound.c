@@ -544,7 +544,7 @@ int update_music(void *dummy)
 				}
 		}
 #endif	//NO_MUSIC
-	return 0;
+	return 1;
 }
 
 void stream_music(ALuint buffer) {
