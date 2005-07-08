@@ -369,7 +369,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				add_command_to_actor(SDL_SwapLE16(*((short *)(in_data+3))),in_data[5]);
+				// allow for multiple packets in a row
+				while ( data_lenght >= 3){
+					add_command_to_actor(SDL_SwapLE16(*((short *)(in_data+3))),in_data[5]);
+					in_data+= 3;
+					data_lenght-= 3;
+				}
 			}
 			break;
 
@@ -430,7 +435,12 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case SEND_PARTIAL_STAT:
 			{
-				get_partial_stat(*((Uint8 *)(in_data+3)),SDL_SwapLE32(*((Sint32 *)(in_data+4))));
+				// allow for multiple stats in a row
+				while (data_lenght >= 5){
+					get_partial_stat(*((Uint8 *)(in_data+3)),SDL_SwapLE32(*((Sint32 *)(in_data+4))));
+					in_data+= 5;
+					data_lenght-= 5;
+				}
 			}
 			break;
 
