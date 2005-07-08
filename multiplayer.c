@@ -1115,7 +1115,9 @@ void get_message_from_server()
 			disconnected = 1;
 		}
 	}
+#ifdef NETWORK_THREAD
 	return 1;
+#endif
 }
 
 /* currently UNUSED
