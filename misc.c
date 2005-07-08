@@ -510,7 +510,7 @@ void draw_box(char * name, int x, int y, int w, int h, int rad)
 }
 
 
-void draw_smooth_button(char * str, int x, int y, int w, int lines, int highlight, float r, float g, float b, float a)
+void draw_smooth_button(char * str, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha)
 {
 	int radius=lines*11.0f;
 	int xstr=0;
@@ -521,13 +521,13 @@ void draw_smooth_button(char * str, int x, int y, int w, int lines, int highligh
 
 	glDisable(GL_TEXTURE_2D);
 
-	glColor3f(0.77, 0.57, 0.39); //Should it be here?
+	glColor3f(r, g, b);
 	glBegin(GL_LINE_LOOP);
 		draw_circle_ext(x, y, radius, 10, 90, 270);
 		draw_circle_ext(x+w, y, radius, 10, -90, 90);
 	glEnd();
 	if(highlight) {
-		glColor4f(r,g,b,a);
+		glColor4f(hr,hg,hb,ha);
 		glBegin(GL_POLYGON);
 			draw_circle_ext(x+1, y+1, radius-1, 10, 90, 270);
 			draw_circle_ext(x+w+1, y+1, radius-1, 10, -90, 90);
@@ -535,8 +535,12 @@ void draw_smooth_button(char * str, int x, int y, int w, int lines, int highligh
 	}
 	glEnable(GL_TEXTURE_2D);
 
-	if(highlight) glColor3f(0.77f, 0.57f, 0.39f);
+	if(highlight) {
+		glColor3f(r, g, b);
+	}
 
-	if(str) draw_string_small(xstr, y+radius/2.0f, str, lines);
+	if(str) {
+		draw_string_small(xstr, y+radius/2.0f, str, lines);
+	}
 }
 

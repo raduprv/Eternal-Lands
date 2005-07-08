@@ -231,12 +231,15 @@ void draw_box(char * name, int x, int y, int w, int h, int rad);
  * \param x The start x position
  * \param y The start y position
  * \param w The width
- * \param l The number of lines (determines the height)
+ * \param lines The number of lines (determines the height)
+ * \param r The red color for border and text
+ * \param g The green color for border and text
+ * \param b The blue color for border and text
  * \param highlight If the button is highlighted or not
- * \param r The red color
- * \param g The green color
- * \param b The blue color
- * \param a The alpha color
+ * \param hr The red color for highlighted buttons
+ * \param hg The green color for highlighted buttons
+ * \param hb The blue color for highlighted buttons
+ * \param ha The alpha color for highlighted buttons
  */
-void draw_smooth_button(char * str, int x, int y, int w, int lines, int highlight, float r, float g, float b, float a);
+void draw_smooth_button(char * str, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
 #endif

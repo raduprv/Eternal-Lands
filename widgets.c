@@ -1832,7 +1832,7 @@ int multiselect_draw(widget_list *widget)
 		g = widget->g != -1 ? widget->g : 0.23f;
 		b = widget->b != -1 ? widget->b : 0.15f;
 		for(i = 0; i < M->nr_buttons; i++) {
-			draw_smooth_button(M->buttons[i].text, widget->pos_x+M->buttons[i].x, widget->pos_y+M->buttons[i].y, widget->len_x-22, 1, (i == M->selected_button), r, g, b, 0.5f);
+			draw_smooth_button(M->buttons[i].text, widget->pos_x+M->buttons[i].x, widget->pos_y+M->buttons[i].y, widget->len_x-22, 1, 0.77f, 0.59f, 0.39f, (i == M->selected_button), r, g, b, 0.5f);
 		}
 	}
 	return 1;

@@ -485,16 +485,16 @@ int display_namepass_handler (window_info * win)
 	draw_string_small(20, 20, login_username_str, 1);
 	draw_string_small(20, 60, login_password_str, 1);
 	draw_string_small(20, 90, confirm_password, 1);
-	draw_smooth_button(inputs[0].str, 100, 16, 120, 1, active == 0, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(hidden?get_pass_str(inputs[1].pos):inputs[1].str, 100, 56, 120, 1, active == 1, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(hidden?get_pass_str(inputs[2].pos):inputs[2].str, 100, 86, 120, 1, active == 2, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(inputs[0].str, 100, 16, 120, 1, 0.77f, 0.57f ,0.39f, active == 0, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(hidden?get_pass_str(inputs[1].pos):inputs[1].str, 100, 56, 120, 1, 0.77f, 0.57f ,0.39f, active == 1, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(hidden?get_pass_str(inputs[2].pos):inputs[2].str, 100, 86, 120, 1, 0.77f, 0.57f ,0.39f, active == 2, 0.32f, 0.23f, 0.15f, 0.5f);
 	
-	draw_smooth_button(hidden?show_password:hide_password, 20, 120, 200, 1, hidden, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(hidden?show_password:hide_password, 20, 120, 200, 1, 0.77f, 0.57f ,0.39f, hidden, 0.32f, 0.23f, 0.15f, 0.5f);
 
 	draw_box(NULL, 20, 160, 220, 60, 0);
 	
-	draw_smooth_button(char_done, 20, 230, 60, 1, are_you_sure, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(char_back, 160, 230, 60, 1, 0, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(char_done, 20, 230, 60, 1, 0.77f, 0.57f ,0.39f, are_you_sure, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(char_back, 160, 230, 60, 1, 0.77f, 0.57f ,0.39f, 0, 0.32f, 0.23f, 0.15f, 0.5f);
 
 	if(display_time>cur_time){
 		draw_string_small(30, 168, create_char_error_str, 3);
@@ -637,17 +637,17 @@ int display_color_race_handler (window_info *win)
 
 	//Gender
 	draw_box(gender_str, 10, 10, 250, 45, 0);
-	draw_smooth_button(male_str, 40, 22, 60, 1, our_actor.male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(female_str, 150, 22, 60, 1, !our_actor.male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(male_str, 40, 22, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(female_str, 150, 22, 60, 1, 0.77f, 0.57f ,0.39f, !our_actor.male, 0.32f, 0.23f, 0.15f, 0.5f);
 
 	//Race
 	draw_box(race_str, 10, 65, 250, 98, 0);
-	draw_smooth_button(human_str, 20, 75, 60, 1, our_actor.race==human_female||our_actor.race==human_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(elf_str, 20, 103, 60, 1, our_actor.race==elf_female||our_actor.race==elf_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(dwarf_str, 20, 131, 60, 1, our_actor.race==dwarf_female||our_actor.race==dwarf_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(gnome_str, 140, 75, 60, 1, our_actor.race==gnome_female||our_actor.race==gnome_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(orchan_str, 140, 103, 60, 1, our_actor.race==orchan_female||our_actor.race==orchan_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(draegoni_str, 140, 131, 60, 1, our_actor.race==draegoni_female||our_actor.race==draegoni_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(human_str, 20, 75, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==human_female||our_actor.race==human_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(elf_str, 20, 103, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==elf_female||our_actor.race==elf_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(dwarf_str, 20, 131, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==dwarf_female||our_actor.race==dwarf_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(gnome_str, 140, 75, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==gnome_female||our_actor.race==gnome_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(orchan_str, 140, 103, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==orchan_female||our_actor.race==orchan_male, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(draegoni_str, 140, 131, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==draegoni_female||our_actor.race==draegoni_male, 0.32f, 0.23f, 0.15f, 0.5f);
 	
 	//Appearance
 	draw_box("Appearance", 270, 10, 120, win->len_y-17, 0);
