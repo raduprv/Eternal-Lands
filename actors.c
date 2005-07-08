@@ -428,7 +428,7 @@ float cal_get_maxz2(actor *act)
 
 void draw_actor(actor * actor_id)
 {
-	int i;
+	//int i;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int texture_id;

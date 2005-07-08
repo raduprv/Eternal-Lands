@@ -434,10 +434,10 @@ void move_to_next_frame()
 	char frame_name[16];
 	char frame_number[3];
 	int frame_no;
-	int numFrames=0;
-	char frame_exists;
-	struct CalMixer *mixer;
-	char str[255];
+	//int numFrames=0;
+	//char frame_exists;
+	//struct CalMixer *mixer;
+	//char str[255];
 
 	LOCK_ACTORS_LISTS();
 	for(i=0;i<max_actors;i++) {
@@ -1497,7 +1497,7 @@ void parse_idle_group(actor_types *act,char *str)
 {
 	char gname[255];
 	char fname[255];
-	char temp[255];
+	//char temp[255];
 	int gindex;
 	
 	sscanf(str,"%s%s",gname,fname);
@@ -1513,9 +1513,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
 	char errmsg[120];
 	char str[255];
-	char fname[255];
-	char temp[255];
-	int i;
+	//char fname[255];
+	//char temp[255];
+	//int i;
 	
 	int ok = 1;
 	if (cfg == NULL) return 0;
@@ -1724,11 +1724,11 @@ int cal_search_mesh(actor_types *act, char *fn)
 //Loads a Cal3D mesh
 int cal_load_mesh(actor_types *act,char *fn)
 {
-	int i;
-	int meshindex=-1;
-	char fname[255];
+	//int i;
+	//int meshindex=-1;
+	//char fname[255];
 	char str[255];
-	char temp[255];
+	//char temp[255];
 	int res;
 	struct CalCoreMesh *mesh;
 	
@@ -1759,11 +1759,11 @@ int cal_load_mesh(actor_types *act,char *fn)
 
 int cal_load_weapon_mesh(actor_types *act,char *fn)
 {
-	int i;
-	int meshindex=-1;
-	char fname[255];
+	//int i;
+	//int meshindex=-1;
+	//char fname[255];
 	char str[255];
-	char temp[255];
+	//char temp[255];
 	int res;
 	struct CalCoreMesh *mesh;
 	
@@ -1797,12 +1797,13 @@ int cal_load_weapon_mesh(actor_types *act,char *fn)
 void init_coremodel(int act_idx)
 {
 	actor_types *act;
-	char fname[255];
-	char str[255];
-	char temp[255];
-	int res,i;
-	int aindex;
-	struct CalCoreMesh *mesh;
+	int	i;
+	//char fname[255];
+	//char str[255];
+	//char temp[255];
+	//int res,i;
+	//int aindex;
+	//struct CalCoreMesh *mesh;
 	
 	act = &(actors_defs[act_idx]);
 	
@@ -1847,7 +1848,7 @@ void init_coremodel(int act_idx)
 int parse_actor_script (xmlNode *cfg) {
 	xmlNode *item;
 	char errmsg[120];
-	char str[255];
+	//char str[255];
 	int ok, act_idx,i;
 	actor_types *act;
 	struct cal_anim *tempanim;
