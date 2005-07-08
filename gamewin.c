@@ -744,7 +744,7 @@ int display_game_handler (window_info *win)
 #endif	//DEBUG
 		sprintf (str, "FPS: %i", fps[0]);
 		glColor3f (1.0f, 1.0f, 1.0f);
-		draw_string (win->len_x-hud_x-95, win->len_y-hud_y-25, str, 1);
+		draw_string (win->len_x-hud_x-95, 5, str, 1);
 	}
 
 	CHECK_GL_ERRORS ();
