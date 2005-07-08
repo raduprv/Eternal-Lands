@@ -139,6 +139,9 @@ void switch_vidmode(int mode)
 #ifndef ELCONFIG
 	if(!video_mode_set) return;
 	set_new_video_mode(full_screen,video_mode);
+	if(items_win){
+		windows_list.window[items_win].show_handler(&windows_list.window[items_win]);
+	}
 #endif
 }
 

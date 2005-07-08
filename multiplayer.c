@@ -479,7 +479,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case INVENTORY_ITEM_TEXT:
 			{
-				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+100,items_string);
+				put_small_text_in_box(&in_data[3],data_lenght-3,6*items_grid_size+100,items_string);
 				if(!(get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
 					{
 						put_text_in_buffer (CHAT_SERVER, &in_data[3], data_lenght-3,0);

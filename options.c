@@ -194,7 +194,12 @@ void change_option(int * unused,int * option) {	*option = !*option; }
 void move_to_full_screen(int * unused, int * unused2) { toggle_full_screen(); }
 void switch_video_modes(int * unused, int * mode)
 {
-	if(video_mode!=*mode) set_new_video_mode(full_screen,*mode);
+	if(video_mode!=*mode) {
+		set_new_video_mode(full_screen,*mode);
+		if(items_win){
+			windows_list.window[items_win].show_handler(&windows_list.window[items_win]);
+		}
+	}
 }
 void change_sound(int * unused, int * unused2) {
 	if(sound_on)

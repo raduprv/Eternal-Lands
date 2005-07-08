@@ -23,6 +23,7 @@ int item_action_mode=ACTION_WALK;
 int items_win= -1;
 int items_menu_x=10;
 int items_menu_y=20;
+int items_grid_size=51;//Changes depending on the size of the root window (is 51 > 640x480 and 33 in 640x480).
 int items_menu_x_len=6*51+110;
 int items_menu_y_len=6*51+90;
 
@@ -204,7 +205,7 @@ void drag_item(int item, int storage, int mini)
 	get_and_set_texture_id(this_texture);
 	glBegin(GL_QUADS);
 	if(mini)
-		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x,mouse_y,mouse_x+32,mouse_y+32);
+		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-16,mouse_y-16,mouse_x+16,mouse_y+16);
 	else
 		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+25,mouse_y+25);
 	glEnd();
@@ -290,7 +291,7 @@ int display_items_handler(window_info *win)
 	x=quantity_x_offset+33;
 	y=quantity_y_offset+3;
 	glColor3f(0.3f,0.5f,1.0f);
-	for(i=0;i<6;i++,y+=20){
+	for(i=0;i<(video_mode>4?6:3);i++,y+=20){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
 			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, quantities.quantity[i].str,1);
@@ -325,15 +326,15 @@ int display_items_handler(window_info *win)
 				cur_pos-=ITEM_WEAR_START;
 				item_is_weared=1;
 				x_start=wear_items_x_offset+33*(cur_pos%2)+1;
-				x_end=x_start+32;
+				x_end=x_start+32-1;
 				y_start=wear_items_y_offset+33*(cur_pos/2);
-				y_end=y_start+32;
+				y_end=y_start+32-1;
 			} else {
 				item_is_weared=0;
-				x_start=51*(cur_pos%6)+1;
-				x_end=x_start+50;
-				y_start=51*(cur_pos/6);
-				y_end=y_start+50;
+				x_start=items_grid_size*(cur_pos%6)+1;
+				x_end=x_start+items_grid_size-1;
+				y_start=items_grid_size*(cur_pos/6);
+				y_end=y_start+items_grid_size-1;
 			}
 
 			//get the texture this item belongs to
@@ -353,13 +354,13 @@ int display_items_handler(window_info *win)
 	
 	//draw the load string
 	sprintf(str,"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
-	draw_string_small (win->len_x -  8 * strlen (str) - 4, 6*51+10, str, 1);
+	draw_string_small (win->len_x -  8 * strlen (str) - 4, win->len_y-20, str, 1);
 	
 	//now, draw the inventory text, if any.
 	draw_string_small(4,win->len_y-59,items_string,4);
 
 	if(show_quantity_help){
-		show_help(quantity_edit_str, quantity_x_offset+70-strlen(quantity_edit_str)*8, quantity_y_offset+125);
+		show_help(quantity_edit_str, quantity_x_offset+70-strlen(quantity_edit_str)*8, quantity_y_offset+150);
 	}
 	
 	// Render the grid *after* the images. It seems impossible to code
@@ -369,14 +370,14 @@ int display_items_handler(window_info *win)
 	glColor3f(0.77f,0.57f,0.39f);
 
 	//draw the grids
-	rendergrid(6, 6, 0, 0, 51, 51);
+	rendergrid(6, 6, 0, 0, items_grid_size, items_grid_size);
 	
 	glColor3f(0.57f,0.67f,0.49f);
 	rendergrid(2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
 	
 	//now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
-	rendergrid(1, 6, quantity_x_offset, quantity_y_offset, 66, 20);
+	rendergrid(1, (video_mode>4?6:3), quantity_x_offset, quantity_y_offset, 66, 20);
 	glEnable(GL_TEXTURE_2D);
 
 	return 1;
@@ -444,7 +445,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	//see if we changed the quantity
 	if(mx>quantity_x_offset && mx<quantity_x_offset+66 &&
 	   my>quantity_y_offset && my<quantity_y_offset+120) {
-		int pos=get_mouse_pos_in_grid(mx, my, 1, 6, quantity_x_offset, quantity_y_offset, 70, 20);
+		int pos=get_mouse_pos_in_grid(mx, my, 1, (video_mode>4?6:3), quantity_x_offset, quantity_y_offset, 70, 20);
 
 		if(flags & ELW_LEFT_MOUSE){
 			if(edit_quantity!=-1){
@@ -473,9 +474,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 	
 	//see if we clicked on any item in the main category
-	else if(mx>0 && mx < 306 &&
-	   my>0 && my < 306) {
-		int pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, 51, 51);
+	else if(mx>0 && mx < 6*items_grid_size &&
+	   my>0 && my < 6*items_grid_size) {
+		int pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, items_grid_size, items_grid_size);
 		
 		if(item_dragged!=-1){
 			if(!item_list[pos].quantity){
@@ -562,8 +563,8 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	
 	show_quantity_help=0;
 	
-	if(mx>0&&mx<306&&my>0&&my<306){
-		pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, 51, 51);
+	if(mx>0&&mx<6*items_grid_size&&my>0&&my<6*items_grid_size){
+		pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, items_grid_size, items_grid_size);
 
 		if(item_list[pos].quantity){
 			if(item_action_mode==ACTION_LOOK) {
@@ -666,10 +667,38 @@ int drop_all_handler ()
 	return 1;
 }
 
+int drop_button_id = 0;
+
+int show_items_handler(window_info * win)
+{
+	widget_list *w;
+	char str[sizeof(items_string)];
+	
+	if(video_mode>4) {
+		items_grid_size=51;
+		quantity_y_offset=185;
+		wear_items_y_offset=30;
+	} else {
+		items_grid_size=33;
+		quantity_y_offset=155;
+		wear_items_y_offset=0;
+	}
+	win->len_x=6*items_grid_size+110;
+	win->len_y=6*items_grid_size+90;
+	quantity_x_offset=6*items_grid_size+20;
+	wear_items_x_offset=6*items_grid_size+20;
+
+	w=widget_find(items_win, drop_button_id);
+	if(w)w->pos_y=6*items_grid_size;
+	
+	strcpy(str,items_string);
+	put_small_text_in_box(str,strlen(str),6*items_grid_size+100,items_string);
+
+	return 1;
+}
+
 void display_items_menu()
 {
-	int drop_button_id = 0;
-
 	if(items_win < 0){
 		items_win= create_window("Inventory", game_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
 
@@ -677,9 +706,12 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
+		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		
-		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 0, 6*51+10, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, "Drop All");
+		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 0, 6*(video_mode>4?51:33)+10, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, "Drop All");
 		widget_set_OnClick (items_win, drop_button_id, drop_all_handler);
+		
+		show_items_handler(&windows_list.window[items_win]);
 	} else {
 		show_window(items_win);
 		select_window(items_win);

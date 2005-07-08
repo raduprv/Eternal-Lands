@@ -71,6 +71,8 @@ extern int items_win; /*!< inventory windows handler */
 extern int items_menu_x;
 extern int items_menu_y;
 
+extern int items_grid_size;
+
 /*! \name Text fields for items */
 /*! @{ */
 extern int items_text_1;
