@@ -852,7 +852,7 @@ void next_command()
 							//save the last command. It is especially good for run and walk
 							actors_list[i]->last_command=actors_list[i]->que[0];
 							//move que down with one command
-							for(k=0;k<10-1;k++)
+							for(k=0;k<MAX_CMD_QUEUE-1;k++)
 								{
 									if(k>max_queue && actors_list[i]->que[k]!=nothing)max_queue=k;
 									actors_list[i]->que[k]=actors_list[i]->que[k+1];
@@ -956,7 +956,7 @@ void add_command_to_actor(int actor_id, char command)
 				if(actors_list[i]->actor_id==actor_id)//The timer thread can't free so this should be np...
 					{
 						LOCK_ACTORS_LISTS();
-						for(k=0;k<10;k++)
+						for(k=0;k<MAX_CMD_QUEUE;k++)
 							{
 								if(actors_list[i]->que[k]==nothing)
 									{

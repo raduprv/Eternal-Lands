@@ -65,13 +65,12 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor->x_rot=0;
 	our_actor->y_rot=0;
 	our_actor->z_rot=z_rot;
-		
-
+	
 	//reset the script related things
-    	our_actor->move_x_speed=0;
+	our_actor->move_x_speed=0;
 	our_actor->move_y_speed=0;
 	our_actor->move_z_speed=0;
-    	our_actor->rotate_x_speed=0;
+	our_actor->rotate_x_speed=0;
 	our_actor->rotate_y_speed=0;
 	our_actor->rotate_z_speed=0;
 	our_actor->movement_frames_left=0;
@@ -81,7 +80,7 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	our_actor->last_command=nothing;
 	
 	//clear the que
-	for(k=0;k<10;k++)our_actor->que[k]=nothing;
+	for(k=0; k<MAX_CMD_QUEUE; k++)	our_actor->que[k]=nothing;
 
 //	our_actor->model_data=0;
 	my_strcp(our_actor->cur_frame,frame_name);
@@ -91,9 +90,9 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 
 	//find a free spot, in the actors_list
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
-	for(i=0;i<max_actors;i++)
+	for(i=0; i<max_actors; i++)
 		{
-			if(!actors_list[i])break;
+			if(!actors_list[i])	break;
 		}
 	
 	actors_list[i]=our_actor;

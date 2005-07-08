@@ -90,7 +90,7 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 	our_actor->busy=0;
 	our_actor->last_command=nothing;
 	//clear the que
-	for(k=0;k<10;k++)our_actor->que[k]=nothing;
+	for(k=0;k<MAX_CMD_QUEUE;k++)	our_actor->que[k]=nothing;
 
 //	our_actor->model_data=returned_md2;
 	our_actor->texture_id=texture_id;

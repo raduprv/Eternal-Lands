@@ -324,6 +324,7 @@ typedef struct
 } tmp_actor_data;
 
 /*! The main actor structure.*/
+#define	MAX_CMD_QUEUE	20
 typedef struct
 {
 	/*! \name Misc.*/
@@ -385,7 +386,7 @@ typedef struct
 
 	/*! \name Command queue and current animations*/
 	/*! \{ */
-	char que[11];		/*!< Holds the current command queue*/
+	char que[MAX_CMD_QUEUE+1];		/*!< Holds the current command queue*/
 	char last_command;	/*!< Holds the last command*/
 	char busy;		/*!< if the actor is busy executing the current command*/
 	char sitting;		/*!< Specifies if the actor is currently sitting*/
