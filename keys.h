@@ -50,6 +50,7 @@ extern Uint32 K_SHADOWS;        /*!< key used to toggle rendering of shadows */
 extern Uint32 K_KNOWLEDGE;      /*!< key used to toggle display of \ref knowledge_window */
 extern Uint32 K_ENCYCLOPEDIA;   /*!< key used to toggle display of \ref encyclopedia_window */
 extern Uint32 K_HELP;           /*!< key used to toggle display of \ref help_window */
+extern Uint32 K_RULES;          /*!< key used to toggle display of \ref rules_window */
 extern Uint32 K_NOTEPAD;        /*!< key used to toggle display of \ref notepad_window */
 extern Uint32 K_HIDEWINS;       /*!< key used to hide all open windows */
 extern Uint32 K_SCREENSHOT;	/*!< key used to make a screenshot */

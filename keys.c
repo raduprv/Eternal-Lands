@@ -52,6 +52,7 @@ Uint32 K_SIT=ALT|'s';
 Uint32 K_BUDDY=CTRL|'b';
 Uint32 K_NEXT_CHAT_TAB=CTRL|280; //PAGE UP
 Uint32 K_PREV_CHAT_TAB=CTRL|281; //PAGE DOWN
+Uint32 K_RULES=SDLK_F5;
 
 unsigned int CRC32(unsigned char *data, int len);
 unsigned short get_key_code(char *key);
@@ -184,6 +185,8 @@ void read_key_config()
 	if((t=get_string_occurance("#K_NEXT_CHAT_TAB",file_mem,key_file_size,0))!=-1)
 		K_NEXT_CHAT_TAB = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_PREV_CHAT_TAB",file_mem,key_file_size,0))!=-1)
+		K_PREV_CHAT_TAB = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_RULES",file_mem,key_file_size,0))!=-1)
 		K_PREV_CHAT_TAB = parse_key_string(&file_mem[t]);
 }
 

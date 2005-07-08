@@ -25,8 +25,8 @@
 int rules_win=-1;
 int rules_win_x=100;
 int rules_win_y=100;
-int rules_win_x_len=400;
-int rules_win_y_len=300;
+int rules_win_x_len=HELP_TAB_WIDTH-ELW_CLOSE_BOX;
+int rules_win_y_len=HELP_TAB_HEIGHT;
 int rules_scroll_id = 0;
 
 /*Shared*/
