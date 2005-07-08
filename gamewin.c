@@ -729,6 +729,7 @@ int display_game_handler (window_info *win)
 	}
 	if (show_fps)
 	{
+#ifdef	DEBUG
 		actor * me = pf_get_our_actor();
 
 		if(me){
@@ -739,7 +740,7 @@ int display_game_handler (window_info *win)
  			glColor3f (1.0f, 1.0f, 1.0f);
  			draw_string (400, 20, str, 1);
 		}
-
+#endif	//DEBUG
 		sprintf (str, "FPS: %i", fps[0]);
 		glColor3f (1.0f, 1.0f, 1.0f);
 		draw_string (win->len_x-hud_x-95, win->len_y-hud_y-25, str, 1);
