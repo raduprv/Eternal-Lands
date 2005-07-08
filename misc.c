@@ -521,6 +521,7 @@ void draw_smooth_button(char * str, int x, int y, int w, int lines, int highligh
 
 	glDisable(GL_TEXTURE_2D);
 
+	glColor3f(0.77, 0.57, 0.39); //Should it be here?
 	glBegin(GL_LINE_LOOP);
 		draw_circle_ext(x, y, radius, 10, 90, 270);
 		draw_circle_ext(x+w, y, radius, 10, -90, 90);

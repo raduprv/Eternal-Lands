@@ -1127,11 +1127,17 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 
 int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey);
 unsigned char * pword_field_get(widget_list *w);
-int pword_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer);
-int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer);
+int pword_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
+int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size);
 int pword_field_click(widget_list *w, int mx, int my, Uint32 flags);
 void pword_set_status(widget_list *w, Uint8 status);
 
+int multiselect_button_add(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected);
+int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected);
+int multiselect_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width);
+int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, float size, float r, float g, float b, int max_buttons);
+int multiselect_get_selected(Uint32 window_id, Uint32 widget_id);
+int multiselect_get_height(Uint32 window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	widgets

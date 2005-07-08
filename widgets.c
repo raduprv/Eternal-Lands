@@ -12,6 +12,7 @@
 #define TABCOLLECTION	7
 #define TEXTFIELD	8
 #define PWORDFIELD	9
+#define MULTISELECT 10
 
 typedef struct {
 	char text[256];
@@ -41,7 +42,21 @@ typedef struct {
 typedef struct {
 	char * password;
 	int status;
+	int max_chars;
 }password_entry;
+
+typedef struct {
+	char text[256];
+	Uint16 x;
+	Uint16 y;
+}multiselect_button;
+
+typedef struct {
+	int nr_buttons;
+	int selected_button;
+	int max_buttons;
+	multiselect_button *buttons;
+}multiselect;
 
 Uint32 widget_id = 0x0000FFFF;
 
@@ -571,6 +586,11 @@ int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x
 int button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
+	float extra_space = (W->len_x - get_string_width(l->text)*W->size)/2.0f;
+	if(extra_space < 0) {
+		extra_space = 0;
+	}
+
 	glDisable(GL_TEXTURE_2D);
 	if(W->r != -1.0)
 		glColor3f(W->r,W->g,W->b);
@@ -583,7 +603,7 @@ int button_draw(widget_list *W)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed(W->pos_x + 2, W->pos_y + 2, (unsigned char *)l->text, 1, W->size);
+	draw_string_zoomed(W->pos_x + 2 + extra_space, W->pos_y + 2, (unsigned char *)l->text, 1, W->size);
 	return 1;
 }
 
@@ -1637,14 +1657,18 @@ int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 	if (ch == SDLK_BACKSPACE) {
 		int i;
 		
-		for(i = 0; pword->password[i] != '\0' && i < 15; i++) ;
+		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars; i++) ;
 		if(i > 0) pword->password[i-1] = '\0';
 		
 		return 1;
 	} else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) || ch == SDLK_RETURN ) && ch != '`' ) {
 		int i;
 		
-		for(i = 0; pword->password[i] != '\0' && i < 14; i++) ;
+		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars-1; i++) ;
+		if(get_string_width(pword->password) * w->size > w->len_x) {
+			/* Make sure we don't write outside the input box */
+			i--;
+		}
 		if(i >= 0){
 				pword->password[i] = ch;
 				pword->password[i+1] = '\0';
@@ -1670,7 +1694,7 @@ int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
 int pword_field_draw (widget_list *w)
 {
 	password_entry *pword;
-	unsigned char text[16];
+	unsigned char *text;
 	int i;
 
 	if (w == NULL) return 0;
@@ -1692,7 +1716,8 @@ int pword_field_draw (widget_list *w)
 	} else if(pword->status == P_TEXT) {
 		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char *)pword->password, 1, w->size);
 	} else if(pword->status == P_NORMAL) {
-		for(i = 0; i < 16 && pword->password[i] != '\0'; i++) text[i] = '*';
+		text = malloc(pword->max_chars);
+		for(i = 0; i < pword->max_chars && pword->password[i] != '\0'; i++) text[i] = '*';
 		text[i] = '\0';
 		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char *)text, 1, w->size);
 	}
@@ -1708,12 +1733,12 @@ void pword_set_status(widget_list *w, Uint8 status)
 	pword->status = status;
 }
 
-int pword_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer)
+int pword_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size)
 {
-	return pword_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, status, 1.0, -1.0, -1.0, -1.0, buffer);
+	return pword_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, status, 1.0, -1.0, -1.0, -1.0, buffer, buffer_size);
 }
 		
-int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer)
+int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size)
 {
 	widget_list *W = malloc ( sizeof (widget_list) );
 	password_entry *T = malloc ( sizeof (password_entry) );
@@ -1725,6 +1750,7 @@ int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uin
 	W->widget_info = T;
 	T->status = status;
 	T->password = buffer;
+	T->max_chars = buffer_size;
 	W->id = wid;
 	W->type = PWORDFIELD;
 	W->pos_x = x;
@@ -1750,6 +1776,144 @@ int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uin
 	}
 	
 	return W->id;
+}
+
+int free_multiselect(widget_list *widget)
+{
+	if(widget != NULL) {
+		multiselect *collection = widget->widget_info;
+		free(collection->buttons);
+		free(collection);
+	}
+	return 1;
+}
+
+int multiselect_get_selected(Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M = widget->widget_info;
+	if(M == NULL) {
+		return -1;
+	} else {
+		return M->selected_button;
+	}
+}
+
+int multiselect_get_height(Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	return widget->len_y;
+}
+
+int multiselect_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
+{
+	multiselect *M = widget->widget_info;
+	int i;
+	
+	for(i = 0; i < M->nr_buttons; i++) {
+		if(my > M->buttons[i].y && my < M->buttons[i].y+22) {
+			M->selected_button = i;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int multiselect_draw(widget_list *widget)
+{
+	if (widget == NULL) {
+		return 0;
+	} else {
+		int i;
+		multiselect *M = widget->widget_info;
+		float r, g, b;
+
+		r = widget->r != -1 ? widget->r : 0.32f;
+		g = widget->g != -1 ? widget->g : 0.23f;
+		b = widget->b != -1 ? widget->b : 0.15f;
+		for(i = 0; i < M->nr_buttons; i++) {
+			draw_smooth_button(M->buttons[i].text, widget->pos_x+M->buttons[i].x, widget->pos_y+M->buttons[i].y, widget->len_x-22, 1, (i == M->selected_button), r, g, b, 0.5f);
+		}
+	}
+	return 1;
+}
+
+int multiselect_button_add(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected)
+{
+	return multiselect_button_add_extended(window_id, multiselect_id, x, y, text, selected);
+}
+
+int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected)
+{
+	widget_list *widget = widget_find(window_id, multiselect_id);
+	multiselect *M = widget->widget_info;
+	int current_button = M->nr_buttons++;
+
+	if(y+22 > widget->len_y) {
+		widget->len_y = y+22; //22 = button height
+	}
+	if(M->max_buttons == current_button) {
+		/*Allocate space for more buttons*/
+		M->buttons = realloc(M->buttons, sizeof(*M->buttons) * M->max_buttons * 2);
+		M->max_buttons *= 2;
+	}
+	strncpy(M->buttons[current_button].text, text, 256);
+	if(selected) {
+		M->selected_button = current_button;
+	}
+	M->buttons[current_button].x = x;
+	M->buttons[current_button].y = y;
+	
+	return current_button;
+}
+
+int multiselect_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width)
+{
+	return multiselect_add_extended(window_id, widget_id++, OnInit, x, y, width, 1.0f, -1.0f, -1.0f, -1.0f, 0);
+}
+int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, float size, float r, float g, float b, int max_buttons)
+{
+	widget_list *Widget = malloc(sizeof(*Widget));
+	widget_list *w = windows_list.window[window_id].widgetlist;
+	multiselect *M = malloc(sizeof *M);
+
+	//Clear everything
+	memset(Widget, 0, sizeof(*Widget));
+	memset(M, 0, sizeof(*M));
+	//Save info
+	M->max_buttons = max_buttons > 0 ? max_buttons : 2;
+	M->selected_button = 0;
+	M->nr_buttons = 0;
+	M->buttons = malloc(sizeof(*M->buttons) * M->max_buttons);
+
+	Widget->widget_info = M;
+	Widget->id = widget_id;
+	Widget->type = MULTISELECT;
+	Widget->pos_x = x;
+	Widget->pos_y = y;
+	Widget->size = size;
+	Widget->r = r;
+	Widget->g = g;
+	Widget->b = b;
+	Widget->len_x = width;
+	Widget->len_y = 0;
+	Widget->OnDraw = multiselect_draw;
+	Widget->OnDestroy = free_multiselect;
+	Widget->OnInit = OnInit;
+	if(Widget->OnInit != NULL) {
+		Widget->OnInit(Widget);
+	}
+	//Add the widget to the list
+	if (w == NULL) {
+		windows_list.window[window_id].widgetlist = Widget;
+	} else {
+		while(w->next != NULL) {
+			w = w->next;
+		}
+		w->next = Widget;
+	}
+
+	return Widget->id;
 }
 
 int widget_handle_mouseover (widget_list *widget, int mx, int my)
@@ -1781,6 +1945,9 @@ int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 		case PWORDFIELD:
 			res = pword_field_click (widget, mx, my, flags);
 			if ( res == -1 ) return 0;  // Not really there
+			break;
+		case MULTISELECT:
+			res = multiselect_click (widget, mx, my, flags);
 			break;
 	}
 
