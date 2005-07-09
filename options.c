@@ -196,7 +196,7 @@ void switch_video_modes(int * unused, int * mode)
 {
 	if(video_mode!=*mode) {
 		set_new_video_mode(full_screen,*mode);
-		if(items_win){
+		if(items_win>=0){
 			windows_list.window[items_win].show_handler(&windows_list.window[items_win]);
 		}
 	}

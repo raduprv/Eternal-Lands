@@ -261,6 +261,7 @@ extern char
 		error_length[30],
 		error_max_digits[30],
 		passwords_match[30],
+		remember_change_appearance[200],
 		p2p_race[100],
 		char_help[200],
 		invalid_pass[30],

@@ -156,6 +156,7 @@ char
 	error_length[30],
 	error_max_digits[30],
 	passwords_match[30],
+	remember_change_appearance[200],
 	p2p_race[100],
 	char_help[200],
 	invalid_pass[30],
@@ -764,6 +765,7 @@ void init_help()
 	add_xml_identifier(new,"passlen",error_password_length,"The password MUST be at least 4 characters long!",sizeof(error_password_length));
 	add_xml_identifier(new,"passnomatch",error_pass_no_match,"Passwords don't match!",sizeof(error_pass_no_match));
 	add_xml_identifier(new,"passmatch",passwords_match,"Passwords are matching!",sizeof(passwords_match));
+	add_xml_identifier(new,"appearance",remember_change_appearance,"Remember to change your characters appearance before pressing \"Done\"",sizeof(remember_change_appearance));
 	add_xml_identifier(new,"max_digits",error_max_digits,"You can only have 3 digits in your name!",sizeof(error_max_digits));
 	add_xml_identifier(new,"max_length",error_length,"Names and passwords can max be 15 characters long",sizeof(error_length));
 	add_xml_identifier(new,"p2p_race",p2p_race,"You have to pay to create a char with this race",sizeof(p2p_race));

@@ -467,7 +467,7 @@ void init_rules_interface(float text_size, int count, int len_x, int len_y)
 				free_rules (display_rules);
 			display_rules = get_interface_rules ((float)(len_y - 120 * len_y / 480.0f) / (12 * text_size) - 1);
 		}
-		countdown = 0/*count*/;	// Countdown in 0.5 seconds...
+		countdown = count;	// Countdown in 0.5 seconds...
 	}
 
 	last_display = 0;

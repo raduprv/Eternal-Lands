@@ -466,6 +466,8 @@ void create_character()
 		are_you_sure=1;
 		
 		add_text_to_buffer(c_orange3, error_confirm_create_char, 6000);
+		LOG_TO_CONSOLE(c_green2, "\n");
+		LOG_TO_CONSOLE(c_green2, remember_change_appearance);
 		
 		show_color_race_win();
 	}
