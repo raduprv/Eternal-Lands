@@ -1013,7 +1013,7 @@ void add_command_to_actor(int actor_id, char command)
 			sprintf(str, "%s %d - %d\n", cant_add_command, command, actor_id);
 			LOG_ERROR(str);
 		}
-	else if (k>8)
+	else if (k>MAX_CMD_QUEUE-2)
 		{
 			update_all_actors();
 		}
