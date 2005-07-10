@@ -70,8 +70,8 @@ int test_point_visible(float x,float y,float z)
 
 	gluProject(x,y,z,&MV[0],&PROJ[0],&viewp[0],&winx,&winy,&winz);
 	glReadPixels(winx,winy,1,1,GL_DEPTH_COMPONENT,GL_FLOAT,&z_value);
-	
-	if (winz<z_value) 
+
+	if (winz<z_value)
 		return 1;
 	else 	return 0;
 }
@@ -85,7 +85,7 @@ void render_corona(float x,float y,float z,float r,float g,float b)
 	for (i=-0.1;i<0.1;i=i+0.2) {
 		if (test_point_visible(x,y,z+i)) res=1;
 	}
-	
+
 	if (!res) return;
 
 	glColor3f(r,g,b);
@@ -573,9 +573,9 @@ void draw_global_light()
 		else
 		{
 			//the ambient light should be half of the difuse light
-			sun_ambient_light[0]=difuse_light[0]/1.5f+0.15f;
-			sun_ambient_light[1]=difuse_light[1]/1.5f+0.15f;
-			sun_ambient_light[2]=difuse_light[2]/1.5f+0.15f;
+			sun_ambient_light[0]=difuse_light[0]/3.5f+0.15f;
+			sun_ambient_light[1]=difuse_light[1]/3.5f+0.15f;
+			sun_ambient_light[2]=difuse_light[2]/3.5f+0.15f;
 		}
 
 

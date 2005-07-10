@@ -57,13 +57,14 @@ void set_shadow_map_size()
 void calc_light_frustum(float light_xrot)
 {
 	float window_ratio=(GLfloat)window_width/(GLfloat)window_height;
-	float max_height=15.0; //TODO: Really calculate this from positions and heights of objects
+	float max_height=20.0; //TODO: Really calculate this from positions and heights of objects
 	float x,y;
 	light_xrot=-light_xrot;
 	//TODO: Optimize this function a bit.
 	//Assuming a max zoom_level of 3.75 and near/far distances of 20.0, we'll set the hscale to the radius of a circle that
 	//can just contain the view frustum of the player. To simplify things, we'll assume the view frustum is horizontal.
-	light_view_hscale=sqrt(window_ratio*window_ratio*3.75f*3.75f+20.0f*20.0f);
+	//light_view_hscale=sqrt(window_ratio*window_ratio*3.75f*3.75f+12.0f*12.0f);
+	light_view_hscale=sqrt(window_ratio*window_ratio+14.0f*14.0f);
 	// For the others, we can just use the parametric ellipse formula to find the value for this angle
 	x=light_view_hscale*sin(light_xrot);
 	y=max_height*cos(light_xrot);
@@ -105,7 +106,7 @@ void calc_shadow_matrix()
 #else
 			zrot=-90.0f-atan2f(sun_position[1],sun_position[0])*180.0f/3.1415926f;
 #endif
-			
+
 			glPushMatrix();
 			glLoadIdentity();
 			calc_light_frustum(xrot);
@@ -190,7 +191,7 @@ void draw_3d_object_shadow(object3d * object_id)
 		{
 			load_e3d_detail(object_id->e3d_data);
 		}
-	
+
 	array_vertex=object_id->e3d_data->array_vertex;
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;
@@ -251,7 +252,7 @@ void draw_3d_object_shadow(object3d * object_id)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	else glEnable(GL_TEXTURE_2D);
-		
+
 	if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
@@ -360,20 +361,20 @@ void display_actors_shadow()
 void display_shadows()
 {
 	struct near_3d_object * nobj;
-	
+
 	if(regenerate_near_objects)
 		if(!get_near_3d_objects())return;
-	
+
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	
+
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
 		else if(!objects_list[nobj->pos]->e3d_data->is_ground && objects_list[nobj->pos]->z_pos>-0.20f )//&& nobj->dist<=900 //It's already limited to max 29*29...
 			draw_3d_object_shadow(objects_list[nobj->pos]);
 	}
-        
+
 	if(use_shadow_mapping){
 		for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 			if(!objects_list[nobj->pos])
@@ -382,7 +383,7 @@ void display_shadows()
 				draw_3d_object_shadow(objects_list[nobj->pos]);
 		}
 	}
-	
+
 	glDisableClientState(GL_VERTEX_ARRAY);
     	glDisable(GL_CULL_FACE);
 	glDisable(GL_TEXTURE_2D);
@@ -393,9 +394,9 @@ void display_shadows()
 void display_3d_ground_objects()
 {
 	struct near_3d_object *nobj;
-    
+
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
-	
+
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -409,10 +410,10 @@ void display_3d_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-		
+
 
    	glNormal3f(0,0,1);
-    
+
     	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
@@ -445,7 +446,7 @@ void display_3d_non_ground_objects()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	
+
 	if(have_multitexture && clouds_shadows)
 		{
 			//bind the detail texture
@@ -456,14 +457,14 @@ void display_3d_non_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-	
+
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
 		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
 			draw_3d_object(objects_list[nobj->pos]);
 	}
-		
+
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit
