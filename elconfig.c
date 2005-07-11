@@ -277,6 +277,29 @@ void change_srv_string(char *s)
 
 #endif
 
+#ifdef ANTI_ALIAS
+#ifndef ELCONFIG // Lachesis: not implemented in elconfig, sorry
+void change_aa(int * value) {
+	anti_alias = !anti_alias;
+	if (anti_alias) {
+		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);	
+		glHint(GL_LINE_SMOOTH_HINT,    GL_NICEST);	
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
+		glEnable(GL_POINT_SMOOTH);
+		glEnable(GL_LINE_SMOOTH);
+		glEnable(GL_POLYGON_SMOOTH);
+	} else {
+		glHint(GL_POINT_SMOOTH_HINT,   GL_FASTEST);	
+		glHint(GL_LINE_SMOOTH_HINT,    GL_FASTEST);	
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);	
+		glDisable(GL_POINT_SMOOTH);
+		glDisable(GL_LINE_SMOOTH);
+		glDisable(GL_POLYGON_SMOOTH);
+	}
+}
+#endif // !ELCONFIG
+#endif // ANTI_ALIAS
+
 int find_var (char *str, var_name_type type)
 {
 	int i, isvar;
@@ -527,6 +550,9 @@ void init_vars()
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0);
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1);
+#ifdef ANTI_ALIAS
+	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0);
+#endif
 #endif // ELCONFIG
 #endif // def ELC
 

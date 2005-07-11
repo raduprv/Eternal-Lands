@@ -136,6 +136,9 @@ typedef struct
 
 extern int poor_man; /*!< this flag, if set to true, indicates we are running on a really poor machine */
 extern int show_reflection; /*!< flag that indicates whether to display reflections or not */
+#ifdef ANTI_ALIAS
+extern int anti_alias; /*!< flag indicating whether anti-aliasing should be enabled */
+#endif
 extern int mouse_limit;
 extern int show_fps; /*!< flag that indicates whether to display FPS or not */
 extern int render_skeleton;

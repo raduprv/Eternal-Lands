@@ -25,6 +25,9 @@ int have_url=0;
 char current_url[160];
 char browser_name[120];
 int poor_man=0;
+#ifdef ANTI_ALIAS
+int anti_alias=0;
+#endif
 int mouse_limit=15;
 int no_adjust_shadows=0;
 int clouds_shadows=1;

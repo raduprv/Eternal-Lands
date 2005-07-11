@@ -10,6 +10,7 @@ OPTIONS=-DLINUX -DELC
 #-DMULTI_CHANNEL # multi-channel support, should go into NEW_CLIENT once it's working
 #-DCUSTOM_LOOK # allows you to customize your look. Still unfinished!
 #-DNETWORK_THREAD
+#-DANTI_ALIAS # allows to enable/disable anti-aliasing in el.ini
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

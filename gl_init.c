@@ -406,6 +406,24 @@ void init_video()
 	glFogf(GL_FOG_START,5.0);
 	glFogf(GL_FOG_END,35.0);
 
+#ifdef ANTI_ALIAS
+	if (anti_alias) {
+		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);	
+		glHint(GL_LINE_SMOOTH_HINT,    GL_NICEST);	
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
+		glEnable(GL_POINT_SMOOTH);
+		glEnable(GL_LINE_SMOOTH);
+		glEnable(GL_POLYGON_SMOOTH);
+	} else {
+		glHint(GL_POINT_SMOOTH_HINT,   GL_FASTEST);	
+		glHint(GL_LINE_SMOOTH_HINT,    GL_FASTEST);	
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);	
+		glDisable(GL_POINT_SMOOTH);
+		glDisable(GL_LINE_SMOOTH);
+		glDisable(GL_POLYGON_SMOOTH);
+	}
+#endif
+
 	SDL_EnableKeyRepeat(200, 100);
 	SDL_EnableUNICODE(1);
 	build_video_mode_array();
