@@ -740,6 +740,12 @@ int display_game_handler (window_info *win)
 			sprintf(str,"Command: %i",me->last_command);
  			glColor3f (1.0f, 1.0f, 1.0f);
  			draw_string (400, 20, str, 1);
+			sprintf(str,"Coords: %-3i %3i",me->x_tile_pos, me->y_tile_pos);
+ 			glColor3f (1.0f, 1.0f, 1.0f);
+ 			draw_string (550, 0, str, 1);
+			sprintf(str,"Coords: %.3g %.3g",me->x_pos, me->y_pos);
+ 			glColor3f (1.0f, 1.0f, 1.0f);
+ 			draw_string (550, 20, str, 1);
 		}
 #endif	//DEBUG
 		sprintf (str, "FPS: %i", fps[0]);

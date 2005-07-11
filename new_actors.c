@@ -402,7 +402,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	enhanced_actor *this_actor;
 #ifdef CUSTOM_LOOK
 	unsigned char playerpath[256], guildpath[256];
-	Uint32 uniq_id, guild_id;
+	//Uint32 uniq_id, guild_id; - Post ported.... We'll come up with something later...
 #endif
 
 	char cur_frame[20];
@@ -437,7 +437,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	cur_health=SDL_SwapLE16(*((short *)(in_data+25)));
 	kind_of_actor=*(in_data+27);
 #if defined CUSTOM_LOOK && defined NEW_CLIENT
-	uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
+	//uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
 #endif
 
 	//translate from tile to world
@@ -726,26 +726,14 @@ void add_enhanced_actor_from_server(char * in_data)
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->cur_weapon=weapon;
 	actors_list[i]->kind_of_actor=kind_of_actor;
-#ifdef NEW_CLIENT
-	if (strlen(&in_data[32]) >= 30)
-#else
 	if(strlen(&in_data[28]) >= 30)
-#endif
 		{
 			char str[120];
-#ifdef NEW_CLIENT
-			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[32], (int)strlen(&in_data[32]));
-#else
 			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
-#endif
 			log_error(str);
 		}
 	else 	{
-#ifdef NEW_CLIENT
-			my_strncp(actors_list[i]->actor_name,&in_data[32],30);
-#else
 			my_strncp(actors_list[i]->actor_name,&in_data[28],30);
-#endif
 			if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
 		}
 

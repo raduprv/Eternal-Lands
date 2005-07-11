@@ -58,7 +58,6 @@ extern texture_cache_struct texture_cache[1000]; /*!< global texture cache */
 /*! @} */
 
 extern cache_struct	*cache_system; /*!< system cache */
-extern cache_struct	*cache_md2; /*!< md2 cache */
 extern cache_struct	*cache_e3d; /*!< e3d cache */
 
 //proto

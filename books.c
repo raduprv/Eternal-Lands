@@ -628,7 +628,7 @@ void display_page(book * b, page * p)
 	}
 
 	for(i=0, l=p->lines; *l; i++,l++){
-		glColor3f(0.385f,0.285f, 0.19f);
+		glColor3f(0.34f,0.25f, 0.16f);
 		draw_string_zoomed(10,i*18*0.9f,*l,0,1.0f);
 	}
 	
@@ -673,6 +673,9 @@ int book_win_x_len=400;
 int book_win_y_len=300;
 int book1_text;
 
+int book_mouse_x=0;
+int book_mouse_y=0;
+
 int display_book_handler(window_info *win)
 {
 	int x=32,i,p;
@@ -701,37 +704,75 @@ int display_book_handler(window_info *win)
 	display_book(b, b->type);
 	glPopMatrix();
 	
-	glColor3f(0.77f,0.59f, 0.38f);
-	
 	glPushMatrix();
 	glTranslatef(0,win->len_y-18,0);
+	book_mouse_y-=(win->len_y-18);
 	x=10;
-	draw_string(10,-2,"<-",0);
-	draw_string(win->len_x-33,-2,"->",0);
+	if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>10 && book_mouse_x<(get_string_width("<-")*11.0f/12.0f)){
+		glColor3f(0.95f, 0.76f, 0.52f);
+		draw_string(10,-2,"<-",0);
+		
+		glColor3f(0.77f,0.59f, 0.38f);
+		draw_string(win->len_x-33,-2,"->",0);
+	} else if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>win->len_x-33 && book_mouse_x<win->len_x-33+(get_string_width("->")*11.0f/12.0f)){
+		glColor3f(0.95f, 0.76f, 0.52f);
+		draw_string(win->len_x-33,-2,"->",0);
+		
+		glColor3f(0.77f,0.59f, 0.38f);
+		draw_string(10,-2,"<-",0);
+	} else {
+		glColor3f(0.77f,0.59f, 0.38f);
+		draw_string(10,-2,"<-",0);
+		draw_string(win->len_x-33,-2,"->",0);
+	}
 	if(b->type==1) {
 		x=50;
 		p=b->active_page-5;
 		if(p>=0){
 			sprintf(str,"%d",p+1);
-			draw_string(x,0,str,0);
+
+			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+				glColor3f(0.95f, 0.76f, 0.52f);
+				draw_string(x,0,str,0);
+				glColor3f(0.77f,0.59f, 0.38f);
+			} else 
+				draw_string(x,0,str,0);
 		}
 		x=100;
 		p=b->active_page-2;
 		if(p>=0){
 			sprintf(str,"%d",p+1);
-			draw_string(x,0,str,0);
+			
+			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+				glColor3f(0.95f, 0.76f, 0.52f);
+				draw_string(x,0,str,0);
+				glColor3f(0.77f,0.59f, 0.38f);
+			} else 
+				draw_string(x,0,str,0);
 		}
 		x=win->len_x-120;
 		p=b->active_page+2;
 		if(p<b->no_pages){
 			sprintf(str,"%d",p+1);
-			draw_string(x,0,str,0);
+			
+			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+				glColor3f(0.95f, 0.76f, 0.52f);
+				draw_string(x,0,str,0);
+				glColor3f(0.77f,0.59f, 0.38f);
+			} else 
+				draw_string(x,0,str,0);
 		}
 		x=win->len_x-70;
 		p=b->active_page+5;
 		if(p<b->no_pages){
 			sprintf(str,"%d",p+1);
-			draw_string(x,0,str,0);
+			
+			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+				glColor3f(0.95f, 0.76f, 0.52f);
+				draw_string(x,0,str,0);
+				glColor3f(0.77f,0.59f, 0.38f);
+			} else 
+				draw_string(x,0,str,0);
 		}
 	} else if(b->type==2) {
 		x=win->len_x/2-60;
@@ -739,7 +780,13 @@ int display_book_handler(window_info *win)
 			p=b->active_page-i*b->type;
 			if(p>=0){
 				sprintf(str,"%d",p+1);
-				draw_string(x,0,str,0);
+				
+				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+					glColor3f(0.95f, 0.76f, 0.52f);
+					draw_string(x,0,str,0);
+					glColor3f(0.77f,0.59f, 0.38f);
+				} else
+					draw_string(x,0,str,0);
 			}
 			x-=40;
 		}
@@ -748,11 +795,20 @@ int display_book_handler(window_info *win)
 			p=b->active_page+i*b->type;
 			if(p<b->no_pages){
 				sprintf(str,"%d",p+1);
-				draw_string(x,0,str,0);
+				
+				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+					glColor3f(0.95f, 0.76f, 0.52f);
+					draw_string(x,0,str,0);
+					glColor3f(0.77f,0.59f, 0.38f);
+				} else
+					draw_string(x,0,str,0);
 			}
 			x+=40;
 		}
 	}
+	
+	if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>win->len_x/2-15 && book_mouse_x<win->len_x/2+15)
+		glColor3f(0.95f, 0.76f, 0.52f);
 	
 	draw_string(win->len_x/2-15,0,"[X]",0);
 	glPopMatrix();
@@ -859,6 +915,16 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+int mouseover_book_handler(window_info * win, int mx, int my)
+{
+	//Save for later
+	book_mouse_x=mx;
+	book_mouse_y=my;
+	
+	return 1;
+}
+
+
 void display_book_window(book *b)
 {
 	int *p;
@@ -878,6 +944,7 @@ void display_book_window(book *b)
 			*p=create_window(b->title, -1, 0, book_win_x, book_win_y, 528, 320, ELW_WIN_DEFAULT^ELW_CLOSE_BOX); //width/height are different
 
                 set_window_handler(*p, ELW_HANDLER_DISPLAY, &display_book_handler);
+                set_window_handler(*p, ELW_HANDLER_MOUSEOVER, &mouseover_book_handler);
                 set_window_handler(*p, ELW_HANDLER_CLICK, &click_book_handler);
 		windows_list.window[*p].data=b;
         } else {

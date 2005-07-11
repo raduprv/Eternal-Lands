@@ -152,9 +152,8 @@ char
 	error_password_length[50], 
 	error_pass_no_match[30],
 	error_confirm_create_char[100],
-	error_max_digits[30],
-	error_length[30],
-	error_max_digits[30],
+	error_max_digits[100],
+	error_length[100],
 	passwords_match[30],
 	remember_change_appearance[200],
 	p2p_race[100],
@@ -170,6 +169,8 @@ char
 	about_gnomes[30],
 	about_orchans[30],
 	about_draegoni[30],
+	zoom_in_out[200],
+	rotate_camera[200],
 	/*pm_log.c*/
 	going_afk[30],
 	not_afk[50],
@@ -782,6 +783,8 @@ void init_help()
 	add_xml_identifier(new,"a_gnome",about_gnomes,"About Gnomes",sizeof(about_gnomes));
 	add_xml_identifier(new,"a_orchan",about_orchans,"About Orchans",sizeof(about_orchans));
 	add_xml_identifier(new,"a_draegoni",about_draegoni,"About Draegoni",sizeof(about_draegoni));
+	add_xml_identifier(new,"zoom_in_out",zoom_in_out,"To zoom in/out: Middle mouse wheel or Page Up/Down",sizeof(zoom_in_out));
+	add_xml_identifier(new,"rotate_camera",rotate_camera,"To rotate the camera: Middle mouse button or arrow keys",sizeof(rotate_camera));
 	
 	//Icons
 	add_xml_identifier(tooltips,"walk",tt_walk,"Walk",sizeof(tt_walk));

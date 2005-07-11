@@ -171,6 +171,7 @@ int display_newchar_handler (window_info *win)
 
 	//see if we have to load a model (male or female)
 	if (!our_actor.our_model){
+		move_camera();//Make sure we lag a little...
 		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 		yourself = 0;
 	}
@@ -276,6 +277,10 @@ int display_newchar_handler (window_info *win)
 			set_font (0);   // switch to fixed
 		}
 	}
+
+	glColor3f(251/255.0f, 250/255.0f, 190/255.0f);
+	draw_string_small(132, win->len_y-hud_y+15, zoom_in_out, 1);
+	draw_string_small(132, win->len_y-hud_y+32, rotate_camera, 1);
 	
         Leave2DMode ();
 
@@ -388,7 +393,7 @@ void create_newchar_root_window ()
 		our_actor.head = inc(our_actor.def->head, HEAD_1, RAND (HEAD_1, our_actor.def->type==human_female?HEAD_5:HEAD_4));
 		our_actor.race = our_actor.def->type;
 		our_actor.male = our_actor.race<gnome_female?our_actor.race%2:!(our_actor.race%2);
-
+		
 		newchar_root_win = create_window ("New Character", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (newchar_root_win, ELW_HANDLER_DISPLAY, &display_newchar_handler);

@@ -149,7 +149,6 @@ void test_for_console_command (char *text, int len)
 			cache_dump_sizes(cache_system);
 #ifdef	DEBUG
 			cache_dump_sizes(cache_e3d);
-			cache_dump_sizes(cache_md2);
 #endif	//DEBUG
 			return;
 		}

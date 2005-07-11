@@ -6,7 +6,6 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 {
 	struct CalMixer *mixer;
 	int i;
-	
 	if (actors_defs[actors_list[id]->actor_type].coremodel==NULL) return;
 	if (actors_list[id]->cur_anim.anim_index==anim.anim_index) return;
 	mixer=CalModel_GetMixer(actors_list[id]->calmodel);
@@ -31,7 +30,7 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 	if (anim.kind==0) 
 		CalMixer_BlendCycle(mixer,anim.anim_index,1.0,0.05);
 	else
-		CalMixer_ExecuteAction(mixer,anim.anim_index,0.0,0.0);
+		CalMixer_ExecuteAction_Stop(mixer,anim.anim_index,0.0,0.0);
 	
 	actors_list[id]->cur_anim=anim;
 	actors_list[id]->anim_time=0.0;
@@ -58,7 +57,7 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
 		sprintf(temp,"No Anim: %s\n",fname);
-		log_error((const Uint8*)temp);
+		log_error(temp);
 	}
 	
 	return res;
@@ -120,7 +119,7 @@ void cal_render_actor(actor *act)
 	struct CalCoreMesh *_shieldmesh;
 	int boneid=-1;
 	float reverse_scale;
-	//char str[255];
+	char str[255];
 
 	skel=CalModel_GetSkeleton(act->calmodel);
 
@@ -171,7 +170,9 @@ void cal_render_actor(actor *act)
 				// render all submeshes of the mesh
 				for(submeshId = 0; submeshId < submeshCount; submeshId++) {
 					// select mesh and submesh for further data access
-					if(CalRenderer_SelectMeshSubmesh(pCalRenderer,meshId, submeshId)) {
+					if(CalRenderer_SelectMeshSubmesh(pCalRenderer,meshId, submeshId)) 
+                    
+                    {
 						// get the transformed vertices of the submesh
 						vertexCount = CalRenderer_GetVertices(pCalRenderer,&meshVertices[0][0]);
 						
