@@ -6,8 +6,8 @@
 
 int queue_initialise (queue_t **queue)
 {
-	(*queue) = malloc(sizeof(queue_t));
-	if (((*queue)->front = malloc (sizeof(node_t))) == NULL) {
+	(*queue) = (queue_t *)malloc(sizeof(queue_t));
+	if (((*queue)->front = (node_t *)malloc (sizeof(node_t))) == NULL) {
 		fprintf(stderr, "%s:%i: Failed to allocate memory\n", __FILE__, __LINE__);
 		return 0;
 	}
@@ -23,7 +23,7 @@ int queue_push (queue_t *queue, void *item)
 	node_t *newnode;
 
 	SDL_LockMutex(queue->mutex);
-	if (queue == NULL || (newnode = malloc (sizeof *newnode)) == NULL) {
+	if (queue == NULL || (newnode = (node_t *)malloc (sizeof *newnode)) == NULL) {
 		fprintf(stderr, "%s:%i: Failed to allocate memory\n", __FILE__, __LINE__);
 		SDL_UnlockMutex(queue->mutex);
 		return 0;

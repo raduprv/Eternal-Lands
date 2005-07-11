@@ -888,9 +888,9 @@ void update_all_actors()
 
 void add_command_to_actor(int actor_id, char command)
 {
-	int i=0;
+	//int i=0;
 	int k=0;
-	int have_actor=0;
+	//int have_actor=0;
 //if ((actor_id==yourself)&&(command==enter_combat)) LOG_TO_CONSOLE(c_green2,"FIGHT!");
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -947,7 +947,7 @@ void add_command_to_actor(int actor_id, char command)
 
 void get_actor_damage(int actor_id, int damage)
 {
-	int i=0;
+	//int i=0;
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -969,7 +969,7 @@ void get_actor_damage(int actor_id, int damage)
 
 void get_actor_heal(int actor_id, int quantity)
 {
-	int i=0;
+	//int i=0;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
