@@ -320,6 +320,7 @@ float get_rotation_vector( float fStartAngle, float fEndAngle )
 void animate_actors()
 {
 	int i;
+	static int last_update=0;
 	char str[255];
 	// lock the actors_list so that nothing can interere with this look
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
@@ -399,10 +400,20 @@ void animate_actors()
 				actors_list[i]->y_rot+=actors_list[i]->rotate_y_speed;
 				actors_list[i]->z_rot+=actors_list[i]->rotate_z_speed;
 			}
+			
+			if(actors_list[i]->tmp.have_tmp) {
+				if (actors_defs[actors_list[i]->actor_type].coremodel!=NULL){
+					actors_list[i]->anim_time=actors_list[i]->anim_time+(cur_time-last_update)/1000.0;
+					CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
+				}
+			}
+			
 		}
 	}
 	// unlock the actors_list since we are done now
 	UNLOCK_ACTORS_LISTS();
+
+	last_update=cur_time;
 }
 
 
@@ -411,10 +422,7 @@ void animate_actors()
 int coun=0;
 void move_to_next_frame()
 {
-	int i,l,k;
-	char frame_name[16];
-	char frame_number[3];
-	int frame_no;
+	int i;
 	//int numFrames=0;
 	//char frame_exists;
 	//struct CalMixer *mixer;
@@ -436,60 +444,26 @@ void move_to_next_frame()
 			if (actors_list[i]->cur_anim.anim_index==-1) actors_list[i]->busy=0;
 			} else actors_list[i]->busy=0;
 
-			//clear the strings
-			for(k=0;k<16;k++)frame_name[k]=0;
-			for(k=0;k<3;k++)frame_number[k]=0;
-
 			//first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
 			if(actors_list[i]->damage_ms) {
 				actors_list[i]->damage_ms-=80;
 				if(actors_list[i]->damage_ms<0)actors_list[i]->damage_ms=0;
 			}
 			
-			//get the frame number out of the frame name
-			l=strlen(actors_list[i]->cur_frame);
-			if(l<2)//Perhaps this is the bug we've been looking for all along?
-#ifndef EXTRA_DEBUG
-				continue;
-#else
-				{
-					continue;
-					ERR();
-				}
-#endif
-			frame_no=atoi(&actors_list[i]->cur_frame[l-2]);
-			//get the frame name
-			for(k=0;k<l-2;k++)frame_name[k]=actors_list[i]->cur_frame[k];
-			//increment the frame_no
-			frame_no++;
 			//9 frames, not moving, and another command is queued farther on (based on how long we've done this action)
-			if(frame_no > 9 && !actors_list[i]->moving && !actors_list[i]->rotating){
-				//if(actors_list[i]->que[0]!=nothing)
-				if(actors_list[i]->que[(frame_no<35?7-(frame_no/5):0)]!=nothing){
-				//(actors_list[i]->que[(frame_no<63?7-(frame_no/9):0)]!=nothing)
+			if(!actors_list[i]->moving && !actors_list[i]->rotating){
+				/*
 					actors_list[i]->stop_animation=1;	//force stopping, not looping
 					actors_list[i]->busy=0;	//ok, take the next command
 					LOG_TO_CONSOLE(c_green2,"FREE");
-				}
+					//Idle here?
+				*/
 			}
 
-			//transform back into string
-			frame_number[0]=(unsigned int)48+frame_no/10;
-			frame_number[1]=(unsigned int)48+frame_no%10;
-			//create the name of the next frame to look for
-			my_strcat(frame_name,frame_number);
-
-			if(actors_list[i]->stop_animation) continue;//we are done with this guy
-			else {
-				//frame_name has 2 extra numbers, at this point, due to the previous
-				//strcat. So, remove those 2 extra numbers
-				l=strlen(frame_name);
-				if(l<2)continue;
-				frame_name[l-2]=0;
-				my_strcat(frame_name,"01");
+			if(actors_list[i]->stop_animation) {
+				//we are done with this guy
+				//Should we go into idle here?
 			}
-					
-			sprintf(actors_list[i]->cur_frame, "%s",frame_name);
 	}
 	UNLOCK_ACTORS_LISTS();
 }

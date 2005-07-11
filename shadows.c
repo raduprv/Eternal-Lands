@@ -337,25 +337,17 @@ void display_actors_shadow()
 	x=-cx;
 	y=-cy;
 
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i])
-			if(!actors_list[i]->ghost && actors_list[i]->tmp.have_tmp)	//of course ghosts don't get shadows
-				{
-					int dist1;
-					int dist2;
-
-					dist1=x-actors_list[i]->tmp.x_pos;
-					dist2=y-actors_list[i]->tmp.y_pos;
-
-					if(dist1*dist1+dist2*dist2<=12*12)
-							{
-								if(actors_list[i]->is_enhanced_model)
-									draw_enhanced_actor_shadow(actors_list[i]);
-								else draw_actor_shadow(actors_list[i]);
-							}
-				}
+	for(i=0;i<no_near_actors;i++){
+		if(!near_actors[i].ghost){
+			actor *act=actors_list[near_actors[i].actor];
+			
+			if(act){
+				if(act->is_enhanced_model)
+					draw_enhanced_actor_shadow(act);
+				else draw_actor_shadow(act);
+			}
 		}
+	}
 }
 
 void display_shadows()

@@ -528,7 +528,7 @@ int display_game_handler (window_info *win)
 
 	if (!have_a_map) return 1;
 	if (yourself==-1) return 1; //we don't have ourselves
-	
+
 	for(i=0; i<max_actors; i++)
 	{
         	if(actors_list[i] && actors_list[i]->actor_id == yourself) 
@@ -593,21 +593,6 @@ int display_game_handler (window_info *win)
 	// are we actively drawing things?
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
-		//Update Cal animations		
-		for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i] && actors_list[i]->tmp.have_tmp)
-			{
-				if (actors_defs[actors_list[i]->actor_type].coremodel!=NULL)
-				{
-				actors_list[i]->anim_time=actors_list[i]->anim_time+(cur_time-last_time)/1000.0;
-				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_time)/1000.0));
-				}
-			}
-			
-		}
-		
-		
 		//now, determine the current weather light level
 		get_weather_light_level ();
 

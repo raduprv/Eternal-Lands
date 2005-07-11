@@ -23,6 +23,9 @@ actor_types actors_defs[100];
 
 void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
 
+int no_near_actors=0;
+struct near_actor near_actors[1000];
+
 //Threading support for actors_lists
 void init_actors_lists()
 {
@@ -495,6 +498,39 @@ void draw_actor(actor * actor_id)
 	glPopMatrix();//we don't want to affect the rest of the scene
 }
 
+void get_actors_in_range()
+{
+	int i;
+	int x,y;
+	actor *me=pf_get_our_actor();
+
+	if(!me) return;
+
+	no_near_actors=0;
+	
+	x=-cx;
+	y=-cy;
+	
+	for(i=0;i<max_actors;i++){
+		if(actors_list[i]) {
+			int dist1;
+			int dist2;
+			int dist;
+
+			if(!actors_list[i]->tmp.have_tmp)continue;
+			dist1=x-actors_list[i]->tmp.x_pos;
+			dist2=y-actors_list[i]->tmp.y_pos;
+						
+			if((dist=dist1*dist1+dist2*dist2)<=12*12){
+				near_actors[no_near_actors].actor=i;
+				near_actors[no_near_actors].dist=dist;
+				near_actors[no_near_actors].ghost=actors_list[i]->ghost;
+				no_near_actors++;
+			}
+		}
+	}
+}
+
 void display_actors()
 {
 	int i;
@@ -503,6 +539,7 @@ void display_actors()
 	x=-cx;
 	y=-cy;
 
+	get_actors_in_range();
 	vertex_arrays_built=0;	// clear the counter
 	//MD2s don't have real normals...
 	glNormal3f(0.0f,0.0f,1.0f);
@@ -515,91 +552,69 @@ void display_actors()
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	//display only the non ghosts
-	for(i=0;i<max_actors;i++)
-		{
-			actor *cur_actor= actors_list[i];
+	for(i=0;i<no_near_actors;i++){
+		if(near_actors[i].ghost) {
+			has_ghosts++;
+		} else {
+			//dist is <=12*12
+			actor *cur_actor= actors_list[near_actors[i].actor];
 			if(cur_actor) {
-				if(!cur_actor->ghost)
-					{
-						int dist1;
-						int dist2;
-
-						if(!cur_actor->tmp.have_tmp)continue;
-						dist1=x-cur_actor->tmp.x_pos;
-						dist2=y-cur_actor->tmp.y_pos;
-						
-						if(dist1*dist1+dist2*dist2<=12*12)
-							{
-								if(cur_actor->is_enhanced_model)
-									{
-										draw_enhanced_actor(cur_actor);
+				if(cur_actor->is_enhanced_model) {
+					draw_enhanced_actor(cur_actor);
 #ifndef NETWORK_THREAD
-										//check for network data - reduces resyncs
-										get_message_from_server();
+					//check for network data - reduces resyncs
+					get_message_from_server();
 #endif //NETWORK_THREAD
-										if(actors_list[i]==NULL || cur_actor!=actors_list[i])continue;//The server might destroy our actor in that very moment...
-									}
-								else
-									{
-										draw_actor(cur_actor);
-									}
-								if(cur_actor->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
-								else
-									if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
-									   (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)))
-										anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
-									else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
-							}
-					}
-				else
-					{
-						has_ghosts++;
-					}
+					if(actors_list[i]==NULL || cur_actor!=actors_list[i])continue;//The server might destroy our actor in that very moment...
+				} else {
+					draw_actor(cur_actor);
+				}
+				
+				if(cur_actor->kind_of_actor==NPC){
+					anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+				} else if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
+				       (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED))){
+					anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+				} else {
+					anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
+				}
 			}
 		}
-
-	//we don't need the light, for ghosts
-	glDisable(GL_LIGHTING);
-	//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	if(has_ghosts){
-		//display only the ghosts
-		glEnable(GL_BLEND);
-		for(i=0;i<max_actors;i++)
-			{
-				actor *cur_actor= actors_list[i];
-				if(cur_actor)
-					if(cur_actor->ghost)
-						{
-							int dist1;
-							int dist2;
-
-							if (!cur_actor->tmp.have_tmp) continue;
-							dist1=x-cur_actor->tmp.x_pos;
-							dist2=y-cur_actor->tmp.y_pos;
-							
-							if(dist1*dist1+dist2*dist2<=12*12)
-								{
-									if(cur_actor->is_enhanced_model)
-										{
-											draw_enhanced_actor(cur_actor);
-										}
-									else
-										{
-											draw_actor(cur_actor);
-										}
-									if(cur_actor->kind_of_actor==NPC)anything_under_the_mouse(i, UNDER_MOUSE_NPC);
-									else
-										if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
-										   (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)))
-											anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
-										else anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
-								}
-						}
-			}
 	}
 
-	glDisable(GL_BLEND);
+	if(has_ghosts){
+		//we don't need the light, for ghosts
+		glDisable(GL_LIGHTING);
+		//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		
+		//display only the ghosts
+		glEnable(GL_BLEND);
+		for(i=0;i<no_near_actors;i++) {
+			if(near_actors[i].ghost){
+				actor *cur_actor= actors_list[near_actors[i].actor];
+				if(cur_actor) {
+					if(cur_actor->is_enhanced_model) {
+						draw_enhanced_actor(cur_actor);
+					} else {
+						draw_actor(cur_actor);
+					}
+					
+					if(cur_actor->kind_of_actor==NPC){
+						anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+					} else if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
+						 (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED))){
+						anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+					} else {
+						anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
+					}
+				}
+			}
+		}
+		
+		glDisable(GL_BLEND);
+	}
+
 	if(have_multitexture) ELglClientActiveTextureARB(base_unit);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);

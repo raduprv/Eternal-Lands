@@ -31,9 +31,9 @@ Uint32 my_timer(Uint32 interval, void * data)
 
 	if(is_raining)update_rain();
 	//next_command();
-		e.type = SDL_USEREVENT;
-		e.user.code = EVENT_ANIMATE_ACTORS;
-		SDL_PushEvent(&e);
+	e.type = SDL_USEREVENT;
+	e.user.code = EVENT_ANIMATE_ACTORS;
+	SDL_PushEvent(&e);
 	if(normal_animation_timer>2 && have_a_map)
 		{
 			if(my_timer_adjust > 0)my_timer_adjust--;
@@ -41,9 +41,6 @@ Uint32 my_timer(Uint32 interval, void * data)
     		update_particles();
     		next_command();
 
-#ifdef CAL3D
-			update_cal3d_model();
-#endif
     		move_to_next_frame();
     		if(lake_waves_timer>2)
     		    {

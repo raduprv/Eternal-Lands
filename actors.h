@@ -49,6 +49,18 @@ extern glow_color glow_colors[10]; /*!< Holds the glow colours defined in GLOW_*
 /*! \} */
 
 /*!
+ * The near_actor structure holds information about the actors within range. It is filled once every frame.
+ */
+struct near_actor {
+	int actor;//offset in the actors_list
+	int dist;//distance from our actor
+	int ghost;//If it's a ghost or not
+};
+
+extern int no_near_actors;
+extern struct near_actor near_actors[1000];
+
+/*!
  * The enhanced actor structure holds information about the actors md2 extensions such as if the actor is wearing any armour, weapons etc.
  */
 typedef struct

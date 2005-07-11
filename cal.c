@@ -306,9 +306,11 @@ void cal_render_actor(actor *act)
 
 					_coremesh=CalMesh_GetCoreMesh(_mesh);//Get the coremesh
 
-					_weaponmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index);
+					if(actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index!=-1)_weaponmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index);
+					else _weaponmesh=NULL;
 
-					_shieldmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,act->body_parts->shield_meshindex);
+					if(act->body_parts->shield_meshindex!=-1)_shieldmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,act->body_parts->shield_meshindex);
+					else _shieldmesh=NULL;
 
 				
 
@@ -342,11 +344,7 @@ void cal_render_actor(actor *act)
 
 					// select mesh and submesh for further data access
 
-					if(CalRenderer_SelectMeshSubmesh(pCalRenderer,meshId, submeshId)) 
-
-                    
-
-                    {
+					if(CalRenderer_SelectMeshSubmesh(pCalRenderer,meshId, submeshId)) {
 
 						// get the transformed vertices of the submesh
 

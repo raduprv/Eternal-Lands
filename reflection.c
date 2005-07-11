@@ -332,24 +332,18 @@ void display_3d_reflection()
 
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0.0f,0.0f,1.0f);
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i] && actors_list[i]->tmp.have_tmp)
-			if(!actors_list[i]->ghost)
-				{
-					int dist1;
-					int dist2;
+	for(i=0;i<no_near_actors;i++) {
+		if(near_actors[i].dist<=100 && !near_actors[i].ghost){ 
+			actor * act=actors_list[near_actors[i].actor];
 
-					dist1=x-actors_list[i]->tmp.x_pos;
-					dist2=y-actors_list[i]->tmp.y_pos;
-					if(dist1*dist1+dist2*dist2<=100)
-							{
-								if(actors_list[i]->is_enhanced_model)
-									draw_enhanced_actor_reflection(actors_list[i]);
-								else draw_actor_reflection(actors_list[i]);
-							}
-				}
+			if(act){
+				if(act->is_enhanced_model)
+					draw_enhanced_actor_reflection(act);
+				else 
+					draw_actor_reflection(act);
+			}
 		}
+	}
 	glPopMatrix();
 	reset_material();
 
