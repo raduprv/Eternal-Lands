@@ -18,7 +18,7 @@ int port=2000;
 unsigned char server_address[60];
 TCPsocket my_socket=0;
 SDLNet_SocketSet set=0;
-Uint8 in_data[8192];
+Uint8 tcp_in_data[8192];
 int previously_logged_in=0;
 Uint32 last_heart_beat;
 
@@ -373,7 +373,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 	ERR();
 #endif
 				// allow for multiple packets in a row
-				while ( data_lenght >= 3){
+				while ( data_lenght >= 6){
 					add_command_to_actor(SDL_SwapLE16(*((short *)(in_data+3))),in_data[5]);
 					in_data+= 3;
 					data_lenght-= 3;
@@ -439,7 +439,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case SEND_PARTIAL_STAT:
 			{
 				// allow for multiple stats in a row
-				while (data_lenght >= 5){
+				while (data_lenght >= 8){
 					get_partial_stat(*((Uint8 *)(in_data+3)),SDL_SwapLE32(*((Sint32 *)(in_data+4))));
 					in_data+= 5;
 					data_lenght-= 5;
@@ -1028,14 +1028,14 @@ static void process_data_from_server()
 {
 	/* enough data present for the length field ? */
 	if (3 <= in_data_used) {
-		Uint8   *pData  = in_data;
+		Uint8   *pData  = tcp_in_data;
 		Uint16   size;
 		
 		do { /* while (3 <= in_data_used) (enough data present for the length field) */
 			size = SDL_SwapLE16(*((short*)(pData+1)));
+			size += 2; /* add length field size */
 			
-			if (sizeof (in_data) - 3 >= size) { /* buffer big enough ? */
-				size += 2; /* add length field size */
+			if (sizeof (tcp_in_data) - 3 >= size) { /* buffer big enough ? */
 				
 				if (size <= in_data_used) { /* do we have a complete message ? */
 #ifdef NETWORK_THREAD
@@ -1048,8 +1048,9 @@ static void process_data_from_server()
 					process_message_from_server(pData, size);
 #endif //NETWORK_THREAD
 
-					if (log_conn_data)
+					if (log_conn_data){
 						log_conn(pData, size);
+					}
 		
 					/* advance to next message */
 					pData         += size;
@@ -1069,8 +1070,9 @@ static void process_data_from_server()
 		} while (3 <= in_data_used);
 
 		/* move the remaining data to the start of the buffer...(not tested...never happened to me) */
-		if (in_data_used && pData != in_data)
-			memmove(in_data, pData, in_data_used);
+		if (in_data_used > 0 && pData != tcp_in_data){
+			memmove(tcp_in_data, pData, in_data_used);
+		}
 	}
 }
 
@@ -1089,7 +1091,7 @@ void get_message_from_server()
 			SDL_Delay(10);
 			continue; //Continue to make the main loop check int done.
 		}
-		if ((received = SDLNet_TCP_Recv(my_socket, &in_data[in_data_used], sizeof (in_data) - in_data_used)) > 0) {
+		if ((received = SDLNet_TCP_Recv(my_socket, &tcp_in_data[in_data_used], sizeof (tcp_in_data) - in_data_used)) > 0) {
 #else
 	/* data available for reading ? */
 	if (!disconnected && SDLNet_CheckSockets(set, 0) && SDLNet_SocketReady(my_socket)) {
