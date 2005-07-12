@@ -1059,7 +1059,7 @@ static void process_data_from_server()
 					break;
 				}
 			}
-			else { /* sizeof (in_data) - 3 < size */
+			else { /* sizeof (tcp_in_data) - 3 < size */
 				LOG_TO_CONSOLE(c_red2, packet_overrun);
 	    
 				LOG_TO_CONSOLE(c_red2, disconnected_from_server);
@@ -1097,7 +1097,7 @@ void get_message_from_server()
 	if (!disconnected && SDLNet_CheckSockets(set, 0) && SDLNet_SocketReady(my_socket)) {
 		int received;
 
-		if (0 < (received = SDLNet_TCP_Recv(my_socket, &in_data[in_data_used], sizeof (in_data) - in_data_used))) {
+		if (0 < (received = SDLNet_TCP_Recv(my_socket, &tcp_in_data[in_data_used], sizeof (tcp_in_data) - in_data_used))) {
 #endif //NETWORK_THREAD
 			in_data_used += received;
 #ifdef NETWORK_THREAD
