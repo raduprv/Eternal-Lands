@@ -75,6 +75,6 @@ docs:
 
 .depend: *.h
 	echo $(COBJS) | sed 's/\.o/.c/g' | xargs gcc $(CFLAGS) -MM >.depend
-	echo $(CXXOBJS) | sed 's/\.o/.cpp/g' | xargs g++ $(CXXFLAGS) -MM >.depend
+	echo $(CXXOBJS) | sed 's/\.o/.cpp/g' | xargs g++ $(CXXFLAGS) -MM >>.depend
 
 -include .depend
