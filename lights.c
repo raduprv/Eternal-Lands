@@ -23,7 +23,7 @@ GLfloat sky_lights_c2[GLOBAL_LIGHTS_NO*2][4];
 GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
 GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 
-int	max_light;
+int	show_lights;
 GLfloat light_0_position[4];
 GLfloat light_0_diffuse[4];
 GLfloat light_0_dist;
@@ -52,6 +52,7 @@ GLfloat light_6_position[4];
 GLfloat light_6_diffuse[4];
 GLfloat light_6_dist;
 
+int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
 unsigned char light_level=58;
 sun sun_pos[60*3];
@@ -140,14 +141,14 @@ void disable_local_lights()
 
 void enable_local_lights()
 {
-	if (max_light != max_enabled)	max_enabled= max_light;
+	if (show_lights != max_enabled)	max_enabled= show_lights;
     glEnable(GL_LIGHT0);
-    if(max_light >= 1)	glEnable(GL_LIGHT1);
-    if(max_light >= 2)	glEnable(GL_LIGHT2);
-    if(max_light >= 3)	glEnable(GL_LIGHT3);
-    if(max_light >= 4)	glEnable(GL_LIGHT4);
-    if(max_light >= 5)	glEnable(GL_LIGHT5);
-    if(max_light >= 6)	glEnable(GL_LIGHT6);
+    if(show_lights >= 1)	glEnable(GL_LIGHT1);
+    if(show_lights >= 2)	glEnable(GL_LIGHT2);
+    if(show_lights >= 3)	glEnable(GL_LIGHT3);
+    if(show_lights >= 4)	glEnable(GL_LIGHT4);
+    if(show_lights >= 5)	glEnable(GL_LIGHT5);
+    if(show_lights >= 6)	glEnable(GL_LIGHT6);
 }
 
 
@@ -155,38 +156,38 @@ void draw_lights()
 {
 	GLfloat spot_direction[] = { -0.0, -0.0, -0.0f };
 
-	if(max_enabled >= 0 && max_light != max_enabled)	enable_local_lights();
+	if(max_enabled >= 0 && show_lights != max_enabled)	enable_local_lights();
 	
 	glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_0_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
 
-	if(max_light >= 1){
+	if(show_lights >= 1){
 		glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
 		glLightfv(GL_LIGHT1,GL_DIFFUSE,light_1_diffuse);
 		glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
 	}
-	if(max_light >= 2){
+	if(show_lights >= 2){
 		glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
 		glLightfv(GL_LIGHT2,GL_DIFFUSE,light_2_diffuse);
 		glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot_direction);
 	}
-	if(max_light >= 3){
+	if(show_lights >= 3){
 		glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
 		glLightfv(GL_LIGHT3,GL_DIFFUSE,light_3_diffuse);
 		glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot_direction);
 	}
-	if(max_light >= 4){
+	if(show_lights >= 4){
 		glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
 		glLightfv(GL_LIGHT4,GL_DIFFUSE,light_4_diffuse);
 		glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, spot_direction);
 	}
-	if(max_light >= 5){
+	if(show_lights >= 5){
 		glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
 		glLightfv(GL_LIGHT5,GL_DIFFUSE,light_5_diffuse);
 		glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, spot_direction);
 	}
-	if(max_light >= 6){
+	if(show_lights >= 6){
 		glLightfv(GL_LIGHT6, GL_POSITION, light_6_position);
 		glLightfv(GL_LIGHT6,GL_DIFFUSE,light_6_diffuse);
 		glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
@@ -200,20 +201,21 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 
 	new_light=(light *)calloc(1, sizeof(light));
 
-	new_light->pos_x=x;
-	new_light->pos_y=y;
-	new_light->pos_z=z;
+	new_light->pos_x= x;
+	new_light->pos_y= y;
+	new_light->pos_z= z;
 
-	new_light->r=r*intensity;
-	new_light->g=g*intensity;
-	new_light->b=b*intensity;
+	new_light->r= r*intensity;
+	new_light->g= g*intensity;
+	new_light->b= b*intensity;
 
 	//find a free spot, in the lights list
-	for(i=0;i<MAX_LIGHTS;i++)
+	for(i=0; i<MAX_LIGHTS; i++)
 		{
 			if(!lights_list[i])
 				{
-					lights_list[i]=new_light;
+					lights_list[i]= new_light;
+					if(i >= num_lights)	num_lights= i+1;
 					break;
 				}
 		}
@@ -229,15 +231,14 @@ void update_scene_lights()
 	float x_dist,y_dist,dist;
 	char all_full=0;
 	char max_changed=0;
-	int max_dist=0;
-	//int max_light=0;
+	float max_dist=0;
+	int max_light=0;
 
-	max_light= 0;
-	x=-cx;
-	y=-cy;
+	show_lights= max_light= 0;
+	x= -cx;
+	y= -cy;
 	//reset the lights
-	light_0_dist=255.0f;light_1_dist=255.0f;light_2_dist=255.0f;light_3_dist=255.0f;
-	light_4_dist=255.0f;light_5_dist=255.0f;light_6_dist=255.0f;
+	light_0_dist= light_1_dist= light_2_dist= light_3_dist= light_4_dist= light_5_dist= light_6_dist= 60.0*60.0;
 
 	light_0_diffuse[0]=0;light_0_diffuse[1]=0;light_0_diffuse[2]=0;light_0_diffuse[3]=1.0;
 
@@ -257,57 +258,60 @@ void update_scene_lights()
 		{
 			if(lights_list[i])
 				{
-
-					if(max_changed)
+					// is the light is close enough to worry about?
+					x_dist= x-lights_list[i]->pos_x;
+					y_dist= y-lights_list[i]->pos_y;
+					dist= x_dist*x_dist+y_dist*y_dist;
+					if(dist<30.0*30.0)
 						{
-							max_dist=0;
-							max_changed=0;
-							if(light_0_dist>max_dist)
-								{
-									max_dist=light_0_dist;
-									max_light=0;
-								}
-							if(light_1_dist>max_dist)
-								{
-									max_dist=light_1_dist;
-									max_light=1;
-								}
-							if(light_2_dist>max_dist)
-								{
-									max_dist=light_2_dist;
-									max_light=2;
-								}
-							if(light_3_dist>max_dist)
-								{
-									max_dist=light_3_dist;
-									max_light=3;
-								}
-							if(light_4_dist>max_dist)
-								{
-									max_dist=light_4_dist;
-									max_light=4;
-								}
-							if(light_5_dist>max_dist)
-								{
-									max_dist=light_5_dist;
-									max_light=5;
-								}
-							if(light_6_dist>max_dist)
-								{
-									max_dist=light_6_dist;
-									max_light=6;
-								}
-						}
-					x_dist=x-lights_list[i]->pos_x;
-					y_dist=y-lights_list[i]->pos_y;
-					dist=x_dist*x_dist+y_dist*y_dist;
-					if(dist<30*30)
-						{
-							if((light_0_dist==255.0f) || (all_full && (max_light==0)))
+							if(max_changed)	{
+								max_dist=0;
+								max_changed=0;
+								if(light_0_dist>max_dist)
+									{
+										max_dist=light_0_dist;
+										max_light=0;
+									}
+								if(light_1_dist>max_dist)
+									{
+										max_dist=light_1_dist;
+										max_light=1;
+									}
+								if(light_2_dist>max_dist)
+									{
+										max_dist=light_2_dist;
+										max_light=2;
+									}
+								if(light_3_dist>max_dist)
+									{
+										max_dist=light_3_dist;
+										max_light=3;
+									}
+								if(light_4_dist>max_dist)
+									{
+										max_dist=light_4_dist;
+										max_light=4;
+									}
+								if(light_5_dist>max_dist)
+									{
+										max_dist=light_5_dist;
+										max_light=5;
+									}
+								if(light_6_dist>max_dist)
+									{
+										max_dist=light_6_dist;
+										max_light=6;
+									}
+							}
+							// we have all the lights and we are farther, next light
+							if(all_full && dist > max_dist)	continue;
+							
+							if((light_0_dist>=50.0*50.0) || (all_full && (max_light==0)))
 								{
 									//see if we should recompute the max distance
 									if(all_full)max_changed=1;
-
+									else show_lights= 0;
+									
 									light_0_position[0]=lights_list[i]->pos_x;
 									light_0_position[1]=lights_list[i]->pos_y;
 									light_0_position[2]=lights_list[i]->pos_z;
@@ -325,10 +329,11 @@ void update_scene_lights()
 										}
 									continue;
 								}
-							if((light_1_dist==255.0f) || (all_full && (max_light==1)))
+							if((light_1_dist>=50.0*50.0) || (all_full && (max_light==1)))
 								{
 									//see if we should recompute the max distance
 									if(all_full)max_changed=1;
+									else show_lights= 1;
 
 									light_1_position[0]=lights_list[i]->pos_x;
 									light_1_position[1]=lights_list[i]->pos_y;
@@ -347,10 +352,11 @@ void update_scene_lights()
 										}
 									continue;
 								}
-							if((light_2_dist==255.0f) || (all_full && (max_light==2)))
+							if((light_2_dist>=50.0*50.0) || (all_full && (max_light==2)))
 								{
 									//see if we should recompute the max distance
 									if(all_full)max_changed=1;
+									else show_lights= 2;
 
 									light_2_position[0]=lights_list[i]->pos_x;
 									light_2_position[1]=lights_list[i]->pos_y;
@@ -369,10 +375,11 @@ void update_scene_lights()
 										}
 									continue;
 								}
-							if((light_3_dist==255.0f) || (all_full && (max_light==3)))
+							if((light_3_dist>=50.0*50.0) || (all_full && (max_light==3)))
 								{
 									//see if we should recompute the max distance
 									if(all_full)max_changed=1;
+									else show_lights= 3;
 
 									light_3_position[0]=lights_list[i]->pos_x;
 									light_3_position[1]=lights_list[i]->pos_y;
@@ -391,10 +398,11 @@ void update_scene_lights()
 										}
 									continue;
 								}
-							if((light_4_dist==255.0f) || (all_full && (max_light==4)))
+							if((light_4_dist>=50.0*50.0) || (all_full && (max_light==4)))
 								{
 									//see if we should recompute the max distance
 									if(all_full)max_changed=1;
+									else show_lights= 4;
 
 									light_4_position[0]=lights_list[i]->pos_x;
 									light_4_position[1]=lights_list[i]->pos_y;
@@ -413,10 +421,11 @@ void update_scene_lights()
 										}
 									continue;
 								}
-							if((light_5_dist==255.0f) || (all_full && (max_light==5)))
+							if((light_5_dist>=50.0*50.0) || (all_full && (max_light==5)))
 								{
 									//see if we should recompute the max distance
 									if(all_full)max_changed=1;
+									else show_lights= 5;
 
 									light_5_position[0]=lights_list[i]->pos_x;
 									light_5_position[1]=lights_list[i]->pos_y;
@@ -435,10 +444,11 @@ void update_scene_lights()
 										}
 									continue;
 								}
-							if((light_6_dist==255.0f) || (all_full && (max_light==6)))
+							if((light_6_dist>=50.0*50.0) || (all_full && (max_light==6)))
 								{
 									//see if we should recompute the max distance
 									if(all_full)max_changed=1;
+									else show_lights= 6;
 
 									light_6_position[0]=lights_list[i]->pos_x;
 									light_6_position[1]=lights_list[i]->pos_y;
@@ -601,9 +611,8 @@ void draw_global_light()
 	if(sun_use_static_position)glLightfv(GL_LIGHT7,GL_POSITION,global_light_position);
 	else glLightfv(GL_LIGHT7,GL_POSITION,sun_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,&difuse_light[0]);
-
-
 }
+
 
 void draw_dungeon_light()
 {
@@ -619,9 +628,8 @@ void draw_dungeon_light()
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);
-
-
 }
+
 
 void make_gradient_light(int start,int steps,float *light_table, float r_start,
 						 float g_start, float b_start, float r_end, float g_end, float b_end)
@@ -644,6 +652,7 @@ void make_gradient_light(int start,int steps,float *light_table, float r_start,
 
 		}
 }
+
 
 //build the light table for smooth transition between night and day
 void build_global_light_table()

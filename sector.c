@@ -91,22 +91,28 @@ void sector_add_map()
 	int i,j=0;
 	int obj_3d_no=0;
 	int obj_2d_no=0;
-	int lights_no=0;
+	//int lights_no=0;
 	int particles_no=0;
 	memset(sectors,-1,sizeof(map_sector)*256*256);
 
 	for(i=0;i<MAX_OBJ_3D;i++)if(objects_list[i])obj_3d_no++;
 	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
-	for(i=0;i<MAX_LIGHTS;i++)if(lights_list[i])lights_no++;
+	for(i=0;i<MAX_LIGHTS;i++){
+		if(lights_list[i]){
+			//lights_no++;
+			num_lights= i;
+		}
+	}
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++){
-		if(particles_list[i])
+		if(particles_list[i]){
 			particles_no++;
+		}
 	}
 	// 3d objects
 	for(i=0;i<MAX_OBJ_3D;i++){
-		if(j>obj_3d_no)
+		if(j>obj_3d_no){
 			break;
-
+		}
 		if(objects_list[i]){
 			sector_add_3do(i);
 			j++;
@@ -155,6 +161,7 @@ int sector_add_light(int objectid)
 	int sector_no=SECTOR_GET(lights_list[objectid]->pos_x, lights_list[objectid]->pos_y);
 
 	if(sector_no>=num_sectors) return -1;
+	if(objectid >= num_lights)	num_lights= objectid+1;
 
 	for(i=0;i<4;i++){
 		if(sectors[sector_no].lights_local[i]==-1){

@@ -601,14 +601,17 @@ int display_game_handler (window_info *win)
 		} else {
 			draw_dungeon_light ();
 		}
-		update_scene_lights ();
-		draw_lights ();
+		// only draw scene lights if inside or it is night
+		if (dungeon || !is_day){
+			update_scene_lights ();
+			draw_lights ();
+		}
 		CHECK_GL_ERRORS ();
 
 		if (!dungeon && shadows_on && is_day){
 			render_light_view();
 			CHECK_GL_ERRORS ();
-	}
+		}
 #ifndef NETWORK_THREAD
 		//check for network data
 		get_message_from_server ();
@@ -724,23 +727,23 @@ int display_game_handler (window_info *win)
 #ifdef	DEBUG
 		actor * me = pf_get_our_actor();
 
+		glColor3f (1.0f, 1.0f, 1.0f);
 		if(me){
  			sprintf(str,"Busy: %i",me->busy);
- 			glColor3f (1.0f, 1.0f, 1.0f);
 	 		draw_string (400, 0, str, 1);
 			sprintf(str,"Command: %i",me->last_command);
- 			glColor3f (1.0f, 1.0f, 1.0f);
  			draw_string (400, 20, str, 1);
 			sprintf(str,"Coords: %-3i %3i",me->x_tile_pos, me->y_tile_pos);
- 			glColor3f (1.0f, 1.0f, 1.0f);
  			draw_string (550, 0, str, 1);
 			sprintf(str,"Coords: %.3g %.3g",me->x_pos, me->y_pos);
- 			glColor3f (1.0f, 1.0f, 1.0f);
  			draw_string (550, 20, str, 1);
 		}
+		sprintf (str, "Lights: %i", show_lights);
+		draw_string (win->len_x-hud_x-105, 25, str, 1);
+#else	//DEBUG
+		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
 		sprintf (str, "FPS: %i", fps[0]);
-		glColor3f (1.0f, 1.0f, 1.0f);
 		draw_string (win->len_x-hud_x-95, 5, str, 1);
 	}
 

@@ -81,6 +81,7 @@ void destroy_map()
 				{
 					free(lights_list[i]);
 					lights_list[i]=0;//kill any refference to it
+					num_lights= 0;
 				}
 		}
 
@@ -433,7 +434,7 @@ int save_map(char * file_name)
 	//get the number of objects and lights
 	for(i=0;i<highest_obj_3d;i++)if(objects_list[i])obj_3d_no++;
 	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
-	for(i=0;i<MAX_LIGHTS;i++)if(lights_list[i])lights_no++;
+	for(i=0;i<MAX_LIGHTS;i++)if(lights_list[i]){lights_no++;num_lights= i; }
 	// We ignore temporary particle systems (i.e. ones with a ttl>=0)
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def->ttl<0)particles_no++;
 
