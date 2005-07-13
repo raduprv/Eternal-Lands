@@ -402,9 +402,11 @@ void init_video()
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );
 	glClearStencil(0);
 
+#ifdef	USE_FOG
 	glFogi(GL_FOG_MODE,GL_LINEAR);
 	glFogf(GL_FOG_START,5.0);
 	glFogf(GL_FOG_END,35.0);
+#endif	//USE_FOG
 
 #ifdef ANTI_ALIAS
 	if (anti_alias) {

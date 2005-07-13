@@ -226,11 +226,14 @@ int display_newchar_handler (window_info *win)
 		draw_lights();
 		CHECK_GL_ERRORS ();
 
-		if (shadows_on && is_day) 
+		if (shadows_on && is_day) {
 			render_light_view();
-		CHECK_GL_ERRORS ();
+			CHECK_GL_ERRORS ();
+		}
 
+#ifdef	USE_FOG
 		glEnable (GL_FOG);
+#endif	//USE_FOG
 		if (any_reflection > 1) {
 			draw_sky_background ();
 			CHECK_GL_ERRORS ();
@@ -252,7 +255,9 @@ int display_newchar_handler (window_info *win)
 			display_objects ();
 			display_actors ();
 		}
+#ifdef	USE_FOG
 		glDisable (GL_FOG);
+#endif	//USE_FOG
 		CHECK_GL_ERRORS ();
 	}
 
@@ -282,7 +287,7 @@ int display_newchar_handler (window_info *win)
 	draw_string_small(132, win->len_y-hud_y+15, zoom_in_out, 1);
 	draw_string_small(132, win->len_y-hud_y+32, rotate_camera, 1);
 	
-        Leave2DMode ();
+	Leave2DMode ();
 
 	glEnable (GL_LIGHTING);
 	glPopMatrix (); // restore the state

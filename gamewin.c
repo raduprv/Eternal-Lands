@@ -596,22 +596,26 @@ int display_game_handler (window_info *win)
 		//now, determine the current weather light level
 		get_weather_light_level ();
 
-		if (!dungeon) 
+		if (!dungeon){
 			draw_global_light ();
-		else 
+		} else {
 			draw_dungeon_light ();
+		}
 		update_scene_lights ();
 		draw_lights ();
 		CHECK_GL_ERRORS ();
 
-		if (!dungeon && shadows_on && is_day) 
+		if (!dungeon && shadows_on && is_day){
 			render_light_view();
-		CHECK_GL_ERRORS ();
+			CHECK_GL_ERRORS ();
+	}
 #ifndef NETWORK_THREAD
 		//check for network data
 		get_message_from_server ();
 #endif //NETWORK_THREAD
-//		glEnable (GL_FOG);
+#ifdef	USE_FOG
+		glEnable (GL_FOG);
+#endif	//USE_FOG
 		if (any_reflection > 1)
 		{
 		  	if (!dungeon)
@@ -642,7 +646,9 @@ int display_game_handler (window_info *win)
 			display_objects ();
 			display_actors ();
 		}
+#ifdef	USE_FOG
 		glDisable (GL_FOG);
+#endif	//USE_FOG
 		CHECK_GL_ERRORS ();
 #ifndef NETWORK_THREAD
 		//check for network data - reduces resyncs
