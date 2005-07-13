@@ -23,6 +23,7 @@ GLfloat sky_lights_c2[GLOBAL_LIGHTS_NO*2][4];
 GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
 GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 
+int	max_light;
 GLfloat light_0_position[4];
 GLfloat light_0_diffuse[4];
 GLfloat light_0_dist;
@@ -123,9 +124,11 @@ void render_coronas()
 }
 
 
-
+int	max_enabled;
 void disable_local_lights()
 {
+	max_enabled= -1;
+	
     glDisable(GL_LIGHT0);
     glDisable(GL_LIGHT1);
     glDisable(GL_LIGHT2);
@@ -137,13 +140,14 @@ void disable_local_lights()
 
 void enable_local_lights()
 {
+	if (max_light != max_enabled)	max_enabled= max_light;
     glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
-    glEnable(GL_LIGHT2);
-    glEnable(GL_LIGHT3);
-    glEnable(GL_LIGHT4);
-    glEnable(GL_LIGHT5);
-    glEnable(GL_LIGHT6);
+    if(max_light >= 1)	glEnable(GL_LIGHT1);
+    if(max_light >= 2)	glEnable(GL_LIGHT2);
+    if(max_light >= 3)	glEnable(GL_LIGHT3);
+    if(max_light >= 4)	glEnable(GL_LIGHT4);
+    if(max_light >= 5)	glEnable(GL_LIGHT5);
+    if(max_light >= 6)	glEnable(GL_LIGHT6);
 }
 
 
@@ -151,34 +155,42 @@ void draw_lights()
 {
 	GLfloat spot_direction[] = { -0.0, -0.0, -0.0f };
 
+	if(max_enabled >= 0 && max_light != max_enabled)	enable_local_lights();
+	
 	glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_0_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
 
-	glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
-	glLightfv(GL_LIGHT1,GL_DIFFUSE,light_1_diffuse);
-	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
-
-	glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
-	glLightfv(GL_LIGHT2,GL_DIFFUSE,light_2_diffuse);
-	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot_direction);
-
-	glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
-	glLightfv(GL_LIGHT3,GL_DIFFUSE,light_3_diffuse);
-	glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot_direction);
-
-	glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
-	glLightfv(GL_LIGHT4,GL_DIFFUSE,light_4_diffuse);
-	glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, spot_direction);
-
-	glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
-	glLightfv(GL_LIGHT5,GL_DIFFUSE,light_5_diffuse);
-	glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, spot_direction);
-
-	glLightfv(GL_LIGHT6, GL_POSITION, light_6_position);
-	glLightfv(GL_LIGHT6,GL_DIFFUSE,light_6_diffuse);
-	glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
-
+	if(max_light >= 1){
+		glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
+		glLightfv(GL_LIGHT1,GL_DIFFUSE,light_1_diffuse);
+		glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
+	}
+	if(max_light >= 2){
+		glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
+		glLightfv(GL_LIGHT2,GL_DIFFUSE,light_2_diffuse);
+		glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot_direction);
+	}
+	if(max_light >= 3){
+		glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
+		glLightfv(GL_LIGHT3,GL_DIFFUSE,light_3_diffuse);
+		glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot_direction);
+	}
+	if(max_light >= 4){
+		glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
+		glLightfv(GL_LIGHT4,GL_DIFFUSE,light_4_diffuse);
+		glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, spot_direction);
+	}
+	if(max_light >= 5){
+		glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
+		glLightfv(GL_LIGHT5,GL_DIFFUSE,light_5_diffuse);
+		glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, spot_direction);
+	}
+	if(max_light >= 6){
+		glLightfv(GL_LIGHT6, GL_POSITION, light_6_position);
+		glLightfv(GL_LIGHT6,GL_DIFFUSE,light_6_diffuse);
+		glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
+	}
 }
 
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity)
@@ -218,8 +230,9 @@ void update_scene_lights()
 	char all_full=0;
 	char max_changed=0;
 	int max_dist=0;
-	int max_light=0;
+	//int max_light=0;
 
+	max_light= 0;
 	x=-cx;
 	y=-cy;
 	//reset the lights
