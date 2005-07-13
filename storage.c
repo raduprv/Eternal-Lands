@@ -68,7 +68,6 @@ void move_to_category(int cat)
 	storage_categories[cat].name[0]=127+c_red3;
 	if(selected_category!=-1 && cat!=selected_category) storage_categories[selected_category].name[0]=127+c_orange1;
 	sprintf(windows_list.window[storage_win].window_name, "Storage - %s", storage_categories[cat].name+1);
-	selected_category=cat;
 
 	str[0]=GET_STORAGE_CATEGORY;
 	*((Uint8 *)(str+1))=storage_categories[cat].id;
@@ -79,17 +78,13 @@ void move_to_category(int cat)
 void get_storage_items(Uint8 * in_data, int len)
 {
 	int i;
+	int cat;
 	char * ptr;
 
 	if(in_data[0]==255){
 		//It's just an update - make sure we're in the right category
 		ptr=in_data+2;
 		active_storage_item=ptr[6];
-		
-		if(selected_category==-1||storage_categories[selected_category].id!=in_data[1]) {
-			move_to_category(find_category(in_data[1]));
-			return;
-		}
 		
 		for(i=0;i<200;i++){
 			if(storage_items[i].pos==*((Uint8*)(ptr+6))){
@@ -112,16 +107,23 @@ void get_storage_items(Uint8 * in_data, int len)
 	
 	no_storage=0;
 
-	ptr=in_data+1;
+	no_storage=in_data[0];
 	
-	for(i=0;i<in_data[0] && no_storage<200;i++,ptr+=7){
+	cat=find_category(in_data[1]);
+	
+	storage_categories[cat].name[0]=127+c_red3;
+	if(selected_category!=-1 && cat!=selected_category) storage_categories[selected_category].name[0]=127+c_orange1;
+	sprintf(windows_list.window[storage_win].window_name, "Storage - %s", storage_categories[cat].name+1);
+	selected_category=cat;
+
+	ptr=in_data+2;
+	
+	for(i=0;i<no_storage && i<200;i++,ptr+=7){
 		storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
 		storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
 		storage_items[i].pos=*((Uint8*)(ptr+6));
 	}
 	
-	no_storage=in_data[0];
-
 	for(;i<200;i++){
 		storage_items[i].quantity=0;
 	}
@@ -233,6 +235,8 @@ int display_storage_handler(window_info * win)
 
 int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 {
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	
 	if(my>10 && my<202){
 		if(mx>10 && mx<130){
 			int cat=-1;

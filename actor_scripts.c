@@ -461,6 +461,7 @@ void move_to_next_frame()
 			}
 
 			if(actors_list[i]->stop_animation) {
+				
 				//we are done with this guy
 				//Should we go into idle here?
 			}
@@ -629,7 +630,7 @@ void next_command()
 						}
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
-								
+						
 						break;
 					case attack_up_3:
 						if(actors_list[i]->is_enhanced_model){
@@ -755,6 +756,8 @@ void next_command()
 								actors_list[i]->move_x_speed*=1.4142315;
 								actors_list[i]->move_y_speed*=1.4142315;
 							}
+
+							actors_list[i]->fighting=0;
 						} else if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw) {
 							float rotation_angle;
 							

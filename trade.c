@@ -355,10 +355,10 @@ void remove_item_from_trade(Uint8 *data)
 	int pos;
 	int quantity;
 
-	pos=data[2];
+	pos=data[4];
 	quantity=SDL_SwapLE32(*((Uint32 *)(data)));
 
-	if(!data[3])
+	if(!data[5])
 	{
 		your_trade_list[pos].quantity-=quantity;
 	}
