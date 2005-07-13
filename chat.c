@@ -53,6 +53,8 @@ int nr_displayed_lines;
 chat_channel channels[MAX_CHAT_TABS];
 int active_tab = -1;
 
+const char *tab_label (Uint8 chan);//Forward declaration
+
 void init_chat_channels ()
 {
 	int itab;
@@ -140,31 +142,9 @@ int add_chat_tab(int nlines, Uint8 channel)
 			channels[ichan].open = 1;
 			channels[ichan].newchan = 1;
 			channels[ichan].highlighted = 0;
-			
-			switch (channel)
-			{
-				case CHAT_LOCAL:
-					my_strncp (title, tab_local, sizeof (title) );
-					break;
-				case CHAT_PERSONAL:
-					my_strncp (title, tab_personal, sizeof (title) );
-					break;
-				case CHAT_GM:
-					my_strncp (title, tab_guild, sizeof (title) );
-					break;
-				case CHAT_SERVER:
-					my_strncp (title, tab_server, sizeof (title) );
-					break;
-				case CHAT_MOD:
-					my_strncp (title, tab_mod, sizeof (title) );
-					break;
-				case CHAT_CHANNEL1:
-				case CHAT_CHANNEL2:
-				case CHAT_CHANNEL3:
-					my_strncp (title, tab_channel, sizeof (title) );
-				break;
-			}
 
+			my_strncp(title,tab_label (ichan), sizeof(title));
+			
 			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1);
 			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);
 				
