@@ -6,9 +6,12 @@
 #ifndef __TEXTURES_H__
 #define __TEXTURES_H__
 
+#include "global.h"
+
 #define TEXTURE_CACHE_MAX 2000
 extern texture_cache_struct texture_cache[TEXTURE_CACHE_MAX]; /*!< global texture cache */
 
+>>>>>>> 1.13
 /*!
  * \ingroup 	load_bmp
  * \brief 	Loads a color-key from a bmp-file.
