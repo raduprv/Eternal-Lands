@@ -126,9 +126,8 @@
 	<Text>                Air Essence</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="3" name="textures/items3.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> There is no use for this essence yet.</Text>
+	<Text> Used in the Drain Mana spell.</Text>
 	<nlkx/>
-	<Text> In future will be used in some magic spells.</Text>
 	<nl/><nl/><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
 	<Text>Recommended Alchemy Level: 6</Text>

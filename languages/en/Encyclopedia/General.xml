@@ -9,9 +9,9 @@
 	<color r="1" g="0.5" b="0"/>
     <Text>                    (IN DEVELOPMENT!)</Text>
 	<nl/>
-	<Text>Report all errors on the Encyclopedia Forum,</Text>
+	<Text>     Report all errors on the Encyclopedia Forum,</Text>
 	<nl/>
-	<Text>Or via e-mail to crusadingknight@gawab.com. </Text>
+	<Text>     Or via e-mail to crusadingknight@gawab.com. </Text>
 	<nl/>
 	<nl/>								
 	<size>Medium</size>
@@ -164,26 +164,38 @@
 	<Text>Here you can see a list of Bookstores and a list of the books</Text>
 	<nl/>
 	<Text>that you can find in each bookstore.</Text><nl/><nl/>
+
 	<color r="0" g="0.7" b="1"/>
-	<Text>White Stone City Library:</Text><nl/>
+	<Text>Illit (Registry Room, Magic School):  </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<link ref="Books_JW" title="Jewelry"/><nl/>
+	
+	<color r="0" g="0.7" b="1"/>
+	<Text>Nahark (Ywarstav, Grubani Peninsula): </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<link ref="Books_SF" title="Summoning and Fighting"/><nl/>
+
+	<color r="0" g="0.7" b="1"/>
+	<Text>Dan (Central White Stone City):       </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<link ref="Books_WA" title="Weapons and Armour"/><nl/>
+
+	<color r="0" g="0.7" b="1"/>
+	<Text>Brogar (Near Kamara, Portland):       </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<link ref="Books_CR" title="Crystal"/><nl/><nl/>
+	
+	<color r="0" g="0.7" b="1"/>
+	<Text>Ardur (South-East Naralik): </Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
 	<link ref="Books_GM" title="General Metallurgy Books"/><nl/>
-	<link ref="Books_MSM" title="Mining, Smelting and Molding"/><nl/>
-	<link ref="Books_WA" title="Weapons and Armour"/><nl/>
+	<link ref="Books_MSM" title="Mining, Smelting and Molding"/><nl/><nl/>
+
 	<color r="0" g="0.7" b="1"/>
 	<Text>Frukas (Grahm's Village):</Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
 	<link ref="Books_GB" title="Generic Biology"/><nl/>
 	<link ref="Books_AP" title="Alchemy and Potions"/><nl/>
-	<link ref="Books_SF" title="Summoning and Fighting"/><nl/>
-	<color r="0" g="0.7" b="1"/>
-	<Text>Gorlic (Lakeside Inn and Tavern):</Text><nl/>
-	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="Books_CR" title="Crystal"/><nl/>
-	<link ref="Books_JW" title="Jewelry"/><nl/>
-	<nl/>
-	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="Books_MD" title="Monster Drop Books (Rare Books)"/><nl/>
 	<nl/>
 	<nl/>
 	<color>yellow</color>

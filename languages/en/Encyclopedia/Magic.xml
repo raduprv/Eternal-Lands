@@ -441,7 +441,7 @@
 	<Text>                Drain Mana</Text><nl/><nl/>
 	<simage isize="256" tsize="32" size="100" tid="7" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
-	<text>      Removes a random amount of mana from a human</text>	
+	<text>      Removes a random amount of mana from a player</text>	
 	<nl/>	
 	<text>      adversary and gives it to you. (No cost on</text>	
 	<nl/>

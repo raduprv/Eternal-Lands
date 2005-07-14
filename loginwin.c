@@ -89,7 +89,6 @@ int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 // bit excessive.
 int display_login_handler (window_info *win)
 {
-	char str[20];
 	float selected_bar_u_start = (float)0/256;
 	float selected_bar_v_start = 1.0f - (float)0/256;
 
@@ -129,10 +128,8 @@ int display_login_handler (window_info *win)
 	draw_console_pic(login_text);
 
 	// ok, start drawing the interface...
-	sprintf (str, "%s: ", login_username_str);
-	draw_string (username_text_x, username_text_y, str, 1);
-	sprintf (str, "%s: ", login_password_str);
-	draw_string (password_text_x, password_text_y, str, 1);
+	draw_string (username_text_x, username_text_y, login_username_str, 1);
+	draw_string (password_text_x, password_text_y, login_password_str, 1);
 
 	// start drawing the actual interface pieces
 	get_and_set_texture_id (login_screen_menus);
