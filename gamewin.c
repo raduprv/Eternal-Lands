@@ -336,28 +336,28 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
-				str[0] = GET_PLAYER_INFO;
-				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send (my_socket, str, 5);
 #ifdef DEBUG
 				char log[100];
 				
-				snprintf(log,sizeof(log,"Actor id: %d",object_under_mouse));
+				snprintf(log,sizeof(log),"Actor id: %d",object_under_mouse);
 				LOG_TO_CONSOLE(c_green1, log);
 #endif
+				str[0] = GET_PLAYER_INFO;
+				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
+				my_tcp_send (my_socket, str, 5);
 				return 1;
 			}
 			else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
 			{
-				str[0] = LOOK_AT_MAP_OBJECT;
-				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send (my_socket, str, 5);
 #ifdef DEBUG
 				char log[100];
 				
-				snprintf(log,sizeof(log,"Object id: %d",object_under_mouse));
+				snprintf(log,sizeof(log),"Object id: %d",object_under_mouse);
 				LOG_TO_CONSOLE(c_green1, log);
 #endif
+				str[0] = LOOK_AT_MAP_OBJECT;
+				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
+				my_tcp_send (my_socket, str, 5);
 				return 1;
 			}
 

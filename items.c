@@ -655,8 +655,13 @@ int drop_all_handler ()
 		{
 			str[0] = DROP_ITEM;
 			str[1] = item_list[i].pos;
+#ifdef NEW_CLIENT
+			*((Uint32 *)(str+2)) = item_list[i].quantity;
+			my_tcp_send (my_socket, str, 6);
+#else
 			*((Uint16 *)(str+2)) = item_list[i].quantity;
 			my_tcp_send (my_socket, str, 4);
+#endif
 		}
 	}
 #else

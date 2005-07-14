@@ -36,7 +36,7 @@ typedef struct {
 	int x;
 	int y;
 
-    int w;
+	int w;
 	int h;
 	
 	int texture;
@@ -833,16 +833,18 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 			} else if(b->active_page-b->type>=0)b->active_page-=b->type;
 		} else if(mx>win->len_x-20 && mx<win->len_x-10){
 			if(b->have_server_pages<b->server_pages){
-					//Get a 2 new pages...
-					char str[5];
+				//Get a 2 new pages...
+				char str[5];
+				int id=b->id;
+				int pages=b->have_server_pages;
 		
-					str[0]=SEND_BOOK;
-					*((Uint16*)(str+1))=SDL_SwapLE16(b->id);
-					*((Uint16*)(str+3))=SDL_SwapLE16(b->have_server_pages);
-					my_tcp_send(my_socket, str, 5);
+				str[0]=SEND_BOOK;
+				*((Uint16*)(str+1))=SDL_SwapLE16(id);
+				*((Uint16*)(str+3))=SDL_SwapLE16(pages);
+				my_tcp_send(my_socket, str, 5);
 
-					if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
-					else b->pages_to_scroll=b->type;
+				if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
+				else b->pages_to_scroll=b->type;
 			} else if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
 		}
 		if(b->type==1){
@@ -860,10 +862,11 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 			
 			if(mx>win->len_x/2-15 && mx < win->len_x/2+15) {
 				char str[5];
+				int id=b->id;
 		
 				str[0]=SEND_BOOK;
-				*((Uint16*)(str+1))=SDL_Swap16(b->id);
-				*((Uint16*)(str+3))=SDL_Swap16(0xFFFF); // Swap not actually necessary.. But it's cleaner.
+				*((Uint16*)(str+1))=SDL_SwapLE16(id);
+				*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF); // Swap not actually necessary.. But it's cleaner.
 				my_tcp_send(my_socket, str, 5);
 				
 				win->displayed=0;
@@ -892,9 +895,10 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 			
 			if(mx>win->len_x/2-15 && mx < win->len_x/2+15) {
 				char str[5];
+				int id=b->id;
 		
 				str[0]=SEND_BOOK;
-				*((Uint16*)(str+1))=SDL_SwapLE16(b->id);
+				*((Uint16*)(str+1))=SDL_SwapLE16(id);
 				*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF);
 				my_tcp_send(my_socket, str, 5);
 				

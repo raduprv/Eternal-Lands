@@ -279,7 +279,11 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(ground_item_list[pos].quantity){
 				str[0]=PICK_UP_ITEM;
 				str[1]=pos;
+#ifdef NEW_CLIENT
+				*((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[pos].quantity);
+#else
 				*((Uint16 *)(str+2))=SDL_SwapLE16((short)ground_item_list[pos].quantity);
+#endif
 				my_tcp_send(my_socket,str,4);
 			}
 		}
