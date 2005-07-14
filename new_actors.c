@@ -402,7 +402,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	enhanced_actor *this_actor;
 #ifdef CUSTOM_LOOK
 	unsigned char playerpath[256], guildpath[256];
-	//Uint32 uniq_id, guild_id; - Post ported.... We'll come up with something later...
+	Uint32 uniq_id, guild_id; // - Post ported.... We'll come up with something later...
 #endif
 
 	char cur_frame[20];
@@ -436,8 +436,8 @@ void add_enhanced_actor_from_server(char * in_data)
 	max_health=SDL_SwapLE16(*((short *)(in_data+23)));
 	cur_health=SDL_SwapLE16(*((short *)(in_data+25)));
 	kind_of_actor=*(in_data+27);
-#if defined CUSTOM_LOOK && defined NEW_CLIENT
-	//uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
+#if defined CUSTOM_LOOK && defined UID
+	uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
 #endif
 
 	//translate from tile to world
@@ -496,7 +496,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	default:
 		{
 			char str[120];
-#ifdef NEW_CLIENT
+#ifdef UID
 			sprintf (str, "%s %d - %s\n", unknown_frame, frame, &in_data[32]);
 #else
 			sprintf(str,"%s %d - %s\n",unknown_frame,frame,&in_data[28]);
@@ -519,7 +519,7 @@ void add_enhanced_actor_from_server(char * in_data)
 					if(actors_list[i]->actor_id==actor_id)
 						{
 							char str[256];
-#ifdef NEW_CLIENT
+#ifdef UID
 							sprintf (str, "%s %d = %s => %s\n", duplicate_actors_str, actor_id, actors_list[i]->actor_name, &in_data[32]);
 #else
 							sprintf(str,"%s %d = %s => %s\n",duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[28]);
@@ -528,14 +528,14 @@ void add_enhanced_actor_from_server(char * in_data)
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
 						}
-#ifdef NEW_CLIENT
+#ifdef UID
 					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && (actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor==PKABLE_COMPUTER_CONTROLLED) && !my_strcompare(&in_data[32], actors_list[i]->actor_name))
 #else
 					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && (actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor==PKABLE_COMPUTER_CONTROLLED) && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
 #endif
 						{
 							char str[256];
-#ifdef NEW_CLIENT
+#ifdef UID
 							sprintf (str, "%s(%d) = %s => %s\n", duplicate_npc_actor, actor_id, actors_list[i]->actor_name, &in_data[32]);
 #else
 							sprintf(str,"%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
@@ -559,7 +559,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	{
 		/* get the name string into a working buffer */
 		unsigned char buffer[256], *name, *guild;
-#ifdef NEW_CLIENT
+#ifdef UID
 		my_strcp(buffer,&in_data[32]);
 #else
 		my_strcp(buffer,&in_data[28]);
@@ -580,7 +580,7 @@ void add_enhanced_actor_from_server(char * in_data)
 		my_tolower(name);
 		my_tolower(guild);
 		
-#ifndef NEW_CLIENT
+#ifndef UID
 		uniq_id = 0;
 #endif
 

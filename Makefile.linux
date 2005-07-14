@@ -9,6 +9,7 @@ OPTIONS=-DLINUX -DELC
 #-DNEW_CLIENT #contains the new client interface, with trade, storage windows etc.
 #-DMULTI_CHANNEL # multi-channel support, should go into NEW_CLIENT once it's working
 #-DCUSTOM_LOOK # allows you to customize your look. Still unfinished!
+#-DUID # use unique ID sent from server for custom looks. Still unfinished!
 #-DNETWORK_THREAD
 #-DANTI_ALIAS # allows to enable/disable anti-aliasing in el.ini
 
