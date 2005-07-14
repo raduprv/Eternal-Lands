@@ -272,6 +272,8 @@
 #define BATTLEAXE_TITANIUM_MAGIC 46
 #define GLOVE_FUR 47
 #define GLOVE_LEATHER 48
+#define BONE_1 49
+#define STICK_1 50
 /*! @} */
 
 /*!

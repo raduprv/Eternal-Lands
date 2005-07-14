@@ -214,6 +214,8 @@ const dict_elem weapon_type_dict[] =
 	  { "titanium battle axe of magic", BATTLEAXE_TITANIUM_MAGIC },
 	  { "fur gloves"                  , GLOVE_FUR                },
 	  { "leather gloves"              , GLOVE_LEATHER            },
+	  { "bone 1"              	  , BONE_1	             },
+	  { "stick 1"              	  , STICK_1	             },
 	  { NULL                          , -1                       }
 	};
 

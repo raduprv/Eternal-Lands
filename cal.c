@@ -88,17 +88,17 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 
 {
 
-	char fname[255];
+	char fname[255]={0};
 
-	struct cal_anim res;
+	struct cal_anim res={-1,0,0};
 
-	char temp[255];
+	char temp[255]={0};
 
 	struct CalCoreAnimation *coreanim;
 
 	
 
-	sscanf(str,"%s%d",fname,&res.kind);
+	if(!sscanf(str,"%s%d",fname,&res.kind)) return res;
 
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,fname);
 
