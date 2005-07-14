@@ -276,7 +276,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		str[0] = DROP_ITEM;
 		str[1] = item_list[item_dragged].pos;
 #ifdef NEW_CLIENT
-		*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_quantity);
+		*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
+		my_tcp_send(my_socket, str, 6);
 #else
 		if(item_quantity<item_list[item_dragged].quantity)
 			*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_quantity);
@@ -284,8 +285,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_list[item_dragged].quantity);
 			item_dragged=-1;
 		}
-#endif
 		my_tcp_send(my_socket, str, 4);
+#endif
 		return 1;
 	}
 
@@ -338,6 +339,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				str[0] = GET_PLAYER_INFO;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
+#ifdef DEBUG
+				char log[100];
+				
+				snprintf(log,sizeof(log,"Actor id: %d",object_under_mouse));
+				LOG_TO_CONSOLE(c_green1, log);
+#endif
 				return 1;
 			}
 			else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
@@ -345,6 +352,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				str[0] = LOOK_AT_MAP_OBJECT;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
+#ifdef DEBUG
+				char log[100];
+				
+				snprintf(log,sizeof(log,"Object id: %d",object_under_mouse));
+				LOG_TO_CONSOLE(c_green1, log);
+#endif
 				return 1;
 			}
 

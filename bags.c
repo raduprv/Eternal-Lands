@@ -293,8 +293,8 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		if (item_dragged != -1){
 			str[0] = DROP_ITEM;
 			str[1] = item_dragged;
-			*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_quantity);
-			my_tcp_send(my_socket, str, 4);
+			*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
+			my_tcp_send(my_socket, str, 6);
 		}
 	} else if(item_action_mode==ACTION_LOOK) {
 		str[0]= LOOK_AT_GROUND_ITEM;
@@ -307,8 +307,8 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 		str[0]= PICK_UP_ITEM;
 		str[1]= ground_item_list[pos].pos;
-		*((Uint16 *)(str+2))= SDL_SwapLE16((short)quantity);
-		my_tcp_send(my_socket,str,4);
+		*((Uint32 *)(str+2))= SDL_SwapLE32(quantity);
+		my_tcp_send(my_socket,str,6);
 	}
 #else
 	if(!ground_item_list[pos].quantity) {
