@@ -11,6 +11,7 @@
 
 //get a texture id out of the texture cache
 //if null, then reload it (means it was previously freed)
+
 int get_texture_id(int i)
 {
     int new_texture_id;
@@ -39,7 +40,17 @@ void	bind_texture_id(int texture_id)
 
 int get_and_set_texture_id(int i)
 {
-	int	texture_id=get_texture_id(i);
+	int	texture_id;
+	
+	if(i<0||i>TEXTURE_CACHE_MAX) {
+		char str[100];
+
+		snprintf(str,sizeof(str), "We tried binding a texture ID of %d\n",i);
+		log_error(str);
+		return 0;
+	}
+	
+	texture_id=get_texture_id(i);
 	bind_texture_id(texture_id);
 
 	return(texture_id);

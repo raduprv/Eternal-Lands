@@ -954,6 +954,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 					case NEW_CHAR_INTERFACE:
 						hide_all_root_windows ();
 						hide_hud_windows ();
+						countdown=0;
+						have_a_map=0;
 						create_newchar_root_window ();
 						show_window (newchar_root_win);
 						connect_to_server();

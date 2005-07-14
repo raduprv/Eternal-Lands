@@ -19,7 +19,7 @@ cache_struct	*cache_system=NULL;
 
 cache_struct	*cache_e3d=NULL;
 
-texture_cache_struct texture_cache[1000];
+texture_cache_struct texture_cache[TEXTURE_CACHE_MAX];
 obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF];
 
 Uint32 cache_system_clean();

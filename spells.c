@@ -863,6 +863,7 @@ void init_quickspell()
 		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );
 	} else {
 		show_window (quickspell_win);
+		move_window (quickspell_win, -1, 0, window_width - quickspell_x, quickspell_y);
 	}
 }
 

@@ -48,8 +48,6 @@ typedef struct
 	unsigned char alpha; /*!< used for alpha blending the texture */
 }texture_cache_struct;
 
-extern texture_cache_struct texture_cache[1000]; /*!< global texture cache */
-
 /*!
  * \name Cache constants
  */

@@ -536,6 +536,7 @@ void sit_button_pressed(void * none, int id)
 void you_sit_down()
 {
 	you_sit=1;
+	if(!icon_list[1])return;
 	icon_list[1]->u[0]=stand_icon_u_start;//Change the icon to stand
 	icon_list[1]->u[1]=colored_stand_icon_u_start;
 	icon_list[1]->v[0]=stand_icon_v_start;
@@ -546,6 +547,7 @@ void you_sit_down()
 void you_stand_up()
 {
 	you_sit=0;
+	if(!icon_list[1])return;
 	icon_list[1]->u[0]=sit_icon_u_start;
 	icon_list[1]->u[1]=colored_sit_icon_u_start;
 	icon_list[1]->v[0]=sit_icon_v_start;
@@ -1115,7 +1117,7 @@ int	display_quickbar_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=0;i<ITEM_NUM_ITEMS;i++)
+	for(i=0;i<6;i++)
 		{
 			if(item_list[i].quantity > 0)
 				{
@@ -1132,31 +1134,29 @@ int	display_quickbar_handler(window_info *win)
 
 					//get the x and y
 					cur_pos=item_list[i].pos;
-					if(cur_pos<6)//don't even check worn items
+					
+					x_start= 1;
+					x_end= x_start+29;
+					y_start= 30*(cur_pos%6)+1;
+					y_end= y_start+29;
+
+					//get the texture this item belongs to
+					this_texture=get_items_texture(item_list[i].image_id/25);
+
+					get_and_set_texture_id(this_texture);
+					glBegin(GL_QUADS);
+					if(quickbar_dir==VERTICAL)
 						{
-							x_start= 1;
-							x_end= x_start+29;
-							y_start= 30*(cur_pos%6)+1;
-							y_end= y_start+29;
-
-							//get the texture this item belongs to
-							this_texture=get_items_texture(item_list[i].image_id/25);
-
-							get_and_set_texture_id(this_texture);
-							glBegin(GL_QUADS);
-							if(quickbar_dir==VERTICAL)
-								{
-									draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-								}
-							else
-								{
-									draw_2d_thing(u_start,v_start,u_end,v_end,y_start+1,x_start+1,y_end-1,x_end-1);
-								}
-							glEnd();
-							sprintf(str,"%i",item_list[i].quantity);
-							if(quickbar_dir==VERTICAL) draw_string_small(x_start,y_end-15,str,1);
-							else draw_string_small(y_start,x_end-15,str,1);
+							draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 						}
+					else
+						{
+							draw_2d_thing(u_start,v_start,u_end,v_end,y_start+1,x_start+1,y_end-1,x_end-1);
+						}
+					glEnd();
+					snprintf(str,sizeof(str),"%i",item_list[i].quantity);
+					if(quickbar_dir==VERTICAL) draw_string_small(x_start,y_end-15,str,1);
+					else draw_string_small(y_start,x_end-15,str,1);
 				}
 		}
 
@@ -1287,7 +1287,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(item_dragged!=-1)//we have to drop this item
 						{
 							int any_item=0;
-							for(i=0;i<ITEM_NUM_ITEMS;i++)
+							for(i=0;i<6;i++)
 								{
 									if(item_list[i].quantity && item_list[i].pos==y)
 										{
@@ -1344,7 +1344,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 								}
 						}
 					//see if there is any item there
-					for(i=0;i<ITEM_NUM_ITEMS;i++)
+					for(i=0;i<6;i++)
 						{
 							//should we get the info for it?
 							if(item_list[i].quantity && item_list[i].pos==y)

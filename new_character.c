@@ -176,6 +176,8 @@ int display_newchar_handler (window_info *win)
 		yourself = 0;
 	}
 
+	if(disconnected)connect_to_server();
+
 	if(!have_a_map){
 		game_minute = 90;
 		new_minute();
@@ -408,6 +410,8 @@ void create_newchar_root_window ()
 		set_window_handler (newchar_root_win, ELW_HANDLER_SHOW, &show_newchar_handler);
 
 		LOG_TO_CONSOLE(c_green1, char_help);
+	} else {
+		show_window(newchar_root_win);
 	}
 }
 
