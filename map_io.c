@@ -201,7 +201,7 @@ int load_map(char * file_name)
 	if(!dungeon) cur_map=get_cur_map(file_name);//Otherwise we pretend that we don't know where we are - if anyone wants to do the work and input all coordinates it's fine by me however :o)
 	else cur_map=-1;
 
-	if(!strcmp(file_name+7,"startmap.elm")) {
+	if(!strcmp(file_name+7,"startmap_snow.elm")) {
 		map_type=2; //Remove this hack and set the map type from the server!
 		colors_list[c_grey1].r1=0.6f*255;
 		colors_list[c_grey1].g1=0.9f*255;
