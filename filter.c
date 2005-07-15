@@ -6,9 +6,9 @@
 
 typedef struct
 {
-	Uint8 name[16];
+	Uint8 *name;
+	Uint8 *replacement;
 	int len;
-	Uint8 replacement[32];
 	int rlen;
 }filter_slot;
 
@@ -40,7 +40,6 @@ int add_to_filter_list(Uint8 *name, char save_name)
 			if(!filter_list[i].len > 0)
 				{
 					//excellent, a free spot
-					my_strcp(filter_list[i].name,name);
 					strcpy(left, name);
 					for(t=0;;t++){
 						if(left[t]==0){
@@ -69,6 +68,8 @@ int add_to_filter_list(Uint8 *name, char save_name)
 								fclose(f);
 							}
 						}
+					filter_list[i].name=malloc(strlen(left)+1);
+					filter_list[i].replacement=malloc(strlen(right)+1);
 					my_strcp(filter_list[i].name,left);
 					my_strcp(filter_list[i].replacement,right);
 					filter_list[i].len=strlen(filter_list[i].name);//memorize the length
@@ -87,6 +88,7 @@ int remove_from_filter_list(Uint8 *name)
 	int i;
 	int found = 0;
 	FILE *f = NULL;
+	Uint8 buff[512];
 	//see if this name is on the list
 	for(i=0;i<MAX_FILTERS;i++)
 		{
@@ -94,10 +96,19 @@ int remove_from_filter_list(Uint8 *name)
 				if(my_strcompare(filter_list[i].name,name))
 					{
 						filter_list[i].len=0;
+						filter_list[i].rlen=0;
+						free(filter_list[i].name);
+						free(filter_list[i].replacement);
 						found = 1;
 						filtered_so_far--;
 					}
 		}
+	/****************************************************************************************
+	 * To be honest, i dont understand that. We remove the filter from the filters list,    *
+	 * try to save it in local_filters.txt, even if the filter came from global_filters.txt?*
+    *	What we, of course, dont know? o.O                                                   *
+	 * Piper                                                                                * 
+	 ****************************************************************************************/
 	if(found)
 		{
 			char local_filters[256];
@@ -110,7 +121,9 @@ int remove_from_filter_list(Uint8 *name)
 				{
 					if(filter_list[i].len > 0)
 						{
-							fwrite(ignore_list[i].name, filter_list[i].len, 1, f);
+							sprintf(buff, "%s = %s", 
+								filter_list[i].name, filter_list[i].replacement);
+							fwrite(buff, strlen(buff), 1, f);
 							fwrite("\n", 1, 1, f);	
 						}
 				}
