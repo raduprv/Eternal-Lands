@@ -99,9 +99,9 @@ int queue_destroy (queue_t *queue)
 			free(tmp);
 		}
 	}
-	free (queue);
 	SDL_UnlockMutex(queue->mutex);
 	SDL_DestroyMutex(queue->mutex);
+	free (queue);
 	return 0;
 }
 #endif //NETWORK_THREAD
