@@ -8,7 +8,7 @@ int afk=0;
 int last_action_time=0;
 int afk_time=0;
 char afk_message[MAX_TEXT_MESSAGE_LENGTH]={0};
-char afk_title[100];
+char afk_title[101];
 
 struct pm_struct pm_log;
 
@@ -57,6 +57,7 @@ void go_ifk()
 void print_title(char * no, char * name, char * messages)
 {
 	char * ptr = afk_title;
+	
 	memset(afk_title,' ',100);
 	while(*no)*ptr++=*no++;
 	*ptr=':';
@@ -77,10 +78,10 @@ void print_return_message()
 	LOG_TO_CONSOLE(c_green1,not_afk);
 	if(pm_log.ppl && pm_log.msgs)
 		{
-			snprintf(str,60,new_messages,pm_log.msgs);
+			snprintf(str, 60, new_messages, pm_log.msgs);
 			LOG_TO_CONSOLE(c_green2,str);
-			print_title("#",afk_names,afk_messages);
-			LOG_TO_CONSOLE(c_green2,afk_title);
+			print_title("#", afk_names, afk_messages);
+			LOG_TO_CONSOLE(c_green2, afk_title);
 			while(++m<pm_log.ppl)
 				{
 					char name[35];
@@ -106,6 +107,7 @@ int have_name(char *name, int len)
 	for (;z<pm_log.ppl;z++) if(!strncasecmp(pm_log.afk_msgs[z].name,name,len)) return z;
 	return -1;
 }
+
 void add_name_to_pm_log(char *name, int len)
 {
 	int z=pm_log.ppl;
@@ -114,14 +116,15 @@ void add_name_to_pm_log(char *name, int len)
 	pm_log.afk_msgs=(afk_struct *)realloc(pm_log.afk_msgs,pm_log.ppl*sizeof(afk_struct));
 	pm_log.afk_msgs[z].msgs=0;
 	pm_log.afk_msgs[z].messages=NULL;
-	pm_log.afk_msgs[z].name=(char*)calloc(len+1,sizeof(char));
-	memcpy(pm_log.afk_msgs[z].name,name,len);
+	pm_log.afk_msgs[z].name=(char*)calloc(len+1, sizeof(char));
+	memcpy(pm_log.afk_msgs[z].name,name,len+1);
 }
 
 void add_message_to_pm_log(char * message, int len)
 {
 	int l, last_pm_len=strlen(last_pm_from);
 	int z=have_name(last_pm_from,last_pm_len);
+	char	buf[256];
 
 	message[len]=0;
 	message+=11+last_pm_len;
@@ -134,9 +137,9 @@ void add_message_to_pm_log(char * message, int len)
 		}
 	pm_log.afk_msgs[z].messages=(char**)realloc(pm_log.afk_msgs[z].messages,(pm_log.afk_msgs[z].msgs+1)*sizeof(char *));
 	//time name message
-	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]=(char*)calloc(184,sizeof(char));
-	sprintf(pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs],"<%1d:%02d> %s: ",game_minute/60, game_minute%60,last_pm_from);
-	strncat(pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs],message,l);
+	sprintf(buf, "<%1d:%02d> %s: %s",game_minute/60, game_minute%60, last_pm_from, message);
+	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]=(char*)calloc(strlen(buf+1),sizeof(char));
+	strcpy(pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf);
 	pm_log.afk_msgs[z].msgs++;
 	pm_log.msgs++;
 }
@@ -144,7 +147,7 @@ void add_message_to_pm_log(char * message, int len)
 int my_namecmp(char *check)
 {
 	int i=0;
-	char username[20];
+	char username[32];
 	strcpy(username,username_str);
 	my_tolower(username);
 	
@@ -183,7 +186,7 @@ int is_talking_about_me (Uint8 *server_msg, int len, char everywhere)
 
 void send_afk_message (Uint8 *server_msg, int type)
 {
-	Uint8 sendtext[MAX_TEXT_MESSAGE_LENGTH]={0};
+	Uint8 sendtext[MAX_TEXT_MESSAGE_LENGTH+60]={0};
 	
 	if (afk_message[0] == '\0') return;
 	
@@ -194,7 +197,8 @@ void send_afk_message (Uint8 *server_msg, int type)
 	else 
 	{
 		int i=0;
-		char *name = calloc ( 20, sizeof (char) );
+		//char *name = (char *)calloc(32, sizeof (char));
+		char	name[32];
 		
 		// Copy the name. This ought to work for both local chat and
 		// trade attempts
@@ -206,12 +210,19 @@ void send_afk_message (Uint8 *server_msg, int type)
 		}		
 		name[i-1] = '\0';
 		
-		if (have_name (name, i-1) < 0)
+		if (have_name(name, i-1) < 0)
 		{
 			sprintf (sendtext, "%c%s %s", SEND_PM, name, afk_message);
 			add_name_to_pm_log (name, i-1);
 		}
+		else
+		{
+			sendtext[0]= '\0';
+			sendtext[1]= '\0';
+		}
 	}
 	if (sendtext[1] != '\0') 
+	{
 		my_tcp_send (my_socket, sendtext, strlen (&sendtext[1]) + 1);
+	}
 }
