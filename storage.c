@@ -47,6 +47,7 @@ void get_storage_categories(char * in_data, int len)
 	active_storage_item=-1;
 
 	display_storage_menu();
+	display_items_menu();
 }
 
 int find_category(int id)
