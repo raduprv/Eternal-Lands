@@ -379,6 +379,7 @@ typedef struct
 	int pants;		/*!< Sets the pants ID (loaded from the actor_defs array)*/
 	int shirt;		/*!< Sets the shirt ID (loaded from the actor_defs array)*/
 	int cur_weapon;		/*!< Sets the current weapon of the actor*/
+	int cur_shield;		/*!< Sets the current shield of the actor*/
 	/*! \} */
 
 	/*! \{ */

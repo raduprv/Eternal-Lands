@@ -314,7 +314,8 @@ void display_3d_reflection()
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
 
-	glDisable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -350,7 +351,8 @@ void display_3d_reflection()
 	glDisable(GL_CLIP_PLANE0);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
 	CHECK_GL_ERRORS();
 }
 

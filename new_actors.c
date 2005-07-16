@@ -203,6 +203,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 							    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->shield_meshindex);
 								actors_list[i]->body_parts->shield_fn[0]=0;
 								actors_list[i]->body_parts->shield_tex[0]=0;
+								actors_list[i]->cur_shield = SHIELD_NONE;
 								return;
 							}
 
@@ -305,6 +306,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
                                 actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+								actors_list[i]->cur_shield=which_id;
 								return;
 							}
 
