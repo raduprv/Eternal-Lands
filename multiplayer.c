@@ -178,6 +178,8 @@ void connect_to_server()
 			SDLNet_TCP_Close(my_socket);
 			my_socket=0;
 		}
+	//clear the buddy list so we don't get multiple entries
+	clear_buddy();
 
 	LOG_TO_CONSOLE(c_red1,connect_to_server_str);
 	draw_scene();	// update the screen
