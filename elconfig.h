@@ -6,6 +6,8 @@
 #ifndef __ELCONFIG_H__
 #define __ELCONFIG_H__
 
+#include "queue.h"
+
 /*!
  * var_struct stores the data for a single configuration entry.
  */
@@ -20,7 +22,15 @@ typedef struct
 	void 	*var; /*!< data for this variable */
 	int 	len; /*!< length of the variable */
 	int	saved;
-//	char 	*message; //In case you want a message to be written when a setting is changed
+//	char 	*message; /*!< In case you want a message to be written when a setting is changed */
+	char	*short_desc;/*!< The description that will be shown in the label */
+	char	*long_desc; /*!< A longer description, shown when the player clicks on the option */
+	struct {
+		int tab_id; /*!< The tab ID in which we find this option */
+		int label_id; /*!< The label ID associated with this option */
+		int widget_id; /*!< Widget ID for things like checkboxes */
+	} widgets;
+	queue_t *queue; /*!< Queue that holds info for certain widget types. */
 } var_struct;
 
 /*!
@@ -46,6 +56,10 @@ typedef enum
 extern struct variables our_vars; /*!< global variable containing all defined variables */
 
 extern int write_ini_on_exit; /*< variable that determines if el.ini file is rewritten on exit of the program */
+
+extern int elconfig_win;
+
+void display_elconfig_win(void);
 
 /*!
  * \ingroup config

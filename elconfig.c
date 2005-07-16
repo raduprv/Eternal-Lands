@@ -2,32 +2,70 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <limits.h>
+#include <float.h>
 #ifdef MAP_EDITOR
-#include "../map_editor/global.h"
-#elif defined(ELCONFIG)
-#include <ctype.h>
-#include "../gtk-elconfig/global.h"
+ #include "../map_editor/global.h"
 #else
-#include "global.h"
+ #include "global.h"
 #endif
 #include "elconfig.h"
 #include "text.h"
 #include "chat.h"
 #include "consolewin.h"
+#include "queue.h"
 
-#define SPECINT		0 	//Multiple ints, special func							func(int)
-#define SPECCHAR	1 	//Char pointer, special func							func(char*)
-#define SPEC 		2 	//A special function call, bool (is called when value != default value) 	func()
-#define BOOL		3	//Change variable 								func(int*)
-#define STRING		4	//Change string 								func(char*,char*)
-#define FLOAT		5 	//Change float									func(float*,float*)
-#define INT		6	//Change int									func(int*,int)
+#define SPECINT		INT //Multiple ints, non-default func							func(int*,int)
+#define BOOL		1	// Change variable 								func(int*)
+#define STRING		2	// Change string 								func(char*,char*)
+#define FLOAT		3 	// Change float									func(float*,float*)
+#define INT			4	// Change int									func(int*,int)
+#define MULTI		5   // INT with multiselect widget
+#ifdef ELC
+ #define PASSWORD 6
+#else
+ #define PASSWORD STRING
+#endif //ELC
+
+// Defines for config variables
+#define VIDEO		0
+#define CONTROLS	1
+#define AUDIO		2
+#define HUD			3
+#define SERVER		4
+#define MISC		5
+#define FONT 		6
+#define CHAT		7
+#define SPECIALVID	8
+
+#define MAX_TABS 9
+
+#define CHECKBOX_SIZE 15
+#define SPACING 5 //Space between widgets and labels and lines
+#define LONG_DESC_SPACE 50 //Space to give to the long descriptions
+#define MAX_LONG_DESC_LINES 3 //How many lines of text we can fit in LONG_DESC_SPACE
 
 typedef char input_line[256];
 
 struct variables our_vars={0,{NULL}};
 
 int write_ini_on_exit = 1;
+// Window Handling
+int elconfig_win = -1;
+int elconfig_tab_collection_id = 1;
+int elconfig_free_widget_id = 2;
+char elconf_description_buffer[400] = {0};
+struct {
+	Uint32 tab;
+	Uint16 x;
+	Uint16 y;
+} elconfig_tabs[MAX_TABS];
+int elconfig_menu_x = 10;
+int elconfig_menu_y = 10;
+int elconfig_menu_x_len = 520;
+int elconfig_menu_y_len = 400;
+int compass_direction_checkbox = 1;
 
 void change_var(int * var)
 {
@@ -41,7 +79,11 @@ void change_int(int * var, int value)
 
 void change_float(float * var, float * value)
 {
-	if(*value>=0) *var=*value;
+	if(*value>=0) {
+		*var=*value;
+	} else {
+		*var=0;
+	}
 }
 
 void change_string(char * var, char * str, int len)
@@ -54,68 +96,63 @@ void change_string(char * var, char * str, int len)
 void change_sound_level(float *var, float * value)
 {
 	if(*value>=0 && *value<=100)
-		{
-#ifndef ELCONFIG
-			*var=(float)*value/100.0f;
-#else
-			*var=(float)*value;
-#endif
-		}
+	{
+		*var=(float)*value/100.0f;
+	} else {
+		*var=0;
+	}
 }
 
-#ifndef ELCONFIG
 void change_password(char * passwd)
 {
-	int i=0;
-	char * str=password_str;
-	while(*passwd)*str++=*passwd++;
+	int i = 0;
+	char *str = password_str;
+	while(*passwd) {
+		*str++ = *passwd++;
+	}
 	*str=0;
 	if(password_str[0])//We have a password
 		{
-			for(;i<str-password_str;i++) display_password_str[i]='*';
+			for(; i < str-password_str; i++) {
+				display_password_str[i] = '*';
+			}
 			display_password_str[i]=0;
 		}
 }
-#endif
 
-void change_poor_man(int value)
+void change_poor_man(int *poor_man)
 {
-	if(value>0)
-		{
-			show_reflection=0;
-			shadows_on=0;
-			clouds_shadows=1;
-			poor_man=1;
-		}
-	else poor_man=0;
+	*poor_man = !*poor_man;
+	if(*poor_man) {
+		show_reflection=0;
+		shadows_on=0;
+		clouds_shadows=0;
+		use_shadow_mapping=0;
+	}
 }
 
-void change_vertex_array(int value)
+void change_vertex_array(int *pointer)
 {
-	if(value>0)use_vertex_array=value;
-	else value=0;
-#ifndef ELCONFIG
+	*pointer = !*pointer;
 	if(use_vertex_array)
-		{
-			LOG_TO_CONSOLE(c_green2,enabled_vertex_arrays);
-		}
-#endif
+	{
+		LOG_TO_CONSOLE(c_green2,enabled_vertex_arrays);
+	}
 }
 
-void change_point_particles(int value)
+void change_point_particles(int *value)
 {
-	use_point_particles=(value>0);
-#ifndef ELCONFIG
+	*value = !*value;
 	if(!use_point_particles)
-		{
-			LOG_TO_CONSOLE(c_green2,disabled_point_particles);
-		}
-#endif
+	{
+		LOG_TO_CONSOLE(c_green2,disabled_point_particles);
+	}
 }
 
-void change_particles_percentage(int value)
+void change_particles_percentage(int *pointer, int value)
 {
-	if(value>0 && value <=100) particles_percentage=value;
+	if(value>0 && value <=100)
+		particles_percentage=value;
 	else 
 		{
 			particles_percentage=0;
@@ -125,27 +162,25 @@ void change_particles_percentage(int value)
 		}
 }
 
-void switch_vidmode(int mode)
+void switch_vidmode(int *pointer, int mode)
 {
-	if(mode>12 || mode<=0)
-		{
-#ifndef ELCONFIG
-			//warn about this error
-			LOG_TO_CONSOLE(c_red2,invalid_video_mode);
-#endif
-			return;
-		}
-	else video_mode=mode;
-#ifndef ELCONFIG
-	if(!video_mode_set) return;
-	set_new_video_mode(full_screen,video_mode);
-	if(items_win>=0){
-		windows_list.window[items_win].show_handler(&windows_list.window[items_win]);
+	if(mode>12 || mode<1)
+	{
+		//warn about this error
+		LOG_TO_CONSOLE(c_red2,invalid_video_mode);
+		return;
+	} else {
+		video_mode = mode;
 	}
-#endif
+	if(!video_mode_set) {
+		return;
+	}
+	set_new_video_mode(full_screen,video_mode);
+	if(items_win >= 0) {
+ 		windows_list.window[items_win].show_handler(&windows_list.window[items_win]);
+ 	}
 }
 
-#ifndef ELCONFIG
 void toggle_full_screen_mode(int * fs)
 {
 	if(!video_mode_set) 
@@ -156,15 +191,21 @@ void toggle_full_screen_mode(int * fs)
 	toggle_full_screen();
 }
 
-void change_compass_direction(int dir)
+void change_compass_direction(int *dir)
 {
-	compass_direction=1-2*(dir>0);
+	compass_direction = 1-2 * (*dir>0);
+	*dir=!*dir;
 }
 
-void set_afk_time(int time)
+void set_afk_time(int *pointer, int time)
 {
-	if(time>0)afk_time=time*60000;
-	else afk_time=0;
+	if(time > 0) {
+		afk_time = time*60000;
+		*pointer = time;
+	} else {
+		afk_time = 0;
+		*pointer = 0;
+	}
 }
 
 void change_windowed_chat (int *wc, int val)
@@ -188,7 +229,6 @@ void change_windowed_chat (int *wc, int val)
 		hide_window (chat_win);
 	}
 }
-#endif // not def ELCONFIG
 
 
 void change_quickbar_relocatable (int *rel)
@@ -228,12 +268,36 @@ void change_dir_name (char *var, const char *str, int len)
 	var[idx] = '\0';
 }
 
+#ifdef ANTI_ALIAS
+void change_aa(int *pointer, int value) {
+	anti_alias = !anti_alias;
+	if (anti_alias) {
+		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);
+		glHint(GL_LINE_SMOOTH_HINT,    GL_NICEST);
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_POINT_SMOOTH);
+		glEnable(GL_LINE_SMOOTH);
+		glEnable(GL_POLYGON_SMOOTH);
+	} else {
+		glHint(GL_POINT_SMOOTH_HINT,   GL_FASTEST);
+		glHint(GL_LINE_SMOOTH_HINT,    GL_FASTEST);
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+		glDisable(GL_POINT_SMOOTH);
+		glDisable(GL_LINE_SMOOTH);
+		glDisable(GL_POLYGON_SMOOTH);
+	}
+}
+#endif // ANTI_ALIAS
+
 #ifdef MAP_EDITOR
 
-void set_auto_save_interval(int time)
+void set_auto_save_interval(int *pointer, int time)
 {
-	if(time>0)auto_save_time=time*60000;
-	else auto_save_time=0;
+	if(time>0) {
+		auto_save_time = time*60000;
+	} else {
+		auto_save_time = 0;
+	}
 }
 
 void switch_vidmode(int mode)
@@ -261,7 +325,8 @@ void switch_vidmode(int mode)
 			case 6:
 				window_width=1600;
 				window_height=1200;
-			default: return;
+			default:
+				return;
 		}
 }
 
@@ -269,36 +334,15 @@ void switch_vidmode(int mode)
 
 #ifdef ELCONFIG
 
-void change_srv_string(char *s)
+void change_srv_string(char *var, char *string, int len)
 {
-	char *p=server_port;
-	while(*s && isdigit(*s))*p++=*s++;
+	char *p = var;
+	while(*string && isdigit(*string)) {
+		*p++ = *string++;
+	}
 }
 
 #endif
-
-#ifdef ANTI_ALIAS
-#ifndef ELCONFIG // Lachesis: not implemented in elconfig, sorry
-void change_aa(int * value) {
-	anti_alias = !anti_alias;
-	if (anti_alias) {
-		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);	
-		glHint(GL_LINE_SMOOTH_HINT,    GL_NICEST);	
-		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);	
-		glEnable(GL_POINT_SMOOTH);
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_POLYGON_SMOOTH);
-	} else {
-		glHint(GL_POINT_SMOOTH_HINT,   GL_FASTEST);	
-		glHint(GL_LINE_SMOOTH_HINT,    GL_FASTEST);	
-		glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);	
-		glDisable(GL_POINT_SMOOTH);
-		glDisable(GL_LINE_SMOOTH);
-		glDisable(GL_POLYGON_SMOOTH);
-	}
-}
-#endif // !ELCONFIG
-#endif // ANTI_ALIAS
 
 int find_var (char *str, var_name_type type)
 {
@@ -377,26 +421,17 @@ int check_var (char *str, var_name_type type)
 		
 	switch (our_vars.var[i]->type)
 	{
-		case SPECINT:
-			our_vars.var[i]->func ( atoi (ptr) );
-			return 1;
-		case SPECCHAR:
-			our_vars.var[i]->func (ptr);
-			return 1;
 		case INT:
+		case MULTI:
 			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
-			return 1;
-		case SPEC:
-			p = our_vars.var[i]->var;
-			if (*p != atoi (ptr))
-				our_vars.var[i]->func ();	// the variable has changed
 			return 1;
 		case BOOL:
 			p = our_vars.var[i]->var;
 			if ((atoi (ptr) > 0) != *p)
-				our_vars.var[i]->func (our_vars.var[i]->var);
+				our_vars.var[i]->func (our_vars.var[i]->var); //only call if value has changed
 			return 1;
 		case STRING:
+		case PASSWORD:
 			our_vars.var[i]->func (our_vars.var[i]->var, ptr, our_vars.var[i]->len);
 			return 1;
 		case FLOAT:
@@ -418,27 +453,48 @@ void free_vars()
 	our_vars.no=0;
 }
 
-void add_var(int type, char * name, char * shortname, void * var, void * func, int def)
+void add_var(int type, char * name, char * shortname, void * var, void * func, int def, char * short_desc, char * long_desc, int tab_id, ...)
 {
-	int *i=var;
+	int *integer=var;
 	float *f=var;
 	int no=our_vars.no++;
+	char *pointer;
+	va_list ap;
+
 	our_vars.var[no]=(var_struct*)calloc(1,sizeof(var_struct));
 	switch(our_vars.var[no]->type=type)
 		{
-			case SPECINT:
+			case MULTI:
+				queue_initialise(&our_vars.var[no]->queue);
+				va_start(ap, tab_id);
+				while((pointer = va_arg(ap, char *)) != NULL) {
+					queue_push(our_vars.var[no]->queue, pointer);
+				}
+				va_end(ap);
+				*integer = def;
+			break;
 			case INT:
-			case SPEC:
+				queue_initialise(&our_vars.var[no]->queue);
+				va_start(ap, tab_id);
+				queue_push(our_vars.var[no]->queue, (void *)va_arg(ap, point));
+				queue_push(our_vars.var[no]->queue, (void *)va_arg(ap, point));
+				va_end(ap);
+				*integer = def;
+			break;
 			case BOOL:
-				*i=def;
+				*integer=def;
 				break;
 			case STRING:
+			case PASSWORD:
 				our_vars.var[no]->len=def;
 				break;
 			case FLOAT:
+				queue_initialise(&our_vars.var[no]->queue);
+				va_start(ap, tab_id);
+				queue_push(our_vars.var[no]->queue, (void *)va_arg(ap, point));
+				queue_push(our_vars.var[no]->queue, (void *)va_arg(ap, point));
+				va_end(ap);
 				*f=(float)def;
-				break;
-			case SPECCHAR:
 				break;
 		}
 	our_vars.var[no]->var=var;
@@ -448,124 +504,121 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 	our_vars.var[no]->nlen=strlen(our_vars.var[no]->name);
 	our_vars.var[no]->snlen=strlen(our_vars.var[no]->shortname);
 	our_vars.var[no]->saved = 0;
+	our_vars.var[no]->short_desc = malloc(strlen(short_desc)+1);
+	strncpy(our_vars.var[no]->short_desc, short_desc, strlen(short_desc));
+	our_vars.var[no]->long_desc = malloc(strlen(long_desc)+1);
+	strncpy(our_vars.var[no]->long_desc, long_desc, strlen(long_desc));
+	our_vars.var[no]->widgets.tab_id = tab_id;
 }
 
 void init_vars()
 {
 	//ELC specific variables
 #ifdef ELC
-#ifndef ELCONFIG
-	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0);
-#else
-	add_var(BOOL,"full_screen","fs",&full_screen,change_var,0);
-#endif
-	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0);
-	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1);
-	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0);
-	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0);
-	add_var(INT,"max_shadow_map_size","smsize",&max_shadow_map_size,change_int,1024);
-	add_var(SPECINT,"poor_man","poor",&poor_man,change_poor_man,0);
-	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1);
-	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0);
-	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1);
-	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1);
-	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,0);
-	add_var(SPECINT,"use_point_particles","upp",&use_point_particles,change_point_particles,1);
-	add_var(SPECINT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100);
+	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
+	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render skeleton", "Render the Cal3d skeleton.", SPECIALVID);
+	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render mesh", "Render the mesh", SPECIALVID);
+	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0,"Shadows","Toggles the shadows",VIDEO);
+	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0,"Shadow Mapping","If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.",VIDEO);
+	add_var(MULTI,"max_shadow_map_size","smsize",&max_shadow_map_size,change_int,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096",NULL);
+	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);
+	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1,"Show Reflections","Toggle the relections",VIDEO);
+	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",SPECIALVID);
+	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",SPECIALVID);
+	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
+	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,0,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",SPECIALVID);
+	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",SPECIALVID);
+	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",SPECIALVID,0,100);
 
-	add_var(SPECINT,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0);
-	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0);
+	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",SPECIALVID);
+	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects",SPECIALVID);
 
-	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15);
-	add_var(INT,"click_speed","cspeed",&click_speed,change_int,300);
+	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
+	add_var(INT,"click_speed","cspeed",&click_speed,change_int,300,"Click Speed","Set the mouse click speed",CONTROLS,0,INT_MAX);
 
-	add_var(FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15);
-	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1);
+	add_var(FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1,INT_MAX);
+	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1,INT_MAX);
 	
-	add_var(FLOAT,"name_text_size","nsize",&name_zoom,change_float,1);
-	add_var(INT,"name_font","nfont",&name_font,change_int,0);
+	add_var(FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0,INT_MAX);
 #ifdef ELC
-	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1);
-#endif
-#ifdef ELCONFIG
-	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_float,1);
-#endif
-	add_var(INT,"chat_font","cfont",&chat_font,change_int,0);
+	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0,INT_MAX);
+	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
+	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, "Type 1", "Type 2", NULL);
+#else
+	add_var(INT,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,1,3);
+	add_var(INT,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,1,3);
+#endif //ELC
 	
-	add_var(BOOL,"no_sound","sound",&no_sound,change_var,0);
-	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1);
-	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1);
+	add_var(BOOL,"no_sound","sound",&no_sound,change_var,0,"No sound","Toggle the Audio",AUDIO);
+	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the audio gain level",AUDIO,0,INT_MAX);
+	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music gain level",AUDIO,0,INT_MAX);
 
-	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0);
-	add_var(BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1);
-	add_var(BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1);
-	add_var(BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0);
-	add_var(BOOL,"show_help_text","shelp",&show_help_text,change_var,1);
-	add_var (BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0);
-#ifndef ELCONFIG
-	add_var(SPECINT,"compass_north","comp",&compass_direction,change_compass_direction,1);
-#else
-	add_var(BOOL,"compass_north","comp",&compass_direction,change_var,1);
-#endif
+	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your player from moving by accident when you are sitting.",CONTROLS);
 
-#ifndef ELCONFIG
-	add_var(SPECINT,"auto_afk_time","afkt",&afk_time,set_afk_time,5*60000);
-#else
-	add_var(INT,"auto_afk_time","afkt",&afk_time,change_int,5);
-#endif
-	add_var(STRING,"afk_message","afkm",afk_message,change_string,127);
+	add_var(BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle the item window showing when dropping items",CONTROLS);
+	add_var(BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
+	add_var(BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
+	add_var(BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable thing to show help text that tells about the function of a button.",HUD);
+	add_var(BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Toggle relocation of the quick bar",HUD);
+	add_var(BOOL,"compass_north","comp",&compass_direction_checkbox,change_compass_direction,1,"Compass Direction","Set the compass direction for a static compass",HUD);
+
+	add_var(SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
+	add_var(STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
 	
-	add_var(BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1);
-	add_var(BOOL,"save_ignores","sign",&save_ignores,change_var,1);
-	add_var(BOOL,"use_global_filters","gfil",&use_global_filters,change_var,1);
-	/* add_var(STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127); */
-	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1);
-	
-	add_var(STRING,"server_address","sa",server_address,change_string,70);
-#ifndef ELCONFIG
-	add_var(INT,"server_port","sp",&port,change_int,2000);
-#else
-	add_var(SPECCHAR,"server_port","sp",server_port,change_srv_string,8);
-#endif
-	add_var(STRING,"username","u",username_str,change_string,16);
-#ifndef ELCONFIG
-	add_var(SPECCHAR,"password","p",password_str,change_password,16);
-#else
-	add_var(STRING,"password","p",password_str,change_string,16);
-#endif
-	add_var(INT,"log_server","log",&log_server,change_int,1);
-	add_var(STRING,"language","lang",lang,change_string,8);
-	add_var(STRING,"browser","b",browser_name,change_string,70);
+	add_var(BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1,"Global Ignores","Global ignores is a list with people that are well known for being nasty, so we put them into a list (global_ignores.txt). Enable this to load that list on startup.",MISC);
+	add_var(BOOL,"save_ignores","sign",&save_ignores,change_var,1,"Save Ignores","Toggle saving of the global ignores list on exit.",MISC);
+	add_var(BOOL,"use_global_filters","gfil",&use_global_filters,change_var,1,"Global Filter","Toggle the use of global text filters.",MISC);
+	/* add_var(STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",MISC); */
+	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps filter","Toggle the caps filter",MISC);
 
-#ifndef ELCONFIG // FIXME: currently not implemented in gtk-elconfig
-	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1);
-	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0);
+	add_var(STRING,"server_address","sa",server_address,change_string,70,"Server Address","The place we should all connect too",SERVER);
+	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","The place we put our thing in the server",SERVER,10,65536);
+	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
+	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
+#ifdef ELC
+ 	add_var(MULTI,"log_server","log",&log_server,change_int,1,"Log server messages","Log messages from the server (harvesting events, GMs, etc)",SERVER,"Disabled", "Log in chat_log.txt", "Log in server_log.txt", NULL);
+#else
+	add_var(INT,"log_server","log",&log_server,change_int,1,"Log server messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
+#endif //ELC
+ 	add_var(STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
+ 	add_var(STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your browser",MISC);
+
+#ifdef ELC
+	add_var (MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
+#else
+	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "0 = Old behavior, 1 = new behavior, 2=chat window", CHAT);
+#endif //ELC
+	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0,"Save INI","Save teh options",MISC);
 	// Grum: attempt to work around bug in Ati linux drivers.
-	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0);
-	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1);
-	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1);
-	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_var, 0);
-	add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0);
-	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1);
-	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0);
-	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0);
-	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1);
+	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0,"ATI Card","I use an obsolete ati card, fix me",SPECIALVID);
+	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",SPECIALVID);
+	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating messages", "Toggles the use of floating experience messages and other graphical enhancements", SPECIALVID);
+	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_var, 0, "Separate local chat", "Should local chat be separate?", CHAT);
+	add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
+	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1, "Seperate guild chat", "Should guild chat be seperate?", CHAT);
+	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
+	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
+	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 #ifdef ANTI_ALIAS
-	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0);
-#endif
-#endif // ELCONFIG
+	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother");
+#endif //ANTI_ALIAS
 #endif // def ELC
 
 	//Global vars...
-	add_var(STRING,"data_dir","dir",datadir,change_dir_name,90);	// Only possible to do at startup - this could of course be changed by using SPECCHAR as the type and adding a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
-	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4);
-	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0);
+	// Only possible to do at startup - this could of course be changed by using a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
+	add_var(STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
+#ifdef ELC
+	add_var(MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", NULL);
+#else
+	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
+#endif //ELC
+	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,1,INT_MAX);
 
 #ifdef MAP_EDITOR
-	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0);
-	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0);
-	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0);
-	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0);
+	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
+	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show POS","Show possition on the minimap",HUD);
+	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",MISC,0,INT_MAX);
+	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show grid", "Show grid");
 #endif
 
 }
@@ -576,15 +629,14 @@ void write_var (FILE *fout, int ivar)
 	
 	switch (our_vars.var[ivar]->type)
 	{
-		case SPECINT:
 		case INT:
+		case MULTI:
 		case BOOL:
 		{
 			int *p = our_vars.var[ivar]->var;
 			fprintf (fout, "#%s = %d\n", our_vars.var[ivar]->name, *p);
 			break;
 		}
-		case SPECCHAR:
 		case STRING:
 			if (strcmp (our_vars.var[ivar]->name, "password") == 0)
 				// Do not write the password to the file. If the user really wants it
@@ -603,7 +655,6 @@ void write_var (FILE *fout, int ivar)
 	our_vars.var[ivar]->saved = 1;	// keep only one copy of this setting
 }
 
-#ifndef ELCONFIG
 FILE* open_el_ini (const char *mode)
 {
 #ifdef WINDOWS
@@ -620,7 +671,7 @@ FILE* open_el_ini (const char *mode)
 		f = my_fopen (el_ini, mode);
 	}
 	return f;
-#endif
+#endif //WINDOWS
 }
 
 int read_el_ini ()
@@ -672,12 +723,15 @@ int write_el_ini ()
 				cont = realloc (cont, maxlines * sizeof (input_line));
 			}
 		}
-	}	
-	fclose (file);
+		fclose (file);
+	}
 	
 	// Now write the contents of the file, updating those variables that have been changed
 	file = open_el_ini ("w");
-	if (file == NULL) return 0;
+	if (file == NULL)
+	{
+		return 0;
+	}
 	
 	for (iline = 0; iline < nlines; iline++)
 	{
@@ -709,4 +763,190 @@ int write_el_ini ()
 	free (cont);
 	return 1;
 }
-#endif // ELCONFIG
+
+/* ------ ELConfig Window functions start here ------ */
+
+int display_elconfig_handler(window_info *win)
+{
+	int i;
+
+	for(i = 0; i < our_vars.no; i++)
+	{
+		//Update the widgets in case an option changed
+		switch(our_vars.var[i]->type)
+		{
+			case BOOL:
+				//Nothing to do for BOOL. The checkbox widget takes care of that.
+			break;
+			case MULTI:
+				multiselect_set_selected(elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id, *(int *)our_vars.var[i]->var);
+			break;
+			case INT:
+				//Nothing to do here either.
+			break;
+		}
+	}
+	//Draw the long description of an option
+	draw_string_small(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE, elconf_description_buffer, MAX_LONG_DESC_LINES);
+	return 1;
+}
+
+int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32 flags) 
+{
+	int i;
+	if(flags&ELW_LEFT_MOUSE || flags&ELW_RIGHT_MOUSE) {
+		for(i = 0; i < our_vars.no; i++) {
+			if(our_vars.var[i]->widgets.widget_id == widget->id) {
+				our_vars.var[i]->func ( our_vars.var[i]->var, multiselect_get_selected(elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id) );
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+int mouseover_option_handler(widget_list *widget, int mx, int my)
+{
+	int i;
+
+	//Find the label in our_vars
+	for(i = 0; i < our_vars.no; i++) {
+		if(our_vars.var[i]->widgets.label_id == widget->id || widget->id == our_vars.var[i]->widgets.widget_id) {
+			break;
+		}
+	}
+	if(i == our_vars.no) {
+		//We didn't find anything, abort
+		return 0;
+	}
+	put_small_text_in_box(our_vars.var[i]->long_desc, strlen(our_vars.var[i]->long_desc),
+								elconfig_menu_x_len-TAB_MARGIN*2, elconf_description_buffer);
+	return 1;
+}
+
+int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	int i;
+	var_struct *option = NULL;
+
+	for(i = 0; i < our_vars.no; i++) {
+		if(our_vars.var[i]->widgets.label_id == widget->id || our_vars.var[i]->widgets.widget_id == widget->id) {
+			option = our_vars.var[i];
+			break;
+		}
+	}
+	switch(option->type) {
+		case BOOL:
+			if(widget->type == CHECKBOX) { //Avoid troubles with checkboxes automagically changing the value
+				int *var = option->var;
+				*var = !*var;
+				option->func(var);
+			} else {
+				option->func(option->var);
+			}
+		break;
+	}
+	return 1;
+}
+
+void elconfig_populate_tabs(void)
+{
+	int i;
+	int tab_id; //temporary storage for the tab id
+	int label_id; //temporary storage for the label id
+	int widget_id; //temporary storage for the widget id
+	int widget_height, label_height; //Used to calculate the y pos of the next option
+	int y; //Used for the position of multiselect buttons
+	int min, max; //For the spinbuttons
+	
+	for(i = 0; i < MAX_TABS; i++) {
+		//Set default values
+		elconfig_tabs[i].x = 5;
+		elconfig_tabs[i].y = 5;
+	}
+	for(i = 0; i < our_vars.no; i++) {
+		tab_id = our_vars.var[i]->widgets.tab_id;
+		switch(our_vars.var[i]->type) {
+			case BOOL:
+				//Add checkbox
+				widget_id = checkbox_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+											elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, CHECKBOX_SIZE, CHECKBOX_SIZE, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var);
+				//Add label for the checkbox
+				label_id = label_add(elconfig_tabs[tab_id].tab, NULL, our_vars.var[i]->short_desc, elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y);
+				//Set handlers
+				widget_set_OnClick(elconfig_tabs[tab_id].tab, label_id, onclick_label_handler);
+				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, onclick_label_handler);
+			break;
+			case INT:
+				min = (point)queue_pop(our_vars.var[i]->queue);
+				max = (point)queue_pop(our_vars.var[i]->queue);
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, min, max);
+			break;
+			case FLOAT:
+				min = (point)queue_pop(our_vars.var[i]->queue);
+				max = (point)queue_pop(our_vars.var[i]->queue);
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, min, max);
+			break;
+			case STRING:
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+				widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
+			break;
+			case PASSWORD:
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+				widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
+			break;
+			case MULTI:
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+				widget_id = multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->short_desc), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+				for(y = 0; !queue_isempty(our_vars.var[i]->queue); y++) {
+					char *label = queue_pop(our_vars.var[i]->queue);
+					int width = strlen(label) > 0 ? 0 : -1;
+
+					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, 0, y*(22+SPACING), width, label, y == *(int *)our_vars.var[i]->var);
+					if(strlen(label) == 0) {
+						y--;
+					}
+				}
+				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
+			break;
+		}
+		//Calculate y position of the next option.
+		label_height = widget_find(elconfig_tabs[tab_id].tab, label_id)->len_y;
+		widget_height = widget_find(elconfig_tabs[tab_id].tab, widget_id)->len_y;
+		elconfig_tabs[tab_id].y += (widget_height > label_height ? widget_height : label_height)+SPACING;
+		//Set IDs
+		our_vars.var[i]->widgets.label_id = label_id;
+		our_vars.var[i]->widgets.widget_id = widget_id;
+		//Make the description print when the mouse is over a widget
+		widget_set_OnMouseover(elconfig_tabs[tab_id].tab, label_id, mouseover_option_handler);
+		widget_set_OnMouseover(elconfig_tabs[tab_id].tab, widget_id, mouseover_option_handler);
+	}
+}
+
+void display_elconfig_win(void)
+{
+	if(elconfig_win < 0) {
+		/* Set up the window */
+		elconfig_win = create_window("ELconfig", game_root_win, 0, elconfig_menu_x, elconfig_menu_y, elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT);
+		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
+                set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
+		/* Create tabs */
+		elconfig_tab_collection_id = tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_TABS, TAB_TAG_HEIGHT, 0);
+		elconfig_tabs[CONTROLS].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Controls", 0, 0);
+		elconfig_tabs[AUDIO].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Audio", 0, 0);
+		elconfig_tabs[HUD].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "HUD", 0, 0);
+		elconfig_tabs[SERVER].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Server", 0, 0);
+		elconfig_tabs[MISC].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Misc", 0, 0);
+		elconfig_tabs[FONT].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Font", 0, 0);
+		elconfig_tabs[CHAT].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Chat", 0, 0);
+		elconfig_tabs[VIDEO].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Video", 0, 0);
+		elconfig_tabs[SPECIALVID].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Advanced video", 0, 0);
+		
+		elconfig_populate_tabs();
+	} else {
+		show_window(elconfig_win);
+		select_window(elconfig_win);
+	}
+}

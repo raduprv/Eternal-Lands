@@ -334,7 +334,7 @@ void init_newchar_icons()
 	
 	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_help_win, DATA_WINDOW);
 	
-	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &options_win, DATA_WINDOW);
+	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
 }
 
 void init_peace_icons()
@@ -400,7 +400,7 @@ void init_peace_icons()
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 	
-	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &options_win, DATA_WINDOW);
+	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
 	
 }
 
@@ -629,7 +629,7 @@ void view_window(int * window, int id)
 			if(window==&items_win)display_items_menu();
 			else if(window==&sigil_win) display_sigils_menu();
 			else if(window==&manufacture_win) display_manufacture_menu();
-			else if(window==&options_win) display_options_menu();
+			else if(window==&elconfig_win) display_elconfig_win();
 			else if(window==&buddy_win) display_buddy();
 			else if(window==&trade_win) display_trade_menu();
 #ifdef NOTEPAD

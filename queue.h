@@ -1,5 +1,3 @@
-#ifdef NETWORK_THREAD
-
 #ifndef QUEUE_H_
 #define QUEUE_H_
 #include <stddef.h>
@@ -32,7 +30,6 @@ int queue_destroy (queue_t *queue);
 int queue_push (queue_t *queue, void *item);
 void *queue_pop (queue_t *queue);
 int queue_isempty (const queue_t *const queue);
-void *queue_peek (const queue_t *const queue);
+//void *queue_peek (const queue_t *const queue);
 
 #endif //QUEUE_H_
-#endif //NETWORK_THREAD

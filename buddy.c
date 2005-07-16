@@ -75,9 +75,9 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		//There's no name here. Fall through.
 		return 0;
 	}
-	if(flags & ELW_RIGHT_MOUSE && flags & ELW_CTRL) {
+	if(flags&ELW_RIGHT_MOUSE && flags&ELW_CTRL) {
 		//CTRL + right click, delete buddy.
-		sprintf(str, "%c#remove_buddy %s", RAW_TEXT, buddy_list[y].name);
+		sprintf(str, "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
 		my_tcp_send(my_socket, str, strlen(str+1)+1);
 	} else {
 		//start a pm to them
@@ -184,7 +184,7 @@ int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 flags)
 		label_id = label_add_extended(buddy_add_win, label_id, NULL, 5, 5, 0, 0, 0, 0.9f, 1, 1, 1, name_str);
 		x = get_string_width(type_str)*0.9f+5;
 		y = 5;
-		buddy_name_input_id = pword_field_add_extended(buddy_add_win, buddy_name_input_id, NULL, x, y, buddy_add_x_len-x*2+10/*-20-5*/, 20, P_TEXT, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_buffer, 15);
+		buddy_name_input_id = pword_field_add_extended(buddy_add_win, buddy_name_input_id, NULL, x, y, buddy_add_x_len-x*2+10, 20, P_TEXT, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_buffer, 15);
 		widget_set_OnMouseover(buddy_add_win, label_id, name_onmouseover_handler);
 		widget_set_OnMouseover(buddy_add_win, buddy_name_input_id, name_onmouseover_handler);
 		/* Add type label and input widget */
@@ -192,7 +192,6 @@ int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 flags)
 		y += 25;
 		string_width = get_string_width(type_str)*0.9f;
 		label_id = label_add_extended(buddy_add_win, label_id, NULL, 5, y, 0, 0, 0, 0.9f, 1, 1, 1, type_str);
-		//buddy_type_input_id = pword_field_add_extended(buddy_add_win, buddy_type_input_id, NULL, string_width+5, 25, 100, 20, P_TEXT, 0.7f, 0.77f, 0.57f, 0.39f, buddy_type_buffer, 3);
 		buddy_type_input_id = multiselect_add(buddy_add_win, NULL, x, y, buddy_add_x_len-string_width*2);
 		multiselect_button_add(buddy_add_win, buddy_type_input_id, 0, 0, "White", 1);
 		multiselect_button_add(buddy_add_win, buddy_type_input_id, 0, 25, "Red", 0);

@@ -943,8 +943,8 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			hide_window (buddy_win);
 		if (manufacture_win >= 0)
 			hide_window (manufacture_win);
-		if (options_win >= 0)
-			hide_window (options_win);
+		if (elconfig_win >= 0)
+			hide_window (elconfig_win);
 		if (sigil_win >= 0)
 			hide_window (sigil_win);
 		if (tab_stats_win >= 0)
@@ -980,7 +980,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_OPTIONS)
 	{
-		view_window (&options_win, 0);
+		view_window (&elconfig_win, 0);
 	}
 	else if (key == K_KNOWLEDGE)
 	{

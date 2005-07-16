@@ -2,17 +2,7 @@
 #include "widgets.h"
 #include "elwindows.h"
 #include <string.h>
-
-#define LABEL		1
-#define IMAGE		2
-#define CHECKBOX	3
-#define BUTTON		4
-#define PROGRESSBAR	5
-#define VSCROLLBAR	6
-#define TABCOLLECTION	7
-#define TEXTFIELD	8
-#define PWORDFIELD	9
-#define MULTISELECT 10
+#include <math.h>
 
 typedef struct {
 	char text[256];
@@ -24,7 +14,7 @@ typedef struct {
 }image;
 
 typedef struct {
-	int checked;
+	int *checked;
 }checkbox;
 
 typedef struct {
@@ -49,13 +39,30 @@ typedef struct {
 	char text[256];
 	Uint16 x;
 	Uint16 y;
+	int width;
 }multiselect_button;
+
+typedef struct {
+	void *data;
+	char input_buffer[255];
+	int max;
+	int min;
+	Uint8 type;
+}spinbutton;
 
 typedef struct {
 	int nr_buttons;
 	int selected_button;
 	int max_buttons;
 	multiselect_button *buttons;
+	/* Scrollbar related vars */
+	Uint16 max_height;
+	Uint16 actual_height;
+	Uint32 scrollbar;
+	Uint32 win_id;
+	float highlighted_red;
+	float highlighted_green;
+	float highlighted_blue;
 }multiselect;
 
 Uint32 widget_id = 0x0000FFFF;
@@ -433,15 +440,19 @@ int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u
 
 
 // Checkbox
-int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int checked)
+int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int *checked)
 {
+	if(checked == NULL)
+	{
+		checked = calloc(1,sizeof(*checked));
+	}
 	return checkbox_add_extended(window_id, widget_id++, NULL, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, checked);
 }
 
-int checkbox_add_extended(Uint32 window_id,  Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int checked)
+int checkbox_add_extended(Uint32 window_id,  Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int *checked)
 {
-	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	checkbox *T = (checkbox *) malloc(sizeof(label));
+	widget_list *W = malloc(sizeof(widget_list));
+	checkbox *T = malloc(sizeof *T);
 	widget_list *w = windows_list.window[window_id].widgetlist;
 	
 	// Clearing everything
@@ -489,7 +500,7 @@ int checkbox_draw(widget_list *W)
 	glDisable(GL_TEXTURE_2D);
 	if(W->r!=-1.0)
 		glColor3f(W->r, W->g, W->b);
-	glBegin(c->checked ? GL_QUADS: GL_LINE_LOOP);
+	glBegin(*c->checked ? GL_QUADS: GL_LINE_LOOP);
 	glVertex3i(W->pos_x,W->pos_y,0);
 	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
 	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
@@ -504,9 +515,10 @@ int checkbox_click (widget_list *W, Uint32 flags)
 	checkbox *c = (checkbox *)W->widget_info;
 
 	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	if ( (flags & ELW_MOUSE_BUTTON) == 0)
+		return 0;
 
-	c->checked = !c->checked;
+	*c->checked = !*c->checked;
 	return 1;
 }
 
@@ -515,7 +527,7 @@ int checkbox_get_checked(Uint32 window_id, Uint32 widget_id)
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		checkbox *c = (checkbox *)w->widget_info;
-		return c->checked;
+		return *c->checked;
 	}
 	return -1;
 }
@@ -525,7 +537,7 @@ int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked)
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		checkbox *c = (checkbox *)w->widget_info;
-		c->checked = checked;
+		*c->checked = checked;
 		return 1;
 	}
 	return 0;
@@ -1664,11 +1676,7 @@ int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 	} else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) || ch == SDLK_RETURN ) && ch != '`' ) {
 		int i;
 		
-		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars-1; i++) ;
-		if(get_string_width(pword->password) * w->size > w->len_x) {
-			/* Make sure we don't write outside the input box */
-			i--;
-		}
+		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars-1; i++);
 		if(i >= 0){
 				pword->password[i] = ch;
 				pword->password[i+1] = '\0';
@@ -1695,10 +1703,13 @@ int pword_field_draw (widget_list *w)
 {
 	password_entry *pword;
 	unsigned char *text;
+	int difference;
 	int i;
 
 	if (w == NULL) return 0;
 	pword = (password_entry*) w->widget_info;
+	difference = (get_string_width(pword->password)*w->size - w->len_x)/12;
+
 	// draw the frame
 	glDisable (GL_TEXTURE_2D);
 	glColor3f (w->r, w->g, w->b);
@@ -1707,21 +1718,36 @@ int pword_field_draw (widget_list *w)
 		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
 		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
 		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
+	if(difference > 0) {
+		glVertex3i (w->pos_x + 3, w->pos_y + w->len_y/2, 0);
+	}
 	glEnd ();
-
 	glEnable (GL_TEXTURE_2D);
 	
 	if (pword->status == P_NONE) {
 		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, "N/A", 1, w->size);
 	} else if(pword->status == P_TEXT) {
-		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char *)pword->password, 1, w->size);
+		if(difference > 0) {
+			/* Only draw the end of the string */
+			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, pword->password+difference, 1, w->size);
+		} else {
+			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, pword->password, 1, w->size);
+		}
 	} else if(pword->status == P_NORMAL) {
-		text = malloc(pword->max_chars);
-		for(i = 0; i < pword->max_chars && pword->password[i] != '\0'; i++) text[i] = '*';
+		text = calloc(1, pword->max_chars);
+		for(i = 0; i < pword->max_chars && pword->password[i] != '\0'; i++) {
+			text[i] = '*';
+		}
 		text[i] = '\0';
-		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char *)text, 1, w->size);
+		if(difference > 0) {
+			/* Only draw the end of the string */
+			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, text+difference, 1, w->size);
+		} else {
+			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, text, 1, w->size);
+		}
+		free(text);
 	}
-	
+
 	return 1;
 }
 
@@ -1799,6 +1825,18 @@ int multiselect_get_selected(Uint32 window_id, Uint32 widget_id)
 	}
 }
 
+int multiselect_set_selected(Uint32 window_id, Uint32 widget_id, int button_id)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M = widget->widget_info;
+	if(M == NULL) {
+		return -1;
+	} else {
+		M->selected_button = button_id;
+		return button_id;
+	}
+}
+
 int multiselect_get_height(Uint32 window_id, Uint32 widget_id)
 {
 	widget_list *widget = widget_find(window_id, widget_id);
@@ -1809,10 +1847,23 @@ int multiselect_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
 {
 	multiselect *M = widget->widget_info;
 	int i;
-	
+	Uint16 button_y;
+
 	for(i = 0; i < M->nr_buttons; i++) {
-		if(my > M->buttons[i].y && my < M->buttons[i].y+22) {
-			M->selected_button = i;
+		if(M->scrollbar == -1) {
+			button_y = M->buttons[i].y;
+		} else {
+			vscrollbar *scrollbar = widget_find(M->win_id, M->scrollbar)->widget_info;
+			if(flags&ELW_WHEEL_DOWN) {
+				vscrollbar_set_pos(M->win_id, M->scrollbar, scrollbar->pos+scrollbar->pos_inc);
+			} else if (flags&ELW_WHEEL_UP) {
+				vscrollbar_set_pos(M->win_id, M->scrollbar, scrollbar->pos-scrollbar->pos_inc);
+			}
+			button_y = M->buttons[i].y - ceilf((vscrollbar_get_pos(M->win_id, M->scrollbar)/(float)M->max_height)*M->actual_height);
+		}
+		if((flags&ELW_LEFT_MOUSE || flags&ELW_RIGHT_MOUSE) && 
+			my > button_y && my < button_y+22 && mx > M->buttons[i].x && mx < M->buttons[i].x+M->buttons[i].width) {
+				M->selected_button = i;
 			return 1;
 		}
 	}
@@ -1825,14 +1876,35 @@ int multiselect_draw(widget_list *widget)
 		return 0;
 	} else {
 		int i;
-		multiselect *M = widget->widget_info;
 		float r, g, b;
+		float hr, hg, hb;
+		Uint16 button_y;
+		multiselect *M = widget->widget_info;
 
-		r = widget->r != -1 ? widget->r : 0.32f;
-		g = widget->g != -1 ? widget->g : 0.23f;
-		b = widget->b != -1 ? widget->b : 0.15f;
+		r = widget->r != -1 ? widget->r : 0.77f;
+		g = widget->g != -1 ? widget->g : 0.59f;
+		b = widget->b != -1 ? widget->b : 0.39f;
+		
+		hr = M->highlighted_red != -1 ? M->highlighted_red : 0.32f;
+		hg = M->highlighted_green != -1 ? M->highlighted_green : 0.23f;
+		hb = M->highlighted_blue != -1 ? M->highlighted_blue : 0.15f;
+		
 		for(i = 0; i < M->nr_buttons; i++) {
-			draw_smooth_button(M->buttons[i].text, widget->pos_x+M->buttons[i].x, widget->pos_y+M->buttons[i].y, widget->len_x-22, 1, 0.77f, 0.59f, 0.39f, (i == M->selected_button), r, g, b, 0.5f);
+			if(M->buttons[i].width <= 0) {
+				continue;
+			}
+			if(M->scrollbar != -1) {
+				int scrollbar_y = ceilf((vscrollbar_get_pos(M->win_id, M->scrollbar)/(float)M->max_height)*M->actual_height);
+				/* Check if the button should be drawn and set the y position */
+				if(M->buttons[i].y+22 > scrollbar_y+widget->len_y || M->buttons[i].y < scrollbar_y) {
+					continue;
+				} else {
+					button_y = M->buttons[i].y-scrollbar_y;
+				}
+			} else {
+				button_y = M->buttons[i].y;
+			}
+			draw_smooth_button(M->buttons[i].text, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-22, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
 		}
 	}
 	return 1;
@@ -1840,19 +1912,22 @@ int multiselect_draw(widget_list *widget)
 
 int multiselect_button_add(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected)
 {
-	return multiselect_button_add_extended(window_id, multiselect_id, x, y, text, selected);
+	return multiselect_button_add_extended(window_id, multiselect_id, x, y, 0, text, selected);
 }
 
-int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected)
+int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, const char selected)
 {
 	widget_list *widget = widget_find(window_id, multiselect_id);
 	multiselect *M = widget->widget_info;
-	int current_button = M->nr_buttons++;
+	int current_button = M->nr_buttons;
 
-	if(y+22 > widget->len_y) {
+	if(y+22 > widget->len_y && (!M->max_height || widget->len_y != M->max_height)) {
 		widget->len_y = y+22; //22 = button height
 	}
-	if(M->max_buttons == current_button) {
+	if (M->max_height && y+22 > M->actual_height) {
+		M->actual_height = y+22;
+	}
+	if(M->max_buttons == M->nr_buttons) {
 		/*Allocate space for more buttons*/
 		M->buttons = realloc(M->buttons, sizeof(*M->buttons) * M->max_buttons * 2);
 		M->max_buttons *= 2;
@@ -1863,15 +1938,32 @@ int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uin
 	}
 	M->buttons[current_button].x = x;
 	M->buttons[current_button].y = y;
+	M->buttons[current_button].width = (width == 0) ? widget->len_x : width;
 	
+	M->nr_buttons++;
+	if(M->max_height && M->scrollbar == -1 && M->max_height < y) {
+		int i;
+
+		/* Add scrollbar */
+		M->scrollbar = vscrollbar_add_extended(window_id, widget_id++, NULL, widget->pos_x+widget->len_x-20, widget->pos_y, 20, M->max_height, 0, 1.0, widget->r, widget->g, widget->b, 0, 1, M->max_height);
+		widget->len_x -= 20;
+		widget->len_y = M->max_height;
+		/* We don't want things to look ugly. */
+		for(i = 0; i < M->nr_buttons; i++) {
+			if(M->buttons[i].width > widget->len_x) {
+				M->buttons[i].width -= 20;
+			}
+		}
+	}
 	return current_button;
 }
 
 int multiselect_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width)
 {
-	return multiselect_add_extended(window_id, widget_id++, OnInit, x, y, width, 1.0f, -1.0f, -1.0f, -1.0f, 0);
+	return multiselect_add_extended(window_id, widget_id++, OnInit, x, y, width, 0, 1.0f, -1, -1, -1, -1, -1, -1, 0);
 }
-int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, float size, float r, float g, float b, int max_buttons)
+
+int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, Uint16 max_height, float size, float r, float g, float b, float hr, float hg, float hb, int max_buttons)
 {
 	widget_list *Widget = malloc(sizeof(*Widget));
 	widget_list *w = windows_list.window[window_id].widgetlist;
@@ -1885,6 +1977,12 @@ int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)()
 	M->selected_button = 0;
 	M->nr_buttons = 0;
 	M->buttons = malloc(sizeof(*M->buttons) * M->max_buttons);
+	M->max_height = max_height;
+	M->scrollbar = -1;
+	M->win_id = window_id;
+	M->highlighted_red = hr;
+	M->highlighted_green = hg;
+	M->highlighted_blue = hb;
 
 	Widget->widget_info = M;
 	Widget->id = widget_id;
@@ -1914,6 +2012,270 @@ int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)()
 	}
 
 	return Widget->id;
+}
+
+int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
+{
+	spinbutton *button;
+	int i;
+	int i_tmp;
+	//char tmp[255];
+
+	if(widget != NULL && (button = widget->widget_info) != NULL &&  !(key&ELW_ALT) && !(key&ELW_CTRL)) {
+		char ch = key_to_char(unikey);
+
+		switch(button->type) {
+			case SPIN_INT:
+				i_tmp = ch-'0'; //Convert char to int
+				if(ch >= '0' && ch <= '9') {
+					if(*(int *)button->data*10 + i_tmp > button->max) {
+						/* Make sure we don't exceed any limits */
+						*(int *)button->data = button->max;
+						snprintf(button->input_buffer, 255, "%i", button->max);
+					} else {
+						if(atoi(button->input_buffer) >= button->min) {
+							*(int *)button->data = *(int *)button->data * 10 + i_tmp;
+						}
+						if(button->input_buffer[0] != '0') {
+							/* Find end of string */
+							for(i = 0; button->input_buffer[i] != '\0' && i < 255; i++);
+							/* Append to the end */
+							if(i >= 0){
+								button->input_buffer[i] = ch;
+								button->input_buffer[i+1] = '\0';
+							}
+						}
+					}
+					return 1;
+				} else if (ch == SDLK_BACKSPACE) {
+					if(strlen(button->input_buffer) > 0) {
+						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
+					}
+					if(*(int *)button->data/10 >= button->min) {
+						*(int *)button->data /= 10;
+					}
+					return 1;
+				}
+			break;
+			case SPIN_FLOAT:
+				if(ch == ',') {
+					ch = '.';
+				}
+				if((ch >= '0' && ch <= '9') || (ch == '.' && strstr(button->input_buffer, ".") == NULL)) {
+					if(button->input_buffer[0] != '0' || ch == '.') {
+						/* Find end of string */
+						for(i = 0; button->input_buffer[i] != '\0' && i < 255; i++);
+						/* Append to the end */
+						if(i >= 0){
+							button->input_buffer[i] = ch;
+							button->input_buffer[i+1] = '\0';
+						}
+					}
+					*(float *)button->data = atof(button->input_buffer);
+				} else if (ch == SDLK_BACKSPACE) {
+					if(strlen(button->input_buffer) > 0) {
+						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
+					}
+					if(atof(button->input_buffer) >= button->min) {
+						*(float *)button->data = atof(button->input_buffer);
+					}/* else {
+						snprintf(button->input_buffer, 255, "%i", button->min);
+						*(float *)button->data = button->min;
+					}*/
+				}
+				return 1;
+			break;
+		}
+	}
+	return 0;
+}
+
+int spinbutton_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
+{
+	if(widget != NULL && widget->widget_info != NULL) {
+		spinbutton *button = widget->widget_info;
+		Uint8 action = 0;
+
+		if(flags&ELW_WHEEL_UP) {
+			action = 'i'; //i for increase
+		} else if (flags&ELW_WHEEL_DOWN) {
+			action = 'd'; //d for decrease
+		} else if(mx > widget->len_x-20) {
+			/* Click on one of the arrows */
+			if(my < widget->len_y/2) {
+				action = 'i'; //i for increase
+			} else {
+				action = 'd'; //d for decrease
+			}
+		} else {
+			action = 0;
+		}
+		if(action) {
+			switch (button->type) {
+				case SPIN_INT:
+					switch (action) {
+						case 'i':
+							if(*(int *)button->data + 1 <= button->max) {
+								*(int *)button->data += 1;
+							}
+						break;
+						case 'd':
+							if(*(int *)button->data - 1 >= button->min) {
+								*(int *)button->data -= 1;
+							}
+						break;
+					}
+					snprintf(button->input_buffer, 255, "%i", *(int *)button->data);
+				break;
+				case SPIN_FLOAT:
+					switch (action) {
+						case 'i':
+							if(*(float *)button->data + 0.5 <= button->max) {
+								*(float *)button->data += 0.5;
+							}
+						break;
+						case 'd':
+							if(*(float *)button->data - 0.5 >= button->min) {
+								*(float *)button->data -= 0.5;
+							}
+						break;
+					}
+					snprintf(button->input_buffer, 255, "%.2f", *(float *)button->data);
+				break;
+			}
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int spinbutton_draw(widget_list *widget)
+{
+	spinbutton *button;
+	char str[255];
+
+	if(widget == NULL || (button = widget->widget_info) == NULL) {
+		return 0;
+	}
+	switch(button->type) {
+		case SPIN_INT:
+			if(atoi(button->input_buffer) < button->min) {
+				/* The input buffer has a value less than minimum. 
+				 * Don't change the data variable and mark the text in red */
+				glColor3f(1, 0, 0);
+				snprintf(str, 255, button->input_buffer);
+			} else {
+				*(int *)button->data = atoi(button->input_buffer);
+				snprintf(str, 255, "%i", *(int *)button->data);
+			}
+		break;
+		case SPIN_FLOAT:
+			if(atof(button->input_buffer) < button->min) {
+				glColor3f(1, 0, 0);
+				snprintf(str, 255, button->input_buffer);
+			} else {
+				char *pointer = strstr(button->input_buffer, ".");
+				int accuracy = (pointer == NULL) ? 0 : strlen(pointer+1);
+				char format[10];
+				snprintf(format, 10, "%%.%if", accuracy);
+				snprintf(str, 255, format, *(float *)button->data);
+			}
+		break;
+	}
+	/* Numbers */
+	draw_string_zoomed(widget->pos_x + 2, widget->pos_y + 2, str, 1, widget->size);
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(widget->r, widget->g, widget->b);
+	/* Border */
+	glBegin(GL_LINE_LOOP);
+		glVertex3i (widget->pos_x, widget->pos_y, 0);
+		glVertex3i (widget->pos_x + widget->len_x, widget->pos_y, 0);
+		glVertex3i (widget->pos_x + widget->len_x, widget->pos_y + widget->len_y, 0);
+		glVertex3i (widget->pos_x, widget->pos_y + widget->len_y, 0);
+	glEnd ();
+	/* Line between buttons and input */
+	glBegin(GL_LINES);
+		glVertex3i(widget->pos_x+widget->len_x-20, widget->pos_y,0);
+		glVertex3i(widget->pos_x+widget->len_x-20, widget->pos_y+widget->len_y,0);
+	glEnd();
+	/* Up arrow */
+	glBegin(GL_QUADS);
+		glVertex3i(widget->pos_x+widget->len_x-20 + 5, widget->pos_y + widget->len_y/4+2, 0); //Left corner
+		glVertex3i(widget->pos_x+widget->len_x-20 + 10, widget->pos_y + 2, 0); //Top
+		glVertex3i(widget->pos_x+widget->len_x-20 + 15, widget->pos_y + widget->len_y/4+2, 0); //Right corner
+		glVertex3i(widget->pos_x+widget->len_x-20 + 5, widget->pos_y + widget->len_y/4+2, 0); //Back to the beginning
+	glEnd();
+	/* Button separator */
+	glBegin(GL_LINES);
+		glVertex3i(widget->pos_x+widget->len_x-20, widget->pos_y+widget->len_y/2,0);
+		glVertex3i(widget->pos_x+widget->len_x, widget->pos_y+widget->len_y/2,0);
+	glEnd();
+	/* Down arrow */
+	glBegin(GL_QUADS);
+		glVertex3i(widget->pos_x+widget->len_x-20 + 5, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Left corner
+		glVertex3i(widget->pos_x+widget->len_x-20 + 10, widget->pos_y + widget->len_y - 2, 0); //Bottom
+		glVertex3i(widget->pos_x+widget->len_x-20 + 15, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Right corner
+		glVertex3i(widget->pos_x+widget->len_x-20 + 5, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Back to the beginning
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+	return 1;
+}
+
+int spinbutton_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, int min, int max)
+{
+	return spinbutton_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, 1, -1, -1, -1);
+}
+
+int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, int min, int max, float size, float r, float g, float b)
+{
+	widget_list *widget = malloc (sizeof(*widget));
+	spinbutton *button = malloc (sizeof(*button));
+	widget_list *window_list;
+	// Clearing everything
+	memset(widget, 0, sizeof(*widget));
+	memset(button, 0, sizeof(*button));
+	// Filling the widget info
+	button->data = data;
+	button->max = max;
+	button->min = min;
+	button->type = data_type;
+	switch(data_type)
+	{
+		case SPIN_FLOAT:
+			snprintf(button->input_buffer, 255, "%.2f", *(float *)button->data);
+		break;
+		case SPIN_INT:
+			snprintf(button->input_buffer, 255, "%i", *(int *)button->data);
+		break;
+	}
+	widget->widget_info = button;
+	widget->id = widget_id;
+	widget->type = SPINBUTTON;
+	widget->pos_x = x;
+	widget->pos_y = y;
+	widget->size = size;
+	widget->r = r>=0 ? r : 0.77;
+	widget->g = g>=0 ? g : 0.59;
+	widget->b = b>=0 ? b : 0.39;
+	widget->len_x = lx;
+	widget->len_y = ly;
+	widget->OnDraw = spinbutton_draw;
+	widget->OnDestroy = free_widget_info;
+	widget->OnInit = OnInit;
+	if(widget->OnInit != NULL) {
+		widget->OnInit(widget);
+	}
+	// Adding the widget to the list
+	window_list = windows_list.window[window_id].widgetlist;
+	if (window_list == NULL) {
+		windows_list.window[window_id].widgetlist = widget;
+	} else {
+		while(window_list->next != NULL) {
+			window_list = window_list->next;
+		}
+		window_list->next = widget;
+	}
+	return widget->id;
 }
 
 int widget_handle_mouseover (widget_list *widget, int mx, int my)
@@ -1949,6 +2311,9 @@ int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 		case MULTISELECT:
 			res = multiselect_click (widget, mx, my, flags);
 			break;
+		case SPINBUTTON:
+			res = spinbutton_click (widget, mx, my, flags);
+			break;
 	}
 
 	if (widget->OnClick != NULL)
@@ -1965,6 +2330,9 @@ int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int d
 	{
 		case VSCROLLBAR:
 			res = vscrollbar_drag (widget, mx, my, flags, dx, dy);
+			break;
+		case SPINBUTTON:
+			res = spinbutton_click (widget, mx, my, flags);
 			break;
 	}
 
@@ -1989,6 +2357,9 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uin
 		case PWORDFIELD:
 			res = pword_keypress (widget, mx, my, key, unikey);
 			if ( res == -1 ) return 0;  // Not really there
+			break;
+		case SPINBUTTON:
+			res = spinbutton_keypress (widget, key, unikey);
 			break;
 	}
 
@@ -2280,7 +2651,11 @@ int ParseWidget (xmlNode *node, int winid)
 		case IMAGE:
 			return image_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, tid, u1, v1, u2, v2);
 		case CHECKBOX:
-			return checkbox_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, checked);
+		{
+			int *checked_ptr = calloc(1,sizeof(int));
+			*checked_ptr = checked;
+			return checkbox_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, checked_ptr);
+		}
 		case BUTTON:
 			return button_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
 		case PROGRESSBAR:

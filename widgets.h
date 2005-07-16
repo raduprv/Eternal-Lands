@@ -9,6 +9,18 @@
 #include <SDL_types.h>
 #include "text.h"
 
+#define LABEL		1
+#define IMAGE		2
+#define CHECKBOX	3
+#define BUTTON		4
+#define PROGRESSBAR	5
+#define VSCROLLBAR	6
+#define TABCOLLECTION	7
+#define TEXTFIELD	8
+#define PWORDFIELD	9
+#define MULTISELECT 10
+#define SPINBUTTON  11
+
 typedef struct {
 	Sint8 label[64];
 	Uint32 content_id;
@@ -47,7 +59,7 @@ typedef struct wl{
 	int (*OnMouseover)();
 	int (*OnResize)();
 	int (*OnKey)();
-        int (*OnDestroy)();
+	int (*OnDestroy)();
 	/*! \} */
 
 	void *widget_info; /*!< Pointer to specific widget data */
@@ -482,12 +494,12 @@ int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u
  * \param   	r (0<=r<=1)
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
- * \param   	checked Specified if the widget is checked or not
+ * \param   	checked Specifies if the widget is checked or not
  * \retval int  	Returns the new widgets unique ID 
  *
  * \sa checkbox_add
  */
-int checkbox_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int checked);
+int checkbox_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int *checked);
 
 /*!
  * \ingroup	checkboxes
@@ -506,7 +518,7 @@ int checkbox_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16
  *
  * \sa checkbox_add_extended
  */
-int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int checked);
+int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int *checked);
 
 /*!
  * \ingroup	checkboxes
@@ -1132,12 +1144,19 @@ int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uin
 int pword_field_click(widget_list *w, int mx, int my, Uint32 flags);
 void pword_set_status(widget_list *w, Uint8 status);
 
-int multiselect_button_add(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected);
-int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected);
 int multiselect_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width);
-int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, float size, float r, float g, float b, int max_buttons);
+int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, Uint16 max_height, float size, float r, float g, float b, float hr, float hg, float hb, int max_buttons);
+int multiselect_button_add(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected);
+int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, const char selected);
 int multiselect_get_selected(Uint32 window_id, Uint32 widget_id);
+int multiselect_set_selected(Uint32 window_id, Uint32 widget_id, int button_id);
 int multiselect_get_height(Uint32 window_id, Uint32 widget_id);
+
+#define SPIN_FLOAT 0
+#define SPIN_INT 1
+
+int spinbutton_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, int min, int max);
+int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, int min, int max, float size, float r, float g, float b);
 
 /*!
  * \ingroup	widgets

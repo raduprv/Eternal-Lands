@@ -8,6 +8,8 @@
 
 #include "chat.h"
 
+#define DEFAULT_AFK_MINUTES 5
+
 /*!
  * the afk_struct contains the messages that a player receives while AFK.
  */
@@ -34,6 +36,7 @@ struct pm_struct pm_log;
 extern int afk; /*!< flag indicating whether a player is currently AFK or not */
 extern int last_action_time; /*!< timestamp of the last action for this player */
 extern int afk_time; /*!< number of minutes after which the client will go AFK automatically. This can be set via the el.ini file. */
+extern int afk_time_conf;
 extern char afk_message[MAX_TEXT_MESSAGE_LENGTH]; /*!< buffer for the afk message used to inform other players that this player is currently AFK */
 
 /*!

@@ -6,7 +6,8 @@
 
 int afk=0;
 int last_action_time=0;
-int afk_time=0;
+int afk_time=DEFAULT_AFK_MINUTES*60000;
+int afk_time_conf=DEFAULT_AFK_MINUTES; //For elconfig window
 char afk_message[MAX_TEXT_MESSAGE_LENGTH]={0};
 char afk_title[101];
 
