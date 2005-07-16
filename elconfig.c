@@ -600,7 +600,7 @@ void init_vars()
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 #ifdef ANTI_ALIAS
-	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother");
+	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
 #endif //ANTI_ALIAS
 #endif // def ELC
 
