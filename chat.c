@@ -988,6 +988,11 @@ void change_to_current_tab(const char *input)
 	{
 		channel = CHAT_PERSONAL;
 	}
+	else if(input[0] == '#')
+	{
+		//We don't want to switch tab on commands.
+		channel = CHAT_ALL;
+	}
 	else
 	{
 		channel = CHAT_LOCAL;
