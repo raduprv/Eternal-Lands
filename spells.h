@@ -22,10 +22,10 @@ typedef enum {
 /*! @} */
 
 typedef struct {
-	unsigned char spell_name[60];//The spell_name
-	int spell_image;//image_id
-	int spell_id;
-	unsigned char spell_str[30];
+	Uint8 spell_name[60];//The spell_name
+	Sint8 spell_image;//image_id
+	Sint8 spell_id;
+	Uint8 spell_str[30];
 	//to be difficult, we will store the entire string ready
 	//to be sent to the server, including CAST_SPELL and len bytes, len will be byte 2
 } mqbdata;

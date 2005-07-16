@@ -4,6 +4,7 @@
 #include "interface.h"
 
 #define SIGILS_NO 50
+#define MAX_DATA_FILE_SIZE 560
 
 typedef struct
 {
@@ -582,7 +583,7 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 		return 0;
 	}
 	
-	if(mx>=350 && mx<=381 && my>=112 && my<=143) {
+	if(mx>=350 && mx<=381 && my>=112 && my<=143 && mqb_data[0] && mqb_data[0]->spell_id != -1) {
 		strcpy(spell_text, "Click to add the spell to the quickbar");
 
 		return 0;
@@ -711,9 +712,9 @@ void process_network_spell(char * data, int len)
 void load_quickspells()
 {
 	Uint8 fname[256];
-	char data[512];
+	char data[MAX_DATA_FILE_SIZE];
 	FILE *fp;
-	int i;
+	Uint8 i;
 	
 #ifndef WINDOWS
 	char username[20];
@@ -746,8 +747,8 @@ void save_quickspells()
 {
 	Uint8 fname[128];
 	FILE *fp;
-	int i;
-	char data[512];
+	Uint8 i;
+	char data[MAX_DATA_FILE_SIZE];
 	//extern char username_str[16];
 	
 #ifndef WINDOWS

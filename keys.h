@@ -67,9 +67,19 @@ extern Uint32 K_PREV_CHAT_TAB;      /*!< key used to switch to previous tab */
 extern Uint32 K_ITEM1;
 extern Uint32 K_ITEM2;
 extern Uint32 K_ITEM3;
-extern Uint32 K_ITEM4;          
+extern Uint32 K_ITEM4;
 extern Uint32 K_ITEM5;
 extern Uint32 K_ITEM6;
+/*! @} */
+
+/*! \name Magic quickbar access keys */
+/*! @{ */
+extern Uint32 K_SPELL1;
+extern Uint32 K_SPELL2;
+extern Uint32 K_SPELL3;
+extern Uint32 K_SPELL4;
+extern Uint32 K_SPELL5;
+extern Uint32 K_SPELL6;
 /*! @} */
 
 /*!

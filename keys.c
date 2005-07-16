@@ -53,6 +53,12 @@ Uint32 K_BUDDY=CTRL|'b';
 Uint32 K_NEXT_CHAT_TAB=CTRL|280; //PAGE UP
 Uint32 K_PREV_CHAT_TAB=CTRL|281; //PAGE DOWN
 Uint32 K_RULES=SDLK_F5;
+Uint32 K_SPELL1=ALT|'1';
+Uint32 K_SPELL2=ALT|'2';
+Uint32 K_SPELL3=ALT|'3';
+Uint32 K_SPELL4=ALT|'4';
+Uint32 K_SPELL5=ALT|'5';
+Uint32 K_SPELL6=ALT|'6';
 
 unsigned int CRC32(unsigned char *data, int len);
 unsigned short get_key_code(char *key);

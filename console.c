@@ -476,15 +476,15 @@ void test_for_console_command (char *text, int len)
 			// but fall thru and send it to the server
 		}
 
-	else if (my_strncompare (text_loc, "storage", 7))
+	else if (my_strncompare (text_loc, "storage", 7) || my_strncompare(text_loc, "sto", 3))
 		{
-			if (text_loc[7] != ' ')
+			if (text_loc[7] != ' ' && text_loc[3] != ' ')
 				{
 					storage_filter[0] = '\0';
 				}
 			else
 				{
-					my_strncp (storage_filter, text_loc+8, 128-1);
+					my_strncp (storage_filter, strstr(text_loc, " ")+1, 128-1);
 					sprintf (text, "#storage");
 					len = 8;
 				}
