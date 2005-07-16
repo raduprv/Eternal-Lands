@@ -12,6 +12,8 @@
  * void* get_window_handler(int, int);
  */
 
+#define ELW_WIN_MAX 64
+
 windows_info	windows_list;	// the master list of windows
 
 int display_window(int win_id);
@@ -576,8 +578,8 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	{
 		// allocate the space
 		windows_list.num_windows = 0;
-		windows_list.max_windows = 32;
-		windows_list.window=(window_info *) calloc(32, sizeof(window_info));
+		windows_list.max_windows = ELW_WIN_MAX;
+		windows_list.window=(window_info *) calloc(ELW_WIN_MAX, sizeof(window_info));
 		//windows_list.window[0].window_id = -1;	// force a rebuild of this
 		//windows_list.num_windows = 1;
 	}
@@ -903,7 +905,7 @@ int	draw_window_border(window_info *win)
 
 	if(win->flags&ELW_USE_BORDER)
 	{
-		if ( use_alpha_border && (win->flags & ELW_USE_BACKGROUND) )
+		if ( use_alpha_border && (win->flags & ELW_ALPHA_BORDER) )
 		{
 			draw_window_alphaborder (win);
 		}

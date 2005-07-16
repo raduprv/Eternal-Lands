@@ -853,8 +853,8 @@ void elconfig_populate_tabs(void)
 {
 	int i;
 	int tab_id; //temporary storage for the tab id
-	int label_id; //temporary storage for the label id
-	int widget_id; //temporary storage for the widget id
+	int label_id=-1; //temporary storage for the label id
+	int widget_id=-1; //temporary storage for the widget id
 	int widget_height, label_height; //Used to calculate the y pos of the next option
 	int y; //Used for the position of multiselect buttons
 	int min, max; //For the spinbuttons
@@ -864,6 +864,7 @@ void elconfig_populate_tabs(void)
 		elconfig_tabs[i].x = 5;
 		elconfig_tabs[i].y = 5;
 	}
+	
 	for(i = 0; i < our_vars.no; i++) {
 		tab_id = our_vars.var[i]->widgets.tab_id;
 		switch(our_vars.var[i]->type) {
