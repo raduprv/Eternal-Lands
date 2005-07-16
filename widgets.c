@@ -875,6 +875,26 @@ int vscrollbar_set_pos(Uint32 window_id, Uint32 widget_id, int pos)
 	return 0;
 }
 
+int vscrollbar_scroll_up(Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		vscrollbar *scrollbar = w->widget_info;
+		return vscrollbar_set_pos(window_id, widget_id, scrollbar->pos - scrollbar->pos_inc);
+	}
+	return 0;
+}
+
+int vscrollbar_scroll_down(Uint32 window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w){
+		vscrollbar *scrollbar = w->widget_info;
+		return vscrollbar_set_pos(window_id, widget_id, scrollbar->pos + scrollbar->pos_inc);
+	}
+	return 0;
+}
+
 int vscrollbar_set_bar_len (Uint32 window_id, Uint32 widget_id, int bar_len)
 {
 	widget_list *w = widget_find(window_id, widget_id);

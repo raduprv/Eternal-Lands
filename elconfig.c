@@ -66,6 +66,7 @@ int elconfig_menu_y = 10;
 int elconfig_menu_x_len = 520;
 int elconfig_menu_y_len = 400;
 int compass_direction_checkbox = 1;
+int shadow_map_size_multi = 0;
 
 void change_var(int * var)
 {
@@ -189,6 +190,29 @@ void toggle_full_screen_mode(int * fs)
 			return;
 		}
 	toggle_full_screen();
+}
+
+void change_shadow_map_size(int *pointer, int value)
+{
+	const int array[5] = {512,1024,2048,4096,8192};
+	
+	if(value >= 512) {
+		int i;
+		for(i = 0; i < 5; i++) {
+			/* Check if we can set the multiselect widget to this */
+			if(array[i] == value) {
+				*pointer = i;
+				break;
+			}
+		}
+		max_shadow_map_size = value;
+	} else {
+		if(value > 5) {
+			value = 1;
+		}
+		*pointer = value;
+		max_shadow_map_size = array[value];
+	}
 }
 
 void change_compass_direction(int *dir)
@@ -520,7 +544,7 @@ void init_vars()
 	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render mesh", "Render the mesh", SPECIALVID);
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0,"Shadows","Toggles the shadows",VIDEO);
 	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0,"Shadow Mapping","If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.",VIDEO);
-	add_var(MULTI,"max_shadow_map_size","smsize",&max_shadow_map_size,change_int,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096",NULL);
+	add_var(MULTI,"max_shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096","8192",NULL);
 	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);
 	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1,"Show Reflections","Toggle the relections",VIDEO);
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",SPECIALVID);

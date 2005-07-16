@@ -236,42 +236,58 @@ int display_storage_handler(window_info * win)
 
 int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 {
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-	
-	if(my>10 && my<202){
-		if(mx>10 && mx<130){
-			int cat=-1;
-	
-			cat=(my-20)/13 + vscrollbar_get_pos(storage_win, 1200);
-			move_to_category(cat);
+	if(flags&ELW_WHEEL_UP) {
+		if(mx>10 && mx<130) {
+			vscrollbar_scroll_up(storage_win, 1200);
 		} else if(mx>150 && mx<352){
-			if(item_dragged!=-1 && left_click){
-				char str[6];
-
-				str[0]=DEPOSITE_ITEM;
-				str[1]=item_list[item_dragged].pos;
-				*((Uint32*)(str+2))=SDL_SwapLE32(item_quantity);
-
-				my_tcp_send(my_socket, str, 6);
-
-				if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
-			} else if(right_click){
-				storage_item_dragged=-1;
-				item_dragged=-1;
-
-				if(cur_item_over!=-1) {
-					char str[2];
-					
-					str[0]=LOOK_AT_STORAGE_ITEM;
-					str[1]=storage_items[cur_item_over].pos;
-
-					my_tcp_send(my_socket, str, 2);
-
+			vscrollbar_scroll_up(storage_win, 1201);
+		}
+	} else if(flags&ELW_WHEEL_DOWN) {
+		if(mx>10 && mx<130) {
+			vscrollbar_scroll_down(storage_win, 1200);
+		} else if(mx>150 && mx<352){
+			vscrollbar_scroll_down(storage_win, 1201);
+		}
+	}
+	else if ( (flags & ELW_MOUSE_BUTTON) == 0) {
+		return 0;
+	}
+	else {
+		if(my>10 && my<202){
+			if(mx>10 && mx<130){
+				int cat=-1;
+		
+				cat=(my-20)/13 + vscrollbar_get_pos(storage_win, 1200);
+				move_to_category(cat);
+			} else if(mx>150 && mx<352){
+				if(item_dragged!=-1 && left_click){
+					char str[6];
+	
+					str[0]=DEPOSITE_ITEM;
+					str[1]=item_list[item_dragged].pos;
+					*((Uint32*)(str+2))=SDL_SwapLE32(item_quantity);
+	
+					my_tcp_send(my_socket, str, 6);
+	
+					if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
+				} else if(right_click){
+					storage_item_dragged=-1;
+					item_dragged=-1;
+	
+					if(cur_item_over!=-1) {
+						char str[2];
+						
+						str[0]=LOOK_AT_STORAGE_ITEM;
+						str[1]=storage_items[cur_item_over].pos;
+	
+						my_tcp_send(my_socket, str, 2);
+	
+						active_storage_item=storage_items[cur_item_over].pos;
+					}
+				} else if(cur_item_over!=-1){
+					storage_item_dragged=cur_item_over;
 					active_storage_item=storage_items[cur_item_over].pos;
 				}
-			} else if(cur_item_over!=-1){
-				storage_item_dragged=cur_item_over;
-				active_storage_item=storage_items[cur_item_over].pos;
 			}
 		}
 	}

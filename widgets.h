@@ -807,11 +807,39 @@ int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID
  * \param   	pos The new position
- * \retval int  	Returns 1 on succes, 0 on failure (if the widget was not found in the given window)
+ * \retval int  	Returns 1 on success, 0 on failure (if the widget was not found in the given window)
  *
  * \sa widget_find
  */
 int vscrollbar_set_pos(Uint32 window_id, Uint32 widget_id, int pos);
+
+/*!
+ * \ingroup	scrollbars
+ * \brief 	Scrolls the scrollbar up
+ *
+ * 		Finds the vertical scrollbar widget and sets the position a bit up.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The unique widget ID
+ * \retval int  	Returns 1 on success, 0 on failure (if the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int vscrollbar_scroll_up(Uint32 window_id, Uint32 widget_id);
+
+/*!
+ * \ingroup	scrollbars
+ * \brief 	Scrolls the scrollbar down
+ *
+ * 		Finds the vertical scrollbar widget and sets the position a bit down.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The unique widget ID
+ * \retval int  	Returns 1 on success, 0 on failure (if the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int vscrollbar_scroll_down(Uint32 window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	scrollbars
