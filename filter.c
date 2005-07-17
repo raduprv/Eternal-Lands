@@ -40,15 +40,15 @@ int add_to_filter_list(Uint8 *name, char save_name)
 			if(!filter_list[i].len > 0)
 				{
 					//excellent, a free spot
-					strcpy(left, name);
+					strncpy(left, name,sizeof(left));
 					for(t=0;;t++){
 						if(left[t]==0){
-							strcpy(right, "smeg");
+							strncpy(right, "smeg",sizeof(right));
 							break;
 						}
 						if(left[t]=='='){
 							left[t-1]=0;
-							strcpy(right, left+t+2);
+							strncpy(right, left+t+2,sizeof(right));
 							break;
 						}
 					}
@@ -57,12 +57,12 @@ int add_to_filter_list(Uint8 *name, char save_name)
 						{
 							FILE *f = NULL;
 							char local_filters[256];
-							strcpy(local_filters, configdir);
-							strcat(local_filters, "local_filters.txt");
+							strncpy(local_filters, configdir,sizeof(local_filters));
+							strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
 							f=my_fopen(local_filters, "a");
 							if (f != NULL)
 							{
-								sprintf(buff, "%s = %s", left, right);
+								snprintf(buff, sizeof(buff),"%s = %s", left, right);
 								fwrite(buff, strlen(buff), 1, f);
 								fwrite("\n", 1, 1, f);
 								fclose(f);
@@ -112,8 +112,8 @@ int remove_from_filter_list(Uint8 *name)
 	if(found)
 		{
 			char local_filters[256];
-			strcpy(local_filters, configdir);
-			strcat(local_filters, "local_filters.txt");
+			strncpy(local_filters, configdir,sizeof(local_filters));
+			strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
 			f=my_fopen(local_filters, "w");
 			if (f != NULL)
 			{
@@ -328,8 +328,8 @@ void clear_filter_list()
 void load_filters()
 {
 	char local_filters[256];
-	strcpy(local_filters, configdir);
-	strcat(local_filters, "local_filters.txt");
+	strncpy(local_filters, configdir,sizeof(local_filters));
+	strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
 	clear_filter_list();
 	load_filters_list(local_filters);
 	if(use_global_filters)load_filters_list("global_filters.txt");

@@ -63,10 +63,10 @@ void test_for_console_command (char *text, int len)
 				return;
 			}
 			if (put_mark_on_position(map_x, map_y, ptr)) {
-				sprintf (msg, "Location %d,%d marked with %s", map_x, map_y, ptr);
+				snprintf (msg, sizeof(msg),"Location %d,%d marked with %s", map_x, map_y, ptr);
 				LOG_TO_CONSOLE(c_orange1,msg);
 			} else {
-				sprintf (msg, "Invalid location %d,%d", map_x, map_y);
+				snprintf (msg,sizeof(msg),"Invalid location %d,%d", map_x, map_y);
 				LOG_TO_CONSOLE(c_red2,msg);
 			}
 		}
@@ -78,7 +78,7 @@ void test_for_console_command (char *text, int len)
 		{
 			char str[520];
 			put_mark_on_current_position(text_loc+5);
-			sprintf (str, "%s marked", text_loc+5);
+			snprintf (str, sizeof(str),"%s marked", text_loc+5);
 			LOG_TO_CONSOLE(c_orange1,str);
 		}
 		return;		
@@ -98,7 +98,7 @@ void test_for_console_command (char *text, int len)
 				char str[520];
 				marks[i].x = marks[i].y = -1;
 				save_markings();
-				sprintf(str,"%s removed", marks[i].text);
+				snprintf(str,sizeof(str),"%s removed", marks[i].text);
 				LOG_TO_CONSOLE(c_orange1,str);
 				break;
 			}
@@ -158,13 +158,13 @@ void test_for_console_command (char *text, int len)
 			char extra[20];
 			if(client_version_patch > 0)
 				{
-					sprintf(extra,"p%d Beta",client_version_patch);
+					snprintf(extra,sizeof(extra),"p%d Beta",client_version_patch);
 				}
 			else
 				{
-					sprintf(extra," Beta");
+					snprintf(extra,sizeof(extra)," Beta");
 				}
-			sprintf(str,"Eternal Lands Version %d.%d.%d%s",client_version_major,
+			snprintf(str,sizeof(str),"Eternal Lands Version %d.%d.%d%s",client_version_major,
 					client_version_minor,client_version_release,extra);
 			LOG_TO_CONSOLE(c_green1,str);
 			return;
@@ -198,14 +198,14 @@ void test_for_console_command (char *text, int len)
 			if(i==15 && !ch)
 				{
 					Uint8 str[100];
-					sprintf(str,"%s %s",name_too_long,not_added_to_ignores);
+					snprintf(str,sizeof(str),"%s %s",name_too_long,not_added_to_ignores);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[100];
-					sprintf(str,"%s %s",name_too_short,not_added_to_ignores);
+					snprintf(str,sizeof(str),"%s %s",name_too_short,not_added_to_ignores);
 					LOG_TO_CONSOLE(c_red1,name_too_short);
 					return;
 				}
@@ -214,7 +214,7 @@ void test_for_console_command (char *text, int len)
 			if(result==-1)
 				{
 					Uint8 str[100];
-					sprintf(str,already_ignoring,name);
+					snprintf(str,sizeof(str),already_ignoring,name);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
@@ -226,7 +226,7 @@ void test_for_console_command (char *text, int len)
 			else
 				{
 					Uint8 str[100];
-					sprintf(str,added_to_ignores,name);
+					snprintf(str,sizeof(str),added_to_ignores,name);
 					LOG_TO_CONSOLE(c_green1,str);
 					return;
 				}
@@ -260,14 +260,14 @@ void test_for_console_command (char *text, int len)
 			if(i==15 && !ch)
 				{
 					Uint8 str[100];
-					sprintf(str,"%s %s",word_too_long,not_added_to_filter);
+					snprintf(str,sizeof(str),"%s %s",word_too_long,not_added_to_filter);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			else if(i<3)
 				{
 					Uint8 str[100];
-					sprintf(str,"%s %s",word_too_short,not_added_to_filter);
+					snprintf(str,sizeof(str),"%s %s",word_too_short,not_added_to_filter);
 					LOG_TO_CONSOLE(c_red1,word_too_short);
 					return;
 				}
@@ -276,7 +276,7 @@ void test_for_console_command (char *text, int len)
 			if(result==-1)
 				{
 					Uint8 str[100];
-					sprintf(str,already_filtering,name);
+					snprintf(str,sizeof(str),already_filtering,name);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
@@ -288,7 +288,7 @@ void test_for_console_command (char *text, int len)
 			else
 				{
 					Uint8 str[100];
-					sprintf(str,added_to_filters,name);
+					snprintf(str,sizeof(str),added_to_filters,name);
 					LOG_TO_CONSOLE(c_green1,str);
 					return;
 				}
@@ -318,14 +318,14 @@ void test_for_console_command (char *text, int len)
 			if(i==15 && !ch)
 				{
 					Uint8 str[200];
-					sprintf(str,"%s %s",name_too_long,not_removed_from_ignores);
+					snprintf(str,sizeof(str),"%s %s",name_too_long,not_removed_from_ignores);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[200];
-					sprintf(str,"%s %s",name_too_short,not_removed_from_filter);
+					snprintf(str,sizeof(str),"%s %s",name_too_short,not_removed_from_filter);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
@@ -333,14 +333,14 @@ void test_for_console_command (char *text, int len)
 			if(result==-1)
 				{
 					Uint8 str[200];
-					sprintf(str,not_ignoring,name);
+					snprintf(str,sizeof(str),not_ignoring,name);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
-					sprintf(str,removed_from_ignores,name);
+					snprintf(str,sizeof(str),removed_from_ignores,name);
 					LOG_TO_CONSOLE(c_green1,str);
 					return;
 				}
@@ -368,14 +368,14 @@ void test_for_console_command (char *text, int len)
 			if(i==15 && !ch)
 				{
 					Uint8 str[200];
-					sprintf(str,"%s %s",word_too_long,not_removed_from_filter);
+					snprintf(str,sizeof(str),"%s %s",word_too_long,not_removed_from_filter);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			if(i<3)
 				{
 					Uint8 str[200];
-					sprintf(str,"%s %s",word_too_short,not_removed_from_filter);
+					snprintf(str,sizeof(str),"%s %s",word_too_short,not_removed_from_filter);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
@@ -383,14 +383,14 @@ void test_for_console_command (char *text, int len)
 			if(result==-1)
 				{
 					Uint8 str[200];
-					sprintf(str,not_filtering,name);
+					snprintf(str,sizeof(str),not_filtering,name);
 					LOG_TO_CONSOLE(c_red1,str);
 					return;
 				}
 			else
 				{
 					Uint8 str[100];
-					sprintf(str,removed_from_filter,name);
+					snprintf(str,sizeof(str),removed_from_filter,name);
 					LOG_TO_CONSOLE(c_green1,str);
 					return;
 				}
@@ -403,19 +403,19 @@ void test_for_console_command (char *text, int len)
 			Uint8 this_string[8192];
 
 			my_string=(GLubyte *)glGetString(GL_RENDERER);
-			sprintf(this_string,"%s: %s",video_card_str,my_string);
+			snprintf(this_string,sizeof(this_string),"%s: %s",video_card_str,my_string);
 			LOG_TO_CONSOLE(c_red2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VENDOR);
-			sprintf(this_string,"%s: %s",video_vendor_str,my_string);
+			snprintf(this_string,sizeof(this_string),"%s: %s",video_vendor_str,my_string);
 			LOG_TO_CONSOLE(c_yellow3,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_VERSION);
-			sprintf(this_string,"%s: %s",opengl_version_str,my_string);
+			snprintf(this_string,sizeof(this_string),"%s: %s",opengl_version_str,my_string);
 			LOG_TO_CONSOLE(c_yellow2,this_string);
 
 			my_string=(GLubyte *)glGetString(GL_EXTENSIONS);
-			sprintf(this_string,"%s: %s",supported_extensions_str,my_string);
+			snprintf(this_string,sizeof(this_string),"%s: %s",supported_extensions_str,my_string);
 			LOG_TO_CONSOLE(c_grey1,this_string);
 
 			return;
@@ -485,7 +485,7 @@ void test_for_console_command (char *text, int len)
 			else
 				{
 					my_strncp (storage_filter, strstr(text_loc, " ")+1, 128-1);
-					sprintf (text, "#storage");
+					snprintf (text,sizeof(text), "#storage");
 					len = 8;
 				}
 		}

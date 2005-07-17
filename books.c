@@ -364,7 +364,7 @@ void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
 		add_str_to_page(string, type, b, p);
 	} else {
 		char str[200];
-		sprintf(str,"An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n",cur->name,cur->line);
+		snprintf(str,sizeof(str),"An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n",cur->name,cur->line);
 		log_error(str);
 	}
 	free(string);
@@ -480,7 +480,7 @@ void read_local_book(char * data, int len)
 	if(!b) b=read_book(file_name,data[0], SDL_SwapLE16(*((Uint16*)(data+1))));
 	if(!b) {
 		char str[200];
-		sprintf(str,"Could not open: %s", file_name);
+		snprintf(str,sizeof(str),"Could not open: %s", file_name);
 		LOG_TO_CONSOLE(c_red1, str);
 		return;
 	}
@@ -634,7 +634,7 @@ void display_page(book * b, page * p)
 	
 	glColor3f(0.385f,0.285f, 0.19f);
 	
-	sprintf(str,"%d",p->page_no);
+	snprintf(str,sizeof(str),"%d",p->page_no);
 	if(b->type==1)draw_string_zoomed(140,b->max_lines*18*0.9f+2,str,0,1.0);
 	else if(b->type==2)draw_string_zoomed(110,b->max_lines*18*0.9f+2,str,0,1.0);
 	set_font(0);
@@ -729,7 +729,7 @@ int display_book_handler(window_info *win)
 		x=50;
 		p=b->active_page-5;
 		if(p>=0){
-			sprintf(str,"%d",p+1);
+			snprintf(str,sizeof(str),"%d",p+1);
 
 			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
@@ -741,7 +741,7 @@ int display_book_handler(window_info *win)
 		x=100;
 		p=b->active_page-2;
 		if(p>=0){
-			sprintf(str,"%d",p+1);
+			snprintf(str,sizeof(str),"%d",p+1);
 			
 			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
@@ -753,7 +753,7 @@ int display_book_handler(window_info *win)
 		x=win->len_x-120;
 		p=b->active_page+2;
 		if(p<b->no_pages){
-			sprintf(str,"%d",p+1);
+			snprintf(str,sizeof(str),"%d",p+1);
 			
 			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
@@ -765,7 +765,7 @@ int display_book_handler(window_info *win)
 		x=win->len_x-70;
 		p=b->active_page+5;
 		if(p<b->no_pages){
-			sprintf(str,"%d",p+1);
+			snprintf(str,sizeof(str),"%d",p+1);
 			
 			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
@@ -779,7 +779,7 @@ int display_book_handler(window_info *win)
 		for(i=1;i<5;i++){
 			p=b->active_page-i*b->type;
 			if(p>=0){
-				sprintf(str,"%d",p+1);
+				snprintf(str,sizeof(str),"%d",p+1);
 				
 				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 					glColor3f(0.95f, 0.76f, 0.52f);
@@ -794,7 +794,7 @@ int display_book_handler(window_info *win)
 		for(i=1;i<5;i++){
 			p=b->active_page+i*b->type;
 			if(p<b->no_pages){
-				sprintf(str,"%d",p+1);
+				snprintf(str,sizeof(str),"%d",p+1);
 				
 				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 					glColor3f(0.95f, 0.76f, 0.52f);
@@ -953,7 +953,7 @@ void display_book_window(book *b)
 		windows_list.window[*p].data=b;
         } else {
 		if((point)windows_list.window[*p].data!=(point)b){
-			strcpy(windows_list.window[*p].window_name,b->title);
+			strncpy(windows_list.window[*p].window_name,b->title,sizeof(windows_list.window[*p].window_name));
 			windows_list.window[*p].data=b;
 			if(!windows_list.window[*p].displayed) show_window(*p);
 			select_window(*p);

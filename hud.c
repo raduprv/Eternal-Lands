@@ -720,7 +720,7 @@ void show_help(char *help_message, int x, int y)
 	glEnable(GL_TEXTURE_2D);
 	
 	glColor3f(1.0f,1.0f,1.0f);
-	strcpy(str,help_message);
+	strncpy(str,help_message,sizeof(str));
 	draw_string_small(x, y,help_message,1);
 }
 
@@ -945,7 +945,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.attack_skill.shortname,your_info.attack_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.attack_skill.shortname,your_info.attack_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 		
@@ -953,7 +953,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.defense_skill.shortname,your_info.defense_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.defense_skill.shortname,your_info.defense_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -961,7 +961,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -969,7 +969,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -977,7 +977,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.magic_skill.shortname,your_info.magic_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.magic_skill.shortname,your_info.magic_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -985,7 +985,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.potion_skill.shortname,your_info.potion_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.potion_skill.shortname,your_info.potion_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -993,7 +993,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1001,7 +1001,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1009,7 +1009,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1017,7 +1017,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		sprintf(str,"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
 		draw_string_small(x, y, str, 1);
 	}	
 	return	1;

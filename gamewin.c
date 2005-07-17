@@ -742,21 +742,21 @@ int display_game_handler (window_info *win)
 
 		glColor3f (1.0f, 1.0f, 1.0f);
 		if(me){
- 			sprintf(str,"Busy: %i",me->busy);
+ 			snprintf(str,sizeof(str),"Busy: %i",me->busy);
 	 		draw_string (400, 0, str, 1);
-			sprintf(str,"Command: %i",me->last_command);
+			snprintf(str,sizeof(str),"Command: %i",me->last_command);
  			draw_string (400, 20, str, 1);
-			sprintf(str,"Coords: %-3i %3i",me->x_tile_pos, me->y_tile_pos);
+			snprintf(str,sizeof(str),"Coords: %-3i %3i",me->x_tile_pos, me->y_tile_pos);
  			draw_string (550, 0, str, 1);
-			sprintf(str,"Coords: %.3g %.3g",me->x_pos, me->y_pos);
+			snprintf(str,sizeof(str),"Coords: %.3g %.3g",me->x_pos, me->y_pos);
  			draw_string (550, 20, str, 1);
 		}
-		sprintf (str, "Lights: %i", show_lights);
+		snprintf (str, sizeof(str),"Lights: %i", show_lights);
 		draw_string (win->len_x-hud_x-105, 25, str, 1);
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
-		sprintf (str, "FPS: %i", fps[0]);
+		snprintf (str, sizeof(str), "FPS: %i", fps[0]);
 		draw_string (win->len_x-hud_x-95, 5, str, 1);
 	}
 

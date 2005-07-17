@@ -77,7 +77,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	}
 	if(flags&ELW_RIGHT_MOUSE && flags&ELW_CTRL) {
 		//CTRL + right click, delete buddy.
-		sprintf(str, "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
+		snprintf(str,sizeof(str), "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
 		my_tcp_send(my_socket, str, strlen(str+1)+1);
 	} else {
 		//start a pm to them
@@ -86,7 +86,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		input_text_line.len = 0;
 		
 		// insert the person's name
-		sprintf (str, "/%s ", buddy_list[y].name);
+		snprintf (str, sizeof(str),"/%s ", buddy_list[y].name);
 		put_string_in_buffer (&input_text_line, str, 0);
 	}
 	return 1;
@@ -129,7 +129,7 @@ int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 				return 1;
 			}
 		}*/
-		sprintf(string, "%c#add_buddy %s %i", RAW_TEXT, buddy_name_buffer, multiselect_get_selected(buddy_add_win, buddy_type_input_id));
+		snprintf(string, sizeof(string), "%c#add_buddy %s %i", RAW_TEXT, buddy_name_buffer, multiselect_get_selected(buddy_add_win, buddy_type_input_id));
 		my_tcp_send(my_socket, string, strlen(string+1)+1);
 		toggle_window(buddy_add_win);
 		buddy_name_buffer[0] = '\0';

@@ -499,9 +499,9 @@ void add_enhanced_actor_from_server(char * in_data)
 		{
 			char str[120];
 #ifdef UID
-			sprintf (str, "%s %d - %s\n", unknown_frame, frame, &in_data[32]);
+			snprintf (str, sizeof(str), "%s %d - %s\n", unknown_frame, frame, &in_data[32]);
 #else
-			sprintf(str,"%s %d - %s\n",unknown_frame,frame,&in_data[28]);
+			snprintf(str, sizeof(str), "%s %d - %s\n",unknown_frame,frame,&in_data[28]);
 #endif
 			log_error(str);
 		}
@@ -522,9 +522,9 @@ void add_enhanced_actor_from_server(char * in_data)
 						{
 							char str[256];
 #ifdef UID
-							sprintf (str, "%s %d = %s => %s\n", duplicate_actors_str, actor_id, actors_list[i]->actor_name, &in_data[32]);
+							snprintf (str, sizeof(str), "%s %d = %s => %s\n", duplicate_actors_str, actor_id, actors_list[i]->actor_name, &in_data[32]);
 #else
-							sprintf(str,"%s %d = %s => %s\n",duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							snprintf(str, sizeof(str), "%s %d = %s => %s\n",duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[28]);
 #endif
 							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
@@ -538,9 +538,9 @@ void add_enhanced_actor_from_server(char * in_data)
 						{
 							char str[256];
 #ifdef UID
-							sprintf (str, "%s(%d) = %s => %s\n", duplicate_npc_actor, actor_id, actors_list[i]->actor_name, &in_data[32]);
+							snprintf (str, sizeof(str), "%s(%d) = %s => %s\n", duplicate_npc_actor, actor_id, actors_list[i]->actor_name, &in_data[32]);
 #else
-							sprintf(str,"%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							snprintf(str, sizeof(str), "%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
 #endif
 							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
@@ -562,9 +562,9 @@ void add_enhanced_actor_from_server(char * in_data)
 		/* get the name string into a working buffer */
 		unsigned char buffer[256], *name, *guild;
 #ifdef UID
-		my_strcp(buffer,&in_data[32]);
+		my_strncp(buffer,&in_data[32],sizeof(buffer));
 #else
-		my_strcp(buffer,&in_data[28]);
+		my_strncp(buffer,&in_data[28],sizeof(buffer));
 #endif
 		
 		/* skip leading color codes */
@@ -640,43 +640,43 @@ void add_enhanced_actor_from_server(char * in_data)
 	//cape
 	if(cape!=CAPE_NONE)
 		{
-			my_strcp(this_actor->cape_tex,actors_defs[actor_type].cape[cape].skin_name);
-			my_strcp(this_actor->cape_fn,actors_defs[actor_type].cape[cape].model_name);
+			my_strncp(this_actor->cape_tex,actors_defs[actor_type].cape[cape].skin_name,sizeof(this_actor->cape_tex));
+			my_strncp(this_actor->cape_fn,actors_defs[actor_type].cape[cape].model_name,sizeof(this_actor->cape_fn));
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->cape_tex, playerpath, guildpath);
 #endif
 		}
 	else
 		{
-			my_strcp(this_actor->cape_tex,"");
-			my_strcp(this_actor->cape_fn,"");
+			my_strncp(this_actor->cape_tex,"",sizeof(this_actor->cape_tex));
+			my_strncp(this_actor->cape_fn,"",sizeof(this_actor->cape_fn));
 		}
 	//head
-	my_strcp(this_actor->head_fn,actors_defs[actor_type].head[head].model_name);
+	my_strncp(this_actor->head_fn,actors_defs[actor_type].head[head].model_name,sizeof(this_actor->head_fn));
     
 	//shield
 	if(shield!=SHIELD_NONE)
 		{
-			my_strcp(this_actor->shield_tex,actors_defs[actor_type].shield[shield].skin_name);
-			my_strcp(this_actor->shield_fn,actors_defs[actor_type].shield[shield].model_name);
+			my_strncp(this_actor->shield_tex,actors_defs[actor_type].shield[shield].skin_name,sizeof(this_actor->shield_tex));
+			my_strncp(this_actor->shield_fn,actors_defs[actor_type].shield[shield].model_name,sizeof(this_actor->shield_fn));
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->shield_tex, playerpath, guildpath);
 #endif
 		}
 	else
 		{
-			my_strcp(this_actor->shield_tex,"");
-			my_strcp(this_actor->shield_fn,"");
+			my_strncp(this_actor->shield_tex,"",sizeof(this_actor->shield_tex));
+			my_strncp(this_actor->shield_fn,"",sizeof(this_actor->shield_fn));
 		}
 
-	my_strcp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name);
+	my_strncp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->weapon_tex));
 #ifdef CUSTOM_LOOK
 	custom_path(this_actor->weapon_tex, playerpath, guildpath);
 #endif
-	my_strcp(this_actor->weapon_fn,actors_defs[actor_type].weapon[weapon].model_name);
+	my_strncp(this_actor->weapon_fn,actors_defs[actor_type].weapon[weapon].model_name,sizeof(this_actor->weapon_fn));
 	this_actor->weapon_glow=actors_defs[actor_type].weapon[weapon].glow;
 	if(weapon == GLOVE_FUR || weapon == GLOVE_LEATHER){
-		my_strcp(this_actor->hands_tex, actors_defs[actor_type].weapon[weapon].skin_name);
+		my_strncp(this_actor->hands_tex, actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->hands_tex));
 #ifdef CUSTOM_LOOK
 		custom_path(this_actor->hands_tex, playerpath, guildpath);
 #endif
@@ -685,16 +685,16 @@ void add_enhanced_actor_from_server(char * in_data)
 	//helmet
 	if(helmet!=HELMET_NONE)
 		{
-			my_strcp(this_actor->helmet_tex,actors_defs[actor_type].helmet[helmet].skin_name);
+			my_strncp(this_actor->helmet_tex,actors_defs[actor_type].helmet[helmet].skin_name,sizeof(this_actor->helmet_tex));
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->helmet_tex, playerpath, guildpath);
 #endif
-			my_strcp(this_actor->helmet_fn,actors_defs[actor_type].helmet[helmet].model_name);
+			my_strncp(this_actor->helmet_fn,actors_defs[actor_type].helmet[helmet].model_name,sizeof(this_actor->helmet_fn));
 		}
 	else
 		{
-			my_strcp(this_actor->helmet_tex,"");
-			my_strcp(this_actor->helmet_fn,"");
+			my_strncp(this_actor->helmet_tex,"",sizeof(this_actor->helmet_tex));
+			my_strncp(this_actor->helmet_fn,"",sizeof(this_actor->helmet_fn));
 		}
 
 	i=add_enhanced_actor(this_actor,cur_frame,f_x_pos,f_y_pos,f_z_pos,f_z_rot,actor_id);
@@ -731,11 +731,11 @@ void add_enhanced_actor_from_server(char * in_data)
 	if(strlen(&in_data[28]) >= 30)
 		{
 			char str[120];
-			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
+			snprintf(str, sizeof(str), "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
 			log_error(str);
 		}
 	else 	{
-			my_strncp(actors_list[i]->actor_name,&in_data[28],30);
+			my_strncp(actors_list[i]->actor_name,&in_data[28],sizeof(actors_list[i]->actor_name));
 			if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
 		}
 
@@ -808,7 +808,7 @@ actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short
 	a->stop_animation=1;//helps when the actor is dead...
 	a->kind_of_actor=HUMAN;
 	
-	strcpy(a->actor_name,"Player");
+	strncpy(a->actor_name,"Player",sizeof(a->actor_name));
 	
 	if (actors_defs[actor_type].coremodel!=NULL) 
 		a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);

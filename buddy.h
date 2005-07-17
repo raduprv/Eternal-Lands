@@ -69,4 +69,12 @@ void add_buddy(char *n, int t, int len);
  * \sa process_message_from_server
  */
 void del_buddy(char *n, int len);
+
+/*!
+ * \ingroup	other
+ * \brief	Clears the buddy list
+ *
+ * 		Clears the buddy list
+ */
+void clear_buddy();
 #endif

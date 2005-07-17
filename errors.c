@@ -17,8 +17,8 @@ void clear_error_log()
 {
 	char error_log[256];
 
-	strcpy(error_log, configdir);
-	strcat(error_log, "error_log.txt");
+	strncpy(error_log, configdir,sizeof(error_log));
+	strncat(error_log, "error_log.txt",sizeof(error_log));
 	if(!err_file) err_file = open_log (error_log, "wb");
 	fflush (err_file);
 }
@@ -29,8 +29,8 @@ void log_error(const Uint8 * message)
 	Uint32	len;
 	char error_log[256];
 
-	strcpy(error_log, configdir);
-	strcat(error_log, "error_log.txt");
+	strncpy(error_log, configdir,sizeof(error_log));
+	strncat(error_log, "error_log.txt",sizeof(error_log));
   	if(!err_file) err_file = open_log (error_log, "ab");
 	if(strncmp(message, "Error", 5))	// do we need to add Error:?
 		{
@@ -52,8 +52,8 @@ void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *fu
 	Uint32	len;
 	char error_log[256];
 
-	strcpy(error_log, configdir);
-	strcat(error_log, "error_log.txt");
+	strncpy(error_log, configdir,sizeof(error_log));
+	strncat(error_log, "error_log.txt",sizeof(error_log));
   	if(!err_file) err_file = open_log (error_log, "ab");
 	snprintf(str, 2048, "Error: %s.%s:%d - %s\n", file, func, line, message);
 	len=strlen(str);
@@ -68,8 +68,8 @@ void clear_func_log()
 {
         char func_log[256];
 
-	strcpy(func_log, configdir);
-	strcat(func_log, "function_log.txt");
+	strncpy(func_log, configdir,sizeof(func_log));
+	strncat(func_log, "function_log.txt",sizeof(func_log));
 	if(!func_file) func_file = open_log(func_log, "wb");
 	fflush(func_file);
 }
@@ -91,8 +91,8 @@ void clear_conn_log()
 {
 	char connection_log[256];
 
-	strcpy(connection_log, configdir);
-	strcat(connection_log, "connection_log.txt");
+	strncpy(connection_log, configdir,sizeof(connection_log));
+	strncat(connection_log, "connection_log.txt",sizeof(connection_log));
 	if(!conn_file) conn_file = open_log (connection_log, "wb");
 	fflush (conn_file);
 }
@@ -101,8 +101,8 @@ void log_conn(const Uint8 *in_data, Uint32 data_lenght)
 {
 	char connection_log[256];
 
-	strcpy(connection_log, configdir);
-	strcat(connection_log, "connection_log.txt");
+	strncpy(connection_log, configdir,sizeof(connection_log));
+	strncat(connection_log, "connection_log.txt",sizeof(connection_log));
   	if(!conn_file) conn_file = open_log (connection_log, "ab");
   	fwrite (in_data, data_lenght, 1, conn_file);
   	fflush (conn_file);

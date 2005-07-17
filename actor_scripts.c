@@ -385,7 +385,7 @@ void animate_actors()
 				if(actors_list[i]->after_move_frames_left){
 					actors_list[i]->after_move_frames_left--;
 					if (actors_list[i]->actor_id==yourself)  {
-						sprintf(str,"Left: %d",actors_list[i]->after_move_frames_left);
+						snprintf(str,sizeof(str),"Left: %d",actors_list[i]->after_move_frames_left);
 					}
 					if(!actors_list[i]->after_move_frames_left){
 						//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Free");
@@ -880,7 +880,7 @@ void add_command_to_actor(int actor_id, char command)
 		//Resync
 		//if we got here, it means we don't have this actor, so get it from the server...
 		char str[256];
-		sprintf(str, "%s %d - %d\n", cant_add_command, command, actor_id);
+		snprintf(str, sizeof(str), "%s %d - %d\n", cant_add_command, command, actor_id);
 		LOG_ERROR(str);
 	} else {
 		LOCK_ACTORS_LISTS();
@@ -1348,7 +1348,7 @@ int cal_get_idle_group(actor_types *act,char *name)
 	
 	//Create a new named group
 	res=act->group_count;
-	strcpy(act->idle_group[res].name,name);
+	strncpy(act->idle_group[res].name, name, sizeof(act->idle_group[res].name));
 	++act->group_count;
 	
 	return res;
@@ -1366,7 +1366,7 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 		CalCoreAnimation_Scale(coreanim,act->scale);
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
-		sprintf(temp,"No Anim: %s\n",fname);
+		snprintf(temp,sizeof(temp),"No Anim: %s\n",fname);
 		log_error(temp);
 	}
 	
@@ -1640,7 +1640,7 @@ int cal_load_mesh(actor_types *act,char *fn)
 		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
 		if ((mesh)&&(act->mesh_scale!=1.0)) CalCoreMesh_Scale(mesh,act->mesh_scale);
 	} else {
-		sprintf(str,"No mesh: %s\n",fn);
+		snprintf(str,sizeof(str),"No mesh: %s\n",fn);
 		//log_error(str);
 	}
 	
@@ -1677,7 +1677,7 @@ int cal_load_weapon_mesh(actor_types *act,char *fn)
 		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
 		if ((mesh)&&(act->skel_scale!=1.0)) CalCoreMesh_Scale(mesh,act->skel_scale);
 	} else {
-		sprintf(str,"No mesh: %s\n",fn);
+		snprintf(str,sizeof(str),"No mesh: %s\n",fn);
 		//log_error(str);
 	}
 	
@@ -1757,23 +1757,22 @@ int parse_actor_script (xmlNode *cfg) {
 	act->mesh_scale=1.0;
 	act->skel_scale=1.0;
 	act->group_count=0;
-	for (i=0;i<16;++i)
-	{
-	strcpy(act->idle_group[i].name,"");
-	act->idle_group[i].count=0;
+	for (i=0;i<16;++i) {
+		strncpy(act->idle_group[i].name, "", sizeof(act->idle_group[i].name));
+		act->idle_group[i].count=0;
 	}
+
 	tempanim=&act->cal_walk_frame;
-	for (i=0;i<24;++i)
-	{
-	tempanim->anim_index=-1;tempanim->kind=-1;
-	++tempanim;
+	for (i=0;i<24;++i){
+		tempanim->anim_index=-1;tempanim->kind=-1;
+		++tempanim;
 	}
-	for (i=0;i<80;++i)
-	{
-	act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
-	act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
-	act->weapon[i].cal_attack_down_1_frame.anim_index=-1;
-	act->weapon[i].cal_attack_down_2_frame.anim_index=-1;
+	
+	for (i=0;i<80;++i){
+		act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
+		act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
+		act->weapon[i].cal_attack_down_1_frame.anim_index=-1;
+		act->weapon[i].cal_attack_down_2_frame.anim_index=-1;
 	}
 	
 	    

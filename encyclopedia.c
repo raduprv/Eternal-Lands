@@ -547,11 +547,11 @@ void ReadIndexXML(xmlNode * a_node)
 				MY_XMLSTRCPY(&Category[num_category].Name, cur_node->children->content);
 
 				//we load the category now
-				sprintf(tmp,"languages/%s/Encyclopedia/%s.xml",lang,cur_node->children->content);
+				snprintf(tmp,sizeof(tmp),"languages/%s/Encyclopedia/%s.xml",lang,cur_node->children->content);
 				doc=xmlReadFile(tmp, NULL, 0);
 				if (doc==NULL)
 					{
-						sprintf(tmp,"languages/en/Encyclopedia/%s.xml",cur_node->children->content);
+						snprintf(tmp,sizeof(tmp),"languages/en/Encyclopedia/%s.xml",cur_node->children->content);
 						doc=xmlReadFile(tmp, NULL, 0);
 					}
 				if(doc==NULL)

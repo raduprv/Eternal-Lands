@@ -359,7 +359,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 		{
 			if(!obj_2d_def_cache[i].file_name[0])//we found a place to store it
 				{
-					sprintf(obj_2d_def_cache[i].file_name, "%s", file_name);
+					snprintf(obj_2d_def_cache[i].file_name, sizeof(obj_2d_def_cache[i].file_name), "%s", file_name);
 					obj_2d_def_cache[i].obj_2d_def_id=obj_2d_def_id;
 					return obj_2d_def_id;
 				}
@@ -392,7 +392,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	if(!returned_obj_2d_def)
 		{
             char str[256];
-            sprintf(str,"%s: %s: %s",reg_error_str,cant_load_2d_object,fname);
+            snprintf(str,sizeof(str),"%s: %s: %s",reg_error_str,cant_load_2d_object,fname);
             LOG_ERROR(str);
 	        return 0;
 		}

@@ -124,8 +124,6 @@ void get_tmp_actor_data()
 		{
 			if(actors_list[i])
 				{
-					strcpy(actors_list[i]->tmp.cur_frame,actors_list[i]->cur_frame);
-					
 					actors_list[i]->tmp.x_pos=actors_list[i]->x_pos;
 					actors_list[i]->tmp.y_pos=actors_list[i]->y_pos;
 					actors_list[i]->tmp.z_pos=actors_list[i]->z_pos;

@@ -139,7 +139,7 @@ void draw_3d_object(object3d * object_id)
 		// a quick check for errors
 		if(array_order[i].start < 0 || array_order[i].count <= 0) {
 			char str[256];
-			sprintf(str, "%s[%d] %s (%d, %d)",
+			snprintf(str, sizeof(str), "%s[%d] %s (%d, %d)",
 				object_id->file_name, i,
 				values_str,
 				array_order[i].start, array_order[i].count);
@@ -221,7 +221,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	if(returned_e3d==NULL)
 		{
             char str[256];
-            sprintf(str,nasty_error_str,fname);
+            snprintf(str,sizeof(str),nasty_error_str,fname);
             LOG_ERROR(str);
 
     		//replace it with the null object, to avoid object IDs corruption
@@ -536,7 +536,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
   	if(!vertex_list)
 		{
 			char str[200];
-			sprintf(str,"%s: %s: %s",reg_error_str,corrupted_object,cur_object->file_name);
+			snprintf(str,sizeof(str),"%s: %s: %s",reg_error_str,corrupted_object,cur_object->file_name);
 			LOG_TO_CONSOLE(c_red2,str);
 			free(face_list);
 			fclose(f);
@@ -628,7 +628,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 								char str[200];
 								size=0;
 								start=0;
-								sprintf(str,"%s: %s . %s",bad_object,cur_object->file_name,multiple_material_same_texture);
+								snprintf(str,sizeof(str),"%s: %s . %s",bad_object,cur_object->file_name,multiple_material_same_texture);
 								LOG_TO_CONSOLE(c_red2,str);
 								goto skip_this_mat;
 							}

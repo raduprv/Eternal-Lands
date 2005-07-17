@@ -64,7 +64,7 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 		CalCoreAnimation_Scale(coreanim,act->scale);
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
-		sprintf(temp,"No Anim: %s\n",fname);
+		snprintf(temp,sizeof(temp),"No Anim: %s\n",fname);
 		log_error(temp);
 	}
 
