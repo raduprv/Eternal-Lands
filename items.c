@@ -38,7 +38,7 @@ int items_text_8;
 int items_text_9;
 int items_text_10;
 
-char items_string[300];
+char items_string[300]={0};
 int item_dragged=-1;
 int item_quantity=1;
 
@@ -353,7 +353,7 @@ int display_items_handler(window_info *win)
 	}
 	
 	//draw the load string
-	sprintf(str,"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
+	snprintf(str,sizeof(str),"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
 	draw_string_small (win->len_x -  8 * strlen (str) - 4, win->len_y-20, str, 1);
 	
 	//now, draw the inventory text, if any.
@@ -677,7 +677,7 @@ int drop_button_id = 0;
 int show_items_handler(window_info * win)
 {
 	widget_list *w;
-	char str[sizeof(items_string)];
+	char str[512];
 	
 	if(video_mode>4) {
 		items_grid_size=51;
@@ -688,6 +688,7 @@ int show_items_handler(window_info * win)
 		quantity_y_offset=155;
 		wear_items_y_offset=0;
 	}
+	
 	win->len_x=6*items_grid_size+110;
 	win->len_y=6*items_grid_size+90;
 	quantity_x_offset=6*items_grid_size+20;
@@ -696,7 +697,7 @@ int show_items_handler(window_info * win)
 	w=widget_find(items_win, drop_button_id);
 	if(w)w->pos_y=6*items_grid_size;
 	
-	strcpy(str,items_string);
+	strncpy(str,items_string,sizeof(items_string));
 	put_small_text_in_box(str,strlen(str),6*items_grid_size+100,items_string);
 
 	return 1;

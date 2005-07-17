@@ -849,7 +849,7 @@ Uint8 key_to_char (Uint32 unikey)
 			case 271:
 				return 13;
 			default:
-				return unikey-208;
+				return (unikey-208)&0xff;
 		}
 	}
 	
