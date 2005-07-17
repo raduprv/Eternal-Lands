@@ -183,6 +183,11 @@ void setup_video_mode(int fs, int mode)
                                 window_height=1200;
                                 break;
 			}
+//TODO: Add wide screen resolutions
+//1280x800
+//1400x1050
+//1440x900
+//1680x1050
 			bpp=0;//autodetect
 		}
 #ifndef WINDOWS

@@ -47,7 +47,11 @@ char	*opt_vid1={"640x480x16"},
 	opt_vid10_desc[75],
 	opt_vid11_desc[75],
 	opt_vid12_desc[75];
-
+//TODO: Add wide screen resolutions
+//1280x800
+//1400x1050
+//1440x900
+//1680x1050
 
 int options_win= -1;
 int show_fps=1;

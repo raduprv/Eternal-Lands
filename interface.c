@@ -207,6 +207,11 @@ void build_video_mode_array()
                 if(bpp==32)
 #endif
                         if(SDL_VideoModeOK(1600, 1200, 32, flags))video_modes[11].supported=1;
+//TODO: Add wide screen resolutions
+//1280x800
+//1400x1050
+//1440x900
+//1680x1050
 }
 
 void draw_console_pic(int which_texture)
