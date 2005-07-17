@@ -907,6 +907,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		quick_use(5);
 	}
+#ifdef NEW_CLIENT
 	else if (key == K_SPELL1)
 	{
 		if(mqb_data[1] && mqb_data[1]->spell_str[0]) {
@@ -943,6 +944,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			my_tcp_send(my_socket, mqb_data[6]->spell_str, 12);
 		}
 	}
+#endif //NEW_CLIENT
 	// Okay, let's move, even when in console or map mode
 	else if (key == K_TURNLEFT)
 	{

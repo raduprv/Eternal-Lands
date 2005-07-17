@@ -583,11 +583,12 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 		return 0;
 	}
 	
+#ifdef NEW_CLIENT
 	if(mx>=350 && mx<=381 && my>=112 && my<=143 && mqb_data[0] && mqb_data[0]->spell_id != -1) {
 		strcpy(spell_text, "Click to add the spell to the quickbar");
-
 		return 0;
 	}
+#endif //NEW_CLIENT
 
 	return 0;
 }
