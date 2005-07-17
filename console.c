@@ -485,8 +485,8 @@ void test_for_console_command (char *text, int len)
 			else
 				{
 					my_strncp (storage_filter, strstr(text_loc, " ")+1, 128-1);
-					snprintf (text,sizeof(text), "#storage");
-					len = 8;
+					snprintf (text,strlen(text), "#sto");
+					len = 4;
 				}
 		}
 	send_input_text_line (text, len);	// no command, send it to the server, as plain text
