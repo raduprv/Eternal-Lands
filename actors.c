@@ -38,7 +38,7 @@ void init_actors_lists()
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
+int add_actor(char * file_name,char * skin_name, int frame,float x_pos,
 			  float y_pos, float z_pos, float z_rot, char remappable,
 			  short skin_color, short hair_color, short shirt_color,
 			  short pants_color, short boots_color, int actor_id)
@@ -97,8 +97,6 @@ int add_actor(char * file_name,char * skin_name, char * frame_name,float x_pos,
 
 //	our_actor->model_data=returned_md2;
 	our_actor->texture_id=texture_id;
-	my_strcp(our_actor->cur_frame,frame_name);
-	my_strcp(our_actor->skin_name,skin_name);
 	our_actor->skin=skin_color;
 	our_actor->hair=hair_color;
 	our_actor->pants=pants_color;
@@ -642,7 +640,6 @@ void add_actor_from_server(char * in_data)
 	int dead=0;
 	int kind_of_actor;
 
-	char cur_frame[20];
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
 
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
@@ -671,47 +668,28 @@ void add_actor_from_server(char * in_data)
 	//get the current frame
 	switch(frame) {
 	case frame_walk:
-		my_strcp(cur_frame,actors_defs[actor_type].walk_frame);break;
 	case frame_run:
-		my_strcp(cur_frame,actors_defs[actor_type].run_frame);break;
-	case frame_die1:
-		my_strcp(cur_frame,actors_defs[actor_type].die1_frame);
-		dead=1;
 		break;
+	case frame_die1:
 	case frame_die2:
-		my_strcp(cur_frame,actors_defs[actor_type].die2_frame);
 		dead=1;
 		break;
 	case frame_pain1:
-		my_strcp(cur_frame,actors_defs[actor_type].pain1_frame);break;
 	case frame_pain2:
-		my_strcp(cur_frame,actors_defs[actor_type].pain2_frame);break;
 	case frame_pick:
-		my_strcp(cur_frame,actors_defs[actor_type].pick_frame);break;
 	case frame_drop:
-		my_strcp(cur_frame,actors_defs[actor_type].drop_frame);break;
 	case frame_idle:
-		my_strcp(cur_frame,actors_defs[actor_type].idle_frame);break;
 	case frame_sit_idle:
-		my_strcp(cur_frame,actors_defs[actor_type].idle_sit_frame);break;
 	case frame_harvest:
-		my_strcp(cur_frame,actors_defs[actor_type].harvest_frame);break;
 	case frame_cast:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_cast_frame);break;
 	case frame_attack_up_1:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_up_1_frame);break;
 	case frame_attack_up_2:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_up_2_frame);break;
 	case frame_attack_up_3:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_up_3_frame);break;
 	case frame_attack_up_4:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_up_4_frame);break;
 	case frame_attack_down_1:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_down_1_frame);break;
 	case frame_attack_down_2:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_down_2_frame);break;
 	case frame_combat_idle:
-		my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);break;
+		break;
 	default:
 		{
 			char str[120];
@@ -740,7 +718,7 @@ void add_actor_from_server(char * in_data)
 					}
 		}
 
-	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,cur_frame,
+	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,frame,
 				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
 	
 	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
@@ -780,7 +758,11 @@ void add_actor_from_server(char * in_data)
 		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
 		//Attach meshes
 		CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[(int)shirt].mesh_index);
-		CalModel_Update(actors_list[i]->calmodel,0);
+		if(dead){
+			cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
+			actors_list[i]->stop_animation=1;
+			CalModel_Update(actors_list[i]->calmodel,1000);
+		} else CalModel_Update(actors_list[i]->calmodel,0);
 		actors_list[i]->cur_anim.anim_index=-1;
 		actors_list[i]->IsOnIdle=0;
 	}

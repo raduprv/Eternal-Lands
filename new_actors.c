@@ -761,7 +761,12 @@ void add_enhanced_actor_from_server(char * in_data)
 
 		actors_list[i]->cur_anim.anim_index=-1;
 		actors_list[i]->anim_time=0.0;
-		CalModel_Update(actors_list[i]->calmodel,0);
+		
+		if(dead){
+			cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
+			actors_list[i]->stop_animation=1;
+			CalModel_Update(actors_list[i]->calmodel,1000);
+		} else  CalModel_Update(actors_list[i]->calmodel,0);
 	}
 
 	/* //DEBUG
