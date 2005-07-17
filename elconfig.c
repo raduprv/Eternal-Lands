@@ -529,9 +529,9 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 	our_vars.var[no]->snlen=strlen(our_vars.var[no]->shortname);
 	our_vars.var[no]->saved = 0;
 	our_vars.var[no]->short_desc = malloc(strlen(short_desc)+1);
-	strncpy(our_vars.var[no]->short_desc, short_desc, strlen(short_desc));
+	strcpy(our_vars.var[no]->short_desc, short_desc);
 	our_vars.var[no]->long_desc = malloc(strlen(long_desc)+1);
-	strncpy(our_vars.var[no]->long_desc, long_desc, strlen(long_desc));
+	strcpy(our_vars.var[no]->long_desc, long_desc);
 	our_vars.var[no]->widgets.tab_id = tab_id;
 }
 
@@ -574,16 +574,16 @@ void init_vars()
 #endif //ELC
 	
 	add_var(BOOL,"no_sound","sound",&no_sound,change_var,0,"No sound","Toggle the Audio",AUDIO);
-	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the audio gain level",AUDIO,0,INT_MAX);
-	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music gain level",AUDIO,0,INT_MAX);
+	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0,INT_MAX);
+	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0,INT_MAX);
 
-	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your player from moving by accident when you are sitting.",CONTROLS);
+	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
 
-	add_var(BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle the item window showing when dropping items",CONTROLS);
+	add_var(BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",CONTROLS);
 	add_var(BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
 	add_var(BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
-	add_var(BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable thing to show help text that tells about the function of a button.",HUD);
-	add_var(BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Toggle relocation of the quick bar",HUD);
+	add_var(BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable tooltips.",HUD);
+	add_var(BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
 	add_var(BOOL,"compass_north","comp",&compass_direction_checkbox,change_compass_direction,1,"Compass Direction","Set the compass direction for a static compass",HUD);
 
 	add_var(SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
@@ -595,8 +595,8 @@ void init_vars()
 	/* add_var(STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",MISC); */
 	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps filter","Toggle the caps filter",MISC);
 
-	add_var(STRING,"server_address","sa",server_address,change_string,70,"Server Address","The place we should all connect too",SERVER);
-	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","The place we put our thing in the server",SERVER,10,65536);
+	add_var(STRING,"server_address","sa",server_address,change_string,70,"Server Address","The address of the EL server",SERVER);
+	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,10,65536);
 	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
 	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
 #ifdef ELC
@@ -612,7 +612,7 @@ void init_vars()
 #else
 	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "0 = Old behavior, 1 = new behavior, 2=chat window", CHAT);
 #endif //ELC
-	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0,"Save INI","Save teh options",MISC);
+	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0,"Save INI","Save options when you quit",MISC);
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0,"ATI Card","I use an obsolete ati card, fix me",SPECIALVID);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",SPECIALVID);

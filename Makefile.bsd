@@ -32,7 +32,7 @@ CFLAGS+=-march=i686 -DBSD -DELC
 CFLAGS+=-I${X11BASE}/include `${SDL_CONFIG} --cflags`
 CFLAGS+=`${LIBXML2_CONFIG} --cflags` -I${LOCALBASE}/include
 LDFLAGS+=-L${X11BASE}/lib -lGL `${SDL_CONFIG} --libs` `${LIBXML2_CONFIG} --libs`
-LDFLAGS+=-L${LOCALBASE}/lib -lSDL_net -lopenal -lGLU -lvorbis -lvorbisfile
+LDFLAGS+=-L${LOCALBASE}/lib -lSDL_net -lopenal -lGLU -lvorbis -lvorbisfile -lm
 .if CAL3D
 SRCS+=cal3dwrap.c
 LDFLAGS+=-lcal3d
