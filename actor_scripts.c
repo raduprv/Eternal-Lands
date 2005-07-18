@@ -1361,17 +1361,18 @@ int cal_get_idle_group(actor_types *act,char *name)
 
 struct cal_anim cal_load_idle(actor_types *act, char *str)
 {
-	char fname[255];
 	struct cal_anim res;
-	char temp[255];
+	char temp[255]={0};
 	struct CalCoreAnimation *coreanim;
+	
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,str);
 	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
+	
 	if (coreanim) {
 		CalCoreAnimation_Scale(coreanim,act->scale);
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
-		snprintf(temp,sizeof(temp),"No Anim: %s\n",fname);
+		snprintf(temp,sizeof(temp),"No Anim: %s\n",str);
 		log_error(temp);
 	}
 	
@@ -1384,18 +1385,19 @@ void cal_group_addanim(actor_types *act,int gindex, char *fanim)
 	
 	i=act->idle_group[gindex].count;
 	act->idle_group[gindex].anim[i]=cal_load_idle(act,fanim);
-	LOG_TO_CONSOLE(c_green2,fanim);
+	//LOG_TO_CONSOLE(c_green2,fanim);
 	++act->idle_group[gindex].count;
 }
 
 void parse_idle_group(actor_types *act,char *str)
 {
-	char gname[255];
-	char fname[255];
+	char gname[255]={0};
+	char fname[255]={0};
 	//char temp[255];
 	int gindex;
 	
-	sscanf(str,"%s%s",gname,fname);
+	if(sscanf(str,"%s %s",gname,fname)!=2)return;
+	
 	gindex=cal_get_idle_group(act,gname);
 	cal_group_addanim(act,gindex,fname);
 	//sprintf(temp,"%d",gindex);
@@ -1420,10 +1422,10 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 		    
 			if (xmlStrcasecmp (item->name, "CAL_IDLE_GROUP") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			//act->cal_walk_frame=cal_load_anim(act,str);
+     				//act->cal_walk_frame=cal_load_anim(act,str);
 				//LOG_TO_CONSOLE(c_green2,str);
 				parse_idle_group(act,str);
-						
+				//Not functional!
 			} else if (xmlStrcasecmp (item->name, "CAL_walk") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_walk_frame=cal_load_anim(act,str);

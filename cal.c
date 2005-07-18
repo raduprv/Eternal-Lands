@@ -55,7 +55,7 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 	char temp[255]={0};
 	struct CalCoreAnimation *coreanim;
 
-	if(!sscanf(str,"%s%d",fname,&res.kind)) return res;
+	if(sscanf(str,"%s %d",fname,&res.kind)!=2) return res;
 	
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,fname);
 	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
