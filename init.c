@@ -79,7 +79,7 @@ void load_e3d_list()
 		int id;
 		fscanf(fp,"%s %d",temp,&id);
 		e3dlist[i].fn=(char*)malloc(strlen(temp)+1);
-		strncpy(e3dlist[i].fn,temp,sizeof(e3dlist[i].fn));
+		strncpy(e3dlist[i].fn,temp,strlen(temp)+1);
 		e3dlist[i].id=id;
 	}
 	fclose(fp);
