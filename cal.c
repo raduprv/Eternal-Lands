@@ -250,7 +250,6 @@ void cal_render_actor(actor *act)
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 					glDisable(GL_LIGHTING);
-					glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.99f);
 					
 					if(use_shadow_mapping){
 						glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
@@ -260,11 +259,15 @@ void cal_render_actor(actor *act)
 						ELglActiveTextureARB(GL_TEXTURE0);
 					}
 					
+					glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.5f);
 					glPushMatrix();
 					glScalef(0.99f, 0.99f, 0.99f);
 					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
 					glPopMatrix();
+
+					glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.85f);
 					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+					glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.99f);
 					glPushMatrix();
 					glScalef(1.01f, 1.01f, 1.01f);
 					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
