@@ -6,5 +6,27 @@
     <t_stats>Statistics</t_stats>
     <t_know>Knowledge</t_know>
     <t_qlog>Quest log</t_qlog>
-  <t_local>Local</t_local><t_channel>Channel</t_channel><t_guild>Guild</t_guild><w_note>Notepad</w_note><w_prompt>Prompt</w_prompt><t_main>Main</t_main><b_okay>Okay</b_okay><b_cancel>Cancel</b_cancel><b_new_cat>New Category</b_new_cat><b_rm_cat>Remove Category</b_rm_cat><b_save>Save Notes</b_save><l_nname>Note name</l_nname><l_cursor_coords>Cursor position</l_cursor_coords><t_rules>Rules</t_rules><t_newbie>Newbie Channel</t_newbie><t_help>Help Channel</t_help><t_market>Market Channel</t_market><t_general>General Channel</t_general><t_offtopic>Offtopic Channel</t_offtopic><t_mod>Mod</t_mod><t_personal>PM</t_personal><t_server>Server</t_server><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help><t_help>Help Channel</t_help></titles>
+    <t_local>Local</t_local>
+    <t_channel>Channel</t_channel>
+    <t_guild>Guild</t_guild>
+    <w_note>Notepad</w_note>
+    <w_prompt>Prompt</w_prompt>
+    <t_main>Main</t_main>
+    <b_okay>Okay</b_okay>
+    <b_cancel>Cancel</b_cancel>
+    <b_new_cat>New Category</b_new_cat>
+    <b_rm_cat>Remove Category</b_rm_cat>
+    <b_save>Save Notes</b_save>
+    <l_nname>Note name</l_nname>
+    <l_cursor_coords>Cursor position</l_cursor_coords>
+    <t_rules>Rules</t_rules>
+    <c_newbie>Newbie Channel</c_newbie>
+    <c_help>Help Channel</c_help>
+    <c_market>Market Channel</c_market>
+    <c_general>General Channel</c_general>
+    <c_offtopic>Offtopic Channel</c_offtopic>
+    <c_mod>Mod</c_mod>
+    <c_personal>PM</c_personal>
+    <c_server>Server</c_server>
+  </titles>
 </root>
