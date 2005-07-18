@@ -485,7 +485,7 @@ void test_for_console_command (char *text, int len)
 			else
 				{
 					my_strncp (storage_filter, strstr(text_loc, " ")+1, 128-1);
-					snprintf (text,sizeof(input_text_line.data), "#sto");
+					snprintf (text,input_text_line.size, "#sto");
 					len = 4;
 				}
 		}
