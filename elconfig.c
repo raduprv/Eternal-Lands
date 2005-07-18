@@ -828,7 +828,6 @@ int spinbutton_onkey_handler(widget_list *widget, int mx, int my, Uint32 key, Ui
 {
 	if(widget != NULL) {
 		int i;
-		int ch = key_to_char(unikey);
 		spinbutton *button;
 	
 		if (!(key&ELW_ALT) && !(key&ELW_CTRL)) {

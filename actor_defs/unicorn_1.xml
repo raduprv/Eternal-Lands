@@ -1,4 +1,4 @@
-<actor type="horse">
+<actor type="unicorn 1">
 	<skeleton>./skeletons/horse.csf</skeleton>
 	<skin>./meshes/horses2.bmp</skin>
 	<mesh>./meshes/unicorn1.cmf</mesh>

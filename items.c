@@ -157,7 +157,7 @@ void reset_quantity(int pos)
 			break;
 	}
 
-	sprintf(quantities.quantity[pos].str,"%d",val);
+	snprintf(quantities.quantity[pos].str, sizeof(quantities.quantity[pos].str),"%d",val);
 	quantities.quantity[pos].len=strlen(quantities.quantity[pos].str);
 	quantities.quantity[pos].val=val;
 }
@@ -212,7 +212,7 @@ void drag_item(int item, int storage, int mini)
 	
 #ifdef NEW_CLIENT
 	if(!mini && quantity!=-1){
-		sprintf(str,"%i",quantity);
+		snprintf(str,sizeof(str),"%i",quantity);
 		draw_string_small(mouse_x-25,mouse_y+10,str,1);
 	}
 #endif
@@ -346,7 +346,7 @@ int display_items_handler(window_info *win)
 			glEnd();
 			
 			if(!item_is_weared){
-				sprintf(str,"%i",item_list[i].quantity);
+				snprintf(str,sizeof(str),"%i",item_list[i].quantity);
 				draw_string_small(x_start,y_end-15,str,1);
 			}
 		}

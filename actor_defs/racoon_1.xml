@@ -1,4 +1,4 @@
-<actor type="beaver">
+<actor type="racoon 1">
 	<skin>./meshes/animals7.bmp</skin>
 	<skeleton>./skeletons/rat.csf</skeleton>
         <mesh>./meshes/racoon.cmf</mesh>

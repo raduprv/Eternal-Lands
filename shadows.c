@@ -693,7 +693,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			// write a one to the stencil buffer everywhere we are about to draw
 			glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
 			// this is to always pass a one to the stencil buffer where we draw
-			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+			glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
 			display_shadows();
 

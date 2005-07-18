@@ -1,4 +1,4 @@
-<actor type="beaver">
+<actor type="skunk 1">
 	<skin>./meshes/animals2.bmp</skin>
 	<skeleton>./skeletons/rat.csf</skeleton>
         <mesh>./meshes/skunk.cmf</mesh>

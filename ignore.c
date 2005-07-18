@@ -211,19 +211,19 @@ void list_ignores()
 {
 	int i;
 	Uint8 str[MAX_IGNORES*19];
-
+	
 	if(!ignored_so_far)
 		{
 			LOG_TO_CONSOLE(c_grey1,no_ignores_str);
 			return;
 		}
-	sprintf(str,"%s:\n",ignores_str);
+	snprintf(str,sizeof(str),"%s:\n",ignores_str);
 	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(ignore_list[i].used)
 				{
-					my_strcp(&str[strlen(str)],ignore_list[i].name);
-					my_strcp(&str[strlen(str)],", ");
+					strncat(str, ignore_list[i].name,sizeof(str)-1);
+					strncat(str, ", ",sizeof(str)-1);
 				}
 		}
 

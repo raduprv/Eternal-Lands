@@ -79,7 +79,7 @@ void load_e3d_list()
 		int id;
 		fscanf(fp,"%s %d",temp,&id);
 		e3dlist[i].fn=(char*)malloc(strlen(temp)+1);
-		strcpy(e3dlist[i].fn,temp);
+		strncpy(e3dlist[i].fn,temp,sizeof(e3dlist[i].fn));
 		e3dlist[i].id=id;
 	}
 	fclose(fp);
@@ -133,17 +133,17 @@ void load_knowledge_list()
 	
 	memset(knowledge_list, 0, sizeof(knowledge_list));
 	i=0;
-	sprintf(filename,"languages/%s/knowledge.lst",lang);
+	snprintf(filename,sizeof(filename),"languages/%s/knowledge.lst",lang);
 	if((f=my_fopen(filename,"rb"))==NULL)
 		{
-			strcpy(filename,"languages/en/knowledge.lst");
+			strncpy(filename,"languages/en/knowledge.lst",sizeof(filename));
 			f=my_fopen(filename,"rb");
 		}
 	if(!f)return;
 	while(1)
 		{
 			if(!fgets(strLine, 100, f))break;
-			strcpy(knowledge_list[i].name,strLine);
+			strncpy(knowledge_list[i].name,strLine,sizeof(knowledge_list[i].name));
 			i++;
 		}
 	fclose(f);
@@ -154,8 +154,8 @@ void read_config()
 {
 #ifndef WINDOWS
 	DIR *d = NULL;
-	my_strcp ( configdir, getenv ("HOME") );
-	strcat (configdir, "/.elc/");
+	my_strncp ( configdir, getenv ("HOME") , sizeof(configdir));
+	strncat (configdir, "/.elc/", sizeof(configdir)-1);
 	d = opendir (configdir);
 	if (!d)
 	{
@@ -195,8 +195,8 @@ void read_bin_cfg()
 	char el_cfg[256];
 	int i;
 
-	strcpy(el_cfg, configdir);
-	strcat(el_cfg, "el.cfg");
+	strncpy(el_cfg, configdir, sizeof(el_cfg));
+	strncat(el_cfg, "el.cfg",sizeof(el_cfg)-1);
 	// don't use my_fopen, absence of binary config is not an error
 	f=fopen(el_cfg,"rb");
 	if(!f)return;//no config file, use defaults
@@ -266,7 +266,7 @@ void read_bin_cfg()
 	for(i=0;i<6;i++){
 		if(cfg_mem.quantity[i]){
 			quantities.quantity[i].val=cfg_mem.quantity[i];
-			sprintf(quantities.quantity[i].str, "%d", cfg_mem.quantity[i]);
+			snprintf(quantities.quantity[i].str, sizeof(quantities.quantity[i].str),"%d", cfg_mem.quantity[i]);
 			quantities.quantity[i].len=strlen(quantities.quantity[i].str);
 		}
 	}
@@ -281,8 +281,8 @@ void save_bin_cfg()
 	char el_cfg[256];
 	int i;
 
-	strcpy(el_cfg, configdir);
-	strcat(el_cfg, "el.cfg");
+	strncpy(el_cfg, configdir,sizeof(el_cfg));
+	strncat(el_cfg, "el.cfg",sizeof(el_cfg));
 	f=my_fopen(el_cfg,"wb");
 	if(!f)return;//blah, whatever
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
@@ -591,7 +591,7 @@ void init_stuff()
 	if(SDLNet_Init()<0)
  		{
 			char str[120];
-			sprintf(str,"%s: %s\n",failed_sdl_net_init,SDLNet_GetError());
+			snprintf(str,sizeof(str),"%s: %s\n",failed_sdl_net_init,SDLNet_GetError());
 			log_error(str);
 			SDLNet_Quit();
 			SDL_Quit();
@@ -601,7 +601,7 @@ void init_stuff()
 	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
 		{
  			char str[120];
-			sprintf(str, "%s: %s\n", failed_sdl_timer_init,SDL_GetError());
+			snprintf(str, sizeof(str), "%s: %s\n", failed_sdl_timer_init,SDL_GetError());
 			log_error(str);
 			SDL_Quit();
 		 	exit(1);

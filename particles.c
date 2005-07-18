@@ -536,8 +536,6 @@ void draw_text_particle_sys(particle_sys *system_id)
 				{
 					glPushMatrix();
 					glTranslatef(p->x,p->y,p->z);
-					glScalef((1-p->a*0.4)*7,(1-p->a*0.4)*7,(1-p->a*0.4)*7);
-					glRotatef(p->a*1000.0,0,1,0);
 					glBegin(GL_TRIANGLE_STRIP);
 					glColor4f(p->r,p->g,p->b,p->a);
 
