@@ -185,15 +185,18 @@ void draw_3d_reflection(object3d * object_id)
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
 		glTexCoordPointer(2,GL_FLOAT,0,0);
 		
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
-		glNormalPointer(GL_FLOAT,0,0);
+		if(!object_id->e3d_data->is_ground){
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+			glNormalPointer(GL_FLOAT,0,0);
+		}
 		
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
 		glVertexPointer(3,GL_FLOAT,0,0);
 	} else {
 		glVertexPointer(3,GL_FLOAT,0,array_vertex);
 		glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-		glNormalPointer(GL_FLOAT,0,array_normal);	
+		if(!object_id->e3d_data->is_ground)
+			glNormalPointer(GL_FLOAT,0,array_normal);	
 	}
 	
 	if(have_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);
@@ -344,6 +347,18 @@ void display_3d_reflection()
 
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0.0f,0.0f,1.0f);
+	
+	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+        	if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(objects_list[nobj->pos]->e3d_data->is_ground && nobj->dist<=442){
+			int range=1+(objects_list[nobj->pos]->z_pos+objects_list[nobj->pos]->e3d_data->max_z-water_deepth_offset)/3.0f;
+			
+			if(find_local_reflection(objects_list[nobj->pos]->x_pos, objects_list[nobj->pos]->y_pos, range)!=2) continue;
+       	 		draw_3d_reflection(objects_list[nobj->pos]);
+		}
+	}
+
 	for(i=0;i<no_near_actors;i++) {
 		if(near_actors[i].dist<=100 && !near_actors[i].ghost){ 
 			actor * act=actors_list[near_actors[i].actor];
