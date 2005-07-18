@@ -90,6 +90,15 @@ typedef struct
 	Uint16 x_space, y_space;
 } text_field;
 
+
+typedef struct {
+	void *data;
+	char input_buffer[255];
+	int max;
+	int min;
+	Uint8 type;
+}spinbutton;
+
 // Common widget functions
 
 /*!

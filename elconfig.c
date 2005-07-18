@@ -64,9 +64,11 @@ struct {
 int elconfig_menu_x = 10;
 int elconfig_menu_y = 10;
 int elconfig_menu_x_len = 520;
-int elconfig_menu_y_len = 400;
+int elconfig_menu_y_len = 430;
+
 int compass_direction_checkbox = 1;
 int shadow_map_size_multi = 0;
+float gamma_var = 1;
 
 void change_var(int * var)
 {
@@ -312,6 +314,12 @@ void change_aa(int *pointer, int value) {
 	}
 }
 #endif // ANTI_ALIAS
+
+void change_gamma(float *pointer, float *value)
+{
+	SDL_SetGamma(*value, *value, *value);
+	*pointer = *value;
+}
 
 #ifdef MAP_EDITOR
 
@@ -637,6 +645,7 @@ void init_vars()
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,1,INT_MAX);
+	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",VIDEO,0,10);
 
 #ifdef MAP_EDITOR
 	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
@@ -815,6 +824,57 @@ int display_elconfig_handler(window_info *win)
 	return 1;
 }
 
+int spinbutton_onkey_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	if(widget != NULL) {
+		int i;
+		int ch = key_to_char(unikey);
+		spinbutton *button;
+	
+		if (!(key&ELW_ALT) && !(key&ELW_CTRL)) {
+			for(i = 0; i < our_vars.no; i++) {
+				if(our_vars.var[i]->widgets.widget_id == widget->id) {
+					button = widget->widget_info;
+					switch(button->type) {
+						case SPIN_FLOAT:
+							our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
+						break;
+						case SPIN_INT:
+							our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
+						break;
+					}
+					return 0;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	if(widget != NULL) {
+		int i;
+		spinbutton *button;
+	
+		for(i = 0; i < our_vars.no; i++) {
+			if(our_vars.var[i]->widgets.widget_id == widget->id) {
+				button = widget->widget_info;
+				switch(button->type) {
+					case SPIN_FLOAT:
+						our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
+					break;
+					case SPIN_INT:
+						our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
+					break;
+				}
+				return 0;
+			}
+		}
+	}
+	return 0;
+}
+
 int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32 flags) 
 {
 	int i;
@@ -907,12 +967,16 @@ void elconfig_populate_tabs(void)
 				max = (point)queue_pop(our_vars.var[i]->queue);
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, min, max);
+				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
+				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 			break;
 			case FLOAT:
 				min = (point)queue_pop(our_vars.var[i]->queue);
 				max = (point)queue_pop(our_vars.var[i]->queue);
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, min, max);
+				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
+				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 			break;
 			case STRING:
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);

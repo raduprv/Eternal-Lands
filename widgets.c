@@ -43,14 +43,6 @@ typedef struct {
 }multiselect_button;
 
 typedef struct {
-	void *data;
-	char input_buffer[255];
-	int max;
-	int min;
-	Uint8 type;
-}spinbutton;
-
-typedef struct {
 	int nr_buttons;
 	int selected_button;
 	int max_buttons;
@@ -2039,7 +2031,6 @@ int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
 	spinbutton *button;
 	int i;
 	int i_tmp;
-	//char tmp[255];
 
 	if(widget != NULL && (button = widget->widget_info) != NULL &&  !(key&ELW_ALT) && !(key&ELW_CTRL)) {
 		char ch = key_to_char(unikey);
@@ -2089,21 +2080,22 @@ int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
 						if(i >= 0){
 							button->input_buffer[i] = ch;
 							button->input_buffer[i+1] = '\0';
+							if(atof(button->input_buffer) > button->max) {
+								snprintf(button->input_buffer, 255, "%i", button->max);
+							}
 						}
 					}
 					*(float *)button->data = atof(button->input_buffer);
+					return 1;
 				} else if (ch == SDLK_BACKSPACE) {
 					if(strlen(button->input_buffer) > 0) {
 						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
 					}
 					if(atof(button->input_buffer) >= button->min) {
 						*(float *)button->data = atof(button->input_buffer);
-					}/* else {
-						snprintf(button->input_buffer, 255, "%i", button->min);
-						*(float *)button->data = button->min;
-					}*/
+					}
+					return 1;
 				}
-				return 1;
 			break;
 		}
 	}
@@ -2197,6 +2189,9 @@ int spinbutton_draw(widget_list *widget)
 				char *pointer = strstr(button->input_buffer, ".");
 				int accuracy = (pointer == NULL) ? 0 : strlen(pointer+1);
 				char format[10];
+				if(accuracy > 3) {
+					accuracy = 3;
+				}
 				snprintf(format, 10, "%%.%if", accuracy);
 				snprintf(str, 255, format, *(float *)button->data);
 			}
