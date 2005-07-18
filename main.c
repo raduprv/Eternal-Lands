@@ -130,9 +130,6 @@ int start_rendering()
 	SDL_RemoveTimer(draw_scene_timer);
 	SDL_RemoveTimer(misc_timer);
 	end_particles_list();
-#ifdef CAL3D
-	destroy_cal3d_model();
-#endif
 	/* Destroy our GL context, etc. */
 	destroy_sound();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);

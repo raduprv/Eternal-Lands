@@ -492,10 +492,7 @@ void init_stuff()
 	
 
 	init_gl_extensions();
-#ifdef CAL3D
-	create_cal3d_model();
-	init_cal3d_model();
-#endif
+
 	seed = time (NULL);
 	srand (seed);
 
