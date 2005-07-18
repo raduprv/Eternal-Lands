@@ -268,9 +268,9 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	return i;
 }
 
-void add_near_3d_object(int dist, float radius, int pos)
+void add_near_3d_object(int dist, float radius, int pos, int blended )//Blended objects needs to be last
 {
-	struct near_3d_object *cur, *nearest, *last;
+	struct near_3d_object *cur, *nearest;
      
 	if(no_near_3d_objects >= MAX_NEAR_3D_OBJECTS)
 		return;
@@ -290,23 +290,30 @@ void add_near_3d_object(int dist, float radius, int pos)
 	if(!first_near_3d_object) {
 		first_near_3d_object=cur;
 		return;
-	} else if(first_near_3d_object->dist>dist){
+	} else if(first_near_3d_object->dist>dist && !blended){
 		cur->next=first_near_3d_object;
 		first_near_3d_object=cur;
 
 		return;
 	}
 
-	for(nearest=first_near_3d_object, last=NULL;nearest;nearest=nearest->next){
-		if(nearest->next && nearest->dist<=dist && nearest->next->dist>=dist){
-			cur->next=nearest->next;
-			nearest->next=cur;
-			return;
-		} else if(!nearest->next){
-			nearest->next=cur;
-			return;
+	if(!blended){
+		for(nearest=first_near_3d_object;nearest;nearest=nearest->next){
+			if(nearest->next && ((nearest->dist<=dist && nearest->next->dist>=dist) || objects_list[nearest->pos]->blended)){
+				cur->next=nearest->next;
+				nearest->next=cur;
+				return;
+			} else if(!nearest->next){
+				nearest->next=cur;
+				return;
+			}
 		}
-		last=nearest;
+	} else {
+		//Just add these to the end
+		struct near_3d_object *last;
+		
+		for(nearest=first_near_3d_object, last=NULL; nearest; last=nearest, nearest=nearest->next);
+		last->next=cur;
 	}
 }
 
@@ -354,7 +361,7 @@ int get_near_3d_objects()
 						if(radius<z_len)radius=z_len;
 						//not in the middle of the air
 						if(SphereInFrustum(object_id->x_pos, object_id->y_pos, object_id->z_pos, radius)){
-							add_near_3d_object(dist, radius, l);
+							add_near_3d_object(dist, radius, l,object_id->blended);
 						}
 					}
 				}
@@ -395,7 +402,7 @@ void display_objects()
 		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
 			draw_3d_object(objects_list[nobj->pos]);
 	}
-
+	
 	glDisableClientState(GL_NORMAL_ARRAY);
 
 	glNormal3f(0,0,1);

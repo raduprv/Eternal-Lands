@@ -296,6 +296,10 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 
 void display_3d_reflection()
 {
+	/*
+	 * TODO: Render to texture, then create ripples and other nifty things 
+	 * 	 Fix the bug with reflections showing up when z<water_deepth_offset even if it's not a reflective tile that's beneath it.
+	 */
 	int i;
 	int x,y;
 	double water_clipping_p[4]={0,0,-1,water_deepth_offset};
@@ -311,6 +315,9 @@ void display_3d_reflection()
 	
 	CHECK_GL_ERRORS();
 
+	//glDisable(GL_STENCIL_TEST);
+	//glDisable(GL_DEPTH_TEST);
+	
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
 
@@ -327,8 +334,12 @@ void display_3d_reflection()
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
         	if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
-		else if(!objects_list[nobj->pos]->e3d_data->is_ground && nobj->dist<=442)
-       	 		draw_3d_object(objects_list[nobj->pos]);
+		else if(!objects_list[nobj->pos]->e3d_data->is_ground && nobj->dist<=442){
+			int range=1+(objects_list[nobj->pos]->z_pos+objects_list[nobj->pos]->e3d_data->max_z-water_deepth_offset)/3.0f;
+			
+			if(find_local_reflection(objects_list[nobj->pos]->x_pos, objects_list[nobj->pos]->y_pos, range)!=2) continue;
+       	 		draw_3d_reflection(objects_list[nobj->pos]);
+		}
 	}
 
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -338,6 +349,9 @@ void display_3d_reflection()
 			actor * act=actors_list[near_actors[i].actor];
 
 			if(act){
+				int range=1+(act->z_pos+cal_get_maxz2(act)-water_deepth_offset)/3.0f;
+
+				if(find_local_reflection(act->x_pos, act->y_pos, range)!=2) continue;
 				if(act->is_enhanced_model)
 					draw_enhanced_actor_reflection(act);
 				else 
@@ -352,6 +366,7 @@ void display_3d_reflection()
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glCullFace(GL_BACK);
+	//glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	CHECK_GL_ERRORS();
 }

@@ -454,47 +454,29 @@ void add_enhanced_actor_from_server(char * in_data)
 	//get the current frame
 	switch(frame) {
 	case frame_walk:
-		my_strcp(cur_frame,actors_defs[actor_type].walk_frame);break;
 	case frame_run:
-		my_strcp(cur_frame,actors_defs[actor_type].run_frame);break;
+		break;
 	case frame_die1:
-		my_strcp(cur_frame,actors_defs[actor_type].die1_frame);
 		dead=1;
 		break;
 	case frame_die2:
-		my_strcp(cur_frame,actors_defs[actor_type].die2_frame);
 		dead=1;
 		break;
 	case frame_pain1:
-		my_strcp(cur_frame,actors_defs[actor_type].pain1_frame);break;
 	case frame_pain2:
-		my_strcp(cur_frame,actors_defs[actor_type].pain2_frame);break;
-	case frame_pick:
-		my_strcp(cur_frame,actors_defs[actor_type].pick_frame);break;
 	case frame_drop:
-		my_strcp(cur_frame,actors_defs[actor_type].drop_frame);break;
 	case frame_idle:
-		my_strcp(cur_frame,actors_defs[actor_type].idle_frame);break;
 	case frame_sit_idle:
-		my_strcp(cur_frame,actors_defs[actor_type].idle_sit_frame);break;
 	case frame_harvest:
-		my_strcp(cur_frame,actors_defs[actor_type].harvest_frame);break;
 	case frame_cast:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_cast_frame);break;
 	case frame_attack_up_1:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_up_1_frame);break;
 	case frame_attack_up_2:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_up_2_frame);break;
 	case frame_attack_up_3:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_up_3_frame);break;
 	case frame_attack_up_4:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_up_4_frame);break;
 	case frame_attack_down_1:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_down_1_frame);break;
 	case frame_attack_down_2:
-		my_strcp(cur_frame,actors_defs[actor_type].attack_down_2_frame);break;
 	case frame_combat_idle:
-		my_strcp(cur_frame,actors_defs[actor_type].combat_idle_frame);break;
+		break;
 	default:
 		{
 			char str[120];

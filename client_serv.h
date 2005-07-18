@@ -53,6 +53,11 @@
 #define orchan_male 40
 #define draegoni_female 41
 #define draegoni_male 42
+#define skunk_1 43
+#define racoon_1 44
+#define unicorn_1 45
+#define chimeran_wolf_desert 46
+#define chimeran_wolf_forest 47
 /*! @} */
 
 /*!
