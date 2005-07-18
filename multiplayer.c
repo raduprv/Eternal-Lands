@@ -529,8 +529,11 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				rain_sound=0;//kill local sounds also kills the rain sound
 				weather_light_offset=0;
 				rain_light_offset=0;
-				if ( get_show_window (map_root_win) )
+				if ( get_show_window (map_root_win) ){
+					hide_window(map_root_win);
 					switch_from_game_map ();
+					show_window(game_root_win);
+				}
 				load_map_marks();//Load the map marks
 			}
 			break;

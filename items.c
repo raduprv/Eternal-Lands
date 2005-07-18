@@ -503,8 +503,16 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(ctrl_on){
 				str[0]=DROP_ITEM;
 				str[1]=item_list[pos].pos;
+#ifdef NEW_CLIENT
+				if(item_list[pos].is_stackable)
+					*((Uint32 *)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
+				else 
+					*((Uint32 *)(str+2))=SDL_SwapLE32(36);//Drop all
+				my_tcp_send(my_socket, str, 6);
+#else
 				*((Uint16 *)(str+2))=SDL_SwapLE16((short)item_list[pos].quantity);
 				my_tcp_send(my_socket, str, 4);
+#endif
 			} else if(item_action_mode==ACTION_LOOK) {
 				click_time=cur_time;
 				str[0]=LOOK_AT_INVENTORY_ITEM;

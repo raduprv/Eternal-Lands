@@ -68,7 +68,6 @@ int elconfig_menu_y_len = 430;
 
 int compass_direction_checkbox = 1;
 int shadow_map_size_multi = 0;
-float gamma_var = 1;
 
 void change_var(int * var)
 {
@@ -317,8 +316,8 @@ void change_aa(int *pointer, int value) {
 
 void change_gamma(float *pointer, float *value)
 {
-	SDL_SetGamma(*value, *value, *value);
 	*pointer = *value;
+	if(video_mode_set)SDL_SetGamma(*value, *value, *value);
 }
 
 #ifdef MAP_EDITOR

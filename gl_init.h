@@ -15,6 +15,7 @@ extern int window_height; /*!< height of the window */
 extern int bpp; /*!< color depth to use */
 extern int video_mode; /*!< currently selected video mode */
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
+extern float gamma_var; /*!< The current gamma value */
 
 /*! \name OpenGL extensions variables 
  * @{ */
