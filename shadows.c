@@ -642,6 +642,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 			display_objects();
 			display_actors();  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
+			display_blended_objects();
 
 			ELglActiveTextureARB(shadow_unit);
 			glDisable(depth_texture_target);
@@ -732,5 +733,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 
 			display_3d_non_ground_objects();
 			display_actors();
+			display_blended_objects();
 		}
 }

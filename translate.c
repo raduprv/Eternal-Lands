@@ -359,6 +359,7 @@ char	win_notepad[20],
 	win_prompt[10],
 	tab_help[10],
 	tab_encyclopedia[20],
+	tab_skills[20],
 	tab_rules[20],
 	tab_statistics[20],
 	tab_knowledge[20],
@@ -930,7 +931,8 @@ void init_titles ()
 	add_xml_identifier (titles_str, "w_prompt", win_prompt, "Prompt", sizeof(win_prompt));
 	add_xml_identifier (titles_str, "t_help", tab_help, "Help", sizeof(tab_help));
 	add_xml_identifier (titles_str, "t_ency", tab_encyclopedia, "Encyclopedia", sizeof(tab_encyclopedia));
-	add_xml_identifier (titles_str, "t_rules", tab_rules, "Rules", sizeof(tab_encyclopedia));
+	add_xml_identifier (titles_str, "t_skills", tab_skills, "Skills", sizeof(tab_skills));
+	add_xml_identifier (titles_str, "t_rules", tab_rules, "Rules", sizeof(tab_rules));
 	add_xml_identifier (titles_str, "t_stats", tab_statistics, "Statistics", sizeof(tab_statistics));
 	add_xml_identifier (titles_str, "t_know", tab_knowledge, "Knowledge", sizeof(tab_knowledge));
 	add_xml_identifier (titles_str, "t_qlog", tab_questlog, "Quest log", sizeof(tab_questlog));

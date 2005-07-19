@@ -12,6 +12,7 @@
 /*! @{ */
 #define MAX_OBJ_3D 15000
 #define MAX_NEAR_3D_OBJECTS 1000
+#define MAX_NEAR_BLENDED_3D_OBJECTS 25
 
 //#define MAX_E3D_CACHE 1000 /* unused */
 /*! @} */

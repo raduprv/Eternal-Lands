@@ -9,6 +9,10 @@ struct near_3d_object * first_near_3d_object=NULL;
 int no_near_3d_objects=0;
 int highest_obj_3d= 0;
 
+struct near_3d_object near_blended_3d_objects[MAX_NEAR_BLENDED_3D_OBJECTS];
+struct near_3d_object * first_near_blended_3d_object=NULL;
+int no_near_blended_3d_objects=0;
+
 int regenerate_near_objects=1;
 
 e3d_object * load_e3d(char *file_name);
@@ -63,11 +67,6 @@ void draw_3d_object(object3d * object_id)
 	clouds_uv=object_id->clouds_uv;
 
 	//debug
-
-	if(object_id->blended) {
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE,GL_ONE);
-	}
 
 	if(object_id->self_lit && (!is_day || dungeon)) {
 		glDisable(GL_LIGHTING);
@@ -160,7 +159,6 @@ void draw_3d_object(object3d * object_id)
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
 
-	if(object_id->blended)glDisable(GL_BLEND);
 	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
 	if(is_transparent) {
 		glDisable(GL_ALPHA_TEST);
@@ -268,52 +266,56 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	return i;
 }
 
-void add_near_3d_object(int dist, float radius, int pos, int blended )//Blended objects needs to be last
+void add_near_3d_object(int dist, float radius, int pos, int blended )//Blended objects needs to be in their own list
 {
-	struct near_3d_object *cur, *nearest;
+	struct near_3d_object *cur, *nearest, *list, **first;
+	int * no;
      
-	if(no_near_3d_objects >= MAX_NEAR_3D_OBJECTS)
-		return;
+	if(!blended){
+		if(no_near_3d_objects >= MAX_NEAR_3D_OBJECTS)
+			return;
+		list=near_3d_objects;
+		no=&no_near_3d_objects;
+		first=&first_near_3d_object;
+	} else {
+		if(no_near_blended_3d_objects >= MAX_NEAR_BLENDED_3D_OBJECTS)
+			return;
+		list=near_blended_3d_objects;
+		no=&no_near_blended_3d_objects;
+		first=&first_near_blended_3d_object;
+	}
      
-	cur=&near_3d_objects[no_near_3d_objects];
+	cur=&list[*no];
 	cur->pos=pos;
 	cur->dist=dist;
 	cur->radius=radius;
 	cur->next=NULL;
-	no_near_3d_objects++;
+	(*no)++;
 
-	near_3d_objects[no_near_3d_objects].dist=0;
-	near_3d_objects[no_near_3d_objects].radius=0;
-	near_3d_objects[no_near_3d_objects].pos=0;
-	near_3d_objects[no_near_3d_objects].next=NULL;
+	list[*no].dist=0;
+	list[*no].radius=0;
+	list[*no].pos=0;
+	list[*no].next=NULL;
 
-	if(!first_near_3d_object) {
-		first_near_3d_object=cur;
+	if(!*first) {
+		*first=cur;
 		return;
-	} else if(first_near_3d_object->dist>dist && !blended){
-		cur->next=first_near_3d_object;
-		first_near_3d_object=cur;
+	} else if((*first)->dist>dist){
+		cur->next=*first;
+		*first=cur;
 
 		return;
 	}
 
-	if(!blended){
-		for(nearest=first_near_3d_object;nearest;nearest=nearest->next){
-			if(nearest->next && ((nearest->dist<=dist && nearest->next->dist>=dist) || objects_list[nearest->pos]->blended)){
-				cur->next=nearest->next;
-				nearest->next=cur;
-				return;
-			} else if(!nearest->next){
-				nearest->next=cur;
-				return;
-			}
+	for(nearest=*first;nearest;nearest=nearest->next){
+		if(nearest->next && nearest->dist<=dist && nearest->next->dist>=dist){
+			cur->next=nearest->next;
+			nearest->next=cur;
+			return;
+		} else if(!nearest->next){
+			nearest->next=cur;
+			return;
 		}
-	} else {
-		//Just add these to the end
-		struct near_3d_object *last;
-		
-		for(nearest=first_near_3d_object, last=NULL; nearest; last=nearest, nearest=nearest->next);
-		last->next=cur;
 	}
 }
 
@@ -327,7 +329,9 @@ int get_near_3d_objects()
      if(!xxx)return 0;
      
      no_near_3d_objects=0;
+     no_near_blended_3d_objects=0;
      first_near_3d_object=NULL;
+     first_near_blended_3d_object=NULL;
      
      x=-cx;
      y=-cy;
@@ -418,6 +422,66 @@ void display_objects()
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	if(have_multitexture && clouds_shadows)
+		{
+			//disable the second texture unit
+			ELglActiveTextureARB(detail_unit);
+			glDisable(GL_TEXTURE_2D);
+			ELglActiveTextureARB(base_unit);
+		}
+	CHECK_GL_ERRORS();
+}
+
+void display_blended_objects()
+{
+	struct near_3d_object * nobj;
+	
+	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+	
+	if(!no_near_blended_3d_objects)return;
+	
+	CHECK_GL_ERRORS();
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE,GL_ONE);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+			
+	if(have_multitexture && clouds_shadows){
+		//bind the detail texture
+		ELglActiveTextureARB(detail_unit);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		ELglActiveTextureARB(base_unit);
+		glEnable(GL_TEXTURE_2D);
+	}
+
+	CHECK_GL_ERRORS();
+
+	for(nobj=first_near_blended_3d_object;nobj;nobj=nobj->next){
+		if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
+			draw_3d_object(objects_list[nobj->pos]);
+	}
+	
+	glDisableClientState(GL_NORMAL_ARRAY);
+
+	glNormal3f(0,0,1);
+	
+	for(nobj=first_near_blended_3d_object;nobj;nobj=nobj->next){
+		if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(objects_list[nobj->pos]->e3d_data->is_ground)
+			draw_3d_object(objects_list[nobj->pos]);
+	}
+	
+	CHECK_GL_ERRORS();
+	glDisable(GL_CULL_FACE);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisable(GL_BLEND);
 	if(have_multitexture && clouds_shadows)
 		{
 			//disable the second texture unit

@@ -74,6 +74,16 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
  */
 void display_objects();
 
+/*!
+ * \ingroup	display_3d
+ * \brief	Displays the blended 3d objects within range
+ *
+ * 		Cycles through the blended objects list and displays the blended 3d objects within visible range.
+ * 		
+ * \callgraph
+ */
+void display_blended_objects();
+
 /*! 
  * \ingroup	display_3d
  * \brief	Clears the clouds cache 

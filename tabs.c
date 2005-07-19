@@ -65,6 +65,9 @@ void display_tab_help ()
 
 		help_win = tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0);
 		fill_help_win ();
+
+                skills_win = tab_add (tab_help_win, tab_help_collection_id, tab_skills, 0, 0);
+                fill_skills_win ();
 		
 		encyclopedia_win = tab_add (tab_help_win, tab_help_collection_id, tab_encyclopedia, 0, 0);
 		fill_encyclopedia_win ();

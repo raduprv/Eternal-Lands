@@ -661,6 +661,7 @@ int display_game_handler (window_info *win)
 			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
 			display_objects ();
 			display_actors ();
+			display_blended_objects();
 		}
 #ifdef	USE_FOG
 		glDisable (GL_FOG);

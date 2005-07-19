@@ -130,6 +130,7 @@ typedef int point;
 #include "loginwin.h"
 #include "openingwin.h"
 #include "books.h"
+#include "skills.h"
 #include "chat.h"
 #include "bags.h"
 #ifdef NEW_CLIENT
