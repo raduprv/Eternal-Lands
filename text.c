@@ -944,11 +944,11 @@ void rewrap_messages(int text_width)
 		nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, text_width, NULL);
 		if (chat_win >= 0) update_chat_window (nlines, display_text_buffer[imsg].chan_idx);
 		ntot += nlines;
-		if (imsg == last_message) break;
+		if (imsg == last_message || last_message < 0) break;
 		if (++imsg > DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
 	}
 	if (console_root_win >= 0) update_console_win (ntot - total_nr_lines);
 	total_nr_lines = ntot;
 	current_text_width = text_width;
 }
-	
+
