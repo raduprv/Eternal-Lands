@@ -132,7 +132,7 @@ void draw_enhanced_actor(actor * actor_id)
 	bind_texture_id(actor_id->texture_id);
 	cur_frame=actor_id->tmp.cur_frame;
 
-	if (actors_defs[actor_id->actor_type].coremodel!=NULL){
+	if (actor_id->calmodel!=NULL){
 		healtbar_z=cal_get_maxz(actor_id)+0.2;
 	}
 	
@@ -157,7 +157,7 @@ void draw_enhanced_actor(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if (actors_defs[actor_id->actor_type].coremodel!=NULL) {
+	if (actor_id->calmodel!=NULL) {
 		cal_render_actor(actor_id);
 	} 
 
@@ -750,7 +750,7 @@ void add_enhanced_actor_from_server(char * in_data)
 				CalModel_Update(actors_list[i]->calmodel,1000);
 			} else  CalModel_Update(actors_list[i]->calmodel,0);
 		}
-	}
+	} else actors_list[i]->calmodel=NULL;
 
 	/* //DEBUG
 	if (actors_list[i]->actor_id==yourself) {
@@ -798,25 +798,26 @@ actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short
 	
 	strncpy(a->actor_name,"Player",sizeof(a->actor_name));
 	
-	if (actors_defs[actor_type].coremodel!=NULL) 
+	if (actors_defs[actor_type].coremodel!=NULL) {
 		a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
 
-	if (actors_defs[actor_type].coremodel!=NULL) {
-		//Setup cal3d model
-		//a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
-		//Attach meshes
-		CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].head[head].mesh_index);
-		CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].shirt[shirt].mesh_index);
-		CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].legs[pants].mesh_index);
+		if (a->calmodel!=NULL) {
+			//Setup cal3d model
+			//a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+			//Attach meshes
+			CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].head[head].mesh_index);
+			CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].shirt[shirt].mesh_index);
+			CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].legs[pants].mesh_index);
 
-		a->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[HELMET_NONE].mesh_index;
-		a->body_parts->cape_meshindex=actors_defs[actor_type].cape[CAPE_NONE].mesh_index;
-		a->body_parts->shield_meshindex=actors_defs[actor_type].shield[SHIELD_NONE].mesh_index;
+			a->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[HELMET_NONE].mesh_index;
+			a->body_parts->cape_meshindex=actors_defs[actor_type].cape[CAPE_NONE].mesh_index;
+			a->body_parts->shield_meshindex=actors_defs[actor_type].shield[SHIELD_NONE].mesh_index;
 
-		a->cur_anim.anim_index=-1;
-		a->anim_time=0.0;
-		CalModel_Update(a->calmodel,0);
-	}
+			a->cur_anim.anim_index=-1;
+			a->anim_time=0.0;
+			CalModel_Update(a->calmodel,0);
+		}
+	} else a->calmodel=NULL;
 	
 	UNLOCK_ACTORS_LISTS();  //unlock it
 

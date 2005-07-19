@@ -66,7 +66,7 @@ void draw_actor_reflection(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if (actors_defs[actor_id->actor_type].coremodel!=NULL) cal_render_actor(actor_id);
+	if (actor_id->calmodel!=NULL) cal_render_actor(actor_id);
 
 	glPopMatrix();
 	CHECK_GL_ERRORS();
@@ -109,7 +109,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if (actors_defs[actor_id->actor_type].coremodel!=NULL) {
+	if (actor_id->calmodel!=NULL) {
 		cal_render_actor(actor_id);
 	}
 

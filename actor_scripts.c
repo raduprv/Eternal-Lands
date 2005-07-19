@@ -261,7 +261,7 @@ void cal_actor_set_random_idle(int id)
 	int random_anim;
 	int random_anim_index;
 	
-	if (actors_defs[actors_list[id]->actor_type].coremodel==NULL) return;
+	if (actors_list[id]->calmodel==NULL) return;
 	//LOG_TO_CONSOLE(c_green2,"Randomizing");
 	//if (actors_list[id]->cur_anim.anim_index==anim.anim_index) return;
 	srand( (unsigned)time( NULL ) );
@@ -409,7 +409,7 @@ void animate_actors()
 			}
 			
 			if(actors_list[i]->tmp.have_tmp) {
-				if (actors_defs[actors_list[i]->actor_type].coremodel!=NULL){
+				if (actors_list[i]->calmodel!=NULL){
 					actors_list[i]->anim_time=actors_list[i]->anim_time+(cur_time-last_update)/1000.0;
 					CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
 				}
@@ -438,7 +438,7 @@ void move_to_next_frame()
 	LOCK_ACTORS_LISTS();
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]!=0) {
-			if (actors_defs[actors_list[i]->actor_type].coremodel!=NULL) {
+			if (actors_list[i]->calmodel!=NULL) {
 				if ((actors_list[i]->stop_animation==1)&&(actors_list[i]->anim_time>=actors_list[i]->cur_anim.duration)){
 					actors_list[i]->busy=0;
 				}
@@ -808,7 +808,7 @@ void destroy_actor(int actor_id)
 		if(actors_list[i])//The timer thread doesn't free memory
 			if(actors_list[i]->actor_id==actor_id){
 				LOCK_ACTORS_LISTS();
-				if(actors_defs[actors_list[i]->actor_type].coremodel!=NULL) 
+				if(actors_list[i]->calmodel!=NULL) 
 					CalModel_Delete(actors_list[i]->calmodel);
 				if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
 				if(actors_list[i]->is_enhanced_model){
@@ -839,7 +839,7 @@ void destroy_all_actors()
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]){
-			if(actors_defs[actors_list[i]->actor_type].coremodel!=NULL)
+			if(actors_list[i]->calmodel!=NULL)
 				CalModel_Delete(actors_list[i]->calmodel);
 			if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
 			if(actors_list[i]->is_enhanced_model){

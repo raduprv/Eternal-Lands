@@ -7,7 +7,7 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 	struct CalMixer *mixer;
 	int i;
 	
-	if (actors_defs[actors_list[id]->actor_type].coremodel==NULL) return;
+	if (actors_list[id]->calmodel==NULL) return;
 
 	if (actors_list[id]->cur_anim.anim_index==anim.anim_index) return;
 
@@ -178,10 +178,6 @@ void cal_render_actor(actor *act)
 	int glow=-1;
 
 	if(act->calmodel==NULL) {
-		char str[100];
-
-		snprintf(str, sizeof(str), "We tried rendering an actor->calmodel==NULL!\n");
-		log_error(str);
 		return;//Wtf!?
 	}
 	skel=CalModel_GetSkeleton(act->calmodel);

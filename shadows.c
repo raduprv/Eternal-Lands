@@ -324,7 +324,7 @@ void draw_actor_shadow(actor * actor_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if (actors_defs[actor_id->actor_type].coremodel!=NULL) cal_render_actor(actor_id);
+	if (actor_id->calmodel!=NULL) cal_render_actor(actor_id);
 
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();

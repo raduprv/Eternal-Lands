@@ -286,7 +286,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						//draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
 						strcpy(temp,actor_id->actor_name);
 #ifdef	DEBUG
-						if (actors_defs[actor_id->actor_type].coremodel!=NULL) strcat(temp," <CAL>");
+						if (actor_id->calmodel!=NULL) strcat(temp," <CAL>");
 #endif	//DEBUG
 						DRAW_INGAME_SMALL(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),temp,1);
 					}
@@ -422,8 +422,9 @@ float cal_get_maxz2(actor *act)
 	float maxz;
 	int i;
 
-	if(!act)return 0;
+	if(!act||!act->calmodel)return 0;
 	skel=CalModel_GetSkeleton(act->calmodel);
+	if(!skel)return 0;
 	nrPoints = CalSkeleton_GetBonePoints(skel,&points[0][0]);
 	maxz=points[0][2];
 	for (i=1;i<nrPoints;++i) if (maxz<points[i][2]) maxz=points[i][2];
@@ -448,7 +449,7 @@ void draw_actor(actor * actor_id)
 	//now, go and find the current frame
 	//i=get_frame_number(actor_id->model_data, actor_id->tmp.cur_frame);
 	//if(i >= 0)healtbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
-	if (actors_defs[actor_id->actor_type].coremodel!=NULL){
+	if (actor_id->calmodel!=NULL){
 		healtbar_z=cal_get_maxz2(actor_id)+0.2;
 	}
 
@@ -471,7 +472,7 @@ void draw_actor(actor * actor_id)
 	//glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 
-	if (actors_defs[actor_id->actor_type].coremodel!=NULL) {
+	if (actor_id->calmodel!=NULL) {
 		glPushMatrix();
 		z_rot+=180;//test
 		glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
@@ -768,7 +769,7 @@ void add_actor_from_server(char * in_data)
 			actors_list[i]->cur_anim.anim_index=-1;
 			actors_list[i]->IsOnIdle=0;
 		}
-	}
+	} else actors_list[i]->calmodel=NULL;
 
 	UNLOCK_ACTORS_LISTS();	//unlock it	
 #ifdef EXTRA_DEBUG
