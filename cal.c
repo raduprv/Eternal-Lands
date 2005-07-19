@@ -177,6 +177,13 @@ void cal_render_actor(actor *act)
 	//char str[255];
 	int glow=-1;
 
+	if(act->calmodel==NULL) {
+		char str[100];
+
+		snprintf(str, sizeof(str), "We tried rendering an actor->calmodel==NULL!\n");
+		log_error(str);
+		return;//Wtf!?
+	}
 	skel=CalModel_GetSkeleton(act->calmodel);
 
 	//glDisable(GL_TEXTURE_2D);
