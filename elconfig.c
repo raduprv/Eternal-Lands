@@ -294,8 +294,8 @@ void change_dir_name (char *var, const char *str, int len)
 }
 
 #ifdef ANTI_ALIAS
-void change_aa(int *pointer, int value) {
-	anti_alias = !anti_alias;
+void change_aa(int *pointer) {
+	change_var(pointer);
 	if (anti_alias) {
 		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);
 		glHint(GL_LINE_SMOOTH_HINT,    GL_NICEST);
