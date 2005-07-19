@@ -31,7 +31,7 @@ void build_glow_color_table()
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos, float y_pos,
+int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 					   float z_pos, float z_rot, int actor_id)
 {
 	int texture_id;
@@ -83,7 +83,6 @@ int add_enhanced_actor(enhanced_actor *this_actor,char * frame_name,float x_pos,
 	for(k=0; k<MAX_CMD_QUEUE; k++)	our_actor->que[k]=nothing;
 
 //	our_actor->model_data=0;
-	my_strcp(our_actor->cur_frame,frame_name);
 	our_actor->stand_idle=0;
 	our_actor->sit_idle=0;
 	our_actor->body_parts=this_actor;
@@ -127,10 +126,8 @@ void draw_enhanced_actor(actor * actor_id)
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	//int texture_id;
-	char *cur_frame;
 	float healtbar_z=0;
 	bind_texture_id(actor_id->texture_id);
-	cur_frame=actor_id->tmp.cur_frame;
 
 	if (actor_id->calmodel!=NULL){
 		healtbar_z=cal_get_maxz(actor_id)+0.2;
@@ -192,7 +189,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 																	
 								}
 								CalModel_DetachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].mesh_index);
-								actors_list[i]->body_parts->weapon_fn[0]=0;
 								actors_list[i]->body_parts->weapon_tex[0]=0;
 								actors_list[i]->cur_weapon = WEAPON_NONE;
 								return;
@@ -201,7 +197,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 						if(which_part==KIND_OF_SHIELD)
 							{
 							    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->shield_meshindex);
-								actors_list[i]->body_parts->shield_fn[0]=0;
 								actors_list[i]->body_parts->shield_tex[0]=0;
 								actors_list[i]->cur_shield = SHIELD_NONE;
 								return;
@@ -210,7 +205,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 						if(which_part==KIND_OF_CAPE)
 							{
 							    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->cape_meshindex);
-								actors_list[i]->body_parts->cape_fn[0]=0;
 								actors_list[i]->body_parts->cape_tex[0]=0;
 								return;
 							}
@@ -218,7 +212,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 						if(which_part==KIND_OF_HELMET)
 							{
 					     		    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->helmet_meshindex);
-								actors_list[i]->body_parts->helmet_fn[0]=0;
 								actors_list[i]->body_parts->helmet_tex[0]=0;
 								return;
 							}
@@ -285,7 +278,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->weapon_tex, playerpath, guildpath);
 #endif
-								my_strcp(actors_list[i]->body_parts->weapon_fn,actors_defs[actors_list[i]->actor_type].weapon[which_id].model_name);
 								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index);
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
@@ -301,7 +293,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->shield_tex, playerpath, guildpath);
 #endif
-								my_strcp(actors_list[i]->body_parts->shield_fn,actors_defs[actors_list[i]->actor_type].shield[which_id].model_name);
 								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index);
                                 actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -316,7 +307,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->cape_tex, playerpath, guildpath);
 #endif
-								my_strcp(actors_list[i]->body_parts->cape_fn,actors_defs[actors_list[i]->actor_type].cape[which_id].model_name);
 								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index);
 								actors_list[i]->body_parts->cape_meshindex=actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -330,7 +320,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->helmet_tex, playerpath, guildpath);
 #endif
-								my_strcp(actors_list[i]->body_parts->helmet_fn,actors_defs[actors_list[i]->actor_type].helmet[which_id].model_name);
 								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index);
 								actors_list[i]->body_parts->helmet_meshindex=actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -346,7 +335,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								custom_path(actors_list[i]->body_parts->arms_tex, playerpath, guildpath);
 								custom_path(actors_list[i]->body_parts->torso_tex, playerpath, guildpath);
 #endif
-								my_strcp(actors_list[i]->body_parts->torso_fn,actors_defs[actors_list[i]->actor_type].shirt[which_id].model_name);
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								return;
@@ -357,7 +345,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->pants_tex, playerpath, guildpath);
 #endif
-								my_strcp(actors_list[i]->body_parts->legs_fn,actors_defs[actors_list[i]->actor_type].legs[which_id].model_name);
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								return;
@@ -369,6 +356,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->boots_tex, playerpath, guildpath);
 #endif
+								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								return;
 							}
@@ -406,8 +394,6 @@ void add_enhanced_actor_from_server(char * in_data)
 	unsigned char playerpath[256], guildpath[256];
 	Uint32 uniq_id, guild_id; // - Post ported.... We'll come up with something later...
 #endif
-
-	char cur_frame[20];
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
 
 #ifdef EXTRA_DEBUG
@@ -588,7 +574,6 @@ void add_enhanced_actor_from_server(char * in_data)
 	//get the torso
 	my_strncp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name,sizeof(this_actor->arms_tex));
 	my_strncp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name,sizeof(this_actor->torso_tex));
-	my_strncp(this_actor->torso_fn,actors_defs[actor_type].shirt[shirt].model_name,sizeof(this_actor->torso_fn));
 	//skin
 	my_strncp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name,sizeof(this_actor->hands_tex));
 	my_strncp(this_actor->hands_tex_save,actors_defs[actor_type].skin[skin].hands_name,sizeof(this_actor->hands_tex_save));
@@ -599,13 +584,11 @@ void add_enhanced_actor_from_server(char * in_data)
 	my_strncp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name,sizeof(this_actor->boots_tex));
 	//legs
 	my_strncp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name,sizeof(this_actor->pants_tex));
-	my_strncp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name,sizeof(this_actor->legs_fn));
 
 #ifdef CUSTOM_LOOK
 	//torso
 	custom_path(this_actor->arms_tex, playerpath, guildpath);
 	custom_path(this_actor->torso_tex, playerpath, guildpath);
-	custom_path(this_actor->torso_fn, playerpath, guildpath);
 	//skin
 	custom_path(this_actor->hands_tex, playerpath, guildpath);
 	custom_path(this_actor->hands_tex_save, playerpath, guildpath);
@@ -616,14 +599,12 @@ void add_enhanced_actor_from_server(char * in_data)
 	custom_path(this_actor->boots_tex, playerpath, guildpath);
 	//legs
 	custom_path(this_actor->pants_tex, playerpath, guildpath);
-	custom_path(this_actor->legs_fn, playerpath, guildpath);
 #endif
 
 	//cape
 	if(cape!=CAPE_NONE)
 		{
 			my_strncp(this_actor->cape_tex,actors_defs[actor_type].cape[cape].skin_name,sizeof(this_actor->cape_tex));
-			my_strncp(this_actor->cape_fn,actors_defs[actor_type].cape[cape].model_name,sizeof(this_actor->cape_fn));
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->cape_tex, playerpath, guildpath);
 #endif
@@ -631,16 +612,11 @@ void add_enhanced_actor_from_server(char * in_data)
 	else
 		{
 			my_strncp(this_actor->cape_tex,"",sizeof(this_actor->cape_tex));
-			my_strncp(this_actor->cape_fn,"",sizeof(this_actor->cape_fn));
 		}
-	//head
-	my_strncp(this_actor->head_fn,actors_defs[actor_type].head[head].model_name,sizeof(this_actor->head_fn));
-    
 	//shield
 	if(shield!=SHIELD_NONE)
 		{
 			my_strncp(this_actor->shield_tex,actors_defs[actor_type].shield[shield].skin_name,sizeof(this_actor->shield_tex));
-			my_strncp(this_actor->shield_fn,actors_defs[actor_type].shield[shield].model_name,sizeof(this_actor->shield_fn));
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->shield_tex, playerpath, guildpath);
 #endif
@@ -648,14 +624,12 @@ void add_enhanced_actor_from_server(char * in_data)
 	else
 		{
 			my_strncp(this_actor->shield_tex,"",sizeof(this_actor->shield_tex));
-			my_strncp(this_actor->shield_fn,"",sizeof(this_actor->shield_fn));
 		}
 
 	my_strncp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->weapon_tex));
 #ifdef CUSTOM_LOOK
 	custom_path(this_actor->weapon_tex, playerpath, guildpath);
 #endif
-	my_strncp(this_actor->weapon_fn,actors_defs[actor_type].weapon[weapon].model_name,sizeof(this_actor->weapon_fn));
 	this_actor->weapon_glow=actors_defs[actor_type].weapon[weapon].glow;
 	if(weapon == GLOVE_FUR || weapon == GLOVE_LEATHER){
 		my_strncp(this_actor->hands_tex, actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->hands_tex));
@@ -671,15 +645,13 @@ void add_enhanced_actor_from_server(char * in_data)
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->helmet_tex, playerpath, guildpath);
 #endif
-			my_strncp(this_actor->helmet_fn,actors_defs[actor_type].helmet[helmet].model_name,sizeof(this_actor->helmet_fn));
 		}
 	else
 		{
 			my_strncp(this_actor->helmet_tex,"",sizeof(this_actor->helmet_tex));
-			my_strncp(this_actor->helmet_fn,"",sizeof(this_actor->helmet_fn));
 		}
 
-	i=add_enhanced_actor(this_actor,cur_frame,f_x_pos,f_y_pos,f_z_pos,f_z_rot,actor_id);
+	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,f_z_pos,f_z_rot,actor_id);
 	
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -775,16 +747,13 @@ actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short
 //get the torso         
 	my_strncp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name,sizeof(this_actor->arms_tex));
 	my_strncp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name,sizeof(this_actor->torso_tex));
-	my_strncp(this_actor->torso_fn,actors_defs[actor_type].shirt[shirt].model_name,sizeof(this_actor->torso_fn));
 	my_strncp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name,sizeof(this_actor->hands_tex));
 	my_strncp(this_actor->head_tex,actors_defs[actor_type].skin[skin].head_name,sizeof(this_actor->head_tex));
 	my_strncp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name,sizeof(this_actor->hair_tex));
 	my_strncp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name,sizeof(this_actor->boots_tex));
 	my_strncp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name,sizeof(this_actor->pants_tex));
-	my_strncp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name,sizeof(this_actor->legs_fn));
-	my_strncp(this_actor->head_fn,actors_defs[actor_type].head[head].model_name,sizeof(this_actor->head_fn));
 
-	a=actors_list[add_enhanced_actor(this_actor, actors_defs[actor_type].idle_frame, x*0.5f, y*0.5f, 0.00000001f, z_rot, 0)];
+	a=actors_list[add_enhanced_actor(this_actor, x*0.5f, y*0.5f, 0.00000001f, z_rot, 0)];
 
 	a->x_tile_pos=x;
 	a->y_tile_pos=y;

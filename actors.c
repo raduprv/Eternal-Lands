@@ -649,7 +649,7 @@ void add_actor_from_server(char * in_data)
 	y_pos=SDL_SwapLE16(*((short *)(in_data+4)));
 	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
-	actor_type=SDL_SwapLE16(*((short *)(in_data+10)));
+	actor_type=*(in_data+10);
 	remapable=*(in_data+11);
 	skin=*(in_data+12);
 	hair=*(in_data+13);

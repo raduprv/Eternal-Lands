@@ -264,9 +264,6 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 {
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	char *cur_frame;
-
-	cur_frame=actor_id->tmp.cur_frame;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	if(!use_shadow_mapping)glMultMatrixf(proj_on_ground);
@@ -297,10 +294,6 @@ void draw_actor_shadow(actor * actor_id)
 {
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	char *cur_frame;
-
-	//now, go and find the current frame
-	cur_frame=actor_id->tmp.cur_frame;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	if(!use_shadow_mapping)glMultMatrixf(proj_on_ground);
@@ -340,7 +333,7 @@ void display_actors_shadow()
 	for(i=0;i<no_near_actors;i++){
 		if(!near_actors[i].ghost){
 			actor *act=actors_list[near_actors[i].actor];
-			
+		
 			if(act){
 				if(act->is_enhanced_model)
 					draw_enhanced_actor_shadow(act);
@@ -692,9 +685,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 
 			glEnable(GL_STENCIL_TEST);
 			// write a one to the stencil buffer everywhere we are about to draw
-			glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
+			glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
 			// this is to always pass a one to the stencil buffer where we draw
-			glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 			display_shadows();
 

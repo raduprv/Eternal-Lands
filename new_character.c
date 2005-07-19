@@ -4,8 +4,6 @@
 #include <ctype.h>
 #include "global.h"
 
-#define RAND(min,max) (min + rand () % (max - min + 1))
-
 typedef int my_enum;//This enumeration will decrease, then wrap to top, increase and then wrap to bottom, when using the inc() and dec() functions. Special purpose though, since you have to have between 2 and 255 values in the enumeration and you have to have the same value in enum[0] as in enum[max] - otherwise we'll probably segfault...
 
 my_enum     normal_skin_enum[] = { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_BROWN };

@@ -6,6 +6,8 @@
 #ifndef __NEW_CHARACTER_H__
 #define __NEW_CHARACTER_H__
 
+#define RAND(min,max) (min + rand () % (max - min + 1))
+
 /*!
  * \name Windows handlers
  */

@@ -29,7 +29,6 @@ void draw_actor_reflection(actor * actor_id)
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int texture_id;
-	char *cur_frame;
 
 	CHECK_GL_ERRORS();
 	if(!actor_id->remapped_colors)texture_id=get_texture_id(actor_id->texture_id);
@@ -39,8 +38,6 @@ void draw_actor_reflection(actor * actor_id)
 			texture_id=actor_id->texture_id;
 		}
 	bind_texture_id(texture_id);
-
-	cur_frame=actor_id->tmp.cur_frame;
 
 	//now, go and find the current frame
 
@@ -77,11 +74,8 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int texture_id;
-	char *cur_frame;
 
 	CHECK_GL_ERRORS();
-	
-	cur_frame=actor_id->tmp.cur_frame;
 	
 	texture_id=actor_id->texture_id;
 

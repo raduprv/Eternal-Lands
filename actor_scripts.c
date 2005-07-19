@@ -492,13 +492,15 @@ void next_command()
 					actors_list[i]->stop_animation=0;
 
 					if(actors_list[i]->fighting){
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].combat_idle_frame);
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_combat_idle_frame);
 					} else if(!actors_list[i]->sitting) {
 						if(!actors_list[i]->sit_idle){
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_frame);
 							if (actors_defs[actors_list[i]->actor_type].group_count==0) {
-								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle_frame);//normal idle
+								if(actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index!=-1 && RAND(0,1))
+									cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle2_frame);//normal idle
+								else 
+									cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle1_frame);//normal idle
+									
 							} else {
 								cal_actor_set_random_idle(i);
 								actors_list[i]->IsOnIdle=1;
@@ -508,7 +510,6 @@ void next_command()
 						}
 					} else	{
 						if(!actors_list[i]->stand_idle) {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actors_list[i]->actor_type].idle_sit_frame);
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle_sit_frame);
 							actors_list[i]->stand_idle=1;
 						}
@@ -536,55 +537,45 @@ void next_command()
 						actors_list[i]=0;*/ //Obsolete
 						break;			
 					case die1:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die1_frame);
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_die1_frame);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->dead=1;
 						break;
 					case die2:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].die2_frame);
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_die2_frame);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->dead=1;
 						break;
 					case pain1:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain1_frame);
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_pain1_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case pain2:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pain2_frame);
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_pain2_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case pick:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].pick_frame);
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_pick_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case drop:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].drop_frame);
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_drop_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case harvest:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].harvest_frame);
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_harvest_frame);
 						actors_list[i]->stop_animation=1;
 						LOG_TO_CONSOLE(c_green2,"Harvesting!");
 						break;
 					case cast:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_cast_frame);
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_attack_cast_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case ranged:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_ranged_frame);
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_attack_ranged_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case sit_down:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].sit_down_frame);
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_sit_down_frame);
 						//cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
 						//cal_actor_set_anim(i,actors_defs[actor_type].cal_in_combat_frame);
@@ -595,7 +586,6 @@ void next_command()
 						break;
 					case stand_up:
 						//LOG_TO_CONSOLE(c_green2,"stand_up");
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].stand_up_frame);
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_stand_up_frame);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->sitting=0;
@@ -603,24 +593,20 @@ void next_command()
 							you_stand_up();
 						break;
 					case enter_combat:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].in_combat_frame);
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_in_combat_frame);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 						//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Enter Combat");
 						break;
 					case leave_combat:
-						my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].out_combat_frame);
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_out_combat_frame);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=0;
 						break;
 					case attack_up_1:
 						if(actors_list[i]->is_enhanced_model){
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
 						} else {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_1_frame);
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_1_frame);
 						}
 						actors_list[i]->stop_animation=1;
@@ -629,10 +615,8 @@ void next_command()
 						break;
 					case attack_up_2:
 						if(actors_list[i]->is_enhanced_model){
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up1);
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
 						} else {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_2_frame);
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_2_frame);
 						}
 						actors_list[i]->stop_animation=1;
@@ -641,10 +625,8 @@ void next_command()
 						break;
 					case attack_up_3:
 						if(actors_list[i]->is_enhanced_model){
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_2_frame);
 						} else {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_3_frame);
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_3_frame);
 						} 
 						
@@ -654,10 +636,8 @@ void next_command()
 						break;
 					case attack_up_4:
 						if(actors_list[i]->is_enhanced_model) {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_up2);
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_2_frame);
 						} else {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_up_4_frame);
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_4_frame);
 						}
 					
@@ -667,10 +647,8 @@ void next_command()
 						break;
 					case attack_down_1:
 						if(actors_list[i]->is_enhanced_model) {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down1);
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_1_frame);
 						} else {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_1_frame);
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_1_frame);
 						}
 						
@@ -680,10 +658,8 @@ void next_command()
 						break;
 					case attack_down_2:
 						if(actors_list[i]->is_enhanced_model) {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].attack_down2);
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_2_frame);
 						} else {
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].attack_down_2_frame);
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_2_frame);
 						}
 					
@@ -704,7 +680,6 @@ void next_command()
 						actors_list[i]->moving=1;
 						//test
 						if(!actors_list[i]->fighting){
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
 						}
 						actors_list[i]->stop_animation=1;
@@ -722,7 +697,6 @@ void next_command()
 						actors_list[i]->moving=1;
 						//test
 						if(!actors_list[i]->fighting){
-							my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
 						}
 						actors_list[i]->stop_animation=1;
@@ -733,7 +707,6 @@ void next_command()
 							float rotation_angle;
 
 							if(last_command<move_n || last_command>move_nw){//update the frame name too
-								my_strcp(actors_list[i]->cur_frame,actors_defs[actor_type].walk_frame);
 								cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame);
 								actors_list[i]->stop_animation=0;
 							}
@@ -1218,14 +1191,6 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_down2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_2_frame=cal_load_anim(act,str);
-			} else if (xmlStrcasecmp (item->name, "attack_up1") == 0) {
-				get_string_value (weapon->attack_up1, sizeof (weapon->attack_up1), item);
-			} else if (xmlStrcasecmp (item->name, "attack_up2") == 0) {
-				get_string_value (weapon->attack_up2, sizeof (weapon->attack_up2), item);
-			} else if (xmlStrcasecmp (item->name, "attack_down1") == 0) {
-				get_string_value (weapon->attack_down1, sizeof (weapon->attack_down1), item);
-			} else if (xmlStrcasecmp (item->name, "attack_down2") == 0) {
-				get_string_value (weapon->attack_down2, sizeof (weapon->attack_down2), item);
 			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
@@ -1452,7 +1417,10 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
      			act->cal_drop_frame=cal_load_anim(act,str);
 			} else if (xmlStrcasecmp (item->name, "CAL_idle") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			act->cal_idle_frame=cal_load_anim(act,str);
+     			act->cal_idle1_frame=cal_load_anim(act,str);
+			} else if (xmlStrcasecmp (item->name, "CAL_idle2") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_idle2_frame=cal_load_anim(act,str);
 			} else if (xmlStrcasecmp (item->name, "CAL_idle_sit") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_idle_sit_frame=cal_load_anim(act,str);
@@ -1495,54 +1463,6 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_down_2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_down_2_frame=cal_load_anim(act,str);
-			
-		
-			} else if (xmlStrcasecmp (item->name, "walk") == 0) {
-				get_string_value (act->walk_frame, sizeof (act->walk_frame), item);
-			} else if (xmlStrcasecmp (item->name, "run") == 0) {
-				get_string_value (act->run_frame, sizeof (act->run_frame), item);
-			} else if (xmlStrcasecmp (item->name, "die1") == 0) {
-				get_string_value (act->die1_frame, sizeof (act->die1_frame), item);
-			} else if (xmlStrcasecmp (item->name, "die2") == 0) {
-				get_string_value (act->die2_frame, sizeof (act->die2_frame), item);
-			} else if (xmlStrcasecmp (item->name, "pain1") == 0) {
-				get_string_value (act->pain1_frame, sizeof (act->pain1_frame), item);
-			} else if (xmlStrcasecmp (item->name, "pain2") == 0) {
-				get_string_value (act->pain2_frame, sizeof (act->pain2_frame), item);
-			} else if (xmlStrcasecmp (item->name, "pick") == 0) {
-				get_string_value (act->pick_frame, sizeof (act->pick_frame), item);
-			} else if (xmlStrcasecmp (item->name, "drop") == 0) {
-				get_string_value (act->drop_frame, sizeof (act->drop_frame), item);
-			} else if (xmlStrcasecmp (item->name, "idle") == 0) {
-				get_string_value (act->idle_frame, sizeof (act->idle_frame), item);
-			} else if (xmlStrcasecmp (item->name, "idle_sit") == 0) {
-				get_string_value (act->idle_sit_frame, sizeof (act->idle_sit_frame), item);
-			} else if (xmlStrcasecmp (item->name, "harvest") == 0) {
-				get_string_value (act->harvest_frame, sizeof (act->harvest_frame), item);
-			} else if (xmlStrcasecmp (item->name, "attack_cast") == 0) {
-				get_string_value (act->attack_cast_frame, sizeof (act->attack_cast_frame), item);
-			} else if (xmlStrcasecmp (item->name, "sit_down") == 0) {
-				get_string_value (act->sit_down_frame, sizeof (act->sit_down_frame), item);
-			} else if (xmlStrcasecmp (item->name, "stand_up") == 0) {
-				get_string_value (act->stand_up_frame, sizeof (act->stand_up_frame), item);
-			} else if (xmlStrcasecmp (item->name, "in_combat") == 0) {
-				get_string_value (act->in_combat_frame, sizeof (act->in_combat_frame), item);
-			} else if (xmlStrcasecmp (item->name, "out_combat") == 0) {
-				get_string_value (act->out_combat_frame, sizeof (act->out_combat_frame), item);
-			} else if (xmlStrcasecmp (item->name, "combat_idle") == 0) {
-				get_string_value (act->combat_idle_frame, sizeof (act->combat_idle_frame), item);
-			} else if (xmlStrcasecmp (item->name, "attack_up_1") == 0) {
-				get_string_value (act->attack_up_1_frame, sizeof (act->attack_up_1_frame), item);
-			} else if (xmlStrcasecmp (item->name, "attack_up_2") == 0) {
-				get_string_value (act->attack_up_2_frame, sizeof (act->attack_up_2_frame), item);
-			} else if (xmlStrcasecmp (item->name, "attack_up_3") == 0) {
-				get_string_value (act->attack_up_3_frame, sizeof (act->attack_up_3_frame), item);
-			} else if (xmlStrcasecmp (item->name, "attack_up_4") == 0) {
-				get_string_value (act->attack_up_4_frame, sizeof (act->attack_up_4_frame), item);
-			} else if (xmlStrcasecmp (item->name, "attack_down_1") == 0) {
-				get_string_value (act->attack_down_1_frame, sizeof (act->attack_down_1_frame), item);
-			} else if (xmlStrcasecmp (item->name, "attack_down_2") == 0) {
-				get_string_value (act->attack_down_2_frame, sizeof (act->attack_down_2_frame), item);
 			} else {
 				snprintf (errmsg, sizeof (errmsg), "unknown frame property \"%s\"", item->name);
 				LOG_ERROR(errmsg);
@@ -1748,7 +1668,6 @@ int parse_actor_script (xmlNode *cfg) {
 	//char str[255];
 	int ok, act_idx,i;
 	actor_types *act;
-	struct cal_anim *tempanim;
 	struct CalCoreSkeleton *skel;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
@@ -1769,11 +1688,31 @@ int parse_actor_script (xmlNode *cfg) {
 		act->idle_group[i].count=0;
 	}
 
-	tempanim=&act->cal_walk_frame;
-	for (i=0;i<24;++i){
-		tempanim->anim_index=-1;tempanim->kind=-1;
-		++tempanim;
-	}
+	act->cal_walk_frame.anim_index=-1;
+	act->cal_run_frame.anim_index=-1;
+	act->cal_die1_frame.anim_index=-1;
+	act->cal_die2_frame.anim_index=-1;
+	act->cal_pain1_frame.anim_index=-1;
+	act->cal_pain2_frame.anim_index=-1;
+	act->cal_pick_frame.anim_index=-1;
+	act->cal_drop_frame.anim_index=-1;
+	act->cal_idle1_frame.anim_index=-1;
+	act->cal_idle2_frame.anim_index=-1;
+	act->cal_idle_sit_frame.anim_index=-1;
+	act->cal_harvest_frame.anim_index=-1;
+	act->cal_attack_cast_frame.anim_index=-1;
+	act->cal_attack_ranged_frame.anim_index=-1;
+	act->cal_sit_down_frame.anim_index=-1;
+	act->cal_stand_up_frame.anim_index=-1;
+	act->cal_in_combat_frame.anim_index=-1;
+	act->cal_out_combat_frame.anim_index=-1;
+	act->cal_combat_idle_frame.anim_index=-1;
+	act->cal_attack_up_1_frame.anim_index=-1;
+	act->cal_attack_up_2_frame.anim_index=-1;
+	act->cal_attack_up_3_frame.anim_index=-1;
+	act->cal_attack_up_4_frame.anim_index=-1;
+	act->cal_attack_down_1_frame.anim_index=-1;
+	act->cal_attack_down_2_frame.anim_index=-1;
 	
 	for (i=0;i<80;++i){
 		act->weapon[i].cal_attack_up_1_frame.anim_index=-1;

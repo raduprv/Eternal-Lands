@@ -70,17 +70,6 @@ typedef struct
 	int guild_id;
 #endif
 
-	/*! \name filenames for the currently loaded md2s*/
-	/*! \{ */
-	char legs_fn[256];
-	char head_fn[256];
-	char torso_fn[256];
-	char weapon_fn[256];
-	char shield_fn[256];
-	char helmet_fn[256];
-	char cape_fn[256];
-	/*! \} */
-
 	int legs_meshindex;
 	int head_meshindex;
 	int torso_meshindex;
@@ -112,6 +101,7 @@ typedef struct
 	char shield_tex[256];
 	char helmet_tex[256];
 	char cape_tex[256];
+	char hands_tex_save[256];
 		
 	/*! \} */
 
@@ -123,8 +113,6 @@ typedef struct
 	int cape_glow;
 	int legs_glow;
 	/*! \} */
-
-	char hands_tex_save[256];
 }enhanced_actor;
 
 /*! Sets the main model type*/
@@ -141,10 +129,6 @@ typedef struct
 {
 	char model_name[256];
 	char skin_name[256];
-	char attack_up1[256];
-	char attack_down1[256];
-	char attack_up2[256];
-	char attack_down2[256];
 	int glow;
 	int mesh_index;
 
@@ -234,7 +218,8 @@ typedef struct
 	struct cal_anim cal_pain2_frame;
 	struct cal_anim cal_pick_frame;
 	struct cal_anim cal_drop_frame;
-	struct cal_anim cal_idle_frame;
+	struct cal_anim cal_idle1_frame;
+	struct cal_anim cal_idle2_frame;
 	struct cal_anim cal_idle_sit_frame;
 	struct cal_anim cal_harvest_frame;
 	struct cal_anim cal_attack_cast_frame;
@@ -251,34 +236,6 @@ typedef struct
 	struct cal_anim cal_attack_down_1_frame;
     struct cal_anim cal_attack_down_2_frame;
 	
-	/*! \name Frame names*/
-	/*! \{ */
-	char walk_frame[20];
-	char run_frame[20];
-	char die1_frame[20];
-	char die2_frame[20];
-	char pain1_frame[20];
-	char pain2_frame[20];
-	char pick_frame[20];
-	char drop_frame[20];
-	char idle_frame[20];
-	char idle_sit_frame[20];
-	char harvest_frame[20];
-	char attack_cast_frame[20];
-	char attack_ranged_frame[20];
-	char sit_down_frame[20];
-	char stand_up_frame[20];
-	char in_combat_frame[20];
-	char out_combat_frame[20];
-	char combat_idle_frame[20];
-	char attack_up_1_frame[20];
-	char attack_up_2_frame[20];
-	char attack_up_3_frame[20];
-	char attack_up_4_frame[20];
-	char attack_down_1_frame[20];
-	char attack_down_2_frame[20];
-	/*! \} */
-
 	/*! \name The different body parts (different head shapes, different armour/weapon shapes etc.)*/
 	/*! \{ */
 	body_part head[5];
@@ -311,8 +268,6 @@ typedef struct
 typedef struct 
 {
 	int have_tmp;		/*!< Specifies if the temporary structure is ready*/
-	
-	char cur_frame[16]; 	/*!< Sets the current frame name*/
 	
 	/*! \name Actor positions*/
 	/*! \{ */
@@ -387,8 +342,6 @@ typedef struct
 	enhanced_actor *body_parts;	/*!< A pointer to the enhanced actor extension (holds information about weapons, helmets etc)*/
 	/*! \} */
 
-	char cur_frame[16];	/*!< Sets the current frame name that will be rendered*/
-	
 	/*! \{ */
 	//md2 *model_data;	/*!< Is a pointer to the md2 model data loaded when the actor was first added*/
 	char remapped_colors;	/*!< If the actors colours are remapped it will holds the texture in actor->texture_id*/

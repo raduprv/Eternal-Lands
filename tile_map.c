@@ -65,13 +65,13 @@ void draw_tile_map()
 								}
 
  							glTexCoord2f(0, 1.0f);
-			 				glVertex3f(x_scaled,y_scaled+3, 0.0f);
+			 				glVertex3f(x_scaled,y_scaled+3, -0.0001f);
 							glTexCoord2f(0, 0);
-							glVertex3f(x_scaled,y_scaled, 0.0f);
+							glVertex3f(x_scaled,y_scaled, -0.0001f);
 							glTexCoord2f(1.0f, 0);
-							glVertex3f(x_scaled+3, y_scaled,0.0f);
+							glVertex3f(x_scaled+3, y_scaled,-0.0001f);
 							glTexCoord2f(1.0f, 1.0f);
-							glVertex3f(x_scaled+3, y_scaled+3,0.0f);
+							glVertex3f(x_scaled+3, y_scaled+3,-0.0001f);
 						}
 				}
 			glEnd();
@@ -99,19 +99,19 @@ void draw_tile_map()
 							//draw our normal tile
  							ELglMultiTexCoord2fARB(base_unit,0, 1.0f);
  							ELglMultiTexCoord2fARB(detail_unit,x_scaled/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
-			 				glVertex3f(x_scaled,y_scaled+3, 0.0f);
+			 				glVertex3f(x_scaled,y_scaled+3, -0.0001f);
 
 							ELglMultiTexCoord2fARB(base_unit,0, 0);
 							ELglMultiTexCoord2fARB(detail_unit,x_scaled/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
-							glVertex3f(x_scaled,y_scaled, 0.0f);
+							glVertex3f(x_scaled,y_scaled, -0.0001f);
 
 							ELglMultiTexCoord2fARB(base_unit,1.0f, 0);
 							ELglMultiTexCoord2fARB(detail_unit,(x_scaled+3.0f)/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
-							glVertex3f(x_scaled+3, y_scaled,0.0f);
+							glVertex3f(x_scaled+3, y_scaled,-0.0001f);
 
 							ELglMultiTexCoord2fARB(base_unit,1.0f, 1.0f);
 							ELglMultiTexCoord2fARB(detail_unit,(x_scaled+3.0)/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
-							glVertex3f(x_scaled+3, y_scaled+3,0.0f);
+							glVertex3f(x_scaled+3, y_scaled+3,-0.0001f);
 						}
 				}
 			glEnd();
