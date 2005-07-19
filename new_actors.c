@@ -586,20 +586,20 @@ void add_enhanced_actor_from_server(char * in_data)
 #endif // CUSTOM_LOOK
 
 	//get the torso
-	my_strcp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name);
-	my_strcp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name);
-	my_strcp(this_actor->torso_fn,actors_defs[actor_type].shirt[shirt].model_name);
+	my_strncp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name,sizeof(this_actor->arms_tex));
+	my_strncp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name,sizeof(this_actor->torso_tex));
+	my_strncp(this_actor->torso_fn,actors_defs[actor_type].shirt[shirt].model_name,sizeof(this_actor->torso_fn));
 	//skin
-	my_strcp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name);
-	my_strcp(this_actor->hands_tex_save,actors_defs[actor_type].skin[skin].hands_name);
-	my_strcp(this_actor->head_tex,actors_defs[actor_type].skin[skin].head_name);
+	my_strncp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name,sizeof(this_actor->hands_tex));
+	my_strncp(this_actor->hands_tex_save,actors_defs[actor_type].skin[skin].hands_name,sizeof(this_actor->hands_tex_save));
+	my_strncp(this_actor->head_tex,actors_defs[actor_type].skin[skin].head_name,sizeof(this_actor->head_tex));
 	//hair
-	my_strcp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name);
+	my_strncp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name,sizeof(this_actor->hair_tex));
 	//boots
-	my_strcp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name);
+	my_strncp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name,sizeof(this_actor->boots_tex));
 	//legs
-	my_strcp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name);
-	my_strcp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name);
+	my_strncp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name,sizeof(this_actor->pants_tex));
+	my_strncp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name,sizeof(this_actor->legs_fn));
 
 #ifdef CUSTOM_LOOK
 	//torso
@@ -721,34 +721,35 @@ void add_enhanced_actor_from_server(char * in_data)
 			if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
 		}
 
-	if (actors_defs[actor_type].coremodel!=NULL) 
+	if (actors_defs[actor_type].coremodel!=NULL) {
 		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
 
-	if (actors_defs[actor_type].coremodel!=NULL) {
-		//Setup cal3d model
-		//actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
-		//Attach meshes
-		CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].head[head].mesh_index);
-		CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[shirt].mesh_index);
-		CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].legs[pants].mesh_index);
+		if (actors_list[i]->calmodel!=NULL) {
+			//Setup cal3d model
+			//actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+			//Attach meshes
+			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].head[head].mesh_index);
+			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[shirt].mesh_index);
+			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].legs[pants].mesh_index);
 
-		if (cape!=CAPE_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].cape[cape].mesh_index);
-		if (helmet!=HELMET_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].helmet[helmet].mesh_index);
-		if (weapon!=WEAPON_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].weapon[weapon].mesh_index);
-		if (shield!=SHIELD_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shield[shield].mesh_index);
+			if (cape!=CAPE_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].cape[cape].mesh_index);
+			if (helmet!=HELMET_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].helmet[helmet].mesh_index);
+			if (weapon!=WEAPON_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].weapon[weapon].mesh_index);
+			if (shield!=SHIELD_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shield[shield].mesh_index);
 
-		actors_list[i]->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[helmet].mesh_index;
-		actors_list[i]->body_parts->cape_meshindex=actors_defs[actor_type].cape[cape].mesh_index;
-		actors_list[i]->body_parts->shield_meshindex=actors_defs[actor_type].shield[shield].mesh_index;
+			actors_list[i]->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[helmet].mesh_index;
+			actors_list[i]->body_parts->cape_meshindex=actors_defs[actor_type].cape[cape].mesh_index;
+			actors_list[i]->body_parts->shield_meshindex=actors_defs[actor_type].shield[shield].mesh_index;
 
-		actors_list[i]->cur_anim.anim_index=-1;
-		actors_list[i]->anim_time=0.0;
-		
-		if(dead){
-			cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
-			actors_list[i]->stop_animation=1;
-			CalModel_Update(actors_list[i]->calmodel,1000);
-		} else  CalModel_Update(actors_list[i]->calmodel,0);
+			actors_list[i]->cur_anim.anim_index=-1;
+			actors_list[i]->anim_time=0.0;
+			
+			if(dead){
+				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
+				actors_list[i]->stop_animation=1;
+				CalModel_Update(actors_list[i]->calmodel,1000);
+			} else  CalModel_Update(actors_list[i]->calmodel,0);
+		}
 	}
 
 	/* //DEBUG
@@ -772,16 +773,16 @@ actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short
 	actor * a;
 	
 //get the torso         
-	my_strcp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name);
-	my_strcp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name);
-	my_strcp(this_actor->torso_fn,actors_defs[actor_type].shirt[shirt].model_name);
-	my_strcp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name);
-	my_strcp(this_actor->head_tex,actors_defs[actor_type].skin[skin].head_name);
-	my_strcp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name);
-	my_strcp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name);
-	my_strcp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name);
-	my_strcp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name);
-	my_strcp(this_actor->head_fn,actors_defs[actor_type].head[head].model_name);
+	my_strncp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name,sizeof(this_actor->arms_tex));
+	my_strncp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name,sizeof(this_actor->torso_tex));
+	my_strncp(this_actor->torso_fn,actors_defs[actor_type].shirt[shirt].model_name,sizeof(this_actor->torso_fn));
+	my_strncp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name,sizeof(this_actor->hands_tex));
+	my_strncp(this_actor->head_tex,actors_defs[actor_type].skin[skin].head_name,sizeof(this_actor->head_tex));
+	my_strncp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name,sizeof(this_actor->hair_tex));
+	my_strncp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name,sizeof(this_actor->boots_tex));
+	my_strncp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name,sizeof(this_actor->pants_tex));
+	my_strncp(this_actor->legs_fn,actors_defs[actor_type].legs[pants].model_name,sizeof(this_actor->legs_fn));
+	my_strncp(this_actor->head_fn,actors_defs[actor_type].head[head].model_name,sizeof(this_actor->head_fn));
 
 	a=actors_list[add_enhanced_actor(this_actor, actors_defs[actor_type].idle_frame, x*0.5f, y*0.5f, 0.00000001f, z_rot, 0)];
 

@@ -422,6 +422,7 @@ float cal_get_maxz2(actor *act)
 	float maxz;
 	int i;
 
+	if(!act)return 0;
 	skel=CalModel_GetSkeleton(act->calmodel);
 	nrPoints = CalSkeleton_GetBonePoints(skel,&points[0][0]);
 	maxz=points[0][2];
@@ -757,14 +758,16 @@ void add_actor_from_server(char * in_data)
 		//Setup cal3d model
 		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
 		//Attach meshes
-		CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[(int)shirt].mesh_index);
-		if(dead){
-			cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
-			actors_list[i]->stop_animation=1;
-			CalModel_Update(actors_list[i]->calmodel,1000);
-		} else CalModel_Update(actors_list[i]->calmodel,0);
-		actors_list[i]->cur_anim.anim_index=-1;
-		actors_list[i]->IsOnIdle=0;
+		if(actors_list[i]->calmodel){
+			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[(int)shirt].mesh_index);
+			if(dead){
+				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
+				actors_list[i]->stop_animation=1;
+				CalModel_Update(actors_list[i]->calmodel,1000);
+			} else CalModel_Update(actors_list[i]->calmodel,0);
+			actors_list[i]->cur_anim.anim_index=-1;
+			actors_list[i]->IsOnIdle=0;
+		}
 	}
 
 	UNLOCK_ACTORS_LISTS();	//unlock it	
