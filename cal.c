@@ -187,7 +187,9 @@ void cal_render_actor(actor *act)
 	//glScalef(1.2,1.2,1.2);
 	// get the renderer of the model
 
+#ifdef DEBUG
 	if (render_mesh) {
+#endif
   		pCalRenderer = CalModel_GetRenderer(act->calmodel);
   		// begin the rendering loop
   		if(CalRenderer_BeginRendering(pCalRenderer)){
@@ -295,7 +297,9 @@ void cal_render_actor(actor *act)
     			// end the rendering
     			CalRenderer_EndRendering(pCalRenderer);
 		}
+#ifdef DEBUG
 	}
+#endif
 
   	glDisable(GL_LIGHTING);
   	glDisable(GL_DEPTH_TEST);
@@ -303,7 +307,9 @@ void cal_render_actor(actor *act)
 
 	glColor3f(1,1,1);
 
+#ifdef DEBUG
   	if (render_skeleton) cal_render_bones(act);
+#endif
 
   	glEnable(GL_LIGHTING);
   	glEnable(GL_DEPTH_TEST);

@@ -547,8 +547,10 @@ void init_vars()
 	//ELC specific variables
 #ifdef ELC
 	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
+#ifdef DEBUG
 	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render skeleton", "Render the Cal3d skeleton.", SPECIALVID);
 	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render mesh", "Render the mesh", SPECIALVID);
+#endif
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0,"Shadows","Toggles the shadows",VIDEO);
 	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0,"Shadow Mapping","If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.",VIDEO);
 	add_var(MULTI,"max_shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096","8192",NULL);

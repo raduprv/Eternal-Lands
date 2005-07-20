@@ -141,8 +141,10 @@ extern int anti_alias; /*!< flag indicating whether anti-aliasing should be enab
 #endif
 extern int mouse_limit;
 extern int show_fps; /*!< flag that indicates whether to display FPS or not */
+#ifdef DEBUG
 extern int render_skeleton;
 extern int render_mesh;
+#endif
 extern int limit_fps; /*!< contains the max FPS number we should use. If this is 0, the highest possible number will be used. */
 extern int item_window_on_drop;
 extern int no_adjust_shadows;

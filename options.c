@@ -55,8 +55,10 @@ char	*opt_vid1={"640x480x16"},
 
 int options_win= -1;
 int show_fps=1;
+#ifdef DEBUG
 int render_skeleton=0;
 int render_mesh=1;
+#endif
 
 struct options_struct options = {0,{NULL}};
 
