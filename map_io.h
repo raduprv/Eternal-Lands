@@ -196,7 +196,7 @@ extern int map_type; /*!< id of the type of map we are currently using */
  * \retval int  0, if the file given by \a file_name could not be opened, or if the file is invalid, i.e. has an invalid magic number, else 1 is returned.
  * \callgraph
  */
-int load_map(char * file_name);
+int load_map (const char * file_name);
 
 /*!
  * \ingroup maps

@@ -97,7 +97,7 @@ int get_cur_map(char * file_name)
 	return -1;
 }
 
-int load_map(char * file_name)
+int load_map (const char * file_name)
 {
 	int i;
 	map_header cur_map_header;

@@ -515,7 +515,17 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 				close_dialogue();	// close the dialogue window if open
 				destroy_all_particles();
-				load_map(&in_data[3]);
+				if (!load_map(&in_data[3]))
+				{
+					// Houston, we have a problem
+					char err[128];
+					snprintf (err, sizeof (err), "Unable to change to map %s!", &in_data[3]);
+					LOG_ERROR (err);
+					// okay, let's kill ourselves, no point in continuing
+					SDLNet_Quit ();
+					SDL_Quit ();
+					exit (1);
+				}
 				kill_local_sounds();
 #ifndef	NO_MUSIC
 				playing_music=0;

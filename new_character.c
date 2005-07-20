@@ -164,6 +164,7 @@ int namepass_win = -1;
 
 int display_newchar_handler (window_info *win)
 {
+	const char *mapname = "./maps/newcharactermap.elm";
 	int any_reflection; 
 	static int main_count = 0;
 
@@ -181,7 +182,17 @@ int display_newchar_handler (window_info *win)
 		new_minute();
 		regenerate_near_objects = 1;
 		regenerate_near_2d_objects = 1;
-		load_map("./maps/newcharactermap.elm");
+		if (!load_map(mapname))
+		{
+			// Houston, we have a problem
+			char err[128];
+			snprintf (err, sizeof (err), "Unable to change to map %s!", mapname);
+			LOG_ERROR (err);
+			// okay, let's kill ourselves, no point in continuing
+			SDLNet_Quit ();
+			SDL_Quit ();
+			exit (1);
+		}
 #ifndef NO_MUSIC
 		playing_music = 0;
 #endif  //NO_MUSIC
