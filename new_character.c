@@ -186,7 +186,7 @@ int display_newchar_handler (window_info *win)
 		{
 			// Houston, we have a problem
 			char err[128];
-			snprintf (err, sizeof (err), "Unable to change to map %s!", mapname);
+			snprintf (err, sizeof (err), cant_change_map, mapname);
 			LOG_ERROR (err);
 			// okay, let's kill ourselves, no point in continuing
 			SDLNet_Quit ();

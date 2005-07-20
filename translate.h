@@ -380,6 +380,7 @@ extern char	reg_error_str[15],
 		client_ver_not_supported[100],
 		packet_overrun[50],
 		disconnected_from_server[100],
+		cant_change_map[100],
 		/*new_actors.c*/
 		error_body_part[30],
 		error_head[15],

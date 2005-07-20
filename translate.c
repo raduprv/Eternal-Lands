@@ -287,6 +287,7 @@ char	reg_error_str[15],
 	client_ver_not_supported[100],
 	packet_overrun[50],
 	disconnected_from_server[100],
+	cant_change_map[100],
 	/*new_actors.c*/
 	error_body_part[30],
 	error_head[15],
@@ -643,6 +644,7 @@ void init_errors()
 	add_xml_identifier(misc,"timer",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", sizeof(timer_lagging_behind));
 	add_xml_identifier(misc,"nameinuse",char_name_in_use,"Character name is already taken",sizeof(char_name_in_use));
 	add_xml_identifier(misc,"notabs",must_use_tabs,"You cannot disable tabbed windows with video mode %d, forcing them",sizeof(must_use_tabs));
+	add_xml_identifier (misc, "nomap", cant_change_map, "Unable to switch to map %s!", sizeof(cant_change_map));
 #endif
 
 	//Particle errors

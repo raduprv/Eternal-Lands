@@ -58,7 +58,7 @@ void destroy_map()
 						free(objects_list[i]->clouds_uv);
 					}
 					free(objects_list[i]);
-					objects_list[i]=0;//kill any refference to it
+					objects_list[i]=NULL;//kill any refference to it
 				}
 		}
 	// reset the top pointer
