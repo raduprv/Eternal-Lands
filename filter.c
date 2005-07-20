@@ -142,6 +142,7 @@ int check_if_filtered(Uint8 *name)
 	for(i=0;i<MAX_FILTERS;i++)
 		{
 			if(filter_list[i].len > 0)
+			{
 				if(filter_list[i].wildcard_type==0){  /* no wildcard, normal compare */
 					if(my_strncompare(filter_list[i].name,name,filter_list[i].len)){
 						if(isalpha(name[filter_list[i].len])==0){ /* fits with end of word? */
@@ -177,6 +178,7 @@ int check_if_filtered(Uint8 *name)
 						}
 					}
 				}
+			}
 		}
 	return -1;//nope
 }

@@ -746,13 +746,10 @@ void save_markings()
       int i;
 
 #ifndef WINDOWS
-      strcpy(marks_file, getenv("HOME"));
-      strcat(marks_file, "/.elc/");
-      strcat(marks_file,strrchr(map_file_name,'/')+1);
+      snprintf (marks_file, sizeof(marks_file), "%s/.elc/%s.txt", getenv ("HOME"), strrchr (map_file_name,'/') + 1);
 #else
-      strcpy(marks_file,strrchr(map_file_name,'/')+1);
+      snprintf (marks_file, sizeof (marks_file), "%s.txt", strrchr (map_file_name,'/') + 1);
 #endif
-      strcat(marks_file,".txt");
       fp = my_fopen(marks_file,"w");
       if ( fp ) {
 	  for ( i = 0 ; i < max_mark ; i ++)

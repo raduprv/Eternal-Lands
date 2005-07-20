@@ -30,8 +30,7 @@ void load_questlog()
 
 #ifndef WINDOWS
 	char questlog_ini[256];
-	strcpy(questlog_ini, configdir);
-	strcat(questlog_ini, "quest.log");
+	snprintf (questlog_ini, sizeof (questlog_ini), "%s/quest.log", configdir);
 	// don't use my_fopen here, not everyone uses local settings
 	f= fopen(questlog_ini,"rb"); //try to load local settings
 	if(!f)	//use global settings
@@ -107,8 +106,7 @@ void add_questlog(char *t, int len)
 	if(qlf == NULL){
 		#ifndef WINDOWS
 			char questlog_ini[256];
-			strcpy(questlog_ini, configdir);
-			strcat(questlog_ini, "quest.log");
+			snprintf (questlog_ini, sizeof (questlog_ini), "%s/quest.log", configdir);
 			// don't use my_fopen here, not everyone uses local settings
 			// Heh? Changed local quest log to open in append mode too, instead
 			// of overwrite

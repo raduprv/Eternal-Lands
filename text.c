@@ -65,10 +65,8 @@ void write_to_log (Uint8 *data, int len)
 		char chat_log_file[100];
 		char srv_log_file[100];
 #ifndef WINDOWS
-		strcpy (chat_log_file, configdir);
-		strcat (chat_log_file, "chat_log.txt");
-		strcpy (srv_log_file, configdir);
-		strcat (srv_log_file, "srv_log.txt");
+		snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
+		snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
 #else
 		strcpy (chat_log_file, "chat_log.txt");
 		strcpy (srv_log_file, "srv_log.txt");

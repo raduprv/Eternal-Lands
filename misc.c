@@ -210,11 +210,7 @@ int go_to_url(void *dummy)
 
 	if(!have_url)return 0;
 
-	my_strcp(browser_command,browser_name);
-	my_strcat(browser_command," \"");
-	my_strcat(browser_command,current_url);
-	my_strcat(browser_command,"\"");
-
+	snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, current_url), 
 	system(browser_command);
 
 	return 0;

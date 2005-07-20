@@ -87,7 +87,7 @@ void destroy_map()
 
 }
 
-int get_cur_map(char * file_name)
+int get_cur_map(const char * file_name)
 {
 	int i;
 	
@@ -346,13 +346,10 @@ void load_map_marks()
 	char marks_file[256], text[600];
 	
 #ifndef WINDOWS
-    	strcpy(marks_file, getenv("HOME"));
-    	strcat(marks_file, "/.elc/");
-	strcat(marks_file, strrchr(map_file_name,'/')+1);
+	snprintf (marks_file, sizeof (marks_file), "%s/.elc/%s.txt", getenv ("HOME"), strrchr (map_file_name,'/') + 1);
 #else
-	strcpy(marks_file, strrchr(map_file_name,'/')+1);
+	snprintf (marks_file, sizeof (marks_file), "%s.txt", strrchr (map_file_name,'/') + 1);
 #endif
-	strcat(marks_file, ".txt");
 	// don't use my_fopen here, not everyone uses map markers
 	fp = fopen(marks_file, "r");
 	max_mark = 0;

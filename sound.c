@@ -90,7 +90,7 @@ void stop_sound(int i)
 void get_map_playlist()
 {
 #ifndef	NO_MUSIC
-	int len,i=0;
+	int i=0;
 	char map_list_file_name[256];
 	FILE *fp;
 	char strLine[255];
@@ -99,12 +99,7 @@ void get_map_playlist()
 
 	memset(playlist,0,sizeof(playlist));
 
-	strcpy(map_list_file_name,"./music");
-	strcat(map_list_file_name,map_file_name+6);
-	len=strlen(map_list_file_name);
-	map_list_file_name[len-3]='p';
-	map_list_file_name[len-2]='l';
-	map_list_file_name[len-1]='l';
+	snprintf (map_list_file_name, sizeof (map_list_file_name), "./music%s.pll", map_file_name+6);
 
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(map_list_file_name,"r");
@@ -168,11 +163,10 @@ void load_ogg_file(char *file_name) {
 
 	ov_clear(&ogg_stream);
 
-	if(file_name[0]!='.' && file_name[0]!='/') {
-		strcpy(file_name2,"./music/");
-		strcat(file_name2,file_name);
-	} else
-		strcpy(file_name2,file_name);
+	if(file_name[0]!='.' && file_name[0]!='/')
+		snprintf (file_name2, sizeof (file_name2), "./music/%s", file_name);
+	else
+		strncpy (file_name2, file_name, sizeof (file_name2));
 
 	ogg_file = my_fopen(file_name2, "rb");
 

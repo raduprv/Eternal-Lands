@@ -186,10 +186,9 @@ int notepadLoadFile ()
 	notepad_loaded = 1;
 
 #ifndef WINDOWS
-	strcpy( file, getenv ("HOME") );
-	strcat(file, "/.elc/notes.xml");
+	snprintf (file, sizeof (file), "%s/.elc/notes.xml", getenv ("HOME") );
 #else
-	strcpy(file, "notes.xml");
+	strncpy(file, sizeof (file), "notes.xml");
 #endif    
 	doc = xmlParseFile (file);
 	if (doc == NULL )
@@ -283,10 +282,9 @@ int notepadSaveFile (widget_list *w, int mx, int my, Uint32 flags)
 	if ( (flags & ELW_MOUSE_BUTTON) == 0 && w != NULL) return 0;
     
 #ifndef WINDOWS
-	strcpy ( file, getenv ("HOME") );
-	strcat (file, "/.elc/notes.xml");
+	snprintf (file, sizeof (file), "%s/.elc/notes.xml", getenv ("HOME") );
 #else
-	strcpy (file, "notes.xml");
+	strncpy (file, sizeof (file), "notes.xml");
 #endif    
 
 	doc = xmlNewDoc (BAD_CAST "1.0");

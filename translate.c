@@ -963,8 +963,10 @@ void init_titles ()
 #ifdef WRITE_XML
 void save_strings(xmlDoc * doc, char * name)
 {
-	char str[50]={"languages/en/strings/"};//default language is en - change this if you want to save the strings to another folder...
-	strcat(str,name);
+	char str[50];
+	
+	//default language is en - change this if you want to save the strings to another folder...
+	snprintf (str, sizeof (str), "languages/en/strings/%s", name); 
 	xmlSaveFormatFileEnc (str, doc, "UTF-8", 1);//We'll save the file in UTF-8
 }
 #endif
