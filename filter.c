@@ -1,15 +1,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include "global.h"
+#include <ctype.h>
 
 #define MAX_FILTERS 1000
 
 typedef struct
 {
-	Uint8 *name;
-	Uint8 *replacement;
+	Uint8 name[64];
 	int len;
+	Uint8 replacement[64];
 	int rlen;
+	char wildcard_type; /* 0=none, 1=*word, 2=word*, 3=*word* */
 }filter_slot;
 
 filter_slot filter_list[MAX_FILTERS];
@@ -26,6 +28,7 @@ int add_to_filter_list(Uint8 *name, char save_name)
 	char right[256];
 	char buff[256];
 	int t;
+	int l=0;
 
 	//see if this name is already on the list
 	for(i=0;i<MAX_FILTERS;i++)
@@ -37,7 +40,7 @@ int add_to_filter_list(Uint8 *name, char save_name)
 	//ok, find a free spot
 	for(i=0;i<MAX_FILTERS;i++)
 		{
-			if(!filter_list[i].len > 0)
+			if(filter_list[i].len <= 0)
 				{
 					//excellent, a free spot
 					strncpy(left, name,sizeof(left));
@@ -47,8 +50,8 @@ int add_to_filter_list(Uint8 *name, char save_name)
 							break;
 						}
 						if(left[t]=='='){
-							left[t-1]=0;
-							strncpy(right, left+t+2,sizeof(right));
+							left[t]=0;
+							strncpy(right, left+t+1,sizeof(right));
 							break;
 						}
 					}
@@ -68,12 +71,18 @@ int add_to_filter_list(Uint8 *name, char save_name)
 								fclose(f);
 							}
 						}
-					filter_list[i].name=malloc(strlen(left)+1);
-					filter_list[i].replacement=malloc(strlen(right)+1);
+					left[64]=0;
+					right[64]=0;
+					filter_list[i].wildcard_type=0;
+					l=strlen(left)-1;
+					if(left[0]=='*' && left[l]!='*') filter_list[i].wildcard_type=1;
+					if(left[0]!='*' && left[l]=='*') filter_list[i].wildcard_type=2;
+					if(left[0]=='*' && left[l]=='*') filter_list[i].wildcard_type=3;
 					my_strcp(filter_list[i].name,left);
 					my_strcp(filter_list[i].replacement,right);
 					filter_list[i].len=strlen(filter_list[i].name);//memorize the length
 					filter_list[i].rlen=strlen(filter_list[i].replacement);//memorize the length
+
 					filtered_so_far++;
 					return 1;
 				}
@@ -88,7 +97,6 @@ int remove_from_filter_list(Uint8 *name)
 	int i;
 	int found = 0;
 	FILE *f = NULL;
-	Uint8 buff[512];
 	//see if this name is on the list
 	for(i=0;i<MAX_FILTERS;i++)
 		{
@@ -96,19 +104,10 @@ int remove_from_filter_list(Uint8 *name)
 				if(my_strcompare(filter_list[i].name,name))
 					{
 						filter_list[i].len=0;
-						filter_list[i].rlen=0;
-						free(filter_list[i].name);
-						free(filter_list[i].replacement);
 						found = 1;
 						filtered_so_far--;
 					}
 		}
-	/****************************************************************************************
-	 * To be honest, i dont understand that. We remove the filter from the filters list,    *
-	 * try to save it in local_filters.txt, even if the filter came from global_filters.txt?*
-    *	What we, of course, dont know? o.O                                                   *
-	 * Piper                                                                                * 
-	 ****************************************************************************************/
 	if(found)
 		{
 			char local_filters[256];
@@ -121,9 +120,7 @@ int remove_from_filter_list(Uint8 *name)
 				{
 					if(filter_list[i].len > 0)
 						{
-							sprintf(buff, "%s = %s", 
-								filter_list[i].name, filter_list[i].replacement);
-							fwrite(buff, strlen(buff), 1, f);
+							fwrite(ignore_list[i].name, filter_list[i].len, 1, f);
 							fwrite("\n", 1, 1, f);	
 						}
 				}
@@ -139,12 +136,46 @@ int remove_from_filter_list(Uint8 *name)
 //returns length to be filtered, 0 if not filtered
 int check_if_filtered(Uint8 *name)
 {
-	int i;
+	int t, i, l;
+	char buff[256];
+
 	for(i=0;i<MAX_FILTERS;i++)
 		{
 			if(filter_list[i].len > 0)
-				if(my_strncompare(filter_list[i].name,name,filter_list[i].len)){
-					return i;//yep, filtered
+				if(filter_list[i].wildcard_type==0){  /* no wildcard, normal compare */
+					if(my_strncompare(filter_list[i].name,name,filter_list[i].len)){
+						if(isalpha(name[filter_list[i].len])==0){ /* fits with end of word? */
+							return i;//yep, filtered
+						} 
+					}
+				}
+				else if(filter_list[i].wildcard_type==1){  /* *word                       */
+					for(t=0;;t++){
+						if(isalpha(name[t])==0) break; /* t points now at the end of the word */
+					}
+					strcpy(buff, filter_list[i].name);
+					l=filter_list[i].len;
+					if(my_strncompare(buff+1,name+t-(l-1),l-1)){
+						return i;//yep, filtered
+					}
+				}
+				else if(filter_list[i].wildcard_type==2){  /* word*                      */
+					strcpy(buff, filter_list[i].name);
+					l=filter_list[i].len;
+					if(my_strncompare(buff,name,l-1)){
+						return i;//yep, filtered
+					}
+				}
+				else if(filter_list[i].wildcard_type==3){  /* *word*                     */
+					strcpy(buff, filter_list[i].name);
+					buff[strlen(buff)-1]=0;  /* remove trailing * */
+					l=filter_list[i].len;
+					for(t=0;;t++){
+						if(isalpha(name[t])==0) break;
+						if(my_strncompare(buff+1,name+t,l-2)){
+							return i;//yep, filtered
+						}
+					}
 				}
 		}
 	return -1;//nope
@@ -199,13 +230,18 @@ int filter_storage_text (Uint8 * input_text, int len) {
 //returns the new length of the text
 int filter_text(Uint8 * input_text, int len)
 {
-	int i,bad_len,rep_len, idx;
+	int i, t,bad_len,rep_len, idx;
 	Uint8 *rloc=input_text;
-	
+	Uint8 buff[4096];
+
 	// See if a search term has been added to the #storage command, and if so, 
         // only list those items with that term
 	if (*storage_filter && my_strncompare (input_text+1, "Items you have in your storage:", 31))
 		len = 33 + filter_storage_text (input_text+33, len-33);
+
+	memset(buff, ' ', len+2);  /* clear buffer */
+	buff[len+3]=0;
+	strncpy(buff+1, input_text, len); /* now we have leading and trailing spaces */
 
 	//do we need to do CAPS filtering?
 	if(caps_filter)
@@ -242,29 +278,38 @@ int filter_text(Uint8 * input_text, int len)
 		}
 	//do we need to do any content filtering?
 	if(MAX_FILTERS == 0)return(len);
-	// get the length of the replacement string
-	// scan the text for any strings
-	for(i=0;i<len;i++,rloc++)
-		{
-			if((idx=check_if_filtered(rloc)) > -1)
-				{
-					//oops, remove this word 
-					bad_len=filter_list[idx].len;
-					rep_len=filter_list[idx].rlen;
-					if(bad_len == rep_len)
-						{
-							strncpy(rloc, filter_list[idx].replacement, rep_len);
-						}
-					else
-						{
-							memmove(rloc+rep_len, rloc+bad_len, len-(i+bad_len));
-							strncpy(rloc, filter_list[idx].replacement, rep_len);
-							// adjust the length
-							len-=(bad_len-rep_len);
-						}
-				}
-		}
 
+	// scan the text for any strings
+	for(i=0;i<len;i++)
+		{                      /* remember, buff has 1 leading space!! */
+			if(isalpha(buff[i])==0){  /* beginning of word? */
+				if((idx=check_if_filtered(buff+i+1)) > -1) {
+					//oops, remove this word 
+					if(filter_list[idx].wildcard_type>0){
+						bad_len=0;
+						for(t=1;;t++){
+							if(isalpha(buff[i+t])==0) break;
+							bad_len++;
+						}
+					}
+					else{
+						bad_len=filter_list[idx].len;
+					}
+					rep_len=filter_list[idx].rlen;
+
+					if(bad_len == rep_len) {
+						strncpy(buff+i+1, filter_list[idx].replacement, rep_len);
+					}
+					else{
+						memmove(buff+i+1+rep_len, buff+i+1+bad_len, len-(i-1+bad_len));
+						strncpy(buff+i+1, filter_list[idx].replacement, rep_len);
+						// adjust the length
+						len-=(bad_len-rep_len);
+					}
+				}
+			}
+		}
+	strncpy(input_text, buff+1, len);
 	return(len);
 }
 
