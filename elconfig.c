@@ -97,9 +97,9 @@ void change_string(char * var, char * str, int len)
 #ifdef ELC
 void change_sound_level(float *var, float * value)
 {
-	if(*value>=0 && *value<=100)
+	if(*value>=0.0f && *value<=1.0f)
 	{
-		*var=(float)*value/100.0f;
+		*var=(float)*value;
 	} else {
 		*var=0;
 	}
@@ -313,6 +313,11 @@ void change_aa(int *pointer) {
 	}
 }
 #endif // ANTI_ALIAS
+
+void change_isometric(int *pointer, int value) {
+	change_var(pointer);
+	resize_root_window();
+}
 
 void change_gamma(float *pointer, float *value)
 {
@@ -583,8 +588,8 @@ void init_vars()
 #endif //ELC
 	
 	add_var(BOOL,"no_sound","sound",&no_sound,change_var,0,"No sound","Toggle the Audio",AUDIO);
-	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0,INT_MAX);
-	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0,INT_MAX);
+	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0,100);
+	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0,100);
 
 	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
 
@@ -632,6 +637,7 @@ void init_vars()
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
+	add_var (BOOL, "isometric" ,"isometric", &isometric, change_isometric, 0, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", SPECIALVID);
 #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
 #endif //ANTI_ALIAS
