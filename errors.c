@@ -7,14 +7,14 @@ FILE* open_log (const char *fname, const char *mode)
 {
     FILE *file = fopen (fname, mode);
 	Uint8 starttime[200];
-	time_t *l_time;
+	struct tm *l_time; time_t c_time;
     if (!file)
     {
         fprintf (stderr, "Unable to open log file \"%s\"\n", fname);
         exit (1);
     }
-	time(&l_time);
-	l_time = localtime(&l_time);
+	time(&c_time);
+	l_time = localtime(&c_time);
 	strftime(starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S\n\n", l_time);
 	fwrite (starttime, strlen(starttime), 1, file);
 	return file;
