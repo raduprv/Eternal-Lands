@@ -941,6 +941,20 @@ int tab_collection_get_tab_id (Uint32 window_id, Uint32 widget_id)
 	return -1;
 }
 
+int tab_collection_get_tab_nr (Uint32 window_id, Uint32 col_id, Uint32 tab_id) 
+{
+	widget_list *w = widget_find (window_id, col_id);
+	if (w != NULL) 
+	{
+		int tab;
+		tab_collection *col = (tab_collection *) w->widget_info;
+		for (tab = 0; tab < col->nr_tabs; tab++)
+			if (col->tabs[tab].content_id == tab_id)
+				return tab;
+	}
+	return -1;
+}
+
 int tab_collection_get_nr_tabs (Uint32 window_id, Uint32 widget_id)
 {
 	widget_list *w = widget_find (window_id, widget_id);

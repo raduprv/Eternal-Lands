@@ -100,8 +100,9 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 	}
 	
 	//check to see if we have too many packets being sent of the same to reduce server flood
-	if(len < 256)	// only if it fits
-	if(str[0]==MOVE_TO || str[0]==RUN_TO || str[0]==SIT_DOWN || str[0]==HARVEST || str[0]==MANUFACTURE_THIS || str[0]==CAST_SPELL || str[0]==RESPOND_TO_NPC || str[0]==ATTACK_SOMEONE || str[0]==SEND_PM || str[0]==RAW_TEXT)
+	if(len < sizeof (tcp_cache))	// only if it fits
+	{
+		if(str[0]==MOVE_TO || str[0]==RUN_TO || str[0]==SIT_DOWN || str[0]==HARVEST || str[0]==MANUFACTURE_THIS || str[0]==CAST_SPELL || str[0]==RESPOND_TO_NPC || str[0]==ATTACK_SOMEONE || str[0]==SEND_PM || str[0]==RAW_TEXT)
 		{
 			Uint32	time_limit=600;
 			if( str[0]==SEND_PM || str[0]==RAW_TEXT)time_limit=1500;
@@ -124,6 +125,7 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 			tcp_cache_len = len;
 			tcp_cache_time = cur_time;
 		}
+	}
 	//update the heartbeat timer
 	last_heart_beat=cur_time;
 

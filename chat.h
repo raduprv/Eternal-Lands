@@ -189,8 +189,6 @@ void display_tab_bar ();
 
 void switch_to_tab(int id);
 
-int add_tab_button (Uint8 channel);
-
 void change_to_current_tab(const char *input);
 
 void change_to_current_chat_tab(const char *input);

@@ -3,16 +3,108 @@
 
 #ifdef MULTI_CHANNEL
 
+void remove_chat_tab (Uint8 channel);
+int add_chat_tab (int nlines, Uint8 channel);
+void update_chat_tab_idx (Uint8 old_ix, Uint8 new_idx);
+void remove_tab_button (Uint8 channel);
+int add_tab_button (Uint8 channel);
+void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx);
+
 Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 Uint8 current_channel;
 
+void add_tab (Uint8 channel)
+{
+	if (use_windowed_chat == 1)
+		add_tab_button (channel);
+	else if (use_windowed_chat == 2)
+		add_chat_tab (0, channel);
+}
+
+void remove_tab (Uint8 channel)
+{
+	if (use_windowed_chat == 1)
+		remove_tab_button (channel);
+	else if (use_windowed_chat == 2)
+		remove_chat_tab (channel);
+}
+
+void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
+{
+	// XXX: CAUTION
+	// Since this function simply replaces old_idx y new_idx, it could 
+	// potentially cause trouble when new_idx is already in use by 
+	// another tab. However, as the code is now, successive calls to 
+	// update_tab_idx are in increasing order of old_idx, and new_idx
+	// is lower than old_idx, so we should be safe.
+
+	if (use_windowed_chat == 1)
+		update_tab_button_idx (old_idx, new_idx);
+	else if (use_windowed_chat == 2)
+		update_chat_tab_idx (old_idx, new_idx);
+}
+
+void set_channel_tabs (const Uint32 *chans)
+{
+	int nmax = CHAT_CHANNEL3-CHAT_CHANNEL1+1;
+	Uint32 chan;
+	Uint8 chan_nr, chan_nrp;
+	
+	for (chan_nr = 0; chan_nr < nmax; chan_nr++)
+	{
+		chan = chans[chan_nr];
+		if (chan == 0) continue;
+		
+		for (chan_nrp = 0; chan_nrp < nmax; chan_nrp++)
+		{
+			if (active_channels[chan_nrp] == chan) break;
+		}
+		
+		if (chan_nrp >= nmax)
+		{
+			// we left this channel
+			remove_tab (chan_nr+CHAT_CHANNEL1);
+		}
+		else
+		{
+			update_tab_idx (chan_nr+CHAT_CHANNEL1, chan_nrp+CHAT_CHANNEL1);
+		}
+	}
+
+	for (chan_nrp = 0; chan_nrp < nmax; chan_nrp++)
+	{
+		chan = active_channels[chan_nrp];
+
+		if (chan == 0) continue;
+		
+		for (chan_nr = 0; chan_nr < nmax; chan_nr++)
+		{
+			if (chans[chan_nr] == chan) break;
+		}
+		
+		if (chan_nr >= nmax)
+		{
+			// we have a new channel
+			add_tab (chan_nrp+CHAT_CHANNEL1);
+		}
+	}
+}
+
 void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 {
+	Uint32 tmp[MAX_ACTIVE_CHANNELS];
 	int i;
+	
+	for (i = 0; i < MAX_ACTIVE_CHANNELS; i++)
+		tmp[i] = active_channels[i];
 
-	current_channel = active;
 	for (i = 0; i < nchan; i++)
 		active_channels[i] = SDL_SwapLE32(channels[i]);
+
+	for ( ; i < MAX_ACTIVE_CHANNELS; i++)
+		active_channels[i] = 0;
+
+	set_channel_tabs (tmp);
 }
 
 #endif // def MULTI_CHANNEL
@@ -125,9 +217,33 @@ int close_channel (window_info *win)
 	return 0;
 }
 
+void remove_chat_tab (Uint8 channel)
+{
+	int ichan;
+
+	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
+	{
+		if (channels[ichan].chan_nr == channel && channels[ichan].open)
+		{
+			int nr = tab_collection_get_tab_nr (chat_win, chat_tabcollection_id, channels[ichan].tab_id);
+			tab_collection_close_tab (chat_win, chat_tabcollection_id, nr);
+			
+			channels[ichan].tab_id = -1;
+			channels[ichan].chan_nr = CHAT_LOCAL;
+			channels[ichan].nr_lines = 0;
+			channels[ichan].open = 0;
+			channels[ichan].newchan = 0;
+			channels[ichan].highlighted = 0;
+
+			return;
+		}
+	}
+}
+
 int add_chat_tab(int nlines, Uint8 channel)
 {
 	int ichan;
+
 	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 	{
 		if (!channels[ichan].open)
@@ -143,7 +259,7 @@ int add_chat_tab(int nlines, Uint8 channel)
 			channels[ichan].newchan = 1;
 			channels[ichan].highlighted = 0;
 
-			my_strncp(title,tab_label (ichan), sizeof(title));
+			my_strncp(title,tab_label (channel), sizeof(title));
 			
 			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1);
 			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);
@@ -163,6 +279,22 @@ int add_chat_tab(int nlines, Uint8 channel)
 	}
 	//no empty slot found
 	return -1;
+}
+
+void update_chat_tab_idx (Uint8 old_idx, Uint8 new_idx)
+{
+	int itab;
+	
+	if (old_idx == new_idx) return;
+	
+	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
+	{
+		if (channels[itab].chan_nr == old_idx && channels[itab].open)
+		{
+			channels[itab].chan_nr = new_idx;
+			return;
+		}
+	}
 }
 
 void update_chat_window (int nlines, Uint8 channel)
@@ -747,7 +879,7 @@ int mod_chat_separate = 0;
 
 int tab_bar_win = -1;
 chat_tab tabs[MAX_CHAT_TABS];
-int button_id_start = 0;
+int cur_button_id = 0;
 int tabs_in_use = 0;
 int current_tab = 0;
 
@@ -882,6 +1014,22 @@ const char *tab_label (Uint8 chan)
 	}
 }
 
+void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx)
+{
+	int itab;
+	
+	if (old_idx == new_idx) return;
+	
+	for (itab = 0; itab < tabs_in_use; itab++)
+	{
+		if (tabs[itab].channel == old_idx)
+		{
+			tabs[itab].channel = new_idx;
+			return;
+		}
+	}
+}
+
 int add_tab_button (Uint8 channel)
 {
 	int itab;
@@ -902,7 +1050,7 @@ int add_tab_button (Uint8 channel)
 	tabs[tabs_in_use].highlighted = 0;
 	label = tab_label (channel);
 
-	tabs[itab].button = button_add_extended (tab_bar_win, button_id_start+itab, NULL, tab_bar_width, 0, 0, tab_bar_height, 0, 0.75, 0.77f, 0.57f, 0.39f, label);
+	tabs[itab].button = button_add_extended (tab_bar_win, cur_button_id++, NULL, tab_bar_width, 0, 0, tab_bar_height, 0, 0.75, 0.77f, 0.57f, 0.39f, label);
 	widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_bar_button_click);
 
 	tab_bar_width += widget_get_width (tab_bar_win, tabs[tabs_in_use].button);
@@ -910,6 +1058,30 @@ int add_tab_button (Uint8 channel)
 
 	tabs_in_use++;
 	return tabs_in_use - 1;
+}
+
+void remove_tab_button (Uint8 channel)
+{
+	int itab, w;
+
+	for (itab = 0; itab < tabs_in_use; itab++)
+	{
+		if (tabs[itab].channel == channel)
+			break;
+	}
+	if (itab >= tabs_in_use) return;
+	
+	w = widget_get_width (tab_bar_win, tabs[itab].button);
+	widget_destroy (tab_bar_win, tabs[itab].button);
+	for (++itab; itab < tabs_in_use; itab++)
+	{
+		widget_move_rel (tab_bar_win, tabs[itab].button, -w, 0);
+		tabs[itab-1] = tabs[itab];
+	}
+	tabs_in_use--;
+
+	tab_bar_width -= w;
+	resize_window (tab_bar_win, tab_bar_width, tab_bar_height);
 }
 
 void update_tab_bar (Uint8 channel)

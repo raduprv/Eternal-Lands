@@ -910,6 +910,19 @@ int tab_collection_get_tab_id (Uint32 window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	tabs
+ * \brief 	Returns the position of a tab in the collection from its window ID
+ *
+ * 		Returns the position of a tab in the collection from its window ID
+ *		
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	col_id The unique widget ID of the tab collection
+ * \param   	tab_id The tab's window ID
+ * \retval int  	Returns the tab's number on succes, -1 on failure
+ */
+int tab_collection_get_tab_nr (Uint32 window_id, Uint32 col_id, Uint32 tab_id);
+
+/*!
+ * \ingroup	tabs
  * \brief 	Returns the number of tabs in this collection
  *
  * 		Returns the number of tabs in this collection
