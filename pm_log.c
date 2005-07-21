@@ -139,7 +139,7 @@ void add_message_to_pm_log(char * message, int len)
 		}
 	pm_log.afk_msgs[z].messages= (char**)realloc(pm_log.afk_msgs[z].messages, (pm_log.afk_msgs[z].msgs+1)*sizeof(char *));
 	//time name message
-	snprintf(buf, 500, "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len-12, message);
+	snprintf(buf, 500, "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len, message);
 	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]= (char*)calloc(strlen(buf+1), sizeof(char));
 	strcpy(pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf);
 	pm_log.afk_msgs[z].msgs++;
