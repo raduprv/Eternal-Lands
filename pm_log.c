@@ -105,41 +105,42 @@ int have_name(char *name, int len)
 {
 	int z=0;
 
-	for (;z<pm_log.ppl;z++) if(!strncasecmp(pm_log.afk_msgs[z].name,name,len)) return z;
+	for (;z<pm_log.ppl;z++){
+		if(pm_log.afk_msgs[z].name && !strncasecmp(pm_log.afk_msgs[z].name, name, len)){
+			return z;
+		}
+	}
 	return -1;
 }
 
 void add_name_to_pm_log(char *name, int len)
 {
-	int z=pm_log.ppl;
+	int z= pm_log.ppl;
 
 	pm_log.ppl++;
-	pm_log.afk_msgs=(afk_struct *)realloc(pm_log.afk_msgs,pm_log.ppl*sizeof(afk_struct));
-	pm_log.afk_msgs[z].msgs=0;
-	pm_log.afk_msgs[z].messages=NULL;
-	pm_log.afk_msgs[z].name=(char*)calloc(len+1, sizeof(char));
+	pm_log.afk_msgs= (afk_struct *)realloc(pm_log.afk_msgs,pm_log.ppl*sizeof(afk_struct));
+	pm_log.afk_msgs[z].msgs= 0;
+	pm_log.afk_msgs[z].messages= NULL;
+	pm_log.afk_msgs[z].name= (char*)calloc(len+1, sizeof(char));
 	memcpy(pm_log.afk_msgs[z].name,name,len+1);
 }
 
 void add_message_to_pm_log(char * message, int len)
 {
-	int l, last_pm_len=strlen(last_pm_from);
-	int z=have_name(last_pm_from,last_pm_len);
-	char	buf[256];
+	int last_pm_len= strlen(last_pm_from);
+	int z= have_name(last_pm_from, last_pm_len);
+	char	buf[512];
 
-	message[len]=0;
-	message+=11+last_pm_len;
-	l=strlen(message)-1;
 	if(z<0)
 		{
-			send_afk_message(NULL,1);
-			z=pm_log.ppl;
-			add_name_to_pm_log(last_pm_from,last_pm_len);
+			send_afk_message(NULL, 1);
+			z= pm_log.ppl;
+			add_name_to_pm_log(last_pm_from, last_pm_len);
 		}
-	pm_log.afk_msgs[z].messages=(char**)realloc(pm_log.afk_msgs[z].messages,(pm_log.afk_msgs[z].msgs+1)*sizeof(char *));
+	pm_log.afk_msgs[z].messages= (char**)realloc(pm_log.afk_msgs[z].messages, (pm_log.afk_msgs[z].msgs+1)*sizeof(char *));
 	//time name message
-	sprintf(buf, "<%1d:%02d> %s: %s",game_minute/60, game_minute%60, last_pm_from, message);
-	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]=(char*)calloc(strlen(buf+1),sizeof(char));
+	snprintf(buf, 500, "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len-12, message);
+	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]= (char*)calloc(strlen(buf+1), sizeof(char));
 	strcpy(pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf);
 	pm_log.afk_msgs[z].msgs++;
 	pm_log.msgs++;
