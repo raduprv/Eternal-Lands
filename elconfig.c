@@ -319,11 +319,6 @@ void change_aa(int *pointer) {
 }
 #endif // ANTI_ALIAS
 
-void change_isometric(int *pointer, int value) {
-	change_var(pointer);
-	resize_root_window();
-}
-
 void change_gamma(float *pointer, float *value)
 {
 	*pointer = *value;
@@ -642,7 +637,6 @@ void init_vars()
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
-	add_var (BOOL, "isometric" ,"isometric", &isometric, change_isometric, 0, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", SPECIALVID);
 #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
 #endif //ANTI_ALIAS
