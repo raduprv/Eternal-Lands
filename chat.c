@@ -9,6 +9,7 @@ void update_chat_tab_idx (Uint8 old_ix, Uint8 new_idx);
 void remove_tab_button (Uint8 channel);
 int add_tab_button (Uint8 channel);
 void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx);
+void convert_tabs (int new_wc);
 
 Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 Uint8 current_channel;
@@ -117,6 +118,11 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 #define CHAT_IN_TEXT_HEIGHT 	(18*3)
 #define CHAT_WIN_SCROLL_WIDTH	20
 
+int local_chat_separate = 0;
+int personal_chat_separate = 0;
+int guild_chat_separate = 1;
+int server_chat_separate = 0;
+int mod_chat_separate = 0;
 
 /* 
  * use_windowed_chat == 0: old behaviour, all text is printed
@@ -125,6 +131,9 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
  */
 int use_windowed_chat = 1;
 int highlight_tab_on_nick = 1;
+
+////////////////////////////////////////////////////////////////////////
+// Chat window variables
 
 int chat_win = -1;
 int chat_scroll_id = 15;
@@ -626,7 +635,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 {
 	int itab;
 	int scroll_x = width - CHAT_WIN_SCROLL_WIDTH;
-	int scroll_height = height - ELW_BOX_SIZE;
+	int scroll_height = height - 2*ELW_BOX_SIZE;
 	int inout_width = width - CHAT_WIN_SCROLL_WIDTH - 2 * CHAT_WIN_SPACE;
 	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
 	int input_y = height - input_height - CHAT_WIN_SPACE;
@@ -653,7 +662,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 	chat_out_text_height = output_height - 2 * CHAT_WIN_SPACE;
 	
 	widget_resize (chat_win, chat_scroll_id, CHAT_WIN_SCROLL_WIDTH, scroll_height);
-	widget_move (chat_win, chat_scroll_id, scroll_x, 0);
+	widget_move (chat_win, chat_scroll_id, scroll_x, ELW_BOX_SIZE);
 	
 	widget_resize (chat_win, chat_tabcollection_id, inout_width, tabcol_height);
 	
@@ -799,6 +808,16 @@ int show_chat_handler(window_info * win) {
 	return 1;
 }
 
+int close_chat_handler (window_info *win)
+{
+	// revert to using the tab bar
+	use_windowed_chat = 1;
+	if (game_root_win >= 0) display_tab_bar ();
+	convert_tabs (use_windowed_chat);
+	
+	return 1;
+}
+
 void create_chat_window() {
 	int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
 	int chat_win_height = CHAT_OUT_TEXT_HEIGHT + CHAT_IN_TEXT_HEIGHT + 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
@@ -813,13 +832,14 @@ void create_chat_window() {
 	
 	nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (18.0 * chat_zoom));
 			
-	chat_win = create_window ("Chat", game_root_win, 0, chat_win_x, chat_win_y, chat_win_width, chat_win_height, (ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT) & ~ELW_CLOSE_BOX);
+	chat_win = create_window ("Chat", game_root_win, 0, chat_win_x, chat_win_y, chat_win_width, chat_win_height, ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);
 	
 	set_window_handler (chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
 	set_window_handler (chat_win, ELW_HANDLER_RESIZE, &resize_chat_handler);
 	set_window_handler (chat_win, ELW_HANDLER_SHOW, &show_chat_handler);
+	set_window_handler (chat_win, ELW_HANDLER_CLOSE, &close_chat_handler);
 
-	chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, 0, CHAT_WIN_SCROLL_WIDTH, chat_win_height - ELW_BOX_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+	chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, ELW_BOX_SIZE, CHAT_WIN_SCROLL_WIDTH, chat_win_height - 2*ELW_BOX_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
 	widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
 	widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
 	
@@ -870,12 +890,6 @@ void chat_win_update_zoom () {
 }
 
 ////////////////////////////////////////////////////////////////////////
-
-int local_chat_separate = 0;
-int personal_chat_separate = 0;
-int guild_chat_separate = 1;
-int server_chat_separate = 0;
-int mod_chat_separate = 0;
 
 int tab_bar_win = -1;
 chat_tab tabs[MAX_CHAT_TABS];
@@ -1220,3 +1234,87 @@ void change_to_current_tab(const char *input)
 		switch_to_tab(itab);
 	}
 }
+
+void convert_tabs (int new_wc)
+{
+	int iwc, ibc;
+	Uint8 chan;
+	
+	if (new_wc == 1)
+	{
+		// first close possible remaining tab buttons that are no 
+		// longer active
+		for (ibc = 0; ibc < tabs_in_use; ibc++)
+		{
+			chan = tabs[ibc].channel;
+			for (iwc = 0; iwc < MAX_ACTIVE_CHANNELS; iwc++)
+			{
+				if (channels[iwc].chan_nr == chan && channels[iwc].open)
+					break;
+			}
+			
+			if (iwc >= MAX_ACTIVE_CHANNELS)
+				remove_tab_button (chan);
+		}
+		
+		// now add buttons for every tab that doesn't have a button yet
+		for (iwc = 0; iwc < MAX_ACTIVE_CHANNELS; iwc++)
+		{
+			if (channels[iwc].open)
+			{
+				chan = channels[iwc].chan_nr;
+				for (ibc = 0; ibc < tabs_in_use; ibc++)
+				{
+					if (tabs[ibc].channel == chan)
+						break;
+				}
+				
+				if (ibc >= tabs_in_use)
+				{
+					add_tab_button (chan);
+				}
+			}
+		}
+	}
+	else if (new_wc == 2)
+	{
+		// first close possible remaining tabs that are no 
+		// longer active
+		for (iwc = 0; iwc < MAX_ACTIVE_CHANNELS; iwc++)
+		{
+			if (channels[iwc].open)
+			{
+				chan = channels[iwc].chan_nr;
+				for (ibc = 0; ibc < tabs_in_use; ibc++)
+				{
+					if (tabs[ibc].channel == chan)
+						break;
+				}
+				
+				if (ibc >= tabs_in_use)
+				{
+					remove_chat_tab (chan);
+				}
+			}
+		}
+
+		// now add tabs for every button that doesn't have a tab yet
+		for (ibc = 0; ibc < tabs_in_use; ibc++)
+		{
+			chan = tabs[ibc].channel;
+			for (iwc = 0; iwc < MAX_ACTIVE_CHANNELS; iwc++)
+			{
+				if (channels[iwc].chan_nr == chan && channels[iwc].open)
+					break;
+			}
+			
+			if (iwc >= MAX_ACTIVE_CHANNELS)
+				// unfortunately we have no clue about the 
+				// numberr of lines written in this channel, so
+				// we won't see anything until new messages
+				// arrive. Oh well.
+				add_chat_tab (0, chan);
+		}
+	}
+}
+

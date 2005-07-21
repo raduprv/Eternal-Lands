@@ -650,6 +650,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		win->mouseover_handler = NULL;
 		win->resize_handler = NULL;
 		win->keypress_handler = NULL;
+		win->close_handler = NULL;
 		win->destroy_handler = NULL;
 		win->show_handler = NULL;
 		
@@ -1154,46 +1155,48 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 		my = y - win->cur_y;
 		//check the X for close - but hide it
 		if(win->flags&ELW_CLOSE_BOX)
+		{
+        		if(my>0 && my<=20 && mx>(win->len_x-20) && mx<=win->len_x)
 			{
-        			if(my>0 && my<=20 && mx>(win->len_x-20) && mx<=win->len_x)
-				{
-					// the X was hit, hide this window
-					hide_window(win_id);
-					return 1;
-				}				
-			}
+				// the X was hit, hide this window
+				hide_window(win_id);
+				if (win->close_handler != NULL)
+					win->close_handler (win);
+				return 1;
+			}				
+		}
 			
-			// check the widgets
+		// check the widgets
+		glPushMatrix();
+		glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+		while (W != NULL)
+		{
+			if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y + W->len_y)
+			{
+				if ( widget_handle_click (W, mx - W->pos_x, my - W->pos_y, flags) )
+				{
+					// widget handled it
+					glPopMatrix ();
+					return 1;
+				}
+			}
+			W = W->next;
+		}
+		glPopMatrix();
+
+		// widgets don't deal with it, try the window handler
+		if (win->click_handler != NULL)
+		{
 			glPushMatrix();
 			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-			while (W != NULL)
-			{
-				if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y + W->len_y)
-				{
-					if ( widget_handle_click (W, mx - W->pos_x, my - W->pos_y, flags) )
-					{
-						// widget handled it
-						glPopMatrix ();
-						return 1;
-					}
-				}
-				W = W->next;
-			}
+			ret_val = (*win->click_handler)(win, mx, my, flags);
 			glPopMatrix();
-
-			// widgets don't deal with it, try the window handler
-			if (win->click_handler != NULL)
-			{
-				glPushMatrix();
-				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-				ret_val = (*win->click_handler)(win, mx, my, flags);
-				glPopMatrix();
-			}
-			
-			if ( !ret_val && (win->flags & ELW_CLICK_TRANSPARENT) )
-				return 0;	// click is not handled, and the window is transparent
-			return	1;	// click is handled
 		}
+		
+		if ( !ret_val && (win->flags & ELW_CLICK_TRANSPARENT) )
+			return 0;	// click is not handled, and the window is transparent
+		return	1;	// click is handled
+	}
 
 	return 0;
 }
@@ -1386,6 +1389,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_KEYPRESS:
 			old_handler= (void *)windows_list.window[win_id].keypress_handler;
 			windows_list.window[win_id].keypress_handler=handler;
+			break;
+		case	ELW_HANDLER_CLOSE:
+			old_handler= (void *)windows_list.window[win_id].close_handler;
+			windows_list.window[win_id].close_handler=handler;
 			break;
 		case	ELW_HANDLER_DESTROY:
 			old_handler= (void *)windows_list.window[win_id].destroy_handler;

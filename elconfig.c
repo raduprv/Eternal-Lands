@@ -235,6 +235,8 @@ void set_afk_time(int *pointer, int time)
 
 void change_windowed_chat (int *wc, int val)
 {
+	int old_wc = *wc;
+	
 	*wc = val;
 	if (*wc == 1)
 	{
@@ -253,6 +255,9 @@ void change_windowed_chat (int *wc, int val)
 	{
 		hide_window (chat_win);
 	}
+	
+	if (old_wc != *wc && (old_wc == 1 || old_wc == 2) )
+		convert_tabs (*wc);
 }
 
 

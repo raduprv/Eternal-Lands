@@ -203,4 +203,15 @@ void change_to_current_chat_tab(const char *input);
  */
 void update_tab_bar (Uint8 channel);
 
+/*!
+ * \ingroup chat_window
+ * \brief	Convert from chat window to tab bar, or vice versa
+ *
+ *	Convert the chat window's tabs into tab bar buttons, or vice versa
+ *
+ * \param new_wc	the new value of use_windowed_chat
+ * \callgraph
+ */
+void convert_tabs (int new_wc);
+
 #endif // def __CHAT_H__

@@ -46,11 +46,12 @@ typedef	struct	{
 	int (*display_handler)();	/*!< display the window */
 	int (*click_handler)();		/*!< handle mouse clicks */
 	int (*drag_handler)();		/*!< handle dragging inside windows */
-	int (*mouseover_handler)();		/*!< handle mouseovers */
+	int (*mouseover_handler)();	/*!< handle mouseovers */
 	int (*resize_handler)();	/*!< handle window resize events */
 	int (*keypress_handler)();	/*!< handle key presses */
-  int (*destroy_handler)();	/*!< executed upon window destruction */
-	int (*show_handler)(); /*!< executed before the window is shown */
+	int (*close_handler)();		/*!< executed after window is closed */
+	int (*destroy_handler)();	/*!< executed upon window destruction */
+	int (*show_handler)();		/*!< executed before the window is shown */
     /*! @} */
 
 	/*
@@ -177,8 +178,9 @@ typedef	struct	{
 #define	ELW_HANDLER_MOUSEOVER	4
 #define	ELW_HANDLER_RESIZE	5
 #define	ELW_HANDLER_KEYPRESS	6
-#define	ELW_HANDLER_DESTROY	7
-#define	ELW_HANDLER_SHOW	8
+#define	ELW_HANDLER_CLOSE	7
+#define	ELW_HANDLER_DESTROY	8
+#define	ELW_HANDLER_SHOW	9
 /*! @} */
 
 /*!
