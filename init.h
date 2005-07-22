@@ -49,8 +49,8 @@ typedef struct
      * \name Options window position
      */
     /*! @{ */
-	int options_menu_x;
-	int options_menu_y;
+	int elconfig_menu_x;
+	int elconfig_menu_y;
     /*! @} */
     
     /*!

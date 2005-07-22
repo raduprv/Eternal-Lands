@@ -322,7 +322,7 @@ void change_aa(int *pointer) {
 void change_gamma(float *pointer, float *value)
 {
 	*pointer = *value;
-	if(video_mode_set)SDL_SetGamma(*value, *value, *value);
+	if(video_mode_set)SDL_SetGamma(*value/10, *value/10, *value/10);
 }
 
 #ifdef MAP_EDITOR
@@ -651,7 +651,7 @@ void init_vars()
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,1,INT_MAX);
-	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",VIDEO,0,10);
+	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,10,"Gamma","How bright your display should be.",VIDEO,1,30);
 
 #ifdef MAP_EDITOR
 	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);

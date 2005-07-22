@@ -231,8 +231,8 @@ void read_bin_cfg()
 	attrib_menu_x=cfg_mem.attrib_menu_x;
 	attrib_menu_y=cfg_mem.attrib_menu_y;
 
-	options_menu_x=cfg_mem.options_menu_x;
-	options_menu_y=cfg_mem.options_menu_y;
+	elconfig_menu_x=cfg_mem.elconfig_menu_x;
+	elconfig_menu_y=cfg_mem.elconfig_menu_y;
 
 	knowledge_menu_x=cfg_mem.knowledge_menu_x;
 	knowledge_menu_y=cfg_mem.knowledge_menu_y;
@@ -312,8 +312,8 @@ void save_bin_cfg()
 	cfg_mem.attrib_menu_x=attrib_menu_x;
 	cfg_mem.attrib_menu_y=attrib_menu_y;
 
-	cfg_mem.options_menu_x=options_menu_x;
-	cfg_mem.options_menu_y=options_menu_y;
+	cfg_mem.elconfig_menu_x=elconfig_menu_x;
+	cfg_mem.elconfig_menu_y=elconfig_menu_y;
 
 	cfg_mem.knowledge_menu_x=knowledge_menu_x;
 	cfg_mem.knowledge_menu_y=knowledge_menu_y;
@@ -372,12 +372,12 @@ void save_bin_cfg()
 		cfg_mem.manufacture_menu_y=manufacture_menu_y;
 	}
 
-	if(options_win >= 0) {
-		cfg_mem.options_menu_x=windows_list.window[options_win].cur_x;
-		cfg_mem.options_menu_y=windows_list.window[options_win].cur_y;
+	if(elconfig_win >= 0) {
+		cfg_mem.elconfig_menu_x=windows_list.window[elconfig_win].cur_x;
+		cfg_mem.elconfig_menu_y=windows_list.window[elconfig_win].cur_y;
 	} else {
-		cfg_mem.options_menu_x=options_menu_x;
-		cfg_mem.options_menu_y=options_menu_y;
+		cfg_mem.elconfig_menu_x=elconfig_menu_x;
+		cfg_mem.elconfig_menu_y=elconfig_menu_y;
 	}
 
 	if(quickbar_relocatable>0)
@@ -624,7 +624,7 @@ void init_stuff()
 	//Read the books for i.e. the new char window
 	init_books();
 	
-	SDL_SetGamma(gamma_var, gamma_var, gamma_var);
+	SDL_SetGamma(gamma_var/10, gamma_var/10, gamma_var/10);
 	
 	draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer = SDL_AddTimer (500, check_misc, NULL);

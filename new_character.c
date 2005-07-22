@@ -355,7 +355,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	} else if (key == K_ZOOMOUT) {
 		if (zoom_level < 3.75f) new_zoom_level = zoom_level + 0.25;
 	} else if(key==K_OPTIONS){
-		view_window(&options_win, 0);
+		view_window(&elconfig_win, 0);
 	} else if(key==K_ENCYCLOPEDIA){
 		view_tab(&tab_help_win, &tab_help_collection_id, 1);
 	} else if(key==K_HELP) {

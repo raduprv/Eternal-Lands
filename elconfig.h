@@ -8,6 +8,10 @@
 
 #include "queue.h"
 
+extern int elconfig_win;
+extern int elconfig_menu_x;
+extern int elconfig_menu_y;
+
 /*!
  * var_struct stores the data for a single configuration entry.
  */
