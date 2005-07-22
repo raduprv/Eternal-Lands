@@ -101,11 +101,12 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 
 	for (i = 0; i < nchan; i++)
 		active_channels[i] = SDL_SwapLE32(channels[i]);
-
 	for ( ; i < MAX_ACTIVE_CHANNELS; i++)
 		active_channels[i] = 0;
 
 	set_channel_tabs (tmp);
+
+	current_channel = active;
 }
 
 #endif // def MULTI_CHANNEL
@@ -164,7 +165,7 @@ void init_chat_channels ()
 	{
 		channels[itab].tab_id = -1;
 		channels[itab].out_id = chat_out_start_id + itab;
-		channels[itab].chan_nr = CHAT_LOCAL;
+		channels[itab].chan_nr = CHAT_ALL;
 		channels[itab].nr_lines = 0;
 		channels[itab].open = 0;
 		channels[itab].newchan = 0;
@@ -212,7 +213,7 @@ int close_channel (window_info *win)
 		if (channels[ichan].tab_id == id)
 		{
 			channels[ichan].tab_id = -1;
-			channels[ichan].chan_nr = CHAT_LOCAL;
+			channels[ichan].chan_nr = CHAT_ALL;
 			channels[ichan].nr_lines = 0;
 			channels[ichan].open = 0;
 			channels[ichan].newchan = 0;
@@ -238,7 +239,7 @@ void remove_chat_tab (Uint8 channel)
 			tab_collection_close_tab (chat_win, chat_tabcollection_id, nr);
 			
 			channels[ichan].tab_id = -1;
-			channels[ichan].chan_nr = CHAT_LOCAL;
+			channels[ichan].chan_nr = CHAT_ALL;
 			channels[ichan].nr_lines = 0;
 			channels[ichan].open = 0;
 			channels[ichan].newchan = 0;
@@ -370,7 +371,7 @@ void update_chat_window (int nlines, Uint8 channel)
 	if(add_chat_tab(nlines, channel) == -1)
 	{
 		// uh oh, no empty slot found. this shouldn't really be happening...
-		// log as local
+		// log in general channel
 		channels[0].nr_lines += nlines;	
 		channels[0].newchan = 1;
 		if (0 == active_tab)
@@ -535,7 +536,7 @@ void change_to_current_chat_tab(const char *input)
 		itab = add_chat_tab(0, channel);
 		if(itab == -1)
 		{
-			//Eek, it failed, switch to local
+			//Eek, it failed, switch to general
 			switch_to_chat_tab(channels[0].tab_id, 0);
 		}
 		else
@@ -846,11 +847,11 @@ void create_chat_window() {
 	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_CHAT_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
 	widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
 	
-	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, tab_local, 0, 0);
+	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, tab_all, 0, 0);
 	set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
 	set_window_min_size (channels[0].tab_id, 0, 0);
-	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_LOCAL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
-	channels[0].chan_nr = CHAT_LOCAL;
+	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
+	channels[0].chan_nr = CHAT_ALL;
 	channels[0].nr_lines = 0;
 	channels[0].open = 1;
 	channels[0].newchan = 0;
@@ -998,6 +999,7 @@ const char *tab_label (Uint8 chan)
 
 	switch (chan)
 	{
+		case CHAT_ALL: return tab_all;
 		case CHAT_LOCAL: return tab_local;
 		case CHAT_PERSONAL: return tab_personal;
 		case CHAT_GM: return tab_guild;
@@ -1130,7 +1132,7 @@ void create_tab_bar ()
 
 	tab_bar_win = create_window ("Tab bar", game_root_win, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
 	
-	add_tab_button (CHAT_LOCAL);
+	add_tab_button (CHAT_ALL);
 	current_tab = 0;
 	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.57f, 1.0f, 0.59f);
 	current_filter = tabs[current_tab].channel;
