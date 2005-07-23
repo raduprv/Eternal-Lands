@@ -489,6 +489,25 @@ void test_for_console_command (char *text, int len)
 					len = 4;
 				}
 		}
+	else if (my_strncompare (text_loc, "accept_buddy", 12))
+		{
+			/* Look for this to make sure the requests queue is up to date */
+			char *name = strstr(text_loc, " ");
+			/* Make sure a name is given */
+			if(name != NULL && name[1]) {
+				name++;
+				node_t *node = buddy_request_queue->front;
+				/* Search for the node in the queue */
+				while(node != NULL) {
+					if(strcasecmp(name, node->data) == 0) {
+						/* This is the node we're looking for, delete it */
+						queue_delete_node(buddy_request_queue, node);
+						break;
+					}
+					node = node->next;
+				}
+			}
+		}
 	send_input_text_line (text, len);	// no command, send it to the server, as plain text
 }
 

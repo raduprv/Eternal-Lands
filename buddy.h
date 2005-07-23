@@ -5,7 +5,7 @@
  */
 #ifndef __BUDDY_H__
 #define __BUDDY_H__
-#include "elwindows.h"
+#include "queue.h"
 
 /*!
  * The buddy structure containing the name and the type.
@@ -77,4 +77,9 @@ void del_buddy(char *n, int len);
  * 		Clears the buddy list
  */
 void clear_buddy();
+
+void add_buddy_confirmation(char *name);
+
+extern queue_t *buddy_request_queue;
+
 #endif

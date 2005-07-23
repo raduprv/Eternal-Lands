@@ -61,6 +61,44 @@ void *queue_pop (queue_t *queue)
 	}
 }
 
+void *queue_delete_node(queue_t *queue, node_t *node)
+{
+	if (queue == NULL || node == NULL || queue_isempty(queue)) {
+		return NULL;
+	} else {
+		void *data = NULL;
+		node_t *search_node;
+
+		SDL_LockMutex(queue->mutex);
+		search_node = queue->front;
+		/* Find the node in the queue */
+		/* Check if it's the first node. */
+		if(node == queue->front) {
+			/* Shouldn't really happen */
+			return NULL;
+		} else {
+			while(search_node != NULL) {
+				/* Check if the next node is what we're looking for */
+				if(search_node->next == node) {
+					/* Point the  node before our node's  next pointer to the node after our node  */
+					search_node->next = node->next;
+					if(node == queue->rear) {
+						queue->rear = search_node;
+					}
+					/* Make sure the data isn't lost when we free the node */
+					data = node->data;
+					free(node);
+					queue->elements--;
+					break;
+				}
+				search_node = search_node->next;
+			}
+		}
+		SDL_UnlockMutex(queue->mutex);
+		return data;
+	}
+}
+
 int queue_isempty(const queue_t *queue)
 {
 	int return_value;
