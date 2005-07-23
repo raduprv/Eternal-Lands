@@ -69,6 +69,13 @@ int elconfig_menu_y_len = 430;
 int compass_direction_checkbox = 1;
 int shadow_map_size_multi = 0;
 
+int show_fps=1;
+int render_skeleton=0;
+int render_mesh=1;
+
+int you_sit=0;
+int sit_lock=0;
+
 void change_var(int * var)
 {
 	*var=!*var;
@@ -191,6 +198,11 @@ void toggle_full_screen_mode(int * fs)
 			return;
 		}
 	toggle_full_screen();
+	//TODO: Add wide screen resolutions
+	//1280x800
+	//1400x1050
+	//1440x900
+	//1680x1050
 }
 
 void change_shadow_map_size(int *pointer, int value)

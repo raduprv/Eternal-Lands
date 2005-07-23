@@ -5,8 +5,8 @@ CPP  = g++.exe
 CC   = gcc.exe
 WINDRES = windres.exe
 RES  = 
-OBJ  = 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o bags.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gamewin.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o notepad.o openingwin.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o options.o elconfig.o help.o sector.o rules.o timers.o $(RES)
-LINKOBJ  = 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o bags.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gamewin.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o notepad.o openingwin.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o options.o elconfig.o help.o sector.o rules.o timers.o $(RES)
+OBJ  = 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o bags.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gamewin.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o notepad.o openingwin.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o elconfig.o help.o sector.o rules.o timers.o $(RES)
+LINKOBJ  = 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o bags.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gamewin.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o notepad.o openingwin.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o elconfig.o help.o sector.o rules.o timers.o $(RES)
 LIBS =  -L"C:/Dev-Cpp/lib" -mwindows -lSDL -lopengl32  -lxml2 -lSDL_net -lALut -lOpenAL32 -lvorbisfile -liberty -liconv -lm  
 INCS =  -I"C:/Dev-Cpp/include" 
 CXXINCS =  -I"C:/Dev-Cpp/include/c++/3.3.1"  -I"C:/Dev-Cpp/include/c++/3.3.1/mingw32"  -I"C:/Dev-Cpp/include/c++/3.3.1/backward"  -I"C:/Dev-Cpp/lib/gcc-lib/mingw32/3.3.1/include"  -I"C:/Dev-Cpp/include" 
@@ -193,9 +193,6 @@ widgets.o: widgets.c
 
 translate.o: translate.c
 	$(CC) -c translate.c -o translate.o $(CFLAGS)
-
-options.o: options.c
-	$(CC) -c options.c -o options.o $(CFLAGS)
 
 elconfig.o: elconfig.c
 	$(CC) -c elconfig.c -o elconfig.o $(CFLAGS)

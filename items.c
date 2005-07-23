@@ -630,7 +630,7 @@ int keypress_items_handler(window_info * win, int x, int y, Uint32 key, Uint32 k
 				*val=atoi(str);
 			}
 			return 1;
-		} else if(key==SDLK_RETURN){
+		} else if(keysym=='\r'){
 			if(!*val){
 				reset_quantity(edit_quantity);
 			}

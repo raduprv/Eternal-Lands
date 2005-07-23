@@ -116,7 +116,6 @@ typedef int point;
 #include "new_character.h"
 #include "init.h"
 #include "pm_log.h"
-#include "options.h"
 #include "translate.h"
 #include "elconfig.h"
 #include "timers.h"
