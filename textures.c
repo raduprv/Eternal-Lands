@@ -92,7 +92,7 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	if(x_size != orig_x_size || y_size != orig_y_size){
 		char str[200];
 		
-		sprintf(str, "The alphamap for %s was not the same size as the original - we didn't load the alphamap...", FileName);
+		snprintf(str, sizeof(str), "The alphamap for %s was not the same size as the original - we didn't load the alphamap...", FileName);
 		log_error(str);
 
 		free(file_mem_start);
@@ -210,6 +210,8 @@ GLuint load_bmp8_color_key(char * FileName)
 
 	x_padding=x_size%4;
 	if(x_padding)x_padding=4-x_padding;
+
+	if(x_size<=x_padding)x_padding=0;
 
 	//now, allocate the memory for the file
 	texture_mem = (Uint8 *) calloc ( x_size*y_size*4, sizeof(Uint8));
@@ -337,6 +339,8 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	x_padding=x_size%4;
 	if(x_padding)x_padding=4-x_padding;
 
+	if(x_size<=x_padding)x_padding=0;
+
 	//now, allocate the memory for the file
 	texture_mem = (Uint8 *) calloc ( x_size*y_size*4, sizeof(Uint8));
 	read_buffer = (Uint8 *) calloc ( x_size-x_padding+1, sizeof(Uint8));
@@ -417,7 +421,7 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 
 	file_name_lenght=strlen(file_name);
 
-	for(i=0;i<1000;i++)
+	for(i=0;i<TEXTURE_CACHE_MAX;i++)
 		{
 			if(texture_cache[i].file_name[0])
 				{
@@ -443,24 +447,21 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 	else
 		texture_id=load_bmp8_fixed_alpha(file_name, alpha);
 	CHECK_GL_ERRORS();
-	if(texture_id==0)
-		{
-			char str[120];
-			sprintf(str,"Error: Problems loading texture: %s\n",file_name);
-			log_error(str);
-			return 0;
+	if(texture_id==0){
+		char str[120];
+		snprintf(str,sizeof(str),"Error: Problems loading texture: %s\n",file_name);
+		log_error(str);
+		return 0;
+	}
+	if(texture_slot >= 0){
+		if(!texture_cache[texture_slot].file_name[0]){//we found a place to store it
+			snprintf(texture_cache[texture_slot].file_name, sizeof(texture_cache[texture_slot].file_name), "%s", file_name);
+			texture_cache[texture_slot].texture_id=texture_id;
+			texture_cache[texture_slot].alpha=alpha;
+			return texture_slot;
 		}
-	if(texture_slot >= 0)
-		{
-			if(!texture_cache[texture_slot].file_name[0])//we found a place to store it
-				{
-					sprintf(texture_cache[texture_slot].file_name, "%s", file_name);
-					texture_cache[texture_slot].texture_id=texture_id;
-					texture_cache[texture_slot].alpha=alpha;
-					return texture_slot;
-				}
-		}
-
+	}
+	
 	log_error("Error: out of texture space\n");
 	return 0;	// ERROR!
 }
