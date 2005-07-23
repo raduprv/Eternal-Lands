@@ -57,8 +57,6 @@ GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXT
 
 Uint32 draw_delay = 0;
 
-void get_tmp_actor_data();  /* forward declaration */
-
 void draw_scene()
 {
 	CHECK_GL_ERRORS();
@@ -68,8 +66,6 @@ void draw_scene()
 
 	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
-	
-	get_tmp_actor_data();
 	
 	if ( !get_show_window (game_root_win) && !get_show_window(newchar_root_win) )
 	{

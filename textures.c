@@ -811,10 +811,10 @@ void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,in
 	x_padding=x_size%4;
 	if(x_padding)x_padding=4-x_padding;
 
+	if(x_size<=x_padding)x_padding=0;
+
 	//now, allocate the memory for the file
-	read_buffer = (Uint8 *) calloc ( 2000, sizeof(Uint8));
-
-
+	read_buffer = (Uint8 *) calloc ( x_size+x_padding+1, sizeof(Uint8));
 
 	for(y=y_size-1;y>=0;y--)
 		{

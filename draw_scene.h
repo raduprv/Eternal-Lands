@@ -80,4 +80,13 @@ void update_camera();
  * \callgraph
  */
 void CalculateFrustum();
+
+/*!
+ * \ingroup	move_actors
+ * \brief	Gets the temporary locations, rotations of the actors
+ *
+ * 		Gets the temporary locations, rotations of the actors that will be used when rendering this frame
+ */
+void get_tmp_actor_data();
+
 #endif
