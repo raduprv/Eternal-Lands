@@ -129,7 +129,7 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	if(x_padding)x_padding=4-x_padding;
 
 	//now, allocate the memory for the file
-	read_buffer = (Uint8 *) calloc ( 2000, sizeof(Uint8));
+	read_buffer = (Uint8 *) calloc ( x_size-x_padding+1, sizeof(Uint8));
 
 	for(y=0;y<y_size;y++)
 		{
@@ -339,7 +339,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 
 	//now, allocate the memory for the file
 	texture_mem = (Uint8 *) calloc ( x_size*y_size*4, sizeof(Uint8));
-	read_buffer = (Uint8 *) calloc ( 2000, sizeof(Uint8));
+	read_buffer = (Uint8 *) calloc ( x_size-x_padding+1, sizeof(Uint8));
 
 
 	for(y=0;y<y_size;y++)
