@@ -563,4 +563,6 @@ actor *	get_actor_ptr_from_id( int actor_id );
  */
 float cal_get_maxz2(actor *act);
 
+void end_actors_lists(void);
+
 #endif

@@ -85,6 +85,13 @@ void load_cursors()
 	free(handle_cursors_mem_bmp);
 }
 
+void cursors_cleanup(void)
+{
+	if(cursors_mem != NULL) {
+		free(cursors_mem);
+	}
+}
+
 void assign_cursor(int cursor_id)
 {
 	int hot_x,hot_y,x,y,i,cur_color,cur_byte,cur_bit;

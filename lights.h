@@ -183,4 +183,6 @@ void build_sun_pos_table();
  */
 void new_minute();
 
+
+void cleanup_lights(void);
 #endif

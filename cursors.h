@@ -109,4 +109,6 @@ void build_cursors();
  */
 void check_cursor_change();
 
+void cursors_cleanup(void);
+
 #endif

@@ -1,4 +1,4 @@
-
+#include <stdlib.h>
 #include "global.h"
 
 #define TILESIZE_X					(0.5f)

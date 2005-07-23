@@ -33,6 +33,16 @@ int gargc;
 char **  gargv;
 /**********************************************************************/
 
+void cleanup_mem(void)
+{
+	cleanup_text_buffers();
+	cleanup_fonts();
+	cursors_cleanup();
+	destroy_all_actors();
+	end_actors_lists();
+	cleanup_lights();
+}
+
 int start_rendering()
 {
 	SDL_Thread *music_thread=SDL_CreateThread(update_music, 0);
@@ -135,6 +145,7 @@ int start_rendering()
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 	SDL_Quit( );
+	cleanup_mem();
 	xmlCleanupParser();
 	FreeXML();
 	return(0);
@@ -168,6 +179,9 @@ int Main(int argc, char **argv)
 int main(int argc, char **argv)
 #endif
 {
+#ifdef DEBUG_MEMORY
+	elm_init();
+#endif //DEBUG_MEMORY
 	gargc=argc;
 	gargv=argv;
 
@@ -176,7 +190,9 @@ int main(int argc, char **argv)
 	init_stuff();
 
 	start_rendering();
-
+#ifdef DEBUG_MEMORY
+	elm_cleanup();
+#endif //DEBUG_MEMORY
 	return 0;
 }
 

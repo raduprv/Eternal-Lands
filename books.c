@@ -192,12 +192,14 @@ page * add_str_to_page(char * str, int type, book *b, page *p)
 {
 	char ** lines=NULL;
 	char ** newlines=NULL;
+	char ** newlines_ptr;
 	int i;
 
 	if(!str) return NULL;
 	if(!p)p=add_page(b);
 	
 	newlines=get_lines(str, b->max_width);
+	newlines_ptr = newlines;
 	lines=p->lines;
 	
 	for(i=0;*lines;i++,lines++);
@@ -222,8 +224,11 @@ page * add_str_to_page(char * str, int type, book *b, page *p)
 			lines=p->lines;
 			i=0;
 		}
+		free(*newlines);
 		*lines++=*newlines++;
 	}
+	free(newlines_ptr);
+
 	if(i<b->max_lines){
 		if(type==_AUTHOR){
 			*lines++=(char*)calloc(1,sizeof(char));
@@ -432,7 +437,9 @@ book * read_book(char * file, int type, int id)
 		b=parse_book(root->children, title, type, id);
 	}
 	
-	if(title)free(title);
+	if(title) {
+		xmlFree(title);
+	}
 	
 	xmlFreeDoc(doc);
 

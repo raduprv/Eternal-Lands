@@ -227,4 +227,5 @@ int init_fonts();
  */
 int load_font_textures ();
 
+void cleanup_fonts(void);
 #endif

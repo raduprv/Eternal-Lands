@@ -1,6 +1,7 @@
-#include "global.h"
+#include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "global.h"
 
 GLuint paper1_text;
 

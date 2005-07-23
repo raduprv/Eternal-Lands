@@ -222,6 +222,16 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 	return i;
 }
 
+void cleanup_lights(void)
+{
+	int i;
+	for(i = 0; i < MAX_LIGHTS; i++) {
+		if(lights_list[i] != NULL) {
+			free(lights_list[i]);
+		}
+	}
+}
+
 //get the lights visible in the scene
 //should be called only when we change the camera pos
 void update_scene_lights()

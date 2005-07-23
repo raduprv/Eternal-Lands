@@ -1,8 +1,9 @@
+#include <stdlib.h>
+#include <math.h>
 #include "global.h"
 #include "widgets.h"
 #include "elwindows.h"
 #include <string.h>
-#include <math.h>
 
 typedef struct {
 	char text[256];
@@ -2056,7 +2057,7 @@ int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
 					if(*(int *)button->data*10 + i_tmp > button->max) {
 						/* Make sure we don't exceed any limits */
 						*(int *)button->data = button->max;
-						snprintf(button->input_buffer, 255, "%i", button->max);
+						snprintf(button->input_buffer, 255, "%i", (int)button->max);
 					} else {
 						if(atoi(button->input_buffer) >= button->min) {
 							*(int *)button->data = *(int *)button->data * 10 + i_tmp;
@@ -2087,19 +2088,20 @@ int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
 					ch = '.';
 				}
 				if((ch >= '0' && ch <= '9') || (ch == '.' && strstr(button->input_buffer, ".") == NULL)) {
-					if(button->input_buffer[0] != '0' || ch == '.') {
+					/* Make sure we don't insert illegal characters here */
+					if(button->input_buffer[0] != '0' || ch == '.' || strstr(button->input_buffer, ".") != NULL) {
 						/* Find end of string */
-						for(i = 0; button->input_buffer[i] != '\0' && i < 255; i++);
+						for(i = 0; button->input_buffer[i] != '\0' && i < 254; i++);
 						/* Append to the end */
-						if(i >= 0){
-							button->input_buffer[i] = ch;
-							button->input_buffer[i+1] = '\0';
-							if(atof(button->input_buffer) > button->max) {
-								snprintf(button->input_buffer, 255, "%i", button->max);
-							}
+						button->input_buffer[i] = ch;
+						button->input_buffer[i+1] = '\0';
+						if(atof(button->input_buffer) > button->max) {
+							snprintf(button->input_buffer, 255, "%.2f", button->max);
 						}
 					}
-					*(float *)button->data = atof(button->input_buffer);
+					if(atof(button->input_buffer) >= button->min && atof(button->input_buffer) <= button->max) {
+						*(float *)button->data = atof(button->input_buffer);
+					}
 					return 1;
 				} else if (ch == SDLK_BACKSPACE) {
 					if(strlen(button->input_buffer) > 0) {
@@ -2141,13 +2143,13 @@ int spinbutton_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
 				case SPIN_INT:
 					switch (action) {
 						case 'i':
-							if(*(int *)button->data + 1 <= button->max) {
-								*(int *)button->data += 1;
+							if(*(int *)button->data + button->interval <= button->max) {
+								*(int *)button->data += button->interval;
 							}
 						break;
 						case 'd':
-							if(*(int *)button->data - 1 >= button->min) {
-								*(int *)button->data -= 1;
+							if(*(int *)button->data - button->interval >= button->min) {
+								*(int *)button->data -= button->interval;
 							}
 						break;
 					}
@@ -2156,13 +2158,13 @@ int spinbutton_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
 				case SPIN_FLOAT:
 					switch (action) {
 						case 'i':
-							if(*(float *)button->data + 0.5 <= button->max) {
-								*(float *)button->data += 0.5;
+							if(*(float *)button->data + button->interval <= button->max+0.000001) { //+0.000001 to avoid issues with floating point values
+								*(float *)button->data += button->interval;
 							}
 						break;
 						case 'd':
-							if(*(float *)button->data - 0.5 >= button->min) {
-								*(float *)button->data -= 0.5;
+							if(*(float *)button->data - button->interval >= button->min) {
+								*(float *)button->data -= button->interval;
 							}
 						break;
 					}
@@ -2208,6 +2210,11 @@ int spinbutton_draw(widget_list *widget)
 				}
 				snprintf(format, 10, "%%.%if", accuracy);
 				snprintf(str, 255, format, *(float *)button->data);
+				if(accuracy == 0 && pointer != NULL) {
+					/* We have a . at the end of the input buffer, but 
+					 * snprintf() doesn't write it, so we have to do it manually. */
+					strncat(str, ".", sizeof(str)-1);
+				}
 			}
 		break;
 	}
@@ -2250,12 +2257,12 @@ int spinbutton_draw(widget_list *widget)
 	return 1;
 }
 
-int spinbutton_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, int min, int max)
+int spinbutton_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval)
 {
-	return spinbutton_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, 1, -1, -1, -1);
+	return spinbutton_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, interval, 1, -1, -1, -1);
 }
 
-int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, int min, int max, float size, float r, float g, float b)
+int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size, float r, float g, float b)
 {
 	widget_list *widget = malloc (sizeof(*widget));
 	spinbutton *button = malloc (sizeof(*button));
@@ -2268,12 +2275,14 @@ int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(),
 	button->max = max;
 	button->min = min;
 	button->type = data_type;
+	button->interval = interval;
 	switch(data_type)
 	{
 		case SPIN_FLOAT:
 			snprintf(button->input_buffer, 255, "%.2f", *(float *)button->data);
 		break;
 		case SPIN_INT:
+			button->interval = (int)button->interval;
 			snprintf(button->input_buffer, 255, "%i", *(int *)button->data);
 		break;
 	}

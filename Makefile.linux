@@ -36,7 +36,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	books.o buddy.o bags.o \
 	cache.o cal.o chat.o colors.o console.o consolewin.o cursors.o	\
 	dialogues.o draw_scene.o	\
-	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
+	elconfig.o elmemory.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\

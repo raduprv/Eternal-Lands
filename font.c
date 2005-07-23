@@ -1,6 +1,6 @@
-#include "global.h"
 #include <stdlib.h>
 #include <string.h>
+#include "global.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -774,13 +774,27 @@ int init_fonts ()
 	return 1;
 }
 
+void cleanup_fonts(void)
+{
+	int i;
+
+	for(i = 0; i < FONTS_ARRAY_SIZE; i++) {
+		if(fonts[i] != NULL) {
+			free(fonts[i]);
+		}
+	}
+}
+
 int load_font_textures ()
 {
 	if (fonts[0] == NULL || fonts[1] == NULL || fonts[2] == NULL || fonts[3]==NULL )
 	{
 		int i;
-		for (i = 0; i < FONTS_ARRAY_SIZE; i++)
-			if (fonts[i] != NULL) free (fonts[i]);
+		for (i = 0; i < FONTS_ARRAY_SIZE; i++) {
+			if (fonts[i] != NULL)
+				free (fonts[i]);
+			fonts[i] = NULL;
+		}
 		if ( !init_fonts () ) return 0;
 	}
 	fonts[0]->texture_id = load_texture_cache ("./textures/font.bmp", 0);

@@ -11,6 +11,7 @@
 //		$Date:			8/28/01											 //
 //																		 //
 //***********************************************************************//
+#include <stdlib.h>
 #include <math.h>
 //#include "SDL_opengl.h"
 #include "global.h"

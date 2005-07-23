@@ -771,11 +771,10 @@ void next_command()
 
 void destroy_actor(int actor_id)
 {
-	actor * to_free;
+	int i;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	int i;
 
 	for(i=0;i<max_actors;i++){
 		if(actors_list[i])//The timer thread doesn't free memory
@@ -788,9 +787,8 @@ void destroy_actor(int actor_id)
 					glDeleteTextures(1,&actors_list[i]->texture_id);
 					if(actors_list[i]->body_parts)free(actors_list[i]->body_parts);
 				}
-				to_free=actors_list[i];
+				free(actors_list[i]);
 				actors_list[i]=NULL;
-				free(to_free);
 				if(i==max_actors-1)max_actors--;
 				else {
 					//copy the last one down and fill in the hole
@@ -808,7 +806,6 @@ void destroy_actor(int actor_id)
 void destroy_all_actors()
 {
 	int i=0;
-	actor *to_free;
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]){
@@ -819,9 +816,8 @@ void destroy_all_actors()
 				glDeleteTextures(1,&actors_list[i]->texture_id);
 				if(actors_list[i]->body_parts)free(actors_list[i]->body_parts);
 			}
-			to_free = actors_list[i];
+			free(actors_list[i]);
 			actors_list[i]=NULL;
-			free(to_free);
 		}
 	}
 	max_actors=0;

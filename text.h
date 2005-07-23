@@ -292,6 +292,9 @@ void clear_display_text_buffer ();
  */
 void rewrap_messages(int text_width);
 
+
+void cleanup_text_buffers(void);
+
 #define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,buffer,-1,0) /*!< logs the text in buffer with the specified color to the console. */
 
 #endif

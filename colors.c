@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "global.h"
 
 color_rgb colors_list[30];

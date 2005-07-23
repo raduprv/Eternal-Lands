@@ -3,12 +3,6 @@
 #include <string.h>
 #include "global.h"
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * void end_actors_list();
- */
-
 #ifdef ELC
 #define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
 #define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
@@ -804,10 +798,8 @@ actor *	get_actor_ptr_from_id( int actor_id )
 	return NULL;
 }
 
-/* currently UNUSED
 void end_actors_lists()
 {
 	SDL_DestroyMutex(actors_lists_mutex);
 	actors_lists_mutex=NULL;
 }
-*/

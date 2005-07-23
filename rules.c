@@ -1,4 +1,3 @@
-#include "global.h"
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -7,6 +6,7 @@
 #ifndef BSD
 #include <malloc.h>
 #endif
+#include "global.h"
 
 #define TITLE 	0
 #define RULE	1

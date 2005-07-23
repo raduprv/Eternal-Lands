@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <SDL_thread.h>
 #include "queue.h"
+#include "elmemory.h"
 
 int queue_initialise (queue_t **queue)
 {
@@ -127,16 +128,18 @@ int queue_destroy (queue_t *queue)
 {
 	void *tmp;
 
-	SDL_LockMutex(queue->mutex);
-	while (!queue_isempty (queue)) {
-		if ((tmp = queue_pop(queue)) == NULL) {
-			break;
-		} else {
-			free(tmp);
+	if(queue != NULL) {
+		SDL_LockMutex(queue->mutex);
+		while (!queue_isempty (queue)) {
+			if ((tmp = queue_pop(queue)) == NULL) {
+				break;
+			} else {
+				free(tmp);
+			}
 		}
+		SDL_UnlockMutex(queue->mutex);
+		SDL_DestroyMutex(queue->mutex);
+		free (queue);
 	}
-	SDL_UnlockMutex(queue->mutex);
-	SDL_DestroyMutex(queue->mutex);
-	free (queue);
 	return 0;
 }

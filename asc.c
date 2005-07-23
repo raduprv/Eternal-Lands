@@ -255,22 +255,22 @@ char ** get_lines(char * str, int chars_per_line)
 	int lines=0;
 	int i=0;
 	if(str){
-		while(*str){
+		for(lines = 0; *str; lines++) {
 			my_str=(char **)realloc(my_str,(lines+2)*sizeof(char *));
 			cur=my_str[lines]=(char*)calloc(chars_per_line+3,sizeof(char));
 		
-			for(i=0;i<chars_per_line && str[i];i++){
-				if(str[i]==0x0d) i++;
-				if (str[i]==0x0a){
+			for(i = 0; i < chars_per_line && str[i]; i++){
+				if(str[i] == '\r') i++;
+				if (str[i] == '\n'){
 					i++;
 					break;
 				}
 				cur[i]=str[i];
 			}
-			if(i>=chars_per_line){//Wrap it
+			if(i >= chars_per_line){//Wrap it
 				//go back to the last space
 				while(i){
-					if(str[i]=='/' || str[i]=='-' || str[i]=='?' || str[i]=='!' || str[i]==' ' || str[i]==0x0a || str[i]==0x0d) break;
+					if(str[i]=='/' || str[i]=='-' || str[i]=='?' || str[i]=='!' || str[i]==' ' || str[i]=='\n' || str[i]=='\r') break;
 					i--;
 				}
 				if(i){
@@ -283,7 +283,6 @@ char ** get_lines(char * str, int chars_per_line)
 			}
 			str+=i;
 			cur[i]=0;
-			lines++;
 		}
 		if(my_str)my_str[lines]=NULL;//Used to get the bounds for displaying each line
 	}

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "global.h"
@@ -41,6 +42,18 @@ void init_text_buffers ()
 	input_text_line.size = MAX_TEXT_MESSAGE_LENGTH + 1;
 	input_text_line.data = malloc (input_text_line.size);
 	input_text_line.data[0] = '\0';
+}
+
+void cleanup_text_buffers(void)
+{
+	int i;
+
+	free(input_text_line.data);
+	for(i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; i++) {
+		if(display_text_buffer[i].size > 0) {
+			free(display_text_buffer[i].data);
+		}
+	}
 }
 
 void update_text_windows (int nlines, Uint8 channel)

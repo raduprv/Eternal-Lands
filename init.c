@@ -443,7 +443,7 @@ void init_stuff()
 
 	//TODO: process command line options
 	chdir(DATA_DIR);
-	
+
 	//Initialize all strings
 	init_translatables();
 
@@ -468,7 +468,7 @@ void init_stuff()
 
 	//Parse command line options
 	read_command_line();
-	
+
 	// check for invalid combinations
 	check_options ();
 
@@ -610,7 +610,7 @@ void init_stuff()
 	read_key_config();
 	load_questlog();
 	init_buddy();
-	
+
 	have_rules=read_rules();
 	if(!have_rules){
 		log_error(rules_not_found);

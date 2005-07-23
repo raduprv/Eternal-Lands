@@ -104,7 +104,7 @@ void change_string(char * var, char * str, int len)
 #ifdef ELC
 void change_sound_level(float *var, float * value)
 {
-	if(*value>=0.0f && *value<=1.0f)
+	if(*value>=0.0f && *value<=1.0f+0.00001)
 	{
 		*var=(float)*value;
 	} else {
@@ -493,11 +493,29 @@ int check_var (char *str, var_name_type type)
 
 void free_vars()
 {
-	int i=0;
-	for(;i<our_vars.no;i++)
-		{
-			free(our_vars.var[i]);
+	int i;
+	for(i = 0; i < our_vars.no; i++)
+	{
+		switch(our_vars.var[i]->type) {
+			case INT:
+			case FLOAT:
+				queue_destroy(our_vars.var[i]->queue);
+			break;
+			case MULTI:
+				if(our_vars.var[i]->queue != NULL) {
+					while(!queue_isempty(our_vars.var[i]->queue)) {
+						//We don't free() because it's not allocated.
+						queue_pop(our_vars.var[i]->queue);
+					}
+					SDL_DestroyMutex(our_vars.var[i]->queue->mutex);
+					free(our_vars.var[i]->queue);
+				}
+			break;
 		}
+		free(our_vars.var[i]->short_desc);
+		free(our_vars.var[i]->long_desc);
+		free(our_vars.var[i]);
+	}
 	our_vars.no=0;
 }
 
@@ -507,6 +525,8 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 	float *f=var;
 	int no=our_vars.no++;
 	char *pointer;
+	float *tmp_f;
+	point *tmp_i;
 	va_list ap;
 
 	our_vars.var[no]=(var_struct*)calloc(1,sizeof(var_struct));
@@ -524,8 +544,14 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 			case INT:
 				queue_initialise(&our_vars.var[no]->queue);
 				va_start(ap, tab_id);
-				queue_push(our_vars.var[no]->queue, (void *)va_arg(ap, point));
-				queue_push(our_vars.var[no]->queue, (void *)va_arg(ap, point));
+				//Min
+				tmp_i = calloc(1,sizeof(*tmp_i));
+				*tmp_i = va_arg(ap, point);
+				queue_push(our_vars.var[no]->queue, tmp_i);
+				//Max
+				tmp_i = calloc(1,sizeof(*tmp_i));
+				*tmp_i = va_arg(ap, point);
+				queue_push(our_vars.var[no]->queue, tmp_i);
 				va_end(ap);
 				*integer = def;
 			break;
@@ -539,8 +565,18 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 			case FLOAT:
 				queue_initialise(&our_vars.var[no]->queue);
 				va_start(ap, tab_id);
-				queue_push(our_vars.var[no]->queue, (void *)va_arg(ap, point));
-				queue_push(our_vars.var[no]->queue, (void *)va_arg(ap, point));
+				//Min
+				tmp_f = calloc(1,sizeof(*tmp_f));
+				*tmp_f = va_arg(ap, double);
+				queue_push(our_vars.var[no]->queue, (void *)tmp_f);
+				//Max
+				tmp_f = calloc(1,sizeof(*tmp_f));
+				*tmp_f = va_arg(ap, double);
+				queue_push(our_vars.var[no]->queue, (void *)tmp_f);
+				//Interval
+				tmp_f = calloc(1,sizeof(*tmp_f));
+				*tmp_f = va_arg(ap, double);
+				queue_push(our_vars.var[no]->queue, (void *)tmp_f);
 				va_end(ap);
 				*f=(float)def;
 				break;
@@ -586,12 +622,12 @@ void init_vars()
 	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
 	add_var(INT,"click_speed","cspeed",&click_speed,change_int,300,"Click Speed","Set the mouse click speed",CONTROLS,0,INT_MAX);
 
-	add_var(FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1,INT_MAX);
-	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1,INT_MAX);
+	add_var(FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
+	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
 	
-	add_var(FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0,INT_MAX);
+	add_var(FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,FLT_MAX,0.01);
 #ifdef ELC
-	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0,INT_MAX);
+	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
 	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
 	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, "Type 1", "Type 2", NULL);
 #else
@@ -600,8 +636,8 @@ void init_vars()
 #endif //ELC
 	
 	add_var(BOOL,"no_sound","sound",&no_sound,change_var,0,"No sound","Toggle the Audio",AUDIO);
-	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0,1.00f);
-	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0,1.00f);
+	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
+	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0.0,1.0,0.1);
 
 	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
 
@@ -622,7 +658,7 @@ void init_vars()
 	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps filter","Toggle the caps filter",MISC);
 
 	add_var(STRING,"server_address","sa",server_address,change_string,70,"Server Address","The address of the EL server",SERVER);
-	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,10,65536);
+	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
 	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
 	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
 #ifdef ELC
@@ -663,7 +699,7 @@ void init_vars()
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,1,INT_MAX);
-	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,10,"Gamma","How bright your display should be.",VIDEO,1,30);
+	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,10,"Gamma","How bright your display should be.",VIDEO,1.0,30.0,0.5);
 
 #ifdef MAP_EDITOR
 	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
@@ -958,7 +994,8 @@ void elconfig_populate_tabs(void)
 	int widget_id=-1; //temporary storage for the widget id
 	int widget_height, label_height; //Used to calculate the y pos of the next option
 	int y; //Used for the position of multiselect buttons
-	int min, max; //For the spinbuttons
+	float *min, *max; //For the spinbuttons
+	float *interval;
 	
 	for(i = 0; i < MAX_TABS; i++) {
 		//Set default values
@@ -980,20 +1017,30 @@ void elconfig_populate_tabs(void)
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, onclick_label_handler);
 			break;
 			case INT:
-				min = (point)queue_pop(our_vars.var[i]->queue);
-				max = (point)queue_pop(our_vars.var[i]->queue);
+				min = queue_pop(our_vars.var[i]->queue);
+				max = queue_pop(our_vars.var[i]->queue);
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, min, max);
+				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, *min, *max, 1);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
+				free(min);
+				free(max);
+				queue_destroy(our_vars.var[i]->queue);
+				our_vars.var[i]->queue = NULL;
 			break;
 			case FLOAT:
-				min = (point)queue_pop(our_vars.var[i]->queue);
-				max = (point)queue_pop(our_vars.var[i]->queue);
+				min = (float *)queue_pop(our_vars.var[i]->queue);
+				max = (float *)queue_pop(our_vars.var[i]->queue);
+				interval = (float *)queue_pop(our_vars.var[i]->queue);
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, min, max);
+				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, *min, *max, *interval);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
+				free(min);
+				free(max);
+				free(interval);
+				queue_destroy(our_vars.var[i]->queue);
+				our_vars.var[i]->queue = NULL;
 			break;
 			case STRING:
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
@@ -1016,6 +1063,8 @@ void elconfig_populate_tabs(void)
 					}
 				}
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
+				queue_destroy(our_vars.var[i]->queue);
+				our_vars.var[i]->queue = NULL;
 			break;
 		}
 		//Calculate y position of the next option.

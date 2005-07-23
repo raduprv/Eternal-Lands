@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "global.h"
 
 int opening_root_win = -1;

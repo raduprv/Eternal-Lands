@@ -94,9 +94,10 @@ typedef struct
 typedef struct {
 	void *data;
 	char input_buffer[255];
-	int max;
-	int min;
+	float max;
+	float min;
 	Uint8 type;
+	float interval;
 }spinbutton;
 
 // Common widget functions
@@ -1205,8 +1206,8 @@ int multiselect_get_height(Uint32 window_id, Uint32 widget_id);
 #define SPIN_FLOAT 0
 #define SPIN_INT 1
 
-int spinbutton_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, int min, int max);
-int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, int min, int max, float size, float r, float g, float b);
+int spinbutton_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval);
+int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size, float r, float g, float b);
 
 /*!
  * \ingroup	widgets
