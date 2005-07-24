@@ -203,15 +203,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	e3d_object *returned_e3d;
 	object3d *our_object;
 
-	//find a free spot, in the e3d_list
-	i=0;
-	while(i<MAX_OBJ_3D)
-		{
-			if(!objects_list[i])break;
-			i++;
-		}
-
-	//but first convert any '\' in '/'
+	//convert any '\' in '/'
 	clean_file_name(fname, file_name, 128);
 	my_tolower(fname);
 
@@ -224,9 +216,16 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 
     		//replace it with the null object, to avoid object IDs corruption
     		returned_e3d=load_e3d_cache("./3dobjects/misc_objects/badobject.e3d");
-    		if(returned_e3d==NULL)return 0;//umm, not even found the place holder, this is teh SUKC!!!
+    		if(returned_e3d==NULL)return 0;//umm, not even found the place holder, this is teh SUCK!!!
 		}
 
+	//find a free spot, in the e3d_list
+	for(i = 0; i < MAX_OBJ_3D; i++)
+	{
+		if(!objects_list[i])
+			break;
+	}
+		
 	// now, allocate the memory
 	our_object = calloc(1, sizeof(object3d));
 
@@ -610,6 +609,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 			snprintf(str,sizeof(str),"%s: %s: %s",reg_error_str,corrupted_object,cur_object->file_name);
 			LOG_TO_CONSOLE(c_red2,str);
 			free(face_list);
+			face_list = NULL;
 			fclose(f);
 			return NULL;
 		}
@@ -654,11 +654,15 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 			char text_file_name[200];
 			int j,k;
 
-			l=strlen(cur_dir);
-			for(k=0;k<l;k++)text_file_name[k]=cur_dir[k];
-			l=strlen(material_list[i].material_name);
-			for(j=0;j<l;j++)text_file_name[k+j]=material_list[i].material_name[j];
-			text_file_name[k+j]=0;
+			l = strlen(cur_dir);
+			for(k=0; k<l; k++) {
+				text_file_name[k]=cur_dir[k];
+			}
+			l = strlen(material_list[i].material_name);
+			for(j=0; j<l; j++) {
+				text_file_name[k+j]=material_list[i].material_name[j];
+			}
+			text_file_name[k+j] = 0;
 /*
 			if(cur_object->is_transparent)material_list[i].material_id=load_texture_cache(text_file_name,0);
 			else material_list[i].material_id=load_texture_cache(text_file_name,255);
@@ -875,12 +879,12 @@ void destroy_clouds_cache(object3d * obj)
 		const GLuint l=obj->cloud_vbo;
 							
 		ELglDeleteBuffersARB(1, &l);
-
 		obj->cloud_vbo=0;
 	}
-	
-	free(obj->clouds_uv);
-	obj->clouds_uv=NULL;
+	if(obj->clouds_uv != NULL) {
+		free(obj->clouds_uv);
+		obj->clouds_uv = NULL;
+	}
 }
 
 void clear_clouds_cache()
@@ -900,17 +904,16 @@ void clear_clouds_cache()
 void destroy_3d_object(int i)
 {
 	destroy_clouds_cache(objects_list[i]);
-	
 	free(objects_list[i]);
-	objects_list[i]=0;
-     	regenerate_near_objects=1;
+	objects_list[i] = NULL;
+	regenerate_near_objects = 1;
 	if(i == highest_obj_3d+1)
-		highest_obj_3d= i;
+		highest_obj_3d = i;
 }
 
 Uint32 free_e3d_va(e3d_object *e3d_id)
 {
-     	regenerate_near_objects=1;
+	regenerate_near_objects=1;
 
 	if(e3d_id->array_vertex) {
 		free(e3d_id->array_vertex);
@@ -952,5 +955,3 @@ void destroy_e3d(e3d_object *e3d_id)
 	// and finally free the main object
 	free(e3d_id);
 }
-
-

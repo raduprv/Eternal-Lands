@@ -12,13 +12,14 @@
 	#include <windows.h>
 	#include <al.h>
 	#include <alut.h>
-	#ifndef	__GNUC__	// or should we test for VC
+	#ifndef	_MSC_VER	// now we do test for VC
 		#define inline __inline
 		#define	snprintf _snprintf
 		#define strncasecmp _strnicmp
 		#define strcasecmp _stricmp
 		#define atan2f atan2
 		#define acosf acos
+		#define ceilf ceil
 	#endif
 #elif defined(OSX)
 	// XXX Grum: move these defs to a Makefile
@@ -144,8 +145,8 @@ typedef int point;
 #include "cal.h"
 
 #ifdef NOTEPAD
-#include "notepad.h"
-#endif
+	#include "notepad.h"
+#endif //NOTEPAD
 #include "alphamap.h"
 #include "highlight.h"
 

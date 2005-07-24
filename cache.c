@@ -162,7 +162,10 @@ void cache_delete(cache_struct *cache)
 			cache_remove(cache_system, cache_find_ptr(cache_system, cache));
 			cache_delete_loop_block--;
 		}
-	free(cache);
+	else {
+		/* Make sure it wasn't free()d by the cache_remove() call */
+		free(cache);
+	}
 }
 
 void cache_set_compact(cache_struct *cache, Uint32 (*compact_item)())

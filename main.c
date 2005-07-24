@@ -35,12 +35,33 @@ char **  gargv;
 
 void cleanup_mem(void)
 {
+	int i;
+
+	queue_destroy(buddy_request_queue);
 	cleanup_text_buffers();
 	cleanup_fonts();
 	cursors_cleanup();
 	destroy_all_actors();
 	end_actors_lists();
 	cleanup_lights();
+	/* 2d objects */
+	for(i = 0; i < MAX_OBJ_2D_DEF; i++) {
+		if(obj_2d_list[i] != NULL) {
+			free(obj_2d_list[i]);
+		}
+	}
+	/* 3d objects */
+	for(i = 0; i < MAX_OBJ_3D; i++) {
+		if(objects_list[i] != NULL) {
+			destroy_3d_object(i);
+		}
+	}
+	/* caches */
+	cache_e3d->free_item = &destroy_e3d;
+	cache_delete(cache_e3d);
+	cache_e3d = NULL;
+	cache_delete(cache_system);
+	cache_system = NULL;
 }
 
 int start_rendering()

@@ -1,9 +1,13 @@
+#include <stdlib.h>
 #include <string.h>
 #include "mkeysort.h"
+#include "global.h"
 
+#ifndef WINDOWS //This function is provided by windows.h
 inline int min(int x, int y) {
-	return (x <= y)? x : y;
+	return x <= y ? x : y;
 }
+#endif //WINDOWS
 
 void mkeysort_recursive(char * A[], int r, int h) {
 	if (r <= 1) {

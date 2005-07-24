@@ -107,4 +107,6 @@ void clear_clouds_cache();
  */
 void destroy_3d_object(int i);
 
+void destroy_e3d(e3d_object *e3d_id);
+
 #endif

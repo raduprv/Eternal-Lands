@@ -176,7 +176,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	char cur_dir[200]={0};
 	obj_2d_def *cur_object;
 	char *obj_file_mem;
-	char *texture_file_name;
+	char texture_file_name[256] = {0};
 	char *handle_obj_file_mem;
 	float x_size,y_size;
 	float alpha_test;
@@ -246,7 +246,6 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	cur_object->alpha_test=alpha_test;
 
 	//now  find the texture name
-	texture_file_name=calloc(128, sizeof(char));
 	i=get_string_occurance("texture:",obj_file_mem,40,0);
 	obj_file_mem+=i;
 	k=0;
@@ -313,8 +312,6 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 					break;
 				}
 		}
-
-	free(texture_file_name);
 	free(handle_obj_file_mem);
 
 	return cur_object;

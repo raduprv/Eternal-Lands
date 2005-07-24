@@ -507,8 +507,7 @@ void free_vars()
 						//We don't free() because it's not allocated.
 						queue_pop(our_vars.var[i]->queue);
 					}
-					SDL_DestroyMutex(our_vars.var[i]->queue->mutex);
-					free(our_vars.var[i]->queue);
+					queue_destroy(our_vars.var[i]->queue);
 				}
 			break;
 		}

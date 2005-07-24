@@ -12,7 +12,7 @@
 /* How many times we have reallocated ELM_INITIAL_SIZE bytes */
 int elm_allocs = 0;
 /* A mutex, we always need a mutex */
-SDL_mutex *elm_mutex;
+SDL_mutex *elm_mutex = NULL;
 
 struct elm_memory_struct {
 	size_t size;
@@ -36,7 +36,7 @@ void elm_cleanup()
 	FILE *fp;
 
 	snprintf(path, 255, "%s/elmemory.log", configdir);
-	fp = fopen(path, "a");
+	fp = fopen(path, "w");
 	fprintf(fp, "-------Pointers not free'd-------\n");
 	for(i = 0; i < ELM_INITIAL_SIZE*elm_allocs; i++) {
 		if(elm_memory[i].pointer != NULL && elm_memory[i].size != 0) {
@@ -45,6 +45,7 @@ void elm_cleanup()
 			free(elm_memory[i].pointer);
 		}
 	}
+	fclose(fp);
 	fprintf(stderr, "EL Memory debugger: %i malloc/calloc calls not free'd\n", malloc_calls_remaining);
 	free(elm_memory);
 }
@@ -56,7 +57,7 @@ void elm_add_to_list(void *pointer, const size_t size, char *file, const int lin
 	for(i = 0; i < ELM_INITIAL_SIZE*elm_allocs; i++) {
 		if(elm_memory[i].size == 0 && elm_memory[i].pointer == NULL) {
 			/* Yay! A free slot! */
-//fprintf(stderr,"Found slot for %p\n", pointer);
+//fprintf(stderr,"%s:%i:Found slot for %p\n", file, line, pointer);
 			elm_memory[i].size = size;
 			elm_memory[i].pointer = pointer;
 			elm_memory[i].file = file;
@@ -86,8 +87,6 @@ int elm_delete_from_list(const void *pointer)
 			/* We found it! */
 			elm_memory[i].pointer = NULL;
 			elm_memory[i].size = 0;
-//fprintf(stderr, "freeing %p\n", pointer);
-			SDL_UnlockMutex(elm_mutex);
 			return 1;
 		}
 	}
@@ -105,9 +104,9 @@ void *elm_in_list(const void *pointer)
 			return &elm_memory[i];
 		}
 	}
-	/* If we reach this point, i
+	/* If we reach this point,
 	 * the pointer wasn't in the list. */
-	return 0;
+	return NULL;
 }
 
 void *elm_malloc(const size_t size, char *file, const int line)
@@ -119,6 +118,10 @@ void *elm_malloc(const size_t size, char *file, const int line)
 //fprintf(stderr,"mallocing %p\n", pointer);
 	elm_add_to_list(pointer, size, file, line);
 	SDL_UnlockMutex(elm_mutex);
+	if(pointer == NULL) {
+		/* malloc failed, sound the alarms */
+		fprintf(stderr, "%s:%i:malloc() failed\n", file, line);
+	}
 	return pointer;
 }
 
@@ -129,7 +132,11 @@ void *elm_calloc(const size_t nmemb, const size_t size, char *file, const int li
 	SDL_LockMutex(elm_mutex);
 	pointer = calloc(nmemb, size);
 //fprintf(stderr,"Callocing %p\n", pointer);
-	elm_add_to_list(pointer, size, file, line);
+	if(pointer == NULL) {
+		fprintf(stderr, "%s:%i:calloc() failed\n", file, line);
+	} else {
+		elm_add_to_list(pointer, size, file, line);
+	}
 	SDL_UnlockMutex(elm_mutex);
 	return pointer;
 }
@@ -137,8 +144,12 @@ void *elm_calloc(const size_t nmemb, const size_t size, char *file, const int li
 void elm_free(void *ptr, char *file, const int line)
 {
 	SDL_LockMutex(elm_mutex);
+//fprintf(stderr, "%s:%i:freeing %p\n", file, line, ptr);
+	if(ptr == NULL) {
+		fprintf(stderr, "%s:%i:Freeing a NULL pointer\n", file, line);
+	}
 	if(elm_delete_from_list(ptr)) {
-		/* We found the pointer in the list,
+		/* We found the pointer in the list
 		 * and it's safe to free() it. */
 		SDL_UnlockMutex(elm_mutex);
 		return free(ptr);

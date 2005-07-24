@@ -7,6 +7,7 @@
 int queue_initialise (queue_t **queue)
 {
 	(*queue) = (queue_t *)malloc(sizeof(queue_t));
+	/* Create a dummy node that's always at the front of our queue */
 	if (((*queue)->front = (node_t *)malloc(sizeof(node_t))) == NULL) {
 		fprintf(stderr, "%s:%i: Failed to allocate memory\n", __FILE__, __LINE__);
 		return 0;
@@ -137,6 +138,8 @@ int queue_destroy (queue_t *queue)
 				free(tmp);
 			}
 		}
+		/* Free the dummy node too */
+		free(queue->front);
 		SDL_UnlockMutex(queue->mutex);
 		SDL_DestroyMutex(queue->mutex);
 		free (queue);

@@ -297,8 +297,10 @@ void destroy_all_particle_defs()
 	int i;
 	for(i=0;i<MAX_PARTICLE_DEFS;i++)
 		{
-			free(defs_list[i]);
-			defs_list[i]=NULL;
+			if(defs_list[i] != NULL) {
+				free(defs_list[i]);
+				defs_list[i] = NULL;
+			}
 		}
 }
 

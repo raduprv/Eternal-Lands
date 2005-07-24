@@ -13,6 +13,7 @@ void *elm_malloc(const size_t size, char *file, const int line);
 void elm_free(void *ptr, char *file, const int line);
 void *elm_calloc(const size_t nmemb, const size_t size, char *file, const int line);
 void *elm_realloc(void *ptr, const size_t size, char *file, const int line);
+void *elm_in_list(const void *pointer);
  #endif //DEBUG_MEMORY
 
 #endif //ELMEMORY_H__
