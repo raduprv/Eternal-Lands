@@ -1005,7 +1005,7 @@ void elconfig_populate_tabs(void)
 	int widget_id=-1; //temporary storage for the widget id
 	int widget_height, label_height; //Used to calculate the y pos of the next option
 	int y; //Used for the position of multiselect buttons
-	float *min, *max; //For the spinbuttons
+	void *min, *max; //For the spinbuttons
 	float *interval;
 	
 	for(i = 0; i < MAX_TABS; i++) {
@@ -1030,8 +1030,9 @@ void elconfig_populate_tabs(void)
 			case INT:
 				min = queue_pop(our_vars.var[i]->queue);
 				max = queue_pop(our_vars.var[i]->queue);
+				/* interval is always 1 */
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, *min, *max, 1);
+				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, *(int *)min, *(int *)max, 1.0);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(min);
@@ -1040,11 +1041,11 @@ void elconfig_populate_tabs(void)
 				our_vars.var[i]->queue = NULL;
 			break;
 			case FLOAT:
-				min = (float *)queue_pop(our_vars.var[i]->queue);
-				max = (float *)queue_pop(our_vars.var[i]->queue);
+				min = queue_pop(our_vars.var[i]->queue);
+				max = queue_pop(our_vars.var[i]->queue);
 				interval = (float *)queue_pop(our_vars.var[i]->queue);
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, *min, *max, *interval);
+				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, *(float *)min, *(float *)max, *interval);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(min);
