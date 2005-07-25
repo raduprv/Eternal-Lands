@@ -227,6 +227,8 @@ int display_newchar_handler (window_info *win)
 	CHECK_GL_ERRORS ();
 	
 	if (SDL_GetAppState() & SDL_APPACTIVE) {
+		get_tmp_actor_data();
+
 		//now, determine the current weather light level
 		get_weather_light_level ();
 
