@@ -123,8 +123,7 @@ void update_rain()
 
 void render_rain()
 {
-	glPushAttrib(GL_FOG_BIT|GL_LIGHTING_BIT);
-	glEnable(GL_FOG);
+	glPushAttrib(GL_LIGHTING_BIT);
 	glDisable(GL_LIGHTING);
 	
 	glDisable(GL_TEXTURE_2D);

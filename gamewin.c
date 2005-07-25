@@ -671,7 +671,6 @@ int display_game_handler (window_info *win)
 			display_actors ();
 			display_blended_objects();
 		}
-		glDisable (GL_FOG);
 		CHECK_GL_ERRORS ();
 #ifndef NETWORK_THREAD
 		//check for network data - reduces resyncs
