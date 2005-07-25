@@ -688,9 +688,7 @@ void add_actor_from_server(char * in_data)
 		break;
 	default:
 		{
-			char str[120];
-			sprintf(str,"%s %d - %s\n",unknown_frame,frame,&in_data[23]);
-			log_error(str);
+			log_error("%s %d - %s\n", unknown_frame, frame, &in_data[23]);
 		}
 	}
 
@@ -706,9 +704,7 @@ void add_actor_from_server(char * in_data)
 			if(actors_list[i])
 				if(actors_list[i]->actor_id==actor_id)
 					{
-						char str[256];
-						sprintf(str,duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[23]);
-						log_error(str);
+						log_error(duplicate_actors_str,actor_id, actors_list[i]->actor_name, &in_data[23]);
 						destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 						i--;// last actor was put here, he needs to be checked too
 					}
@@ -743,9 +739,7 @@ void add_actor_from_server(char * in_data)
 	actors_list[i]->kind_of_actor=kind_of_actor;
 	if(strlen(&in_data[23]) >= 30)
 		{
-			char str[120];
-			snprintf(str, 120, "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[23], (int)strlen(&in_data[23]));
-			log_error(str);
+			log_error("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[23], (int)strlen(&in_data[23]));
 		}
 	else my_strncp(actors_list[i]->actor_name,&in_data[23],30);
 

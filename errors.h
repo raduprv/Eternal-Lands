@@ -23,7 +23,7 @@ void clear_error_log();
  *
  * \param message   the message to log
  */
-void log_error(const Uint8 *message);
+void log_error(const Uint8 *message, ...);
 
 /*!
  * \ingroup misc_utils
@@ -36,7 +36,7 @@ void log_error(const Uint8 *message);
  * \param function      function in which the error occurred
  * \param line          line in the source file where the error occrred
  */
-void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *function, Uint32 line);
+void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *function, Uint32 line, ...);
 
 /*!
  * \ingroup misc_utils
@@ -63,9 +63,13 @@ void log_conn(const Uint8 *in_data, Uint32 data_lenght);
  */
 /*! @{ */
 #ifdef	DEBUG
-#define	LOG_ERROR(msg)	log_error_detailed(msg, __FILE__, __FUNCTION__, __LINE__) /*!< detailed log of error */
+ #ifdef _MSC_VER
+  #define LOG_ERROR log_error //MSVC doesn't support variadic macros.
+ #else
+  #define LOG_ERROR(msg, args ...) log_error_detailed(msg, __FILE__, __FUNCTION__, __LINE__, ## args) /*!< detailed log of error */
+ #endif //_MSC_VER
 #else
-#define	LOG_ERROR(msg)	log_error(msg) /*! log the error */
+ #define LOG_ERROR log_error /*! log the error */
 #endif	//DEBUG
 /*! @} */
 

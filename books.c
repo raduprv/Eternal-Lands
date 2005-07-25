@@ -368,9 +368,7 @@ void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
 	if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, cur->children->content)!=-1){
 		add_str_to_page(string, type, b, p);
 	} else {
-		char str[200];
-		snprintf(str,sizeof(str),"An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n",cur->name,cur->line);
-		log_error(str);
+		log_error("An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n", cur->name, cur->line);
 	}
 	free(string);
 }
@@ -418,21 +416,15 @@ book * read_book(char * file, int type, int id)
 
 	if ((doc = xmlReadFile(file, NULL, 0)) == NULL) {
 		char str[200];
-		snprintf(str,198,"Couldn't open the book: %s",file);
+		snprintf(str, 200, "Couldn't open the book: %s", file);
 		log_error(str);
 		LOG_TO_CONSOLE(c_red1,str);
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
-		char str[200];
-		snprintf(str,198,"Error while parsing: %s",file);
-		log_error(str);
+		log_error("Error while parsing: %s", file);
 	} else if(xmlStrcasecmp(root->name,"book")){
-		char str[200];
-		snprintf(str,198,"Root element in %s is not <book>",file);
-		log_error(str);
+		log_error("Root element in %s is not <book>", file);
 	} else if((title=xmlGetProp(root,"title"))==NULL){
-		char str[200];
-		snprintf(str,198,"Root element in %s does not contain a title=\"<short title>\" property.",file);
-		log_error(str);
+		log_error("Root element in %s does not contain a title=\"<short title>\" property.", file);
 	} else {
 		b=parse_book(root->children, title, type, id);
 	}

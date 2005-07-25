@@ -303,14 +303,10 @@ int notepadSaveFile (widget_list *w, int mx, int my, Uint32 flags)
 		snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
 		if (xmlSaveFormatFileEnc(file, doc, "UTF-8", 1) < 0)
 		{
-			char error[256];
-			snprintf (error, 256, cant_save_notes, file);
-			LOG_ERROR (error);
+			LOG_ERROR(cant_save_notes, file);
 		}
 #else
-		char error[256];
-		snprintf (error, 256, cant_save_notes, file);
-		LOG_ERROR (error);
+		LOG_ERROR(cant_save_notes, file);
 #endif
 	}
 	

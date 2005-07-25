@@ -853,9 +853,7 @@ void add_command_to_actor(int actor_id, char command)
 	if(!act){
 		//Resync
 		//if we got here, it means we don't have this actor, so get it from the server...
-		char str[256];
-		snprintf(str, sizeof(str), "%s %d - %d\n", cant_add_command, command, actor_id);
-		LOG_ERROR(str);
+		LOG_ERROR("%s %d - %d\n", cant_add_command, command, actor_id);
 	} else {
 		LOCK_ACTORS_LISTS();
 		for(k=0;k<MAX_CMD_QUEUE;k++){
@@ -1010,7 +1008,6 @@ void move_self_forward()
 
 int find_description_index (const dict_elem dict[], const char *elem, const char *desc) {
 	int idx = 0;
-	char errmsg[120];
 	char *key;
 	
 	while ((key = dict[idx].desc) != NULL) {
@@ -1019,8 +1016,7 @@ int find_description_index (const dict_elem dict[], const char *elem, const char
 		idx++;
 	}
 
-	snprintf (errmsg, sizeof (errmsg), "Unknown %s \"%s\"\n", desc, elem);
-	LOG_ERROR(errmsg);
+	LOG_ERROR("Unknown %s \"%s\"\n", desc, elem);
 	return -1;
 }
 
@@ -1045,22 +1041,19 @@ double get_float_value (xmlNode *node) {
 
 int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]) {
 	xmlAttr *attr;
-	char errmsg[120];
-	
+
 	for (attr = node->properties; attr; attr = attr->next) {
 		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, prop) == 0) {
 			return find_description_index (dict,  attr->children->content, desc);
 		}
 	}
 	
-	snprintf (errmsg, sizeof(errmsg), "Unable to find property %s in node %s\n", prop, node->name);
-	LOG_ERROR(errmsg);
+	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
 	return -1;
 }
 
 int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
-	char errmsg[120];
 	int ok, col_idx;
 	shirt_part *shirt;
 
@@ -1080,8 +1073,7 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 			} else if (xmlStrcasecmp (item->name, "torso") == 0) {
 				get_string_value (shirt->torso_name, sizeof (shirt->torso_name), item);
 			} else {
-				snprintf (errmsg, sizeof (errmsg), "unknown shirt property \"%s\"", item->name);
-				LOG_ERROR(errmsg);
+				LOG_ERROR("unknown shirt property \"%s\"", item->name);
 				ok = 0;
 			}
 		}
@@ -1092,7 +1084,6 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 
 int parse_actor_skin (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
-	char errmsg[120];
 	int ok, col_idx;
 	skin_part *skin;
 
@@ -1110,8 +1101,7 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg) {
 			} else if (xmlStrcasecmp (item->name, "head") == 0) {
 				get_string_value (skin->head_name, sizeof (skin->head_name), item);
 			} else {
-				snprintf (errmsg, sizeof (errmsg), "unknown skin property \"%s\"", item->name);
-				LOG_ERROR(errmsg);
+				LOG_ERROR("unknown skin property \"%s\"", item->name);
 				ok = 0;
 			}
 		}
@@ -1122,7 +1112,6 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg) {
 
 int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
-	char errmsg[120];
 	int ok, col_idx;
 	legs_part *legs;
 
@@ -1144,8 +1133,7 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 				if (mode < 0) mode = GLOW_NONE;
 				legs->glow = mode;
 			} else {
-				snprintf (errmsg, sizeof (errmsg), "unknown legs property \"%s\"", item->name);
-				LOG_ERROR(errmsg);
+				LOG_ERROR("unknown legs property \"%s\"", item->name);
 				ok = 0;
 			}
 		}
@@ -1156,7 +1144,6 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 
 int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
-	char errmsg[120];
 	char str[255];
 	int ok, type_idx;
 	weapon_part *weapon;
@@ -1192,8 +1179,7 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 				if (mode < 0) mode = GLOW_NONE;
 				weapon->glow = mode;
 			} else {
-				snprintf (errmsg, sizeof (errmsg), "unknown weapon property \"%s\"", item->name);
-				LOG_ERROR(errmsg);
+				LOG_ERROR("unknown weapon property \"%s\"", item->name);
 				ok = 0;
 			}
 		}
@@ -1204,7 +1190,6 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 
 int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, const char *part_name) {
 	xmlNode *item;
-	char errmsg[120];
 	int ok = 1;
 
 	if (cfg == NULL) return 0;
@@ -1223,8 +1208,7 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 				if (mode < 0) mode = GLOW_NONE;
 				part->glow = mode;
 			} else {
-				snprintf (errmsg, sizeof (errmsg), "unknown %s property \"%s\"", part_name, item->name);
-				LOG_ERROR(errmsg);
+				LOG_ERROR("unknown %s property \"%s\"", part_name, item->name);
 				ok = 0;
 			}
 		}
@@ -1323,7 +1307,6 @@ int cal_get_idle_group(actor_types *act,char *name)
 struct cal_anim cal_load_idle(actor_types *act, char *str)
 {
 	struct cal_anim res;
-	char temp[255]={0};
 	struct CalCoreAnimation *coreanim;
 	
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,str);
@@ -1333,8 +1316,7 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 		CalCoreAnimation_Scale(coreanim,act->scale);
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
-		snprintf(temp,sizeof(temp),"No Anim: %s\n",str);
-		log_error(temp);
+		log_error("No Anim: %s\n",str);
 	}
 	
 	return res;
@@ -1369,7 +1351,6 @@ void parse_idle_group(actor_types *act,char *str)
 
 int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
-	char errmsg[120];
 	char str[255];
 	//char fname[255];
 	//char temp[255];
@@ -1460,8 +1441,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_down_2_frame=cal_load_anim(act,str);
 			} else {
-				snprintf (errmsg, sizeof (errmsg), "unknown frame property \"%s\"", item->name);
-				LOG_ERROR(errmsg);
+				LOG_ERROR("unknown frame property \"%s\"", item->name);
 				ok = 0;
 			}
 		}
@@ -1472,7 +1452,6 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 
 int parse_actor_boots (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
-	char errmsg[120];
 	int ok, col_idx;
 	boots_part *boots;
 
@@ -1492,8 +1471,7 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg) {
 				if (mode < 0) mode = GLOW_NONE;
 				boots->glow = mode;
 			} else {
-				snprintf (errmsg, sizeof (errmsg), "unknown legs property \"%s\"", item->name);
-				LOG_ERROR(errmsg);
+				LOG_ERROR("unknown legs property \"%s\"", item->name);
 				ok = 0;
 			}
 		}
@@ -1540,7 +1518,6 @@ int cal_load_mesh(actor_types *act,char *fn)
 	//int i;
 	//int meshindex=-1;
 	//char fname[255];
-	char str[255];
 	//char temp[255];
 	int res;
 	struct CalCoreMesh *mesh;
@@ -1563,8 +1540,7 @@ int cal_load_mesh(actor_types *act,char *fn)
 		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
 		if ((mesh)&&(act->mesh_scale!=1.0)) CalCoreMesh_Scale(mesh,act->mesh_scale);
 	} else {
-		snprintf(str,sizeof(str),"No mesh: %s\n",fn);
-		//log_error(str);
+		log_error("No mesh: %s\n",fn);
 	}
 	
 	return res;
@@ -1575,7 +1551,6 @@ int cal_load_weapon_mesh(actor_types *act,char *fn)
 	//int i;
 	//int meshindex=-1;
 	//char fname[255];
-	char str[255];
 	//char temp[255];
 	int res;
 	struct CalCoreMesh *mesh;
@@ -1600,8 +1575,7 @@ int cal_load_weapon_mesh(actor_types *act,char *fn)
 		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
 		if ((mesh)&&(act->skel_scale!=1.0)) CalCoreMesh_Scale(mesh,act->skel_scale);
 	} else {
-		snprintf(str,sizeof(str),"No mesh: %s\n",fn);
-		//log_error(str);
+		log_error("No mesh: %s\n",fn);
 	}
 	
 	return res;
@@ -1660,8 +1634,6 @@ void init_coremodel(int act_idx)
 
 int parse_actor_script (xmlNode *cfg) {
 	xmlNode *item;
-	char errmsg[120];
-	//char str[255];
 	int ok, act_idx,i;
 	actor_types *act;
 	struct CalCoreSkeleton *skel;
@@ -1771,8 +1743,7 @@ int parse_actor_script (xmlNode *cfg) {
 			} else if (xmlStrcasecmp (item->name, "run_speed") == 0) {
 				act->run_speed = get_float_value (item);
 			} else {
-				snprintf (errmsg, sizeof (errmsg), "Unknown actor attribute \"%s\"", item->name);
-				LOG_ERROR(errmsg);
+				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
 				ok = 0;
 			}
 		}
@@ -1815,26 +1786,23 @@ int parse_actor_defs (xmlNode *node) {
 int read_actor_defs (const char *dir, const char *index) {
 	xmlNode *root;
 	xmlDoc *doc;
-	char errmsg[120], fname[120];
+	char fname[120];
 	int ok = 1;
 	
 	snprintf (fname, 120, "%s/%s", dir, index);
 	
 	doc = xmlReadFile (fname, NULL, 0);
 	if (doc == NULL) {
-		snprintf (errmsg, sizeof (errmsg), "Unable to read actor definition file %s", fname);
-		LOG_ERROR(errmsg);
+		LOG_ERROR("Unable to read actor definition file %s", fname);
 		return 0;
 	}
 	
 	root = xmlDocGetRootElement (doc);
 	if (root == NULL) {
-		snprintf (errmsg, sizeof (errmsg), "Unable to parse actor definition file %s", fname);
-		LOG_ERROR(errmsg);
+		LOG_ERROR("Unable to parse actor definition file %s", fname);
 		ok = 0;
 	} else if (xmlStrcasecmp (root->name, "actors") != 0) {
-		snprintf (errmsg, sizeof (errmsg), "Unknown key \"%s\" (\"actors\" expected).", root->name);
-		LOG_ERROR(errmsg);
+		LOG_ERROR("Unknown key \"%s\" (\"actors\" expected).", root->name);
 		ok = 0;
 	} else {
 		ok = parse_actor_defs (root);

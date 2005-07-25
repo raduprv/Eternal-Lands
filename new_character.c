@@ -185,9 +185,7 @@ int display_newchar_handler (window_info *win)
 		if (!load_map(mapname))
 		{
 			// Houston, we have a problem
-			char err[128];
-			snprintf (err, sizeof (err), cant_change_map, mapname);
-			LOG_ERROR (err);
+			LOG_ERROR(cant_change_map, mapname);
 			// okay, let's kill ourselves, no point in continuing
 			SDLNet_Quit ();
 			SDL_Quit ();

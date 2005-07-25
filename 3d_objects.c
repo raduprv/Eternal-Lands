@@ -137,12 +137,10 @@ void draw_3d_object(object3d * object_id)
 #ifdef	DEBUG
 		// a quick check for errors
 		if(array_order[i].start < 0 || array_order[i].count <= 0) {
-			char str[256];
-			snprintf(str, sizeof(str), "%s[%d] %s (%d, %d)",
+			LOG_ERROR("%s[%d] %s (%d, %d)",
 				object_id->file_name, i,
 				values_str,
 				array_order[i].start, array_order[i].count);
-			LOG_ERROR(str);
 		}
 #endif	// DEBUG
 		glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
@@ -210,10 +208,7 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 	returned_e3d=load_e3d_cache(fname);
 	if(returned_e3d==NULL)
 		{
-            char str[256];
-            snprintf(str,sizeof(str),nasty_error_str,fname);
-            LOG_ERROR(str);
-
+            LOG_ERROR(nasty_error_str,fname);
     		//replace it with the null object, to avoid object IDs corruption
     		returned_e3d=load_e3d_cache("./3dobjects/misc_objects/badobject.e3d");
     		if(returned_e3d==NULL)return 0;//umm, not even found the place holder, this is teh SUCK!!!

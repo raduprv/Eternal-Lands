@@ -43,15 +43,15 @@ int add_to_filter_list(Uint8 *name, char save_name)
 			if(filter_list[i].len <= 0)
 				{
 					//excellent, a free spot
-					strncpy(left, name,sizeof(left));
+					snprintf(left, sizeof(left), name);
 					for(t=0;;t++){
 						if(left[t]==0){
-							strncpy(right, "smeg",sizeof(right));
+							snprintf(right, sizeof(right), "smeg");
 							break;
 						}
 						if(left[t]=='='){
 							left[t]=0;
-							strncpy(right, left+t+1,sizeof(right));
+							snprintf(right, sizeof(right), left+t+2);
 							break;
 						}
 					}
@@ -60,8 +60,7 @@ int add_to_filter_list(Uint8 *name, char save_name)
 						{
 							FILE *f = NULL;
 							char local_filters[256];
-							strncpy(local_filters, configdir,sizeof(local_filters));
-							strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
+							snprintf(local_filters, sizeof(local_filters), "%slocal_filters.txt", configdir);
 							f=my_fopen(local_filters, "a");
 							if (f != NULL)
 							{
@@ -74,7 +73,7 @@ int add_to_filter_list(Uint8 *name, char save_name)
 					left[64]=0;
 					right[64]=0;
 					filter_list[i].wildcard_type=0;
-					l=strlen(left)-1;
+					l=strlen(left)-2;
 					if(left[0]=='*' && left[l]!='*') filter_list[i].wildcard_type=1;
 					if(left[0]!='*' && left[l]=='*') filter_list[i].wildcard_type=2;
 					if(left[0]=='*' && left[l]=='*') filter_list[i].wildcard_type=3;
@@ -111,8 +110,7 @@ int remove_from_filter_list(Uint8 *name)
 	if(found)
 		{
 			char local_filters[256];
-			strncpy(local_filters, configdir,sizeof(local_filters));
-			strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
+			snprintf(local_filters, sizeof(local_filters), "%slocal_filters.txt", configdir);
 			f=my_fopen(local_filters, "w");
 			if (f != NULL)
 			{
@@ -145,7 +143,7 @@ int check_if_filtered(Uint8 *name)
 			{
 				if(filter_list[i].wildcard_type==0){  /* no wildcard, normal compare */
 					if(my_strncompare(filter_list[i].name,name,filter_list[i].len)){
-						if(isalpha(name[filter_list[i].len])==0){ /* fits with end of word? */
+						if(isalpha(name[filter_list[i].len-1])==0){ /* fits with end of word? */
 							return i;//yep, filtered
 						} 
 					}
@@ -156,14 +154,14 @@ int check_if_filtered(Uint8 *name)
 					}
 					strcpy(buff, filter_list[i].name);
 					l=filter_list[i].len;
-					if(my_strncompare(buff+1,name+t-(l-1),l-1)){
+					if(my_strncompare(buff+1,name+t-(l-2),l-2)){
 						return i;//yep, filtered
 					}
 				}
 				else if(filter_list[i].wildcard_type==2){  /* word*                      */
 					strcpy(buff, filter_list[i].name);
 					l=filter_list[i].len;
-					if(my_strncompare(buff,name,l-1)){
+					if(my_strncompare(buff,name,l-2)){
 						return i;//yep, filtered
 					}
 				}
@@ -173,7 +171,7 @@ int check_if_filtered(Uint8 *name)
 					l=filter_list[i].len;
 					for(t=0;;t++){
 						if(isalpha(name[t])==0) break;
-						if(my_strncompare(buff+1,name+t,l-2)){
+						if(my_strncompare(buff+1,name+t,l-3)){
 							return i;//yep, filtered
 						}
 					}
@@ -241,9 +239,10 @@ int filter_text(Uint8 * input_text, int len)
 	if (*storage_filter && my_strncompare (input_text+1, "Items you have in your storage:", 31))
 		len = 33 + filter_storage_text (input_text+33, len-33);
 
-	memset(buff, ' ', len+2);  /* clear buffer */
-	buff[len+3]=0;
-	strncpy(buff+1, input_text, len); /* now we have leading and trailing spaces */
+	memset(buff, 0, len+3);  /* clear buffer */
+	snprintf(buff+1, len, input_text); /* now we have leading and trailing spaces */
+	buff[0]=' ';
+	buff[len+1]=' ';
 
 	//do we need to do CAPS filtering?
 	if(caps_filter)
@@ -300,18 +299,22 @@ int filter_text(Uint8 * input_text, int len)
 					rep_len=filter_list[idx].rlen;
 
 					if(bad_len == rep_len) {
-						strncpy(buff+i+1, filter_list[idx].replacement, rep_len);
+						snprintf(buff+i+1, rep_len, filter_list[idx].replacement);
 					}
 					else{
-						memmove(buff+i+1+rep_len, buff+i+1+bad_len, len-(i-1+bad_len));
-						strncpy(buff+i+1, filter_list[idx].replacement, rep_len);
+						if(filter_list[idx].wildcard_type > 0){
+							bad_len++;
+						}
+						memmove(buff+i+1+rep_len+1, buff+i+1+bad_len, len-(i-1+bad_len));
+						snprintf(buff+i+1, rep_len, filter_list[idx].replacement);
+						buff[i+1+rep_len]=' '; /* end word with a space */
 						// adjust the length
-						len-=(bad_len-rep_len);
+						len-=(bad_len-(rep_len+1));
 					}
 				}
 			}
 		}
-	strncpy(input_text, buff+1, len);
+	snprintf(input_text, len, buff+1);
 	return(len);
 }
 
@@ -375,8 +378,7 @@ void clear_filter_list()
 void load_filters()
 {
 	char local_filters[256];
-	strncpy(local_filters, configdir,sizeof(local_filters));
-	strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
+	snprintf(local_filters, sizeof(local_filters), "%slocal_filters.txt", configdir);
 	clear_filter_list();
 	load_filters_list(local_filters);
 	if(use_global_filters)load_filters_list("global_filters.txt");

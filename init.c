@@ -590,9 +590,7 @@ void init_stuff()
 
 	if(SDLNet_Init()<0)
  		{
-			char str[120];
-			snprintf(str,sizeof(str),"%s: %s\n",failed_sdl_net_init,SDLNet_GetError());
-			log_error(str);
+			log_error("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(2);
@@ -600,9 +598,7 @@ void init_stuff()
 
 	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
 		{
- 			char str[120];
-			snprintf(str, sizeof(str), "%s: %s\n", failed_sdl_timer_init,SDL_GetError());
-			log_error(str);
+			log_error("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
 			SDL_Quit();
 		 	exit(1);
 		}

@@ -464,15 +464,11 @@ void add_enhanced_actor_from_server(char * in_data)
 	case frame_combat_idle:
 		break;
 	default:
-		{
-			char str[120];
 #ifdef UID
-			snprintf (str, sizeof(str), "%s %d - %s\n", unknown_frame, frame, &in_data[32]);
+		log_error("%s %d - %s\n", unknown_frame, frame, &in_data[32]);
 #else
-			snprintf(str, sizeof(str), "%s %d - %s\n",unknown_frame,frame,&in_data[28]);
+		log_error("%s %d - %s\n",unknown_frame,frame,&in_data[28]);
 #endif
-			log_error(str);
-		}
 	}
 
 #ifdef EXTRA_DEBUG
@@ -488,13 +484,11 @@ void add_enhanced_actor_from_server(char * in_data)
 				{
 					if(actors_list[i]->actor_id==actor_id)
 						{
-							char str[256];
 #ifdef UID
-							snprintf (str, sizeof(str), "%s %d = %s => %s\n", duplicate_actors_str, actor_id, actors_list[i]->actor_name, &in_data[32]);
+							log_error("%s %d = %s => %s\n", duplicate_actors_str, actor_id, actors_list[i]->actor_name, &in_data[32]);
 #else
-							snprintf(str, sizeof(str), "%s %d = %s => %s\n",duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							log_error("%s %d = %s => %s\n",duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[28]);
 #endif
-							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
 						}
@@ -504,13 +498,11 @@ void add_enhanced_actor_from_server(char * in_data)
 					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && (actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor==PKABLE_COMPUTER_CONTROLLED) && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
 #endif
 						{
-							char str[256];
 #ifdef UID
-							snprintf (str, sizeof(str), "%s(%d) = %s => %s\n", duplicate_npc_actor, actor_id, actors_list[i]->actor_name, &in_data[32]);
+							log_error("%s(%d) = %s => %s\n", duplicate_npc_actor, actor_id, actors_list[i]->actor_name, &in_data[32]);
 #else
-							snprintf(str, sizeof(str), "%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							log_error("%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
 #endif
-							log_error(str);
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
 						}
@@ -684,9 +676,7 @@ void add_enhanced_actor_from_server(char * in_data)
 	actors_list[i]->kind_of_actor=kind_of_actor;
 	if(strlen(&in_data[28]) >= 30)
 		{
-			char str[120];
-			snprintf(str, sizeof(str), "%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
-			log_error(str);
+			log_error("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
 		}
 	else 	{
 			my_strncp(actors_list[i]->actor_name,&in_data[28],sizeof(actors_list[i]->actor_name));

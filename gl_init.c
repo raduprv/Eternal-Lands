@@ -250,9 +250,7 @@ void init_video()
 
 	if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1 )
 		{
-			char str[120];
-			snprintf(str, sizeof(str),"%s: %s\n", no_sdl_str, SDL_GetError());
-			log_error(str);
+			log_error("%s: %s\n", no_sdl_str, SDL_GetError());
 			SDL_Quit();
 			exit(1);
 		}
@@ -320,9 +318,7 @@ void init_video()
 			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 			if(!SDL_SetVideoMode( window_width, window_height, bpp, flags))
 			    {
-					char str[120];
-					snprintf(str,sizeof(str), "%s: %s\n", fail_opengl_mode, SDL_GetError());
-					log_error(str);
+					log_error("%s: %s\n", fail_opengl_mode, SDL_GetError());
 					SDL_Quit();
 					exit(1);
 			    }
@@ -339,57 +335,57 @@ void init_video()
 		my_string=(GLubyte *)glGetString(GL_RENDERER);
 		len=strlen(my_string);
 		have_hardware=get_string_occurance("gdi generic",my_string,len,0);
-		if(have_hardware==-1)goto all_ok;
-		//let the user know there is a problem
-		LOG_TO_CONSOLE(c_red1,stencil_falls_back_on_software_accel);
-		//first, shut down this mode we have now.
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
-		SDL_Init(SDL_INIT_VIDEO);//restart SDL
-		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
-		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
-		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
-		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0);
-		SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24);
-		SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
-		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
-		if(full_screen)flags=SDL_OPENGL|SDL_FULLSCREEN;
-		SDL_SetVideoMode(window_width, window_height, bpp, flags);
-		have_stencil=0;
-
-		my_string=(GLubyte *)glGetString(GL_RENDERER);
-		len=strlen(my_string);
-		have_hardware=get_string_occurance("gdi generic",my_string,len,0);
-		if(have_hardware==-1)goto all_ok;
-		//wtf, this really shouldn't happen....
-		//let's try a default mode, maybe Quake 2's mode, and pray it works
-		LOG_TO_CONSOLE(c_red1,last_chance_str);
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
-		SDL_Init(SDL_INIT_VIDEO);//restart SDL
-		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
-		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
-		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
-		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0);
-		SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24);
-		SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
-		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
-		flags=SDL_OPENGL|SDL_FULLSCREEN;
-		full_screen=1;
-		video_mode=2;
-		window_width=640;
-		window_height=480;
-		bpp=32;
-		SDL_SetVideoMode(window_width, window_height, bpp, flags);
-		//see if it worked...
-		my_string=(GLubyte *)glGetString(GL_RENDERER);
-		len=strlen(my_string);
-		have_hardware=get_string_occurance("gdi generic",my_string,len,0);
-		if(have_hardware==-1)goto all_ok;
-		//wtf, this really shouldn't happen....
-		//let's try a default mode, maybe Quake 2's mode, and pray it works
-		LOG_TO_CONSOLE(c_red1,software_mode_str);
-
-
-	all_ok:;
+		if(have_hardware != -1) {
+			//let the user know there is a problem
+			LOG_TO_CONSOLE(c_red1,stencil_falls_back_on_software_accel);
+			//first, shut down this mode we have now.
+			SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
+			SDL_Init(SDL_INIT_VIDEO);//restart SDL
+			SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
+			SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
+			SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
+			SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0);
+			SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24);
+			SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
+			SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
+			if(full_screen)flags=SDL_OPENGL|SDL_FULLSCREEN;
+			SDL_SetVideoMode(window_width, window_height, bpp, flags);
+			have_stencil=0;
+	
+			my_string=(GLubyte *)glGetString(GL_RENDERER);
+			len=strlen(my_string);
+			have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+			if(have_hardware != -1) {
+				//wtf, this really shouldn't happen....
+				//let's try a default mode, maybe Quake 2's mode, and pray it works
+				LOG_TO_CONSOLE(c_red1,last_chance_str);
+				SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
+				SDL_Init(SDL_INIT_VIDEO);//restart SDL
+				SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
+				SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
+				SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
+				SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0);
+				SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24);
+				SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
+				SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
+				flags=SDL_OPENGL|SDL_FULLSCREEN;
+				full_screen=1;
+				video_mode=2;
+				window_width=640;
+				window_height=480;
+				bpp=32;
+				SDL_SetVideoMode(window_width, window_height, bpp, flags);
+				//see if it worked...
+				my_string=(GLubyte *)glGetString(GL_RENDERER);
+				len=strlen(my_string);
+				have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+				if(have_hardware != -1) {
+					//wtf, this really shouldn't happen....
+					//let's try a default mode, maybe Quake 2's mode, and pray it works
+					LOG_TO_CONSOLE(c_red1,software_mode_str);
+				}
+			}
+		}
 	}
 #endif
 
@@ -795,18 +791,16 @@ void toggle_full_screen()
 
 int print_gl_errors(const char *file, const char *func, int line)
 {
-	char str[1024];
 	int	glErr, anyErr=GL_NO_ERROR;
 
 	while ((glErr=glGetError()) != GL_NO_ERROR )
-		 {
-			anyErr=glErr;
+	 {
+		anyErr=glErr;
 #ifdef	GLUT
-			snprintf(str, 1024, "OpenGL %s", gluErrorString(glErr));
-#else	// GLUT
-			snprintf(str, 1024, "OpenGL error %d", glErr);
-#endif	// GLUT
-			log_error_detailed(str, file, func, line);
-		}
+		log_error_detailed("OpenGL %s", file, func, line, gluErrorString(glErr));
+#else
+		log_error_detailed("OpenGL error %d", file, func, line, glErr);
+#endif // GLUT
+	}
 	return anyErr;
 }

@@ -221,9 +221,7 @@ FILE *my_fopen (const char *fname, const char *mode)
 	FILE *file = fopen (fname, mode);
 	if (file == NULL)
 	{
-		char str[256];
-		snprintf(str, sizeof (str), "%s: %s \"%s\"", reg_error_str, cant_open_file, fname);
-		LOG_ERROR(str);
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
 	}
 	return file;
 }
@@ -261,19 +259,13 @@ static int png_colortype_from_surface(SDL_Surface *surface)
 static void png_user_warn (png_structp ctx, png_const_charp str)
 {
 	//fprintf(stderr, "libpng: warning: %s\n", str);
-	char err[256];
-	
-	snprintf (err, sizeof (err), "libpng: warning: %s\n", str);
-	LOG_ERROR (str);
+	LOG_ERROR("libpng: warning: %s\n", str);
 }
 
 static void png_user_error(png_structp ctx, png_const_charp str)
 {
 	//fprintf(stderr, "libpng: error: %s\n", str);
-	char err[256];
-	
-	snprintf (err, sizeof (err), "libpng: error: %s\n", str);
-	LOG_ERROR (str);
+	LOG_ERROR("libpng: error: %s\n", str);
 }
 
 int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)

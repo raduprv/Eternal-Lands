@@ -188,9 +188,7 @@ void connect_to_server()
 	set=SDLNet_AllocSocketSet(1);
 	if(!set)
         {
-            char str[120];
-            sprintf(str,"SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
-            log_error(str);
+            log_error("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(4); //most of the time this is a major error, but do what you want.
@@ -214,9 +212,7 @@ void connect_to_server()
 
 	if(SDLNet_TCP_AddSocket(set,my_socket)==-1)
 		{
-            char str[120];
-            sprintf(str,"SDLNet_TCP_AddSocket: %s\n",SDLNet_GetError());
-            log_error(str);
+            log_error("SDLNet_TCP_AddSocket: %s\n", SDLNet_GetError());
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(2);
@@ -520,9 +516,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				if (!load_map(&in_data[3]))
 				{
 					// Houston, we have a problem
-					char err[128];
-					snprintf (err, sizeof (err), cant_change_map, &in_data[3]);
-					LOG_ERROR (err);
+					LOG_ERROR(cant_change_map, &in_data[3]);
 					// okay, let's kill ourselves, no point in continuing
 					SDLNet_Quit ();
 					SDL_Quit ();

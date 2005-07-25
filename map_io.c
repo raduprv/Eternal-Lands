@@ -164,9 +164,7 @@ int load_map (const char * file_name)
 	   cur_map_header.file_sig[2]!='m'||
 	   cur_map_header.file_sig[3]!='f')
 		{
-			char str[200];
-			sprintf(str,invalid_map,map_file_name);
-			log_error(str);
+			log_error(invalid_map, map_file_name);
 			exit_now=1;//We might as well quit...
 			return 0;
 		}

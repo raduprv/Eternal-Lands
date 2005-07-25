@@ -388,9 +388,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	returned_obj_2d_def=load_obj_2d_def_cache(fname);
 	if(!returned_obj_2d_def)
 		{
-            char str[256];
-            snprintf(str,sizeof(str),"%s: %s: %s",reg_error_str,cant_load_2d_object,fname);
-            LOG_ERROR(str);
+            LOG_ERROR("%s: %s: %s",reg_error_str,cant_load_2d_object,fname);
 	        return 0;
 		}
 

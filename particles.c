@@ -118,9 +118,7 @@ particle_sys_def *load_particle_def(const char *filename)
 
 	if(version!=PARTICLE_DEF_VERSION)
 		{
-			char str[256];
-			snprintf(str,256,particles_filever_wrong,filename,version,PARTICLE_DEF_VERSION);
-			LOG_ERROR(str);
+			LOG_ERROR(particles_filever_wrong,filename,version,PARTICLE_DEF_VERSION);
 			fclose(f);
 			return NULL;
 		}
@@ -162,9 +160,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	
 	if(def->total_particle_no>MAX_PARTICLES)
 		{
-		  char str[256];
-		  snprintf(str,256,particle_system_overrun,filename,def->total_particle_no,MAX_PARTICLES);
-		  LOG_ERROR(str);
+		  LOG_ERROR(particle_system_overrun,filename,def->total_particle_no,MAX_PARTICLES);
 		  def->total_particle_no=MAX_PARTICLES;
 		}
 	if(def->constrain_rad_sq>0.0)
@@ -208,9 +204,7 @@ particle_sys_def *load_particle_def(const char *filename)
 				}
 			if(fixed)
 				{
-					 char str[256];
-					 snprintf(str,256,particle_strange_pos,filename);
-					 LOG_ERROR(str);
+					LOG_ERROR(particle_strange_pos,filename);
 				}
 
 		}

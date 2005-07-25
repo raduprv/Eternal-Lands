@@ -146,9 +146,7 @@ void play_ogg_file(char *file_name) {
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-     		char	str[256];
-    		snprintf(str, 256,"play_ogg_file %s: %s", my_tolower(reg_error_str), alGetString(error));
-    		LOG_ERROR(str);
+    		LOG_ERROR("play_ogg_file %s: %s", my_tolower(reg_error_str), alGetString(error));
 			have_music=0;
 			return;
     	}
@@ -205,9 +203,7 @@ ALuint get_loaded_buffer(int i)
 		fin = fopen (sound_files[i], "r");
 		if (fin == NULL) 
 		{
-			char errmsg[256];
-			snprintf (errmsg, sizeof (errmsg), snd_wav_load_error, sound_files[i]);
-			LOG_ERROR (errmsg);
+			LOG_ERROR(snd_wav_load_error, sound_files[i]);
 			return 0;
 		}
 		// okay, the file exists and is readable, close it
@@ -217,9 +213,7 @@ ALuint get_loaded_buffer(int i)
 			
 		if((error=alGetError()) != AL_NO_ERROR) 
 		{
-			char	str[256];
-			snprintf(str, 256, "%s: %s",snd_buff_error, alGetString(error));
-			LOG_ERROR(str);
+			LOG_ERROR("%s: %s",snd_buff_error, alGetString(error));
 			have_sound=0;
 			have_music=0;
 		}
@@ -307,16 +301,14 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 
 	alGenSources(1, &sound_source[i]);
 	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-    		char	str[256];
-    		snprintf(str, 256, "%s %d: %s", snd_source_error, i, alGetString(error));
-    		LOG_ERROR(str);
+	{
+		LOG_ERROR("%s %d: %s", snd_source_error, i, alGetString(error));
 		have_sound=0;
 		have_music=0;
 		UNLOCK_SOUND_LIST ();
 		return 0;
-    	}
-	
+	}
+
 	buffer = get_loaded_buffer (sound_file);
 	if (buffer == 0)
 	{
@@ -428,9 +420,7 @@ void update_position()
 		}
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-     		char	str[256];
-    		snprintf(str, 256, "update_position %s: %s", my_tolower(reg_error_str), alGetString(error));
-    		LOG_ERROR(str);
+			LOG_ERROR("update_position %s: %s", my_tolower(reg_error_str), alGetString(error));
 			have_sound=0;
 			have_music=0;
     	}
@@ -441,7 +431,6 @@ int update_music(void *dummy)
 {
 #ifndef	NO_MUSIC
     int error,processed,state,state2,sleep,fade=0;
-    char str[256];
    	sleep = SLEEP_TIME;
 	while(have_music)
 		{
@@ -511,8 +500,7 @@ int update_music(void *dummy)
 						}
 					if((error=alGetError()) != AL_NO_ERROR)
 						{
-							snprintf(str, 256, "update_music %s: %s", my_tolower(reg_error_str), alGetString(error));
-							LOG_ERROR(str);
+							LOG_ERROR("update_music %s: %s", my_tolower(reg_error_str), alGetString(error));
 							have_music=0;
 						}
 				}
@@ -573,8 +561,7 @@ void stream_music(ALuint buffer) {
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-    		snprintf(str, 256, "stream_music %s: %s", my_tolower(reg_error_str), alGetString(error));
-    		LOG_ERROR(str);
+    		LOG_ERROR("stream_music %s: %s", my_tolower(reg_error_str), alGetString(error));
 			have_music=0;
     	}
 #endif	//NO_MUSIC
@@ -590,13 +577,11 @@ void kill_local_sounds()
 	LOCK_SOUND_LIST();
 	alSourceStopv(used_sources,sound_source);
 	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-     		char	str[256];
-    		snprintf(str, 256, "kill_local_sounds %s: %s", my_tolower(reg_error_str), alGetString(error));
-    		LOG_ERROR(str);
-			have_sound=0;
-			have_music=0;
-    	}
+	{
+		LOG_ERROR("kill_local_sounds %s: %s", my_tolower(reg_error_str), alGetString(error));
+		have_sound=0;
+		have_music=0;
+	}
 	if (realloc_sources () != 0)
 		LOG_ERROR(snd_stop_fail);
 	UNLOCK_SOUND_LIST();
@@ -686,7 +671,7 @@ void init_sound()
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
-     		char	str[256];
+     		char str[256];
     		snprintf(str, 256, "%s: %s\n", snd_init_error, alGetString(error));
     		LOG_TO_CONSOLE(c_red1, str);
     		LOG_ERROR(str);
@@ -802,19 +787,17 @@ int realloc_sources()
 	used_sources=still_used;
 	
 	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-     		char	str[256];
-    		snprintf(str, 256, "snd_realloc %s: %s", my_tolower(reg_error_str), alGetString(error));
-    		LOG_ERROR(str);
-			have_sound=0;
-			have_music=0;
-    	}
+	{
+		LOG_ERROR("snd_realloc %s: %s", my_tolower(reg_error_str), alGetString(error));
+		have_sound=0;
+		have_music=0;
+	}
 	if(used_sources>=MAX_SOURCES) 
-    	{
-    		LOG_TO_CONSOLE(c_red1,snd_sound_overflow);
-    		LOG_ERROR(snd_sound_overflow);
-			return -1;
-    	}
+	{
+		LOG_TO_CONSOLE(c_red1,snd_sound_overflow);
+		LOG_ERROR(snd_sound_overflow);
+		return -1;
+	}
 	else
 		return used_sources;
 }
@@ -822,22 +805,20 @@ int realloc_sources()
 void ogg_error(int code)
 {
 #ifndef	NO_MUSIC
-	char error_string[80];
-    switch(code)
-    {
-        case OV_EREAD:
-            strcpy(error_string, snd_media_read); break;
-        case OV_ENOTVORBIS:
-            strcpy(error_string, snd_media_notvorbis); break;
-        case OV_EVERSION:
-            strcpy(error_string, snd_media_ver_mismatch); break;
-        case OV_EBADHEADER:
-            strcpy(error_string, snd_media_invalid_header); break;
-        case OV_EFAULT:
-            strcpy(error_string, snd_media_internal_error); break;
-        default:
-            strcpy(error_string, snd_media_ogg_error);
+	switch(code)
+	{
+		case OV_EREAD:
+			LOG_ERROR(snd_media_read); break;
+		case OV_ENOTVORBIS:
+			LOG_ERROR(snd_media_notvorbis); break;
+		case OV_EVERSION:
+			LOG_ERROR(snd_media_ver_mismatch); break;
+		case OV_EBADHEADER:
+			LOG_ERROR(snd_media_invalid_header); break;
+		case OV_EFAULT:
+			LOG_ERROR(snd_media_internal_error); break;
+		default:
+			LOG_ERROR(snd_media_ogg_error);
     }
-	LOG_ERROR(error_string);
 #endif	//NO_MUSIC
 }

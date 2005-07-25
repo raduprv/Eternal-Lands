@@ -43,10 +43,7 @@ int get_and_set_texture_id(int i)
 	int	texture_id;
 	
 	if(i<0||i>TEXTURE_CACHE_MAX) {
-		char str[100];
-
-		snprintf(str,sizeof(str), "We tried binding a texture ID of %d\n",i);
-		log_error(str);
+		log_error("We tried binding a texture ID of %d\n", i);
 		return 0;
 	}
 	
@@ -90,14 +87,10 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	file_mem+=4;
 	y_size= SDL_SwapLE32(*((int *) file_mem));
 	if(x_size != orig_x_size || y_size != orig_y_size){
-		char str[200];
-		
-		snprintf(str, sizeof(str), "The alphamap for %s was not the same size as the original - we didn't load the alphamap...", FileName);
-		log_error(str);
-
+		log_error("The alphamap for %s was not the same size as the original - we didn't load the alphamap...", FileName);
 		free(file_mem_start);
 		fclose(f);
-		
+
 		return 0;
 	}
 	file_mem+=6;
@@ -448,9 +441,7 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 		texture_id=load_bmp8_fixed_alpha(file_name, alpha);
 	CHECK_GL_ERRORS();
 	if(texture_id==0){
-		char str[120];
-		snprintf(str,sizeof(str),"Error: Problems loading texture: %s\n",file_name);
-		log_error(str);
+		log_error("Error: Problems loading texture: %s\n",file_name);
 		return 0;
 	}
 	if(texture_slot >= 0){

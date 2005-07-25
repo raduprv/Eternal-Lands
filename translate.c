@@ -1070,9 +1070,7 @@ struct xml_struct load_strings(char * file)
 		tmp=load_strings_file(file_name);
 		if(tmp.file==NULL){
 			//Notify about this error - english only
-			char str[120];
-			sprintf(str,"Could not read %s",file);
-			log_error(str);
+			log_error("Could not read %s", file);
 		}
 	}
 	return tmp;
@@ -1099,9 +1097,7 @@ struct xml_struct load_strings_file(char * filename)
 			xmlDocSetRootElement (file.file, file.root);
 			if((file.root=xmlDocGetRootElement(file.file))==NULL) {
 #endif
-	               	        char str[120];
-				sprintf(str, "Fatal: couldn't find root element in %s\n",filename);
-				log_error(str);
+				log_error("Fatal: couldn't find root element in %s\n",filename);
 				xmlFreeDoc(file.file);
 				file.file=NULL;
 #ifdef WRITE_XML
