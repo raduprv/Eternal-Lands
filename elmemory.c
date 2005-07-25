@@ -1,4 +1,4 @@
-#ifdef DEBUG_MEMORY
+#ifdef MEMORY_DEBUG
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -199,4 +199,4 @@ void *elm_realloc(void *ptr, const size_t size, char *file, const int line)
 	}
 	SDL_UnlockMutex(elm_mutex);
 }
-#endif //DEBUG_MEMORY
+#endif //MEMORY_DEBUG

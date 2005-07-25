@@ -12,6 +12,7 @@ OPTIONS=-DLINUX -DELC
 #-DUID # use unique ID sent from server for custom looks. Still unfinished!
 #-DNETWORK_THREAD
 #-DANTI_ALIAS # allows to enable/disable anti-aliasing in el.ini
+#-DMEMORY_DEBUG # gather information about memory allocation and freeing
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

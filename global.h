@@ -66,9 +66,9 @@ typedef long int point;
 typedef int point;
 #endif
 
-#ifdef DEBUG_MEMORY
+#ifdef MEMORY_DEBUG
  #include "elmemory.h"
-#endif //DEBUG_MEMORY
+#endif //MEMORY_DEBUG
 #include "cal_types.h"
 #include "cache.h"
 #include "encyclopedia.h"

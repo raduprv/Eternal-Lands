@@ -200,9 +200,9 @@ int Main(int argc, char **argv)
 int main(int argc, char **argv)
 #endif
 {
-#ifdef DEBUG_MEMORY
+#ifdef MEMORY_DEBUG
 	elm_init();
-#endif //DEBUG_MEMORY
+#endif //MEMORY_DEBUG
 	gargc=argc;
 	gargv=argv;
 
@@ -211,9 +211,9 @@ int main(int argc, char **argv)
 	init_stuff();
 
 	start_rendering();
-#ifdef DEBUG_MEMORY
+#ifdef MEMORY_DEBUG
 	elm_cleanup();
-#endif //DEBUG_MEMORY
+#endif //MEMORY_DEBUG
 	return 0;
 }
 
