@@ -651,19 +651,9 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 
 	for(i=0;i<materials_no;i++)
 		{
-			char text_file_name[200];
-			int j,k;
-
-			l = strlen(cur_dir);
-			for(k=0; k<l; k++) {
-				text_file_name[k]=cur_dir[k];
-			}
-			l = strlen(material_list[i].material_name);
-			for(j=0; j<l; j++) {
-				text_file_name[k+j]=material_list[i].material_name[j];
-			}
-			text_file_name[k+j] = 0;
-/*
+			char text_file_name[500];
+			snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material_list[i].material_name);
+/* // FIXME: Why is this commented out?
 			if(cur_object->is_transparent)material_list[i].material_id=load_texture_cache(text_file_name,0);
 			else material_list[i].material_id=load_texture_cache(text_file_name,255);
 */
