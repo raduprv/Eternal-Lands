@@ -619,7 +619,7 @@ void init_stuff()
 	//Read the books for i.e. the new char window
 	init_books();
 	
-	SDL_SetGamma(gamma_var/10, gamma_var/10, gamma_var/10);
+	SDL_SetGamma(gamma_var, gamma_var, gamma_var);
 	
 	draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer = SDL_AddTimer (500, check_misc, NULL);

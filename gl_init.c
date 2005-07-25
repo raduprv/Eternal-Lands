@@ -28,7 +28,7 @@ int have_sgis_generate_mipmap=0;
 int use_mipmaps=0;
 int have_arb_shadow=0;
 int have_vertex_buffers=0;
-float gamma_var = 10;
+float gamma_var = 1.00f;
 float perspective = 0.15f;
 
 struct list {
