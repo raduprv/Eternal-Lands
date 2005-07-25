@@ -165,7 +165,7 @@ void load_ogg_file(char *file_name) {
 	if(file_name[0]!='.' && file_name[0]!='/')
 		snprintf (file_name2, sizeof (file_name2), "./music/%s", file_name);
 	else
-		strncpy (file_name2, file_name, sizeof (file_name2));
+		snprintf(file_name2, sizeof (file_name2), file_name);
 
 	ogg_file = my_fopen(file_name2, "rb");
 
@@ -239,7 +239,7 @@ void play_music(int list) {
 
 	if(!have_music)return;
 
-	sprintf(list_file_name,"./music/%d.pll",list);
+	snprintf(list_file_name, sizeof(list_file_name), "./music/%d.pll", list);
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(list_file_name,"r");
 	if(!fp)return;
@@ -555,7 +555,7 @@ void stream_music(ALuint buffer) {
     {
         result = ov_read(&ogg_stream, data + size, BUFFER_SIZE - size, 0, 2, 1,
 						 &section);
-		sprintf(str, "%d", result);	//prevents optimization errors under Windows, but how/why?
+		snprintf(str, sizeof(str), "%d", result); //prevents optimization errors under Windows, but how/why?
         if(result > 0)
             size += result;
         else if(result < 0)

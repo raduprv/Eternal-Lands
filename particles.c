@@ -126,7 +126,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	setlocale(LC_NUMERIC,"en_US");
 #endif
 	// System info
-	strncpy(def->file_name,filename,79);
+	snprintf(def->file_name, 79, filename);
 	def->file_name[79]=0;
 	fscanf(f,"%i\n",&def->part_sys_type);
 	fscanf(f,"%x,%x\n",&def->sblend,&def->dblend);

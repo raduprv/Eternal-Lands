@@ -87,7 +87,7 @@ void print_return_message()
 			while(++m<pm_log.ppl)
 				{
 					char name[35];
-					sprintf(name,"%2d: %16s         %2d",m+1,pm_log.afk_msgs[m].name,pm_log.afk_msgs[m].msgs);
+					snprintf(name, sizeof(name), "%2d: %16s         %2d",m+1,pm_log.afk_msgs[m].name,pm_log.afk_msgs[m].msgs);
 					LOG_TO_CONSOLE(c_green2,name);
 				}
 			LOG_TO_CONSOLE(c_green2,afk_print_help);
@@ -170,7 +170,7 @@ int is_talking_about_me (Uint8 *server_msg, int len, char everywhere)
 		return 0; //Only do local chat
 	}
 
-	strncpy(msg,server_msg,len);
+	snprintf(msg, len, server_msg);
 	msg[len]=0;
 	my_tolower(msg);
 
@@ -195,7 +195,7 @@ void send_afk_message (Uint8 *server_msg, int type)
 	
 	if (type)
 	{
-		sprintf (sendtext, "%c%s %s", SEND_PM, last_pm_from, afk_message);
+		snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, last_pm_from, afk_message);
 	}
 	else 
 	{
@@ -215,7 +215,7 @@ void send_afk_message (Uint8 *server_msg, int type)
 		
 		if (have_name(name, i-1) < 0)
 		{
-			sprintf (sendtext, "%c%s %s", SEND_PM, name, afk_message);
+			snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, name, afk_message);
 			add_name_to_pm_log (name, i-1);
 		}
 		else

@@ -23,7 +23,7 @@ char storage_text[202]={0};
 void get_storage_text(Uint8 * in_data, int len)
 {
 	if(len>200)len=200;
-	strncpy(storage_text, in_data, len);
+	snprintf(storage_text, len, in_data);
 	storage_text[len]=0;
 }
 
@@ -344,7 +344,7 @@ void display_storage_menu()
 	} else {
 		int i;
 
-		strcpy(windows_list.window[storage_win].window_name, "Storage");
+		snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), "Storage");
 		no_storage=0;
 		
 		for(i=0;i<no_storage_categories;i++)storage_categories[i].name[0]=127+c_orange1;

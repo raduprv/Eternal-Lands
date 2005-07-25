@@ -228,8 +228,7 @@ void custom_path(char * path, char * custom1, char * custom2) {
 	FILE * fh;
 
 	/* Check if custom1 has path readable */
-	my_strcp(buffer, custom1);
-	my_strcat(buffer, path);
+	snprintf(buffer, sizeof(buffer), "%s%s", custom1, path);
 	fh = fopen(buffer, "r");
 	if (fh) {
 		fclose(fh);
@@ -238,8 +237,7 @@ void custom_path(char * path, char * custom1, char * custom2) {
 	}
 
 	/* Check if custom2 has path readable */
-	my_strcp(buffer, custom2);
-	my_strcat(buffer, path);
+	snprintf(buffer, sizeof(buffer), "%s%s", custom2, path);
 	fh = fopen(buffer, "r");
 	if (fh) {
 		fclose(fh);
@@ -756,7 +754,7 @@ actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short
 	a->stop_animation=1;//helps when the actor is dead...
 	a->kind_of_actor=HUMAN;
 	
-	strncpy(a->actor_name,"Player",sizeof(a->actor_name));
+	snprintf(a->actor_name, sizeof(a->actor_name), "Player");
 	
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);

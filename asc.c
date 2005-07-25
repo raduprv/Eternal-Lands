@@ -322,9 +322,7 @@ void http_get_file(char *server, char *path, FILE *fp)
 	int got_header = 0;
 	SDLNet_ResolveHost(&http_ip, server, 80);
 	http_sock = SDLNet_TCP_Open(&http_ip);
-	strncpy(message, "GET ",sizeof(message));
-	strncat(message, path, sizeof(message)-1);
-	strncat(message, " HTTP/1.0\n\n", sizeof(message)-1);
+	snprintf(message, sizeof(message), "GET %s HTTP/1.0\n\n", path);
 	len = strlen(message);
 	SDLNet_TCP_Send(http_sock,message,len);
 	while(len > 0)

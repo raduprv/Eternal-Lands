@@ -115,7 +115,7 @@ book * create_book(char * title, int type, int id)
 	}
 	b->type=type;
 	b->id=id;
-	strncpy(b->title, title, 34);
+	snprintf(b->title, 34, title);
 	
 	add_book(b);
 	
@@ -477,7 +477,7 @@ void read_local_book(char * data, int len)
 
 	len-=3;
 	if(len>199)len=199;
-	strncpy(file_name,data+3, len);
+	snprintf(file_name,len, data+3);
 	file_name[len]=0;
 	
 	b=get_book(SDL_SwapLE16(*((Uint16*)(data+1))));
@@ -958,7 +958,7 @@ void display_book_window(book *b)
 		windows_list.window[*p].data=b;
         } else {
 		if((point)windows_list.window[*p].data!=(point)b){
-			strncpy(windows_list.window[*p].window_name,b->title,sizeof(windows_list.window[*p].window_name));
+			snprintf(windows_list.window[*p].window_name, sizeof(windows_list.window[*p].window_name), b->title);
 			windows_list.window[*p].data=b;
 			if(!windows_list.window[*p].displayed) show_window(*p);
 			select_window(*p);

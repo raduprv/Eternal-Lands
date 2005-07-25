@@ -80,7 +80,7 @@ void load_e3d_list()
 		int id;
 		fscanf(fp,"%s %d",temp,&id);
 		e3dlist[i].fn=(char*)malloc(strlen(temp)+1);
-		strncpy(e3dlist[i].fn,temp,strlen(temp)+1);
+		snprintf(e3dlist[i].fn, strlen(temp)+1, temp);
 		e3dlist[i].id=id;
 	}
 	fclose(fp);
@@ -137,14 +137,14 @@ void load_knowledge_list()
 	snprintf(filename,sizeof(filename),"languages/%s/knowledge.lst",lang);
 	if((f=my_fopen(filename,"rb"))==NULL)
 		{
-			strncpy(filename,"languages/en/knowledge.lst",sizeof(filename));
+			snprintf(filename, sizeof(filename), "languages/en/knowledge.lst");
 			f=my_fopen(filename,"rb");
 		}
 	if(!f)return;
 	while(1)
 		{
 			if(!fgets(strLine, 100, f))break;
-			strncpy(knowledge_list[i].name,strLine,sizeof(knowledge_list[i].name));
+			snprintf(knowledge_list[i].name, sizeof(knowledge_list[i].name), strLine);
 			i++;
 		}
 	fclose(f);
@@ -196,8 +196,7 @@ void read_bin_cfg()
 	char el_cfg[256];
 	int i;
 
-	strncpy(el_cfg, configdir, sizeof(el_cfg));
-	strncat(el_cfg, "el.cfg",sizeof(el_cfg)-1);
+	snprintf(el_cfg,  sizeof(el_cfg), "%sel.cfg", configdir);
 	// don't use my_fopen, absence of binary config is not an error
 	f=fopen(el_cfg,"rb");
 	if(!f)return;//no config file, use defaults
@@ -282,8 +281,7 @@ void save_bin_cfg()
 	char el_cfg[256];
 	int i;
 
-	strncpy(el_cfg, configdir,sizeof(el_cfg));
-	strncat(el_cfg, "el.cfg",sizeof(el_cfg));
+	snprintf(el_cfg, sizeof(el_cfg), "%sel.cfg", configdir);
 	f=my_fopen(el_cfg,"wb");
 	if(!f)return;//blah, whatever
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean

@@ -721,7 +721,7 @@ void show_help(char *help_message, int x, int y)
 	glEnable(GL_TEXTURE_2D);
 	
 	glColor3f(1.0f,1.0f,1.0f);
-	strncpy(str,help_message,sizeof(str));
+	snprintf(str, sizeof(str), help_message);
 	draw_string_small(x, y,help_message,1);
 }
 

@@ -25,9 +25,9 @@ int display_knowledge_handler(window_info *win)
 	
 	if(your_info.research_total && 
 	   (your_info.research_completed==your_info.research_total))
-		strncpy(points_string,completed_research,10);
+		snprintf(points_string, 10, completed_research);
 	else
-		sprintf(points_string,"%4i/%-4i",your_info.research_completed,your_info.research_total);
+		snprintf(points_string, sizeof(points_string), "%4i/%-4i",your_info.research_completed,your_info.research_total);
 	if(your_info.researching < KNOWLEDGE_LIST_SIZE)
 	{
 		research_string = knowledge_list[your_info.researching].name;

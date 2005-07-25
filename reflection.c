@@ -612,7 +612,7 @@ void draw_dungeon_sky_background()
 {
 	static const GLfloat baseColor[3] = { 0.00f, 0.21f, 0.34f };
 	static GLfloat color[3];
-	int i, j;
+	int i;
 
 	for (i=0; i<3; i++) {
 		color[i] = (1.0f - fogAlpha)*baseColor[i] + fogAlpha*fogColor[i];

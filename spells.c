@@ -586,7 +586,7 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	
 #ifdef NEW_CLIENT
 	if(mx>=350 && mx<=381 && my>=112 && my<=143 && mqb_data[0] && mqb_data[0]->spell_id != -1) {
-		strcpy(spell_text, "Click to add the spell to the quickbar");
+		snprintf(spell_text, sizeof(spell_text), "Click to add the spell to the quickbar");
 		return 0;
 	}
 #endif //NEW_CLIENT
@@ -619,7 +619,7 @@ int have_spell_name(int spell_id)
 	for(i=1;i<7;i++){
 		if(mqb_data[i] && mqb_data[i]->spell_id==spell_id && mqb_data[i]->spell_name[0]){
 			if(mqb_data[0])
-				strcpy(mqb_data[0]->spell_name,mqb_data[i]->spell_name);
+				snprintf(mqb_data[0]->spell_name, sizeof(mqb_data[0]->spell_name), mqb_data[i]->spell_name);
 			return 1;
 		}
 	}
@@ -657,7 +657,7 @@ void set_spell_name(int id, char * data, int len)
 	
 	for(i=0;i<7;i++){
 		if(mqb_data[i] && mqb_data[i]->spell_id==id){
-			strncpy(mqb_data[i]->spell_name, data, len);
+			snprintf(mqb_data[i]->spell_name, len, data);
 			mqb_data[i]->spell_name[len]=0;
 		}
 	}
@@ -721,7 +721,7 @@ void load_quickspells()
 #ifndef WINDOWS
 	char username[20];
 	
-	strcpy(username, username_str);
+	snprintf(username, sizeof(username), username_str);
 	my_tolower(username);
 	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "rb"); // try local file first
@@ -756,7 +756,7 @@ void save_quickspells()
 #ifndef WINDOWS
 	char username[20];
 	
-	strcpy(username, username_str);
+	snprintf(username, sizeof(username), username_str);
 	my_tolower(username);
 	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "wb"); // try local file first

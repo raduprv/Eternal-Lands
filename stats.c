@@ -707,7 +707,7 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
 	m->color[1]=g;
 	m->color[2]=b;
 
-	strncpy(m->message, str, sizeof(m->message));
+	snprintf(m->message, sizeof(m->message), str);
 
 	m->direction=direction;
 	m->active_time=active_time;

@@ -457,7 +457,7 @@ void test_for_console_command (char *text, int len)
 				{
 					if ((text_lenght = len - (text_loc-text)) > 0) 
 						{
-							strncpy(afk_message, text_loc, text_lenght);
+							snprintf(afk_message, text_lenght, text_loc);
 							afk_message[text_lenght]='\0';
 						}
 					go_afk();

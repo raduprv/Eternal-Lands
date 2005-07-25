@@ -119,7 +119,7 @@ void set_create_char_error (const char *msg, int len)
 	if (len <= 0)
 	{
 		// server didn't send a message, use the default
-		sprintf (create_char_error_str, "%s: %s", reg_error_str, char_name_in_use);
+		snprintf (create_char_error_str, sizeof(create_char_error_str), "%s: %s", reg_error_str, char_name_in_use);
 	}
 	else
 	{
@@ -127,8 +127,7 @@ void set_create_char_error (const char *msg, int len)
 		int maxlen = sizeof (create_char_error_str) - prelen - 1;
 
 		if (len > maxlen) len = maxlen;
-		sprintf (create_char_error_str, "%s: ", reg_error_str);
-		strncat (create_char_error_str, msg, len);
+		snprintf (create_char_error_str, sizeof(create_char_error_str), "%s: %.*s", reg_error_str, len, msg);
 		create_char_error_str[len+prelen] = '\0';
 		reset_soft_breaks (create_char_error_str, len+prelen, sizeof (create_char_error_str), 1.0, window_width - 20, NULL);
 	}
@@ -136,7 +135,7 @@ void set_create_char_error (const char *msg, int len)
 	LOG_TO_CONSOLE(c_red1, create_char_error_str);
 	
 	put_small_colored_text_in_box(c_red1, create_char_error_str, strlen(create_char_error_str), 200, buf);
-	strncpy(create_char_error_str, buf, sizeof(create_char_error_str));
+	snprintf(create_char_error_str, sizeof(create_char_error_str), buf);
 	display_time=cur_time+6000;
 }
 
@@ -150,7 +149,7 @@ void change_actor ()
 	
 	our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 
-	strcpy(actors_list[0]->actor_name, inputs[0].str);
+	snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), inputs[0].str);
 
 	last_texture = -1;	// when we load a new char, we also bind the texture, so...
 }
@@ -500,8 +499,8 @@ void create_character()
 
 void login_from_new_char()
 {
-	strcpy(username_str, inputs[0].str);
-	strcpy(password_str, inputs[1].str);
+	snprintf(username_str, sizeof(username_str), inputs[0].str);
+	snprintf(password_str, sizeof(password_str), inputs[1].str);
 
 	//now send the log in info
 	send_login_info();
@@ -567,7 +566,9 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 				add_text_to_buffer(c_green1, passwords_match, 6000);
 			}
 		}
-	} else strcpy(actors_list[0]->actor_name, inputs[0].str);
+	} else {
+		snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), inputs[0].str);
+	}
 	
 	return 1;
 }
