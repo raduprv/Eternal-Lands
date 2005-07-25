@@ -17,6 +17,7 @@ extern int video_mode; /*!< currently selected video mode */
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
 extern float gamma_var; /*!< The current gamma value */
 extern float perspective; /*!< The perspective "angle". Higher values mean higher distortion. Default is 0.15f */
+extern float near_plane; /*!< The distance of the near clipping plane to your actor (devided by zoom_level). */
 
 /*! \name OpenGL extensions variables 
  * @{ */

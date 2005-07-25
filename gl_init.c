@@ -30,6 +30,7 @@ int have_arb_shadow=0;
 int have_vertex_buffers=0;
 float gamma_var = 1.00f;
 float perspective = 0.15f;
+float near_plane = 40.0f; // don't cut off anything
 
 struct list {
 	int i;
@@ -605,17 +606,18 @@ void resize_root_window()
 
 	//new zoom
 	if (isometric) {
-		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, 1.0, 60.0 );
+		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );
 	} else {
 		// What we call first, OpenGL will apply last!
 		// Finally, apply the projection
-		glFrustum( -perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 60.0 );
-		// third, scale the scene so that the near plane gets the distance zoom_level
-		glScalef(perspective, perspective, perspective);
+		glFrustum( -perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 60.0*near_plane);
+		// third, scale the scene so that the near plane gets the distance zoom_level*near_plane
+		glScalef(perspective*near_plane, perspective*near_plane, perspective*near_plane);
 		// second, move to the distance that reflects the zoom level
-		// first, move back to the actor
-		glTranslatef(0.0f, 0.0f, zoom_level*(camera_distance - 1.0f/perspective));
+		glTranslatef(0.0f, 0.0f, -zoom_level/perspective);
 	}
+	// first, move back to the actor
+	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix

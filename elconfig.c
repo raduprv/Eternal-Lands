@@ -331,6 +331,11 @@ void change_aa(int *pointer) {
 }
 #endif // ANTI_ALIAS
 
+void change_near_plane(float * var, float * value) {
+	change_float(var, value);
+	resize_root_window();
+}
+
 void change_isometric(int *pointer, int value) {
 	change_var(pointer);
 	resize_root_window();
@@ -690,6 +695,7 @@ void init_vars()
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 	add_var (BOOL, "isometric" ,"isometric", &isometric, change_isometric, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
+	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_near_plane, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
 #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
 #endif //ANTI_ALIAS
@@ -703,7 +709,7 @@ void init_vars()
 #else
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
-	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,1,INT_MAX);
+	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
 	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",SPECIALVID,0.10,3.00,0.05);
 
 #ifdef MAP_EDITOR

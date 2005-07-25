@@ -2158,7 +2158,8 @@ int spinbutton_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
 				case SPIN_FLOAT:
 					switch (action) {
 						case 'i':
-							if(*(float *)button->data + button->interval <= button->max+0.000001) { //+0.000001 to avoid issues with floating point values
+							//if(*(float *)button->data + button->interval <= button->max+0.000001) { //+0.000001 to avoid issues with floating point values
+							if(*(float *)button->data + button->interval <= button->max) { // NOTE: Can't do that, values > max may cause crashes. Change the max value intead.
 								*(float *)button->data += button->interval;
 							}
 						break;
