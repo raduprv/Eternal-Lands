@@ -12,7 +12,7 @@
 	#include <windows.h>
 	#include <al.h>
 	#include <alut.h>
-	#ifndef	_MSC_VER	// now we do test for VC
+	#ifdef	_MSC_VER	// now we do test for VC
 		#define inline __inline
 		#define	snprintf _snprintf
 		#define strncasecmp _strnicmp
