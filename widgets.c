@@ -295,7 +295,7 @@ int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, 
 	W->r = r;
 	W->g = g;
 	W->b = b;
-	snprintf(T->text, 255, text);
+	snprintf(T->text, sizeof(T->text), "%s", text);
 	W->len_y = (Uint16)(18 * 1.0);
 	W->len_x = (Uint16)(strlen(T->text) * 11 * 1.0);
 	W->OnDraw = label_draw;
@@ -333,7 +333,7 @@ int label_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		label *l = (label *) w->widget_info;
-		snprintf(l->text, 255, text);
+		snprintf(l->text, sizeof(l->text), "%s", text);
 		return 1;
 	}
 	return 0;
@@ -564,7 +564,7 @@ int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x
 	W->r = r;
 	W->g = g;
 	W->b = b;
-	snprintf(T->text, 255, text);
+	snprintf(T->text, sizeof(T->text), "%s", text);
 	W->len_y = ly > 0 ? ly : (Uint16)(18 * size) + 4;
 	W->len_x = lx > 0 ? lx : (Uint16)(strlen(T->text) * 11 * size) + 4;
 	W->OnDraw = button_draw;
@@ -617,7 +617,7 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		button *l = (button *) w->widget_info;
-		snprintf(l->text, 255, text);
+		snprintf(l->text, sizeof(l->text), "%s",  text);
 		return 1;
 	}
 	return 0;
@@ -1959,7 +1959,7 @@ int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uin
 		M->buttons = realloc(M->buttons, sizeof(*M->buttons) * M->max_buttons * 2);
 		M->max_buttons *= 2;
 	}
-	snprintf(M->buttons[current_button].text, 256, text);
+	snprintf(M->buttons[current_button].text, sizeof(M->buttons[current_button].text), "%s", text);
 	if(selected) {
 		M->selected_button = current_button;
 	}

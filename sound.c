@@ -165,7 +165,7 @@ void load_ogg_file(char *file_name) {
 	if(file_name[0]!='.' && file_name[0]!='/')
 		snprintf (file_name2, sizeof (file_name2), "./music/%s", file_name);
 	else
-		snprintf(file_name2, sizeof (file_name2), file_name);
+		snprintf(file_name2, sizeof (file_name2), "%s", file_name);
 
 	ogg_file = my_fopen(file_name2, "rb");
 

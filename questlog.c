@@ -143,8 +143,7 @@ void add_questlog_line(char *t, int len)
 	l->Next= NULL;
 	l->msg= (char*)malloc(len+1);
 	string_fix(t, len);
-	snprintf(l->msg, len, t);
-	l->msg[len]= 0;
+	snprintf(l->msg, len+1, "%s", t);
 	last->Next= l;
 	last= l;
 	if(current==NULL)	current= l;

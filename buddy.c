@@ -504,8 +504,7 @@ void add_buddy(char *n, int t, int len)
 	for(i=0; i<MAX_BUDDY; i++){
 		if(buddy_list[i].type == 0xff){//found then add buddy
 			buddy_list[i].type= t;
-			snprintf(buddy_list[i].name, len, n);
-			buddy_list[i].name[len]= '\0';
+			snprintf(buddy_list[i].name, len+1, "%s", n);
 			break;
 		}
 	}

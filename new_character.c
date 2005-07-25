@@ -135,7 +135,7 @@ void set_create_char_error (const char *msg, int len)
 	LOG_TO_CONSOLE(c_red1, create_char_error_str);
 	
 	put_small_colored_text_in_box(c_red1, create_char_error_str, strlen(create_char_error_str), 200, buf);
-	snprintf(create_char_error_str, sizeof(create_char_error_str), buf);
+	snprintf(create_char_error_str, sizeof(create_char_error_str), "%s", buf);
 	display_time=cur_time+6000;
 }
 
@@ -149,7 +149,7 @@ void change_actor ()
 	
 	our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 
-	snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), inputs[0].str);
+	snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), "%s", inputs[0].str);
 
 	last_texture = -1;	// when we load a new char, we also bind the texture, so...
 }
@@ -499,8 +499,8 @@ void create_character()
 
 void login_from_new_char()
 {
-	snprintf(username_str, sizeof(username_str), inputs[0].str);
-	snprintf(password_str, sizeof(password_str), inputs[1].str);
+	snprintf(username_str, sizeof(username_str), "%s", inputs[0].str);
+	snprintf(password_str, sizeof(password_str), "%s", inputs[1].str);
 
 	//now send the log in info
 	send_login_info();
@@ -567,7 +567,7 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 			}
 		}
 	} else {
-		snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), inputs[0].str);
+		snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), "%s", inputs[0].str);
 	}
 	
 	return 1;

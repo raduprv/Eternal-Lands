@@ -170,8 +170,7 @@ int is_talking_about_me (Uint8 *server_msg, int len, char everywhere)
 		return 0; //Only do local chat
 	}
 
-	snprintf(msg, len, server_msg);
-	msg[len]=0;
+	snprintf(msg, len+1, "%s", server_msg);
 	my_tolower(msg);
 
 	while (msg[a] && msg[a] != ':' && (msg[a] < 127+c_red1 || msg[a] > 127+c_grey4))

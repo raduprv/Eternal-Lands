@@ -25,7 +25,7 @@ int display_knowledge_handler(window_info *win)
 	
 	if(your_info.research_total && 
 	   (your_info.research_completed==your_info.research_total))
-		snprintf(points_string, 10, completed_research);
+		snprintf(points_string, sizeof(points_string), "%s", completed_research);
 	else
 		snprintf(points_string, sizeof(points_string), "%4i/%-4i",your_info.research_completed,your_info.research_total);
 	if(your_info.researching < KNOWLEDGE_LIST_SIZE)

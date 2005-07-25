@@ -619,7 +619,7 @@ int have_spell_name(int spell_id)
 	for(i=1;i<7;i++){
 		if(mqb_data[i] && mqb_data[i]->spell_id==spell_id && mqb_data[i]->spell_name[0]){
 			if(mqb_data[0])
-				snprintf(mqb_data[0]->spell_name, sizeof(mqb_data[0]->spell_name), mqb_data[i]->spell_name);
+				snprintf(mqb_data[0]->spell_name, sizeof(mqb_data[0]->spell_name), "%s", mqb_data[i]->spell_name);
 			return 1;
 		}
 	}
@@ -657,8 +657,7 @@ void set_spell_name(int id, char * data, int len)
 	
 	for(i=0;i<7;i++){
 		if(mqb_data[i] && mqb_data[i]->spell_id==id){
-			snprintf(mqb_data[i]->spell_name, len, data);
-			mqb_data[i]->spell_name[len]=0;
+			snprintf(mqb_data[i]->spell_name, len+1, "%s", data);
 		}
 	}
 

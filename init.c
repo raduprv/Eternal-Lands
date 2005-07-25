@@ -77,10 +77,11 @@ void load_e3d_list()
 
 	for(i=0;i<e3dlistsize;i++){
 		char temp[256];
-		int id;
-		fscanf(fp,"%s %d",temp,&id);
-		e3dlist[i].fn=(char*)malloc(strlen(temp)+1);
-		snprintf(e3dlist[i].fn, strlen(temp)+1, temp);
+		int id, len;
+		fscanf(fp,"%255s %d",temp,&id);
+		len = strlen(temp) + 1;
+		e3dlist[i].fn=(char*)malloc(len);
+		snprintf(e3dlist[i].fn, len, "%s", temp);
 		e3dlist[i].id=id;
 	}
 	fclose(fp);
@@ -137,14 +138,13 @@ void load_knowledge_list()
 	snprintf(filename,sizeof(filename),"languages/%s/knowledge.lst",lang);
 	if((f=my_fopen(filename,"rb"))==NULL)
 		{
-			snprintf(filename, sizeof(filename), "languages/en/knowledge.lst");
-			f=my_fopen(filename,"rb");
+			f=my_fopen("languages/en/knowledge.lst","rb");
 		}
 	if(!f)return;
 	while(1)
 		{
-			if(!fgets(strLine, 100, f))break;
-			snprintf(knowledge_list[i].name, sizeof(knowledge_list[i].name), strLine);
+			if(!fgets(strLine, sizeof(strLine), f))break;
+			snprintf(knowledge_list[i].name, sizeof(knowledge_list[i].name), "%s", strLine);
 			i++;
 		}
 	fclose(f);
