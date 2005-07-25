@@ -224,9 +224,14 @@ page * add_str_to_page(char * str, int type, book *b, page *p)
 			lines=p->lines;
 			i=0;
 		}
-		free(*newlines);
 		*lines++=*newlines++;
+		// Grum: don't free *newlines, it's the pointer to actual line.
+		// It's this pointer that is copied to p->lines, not the data
+		// that it points to.
+		//free(*newlines);
 	}
+	// This is a temporary array that holds the pointers to the lines. It 
+	// can safely be freed.
 	free(newlines_ptr);
 
 	if(i<b->max_lines){
@@ -416,7 +421,7 @@ book * read_book(char * file, int type, int id)
 
 	if ((doc = xmlReadFile(file, NULL, 0)) == NULL) {
 		char str[200];
-		snprintf(str, 200, "Couldn't open the book: %s", file);
+		snprintf(str, sizeof(str), "Couldn't open the book: %s", file);
 		log_error(str);
 		LOG_TO_CONSOLE(c_red1,str);
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
@@ -931,6 +936,7 @@ int mouseover_book_handler(window_info * win, int mx, int my)
 void display_book_window(book *b)
 {
 	int *p;
+
 	if(!b)return;
 	if(b->type==1){
 		p=&paper_win;
