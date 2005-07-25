@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "global.h"
+#include "actors.h"
 
 PF_OPEN_LIST pf_open;
 PF_TILE *pf_tile_map=NULL;
@@ -178,18 +179,7 @@ void pf_destroy_path()
 
 actor *pf_get_our_actor()
 {
-	int i;
-	
-	if (yourself == -1) {
-		return NULL;
-	}
-
-	for (i = 0; i < max_actors; i++) {
-		if (actors_list[i]->actor_id == yourself) {
-			return actors_list[i];
-		}
-	}
-	return NULL;
+	return your_actor;
 }
 
 void pf_move()

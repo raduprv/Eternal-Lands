@@ -409,6 +409,7 @@ typedef struct
 
 extern SDL_mutex *actors_lists_mutex;	/*!< Used for locking between the timer and main threads*/
 extern actor *actors_list[1000];	/*!< A list holding all of the actors*/
+extern actor *your_actor; /*!< A pointer to your own character, if available. Shares a mutex with \see actors_list */
 extern int	max_actors;		/*!< The current number of actors in the actors_list + 1*/
 extern actor_types actors_defs[100];	/*!< The actor definitions*/
 

@@ -3,6 +3,7 @@
 #include <math.h>
 #include <ctype.h>
 #include "global.h"
+#include "actors.h"
 
 typedef int my_enum;//This enumeration will decrease, then wrap to top, increase and then wrap to bottom, when using the inc() and dec() functions. Special purpose though, since you have to have between 2 and 255 values in the enumeration and you have to have the same value in enum[0] as in enum[max] - otherwise we'll probably segfault...
 
@@ -351,9 +352,9 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	} else if (key == K_CAMERADOWN) {
 		if (rx < -45) rx += 1.0f;
 	} else if (key == K_ZOOMIN) {
-		if (zoom_level > 1.0f) new_zoom_level = zoom_level - 0.25;
+		if (zoom_level >= 1.50f) new_zoom_level = zoom_level - 0.25;
 	} else if (key == K_ZOOMOUT) {
-		if (zoom_level < 3.75f) new_zoom_level = zoom_level + 0.25;
+		if (zoom_level <= 3.75f) new_zoom_level = zoom_level + 0.25;
 	} else if(key==K_OPTIONS){
 		view_window(&elconfig_win, 0);
 	} else if(key==K_ENCYCLOPEDIA){

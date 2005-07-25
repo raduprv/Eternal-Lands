@@ -3,6 +3,7 @@
 #include <string.h>
 #include "global.h"
 #include <time.h>
+#include "actors.h"
 
 // Element type and dictionaries for actor definitions
 typedef struct {
@@ -780,6 +781,7 @@ void destroy_actor(int actor_id)
 		if(actors_list[i])//The timer thread doesn't free memory
 			if(actors_list[i]->actor_id==actor_id){
 				LOCK_ACTORS_LISTS();
+				if(actors_list[i] == your_actor) your_actor = NULL;
 				if(actors_list[i]->calmodel!=NULL) 
 					CalModel_Delete(actors_list[i]->calmodel);
 				if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -807,6 +809,7 @@ void destroy_all_actors()
 {
 	int i=0;
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
+	your_actor = NULL;
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]){
 			if(actors_list[i]->calmodel!=NULL)

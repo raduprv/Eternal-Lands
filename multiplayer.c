@@ -5,6 +5,7 @@
 #ifdef NETWORK_THREAD
  #include "queue.h"
 #endif //NETWORK_THREAD
+#include "actors.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -38,6 +39,7 @@ int client_time_stamp=0;
 int client_server_delta_time=0;
 
 int yourself=-1;
+actor * your_actor = NULL;
 
 int last_sit=0;
 
@@ -638,7 +640,10 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+				LOCK_ACTORS_LISTS();
 				yourself=SDL_SwapLE16(*((short *)(in_data+3)));
+				your_actor = get_actor_ptr_from_id(yourself);
+				UNLOCK_ACTORS_LISTS();
 			}
 			break;
 
@@ -649,6 +654,11 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #endif
 				seconds_till_rain_starts=*((Uint8 *)(in_data+3));
 				seconds_till_rain_stops=-1;
+				if (data_lenght > 4) {
+					rain_strength_bias = 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
+				} else {
+					rain_strength_bias = 1.0f;
+				}
 			}
 			break;
 

@@ -69,14 +69,66 @@ int anything_under_the_mouse(int object_id, int object_type)
 
 }
 
-static GLfloat  model[16];
-static GLfloat  proj[16];
+static GLfloat  model[16], inv_model[16];
+static GLfloat  proj[16], inv_proj[16];
 static GLint    viewport[4];
+
+void invert_matrix(GLfloat *src, GLfloat *dst) {
+	GLfloat det;
+	int i;
+
+	// compute minor matrix
+	dst[ 0] = +src[ 5]*src[10]*src[15] +src[ 9]*src[14]*src[ 7] +src[13]*src[ 6]*src[11]
+	          -src[13]*src[10]*src[ 7] -src[ 9]*src[ 6]*src[15] -src[ 5]*src[14]*src[11];
+	dst[ 1] = -src[ 1]*src[10]*src[15] -src[ 9]*src[14]*src[ 3] -src[13]*src[ 2]*src[11]
+	          +src[13]*src[10]*src[ 3] +src[ 9]*src[ 2]*src[15] +src[ 1]*src[14]*src[11];
+	dst[ 2] = +src[ 1]*src[ 6]*src[15] +src[ 5]*src[14]*src[ 3] +src[13]*src[ 2]*src[ 7]
+	          -src[13]*src[ 6]*src[ 3] -src[ 5]*src[ 2]*src[15] -src[ 1]*src[14]*src[ 7];
+	dst[ 3] = -src[ 1]*src[ 6]*src[11] -src[ 5]*src[10]*src[ 3] -src[ 9]*src[ 2]*src[ 7]
+	          +src[ 9]*src[ 6]*src[ 3] +src[ 5]*src[ 2]*src[11] +src[ 1]*src[10]*src[ 7];
+
+	dst[ 4] = -src[ 4]*src[10]*src[15] -src[ 8]*src[14]*src[ 7] -src[12]*src[ 6]*src[11]
+	          +src[12]*src[10]*src[ 7] +src[ 8]*src[ 6]*src[15] +src[ 4]*src[14]*src[11];
+	dst[ 5] = +src[ 0]*src[10]*src[15] +src[ 8]*src[14]*src[ 3] +src[12]*src[ 2]*src[11]
+	          -src[12]*src[10]*src[ 3] -src[ 8]*src[ 2]*src[15] -src[ 0]*src[14]*src[11];
+	dst[ 6] = -src[ 0]*src[ 6]*src[15] -src[ 4]*src[14]*src[ 3] -src[12]*src[ 2]*src[ 7]
+	          +src[12]*src[ 6]*src[ 3] +src[ 4]*src[ 2]*src[15] +src[ 0]*src[14]*src[ 7];
+	dst[ 7] = +src[ 0]*src[ 6]*src[11] +src[ 4]*src[10]*src[ 3] +src[ 8]*src[ 2]*src[ 7]
+	          -src[ 8]*src[ 6]*src[ 3] -src[ 4]*src[ 2]*src[11] -src[ 0]*src[10]*src[ 7];
+
+	dst[ 8] = +src[ 4]*src[ 9]*src[15] +src[ 8]*src[13]*src[ 7] +src[12]*src[ 5]*src[11]
+	          -src[12]*src[ 9]*src[ 7] -src[ 8]*src[ 5]*src[15] -src[ 4]*src[13]*src[11];
+	dst[ 9] = -src[ 0]*src[ 9]*src[15] -src[ 8]*src[13]*src[ 3] -src[12]*src[ 1]*src[11]
+	          +src[12]*src[ 9]*src[ 3] +src[ 8]*src[ 1]*src[15] +src[ 0]*src[13]*src[11];
+	dst[10] = +src[ 0]*src[ 5]*src[15] +src[ 4]*src[13]*src[ 3] +src[12]*src[ 1]*src[ 7]
+	          -src[12]*src[ 5]*src[ 3] -src[ 4]*src[ 1]*src[15] -src[ 0]*src[13]*src[ 7];
+	dst[11] = -src[ 0]*src[ 5]*src[11] -src[ 4]*src[ 9]*src[ 3] -src[ 8]*src[ 1]*src[ 7]
+	          +src[ 8]*src[ 5]*src[ 3] +src[ 4]*src[ 1]*src[11] +src[ 0]*src[ 9]*src[ 7];
+
+	dst[12] = -src[ 4]*src[ 9]*src[14] -src[ 8]*src[13]*src[ 6] -src[12]*src[ 5]*src[10]
+	          +src[12]*src[ 9]*src[ 6] +src[ 8]*src[ 5]*src[14] +src[ 4]*src[13]*src[10];
+	dst[13] = +src[ 0]*src[ 9]*src[14] +src[ 8]*src[13]*src[ 2] +src[12]*src[ 1]*src[10]
+	          -src[12]*src[ 9]*src[ 2] -src[ 8]*src[ 1]*src[14] -src[ 0]*src[13]*src[10];
+	dst[14] = -src[ 0]*src[ 5]*src[14] -src[ 4]*src[13]*src[ 2] -src[12]*src[ 1]*src[ 6]
+	          +src[12]*src[ 5]*src[ 2] +src[ 4]*src[ 1]*src[14] +src[ 0]*src[13]*src[ 6];
+	dst[15] = +src[ 0]*src[ 5]*src[10] +src[ 4]*src[ 9]*src[ 2] +src[ 8]*src[ 1]*src[ 6]
+	          -src[ 8]*src[ 5]*src[ 2] -src[ 4]*src[ 1]*src[10] -src[ 0]*src[ 9]*src[ 6];
+
+	// compute determinant using Laplace formula
+	det = src[0]*dst[0] + src[1]*dst[4] + src[2]*dst[8] + src[3]*dst[12];
+
+	// compute inverse using minors
+	if (det != 0.0f) {
+		for (i=0; i < 16; i++) dst[i] /= det;
+	} else {
+		LOG_ERROR("Warning: computing inverse of singular matrix\n");
+	}
+}
 
 void save_scene_matrix()
 {
-	glGetFloatv(GL_MODELVIEW_MATRIX, model);
-	glGetFloatv(GL_PROJECTION_MATRIX, proj);
+	glGetFloatv(GL_MODELVIEW_MATRIX, model); invert_matrix(model, inv_model);
+	glGetFloatv(GL_PROJECTION_MATRIX, proj); invert_matrix(proj, inv_proj);
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	viewport[2]>>=1;
 	viewport[3]>>=1;
@@ -84,17 +136,24 @@ void save_scene_matrix()
 
 void project_ortho(GLfloat ox, GLfloat oy, GLfloat oz, GLfloat * wx, GLfloat * wy)
 {
-	GLfloat tmp[3];
+	GLfloat tmp[4], ow;
 
-	// apply modelview matrix
+	// (convert to homogenous coordinates and) apply modelview matrix
 	tmp[0] = model[0*4+0] * ox + model[1*4+0] * oy + model[2*4+0] * oz + model[3*4+0];
 	tmp[1] = model[0*4+1] * ox + model[1*4+1] * oy + model[2*4+1] * oz + model[3*4+1];
 	tmp[2] = model[0*4+2] * ox + model[1*4+2] * oy + model[2*4+2] * oz + model[3*4+2];
+	tmp[3] = model[0*4+3] * ox + model[1*4+3] * oy + model[2*4+3] * oz + model[3*4+3];
 	
 	// apply projection matrix
-	ox = proj[0*4+0] * tmp[0] + proj[3*4+0];
-	oy = proj[1*4+1] * tmp[1] + proj[3*4+1];
-	oz = proj[2*4+2] * tmp[2] + proj[3*4+2];
+	ox = proj[0*4+0] * tmp[0] + proj[1*4+0] * tmp[1] + proj[2*4+0] * tmp[2] + proj[3*4+0] * tmp[3];
+	oy = proj[0*4+1] * tmp[0] + proj[1*4+1] * tmp[1] + proj[2*4+1] * tmp[2] + proj[3*4+1] * tmp[3];
+	oz = proj[0*4+2] * tmp[0] + proj[1*4+2] * tmp[1] + proj[2*4+2] * tmp[2] + proj[3*4+2] * tmp[3];
+	ow = proj[0*4+3] * tmp[0] + proj[1*4+3] * tmp[1] + proj[2*4+3] * tmp[2] + proj[3*4+3] * tmp[3];
+
+	// convert homogenous to affine coordinates
+	ox /= ow;
+	oy /= ow;
+	oz /= ow;
 	
 	// viewport
 	*wx = viewport[0] + (1 + ox) * viewport[2];
@@ -103,25 +162,29 @@ void project_ortho(GLfloat ox, GLfloat oy, GLfloat oz, GLfloat * wx, GLfloat * w
 
 void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GLfloat *oz)
 {
-	GLfloat tmp[3];
+	GLfloat tmp[4], ow;
 
-	// Inverse viewport
-	tmp[0]=(wx-viewport[0])/(float)viewport[2]-1.0f;
-	tmp[1]=(wy-viewport[1])/(float)viewport[3]-1.0f;
-	tmp[2]=2.0f*wz-1.0f;
+	// inverse viewport
+	wx=(wx-viewport[0])/(float)viewport[2]-1.0f;
+	wy=(wy-viewport[1])/(float)viewport[3]-1.0f;
+	wz=2.0f*wz-1.0f;
 
-	// Inverse projection
-	tmp[0]=(tmp[0]-proj[3*4+0])/proj[0*4+0];
-	tmp[1]=(tmp[1]-proj[3*4+1])/proj[1*4+1];
-	tmp[2]=(tmp[2]-proj[3*4+2])/proj[2*4+2];
+	// (convert to homogenous coordinates and) inverse projection
+	tmp[0] = inv_proj[0*4+0] * wx + inv_proj[1*4+0] * wy + inv_proj[2*4+0] * wz + inv_proj[3*4+0];
+	tmp[1] = inv_proj[0*4+1] * wx + inv_proj[1*4+1] * wy + inv_proj[2*4+1] * wz + inv_proj[3*4+1];
+	tmp[2] = inv_proj[0*4+2] * wx + inv_proj[1*4+2] * wy + inv_proj[2*4+2] * wz + inv_proj[3*4+2];
+	tmp[3] = inv_proj[0*4+3] * wx + inv_proj[1*4+3] * wy + inv_proj[2*4+3] * wz + inv_proj[3*4+3];
 
 	// Inverse modelview
-	tmp[0]-=model[3*4+0];
-	tmp[1]-=model[3*4+1];
-	tmp[2]-=model[3*4+2];
-	*ox = model[0*4+0]*tmp[0]+model[0*4+1]*tmp[1]+model[0*4+2]*tmp[2];
-	*oy = model[1*4+0]*tmp[0]+model[1*4+1]*tmp[1]+model[1*4+2]*tmp[2];
-	*oz = model[2*4+0]*tmp[0]+model[2*4+1]*tmp[1]+model[2*4+2]*tmp[2];
+	*ox = inv_model[0*4+0] * tmp[0] + inv_model[1*4+0] * tmp[1] + inv_model[2*4+0] * tmp[2] + inv_model[3*4+0] * tmp[3];
+	*oy = inv_model[0*4+1] * tmp[0] + inv_model[1*4+1] * tmp[1] + inv_model[2*4+1] * tmp[2] + inv_model[3*4+1] * tmp[3];
+	*oz = inv_model[0*4+2] * tmp[0] + inv_model[1*4+2] * tmp[1] + inv_model[2*4+2] * tmp[2] + inv_model[3*4+2] * tmp[3];
+	 ow = inv_model[0*4+3] * tmp[0] + inv_model[1*4+3] * tmp[1] + inv_model[2*4+3] * tmp[2] + inv_model[3*4+3] * tmp[3];
+	
+	// convert homogenous to affine coordinates
+	*ox /= ow;
+	*oy /= ow;
+	*oz /= ow;
 }
 
 int mouse_in_sphere(float x, float y, float z, float radius)

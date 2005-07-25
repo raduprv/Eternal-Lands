@@ -47,6 +47,7 @@ extern GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 /*! @} */
 
 extern GLfloat sun_ambient_light[]; /*!< An array for the ambient lights radiating from the sun */
+extern GLfloat difuse_light[]; /*!< An array for the diffuse light portion */
 
 extern int	show_lights;	/*! the highest numbered light in the current GL display (0-6) */
 extern int	num_lights; /*! the number of lights currently loaded */

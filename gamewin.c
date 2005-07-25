@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "global.h"
+#include "weather.h"
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -632,9 +633,7 @@ int display_game_handler (window_info *win)
 		//check for network data
 		get_message_from_server ();
 #endif //NETWORK_THREAD
-#ifdef	USE_FOG
-		glEnable (GL_FOG);
-#endif	//USE_FOG
+		render_fog();
 		if (any_reflection > 1)
 		{
 		  	if (!dungeon)
@@ -651,12 +650,18 @@ int display_game_handler (window_info *win)
 #endif //NETWORK_THREAD
 		if (!dungeon && shadows_on && is_day)
 		{
+			glNormal3f(0.0f,0.0f,1.0f);
+			if(any_reflection)blend_reflection_fog();
+
 			draw_sun_shadowed_scene (any_reflection);
 		}
 		else 
 		{
 			glNormal3f (0.0f,0.0f,1.0f);
-			if (any_reflection) draw_lake_tiles ();
+			if (any_reflection) {
+				blend_reflection_fog();
+				draw_lake_tiles ();
+			}
 			draw_tile_map ();
 			CHECK_GL_ERRORS ();
 			display_2d_objects ();
@@ -666,9 +671,7 @@ int display_game_handler (window_info *win)
 			display_actors ();
 			display_blended_objects();
 		}
-#ifdef	USE_FOG
 		glDisable (GL_FOG);
-#endif	//USE_FOG
 		CHECK_GL_ERRORS ();
 #ifndef NETWORK_THREAD
 		//check for network data - reduces resyncs
@@ -757,6 +760,11 @@ int display_game_handler (window_info *win)
 		}
 		snprintf (str, sizeof(str),"Lights: %i", show_lights);
 		draw_string (win->len_x-hud_x-105, 25, str, 1);
+
+		snprintf(str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
+				is_raining, seconds_till_rain_starts, seconds_till_rain_stops, num_rain_drops,
+				rain_strength_bias, rain_color[3], fogAlpha);
+		draw_string (0, win->len_y - hud_y - 40, str, 1);
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
@@ -886,6 +894,56 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		windows_paste ();
 #endif
 	}
+#ifdef DEBUG
+	else if ((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
+	{
+		rain_color[3] += 0.01f;
+	}
+	else if ((keysym == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
+	{
+		rain_color[3] -= 0.01f;
+	}
+	else if ((keysym == SDLK_w) && shift_on && ctrl_on && !alt_on)
+	{
+		new_minute();
+		if (game_minute >= 300) game_minute -=300; else game_minute += 60;
+		is_day = (game_minute < 240);
+	}
+	else if ((keysym == SDLK_q) && shift_on && ctrl_on && !alt_on)
+	{
+		new_minute();
+		if (game_minute < 60) game_minute +=300; else game_minute -= 60;
+		is_day = (game_minute < 240);
+	}
+	else if ((keysym == SDLK_PAGEUP) && shift_on && ctrl_on && !alt_on)
+	{
+		rain_strength_bias += 0.1f;
+	}
+	else if ((keysym == SDLK_PAGEDOWN) && shift_on && ctrl_on && !alt_on)
+	{
+		rain_strength_bias -= 0.1f;
+	}
+	else if ((keysym == SDLK_HOME) && shift_on && ctrl_on && !alt_on)
+	{
+		if (is_raining) {
+			seconds_till_rain_stops = 2;
+			seconds_till_rain_starts = -1;
+		} else {
+			seconds_till_rain_stops = -1;
+			seconds_till_rain_starts = 2;
+		}
+	}
+	else if ((keysym == SDLK_END) && shift_on && ctrl_on && !alt_on)
+	{
+		if (is_raining) {
+			seconds_till_rain_stops = 90;
+			seconds_till_rain_starts = -1;
+		} else {
+			seconds_till_rain_stops = -1;
+			seconds_till_rain_starts = 90;
+		}
+	}
+#endif
 	// use quickbar items
 	else if (key == K_ITEM1)
 	{
@@ -1298,11 +1356,11 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 	else if (key == K_ZOOMIN)
 	{
-		if (zoom_level > 1.0f) new_zoom_level = zoom_level - 0.25;
+		if (zoom_level >= 1.50f) new_zoom_level = zoom_level - 0.25;
 	}
 	else if (key == K_ZOOMOUT)
 	{
-		if (zoom_level < 3.75f) new_zoom_level = zoom_level + 0.25;
+		if (zoom_level <= 3.75f) new_zoom_level = zoom_level + 0.25;
 	}
 #ifdef PNG_SCREENSHOT
 	else if (key == K_SCREENSHOT)

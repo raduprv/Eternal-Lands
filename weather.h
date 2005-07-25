@@ -6,9 +6,21 @@
 #ifndef __WEATHER_H__
 #define __WEATHER_H__
 
+#ifdef DEBUG
+#include "actors.h"
+#endif
+
 extern int seconds_till_rain_starts;    /*!< Seconds till the rain starts */
 extern int seconds_till_rain_stops;     /*!< Seconts till the rain stops */
 extern int is_raining;                  /*!< Specifies if it's raining - if it is, draw the raindrops */
+#ifdef DEBUG
+extern int num_rain_drops;
+extern int last_rain_calls;
+extern GLfloat rain_color[];
+#endif
+extern float rain_strength_bias;        /*!< Specifies the heaviness of the rain */
+extern GLfloat fogColor[];              /*!< The current fog color. Calculated by \see render_fog */
+extern float fogAlpha;                  /*!< Specifies how close the sky color shall be to the fog color */
 extern int rain_sound;                  /*!< Specifies the rain sound */
 extern int weather_light_offset;        /*!< Sets the current light offset */
 extern int rain_light_offset;           /*!< Sets the current rain offset */
@@ -91,4 +103,13 @@ void get_weather_light_level();
  *
  */
 void clear_thunders();
+
+/*!
+ * \ingroup display_weather
+ * \brief Sets the fog according to weather & athmospherical effects
+ *
+ * 	Sets the fog according to weather & athmospherical effects
+ */
+
+void render_fog();
 #endif

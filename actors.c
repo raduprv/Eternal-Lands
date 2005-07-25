@@ -11,7 +11,7 @@
 
 actor *actors_list[1000];
 int max_actors=0;
-SDL_mutex *actors_lists_mutex;	//used for locking between the timer and main threads
+SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and main threads
 
 actor_types actors_defs[100];
 
@@ -107,6 +107,7 @@ int add_actor(char * file_name,char * skin_name, int frame,float x_pos,
 			if(!actors_list[i])break;
 		}
 
+	if(actor_id == yourself) your_actor = our_actor;
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
 	

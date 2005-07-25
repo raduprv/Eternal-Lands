@@ -29,6 +29,7 @@ int use_mipmaps=0;
 int have_arb_shadow=0;
 int have_vertex_buffers=0;
 float gamma_var = 10;
+float perspective = 0.15f;
 
 struct list {
 	int i;
@@ -401,7 +402,6 @@ void init_video()
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
 	glEnable(GL_NORMALIZE);
-	glClearColor( 0.0, 0.0, 0.0, 0.0 );
 	glClearStencil(0);
 
 #ifdef	USE_FOG
@@ -603,16 +603,19 @@ void resize_root_window()
 	//hud_y_adjust=(2.0/window_height)*hud_y;
 	//hud_x_adjust=(2.0/window_width)*hud_x;
 
-	//reference one
-	//glOrtho( -3.0*window_ratio, 3.0*window_ratio, -3.0, 3.0, -40.0, 40.0 );
-
-	//some zoom test
-	//glOrtho( -3.6*window_ratio, 3.6*window_ratio, -3.6, 3.6, -40.0, 40.0 );
-
 	//new zoom
-	glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -40.0, 40.0 );
-	//glOrtho( (-1.0-hud_x_adjust)*zoom_level*window_ratio, (1.0-hud_x_adjust)*zoom_level*window_ratio, (-1.0+hud_y_adjust)*zoom_level, (1.0+hud_y_adjust)*zoom_level, -40.0, 40.0 );
-	//glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -0.0*zoom_level, 2.0*zoom_level, -40.0, 40.0 );
+	if (isometric) {
+		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, 1.0, 60.0 );
+	} else {
+		// What we call first, OpenGL will apply last!
+		// Finally, apply the projection
+		glFrustum( -perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 60.0 );
+		// third, scale the scene so that the near plane gets the distance zoom_level
+		glScalef(perspective, perspective, perspective);
+		// second, move to the distance that reflects the zoom level
+		// first, move back to the actor
+		glTranslatef(0.0f, 0.0f, zoom_level*(camera_distance - 1.0f/perspective));
+	}
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix

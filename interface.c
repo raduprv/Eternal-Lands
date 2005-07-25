@@ -59,29 +59,19 @@ void get_world_x_y()
 
 void get_old_world_x_y()
 {
-	float window_ratio;
-	float x,y,x1,y1,a,t;
-	actor *p=pf_get_our_actor();
-	if(!p) return;
+	float x1,y1,z1, x2,y2,z2, l;
+	/* Shoot a ray through the pixel and determine its intersection with the ground plane (z == 0) */
+	unproject_ortho(mouse_x,window_height-hud_y-mouse_y,0.0f,&x1,&y1,&z1);
+	unproject_ortho(mouse_x,window_height-hud_y-mouse_y,1.0f,&x2,&y2,&z2);
 	
-	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
-	x=(float)((mouse_x)*2.0f*window_ratio*(float)zoom_level/(float)(window_width-hud_x))-(window_ratio*zoom_level);
-	y=(float)((window_height-hud_y-mouse_y+0.05*window_height)*2.0f*zoom_level/(window_height-hud_y))-(2.0*zoom_level/2.0f);
-
-	a=(rz)*3.1415926/180;
-	t=(rx)*3.1415926/180;
-
-	y=(float)y/(float)cos(t);
-
-	x1=x*cos(a)+y*sin(a);
-	y1=y*cos(a)-x*sin(a);
-
-	scene_mouse_x=p->x_pos+x1;
-	scene_mouse_y=p->y_pos+y1;
+	l = z2 / (z2 - z1);
+	scene_mouse_x = l*x1 + (1 - l)*x2;
+	scene_mouse_y = l*y1 + (1 - l)*y2;
 }
 
 void Enter2DMode()
 {
+	glDisable(GL_FOG);
 	glPushAttrib(GL_LIGHTING_BIT|GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -106,6 +96,7 @@ void Leave2DMode()
 	glMatrixMode(GL_MODELVIEW);
 	glPopAttrib();
 	glViewport(0, hud_y, window_width-hud_x, window_height-hud_y);
+	glEnable(GL_FOG);
 	//glViewport(0, 0, window_width-hud_x, window_height-hud_y);	// Reset The Current Viewport
 }
 
@@ -424,6 +415,17 @@ void draw_game_map (int map, int mouse_mini)
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
+
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(0.0f, 0.0f, 0.0f);
+
+	glBegin(GL_QUADS);
+		glVertex2i(0,   0);	
+		glVertex2i(300, 0);
+		glVertex2i(300, 200);
+		glVertex2i(0,   200);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(1.0f,1.0f,1.0f);
     	

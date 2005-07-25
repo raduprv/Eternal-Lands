@@ -53,6 +53,16 @@ void make_lake_water_noise();
 
 /*!
  * \ingroup reflections
+ * \brief Blends the fog into reflections
+ *
+ *      Blends the fog into reflections
+ *
+ * \callgraph
+ */
+void blend_reflection_fog();
+
+/*!
+ * \ingroup reflections
  * \brief Draws the tiles of all lakes on the map
  *
  *      Draws all the tiles of all lakes on the current map

@@ -579,11 +579,11 @@ void set_material(float r, float g, float b)
 
 int sun_use_static_position=0;
 GLfloat sun_ambient_light[] = { 0.0, 0.0, 0.0, 1.0 };
+GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 void draw_global_light()
 {
 	int i;
 	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
-	GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	i=light_level;
 	if(light_level>59)i=119-light_level;
 	//this is for weather things, when the light level is not the normal light lvel of the current time

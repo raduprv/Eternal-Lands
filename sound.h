@@ -60,6 +60,30 @@ void remove_sound_object (int sound);
 
 /*!
  * \ingroup sound_effects
+ * \brief Sets the gain of a sound object
+ *
+ *	Sets the gain of a sound object. Only works properly on non-positional sounds.
+ *
+ * \param sound	The sound to be affected
+ * \param gain  The gain, relative to \see sound_gain
+ * \callgraph
+ */
+void sound_object_set_gain(int sound, float gain);
+
+/*!
+ * \ingroup sound_effects
+ * \brief Sets the gain of a sound object
+ *
+ *	Sets the gain of a sound object. Only works properly on non-positional sounds.
+ *
+ * \param sound	The sound to be affected
+ * \param gain  The gain, relative to \see sound_gain
+ * \callgraph
+ */
+void sound_object_set_gain(int sound, float gain);
+
+/*!
+ * \ingroup sound_effects
  * \brief Updates the position change of sound played.
  *
  *      Updates the position change of sound played.

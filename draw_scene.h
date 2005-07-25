@@ -21,6 +21,7 @@ extern float normal_camera_rotation_speed; /*!< configurable normal speed for ro
 extern float zoom_level; /*!< current displayed zoom level */
 extern int camera_zoom_dir; /*!< direction of where the zoomed camera points to */
 extern int camera_zoom_frames;
+extern float camera_distance; /*!< The camera is camera_distance*zoom_level (world coordinates) away from your actor. */
 extern float new_zoom_level;
 extern float scene_mouse_x; /*!< x coordinate of the mouse position */
 extern float scene_mouse_y; /*!< y coordinate of the mouse position */

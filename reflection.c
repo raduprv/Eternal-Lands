@@ -2,6 +2,8 @@
 #include <string.h>
 #include "global.h"
 #include <math.h>
+#include "textures.h"
+#include "tiles.h"
 
 typedef struct
 {
@@ -446,6 +448,79 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 }
 
 
+void blend_reflection_fog()
+{
+	int x_start,x_end,y_start,y_end;
+	int x,y;
+	float x_scaled,y_scaled;
+	static GLfloat blendColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
+
+	// we write to the depth buffer later, for now keep it as it is to avoid flickering
+	glDepthMask(GL_FALSE);
+
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
+	glColor3f(0.0f, 0.0f, 0.0f); 
+
+	//get only the tiles around the camera
+	//we have the axes inverted, btw the go from 0 to -255
+	if(cx<0)x=(cx*-1)/3;
+	else x=cx/3;
+	if(cy<0)y=(cy*-1)/3;
+	else y=cy/3;
+	x_start = (int)x - 8;
+	y_start = (int)y - 8;
+	x_end   = (int)x + 8;
+	y_end   = (int)y + 8;
+	for(y=y_start;y<=y_end;y++)
+		{
+			int actualy=y;
+			if(actualy<0)actualy=0;
+			else if(actualy>=tile_map_size_y)actualy=tile_map_size_y-1;
+			actualy*=tile_map_size_x;
+			y_scaled=y*3.0f;
+			for(x=x_start;x<=x_end;x++)
+				{
+					int actualx=x;
+					if(actualx<0)actualx=0;
+					else if(actualx>=tile_map_size_x)actualx=tile_map_size_x-1;
+					x_scaled=x*3.0f;
+					if(IS_WATER_TILE(tile_map[actualy+actualx]) && check_tile_in_frustrum(x_scaled,y_scaled))
+						{
+							// scale the colors down to what the fog lets through
+							glFogfv(GL_FOG_COLOR, blendColor);
+							glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+							glBegin(GL_QUADS);
+								glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
+								glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
+								glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
+								glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
+							glEnd();
+
+							// now add the fog by additive blending
+							glFogfv(GL_FOG_COLOR, fogColor);
+							glBlendFunc(GL_ONE, GL_ONE);
+							glBegin(GL_QUADS);
+								glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
+								glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
+								glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
+								glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
+							glEnd();
+						}
+				}
+		}
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
+
+	// ok, now we can write depth values
+	glDepthMask(GL_TRUE);
+}
+
 void draw_lake_tiles()
 {
 	int x_start,x_end,y_start,y_end;
@@ -462,10 +537,10 @@ void draw_lake_tiles()
 	else x=cx/3;
 	if(cy<0)y=(cy*-1)/3;
 	else y=cy/3;
-	x_start=(int)x-5;
-	y_start=(int)y-5;
-	x_end=(int)x+5;
-	y_end=(int)y+5;
+	x_start = (int)x - 8;
+	y_start = (int)y - 8;
+	x_end   = (int)x + 8;
+	y_end   = (int)y + 8;
 	for(y=y_start;y<=y_end;y++)
 		{
 			int actualy=y;
@@ -501,30 +576,32 @@ void draw_lake_tiles()
 
 void draw_sky_background()
 {
+	static GLfloat lights_c[4][3];
+	int i, j;
+
+	for (i=0; i<3; i++) {
+		// get the sky color
+		lights_c[0][i] = sky_lights_c1[light_level][i];
+		lights_c[1][i] = sky_lights_c2[light_level][i];
+		lights_c[2][i] = sky_lights_c3[light_level][i];
+		lights_c[3][i] = sky_lights_c4[light_level][i];
+		
+		for (j=0; j<4; j++) {
+			// make it darker according to weather
+			GLfloat tmp = lights_c[j][i] - (float)weather_light_offset/100.0f;
+			// blend it with fog color according to fog density
+			lights_c[j][i] = (1.0f - fogAlpha)*tmp + fogAlpha*fogColor[i];
+		}
+	}
+	
 	Enter2DMode();
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
-#define SCALE_FACTOR 100
 
-	glColor3f(sky_lights_c1[light_level][0]-(float)weather_light_offset/SCALE_FACTOR,
-			  sky_lights_c1[light_level][1]-(float)weather_light_offset/SCALE_FACTOR,
-			  sky_lights_c1[light_level][2]-(float)weather_light_offset/SCALE_FACTOR);
-	glVertex3i(0,0,0);
-
-	glColor3f(sky_lights_c2[light_level][0]-(float)weather_light_offset/SCALE_FACTOR,
-			  sky_lights_c2[light_level][1]-(float)weather_light_offset/SCALE_FACTOR,
-			  sky_lights_c2[light_level][2]-(float)weather_light_offset/SCALE_FACTOR);
-	glVertex3i(0,window_height,0);
-
-	glColor3f(sky_lights_c3[light_level][0]-(float)weather_light_offset/SCALE_FACTOR,
-			  sky_lights_c3[light_level][1]-(float)weather_light_offset/SCALE_FACTOR,
-			  sky_lights_c3[light_level][2]-(float)weather_light_offset/SCALE_FACTOR);
-	glVertex3i(window_width,window_height,0);
-
-	glColor3f(sky_lights_c4[light_level][0]-(float)weather_light_offset/SCALE_FACTOR,
-			  sky_lights_c4[light_level][1]-(float)weather_light_offset/SCALE_FACTOR,
-			  sky_lights_c4[light_level][2]-(float)weather_light_offset/SCALE_FACTOR);
-	glVertex3i(window_width,0,0);
+	glColor3fv(lights_c[0]); glVertex3i(0,0,0);
+	glColor3fv(lights_c[1]); glVertex3i(0,window_height,0);
+	glColor3fv(lights_c[2]); glVertex3i(window_width,window_height,0);
+	glColor3fv(lights_c[3]); glVertex3i(window_width,0,0);
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -533,21 +610,23 @@ void draw_sky_background()
 
 void draw_dungeon_sky_background()
 {
+	static const GLfloat baseColor[3] = { 0.00f, 0.21f, 0.34f };
+	static GLfloat color[3];
+	int i, j;
+
+	for (i=0; i<3; i++) {
+		color[i] = (1.0f - fogAlpha)*baseColor[i] + fogAlpha*fogColor[i];
+	}
+	glColor3fv(color);
+	
 	Enter2DMode();
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	//draw the sky background
 
-	glColor3f(0,0.21f,0.34f);
 	glVertex3i(0,0,0);
-
-	glColor3f(0,0.21f,0.34f);
 	glVertex3i(0,window_height,0);
-
-	glColor3f(0,0.21f,0.34f);
 	glVertex3i(window_width,window_height,0);
-
-	glColor3f(0,0.21f,0.34f);
 	glVertex3i(window_width,0,0);
 
 	glEnd();

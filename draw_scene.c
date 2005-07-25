@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include "global.h"
+#include "weather.h"
 
 GLuint paper1_text;
 
@@ -36,6 +37,7 @@ int camera_z_frames;
 int camera_zoom_dir;
 int camera_zoom_frames=0;
 float new_zoom_level=3.0f;
+float camera_distance = 2.5f;
 
 int normal_animation_timer=0;
 
@@ -65,6 +67,7 @@ void draw_scene()
 	//clear the clouds cache too...
 	if(last_clear_clouds+10000<cur_time)clear_clouds_cache();
 
+	glClearColor( fogColor[0], fogColor[1], fogColor[2], 0.0 );
 	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 	
@@ -179,6 +182,7 @@ void move_camera ()
 	if(cx<-(tile_map_size_x*3-7.9))cx=(float)-(tile_map_size_x*3-7.9);
 	if(cy<-(tile_map_size_x*3-7.9))cy=(float)-(tile_map_size_x*3-7.9);
 
+	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(cx,cy, cz);

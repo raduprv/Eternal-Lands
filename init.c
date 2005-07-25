@@ -28,6 +28,7 @@ int poor_man=0;
 #ifdef ANTI_ALIAS
 int anti_alias=0;
 #endif
+int isometric=1;
 int mouse_limit=15;
 int no_adjust_shadows=0;
 int clouds_shadows=1;

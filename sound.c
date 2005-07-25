@@ -387,7 +387,19 @@ void remove_sound_object (int sound)
 		}
 	}
 }
+
+void sound_object_set_gain(int sound, float gain) {
+	int i;
 	
+	for (i = 0; i < used_sources; i++)
+	{
+		if (sound_source[i] == sound)
+		{
+			alSourcef(sound_source[i],AL_GAIN, sound_gain * gain);
+			break;
+		}
+	}
+}
 
 void update_position()
 {

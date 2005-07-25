@@ -139,6 +139,7 @@ extern int show_reflection; /*!< flag that indicates whether to display reflecti
 #ifdef ANTI_ALIAS
 extern int anti_alias; /*!< flag indicating whether anti-aliasing should be enabled */
 #endif
+extern int isometric; /*!< use isometric instead of perspective view */
 extern int mouse_limit;
 extern int show_fps; /*!< flag that indicates whether to display FPS or not */
 #ifdef DEBUG

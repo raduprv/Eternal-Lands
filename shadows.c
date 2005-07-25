@@ -568,6 +568,7 @@ void setup_shadow_mapping()
 {
 	glPushMatrix();
 	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(cx-(int)cx,cy-(int)cy,cz-(int)cz);
