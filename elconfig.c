@@ -331,12 +331,12 @@ void change_aa(int *pointer) {
 }
 #endif // ANTI_ALIAS
 
-void change_near_plane(float * var, float * value) {
+void change_projection_float(float * var, float * value) {
 	change_float(var, value);
 	resize_root_window();
 }
 
-void change_isometric(int *pointer, int value) {
+void change_projection_bool(int *pointer) {
 	change_var(pointer);
 	resize_root_window();
 }
@@ -528,7 +528,7 @@ void free_vars()
 	our_vars.no=0;
 }
 
-void add_var(int type, char * name, char * shortname, void * var, void * func, int def, char * short_desc, char * long_desc, int tab_id, ...)
+void add_var(int type, char * name, char * shortname, void * var, void * func, float def, char * short_desc, char * long_desc, int tab_id, ...)
 {
 	int *integer=var;
 	float *f=var;
@@ -548,7 +548,7 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 					queue_push(our_vars.var[no]->queue, pointer);
 				}
 				va_end(ap);
-				*integer = def;
+				*integer = (int)def;
 			break;
 			case INT:
 				queue_initialise(&our_vars.var[no]->queue);
@@ -562,14 +562,14 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 				*tmp_i = va_arg(ap, point);
 				queue_push(our_vars.var[no]->queue, tmp_i);
 				va_end(ap);
-				*integer = def;
+				*integer = (int)def;
 			break;
 			case BOOL:
-				*integer=def;
+				*integer=(int)def;
 				break;
 			case STRING:
 			case PASSWORD:
-				our_vars.var[no]->len=def;
+				our_vars.var[no]->len=(int)def;
 				break;
 			case FLOAT:
 				queue_initialise(&our_vars.var[no]->queue);
@@ -587,7 +587,7 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, i
 				*tmp_f = va_arg(ap, double);
 				queue_push(our_vars.var[no]->queue, (void *)tmp_f);
 				va_end(ap);
-				*f=(float)def;
+				*f=def;
 				break;
 		}
 	our_vars.var[no]->var=var;
@@ -694,8 +694,9 @@ void init_vars()
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
-	add_var (BOOL, "isometric" ,"isometric", &isometric, change_isometric, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
-	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_near_plane, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
+	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
+	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
+	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
 #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
 #endif //ANTI_ALIAS
