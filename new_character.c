@@ -243,9 +243,7 @@ int display_newchar_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 		}
 
-#ifdef	USE_FOG
-		glEnable (GL_FOG);
-#endif	//USE_FOG
+		render_fog();
 		if (any_reflection > 1) {
 			draw_sky_background ();
 			CHECK_GL_ERRORS ();
@@ -268,9 +266,6 @@ int display_newchar_handler (window_info *win)
 			display_actors ();
 			display_blended_objects();
 		}
-#ifdef	USE_FOG
-		glDisable (GL_FOG);
-#endif	//USE_FOG
 		CHECK_GL_ERRORS ();
 	}
 
