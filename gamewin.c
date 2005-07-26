@@ -1096,7 +1096,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_RULES)
 	{
-		view_tab(&tab_help_win, &tab_help_collection_id, 2);
+		view_tab(&tab_help_win, &tab_help_collection_id, 3);
 	}
 	#ifdef NOTEPAD
 	else if (key == K_NOTEPAD)

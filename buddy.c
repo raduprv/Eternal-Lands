@@ -430,7 +430,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 				break;
 			}
 		}
-		snprintf(accept_windows[current_window].name, sizeof (accept_windows[current_window].name), "%s", argument);
+		snprintf(accept_windows[current_window].name, sizeof (accept_windows[current_window].name), "%s", (char *)argument);
 		if(is_in_buddylist(accept_windows[current_window].name)) {
 			/* We don't need to make room for the checkbox because the buddy is already in our list. */
 			win_height -= 20;
