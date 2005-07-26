@@ -32,7 +32,7 @@ int rules_scroll_id = 0;
 /*Shared*/
 int reached_end=0;
 int have_rules=0;
-int rule_offset=1;
+int rule_offset=0;
 rule_string * display_rules;
 int last_display=-1;
 
@@ -139,7 +139,7 @@ int read_rules()
 
 int rules_scroll_handler ()
 {
-	rule_offset = 1 + vscrollbar_get_pos (rules_win, rules_scroll_id);
+	rule_offset = vscrollbar_get_pos (rules_win, rules_scroll_id);
 	return 1;
 }
 
@@ -185,17 +185,16 @@ int mouseover_rules_handler (window_info *win, int mx, int my)
 
 int display_rules_handler(window_info *win)
 {
-	int len,y;
-	if(rule_offset <= 0)rule_offset=1;
+	int len;
+	if(rule_offset < 0)rule_offset=0;
 	len=(float)draw_rules(display_rules, rule_offset, 0, 20, win->len_x, win->len_y-40,0.8f)/(float)rules.no*250;
-	y=(float)(rule_offset-1)*250/(float)rules.no;
 
 	return 1;
 }
 
 void fill_rules_window()
 {
-	rules_scroll_id = vscrollbar_add_extended (rules_win, rules_scroll_id, NULL, HELP_TAB_WIDTH - 20, 0, 20, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, rules.no-2);
+	rules_scroll_id = vscrollbar_add_extended (rules_win, rules_scroll_id, NULL, HELP_TAB_WIDTH - 20, 0, 20, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, rules.no-1);
 	
 	widget_set_OnClick (rules_win, rules_scroll_id, rules_scroll_handler);
 	widget_set_OnDrag (rules_win, rules_scroll_id, rules_scroll_handler);
@@ -268,7 +267,7 @@ void reset_rules(rule_string * r)
 		r[i].highlight=0;
 		r[i].mouseover=0;
 	}
-	rule_offset=1;
+	rule_offset=0;
 }
 
 void highlight_rule(int type, Uint8 * rule, int no)
@@ -348,7 +347,7 @@ void highlight_rule(int type, Uint8 * rule, int no)
 			if(display_rules[i].type == RULE && display_rules[i].highlight) {
 				rule_offset=i;//Get the first highlighted entry
 				if (type == RULE_WIN)
-					vscrollbar_set_pos (rules_win, rules_scroll_id, rule_offset - 1);
+					vscrollbar_set_pos (rules_win, rules_scroll_id, rule_offset);
 				return;
 			}
 	}
@@ -379,11 +378,15 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 	char *ptr;
 	float zoom=text_size;
 	int x=0, y=y_in;
-	int nr = rules_no > 2 ? rules_no - 1 : 1;
+	int nr;
 	
 	if(rules_ptr[rules_no+1].type==-1) reached_end=1;
 	else reached_end=0;
 
+	nr = 1;
+	for(i=0;i < rules_no; i++)
+		if (rules_ptr[i].type == RULE) nr++;
+		
 	for(i=rules_no;y<leny;i++){
 		ptr=str;
 		len=0;
@@ -717,7 +720,7 @@ int click_rules_root_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		if (my > y_arrow_up && my < y_arrow_up + arrow_size)
 		{
-			if (rule_offset > 1)
+			if (rule_offset > 0)
 				rule_offset--;
 		}
 		else if (my > y_arrow_down && my < y_arrow_down + arrow_size)
@@ -747,13 +750,13 @@ int keypress_rules_root_handler (window_info *win, int mx, int my, Uint32 key, U
 	{
 		rule_offset++;
 	}
-	else if (keysym == SDLK_UP && rule_offset > 1)
+	else if (keysym == SDLK_UP && rule_offset > 0)
 	{
 		rule_offset--;
 	}
 	else if (keysym == SDLK_PAGEUP)
 	{
-		rule_offset = rule_offset < 4 ? 1 : rule_offset-3;
+		rule_offset = rule_offset < 3 ? 0 : rule_offset-3;
 	}
 	else if (keysym == SDLK_PAGEDOWN)
 	{
