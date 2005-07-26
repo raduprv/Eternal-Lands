@@ -239,8 +239,8 @@ int filter_text(Uint8 * input_text, int len)
 	if (*storage_filter && my_strncompare (input_text+1, "Items you have in your storage:", 31))
 		len = 33 + filter_storage_text (input_text+33, len-33);
 
-	memset(buff, 0, len+3);  /* clear buffer */
-	snprintf(buff+1, len, input_text); /* now we have leading and trailing spaces */
+	memset(buff, 0, sizeof(buff));  /* clear buffer */
+	snprintf(buff+1, sizeof(buff), "%s", input_text); /* now we have leading and trailing spaces */
 	buff[0]=' ';
 	buff[len+1]=' ';
 
@@ -299,14 +299,14 @@ int filter_text(Uint8 * input_text, int len)
 					rep_len=filter_list[idx].rlen;
 
 					if(bad_len == rep_len) {
-						snprintf(buff+i+1, rep_len, filter_list[idx].replacement);
+						snprintf(buff+i+1, sizeof(buff)-i-1, "%s", filter_list[idx].replacement);
 					}
 					else{
 						if(filter_list[idx].wildcard_type > 0){
 							bad_len++;
 						}
 						memmove(buff+i+1+rep_len+1, buff+i+1+bad_len, len-(i-1+bad_len));
-						snprintf(buff+i+1, rep_len, filter_list[idx].replacement);
+						snprintf(buff+i+1, sizeof(buff)-i-1, "%s", filter_list[idx].replacement);
 						buff[i+1+rep_len]=' '; /* end word with a space */
 						// adjust the length
 						len-=(bad_len-(rep_len+1));
@@ -314,7 +314,8 @@ int filter_text(Uint8 * input_text, int len)
 				}
 			}
 		}
-	snprintf(input_text, len, buff+1);
+	
+	snprintf(input_text, sizeof(input_text), "%s", buff+1);
 	return(len);
 }
 

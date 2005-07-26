@@ -408,9 +408,7 @@ void draw_stat_final(int len, int x, int y, char * name, char * value)
 {
 	char str[80];
 
-	if(len>80)len=80;
-	snprintf(str,len,"%-15s %s",name,value);
-	str[len]=0;
+	snprintf(str,sizeof(str),"%-15s %s",name,value);
 	draw_string_small(x,y,str,1);
 }
 
