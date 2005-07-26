@@ -111,6 +111,12 @@ void remove_bag(int which_bag)
 {
 	int sector, i, j=MAX_3D_OBJECTS-1, k=-1;
 
+	if (bag_list[which_bag].obj_3d_id == -1) {
+		// oops, no bag in that slot!
+		LOG_ERROR("Oops, double-removal of bag!\n");
+		return;
+	}
+
 #ifdef NEW_CLIENT
 	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
 #else
