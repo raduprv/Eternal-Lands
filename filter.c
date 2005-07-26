@@ -242,7 +242,7 @@ int filter_text(Uint8 * input_text, int len)
 	memset(buff, 0, sizeof(buff));  /* clear buffer */
 	snprintf(buff+1, sizeof(buff), "%s", input_text); /* now we have leading and trailing spaces */
 	buff[0]=' ';
-	buff[len+1]=' ';
+	if (len < sizeof(buff)-1) buff[len+1]=' '; else buff[sizeof(buff)-2] = ' ';
 
 	//do we need to do CAPS filtering?
 	if(caps_filter)
@@ -315,7 +315,7 @@ int filter_text(Uint8 * input_text, int len)
 			}
 		}
 	
-	snprintf(input_text, sizeof(input_text), "%s", buff+1);
+	snprintf(input_text, len+1, "%s", buff+1);
 	return(len);
 }
 
