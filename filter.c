@@ -43,15 +43,15 @@ int add_to_filter_list(Uint8 *name, char save_name)
 			if(filter_list[i].len <= 0)
 				{
 					//excellent, a free spot
-					snprintf(left, sizeof(left), name);
+					strncpy(left, name,sizeof(left));
 					for(t=0;;t++){
 						if(left[t]==0){
-							snprintf(right, sizeof(right), "smeg");
+							strncpy(right, "smeg",sizeof(right));
 							break;
 						}
 						if(left[t]=='='){
 							left[t]=0;
-							snprintf(right, sizeof(right), left+t+2);
+							strncpy(right, left+t+2,sizeof(right));
 							break;
 						}
 					}
@@ -60,7 +60,8 @@ int add_to_filter_list(Uint8 *name, char save_name)
 						{
 							FILE *f = NULL;
 							char local_filters[256];
-							snprintf(local_filters, sizeof(local_filters), "%slocal_filters.txt", configdir);
+							strncpy(local_filters, configdir,sizeof(local_filters));
+							strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
 							f=my_fopen(local_filters, "a");
 							if (f != NULL)
 							{
@@ -110,7 +111,8 @@ int remove_from_filter_list(Uint8 *name)
 	if(found)
 		{
 			char local_filters[256];
-			snprintf(local_filters, sizeof(local_filters), "%slocal_filters.txt", configdir);
+			strncpy(local_filters, configdir,sizeof(local_filters));
+			strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
 			f=my_fopen(local_filters, "w");
 			if (f != NULL)
 			{
@@ -239,10 +241,10 @@ int filter_text(Uint8 * input_text, int len)
 	if (*storage_filter && my_strncompare (input_text+1, "Items you have in your storage:", 31))
 		len = 33 + filter_storage_text (input_text+33, len-33);
 
-	memset(buff, 0, sizeof(buff));  /* clear buffer */
-	snprintf(buff+1, sizeof(buff), "%s", input_text); /* now we have leading and trailing spaces */
+	memset(buff, 0, len+3);  /* clear buffer */
+	strncpy(buff+1, input_text, len); /* now we have leading and trailing spaces */
 	buff[0]=' ';
-	if (len < sizeof(buff)-1) buff[len+1]=' '; else buff[sizeof(buff)-2] = ' ';
+	buff[len+1]=' ';
 
 	//do we need to do CAPS filtering?
 	if(caps_filter)
@@ -299,14 +301,14 @@ int filter_text(Uint8 * input_text, int len)
 					rep_len=filter_list[idx].rlen;
 
 					if(bad_len == rep_len) {
-						snprintf(buff+i+1, sizeof(buff)-i-1, "%s", filter_list[idx].replacement);
+						strncpy(buff+i+1, filter_list[idx].replacement, rep_len);
 					}
 					else{
 						if(filter_list[idx].wildcard_type > 0){
 							bad_len++;
 						}
 						memmove(buff+i+1+rep_len+1, buff+i+1+bad_len, len-(i-1+bad_len));
-						snprintf(buff+i+1, sizeof(buff)-i-1, "%s", filter_list[idx].replacement);
+						strncpy(buff+i+1, filter_list[idx].replacement, rep_len);
 						buff[i+1+rep_len]=' '; /* end word with a space */
 						// adjust the length
 						len-=(bad_len-(rep_len+1));
@@ -314,8 +316,7 @@ int filter_text(Uint8 * input_text, int len)
 				}
 			}
 		}
-	
-	snprintf(input_text, len+1, "%s", buff+1);
+	strncpy(input_text, buff+1, len);
 	return(len);
 }
 
@@ -379,7 +380,8 @@ void clear_filter_list()
 void load_filters()
 {
 	char local_filters[256];
-	snprintf(local_filters, sizeof(local_filters), "%slocal_filters.txt", configdir);
+	strncpy(local_filters, configdir,sizeof(local_filters));
+	strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
 	clear_filter_list();
 	load_filters_list(local_filters);
 	if(use_global_filters)load_filters_list("global_filters.txt");
