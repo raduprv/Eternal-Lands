@@ -1093,13 +1093,33 @@ void elconfig_populate_tabs(void)
 	}
 }
 
+// TODO: replace this hack by something clean.
+int show_elconfig_handler(window_info * win) {
+	int pwinx, pwiny; window_info *pwin;
+	if (win->pos_id != -1) {
+		pwin = &windows_list.window[win->pos_id];
+		pwinx = pwin->cur_x;
+		pwiny = pwin->cur_y;
+	} else {
+		pwinx = 0;
+		pwiny = 0;
+	}
+	if (get_show_window(newchar_root_win)) {
+		init_window(win->window_id, newchar_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
+	} else {
+		init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
+	}
+}
+
 void display_elconfig_win(void)
 {
 	if(elconfig_win < 0) {
 		/* Set up the window */
 		elconfig_win = create_window("ELconfig", game_root_win, 0, elconfig_menu_x, elconfig_menu_y, elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT);
 		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
-                set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
+		set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
+		// TODO: replace this hack by something clean.
+		set_window_handler(elconfig_win, ELW_HANDLER_SHOW, &show_elconfig_handler);
 		/* Create tabs */
 		elconfig_tab_collection_id = tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_TABS, TAB_TAG_HEIGHT, 0);
 		elconfig_tabs[CONTROLS].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Controls", 0, 0);
@@ -1113,8 +1133,7 @@ void display_elconfig_win(void)
 		elconfig_tabs[SPECIALVID].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Advanced video", 0, 0);
 		
 		elconfig_populate_tabs();
-	} else {
-		show_window(elconfig_win);
-		select_window(elconfig_win);
 	}
+	show_window(elconfig_win);
+	select_window(elconfig_win);
 }
