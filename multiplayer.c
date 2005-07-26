@@ -986,7 +986,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 						break;
 				}
 			}
-
+			break;
 #ifdef NEW_CLIENT
 		case OPEN_BOOK:
 			{
