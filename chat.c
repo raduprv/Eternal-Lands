@@ -110,6 +110,18 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 	current_channel = active;
 }
 
+void send_active_channel (Uint8 chan)
+{
+	Uint8 msg[2];
+
+	if (chan >= CHAT_CHANNEL1 && chan <= CHAT_CHANNEL3)
+	{
+		msg[0] = SET_ACTIVE_CHANNEL;
+		msg[1] = chan;
+		my_tcp_send (my_socket, msg, 2);
+	}
+}
+
 #endif // def MULTI_CHANNEL
 
 #define CHAT_WIN_SPACE		4
@@ -450,6 +462,9 @@ void switch_to_chat_tab(int id, char click)
 	vscrollbar_set_pos(chat_win, chat_scroll_id, current_line);
 	text_changed = 1;
 	channels[active_tab].highlighted = 0;
+
+	if (channels[active_tab].chan_nr >= CHAT_CHANNEL1 && channels[active_tab].chan_nr <= CHAT_CHANNEL3)
+		send_active_channel (channels[active_tab].chan_nr);
 }
 
 void change_to_current_chat_tab(const char *input)
@@ -965,6 +980,9 @@ void switch_to_tab(int id)
 	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.57f, 1.0f, 0.59f);
 	current_filter = tabs[current_tab].channel;
 	tabs[current_tab].highlighted = 0;
+	
+	if (tabs[current_tab].channel >= CHAT_CHANNEL1 && tabs[current_tab].channel <= CHAT_CHANNEL3)
+		send_active_channel (tabs[current_tab].channel); 
 }
 
 int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
