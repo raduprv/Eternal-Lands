@@ -2,6 +2,7 @@
 #include <string.h>
 #include "global.h"
 #include "weather.h"
+#include "draw_scene.h"
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -1481,6 +1482,8 @@ void create_game_root_window (int width, int height)
         	set_window_handler (game_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
         	set_window_handler (game_root_win, ELW_HANDLER_KEYPRESS, &keypress_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_SHOW, &show_game_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
+		set_window_handler (game_root_win, ELW_HANDLER_HIDE, &update_have_display);
 		
 		resize_root_window();
 	}

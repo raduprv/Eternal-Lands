@@ -52,6 +52,8 @@ typedef	struct	{
 	int (*close_handler)();		/*!< executed after window is closed */
 	int (*destroy_handler)();	/*!< executed upon window destruction */
 	int (*show_handler)();		/*!< executed before the window is shown */
+	int (*after_show_handler)();		/*!< executed after the window is shown */
+	int (*hide_handler)();		/*!< executed before the window is hidden */
     /*! @} */
 
 	/*
@@ -181,6 +183,8 @@ typedef	struct	{
 #define	ELW_HANDLER_CLOSE	7
 #define	ELW_HANDLER_DESTROY	8
 #define	ELW_HANDLER_SHOW	9
+#define	ELW_HANDLER_HIDE	10
+#define	ELW_HANDLER_AFTER_SHOW	11
 /*! @} */
 
 /*!

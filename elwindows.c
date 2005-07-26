@@ -653,6 +653,8 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 		win->close_handler = NULL;
 		win->destroy_handler = NULL;
 		win->show_handler = NULL;
+		win->after_show_handler = NULL;
+		win->hide_handler = NULL;
 		
 		win->widgetlist = NULL;
 		
@@ -1033,17 +1035,23 @@ void	show_window(int win_id)
 	for (iwin = 0; iwin < windows_list.num_windows; iwin++)
 		if (windows_list.window[iwin].pos_id == win_id && windows_list.window[iwin].reinstate)
 			show_window (iwin);
+	
+	if (win->after_show_handler) (*win->after_show_handler)(win);
 }
 
 void	hide_window(int win_id)
 {
 	int iwin;
+	window_info * win;
 	
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
 	
-	windows_list.window[win_id].displayed = 0;
-	windows_list.window[win_id].reinstate = 0;
+	win = &windows_list.window[win_id];
+	if (win->hide_handler) (*win->hide_handler)(win);
+	
+	win->displayed = 0;
+	win->reinstate = 0;
 	
 	// hide child windows
 	for (iwin = 0; iwin < windows_list.num_windows; iwin++)
@@ -1401,6 +1409,14 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_SHOW:
 			old_handler= (void *)windows_list.window[win_id].show_handler;
 			windows_list.window[win_id].show_handler=handler;
+			break;
+		case	ELW_HANDLER_AFTER_SHOW:
+			old_handler= (void *)windows_list.window[win_id].after_show_handler;
+			windows_list.window[win_id].after_show_handler=handler;
+			break;
+		case	ELW_HANDLER_HIDE:
+			old_handler= (void *)windows_list.window[win_id].hide_handler;
+			windows_list.window[win_id].hide_handler=handler;
 			break;
 		default:
 			old_handler=NULL;

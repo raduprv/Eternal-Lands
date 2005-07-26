@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include "global.h"
 #include "actors.h"
+#include "draw_scene.h"
 
 typedef int my_enum;//This enumeration will decrease, then wrap to top, increase and then wrap to bottom, when using the inc() and dec() functions. Special purpose though, since you have to have between 2 and 255 values in the enumeration and you have to have the same value in enum[0] as in enum[max] - otherwise we'll probably segfault...
 
@@ -418,6 +419,8 @@ void create_newchar_root_window ()
 		set_window_handler (newchar_root_win, ELW_HANDLER_CLICK, &click_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_KEYPRESS, &keypress_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_SHOW, &show_newchar_handler);
+		set_window_handler (newchar_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
+		set_window_handler (newchar_root_win, ELW_HANDLER_HIDE, &update_have_display);
 
 		LOG_TO_CONSOLE(c_green1, char_help);
 	} else {

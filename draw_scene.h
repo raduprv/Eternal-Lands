@@ -6,8 +6,11 @@
 #ifndef __DRAW_SCENE_H__
 #define __DRAW_SCENE_H__
 
+#include "elwindows.h"
+
 extern GLuint paper1_text;
 
+extern char have_display; /*!< Flag indicating whether any window is showing the scene */
 extern float cx,cy,cz;
 extern float rx,ry,rz;
 extern float camera_rotation_speed; /*!< current speed for rotations of the camera */
@@ -89,5 +92,13 @@ void CalculateFrustum();
  * 		Gets the temporary locations, rotations of the actors that will be used when rendering this frame
  */
 void get_tmp_actor_data();
+
+/*!
+ * \ingroup	display
+ * \brief	Window handler that updates the \see have_display flag.
+ *
+ *		Window handler that updates the \see have_display flag.
+ */
+int update_have_display(window_info *win);
 
 #endif

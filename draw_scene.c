@@ -2,10 +2,13 @@
 #include <math.h>
 #include <string.h>
 #include "global.h"
+#include "draw_scene.h"
 #include "weather.h"
+#include "elwindows.h"
 
 GLuint paper1_text;
 
+char have_display = 0;
 float cx=0;
 float cy=0;
 float cz=0;
@@ -71,7 +74,7 @@ void draw_scene()
 	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 	
-	if ( !get_show_window (game_root_win) && !get_show_window(newchar_root_win) )
+	if (!have_display)
 	{
 		new_zoom_level = zoom_level;	// No scrolling when switching modes...
 		if (quickbar_relocatable && quickbar_win >= 0) // Hack 
@@ -266,3 +269,8 @@ void update_camera()
 	}
 }
 
+int update_have_display(window_info * win) {
+	// if the calling window is shown, we have a display, else check all 3d windows
+	have_display = (win->displayed || get_show_window(game_root_win) || get_show_window(newchar_root_win));
+	return 0;
+}
