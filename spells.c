@@ -720,7 +720,7 @@ void load_quickspells()
 #ifndef WINDOWS
 	char username[20];
 	
-	snprintf(username, sizeof(username), username_str);
+	snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
 	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "rb"); // try local file first
@@ -755,7 +755,7 @@ void save_quickspells()
 #ifndef WINDOWS
 	char username[20];
 	
-	snprintf(username, sizeof(username), username_str);
+	snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
 	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "wb"); // try local file first

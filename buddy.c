@@ -430,7 +430,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 				break;
 			}
 		}
-		snprintf(accept_windows[current_window].name, 32, argument);
+		snprintf(accept_windows[current_window].name, sizeof (accept_windows[current_window].name), "%s", argument);
 		if(is_in_buddylist(accept_windows[current_window].name)) {
 			/* We don't need to make room for the checkbox because the buddy is already in our list. */
 			win_height -= 20;
@@ -551,6 +551,6 @@ int is_in_buddylist(const char *name)
 
 void add_buddy_confirmation(char *name) {
 	char *name_copy = malloc(strlen(name)+1);
-	snprintf(name_copy, strlen(name)+1, name);
+	snprintf(name_copy, strlen(name)+1, "%s", name);
 	queue_push(buddy_request_queue, name_copy);
 }

@@ -323,7 +323,8 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				// extract the channel number
 				if (data_lenght > 4) 
 				{
-					channel_id = in_data[3];									data_lenght = filter_or_ignore_text (&in_data[4], data_lenght-4) + 4;
+					channel_id = in_data[3];
+					data_lenght = filter_or_ignore_text (&in_data[4], data_lenght-4) + 4;
 					if (data_lenght > 4)
 					{
 						//how to display it

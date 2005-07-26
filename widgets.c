@@ -2192,16 +2192,16 @@ int spinbutton_draw(widget_list *widget)
 				/* The input buffer has a value less than minimum. 
 				 * Don't change the data variable and mark the text in red */
 				glColor3f(1, 0, 0);
-				snprintf(str, 255, button->input_buffer);
+				snprintf(str, sizeof (str), "%s", button->input_buffer);
 			} else {
 				*(int *)button->data = atoi(button->input_buffer);
-				snprintf(str, 255, "%i", *(int *)button->data);
+				snprintf(str, sizeof (str), "%i", *(int *)button->data);
 			}
 		break;
 		case SPIN_FLOAT:
 			if(atof(button->input_buffer) < button->min) {
 				glColor3f(1, 0, 0);
-				snprintf(str, 255, button->input_buffer);
+				snprintf(str, sizeof (str), "%s", button->input_buffer);
 			} else {
 				char *pointer = strstr(button->input_buffer, ".");
 				int accuracy = (pointer == NULL) ? 0 : strlen(pointer+1);
@@ -2209,8 +2209,8 @@ int spinbutton_draw(widget_list *widget)
 				if(accuracy > 3) {
 					accuracy = 3;
 				}
-				snprintf(format, 10, "%%.%if", accuracy);
-				snprintf(str, 255, format, *(float *)button->data);
+				snprintf(format, sizeof (format), "%%.%if", accuracy);
+				snprintf(str, sizeof (str), format, *(float *)button->data);
 				if(accuracy == 0 && pointer != NULL) {
 					/* We have a . at the end of the input buffer, but 
 					 * snprintf() doesn't write it, so we have to do it manually. */
