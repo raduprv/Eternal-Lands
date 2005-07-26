@@ -463,8 +463,10 @@ void switch_to_chat_tab(int id, char click)
 	text_changed = 1;
 	channels[active_tab].highlighted = 0;
 
+#ifdef MULTI_CHANNEL
 	if (channels[active_tab].chan_nr >= CHAT_CHANNEL1 && channels[active_tab].chan_nr <= CHAT_CHANNEL3)
 		send_active_channel (channels[active_tab].chan_nr);
+#endif
 }
 
 void change_to_current_chat_tab(const char *input)
@@ -981,8 +983,10 @@ void switch_to_tab(int id)
 	current_filter = tabs[current_tab].channel;
 	tabs[current_tab].highlighted = 0;
 	
+#ifdef MULTI_CHANNEL
 	if (tabs[current_tab].channel >= CHAT_CHANNEL1 && tabs[current_tab].channel <= CHAT_CHANNEL3)
 		send_active_channel (tabs[current_tab].channel); 
+#endif
 }
 
 int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
