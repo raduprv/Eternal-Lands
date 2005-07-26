@@ -642,7 +642,7 @@ void init_stuff()
 	}
 	else 
 	{
-		create_rules_root_window (window_width, window_height, opening_root_win, 5);
+		create_rules_root_window (window_width, window_height, opening_root_win, 15);
 		show_window (rules_root_win);
 	}
 

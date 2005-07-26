@@ -174,6 +174,7 @@ int display_newchar_handler (window_info *win)
 		move_camera();//Make sure we lag a little...
 		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 		yourself = 0;
+		your_actor = our_actor.our_model;
 	}
 
 	if(disconnected)connect_to_server();
@@ -349,7 +350,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	} else if (key == K_ZOOMIN) {
 		if (zoom_level >= 1.50f) new_zoom_level = zoom_level - 0.25;
 	} else if (key == K_ZOOMOUT) {
-		if (zoom_level <= 3.75f) new_zoom_level = zoom_level + 0.25;
+		if (zoom_level <= 3.50f) new_zoom_level = zoom_level + 0.25;
 	} else if(key==K_OPTIONS){
 		view_window(&elconfig_win, 0);
 	} else if(key==K_ENCYCLOPEDIA){
