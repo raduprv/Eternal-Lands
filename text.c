@@ -134,13 +134,18 @@ void send_input_text_line (char *line, int line_len)
 	int len;
 	Uint8 ch;
 
-	if(use_windowed_chat == 1)
+	switch(use_windowed_chat)
 	{
-		change_to_current_tab(line);
-	}
-	else if(use_windowed_chat == 2)
-	{
-		change_to_current_chat_tab(line);
+		case 1:
+			if(tabs[current_tab].channel != CHAT_ALL) {
+				change_to_current_tab(line);
+			}
+		break;
+		case 2:
+			if(channels[active_tab].chan_nr != CHAT_ALL) {
+				change_to_current_chat_tab(line);
+			}
+		break;
 	}
 
 	if ( caps_filter && line_len > 4 && my_isupper (line, -1) )

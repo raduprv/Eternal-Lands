@@ -106,6 +106,20 @@ dichar	sig_change,
 char 	
 	/*3d_objects.c*/
 	values_str[20],
+	/*buddy.c*/
+	buddy_name_str[20],
+	buddy_long_name_str[100],
+	buddy_type_str[20],
+	buddy_long_type_str[100],
+	buddy_add_str[30],
+	buddy_change_str[30],
+	buddy_accept_str[30],
+	yes_str[10],
+	no_str[10],
+	buddy_delete_str[20],
+	buddy_long_delete_str[100],
+	buddy_wants_to_add_str[150],
+	buddy_add_to_list_str[180],
 	/*draw_scene.c*/
 	low_framerate_str[100],
 	/*gl_init.c*/
@@ -391,7 +405,7 @@ char	win_notepad[20],
 #ifdef ELC
 #define CONSOLE_STR 3
 #define ERRORS 7
-#define HELP_STR 4
+#define HELP_STR 5
 #define OPTIONS_STR 1
 #define SIGILS_STR 1
 #define STATS_STR 5
@@ -440,7 +454,7 @@ void init_groups()
 #ifdef ELC
 	console_str=add_xml_group(GROUP,CONSOLE_STR,"filter","ignore","misc");
 	errors=add_xml_group(GROUP,ERRORS,"actors","load","misc","particles","snd","video","rules");
-	help_str=add_xml_group(GROUP,HELP_STR,"afk","misc","new","tooltips");
+	help_str=add_xml_group(GROUP,HELP_STR,"afk","misc","new","tooltips","buddy");
 	options_str=add_xml_group(DIGROUP,OPTIONS_STR,"options");
 	sigils_str=add_xml_group(DIGROUP,SIGILS_STR,"sigils");
 	stats_str=add_xml_group(STAT_GROUP,STATS_STR,"base","cross","misc","nexus","skills");
@@ -713,6 +727,7 @@ void init_help()
 	group_id * misc = &(help_str[1]);
 	group_id * new = &(help_str[2]);
 	group_id * tooltips = &(help_str[3]);
+	group_id * buddy = &(help_str[4]);
 
 	//AFK Messages
 	add_xml_identifier(afk,"going",going_afk,"Going AFK",sizeof(going_afk));
@@ -811,8 +826,23 @@ void init_help()
 	add_xml_identifier(tooltips,"buddy",tt_buddy,"View buddy",sizeof(tt_buddy));
 	add_xml_identifier(tooltips,"opts",tt_options,"View options",sizeof(tt_options));
 	add_xml_identifier(tooltips,"help",tt_help,"View help",sizeof(tt_help));
-	add_xml_identifier(tooltips,"costumize",tt_costumize,"Costumize your character",sizeof(tt_costumize));
+	add_xml_identifier(tooltips,"customize",tt_costumize,"Customize your character",sizeof(tt_costumize));
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
+	
+	//Buddy list
+	add_xml_identifier(buddy, "name", buddy_name_str, "Name:", sizeof(buddy_name_str));
+	add_xml_identifier(buddy, "name_desc", buddy_long_name_str, "The name of your buddy", sizeof(buddy_long_name_str));
+	add_xml_identifier(buddy, "color", buddy_type_str, "Color:", sizeof(buddy_type_str));
+	add_xml_identifier(buddy, "color_desc", buddy_long_type_str, "The color you want your buddy to appear in in the list", sizeof(buddy_long_type_str));
+	add_xml_identifier(buddy, "add", buddy_add_str, "Add buddy", sizeof(buddy_add_str));
+	add_xml_identifier(buddy, "change", buddy_change_str, "Change buddy", sizeof(buddy_change_str));
+	add_xml_identifier(buddy, "accept", buddy_accept_str, "Accept buddy", sizeof(buddy_accept_str));
+	add_xml_identifier(buddy, "yes", yes_str, "Yes", sizeof(yes_str));
+	add_xml_identifier(buddy, "no", no_str, "No", sizeof(yes_str));
+	add_xml_identifier(buddy, "delete", buddy_delete_str, "Delete buddy", sizeof(buddy_delete_str));
+	add_xml_identifier(buddy, "delete_desc", buddy_long_delete_str, "Check this to delete the buddy from the list", sizeof(buddy_long_delete_str));
+	add_xml_identifier(buddy, "request_dialog", buddy_wants_to_add_str, "%s wants to add you to his/her buddy list. Do you wish to allow it?", sizeof(buddy_wants_to_add_str));
+	add_xml_identifier(buddy, "add_to_list", buddy_add_to_list_str, "Add to my buddy list", sizeof(buddy_add_to_list_str));
 
 }
 #endif

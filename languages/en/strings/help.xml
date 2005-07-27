@@ -103,4 +103,19 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <costumize>Costumize your character</costumize>
     <name_pass>Choose name and password</name_pass>
   </tooltips>
+  <buddy>
+    <name>Name:</name>
+    <name_desc>The name of your buddy</name_desc>
+    <color>Color:</color>
+    <color_desc>The color you want your buddy to appear in in the list</color_desc>
+    <add>Add buddy</add>
+    <change>Change buddy</change>
+    <accept>Accept buddy</accept>
+    <yes>Yes</yes>
+    <no>No</no>
+    <delete>Delete buddy</delete>
+	<delete_desc>Check this to delete the buddy from the list</delete_desc>
+	<request_dialog>%s wants to add you to his/her buddy list. Do you wish to allow it?"</request_dialog>
+	<add_to_list>Add to my buddy list</add_to_list>
+  </buddy>
 </root>

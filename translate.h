@@ -202,7 +202,21 @@ extern char 	tt_walk[30],
 //Help messages
 extern char	
 		/*3d_objects.c*/
-		values_str[20], 
+		values_str[20],
+		/*buddy.c*/
+		buddy_name_str[20],
+		buddy_long_name_str[100],
+		buddy_type_str[20],
+		buddy_long_type_str[100],
+		buddy_add_str[30],
+		buddy_change_str[30],
+		buddy_accept_str[30],
+		yes_str[10],
+		no_str[10],
+		buddy_delete_str[20],
+		buddy_long_delete_str[100],
+		buddy_wants_to_add_str[150],
+		buddy_add_to_list_str[180],
 		/*console.c*/
 		logconn_str[50],
 		/*draw_scene.c*/

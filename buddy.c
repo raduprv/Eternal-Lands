@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 #include <string.h>
 #include "global.h"
 #include "elwindows.h"
@@ -23,9 +24,10 @@ int buddy_add_y_len = 97;
 
 int buddy_change_win = -1;
 int buddy_change_x_len = 290;
-int buddy_change_y_len = 225;
+int buddy_change_y_len = 245;
 int buddy_type_input_id = -1;
 int buddy_change_button_id = -1;
+int buddy_delete = 0; //For the checkbox
 char *buddy_to_change = NULL;
 
 struct accept_window {
@@ -37,14 +39,6 @@ struct accept_window {
 int buddy_accept_x_len = 400;
 int buddy_accept_y_len = 130;
 queue_t *buddy_request_queue;
-
-char name_str[] = "Name:";
-char type_str[] = "Color:";
-char add_buddy_str[] = "Add buddy";
-char change_buddy_str[] = "Change buddy";
-char accept_buddy_str[] = "Accept buddy";
-char yes_str[] = "Yes";
-char no_str[] = "No";
 
 unsigned char buddy_name_buffer[16] = {0};
 char description_buffer[255] = {0};
@@ -114,7 +108,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		//Clicked on the requests button
 		while(!queue_isempty(buddy_request_queue)) {
 			char *name = queue_pop(buddy_request_queue);
-			create_buddy_interface_win(accept_buddy_str, name);
+			select_window(create_buddy_interface_win(buddy_accept_str, name));
 			free(name);
 		}
 		return 1;
@@ -134,7 +128,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 			my_tcp_send(my_socket, str, strlen(str+1)+1);
 		} else {
 			//Right click, open edit window
-			create_buddy_interface_win(change_buddy_str, &buddy_list[y]);
+			create_buddy_interface_win(buddy_change_str, &buddy_list[y]);
 		}
 	} else {
 		//start a pm to them
@@ -197,8 +191,13 @@ int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	char string[255];
-	
-	snprintf(string, sizeof(string), "%c#change_buddy %s %i", RAW_TEXT, buddy_to_change, multiselect_get_selected(buddy_change_win, buddy_type_input_id));
+
+	if(buddy_delete) {
+		snprintf(string, sizeof(string), "%c#del_buddy %s", RAW_TEXT, buddy_to_change);
+		buddy_delete = 0;
+	} else {
+		snprintf(string, sizeof(string), "%c#change_buddy %s %i", RAW_TEXT, buddy_to_change, multiselect_get_selected(buddy_change_win, buddy_type_input_id));
+	}
 	my_tcp_send(my_socket, string, strlen(string+1)+1);
 	destroy_window(buddy_change_win);
 	buddy_change_win = -1;
@@ -221,16 +220,20 @@ int display_add_buddy_handler(window_info *win)
 }
 int name_onmouseover_handler(widget_list *widget, int mx, int my)
 {
-	char str[] = "The name of your buddy";
-	put_small_text_in_box(str, strlen(str),
+	put_small_text_in_box(buddy_long_name_str, strlen(buddy_long_name_str),
                                buddy_add_x_len-10, description_buffer);
 	return 1;
 }
 int type_onmouseover_handler(widget_list *widget, int mx, int my)
 {
-	char str[] = "The color you want your buddy to appear in in the list";
-	put_small_text_in_box(str, strlen(str),
+	put_small_text_in_box(buddy_long_type_str, strlen(buddy_long_type_str),
                                buddy_add_x_len-10, description_buffer);
+	return 1;
+}
+int delete_onmouseover_handler(widget_list *widget, int mx, int my)
+{
+	put_small_text_in_box(buddy_long_delete_str, strlen(buddy_long_delete_str), 
+							buddy_change_x_len-10, description_buffer);
 	return 1;
 }
 
@@ -246,6 +249,16 @@ int display_accept_buddy_handler(window_info *win)
 			}
 		}
 		return 1;
+	} else {
+		return 0;
+	}
+}
+
+int name_input_keypress_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	if(unikey == '\r' && strlen(buddy_name_buffer) > 0) {
+		buddy_name_buffer[strlen(buddy_name_buffer)-1] = '\0';
+		return click_add_buddy_handler(widget, mx, my, ELW_LEFT_MOUSE);
 	} else {
 		return 0;
 	}
@@ -346,6 +359,12 @@ int click_accept_no(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+int click_delete_checkbox_label(widget_list *w, int mx, int my, Uint32 flags)
+{
+	buddy_delete = !buddy_delete;
+	return 1;
+}
+
 int create_buddy_interface_win(const char *title, void *argument)
 {
 	int label_id = 10; //temporary variable
@@ -354,69 +373,84 @@ int create_buddy_interface_win(const char *title, void *argument)
 	int x = 5;
 	int y = 5;
 
-	if(strcmp(title, add_buddy_str) == 0) {
+	if(strcmp(title, buddy_add_str) == 0) {
 		if(buddy_add_win < 0) {
 			/* Create the window */
 			buddy_add_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_add_x_len, buddy_add_y_len, ELW_WIN_DEFAULT);
 			set_window_handler(buddy_add_win, ELW_HANDLER_DISPLAY, &display_add_buddy_handler);
 			/* Add name input and label */
-			label_id = label_add_extended(buddy_add_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 1, 1, 1, name_str);
-			string_width = get_string_width(name_str)*0.9f;
+			label_id = label_add_extended(buddy_add_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 1, 1, 1, buddy_name_str);
+			string_width = get_string_width(buddy_name_str)*0.9f;
 			x = string_width+5;
 			y = 5;
 			buddy_name_input_id = pword_field_add_extended(buddy_add_win, buddy_name_input_id, NULL, x, y, buddy_add_x_len-x*2+10, 20, P_TEXT, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_buffer, 15);
 			widget_set_OnMouseover(buddy_add_win, buddy_name_input_id, name_onmouseover_handler);
 			widget_set_OnMouseover(buddy_add_win, label_id, name_onmouseover_handler);
+			widget_set_OnKey(buddy_add_win, buddy_name_input_id, name_input_keypress_handler);
 			/* Add "Add buddy" button */
 			y += 5+20;
-			extra_space = 2+((buddy_add_x_len-string_width*2) - get_string_width(add_buddy_str))/2;
-			buddy_add_button_id = button_add(buddy_add_win, NULL, add_buddy_str, x+extra_space, y);
+			extra_space = 2+((buddy_add_x_len-string_width*2) - get_string_width(buddy_add_str))/2;
+			buddy_add_button_id = button_add(buddy_add_win, NULL, buddy_add_str, x+extra_space, y);
 			widget_set_OnClick(buddy_add_win, buddy_add_button_id, click_add_buddy_handler);
 			return buddy_add_win;
 		} else {
 			toggle_window(buddy_add_win);
 			return buddy_add_win;
 		}
-	} else if (strcmp(title, change_buddy_str) == 0) {
+	} else if (strcmp(title, buddy_change_str) == 0) {
 		_buddy *buddy = argument;
 		buddy_to_change = buddy->name;
-		if(buddy_change_win < 0) {
-			/* Create the window */
-			buddy_change_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_change_x_len, buddy_change_y_len, ELW_WIN_DEFAULT);
-			set_window_handler(buddy_change_win, ELW_HANDLER_DISPLAY, &display_add_buddy_handler);
-			/* Add name label and name */
-			label_id = label_add_extended(buddy_change_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 1, 1, 1, name_str);
-			widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
-			x += get_string_width(name_str)*0.9f+5;
-			label_id = label_add_extended(buddy_change_win, ++label_id, NULL, x, y, 0, 0, 0, 0.9f, 1, 1, 1, buddy_to_change);
-			widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
-			label_id++;
-			/* Add type label and input widget */
-			y += 25;
-			string_width = get_string_width(type_str)*0.9f;
-			label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0, 0, 0.9f, 1, 1, 1, type_str);
-
-			buddy_type_input_id = multiselect_add(buddy_change_win, NULL, x, y, buddy_add_x_len-string_width*2);
-			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 0, "White", 1);
-			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 25, "Red", 0);
-			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 50, "Green", 0);
-			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 75, "Blue", 0);
-			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 100, "Yellow", 0);
-			multiselect_set_selected(buddy_change_win, buddy_type_input_id, buddy->type);
-
-			widget_set_OnMouseover(buddy_change_win, label_id, type_onmouseover_handler);
-			widget_set_OnMouseover(buddy_change_win, buddy_type_input_id, type_onmouseover_handler);
-			y += 5+multiselect_get_height(buddy_change_win, buddy_type_input_id);
-			/* Add button */
-			extra_space = 2+((buddy_change_x_len-string_width*2) - get_string_width(change_buddy_str))/2;
-			buddy_change_button_id = button_add(buddy_change_win, NULL, change_buddy_str, x+extra_space, y);
-			widget_set_OnClick(buddy_change_win, buddy_change_button_id, click_change_buddy_handler);
-			return buddy_change_win;
-		} else {
-			toggle_window(buddy_change_win);
-			return buddy_change_win;
+		if(buddy_change_win >= 0) {
+			/* Destroy the window to make sure everything's set up. */
+			destroy_window(buddy_change_win);
+			buddy_change_win = -1;
+			buddy_delete = 0;
 		}
-	} else if (strcmp(title, accept_buddy_str) == 0) {
+		/* Create the window */
+		buddy_change_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_change_x_len, buddy_change_y_len, ELW_WIN_DEFAULT);
+		set_window_handler(buddy_change_win, ELW_HANDLER_DISPLAY, &display_add_buddy_handler);
+		/* Add name label and name */
+		label_id = label_add_extended(buddy_change_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 1, 1, 1, buddy_name_str);
+		widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
+		x += get_string_width(buddy_name_str)*0.9f+5;
+		label_id = label_add_extended(buddy_change_win, ++label_id, NULL, x, y, 0, 0, 0, 0.9f, 1, 1, 1, buddy_to_change);
+		widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
+		label_id++;
+		x = 5;
+		/* Add type label and input widget */
+		y += 25;
+		x += string_width = get_string_width(buddy_type_str)*0.9f;
+		label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0, 0, 0.9f, 1, 1, 1, buddy_type_str);
+
+		buddy_type_input_id = multiselect_add(buddy_change_win, NULL, x, y, buddy_add_x_len-string_width*2);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 0, "White", 1);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 25, "Red", 0);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 50, "Green", 0);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 75, "Blue", 0);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 100, "Yellow", 0);
+		multiselect_set_selected(buddy_change_win, buddy_type_input_id, buddy->type);
+
+		widget_set_OnMouseover(buddy_change_win, label_id, type_onmouseover_handler);
+		widget_set_OnMouseover(buddy_change_win, buddy_type_input_id, type_onmouseover_handler);
+		label_id++;
+		y += 5+multiselect_get_height(buddy_change_win, buddy_type_input_id);
+		/* Delete buddy checkbox and label */
+		//Center the checkbox+label
+		extra_space = 2+ceilf((buddy_change_x_len-string_width*2 - (20 + get_string_width(buddy_delete_str)*0.9f))/2.0);
+		checkbox_add(buddy_change_win, NULL, x+extra_space, y, 15, 15, &buddy_delete);
+		x += 20;
+		label_add_extended(buddy_change_win, label_id, NULL, extra_space+x, y, 0, 0, 0, 0.9f, 0.77f, 0.59f, 0.39f, buddy_delete_str);
+		widget_set_OnClick(buddy_change_win, label_id, click_delete_checkbox_label);
+		widget_set_OnMouseover(buddy_change_win, label_id, delete_onmouseover_handler);
+		label_id++;
+		x -= 20;
+		y += 20;
+		/* Add button */
+		extra_space = 2+((buddy_change_x_len-string_width*2) - get_string_width(buddy_change_str))/2;
+		buddy_change_button_id = button_add(buddy_change_win, NULL, buddy_change_str, x+extra_space, y);
+		widget_set_OnClick(buddy_change_win, buddy_change_button_id, click_change_buddy_handler);
+		return buddy_change_win;
+	} else if (strcmp(title, buddy_accept_str) == 0) {
 		char string[250] = {0};
 		int current_window;
 		int yes_button;
@@ -438,7 +472,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 		accept_windows[current_window].window_id = create_window(title, game_root_win, 0, 200, 200, buddy_accept_x_len, win_height, ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER);
 		set_window_handler(accept_windows[current_window].window_id, ELW_HANDLER_DISPLAY, &display_accept_buddy_handler);
 		/* Add text */
-		snprintf(string, sizeof(string), "%s wants to add you to his/her buddy list. Do you wish to allow it?", accept_windows[current_window].name);
+		snprintf(string, sizeof(string), buddy_wants_to_add_str, accept_windows[current_window].name);
 		//label_add_extended(buddy_accept_win, label_id++, NULL, x, y, 0, 0, 0, 0.8, -1, -1, -1, string);
 		accept_windows[current_window].text = malloc((strlen(string)+5)*sizeof(*accept_windows[current_window].text));
 		put_small_text_in_box(string, strlen(string), buddy_accept_x_len-10, accept_windows[current_window].text);
@@ -447,7 +481,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 		if(!is_in_buddylist(accept_windows[current_window].name)) {
 			accept_windows[current_window].checkbox = checkbox_add(accept_windows[current_window].window_id, NULL, x, y, 15, 15, NULL);
 			x += 20;
-			snprintf(string, 350, "Add to my buddy list");
+			snprintf(string, 350, buddy_add_to_list_str);
 			label_add_extended(accept_windows[current_window].window_id, label_id++, NULL, x, y, 0, 0, 0, 0.8, -1, -1, -1, string);
 			y += 20;
 			x = 5;
@@ -469,7 +503,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	if(buddy_add_win < 0) {
-		buddy_add_win = create_buddy_interface_win(add_buddy_str, NULL);
+		buddy_add_win = create_buddy_interface_win(buddy_add_str, NULL);
 	} else {
 		toggle_window(buddy_add_win);
 	}
@@ -487,7 +521,7 @@ void display_buddy()
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 
 			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 130, 20, 20, 180, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, MAX_BUDDY-19);
-			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, buddy_menu_y_len-20, buddy_menu_x_len, 20, 0, 1.0, -1.0, -1.0, -1.0, add_buddy_str);
+			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, buddy_menu_y_len-20, buddy_menu_x_len, 20, 0, 1.0, -1.0, -1.0, -1.0, buddy_add_str);
 			widget_set_OnClick(buddy_win, buddy_button_id, click_buddy_button_handler);
 		}
 	else

@@ -292,7 +292,7 @@ int add_chat_tab(int nlines, Uint8 channel)
 
 			set_window_handler (channels[ichan].tab_id, ELW_HANDLER_DESTROY, close_channel);
 				
-			if(!channels[ichan].highlighted)
+			if(!channels[ichan].highlighted && channels[active_tab].chan_nr != CHAT_ALL)
 			{
 				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
 			}
@@ -372,7 +372,7 @@ void update_chat_window (int nlines, Uint8 channel)
 				current_line = channels[ichan].nr_lines;
 				text_changed = 1;
 			}
-			else if (!channels[ichan].highlighted) //Make sure we don't change the color of a highlighted tab
+			else if (!channels[ichan].highlighted && channels[active_tab].chan_nr != CHAT_ALL) //Make sure we don't change the color of a highlighted tab
 			{
 				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
 			}
@@ -936,16 +936,19 @@ int highlight_tab(const Uint8 channel)
 				//it doesn't exist
 				return 0;
 			}
-			for (i = 0; i < tabs_in_use; i++)
-			{
-				if (tabs[i].channel == channel)
+			if(tabs[current_tab].channel != CHAT_ALL) {
+				/* If we're in the All tab, we have already seen this message */
+				for (i = 0; i < tabs_in_use; i++)
 				{
-					if (current_tab != i && !tabs[i].highlighted)
+					if (tabs[i].channel == channel)
 					{
-						widget_set_color (tab_bar_win, tabs[i].button, 1.0f, 0.0f, 0.0f);
-						tabs[i].highlighted = 1;
+						if (current_tab != i && !tabs[i].highlighted)
+						{
+							widget_set_color (tab_bar_win, tabs[i].button, 1.0f, 0.0f, 0.0f);
+							tabs[i].highlighted = 1;
+						}
+						break;
 					}
-					break;
 				}
 			}
 		break;
@@ -955,16 +958,19 @@ int highlight_tab(const Uint8 channel)
 				//it doesn't exist
 				return 0;
 			}
-			for (i = 0; i < MAX_CHAT_TABS; i++)
-			{
-				if (channels[i].open && channels[i].chan_nr == channel)
+			if(channels[active_tab].chan_nr != CHAT_ALL) {
+				/* If we're in the All tab, we have already seen this message */
+				for (i = 0; i < MAX_CHAT_TABS; i++)
 				{
-					if (i != active_tab && channels[i].highlighted)
+					if (channels[i].open && channels[i].chan_nr == channel)
 					{
-						tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, 1.0, 0.0, 0.0);
-						channels[i].highlighted = 1;
+						if (i != active_tab && !channels[i].highlighted)
+						{
+							tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, 1.0, 0.0, 0.0);
+							channels[i].highlighted = 1;
+						}
+						break;
 					}
-					break;
 				}
 			}
 		break;
@@ -1092,7 +1098,7 @@ int add_tab_button (Uint8 channel)
 	tabs[itab].button = button_add_extended (tab_bar_win, cur_button_id++, NULL, tab_bar_width, 0, 0, tab_bar_height, 0, 0.75, 0.77f, 0.57f, 0.39f, label);
 	widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_bar_button_click);
 
-	tab_bar_width += widget_get_width (tab_bar_win, tabs[tabs_in_use].button);
+	tab_bar_width += widget_get_width (tab_bar_win, tabs[tabs_in_use].button)+1;
 	resize_window (tab_bar_win, tab_bar_width, tab_bar_height);
 
 	tabs_in_use++;
@@ -1110,7 +1116,7 @@ void remove_tab_button (Uint8 channel)
 	}
 	if (itab >= tabs_in_use) return;
 	
-	w = widget_get_width (tab_bar_win, tabs[itab].button);
+	w = widget_get_width (tab_bar_win, tabs[itab].button)+1;
 	widget_destroy (tab_bar_win, tabs[itab].button);
 	for (++itab; itab < tabs_in_use; itab++)
 	{
@@ -1137,7 +1143,7 @@ void update_tab_bar (Uint8 channel)
 	{
 		if (tabs[itab].channel == channel)
 		{
-			if (current_tab != itab && !tabs[itab].highlighted)
+			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL)
 				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
 			return;
 		}
@@ -1145,7 +1151,9 @@ void update_tab_bar (Uint8 channel)
 	
 	// we need a new button
 	new_button = add_tab_button (channel);
-	widget_set_color (tab_bar_win, tabs[new_button].button, 1.0f, 1.0f, 0.0f);
+	if(tabs[current_tab].channel != CHAT_ALL) {
+		widget_set_color (tab_bar_win, tabs[new_button].button, 1.0f, 1.0f, 0.0f);
+	}
 }
 
 void create_tab_bar ()
@@ -1153,7 +1161,7 @@ void create_tab_bar ()
 	int tab_bar_x = 10;
 	int tab_bar_y = 3;
 
-	tab_bar_win = create_window ("Tab bar", game_root_win, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW);
+	tab_bar_win = create_window ("Tab bar", game_root_win, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_SHOW);
 	
 	add_tab_button (CHAT_ALL);
 	current_tab = 0;

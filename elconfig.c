@@ -1109,6 +1109,7 @@ int show_elconfig_handler(window_info * win) {
 	} else {
 		init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 	}
+	return 1;
 }
 
 void display_elconfig_win(void)

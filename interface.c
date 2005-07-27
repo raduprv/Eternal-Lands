@@ -587,14 +587,13 @@ void draw_game_map (int map, int mouse_mini)
 	}
 	
 	//ok, now let's draw our possition...
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i]->actor_id == yourself && actors_list[i]->tmp.have_tmp)
-		{
-			x = actors_list[i]->tmp.x_tile_pos;
-			y = actors_list[i]->tmp.y_tile_pos;
-			break;
-		}
+	if(your_actor != NULL) {
+		x = your_actor->x_tile_pos;
+		y = your_actor->y_tile_pos;
+	} else {
+		//We don't exist (usually happens when teleporting)
+		x = -1;
+		y = -1;
 	}
 
 	if (!map)
