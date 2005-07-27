@@ -435,7 +435,7 @@ book * read_book(char * file, int type, int id)
 	}
 	
 	if(title) {
-		xmlFree(title);
+		free(title);
 	}
 	
 	xmlFreeDoc(doc);
