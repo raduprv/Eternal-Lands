@@ -330,7 +330,7 @@ void change_aa(int *pointer) {
 	}
 }
 #endif // ANTI_ALIAS
-
+#ifdef ELC
 void change_projection_float(float * var, float * value) {
 	change_float(var, value);
 	resize_root_window();
@@ -344,9 +344,10 @@ void change_projection_bool(int *pointer) {
 void change_gamma(float *pointer, float *value)
 {
 	*pointer = *value;
-	if(video_mode_set)SDL_SetGamma(*value, *value, *value);
+	if(video_mode_set)
+		SDL_SetGamma(*value, *value, *value);
 }
-
+#endif
 #ifdef MAP_EDITOR
 
 void set_auto_save_interval(int *pointer, int time)
@@ -447,8 +448,8 @@ int check_var (char *str, var_name_type type)
 				char str[200];
 				snprintf (str, 200, "Reached newline without an ending \" in %s", our_vars.var[i]->name);
 				LOG_TO_CONSOLE(c_red2,str);
-#endif
-#endif
+#endif // !ELCONFIG
+#endif // ELC
 				break;
 			}
 			tptr++;
@@ -489,7 +490,9 @@ int check_var (char *str, var_name_type type)
 				our_vars.var[i]->func (our_vars.var[i]->var); //only call if value has changed
 			return 1;
 		case STRING:
+#ifdef ELC
 		case PASSWORD:
+#endif //ELC
 			our_vars.var[i]->func (our_vars.var[i]->var, ptr, our_vars.var[i]->len);
 			return 1;
 		case FLOAT:
@@ -568,7 +571,9 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 				*integer=(int)def;
 				break;
 			case STRING:
+#ifdef ELC
 			case PASSWORD:
+#endif //ELC
 				our_vars.var[no]->len=(int)def;
 				break;
 			case FLOAT:
@@ -711,13 +716,14 @@ void init_vars()
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
+#ifdef ELC
 	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",SPECIALVID,0.10,3.00,0.05);
-
+#endif //ELC
 #ifdef MAP_EDITOR
 	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
 	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show POS","Show possition on the minimap",HUD);
 	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",MISC,0,INT_MAX);
-	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show grid", "Show grid");
+	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show grid", "Show grid",HUD);
 #endif
 
 }
@@ -864,7 +870,7 @@ int write_el_ini ()
 }
 
 /* ------ ELConfig Window functions start here ------ */
-
+#ifdef ELC
 int display_elconfig_handler(window_info *win)
 {
 	int i;
@@ -1138,3 +1144,4 @@ void display_elconfig_win(void)
 	show_window(elconfig_win);
 	select_window(elconfig_win);
 }
+#endif //ELC
