@@ -865,10 +865,15 @@ void floodfill (unsigned char new_height, int x, int y)
 void map_floodfill()
 {
 	int x, y;
+	int size = tile_map_size_x * 6;
+	unsigned char old_height;
      
 	x=(int)(scene_mouse_x/0.5f);
 	y=(int)(scene_mouse_y/0.5f);
-     
+	
+	old_height = height_map[y*size+x];
+	if (old_height == selected_height) return;
+	
 	floodfill (selected_height, x, y);
 }
 
