@@ -407,6 +407,11 @@ void animate_actors()
 				actors_list[i]->x_rot+=actors_list[i]->rotate_x_speed;
 				actors_list[i]->y_rot+=actors_list[i]->rotate_y_speed;
 				actors_list[i]->z_rot+=actors_list[i]->rotate_z_speed;
+				if(actors_list[i]->z_rot >= 360) {
+					actors_list[i]->z_rot -= 360;
+				} else if (actors_list[i]->z_rot <= 0) {
+					actors_list[i]->z_rot += 360;
+				}
 			}
 			
 			if(actors_list[i]->tmp.have_tmp) {
@@ -683,7 +688,7 @@ void next_command()
 						if(!actors_list[i]->fighting){
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
 						}
-						actors_list[i]->stop_animation=1;
+						actors_list[i]->stop_animation=0;
 						break;
 					case turn_right:
 					//LOG_TO_CONSOLE(c_green2,"turn right");
@@ -700,7 +705,7 @@ void next_command()
 						if(!actors_list[i]->fighting){
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
 						}
-						actors_list[i]->stop_animation=1;
+						actors_list[i]->stop_animation=0;
 						break;
 					//ok, now the movement, this is the tricky part
 					default:
@@ -956,38 +961,39 @@ void move_self_forward()
 	
 	x=me->tmp.x_tile_pos;
 	y=me->tmp.y_tile_pos;
-	rot=me->z_rot;
-	rot=unwindAngle_Degrees(rot);
+	rot=(int)rint(me->z_rot/45.0f);
+	if (rot < 0) rot += 8;
 	switch(rot) {
-		case 0:
+		case 8: //360
+		case 0: //0
 			tx=x;
 			ty=y+1;
 			break;
-		case 45:
+		case 1: //45
 			tx=x+1;
 			ty=y+1;
 			break;
-		case 90:
+		case 2: //90
 			tx=x+1;
 			ty=y;
 			break;
-		case 135:
+		case 3: //135
 			tx=x+1;
 			ty=y-1;
 			break;
-		case 180:
+		case 4: //180
 			tx=x;
 			ty=y-1;
 			break;
-		case 225:
+		case 5: //225
 			tx=x-1;
 			ty=y-1;
 			break;
-		case 270:
+		case 6: //270
 			tx=x-1;
 			ty=y;
 			break;
-		case 315:
+		case 7: //315
 			tx=x-1;
 			ty=y+1;
 			break;
@@ -997,7 +1003,9 @@ void move_self_forward()
 	}
 
 	//check to see if the coordinates are OUTSIDE the map
-	if(ty<0 || tx<0 || tx>=tile_map_size_x*6 || ty>=tile_map_size_y*6)return;
+	if(ty<0 || tx<0 || tx>=tile_map_size_x*6 || ty>=tile_map_size_y*6) {
+		return;
+	}
 	if (pf_follow_path) {
 		pf_destroy_path();
 	}
