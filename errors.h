@@ -2,12 +2,16 @@
 #define	__ERRORS_H
 
 void clear_error_log();
-void log_error(char * message);
+void log_error(char * message, ...);
 
-#ifdef	DEBUG
-#define	LOG_ERROR(msg)	log_error_detailed(msg, __FILE__, __FUNCTION__, __LINE__)
+#ifdef DEBUG
+ #ifdef _MSC_VER
+  #define LOG_ERROR log_error //MSVC doesn't support variadic macros.
+ #else
+  #define LOG_ERROR(msg, args ...) log_error_detailed(msg, __FILE__, __FUNCTION__, __LINE__, ## args) /*!< detailed log of error */
+ #endif //_MSC_VER
 #else
-#define	LOG_ERROR(msg)	log_error(msg)
+ #define LOG_ERROR log_error
 #endif	//DEBUG
 
 #endif	//__ERRORS_H
