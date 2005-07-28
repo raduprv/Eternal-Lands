@@ -1,7 +1,7 @@
 .PHONY: clean release docs
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC 
+OPTIONS=-DLINUX -DELC
 #-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
@@ -13,6 +13,7 @@ OPTIONS=-DLINUX -DELC
 #-DNETWORK_THREAD
 #-DANTI_ALIAS # allows to enable/disable anti-aliasing in el.ini
 #-DMEMORY_DEBUG # gather information about memory allocation and freeing
+#-DPNG_SCREENSHOT # make screenshots in W3C's PNG format in game
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
@@ -27,7 +28,7 @@ _CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shel
 CXXFLAGS=$(PLATFORM) $(CPPWARN) -O -ggdb -pipe $(OPTIONS)
 _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS)
 
-LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm
+LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm -lpng
 _LDFLAGS=$(XDIR) -lGL -lpthread -lz
 STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a
 
