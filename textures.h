@@ -51,6 +51,20 @@ int load_texture_cache(char * file_name,unsigned char alpha);
 
 /*!
  * \ingroup 	cache
+ * \brief 	Inserts a texture into the cache system.
+ *
+ *      	Allocates the cache structure for the texture, but does 
+ *      	not actually load the texture into texture memory yet.
+ *
+ * \param   	file_name The filename of the texture you wish to load.
+ * \param   	alpha The alpha-value. If 0, it will load the texture as an 8-bit color-key.
+ * \retval int  	The position in the texture_cache array
+ * \callgraph
+ */
+int load_texture_cache_deferred(char * file_name,unsigned char alpha);
+
+/*!
+ * \ingroup 	cache
  * \brief 	Gets the texture ID from the texture cache.
  *
  *     		Gets the texture ID from the texture cache. It will reload the texture if it was unloaded.

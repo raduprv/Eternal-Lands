@@ -407,9 +407,15 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 //If not, load it, and return the handle
 int load_texture_cache(char * file_name, unsigned char alpha)
 {
+	int slot = load_texture_cache_deferred(file_name, alpha);
+	get_and_set_texture_id(slot);
+	return slot;
+}
+
+int load_texture_cache_deferred(char * file_name, unsigned char alpha)
+{
 	int i;
 	int file_name_lenght;
-	int texture_id;
 	int texture_slot= -1;
 
 	file_name_lenght=strlen(file_name);
@@ -434,20 +440,9 @@ int load_texture_cache(char * file_name, unsigned char alpha)
 				}
 		}
 
-	CHECK_GL_ERRORS();
-	//texture not found in the cache, so load it, and store it
-	if(alpha==0)texture_id=load_bmp8_color_key(file_name);
-	else
-		texture_id=load_bmp8_fixed_alpha(file_name, alpha);
-	CHECK_GL_ERRORS();
-	if(texture_id==0){
-		log_error("Error: Problems loading texture: %s\n",file_name);
-		return 0;
-	}
 	if(texture_slot >= 0){
 		if(!texture_cache[texture_slot].file_name[0]){//we found a place to store it
-			snprintf(texture_cache[texture_slot].file_name, sizeof(texture_cache[texture_slot].file_name), "%s", file_name);
-			texture_cache[texture_slot].texture_id=texture_id;
+			texture_cache[texture_slot].texture_id=0;
 			texture_cache[texture_slot].alpha=alpha;
 			return texture_slot;
 		}

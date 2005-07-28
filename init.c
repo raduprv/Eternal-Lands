@@ -17,6 +17,11 @@
 #define DATA_DIR "./"
 #endif
 
+#ifdef ENCYCLOPEDIA
+#include "books/symbols.h"
+#include "books/parser.h"
+#endif
+
 int ini_file_size=0;
 
 int disconnected=1;
@@ -645,6 +650,11 @@ void init_stuff()
 		create_rules_root_window (window_width, window_height, opening_root_win, 15);
 		show_window (rules_root_win);
 	}
+
+#ifdef ENCYCLOPEDIA
+	bp_init_symbols();
+	bp_parseFile(malloc(sizeof(bp_Context)), "languages/en/Encyclopedia/encyclopedia.xml");
+#endif
 
 }
 
