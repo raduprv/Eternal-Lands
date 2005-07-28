@@ -807,7 +807,7 @@ bp_Caption * bp_parseCaption(bp_Context * context, xmlNodePtr node) {
 void bp_parseInlineContent(bp_Context * context, bp_Node * const parent, xmlNodePtr node) {
 	xmlNodePtr child;
 
-	for (context, child = node->children; child; child = child->next) {
+	for (child = node->children; child; child = child->next) {
 		switch (ELEM(child)) {
 			case BPE_TEXT:
 				ADD(bp_parseText(context, child));
@@ -1030,13 +1030,13 @@ bp_Color bp_parseColor(bp_Context * context, xmlNodePtr data) {
 	if (*cdata == '#') {
 		switch (strlen(++cdata)) {
 			case 3:
-				sscanf(cdata, "%03x", tmp);
+				sscanf(cdata, "%03x", &tmp);
 				result.r = (float)((tmp & 0xf00) >> 8) / 15.0f;
 				result.g = (float)((tmp & 0x0f0) >> 4) / 15.0f;
 				result.b = (float)((tmp & 0x00f) >> 0) / 15.0f;
 				break;
 			case 6:
-				sscanf(cdata, "%06x", tmp);
+				sscanf(cdata, "%06x", &tmp);
 				result.r = (float)((tmp & 0xff0000) >> 16) / 255.0f;
 				result.g = (float)((tmp & 0x00ff00) >>  8) / 255.0f;
 				result.b = (float)((tmp & 0x0000ff) >>  0) / 255.0f;
