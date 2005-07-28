@@ -1061,6 +1061,7 @@ bp_Color bp_parseColor(bp_Context * context, xmlNodePtr data) {
 			exit(1);
 		}
 	}
+	return result;
 }
 
 bp_Alignment bp_parseAlignment(bp_Context * context, xmlNodePtr data) {
