@@ -114,7 +114,7 @@ int have_name(char *name, int len)
 	return -1;
 }
 
-void add_name_to_pm_log(char *name, int len)
+int add_name_to_pm_log(char *name, int len)
 {
 	int z= pm_log.ppl;
 
@@ -123,7 +123,8 @@ void add_name_to_pm_log(char *name, int len)
 	pm_log.afk_msgs[z].msgs= 0;
 	pm_log.afk_msgs[z].messages= NULL;
 	pm_log.afk_msgs[z].name= (char*)calloc(len+1, sizeof(char));
-	memcpy(pm_log.afk_msgs[z].name,name,len+1);
+	snprintf(pm_log.afk_msgs[z].name, len+1, "%s", name);
+	return z;
 }
 
 void add_message_to_pm_log(char * message, int len)
@@ -135,13 +136,12 @@ void add_message_to_pm_log(char * message, int len)
 	if(z<0)
 		{
 			send_afk_message(NULL, 1);
-			z= pm_log.ppl;
-			add_name_to_pm_log(last_pm_from, last_pm_len);
+			z = add_name_to_pm_log(last_pm_from, last_pm_len);
 		}
 	pm_log.afk_msgs[z].messages= (char**)realloc(pm_log.afk_msgs[z].messages, (pm_log.afk_msgs[z].msgs+1)*sizeof(char *));
 	//time name message
-	snprintf(buf, 500, "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len, message);
-	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]= (char*)calloc(strlen(buf+1), sizeof(char));
+	snprintf(buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len, message);
+	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]= (char*)calloc(strlen(buf)+1, sizeof(char));
 	strcpy(pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf);
 	pm_log.afk_msgs[z].msgs++;
 	pm_log.msgs++;

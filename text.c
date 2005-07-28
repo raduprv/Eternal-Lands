@@ -430,10 +430,10 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	*/
 		if(text_to_add[0] < 127 + c_lbound || text_to_add[0] > 127 + c_ubound) {
 			// force the color
-			idx = 1 + snprintf(msg->data, len+2, "%c%s", color + 127, text_to_add);
+			idx = 1 + snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
 		} else {
 			// color set by server
-			idx = 1 + snprintf(msg->data, len+1, "%s", text_to_add);
+			idx = 1 + snprintf(msg->data, minlen, "%.*s", len, text_to_add);
 		}
 		
 		/* FIXME: currently unused, commented (Lachesis)
