@@ -10,7 +10,7 @@
 /*! \name the xml elements */
 typedef enum { BPE_NONE, BPE_BOOK, BPE_PAGE, BPE_REF, BPE_BLOCK, BPE_IMAGE, 
 		BPE_TABLE, BPE_CAPTION, BPE_TR, BPE_TC, BPE_LABEL, BPE_TD, BPE_INLINE, 
-		BPE_TEXT, BPE_COUNT } bp_Element;
+		BPE_TEXT, BPE_TITLE, BPE_COUNT } bp_Element;
 
 /*! \name the xml attributes */
 typedef enum { BPA_COLSPAN, BPA_ROWSPAN, BPA_NAME, BPA_TYPE, BPA_TO, BPA_ALIGN,
@@ -24,7 +24,8 @@ typedef enum { BPA_COLSPAN, BPA_ROWSPAN, BPA_NAME, BPA_TYPE, BPA_TO, BPA_ALIGN,
 		BPA_MIN_LETTER_SPACING, BPA_MAX_LETTER_SPACING, BPA_WIDTH, BPA_HEIGHT,
 		BPA_BACKGROUND, BPA_LAYOUT, BPA_BLOCK_PROGRESSION, BPA_INLINE_PROGRESSION,
 		BPA_FONT_FACE, BPA_ROTATE, BPA_MIRROR, BPA_TEX_FILE, BPA_TEX_LEFT, 
-		BPA_TEX_RIGHT, BPA_TEX_TOP, BPA_TEX_BOTTOM, BPA_COUNT } bp_Attribute;
+		BPA_TEX_RIGHT, BPA_TEX_TOP, BPA_TEX_BOTTOM, BPA_LINE_SPACING, BPA_COUNT } 
+		bp_Attribute;
 
 /*! \name display layout */
 typedef enum { BPL_BOOK, BPL_SCROLL, BPL_COUNT } bp_Layout;
@@ -83,6 +84,7 @@ typedef struct _bp_BlockInsideAttributes {
 	float fontSize;
 	bp_Alignment alignment;
 	float minWordSpacing, maxWordSpacing, minLetterSpacing, maxLetterSpacing;
+	float lineSpacing;
 	struct _bp_BlockInsideAttributes * next;
 } bp_BlockInsideAttributes;
 
@@ -110,6 +112,7 @@ typedef struct _bp_Book {
 /*! \name "page" element node */
 typedef struct _bp_Page {
 	bp_Node node;
+	const char * title;
 	struct _bp_Ref * nav[BPR_COUNT];
 } bp_Page;
 

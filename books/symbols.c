@@ -46,6 +46,7 @@ void bp_init_symbols() {
 	st_addnum(bp_elements, "td",      BPE_TD);
 	st_addnum(bp_elements, "inline",  BPE_INLINE);
 	st_addnum(bp_elements, "text",    BPE_TEXT);
+	st_addnum(bp_elements, "title",   BPE_TITLE);
 	st_commit(bp_elements);
 
 	bp_attributes = st_create(BPA_COUNT);
@@ -84,6 +85,7 @@ void bp_init_symbols() {
 	st_addnum(bp_attributes, "letter-spacing", BPA_LETTER_SPACING);
 	st_addnum(bp_attributes, "min-letter-spacing", BPA_MIN_LETTER_SPACING);
 	st_addnum(bp_attributes, "max-letter-spacing", BPA_MAX_LETTER_SPACING);
+	st_addnum(bp_attributes, "line-spacing", BPA_LINE_SPACING);
 	st_addnum(bp_attributes, "width", BPA_WIDTH);
 	st_addnum(bp_attributes, "height", BPA_HEIGHT);
 	st_addnum(bp_attributes, "background", BPA_BACKGROUND);

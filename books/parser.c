@@ -39,6 +39,7 @@ const bp_BlockInsideAttributes bp_defaultBlockInsideAttributes = {
 		/* maxWordSpacing: */ 6.0f,
 		/* minLetterSpacing: */ 0.0f,
 		/* maxLetterSpacing: */ 3.0f,
+		/* lineSpacing: */ 1.0f,
 		/* next: */ NULL
 	};
 
@@ -366,6 +367,7 @@ bp_Page * bp_parsePage(bp_Context * context, xmlNodePtr node) {
 	bp_pushInline(context);
 
 	bp_initNode(&result->node, BPE_PAGE);
+	result->title = NULL;
 
 	for (attr = node->properties; attr; attr = attr->next) {
 		bp_parseBlockOutsideAttribute(context, context->blockOutside, attr);
@@ -376,6 +378,21 @@ bp_Page * bp_parsePage(bp_Context * context, xmlNodePtr node) {
 
 	for (child = node->children; child; child = child->next) {
 		switch(ELEM(child)) {
+			case BPE_TITLE:
+				if (!result->title) {
+					xmlNodePtr grandchild = child->children;
+					if (ELEM(grandchild) == BPE_TEXT) {
+						int len = strlen(grandchild->content);
+						char * title_string = malloc(++len);
+						memcpy(title_string, grandchild->content, len);
+						result->title = title_string;
+					} else {
+						DISCARD(grandchild);
+					}
+				} else {
+					DISCARD(child);
+				}
+				break;
 			case BPE_REF:
 				bp_parseNavRef(context, child, result);
 				break;
@@ -931,6 +948,8 @@ void bp_parseBlockInsideAttribute(bp_Context * context, bp_BlockInsideAttributes
 		case BPA_MAX_LETTER_SPACING:
 			dest->maxLetterSpacing = bp_parseFloat(context, attr->children);
 			break;
+		case BPA_LINE_SPACING:
+			dest->lineSpacing = bp_parseFloat(context, attr->children);
 		default:;
 	}
 }
