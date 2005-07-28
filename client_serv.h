@@ -210,6 +210,8 @@
 #define HELMET_IRON 0
 #define HELMET_FUR 1
 #define HELMET_LEATHER 2
+#define HELMET_RACOON 3
+#define HELMET_SKUNK 4
 #define HELMET_NONE 20
 /*! @} */
 

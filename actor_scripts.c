@@ -238,6 +238,8 @@ const dict_elem helmet_type_dict[] =
 	{ { "iron"   , HELMET_IRON    },
 	  { "fur"    , HELMET_FUR     },
 	  { "leather", HELMET_LEATHER },
+	  { "racoon" , HELMET_RACOON  },
+	  { "skunk"  , HELMET_SKUNK   },
 	  { "none"   , HELMET_NONE    },
 	  { NULL     , -1             }
 	};

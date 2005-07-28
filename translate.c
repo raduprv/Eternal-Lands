@@ -1100,7 +1100,7 @@ struct xml_struct load_strings(char * file)
 		tmp=load_strings_file(file_name);
 		if(tmp.file==NULL){
 			//Notify about this error - english only
-			log_error("Could not read %s", file);
+			log_error("Could not read %s\n", file);
 		}
 	}
 	return tmp;
