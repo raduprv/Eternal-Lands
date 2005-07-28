@@ -443,7 +443,7 @@ void move_to_next_frame()
 
 	LOCK_ACTORS_LISTS();
 	for(i=0;i<max_actors;i++) {
-		if(actors_list[i]!=0) {
+		if(actors_list[i]!=NULL) {
 			if (actors_list[i]->calmodel!=NULL) {
 				if ((actors_list[i]->stop_animation==1)&&(actors_list[i]->anim_time>=actors_list[i]->cur_anim.duration)){
 					actors_list[i]->busy=0;
@@ -455,7 +455,10 @@ void move_to_next_frame()
 			}
 			
 			if (actors_list[i]->cur_anim.anim_index==-1) actors_list[i]->busy=0;
-			} else actors_list[i]->busy=0;
+			// XXX (Grum): this is weird. Either the closing brace shouldn't be there, 
+			// in which case we can forget about the whole if statement, or it should
+			// and then we're dereferencing a NULL pointer.
+			//} else actors_list[i]->busy=0;
 
 			//first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
 			if(actors_list[i]->damage_ms) {
@@ -478,6 +481,7 @@ void move_to_next_frame()
 				//we are done with this guy
 				//Should we go into idle here?
 			}
+		}
 	}
 	UNLOCK_ACTORS_LISTS();
 }
