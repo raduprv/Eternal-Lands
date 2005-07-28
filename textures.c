@@ -441,7 +441,8 @@ int load_texture_cache_deferred(char * file_name, unsigned char alpha)
 		}
 
 	if(texture_slot >= 0){
-		if(!texture_cache[texture_slot].file_name[0]){//we found a place to store it
+	 if(!texture_cache[texture_slot].file_name[0]){//we found a place to store it
+		 	snprintf(texture_cache[texture_slot].file_name, sizeof(texture_cache[texture_slot].file_name), "%s", file_name);
 			texture_cache[texture_slot].texture_id=0;
 			texture_cache[texture_slot].alpha=alpha;
 			return texture_slot;
