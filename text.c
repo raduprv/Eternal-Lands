@@ -424,22 +424,17 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		msg->size = minlen;
 	}
 	
-	idx = 0;
-	// force the color
-	if(text_to_add[0] < 127 || text_to_add[0] > 127 + c_grey4)
-		msg->data[idx++] = 127 + color;
-	
 	/* FIXME: currently unused, commented (Lachesis)
 	if (use_windowed_chat == 2 || x_chars_limit <= 0 || len <= x_chars_limit)
 	{
 	*/
-		for (i = 0; i < len; i++)
-		{
-			if (text_to_add[i] == '\0')
-				break;
-			msg->data[idx++] = text_to_add[i];
+		if(text_to_add[0] < 127 + c_lbound || text_to_add[0] > 127 + c_ubound) {
+			// force the color
+			idx = 1 + snprintf(msg->data, len+2, "%c%s", color + 127, text_to_add);
+		} else {
+			// color set by server
+			idx = 1 + snprintf(msg->data, len+1, "%s", text_to_add);
 		}
-		msg->data[idx++] = '\0';
 		
 		/* FIXME: currently unused, commented (Lachesis)
 		if (use_windowed_chat == 2)
