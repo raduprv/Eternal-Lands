@@ -13,7 +13,7 @@ void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx);
 void convert_tabs (int new_wc);
 
 Uint32 active_channels[MAX_ACTIVE_CHANNELS];
-Uint8 current_channel;
+Uint8 current_channel = 0;
 
 void add_tab (Uint8 channel)
 {
@@ -119,6 +119,8 @@ void send_active_channel (Uint8 chan)
 		msg[0] = SET_ACTIVE_CHANNEL;
 		msg[1] = chan;
 		my_tcp_send (my_socket, msg, 2);
+		
+		current_channel = chan - CHAT_CHANNEL1;
 	}
 }
 
@@ -477,8 +479,7 @@ void change_to_current_chat_tab(const char *input)
 
 	if(input[0] == '@')
 	{
-		//TODO: multi channel support for this
-		channel = CHAT_CHANNEL1;
+		channel = CHAT_CHANNEL1 + current_channel;
 	}
 	else if(my_strncompare(input, "#gm", 3))
 	{
@@ -1189,7 +1190,7 @@ void change_to_current_tab(const char *input)
 
 	if(input[0] == '@')
 	{
-		channel = CHAT_CHANNEL1;
+		channel = CHAT_CHANNEL1 + current_channel;
 	}
 	else if(my_strncompare(input, "#gm", 3))
 	{
