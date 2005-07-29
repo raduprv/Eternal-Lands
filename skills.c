@@ -8,6 +8,7 @@ int skills_menu_x=150;
 int skills_menu_y=70;
 int skills_menu_x_len=HELP_TAB_WIDTH;
 int skills_menu_y_len=HELP_TAB_HEIGHT;
+int skills_menu_scroll_id = 0;
 
 // Pixels to Scroll
 int skills_max_lines=1000;
@@ -88,28 +89,30 @@ int display_skills_handler(window_info *win)
 int click_skills_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	_Text *t=Page[skillspage].T.Next;
-	int j;
 
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	if(flags&ELW_WHEEL_UP) {
+		vscrollbar_scroll_up(skills_win, skills_menu_scroll_id);
+	} else if(flags&ELW_WHEEL_DOWN) {
+		vscrollbar_scroll_down(skills_win, skills_menu_scroll_id);
+	} else {
+		int j = vscrollbar_get_pos(skills_win,0);
 
-	j=vscrollbar_get_pos(skills_win,0);
-
-	while(t){
-		int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
-		if(t->ref && mx>(t->x) && mx<(t->x+xlen) && my>(t->y-j) && my<(t->y+ylen-j)){
-				//changing page
-				int i;
-				for(i=0;i<numpage+1;i++){
-					if(!xmlStrcasecmp(Page[i].Name,t->ref)){
-						skillspage=i;
-						break;
+		while(t){
+			int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
+			if(t->ref && mx>(t->x) && mx<(t->x+xlen) && my>(t->y-j) && my<(t->y+ylen-j)){
+					//changing page
+					int i;
+					for(i=0;i<numpage+1;i++){
+						if(!xmlStrcasecmp(Page[i].Name,t->ref)){
+							skillspage=i;
+							break;
+						}
 					}
-				}
-
-			break;
+		
+				break;
+			}
+			t=t->Next;
 		}
-		t=t->Next;
 	}
 	return 1;
 }
@@ -126,5 +129,5 @@ void fill_skills_win ()
 	set_window_handler (skills_win, ELW_HANDLER_DISPLAY, &display_skills_handler);
 	set_window_handler (skills_win, ELW_HANDLER_CLICK, &click_skills_handler);
 
-	vscrollbar_add_extended(skills_win, 0, NULL, skills_menu_x_len-20, 0, 20, skills_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, skills_max_lines);
+	skills_menu_scroll_id = vscrollbar_add_extended(skills_win, 0, NULL, skills_menu_x_len-20, 0, 20, skills_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, skills_max_lines);
 }

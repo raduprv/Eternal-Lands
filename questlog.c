@@ -236,7 +236,7 @@ int	display_questlog_handler(window_info *win)
 }
 
 
-int questlog_click (widget_list *widget, int mx, int my, Uint32 flags)
+int questlog_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int scroll = vscrollbar_get_pos (questlog_win, widget->id);
 	goto_questlog_entry (scroll);
@@ -244,23 +244,39 @@ int questlog_click (widget_list *widget, int mx, int my, Uint32 flags)
 }
 
 
-int questlog_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
+int questlog_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
 {
 	int scroll = vscrollbar_get_pos (questlog_win, widget->id);
 	goto_questlog_entry (scroll);
 	return 1;
+}
+
+int questlog_click(window_info *win, int mx, int my, Uint32 flags)
+{
+	if(flags&ELW_WHEEL_UP) {
+		vscrollbar_scroll_up(questlog_win, quest_scroll_id);
+		goto_questlog_entry(vscrollbar_get_pos(questlog_win, quest_scroll_id));
+		return 1;
+	} else if(flags&ELW_WHEEL_DOWN) {
+		vscrollbar_scroll_down(questlog_win, quest_scroll_id);
+		goto_questlog_entry(vscrollbar_get_pos(questlog_win, quest_scroll_id));
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 void fill_questlog_win ()
 {
 	int boxlen = 0;
 
-	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, &display_questlog_handler );
+	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, &display_questlog_handler);
+	set_window_handler(questlog_win, ELW_HANDLER_CLICK, &questlog_click);
 
 	quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20, boxlen, 20, questlog_menu_y_len - boxlen, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, logdata_length);
 	
-	widget_set_OnClick (questlog_win, quest_scroll_id, questlog_click);
-	widget_set_OnDrag (questlog_win, quest_scroll_id, questlog_drag);
+	widget_set_OnClick (questlog_win, quest_scroll_id, questlog_scroll_click);
+	widget_set_OnDrag (questlog_win, quest_scroll_id, questlog_scroll_drag);
 }
 
 void display_questlog()
@@ -268,7 +284,6 @@ void display_questlog()
 	if(questlog_win < 0)
 	{
 		questlog_win= create_window("Quest", game_root_win, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
-
 		fill_questlog_win ();
 	}
 	else

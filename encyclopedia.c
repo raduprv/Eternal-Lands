@@ -73,8 +73,8 @@ int display_encyclopedia_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	while(i){
 
-                // Bounds Check the Text
-                if((i->y-j > 0) && (i->yend-j < encyclopedia_menu_y_len-40 ))
+				// Bounds Check the Text
+				if((i->y-j > 0) && (i->yend-j < encyclopedia_menu_y_len-40 ))
 		{
 			if(i->mouseover==1)
 			{
@@ -103,27 +103,30 @@ int display_encyclopedia_handler(window_info *win)
 int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	_Text *t=Page[currentpage].T.Next;
-        int j;
-        j=vscrollbar_get_pos(encyclopedia_win,0);
 
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	if(flags&ELW_WHEEL_UP) {
+		vscrollbar_scroll_up(encyclopedia_win, encyclopedia_scroll_id);
+	} else if(flags&ELW_WHEEL_DOWN) {
+		vscrollbar_scroll_down(encyclopedia_win, encyclopedia_scroll_id);
+	} else {
+		int j = vscrollbar_get_pos(encyclopedia_win,0);
 
-	while(t){
-		int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
-		if(t->ref && mx>(t->x) && mx<(t->x+xlen) && my>(t->y-j) && my<(t->y+ylen-j)){
-				//changing page
-				int i;
-				for(i=0;i<numpage+1;i++){
-					if(!xmlStrcasecmp(Page[i].Name,t->ref)){
-						currentpage=i;
-						break;
+		while(t){
+			int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
+			if(t->ref && mx>(t->x) && mx<(t->x+xlen) && my>(t->y-j) && my<(t->y+ylen-j)){
+					//changing page
+					int i;
+					for(i=0;i<numpage+1;i++){
+						if(!xmlStrcasecmp(Page[i].Name,t->ref)){
+							currentpage=i;
+							break;
+						}
 					}
-				}
-
-			break;
+	
+				break;
+			}
+			t=t->Next;
 		}
-		t=t->Next;
 	}
 
 	return 1;
@@ -155,8 +158,8 @@ void ParseLink(xmlAttr *a_node)
 {
 	xmlAttr *cur_attr=NULL;
 
-    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
-        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			if(!xmlStrcasecmp(cur_attr->name,"ref")){
 				ss=cur_attr->children->content;
 			}
@@ -179,8 +182,8 @@ void ParseColor(xmlAttr *a_node)
 {
 	xmlAttr *cur_attr=NULL;
 
-    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
-        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//r=""
 			if(!xmlStrcasecmp(cur_attr->name,"r")){
 				r=atof(cur_attr->children->content);
@@ -201,8 +204,8 @@ void ParseImage(xmlAttr *a_node)
 {
 	xmlAttr *cur_attr=NULL;
 
-    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
-        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//u=""
 			if(!xmlStrcasecmp(cur_attr->name,"u")){
 				u=(float)atof(cur_attr->children->content);
@@ -259,8 +262,8 @@ void ParseSimage(xmlAttr *a_node)
 {
 	xmlAttr *cur_attr=NULL;
 
-    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
-        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
 				id=load_texture_cache(cur_attr->children->content,0);
@@ -310,8 +313,8 @@ void ParsePos(xmlAttr *a_node)
 {
 	xmlAttr *cur_attr=NULL;
 
-    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
-        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,"x")){
 				x=atoi(cur_attr->children->content);
@@ -328,8 +331,8 @@ void ParsePage(xmlAttr *a_node)
 {
 	xmlAttr *cur_attr=NULL;
 
-    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
-        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
 				Page[numpage].Name=NULL;
@@ -343,8 +346,8 @@ void ParseText(xmlAttr *a_node)
 {
 	xmlAttr *cur_attr=NULL;
 
-    for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
-        if (cur_attr->type==XML_ATTRIBUTE_NODE){
+	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
+		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,"x")){
 				x=atoi(cur_attr->children->content);
@@ -360,10 +363,10 @@ void ParseText(xmlAttr *a_node)
 
 void ReadCategoryXML(xmlNode * a_node)
 {
-    xmlNode *cur_node=NULL;
+	xmlNode *cur_node=NULL;
 
-    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
-        if (cur_node->type==XML_ELEMENT_NODE){
+	for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+		if (cur_node->type==XML_ELEMENT_NODE){
 			//<Page>
 			if(!xmlStrcasecmp(cur_node->name,"Page")){
 
@@ -532,15 +535,15 @@ void ReadCategoryXML(xmlNode * a_node)
 		}
 
 		ReadCategoryXML(cur_node->children);
-    }
+	}
 }
 
 void ReadIndexXML(xmlNode * a_node)
 {
-    xmlNode *cur_node=NULL;
+	xmlNode *cur_node=NULL;
 
-    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
-        if (cur_node->type==XML_ELEMENT_NODE){
+	for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+		if (cur_node->type==XML_ELEMENT_NODE){
 			if(!xmlStrcasecmp(cur_node->name,"Category")){
 				xmlDocPtr doc;
 				char tmp[100];
@@ -565,18 +568,18 @@ void ReadIndexXML(xmlNode * a_node)
 			}
 		}
 
-        ReadIndexXML(cur_node->children);
-    }
+		ReadIndexXML(cur_node->children);
+	}
 }
 
 void ReadXML(const char *filename)
 {
-    xmlDocPtr doc=xmlReadFile(filename, NULL, 0);
-    if (doc==NULL)
+	xmlDocPtr doc=xmlReadFile(filename, NULL, 0);
+	if (doc==NULL)
 		return;
 
-    ReadIndexXML(xmlDocGetRootElement(doc));
-    xmlFreeDoc(doc);
+	ReadIndexXML(xmlDocGetRootElement(doc));
+	xmlFreeDoc(doc);
 }
 
 void FreeXML()
@@ -611,6 +614,6 @@ void fill_encyclopedia_win ()
 	set_window_handler (encyclopedia_win, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler);
 	set_window_handler (encyclopedia_win, ELW_HANDLER_CLICK, &click_encyclopedia_handler);
 
-        vscrollbar_add_extended(encyclopedia_win, 0, NULL, encyclopedia_menu_x_len-20, 0, 20, encyclopedia_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, encyclopedia_max_lines);
+	encyclopedia_scroll_id = vscrollbar_add_extended(encyclopedia_win, 0, NULL, encyclopedia_menu_x_len-20, 0, 20, encyclopedia_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, encyclopedia_max_lines);
 }
 

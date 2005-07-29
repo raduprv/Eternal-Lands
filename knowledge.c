@@ -123,26 +123,31 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y,idx;
 	char str[3];
-	
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	x= mx;
 	y= my;
+	if(x > win->len_x-20)
+		return 0;
+	if(y > 192)
+		return 0;
 
-	if(x>win->len_x-20)
-		return 0;
-	if(y>192)
-		return 0;
-	x/=240;
-	y/=10;
-	idx = x + 2 *(y + vscrollbar_get_pos (knowledge_win, knowledge_scroll_id));
-	if(idx < KNOWLEDGE_LIST_SIZE)
-		{
-			str[0] = GET_KNOWLEDGE_INFO;
-			*(Uint16 *)(str+1) = SDL_SwapLE16((short)idx);
-			my_tcp_send(my_socket,str,3);
-		}
+	if(flags&ELW_WHEEL_UP) {
+		vscrollbar_scroll_up(knowledge_win, knowledge_scroll_id);
+		return 1;
+	} else if(flags&ELW_WHEEL_DOWN) {
+		vscrollbar_scroll_down(knowledge_win, knowledge_scroll_id);
+		return 1;
+	} else {
+		x/=240;
+		y/=10;
+		idx = x + 2 *(y + vscrollbar_get_pos (knowledge_win, knowledge_scroll_id));
+		if(idx < KNOWLEDGE_LIST_SIZE)
+			{
+				str[0] = GET_KNOWLEDGE_INFO;
+				*(Uint16 *)(str+1) = SDL_SwapLE16((short)idx);
+				my_tcp_send(my_socket,str,3);
+			}
+	}
 	return 1;
 } 
 

@@ -148,17 +148,24 @@ int click_rules_handler (window_info *win, int mx, int my, Uint32 flags)
 	rule_string *rules_ptr = display_rules + rule_offset;
 	int i;
 
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-
-	for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
-	{
-		if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
+	if(flags&ELW_WHEEL_UP) {
+		vscrollbar_scroll_up(rules_win, rules_scroll_id);
+		rules_scroll_handler();
+		return 1;
+	} else if(flags&ELW_WHEEL_DOWN) {
+		vscrollbar_scroll_down(rules_win, rules_scroll_id);
+		rules_scroll_handler();
+		return 1;
+	} else {
+		for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
 		{
-			rules_ptr[i].show_long_desc = !rules_ptr[i].show_long_desc;
-			return 1;
+			if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
+			{
+				rules_ptr[i].show_long_desc = !rules_ptr[i].show_long_desc;
+				return 1;
+			}
 		}
 	}
-
 	return 0;
 }
 
@@ -213,7 +220,7 @@ void toggle_rules_window()
 		if(display_rules)free_rules(display_rules);
 		display_rules=get_interface_rules((float)(rules_win_x_len-70)/(12*0.8f)-1);
 	}
-	
+
 	view_tab(&tab_help_win, &tab_help_collection_id, 3);
 
 	last_display=1;
@@ -704,37 +711,50 @@ int click_rules_root_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int i;
 	rule_string *rules_ptr = display_rules + rule_offset;
-	
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-	
-	for (i=0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
-	{
-		if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
+
+	if(flags&ELW_WHEEL_UP) {
+		if (rule_offset > 0) {
+			rule_offset--;
+		}
+		return 1;
+	} else if(flags&ELW_WHEEL_DOWN) {
+		if (!reached_end && display_rules[rule_offset].type != -1) { //Make sure we don't scroll too fast
+			rule_offset++;
+		}
+		return 1;
+	} else {
+		if (mx > x_arrow && mx < x_arrow + arrow_size)
 		{
-			rules_ptr[i].show_long_desc = !rules_ptr[i].show_long_desc;
-			break;
+			if (my > y_arrow_up && my < y_arrow_up + arrow_size)
+			{
+				if (rule_offset > 0)
+					rule_offset--;
+				return 1;
+			}
+			else if (my > y_arrow_down && my < y_arrow_down + arrow_size)
+			{
+				if (!reached_end)
+					rule_offset++;
+				return 1;
+			}
+		}
+		else if (countdown <= 0 && mx > accept_x && mx < accept_x + accept_width && my > accept_y && my < accept_y + accept_height)
+		{
+			switch_rules_to_next ();
+			return 1;
+		} else {
+			for (i=0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
+			{
+				if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
+				{
+					rules_ptr[i].show_long_desc = !rules_ptr[i].show_long_desc;
+					return 1;
+					break;
+				}
+			}
 		}
 	}
-	if (mx > x_arrow && mx < x_arrow + arrow_size)
-	{
-		if (my > y_arrow_up && my < y_arrow_up + arrow_size)
-		{
-			if (rule_offset > 0)
-				rule_offset--;
-		}
-		else if (my > y_arrow_down && my < y_arrow_down + arrow_size)
-		{
-			if (!reached_end)
-				rule_offset++;
-		}
-	}
-	else if (countdown <= 0 && mx > accept_x && mx < accept_x + accept_width && my > accept_y && my < accept_y + accept_height)
-	{
-		switch_rules_to_next ();
-	}
-	
-	return 1;
+	return 0;
 }
 
 int keypress_rules_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
