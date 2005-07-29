@@ -37,6 +37,19 @@ extern int done; /*!< from main.c. indicates whether the network thread should e
 
 /*!
  * \ingroup network_actors
+ * \brief Move the actor to a new location
+ *
+ *	Move the actor to a nearby location by calling the pathfinder.
+ *
+ * \param x the x-coordinate of the new position
+ * \param y the y-coordinate of the new position
+ *
+ * \retval int 1 on success, zero on failure
+ */
+int move_to (short int x, short int y);
+
+/*!
+ * \ingroup network_actors
  * \brief   Sends the given message \a str using the socket \a my_socket to the server.
  *
  *      The message \a str will be sent to the server using the socket \a my_socket. The max. length of \a str is given in \a len.

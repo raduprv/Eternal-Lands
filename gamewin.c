@@ -308,7 +308,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 	if (force_walk)
 	{
-		Uint8 str[10];
 		short x,y;
 		
 		get_old_world_x_y ();
@@ -320,11 +319,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		
 		add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 		
-		str[0] = MOVE_TO;
-		*((short *)(str+1)) = SDL_SwapLE16((short)x);
-		*((short *)(str+3)) = SDL_SwapLE16((short)y);
-
-		my_tcp_send(my_socket,str,5);
+		move_to (x, y);
 		return 1;
 	}
 	
@@ -383,8 +378,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				str[0] = MOVE_TO;
 				*((short *)(str+1)) = SDL_SwapLE16((short)x);
 				*((short *)(str+3)) = SDL_SwapLE16((short)y);
-	
-				my_tcp_send (my_socket, str, 5);
+				
+				my_tcp_send(my_socket,str,5);
 				return 1;
 			} else if(spell_result==3){
 				Uint8 str[10];
@@ -500,7 +495,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		case CURSOR_WALK:
 		default:
 		{
-			Uint8 str[10];
 			short x, y;
 		
 			if (you_sit && sit_lock && !flag_ctrl)
@@ -514,11 +508,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			
 			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 		
-			str[0] = MOVE_TO;
-			*((short *)(str+1)) = SDL_SwapLE16((short)x);
-			*((short *)(str+3)) = SDL_SwapLE16((short)y);
-	
-			my_tcp_send (my_socket, str, 5);
+			move_to (x, y);
 			return 1;
 		}
 	}

@@ -97,7 +97,7 @@ void get_actor_heal(int actor_id, int quantity);
  * \ingroup	events_actors
  * \brief	Moves the actor 1 step forward.
  *
- * 		First it finds yourself in the actors_list, then moves you a step forward (sends a MOVE_TO to the server).
+ * 		First it finds yourself in the actors_list, then moves you a step forward 
  *
  * \callgraph
  */

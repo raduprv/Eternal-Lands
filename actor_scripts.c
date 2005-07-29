@@ -959,7 +959,6 @@ void get_actor_heal(int actor_id, int quantity)
 void move_self_forward()
 {
 	int x,y,rot,tx,ty;
-	Uint8 str[10];
 
 	actor *me=pf_get_our_actor();
 
@@ -1016,10 +1015,7 @@ void move_self_forward()
 		pf_destroy_path();
 	}
 
-	str[0]=MOVE_TO;
-	*((short *)(str+1))=SDL_SwapLE16((short)tx);
-	*((short *)(str+3))=SDL_SwapLE16((short)ty);
-	my_tcp_send(my_socket,str,5);
+	move_to (tx, ty);
 }
 
 

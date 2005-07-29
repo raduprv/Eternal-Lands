@@ -678,6 +678,9 @@ void process_network_spell(char * data, int len)
 			action_mode=ACTION_WAND;
 			break;
 		case S_SELECT_TELE_LOCATION://spell_result==2
+			// we're about to teleport, don't let the pathfinder 
+			// interfere with our destination
+			if (pf_follow_path) pf_destroy_path ();
 			spell_result=2;
 			action_mode=ACTION_WAND;
 			break;

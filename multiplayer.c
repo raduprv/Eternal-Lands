@@ -43,6 +43,38 @@ actor * your_actor = NULL;
 
 int last_sit=0;
 
+int move_to (short int x, short int y)
+{
+	if(your_actor && !your_actor->fighting)
+	{
+		if (pf_find_path (x, y))
+		{
+			return 1;
+		}
+		else
+		{
+			// We can't find a path, is it because the destination 
+			// is unwalkable? if so, it may be a teleporter, and we 
+			// let the server catch it
+			PF_TILE *t = pf_get_tile (x, y);
+			if (t->z == 0)
+			{
+				// destination is unwalkable, maybe a teleporter
+				Uint8 str[5];
+				
+				str[0] = MOVE_TO;
+				*((short *)str+1) = x;
+				*((short *)str+3) = y;
+				my_tcp_send (my_socket, str, 5);
+				return 1;
+			}
+		}
+	}
+	
+	// if we get here, we failed to move
+	return 0;
+}
+
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 {
 	int i;
@@ -51,33 +83,11 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 
 	if(disconnected)return 0;
 	
-	// LabRat anti-bagspam code:
-	if(str[0]==MOVE_TO && !pf_follow_path)
-	{
-		actor * me=pf_get_our_actor();
-		// I know this looks weird, but it converts all short paths into pf_ paths
-		// doing this ensures a path, toggles pf_follow_path and prevents a slowdown.
-		// pf_follow_path on almost* every walk type allows us to prevent bagspamming
-		// *almost does not include clicking on an animal to fight, as the move command
-		// in this instance is sent from the server
-		if(me && !me->fighting)
-		{
-			short x = *((short *)(str+1)), y = *((short *)(str+3));
-			if (!pf_find_path (x, y))
-			{
-				// can't find a path, is it because the destination is unwalkable?
-				// if so, it may be a teleporter, and we let the server catch it
-				PF_TILE *t = pf_get_tile (x, y);
-				if (t->z != 0)
-					// other reason, give up
-					return 1;
-			}
-		}
-	}
+	// LabRat's anti-bagspam code
 #ifdef SERVER_DROP_ALL
-	else if ( (str[0] == DROP_ITEM || str[0] == DROP_ALL) && pf_follow_path )
+	if ( (str[0] == DROP_ITEM || str[0] == DROP_ALL) && pf_follow_path )
 #else
-	else if (str[0] == DROP_ITEM && pf_follow_path)
+	if (str[0] == DROP_ITEM && pf_follow_path)
 #endif
 	{
 		// I thought about having a bit of code here that counts attempts, and after say 5,
