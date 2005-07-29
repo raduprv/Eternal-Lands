@@ -186,12 +186,14 @@ int display_newchar_handler (window_info *win)
 		regenerate_near_2d_objects = 1;
 		if (!load_map(mapname))
 		{
-			// Houston, we have a problem
+			char error[255];
+			snprintf(error, 255, cant_change_map, mapname);
+			LOG_TO_CONSOLE(c_red4, error);
+			LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
 			LOG_ERROR(cant_change_map, mapname);
-			// okay, let's kill ourselves, no point in continuing
-			SDLNet_Quit ();
-			SDL_Quit ();
-			exit (1);
+			load_empty_map();
+		} else {
+			locked_to_console = 0;
 		}
 #ifndef NO_MUSIC
 		playing_music = 0;

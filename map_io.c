@@ -338,15 +338,48 @@ int load_map (const char * file_name)
 
 }
 
+int load_empty_map()
+{
+	if(!load_map("./maps/nomap.elm")) {
+		locked_to_console = 1;
+		hide_window (game_root_win);
+		show_window (console_root_win);
+		LOG_TO_CONSOLE(c_red4, "Fatal error: Couldn't load map ./maps/nomap.elm.\nFix your maps.");
+		LOG_ERROR(cant_change_map, "./maps/nomap.elm");
+		SDLNet_TCP_Close(my_socket);
+		disconnected = 1;
+		SDLNet_Quit();
+		LOG_TO_CONSOLE(c_red3, disconnected_from_server);
+		//Fake a map to make sure we don't get any crashes.
+		snprintf(map_file_name, sizeof(map_file_name), "./maps/nomap.elm");
+		tile_map_size_y = 256;
+		tile_map_size_x = 256;
+		dungeon = 0;
+		ambient_r = 0;
+		ambient_g = 0;
+		ambient_b = 0;
+		tile_map = calloc(tile_map_size_x*tile_map_size_y, sizeof(*tile_map));
+		height_map = calloc(tile_map_size_x*tile_map_size_y, sizeof(*height_map));
+		pf_tile_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(*pf_tile_map));
+		return 0;
+	}
+	return 1;
+}
+
 void load_map_marks()
 { 
-	FILE * fp;
-	char marks_file[256], text[600];
-	
+	FILE * fp = NULL;
+	char marks_file[256] = {0}, text[600] = {0};
+	char *mapname = strrchr (map_file_name,'/');
+
+	if(mapname == NULL) {
+		//Oops
+		return;
+	}
 #ifndef WINDOWS
-	snprintf (marks_file, sizeof (marks_file), "%s/.elc/%s.txt", getenv ("HOME"), strrchr (map_file_name,'/') + 1);
+	snprintf (marks_file, sizeof (marks_file), "%s%s.txt", configdir, mapname + 1);
 #else
-	snprintf (marks_file, sizeof (marks_file), "%s.txt", strrchr (map_file_name,'/') + 1);
+	snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
 #endif
 	// don't use my_fopen here, not everyone uses map markers
 	fp = fopen(marks_file, "r");

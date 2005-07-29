@@ -188,6 +188,17 @@ extern int map_type; /*!< id of the type of map we are currently using */
 
 /*!
  * \ingroup maps
+ * \brief Loads an empty map
+ *
+ * 	Loads an empty map in case no other map file was found
+ *
+ * \param name the filename of the map that failed to load.
+ * \retval int  0 if nomap.elm failed to load, otherwise 1 is returned.
+ */
+int load_empty_map();
+
+/*!
+ * \ingroup maps
  * \brief Loads the map given by \a file_name
  *
  *      Loads the map given by \a file_name, initializes the necessary data for the map and adds the map to the current sector.

@@ -15,6 +15,8 @@ int scroll_up_lines = 0;
 int console_text_changed = 0;
 int console_text_width = -1;
 
+int locked_to_console = 0;
+
 void update_console_win (int nlines)
 {
 	if (scroll_up_lines == 0)
@@ -91,7 +93,7 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		if (scroll_up_lines < 0) scroll_up_lines = 0;
 		console_text_changed = 1;
 	}
-	else if (key == K_MAP)
+	else if (key == K_MAP && !locked_to_console)
 	{
 		if ( switch_to_game_map () )
 		{
@@ -103,7 +105,7 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		Uint8 ch = key_to_char (unikey);
 
-		if (ch == '`' || key == K_CONSOLE)
+		if ((ch == '`' || key == K_CONSOLE) && !locked_to_console)
 		{
 			hide_window (console_root_win);
 			show_window (game_root_win);
@@ -164,8 +166,6 @@ int show_console_handler (window_info *win) {
 	hide_window(book_win);
 	hide_window(paper_win);
 	hide_window(color_race_win);
-	hide_window(elconfig_win);
-	hide_window(tab_help_win);
 	return 1;
 }
 

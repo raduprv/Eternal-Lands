@@ -14,6 +14,8 @@ extern int console_root_win; /*!< handler for the console window */
 extern int console_in_id; /*!< ID of the console input widget */
 extern int console_out_id; /*!< ID of the console output widget */
 
+extern int locked_to_console; /*!< indicates whether the console win is locked. Used when we don't have any maps. */
+
 /*!
  * \ingroup interface_console
  * \brief Signals the console window that the text buffer has changed

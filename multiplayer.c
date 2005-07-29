@@ -518,12 +518,14 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				destroy_all_particles();
 				if (!load_map(&in_data[3]))
 				{
-					// Houston, we have a problem
+					char error[255];
+					snprintf(error, 255, cant_change_map, &in_data[3]);
+					LOG_TO_CONSOLE(c_red4, error);
+					LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
 					LOG_ERROR(cant_change_map, &in_data[3]);
-					// okay, let's kill ourselves, no point in continuing
-					SDLNet_Quit ();
-					SDL_Quit ();
-					exit (1);
+					load_empty_map();
+				} else {
+					locked_to_console = 0;
 				}
 				kill_local_sounds();
 #ifndef	NO_MUSIC

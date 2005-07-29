@@ -563,7 +563,7 @@ void switch_action_mode(int * mode, int id)
 
 void view_console_win (int *win, int id)
 {
-	if ( get_show_window (console_root_win) )
+	if ( get_show_window (console_root_win) && !locked_to_console )
 	{
 		hide_window (console_root_win);
 		show_window (game_root_win);
@@ -590,7 +590,7 @@ void view_console_win (int *win, int id)
 
 void view_map_win (int * win, int id)
 {
-	if ( get_show_window (map_root_win) )
+	if ( get_show_window (map_root_win) && !locked_to_console )
 	{
 		switch_from_game_map ();
 		hide_window (map_root_win);
@@ -600,7 +600,7 @@ void view_map_win (int * win, int id)
 			show_window (quickbar_win);
 
 	}
-	else if ( switch_to_game_map () )
+	else if ( switch_to_game_map () && !locked_to_console )
 	{
 		if ( get_show_window (game_root_win) )
 			hide_window (game_root_win);
