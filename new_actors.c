@@ -525,10 +525,10 @@ void add_enhanced_actor_from_server(char * in_data)
 #else
 		my_strncp(buffer,&in_data[28],sizeof(buffer));
 #endif
-		
+
 		/* skip leading color codes */
 		for (name = buffer; *name && (*name >= 127 + c_lbound) && (*name <= 127 + c_ubound); name++);
-		
+
 		/* search for string end or color mark */
 		for (guild = name; *guild && ((*guild < 127 + c_lbound) || (*guild > 127 + c_ubound)); guild++);
 		if (*guild) {

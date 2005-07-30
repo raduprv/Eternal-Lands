@@ -487,6 +487,8 @@ void create_character()
 
 	if(are_you_sure){
 		send_new_char(inputs[0].str, inputs[1].str, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head, our_actor.race);
+		// now destroy reference to ourself, otherwise we'll mess up the ID's
+		destroy_actor (yourself);
 	} else {
 		are_you_sure=1;
 		
