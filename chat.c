@@ -3,7 +3,6 @@
 #include "global.h"
 
 #ifdef MULTI_CHANNEL
-
 void remove_chat_tab (Uint8 channel);
 int add_chat_tab (int nlines, Uint8 channel);
 void update_chat_tab_idx (Uint8 old_ix, Uint8 new_idx);
@@ -471,6 +470,7 @@ void switch_to_chat_tab(int id, char click)
 #endif
 }
 
+#ifdef MULTI_CHANNEL
 void change_to_current_chat_tab(const char *input)
 {
 	Uint8 channel;
@@ -564,6 +564,7 @@ void change_to_current_chat_tab(const char *input)
 		}
 	}
 }
+#endif //MULTI_CHANNEL
 
 int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
@@ -1183,6 +1184,7 @@ void display_tab_bar ()
 	}
 }
 
+#ifdef MULTI_CHANNEL
 void change_to_current_tab(const char *input)
 {
 	Uint8 channel;
@@ -1268,6 +1270,7 @@ void change_to_current_tab(const char *input)
 		switch_to_tab(itab);
 	}
 }
+#endif //MULTI_CHANNEL
 
 void convert_tabs (int new_wc)
 {
