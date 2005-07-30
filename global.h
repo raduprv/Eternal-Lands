@@ -20,6 +20,7 @@
 		#define atan2f atan2
 		#define acosf acos
 		#define ceilf ceil
+		#define rint(X) floor(X+0.5f)
 	#endif
 #elif defined(OSX)
 	// XXX Grum: move these defs to a Makefile
