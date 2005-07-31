@@ -134,6 +134,7 @@ void send_input_text_line (char *line, int line_len)
 	int len;
 	Uint8 ch;
 
+#ifdef MULTI_CHANNEL
 	switch(use_windowed_chat)
 	{
 		case 1:
@@ -147,6 +148,7 @@ void send_input_text_line (char *line, int line_len)
 			}
 		break;
 	}
+#endif
 
 	if ( caps_filter && line_len > 4 && my_isupper (line, -1) )
 		my_tolower (line);
