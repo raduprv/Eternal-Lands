@@ -168,6 +168,7 @@ char
 	error_confirm_create_char[100],
 	error_max_digits[100],
 	error_length[100],
+	error_illegal_character[100],
 	passwords_match[30],
 	remember_change_appearance[200],
 	p2p_race[100],
@@ -788,6 +789,7 @@ void init_help()
 	add_xml_identifier(new,"appearance",remember_change_appearance,"Remember to change your characters appearance before pressing \"Done\"",sizeof(remember_change_appearance));
 	add_xml_identifier(new,"max_digits",error_max_digits,"You can only have 3 digits in your name!",sizeof(error_max_digits));
 	add_xml_identifier(new,"max_length",error_length,"Names and passwords can max be 15 characters long",sizeof(error_length));
+	add_xml_identifier(new,"illegal_character",error_max_digits,"You have typed an illegal character!",sizeof(error_illegal_character));
 	add_xml_identifier(new,"p2p_race",p2p_race,"You have to pay to create a char with this race",sizeof(p2p_race));
 	add_xml_identifier(new,"char_help",char_help,"To costumize your character and select name/password, press the buttons at the bottom.",sizeof(char_help));
 	add_xml_identifier(new,"confirmcreate",error_confirm_create_char,"Click done again to create a character with that name and appearance.",sizeof(error_confirm_create_char));

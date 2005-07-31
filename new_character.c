@@ -459,7 +459,7 @@ int check_character(int type, char ch)
 		} else if(isalnum(ch)||ch=='_'){
 			retval=1;
 		}
-	} else {
+	} else {	// password
 		if(ch>=33 && ch<126) retval=1;
 	}
 
@@ -545,10 +545,12 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 			add_text_to_buffer(c_red1, error_max_digits, 6000);
 		} else if(t->pos>=15){
 			add_text_to_buffer(c_red2, error_length, 6000);
+		} else if (ret == 0){
+			add_text_to_buffer(c_red2, error_illegal_character, 6000);
 		} else {
 			t->str[t->pos++]=ch;
 			t->str[t->pos]=0;
-			ret=1;//Reused to show that a letter has been added
+			ret=1;	//Reused to show that a letter has been added
 		}
 	} else if(unikey == SDLK_TAB||unikey == SDLK_RETURN){
 		active++;
@@ -557,7 +559,7 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 		t->pos--;
 		if(isdigit(t->str[t->pos]))numbers_in_name--;
 		t->str[t->pos]=0;
-		ret=1;//Reused to show that a letter has been removed
+		ret=1;	//Reused to show that a letter has been removed
 	}
 
 	if(active>0){

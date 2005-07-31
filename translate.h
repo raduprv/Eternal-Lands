@@ -273,6 +273,7 @@ extern char
 		error_confirm_create_char[100],
 		error_max_digits[100],
 		error_length[100],
+		error_illegal_character[100],
 		passwords_match[30],
 		remember_change_appearance[200],
 		zoom_in_out[200],
