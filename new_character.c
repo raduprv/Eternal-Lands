@@ -144,11 +144,12 @@ void change_actor ()
 {
 	// if there is any loaded model, destroy it
 	if (our_actor.our_model){
-		destroy_actor(0);
+		destroy_actor(yourself);
 		our_actor.our_model=NULL;
 	}
 	
-	our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
+	your_actor = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
+	our_actor.our_model = your_actor;
 
 	snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), "%s", inputs[0].str);
 
