@@ -273,34 +273,40 @@ void init_opening_interface()
 void add_char_to_username(unsigned char ch)
 {
 	if(((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_')) && username_text_lenght<15)
-		{
-			username_str[username_text_lenght]=ch;
-			username_str[username_text_lenght+1]=0;
-			username_text_lenght++;
-		}
-	if( ( ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && username_text_lenght > 0 )
-		{
+	{
+		username_str[username_text_lenght]=ch;
+		username_str[username_text_lenght+1]=0;
+		username_text_lenght++;
+	}
+	if(ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
+	{
+		if (username_text_lenght > 0)
 			username_text_lenght--;
-			username_str[username_text_lenght]=0;
-		}
+		else
+			username_text_lenght = 0;
+		username_str[username_text_lenght] = '\0';
+	}
 }
 
 void add_char_to_password(unsigned char ch)
 {
-	if((ch>=32 && ch<=126) && password_text_lenght<15)
-		{
-			password_str[password_text_lenght]=ch;
-			display_password_str[password_text_lenght]='*';
-			password_str[password_text_lenght+1]=0;
-			display_password_str[password_text_lenght+1]=0;
-			password_text_lenght++;
-		}
-	if( ( ch==SDLK_DELETE || ch==SDLK_BACKSPACE) && password_text_lenght > 0 )
-		{
+	if ((ch>=32 && ch<=126) && password_text_lenght<15)
+	{
+		password_str[password_text_lenght]=ch;
+		display_password_str[password_text_lenght]='*';
+		password_str[password_text_lenght+1]=0;
+		display_password_str[password_text_lenght+1]=0;
+		password_text_lenght++;
+	}
+	if (ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
+	{
+		if (password_text_lenght > 0)
 			password_text_lenght--;
-			display_password_str[password_text_lenght]=0;
-			password_str[password_text_lenght]=0;
-		}
+		else
+			password_text_lenght = 0;
+		display_password_str[password_text_lenght] = '\0';
+		password_str[password_text_lenght] = '\0';
+	}
 }
 
 void draw_ingame_interface()
