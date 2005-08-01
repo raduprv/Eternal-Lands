@@ -53,7 +53,7 @@ typedef	struct	{
 	int (*destroy_handler)();	/*!< executed upon window destruction */
 	int (*show_handler)();		/*!< executed before the window is shown */
 	int (*after_show_handler)();		/*!< executed after the window is shown */
-	int (*hide_handler)();		/*!< executed before the window is hidden */
+	int (*hide_handler)();		/*!< executed after the window is hidden */
     /*! @} */
 
 	/*

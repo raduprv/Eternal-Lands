@@ -1048,7 +1048,6 @@ void	hide_window(int win_id)
 	if(windows_list.window[win_id].window_id != win_id)	return;
 	
 	win = &windows_list.window[win_id];
-	if (win->hide_handler) (*win->hide_handler)(win);
 	
 	win->displayed = 0;
 	win->reinstate = 0;
@@ -1060,6 +1059,8 @@ void	hide_window(int win_id)
 			hide_window (iwin);
 			windows_list.window[iwin].reinstate = 1;
 		}
+
+	if (win->hide_handler) (*win->hide_handler)(win);
 }
 
 void	toggle_window(int win_id)
