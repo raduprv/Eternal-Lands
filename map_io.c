@@ -87,14 +87,19 @@ void destroy_map()
 
 }
 
-int get_cur_map(const char * file_name)
+int get_cur_map (const char * file_name)
 {
 	int i;
 	
-	for(i=0;seridia_maps[i].name;i++){
-		if(!strcmp(seridia_maps[i].name,file_name)) return i;
+	for (i=0; continent_maps[i].name != NULL; i++)
+	{
+		if (strcmp (continent_maps[i].name, file_name) == 0)
+		{
+			return i;
+		}
 	}
-	return -1;
+
+	return -1;	
 }
 
 int load_map (const char * file_name)
@@ -196,7 +201,7 @@ int load_map (const char * file_name)
 	ambient_g=cur_map_header.ambient_g;
 	ambient_b=cur_map_header.ambient_b;
 
-	if(!dungeon) cur_map=get_cur_map(file_name);//Otherwise we pretend that we don't know where we are - if anyone wants to do the work and input all coordinates it's fine by me however :o)
+	if (!dungeon) cur_map = get_cur_map (file_name); //Otherwise we pretend that we don't know where we are - if anyone wants to do the work and input all coordinates it's fine by me however :o)
 	else cur_map=-1;
 
 	if(!strcmp(file_name+7,"startmap_snow.elm")) {

@@ -341,29 +341,42 @@ GLuint cont_text;
 GLuint legend_text=0;
 int cur_map;  //Is there a better way to do this?
 
-const struct draw_map seridia_maps[] = {
-        {409,107,450,147,"./maps/startmap.elm"},//0 - Isla Prima
-	{184,162,395,359,"./maps/map2.elm"},//1 - Whitestone
-	{84,352,180,448,"./maps/map3.elm"}, //2 - Desert Pines
-	{336,118,387,165,"./maps/map4f.elm"},//3 - Tirnym
-	{230,405,281,451,"./maps/map5nf.elm"},//4 - VOTD
-	{84,270,177,357,"./maps/map6nf.elm"}, //5 - Portland
-	{87,169,175,270,"./maps/map7.elm"}, //6 - Morcraven
-	{130,128,178,168,"./maps/map8.elm"},//7 - Naralik
-	{180,75,275,165,"./maps/map9f.elm"}, //8 - Grubani
-	{0,0,0,0,"./maps/map10.elm"},     //9 -
-	{282,358,385,454,"./maps/map11.elm"},//10 - Tarsengaard
-	{232,359,283,403,"./maps/map12.elm"},//11 - Nordcarn
-	{181,363,231,408,"./maps/map13.elm"},//12 - Southern KF
-	{178,406,227,443,"./maps/map14f.elm"},//13 - KF
-	{2,324,75,431,"./maps/map15f.elm"},    //14 - Tahraji
-	{0,0,0,0,NULL} //Last map
+const char* cont_map_file_names[] = {
+	"./maps/seridia.bmp",
+	"./maps/irilion.bmp"
+};
+const int nr_continents = sizeof (cont_map_file_names) / sizeof (const char *);
+
+const struct draw_map continent_maps[] = {
+	// Seridia
+	{0, 409,107,450,147,"./maps/startmap.elm"},//0 - Isla Prima
+	{0, 184,162,395,359,"./maps/map2.elm"},//1 - Whitestone
+	{0, 84,352,180,448,"./maps/map3.elm"}, //2 - Desert Pines
+	{0, 336,118,387,165,"./maps/map4f.elm"},//3 - Tirnym
+	{0, 230,405,281,451,"./maps/map5nf.elm"},//4 - VOTD
+	{0, 84,270,177,357,"./maps/map6nf.elm"}, //5 - Portland
+	{0, 87,169,175,270,"./maps/map7.elm"}, //6 - Morcraven
+	{0, 130,128,178,168,"./maps/map8.elm"},//7 - Naralik
+	{0, 180,75,275,165,"./maps/map9f.elm"}, //8 - Grubani
+	{0, 0,0,0,0,"./maps/map10.elm"},     //9 -
+	{0, 282,358,385,454,"./maps/map11.elm"},//10 - Tarsengaard
+	{0, 232,359,283,403,"./maps/map12.elm"},//11 - Nordcarn
+	{0, 181,363,231,408,"./maps/map13.elm"},//12 - Southern KF
+	{0, 178,406,227,443,"./maps/map14f.elm"},//13 - KF
+	{0, 2,324,75,431,"./maps/map15f.elm"},    //14 - Tahraji
+	// Irilion
+	{ 1, 60, 330, 220, 490, "./maps/cont2map1.elm" }, // Idaloren
+	{ 1, 0, 0, 0, 0, "./maps/anitora.elm" }, // Anitora
+	// The End
+	{0, 0,0,0,0,NULL} //Last map
 };
 
 int switch_to_game_map()
 {
 	int len;
 	char map_map_file_name[256];
+	unsigned short cur_cont;
+	static unsigned short int old_cont = 0;
 
 	my_strcp(map_map_file_name,map_file_name);
 	len=strlen(map_map_file_name);
@@ -375,6 +388,14 @@ int switch_to_game_map()
 		LOG_TO_CONSOLE(c_yellow2,"There is no map for this place.");
 		return 0;
 	}
+	
+	cur_cont = continent_maps[cur_map].cont;
+	if (cur_cont != old_cont && cur_cont < nr_continents)
+	{
+		cont_text = load_texture_cache (cont_map_file_names[cur_cont], 128);
+		old_cont = cur_cont;
+	}
+	
 	if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
 	return 1;
 }
@@ -402,8 +423,8 @@ void draw_game_map (int map, int mouse_mini)
 		map_small=map_text;
 		map_large=get_texture_id(cont_text);
 		if(cur_map!=-1){
-			x_size=(float)((float)(seridia_maps[cur_map].x_end - seridia_maps[cur_map].x_start))/(float)tile_map_size_x;
-			y_size=(float)((float)(seridia_maps[cur_map].y_end - seridia_maps[cur_map].y_start))/(float)tile_map_size_y;
+			x_size = ((float)(continent_maps[cur_map].x_end - continent_maps[cur_map].x_start)) / tile_map_size_x;
+			y_size = ((float)(continent_maps[cur_map].y_end - continent_maps[cur_map].y_start)) / tile_map_size_y;
 		} else {
 			x_size=y_size=0;
 		}
@@ -564,8 +585,8 @@ void draw_game_map (int map, int mouse_mini)
 		{
 			if (cur_map!=-1)
 			{
-				screen_x = 300 - (50 + 200 * ( (x_size / 6 * px) + seridia_maps[cur_map].x_start) / 512);
-				screen_y = 200 * ( (y_size / 6 * py) + seridia_maps[cur_map].y_start) / 512;
+				screen_x = 300 - (50 + 200 * ( (x_size / 6 * px) + continent_maps[cur_map].x_start) / 512);
+				screen_y = 200 * ( (y_size / 6 * py) + continent_maps[cur_map].y_start) / 512;
 			}
 			else
 			{
@@ -606,8 +627,8 @@ void draw_game_map (int map, int mouse_mini)
 	{
 		if (cur_map != -1)
 		{
-			screen_x = 300 - (50 + 200 * ( (x_size / 6 * x) + seridia_maps[cur_map].x_start) / 512);
-			screen_y = 200 * ( (y_size / 6 * y) + seridia_maps[cur_map].y_start) / 512;
+			screen_x = 300 - (50 + 200 * ( (x_size / 6 * x) + continent_maps[cur_map].x_start) / 512);
+			screen_y = 200 * ( (y_size / 6 * y) + continent_maps[cur_map].y_start) / 512;
 		} 
 		else 
 		{

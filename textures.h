@@ -47,7 +47,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
  * \retval int  	The position in the texture_cache array
  * \callgraph
  */
-int load_texture_cache(char * file_name,unsigned char alpha);
+int load_texture_cache (const char * file_name,unsigned char alpha);
 
 /*!
  * \ingroup 	cache
@@ -61,7 +61,7 @@ int load_texture_cache(char * file_name,unsigned char alpha);
  * \retval int  	The position in the texture_cache array
  * \callgraph
  */
-int load_texture_cache_deferred(char * file_name,unsigned char alpha);
+int load_texture_cache_deferred (const char * file_name,unsigned char alpha);
 
 /*!
  * \ingroup 	cache

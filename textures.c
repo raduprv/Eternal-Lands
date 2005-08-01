@@ -405,14 +405,14 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 
 //Tests to see if a texture is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
-int load_texture_cache(char * file_name, unsigned char alpha)
+int load_texture_cache (const char * file_name, unsigned char alpha)
 {
 	int slot = load_texture_cache_deferred(file_name, alpha);
 	get_and_set_texture_id(slot);
 	return slot;
 }
 
-int load_texture_cache_deferred(char * file_name, unsigned char alpha)
+int load_texture_cache_deferred (const char * file_name, unsigned char alpha)
 {
 	int i;
 	int file_name_lenght;

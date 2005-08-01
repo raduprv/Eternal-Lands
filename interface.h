@@ -76,19 +76,21 @@ extern int ati_click_workaround; /*!< if non-zero, arbitrarily multiply the read
  * Stores the start and end coordinates of a map
  */
 struct draw_map{
-       unsigned short x_start;
-       unsigned short y_start;
-       unsigned short x_end;
-       unsigned short y_end;       
-       const char * name;
+	unsigned short cont;
+	unsigned short x_start;
+	unsigned short y_start;
+	unsigned short x_end;
+	unsigned short y_end;       
+	const char * name;
 };
 
 extern int cur_map; /*!< id of the map we are currently on */
 extern GLuint cont_text;
 extern GLuint legend_text;
 
-extern const struct draw_map seridia_maps[]; /*!< global array of maps for the continet seridia */
-
+extern const char* cont_map_file_names[];
+extern const int nr_continents;
+extern const struct draw_map continent_maps[]; /*!< global array of maps for the continents */
 
 /*!
  * \ingroup interfaces
