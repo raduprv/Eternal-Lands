@@ -35,6 +35,7 @@ int display_console_handler (window_info *win)
 	{
 		int y_line;
 
+		
 		if (console_text_changed)
 		{
 			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset);		
