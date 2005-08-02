@@ -43,37 +43,20 @@ actor * your_actor = NULL;
 
 int last_sit=0;
 
-int move_to (short int x, short int y)
+void move_to (short int x, short int y)
 {
-	if(your_actor && !your_actor->fighting)
-	{
-		if (pf_find_path (x, y, 1) > 0)
-		{
-			return 1;
-		}
-		else
-		{
-			// We can't find a path, is it because the destination 
-			// is unwalkable? if so, it may be a teleporter, and we 
-			// let the server catch it
-			PF_TILE *t = pf_get_tile (x, y);
-
-			if (t->z == 0)
-			{
-				// destination is unwalkable, maybe a teleporter
-				Uint8 str[5];
+	Uint8 str[5];
 				
-				str[0] = MOVE_TO;
-				*((short *)str+1) = x;
-				*((short *)str+3) = y;
-				my_tcp_send (my_socket, str, 5);
-				return 1;
-			}
-		}
-	}
-	
-	// if we get here, we failed to move
-	return 0;
+	str[0] = MOVE_TO;
+	*((short *)(str+1)) = SDL_SwapLE16 (x);
+	*((short *)(str+3)) = SDL_SwapLE16 (y);
+	my_tcp_send (my_socket, str, 5);
+}
+
+int on_the_move (const actor *act)
+{
+	if (act == NULL) return 0;
+	return act->moving || (act->que[0] >= move_n && act->que[0] <= move_nw);
 }
 
 int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
@@ -85,10 +68,13 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 	if(disconnected)return 0;
 	
 	// LabRat's anti-bagspam code
+	// Grum: Adapted. Converting every movement to a path caused too much
+	// trouble. Instead we now check the current actor animation for
+	// movement.
 #ifdef SERVER_DROP_ALL
-	if ( (str[0] == DROP_ITEM || str[0] == DROP_ALL) && pf_follow_path )
+	if ( (str[0] == DROP_ITEM || str[0] == DROP_ALL) && on_the_move (your_actor))
 #else
-	if (str[0] == DROP_ITEM && pf_follow_path)
+	if (str[0] == DROP_ITEM  && on_the_move (your_actor))
 #endif
 	{
 		// I thought about having a bit of code here that counts attempts, and after say 5,
@@ -109,6 +95,7 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 		// 1% of the produce from manufacturers may be donated to Labrat for this patch,
 		// or for the bagspammers, sell the items you were going to spam and give the proceeds
 		// to a noob on IP :)
+		//
 		return 1;
 	}
 	

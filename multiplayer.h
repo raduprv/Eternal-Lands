@@ -43,10 +43,8 @@ extern int done; /*!< from main.c. indicates whether the network thread should e
  *
  * \param x the x-coordinate of the new position
  * \param y the y-coordinate of the new position
- *
- * \retval int 1 on success, zero on failure
  */
-int move_to (short int x, short int y);
+void move_to (short int x, short int y);
 
 /*!
  * \ingroup network_actors
