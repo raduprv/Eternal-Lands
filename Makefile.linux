@@ -59,27 +59,36 @@ CXXOBJS=cal3d_wrapper.o
 
 OBJS=$(COBJS) $(CXXOBJS)
 
-# the compile targets
-el.x86.linux.bin: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o el.x86.linux.bin $(OBJS)
+EXE=el.x86.linux.bin
 
-cal3d_wrapper.o: cal3d_wrapper.cpp
-	g++ $(CXXFLAGS) -c cal3d_wrapper.cpp
+CC=gcc
+CXX=g++
+LINK=gcc
+
+# the compile targets
+$(EXE): $(OBJS)
+	$(LINK) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS)
+
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(CXXOBJS): %.o : %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 release:
-	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
+	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
 
 static:
-	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
+	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
 
 clean:
-	-rm -f $(OBJS) el.x86.linux.bin .depend
+	rm -f $(OBJS) $(EXE) .depend
 
 docs:	
 	cd docs && doxygen Doxyfile
 
 .depend: *.h books/*.h
-	echo $(COBJS) | sed 's/\.o/.c/g' | xargs gcc $(CFLAGS) -MM >.depend
-	echo $(CXXOBJS) | sed 's/\.o/.cpp/g' | xargs g++ $(CXXFLAGS) -MM >>.depend
+	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
+	$(CXX) $($CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
 
 -include .depend
