@@ -69,10 +69,11 @@ PF_TILE *pf_get_tile(int x, int y);
  *
  * \param x     x coordinate of the target position
  * \param y     y coordinate of the target position
+ * \param exact	if non-zero, try to find the exact position
  * \retval int
  * \callgraph
  */
-int pf_find_path(int x, int y);
+int pf_find_path(int x, int y, int exact);
 
 /*!
  * \ingroup move_actors

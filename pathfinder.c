@@ -7,6 +7,7 @@ PF_TILE *pf_tile_map=NULL;
 PF_TILE *pf_src_tile, *pf_dst_tile, *pf_cur_tile;
 int pf_follow_path = 0;
 int pf_actor_id;
+int pf_find_exact_pos = 0;
 SDL_TimerID pf_movement_timer = NULL;
 
 #define PF_DIFF(a, b) ((a > b) ? a - b : b - a)
@@ -71,7 +72,7 @@ PF_TILE *pf_get_next_open_tile()
 void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 {
 	PF_TILE *tmp;
-	
+
 	if (!neighbour || neighbour->z == 0 || (current && PF_DIFF(current->z, neighbour->z) > 2)) {
 		return;
 	}
@@ -116,11 +117,11 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 	neighbour->state = PF_STATE_OPEN;
 }
 
-int pf_find_path(int x, int y)
+int pf_find_path(int x, int y, int exact)
 {
 	actor *me;
 	int i;
-	
+
 	pf_destroy_path();
 	
 	if (!(me = pf_get_our_actor())) {
@@ -133,7 +134,8 @@ int pf_find_path(int x, int y)
 	if (!pf_dst_tile || pf_dst_tile->z == 0) {
 		return 0;
 	}
-	
+
+	pf_find_exact_pos = exact;	
 	for (i = 0; i < tile_map_size_x*tile_map_size_y*6*6; i++) {
 		pf_tile_map[i].state = PF_STATE_NONE;
 		pf_tile_map[i].parent = NULL;
@@ -175,6 +177,7 @@ void pf_destroy_path()
 		pf_movement_timer = NULL;
 	}
 	pf_follow_path = 0;
+	pf_find_exact_pos = 0;
 }
 
 actor *pf_get_our_actor()
@@ -186,7 +189,7 @@ void pf_move()
 {
 	int x, y;
 	actor *me;
-	
+
 	if (!pf_follow_path || !(me = pf_get_our_actor())) {
 		return;
 	}
@@ -194,7 +197,7 @@ void pf_move()
 	x = me->x_tile_pos;
 	y = me->y_tile_pos;
 	
-	if ((PF_DIFF(x, pf_dst_tile->x) < 2 && PF_DIFF(y, pf_dst_tile->y) < 2)) {
+	if (!pf_find_exact_pos && PF_DIFF(x, pf_dst_tile->x) < 2 && PF_DIFF(y, pf_dst_tile->y) < 2) {
 		pf_destroy_path();
 	} else {
 		PF_TILE *t = pf_get_tile(x, y);
@@ -258,7 +261,7 @@ int pf_is_tile_occupied(int x, int y)
 Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
 {
 	SDL_Event e;
-	
+
 	e.type = SDL_USEREVENT;
 	e.user.code = EVENT_MOVEMENT_TIMER;
 	SDL_PushEvent(&e);
@@ -295,7 +298,7 @@ void pf_move_to_mouse_position()
 	if (!pf_get_mouse_position(mouse_x, mouse_y, &clicked_x, &clicked_y)) return;
 	x = clicked_x; y = clicked_y;
 	
-	if (pf_find_path(x, y)) {
+	if (pf_find_path(x, y, 0)) {
 		return;
 	}
 	
@@ -304,7 +307,7 @@ void pf_move_to_mouse_position()
 			if (x == clicked_x && y == clicked_y) {
 				continue;
 			}
-			if (pf_find_path(x, y)) {
+			if (pf_find_path(x, y, 0)) {
 				return;
 			}
 		}

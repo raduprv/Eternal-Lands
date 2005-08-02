@@ -47,7 +47,7 @@ int move_to (short int x, short int y)
 {
 	if(your_actor && !your_actor->fighting)
 	{
-		if (pf_find_path (x, y))
+		if (pf_find_path (x, y, 1) > 0)
 		{
 			return 1;
 		}
@@ -57,6 +57,7 @@ int move_to (short int x, short int y)
 			// is unwalkable? if so, it may be a teleporter, and we 
 			// let the server catch it
 			PF_TILE *t = pf_get_tile (x, y);
+
 			if (t->z == 0)
 			{
 				// destination is unwalkable, maybe a teleporter
