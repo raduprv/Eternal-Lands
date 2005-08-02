@@ -416,13 +416,10 @@ void animate_actors()
 				}
 			}
 			
-			if(actors_list[i]->tmp.have_tmp) {
-				if (actors_list[i]->calmodel!=NULL){
-					actors_list[i]->anim_time=actors_list[i]->anim_time+(cur_time-last_update)/1000.0;
-					CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
-				}
+			if (actors_list[i]->calmodel!=NULL){
+				actors_list[i]->anim_time=actors_list[i]->anim_time+(cur_time-last_update)/1000.0;
+				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
 			}
-			
 		}
 	}
 	// unlock the actors_list since we are done now

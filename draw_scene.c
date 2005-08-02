@@ -78,7 +78,6 @@ void draw_scene()
 	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
-	get_tmp_actor_data();	// always update the actor data to prevent resyncs
 	if (!have_display)
 	{
 		new_zoom_level = zoom_level;	// No scrolling when switching modes...
