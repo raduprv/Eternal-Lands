@@ -203,6 +203,11 @@ void update_camera()
 	if(camera_rotation_frames)
 		{
 			rz+=camera_rotation_speed;
+			if(rz > 360) {
+				rz -= 360;
+			} else if (rz < 0) {
+				rz += 360;
+			}
 			camera_rotation_frames--;
 			regenerate_near_objects=
 			regenerate_near_2d_objects=1;
