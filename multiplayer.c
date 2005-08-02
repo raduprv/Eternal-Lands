@@ -1033,6 +1033,31 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_length-2)/4);
 			break;
 #endif
+
+		// for use by 1.0.3 server and higher
+		case MAP_SET_OBJECTS:
+			switch(in_data[3]){
+				case	0:	//2D
+					set_2d_object(in_data[4], in_data+5, data_lenght-3);
+					break;
+				case	1:	//3D
+					set_3d_object(in_data[4], in_data+5, data_lenght-3);
+					break;
+			}
+			break;
+			
+		// for future expansion
+		case MAP_STATE_OBJECTS:
+			switch(in_data[3]){
+				case	0:	//2D
+					state_2d_object(in_data[4], in_data+5, data_lenght-3);
+					break;
+				case	1:	//3D
+					state_3d_object(in_data[4], in_data+5, data_lenght-3);
+					break;
+			}
+			break;
+
 		default:
 			{
 				// Unknown data type??

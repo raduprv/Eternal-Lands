@@ -249,6 +249,9 @@ typedef struct
 
    char self_lit; /*!< flag determining whether this object is self lit or not. Self lit objects contains their own lighs. */
    char blended; /*!< flag determining whether the object is blended with some other objects. */
+   char display; /*!< flag determining whether the object is to be shown on screen. */
+   char state; /*!< state flag for future expansion & data alignment. */
+   
    float r,g,b; /*!< color values (red, green, blue) for this object */
    e3d_array_uv_detail *clouds_uv; /*!< detailed texture coordinates used by clouds. */
    GLuint cloud_vbo; /*! the vertex buffer object for the clouds uv*/

@@ -63,6 +63,8 @@ typedef struct
     /*! @} */
 
 	short sector;  /*!< the \see sector in which this object should occur */
+	char display;/*!< flag determining whether the object is to be shown on screen. */
+	char state; /*!< state flag for future expansion & data alignment. */
 	obj_2d_def *obj_pointer; /**< Points to the 2d object type in the obj_2d_def list */
 }obj_2d;
 
@@ -114,4 +116,33 @@ void display_2d_objects();
  */
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			   float x_rot, float y_rot, float z_rot);
+			   
+/*!
+ * \ingroup	load_2d
+ * \brief	Show or hide one or more 2D map objects
+ * 
+ * 		Show or hide 2D map objects.
+ *		This routine is usually under server control to allow dynamically enabling or disabling seeing objects
+ *
+ * \param	display_flag whether the objects are to be displayed or not
+ * \param	ptr pointer to an array of object ID's to be affected
+ * \param	len the length in bytes of the array
+ * \callgraph
+ */
+void set_2d_object(Uint8 display, void *ptr, int len);
+
+/*!
+ * \ingroup	load_2d
+ * \brief	Set the state for one or more 2D map objects
+ * 
+ * 		Set the sate for 2D map objects.
+ *		This routine is usually under server control to allow dynamically setting a state for an object, this is for future expansion
+ *
+ * \param	display_flag whether the objects are to be displayed or not
+ * \param	ptr pointer to an array of object ID's to be affected
+ * \param	len the length in bytes of the array
+ * \callgraph
+ */
+ void state_2d_object(Uint8 state, void *ptr, int len);
+
 #endif

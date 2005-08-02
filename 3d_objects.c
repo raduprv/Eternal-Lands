@@ -38,6 +38,7 @@ void draw_3d_object(object3d * object_id)
 	//track the usage
 	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
+	if(!object_id->display) return;	// not currently on the map, ignore it
 
 	// check for having to load the arrays
 	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order){
@@ -243,6 +244,8 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	our_object->self_lit=self_lit;
 	our_object->blended=blended;
+	our_object->display= 1;
+	our_object->state= 0;
 
 	our_object->e3d_data=returned_e3d;
 	
@@ -939,4 +942,36 @@ void destroy_e3d(e3d_object *e3d_id)
 	free_e3d_va(e3d_id);
 	// and finally free the main object
 	free(e3d_id);
+}
+
+// for support of the 1.0.3 server, change if an object is to be displayed or not
+void set_3d_object(Uint8 display, void *ptr, int len)
+{
+	Uint32	*id_ptr= (Uint32 *)ptr;
+	
+	while(len >= sizeof(*id_ptr)){
+		Uint32	obj_id= *id_ptr;
+		
+		if(obj_id <= highest_obj_3d && objects_list[obj_id]){
+			objects_list[obj_id]->display= display;
+			id_ptr++;
+			len-= sizeof(Uint32);
+		}
+	}
+}
+
+// for future expansion
+void state_3d_object(Uint8 state, void *ptr, int len)
+{
+	Uint32	*id_ptr= (Uint32 *)ptr;
+	
+	while(len >= sizeof(*id_ptr)){
+		Uint32	obj_id= *id_ptr;
+		
+		if(obj_id <= highest_obj_3d && objects_list[obj_id]){
+			objects_list[obj_id]->state= state;
+			id_ptr++;
+			len-= sizeof(Uint32);
+		}
+	}
 }

@@ -109,4 +109,32 @@ void destroy_3d_object(int i);
 
 void destroy_e3d(e3d_object *e3d_id);
 
+/*!
+ * \ingroup	load_3d
+ * \brief	Show or hide one or more 3D map objects
+ * 
+ * 		Show or hide 3D map objects.
+ *		This routine is usually under server control to allow dynamically enabling or disabling seeing objects
+ *
+ * \param	display_flag whether the objects are to be displayed or not
+ * \param	ptr pointer to an array of object ID's to be affected
+ * \param	len the length in bytes of the array
+ * \callgraph
+ */
+void set_3d_object(Uint8 display, void *ptr, int len);
+
+/*!
+ * \ingroup	load_3d
+ * \brief	Set the state for one or more 3D map objects
+ * 
+ * 		Set the sate for 3D map objects.
+ *		This routine is usually under server control to allow dynamically setting a state for an object, this is for future expansion
+ *
+ * \param	display_flag whether the objects are to be displayed or not
+ * \param	ptr pointer to an array of object ID's to be affected
+ * \param	len the length in bytes of the array
+ * \callgraph
+ */
+ void state_3d_object(Uint8 state, void *ptr, int len);
+
 #endif

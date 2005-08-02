@@ -30,6 +30,8 @@ void draw_2d_object(obj_2d * object_id)
 	int object_type;
 	obj_2d_def *obj_def_pointer;
 
+	if(!object_id->display) return;	// not currently on the map, ignore it
+
 	obj_def_pointer=object_id->obj_pointer;
 
 	u_start=obj_def_pointer->u_start;
@@ -402,6 +404,8 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	our_object->y_rot=y_rot;
 	our_object->z_rot=z_rot;
 	our_object->obj_pointer=returned_obj_2d_def;
+	our_object->display= 1;
+	our_object->state= 0;
 
 	obj_2d_list[i]=our_object;
 
@@ -479,4 +483,36 @@ void display_2d_objects()
 	}
 	
 	glDisable(GL_ALPHA_TEST);
+}
+
+// for support of the 1.0.3 server, change if an object is to be displayed or not
+void set_2d_object(Uint8 display, void *ptr, int len)
+{
+	Uint32	*id_ptr= (Uint32 *)ptr;
+	
+	while(len >= sizeof(*id_ptr)){
+		Uint32	obj_id= *id_ptr;
+		
+		if(obj_id < MAX_OBJ_2D && obj_2d_list[obj_id]){
+			obj_2d_list[obj_id]->display= display;
+			id_ptr++;
+			len-= sizeof(Uint32);
+		}
+	}
+}
+
+// for future expansion
+void state_2d_object(Uint8 state, void *ptr, int len)
+{
+	Uint32	*id_ptr= (Uint32 *)ptr;
+	
+	while(len >= sizeof(*id_ptr)){
+		Uint32	obj_id= *id_ptr;
+		
+		if(obj_id < MAX_OBJ_2D && obj_2d_list[obj_id]){
+			obj_2d_list[obj_id]->state= state;
+			id_ptr++;
+			len-= sizeof(Uint32);
+		}
+	}
 }

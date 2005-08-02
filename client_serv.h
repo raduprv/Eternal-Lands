@@ -510,15 +510,17 @@
 #define WITHDRAW_ITEM 46
 #define LOOK_AT_STORAGE_ITEM 47
 #define SPELL_NAME 48
+
 #define PING_RESPONSE 60
 #define SET_ACTIVE_CHANNEL 61
+
+#define LOG_IN 140
+#define CREATE_CHAR 141
 
 #define GET_DATE 230
 #define GET_TIME 231
 #define SERVER_STATS 232
 #define ORIGINAL_IP 233
-#define LOG_IN 140
-#define CREATE_CHAR 141
 /*! @} */
 
 /*!
@@ -596,7 +598,11 @@
 #define SPELL_CAST 70
 #define GET_ACTIVE_CHANNELS 71
 
-#define UPGRADE_NEW_VERSION 240
+// reserved for future expansion 220-229, not being used in the server yet
+#define MAP_SET_OBJECTS 220
+#define MAP_STATE_OBJECTS 221
+
+#define UPGRADE_NEW_VERSION 240	// TODO: Consider combining all this into one packet followed by one byte (plus optional text)
 #define UPGRADE_TOO_OLD 241
 #define REDEFINE_YOUR_COLORS 248
 #define YOU_DONT_EXIST 249
