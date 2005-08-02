@@ -16,6 +16,9 @@ Uint16 tab_help_y = 70;
 Uint16 tab_help_len_x = HELP_TAB_WIDTH + 2*TAB_MARGIN;
 Uint16 tab_help_len_y = HELP_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
 
+int HELP_TAB_HELP = 0, HELP_TAB_RULES = 3, HELP_TAB_ENCYCLOPEDIA = 2, HELP_TAB_SKILLS = 1;
+int STATS_TAB_STATS = 0, STATS_TAB_KNOWLEDGE = 1, STATS_TAB_QUESTLOG = 2;
+
 int display_tab_stats_handler () 
 {
 	return 1;
@@ -33,12 +36,15 @@ void display_tab_stats ()
 
 		stats_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_statistics, 0, 0);
 		fill_stats_win ();
+		STATS_TAB_STATS = 0;
 		
 		knowledge_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_knowledge, 0, 0);
 		fill_knowledge_win ();
+		STATS_TAB_KNOWLEDGE = 1;
 
 		questlog_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_questlog, 0, 0);
 		fill_questlog_win ();
+		STATS_TAB_QUESTLOG = 2;
 		
 		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, 0);
 	}
@@ -66,15 +72,19 @@ void display_tab_help ()
 
 		help_win = tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0);
 		fill_help_win ();
+		HELP_TAB_HELP = 0;
 
 		skills_win = tab_add (tab_help_win, tab_help_collection_id, tab_skills, 0, 0);
 		fill_skills_win ();
+		HELP_TAB_SKILLS = 1;
 		
 		encyclopedia_win = tab_add (tab_help_win, tab_help_collection_id, tab_encyclopedia, 0, 0);
 		fill_encyclopedia_win ();
+		HELP_TAB_ENCYCLOPEDIA = 2;
 
 		rules_win = tab_add(tab_help_win, tab_help_collection_id, tab_rules, 0, 0);
 		fill_rules_window();
+		HELP_TAB_RULES = 3;
 
 		tab_collection_select_tab (tab_help_win, tab_help_collection_id, 0);
 	}

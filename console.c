@@ -471,7 +471,7 @@ void test_for_console_command (char *text, int len)
 			// help can open the Enc!
 			if(auto_open_encyclopedia)
 			{
-				view_tab (&tab_help_win, &tab_help_collection_id, 1);
+				view_tab (&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
 			}
 			// but fall thru and send it to the server
 		}

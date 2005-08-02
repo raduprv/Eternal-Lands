@@ -357,11 +357,11 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	} else if(key==K_OPTIONS){
 		view_window(&elconfig_win, 0);
 	} else if(key==K_ENCYCLOPEDIA){
-		view_tab(&tab_help_win, &tab_help_collection_id, 1);
+		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
 	} else if(key==K_HELP) {
-		view_tab(&tab_help_win, &tab_help_collection_id, 0);
+		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
 	} else if (key == K_RULES) {
-		view_tab(&tab_help_win, &tab_help_collection_id, 2);
+		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
 	} else if (key == K_ROTATELEFT) {
 		camera_rotation_speed = normal_camera_rotation_speed / 40;
 		camera_rotation_frames = 40;

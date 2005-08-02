@@ -17,6 +17,12 @@
 #define TAB_SPACING      3   /*!< the spacing between two tabs */
 /* @} */
 
+/*! \name tab positions for tabbed windows
+ * @{ */
+extern int HELP_TAB_HELP, HELP_TAB_RULES, HELP_TAB_ENCYCLOPEDIA, HELP_TAB_SKILLS;
+extern int STATS_TAB_STATS, STATS_TAB_KNOWLEDGE, STATS_TAB_QUESTLOG;
+/* @} */
+
 /*! \name windows handlers 
  * @{ */
 extern int tab_stats_win; /*!< handler for the stats tabbed window */

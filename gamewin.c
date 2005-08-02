@@ -1066,7 +1066,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	// open or close windows
 	else if (key == K_STATS)
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, 0);
+		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_STATS);
 	}
 	else if (key == K_OPTIONS)
 	{
@@ -1074,19 +1074,19 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_KNOWLEDGE)
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, 1);
+		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_KNOWLEDGE);
 	}
 	else if (key == K_ENCYCLOPEDIA)
 	{
-		view_tab (&tab_help_win, &tab_help_collection_id, 1);
+		view_tab (&tab_help_win, &tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
 	}
 	else if (key == K_HELP)
 	{
-		view_tab(&tab_help_win, &tab_help_collection_id, 0);
+		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
 	}
 	else if (key == K_RULES)
 	{
-		view_tab(&tab_help_win, &tab_help_collection_id, 3);
+		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
 	}
 	#ifdef NOTEPAD
 	else if (key == K_NOTEPAD)

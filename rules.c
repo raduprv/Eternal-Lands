@@ -221,7 +221,7 @@ void toggle_rules_window()
 		display_rules=get_interface_rules((float)(rules_win_x_len-70)/(12*0.8f)-1);
 	}
 
-	view_tab(&tab_help_win, &tab_help_collection_id, 3);
+	view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
 
 	last_display=1;
 }
