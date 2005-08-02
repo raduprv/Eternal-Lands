@@ -24,8 +24,8 @@ char password_box_selected=0;
 char username_str[20]={0};
 char password_str[20]={0};
 char display_password_str[20]={0};
-int username_text_lenght=0;
-int password_text_lenght=0;
+int username_text_length=0;
+int password_text_length=0;
 
 int have_a_map=0;
 char create_char_error_str[520];
@@ -272,40 +272,40 @@ void init_opening_interface()
 
 void add_char_to_username(unsigned char ch)
 {
-	if(((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_')) && username_text_lenght<15)
+	if(((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_')) && username_text_length<15)
 	{
-		username_str[username_text_lenght]=ch;
-		username_str[username_text_lenght+1]=0;
-		username_text_lenght++;
+		username_str[username_text_length]=ch;
+		username_str[username_text_length+1]=0;
+		username_text_length++;
 	}
 	if(ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
 	{
-		if (username_text_lenght > 0)
-			username_text_lenght--;
+		if (username_text_length > 0)
+			username_text_length--;
 		else
-			username_text_lenght = 0;
-		username_str[username_text_lenght] = '\0';
+			username_text_length = 0;
+		username_str[username_text_length] = '\0';
 	}
 }
 
 void add_char_to_password(unsigned char ch)
 {
-	if ((ch>=32 && ch<=126) && password_text_lenght<15)
+	if ((ch>=32 && ch<=126) && password_text_length<15)
 	{
-		password_str[password_text_lenght]=ch;
-		display_password_str[password_text_lenght]='*';
-		password_str[password_text_lenght+1]=0;
-		display_password_str[password_text_lenght+1]=0;
-		password_text_lenght++;
+		password_str[password_text_length]=ch;
+		display_password_str[password_text_length]='*';
+		password_str[password_text_length+1]=0;
+		display_password_str[password_text_length+1]=0;
+		password_text_length++;
 	}
 	if (ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
 	{
-		if (password_text_lenght > 0)
-			password_text_lenght--;
+		if (password_text_length > 0)
+			password_text_length--;
 		else
-			password_text_lenght = 0;
-		display_password_str[password_text_lenght] = '\0';
-		password_str[password_text_lenght] = '\0';
+			password_text_length = 0;
+		display_password_str[password_text_length] = '\0';
+		password_str[password_text_length] = '\0';
 	}
 }
 

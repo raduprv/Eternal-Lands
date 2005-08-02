@@ -68,9 +68,9 @@ extern int no_bounding_box;
  *      Builds the response entries for the given \a data.
  *
  * \param data
- * \param total_lenght
+ * \param total_length
  */
-void build_response_entries(Uint8 *data,int total_lenght);
+void build_response_entries(Uint8 *data,int total_length);
 
 /*!
  * \ingroup network_text

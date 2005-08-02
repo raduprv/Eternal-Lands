@@ -25,7 +25,7 @@ int dialogue_menu_y_len=190;
 int no_bounding_box=0;
 
 
-void build_response_entries(Uint8 *data,int total_lenght)
+void build_response_entries(Uint8 *data,int total_length)
 {
 	int i;
 	int len;
@@ -42,11 +42,11 @@ void build_response_entries(Uint8 *data,int total_lenght)
 	for(i=0;i<MAX_RESPONSES;i++)
 		{
 			// break if we don't have a length field
-			if (last_index + 3 > total_lenght)
+			if (last_index + 3 > total_length)
 				break;
 			len=SDL_SwapLE16(*((Uint16 *)(data+last_index)));
 			// break if we don't have a complete response
-			if (last_index + 3 + len + 2 + 2 > total_lenght)
+			if (last_index + 3 + len + 2 + 2 > total_length)
 				break;
 			dialogue_responces[i].in_use=1;
 			my_strncp(dialogue_responces[i].text,&data[last_index+2], len);

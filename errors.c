@@ -102,13 +102,13 @@ void clear_conn_log()
 	fflush (conn_file);
 }
 
-void log_conn(const Uint8 *in_data, Uint32 data_lenght)
+void log_conn(const Uint8 *in_data, Uint32 data_length)
 {
   	if(!conn_file) {
 		char connection_log[256];
 		snprintf(connection_log, sizeof(connection_log), "%sconnection_log.txt", configdir);
 		conn_file = open_log (connection_log, "a");
 	}
-  	fwrite (in_data, data_lenght, 1, conn_file);
+  	fwrite (in_data, data_length, 1, conn_file);
   	fflush (conn_file);
 }

@@ -54,9 +54,9 @@ void clear_conn_log();
  *      Logs connection data to the connection_log.txt file.
  *
  * \param in_data           the data to write to the log
- * \param data_lenght       the length of \a in_data
+ * \param data_length       the length of \a in_data
  */
-void log_conn(const Uint8 *in_data, Uint32 data_lenght);
+void log_conn(const Uint8 *in_data, Uint32 data_length);
 
 /*!
  * \name    LOG_ERROR macro

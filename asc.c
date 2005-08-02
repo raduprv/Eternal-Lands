@@ -30,15 +30,15 @@ Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_poi
 	int k;
 	Uint8 cur_src_char;
 	Uint8 cur_dest_char;
-	int source_lenght;
+	int source_length;
 
-	source_lenght=strlen(source_pointer);
+	source_length=strlen(source_pointer);
 	i=j=0;
 	for(i=0;i<max_len;i++)
 		{
 			k=0;
 			j=0;//how if j different from k?
-			while(k<source_lenght)
+			while(k<source_length)
 				{
 					cur_src_char=*(source_pointer+j);
 					cur_dest_char=*(dest_pointer+i);
@@ -51,7 +51,7 @@ Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_poi
 					j++;
 					k++;
 				}
-			if(k==source_lenght)//we found the string
+			if(k==source_length)//we found the string
 				{
 					// skip optional space or equal
 					while(dest_pointer[i]==' ' || dest_pointer[i]=='=')
@@ -76,15 +76,15 @@ Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest
 	int k;
 	Uint8 cur_src_char;
 	Uint8 cur_dest_char;
-	int source_lenght;
+	int source_length;
 
-	source_lenght=strlen(source_pointer);
+	source_length=strlen(source_pointer);
 	i=j=0;
 	for(i=0;i<max_len;i++)
 		{
 			k=0;
 			j=0;
-			while(k<source_lenght)
+			while(k<source_length)
 				{
 					cur_src_char=*(source_pointer+j);
 					cur_dest_char=*(dest_pointer+i);
@@ -97,7 +97,7 @@ Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest
 					j++;
 					k++;
 				}
-			if(k==source_lenght)//we found the string
+			if(k==source_length)//we found the string
 				{
 					//we have to find the first number now (there might be spaces, or other chars first
 					while(1)
@@ -124,15 +124,15 @@ float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_po
 	int k;
 	Uint8 cur_src_char;
 	Uint8 cur_dest_char;
-	int source_lenght;
+	int source_length;
 
-	source_lenght=strlen(source_pointer);
+	source_length=strlen(source_pointer);
 	i=j=0;
 	for(i=0;i<max_len;i++)
 		{
 			k=0;
 			j=0;
-			while(k<source_lenght)
+			while(k<source_length)
 				{
 					cur_src_char=*(source_pointer+j);
 					cur_dest_char=*(dest_pointer+i);
@@ -145,7 +145,7 @@ float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_po
 					j++;
 					k++;
 				}
-			if(k==source_lenght)//we found the string
+			if(k==source_length)//we found the string
 				{
 					//we have to find the first number now (there might be spaces, or other chars first
 					while(1)

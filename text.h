@@ -67,7 +67,7 @@ void init_text_buffers ();
  *      Writes the given data up to a length of len to the logfile.
  *
  * \param data  The data to write to the logfile
- * \param len   The lenght of data.
+ * \param len   The length of data.
  */
 void write_to_log(Uint8 * data,int len);
 

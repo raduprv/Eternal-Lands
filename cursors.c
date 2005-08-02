@@ -20,8 +20,8 @@ struct harvest_names_struct harvestable_objects[100];
 struct enter_names_struct entrable_objects[100];
 
 Uint8 *cursors_mem=NULL;
-int cursors_x_lenght;
-int cursors_y_lenght;
+int cursors_x_length;
+int cursors_y_length;
 
 void load_cursors()
 {
@@ -43,24 +43,24 @@ void load_cursors()
 	fread (cursors_mem_bmp, 1, f_size, f);
 	fclose (f);
 
-	cursors_mem_bmp += 18;		//x lenght is at offset+18
-	cursors_x_lenght = SDL_SwapLE32(*((int *) cursors_mem_bmp));
-	cursors_mem_bmp += 4;		//y lenght is at offset+22
-	cursors_y_lenght = SDL_SwapLE32(*((int *) cursors_mem_bmp));
+	cursors_mem_bmp += 18;		//x length is at offset+18
+	cursors_x_length = SDL_SwapLE32(*((int *) cursors_mem_bmp));
+	cursors_mem_bmp += 4;		//y length is at offset+22
+	cursors_y_length = SDL_SwapLE32(*((int *) cursors_mem_bmp));
 	cursors_mem_bmp += 46 - 22;
 	cursors_colors_no = SDL_SwapLE32(*((int *) cursors_mem_bmp));
 	cursors_mem_bmp += 54 - 46 + cursors_colors_no * 4;
 
 	//ok, now transform the bitmap in cursors info
 	if(cursors_mem) free(cursors_mem);
-	cursors_mem = (Uint8 *)calloc ( cursors_x_lenght*cursors_y_lenght*2, sizeof(char));
+	cursors_mem = (Uint8 *)calloc ( cursors_x_length*cursors_y_length*2, sizeof(char));
 
-	for(y=cursors_y_lenght-1;y>=0;y--)
+	for(y=cursors_y_length-1;y>=0;y--)
 		{
-			i=(cursors_y_lenght-y-1)*cursors_x_lenght;
-			for(x=0;x<cursors_x_lenght;x++)
+			i=(cursors_y_length-y-1)*cursors_x_length;
+			for(x=0;x<cursors_x_length;x++)
 				{
-					cur_color=*(cursors_mem_bmp+y*cursors_x_lenght+x);
+					cur_color=*(cursors_mem_bmp+y*cursors_x_length+x);
 					switch(cur_color) {
 					case 0: //transparent
 						*(cursors_mem+(i+x)*2)=0;
@@ -106,12 +106,12 @@ void assign_cursor(int cursor_id)
 	cur_cursor_mem=(Uint8 *)calloc(16*16*2, sizeof(char));
 
 	i=0;
-	for(y=0;y<cursors_y_lenght;y++)
+	for(y=0;y<cursors_y_length;y++)
 		for(x=cursor_id*16;x<cursor_id*16+16;x++)
 			{
-				cur_color=*(cursors_mem+(y*cursors_x_lenght+x)*2);
+				cur_color=*(cursors_mem+(y*cursors_x_length+x)*2);
 				*(cur_cursor_mem+i)=cur_color;//data
-				cur_color=*(cursors_mem+(y*cursors_x_lenght+x)*2+1);
+				cur_color=*(cursors_mem+(y*cursors_x_length+x)*2+1);
 				*(cur_cursor_mem+i+256)=cur_color;//mask
 				i++;
 			}

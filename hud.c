@@ -796,7 +796,7 @@ int	display_stats_bar_handler(window_info *win)
 	float mana_adjusted_x_len;
 	float load_adjusted_x_len;
 
-	//get the adjusted lenght
+	//get the adjusted length
 
 	if(!your_info.material_points.cur || !your_info.material_points.base)
 		health_adjusted_x_len=0;//we don't want a div by 0

@@ -130,7 +130,7 @@ int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
 	last_heart_beat=cur_time;
 
 	new_str[0]=str[0];//copy the protocol
-	*((short *)(new_str+1))= SDL_SwapLE16((Uint16)len);//the data lenght
+	*((short *)(new_str+1))= SDL_SwapLE16((Uint16)len);//the data length
 	//copy the rest of the data
 	for(i=1;i<len;i++)new_str[i+2]=str[i];
 	return SDLNet_TCP_Send(my_socket,new_str,len+2);
@@ -247,7 +247,7 @@ void send_login_info()
 	unsigned char str[40];
 
 	len=strlen(username_str);
-	//check for the username lenght
+	//check for the username length
 	if(len<3)
 		{
 			sprintf(log_in_error_str,"%s: %s",reg_error_str,error_username_length);
@@ -309,7 +309,7 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 #endif
 //---
 
-void process_message_from_server(unsigned char *in_data, int data_lenght)
+void process_message_from_server(unsigned char *in_data, int data_length)
 {
 	//see what kind of data we got
 	switch (in_data[PROTOCOL])
@@ -319,32 +319,32 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #ifdef MULTI_CHANNEL
 				Uint8 channel_id;
 				// extract the channel number
-				if (data_lenght > 4) 
+				if (data_length > 4) 
 				{
 					channel_id = in_data[3];
-					data_lenght = filter_or_ignore_text (&in_data[4], data_lenght-4) + 4;
-					if (data_lenght > 4)
+					data_length = filter_or_ignore_text (&in_data[4], data_length-4) + 4;
+					if (data_length > 4)
 					{
 						//how to display it
 						if (get_show_window (opening_root_win) )
-							put_text_in_buffer (channel_id, &in_data[4], data_lenght-4, 54);
+							put_text_in_buffer (channel_id, &in_data[4], data_length-4, 54);
 						else 
-							put_text_in_buffer (channel_id, &in_data[4], data_lenght - 4, 0);
+							put_text_in_buffer (channel_id, &in_data[4], data_length - 4, 0);
 						// let's log it
-						write_to_log (&in_data[4], data_lenght - 4);
+						write_to_log (&in_data[4], data_length - 4);
 					}
 				}
 #else			
 				// do filtering and ignoring
-				data_lenght=filter_or_ignore_text(&in_data[3],data_lenght-3)+3;
-				if(data_lenght > 3)
+				data_length=filter_or_ignore_text(&in_data[3],data_length-3)+3;
+				if(data_length > 3)
 					{
 						//how to display it
 						if (get_show_window (opening_root_win) )
-							put_text_in_buffer(CHAT_ALL, &in_data[3],data_lenght-3,54);
-						else put_text_in_buffer(CHAT_ALL, &in_data[3],data_lenght-3,0);
+							put_text_in_buffer(CHAT_ALL, &in_data[3],data_length-3,54);
+						else put_text_in_buffer(CHAT_ALL, &in_data[3],data_length-3,0);
 						//lets log it
-						write_to_log(&in_data[3],data_lenght-3);
+						write_to_log(&in_data[3],data_length-3);
 					}
 #endif
 			}
@@ -374,10 +374,10 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 	ERR();
 #endif
 				// allow for multiple packets in a row
-				while ( data_lenght >= 6){
+				while ( data_length >= 6){
 					add_command_to_actor(SDL_SwapLE16(*((short *)(in_data+3))),in_data[5]);
 					in_data+= 3;
-					data_lenght-= 3;
+					data_length-= 3;
 				}
 			}
 			break;
@@ -440,10 +440,10 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case SEND_PARTIAL_STAT:
 			{
 				// allow for multiple stats in a row
-				while (data_lenght >= 8){
+				while (data_length >= 8){
 					get_partial_stat(*((Uint8 *)(in_data+3)),SDL_SwapLE32(*((Sint32 *)(in_data+4))));
 					in_data+= 5;
-					data_lenght-= 5;
+					data_length-= 5;
 				}
 			}
 			break;
@@ -480,25 +480,25 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case INVENTORY_ITEM_TEXT:
 			{
-				put_small_text_in_box(&in_data[3],data_lenght-3,6*items_grid_size+100,items_string);
+				put_small_text_in_box(&in_data[3],data_length-3,6*items_grid_size+100,items_string);
 				if(!(get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
 					{
-						put_text_in_buffer (CHAT_SERVER, &in_data[3], data_lenght-3,0);
+						put_text_in_buffer (CHAT_SERVER, &in_data[3], data_length-3,0);
 					}
 			}
 			break;
 		case SPELL_ITEM_TEXT:
 			{
-				put_small_text_in_box(in_data+3,data_lenght-3,6*51+100,spell_text);
+				put_small_text_in_box(in_data+3,data_length-3,6*51+100,spell_text);
 				if(sigil_win==-1||!windows_list.window[sigil_win].displayed)
-					put_text_in_buffer (CHAT_SERVER, in_data+3, data_lenght-3, 0);
+					put_text_in_buffer (CHAT_SERVER, in_data+3, data_length-3, 0);
 				have_error_message=1;
 			}
 			break;
 
 		case GET_KNOWLEDGE_TEXT:
 			{
-				put_small_text_in_box(&in_data[3],data_lenght-3,6*51+150,knowledge_string);
+				put_small_text_in_box(&in_data[3],data_length-3,6*51+150,knowledge_string);
 			}
 			break;
 
@@ -605,7 +605,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case LOG_IN_NOT_OK:
 			{
-				set_login_error (&in_data[3], data_lenght - 3);
+				set_login_error (&in_data[3], data_length - 3);
 			}
 			break;
 
@@ -624,7 +624,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case CREATE_CHAR_NOT_OK:
 			{
-				set_create_char_error (&in_data[3], data_lenght - 3);
+				set_create_char_error (&in_data[3], data_length - 3);
 				return;
 			}
 			break;
@@ -655,7 +655,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 #endif
 				seconds_till_rain_starts=*((Uint8 *)(in_data+3));
 				seconds_till_rain_stops=-1;
-				if (data_lenght > 4) {
+				if (data_length > 4) {
 					rain_strength_bias = 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
 				} else {
 					rain_strength_bias = 1.0f;
@@ -814,11 +814,11 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case NPC_TEXT:
 			{
-				put_small_text_in_box(&in_data[3],data_lenght-3,dialogue_menu_x_len-70,dialogue_string);
+				put_small_text_in_box(&in_data[3],data_length-3,dialogue_menu_x_len-70,dialogue_string);
 				display_dialogue();
 				if(in_data[3]>=127 && in_data[4]>=127)
 					{
-						add_questlog(&in_data[4],data_lenght-4);
+						add_questlog(&in_data[4],data_length-4);
 					}
 			}
 			break;
@@ -953,16 +953,16 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 		case PING_REQUEST:
 			{
 				// just send the pack back as it is
-				my_tcp_send(my_socket,in_data,data_lenght);
+				my_tcp_send(my_socket,in_data,data_length);
 			}
 			break;
 			
 		case BUDDY_EVENT:
 			{
 				if(in_data[3]==1)
-					add_buddy(&in_data[5],in_data[4],data_lenght-5);
+					add_buddy(&in_data[5],in_data[4],data_length-5);
 				else if(in_data[3]==0)
-					del_buddy(&in_data[4],data_lenght-4);
+					del_buddy(&in_data[4],data_length-4);
 			}
 			break;
 
@@ -971,7 +971,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 				switch(in_data[3]){
 					case RULE_WIN: 
 					case RULE_INTERFACE: 
-						highlight_rule(in_data[3],in_data+4,data_lenght-4);
+						highlight_rule(in_data[3],in_data+4,data_length-4);
 						break;
 					case NEW_CHAR_INTERFACE:
 						hide_all_root_windows ();
@@ -996,7 +996,7 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 
 		case READ_BOOK:
 			{
-				read_network_book(in_data+3, data_lenght-3);
+				read_network_book(in_data+3, data_length-3);
 			}
 			break;
 
@@ -1007,30 +1007,30 @@ void process_message_from_server(unsigned char *in_data, int data_lenght)
 			break;
 		case STORAGE_LIST:
 			{
-				get_storage_categories(in_data+3, data_lenght-3);
+				get_storage_categories(in_data+3, data_length-3);
 			}
 			break;
 
 		case STORAGE_ITEMS:
 			{
-				get_storage_items(in_data+3, data_lenght-3);
+				get_storage_items(in_data+3, data_length-3);
 			}
 			break;
 
 		case STORAGE_TEXT:
 			{
-				get_storage_text(in_data+3, data_lenght-3);
+				get_storage_text(in_data+3, data_length-3);
 			}
 			break;
     		case SPELL_CAST:
     			{
-				process_network_spell(in_data+3, data_lenght-3);
+				process_network_spell(in_data+3, data_length-3);
         		}
 			break;
 #endif //NEW_CLIENT
 #ifdef MULTI_CHANNEL
 		case GET_ACTIVE_CHANNELS:
-			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_lenght-2)/4);
+			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_length-2)/4);
 			break;
 #endif
 		default:

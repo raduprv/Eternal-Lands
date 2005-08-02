@@ -324,10 +324,10 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 {
 	int i;
 	//int j;
-	int file_name_lenght;
+	int file_name_length;
 	obj_2d_def * obj_2d_def_id;
 
-	file_name_lenght=strlen(file_name);
+	file_name_length=strlen(file_name);
 
 	for(i=0;i<MAX_OBJ_2D_DEF;i++)
 		{
@@ -338,12 +338,12 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 				}
 			/*
 			j=0;
-			while(j<file_name_lenght)
+			while(j<file_name_length)
 				{
 					if(obj_2d_def_cache[i].file_name[j]!=file_name[j])break;
 					j++;
 				}
-			if(file_name_lenght==j)//ok, obj_2d_def already loaded
+			if(file_name_length==j)//ok, obj_2d_def already loaded
 				return obj_2d_def_cache[i].obj_2d_def_id;
 			*/
 		}

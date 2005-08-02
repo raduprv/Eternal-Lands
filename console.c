@@ -19,24 +19,24 @@ char	auto_open_encyclopedia= 1;
 void test_for_console_command (char *text, int len)
 {
 	char *text_loc = text;
-	int text_lenght = len;
+	int text_length = len;
 	//skip a leading #
 	if(*text_loc=='#')
 		{
 			text_loc++;
-			text_lenght--;
+			text_length--;
 		}
 	// skip leading spaces
 	while(*text_loc==' ')
 		{
 			text_loc++;
-			text_lenght--;
+			text_length--;
 		}
 	//remove trailing '_'
-	if(text_loc[text_lenght] == '_')
+	if(text_loc[text_length] == '_')
 		{
-			text_loc[text_lenght]='\0';
-			text_lenght--;
+			text_loc[text_length]='\0';
+			text_length--;
 		}
 	//cls?
 	if(my_strcompare(text_loc,"cls"))
@@ -165,8 +165,7 @@ void test_for_console_command (char *text, int len)
 				{
 					snprintf(extra,sizeof(extra)," Beta");
 				}
-			snprintf(str,sizeof(str),"Eternal Lands Version %d.%d.%d%s",client_version_major,
-					client_version_minor,client_version_release,extra);
+			snprintf(str, sizeof(str), "Eternal Lands Version %d.%d.%d%s", client_version_major, client_version_minor, client_version_release, extra);
 			LOG_TO_CONSOLE(c_green1,str);
 			return;
 		}
@@ -455,9 +454,9 @@ void test_for_console_command (char *text, int len)
 			while(*text_loc && isspace(*text_loc))	text_loc++;
 			if(!afk)
 				{
-					if ((text_lenght = len - (text_loc-text)) > 0) 
+					if ((text_length = len - (text_loc-text)) > 0) 
 						{
-							snprintf(afk_message, text_lenght+1, "%s", text_loc); 
+							snprintf(afk_message, text_length+1, "%s", text_loc); 
 						}
 					go_afk();
 					last_action_time=cur_time-afk_time-1;

@@ -415,10 +415,10 @@ int load_texture_cache (const char * file_name, unsigned char alpha)
 int load_texture_cache_deferred (const char * file_name, unsigned char alpha)
 {
 	int i;
-	int file_name_lenght;
+	int file_name_length;
 	int texture_slot= -1;
 
-	file_name_lenght=strlen(file_name);
+	file_name_length=strlen(file_name);
 
 	for(i=0;i<TEXTURE_CACHE_MAX;i++)
 		{
