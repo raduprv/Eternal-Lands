@@ -92,6 +92,12 @@ int HandleEvent (SDL_Event *event)
 
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
+			// make sure the mouse button is our window, or else we ignore it
+			if(event->button.x >= window_width || event->button.y >= window_height)
+			{
+				break;
+			}
+		
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
 		case SDL_MOUSEMOTION:
