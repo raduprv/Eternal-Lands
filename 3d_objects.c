@@ -949,13 +949,24 @@ void set_3d_object(Uint8 display, void *ptr, int len)
 {
 	Uint32	*id_ptr= (Uint32 *)ptr;
 	
-	while(len >= sizeof(*id_ptr)){
-		Uint32	obj_id= *id_ptr;
+	// first look for the override to process ALL objects
+	if (len < sizeof(*id_ptr) ){
+		int	i;
 		
-		if(obj_id <= highest_obj_3d && objects_list[obj_id]){
-			objects_list[obj_id]->display= display;
-			id_ptr++;
-			len-= sizeof(Uint32);
+		for(i=0; i<= highest_obj_3d; i++){
+			if (objects_list[i]){
+				objects_list[i]->display= display;
+			}
+		}
+	} else {
+		while(len >= sizeof(*id_ptr)){
+			Uint32	obj_id= *id_ptr;
+		
+			if(obj_id <= highest_obj_3d && objects_list[obj_id]){
+				objects_list[obj_id]->display= display;
+				id_ptr++;
+				len-= sizeof(Uint32);
+		}
 		}
 	}
 }
@@ -965,13 +976,24 @@ void state_3d_object(Uint8 state, void *ptr, int len)
 {
 	Uint32	*id_ptr= (Uint32 *)ptr;
 	
-	while(len >= sizeof(*id_ptr)){
-		Uint32	obj_id= *id_ptr;
+	// first look for the override to process ALL objects
+	if (len < sizeof(*id_ptr) ){
+		int	i;
 		
-		if(obj_id <= highest_obj_3d && objects_list[obj_id]){
-			objects_list[obj_id]->state= state;
-			id_ptr++;
-			len-= sizeof(Uint32);
+		for(i=0; i<= highest_obj_3d; i++){
+			if (objects_list[i]){
+				objects_list[i]->state= state;
+			}
+		}
+	} else {
+		while(len >= sizeof(*id_ptr)){
+			Uint32	obj_id= *id_ptr;
+		
+			if(obj_id <= highest_obj_3d && objects_list[obj_id]){
+				objects_list[obj_id]->state= state;
+				id_ptr++;
+				len-= sizeof(Uint32);
+			}
 		}
 	}
 }

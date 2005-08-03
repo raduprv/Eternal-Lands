@@ -326,10 +326,10 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 {
 	int i;
 	//int j;
-	int file_name_length;
+	int file_name_lenght;
 	obj_2d_def * obj_2d_def_id;
 
-	file_name_length=strlen(file_name);
+	file_name_lenght=strlen(file_name);
 
 	for(i=0;i<MAX_OBJ_2D_DEF;i++)
 		{
@@ -340,12 +340,12 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 				}
 			/*
 			j=0;
-			while(j<file_name_length)
+			while(j<file_name_lenght)
 				{
 					if(obj_2d_def_cache[i].file_name[j]!=file_name[j])break;
 					j++;
 				}
-			if(file_name_length==j)//ok, obj_2d_def already loaded
+			if(file_name_lenght==j)//ok, obj_2d_def already loaded
 				return obj_2d_def_cache[i].obj_2d_def_id;
 			*/
 		}
@@ -490,13 +490,24 @@ void set_2d_object(Uint8 display, void *ptr, int len)
 {
 	Uint32	*id_ptr= (Uint32 *)ptr;
 	
-	while(len >= sizeof(*id_ptr)){
-		Uint32	obj_id= *id_ptr;
+	// first look for the override to process ALL objects
+	if (len < sizeof(*id_ptr) ){
+		int	i;
 		
-		if(obj_id < MAX_OBJ_2D && obj_2d_list[obj_id]){
-			obj_2d_list[obj_id]->display= display;
-			id_ptr++;
-			len-= sizeof(Uint32);
+		for(i=0; i<= MAX_OBJ_2D; i++){
+			if (obj_2d_list[i]){
+				obj_2d_list[i]->display= display;
+			}
+		}
+	} else {
+		while(len >= sizeof(*id_ptr)){
+			Uint32	obj_id= *id_ptr;
+		
+			if(obj_id < MAX_OBJ_2D && obj_2d_list[obj_id]){
+				obj_2d_list[obj_id]->display= display;
+				id_ptr++;
+				len-= sizeof(Uint32);
+			}
 		}
 	}
 }
@@ -506,13 +517,24 @@ void state_2d_object(Uint8 state, void *ptr, int len)
 {
 	Uint32	*id_ptr= (Uint32 *)ptr;
 	
-	while(len >= sizeof(*id_ptr)){
-		Uint32	obj_id= *id_ptr;
+	// first look for the override to process ALL objects
+	if (len < sizeof(*id_ptr) ){
+		int	i;
 		
-		if(obj_id < MAX_OBJ_2D && obj_2d_list[obj_id]){
-			obj_2d_list[obj_id]->state= state;
-			id_ptr++;
-			len-= sizeof(Uint32);
+		for(i=0; i<= MAX_OBJ_2D; i++){
+			if (obj_2d_list[i]){
+				obj_2d_list[i]->display= display;
+			}
+		}
+	} else {
+		while(len >= sizeof(*id_ptr)){
+			Uint32	obj_id= *id_ptr;
+		
+			if(obj_id < MAX_OBJ_2D && obj_2d_list[obj_id]){
+				obj_2d_list[obj_id]->state= state;
+				id_ptr++;
+				len-= sizeof(Uint32);
+			}
 		}
 	}
 }
