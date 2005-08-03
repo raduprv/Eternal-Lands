@@ -1038,10 +1038,10 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 		case MAP_SET_OBJECTS:
 			switch(in_data[3]){
 				case	0:	//2D
-					set_2d_object(in_data[4], in_data+5, data_lenght-3);
+					set_2d_object(in_data[4], in_data+5, data_length-3);
 					break;
 				case	1:	//3D
-					set_3d_object(in_data[4], in_data+5, data_lenght-3);
+					set_3d_object(in_data[4], in_data+5, data_length-3);
 					break;
 			}
 			break;
@@ -1050,10 +1050,10 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 		case MAP_STATE_OBJECTS:
 			switch(in_data[3]){
 				case	0:	//2D
-					state_2d_object(in_data[4], in_data+5, data_lenght-3);
+					state_2d_object(in_data[4], in_data+5, data_length-3);
 					break;
 				case	1:	//3D
-					state_3d_object(in_data[4], in_data+5, data_lenght-3);
+					state_3d_object(in_data[4], in_data+5, data_length-3);
 					break;
 			}
 			break;
