@@ -523,7 +523,7 @@ void state_2d_object(Uint8 state, void *ptr, int len)
 		
 		for(i=0; i<= MAX_OBJ_2D; i++){
 			if (obj_2d_list[i]){
-				obj_2d_list[i]->display= display;
+				obj_2d_list[i]->state= state;
 			}
 		}
 	} else {
