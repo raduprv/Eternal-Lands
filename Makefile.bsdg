@@ -1,0 +1,94 @@
+.PHONY: clean release docs
+
+# tune these for your setup & compile options
+OPTIONS=-DLINUX -DELC -DBSD -DPNG_SCREENSHOT -DMULTI_CHANNEL -DNEW_CLIENT
+#-DX86_64
+#-DTIMER_CHECK
+#-DWRITE_XML
+#-DNOTEPAD # enable in-game notepad
+#-DNEW_CLIENT #contains the new client interface, with trade, storage windows etc.
+#-DMULTI_CHANNEL # multi-channel support, should go into NEW_CLIENT once it's working (EXPERIMENTAL)
+#-DCUSTOM_LOOK # allows you to customize your look. (EXPERIMENTAL)
+#-DUID # use unique ID sent from server for custom looks. (INCOMPLETE)
+#-DNETWORK_THREAD # use separate thread for network reading (EXPERIMENTAL)
+#-DANTI_ALIAS # allows to enable/disable anti-aliasing in el.ini
+#-DENCYCLOPEDIA # enable new encyclopedia and books format (INCOMPLETE)
+#-DMEMORY_DEBUG # gather information about memory allocation and freeing
+#-DPNG_SCREENSHOT # make screenshots in W3C's PNG format in game
+
+PLATFORM=-march=i686
+XDIR=-L/usr/X11R6/lib
+CWARN=
+#-Wdeclaration-after-statement -Wall -Werror
+CPPWARN=
+#-Wall -Werror
+
+# basic compiling and linking - rarely changed
+CFLAGS=$(PLATFORM) $(CWARN) -g -ggdb -pipe $(OPTIONS) $(shell sdl11-config --cflags) $(shell xml2-config --cflags) -I/usr/X11R6/include/
+_CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl11-config --cflags) $(shell xml2-config --cflags)
+CXXFLAGS=$(PLATFORM) $(CPPWARN) -O -ggdb -pipe -I/usr/local/include $(OPTIONS)
+_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS)
+
+LDFLAGS=$(shell sdl11-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm -lpng
+_LDFLAGS=$(XDIR) -lGL -lpthread -lz
+STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a
+
+# the objects we need
+COBJS=2d_objects.o 3d_objects.o	\
+	actor_scripts.o actors.o alphamap.o asc.o \
+	books.o buddy.o bags.o \
+	cache.o cal.o chat.o colors.o console.o consolewin.o cursors.o	\
+	dialogues.o draw_scene.o	\
+	elconfig.o elmemory.o elwindows.o encyclopedia.o errors.o events.o	\
+	filter.o font.o frustum.o	\
+	gamewin.o gl_init.o hud.o help.o highlight.o	\
+	ignore.o init.o interface.o items.o	\
+	keys.o knowledge.o lights.o loginwin.o	\
+	main.o manufacture.o map_io.o mapwin.o	\
+	md2loader.o md5.o misc.o multiplayer.o	\
+	new_actors.o new_character.o notepad.o	\
+	openingwin.o	\
+	particles.o paste.o pathfinder.o pm_log.o	\
+	questlog.o queue.o reflection.o	rules.o skills.o \
+	sector.o shadows.o sort.o sound.o spells.o stats.o storage.o symbol_table.o tabs.o	\
+	text.o textures.o tile_map.o timers.o translate.o trade.o	\
+	weather.o widgets.o \
+	books/parser.o books/symbols.o	
+	
+CXXOBJS=cal3d_wrapper.o
+
+OBJS=$(COBJS) $(CXXOBJS)
+
+EXE=el.x86.bsd.bin
+
+CC=gcc
+CXX=g++
+LINK=gcc
+
+# the compile targets
+$(EXE): $(OBJS)
+	$(LINK) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS)
+
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(CXXOBJS): %.o : %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+release:
+	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
+
+static:
+	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
+
+clean:
+	rm -f $(OBJS) $(EXE) .depend
+
+docs:	
+	cd docs && doxygen Doxyfile
+
+.depend: *.h books/*.h
+	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
+#	$(CXX) $($CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
+
+-include .depend

@@ -34,7 +34,6 @@ int display_console_handler (window_info *win)
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{
 		int y_line;
-
 		
 		if (console_text_changed)
 		{
