@@ -16,8 +16,7 @@ int locked_to_console = 0;
 
 void update_console_win (text_message * msg)
 {
-	window_info * win = console_root_win >= 0 ? &windows_list.window[console_root_win] : NULL;
-	int nlines = rewrap_message(msg, chat_zoom, win->len_x, NULL);
+	int nlines = rewrap_message(msg, chat_zoom, console_text_width, NULL);
 	if (msg->deleted) {
 		if (scroll_up_lines > nlines) {
 			scroll_up_lines -= nlines;
