@@ -29,8 +29,6 @@ float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
-int current_text_width = 500;
-
 /* forward declaration */
 void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len, int pixels_limit, char *buffer);
 
@@ -56,13 +54,13 @@ void cleanup_text_buffers(void)
 	}
 }
 
-void update_text_windows (int nlines, Uint8 channel)
+void update_text_windows (text_message * pmsg)
 {
-	update_console_win (nlines);
-	if (use_windowed_chat == 1 && channel != CHAT_ALL)
-		update_tab_bar (channel);
-	else if (use_windowed_chat == 2)
-		update_chat_window (nlines, channel);
+	if (console_root_win >= 0) update_console_win (pmsg);
+	switch (use_windowed_chat) {
+		case 1: update_tab_bar (pmsg); break;
+		case 2: update_chat_window (pmsg, 1); break;
+	}
 }
 
 void write_to_log (Uint8 *data, int len)
@@ -245,9 +243,9 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 	return filter_text (text_to_add, len);
 }
 
-void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len, int x_chars_limit)
+void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len)
 {
-	put_colored_text_in_buffer (c_grey1, channel, text_to_add, len, x_chars_limit);
+	put_colored_text_in_buffer (c_grey1, channel, text_to_add, len);
 }
 
 //-- Logan Dugenoux [5/26/2004]
@@ -384,13 +382,12 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 	return nr_paste;	
 }
 
-void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len, int x_chars_limit)
+void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len)
 {
 	int i;
 	int idx;
 	// Uint8 cur_char;
 	text_message *msg;
-	int nlines = 0, nltmp;
 	int minlen;
 
 	check_chat_text_to_overtext (text_to_add, len);
@@ -408,14 +405,13 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		last_message = 0;
 	}
 
-	msg = &(display_text_buffer[last_message]);
-	if (buffer_full && msg->data)
-	{
-		nlines--;
-		for (i = 0; msg->data[i] != '\0'; i++)
-			if (msg->data[i] == '\r' || msg->data[i] == '\n')
-				nlines--;
+	if (buffer_full && msg->data) {
+		total_nr_lines -= msg->wrap_lines;
+		msg->deleted = 1;
+		update_text_windows(msg);
 	}
+
+	msg = &(display_text_buffer[last_message]);
 	
 	// Allow for a null byte and up to 8 extra newlines and colour codes.
 	minlen = len + 18; 
@@ -426,187 +422,68 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		msg->size = minlen;
 	}
 	
-	/* FIXME: currently unused, commented (Lachesis)
-	if (use_windowed_chat == 2 || x_chars_limit <= 0 || len <= x_chars_limit)
-	{
-	*/
-		if(text_to_add[0] < 127 + c_lbound || text_to_add[0] > 127 + c_ubound) {
-			// force the color
-			idx = 1 + snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
-		} else {
-			// color set by server
-			idx = 1 + snprintf(msg->data, minlen, "%.*s", len, text_to_add);
-		}
-		
-		/* FIXME: currently unused, commented (Lachesis)
-		if (use_windowed_chat == 2)
-			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, chat_win_text_width, NULL);
-		else if (x_chars_limit <= 0)
-			nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, window_width - hud_x - 20, NULL);
-		else
-			nltmp = 1;
-		*/
-		nltmp = reset_soft_breaks (msg->data, idx, msg->size, chat_zoom, current_text_width, NULL);
-		
-		
-		msg->len = strlen (msg->data);
-		
-		nlines += nltmp;
-		lines_to_show += nltmp;
-		if (lines_to_show > max_lines_no)
-			lines_to_show = max_lines_no;
-		total_nr_lines += nlines;
-
+	if(text_to_add[0] < 127 + c_lbound || text_to_add[0] > 127 + c_ubound) {
+		// force the color
+		idx = 1 + snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
+	} else {
+		// color set by server
+		idx = 1 + snprintf(msg->data, minlen, "%.*s", len, text_to_add);
+	}
+	
+	msg->len = strlen (msg->data);
+	
 #ifndef MULTI_CHANNEL
-		if (use_windowed_chat != 0)
+	if (use_windowed_chat != 0)
+	{
+		// determine the proper channel
+		// XXX FIXME (Grum): hack
+		if (msg->data[0] == 127+c_orange1 && strncmp (&(msg->data[1]), "[PM ", 4) == 0)
 		{
-			// determine the proper channel
-			// XXX FIXME (Grum): hack
-			if (msg->data[0] == 127+c_orange1 && strncmp (&(msg->data[1]), "[PM ", 4) == 0)
+			// Personal message
+			channel = CHAT_PERSONAL;
+		} 
+		else if (msg->data[0] == 127+c_blue2)
+		{
+			if (strncmp (&(msg->data[1]), "#GM ", 4) == 0)
 			{
-				// Personal message
-				channel = CHAT_PERSONAL;
-			} 
-			else if (msg->data[0] == 127+c_blue2)
-			{
-				if (strncmp (&(msg->data[1]), "#GM ", 4) == 0)
-				{
-					// Guild message
-					channel = CHAT_GM;
-				}
-				else if (strncmp (&(msg->data[1]), "#Message ", 9) == 0)
-				{
-					// Mod message
-					channel = CHAT_SERVER;
-				}
-				else
-				{
-					// Unknown, show it as local
-					channel = CHAT_LOCAL;
-				}
+				// Guild message
+				channel = CHAT_GM;
 			}
-			else if (msg->data[0] == 127+c_grey1 && msg->data[1] == '[')
+			else if (strncmp (&(msg->data[1]), "#Message ", 9) == 0)
 			{
-				// Channel chat
-				channel = CHAT_CHANNEL1;
+				// Mod message
+				channel = CHAT_SERVER;
 			}
 			else
 			{
-				// all else, show it as local
+				// Unknown, show it as local
 				channel = CHAT_LOCAL;
 			}
 		}
+		else if (msg->data[0] == 127+c_grey1 && msg->data[1] == '[')
+		{
+			// Channel chat
+			channel = CHAT_CHANNEL1;
+		}
+		else
+		{
+			// all else, show it as local
+			channel = CHAT_LOCAL;
+		}
+	}
 #endif
-		
-		switch (channel)
-		{
-			case CHAT_LOCAL:
-				if (!local_chat_separate)
-					channel = CHAT_ALL;
-				break;
-			case CHAT_PERSONAL:
-				if (!personal_chat_separate)
-					channel = CHAT_ALL;
-				break;
-			case CHAT_GM:
-				if (!guild_chat_separate)
-					channel = CHAT_ALL;
-				break;
-			case CHAT_SERVER:
-				if (!server_chat_separate)
-					channel = CHAT_ALL;
-				break;
-			case CHAT_MOD:
-				if (!mod_chat_separate)
-					channel = CHAT_ALL;
-				break;
-		}
-		msg->chan_idx = channel;
-		update_text_windows (nlines, channel);
-		if (use_windowed_chat != 0 && highlight_tab_on_nick && is_talking_about_me(&(msg->data[1]), len, 1))
-		{
-			highlight_tab(channel);
-		}
-		
-		return;
-	/* FIXME: currently unused, commented (Lachesis)
-	}
-	else
-	{
-		// not using windowed chat, fixed width specified, and we need 
-		// more than one line
-		int line = 0;
-		int k, j;
-		int new_line_pos = 0;
-		char semaphore = 0;
-		unsigned char current_color = 127 + color;
+	
+	msg->chan_idx = channel;
 
-		//go trought all the text
-		j = 0;
-		for (i = 0; i < len; i++)
-		{
-			// don't go trough the last line
-			if (!semaphore && new_line_pos + x_chars_limit < len)
-			{
-				// find the closest space from the end of this line
-				// if we have one really big word, then parse the string from the
-				// end of the line backwards, until the beginning of the line +2
-				// the +2 is so we avoid parsing the ": " thing...
-				for (k = new_line_pos + x_chars_limit - 1; k > new_line_pos + 2; k--)
-				{
-					if (text_to_add[k] == ' ')
-					{
-						k++; //let the space on the previous line
-						break;
-					}
-				}
-				if (k == new_line_pos + 2)
-					new_line_pos += x_chars_limit;
-				else 
-					new_line_pos = k;
-				line++;
-				semaphore = 1;
-			}
+	// set invalid wrap data to force rewrapping
+	msg->wrap_lines = 0;
+	msg->wrap_zoom = 0.0f;
+	msg->wrap_width = 0;
 
-			cur_char = text_to_add[i];
-
-			if (cur_char == '\0')
-			{
-				j--;
-				break;
-			}
-
-			if (cur_char >= 127 && cur_char <= 127 + c_grey4)	
-				//we have a color, save it
-				current_color = cur_char;
-			else if (cur_char == '\n')
-				new_line_pos = i;
-
-			if (i == new_line_pos)
-			{
-				msg->data[idx++] = '\n';
-				j++;
-				msg->data[idx++] = current_color;
-				j++;
-				semaphore = 0;
-				if (lines_to_show < max_lines_no)
-					lines_to_show++;
-				nlines++;
-			}
-			// don't add another new line, if the current char is already a new line...
-			if (cur_char != '\n')
-			{
-				msg->data[idx++] = cur_char;
-				j++;
-			}
-		}
-		msg->data[idx++] = '\0';
-		msg->len = idx;
-	}
-	*/
-
-	total_nr_lines += nlines;
-	update_text_windows (nlines, channel);
+	msg->deleted = 0;
+	update_text_windows(msg);
+	
+	return;
 }
 
 void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, 
@@ -753,6 +630,14 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset)
 	do 
 	{
 		int msgchan = display_text_buffer[imsg].chan_idx;
+
+		switch (msgchan) {
+			case CHAT_LOCAL:    if (!local_chat_separate)    msgchan = CHAT_ALL; break;
+			case CHAT_PERSONAL: if (!personal_chat_separate) msgchan = CHAT_ALL; break;
+			case CHAT_GM:       if (!guild_chat_separate)    msgchan = CHAT_ALL; break;
+			case CHAT_SERVER:   if (!server_chat_separate)   msgchan = CHAT_ALL; break;
+			case CHAT_MOD:      if (!mod_chat_separate)      msgchan = CHAT_ALL; break;
+		}
 
 		if (msgchan == filter || msgchan == CHAT_ALL || filter == FILTER_ALL)
 		{
@@ -954,26 +839,20 @@ void clear_display_text_buffer ()
 	not_from_the_end_console = 0;
 }
 
-void rewrap_messages(int text_width)
-{
-	int itab, imsg, nlines, ntot;
-
-	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
-		channels[itab].nr_lines = 0;
-
-	ntot = 0;
-	imsg = buffer_full ? last_message+1 : 0;
-	if (imsg >= DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
-	while (1)
-	{
-		nlines = reset_soft_breaks (display_text_buffer[imsg].data, display_text_buffer[imsg].len, display_text_buffer[imsg].size, chat_zoom, text_width, NULL);
-		if (chat_win >= 0) update_chat_window (nlines, display_text_buffer[imsg].chan_idx);
-		ntot += nlines;
-		if (imsg == last_message || last_message < 0) break;
-		if (++imsg >= DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
+int rewrap_message(text_message * msg, float zoom, int width, int * cursor) {
+	int nlines;
+	
+	if (msg->wrap_width != width || msg->wrap_zoom != zoom) {
+		if (msg->chan_idx != CHAT_NONE) total_nr_lines -= msg->wrap_lines;
+ 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, zoom, width, cursor);
+		if (msg->chan_idx != CHAT_NONE) total_nr_lines += nlines;
+		msg->len = strlen(msg->data);
+		msg->wrap_lines = nlines;
+		msg->wrap_width = width;
+		msg->wrap_zoom = zoom;
+	} else {
+		nlines = msg->wrap_lines;
 	}
-	if (console_root_win >= 0) update_console_win (ntot - total_nr_lines);
-	total_nr_lines = ntot;
-	current_text_width = text_width;
-}
 
+	return nlines;
+}

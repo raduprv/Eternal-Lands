@@ -168,6 +168,7 @@ void init_notepad_buffers ()
      
 	for(i = 0; i < MAX_NOTES; i++)
 	{
+		data[i].chan_idx = CHAT_NONE;
 		data[i].data = NULL;
 		data[i].size = 0;
 		data[i].len = 0;
@@ -247,7 +248,7 @@ int notepadLoadFile ()
 				my_strcp (data[no_notes].data, cur->children->content);
 			data[no_notes].len = len;
 				    
-			reset_soft_breaks (data[no_notes].data, data[no_notes].len, data[no_notes].size, 1, note_win_x_len - 70, NULL);
+			rewrap_message(&data[no_notes], 1.0f, note_win_x_len - 70, NULL);
 			
 			note[no_notes] = malloc ( sizeof (struct Note) );
 			name = xmlGetProp (cur, "NAME");

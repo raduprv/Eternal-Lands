@@ -72,7 +72,6 @@ int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint
 }
 
 int show_opening_handler (window_info *win) {
-	rewrap_messages(opening_win_text_width);
 	hide_window(book_win);
 	hide_window(paper_win);
 	hide_window(color_race_win);
@@ -97,6 +96,5 @@ void create_opening_root_window (int width, int height)
 		nr_opening_lines = height / (18 * chat_zoom);
 		opening_win_text_width = width;
 		opening_win_text_height = height;
-		rewrap_messages(width);
 	}
 }

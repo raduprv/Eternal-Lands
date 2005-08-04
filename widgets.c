@@ -1416,7 +1416,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 
 		tf->cursor -= n;
 		msg->len -= n;
-		tf->nr_lines = reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x, &tf->cursor);	
+		tf->nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);	
 		return 1;
 	}
 	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
@@ -1429,7 +1429,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			msg->data[i-n] = msg->data[i];
 
 		msg->len -= n;
-		tf->nr_lines = reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x, &tf->cursor);
+		tf->nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);
 		return 1;
 	}
 	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) || ch == SDLK_RETURN ) && ch != '`' )
@@ -1449,7 +1449,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			}
 		}
 		tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
-		nr_lines = reset_soft_breaks (msg->data, msg->len, msg->size, w->size, w->len_x, &tf->cursor);
+		nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);
 		
 		if (nr_lines != tf->nr_lines)
 		{
@@ -1616,30 +1616,6 @@ int text_field_draw (widget_list *w)
 	if (tf->text_r >= 0.0f)
 	{
 		glColor3f (tf->text_r, tf->text_g, tf->text_b);
-	}
-	else
-	{		
-		ch = tf->buffer[tf->msg].data[tf->offset];
-		if (ch < 127 || ch > 127 + c_grey4)
-		{
-			// search backwards for the last color
-			int ichar;
-		
-			for (ichar = tf->offset-1; ichar >= 0; ichar--)
-			{
-				ch = tf->buffer[tf->msg].data[ichar];
-				if (ch >= 127 && ch <= 127 + c_grey4)
-				{
-					float r, g, b;
-					ch -= 127;
-					r = colors_list[ch].r1 / 255.0f;
-					g = colors_list[ch].g1 / 255.0f;
-					b = colors_list[ch].b1 / 255.0f;
-					glColor3f (r, g, b);
-					break;
-				}
-			}
-		}
 	}
 	
 	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, tf->cursor, w->len_x - 2 * tf->x_space, w->len_y - 2*tf->y_space, w->size);

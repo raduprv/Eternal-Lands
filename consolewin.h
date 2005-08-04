@@ -6,6 +6,9 @@
 #ifndef __CONSOLE_WIN__
 #define __CONSOLE_WIN__
 
+#define CONSOLE_INPUT_HEIGHT	(3*18)
+#define CONSOLE_SEP_HEIGHT	18
+
 /*! \name windows handlers
  * @{ */
 extern int console_root_win; /*!< handler for the console window */
@@ -15,6 +18,7 @@ extern int console_in_id; /*!< ID of the console input widget */
 extern int console_out_id; /*!< ID of the console output widget */
 
 extern int locked_to_console; /*!< indicates whether the console win is locked. Used when we don't have any maps. */
+extern int nr_console_lines;
 
 /*!
  * \ingroup interface_console

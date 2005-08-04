@@ -85,11 +85,11 @@ void clear_input_line ();
  *
  *      Updates the chat window.
  *
- * \param nlines The number of new lines
- * \param channel The channel in which the change occurred
+ * \param msg       The new message that arrived
+ * \param highlight Flag indicating whether the destination tab should be highlighted
  * \callgraph
  */
-void update_chat_window (int nlines, Uint8 channel);
+void update_chat_window (text_message * msg, char highlight);
 
 /*!
  * \ingroup chat_window
@@ -199,10 +199,10 @@ void change_to_current_chat_tab(const char *input);
  *
  *      Highlight a channel in the channel selection bar when a message arrives in that channel.
  *
- * \param channel	a chat channel in which a message has arrived
+ * \param msg the message that has arrived
  * \callgraph
  */
-void update_tab_bar (Uint8 channel);
+void update_tab_bar (text_message * msg);
 
 /*!
  * \ingroup chat_window
@@ -214,5 +214,7 @@ void update_tab_bar (Uint8 channel);
  * \callgraph
  */
 void convert_tabs (int new_wc);
+
+void update_chat_win_buffers();
 
 #endif // def __CHAT_H__

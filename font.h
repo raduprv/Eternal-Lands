@@ -26,6 +26,7 @@ extern int	name_font; /*!< font size used for name font */
  * \brief  draws messages in a buffer to the screen
  *
  *      Draws the messages in buffer \a msgs to the screen, starting with character \a offset_start in message number \a nr_start.
+ *      NOTE: The messages are rewrapped if necessary!
  *
  * \param x		x coordinate of the position to start drawing
  * \param y		y coordinate of the position to start drawing
@@ -41,7 +42,7 @@ extern int	name_font; /*!< font size used for name font */
  *
  * \callgraph
  */
-void draw_messages (int x, int y, const text_message *msgs, int msgs_size, Uint8 filter, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom);
+void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom);
 
 /*!
  * \ingroup text_font

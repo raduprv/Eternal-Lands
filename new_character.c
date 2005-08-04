@@ -390,7 +390,6 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 
 
 int show_newchar_handler (window_info *win) {
-	rewrap_messages(win->len_x-hud_x-20);
 	init_hud_interface(0);
 	show_hud_windows();
 	return 1;

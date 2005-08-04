@@ -717,7 +717,7 @@ int display_game_handler (window_info *win)
 			if (times_FPS_below_3 > 10 && shadows_on)
 			{
 				shadows_on = 0;
-				put_colored_text_in_buffer (c_red1, CHAT_SERVER, low_framerate_str, -1, 0);
+				put_colored_text_in_buffer (c_red1, CHAT_SERVER, low_framerate_str, -1);
 				times_FPS_below_3 = 0;
 				shadows_were_disabled=1;
 			}
@@ -1455,7 +1455,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 }
 
 int show_game_handler (window_info *win) {
-	rewrap_messages(win->len_x-hud_x-20);
 	init_hud_interface(1);
 	show_hud_windows();
 	return 1;

@@ -2,9 +2,6 @@
 #include <string.h>
 #include "global.h"
 
-#define CONSOLE_INPUT_HEIGHT	(3*18)
-#define CONSOLE_SEP_HEIGHT	18
-
 int console_root_win = -1;
 
 int console_out_id = 40;
@@ -17,12 +14,26 @@ int console_text_width = -1;
 
 int locked_to_console = 0;
 
-void update_console_win (int nlines)
+void update_console_win (text_message * msg)
 {
-	if (scroll_up_lines == 0)
-		console_text_changed = 1;
-	else
-		scroll_up_lines += nlines;
+	window_info * win = console_root_win >= 0 ? &windows_list.window[console_root_win] : NULL;
+	int nlines = rewrap_message(msg, chat_zoom, win->len_x, NULL);
+	if (msg->deleted) {
+		if (scroll_up_lines > nlines) {
+			scroll_up_lines -= nlines;
+		} else {
+			scroll_up_lines = 0;
+			console_text_changed = 1;
+		}
+	} else {
+		lines_to_show += nlines;
+		if (lines_to_show > 10) lines_to_show = 10;
+		if (scroll_up_lines == 0) {
+			console_text_changed = 1;
+		} else {
+			scroll_up_lines += nlines;
+		}
+	}
 }
 
 int display_console_handler (window_info *win)
@@ -136,7 +147,6 @@ int resize_console_handler (window_info *win, int width, int height)
 	
 	nr_console_lines = (int) (height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
 	console_text_width = (int) (width - hud_x - 20);
-	rewrap_messages(console_text_width);
 	
 	return 1;
 }
@@ -162,7 +172,6 @@ int click_console_handler (window_info *win, int mx, int my, Uint32 flags)
 }
 
 int show_console_handler (window_info *win) {
-	rewrap_messages(console_text_width);
 	hide_window(book_win);
 	hide_window(paper_win);
 	hide_window(color_race_win);
@@ -189,6 +198,5 @@ void create_console_root_window (int width, int height)
 		
 		nr_console_lines = (int) (height - CONSOLE_INPUT_HEIGHT -  CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
 		console_text_width = (int) (width - hud_x - 20);
-		rewrap_messages(console_text_width);
 	}
 }

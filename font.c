@@ -201,7 +201,7 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
-void draw_messages (int x, int y, const text_message *msgs, int msgs_size, Uint8 filter, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
+void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
 {
 	float displayed_font_x_size = 11.0 * text_zoom;
 	float displayed_font_y_size = 18.0 * text_zoom;
@@ -211,6 +211,27 @@ void draw_messages (int x, int y, const text_message *msgs, int msgs_size, Uint8
 	int imsg, ichar;
 	int cur_x, cur_y;
 	int cursor_x = x-1, cursor_y = y-1;
+	unsigned char ch;
+
+	ch = msgs[msg_start].data[offset_start];
+	if (ch < 127 || ch > 127 + c_grey4)
+	{
+		// search backwards for the last color
+		for (ichar = offset_start-1; ichar >= 0; ichar--)
+		{
+			ch = msgs[msg_start].data[ichar];
+			if (ch >= 127 && ch <= 127 + c_grey4)
+			{
+				float r, g, b;
+				ch -= 127;
+				r = colors_list[ch].r1 / 255.0f;
+				g = colors_list[ch].g1 / 255.0f;
+				b = colors_list[ch].b1 / 255.0f;
+				glColor3f (r, g, b);
+				break;
+			}
+		}
+	}
 	
 	imsg = msg_start;
 	ichar = offset_start;
@@ -250,14 +271,30 @@ void draw_messages (int x, int y, const text_message *msgs, int msgs_size, Uint8
 			if (++imsg >= msgs_size) imsg = 0;
 			if (filter != FILTER_ALL)
 			{
-				while (msgs[imsg].chan_idx != filter && msgs[imsg].chan_idx != CHAT_ALL)
-				{
-					if (++imsg >= msgs_size) imsg = 0;
-					if (msgs[imsg].data == NULL || imsg == msg_start) break;
+				for (;;) {
+					char skip = 0;
+					int channel = msgs[imsg].chan_idx;
+					if (channel != filter) {
+						switch (channel) {
+							case CHAT_LOCAL:    skip = local_chat_separate;    break;
+							case CHAT_PERSONAL: skip = personal_chat_separate; break;
+							case CHAT_GM:       skip = guild_chat_separate;    break;
+							case CHAT_SERVER:   skip = server_chat_separate;   break;
+							case CHAT_MOD:      skip = mod_chat_separate;      break;
+							default:            skip = 1;
+						}
+					}
+					if (skip) {
+						if (++imsg >= msgs_size) imsg = 0;
+						if (msgs[imsg].data == NULL || imsg == msg_start) break;
+					} else {
+						break;
+					}
 				}
 			}
 			if (msgs[imsg].data == NULL || imsg == msg_start) break;
 			ichar = 0;
+			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
 		}
 		
 		if (cur_char == '\n' || cur_char == '\r' || cur_char == '\0')
@@ -463,7 +500,6 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 {
 	char buf[1024]; 
 	int font_bit_width;
-	float displayed_font_x_size = 11.0 * zoom;
 	int nlines;
 	float line_width;
 	int isrc, ibuf, idst;
@@ -493,7 +529,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 			}
 			
 			font_bit_width = get_font_width (str[isrc]);
-			line_width += (int) (0.5f + font_bit_width * displayed_font_x_size / 12.0f);
+			line_width += (int) (0.5f + font_bit_width * zoom);
 			if (line_width > width)
 			{
 				// search back for a space

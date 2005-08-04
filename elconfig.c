@@ -283,11 +283,11 @@ void change_chat_zoom(float *dest, float *value) {
 	if (*value < 0.0f) return;
 	*dest = *value;
 	if (opening_root_win >= 0 || console_root_win >= 0 || chat_win >= 0) {
-		rewrap_messages(current_text_width);
 		if (opening_root_win >= 0) {
 			opening_win_update_zoom();
 		}
 		if (console_root_win >= 0) {
+			nr_console_lines = (int) (window_height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
 			widget_set_size(console_root_win, console_out_id, *value);
 			widget_set_size(console_root_win, console_in_id, *value);
 		}
@@ -347,7 +347,18 @@ void change_gamma(float *pointer, float *value)
 	if(video_mode_set)
 		SDL_SetGamma(*value, *value, *value);
 }
-#endif
+
+void change_separate_flag(int * pointer) {
+	int i;
+	
+	change_var(pointer);
+
+	if (chat_win >= 0) {
+		update_chat_win_buffers();
+	}
+}
+
+#endif // ELC
 #ifdef MAP_EDITOR
 
 void set_auto_save_interval(int *pointer, int time)
@@ -693,11 +704,19 @@ void init_vars()
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0,"ATI Card","I use an obsolete ati card, fix me",SPECIALVID);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",SPECIALVID);
 	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating messages", "Toggles the use of floating experience messages and other graphical enhancements", SPECIALVID);
+#ifdef ELC
+	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate local chat", "Should local chat be separate?", CHAT);
+	add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
+	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_separate_flag, 1, "Seperate guild chat", "Should guild chat be seperate?", CHAT);
+	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_separate_flag, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
+	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
+#else
 	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_var, 0, "Separate local chat", "Should local chat be separate?", CHAT);
 	add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
 	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1, "Seperate guild chat", "Should guild chat be seperate?", CHAT);
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
+#endif
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);

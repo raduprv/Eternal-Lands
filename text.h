@@ -9,6 +9,7 @@
 #define DISPLAY_TEXT_BUFFER_SIZE 5000 /*!< maximum number of lines in the text buffer */
 
 #define CHAT_ALL	((Uint8) -1)
+#define CHAT_NONE ((Uint8) -2)
 
 #define FILTER_LOCAL	CHAT_LOCAL
 #define FILTER_PERSONAL	CHAT_PERSONAL
@@ -25,6 +26,10 @@ typedef struct
 	Uint8 chan_idx;
 	Uint16 len, size;
 	Uint8 *data;
+	Uint16 wrap_width;
+	float wrap_zoom;
+	Uint8 wrap_lines;
+	char deleted;
 } text_message;
 
 extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
@@ -132,11 +137,10 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos);
  * \param channel	the channel index of the message
  * \param text_to_add   the string to add to the buffer
  * \param len           the length of text_to_add
- * \param x_chars_limit flag indicating whether the text should be filtered (!=0) or not (==0).
  *
  * \callgraph
  */
-void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len, int x_chars_limit);
+void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len);
 
 /*!
  * \ingroup text_font
@@ -148,11 +152,10 @@ void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len, int x
  * \param channel	the channel index of the message
  * \param text_to_add   the string to add to the buffer
  * \param len           the length of text_to_add
- * \param x_chars_limit flag indicating whether the text should be filtered (!=0) or not (==0).
  *
  * \callgraph
  */
-void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len, int x_chars_limit);
+void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len);
 
 /*!
  * \ingroup text_font
@@ -284,17 +287,21 @@ void clear_display_text_buffer ();
 
 /*!
  * \ingroup text_font
- * \brief   Rewraps the text buffers.
+ * \brief   Rewraps the a text buffer.
  *
- *      Rewraps the text buffers.
+ *      Rewraps a text buffer.
  *
- * \param text_width The line width to wrap for.
+ * \param msg    pointer to the message to rewrap
+ * \param zoom   the text zoom to use for wrapping
+ * \param width  the max width of a line
+ * \param cursor cursor passed to \sa reset_soft_breaks
+ * \retval       the number of lines after wrapping
  */
-void rewrap_messages(int text_width);
+int rewrap_message(text_message * buf, float zoom, int width, int * cursor);
 
 
 void cleanup_text_buffers(void);
 
-#define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,buffer,-1,0) /*!< logs the text in buffer with the specified color to the console. */
+#define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,buffer,-1) /*!< logs the text in buffer with the specified color to the console. */
 
 #endif
