@@ -474,8 +474,12 @@ void read_local_book(char * data, int len)
 {
 	char file_name[200];
 	book *b;
+	int l = len-3+1;
 
-	snprintf(file_name,sizeof(file_name),"%s",data+3);
+	if (l > sizeof(file_name))
+		l = sizeof(file_name);
+
+	snprintf (file_name, l, "%s", data+3);
 	
 	b=get_book(SDL_SwapLE16(*((Uint16*)(data+1))));
 	if(!b) b=read_book(file_name,data[0], SDL_SwapLE16(*((Uint16*)(data+1))));

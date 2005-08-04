@@ -120,6 +120,7 @@ int click_skills_handler(window_info *win, int mx, int my, Uint32 flags)
 void fill_skills_win ()
 {
 	int i;
+
 	for(i=0;i<=numpage;i++)
 	{
 		if(my_strcompare(Page[i].Name,"newskills"))
