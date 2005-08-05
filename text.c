@@ -384,7 +384,6 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 
 void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len)
 {
-	int i;
 	int idx;
 	// Uint8 cur_char;
 	text_message *msg;
@@ -405,14 +404,14 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		last_message = 0;
 	}
 
+	msg = &(display_text_buffer[last_message]);
+
 	if (buffer_full && msg->data) {
 		total_nr_lines -= msg->wrap_lines;
 		msg->deleted = 1;
 		update_text_windows(msg);
 	}
 
-	msg = &(display_text_buffer[last_message]);
-	
 	// Allow for a null byte and up to 8 extra newlines and colour codes.
 	minlen = len + 18; 
 	if (msg->size < minlen)

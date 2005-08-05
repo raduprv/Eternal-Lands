@@ -349,8 +349,6 @@ void change_gamma(float *pointer, float *value)
 }
 
 void change_separate_flag(int * pointer) {
-	int i;
-	
 	change_var(pointer);
 
 	if (chat_win >= 0) {

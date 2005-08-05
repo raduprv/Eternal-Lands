@@ -1591,7 +1591,6 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 int text_field_draw (widget_list *w)
 {
 	text_field *tf;
-	Uint8 ch;
 
 	if (w == NULL) return 0;
 	
