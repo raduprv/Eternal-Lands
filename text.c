@@ -228,7 +228,7 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 	find_last_url (text_to_add, len);
 	
 	// look for buddy-wants-to-add-you messages
-	if(text_to_add[0] == c_red1+127 && strncmp(strstr(text_to_add+1, " "), " wants to add you on his buddy list", 35) == 0) {
+	if(text_to_add[0] == c_green1+127 && strncmp(strstr(text_to_add+1, " "), " wants to add you on his buddy list", 35) == 0) {
 		char name[32];
 		int i;
 
