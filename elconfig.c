@@ -683,7 +683,8 @@ void init_vars()
 	add_var(STRING,"server_address","sa",server_address,change_string,70,"Server Address","The address of the EL server",SERVER);
 	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
 	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
-	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
+	// Grum: removed. The client doesn't store the password anyway, nor do we want it to.
+//	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
 #ifdef ELC
  	add_var(MULTI,"log_server","log",&log_server,change_int,1,"Log server messages","Log messages from the server (harvesting events, GMs, etc)",SERVER,"Disabled", "Log in chat_log.txt", "Log in server_log.txt", NULL);
 #else
@@ -931,6 +932,7 @@ int spinbutton_onkey_handler(widget_list *widget, int mx, int my, Uint32 key, Ui
 							our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
 						break;
 					}
+					our_vars.var[i]->saved = 0;
 					return 0;
 				}
 			}
@@ -956,6 +958,7 @@ int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags
 						our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
 					break;
 				}
+				our_vars.var[i]->saved = 0;
 				return 0;
 			}
 		}
@@ -970,6 +973,7 @@ int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32 flags)
 		for(i = 0; i < our_vars.no; i++) {
 			if(our_vars.var[i]->widgets.widget_id == widget->id) {
 				our_vars.var[i]->func ( our_vars.var[i]->var, multiselect_get_selected(elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id) );
+				our_vars.var[i]->saved = 0;
 				return 1;
 			}
 		}
@@ -1016,9 +1020,30 @@ int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 			} else {
 				option->func(option->var);
 			}
+			option->saved = 0;
 		break;
 	}
 	return 1;
+}
+
+int string_onkey_handler(widget_list *widget)
+{
+	// dummy key handler that marks the appropriate variable as changed
+	if(widget != NULL)
+	{
+		int i;
+	
+		for(i = 0; i < our_vars.no; i++)
+		{
+			if(our_vars.var[i]->widgets.widget_id == widget->id)
+			{
+				our_vars.var[i]->saved = 0;
+				return 1;
+			}
+		}
+	}
+	
+	return 0;
 }
 
 void elconfig_populate_tabs(void)
@@ -1081,10 +1106,12 @@ void elconfig_populate_tabs(void)
 			case STRING:
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 				widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
+				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler); 
 			break;
 			case PASSWORD:
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 				widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
+				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler); 
 			break;
 			case MULTI:
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
