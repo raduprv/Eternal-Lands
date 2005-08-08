@@ -18,8 +18,8 @@
 #define TABCOLLECTION	7
 #define TEXTFIELD	8
 #define PWORDFIELD	9
-#define MULTISELECT 10
-#define SPINBUTTON  11
+#define MULTISELECT	10
+#define SPINBUTTON	11
 
 typedef struct {
 	Sint8 label[64];
@@ -44,6 +44,7 @@ typedef struct wl{
     /*! @{ */
 	Uint16 pos_x, pos_y, len_x, len_y; /*!< Widget area */
 	Uint32 id;                         /*!< Widget unique id */
+	int window_id; /*!< The id of the parent window */
 	Uint32 type;   /*!< Specifies what kind of widget it is */
 	Uint32 Flags;  /*!< Status flags...visible,enbled,etc */
 	float size;    /*!< Size of text, image, etc */
@@ -74,6 +75,7 @@ typedef struct wl{
 #define TEXT_FIELD_EDITABLE	0x02
 #define TEXT_FIELD_NO_KEYPRESS	0x04
 #define TEXT_FIELD_CAN_GROW	0x08
+#define TEXT_FIELD_SCROLLBAR	0x10
 /*! \} */
 
 /*!
@@ -335,7 +337,7 @@ int widget_get_width (Uint32 window_id, Uint32 widget_id);
  *
  * \sa lable_add
  */
-int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text);
+int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text);
 
 /*!
  * \ingroup	labels
@@ -352,7 +354,7 @@ int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, 
  *
  * \sa		label_add_extended
  */
-int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y);
+int label_add(Uint32 window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y);
 
 /*!
  * \ingroup	labels

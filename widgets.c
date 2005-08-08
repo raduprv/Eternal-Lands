@@ -262,59 +262,67 @@ int widget_get_width (Uint32 window_id, Uint32 widget_id)
 	return -1;
 }
 
-// Label
-int label_add(Uint32 window_id, int (*OnInit)(), char *text, Uint16 x, Uint16 y)
-{
-	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
-}
-
 int free_widget_info (widget_list *widget)
 {
 	free (widget->widget_info);
 	return 1;
 }
 
-int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, char *text)
+widget_list *add_new_widget (int window_id, Uint32 wid, int (*OnInit)(), Uint32 type, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b)
 {
-	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	label *T = (label *) malloc(sizeof(label));
-	widget_list *w = windows_list.window[window_id].widgetlist;
+	widget_list *newW = calloc (1, sizeof (widget_list));
+	widget_list *Ws = windows_list.window[window_id].widgetlist;
 	
-	// Clearing everything
-	memset(W,0,sizeof(widget_list));
-	memset(T,0,sizeof(label));
-
-	// Filling the widget info
-	W->widget_info = T;
-	W->id = wid;
-	W->type = LABEL;
-	W->Flags = Flags;
-	W->pos_x = x;
-	W->pos_y = y;
-	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
-	snprintf(T->text, sizeof(T->text), "%s", text);
-	W->len_y = (Uint16)(18 * 1.0);
-	W->len_x = (Uint16)(strlen(T->text) * 11 * 1.0);
-	W->OnDraw = label_draw;
-	W->OnDestroy = free_widget_info;
-	W->OnInit = OnInit;
-	if(W->OnInit != NULL)
-		W->OnInit(W);
-
+	newW->id = wid;
+	newW->window_id = window_id;
+	newW->type = type;
+	newW->Flags = Flags;
+	newW->pos_x = x;
+	newW->pos_y = y;
+	newW->len_x = lx;
+	newW->len_y = ly;
+	newW->size = size;
+	newW->r = r;
+	newW->g = g;
+	newW->b = b;
+	newW->OnInit = OnInit;
+		
 	// Adding the widget to the list
-	if (w == NULL)
+	if (Ws == NULL)
 	{
-		windows_list.window[window_id].widgetlist = W;
+		windows_list.window[window_id].widgetlist = newW;
 	}
 	else
 	{
-		while(w->next != NULL)
-			w = w->next;
-		w->next = W;
-	}
+		while (Ws->next != NULL)
+			Ws = Ws->next;
+		Ws->next = newW;
+	}	
+	
+	return newW;
+}
+
+// Label
+int label_add(Uint32 window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
+{
+	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
+}
+
+int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
+{
+	Uint16 len_x = (Uint16)(strlen (text) * 11 * 1.0);
+	Uint16 len_y = (Uint16)(18 * 1.0);
+	widget_list *W = add_new_widget (window_id, wid, OnInit, LABEL, x, y, len_x, len_y, Flags, size, r, g, b);
+	
+	label *T = (label *) calloc (1, sizeof(label));
+	snprintf (T->text, sizeof(T->text), "%s", text);
+	
+	// Filling the widget info
+	W->widget_info = T;
+	W->OnDraw = label_draw;
+	W->OnDestroy = free_widget_info;
+	if(W->OnInit != NULL)
+		W->OnInit (W);
 
 	return W->id;
 }
@@ -347,52 +355,23 @@ int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uin
 
 int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2)
 {
-	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	image *T = (image *) malloc(sizeof(label));
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	
-	// Clearing everything
-	memset(W,0,sizeof(widget_list));
-	memset(T,0,sizeof(image));
+	widget_list *W = add_new_widget (window_id, wid, OnInit, IMAGE, x, y, lx, ly, Flags, size, r, g, b);
 
-	// Filling the widget info
-	W->widget_info = T;
-	W->id = wid;
-	W->type = IMAGE;
-	W->Flags = Flags;
-	W->pos_x = x;
-	W->pos_y = y;
-	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
+	image *T = calloc (1, sizeof (image));
 	T->u1 = u1;
 	T->u2 = u2;
 	T->v1 = v1;
 	T->v2 = v2;
 	T->id = id;
-	W->len_y = lx;
-	W->len_x = ly;
+
+	// Filling the widget info
+	W->widget_info = T;
 	W->OnDraw = image_draw;
 	W->OnDestroy = free_widget_info;
-	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
 
-	// Adding the widget to the list
-	if (w == NULL)
-	{
-		windows_list.window[window_id].widgetlist = W;
-	}
-	else
-	{
-		while(w->next != NULL)
-			w = w->next;
-		w->next = W;
-	}
-
 	return W->id;
-
 }
 
 int image_draw(widget_list *W)
@@ -444,45 +423,17 @@ int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
 
 int checkbox_add_extended(Uint32 window_id,  Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int *checked)
 {
-	widget_list *W = malloc(sizeof(widget_list));
-	checkbox *T = malloc(sizeof *T);
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	
-	// Clearing everything
-	memset(W,0,sizeof(widget_list));
-	memset(T,0,sizeof(checkbox));
+	widget_list *W = add_new_widget (window_id, wid, OnInit, CHECKBOX, x, y, lx, ly, Flags, size, r, g, b);
+
+	checkbox *T = calloc (1, sizeof (checkbox));
+	T->checked = checked;
 
 	// Filling the widget info
 	W->widget_info = T;
-	W->id = wid;
-	W->type = CHECKBOX;
-	W->Flags = Flags;
-	W->pos_x = x;
-	W->pos_y = y;
-	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
-	T->checked = checked;
-	W->len_y = lx;
-	W->len_x = ly;
 	W->OnDraw = checkbox_draw;
 	W->OnDestroy = free_widget_info;
-	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
-
-	// Adding the widget to the list
-	if (w == NULL)
-	{
-		windows_list.window[window_id].widgetlist = W;
-	}
-	else
-	{
-		while(w->next != NULL)
-			w = w->next;
-		w->next = W;
-	}
 
 	return W->id;
 }
@@ -545,45 +496,19 @@ int button_add(Uint32 window_id, int (*OnInit)(), const char *text, Uint16 x, Ui
 
 int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
-	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	button *T = (button *) malloc(sizeof(button));
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	
-	// Clearing everything
-	memset(W,0,sizeof(widget_list));
-	memset(T,0,sizeof(button));
+	Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(text) * 11 * size) + 4;
+	Uint16 len_y = ly > 0 ? ly : (Uint16)(18 * size) + 4;
+	widget_list *W = add_new_widget (window_id, wid, OnInit, BUTTON, x, y, len_x, len_y, Flags, size, r, g, b);
+
+	button *T = calloc (1, sizeof(button));
+	snprintf (T->text, sizeof(T->text), "%s", text);
 
 	// Filling the widget info
 	W->widget_info = T;
-	W->id = wid;
-	W->type = BUTTON;
-	W->Flags = Flags;
-	W->pos_x = x;
-	W->pos_y = y;
-	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
-	snprintf(T->text, sizeof(T->text), "%s", text);
-	W->len_y = ly > 0 ? ly : (Uint16)(18 * size) + 4;
-	W->len_x = lx > 0 ? lx : (Uint16)(strlen(T->text) * 11 * size) + 4;
 	W->OnDraw = button_draw;
 	W->OnDestroy = free_widget_info;
-	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
-
-	// Adding the widget to the list
-	if (w == NULL)
-	{
-		windows_list.window[window_id].widgetlist = W;
-	}
-	else
-	{
-		while(w->next != NULL)
-			w = w->next;
-		w->next = W;
-	}
 
 	return W->id;
 }
@@ -632,45 +557,17 @@ int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
 
 int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress)
 {
-	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	progressbar *T = (progressbar *) malloc(sizeof(progressbar));
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	
-	// Clearing everything
-	memset(W,0,sizeof(widget_list));
-	memset(T,0,sizeof(progressbar));
+	widget_list *W = add_new_widget (window_id, wid, OnInit, PROGRESSBAR, x, y, lx, ly, Flags, size, r, g, b);
+
+	progressbar *T = calloc (1, sizeof(progressbar));
+	T->progress = progress;
 
 	// Filling the widget info
 	W->widget_info = T;
-	W->id = wid;
-	W->type = PROGRESSBAR;
-	W->Flags = Flags;
-	W->pos_x = x;
-	W->pos_y = y;
-	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
-	W->len_y = ly;
-	W->len_x = lx;
-	T->progress = progress;
 	W->OnDraw = progressbar_draw;
 	W->OnDestroy = free_widget_info;
-	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
-
-	// Adding the widget to the list
-	if (w == NULL)
-	{
-		windows_list.window[window_id].widgetlist = W;
-	}
-	else
-	{
-		while(w->next != NULL)
-			w = w->next;
-		w->next = W;
-	}
 
 	return W->id;
 }
@@ -734,47 +631,19 @@ int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16
 
 int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len)
 {
-	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	vscrollbar *T = (vscrollbar *) malloc(sizeof(vscrollbar));
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	
-	// Clearing everything
-	memset(W,0,sizeof(widget_list));
-	memset(T,0,sizeof(vscrollbar));
+	widget_list *W = add_new_widget (window_id, wid, OnInit, VSCROLLBAR, x, y, lx, ly, Flags, size, r, g, b);
+
+	vscrollbar *T = calloc (1, sizeof(vscrollbar));
+	T->pos_inc = pos_inc;
+	T->pos = pos;
+	T->bar_len = bar_len;
 
 	// Filling the widget info
 	W->widget_info = T;
-	T->pos_inc = pos_inc;
-	T->pos = pos;
-	W->id = wid;
-	W->type = VSCROLLBAR;
-	W->Flags = Flags;
-	W->pos_x = x;
-	W->pos_y = y;
-	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
-	W->len_y = ly;
-	W->len_x = lx;
-	T->bar_len = bar_len;
 	W->OnDraw = vscrollbar_draw;
 	W->OnDestroy = free_widget_info;
-	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
-
-	// Adding the widget to the list
-	if (w == NULL)
-	{
-		windows_list.window[window_id].widgetlist = W;
-	}
-	else
-	{
-		while(w->next != NULL)
-			w = w->next;
-		w->next = W;
-	}
 
 	return W->id;
 }
@@ -1058,57 +927,26 @@ int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, U
 
 int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height, Uint16 tag_space)
 {
-	int itab;
-	widget_list *W = (widget_list *) malloc (sizeof (widget_list));
-	tab_collection *T = (tab_collection *) malloc (sizeof (tab_collection));
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	
-	// Clearing everything
-	memset(W,0,sizeof(widget_list));
-	memset(T,0,sizeof(vscrollbar));
+	widget_list *W = add_new_widget (window_id, wid, OnInit, TABCOLLECTION, x, y, lx, ly, Flags, size, r, g, b);
 
-	// Filling the widget info
+	int itab;
+	tab_collection *T = calloc (1, sizeof (tab_collection));
 	T->max_tabs =  max_tabs <= 0 ? 2 : max_tabs;
-	T->tabs = malloc (T->max_tabs * sizeof (tab));
-	memset (T->tabs, 0, T->max_tabs * sizeof (tab));
-	// initialize all tabs content ids to -1 (unitialized window
+	T->tabs = calloc (T->max_tabs, sizeof (tab));
+	// initialize all tabs content ids to -1 (unitialized window_
 	for (itab = 0; itab < T->max_tabs; itab++)
 		T->tabs[itab].content_id = -1;
-	
-	W->widget_info = T;
 	T->nr_tabs = 0;
 	T->tag_height = tag_height;
 	T->tag_space = tag_space;
 	T->cur_tab = 0;
-	W->id = wid;
-	W->type = TABCOLLECTION;
-	W->Flags = Flags;
-	W->pos_x = x;
-	W->pos_y = y;
-	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
-	W->len_y = ly;
-	W->len_x = lx;
+	
+	W->widget_info = T;
 	W->OnDraw = tab_collection_draw;
 	W->OnDestroy = free_tab_collection;
-	W->OnInit = OnInit;
 	W->OnResize = tab_collection_resize;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
-
-	// Adding the widget to the list
-	if (w == NULL)
-	{
-		windows_list.window[window_id].widgetlist = W;
-	}
-	else
-	{
-		while(w->next != NULL)
-			w = w->next;
-		w->next = W;
-	}
 
 	return W->id;
 }
@@ -1534,16 +1372,9 @@ int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
 
 int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b)
 {
-	widget_list *W = malloc ( sizeof (widget_list) );
-	text_field *T = malloc ( sizeof (text_field) );
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	
-	// Clearing everything
-	memset ( W, 0, sizeof (widget_list) );
-	memset ( T, 0, sizeof (text_field) );
-	
-	// Filling the widget info
-	W->widget_info = T;
+	widget_list *W = add_new_widget (window_id, wid, OnInit, TEXTFIELD, x, y, lx, ly, Flags, size, r, g, b);
+
+	text_field *T = calloc (1, sizeof (text_field));
 	T->x_space = x_space,
 	T->y_space = y_space,
 	T->msg = 0;
@@ -1556,34 +1387,13 @@ int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
 	T->text_r = text_r;
 	T->text_g = text_g;
 	T->text_b = text_b;
-	W->id = wid;
-	W->type = TEXTFIELD;
-	W->Flags = Flags;
-	W->pos_x = x;
-	W->pos_y = y;
-	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
-	W->len_y = ly;
-	W->len_x = lx;
+	
+	// Filling the widget info
+	W->widget_info = T;
 	W->OnDraw = text_field_draw;
 	W->OnDestroy = free_widget_info;
-	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
 		W->OnInit(W);
-
-	// Adding the widget to the list
-	if (w == NULL)
-	{
-		windows_list.window[window_id].widgetlist = W;
-	}
-	else
-	{
-		while(w->next != NULL)
-			w = w->next;
-		w->next = W;
-	}
 
 	return W->id;
 }
@@ -1768,40 +1578,19 @@ int pword_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint
 		
 int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size)
 {
-	widget_list *W = malloc ( sizeof (widget_list) );
-	password_entry *T = malloc ( sizeof (password_entry) );
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	// Clearing everything
-	memset ( W, 0, sizeof (widget_list) );
-	memset ( T, 0, sizeof (password_entry) );
-	// Filling the widget info
-	W->widget_info = T;
+	widget_list *W = add_new_widget (window_id, wid, OnInit, PWORDFIELD, x, y, lx, ly, 0, size, r, g, b);
+
+	password_entry *T = calloc (1, sizeof (password_entry));
 	T->status = status;
 	T->password = buffer;
 	T->max_chars = buffer_size;
-	W->id = wid;
-	W->type = PWORDFIELD;
-	W->pos_x = x;
-	W->pos_y = y;
-	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
-	W->len_y = ly;
-	W->len_x = lx;
+
+	// Filling the widget info
+	W->widget_info = T;
 	W->OnDraw = pword_field_draw;
 	W->OnDestroy = free_widget_info;
-	W->OnInit = OnInit;
 	if(W->OnInit != NULL)
-	W->OnInit(W);
-	// Adding the widget to the list
-	if (w == NULL) {
-		windows_list.window[window_id].widgetlist = W;
-	} else {
-		while(w->next != NULL)
-			w = w->next;
-		w->next = W;
-	}
+		W->OnInit(W);
 	
 	return W->id;
 }
@@ -1967,13 +1756,9 @@ int multiselect_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, int w
 
 int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, Uint16 max_height, float size, float r, float g, float b, float hr, float hg, float hb, int max_buttons)
 {
-	widget_list *Widget = malloc(sizeof(*Widget));
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	multiselect *M = malloc(sizeof *M);
+	widget_list *Widget = add_new_widget (window_id, widget_id, OnInit, MULTISELECT, x, y, width, 0, 0, size, r, g, b);
 
-	//Clear everything
-	memset(Widget, 0, sizeof(*Widget));
-	memset(M, 0, sizeof(*M));
+	multiselect *M = calloc (1, sizeof (multiselect));
 	//Save info
 	M->max_buttons = max_buttons > 0 ? max_buttons : 2;
 	M->selected_button = 0;
@@ -1987,31 +1772,10 @@ int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)()
 	M->highlighted_blue = hb;
 
 	Widget->widget_info = M;
-	Widget->id = widget_id;
-	Widget->type = MULTISELECT;
-	Widget->pos_x = x;
-	Widget->pos_y = y;
-	Widget->size = size;
-	Widget->r = r;
-	Widget->g = g;
-	Widget->b = b;
-	Widget->len_x = width;
-	Widget->len_y = 0;
 	Widget->OnDraw = multiselect_draw;
 	Widget->OnDestroy = free_multiselect;
-	Widget->OnInit = OnInit;
-	if(Widget->OnInit != NULL) {
+	if(Widget->OnInit != NULL)
 		Widget->OnInit(Widget);
-	}
-	//Add the widget to the list
-	if (w == NULL) {
-		windows_list.window[window_id].widgetlist = Widget;
-	} else {
-		while(w->next != NULL) {
-			w = w->next;
-		}
-		w->next = Widget;
-	}
 
 	return Widget->id;
 }
@@ -2240,12 +2004,10 @@ int spinbutton_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16
 
 int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size, float r, float g, float b)
 {
-	widget_list *widget = malloc (sizeof(*widget));
-	spinbutton *button = malloc (sizeof(*button));
-	widget_list *window_list;
-	// Clearing everything
-	memset(widget, 0, sizeof(*widget));
-	memset(button, 0, sizeof(*button));
+	float wr = r >= 0 ? r : 0.77, wg = g >= 0 ? g : 0.59, wb = b >= 0 ? b : 0.39;
+	widget_list *widget = add_new_widget (window_id, widget_id, OnInit, SPINBUTTON, x, y, lx, ly, 0, size, wr, wg, wb);
+
+	spinbutton *button = calloc (1, sizeof (spinbutton));
 	// Filling the widget info
 	button->data = data;
 	button->max = max;
@@ -2262,33 +2024,13 @@ int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(),
 			snprintf(button->input_buffer, 255, "%i", *(int *)button->data);
 		break;
 	}
+
 	widget->widget_info = button;
-	widget->id = widget_id;
-	widget->type = SPINBUTTON;
-	widget->pos_x = x;
-	widget->pos_y = y;
-	widget->size = size;
-	widget->r = r>=0 ? r : 0.77;
-	widget->g = g>=0 ? g : 0.59;
-	widget->b = b>=0 ? b : 0.39;
-	widget->len_x = lx;
-	widget->len_y = ly;
 	widget->OnDraw = spinbutton_draw;
 	widget->OnDestroy = free_widget_info;
-	widget->OnInit = OnInit;
-	if(widget->OnInit != NULL) {
+	if(widget->OnInit != NULL) 
 		widget->OnInit(widget);
-	}
-	// Adding the widget to the list
-	window_list = windows_list.window[window_id].widgetlist;
-	if (window_list == NULL) {
-		windows_list.window[window_id].widgetlist = widget;
-	} else {
-		while(window_list->next != NULL) {
-			window_list = window_list->next;
-		}
-		window_list->next = widget;
-	}
+
 	return widget->id;
 }
 
