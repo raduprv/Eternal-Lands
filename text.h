@@ -213,13 +213,15 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter);
  *	finds the position of the beginning of a line in the text message buffer
  *
  * \param nr_lines The total number of lines
- * \param line The number of the line to be found
- * \param msg The message in which the lines is located
- * \param channel the channel in which to search for the line, or CHANNEL_ALL to search in all channels
- * \param offset The offset in the message at which the line starts
+ * \param line     The number of the line to be found
+ * \param msg      The message in which the lines is located
+ * \param channel  the channel in which to search for the line, or CHANNEL_ALL to search in all channels
+ * \param offset   The offset in the message at which the line starts
+ * \param zoom     the text zoom that is to be used for wrapping
+ * \param width    the text width that is to be used for wrapping
  * \retval The position of the beginning of the line
  */
-int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset);
+int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, float zoom, int width);
 
 /*!
  * \ingroup interface_console

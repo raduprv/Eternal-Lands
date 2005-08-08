@@ -390,7 +390,8 @@ void update_chat_window (text_message * msg, char highlight)
 				current_line = channels[ichan].nr_lines;
 				text_changed = 1;
 			}
-			else if (highlight && !channels[ichan].highlighted && channels[active_tab].chan_nr != CHAT_ALL) //Make sure we don't change the color of a highlighted tab
+			else if (highlight && !channels[ichan].highlighted && channels[active_tab].chan_nr != CHAT_ALL 
+					&& channels[ichan].chan_nr != CHAT_ALL && !get_show_window(console_root_win)) //Make sure we don't change the color of a highlighted tab
 			{
 				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
 			}
@@ -433,7 +434,7 @@ int display_chat_handler (window_info *win)
 	{
 		int line = vscrollbar_get_pos (chat_win, chat_scroll_id);
 
-		find_line_nr (channels[active_tab].nr_lines, line, channels[active_tab].chan_nr, &msg_start, &offset_start);
+		find_line_nr (channels[active_tab].nr_lines, line, channels[active_tab].chan_nr, &msg_start, &offset_start, chat_zoom, chat_win_text_width);
 		text_field_set_buf_pos (channels[active_tab].tab_id, channels[active_tab].out_id, msg_start, offset_start);
 		text_changed = 0;
 	}
@@ -1171,14 +1172,27 @@ void update_tab_bar (text_message * msg)
 	if (tab_bar_win < 0) return;
 
 	// Only update specific channels
-	if (msg->chan_idx == CHAT_ALL) return;
+	if (msg->chan_idx == CHAT_ALL) {
+		lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
+		if (lines_to_show >= 10) lines_to_show = 10;
+		return;
+	}
+
+	if (tabs[current_tab].channel == CHAT_ALL) {
+		lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
+		if (lines_to_show >= 10) lines_to_show = 10;
+	}
 
 	for (itab = 0; itab < tabs_in_use; itab++)
 	{
 		if (tabs[itab].channel == msg->chan_idx)
 		{
-			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL)
+			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
 				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
+			if (current_tab == itab) {
+				lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
+				if (lines_to_show >= 10) lines_to_show = 10;
+			}
 			return;
 		}
 	}

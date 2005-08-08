@@ -19,6 +19,7 @@ extern int console_out_id; /*!< ID of the console output widget */
 
 extern int locked_to_console; /*!< indicates whether the console win is locked. Used when we don't have any maps. */
 extern int nr_console_lines;
+extern int console_text_width;
 
 /*!
  * \ingroup interface_console

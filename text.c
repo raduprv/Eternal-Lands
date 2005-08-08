@@ -58,8 +58,17 @@ void update_text_windows (text_message * pmsg)
 {
 	if (console_root_win >= 0) update_console_win (pmsg);
 	switch (use_windowed_chat) {
-		case 1: update_tab_bar (pmsg); break;
-		case 2: update_chat_window (pmsg, 1); break;
+		case 0:
+			rewrap_message(pmsg, chat_zoom, console_text_width, NULL);
+			lines_to_show += pmsg->wrap_lines;
+			if (lines_to_show > 10) lines_to_show = 10;
+			break;
+		case 1: 
+			update_tab_bar (pmsg); 
+			break;
+		case 2: 
+			update_chat_window (pmsg, 1); 
+			break;
 	}
 }
 
@@ -611,15 +620,15 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter)
 	}
 	if (lines_to_show <= 0) return 0;
 	
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, filter, msg, offset);
+	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, filter, msg, offset, chat_zoom, console_text_width);
 }
 
 int find_last_console_lines (int lines_no)
 {
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, FILTER_ALL, &console_msg_nr, &console_msg_offset);
+	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, FILTER_ALL, &console_msg_nr, &console_msg_offset, chat_zoom, console_text_width);
 }
 
-int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset)
+int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, float zoom, int width)
 {
 	int line_count = 0, lines_no = nr_lines - line;	
 	int imsg, ichar;
@@ -640,6 +649,8 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset)
 
 		if (msgchan == filter || msgchan == CHAT_ALL || filter == FILTER_ALL)
 		{
+			rewrap_message(&display_text_buffer[imsg], zoom, width, NULL);
+
 			data = display_text_buffer[imsg].data;
 			if (data == NULL)
 				// Hmmm... we messed up. This should not be

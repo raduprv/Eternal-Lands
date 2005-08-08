@@ -768,7 +768,7 @@ int display_game_handler (window_info *win)
 		int msg, offset, ytext, htext;
 		
 		ytext = use_windowed_chat == 1 ? 25 : 20;
-		htext = (int) (lines_to_show * 18 * chat_zoom);
+		htext = (int) (1 + lines_to_show * 18 * chat_zoom);
 		if ( find_last_lines_time (&msg, &offset, current_filter) )
 		{
 			set_font(chat_font);	// switch to the chat font

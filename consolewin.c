@@ -25,10 +25,9 @@ void update_console_win (text_message * msg)
 			console_text_changed = 1;
 		}
 	} else {
-		lines_to_show += nlines;
-		if (lines_to_show > 10) lines_to_show = 10;
 		if (scroll_up_lines == 0) {
-			console_text_changed = 1;
+		console_text_changed = 1;
+	
 		} else {
 			scroll_up_lines += nlines;
 		}
@@ -47,7 +46,7 @@ int display_console_handler (window_info *win)
 		
 		if (console_text_changed)
 		{
-			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset);		
+			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset, chat_zoom, console_text_width);		
 			text_field_set_buf_pos (console_root_win, console_out_id, msg, offset);
 			console_text_changed = 0;
 		}
@@ -171,6 +170,18 @@ int click_console_handler (window_info *win, int mx, int my, Uint32 flags)
 }
 
 int show_console_handler (window_info *win) {
+	int i;
+
+	for (i=0; i < MAX_CHAT_TABS; i++) {
+		if (channels[i].open) {
+			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, -1.0f, -1.0f, -1.0f);
+		}
+	}
+	for (i=0; i < tabs_in_use; i++) {
+		if (i == current_tab) continue;
+		widget_set_color (tab_bar_win, tabs[i].button, 0.77f, 0.57f, 0.39f);
+	}
+			
 	hide_window(book_win);
 	hide_window(paper_win);
 	hide_window(color_race_win);
