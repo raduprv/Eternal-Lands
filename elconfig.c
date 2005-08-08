@@ -683,8 +683,7 @@ void init_vars()
 	add_var(STRING,"server_address","sa",server_address,change_string,70,"Server Address","The address of the EL server",SERVER);
 	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
 	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
-	// Grum: removed. The client doesn't store the password anyway, nor do we want it to.
-//	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
+	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
 #ifdef ELC
  	add_var(MULTI,"log_server","log",&log_server,change_int,1,"Log server messages","Log messages from the server (harvesting events, GMs, etc)",SERVER,"Disabled", "Log in chat_log.txt", "Log in server_log.txt", NULL);
 #else
@@ -768,6 +767,10 @@ void write_var (FILE *fout, int ivar)
 			else
 				fprintf (fout, "#%s = \"%s\"\n", our_vars.var[ivar]->name, (char *)our_vars.var[ivar]->var);
 			break;
+		case PASSWORD:
+			// Do not write the password to the file. If the user really wants it
+			// s/he should edit the file.
+			fprintf (fout, "#%s = \"\"\n", our_vars.var[ivar]->name);
 		case FLOAT:
 		{
 			float *g = our_vars.var[ivar]->var;
@@ -1109,9 +1112,10 @@ void elconfig_populate_tabs(void)
 				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler); 
 			break;
 			case PASSWORD:
-				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-				widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
-				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler); 
+				// Grum: the client shouldn't store the password, so let's not add it to the configuration window
+				//label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+				//widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
+				//widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler); 
 			break;
 			case MULTI:
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
