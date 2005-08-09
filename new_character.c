@@ -450,10 +450,11 @@ int check_character(int type, char ch)
 	if(type==0){
 		//name
 		if(isdigit(ch)){
-			numbers_in_name++;
-			if(numbers_in_name>3){
+			if (numbers_in_name >= 2)
+			{
 				retval=-1;
 			} else {
+				numbers_in_name++;
 				retval=1;
 			}
 		} else if(isalnum(ch)||ch=='_'){
