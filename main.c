@@ -27,7 +27,6 @@ int client_version_release=VER_RELEASE;
 int	client_version_patch=VER_BUILD;
 int version_first_digit=10;	//protocol/game version sent to server
 int version_second_digit=10;
-int done = 0;
 
 int gargc;
 char **  gargv;
@@ -66,6 +65,9 @@ void cleanup_mem(void)
 
 int start_rendering()
 {
+	static int done = 0;
+	static void * network_thread_data[2] = { NULL, NULL };
+
 	SDL_Thread *music_thread=SDL_CreateThread(update_music, 0);
 #ifdef NETWORK_THREAD
 	SDL_Thread *network_thread;
@@ -77,7 +79,9 @@ int start_rendering()
 #endif
 #ifdef NETWORK_THREAD
 	queue_initialise(&message_queue);
-	network_thread = SDL_CreateThread(get_message_from_server, message_queue);
+	network_thread_data[0] = message_queue;
+	network_thread_data[1] = &done;
+	network_thread = SDL_CreateThread(get_message_from_server, network_thread_data);
 #endif //NETWORK_THREAD
 
 	/* Loop until done. */

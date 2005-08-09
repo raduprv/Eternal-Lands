@@ -1121,14 +1121,17 @@ static void process_data_from_server()
 }
 
 #ifdef NETWORK_THREAD
-int get_message_from_server(void *queue)
+int get_message_from_server(void *thread_args)
 #else
 void get_message_from_server()
 #endif //NETWORK_THREAD
 {
 #ifdef NETWORK_THREAD
 	int received;
-	while(!done)
+	void *queue = ((void **) thread_args)[0];
+	int *done = ((void **) thread_args)[1];
+
+	while(!*done)
 	{
 		/* Sleep while disconnected or no data */
 		if(disconnected || SDLNet_CheckSockets(set, 0) <= 0 || !SDLNet_SocketReady(my_socket)) {
