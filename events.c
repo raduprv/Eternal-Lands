@@ -47,13 +47,13 @@ int HandleEvent (SDL_Event *event)
 
 	mod_key_status = SDL_GetModState();
 
-	if (mod_key_status & KMOD_SHIFT) shift_on = 1;
+	if (mod_key_status & SHIFT) shift_on = 1;
 	else shift_on = 0;
 
-	if (mod_key_status & KMOD_ALT) alt_on = 1;
+	if (mod_key_status & ALT) alt_on = 1;
 	else alt_on = 0;
 
-	if (mod_key_status & KMOD_CTRL) ctrl_on = 1;
+	if (mod_key_status & CTRL) ctrl_on = 1;
 	else ctrl_on = 0;
 	
 	switch( event->type )

@@ -10,9 +10,9 @@
  * \name Key Modifiers
  */
 /*! @{ */
-#define SHIFT (1<<31)   /*!< Shift modifier is pressed */
-#define CTRL (1<<30)    /*!< Ctrl modifier is pressed */
-#define ALT (1<<29)     /*!< Alt modifier is pressed */
+#define SHIFT KMOD_SHIFT   /*!< Shift modifier is pressed */
+#define CTRL KMOD_CTRL    /*!< Ctrl modifier is pressed */
+#define ALT KMOD_LALT     /*!< Alt modifier is pressed */
 /*! @} */
 
 /*!
