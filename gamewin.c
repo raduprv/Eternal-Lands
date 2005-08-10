@@ -486,7 +486,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (object_under_mouse == -1)
 				return 1;
 			str[0] = HARVEST;
-			*((short *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
+			*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)object_under_mouse);
 			my_tcp_send (my_socket, str, 3);
 			return 1;
 			break;
