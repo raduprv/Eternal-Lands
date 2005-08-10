@@ -321,6 +321,30 @@ void update_chat_tab_idx (Uint8 old_idx, Uint8 new_idx)
 	}
 }
 
+Uint8 get_tab_channel (Uint8 channel)
+{
+	switch (channel)
+	{
+		case CHAT_LOCAL:
+			if (!local_chat_separate) return CHAT_ALL;
+			break;
+		case CHAT_PERSONAL:
+			if (!personal_chat_separate) return CHAT_ALL;
+			break;
+		case CHAT_GM:
+			if (!guild_chat_separate) return CHAT_ALL;
+			break;
+		case CHAT_SERVER:
+			if (!server_chat_separate) return CHAT_ALL;
+			break;
+		case CHAT_MOD:
+			if (!mod_chat_separate) return CHAT_ALL;
+			break;
+	}
+	
+	return channel;
+}
+
 void update_chat_window (text_message * msg, char highlight)
 {
 	int ichan, len, nlines, width, channel;
@@ -334,15 +358,7 @@ void update_chat_window (text_message * msg, char highlight)
 	nlines = rewrap_message(msg, chat_zoom, width, NULL);
 	
 	// first check if we need to display in all open channels
-	channel = msg->chan_idx;
-	
-	switch (channel) {
-		case CHAT_LOCAL:    if (!local_chat_separate)    channel = CHAT_ALL; break;
-		case CHAT_PERSONAL: if (!personal_chat_separate) channel = CHAT_ALL; break;
-		case CHAT_GM:       if (!guild_chat_separate)    channel = CHAT_ALL; break;
-		case CHAT_SERVER:   if (!server_chat_separate)   channel = CHAT_ALL; break;
-		case CHAT_MOD:      if (!mod_chat_separate)      channel = CHAT_ALL; break;
-	}
+	channel = get_tab_channel (msg->chan_idx);
 
 	if (channel == CHAT_ALL)
 	{
@@ -527,39 +543,8 @@ void change_to_current_chat_tab(const char *input)
 	{
 		channel = CHAT_LOCAL;
 	}
-	switch (channel)
-	{
-		case CHAT_LOCAL:
-			if (!local_chat_separate)
-			{
-				channel = CHAT_ALL;
-			}
-		break;
-		case CHAT_PERSONAL:
-			if (!personal_chat_separate)
-			{
-				channel = CHAT_ALL;
-			}
-		break;
-		case CHAT_GM:
-			if (!guild_chat_separate)
-			{
-				channel = CHAT_ALL;
-			}
-		break;
-		case CHAT_SERVER:
-			if (!server_chat_separate)
-			{
-				channel = CHAT_ALL;
-			}
-		break;
-		case CHAT_MOD:
-			if (!mod_chat_separate)
-			{
-				channel = CHAT_ALL;
-			}
-		break;
-	}
+	channel = get_tab_channel (channel);
+
 	if(channel != CHAT_ALL)
 	{
 		for(ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
@@ -1164,6 +1149,7 @@ void remove_tab_button (Uint8 channel)
 void update_tab_bar (text_message * msg)
 {
 	int itab, new_button;
+	Uint8 channel;
 
 	// dont need to care for deleted messages
 	if (msg->deleted) return;
@@ -1172,7 +1158,8 @@ void update_tab_bar (text_message * msg)
 	if (tab_bar_win < 0) return;
 
 	// Only update specific channels
-	if (msg->chan_idx == CHAT_ALL) {
+	channel = get_tab_channel (msg->chan_idx);
+	if (channel == CHAT_ALL) {
 		lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
 		if (lines_to_show >= 10) lines_to_show = 10;
 		return;
@@ -1185,7 +1172,7 @@ void update_tab_bar (text_message * msg)
 
 	for (itab = 0; itab < tabs_in_use; itab++)
 	{
-		if (tabs[itab].channel == msg->chan_idx)
+		if (tabs[itab].channel == channel)
 		{
 			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
 				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
@@ -1198,7 +1185,7 @@ void update_tab_bar (text_message * msg)
 	}
 	
 	// we need a new button
-	new_button = add_tab_button (msg->chan_idx);
+	new_button = add_tab_button (channel);
 	if(tabs[current_tab].channel != CHAT_ALL) {
 		widget_set_color (tab_bar_win, tabs[new_button].button, 1.0f, 1.0f, 0.0f);
 	}

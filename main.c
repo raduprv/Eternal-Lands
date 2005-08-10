@@ -66,7 +66,9 @@ void cleanup_mem(void)
 int start_rendering()
 {
 	static int done = 0;
+#ifdef NETWORK_THREAD
 	static void * network_thread_data[2] = { NULL, NULL };
+#endif
 
 	SDL_Thread *music_thread=SDL_CreateThread(update_music, 0);
 #ifdef NETWORK_THREAD
