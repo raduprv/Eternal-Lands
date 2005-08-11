@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #ifdef __GNUC__
 #include <dirent.h>
 #include <unistd.h>
@@ -161,12 +162,26 @@ void read_config()
 {
 #ifndef WINDOWS
 	DIR *d = NULL;
+	struct stat statbuff;
+	mode_t modes;
+
 	my_strncp ( configdir, getenv ("HOME") , sizeof(configdir));
 	strncat (configdir, "/.elc/", sizeof(configdir)-1);
 	d = opendir (configdir);
 	if (!d)
 	{
-		mkdir (configdir, 0755);
+		mkdir (configdir, 0700);
+	} else {
+
+		stat(configdir,&statbuff);
+		modes = statbuff.st_mode;
+		/* Set perms to 700 on configdir if they anything else */
+		if(((modes & S_IRWXU) == (S_IRUSR|S_IWUSR|S_IXUSR)) &&
+		   ((modes & S_IRWXG) == (S_IRGRP|S_IWGRP|S_IXGRP)) && 
+		   ((modes & S_IRWXO) == (S_IROTH|S_IWOTH|S_IXOTH)) ) {
+			chmod(configdir,S_IRWXU);
+		}
+
 	}
 #endif
 	if ( !read_el_ini () )

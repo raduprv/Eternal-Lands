@@ -5,6 +5,12 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <float.h>
+
+//For stat() etc.. below
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #ifdef MAP_EDITOR
  #include "../map_editor/global.h"
 #else
@@ -701,7 +707,7 @@ void init_vars()
 #else
 	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "0 = Old behavior, 1 = new behavior, 2=chat window", CHAT);
 #endif //ELC
-	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 0,"Save INI","Save options when you quit",MISC);
+	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0,"ATI Card","I use an obsolete ati card, fix me",SPECIALVID);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",SPECIALVID);
@@ -792,15 +798,65 @@ FILE* open_el_ini (const char *mode)
 	return my_fopen ("el.ini", mode);
 #else
 	char el_ini[256];
+	char el_tmp[256];
 	FILE *f;
-	
+	mode_t modes;
+
 	snprintf (el_ini, sizeof (el_ini), "%s/el.ini", configdir);
 	f = my_fopen (el_ini, mode);	// try local file first
 	if (f == NULL)
 	{
+		FILE *f2;
+		int flen;
+		char *data;
+		
+		//OK, no local el.ini - copy the defaults
 		snprintf (el_ini, sizeof (el_ini), "%s/el.ini", datadir);
-		f = my_fopen (el_ini, mode);
+		f = fopen(el_ini, mode);
+		
+		if(f == NULL) return NULL;//Shit, no global el.ini either? Fortunately we'll write one on exit...
+		
+		snprintf(el_tmp, sizeof (el_tmp), "%s/el.ini", configdir);
+		f2 = my_fopen (el_tmp, "w");
+
+		if(f2 == NULL){
+			//Hmm... we cannot create a file in ~/.elc/
+			fclose(f);
+			return NULL;
+		}
+		
+		//Copy the data from the global el.ini to the ~/.elc/el.ini
+
+		fseek(f, 0, SEEK_END);
+		flen=ftell(f);
+		fseek(f, 0, SEEK_SET);
+
+		data=(char*)calloc(flen+1, sizeof(char));
+
+		fread(data, flen, sizeof(char), f);
+		fwrite(data, flen, sizeof(char), f2);
+
+		fclose(f);
+		fclose(f2);
+		free(data);
+		
+		//Now load it as read-only
+		snprintf(el_ini, sizeof (el_ini), "%s/el.ini", configdir);
+		f = my_fopen(el_ini, mode);
 	}
+
+	if(f) {
+		struct stat statbuff;
+		stat(el_ini,&statbuff);
+		modes = statbuff.st_mode;
+		/* Set perms to 600 on el_ini if they are anything else */
+		if(((modes & S_IRWXU) == (S_IRUSR|S_IWUSR)) &&
+		   ((modes & S_IRWXG) == (S_IRGRP|S_IWGRP|S_IXGRP)) && 
+		   ((modes & S_IRWXO) == (S_IROTH|S_IWOTH|S_IXOTH))) {
+			chmod(el_ini,S_IRUSR|S_IWUSR);
+		}
+	}
+
 	return f;
 #endif //WINDOWS
 }
