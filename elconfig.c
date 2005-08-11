@@ -689,9 +689,9 @@ void init_vars()
 	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
 	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
 #ifdef ELC
- 	add_var(MULTI,"log_server","log",&log_server,change_int,1,"Log server messages","Log messages from the server (harvesting events, GMs, etc)",SERVER,"Disabled", "Log in chat_log.txt", "Log in server_log.txt", NULL);
+ 	add_var(MULTI,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
 #else
-	add_var(INT,"log_server","log",&log_server,change_int,1,"Log server messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
+	add_var(INT,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
 #endif //ELC
  	add_var(STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
  	add_var(STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your browser",MISC);

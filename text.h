@@ -53,7 +53,7 @@ extern int max_lines_no;
 
 extern char not_from_the_end_console;
 
-extern int log_server; /*!< flag stating whether to log server messages or not */
+extern int log_chat; /*!< flag stating whether to log server messages or not */
 
 extern int current_text_width; /*!< Current wrapping width for text buffers */
 

@@ -23,7 +23,7 @@ int max_lines_no=10;
 
 char not_from_the_end_console=0;
 
-int log_server = 1;
+int log_chat = 2;
 
 float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
@@ -80,6 +80,8 @@ void write_to_log (Uint8 *data, int len)
 
 	int server_message = 0;
 
+if(log_chat == 0)return;//we're not logging anything
+
 	if (chat_log == NULL)
 	{
 		char chat_log_file[100];
@@ -98,8 +100,11 @@ void write_to_log (Uint8 *data, int len)
 		{
 			// quit to prevent error log filling up with messages
 			// caused by unability to open chat log
-			SDL_Quit ();
-			exit (1);
+			//SDL_Quit ();	//We don't need to do this anymore for chat_log
+			//exit (1);
+			LOG_TO_CONSOLE(c_red3, "Unable to open log file to write. We will NOT be recording anything.");
+			log_chat=0;
+			return;
 		}
 	}
 
@@ -121,15 +126,18 @@ void write_to_log (Uint8 *data, int len)
 	}
 	str[j++]='\n';
 
-	if (server_message && log_server==2)
+	if (server_message && log_chat>=3)
 	{
 		fwrite(str, j, 1, srv_log);
 	}
-	else if (!server_message || log_server==1)
+	else if (!server_message || log_chat==2
+#ifdef MULTI_CHANNEL
+		|| (log_chat == 1 && ((!server_message)||(!strncmp(str, "#GM ", 4))||(!strncmp(str, "#Mod ", 5))))
+#endif
+		)
 	{
 		fwrite(str, j, 1, chat_log);
 	}
-  	
 	fflush(chat_log);
   	fflush(srv_log);
 }
