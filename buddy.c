@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#ifndef _MSC_VER
+#include <strings.h>
+#endif
+#include <time.h>
 #include "global.h"
 #include "elwindows.h"
 #include "queue.h"
@@ -29,6 +33,8 @@ int buddy_type_input_id = -1;
 int buddy_change_button_id = -1;
 int buddy_delete = 0; //For the checkbox
 char *buddy_to_change = NULL;
+time_t c_time;//used to prevent buddylist flood when changing colours, etc
+
 
 struct accept_window {
 	Uint32 window_id; //Window ID
@@ -51,7 +57,7 @@ int compare2( const void *arg1, const void *arg2)
 {
 	_buddy *b1=(_buddy*)arg1, *b2=(_buddy*)arg2;
 	if(b1->type==b2->type)
-		return strcmp(b1->name,b2->name);
+		return strcasecmp(b1->name,b2->name);
 	else
 		return b1->type>b2->type ? 1: -1;
 }
@@ -158,6 +164,8 @@ void init_buddy()
 		memset(accept_windows[i].name, 0, sizeof(accept_windows[i].name));
 	}
 	queue_initialise(&buddy_request_queue);
+	time(&c_time);//note the current time
+	c_time+=5;
 }
 
 /*
@@ -199,6 +207,7 @@ int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 		snprintf(string, sizeof(string), "%c#change_buddy %s %i", RAW_TEXT, buddy_to_change, multiselect_get_selected(buddy_change_win, buddy_type_input_id));
 	}
 	my_tcp_send(my_socket, string, strlen(string+1)+1);
+	time(&c_time);
 	destroy_window(buddy_change_win);
 	buddy_change_win = -1;
 	buddy_to_change = NULL;
@@ -533,20 +542,32 @@ void display_buddy()
 void add_buddy(char *n, int t, int len)
 {
 	int i;
+	char message[35];
+	time_t n_time;
+	if(buddy_log_notice>0)time(&n_time);
 
 	//find empty space
 	for(i=0; i<MAX_BUDDY; i++){
 		if(buddy_list[i].type == 0xff){//found then add buddy
 			buddy_list[i].type= t;
 			snprintf(buddy_list[i].name, len+1, "%s", n);
+			if(buddy_log_notice==1){
+				if(difftime(c_time,n_time)>-5.0f)break;//if less than 5sec since the timer was updated, then we don't notify. in cases of bad lag, this won't help. if someone logs on/off during that time, we miss the notification
+				snprintf(message,sizeof(message),"%s has logged on.", n);
+				LOG_TO_CONSOLE(c_green1,message);
+			}
 			break;
 		}
+		if(my_strcompare(buddy_list[i].name, n))break;//we already have this one in the list
 	}
 }
 
 void del_buddy(char *n, int len)
 {
 	int i;
+	char message[36];
+	time_t n_time;
+	if(buddy_log_notice>0)time(&n_time);
 
 	//find buddy
 	for (i = 0; i < MAX_BUDDY; i++)
@@ -555,6 +576,11 @@ void del_buddy(char *n, int len)
 		{
 			buddy_list[i].type = 0xff;
 			memset (buddy_list[i].name, 0, sizeof (buddy_list[i].name));
+			if(buddy_log_notice==1){
+				if(difftime(c_time,n_time)>-5.0f)break;//if less than 5sec since the timer was updated, then we don't notify. in cases of bad lag, this won't help. if someone logs on/off during that time, we miss the notification
+				snprintf(message,sizeof(message),"%s has logged off", n);
+				LOG_TO_CONSOLE(c_green1,message);
+			}
 			break;
 		}
 		

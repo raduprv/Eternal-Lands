@@ -39,6 +39,7 @@ int no_adjust_shadows=0;
 int clouds_shadows=1;
 int item_window_on_drop=1;
 int compass_direction=1;
+int buddy_log_notice=1;
 char configdir[256]="./";
 char datadir[256]=DATA_DIR;
 

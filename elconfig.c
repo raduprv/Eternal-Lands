@@ -341,6 +341,10 @@ void change_projection_bool(int *pointer) {
 	resize_root_window();
 }
 
+void change_buddy_log_notice(int *pointer) {
+	change_var(pointer);
+}
+
 void change_gamma(float *pointer, float *value)
 {
 	*pointer = *value;
@@ -722,6 +726,7 @@ void init_vars()
 #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
 #endif //ANTI_ALIAS
+	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_buddy_log_notice, 1, "Log Buddy sign on/off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif // def ELC
 
 	//Global vars...
