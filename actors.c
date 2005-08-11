@@ -167,7 +167,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		if(view_health_bar && actor_id->cur_health>=0 && actor_id->max_health>0 && (!actor_id->dead))
 			{
 				float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
-				//get it's length
+				float off;
+				
+				if(view_hp)	off= (-0.35*zoom_level*name_zoom/3.0);
+					else off= 0.0;
 				if(actor_id->last_health_loss && cur_time-actor_id->last_health_loss<1000){//only when using floatingmessages
 					if(actor_id->damage>0){
 						healtbar_x_len_converted=healtbar_x_len*percentage;
@@ -188,14 +191,14 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				//choose tint color
 				set_health_color(percentage, 0.5f, 1.0f);
 				
-				glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-				glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z);
+				glVertex3f(healtbar_x+off,healtbar_y,healtbar_z);
+				glVertex3f(healtbar_x+healtbar_x_len_converted+off,healtbar_y,healtbar_z);
 				
 				//choose color for the bar
 				set_health_color(percentage, 1.0f, 1.0f);
 
-				glVertex3f(healtbar_x+healtbar_x_len_converted,healtbar_y,healtbar_z+healtbar_z_len);
-				glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+				glVertex3f(healtbar_x+healtbar_x_len_converted+off,healtbar_y,healtbar_z+healtbar_z_len);
+				glVertex3f(healtbar_x+off,healtbar_y,healtbar_z+healtbar_z_len);
 
 				glEnd();
 
@@ -206,13 +209,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					set_health_color(percentage, 0.5f, healtbar_x_loss_fade);
 				
 					glBegin(GL_QUADS);
-						glVertex3f(healtbar_x+healtbar_x_len_converted, healtbar_y, healtbar_z);
-						glVertex3f(healtbar_x+healtbar_x_len_converted+healtbar_x_len_loss, healtbar_y, healtbar_z);
+						glVertex3f(healtbar_x+healtbar_x_len_converted+off, healtbar_y, healtbar_z);
+						glVertex3f(healtbar_x+healtbar_x_len_converted+healtbar_x_len_loss+off, healtbar_y, healtbar_z);
 					
 					set_health_color(percentage, 1.0f, healtbar_x_loss_fade);
 					
-						glVertex3f(healtbar_x+healtbar_x_len_converted+healtbar_x_len_loss, healtbar_y, healtbar_z+healtbar_z_len);
-						glVertex3f(healtbar_x+healtbar_x_len_converted, healtbar_y, healtbar_z+healtbar_z_len);
+						glVertex3f(healtbar_x+healtbar_x_len_converted+healtbar_x_len_loss+off, healtbar_y, healtbar_z+healtbar_z_len);
+						glVertex3f(healtbar_x+healtbar_x_len_converted+off, healtbar_y, healtbar_z+healtbar_z_len);
 					glEnd();
 
 					glDisable(GL_BLEND);
@@ -224,10 +227,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				glDepthFunc(GL_LEQUAL);
 				glColor3f(0,0,0);
 				glBegin(GL_LINE_LOOP);
-				glVertex3f(healtbar_x,healtbar_y,healtbar_z);
-				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z);
-				glVertex3f(healtbar_x+healtbar_x_len,healtbar_y,healtbar_z+healtbar_z_len);
-				glVertex3f(healtbar_x,healtbar_y,healtbar_z+healtbar_z_len);
+				glVertex3f(healtbar_x+off,healtbar_y,healtbar_z);
+				glVertex3f(healtbar_x+healtbar_x_len+off,healtbar_y,healtbar_z);
+				glVertex3f(healtbar_x+healtbar_x_len+off,healtbar_y,healtbar_z+healtbar_z_len);
+				glVertex3f(healtbar_x+off,healtbar_y,healtbar_z+healtbar_z_len);
 				glEnd();
 			}
 
@@ -298,7 +301,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						//choose color for the health
 						set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
 						sprintf(hp,"%d/%d", actor_id->cur_health, actor_id->max_health);
-						if(view_health_bar)	off= (0.7*zoom_level*name_zoom/3.0);
+						if(view_health_bar)	off= (0.35*zoom_level*name_zoom/3.0);
 						else off= 0.0;
 						draw_ingame_string(-(((float)get_string_width(hp)*(ratio*ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off, healtbar_z-(0.05*zoom_level*name_zoom/3.0), hp, 1, ratio*ALT_INGAME_FONT_X_LEN, ratio*ALT_INGAME_FONT_Y_LEN);
 					}
