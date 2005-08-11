@@ -54,6 +54,14 @@ void get_storage_text(Uint8 * in_data, int len);
 
 /*!
  * \ingroup storage_window
+ * \brief Closes the storage window
+ *
+ * 	Closes the storage window.
+ */
+void close_storagewin();
+
+/*!
+ * \ingroup storage_window
  * \brief Displays the new storage window
  *
  *      Displays the new storage window. If the window hasn't been created before it will first created.

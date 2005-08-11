@@ -352,3 +352,9 @@ void display_storage_menu()
 		select_window(storage_win);
 	}
 }
+void close_storagewin()
+{
+	if(storage_win >= 0) {
+		hide_window(storage_win);
+	}
+}

@@ -508,6 +508,9 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 				regenerate_near_2d_objects=1;
 				object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 				close_dialogue();	// close the dialogue window if open
+#ifdef NEW_CLIENT
+				close_storagewin(); //if storage is open, close it
+#endif //NEW_CLIENT
 				destroy_all_particles();
 				if (!load_map(&in_data[3]))
 				{

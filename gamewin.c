@@ -1041,6 +1041,8 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			hide_window (tab_stats_win);
 		if (tab_help_win >= 0)
 			hide_window (tab_help_win);
+		if (storage_win >= 0)
+			hide_window (storage_win);
 	}
 	// toggle options
 	else if (key == K_HEALTHBAR)
