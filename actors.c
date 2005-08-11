@@ -135,17 +135,19 @@ void set_health_color(float percent, float multiplier, float a)
 void draw_actor_banner(actor * actor_id, float offset_z)
 {
 	char str[60];
-	float healtbar_x=-0.25f*zoom_level/3.0f;
+	float ratio=640.0f/(0.66f*window_width);
+	float healtbar_x=-0.25f*zoom_level/3.0f*ratio;
 	float healtbar_y=0;
 	float healtbar_z=offset_z+0.1f;	//was 0.2f
-	float healtbar_x_len=0.5f*zoom_level/3.0f;
+	float healtbar_x_len=0.5f*zoom_level/3.0f*ratio;
 	float healtbar_x_len_converted=0;
 	float healtbar_x_len_loss=0;
 	float healtbar_x_loss_fade=1.0f;
-	float healtbar_z_len=0.05f*zoom_level/3.0f;
+	float healtbar_z_len=0.05f*zoom_level/3.0f*ratio;
 	char temp[255];
 	// are we activley drawing?
 	if(SDL_GetAppState()&SDL_APPACTIVE){
+				
 		if(use_shadow_mapping)
 			{
 				glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
@@ -266,6 +268,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 				if(view_names)
 					{
+						float font_size_x=ratio*SMALL_INGAME_FONT_X_LEN;
+						float font_size_y=ratio*SMALL_INGAME_FONT_Y_LEN;
+						
 						if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
 						else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN){
 							switch(map_type){
@@ -283,7 +288,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 #ifdef	DEBUG
 						if (actor_id->calmodel!=NULL) strcat(temp," <CAL>");
 #endif	//DEBUG
-						DRAW_INGAME_SMALL(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healtbar_z+(0.06f*zoom_level/3.0),temp,1);
+						draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(font_size_x*zoom_level*name_zoom/3.0))/2.0/12.0, healtbar_z+(0.06f*zoom_level/3.0), temp, 1, font_size_x, font_size_y);
 					}
 				if(view_hp && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC))
 					{
@@ -295,7 +300,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						sprintf(hp,"%d/%d", actor_id->cur_health, actor_id->max_health);
 						if(view_health_bar)	off= (0.7*zoom_level*name_zoom/3.0);
 						else off= 0.0;
-						DRAW_INGAME_ALT(-(((float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off,healtbar_z-(0.05*zoom_level*name_zoom/3.0),hp,1);
+						draw_ingame_string(-(((float)get_string_width(hp)*(ratio*ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off, healtbar_z-(0.05*zoom_level*name_zoom/3.0), hp, 1, ratio*ALT_INGAME_FONT_X_LEN, ratio*ALT_INGAME_FONT_Y_LEN);
 					}
 				set_font(0);	// back to fixed pitch
 				if(actor_id->ghost)glEnable(GL_BLEND);
