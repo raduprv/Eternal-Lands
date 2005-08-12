@@ -645,7 +645,7 @@ void init_vars()
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",SPECIALVID);
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",SPECIALVID);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
-	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,0,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",SPECIALVID);
+	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",SPECIALVID);
 	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",SPECIALVID);
 	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",SPECIALVID,0,100);
 
