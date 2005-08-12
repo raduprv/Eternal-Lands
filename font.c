@@ -245,6 +245,32 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	glAlphaFunc (GL_GREATER, 0.1f);
 	get_and_set_texture_id (font_text);
 
+	if (filter != FILTER_ALL)
+	{
+		for (;;) {
+			char skip = 0;
+			int channel = msgs[imsg].chan_idx;
+			if (channel != filter) {
+				switch (channel) {
+					case CHAT_LOCAL:    skip = local_chat_separate;    break;
+					case CHAT_PERSONAL: skip = personal_chat_separate; break;
+					case CHAT_GM:       skip = guild_chat_separate;    break;
+					case CHAT_SERVER:   skip = server_chat_separate;   break;
+					case CHAT_MOD:      skip = mod_chat_separate;      break;
+					default:            skip = 1;
+				}
+			}
+			if (skip) {
+				ichar = 0;
+				if (++imsg >= msgs_size) imsg = 0;
+				if (msgs[imsg].data == NULL || imsg == msg_start) break;
+			} else {
+				break;
+			}
+		}
+		if (msgs[imsg].data == NULL) return;
+	}
+
 	i = 0;
 	cur_x = x;
 	cur_y = y;

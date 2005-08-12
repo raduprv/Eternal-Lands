@@ -87,7 +87,7 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 
 	popup_text.len = 0;
 	popup_text.size = maxlen;
-	popup_text.chan_idx = CHAT_ALL;
+	popup_text.chan_idx = CHAT_NONE;
 
 	if(popup_win < 0)
 	{		  
@@ -172,7 +172,6 @@ void init_notepad_buffers ()
 		data[i].data = NULL;
 		data[i].size = 0;
 		data[i].len = 0;
-		data[i].chan_idx = CHAT_ALL;
 		note_buttons[i] = -1;
 	}
 }
@@ -462,7 +461,7 @@ void notepadAddContinued (const char *name)
 	data[no_notes-1].size = MIN_NOTE_SIZE;
 	data[no_notes-1].data = calloc ( MIN_NOTE_SIZE, sizeof (char) );
 	data[no_notes-1].len = 0;
-	data[no_notes-1].chan_idx = CHAT_ALL;
+	data[no_notes-1].chan_idx = CHAT_NONE;
 	
 	note[no_notes-1] = malloc ( sizeof (struct Note) );
 	note[no_notes-1]->window = -1;

@@ -26,9 +26,9 @@ void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey)
 	*sy=fy-2;
 	if(*sy<0)*sy=0;
 	*ex=fx+2;
-	if(*ex==tile_map_size_x_4)*ex=tile_map_size_x_4-1;
+	if(*ex>=tile_map_size_x_4)*ex=tile_map_size_x_4-1;
 	*ey=fy+2;
-	if(*ey==tile_map_size_y_4)*ey=tile_map_size_y_4-1;
+	if(*ey>=tile_map_size_y_4)*ey=tile_map_size_y_4-1;
 }
 
 

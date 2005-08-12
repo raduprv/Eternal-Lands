@@ -286,11 +286,12 @@ int display_newchar_handler (window_info *win)
 	CHECK_GL_ERRORS ();
 
 	{
-		int msg, offset, ytext;
+		int msg, offset, ytext, filter;
 		ytext = use_windowed_chat == 1 ? 25 : 20;
+		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
 		if ( find_last_lines_time (&msg, &offset, current_filter) ){
 			set_font(chat_font);    // switch to the chat font
-			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, current_filter, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
+			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, win->len_x - 20, win->len_y, chat_zoom);
 			set_font (0);   // switch to fixed
 		}
 	}

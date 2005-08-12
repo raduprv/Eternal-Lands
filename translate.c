@@ -381,6 +381,7 @@ char	win_notepad[20],
 	tab_knowledge[20],
 	tab_questlog[20],
 	tab_all[20],
+	tab_none[20],
 	tab_local[20],
 	tab_newbie_channel[20],
 	tab_help_channel[20],
@@ -972,6 +973,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "t_know", tab_knowledge, "Knowledge", sizeof(tab_knowledge));
 	add_xml_identifier (titles_str, "t_qlog", tab_questlog, "Quest log", sizeof(tab_questlog));
 	add_xml_identifier (titles_str, "t_all", tab_all, "All", sizeof(tab_all));
+	add_xml_identifier (titles_str, "t_none", tab_none, "None", sizeof(tab_none));
 	add_xml_identifier (titles_str, "t_local", tab_local, "Local", sizeof(tab_local));
 	add_xml_identifier (titles_str, "c_newbie", tab_newbie_channel, "Newbie Channel", sizeof(tab_newbie_channel));
 	add_xml_identifier (titles_str, "c_help", tab_help_channel, "Help Channel", sizeof(tab_help_channel));

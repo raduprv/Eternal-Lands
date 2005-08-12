@@ -1046,6 +1046,7 @@ const char *tab_label (Uint8 chan)
 	switch (chan)
 	{
 		case CHAT_ALL: return tab_all;
+		case CHAT_NONE: return tab_none;
 		case CHAT_LOCAL: return tab_local;
 		case CHAT_PERSONAL: return tab_personal;
 		case CHAT_GM: return tab_guild;
@@ -1199,6 +1200,7 @@ void create_tab_bar ()
 	tab_bar_win = create_window ("Tab bar", game_root_win, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_SHOW);
 	
 	add_tab_button (CHAT_ALL);
+	add_tab_button (CHAT_NONE);
 	current_tab = 0;
 	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.57f, 1.0f, 0.59f);
 	current_filter = tabs[current_tab].channel;
