@@ -181,6 +181,7 @@ void draw_3d_object_shadow(object3d * object_id)
 	e3d_array_uv_main *array_uv_main;
 	e3d_array_order *array_order;
 
+	if(!object_id->display) return;	// not currently on the map, ignore it
     if(object_id->blended)return;//blended objects can't have shadows
     //if(object_id->self_lit)return;//light sources can't have shadows
     if(object_id->e3d_data->min_z>=object_id->e3d_data->max_z)return;//we have a flat object
