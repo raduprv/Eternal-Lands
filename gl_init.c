@@ -720,6 +720,8 @@ void set_new_video_mode(int fs,int mode)
 				}
 		}
 
+	reload_fonts();
+
 	//do the same for the actors textures...
 	for(i=0;i<max_actors;i++)
 		{

@@ -538,8 +538,9 @@ bp_Table * bp_parseTable(bp_Context * context, xmlNodePtr node) {
 	}
 
 	if (result->nRows) {
-		int * colHeights = NULL; result->nCols = 0;
+		int * colHeights = NULL; 
 		int col, row = 0;
+		result->nCols = 0;
 
 		for (child = node->children; child; child = child->next) {
 			if(ELEM(child) == BPE_TR) {
@@ -584,8 +585,9 @@ bp_Table * bp_parseTable(bp_Context * context, xmlNodePtr node) {
 
 		if(colHeights) free(colHeights);
 	} else if (result->nCols) {
-		int * rowWidths = NULL; result->nRows = 0;
+		int * rowWidths = NULL; 
 		int col = 0, row;
+		result->nRows = 0;
 
 		for (child = node->children; child; child = child->next) {
 			if(ELEM(child) == BPE_TC) {

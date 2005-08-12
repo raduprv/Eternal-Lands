@@ -821,8 +821,34 @@ void cleanup_fonts(void)
 	}
 }
 
+void reload_fonts()
+{
+	int i;
+	int poor_man_save=poor_man;
+	int use_mipmaps_save=use_mipmaps;
+
+	poor_man=0;
+	use_mipmaps=0;
+
+	for(i=0;i < FONTS_ARRAY_SIZE; i++){
+		if(fonts[i] != NULL){
+			if(fonts[i]->texture_id>=0){
+				glDeleteTextures(1, &texture_cache[fonts[i]->texture_id].texture_id);
+				texture_cache[fonts[i]->texture_id].texture_id=0;
+				get_texture_id(fonts[i]->texture_id);
+			}
+		}
+	}
+
+	poor_man=poor_man_save;
+	use_mipmaps=use_mipmaps_save;
+}
+
 int load_font_textures ()
 {
+	int poor_man_save=poor_man;
+	int use_mipmaps_save=use_mipmaps;
+	
 	if (fonts[0] == NULL || fonts[1] == NULL || fonts[2] == NULL || fonts[3]==NULL )
 	{
 		int i;
@@ -833,10 +859,17 @@ int load_font_textures ()
 		}
 		if ( !init_fonts () ) return 0;
 	}
+	
+	poor_man=0;
+	use_mipmaps=0;
+	
 	fonts[0]->texture_id = load_texture_cache ("./textures/font.bmp", 0);
 	fonts[1]->texture_id = load_texture_cache ("./textures/fontv.bmp", 0);
 	fonts[2]->texture_id = load_texture_cache ("./textures/font2.bmp", 0);
 	fonts[3]->texture_id = load_texture_cache ("./textures/font3.bmp", 0);
+	
+	poor_man=poor_man_save;
+	use_mipmaps=use_mipmaps_save;
 
 	//set the default font
 	cur_font_num = 0;

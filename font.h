@@ -228,5 +228,15 @@ int init_fonts();
  */
 int load_font_textures ();
 
+/*!
+ * \ingroup other
+ * \brief Reloads the font textures
+ *
+ * 	Reloads the font textures (call this when changing resolution)
+ *
+ * \sa load_font_textures;
+ */
+void reload_fonts();
+
 void cleanup_fonts(void);
 #endif
