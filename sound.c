@@ -91,20 +91,34 @@ void stop_sound(int i)
 void get_map_playlist()
 {
 #ifndef	NO_MUSIC
-	int i=0;
+	int i=0, len;
 	char map_list_file_name[256];
 	FILE *fp;
 	char strLine[255];
+	char *tmp;
 
 	if(!have_music)return;
 
-	memset(playlist,0,sizeof(playlist));
+	memset (playlist, 0, sizeof(playlist));
 
-	snprintf (map_list_file_name, sizeof (map_list_file_name), "./music%s.pll", map_file_name+6);
+	tmp = strrchr (map_file_name, '/');
+	if (tmp == NULL)
+		tmp = map_file_name;
+	else
+		tmp++;
+	snprintf (map_list_file_name, sizeof (map_list_file_name), "./music/%s", tmp);
+	len = strlen (map_list_file_name);
+	tmp = strrchr (map_list_file_name, '.');
+	if (tmp == NULL)
+		tmp = &map_list_file_name[len];
+	else
+		tmp++;
+	len -= strlen (tmp);
+	snprintf (tmp, sizeof (map_list_file_name) - len, "pll");
 
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(map_list_file_name,"r");
-	if(!fp)return;
+	if (fp == NULL) return;
 
 	while(1)
 		{
@@ -122,7 +136,7 @@ void play_ogg_file(char *file_name) {
 #ifndef	NO_MUSIC
 	int error,queued;
 
-    if(!have_music)return;
+	if(!have_music)return;
 
 	alSourceStop(music_source);
 	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
