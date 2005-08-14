@@ -345,9 +345,9 @@ int load_empty_map()
 		ambient_r = 0;
 		ambient_g = 0;
 		ambient_b = 0;
-		tile_map = calloc(tile_map_size_x*tile_map_size_y, sizeof(*tile_map));
-		height_map = calloc(tile_map_size_x*tile_map_size_y, sizeof(*height_map));
-		pf_tile_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(*pf_tile_map));
+		tile_map = calloc(tile_map_size_x*tile_map_size_y, sizeof(char));
+		height_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(char));
+		pf_tile_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(char));
 		return 0;
 	}
 	return 1;

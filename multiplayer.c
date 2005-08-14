@@ -512,6 +512,7 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 				close_storagewin(); //if storage is open, close it
 #endif //NEW_CLIENT
 				destroy_all_particles();
+				kill_local_sounds();
 				if (!load_map(&in_data[3]))
 				{
 					char error[255];
@@ -523,7 +524,6 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 				} else {
 					locked_to_console = 0;
 				}
-				kill_local_sounds();
 #ifndef	NO_MUSIC
 				playing_music=0;
 #endif	//NO_MUSIC
