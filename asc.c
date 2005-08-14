@@ -484,3 +484,26 @@ void get_string_digest(const Uint8 * string, Uint8 digest[16])
 	MD5Close(&md5, digest);
 }
 */
+
+#ifdef WINDOWS
+#ifdef _MSC_VER
+// the moronic _snprintf in MSVC doesn't necessarily terminate then string with
+// a NULL byte. This function should at least terminate the string, but does
+// not return the number of bytes that would have been written if the buffer
+// was large enough, like gcc does. Instead, it returns a negative value, 
+// indicating error. This probably won't be a problem, as the return value is 
+// mostly ignored.
+int sane_snprintf (char *str, size_t size, const char *format, ...)
+{
+	va_list ap;
+	int ret;
+	
+	va_start (ap, format);
+	ret = _vsnprintf (str, size - 1, format, ap);
+	if (ret < 0)
+		str[size-1] = '\0';
+	va_end (ap);
+	return ret;
+}
+#endif 
+#endif

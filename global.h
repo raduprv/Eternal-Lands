@@ -14,7 +14,7 @@
 	#include <alut.h>
 	#ifdef	_MSC_VER	// now we do test for VC
 		#define inline __inline
-		#define	snprintf _snprintf
+		#define	snprintf sane_snprintf
 		#define strncasecmp _strnicmp
 		#define strcasecmp _stricmp
 		#define atan2f atan2

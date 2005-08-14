@@ -594,4 +594,3 @@ void draw_smooth_button(char * str, int x, int y, int w, int lines, float r, flo
 		draw_string_small(xstr, y+radius/2.0f, str, lines);
 	}
 }
-
