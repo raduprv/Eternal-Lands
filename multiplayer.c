@@ -147,21 +147,13 @@ void send_version_to_server(IPaddress *ip)
 	str[6]=client_version_minor;
 	str[7]=client_version_release;
 	str[8]=client_version_patch;
-	// XXX (Grum): is there no better way then swapping host and port twice?
-	#ifdef EL_BIG_ENDIAN
-	ip->host = SDL_Swap32(ip->host);
-	ip->port = SDL_Swap16(ip->port);
-	#endif
+	// no byte swapping needed for Macs because of how the bytes are written
 	str[9]=ip->host&0xFF;
 	str[10]=(ip->host >> 8)&0xFF;
 	str[11]=(ip->host >> 16)&0xFF;
 	str[12]=(ip->host >> 24)&0xFF;
 	str[13]=ip->port&0xFF;
-	str[14]=(ip->port >> 8)&0xFF;	
-	#ifdef EL_BIG_ENDIAN
-	ip->host = SDL_Swap32(ip->host);
-	ip->port = SDL_Swap16(ip->port);
-	#endif
+	str[14]=(ip->port >> 8)&0xFF;
 	
 	my_tcp_send(my_socket,str,15);
 }
