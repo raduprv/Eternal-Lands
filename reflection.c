@@ -130,6 +130,7 @@ void draw_3d_reflection(object3d * object_id)
 
 	int is_transparent;
 
+	if(!object_id->display) return;	// not currently on the map, ignore it
 	CHECK_GL_ERRORS();
 	is_transparent=object_id->e3d_data->is_transparent;
 	materials_no=object_id->e3d_data->materials_no;
