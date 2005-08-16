@@ -28,6 +28,11 @@ int have_sgis_generate_mipmap=0;
 int use_mipmaps=0;
 int have_arb_shadow=0;
 int have_vertex_buffers=0;
+int have_framebuffer_object=0;
+int have_arb_pixel_shader=0;
+int have_arb_vertex_shader=0;
+int have_ogsl_pixel_shader=0;
+int have_ogsl_vertex_shader=0;
 float gamma_var = 1.00f;
 float perspective = 0.15f;
 float near_plane = 40.0f; // don't cut off anything
@@ -48,6 +53,25 @@ void (APIENTRY * ELglBindBufferARB)(GLenum target, GLuint buffer);
 void (APIENTRY * ELglBufferDataARB)(GLenum target, GLsizeiptrARB size, const void * data, GLenum usage);
 void (APIENTRY * ELglGenBuffersARB)(GLsizei no, GLuint *buffer);
 void (APIENTRY * ELglDeleteBuffersARB)(GLsizei no, const GLuint *buffer);
+void (APIENTRY * ELglGenRenderbuffersEXT)(GLsizei n, GLuint * renderbuffers);
+void (APIENTRY * ELglDeleteRenderbuffersEXT)(GLsizei n, const GLuint * renderbuffers);
+void (APIENTRY * ELglBindRenderbufferEXT)(GLenum target, GLuint renderbuffer);
+void (APIENTRY * ELglRenderbufferStorageEXT)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+void (APIENTRY * ELglGenFramebuffersEXT)(GLsizei n, GLuint * framebuffers);
+void (APIENTRY * ELglDeleteFramebuffersEXT)(GLsizei n, const GLuint * framebuffers);
+void (APIENTRY * ELglBindFramebufferEXT)(GLsizei n, GLuint framebuffer);
+void (APIENTRY * ELglGenProgramsARB)(GLsizei n, GLuint * programs);
+void (APIENTRY * ELglDeleteProgramsARB)(GLsizei n, const GLuint * programs);
+void (APIENTRY * ELglBindProgramARB)(GLenum type, GLuint program);
+void (APIENTRY * ELglProgramStringARB)(GLenum type, GLenum format, GLsizei length, const char * program);
+void (APIENTRY * ELglDeleteObjectARB)(GLhandleARB obj);
+GLhandleARB (APIENTRY * ELglCreateShaderObjectARB)(GLenum type);
+void (APIENTRY * ELglShaderSourceARB)(GLhandleARB shader, GLsizei count, const char ** string, const int * length);
+void (APIENTRY * ELglCompileShaderARB)(GLhandleARB shader);
+GLhandleARB (APIENTRY * ELglCreateProgramObjectARB)(void);
+void (APIENTRY * ELglAttachObjectARB)(GLhandleARB program, GLhandleARB shader);
+void (APIENTRY * ELglLinkProgramARB)(GLhandleARB program);
+void (APIENTRY * ELglUseProgramObjectARB)(GLhandleARB program);
 
 void setup_video_mode(int fs, int mode)
 {
@@ -454,133 +478,192 @@ void init_gl_extensions()
 	ELglGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
 	ELglDeleteBuffersARB = SDL_GL_GetProcAddress("glDeleteBuffersARB");
 	ELglBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
+	ELglGenRenderbuffersEXT=SDL_GL_GetProcAddress("glGenRenderbuffersEXT");
+	ELglDeleteRenderbuffersEXT=SDL_GL_GetProcAddress("glDeleteRenderbuffersEXT");
+	ELglBindRenderbufferEXT=SDL_GL_GetProcAddress("glBindRenderbufferEXT");
+	ELglRenderbufferStorageEXT=SDL_GL_GetProcAddress("glRenderbufferStorageEXT");
+	ELglGenFramebuffersEXT=SDL_GL_GetProcAddress("glGenFramebuffersEXT");
+	ELglDeleteFramebuffersEXT=SDL_GL_GetProcAddress("glDeleteFramebuffersEXT");
+	ELglBindFramebufferEXT=SDL_GL_GetProcAddress("glBindFramebufferEXT");
+	ELglGenProgramsARB=SDL_GL_GetProcAddress("glGenProgramsARB");
+	ELglDeleteProgramsARB=SDL_GL_GetProcAddress("glDeleteProgramsARB");
+	ELglBindProgramARB=SDL_GL_GetProcAddress("glBindProgramARB");
+	ELglProgramStringARB=SDL_GL_GetProcAddress("glProgramStringARB");
+	ELglCreateShaderObjectARB=SDL_GL_GetProcAddress("glCreateShaderObjectARB");
+	ELglShaderSourceARB=SDL_GL_GetProcAddress("glShaderSourceARB");
+	ELglCompileShaderARB=SDL_GL_GetProcAddress("glCompileShaderARB");
+	ELglCreateProgramObjectARB=SDL_GL_GetProcAddress("glCreateProgramObjectARB");
+	ELglAttachObjectARB=SDL_GL_GetProcAddress("glAttachObjectARB");
+	ELglLinkProgramARB=SDL_GL_GetProcAddress("glLinkProgramARB");
+	ELglUseProgramObjectARB=SDL_GL_GetProcAddress("glUseProgramObjectARB");
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
 	ext_str_len=strlen(extensions);
-	if(ELglActiveTextureARB && ELglMultiTexCoord2fARB && ELglMultiTexCoord2fvARB && ELglClientActiveTextureARB)
-		{
-			have_multitexture=get_string_occurance("GL_ARB_multitexture",extensions,ext_str_len,0);
-			if(have_multitexture==-1)
-				{
-					have_multitexture=0;
-					LOG_TO_CONSOLE(c_red1,gl_ext_no_multitexture);
-				}
-			else
-				{
-					glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB,&have_multitexture);
-					snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_multitexture");
-					LOG_TO_CONSOLE(c_green2,str);
-				}
-		}
-	else
-		{
+	if(ELglActiveTextureARB && ELglMultiTexCoord2fARB && ELglMultiTexCoord2fvARB && ELglClientActiveTextureARB) {
+		have_multitexture=get_string_occurance("GL_ARB_multitexture",extensions,ext_str_len,0);
+		if(have_multitexture==-1) {
 			have_multitexture=0;
 			LOG_TO_CONSOLE(c_red1,gl_ext_no_multitexture);
+		} else {
+			glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB,&have_multitexture);
+			snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_multitexture");
+			LOG_TO_CONSOLE(c_green2,str);
 		}
-	if(ELglLockArraysEXT && ELglUnlockArraysEXT)
-		{
-			have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
-			if(have_compiled_vertex_array < 0)
-				{
-					have_compiled_vertex_array=0;
-					snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_compiled_vertex_array");
-					LOG_TO_CONSOLE(c_red1,str);
-				}
-			else 
-				{
-					snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_compiled_vertex_array");
-					LOG_TO_CONSOLE(c_green2,str);
-				}
-		}
-	else
-		{
+	} else {
+		have_multitexture=0;
+		LOG_TO_CONSOLE(c_red1,gl_ext_no_multitexture);
+	}
+	
+	if(ELglLockArraysEXT && ELglUnlockArraysEXT){
+		have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
+		if(have_compiled_vertex_array < 0) {
 			have_compiled_vertex_array=0;
 			snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_compiled_vertex_array");
 			LOG_TO_CONSOLE(c_red1,str);
-
-		}
-
-		have_point_sprite=get_string_occurance("GL_ARB_point_sprite",extensions,ext_str_len,0)>=0 || get_string_occurance("GL_NV_point_sprite",extensions,ext_str_len,0)>=0;
-		if(!have_point_sprite)
-			{
-				have_point_sprite=0;
-				snprintf(str,sizeof(str),gl_ext_not_found,"GL_*_point_sprite");
-				LOG_TO_CONSOLE(c_red1,str);
-			}
-		else if(!use_point_particles)
-			{
-				have_point_sprite=0;
-				snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_*_point_sprite");
-				LOG_TO_CONSOLE(c_green2,str);
-			}
-		else 
-			{
-				have_point_sprite=1;
-				snprintf(str,sizeof(str),gl_ext_found,"GL_*_point_sprite");
-				LOG_TO_CONSOLE(c_green2,str);
-			}
-		have_arb_compression=get_string_occurance("GL_ARB_texture_compression",extensions,ext_str_len,0);
-
-		if(have_arb_compression<0) have_arb_compression=0;
-		else
-			{
-				have_arb_compression=1;
-				snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_texture_compression");
-				LOG_TO_CONSOLE(c_green2,str);
-			}
-		have_s3_compression=get_string_occurance("GL_EXT_texture_compression_s3tc",extensions,ext_str_len,0);
-		if(have_s3_compression<0) have_s3_compression=0;
-		else
-			{
-				have_s3_compression=1;
-				snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_texture_compression_s3tc");
-				LOG_TO_CONSOLE(c_green2,str);
-			}
-
-		have_sgis_generate_mipmap=get_string_occurance("GL_SGIS_generate_mipmap",extensions,ext_str_len,0);
-		if(have_sgis_generate_mipmap<0)
-			{
-				have_sgis_generate_mipmap=0;
-				use_mipmaps=0;
-				snprintf(str,sizeof(str),gl_ext_not_found,"GL_SGIS_generate_mipmap");
-				LOG_TO_CONSOLE(c_red1,str);
-			}
-		else if(!use_mipmaps)
-			{
-				have_sgis_generate_mipmap=0;
-				snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_SGIS_generate_mipmap");
-				LOG_TO_CONSOLE(c_green2,str);
-			}
-		else 
-			{
-				have_sgis_generate_mipmap=1;
-				snprintf(str,sizeof(str),gl_ext_found,"GL_SGIS_generate_mipmap");
-				LOG_TO_CONSOLE(c_green2,str);
-			}
-
-		have_arb_shadow=get_string_occurance("GL_ARB_shadow",extensions,ext_str_len,0);
-		if(have_arb_shadow<0)have_arb_shadow=0;
-		else
-			{
-				have_arb_shadow=1;
-				snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_shadow");
-				LOG_TO_CONSOLE(c_green2,str);
-			}
-
-		if((have_multitexture<3 || !have_arb_shadow) && use_shadow_mapping)
-			{
-				use_shadow_mapping=0;
-				LOG_TO_CONSOLE(c_red1,disabled_shadow_mapping);
-			}
-
-		if(get_string_occurance("GL_ARB_vertex_buffer_object",extensions,ext_str_len,0)>=0 && use_vertex_buffers){
-			snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_vertex_buffer_object");
-			LOG_TO_CONSOLE(c_green2, str);
-			have_vertex_buffers=1;
 		} else {
-			have_vertex_buffers=0;
+			snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_compiled_vertex_array");
+			LOG_TO_CONSOLE(c_green2,str);
 		}
+	} else {
+		have_compiled_vertex_array=0;
+		snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_compiled_vertex_array");
+		LOG_TO_CONSOLE(c_red1,str);
+	}
+
+	have_point_sprite=get_string_occurance("GL_ARB_point_sprite",extensions,ext_str_len,0)>=0 || get_string_occurance("GL_NV_point_sprite",extensions,ext_str_len,0)>=0;
+	if(!have_point_sprite){
+		have_point_sprite=0;
+		snprintf(str,sizeof(str),gl_ext_not_found,"GL_*_point_sprite");
+		LOG_TO_CONSOLE(c_red1,str);
+	} else if(!use_point_particles) {
+		have_point_sprite=0;
+		snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_*_point_sprite");
+		LOG_TO_CONSOLE(c_green2,str);
+	} else {
+		have_point_sprite=1;
+		snprintf(str,sizeof(str),gl_ext_found,"GL_*_point_sprite");
+		LOG_TO_CONSOLE(c_green2,str);
+	}
+	
+	have_arb_compression=get_string_occurance("GL_ARB_texture_compression",extensions,ext_str_len,0);
+
+	if(have_arb_compression<0) {
+		have_arb_compression=0;
+	} else {
+		have_arb_compression=1;
+		snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_texture_compression");
+		LOG_TO_CONSOLE(c_green2,str);
+	}
+	
+	have_s3_compression=get_string_occurance("GL_EXT_texture_compression_s3tc",extensions,ext_str_len,0);
+	if(have_s3_compression<0) {
+		have_s3_compression=0;
+	} else {
+		have_s3_compression=1;
+		snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_texture_compression_s3tc");
+		LOG_TO_CONSOLE(c_green2,str);
+	}
+
+	have_sgis_generate_mipmap=get_string_occurance("GL_SGIS_generate_mipmap",extensions,ext_str_len,0);
+	
+	if(have_sgis_generate_mipmap<0)	{
+		have_sgis_generate_mipmap=0;
+		use_mipmaps=0;
+		snprintf(str,sizeof(str),gl_ext_not_found,"GL_SGIS_generate_mipmap");
+		LOG_TO_CONSOLE(c_red1,str);
+	} else if(!use_mipmaps) {
+		have_sgis_generate_mipmap=0;
+		snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_SGIS_generate_mipmap");
+		LOG_TO_CONSOLE(c_green2,str);
+	} else  {
+		have_sgis_generate_mipmap=1;
+		snprintf(str,sizeof(str),gl_ext_found,"GL_SGIS_generate_mipmap");
+		LOG_TO_CONSOLE(c_green2,str);
+	}
+
+	have_arb_shadow=get_string_occurance("GL_ARB_shadow",extensions,ext_str_len,0);
+	if(have_arb_shadow<0){
+		have_arb_shadow=0;
+	} else {
+		have_arb_shadow=1;
+		snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_shadow");
+		LOG_TO_CONSOLE(c_green2,str);
+	}
+
+	if((have_multitexture<3 || !have_arb_shadow) && use_shadow_mapping) {
+		use_shadow_mapping=0;
+		LOG_TO_CONSOLE(c_red1,disabled_shadow_mapping);
+	}
+
+	if(get_string_occurance("GL_ARB_vertex_buffer_object",extensions,ext_str_len,0)>=0 && use_vertex_buffers){
+		snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_vertex_buffer_object");
+		LOG_TO_CONSOLE(c_green2, str);
+		have_vertex_buffers=1;
+	} else {
+		have_vertex_buffers=0;
+	}
+	
+	if(ELglGenRenderbuffersEXT && ELglDeleteRenderbuffersEXT && ELglBindRenderbufferEXT && ELglRenderbufferStorageEXT &&
+	   ELglGenFramebuffersEXT && ELglDeleteFramebuffersEXT && ELglBindFramebufferEXT && strstr(extensions, "GL_EXT_framebuffer_object")){
+		snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_EXT_framebuffer_object");
+		LOG_TO_CONSOLE(c_green2, str);
+		have_framebuffer_object=1;
+	} else {
+		//snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
+	}
+	
+	//Test for ARB{fp,vp}
+	if(ELglGenProgramsARB && ELglDeleteProgramsARB && ELglBindProgramARB && ELglProgramStringARB){
+		if(strstr(extensions, "GL_ARB_fragment_program")){
+			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_fragment_program");
+			LOG_TO_CONSOLE(c_green2, str);
+			have_arb_pixel_shader=1;
+		} else {
+			/*
+			 * snprintf(str,sizeof(str),gl_ext_not_found,"GL_ARB_fragment_program");
+			 * LOG_TO_CONSOLE(c_green2, str);
+			 */
+		}
+		if(strstr(extensions, "GL_ARB_vertex_program")){
+			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_vertex_program");
+			LOG_TO_CONSOLE(c_green2, str);
+			have_arb_vertex_shader=1;
+		} else {
+			/*
+			 * snprintf(str,sizeof(str),gl_ext_not_found,"GL_ARB_vertex_program");
+			 * LOG_TO_CONSOLE(c_green2, str);
+			 */
+		}
+	}  else {
+		/*
+		 * snprintf(str,sizeof(str),gl_ext_not_found,"GL_ARB_{fragment,vertex}_{program,shader}");
+		 * LOG_TO_CONSOLE(c_green2, str);
+		 */
+	}
+	
+	//Test for OGSL
+	if(ELglCreateShaderObjectARB && ELglShaderSourceARB && ELglCompileShaderARB && ELglCreateProgramObjectARB &&
+	   ELglAttachObjectARB && ELglLinkProgramARB && ELglUseProgramObjectARB && 
+	   strstr(extensions,"GL_ARB_shader_objects") && strstr(extensions, "GL_ARB_shading_language_100")){
+		if(strstr(extensions,"GL_ARB_vertex_shader")){
+			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_vertex_shader");
+			LOG_TO_CONSOLE(c_green2, str);
+			have_ogsl_vertex_shader=1;
+		}
+		
+		if(strstr(extensions,"GL_ARB_fragment_shader")){
+			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_fragment_shader");
+			LOG_TO_CONSOLE(c_green2, str);
+			have_ogsl_pixel_shader=1;
+		}
+	} else {
+		/*
+		 * snprintf(str,sizeof(str),gl_ext_not_found,"OpenGL Shading Language");
+		 * LOG_TO_CONSOLE(c_green2, str);
+		 */
+	}
+
 	CHECK_GL_ERRORS();
 }
 
@@ -783,7 +866,7 @@ void set_new_video_mode(int fs,int mode)
 
 	regenerate_near_objects=1;
 	regenerate_near_2d_objects=1;
-	
+
 	// resize the EL root windows
 	resize_all_root_windows (window_width, window_height);
 }

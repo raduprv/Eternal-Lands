@@ -32,6 +32,8 @@ extern int have_point_sprite; /*!< indicates whether we have point sprites or no
 extern int have_arb_compression; /*!< flag that indicates whether we have the ARB compression extension or not */
 extern int have_s3_compression; /*!< flag that indicates whether we have the S3 compression extension or not */
 extern int have_vertex_buffers; /*!< flag that indicates whether we have access to using vertex buffer objects or not*/
+extern int have_framebuffer_object; /*!< flag that indicates whether the GL_EXT_framebuffer_object extension is supported or not*/
+extern int have_shaders;
 
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 /*! @} */
@@ -53,6 +55,24 @@ extern void (APIENTRY * ELglBindBufferARB)(GLenum target, GLuint buffer);
 extern void (APIENTRY * ELglGenBuffersARB)(GLsizei no, GLuint *buffer);
 extern void (APIENTRY * ELglDeleteBuffersARB)(GLsizei no, const GLuint *buffer);
 extern void (APIENTRY * ELglBufferDataARB)(GLenum target, GLsizeiptrARB size, const void * data, GLenum usage);
+extern void (APIENTRY * ELglGenRenderbuffersEXT)(GLsizei n, GLuint * renderbuffers);
+extern void (APIENTRY * ELglDeleteRenderbuffersEXT)(GLsizei n, const GLuint * renderbuffers);
+extern void (APIENTRY * ELglBindRenderbufferEXT)(GLenum target, GLuint renderbuffer);
+extern void (APIENTRY * ELglRenderbufferStorageEXT)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+extern void (APIENTRY * ELglGenFramebuffersEXT)(GLsizei n, GLuint * framebuffers);
+extern void (APIENTRY * ELglDeleteFramebuffersEXT)(GLsizei n, const GLuint * framebuffers);
+extern void (APIENTRY * ELglBindFramebufferEXT)(GLsizei n, GLuint framebuffer);
+extern void (APIENTRY * ELglGenProgramsARB)(GLsizei n, GLuint * programs);
+extern void (APIENTRY * ELglDeleteProgramsARB)(GLsizei n, const GLuint * programs);
+extern void (APIENTRY * ELglBindProgramARB)(GLenum type, GLuint program);
+extern void (APIENTRY * ELglProgramStringARB)(GLenum type, GLenum format, GLsizei length, const char * program);
+extern GLhandleARB (APIENTRY * ELglCreateShaderObjectARB)(GLenum type);
+extern void (APIENTRY * ELglShaderSourceARB)(GLhandleARB shader, GLsizei count, const char ** string, const int * length);
+extern void (APIENTRY * ELglCompileShaderARB)(GLhandleARB shader);
+extern GLhandleARB (APIENTRY * ELglCreateProgramObjectARB)(void);
+extern void (APIENTRY * ELglAttachObjectARB)(GLhandleARB program, GLhandleARB shader);
+extern void (APIENTRY * ELglLinkProgramARB)(GLhandleARB program);
+extern void (APIENTRY * ELglUseProgramObjectARB)(GLhandleARB program);
 /*! @} */
 
 /*!
