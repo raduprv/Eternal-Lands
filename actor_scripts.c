@@ -868,6 +868,37 @@ void add_command_to_actor(int actor_id, char command)
 		LOG_ERROR("%s %d - %d\n", cant_add_command, command, actor_id);
 	} else {
 		LOCK_ACTORS_LISTS();
+		
+		if(command==leave_combat){
+			int j=0;
+			int strip=1;
+			
+			//Strip the queue for attack messages
+			for(k=0;k<MAX_CMD_QUEUE;k++){
+				switch(act->que[k]){
+					case pain1:
+					case pain2:
+					case attack_up_1:
+					case attack_up_2:
+					case attack_up_3:
+					case attack_up_4:
+					case attack_down_1:
+					case attack_down_2:
+						if(!strip){
+							act->que[j]=act->que[k];
+							j++;
+						}
+						break;
+					default:
+						act->que[j]=act->que[k];
+						j++;
+						strip=0;
+						break;
+				}
+			}
+			act->que[MAX_CMD_QUEUE-1]=nothing;
+		}
+		
 		for(k=0;k<MAX_CMD_QUEUE;k++){
 			if(act->que[k]==nothing){
 				//we are SEVERLY behind, just update all the actors in range
