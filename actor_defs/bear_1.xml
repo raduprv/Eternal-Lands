@@ -8,6 +8,7 @@
 	<frames>
 		<CAL_walk>./animations/bear_walk.caf 0</CAL_walk>
 		<CAL_idle>./animations/bear_idle1.caf 0</CAL_idle>
+		<CAL_idle2>./animations/bear_idle2.caf 0</CAL_idle2>
 		<CAL_idle_sit>./animations/bear_sleepidle.caf 0</CAL_idle_sit>
 		<CAL_sit_down>./animations/bear_intosleep.caf 1</CAL_sit_down>
 		<CAL_stand_up>./animations/bear_outsleep.caf 1</CAL_stand_up>

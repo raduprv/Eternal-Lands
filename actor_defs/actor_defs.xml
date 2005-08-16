@@ -44,6 +44,7 @@
 	<!ENTITY unicorn_1 SYSTEM "unicorn_1.xml">
 	<!ENTITY chimeran_desert_wolf SYSTEM "chimeran_desert_wolf.xml">
 	<!ENTITY chimeran_forest_wolf SYSTEM "chimeran_forest_wolf.xml">
+	<!ENTITY bear_3 SYSTEM "bear_3.xml">
 ]>
 
 <actors>
@@ -92,4 +93,5 @@
 	&unicorn_1;
 	&chimeran_desert_wolf;
 	&chimeran_forest_wolf;
+	&bear_3;
 </actors>

@@ -60,6 +60,7 @@ const dict_elem actor_type_dict[] =
 	  { "unicorn 1"             , unicorn_1	             },
 	  { "chimeran desert wolf"  , chimeran_wolf_desert   },
 	  { "chimeran forest wolf"  , chimeran_wolf_forest   },
+	  { "bear 3"  		    , bear_3		     },
 	  { NULL                    , -1                     }
 	};
 

@@ -58,6 +58,7 @@
 #define unicorn_1 45
 #define chimeran_wolf_desert 46
 #define chimeran_wolf_forest 47
+#define bear_3 48
 /*! @} */
 
 /*!

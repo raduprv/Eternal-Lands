@@ -8,6 +8,7 @@
 	<frames>
 		<CAL_walk>./animations/deer_walk.caf 0</CAL_walk>
 		<CAL_idle>./animations/deer_idle1.caf 0</CAL_idle>
+		<CAL_idle2>./animations/deer_idle2.caf 0</CAL_idle2>
 		<CAL_in_combat>./animations/deer_idle1.caf 1</CAL_in_combat>
 		<CAL_out_combat>./animations/deer_idle1.caf 1</CAL_out_combat>
 		<CAL_combat_idle>./animations/deer_idle1.caf 0</CAL_combat_idle>

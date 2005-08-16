@@ -167,6 +167,16 @@
 		<skin>./meshes/hat1.bmp</skin>
 		<glow>none</glow>
 	</helmet>
+		<helmet type="racoon">
+			<mesh>./meshes/hat2_medium.cmf</mesh>
+			<skin>./meshes/hat2.bmp</skin>
+			<glow>none</glow>
+	</helmet>
+		<helmet type="skunk">
+			<mesh>./meshes/hat3_medium.cmf</mesh>
+			<skin>./meshes/hat3.bmp</skin>
+			<glow>none</glow>
+	</helmet>	
 	<helmet type="leather">
 		<mesh>./meshes/helmet2_medium.cmf</mesh>
 		<skin>./meshes/helmet2.bmp</skin>
