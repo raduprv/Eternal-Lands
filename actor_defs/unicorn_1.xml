@@ -6,7 +6,8 @@
 	        <CAL_walk>./animations/horse_walk.caf 0</CAL_walk>
 		<CAL_die1>./animations/horse_die.caf 1</CAL_die1>
 		<CAL_pain1>./animations/horse_pain.caf 1</CAL_pain1>
-		<CAL_idle>./animations/horse_idle_eat.caf 0</CAL_idle>
+		<CAL_idle>./animations/horse_head_breathe.xaf 0</CAL_idle>
+		<CAL_idle2>./animations/horse_idle_eat.caf 0</CAL_idle2>
 		<CAL_attack_up_1>./animations/horse_attack1.caf 1</CAL_attack_up_1>
 		<CAL_attack_down_1>./animations/horse_attack_unicorn.caf 1</CAL_attack_down_1>
 		<CAL_in_combat>./animations/horse_head_breathe.xaf 1</CAL_in_combat>
