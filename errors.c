@@ -45,6 +45,7 @@ void log_error(const Uint8 * message, ...)
 	va_start(ap, message);
 		vfprintf(err_file, message, ap);
 	va_end(ap);
+	fprintf (err_file, "\n");
   	fflush (err_file);
 }
 
