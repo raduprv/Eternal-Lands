@@ -103,39 +103,42 @@ int check_if_ignored(Uint8 *name)
 
 
 //returns 1 if ignored, 0 if not ignored
-int pre_check_if_ignored(Uint8 * input_text, int type)
+int pre_check_if_ignored (const Uint8 *input_text, int len, int type)
 {
-	int i=0;
+	int i, offset;
 	Uint8 name[16];
 	Uint8 ch;
+	
 	if(type)
+	{
+		//now find the name portion
+		input_text +=10;
+		for (i = 0; i < 15 && i+10 < len; i++)
 		{
-			//now find the name portion
-			input_text+=10;
-			for(i=0;i<15;i++)
-				{
-					ch=input_text[i];	//skip over the prefix
-					if(ch==':' || ch==' ')break;
-					name[i]=ch;
-				}
-			name[i]=0;
-			if(check_if_ignored(name))return 1;
-			//memorize this players name
-			my_strcp(last_pm_from,name);
-			return 0;
-		}
-
-	if(input_text[1] == '[') input_text++;
-	for(i=0;i<15;i++)
-		{
-			ch=input_text[i+1];
-			if(ch==':' || ch==' ' || ch==']')break;
+			ch = input_text[i+10];	//skip over the prefix
+			if (ch==':' || ch==' ') break;
 			name[i]=ch;
 		}
-	name[i]=0;
-	if(check_if_ignored(name))return 1;
-	else return 0;
+		name[i] = '\0';
+		if (check_if_ignored(name)) return 1;
+		//memorize this players name
+		my_strcp (last_pm_from, name);
+		return 0;
+	}
 
+	offset = 0;
+	if (input_text[1] == '[') offset = 1;
+	for (i = 0; i < 15 && i+offset < len; i++)
+	{
+		ch = input_text[i+offset];
+		if (ch==':' || ch==' ' || ch==']') break;
+		name[i] = ch;
+	}
+	name[i] = '\0';
+	if (check_if_ignored(name))
+		return 1;
+	
+	return 0;
 }
 
 

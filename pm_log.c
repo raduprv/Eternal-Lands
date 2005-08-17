@@ -135,7 +135,7 @@ void add_message_to_pm_log(char * message, int len)
 
 	if(z<0)
 		{
-			send_afk_message(NULL, 1);
+			send_afk_message(NULL, 0, 1);
 			z = add_name_to_pm_log(last_pm_from, last_pm_len);
 		}
 	pm_log.afk_msgs[z].messages= (char**)realloc(pm_log.afk_msgs[z].messages, (pm_log.afk_msgs[z].msgs+1)*sizeof(char *));
@@ -186,7 +186,7 @@ int is_talking_about_me (Uint8 *server_msg, int len, char everywhere)
 	return 0;
 }
 
-void send_afk_message (Uint8 *server_msg, int type)
+void send_afk_message (const Uint8 *server_msg, int len, int type)
 {
 	Uint8 sendtext[MAX_TEXT_MESSAGE_LENGTH+60]={0};
 	
@@ -198,17 +198,18 @@ void send_afk_message (Uint8 *server_msg, int type)
 	}
 	else 
 	{
-		int i=0;
+		int i, j;
 		//char *name = (char *)calloc(32, sizeof (char));
 		char	name[32];
 		
 		// Copy the name. This ought to work for both local chat and
 		// trade attempts
-		while (*server_msg < 127+c_red1 || *server_msg > 127+c_grey4)
+		i = j = 0;
+		while (j < len && (server_msg[j] < 127+c_red1 || server_msg[j] > 127+c_grey4) )
 		{
-			name[i++] = *server_msg;
-			if (*server_msg == ':' || *server_msg == ' ') break;
-			server_msg++;
+			name[i++] = server_msg[j];
+			if (server_msg[j] == ':' || server_msg[j] == ' ') break;
+			j++;
 		}		
 		name[i-1] = '\0';
 		

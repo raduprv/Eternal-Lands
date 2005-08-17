@@ -200,22 +200,31 @@ void send_input_text_line (char *line, int line_len)
 	return;
 }
 
-int filter_or_ignore_text(unsigned char *text_to_add, int len)
+int filter_or_ignore_text (unsigned char *text_to_add, int len)
 {
 	int	l, type;
 	unsigned char *ptr;
 
+	if (len <= 0) return 0;	// no point
+
 	//check for auto receiving #help
-	for(ptr=text_to_add, l=len; l >0; ptr++, l--){
-		if(!(*ptr&0x80))	break;
+	for (ptr = text_to_add, l = len; l > 0; ptr++, l--)
+	{
+		if ((*ptr & 0x80) == 0)
+			break;
 	}
-	if(len > 0 && *ptr == '#' && (!strncasecmp(ptr, "#help request", 9) || !strncasecmp(ptr, "#mod chat", 9))){
-		auto_open_encyclopedia= 0;
+	if (l >= 9 && *ptr == '#' && (strncasecmp(ptr, "#help request", 9) == 0 || strncasecmp(ptr, "#mod chat", 9) == 0))
+	{
+		auto_open_encyclopedia = 0;
 	}
 
 	//check if ignored
-	type=strncasecmp(&text_to_add[1],"[PM from",8)?0:1;
-	if(pre_check_if_ignored(text_to_add,type))return 0;
+	type = 0;
+	if (len >= 9 && strncasecmp (&text_to_add[1], "[PM from", 8) == 0)
+		type = 1;
+	if (pre_check_if_ignored (text_to_add, len, type))
+		return 0;
+		
 	//All right, we do not ignore the person
 	if (afk)
 	{
@@ -224,10 +233,10 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 			// player sent us a PM
 			add_message_to_pm_log (text_to_add, len);
 		}
-		else if (text_to_add[0] == (c_grey1+127) && is_talking_about_me ( &text_to_add[1], len-1, 0) )
+		else if (text_to_add[0] == (c_grey1+127) && is_talking_about_me (&text_to_add[1], len-1, 0) )
 		{
 			// player mentions our name in local chat
-			send_afk_message (&text_to_add[1], type);
+			send_afk_message (&text_to_add[1], len - 1, type);
 		}
 		else
 		{
@@ -237,7 +246,7 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 				if ( text_to_add[i] == ' ' || text_to_add[i] == ':' || (text_to_add[i] > 127+c_red1 && text_to_add[i] < 127+c_grey4) )
 					break;
 			if (i < len-15 && strncasecmp (&text_to_add[i], " wants to trade", 15) == 0)
-				send_afk_message (&text_to_add[1], type);
+				send_afk_message (&text_to_add[1], len - 1, type);
 		}
 	}
 	
@@ -245,15 +254,20 @@ int filter_or_ignore_text(unsigned char *text_to_add, int len)
 	find_last_url (text_to_add, len);
 	
 	// look for buddy-wants-to-add-you messages
-	if(text_to_add[0] == c_green1+127 && strncmp(strstr(text_to_add+1, " "), " wants to add you on his buddy list", 35) == 0) {
+	if(text_to_add[0] == c_green1+127)
+	{
 		char name[32];
-		int i;
-
-		for(i = 1; text_to_add[i] != ' ' && i-1 < 31; i++) {
-			name[i-1] = text_to_add[i];
+	
+		for (l = 1; l < len; l++)
+		{
+			if (text_to_add[l] == ' ') break;
 		}
-		name[i-1] = '\0';
-		add_buddy_confirmation(name);
+		if (len - l >= 35 && strncmp (&text_to_add[l], " wants to add you on his buddy list", 35) == 0 && l <= sizeof (name))
+		{
+			char name[32];
+			snprintf (name, l, "%s", &text_to_add[1]);
+			add_buddy_confirmation (name);
+		}
 	}
 	
 	// filter any naughty words out

@@ -496,7 +496,7 @@ void display_notepad()
 	{
 		notepad_win = create_window (win_notepad, game_root_win, 0, note_win_x, note_win_y, note_win_x_len, note_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
 		
-		note_tabcollection_id = tab_collection_add (notepad_win, NULL, 5, 5, note_win_x_len - 10, note_win_y_len - 10, 20, 3);
+		note_tabcollection_id = tab_collection_add (notepad_win, NULL, 5, 5, note_win_x_len - 10, note_win_y_len - 10, 20);
 		widget_set_size (notepad_win, note_tabcollection_id, 0.7);
 		widget_set_color (notepad_win, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
 		main_note_tab_id = tab_add (notepad_win, note_tabcollection_id, tab_main, 0, 0);

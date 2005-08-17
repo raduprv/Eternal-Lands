@@ -83,16 +83,17 @@ void add_message_to_pm_log(char * msg, int len);
 
 /*!
  * \ingroup network_actors
- * \brief Sends an AFK message to the server
+ * \brief Sends an AFK message to a player
  *
- *      Sends an AFK message to the server to inform it about a player going into AFK state.
+ *      Sends an AFK message to a player to inform him about being AFK
  *
- * \param server_msg    a handle for the message to sent.
- * \param type          the type of message to sent.
+ * \param server_msg	string containing the name of the player 
+ * \param len		the length of the string
+ * \param type          the type of message to send.
  *
  * \callgraph
  */
-void send_afk_message(Uint8 * server_msg, int type);
+void send_afk_message (const Uint8 *server_msg, int len, int type);
 
 /*!
  * \ingroup actor_utils
