@@ -1052,6 +1052,14 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 			}
 			break;
 
+#ifdef NEW_CLIENT
+		case MAP_FLAGS: 
+			{
+				map_flags=SDL_SwapLE32(*((Uint32*)(in_data+3)));
+			}
+			break;
+#endif
+
 		default:
 			{
 				// Unknown data type??

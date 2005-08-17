@@ -502,9 +502,7 @@ void render_light_view()
 			glPolygonOffset(1.1f,4.0f);
 			glDisable(GL_LIGHTING);
 			glEnable(GL_DEPTH_TEST);
-#ifdef	USE_FOG
-			glDisable(GL_FOG);
-#endif	//USE_FOG
+			if(use_fog)glDisable(GL_FOG);
 			glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
 			CHECK_GL_ERRORS();
 			glMatrixMode(GL_PROJECTION);

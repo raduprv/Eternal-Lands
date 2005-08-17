@@ -44,6 +44,8 @@ int num_rain_drops=0, max_rain_drops=0;
 rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 int rain_table_valid = 0;
 
+int use_fog=1;
+
 #ifdef DEBUG
 int rain_calls = 0;
 int last_rain_calls = 0;
@@ -81,7 +83,6 @@ void build_rain_table()
 			rain_drops[i].x2[1] = rain_drops[i].x1[1];
 			rain_drops[i].x2[2] = rain_drops[i].x1[2] - 0.08f;
 		}
-
 }
 
 void update_rain()
@@ -123,6 +124,7 @@ void update_rain()
 
 void render_rain()
 {
+	if(!num_rain_drops) return;
 	glPushAttrib(GL_LIGHTING_BIT);
 	glDisable(GL_LIGHTING);
 	
@@ -161,21 +163,27 @@ void rain_control()
 		// gracefully stop rain
 		if (seconds_till_rain_stops >= 90) {
 			is_raining=1;
-			if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
-			if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias);
+			if(!(map_flags&SNOW)){
+				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+				num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
+				if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias);
+			} else num_rain_drops=0;
 			seconds_till_rain_stops--;
 		} else if (seconds_till_rain_stops > 60) {
 			is_raining=1;
-			if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-			num_rain_drops = rain_strength_bias*((seconds_till_rain_stops - 60)*MAX_RAIN_DROPS)/30;
-			if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(seconds_till_rain_stops - 60)/30.0f);
+			if(!(map_flags&SNOW)){
+				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+				num_rain_drops = rain_strength_bias*((seconds_till_rain_stops - 60)*MAX_RAIN_DROPS)/30;
+				if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(seconds_till_rain_stops - 60)/30.0f);
+			}
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
 			if (is_raining) is_raining = 0;
-			if(rain_sound != 0) {
-				stop_sound(rain_sound);
-				rain_sound=0;
+			if(!(map_flags&SNOW)){
+				if(rain_sound != 0) {
+					stop_sound(rain_sound);
+					rain_sound=0;
+				}
 			}
 			num_rain_drops = 0;
 			if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
@@ -199,18 +207,30 @@ void rain_control()
 		// gracefully start rain
 		if (seconds_till_rain_starts >= 30) {
 			num_rain_drops = 0;
-			if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
+			if(!(map_flags&SNOW)){
+				if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
+			}
 			seconds_till_rain_starts--;
 		} else if(seconds_till_rain_starts) {
 			if(!is_raining) {
 				is_raining=1;
-				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+				if(!(map_flags&SNOW)){
+					if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+				}
 			}
-			num_rain_drops = rain_strength_bias*(30-seconds_till_rain_starts)*MAX_RAIN_DROPS/30.0f;
-			if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(1.0f - seconds_till_rain_starts/30.0f));
+			if(!(map_flags&SNOW)){
+				num_rain_drops = rain_strength_bias*(30-seconds_till_rain_starts)*MAX_RAIN_DROPS/30.0f;
+				if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(1.0f - seconds_till_rain_starts/30.0f));
+			} else {
+				num_rain_drops=0;
+			}
 			seconds_till_rain_starts--;
 		} else {
-			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
+			if(!(map_flags&SNOW)){
+				num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
+			} else {
+				num_rain_drops = 0;
+			}
 			seconds_till_rain_starts=-1;
 			rain_table_valid = 0;
 			rain_light_offset = rain_light_bias*30;
@@ -223,11 +243,15 @@ void rain_control()
 		// neither ==> keep status
 		rain_table_valid = 0;
 		if (is_raining) {
-			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
-			if (rain_sound) {
-				sound_object_set_gain(rain_sound, rain_strength_bias);
+			if(!(map_flags&SNOW)){
+				num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
+				if (rain_sound) {
+					sound_object_set_gain(rain_sound, rain_strength_bias);
+				} else {
+					rain_sound=add_sound_object(snd_rain,0,0,0,1);
+				}
 			} else {
-				rain_sound=add_sound_object(snd_rain,0,0,0,1);
+				num_rain_drops = 0;
 			}
 		} else {
 			num_rain_drops = 0;
@@ -243,6 +267,8 @@ void rain_control()
 void thunder_control()
 {
 	int i;
+
+	if(map_flags&SNOW) return;
 
 	if(thunder_control_counter+100<cur_time)
 		{
@@ -297,6 +323,8 @@ void add_thunder(int type,int sound_delay)
 {
 	int i;
 
+	if(map_flags&SNOW) return;
+
 	for(i=0;i<MAX_THUNDERS;i++)
 		{
 			if(!thunders[i].in_use)
@@ -347,18 +375,42 @@ void render_fog() {
 	GLfloat rainStrength, rainAlpha, diffuseBias;
 	int i; float tmpf;
 
-	rainStrength = num_rain_drops/(float) MAX_RAIN_DROPS;
-	rainAlpha = 0.2f*rain_color[3]*rainStrength;
-		// in dungeons and at night we use smaller light sources ==> less diffuse light
-	diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
-	for (i=0; i<3; i++) {
-		// blend ambient and diffuse light to build a base fog color
-		GLfloat tmp = 0.5f*sun_ambient_light[i] + diffuseBias*difuse_light[i];
-		if (is_raining) {
-		// blend base color with rain color
-			fogColor[i] = (1.0f - rainAlpha)*tmp + rainAlpha*rain_color[i];
-		} else {
-			fogColor[i] = tmp;
+	if(!(map_flags&SNOW)) {
+		rainStrength = num_rain_drops/(float) MAX_RAIN_DROPS;
+		rainAlpha = 0.2f*rain_color[3]*rainStrength;
+			// in dungeons and at night we use smaller light sources ==> less diffuse light
+		diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
+		for (i=0; i<3; i++) {
+			// blend ambient and diffuse light to build a base fog color
+			GLfloat tmp = 0.5f*sun_ambient_light[i] + diffuseBias*difuse_light[i];
+			if (is_raining) {
+			// blend base color with rain color
+				fogColor[i] = (1.0f - rainAlpha)*tmp + rainAlpha*rain_color[i];
+			} else {
+				fogColor[i] = tmp;
+			}
+		}
+	
+		// interpolate fog distance between min and max depending on rain
+		// TODO: Is linear interpolation the best idea here?
+		fogDensity = (is_raining)?  (rainStrength*maxDensity + (1.0f - rainStrength)*minDensity) : minDensity;
+		tmpf = exp(-10.0f*fogDensity);
+		fogAlpha = 1.0f - tmpf*tmpf;
+		
+	} else {
+		rainStrength = rain_strength_bias;
+		rainAlpha = 0.2f*rain_color[3]*rainStrength;
+			// in dungeons and at night we use smaller light sources ==> less diffuse light
+		diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
+		for (i=0; i<3; i++) {
+			// blend ambient and diffuse light to build a base fog color
+			GLfloat tmp = 0.5f*sun_ambient_light[i] + diffuseBias*difuse_light[i];
+			if (is_raining) {
+			// blend base color with rain color
+				fogColor[i] = (1.0f - rainAlpha)*tmp + rainAlpha*rain_color[i];
+			} else {
+				fogColor[i] = tmp;
+			}
 		}
 	}
 

@@ -10,6 +10,7 @@
  */
 
 int map_type=1;
+Uint32 map_flags=0;
 
 void destroy_map()
 {

@@ -13,6 +13,9 @@ extern int storage_win; /*!< window handler for the new storage window */
 extern int storage_item_dragged;
 extern ground_item storage_items[200]; /*!< list of storage items. */
 
+extern int storage_win_x;
+extern int storage_win_y;
+
 /*!
  * \ingroup storage_window
  * \brief Gets the storage categories from the server data \a in_data.

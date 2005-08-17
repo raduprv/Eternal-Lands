@@ -71,7 +71,7 @@ void get_old_world_x_y()
 
 void Enter2DMode()
 {
-	glDisable(GL_FOG);
+	if(use_fog)glDisable(GL_FOG);
 	glPushAttrib(GL_LIGHTING_BIT|GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -96,7 +96,8 @@ void Leave2DMode()
 	glMatrixMode(GL_MODELVIEW);
 	glPopAttrib();
 	glViewport(0, hud_y, window_width-hud_x, window_height-hud_y);
-	glEnable(GL_FOG);
+	if(use_fog)glEnable(GL_FOG);
+	else glDisable(GL_FOG);
 	//glViewport(0, 0, window_width-hud_x, window_height-hud_y);	// Reset The Current Viewport
 }
 

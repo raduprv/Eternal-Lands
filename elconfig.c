@@ -70,7 +70,7 @@ struct {
 int elconfig_menu_x = 10;
 int elconfig_menu_y = 10;
 int elconfig_menu_x_len = 520;
-int elconfig_menu_y_len = 430;
+int elconfig_menu_y_len = 450;
 
 int compass_direction_checkbox = 1;
 int shadow_map_size_multi = 0;
@@ -143,6 +143,7 @@ void change_poor_man(int *poor_man)
 		shadows_on=0;
 		clouds_shadows=0;
 		use_shadow_mapping=0;
+		use_fog=0;
 	}
 }
 
@@ -640,6 +641,7 @@ void init_vars()
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0,"Shadows","Toggles the shadows",VIDEO);
 	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0,"Shadow Mapping","If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.",VIDEO);
 	add_var(MULTI,"max_shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096","8192",NULL);
+	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render fog","Toggles fog rendering.",VIDEO);
 	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);
 	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1,"Show Reflections","Toggle the relections",VIDEO);
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",SPECIALVID);

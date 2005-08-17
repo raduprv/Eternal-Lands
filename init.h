@@ -115,8 +115,14 @@ typedef struct
 	int has_accepted_rules;
 
 	int quantity[6];
+
+#ifdef NEW_CLIENT
+	int storage_win_x;
+	int storage_win_y;
+#endif
+
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[10];
+	int reserved[8];
 
     /*!
      * \name Camera position and attributes

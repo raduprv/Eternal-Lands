@@ -25,6 +25,7 @@ extern int rain_sound;                  /*!< Specifies the rain sound */
 extern int weather_light_offset;        /*!< Sets the current light offset */
 extern int rain_light_offset;           /*!< Sets the current rain offset */
 extern int thunder_light_offset;        /*!< Sets the current thunder light offset */
+extern int use_fog;			/*!< Whether we are using fog or not */
 
 /*!
  * \ingroup	other

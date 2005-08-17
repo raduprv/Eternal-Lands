@@ -7,6 +7,44 @@
 #define __MAP_IO_H__
 
 extern char map_file_name[60]; /*!< filename of the current map */
+#ifdef NEW_CLIENT
+#define PLAINS 		0x00000001 //It can rain here
+#define SNOW 		0x00000002 //It can snow here
+#define DESERT 		0x00000004 //It can be darned hot here :P
+#define DUNGEON 	0x00000008
+#define HOUSE		0x00000010
+#define BOAT		0x00000020 //Tilt the ground level slightly?
+/*
+#define RESERVED 	0x00000040 
+#define RESERVED	0x00000080 
+#define RESERVED 	0x00000100 
+#define RESERVED 	0x00000200 
+#define RESERVED 	0x00000400 
+#define RESERVED 	0x00000800 
+#define RESERVED 	0x00001000 
+#define RESERVED 	0x00002000 
+#define RESERVED 	0x00004000 
+#define RESERVED 	0x00008000 
+#define RESERVED 	0x00010000 
+#define RESERVED 	0x00020000 
+#define RESERVED 	0x00040000 
+#define RESERVED 	0x00080000 
+#define RESERVED 	0x00100000 
+#define RESERVED 	0x00200000 
+#define RESERVED 	0x00400000 
+#define RESERVED 	0x00800000 
+#define RESERVED 	0x01000000
+#define RESERVED 	0x02000000
+#define RESERVED 	0x04000000
+#define RESERVED 	0x08000000 
+#define RESERVED 	0x10000000
+#define RESERVED 	0x20000000
+#define RESERVED 	0x40000000
+#define RESERVED 	0x80000000 
+*/
+
+extern Uint32 map_flags;/*!< The map flags - basically this will be obsolete with the next map format, but untill then it's good to have*/
+#endif
 
 /*!
  * The structure used for IO of object3d files.

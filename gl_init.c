@@ -429,12 +429,6 @@ void init_video()
 	glEnable(GL_NORMALIZE);
 	glClearStencil(0);
 
-#ifdef	USE_FOG
-	glFogi(GL_FOG_MODE,GL_LINEAR);
-	glFogf(GL_FOG_START,5.0);
-	glFogf(GL_FOG_END,35.0);
-#endif	//USE_FOG
-
 #ifdef ANTI_ALIAS
 	if (anti_alias) {
 		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);	
