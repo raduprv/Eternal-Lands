@@ -486,7 +486,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 		snprintf(string, sizeof(string), buddy_wants_to_add_str, accept_windows[current_window].name);
 		//label_add_extended(buddy_accept_win, label_id++, NULL, x, y, 0, 0, 0, 0.8, -1, -1, -1, string);
 		accept_windows[current_window].text = malloc((strlen(string)+5)*sizeof(*accept_windows[current_window].text));
-		put_small_text_in_box(string, strlen(string), buddy_accept_x_len-10, accept_windows[current_window].text);
+		put_small_colored_text_in_box(c_blue1, string, strlen(string), buddy_accept_x_len-10, accept_windows[current_window].text);
 		y += 40;
 		/* Add checkbox if we don't have him/her in our list. */
 		if(!is_in_buddylist(accept_windows[current_window].name)) {
@@ -498,10 +498,11 @@ int create_buddy_interface_win(const char *title, void *argument)
 			x = 5;
 		}
 		/* Add buttons */
-		x = (buddy_accept_x_len - (get_string_width(yes_str)*0.9 + 2 + 10 + 2 + get_string_width(no_str)))/2;
-		yes_button = button_add(accept_windows[current_window].window_id, NULL, yes_str, x, y);
-		x += get_string_width(yes_str) + 2 + 10 ;
-		no_button = button_add(accept_windows[current_window].window_id, NULL, no_str, x, y);
+		x = (buddy_accept_x_len - (get_string_width(yes_str)*0.9 + 2 + 10 + 2 + get_string_width(no_str)))/2-40;
+		yes_button = button_add_extended(accept_windows[current_window].window_id, 101, NULL, x, y, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, yes_str);
+		
+		x += get_string_width(yes_str) + 2 + 50 ;
+		no_button = button_add_extended(accept_windows[current_window].window_id, 102, NULL, x, y, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, no_str);
 		widget_set_OnClick(accept_windows[current_window].window_id, yes_button, click_accept_yes);
 		widget_set_OnClick(accept_windows[current_window].window_id, no_button, click_accept_no);
 
@@ -547,6 +548,7 @@ void add_buddy(char *n, int t, int len)
 	int i;
 	char message[35];
 	time_t n_time;
+
 	if(buddy_log_notice>0)time(&n_time);
 
 	//find empty space
