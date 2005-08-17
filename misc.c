@@ -561,24 +561,28 @@ void draw_box(char * name, int x, int y, int w, int h, int rad)
 }
 
 
-void draw_smooth_button(char * str, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha)
+void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha)
 {
-	int radius=lines*11.0f;
+	int radius=lines*15*size;
+	float width_ratio=(size*DEFAULT_FONT_X_LEN)/12.0f;
 	int xstr=0;
 	
 	if(str){
-		xstr=x+radius+(w-(get_string_width(str)*8.0f/12.0f))/2.0f;
+		xstr=x+radius+(w-(get_string_width(str)*width_ratio))/2.0f;
 	}
 
 	glDisable(GL_TEXTURE_2D);
 
-	glColor3f(r, g, b);
+	if(r>=0.0f)
+		glColor3f(r, g, b);
+	
 	glBegin(GL_LINE_LOOP);
 		draw_circle_ext(x, y, radius, 10, 90, 270);
 		draw_circle_ext(x+w, y, radius, 10, -90, 90);
 	glEnd();
 	if(highlight) {
-		glColor4f(hr,hg,hb,ha);
+		if(hr>=0.0f)
+			glColor4f(hr,hg,hb,ha);
 		glBegin(GL_POLYGON);
 			draw_circle_ext(x+1, y+1, radius-1, 10, 90, 270);
 			draw_circle_ext(x+w+1, y+1, radius-1, 10, -90, 90);
@@ -591,6 +595,6 @@ void draw_smooth_button(char * str, int x, int y, int w, int lines, float r, flo
 	}
 
 	if(str) {
-		draw_string_small(xstr, y+radius/2.0f, str, lines);
+		draw_string_zoomed(xstr, y+radius/2.0f, str, lines, size);
 	}
 }

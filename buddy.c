@@ -28,7 +28,7 @@ int buddy_add_y_len = 97;
 
 int buddy_change_win = -1;
 int buddy_change_x_len = 290;
-int buddy_change_y_len = 245;
+int buddy_change_y_len = 255;
 int buddy_type_input_id = -1;
 int buddy_change_button_id = -1;
 int buddy_delete = 0; //For the checkbox
@@ -95,6 +95,7 @@ int display_buddy_handler(window_info *win)
 		glEnable(GL_TEXTURE_2D);
 		draw_string_zoomed(win->len_x/3+10,1,"Requests",1,0.7);
 	}
+	glColor3f(0.77f, 0.57f, 0.39f);
 	return 1;
 }
 
@@ -229,19 +230,19 @@ int display_add_buddy_handler(window_info *win)
 }
 int name_onmouseover_handler(widget_list *widget, int mx, int my)
 {
-	put_small_text_in_box(buddy_long_name_str, strlen(buddy_long_name_str),
+	put_small_colored_text_in_box(c_orange1, buddy_long_name_str, strlen(buddy_long_name_str),
                                buddy_add_x_len-10, description_buffer);
 	return 1;
 }
 int type_onmouseover_handler(widget_list *widget, int mx, int my)
 {
-	put_small_text_in_box(buddy_long_type_str, strlen(buddy_long_type_str),
+	put_small_colored_text_in_box(c_orange1, buddy_long_type_str, strlen(buddy_long_type_str),
                                buddy_add_x_len-10, description_buffer);
 	return 1;
 }
 int delete_onmouseover_handler(widget_list *widget, int mx, int my)
 {
-	put_small_text_in_box(buddy_long_delete_str, strlen(buddy_long_delete_str), 
+	put_small_colored_text_in_box(c_orange1, buddy_long_delete_str, strlen(buddy_long_delete_str), 
 							buddy_change_x_len-10, description_buffer);
 	return 1;
 }
@@ -251,6 +252,7 @@ int display_accept_buddy_handler(window_info *win)
 	if(win != NULL) {
 		int i;
 		
+		glColor3f(0.77f, 0.57f, 0.39f);
 		for(i = 0; i < MAX_ACCEPT_BUDDY_WINDOWS; i++) {
 			if(accept_windows[i].window_id == win->window_id) {
 				draw_string_small(5, 5, accept_windows[i].text, 2);
@@ -385,10 +387,10 @@ int create_buddy_interface_win(const char *title, void *argument)
 	if(strcmp(title, buddy_add_str) == 0) {
 		if(buddy_add_win < 0) {
 			/* Create the window */
-			buddy_add_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_add_x_len, buddy_add_y_len, ELW_WIN_DEFAULT);
+			buddy_add_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_add_x_len, buddy_add_y_len+10, ELW_WIN_DEFAULT);
 			set_window_handler(buddy_add_win, ELW_HANDLER_DISPLAY, &display_add_buddy_handler);
 			/* Add name input and label */
-			label_id = label_add_extended(buddy_add_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 1, 1, 1, buddy_name_str);
+			label_id = label_add_extended(buddy_add_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_str);
 			string_width = get_string_width(buddy_name_str)*0.9f;
 			x = string_width+5;
 			y = 5;
@@ -398,7 +400,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 			widget_set_OnKey(buddy_add_win, buddy_name_input_id, name_input_keypress_handler);
 			/* Add "Add buddy" button */
 			y += 5+20;
-			extra_space = 2+((buddy_add_x_len-string_width*2) - get_string_width(buddy_add_str))/2;
+			extra_space = 2+((buddy_add_x_len-string_width*2) - get_string_width(buddy_add_str))/2-15;
 			buddy_add_button_id = button_add(buddy_add_win, NULL, buddy_add_str, x+extra_space, y);
 			widget_set_OnClick(buddy_add_win, buddy_add_button_id, click_add_buddy_handler);
 			return buddy_add_win;
@@ -419,17 +421,17 @@ int create_buddy_interface_win(const char *title, void *argument)
 		buddy_change_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_change_x_len, buddy_change_y_len, ELW_WIN_DEFAULT);
 		set_window_handler(buddy_change_win, ELW_HANDLER_DISPLAY, &display_add_buddy_handler);
 		/* Add name label and name */
-		label_id = label_add_extended(buddy_change_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 1, 1, 1, buddy_name_str);
+		label_id = label_add_extended(buddy_change_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_str);
 		widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
 		x += get_string_width(buddy_name_str)*0.9f+5;
-		label_id = label_add_extended(buddy_change_win, ++label_id, NULL, x, y, 0, 0, 0, 0.9f, 1, 1, 1, buddy_to_change);
+		label_id = label_add_extended(buddy_change_win, ++label_id, NULL, x, y, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_to_change);
 		widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
 		label_id++;
 		x = 5;
 		/* Add type label and input widget */
 		y += 25;
 		x += string_width = get_string_width(buddy_type_str)*0.9f;
-		label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0, 0, 0.9f, 1, 1, 1, buddy_type_str);
+		label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_type_str);
 
 		buddy_type_input_id = multiselect_add(buddy_change_win, NULL, x, y, buddy_add_x_len-string_width*2);
 		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 0, "White", 1);
@@ -455,7 +457,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 		x -= 20;
 		y += 20;
 		/* Add button */
-		extra_space = 2+((buddy_change_x_len-string_width*2) - get_string_width(buddy_change_str))/2;
+		extra_space = 2+((buddy_change_x_len-string_width*2) - get_string_width(buddy_change_str))/2-15;
 		buddy_change_button_id = button_add(buddy_change_win, NULL, buddy_change_str, x+extra_space, y);
 		widget_set_OnClick(buddy_change_win, buddy_change_button_id, click_change_buddy_handler);
 		return buddy_change_win;
@@ -532,6 +534,7 @@ void display_buddy()
 			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 130, 20, 20, 180, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, MAX_BUDDY-19);
 			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, buddy_menu_y_len-20, buddy_menu_x_len, 20, 0, 1.0, -1.0, -1.0, -1.0, buddy_add_str);
 			widget_set_OnClick(buddy_win, buddy_button_id, click_buddy_button_handler);
+			widget_set_OnDraw(buddy_win, buddy_button_id, square_button_draw); 
 		}
 	else
 		{

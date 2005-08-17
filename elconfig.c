@@ -1185,7 +1185,7 @@ void elconfig_populate_tabs(void)
 					char *label = queue_pop(our_vars.var[i]->queue);
 					int width = strlen(label) > 0 ? 0 : -1;
 
-					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, 0, y*(22+SPACING), width, label, y == *(int *)our_vars.var[i]->var);
+					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, 0, y*(22+SPACING), width, label, DEFAULT_SMALL_RATIO, y == *(int *)our_vars.var[i]->var);
 					if(strlen(label) == 0) {
 						y--;
 					}

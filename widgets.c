@@ -521,19 +521,34 @@ int button_draw(widget_list *W)
 		extra_space = 0;
 	}
 
+	draw_smooth_button((unsigned char *)l->text, W->size, W->pos_x, W->pos_y, W->len_x, 1, W->r, W->g, W->b, 0, 0.0f, 0.0f, 0.0f, 0.0f);
+	
+	return 1;
+}
+
+int square_button_draw(widget_list *W)
+{
+	button *l = (button *)W->widget_info;
+	float extra_space = (W->len_x - get_string_width(l->text)*W->size)/2.0f;
+	if(extra_space < 0) {
+		extra_space = 0;
+	}
+
 	glDisable(GL_TEXTURE_2D);
+
 	if(W->r != -1.0)
 		glColor3f(W->r,W->g,W->b);
 
 	glBegin(GL_LINE_LOOP);
-	glVertex3i(W->pos_x,W->pos_y,0);
-	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
-	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
-	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
+		glVertex3i(W->pos_x,W->pos_y,0);
+		glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
+		glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
+		glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
 	draw_string_zoomed(W->pos_x + 2 + extra_space, W->pos_y + 2, (unsigned char *)l->text, 1, W->size);
+
 	return 1;
 }
 
@@ -547,7 +562,6 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 	}
 	return 0;
 }
-
 
 // Progressbar
 int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
@@ -1695,7 +1709,7 @@ int multiselect_draw(widget_list *widget)
 			} else {
 				button_y = M->buttons[i].y;
 			}
-			draw_smooth_button(M->buttons[i].text, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-22, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
+			draw_smooth_button(M->buttons[i].text, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-22, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
 		}
 	}
 	return 1;
@@ -1703,10 +1717,10 @@ int multiselect_draw(widget_list *widget)
 
 int multiselect_button_add(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected)
 {
-	return multiselect_button_add_extended(window_id, multiselect_id, x, y, 0, text, selected);
+	return multiselect_button_add_extended(window_id, multiselect_id, x, y, 0, text, DEFAULT_SMALL_RATIO, selected);
 }
 
-int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, const char selected)
+int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, float size, const char selected)
 {
 	widget_list *widget = widget_find(window_id, multiselect_id);
 	multiselect *M = widget->widget_info;
@@ -1715,6 +1729,9 @@ int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uin
 	if(y+22 > widget->len_y && (!M->max_height || widget->len_y != M->max_height)) {
 		widget->len_y = y+22; //22 = button height
 	}
+
+	widget->size=size;
+	
 	if (M->max_height && y+22 > M->actual_height) {
 		M->actual_height = y+22;
 	}

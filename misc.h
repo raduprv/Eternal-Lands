@@ -228,6 +228,7 @@ void draw_box(char * name, int x, int y, int w, int h, int rad);
  * 	Draws a button with round corners. The box can be highlighted with the chosen highlight colors (r,g,b,a).
  *
  * \param str The name to write within the button, optional
+ * \param size The size of the text
  * \param x The start x position
  * \param y The start y position
  * \param w The width
@@ -241,5 +242,5 @@ void draw_box(char * name, int x, int y, int w, int h, int rad);
  * \param hb The blue color for highlighted buttons
  * \param ha The alpha color for highlighted buttons
  */
-void draw_smooth_button(char * str, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
+void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
 #endif

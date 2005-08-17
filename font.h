@@ -16,6 +16,11 @@
 #define SMALL_INGAME_FONT_Y_LEN 0.17
 #define ALT_INGAME_FONT_X_LEN 0.10
 #define ALT_INGAME_FONT_Y_LEN 0.15
+#define DEFAULT_FONT_X_LEN 11.0f
+#define DEFAULT_FONT_Y_LEN 18.0f
+#define SMALL_FONT_X_LEN 8.0f
+#define SMALL_FONT_Y_LEN 15.0f
+#define DEFAULT_SMALL_RATIO (SMALL_FONT_X_LEN/DEFAULT_FONT_X_LEN)
 /*! @} */
 
 extern int	chat_font; /*!< font size used for chat font */

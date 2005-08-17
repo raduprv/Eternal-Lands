@@ -446,6 +446,9 @@ extern char	reg_error_str[15],
 		snd_media_ogg_error[50], //sound.c
 		stat_no_invalid[50], //stats.c
 		timer_lagging_behind[100], //timers.c
+		/*spells.c*/
+		cast_str[20],
+		/*rules.c*/
 		you_can_proceed[50],
 		accepted_rules[50],
 		read_rules_str[50],

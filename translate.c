@@ -362,6 +362,8 @@ char	reg_error_str[15],
 	stat_no_invalid[50],
 	/*timers.c*/
 	timer_lagging_behind[100],
+	/*spells.c*/
+	cast_str[20],
 	/* notepad.c */
 	cant_parse_notes[100],
 	notes_wrong[100],
@@ -764,6 +766,7 @@ void init_help()
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
 	add_xml_identifier(misc,"mix",mix_str,"Mix",sizeof(mix_str));
 	add_xml_identifier(misc,"clear",clear_str,"Clear",sizeof(clear_str));
+	add_xml_identifier(misc,"cast",cast_str,"Cast",sizeof(cast_str));
 	add_xml_identifier(misc,"connect",connect_to_server_str,"Connecting to Server...",sizeof(connect_to_server_str));
 	add_xml_identifier(misc,"reconnect",reconnect_str,"Press any key to try again.",sizeof(reconnect_str));
 	add_xml_identifier(misc,"license",license_check,"Entropy says: U R 2 g00d 2 r34d +h3 license.txt?\nBTW, that license.txt file is actually there for a reason.",sizeof(license_check));

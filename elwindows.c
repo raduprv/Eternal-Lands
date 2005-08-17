@@ -585,7 +585,7 @@ int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int 
 	}
 
 	// find an empty slot
-	for (i=0; i<windows_list.num_windows; i++)
+	for (i=1; i<windows_list.num_windows; i++)
 	{
 		if (windows_list.window[i].window_id < 0)
 		{
@@ -898,10 +898,10 @@ int	draw_window_border(window_info *win)
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 		glColor4f(win->back_color[0],win->back_color[1],win->back_color[2],win->back_color[3]);
 		glBegin(GL_QUADS);
-		glVertex3i(0, win->len_y, 0);
-		glVertex3i(0, 0, 0);
-		glVertex3i(win->len_x, 0, 0);
-		glVertex3i(win->len_x, win->len_y, 0);
+			glVertex3i(0, win->len_y, 0);
+			glVertex3i(0, 0, 0);
+			glVertex3i(win->len_x, 0, 0);
+			glVertex3i(win->len_x, win->len_y, 0);
 		glEnd();
 		glDisable(GL_BLEND);
 	}
@@ -916,10 +916,10 @@ int	draw_window_border(window_info *win)
 		{
 			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 			glBegin(GL_LINE_LOOP);
-			glVertex3i(0, 0, 0);
-			glVertex3i(win->len_x, 0, 0);
-			glVertex3i(win->len_x, win->len_y, 0);
-			glVertex3i(0, win->len_y, 0);
+				glVertex3i(0, 0, 0);
+				glVertex3i(win->len_x, 0, 0);
+				glVertex3i(win->len_x, win->len_y, 0);
+				glVertex3i(0, win->len_y, 0);
 			glEnd();
 		}
 	}
@@ -929,17 +929,17 @@ int	draw_window_border(window_info *win)
 		// draw the diagonal drag stripes
 		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 		glBegin(GL_LINES);
-		glVertex3i(win->len_x-ELW_BOX_SIZE/4, win->len_y, 0);
-		glVertex3i(win->len_x, win->len_y-ELW_BOX_SIZE/4, 0);
+			glVertex3i(win->len_x-ELW_BOX_SIZE/4, win->len_y, 0);
+			glVertex3i(win->len_x, win->len_y-ELW_BOX_SIZE/4, 0);
 
-		glVertex3i(win->len_x-ELW_BOX_SIZE/2, win->len_y, 0);
-		glVertex3i(win->len_x, win->len_y-ELW_BOX_SIZE/2, 0);
+			glVertex3i(win->len_x-ELW_BOX_SIZE/2, win->len_y, 0);
+			glVertex3i(win->len_x, win->len_y-ELW_BOX_SIZE/2, 0);
 
-		glVertex3i(win->len_x-(3*ELW_BOX_SIZE)/4, win->len_y, 0);
-		glVertex3i(win->len_x, win->len_y-(3*ELW_BOX_SIZE)/4, 0);
+			glVertex3i(win->len_x-(3*ELW_BOX_SIZE)/4, win->len_y, 0);
+			glVertex3i(win->len_x, win->len_y-(3*ELW_BOX_SIZE)/4, 0);
 
-		glVertex3i(win->len_x-ELW_BOX_SIZE, win->len_y, 0);
-		glVertex3i(win->len_x, win->len_y-ELW_BOX_SIZE, 0);
+			glVertex3i(win->len_x-ELW_BOX_SIZE, win->len_y, 0);
+			glVertex3i(win->len_x, win->len_y-ELW_BOX_SIZE, 0);
 		glEnd();
 	}
 	
@@ -948,16 +948,25 @@ int	draw_window_border(window_info *win)
 		//draw the corner, with the X in
 		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 		glBegin(GL_LINE_STRIP);
-		glVertex3i(win->len_x, ELW_BOX_SIZE, 0);
-		glVertex3i(win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE, 0);
-		glVertex3i(win->len_x-ELW_BOX_SIZE, 0, 0);
+			glVertex3i(win->len_x, ELW_BOX_SIZE, 0);
+			glVertex3i(win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE, 0);
+			glVertex3i(win->len_x-ELW_BOX_SIZE, 0, 0);
 		glEnd();
 
-		glEnable(GL_TEXTURE_2D);
-		draw_string(win->len_x-(ELW_BOX_SIZE-4), 2, "X", 1);
+		glLineWidth(2.0f);
+
+		glBegin(GL_LINES);
+			glVertex2i(win->len_x-ELW_BOX_SIZE+3, 3);
+			glVertex2i(win->len_x-3, ELW_BOX_SIZE-3);
+		
+			glVertex2i(win->len_x-3, 3);
+			glVertex2i(win->len_x-ELW_BOX_SIZE+3, ELW_BOX_SIZE-3);
+		glEnd();
+
+		glLineWidth(1.0f);
 	}
 	
-	else glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
 
 	return 1;
 }

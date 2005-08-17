@@ -434,8 +434,8 @@ void draw_string_clipped(int x, int y, const unsigned char * our_string, int wid
 
 void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, int cursor_pos, int width, int height, float text_zoom)
 {
-	float displayed_font_x_size = 11.0 * text_zoom;
-	float displayed_font_y_size = 18.0 * text_zoom;
+	float displayed_font_x_size = DEFAULT_FONT_X_LEN * text_zoom;
+	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom;
 
 	unsigned char cur_char;
 	int i;
@@ -628,8 +628,8 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
 {
-	int displayed_font_x_size=8;
-	int displayed_font_y_size=15;
+	int displayed_font_x_size=SMALL_FONT_X_LEN;
+	int displayed_font_y_size=SMALL_FONT_Y_LEN;
 
 	unsigned char cur_char;
 	int i;

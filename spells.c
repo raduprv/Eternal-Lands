@@ -292,18 +292,6 @@ int display_sigils_handler(window_info *win)
 
 	glEnable(GL_TEXTURE_2D);
 
-	if(cast_mouseover)
-		glColor3f(0.87f,0.67f,0.49f);
-	else
-		glColor3f(0.77f,0.57f,0.39f);
-	draw_string(33*6+40+4,win->len_y-30+2,"Cast",1);
-
-	if(clear_mouseover)
-		glColor3f(0.87f,0.67f,0.49f);
-	else
-		glColor3f(0.77f,0.57f,0.39f);
-	draw_string(33*9+40+8,win->len_y-30+2,"Clear",1);
-
 	glColor3f(1.0f,1.0f,1.0f);
 	//let's add the new spell icon if we have one
 	get_and_set_texture_id(sigils_text);
@@ -382,9 +370,9 @@ int display_sigils_handler(window_info *win)
 					//get the x and y
 					cur_pos=i;
 
-					x_start=33*(cur_pos%6)+1;
+					x_start=33*(cur_pos%6)+5;
 					x_end=x_start+32;
-					y_start=33*5;
+					y_start=win->len_y-37;
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
@@ -405,25 +393,8 @@ int display_sigils_handler(window_info *win)
 	glColor3f(0.77f,0.57f,0.39f);
 	
 	rendergrid (12, 3, 0, 0, 33, 33);
-	rendergrid (6, 1, 0, 5*33, 33, 33);
+	rendergrid (6, 1, 5, win->len_y-37, 33, 33);
 	
-	//draw the buttons frame
-	//Mix button
-	glBegin(GL_LINE_LOOP);
-	glVertex3i(33*6+40,win->len_y-30,0);
-	glVertex3i(33*6+40+50,win->len_y-30,0);
-	glVertex3i(33*6+40+50,win->len_y-10,0);
-	glVertex3i(33*6+40,win->len_y-10,0);
-	glEnd ();
-
-	//Clear button
-	glBegin(GL_LINE_LOOP);
-	glVertex3i(33*9+40,win->len_y-30,0);
-	glVertex3i(33*9+40+70,win->len_y-30,0);
-	glVertex3i(33*9+40+70,win->len_y-10,0);
-	glVertex3i(33*9+40,win->len_y-10,0);
-	glEnd();
-
 	glEnable(GL_TEXTURE_2D);
 	
 #ifdef NEW_CLIENT
@@ -437,8 +408,6 @@ int display_sigils_handler(window_info *win)
 
 int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-	int i;
-	
 	// only handle real clicks, not scroll wheel moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0 ) return 0;
 
@@ -447,61 +416,6 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 		add_spell_to_quickbar();
 	}
 #endif
-
-	//clear button pressed?
-	if(mx>33*9+40 && mx<33*9+40+70 &&
-	   my>win->len_y-30 && my<win->len_y-10)
-		{
-			for(i=0;i<6;i++)on_cast[i]=-1;
-			return 1;
-		}
-
-	if(mx>33*6+40 && mx<33*6+40+50 &&
-	   my>win->len_y-30 && my<win->len_y-10)
-		{
-			//Cast?
-			Uint8 str[20];
-			int count=0;
-			int sigils_no=0;
-
-			for(i=0;i<6;i++)
-				{
-					if(on_cast[i]!=-1)
-						count++;
-				}
-
-			if(count<2)
-				{
-					sprintf(spell_text,"%c%s",127+c_red2,sig_too_few_sigs);
-					have_error_message=1;
-					return 1;
-				}
-			str[0]=CAST_SPELL;
-			for(i=0;i<6;i++)
-				{
-					if(on_cast[i]!=-1)
-						{
-							str[sigils_no+2]=on_cast[i];
-							sigils_no++;
-						}
-				}
-
-			str[1]=sigils_no;
-			last_spell_len=sigils_no+2;
-	
-#ifdef NEW_CLIENT
-			if(!mqb_data[0]){
-				mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
-				mqb_data[0]->spell_id=-1;
-			}
-			memcpy(mqb_data[0]->spell_str, str, last_spell_len);//Copy the last spell send to the server
-#endif
-
-			my_tcp_send(my_socket, str, sigils_no+2);
-			memcpy(last_spell_str, str, last_spell_len);
-			return 1;
-			//ok, send it to the server...
-		}
 
 	//see if we clicked on any sigil in the main category
 	
@@ -526,8 +440,8 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	}
 
-	if(mx>0 && mx<6*33 && my>5*33 && my<6*33){
-		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 0, 5*33, 33, 33);
+	if(mx>5 && mx<6*33+5 && my>win->len_y-37 && my<win->len_y-5){
+		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 
 		on_cast[pos]=-1;
 	}
@@ -539,20 +453,6 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 int mouseover_sigils_handler(window_info *win, int mx, int my)
 {
 	if(!have_error_message)spell_text[0]=0;
-
-	//clear button?
-	if(mx>33*9+40 && mx<33*9+40+70 &&
-	   my>win->len_y-30 && my<win->len_y-10)
-		clear_mouseover=1;
-	else
-		clear_mouseover=0;
-
-
-	if(mx>33*6+40 && mx<33*6+40+50 &&
-	   my>win->len_y-30 && my<win->len_y-10)
-		cast_mouseover=1;
-	else
-		cast_mouseover=0;
 
 #ifdef NEW_CLIENT
 	if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] &&mqb_data[0]->spell_name[0]){
@@ -573,8 +473,8 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	}
 
 	//see if we clicked on any sigil from "on cast"
-	if(mx>0 && mx<6*33 && my>5*33 && my<6*33){
-		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 0, 5*33, 33, 33);
+	if(mx>5 && mx<6*33+5 && my>win->len_y-37 && my<win->len_y-5){
+		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 		
 		if(on_cast[pos]!=-1){
 			my_strcp(spell_text,sigils_list[on_cast[pos]].name);
@@ -874,16 +774,79 @@ void init_quickspell()
 
 #endif
 
+int spell_clear_handler()
+{
+	int i;
+	
+	for(i=0;i<6;i++)on_cast[i]=-1;
+	
+	return 1;
+}
+
+int cast_handler()
+{
+	//Cast?
+	Uint8 str[20];
+	int count=0;
+	int sigils_no=0;
+	int i;
+
+	for(i=0;i<6;i++){
+		if(on_cast[i]!=-1)
+		count++;
+	}
+
+	if(count<2){
+		sprintf(spell_text,"%c%s",127+c_red2,sig_too_few_sigs);
+		have_error_message=1;
+		return 1;
+	}
+	
+	str[0]=CAST_SPELL;
+	for(i=0;i<6;i++){
+		if(on_cast[i]!=-1){
+			str[sigils_no+2]=on_cast[i];
+			sigils_no++;
+		}
+	}
+
+	str[1]=sigils_no;
+	last_spell_len=sigils_no+2;
+	
+#ifdef NEW_CLIENT
+	if(!mqb_data[0]){
+		mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
+		mqb_data[0]->spell_id=-1;
+	}
+	
+	memcpy(mqb_data[0]->spell_str, str, last_spell_len);//Copy the last spell send to the server
+#endif
+	
+	//ok, send it to the server...
+	my_tcp_send(my_socket, str, sigils_no+2);
+	memcpy(last_spell_str, str, last_spell_len);
+	return 1;
+}
+
 // Quickspell window end
 
 void display_sigils_menu()
 {
 	if(sigil_win < 0){
+		static int cast_button_id=100;
+		static int clear_button_id=101;
+		
 		sigil_win= create_window("Sigils", game_root_win, 0, sigil_menu_x, sigil_menu_y, sigil_menu_x_len, sigil_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(sigil_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
 		set_window_handler(sigil_win, ELW_HANDLER_CLICK, &click_sigils_handler );
 		set_window_handler(sigil_win, ELW_HANDLER_MOUSEOVER, &mouseover_sigils_handler );
+		
+		cast_button_id=button_add_extended(sigil_win, cast_button_id, NULL, 33*6+15, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, cast_str);
+		widget_set_OnClick(sigil_win, cast_button_id, cast_handler);
+		
+		clear_button_id=button_add_extended(sigil_win, clear_button_id, NULL, 33*9+8, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
+		widget_set_OnClick(sigil_win, clear_button_id, spell_clear_handler);
 	} else {
 		show_window(sigil_win);
 		select_window(sigil_win);

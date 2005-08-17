@@ -574,8 +574,7 @@ int checkbox_get_checked(Uint32 window_id, Uint32 widget_id);
 int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked);
 
 
-
-// Button
+//Button
 
 /*!
  * \ingroup	buttons
@@ -621,15 +620,27 @@ int button_add(Uint32 window_id, int (*OnInit)(), const char *text, Uint16 x, Ui
 
 /*!
  * \ingroup	buttons
- * \brief 	Draws a button
+ * \brief 	Draws a smooth button
  *
- * 		Draws the button widget pointed to by W.
+ * 		Draws the smooth button widget pointed to by W.
  *
  * \param   	W The button widget
  * \retval int  	Returns true
  * \callgraph
  */
 int button_draw(widget_list *W);
+
+/*!
+ * \ingroup	buttons
+ * \brief 	Draws a square button
+ *
+ * 		Draws the square button widget pointed to by W.
+ *
+ * \param   	W The button widget
+ * \retval int  	Returns true
+ * \callgraph
+ */
+int square_button_draw(widget_list *W);
 
 /*!
  * \ingroup	buttons
@@ -1200,7 +1211,7 @@ void pword_set_status(widget_list *w, Uint8 status);
 int multiselect_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width);
 int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, Uint16 max_height, float size, float r, float g, float b, float hr, float hg, float hb, int max_buttons);
 int multiselect_button_add(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected);
-int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, const char selected);
+int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, float size, const char selected);
 int multiselect_get_selected(Uint32 window_id, Uint32 widget_id);
 int multiselect_set_selected(Uint32 window_id, Uint32 widget_id, int button_id);
 int multiselect_get_height(Uint32 window_id, Uint32 widget_id);

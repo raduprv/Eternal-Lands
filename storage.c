@@ -128,6 +128,8 @@ void get_storage_items(Uint8 * in_data, int len)
 	for(;i<200;i++){
 		storage_items[i].quantity=0;
 	}
+	
+	vscrollbar_set_pos(storage_win, 1201, 0);
 }
 
 int storage_win=-1;
@@ -350,6 +352,9 @@ void display_storage_menu()
 
 		show_window(storage_win);
 		select_window(storage_win);
+
+		vscrollbar_set_pos(storage_win, 1200, 0);
+		vscrollbar_set_pos(storage_win, 1201, 0);
 	}
 }
 void close_storagewin()

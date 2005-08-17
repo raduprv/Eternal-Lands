@@ -704,7 +704,7 @@ int show_items_handler(window_info * win)
 	wear_items_x_offset=6*items_grid_size+20;
 
 	w=widget_find(items_win, drop_button_id);
-	if(w)w->pos_y=6*items_grid_size;
+	if(w)w->pos_y=6*items_grid_size+2;
 	
 	strncpy(str,items_string,sizeof(items_string));
 	put_small_text_in_box(str,strlen(str),6*items_grid_size+100,items_string);
@@ -723,7 +723,7 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		
-		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 0, 6*(video_mode>4?51:33)+10, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, "Drop All");
+		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 2, 6*(video_mode>4?51:33)+2, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, "Drop All");
 		widget_set_OnClick (items_win, drop_button_id, drop_all_handler);
 		
 		show_items_handler(&windows_list.window[items_win]);

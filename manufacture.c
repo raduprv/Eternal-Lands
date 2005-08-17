@@ -76,9 +76,6 @@ int	display_manufacture_handler(window_info *win)
 	glColor3f(0.77f,0.57f,0.39f);
 	glEnable(GL_TEXTURE_2D);
 
-	draw_string(33*6+40+8,win->len_y-30+2,mix_str,1);
-	draw_string(33*9+40+8,win->len_y-30+2,clear_str,1);
-
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
 	for(i=0;i<36;i++) {
@@ -133,9 +130,9 @@ int	display_manufacture_handler(window_info *win)
 			//get the x and y
 			cur_pos=i;
 
-			x_start=33*(cur_pos%6)+1;
+			x_start=33*(cur_pos%6)+5;
 			x_end=x_start+32;
-			y_start=33*5;
+			y_start=win->len_y-37;
 			y_end=y_start+32;
 
 			//get the texture this item belongs to
@@ -164,24 +161,8 @@ int	display_manufacture_handler(window_info *win)
 	rendergrid(12,3,0,0,33,33);
 	
 	//Draw the bottom grid
-	rendergrid(6,1,0, win->len_y-33, 33, 33);
+	rendergrid(6,1,5, win->len_y-37, 33, 33);
 
-	glBegin(GL_LINE_LOOP);
-	//draw the buttons frame
-	//Mix button
-		glVertex2i(33*6+40,win->len_y-30);
-		glVertex2i(33*6+40+50,win->len_y-30);
-		glVertex2i(33*6+40+50,win->len_y-10);
-		glVertex2i(33*6+40,win->len_y-10);
-	glEnd();
-
-	glBegin(GL_LINE_LOOP);
-	//Clear button
-		glVertex3i(33*9+40,win->len_y-30,0);
-		glVertex3i(33*9+40+70,win->len_y-30,0);
-		glVertex3i(33*9+40+70,win->len_y-10,0);
-		glVertex3i(33*9+40,win->len_y-10,0);
-	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
 	return 1;
@@ -189,47 +170,11 @@ int	display_manufacture_handler(window_info *win)
 
 int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-	int i,pos;
+	int pos;
 	Uint8 str[100];
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-
-	//Clear
-	if(mx>33*9+40 && mx<33*9+40+70 &&
-	   my>win->len_y-30 && my<win->len_y-10){
-		for(i=0; i<6; i++) manu_recipe[i].quantity= manu_recipe[i].image_id= 0; // clear the recipe
-		build_manufacture_list();
-		return 1;
-	}
-
-	//Mix
-	if(mx>33*6+40 && mx<33*6+40+50 &&
-	   my>win->len_y-30 && my<win->len_y-10){
-		Uint8 str[20];
-		int items_no=0;
-
-		str[0]=MANUFACTURE_THIS;
-		for(i=36;i<36+6;i++){
-			if(manufacture_list[i].quantity){
-				str[items_no*3+2]=manufacture_list[i].pos;
-				*((Uint16 *)(str+items_no*3+2+1))=SDL_SwapLE16(manufacture_list[i].quantity);
-				items_no++;
-			}
-		}
-
-		str[1]=items_no;
-		if(items_no){
-			//don't send an empty string
-			my_tcp_send(my_socket,str,items_no*3+2);
-			// and copy this recipe
-			for(i=36;i<36+6;i++){
-				manu_recipe[i-36]=manufacture_list[i];
-			}
-		}
-		
-		return 1;
-	}
 
 	//see if we clicked on any item in the main category
 	pos=get_mouse_pos_in_grid(mx, my, 12, 3, 0, 0, 33, 33);
@@ -266,7 +211,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	}
 
-	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 0, win->len_y-33, 33, 33);
+	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 	
 	//see if we clicked on any item from the "production pipe"
 	if(manufacture_list[36+pos].quantity){
@@ -302,13 +247,59 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 0;
 }
 
+int clear_handler()
+{
+	int i;
+	
+	for(i=0; i<6; i++) manu_recipe[i].quantity= manu_recipe[i].image_id= 0; // clear the recipe
+	build_manufacture_list();
+	return 1;
+}
+
+int mix_handler()
+{
+	Uint8 str[20];
+	int items_no=0;
+	int i;
+
+	str[0]=MANUFACTURE_THIS;
+	for(i=36;i<36+6;i++){
+		if(manufacture_list[i].quantity){
+			str[items_no*3+2]=manufacture_list[i].pos;
+			*((Uint16 *)(str+items_no*3+2+1))=SDL_SwapLE16(manufacture_list[i].quantity);
+			items_no++;
+		}
+	}
+
+	str[1]=items_no;
+	if(items_no){
+		//don't send an empty string
+		my_tcp_send(my_socket,str,items_no*3+2);
+		// and copy this recipe
+		for(i=36;i<36+6;i++){
+			manu_recipe[i-36]=manufacture_list[i];
+		}
+	}
+		
+	return 1;
+}
+
 void display_manufacture_menu()
 {
 	if(manufacture_win < 0){
+		static int clear_button_id=100;
+		static int mix_button_id=101;
+		
 		manufacture_win= create_window("Manufacture", game_root_win, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
+
+		mix_button_id=button_add_extended(manufacture_win, mix_button_id, NULL, 33*6+15, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, mix_str);
+		widget_set_OnClick(manufacture_win, mix_button_id, mix_handler);
+		
+		clear_button_id=button_add_extended(manufacture_win, clear_button_id, NULL, 33*9+8, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
+		widget_set_OnClick(manufacture_win, clear_button_id, clear_handler);
 	} else {
 		show_window(manufacture_win);
 		select_window(manufacture_win);
