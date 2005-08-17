@@ -882,7 +882,7 @@ void create_chat_window() {
 	widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
 	widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
 	
-	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_CHAT_TABS, CHAT_WIN_TAG_HEIGHT, CHAT_WIN_TAG_SPACE);
+	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_CHAT_TABS, CHAT_WIN_TAG_HEIGHT);
 	widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
 	
 	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, tab_all, 0, 0);

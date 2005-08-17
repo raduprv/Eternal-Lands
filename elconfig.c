@@ -1237,7 +1237,7 @@ void display_elconfig_win(void)
 		// TODO: replace this hack by something clean.
 		set_window_handler(elconfig_win, ELW_HANDLER_SHOW, &show_elconfig_handler);
 		/* Create tabs */
-		elconfig_tab_collection_id = tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_TABS, TAB_TAG_HEIGHT, 0);
+		elconfig_tab_collection_id = tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_TABS, TAB_TAG_HEIGHT);
 		elconfig_tabs[CONTROLS].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Controls", 0, 0);
 		elconfig_tabs[AUDIO].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Audio", 0, 0);
 		elconfig_tabs[HUD].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "HUD", 0, 0);

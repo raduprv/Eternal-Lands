@@ -30,7 +30,7 @@ typedef struct {
 } tab;
 
 typedef struct {
-	int tag_height, tag_space, nr_tabs, max_tabs, cur_tab;
+	int tag_height, nr_tabs, max_tabs, cur_tab;
 	tab *tabs;
 } tab_collection;
 
@@ -1010,7 +1010,7 @@ int tab_collection_close_tab (Uint32 window_id, Uint32 widget_id, int tab);
  * \sa tab_collection_add_extended
  */
 int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, 
-Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height, Uint16 tag_space);
+Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height);
 
 /*!
  * \ingroup	tabs
@@ -1039,7 +1039,7 @@ Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height, Uint16 tag_space);
  */
 int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int 
 (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, 
-float size, float r, float g, float b, int max_tabs, Uint16 tag_height, Uint16 tag_space);
+float size, float r, float g, float b, int max_tabs, Uint16 tag_height);
 
 /*!
  * \ingroup	tabs

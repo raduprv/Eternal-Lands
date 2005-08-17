@@ -12,9 +12,9 @@
 #define STATS_TAB_HEIGHT 350 /*!< height of the statistics tab windows */
 #define HELP_TAB_WIDTH   500 /*!< width of the help tabbed windows */
 #define HELP_TAB_HEIGHT  350 /*!< height of the help tabbed windows */
-#define TAB_TAG_HEIGHT   20  /*!< the height of the tab at the top of the window */
+#define TAB_TAG_HEIGHT   25  /*!< the height of the tab at the top of the window */
 #define TAB_MARGIN       5   /*!< margin used for the tabbed window */
-#define TAB_SPACING      3   /*!< the spacing between two tabs */
+#define DEFAULT_TAB_RADIUS 8 /*!< the radius used for rounded tabs*/
 /* @} */
 
 /*! \name tab positions for tabbed windows

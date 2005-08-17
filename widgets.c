@@ -906,7 +906,7 @@ int tab_collection_close_tab (Uint32 window_id, Uint32 widget_id, int tab)
 		{
 			int i, w;
 			
-			w = col->tabs[tab].tag_width + col->tag_space;
+			w = col->tabs[tab].tag_width;
 			destroy_window (col->tabs[tab].content_id);
 			for (i = tab+1; i < col->nr_tabs; i++)
 			{
@@ -934,12 +934,12 @@ int free_tab_collection (widget_list *widget)
 	return 1;
 }
 
-int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height, Uint16 tag_space)
+int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height)
 {
-	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, tag_height, tag_space);
+	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, tag_height);
 }
 
-int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height, Uint16 tag_space)
+int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height)
 {
 	widget_list *W = add_new_widget (window_id, wid, OnInit, TABCOLLECTION, x, y, lx, ly, Flags, size, r, g, b);
 
@@ -952,7 +952,6 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 		T->tabs[itab].content_id = -1;
 	T->nr_tabs = 0;
 	T->tag_height = tag_height;
-	T->tag_space = tag_space;
 	T->cur_tab = 0;
 	
 	W->widget_info = T;
@@ -968,14 +967,13 @@ int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), 
 int tab_collection_draw (widget_list *w)
 {
 	tab_collection *col;
-	int itab, ytagtop, ytagbot, xstart, xend, space;
+	int itab, ytagtop, ytagbot, xstart, xend;
 	int h;
 
 	if (!w) return 0;
 	
 	col = (tab_collection *) w->widget_info;
 	
-	space = col->tag_space;
 	h = col->tag_height;
 	ytagtop = w->pos_y;
 	ytagbot = w->pos_y + h;
@@ -992,13 +990,38 @@ int tab_collection_draw (widget_list *w)
 			xstart = w->pos_x + col->tabs[itab].tag_x;
 			xend = xstart + col->tabs[itab].tag_width;
 
-			// the tag itself
-			glBegin (GL_LINE_STRIP);
-			glVertex3i (xstart, ytagbot, 0);
-			glVertex3i (xstart, ytagtop, 0);
-			glVertex3i (xend, ytagtop, 0);
-			glVertex3i (xend, ytagbot, 0);
-			glEnd ();
+			if(col->cur_tab == itab){
+				glBegin(GL_LINE_STRIP);
+					glVertex3i(xstart, ytagbot, 0);
+					draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
+					draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
+					glVertex3i(xend, ytagbot, 0);
+				glEnd();
+			} else if(col->cur_tab>itab){
+				glBegin (GL_LINE_STRIP);
+					glVertex3i (xstart, ytagbot, 0);
+					draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
+					glVertex3i (xend, ytagtop+1, 0);
+				glEnd ();
+			} else {
+				glBegin (GL_LINE_STRIP);
+					glVertex3i (xstart, ytagtop+1, 0);
+					draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
+					glVertex3i (xend, ytagbot, 0);
+				glEnd ();
+			}
+			if(itab+1<col->nr_tabs){
+				glBegin(GL_LINES);
+				glVertex2i(xend-DEFAULT_TAB_RADIUS, ytagtop+1);
+				glVertex2i(xend, ytagtop+1);
+				glEnd();
+			}
+			if(itab){
+				glBegin(GL_LINES);
+					glVertex2i(xstart+DEFAULT_TAB_RADIUS, ytagtop+1);
+					glVertex2i(xstart, ytagtop+1);
+				glEnd();
+			}
 			
 			// draw a close box if necessary
 			if (col->tabs[itab].closable)
@@ -1024,9 +1047,9 @@ int tab_collection_draw (widget_list *w)
 				glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b); 
 				
 			if (col->tabs[itab].closable)
-				draw_string_zoomed (xstart+h, ytagtop+2, (unsigned char *)col->tabs[itab].label, 1, w->size);
+				draw_string_zoomed (xstart+h, ytagbot-SMALL_FONT_Y_LEN-2, (unsigned char *)col->tabs[itab].label, 1, w->size);
 			else
-				draw_string_zoomed (xstart+2, ytagtop+2, (unsigned char *)col->tabs[itab].label, 1, w->size);
+				draw_string_zoomed (xstart+4, ytagbot-SMALL_FONT_Y_LEN-2, (unsigned char *)col->tabs[itab].label, 1, w->size);
 			glDisable(GL_TEXTURE_2D);
 		}
 	}
@@ -1079,7 +1102,7 @@ int tab_collection_click (widget_list *W, int x, int y, Uint32 flags)
 			{
 				int i, w;
 
-				w = col->tabs[itag].tag_width + col->tag_space;
+				w = col->tabs[itag].tag_width;
 
 				destroy_window (col->tabs[itag].content_id);
 				col->tabs[itag].content_id = -1;
@@ -1185,7 +1208,7 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 	if (nr == 0)
 		col->tabs[nr].tag_x = 0;
 	else
-		col->tabs[nr].tag_x = col->tabs[nr-1].tag_x + col->tabs[nr-1].tag_width + col->tag_space;
+		col->tabs[nr].tag_x = col->tabs[nr-1].tag_x + col->tabs[nr-1].tag_width;
 
 	if (tag_width > 0)
 	{
@@ -1194,7 +1217,7 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
 	else
 	{
 		// compute tag width from label width
-		col->tabs[nr].tag_width = 4 + (int) (w->size * get_string_width(col->tabs[nr].label));
+		col->tabs[nr].tag_width = 10 + ((float)w->size * (DEFAULT_FONT_X_LEN * (float)get_string_width(col->tabs[nr].label)/12.0f));
 		if (col->tabs[nr].closable) 
 			col->tabs[nr].tag_width += col->tag_height;
 	}
@@ -2245,7 +2268,7 @@ int ParseWidget (xmlNode *node, int winid)
 	xmlAttr *cur_attr = NULL;
 
 	int pos_x = 0, pos_y = 0, len_x = 0, len_y = 0, type = GetWidgetType (node->name), checked = 1, pos = 0, pos_inc = 1;
-	Uint32 flags = 0, id = widget_id++, tid = 0, max_tabs = 0, tag_height = 0, tag_space = 0;
+	Uint32 flags = 0, id = widget_id++, tid = 0, max_tabs = 0, tag_height = 0;
 	float size = 1.0, r = 1.0, g = 1.0, b = 1.0, u1 = 0.0, u2 = 1.0, v1 = 0.0, v2 = 1.0, progress = 0.0;
 	char text[256] = {'\0'};
 
@@ -2406,12 +2429,6 @@ int ParseWidget (xmlNode *node, int winid)
 						tag_height = atoi (cur_attr->children->content);
 						continue;
 					}
-					//tag_space=""
-					if ( !xmlStrcasecmp (cur_attr->name, "tag_space") )
-					{
-						tag_space = atoi (cur_attr->children->content);
-						continue;
-					}
 					break;
 			}
 		}
@@ -2438,7 +2455,7 @@ int ParseWidget (xmlNode *node, int winid)
 		case TABCOLLECTION:
 		{
 			xmlNode *tab;
-			int colid = tab_collection_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, max_tabs, tag_height, tag_space);
+			int colid = tab_collection_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, max_tabs, tag_height);
 			for (tab = node->children; tab; tab = tab->next)
 			{
 				if (tab->type == XML_ELEMENT_NODE)
