@@ -437,6 +437,12 @@ extern char	reg_error_str[15],
 		snd_media_ver_mismatch[50],
 		snd_media_invalid_header[50],
 		snd_media_internal_error[50],
+		snd_media_false[50],
+		snd_media_eof[50],
+		snd_media_hole[50],
+		snd_media_einval[50],
+		snd_media_ebadlink[50],
+		snd_media_enoseek[50],	
 		snd_media_ogg_error[50], //sound.c
 		stat_no_invalid[50], //stats.c
 		timer_lagging_behind[100], //timers.c

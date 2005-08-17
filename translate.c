@@ -351,6 +351,12 @@ char	reg_error_str[15],
 	snd_media_ver_mismatch[50],
 	snd_media_invalid_header[50],
 	snd_media_internal_error[50],
+	snd_media_false[50],
+	snd_media_eof[50],
+	snd_media_hole[50],
+	snd_media_einval[50],
+	snd_media_ebadlink[50],
+	snd_media_enoseek[50],	
 	snd_media_ogg_error[50],
 	/*stats.c*/
 	stat_no_invalid[50],
@@ -695,6 +701,12 @@ void init_errors()
 	add_xml_identifier(snd,"header",snd_media_invalid_header,"Invalid Vorbis header.",sizeof(snd_media_invalid_header));
 	add_xml_identifier(snd,"intern",snd_media_internal_error,"Internal logic fault (bug or heap/stack corruption.",sizeof(snd_media_internal_error));
 	add_xml_identifier(snd,"unknown",snd_media_ogg_error,"Unknown Ogg error.",sizeof(snd_media_ogg_error));
+	add_xml_identifier(snd,"false",snd_media_false,"Ogg error media false.",sizeof(snd_media_false));
+	add_xml_identifier(snd,"hole",snd_media_hole,"Ogg error media hole.",sizeof(snd_media_hole));
+	add_xml_identifier(snd,"einval",snd_media_einval,"Ogg error media EINVAL.",sizeof(snd_media_einval));
+	add_xml_identifier(snd,"eof",snd_media_eof,"Ogg error media EOF.",sizeof(snd_media_eof));
+	add_xml_identifier(snd,"ebadlink",snd_media_ebadlink,"Ogg error media EBADLINK.",sizeof(snd_media_ebadlink));
+	add_xml_identifier(snd,"enoseek",snd_media_enoseek,"Ogg error media ENOSEEK.",sizeof(snd_media_enoseek));
 	
 	//Video errors
 	add_xml_identifier(video,"nostencil",no_stencil_str,"Video mode %s with a stencil buffer is not available\nTrying this mode without a stencil buffer...",sizeof(no_stencil_str));

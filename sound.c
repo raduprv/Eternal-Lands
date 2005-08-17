@@ -4,7 +4,7 @@
 #include "global.h"
 
 #define MAX_BUFFERS 10
-#define MAX_SOURCES 16
+#define MAX_SOURCES 15
 
 #define BUFFER_SIZE (4096 * 16)
 #define SLEEP_TIME 500
@@ -570,8 +570,10 @@ void stream_music(ALuint buffer) {
         result = ov_read(&ogg_stream, data + size, BUFFER_SIZE - size, 0, 2, 1,
 						 &section);
 		snprintf(str, sizeof(str), "%d", result); //prevents optimization errors under Windows, but how/why?
-        if(result > 0)
-            size += result;
+        if((result > 0) || (result == OV_HOLE))		// OV_HOLE is informational
+		{
+            if (result != OV_HOLE) size += result;
+		}
         else if(result < 0)
 			ogg_error(result);
 		else
@@ -832,7 +834,7 @@ void ogg_error(int code)
 {
 #ifndef	NO_MUSIC
 	switch(code)
-	{
+	{     
 		case OV_EREAD:
 			LOG_ERROR(snd_media_read); break;
 		case OV_ENOTVORBIS:
@@ -843,6 +845,18 @@ void ogg_error(int code)
 			LOG_ERROR(snd_media_invalid_header); break;
 		case OV_EFAULT:
 			LOG_ERROR(snd_media_internal_error); break;
+		case OV_EOF:
+			LOG_ERROR(snd_media_eof); break;
+		case OV_HOLE:
+			LOG_ERROR(snd_media_hole); break;
+		case OV_EINVAL:
+			LOG_ERROR(snd_media_einval); break;
+		case OV_EBADLINK:
+			LOG_ERROR(snd_media_ebadlink); break;
+		case OV_FALSE:
+			LOG_ERROR(snd_media_false); break;
+		case OV_ENOSEEK:
+			LOG_ERROR(snd_media_enoseek); break;
 		default:
 			LOG_ERROR(snd_media_ogg_error);
     }
