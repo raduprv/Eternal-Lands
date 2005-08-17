@@ -64,7 +64,7 @@ void display_tab_help ()
 {
 	if (tab_help_win < 0)
 	{
-		tab_help_win = create_window ("Help", game_root_win, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
+		tab_help_win = create_window ("Help", -1, 0, tab_help_x, tab_help_y, tab_help_len_x, tab_help_len_y, ELW_WIN_DEFAULT);
 
 		set_window_handler (tab_help_win, ELW_HANDLER_DISPLAY, &display_tab_help_handler);
 		
