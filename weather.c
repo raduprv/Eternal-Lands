@@ -163,28 +163,40 @@ void rain_control()
 		// gracefully stop rain
 		if (seconds_till_rain_stops >= 90) {
 			is_raining=1;
+#ifdef NEW_CLIENT
 			if(!(map_flags&SNOW)){
+#endif
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 				num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
 				if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias);
+#ifdef NEW_CLIENT
 			} else num_rain_drops=0;
+#endif
 			seconds_till_rain_stops--;
 		} else if (seconds_till_rain_stops > 60) {
 			is_raining=1;
+#ifdef NEW_CLIENT
 			if(!(map_flags&SNOW)){
+#endif
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 				num_rain_drops = rain_strength_bias*((seconds_till_rain_stops - 60)*MAX_RAIN_DROPS)/30;
 				if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(seconds_till_rain_stops - 60)/30.0f);
+#ifdef NEW_CLIENT
 			}
+#endif
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
 			if (is_raining) is_raining = 0;
+#ifdef NEW_CLIENT
 			if(!(map_flags&SNOW)){
+#endif
 				if(rain_sound != 0) {
 					stop_sound(rain_sound);
 					rain_sound=0;
 				}
+#ifdef NEW_CLIENT
 			}
+#endif
 			num_rain_drops = 0;
 			if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
 			seconds_till_rain_stops--;
@@ -207,30 +219,46 @@ void rain_control()
 		// gracefully start rain
 		if (seconds_till_rain_starts >= 30) {
 			num_rain_drops = 0;
+#ifdef NEW_CLIENT
 			if(!(map_flags&SNOW)){
+#endif
 				if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
+#ifdef NEW_CLIENT
 			}
+#endif
 			seconds_till_rain_starts--;
 		} else if(seconds_till_rain_starts) {
 			if(!is_raining) {
 				is_raining=1;
+#ifdef NEW_CLIENT
 				if(!(map_flags&SNOW)){
+#endif
 					if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+#ifdef NEW_CLIENT
 				}
+#endif
 			}
+#ifdef NEW_CLIENT
 			if(!(map_flags&SNOW)){
+#endif
 				num_rain_drops = rain_strength_bias*(30-seconds_till_rain_starts)*MAX_RAIN_DROPS/30.0f;
 				if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(1.0f - seconds_till_rain_starts/30.0f));
+#ifdef NEW_CLIENT
 			} else {
 				num_rain_drops=0;
 			}
+#endif
 			seconds_till_rain_starts--;
 		} else {
+#ifdef NEW_CLIENT
 			if(!(map_flags&SNOW)){
+#endif
 				num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
+#ifdef NEW_CLIENT
 			} else {
 				num_rain_drops = 0;
 			}
+#endif
 			seconds_till_rain_starts=-1;
 			rain_table_valid = 0;
 			rain_light_offset = rain_light_bias*30;
@@ -243,16 +271,20 @@ void rain_control()
 		// neither ==> keep status
 		rain_table_valid = 0;
 		if (is_raining) {
+#ifdef NEW_CLIENT
 			if(!(map_flags&SNOW)){
+#endif
 				num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
 				if (rain_sound) {
 					sound_object_set_gain(rain_sound, rain_strength_bias);
 				} else {
 					rain_sound=add_sound_object(snd_rain,0,0,0,1);
 				}
+#ifdef NEW_CLIENT
 			} else {
 				num_rain_drops = 0;
 			}
+#endif
 		} else {
 			num_rain_drops = 0;
 			if (rain_sound) {
@@ -268,7 +300,9 @@ void thunder_control()
 {
 	int i;
 
+#ifdef NEW_CLIENT
 	if(map_flags&SNOW) return;
+#endif
 
 	if(thunder_control_counter+100<cur_time)
 		{
@@ -323,7 +357,9 @@ void add_thunder(int type,int sound_delay)
 {
 	int i;
 
+#ifdef NEW_CLIENT
 	if(map_flags&SNOW) return;
+#endif
 
 	for(i=0;i<MAX_THUNDERS;i++)
 		{
@@ -375,7 +411,9 @@ void render_fog() {
 	GLfloat rainStrength, rainAlpha, diffuseBias;
 	int i; float tmpf;
 
+#ifdef NEW_CLIENT
 	if(!(map_flags&SNOW)) {
+#endif
 		rainStrength = num_rain_drops/(float) MAX_RAIN_DROPS;
 		rainAlpha = 0.2f*rain_color[3]*rainStrength;
 			// in dungeons and at night we use smaller light sources ==> less diffuse light
@@ -397,6 +435,7 @@ void render_fog() {
 		tmpf = exp(-10.0f*fogDensity);
 		fogAlpha = 1.0f - tmpf*tmpf;
 		
+#ifdef NEW_CLIENT
 	} else {
 		rainStrength = rain_strength_bias;
 		rainAlpha = 0.2f*rain_color[3]*rainStrength;
@@ -413,6 +452,7 @@ void render_fog() {
 			}
 		}
 	}
+#endif
 
 	// interpolate fog distance between min and max depending on rain
 	// TODO: Is linear interpolation the best idea here?
