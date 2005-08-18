@@ -112,7 +112,6 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, int type)
 	if(type)
 	{
 		//now find the name portion
-		input_text +=10;
 		for (i = 0; i < 15 && i+10 < len; i++)
 		{
 			ch = input_text[i+10];	//skip over the prefix
