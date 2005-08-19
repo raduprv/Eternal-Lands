@@ -554,43 +554,46 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 				continue;
 			}
 			
-			font_bit_width = get_font_width (str[isrc]);
-			line_width += (int) (0.5f + font_bit_width * zoom);
-			if (line_width > width)
-			{
-				// search back for a space
-				for (nchar = 0; ibuf-nchar-1 > lastline; nchar++)
-					if (buf[ibuf-nchar-1] == ' ') break;
-				if (ibuf-nchar-1 <= lastline)
-					// no space found, introduce a break in 
-					// the middle of the word
-					nchar = 0;
-				
-				// introduce the break, and reset the counters
-				ibuf -= nchar;
-				isrc -= nchar;
-				while (str[isrc] == '\r') isrc++;
-
-				buf[ibuf] = '\r';
-				nlines++;
-				if (cursor && isrc < *cursor) dcursor++;
-				if (++ibuf >= sizeof (buf) - 1) break;
-				
-				lastline = isrc;
-				line_width = 0;
-			}
-
 			// see if it's an explicit line break
 			if (str[isrc] == '\n')
 			{
 				nlines++;
 				line_width = 0;
+			} else {
+				font_bit_width = (int) (0.5f + get_font_width (str[isrc]) * zoom);
+				if (line_width + font_bit_width > width)
+				{
+					// search back for a space
+					for (nchar = 0; ibuf-nchar-1 > lastline; nchar++)
+						if (buf[ibuf-nchar-1] == ' ') break;
+					if (ibuf-nchar-1 <= lastline)
+						// no space found, introduce a break in 
+						// the middle of the word
+						nchar = 0;
+					
+					// introduce the break, and reset the counters
+					ibuf -= nchar;
+					isrc -= nchar;
+					// ignore any old soft breaks after the space
+					while (str[isrc] == '\r') isrc++;
+
+					buf[ibuf] = '\r';
+					nlines++; ibuf++;
+					if (cursor && isrc < *cursor) dcursor++;
+					if (ibuf >= sizeof (buf) - 1) break;
+					
+					lastline = ibuf;
+					line_width = font_bit_width;
+				} else {
+					line_width += font_bit_width;
+				}
 			}
+
 			
 			// copy the character into the buffer
 			buf[ibuf] = str[isrc];
-			isrc++;
-			if (++ibuf >= sizeof (buf) - 1) break;
+			isrc++; ibuf++;
+			if (ibuf >= sizeof (buf) - 1) break;
 		}
 		if (str[isrc] == '\0') isrc = len;
 		
