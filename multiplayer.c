@@ -644,7 +644,7 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				seconds_till_rain_starts=*((Uint8 *)(in_data+3));
+				seconds_till_rain_starts=*((Uint8 *)(in_data+3))+1;
 				seconds_till_rain_stops=-1;
 				if (data_length > 4) {
 					rain_strength_bias = 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
