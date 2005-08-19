@@ -611,6 +611,8 @@ void draw_sun_shadowed_scene(int any_reflection)
 			base_unit=GL_TEXTURE1_ARB;
 			detail_unit=GL_TEXTURE2_ARB;
 
+			if (use_fog) glDisable(GL_FOG);
+
 			ELglActiveTextureARB(shadow_unit);
 			glEnable(depth_texture_target);
 			setup_shadow_mapping();
@@ -637,6 +639,8 @@ void draw_sun_shadowed_scene(int any_reflection)
 			display_objects();
 			display_actors();  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
 			display_blended_objects();
+
+			if (use_fog) glEnable(GL_FOG);
 
 			ELglActiveTextureARB(shadow_unit);
 			glDisable(depth_texture_target);
