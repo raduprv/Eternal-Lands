@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "global.h"
+#include "loading_win.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -132,7 +133,6 @@ int load_map (const char * file_name)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	
 	my_strcp(map_file_name,file_name);
 
 	destroy_map();
@@ -174,7 +174,10 @@ int load_map (const char * file_name)
 			exit_now=1;//We might as well quit...
 			return 0;
 		}
-    
+	create_loading_win(window_width, window_height);
+	show_window(loading_win);
+	hide_window(game_root_win);
+	update_loading_win("Loading map", 0);
 	//get the map size
 	tile_map_size_x=cur_map_header.tile_map_x_len;
 	tile_map_size_y=cur_map_header.tile_map_y_len;
@@ -231,7 +234,8 @@ int load_map (const char * file_name)
 			}
 		}
 	}
-	
+
+	update_loading_win("Loading 3d objects", 0);
 	//see which objects in our cache are not used in this map
 	//read the 3d objects
 	for(i=0;i<obj_3d_no;i++)
@@ -254,10 +258,14 @@ int load_map (const char * file_name)
 			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
 					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
 					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
+			if(i%100 == 0) {
+				update_loading_win(NULL, 0);
+			}
 		}
 
 	//delete the unused objects from the cache
 
+	update_loading_win("Loading 2d objects", 25);
 	//read the 2d objects
 	for(i=0;i<obj_2d_no;i++)
 		{
@@ -275,9 +283,12 @@ int load_map (const char * file_name)
 			
 			add_2d_obj(cur_2d_obj_io.file_name,cur_2d_obj_io.x_pos,cur_2d_obj_io.y_pos,
 					   cur_2d_obj_io.z_pos,cur_2d_obj_io.x_rot,cur_2d_obj_io.y_rot,cur_2d_obj_io.z_rot);
+			if(i%100 == 0) {
+				update_loading_win(NULL, 0);
+			}
 		}
 
-
+	update_loading_win("Loading lights", 25);
 	//read the lights
 	for(i=0;i<lights_no;i++)
 		{
@@ -294,8 +305,12 @@ int load_map (const char * file_name)
 			#endif
 			
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f);
+			if(i%100 == 0) {
+				update_loading_win(NULL, 0);
+			}
 		}
 
+	update_loading_win("Loading particles", 25);
 	//read particle systems
 	for(i=0;i<particles_no;i++)
 		{
@@ -314,13 +329,18 @@ int load_map (const char * file_name)
 #else
 			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos, -1, 0, 0);
 #endif
+			if(i%100 == 0) {
+				update_loading_win(NULL, 0);
+			}
 		}
 
 	fclose(f);
-
+	update_loading_win("done", 25);
 #ifdef EXTRA_DEBUG
 	ERR();//We finished loading the new map apparently...
 #endif
+	destroy_loading_win();
+	show_window(game_root_win);
 	sector_add_map();
 	return 1;
 

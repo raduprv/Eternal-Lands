@@ -2,8 +2,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #ifdef __GNUC__
-#include <dirent.h>
-#include <unistd.h>
+ #include <dirent.h>
+ #include <unistd.h>
 #endif
 #include <string.h>
 #include <ctype.h>
@@ -11,16 +11,17 @@
 #include "global.h"
 #include "elwindows.h"
 #include "keys.h"
+#include "loading_win.h"
 
 #define	CFG_VERSION	5
 
 #ifndef DATA_DIR
-#define DATA_DIR "./"
+ #define DATA_DIR "./"
 #endif
 
 #ifdef ENCYCLOPEDIA
-#include "books/symbols.h"
-#include "books/parser.h"
+ #include "books/symbols.h"
+ #include "books/parser.h"
 #endif
 
 int ini_file_size=0;
@@ -516,6 +517,17 @@ void init_stuff()
 	load_translatables();
 	
 	init_video();
+
+	//Init the caches here, as the loading window needs them
+	cache_system_init(MAX_CACHE_SYSTEM);
+	init_texture_cache();
+	init_e3d_cache();
+	init_2d_obj_cache();
+	//now load the font textures
+	load_font_textures ();
+	CHECK_GL_ERRORS();
+	init_colors();
+
 	// now create the root window
 
 	// XXX FIXME (Grum): Maybe we should do this at a later time, after
@@ -525,61 +537,73 @@ void init_stuff()
 	create_map_root_window (window_width, window_height);
 	create_login_root_window (window_width, window_height);
 	
+	//create the loading window
+	create_loading_win(window_width, window_height);
+	show_window(loading_win);
 
+	update_loading_win("Initializing OpenGL extensions", 5);
 	init_gl_extensions();
 
+	update_loading_win("Generating random seed", 4);
 	seed = time (NULL);
 	srand (seed);
 
-	
-	cache_system_init(MAX_CACHE_SYSTEM);
-	init_texture_cache();
-	init_e3d_cache();
-	init_2d_obj_cache();
+	update_loading_win("Loading ignores", 1);
 	load_ignores();
+	update_loading_win("Loading filters", 2);
 	load_filters();
+	update_loading_win("Loading lists", 2);
 	load_harvestable_list();
 	load_e3d_list();
 	load_entrable_list();
 	load_knowledge_list();
+	update_loading_win("Loading cursors", 5);
 	load_cursors();
 	build_cursors();
 	change_cursor(CURSOR_ARROW);
+	update_loading_win("Building glow table", 3);
 	build_glow_color_table();
 
+	update_loading_win("Initializing lists", 2);
 	init_actors_lists();
+	update_loading_win(NULL, 4);
 	memset(tile_list, 0, sizeof(tile_list));
 	memset(lights_list, 0, sizeof(lights_list));
 	init_particles_list();
+	update_loading_win("Initializing actor definitions", 4);
 	memset(actors_defs, 0, sizeof(actors_defs));
 	init_actor_defs();
-
+	update_loading_win("Loading map tiles", 4);
 	load_map_tiles();
-	
+
+	update_loading_win("Initializing lights", 4);
 	//lights setup
 	build_global_light_table();
 	build_sun_pos_table();
 	reset_material();
 	init_lights();
 	disable_local_lights();
-	init_colors();
+	update_loading_win("Initializing logs", 5);
 	clear_error_log();
 	clear_conn_log();
+	update_loading_win("Reading config", 2);
+	read_bin_cfg();
+	update_loading_win("Initializing weather", 3);
 	clear_thunders();
 	build_rain_table();
-	read_bin_cfg();
 	build_levels_table();//for some HUD stuff
 
-	if(!no_sound)init_sound();
+	if(!no_sound) {
+		update_loading_win("Initializing audio", 0);
+		init_sound();
+	}
 
-	// now load the font textures
-	load_font_textures ();
-	CHECK_GL_ERRORS();
-
+	update_loading_win("Loading icons", 4);
 	//load the necesary textures
 	//font_text=load_texture_cache("./textures/font.bmp",0);
 	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
 	hud_text=load_texture_cache("./textures/gamebuttons2.bmp",0);
+	update_loading_win("Loading textures", 4);
 	cons_text=load_texture_cache("./textures/console.bmp",255);
 	particle_textures[0]=load_texture_cache("./textures/particle0.bmp",0);
 	particle_textures[1]=load_texture_cache("./textures/particle1.bmp",0);
@@ -589,7 +613,7 @@ void init_stuff()
 	particle_textures[5]=load_texture_cache("./textures/particle5.bmp",0);
 	particle_textures[6]=load_texture_cache("./textures/particle6.bmp",0);
 	particle_textures[7]=load_texture_cache("./textures/particle7.bmp",0);
-
+	update_loading_win(NULL, 5);
 	items_text_1=load_texture_cache("./textures/items1.bmp",0);
 	items_text_2=load_texture_cache("./textures/items2.bmp",0);
 	items_text_3=load_texture_cache("./textures/items3.bmp",0);
@@ -600,14 +624,14 @@ void init_stuff()
 	items_text_8=load_texture_cache("./textures/items8.bmp",0);
 	items_text_9=load_texture_cache("./textures/items9.bmp",0);
 	items_text_10=load_texture_cache("./textures/items10.bmp",0);
-
+	update_loading_win(NULL, 5);
 	portraits1_tex=load_texture_cache("./textures/portraits1.bmp",0);
 	portraits2_tex=load_texture_cache("./textures/portraits2.bmp",0);
 	portraits3_tex=load_texture_cache("./textures/portraits3.bmp",0);
 	portraits4_tex=load_texture_cache("./textures/portraits4.bmp",0);
 	portraits5_tex=load_texture_cache("./textures/portraits5.bmp",0);
 	portraits6_tex=load_texture_cache("./textures/portraits6.bmp",0);
-
+	update_loading_win(NULL, 5);
 	sigils_text=load_texture_cache("./textures/sigils.bmp",0);
 	//Load the map legend and continent map
 	legend_text=load_texture_cache("./maps/legend.bmp",0);
@@ -622,7 +646,7 @@ void init_stuff()
 	create_char_error_str[0]=0;
 	init_opening_interface();
 	make_sigils_list();
-
+	update_loading_win("Initializing network", 5);
 	if(SDLNet_Init()<0)
  		{
 			log_error("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
@@ -630,13 +654,14 @@ void init_stuff()
 			SDL_Quit();
 			exit(2);
 		}
-
+	update_loading_win("Initializing timers", 5);
 	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
 		{
 			log_error("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
 			SDL_Quit();
 		 	exit(1);
 		}
+	update_loading_win("Loading XML files", 5);
 	ReadXML("languages/en/Encyclopedia/index.xml");
 	read_key_config();
 	load_questlog();
@@ -654,15 +679,17 @@ void init_stuff()
 
 	//Read the books for i.e. the new char window
 	init_books();
-	
+
+	update_loading_win("Initializing display stuff", 5);
 	SDL_SetGamma(gamma_var, gamma_var, gamma_var);
-	
+
 	draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer = SDL_AddTimer (500, check_misc, NULL);
 	
 	//we might want to do this later.
 //	connect_to_server();
 
+	update_loading_win("Preparing opening window", 7);
 	create_opening_root_window (window_width, window_height);
 	// initialize the chat window
 	if (use_windowed_chat == 1)
@@ -671,6 +698,7 @@ void init_stuff()
 		display_chat ();
 
 	// display something
+	destroy_loading_win();
 	if (has_accepted)
 	{
 		show_window (opening_root_win);

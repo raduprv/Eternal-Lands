@@ -6,6 +6,8 @@
 #ifndef __KEYS_H__
 #define __KEYS_H__
 
+#include <SDL_types.h>
+
 /*!
  * \name Key Modifiers
  */

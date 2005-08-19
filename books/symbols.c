@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "../symbol_table.h"
 #include "../textures.h"
 #include "symbols.h"
