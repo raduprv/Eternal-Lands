@@ -9,7 +9,7 @@
 /*!
  * Check if a character is a color character
  */
-#define IS_COLOR(c) ((c) >= 127 + c_red1 && (c) <= 127 + c_grey4)
+#define IS_COLOR(c) ((c) >= 127 + c_lbound && (c) <= 127 + c_ubound)
 
 /*!
  * Check if a character is printable. In this context, that means

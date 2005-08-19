@@ -786,6 +786,8 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 
 		tf->cursor -= n;
 		msg->len -= n;
+		// set invalid width to force rewrap
+		msg->wrap_width = 0;
 		tf->nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);
 		
 		return 1;
@@ -800,11 +802,13 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 			msg->data[i-n] = msg->data[i];
 
 		msg->len -= n;
+		// set invalid width to force rewrap
+		msg->wrap_width = 0;
 		tf->nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);
 		
 		return 1;
 	}
-	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && ch != '`' )
+	else if ( !alt_on && !ctrl_on && IS_PRINT (ch) && ch != '`' )
 	{
 		int nr_lines;
 	
@@ -818,6 +822,8 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		{
 			tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
 		}
+		// set invalid width to force rewrap
+		msg->wrap_width = 0;
 		nr_lines = rewrap_message (msg, w->size, w->len_x - 2 * CHAT_WIN_SPACE, &tf->cursor);
 		
 		if (nr_lines != tf->nr_lines)
@@ -845,6 +851,9 @@ void paste_in_input_field (const Uint8 *text)
 	tf = (text_field *) w->widget_info;
 	
 	put_string_in_buffer (&input_text_line, text, tf->cursor);
+
+	// set invalid width to force rewrap
+	tf->buffer->wrap_width = 0;
 	tf->nr_lines = rewrap_message(tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE, &tf->cursor);
 }
 
