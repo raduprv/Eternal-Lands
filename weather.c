@@ -190,16 +190,20 @@ void rain_control()
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
 			if (is_raining) is_raining = 0;
-			if(rain_sound != 0) {
+			if(rain_sound) {
 				stop_sound(rain_sound);
 				rain_sound=0;
 			}
 			num_rain_drops = 0;
-			if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
 			seconds_till_rain_stops--;
 		} else {
+			if (is_raining) is_raining = 0;
+			if(rain_sound) {
+				stop_sound(rain_sound);
+				rain_sound=0;
+			}
 			num_rain_drops = 0;
-			seconds_till_rain_stops=-1;
+			seconds_till_rain_stops = -1;
 			rain_light_offset=0;
 			return;
 		}
