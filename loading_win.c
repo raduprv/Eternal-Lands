@@ -33,7 +33,7 @@ int create_loading_win(int width, int height)
 		loading_win_progress_bar = progressbar_add(loading_win, NULL, width/2-PROGRESSBAR_LEN/2, (height/3)*2, PROGRESSBAR_LEN, PROGRESSBAR_HEIGHT);
 		loading_texture = load_texture_cache("./textures/login_back.bmp",255);
 	}
-
+	
 	return loading_win;
 }
 
@@ -49,7 +49,17 @@ void update_loading_win(char *text, float progress_increase)
 		if(text != NULL && strlen(text) <= 255) {
 			put_small_text_in_box(text, strlen(text), PROGRESSBAR_LEN, text_buffer);
 		}
-		draw_scene();
+		
+		// The loading window is supposed to display stuff while
+		// loading maps when the draw_scene loop is held up. Hence
+		// we have to call our own drawing code. Instead of making
+		// sure that the proper root window is hidden, we call
+		// display_window directly.
+		glLoadIdentity ();
+		Enter2DMode ();
+		display_window (loading_win);
+		Leave2DMode ();
+		SDL_GL_SwapBuffers();
 	}
 }
 

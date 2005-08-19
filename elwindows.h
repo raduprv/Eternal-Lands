@@ -388,6 +388,21 @@ int		init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, i
  * \pre If \a win_id is not equal \ref window_info::window_id of the window at the index \a win_id into \ref windows_list this functions returns -1, without performing any action.
  */
 int		move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y);
+
+
+/*!
+ * \ingroup elwindows
+ * \brief   Draws the window given by \a win_id
+ *
+ *      Draws the given window on the screen. Don't call this function directly,
+ *	use the window manager instead. This declaration is only here for the
+ *	loading window which bypasses the window manager since it cannot be
+ *	drawn in the normal event loop.
+ *
+ * \param win_id        id for the window to move
+ */
+int display_window (int win_id);
+
 //int	set_window_property(int win_id, Uint32 property_flag, int new_property);
 
 /*!

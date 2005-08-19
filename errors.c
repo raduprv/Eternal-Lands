@@ -64,6 +64,7 @@ void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *fu
 	va_start(ap, line);
 		vfprintf(err_file, str, ap);
 	va_end(ap);
+	fprintf (err_file, "\n");
   	fflush (err_file);
 }
 

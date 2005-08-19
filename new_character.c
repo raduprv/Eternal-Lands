@@ -164,9 +164,40 @@ int newchar_root_win = -1;
 int color_race_win = -1;
 int namepass_win = -1;
 
+void load_newchar_map (const char *mapname)
+{
+	game_minute = 90;
+	new_minute();
+	regenerate_near_objects = 1;
+	regenerate_near_2d_objects = 1;
+		
+	if (!load_map(mapname))
+	{
+		char error[255];
+		snprintf(error, sizeof (error), cant_change_map, mapname);
+		LOG_TO_CONSOLE(c_red4, error);
+		LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
+		LOG_ERROR(cant_change_map, mapname);
+		load_empty_map();
+	} else {
+		locked_to_console = 0;
+	}
+#ifndef NO_MUSIC
+	playing_music = 0;
+#endif  //NO_MUSIC
+
+	get_map_playlist();
+	have_a_map = 1;
+	seconds_till_rain_starts = -1;
+	seconds_till_rain_stops = -1;
+	is_raining = 0;
+	rain_sound = 0;//kill local sounds also kills the rain sound
+	weather_light_offset = 0;
+	rain_light_offset = 0;
+}
+
 int display_newchar_handler (window_info *win)
 {
-	const char *mapname = "./maps/newcharactermap.elm";
 	int any_reflection; 
 	static int main_count = 0;
 
@@ -179,35 +210,6 @@ int display_newchar_handler (window_info *win)
 	}
 
 	if(disconnected)connect_to_server();
-
-	if(!have_a_map){
-		game_minute = 90;
-		new_minute();
-		regenerate_near_objects = 1;
-		regenerate_near_2d_objects = 1;
-		if (!load_map(mapname))
-		{
-			char error[255];
-			snprintf(error, 255, cant_change_map, mapname);
-			LOG_TO_CONSOLE(c_red4, error);
-			LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
-			LOG_ERROR(cant_change_map, mapname);
-			load_empty_map();
-		} else {
-			locked_to_console = 0;
-		}
-#ifndef NO_MUSIC
-		playing_music = 0;
-#endif  //NO_MUSIC
-		get_map_playlist();
-		have_a_map = 1;
-		seconds_till_rain_starts = -1;
-		seconds_till_rain_stops = -1;
-		is_raining = 0;
-		rain_sound = 0;//kill local sounds also kills the rain sound
-		weather_light_offset = 0;
-		rain_light_offset = 0;
-	}
 
 	if (!(main_count%10))
 		read_mouse_now = 1;
@@ -411,6 +413,8 @@ void create_newchar_root_window ()
 		our_actor.race = our_actor.def->type;
 		our_actor.male = our_actor.race<gnome_female?our_actor.race%2:!(our_actor.race%2);
 		
+		load_newchar_map ("./maps/newcharactermap.elm");
+
 		newchar_root_win = create_window ("New Character", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (newchar_root_win, ELW_HANDLER_DISPLAY, &display_newchar_handler);

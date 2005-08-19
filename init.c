@@ -538,7 +538,7 @@ void init_stuff()
 	create_login_root_window (window_width, window_height);
 	
 	//create the loading window
-	create_loading_win(window_width, window_height);
+	create_loading_win (window_width, window_height);
 	show_window(loading_win);
 
 	update_loading_win("Initializing OpenGL extensions", 5);

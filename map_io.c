@@ -129,7 +129,6 @@ int load_map (const char * file_name)
 	FILE *f = NULL;
 	f=my_fopen(file_name, "rb");
 	if(!f)return 0;
-
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -174,9 +173,8 @@ int load_map (const char * file_name)
 			exit_now=1;//We might as well quit...
 			return 0;
 		}
-	create_loading_win(window_width, window_height);
+	create_loading_win (window_width, window_height);
 	show_window(loading_win);
-	hide_window(game_root_win);
 	update_loading_win("Loading map", 0);
 	//get the map size
 	tile_map_size_x=cur_map_header.tile_map_x_len;
@@ -340,7 +338,6 @@ int load_map (const char * file_name)
 	ERR();//We finished loading the new map apparently...
 #endif
 	destroy_loading_win();
-	show_window(game_root_win);
 	sector_add_map();
 	return 1;
 
