@@ -629,6 +629,8 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			CHECK_GL_ERRORS();
 
+			if(use_fog) glEnable(GL_FOG);
+
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
 			draw_tile_map();
