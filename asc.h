@@ -7,6 +7,17 @@
 #define __ASC_H__
 
 /*!
+ * Check if a character is a color character
+ */
+#define IS_COLOR(c) ((c) >= 127 + c_red1 && (c) <= 127 + c_grey4)
+
+/*!
+ * Check if a character is printable. In this context, that means
+ * printable ascii, or non-ascii if it's not a color code
+ */
+#define IS_PRINT(c) ((c) >= 32 && !IS_COLOR (c))
+
+/*!
  * A macro for the my_xmlstrncopy function that copies and converts an xml-string. Sets the length to 0, hence it will copy untill \\0 is reached.
  */
 #define MY_XMLSTRCPY(d,s) my_xmlStrncopy(d,s,0)

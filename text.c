@@ -381,7 +381,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 	for (ib = 0; str[ib] && nr_paste < nr_free; ib++)
 	{
 		ch = str[ib];
-		if ( (ch >= 32 && ch <= 126) || ch > 127 + c_grey4)
+		if (IS_PRINT (ch))
 			nr_paste++;
 	}
 	
@@ -403,10 +403,10 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 	for (ib = 0; str[ib]; ib++)
 	{
 		ch = str[ib];
-		if ( (ch >= 32 && ch <= 126) || ch > 127 + c_grey4)
+		if (IS_PRINT (ch))
 		{
-			buf->data[pos+jb] = str[ib];
-			if (++jb > nr_paste) break;
+			buf->data[pos+jb] = ch;
+			if (++jb >= nr_paste) break;
 		}
 	}
 
