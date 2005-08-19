@@ -517,6 +517,8 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 				} else {
 					locked_to_console = 0;
 				}
+				rain_sound=0;//kill local sounds also kills the rain sound
+				kill_local_sounds();
 #ifndef	NO_MUSIC
 				playing_music=0;
 #endif	//NO_MUSIC
@@ -524,9 +526,7 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 				have_a_map=1;
 				//also, stop the rain
 				seconds_till_rain_starts=-1;
-				seconds_till_rain_stops=-1;
-				is_raining=0;
-				rain_sound=0;//kill local sounds also kills the rain sound
+				seconds_till_rain_stops=0;
 				weather_light_offset=0;
 				rain_light_offset=0;
 				if ( get_show_window (map_root_win) ){
@@ -644,7 +644,7 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				seconds_till_rain_starts=*((Uint8 *)(in_data+3))+1;
+				seconds_till_rain_starts=*((Uint8 *)(in_data+3));
 				seconds_till_rain_stops=-1;
 				if (data_length > 4) {
 					rain_strength_bias = 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);

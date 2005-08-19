@@ -157,46 +157,43 @@ void rain_control()
 		}
 	else return;
 
+#ifdef NEW_CLIENT
+	/* disable rain on snow maps for now */
+	if (map_flags & SNOW) {
+		is_raining = 0;
+		if (rain_sound) {
+			stop_sound(rain_sound);
+			rain_sound = 0;
+		}
+		seconds_till_rain_starts = -1;
+		seconds_till_rain_stops = -1;
+		rain_light_offset=0;
+		return;
+	}
+#endif
+
 	//prepare to stop the rain?
 	if(seconds_till_rain_stops!=-1) {
 		rain_table_valid = 0;
 		// gracefully stop rain
 		if (seconds_till_rain_stops >= 90) {
 			is_raining=1;
-#ifdef NEW_CLIENT
-			if(!(map_flags&SNOW)){
-#endif
-				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-				num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
-				if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias);
-#ifdef NEW_CLIENT
-			} else num_rain_drops=0;
-#endif
+			if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
+			if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias);
 			seconds_till_rain_stops--;
 		} else if (seconds_till_rain_stops > 60) {
 			is_raining=1;
-#ifdef NEW_CLIENT
-			if(!(map_flags&SNOW)){
-#endif
-				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-				num_rain_drops = rain_strength_bias*((seconds_till_rain_stops - 60)*MAX_RAIN_DROPS)/30;
-				if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(seconds_till_rain_stops - 60)/30.0f);
-#ifdef NEW_CLIENT
-			}
-#endif
+			if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+			num_rain_drops = rain_strength_bias*((seconds_till_rain_stops - 60)*MAX_RAIN_DROPS)/30;
+			if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(seconds_till_rain_stops - 60)/30.0f);
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
 			if (is_raining) is_raining = 0;
-#ifdef NEW_CLIENT
-			if(!(map_flags&SNOW)){
-#endif
-				if(rain_sound != 0) {
-					stop_sound(rain_sound);
-					rain_sound=0;
-				}
-#ifdef NEW_CLIENT
+			if(rain_sound != 0) {
+				stop_sound(rain_sound);
+				rain_sound=0;
 			}
-#endif
 			num_rain_drops = 0;
 			if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
 			seconds_till_rain_stops--;
@@ -219,46 +216,22 @@ void rain_control()
 		// gracefully start rain
 		if (seconds_till_rain_starts >= 30) {
 			num_rain_drops = 0;
-#ifdef NEW_CLIENT
-			if(!(map_flags&SNOW)){
-#endif
-				if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
-#ifdef NEW_CLIENT
-			}
-#endif
+			if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
 			seconds_till_rain_starts--;
 		} else if(seconds_till_rain_starts) {
 			if(!is_raining) {
 				is_raining=1;
-#ifdef NEW_CLIENT
-				if(!(map_flags&SNOW)){
-#endif
-					if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-#ifdef NEW_CLIENT
-				}
-#endif
+				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 			}
-#ifdef NEW_CLIENT
-			if(!(map_flags&SNOW)){
-#endif
-				num_rain_drops = rain_strength_bias*(30-seconds_till_rain_starts)*MAX_RAIN_DROPS/30.0f;
-				if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(1.0f - seconds_till_rain_starts/30.0f));
-#ifdef NEW_CLIENT
-			} else {
-				num_rain_drops=0;
-			}
-#endif
+			num_rain_drops = rain_strength_bias*(30-seconds_till_rain_starts)*MAX_RAIN_DROPS/30.0f;
+			if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(1.0f - seconds_till_rain_starts/30.0f));
 			seconds_till_rain_starts--;
 		} else {
-#ifdef NEW_CLIENT
-			if(!(map_flags&SNOW)){
-#endif
-				num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
-#ifdef NEW_CLIENT
-			} else {
-				num_rain_drops = 0;
+			if(!is_raining) {
+				is_raining=1;
+				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 			}
-#endif
+			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
 			seconds_till_rain_starts=-1;
 			rain_table_valid = 0;
 			rain_light_offset = rain_light_bias*30;
@@ -271,20 +244,12 @@ void rain_control()
 		// neither ==> keep status
 		rain_table_valid = 0;
 		if (is_raining) {
-#ifdef NEW_CLIENT
-			if(!(map_flags&SNOW)){
-#endif
-				num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
-				if (rain_sound) {
-					sound_object_set_gain(rain_sound, rain_strength_bias);
-				} else {
-					rain_sound=add_sound_object(snd_rain,0,0,0,1);
-				}
-#ifdef NEW_CLIENT
+			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
+			if (rain_sound) {
+				sound_object_set_gain(rain_sound, rain_strength_bias);
 			} else {
-				num_rain_drops = 0;
+				rain_sound=add_sound_object(snd_rain,0,0,0,1);
 			}
-#endif
 		} else {
 			num_rain_drops = 0;
 			if (rain_sound) {

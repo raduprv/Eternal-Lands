@@ -26,8 +26,7 @@ void update_console_win (text_message * msg)
 		}
 	} else {
 		if (scroll_up_lines == 0) {
-		console_text_changed = 1;
-	
+			console_text_changed = 1;
 		} else {
 			scroll_up_lines += nlines;
 		}
