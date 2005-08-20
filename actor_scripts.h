@@ -73,6 +73,17 @@ void add_command_to_actor(int actor_id, char command);
 
 /*!
  * \ingroup	network_actors
+ * \brief	Sets the actor max health.
+ *
+ * 		Finds the actor with the given actor_id, sets max health points
+ *
+ * \param	actor_id The server-side actor ID
+ * \param	damage The damage given by the actor
+ */
+void get_actor_damage(int actor_id, int damage);
+
+/*!
+ * \ingroup	network_actors
  * \brief	Sets the actor damage and removes the health from the actor.
  *
  * 		Finds the actor with the given actor_id, sets the damage time to 2000 ms and removes the health points lost (damage) from the actor.
@@ -80,7 +91,7 @@ void add_command_to_actor(int actor_id, char command);
  * \param	actor_id The server-side actor ID
  * \param	damage The damage given by the actor
  */
-void get_actor_damage(int actor_id, int damage);
+void get_actor_health(int actor_id, int damage);
 
 /*!
  * \ingroup	network_actors

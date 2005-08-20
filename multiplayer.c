@@ -898,6 +898,15 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 			}
 			break;
 
+		case GET_ACTOR_HEALTH:
+			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+				get_actor_health(SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16*)(in_data+5))));
+			}
+			break;
+
 		case GET_ACTOR_DAMAGE:
 			{
 #ifdef EXTRA_DEBUG

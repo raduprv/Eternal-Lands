@@ -1014,6 +1014,28 @@ void get_actor_heal(int actor_id, int quantity)
 
 }
 
+void get_actor_health(int actor_id, int quantity)
+{
+	//int i=0;
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+	actor *act=get_actor_ptr_from_id(actor_id);
+
+	if(!act){
+		//if we got here, it means we don't have this actor, so get it from the server...
+	} else {
+//		if(floatingmessages_enabled){
+			//act->damage=-quantity;
+			//act->damage_ms=2000;
+			//act->last_health_loss=cur_time;
+//		}
+
+		act->max_health=quantity;
+	}
+	//if we got here, it means we don't have this actor, so get it from the server...
+}
+
 
 void move_self_forward()
 {
