@@ -278,28 +278,11 @@ int name_input_keypress_handler(widget_list *widget, int mx, int my, Uint32 key,
 int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
 {
 	unsigned char string[255];
-	int window_id = -1;
+	int window_id = w->window_id;
 	int i;
-	widget_list *tmp_w;
 
-	//TODO: get rid of this crap when the widget handlers can take custom arguments
-	/* Find the window ID by searching through the windows' widget lists 
-	 * until we find a pointer to this widget */
-	for(i = 0; i < windows_list.num_windows; i++) {
-		tmp_w = windows_list.window[i].widgetlist;
-		while (tmp_w != NULL && window_id == -1) {
-			if(tmp_w == w) {
-				window_id = windows_list.window[i].window_id;
-				break;
-			} else {
-				tmp_w = tmp_w->next;
-			}
-		}
-	}
-	if(window_id == -1) {
-		/* We didn't find it */
-		return 0;
-	}
+	//TODO: get rid of this when the widget handlers can take custom arguments
+	/* Find the position of the window clicked in the accept_windows array */
 	for(i = 0; i < MAX_ACCEPT_BUDDY_WINDOWS; i++) {
 		if(accept_windows[i].window_id == window_id) {
 			break;
@@ -330,27 +313,10 @@ int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
 int click_accept_no(widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i;
-	int window_id = -1;
-	widget_list *tmp_w = NULL;
+	int window_id = w->window_id;
 
 	//TODO: get rid of this too
-	/* Find the window ID by searching through the windows' widget lists 
-	 * until we find a pointer to this widget */
-	for(i = 0; i < windows_list.num_windows; i++) {
-		tmp_w = windows_list.window[i].widgetlist;
-		while (tmp_w != NULL && window_id == -1) {
-			if(tmp_w == w) {
-				window_id = windows_list.window[i].window_id;
-				break;
-			} else {
-				tmp_w = tmp_w->next;
-			}
-		}
-	}
-	if(window_id == -1) {
-		/* We didn't find it */
-		return 0;
-	}
+	/* Find the position of the window clicked in the accept_windows array */
 	for(i = 0; i < MAX_ACCEPT_BUDDY_WINDOWS; i++) {
 		if(accept_windows[i].window_id == window_id) {
 			break;
