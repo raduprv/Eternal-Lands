@@ -1,6 +1,9 @@
 #ifndef __BAGS_H__
 #define __BAGS_H__
 
+#define NUM_BAGS 200
+#define ITEMS_PER_BAG 50
+
 typedef struct
 {
 	int pos;

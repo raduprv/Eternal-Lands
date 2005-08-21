@@ -869,7 +869,7 @@ void add_command_to_actor(int actor_id, char command)
 	} else {
 		LOCK_ACTORS_LISTS();
 		
-		if(command==leave_combat){
+		if(command==leave_combat||command==enter_combat||command==die1||command==die2){
 			int j=0;
 			int strip=1;
 			
@@ -897,36 +897,6 @@ void add_command_to_actor(int actor_id, char command)
 				}
 			}
 			act->que[MAX_CMD_QUEUE-1]=nothing;
-		} else if(command==enter_combat){
-			int j=0;
-			int strip=1;
-			
-			//Strip the queue for attack messages
-			for(k=0;k<MAX_CMD_QUEUE;k++){
-				switch(act->que[k]){
-					case pain1:
-					case pain2:
-					case attack_up_1:
-					case attack_up_2:
-					case attack_up_3:
-					case attack_up_4:
-					case attack_down_1:
-					case attack_down_2:
-						if(!strip){
-							act->que[j]=act->que[k];
-							j++;
-						}
-						break;
-					default:
-						act->que[j]=act->que[k];
-						j++;
-						strip=0;
-						break;
-				}
-			}
-			act->que[MAX_CMD_QUEUE-1]=nothing;
-			
-			if(act->calmodel)CalModel_Update(act->calmodel,1.0f);
 		}
 		
 		for(k=0;k<MAX_CMD_QUEUE;k++){

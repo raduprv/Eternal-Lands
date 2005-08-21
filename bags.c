@@ -10,8 +10,8 @@ typedef struct
 	int obj_3d_id;
 } bag;
 
-ground_item ground_item_list[50];
-bag bag_list[200];
+ground_item ground_item_list[ITEMS_PER_BAG];
+bag bag_list[NUM_BAGS];
 
 int ground_items_win= -1;
 int ground_items_menu_x=6*51+100+20;
@@ -71,6 +71,9 @@ void add_bags_from_list(Uint8 *data)
 	int obj_3d_id, bag_id;
 
 	bags_no=data[0];
+
+	if(bags_no>NUM_BAGS)return;//something nasty happened
+	
 	for(i=0;i<bags_no;i++) {
 		my_offset=i*5+1;
 		bag_x=SDL_SwapLE16(*((Uint16 *)(data+my_offset)));
@@ -111,6 +114,8 @@ void remove_bag(int which_bag)
 {
 	int sector, i, j=MAX_3D_OBJECTS-1, k=-1;
 
+	if(which_bag>NUM_BAGS) return;
+
 	if (bag_list[which_bag].obj_3d_id == -1) {
 		// oops, no bag in that slot!
 		LOG_ERROR("Oops, double-removal of bag!\n");
@@ -143,7 +148,7 @@ void open_bag(int object_id)
 {
 	int i;
 	Uint8 str[4];
-	for(i=0;i<200;i++){
+	for(i=0;i<NUM_BAGS;i++){
 		if(bag_list[i].obj_3d_id==object_id){
 			str[0]= INSPECT_BAG;
 			str[1]= i;
@@ -159,6 +164,8 @@ void get_bag_item(Uint8 *data)
 	int	pos;
 	pos= data[6];
 
+	if(pos>ITEMS_PER_BAG) return;
+
 	ground_item_list[pos].image_id= SDL_SwapLE16(*((Uint16 *)(data)));
 	ground_item_list[pos].quantity= SDL_SwapLE32(*((Uint32 *)(data+2)));
 	ground_item_list[pos].pos= pos;
@@ -173,14 +180,12 @@ void get_bags_items_list(Uint8 *data)
 	int my_offset;
 
 	view_ground_items=1;
-	draw_pick_up_menu();
-	if(item_window_on_drop)
-		display_items_menu();
-	
 	//clear the list
 	for(i=0;i<50;i++) ground_item_list[i].quantity=0;
 
 	items_no=data[0];
+	if(items_no>ITEMS_PER_BAG) return;
+	
 	for(i=0;i<items_no;i++) {
 		my_offset= i*7+1;
 		pos= data[my_offset+6];
@@ -188,6 +193,10 @@ void get_bags_items_list(Uint8 *data)
 		ground_item_list[pos].quantity= SDL_SwapLE32(*((Uint32 *)(data+my_offset+2)));
 		ground_item_list[pos].pos= pos;
 	}
+	
+	draw_pick_up_menu();
+	if(item_window_on_drop)
+		display_items_menu();
 }
 
 int display_ground_items_handler(window_info *win)
@@ -205,7 +214,7 @@ int display_ground_items_handler(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=0;i<50;i++) {
+	for(i=0;i<ITEMS_PER_BAG;i++) {
 		if(ground_item_list[i].quantity > 0) {
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
@@ -282,16 +291,17 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	// see if we clicked on the "Get All" box
 	if(mx>(win->len_x-33) && mx<win->len_x && my>20 && my<53){
-		for(pos = 0; pos < 50; pos++){
+		for(pos = 0; pos < ITEMS_PER_BAG; pos++){
 			if(ground_item_list[pos].quantity){
 				str[0]=PICK_UP_ITEM;
 				str[1]=pos;
 #ifdef NEW_CLIENT
 				*((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[pos].quantity);
+				my_tcp_send(my_socket,str,6);
 #else
 				*((Uint16 *)(str+2))=SDL_SwapLE16((short)ground_item_list[pos].quantity);
-#endif
 				my_tcp_send(my_socket,str,4);
+#endif
 			}
 		}
 		return 1;
@@ -299,8 +309,10 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	pos=get_mouse_pos_in_grid(mx,my,5,10,0,0,33,33);
 
+	if(pos==-1){
+	} else
 #ifdef NEW_CLIENT
-	if(!ground_item_list[pos].quantity) {
+	if(&& !ground_item_list[pos].quantity) {
 		if (item_dragged != -1){
 			str[0] = DROP_ITEM;
 			str[1] = item_dragged;
@@ -358,7 +370,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 	int pos=get_mouse_pos_in_grid(mx, my, 5, 10, 0, 0, 33, 33);
 	
-	if(ground_item_list[pos].quantity) {
+	if(pos!=-1 && ground_item_list[pos].quantity) {
 		if(item_action_mode==ACTION_LOOK) {
 			elwin_mouse=CURSOR_EYE;
 		} else {

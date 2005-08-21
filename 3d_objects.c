@@ -891,6 +891,7 @@ void clear_clouds_cache()
 
 void destroy_3d_object(int i)
 {
+	if(objects_list[i]==NULL) return;
 	destroy_clouds_cache(objects_list[i]);
 	free(objects_list[i]);
 	objects_list[i] = NULL;

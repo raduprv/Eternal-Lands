@@ -511,7 +511,6 @@ void login_from_new_char()
 	
 	// now destroy reference to ourself, otherwise we'll mess up the ID's
 	destroy_actor (yourself);
-	your_actor=NULL;
 	our_actor.our_model=NULL;
 
 	//now send the log in info
@@ -610,6 +609,7 @@ int click_namepass_handler(window_info * win, int mx, int my, Uint32 flags)
 			create_character();
 		} if(mx>160 && mx<240){
 			destroy_actor(yourself);
+			our_actor.our_model=NULL;
 			hide_window (newchar_root_win);
 			show_window (login_root_win);
 			hide_hud_windows ();

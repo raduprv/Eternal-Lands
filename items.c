@@ -448,7 +448,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	   my>quantity_y_offset && my<quantity_y_offset+120) {
 		int pos=get_mouse_pos_in_grid(mx, my, 1, (video_mode>4?6:3), quantity_x_offset, quantity_y_offset, 70, 20);
 
-		if(flags & ELW_LEFT_MOUSE){
+		if(pos==-1){
+		} else if(flags & ELW_LEFT_MOUSE){
 			if(edit_quantity!=-1){
 				if(!quantities.quantity[edit_quantity].len){
 					//Reset the quantity
@@ -479,7 +480,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	   my>0 && my < 6*items_grid_size) {
 		int pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, items_grid_size, items_grid_size);
 		
-		if(item_dragged!=-1){
+		if(pos==-1) {
+		} else if(item_dragged!=-1){
 			if(!item_list[pos].quantity){
 				//send the drop info to the server
 				str[0]=MOVE_INVENTORY_ITEM;
@@ -546,7 +548,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	   my>wear_items_y_offset && my<wear_items_y_offset+4*33){
 		int pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, 32, 32);
 		
-		if(item_list[pos].quantity){
+		if(pos<36) {
+		} else if(item_list[pos].quantity){
 			if(item_action_mode == ACTION_LOOK) {
 				str[0]=LOOK_AT_INVENTORY_ITEM;
 				str[1]=item_list[pos].pos;
@@ -575,7 +578,8 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	if(mx>0&&mx<6*items_grid_size&&my>0&&my<6*items_grid_size){
 		pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, items_grid_size, items_grid_size);
 
-		if(item_list[pos].quantity){
+		if(pos==-1) {
+		} else if(item_list[pos].quantity){
 			if(item_action_mode==ACTION_LOOK) {
 				elwin_mouse=CURSOR_EYE;
 			} else if(item_action_mode==ACTION_USE) {
@@ -592,7 +596,8 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	          my>wear_items_y_offset && my<wear_items_y_offset+4*33){
 		pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
 		
-		if(item_list[pos].quantity){
+		if(pos==-1) {
+		} else if(item_list[pos].quantity){
 			if(item_action_mode==ACTION_LOOK) {
 				elwin_mouse=CURSOR_EYE;
 			} else if(item_action_mode==ACTION_USE) {
