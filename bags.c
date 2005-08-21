@@ -312,7 +312,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(pos==-1){
 	} else
 #ifdef NEW_CLIENT
-	if(&& !ground_item_list[pos].quantity) {
+	if(!ground_item_list[pos].quantity) {
 		if (item_dragged != -1){
 			str[0] = DROP_ITEM;
 			str[1] = item_dragged;
