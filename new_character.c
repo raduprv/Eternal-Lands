@@ -113,6 +113,8 @@ struct input_text {
 	{"", 0}
 };
 
+int creating_char = 1;
+
 void set_create_char_error (const char *msg, int len)
 {
 	char buf[512];
@@ -138,13 +140,15 @@ void set_create_char_error (const char *msg, int len)
 	put_small_colored_text_in_box(c_red1, create_char_error_str, strlen(create_char_error_str), 200, buf);
 	snprintf(create_char_error_str, sizeof(create_char_error_str), "%s", buf);
 	display_time=cur_time+6000;
+
+	creating_char=1;
 }
 
 void change_actor ()
 {
 	// if there is any loaded model, destroy it
 	if (our_actor.our_model){
-		destroy_actor(yourself);
+		destroy_all_actors();
 		our_actor.our_model=NULL;
 	}
 	
@@ -164,45 +168,13 @@ int newchar_root_win = -1;
 int color_race_win = -1;
 int namepass_win = -1;
 
-void load_newchar_map (const char *mapname)
-{
-	game_minute = 90;
-	new_minute();
-	regenerate_near_objects = 1;
-	regenerate_near_2d_objects = 1;
-		
-	if (!load_map(mapname))
-	{
-		char error[255];
-		snprintf(error, sizeof (error), cant_change_map, mapname);
-		LOG_TO_CONSOLE(c_red4, error);
-		LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
-		LOG_ERROR(cant_change_map, mapname);
-		load_empty_map();
-	} else {
-		locked_to_console = 0;
-	}
-#ifndef NO_MUSIC
-	playing_music = 0;
-#endif  //NO_MUSIC
-
-	get_map_playlist();
-	have_a_map = 1;
-	seconds_till_rain_starts = -1;
-	seconds_till_rain_stops = -1;
-	is_raining = 0;
-	rain_sound = 0;//kill local sounds also kills the rain sound
-	weather_light_offset = 0;
-	rain_light_offset = 0;
-}
-
 int display_newchar_handler (window_info *win)
 {
 	int any_reflection; 
 	static int main_count = 0;
 
 	//see if we have to load a model (male or female)
-	if (!our_actor.our_model){
+	if (creating_char && !our_actor.our_model){
 		move_camera();//Make sure we lag a little...
 		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 		yourself = 0;
@@ -395,6 +367,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 int show_newchar_handler (window_info *win) {
 	init_hud_interface(0);
 	show_hud_windows();
+	
 	return 1;
 }
 
@@ -413,7 +386,7 @@ void create_newchar_root_window ()
 		our_actor.race = our_actor.def->type;
 		our_actor.male = our_actor.race<gnome_female?our_actor.race%2:!(our_actor.race%2);
 		
-		load_newchar_map ("./maps/newcharactermap.elm");
+		change_map ("./maps/newcharactermap.elm");
 
 		newchar_root_win = create_window ("New Character", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
@@ -492,6 +465,7 @@ void create_character()
 	}
 
 	if(are_you_sure){
+		creating_char=0;
 		send_new_char(inputs[0].str, inputs[1].str, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head, our_actor.race);
 	} else {
 		are_you_sure=1;
@@ -510,7 +484,7 @@ void login_from_new_char()
 	snprintf(password_str, sizeof(password_str), "%s", inputs[1].str);
 	
 	// now destroy reference to ourself, otherwise we'll mess up the ID's
-	destroy_actor (yourself);
+	destroy_all_actors();
 	our_actor.our_model=NULL;
 
 	//now send the log in info
@@ -608,7 +582,7 @@ int click_namepass_handler(window_info * win, int mx, int my, Uint32 flags)
 		if(mx>20 && mx<100){
 			create_character();
 		} if(mx>160 && mx<240){
-			destroy_actor(yourself);
+			destroy_all_actors();
 			our_actor.our_model=NULL;
 			hide_window (newchar_root_win);
 			show_window (login_root_win);

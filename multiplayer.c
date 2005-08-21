@@ -492,49 +492,7 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 
 		case CHANGE_MAP:
 			{
-				regenerate_near_objects=1;//Regenerate the near 3d objects...
-				regenerate_near_2d_objects=1;//Regenerate the near 3d objects...
-#ifdef EXTRA_DEBUG
-	ERR();
-#endif
-				regenerate_near_objects=1;
-				regenerate_near_2d_objects=1;
-				object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
-				close_dialogue();	// close the dialogue window if open
-#ifdef NEW_CLIENT
-				close_storagewin(); //if storage is open, close it
-#endif //NEW_CLIENT
-				destroy_all_particles();
-				kill_local_sounds();
-				if (!load_map(&in_data[3]))
-				{
-					char error[255];
-					snprintf(error, 255, cant_change_map, &in_data[3]);
-					LOG_TO_CONSOLE(c_red4, error);
-					LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
-					LOG_ERROR(cant_change_map, &in_data[3]);
-					load_empty_map();
-				} else {
-					locked_to_console = 0;
-				}
-				rain_sound=0;//kill local sounds also kills the rain sound
-				kill_local_sounds();
-#ifndef	NO_MUSIC
-				playing_music=0;
-#endif	//NO_MUSIC
-				get_map_playlist();
-				have_a_map=1;
-				//also, stop the rain
-				seconds_till_rain_starts=-1;
-				seconds_till_rain_stops=0;
-				weather_light_offset=0;
-				rain_light_offset=0;
-				if ( get_show_window (map_root_win) ){
-					hide_window(map_root_win);
-					switch_from_game_map ();
-					show_window(game_root_win);
-				}
-				load_map_marks();//Load the map marks
+				change_map(in_data+3);
 			}
 			break;
 

@@ -237,6 +237,16 @@ int load_empty_map();
 
 /*!
  * \ingroup maps
+ * \brief Changes the current map
+ *
+ * 	Loads the given map, destroys sound objects etc.
+ *
+ * \param mapname The name of the map
+ */
+void change_map(char * mapname);
+
+/*!
+ * \ingroup maps
  * \brief Loads the map given by \a file_name
  *
  *      Loads the map given by \a file_name, initializes the necessary data for the map and adds the map to the current sector.
