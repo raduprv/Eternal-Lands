@@ -495,6 +495,8 @@ void create_character()
 		send_new_char(inputs[0].str, inputs[1].str, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head, our_actor.race);
 		// now destroy reference to ourself, otherwise we'll mess up the ID's
 		destroy_actor (yourself);
+		your_actor=NULL;
+		our_actor.our_model=NULL;
 	} else {
 		are_you_sure=1;
 		
@@ -606,6 +608,7 @@ int click_namepass_handler(window_info * win, int mx, int my, Uint32 flags)
 		if(mx>20 && mx<100){
 			create_character();
 		} if(mx>160 && mx<240){
+			destroy_actor(yourself);
 			hide_window (newchar_root_win);
 			show_window (login_root_win);
 			hide_hud_windows ();
