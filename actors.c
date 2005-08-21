@@ -137,7 +137,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	char str[60];
 	float ratio=640.0f/(0.66f*window_width);
 	float healthbar_x=-0.25f*zoom_level/3.0f*ratio;
-	float healthbar_y=0;
+	float healthbar_y=0.0001;
 	float healthbar_z=offset_z+0.1f;	//was 0.2f
 	float healthbar_x_len=0.5f*zoom_level/3.0f*ratio;
 	float healthbar_x_len_converted=0;
