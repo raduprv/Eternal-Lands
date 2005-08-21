@@ -493,10 +493,6 @@ void create_character()
 
 	if(are_you_sure){
 		send_new_char(inputs[0].str, inputs[1].str, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head, our_actor.race);
-		// now destroy reference to ourself, otherwise we'll mess up the ID's
-		destroy_actor (yourself);
-		your_actor=NULL;
-		our_actor.our_model=NULL;
 	} else {
 		are_you_sure=1;
 		
@@ -512,6 +508,11 @@ void login_from_new_char()
 {
 	snprintf(username_str, sizeof(username_str), "%s", inputs[0].str);
 	snprintf(password_str, sizeof(password_str), "%s", inputs[1].str);
+	
+	// now destroy reference to ourself, otherwise we'll mess up the ID's
+	destroy_actor (yourself);
+	your_actor=NULL;
+	our_actor.our_model=NULL;
 
 	//now send the log in info
 	send_login_info();
