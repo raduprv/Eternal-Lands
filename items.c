@@ -38,6 +38,7 @@ int items_text_7;
 int items_text_8;
 int items_text_9;
 int items_text_10;
+int items_text_11;
 
 char items_string[300]={0};
 int item_dragged=-1;
@@ -85,6 +86,9 @@ inline GLuint get_items_texture(int no)
 			break;
 		case 9:
 			retval=items_text_10;
+			break;
+		case 10:
+			retval = items_text_11;
 			break;
 	}
 

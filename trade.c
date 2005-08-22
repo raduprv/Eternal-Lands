@@ -468,30 +468,7 @@ int display_trade_handler(window_info *win)
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
-					this_texture=item_list[i].image_id/25;
-					switch(this_texture) {
-					case 0:
-						this_texture=items_text_1;break;
-					case 1:
-						this_texture=items_text_2;break;
-					case 2:
-						this_texture=items_text_3;break;
-					case 3:
-						this_texture=items_text_4;break;
-					case 4:
-						this_texture=items_text_5;break;
-					case 5:
-						this_texture=items_text_6;break;
-					case 6:
-						this_texture=items_text_7;break;
-					case 7:
-						this_texture=items_text_8;break;
-					case 8:
-						this_texture=items_text_9;break;
-					case 9:
-						this_texture=items_text_10;break;
-					}
-
+					this_texture = get_items_texture (item_list[i].image_id / 25);
 					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
@@ -528,30 +505,7 @@ int display_trade_handler(window_info *win)
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
-					this_texture=your_trade_list[i].image_id/25;
-					switch(this_texture) {
-					case 0:
-						this_texture=items_text_1;break;
-					case 1:
-						this_texture=items_text_2;break;
-					case 2:
-						this_texture=items_text_3;break;
-					case 3:
-						this_texture=items_text_4;break;
-					case 4:
-						this_texture=items_text_5;break;
-					case 5:
-						this_texture=items_text_6;break;
-					case 6:
-						this_texture=items_text_7;break;
-					case 7:
-						this_texture=items_text_8;break;
-					case 8:
-						this_texture=items_text_9;break;
-					case 9:
-						this_texture=items_text_10;break;
-					}
-
+					this_texture = get_items_texture (your_trade_list[i].image_id / 25);
 					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
@@ -589,30 +543,7 @@ int display_trade_handler(window_info *win)
 					y_end=y_start+32;
 
 					//get the texture this item belongs to
-					this_texture=others_trade_list[i].image_id/25;
-					switch(this_texture) {
-					case 0:
-						this_texture=items_text_1;break;
-					case 1:
-						this_texture=items_text_2;break;
-					case 2:
-						this_texture=items_text_3;break;
-					case 3:
-						this_texture=items_text_4;break;
-					case 4:
-						this_texture=items_text_5;break;
-					case 5:
-						this_texture=items_text_6;break;
-					case 6:
-						this_texture=items_text_7;break;
-					case 7:
-						this_texture=items_text_8;break;
-					case 8:
-						this_texture=items_text_9;break;
-					case 9:
-						this_texture=items_text_10;break;
-					}
-
+					this_texture = get_items_texture (others_trade_list[i].image_id / 25);
 					get_and_set_texture_id(this_texture);
 					glBegin(GL_QUADS);
 					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
