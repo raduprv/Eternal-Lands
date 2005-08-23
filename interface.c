@@ -4,6 +4,8 @@
 #include "global.h"
 #include "elwindows.h"
 
+#define DEFAULT_CONTMAPS_SIZE 20
+
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
  *
@@ -347,30 +349,71 @@ const char* cont_map_file_names[] = {
 	"./maps/irilion.bmp"
 };
 const int nr_continents = sizeof (cont_map_file_names) / sizeof (const char *);
+struct draw_map *continent_maps = NULL;
 
-const struct draw_map continent_maps[] = {
-	// Seridia
-	{0, 409,107,450,147,"./maps/startmap.elm"},//0 - Isla Prima
-	{0, 184,162,395,359,"./maps/map2.elm"},//1 - Whitestone
-	{0, 84,352,180,448,"./maps/map3.elm"}, //2 - Desert Pines
-	{0, 336,118,387,165,"./maps/map4f.elm"},//3 - Tirnym
-	{0, 230,405,281,451,"./maps/map5nf.elm"},//4 - VOTD
-	{0, 84,270,177,357,"./maps/map6nf.elm"}, //5 - Portland
-	{0, 87,169,175,270,"./maps/map7.elm"}, //6 - Morcraven
-	{0, 130,128,178,168,"./maps/map8.elm"},//7 - Naralik
-	{0, 180,75,275,165,"./maps/map9f.elm"}, //8 - Grubani
-	{0, 0,0,0,0,"./maps/map10.elm"},     //9 -
-	{0, 282,358,385,454,"./maps/map11.elm"},//10 - Tarsengaard
-	{0, 232,359,283,403,"./maps/map12.elm"},//11 - Nordcarn
-	{0, 181,363,231,408,"./maps/map13.elm"},//12 - Southern KF
-	{0, 178,406,227,443,"./maps/map14f.elm"},//13 - KF
-	{0, 2,324,75,431,"./maps/map15f.elm"},    //14 - Tahraji
-	// Irilion
-	{ 1, 60, 330, 220, 490, "./maps/cont2map1.elm" }, // Idaloren
-	{ 1, 0, 0, 0, 0, "./maps/anitora.elm" }, // Anitora
-	// The End
-	{0, 0,0,0,0,NULL} //Last map
-};
+void read_mapinfo ()
+{
+	FILE *fin;
+	char line[256];
+	int maps_size, imap;
+	char *cmt_pos;
+	char cont_name[64];
+	unsigned short continent, x_start, y_start, x_end, y_end;
+	char map_name[128];
+	
+	maps_size = DEFAULT_CONTMAPS_SIZE;
+	continent_maps = calloc (maps_size, sizeof (struct draw_map));
+	
+	fin = my_fopen ("mapinfo.lst", "r");
+	imap = 0;
+	if (fin != NULL)
+	{
+		while (fgets (line, sizeof (line), fin) != NULL)
+		{
+			// strip comments
+			cmt_pos = strchr (line, '#');
+			if (cmt_pos != NULL)
+				*cmt_pos = '\0';
+
+			if (sscanf (line, "%63s %hu %hu %hu %hu %127s ", cont_name, &x_start, &y_start, &x_end, &y_end, map_name) != 6)
+				// not a valid line
+				continue;
+
+			if (strcasecmp (cont_name, "Seridia") == 0)
+				continent = 0;
+			else if (strcasecmp (cont_name, "Irilion") == 0)
+				continent = 1;
+			else
+				// not a valid continent
+				continue;
+				
+			if (imap >= maps_size - 1)
+			{
+				// Uh oh, we didn't allocate enough space
+				maps_size += DEFAULT_CONTMAPS_SIZE;
+				continent_maps = realloc (continent_maps, maps_size * sizeof (struct draw_map));
+			}
+				
+			continent_maps[imap].cont = continent;
+			continent_maps[imap].x_start = x_start;
+			continent_maps[imap].y_start = y_start;
+			continent_maps[imap].x_end = x_end;
+			continent_maps[imap].y_end = y_end;
+			continent_maps[imap].name = malloc ((strlen (map_name) + 1) * sizeof (char));
+			strcpy (continent_maps[imap].name, map_name);
+			imap++;
+		}
+		
+		fclose (fin);
+	}
+
+	continent_maps[imap].cont = 0;
+	continent_maps[imap].x_start = 0;
+	continent_maps[imap].y_start = 0;
+	continent_maps[imap].x_end = 0;
+	continent_maps[imap].y_end = 0;
+	continent_maps[imap].name = NULL;
+}
 
 int switch_to_game_map()
 {
@@ -378,6 +421,8 @@ int switch_to_game_map()
 	char map_map_file_name[256];
 	unsigned short cur_cont;
 	static unsigned short int old_cont = 0;
+	
+	if (cur_map < 0) return 0;
 
 	my_strcp(map_map_file_name,map_file_name);
 	len=strlen(map_map_file_name);
@@ -391,7 +436,7 @@ int switch_to_game_map()
 	}
 	
 	cur_cont = continent_maps[cur_map].cont;
-	if (cur_cont != old_cont && cur_cont < nr_continents)
+	if (cur_cont != old_cont && cur_cont >= 0 && cur_cont < nr_continents)
 	{
 		cont_text = load_texture_cache (cont_map_file_names[cur_cont], 128);
 		old_cont = cur_cont;

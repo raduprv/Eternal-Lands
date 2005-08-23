@@ -81,7 +81,7 @@ struct draw_map{
 	unsigned short y_start;
 	unsigned short x_end;
 	unsigned short y_end;       
-	const char * name;
+	char *name;
 };
 
 extern int cur_map; /*!< id of the map we are currently on */
@@ -90,7 +90,18 @@ extern GLuint legend_text;
 
 extern const char* cont_map_file_names[];
 extern const int nr_continents;
-extern const struct draw_map continent_maps[]; /*!< global array of maps for the continents */
+extern struct draw_map *continent_maps; /*!< global array of maps for the continents */
+
+/*!
+ * \ingroup loadsave
+ * \brief Read the map info file
+ *
+ *	Reads the mapinfo file which contains the information on where 
+ *	the game maps are located on the continent map
+ *
+ * \callgraph
+ */
+void read_mapinfo ();
 
 /*!
  * \ingroup interfaces

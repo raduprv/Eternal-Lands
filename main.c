@@ -61,6 +61,8 @@ void cleanup_mem(void)
 	cache_e3d = NULL;
 	cache_delete(cache_system);
 	cache_system = NULL;
+	/* map location information */
+	free (continent_maps);
 }
 
 int start_rendering()

@@ -1,0 +1,30 @@
+# mapinfo.lst
+#
+# This file specifies how the in-game map pictures relate to the the 
+# continent maps. Each line is formatted as follows
+#
+# <continent name> <x start> <y start> <x end> <y end> <map file name>
+# 
+# where <continent name> can be Seridia or Irilion, and (<x start>, <y start>) 
+# and (<x end>, <y end>) specify the rectangle on the continent map that is
+# occupied by the game map with file name <map file name>. Everything 
+# following a # sign, like these lines, is ignored.
+#
+Seridia 409 107 450 147 ./maps/startmap.elm   # Isla Prima
+Seridia 184 162 395 359 ./maps/map2.elm       # Whitestone
+Seridia  84 352 180 448 ./maps/map3.elm       # Desert Pines
+Seridia 336 118 387 165 ./maps/map4f.elm      # Tirnym
+Seridia 230 405 281 451 ./maps/map5nf.elm     # VotD
+Seridia  84 270 177 357 ./maps/map6nf.elm     # Portland
+Seridia  87 169 175 270 ./maps/map7.elm       # Morcraven
+Seridia 130 128 178 168 ./maps/map8.elm       # Naralik
+Seridia 180  75 275 165 ./maps/map9f.elm      # Grubani
+Seridia   0   0   0   0 ./maps/map10.elm      # <unused>
+Seridia 282 358 385 454 ./maps/map11.elm      # Tarsengaard
+Seridia 232 359 283 403 ./maps/map12.elm      # Nordcarn
+Seridia 181 363 231 408 ./maps/map13.elm      # Southern KF
+Seridia 178 406 227 443 ./maps/map14f.elm     # KF
+Seridia   2 324  75 431 ./maps/map15f.elm     # Tahraji
+
+Irilion  60 330 220 490 ./maps/cont2map1.elm  # Idaloran
+Irilion   0   0   0   0 ./maps/anitora.elm    # Anitora

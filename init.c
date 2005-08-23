@@ -527,6 +527,9 @@ void init_stuff()
 	load_font_textures ();
 	CHECK_GL_ERRORS();
 	init_colors();
+	
+	// read the continent map info
+	read_mapinfo ();
 
 	// now create the root window
 
