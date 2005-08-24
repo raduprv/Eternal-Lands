@@ -90,15 +90,16 @@ int remove_from_ignore_list(Uint8 *name)
 
 
 //returns 1 if ignored, 0 if not ignored
-int check_if_ignored(Uint8 *name)
+int check_if_ignored (const Uint8 *name)
 {
 	int i;
-	for(i=0;i<MAX_IGNORES;i++)
-		{
-			if(ignore_list[i].used)
-				if(my_strcompare(ignore_list[i].name,name))return 1;//yep, ignored
-		}
-	return 0;//nope
+
+	for (i = 0; i < MAX_IGNORES; i++)
+	{
+		if (ignore_list[i].used && my_strcompare(ignore_list[i].name, name))
+			return 1;	// yep, ignored
+	}
+	return 0;	// nope
 }
 
 
@@ -126,7 +127,10 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, int type)
 	}
 
 	offset = 0;
-	if (input_text[1] == '[') offset = 1;
+	while (IS_COLOR (input_text[offset]))
+		offset++;
+	if (input_text[offset] == '[')
+		offset++;
 	for (i = 0; i < 15 && i+offset < len; i++)
 	{
 		ch = input_text[i+offset];
@@ -134,7 +138,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, int type)
 		name[i] = ch;
 	}
 	name[i] = '\0';
-	if (check_if_ignored(name))
+	if (check_if_ignored (name))
 		return 1;
 	
 	return 0;
