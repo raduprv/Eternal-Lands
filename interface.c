@@ -419,11 +419,9 @@ int switch_to_game_map()
 {
 	int len;
 	char map_map_file_name[256];
-	unsigned short cur_cont;
-	static unsigned short int old_cont = 0;
+	short int cur_cont;
+	static short int old_cont = 0;
 	
-	if (cur_map < 0) return 0;
-
 	my_strcp(map_map_file_name,map_file_name);
 	len=strlen(map_map_file_name);
 	map_map_file_name[len-3]='b';
@@ -435,7 +433,14 @@ int switch_to_game_map()
 		return 0;
 	}
 	
-	cur_cont = continent_maps[cur_map].cont;
+	if (cur_map < 0)
+	{
+		cur_cont = -1;
+	}
+	else
+	{
+		cur_cont = continent_maps[cur_map].cont;
+	}
 	if (cur_cont != old_cont && cur_cont >= 0 && cur_cont < nr_continents)
 	{
 		cont_text = load_texture_cache (cont_map_file_names[cur_cont], 128);

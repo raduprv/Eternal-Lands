@@ -75,8 +75,9 @@ extern int ati_click_workaround; /*!< if non-zero, arbitrarily multiply the read
 /*!
  * Stores the start and end coordinates of a map
  */
-struct draw_map{
-	unsigned short cont;
+struct draw_map
+{
+	short cont;
 	unsigned short x_start;
 	unsigned short y_start;
 	unsigned short x_end;
