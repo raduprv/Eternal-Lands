@@ -775,7 +775,7 @@ void next_command()
 			}
 		}
 	UNLOCK_ACTORS_LISTS();
-	if(max_queue >= 4)my_timer_adjust+=6+(max_queue-4);	//speed up the timer clock if we are building up too much
+	if(max_queue >= (MAX_CMD_QUEUE/2))my_timer_adjust+=6+(max_queue-(MAX_CMD_QUEUE/2));	//speed up the timer clock if we are building up too much
 }
 
 
@@ -832,7 +832,8 @@ void destroy_all_actors()
 			actors_list[i]=NULL;
 		}
 	}
-	max_actors=0;
+	max_actors= 0;
+	my_timer_adjust= 0;
 	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
 }
 
@@ -841,7 +842,7 @@ void destroy_all_actors()
 
 void update_all_actors()
 {
-	Uint8 str[40];
+ 	 Uint8 str[40];
 
 	//we got a nasty error, log it
 	LOG_TO_CONSOLE(c_red2,resync_server);

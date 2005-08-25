@@ -42,8 +42,6 @@ int camera_zoom_frames=0;
 float new_zoom_level=3.0f;
 float camera_distance = 2.5f;
 
-int normal_animation_timer=0;
-
 float scene_mouse_x;
 float scene_mouse_y;
 

@@ -6,6 +6,8 @@
 int	my_timer_adjust=0;
 int	my_timer_clock=0;
 SDL_TimerID draw_scene_timer=0;
+int normal_animation_timer=0;
+
 #ifdef TIMER_CHECK
 static Uint32 last_my_timer=0;
 #endif
@@ -32,12 +34,12 @@ Uint32 my_timer(Uint32 interval, void * data)
 
 	if(is_raining)update_rain();
 	//next_command();
-	e.type = SDL_USEREVENT;
-	e.user.code = EVENT_ANIMATE_ACTORS;
+	e.type= SDL_USEREVENT;
+	e.user.code= EVENT_ANIMATE_ACTORS;
 	SDL_PushEvent(&e);
 	if(normal_animation_timer>2 && have_a_map)
 		{
-			if(my_timer_adjust > 0)my_timer_adjust--;
+			if(my_timer_adjust > 0) my_timer_adjust--;
 			normal_animation_timer=0;
     		update_particles();
     		next_command();
@@ -60,7 +62,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 	normal_animation_timer++;
 
 	// find the new interval
-	new_time=TIMER_RATE-(SDL_GetTicks()-my_timer_clock);
+	new_time= TIMER_RATE-(SDL_GetTicks()-my_timer_clock);
 	if(new_time<10)	new_time=10;	//put an absoute minimume in
     return new_time;
 }
