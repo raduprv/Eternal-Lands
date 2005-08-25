@@ -156,47 +156,103 @@
 	<color r="0" g="1" b="0"/>
 	<Text>       The Eternal Lands Encyclopedia</Text>
 	<nl/>
-	<Text>                    BOOKS</Text><nl/>
+	<Text>                    BOOKS</Text><nl/><nl/>
+	<Color>red</Color>
+	<Text>                  Page 1/3</Text><nl/><nl/>
 	<size>Small</size>
 	<color r="1" g="0.5" b="0"/>
 	<Text>To advance in the game you will need to read many books.</Text>
 	<nl/>
-	<Text>Here you can see a list of Bookstores and a list of the books</Text>
+	<Text>Here you can see a list of Bookstores and a list of the</Text>
 	<nl/>
-	<Text>that you can find in each bookstore.</Text><nl/><nl/>
+	<Text>books that you can find in each bookstore.</Text><nl/><nl/>
 
 	<color r="0" g="0.7" b="1"/>
-	<Text>Illit (Registry Room, Magic School):  </Text>
+	<Text>Ardur (South-East Naralik)</Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="Books_JW" title="Jewelry"/><nl/>
+	<link ref="Books_MS" title="Metal Smelting"/><nl/>
+	<link ref="Books_MM" title="Metal Mining"/><nl/>
+	<link ref="Books_MD" title="Metal Molding"/><nl/>
+	<nl/>
 	
 	<color r="0" g="0.7" b="1"/>
-	<Text>Nahark (Ywarstav, Grubani Peninsula): </Text>
+	<Text>Brogan (Portland, near Kamara Desert)</Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="Books_SF" title="Summoning and Fighting"/><nl/>
-
-	<color r="0" g="0.7" b="1"/>
-	<Text>Dan (Central White Stone City):       </Text>
-	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="Books_WA" title="Weapons and Armour"/><nl/>
-
-	<color r="0" g="0.7" b="1"/>
-	<Text>Brogar (Near Kamara, Portland):       </Text>
-	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="Books_CR" title="Crystal"/><nl/><nl/>
+	<link ref="Books_CM" title="Crystal Mining"/><nl/>
+	<link ref="Books_CP" title="Crystal Processing"/><nl/>
+	<nl/>
+	
+	<color r="0" g="0.5" b="1"/>
+	<Text>                    Go to page: </Text>
+	<link ref="Books_2" title="[2]"/><Text> </Text>
+	<link ref="Books_3" title="[3]"/><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                        </Text><link ref="Index" title="Back To Index"/>
+	<nl/>
+</Page>	
+<Page name="Books_2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                    BOOKS</Text><nl/><nl/>
+	<Color>red</Color>
+	<Text>                  Page 2/3</Text><nl/><nl/>
+	<size>Small</size>
 	
 	<color r="0" g="0.7" b="1"/>
-	<Text>Ardur (South-East Naralik): </Text><nl/>
+	<Text>Dan (Market place in White Stone City)</Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="Books_GM" title="General Metallurgy Books"/><nl/>
-	<link ref="Books_MSM" title="Mining, Smelting and Molding"/><nl/><nl/>
+	<link ref="Books_WC" title="Weapon Construction"/><nl/>
+	<link ref="Books_AC" title="Armor Construction"/><nl/>
+	<nl/>
 
 	<color r="0" g="0.7" b="1"/>
-	<Text>Frukas (Grahm's Village):</Text><nl/>
+	<Text>Frukas (Grahm's Village, Whitestone):</Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="Books_GB" title="Generic Biology"/><nl/>
-	<link ref="Books_AP" title="Alchemy and Potions"/><nl/>
+	<link ref="Books_BI" title="Biology"/><nl/>
+	<link ref="Books_AL" title="Alchemy"/><nl/>
+	<link ref="Books_PO" title="Potions"/><nl/>
 	<nl/>
+
+	<color r="0" g="0.7" b="1"/>
+	<Text>Itilli (Registry Room in Magic School)</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<link ref="Books_JE" title="Jewel Embedding"/><nl/>
+	<link ref="Books_MB" title="Medallion Building"/><nl/>
+	<link ref="Books_RB" title="Ring Building"/><nl/>
+	<nl/>
+	
+	<color r="0" g="0.5" b="1"/>
+	<Text>                    Go to page: </Text>
+	<link ref="Books"   title="[1]"/><Text> </Text>
+	<link ref="Books_3" title="[3]"/><nl/>
+	<color>yellow</color>
+	<Text>                        </Text><link ref="Index" title="Back To Index"/>
+	<nl/>
+</Page>
+<Page name="Books_3">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                    BOOKS</Text><nl/><nl/>
+	<Color>red</Color>
+	<Text>                  Page 3/3</Text><nl/><nl/>
+	<size>Small</size>
+	
+	<color r="0" g="0.7" b="1"/>
+	<Text>Nahark (Ywarstav, Grubani Peninsula)</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<link ref="Books_SM" title="Summoning"/><nl/>
+	<link ref="Books_FT" title="Fighting"/><nl/>
+	<nl/>
+
+	<color r="0" g="0.5" b="1"/>
+	<Text>                    Go to page: </Text>
+	<link ref="Books"   title="[1]"/><Text> </Text>
+	<link ref="Books_2" title="[2]"/><nl/>
 	<nl/>
 	<color>yellow</color>
 	<Text>                        </Text><link ref="Index" title="Back To Index"/>
