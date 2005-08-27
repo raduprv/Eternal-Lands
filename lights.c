@@ -141,6 +141,7 @@ void disable_local_lights()
 
 void enable_local_lights()
 {
+	if(show_lights < 0) return;
 	if (show_lights != max_enabled)	max_enabled= show_lights;
     glEnable(GL_LIGHT0);
     if(show_lights >= 1)	glEnable(GL_LIGHT1);
@@ -156,7 +157,7 @@ void draw_lights()
 {
 	GLfloat spot_direction[] = { -0.0, -0.0, -0.0f };
 
-	if(max_enabled >= 0 && show_lights != max_enabled)	enable_local_lights();
+	if(max_enabled >= 0 && show_lights >= 0 && show_lights != max_enabled)	enable_local_lights();
 	
 	glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_0_diffuse);
@@ -244,7 +245,7 @@ void update_scene_lights()
 	float max_dist=0;
 	int max_light=0;
 
-	show_lights= max_light= 0;
+	show_lights= max_light= -1;
 	x= -cx;
 	y= -cy;
 	//reset the lights
