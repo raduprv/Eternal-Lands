@@ -898,6 +898,11 @@ void add_command_to_actor(int actor_id, char command)
 				}
 			}
 			act->que[MAX_CMD_QUEUE-1]=nothing;
+
+			if(act->last_command == nothing){
+				//We may be on idle, update the actor so we can reduce the rendering lag
+				CalModel_Update(act->calmodel,5.0f);
+			}
 		}
 		
 		for(k=0;k<MAX_CMD_QUEUE;k++){
