@@ -6,7 +6,7 @@ extern Uint32 loading_win_progress_bar;
 extern float progress;
 extern int loading_texture;
 
-int create_loading_win(int width, int height);
+int create_loading_win(int width, int height, int snapshot);
 void update_loading_win(char *text, float progress_increase);
 int destroy_loading_win(void);
 

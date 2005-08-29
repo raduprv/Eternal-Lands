@@ -11,33 +11,94 @@
 
 Uint32 loading_win = -1;
 Uint32 loading_win_progress_bar = -1;
-int loading_texture = -1;
 static float total_progress = 0;
+GLuint loading_texture = -1;
+float frac_x, frac_y;
+int delete_texture = 0;
 
 unsigned char text_buffer[255] = {0};
 
 int display_loading_win_handler(window_info *win)
 {
-	draw_console_pic(loading_texture);
+	glBindTexture (GL_TEXTURE_2D, loading_texture);
+	glEnable (GL_TEXTURE_2D);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f (0.0f, frac_y);
+	glVertex3i (0, 0, 0);
+
+	glTexCoord2f (0.0f, 0.0f);
+	glVertex3i (0, win->len_y, 0);
+
+	glTexCoord2f (frac_x, 0.0f);
+	glVertex3i (win->len_x, win->len_y, 0);
+
+ 	glTexCoord2f (frac_x, frac_y);
+	glVertex3i (win->len_x, 0, 0);
+	glEnd();
+	
+	// Since the background doesn't use the texture cache, invalidate
+	// the last texture, so that the font will be loaded
+	last_texture = -1;
 	glColor3f (1.0, 1.0, 1.0);
 	draw_string_small(win->len_x/2-(get_string_width(text_buffer)*0.7)/2, (win->len_y/3)*2+PROGRESSBAR_HEIGHT+2, text_buffer, 1);
+
+	glDisable(GL_TEXTURE_2D);
 
 	return 1;
 }
 
-int create_loading_win(int width, int height)
+void take_snapshot (int width, int height)
 {
-	if(loading_win == -1) { //Make sure we only have one loading window
+	int bg_width = 1024;
+	int bg_height = 512;	
+
+	glGenTextures (1, &loading_texture);
+	glBindTexture (GL_TEXTURE_2D, loading_texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	
+	// texture sizes need to be powers of 2
+	while (bg_width < width)
+		bg_width *= 2;
+	while (bg_height < height)
+		bg_height *= 2;
+	
+	glReadBuffer (GL_FRONT);
+	glCopyTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, bg_width, bg_height, 0);
+	
+	frac_x = ((float) width) / bg_width;
+	frac_y = ((float) height) / bg_height;
+	
+	delete_texture = 1;
+}
+
+int create_loading_win (int width, int height, int snapshot)
+{
+	if (snapshot)
+	{
+		take_snapshot (width, height);
+	}
+
+	if (loading_win == -1)// Make sure we only have one loading window
+	{
 		loading_win = create_window("Loading window", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW);
 		set_window_handler(loading_win, ELW_HANDLER_DISPLAY, &display_loading_win_handler);
 		loading_win_progress_bar = progressbar_add(loading_win, NULL, width/2-PROGRESSBAR_LEN/2, (height/3)*2, PROGRESSBAR_LEN, PROGRESSBAR_HEIGHT);
-		loading_texture = load_texture_cache("./textures/login_back.bmp",255);
+		if (!snapshot)
+		{
+			int idx = load_texture_cache ("./textures/login_back.bmp", 255);
+			loading_texture = get_texture_id (idx);
+			frac_x = frac_y = 1.0f;
+			delete_texture = 0;
+		}
 	}
 	
 	return loading_win;
 }
 
-void update_loading_win(char *text, float progress_increase)
+void update_loading_win (char *text, float progress_increase)
 {
 	if(loading_win != -1) {
 		total_progress += progress_increase;
@@ -49,7 +110,6 @@ void update_loading_win(char *text, float progress_increase)
 		if(text != NULL && strlen(text) <= 255) {
 			put_small_text_in_box(text, strlen(text), PROGRESSBAR_LEN, text_buffer);
 		}
-		
 		// The loading window is supposed to display stuff while
 		// loading maps when the draw_scene loop is held up. Hence
 		// we have to call our own drawing code. Instead of making
@@ -59,13 +119,15 @@ void update_loading_win(char *text, float progress_increase)
 		Enter2DMode ();
 		display_window (loading_win);
 		Leave2DMode ();
-		SDL_GL_SwapBuffers();
+		SDL_GL_SwapBuffers ();
 	}
 }
 
 int destroy_loading_win(void)
 {
 	update_loading_win("", 0);
+	if (delete_texture)
+		glDeleteTextures (1, &loading_texture);
 	destroy_window(loading_win);
 	loading_win = -1;
 	loading_texture = -1;

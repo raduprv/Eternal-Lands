@@ -217,7 +217,7 @@ int load_map (const char * file_name)
 			exit_now=1;//We might as well quit...
 			return 0;
 		}
-	create_loading_win (window_width, window_height);
+	create_loading_win (window_width, window_height, 1);
 	show_window(loading_win);
 	update_loading_win("Loading map", 0);
 	//get the map size
