@@ -157,7 +157,14 @@ void draw_lights()
 {
 	GLfloat spot_direction[] = { -0.0, -0.0, -0.0f };
 
-	if(show_lights <0)  return;
+	if(show_lights <0){
+		if(max_enabled >= 0){
+			disable_local_lights();
+		}
+		return;
+	} else if(max_enabled != show_lights){
+        enable_local_lights();
+	}
 	if(max_enabled >= 0 && show_lights != max_enabled)	enable_local_lights();
 	
 	glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
