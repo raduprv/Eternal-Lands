@@ -41,6 +41,30 @@ int get_near_3d_objects();
 
 /*!
  * \ingroup	load_3d
+ * \brief	Adds a 3d object with a specific ID to the map 
+ * 
+ * 		Adds a 3d object to the map, at position \a id in the objects_list
+ * 
+ * \param	id The object ID		
+ * \param	file_name The file name of the 3d object
+ * \param	x_pos The x position
+ * \param	y_pos The y position
+ * \param	z_pos The z position
+ * \param	x_rot The x rotation
+ * \param	y_rot The y rotation
+ * \param	z_rot The z rotation
+ * \param	self_lit Whether the object is self-lit (enables/disables lightning)
+ * \param	blended Whether the object is blended (enables/disables blending - GL_ONE,GL_ONE)
+ * \param	r Red (0<=r<=1)
+ * \param	g Green (0<=g<=1)
+ * \param	b Blue (0<=b<=1)
+ * \retval int	Returns 0 on error or the position in the objects_list on succes.
+ * \callgraph
+ */
+int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b);
+
+/*!
+ * \ingroup	load_3d
  * \brief	Adds a 3d object to the map.
  * 
  * 		It is usually called from load_map. It adds a 3d object to the given position.
@@ -58,11 +82,12 @@ int get_near_3d_objects();
  * \param	g Green (0<=g<=1)
  * \param	b Blue (0<=b<=1)
  * \retval int	Returns 0 on error or the position in the objects_list on succes.
+ * 
+ * \sa add_e3d_at_id
+ *
  * \callgraph
  */
-int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos, 
-                float x_rot, float y_rot, float z_rot, char self_lit, char blended, 
-                float r, float g, float b);
+int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b);
 
 /*!
  * \ingroup	display_3d

@@ -225,9 +225,9 @@ void connect_to_server()
 			send_login_info();
 		}
 
-    //send the current version to the server
-    send_version_to_server(&ip);
-    last_heart_beat=cur_time;
+	//send the current version to the server
+	send_version_to_server(&ip);
+	last_heart_beat=cur_time;
 	hide_window(trade_win);
 }
 
@@ -991,6 +991,20 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_length-2)/4);
 			break;
 #endif
+
+		case GET_3D_OBJ_LIST:
+			if (data_length > 3)
+				get_3d_objects_from_server (in_data[3], &in_data[4], data_length - 4);
+			break;
+
+		case GET_3D_OBJ:
+			get_3d_objects_from_server (1, &in_data[3], data_length - 3);
+			break;
+		
+		case REMOVE_3D_OBJ:
+			if (data_length == 5)
+				remove_3d_object_from_server (SDL_SwapLE16 (*((Uint16 *)(&in_data[3]))));
+			break;
 
 		// for use by 1.0.3 server and higher
 		case MAP_SET_OBJECTS:

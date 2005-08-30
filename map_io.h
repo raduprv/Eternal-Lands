@@ -265,4 +265,30 @@ int load_map (const char * file_name);
  *
  */
 void load_map_marks();
+
+/*!
+ * \ingroup maps
+ * \brief Adds a number of 3d objects to the map
+ *
+ *	Adds \a nr_objs 3d objects from the server to the current map
+ *
+ * \param nr_objs The number of objects to add
+ * \param data The message from the server with the object list
+ * \param len The length of \a data
+ * \retval int  0 on error, 1 on success
+ * \callgraph
+ */
+int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len);
+
+/*!
+ * \ingroup maps
+ * \brief Removes an object from the current map
+ *
+ *	Removes the object with ID \a id from the map
+ *
+ * \param id The ID of the object to be removed
+ * \callgraph
+ */
+void remove_3d_object_from_server (int id);
+
 #endif

@@ -193,14 +193,23 @@ e3d_object * load_e3d_cache(char * file_name)
 	return e3d_id;
 }
 
-int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
-			float x_rot, float y_rot, float z_rot, char self_lit, char blended,
-			float r, float g, float b)
+int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
 {
-	int i;
 	char fname[128];
 	e3d_object *returned_e3d;
 	object3d *our_object;
+	
+	if (id < 0 || id > MAX_OBJ_3D)
+	{
+		LOG_ERROR ("Invalid object id %d", id);
+		return 0;
+	}
+	
+	if (objects_list[id] != NULL)
+	{
+		LOG_ERROR ("There's already an object with ID %d", id);
+		return 0;
+	}
 
 	//convert any '\' in '/'
 	clean_file_name(fname, file_name, 128);
@@ -208,61 +217,69 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	returned_e3d=load_e3d_cache(fname);
 	if(returned_e3d==NULL)
-		{
-            LOG_ERROR(nasty_error_str,fname);
+	{
+		LOG_ERROR (nasty_error_str, fname);
     		//replace it with the null object, to avoid object IDs corruption
-    		returned_e3d=load_e3d_cache("./3dobjects/misc_objects/badobject.e3d");
-    		if(returned_e3d==NULL)return 0;//umm, not even found the place holder, this is teh SUCK!!!
-		}
+    		returned_e3d = load_e3d_cache ("./3dobjects/misc_objects/badobject.e3d");
+    		if (returned_e3d == NULL)
+			return 0; // umm, not even found the place holder, this is teh SUCK!!!
+	}
 
+	// now, allocate the memory
+	our_object = calloc (1, sizeof (object3d));
+
+	// and fill it in
+	my_strncp (our_object->file_name, fname, 80);
+	our_object->x_pos = x_pos;
+	our_object->y_pos = y_pos;
+	our_object->z_pos = z_pos;
+
+	our_object->x_rot = x_rot;
+	our_object->y_rot = y_rot;
+	our_object->z_rot = z_rot;
+
+	our_object->r = r;
+	our_object->g = g;
+	our_object->b = b;
+
+	our_object->clouds_uv = NULL;
+	our_object->cloud_vbo = 0;
+
+	our_object->self_lit = self_lit;
+	our_object->blended = blended;
+	our_object->display = 1;
+	our_object->state = 0;
+
+	our_object->e3d_data = returned_e3d;
+	
+	our_object->id = id;
+
+	objects_list[id] = our_object;
+	// watch the top end
+	if(id >= highest_obj_3d)
+	{
+		highest_obj_3d = id+1;
+	}
+     	
+	regenerate_near_objects = 1; // We've added an object..
+		
+	return id;
+}
+
+int add_e3d (const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
+{
+	int i;
+	
 	//find a free spot, in the e3d_list
 	for(i = 0; i < MAX_OBJ_3D; i++)
 	{
-		if(!objects_list[i])
+		if(objects_list[i] == NULL)
 			break;
 	}
-		
-	// now, allocate the memory
-	our_object = calloc(1, sizeof(object3d));
-
-	// and fill it in
-	my_strncp(our_object->file_name, fname, 80);
-	our_object->x_pos=x_pos;
-	our_object->y_pos=y_pos;
-	our_object->z_pos=z_pos;
-
-	our_object->x_rot=x_rot;
-	our_object->y_rot=y_rot;
-	our_object->z_rot=z_rot;
-
-	our_object->r=r;
-	our_object->g=g;
-	our_object->b=b;
-
-	our_object->clouds_uv=NULL;
-	our_object->cloud_vbo=0;
-
-	our_object->self_lit=self_lit;
-	our_object->blended=blended;
-	our_object->display= 1;
-	our_object->state= 0;
-
-	our_object->e3d_data=returned_e3d;
 	
-	our_object->id=i;
-
-	objects_list[i]=our_object;
-	// watch the top end
-	if(i >= highest_obj_3d)
-		{
-			highest_obj_3d= i+1;
-		}
-     	
-	regenerate_near_objects=1;//We've added an object..
-		
-	return i;
+	return add_e3d_at_id (i, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b);
 }
-
+	
 void add_near_3d_object(int dist, float radius, int pos, int blended )//Blended objects needs to be in their own list
 {
 	struct near_3d_object *cur, *nearest, *list, **first;

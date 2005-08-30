@@ -600,6 +600,9 @@
 #define GET_ACTIVE_CHANNELS 71
 #define MAP_FLAGS 72
 #define GET_ACTOR_HEALTH 73
+#define GET_3D_OBJ_LIST 74
+#define GET_3D_OBJ 75
+#define REMOVE_3D_OBJ 76
 
 // reserved for future expansion 220-229, not being used in the server yet
 #define MAP_SET_OBJECTS 220

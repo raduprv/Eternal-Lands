@@ -683,3 +683,113 @@ int save_map(char * file_name)
 
 }
 */
+
+int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
+{
+	int iobj;
+	int obj_x, obj_y;
+	int offset, nb_left;
+	float x = 0.0f, y = 0.0f, z = 0.0f, rx = 0.0f, ry = 0.0f, rz = 0.0f;
+	char obj_name[128];
+	int name_len, max_name_len;
+	int id = -1;
+	int all_ok = 1;
+	
+	offset = 0;
+	nb_left = len;
+	for (iobj = 0; iobj < nr_objs; iobj++)
+	{
+		int obj_err = 0;
+		
+		if (nb_left < 14)
+		{
+			// Warn about this error!
+                        log_error ("Incomplete 3D objects list!");
+			all_ok = 0;
+                        break;
+		}
+		
+		obj_x = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
+		offset += 2;
+		obj_y = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
+		offset += 2;
+		if (obj_x > tile_map_size_x * 6 || obj_y > tile_map_size_y * 6)
+		{
+			// Warn about this error!
+			log_error("A 3D object was located OUTSIDE the map!");
+			offset += 8;
+			obj_err = 1;
+                }
+		else
+		{
+			rx = SwapLEFloat (*((float *)(&data[offset])));
+			offset += 2;
+			ry = SwapLEFloat (*((float *)(&data[offset])));
+			offset += 2;
+			rz = SwapLEFloat (*((float *)(&data[offset])));
+			offset += 2;
+			id = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
+			offset += 2;
+
+			x = 0.5f * obj_x + 0.25f;
+			y = 0.5f * obj_y + 0.25f;
+			z = -2.2f + height_map[obj_y*tile_map_size_x*6+obj_x] * 0.2f;
+		}
+		
+		nb_left -= 12;
+		max_name_len = nb_left > sizeof (obj_name) ? sizeof (obj_name) : nb_left;
+		name_len = snprintf (obj_name, max_name_len, "%s", &data[offset]);
+		if (name_len < 0 || name_len >= sizeof (obj_name))
+		{
+			// Warn about this error!
+                        log_error("3D object has invalid or too long file name!");
+			all_ok = 0;
+                        break;
+		}
+		
+		offset += name_len + 1;
+		nb_left -= name_len + 1;
+		
+		if (!obj_err)
+			add_e3d_at_id (id, obj_name, x, y, z, rx, ry, rz, 0, 0, 1.0f, 1.0f, 1.0f);
+		else
+			all_ok = 0;
+	}
+	
+	return all_ok;
+}
+	
+void remove_3d_object_from_server (int id)
+{
+	int sector, i, j = MAX_3D_OBJECTS-1, k = -1;
+
+	if (id < 0 || id > MAX_3D_OBJECTS)
+	{
+		LOG_ERROR ("Trying to remove object with invalid id %d", id);
+		return;
+	}
+	if (objects_list[id] == NULL)
+	{
+		LOG_ERROR ("Trying to remove non-existant object");
+		return;
+	}
+
+	sector = SECTOR_GET (objects_list[id]->x_pos, objects_list[id]->y_pos);
+	for (i = 0; i < MAX_3D_OBJECTS; i++)
+	{
+		if (k != -1 && sectors[sector].e3d_local[i] == -1)
+		{
+			j = i-1;
+			break;
+		}
+		else if (k==-1 && sectors[sector].e3d_local[i] == id)
+		{
+			k = i;
+		}
+	}
+
+	sectors[sector].e3d_local[k] = sectors[sector].e3d_local[j];
+	sectors[sector].e3d_local[j] = -1;
+
+	destroy_3d_object (id);
+}
