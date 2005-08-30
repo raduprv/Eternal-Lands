@@ -529,7 +529,7 @@ int button_draw(widget_list *W)
 int square_button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-	float extra_space = (W->len_x - get_string_width(l->text)*W->size)/2.0f;
+	float extra_space = (W->len_x - get_string_width(l->text)*W->size*(0.11f/0.12f))/2.0f;
 	if(extra_space < 0) {
 		extra_space = 0;
 	}
