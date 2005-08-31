@@ -19,8 +19,7 @@ int display_skills_handler(window_info *win)
 {
 	_Text *t=Page[skillspage].T.Next;
 	_Image *i=Page[skillspage].I.Next;
-	int j;
-	j=vscrollbar_get_pos(skills_win,0);
+	int j = vscrollbar_get_pos(skills_win, skills_menu_scroll_id);
 
 	while(t){
 		int ylen=(t->size)?18:15;
@@ -95,16 +94,17 @@ int click_skills_handler(window_info *win, int mx, int my, Uint32 flags)
 	} else if(flags&ELW_WHEEL_DOWN) {
 		vscrollbar_scroll_down(skills_win, skills_menu_scroll_id);
 	} else {
-		int j = vscrollbar_get_pos(skills_win,0);
+		int j = vscrollbar_get_pos(skills_win, skills_menu_scroll_id);
 
 		while(t){
 			int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
 			if(t->ref && mx>(t->x) && mx<(t->x+xlen) && my>(t->y-j) && my<(t->y+ylen-j)){
 					//changing page
 					int i;
-					for(i=0;i<numpage+1;i++){
+					for(i = 0; i < numpage+1; i++) {
 						if(!xmlStrcasecmp(Page[i].Name,t->ref)){
 							skillspage=i;
+							vscrollbar_set_pos(skills_win, skills_menu_scroll_id, 0);
 							break;
 						}
 					}
@@ -126,9 +126,9 @@ void fill_skills_win ()
 		if(my_strcompare(Page[i].Name,"newskills"))
 			break;
 	}
-	skillspage=i;
+	skillspage = i;
 	set_window_handler (skills_win, ELW_HANDLER_DISPLAY, &display_skills_handler);
 	set_window_handler (skills_win, ELW_HANDLER_CLICK, &click_skills_handler);
 
-	skills_menu_scroll_id = vscrollbar_add_extended(skills_win, 0, NULL, skills_menu_x_len-20, 0, 20, skills_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, skills_max_lines);
+	skills_menu_scroll_id = vscrollbar_add_extended(skills_win, skills_menu_scroll_id, NULL, skills_menu_x_len-20, 0, 20, skills_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, skills_max_lines);
 }

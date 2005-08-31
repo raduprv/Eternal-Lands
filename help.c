@@ -95,7 +95,7 @@ int click_help_handler(window_info *win, int mx, int my, Uint32 flags)
 	} else if(flags&ELW_WHEEL_DOWN) {
 		vscrollbar_scroll_down(help_win, help_menu_scroll_id);
 	} else {
-		int j = vscrollbar_get_pos(help_win,0);
+		int j = vscrollbar_get_pos(help_win, help_menu_scroll_id);
 	
 		while(t){
 			int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
@@ -105,6 +105,7 @@ int click_help_handler(window_info *win, int mx, int my, Uint32 flags)
 					for(i=0;i<numpage+1;i++){
 						if(!xmlStrcasecmp(Page[i].Name,t->ref)){
 							helppage=i;
+							vscrollbar_set_pos(help_win, help_menu_scroll_id, 0);
 							break;
 						}
 					}
@@ -129,5 +130,5 @@ void fill_help_win ()
 	set_window_handler (help_win, ELW_HANDLER_DISPLAY, &display_help_handler);
 	set_window_handler (help_win, ELW_HANDLER_CLICK, &click_help_handler);
 
-	help_menu_scroll_id = vscrollbar_add_extended(help_win, 0, NULL, help_menu_x_len-20, 0, 20, help_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, help_max_lines);
+	help_menu_scroll_id = vscrollbar_add_extended(help_win, help_menu_scroll_id, NULL, help_menu_x_len-20, 0, 20, help_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, help_max_lines);
 }
