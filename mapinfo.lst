@@ -28,3 +28,9 @@ Seridia   2 324  75 431 ./maps/map15f.elm     # Tahraji
 
 Irilion  60 330 220 490 ./maps/cont2map1.elm  # Idaloran
 Irilion   0   0   0   0 ./maps/anitora.elm    # Anitora
+Irilion 310 210 350 250 ./maps/cont2map13.elm # Egratia Point
+Irilion 220 420 275 470 ./maps/cont2map2.elm  # Bethel
+Irilion 275 420 320 470 ./maps/cont2map3.elm  # Sedicolis
+Irilion 240 330 325 420 ./maps/cont2map5.elm  # Palon Vertas
+Irilion  50  20 220 170 ./maps/cont2map22.elm # Irinveron
+Irilion   0   0   0   0 ./maps/cont2map24.elm # Iscalrith (TODO)
