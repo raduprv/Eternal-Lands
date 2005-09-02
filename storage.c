@@ -194,8 +194,10 @@ int display_storage_handler(window_info * win)
 			l=strlen(str)*8;
 
 			if(x-l>161){
-				x-=l;
-			} else if(x+l>161+6*32)x=x+l-(x+l-(161+5*32+16));
+				x -= l;
+			} else if(x+l > 161+6*32) {
+				x = 161+5*32+16;
+			}
 
 			show_help(str,x,y_start+8);
 		}

@@ -525,17 +525,15 @@ void init_gl_extensions()
 		LOG_TO_CONSOLE(c_red1,str);
 	}
 
-	have_point_sprite=get_string_occurance("GL_ARB_point_sprite",extensions,ext_str_len,0)>=0 || get_string_occurance("GL_NV_point_sprite",extensions,ext_str_len,0)>=0;
+	have_point_sprite = get_string_occurance("GL_ARB_point_sprite",extensions,ext_str_len,0)>=0 || get_string_occurance("GL_NV_point_sprite",extensions,ext_str_len,0)>=0;
 	if(!have_point_sprite){
-		have_point_sprite=0;
+		use_point_particles = 0;
 		snprintf(str,sizeof(str),gl_ext_not_found,"GL_*_point_sprite");
 		LOG_TO_CONSOLE(c_red1,str);
 	} else if(!use_point_particles) {
-		have_point_sprite=0;
 		snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_*_point_sprite");
 		LOG_TO_CONSOLE(c_green2,str);
 	} else {
-		have_point_sprite=1;
 		snprintf(str,sizeof(str),gl_ext_found,"GL_*_point_sprite");
 		LOG_TO_CONSOLE(c_green2,str);
 	}

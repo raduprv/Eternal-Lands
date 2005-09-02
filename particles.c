@@ -648,7 +648,7 @@ void display_particles()
 									dblend=particles_list[i]->def->dblend;
 									glBlendFunc(sblend,dblend);
 								}
-							if(have_point_sprite)
+							if(use_point_particles)
 								draw_point_particle_sys(particles_list[i]);
 							else
 								draw_text_particle_sys(particles_list[i]);

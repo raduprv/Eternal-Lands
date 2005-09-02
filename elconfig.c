@@ -158,7 +158,12 @@ void change_vertex_array(int *pointer)
 
 void change_point_particles(int *value)
 {
-	*value = !*value;
+	/* Make sure we only enable it if we have the extension */
+	if(have_point_sprite) {
+		*value = !*value;
+	} else {
+		*value = 0;
+	}
 	if(!use_point_particles)
 	{
 		LOG_TO_CONSOLE(c_green2,disabled_point_particles);
