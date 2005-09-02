@@ -1,7 +1,7 @@
 #include <string.h>
 #include "sort.h"
 
-inline int min(int x, int y) {
+__inline__ int min(int x, int y) {
 	return (x <= y)? x : y;
 }
 

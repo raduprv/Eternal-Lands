@@ -23,7 +23,7 @@ void reset_under_the_mouse()
 		thing_under_the_mouse=UNDER_MOUSE_NOTHING;
 	}
 
-inline float SwapFloat(float t)
+__inline__ float SwapFloat(float t)
 {
 	union {
 		float f;

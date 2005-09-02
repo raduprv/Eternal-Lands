@@ -52,7 +52,7 @@ int wear_items_y_offset=30;
 int quantity_x_offset=6*51+20;
 int quantity_y_offset=185;
 
-inline GLuint get_items_texture(int no)
+__inline__ GLuint get_items_texture(int no)
 {
 	GLuint retval=-1;
 	

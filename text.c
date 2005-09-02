@@ -415,8 +415,6 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 
 void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len)
 {
-	int idx;
-	// Uint8 cur_char;
 	text_message *msg;
 	int minlen;
 
@@ -452,12 +450,12 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		msg->size = minlen;
 	}
 	
-	if(text_to_add[0] < 127 + c_lbound || text_to_add[0] > 127 + c_ubound) {
+	if(!IS_COLOR(text_to_add[0])) {
 		// force the color
-		idx = 1 + snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
+		snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
 	} else {
 		// color set by server
-		idx = 1 + snprintf(msg->data, minlen, "%.*s", len, text_to_add);
+		snprintf(msg->data, minlen, "%.*s", len, text_to_add);
 	}
 	
 	msg->len = strlen (msg->data);

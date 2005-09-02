@@ -15,7 +15,7 @@
  * \param t         the float to swap
  * \retval float    the swapped float
  */
-inline float SwapFloat(float t);
+__inline__ float SwapFloat(float t);
 
 /*!
  * \ingroup misc

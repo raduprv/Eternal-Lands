@@ -632,29 +632,30 @@ void display_particles()
 	LOCK_PARTICLES_LIST();
 	// Perhaps we should have a depth sort here..?
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
+	{
+		if(particles_list[i])
 		{
-			if(particles_list[i])
-				{
-					int dist1;
-					int dist2;
+			int dist1;
+			int dist2;
 
-					dist1=x-particles_list[i]->x_pos;
-					dist2=y-particles_list[i]->y_pos;
-					if(dist1*dist1+dist2*dist2<=PART_SYS_VISIBLE_DIST_SQ)
-						{
-							if(particles_list[i]->def->sblend!=sblend || particles_list[i]->def->dblend!=dblend)
-								{
-									sblend=particles_list[i]->def->sblend;
-									dblend=particles_list[i]->def->dblend;
-									glBlendFunc(sblend,dblend);
-								}
-							if(use_point_particles)
-								draw_point_particle_sys(particles_list[i]);
-							else
-								draw_text_particle_sys(particles_list[i]);
-						}
+			dist1=x-particles_list[i]->x_pos;
+			dist2=y-particles_list[i]->y_pos;
+			if(dist1*dist1+dist2*dist2<=PART_SYS_VISIBLE_DIST_SQ)
+			{
+				if(particles_list[i]->def->sblend!=sblend || particles_list[i]->def->dblend!=dblend)
+				{
+					sblend=particles_list[i]->def->sblend;
+					dblend=particles_list[i]->def->dblend;
+					glBlendFunc(sblend,dblend);
 				}
+				if(use_point_particles) {
+					draw_point_particle_sys(particles_list[i]);
+				} else {
+					draw_text_particle_sys(particles_list[i]);
+				}
+			}
 		}
+	}
 	UNLOCK_PARTICLES_LIST();
 	glDisable(GL_CULL_FACE); //Intel fix
 	glPopAttrib();
@@ -677,47 +678,50 @@ void update_fountain_sys(particle_sys *system_id) {
 	if(system_id->ttl)
 		particles_to_add=total_particle_no-system_id->particle_count;
 
-	if(particles_to_add)
+	if(particles_to_add) {
 		for(j=i=0;i<particles_to_add;i++)
-			{
-				//find a free space
-				for(;j<total_particle_no;j++)
-					if(system_id->particles[j].free)
-						{
-							create_particle(system_id,&(system_id->particles[j]));
-							system_id->particle_count++;
-							break;
-						}
+		{
+			//find a free space
+			for(;j<total_particle_no;j++) {
+				if(system_id->particles[j].free)
+				{
+					create_particle(system_id,&(system_id->particles[j]));
+					system_id->particle_count++;
+					break;
 				}
+			}
+		}
+	}
 
 	//excellent, now we have to actually update the particles
 	//find used particles
-	for(j=0,p=&system_id->particles[0];j<total_particle_no;j++,p++)
+	for(j=0,p=&system_id->particles[0];j<total_particle_no;j++,p++) {
 		if(!p->free)
+		{
+			if(p->a<0.0f)
 			{
-				if(p->a<0.0f)
-					{
-						//poor particle, it died :(
-						p->free=1;
-						if(system_id->particle_count)system_id->particle_count--;
-						continue;
-					}
-				if(p->z<0.0f)
-					{
-						p->z=0.001f;
-						p->vz=-p->vz;
-					}
-				p->x+=p->vx;
-				p->y+=p->vy;
-				p->z+=p->vz;
-				p->vx+=PARTICLE_RANDOM(system_id->def->acc_minx,system_id->def->acc_maxx);
-				p->vy+=PARTICLE_RANDOM(system_id->def->acc_miny,system_id->def->acc_maxy);
-				p->vz+=PARTICLE_RANDOM(system_id->def->acc_minz,system_id->def->acc_maxz);
-				p->r+=PARTICLE_RANDOM(system_id->def->mindr,system_id->def->maxdr);
-				p->g+=PARTICLE_RANDOM(system_id->def->mindg,system_id->def->maxdg);
-				p->b+=PARTICLE_RANDOM(system_id->def->mindb,system_id->def->maxdb);
-				p->a+=PARTICLE_RANDOM(system_id->def->minda,system_id->def->maxda);
+				//poor particle, it died :(
+				p->free=1;
+				if(system_id->particle_count)system_id->particle_count--;
+				continue;
 			}
+			if(p->z<0.0f)
+			{
+				p->z=0.001f;
+				p->vz=-p->vz;
+			}
+			p->x+=p->vx;
+			p->y+=p->vy;
+			p->z+=p->vz;
+			p->vx+=PARTICLE_RANDOM(system_id->def->acc_minx,system_id->def->acc_maxx);
+			p->vy+=PARTICLE_RANDOM(system_id->def->acc_miny,system_id->def->acc_maxy);
+			p->vz+=PARTICLE_RANDOM(system_id->def->acc_minz,system_id->def->acc_maxz);
+			p->r+=PARTICLE_RANDOM(system_id->def->mindr,system_id->def->maxdr);
+			p->g+=PARTICLE_RANDOM(system_id->def->mindg,system_id->def->maxdg);
+			p->b+=PARTICLE_RANDOM(system_id->def->mindb,system_id->def->maxdb);
+			p->a+=PARTICLE_RANDOM(system_id->def->minda,system_id->def->maxda);
+		}
+	}
 	UNLOCK_PARTICLES_LIST();
 }
 
@@ -732,38 +736,39 @@ void update_burst_sys(particle_sys *system_id)
 	LOCK_PARTICLES_LIST();
 
 	//find used particles
-	for(j=0,p=&system_id->particles[0];j<total_particle_no;j++,p++)
+	for(j=0,p=&system_id->particles[0];j<total_particle_no;j++,p++) {
 		if(!p->free)
+		{
+			float distx=p->x-system_id->x_pos;
+			float disty=p->y-system_id->y_pos;
+			float distz=p->z-system_id->z_pos;
+			float dist_sq=distx*distx+disty*disty+distz*distz;
+			if(dist_sq>system_id->def->constrain_rad_sq*9.0 || dist_sq<0.01)
 			{
-				float distx=p->x-system_id->x_pos;
-				float disty=p->y-system_id->y_pos;
-				float distz=p->z-system_id->z_pos;
-				float dist_sq=distx*distx+disty*disty+distz*distz;
-				if(dist_sq>system_id->def->constrain_rad_sq*9.0 || dist_sq<0.01)
-					{
-						//poor particle, it died :(
-						p->free=1;
-						if(system_id->particle_count)system_id->particle_count--;
-						continue;
-					}
-				if(p->vx>-0.01 && p->vx<0.01 &&
-				   p->vy>-0.01 && p->vy<0.01 &&
-				   p->vz>-0.01 && p->vz<0.01)
-					{
-						float len=0.25/sqrt(dist_sq);
-						p->vx=distx*len;
-						p->vy=disty*len;
-						p->vz=distz*len;
-					}			
-				p->x+=p->vx;
-				p->y+=p->vy;
-				p->z+=p->vz;
-
-				p->r+=PARTICLE_RANDOM(system_id->def->mindr,system_id->def->maxdr);
-				p->g+=PARTICLE_RANDOM(system_id->def->mindg,system_id->def->maxdg);
-				p->b+=PARTICLE_RANDOM(system_id->def->mindb,system_id->def->maxdb);
-				p->a+=PARTICLE_RANDOM(system_id->def->minda,system_id->def->maxda);
+				//poor particle, it died :(
+				p->free=1;
+				if(system_id->particle_count)system_id->particle_count--;
+				continue;
 			}
+			if(p->vx>-0.01 && p->vx<0.01 &&
+			   p->vy>-0.01 && p->vy<0.01 &&
+			   p->vz>-0.01 && p->vz<0.01)
+			{
+				float len=0.25/sqrt(dist_sq);
+				p->vx=distx*len;
+				p->vy=disty*len;
+				p->vz=distz*len;
+			}			
+			p->x+=p->vx;
+			p->y+=p->vy;
+			p->z+=p->vz;
+
+			p->r+=PARTICLE_RANDOM(system_id->def->mindr,system_id->def->maxdr);
+			p->g+=PARTICLE_RANDOM(system_id->def->mindg,system_id->def->maxdg);
+			p->b+=PARTICLE_RANDOM(system_id->def->mindb,system_id->def->maxdb);
+			p->a+=PARTICLE_RANDOM(system_id->def->minda,system_id->def->maxda);
+		}
+	}
 	UNLOCK_PARTICLES_LIST();
 }
 

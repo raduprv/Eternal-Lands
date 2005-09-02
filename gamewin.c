@@ -688,10 +688,11 @@ int display_game_handler (window_info *win)
 		return 1;
 	}
 
+	
+	if (is_raining) render_rain ();
+	CHECK_GL_ERRORS ();
 	//particles should be last, we have no Z writting
 	display_particles ();
-	CHECK_GL_ERRORS ();
-	if (is_raining) render_rain ();
 	CHECK_GL_ERRORS ();
 	//we do this because we don't want the rain/particles to mess with our cursor
 
