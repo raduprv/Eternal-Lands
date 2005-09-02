@@ -104,7 +104,7 @@ void draw_2d_object(obj_2d * object_id)
 
 			glBegin(GL_QUADS);
 
-			m=(-z_rot)*3.1415926/180;
+			m=(-z_rot)*3.1415926f/180;
 			cos_m=cos(m);
 			sin_m=sin(m);
 
@@ -389,10 +389,10 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	returned_obj_2d_def=load_obj_2d_def_cache(fname);
 	if(!returned_obj_2d_def)
-		{
-            LOG_ERROR("%s: %s: %s",reg_error_str,cant_load_2d_object,fname);
-	        return 0;
-		}
+	{
+		LOG_ERROR ("%s: %s: %s", reg_error_str, cant_load_2d_object, fname);
+		return 0;
+	}
 
 	our_object = calloc(1, sizeof(obj_2d));
 	my_strncp(our_object->file_name, fname, 80);
@@ -410,8 +410,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	obj_2d_list[i]=our_object;
 
 	//get the current sector
-	sector=(y_pos/SECTOR_SIZE_Y)*(map_meters_size_x/SECTOR_SIZE_X)
-		+(x_pos/SECTOR_SIZE_X);
+	sector = (short) ((y_pos/SECTOR_SIZE_Y) * (map_meters_size_x/SECTOR_SIZE_X) + (x_pos/SECTOR_SIZE_X));
 	our_object->sector=sector;
 
 	regenerate_near_2d_objects=1;//We've added a new object...
@@ -422,36 +421,42 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 int get_nearby_2d_objects()
 {
 	int i;
-	int x,y;
+	float x,y;
 	int sx,sy,ex,ey,j,k;
 	actor *xxx=pf_get_our_actor();
 	
 	no_nearby_2d_objects=0;
 	
-	if(!xxx)return 0;
-	x=-cx;
-	y=-cy;
+	if (xxx == NULL) return 0;
+	x = -cx;
+	y = -cy;
 	
 	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
-	for(i=sx;i<=ex;i++)
-		for(j=sy;j<=ey;j++)
-			for(k=0;k<100;k++){
-				int l=sectors[(j*(tile_map_size_x>>2))+i].e2d_local[k];
-				if(l==-1)break;
-				if(obj_2d_list[l]){
-					int dist1;
-					int dist2;
+	for (i = sx; i <= ex; i++)
+	{
+		for (j = sy; j <= ey; j++)
+		{
+			for (k = 0; k < 100;k++)
+			{
+				int l = sectors[(j*(tile_map_size_x>>2))+i].e2d_local[k];
+				if (l == -1) break;
+				if (obj_2d_list[l] != NULL)
+				{
+					float dist1, dist2;
 
-					dist1=x-obj_2d_list[l]->x_pos;
-					dist2=y-obj_2d_list[l]->y_pos;
-					if(dist1*dist1+dist2*dist2<=220){
-						nearby_2d_objects[no_nearby_2d_objects]=obj_2d_list[l];
+					dist1 = x - obj_2d_list[l]->x_pos;
+					dist2 = y - obj_2d_list[l]->y_pos;
+					if (dist1*dist1 + dist2*dist2 <= 220.0f)
+					{
+						nearby_2d_objects[no_nearby_2d_objects] = obj_2d_list[l];
 						no_nearby_2d_objects++;
 					}
 				}
 			}
+		}
+	}
 
-	regenerate_near_2d_objects=0;
+	regenerate_near_2d_objects = 0;
 
 	return no_nearby_2d_objects;
 }

@@ -26,44 +26,41 @@
  * \ingroup	misc_utils
  * \brief	Gets an integer after the given string
  *
- * 		The function finds source_pointer in dest_pointer and returns the integer value after the string given after dest_pointer =.
+ * 		The function finds \a needle in \a haystack and returns the integer value after the string given after it.
  *
- * \param	source_pointer The string you wish to find
- * \param	dest_pointer The pointer to the char array you wish to find the string from
- * \param	max_len The maximum length is should check
+ * \param	needle The string you wish to find
+ * \param	haystack The pointer to the char array you wish to find the string from
+ * \param	max_len The maximum length it should check
  * \retval Sint32	Returns the integer behind the string or -1 on failure.
  */
-Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
-							 Sint32 max_len);
+Sint32 get_integer_after_string (const char* needle, const char* haystack, Uint32 max_len);
 
 /*!
  * \ingroup	misc_utils
  * \brief	Gets a float after the given string
  *
- * 		The function finds source_pointer in dest_pointer and returns the floating point value after =.
+ * 		The function finds \a needle in \a haystack and returns the floating point value after it.
  *
- * \param	source_pointer The string you wish to find
- * \param	dest_pointer The pointer to the char array you want to search for the string in.
+ * \param	needle The string you wish to find
+ * \param	haystack The pointer to the char array you want to search for the string in.
  * \param	max_len The maximum length it should check
- * \retval float	Returns the float after the string or -1 on failure.
+ * \retval float	Returns the float after the string or -1.0f on failure.
  */
-float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
-							 Sint32 max_len);
+float get_float_after_string (const char* needle, const char* haystack, Uint32 max_len);
 
 /*!
  * \ingroup	misc_utils
  * \brief	Gets the offset of a string in a char array
  *
- * 		The function gets the location of source_pointer in the dest_pointer char array, then returns the offset
+ * 		The function gets the location of source_pointer in the dest_pointer char array, then returns the offset. The functio is not case-sensitive.
  *
- * \param	source_pointer The string you wish to find
- * \param	dest_pointer The char array you want to search for source_pointer
- * \param	max_len The maximum length
- * \param	begining Whether it should return the offset to the beginning of the string or the end of the string
+ * \param	needle The string you wish to find
+ * \param	haystack The char array you want to search for \a needle
+ * \param	max_len The maximum length of \a haystack
+ * \param	beginning Whether it should return the offset to the beginning of the string or the end of the string
  * \retval Sint32	Returns either the offset to the beginning of the string or to the end of the string - if the string was not found in the char array it returns -1 on failure.
  */
-Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_pointer, 
-						 Sint32 max_len,Uint8 begining);
+Sint32 get_string_occurance (const char *needle, const char *haystack, Uint32 max_len, Uint8 beginning);
 
 /*!
  * \ingroup	misc_utils
@@ -146,9 +143,9 @@ Sint32 my_isupper(const Uint8 *src, int len);
  * 		Converts all characters in the string to lowercase
  *
  * \param	src The string to convert
- * \retval Uint8*	Returns the src-pointer.
+ * \retval char*	Returns the src-pointer.
  */
-Uint8 *my_tolower(Uint8 *src);
+char *my_tolower (char *src);
 
 /*!
  * \ingroup	misc_utils
@@ -173,7 +170,7 @@ char ** get_lines(char * str, int chars_per_line);
  * \param	max_len The maximum length
  * \retval Uint32	Returns the length of the string
  */
-Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len);
+Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len);
 
 /*!
  * \ingroup	misc_utils

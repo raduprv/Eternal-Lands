@@ -20,148 +20,99 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * len);
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
 #endif
 
-//find the first string occurance, and return the distance to that string
-//if beggining is 1, it returns the offset to the beginning of the string
-//otherwise it returns the offset to the end of the string
-Sint32 get_string_occurance(const Uint8 * source_pointer, const Uint8 * dest_pointer, Sint32 max_len,Uint8 beginning)
+// find the first occurance of needle in haystack, and return the distance to 
+// that string. If beggining is 1, it returns the offset to the beginning of 
+// the string otherwise it returns the offset to the end of the string. Needle
+// must be null-terminated. hyastack need not be, but must be at least max_len
+// bytes long
+Sint32 get_string_occurance (const char* needle, const char* haystack, Uint32 max_len, Uint8 beginning)
 {
-	int i;
-	int j;
-	int k;
-	Uint8 cur_src_char;
-	Uint8 cur_dest_char;
-	int source_length;
-
-	source_length=strlen(source_pointer);
-	i=j=0;
-	for(i=0;i<max_len;i++)
+	Uint32 h_len = max_len, n_len = strlen (needle);
+	Uint32 istart, i;
+	
+	if (h_len <= n_len) return -1;
+	
+	for (istart = 0; istart <= h_len - n_len; istart++)
+	{
+		for (i = 0; i < n_len; i++)
 		{
-			k=0;
-			j=0;//how if j different from k?
-			while(k<source_length)
-				{
-					cur_src_char=*(source_pointer+j);
-					cur_dest_char=*(dest_pointer+i);
-
-					if(cur_src_char>=65 && cur_src_char<=90)cur_src_char+=32;
-					if(cur_dest_char>=65 && cur_dest_char<=90)cur_dest_char+=32;
-
-					if(cur_src_char!=cur_dest_char)break;//not found, sorry
-					i++;
-					j++;
-					k++;
-				}
-			if(k==source_length)//we found the string
-				{
-					// skip optional space or equal
-					while(dest_pointer[i]==' ' || dest_pointer[i]=='=')
-						{
-							i++;
-						}
-					if(!beginning)return i;
-					else return i-k+1;
-				}
-  		}//end of the for
-	return -1;//if we are here, it means we didn't find the string...
+			if (tolower (haystack[istart+i]) != tolower (needle[istart+i]))
+				break;
+		}
+		if (i >= n_len)
+		{
+			// We found the string. return the beginning if asked
+			if (beginning) return istart;
+			
+			// return the end of the string occurence, but skip
+			// space and equal signs
+			while (istart+i < h_len && (haystack[istart+i] == ' ' || haystack[istart+i] == '='))
+				i++;
+			return i;
+		}
+	}
+	
+	return -1;
 }
 
-//this function returns an integer, after the source string in the destination string
-//if the string is not found, after max_len, the function returns -1.
-//the function is NOT case sensitive
-Sint32 get_integer_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer,
-							 int max_len)
+// This function returns an integer, after the needle in the haystack 
+// string. If the string is not found, after max_len, the function returns -1.
+// The function is NOT case sensitive
+Sint32 get_integer_after_string (const char *needle, const char *haystack, Uint32 max_len)
 {
-	int i;
-	int j;
-	int k;
-	Uint8 cur_src_char;
-	Uint8 cur_dest_char;
-	int source_length;
-
-	source_length=strlen(source_pointer);
-	i=j=0;
-	for(i=0;i<max_len;i++)
-		{
-			k=0;
-			j=0;
-			while(k<source_length)
-				{
-					cur_src_char=*(source_pointer+j);
-					cur_dest_char=*(dest_pointer+i);
-
-					if(cur_src_char>=65 && cur_src_char<=90)cur_src_char+=32;
-					if(cur_dest_char>=65 && cur_dest_char<=90)cur_dest_char+=32;
-
-					if(cur_src_char!=cur_dest_char)break;//not found, sorry
-					i++;
-					j++;
-					k++;
-				}
-			if(k==source_length)//we found the string
-				{
-					//we have to find the first number now (there might be spaces, or other chars first
-					while(1)
-						{
-							cur_dest_char=*(dest_pointer+i);
-							if((cur_dest_char>=48 && cur_dest_char<=57) || cur_dest_char=='-' || cur_dest_char=='+')break;//we found a number
-							if(cur_dest_char==0x0a) return -1;//we didn't find any number on this line
-							i++;
-						}
-					return atoi(dest_pointer+i);
-				}
-		}//end of the for
-	return -1;//if we are here, it means we didn't find the string...
+	Sint32 n_end = get_string_occurance (needle, haystack, max_len, 0);
+	Uint32 istart;
+	
+	if (n_end < 0)
+	{
+		// needle not found
+		return -1;
+	}
+	
+	istart = n_end;
+	while (istart < max_len)
+	{
+		if (haystack[istart] == '\n')
+			// no integer on this line
+			return -1;
+		if (isdigit (haystack[istart]) || haystack[istart] == '+' || haystack[istart] == '-')
+			// we've probably found a number
+			return atoi (&haystack[istart]);
+		istart++;
+	}
+	
+	// no integer after needle
+	return -1;
 }
 
-//this function returns a float, after the source string in the destination string
-//if the string is not found, after max_len, the function returns -1.0f.
-//the function is NOT case sensitive
-float get_float_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer,
-							 int max_len)
+// This function returns a float, after the source string in the destination 
+// string. If the string is not found, after max_len, the function returns 
+// -1.0f. The function is NOT case sensitive
+float get_float_after_string (const char *needle, const char *haystack, Uint32 max_len)
 {
-	int i;
-	int j;
-	int k;
-	Uint8 cur_src_char;
-	Uint8 cur_dest_char;
-	int source_length;
-
-	source_length=strlen(source_pointer);
-	i=j=0;
-	for(i=0;i<max_len;i++)
-		{
-			k=0;
-			j=0;
-			while(k<source_length)
-				{
-					cur_src_char=*(source_pointer+j);
-					cur_dest_char=*(dest_pointer+i);
-
-					if(cur_src_char>=65 && cur_src_char<=90)cur_src_char+=32;
-					if(cur_dest_char>=65 && cur_dest_char<=90)cur_dest_char+=32;
-
-					if(cur_src_char!=cur_dest_char)break;//not found, sorry
-					i++;
-					j++;
-					k++;
-				}
-			if(k==source_length)//we found the string
-				{
-					//we have to find the first number now (there might be spaces, or other chars first
-					while(1)
-						{
-							cur_dest_char=*(dest_pointer+i);
-							if((cur_dest_char>=48 && cur_dest_char<=57) || cur_dest_char=='-' || cur_dest_char=='+' || cur_dest_char=='.')
-								{
-									break;//we found a number
-								}
-							if(cur_dest_char==0x0a) return -1;//we didn't find any number on this line
-							i++;
-						}
-					return atof(dest_pointer+i);
-				}
-		}//end of the for
-	return -1.0f;//if we are here, it means we didn't find the string...
+	Sint32 n_end = get_string_occurance (needle, haystack, max_len, 0);
+	Uint32 istart;
+	
+	if (n_end < 0)
+	{
+		// needle not found
+		return -1.0f;
+	}
+	
+	istart = n_end;
+	while (istart < max_len)
+	{
+		if (haystack[istart] == '\n')
+			// no number on this line
+			return -1.0f;
+		if (isdigit (haystack[istart]) || haystack[istart] == '+' || haystack[istart] == '-' || haystack[istart] == '.')
+			// we've probably found a number
+			return atof (&haystack[istart]);
+		istart++;
+	}
+	
+	// no number after needle
+	return -1.0f;
 }
 
 void my_strcp(Uint8 *dest,const Uint8 * source)
@@ -233,16 +184,18 @@ Sint32 my_isupper(const Uint8 *src, int len)
 	return 1;	// is all upper or all num
 }
 
-Uint8 *my_tolower(Uint8 *src)
+char *my_tolower (char *src)
 {
-	Uint8 *dest=src;
+	Uint8 *dest = src;
 
-	if(!dest || !dest[0]) return dest;
-	while(*src)
-		{
-			*src=tolower(*src);
-			src++;
-		}
+	if (dest == NULL || dest[0] == '\0')
+		return dest;
+	while (*src)
+	{
+		*src = tolower (*src);
+		src++;
+	}
+	
 	return dest;
 }
 
@@ -290,27 +243,24 @@ char ** get_lines(char * str, int chars_per_line)
 }
 
 // File utilities
-Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
+Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
 {
-	Uint32	len;
-	Uint32	i;
+	Uint32 len;
+	Uint32 i;
 
-	len=strlen(src);
-	if(len > max_len)len=max_len-1;
-	for(i=0;i<len;i++)
-		{
-			if(src[i]=='\\')
-				{
-					dest[i]='/';
-				}
-			else
-				{
-					dest[i]=src[i];
-				}
-		}
-	//always place a null that the end
-	dest[len]='\0';
-	return(len);
+	len = strlen (src);
+	if (len >= max_len) len = max_len-1;
+	for (i = 0; i < len; i++)
+	{
+		if (src[i] == '\\')
+			dest[i] = '/';
+		else
+			dest[i] = src[i];
+	}
+	
+	// always place a null at the end
+	dest[len] = '\0';
+	return len;
 }
 
 void http_get_file(char *server, char *path, FILE *fp)
