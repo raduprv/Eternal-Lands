@@ -124,13 +124,14 @@ void my_strcp(Uint8 *dest,const Uint8 * source)
 	*dest='\0';
 }
 
-void my_strncp(Uint8 *dest,const Uint8 * source, Sint32 len)
+void my_strncp (char *dest, const char *source, Uint32 len)
 {
-	while(*source && --len > 0)
-		{
-			*dest++=*source++;
-		}
-	*dest='\0';
+	if (len == 0) return;
+
+	while (*source != '\0' && --len > 0)
+		*dest++ = *source++;
+	
+	*dest = '\0';
 }
 
 void my_strcat(Uint8 *dest,const Uint8 * source)

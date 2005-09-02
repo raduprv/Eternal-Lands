@@ -250,27 +250,29 @@ void	cache_use(cache_struct *cache, cache_item_struct *item_ptr)
 		}
 }
 
-cache_item_struct *cache_find(cache_struct *cache, const Uint8 *name)
+cache_item_struct *cache_find (cache_struct *cache, const char *name)
 {
-	Sint32	i;
+	Sint32 i;
 
-	if(!cache->cached_items) return 0;
+	if (cache->cached_items == NULL) return 0;
 	// quick check for the most recent item
-	if(cache->recent_item && cache->recent_item->name && !strcmp(cache->recent_item->name, name))
-		{
-			cache_use(cache, cache->recent_item);
-			return(cache->recent_item);
-		}
+	if (cache->recent_item != NULL && cache->recent_item->name != NULL && strcmp (cache->recent_item->name, name) == 0)
+	{
+		cache_use(cache, cache->recent_item);
+		return(cache->recent_item);
+	}
+	
 	// not the most recent, then scan the list
-	for(i=0; i<cache->max_item; i++)
+	for (i = 0; i < cache->max_item; i++)
+	{
+		if (cache->cached_items[i] != NULL && cache->cached_items[i]->name != NULL && strcmp (cache->cached_items[i]->name, name) == 0)
 		{
-			if(cache->cached_items[i] && cache->cached_items[i]->name && !strcmp(cache->cached_items[i]->name, name))
-				{
-					cache_use(cache, cache->cached_items[i]);
-					cache->recent_item= cache->cached_items[i];
-					return(cache->cached_items[i]);
-				}
+			cache_use (cache, cache->cached_items[i]);
+			cache->recent_item = cache->cached_items[i];
+			return cache->cached_items[i];
 		}
+	}
+	
 	return NULL;
 }
 
@@ -297,18 +299,19 @@ cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item)
 	return NULL;
 }
 
-void *cache_find_item(cache_struct *cache, const Uint8 *name)
+void *cache_find_item (cache_struct *cache, const char *name)
 {
-	cache_item_struct	*item_ptr;
+	cache_item_struct *item_ptr;
 
-	if(!cache->cached_items) return NULL;
-	item_ptr= cache_find(cache, name);
-	if(item_ptr)
-		{
-			//cache_use(cache, item_ptr);
-			return(item_ptr->cache_item);
-		}
-	return(NULL);
+	if (cache->cached_items == NULL) return NULL;
+	item_ptr = cache_find (cache, name);
+	if (item_ptr != NULL)
+	{
+		//cache_use(cache, item_ptr);
+		return item_ptr->cache_item;
+	}
+	
+	return NULL;
 }
 
 cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, Uint32 size)

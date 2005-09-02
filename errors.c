@@ -6,17 +6,17 @@
 
 FILE* open_log (const char *fname, const char *mode)
 {
-    FILE *file = fopen (fname, mode);
+	FILE *file = fopen (fname, mode);
 	Uint8 starttime[200];
 	struct tm *l_time; time_t c_time;
-    if (!file)
-    {
-        fprintf (stderr, "Unable to open log file \"%s\"\n", fname);
-        exit (1);
-    }
-	time(&c_time);
-	l_time = localtime(&c_time);
-	strftime(starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S\n\n", l_time);
+	if (file == NULL)
+	{
+		fprintf (stderr, "Unable to open log file \"%s\"\n", fname);
+		exit (1);
+	}
+	time (&c_time);
+	l_time = localtime (&c_time);
+	strftime (starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S\n\n", l_time);
 	fwrite (starttime, strlen(starttime), 1, file);
 	return file;
 }
@@ -33,17 +33,18 @@ void clear_error_log()
 	fflush (err_file);
 }
 
-void log_error(const Uint8 * message, ...)
+void log_error (const char* message, ...)
 {
 	va_list ap;
 
-	if(err_file == NULL) {
+	if(err_file == NULL)
+	{
 		char error_log[256];
-		snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
+		snprintf (error_log, sizeof(error_log), "%serror_log.txt", configdir);
 		err_file = open_log (error_log, "a");
 	}
 	va_start(ap, message);
-		vfprintf(err_file, message, ap);
+		vfprintf (err_file, message, ap);
 	va_end(ap);
 	fprintf (err_file, "\n");
   	fflush (err_file);

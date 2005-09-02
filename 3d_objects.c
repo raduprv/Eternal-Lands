@@ -15,7 +15,7 @@ int no_near_blended_3d_objects=0;
 
 int regenerate_near_objects=1;
 
-e3d_object * load_e3d(char *file_name);
+e3d_object *load_e3d (const char *file_name);
 void compute_clouds_map(object3d * object_id);
 
 void draw_3d_object(object3d * object_id)
@@ -30,7 +30,7 @@ void draw_3d_object(object3d * object_id)
 	e3d_array_uv_detail *clouds_uv;
 	e3d_array_order *array_order;
 
-	GLint * vbo;
+	GLuint *vbo;
 
 	int is_transparent;
 	int is_ground;
@@ -177,18 +177,19 @@ void draw_3d_object(object3d * object_id)
 
 //Tests to see if an e3d object is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
-e3d_object * load_e3d_cache(char * file_name)
+e3d_object *load_e3d_cache (const char * file_name)
 {
-	e3d_object * e3d_id;
+	e3d_object *e3d_id;
 
 	//do we have it already?
-	e3d_id=cache_find_item(cache_e3d, file_name);
-	if(e3d_id) return(e3d_id);
+	e3d_id = cache_find_item (cache_e3d, file_name);
+	if (e3d_id != NULL) return e3d_id;
+	
 	//e3d not found in the cache, so load it, and store it
-	e3d_id=load_e3d(file_name);
-	if(e3d_id==NULL) return NULL;
+	e3d_id = load_e3d (file_name);
+	if (e3d_id == NULL) return NULL;
 	//and remember it
-	e3d_id->cache_ptr=cache_add_item(cache_e3d, e3d_id->file_name, e3d_id, sizeof(*e3d_id));
+	e3d_id->cache_ptr = cache_add_item (cache_e3d, e3d_id->file_name, e3d_id, sizeof(*e3d_id));
 
 	return e3d_id;
 }
@@ -212,7 +213,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	}
 
 	//convert any '\' in '/'
-	clean_file_name(fname, file_name, 128);
+	clean_file_name (fname, file_name, 128);
 	my_tolower(fname);
 
 	returned_e3d=load_e3d_cache(fname);
@@ -335,38 +336,43 @@ void add_near_3d_object(int dist, float radius, int pos, int blended )//Blended 
 
 int get_near_3d_objects()
 {
-     int sx, sy, ex, ey;
-     int x,y;
-     int i,j,k;
-     actor * xxx=pf_get_our_actor();
-     
-     if(!xxx)return 0;
-     
-     no_near_3d_objects=0;
-     no_near_blended_3d_objects=0;
-     first_near_3d_object=NULL;
-     first_near_blended_3d_object=NULL;
-     
-     x=-cx;
-     y=-cy;
-     
-     get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
-	 for(i=sx;i<=ex;i++)
-		for(j=sy;j<=ey;j++)
-			for(k=0;k<MAX_3D_OBJECTS;k++){
-				object3d	*object_id;
-				int l=sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
-				if(l==-1)break;
-				object_id= objects_list[l];
+	int sx, sy, ex, ey;
+	float x, y;
+	int i, j, k;
+	actor *xxx = pf_get_our_actor ();
 
-				if(object_id && object_id->blended!=20) {
-					int dist1, dist2;
-					int dist;
+	if (xxx == NULL) return 0;
 
-					dist1= x-object_id->x_pos;
-					dist2= y-object_id->y_pos;
-					dist=dist1*dist1+dist2*dist2;
-					if(dist<=35*35){
+	no_near_3d_objects = 0;
+	no_near_blended_3d_objects = 0;
+	first_near_3d_object = NULL;
+	first_near_blended_3d_object = NULL;
+     
+	x = -cx;
+	y = -cy;
+     
+	get_supersector (SECTOR_GET (xxx->x_pos, xxx->y_pos), &sx, &sy, &ex, &ey);
+	for (i = sx; i <= ex; i++)
+	{
+		for (j = sy; j <= ey; j++)
+		{
+			for (k = 0; k < MAX_3D_OBJECTS; k++)
+			{
+				object3d *object_id;
+				int l = sectors[(j*(tile_map_size_x>>2))+i].e3d_local[k];
+				if (l == -1) break;
+				object_id = objects_list[l];
+
+				if (object_id != NULL && object_id->blended != 20)
+				{
+					float dist1, dist2;
+					float dist;
+
+					dist1 = x - object_id->x_pos;
+					dist2 = y - object_id->y_pos;
+					dist = dist1*dist1 + dist2*dist2;
+					if (dist <= 35*35)
+					{
 						float x_len, y_len, z_len;
 						float radius;
 
@@ -374,20 +380,23 @@ int get_near_3d_objects()
 						x_len= object_id->e3d_data->max_x-object_id->e3d_data->min_x;
 						y_len= object_id->e3d_data->max_y-object_id->e3d_data->min_y;
 						//do some checks, to see if we really have to display this object
-						radius=x_len/2;
-						if(radius<y_len/2)radius=y_len/2;
-						if(radius<z_len)radius=z_len;
+						radius = x_len / 2;
+						if (radius < y_len/2) radius = y_len / 2;
+						if (radius < z_len) radius = z_len;
 						//not in the middle of the air
-						if(SphereInFrustum(object_id->x_pos, object_id->y_pos, object_id->z_pos, radius)){
-							add_near_3d_object(dist, radius, l,object_id->blended);
+						if (SphereInFrustum (object_id->x_pos, object_id->y_pos, object_id->z_pos, radius))
+						{
+							add_near_3d_object (dist, radius, l, object_id->blended);
 						}
 					}
 				}
 			}
+		}
+	}
 		
-    regenerate_near_objects=0;
+	regenerate_near_objects = 0;
 
-     return 1;
+	return 1;
 }
 
 void display_objects()
@@ -506,7 +515,7 @@ void display_blended_objects()
 	CHECK_GL_ERRORS();
 }
 
-e3d_object * load_e3d(char *file_name)
+e3d_object *load_e3d (const char *file_name)
 {
 	int vertex_no,faces_no,materials_no;
 	FILE *f = NULL;
@@ -848,9 +857,9 @@ void compute_clouds_map(object3d * object_id)
 	//y_rot=object_id->y_rot;
 	z_rot=object_id->z_rot;
 
-	m=(-z_rot)*3.1415926/180;
-	cos_m=cos(m);
-	sin_m=sin(m);
+	m = -z_rot * 3.1415926f / 180;
+	cos_m = cos(m);
+	sin_m = sin(m);
 
 	for(i=0;i<face_no*3;i++)
 		{

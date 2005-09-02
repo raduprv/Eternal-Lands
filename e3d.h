@@ -218,7 +218,7 @@ typedef struct
 	char is_transparent; /*!< flag determining whether this object is transparent or not */
 	char is_ground; /*!< flag determining whether this is a ground object or not */
 
-    cache_item_struct	*cache_ptr; /*!< pointer to a cache item. If this is !=NULL, this points to a valid cached item of this object */
+	cache_item_struct *cache_ptr; /*!< pointer to a cache item. If this is !=NULL, this points to a valid cached item of this object */
 	char file_name[128]; /*!< filename where this object is stored. */
 }e3d_object;
 

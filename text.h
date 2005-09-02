@@ -305,6 +305,6 @@ int rewrap_message(text_message * buf, float zoom, int width, int * cursor);
 
 void cleanup_text_buffers(void);
 
-#define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,buffer,-1) /*!< logs the text in buffer with the specified color to the console. */
+#define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,(const Uint8*)buffer,-1) /*!< logs the text in buffer with the specified color to the console. */
 
 #endif

@@ -23,7 +23,7 @@ void clear_error_log();
  *
  * \param message   the message to log
  */
-void log_error(const Uint8 *message, ...);
+void log_error(const char *message, ...);
 
 /*!
  * \ingroup misc_utils

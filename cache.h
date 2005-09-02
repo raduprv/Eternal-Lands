@@ -205,7 +205,7 @@ void cache_use(cache_struct *cache, cache_item_struct *item);
  * \retval void*        a pointer to the cache item given by \a name
  * \callgraph
  */
-void *cache_find_item(cache_struct *cache, const Uint8 *name);
+void *cache_find_item (cache_struct *cache, const char *name);
 
 void cache_delete(cache_struct *cache);
 
