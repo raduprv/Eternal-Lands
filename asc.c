@@ -126,10 +126,13 @@ void my_strcp(Uint8 *dest,const Uint8 * source)
 
 void my_strncp (char *dest, const char *source, Uint32 len)
 {
-	if (len == 0) return;
-
-	while (*source != '\0' && --len > 0)
-		*dest++ = *source++;
+	if (len > 0)
+		{
+			while (*source != '\0' && --len > 0)
+			    {
+					*dest++ = *source++;
+				}
+		}
 	
 	*dest = '\0';
 }
@@ -137,6 +140,7 @@ void my_strncp (char *dest, const char *source, Uint32 len)
 void my_strcat(Uint8 *dest,const Uint8 * source)
 {
 	int i,l,dl;
+	
 	l=strlen(source);
 	dl=strlen(dest);
 	for(i=0;i<l;i++)dest[dl+i]=source[i];
