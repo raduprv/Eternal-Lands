@@ -36,7 +36,7 @@ Sint32 get_string_occurance (const char* needle, const char* haystack, Uint32 ma
 	{
 		for (i = 0; i < n_len; i++)
 		{
-			if (tolower (haystack[istart+i]) != tolower (needle[istart+i]))
+			if (tolower (haystack[istart+i]) != tolower (needle[i]))
 				break;
 		}
 		if (i >= n_len)
@@ -46,9 +46,9 @@ Sint32 get_string_occurance (const char* needle, const char* haystack, Uint32 ma
 			
 			// return the end of the string occurence, but skip
 			// space and equal signs
-			while (istart+i < h_len && (haystack[istart+i] == ' ' || haystack[istart+i] == '='))
+			while ((istart+i < h_len) && (haystack[istart+i] == ' ' || haystack[istart+i] == '='))
 				i++;
-			return i;
+			return istart+i;
 		}
 	}
 	
