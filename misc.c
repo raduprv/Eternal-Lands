@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <math.h>
-#ifdef PNG_SCREENSHOT
-#include <dirent.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <png.h>
+#ifdef PNG_SCREENSHOT
+ #include <dirent.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <png.h>
 #endif
 #include "global.h"
 
@@ -201,68 +201,73 @@ int mouse_in_sphere(float x, float y, float z, float radius)
 			m_y     >= winy - radius  &&  m_y     <= winy + radius);
 }
 
-void find_last_url(char * source_string, int len)
+void find_last_url(const unsigned char *source_string, const int len)
 {
-	Uint8 cur_char;
-	int i,j,url_start;
-	int last_url_start=0;
-	int final_url_start=0;
-	int final_url_2=0;
-	int www=1;
+	char cur_char;
+	char search_for[][10] = {"http://", "https://", "ftp://"};
+	int i, j, url_start;
+	int last_url_start = 0;
+	int final_url_start = 0;
+	int final_url_start_2 = 0;
 
-	while(1)
-		{
-			url_start=get_string_occurance("www.",source_string+final_url_start+1,len-last_url_start,1);
-			if(url_start==-1)break;
-			if(final_url_start<url_start+last_url_start)final_url_start=url_start+last_url_start;
-			last_url_start+=url_start;
+	/* Search for www. first */
+	for(last_url_start = 0; ; last_url_start += url_start) {
+		url_start = get_string_occurance("www.", source_string+final_url_start+1, len-last_url_start, 1);
+		if(url_start <= 0) {
+			/* We either found what we're looking for or we didn't find anything at all */
+			break;
 		}
-
-	last_url_start=0;
-	while(1)
-		{
-			url_start=get_string_occurance("http://",source_string+final_url_2+1,len-last_url_start,1);
-			if(url_start<0)
-			url_start=get_string_occurance("https://",source_string+final_url_2+1,len-last_url_start,1);
-			if(url_start<0)
-			url_start=get_string_occurance("ftp://",source_string+final_url_2+1,len-last_url_start,1);
-			if(url_start<0)break;
-			if(final_url_2<url_start+last_url_start)final_url_2=url_start+last_url_start;
-			last_url_start+=url_start;
+		url_start++;
+		if(final_url_start < url_start+last_url_start) {
+			final_url_start = url_start+last_url_start;
 		}
+	}
 
-
-	if(!final_url_start && !final_url_2)return;//no URL found
-
-	//see if the last url was the www or http:// one
-	if(final_url_2>final_url_start)
-		{
-			final_url_start=final_url_2;
-			www=0;//means the URL starts with http
+	/* Now search for the rest */
+	for(last_url_start = 0; ; last_url_start += url_start) {
+		for(i = 0, url_start = -1; i < sizeof(search_for)/10 && url_start < 0; i++) {
+			url_start = get_string_occurance(search_for[i], source_string+final_url_start+1, len-last_url_start, 1);
 		}
+		if(url_start <= 0) {
+			/* We either found what we're looking for or we didn't find anything at all */
+			break;
+		}
+		url_start++;
+		if(final_url_start_2 < url_start+last_url_start) {
+			final_url_start_2 = url_start+last_url_start;
+		}
+	}
 
+	if(!final_url_start && !final_url_start_2) { //no URL found
+		return;
+	}
 
 	//ok, we have an URL, now get it
-	j=0;
-	if(www)
-		{
-			my_strcp(current_url,"http://");
-			j=7;
+	j = 0;
+	if(final_url_start > final_url_start_2)
+	{
+		snprintf(current_url, sizeof(current_url), "http://");
+		j = 7;
+	} else {
+		final_url_start = final_url_start_2;
+	}
+
+	for(i = final_url_start; i < len; i++)
+	{
+		if(j > sizeof(current_url)-2) {
+			break; //URL too long, perhaps an exploit attempt
 		}
-
-	for(i=final_url_start;i<len;i++)
-		{
-			if(j>158)return;//URL too long, perhaps an exploit attempt
-			cur_char=source_string[i];
-			if(!cur_char || cur_char==' ' || cur_char==0x0a || cur_char=='<'
-			|| cur_char=='>' || cur_char=='|' || cur_char=='"' || cur_char==']')break;
-			current_url[j]=cur_char;
-			j++;
+		cur_char = source_string[i];
+		if(!cur_char || cur_char == ' ' || cur_char == '\n' || cur_char == '<'
+			|| cur_char == '>' || cur_char == '|' || cur_char == '"'
+			|| cur_char == ']') {
+			break;
 		}
-	current_url[j]=0;
-	have_url=1;
-
-
+		current_url[j] = cur_char;
+		j++;
+	}
+	current_url[j] = 0;
+	have_url = 1;
 }
 
 
@@ -271,7 +276,9 @@ int go_to_url(void *dummy)
 
 	char browser_command[400];
 
-	if(!have_url)return 0;
+	if(!have_url) {
+		return 0;
+	}
 
 	snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, current_url), 
 	system(browser_command);

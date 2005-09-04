@@ -60,7 +60,7 @@ float get_float_after_string (const char* needle, const char* haystack, Uint32 m
  * \param	beginning Whether it should return the offset to the beginning of the string or the end of the string
  * \retval Sint32	Returns either the offset to the beginning of the string or to the end of the string - if the string was not found in the char array it returns -1 on failure.
  */
-Sint32 get_string_occurance (const char *needle, const char *haystack, Uint32 max_len, Uint8 beginning);
+Sint32 get_string_occurance (const char *needle, const char *haystack, const Uint32 max_len, const Uint8 beginning);
 
 /*!
  * \ingroup	misc_utils

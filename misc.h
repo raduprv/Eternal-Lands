@@ -93,7 +93,7 @@ int mouse_in_sphere(float x, float y, float z, float radius);
  *
  * \pre If \a source_string does not contain a valid URL, this function will return without setting \ref have_url to true.
  */
-void find_last_url(char * source_string, int len);
+void find_last_url(const unsigned char *source_string, const int len);
 
 /*!
  * \ingroup misc

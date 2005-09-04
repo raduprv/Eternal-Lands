@@ -25,33 +25,38 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
 // the string otherwise it returns the offset to the end of the string. Needle
 // must be null-terminated. hyastack need not be, but must be at least max_len
 // bytes long
-Sint32 get_string_occurance (const char* needle, const char* haystack, Uint32 max_len, Uint8 beginning)
+Sint32 get_string_occurance (const char* needle, const char* haystack, const Uint32 max_len, const Uint8 beginning)
 {
-	Uint32 h_len = max_len, n_len = strlen (needle);
+	const Uint32 n_len = strlen(needle);
 	Uint32 istart, i;
-	
-	if (h_len <= n_len) return -1;
-	
-	for (istart = 0; istart <= h_len - n_len; istart++)
+	Uint32 search_len;
+
+	if (max_len < n_len) {
+		return -1;
+	}
+
+	for (istart = 0, search_len = max_len - n_len; istart <= search_len; istart++)
 	{
 		for (i = 0; i < n_len; i++)
 		{
-			if (tolower (haystack[istart+i]) != tolower (needle[i]))
+			if (tolower(haystack[istart+i]) != tolower(needle[i])) {
 				break;
+			}
 		}
 		if (i >= n_len)
 		{
 			// We found the string. return the beginning if asked
-			if (beginning) return istart;
-			
+			if (beginning) {
+				return istart;
+			}
 			// return the end of the string occurence, but skip
 			// space and equal signs
-			while ((istart+i < h_len) && (haystack[istart+i] == ' ' || haystack[istart+i] == '='))
+			while ((istart+i < max_len) && (haystack[istart+i] == ' ' || haystack[istart+i] == '=')) {
 				i++;
+			}
 			return istart+i;
 		}
 	}
-	
 	return -1;
 }
 
