@@ -14,7 +14,9 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 	{
 		if(spell_result==2){
 			elwin_mouse = CURSOR_WAND;
-		} else elwin_mouse = CURSOR_WALK;
+		} else {
+			elwin_mouse = CURSOR_WALK;
+		}
 	}
 
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])

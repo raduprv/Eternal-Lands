@@ -214,7 +214,7 @@ void find_last_url(const unsigned char *source_string, const int len)
 	for(last_url_start = 0; ; last_url_start += url_start) {
 		url_start = get_string_occurance("www.", source_string+final_url_start+1, len-last_url_start, 1);
 		if(url_start <= 0) {
-			/* We either found what we're looking for or we didn't find anything at all */
+			/* We either found what we're looking for, or we didn't find anything at all */
 			break;
 		}
 		url_start++;
@@ -226,10 +226,10 @@ void find_last_url(const unsigned char *source_string, const int len)
 	/* Now search for the rest */
 	for(last_url_start = 0; ; last_url_start += url_start) {
 		for(i = 0, url_start = -1; i < sizeof(search_for)/10 && url_start < 0; i++) {
-			url_start = get_string_occurance(search_for[i], source_string+final_url_start+1, len-last_url_start, 1);
+			url_start = get_string_occurance(search_for[i], source_string+final_url_start_2+1, len-last_url_start, 1);
 		}
 		if(url_start <= 0) {
-			/* We either found what we're looking for or we didn't find anything at all */
+			/* We either found what we're looking for, or we didn't find anything at all */
 			break;
 		}
 		url_start++;
