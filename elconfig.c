@@ -721,7 +721,8 @@ void init_vars()
 	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating messages", "Toggles the use of floating experience messages and other graphical enhancements", SPECIALVID);
 #ifdef ELC
 	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate local chat", "Should local chat be separate?", CHAT);
-	add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
+	// The forces that be want PMs always global, so that they're less likely to be ignored
+	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
 	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_separate_flag, 1, "Seperate guild chat", "Should guild chat be seperate?", CHAT);
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_separate_flag, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
@@ -789,6 +790,7 @@ void write_var (FILE *fout, int ivar)
 			// Do not write the password to the file. If the user really wants it
 			// s/he should edit the file.
 			fprintf (fout, "#%s = \"\"\n", our_vars.var[ivar]->name);
+			break;
 		case FLOAT:
 		{
 			float *g = our_vars.var[ivar]->var;

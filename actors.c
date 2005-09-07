@@ -4,9 +4,9 @@
 #include "global.h"
 
 #ifdef ELC
-#define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
-#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
-#define DRAW_INGAME_ALT(x, y, our_string, max_lines)	draw_ingame_string(x, y, our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
+#define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
+#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
+#define DRAW_INGAME_ALT(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
 #endif
 
 actor *actors_list[1000];
@@ -32,10 +32,7 @@ void init_actors_lists()
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_actor(char * file_name,char * skin_name, int frame,float x_pos,
-			  float y_pos, float z_pos, float z_rot, char remappable,
-			  short skin_color, short hair_color, short shirt_color,
-			  short pants_color, short boots_color, int actor_id)
+int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, char remappable, short skin_color, short hair_color, short shirt_color, short pants_color, short boots_color, int actor_id)
 {
 	int texture_id;
 	int i;
@@ -169,8 +166,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 				float off;
 				
-				if(view_hp)	off= (-0.35*zoom_level*name_zoom/3.0);
-					else off= 0.0;
+				if (view_hp)
+					off = -0.35f * zoom_level * name_zoom / 3.0f;
+				else
+					off = 0.0f;
 				if(actor_id->last_health_loss && cur_time-actor_id->last_health_loss<1000){//only when using floatingmessages
 					if(actor_id->damage>0){
 						healthbar_x_len_converted=healthbar_x_len*percentage;
@@ -225,17 +224,17 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				//draw the frame
 				healthbar_y=0;//0.001*zoom_level/3.0f;
 				glDepthFunc(GL_LEQUAL);
-				glColor3f(0,0,0);
+				glColor3f (0.0f, 0.0f, 0.0f);
 				glBegin(GL_LINE_LOOP);
-				glVertex3f(healthbar_x+off-0.001,healthbar_y,healthbar_z-0.001);
-				glVertex3f(healthbar_x+healthbar_x_len+off+0.001,healthbar_y,healthbar_z-0.001);
-				glVertex3f(healthbar_x+healthbar_x_len+off+0.001,healthbar_y,healthbar_z+healthbar_z_len+0.001);
-				glVertex3f(healthbar_x+off-0.001,healthbar_y,healthbar_z+healthbar_z_len+0.001);
+				glVertex3f (healthbar_x+off-0.001f, healthbar_y, healthbar_z-0.001f);
+				glVertex3f (healthbar_x+healthbar_x_len+off+0.001f, healthbar_y, healthbar_z-0.001f);
+				glVertex3f (healthbar_x+healthbar_x_len+off+0.001f, healthbar_y, healthbar_z+healthbar_z_len+0.001f);
+				glVertex3f (healthbar_x+off-0.001f, healthbar_y, healthbar_z+healthbar_z_len+0.001f);
 				glEnd();
 			}
 
 		glEnable(GL_TEXTURE_2D);
-		glColor3f(1,0,0);
+		glColor3f (1.0f, 0.0f, 0.0f);
 
 		glDepthFunc(GL_ALWAYS);
 		if(actor_id->damage_ms)
@@ -257,10 +256,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					glDisable(GL_BLEND);
 				} else {
 					sprintf(str,"%i",actor_id->damage);
-					glColor3f(1,0.3f,0.3f);
+					glColor3f (1.0f, 0.3f, 0.3f);
 					//draw_ingame_string(-0.1,healthbar_z-2.0f,str,1,1);
 					//draw_ingame_string(-0.1,healthbar_z/2.0f,str,1,1);
-					DRAW_INGAME_NORMAL(-0.1,healthbar_z/2.0f,str,1);
+					DRAW_INGAME_NORMAL(-0.1f,healthbar_z/2.0f,str,1.0f);
 				}
 			}
 		glDepthFunc(GL_LESS);
@@ -719,8 +718,7 @@ void add_actor_from_server(char * in_data)
 					}
 		}
 
-	i=add_actor(actors_defs[actor_type].file_name,actors_defs[actor_type].skin_name,frame,
-				f_x_pos, f_y_pos, f_z_pos, f_z_rot,remapable, skin, hair, shirt, pants, boots, actor_id);
+	i = add_actor (actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, f_z_pos, f_z_rot, remapable, skin, hair, shirt, pants, boots, actor_id);
 	
 	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
 	

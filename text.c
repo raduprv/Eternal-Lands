@@ -417,6 +417,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 {
 	text_message *msg;
 	int minlen;
+	Uint32 cnr = 0, ibreak = -1;
 
 	check_chat_text_to_overtext (text_to_add, len);
 	
@@ -442,20 +443,60 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	}
 
 	// Allow for a null byte and up to 8 extra newlines and colour codes.
-	minlen = len + 18; 
+	minlen = len + 18;
+#ifdef MULTI_CHANNEL	
+	cnr = get_active_channel (channel);
+	if (cnr != 0)
+		// allow some space for the channel number
+		minlen += 20;
+#endif
 	if (msg->size < minlen)
 	{
 		if (msg->data != NULL) free (msg->data);
 		msg->data = malloc (minlen);
 		msg->size = minlen;
 	}
+
+	if (cnr != 0)
+	{
+		for (ibreak = 0; ibreak < len; ibreak++)
+		{
+			if (text_to_add[ibreak] == ']') break;
+		}
+	}
 	
-	if(!IS_COLOR(text_to_add[0])) {
-		// force the color
-		snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
-	} else {
-		// color set by server
-		snprintf(msg->data, minlen, "%.*s", len, text_to_add);
+	if (ibreak < 0 || ibreak >= len)
+	{
+		// not a channel, or something's messed up
+		if(!IS_COLOR(text_to_add[0]))
+		{
+			// force the color
+			snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
+		}
+		else
+		{
+			// color set by server
+			snprintf(msg->data, minlen, "%.*s", len, text_to_add);
+		}
+	}
+	else
+	{
+		char nr_str[16];
+		if (cnr >= 1000000000)
+			snprintf (nr_str, sizeof (nr_str), "guild");
+		else
+			snprintf (nr_str, sizeof (nr_str), "%u", cnr);
+		
+		if(!IS_COLOR(text_to_add[0]))
+		{
+			// force the color
+			snprintf(msg->data, minlen, "%c%.*s @ %s%.*s", color + 127, ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+		}
+		else
+		{
+			// color set by server
+			snprintf(msg->data, minlen, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+		}
 	}
 	
 	msg->len = strlen (msg->data);

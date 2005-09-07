@@ -123,6 +123,13 @@ void send_active_channel (Uint8 chan)
 	}
 }
 
+Uint32 get_active_channel (Uint8 idx)
+{
+	if (idx >= CHAT_CHANNEL1 && idx <= CHAT_CHANNEL3)
+		return active_channels[idx-CHAT_CHANNEL1];
+	return 0;
+}
+
 #endif // def MULTI_CHANNEL
 
 #define CHAT_WIN_SPACE		4
@@ -1210,7 +1217,7 @@ void create_tab_bar ()
 	tab_bar_win = create_window ("Tab bar", game_root_win, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_SHOW);
 	
 	add_tab_button (CHAT_ALL);
-	add_tab_button (CHAT_NONE);
+	//add_tab_button (CHAT_NONE);
 	current_tab = 0;
 	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.57f, 1.0f, 0.59f);
 	current_filter = tabs[current_tab].channel;

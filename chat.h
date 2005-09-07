@@ -24,6 +24,19 @@
  */
 void set_active_channels (Uint8 active, const Uint32 *channels, int nchan);
 
+/*!
+ * \ingroup chat_window
+ * \brief   give the channel number of channel \a idx
+ *
+ *	give the channel number of channel \a idx
+ *
+ * \param idx The channel index
+ *
+ * \retval Uint32 The channel number if \a idx is a valid channel index, 0 otherwise
+ * \callgraph
+ */
+Uint32 get_active_channel (Uint8 idx);
+
 /*! Structure to hold infos for a chat window tab  */
 typedef struct
 {
