@@ -246,13 +246,14 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		for (;;) {
 			char skip = 0;
 			int channel = msgs[imsg].chan_idx;
-			if (channel != filter) {
+			if (channel != filter && channel != CHAT_MODPM) {
 				switch (channel) {
 					case CHAT_LOCAL:    skip = local_chat_separate;    break;
 					case CHAT_PERSONAL: skip = personal_chat_separate; break;
 					case CHAT_GM:       skip = guild_chat_separate;    break;
 					case CHAT_SERVER:   skip = server_chat_separate;   break;
 					case CHAT_MOD:      skip = mod_chat_separate;      break;
+					case CHAT_MODPM:                                   break;
 					default:            skip = 1;
 				}
 			}
@@ -307,6 +308,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 							case CHAT_GM:       skip = guild_chat_separate;    break;
 							case CHAT_SERVER:   skip = server_chat_separate;   break;
 							case CHAT_MOD:      skip = mod_chat_separate;      break;
+							case CHAT_MODPM:                                   break;
 							default:            skip = 1;
 						}
 					}

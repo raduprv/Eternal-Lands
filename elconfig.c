@@ -728,7 +728,7 @@ void init_vars()
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
 #else
 	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_var, 0, "Separate local chat", "Should local chat be separate?", CHAT);
-	add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
+	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
 	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1, "Seperate guild chat", "Should guild chat be seperate?", CHAT);
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);

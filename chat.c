@@ -347,6 +347,9 @@ Uint8 get_tab_channel (Uint8 channel)
 		case CHAT_MOD:
 			if (!mod_chat_separate) return CHAT_ALL;
 			break;
+		case CHAT_MODPM:
+			// always display moderator PMs in all tabs
+			return CHAT_ALL;
 	}
 	
 	return channel;
@@ -367,7 +370,7 @@ void update_chat_window (text_message * msg, char highlight)
 	// first check if we need to display in all open channels
 	channel = get_tab_channel (msg->chan_idx);
 
-	if (channel == CHAT_ALL)
+	if (channel == CHAT_ALL || channel == CHAT_MODPM)
 	{
 		for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 		{
@@ -413,8 +416,7 @@ void update_chat_window (text_message * msg, char highlight)
 				current_line = channels[ichan].nr_lines;
 				text_changed = 1;
 			}
-			else if (highlight && !channels[ichan].highlighted && channels[active_tab].chan_nr != CHAT_ALL 
-					&& channels[ichan].chan_nr != CHAT_ALL && !get_show_window(console_root_win)) //Make sure we don't change the color of a highlighted tab
+			else if (highlight && !channels[ichan].highlighted && channels[active_tab].chan_nr != CHAT_ALL && channels[ichan].chan_nr != CHAT_ALL && !get_show_window(console_root_win)) //Make sure we don't change the color of a highlighted tab
 			{
 				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
 			}
@@ -1177,7 +1179,7 @@ void update_tab_bar (text_message * msg)
 
 	// Only update specific channels
 	channel = get_tab_channel (msg->chan_idx);
-	if (channel == CHAT_ALL) {
+	if (channel == CHAT_ALL || channel == CHAT_MODPM) {
 		lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
 		if (lines_to_show >= 10) lines_to_show = 10;
 		return;

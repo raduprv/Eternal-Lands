@@ -706,6 +706,7 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 			case CHAT_GM:       if (!guild_chat_separate)    msgchan = CHAT_ALL; break;
 			case CHAT_SERVER:   if (!server_chat_separate)   msgchan = CHAT_ALL; break;
 			case CHAT_MOD:      if (!mod_chat_separate)      msgchan = CHAT_ALL; break;
+			case CHAT_MODPM:                                 msgchan = CHAT_ALL; break;
 		}
 
 		if (msgchan == filter || msgchan == CHAT_ALL || filter == FILTER_ALL)
