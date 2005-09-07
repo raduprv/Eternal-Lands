@@ -110,12 +110,13 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, int type)
 	Uint8 name[16];
 	Uint8 ch;
 	
-	if(type)
+	if (type != 0)
 	{
 		//now find the name portion
-		for (i = 0; i < 15 && i+10 < len; i++)
+		offset = type == 1 ? 10 : 14;
+		for (i = 0; i < 15 && i+offset < len; i++)
 		{
-			ch = input_text[i+10];	//skip over the prefix
+			ch = input_text[i+offset];	//skip over the prefix
 			if (ch==':' || ch==' ') break;
 			name[i]=ch;
 		}

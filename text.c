@@ -222,6 +222,9 @@ int filter_or_ignore_text (unsigned char *text_to_add, int len)
 	type = 0;
 	if (len >= 9 && strncasecmp (&text_to_add[1], "[PM from", 8) == 0)
 		type = 1;
+	else if (len >= 13 && strncasecmp (&text_to_add[1], "[Mod PM from", 12) == 0)
+		type = 2;
+		
 	if (pre_check_if_ignored (text_to_add, len, type))
 		return 0;
 		
