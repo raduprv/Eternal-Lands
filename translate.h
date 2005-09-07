@@ -10,6 +10,8 @@
 #include "stats.h"
 #endif
 
+#define XML_ID_SIZE 16
+
 /*!
  * This is used for setting a short name and description - used for i.e. options and sigils
  */
@@ -30,7 +32,7 @@ typedef struct
  */
 typedef struct
 {
-	char xml_id[15];
+	char xml_id[XML_ID_SIZE];
 	char * var;
 	int max_len;
 #ifdef WRITE_XML
@@ -43,7 +45,7 @@ typedef struct
  */
 typedef struct
 {
-	char xml_id[15];
+	char xml_id[XML_ID_SIZE];
 	dichar * var;
 #ifdef WRITE_XML
 	int saved;
@@ -56,7 +58,7 @@ typedef struct
 #ifdef ELC
 typedef struct
 {
-	char xml_id[15];
+	char xml_id[XML_ID_SIZE];
 	names * var;
 #ifdef WRITE_XML
 	int saved;
@@ -69,7 +71,7 @@ typedef struct
  */
 typedef struct
 {
-	char xml_id[15];
+	char xml_id[XML_ID_SIZE];
 	int no;
 	string_item ** strings;
 #ifdef WRITE_XML
@@ -82,7 +84,7 @@ typedef struct
  */
 typedef struct
 {
-	char xml_id[15];
+	char xml_id[XML_ID_SIZE];
 	int no;
 	distring_item ** distrings;
 #ifdef WRITE_XML
@@ -96,7 +98,7 @@ typedef struct
  */
 typedef struct
 {
-	char xml_id[15];
+	char xml_id[XML_ID_SIZE];
 	int no;
 	statstring_item ** statstrings;
 #ifdef WRITE_XML

@@ -485,20 +485,23 @@ void * add_xml_group(int type, int no, ...)
 		case GROUP: {
 			group_id * grp;
 			grp=(group_id*)calloc(no,sizeof(group_id));
-			for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
+			for(;i<no;i++)
+				snprintf (grp[i].xml_id, sizeof (grp[i].xml_id), "%s", va_arg (ap, char*));
 			return grp;
 		}
 		case DIGROUP: {
 			group_id_di * grp;
 			grp=(group_id_di*)calloc(no,sizeof(group_id_di));
-			for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
+			for(;i<no;i++)
+				snprintf (grp[i].xml_id, sizeof (grp[i].xml_id), "%s", va_arg (ap, char*));
 			return grp;
 		}
 #ifdef ELC
 		case STAT_GROUP: {
 			group_stat * grp;
 			grp=(group_stat*)calloc(no,sizeof(group_stat));
-			for(;i<no;i++) strncpy(grp[i].xml_id,va_arg(ap, char*),15);
+			for(;i<no;i++)
+				snprintf (grp[i].xml_id, sizeof (grp[i].xml_id), "%s", va_arg (ap, char*));
 			return grp;
 		}
 #endif
@@ -511,7 +514,7 @@ void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char *
 {
 	group->distrings=(distring_item**)realloc(group->distrings,(group->no+1)*sizeof(distring_item*));
 	group->distrings[group->no]=(distring_item*)calloc(1,sizeof(distring_item));
-	strcpy(group->distrings[group->no]->xml_id,xml_id);
+	snprintf (group->distrings[group->no]->xml_id, sizeof (group->distrings[group->no]->xml_id), "%s", xml_id);
 	group->distrings[group->no]->var=var;
 	strncpy(var->str, str, 30);
 	strncpy(var->desc, desc, 100);
@@ -523,7 +526,7 @@ void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name,
 {
 	group->statstrings=(statstring_item**)realloc(group->statstrings,(group->no+1)*sizeof(statstring_item*));
 	group->statstrings[group->no]=(statstring_item*)calloc(1,sizeof(statstring_item));
-	strcpy(group->statstrings[group->no]->xml_id,xml_id);
+	snprintf (group->statstrings[group->no]->xml_id, sizeof (group->statstrings[group->no]->xml_id), "%s", xml_id);
 	group->statstrings[group->no]->var=var;
 	strncpy(var->name, name, 20);
 	strncpy(var->shortname, shortname, 5);
@@ -535,7 +538,7 @@ void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def,
 {
 	group->strings=(string_item**)realloc(group->strings,(group->no+1)*sizeof(string_item*));
 	group->strings[group->no]=(string_item*)calloc(1,sizeof(string_item));
-	strcpy(group->strings[group->no]->xml_id,xml_id);
+	snprintf (group->strings[group->no]->xml_id, sizeof (group->strings[group->no]->xml_id), "%s", xml_id);
 	group->strings[group->no]->var=var;
 	strncpy(var, def, max_len-1);
 	group->strings[group->no]->max_len=max_len-1;
