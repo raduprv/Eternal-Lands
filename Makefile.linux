@@ -15,6 +15,7 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT
 #-DENCYCLOPEDIA # enable new encyclopedia and books format (INCOMPLETE)
 #-DMEMORY_DEBUG # gather information about memory allocation and freeing
 #-DPNG_SCREENSHOT # make screenshots in W3C's PNG format in game
+#-ATI_9200_FIX #flickering fix for ATI 92xx
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

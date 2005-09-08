@@ -637,6 +637,10 @@ int display_game_handler (window_info *win)
 			if (show_reflection) display_3d_reflection ();
 		}
 		CHECK_GL_ERRORS ();
+#ifdef ATI_9200_FIX
+		glClear(GL_DEPTH_BUFFER_BIT);
+#endif
+		
 #ifndef NETWORK_THREAD
 		//check for network data - reduces resyncs
 		get_message_from_server ();
