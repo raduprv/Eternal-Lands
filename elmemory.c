@@ -41,7 +41,7 @@ void elm_cleanup()
 	for(i = 0; i < ELM_INITIAL_SIZE*elm_allocs; i++) {
 		if(elm_memory[i].pointer != NULL && elm_memory[i].size != 0) {
 			malloc_calls_remaining++;
-			fprintf(fp, "%s:%i:%p (%i bytes)\n", elm_memory[i].file, elm_memory[i].line, elm_memory[i].pointer, elm_memory[i].size);
+			fprintf(fp, "%s:%i:%p (%lu bytes)\n", elm_memory[i].file, elm_memory[i].line, elm_memory[i].pointer, elm_memory[i].size);
 			free(elm_memory[i].pointer);
 		}
 	}
