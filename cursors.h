@@ -59,7 +59,7 @@ struct harvest_names_struct
 {
 	char name[80];
 };
-extern struct harvest_names_struct harvestable_objects[100];
+extern struct harvest_names_struct harvestable_objects[300];
 
 /*!
  * contains the name of entrable items
@@ -68,7 +68,7 @@ struct enter_names_struct
 {
 	char name[80];
 };
-extern struct enter_names_struct entrable_objects[100];
+extern struct enter_names_struct entrable_objects[300];
 
 /*!
  * \ingroup other
