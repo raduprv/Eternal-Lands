@@ -116,14 +116,15 @@ int start_rendering()
 #else
 			get_message_from_server();
 #endif //NETWORK_THREAD
-			if(!limit_fps || ((cur_time-last_time) && (1000/(cur_time-last_time) < limit_fps)))
-				{
-					//draw everything
-					draw_scene();
-					last_time=cur_time;
-				}
-			else
+			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) < limit_fps))
+			{
+				//draw everything
+				draw_scene();
+				last_time=cur_time;
+			}
+			else {
 				SDL_Delay(1);//give up timeslice for anyone else
+			}
 
 #ifdef TIMER_CHECK
 			//Check the timers to make sure that they are all still alive...

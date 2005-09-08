@@ -14,6 +14,10 @@
 #define MAX_NEAR_3D_OBJECTS 1000
 #define MAX_NEAR_BLENDED_3D_OBJECTS 25
 
+#define OBJ_3D_ENTRABLE 	1
+#define OBJ_3D_HARVESTABLE 	1<<1
+#define OBJ_3D_BAG 			1<<2
+
 //#define MAX_E3D_CACHE 1000 /* unused */
 /*! @} */
 
@@ -258,6 +262,7 @@ typedef struct
 
    e3d_object *e3d_data; /*!< e3d model data */
    unsigned int last_acessed_time; /*!< timestamp when this object was last accessed. */
+   unsigned int flags; /*!< Flag determining whether this object is entrable/harvestable/bag */
 }object3d;
 
 

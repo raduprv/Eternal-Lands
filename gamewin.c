@@ -21,61 +21,38 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 	{
-		int i;
-		
 		if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
-
-		//see if it is a bag. (bag1.e3d)
-		else if(get_string_occurance("bag1.e3d",objects_list[object_under_mouse]->file_name, 80,0)!=-1)
+		else if(objects_list[object_under_mouse]->flags&OBJ_3D_BAG)
 		{
 			elwin_mouse = CURSOR_PICK;
 		}
-
 		else if(action_mode==ACTION_USE)
 		{
 			elwin_mouse = CURSOR_USE;
 		}
-		
-		else
+		//see if the object is a harvestable resource.
+		else if(objects_list[object_under_mouse]->flags&OBJ_3D_HARVESTABLE) 
 		{
-			//see if the object is a harvestable resource.
-			for(i=0;i<100;i++)
-			{
-				if(!harvestable_objects[i].name[0])break;//end of the objects
-				if(get_string_occurance(harvestable_objects[i].name,objects_list[object_under_mouse]->file_name, 80,0)!=-1)
-				{
-					elwin_mouse = CURSOR_HARVEST;
-					return 1;
-				}
-			}
-			
-			//see if the object is an entrable resource.
-			for(i=0;i<100;i++)
-			{
-				if(!entrable_objects[i].name[0])break;//end of the objects
-				if(get_string_occurance(entrable_objects[i].name,objects_list[object_under_mouse]->file_name, 80,0)!=-1)
-				{
-					elwin_mouse = CURSOR_ENTER;
-					return 1;
-				}
-			}
-		
-			if(action_mode==ACTION_USE_WITEM)
-			{
-				elwin_mouse = CURSOR_USE_WITEM;
-			}
-
-			//hmm, no usefull object, so select walk....
-			else  
-			{				
-				if(spell_result==2)
-					elwin_mouse = CURSOR_WAND;
-				else
-					elwin_mouse = CURSOR_WALK;
-			}
+			elwin_mouse = CURSOR_HARVEST;
+		}
+		//see if the object is an entrable resource.
+		else if(objects_list[object_under_mouse]->flags&OBJ_3D_ENTRABLE) {
+			elwin_mouse = CURSOR_ENTER;
+		}
+		else if(action_mode==ACTION_USE_WITEM)
+		{
+			elwin_mouse = CURSOR_USE_WITEM;
+		}
+		//hmm, no usefull object, so select walk....
+		else  
+		{				
+			if(spell_result==2)
+				elwin_mouse = CURSOR_WAND;
+			else
+				elwin_mouse = CURSOR_WALK;
 		}
 	}
 
@@ -85,7 +62,6 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
-		
 		else 
 		{
 			elwin_mouse = CURSOR_TALK;
@@ -98,27 +74,22 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_USE;
 		}
-
 		else if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
-
 		else if(action_mode==ACTION_TRADE)
 		{
 			elwin_mouse = CURSOR_TRADE;
 		}
-
 		else if(alt_on || action_mode==ACTION_ATTACK)
 		{
 			elwin_mouse = CURSOR_ATTACK;
-		} 
-		
+		}
 		else if (spell_result==3 && action_mode==ACTION_WAND)
 		{
 			elwin_mouse = CURSOR_WAND;
-		} 
-		
+		}
 		else 
 		{
 			elwin_mouse = CURSOR_EYE;
@@ -130,23 +101,19 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		if(action_mode==ACTION_USE)
 		{
 			elwin_mouse = CURSOR_USE;
-		}      
-		
+		}
 		else if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
-
 		else if(shift_on)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
-		
 		else if(spell_result==3 && action_mode == ACTION_WAND)
 		{
 			elwin_mouse = CURSOR_WAND;
 		}
-
 		else if(alt_on || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
 		{
 			elwin_mouse = CURSOR_ATTACK;
@@ -156,9 +123,11 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 	// when all fails - walk
 	else
 	{
-		if(spell_result==2){
+		if(spell_result==2) {
 			elwin_mouse = CURSOR_WAND;
-		} else elwin_mouse = CURSOR_WALK;
+		} else {
+			elwin_mouse = CURSOR_WALK;
+		}
 	}
 
 	return 1;
@@ -554,7 +523,7 @@ int display_game_handler (window_info *win)
 		mouse_rate = 1;
 		read_mouse_now = 1;
 	}
-	else if (fps[0]<10)
+	else if (fps[0] < 10)
 	{
 		mouse_rate = 3;
 	}
@@ -574,11 +543,14 @@ int display_game_handler (window_info *win)
 	{
 		mouse_rate = 20;
 	}
-	if(mouse_rate > mouse_limit) mouse_rate = mouse_limit;
-	if (!(main_count%mouse_rate)) 
+	if(mouse_rate > mouse_limit) {
+		mouse_rate = mouse_limit;
+	}
+	if (!(main_count%mouse_rate)) {
 		read_mouse_now = 1;
-	else 
-		read_mouse_now=0;
+	} else {
+		read_mouse_now = 0;
+	}
 	reset_under_the_mouse();
 	
 	// This window is a bit special since it's not fully 2D

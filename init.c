@@ -99,19 +99,22 @@ void load_e3d_list()
 void load_harvestable_list()
 {
 	FILE *f = NULL;
-	int i=0;
+	int i = 0;
 	char strLine[255];
 
 	memset(harvestable_objects, 0, sizeof(harvestable_objects));
-	i=0;
-	f=my_fopen("harvestable.lst", "rb");
-	if(!f)return;
+	f = my_fopen("harvestable.lst", "rb");
+	if(!f) {
+		return;
+	}
 	while(1)
-		{
-			fscanf(f,"%s",harvestable_objects[i].name);
-			i++;
-			if(!fgets(strLine, 100, f))break;
+	{
+		fscanf(f, "%s", harvestable_objects[i].name);
+		i++;
+		if(!fgets(strLine, 100, f)) {
+			break;
 		}
+	}
 	fclose(f);
 }
 

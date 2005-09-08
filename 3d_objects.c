@@ -199,6 +199,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	char fname[128];
 	e3d_object *returned_e3d;
 	object3d *our_object;
+	int i;
 	
 	if (id < 0 || id > MAX_OBJ_3D)
 	{
@@ -255,15 +256,32 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	
 	our_object->id = id;
 
+	our_object->flags = 0;
+	for(i = 0; i < sizeof(harvestable_objects)/sizeof(harvestable_objects[0].name); i++) {
+		if(*harvestable_objects[i].name && strstr(file_name, harvestable_objects[i].name) != NULL) {
+			our_object->flags |= OBJ_3D_HARVESTABLE;
+			break;
+		}
+	}
+	for(i = 0; i < sizeof(entrable_objects)/sizeof(entrable_objects[0].name); i++) {
+		if(*entrable_objects[i].name && strstr(file_name, entrable_objects[i].name) != NULL) {
+			our_object->flags |= OBJ_3D_ENTRABLE;
+			break;
+		}
+	}
+	if(strcasecmp(strrchr(file_name, '/')+1, "bag1.e3d") == 0) {
+		our_object->flags |= OBJ_3D_BAG;
+	}
+
 	objects_list[id] = our_object;
 	// watch the top end
 	if(id >= highest_obj_3d)
 	{
 		highest_obj_3d = id+1;
 	}
-     	
+
 	regenerate_near_objects = 1; // We've added an object..
-		
+
 	return id;
 }
 

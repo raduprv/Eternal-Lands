@@ -14,14 +14,16 @@
 Uint8 last_pixel_color[4];
 
 void reset_under_the_mouse()
-	{
-		if(!read_mouse_now)return;
-		last_pixel_color[0]=0;
-		last_pixel_color[1]=0;
-		last_pixel_color[2]=0;
-		object_under_mouse=-1;
-		thing_under_the_mouse=UNDER_MOUSE_NOTHING;
+{
+	if(!read_mouse_now) {
+		return;
 	}
+	last_pixel_color[0] = 0;
+	last_pixel_color[1] = 0;
+	last_pixel_color[2] = 0;
+	object_under_mouse = -1;
+	thing_under_the_mouse = UNDER_MOUSE_NOTHING;
+}
 
 __inline__ float SwapFloat(float t)
 {

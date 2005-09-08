@@ -80,7 +80,9 @@ void write_to_log (Uint8 *data, int len)
 
 	int server_message = 0;
 
-if(log_chat == 0)return;//we're not logging anything
+	if(log_chat == 0) {
+		return; //we're not logging anything
+	}
 
 	if (chat_log == NULL)
 	{
