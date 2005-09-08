@@ -642,7 +642,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			display_actors();  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
 			display_blended_objects();
 
-			if (use_fog) glEnable(GL_FOG);
+			if (use_fog) glDisable(GL_FOG);
 
 			ELglActiveTextureARB(shadow_unit);
 			glDisable(depth_texture_target);
