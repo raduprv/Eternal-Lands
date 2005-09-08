@@ -22,6 +22,7 @@
     <nothing>Nothing</nothing>
     <mix>Mix</mix>
     <clear>Clear</clear>
+    <cast>Cast</cast>
     <connect>Connecting to Server...</connect>
     <reconnect>Press any key to try again.</reconnect>
     <license>Entropy says: U R 2 g00d 2 r34d +h3 license.txt?
@@ -31,8 +32,9 @@ BTW, that license.txt file is actually there for a reason.</license>
     <sigils>This spell requires at least 2 sigils</sigils>
     <switch>Switches to video mode %s</switch>
     <cache>Cache size</cache>
-    <appropriate_name>Use an appropriate name:  Please do not create a name that is obscene or offensive, contains more than 3 numbers, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.
-Take into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.</appropriate_name>
+    <appropr_name>Use an appropriate name:
+Please do not create a name that is obscene or offensive, contains more than 2 digits, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.
+Take into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.</appropr_name>
     <edit_quantity>Rightclick on the quantity you wish to edit</edit_quantity>
     <you>You</you>
     <accept>Accept</accept>
@@ -60,8 +62,9 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <passnomatch>Passwords don't match!</passnomatch>
     <passmatch>Passwords are matching!</passmatch>
     <appearance>Remember to change your characters appearance before pressing "Done"</appearance>
-    <max_digits>You can only have 3 digits in your name!</max_digits>
+    <max_digits>You can only have 2 digits in your name!</max_digits>
     <max_length>Names and passwords can max be 15 characters long</max_length>
+    <illegal_char>You have typed an illegal character!</illegal_char>
     <p2p_race>You have to pay to create a char with this race</p2p_race>
     <char_help>To costumize your character and select name/password, press the buttons at the bottom.</char_help>
     <confirmcreate>Click done again to create a character with that name and appearance.</confirmcreate>
@@ -100,7 +103,7 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <buddy>View buddy</buddy>
     <opts>View options</opts>
     <help>View help</help>
-    <costumize>Costumize your character</costumize>
+    <customize>Customize your character</customize>
     <name_pass>Choose name and password</name_pass>
   </tooltips>
   <buddy>
@@ -114,8 +117,8 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <yes>Yes</yes>
     <no>No</no>
     <delete>Delete buddy</delete>
-	<delete_desc>Check this to delete the buddy from the list</delete_desc>
-	<request_dialog>%s wants to add you to his/her buddy list. Do you wish to allow it?"</request_dialog>
-	<add_to_list>Add to my buddy list</add_to_list>
+    <delete_desc>Check this to delete the buddy from the list</delete_desc>
+    <request_dialog>%s wants to add you to his/her buddy list. Do you wish to allow it?</request_dialog>
+    <add_to_list>Add to my buddy list</add_to_list>
   </buddy>
 </root>

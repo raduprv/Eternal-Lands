@@ -275,7 +275,7 @@ char	reg_error_str[15],
 	fail_opengl_mode[30],
 	stencil_falls_back_on_software_accel[150],
 	last_chance_str[150],
-	software_mode_str[150],
+	software_mode_str[200],
 	gl_ext_found[100],
 	gl_ext_found_not_used[100],
 	gl_ext_not_found[100],
@@ -638,7 +638,6 @@ void init_errors()
 	add_xml_identifier(load,"elini",cant_read_elini,"Couldn't read configuration file el.ini",sizeof(cant_read_elini));
 	add_xml_identifier(load,"invmap",invalid_map,"%s is an invalid map!",sizeof(invalid_map));
 	add_xml_identifier(load,"parsenotes",cant_parse_notes,"Unable to parse xml notepad. It will be overwritten.",sizeof(cant_parse_notes));
-	add_xml_identifier(load,"parsenotes",cant_parse_notes,"Unable to parse xml notepad. It will be overwritten.",sizeof(cant_parse_notes));
 	add_xml_identifier(load,"noteswrong",notes_wrong,"Document of the wrong type. It will be overwritten.",sizeof(notes_wrong));
 	add_xml_identifier(load,"manynotes",too_many_notes,"Too many notes - Last nodes were ignored.",sizeof(too_many_notes));
 	add_xml_identifier(load,"notenode",wrong_note_node,"Incorrect node type - could not copy.",sizeof(wrong_note_node));
@@ -657,7 +656,7 @@ void init_errors()
 	add_xml_identifier(misc,"point",disabled_point_particles,"Point Particles disabled.",sizeof(disabled_point_particles));
 	add_xml_identifier(misc,"particles",disabled_particles_str,"Particles completely disabled!",sizeof(disabled_particles_str));
 	add_xml_identifier(misc,"net",failed_sdl_net_init,"Couldn't initialize net",sizeof(failed_sdl_net_init));
-	add_xml_identifier(misc,"timer",failed_sdl_timer_init,"Couldn't initialize the timer",sizeof(failed_sdl_timer_init));
+	add_xml_identifier(misc,"timer_fail",failed_sdl_timer_init,"Couldn't initialize the timer",sizeof(failed_sdl_timer_init));
 	add_xml_identifier(misc,"resolve",failed_resolve,"Can't resolve server address.\nPerhaps you are not connected to the Internet or your DNS server is down!",sizeof(failed_resolve));
 	add_xml_identifier(misc,"connect",failed_connect,"Can't connect to server :(",sizeof(failed_connect));
 	add_xml_identifier(misc,"redefine",redefine_your_colours,"You need to update your character, due to the new models!\nGo on the New Character screen, type your existing\nusername and password, update your character, then press\nDone. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*",sizeof(redefine_your_colours));
@@ -669,7 +668,7 @@ void init_errors()
 	add_xml_identifier(misc,"disconnect",disconnected_from_server,"Disconnected from server!",sizeof(disconnected_from_server));
 	add_xml_identifier(misc,"stat",stat_no_invalid,"Server sent invalid stat number",sizeof(stat_no_invalid));
 	add_xml_identifier(misc,"ascii",not_ascii,"Not ASCII",sizeof(not_ascii));
-	add_xml_identifier(misc,"timer",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", sizeof(timer_lagging_behind));
+	add_xml_identifier(misc,"timer_lag",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", sizeof(timer_lagging_behind));
 	add_xml_identifier(misc,"nameinuse",char_name_in_use,"Character name is already taken",sizeof(char_name_in_use));
 	add_xml_identifier(misc,"notabs",must_use_tabs,"You cannot disable tabbed windows with video mode %d, forcing them",sizeof(must_use_tabs));
 	add_xml_identifier (misc, "nomap", cant_change_map, "Unable to switch to map %s!", sizeof(cant_change_map));
@@ -778,7 +777,7 @@ void init_help()
 	add_xml_identifier(misc,"sigils",sig_too_few_sigs,"This spell requires at least 2 sigils",sizeof(sig_too_few_sigs));
 	add_xml_identifier(misc,"switch",switch_video_mode,"Switches to video mode %s",sizeof(switch_video_mode));
 	add_xml_identifier(misc,"cache",cache_size_str,"Cache size",sizeof(cache_size_str));
-	add_xml_identifier (misc, "appropriate_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 3 numbers, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
+	add_xml_identifier (misc, "appropr_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 2 digits, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Rightclick on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"you",you_str,"You",sizeof(you_str));
 	add_xml_identifier(misc,"accept",accept_str,"Accept",sizeof(accept_str));
@@ -806,9 +805,9 @@ void init_help()
 	add_xml_identifier(new,"passnomatch",error_pass_no_match,"Passwords don't match!",sizeof(error_pass_no_match));
 	add_xml_identifier(new,"passmatch",passwords_match,"Passwords are matching!",sizeof(passwords_match));
 	add_xml_identifier(new,"appearance",remember_change_appearance,"Remember to change your characters appearance before pressing \"Done\"",sizeof(remember_change_appearance));
-	add_xml_identifier(new,"max_digits",error_max_digits,"You can only have 3 digits in your name!",sizeof(error_max_digits));
+	add_xml_identifier(new,"max_digits",error_max_digits,"You can only have 2 digits in your name!",sizeof(error_max_digits));
 	add_xml_identifier(new,"max_length",error_length,"Names and passwords can max be 15 characters long",sizeof(error_length));
-	add_xml_identifier(new,"illegal_character",error_max_digits,"You have typed an illegal character!",sizeof(error_illegal_character));
+	add_xml_identifier(new,"illegal_char",error_illegal_character,"You have typed an illegal character!",sizeof(error_illegal_character));
 	add_xml_identifier(new,"p2p_race",p2p_race,"You have to pay to create a char with this race",sizeof(p2p_race));
 	add_xml_identifier(new,"char_help",char_help,"To costumize your character and select name/password, press the buttons at the bottom.",sizeof(char_help));
 	add_xml_identifier(new,"confirmcreate",error_confirm_create_char,"Click done again to create a character with that name and appearance.",sizeof(error_confirm_create_char));

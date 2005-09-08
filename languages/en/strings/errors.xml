@@ -24,7 +24,13 @@
     <noe3d>Couldn't read e3dlist.txt</noe3d>
     <elini>Couldn't read configuration file el.ini</elini>
     <invmap>%s is an invalid map!</invmap>
-  <parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><noteswrong>Document of the wrong type. It will be overwritten.</noteswrong><manynotes>Too many notes - Last nodes were ignored.</manynotes><notenode>Incorrect node type - could not copy.</notenode><savenotes>Unable to write notes to file %s</savenotes><exceednotes>Tried to exceed notepad buffer! Ignored.</exceednotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes><parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes></load>
+    <parsenotes>Unable to parse xml notepad. It will be overwritten.</parsenotes>
+    <noteswrong>Document of the wrong type. It will be overwritten.</noteswrong>
+    <manynotes>Too many notes - Last nodes were ignored.</manynotes>
+    <notenode>Incorrect node type - could not copy.</notenode>
+    <savenotes>Unable to write notes to file %s</savenotes>
+    <exceednotes>Tried to exceed notepad buffer! Ignored.</exceednotes>
+  </load>
   <misc>
     <error>Error</error>
     <objerr>Object error</objerr>
@@ -37,14 +43,10 @@
     <point>Point Particles disabled.</point>
     <particles>Particles completely disabled!</particles>
     <net>Couldn't initialize net</net>
-    <timer>Couldn't initialize the timer</timer>
+    <timer_fail>Couldn't initialize the timer</timer_fail>
     <resolve>Can't resolve server address.
 Perhaps you are not connected to the Internet or your DNS server is down!</resolve>
     <connect>Can't connect to server :(</connect>
-    <userlen>Username MUST be at least 3 characters long!</userlen>
-    <passlen>The password MUST be at least 4 characters long!</passlen>
-    <passnomatch>Passwords don't match!</passnomatch>
-    <wrongpass>Invalid password!</wrongpass>
     <redefine>You need to update your character, due to the new models!
 Go on the New Character screen, type your existing
 username and password, update your character, then press
@@ -57,9 +59,11 @@ Done. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*</redefine>
     <disconnect>Disconnected from server!</disconnect>
     <stat>Server sent invalid stat number</stat>
     <ascii>Not ASCII</ascii>
-    <timer>The %s timer was lagging severely behind or had stopped, restarted it</timer>
+    <timer_lag>The %s timer was lagging severely behind or had stopped, restarted it</timer_lag>
     <nameinuse>Character name is already taken</nameinuse>
-  <timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><notabs>You cannot disable tabbed windows with video mode %d, forcing them</notabs><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer><timer>The %s timer was lagging severely behind or had stopped, restarted it</timer></misc>
+    <notabs>You cannot disable tabbed windows with video mode %d, forcing them</notabs>
+    <nomap>Unable to switch to map %s!</nomap>
+  </misc>
   <particles>
     <version>Particle file %s version (%i) doesn't match file reader version (%i)!</version>
     <overrun>Particle file %s tries to define %i particles, when %i is the maximum!</overrun>
@@ -73,6 +77,7 @@ Done. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*</redefine>
     <particles>particles</particles>
   </particles>
   <snd>
+    <loadwav>Failed to load wav file %s</loadwav>
     <loadfile>Failed to load ogg file</loadfile>
     <loadstream>Failed to load ogg stream</loadstream>
     <buffer>Error creating buffer</buffer>
@@ -89,7 +94,13 @@ Done. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*</redefine>
     <header>Invalid Vorbis header.</header>
     <intern>Internal logic fault (bug or heap/stack corruptio</intern>
     <unknown>Unknown Ogg error.</unknown>
-  <loadwav>Failed to load wav file %s</loadwav></snd>
+    <false>Ogg error media false.</false>
+    <hole>Ogg error media hole.</hole>
+    <einval>Ogg error media EINVAL.</einval>
+    <eof>Ogg error media EOF.</eof>
+    <ebadlink>Ogg error media EBADLINK.</ebadlink>
+    <enoseek>Ogg error media ENOSEEK.</enoseek>
+  </snd>
   <video>
     <nostencil>Video mode %s with a stencil buffer is not available
 Trying this mode without a stencil buffer...</nostencil>
@@ -104,7 +115,7 @@ Shadows are not available.</nohwstencil>
 Trying to disable the stencil buffer.</swstencil>
     <last_try>Hmm... No luck without a stencil buffer either...
 Let's try one more thing...</last_try>
-    <swmode>Damn, it seems that you are out of luck, we are in the software mode now, so the game will be veeeeery slow. If you DO have a 3D accelerated card, try to updateIncrease</swmode>
+    <swmode>Damn, it seems that you are out of luck, we are in the software mode now, so the game will be veeeeery slow. If you DO have a 3D accelerated card, try to update your OpenGl drivers...</swmode>
     <extfound>%s extension found, using it.</extfound>
     <extnouse>%s extension found, NOT using it...</extnouse>
     <extnotfound>Couldn't find the %s extension, not using it...</extnotfound>
