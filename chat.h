@@ -10,6 +10,8 @@
 #define MAX_CHAT_TABS		7 /*!< Size of the \see channels array */
 #define MAX_ACTIVE_CHANNELS	3 /*!< Maximum number of channels in use */
 
+extern Uint8 current_channel;
+
 /*!
  * \ingroup chat_window
  * \brief   Sets the channels that the player is currently subscribed to

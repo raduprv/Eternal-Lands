@@ -322,6 +322,22 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 			if (msgs[imsg].data == NULL || imsg == msg_start) break;
 			ichar = 0;
+#ifdef MULTI_CHANNEL
+			if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3 && use_windowed_chat==1)
+			{
+				// when using the window, the input buffer does nasty things.
+				// if not using tabs or window, this isn't used at all(but if
+				// you're on several channels you're asking for problems anyway)
+				if (current_channel + CHAT_CHANNEL1 != msgs[imsg].chan_idx)
+				{
+					msgs[imsg].data[0] = (Uint8)(127+c_grey2);
+				}
+				else
+				{
+					msgs[imsg].data[0] = (Uint8)(127+c_grey1);
+				}
+			}
+#endif
 			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
 		}
 		
