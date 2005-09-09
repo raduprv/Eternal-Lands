@@ -114,6 +114,11 @@ particle_sys_def *load_particle_def(const char *filename)
 			return NULL;
 		}
 
+#ifdef NEW_CLIENT
+	// initialize defaults
+	def->sound_nr = -1;
+#endif
+	
 	fscanf(f,"%i\n",&version);
 
 	if(version!=PARTICLE_DEF_VERSION)
