@@ -120,6 +120,7 @@ int pf_find_path(int x, int y)
 {
 	actor *me;
 	int i;
+	int attempts= 0;
 
 	pf_destroy_path();
 	
@@ -144,7 +145,7 @@ int pf_find_path(int x, int y)
 	
 	pf_add_tile_to_open_list(NULL, pf_src_tile);
 	
-	while ((pf_cur_tile = pf_get_next_open_tile())) {
+	while ((pf_cur_tile = pf_get_next_open_tile()) && attempts++ < MAX_PATHFINDER_ATTEMPTS) {
 		if (pf_cur_tile == pf_dst_tile) {
 			pf_follow_path = 1;
 			

@@ -7,6 +7,14 @@
 #define __PATHFINDER_H__
 
 /*!
+ * \name Pathfinder limitting
+ * @{
+ *      This limits the number of attempts the pathfinder will make before giving up.
+ */
+#define	MAX_PATHFINDER_ATTEMPTS 50000
+/*! @} */
+
+/*!
  * \name Pathfinder states
  * @{
  *      This enumeration declares the different states the pathfinder can be in.
