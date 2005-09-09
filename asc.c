@@ -445,7 +445,7 @@ void get_string_digest(const Uint8 * string, Uint8 digest[16])
 }
 */
 
-#if defined(WINDOWS) && defined(_MSC_VER)
+#if defined(WINDOWS) && (defined(__MINGW32__) || defined(_MSC_VER))
 // the moronic _snprintf in MSVC doesn't necessarily terminate the string with
 // a NULL byte. This function should at least terminate the string, but does
 // not return the number of bytes that would have been written if the buffer
@@ -456,9 +456,14 @@ int sane_snprintf (char *str, size_t size, const char *format, ...)
 	int ret;
 	
 	va_start (ap, format);
+#ifdef __MINGW32__
+	ret = vsnprintf (str, size, format, ap);
+#else
 	ret = _vsnprintf (str, size - 1, format, ap);
+#endif
 	va_end (ap);
-	if (ret < 0) {
+	if (ret < 0 || ret >= size)
+	{
 		str[size-1] = '\0';
 		return size;
 	}
