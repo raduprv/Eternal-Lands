@@ -47,16 +47,12 @@ PF_TILE *pf_get_next_open_tile()
 	while (!done) {
 		i = j;
 		
-		if (2*i+1 <= pf_open.count) {
-			if (pf_open.tiles[i]->f >= pf_open.tiles[2*i]->f) {
+		if (2*i <= pf_open.count){
+			if (pf_open.tiles[i]->f > pf_open.tiles[2*i]->f) {
 				j = 2*i;
 			}
-			if (pf_open.tiles[j]->f >= pf_open.tiles[2*i+1]->f) {
+			if (2*i+1 <= pf_open.count && pf_open.tiles[j]->f > pf_open.tiles[2*i+1]->f) {
 				j = 2*i+1;
-			}
-		} else if (2*i <= pf_open.count) {
-			if (pf_open.tiles[i]->f >= pf_open.tiles[2*i]->f) {
-				j = 2*i;
 			}
 		}
 		
