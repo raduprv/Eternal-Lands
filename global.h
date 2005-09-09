@@ -21,6 +21,9 @@
 		#define ceilf ceil
 		#define rint(X) floor(X+0.5f)
 	#endif
+	#ifdef __MINGW32__
+		#define snprintf sane_snprintf
+	#endif
 #elif defined(OSX)
 	// XXX Grum: move these defs to a Makefile
 	#define EL_BIG_ENDIAN
