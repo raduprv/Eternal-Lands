@@ -63,11 +63,11 @@ void update_text_windows (text_message * pmsg)
 			lines_to_show += pmsg->wrap_lines;
 			if (lines_to_show > 10) lines_to_show = 10;
 			break;
-		case 1: 
-			update_tab_bar (pmsg); 
+		case 1:
+			update_tab_bar (pmsg);
 			break;
-		case 2: 
-			update_chat_window (pmsg, 1); 
+		case 2:
+			update_chat_window (pmsg, 1);
 			break;
 	}
 }
@@ -97,7 +97,7 @@ void write_to_log (Uint8 *data, int len)
 #endif
   		chat_log = my_fopen (chat_log_file, "a");
   		srv_log = my_fopen (srv_log_file, "a");
-			
+
 		if (chat_log == NULL || srv_log == NULL)
 		{
 			// quit to prevent error log filling up with messages
@@ -169,7 +169,7 @@ void send_input_text_line (char *line, int line_len)
 
 	if ( caps_filter && line_len > 4 && my_isupper (line, -1) )
 		my_tolower (line);
-		
+
 	i=0;
 	j=1;
 	if (line[0] != '/')	//we don't have a PM
@@ -181,7 +181,7 @@ void send_input_text_line (char *line, int line_len)
 		str[0] = SEND_PM;
 		i++;	// skip the leading /
 	}
-	
+
 	for ( ; i < line_len && j < sizeof (str) - 1; i++)	// copy it, but ignore the enter
 	{
 		ch = line[i];
@@ -190,7 +190,7 @@ void send_input_text_line (char *line, int line_len)
 			str[j] = ch;
 			j++;
 		}
-	}	
+	}
 	str[j] = 0;	// always a NULL at the end
 
 	len = strlen (&str[1]);
@@ -198,7 +198,7 @@ void send_input_text_line (char *line, int line_len)
 	{
 		//we got a nasty error, log it
 	}
-	
+
 	return;
 }
 
@@ -226,10 +226,10 @@ int filter_or_ignore_text (unsigned char *text_to_add, int len)
 		type = 1;
 	else if (len >= 13 && strncasecmp (&text_to_add[1], "[Mod PM from", 12) == 0)
 		type = 2;
-		
+
 	if (pre_check_if_ignored (text_to_add, len, type))
 		return 0;
-		
+
 	//All right, we do not ignore the person
 	if (afk)
 	{
@@ -254,27 +254,40 @@ int filter_or_ignore_text (unsigned char *text_to_add, int len)
 				send_afk_message (&text_to_add[1], len - 1, type);
 		}
 	}
-	
+
 	// parse for URLs
 	find_last_url (text_to_add, len);
-	
+
 	// look for buddy-wants-to-add-you messages
 	if(text_to_add[0] == c_green1+127)
 	{
-		char name[32];
-	
 		for (l = 1; l < len; l++)
 		{
 			if (text_to_add[l] == ' ') break;
 		}
-		if (len - l >= 35 && strncmp (&text_to_add[l], " wants to add you on his buddy list", 35) == 0 && l <= sizeof (name))
+		if (len - l >= 35 && strncmp (&text_to_add[l], " wants to add you on his buddy list", 35) == 0 && l <=32)
 		{
 			char name[32];
+			int i;
+			int cur_char;
+			/*entropy says: I really fail to understand the logic of that snprintf. And gcc can't understand it either
+			because the name is corrupted. so we implement it the old fashioned way.
 			snprintf (name, l, "%s", &text_to_add[1]);
-			add_buddy_confirmation (name);
+			*/
+			for(i=0;i<32;i++)
+				{
+					cur_char=text_to_add[i+1];
+					name[i]=cur_char;
+					if(cur_char==' ')
+						{
+							name[i]=0;
+							break;
+						}
+				}
+			add_buddy_confirmation(name);
 		}
 	}
-	
+
 	// filter any naughty words out
 	return filter_text (text_to_add, len);
 }
@@ -285,11 +298,11 @@ void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len)
 }
 
 //-- Logan Dugenoux [5/26/2004]
-// Checks chat string, if it begins with an actor name, 
+// Checks chat string, if it begins with an actor name,
 // and the actor is displayed, put said sentence into an overtext bubble
 #define ALLOWED_CHAR_IN_NAME(_x_)		(isalnum(_x_)||(_x_=='_'))
 void check_chat_text_to_overtext (const unsigned char *text_to_add, int len)
-{	
+{
 	if (!view_chat_text_as_overtext)
 		return;		// disabled
 
@@ -313,7 +326,7 @@ void check_chat_text_to_overtext (const unsigned char *text_to_add, int len)
 			}
 			i++;
 		}
-		
+
 		if (i < len)
 		{
 			playerName[j] = '\0';
@@ -337,7 +350,7 @@ void check_chat_text_to_overtext (const unsigned char *text_to_add, int len)
 				{
 					actorName[j] = actors_list[i]->actor_name[j];
 					j++;
-					if ( j >= sizeof (actorName) ) 
+					if ( j >= sizeof (actorName) )
 						return;	// over buffer
 				}
 				actorName[j] = '\0';
@@ -354,9 +367,9 @@ void check_chat_text_to_overtext (const unsigned char *text_to_add, int len)
 int put_char_in_buffer (text_message *buf, Uint8 ch, int pos)
 {
 	int i, nlen;
-	
+
 	if (pos < 0 || pos > buf->len || pos >= buf->size) return 0;
-	
+
 	// First shift everything after pos to the right
 	nlen = buf->len + 1;
 	if (nlen >= buf->size)
@@ -364,7 +377,7 @@ int put_char_in_buffer (text_message *buf, Uint8 ch, int pos)
 	buf->data[nlen] = '\0';
 	for (i = nlen - 1; i > pos; i--)
 		buf->data[i] = buf->data[i-1];
-	
+
 	// insert the new character, and update the length
 	buf->data[pos] = ch;
 	buf->len = nlen;
@@ -376,7 +389,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 {
 	int nr_free, nr_paste, ib, jb, nb;
 	Uint8 ch;
-	
+
 	if (pos < 0 || pos > buf->len) return 0;
 	if (str == NULL) return 0;
 
@@ -389,7 +402,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 		if (IS_PRINT (ch))
 			nr_paste++;
 	}
-	
+
 	if (nr_paste == 0) return 0;
 
 	// now move the characters right of the cursor (if any)
@@ -402,7 +415,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 	}
 	buf->data[pos+nb+nr_paste] = '\0';
 	buf->len = pos+nb+nr_paste;
-	
+
 	// insert the pasted text
 	jb = 0;
 	for (ib = 0; str[ib]; ib++)
@@ -415,7 +428,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 		}
 	}
 
-	return nr_paste;	
+	return nr_paste;
 }
 
 void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len)
@@ -425,14 +438,14 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	Uint32 cnr = 0, ibreak = -1;
 
 	check_chat_text_to_overtext (text_to_add, len);
-	
+
 	// check for auto-length
 	if (len < 0)
 		len = strlen (text_to_add);
 
 	// set the time when we got this message
 	last_server_message_time = cur_time;
-	
+
 	if (++last_message >= DISPLAY_TEXT_BUFFER_SIZE)
 	{
 		buffer_full = 1;
@@ -449,7 +462,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 
 	// Allow for a null byte and up to 8 extra newlines and colour codes.
 	minlen = len + 18;
-#ifdef MULTI_CHANNEL	
+#ifdef MULTI_CHANNEL
 	cnr = get_active_channel (channel);
 	if (cnr != 0)
 		// allow some space for the channel number
@@ -469,7 +482,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			if (text_to_add[ibreak] == ']') break;
 		}
 	}
-	
+
 	if (ibreak < 0 || ibreak >= len)
 	{
 		// not a channel, or something's messed up
@@ -491,7 +504,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			snprintf (nr_str, sizeof (nr_str), "guild");
 		else
 			snprintf (nr_str, sizeof (nr_str), "%u", cnr);
-		
+
 		if(!IS_COLOR(text_to_add[0]))
 		{
 			// force the color
@@ -503,9 +516,9 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			snprintf(msg->data, minlen, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
 		}
 	}
-	
+
 	msg->len = strlen (msg->data);
-	
+
 #ifndef MULTI_CHANNEL
 	if (use_windowed_chat != 0)
 	{
@@ -515,7 +528,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		{
 			// Personal message
 			channel = CHAT_PERSONAL;
-		} 
+		}
 		else if (msg->data[0] == 127+c_blue2)
 		{
 			if (strncmp (&(msg->data[1]), "#GM ", 4) == 0)
@@ -546,7 +559,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		}
 	}
 #endif
-	
+
 	msg->chan_idx = channel;
 
 	// set invalid wrap data to force rewrapping
@@ -556,17 +569,17 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 
 	msg->deleted = 0;
 	update_text_windows(msg);
-	
+
 	return;
 }
 
-void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, 
+void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit,
 						   char *buffer)
 {
 	put_small_colored_text_in_box(c_grey1, text_to_add, len, pixels_limit, buffer);
 }
 
-void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len, 
+void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len,
 								   int pixels_limit, char *buffer)
 {
 	int i;
@@ -685,7 +698,7 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter)
 		last_server_message_time = cur_time;
 	}
 	if (lines_to_show <= 0) return 0;
-	
+
 	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, filter, msg, offset, chat_zoom, console_text_width);
 }
 
@@ -696,12 +709,12 @@ int find_last_console_lines (int lines_no)
 
 int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, float zoom, int width)
 {
-	int line_count = 0, lines_no = nr_lines - line;	
+	int line_count = 0, lines_no = nr_lines - line;
 	int imsg, ichar;
 	char *data;
 
 	imsg = last_message;
-	do 
+	do
 	{
 		int msgchan = display_text_buffer[imsg].chan_idx;
 
@@ -723,7 +736,7 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 				// Hmmm... we messed up. This should not be
 				// happening.
 				break;
-			
+
 			for (ichar = display_text_buffer[imsg].len - 1; ichar >= 0; ichar--)
 			{
 				if (data[ichar] == '\n' || data[ichar] == '\r')
@@ -736,7 +749,7 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 						return 1;
 					}
 				}
-			}		
+			}
 
 			line_count++;
 			if (line_count >= lines_no)
@@ -750,7 +763,7 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 		if (--imsg < 0 && buffer_full)
 			imsg = DISPLAY_TEXT_BUFFER_SIZE - 1;
 	} while (imsg >= 0 && imsg != last_message);
-	
+
 	*msg = 0;
 	*offset = 0;
 	return 1;
@@ -761,12 +774,12 @@ void console_move_up ()
 	int nl_found, ichar;
 	int max_lines;
 
-	// get the number of lines we have - the last one, which is the 
+	// get the number of lines we have - the last one, which is the
 	// command line
 	max_lines = (window_height - hud_y) / 18 - 1;
 	if (not_from_the_end_console) max_lines--;
 
-	// if we have less lines of text than the max lines onscreen, don't 
+	// if we have less lines of text than the max lines onscreen, don't
 	// scroll up
 	if (total_nr_lines > max_lines)
 	{
@@ -784,16 +797,16 @@ void console_move_up ()
 					nl_found = 1;
 				}
 			}
-			if (nl_found) 
+			if (nl_found)
 			{
 				console_msg_offset = ichar + 1;
 				return;
 			}
-			if (--console_msg_nr < 0 && buffer_full) 
+			if (--console_msg_nr < 0 && buffer_full)
 				console_msg_nr = DISPLAY_TEXT_BUFFER_SIZE - 1;
 			nl_found = 1;
 		}
-	}		
+	}
 }
 
 
@@ -803,18 +816,18 @@ void console_move_down ()
 	int max_lines;
 	char *data = display_text_buffer[console_msg_nr].data;
 
-	if (!not_from_the_end_console) 
+	if (!not_from_the_end_console)
 		// we can't scroll down anymore
 		return;
 
 	// get the number of lines we have on screen
 	max_lines = (window_height-hud_y)/18 - 1;
 	max_lines--;
-	
+
 	for (ichar = console_msg_offset; data[ichar] != '\0'; ichar++)
 		if (data[ichar] == '\n' || data[ichar] == '\r')
 			break;
-	
+
 	if (data[ichar] == '\n' || data[ichar] == '\r')
 	{
 		console_msg_offset = ichar + 1;
@@ -825,7 +838,7 @@ void console_move_down ()
 			console_msg_nr = 0;
 		console_msg_offset = 0;
 	}
-	
+
 	if (console_msg_nr == last_message)
 	{
 		data = display_text_buffer[console_msg_nr].data;
@@ -871,9 +884,9 @@ void display_console_text ()
 	int command_line_y;
 	int nr_command_lines = 1;
 	int i;
-	
+
 	for (i = 0; input_text_line.data[i] != '\0'; i++)
-		if (input_text_line.data[i] == '\n' || input_text_line.data[i] == '\r') 
+		if (input_text_line.data[i] == '\n' || input_text_line.data[i] == '\r')
 			nr_command_lines++;
 
 	//get the number of lines we have - the last one, which is the command line
@@ -885,7 +898,7 @@ void display_console_text ()
 		find_last_console_lines (max_lines);
 
 	draw_messages (0, 0, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, console_msg_nr, console_msg_offset, -1, window_width, 17*max_lines, 1.0);
-	
+
 	glColor3f (1.0f, 1.0f, 1.0f);
 	if (not_from_the_end_console)
 		draw_string (0, command_line_y - 18, "^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^", 2);
@@ -896,29 +909,29 @@ void display_console_text ()
 void clear_display_text_buffer ()
 {
 	int imsg;
-	
+
 	for (imsg = 0; imsg < DISPLAY_TEXT_BUFFER_SIZE; imsg++)
 	{
 		if (display_text_buffer[imsg].data)
 			display_text_buffer[imsg].data[0] = '\0';
 		display_text_buffer[imsg].len = 0;
 	}
-	
+
 	last_message = -1;
 	buffer_full = 0;
-	
+
 	console_msg_nr = 0;
 	console_msg_offset = 0;
 
 	last_server_message_time = cur_time;
 	lines_to_show = 0;
-	
+
 	not_from_the_end_console = 0;
 }
 
 int rewrap_message(text_message * msg, float zoom, int width, int * cursor) {
 	int nlines;
-	
+
 	if (msg->wrap_width != width || msg->wrap_zoom != zoom) {
 		if (msg->chan_idx != CHAT_NONE) total_nr_lines -= msg->wrap_lines;
  		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, zoom, width, cursor);
