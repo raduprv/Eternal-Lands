@@ -663,7 +663,7 @@ int keypress_items_handler(window_info * win, int x, int y, Uint32 key, Uint32 k
 
 int drop_all_handler ()
 {
-	Uint8 str[4] = {0};
+	Uint8 str[6] = {0};
 #ifndef SERVER_DROP_ALL
 	int i;
 
