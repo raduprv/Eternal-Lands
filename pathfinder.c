@@ -15,6 +15,7 @@ SDL_TimerID pf_movement_timer = NULL;
 int pf_is_tile_occupied(int x, int y);
 Uint32 pf_movement_timer_callback(Uint32 interval, void *param);
 
+#ifdef  NO_PF_MACRO
 PF_TILE *pf_get_tile(int x, int y)
 {
 	if (x >= tile_map_size_x*6 || y >= tile_map_size_y*6 || x < 0 || y < 0) {
@@ -22,6 +23,9 @@ PF_TILE *pf_get_tile(int x, int y)
 	}
 	return &pf_tile_map[y*tile_map_size_x*6+x];
 }
+#else
+#define pf_get_tile(x, y) (((x) >= tile_map_size_x*6 || (y) >= tile_map_size_y*6)?NULL:&pf_tile_map[(y)*tile_map_size_x*6+(x)])
+#endif
 
 PF_TILE *pf_get_next_open_tile()
 {
