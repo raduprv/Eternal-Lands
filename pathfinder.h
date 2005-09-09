@@ -11,7 +11,7 @@
  * @{
  *      This limits the number of attempts the pathfinder will make before giving up.
  */
-#define	MAX_PATHFINDER_ATTEMPTS 50000
+#define	MAX_PATHFINDER_ATTEMPTS 30000
 /*! @} */
 
 /*!
@@ -39,7 +39,7 @@ typedef struct
 
 	Uint8 state; /*!< the current state pathfinder states */
 	Uint8 z;
-	
+
 	void *parent;
 } PF_TILE;
 
@@ -127,7 +127,7 @@ void pf_move_to_mouse_position();
  *
  *      Calculates the tile coordinates of the given mouse position.
  *      If the return value is zero, *px and *py are undefined.
- *      
+ *
  * \param mouse_x  x coordinate of mouse
  * \param mouse_y  y coordinate of mouse
  * \param px       return address for x tile coordinate

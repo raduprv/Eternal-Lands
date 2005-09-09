@@ -16,7 +16,7 @@ int pf_is_tile_occupied(int x, int y);
 Uint32 pf_movement_timer_callback(Uint32 interval, void *param);
 
 #ifdef  NO_PF_MACRO
-PF_TILE *pf_get_tile(int x, int y)
+__inline__ PF_TILE *pf_get_tile(int x, int y)
 {
 	if (x >= tile_map_size_x*6 || y >= tile_map_size_y*6 || x < 0 || y < 0) {
 		return NULL;
@@ -31,31 +31,37 @@ PF_TILE *pf_get_next_open_tile()
 {
 	PF_TILE *tmp, *ret = NULL;
 	int i, j, done = 0;
-	
+
 	if (pf_open.count == 0) {
 		return NULL;
 	}
-	
+
 	ret = pf_open.tiles[1];
-	
+
 	ret->state = PF_STATE_CLOSED;
-	
+
 	pf_open.tiles[1] = pf_open.tiles[pf_open.count--];
-	
+
 	j = 1;
-	
+
 	while (!done) {
 		i = j;
-		
+<<<<<<< pathfinder.c
+
+		if (2*i+1 <= pf_open.count) {
+			if (pf_open.tiles[i]->f >= pf_open.tiles[2*i]->f) {
+=======
+
 		if (2*i <= pf_open.count){
 			if (pf_open.tiles[i]->f > pf_open.tiles[2*i]->f) {
+>>>>>>> 1.32
 				j = 2*i;
 			}
 			if (2*i+1 <= pf_open.count && pf_open.tiles[j]->f > pf_open.tiles[2*i+1]->f) {
 				j = 2*i+1;
 			}
 		}
-		
+
 		if (i != j) {
 			tmp = pf_open.tiles[i];
 			pf_open.tiles[i] = pf_open.tiles[j];
@@ -75,19 +81,19 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 	if (!neighbour || neighbour->z == 0 || (current && PF_DIFF(current->z, neighbour->z) > 2)) {
 		return;
 	}
-	
+
 	if (current) {
 		int f, g, h;
 		int diagonal = (neighbour->x != current->x && neighbour->y != current->y);
-		
+
 		g = current->g + (diagonal ? 14 : 10);
 		h = PF_HEUR(neighbour, pf_dst_tile);
 		f = g + h;
-		
+
 		if (neighbour->state != PF_STATE_NONE && f >= neighbour->f) {
 			return;
 		}
-		
+
 		neighbour->f = f;
 		neighbour->g = g;
 		neighbour->parent = current;
@@ -96,12 +102,12 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 		neighbour->g = 0;
 		neighbour->parent = NULL;
 	}
-		
+
 	if (neighbour->state != PF_STATE_OPEN) {
 		neighbour->open_pos = ++pf_open.count;
 		pf_open.tiles[neighbour->open_pos] = neighbour;
 	}
-	
+
 	while (neighbour->open_pos > 1) {
 		if (pf_open.tiles[neighbour->open_pos]->f <= pf_open.tiles[neighbour->open_pos/2]->f) {
 			tmp = pf_open.tiles[neighbour->open_pos/2];
@@ -112,7 +118,7 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 			break;
 		}
 	}
-	
+
 	neighbour->state = PF_STATE_OPEN;
 }
 
@@ -123,11 +129,11 @@ int pf_find_path(int x, int y)
 	int attempts= 0;
 
 	pf_destroy_path();
-	
+
 	if (!(me = pf_get_our_actor())) {
 		return -1;
 	}
-	
+
 	pf_src_tile = pf_get_tile(me->x_tile_pos, me->y_tile_pos);
 	pf_dst_tile = pf_get_tile(x, y);
 
@@ -142,18 +148,18 @@ int pf_find_path(int x, int y)
 
 	pf_open.tiles = (PF_TILE **)calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE*));
 	pf_open.count = 0;
-	
+
 	pf_add_tile_to_open_list(NULL, pf_src_tile);
-	
+
 	while ((pf_cur_tile = pf_get_next_open_tile()) && attempts++ < MAX_PATHFINDER_ATTEMPTS) {
 		if (pf_cur_tile == pf_dst_tile) {
 			pf_follow_path = 1;
-			
+
 			pf_movement_timer_callback(0, NULL);
 			pf_movement_timer = SDL_AddTimer(2500, pf_movement_timer_callback, NULL);
 			break;
 		}
-		
+
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x, pf_cur_tile->y+1));
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x+1, pf_cur_tile->y+1));
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x+1, pf_cur_tile->y));
@@ -163,9 +169,9 @@ int pf_find_path(int x, int y)
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x-1, pf_cur_tile->y));
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x-1, pf_cur_tile->y+1));
 	}
-	
+
 	free(pf_open.tiles);
-	
+
 	return pf_follow_path;
 }
 
@@ -191,16 +197,16 @@ void pf_move()
 	if (!pf_follow_path || !(me = pf_get_our_actor())) {
 		return;
 	}
-	
+
 	x = me->x_tile_pos;
 	y = me->y_tile_pos;
-	
+
 	if (PF_DIFF(x, pf_dst_tile->x) < 2 && PF_DIFF(y, pf_dst_tile->y) < 2) {
 		pf_destroy_path();
 	} else {
 		PF_TILE *t = pf_get_tile(x, y);
 		int i = 0, j = 0;
-		
+
 		for (pf_cur_tile = pf_dst_tile; pf_cur_tile; pf_cur_tile = pf_cur_tile->parent) {
 			if (pf_cur_tile == t) {
 				break;
@@ -230,7 +236,7 @@ void pf_move()
 			if (PF_DIFF(x, pf_cur_tile->x) <= 12 && PF_DIFF(y, pf_cur_tile->y) <= 12
 			&& !pf_is_tile_occupied(pf_cur_tile->x, pf_cur_tile->y)) {
 				Uint8 str[5];
-				
+
 				str[0] = MOVE_TO;
 				*((short *)(str+1)) = SDL_SwapLE16((short)pf_cur_tile->x);
 				*((short *)(str+3)) = SDL_SwapLE16((short)pf_cur_tile->y);
@@ -252,7 +258,7 @@ int pf_is_tile_occupied(int x, int y)
 			}
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -263,7 +269,7 @@ Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
 	e.type = SDL_USEREVENT;
 	e.user.code = EVENT_MOVEMENT_TIMER;
 	SDL_PushEvent(&e);
-	
+
 	return interval;
 }
 
@@ -271,10 +277,10 @@ int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py)
 {
 	int min_mouse_x = (window_width-hud_x)/6;
 	int min_mouse_y = 0;
-	
+
 	int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
 	int max_mouse_y = window_height - hud_y;
-	
+
 	int screen_map_width = max_mouse_x - min_mouse_x;
 	int screen_map_height = max_mouse_y - min_mouse_y;
 
@@ -284,7 +290,7 @@ int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py)
 	|| mouse_y > max_mouse_y) {
 		return 0;
 	}
-	
+
 	*px = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
 	*py = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
 	return 1;
@@ -295,11 +301,11 @@ void pf_move_to_mouse_position()
 	int x, y, clicked_x, clicked_y;
 	if (!pf_get_mouse_position(mouse_x, mouse_y, &clicked_x, &clicked_y)) return;
 	x = clicked_x; y = clicked_y;
-	
+
 	if (pf_find_path(x, y)) {
 		return;
 	}
-	
+
 	for (x = clicked_x-3; x <= clicked_x+3 ; x++) {
 		for (y = clicked_y-3; y <= clicked_y+3; y++) {
 			if (x == clicked_x && y == clicked_y) {
