@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "global.h"
 #include "elwindows.h"
 #ifdef NETWORK_THREAD
@@ -229,6 +230,10 @@ void connect_to_server()
 	send_version_to_server(&ip);
 	last_heart_beat=cur_time;
 	hide_window(trade_win);
+	//For the buddy notifications
+	if(time(NULL) > c_time) {
+		time(&c_time);//note the current time
+	}
 }
 
 void send_login_info()

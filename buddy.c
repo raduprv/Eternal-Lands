@@ -166,7 +166,7 @@ void init_buddy()
 	}
 	queue_initialise(&buddy_request_queue);
 	time(&c_time);//note the current time
-	c_time+=5;
+	c_time += 10;
 }
 
 /*
