@@ -46,15 +46,8 @@ PF_TILE *pf_get_next_open_tile()
 
 	while (!done) {
 		i = j;
-<<<<<<< pathfinder.c
-
-		if (2*i+1 <= pf_open.count) {
-			if (pf_open.tiles[i]->f >= pf_open.tiles[2*i]->f) {
-=======
-
 		if (2*i <= pf_open.count){
 			if (pf_open.tiles[i]->f > pf_open.tiles[2*i]->f) {
->>>>>>> 1.32
 				j = 2*i;
 			}
 			if (2*i+1 <= pf_open.count && pf_open.tiles[j]->f > pf_open.tiles[2*i+1]->f) {
