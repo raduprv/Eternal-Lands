@@ -54,13 +54,16 @@ int display_map_handler ()
 int mouseover_map_handler (window_info *win, int mx, int my)
 {
 	float scale = (float) (win->len_x-hud_x) / 300.0f;
-	
+
 	if (mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
+	{
 		mouse_over_minimap = 1;
+	}
 	else
+	{
 		mouse_over_minimap = 0;
-	
-	return 1;
+	}
+	return mouse_over_minimap;
 }	
 
 int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
@@ -135,7 +138,8 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	return 1;
 }
 
-int show_map_handler (window_info *win) {
+int show_map_handler (window_info *win)
+{
 	hide_window(book_win);
 	hide_window(paper_win);
 	hide_window(color_race_win);

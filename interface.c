@@ -386,14 +386,14 @@ void read_mapinfo ()
 			else
 				// not a valid continent
 				continue;
-				
+
 			if (imap >= maps_size - 1)
 			{
 				// Uh oh, we didn't allocate enough space
 				maps_size += DEFAULT_CONTMAPS_SIZE;
 				continent_maps = realloc (continent_maps, maps_size * sizeof (struct draw_map));
 			}
-				
+
 			continent_maps[imap].cont = continent;
 			continent_maps[imap].x_start = x_start;
 			continent_maps[imap].y_start = y_start;
@@ -447,7 +447,10 @@ int switch_to_game_map()
 		old_cont = cur_cont;
 	}
 	
-	if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
+	if(current_cursor != CURSOR_ARROW)
+	{
+		change_cursor(CURSOR_ARROW);
+	}
 	return 1;
 }
 
