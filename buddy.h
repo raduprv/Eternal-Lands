@@ -5,6 +5,7 @@
  */
 #ifndef __BUDDY_H__
 #define __BUDDY_H__
+#include <time.h>
 #include "queue.h"
 
 /*!
