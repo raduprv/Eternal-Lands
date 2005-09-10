@@ -24,7 +24,7 @@ __inline__ PF_TILE *pf_get_tile(int x, int y)
 	return &pf_tile_map[y*tile_map_size_x*6+x];
 }
 #else
-#define pf_get_tile(x, y) (((x) >= tile_map_size_x*6 || (y) >= tile_map_size_y*6 || ((Sint16)(x)) < 0 || ((Sint16)(y)) < 0) ? NULL : &pf_tile_map[(y)*tile_map_size_x*6+(x)])
+#define pf_get_tile(x, y) (((x) >= tile_map_size_x*6 || (y) >= tile_map_size_y*6 || ((Sint32)(x)) < 0 || ((Sint32)(y)) < 0) ? NULL : &pf_tile_map[(y)*tile_map_size_x*6+(x)])
 #endif
 
 PF_TILE *pf_get_next_open_tile()
@@ -153,11 +153,11 @@ int pf_find_path(int x, int y)
 			break;
 		}
 
-		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x, pf_cur_tile->y+1));
+		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x,   pf_cur_tile->y+1));
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x+1, pf_cur_tile->y+1));
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x+1, pf_cur_tile->y));
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x+1, pf_cur_tile->y-1));
-		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x, pf_cur_tile->y-1));
+		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x,   pf_cur_tile->y-1));
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x-1, pf_cur_tile->y-1));
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x-1, pf_cur_tile->y));
 		pf_add_tile_to_open_list(pf_cur_tile, pf_get_tile(pf_cur_tile->x-1, pf_cur_tile->y+1));
@@ -292,6 +292,8 @@ int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py)
 void pf_move_to_mouse_position()
 {
 	int x, y, clicked_x, clicked_y;
+	int tries;
+	
 	if (!pf_get_mouse_position(mouse_x, mouse_y, &clicked_x, &clicked_y)) return;
 	x = clicked_x; y = clicked_y;
 
@@ -299,14 +301,18 @@ void pf_move_to_mouse_position()
 		return;
 	}
 
-	for (x = clicked_x-3; x <= clicked_x+3 ; x++) {
-		for (y = clicked_y-3; y <= clicked_y+3; y++) {
+	for (x= clicked_x-3, tries= 0; x <= clicked_x+3 && tries < 4 ; x++) {
+		for (y= clicked_y-3; y <= clicked_y+3 && tries < 4; y++) {
 			if (x == clicked_x && y == clicked_y) {
 				continue;
 			}
-			if (pf_find_path(x, y)) {
-				return;
-			}
+			pf_dst_tile = pf_get_tile(x, y);
+			if(pf_dst_tile && pf_dst_tile->z > 0){
+				if (pf_find_path(x, y)) {
+					return;
+				}
+				tries++;
+		}
 		}
 	}
 }

@@ -11,7 +11,7 @@
  * @{
  *      This limits the number of attempts the pathfinder will make before giving up.
  */
-#define	MAX_PATHFINDER_ATTEMPTS 30000
+#define	MAX_PATHFINDER_ATTEMPTS 200000
 /*! @} */
 
 /*!
