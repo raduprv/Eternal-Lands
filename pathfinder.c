@@ -24,7 +24,7 @@ __inline__ PF_TILE *pf_get_tile(int x, int y)
 	return &pf_tile_map[y*tile_map_size_x*6+x];
 }
 #else
-#define pf_get_tile(x, y) (((x) >= tile_map_size_x*6 || (y) >= tile_map_size_y*6)?NULL:&pf_tile_map[(y)*tile_map_size_x*6+(x)])
+#define pf_get_tile(x, y) (((x) >= tile_map_size_x*6 || (y) >= tile_map_size_y*6 || ((int)(x)) < 0 || ((int)(y)) < 0 )?NULL:&pf_tile_map[(y)*tile_map_size_x*6+(x)])
 #endif
 
 PF_TILE *pf_get_next_open_tile()
