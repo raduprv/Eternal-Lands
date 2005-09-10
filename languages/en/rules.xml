@@ -5,90 +5,129 @@
 		</short>
 	</info>
 	<rule>
-		<short>Do not SPAM. </short>
-		<long>SPAM means, in this context, either advertising something multiple times, or simply repeat the same message (or lack of message (such as empty spaces)) over and over, flooding people's screen.</long>
+		<short>Use Appropriate language.</short>
+		<long>Do not use language which is sexually explicit, threatening, abusive, defamatory, obscene, hateful, racially, ethnically or otherwise offensive.This includes both clear and implied language, images, or links to websites with such content. This includes purposeful variances upon the spelling of such content for the purpose of bypassing the filters.</long>
 	</rule>
 	<rule>
-		<short>No prophanity or sexual references...</short>
-		<long>Do NOT use profanity or sexual references on the channels or local talk, unless the channel number is over 100, or is 11 (11 is the flaming channel).</long>
+		<short>No Harassment.</short>
+		<long>Harassment is not limited to the type of language used; it encompasses the intent. This includes both clear and implied language or actions that are systematically and/or continually unwanted and annoying. This further includes the distribution, release or discussion of any real-life, personal, or private information about other players, moderators or volunteers of Eternal Lands. Repeatedly targeting a specific player or persons with harassment will result in severe consequences.</long>
 	</rule>
 	<rule>
-		<short>Do not insult people</short>
-		<long>Unless you have their consent, and it's not in a populated area.</long>
+		<short>Respect Others.</short>
+		<long>You must respect the rights of others and their rights to enjoy this game.
+In order to show proper respect, you may not defraud, harass, threaten, insult, name call, or cause distress and/or unwanted attention to other members, moderators, volunteers, or developers.
+Do not advocate, start or participate in any discussions that are racist, sexist, anti-religious, anti-ethnic, anti-gay or other hatemongering philosophies, or anything that is sexually explicit in public. Do not organize nor be a part of any guilds or groups within Eternal Lands or their forums that do so.
+Do not patronize, mislead, or take advantage of people as they become acquainted with the environment and make beginner's mistakes.</long>
 	</rule>
 	<rule>
-		<short>Do not swear</short>
-		<long>Some vulgar language is allowed, if not used too much. For example, saying "FU CK YOU ALL" is not permited, but saying something like; "Fuck, that goblin pawned me" is acceptable, unless you spam, and as stated above, it's not to be used on the first channels. Use common sense.</long>
+		<short>Do Not Give Out Your Password.</short>
+		<long>Once you give your password out to anyone, even for the purpose of character sharing, you relinquish all rights to that character. Eternal Lands is not responsible for the return of your character or account, or for the actions of your character once you have disclosed your password.</long>
 	</rule>
 	<rule>
-		<short>Do NOT block resources</short>
-		<long>(such as ships, doors, bridges etc.) This is VERY bad, and if you do it, you get banned instantly.</long>
+		<short>Do not cheat.</short>
+		<long>Cheating in the game means AFK fighting(AFK=Away From Keyboard), AFK leveling in any skill, AFK harvesting, illegal bots, creating illegal clients, macroing, automating, exploiting bugs, muling, or any other form of illegal multi-playing*.
+To use a bot, it must be registered and approved; it must adhere to the rules of the client's lisence and all your code must be open source. If you find a bug in the game, you must tell the owners of Eternal Lands immediately.
+*Illegal multi-playing includes but is not limited to: muling, deathbag sitting, pvp training, luring people to pk maps with a newbie chararacter while lying in wait with another. Also note that it is very difficult to be able to define each and every form of illegal multi-playing or cheating, so these matters will be reveiwed and punishments decided upon on a case by case basis.</long>
 	</rule>
 	<rule>
-		<short>Do not use macroing/scripting/automate</short>
-		<long>This is very annoying, and it will most likely get you banned, if we discover it.</long>
+		<short>Use Appropriate Names.</short>
+		<long>Please do not create a name that is obscene, vulgar, profane, offensive, is utterly senseless and stupid (e.g. dfjritq47fa), or is made with the intent of impersonation. Names must be pronouncable words, not abbreviations, initials, or random letters; with or without numbers attached. Amount of non-alphabetic characters can never exceed the amount of letters, and is limited to 2 maximum.
+		Take into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked no matter how much time you have spent in the game.</long>
 	</rule>
 	<rule>
-		<short>No offtopic chat in newbie and trade channel</short>
-		<long>Only SOME offtopic chat in the newbie channel and marketing channel will be allowed. Marketing channel is much stricter then the newbie channel. The general chat is channel 4.</long>
+		<short>No Impersonations.</short>
+		<long>Do not impersonate any Eternal Lands owners, developers, moderators, players, bots, npc's, or guild. This includes creating similar variances upon names in order to deceive, misrepresent or post false information to others. Also do not pretend to be a bot.</long>
 	</rule>
 	<rule>
-		<short>Do NOT harass people.</short>
-		<long></long>
+		<short>No Character Creation Spamming.</short>
+		<long>Do not attempt to spam character creation by creating numerous characters with similar names (i.e. Player1, Player2, Player3) or by creating numerous characters in a short period of time.</long>
 	</rule>
 	<rule>
-		<short>No multiple accounts on at the same time, that help each other. </short>
-		<long>That is, it's OK to have two characters online, if one stays and does nothing, or does something totally different than the other, and they don't interact (trade, exchanging items, train on each other, etc.). Doing so can make you lose your characters and even get you banned.</long>
+		<short>No Linking To Inappropriate Websites.</short>
+		<long>Do not post URLs to sexually explicit, obscene, or vulgar sites. These would be considered "X rated". If the site contains questionable material, something that would be considered "R rated", then you must give a warning before posting it. Do not post or discuss links to cheats, illegal clients, hacks, or malicious viruses or programs, or any sites that would themselves be illegal or promote illegal activites.</long>
 	</rule>
 	<rule>
-		<short>No obscene names, no attempts to impersonate some staff member, no offensive names</short>
-		<long>Also no utterly stupid spam names such as 0000000000 or AAAAAAAAA, etc. No characters whose sole purpose is their name (i.e. "runescape_is_cool" or "I_{love,hate}_[person's name]"). No spaming character creations by creating a lot of characters with similar names, or creating a lot of characters in a short period of time.</long>
+		<short>Sell And Trade At Your Own Risk.</short>
+		<long>Eternal Lands will not be held responsible for any transactions dealing with real monetary currency/items or in game money/items. No selling of character accounts or guilds, or advertising of them, is to be made in any in game public chat or channels. You take full responsibilty for your actions and their consequences. Eternal Lands will assume none of that responsibility.</long>
 	</rule>
 	<rule>
-		<short>No racism.</short> 
-		<long>If you want to have a CIVILISED talk about races and such that is permited, but plain, offensive racism, only for the sake of annoying people is not tolerated.</long>
+		<short>Stay On Topic In Named Channels.</short> 
+		<long>Conversations may stray a little from the general purpose of the channel, but should not do so to the extent that such conversations derail the purpose of the channel. Such limitations and extents are at the discretion of the moderator in the channel.</long>
 	</rule>
 	<rule>
-		<short>Do not lie to or scam the newbies. </short>
-		<long>That includes giving false or inaccurate information in order to either directly profit from it, or alienate them from the game.</long>
+		<short>No Improper Advertising.</short>
+		<long>Do not market, promote, advertise or solicit within the Eternal Lands any non-Eternal Lands related businesses, organizations or websites.</long>
 	</rule>
 	<rule>
-		<short>No bag spamming</short>
-		<long>Massively dropping bags to cause other bags to dissapear (some sort of DoS attack) is NOT allowed.</long>
+		<short>No Spamming.</short>
+		<long>Spamming is excessively communicating the same post, phrase, similar phrases, or posting purposefully irrelevant messages. This also applies to excessive personal conversations (in any language) in highly populated places* that derail these locations' purpose and create spam.
+
+		*Highly populated places can include, but are not limited to, beam, storages, and channels including the unmoderated ones such as the language channels.	
+		</long>
 	</rule>
 	<rule>
-		<short>Do not hack other accounts</short>
-		<long>No attempts to hack other users, by distributing or advertising keylogers, trojans, etc.</long>
+		<short>Multilingualism.</short>
+		<long>English is the official language in EL. We do support and embrace the other languages, which is why we are working on translations as well. However, we do require that you speak English at beam* and also in channels 1, 3, and 4*, since those are highly populated places where multiple languages derail their purpose and create spam.
+
+		*A simple one line greeting in another language is acceptable.</long>
 	</rule>
 	<rule>
-		<short>Bots must be declared</short>
-		<long>All bots must be declared in this section of the forums, and follow the rules there: http://www.eternal-lands.com/forum/index.php?showtopic=7234</long>
+		<short>No Bag Spamming.</short>
+		<long>Do not drop large numbers of bags for any purpose as this may lead to the bags of others to disappear and cause people to lose the items they have temporarily placed at their feet.</long>
 	</rule>
 	<rule>
-		<short>Do not summon a lot of creatures near storages in the game</short>
-		<long>As it causes lag and is annoying for other players. Also do not bring your summoned creatures near the storage. If a moderator/newbie helper tells you to leave the area because you are summoning then please do so. Do not summon a lot of creatures at the start point, where newbies come in.</long>
+		<short>No Summoning Near Populated Areas.</short>
+		<long>Do not attempt to summon or bring your previously summoned creatures with you near populated areas (i.e. storages, Wraith, beam). In addition do not summon high level monsters (i.e. Fluffy) on Isla Prima.</long>
 	</rule>
 	<rule>
-		<short>Don't be a troublemaker</short>
-		<long>Don't cause problems on purpose that require the attentions of the mods.</long>
+		<short>Do Not Block Resources.</short>
+		<long>Resources include, but are not limited to, ships, doors, bridges, and archways. If you are asked to move, please let people pass.</long>
 	</rule>
 	<rule>
-		<short>Don't exploit bugs.</short> 
-		<long>Instead they need to be reported so that we can improve the game for everyone.</long>
+		<short>No Hacking.</short>
+		<long>Do not attempt to interfere with or hack into any transmissions to or from the servers. Do not attempt to hack into someone else's account or convince them to give you or others their passwords.</long>
 	</rule>
 	<rule>
-		<short>Only publically sell in-game items &amp; services.</short> 
-		<long>Do not sell items from other games, such as Runescape, on the channels, or  in public crowds, and do not constantly yell it out loud to other players around you. If you want to sell/trade stuff like that, then do it quietly with your friends. Otherwise it is an annoyance and considered spamming.</long>
+		<short>No Exploiting Bugs.</short> 
+		<long>Do not exploit any bug in Eternal Lands and do not communicate the existence of any such exploitable bug (bugs that grant the user unnatural or unintended benefits) either directly or through public posting. This information should be immediately communicated to the Eternal Lands' owners privately.</long>
 	</rule>
 	<rule>
-		<short>No impersonating Moderators or other Players.</short>
-		<long>Creating a character with a very similar name as someone else in the game and pretending to be them is not allowed.</long>
-	</rule>	
+		<short>No Illegal Clients.</short> 
+		<long>When modifying the Eternal Lands client you must abide to the license given, and may not distribute copies of illegally made clients. All patches or unofficial clients must first be approved by an Eternal Lands owner (namely Entropy) before use.</long>
+	</rule>
+	<rule>
+		<short>No Macroing or Automation.</short>
+		<long>Do not use illegal automated programs, scripts or computers. The use of any illegal automated program or system, devices, computers or scripts will result in an immediate ban from the game.</long>
+	</rule>
+	<rule>
+	        <short>Bots must be declared.</short>
+	        <long>To use a bot in Eternal Lands, the bot must be registered, approved, and obey the rules. You can register your bot and read the rules here: http://el.tfm.ro/bots/
+If you do not declare your bot it may be banned from the game.</long>
+         </rule>
+         <rule>
+                <short>Obey Contest Rules.</short>
+                <long>The moderators may create and enforce rules and consequences for contests and other events, which you agree to abide and be bound by through the act of participating and/or attending.</long>
+         </rule>
+         <rule>
+                <short>No Skirting Punishments.</short>
+                <long>Do not attempt to create additional accounts if you have been banned or suspended. Seeking loopholes to any punishment can result in permanent bans from both the Eternal Lands Forums and game.</long>
+          </rule>
+          <rule>
+                <short>Do not be a troublemaker.</short>
+                <long>Do not cause problems on purpose that require the attentions of the moderators.</long>
+          </rule>
+          <rule>
+                 <short>Moderation is never a topic for public discussion.</short>
+                 <long>Issues and questions regarding in game policies and procedures should be addressed to the game administrators (namely Aislinn) or the specific moderator via private message. Issues and problems concerning other game moderators should also be addressed privately with Aislinn. All private messages will remain classified unless otherwise agreed upon.</long>
+          </rule>
 	<info>
-		<short>The rules might change in the future, and they are not carved in stone.</short>
+		<short>All rules here may be subject to change or addition at any given time.</short>
 	</info>
 	<info>
-		<short>Breaking the rules or the spirit of the rules can get you banned!</short>
-		<long>Breaking these rules or the spirit of the rules (not just the letter of the law) can get you muted, banned, or other mod punishments depending on the judgement of any of the mods (including NH's). The higher the level a mod is that has to deal with you, the higher your punishment can be.</long>
+	        <short>The moderators of Eternal Lands have the authority to use their discretion on a case by case basis in/while moderating these forums and punishments for violating any of these rules.</short>
+	</info>
+	<info>
+		<short>Repeatedly violating any area of the Eternal Lands Terms of Use or Forum Code of Conduct, including the areas detailed above, will often result in permanent banishment from the forums and game.</short>
+		<long>Breaking these rules or the spirit of the rules (not just the letter of the law) is punishable. Usually there will be given a warning first. This does not apply for repeat offenders or severe offenses that require immediate action. If this warning does not work and the infraction continues, players can be muted, kicked, booted, even banned (in no specific order) depending on the crime, the severity of the crime and the judgment of any of the moderators. The higher the level a mod is that has to deal with you, the higher your punishment can be.</long>
 	</info>
 </text>

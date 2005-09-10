@@ -2,22 +2,22 @@
 	<skin>./meshes/animals5.bmp</skin>
 	<mesh>./meshes/deer_buck.cmf</mesh>
 	<skeleton>./skeletons/deer.csf</skeleton>
-	<scale>0.04</scale>
-	<bone_scale>0.04</bone_scale>
-	<mesh_scale>0.04</mesh_scale>
+	<scale>1.0</scale>
+	<bone_scale>1.0</bone_scale>
+	<mesh_scale>1.0</mesh_scale>
 	<frames>
 		<CAL_walk>./animations/deer_walk.caf 0</CAL_walk>
 		<CAL_idle>./animations/deer_idle1.caf 0</CAL_idle>
 		<CAL_idle2>./animations/deer_idle2.caf 0</CAL_idle2>
-		<CAL_in_combat>./animations/deer_idle1.caf 1</CAL_in_combat>
-		<CAL_out_combat>./animations/deer_idle1.caf 1</CAL_out_combat>
+		<CAL_in_combat>./animations/deer_default.caf 1</CAL_in_combat>
+		<CAL_out_combat>./animations/deer_default.caf 1</CAL_out_combat>
 		<CAL_combat_idle>./animations/deer_idle1.caf 0</CAL_combat_idle>
 		<CAL_pain1>./animations/deer_pain.caf 1</CAL_pain1>
 		<CAL_die1>./animations/deer_die.caf 1</CAL_die1>
 		<CAL_attack_up_1>./animations/deer_attack1.caf 1</CAL_attack_up_1>
-          	<CAL_attack_up_2>./animations/deer_attack1.caf 1</CAL_attack_up_2>
+          	<CAL_attack_up_2>./animations/deer_attack2.caf 1</CAL_attack_up_2>
 		<CAL_attack_up_3>./animations/deer_attack1.caf 1</CAL_attack_up_3>
-		<CAL_attack_up_4>./animations/deer_attack1.caf 1</CAL_attack_up_4>
+		<CAL_attack_up_4>./animations/deer_attack2.caf 1</CAL_attack_up_4>
 		<CAL_attack_down_1>./animations/deer_attack1.caf 1</CAL_attack_down_1>
 		<CAL_attack_down_2>./animations/deer_attack1.caf 1</CAL_attack_down_2>
 

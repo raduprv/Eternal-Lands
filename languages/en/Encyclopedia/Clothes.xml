@@ -13,7 +13,7 @@
         <Text> Protect you from cold.</Text>
         <color r="0" g="0.5" b="1"/>
         <nlkx/>
-        <Text> Cant be worn at this time.</Text>
+        <Text> +1 cold protection, +1 armor</Text>
         <nl/><nl/><nl/>
         <color r="0.9" g="0.9" b="0.9"/>
         <Text>Recommended Level to Manufacture: 0</Text>
@@ -22,7 +22,7 @@
         <nl/>
         <text>Weight: 1 EMU</text>
         <nl/>
-        <text>Stackable: Yes</text>
+        <text>Stackable: No</text>
         <nl/>
         <text>Food Cost to Manufacture: -1</text>
         <nl/>

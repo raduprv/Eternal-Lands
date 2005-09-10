@@ -2,14 +2,15 @@
 	<skin>./meshes/animals3.bmp</skin>
 	<mesh>./meshes/boar.cmf</mesh>
 	<skeleton>./skeletons/boar.csf</skeleton>
-	<scale>0.04</scale>
-	<bone_scale>0.04</bone_scale>
-	<mesh_scale>0.04</mesh_scale>
+	<scale>1</scale>
+	<bone_scale>1</bone_scale>
+	<mesh_scale>1</mesh_scale>
 	<frames>
 		<CAL_walk>./animations/boar_walk.caf 0</CAL_walk>
 		<CAL_idle>./animations/boar_idle1.caf 0</CAL_idle>
-		<CAL_in_combat>./animations/boar_idle1.caf 1</CAL_in_combat>
-		<CAL_out_combat>./animations/boar_idle1.caf 1</CAL_out_combat>
+		<CAL_idle2>./animations/boar_idle2.caf 0</CAL_idle2>
+		<CAL_in_combat>./animations/boar_default.caf 1</CAL_in_combat>
+		<CAL_out_combat>./animations/boar_default.caf 1</CAL_out_combat>
 		<CAL_combat_idle>./animations/boar_idle1.caf 0</CAL_combat_idle>
 		<CAL_pain1>./animations/boar_pain.caf 1</CAL_pain1>
 		<CAL_die1>./animations/boar_die.caf 1</CAL_die1>

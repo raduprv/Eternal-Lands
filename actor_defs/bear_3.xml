@@ -2,9 +2,9 @@
 	<skin>./meshes/animals6.bmp</skin>
 	<mesh>./meshes/bear3.cmf</mesh>
         <skeleton>./skeletons/bear.csf</skeleton>
-	<scale>0.3</scale>
-	<bone_scale>0.3</bone_scale>
-	<mesh_scale>0.3</mesh_scale>
+	<scale>1</scale>
+	<bone_scale>1</bone_scale>
+	<mesh_scale>1</mesh_scale>
 	<frames>
 		<CAL_walk>./animations/bear_walk.caf 0</CAL_walk>
 		<CAL_idle>./animations/bear_idle1.caf 0</CAL_idle>
@@ -12,14 +12,14 @@
 		<CAL_idle_sit>./animations/bear_sleepidle.caf 0</CAL_idle_sit>
 		<CAL_sit_down>./animations/bear_intosleep.caf 1</CAL_sit_down>
 		<CAL_stand_up>./animations/bear_outsleep.caf 1</CAL_stand_up>
-		<CAL_in_combat>./animations/bear_idle1.caf 1</CAL_in_combat>
-		<CAL_out_combat>./animations/bear_idle1.caf 1</CAL_out_combat>
+		<CAL_in_combat>./animations/bear_default.caf 1</CAL_in_combat>
+		<CAL_out_combat>./animations/bear_default.caf 1</CAL_out_combat>
 		<CAL_combat_idle>./animations/bear_idle1.caf 0</CAL_combat_idle>
 		<CAL_pain1>./animations/bear_pain.caf 1</CAL_pain1>
 		<CAL_die1>./animations/bear_die.caf 1</CAL_die1>
-		<CAL_attack_up_1>./animations/bear_attack1.caf 1</CAL_attack_up_1>
+		<CAL_attack_up_1>./animations/bear_attack2.caf 1</CAL_attack_up_1>
           	<CAL_attack_up_2>./animations/bear_attack1.caf 1</CAL_attack_up_2>
-		<CAL_attack_up_3>./animations/bear_attack1.caf 1</CAL_attack_up_3>
+		<CAL_attack_up_3>./animations/bear_attack2.caf 1</CAL_attack_up_3>
 		<CAL_attack_up_4>./animations/bear_attack1.caf 1</CAL_attack_up_4>
 		<CAL_attack_down_1>./animations/bear_attack2.caf 1</CAL_attack_down_1>
 		<CAL_attack_down_2>./animations/bear_attack2.caf 1</CAL_attack_down_2>

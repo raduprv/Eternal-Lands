@@ -8,6 +8,7 @@
 	<frames>
 		<CAL_walk>./animations/feline_walk.caf 0</CAL_walk>
 		<CAL_idle>./animations/feline_idle1.caf 0</CAL_idle>
+		<CAL_idle2>./animations/feline_idle2.caf 0</CAL_idle2>
 		<CAL_in_combat>./animations/feline_idle1.caf 1</CAL_in_combat>
 		<CAL_out_combat>./animations/feline_idle1.caf 1</CAL_out_combat>
 		<CAL_combat_idle>./animations/feline_idle1.caf 0</CAL_combat_idle>
@@ -19,18 +20,6 @@
 		<CAL_attack_up_4>./animations/feline_attack1.caf 1</CAL_attack_up_4>
 		<CAL_attack_down_1>./animations/feline_attack1.caf 1</CAL_attack_down_1>
 		<CAL_attack_down_2>./animations/feline_attack1.caf 1</CAL_attack_down_2>
-
-<CAL_IDLE_GROUP>EARS ./animations/feline_ears_twitch1.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>EARS ./animations/feline_ears_twitch2.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>HEAD ./animations/feline_head_breath.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>HEAD ./animations/feline_head_look1.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>HEAD ./animations/feline_head_look2.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>LEGS ./animations/feline_legs_move1.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>LEGS ./animations/feline_legs_move2.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>MOUTH ./animations/feline_mouth_yawn.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>TAIL ./animations/feline_tail_wag1.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>TAIL ./animations/feline_tail_wag2.xaf</CAL_IDLE_GROUP>
-<CAL_IDLE_GROUP>TAIL ./animations/feline_tail_wag3.xaf</CAL_IDLE_GROUP>
 
 	</frames>
 	<ghost>no</ghost>

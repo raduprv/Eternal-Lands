@@ -9,6 +9,9 @@
 		<CAL_sit_down>./animations/snake_intosleep.caf 1</CAL_sit_down>
 		<CAL_stand_up>./animations/snake_outsleep.caf 1</CAL_stand_up>
 		<CAL_pain1>./animations/snake_pain.caf 1</CAL_pain1>
+		<CAL_in_combat>./animations/snake_default.caf 1</CAL_in_combat>
+		<CAL_out_combat>./animations/snake_default.caf 1</CAL_out_combat>
+		<CAL_combat_idle>./animations/snake_idle1.caf 0</CAL_combat_idle>		
 		<CAL_die1>./animations/snake_die.caf 1</CAL_die1>
 		<CAL_attack_up_1>./animations/snake_attack1.caf 1</CAL_attack_up_1>
           	<CAL_attack_up_2>./animations/snake_attack1.caf 1</CAL_attack_up_2>

@@ -67,7 +67,7 @@
 	<nl/>
 	<Text>                   WEAPONS</Text><nl/>
 	<Color>red</Color>
-	<Text>                 Wood Staff</Text><nl/><nl/>
+	<Text>                Wooden Staff</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="11" name="textures/items5.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
 	<Text> Inflicts 2-10 damage, +3 defense, +4 accuracy,</Text>
@@ -97,7 +97,7 @@
 	<nl/>
 	<Text>                   WEAPONS</Text><nl/>
 	<Color>red</Color>
-	<Text>                Quarter Staff</Text><nl/><nl/>
+	<Text>                Quarterstaff</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="12" name="textures/items5.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
 	<Text> Inflicts 6-15 damage, +4 defense, +6 accuracy,</Text>
@@ -305,7 +305,7 @@
 	<nl/>
 	<text>Food subtracted: 17</text>
 	<nl/>
-	<text>Weight: 3 EMU</text>
+	<text>Weight: 4 EMU</text>
 	<nl/><nl/>
 	<color>yellow</color>
 	<Text>               </Text><link ref="Weapons" title="Back To Weapons and Armors Index"/>
@@ -609,7 +609,7 @@
 	<Text>               Leather Boots</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="18" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> Absorbs 0-1 damage, +1 heat and cold protection.</Text>
+	<Text> +1 armor, +1 heat and cold protection.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nlkx/>

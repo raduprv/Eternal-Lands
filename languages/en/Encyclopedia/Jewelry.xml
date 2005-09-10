@@ -638,7 +638,8 @@
 	<Text>              Stars Medallion</Text><nl/><nl/>
 	<simage isize="256" tsize="50" size="100" tid="22" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
 	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
-	<Text> When worn, it increases your inflicted damage by 4.</Text>
+	<Text> When worn, it increases your inflicted damage by 4</Text><nl/>
+	<Text> and your armor by 2.</Text>
 	<nlkx/>
 	<Text> </Text>
 	<nl/><nl/><nl/>

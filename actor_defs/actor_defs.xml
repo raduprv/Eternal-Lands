@@ -39,12 +39,12 @@
 	<!ENTITY orchan_male SYSTEM "orchan_male.xml">
 	<!ENTITY draegoni_female SYSTEM "draegoni_female.xml">
 	<!ENTITY draegoni_male SYSTEM "draegoni_male.xml">
-	<!ENTITY skunk_1 SYSTEM "skunk_1.xml">
-	<!ENTITY racoon_1 SYSTEM "racoon_1.xml">
-	<!ENTITY unicorn_1 SYSTEM "unicorn_1.xml">
-	<!ENTITY chimeran_desert_wolf SYSTEM "chimeran_desert_wolf.xml">
-	<!ENTITY chimeran_forest_wolf SYSTEM "chimeran_forest_wolf.xml">
-	<!ENTITY bear_3 SYSTEM "bear_3.xml">
+        <!ENTITY skunk_1 SYSTEM "skunk_1.xml">
+        <!ENTITY racoon_1 SYSTEM "racoon_1.xml">
+        <!ENTITY unicorn_1 SYSTEM "unicorn_1.xml">
+        <!ENTITY chimeran_desert_wolf SYSTEM "chimeran_desert_wolf.xml">
+        <!ENTITY chimeran_forest_wolf SYSTEM "chimeran_forest_wolf.xml">
+        <!ENTITY bear_3 SYSTEM "bear_3.xml">
 ]>
 
 <actors>
@@ -88,10 +88,11 @@
 	&orchan_male;
 	&draegoni_female;
 	&draegoni_male;
-	&skunk_1;
-	&racoon_1;
-	&unicorn_1;
-	&chimeran_desert_wolf;
-	&chimeran_forest_wolf;
-	&bear_3;
+        &skunk_1;
+        &racoon_1;
+        &unicorn_1;
+        &chimeran_desert_wolf;
+        &chimeran_forest_wolf;
+        &bear_3;
+
 </actors>

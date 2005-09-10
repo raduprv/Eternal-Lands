@@ -7,7 +7,7 @@
 	<nl/><nl/>
 	<size>Medium</size>
 	<color r="0.0" g="0.5" b="1"/>
-	<Text>This the Eternal Lands Help Page. Here you can find</Text><nl/>
+	<Text>This is the Eternal Lands Help Page. Here you can find</Text><nl/>
 	<Text>information that will help you get familiar with the</Text><nl/>
 	<Text>interface, and some tips to get you started in the game.</Text>
 	<nl/>
@@ -358,24 +358,22 @@
 	<text>both regular and negative perks.</text><nl/>
 	<nl />
 	<color r="1" g="0.3" b="1"/>
-	<text>#mark name x,y</text><nl />
+	<text>#research</text><nl />
 	<color r="0.0" g="0.5" b="1"/>
-	<text>Set a predetermined #goto point so you won't have to</text><nl/>
-	<text>remember coordinates. Example: #mark raven 186,143.</text><nl/>
-	<text>You then type #goto raven from now on to go to raven</text><nl/>
-	<text>(must be on whitestone map for that example to work).</text><nl/>
+	<text>Shows what book you are currently reading, and how much</text><nl/>
+	<text>ingame time you have left until you finish reading it.</text><nl/>
 	<nl />
 	<color r="1" g="0.3" b="1"/>
-	<text>#delmark name</text><nl />
+	<text>#mark name</text><nl />
 	<color r="0.0" g="0.5" b="1"/>
-	<text>Removes location from your list of pre-set</text><nl/>
-	<text>coordinate locations.</text><nl/>
+	<text>Marks your current location in your map.</text><nl/>
+	<text>(hit tab to toggle map mode on and off.)</text><nl/>
 	<nl />
 	<color r="1" g="0.3" b="1"/>
-	<text>#marks</text><nl />
+	<text>#unmark name</text><nl />
 	<color r="0.0" g="0.5" b="1"/>
-	<text>Shows list of places you have pre-set coordinates for.</text><nl/>
-	<nl/>
+	<text>Removes a marked location from your map.</text><nl/>
+	<nl />
 	
 	<color>yellow</color><Text>Page: 1</Text>
 	<link ref="text2" title=" 2 "/>
@@ -426,6 +424,11 @@
 	<text>removes a buddy from your list</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
+	<text>#set_privacy on/off</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Sets whether you'll accept buddy requests or not</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
 	<text>#humor</text><nl />
 	<color r="0.0" g="0.5" b="1"/>
 	<text>This turns the npc humor on or off.</text><nl/>
@@ -438,12 +441,6 @@
 	<text>someplace safe, it will not be logged in text anyplace.</text><nl/>
 	<text>Also make sure you do this inside a house ingame, so</text><nl/>
 	<text>nobody will see your chat in case you make a mistake.</text><nl/>
-	<nl />
-	<color r="1" g="0.3" b="1"/>
-	<text>#research</text><nl />
-	<color r="0.0" g="0.5" b="1"/>
-	<text>Shows what book you are currently reading, and how much</text><nl/>
-	<text>ingame time you have left until you finish reading it.</text><nl/>
 	<nl />
 	<color r="1" g="0.3" b="1"/>
 	<text>#ignore</text><nl />
@@ -465,10 +462,11 @@
 	<color r="1" g="0.3" b="1"/>
 	<text>#afk</text><nl />
 	<color r="0.0" g="0.5" b="1"/>
-	<text>This lets you set your afk message so that when somebody</text><nl/>
-	<text>pm's you and you aren't here, they get a message saying</text><nl/>
-	<text>so. You can edit this message in your el.ini in</text><nl/>
-	<text>your EL folder. (afk means "away from keyboard")</text><nl/>
+	<text>This lets you go afk. (afk means "away from keyboard")</text><nl/>
+	<text>When somebody pm's you now, they get a message saying</text><nl/>
+	<text>you aren't there. Adding a message after the command will</text><nl/>
+	<text>temporarily change your afk message. You can edit this</text><nl/>
+	<text>message in your el.ini in your EL folder permanently.</text><nl/>
 	<nl />
 	<color r="1" g="0.3" b="1"/>
 	<text>#msg all</text><nl />
@@ -566,7 +564,7 @@
 	<color r="1" g="0.3" b="1"/>
 	<text>-- Use </text>
 	<color r="0" g="0.5" b="1"/>
-	<text>@ in front of anything you want to say in any channel.</text><nl/>
+	<text>@ in front of what you want to say in any channel.</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
 	<text>-- To </text>
@@ -595,9 +593,9 @@
 	<color r="1" g="0.3" b="1"/>
 	<text>#jc 1 : </text>
 	<color r="0.0" g="0.5" b="1"/>
-	<text>Newbie help channel, here you can get your questions</text><nl/>
-	<text>answered. Many newbies and helpful experienced players are</text><nl/>
-	<text>on this channel.</text><nl/>
+	<text>Newbie help channel, here you can get your</text><nl/>
+	<text>questions answered. Many newbies and helpful experienced</text><nl/>
+	<text>players are on this channel.</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
 	<text>#jc 2 : </text>
@@ -642,19 +640,39 @@
 	<nl/>
 	<text>-- You </text>
 	<color r="0.0" g="0.5" b="1"/>
-	<text>can make your own channel number to chat on. Just</text><nl/>
-	<text>add any number over 100 (just to be safe) to the #jc</text><nl/>
-	<text>command. Ask once you are in there if anybody else is</text><nl/>
-	<text>already there using it smile.gif Many guilds do this in</text><nl/>
-	<text>addition to their official guild channel so they can</text><nl/>
-	<text>invite guests to chat with them.</text><nl/>
+	<text>can "make" your own chat channel. Just add any</text><nl/>
+	<text>number over 100 (just to be safe) to the #jc command.</text><nl/>
+	<text>Once you are in there type #ci to see if it is empty.</text><nl/>
+	<text>Many guilds do this in addition to their official guild</text><nl/>
+	<text>channel so they can invite guests to chat with them.</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
-	<text>#gm : </text>
+	<text>#gm message: </text><nl/>
 	<color r="0.0" g="0.5" b="1"/>
 	<text>Similar to a guild channel, this lets you chat with</text><nl/>
 	<text>your guild members even if you all are in different</text><nl/>
 	<text>channels. The messages will show up in blue.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#ig guildtag message: </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Like #gm, but for the guild you specified by their tag.</text><nl/>
+	<text>Examples: #ig eg hi everybody in EG!; #ig *o* hey *O*!</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#ig_block guildtag: </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Blocks messages from that guild.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#ig_unblock guildtag: </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>UNblocks a guild.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#ig_block_list: </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Lists all blocked guilds.</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
 	<text>#ci : </text>
@@ -742,9 +760,8 @@
 	<color r="1" g="0.3" b="1"/>
 	<text>#set_short_name (4 letters/number/symbols here)</text><nl/>
 	<color r="0.0" g="0.5" b="1"/>
-	<text>This option alowes you to creat a guild tag for your guild.</text><nl/>
-	<text>(Example: #set_short_name *CO* )</text><nl/>
-	<text>Requires rank 19.</text><nl/>
+	<text>This option alowes you to create a guild tag for your guild.</text><nl/>
+	<text>(Example: #set_short_name *CO* ). Requires rank 19.</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
 	<text>#join_guild guildname</text><nl/>
@@ -762,8 +779,7 @@
 	<color r="1" g="0.3" b="1"/>
 	<text>#accept playername</text><nl/>
 	<color r="0.0" g="0.5" b="1"/>
-	<text>Accepts somebody into the guild.</text><nl/>
-	<text>Requires rank 15.</text><nl/>
+	<text>Accepts somebody into the guild. Requires rank 15.</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
 	<text>#remove playername</text><nl/>
@@ -776,14 +792,17 @@
 	<text>#change_rank playername rank#</text><nl/>
 	<color r="0.0" g="0.5" b="1"/>
 	<text>Change someone's rank/privilege</text><nl/>
-	<text>(Example: #change_rank playername 5 )</text><nl/>
-	<text>Requires rank 19.</text><nl/>
+	<text>(Example: #change_rank playername 5 ) Requires rank 19.</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
 	<text>#gm message</text><nl/>
 	<color r="0.0" g="0.5" b="1"/>
-	<text>Sends a blue message to everyone in the guild.</text><nl/>
-	<text>Requires rank 5.</text><nl/>
+	<text>Sends a blue message to everyone in the guild. (rank 5+)</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#ig message</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>for all interguild messaging commands see "Chat System"</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
 	<text>#guild_info tagname</text><nl/>
@@ -796,10 +815,17 @@
 	<text>Joins you to your guild's official channel.</text><nl/>
 	<nl/>
 	<color r="1" g="0.3" b="1"/>
-	<text>#rank membername</text><nl/>
+	<text>#rank</text><nl/>
 	<color r="0.0" g="0.5" b="1"/>
-	<text>Lets you see the guild rank of any guild member.</text><nl/>
+	<text>Shows your guild rank. To see the guild rank of any member</text><nl/>
+	<text>ranks 19+ can add a member name after the command.</text><nl/>	
 	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#list_guild</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Lists all guild members.</text><nl/>
+	<nl/>
+	
 	<color>yellow</color>
 	<text>                     </text>
 	<link ref="HelpPage" title="Back To Help Index"/>
@@ -1062,16 +1088,16 @@
 	<Text>   you'll be at 19,20.</Text><nl/>
 	<nl/>
 	<nl/><color r="1" g="0.3" b="1"/>
-	<Text>So, </Text>
+	<Text>On </Text>
 	<color r="0.0" g="0.5" b="1"/>
-	<Text>if you're told to go to coordinate 153,120 you'll now</Text><nl/>
-	<Text>know first to check where you are by clicking the</Text><nl/>
-	<Text>compass. Then, look at the map and make a guess of how far</Text><nl/>
-	<Text>away your destination is and in which direction. Click on</Text><nl/>
-	<Text>the map where you think your destination will be,</Text><nl/>
-	<Text>and you'll start to walk there. Check your coordinates</Text><nl/>
-	<Text>again when you arrive and if necessary, move again until</Text><nl/>
-	<Text>you get where you need to be.</Text><nl/>
+	<Text>the left side of your map screen (tab key), you can see</Text><nl/>
+	<Text>the coordinates of your cursor over the map.</Text><nl/>
+	<Text>So if you have the coordinates of a specific location,</Text><nl/>
+	<Text>all you need to do is move your cursor as described above</Text><nl/>
+	<Text>until it shows the right cursor position and click</Text><nl/>
+	<Text>on the map. You will then start to walk there.</Text><nl/>
+	<Text>This may not work in all places, since there might be no</Text><nl/>
+	<Text>direct path to your target destination.</Text><nl/>
 	<nl/>	
  	
 	<size>Small</size>

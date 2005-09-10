@@ -6,8 +6,8 @@
 	        <CAL_walk>./animations/rabbit_walk.caf 0</CAL_walk>
 		<CAL_idle>./animations/rabbit_idle1.caf 0</CAL_idle>
 		<CAL_idle2>./animations/rabbit_idle2.caf 0</CAL_idle2>
-		<CAL_in_combat>./animations/rabbit_idle1.caf 1</CAL_in_combat>
-		<CAL_out_combat>./animations/rabbit_idle1.caf 1</CAL_out_combat>
+		<CAL_in_combat>./animations/rabbit_default.caf 1</CAL_in_combat>
+		<CAL_out_combat>./animations/rabbit_default.caf 1</CAL_out_combat>
 		<CAL_combat_idle>./animations/rabbit_idle1.caf 0</CAL_combat_idle>
 		<CAL_pain1>./animations/rabbit_pain.caf 1</CAL_pain1>
 		<CAL_die1>./animations/rabbit_die.caf 1</CAL_die1>

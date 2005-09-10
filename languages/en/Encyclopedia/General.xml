@@ -350,7 +350,7 @@
         <link ref="Ring_Disengagement" title="[Disengagement]"/>
         <nl/><nl/>
         <color r="0" g="0.7" b="1"/>
-        <Text>MEDDALIONS:</Text>
+        <Text>MEDALLIONS:</Text>
         <color r="0.9" g="0.9" b="0.9"/>
         <link ref="Med_Unicorn" title="[Unicorn]"/>
         <link ref="Med_Sun" title="[Sun]"/>
@@ -667,10 +667,10 @@
 	<link ref="W Battle Hammer" title="Wooden Battle Hammer"/><Text>           </Text>
 	<link ref="E Wooden Shield" title="Enhanced Wooden Shield"/>
 	<nl/>
-	<link ref="I War Hammer" title="Iron War Hammer"/><Text>                </Text>
+	<link ref="I War Hammer" title="Iron Battle Hammer"/><Text>                </Text>
 	<link ref="Iron Shield" title="Iron Shield"/>
 	<nl/>
-	<link ref="W Staff" title="Wood Staff"/><Text>                     </Text>
+	<link ref="W Staff" title="Wooden Staff"/><Text>                     </Text>
 	<link ref="Steel Shield" title="Steel Shield"/>
 	<nl/>
 	<link ref="Q Staff" title="Quarter Staff"/><Text>                  </Text>
