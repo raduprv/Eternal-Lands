@@ -102,7 +102,7 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 	}
 
 	while (neighbour->open_pos > 1) {
-		if (pf_open.tiles[neighbour->open_pos]->f <= pf_open.tiles[neighbour->open_pos/2]->f) {
+		if (pf_open.tiles[neighbour->open_pos]->f < pf_open.tiles[neighbour->open_pos/2]->f) {
 			tmp = pf_open.tiles[neighbour->open_pos/2];
 			pf_open.tiles[neighbour->open_pos/2] = pf_open.tiles[neighbour->open_pos];
 			pf_open.tiles[neighbour->open_pos] = tmp;
