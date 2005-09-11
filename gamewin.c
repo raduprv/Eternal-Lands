@@ -1365,10 +1365,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		else if (shift_on)
 			read_local_book ("./books/sediculos.xml\0", 22);
 	}
-	else if (keysym == SDLK_F8)
-	{
-		have_point_sprite = !have_point_sprite;
-	}
 	else if (keysym == SDLK_F9)
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
