@@ -66,7 +66,7 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <max_length>Names and passwords can max be 15 characters long</max_length>
     <illegal_char>You have typed an illegal character!</illegal_char>
     <p2p_race>You have to pay to create a char with this race</p2p_race>
-    <char_help>To costumize your character and select name/password, press the buttons at the bottom.</char_help>
+    <char_help>To customize your character and select name/password, press the buttons at the bottom.</char_help>
     <confirmcreate>Click done again to create a character with that name and appearance.</confirmcreate>
     <wrongpass>Invalid password!</wrongpass>
     <showpass>Show password</showpass>

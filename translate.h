@@ -194,7 +194,7 @@ extern char 	tt_walk[30],
 		tt_buddy[30],
 		tt_options[30],
 		tt_help[30],
-		tt_costumize[60],
+		tt_customize[60],
 		tt_name[60];
 #endif  //DOXYGEN_SKIP_THIS
 #endif  //ELC

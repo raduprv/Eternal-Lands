@@ -39,7 +39,7 @@ char	tt_walk[30],
 	tt_buddy[30],
 	tt_options[30],
 	tt_help[30],
-	tt_costumize[60],
+	tt_customize[60],
 	tt_name[60];
 #endif
 /*! \} */
@@ -809,7 +809,7 @@ void init_help()
 	add_xml_identifier(new,"max_length",error_length,"Names and passwords can max be 15 characters long",sizeof(error_length));
 	add_xml_identifier(new,"illegal_char",error_illegal_character,"You have typed an illegal character!",sizeof(error_illegal_character));
 	add_xml_identifier(new,"p2p_race",p2p_race,"You have to pay to create a char with this race",sizeof(p2p_race));
-	add_xml_identifier(new,"char_help",char_help,"To costumize your character and select name/password, press the buttons at the bottom.",sizeof(char_help));
+	add_xml_identifier(new,"char_help",char_help,"To customize your character and select name/password, press the buttons at the bottom.",sizeof(char_help));
 	add_xml_identifier(new,"confirmcreate",error_confirm_create_char,"Click done again to create a character with that name and appearance.",sizeof(error_confirm_create_char));
 	add_xml_identifier(new,"wrongpass",invalid_pass,"Invalid password!",sizeof(invalid_pass));
 	add_xml_identifier(new,"showpass",show_password,"Show password",sizeof(show_password));
@@ -846,7 +846,7 @@ void init_help()
 	add_xml_identifier(tooltips,"buddy",tt_buddy,"View buddy",sizeof(tt_buddy));
 	add_xml_identifier(tooltips,"opts",tt_options,"View options",sizeof(tt_options));
 	add_xml_identifier(tooltips,"help",tt_help,"View help",sizeof(tt_help));
-	add_xml_identifier(tooltips,"customize",tt_costumize,"Customize your character",sizeof(tt_costumize));
+	add_xml_identifier(tooltips,"customize",tt_customize,"Customize your character",sizeof(tt_customize));
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
 	
 	//Buddy list
