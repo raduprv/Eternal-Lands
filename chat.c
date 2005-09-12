@@ -1401,7 +1401,7 @@ void convert_tabs (int new_wc)
 			
 			if (iwc >= MAX_ACTIVE_CHANNELS)
 				// unfortunately we have no clue about the 
-				// numberr of lines written in this channel, so
+				// number of lines written in this channel, so
 				// we won't see anything until new messages
 				// arrive. Oh well.
 				add_chat_tab (0, chan);

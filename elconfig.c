@@ -648,7 +648,7 @@ void init_vars()
 	add_var(MULTI,"max_shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096","8192",NULL);
 	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render fog","Toggles fog rendering.",VIDEO);
 	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);
-	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1,"Show Reflections","Toggle the relections",VIDEO);
+	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1,"Show Reflections","Toggle the reflections",VIDEO);
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",SPECIALVID);
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",SPECIALVID);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
