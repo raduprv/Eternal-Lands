@@ -214,13 +214,13 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	unsigned char ch;
 
 	ch = msgs[msg_start].data[offset_start];
-	if (ch < 127 || ch > 127 + c_grey4)
+	if (!IS_COLOR (ch))
 	{
 		// search backwards for the last color
 		for (ichar = offset_start-1; ichar >= 0; ichar--)
 		{
 			ch = msgs[msg_start].data[ichar];
-			if (ch >= 127 && ch <= 127 + c_grey4)
+			if (IS_COLOR (ch))
 			{
 				float r, g, b;
 				ch -= 127;
@@ -243,11 +243,15 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 
 	if (filter != FILTER_ALL)
 	{
-		for (;;) {
+		// skip all messages of the wrong channel
+		while (1)
+		{
 			char skip = 0;
 			int channel = msgs[imsg].chan_idx;
-			if (channel != filter && channel != CHAT_MODPM) {
-				switch (channel) {
+			if (channel != filter)
+			{
+				switch (channel)
+				{
 					case CHAT_LOCAL:    skip = local_chat_separate;    break;
 					case CHAT_PERSONAL: skip = personal_chat_separate; break;
 					case CHAT_GM:       skip = guild_chat_separate;    break;
@@ -257,11 +261,16 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 					default:            skip = 1;
 				}
 			}
-			if (skip) {
+			if (skip)
+			{
 				ichar = 0;
 				if (++imsg >= msgs_size) imsg = 0;
-				if (msgs[imsg].data == NULL || imsg == msg_start) break;
-			} else {
+				if (msgs[imsg].data == NULL || imsg == msg_start) 
+					// nothing to draw
+					return;
+			}
+			else
+			{
 				break;
 			}
 		}
@@ -298,11 +307,15 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			if (++imsg >= msgs_size) imsg = 0;
 			if (filter != FILTER_ALL)
 			{
-				for (;;) {
+				// skip all messages of the wrong channel
+				while (1)
+				{
 					char skip = 0;
 					int channel = msgs[imsg].chan_idx;
-					if (channel != filter) {
-						switch (channel) {
+					if (channel != filter)
+					{
+						switch (channel)
+						{
 							case CHAT_LOCAL:    skip = local_chat_separate;    break;
 							case CHAT_PERSONAL: skip = personal_chat_separate; break;
 							case CHAT_GM:       skip = guild_chat_separate;    break;
@@ -312,10 +325,13 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 							default:            skip = 1;
 						}
 					}
-					if (skip) {
+					if (skip)
+					{
 						if (++imsg >= msgs_size) imsg = 0;
 						if (msgs[imsg].data == NULL || imsg == msg_start) break;
-					} else {
+					}
+					else
+					{
 						break;
 					}
 				}

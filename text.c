@@ -688,7 +688,7 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
 
 
 // find the last lines, according to the current time
-int find_last_lines_time (int *msg, int *offset, Uint8 filter)
+int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 {
 	// adjust the lines_no according to the time elapsed since the last message
 	if ( (cur_time - last_server_message_time) / 1000 > 3)
@@ -699,7 +699,7 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter)
 	}
 	if (lines_to_show <= 0) return 0;
 
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, filter, msg, offset, chat_zoom, console_text_width);
+	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, filter, msg, offset, chat_zoom, width);
 }
 
 int find_last_console_lines (int lines_no)

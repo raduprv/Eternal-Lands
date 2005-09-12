@@ -9,7 +9,7 @@
 #define DISPLAY_TEXT_BUFFER_SIZE 5000 /*!< maximum number of lines in the text buffer */
 
 #define CHAT_ALL	((Uint8) -1)
-#define CHAT_NONE ((Uint8) -2)
+#define CHAT_NONE	((Uint8) -2)
 
 #define FILTER_LOCAL	CHAT_LOCAL
 #define FILTER_PERSONAL	CHAT_PERSONAL
@@ -199,13 +199,13 @@ void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int l
  * \ingroup text_font
  * \brief find_last_lines_time
  *
- *      find_last_lines_time(int *, int *)
+ *      find_last_lines_time(int *, int *, Uint8 filter, int width)
  *
  * \retval int
  *
  * \todo Fix documentation
  */
-int find_last_lines_time (int *msg, int *offset, Uint8 filter);
+int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width);
 
 /*!
  * \ingroup text_font

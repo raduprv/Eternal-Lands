@@ -749,10 +749,10 @@ int display_game_handler (window_info *win)
 		ytext = use_windowed_chat == 1 ? 25 : 20;
 		htext = (int) (1 + lines_to_show * 18 * chat_zoom);
 		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
-		if ( find_last_lines_time (&msg, &offset, filter) )
+		if (find_last_lines_time (&msg, &offset, filter, console_text_width))
 		{
 			set_font(chat_font);	// switch to the chat font
-			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, win->len_x - 20, htext, chat_zoom);
+			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, console_text_width, htext, chat_zoom);
 			set_font (0);	// switch to fixed
 		}
 	}
