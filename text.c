@@ -712,7 +712,7 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 	int line_count = 0, lines_no = nr_lines - line;
 	int imsg, ichar;
 	char *data;
-
+	
 	imsg = last_message;
 	do
 	{
@@ -729,13 +729,13 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 
 		if (msgchan == filter || msgchan == CHAT_ALL || filter == FILTER_ALL)
 		{
-			rewrap_message(&display_text_buffer[imsg], zoom, width, NULL);
-
 			data = display_text_buffer[imsg].data;
 			if (data == NULL)
 				// Hmmm... we messed up. This should not be
 				// happening.
 				break;
+
+			rewrap_message(&display_text_buffer[imsg], zoom, width, NULL);
 
 			for (ichar = display_text_buffer[imsg].len - 1; ichar >= 0; ichar--)
 			{
@@ -913,7 +913,13 @@ void clear_display_text_buffer ()
 	for (imsg = 0; imsg < DISPLAY_TEXT_BUFFER_SIZE; imsg++)
 	{
 		if (display_text_buffer[imsg].data)
+		{
+			total_nr_lines -= display_text_buffer[imsg].wrap_lines;
+			display_text_buffer[imsg].deleted = 1;
+			update_text_windows (&display_text_buffer[imsg]);
+			
 			display_text_buffer[imsg].data[0] = '\0';
+		}
 		display_text_buffer[imsg].len = 0;
 	}
 
@@ -932,6 +938,8 @@ void clear_display_text_buffer ()
 int rewrap_message(text_message * msg, float zoom, int width, int * cursor) {
 	int nlines;
 
+	if (msg == NULL || msg->data == NULL) return 0;
+	
 	if (msg->wrap_width != width || msg->wrap_zoom != zoom) {
 		if (msg->chan_idx != CHAT_NONE) total_nr_lines -= msg->wrap_lines;
  		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, zoom, width, cursor);
