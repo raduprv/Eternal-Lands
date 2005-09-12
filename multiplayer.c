@@ -325,8 +325,6 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 					{
 						//how to display it
 						put_text_in_buffer (channel_id, &in_data[4], data_length - 4);
-						// let's log it
-						write_to_log (&in_data[4], data_length - 4);
 					}
 				}
 #else			
@@ -336,8 +334,6 @@ void process_message_from_server(unsigned char *in_data, int data_length)
 					{
 						//how to display it
 						put_text_in_buffer(CHAT_ALL, &in_data[3],data_length-3);
-						//lets log it
-						write_to_log(&in_data[3],data_length-3);
 					}
 #endif
 			}
