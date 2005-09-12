@@ -594,7 +594,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 				nlines++;
 				line_width = 0;
 			} else {
-				font_bit_width = (int) (0.5f + get_font_width (str[isrc]) * zoom);
+				font_bit_width = (int) (0.5f + get_font_width (str[isrc]) * 11.0f * zoom / 12.0f);
 				if (line_width + font_bit_width > width)
 				{
 					// search back for a space
