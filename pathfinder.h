@@ -32,8 +32,8 @@ enum {
 typedef struct
 {
 	Uint32 open_pos;
-	Uint16 x;
-	Uint16 y;
+	Sint32 x;
+	Sint32 y;
 	Uint16 f;
 	Uint16 g;
 
