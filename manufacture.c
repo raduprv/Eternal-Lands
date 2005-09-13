@@ -179,7 +179,8 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	//see if we clicked on any item in the main category
 	pos=get_mouse_pos_in_grid(mx, my, 12, 3, 0, 0, 33, 33);
 
-	if(manufacture_list[pos].quantity){
+	if (pos >= 0 && manufacture_list[pos].quantity)
+	{
 		if(action_mode==ACTION_LOOK || (flags&ELW_RIGHT_MOUSE)) {
 			str[0]=LOOK_AT_INVENTORY_ITEM;
 			str[1]=manufacture_list[pos].pos;
@@ -214,7 +215,8 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 	
 	//see if we clicked on any item from the "production pipe"
-	if(manufacture_list[36+pos].quantity){
+	if (pos >= 0 && manufacture_list[36+pos].quantity)
+	{
 		if(action_mode==ACTION_LOOK || (flags&ELW_RIGHT_MOUSE)){
 			str[0]=LOOK_AT_INVENTORY_ITEM;
 			str[1]=manufacture_list[36+pos].pos;

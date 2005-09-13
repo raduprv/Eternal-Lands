@@ -114,7 +114,7 @@ void remove_bag(int which_bag)
 {
 	int sector, i, j=MAX_3D_OBJECTS-1, k=-1;
 
-	if(which_bag>NUM_BAGS) return;
+	if (which_bag >= NUM_BAGS) return;
 
 	if (bag_list[which_bag].obj_3d_id == -1) {
 		// oops, no bag in that slot!
@@ -164,7 +164,7 @@ void get_bag_item(Uint8 *data)
 	int	pos;
 	pos= data[6];
 
-	if(pos>ITEMS_PER_BAG) return;
+	if (pos >= ITEMS_PER_BAG) return;
 
 	ground_item_list[pos].image_id= SDL_SwapLE16(*((Uint16 *)(data)));
 	ground_item_list[pos].quantity= SDL_SwapLE32(*((Uint32 *)(data+2)));

@@ -69,6 +69,7 @@ typedef long int point;
 typedef int point;
 #endif
 
+#include "client_serv.h"
 #ifdef MEMORY_DEBUG
  #include "elmemory.h"
 #endif //MEMORY_DEBUG
@@ -91,7 +92,6 @@ typedef int point;
 #include "3d_objects.h"
 #include "tiles.h"
 #include "lights.h"
-#include "client_serv.h"
 #include "multiplayer.h"
 #include "text.h"
 #include "interface.h"

@@ -201,7 +201,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	object3d *our_object;
 	int i;
 	
-	if (id < 0 || id > MAX_OBJ_3D)
+	if (id < 0 || id >= MAX_OBJ_3D)
 	{
 		LOG_ERROR ("Invalid object id %d", id);
 		return 0;

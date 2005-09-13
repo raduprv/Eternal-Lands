@@ -300,6 +300,7 @@ bp_Book * bp_parseBook(bp_Context * context, xmlNodePtr node) {
 	xmlAttrPtr attr;
 	xmlNodePtr child;
 	bp_Page ** pages;
+	st_data *data;
 
 	context->blockOutside = (void *) &bp_defaultBlockOutsideAttributes;
 	context->blockBorder  = (void *) &bp_defaultBlockBorderAttributes;
@@ -315,7 +316,9 @@ bp_Book * bp_parseBook(bp_Context * context, xmlNodePtr node) {
 	result->width = 528;
 	result->height = 320;
 	result->background = load_texture_cache_deferred("textures/book1.bmp",0);
-	result->fontFace = st_lookup(bp_fonts,"default")->num;
+	data = st_lookup (bp_fonts, "default");
+	if (data != NULL)
+		result->fontFace = data->num;
 	result->layout = BPL_BOOK;
 	result->blockProgression = BPD_DOWN;
 	result->inlineProgression = BPD_RIGHT;

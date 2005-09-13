@@ -422,7 +422,7 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(mx>0 && mx<12*33 && my>0 && my<3*33){
 		int pos=get_mouse_pos_in_grid(mx,my, 12, 3, 0, 0, 33, 33);
 
-		if(sigils_list[pos].have_sigil){
+		if (pos >= 0 && sigils_list[pos].have_sigil){
 			int j;
 			int image_id=sigils_list[pos].sigil_img;
 
@@ -443,7 +443,7 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(mx>5 && mx<6*33+5 && my>win->len_y-37 && my<win->len_y-5){
 		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 
-		on_cast[pos]=-1;
+		if (pos >= 0) on_cast[pos]=-1;
 	}
 
 	return 0;
@@ -464,7 +464,8 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	if(mx>0 && mx<12*33 && my>0 && my<3*33){
 		int pos=get_mouse_pos_in_grid(mx,my, 12, 3, 0, 0, 33, 33);
 		
-		if(sigils_list[pos].have_sigil){
+		if (pos >= 0 && sigils_list[pos].have_sigil)
+		{
 			my_strcp(spell_text,sigils_list[pos].name);
 			have_error_message=0;
 		}
@@ -476,7 +477,7 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	if(mx>5 && mx<6*33+5 && my>win->len_y-37 && my<win->len_y-5){
 		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 		
-		if(on_cast[pos]!=-1){
+		if (pos >= 0 && on_cast[pos]!=-1){
 			my_strcp(spell_text,sigils_list[on_cast[pos]].name);
 			have_error_message=0;
 		}
@@ -553,7 +554,7 @@ void set_spell_name(int id, char * data, int len)
 {
 	int i;
 
-	if(len>60)return;
+	if (len >= 60) return;
 	
 	for(i=0;i<7;i++){
 		if(mqb_data[i] && mqb_data[i]->spell_id==id){

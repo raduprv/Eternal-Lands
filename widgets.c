@@ -93,6 +93,12 @@ int widget_destroy (Uint32 window_id, Uint32 widget_id)
 	if (windows_list.window[window_id].window_id != window_id) return 0;
 	
 	n = windows_list.window[window_id].widgetlist;
+	if (n == NULL)
+	{
+		// shouldn't happen
+		return 0;
+	}
+	
 	if (n->id == widget_id)
 	{
 		if (n->OnDestroy != NULL)
@@ -103,10 +109,15 @@ int widget_destroy (Uint32 window_id, Uint32 widget_id)
 	}
 	else
 	{
-		while (n != NULL)
+		while (1)
 		{
 			w = n;
 			n = n->next;
+			if (n == NULL)
+			{
+				// shouldn't happen
+				return 0;
+			}
 			if (n->id == widget_id)
 			{
 				if (n->OnDestroy != NULL)
@@ -117,7 +128,8 @@ int widget_destroy (Uint32 window_id, Uint32 widget_id)
 			}
 		}
 	}
-		
+	
+	// shouldn't get here	
 	return 0;
 }
 
@@ -1843,9 +1855,10 @@ int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
 						}
 						if(button->input_buffer[0] != '0') {
 							/* Find end of string */
-							for(i = 0; button->input_buffer[i] != '\0' && i < 255; i++);
+							for(i = 0; button->input_buffer[i] != '\0' && i < sizeof (button->input_buffer); i++);
 							/* Append to the end */
-							if(i >= 0){
+							if (i+1 < sizeof (button->input_buffer))
+							{
 								button->input_buffer[i] = ch;
 								button->input_buffer[i+1] = '\0';
 							}

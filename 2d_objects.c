@@ -499,7 +499,8 @@ void set_2d_object(Uint8 display, void *ptr, int len)
 	if (len < sizeof(*id_ptr) ){
 		int	i;
 		
-		for(i=0; i<= MAX_OBJ_2D; i++){
+		for (i = 0; i < MAX_OBJ_2D; i++)
+		{
 			if (obj_2d_list[i]){
 				obj_2d_list[i]->display= display;
 			}
@@ -526,7 +527,8 @@ void state_2d_object(Uint8 state, void *ptr, int len)
 	if (len < sizeof(*id_ptr) ){
 		int	i;
 		
-		for(i=0; i<= MAX_OBJ_2D; i++){
+		for (i = 0; i < MAX_OBJ_2D; i++)
+		{
 			if (obj_2d_list[i]){
 				obj_2d_list[i]->state= state;
 			}

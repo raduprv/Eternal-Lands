@@ -343,9 +343,9 @@ static void png_user_error(png_structp ctx, png_const_charp str)
 int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 {
 	png_structp png_ptr = 0;
-	png_infop info_ptr = 0;
+	png_infop info_ptr = NULL;
 	//png_colorp palette = 0;
-	png_bytep *row_pointers = 0;
+	png_bytep *row_pointers = NULL;
 	int i;
 	int colortype;
 	int result = -1;
@@ -413,10 +413,10 @@ int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 	result = 0;  /* success! */
 	
 done:
-	if (row_pointers)
+	if (row_pointers != NULL)
 		free (row_pointers);
 	
-	if (info_ptr->palette)
+	if (info_ptr != NULL && info_ptr->palette != NULL)
 		free (info_ptr->palette);
 	
 	png_destroy_write_struct (&png_ptr, (png_infopp)NULL);

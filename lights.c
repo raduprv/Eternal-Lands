@@ -208,7 +208,18 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 	int i;
 	light *new_light;
 
-	new_light=(light *)calloc(1, sizeof(light));
+	//find a free spot, in the lights list
+	for (i = 0; i < MAX_LIGHTS; i++)
+	{
+		if (lights_list[i] == NULL)
+			break;
+	}
+	
+	if (i >= MAX_LIGHTS)
+		// oops no way to store the new light
+		return i;
+		
+	new_light = calloc(1, sizeof(light));
 
 	new_light->pos_x= x;
 	new_light->pos_y= y;
@@ -218,16 +229,9 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 	new_light->g= g*intensity;
 	new_light->b= b*intensity;
 
-	//find a free spot, in the lights list
-	for(i=0; i<MAX_LIGHTS; i++)
-		{
-			if(!lights_list[i])
-				{
-					lights_list[i]= new_light;
-					if(i >= num_lights)	num_lights= i+1;
-					break;
-				}
-		}
+	lights_list[i] = new_light;
+	if (i >= num_lights) num_lights = i+1;
+	
 	return i;
 }
 

@@ -226,8 +226,9 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	} else if(mx>10 && mx<10+4*33 && my>10 && my<10+4*33){
 		int pos=get_mouse_pos_in_grid (mx, my, 4, 4, 10, 30, 33, 33);
-
-		if(your_trade_list[pos].quantity){
+		
+		if (pos >= 0 && your_trade_list[pos].quantity)
+		{
 			if(action_mode==ACTION_LOOK || right_click) {
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;
@@ -245,7 +246,8 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	} else if(mx>10+5*33 && mx<10+9*33 && my>10 && my<10+4*33){
 		int pos=get_mouse_pos_in_grid(mx, my, 4, 4, 10+5*33, 30, 33, 33);
 
-		if(others_trade_list[pos].quantity){
+		if (pos >= 0 && others_trade_list[pos].quantity)
+		{
 			if(action_mode==ACTION_LOOK || right_click){
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;

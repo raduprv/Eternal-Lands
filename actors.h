@@ -190,6 +190,17 @@ typedef struct cal_anim_group
 } wtf_is_this;
 
 
+#define ACTOR_HEAD_SIZE   5
+#define ACTOR_SHIELD_SIZE (SHIELD_NONE+1)
+#define ACTOR_CAPE_SIZE   (CAPE_NONE+1)
+#define ACTOR_HELMET_SIZE (HELMET_NONE+1)
+#define ACTOR_WEAPON_SIZE 80
+#define ACTOR_SHIRT_SIZE  22
+#define ACTOR_SKIN_SIZE   4
+#define ACTOR_HAIR_SIZE   9
+#define ACTOR_BOOTS_SIZE  20
+#define ACTOR_LEGS_SIZE   16
+
 typedef struct
 {
 	/*! \name Model data*/
@@ -234,24 +245,24 @@ typedef struct
 	struct cal_anim cal_attack_up_3_frame;
 	struct cal_anim cal_attack_up_4_frame;
 	struct cal_anim cal_attack_down_1_frame;
-    struct cal_anim cal_attack_down_2_frame;
+	struct cal_anim cal_attack_down_2_frame;
 	
 	/*! \name The different body parts (different head shapes, different armour/weapon shapes etc.)*/
 	/*! \{ */
-	body_part head[5];
-	body_part shield[10];
-	body_part cape[20];
-	body_part helmet[20];
-	weapon_part weapon[80];
+	body_part head[ACTOR_HEAD_SIZE];
+	body_part shield[ACTOR_SHIELD_SIZE];
+	body_part cape[ACTOR_CAPE_SIZE];
+	body_part helmet[ACTOR_HELMET_SIZE];
+	weapon_part weapon[ACTOR_WEAPON_SIZE];
 	/*! \} */
 
 	/*! \name Clothing*/
 	/*! \{ */
-	shirt_part shirt[22];
-	skin_part  skin[4];
-	hair_part  hair[9];
-	boots_part boots[20];
-	legs_part legs[16];
+	shirt_part shirt[ACTOR_SHIRT_SIZE];
+	skin_part  skin[ACTOR_SKIN_SIZE];
+	hair_part  hair[ACTOR_HAIR_SIZE];
+	boots_part boots[ACTOR_BOOTS_SIZE];
+	legs_part legs[ACTOR_LEGS_SIZE];
 	/*! \} */
 
 	/*! \name The current actors walk/run speeds*/

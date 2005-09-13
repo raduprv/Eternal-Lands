@@ -182,54 +182,53 @@ void test_for_console_command (char *text, int len)
 			Uint8 ch='\0';
 			int result;
 
-			for(i=0;i<15;i++)
+			for (i = 0; i < 15; i++)
+			{
+				ch=text_loc[i+7]; // 7 because there is a space after "ignore"
+				if (ch == ' ' || ch == '\0')
 				{
-					ch=text_loc[i+7];//7 because there is a space after "ignore"
-					if(ch==' ' || ch=='\0')
-						{
-							ch=0;
-							break;
-						}
-					name[i]=ch;
+					ch = '\0';
+					break;
 				}
+				name[i] = ch;
+			}
+			name[i] = '\0';
 
-			name[i]=0;
+			if (i >= 15 && ch != '\0')
+			{
+				Uint8 str[100];
+				snprintf (str, sizeof(str), "%s %s", name_too_long, not_added_to_ignores);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
+			if (i < 3)
+			{
+				Uint8 str[100];
+				snprintf (str, sizeof(str), "%s %s", name_too_short, not_added_to_ignores);
+				LOG_TO_CONSOLE (c_red1, name_too_short);
+				return;
+			}
 
-			if(i==15 && !ch)
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),"%s %s",name_too_long,not_added_to_ignores);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
-			if(i<3)
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),"%s %s",name_too_short,not_added_to_ignores);
-					LOG_TO_CONSOLE(c_red1,name_too_short);
-					return;
-				}
-
-			result=add_to_ignore_list(name,save_ignores);
-			if(result==-1)
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),already_ignoring,name);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
+			result = add_to_ignore_list (name, save_ignores);
+			if (result == -1)
+			{
+				Uint8 str[100];
+				snprintf (str, sizeof(str), already_ignoring, name);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
 			if(result==-2)
-				{
-					LOG_TO_CONSOLE(c_red1,ignore_list_full);
-					return;
-				}
+			{
+				LOG_TO_CONSOLE (c_red1, ignore_list_full);
+				return;
+			}
 			else
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),added_to_ignores,name);
-					LOG_TO_CONSOLE(c_green1,str);
-					return;
-				}
+			{
+				Uint8 str[100];
+				snprintf (str, sizeof(str), added_to_ignores, name);
+				LOG_TO_CONSOLE (c_green1, str);
+				return;
+			}
 		}
 
 	else if(my_strcompare(text_loc,"filters"))

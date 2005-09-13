@@ -234,7 +234,7 @@ void check_gl_mode()
 	if(!SDL_VideoModeOK(window_width, window_height, bpp, flags))
 		{
 			char vid_mode_str[25];
-			snprintf(vid_mode_str,sizeof(str),"%ix%ix%i",window_width,window_height,bpp);
+			snprintf (vid_mode_str, sizeof (vid_mode_str), "%ix%ix%i", window_width, window_height, bpp);
 			snprintf(str,sizeof(str),no_stencil_str,vid_mode_str);
 			LOG_TO_CONSOLE(c_red1,str);
 

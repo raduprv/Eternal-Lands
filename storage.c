@@ -40,9 +40,9 @@ void get_storage_categories(char * in_data, int len)
 		while((*sptr++=*ptr++));
 	}
 
-	storage_categories[i].id=-1;
-	
-	no_storage_categories=in_data[0];
+	if (i < 50) storage_categories[i].id = -1;
+	no_storage_categories = i;
+
 	selected_category=-1;
 	active_storage_item=-1;
 
@@ -111,11 +111,14 @@ void get_storage_items(Uint8 * in_data, int len)
 	no_storage=in_data[0];
 	
 	cat=find_category(in_data[1]);
-	
-	storage_categories[cat].name[0]=127+c_red3;
-	if(selected_category!=-1 && cat!=selected_category) storage_categories[selected_category].name[0]=127+c_orange1;
-	sprintf(windows_list.window[storage_win].window_name, "Storage - %s", storage_categories[cat].name+1);
-	selected_category=cat;
+	if (cat >= 0)
+	{
+		storage_categories[cat].name[0] = 127+c_red3;
+		if (selected_category != -1 && cat != selected_category)
+			storage_categories[selected_category].name[0] = 127+c_orange1;
+		sprintf (windows_list.window[storage_win].window_name, "Storage - %s", storage_categories[cat].name+1);
+		selected_category = cat;
+	}
 
 	ptr=in_data+2;
 	

@@ -228,8 +228,8 @@ void change_shadow_map_size(int *pointer, int value)
 		}
 		max_shadow_map_size = value;
 	} else {
-		if(value > 5) {
-			value = 1;
+		if(value >= 5) {
+			value = 0;
 		}
 		*pointer = value;
 		max_shadow_map_size = array[value];
@@ -688,7 +688,7 @@ void init_vars()
 	add_var(STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
 	
 	add_var(BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1,"Global Ignores","Global ignores is a list with people that are well known for being nasty, so we put them into a list (global_ignores.txt). Enable this to load that list on startup.",MISC);
-	add_var(BOOL,"save_ignores","sign",&save_ignores,change_var,1,"Save Ignores","Toggle saving of the global ignores list on exit.",MISC);
+	add_var(BOOL,"save_ignores","sign",&save_ignores,change_var,1,"Save Ignores","Toggle saving of the local ignores list on exit.",MISC);
 	add_var(BOOL,"use_global_filters","gfil",&use_global_filters,change_var,1,"Global Filter","Toggle the use of global text filters.",MISC);
 	/* add_var(STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",MISC); */
 	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps filter","Toggle the caps filter",MISC);
@@ -887,7 +887,7 @@ int write_el_ini ()
 {
 	int nlines = 0, maxlines = 0, iline, ivar;
 	input_line *cont = NULL;
-	FILE *file = open_el_ini ("r");
+	FILE *file;
 	
 	// first check if we need to change anything
 	//
@@ -903,6 +903,7 @@ int write_el_ini ()
 	if (ivar >= our_vars.no) return 1; // nothing changed, no need to write
 	
 	// read the ini file
+	file = open_el_ini ("r");
 	if (file != NULL)
 	{
 		maxlines = 300;
@@ -1080,6 +1081,13 @@ int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 			break;
 		}
 	}
+	
+	if (option == NULL)
+	{
+		// option not found, not supposed to happen
+		return 0;
+	}
+	
 	switch(option->type) {
 		case BOOL:
 			if(widget->type == CHECKBOX) { //Avoid troubles with checkboxes automagically changing the value

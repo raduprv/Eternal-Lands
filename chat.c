@@ -388,7 +388,7 @@ void update_chat_window (text_message * msg, char highlight)
 		vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
 		vscrollbar_set_pos (chat_win, chat_scroll_id, len);
 
-		current_line = channels[ichan].nr_lines;
+		current_line = channels[active_tab].nr_lines;
 		text_changed = 1;
 		return;
 	}
@@ -442,7 +442,7 @@ void update_chat_window (text_message * msg, char highlight)
 		
 			vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
 			vscrollbar_set_pos (chat_win, chat_scroll_id, len);
-			current_line = channels[ichan].nr_lines;
+			current_line = channels[active_tab].nr_lines;
 			text_changed = 1;
 		}
 		else if (highlight && !channels[0].highlighted) //Make sure we don't change the color of a highlighted tab

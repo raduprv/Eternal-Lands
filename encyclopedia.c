@@ -380,14 +380,16 @@ void ReadCategoryXML(xmlNode * a_node)
 			}
 
 			//<Size>
-			if(!xmlStrcasecmp(cur_node->name,"Size")){
-				size=(!xmlStrcasecmp("Big",cur_node->children->content))?1:0;
+			if(!xmlStrcasecmp(cur_node->name,"Size"))
+			{
+				if (cur_node->children != NULL)
+					size = (xmlStrcasecmp ("Big", cur_node->children->content) == 0) ? 1 : 0;
 			}
 
 			//<Color>
 			if(!xmlStrcasecmp(cur_node->name,"Color")){
 				ParseColor(cur_node->properties);
-				if(cur_node->children)
+				if (cur_node->children != NULL)
 					GetColorFromName (cur_node->children->content);
 			}
 
@@ -403,7 +405,8 @@ void ReadCategoryXML(xmlNode * a_node)
 				T->r=r; T->g=g; T->b=b;
 				T->text=NULL;
 				T->ref=NULL;
-				MY_XMLSTRCPY(&T->text, cur_node->children->content); 
+				if (cur_node->children != NULL)
+					MY_XMLSTRCPY (&T->text, cur_node->children->content);
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
 				x+=strlen(T->text)*((T->size)?11:8);

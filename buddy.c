@@ -65,21 +65,27 @@ int compare2( const void *arg1, const void *arg2)
 int display_buddy_handler(window_info *win)
 {
 	int i=0,x=2,y=2;
+	int offset;
 	
 	glEnable(GL_TEXTURE_2D);
 	// Draw buddies
 	qsort(buddy_list,MAX_BUDDY,sizeof(_buddy),compare2);
-	for (i = vscrollbar_get_pos (buddy_win,buddy_scroll_id); i < vscrollbar_get_pos(buddy_win,buddy_scroll_id) + 19; i++)
+	
+	offset = vscrollbar_get_pos (buddy_win,buddy_scroll_id);
+	if (offset >= 0)
 	{
-		switch(buddy_list[i].type){
-			case 0:glColor3f(1.0,1.0,1.0);break;
-			case 1:glColor3f(1.0,0,0);break;
-			case 2:glColor3f(0,1.0,0);break;
-			case 3:glColor3f(0,0,1.0);break;
-			case 4:glColor3f(1.0,1.0,0);break;
+		for (i = offset; i < offset + 19; i++)
+		{
+			switch(buddy_list[i].type){
+				case 0:glColor3f(1.0,1.0,1.0);break;
+				case 1:glColor3f(1.0,0,0);break;
+				case 2:glColor3f(0,1.0,0);break;
+				case 3:glColor3f(0,0,1.0);break;
+				case 4:glColor3f(1.0,1.0,0);break;
+			}
+			draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
+			y+=10;
 		}
-		draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
-		y+=10;
 	}
 	//Draw a button for the requests
 	if(!queue_isempty(buddy_request_queue)) {
@@ -441,6 +447,13 @@ int create_buddy_interface_win(const char *title, void *argument)
 				break;
 			}
 		}
+		
+		if (current_window >= MAX_ACCEPT_BUDDY_WINDOWS)
+		{
+			// uh oh, no free window
+			return -1;
+		}
+		
 		snprintf(accept_windows[current_window].name, sizeof (accept_windows[current_window].name), "%s", (char *)argument);
 		if(is_in_buddylist(accept_windows[current_window].name)) {
 			/* We don't need to make room for the checkbox because the buddy is already in our list. */
@@ -458,7 +471,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 		if(!is_in_buddylist(accept_windows[current_window].name)) {
 			accept_windows[current_window].checkbox = checkbox_add(accept_windows[current_window].window_id, NULL, x, y, 15, 15, NULL);
 			x += 20;
-			snprintf(string, 350, buddy_add_to_list_str);
+			snprintf (string, sizeof (string), buddy_add_to_list_str);
 			label_add_extended(accept_windows[current_window].window_id, label_id++, NULL, x, y, 0, 0, 0, 0.8, -1, -1, -1, string);
 			y += 20;
 			x = 5;

@@ -522,26 +522,38 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	int ret=0;
 	struct input_text * t=&inputs[active];
 
-	if((ret=check_character(active>0, ch))){
-		if(ret==-1){
-			add_text_to_buffer(c_red1, error_max_digits, 6000);
-		} else if(t->pos>=15){
-			add_text_to_buffer(c_red2, error_length, 6000);
-		} else if (ret == 0){
-			add_text_to_buffer(c_red2, error_illegal_character, 6000);
-		} else {
+	if ((ret=check_character (active > 0, ch)))
+	{
+		if (ret==-1)
+		{
+			add_text_to_buffer (c_red1, error_max_digits, 6000);
+		}
+		else if (t->pos >= 15)
+		{
+			add_text_to_buffer (c_red2, error_length, 6000);
+		}
+		else
+		{
 			t->str[t->pos++]=ch;
 			t->str[t->pos]=0;
 			ret=1;	//Reused to show that a letter has been added
 		}
-	} else if(unikey == SDLK_TAB||unikey == SDLK_RETURN){
+	} 
+	else if (unikey == SDLK_TAB || unikey == SDLK_RETURN)
+	{
 		active++;
 		if(active>2) active=0;
-	} else if(unikey == SDLK_BACKSPACE && t->pos>0){
+	}
+	else if (unikey == SDLK_BACKSPACE && t->pos>0)
+	{
 		t->pos--;
-		if(isdigit(t->str[t->pos]))numbers_in_name--;
-		t->str[t->pos]=0;
-		ret=1;	//Reused to show that a letter has been removed
+		if (isdigit (t->str[t->pos])) numbers_in_name--;
+		t->str[t->pos] = 0;
+		ret = 1;	// Reused to show that a letter has been removed
+	}
+	else
+	{
+		add_text_to_buffer (c_red2, error_illegal_character, 6000);
 	}
 
 	if(active>0){

@@ -282,12 +282,15 @@ page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 	char **line;
 	char *last_ptr;
 	int i=0,k;
-	int max_width=b->max_width;
-	int max_lines=b->max_lines;
+	int max_width;
+	int max_lines;
 	int h, w, x, y;
 
-	if(!img||!b) return NULL;
+	if (img == NULL || b == NULL) return NULL;
 	if(!p || p->image)p=add_page(b);
+	
+	max_width=b->max_width;
+	max_lines=b->max_lines;
 
 	h=img->h/16+1;
 	y=img->y/16+1;
