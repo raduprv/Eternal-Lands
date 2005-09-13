@@ -26,7 +26,7 @@ int client_version_minor=VER_MINOR;
 int client_version_release=VER_RELEASE;
 int	client_version_patch=VER_BUILD;
 int version_first_digit=10;	//protocol/game version sent to server
-int version_second_digit=10;
+int version_second_digit=11;
 
 int gargc;
 char **  gargv;
@@ -149,7 +149,7 @@ int start_rendering()
 	queue_destroy(message_queue);
 #endif //NETWORK_THREAD
 	if(pm_log.ppl)free_pm_log();
-	
+
 	save_bin_cfg();
 #ifdef NEW_CLIENT
 	//Save the quickbar spells
@@ -161,7 +161,7 @@ int start_rendering()
 	// save notepad contents if the file was loaded
 	if (notepad_loaded) notepadSaveFile (NULL, 0, 0, 0);
 	#endif
-	
+
 	unload_questlog();
 	free_icons();
 	free_vars();
