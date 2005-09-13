@@ -1,13 +1,12 @@
 #include <stdlib.h>
 #include <math.h>
 #ifndef WINDOWS
-#include <locale.h>
+ #include <locale.h>
 #endif
-//#include "SDL_opengl.h"
 #ifdef MAP_EDITOR
-#include "../map_editor/global.h"
+ #include "../map_editor/global.h"
 #else
-#include "global.h"
+ #include "global.h"
 #endif
 #include "string.h"
 
@@ -29,6 +28,7 @@
 
 #define PART_SYS_VISIBLE_DIST_SQ 18*18
 
+int use_point_particles=1;
 int particles_percentage=100;
 SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
 int particle_textures[8];

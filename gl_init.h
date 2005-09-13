@@ -25,7 +25,6 @@ extern int have_stencil; /*!< flag that indicates whether we have the stencil ex
 extern int have_multitexture; /*! indicates whether we have the multitexture extension or not */
 extern int use_vertex_array; /*!< specifies if we use vertex arrays or not */
 extern int use_vertex_buffers; /*!< specifies if we use vertex buffer objects or not */
-extern int use_point_particles; /*!< specifies if we use point particles or not */
 extern int vertex_arrays_built; /*!< flag that indicates whether the vertex array was already initialized or not */
 extern int have_compiled_vertex_array; /*!< indicates whether we have the compiled vertex array extension or not */
 extern int have_point_sprite; /*!< indicates whether we have point sprites or not */

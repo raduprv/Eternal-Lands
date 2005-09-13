@@ -28,11 +28,7 @@
 #define FLOAT		3 	// Change float									func(float*,float*)
 #define INT			4	// Change int									func(int*,int)
 #define MULTI		5   // INT with multiselect widget
-#ifdef ELC
- #define PASSWORD 6
-#else
- #define PASSWORD STRING
-#endif //ELC
+#define PASSWORD 6
 
 // Defines for config variables
 #define VIDEO		0

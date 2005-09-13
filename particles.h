@@ -333,3 +333,5 @@ int save_particle_def(particle_sys_def *def);
 #endif
 
 #endif
+
+extern int use_point_particles; /*!< specifies if we use point particles or not */

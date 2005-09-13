@@ -18,7 +18,6 @@ int full_screen;
 int have_multitexture=0;
 int use_vertex_array=1;
 int use_vertex_buffers=0;
-int use_point_particles=1;
 int vertex_arrays_built=0;
 int have_compiled_vertex_array=0;
 int have_point_sprite=0;
