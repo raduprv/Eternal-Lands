@@ -1338,18 +1338,18 @@ void convert_tabs (int new_wc)
 		for (ibc = 0; ibc < tabs_in_use; ibc++)
 		{
 			chan = tabs[ibc].channel;
-			for (iwc = 0; iwc < MAX_ACTIVE_CHANNELS; iwc++)
+			for (iwc = 0; iwc < MAX_CHAT_TABS; iwc++)
 			{
 				if (channels[iwc].chan_nr == chan && channels[iwc].open)
 					break;
 			}
 			
-			if (iwc >= MAX_ACTIVE_CHANNELS)
+			if (iwc >= MAX_CHAT_TABS)
 				remove_tab_button (chan);
 		}
 		
 		// now add buttons for every tab that doesn't have a button yet
-		for (iwc = 0; iwc < MAX_ACTIVE_CHANNELS; iwc++)
+		for (iwc = 0; iwc < MAX_CHAT_TABS; iwc++)
 		{
 			if (channels[iwc].open)
 			{
@@ -1371,7 +1371,7 @@ void convert_tabs (int new_wc)
 	{
 		// first close possible remaining tabs that are no 
 		// longer active
-		for (iwc = 0; iwc < MAX_ACTIVE_CHANNELS; iwc++)
+		for (iwc = 0; iwc < MAX_CHAT_TABS; iwc++)
 		{
 			if (channels[iwc].open)
 			{
@@ -1393,13 +1393,13 @@ void convert_tabs (int new_wc)
 		for (ibc = 0; ibc < tabs_in_use; ibc++)
 		{
 			chan = tabs[ibc].channel;
-			for (iwc = 0; iwc < MAX_ACTIVE_CHANNELS; iwc++)
+			for (iwc = 0; iwc < MAX_CHAT_TABS; iwc++)
 			{
 				if (channels[iwc].chan_nr == chan && channels[iwc].open)
 					break;
 			}
 			
-			if (iwc >= MAX_ACTIVE_CHANNELS)
+			if (iwc >= MAX_CHAT_TABS)
 				// unfortunately we have no clue about the 
 				// number of lines written in this channel, so
 				// we won't see anything until new messages
