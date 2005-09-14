@@ -293,7 +293,7 @@ extern "C"
   CAL3D_WRAPPER_API CalUserData CalCoreModel_GetUserData(struct CalCoreModel *self);
   CAL3D_WRAPPER_API int CalCoreModel_LoadCoreAnimation(struct CalCoreModel *self, char *strFilename);
   CAL3D_WRAPPER_API int CalCoreModel_LoadCoreMaterial(struct CalCoreModel *self, char *strFilename);
-  CAL3D_WRAPPER_API int CalCoreModel_LoadCoreMesh(struct CalCoreModel *self, char *strFilename);
+  CAL3D_WRAPPER_API int CalCoreModel_LoadCoreMesh(struct CalCoreModel *self, const char *strFilename);
   CAL3D_WRAPPER_API enum Boolean CalCoreModel_LoadCoreSkeleton(struct CalCoreModel *self, char *strFilename);
   CAL3D_WRAPPER_API struct CalCoreModel *CalCoreModel_New(const char* name);
   CAL3D_WRAPPER_API enum Boolean CalCoreModel_SaveCoreAnimation(struct CalCoreModel *self, char *strFilename, int coreAnimtionId);

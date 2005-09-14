@@ -50,7 +50,6 @@ int display_console_handler (window_info *win)
 			console_text_changed = 0;
 		}
 		
-	
 		draw_console_pic (cons_text);
 		if (scroll_up_lines != 0)
 		{
