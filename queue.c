@@ -6,12 +6,13 @@
 
 int queue_initialise (queue_t **queue)
 {
-	(*queue) = (queue_t *)malloc(sizeof(queue_t));
+	(*queue) = malloc(sizeof(queue_t));
 	/* Create a dummy node that's always at the front of our queue */
-	if (((*queue)->front = (node_t *)malloc(sizeof(node_t))) == NULL) {
+	if (((*queue)->front = malloc(sizeof(node_t))) == NULL) {
 		fprintf(stderr, "%s:%i: Failed to allocate memory\n", __FILE__, __LINE__);
 		return 0;
 	}
+	(*queue)->front->data = NULL;
 	(*queue)->rear = (*queue)->front;
 	(*queue)->front->next = NULL;
 	(*queue)->mutex = SDL_CreateMutex();
@@ -23,7 +24,7 @@ int queue_push (queue_t *queue, void *item)
 {
 	node_t *newnode;
 
-	if(queue == NULL || (newnode = (node_t *)malloc(sizeof *newnode)) == NULL) {
+	if(queue == NULL || (newnode = malloc(sizeof *newnode)) == NULL) {
 		fprintf(stderr, "%s:%i: Failed to allocate memory\n", __FILE__, __LINE__);
 		return 0;
 	} else {
@@ -115,6 +116,15 @@ int queue_isempty(const queue_t *queue)
 	return return_value;
 }
 
+node_t *queue_front_node(const queue_t *queue)
+{
+	if(queue != NULL) {
+		return queue->front->next;
+	} else {
+		return NULL;
+	}
+}
+
 /* Unused, should be removed
 void *queue_peek(const queue_t *queue)
 {
@@ -125,7 +135,7 @@ void *queue_peek(const queue_t *queue)
 	}
 }*/
 
-int queue_destroy (queue_t *queue)
+void queue_destroy (queue_t *queue)
 {
 	void *tmp;
 
@@ -144,5 +154,4 @@ int queue_destroy (queue_t *queue)
 		SDL_DestroyMutex(queue->mutex);
 		free (queue);
 	}
-	return 0;
 }

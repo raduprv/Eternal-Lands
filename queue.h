@@ -26,10 +26,11 @@ typedef struct queue
 } queue_t;
 
 int queue_initialise (queue_t **queue);
-int queue_destroy (queue_t *queue);
+void queue_destroy (queue_t *queue);
 int queue_push (queue_t *queue, void *item);
 void *queue_pop (queue_t *queue);
 void *queue_delete_node(queue_t *queue, node_t *node);
 int queue_isempty (const queue_t *queue);
+node_t *queue_front_node(const queue_t *queue);
 
 #endif //QUEUE_H_

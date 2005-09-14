@@ -495,8 +495,9 @@ void test_for_console_command (char *text, int len)
 			while(*text_loc && isspace(*text_loc))
 				text_loc++;
 			/* Make sure a name is given */
-			if(*text_loc) {
-				node_t *node = buddy_request_queue->front;
+			if(*text_loc && !queue_isempty(buddy_request_queue)) {
+				node_t *node = queue_front_node(buddy_request_queue);
+
 				/* Search for the node in the queue */
 				while(node != NULL) {
 					if(strcasecmp(text_loc, node->data) == 0) {
