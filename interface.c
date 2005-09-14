@@ -510,7 +510,7 @@ void draw_game_map (int map, int mouse_mini)
 
 	glColor3f(1.0f,1.0f,1.0f);
     	
-    bind_texture_id(map_large);
+	bind_texture_id(map_large);
     
 	glBegin(GL_QUADS);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(50,0,0); 
@@ -622,7 +622,7 @@ void draw_game_map (int map, int mouse_mini)
 			draw_string_zoomed(screen_x, screen_y, label_cursor_coords, 1, 0.3);
 		}
 
-   	glMatrixMode(GL_MODELVIEW);
+		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
