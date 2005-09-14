@@ -68,12 +68,15 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	snprintf(filename, sizeof(filename), "%s", FileName);
 	/* find last dot */
 	name = strrchr(filename, '.');
-	if (name == NULL) name = filename;
+	if (name == NULL)
+	{
+		name = filename;
+	}
 	/* terminate filename before last dot */
 	*name = '\0';
 
-	/* safely add '_alphab.bmp' to the string */
-	strncat(filename, sizeof(filename) - strlen(filename) - 1, "_alpha.bmp");
+	/* safely add '_alpha.bmp' to the string */
+	strncat(filename, "_alpha.bmp", sizeof(filename) - strlen(filename) - 1);
 
 	f = fopen (filename, "rb");
   	if (!f) return 0;
