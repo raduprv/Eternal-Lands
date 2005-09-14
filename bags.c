@@ -72,14 +72,18 @@ void add_bags_from_list(Uint8 *data)
 
 	bags_no=data[0];
 
-	if(bags_no>NUM_BAGS)return;//something nasty happened
+	if(bags_no > NUM_BAGS) {
+		return;//something nasty happened
+	}
 	
 	for(i=0;i<bags_no;i++) {
 		my_offset=i*5+1;
 		bag_x=SDL_SwapLE16(*((Uint16 *)(data+my_offset)));
 		bag_y=SDL_SwapLE16(*((Uint16 *)(data+my_offset+2)));
 		bag_id=*((Uint8 *)(data+my_offset+4));
-		if(bag_id>=200)continue;
+		if(bag_id >= NUM_BAGS) {
+			continue;
+		}
 		//now, get the Z position
 		if(bag_y*tile_map_size_x*6+bag_x>tile_map_size_x*tile_map_size_y*6*6)  {
 			//Warn about this error!
@@ -181,10 +185,14 @@ void get_bags_items_list(Uint8 *data)
 
 	view_ground_items=1;
 	//clear the list
-	for(i=0;i<50;i++) ground_item_list[i].quantity=0;
+	for(i = 0; i < 50; i++) {
+		ground_item_list[i].quantity = 0;
+	}
 
-	items_no=data[0];
-	if(items_no>ITEMS_PER_BAG) return;
+	items_no = data[0];
+	if(items_no > ITEMS_PER_BAG) {
+		return;
+	}
 	
 	for(i=0;i<items_no;i++) {
 		my_offset= i*7+1;
@@ -195,8 +203,9 @@ void get_bags_items_list(Uint8 *data)
 	}
 	
 	draw_pick_up_menu();
-	if(item_window_on_drop)
+	if(item_window_on_drop) {
 		display_items_menu();
+	}
 }
 
 int display_ground_items_handler(window_info *win)
@@ -278,14 +287,18 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	
 	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) {
+		return 0;
+	}
 
 	if(right_click) {
-		if(item_dragged!=-1) item_dragged=-1;
-		else if(item_action_mode==ACTION_LOOK)
-			item_action_mode=ACTION_WALK;
-		else
-			item_action_mode=ACTION_LOOK;
+		if(item_dragged != -1) {
+			item_dragged = -1;
+		} else if(item_action_mode == ACTION_LOOK) {
+			item_action_mode = ACTION_WALK;
+		} else {
+			item_action_mode = ACTION_LOOK;
+		}
 		return 1;
 	}
 
