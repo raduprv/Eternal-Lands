@@ -274,7 +274,7 @@ int filter_or_ignore_text (unsigned char *text_to_add, int len)
 			because the name is corrupted. so we implement it the old fashioned way.
 			snprintf (name, l, "%s", &text_to_add[1]);
 			*/
-			for(i=0;i<32;i++)
+			for(i=0;i<sizeof(name);i++)
 				{
 					cur_char=text_to_add[i+1];
 					name[i]=cur_char;
