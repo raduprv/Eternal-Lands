@@ -73,7 +73,7 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	*name = '\0';
 
 	/* safely add '_alphab.bmp' to the string */
-	strncat(filename, sizeof(filename), "_alpha.bmp");
+	strncat(filename, sizeof(filename) - strlen(filename) - 1, "_alpha.bmp");
 
 	f = fopen (filename, "rb");
   	if (!f) return 0;
