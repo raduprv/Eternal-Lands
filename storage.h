@@ -6,12 +6,14 @@
 #ifndef __STORAGE_H__
 #define __STORAGE_H__
 
+#define STORAGE_ITEMS_SIZE 200
+
 /*! \name window handler
  * @{ */
 extern int storage_win; /*!< window handler for the new storage window */
 /*! @} */
 extern int storage_item_dragged;
-extern ground_item storage_items[200]; /*!< list of storage items. */
+extern ground_item storage_items[STORAGE_ITEMS_SIZE]; /*!< list of storage items. */
 
 extern int storage_win_x;
 extern int storage_win_y;

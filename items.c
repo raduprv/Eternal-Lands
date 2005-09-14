@@ -178,13 +178,22 @@ void drag_item(int item, int storage, int mini)
 	char str[20];
 	
 	if(storage) {
+		if (item < 0 || item >= STORAGE_ITEMS_SIZE)
+			// oops
+			return;
+		
 		cur_item=storage_items[item].image_id;
 		if(!storage_items[item].quantity) {
 			storage_item_dragged=-1;
 			return;
 		}
-		if(quantity>storage_items[item].quantity)quantity=storage_items[item].quantity;
+		if (quantity > storage_items[item].quantity)
+			quantity = storage_items[item].quantity;
 	} else {
+		if (item < 0 || item >= ITEM_NUM_ITEMS)
+			// oops
+			return;
+		
 		cur_item=item_list[item].image_id;
 		if(!item_list[item].quantity) {
 			item_dragged=-1;
@@ -195,6 +204,10 @@ void drag_item(int item, int storage, int mini)
 		} else quantity=-1;//The quantity for non-stackable items is misleading so don't show it...
 	}
 #else
+	if (item < 0 || item >= ITEM_NUM_ITEMS)
+		// oops
+		return;
+		
 	cur_item=item_list[item].image_id;
 #endif
 

@@ -15,7 +15,7 @@ int selected_category=-1;
 
 int active_storage_item=-1;
 
-ground_item storage_items[200]={{0,0,0}};
+ground_item storage_items[STORAGE_ITEMS_SIZE]={{0,0,0}};
 int no_storage;
 
 char storage_text[202]={0};
@@ -87,7 +87,8 @@ void get_storage_items(Uint8 * in_data, int len)
 		ptr=in_data+2;
 		active_storage_item=ptr[6];
 		
-		for(i=0;i<200;i++){
+		for (i = 0; i < STORAGE_ITEMS_SIZE; i++)
+		{
 			if(storage_items[i].pos==*((Uint8*)(ptr+6))){
 				storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
 				storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
@@ -95,7 +96,8 @@ void get_storage_items(Uint8 * in_data, int len)
 			}
 		}
 
-		for(i=0;i<200;i++){
+		for (i = 0; i < STORAGE_ITEMS_SIZE; i++)
+		{
 			if(!storage_items[i].quantity){
 				storage_items[i].pos=*((Uint8*)(ptr+6));
 				storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
@@ -122,13 +124,15 @@ void get_storage_items(Uint8 * in_data, int len)
 
 	ptr=in_data+2;
 	
-	for(i=0;i<no_storage && i<200;i++,ptr+=7){
+	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++, ptr += 7)
+	{
 		storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
 		storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
 		storage_items[i].pos=*((Uint8*)(ptr+6));
 	}
 	
-	for(;i<200;i++){
+	for ( ; i < STORAGE_ITEMS_SIZE; i++)
+	{
 		storage_items[i].quantity=0;
 	}
 	
