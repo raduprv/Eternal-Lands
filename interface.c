@@ -792,34 +792,58 @@ void put_mark_on_current_position(char *name)
 
 void delete_mark_on_map_on_mouse_position()
 {
-        int min_mouse_x = (window_width-hud_x)/6;
-        int min_mouse_y = 0;
+	int min_mouse_x = (window_width-hud_x)/6;
+	int min_mouse_y = 0;
 	int mx , my , i;
-        int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
-        int max_mouse_y = window_height - hud_y;
+	int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
+	int max_mouse_y = window_height - hud_y;
 
-        int screen_map_width = max_mouse_x - min_mouse_x;
-        int screen_map_height = max_mouse_y - min_mouse_y;
+	int screen_map_width = max_mouse_x - min_mouse_x;
+	int screen_map_height = max_mouse_y - min_mouse_y;
 
-        // FIXME (Malaclypse): should be moved above the screen_map_* init, to avoid additional computation
-        if (mouse_x < min_mouse_x
-        || mouse_x > max_mouse_x
-        || mouse_y < min_mouse_y
-        || mouse_y > max_mouse_y) {
-                return;
-        }
+	int min_distance; 
+	marking * closest_mark;
 
-        mx = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
-        my = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
+	// FIXME (Malaclypse): should be moved above the screen_map_* init, to avoid additional computation
+	if (mouse_x < min_mouse_x
+	|| mouse_x > max_mouse_x
+	|| mouse_y < min_mouse_y
+	|| mouse_y > max_mouse_y) {
+		return;
+	}
 
-	for ( i = 0 ; i < max_mark ; i ++ ) 
-	    if (( abs( mx - marks[i].x) < 20 ) && (abs( my - marks[i].y) < 20 ) )
-              {
-		marks[i].x =  -1 ;
-		marks[i].y =  -1 ;
-		break;
-	      }
-save_markings();
+	mx = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
+	my = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
+
+	// delete mark closest to cursor
+	min_distance = 20*20; // only check close marks
+	closest_mark = NULL;
+	for ( i = 0 ; i < max_mark ; i ++ ) {
+		int distance, dx, dy;
+		marking * const mark = &marks[i]; 
+
+		// skip masked marks
+		if (mark->x < 0) continue;
+		// get mark to cursor distance (squared)
+		dx = mark->x - mx;
+		dy = mark->y - my;
+		distance = dx*dx + dy*dy;
+
+		// prefer deleting closer and newer marks
+		if (distance <= min_distance) {
+			// found a closer mark
+			closest_mark = mark;
+			min_distance = distance;
+		}
+	}
+
+	if (closest_mark != NULL) {
+		// we found a close mark
+		closest_mark->x =  -1 ;
+		closest_mark->y =  -1 ;
+	}
+
+	save_markings();
 }
 
 void save_markings()
