@@ -249,7 +249,7 @@ extern char
 		/*multiplayer.c*/
 		connect_to_server_str[50],
 		reconnect_str[50],
-		alt_x_quit[30],
+		alt_x_quit[50],
 		license_check[150], 
 		/*new_character.c*/
 		skin_str[15],
