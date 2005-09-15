@@ -1094,6 +1094,7 @@ static void process_data_from_server()
 	    
 				LOG_TO_CONSOLE(c_red2, disconnected_from_server);
 				LOG_TO_CONSOLE(c_red2, alt_x_quit);
+				LOG_ERROR ("Packet overrun, protocol = %d, size = %u\n", pData[0], size);
 				in_data_used = 0;
 				disconnected = 1;
 			}
