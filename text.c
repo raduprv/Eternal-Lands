@@ -202,7 +202,7 @@ void send_input_text_line (char *line, int line_len)
 	return;
 }
 
-int filter_or_ignore_text (Uint8 *text_to_add, int len)
+int filter_or_ignore_text (Uint8 *text_to_add, int len, int size)
 {
 	int l, type, idx;
 
@@ -291,7 +291,7 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len)
 	}
 
 	// filter any naughty words out
-	return filter_text (text_to_add, len);
+	return filter_text (text_to_add, len, size);
 }
 
 void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len)

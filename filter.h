@@ -47,7 +47,7 @@ int remove_from_filter_list(Uint8 *name);
  * \retval int
  * \callgraph
  */
-int filter_text(Uint8 * input_text, int len);
+int filter_text (Uint8 *input_text, int len, int size);
 
 /*!
  * \ingroup loadsave

@@ -230,94 +230,126 @@ int filter_storage_text (Uint8 * input_text, int len) {
 }  
 
 //returns the new length of the text
-int filter_text(Uint8 * input_text, int len)
+int filter_text (Uint8 *input_text, int len, int size)
 {
-	int i, t,bad_len,rep_len, idx;
-	Uint8 *rloc=input_text;
+	int i, t, bad_len, rep_len, new_len, idx;
 	Uint8 buff[4096];
 
 	// See if a search term has been added to the #storage command, and if so, 
         // only list those items with that term
-	if (*storage_filter && my_strncompare (input_text+1, "Items you have in your storage:", 31))
+	if (storage_filter[0] != '\0' && len > 31 && my_strncompare (input_text+1, "Items you have in your storage:", 31))
 		len = 33 + filter_storage_text (input_text+33, len-33);
 
-	memset(buff, 0, len+3);  /* clear buffer */
-	strncpy(buff+1, input_text, len); /* now we have leading and trailing spaces */
-	buff[0]=' ';
-	buff[len+1]=' ';
-
 	//do we need to do CAPS filtering?
-	if(caps_filter)
-		{ 
-			int	clen=len;
-			// skip any coloring
-			if(*rloc >= 128) while(*rloc && *rloc >= 128 && clen > 0)
-				{
-					rloc++;
-					clen--;
-				}
-			// handle PM's
-			if(*rloc == '[' || rloc[1] == '[') while(*rloc && *rloc != ':' && clen > 0)
-				{
-					rloc++;
-					clen--;
-				}
-			// or ignore first word
-			else while(*rloc && *rloc != ' ' && *rloc != ':' && clen > 0)
-				{
-					rloc++;
-					clen--;
-				}
-			while(*rloc && (*rloc == ' ' || *rloc == ':' || *rloc >= 128) && clen > 0)
-				{
-					rloc++;
-					clen--;
-				}
-			// check for hitting the EOS
-			if(!*rloc) rloc= input_text;
-			// if we pass the upper test, entire line goes lower
-			if(len-(rloc-input_text) > 4 && my_isupper(rloc, clen)) my_tolower(input_text);
-			rloc= input_text;	// restore the initial value
+	if (caps_filter)
+	{ 
+		int idx, clen = len;
+
+		// skip any coloring
+		idx = 0;
+		while (IS_COLOR (input_text[idx]) && clen > 0)
+		{
+			idx++;
+			clen--;
 		}
+
+		// handle PM's
+		if (input_text[idx] == '[' || input_text[idx+1] == '[')
+		{
+			while (input_text[idx] != '\0' && input_text[idx] != ':' && clen > 0)
+			{
+				idx++;
+				clen--;
+			}
+		}
+		// or ignore first word
+		else
+		{
+			while (input_text[idx] != '\0' && input_text[idx] != ' ' && input_text[idx] != ':' && clen > 0)
+			{
+				idx++;
+				clen--;
+			}
+		}
+		
+		while (input_text[idx] != '\0' && (input_text[idx] == ' ' || input_text[idx] == ':' || IS_COLOR (input_text[idx])) && clen > 0)
+		{
+			idx++;
+			clen--;
+		}
+		
+		// check for hitting the EOS
+		if (input_text[idx] == '\0') idx = 0;
+		// if we pass the upper test, entire line goes lower
+		if (len - idx > 4 && my_isupper (&input_text[idx], clen))
+		{
+			// don't call my_tolower, since we're not sure if the string is NULL terminated
+			for (idx = 0; idx < len; idx++)
+				input_text[idx] = tolower (input_text[idx]);
+		}
+	}
+
+	if (len > sizeof (buff) - 3)
+		len = sizeof (buff) - 3;
+
+	memset (buff, 0, len+3);  /* clear buffer */
+	strncpy (buff+1, input_text, len); /* now we have leading and trailing spaces */
+	buff[0] = ' ';
+	buff[len+1] = ' ';
+	
 	//do we need to do any content filtering?
-	if(MAX_FILTERS == 0)return(len);
+	if (MAX_FILTERS == 0) return len;
 
 	// scan the text for any strings
-	for(i=0;i<len;i++)
-		{                      /* remember, buff has 1 leading space!! */
-			if(isalpha(buff[i])==0){  /* beginning of word? */
-				if((idx=check_if_filtered(buff+i+1)) > -1) {
-					//oops, remove this word 
-					if(filter_list[idx].wildcard_type>0){
-						bad_len=0;
-						for(t=1;;t++){
-							if(isalpha(buff[i+t])==0) break;
-							bad_len++;
-						}
+	new_len = len;
+	for (i = 0; i < len; i++)
+	{
+		/* remember, buff has 1 leading space!! */
+		if (isalpha (buff[i])==0)
+		{  /* beginning of word? */
+			if ((idx=check_if_filtered (buff+i+1)) > -1)
+			{
+				//oops, remove this word 
+				if (filter_list[idx].wildcard_type > 0)
+				{
+					bad_len = 0;
+					for (t = 1; ; t++)
+					{
+						if (isalpha (buff[i+t]) == 0) break;
+						bad_len++;
 					}
-					else{
-						bad_len=filter_list[idx].len;
-					}
-					rep_len=filter_list[idx].rlen;
+				}
+				else
+				{
+					bad_len = filter_list[idx].len;
+				}
+				rep_len = filter_list[idx].rlen;
 
-					if(bad_len == rep_len) {
-						strncpy(buff+i+1, filter_list[idx].replacement, rep_len);
+				if (bad_len == rep_len)
+				{
+					strncpy (buff+i+1, filter_list[idx].replacement, rep_len);
+				}
+				else
+				{
+					if (filter_list[idx].wildcard_type > 0)
+					{
+						bad_len++;
 					}
-					else{
-						if(filter_list[idx].wildcard_type > 0){
-							bad_len++;
-						}
-						memmove(buff+i+1+rep_len+1, buff+i+1+bad_len, len-(i-1+bad_len));
-						strncpy(buff+i+1, filter_list[idx].replacement, rep_len);
-						buff[i+1+rep_len]=' '; /* end word with a space */
-						// adjust the length
-						len-=(bad_len-(rep_len+1));
-					}
+					memmove (buff+i+1+rep_len+1, buff+i+1+bad_len, len-(i-1+bad_len));
+					strncpy (buff+i+1, filter_list[idx].replacement, rep_len);
+					buff[i+1+rep_len] = ' '; /* end word with a space */
+					// adjust the length
+					new_len -= (bad_len-(rep_len+1));
 				}
 			}
 		}
-	strncpy(input_text, buff+1, len);
-	return(len);
+	}
+	
+	if (new_len > size - 1) new_len = size - 1;
+	strncpy (input_text, buff+1, new_len);
+	input_text[new_len] = '\0';
+	
+	return new_len;
 }
 
 

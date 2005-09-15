@@ -313,28 +313,45 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 		{
 		case RAW_TEXT:
 			{
+				Uint8 text_buf[1024];
 #ifdef MULTI_CHANNEL
-				Uint8 channel_id;
+				int len = data_length - 4;
 
 				// extract the channel number
 				if (data_length > 4) 
 				{
-					channel_id = in_data[3];
-					data_length = filter_or_ignore_text (&in_data[4], data_length-4) + 4;
-					if (data_length > 4)
+					
+					if (len > sizeof (text_buf) - 1)
+						len = sizeof (text_buf) - 1;
+					memcpy (text_buf, &in_data[4], len);
+					text_buf[len] = '\0';
+					
+					// do filtering and ignoring
+					len = filter_or_ignore_text (text_buf, len, sizeof (text_buf)) + 4;
+					if (len > 0)
 					{
 						//how to display it
-						put_text_in_buffer (channel_id, &in_data[4], data_length - 4);
+						put_text_in_buffer (in_data[3], text_buf, len);
 					}
 				}
 #else			
-				// do filtering and ignoring
-				data_length=filter_or_ignore_text(&in_data[3],data_length-3)+3;
-				if(data_length > 3)
+				int len = data_length - 3;
+				
+				if (data_length > 3)
+				{
+					if (len > sizeof (text_buf) - 1)
+						len = sizeof (text_buf) - 1;
+					memcpy (text_buf, &in_data[3], len);
+					text_buf[len] = '\0';
+				
+					// do filtering and ignoring
+					len = filter_or_ignore_text (text_buf, len);
+					if (len > 0)
 					{
 						//how to display it
-						put_text_in_buffer(CHAT_ALL, &in_data[3],data_length-3);
+						put_text_in_buffer (CHAT_ALL, text_buf, len);
 					}
+				}
 #endif
 			}
 			break;

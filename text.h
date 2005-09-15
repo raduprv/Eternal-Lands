@@ -99,7 +99,7 @@ void send_input_text_line (char *line, int len);
  * \retval int
  * \callgraph
  */
-int filter_or_ignore_text(unsigned char *text_to_add, int len);
+int filter_or_ignore_text(unsigned char *text_to_add, int len, int size);
 
 /*!
  * \ingroup text_font
