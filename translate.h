@@ -291,7 +291,6 @@ extern char
 		going_afk[30],
 		not_afk[50],
 		new_messages[100],
-		afk_no[5],
 		afk_names[15],
 		afk_messages[25],
 		afk_print_help[150],
@@ -416,7 +415,6 @@ extern char	reg_error_str[15],
 		point_sprites_enabled[50],
 		using_textured_quads[50],
 		definitions_str[20],
-		part_def_str[20],
 		part_sys_str[20],
 		part_part_str[20]
 #ifdef ELC

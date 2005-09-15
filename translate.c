@@ -582,6 +582,7 @@ void init_console()
 	add_xml_identifier(filter,"tooshort",word_too_short,"Word too short, only words>=3 characters can be used!",sizeof(word_too_short));
 	add_xml_identifier(filter,"notadd",not_added_to_filter,"Word not added to the filter list!",sizeof(not_added_to_filter));
 	add_xml_identifier(filter,"already",already_filtering,"You are already filtering %s",sizeof(already_filtering));
+	add_xml_identifier (filter,"flistfull", filter_list_full, "Your filter list is full, you can't add another filter", sizeof (filter_list_full));
 	add_xml_identifier(filter,"add",added_to_filters,"OK, %s was added to your filter list!",sizeof(added_to_filters));
 	add_xml_identifier(filter,"norem",not_removed_from_filter,"Word not removed from the filter list!",sizeof(not_removed_from_filter));
 	add_xml_identifier(filter,"not",not_filtering,"You are NOT filtering %s in the first place!",sizeof(not_filtering));
