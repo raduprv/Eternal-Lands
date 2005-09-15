@@ -48,7 +48,7 @@ void remove_item_from_ground(Uint8 pos);
  * \bug Doesn't perform any sanity checks on the given \a data.
  *
  */
-void get_bag_item(Uint8 *data);
+void get_bag_item (const Uint8 *data);
 
 /*!
  * \ingroup item
@@ -63,7 +63,7 @@ void get_bag_item(Uint8 *data);
  * \note No sanity checks for \a data are performed. This may be a possible bug.
  * \bug Doesn't perform any sanity checks on the given \a data.
  */
-void get_bags_items_list(Uint8 *data);
+void get_bags_items_list (const Uint8 *data);
 
 /*!
  * \ingroup item
@@ -92,7 +92,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id);
  * \note No sanity checks on \a data are performed. This may be a possible bug.
  * \bug No sanity checks on \a data are performed.
  */
-void add_bags_from_list(Uint8 *data);
+void add_bags_from_list (const Uint8 *data);
 
 /*!
  * \ingroup item

@@ -101,7 +101,7 @@ void remove_active_spell(int pos);
  *
  * \param my_spell_list the spell list to use for active_spells.
  */
-void get_active_spell_list(Uint8 *my_spell_list);
+void get_active_spell_list (const Uint8 *my_spell_list);
 
 /*!
  * \ingroup spells_window
@@ -142,7 +142,7 @@ void get_sigils_we_have(Uint32 sigils_we_have);
  * \param data The network data
  * \param len The data length
  */
-void process_network_spell(char * data, int len);
+void process_network_spell (const char * data, int len);
 
 #ifdef NEW_CLIENT
 void load_quickspells();

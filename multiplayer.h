@@ -61,7 +61,7 @@ void move_to (short int x, short int y);
  * \pre If the actor is already sitting this function will return 0, when the \ref SIT_DOWN command is sent.
  * \pre If the message given in \a str was already sent during a specific amount of time, meaning it is still in the \ref tcp_cache, this function will return 0.
  */
-int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len);
+int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len);
 
 /*!
  * \ingroup network_actors

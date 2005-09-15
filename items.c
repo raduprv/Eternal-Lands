@@ -236,7 +236,7 @@ void drag_item(int item, int storage, int mini)
 #endif
 }
 
-void get_your_items(Uint8 *data)
+void get_your_items (const Uint8 *data)
 {
 	int i,total_items,pos;
 	Uint8 flags;
@@ -274,7 +274,7 @@ void remove_item_from_inventory(int pos)
 	build_manufacture_list();
 }
 
-void get_new_inventory_item(Uint8 *data)
+void get_new_inventory_item (const Uint8 *data)
 {
 	int pos;
 	Uint8 flags;

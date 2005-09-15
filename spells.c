@@ -234,10 +234,11 @@ void remove_active_spell(int pos)
 	active_spells[pos]=-1;
 }
 
-void get_active_spell_list(Uint8 *my_spell_list)
+void get_active_spell_list (const Uint8 *my_spell_list)
 {
 	int i;
-	for(i=0;i<10;i++)active_spells[i]=my_spell_list[i];
+	for (i = 0; i < 10; i++)
+		active_spells[i] = my_spell_list[i];
 }
 
 void display_spells_we_have()
@@ -550,29 +551,32 @@ void add_spell_to_quickbar()
 	memcpy(mqb_data[0], mqb_data[1], sizeof(mqbdata));
 }
 
-void set_spell_name(int id, char * data, int len)
+void set_spell_name (int id, const char *data, int len)
 {
 	int i;
 
 	if (len >= 60) return;
 	
-	for(i=0;i<7;i++){
-		if(mqb_data[i] && mqb_data[i]->spell_id==id){
-			snprintf(mqb_data[i]->spell_name, len+1, "%s", data);
+	for (i = 0; i < 7; i++)
+	{
+		if (mqb_data[i] != NULL && mqb_data[i]->spell_id==id)
+		{
+			snprintf (mqb_data[i]->spell_name, len+1, "%s", data);
 		}
 	}
 
 }
 
-void process_network_spell(char * data, int len)
+void process_network_spell (const char *data, int len)
 {
-	switch(*data){
+	switch (data[0])
+	{
 		case S_INVALID:
 			spell_result=0;
 			LOG_TO_CONSOLE(c_red1, invalid_spell_str);
 			return;
 		case S_NAME:
-			set_spell_name(data[1], data+2, len-2);//Will set the spell name of the given ID
+			set_spell_name (data[1], &data[2], len-2);//Will set the spell name of the given ID
 			return;;
 		case S_SELECT_TARGET://spell_result==3
 			spell_result=3;

@@ -50,13 +50,13 @@ void display_buddy();
  * 
  * 		Adds a buddy of the given type to the buddy list.
  *
- * \param	n The name of the buddy
- * \param	t The type of buddy
+ * \param	name The name of the buddy
+ * \param	type The type of buddy
  * \param	len The length of the name
  *
  * \sa process_message_from_server
  */
-void add_buddy(char *n, int t, int len);
+void add_buddy (const char *name, int type, int len);
 
 /*!
  * \ingroup	network_text
@@ -64,12 +64,12 @@ void add_buddy(char *n, int t, int len);
  * 
  * 		Removes a buddy from the buddy list.
  *
- * \param	n The name of the buddy to remove
+ * \param	name The name of the buddy to remove
  * \param	len The length of the name
  *
  * \sa process_message_from_server
  */
-void del_buddy(char *n, int len);
+void del_buddy (const char *name, int len);
 
 /*!
  * \ingroup	other

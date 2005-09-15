@@ -522,52 +522,68 @@ void display_buddy()
 		}
 }
 
-void add_buddy(char *n, int t, int len)
+void add_buddy (const char *name, int type, int len)
 {
 	int i;
 	char message[35];
 	time_t n_time;
 
-	if(buddy_log_notice>0)time(&n_time);
+	if (buddy_log_notice > 0) time (&n_time);
 
-	//find empty space
-	for(i=0; i<MAX_BUDDY; i++){
-		if(buddy_list[i].type == 0xff){//found then add buddy
-			buddy_list[i].type= t;
-			snprintf(buddy_list[i].name, len+1, "%s", n);
-			if(buddy_log_notice==1){
-				if(difftime(c_time,n_time)>-5.0f)break;//if less than 5sec since the timer was updated, then we don't notify. in cases of bad lag, this won't help. if someone logs on/off during that time, we miss the notification
-				snprintf(message,sizeof(message),"%s has logged on.", n);
-				LOG_TO_CONSOLE(c_green1,message);
+	// find empty space
+	for (i = 0; i < MAX_BUDDY; i++)
+	{
+		if (buddy_list[i].type == 0xff)
+		{
+			// found then add buddy
+			buddy_list[i].type = type;
+			snprintf (buddy_list[i].name, len+1, "%s", name);
+			if (buddy_log_notice == 1)
+			{
+				// if less than 5sec since the timer was 
+				// updated, then we don't notify. in cases of 
+				// bad lag, this won't help. if someone logs 
+				// on/off during that time, we miss the 
+				// notification
+				if (difftime (c_time, n_time) > -5.0f) break;
+				
+				snprintf (message, sizeof(message), "%.*s has logged on.", len, name);
+				LOG_TO_CONSOLE (c_green1, message);
 			}
 			break;
 		}
-		if(my_strcompare(buddy_list[i].name, n))break;//we already have this one in the list
+		if (strncasecmp (buddy_list[i].name, name, len) == 0) break; // we already have this one in the list
 	}
 }
 
-void del_buddy(char *n, int len)
+void del_buddy (const char *name, int len)
 {
 	int i;
 	char message[36];
 	time_t n_time;
-	if(buddy_log_notice>0)time(&n_time);
+	
+	if (buddy_log_notice > 0) time(&n_time);
 
-	//find buddy
+	// find buddy
 	for (i = 0; i < MAX_BUDDY; i++)
 	{
-		if (!strncmp(n,buddy_list[i].name, len))
+		if (strncasecmp (name, buddy_list[i].name, len) == 0)
 		{
 			buddy_list[i].type = 0xff;
 			memset (buddy_list[i].name, 0, sizeof (buddy_list[i].name));
-			if(buddy_log_notice==1){
-				if(difftime(c_time,n_time)>-5.0f)break;//if less than 5sec since the timer was updated, then we don't notify. in cases of bad lag, this won't help. if someone logs on/off during that time, we miss the notification
-				snprintf(message,sizeof(message),"%s has logged off", n);
-				LOG_TO_CONSOLE(c_green1,message);
+			if (buddy_log_notice == 1)
+			{
+				// if less than 5sec since the timer was 
+				// updated, then we don't notify. in cases of 
+				// bad lag, this won't help. if someone logs 
+				// on/off during that time, we miss the 
+				// notification
+				if (difftime (c_time, n_time) > -5.0f) break;
+				snprintf (message, sizeof(message), "%.*s has logged off", len, name);
+				LOG_TO_CONSOLE (c_green1, message);
 			}
 			break;
 		}
-		
 	}
 }
 

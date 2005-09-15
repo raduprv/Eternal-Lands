@@ -29,7 +29,7 @@ extern int storage_win_y;
  *
  * \callgraph
  */
-void get_storage_categories(char * in_data, int len);
+void get_storage_categories (const char * in_data, int len);
 
 /*!
  * \ingroup storage_window
@@ -42,7 +42,7 @@ void get_storage_categories(char * in_data, int len);
  *
  * \callgraph
  */
-void get_storage_items(Uint8 * in_data, int len);
+void get_storage_items (const Uint8 * in_data, int len);
 
 /*!
  * \ingroup storage_window
@@ -55,7 +55,7 @@ void get_storage_items(Uint8 * in_data, int len);
  *
  * \pre If \a len is >200 it will be adjusted to be equal to 200.
  */
-void get_storage_text(Uint8 * in_data, int len);
+void get_storage_text (const Uint8 * in_data, int len);
 
 /*!
  * \ingroup storage_window

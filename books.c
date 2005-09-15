@@ -473,7 +473,7 @@ void open_book(int id)
 	} else display_book_window(b);
 }
 
-void read_local_book(char * data, int len)
+void read_local_book (const char *data, int len)
 {
 	char file_name[200];
 	book *b;
@@ -484,16 +484,20 @@ void read_local_book(char * data, int len)
 
 	snprintf (file_name, l, "%s", data+3);
 	
-	b=get_book(SDL_SwapLE16(*((Uint16*)(data+1))));
-	if(!b) b=read_book(file_name,data[0], SDL_SwapLE16(*((Uint16*)(data+1))));
-	if(!b) {
-		char str[200];
-		snprintf(str,sizeof(str),"Could not open: %s", file_name);
-		LOG_TO_CONSOLE(c_red1, str);
-		return;
+	b = get_book (SDL_SwapLE16 (*((Uint16*)(data+1))));
+	if (b == NULL)
+	{
+		b = read_book (file_name, data[0], SDL_SwapLE16 (*((Uint16*)(data+1))));
+		if (b == NULL)
+		{
+			char str[200];
+			snprintf (str, sizeof(str), "Could not open: %s", file_name);
+			LOG_TO_CONSOLE(c_red1, str);
+			return;
+		}
 	}
 	
-	display_book_window(b);//Otherwise there's no point...
+	display_book_window (b); // Otherwise there's no point...
 }
 
 page * add_image_from_server(char *data, book *b, page *p)
@@ -536,35 +540,39 @@ page * add_image_from_server(char *data, book *b, page *p)
 	return p;
 }
 
-void read_server_book(char * data, int len)
+void read_server_book (const char *data, int len)
 {
 	char buffer[8192];
 	book *b;
 	page *p;
-	int l=SDL_SwapLE16(*((Uint16*)(data+4)));
+	int l = SDL_SwapLE16(*((Uint16*)(data+4)));
+	int idx;
+
 	if ( l >= sizeof (buffer) ) // Safer
 		l = sizeof (buffer) - 1;
-	memcpy(buffer, data+6, l);
-	buffer[l]=0;
+	memcpy (buffer, data+6, l);
+	buffer[l] = '\0';
 	
-	b=get_book(SDL_SwapLE16(*((Uint16*)(data+1))));
-	if(!b) b=create_book(buffer,*data, SDL_SwapLE16(*((Uint16*)(data+1))));
+	b = get_book (SDL_SwapLE16 (*((Uint16*)(data+1))));
+	if (b == NULL)
+		b = create_book (buffer, data[0], SDL_SwapLE16 (*((Uint16*)(data+1))));
 
-	b->server_pages=data[3];
+	b->server_pages = data[3];
 	b->have_server_pages++;
 
 	p=add_page(b);//Will create a page if pages is not found.
 
-	len-=l+6;
-	data+=l+6;
-	do {
-		l= SDL_SwapLE16(*((Uint16*)(data+1)));
+	idx = l + 6;
+	while (idx <= len)
+	{
+		l = SDL_SwapLE16 (*((Uint16*)(&data[idx+1])));
 		if ( l >= sizeof (buffer) ) // Safer.
 			l = sizeof (buffer) - 1;
-		memcpy(buffer, data+3, l);
+		memcpy (buffer, &data[idx+3], l);
 		buffer[l]=0;
 
-		switch(*data){
+		switch (data[idx])
+		{
 			case _TEXT:
 				p=add_str_to_page(buffer,_TEXT,b,p);
 				break;
@@ -581,25 +589,25 @@ void read_server_book(char * data, int len)
 				//p=add_page(b);
 				break;
 		}
-		data+=l+3;
-		len-=l+3;
-	} while(len>0);
+		idx += l + 3;
+	}
 
-	b->active_page+=b->pages_to_scroll;
-	b->pages_to_scroll=0;
+	b->active_page += b->pages_to_scroll;
+	b->pages_to_scroll = 0;
 	
-	if(b)display_book_window(b);//Otherwise there's no point...
+	if (b) display_book_window (b); // Otherwise there's no point...
 }
 
 
-void read_network_book(char * in_data, int data_length)
+void read_network_book (const char *in_data, int data_length)
 {
-	switch(*in_data){
+	switch (*in_data)
+	{
 		case LOCAL:
-			read_local_book(in_data+1,data_length-1);
+			read_local_book (&in_data[1], data_length-1);
 			break;
 		case SERVER:
-			read_server_book(in_data+1,data_length-1);
+			read_server_book (&in_data[1], data_length-1);
 			break;
 	}
 }

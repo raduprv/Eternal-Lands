@@ -99,7 +99,7 @@ void string_fix(char *t, int len)
 }
 
 
-void add_questlog(char *t, int len)
+void add_questlog (char *t, int len)
 {
 	char *s= t;
 

@@ -160,7 +160,7 @@ void display_items_menu();
  *
  * \callgraph
  */
-void get_your_items(Uint8 *data);
+void get_your_items (const Uint8 *data);
 
 /*!
  * \ingroup item
@@ -202,6 +202,6 @@ void remove_item_from_inventory(int pos);
  * \note Assumes that \a data is valid and not NULL. This may be a possible bug.
  * \bug Assumes that \a data is valid and not NULL and does not perform any sanity checks.
  */
-void get_new_inventory_item(Uint8 *data);
+void get_new_inventory_item (const Uint8 *data);
 
 #endif

@@ -243,7 +243,7 @@ int load_empty_map();
  *
  * \param mapname The name of the map
  */
-void change_map(char * mapname);
+void change_map (const char * mapname);
 
 /*!
  * \ingroup maps

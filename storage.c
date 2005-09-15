@@ -4,11 +4,13 @@
 #include "global.h"
 #include "storage.h"
 
+#define STORAGE_CATEGORIES_SIZE 50
+
 struct storage_category {
 	char name[25];
 	int id;
 	int color;
-} storage_categories[50];
+} storage_categories[STORAGE_CATEGORIES_SIZE];
 
 int no_storage_categories=0;
 int selected_category=-1;
@@ -20,27 +22,38 @@ int no_storage;
 
 char storage_text[202]={0};
 
-void get_storage_text(Uint8 * in_data, int len)
+void get_storage_text (const Uint8 *in_data, int len)
 {
 	if(len>200)len=200;
 	snprintf(storage_text, len+1, "%s", in_data);
 }
 
-void get_storage_categories(char * in_data, int len)
+void get_storage_categories (const char *in_data, int len)
 {
 	int i;
-	char * ptr=in_data+1;
+	int idx, idxp;
 
-	for(i=0;i<in_data[0] && i<50;i++){
-		char * sptr=storage_categories[i].name+1;
-		
-		storage_categories[i].name[0]=127+c_orange1;
-		
-		storage_categories[i].id=*((Uint8*)(ptr++));
-		while((*sptr++=*ptr++));
+	idx = 1;
+	for (i = 0; i < in_data[0] && i < STORAGE_CATEGORIES_SIZE && idx < len; i++)
+	{
+		storage_categories[i].id = (Uint8)in_data[idx++];
+		storage_categories[i].name[0] = 127 + c_orange1;
+		idxp = 1;
+		while (idx < len && idxp < sizeof (storage_categories[i].name) - 1 && in_data[idx] != '\0')
+		{
+			storage_categories[i].name[idxp++] = in_data[idx++];
+		}
+		if (idxp >= sizeof (storage_categories[i].name) - 1)
+		{
+			// not enough room for the whole string, terminate...
+			storage_categories[i].name[idxp] = '\0';
+			// ... and skip rest of string
+			while (idx < len && in_data[idx] != '\0') idx++;
+		}
+		idx++;
 	}
 
-	if (i < 50) storage_categories[i].id = -1;
+	if (i < STORAGE_CATEGORIES_SIZE) storage_categories[i].id = -1;
 	no_storage_categories = i;
 
 	selected_category=-1;
@@ -76,32 +89,35 @@ void move_to_category(int cat)
 	my_tcp_send(my_socket, str, 2);
 }
 
-void get_storage_items(Uint8 * in_data, int len)
+void get_storage_items (const Uint8 *in_data, int len)
 {
 	int i;
 	int cat;
-	char * ptr;
+	int idx;
 
-	if(in_data[0]==255){
+	if (in_data[0] == 255)
+	{
 		//It's just an update - make sure we're in the right category
-		ptr=in_data+2;
-		active_storage_item=ptr[6];
+		idx = 2;
+		active_storage_item = (char)in_data[idx+6];
 		
 		for (i = 0; i < STORAGE_ITEMS_SIZE; i++)
 		{
-			if(storage_items[i].pos==*((Uint8*)(ptr+6))){
-				storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
-				storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
+			if (storage_items[i].pos == in_data[idx+6])
+			{
+				storage_items[i].image_id = SDL_SwapLE16 (*((Uint16*)(&in_data[idx])));
+				storage_items[i].quantity = SDL_SwapLE32 (*((Uint32*)(&in_data[idx+2])));
 				return;
 			}
 		}
 
 		for (i = 0; i < STORAGE_ITEMS_SIZE; i++)
 		{
-			if(!storage_items[i].quantity){
-				storage_items[i].pos=*((Uint8*)(ptr+6));
-				storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
-				storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
+			if (storage_items[i].quantity == 0)
+			{
+				storage_items[i].pos = in_data[idx+6];
+				storage_items[i].image_id = SDL_SwapLE16 (*((Uint16*)(&in_data[idx])));
+				storage_items[i].quantity = SDL_SwapLE32 (*((Uint32*)(&in_data[idx+2])));
 				no_storage++;
 				return;
 			}
@@ -122,13 +138,12 @@ void get_storage_items(Uint8 * in_data, int len)
 		selected_category = cat;
 	}
 
-	ptr=in_data+2;
-	
-	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++, ptr += 7)
+	idx = 2;
+	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++, idx += 7)
 	{
-		storage_items[i].image_id=SDL_SwapLE16(*((Uint16*)(ptr)));
-		storage_items[i].quantity=SDL_SwapLE32(*((Uint32*)(ptr+2)));
-		storage_items[i].pos=*((Uint8*)(ptr+6));
+		storage_items[i].image_id = SDL_SwapLE16 (*((Uint16*)(&in_data[idx])));
+		storage_items[i].quantity = SDL_SwapLE32 (*((Uint32*)(&in_data[idx+2])));
+		storage_items[i].pos = in_data[idx+6];
 	}
 	
 	for ( ; i < STORAGE_ITEMS_SIZE; i++)

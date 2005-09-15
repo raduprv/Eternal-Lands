@@ -173,8 +173,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
  *
  * \todo Fix documentation
  */
-void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit, 
-						   char *buffer);
+void put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
 
 /*!
  * \ingroup text_font
@@ -192,8 +191,7 @@ void put_small_text_in_box(unsigned char *text_to_add, int len, int pixels_limit
  *
  * \todo Fix documentation
  */
-void put_small_colored_text_in_box(Uint8 color,unsigned char *text_to_add, int len,
-						   int pixels_limit, char *buffer);
+void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
 
 /*!
  * \ingroup text_font

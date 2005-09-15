@@ -293,25 +293,25 @@ int mouseover_trade_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
-void get_trade_partner_name(Uint8 *player_name,int len)
+void get_trade_partner_name (const Uint8 *player_name, int len)
 {
 	int i;
 
 #ifdef NEW_CLIENT
-	storage_available=player_name[0];
-	len--;
-	player_name++;
-#endif
+	storage_available = player_name[0];
 	
-	for(i=0;i<len;i++)
-		{
-			other_player_trade_name[i]=player_name[i];
-		}
-	other_player_trade_name[i]=0;
+	for (i = 0; i+1 < len; i++)
+		other_player_trade_name[i] = player_name[i+1];
+	other_player_trade_name[i] = '\0';
+#else
+	for (i = 0; i < len; i++)
+		other_player_trade_name[i]=player_name[i];
+	other_player_trade_name[i] = '\0';
+#endif
 }
 
 
-void get_your_trade_objects(Uint8 *data)
+void get_your_trade_objects (const Uint8 *data)
 {
 	int i;
 
@@ -334,7 +334,7 @@ void get_your_trade_objects(Uint8 *data)
 	view_window(&trade_win, -1);
 }
 
-void put_item_on_trade(Uint8 *data)
+void put_item_on_trade (const Uint8 *data)
 {
 	int pos;
 
@@ -353,7 +353,7 @@ void put_item_on_trade(Uint8 *data)
 	}
 }
 
-void remove_item_from_trade(Uint8 *data)
+void remove_item_from_trade (const Uint8 *data)
 {
 	int pos;
 	int quantity;
@@ -866,7 +866,7 @@ void get_trade_partner_name(Uint8 *player_name,int len)
 }
 
 
-void get_your_trade_objects(Uint8 *data)
+void get_your_trade_objects (const Uint8 *data)
 {
 	int i;
 
@@ -889,7 +889,7 @@ void get_your_trade_objects(Uint8 *data)
 	hide_window(sigil_win);
 }
 
-void put_item_on_trade(Uint8 *data)
+void put_item_on_trade (const Uint8 *data)
 {
 	int pos;
 
@@ -906,7 +906,7 @@ void put_item_on_trade(Uint8 *data)
 	}
 }
 
-void remove_item_from_trade(Uint8 *data)
+void remove_item_from_trade (const Uint8 *data)
 {
 	int pos;
 	int quantity;

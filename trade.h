@@ -46,7 +46,7 @@ void display_trade_menu();
  * \param   	player_name A char * to the network data
  * \param   	len The length of the network data
  */
-void get_trade_partner_name(Uint8 *player_name,int len);
+void get_trade_partner_name (const Uint8 *player_name, int len);
 
 /*!
  * \ingroup 	trade
@@ -58,7 +58,7 @@ void get_trade_partner_name(Uint8 *player_name,int len);
  *
  * \callgraph
  */
-void get_your_trade_objects(Uint8 *data);
+void get_your_trade_objects (const Uint8 *data);
 
 /*!
  * \ingroup 	trade
@@ -68,7 +68,7 @@ void get_your_trade_objects(Uint8 *data);
  *
  * \param   	data The network data.
  */
-void put_item_on_trade(Uint8 *data);
+void put_item_on_trade (const Uint8 *data);
 
 /*!
  * \ingroup 	trade
@@ -78,6 +78,6 @@ void put_item_on_trade(Uint8 *data);
  *
  * \param   	data The trade data
  */
-void remove_item_from_trade(Uint8 *data);
+void remove_item_from_trade (const Uint8 *data);
 
 #endif

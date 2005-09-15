@@ -277,13 +277,18 @@ void reset_rules(rule_string * r)
 	rule_offset=0;
 }
 
-void highlight_rule(int type, Uint8 * rule, int no)
+void highlight_rule (int type, const Uint8 *rule, int no)
 {
 	int i,j;
 	int r;
 	int cur_rule;
+	const Uint8 *rule_start;
 	
-	if(type==RULE_WIN)toggle_rules_window();
+	if(type==RULE_WIN)
+	{
+		toggle_rules_window();
+		rule_start = rule;
+	}
 	else if(type==RULE_INTERFACE)
 	{
 		switch (rule[2])
@@ -328,7 +333,7 @@ void highlight_rule(int type, Uint8 * rule, int no)
 		hide_hud_windows ();
 		show_window (rules_root_win);
 
-		rule+=3;
+		rule_start = &rule[3];
 		no-=3;
 	} else return; //Hmm...
 	
@@ -336,7 +341,7 @@ void highlight_rule(int type, Uint8 * rule, int no)
 		reset_rules(display_rules);
 	
 		for(i=0;i<no;i++){
-			cur_rule=rule[i];
+			cur_rule = rule_start[i];
 			r=0;
 			
 			for(j=0;display_rules[j].type!=-1;j++){

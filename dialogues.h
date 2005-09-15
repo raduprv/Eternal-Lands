@@ -70,7 +70,7 @@ extern int no_bounding_box;
  * \param data
  * \param total_length
  */
-void build_response_entries(Uint8 *data,int total_length);
+void build_response_entries (const Uint8 *data,int total_length);
 
 /*!
  * \ingroup network_text

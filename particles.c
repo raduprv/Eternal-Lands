@@ -1061,7 +1061,7 @@ void update_particles() {
  *                        MISC HELPER FUNCTIONS                               *
  ******************************************************************************/
 #ifdef ELC
-void add_teleporters_from_list(Uint8 *teleport_list)
+void add_teleporters_from_list (const Uint8 *teleport_list)
 {
 	Uint16 teleporters_no;
 	int i;

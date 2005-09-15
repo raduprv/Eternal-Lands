@@ -499,7 +499,7 @@ void display_actors();
  *
  * \callgraph
  */
-void add_actor_from_server(char * in_data);
+void add_actor_from_server (const char * in_data);
 //void draw_interface_body_part(md2 *model_data);
 
 /*!

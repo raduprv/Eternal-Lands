@@ -623,7 +623,7 @@ void display_actors()
 }
 
 
-void add_actor_from_server(char * in_data)
+void add_actor_from_server (const char *in_data)
 {
 	short actor_id;
 	short x_pos;

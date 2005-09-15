@@ -133,7 +133,7 @@ void cleanup_rules(void);
  *
  * \callgraph
  */
-void highlight_rule(int type, Uint8 * rules, int no);
+void highlight_rule (int type, const Uint8 *rules, int no);
 
 /*!
  * \ingroup interface_rules

@@ -29,7 +29,7 @@ extern int book_opened;
  *
  * \callgraph
  */
-void read_local_book(char * data, int len);
+void read_local_book (const char * data, int len);
 
 /*!
  * \ingroup	books_window
@@ -50,7 +50,7 @@ void init_books();
  *
  * \callgraph
  */
-void read_network_book(char * data, int len);
+void read_network_book (const char * data, int len);
 
 /*!
  * \ingroup	network_books

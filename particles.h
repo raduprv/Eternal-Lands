@@ -314,7 +314,7 @@ void update_particles();
  *
  * \callgraph
  */
-void add_teleporters_from_list(Uint8 *teleport_list);
+void add_teleporters_from_list (const Uint8 *teleport_list);
 
 #endif
 

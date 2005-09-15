@@ -104,7 +104,7 @@ int get_cur_map (const char * file_name)
 	return -1;	
 }
 
-void change_map(char * mapname)
+void change_map (const char *mapname)
 {
 	regenerate_near_objects=1;//Regenerate the near 3d objects...
 	regenerate_near_2d_objects=1;//Regenerate the near 3d objects...

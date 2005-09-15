@@ -65,7 +65,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id);
  *
  * \callgraph
  */
-void add_enhanced_actor_from_server(char * in_data);
+void add_enhanced_actor_from_server (const char * in_data);
 
 /*!
  * \ingroup other

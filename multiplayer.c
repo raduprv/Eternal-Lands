@@ -60,7 +60,7 @@ int on_the_move (const actor *act)
 	return act->moving || (act->que[0] >= move_n && act->que[0] <= move_nw);
 }
 
-int my_tcp_send(TCPsocket my_socket, Uint8 *str, int len)
+int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 {
 	int i;
 	Uint8 new_str[1024];//should be enough
@@ -306,7 +306,7 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 #endif
 //---
 
-void process_message_from_server(unsigned char *in_data, int data_length)
+void process_message_from_server (unsigned char *in_data, int data_length)
 {
 	//see what kind of data we got
 	switch (in_data[PROTOCOL])

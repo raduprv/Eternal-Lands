@@ -62,7 +62,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	sector_add_3do(obj_3d_id);
 }
 
-void add_bags_from_list(Uint8 *data)
+void add_bags_from_list (const Uint8 *data)
 {
 	Uint16 bags_no;
 	int i;
@@ -163,7 +163,7 @@ void open_bag(int object_id)
 }
 
 //do the flags later on
-void get_bag_item(Uint8 *data)
+void get_bag_item (const Uint8 *data)
 {
 	int	pos;
 	pos= data[6];
@@ -176,7 +176,7 @@ void get_bag_item(Uint8 *data)
 }
 
 //put the flags later on
-void get_bags_items_list(Uint8 *data)
+void get_bags_items_list (const Uint8 *data)
 {
 	Uint16 items_no;
 	int i;

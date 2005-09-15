@@ -152,20 +152,20 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 } 
 
 
-void get_knowledge_list(Uint16 size, char *list)
+void get_knowledge_list (Uint16 size, const char *list)
 {
 	int i;
-	for(i=0;i<size;i++)
-		{
-			knowledge_list[i*8+0].present=list[i] & 0x01;
-			knowledge_list[i*8+1].present=list[i] & 0x02;
-			knowledge_list[i*8+2].present=list[i] & 0x04;
-			knowledge_list[i*8+3].present=list[i] & 0x08;
-			knowledge_list[i*8+4].present=list[i] & 0x10;
-			knowledge_list[i*8+5].present=list[i] & 0x20;
-			knowledge_list[i*8+6].present=list[i] & 0x40;
-			knowledge_list[i*8+7].present=list[i] & 0x80;
-		}
+	for (i = 0; i < size; i++)
+	{
+		knowledge_list[i*8+0].present = list[i] & 0x01;
+		knowledge_list[i*8+1].present = list[i] & 0x02;
+		knowledge_list[i*8+2].present = list[i] & 0x04;
+		knowledge_list[i*8+3].present = list[i] & 0x08;
+		knowledge_list[i*8+4].present = list[i] & 0x10;
+		knowledge_list[i*8+5].present = list[i] & 0x20;
+		knowledge_list[i*8+6].present = list[i] & 0x40;
+		knowledge_list[i*8+7].present = list[i] & 0x80;
+	}
 }
 
 void get_new_knowledge(Uint16 idx)

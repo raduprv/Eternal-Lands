@@ -54,7 +54,7 @@ void display_knowledge();
  * \param list  a list of knowledges that are already known by the player.
  *
  */
-void get_knowledge_list(Uint16 size, char *list);
+void get_knowledge_list (Uint16 size, const char *list);
 
 /*!
  * \ingroup knowledge_window
