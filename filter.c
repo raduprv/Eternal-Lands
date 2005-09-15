@@ -305,11 +305,11 @@ int filter_text (Uint8 *input_text, int len, int size)
 	for (i = 0; i < len; i++)
 	{
 		/* remember, buff has 1 leading space!! */
-		if (isalpha (buff[i])==0)
+		if (!isalpha (buff[i]))
 		{  /* beginning of word? */
 			if ((idx=check_if_filtered (buff+i+1)) > -1)
 			{
-				//oops, remove this word 
+				// oops, remove this word 
 				if (filter_list[idx].wildcard_type > 0)
 				{
 					bad_len = 0;
@@ -335,7 +335,7 @@ int filter_text (Uint8 *input_text, int len, int size)
 					{
 						bad_len++;
 					}
-					memmove (buff+i+1+rep_len+1, buff+i+1+bad_len, len-(i-1+bad_len));
+					memmove (buff+i+1+rep_len+1, buff+i+1+bad_len, new_len-(i-1+bad_len));
 					strncpy (buff+i+1, filter_list[idx].replacement, rep_len);
 					buff[i+1+rep_len] = ' '; /* end word with a space */
 					// adjust the length
