@@ -146,7 +146,7 @@ void destroy_e3d(e3d_object *e3d_id);
  * \param	len the length in bytes of the array
  * \callgraph
  */
-void set_3d_object(Uint8 display, void *ptr, int len);
+void set_3d_object (Uint8 display, const void *ptr, int len);
 
 /*!
  * \ingroup	load_3d
@@ -160,6 +160,6 @@ void set_3d_object(Uint8 display, void *ptr, int len);
  * \param	len the length in bytes of the array
  * \callgraph
  */
- void state_3d_object(Uint8 state, void *ptr, int len);
+void state_3d_object (Uint8 state, const void *ptr, int len);
 
 #endif

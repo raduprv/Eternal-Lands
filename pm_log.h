@@ -32,7 +32,6 @@ struct pm_struct
 };
 
 struct pm_struct pm_log;
-
 extern int afk; /*!< flag indicating whether a player is currently AFK or not */
 extern int last_action_time; /*!< timestamp of the last action for this player */
 extern int afk_time; /*!< number of minutes after which the client will go AFK automatically. This can be set via the el.ini file. */
@@ -79,7 +78,7 @@ void go_ifk(void);
  *
  * \callgraph
  */
-void add_message_to_pm_log(char * msg, int len);
+void add_message_to_pm_log (const char *msg, int len);
 
 /*!
  * \ingroup network_actors
@@ -116,6 +115,6 @@ void print_message(int no);
  * \retval int
  * \callgraph
  */
-int is_talking_about_me(Uint8 * server_msg, int len, char everywhere);
+int is_talking_about_me (const Uint8 * server_msg, int len, char everywhere);
 
 #endif

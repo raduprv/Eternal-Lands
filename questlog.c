@@ -101,7 +101,7 @@ void string_fix(char *t, int len)
 
 void add_questlog (char *t, int len)
 {
-	char *s= t;
+	int idx;
 
 	//write on file
 	if(qlf == NULL){
@@ -122,15 +122,16 @@ void add_questlog (char *t, int len)
 		#endif
 			if (qlf == NULL) return;
 	}
-	while(*s){ //converting multiline msg in single line
-		if(*s=='\n')	*s= ' ';
-		s++;
+	//convert multiline msg in single line
+	for (idx = 0; idx < len && t[idx] != '\0'; idx++)
+	{
+		if (t[idx] == '\n') t[idx] = ' ';
 	}
-	if(len <= 0)	len=strlen(t);
-	fwrite(t, sizeof(char), len, qlf);
-	fputc(10, qlf);
-	//add to list
-	add_questlog_line(t, len);
+
+	fwrite (t, sizeof (char), len, qlf);
+	fputc ('\n', qlf);
+	// add to list
+	add_questlog_line (t, len);
 }
 
 

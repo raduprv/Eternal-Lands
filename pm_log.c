@@ -127,22 +127,23 @@ int add_name_to_pm_log(char *name, int len)
 	return z;
 }
 
-void add_message_to_pm_log(char * message, int len)
+void add_message_to_pm_log (const char *message, int len)
 {
-	int last_pm_len= strlen(last_pm_from);
-	int z= have_name(last_pm_from, last_pm_len);
-	char	buf[512];
+	int last_pm_len = strlen(last_pm_from);
+	int z = have_name (last_pm_from, last_pm_len);
+	char buf[512];
 
-	if(z<0)
-		{
-			send_afk_message(NULL, 0, 1);
-			z = add_name_to_pm_log(last_pm_from, last_pm_len);
-		}
-	pm_log.afk_msgs[z].messages= (char**)realloc(pm_log.afk_msgs[z].messages, (pm_log.afk_msgs[z].msgs+1)*sizeof(char *));
-	//time name message
-	snprintf(buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len, message);
-	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]= (char*)calloc(strlen(buf)+1, sizeof(char));
-	strcpy(pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf);
+	if (z < 0)
+	{
+		send_afk_message (NULL, 0, 1);
+		z = add_name_to_pm_log (last_pm_from, last_pm_len);
+	}
+	
+	pm_log.afk_msgs[z].messages = realloc (pm_log.afk_msgs[z].messages, (pm_log.afk_msgs[z].msgs+1) * sizeof (char *));
+	// time name message
+	snprintf (buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len, message);
+	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs] = calloc (strlen (buf) + 1, sizeof (char));
+	strcpy (pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf);
 	pm_log.afk_msgs[z].msgs++;
 	pm_log.msgs++;
 }
@@ -159,19 +160,19 @@ int my_namecmp(char *check)
 	return 1;
 }
 
-int is_talking_about_me (Uint8 *server_msg, int len, char everywhere)
+int is_talking_about_me (const Uint8 *server_msg, int len, char everywhere)
 {
 	int a=0;
 	unsigned char msg[200];
 	if(len > 198)
 		return 0;
-	if (!everywhere && (*server_msg == '[' || *server_msg == '#'))
+	if (!everywhere && (server_msg[0] == '[' || server_msg[0] == '#'))
 	{
 		return 0; //Only do local chat
 	}
 
-	snprintf(msg, len+1, "%s", server_msg);
-	my_tolower(msg);
+	snprintf (msg, len+1, "%s", server_msg);
+	my_tolower (msg);
 
 	while (msg[a] && msg[a] != ':' && (msg[a] < 127+c_red1 || msg[a] > 127+c_grey4))
 		a++;

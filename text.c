@@ -202,20 +202,19 @@ void send_input_text_line (char *line, int line_len)
 	return;
 }
 
-int filter_or_ignore_text (unsigned char *text_to_add, int len)
+int filter_or_ignore_text (Uint8 *text_to_add, int len)
 {
-	int	l, type;
-	unsigned char *ptr;
+	int l, type, idx;
 
 	if (len <= 0) return 0;	// no point
 
 	//check for auto receiving #help
-	for (ptr = text_to_add, l = len; l > 0; ptr++, l--)
+	for (idx = 0; idx < len; idx++)
 	{
-		if ((*ptr & 0x80) == 0)
-			break;
+		if (!IS_COLOR (text_to_add[idx])) break;
 	}
-	if (l >= 9 && *ptr == '#' && (strncasecmp(ptr, "#help request", 9) == 0 || strncasecmp(ptr, "#mod chat", 9) == 0))
+	l = len - idx;
+	if (l >= 9 && text_to_add[idx] == '#' && (strncasecmp (&text_to_add[idx], "#help request", 9) == 0 || strncasecmp (&text_to_add[idx], "#mod chat", 9) == 0))
 	{
 		auto_open_encyclopedia = 0;
 	}
@@ -238,7 +237,7 @@ int filter_or_ignore_text (unsigned char *text_to_add, int len)
 			// player sent us a PM
 			add_message_to_pm_log (text_to_add, len);
 		}
-		else if (text_to_add[0] == (c_grey1+127) && is_talking_about_me (&text_to_add[1], len-1, 0) )
+		else if (text_to_add[0] == 127 + c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0) )
 		{
 			// player mentions our name in local chat
 			send_afk_message (&text_to_add[1], len - 1, type);
@@ -248,7 +247,7 @@ int filter_or_ignore_text (unsigned char *text_to_add, int len)
 			// check if this was a trade attempt
 			int i;
 			for (i = 1; i < len; i++)
-				if ( text_to_add[i] == ' ' || text_to_add[i] == ':' || (text_to_add[i] > 127+c_red1 && text_to_add[i] < 127+c_grey4) )
+				if (text_to_add[i] == ' ' || text_to_add[i] == ':' || IS_COLOR (text_to_add[i]))
 					break;
 			if (i < len-15 && strncasecmp (&text_to_add[i], " wants to trade", 15) == 0)
 				send_afk_message (&text_to_add[1], len - 1, type);
@@ -271,20 +270,23 @@ int filter_or_ignore_text (unsigned char *text_to_add, int len)
 			int i;
 			int cur_char;
 			/*entropy says: I really fail to understand the logic of that snprintf. And gcc can't understand it either
-			because the name is corrupted. so we implement it the old fashioned way.
+			  because the name is corrupted. so we implement it the old fashioned way.
+			  Grum responds: actually it's the MingW compiler on windows that doesn't understand it, because it doesn't
+			  terminate the string when the buffer threatens to overflow. It works fine with gcc on Unix, and using
+			  sane_snprintf should also fix it on windows.
 			snprintf (name, l, "%s", &text_to_add[1]);
 			*/
-			for(i=0;i<sizeof(name);i++)
+			for (i = 0; i < sizeof (name); i++)
+			{
+				cur_char = text_to_add[i+1];
+				name[i] = cur_char;
+				if (cur_char == ' ')
 				{
-					cur_char=text_to_add[i+1];
-					name[i]=cur_char;
-					if(cur_char==' ')
-						{
-							name[i]=0;
-							break;
-						}
+					name[i] = 0;
+					break;
 				}
-			add_buddy_confirmation(name);
+			}
+			add_buddy_confirmation (name);
 		}
 	}
 

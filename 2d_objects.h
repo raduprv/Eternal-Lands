@@ -129,7 +129,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
  * \param	len the length in bytes of the array
  * \callgraph
  */
-void set_2d_object(Uint8 display, void *ptr, int len);
+void set_2d_object (Uint8 display, const void *ptr, int len);
 
 /*!
  * \ingroup	load_2d
@@ -143,6 +143,6 @@ void set_2d_object(Uint8 display, void *ptr, int len);
  * \param	len the length in bytes of the array
  * \callgraph
  */
- void state_2d_object(Uint8 state, void *ptr, int len);
+void state_2d_object (Uint8 state, const void *ptr, int len);
 
 #endif

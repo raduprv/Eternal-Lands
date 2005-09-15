@@ -990,9 +990,9 @@ void destroy_e3d(e3d_object *e3d_id)
 }
 
 // for support of the 1.0.3 server, change if an object is to be displayed or not
-void set_3d_object(Uint8 display, void *ptr, int len)
+void set_3d_object (Uint8 display, const void *ptr, int len)
 {
-	Uint32	*id_ptr= (Uint32 *)ptr;
+	const Uint32 *id_ptr = ptr;
 	
 	// first look for the override to process ALL objects
 	if (len < sizeof(*id_ptr) ){
@@ -1004,22 +1004,26 @@ void set_3d_object(Uint8 display, void *ptr, int len)
 			}
 		}
 	} else {
-		while(len >= sizeof(*id_ptr)){
-			Uint32	obj_id= *id_ptr;
+		int idx = 0;
 		
-			if(obj_id <= highest_obj_3d && objects_list[obj_id]){
-				objects_list[obj_id]->display= display;
-				id_ptr++;
-				len-= sizeof(Uint32);
-		}
+		while (len >= sizeof (*id_ptr))
+		{
+			Uint32 obj_id = id_ptr[idx];
+		
+			if (obj_id <= highest_obj_3d && objects_list[obj_id])
+			{
+				objects_list[obj_id]->display = display;
+				idx++;
+				len -= sizeof (*id_ptr);
+			}
 		}
 	}
 }
 
 // for future expansion
-void state_3d_object(Uint8 state, void *ptr, int len)
+void state_3d_object (Uint8 state, const void *ptr, int len)
 {
-	Uint32	*id_ptr= (Uint32 *)ptr;
+	const Uint32 *id_ptr = ptr;
 	
 	// first look for the override to process ALL objects
 	if (len < sizeof(*id_ptr) ){
@@ -1031,13 +1035,17 @@ void state_3d_object(Uint8 state, void *ptr, int len)
 			}
 		}
 	} else {
-		while(len >= sizeof(*id_ptr)){
-			Uint32	obj_id= *id_ptr;
+		int idx = 0;
+	
+		while (len >= sizeof(*id_ptr))
+		{
+			Uint32	obj_id = id_ptr[idx];
 		
-			if(obj_id <= highest_obj_3d && objects_list[obj_id]){
-				objects_list[obj_id]->state= state;
-				id_ptr++;
-				len-= sizeof(Uint32);
+			if (obj_id <= highest_obj_3d && objects_list[obj_id])
+			{
+				objects_list[obj_id]->state = state;
+				idx++;
+				len -= sizeof (*id_ptr);
 			}
 		}
 	}
