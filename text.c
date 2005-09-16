@@ -913,29 +913,29 @@ void clear_display_text_buffer ()
 {
 	int imsg;
 
-	for (imsg = 0; imsg < DISPLAY_TEXT_BUFFER_SIZE; imsg++)
+	for (imsg=0; imsg<DISPLAY_TEXT_BUFFER_SIZE; imsg++)
 	{
-		if (display_text_buffer[imsg].data)
+		if (display_text_buffer[imsg].data && display_text_buffer[imsg].data[0] && !display_text_buffer[imsg].deleted)
 		{
-			total_nr_lines -= display_text_buffer[imsg].wrap_lines;
-			display_text_buffer[imsg].deleted = 1;
+			total_nr_lines-= display_text_buffer[imsg].wrap_lines;
+			display_text_buffer[imsg].deleted= 1;
 			update_text_windows (&display_text_buffer[imsg]);
 			
-			display_text_buffer[imsg].data[0] = '\0';
+			display_text_buffer[imsg].data[0]= '\0';
 		}
-		display_text_buffer[imsg].len = 0;
+		display_text_buffer[imsg].len= 0;
 	}
 
-	last_message = -1;
-	buffer_full = 0;
+	last_message= -1;
+	buffer_full= 0;
 
-	console_msg_nr = 0;
-	console_msg_offset = 0;
+	console_msg_nr= 0;
+	console_msg_offset= 0;
 
-	last_server_message_time = cur_time;
-	lines_to_show = 0;
+	last_server_message_time= cur_time;
+	lines_to_show= 0;
 
-	not_from_the_end_console = 0;
+	not_from_the_end_console= 0;
 }
 
 int rewrap_message(text_message * msg, float zoom, int width, int * cursor) {
@@ -943,7 +943,8 @@ int rewrap_message(text_message * msg, float zoom, int width, int * cursor) {
 
 	if (msg == NULL || msg->data == NULL) return 0;
 	
-	if (msg->wrap_width != width || msg->wrap_zoom != zoom) {
+	if (msg->wrap_width != width || msg->wrap_zoom != zoom)
+	{
 		if (msg->chan_idx != CHAT_NONE) total_nr_lines -= msg->wrap_lines;
  		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, zoom, width, cursor);
 		if (msg->chan_idx != CHAT_NONE) total_nr_lines += nlines;
