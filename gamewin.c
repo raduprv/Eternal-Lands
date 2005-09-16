@@ -385,10 +385,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 			if (object_under_mouse == -1)
 				return 1;
-#ifdef  STRONG_SIT_LOCK
 			if (you_sit && sit_lock && !flag_ctrl)
 				return 1;
-#endif  // STRONG_SIT_LOCK
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
 				str[0] = ATTACK_SOMEONE;
