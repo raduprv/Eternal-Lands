@@ -1883,10 +1883,13 @@ int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
 					/* Make sure we don't insert illegal characters here */
 					if(button->input_buffer[0] != '0' || ch == '.' || strstr(button->input_buffer, ".") != NULL) {
 						/* Find end of string */
-						for(i = 0; button->input_buffer[i] != '\0' && i < 254; i++);
+						for(i = 0; button->input_buffer[i] != '\0' && i < sizeof (button->input_buffer); i++);
 						/* Append to the end */
-						button->input_buffer[i] = ch;
-						button->input_buffer[i+1] = '\0';
+						if (i+1 < sizeof (button->input_buffer))
+						{
+							button->input_buffer[i] = ch;
+							button->input_buffer[i+1] = '\0';
+						}
 						if(atof(button->input_buffer) > button->max) {
 							snprintf(button->input_buffer, 255, "%.2f", button->max);
 						}

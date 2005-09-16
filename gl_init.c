@@ -255,7 +255,7 @@ void check_gl_mode()
 					window_height=480;
 					bpp=32;
 
-					snprintf(vid_mode_str,sizeof(str),"%ix%ix%i",old_width,old_height,old_bpp);
+					snprintf (vid_mode_str, sizeof (vid_mode_str), "%ix%ix%i", old_width, old_height, old_bpp);
 					snprintf(str,sizeof(str),safemode_str,vid_mode_str);
 					LOG_TO_CONSOLE(c_red1,str);
 

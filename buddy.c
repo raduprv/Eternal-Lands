@@ -526,9 +526,6 @@ void add_buddy (const char *name, int type, int len)
 {
 	int i;
 	char message[35];
-	time_t n_time;
-
-	if (buddy_log_notice > 0) time (&n_time);
 
 	// find empty space
 	for (i = 0; i < MAX_BUDDY; i++)
@@ -545,6 +542,9 @@ void add_buddy (const char *name, int type, int len)
 				// bad lag, this won't help. if someone logs 
 				// on/off during that time, we miss the 
 				// notification
+				time_t n_time;
+				
+				time (&n_time);
 				if (difftime (c_time, n_time) > -5.0f) break;
 				
 				snprintf (message, sizeof(message), "%.*s has logged on.", len, name);
@@ -560,9 +560,6 @@ void del_buddy (const char *name, int len)
 {
 	int i;
 	char message[36];
-	time_t n_time;
-	
-	if (buddy_log_notice > 0) time(&n_time);
 
 	// find buddy
 	for (i = 0; i < MAX_BUDDY; i++)
@@ -578,7 +575,11 @@ void del_buddy (const char *name, int len)
 				// bad lag, this won't help. if someone logs 
 				// on/off during that time, we miss the 
 				// notification
+				time_t n_time;
+				
+				time (&n_time);
 				if (difftime (c_time, n_time) > -5.0f) break;
+				
 				snprintf (message, sizeof(message), "%.*s has logged off", len, name);
 				LOG_TO_CONSOLE (c_green1, message);
 			}

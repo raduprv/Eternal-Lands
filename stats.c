@@ -596,18 +596,6 @@ void fill_stats_win ()
 	set_window_handler(stats_win, ELW_HANDLER_CLICK, &click_stats_handler );
 }
 
-void display_stats(player_attribs cur_stats)	// cur_stats is ignored for this test
-{
-	if(stats_win < 0){
-		stats_win= create_window("Stats", game_root_win, 0, attrib_menu_x, attrib_menu_y, attrib_menu_x_len, attrib_menu_y_len, ELW_WIN_DEFAULT);
-
-		fill_stats_win ();
-	} else {
-		show_window(stats_win);
-		select_window(stats_win);
-	}
-}
-
 void draw_floatingmessage(floating_message *message, float healthbar_z) {
 	float f, width, y, x;
 	float cut;

@@ -1320,8 +1320,8 @@ void change_to_current_tab(const char *input)
 			}
 		}
 		//We didn't find any tab to switch to, create new
-		itab = add_tab_button(channel);
-		switch_to_tab(itab);
+		itab = add_tab_button (channel);
+		if (itab >= 0) switch_to_tab (itab);
 	}
 }
 #endif //MULTI_CHANNEL

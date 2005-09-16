@@ -223,18 +223,6 @@ void get_the_stats(Sint16 *stats);
 void get_partial_stat(unsigned char name,Sint32 value);
 
 /*!
- * \ingroup stats_window
- * \brief   Opens the statistics window and displays it.
- *
- *      Opens the statistics window, and displays it. The current values will be used from the parameter cur_stats.
- *
- * \param cur_stats These are the current values of the players attributes to be displayed in the stats window.
- *
- * \callgraph
- */
-void display_stats(player_attribs cur_stats);
-
-/*!
  * \ingroup other
  * \brief   Initializes the callbacks used to calculate base and current value of the cross attributes.
  *

@@ -405,12 +405,16 @@ void ReadCategoryXML(xmlNode * a_node)
 				T->r=r; T->g=g; T->b=b;
 				T->text=NULL;
 				T->ref=NULL;
+				lastextlen = 0;
 				if (cur_node->children != NULL)
+				{
 					MY_XMLSTRCPY (&T->text, cur_node->children->content);
-				while(t->Next!=NULL)t=t->Next;
-				t->Next=T;
-				x+=strlen(T->text)*((T->size)?11:8);
-				lastextlen=strlen(T->text)*((T->size)?11:8);
+					lastextlen = strlen (T->text) * ((T->size) ? 11 : 8);
+					x += lastextlen;
+				}
+				while (t->Next != NULL)
+					t = t->Next;
+				t->Next = T;
 			}
 
 			//<nl>

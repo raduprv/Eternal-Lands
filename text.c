@@ -470,7 +470,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		// allow some space for the channel number
 		minlen += 20;
 #endif
-	if (msg->size < minlen)
+	if (msg->data == NULL || msg->size < minlen)
 	{
 		if (msg->data != NULL) free (msg->data);
 		msg->data = malloc (minlen);

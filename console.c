@@ -243,54 +243,49 @@ void test_for_console_command (char *text, int len)
 			Uint8 ch='\0';
 			int result;
 
-			for(i=0;i<15;i++)
-				{
-					ch=text_loc[i+7];//7 because there is a space after "filter"
-					if(ch=='\0')
-						{
-							ch=0;
-							break;
-						}
-					name[i]=ch;
-				}
+			for (i = 0; i < 15; i++)
+			{
+				ch = text_loc[i+7]; // 7 because there is a space after "filter"
+				if (ch == '\0') break;
+				name[i]=ch;
+			}
+			name[i] = '\0';
 
-			name[i]=0;
+			if (i>=15 && ch != '\0')
+			{
+				Uint8 str[100];
+				snprintf (str, sizeof(str), "%s %s", word_too_long, not_added_to_filter);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
+			else if (i < 3)
+			{
+				Uint8 str[100];
+				snprintf (str, sizeof(str), "%s %s", word_too_short, not_added_to_filter);
+				LOG_TO_CONSOLE (c_red1, word_too_short);
+				return;
+			}
 
-			if(i==15 && !ch)
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),"%s %s",word_too_long,not_added_to_filter);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
-			else if(i<3)
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),"%s %s",word_too_short,not_added_to_filter);
-					LOG_TO_CONSOLE(c_red1,word_too_short);
-					return;
-				}
-
-			result=add_to_filter_list(name,save_ignores);
-			if(result==-1)
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),already_filtering,name);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
-			else if(result==-2)
-				{
-					LOG_TO_CONSOLE(c_red1,filter_list_full);
-					return;
-				}
+			result = add_to_filter_list (name, save_ignores);
+			if (result == -1)
+			{
+				Uint8 str[100];
+				snprintf (str, sizeof(str), already_filtering, name);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
+			else if (result == -2)
+			{
+				LOG_TO_CONSOLE (c_red1, filter_list_full);
+				return;
+			}
 			else
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),added_to_filters,name);
-					LOG_TO_CONSOLE(c_green1,str);
-					return;
-				}
+			{
+				Uint8 str[100];
+				snprintf (str, sizeof (str), added_to_filters, name);
+				LOG_TO_CONSOLE (c_green1, str);
+				return;
+			}
 		}
 
 	////////////////////////
