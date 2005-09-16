@@ -428,6 +428,7 @@ int check_character(int type, char ch)
 	if(type==0){
 		//name
 		if(isdigit(ch)){
+			// no more then two digits in a name
 			if (numbers_in_name >= 2)
 			{
 				retval=-1;
@@ -437,6 +438,9 @@ int check_character(int type, char ch)
 			}
 		} else if(isalnum(ch)||ch=='_'){
 			retval=1;
+		} else if ((ch>= 33 && ch<=47)||(ch>=58 && ch<=64)||(ch>=91&&ch<=96)||(ch>=122 && ch<=126)){
+			// not permitted in a name
+			retval=-1;
 		}
 	} else {	// password
 		if(ch>=33 && ch<126) retval=1;
