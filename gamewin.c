@@ -385,8 +385,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 			if (object_under_mouse == -1)
 				return 1;
+#ifdef  STRONG_SIT_LOCK
 			if (you_sit && sit_lock && !flag_ctrl)
 				return 1;
+#endif  // STRONG_SIT_LOCK
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
 				str[0] = ATTACK_SOMEONE;
@@ -399,8 +401,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		}
 
 		case CURSOR_ENTER:
-			if(you_sit && sit_lock && !flag_ctrl)
+#ifdef  STRONG_SIT_LOCK
+			if (you_sit && sit_lock && !flag_ctrl)
 				return 1;
+#endif  // STRONG_SIT_LOCK
 		case CURSOR_USE:
 		case CURSOR_USE_WITEM:
 		case CURSOR_TALK:
@@ -444,8 +448,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		case CURSOR_PICK:
 			if (object_under_mouse == -1)
 				return 1;
+#ifdef  STRONG_SIT_LOCK
 			if (you_sit && sit_lock && !flag_ctrl)
 				return 1;
+#endif  // STRONG_SIT_LOCK
 			open_bag (object_under_mouse);
 			return 1;
 			break;
