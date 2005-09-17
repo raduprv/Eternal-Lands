@@ -311,7 +311,7 @@ int load_map (const char * file_name)
 
 	//delete the unused objects from the cache
 
-	update_loading_win("Loading 2d objects", 25);
+	update_loading_win("Loading 2d objects", 20);
 	//read the 2d objects
 	for(i=0;i<obj_2d_no;i++)
 		{
@@ -334,7 +334,7 @@ int load_map (const char * file_name)
 			}
 		}
 
-	update_loading_win("Loading lights", 25);
+	update_loading_win("Loading lights", 20);
 	//read the lights
 	for(i=0;i<lights_no;i++)
 		{
@@ -356,7 +356,7 @@ int load_map (const char * file_name)
 			}
 		}
 
-	update_loading_win("Loading particles", 25);
+	update_loading_win("Loading particles", 20);
 	//read particle systems
 	for(i=0;i<particles_no;i++)
 		{
@@ -377,12 +377,13 @@ int load_map (const char * file_name)
 		}
 
 	fclose(f);
-	update_loading_win("done", 25);
+	update_loading_win("building sectors", 20);
+	sector_add_map();
+	update_loading_win("done", 20);
 #ifdef EXTRA_DEBUG
 	ERR();//We finished loading the new map apparently...
 #endif
 	destroy_loading_win();
-	sector_add_map();
 	return 1;
 
 }
