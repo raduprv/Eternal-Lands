@@ -133,9 +133,7 @@ void write_to_log (Uint8 *data, int len)
 		fwrite(str, j, 1, srv_log);
 	}
 	else if (!server_message || log_chat==2
-#ifdef MULTI_CHANNEL
 		|| (log_chat == 1 && ((!server_message)||(!strncmp(str, "#GM ", 4))||(!strncmp(str, "#Mod ", 5))))
-#endif
 		)
 	{
 		fwrite(str, j, 1, chat_log);
@@ -151,7 +149,6 @@ void send_input_text_line (char *line, int line_len)
 	int len;
 	Uint8 ch;
 
-#ifdef MULTI_CHANNEL
 	switch(use_windowed_chat)
 	{
 		case 1:
@@ -165,7 +162,6 @@ void send_input_text_line (char *line, int line_len)
 			}
 		break;
 	}
-#endif
 
 	if ( caps_filter && line_len > 4 && my_isupper (line, -1) )
 		my_tolower (line);
@@ -476,12 +472,10 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 
 	// Allow for a null byte and up to 8 extra newlines and colour codes.
 	minlen = len + 18;
-#ifdef MULTI_CHANNEL
 	cnr = get_active_channel (channel);
 	if (cnr != 0)
 		// allow some space for the channel number
 		minlen += 20;
-#endif
 	if (msg->data == NULL || msg->size < minlen)
 	{
 		if (msg->data != NULL) free (msg->data);
@@ -533,7 +527,6 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 
 	msg->len = strlen (msg->data);
 
-#ifndef MULTI_CHANNEL
 	if (use_windowed_chat != 0)
 	{
 		// determine the proper channel
@@ -572,7 +565,6 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			channel = CHAT_LOCAL;
 		}
 	}
-#endif
 
 	msg->chan_idx = channel;
 

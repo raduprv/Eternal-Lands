@@ -2,7 +2,6 @@
 #include <string.h>
 #include "global.h"
 
-#ifdef MULTI_CHANNEL
 void remove_chat_tab (Uint8 channel);
 int add_chat_tab (int nlines, Uint8 channel);
 void update_chat_tab_idx (Uint8 old_ix, Uint8 new_idx);
@@ -129,8 +128,6 @@ Uint32 get_active_channel (Uint8 idx)
 		return active_channels[idx-CHAT_CHANNEL1];
 	return 0;
 }
-
-#endif // def MULTI_CHANNEL
 
 #define CHAT_WIN_SPACE		4
 #define CHAT_WIN_TAG_HEIGHT	20
@@ -511,13 +508,10 @@ void switch_to_chat_tab(int id, char click)
 	text_changed = 1;
 	channels[active_tab].highlighted = 0;
 
-#ifdef MULTI_CHANNEL
 	if (channels[active_tab].chan_nr >= CHAT_CHANNEL1 && channels[active_tab].chan_nr <= CHAT_CHANNEL3)
 		send_active_channel (channels[active_tab].chan_nr);
-#endif
 }
 
-#ifdef MULTI_CHANNEL
 void change_to_current_chat_tab(const char *input)
 {
 	Uint8 channel;
@@ -580,7 +574,6 @@ void change_to_current_chat_tab(const char *input)
 		}
 	}
 }
-#endif //MULTI_CHANNEL
 
 int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
@@ -1024,10 +1017,8 @@ void switch_to_tab(int id)
 	current_filter = tabs[current_tab].channel;
 	tabs[current_tab].highlighted = 0;
 	
-#ifdef MULTI_CHANNEL
 	if (tabs[current_tab].channel >= CHAT_CHANNEL1 && tabs[current_tab].channel <= CHAT_CHANNEL3)
 		send_active_channel (tabs[current_tab].channel); 
-#endif
 }
 
 int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
@@ -1057,9 +1048,7 @@ char tmp_tab_label[20];
 
 const char *tab_label (Uint8 chan)
 {
-#ifdef MULTI_CHANNEL
 	int cnr;
-#endif
 
 	switch (chan)
 	{
@@ -1073,7 +1062,6 @@ const char *tab_label (Uint8 chan)
 		case CHAT_CHANNEL1:
 		case CHAT_CHANNEL2:
 		case CHAT_CHANNEL3:
-#ifdef MULTI_CHANNEL
 			cnr = active_channels[chan-CHAT_CHANNEL1];
 			switch (cnr)
 			{
@@ -1086,9 +1074,6 @@ const char *tab_label (Uint8 chan)
 					snprintf (tmp_tab_label, sizeof (tmp_tab_label), tab_channel, cnr);
 					return tmp_tab_label;
 			}
-#else
-			return "Channel";
-#endif
 		default:
 			// shouldn't get here 
 			return "";
@@ -1238,7 +1223,6 @@ void display_tab_bar ()
 	}
 }
 
-#ifdef MULTI_CHANNEL
 void change_to_current_tab(const char *input)
 {
 	Uint8 channel;
@@ -1324,7 +1308,6 @@ void change_to_current_tab(const char *input)
 		if (itab >= 0) switch_to_tab (itab);
 	}
 }
-#endif //MULTI_CHANNEL
 
 void convert_tabs (int new_wc)
 {

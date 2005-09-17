@@ -7,7 +7,6 @@
 #define __MAP_IO_H__
 
 extern char map_file_name[60]; /*!< filename of the current map */
-#ifdef NEW_CLIENT
 #define PLAINS 		0x00000001 //It can rain here
 #define SNOW 		0x00000002 //It can snow here
 #define DESERT 		0x00000004 //It can be darned hot here :P
@@ -44,7 +43,6 @@ extern char map_file_name[60]; /*!< filename of the current map */
 */
 
 extern Uint32 map_flags;/*!< The map flags - basically this will be obsolete with the next map format, but untill then it's good to have*/
-#endif
 
 /*!
  * The structure used for IO of object3d files.

@@ -698,7 +698,6 @@ void rain_control()
 		}
 	else return;
 
-#ifdef NEW_CLIENT
 	/* disable rain on snow maps for now */
 	if (map_flags & SNOW) {
 		is_raining = 0;
@@ -711,7 +710,6 @@ void rain_control()
 		rain_light_offset=0;
 		return;
 	}
-#endif
 
 	//prepare to stop the rain?
 	if(seconds_till_rain_stops!=-1) {
@@ -810,9 +808,7 @@ void thunder_control()
 {
 	int i;
 
-#ifdef NEW_CLIENT
 	if(map_flags&SNOW) return;
-#endif
 
 	if(thunder_control_counter+100<cur_time)
 		{
@@ -867,9 +863,7 @@ void add_thunder(int type,int sound_delay)
 {
 	int i;
 
-#ifdef NEW_CLIENT
 	if(map_flags&SNOW) return;
-#endif
 
 	for(i=0;i<MAX_THUNDERS;i++)
 		{
@@ -921,9 +915,7 @@ void render_fog() {
 	GLfloat rainStrength, rainAlpha, diffuseBias;
 	int i; float tmpf;
 
-#ifdef NEW_CLIENT
 	if(!(map_flags&SNOW)) {
-#endif
 		rainStrength = num_rain_drops/(float) MAX_RAIN_DROPS;
 		rainAlpha = 0.2f*rain_color[3]*rainStrength;
 			// in dungeons and at night we use smaller light sources ==> less diffuse light
@@ -945,7 +937,6 @@ void render_fog() {
 		tmpf = exp(-10.0f*fogDensity);
 		fogAlpha = 1.0f - tmpf*tmpf;
 		
-#ifdef NEW_CLIENT
 	} else {
 		rainStrength = rain_strength_bias;
 		rainAlpha = 0.2f*rain_color[3]*rainStrength;
@@ -962,7 +953,6 @@ void render_fog() {
 			}
 		}
 	}
-#endif
 
 	// interpolate fog distance between min and max depending on rain
 	// TODO: Is linear interpolation the best idea here?

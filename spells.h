@@ -6,7 +6,6 @@
 #ifndef __SPELLS_H__
 #define __SPELLS_H__
 
-#ifdef NEW_CLIENT
 /*!
  * \name Server spell messages
  */
@@ -32,16 +31,13 @@ typedef struct {
 
 extern mqbdata * mqb_data[7];/*mqb_data holds a spell name, the image and spell ID as well as the data that's being send to the server.*/
 extern int spell_temp,spell_dragged;
-#endif
 
 /*!
  * \name windows handlers
  */
 /*! @{ */
 extern int sigil_win; /*!< handle for the sigil (spell) window */
-#ifdef NEW_CLIENT
 extern int quickspell_win; /*!< quickbar windows handler */
-#endif
 /*! @} */
 
 extern int sigil_menu_x;
@@ -144,10 +140,8 @@ void get_sigils_we_have(Uint32 sigils_we_have);
  */
 void process_network_spell (const char * data, int len);
 
-#ifdef NEW_CLIENT
 void load_quickspells();
 void save_quickspells();
 void init_quickspell();
 void add_spell_to_quickbar();
-#endif
 #endif

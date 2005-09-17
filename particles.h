@@ -88,7 +88,6 @@ typedef struct
 	float lightr,lightg,lightb;
     /*! \} */
 
-#ifdef NEW_CLIENT
 	/*!
     	* \name Sounds for this system
 	*/
@@ -97,7 +96,6 @@ typedef struct
 	int positional;
 	int loop;
 	/*! \} */
-#endif
 }particle_sys_def;
 
 /*!
@@ -202,7 +200,6 @@ extern void	end_particles_list();
 
 //CREATION OF NEW PARTICLES AND SYSTEMS 
 
-#ifdef NEW_CLIENT
 /*!
  * \ingroup particles
  * \brief Adds a new particle system from the file given in file_name at the given position.
@@ -217,27 +214,7 @@ extern void	end_particles_list();
  * \callgraph
  */
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
-#else
-/*!
- * \ingroup particles
- * \brief Adds a new particle system from the file given in file_name at the given position.
- *
- *      Adds a new particle system from the file givein in file_name at the position (x_pos,y_pos,z_pos).
- *
- * \param file_name filename of the file that contains the particle systems description.
- * \param x_pos	x coordinate where the particle system should appear
- * \param y_pos	y coordinate where the particle system should appear
- * \param z_pos	z coordinate where the particle system should appear
- * \param sound	the number of the sound file to play, or -1 for no sounds
- * \param positional	boolean flag, indicating whether we shall play the sound positional.
- * \param loop		boolean flag, indicating whether we shall play the sound in a loop.
- * \retval int
- * \callgraph
- */
-int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, int sound, int positional, int loop);
-#endif
 
-#ifdef NEW_CLIENT
 /*!
  * \ingroup particles
  * \brief Adds a new particle system from the given file file_name at the specified tile position.
@@ -251,32 +228,10 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, in
  * \callgraph
  */
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile);
-#else
-/*!
- * \ingroup particles
- * \brief Adds a new particle system from the given file file_name at the specified tile position.
- *
- *      Adds a new particle system from the given file file_name at the specified tile position.
- *
- * \param file_name	filename of the file that contains the particly systems definition.
- * \param x_tile	x coordinate of the tile where the particle system should be added
- * \param y_tile	y coordinate of the tile where the particle system should be added
- * \param sound		the number of the sound file to play, or -1 for no sounds
- * \param positional	boolean flag, indicating whether we shall play the sound positional.
- * \param loop		boolean flag, indicating whether we shall play the sound in a loop.
- * \retval int
- * \callgraph
- */
-int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, int sound, int positional, int loop);
-#endif
 
 // Grum: included here for the map editor
 void create_particle (particle_sys *sys, particle *result);
-#ifdef NEW_CLIENT
 int create_particle_sys (particle_sys_def *def, float x, float y, float z);
-#else
-int create_particle_sys (particle_sys_def *def, float x, float y, float z, int sound, int positional, int loop);
-#endif // def NEW_CLIENT
 
 //RENDERING FUNCTIONS
 
@@ -303,7 +258,6 @@ void display_particles();
 void update_particles();
 
 //MISC HELPER FUNCTIONS
-#ifdef ELC
 /*!
  * \ingroup misc_utils
  * \brief Adds all teleporters from the given list.
@@ -315,8 +269,6 @@ void update_particles();
  * \callgraph
  */
 void add_teleporters_from_list (const Uint8 *teleport_list);
-
-#endif
 
 #ifdef MAP_EDITOR
 /*!

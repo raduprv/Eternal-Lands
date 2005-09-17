@@ -119,10 +119,8 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 			// Undo stupid quickbar hack
 			if ( !get_show_window (quickbar_win) )
 				show_window (quickbar_win);
-#ifdef NEW_CLIENT
 			if ( !get_show_window (quickspell_win) )
 				show_window (quickspell_win);
-#endif
 		}
 		else if ( !text_input_handler (key, unikey) )
 		{

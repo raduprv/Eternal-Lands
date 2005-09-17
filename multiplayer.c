@@ -314,7 +314,6 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 		case RAW_TEXT:
 			{
 				Uint8 text_buf[1024];
-#ifdef MULTI_CHANNEL
 				int len = data_length - 4;
 
 				// extract the channel number
@@ -334,25 +333,6 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 						put_text_in_buffer (in_data[3], text_buf, len);
 					}
 				}
-#else			
-				int len = data_length - 3;
-				
-				if (data_length > 3)
-				{
-					if (len > sizeof (text_buf) - 1)
-						len = sizeof (text_buf) - 1;
-					memcpy (text_buf, &in_data[3], len);
-					text_buf[len] = '\0';
-				
-					// do filtering and ignoring
-					len = filter_or_ignore_text (text_buf, len);
-					if (len > 0)
-					{
-						//how to display it
-						put_text_in_buffer (CHAT_ALL, text_buf, len);
-					}
-				}
-#endif
 			}
 			break;
 
@@ -429,9 +409,7 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 				newchar_root_win = -1;
 				show_window (game_root_win);
 
-#ifdef NEW_CLIENT
 				load_quickspells();
-#endif
 				
 				previously_logged_in=1;
 			}
@@ -547,11 +525,7 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 	ERR();
 #endif
 
-#ifdef NEW_CLIENT
 				add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );
-#else
-				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))), snd_tele_out, 1, 0);
-#endif
 			}
 			break;
 
@@ -561,11 +535,7 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 	ERR();
 #endif
 
-#ifdef NEW_CLIENT
 				add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );	
-#else
-				add_particle_sys_at_tile("./particles/teleport_in.part",SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))), snd_tele_out, 1, 0);
-#endif
 			}
 			break;
 				regenerate_near_objects=1;//Regenerate the near 3d objects...
@@ -729,11 +699,7 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 	ERR();
 #endif
 
-#ifdef NEW_CLIENT
 				add_particle_sys_at_tile ( "./particles/bag_in.part", SDL_SwapLE16 ( *( (Uint16 *)(in_data+3) ) ), SDL_SwapLE16 ( *( (Uint16 *)(in_data+5) ) ) );
-#else
-				add_particle_sys_at_tile("./particles/bag_in.part",SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16 *)(in_data+5))), -1, 0, 0);
-#endif
 			}
 			break;
 
@@ -984,7 +950,6 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 				}
 			}
 			break;
-#ifdef NEW_CLIENT
 		case OPEN_BOOK:
 			{
 				open_book(SDL_SwapLE16(*((Uint16*)(in_data+3))));
@@ -1024,12 +989,9 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 				process_network_spell(in_data+3, data_length-3);
         		}
 			break;
-#endif //NEW_CLIENT
-#ifdef MULTI_CHANNEL
 		case GET_ACTIVE_CHANNELS:
 			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_length-2)/4);
 			break;
-#endif
 
 		case GET_3D_OBJ_LIST:
 			if (data_length > 3)
@@ -1069,13 +1031,11 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 			}
 			break;
 
-#ifdef NEW_CLIENT
 		case MAP_FLAGS: 
 			{
 				map_flags=SDL_SwapLE32(*((Uint32*)(in_data+3)));
 			}
 			break;
-#endif
 
 		default:
 			{

@@ -173,7 +173,6 @@ void drag_item(int item, int storage, int mini)
 	int cur_item,this_texture;
 	int cur_item_img;
 
-#ifdef NEW_CLIENT
 	int quantity=item_quantity;
 	char str[20];
 	
@@ -203,13 +202,6 @@ void drag_item(int item, int storage, int mini)
 			if(quantity>item_list[item].quantity)quantity=item_list[item].quantity;
 		} else quantity=-1;//The quantity for non-stackable items is misleading so don't show it...
 	}
-#else
-	if (item < 0 || item >= ITEM_NUM_ITEMS)
-		// oops
-		return;
-		
-	cur_item=item_list[item].image_id;
-#endif
 
 	cur_item_img=cur_item%25;
 	u_start=0.2f*(cur_item_img%5);
@@ -228,12 +220,10 @@ void drag_item(int item, int storage, int mini)
 		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+25,mouse_y+25);
 	glEnd();
 	
-#ifdef NEW_CLIENT
 	if(!mini && quantity!=-1){
 		snprintf(str,sizeof(str),"%i",quantity);
 		draw_string_small(mouse_x-25,mouse_y+10,str,1);
 	}
-#endif
 }
 
 void get_your_items (const Uint8 *data)
@@ -410,16 +400,10 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	if(right_click) {
-#ifdef NEW_CLIENT 
 		if(item_dragged!=-1 || use_item!=-1 || storage_item_dragged!=-1){
-#else
-		if(item_dragged!=-1 || use_item!=-1){
-#endif 
 			use_item=-1;
 			item_dragged=-1;
-#ifdef NEW_CLIENT
 			storage_item_dragged=-1;
-#endif
 			item_action_mode=ACTION_WALK;
 			return 1;
 		}
@@ -509,7 +493,6 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			
 			item_dragged=-1;
 		}
-#ifdef NEW_CLIENT
 		else if(storage_item_dragged!=-1){
 			str[0]=WITHDRAW_ITEM;
 			str[1]=storage_items[storage_item_dragged].pos;
@@ -518,21 +501,15 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			
 			if(storage_items[storage_item_dragged].quantity<=item_quantity) storage_item_dragged=-1;
 		}
-#endif
 		else if(item_list[pos].quantity){
 			if(ctrl_on){
 				str[0]=DROP_ITEM;
 				str[1]=item_list[pos].pos;
-#ifdef NEW_CLIENT
 				if(item_list[pos].is_stackable)
 					*((Uint32 *)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
 				else 
 					*((Uint32 *)(str+2))=SDL_SwapLE32(36);//Drop all
 				my_tcp_send(my_socket, str, 6);
-#else
-				*((Uint16 *)(str+2))=SDL_SwapLE16((short)item_list[pos].quantity);
-				my_tcp_send(my_socket, str, 4);
-#endif
 			} else if(item_action_mode==ACTION_LOOK) {
 				click_time=cur_time;
 				str[0]=LOOK_AT_INVENTORY_ITEM;
@@ -686,13 +663,8 @@ int drop_all_handler ()
 		{
 			str[0] = DROP_ITEM;
 			str[1] = item_list[i].pos;
-#ifdef NEW_CLIENT
 			*((Uint32 *)(str+2)) = item_list[i].quantity;
 			my_tcp_send (my_socket, str, 6);
-#else
-			*((Uint16 *)(str+2)) = item_list[i].quantity;
-			my_tcp_send (my_socket, str, 4);
-#endif
 		}
 	}
 #else

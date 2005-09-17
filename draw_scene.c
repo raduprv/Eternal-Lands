@@ -100,10 +100,8 @@ void draw_scene()
 		drag_item (item_dragged, 0, 0);
 	else if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
 		drag_item (use_item, 0, 1);
-#ifdef NEW_CLIENT
 	else if (storage_item_dragged != -1) 
 		drag_item (storage_item_dragged, 1, 0);
-#endif
 
 	Leave2DMode ();
 

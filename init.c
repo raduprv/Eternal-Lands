@@ -268,10 +268,8 @@ void read_bin_cfg()
 	questlog_menu_x=cfg_mem.questlog_menu_x;
 	questlog_menu_y=cfg_mem.questlog_menu_y;
 
-#ifdef NEW_CLIENT
 	storage_win_x=cfg_mem.storage_win_x;
 	storage_win_y=cfg_mem.storage_win_y;
-#endif
 	
 	if(quickbar_relocatable>0)
 		{
@@ -409,7 +407,6 @@ void save_bin_cfg()
 		cfg_mem.elconfig_menu_y=elconfig_menu_y;
 	}
 
-#ifdef NEW_CLIENT
 	if(storage_win >= 0) {
 		cfg_mem.storage_win_x=windows_list.window[storage_win].cur_x;
 		cfg_mem.storage_win_y=windows_list.window[storage_win].cur_y;
@@ -417,7 +414,6 @@ void save_bin_cfg()
 		cfg_mem.storage_win_x=storage_win_x;
 		cfg_mem.storage_win_y=storage_win_y;
 	}
-#endif
 
 	if(quickbar_relocatable>0)
 		{

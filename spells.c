@@ -36,7 +36,6 @@ char	last_spell_str[20];
 int		last_spell_len= 0;
 int spell_result=0;
 
-#ifdef NEW_CLIENT
 mqbdata * mqb_data[7]={NULL};//mqb_data will hold the magic quickbar name, image, pos.
 int quickspells=6;
 int quickspell_size=20;//size of displayed icons in pixels
@@ -46,7 +45,6 @@ int quickspell_x_len=26;
 int quickspell_y_len=6*30;
 int quickspell_x=60;
 int quickspell_y=64;
-#endif
 
 void repeat_spell()
 {
@@ -283,9 +281,7 @@ void display_spells_we_have()
 	glDisable(GL_BLEND);
 }
 
-#ifdef NEW_CLIENT
 int show_last_spell_help=0;
-#endif
 
 int display_sigils_handler(window_info *win)
 {
@@ -297,7 +293,6 @@ int display_sigils_handler(window_info *win)
 	//let's add the new spell icon if we have one
 	get_and_set_texture_id(sigils_text);
 	
-#ifdef NEW_CLIENT
 	if(mqb_data[0] && mqb_data[0]->spell_id!=-1) {
 		int x_start,y_start,x_end,y_end;
 		float u_start,v_start,u_end,v_end;
@@ -320,7 +315,6 @@ int display_sigils_handler(window_info *win)
 		glEnd();
 		glDisable(GL_ALPHA_TEST);
 	}
-#endif
 	
 	glBegin(GL_QUADS);
 	//ok, now let's draw the objects...
@@ -398,10 +392,8 @@ int display_sigils_handler(window_info *win)
 	
 	glEnable(GL_TEXTURE_2D);
 	
-#ifdef NEW_CLIENT
 	if(show_last_spell_help && mqb_data[0] && mqb_data[0]->spell_id!=-1)show_help(mqb_data[0]->spell_name,350-8*strlen(mqb_data[0]->spell_name),120);
 	show_last_spell_help=0;
-#endif
 
 	return 1;
 }
@@ -412,11 +404,9 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 	// only handle real clicks, not scroll wheel moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0 ) return 0;
 
-#ifdef NEW_CLIENT
 	if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] && mqb_data[0]->spell_id!=-1) {
 		add_spell_to_quickbar();
 	}
-#endif
 
 	//see if we clicked on any sigil in the main category
 	
@@ -455,11 +445,9 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 {
 	if(!have_error_message)spell_text[0]=0;
 
-#ifdef NEW_CLIENT
 	if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] &&mqb_data[0]->spell_name[0]){
 		show_last_spell_help=1;
 	}
-#endif
 	
 	//see if we clicked on any sigil in the main category
 	if(mx>0 && mx<12*33 && my>0 && my<3*33){
@@ -486,12 +474,10 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 		return 0;
 	}
 	
-#ifdef NEW_CLIENT
 	if(mx>=350 && mx<=381 && my>=112 && my<=143 && mqb_data[0] && mqb_data[0]->spell_id != -1) {
 		snprintf(spell_text, sizeof(spell_text), "Click to add the spell to the quickbar");
 		return 0;
 	}
-#endif //NEW_CLIENT
 
 	return 0;
 }
@@ -510,7 +496,6 @@ void get_sigils_we_have(Uint32 sigils_we_have)
 
 }
 
-#ifdef NEW_CLIENT
 //Quickspell I/O start
 char * invalid_spell_str={"Invalid spell"};
 
@@ -777,8 +762,6 @@ void init_quickspell()
 	}
 }
 
-#endif
-
 int spell_clear_handler()
 {
 	int i;
@@ -818,14 +801,12 @@ int cast_handler()
 	str[1]=sigils_no;
 	last_spell_len=sigils_no+2;
 	
-#ifdef NEW_CLIENT
 	if(!mqb_data[0]){
 		mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
 		mqb_data[0]->spell_id=-1;
 	}
 	
 	memcpy(mqb_data[0]->spell_str, str, last_spell_len);//Copy the last spell send to the server
-#endif
 	
 	//ok, send it to the server...
 	my_tcp_send(my_socket, str, sigils_no+2);

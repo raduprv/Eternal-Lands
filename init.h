@@ -116,10 +116,8 @@ typedef struct
 
 	int quantity[6];
 
-#ifdef NEW_CLIENT
 	int storage_win_x;
 	int storage_win_y;
-#endif
 
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
 	int reserved[8];

@@ -1,13 +1,11 @@
 .PHONY: clean release docs
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC -DBSD -DPNG_SCREENSHOT -DMULTI_CHANNEL -DNEW_CLIENT
+OPTIONS=-DLINUX -DELC -DBSD -DPNG_SCREENSHOT
 #-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
 #-DNOTEPAD # enable in-game notepad
-#-DNEW_CLIENT #contains the new client interface, with trade, storage windows etc.
-#-DMULTI_CHANNEL # multi-channel support, should go into NEW_CLIENT once it's working (EXPERIMENTAL)
 #-DCUSTOM_LOOK # allows you to customize your look. (EXPERIMENTAL)
 #-DUID # use unique ID sent from server for custom looks. (INCOMPLETE)
 #-DNETWORK_THREAD # use separate thread for network reading (EXPERIMENTAL)

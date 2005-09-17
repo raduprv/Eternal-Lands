@@ -113,9 +113,7 @@ void change_map (const char *mapname)
 #endif
 	object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 	close_dialogue();	// close the dialogue window if open
-#ifdef NEW_CLIENT
 	close_storagewin(); //if storage is open, close it
-#endif //NEW_CLIENT
 	destroy_all_particles();
 	kill_local_sounds();
 	if (!load_map(mapname)) {
@@ -372,11 +370,7 @@ int load_map (const char * file_name)
 #endif
 			
 
-#ifdef NEW_CLIENT
 			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos);
-#else
-			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos, -1, 0, 0);
-#endif
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);
 			}

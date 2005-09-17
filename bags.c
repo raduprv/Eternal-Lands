@@ -126,11 +126,7 @@ void remove_bag(int which_bag)
 		return;
 	}
 
-#ifdef NEW_CLIENT
 	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
-#else
-	add_particle_sys_at_tile("./particles/bag_out.part",bag_list[which_bag].x,bag_list[which_bag].y, -1, 0, 0);
-#endif
 	sector=SECTOR_GET(objects_list[bag_list[which_bag].obj_3d_id]->x_pos, objects_list[bag_list[which_bag].obj_3d_id]->y_pos);
 	for(i=0;i<MAX_3D_OBJECTS;i++){
 		if(k!=-1 && sectors[sector].e3d_local[i]==-1){
@@ -308,13 +304,8 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(ground_item_list[pos].quantity){
 				str[0]=PICK_UP_ITEM;
 				str[1]=pos;
-#ifdef NEW_CLIENT
 				*((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[pos].quantity);
 				my_tcp_send(my_socket,str,6);
-#else
-				*((Uint16 *)(str+2))=SDL_SwapLE16((short)ground_item_list[pos].quantity);
-				my_tcp_send(my_socket,str,4);
-#endif
 			}
 		}
 		return 1;
@@ -324,7 +315,6 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if(pos==-1){
 	} else
-#ifdef NEW_CLIENT
 	if(!ground_item_list[pos].quantity) {
 		if (item_dragged != -1){
 			str[0] = DROP_ITEM;
@@ -346,35 +336,6 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		*((Uint32 *)(str+2))= SDL_SwapLE32(quantity);
 		my_tcp_send(my_socket,str,6);
 	}
-#else
-	if(!ground_item_list[pos].quantity) {
-		if (item_dragged != -1){
-			Uint8 str[10];
-			int quantity = item_list[item_dragged].quantity;
-			if (quantity > item_quantity)
-				quantity = item_quantity;
-			str[0] = DROP_ITEM;
-			str[1] = item_dragged;
-			*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)quantity);
-			my_tcp_send(my_socket, str, 4);
-			if (item_list[item_dragged].quantity - quantity <= 0)
-				item_dragged = -1;
-		}
-	} else if(item_action_mode==ACTION_LOOK) {
-		str[0]= LOOK_AT_GROUND_ITEM;
-		str[1]= ground_item_list[pos].pos;
-		my_tcp_send(my_socket,str,2);
-	} else {
-		int quantity;
-		quantity= ground_item_list[pos].quantity;
-		if(quantity > item_quantity && !ctrl_on) quantity= item_quantity;
-
-		str[0]= PICK_UP_ITEM;
-		str[1]= ground_item_list[pos].pos;
-		*((Uint16 *)(str+2))= SDL_SwapLE16((short)quantity);
-		my_tcp_send(my_socket,str,4);
-	}
-#endif
 		
 	return 1;
 }

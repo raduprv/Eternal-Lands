@@ -275,7 +275,6 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 		}
 		if (msgs[imsg].data == NULL) return;
-#ifdef MULTI_CHANNEL
 		if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3 && use_windowed_chat==1)
 		{
 			// when using the window, the input buffer does nasty things.
@@ -290,7 +289,6 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				msgs[imsg].data[0] = (Uint8)(127+c_grey1);
 			}
 		}
-#endif
 	}
 
    	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
@@ -354,7 +352,6 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 			if (msgs[imsg].data == NULL || imsg == msg_start) break;
 			ichar = 0;
-#ifdef MULTI_CHANNEL
 			if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3 && use_windowed_chat==1)
 			{
 				// when using the window, the input buffer does nasty things.
@@ -369,7 +366,6 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 					msgs[imsg].data[0] = (Uint8)(127+c_grey1);
 				}
 			}
-#endif
 			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
 		}
 		

@@ -139,9 +139,7 @@ typedef int point;
 #include "skills.h"
 #include "chat.h"
 #include "bags.h"
-#ifdef NEW_CLIENT
 #include "storage.h"
-#endif
 //#ifdef CAL3D
 //#include "cal3dwrap.h"
 //#endif

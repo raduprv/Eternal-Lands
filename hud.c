@@ -68,9 +68,7 @@ int	icons_win= -1;
 int	stats_bar_win= -1;
 int	misc_win= -1;
 int	quickbar_win= -1;
-#ifdef NEW_CLIENT
 int	quickspell_win= -1;
-#endif
 int show_help_text=1;
 
 int qb_action_mode=ACTION_USE;
@@ -92,9 +90,7 @@ void init_hud_interface(int type)
 		init_peace_icons();
 		init_stats_display();
 		init_quickbar();
-#ifdef NEW_CLIENT
 		init_quickspell();
-#endif
 	}
 	last_interface=type;
 }
@@ -105,9 +101,7 @@ void show_hud_windows ()
 	if (stats_bar_win >= 0) show_window (stats_bar_win);
 	if (misc_win >= 0) show_window (misc_win);
 	if (quickbar_win >= 0) show_window (quickbar_win);
-#ifdef NEW_CLIENT
 	if (quickspell_win >= 0) show_window (quickspell_win);
-#endif
 }
 
 void hide_hud_windows ()
@@ -116,9 +110,7 @@ void hide_hud_windows ()
 	if (stats_bar_win >= 0) hide_window (stats_bar_win);
 	if (misc_win >= 0) hide_window (misc_win);
 	if (quickbar_win >= 0) hide_window (quickbar_win);
-#ifdef NEW_CLIENT
 	if (quickspell_win >= 0) hide_window (quickspell_win);
-#endif
 }
 
 // draw everything related to the hud
@@ -570,10 +562,8 @@ void view_console_win (int *win, int id)
 		// Undo stupid quickbar hack
 		if ( !get_show_window (quickbar_win) )
 			show_window (quickbar_win);
-#ifdef NEW_CLIENT
 		if ( !get_show_window (quickspell_win) )
 			show_window (quickspell_win);
-#endif
 	}
 	else
 	{
@@ -612,11 +602,7 @@ void view_map_win (int * win, int id)
 
 void view_window(int * window, int id)
 {
-#ifdef NEW_CLIENT
 	if(window==&sigil_win||window==&manufacture_win)
-#else
-	if(window==&items_win||window==&sigil_win||window==&manufacture_win)
-#endif
 		{
 			if(get_show_window(trade_win))
 				{
@@ -636,9 +622,7 @@ void view_window(int * window, int id)
 #ifdef NOTEPAD
 			else if(window==&notepad_win) display_notepad();
 #endif
-#ifdef NEW_CLIENT
 			else if(window==&storage_win) display_storage_menu();
-#endif
 			else if(window==&tab_stats_win) display_tab_stats();
 			else if(window==&tab_help_win) display_tab_help();
 			else if(window==&namepass_win) show_account_win();

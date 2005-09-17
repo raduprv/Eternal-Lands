@@ -151,10 +151,8 @@ int start_rendering()
 	if(pm_log.ppl)free_pm_log();
 
 	save_bin_cfg();
-#ifdef NEW_CLIENT
 	//Save the quickbar spells
 	save_quickspells();
-#endif
 	// save el.ini if asked
 	if (write_ini_on_exit) write_el_ini ();
 	#ifdef NOTEPAD

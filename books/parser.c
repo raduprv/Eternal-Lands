@@ -4,7 +4,7 @@
 #include "../global.h"
 #include "../symbol_table.h"
 #include "../textures.h"
-#include "../error.h"
+#include "../errors.h"
 #include "types.h"
 #include "symbols.h"
 #include "parser.h"

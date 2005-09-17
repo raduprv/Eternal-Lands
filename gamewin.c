@@ -165,16 +165,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		if (flag_right) 
 		{
 			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1 
-#ifdef NEW_CLIENT
 					|| storage_item_dragged != -1
-#endif
 					)
 			{
 				use_item = -1;
 				item_dragged = -1;
-#ifdef NEW_CLIENT
 				storage_item_dragged = -1;
-#endif
 				action_mode = ACTION_WALK;
 				return 1;
 			}
@@ -249,27 +245,15 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 		str[0] = DROP_ITEM;
 		str[1] = item_list[item_dragged].pos;
-#ifdef NEW_CLIENT
 		*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
 		my_tcp_send(my_socket, str, 6);
-#else
-		if(item_quantity<item_list[item_dragged].quantity)
-			*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_quantity);
-		else {
-			*((Uint16 *) (str + 2)) = SDL_SwapLE16((short)item_list[item_dragged].quantity);
-			item_dragged=-1;
-		}
-		my_tcp_send(my_socket, str, 4);
-#endif
 		return 1;
 	}
 
-#ifdef NEW_CLIENT
 	if (storage_item_dragged != -1)
 	{
 		//TODO: Withdraw from storage, drop on ground...
 	}
-#endif
 
 	// if we're following a path, stop now
 	if (pf_follow_path) 
@@ -960,7 +944,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		quick_use(5);
 	}
-#ifdef NEW_CLIENT
 	else if (key == K_SPELL1)
 	{
 		if(mqb_data[1] && mqb_data[1]->spell_str[0]) {
@@ -997,7 +980,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			my_tcp_send(my_socket, mqb_data[6]->spell_str, 12);
 		}
 	}
-#endif //NEW_CLIENT
 	// Okay, let's move, even when in console or map mode
 	else if (key == K_TURNLEFT)
 	{
@@ -1042,10 +1024,8 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			hide_window (tab_stats_win);
 		if (tab_help_win >= 0)
 			hide_window (tab_help_win);
-#ifdef NEW_CLIENT
 		if (storage_win >= 0)
 			hide_window (storage_win);
-#endif
 	}
 	// toggle options
 	else if (key == K_HEALTHBAR)
@@ -1389,11 +1369,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (keysym == SDLK_F9)
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
-#ifdef NEW_CLIENT
 		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);
-#else
-		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, snd_fire, 1, 1);
-#endif //NEW_CLIENT
 	}
 	else if (keysym == SDLK_F6)
 	{
