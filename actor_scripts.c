@@ -264,7 +264,7 @@ void cal_actor_set_random_idle(int id)
 	int i;
 	int random_anim;
 	int random_anim_index;
-	
+
 	if (actors_list[id]->calmodel==NULL) return;
 	//LOG_TO_CONSOLE(c_green2,"Randomizing");
 	//if (actors_list[id]->cur_anim.anim_index==anim.anim_index) return;
@@ -505,13 +505,21 @@ void next_command()
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_combat_idle_frame);
 					} else if(!actors_list[i]->sitting) {
 						if(!actors_list[i]->sit_idle){
-							if (actors_defs[actors_list[i]->actor_type].group_count==0) {
-								if(actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index!=-1 && RAND(0,1))
-									cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle2_frame);//normal idle
+							if ((actors_list[i]->actor_type == gargoyle1 || actors_list[i]->actor_type == gargoyle2 || actors_list[i]->actor_type == gargoyle3) && game_minute >= 30 && game_minute < 3*60+30 && actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1)
+							{
+								// use special gargoyle idles only during day time
+								cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame);
+							}
+							else if (actors_defs[actors_list[i]->actor_type].group_count == 0)
+							{
+								if (actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND (0, 1))
+									cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame); // normal idle
 								else 
-									cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle1_frame);//normal idle
+									cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame); // normal idle
 									
-							} else {
+							}
+							else
+							{
 								cal_actor_set_random_idle(i);
 								actors_list[i]->IsOnIdle=1;
 							}
