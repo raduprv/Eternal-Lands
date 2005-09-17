@@ -31,7 +31,7 @@ _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS)
 
 LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm -lpng
 _LDFLAGS=$(XDIR) -lGL -lpthread -lz
-STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a
+STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a libs/libasound.a
 
 # the objects we need
 COBJS=2d_objects.o 3d_objects.o	\
@@ -79,7 +79,7 @@ release:
 	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
 
 static:
-	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
+	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS) -lstdc++ -lGL -lGLU'
 
 clean:
 	rm -f $(OBJS) $(EXE) .depend
