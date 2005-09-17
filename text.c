@@ -299,17 +299,9 @@ void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len)
 // Checks chat string, if it begins with an actor name,
 // and the actor is displayed, put said sentence into an overtext bubble
 #define ALLOWED_CHAR_IN_NAME(_x_)		(isalnum(_x_)||(_x_=='_'))
-#ifdef MULTI_CHANNEL
 void check_chat_text_to_overtext (const Uint8 *text_to_add, int len, Uint8 channel)
-#else
-void check_chat_text_to_overtext (const Uint8 *text_to_add, int len)
-#endif
 {
-#ifdef MULTI_CHANNEL
 	if (!view_chat_text_as_overtext)
-#else
-	if (!view_chat_text_as_overtext || channel != CHAT_LOCAL)
-#endif
 		return;		// disabled
 
 	if (text_to_add[0] == 127 + c_grey1)
@@ -443,11 +435,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	int minlen;
 	Uint32 cnr = 0, ibreak = -1;
 
-#ifdef MULTI_CHANNEL
 	check_chat_text_to_overtext (text_to_add, len, channel);
-#else
-	check_chat_text_to_overtext (text_to_add, len);
-#endif
 
 	// check for auto-length
 	if (len < 0)
