@@ -186,4 +186,6 @@ void turn_music_off();
  */
 void turn_music_on();
 
+ALuint get_loaded_buffer(int i);
+
 #endif

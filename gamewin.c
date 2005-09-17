@@ -870,6 +870,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		rain_color[3] -= 0.01f;
 	}
 #endif
+	else if ((keysym == SDLK_t) && shift_on && ctrl_on && !alt_on)
+	{
+		add_thunder(rand()%5,1+rand()%5);
+	}
 	else if ((keysym == SDLK_w) && shift_on && ctrl_on && !alt_on)
 	{
 		if (game_minute >= 355) game_minute -=355; else game_minute +=  5;

@@ -1,6 +1,7 @@
 #ifdef NEW_WEATHER
 
 #include <math.h>
+#include <string.h>
 
 #include "global.h"
 #include "text.h"
@@ -9,6 +10,7 @@
 #include "shadows.h"
 #include "lights.h"
 #include "actors.h"
+#include "sound.h"
 
 #define WEATHER_TYPE     0x07
 #define WEATHER_NONE     0x00
@@ -33,6 +35,14 @@
 
 #define MAX_RAIN_DROPS 25000
 
+#define MAX_THUNDERS 20
+
+typedef struct {
+	int type;
+	Uint32 time;
+	char done;
+} thunder;
+
 typedef struct {
 	float x1[3], x2[3]; // vertices
 } rain_drop;
@@ -42,6 +52,7 @@ int use_fog = 1;
 long weather_flags = WEATHER_NONE;
 Uint32 weather_start_time;
 Uint32 weather_stop_time;
+Uint32 weather_time;
 float weather_severity = 1.0;
 
 const float rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f };
@@ -57,6 +68,10 @@ const float
 
 int weather_rand_index = 0;
 int weather_rand_values[WEATHER_NUM_RAND];
+
+thunder thunders[MAX_THUNDERS];
+int num_thunders = 0;
+int lightning_stop = 0;
 
 rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 
@@ -126,10 +141,10 @@ long get_weather_type()
 float get_fadein_bias()
 {
 	// has fading in started yet?
-	if (cur_time >= weather_start_time) {
+	if (weather_time >= weather_start_time) {
 		// are we still fading in?
-		if (cur_time < weather_start_time + WEATHER_FADEIN) {
-			return ((float)(cur_time - weather_start_time)) / WEATHER_FADEIN;
+		if (weather_time < weather_start_time + WEATHER_FADEIN) {
+			return ((float)(weather_time - weather_start_time)) / WEATHER_FADEIN;
 		} else {
 			return 1.0f;
 		}
@@ -141,10 +156,10 @@ float get_fadein_bias()
 float get_fadeout_bias()
 {
 	// has fading out started yet?
-	if (cur_time >= weather_stop_time - WEATHER_FADEOUT) {
+	if (weather_time >= weather_stop_time - WEATHER_FADEOUT) {
 		// are we still fading out?
-		if (cur_time < weather_stop_time) {
-			return ((float)(weather_stop_time - cur_time)) / WEATHER_FADEOUT;
+		if (weather_time < weather_stop_time) {
+			return ((float)(weather_stop_time - weather_time)) / WEATHER_FADEOUT;
 		} else {
 			return 0.0f;
 		}
@@ -179,6 +194,8 @@ float get_fadeinout_bias()
 					// early start
 					return get_fadein_bias() + get_fadeout_bias();
 				}
+
+			default: return 1.0f;
 		}
 	} else {
 		return 0.0f;
@@ -205,7 +222,7 @@ void weather_srand(int seed)
 
 int weather_rand() {
 	int result = weather_rand_values[weather_rand_index];
-	weather_rand_index = (++weather_rand_index) % WEATHER_NUM_RAND;
+	weather_rand_index = (weather_rand_index + 1) % WEATHER_NUM_RAND;
 	return result;
 }
 
@@ -306,7 +323,7 @@ void start_weather(int seconds_till_start, float severity)
 	}
 
 	// mark time when effect is intended to start
-	weather_start_time = cur_time + 1000*seconds_till_start;
+	weather_start_time = weather_time + 1000*seconds_till_start;
 	// severity of effect
 	weather_severity = severity;
 	// determine type of effect
@@ -330,13 +347,14 @@ void stop_weather(int seconds_till_stop, float severity)
 		}
 	}
 
-	weather_stop_time = cur_time + 1000*seconds_till_stop;
+	weather_stop_time = weather_time + 1000*seconds_till_stop;
 	// start the fade out
 	weather_flags |= WEATHER_ACTIVE | WEATHER_STOPPING;
 }
 
 void clear_weather() {
 	weather_flags = WEATHER_NONE;
+	num_thunders = 0;
 }
 
 void render_fog()
@@ -415,9 +433,11 @@ void render_weather()
 {
 	static Uint32 last_frame = 0;
 
+	weather_time = SDL_GetTicks();
+
 	if (weather_flags & WEATHER_ACTIVE) {
 		// 0 means initialization
-		Uint32 ticks = last_frame? cur_time - last_frame : 0;
+		Uint32 ticks = last_frame? weather_time - last_frame : 0;
 		float severity = weather_severity * get_fadeinout_bias();
 		int num_rain_drops;
 
@@ -437,17 +457,17 @@ void render_weather()
 				render_sand(severity);
 		}
 
-		last_frame = cur_time;
+		last_frame = weather_time;
 
 		// update flags
 		if (weather_flags & WEATHER_STARTING) {
-			if (cur_time > weather_start_time + WEATHER_CLEAROFF + WEATHER_AFTER_FADE) {
+			if (weather_time > weather_start_time + WEATHER_CLEAROFF + WEATHER_AFTER_FADE) {
 				weather_flags &= ~WEATHER_STARTING;
 			}
 		}
 
 		if (weather_flags & WEATHER_STOPPING) {
-			if (cur_time > weather_stop_time + WEATHER_FADEOUT + WEATHER_AFTER_FADE) {
+			if (weather_time > weather_stop_time + WEATHER_FADEOUT + WEATHER_AFTER_FADE) {
 				weather_flags &= ~WEATHER_STOPPING;
 				if (! (weather_flags & WEATHER_STARTING)) {
 					weather_flags &= ~WEATHER_ACTIVE;
@@ -462,10 +482,10 @@ void render_weather()
 float get_weather_darken_bias()
 {
 	// has darkening started yet?
-	if (cur_time >= weather_start_time - WEATHER_DARKEN) {
+	if (weather_time >= weather_start_time - WEATHER_DARKEN) {
 		// are we still darkening?
-		if (cur_time < weather_start_time) {
-			return 1.0f - ((float)(weather_start_time - cur_time)) / WEATHER_DARKEN;
+		if (weather_time < weather_start_time) {
+			return 1.0f - ((float)(weather_start_time - weather_time)) / WEATHER_DARKEN;
 		} else {
 			return 1.0f;
 		}
@@ -477,10 +497,10 @@ float get_weather_darken_bias()
 float get_weather_clearoff_bias()
 {
 	// has clearing off started yet?
-	if (cur_time >= weather_stop_time) {
+	if (weather_time >= weather_stop_time) {
 		// are we still clearing?
-		if (cur_time < weather_stop_time + WEATHER_CLEAROFF) {
-			return 1.0f - ((float)(cur_time - weather_stop_time)) / WEATHER_CLEAROFF;
+		if (weather_time < weather_stop_time + WEATHER_CLEAROFF) {
+			return 1.0f - ((float)(weather_time - weather_stop_time)) / WEATHER_CLEAROFF;
 		} else {
 			return 0.0f;
 		}
@@ -515,6 +535,8 @@ float get_weather_light_bias()
 					// early start
 					return get_weather_darken_bias() + get_weather_clearoff_bias();
 				}
+			default:
+				return 1.0f;
 		}
 	} else {
 		return 0.0f;
@@ -523,14 +545,30 @@ float get_weather_light_bias()
 
 float weather_bias_light(float value)
 {
-	const float bias = get_weather_light_bias();
-	const float severity = 0.15f*weather_severity + 0.85f; // slightly bias light by weather severity
-	float result = value*(1.0f - severity*bias);
-	
-	if (result < 0.0f) result = 0.0f;
-	else if (result > 1.0f) result = 1.0f;
-	
-	return result;
+	static Uint32 last_call = 0;
+	static char lightning = 0;
+
+	if (weather_time >= last_call + 10) {
+		if (weather_time < lightning_stop) {
+			lightning = (weather_rand() <= RAND_MAX/2);
+		} else {
+			lightning = 0;
+		}
+		last_call = weather_time;
+	}
+
+	if (lightning) {
+		return 1.0f;
+	} else {
+		const float bias = get_weather_light_bias();
+		const float severity = 0.15f*weather_severity + 0.85f; // slightly bias light by weather severity
+		float result = value*(1.0f - severity*bias);
+
+		if (result < 0.0f) result = 0.0f;
+		else if (result > 1.0f) result = 1.0f;
+		
+		return result;
+	}
 }
 
 void weather_sound_control() {
@@ -552,6 +590,7 @@ void weather_sound_control() {
 		// 0 means initialization
 		float severity = weather_severity * get_fadeinout_bias();
 		int source_state;
+		int i;
 
 		// update and render view
 		switch (weather_flags & WEATHER_TYPE) {
@@ -569,6 +608,29 @@ void weather_sound_control() {
 			default:
 				alSourcePause(rain_sound);
 		}
+
+		for (i = 0; i < num_thunders; i++) {
+			if (!thunders[i].done) {
+				if (cur_time >= thunders[i].time) {
+					int snd_thunder = 0;
+					
+					switch (thunders[i].type) {
+						case 0:  snd_thunder = snd_thndr_1; break;
+						case 1:  snd_thunder = snd_thndr_2; break;
+						case 2:  snd_thunder = snd_thndr_3; break;
+						case 3:  snd_thunder = snd_thndr_4; break;
+						case 4:  snd_thunder = snd_thndr_5; break;
+						default: snd_thunder = 0;
+					}
+
+					if (snd_thunder) {
+						add_sound_object(snd_thunder, 0, 0, 0, 0);
+					}
+
+					thunders[i].done = 1; // also allows main thread to write
+				}
+			}
+		}
 	} else {
 		alSourcePause(rain_sound);
 	}
@@ -576,6 +638,33 @@ void weather_sound_control() {
 
 void add_thunder(int type, int sound_delay)
 {
+	int i = -1, j;
+
+	for (j = 0; j < num_thunders; j++) {
+		if (thunders[j].done) {
+			i = j;
+			break;
+		}
+	}
+
+	// no empty slots
+	if (i == -1) {
+		if (num_thunders < MAX_THUNDERS) {
+			i = num_thunders;
+			thunders[i].done = 1; // prevent timer thread from reading
+			num_thunders++;
+		} else {
+			// no slots left
+			return;
+		}
+	}
+
+	thunders[i].type = type;
+	thunders[i].time = weather_time + 1000*sound_delay;
+	thunders[i].done = 0; // now allow timer thread to read
+
+	// start a lightning
+	lightning_stop = weather_time + 100 + (int)((300.0f * (float)weather_rand()) / RAND_MAX);
 }
 
 #else // def NEW_WEATHER
