@@ -301,7 +301,7 @@ void put_text_in_buffer (Uint8 channel, const Uint8 *text_to_add, int len)
 #define ALLOWED_CHAR_IN_NAME(_x_)		(isalnum(_x_)||(_x_=='_'))
 void check_chat_text_to_overtext (const Uint8 *text_to_add, int len, Uint8 channel)
 {
-	if (!view_chat_text_as_overtext)
+	if (!view_chat_text_as_overtext || channel != CHAT_LOCAL)
 		return;		// disabled
 
 	if (text_to_add[0] == 127 + c_grey1)
