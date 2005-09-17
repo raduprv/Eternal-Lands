@@ -24,6 +24,7 @@ typedef struct {
 
 typedef struct {
 	float progress;
+	GLfloat colors[12];
 }progressbar;
 
 typedef struct {
@@ -578,15 +579,20 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text)
 // Progressbar
 int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return progressbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0);
+	return progressbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0.0f, NULL);
 }
 
-int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress)
+int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress, const float * colors)
 {
 	widget_list *W = add_new_widget (window_id, wid, OnInit, PROGRESSBAR, x, y, lx, ly, Flags, size, r, g, b);
 
 	progressbar *T = calloc (1, sizeof(progressbar));
 	T->progress = progress;
+	if (colors) {
+		memcpy(T->colors, colors, sizeof(T->colors));
+	} else {
+		T->colors[0] = -1.0f;
+	}
 
 	// Filling the widget info
 	W->widget_info = T;
@@ -602,9 +608,12 @@ int progressbar_draw(widget_list *W)
 {
 	progressbar *b = (progressbar *)W->widget_info;
 	int pixels = (b->progress/100) * W->len_x;
+
 	glDisable(GL_TEXTURE_2D);
 	if(W->r != -1.0)
 		glColor3f(W->r,W->g,W->b);
+	else
+		glColor3f(0.77f,0.57f,0.39f);
 
 	glBegin(GL_LINE_LOOP);
 	glVertex3i(W->pos_x,W->pos_y,0);
@@ -613,15 +622,32 @@ int progressbar_draw(widget_list *W)
 	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
 	glEnd();
 
-	glBegin(GL_QUADS);
-	glColor3f(0.40f,0.40f,1.00f);
-	glVertex3i(W->pos_x + 1, W->pos_y + 0, 0);
-	glVertex3i(W->pos_x + pixels,W->pos_y + 0,0);
-	glColor3f(0.10f,0.10f,0.80f);
-	glVertex3i(W->pos_x + pixels, W->pos_y + W->len_y - 1, 0);
-	glVertex3i(W->pos_x + 1, W->pos_y + W->len_y - 1, 0);
-	glColor3f(0.77f,0.57f,0.39f);
-	glEnd();
+	if (pixels > 0) {
+		const char have_bar_colors = (b->colors[0] > -0.5f);
+		GLfloat right_colors[6];
+
+		if (have_bar_colors) {
+			const float progress = b->progress/100.0f, inv_progress = 1.0f - progress;
+			int i;
+
+			for (i=0; i<3; i++) {
+				right_colors[i+0] = progress * b->colors[i+3] + inv_progress * b->colors[i+0];
+				right_colors[i+3] = progress * b->colors[i+6] + inv_progress * b->colors[i+9];
+			}
+		}
+
+		glBegin(GL_QUADS);
+			if (have_bar_colors) glColor3fv(&b->colors[0]);
+			glVertex3i(W->pos_x + 1, W->pos_y + 0, 0);
+			if (have_bar_colors) glColor3fv(&right_colors[0]);
+			glVertex3i(W->pos_x + pixels,W->pos_y + 0,0);
+			if (have_bar_colors) glColor3fv(&right_colors[3]);
+			glVertex3i(W->pos_x + pixels, W->pos_y + W->len_y - 1, 0);
+			if (have_bar_colors) glColor3fv(&b->colors[9]);
+			glVertex3i(W->pos_x + 1, W->pos_y + W->len_y - 1, 0);
+			glColor3f(0.77f,0.57f,0.39f);
+		glEnd();
+	}
 	
 	glEnable(GL_TEXTURE_2D);
 	return 0;
@@ -2465,7 +2491,7 @@ int ParseWidget (xmlNode *node, int winid)
 		case BUTTON:
 			return button_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
 		case PROGRESSBAR:
-			return progressbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress);
+			return progressbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress, NULL);
 		case VSCROLLBAR:
 			return vscrollbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc, len_y);
 		case TABCOLLECTION:

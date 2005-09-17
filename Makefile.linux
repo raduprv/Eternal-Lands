@@ -18,9 +18,9 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
-CWARN=
+CWARN=-Wall
 #-Wdeclaration-after-statement -Wall -Werror
-CXXWARN=
+CXXWARN=-Wall
 #-Wall -Werror
 
 # basic compiling and linking - rarely changed

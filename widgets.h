@@ -680,11 +680,12 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text);
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	progress The current progress
+ * \param     colors The colors of the four corners of the bar. Pointer to an array of 12 floats (4 consecutive RGB colors). May be NULL.
  * \retval int  	Returns the new widgets unique ID
  *
  * \sa progressbar_add
  */
-int progressbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress);
+int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress, const float * colors);
 
 /*!
  * \ingroup	progressbars
