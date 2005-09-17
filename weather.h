@@ -6,6 +6,22 @@
 #ifndef __WEATHER_H__
 #define __WEATHER_H__
 
+#ifdef NEW_WEATHER
+
+extern int use_fog;			/*!< Whether we are using fog or not */
+
+void init_weather();
+void start_weather(int seconds_till_start, float severity);
+void stop_weather(int seconds_till_stop, float severity);
+void clear_weather();
+void render_fog();
+void render_weather();
+float weather_bias_light(float value);
+void add_thunder(int type, int sound_delay);
+void weather_color_bias(const float * src, float * dst);
+
+#else // def NEW_WEATHER
+
 #ifdef DEBUG
 #include "actors.h"
 #endif
@@ -113,4 +129,6 @@ void clear_thunders();
  */
 
 void render_fog();
+#endif
+
 #endif

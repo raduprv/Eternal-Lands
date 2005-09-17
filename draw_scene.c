@@ -68,11 +68,13 @@ void draw_scene()
 	//clear the clouds cache too...
 	if(last_clear_clouds+10000<cur_time)clear_clouds_cache();
 
+#ifndef NEW_WEATHER
 	if (dungeon) {
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 	} else {
 		glClearColor(fogColor[0], fogColor[1], fogColor[2], 0.0);
 	}
+#endif
 	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 

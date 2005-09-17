@@ -595,8 +595,12 @@ void init_stuff()
 	update_loading_win("Reading config", 2);
 	read_bin_cfg();
 	update_loading_win("Initializing weather", 3);
+#ifdef NEW_WEATHER
+	init_weather();
+#else
 	clear_thunders();
 	build_rain_table();
+#endif
 	build_levels_table();//for some HUD stuff
 
 	if(!no_sound) {

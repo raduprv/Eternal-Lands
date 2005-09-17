@@ -455,6 +455,11 @@ void blend_reflection_fog()
 	int x,y;
 	float x_scaled,y_scaled;
 	static GLfloat blendColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
+#ifdef NEW_WEATHER
+	GLfloat fogColor[4];
+	
+	glGetFloatv(GL_FOG_COLOR, fogColor);
+#endif
 
 	// we write to the depth buffer later, for now keep it as it is to avoid flickering
 	glDepthMask(GL_FALSE);
@@ -578,8 +583,25 @@ void draw_lake_tiles()
 void draw_sky_background()
 {
 	static GLfloat lights_c[4][3];
+#ifdef NEW_WEATHER
+	int i;
+#else
 	int i, j;
+#endif
 
+#ifdef NEW_WEATHER
+	for (i = 0; i < 3; i++) {
+		// get the sky color
+		lights_c[0][i] = weather_bias_light(sky_lights_c1[light_level][i]);
+		lights_c[1][i] = weather_bias_light(sky_lights_c2[light_level][i]);
+		lights_c[2][i] = weather_bias_light(sky_lights_c3[light_level][i]);
+		lights_c[3][i] = weather_bias_light(sky_lights_c4[light_level][i]);
+	}
+
+	for (i = 0; i < 4; i++) {
+		weather_color_bias(lights_c[i], lights_c[i]);
+	}
+#else
 	for (i=0; i<3; i++) {
 		// get the sky color
 		lights_c[0][i] = sky_lights_c1[light_level][i];
@@ -594,6 +616,7 @@ void draw_sky_background()
 			lights_c[j][i] = (1.0f - fogAlpha)*tmp + fogAlpha*fogColor[i];
 		}
 	}
+#endif
 	
 	Enter2DMode();
 	glDisable(GL_TEXTURE_2D);
@@ -615,9 +638,13 @@ void draw_dungeon_sky_background()
 	static GLfloat color[3];
 	int i;
 
+#ifdef NEW_WEATHER
+	weather_color_bias(baseColor, color);
+#else
 	for (i=0; i<3; i++) {
 		color[i] = (1.0f - fogAlpha)*baseColor[i] + fogAlpha*fogColor[i];
 	}
+#endif
 	glColor3fv(color);
 	
 	Enter2DMode();

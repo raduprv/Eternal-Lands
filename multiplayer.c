@@ -620,13 +620,21 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				seconds_till_rain_starts=*((Uint8 *)(in_data+3));
-				seconds_till_rain_stops=-1;
+#ifdef NEW_WEATHER
+				float rain_strength_bias;
+
+#endif
 				if (data_length > 4) {
 					rain_strength_bias = 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
 				} else {
 					rain_strength_bias = 1.0f;
 				}
+#ifdef NEW_WEATHER
+				start_weather(*((Uint8 *)(in_data+3)), rain_strength_bias);
+#else
+				seconds_till_rain_starts=*((Uint8 *)(in_data+3));
+				seconds_till_rain_stops=-1;
+#endif
 			}
 			break;
 
@@ -635,8 +643,21 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+#ifdef NEW_WEATHER
+				float rain_strength_bias;
+
+#endif
+				if (data_length > 4) {
+					rain_strength_bias = 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
+				} else {
+					rain_strength_bias = 1.0f;
+				}
+#ifdef NEW_WEATHER
+				stop_weather(*((Uint8 *)(in_data+3)), rain_strength_bias);
+#else
 				seconds_till_rain_stops=*((Uint8 *)(in_data+3));
 				seconds_till_rain_starts=-1;
+#endif
 			}
 			break;
 

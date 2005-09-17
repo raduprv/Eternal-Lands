@@ -29,10 +29,14 @@ Uint32 my_timer(Uint32 interval, void * data)
 	e.user.code = EVENT_UPDATE_CAMERA;
 	SDL_PushEvent(&e);
 
+#ifndef NEW_WEATHER
 	//check the thunders
 	thunder_control();
+#endif
 
+#ifndef NEW_WEATHER
 	if(is_raining)update_rain();
+#endif
 	//next_command();
 	e.type= SDL_USEREVENT;
 	e.user.code= EVENT_ANIMATE_ACTORS;
@@ -81,8 +85,10 @@ Uint32 check_misc(Uint32 interval, void * data)
 	misc_timer_clock=SDL_GetTicks();//This isn't accurate, but it's not needed here...
 #endif
 	
+#ifndef NEW_WEATHER
 	//check the rain
 	rain_control();
+#endif
 	
 	//should we send the heart beat?
 	if(last_heart_beat+25000<cur_time)

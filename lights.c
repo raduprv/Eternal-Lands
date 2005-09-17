@@ -599,15 +599,25 @@ void draw_global_light()
 	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
 	i=light_level;
 	if(light_level>59)i=119-light_level;
+#ifdef NEW_WEATHER
+	if(i<0)i=0;
+#else
 	//this is for weather things, when the light level is not the normal light lvel of the current time
 	i+=weather_light_offset;
 	if(i<0)i=0;
 	if(i>59)i=59;
+#endif
 	//add the thunder light to the ambient/difuse light
 
+#ifdef NEW_WEATHER
+	difuse_light[0] = weather_bias_light(global_lights[i][0] - 0.15f);
+	difuse_light[1] = weather_bias_light(global_lights[i][1] - 0.15f);
+	difuse_light[2] = weather_bias_light(global_lights[i][2] - 0.15f);
+#else
 	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90-0.15f;
 	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60-0.15f;
 	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15-0.15f;
+#endif
 
 	if(map_type==2)
 		{

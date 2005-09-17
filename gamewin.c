@@ -579,8 +579,10 @@ int display_game_handler (window_info *win)
 	{
 		get_tmp_actor_data();
 	
+#ifndef NEW_WEATHER
 		//now, determine the current weather light level
 		get_weather_light_level ();
+#endif
 
 		if (!dungeon){
 			draw_global_light ();
@@ -670,8 +672,11 @@ int display_game_handler (window_info *win)
 		return 1;
 	}
 
-	
+#ifdef NEW_WEATHER
+	render_weather();
+#else
 	if (is_raining) render_rain ();
+#endif
 	CHECK_GL_ERRORS ();
 	//particles should be last, we have no Z writting
 	display_particles ();
@@ -734,10 +739,12 @@ int display_game_handler (window_info *win)
 		snprintf (str, sizeof(str),"Lights: %i", show_lights);
 		draw_string (win->len_x-hud_x-105, 25, str, 1);
 
+#ifndef NEW_WEATHER
 		snprintf(str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
 				is_raining, seconds_till_rain_starts, seconds_till_rain_stops, num_rain_drops,
 				rain_strength_bias, rain_color[3], fogAlpha);
 		draw_string (0, win->len_y - hud_y - 40, str, 1);
+#endif
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
@@ -869,6 +876,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #endif
 	}
 #ifdef DEBUG
+#ifndef NEW_WEATHER
 	else if ((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
 	{
 		rain_color[3] += 0.01f;
@@ -877,18 +885,18 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		rain_color[3] -= 0.01f;
 	}
+#endif
 	else if ((keysym == SDLK_w) && shift_on && ctrl_on && !alt_on)
 	{
+		if (game_minute >= 355) game_minute -=355; else game_minute +=  5;
 		new_minute();
-		if (game_minute >= 300) game_minute -=300; else game_minute += 60;
-		is_day = (game_minute < 240);
 	}
 	else if ((keysym == SDLK_q) && shift_on && ctrl_on && !alt_on)
 	{
+		if (game_minute <  5) game_minute +=355; else game_minute -=  5;
 		new_minute();
-		if (game_minute < 60) game_minute +=300; else game_minute -= 60;
-		is_day = (game_minute < 240);
 	}
+#ifndef NEW_WEATHER
 	else if ((keysym == SDLK_PAGEUP) && shift_on && ctrl_on && !alt_on)
 	{
 		rain_strength_bias += 0.1f;
@@ -897,8 +905,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		rain_strength_bias -= 0.1f;
 	}
+#endif
 	else if ((keysym == SDLK_HOME) && shift_on && ctrl_on && !alt_on)
 	{
+#ifdef NEW_WEATHER
+		start_weather(30, 1.0f);
+#else
 		if (is_raining) {
 			seconds_till_rain_stops = 2;
 			seconds_till_rain_starts = -1;
@@ -906,9 +918,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			seconds_till_rain_stops = -1;
 			seconds_till_rain_starts = 2;
 		}
+#endif
 	}
 	else if ((keysym == SDLK_END) && shift_on && ctrl_on && !alt_on)
 	{
+#ifdef NEW_WEATHER
+		stop_weather(30, 1.0f);
+#else
 		if (is_raining) {
 			seconds_till_rain_stops = 90;
 			seconds_till_rain_starts = -1;
@@ -916,6 +932,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			seconds_till_rain_stops = -1;
 			seconds_till_rain_starts = 90;
 		}
+#endif
 	}
 #endif
 	// use quickbar items

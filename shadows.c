@@ -673,7 +673,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 		}
 	else
 		{
+#ifndef NEW_WEATHER
 			int abs_light;
+#endif
 
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
@@ -704,11 +706,24 @@ void draw_sun_shadowed_scene(int any_reflection)
 
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			//go to the 2d mode, and draw a black rectangle...
-			Enter2DMode();
+			//Enter2DMode();
+			// Lachesis: drawing in 3D mode to get the fog correct
+			Leave2DMode();
 			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_DEPTH_TEST);
+			glDepthMask(GL_FALSE);
+			glDisable(GL_LIGHTING);
 
+			if (use_fog) glEnable(GL_FOG);
+
+#ifdef NEW_WEATHER
+			glColor4f(0.0f, 0.0f, 0.0f, 0.7f*((difuse_light[0] + difuse_light[1] + difuse_light[2])/3.0 - 0.0f));
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+#else
 			abs_light=light_level;
 			if(light_level>59)abs_light=119-light_level;
+
 			abs_light+=weather_light_offset;
 			if(abs_light<0)abs_light=0;
 			if(abs_light>59)abs_light=59;
@@ -716,16 +731,20 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glColor4f(0.0f,0.0f,0.0f,0.73f+(float)abs_light*0.008f);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ZERO,GL_SRC_ALPHA);
+#endif
+			
 			glBegin(GL_QUADS);
-			glVertex3i(0,window_height,0);
-			glVertex3i(0,0,0);
-			glVertex3i(window_width,0,0);
-			glVertex3i(window_width,window_height,0);
+				glVertex4f(-cx+20.0f,-cy+20.0f,0.0f,1.0f);
+				glVertex4f(-cx+20.0f,-cy-20.0f,0.0f,1.0f);
+				glVertex4f(-cx-20.0f,-cy-20.0f,0.0f,1.0f);
+				glVertex4f(-cx-20.0f,-cy+20.0f,0.0f,1.0f);
 			glEnd();
 			glDisable(GL_BLEND);
 			glEnable(GL_TEXTURE_2D);
+			glDepthMask(GL_TRUE);
+			glEnable(GL_LIGHTING);
 
-			Leave2DMode();
+			// Leave2DMode();
 			glEnable(GL_DEPTH_TEST);
 			glColor4f(1.0f,1.0f,1.0f,1.0f);
 			glEnable(GL_LIGHTING);

@@ -208,8 +208,10 @@ int display_newchar_handler (window_info *win)
 	if (SDL_GetAppState() & SDL_APPACTIVE) {
 		get_tmp_actor_data();
 
+#ifndef NEW_WEATHER
 		//now, determine the current weather light level
 		get_weather_light_level ();
+#endif
 
 		draw_global_light ();
 		update_scene_lights();

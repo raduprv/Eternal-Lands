@@ -1,3 +1,544 @@
+#ifdef NEW_WEATHER
+
+#include <math.h>
+
+#include "global.h"
+#include "text.h"
+#include "multiplayer.h"
+#include "map_io.h"
+#include "shadows.h"
+#include "lights.h"
+#include "actors.h"
+
+#define WEATHER_TYPE     0x07
+#define WEATHER_NONE     0x00
+#define WEATHER_RAIN     0x01
+#define WEATHER_SNOW     0x02
+#define WEATHER_SAND     0x03
+#define WEATHER_TYPE4    0x04
+#define WEATHER_TYPE5    0x05
+#define WEATHER_TYPE6    0x06
+#define WEATHER_TYPE7    0x07
+#define WEATHER_ACTIVE   0x08
+#define WEATHER_STARTING 0x10
+#define WEATHER_STOPPING 0x20
+
+#define WEATHER_DARKEN     30000 // ms
+#define WEATHER_FADEIN     30000 // ms
+#define WEATHER_FADEOUT    WEATHER_FADEIN // need to be equal
+#define WEATHER_CLEAROFF   WEATHER_DARKEN // need to be equal
+#define WEATHER_AFTER_FADE  5000 // ms
+
+#define WEATHER_NUM_RAND 0x10000
+
+#define MAX_RAIN_DROPS 25000
+
+typedef struct {
+	float x1[3], x2[3]; // vertices
+} rain_drop;
+
+int use_fog = 1;
+
+long weather_flags = WEATHER_NONE;
+Uint32 weather_start_time;
+Uint32 weather_stop_time;
+float weather_severity = 1.0;
+
+const float rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f };
+const float snow_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+const float sand_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+const float default_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+const float
+	min_fog = 0.03f,
+	rain_fog = 0.15f,
+	snow_fog = 0.15f,
+	sand_fog = 0.15f;
+
+int weather_rand_index = 0;
+int weather_rand_values[WEATHER_NUM_RAND];
+
+rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
+
+float fog_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+float fog_alpha;
+
+long get_weather_type();
+float get_fadein_bias();
+float get_fadeout_bias();
+float get_fadeinout_bias();
+float interpolate(float affinity, float first, float second);
+void weather_srand(int seed);
+int weather_rand();
+void update_rain(int ticks, int num_rain_drops);
+void render_rain(int num_rain_drops);
+void update_snow(int ticks, float severity);
+void render_snow(float severity);
+void update_sand(int ticks, float severity);
+void render_sand(float severity);
+
+long get_weather_type()
+{
+	long result;
+
+	switch (map_flags & (PLAINS|SNOW|DESERT)) {
+#ifdef DEBUG
+		case 0:      result = WEATHER_RAIN; break;
+#else
+		case 0:      result = WEATHER_NONE; break;
+#endif
+		case PLAINS: result = WEATHER_RAIN; break;
+		case SNOW:   result = WEATHER_SNOW; break;
+		case DESERT: result = WEATHER_SAND; break;
+		default:
+			LOG_TO_CONSOLE(c_red1, "Invalid map flags, combination of PLAINS, SNOW and DESERT not allowed");
+			result = WEATHER_NONE;
+	}
+
+	return result;
+}
+
+/*
+ * |<-----seconds_till_start----->|<--WEATHER_FADEIN-->|                   
+ * +------------------------------+--------------------+--------------------------------------------------------->
+ *  \                             :\                   :\
+ *   receiving                    : starting           : reaching
+ *   START_RAIN                   : fade in            : severity
+ *                                :                    :
+ *                                                  |<-----seconds_till_stop----->|
+ *                                                  |       |<--WEATHER_FADEOUT-->|                   
+ * +------------------------------+-----------------+--+----+---------------------+------------------------------>
+ *                                :                /   :    : \                   : \
+ *                                :      receiving     :    : starting            : reaching
+ *                                :      STOP_RAIN     :    : fade out            : stop    
+ *                                :                    :    :                     :
+ *                                :                    :  |<-----seconds_till_start----->|<--WEATHER_FADEIN-->|                   
+ * +------------------------------+--------------------+--+-+---------------------+------+--------------------+-->
+ *                                :                    :   \:                     :      :\                   :\
+ *                                :                    :    receiving             :      : starting           : reaching
+ *                                :                    :    START_RAIN            :      : fade in            : severity
+ *                                |                    |    |                     |      |                    |
+ *                          _     |                    |    |                     |      |                    |
+ *     effective severity _|      |              ......|::::|.......              |      |              ......|::
+ *                         |_     |.......:::::::::::::|::::|:::::::::::::::......|      |.......:::::::::::::|::
+ *                                                      
+ */
+float get_fadein_bias()
+{
+	// has fading in started yet?
+	if (cur_time >= weather_start_time) {
+		// are we still fading in?
+		if (cur_time < weather_start_time + WEATHER_FADEIN) {
+			return ((float)(cur_time - weather_start_time)) / WEATHER_FADEIN;
+		} else {
+			return 1.0f;
+		}
+	} else {
+		return 0.0f;
+	}
+}
+
+float get_fadeout_bias()
+{
+	// has fading out started yet?
+	if (cur_time >= weather_stop_time - WEATHER_FADEOUT) {
+		// are we still fading out?
+		if (cur_time < weather_stop_time) {
+			return ((float)(weather_stop_time - cur_time)) / WEATHER_FADEOUT;
+		} else {
+			return 0.0f;
+		}
+	} else {
+		return 1.0f;
+	}
+}
+
+float get_fadeinout_bias()
+{
+	if (weather_flags & WEATHER_ACTIVE) {
+		switch (weather_flags & (WEATHER_STARTING|WEATHER_STOPPING)) {
+			case 0:
+				// neither fading in nor out
+				return 1.0f;
+
+			case WEATHER_STARTING:
+				// fading in
+				return get_fadein_bias();
+
+			case WEATHER_STOPPING:
+				// fading out
+				return get_fadeout_bias();
+
+			case WEATHER_STARTING|WEATHER_STOPPING:
+				// possible overlap. If there is no overlap, one of both is 0 (1)
+				// Lachesis: please avoid equality.
+				if (weather_start_time + WEATHER_FADEIN <= weather_stop_time) {
+					// early stop
+					return get_fadein_bias() + get_fadeout_bias() - 1.0f;
+				} else {
+					// early start
+					return get_fadein_bias() + get_fadeout_bias();
+				}
+		}
+	} else {
+		return 0.0f;
+	}
+}
+
+float interpolate(float affinity, float first, float second)
+{
+	// Lachesis: I like linear interpolation, but cosine would work too
+	return (1.0f - affinity)*first + affinity*second;
+}
+
+void weather_srand(int seed) 
+{
+	int i;
+
+	srand(seed);
+	for (i = 0; i < WEATHER_NUM_RAND; i++) {
+		weather_rand_values[i] = rand();
+	}
+
+	weather_rand_index = 0;
+}
+
+int weather_rand() {
+	int result = weather_rand_values[weather_rand_index];
+	weather_rand_index = (++weather_rand_index) % WEATHER_NUM_RAND;
+	return result;
+}
+
+void update_rain(int ticks, int num_rain_drops)
+{
+	int i; float x, y, z;
+
+	if (num_rain_drops > MAX_RAIN_DROPS) num_rain_drops = MAX_RAIN_DROPS;
+
+	LOCK_ACTORS_LISTS();
+	if (!your_actor) {
+		UNLOCK_ACTORS_LISTS();
+		return;
+	}
+	x = your_actor->x_pos; 
+	y = your_actor->y_pos; 
+	z = your_actor->z_pos; 
+	UNLOCK_ACTORS_LISTS();
+
+	if (ticks) {
+		// update
+		for(i=0;i<num_rain_drops;i++)
+		{
+			if(rain_drops[i].x1[2] < -1.0f)
+			{
+				rain_drops[i].x1[0] = x + 20.0f * ((float)weather_rand() / RAND_MAX) - 10.0f;
+				rain_drops[i].x1[1] = y + 20.0f * ((float)weather_rand() / RAND_MAX) - 10.0f;
+				rain_drops[i].x1[2] = z + 10.0f * ((float)weather_rand() / RAND_MAX) +  2.0f;
+				rain_drops[i].x2[0] = rain_drops[i].x1[0];
+				rain_drops[i].x2[1] = rain_drops[i].x1[1];
+				rain_drops[i].x2[2] = rain_drops[i].x1[2] - 0.08f;
+			} else {
+				rain_drops[i].x1[2] -= 0.03f*ticks;
+				rain_drops[i].x2[2] -= 0.03f*ticks;
+			}
+		}
+	} else {
+		// init
+		for(i=0;i<MAX_RAIN_DROPS;i++)
+		{
+			rain_drops[i].x1[0] = x +  20.0f * ((float)weather_rand() / RAND_MAX) - 10.0f;
+			rain_drops[i].x1[1] = y +  20.0f * ((float)weather_rand() / RAND_MAX) - 10.0f;
+			rain_drops[i].x1[2] = z +  10.0f * ((float)weather_rand() / RAND_MAX) + 10.0f;
+			rain_drops[i].x2[0] = rain_drops[i].x1[0];
+			rain_drops[i].x2[1] = rain_drops[i].x1[1];
+			rain_drops[i].x2[2] = rain_drops[i].x1[2] - 0.08f;
+		}
+	}
+}
+
+void render_rain(int num_rain_drops)
+{
+	if (!num_rain_drops) return;
+
+	glPushAttrib(GL_LIGHTING_BIT);
+	glDisable(GL_LIGHTING);
+	
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glColor4fv(rain_color);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	
+	glVertexPointer(3,GL_FLOAT,0,rain_drops);
+	glDrawArrays(GL_LINES,0,num_rain_drops);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+	glPopAttrib();
+}
+
+void update_snow(int ticks, float severity)
+{
+}
+
+void render_snow(float severity)
+{
+}
+
+void update_sand(int ticks, float severity)
+{
+}
+
+void render_sand(float severity)
+{
+}
+
+void init_weather() {
+	weather_srand(SDL_GetTicks());
+}
+
+void start_weather(int seconds_till_start, float severity)
+{
+	// if weather effects are already active, something went wrong
+	if (weather_flags & WEATHER_ACTIVE) {
+		LOG_TO_CONSOLE(c_red1, "Premature start of weather effect!");
+		weather_flags &= ~WEATHER_ACTIVE; // disable weather while setting up new effect
+	}
+
+	// mark time when effect is intended to start
+	weather_start_time = cur_time + 1000*seconds_till_start;
+	// severity of effect
+	weather_severity = severity;
+	// determine type of effect
+	weather_flags = (weather_flags & ~WEATHER_TYPE) | get_weather_type();
+	// switch weather on
+	weather_flags |= WEATHER_ACTIVE | WEATHER_STARTING; 
+}
+
+void stop_weather(int seconds_till_stop, float severity)
+{
+	if (! (weather_flags & WEATHER_ACTIVE)) {
+		// We missed the start. So let's set up the data
+		// severity of effect
+		weather_severity = severity;
+		// determine type of effect
+		weather_flags = (weather_flags & ~WEATHER_TYPE) | get_weather_type();
+	} else {
+		if (weather_flags & WEATHER_STOPPING) {
+			// WTH? we are already stopping!
+			LOG_TO_CONSOLE(c_red1, "Double stop of weather effect!");
+		}
+	}
+
+	weather_stop_time = cur_time + 1000*seconds_till_stop;
+	// start the fade out
+	weather_flags |= WEATHER_ACTIVE | WEATHER_STOPPING;
+}
+
+void clear_weather() {
+	weather_flags = WEATHER_NONE;
+}
+
+void render_fog()
+{
+	float current_severity = weather_severity * get_fadeinout_bias();
+	float density;
+	int i;
+	float particle_alpha, diffuse_bias, tmpf;
+	char have_particles;
+
+	// if weather effect is active, get type-dependent data
+	switch (weather_flags & (WEATHER_TYPE|WEATHER_ACTIVE)) {
+		case WEATHER_RAIN|WEATHER_ACTIVE: 
+			density = interpolate(current_severity, min_fog, rain_fog);
+			memcpy(fog_color, rain_color, sizeof(fog_color));
+			have_particles = 1;
+			break;
+		case WEATHER_SNOW|WEATHER_ACTIVE: 
+			density = interpolate(current_severity, min_fog, snow_fog); 
+			memcpy(fog_color, snow_color, sizeof(fog_color));
+			have_particles = 1;
+			break;
+		case WEATHER_SAND|WEATHER_ACTIVE: 
+			density = interpolate(current_severity, min_fog, sand_fog); 
+			memcpy(fog_color, sand_color, sizeof(fog_color));
+			have_particles = 1;
+			break;
+		default: 
+			density = min_fog;
+			memcpy(fog_color, default_color, sizeof(fog_color));
+			have_particles = 0;
+	}
+
+	// estimate portion of scene colours that the fog covers
+	tmpf = exp(-10.0f*density);
+	fog_alpha = 1.0f - tmpf*tmpf;
+
+	// estimate portion of scene colours that the particles cover
+	particle_alpha = (have_particles)? 0.2f*fog_color[3]*current_severity : 0.0f;
+	// in dungeons and at night we use smaller light sources ==> less diffuse light
+	diffuse_bias = (dungeon || !is_day)? 0.2f : 0.5f;
+
+	// compute fog color
+	for (i = 0; i < 3; i++) {
+		// blend ambient and diffuse light to build a base fog color
+		float tmp = 0.5f*sun_ambient_light[i] + diffuse_bias*difuse_light[i];
+		if (have_particles) {
+			// blend base color with weather particle color
+			fog_color[i] = interpolate(particle_alpha, tmp, fog_color[i]);
+		} else {
+			fog_color[i] = tmp;
+		}
+	}
+
+	// set clear color to fog color
+	glClearColor(fog_color[0], fog_color[1], fog_color[2], 0.0f);
+
+	// set fog parameters
+	glEnable(GL_FOG);
+	glFogi(GL_FOG_MODE, GL_EXP2);
+	glFogf(GL_FOG_DENSITY, density);
+	glFogfv(GL_FOG_COLOR, fog_color);
+}
+
+void weather_color_bias(const float * src, float * dst) {
+	int i;
+
+	for (i = 0; i < 3; i++) {
+		dst[i] = interpolate(fog_alpha, src[i], fog_color[i]);
+	}
+
+	dst[3] = src[3];
+}
+
+void render_weather()
+{
+	static Uint32 last_frame = 0;
+
+	if (weather_flags & WEATHER_ACTIVE) {
+		// 0 means initialization
+		Uint32 ticks = last_frame? cur_time - last_frame : 0;
+		float severity = weather_severity * get_fadeinout_bias();
+		int num_rain_drops;
+
+		// update and render view
+		switch (weather_flags & WEATHER_TYPE) {
+			case WEATHER_RAIN:
+				num_rain_drops = MAX_RAIN_DROPS * severity;
+				update_rain(ticks, num_rain_drops);
+				render_rain(num_rain_drops);
+			case WEATHER_SNOW:
+				update_snow(ticks, severity);
+				render_snow(severity);
+			case WEATHER_SAND:
+				update_sand(ticks, severity);
+				render_sand(severity);
+		}
+
+		last_frame = cur_time;
+
+		// update flags
+		if (weather_flags & WEATHER_STARTING) {
+			if (cur_time > weather_start_time + WEATHER_CLEAROFF + WEATHER_AFTER_FADE) {
+				weather_flags &= ~WEATHER_STARTING;
+			}
+		}
+
+		if (weather_flags & WEATHER_STOPPING) {
+			if (cur_time > weather_stop_time + WEATHER_FADEOUT + WEATHER_AFTER_FADE) {
+				weather_flags &= ~WEATHER_STOPPING;
+				if (! (weather_flags & WEATHER_STARTING)) {
+					weather_flags &= ~WEATHER_ACTIVE;
+				}
+			}
+		}
+	} else {
+		last_frame = 0;
+	}
+}
+
+float get_weather_darken_bias()
+{
+	// has darkening started yet?
+	if (cur_time >= weather_start_time - WEATHER_DARKEN) {
+		// are we still darkening?
+		if (cur_time < weather_start_time) {
+			return 1.0f - ((float)(weather_start_time - cur_time)) / WEATHER_DARKEN;
+		} else {
+			return 1.0f;
+		}
+	} else {
+		return 0.0f;
+	}
+}
+
+float get_weather_clearoff_bias()
+{
+	// has clearing off started yet?
+	if (cur_time >= weather_stop_time) {
+		// are we still clearing?
+		if (cur_time < weather_stop_time + WEATHER_CLEAROFF) {
+			return 1.0f - ((float)(cur_time - weather_stop_time)) / WEATHER_CLEAROFF;
+		} else {
+			return 0.0f;
+		}
+	} else {
+		return 1.0f;
+	}
+}
+
+float get_weather_light_bias()
+{
+	if (weather_flags & WEATHER_ACTIVE) {
+		switch (weather_flags & (WEATHER_STARTING|WEATHER_STOPPING)) {
+			case 0:
+				// neither fading in nor out
+				return 1.0f;
+
+			case WEATHER_STARTING:
+				// fading in
+				return get_weather_darken_bias();
+
+			case WEATHER_STOPPING:
+				// fading out
+				return get_weather_clearoff_bias();
+
+			case WEATHER_STARTING|WEATHER_STOPPING:
+				// possible overlap. If there is no overlap, one of both is 0 (1)
+				// Lachesis: please avoid equality.
+				if (weather_start_time <= weather_stop_time + WEATHER_CLEAROFF) {
+					// early stop
+					return get_weather_darken_bias() + get_weather_clearoff_bias() - 1.0f;
+				} else {
+					// early start
+					return get_weather_darken_bias() + get_weather_clearoff_bias();
+				}
+		}
+	} else {
+		return 0.0f;
+	}
+}
+
+float weather_bias_light(float value)
+{
+	float bias, result;
+
+	bias = get_weather_light_bias();
+	result = value*(1.0f - bias);
+	
+	if (result < 0.0f) result = 0.0f;
+	else if (result > 1.0f) result = 1.0f;
+	
+	return result;
+}
+
+void add_thunder(int type, int sound_delay)
+{
+}
+
+#else // def NEW_WEATHER
+
 #include <stdlib.h>
 #include <math.h>
 #include "global.h"
@@ -434,3 +975,5 @@ void render_fog() {
 	glFogf(GL_FOG_DENSITY, fogDensity);
 	glFogfv(GL_FOG_COLOR, fogColor);
 }
+
+#endif
