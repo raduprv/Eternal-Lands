@@ -91,7 +91,7 @@ long get_weather_type()
 		case SNOW:   result = WEATHER_SNOW; break;
 		case DESERT: result = WEATHER_SAND; break;
 		default:
-			LOG_TO_CONSOLE(c_red1, "Invalid map flags, combination of PLAINS, SNOW and DESERT not allowed");
+			LOG_TO_CONSOLE(c_red2, "Invalid map flags, combination of PLAINS, SNOW and DESERT not allowed");
 			result = WEATHER_NONE;
 	}
 
@@ -301,9 +301,8 @@ void init_weather() {
 void start_weather(int seconds_till_start, float severity)
 {
 	// if weather effects are already active, something went wrong
-	if (weather_flags & WEATHER_ACTIVE) {
-		LOG_TO_CONSOLE(c_red1, "Premature start of weather effect!");
-		weather_flags &= ~WEATHER_ACTIVE; // disable weather while setting up new effect
+	if (weather_flags & WEATHER_STARTING) {
+		LOG_TO_CONSOLE(c_red2, "Premature start of weather effect!");
 	}
 
 	// mark time when effect is intended to start
@@ -327,7 +326,7 @@ void stop_weather(int seconds_till_stop, float severity)
 	} else {
 		if (weather_flags & WEATHER_STOPPING) {
 			// WTH? we are already stopping!
-			LOG_TO_CONSOLE(c_red1, "Double stop of weather effect!");
+			LOG_TO_CONSOLE(c_red2, "Double stop of weather effect!");
 		}
 	}
 
@@ -428,9 +427,11 @@ void render_weather()
 				num_rain_drops = MAX_RAIN_DROPS * severity;
 				update_rain(ticks, num_rain_drops);
 				render_rain(num_rain_drops);
+				break;
 			case WEATHER_SNOW:
 				update_snow(ticks, severity);
 				render_snow(severity);
+				break;
 			case WEATHER_SAND:
 				update_sand(ticks, severity);
 				render_sand(severity);
@@ -522,15 +523,55 @@ float get_weather_light_bias()
 
 float weather_bias_light(float value)
 {
-	float bias, result;
-
-	bias = get_weather_light_bias();
-	result = value*(1.0f - bias);
+	const float bias = get_weather_light_bias();
+	const float severity = 0.15f*weather_severity + 0.85f; // slightly bias light by weather severity
+	float result = value*(1.0f - severity*bias);
 	
 	if (result < 0.0f) result = 0.0f;
 	else if (result > 1.0f) result = 1.0f;
 	
 	return result;
+}
+
+void weather_sound_control() {
+	static int rain_sound = -1;
+
+	if (rain_sound == -1) {
+		int buffer;
+
+		alGenSources(1, &rain_sound);
+
+		buffer = get_loaded_buffer(snd_rain);
+		if (buffer) alSourcei(rain_sound, AL_BUFFER, buffer);
+		alSourcei(rain_sound, AL_LOOPING, AL_TRUE);
+		alSourcei(rain_sound, AL_SOURCE_RELATIVE, AL_TRUE);
+		alSourcef(rain_sound, AL_GAIN, 0.0f);
+	}
+	
+	if (weather_flags & WEATHER_ACTIVE) {
+		// 0 means initialization
+		float severity = weather_severity * get_fadeinout_bias();
+		int source_state;
+
+		// update and render view
+		switch (weather_flags & WEATHER_TYPE) {
+			case WEATHER_RAIN:
+				alSourcef(rain_sound, AL_GAIN, severity);
+				alGetSourcei(rain_sound, AL_SOURCE_STATE, &source_state);
+				if (source_state != AL_PLAYING) alSourcePlay(rain_sound);
+				break;
+			case WEATHER_SNOW:
+				alSourcePause(rain_sound);
+				break;
+			case WEATHER_SAND:
+				alSourcePause(rain_sound);
+				break;
+			default:
+				alSourcePause(rain_sound);
+		}
+	} else {
+		alSourcePause(rain_sound);
+	}
 }
 
 void add_thunder(int type, int sound_delay)

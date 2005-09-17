@@ -85,7 +85,9 @@ Uint32 check_misc(Uint32 interval, void * data)
 	misc_timer_clock=SDL_GetTicks();//This isn't accurate, but it's not needed here...
 #endif
 	
-#ifndef NEW_WEATHER
+#ifdef NEW_WEATHER
+	weather_sound_control();
+#else
 	//check the rain
 	rain_control();
 #endif

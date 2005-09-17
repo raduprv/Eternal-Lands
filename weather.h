@@ -16,6 +16,7 @@ void stop_weather(int seconds_till_stop, float severity);
 void clear_weather();
 void render_fog();
 void render_weather();
+void weather_sound_control();
 float weather_bias_light(float value);
 void add_thunder(int type, int sound_delay);
 void weather_color_bias(const float * src, float * dst);
