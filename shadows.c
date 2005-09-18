@@ -705,8 +705,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-			//go to the 2d mode, and draw a black rectangle...
-			//Enter2DMode();
+#ifdef NEW_WEATHER
 			// Lachesis: drawing in 3D mode to get the fog correct
 			Leave2DMode();
 			glDisable(GL_TEXTURE_2D);
@@ -716,11 +715,13 @@ void draw_sun_shadowed_scene(int any_reflection)
 
 			if (use_fog) glEnable(GL_FOG);
 
-#ifdef NEW_WEATHER
 			glColor4f(0.0f, 0.0f, 0.0f, 0.7f*((difuse_light[0] + difuse_light[1] + difuse_light[2])/3.0 - 0.0f));
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 #else
+			//go to the 2d mode, and draw a black rectangle...
+			Enter2DMode();
+			glDisable(GL_TEXTURE_2D);
 			abs_light=light_level;
 			if(light_level>59)abs_light=119-light_level;
 
@@ -734,17 +735,26 @@ void draw_sun_shadowed_scene(int any_reflection)
 #endif
 			
 			glBegin(GL_QUADS);
+#ifdef NEW_WEATHER
 				glVertex4f(-cx+20.0f,-cy+20.0f,0.0f,1.0f);
 				glVertex4f(-cx+20.0f,-cy-20.0f,0.0f,1.0f);
 				glVertex4f(-cx-20.0f,-cy-20.0f,0.0f,1.0f);
 				glVertex4f(-cx-20.0f,-cy+20.0f,0.0f,1.0f);
+#else
+				glVertex3i(0,window_height,0);
+				glVertex3i(0,0,0);
+				glVertex3i(window_width,0,0);
+				glVertex3i(window_width,window_height,0);
+#endif
 			glEnd();
 			glDisable(GL_BLEND);
 			glEnable(GL_TEXTURE_2D);
 			glDepthMask(GL_TRUE);
 			glEnable(GL_LIGHTING);
 
-			// Leave2DMode();
+#ifndef NEW_WEATHER
+			Leave2DMode();
+#endif
 			glEnable(GL_DEPTH_TEST);
 			glColor4f(1.0f,1.0f,1.0f,1.0f);
 			glEnable(GL_LIGHTING);
