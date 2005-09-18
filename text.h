@@ -25,6 +25,7 @@
 typedef struct
 {
 	Uint8 chan_idx;
+	Uint32 channel;
 	Uint16 len, size;
 	Uint8 *data;
 	Uint16 wrap_width;

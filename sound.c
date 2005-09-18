@@ -491,6 +491,7 @@ int update_music(void *dummy)
 						fade = 1;
 						continue;
 					}
+					alSourcef (music_source, AL_GAIN, music_gain);
 					alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
 					alGetSourcei(music_source, AL_SOURCE_STATE, &state);
 					state2=state;	//fake out the Dev-C++ optimizer!

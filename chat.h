@@ -10,6 +10,7 @@
 #define MAX_CHAT_TABS		9 /*!< Size of the \see channels array */
 #define MAX_ACTIVE_CHANNELS	3 /*!< Maximum number of channels in use */
 
+extern Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 extern Uint8 current_channel;
 
 /*!

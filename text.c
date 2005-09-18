@@ -555,6 +555,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	}
 
 	msg->chan_idx = channel;
+	msg->channel = cnr;
 
 	// set invalid wrap data to force rewrapping
 	msg->wrap_lines = 0;

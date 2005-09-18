@@ -212,26 +212,6 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	int cur_x, cur_y;
 	int cursor_x = x-1, cursor_y = y-1;
 	unsigned char ch;
-
-	ch = msgs[msg_start].data[offset_start];
-	if (!IS_COLOR (ch))
-	{
-		// search backwards for the last color
-		for (ichar = offset_start-1; ichar >= 0; ichar--)
-		{
-			ch = msgs[msg_start].data[ichar];
-			if (IS_COLOR (ch))
-			{
-				float r, g, b;
-				ch -= 127;
-				r = colors_list[ch].r1 / 255.0f;
-				g = colors_list[ch].g1 / 255.0f;
-				b = colors_list[ch].b1 / 255.0f;
-				glColor3f (r, g, b);
-				break;
-			}
-		}
-	}
 	
 	imsg = msg_start;
 	ichar = offset_start;
@@ -257,9 +237,15 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 					case CHAT_GM:       skip = guild_chat_separate;    break;
 					case CHAT_SERVER:   skip = server_chat_separate;   break;
 					case CHAT_MOD:      skip = mod_chat_separate;      break;
-					case CHAT_MODPM:                                   break;
+					case CHAT_MODPM:    skip = 0;                      break;
 					default:            skip = 1;
 				}
+			}
+			switch (channel) {
+				case CHAT_CHANNEL1:
+				case CHAT_CHANNEL2:
+				case CHAT_CHANNEL3:
+					skip = (msgs[imsg].channel != active_channels[filter - CHAT_CHANNEL1]);
 			}
 			if (skip)
 			{
@@ -275,12 +261,14 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 		}
 		if (msgs[imsg].data == NULL) return;
-		if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3 && use_windowed_chat==1)
+		if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3)
 		{
 			// when using the window, the input buffer does nasty things.
 			// if not using tabs or window, this isn't used at all(but if
 			// you're on several channels you're asking for problems anyway)
-			if (current_channel + CHAT_CHANNEL1 != msgs[imsg].chan_idx)
+			//
+			// Lachesis: Should work in any case. If not so, let's find the bug ;)
+			if (active_channels[current_channel] != msgs[imsg].channel)
 			{
 				msgs[imsg].data[0] = (Uint8)(127+c_grey2);
 			}
@@ -291,7 +279,29 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		}
 	}
 
-   	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
+	if (ichar > 0) {
+		ch = msgs[imsg].data[ichar];
+		if (!IS_COLOR (ch))
+		{
+			// search backwards for the last color
+			for (ichar = ichar-1; ichar >= 0; ichar--)
+			{
+				ch = msgs[imsg].data[ichar];
+				if (IS_COLOR (ch))
+				{
+					float r, g, b;
+					ch -= 127;
+					r = colors_list[ch].r1 / 255.0f;
+					g = colors_list[ch].g1 / 255.0f;
+					b = colors_list[ch].b1 / 255.0f;
+					glColor3f (r, g, b);
+					break;
+				}
+			}
+		}
+	}
+
+ 	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc (GL_GREATER, 0.1f);
 	get_and_set_texture_id (font_text);
 
@@ -335,9 +345,15 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 							case CHAT_GM:       skip = guild_chat_separate;    break;
 							case CHAT_SERVER:   skip = server_chat_separate;   break;
 							case CHAT_MOD:      skip = mod_chat_separate;      break;
-							case CHAT_MODPM:                                   break;
+							case CHAT_MODPM:    skip = 0;                      break;
 							default:            skip = 1;
 						}
+					}
+					switch (channel) {
+						case CHAT_CHANNEL1:
+						case CHAT_CHANNEL2:
+						case CHAT_CHANNEL3:
+							skip = (msgs[imsg].channel != active_channels[filter - CHAT_CHANNEL1]);
 					}
 					if (skip)
 					{
@@ -351,13 +367,14 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				}
 			}
 			if (msgs[imsg].data == NULL || imsg == msg_start) break;
-			ichar = 0;
-			if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3 && use_windowed_chat==1)
+			if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3)
 			{
 				// when using the window, the input buffer does nasty things.
 				// if not using tabs or window, this isn't used at all(but if
 				// you're on several channels you're asking for problems anyway)
-				if (current_channel + CHAT_CHANNEL1 != msgs[imsg].chan_idx)
+				//
+				// Lachesis: Should work in any case. If not so, let's find the bug ;)
+				if (active_channels[current_channel] != msgs[imsg].channel)
 				{
 					msgs[imsg].data[0] = (Uint8)(127+c_grey2);
 				}
@@ -367,6 +384,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				}
 			}
 			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
+			ichar = 0;
 		}
 		
 		if (cur_char == '\n' || cur_char == '\r' || cur_char == '\0')
