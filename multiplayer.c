@@ -20,7 +20,8 @@ int port=2000;
 unsigned char server_address[60];
 TCPsocket my_socket=0;
 SDLNet_SocketSet set=0;
-Uint8 tcp_in_data[8192];
+#define MAX_TCP_BUFFER  8192
+Uint8 tcp_in_data[MAX_TCP_BUFFER];
 int previously_logged_in=0;
 Uint32 last_heart_beat;
 
@@ -313,15 +314,16 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 		{
 		case RAW_TEXT:
 			{
-				Uint8 text_buf[1024];
+				Uint8 text_buf[MAX_TCP_BUFFER];
 				int len = data_length - 4;
 
 				// extract the channel number
 				if (data_length > 4) 
 				{
-					
 					if (len > sizeof (text_buf) - 1)
+					{
 						len = sizeof (text_buf) - 1;
+					}
 					memcpy (text_buf, &in_data[4], len);
 					text_buf[len] = '\0';
 					
