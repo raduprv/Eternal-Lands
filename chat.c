@@ -2,6 +2,8 @@
 #include <string.h>
 #include "global.h"
 
+int chat_win = -1;
+
 void remove_chat_tab (Uint8 channel);
 int add_chat_tab (int nlines, Uint8 channel);
 void update_chat_tab_idx (Uint8 old_ix, Uint8 new_idx);
@@ -15,18 +17,14 @@ Uint8 current_channel = 0;
 
 void add_tab (Uint8 channel)
 {
-	if (use_windowed_chat == 1)
-		add_tab_button (channel);
-	else if (use_windowed_chat == 2)
-		add_chat_tab (0, channel);
+	add_tab_button (channel);
+	if (chat_win != -1) add_chat_tab (0, channel);
 }
 
 void remove_tab (Uint8 channel)
 {
-	if (use_windowed_chat == 1)
-		remove_tab_button (channel);
-	else if (use_windowed_chat == 2)
-		remove_chat_tab (channel);
+	remove_tab_button (channel);
+	if (chat_win != -1) remove_chat_tab (channel);
 }
 
 void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
@@ -38,10 +36,8 @@ void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
 	// update_tab_idx are in increasing order of old_idx, and new_idx
 	// is lower than old_idx, so we should be safe.
 
-	if (use_windowed_chat == 1)
-		update_tab_button_idx (old_idx, new_idx);
-	else if (use_windowed_chat == 2)
-		update_chat_tab_idx (old_idx, new_idx);
+	update_tab_button_idx (old_idx, new_idx);
+	if (chat_win != -1) update_chat_tab_idx (old_idx, new_idx);
 }
 
 void set_channel_tabs (const Uint32 *chans)
@@ -154,7 +150,6 @@ int highlight_tab_on_nick = 1;
 ////////////////////////////////////////////////////////////////////////
 // Chat window variables
 
-int chat_win = -1;
 int chat_scroll_id = 15;
 int chat_in_id = 19;
 int chat_tabcollection_id = 20;
