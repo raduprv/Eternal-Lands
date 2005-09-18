@@ -284,9 +284,9 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		if (!IS_COLOR (ch))
 		{
 			// search backwards for the last color
-			for (ichar = ichar-1; ichar >= 0; ichar--)
+			for (i = ichar-1; i >= 0; i--)
 			{
-				ch = msgs[imsg].data[ichar];
+				ch = msgs[imsg].data[i];
 				if (IS_COLOR (ch))
 				{
 					float r, g, b;
