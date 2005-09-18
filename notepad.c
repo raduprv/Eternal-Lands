@@ -253,7 +253,7 @@ int notepadLoadFile ()
 			name = xmlGetProp (cur, "NAME");
 			my_strncp (note[no_notes]->name, name, NOTE_NAME_LEN);
 			note[no_notes]->window = -1;
-			free (name);
+			xmlFree(name);
 			no_notes++;
 		}
 		else

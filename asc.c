@@ -315,7 +315,7 @@ float xmlGetFloat(xmlNode * n, xmlChar * c)
 {
 	char * t=xmlGetProp(n,c);
 	float f=t?atof(t):0;
-	free(t);
+	xmlFree(t);
 	return f;
 }
 
@@ -323,7 +323,7 @@ int xmlGetInt(xmlNode *n, xmlChar *c)
 {
 	char *t=xmlGetProp(n,c);
 	int i=t?atoi(t):0;
-	free(t);
+	xmlFree(t);
 	return i;
 }
 

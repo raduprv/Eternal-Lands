@@ -366,7 +366,7 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 	
 	if(add_image_to_page(text, img, b, p)==NULL) free(img);
 	
-	free(image_path);
+	xmlFree(image_path);
 	if(text) free(text);
 }
 
