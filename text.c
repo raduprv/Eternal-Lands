@@ -514,46 +514,6 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	}
 
 	msg->len = strlen (msg->data);
-
-	if (use_windowed_chat != 0)
-	{
-		// determine the proper channel
-		// XXX FIXME (Grum): hack
-		if (msg->data[0] == 127+c_orange1 && strncmp (&(msg->data[1]), "[PM ", 4) == 0)
-		{
-			// Personal message
-			channel = CHAT_PERSONAL;
-		}
-		else if (msg->data[0] == 127+c_blue2)
-		{
-			if (strncmp (&(msg->data[1]), "#GM ", 4) == 0)
-			{
-				// Guild message
-				channel = CHAT_GM;
-			}
-			else if (strncmp (&(msg->data[1]), "#Message ", 9) == 0)
-			{
-				// Mod message
-				channel = CHAT_SERVER;
-			}
-			else
-			{
-				// Unknown, show it as local
-				channel = CHAT_LOCAL;
-			}
-		}
-		else if (msg->data[0] == 127+c_grey1 && msg->data[1] == '[')
-		{
-			// Channel chat
-			channel = CHAT_CHANNEL1;
-		}
-		else
-		{
-			// all else, show it as local
-			channel = CHAT_LOCAL;
-		}
-	}
-
 	msg->chan_idx = channel;
 	msg->channel = cnr;
 
