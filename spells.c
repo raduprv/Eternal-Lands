@@ -536,6 +536,21 @@ void add_spell_to_quickbar()
 	memcpy(mqb_data[0], mqb_data[1], sizeof(mqbdata));
 }
 
+void remove_spell_from_quickbar (int pos)
+{
+	int i;
+
+	if (pos < 1 || pos > 6 || mqb_data[pos] == NULL) return;
+	
+	// remove the spell
+	free (mqb_data[pos]);
+	
+	// move the other spells one up
+	for (i = pos; i < 6; i++)
+		mqb_data[i] = mqb_data[i+1];
+	mqb_data[6] = NULL;
+}
+
 void set_spell_name (int id, const char *data, int len)
 {
 	int i;
@@ -741,10 +756,19 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 	
 	pos=my/30+1;
 
-	if(pos<7 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_str[0] && (flags & ELW_LEFT_MOUSE)) {
-		my_tcp_send(my_socket, mqb_data[pos]->spell_str, 12);
-		return 1;
-	} 
+	if(pos<7 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_str[0])
+	{
+		if (flags & ELW_LEFT_MOUSE)
+		{
+			my_tcp_send(my_socket, mqb_data[pos]->spell_str, 12);
+			return 1;
+		}
+		else if (flags & ELW_RIGHT_MOUSE)
+		{
+			remove_spell_from_quickbar (pos);
+			return 1;
+		}
+	}
 	
 	return 0;
 }
