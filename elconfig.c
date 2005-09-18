@@ -9,7 +9,9 @@
 //For stat() etc.. below
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif  //_MSC_VER
 
 #ifdef MAP_EDITOR
  #include "../map_editor/global.h"
@@ -1224,6 +1226,7 @@ void elconfig_populate_tabs(void)
 // TODO: replace this hack by something clean.
 int show_elconfig_handler(window_info * win) {
 	int pwinx, pwiny; window_info *pwin;
+	
 	if (win->pos_id != -1) {
 		pwin = &windows_list.window[win->pos_id];
 		pwinx = pwin->cur_x;
