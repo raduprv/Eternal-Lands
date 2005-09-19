@@ -80,6 +80,8 @@ int render_mesh=1;
 int you_sit=0;
 int sit_lock=0;
 
+int options_set = 0;
+
 void change_var(int * var)
 {
 	*var=!*var;
@@ -376,8 +378,10 @@ void change_shadow_mapping (int *sm)
 	{
 		*sm = 0;
 	}
-	else if (have_multitexture >= 3 && have_arb_shadow)
+	else if (!options_set || (have_multitexture >= 3 && have_arb_shadow))
 	{
+		// don't check if we have hardware support when OpenGL 
+		// extensions are not initialized yet.
 		*sm = 1;
 	}
 	else

@@ -63,6 +63,8 @@ extern int write_ini_on_exit; /*< variable that determines if el.ini file is rew
 
 extern int elconfig_win;
 
+extern int options_set;
+
 void display_elconfig_win(void);
 
 /*!

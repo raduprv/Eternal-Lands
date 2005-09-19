@@ -503,6 +503,7 @@ void init_stuff()
 
 	//Parse command line options
 	read_command_line();
+	options_set = 1;
 
 	// check for invalid combinations
 	check_options ();
