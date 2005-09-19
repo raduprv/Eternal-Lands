@@ -144,7 +144,7 @@ void setup_video_mode(int fs, int mode)
 			switch(mode) {
 			case 1:
 			case 2:
-				if(window_width != 640 || window_height != 550)
+				if(window_width != 640 || window_height != 480)
 					{
 						Uint8 str[100];
 						snprintf(str,sizeof(str),window_size_adjusted_str,"640x480");
