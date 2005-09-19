@@ -658,7 +658,8 @@ void init_vars()
 	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects",SPECIALVID);
 
 	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
-	add_var(INT,"click_speed","cspeed",&click_speed,change_int,300,"Click Speed","Set the mouse click speed",CONTROLS,0,INT_MAX);
+	// Lachesis: this var is not used in the code.
+	// add_var(INT,"click_speed","cspeed",&click_speed,change_int,300,"Click Speed","Set the mouse click speed",CONTROLS,0,INT_MAX);
 
 	add_var(FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
 	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);

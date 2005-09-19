@@ -705,23 +705,22 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-#ifdef NEW_WEATHER
-			// Lachesis: drawing in 3D mode to get the fog correct
-			Leave2DMode();
+
+			// Lachesis: drawing in 3D mode in order to get the fog correct
 			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_DEPTH_TEST);
-			glDepthMask(GL_FALSE);
 			glDisable(GL_LIGHTING);
+			glDepthMask(GL_FALSE);
+			glDisable(GL_DEPTH_TEST);
 
 			if (use_fog) glEnable(GL_FOG);
 
-			glColor4f(0.0f, 0.0f, 0.0f, 0.7f*((difuse_light[0] + difuse_light[1] + difuse_light[2])/3.0 - 0.0f));
 			glEnable(GL_BLEND);
+			// need this function (or both flipped) for correctly working fog too
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+#ifdef NEW_WEATHER
+			glColor4f(0.0f, 0.0f, 0.0f, 0.7f*((difuse_light[0] + difuse_light[1] + difuse_light[2])/3.0 - 0.0f));
 #else
-			//go to the 2d mode, and draw a black rectangle...
-			Enter2DMode();
-			glDisable(GL_TEXTURE_2D);
 			abs_light=light_level;
 			if(light_level>59)abs_light=119-light_level;
 
@@ -729,32 +728,21 @@ void draw_sun_shadowed_scene(int any_reflection)
 			if(abs_light<0)abs_light=0;
 			if(abs_light>59)abs_light=59;
 
-			glColor4f(0.0f,0.0f,0.0f,0.73f+(float)abs_light*0.008f);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ZERO,GL_SRC_ALPHA);
+			glColor4f(0.0f,0.0f,0.0f,0.27f - (float)abs_light*0.008f);
 #endif
 			
 			glBegin(GL_QUADS);
-#ifdef NEW_WEATHER
 				glVertex4f(-cx+20.0f,-cy+20.0f,0.0f,1.0f);
 				glVertex4f(-cx+20.0f,-cy-20.0f,0.0f,1.0f);
 				glVertex4f(-cx-20.0f,-cy-20.0f,0.0f,1.0f);
 				glVertex4f(-cx-20.0f,-cy+20.0f,0.0f,1.0f);
-#else
-				glVertex3i(0,window_height,0);
-				glVertex3i(0,0,0);
-				glVertex3i(window_width,0,0);
-				glVertex3i(window_width,window_height,0);
-#endif
 			glEnd();
+
 			glDisable(GL_BLEND);
+
 			glEnable(GL_TEXTURE_2D);
 			glDepthMask(GL_TRUE);
-			glEnable(GL_LIGHTING);
 
-#ifndef NEW_WEATHER
-			Leave2DMode();
-#endif
 			glEnable(GL_DEPTH_TEST);
 			glColor4f(1.0f,1.0f,1.0f,1.0f);
 			glEnable(GL_LIGHTING);
@@ -763,5 +751,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 			display_3d_non_ground_objects();
 			display_actors();
 			display_blended_objects();
+
 		}
 }
