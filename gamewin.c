@@ -233,7 +233,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 	// after we test for interface clicks
 	// alternative drop method...
-	if (item_dragged != -1)
+	if (item_dragged >= 0 && item_dragged < ITEM_NUM_ITEMS)
 	{
 		Uint8 str[10];
 
