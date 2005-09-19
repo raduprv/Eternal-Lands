@@ -69,10 +69,10 @@ int HandleEvent (SDL_Event *event)
 
 		case SDL_KEYDOWN:
 			key=(Uint16)event->key.keysym.sym;
-				
-			if (shift_on) key |= SHIFT;
-			if (ctrl_on) key |= CTRL;
-			if (alt_on) key |= ALT;
+			
+			if (shift_on) key |= ELW_SHIFT;
+			if (ctrl_on) key |= ELW_CTRL;
+			if (alt_on) key |= ELW_ALT;
 
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state

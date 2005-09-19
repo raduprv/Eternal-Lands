@@ -68,4 +68,8 @@ void load_filters();
  */
 void list_filters();
 
+#ifdef DEBUG
+void print_filter_list ();
+#endif
+
 #endif

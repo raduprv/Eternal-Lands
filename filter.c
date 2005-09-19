@@ -26,67 +26,72 @@ int add_to_filter_list(Uint8 *name, char save_name)
 	int i;
 	char left[256];
 	char right[256];
-	char buff[256];
-	int t;
+	int t, tp;
 	int l=0;
 
 	//see if this name is already on the list
-	for(i=0;i<MAX_FILTERS;i++)
-		{
-			if(filter_list[i].len > 0)
-				if(my_strcompare(filter_list[i].name,name))return -1;//already in the list
-		}
+	for (i = 0; i < MAX_FILTERS; i++)
+	{
+		if (filter_list[i].len > 0)
+			if (my_strcompare (filter_list[i].name, name)) return -1;//already in the list
+	}
 
 	//ok, find a free spot
 	for(i=0;i<MAX_FILTERS;i++)
+	{
+		if(filter_list[i].len <= 0)
 		{
-			if(filter_list[i].len <= 0)
+			//excellent, a free spot
+			strncpy(left, name,sizeof(left));
+			for(t = 0; ; t++)
+			{
+				if (left[t] == '\0')
 				{
-					//excellent, a free spot
-					strncpy(left, name,sizeof(left));
-					for(t=0;;t++){
-						if(left[t]==0){
-							strncpy(right, "smeg",sizeof(right));
-							break;
-						}
-						if(left[t]=='='){
-							left[t]=0;
-							strncpy(right, left+t+2,sizeof(right));
-							break;
-						}
-					}
-					//add to the global filter file, if the case
-					if(save_name)
-						{
-							FILE *f = NULL;
-							char local_filters[256];
-							strncpy(local_filters, configdir,sizeof(local_filters));
-							strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
-							f=my_fopen(local_filters, "a");
-							if (f != NULL)
-							{
-								snprintf(buff, sizeof(buff),"%s = %s", left, right);
-								fwrite(buff, strlen(buff), 1, f);
-								fwrite("\n", 1, 1, f);
-								fclose(f);
-							}
-						}
-					left[64]=0;
-					right[64]=0;
-					filter_list[i].wildcard_type=0;
-					l=strlen(left)-2;
-					if(left[0]=='*' && left[l]!='*') filter_list[i].wildcard_type=1;
-					if(left[0]!='*' && left[l]=='*') filter_list[i].wildcard_type=2;
-					if(left[0]=='*' && left[l]=='*') filter_list[i].wildcard_type=3;
-					my_strcp(filter_list[i].name,left);
-					my_strcp(filter_list[i].replacement,right);
-					filter_list[i].len=strlen(filter_list[i].name);//memorize the length
-					filter_list[i].rlen=strlen(filter_list[i].replacement);//memorize the length
-
-					filtered_so_far++;
-					return 1;
+					strncpy (right, "smeg", sizeof(right));
+					break;
 				}
+				if(left[t]=='=')
+				{
+					left[t] = '\0';
+					tp = t - 1;
+					for (tp = t-1; tp >= 0 && isspace (left[tp]); tp--)
+					{
+						left[tp] = '\0';
+					}
+					for (tp = t + 1; left[tp] != '\0' && isspace (left[tp]); tp++) ;
+					strncpy (right, &left[tp], sizeof(right));
+					break;
+				}
+			}
+			// add to the local filter file, if the case
+			if (save_name)
+			{
+				FILE *f = NULL;
+				char local_filters[256];
+				snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
+				f = my_fopen (local_filters, "a");
+				if (f != NULL)
+				{
+					fprintf (f, "%s = %s\n", left, right);
+					fclose(f);
+				}
+			}
+			left[sizeof(filter_list[i].name)-1] = '\0';
+			right[sizeof(filter_list[i].replacement)-1] = '\0';
+			filter_list[i].wildcard_type = 0;
+			l = strlen (left) - 1;
+			if (left[0] == '*' && left[l] != '*') filter_list[i].wildcard_type = 1;
+			if (left[0] != '*' && left[l] == '*') filter_list[i].wildcard_type = 2;
+			if (left[0] == '*' && left[l] == '*') filter_list[i].wildcard_type = 3;
+			my_strcp (filter_list[i].name, left);
+			my_strcp (filter_list[i].replacement, right);
+			filter_list[i].len = strlen(filter_list[i].name);//memorize the length
+			filter_list[i].rlen = strlen(filter_list[i].replacement);//memorize the length
+
+			filtered_so_far++;
+			return 1;
 		}
+	}
 
 	return -2;//if we are here, it means the filters list is full
 }
@@ -97,89 +102,110 @@ int remove_from_filter_list(Uint8 *name)
 	int i;
 	int found = 0;
 	FILE *f = NULL;
+	
 	//see if this name is on the list
-	for(i=0;i<MAX_FILTERS;i++)
-		{
-			if(!found && filter_list[i].len > 0)
-				if(my_strcompare(filter_list[i].name,name))
-					{
-						filter_list[i].len=0;
-						found = 1;
-						filtered_so_far--;
-					}
-		}
-	if(found)
-		{
-			char local_filters[256];
-			strncpy(local_filters, configdir,sizeof(local_filters));
-			strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
-			f=my_fopen(local_filters, "w");
-			if (f != NULL)
+	for (i = 0; i < MAX_FILTERS; i++)
+	{
+		if (!found && filter_list[i].len > 0)
+			if (my_strcompare (filter_list[i].name, name))
 			{
-				for(i=0;i<MAX_FILTERS;i++)
-				{
-					if(filter_list[i].len > 0)
-						{
-							fwrite(ignore_list[i].name, filter_list[i].len, 1, f);
-							fwrite("\n", 1, 1, f);	
-						}
-				}
-				fclose(f);
+				filter_list[i].len = 0;
+				found = 1;
+				filtered_so_far--;
+				break;
 			}
-			return 1;
+	}
+	
+	if (found)
+	{
+		char local_filters[256];
+		snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
+		f = my_fopen(local_filters, "w");
+		if (f != NULL)
+		{
+			for (i = 0; i < MAX_FILTERS; i++)
+			{
+				if (filter_list[i].len > 0)
+					fprintf (f, "%s = %s\n", filter_list[i].name, filter_list[i].replacement);
+			}
+			fclose(f);
 		}
-	else
-		return -1;
+		return 1;
+	}
+
+	return -1;
 }
 
+#ifdef DEBUG
+void print_filter_list ()
+{
+	int i;
+	
+	printf ("filter:\n");
+	for (i = 0; i < MAX_FILTERS; i++)
+	{
+		if (filter_list[i].len > 0)
+		{
+			printf ("%d: name = %.*s, len = %d, replacement = %.*s, rlen = %d, type = %d\n", i, filter_list[i].len, filter_list[i].name, filter_list[i].len, filter_list[i].rlen, filter_list[i].replacement, filter_list[i].rlen, filter_list[i].wildcard_type);
+		}
+	}
+}
+#endif
 
 //returns length to be filtered, 0 if not filtered
-int check_if_filtered(Uint8 *name)
+int check_if_filtered (const Uint8 *name)
 {
 	int t, i, l;
-	char buff[256];
 
-	for(i=0;i<MAX_FILTERS;i++)
+	for (i = 0; i < MAX_FILTERS; i++)
+	{
+		if (filter_list[i].len > 0)
 		{
-			if(filter_list[i].len > 0)
+			if (filter_list[i].wildcard_type==0)
 			{
-				if(filter_list[i].wildcard_type==0){  /* no wildcard, normal compare */
-					if(my_strncompare(filter_list[i].name,name,filter_list[i].len)){
-						if(isalpha(name[filter_list[i].len-1])==0){ /* fits with end of word? */
-							return i;//yep, filtered
-						} 
-					}
-				}
-				else if(filter_list[i].wildcard_type==1){  /* *word                       */
-					for(t=0;;t++){
-						if(isalpha(name[t])==0) break; /* t points now at the end of the word */
-					}
-					strcpy(buff, filter_list[i].name);
-					l=filter_list[i].len;
-					if(my_strncompare(buff+1,name+t-(l-2),l-2)){
-						return i;//yep, filtered
-					}
-				}
-				else if(filter_list[i].wildcard_type==2){  /* word*                      */
-					strcpy(buff, filter_list[i].name);
-					l=filter_list[i].len;
-					if(my_strncompare(buff,name,l-2)){
-						return i;//yep, filtered
-					}
-				}
-				else if(filter_list[i].wildcard_type==3){  /* *word*                     */
-					strcpy(buff, filter_list[i].name);
-					buff[strlen(buff)-1]=0;  /* remove trailing * */
-					l=filter_list[i].len;
-					for(t=0;;t++){
-						if(isalpha(name[t])==0) break;
-						if(my_strncompare(buff+1,name+t,l-3)){
-							return i;//yep, filtered
-						}
+				/* no wildcard, normal compare */
+				if (my_strncompare (filter_list[i].name, name, filter_list[i].len))
+				{
+					if (!isalpha (name[filter_list[i].len]))
+					{
+						/* fits with end of word? */
+						return i; // yep, filtered
 					}
 				}
 			}
+			else if (filter_list[i].wildcard_type == 1)
+			{
+				/* *word                       */
+				for (t = 0; ; t++)
+				{
+					if (!isalpha (name[t])) break; /* t points now at the end of the word */
+				}
+				l = filter_list[i].len;
+				if (t >= l-1)
+				{
+					if (my_strncompare (&(filter_list[i].name[1]), &name[t-l], l-1))
+						return i;
+				}
+			}
+			else if (filter_list[i].wildcard_type == 2)
+			{
+				/* word*                      */
+				if (my_strncompare (filter_list[i].name, name, filter_list[i].len-1))
+					return i;
+			}
+			else if (filter_list[i].wildcard_type==3)
+			{
+				/* *word*                     */
+				for (t = 0; ; t++)
+				{
+					if (!isalpha (name[t])) break;
+					if (my_strncompare(&(filter_list[i].name[1]), &name[t], filter_list[i].len-2))
+						return i;//yep, filtered
+				}
+			}
 		}
+	}
+	
 	return -1;//nope
 }
 
@@ -230,15 +256,14 @@ int filter_storage_text (Uint8 * input_text, int len) {
 }  
 
 //returns the new length of the text
-int filter_text (Uint8 *input_text, int len, int size)
+int filter_text (Uint8 *buff, int len, int size)
 {
 	int i, t, bad_len, rep_len, new_len, idx;
-	Uint8 buff[4096];
 
 	// See if a search term has been added to the #storage command, and if so, 
         // only list those items with that term
-	if (storage_filter[0] != '\0' && len > 31 && my_strncompare (input_text+1, "Items you have in your storage:", 31))
-		len = 33 + filter_storage_text (input_text+33, len-33);
+	if (storage_filter[0] != '\0' && len > 31 && my_strncompare (buff+1, "Items you have in your storage:", 31))
+		len = 33 + filter_storage_text (buff+33, len-33);
 
 	//do we need to do CAPS filtering?
 	if (caps_filter)
@@ -247,16 +272,16 @@ int filter_text (Uint8 *input_text, int len, int size)
 
 		// skip any coloring
 		idx = 0;
-		while (IS_COLOR (input_text[idx]) && clen > 0)
+		while (IS_COLOR (buff[idx]) && clen > 0)
 		{
 			idx++;
 			clen--;
 		}
 
 		// handle PM's
-		if (input_text[idx] == '[' || input_text[idx+1] == '[')
+		if (buff[idx] == '[' || buff[idx+1] == '[')
 		{
-			while (input_text[idx] != '\0' && input_text[idx] != ':' && clen > 0)
+			while (buff[idx] != '\0' && buff[idx] != ':' && clen > 0)
 			{
 				idx++;
 				clen--;
@@ -265,89 +290,86 @@ int filter_text (Uint8 *input_text, int len, int size)
 		// or ignore first word
 		else
 		{
-			while (input_text[idx] != '\0' && input_text[idx] != ' ' && input_text[idx] != ':' && clen > 0)
+			while (buff[idx] != '\0' && buff[idx] != ' ' && buff[idx] != ':' && clen > 0)
 			{
 				idx++;
 				clen--;
 			}
 		}
 		
-		while (input_text[idx] != '\0' && (input_text[idx] == ' ' || input_text[idx] == ':' || IS_COLOR (input_text[idx])) && clen > 0)
+		while (buff[idx] != '\0' && (buff[idx] == ' ' || buff[idx] == ':' || IS_COLOR (buff[idx])) && clen > 0)
 		{
 			idx++;
 			clen--;
 		}
 		
 		// check for hitting the EOS
-		if (input_text[idx] == '\0') idx = 0;
+		if (buff[idx] == '\0') idx = 0;
 		// if we pass the upper test, entire line goes lower
-		if (len - idx > 4 && my_isupper (&input_text[idx], clen))
+		if (len - idx > 4 && my_isupper (&buff[idx], clen))
 		{
 			// don't call my_tolower, since we're not sure if the string is NULL terminated
 			for (idx = 0; idx < len; idx++)
-				input_text[idx] = tolower (input_text[idx]);
+				buff[idx] = tolower (buff[idx]);
 		}
 	}
-
-	if (len > sizeof (buff) - 3)
-		len = sizeof (buff) - 3;
-
-	memset (buff, 0, len+3);  /* clear buffer */
-	strncpy (buff+1, input_text, len); /* now we have leading and trailing spaces */
-	buff[0] = ' ';
-	buff[len+1] = ' ';
 	
 	//do we need to do any content filtering?
 	if (MAX_FILTERS == 0) return len;
 
 	// scan the text for any strings
 	new_len = len;
-	for (i = 0; i < len; i++)
+	i = 0;
+	while (i < new_len)
 	{
-		/* remember, buff has 1 leading space!! */
-		if (!isalpha (buff[i]))
-		{  /* beginning of word? */
-			if ((idx=check_if_filtered (buff+i+1)) > -1)
+		/* skip non-alpha characters */
+		while (i < new_len && !isalpha (buff[i])) i++;
+		if (i >= new_len) break;
+		
+		/* check if we need to filter this word */
+		idx = check_if_filtered (&buff[i]);
+		if (idx >= 0)
+		{
+			/* oops, remove this word */
+			if (filter_list[idx].wildcard_type > 0)
 			{
-				// oops, remove this word 
-				if (filter_list[idx].wildcard_type > 0)
+				bad_len = 0;
+				for (t = 0; ; t++)
 				{
-					bad_len = 0;
-					for (t = 1; ; t++)
-					{
-						if (isalpha (buff[i+t]) == 0) break;
-						bad_len++;
-					}
-				}
-				else
-				{
-					bad_len = filter_list[idx].len;
-				}
-				rep_len = filter_list[idx].rlen;
-
-				if (bad_len == rep_len)
-				{
-					strncpy (buff+i+1, filter_list[idx].replacement, rep_len);
-				}
-				else
-				{
-					if (filter_list[idx].wildcard_type > 0)
-					{
-						bad_len++;
-					}
-					memmove (buff+i+1+rep_len+1, buff+i+1+bad_len, new_len-(i-1+bad_len));
-					strncpy (buff+i+1, filter_list[idx].replacement, rep_len);
-					buff[i+1+rep_len] = ' '; /* end word with a space */
-					// adjust the length
-					new_len -= (bad_len-(rep_len+1));
+					if (!isalpha (buff[i+t])) break;
+					bad_len++;
 				}
 			}
+			else
+			{
+				bad_len = filter_list[idx].len;
+			}
+			rep_len = filter_list[idx].rlen;
+
+			if (bad_len == rep_len)
+			{
+				strncpy (buff+i, filter_list[idx].replacement, rep_len);
+			}
+			else if (new_len + rep_len - bad_len >= size - 1)
+			{
+				// not enough space for substitution
+				break;
+			}
+			else
+			{
+				memmove (buff+i+rep_len, buff+i+bad_len, new_len-i-bad_len+1);
+				strncpy (buff+i, filter_list[idx].replacement, rep_len);
+				new_len += rep_len - bad_len;
+				/* don't filter the replacement text */
+				i += rep_len;
+			}
+		}
+		else
+		{
+			/* skip this word */
+			while (i < new_len && isalpha (buff[i])) i++;
 		}
 	}
-	
-	if (new_len > size - 1) new_len = size - 1;
-	strncpy (input_text, buff+1, new_len);
-	input_text[new_len] = '\0';
 	
 	return new_len;
 }
@@ -412,37 +434,50 @@ void clear_filter_list()
 void load_filters()
 {
 	char local_filters[256];
-	strncpy(local_filters, configdir,sizeof(local_filters));
-	strncat(local_filters, "local_filters.txt",sizeof(local_filters)-1);
-	clear_filter_list();
-	load_filters_list(local_filters);
-	if(use_global_filters)load_filters_list("global_filters.txt");
+	snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
+	clear_filter_list ();
+	load_filters_list (local_filters);
+	if (use_global_filters) load_filters_list ("global_filters.txt");
 }
 
 void list_filters()
 {
-	int i;
-	Uint8 str[MAX_FILTERS*19];
+	int i, size, minlen;
+	Uint8 *str;
 
-	if(!filtered_so_far)
-		{
-			LOG_TO_CONSOLE(c_grey1,no_filters_str);
-			return;
-		}
+	if (filtered_so_far == 0)
+	{
+		LOG_TO_CONSOLE (c_grey1, no_filters_str);
+		return;
+	}
+
+	size = MAX_FILTERS*20;
+	while (strlen (filters_str) + 2 >= size)
+		size *= 2;
+	str = calloc (size, sizeof (char));
+
 	sprintf(str,"%s:\n",filters_str);
-	for(i=0;i<MAX_FILTERS;i++)
+	for (i = 0; i < MAX_FILTERS; i++)
+	{
+		if (filter_list[i].len > 0)
 		{
-			if(filter_list[i].len > 0)
-				{
-					my_strcp(&str[strlen(str)],filter_list[i].name);
-					my_strcp(&str[strlen(str)]," = ");
-					my_strcp(&str[strlen(str)],filter_list[i].replacement);
-					my_strcp(&str[strlen(str)],", ");
-				}
+			minlen = filter_list[i].len + filter_list[i].rlen + 5;
+			if (minlen >= size)
+			{
+				while (minlen >= size)
+					size *= 2;
+				str = realloc (str, size * sizeof (char));
+			}
+		
+			strcat (str, filter_list[i].name);
+			strcat (str, " = ");
+			strcat (str, filter_list[i].replacement);
+			strcat (str, ", ");
 		}
+	}
 
-	str[strlen(str)-2]=0;//get rid of the last ", " thingy
+	str[strlen(str)-2] = '\0';//get rid of the last ", " thingy
+	LOG_TO_CONSOLE (c_grey1,str);
 
-	LOG_TO_CONSOLE(c_grey1,str);
-
+	free (str);
 }

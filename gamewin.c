@@ -1319,7 +1319,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
-	
+
 	// first try the keypress handler for all root windows
 	if ( keypress_root_common (key, unikey) )
 	{
@@ -1395,6 +1395,10 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		if (key & ELW_SHIFT)
 		{
 			print_sound_objects ();
+		}
+		else if (key & ELW_ALT)
+		{
+			print_filter_list ();
 		}
 		else
 		{
