@@ -17,13 +17,13 @@ Uint8 current_channel = 0;
 
 void add_tab (Uint8 channel)
 {
-	add_tab_button (channel);
+	if (tab_bar_win != -1) add_tab_button (channel);
 	if (chat_win != -1) add_chat_tab (0, channel);
 }
 
 void remove_tab (Uint8 channel)
 {
-	remove_tab_button (channel);
+	if (tab_bar_win != -1) remove_tab_button (channel);
 	if (chat_win != -1) remove_chat_tab (channel);
 }
 
@@ -36,7 +36,7 @@ void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
 	// update_tab_idx are in increasing order of old_idx, and new_idx
 	// is lower than old_idx, so we should be safe.
 
-	update_tab_button_idx (old_idx, new_idx);
+	if (tab_bar_win != -1) update_tab_button_idx (old_idx, new_idx);
 	if (chat_win != -1) update_chat_tab_idx (old_idx, new_idx);
 }
 
