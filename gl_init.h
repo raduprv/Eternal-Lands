@@ -35,6 +35,8 @@ extern int have_framebuffer_object; /*!< flag that indicates whether the GL_EXT_
 extern int have_shaders;
 
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
+
+extern int have_arb_shadow;
 /*! @} */
 
 // Grum

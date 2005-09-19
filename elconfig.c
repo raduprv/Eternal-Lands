@@ -370,6 +370,21 @@ void change_separate_flag(int * pointer) {
 	}
 }
 
+void change_shadow_mapping (int *sm)
+{
+	if (*sm)
+	{
+		*sm = 0;
+	}
+	else if (have_multitexture >= 3 && have_arb_shadow)
+	{
+		*sm = 1;
+	}
+	else
+	{
+		LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
+	}
+}
 #endif // ELC
 #ifdef MAP_EDITOR
 
@@ -642,7 +657,7 @@ void init_vars()
 	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render mesh", "Render the mesh", SPECIALVID);
 #endif
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0,"Shadows","Toggles the shadows",VIDEO);
-	add_var(BOOL,"use_shadow_mapping","sm",&use_shadow_mapping,change_var,0,"Shadow Mapping","If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.",VIDEO);
+	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", VIDEO);
 	add_var(MULTI,"max_shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096","8192",NULL);
 	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render fog","Toggles fog rendering.",VIDEO);
 	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);

@@ -154,7 +154,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				disable_texgen();
 				ELglActiveTextureARB(GL_TEXTURE0);
 				glEnable(GL_TEXTURE_2D);
-				glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+				glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			}
 		//draw the health bar
 		glDisable(GL_TEXTURE_2D);
