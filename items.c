@@ -119,16 +119,17 @@ void rendergrid(int columns, int rows, int left, int top, int width, int height)
 
 int get_mouse_pos_in_grid(int mx, int my, int columns, int rows, int left, int top, int width, int height)
 {
-	int x, y, i=0;
+	int x, y, i;
 
-	mx-=left;
-	my-=top;
-	columns*=width;
-	rows*=height;
+	mx -= left;
+	my -= top;
 
-	for(y=0; y<=rows; y+=height, i--){
-		for(x=0; x<=columns; x+=width, i++){
-			if(mx>=x && mx<=x+width && my>=y && my<=y+height)
+	i = 0;
+	for (y = 0; y < rows; y++)
+	{
+		for (x = 0; x < columns; x++, i++)
+		{
+			if (mx >= x*width && mx <= (x+1)*width && my >= y*height && my <= (y+1)*height)
 				return i;
 		}
 	}
@@ -136,35 +137,38 @@ int get_mouse_pos_in_grid(int mx, int my, int columns, int rows, int left, int t
 	return -1;
 }
 
-void reset_quantity(int pos)
+void reset_quantity (int pos)
 {
 	int val;
 					
-	switch(pos){
+	switch(pos)
+	{
+		case 0:
+			val = 1;
+			break;
 		case 1:
-			val=5;
+			val = 5;
 			break;
 		case 2:
-			val=10;
+			val = 10;
 			break;
 		case 3:
-			val=20;
+			val = 20;
 			break;
 		case 4:
-			val=50;
+			val = 50;
 			break;
 		case 5:
-			val=100;
+			val = 100;
 			break;
-		case 0:
 		default:
-			val=1;
-			break;
+			LOG_ERROR ("Trying to reset invalid element of quantities, pos = %d", pos);
+			return;
 	}
 
-	snprintf(quantities.quantity[pos].str, sizeof(quantities.quantity[pos].str),"%d",val);
-	quantities.quantity[pos].len=strlen(quantities.quantity[pos].str);
-	quantities.quantity[pos].val=val;
+	snprintf (quantities.quantity[pos].str, sizeof(quantities.quantity[pos].str), "%d", val);
+	quantities.quantity[pos].len = strlen (quantities.quantity[pos].str);
+	quantities.quantity[pos].val = val;
 }
 
 void drag_item(int item, int storage, int mini)
