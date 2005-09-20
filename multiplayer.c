@@ -307,14 +307,15 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 #endif
 //---
 
-void process_message_from_server (unsigned char *in_data, int data_length)
+void process_message_from_server (const Uint8 *in_data, int data_length)
 {
+	Uint8 text_buf[MAX_TCP_BUFFER];
+	
 	//see what kind of data we got
 	switch (in_data[PROTOCOL])
 		{
 		case RAW_TEXT:
 			{
-				Uint8 text_buf[MAX_TCP_BUFFER];
 				int len = data_length - 4;
 
 				// extract the channel number
@@ -772,10 +773,15 @@ void process_message_from_server (unsigned char *in_data, int data_length)
 			{
 				put_small_text_in_box(&in_data[3],data_length-3,dialogue_menu_x_len-70,dialogue_string);
 				display_dialogue();
-				if(in_data[3]>=127 && in_data[4]>=127)
-					{
-						add_questlog(&in_data[4],data_length-4);
-					}
+				if (in_data[3] >= 127 && in_data[4] >= 127)
+				{
+					int len = data_length - 4;
+					if (len > sizeof (text_buf) - 1)
+						len = sizeof (text_buf) - 1;
+					memcpy (text_buf, &in_data[4], len);
+					text_buf[len] = '\0';
+					add_questlog (text_buf, len);
+				}
 			}
 			break;
 
