@@ -329,7 +329,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					text_buf[len] = '\0';
 					
 					// do filtering and ignoring
-					len = filter_or_ignore_text (text_buf, len, sizeof (text_buf)) + 4;
+					len = filter_or_ignore_text (text_buf, len, sizeof (text_buf));
 					if (len > 0)
 					{
 						//how to display it
