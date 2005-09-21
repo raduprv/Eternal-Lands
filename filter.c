@@ -12,6 +12,7 @@ typedef struct
 	Uint8 replacement[64];
 	int rlen;
 	char wildcard_type; /* 0=none, 1=*word, 2=word*, 3=*word* */
+	char local;
 }filter_slot;
 
 filter_slot filter_list[MAX_FILTERS];
@@ -21,7 +22,7 @@ int caps_filter=1;
 char storage_filter[128];
 
 //returns -1 if the name is already filtered, 1 on sucess, -2 if no more filter slots
-int add_to_filter_list(Uint8 *name, char save_name)
+int add_to_filter_list (const Uint8 *name, char local, char save_name)
 {
 	int i;
 	char left[256];
@@ -33,17 +34,20 @@ int add_to_filter_list(Uint8 *name, char save_name)
 	for (i = 0; i < MAX_FILTERS; i++)
 	{
 		if (filter_list[i].len > 0)
-			if (my_strcompare (filter_list[i].name, name)) return -1;//already in the list
+		{
+			if (my_strcompare (filter_list[i].name, name))
+				return -1; // already in the list
+		}
 	}
 
 	//ok, find a free spot
-	for(i=0;i<MAX_FILTERS;i++)
+	for (i = 0; i < MAX_FILTERS; i++)
 	{
-		if(filter_list[i].len <= 0)
+		if (filter_list[i].len <= 0)
 		{
-			//excellent, a free spot
-			strncpy(left, name,sizeof(left));
-			for(t = 0; ; t++)
+			// excellent, a free spot
+			strncpy (left, name, sizeof(left));
+			for (t = 0; ; t++)
 			{
 				if (left[t] == '\0')
 				{
@@ -87,6 +91,7 @@ int add_to_filter_list(Uint8 *name, char save_name)
 			my_strcp (filter_list[i].replacement, right);
 			filter_list[i].len = strlen(filter_list[i].name);//memorize the length
 			filter_list[i].rlen = strlen(filter_list[i].replacement);//memorize the length
+			filter_list[i].local = local;
 
 			filtered_so_far++;
 			return 1;
@@ -96,36 +101,38 @@ int add_to_filter_list(Uint8 *name, char save_name)
 	return -2;//if we are here, it means the filters list is full
 }
 
-//returns -1 if the name is already filtered, 1 on sucess
-int remove_from_filter_list(Uint8 *name)
+//returns -1 if the name is not filtered, 1 on sucess
+int remove_from_filter_list (const Uint8 *name)
 {
 	int i;
-	int found = 0;
+	int local = 0;
 	FILE *f = NULL;
 	
 	//see if this name is on the list
 	for (i = 0; i < MAX_FILTERS; i++)
 	{
-		if (!found && filter_list[i].len > 0)
+		if (filter_list[i].len > 0)
+		{
 			if (my_strcompare (filter_list[i].name, name))
 			{
+				local = filter_list[i].local;
 				filter_list[i].len = 0;
-				found = 1;
 				filtered_so_far--;
 				break;
 			}
+		}
 	}
 	
-	if (found)
+	if (local)
 	{
 		char local_filters[256];
 		snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
-		f = my_fopen(local_filters, "w");
+		f = my_fopen (local_filters, "w");
 		if (f != NULL)
 		{
 			for (i = 0; i < MAX_FILTERS; i++)
 			{
-				if (filter_list[i].len > 0)
+				if (filter_list[i].len > 0 && filter_list[i].local)
 					fprintf (f, "%s = %s\n", filter_list[i].name, filter_list[i].replacement);
 			}
 			fclose(f);
@@ -159,7 +166,7 @@ int check_if_filtered (const Uint8 *name)
 
 	for (i = 0; i < MAX_FILTERS; i++)
 	{
-		if (filter_list[i].len > 0)
+		if (filter_list[i].len > 0 && (use_global_filters || filter_list[i].local))
 		{
 			if (filter_list[i].wildcard_type==0)
 			{
@@ -315,7 +322,7 @@ int filter_text (Uint8 *buff, int len, int size)
 	}
 	
 	//do we need to do any content filtering?
-	if (MAX_FILTERS == 0) return len;
+	if (filtered_so_far == 0) return len;
 
 	// scan the text for any strings
 	new_len = len;
@@ -375,59 +382,63 @@ int filter_text (Uint8 *buff, int len, int size)
 }
 
 
-void load_filters_list(char * file_name)
+void load_filters_list (const char *file_name, char local)
 {
 	int f_size;
 	FILE *f = NULL;
-	Uint8 * filter_list_mem;
+	Uint8 *filter_list_mem;
 	int i,j;
 	Uint8 name[64];
 	Uint8 ch;
 
 	// don't use my_fopen, absence of filters is not an error
-	f = fopen(file_name, "rb");
-	if(!f)return;
-	fseek(f,0,SEEK_END);
-	f_size = ftell(f);
+	f = fopen (file_name, "rb");
+	if (f == NULL) return;
+	fseek (f, 0, SEEK_END);
+	f_size = ftell (f);
 
 	//ok, allocate memory for it
-	filter_list_mem=(Uint8 *)calloc(f_size, 1);
+	filter_list_mem = (Uint8 *) calloc (f_size, 1);
 	fseek (f, 0, SEEK_SET);
 	fread (filter_list_mem, 1, f_size, f);
 	fclose (f);
 
-	j=0;
-	i=0;
-	while(i<f_size)
+	j = 0;
+	i = 0;
+	while (i < f_size)
+	{
+		ch = filter_list_mem[i];
+		if (ch == '\n' || ch == '\r')
 		{
-			ch=filter_list_mem[i];
-			if(ch=='\n' || ch=='\r')
-				{
-					if(j)if(add_to_filter_list(name,0)==-1)return;//filter list full
-					j=0;
-					i++;
-					continue;
-				}
-			else
-				{
-					name[j]=ch;
-				}
-			name[j+1]=0;
-			j++;
+			if (j != 0)
+			{
+				if (add_to_filter_list (name, local, 0) == -1)
+					return; // filter list full
+			}
+			j = 0;
 			i++;
+			continue;
 		}
+		else
+		{
+			name[j] = ch;
+		}
+		name[j+1] = '\0';
+		j++;
+		i++;
+	}
 
-
-	free(filter_list_mem);
+	free (filter_list_mem);
 }
 
 
-void clear_filter_list()
+void clear_filter_list ()
 {
 	int i;
 	//see if this name is already on the list
-	for(i=0;i<MAX_FILTERS;i++)
-		filter_list[i].len=0;
+	for (i = 0; i < MAX_FILTERS; i++)
+		filter_list[i].len = 0;
+	filtered_so_far = 0;
 }
 
 
@@ -436,8 +447,8 @@ void load_filters()
 	char local_filters[256];
 	snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
 	clear_filter_list ();
-	load_filters_list (local_filters);
-	if (use_global_filters) load_filters_list ("global_filters.txt");
+	load_filters_list (local_filters, 1);
+	if (use_global_filters) load_filters_list ("global_filters.txt", 0);
 }
 
 void list_filters()
@@ -459,7 +470,7 @@ void list_filters()
 	sprintf(str,"%s:\n",filters_str);
 	for (i = 0; i < MAX_FILTERS; i++)
 	{
-		if (filter_list[i].len > 0)
+		if (filter_list[i].len > 0 && (use_global_filters || filter_list[i].local))
 		{
 			minlen = filter_list[i].len + filter_list[i].rlen + 5;
 			if (minlen >= size)
@@ -476,7 +487,7 @@ void list_filters()
 		}
 	}
 
-	str[strlen(str)-2] = '\0';//get rid of the last ", " thingy
+	str[strlen(str)-2] = '\0'; // get rid of the last ", " thingy
 	LOG_TO_CONSOLE (c_grey1,str);
 
 	free (str);

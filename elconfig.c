@@ -389,6 +389,16 @@ void change_shadow_mapping (int *sm)
 		LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
 	}
 }
+
+void change_global_filters (int *use)
+{
+	*use = !*use;
+	// load global filters when new value is true, but only when changed
+	// in game, not on startup
+	if (options_set && *use)
+		load_filters_list ("global_filters.txt", 0);
+}
+
 #endif // ELC
 #ifdef MAP_EDITOR
 
@@ -711,7 +721,7 @@ void init_vars()
 	
 	add_var(BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1,"Global Ignores","Global ignores is a list with people that are well known for being nasty, so we put them into a list (global_ignores.txt). Enable this to load that list on startup.",MISC);
 	add_var(BOOL,"save_ignores","sign",&save_ignores,change_var,1,"Save Ignores","Toggle saving of the local ignores list on exit.",MISC);
-	add_var(BOOL,"use_global_filters","gfil",&use_global_filters,change_var,1,"Global Filter","Toggle the use of global text filters.",MISC);
+	add_var (BOOL, "use_global_filters", "gfil", &use_global_filters, change_global_filters, 1, "Global Filter", "Toggle the use of global text filters.", MISC);
 	/* add_var(STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",MISC); */
 	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps filter","Toggle the caps filter",MISC);
 

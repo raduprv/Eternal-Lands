@@ -20,10 +20,11 @@ extern char storage_filter[128]; /*!< string to use as filter when using the #st
  *      Adds the given \a name to the list of filtered words. The parameter \a save_name indicates whether this entry should be persisted.
  *
  * \param name          the name to add to the list of filtered words
+ * \param local		flag indicating whether the filter is local, or global
  * \param save_name     inidicator whether to save this name in the configuration files.
  * \retval int
  */
-int add_to_filter_list(Uint8 *name, char save_name);
+int add_to_filter_list (const Uint8 *name, char local, char save_name);
 
 /*!
  * \ingroup actors_utils
@@ -34,7 +35,7 @@ int add_to_filter_list(Uint8 *name, char save_name);
  * \param name      the name to remove from the list.
  * \retval int
  */
-int remove_from_filter_list(Uint8 *name);
+int remove_from_filter_list (const Uint8 *name);
 
 /*!
  * \ingroup actors_utils
@@ -48,6 +49,18 @@ int remove_from_filter_list(Uint8 *name);
  * \callgraph
  */
 int filter_text (Uint8 *input_text, int len, int size);
+
+/*!
+ * \ingroup loadsave
+ * \brief Load a filter list from file
+ *
+ *	Loads a filter list from file \a file_name
+ *
+ * \param file_name	The name of the input file
+ * \param local		Whether to process the filters as global or local
+ * \callgraph
+ */
+void load_filters_list (const char *file_name, char local);
 
 /*!
  * \ingroup loadsave

@@ -231,46 +231,44 @@ void test_for_console_command (char *text, int len)
 			}
 		}
 
-	else if(my_strcompare(text_loc,"filters"))
+	else if (my_strcompare (text_loc, "filters"))
 		{
-			list_filters();
+			list_filters ();
 			return;
 		}
-	else if(my_strncompare(text_loc,"filter ", 7))
+	else if (my_strncompare(text_loc, "filter ", 7))
 		{
-			Uint8 name[16];
+			Uint8 name[256];
+			Uint8 str[100];
 			int i;
 			Uint8 ch='\0';
 			int result;
 
-			for (i = 0; i < 15; i++)
+			for (i = 0; i < sizeof (name) - 1; i++)
 			{
 				ch = text_loc[i+7]; // 7 because there is a space after "filter"
 				if (ch == '\0') break;
-				name[i]=ch;
+				name[i] = ch;
 			}
 			name[i] = '\0';
 
-			if (i>=15 && ch != '\0')
+			if (i >= sizeof (name) - 1 && ch != '\0')
 			{
-				Uint8 str[100];
-				snprintf (str, sizeof(str), "%s %s", word_too_long, not_added_to_filter);
+				snprintf (str, sizeof (str), "%s %s", word_too_long, not_added_to_filter);
 				LOG_TO_CONSOLE (c_red1, str);
 				return;
 			}
 			else if (i < 3)
 			{
-				Uint8 str[100];
-				snprintf (str, sizeof(str), "%s %s", word_too_short, not_added_to_filter);
+				snprintf (str, sizeof (str), "%s %s", word_too_short, not_added_to_filter);
 				LOG_TO_CONSOLE (c_red1, word_too_short);
 				return;
 			}
 
-			result = add_to_filter_list (name, save_ignores);
+			result = add_to_filter_list (name, 1, save_ignores);
 			if (result == -1)
 			{
-				Uint8 str[100];
-				snprintf (str, sizeof(str), already_filtering, name);
+				snprintf (str, sizeof (str), already_filtering, name);
 				LOG_TO_CONSOLE (c_red1, str);
 				return;
 			}
@@ -281,7 +279,6 @@ void test_for_console_command (char *text, int len)
 			}
 			else
 			{
-				Uint8 str[100];
 				snprintf (str, sizeof (str), added_to_filters, name);
 				LOG_TO_CONSOLE (c_green1, str);
 				return;
@@ -339,55 +336,51 @@ void test_for_console_command (char *text, int len)
 					return;
 				}
 		}
-	else if(my_strncompare(text_loc,"unfilter ",9))
+	else if (my_strncompare (text_loc, "unfilter ", 9))
 		{
-			Uint8 name[16];
+			Uint8 name[64];
+			Uint8 str[200];
 			int i;
 			Uint8 ch='\0';
 			int result;
 
-			for(i=0;i<15;i++)
+			for (i = 0; i < sizeof (name) - 1; i++)
+			{
+				ch = text_loc[i+9];//9 because there is a space after "filter"
+				if (ch==' ' || ch=='\0')
 				{
-					ch=text_loc[i+9];//9 because there is a space after "filter"
-					if(ch==' ' || ch=='\0')
-						{
-							ch=0;
-							break;
-						}
-					name[i]=ch;
+					ch = '\0';
+					break;
 				}
+				name[i]=ch;
+			}
+			name[i] = '\0';
 
-			name[i]=0;
-
-			if(i==15 && !ch)
-				{
-					Uint8 str[200];
-					snprintf(str,sizeof(str),"%s %s",word_too_long,not_removed_from_filter);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
-			if(i<3)
-				{
-					Uint8 str[200];
-					snprintf(str,sizeof(str),"%s %s",word_too_short,not_removed_from_filter);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
-			result=remove_from_filter_list(name);
-			if(result==-1)
-				{
-					Uint8 str[200];
-					snprintf(str,sizeof(str),not_filtering,name);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
+			if (i >= sizeof (name) - 1 && ch != '\0')
+			{
+				snprintf (str, sizeof (str), "%s %s", word_too_long, not_removed_from_filter);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
+			if (i < 3)
+			{
+				snprintf (str, sizeof (str), "%s %s", word_too_short, not_removed_from_filter);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
+			result = remove_from_filter_list (name);
+			if(result == -1)
+			{
+				snprintf (str, sizeof (str), not_filtering, name);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
 			else
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),removed_from_filter,name);
-					LOG_TO_CONSOLE(c_green1,str);
-					return;
-				}
+			{
+				snprintf (str, sizeof (str), removed_from_filter, name);
+				LOG_TO_CONSOLE (c_green1, str);
+				return;
+			}
 		}
 
 
