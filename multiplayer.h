@@ -122,7 +122,7 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 #ifdef NETWORK_THREAD
 int get_message_from_server(void *thread_args);
 
-void process_message_from_server(unsigned char *in_data, int data_length);
+void process_message_from_server(const Uint8 *in_data, int data_length);
 #else
 void get_message_from_server();
 #endif //NETWORK_THREAD
