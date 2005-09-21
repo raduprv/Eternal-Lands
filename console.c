@@ -475,14 +475,14 @@ void test_for_console_command (char *text, int len)
 
 			storage_filter[0] = '\0';
 
-			for (i = 0; i < len; i++)
+			for (i = 0; i < text_length; i++)
 				if (text_loc[i] == ' ') break;
 
-			if (i < len)
+			if (i < text_length)
 			{
 				if (i == 3 || (i == 7 && my_strncompare (text_loc, "storage", 7)))
 				{
-					int nb = len - i - 1;
+					int nb = text_length - i - 1;
 					if (nb > sizeof (storage_filter) - 1)
 						nb = sizeof (storage_filter) - 1;
 					my_strncp (storage_filter, &text_loc[i+1], nb);
