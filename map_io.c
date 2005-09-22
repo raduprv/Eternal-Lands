@@ -151,6 +151,7 @@ int save_map(char * file_name)
 					{
 						char * cur_3do_pointer=(char *)&cur_3d_obj_io;
 						int k=0;
+printf("saving %d\n",i);
 
 						//clear the object
 						for(k=0;k<(int)sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
@@ -336,16 +337,14 @@ int load_map(char * file_name)
 	fread(height_map, 1, tile_map_size_x*tile_map_size_y*6*6, f);
 
 	//read the 3d objects
-	for(i=0;i<obj_3d_no;i++)
-		{
-			char * cur_3do_pointer=(char *)&cur_3d_obj_io;
-			fread(cur_3do_pointer, 1, obj_3d_io_size, f);
+	for (i = 0; i < obj_3d_no; i++)
+	{
+		char *cur_3do_pointer = (char *)&cur_3d_obj_io;
+		
+		fread (cur_3do_pointer, 1, obj_3d_io_size, f);
 
-			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
-			cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
-			cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
-
-		}
+		add_e3d_keep_deleted (cur_3d_obj_io.file_name, cur_3d_obj_io.x_pos, cur_3d_obj_io.y_pos, cur_3d_obj_io.z_pos, cur_3d_obj_io.x_rot, cur_3d_obj_io.y_rot, cur_3d_obj_io.z_rot, cur_3d_obj_io.self_lit, cur_3d_obj_io.blended, cur_3d_obj_io.r, cur_3d_obj_io.g, cur_3d_obj_io.b);
+	}
 
 	//read the 2d objects
 	for(i=0;i<obj_2d_no;i++)

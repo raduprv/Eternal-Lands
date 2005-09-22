@@ -13,8 +13,13 @@
 #include <math.h>
 #include <time.h>
 
-#ifndef	__GNUC__	// or should we test for VC
-#define	snprintf _snprintf
+#if defined (_MSC_VER) || defined (__MINGW32__)
+	#define snprintf sane_snprintf
+#else
+	// should probably not be used
+	#ifndef	__GNUC__	// or should we test for VC
+		#define	snprintf _snprintf
+	#endif
 #endif
 
 #include <SDL.h>

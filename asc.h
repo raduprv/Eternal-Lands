@@ -14,4 +14,9 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * l);
 #else
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l);
 #endif
+
+#if defined(WINDOWS) && (defined(__MINGW32__) || defined(_MSC_VER))
+int sane_snprintf (char *str, size_t size, const char *format, ...);
+#endif
+
 #endif

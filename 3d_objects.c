@@ -282,21 +282,14 @@ e3d_object * load_e3d_cache(char * file_name)
 	return e3d_id;
 }
 
-int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
-			float x_rot, float y_rot, float z_rot, char self_lit, char blended,
-			float r, float g, float b)
+int add_e3d_at_id (int id, char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
 {
-	int i,len,k;
+	int len,k;
 	e3d_object *returned_e3d;
 	object3d *our_object;
-
-	//find a free spot, in the e3d_list
-	i=0;
-	while(i<max_obj_3d)
-		{
-			if(!objects_list[i]||objects_list[i]->blended==20)break;
-			i++;
-		}
+	
+	if (id < 0 || id >= max_obj_3d)
+		return 0;
 
 	//but first convert any '\' in '/'
 	len=strlen(file_name);
@@ -304,42 +297,77 @@ int add_e3d(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	returned_e3d=load_e3d_cache(file_name);
 	if(returned_e3d==NULL)
-		{
-            char str[120];
-            sprintf(str,"Error: Something nasty happened while trying to process: %s\n",file_name);
-            log_error(str);
+	{
+		char str[120];
+		sprintf (str, "Error: Something nasty happened while trying to process: %s\n", file_name);
+		log_error(str);
 
     		//replace it with the null object, to avoid object IDs corruption
-    		returned_e3d=load_e3d_cache("./3dobjects/misc_objects/badobject.e3d");
-    		if(returned_e3d==NULL)return 0;//umm, not even found the place holder, this is teh SUKC!!!
-		}
+    		returned_e3d = load_e3d_cache ("./3dobjects/misc_objects/badobject.e3d");
+    		if (returned_e3d == NULL)
+			return 0; // umm, not even found the place holder, this is teh SUKC!!!
+	}
 
 	// now, allocate the memory
-	our_object=(object3d*) calloc(1, sizeof(object3d));
+	our_object = calloc (1, sizeof(object3d));
 
 	// and fill it in
-	snprintf(our_object->file_name,80,"%s",file_name);
-	our_object->x_pos=x_pos;
-	our_object->y_pos=y_pos;
-	our_object->z_pos=z_pos;
+	snprintf (our_object->file_name, 80, "%s", file_name);
+	our_object->x_pos = x_pos;
+	our_object->y_pos = y_pos;
+	our_object->z_pos = z_pos;
 
-	our_object->x_rot=x_rot;
-	our_object->y_rot=y_rot;
-	our_object->z_rot=z_rot;
+	our_object->x_rot = x_rot;
+	our_object->y_rot = y_rot;
+	our_object->z_rot = z_rot;
 
-	our_object->r=r;
-	our_object->g=g;
-	our_object->b=b;
+	our_object->r = r;
+	our_object->g = g;
+	our_object->b = b;
 
-	our_object->clouds_uv=NULL;
+	our_object->clouds_uv = NULL;
 
-	our_object->self_lit=self_lit;
-	our_object->blended=blended;
+	our_object->self_lit = self_lit;
+	our_object->blended = blended;
 
-	our_object->e3d_data=returned_e3d;
+	our_object->e3d_data = returned_e3d;
 
-	objects_list[i]=our_object;
-	return i;
+	objects_list[id] = our_object;
+	return id;
+}
+
+int add_e3d (char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
+{
+	int id;
+
+	//find a free spot, in the e3d_list
+	id = 0;
+	while (id < max_obj_3d)
+	{
+		if (objects_list[id] == NULL || objects_list[id]->blended==20) 
+			break;
+		id++;
+	}
+	
+	if (id >= max_obj_3d) return 0;
+	return add_e3d_at_id (id, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b);
+}
+
+int add_e3d_keep_deleted (char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
+{
+	int id;
+
+	//find a free spot, in the e3d_list
+	id = 0;
+	while (id < max_obj_3d)
+	{
+		if (objects_list[id] == NULL) 
+			break;
+		id++;
+	}
+	
+	if (id >= max_obj_3d) return 0;
+	return add_e3d_at_id (id, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b);
 }
 
 void display_objects()
