@@ -281,6 +281,9 @@ char	reg_error_str[15],
 	gl_ext_not_found[100],
 	gl_ext_no_multitexture[150],
 	disabled_shadow_mapping[50],
+#ifdef	TERRAIN
+	disabled_normal_mapping[50],
+#endif	
 	fatal_error_str[10],
 	no_e3d_list[50],
 	enabled_vertex_arrays[50],
@@ -728,6 +731,9 @@ void init_errors()
 	add_xml_identifier(video,"extnotfound",gl_ext_not_found,"Couldn't find the %s extension, not using it...",sizeof(gl_ext_not_found));
 	add_xml_identifier(video,"multitex",gl_ext_no_multitexture,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...",sizeof(gl_ext_no_multitexture));
 	add_xml_identifier(video,"noshadowmapping",disabled_shadow_mapping,"Shadowmapping disabled (need newer hardware)",sizeof(disabled_shadow_mapping));
+#ifdef	TERRAIN
+	add_xml_identifier(video,"nonormalmapping",disabled_normal_mapping,"Normalmapping disabled (need newer hardware)",sizeof(disabled_normal_mapping));
+#endif	
 	add_xml_identifier(video,"invalid",invalid_video_mode,"Stop playing with the configuration file and select valid modes!",sizeof(invalid_video_mode));
 
 	//Rule errors

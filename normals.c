@@ -6,11 +6,10 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include <GL/gl.h>
 #include <malloc.h>
 #include <stdio.h>
+#include "global.h"
 #include "vmath.h"
-#include "normals.h"
 #include "simd.h"
 
 /*!
@@ -25,6 +24,10 @@ unsigned int normal_map_size_x;
  * The size of the normap map in y direction.
  */
 unsigned int normal_map_size_y;
+/*!
+ * Flag for normal mapping.
+ */
+unsigned int use_normal_mapping = 0;
 
 /*!
  * \ingroup 	display_utils

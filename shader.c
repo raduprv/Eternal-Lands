@@ -2,13 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <strings.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include "shader.h"
+#include "global.h"
 
 static inline void load_shader(GLhandleARB ShaderObject, char* filename, char* flags)
 {
-	unsigned int shader_size, buffer_size, flags_size;
+	int shader_size, buffer_size, flags_size;
 	FILE *file;
 	char* buffer;
 	
@@ -28,7 +26,7 @@ static inline void load_shader(GLhandleARB ShaderObject, char* filename, char* f
 	
 	fclose (file);
 	
-	glShaderSourceARB(ShaderObject, 1, &buffer, &buffer_size);
+	ELglShaderSourceARB(ShaderObject, 1, (const char**)&buffer, &buffer_size);
 
 #else
 	buffer = (char*)malloc(shader_size);
@@ -37,60 +35,39 @@ static inline void load_shader(GLhandleARB ShaderObject, char* filename, char* f
 	
 	fclose (file);
 	
-	glShaderSourceARB(ShaderObject, 1, &buffer, &shader_size);
+	ELglShaderSourceARB(ShaderObject, 1, &buffer, &shader_size);
 #endif	
 	free(buffer);
 }
 
 
-void printf_shader_log(GLhandleARB glObject)
-{
-	unsigned int blen, slen;
-	GLcharARB* InfoLog;
-	
-	glGetObjectParameterivARB(glObject, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
-	
-	if (blen > 1)
-	{
-		InfoLog = (GLcharARB*)malloc(blen*sizeof(GLcharARB));
-		glGetInfoLogARB(glObject, blen, &slen, InfoLog);
-		printf("\n%s\n", InfoLog);
-		free(InfoLog);		
-	}
-	else
-	{
-		printf("\n--\n");
-	}
-}
-
 GLhandleARB init_normal_mapping_shader()
 {
 	GLhandleARB ProgramObject, VertexShaderObject, FragmentShaderObject;
 
-	ProgramObject = glCreateProgramObjectARB();
+	ProgramObject = ELglCreateProgramObjectARB();
 
-	VertexShaderObject = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-	FragmentShaderObject = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+	VertexShaderObject = ELglCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+	FragmentShaderObject = ELglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
 	load_shader(VertexShaderObject, "shader/normal_mapping_vs.gls", "");
 	load_shader(FragmentShaderObject, "shader/normal_mapping_fs.gls", "");
 
-	glCompileShaderARB(VertexShaderObject);
-	glCompileShaderARB(FragmentShaderObject);
+	ELglCompileShaderARB(VertexShaderObject);
+	ELglCompileShaderARB(FragmentShaderObject);
 
-	glAttachObjectARB(ProgramObject, VertexShaderObject);
-	glAttachObjectARB(ProgramObject, FragmentShaderObject);	
+	ELglAttachObjectARB(ProgramObject, VertexShaderObject);
+	ELglAttachObjectARB(ProgramObject, FragmentShaderObject);	
 
-	glDeleteObjectARB(VertexShaderObject);
-	glDeleteObjectARB(FragmentShaderObject);
+	ELglDeleteObjectARB(VertexShaderObject);
+	ELglDeleteObjectARB(FragmentShaderObject);
 
-	glLinkProgramARB(ProgramObject);
-	printf_shader_log(ProgramObject);
+	ELglLinkProgramARB(ProgramObject);
 	return ProgramObject;
 }
 
 void free_shader(GLhandleARB ProgramObject)
 {
-	glDeleteObjectARB(ProgramObject);
+	ELglDeleteProgramsARB(1, &ProgramObject);
 }
 #endif

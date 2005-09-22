@@ -655,6 +655,13 @@ void init_gl_extensions()
 		 */
 	}
 
+#ifdef	TERRAIN
+	if (!have_ogsl_vertex_shader || !have_ogsl_pixel_shader)
+	{
+		use_normal_mapping=0;
+		LOG_TO_CONSOLE(c_red1,disabled_normal_mapping);
+	}
+#endif
 	CHECK_GL_ERRORS();
 }
 

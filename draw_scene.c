@@ -57,7 +57,7 @@ float clouds_movement_u=-8;
 float clouds_movement_v=-3;
 Uint32 last_clear_clouds=0;
 
-GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXTURE2_ARB;
+GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXTURE2_ARB,normal_map_unit=GL_TEXTURE3_ARB;
 
 Uint32 draw_delay = 0;
 

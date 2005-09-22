@@ -144,6 +144,9 @@ void change_poor_man(int *poor_man)
 		clouds_shadows=0;
 		use_shadow_mapping=0;
 		use_fog=0;
+#ifdef	TERRAIN
+		use_normal_mapping=0;
+#endif
 	}
 }
 
@@ -399,6 +402,26 @@ void change_global_filters (int *use)
 		load_filters_list ("global_filters.txt", 0);
 }
 
+#ifdef	TERRAIN
+void change_normal_mapping(int *nm)
+{
+	if (*nm)
+	{
+		*nm = 0;
+	}
+	else if (!options_set || (have_multitexture >= 4 && have_ogsl_vertex_shader && have_ogsl_pixel_shader))
+	{
+		// don't check if we have hardware support when OpenGL 
+		// extensions are not initialized yet.
+		*nm = 1;
+	}
+	else
+	{
+		LOG_TO_CONSOLE (c_red1, disabled_normal_mapping);
+	}
+}
+
+#endif
 #endif // ELC
 #ifdef MAP_EDITOR
 
@@ -682,7 +705,10 @@ void init_vars()
 	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",SPECIALVID);
 	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",SPECIALVID);
 	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",SPECIALVID,0,100);
-
+#ifdef	TERRAIN
+	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", VIDEO);
+#endif
+	
 	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",SPECIALVID);
 	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects",SPECIALVID);
 

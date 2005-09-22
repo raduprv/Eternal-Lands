@@ -37,6 +37,10 @@ extern int have_shaders;
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 
 extern int have_arb_shadow;
+#ifdef	TERRAIN
+extern int have_ogsl_pixel_shader;
+extern int have_ogsl_vertex_shader;
+#endif
 /*! @} */
 
 // Grum

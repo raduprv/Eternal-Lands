@@ -43,7 +43,7 @@ extern int read_mouse_now; /*!< flag to indicate to reread the status of the mou
 
 extern Uint32 draw_delay; /*< the number of milliseconds to wait after drawing a frame */
 
-extern GLenum base_unit,detail_unit,shadow_unit;
+extern GLenum base_unit,detail_unit,shadow_unit,normal_map_unit;
 
 /*!
  * \ingroup display

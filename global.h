@@ -151,4 +151,9 @@ typedef int point;
 #include "alphamap.h"
 #include "highlight.h"
 
+#ifdef TERRAIN
+	#include "normals.h"
+	#include "terrain.h"
+#endif
+
 #endif

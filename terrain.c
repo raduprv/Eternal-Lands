@@ -4,9 +4,9 @@
  * \ingroup 	display_utils
  * \brief 	Terrain calculation.
  */
-#include "simd.h"
-#include "normals.h"
 #include <zlib.h>
+#include "global.h"
+#include "simd.h"
 
 /*!
  * The hf-map is a float array of map_tile_size_x*map_tile_size_y size 
@@ -57,7 +57,7 @@ void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size
 
 	fread(&size, 1, sizeof(unsigned int), file);
 	buffer_size = size_x*size_y*sizeof(unsigned short);
-	file_size = size;//SDL_SwapLE32(size);
+	file_size = SDL_SwapLE32(size);
 
 	buffer = (unsigned char*)SIMD_MALLOC(size);
 	h_map = (unsigned short*)SIMD_MALLOC(buffer_size);
@@ -66,19 +66,14 @@ void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size
 	SIMD_FREE(buffer);
 
 #ifdef	OSX
-	swap_16_mem(h_map, buffer_size/2);
+//	swap_16_mem(h_map, buffer_size/2);
 #endif
 	init_normal_mapping(h_map, size_x, size_y, h_scale);
-	hf_map = (float*)SIMD_MALLOC(size_x*size_y*sizeof(float));	
+	hf_map = (float*)malloc((size_x/NORMALS_PER_VERTEX_X+1)*(size_y/NORMALS_PER_VERTEX_Y+1)*sizeof(float));
 
-#ifdef	USE_SSE
-	if (use_sse) calc_current_terrain_sse(h_map, size_x, size_y, h_scale, hf_map);
-	else calc_current_terrain(h_map, size_x, size_y, h_scale, hf_map);
-#else	
 	calc_current_terrain(h_map, size_x, size_y, h_scale, hf_map);
-#endif
 
-	SIMD_FREE(h_map);
+	free(h_map);
 }
 
 void free_terrain()
