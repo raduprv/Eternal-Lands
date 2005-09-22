@@ -187,6 +187,8 @@ static int colorry=COLOR_TOP+20,colorgy=COLOR_TOP+40,colorby=COLOR_TOP+60,colora
 #define PREVIEW_PARTICLE_STARTVEL 3
 #define PREVIEW_PARTICLE_ACC 4
 #define PREVIEW_PARTICLE_LIGHT 5
+#define PREVIEW_PARTICLE_SOUND 6
+
 static int preview_display_particle_handles=0;
 
 void draw_velocity(float x,float y,float z,float x2,float y2,float z2)
@@ -362,7 +364,7 @@ void display_particles_window_preview(window_info *win)
 int display_particles_window_handler(window_info *win)
 {
 	char temp[100];
-	char *preview_display_handle_strings[]={"Texture","Start position","Constraint","Start velocity","Acceleration","Lights"};
+	char *preview_display_handle_strings[]={"Texture","Start position","Constraint","Start velocity","Acceleration","Lights", "Sound"};
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
@@ -597,9 +599,20 @@ int display_particles_window_handler(window_info *win)
 			snprintf(temp,99,"b: %.2f",def.lightb);
 			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,temp,1);
 			break;
+		case PREVIEW_PARTICLE_SOUND:
+			snprintf (temp, sizeof (temp), "Sound number: %d", def.sound_nr);
+			draw_string (previewx + 2, sel_handle_bottom + 32, temp, 1);
+			draw_string (previewx + 2, sel_handle_bottom + 57, "Positional: ", 1);
+			draw_string (previewx + 2, sel_handle_bottom + 77, "Loops: ", 1);
+			break;
 		}
 	switch(preview_display_particle_handles)
-		{
+	{
+		case PREVIEW_PARTICLE_SOUND:
+			display_plus_minus (previewx2-pm_width, sel_handle_bottom + 30);
+			draw_checkbox (previewx2-pm_width, sel_handle_bottom+55, def.positional);
+			draw_checkbox (previewx2-pm_width, sel_handle_bottom+75, def.loop);
+			break;
 		case(PREVIEW_PARTICLE_LIGHT):
 			draw_checkbox(previewx+11*12-2,sel_handle_bottom+4,def.use_light);
 		case(PREVIEW_PARTICLE_STARTPOS):
@@ -612,7 +625,7 @@ int display_particles_window_handler(window_info *win)
 			display_plus_minus(previewx2-pm_width,sel_handle_bottom+70);
 		default:
 			display_plus_minus(previewx2-pm_width,sel_handle_bottom+30);
-		}
+	}
 
 	glColor3f(1.0f,1.0f,1.0f);
 	snprintf(temp,99,"System info: TTL==%i, #particles==%i",particles_list[part_sys]->ttl,particles_list[part_sys]->particle_count);
@@ -747,7 +760,7 @@ int check_particles_window_interface(window_info *win, int mx, int my)
 	maxy=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+50,mx,my);
 	maxz=check_plus_minus_hit(previewx2-pm_width,sel_handle_bottom+70,mx,my);
 	switch(preview_display_particle_handles)
-		{
+	{
 		case(PREVIEW_PARTICLE_STARTPOS):
 			if(minx==1)def.minx+=incr;
 			else if(minx==2)def.minx-=incr;
@@ -827,7 +840,19 @@ int check_particles_window_interface(window_info *win, int mx, int my)
 			}}
 	
 			break;
-		}
+		case PREVIEW_PARTICLE_SOUND:
+			if (maxx == 1 && def.sound_nr < 9) def.sound_nr++;
+			if (maxx == 2 && def.sound_nr > -1) def.sound_nr--;
+			if (mx > previewx2 - pm_width && mx < previewx2 - pm_width + 15 && my > sel_handle_bottom+55 && my < sel_handle_bottom+55+15)
+			{
+				def.positional = !def.positional;
+			}
+			if (mx > previewx2 - pm_width && mx < previewx2 - pm_width + 15 && my > sel_handle_bottom+75 && my < sel_handle_bottom+75+15)
+			{
+				def.loop = !def.loop;
+			}
+			break;
+	}
 
 	// We must make sure that we haven't set up values so that _no_ particles are created within the constraint (since that
 	// would make the system hang.)
@@ -868,7 +893,7 @@ int check_particles_window_interface(window_info *win, int mx, int my)
 		}
 
 	if(mx>previewx && mx<previewx2 && my>previewy2 && my<sel_handle_bottom)
-		preview_display_particle_handles=(preview_display_particle_handles+1)%6;
+		preview_display_particle_handles=(preview_display_particle_handles+1)%7;
 
 	// Save definition
 	if(mx>=10 && mx<=42 && my>=380 && my<=412)save_particle_def_file();
