@@ -78,6 +78,10 @@ extern GLhandleARB (APIENTRY * ELglCreateProgramObjectARB)(void);
 extern void (APIENTRY * ELglAttachObjectARB)(GLhandleARB program, GLhandleARB shader);
 extern void (APIENTRY * ELglLinkProgramARB)(GLhandleARB program);
 extern void (APIENTRY * ELglUseProgramObjectARB)(GLhandleARB program);
+#ifdef	TERRAIN
+extern GLint (APIENTRY * ELglGetUniformLocationARB)(GLhandleARB program, const char * name);
+extern void (APIENTRY * ELglUniform1iARB)(GLint location, GLint v0);
+#endif
 /*! @} */
 
 /*!

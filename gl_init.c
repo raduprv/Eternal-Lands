@@ -71,6 +71,10 @@ GLhandleARB (APIENTRY * ELglCreateProgramObjectARB)(void);
 void (APIENTRY * ELglAttachObjectARB)(GLhandleARB program, GLhandleARB shader);
 void (APIENTRY * ELglLinkProgramARB)(GLhandleARB program);
 void (APIENTRY * ELglUseProgramObjectARB)(GLhandleARB program);
+#ifdef	TERRAIN
+GLint (APIENTRY * ELglGetUniformLocationARB)(GLhandleARB program, const char * name);
+void (APIENTRY * ELglUniform1iARB)(GLint location, GLint v0);
+#endif
 
 void setup_video_mode(int fs, int mode)
 {
@@ -489,6 +493,10 @@ void init_gl_extensions()
 	ELglAttachObjectARB=SDL_GL_GetProcAddress("glAttachObjectARB");
 	ELglLinkProgramARB=SDL_GL_GetProcAddress("glLinkProgramARB");
 	ELglUseProgramObjectARB=SDL_GL_GetProcAddress("glUseProgramObjectARB");
+#ifdef	TERRAIN
+	ELglGetUniformLocationARB=SDL_GL_GetProcAddress("glGetUniformLocationARB");
+	ELglUniform1iARB=SDL_GL_GetProcAddress("glUniform1iARB");
+#endif
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
@@ -636,23 +644,39 @@ void init_gl_extensions()
 	//Test for OGSL
 	if(ELglCreateShaderObjectARB && ELglShaderSourceARB && ELglCompileShaderARB && ELglCreateProgramObjectARB &&
 	   ELglAttachObjectARB && ELglLinkProgramARB && ELglUseProgramObjectARB && 
+#ifdef	TERRAIN
+	   ELglGetUniformLocationARB && ELglUniform1iARB &&
+#endif
 	   strstr(extensions,"GL_ARB_shader_objects") && strstr(extensions, "GL_ARB_shading_language_100")){
 		if(strstr(extensions,"GL_ARB_vertex_shader")){
+#ifdef	TERRAIN
+			snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_vertex_shader");
+#else
 			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_vertex_shader");
+#endif
 			LOG_TO_CONSOLE(c_green2, str);
 			have_ogsl_vertex_shader=1;
 		}
 		
 		if(strstr(extensions,"GL_ARB_fragment_shader")){
+#ifdef	TERRAIN
+			snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_fragment_shader");
+#else
 			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_fragment_shader");
+#endif
 			LOG_TO_CONSOLE(c_green2, str);
 			have_ogsl_pixel_shader=1;
 		}
 	} else {
+#ifdef	TERRAIN
+		snprintf(str,sizeof(str),gl_ext_not_found,"OpenGL Shading Language");
+		LOG_TO_CONSOLE(c_green2, str);
+#else
 		/*
 		 * snprintf(str,sizeof(str),gl_ext_not_found,"OpenGL Shading Language");
 		 * LOG_TO_CONSOLE(c_green2, str);
 		 */
+#endif
 	}
 
 #ifdef	TERRAIN

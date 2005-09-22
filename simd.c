@@ -1,3 +1,4 @@
+#ifdef	TERRAIN
 /*!
  * \file
  * \ingroup 	misc_utils
@@ -5,7 +6,6 @@
  */
 #ifdef	USE_SSE
 #include "cpuid.h"
-
 
 /*!
  * The use_sse stores if we can use sse.
@@ -27,4 +27,5 @@ void init_sse()
 	if (simd >= get_sse()) use_sse = 1;
 	else use_sse = 0;
 }
+#endif
 #endif

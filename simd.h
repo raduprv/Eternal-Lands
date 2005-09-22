@@ -1,3 +1,4 @@
+#ifdef	TERRAIN
 /*!
  * \file
  * \ingroup 	misc_utils
@@ -48,4 +49,5 @@ extern void init_sse();
 
 #define use_low_mem 0
 
+#endif
 #endif

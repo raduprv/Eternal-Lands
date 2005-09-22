@@ -161,10 +161,10 @@ void draw_tile_map()
 			glBindTexture(GL_TEXTURE_2D, last_normal_map);
 			
 			//enable shader
-//			glUseProgramObjectARB(ProgramObject);
-//			glUniform1iARB(glGetUniformLocationARB(ProgramObject, "base_texture"), base_unit-GL_TEXTURE0_ARB);
-//			glUniform1iARB(glGetUniformLocationARB(ProgramObject, "detail_texture"), detail_unit-GL_TEXTURE0_ARB);
-//			glUniform1iARB(glGetUniformLocationARB(ProgramObject, "normal_texture"), normal_map_unit-GL_TEXTURE0_ARB);
+//			ELglUseProgramObjectARB(ProgramObject);
+//			ELglUniform1iARB(ELglGetUniformLocationARB(ProgramObject, "base_texture"), base_unit-GL_TEXTURE0_ARB);
+//			ELglUniform1iARB(ELglGetUniformLocationARB(ProgramObject, "detail_texture"), detail_unit-GL_TEXTURE0_ARB);
+//			ELglUniform1iARB(ELglGetUniformLocationARB(ProgramObject, "normal_texture"), normal_map_unit-GL_TEXTURE0_ARB);
 		}
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
