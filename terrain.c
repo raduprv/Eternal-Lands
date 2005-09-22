@@ -1,0 +1,89 @@
+#ifdef	TERRAIN
+/*!
+ * \file
+ * \ingroup 	display_utils
+ * \brief 	Terrain calculation.
+ */
+#include "simd.h"
+#include "normals.h"
+#include <zlib.h>
+
+/*!
+ * The hf-map is a float array of map_tile_size_x*map_tile_size_y size 
+ * storing the height for the vertexes of the terrain.
+ */
+float *hf_map;
+
+/*! 
+ * \ingroup 	display_utils
+ * \brief 	Calculates the current height map for the vertexes of the terrain.
+ *
+ * Calculates the current height map for the vertexes of the terrain without
+ * SIMD instructions. Just works up to 12 bit unsigned short data.
+ * \param 	map_data The terrain height map.
+ * \param 	size_x The size of the terrain height map in x direction. Must be a multiple of four.
+ * \param 	size_y The size of the terrain height map in y direction. Must be a multiple of four.
+ * \param 	h_scale The scale of the terrain height (z direction).
+ * \param 	h_map The height map used for the vertexes of the terrain.
+ *  
+ * \callgraph
+ */
+static inline void calc_current_terrain(unsigned short* map_data, const unsigned int size_x,
+		const unsigned int size_y, const float h_scale, float* h_map)
+{
+	unsigned int i, j, tmp, index;
+ 	
+	index = 0;
+	for (i = 0; i < size_y; i += 4)
+	{
+		for (j = 0; j < size_x; j += 4)
+		{
+			tmp = map_data[i*size_x+j];
+			h_map[index] = tmp*(h_scale);
+			index++;
+		}
+	}
+}
+
+void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size_y)
+{
+	unsigned long file_size, buffer_size;
+	unsigned int size;
+	unsigned short *h_map;
+	unsigned char *buffer;
+	float h_scale;
+	
+	h_scale = 0.25f;
+
+	fread(&size, 1, sizeof(unsigned int), file);
+	buffer_size = size_x*size_y*sizeof(unsigned short);
+	file_size = size;//SDL_SwapLE32(size);
+
+	buffer = (unsigned char*)SIMD_MALLOC(size);
+	h_map = (unsigned short*)SIMD_MALLOC(buffer_size);
+	fread(buffer, 1, size, file);
+	uncompress ((unsigned char*)h_map, &buffer_size, buffer, file_size);
+	SIMD_FREE(buffer);
+
+#ifdef	OSX
+	swap_16_mem(h_map, buffer_size/2);
+#endif
+	init_normal_mapping(h_map, size_x, size_y, h_scale);
+	hf_map = (float*)SIMD_MALLOC(size_x*size_y*sizeof(float));	
+
+#ifdef	USE_SSE
+	if (use_sse) calc_current_terrain_sse(h_map, size_x, size_y, h_scale, hf_map);
+	else calc_current_terrain(h_map, size_x, size_y, h_scale, hf_map);
+#else	
+	calc_current_terrain(h_map, size_x, size_y, h_scale, hf_map);
+#endif
+
+	SIMD_FREE(h_map);
+}
+
+void free_terrain()
+{
+	free_normal_mapping();	
+	SIMD_FREE(hf_map);
+}
+#endif
