@@ -38,6 +38,10 @@ void reset_def()
 	def.use_light=0;
 	def.lightx=def.lighty=def.lightz=0;
 	def.lightr=def.lightg=def.lightb=0;
+	
+	def.sound_nr = -1;
+	def.positional = 0;
+	def.loop = 0;
 }
 
 void set_and_draw_particle_lights(){
