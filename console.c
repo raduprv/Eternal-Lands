@@ -159,11 +159,11 @@ void test_for_console_command (char *text, int len)
 			char extra[20];
 			if(client_version_patch > 0)
 				{
-					snprintf(extra,sizeof(extra),"p%d Beta",client_version_patch);
+					snprintf(extra,sizeof(extra),"p%d Beta %s",client_version_patch, DEF_INFO);
 				}
 			else
 				{
-					snprintf(extra,sizeof(extra)," Beta");
+					snprintf(extra,sizeof(extra)," Beta %s", DEF_INFO);
 				}
 			snprintf(str, sizeof(str), "Eternal Lands Version %d.%d.%d%s", client_version_major, client_version_minor, client_version_release, extra);
 			LOG_TO_CONSOLE(c_green1,str);

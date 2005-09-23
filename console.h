@@ -6,6 +6,10 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
+#ifndef DEF_INFO
+#define DEF_INFO ""
+#endif
+
 extern char	auto_open_encyclopedia; /*!< flag, that indicates whether the encyclopedia window should be opened automatically upon startup of the client */
 
 /*!
