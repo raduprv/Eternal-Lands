@@ -540,106 +540,95 @@ void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int l
 {
 	int i;
 	Uint8 cur_char;
-	int last_text=0;
+	int last_text = 0;
 	int x_chars_limit;
 
 	// force the color
-	if(*text_to_add < 127 || *text_to_add > 127+c_grey4)
-		{
-			buffer[last_text]=127+color;
-			last_text++;
-		}
+	if (!IS_COLOR (text_to_add[0]))
+		buffer[last_text++] = 127 + color;
+	
 	//see if the text fits on the screen
-	x_chars_limit=pixels_limit/8;
-	if(len<=x_chars_limit)
+	x_chars_limit = pixels_limit / 8;
+	if (len <= x_chars_limit)
+	{
+		for (i = 0; i < len; i++)
 		{
-			for(i=0;i<len;i++)
+			cur_char = text_to_add[i];
+
+			if (cur_char == '\0')
+				break;
+
+			buffer[last_text++] = cur_char;
+		}
+		if (last_text > 0 && buffer[last_text-1] != '\n')
+			buffer[last_text++] = '\n';
+		buffer[last_text] = '\0';
+	}
+	else //we have to add new lines to our text...
+	{
+		int k;
+		int new_line_pos = 0;
+		char semaphore = 0;
+		Uint8 current_color = 127 + color;
+
+		// go trought all the text
+		for (i = 0; i < len; i++)
+		{
+			if (!semaphore && new_line_pos + x_chars_limit < len) //don't go through the last line
+			{
+				//find the closest space from the end of this line
+				//if we have one really big word, then parse the string from the
+				//end of the line backwards, untill the beginning of the line +2
+				//the +2 is so we avoid parsing the ": " thing...
+				for (k = new_line_pos + x_chars_limit - 1; k > new_line_pos + 2; k--)
 				{
-					cur_char=text_to_add[i];
-
-					if(!cur_char)
-						{
-							i--;
-							break;
-						}
-
-					buffer[i+last_text]=cur_char;
+					cur_char = text_to_add[k];
+					if (k > len) continue;
+					if (cur_char == ' ' || cur_char == '\n')
+					{
+						k++; // let the space on the previous line
+						break;
+					}
 				}
-			buffer[last_text+i]='\n';
-			buffer[last_text+i+1]=0;
+				if (k == new_line_pos + 2)
+					new_line_pos += x_chars_limit;
+				else
+					new_line_pos = k;
+				semaphore = 1;
+			}
+
+			cur_char = text_to_add[i];
+			if (cur_char == '\0') break;
+
+			if (IS_COLOR (cur_char)) // we have a color, save it
+			{
+				current_color = cur_char;
+				if (last_text > 0 && IS_COLOR ((Uint8)buffer[last_text-1]))
+					last_text--;
+			}
+			else if (cur_char == '\n')
+			{
+				new_line_pos = i;
+			}
+
+			if (i == new_line_pos)
+			{
+				buffer[last_text++] = '\n';
+				// don't add color codes after the last newline
+				if (i < len-1)
+					buffer[last_text++] = current_color;
+				semaphore = 0;
+			}
+			//don't add another new line, if the current char is already a new line...
+			if (cur_char != '\n')
+				buffer[last_text++] = cur_char;
 
 		}
-	else//we have to add new lines to our text...
-		{
-			int line=0;
-			int k,j;
-			int new_line_pos=0;
-			int text_lines;
-			char semaphore=0;
-			unsigned char current_color=127+color;
-
-			//how many lines of text do we have?
-			text_lines=len/x_chars_limit;
-			//go trought all the text
-			j=0;
-			for(i=0;i<len;i++)
-				{
-					if(!semaphore && new_line_pos+x_chars_limit<len)//don't go through the last line
-						{
-							//find the closest space from the end of this line
-							//if we have one really big word, then parse the string from the
-							//end of the line backwards, untill the beginning of the line +2
-							//the +2 is so we avoid parsing the ": " thing...
-							for(k=new_line_pos+x_chars_limit-1;k>new_line_pos+2;k--)
-								{
-									cur_char=text_to_add[k];
-									if(k>len)continue;
-									if(cur_char==' ' || cur_char=='\n')
-										{
-											k++;//let the space on the previous line
-											break;
-										}
-								}
-							if(k==new_line_pos+2)
-								new_line_pos=new_line_pos+x_chars_limit;
-							else new_line_pos=k;
-							line++;
-							semaphore=1;
-						}
-
-					cur_char=text_to_add[i];
-
-					if(!cur_char)
-						{
-							j--;
-							break;
-						}
-
-					if(cur_char>=127 && cur_char <= 127+c_grey4)	//we have a color, save it
-						current_color=cur_char;
-					else if(cur_char=='\n')
-						new_line_pos=i;
-
-					if(i==new_line_pos)
-						{
-							buffer[j+last_text]='\n';
-							j++;
-							buffer[j+last_text]=current_color;
-							j++;
-							semaphore=0;
-						}
-					//don't add another new line, if the current char is already a new line...
-					if(cur_char!='\n')
-						{
-							buffer[j+last_text]=cur_char;
-							j++;
-						}
-
-				}
-			buffer[last_text+j]='\n';
-			buffer[last_text+j+1]=0;
-			last_text+=j+1;
-		}
+		// don't add extra newlines if there already is one
+		if (last_text > 0 && buffer[last_text-1] != '\n')
+			buffer[last_text++] = '\n';
+		buffer[last_text] = '\0';
+	}
 }
 
 

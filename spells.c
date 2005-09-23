@@ -618,7 +618,7 @@ void process_network_spell (const char *data, int len)
 	}
 }
 
-void load_quickspells()
+void load_quickspells ()
 {
 	Uint8 fname[256];
 	char data[MAX_DATA_FILE_SIZE];
@@ -642,14 +642,15 @@ void load_quickspells()
 		if(!fp)return;
 	}
 
-	fread(data, sizeof(data), sizeof(char), fp);
+	fread (data, sizeof(data), 1, fp);
+	fclose (fp);
 	
-	for(i=1;i<(int)data[0];i++){
-		mqb_data[i]=(mqbdata*)calloc(1,sizeof(mqbdata));
-		memcpy(mqb_data[i], data+1+(i-1)*sizeof(mqbdata), sizeof(mqbdata));
+	memset (mqb_data, 0, sizeof (mqb_data));
+	for (i = 1; i < (int)data[0]; i++)
+	{
+		mqb_data[i] = (mqbdata*) calloc (1, sizeof(mqbdata));
+		memcpy (mqb_data[i], data+1+(i-1)*sizeof(mqbdata), sizeof(mqbdata));
 	}
-
-	fclose(fp);
 }
 
 void save_quickspells()
@@ -677,16 +678,14 @@ void save_quickspells()
 		if(!fp)return;
 	}
 
-	for(i=1;i<7;i++) if(!mqb_data[i]) break;
-
-	data[0]=i;
-	
-	for(i=1;i<7;i++){
-		if(!mqb_data[i])break;
-		memcpy(data+1+(i-1)*sizeof(mqbdata), mqb_data[i],sizeof(mqbdata));
+	for (i = 1; i < 7; i++)
+	{
+		if (mqb_data[i] == NULL) break;
+		memcpy (data+1+(i-1)*sizeof(mqbdata), mqb_data[i], sizeof(mqbdata));
 	}
+	data[0] = i;
 
-	fwrite(data, sizeof(data), sizeof(char), fp);
+	fwrite(data, sizeof(data), 1, fp);
 	
 	fclose(fp);
 }
