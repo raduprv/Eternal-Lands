@@ -155,8 +155,8 @@ void test_for_console_command (char *text, int len)
 		}
 	else if(my_strcompare(text_loc,"ver") || my_strcompare(text_loc,"vers"))
 		{
-			char str[128];
-			char extra[20];
+			char str[250];
+			char extra[100];
 			if(client_version_patch > 0)
 				{
 					snprintf(extra,sizeof(extra),"p%d Beta %s",client_version_patch, DEF_INFO);
