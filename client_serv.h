@@ -603,6 +603,7 @@
 #define GET_3D_OBJ_LIST 74
 #define GET_3D_OBJ 75
 #define REMOVE_3D_OBJ 76
+#define COOLDOWN 77
 
 // reserved for future expansion 220-229, not being used in the server yet
 #define MAP_SET_OBJECTS 220

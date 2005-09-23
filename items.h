@@ -18,6 +18,7 @@ typedef struct
 	int is_resource; /*!< does it appear on the manufacturing menu? */
 	int use_with_inventory;
 	int is_stackable;
+	int cooldown;
 } item;
 
 /*!
@@ -203,5 +204,17 @@ void remove_item_from_inventory(int pos);
  * \bug Assumes that \a data is valid and not NULL and does not perform any sanity checks.
  */
 void get_new_inventory_item (const Uint8 *data);
+
+/*!
+ * \ingroup item
+ * \brief   Updates the cooldown value of an inventory item.
+ *
+ *      Updates the cooldown value of an inventory item.
+ *
+ * \param pos      the position in inventory
+ * \param cooldown the new cooldown value
+ *
+ */
+void update_cooldown(int pos, int cooldown);
 
 #endif

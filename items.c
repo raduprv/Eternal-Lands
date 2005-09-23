@@ -3,6 +3,8 @@
 #include "global.h"
 #include "elwindows.h"
 
+#define MAX_COOLDOWN 100
+
 item item_list[ITEM_NUM_ITEMS];
 
 struct quantities quantities = {
@@ -248,6 +250,7 @@ void get_your_items (const Uint8 *data)
 	for(i=0;i<total_items;i++){
 		pos=data[i*8+1+6];
 		item_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data+i*8+1)));
+		item_list[pos].cooldown = 0;
 		item_list[pos].quantity=SDL_SwapLE32(*((Uint32 *)(data+i*8+1+2)));
 		item_list[pos].pos=pos;
 		flags=data[i*8+1+7];
@@ -256,6 +259,7 @@ void get_your_items (const Uint8 *data)
 		item_list[pos].is_reagent=((flags&ITEM_REAGENT)>0);
 		item_list[pos].use_with_inventory=((flags&ITEM_INVENTORY_USABLE)>0);
 		item_list[pos].is_stackable=((flags&ITEM_STACKABLE)>0);
+
 	}
 
 	build_manufacture_list();
@@ -282,6 +286,7 @@ void get_new_inventory_item (const Uint8 *data)
 
 	item_list[pos].quantity=quantity;
 	item_list[pos].image_id=image_id;
+	item_list[pos].cooldown = 0;
 	item_list[pos].pos=pos;
 
 	item_list[pos].is_resource=((flags&ITEM_RESOURCE)>0);
@@ -324,6 +329,10 @@ int display_items_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end;
+			float cooldown = ((float) item_list[i].cooldown) / MAX_COOLDOWN;
+
+			if (cooldown < 0.0f) cooldown = 0.0f;
+			else if (cooldown > 1.0f) cooldown = 1.0f;
 
 			//get the UV coordinates.
 			cur_item=item_list[i].image_id%25;
@@ -356,6 +365,37 @@ int display_items_handler(window_info *win)
 			glBegin(GL_QUADS);
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
+
+			if (cooldown > 0.0f) {
+				glDisable(GL_TEXTURE_2D);
+				glEnable(GL_BLEND);
+				
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glBegin(GL_QUADS);
+					int x_bar = x_end - 5;
+					int y_bar = (int) (0.5f + cooldown*y_start + (1.0f - cooldown)*y_end);
+
+					glColor4f(0.0f, 0.0f, 0.0f, 0.5f*cooldown);
+					glVertex2i(x_start, y_start);
+					glVertex2i(x_start, y_end);
+					glVertex2i(x_end, y_end);
+					glVertex2i(x_end, y_start);
+
+					glColor4f(0.5f, 0.0f, 0.0f, 1.0f);
+					glVertex2i(x_bar, y_bar);
+					glVertex2i(x_bar, y_end);
+					glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+					glVertex2i(x_end, y_end);
+					glVertex2i(x_end, y_bar);
+
+					glColor3f(1.0f, 1.0f, 1.0f);
+				glEnd();
+
+				glDisable(GL_BLEND);
+				glEnable(GL_TEXTURE_2D);
+
+				
+			}
 			
 			if(!item_is_weared){
 				snprintf(str,sizeof(str),"%i",item_list[i].quantity);
@@ -728,5 +768,11 @@ void display_items_menu()
 	} else {
 		show_window(items_win);
 		select_window(items_win);
+	}
+}
+
+void update_cooldown(int pos, int cooldown) {
+	if (pos >= 0 && pos < ITEM_NUM_ITEMS) {
+		item_list[pos].cooldown = cooldown;
 	}
 }
