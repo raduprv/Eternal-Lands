@@ -366,15 +366,16 @@ int display_items_handler(window_info *win)
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			if (cooldown > 0.0f) {
+			if (cooldown > 0.0f)
+			{
+				int x_bar = x_end - 5;
+				int y_bar = (int) (0.5f + cooldown*y_start + (1.0f - cooldown)*y_end);
+
 				glDisable(GL_TEXTURE_2D);
 				glEnable(GL_BLEND);
 				
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_QUADS);
-					int x_bar = x_end - 5;
-					int y_bar = (int) (0.5f + cooldown*y_start + (1.0f - cooldown)*y_end);
-
 					glColor4f(0.0f, 0.0f, 0.0f, 0.5f*cooldown);
 					glVertex2i(x_start, y_start);
 					glVertex2i(x_start, y_end);
@@ -393,8 +394,6 @@ int display_items_handler(window_info *win)
 
 				glDisable(GL_BLEND);
 				glEnable(GL_TEXTURE_2D);
-
-				
 			}
 			
 			if(!item_is_weared){

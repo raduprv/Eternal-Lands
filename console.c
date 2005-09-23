@@ -289,52 +289,48 @@ void test_for_console_command (char *text, int len)
 	else if(my_strncompare(text_loc,"unignore ",9))
 		{
 			Uint8 name[16];
+			Uint8 str[200];
 			int i;
 			Uint8 ch='\0';
 			int result;
 
-			for(i=0;i<15;i++)
+			for (i = 0; i < 15; i++)
+			{
+				ch = text_loc[i+9];//9 because there is a space after "ignore"
+				if (ch == ' ' || ch == '\0')
 				{
-					ch=text_loc[i+9];//9 because there is a space after "ignore"
-					if(ch==' ' || ch=='\0')
-						{
-							ch=0;
-							break;
-						}
-					name[i]=ch;
+					ch = '\0';
+					break;
 				}
+				name[i]=ch;
+			}
+			name[i] = '\0';
 
-			name[i]=0;
-
-			if(i==15 && !ch)
-				{
-					Uint8 str[200];
-					snprintf(str,sizeof(str),"%s %s",name_too_long,not_removed_from_ignores);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
-			if(i<3)
-				{
-					Uint8 str[200];
-					snprintf(str,sizeof(str),"%s %s",name_too_short,not_removed_from_filter);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
-			result=remove_from_ignore_list(name);
-			if(result==-1)
-				{
-					Uint8 str[200];
-					snprintf(str,sizeof(str),not_ignoring,name);
-					LOG_TO_CONSOLE(c_red1,str);
-					return;
-				}
+			if (i==15 && ch != '\0')
+			{
+				snprintf (str, sizeof (str), "%s %s", name_too_long, not_removed_from_ignores);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
+			if (i < 3)
+			{
+				snprintf (str, sizeof (str), "%s %s", name_too_short, not_removed_from_filter);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
+			result = remove_from_ignore_list (name);
+			if (result == -1)
+			{
+				snprintf (str, sizeof (str), not_ignoring, name);
+				LOG_TO_CONSOLE (c_red1, str);
+				return;
+			}
 			else
-				{
-					Uint8 str[100];
-					snprintf(str,sizeof(str),removed_from_ignores,name);
-					LOG_TO_CONSOLE(c_green1,str);
-					return;
-				}
+			{
+				snprintf (str, sizeof (str), removed_from_ignores, name);
+				LOG_TO_CONSOLE (c_green1, str);
+				return;
+			}
 		}
 	else if (my_strncompare (text_loc, "unfilter ", 9))
 		{
