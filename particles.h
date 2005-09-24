@@ -282,6 +282,8 @@ void add_teleporters_from_list (const Uint8 *teleport_list);
  * \callgraph
  */
 int save_particle_def(particle_sys_def *def);
+#elif defined(MAP_EDITOR2)
+int save_particle_def(particle_sys_def *def);
 #endif
 
 #endif

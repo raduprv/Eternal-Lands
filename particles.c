@@ -3,11 +3,7 @@
 #ifndef WINDOWS
  #include <locale.h>
 #endif
-#ifdef MAP_EDITOR
- #include "../map_editor/global.h"
-#else
  #include "global.h"
-#endif
 #include "string.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -214,6 +210,9 @@ particle_sys_def *load_particle_def(const char *filename)
 	return def;
 }
 
+#ifdef MAP_EDITOR2
+#define MAP_EDITOR
+#endif
 #ifdef MAP_EDITOR
 int save_particle_def(particle_sys_def *def)
 {
@@ -257,6 +256,9 @@ int save_particle_def(particle_sys_def *def)
 	fclose(f);
 	return 1;
 }
+#endif
+#ifdef MAP_EDITOR2
+#undef MAP_EDITOR
 #endif
 
 /*******************************************************************
@@ -1057,7 +1059,11 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 
 			//mark the teleporter as an unwalkable so that the pathfinder
 			//won't try to plot a path through it
+#ifdef MAP_EDITOR
+#elif defined(MAP_EDITOR2)
+#else
 			pf_tile_map[teleport_y*tile_map_size_x*6+teleport_x].z = 0;
+#endif
 		}
 	UNLOCK_PARTICLES_LIST();
 
