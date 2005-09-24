@@ -87,6 +87,9 @@ void destroy_map()
 				}
 		}
 
+#ifdef	TERRAIN
+	free_terrain();
+#endif
 }
 
 int get_cur_map (const char * file_name)
@@ -375,7 +378,10 @@ int load_map (const char * file_name)
 				update_loading_win(NULL, 0);
 			}
 		}
-
+#ifdef	TERRAIN
+	init_terrain(f, tile_map_size_x*6*4, tile_map_size_y*6*4);
+#endif
+	
 	fclose(f);
 	update_loading_win("building sectors", 20);
 	sector_add_map();

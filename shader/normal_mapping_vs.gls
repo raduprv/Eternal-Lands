@@ -1,15 +1,29 @@
 varying vec3 light_dir;
+varying vec3 eyepos;
 
 void main()
 {
+	vec4 tmp;
+
+	tmp = gl_ModelViewMatrix * gl_Vertex;
+	eyepos = vec3(tmp)/tmp.w;
+	
 #ifdef	DAY
 	light_dir = normalize(vec3(gl_LightSource[0].position));
 #else
-	light_dir = normalize(vec3(gl_LightSource[0].position - gl_ModelViewMatrix * gl_Vertex));
+	light_dir = -normalize(vec3(gl_LightSource[3].position - gl_ModelViewMatrix * gl_Vertex));
 #endif
 	
 	gl_TexCoord[0] = gl_MultiTexCoord0;
 	gl_TexCoord[1] = gl_MultiTexCoord1;
+	gl_TexCoord[2] = gl_MultiTexCoord2;
+	gl_TexCoord[3] = gl_MultiTexCoord3;
+
+	gl_TexCoord[0] = gl_TextureMatrix[0]*gl_TexCoord[0];
+	gl_TexCoord[1] = gl_TextureMatrix[1]*gl_TexCoord[1];
+	gl_TexCoord[2] = gl_TextureMatrix[2]*gl_TexCoord[2];
+	gl_TexCoord[3] = gl_TextureMatrix[3]*gl_TexCoord[3];
+	
 	gl_Position = ftransform();
 }
 

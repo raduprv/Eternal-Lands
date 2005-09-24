@@ -28,6 +28,10 @@ unsigned int normal_map_size_y;
  * Flag for normal mapping.
  */
 unsigned int use_normal_mapping = 0;
+/*!
+ * Shader for normal mapping.
+ */
+GLhandleARB normal_mapping_shader;
 
 /*!
  * \ingroup 	display_utils
@@ -78,14 +82,14 @@ static inline void build_normal_texures(VECTOR4* normal_map, const unsigned int 
 							NORMAL_TEXTURE_MAX_X*sizeof(VECTOR4));
 				}
 			}
-			
+
 			index = i*x_count+j;
-			
+		
 			glBindTexture(GL_TEXTURE_2D, normal_map_IDs[index]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA12, NORMAL_TEXTURE_MAX_X, NORMAL_TEXTURE_MAX_Y, 0, GL_RGBA,
-				GL_FLOAT, normal_texture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB10, NORMAL_TEXTURE_MAX_X, NORMAL_TEXTURE_MAX_Y, 0, GL_RGBA,
+				GL_FLOAT, normal_texture);			
 		}
 	}
 
@@ -199,8 +203,13 @@ static inline void calc_normal_map(unsigned short* h_map, unsigned int size_x,
 void init_normal_mapping(unsigned short *h_map, const unsigned int size_x, 
 		const unsigned int size_y, const float h_scale)
 {
-	normal_map_IDs = create_normal_texture_IDs(size_x*size_y);
-	
+	unsigned int normal_texture_count_x;
+	unsigned int normal_texture_count_y;
+
+	normal_texture_count_x = (size_x+NORMAL_MAP_MAX_X-1)/NORMAL_MAP_MAX_X;
+	normal_texture_count_y = (size_y+NORMAL_MAP_MAX_Y-1)/NORMAL_MAP_MAX_Y;
+	normal_map_IDs = create_normal_texture_IDs(normal_texture_count_x*normal_texture_count_y*16);
+
 	if (use_low_mem) calc_normal_map_lo_mem(h_map, size_x, size_y, h_scale);
 #ifdef		USE_SSE	
 	else 
@@ -211,12 +220,11 @@ void init_normal_mapping(unsigned short *h_map, const unsigned int size_x,
 	}
 #else	
 	else calc_normal_map(h_map, size_x, size_y, h_scale);	
-#endif	
+#endif
 	
 	normal_map_size_x = size_x;
 	normal_map_size_x = size_y;
-	tile_map_size_x = size_x/NORMALS_PER_TILE_X;
-	tile_map_size_y = size_y/NORMALS_PER_TILE_Y;
+	normal_mapping_shader = init_normal_mapping_shader();
 }
 
 void free_normal_mapping()
@@ -228,5 +236,6 @@ void free_normal_mapping()
 	normal_texture_count_y = (normal_map_size_y+NORMAL_MAP_MAX_Y-1)/NORMAL_MAP_MAX_Y;
 	glDeleteTextures(normal_texture_count_x*normal_texture_count_y, normal_map_IDs);
 	free(normal_map_IDs);
+	free_shader(normal_mapping_shader);
 }
 #endif

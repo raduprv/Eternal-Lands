@@ -6,7 +6,6 @@
  */
 #include <zlib.h>
 #include "global.h"
-#include "simd.h"
 
 /*!
  * The hf-map is a float array of map_tile_size_x*map_tile_size_y size 
@@ -18,11 +17,12 @@ float *hf_map;
  * \ingroup 	display_utils
  * \brief 	Calculates the current height map for the vertexes of the terrain.
  *
- * Calculates the current height map for the vertexes of the terrain without
- * SIMD instructions. Just works up to 12 bit unsigned short data.
+ * Calculates the current height map for the vertexes of the terrain.
  * \param 	map_data The terrain height map.
- * \param 	size_x The size of the terrain height map in x direction. Must be a multiple of four.
- * \param 	size_y The size of the terrain height map in y direction. Must be a multiple of four.
+ * \param 	size_x The size of the terrain height map in x direction. Must be a multiple
+ * 		of four plus one.
+ * \param 	size_y The size of the terrain height map in y direction. Must be a multiple
+ * 		of four plus one.
  * \param 	h_scale The scale of the terrain height (z direction).
  * \param 	h_map The height map used for the vertexes of the terrain.
  *  
@@ -52,7 +52,8 @@ void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size
 	unsigned short *h_map;
 	unsigned char *buffer;
 	float h_scale;
-	
+
+#ifdef	NEW_MAP_FORMAT
 	h_scale = 0.25f;
 
 	fread(&size, 1, sizeof(unsigned int), file);
@@ -68,6 +69,15 @@ void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size
 #ifdef	OSX
 //	swap_16_mem(h_map, buffer_size/2);
 #endif
+#else
+	int i;
+	
+	h_scale = -0.001f;
+	size = size_x*size_y*sizeof(unsigned short);
+	h_map = (unsigned short*)malloc(size);
+	for (i = 0; i < size/2; i++)
+		h_map[i] = 1;
+#endif
 	init_normal_mapping(h_map, size_x, size_y, h_scale);
 	hf_map = (float*)malloc((size_x/NORMALS_PER_VERTEX_X+1)*(size_y/NORMALS_PER_VERTEX_Y+1)*sizeof(float));
 
@@ -78,7 +88,7 @@ void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size
 
 void free_terrain()
 {
-	free_normal_mapping();	
-	SIMD_FREE(hf_map);
+	free_normal_mapping();
+	free(hf_map);
 }
 #endif

@@ -494,6 +494,7 @@ void init_gl_extensions()
 	ELglLinkProgramARB=SDL_GL_GetProcAddress("glLinkProgramARB");
 	ELglUseProgramObjectARB=SDL_GL_GetProcAddress("glUseProgramObjectARB");
 #ifdef	TERRAIN
+	ELglDeleteObjectARB=glXGetProcAddressARB("glDeleteObjectARB");//SDL_GL_GetProcAddress("glDeleteObjectARB");
 	ELglGetUniformLocationARB=SDL_GL_GetProcAddress("glGetUniformLocationARB");
 	ELglUniform1iARB=SDL_GL_GetProcAddress("glUniform1iARB");
 #endif
@@ -645,7 +646,7 @@ void init_gl_extensions()
 	if(ELglCreateShaderObjectARB && ELglShaderSourceARB && ELglCompileShaderARB && ELglCreateProgramObjectARB &&
 	   ELglAttachObjectARB && ELglLinkProgramARB && ELglUseProgramObjectARB && 
 #ifdef	TERRAIN
-	   ELglGetUniformLocationARB && ELglUniform1iARB &&
+	   ELglDeleteObjectARB && ELglGetUniformLocationARB && ELglUniform1iARB &&
 #endif
 	   strstr(extensions,"GL_ARB_shader_objects") && strstr(extensions, "GL_ARB_shading_language_100")){
 		if(strstr(extensions,"GL_ARB_vertex_shader")){

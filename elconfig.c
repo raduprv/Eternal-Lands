@@ -706,7 +706,7 @@ void init_vars()
 	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",SPECIALVID);
 	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",SPECIALVID,0,100);
 #ifdef	TERRAIN
-	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", VIDEO);
+	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", SPECIALVID);
 #endif
 	
 	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",SPECIALVID);

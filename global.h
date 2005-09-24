@@ -152,8 +152,8 @@ typedef int point;
 #include "highlight.h"
 
 #ifdef TERRAIN
-	#include "normals.h"
 	#include "terrain.h"
+	#include "normals.h"
 #endif
 
 #endif

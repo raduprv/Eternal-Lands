@@ -124,7 +124,9 @@ void draw_tile_map()
 	int x_start,x_end,y_start,y_end;
 	int x,y;
 	float x_scaled,y_scaled;
-	int cur_texture, cur_normal_map, last_normal_map;
+	unsigned int cur_texture, cur_normal_map, last_normal_map;
+
+	last_normal_map = 0;
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
@@ -159,12 +161,18 @@ void draw_tile_map()
 			ELglActiveTextureARB(normal_map_unit);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, last_normal_map);
-			
 			//enable shader
-//			ELglUseProgramObjectARB(ProgramObject);
-//			ELglUniform1iARB(ELglGetUniformLocationARB(ProgramObject, "base_texture"), base_unit-GL_TEXTURE0_ARB);
-//			ELglUniform1iARB(ELglGetUniformLocationARB(ProgramObject, "detail_texture"), detail_unit-GL_TEXTURE0_ARB);
-//			ELglUniform1iARB(ELglGetUniformLocationARB(ProgramObject, "normal_texture"), normal_map_unit-GL_TEXTURE0_ARB);
+			ELglUseProgramObjectARB(normal_mapping_shader);
+			
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "base_texture"), base_unit-GL_TEXTURE0_ARB);
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "detail_texture"), detail_unit-GL_TEXTURE0_ARB);
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "normal_texture"), normal_map_unit-GL_TEXTURE0_ARB);
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "NumEnabledLights"), show_lights);
+			/*
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "base_texture_ID"), base_unit-GL_TEXTURE0_ARB);
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "detail_texture_ID"), detail_unit-GL_TEXTURE0_ARB);
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "normal_texture_ID"), normal_map_unit-GL_TEXTURE0_ARB);
+			*/
 		}
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
@@ -212,9 +220,9 @@ void draw_tile_map()
 					if (cur_normal_map != last_normal_map)
 					{
 						last_normal_map = cur_normal_map;
-						glActiveTextureARB(normal_map_unit);
+						ELglActiveTextureARB(normal_map_unit);
 						glBindTexture(GL_TEXTURE_2D, cur_normal_map);
-						glActiveTextureARB(base_unit);
+						ELglActiveTextureARB(base_unit);
 					}
 					draw_tile_map_normal_mapping(x, y);
 				}
@@ -257,7 +265,7 @@ void draw_tile_map()
 			glDisable(GL_TEXTURE_2D);
 			
 			//disable shader
-			glUseProgramObjectARB(0);
+			ELglUseProgramObjectARB(0);
 		}
 		ELglActiveTextureARB(base_unit);
 	}

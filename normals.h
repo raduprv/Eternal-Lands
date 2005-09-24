@@ -7,11 +7,6 @@
 #ifndef NORMAL_H
 #define NORMAL_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <GL/gl.h>
-#include "terrain.h"
-
 /*!
  * The number of normals per vertex in x direction.
  */
@@ -128,6 +123,10 @@ extern unsigned int normal_map_size_y;
  * Flag for normal mapping.
  */
 extern unsigned int use_normal_mapping;
+/*!
+ * Shader for normal mapping.
+ */
+extern GLhandleARB normal_mapping_shader;
 
 /*!
  * \ingroup 	display_utils
@@ -208,8 +207,7 @@ static inline float get_texture_coord_v(const unsigned int tile_y, const unsigne
  */
 static inline float get_vertex_height(const unsigned int tile_x, const unsigned int tile_y, const unsigned int x, const unsigned int y)
 {
-	return -0.001f;
-//	return hf_map[(y+tile_y*VERTEXES_PER_TILE_Y)*(normal_map_size_x/NORMALS_PER_VERTEX_X)+(x+VERTEXES_PER_TILE_X*tile_x)];
+	return hf_map[(y+tile_y*VERTEXES_PER_TILE_Y)*(normal_map_size_x/NORMALS_PER_VERTEX_X)+(x+VERTEXES_PER_TILE_X*tile_x)];
 }
 
 #endif
