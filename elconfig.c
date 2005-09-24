@@ -188,21 +188,96 @@ void change_particles_percentage(int *pointer, int value)
 
 void switch_vidmode(int *pointer, int mode)
 {
+	int win_width,
+		win_height,
+		win_bpp;
+
 	if(mode>12 || mode<1)
 	{
 		//warn about this error
 		LOG_TO_CONSOLE(c_red2,invalid_video_mode);
 		return;
-	} else {
+	} else if(!video_mode_set) {
+		/* Video isn't ready yet, just remember the mode */
 		video_mode = mode;
-	}
-	if(!video_mode_set) {
 		return;
 	}
-	set_new_video_mode(full_screen,video_mode);
-	if(items_win >= 0) {
- 		windows_list.window[items_win].show_handler(&windows_list.window[items_win]);
- 	}
+	/* Check if the video mode is supported. */
+	switch(mode) {
+		case 1:
+			win_width=640;
+			win_height=480;
+			win_bpp=16;
+		break;
+		case 2:
+			win_width=640;
+			win_height=480;
+			win_bpp=32;
+		break;
+		case 3:
+			win_width=800;
+			win_height=600;
+			win_bpp=16;
+		break;
+		case 4:
+			win_width=800;
+			win_height=600;
+			win_bpp=32;
+		break;
+		case 5:
+			win_width=1024;
+			win_height=768;
+			win_bpp=16;
+		break;
+		case 6:
+			win_width=1024;
+			win_height=768;
+			win_bpp=32;
+		break;
+		case 7:
+			win_width=1152;
+			win_height=864;
+			win_bpp=16;
+		break;
+		case 8:
+			win_width=1152;
+			win_height=864;
+			win_bpp=32;
+		break;
+		case 9:
+			win_width=1280;
+			win_height=1024;
+			win_bpp=16;
+		break;
+		case 10:
+			win_width=1280;
+			win_height=1024;
+			win_bpp=32;
+		break;
+		case 11:
+			win_width=1600;
+			win_height=1200;
+			win_bpp=16;
+		break;
+		case 12:
+			win_width=1600;
+			win_height=1200;
+			win_bpp=32;
+		break;
+		default:
+			win_width = 640;
+			win_height = 480;
+			win_bpp = 16;
+		break;
+	}
+	if(!SDL_VideoModeOK(win_width, win_height, win_bpp, SDL_OPENGL|SDL_FULLSCREEN)) {
+		LOG_TO_CONSOLE(c_red2, invalid_video_mode);
+	} else {
+		set_new_video_mode(full_screen, mode);
+		if(items_win >= 0) {
+			windows_list.window[items_win].show_handler(&windows_list.window[items_win]);
+		}
+	}
 }
 
 void toggle_full_screen_mode(int * fs)
@@ -421,7 +496,7 @@ void change_normal_mapping(int *nm)
 	}
 }
 
-#endif
+#endif //TERRAIN
 #endif // ELC
 #ifdef MAP_EDITOR
 
@@ -689,10 +764,10 @@ void init_vars()
 	//ELC specific variables
 #ifdef ELC
 	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
-#ifdef DEBUG
+ #ifdef DEBUG
 	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render skeleton", "Render the Cal3d skeleton.", SPECIALVID);
 	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render mesh", "Render the mesh", SPECIALVID);
-#endif
+ #endif//DEBUG
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0,"Shadows","Toggles the shadows",VIDEO);
 	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", VIDEO);
 	add_var(MULTI,"max_shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096","8192",NULL);
@@ -705,9 +780,9 @@ void init_vars()
 	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",SPECIALVID);
 	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",SPECIALVID);
 	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",SPECIALVID,0,100);
-#ifdef	TERRAIN
+ #ifdef	TERRAIN
 	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", SPECIALVID);
-#endif
+ #endif
 	
 	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",SPECIALVID);
 	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects",SPECIALVID);
@@ -720,14 +795,14 @@ void init_vars()
 	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
 	
 	add_var(FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,FLT_MAX,0.01);
-#ifdef ELC
+ #ifdef ELC
 	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
 	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
 	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, "Type 1", "Type 2", NULL);
-#else
+ #else
 	add_var(INT,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,1,3);
 	add_var(INT,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,1,3);
-#endif //ELC
+ #endif //ELC
 	
 	add_var(BOOL,"no_sound","sound",&no_sound,change_var,0,"No sound","Toggle the Audio",AUDIO);
 	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
@@ -755,45 +830,45 @@ void init_vars()
 	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
 	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
 	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
-#ifdef ELC
+ #ifdef ELC
  	add_var(MULTI,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
-#else
+ #else
 	add_var(INT,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
-#endif //ELC
+ #endif //ELC
  	add_var(STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
  	add_var(STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your browser",MISC);
 
-#ifdef ELC
+ #ifdef ELC
 	add_var (MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
-#else
+  #else
 	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "0 = Old behavior, 1 = new behavior, 2=chat window", CHAT);
-#endif //ELC
+ #endif //ELC
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI card and don't move when you click, try this option to work around a bug in their drivers", SPECIALVID);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",SPECIALVID);
 	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating messages", "Toggles the use of floating experience messages and other graphical enhancements", SPECIALVID);
-#ifdef ELC
+ #ifdef ELC
 	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate local chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored
 	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
 	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_separate_flag, 1, "Seperate guild chat", "Should guild chat be seperate?", CHAT);
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_separate_flag, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
-#else
+  #else
 	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_var, 0, "Separate local chat", "Should local chat be separate?", CHAT);
 	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
 	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1, "Seperate guild chat", "Should guild chat be seperate?", CHAT);
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
-#endif
+ #endif
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
 	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
-#ifdef ANTI_ALIAS
+ #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
-#endif //ANTI_ALIAS
+ #endif //ANTI_ALIAS
 	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_buddy_log_notice, 1, "Log Buddy sign on/off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif // def ELC
 
@@ -802,7 +877,7 @@ void init_vars()
 	add_var(STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
 #ifdef ELC
 	add_var(MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", NULL);
-#else
+ #else
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);

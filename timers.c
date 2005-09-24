@@ -93,13 +93,13 @@ Uint32 check_misc(Uint32 interval, void * data)
 #endif
 	
 	//should we send the heart beat?
-	if(last_heart_beat+25000<cur_time)
-		{
-			Uint8 command;
-			last_heart_beat=cur_time;
-			command=HEART_BEAT;
-			my_tcp_send(my_socket,&command,1);
-		}
+	if(!disconnected && last_heart_beat+25 <= time(NULL))
+	{
+		Uint8 command;
+		last_heart_beat = time(NULL);
+		command = HEART_BEAT;
+		my_tcp_send(my_socket, &command, 1);
+	}
 
 	//AFK?
 	if(afk_time)

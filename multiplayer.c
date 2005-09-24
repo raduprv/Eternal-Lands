@@ -23,7 +23,7 @@ SDLNet_SocketSet set=0;
 #define MAX_TCP_BUFFER  8192
 Uint8 tcp_in_data[MAX_TCP_BUFFER];
 int previously_logged_in=0;
-Uint32 last_heart_beat;
+time_t last_heart_beat;
 
 char our_name[20];
 char our_password[20];
@@ -67,8 +67,10 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 	Uint8 new_str[1024];//should be enough
 	//static int spamcount = 0;
 
-	if(disconnected)return 0;
-	
+	if(disconnected) {
+		return 0;
+	}
+
 	// LabRat's anti-bagspam code
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
@@ -129,12 +131,14 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 		}
 	}
 	//update the heartbeat timer
-	last_heart_beat=cur_time;
+	last_heart_beat = time(NULL);
 
 	new_str[0]=str[0];//copy the protocol
 	*((short *)(new_str+1))= SDL_SwapLE16((Uint16)len);//the data length
 	//copy the rest of the data
-	for(i=1;i<len;i++)new_str[i+2]=str[i];
+	for (i = 1; i < len; i++) {
+		new_str[i+2]=str[i];
+	}
 	return SDLNet_TCP_Send(my_socket,new_str,len+2);
 }
 
@@ -229,7 +233,7 @@ void connect_to_server()
 
 	//send the current version to the server
 	send_version_to_server(&ip);
-	last_heart_beat=cur_time;
+	last_heart_beat = time(NULL);
 	hide_window(trade_win);
 	//For the buddy notifications
 	if(time(NULL) > c_time) {

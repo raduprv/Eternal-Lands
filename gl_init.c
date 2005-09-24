@@ -89,7 +89,7 @@ void setup_video_mode(int fs, int mode)
 			case 2:
 				window_width=640;
 				window_height=480;
-				bpp=16;
+				bpp=32;
 				break;
 			case 3:
 				window_width=800;
@@ -138,7 +138,7 @@ void setup_video_mode(int fs, int mode)
 				break;
 			case 12:
 				window_width=1600;
-				window_width=1200;
+				window_height=1200;
 				bpp=32;
 				break;
 			}
@@ -201,17 +201,17 @@ void setup_video_mode(int fs, int mode)
 				window_width=1250;
 				window_height=990;
 				break;
-                        case 11:
+			case 11:
 			case 12:
-                                if(window_width != 1600 || window_height != 1200)
-                                        {
-                                                Uint8 str[100];
-                                                snprintf(str,sizeof(str),window_size_adjusted_str,"1600x1200");
-                                                LOG_TO_CONSOLE(c_yellow1,str);
-                                        }
-                                window_width=1600;
-                                window_height=1200;
-                                break;
+				if(window_width != 1600 || window_height != 1200)
+				{
+					Uint8 str[100];
+					snprintf(str,sizeof(str),window_size_adjusted_str,"1600x1200");
+					LOG_TO_CONSOLE(c_yellow1,str);
+				}
+				window_width=1600;
+				window_height=1200;
+				break;
 			}
 //TODO: Add wide screen resolutions
 //1280x800
@@ -229,9 +229,10 @@ void check_gl_mode()
 {
 	char str[400];
 
-
-	if(full_screen)flags=SDL_OPENGL|SDL_FULLSCREEN;
-	else flags=SDL_OPENGL;
+	flags = SDL_OPENGL;
+	if(full_screen) {
+		flags |= SDL_FULLSCREEN;
+	}
 	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8);
 
 	//now, test if the video mode is OK...

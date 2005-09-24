@@ -28,7 +28,7 @@ extern int version_first_digit; /*!< the first digit of the version */
 extern int version_second_digit; /*!< the second digit of the version */
 /*! @} */
 
-extern Uint32 last_heart_beat; /*!< a timestamp that inidicates when the last message was sent to the server */
+extern time_t last_heart_beat; /*!< a timestamp that inidicates when the last message was sent to the server */
 extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to resync */
 
 extern int log_conn_data; /*!< indicates whether we should log connection data or not */
