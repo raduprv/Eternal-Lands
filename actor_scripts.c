@@ -861,10 +861,11 @@ void add_command_to_actor(int actor_id, char command)
 	int k=0;
 	//int have_actor=0;
 //if ((actor_id==yourself)&&(command==enter_combat)) LOG_TO_CONSOLE(c_green2,"FIGHT!");
+	actor * act;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	actor * act=get_actor_ptr_from_id(actor_id);
+	act = get_actor_ptr_from_id(actor_id);
 
 	if(!act){
 		//Resync
@@ -951,11 +952,12 @@ void add_command_to_actor(int actor_id, char command)
 void get_actor_damage(int actor_id, int damage)
 {
 	//int i=0;
+	actor * act;
 
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	actor * act=get_actor_ptr_from_id(actor_id);
+	act = get_actor_ptr_from_id(actor_id);
 
 	if(!act){	
 		//if we got here, it means we don't have this actor, so get it from the server...
@@ -973,10 +975,11 @@ void get_actor_damage(int actor_id, int damage)
 void get_actor_heal(int actor_id, int quantity)
 {
 	//int i=0;
+	actor *act;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	actor *act=get_actor_ptr_from_id(actor_id);
+	act = get_actor_ptr_from_id(actor_id);
 
 	if(!act){
 		//if we got here, it means we don't have this actor, so get it from the server...
@@ -996,10 +999,11 @@ void get_actor_heal(int actor_id, int quantity)
 void get_actor_health(int actor_id, int quantity)
 {
 	//int i=0;
+	actor *act;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	actor *act=get_actor_ptr_from_id(actor_id);
+	act = get_actor_ptr_from_id(actor_id);
 
 	if(!act){
 		//if we got here, it means we don't have this actor, so get it from the server...
