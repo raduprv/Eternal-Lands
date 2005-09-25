@@ -2,9 +2,14 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/elwindows.h"
+#include "../map_editor2/global.h"
+#else
 #include "elwindows.h"
-#include "widgets.h"
 #include "global.h"
+#endif
+#include "widgets.h"
 
 #define PROGRESSBAR_LEN    300
 #define PROGRESSBAR_HEIGHT  20

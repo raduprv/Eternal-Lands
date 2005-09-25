@@ -652,6 +652,7 @@ int find_last_console_lines (int lines_no)
 	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, FILTER_ALL, &console_msg_nr, &console_msg_offset, chat_zoom, console_text_width);
 }
 
+
 int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, float zoom, int width)
 {
 	int line_count = 0, lines_no = nr_lines - line;
@@ -713,7 +714,6 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 	*offset = 0;
 	return 1;
 }
-
 void console_move_up ()
 {
 	int nl_found, ichar;

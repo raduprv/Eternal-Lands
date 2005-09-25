@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <strings.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 static inline void load_shader(GLhandleARB ShaderObject, char* filename, char* flags)
 {

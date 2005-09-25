@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 FILE* open_log (const char *fname, const char *mode)
 {

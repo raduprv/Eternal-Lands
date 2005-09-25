@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 #define MAX_BUFFERS 10
 #define MAX_SOURCES 15
@@ -552,6 +556,7 @@ int update_music(void *dummy)
 						get_map_playlist();
 					continue;
 				}
+			if(exit_now) break;
 		}
 #endif	//NO_MUSIC
 	return 1;

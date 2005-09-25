@@ -5,7 +5,11 @@
  * \brief 	Terrain calculation.
  */
 #include <zlib.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 /*!
  * The hf-map is a float array of map_tile_size_x*map_tile_size_y size 

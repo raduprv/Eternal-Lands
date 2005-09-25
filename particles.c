@@ -3,7 +3,11 @@
 #ifndef WINDOWS
  #include <locale.h>
 #endif
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
  #include "global.h"
+#endif
 #include "string.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -454,6 +458,8 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 
 	if(def->use_light) {
 #ifdef MAP_EDITOR
+		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1);
+#elif defined(MAP_EDITOR2)
 		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1);
 #else
 		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f);

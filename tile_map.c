@@ -1,6 +1,14 @@
 #include <math.h>
 #include <stdlib.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
+
+#ifdef MAP_EDITOR2
+img_struct map_tiles[256];
+#endif
 
 unsigned char *tile_map;
 unsigned char *height_map;
@@ -11,7 +19,9 @@ char dungeon=0;//no sun
 float ambient_r=0;
 float ambient_g=0;
 float ambient_b=0;
+#ifndef MAP_EDITOR2
 char map_file_name[60];
+#endif
 
 #ifdef	TERRAIN
 static inline void draw_tile_map_normal_mapping(const unsigned int x, const unsigned int y)

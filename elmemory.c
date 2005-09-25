@@ -5,7 +5,11 @@
 #include <string.h>
 #include <SDL.h>
 #include <SDL_thread.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/init.h"
+#else
 #include "init.h"
+#endif
 
 /* The size of the array */
 #define ELM_INITIAL_SIZE 1024

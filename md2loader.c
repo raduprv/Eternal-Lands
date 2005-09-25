@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 #ifdef FILE_TO_BE_REMOVED
 

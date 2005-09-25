@@ -8,7 +8,11 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdio.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 #include "vmath.h"
 #include "simd.h"
 

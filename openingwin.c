@@ -1,5 +1,9 @@
 #include <stdlib.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 int opening_root_win = -1;
 
@@ -36,8 +40,12 @@ int display_opening_handler ()
 
 void switch_to_login ()
 {
+#ifdef MAP_EDITOR2
+	show_window (game_root_win);
+#else
 	// bring up the login screen
 	show_window (login_root_win);
+#endif
 
 	// destroy ourselves, we're no longer needed
 	destroy_window (opening_root_win);
@@ -52,8 +60,10 @@ int click_opening_handler ()
 
 int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
+#ifndef MAP_EDITOR2
 	int alt_on = key & ELW_ALT;
 	int ctrl_on = key & ELW_CTRL;
+#endif
 
 	if ( check_quit_or_fullscreen (key) )
 	{
@@ -63,18 +73,22 @@ int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		switch_to_login ();
 	}
+#ifndef MAP_EDITOR2
 	else if (!alt_on && !ctrl_on)
 	{
 		connect_to_server ();
 	}
+#endif
 	
 	return 1;
 }
 
 int show_opening_handler (window_info *win) {
+#ifndef MAP_EDITOR2
 	hide_window(book_win);
 	hide_window(paper_win);
 	hide_window(color_race_win);
+#endif
 	hide_window(elconfig_win);
 	hide_window(tab_help_win);
 	return 1;

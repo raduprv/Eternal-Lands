@@ -15,6 +15,8 @@
 
 #ifdef MAP_EDITOR
  #include "../map_editor/global.h"
+#elif defined(MAP_EDITOR2)
+ #include "../map_editor2/global.h"
 #else
  #include "global.h"
 #endif
@@ -143,7 +145,9 @@ void change_poor_man(int *poor_man)
 		shadows_on=0;
 		clouds_shadows=0;
 		use_shadow_mapping=0;
+#ifndef MAP_EDITOR2
 		use_fog=0;
+#endif
 #ifdef	TERRAIN
 		use_normal_mapping=0;
 #endif
@@ -274,9 +278,11 @@ void switch_vidmode(int *pointer, int mode)
 		LOG_TO_CONSOLE(c_red2, invalid_video_mode);
 	} else {
 		set_new_video_mode(full_screen, mode);
+#ifndef MAP_EDITOR2
 		if(items_win >= 0) {
 			windows_list.window[items_win].show_handler(&windows_list.window[items_win]);
 		}
+#endif
 	}
 }
 
@@ -324,6 +330,7 @@ void change_compass_direction(int *dir)
 	*dir=!*dir;
 }
 
+#ifndef MAP_EDITOR2
 void set_afk_time(int *pointer, int time)
 {
 	if(time > 0) {
@@ -387,6 +394,7 @@ void change_chat_zoom(float *dest, float *value) {
 	}
 }
 
+#endif
 #endif // def ELC
 
 void change_dir_name (char *var, const char *str, int len)
@@ -442,6 +450,7 @@ void change_gamma(float *pointer, float *value)
 		SDL_SetGamma(*value, *value, *value);
 }
 
+#ifndef MAP_EDITOR2
 void change_separate_flag(int * pointer) {
 	change_var(pointer);
 
@@ -449,6 +458,7 @@ void change_separate_flag(int * pointer) {
 		update_chat_win_buffers();
 	}
 }
+#endif
 
 void change_shadow_mapping (int *sm)
 {
@@ -468,6 +478,7 @@ void change_shadow_mapping (int *sm)
 	}
 }
 
+#ifndef MAP_EDITOR2
 void change_global_filters (int *use)
 {
 	*use = !*use;
@@ -476,6 +487,7 @@ void change_global_filters (int *use)
 	if (options_set && *use)
 		load_filters_list ("global_filters.txt", 0);
 }
+#endif
 
 #ifdef	TERRAIN
 void change_normal_mapping(int *nm)
@@ -496,7 +508,7 @@ void change_normal_mapping(int *nm)
 	}
 }
 
-#endif //TERRAIN
+#endif
 #endif // ELC
 #ifdef MAP_EDITOR
 
@@ -764,14 +776,18 @@ void init_vars()
 	//ELC specific variables
 #ifdef ELC
 	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
+#ifndef MAP_EDITOR2
  #ifdef DEBUG
 	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render skeleton", "Render the Cal3d skeleton.", SPECIALVID);
 	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render mesh", "Render the mesh", SPECIALVID);
  #endif//DEBUG
+#endif
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0,"Shadows","Toggles the shadows",VIDEO);
 	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", VIDEO);
 	add_var(MULTI,"max_shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096","8192",NULL);
+#ifndef MAP_EDITOR2
 	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render fog","Toggles fog rendering.",VIDEO);
+#endif
 	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);
 	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1,"Show Reflections","Toggle the reflections",VIDEO);
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",SPECIALVID);
@@ -783,6 +799,7 @@ void init_vars()
  #ifdef	TERRAIN
 	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", SPECIALVID);
  #endif
+#endif
 	
 	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",SPECIALVID);
 	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects",SPECIALVID);
@@ -794,9 +811,13 @@ void init_vars()
 	add_var(FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
 	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
 	
+#ifndef MAP_EDITOR2
 	add_var(FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,FLT_MAX,0.01);
+#endif
  #ifdef ELC
+#ifndef MAP_EDITOR2
 	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
+#endif
 	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
 	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, "Type 1", "Type 2", NULL);
  #else
@@ -808,18 +829,25 @@ void init_vars()
 	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
 	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0.0,1.0,0.1);
 
+#ifndef MAP_EDITOR2
 	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
 
 	add_var(BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",CONTROLS);
 	add_var(BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
 	add_var(BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
+#endif
 	add_var(BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable tooltips.",HUD);
+#ifndef MAP_EDITOR2
 	add_var(BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
+#endif
 	add_var(BOOL,"compass_north","comp",&compass_direction_checkbox,change_compass_direction,1,"Compass Direction","Set the compass direction for a static compass",HUD);
 
+#ifndef MAP_EDITOR2
 	add_var(SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
 	add_var(STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
-	
+#endif
+
+#ifndef MAP_EDITOR2
 	add_var(BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1,"Global Ignores","Global ignores is a list with people that are well known for being nasty, so we put them into a list (global_ignores.txt). Enable this to load that list on startup.",MISC);
 	add_var(BOOL,"save_ignores","sign",&save_ignores,change_var,1,"Save Ignores","Toggle saving of the local ignores list on exit.",MISC);
 	add_var (BOOL, "use_global_filters", "gfil", &use_global_filters, change_global_filters, 1, "Global Filter", "Toggle the use of global text filters.", MISC);
@@ -830,6 +858,7 @@ void init_vars()
 	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
 	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
 	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
+#ifndef MAP_EDITOR2
  #ifdef ELC
  	add_var(MULTI,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
  #else
@@ -837,16 +866,20 @@ void init_vars()
  #endif //ELC
  	add_var(STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
  	add_var(STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your browser",MISC);
+#endif
 
- #ifdef ELC
+#ifndef MAP_EDITOR2
+#ifdef ELC
 	add_var (MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
-  #else
+ #else
 	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "0 = Old behavior, 1 = new behavior, 2=chat window", CHAT);
- #endif //ELC
+#endif //ELC
+#endif
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI card and don't move when you click, try this option to work around a bug in their drivers", SPECIALVID);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",SPECIALVID);
+#ifndef MAP_EDITOR2
 	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating messages", "Toggles the use of floating experience messages and other graphical enhancements", SPECIALVID);
  #ifdef ELC
 	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate local chat", "Should local chat be separate?", CHAT);
@@ -863,6 +896,7 @@ void init_vars()
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
  #endif
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
+#endif
 	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
 	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
@@ -877,7 +911,7 @@ void init_vars()
 	add_var(STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
 #ifdef ELC
 	add_var(MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", NULL);
- #else
+#else
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
@@ -1366,11 +1400,15 @@ int show_elconfig_handler(window_info * win) {
 		pwinx = 0;
 		pwiny = 0;
 	}
+#ifndef MAP_EDITOR2
 	if (get_show_window(newchar_root_win)) {
 		init_window(win->window_id, newchar_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 	} else {
 		init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 	}
+#else
+	init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
+#endif
 	return 1;
 }
 
