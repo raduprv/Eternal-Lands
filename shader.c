@@ -1,4 +1,5 @@
 #ifdef	TERRAIN
+#ifdef	USE_SHADER
 #include <stdlib.h>
 #include <stdio.h>
 #include <strings.h>
@@ -8,9 +9,9 @@
 #include "global.h"
 #endif
 
-static inline void load_shader(GLhandleARB ShaderObject, char* filename, char* flags)
+static inline void load_shader(GLhandleARB ShaderObject, char* filename)
 {
-	int shader_size, buffer_size, flags_size;
+	int shader_size;
 	FILE *file;
 	char* buffer;
 	
@@ -19,20 +20,7 @@ static inline void load_shader(GLhandleARB ShaderObject, char* filename, char* f
 	fseek(file, 0L, SEEK_END);
 	shader_size = ftell(file);
 	fseek(file, 0L, SEEK_SET);
-#if	0	
-	flags_size = strlen(flags);
-	buffer_size = shader_size + flags_size;
-	buffer = (char*)malloc(buffer_size);
 	
-	memcpy(buffer, flags, flags_size);
-
-	fread(&buffer[flags_size], 1, shader_size, file);
-	
-	fclose (file);
-	
-	ELglShaderSourceARB(ShaderObject, 1, (const char**)&buffer, &buffer_size);
-
-#else
 	buffer = (char*)malloc(shader_size);
 	
 	fread(buffer, 1, shader_size, file);
@@ -40,7 +28,6 @@ static inline void load_shader(GLhandleARB ShaderObject, char* filename, char* f
 	fclose (file);
 	
 	ELglShaderSourceARB(ShaderObject, 1, (const char**)&buffer, &shader_size);
-#endif	
 	free(buffer);
 }
 
@@ -51,7 +38,7 @@ void printf_shader_log(GLhandleARB glObject)
 	
 	glGetObjectParameterivARB(glObject, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
 	
-	if (blen > 0)
+	if (blen > 1)
 	{
 		InfoLog = (GLcharARB*)malloc(blen*sizeof(GLcharARB));
 		glGetInfoLogARB(glObject, blen, &slen, InfoLog);
@@ -90,4 +77,5 @@ void free_shader(GLhandleARB ProgramObject)
 {
 	ELglDeleteProgramsARB(1, &ProgramObject);
 }
+#endif
 #endif

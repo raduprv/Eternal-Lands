@@ -152,6 +152,7 @@ typedef int point;
 #include "highlight.h"
 
 #ifdef TERRAIN
+	#include "vmath.h"
 	#include "terrain.h"
 	#include "normals.h"
 #endif

@@ -1,4 +1,5 @@
 #ifdef	TERRAIN
+#ifdef	USE_SHADER
 #ifndef SHADER_H
 #define SHADER_H
 
@@ -22,5 +23,6 @@ extern void free_shader(GLhandleARB ProgramObject);
  */
 extern GLhandleARB init_normal_mapping_shader();
 
+#endif
 #endif
 #endif

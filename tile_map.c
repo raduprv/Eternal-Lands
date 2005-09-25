@@ -82,10 +82,12 @@ static inline void draw_tile_map_multitexture(const unsigned int x, const unsign
 		{
 			ELglMultiTexCoord2fARB(base_unit, u, v);
 			ELglMultiTexCoord2fARB(detail_unit, x_scaled/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
+			glNormal3fv(terrain_vertex_normals[get_vertex_normal(x, y, j, i)]);
 			glVertex3f(x_scaled, y_scaled, get_vertex_height(x, y, j, i));
 
 			ELglMultiTexCoord2fARB(base_unit, u, v+1.0f/VERTEXES_PER_TILE_Y);
 			ELglMultiTexCoord2fARB(detail_unit, x_scaled/texture_scale+clouds_movement_u, (y_scaled+UNITS_PER_VERTEX_Y)/texture_scale+clouds_movement_v);
+			glNormal3fv(terrain_vertex_normals[get_vertex_normal(x, y, j, i+1)]);
 			glVertex3f(x_scaled, y_scaled+UNITS_PER_VERTEX_Y, get_vertex_height(x, y, j, i+1));
 			x_scaled += UNITS_PER_VERTEX_X;
 			u += 1.0f/VERTEXES_PER_TILE_X;
@@ -116,9 +118,11 @@ static inline void draw_tile_map_singletexture(const unsigned int x, const unsig
 		for (j = 0; j < VERTEXES_PER_TILE_X+1; j++)
 		{
 			glTexCoord2f(u, v);
+			glNormal3fv(terrain_vertex_normals[get_vertex_normal(x, y, j, i+1)]);
 			glVertex3f(x_scaled, y_scaled, get_vertex_height(x, y, j, i));
 
 			glTexCoord2f(u, v+1.0f/VERTEXES_PER_TILE_Y);
+			glNormal3fv(terrain_vertex_normals[get_vertex_normal(x, y, j, i+1)]);
 			glVertex3f(x_scaled, y_scaled+UNITS_PER_VERTEX_Y, get_vertex_height(x, y, j, i+1));
 			x_scaled += UNITS_PER_VERTEX_X;
 			u += 1.0f/VERTEXES_PER_TILE_X;

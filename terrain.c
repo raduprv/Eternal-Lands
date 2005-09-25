@@ -43,7 +43,7 @@ static inline void calc_current_terrain(unsigned short* map_data, const unsigned
 		for (j = 0; j < size_x; j += 4)
 		{
 			tmp = map_data[i*size_x+j];
-			h_map[index] = tmp*(h_scale);
+			h_map[index] = tmp*h_scale;
 			index++;
 		}
 	}
@@ -51,13 +51,13 @@ static inline void calc_current_terrain(unsigned short* map_data, const unsigned
 
 void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size_y)
 {
-	unsigned long file_size, buffer_size;
 	unsigned int size;
 	unsigned short *h_map;
-	unsigned char *buffer;
 	float h_scale;
-
 #ifdef	NEW_MAP_FORMAT
+	unsigned long file_size, buffer_size;
+	unsigned char *buffer;
+	
 	h_scale = 0.25f;
 
 	fread(&size, 1, sizeof(unsigned int), file);

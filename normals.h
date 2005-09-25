@@ -127,6 +127,10 @@ extern unsigned int use_normal_mapping;
  * Shader for normal mapping.
  */
 extern GLhandleARB normal_mapping_shader;
+/*!
+ * Terrain vertex normals.
+ */
+extern VECTOR3* terrain_vertex_normals;
 
 /*!
  * \ingroup 	display_utils
@@ -208,6 +212,24 @@ static inline float get_texture_coord_v(const unsigned int tile_y, const unsigne
 static inline float get_vertex_height(const unsigned int tile_x, const unsigned int tile_y, const unsigned int x, const unsigned int y)
 {
 	return hf_map[(y+tile_y*VERTEXES_PER_TILE_Y)*(normal_map_size_x/NORMALS_PER_VERTEX_X)+(x+VERTEXES_PER_TILE_X*tile_x)];
+}
+
+/*!
+ * \ingroup 	display_utils
+ * \brief 	Returns the index for the normal of the vertex.
+ *
+ * Returns the index for the normal of the vertex (x, y) in tile (tile_x, tile_y).
+ * \param	tile_x The tile number in x direction.
+ * \param	tile_y The tile number in y direction.
+ * \param	x The vertex number in x direction for this tile.
+ * \param	y The vertex number in y direction for this tile.
+ * \retval	int The index of the normal for this vertex.
+ *  
+ * \callgraph
+ */
+static inline int get_vertex_normal(const unsigned int tile_x, const unsigned int tile_y, const unsigned int x, const unsigned int y)
+{
+	return (y+tile_y*VERTEXES_PER_TILE_Y)*(normal_map_size_x/NORMALS_PER_VERTEX_X)+(x+VERTEXES_PER_TILE_X*tile_x);
 }
 
 #endif

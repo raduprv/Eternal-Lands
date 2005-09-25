@@ -495,7 +495,7 @@ void init_gl_extensions()
 	ELglLinkProgramARB=SDL_GL_GetProcAddress("glLinkProgramARB");
 	ELglUseProgramObjectARB=SDL_GL_GetProcAddress("glUseProgramObjectARB");
 #ifdef	TERRAIN
-	ELglDeleteObjectARB=glXGetProcAddressARB("glDeleteObjectARB");//SDL_GL_GetProcAddress("glDeleteObjectARB");
+	ELglDeleteObjectARB=SDL_GL_GetProcAddress("glDeleteObjectARB");
 	ELglGetUniformLocationARB=SDL_GL_GetProcAddress("glGetUniformLocationARB");
 	ELglUniform1iARB=SDL_GL_GetProcAddress("glUniform1iARB");
 #endif

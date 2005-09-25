@@ -10,6 +10,7 @@
 #include <string.h>
 #include <math.h>
 
+#ifndef	MIN
 /*!
  * \ingroup 	misc_utils
  * \brief 	minimum
@@ -25,7 +26,9 @@ static inline int min(int a, int b)
 {
 	return a < b ? a : b;
 }
+#endif
 
+#ifndef	MAX
 /*!
  * \ingroup 	misc_utils
  * \brief	maximun
@@ -41,6 +44,7 @@ static inline int max(int a, int b)
 {
 	return a > b ? a : b;
 }
+#endif
 
 /*!
  * \name Vector item names.
