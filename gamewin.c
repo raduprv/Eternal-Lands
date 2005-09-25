@@ -1159,8 +1159,8 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			system (browser_command);
 		}
 #else
-		SDL_Thread *go_to_url_thread;
-		go_to_url_thread = SDL_CreateThread (go_to_url, 0);
+		if (have_url)
+			ShellExecute(NULL, "open", current_url, NULL, NULL, SW_SHOWNORMAL); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
 #endif
 	}
 	else if (keysym == SDLK_ESCAPE)
