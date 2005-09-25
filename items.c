@@ -3,8 +3,6 @@
 #include "global.h"
 #include "elwindows.h"
 
-#define MAX_COOLDOWN 100
-
 item item_list[ITEM_NUM_ITEMS];
 
 struct quantities quantities = {
@@ -331,10 +329,6 @@ int display_items_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end;
-			float cooldown = ((float) item_list[i].cooldown) / item_list[i].max_cooldown;
-
-			if (cooldown < 0.0f) cooldown = 0.0f;
-			else if (cooldown > 1.0f) cooldown = 1.0f;
 
 			//get the UV coordinates.
 			cur_item=item_list[i].image_id%25;
@@ -368,10 +362,17 @@ int display_items_handler(window_info *win)
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			if (cooldown > 0.0f)
+			if (item_list[i].cooldown > 0)
 			{
 				int x_bar = x_end - 5;
-				int y_bar = (int) (0.5f + cooldown*y_start + (1.0f - cooldown)*y_end);
+				int y_bar;
+				float cooldown = ((float) item_list[i].cooldown) / item_list[i].max_cooldown;
+
+				if (cooldown < 0.0f)
+					cooldown = 0.0f;
+				else if (cooldown > 1.0f)
+					cooldown = 1.0f;
+				y_bar = (int) (0.5f + cooldown*y_start + (1.0f - cooldown)*y_end);
 
 				glDisable(GL_TEXTURE_2D);
 				glEnable(GL_BLEND);

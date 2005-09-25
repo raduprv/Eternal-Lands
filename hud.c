@@ -1103,48 +1103,88 @@ int	display_quickbar_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
 	for(i=0;i<6;i++)
+	{
+		if(item_list[i].quantity > 0)
 		{
-			if(item_list[i].quantity > 0)
-				{
-					float u_start,v_start,u_end,v_end;
-					int this_texture,cur_item,cur_pos;
-					int x_start,x_end,y_start,y_end;
+			float u_start,v_start,u_end,v_end;
+			int this_texture,cur_item,cur_pos;
+			int x_start,x_end,y_start,y_end;
 
-					//get the UV coordinates.
-					cur_item=item_list[i].image_id%25;
-					u_start=0.2f*(cur_item%5);
-					u_end=u_start+(float)50/256;
-					v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
-					v_end=v_start-(float)50/256;
+			//get the UV coordinates.
+			cur_item=item_list[i].image_id%25;
+			u_start=0.2f*(cur_item%5);
+			u_end=u_start+(float)50/256;
+			v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
+			v_end=v_start-(float)50/256;
 
-					//get the x and y
-					cur_pos=item_list[i].pos;
+			//get the x and y
+			cur_pos=item_list[i].pos;
 					
-					x_start= 1;
-					x_end= x_start+29;
-					y_start= 30*(cur_pos%6)+1;
-					y_end= y_start+29;
+			x_start= 1;
+			x_end= x_start+29;
+			y_start= 30*(cur_pos%6)+1;
+			y_end= y_start+29;
 
-					//get the texture this item belongs to
-					this_texture=get_items_texture(item_list[i].image_id/25);
+			//get the texture this item belongs to
+			this_texture=get_items_texture(item_list[i].image_id/25);
 
-					get_and_set_texture_id(this_texture);
-					glBegin(GL_QUADS);
-					if(quickbar_dir==VERTICAL)
-						{
-							draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-						}
-					else
-						{
-							draw_2d_thing(u_start,v_start,u_end,v_end,y_start+1,x_start+1,y_end-1,x_end-1);
-						}
-					glEnd();
-					snprintf(str,sizeof(str),"%i",item_list[i].quantity);
-					if(quickbar_dir==VERTICAL) draw_string_small(x_start,y_end-15,str,1);
-					else draw_string_small(y_start,x_end-15,str,1);
-				}
+			get_and_set_texture_id(this_texture);
+			glBegin(GL_QUADS);
+			if(quickbar_dir==VERTICAL)
+			{
+				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
+			}
+			else
+			{
+				draw_2d_thing(u_start,v_start,u_end,v_end,y_start+1,x_start+1,y_end-1,x_end-1);
+			}
+			glEnd();
+			
+			if (item_list[i].cooldown > 0)
+			{
+				int x_bar = x_end - 5;
+				int y_bar;
+				float cooldown = ((float) item_list[i].cooldown) / item_list[i].max_cooldown;
+
+				if (cooldown < 0.0f)
+					cooldown = 0.0f;
+				else if (cooldown > 1.0f)
+					cooldown = 1.0f;
+				y_bar = (int) (0.5f + cooldown*y_start + (1.0f - cooldown)*y_end);
+
+				glDisable(GL_TEXTURE_2D);
+				glEnable(GL_BLEND);
+				
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glBegin(GL_QUADS);
+					glColor4f(0.0f, 0.0f, 0.0f, 0.5f*cooldown);
+					glVertex2i(x_start, y_start);
+					glVertex2i(x_start, y_end);
+					glVertex2i(x_end, y_end);
+					glVertex2i(x_end, y_start);
+
+					glColor4f(0.5f, 0.0f, 0.0f, 1.0f);
+					glVertex2i(x_bar, y_bar);
+					glVertex2i(x_bar, y_end);
+					glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+					glVertex2i(x_end, y_end);
+					glVertex2i(x_end, y_bar);
+
+					glColor3f(1.0f, 1.0f, 1.0f);
+				glEnd();
+
+				glDisable(GL_BLEND);
+				glEnable(GL_TEXTURE_2D);
+			}
+			
+			
+			snprintf(str,sizeof(str),"%i",item_list[i].quantity);
+			if(quickbar_dir==VERTICAL)
+				draw_string_small(x_start,y_end-15,str,1);
+			else
+				draw_string_small(y_start,x_end-15,str,1);
 		}
-
+	}
 	
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
