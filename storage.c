@@ -206,22 +206,24 @@ int display_storage_handler(window_info * win)
 		glBegin(GL_QUADS);
 		draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 		glEnd();
+	}
+	if(active_storage_item >= 0) {
+		/* Draw the active item's quantity on top of everything else. */
+		for(i = pos = 6*vscrollbar_get_pos(storage_win, 1201); i < pos+36 && i < no_storage; i++) {
+			if(storage_items[i].pos == active_storage_item) {
+				char str[20];
+				int x = (i%6)*32+161+16;
+				int len;
 
-		if(storage_items[i].pos==active_storage_item){
-			char str[20];
-			int x=x_start+16;
-			int l;
-
-			sprintf(str,"%d",storage_items[i].quantity);
-			l=strlen(str)*8;
-
-			if(x-l>161){
-				x -= l;
-			} else if(x+l > 161+6*32) {
-				x = 161+5*32+16;
+				snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
+				len = strlen(str) * 8;
+				if(x - len > 161) {
+					x -= len;
+				} else if(x + len > 161+6*32) {
+					x = 161+5*32+16;
+				}
+				show_help(str, x, ((i-pos)/6)*32+10+8);
 			}
-
-			show_help(str,x,y_start+8);
 		}
 	}
 
