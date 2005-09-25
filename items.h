@@ -18,7 +18,9 @@ typedef struct
 	int is_resource; /*!< does it appear on the manufacturing menu? */
 	int use_with_inventory;
 	int is_stackable;
-	int cooldown;
+	Uint16 cooldown;
+	Uint16 max_cooldown;
+	Uint32 cool_time;
 } item;
 
 /*!
@@ -207,14 +209,23 @@ void get_new_inventory_item (const Uint8 *data);
 
 /*!
  * \ingroup item
- * \brief   Updates the cooldown value of an inventory item.
+ * \brief   Sets the cooldown values of inventory items from server data.
  *
- *      Updates the cooldown value of an inventory item.
+ *      Sets the cooldown values of inventory items from server data.
  *
- * \param pos      the position in inventory
- * \param cooldown the new cooldown value
+ * \param data		the incoming data string from the server
+ * \param cooldown 	the length of the string in bytes
  *
  */
-void update_cooldown(int pos, int cooldown);
+void get_items_cooldown (const Uint8 *data, int len);
+
+/*!
+ * \ingroup item
+ * \brief   Updates the cooldown value of inventory items.
+ *
+ *      Updates the cooldown value of inventory items.
+ *
+ */
+void update_cooldown ();
 
 #endif

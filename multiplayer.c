@@ -1049,11 +1049,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			break;
 
-		case COOLDOWN: 
+		case GET_ITEMS_COOLDOWN: 
 			{
 				// make sure we interprete the incoming octets as unsigned
 				// in case the function signature changes
-				update_cooldown(*((Uint8*) in_data+3), *((Uint8*)in_data+4));
+				get_items_cooldown (&in_data[3], data_length - 3);
 			}
 			break;
 

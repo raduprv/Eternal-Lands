@@ -251,6 +251,7 @@ void get_your_items (const Uint8 *data)
 		pos=data[i*8+1+6];
 		item_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data+i*8+1)));
 		item_list[pos].cooldown = 0;
+		item_list[pos].max_cooldown = 0;
 		item_list[pos].quantity=SDL_SwapLE32(*((Uint32 *)(data+i*8+1+2)));
 		item_list[pos].pos=pos;
 		flags=data[i*8+1+7];
@@ -287,6 +288,7 @@ void get_new_inventory_item (const Uint8 *data)
 	item_list[pos].quantity=quantity;
 	item_list[pos].image_id=image_id;
 	item_list[pos].cooldown = 0;
+	item_list[pos].max_cooldown = 0;
 	item_list[pos].pos=pos;
 
 	item_list[pos].is_resource=((flags&ITEM_RESOURCE)>0);
@@ -329,7 +331,7 @@ int display_items_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end;
-			float cooldown = ((float) item_list[i].cooldown) / MAX_COOLDOWN;
+			float cooldown = ((float) item_list[i].cooldown) / item_list[i].max_cooldown;
 
 			if (cooldown < 0.0f) cooldown = 0.0f;
 			else if (cooldown > 1.0f) cooldown = 1.0f;
@@ -770,8 +772,43 @@ void display_items_menu()
 	}
 }
 
-void update_cooldown(int pos, int cooldown) {
-	if (pos >= 0 && pos < ITEM_NUM_ITEMS) {
+void get_items_cooldown (const Uint8 *data, int len)
+{
+	int iitem, nitems, ibyte, pos;
+	Uint16 cooldown;
+	
+	// reset old cooldown values
+	for (iitem = 0; iitem < ITEM_NUM_ITEMS; iitem++)
+	{
+		item_list[iitem].cooldown = 0;
+		item_list[iitem].max_cooldown = 0;
+	}
+	
+	nitems = len / 2;
+	if (nitems <= 0) return;
+	
+	ibyte = 0;
+	for (iitem = 0; iitem < nitems; iitem++)
+	{
+		pos = data[ibyte++];
+		cooldown = 3 * data[ibyte++];
 		item_list[pos].cooldown = cooldown;
+		item_list[pos].max_cooldown = cooldown;
+		item_list[pos].cool_time = cur_time;
+	}
+}
+
+void update_cooldown ()
+{
+	int iitem;
+	
+	for (iitem = 0; iitem < ITEM_NUM_ITEMS; iitem++)
+	{
+		if (item_list[iitem].cooldown > 0)
+		{
+			int seconds = 1 + item_list[iitem].max_cooldown - item_list[iitem].cooldown;
+		 	if (cur_time - item_list[iitem].cool_time >= 1000 * seconds)
+				item_list[iitem].cooldown--;
+		}
 	}
 }
