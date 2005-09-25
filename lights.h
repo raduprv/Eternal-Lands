@@ -76,6 +76,7 @@ void disable_local_lights();
  */
 void draw_lights();
 
+#ifdef ELC
 /*!
  * \ingroup lights
  * \brief   Adds a new light using the given position and color.
@@ -92,6 +93,7 @@ void draw_lights();
  * \retval int          the index into the \ref lights_list array, where the light was added.
  */
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity);
+#endif
 
 /*!
  * \ingroup lights

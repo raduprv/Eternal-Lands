@@ -28,7 +28,11 @@
 
 #define PART_SYS_VISIBLE_DIST_SQ 18*18
 
-int use_point_particles=1;
+#ifdef ELC
+int use_point_particles = 1;
+#else
+int use_point_particles = 0;
+#endif
 int particles_percentage=100;
 SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
 int particle_textures[8];
@@ -43,7 +47,7 @@ particle_sys_def *defs_list[MAX_PARTICLE_DEFS];
 void destroy_all_particle_defs();
 
 #ifndef ELC
-Uint32	clean_file_name(Uint8 *dest, const Uint8 *src, Uint32 max_len)
+Uint32	clean_file_name(char *dest, const char *src, Uint32 max_len)
 {
 	Uint32	len;
 	Uint32	i;
@@ -428,7 +432,7 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	particle *p;
 
 	if(!def)return -1;
-
+	
 	//allocate memory for this particle system
 	system_id=(particle_sys *)calloc(1,sizeof(particle_sys));
 

@@ -798,9 +798,10 @@ void init_vars()
 	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",SPECIALVID,0,100);
  #ifdef	TERRAIN
 	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", SPECIALVID);
- #endif
-#endif
-	
+ #endif // TERRAIN
+#endif // ELC
+
+#ifndef MAP_EDITOR	
 	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",SPECIALVID);
 	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects",SPECIALVID);
 
@@ -810,20 +811,20 @@ void init_vars()
 
 	add_var(FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
 	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
-	
+
 #ifndef MAP_EDITOR2
 	add_var(FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,FLT_MAX,0.01);
 #endif
- #ifdef ELC
-#ifndef MAP_EDITOR2
+#ifdef ELC
+ #ifndef MAP_EDITOR2
 	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
-#endif
+ #endif
 	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
 	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, "Type 1", "Type 2", NULL);
- #else
+#else
 	add_var(INT,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,1,3);
 	add_var(INT,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,1,3);
- #endif //ELC
+#endif //ELC
 	
 	add_var(BOOL,"no_sound","sound",&no_sound,change_var,0,"No sound","Toggle the Audio",AUDIO);
 	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
@@ -858,6 +859,7 @@ void init_vars()
 	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
 	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
 	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
+#endif
 #ifndef MAP_EDITOR2
  #ifdef ELC
  	add_var(MULTI,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
