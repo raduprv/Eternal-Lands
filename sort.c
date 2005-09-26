@@ -1,7 +1,16 @@
 #include <string.h>
 #include "sort.h"
 
-__inline__ int min(int x, int y) {
+// XXX FIXME (Grum): apparently MSVC defines its own inline min function, since
+// the linker complains about this if we try to inline this. Why we cannot get
+// away with ifndef'ing this function altogether is a mystery that an MSVC
+// user has to solve.
+#ifndef _MSC_VER
+__inline__ int min (int x, int y)
+#else
+int min (int x, int y)
+#endif
+{
 	return (x <= y)? x : y;
 }
 
