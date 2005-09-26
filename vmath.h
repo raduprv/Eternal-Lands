@@ -22,7 +22,7 @@
  * 
  * \callgraph
  */
-static inline int min(int a, int b)
+static __inline__ int min(int a, int b)
 {
 	return a < b ? a : b;
 }
@@ -40,7 +40,7 @@ static inline int min(int a, int b)
  * 
  * \callgraph
  */
-static inline int max(int a, int b)
+static __inline__ int max(int a, int b)
 {
 	return a > b ? a : b;
 }
@@ -84,7 +84,7 @@ typedef short SHORT_VEC3[3];
  * 
  * \callgraph
  */
-static inline void VAdd(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
+static __inline__ void VAdd(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
 {
 	v1[X] = v2[X] + v3[X];
 	v1[Y] = v2[Y] + v3[Y];
@@ -101,7 +101,7 @@ static inline void VAdd(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
  * 
  * \callgraph
  */
-static inline void VAddEq(VECTOR3 v1, const VECTOR3 v2)
+static __inline__ void VAddEq(VECTOR3 v1, const VECTOR3 v2)
 {
 	v1[X] += v2[X];
 	v1[Y] += v2[Y];
@@ -118,7 +118,7 @@ static inline void VAddEq(VECTOR3 v1, const VECTOR3 v2)
  * 
  * \callgraph
  */
-static inline void VAssign(VECTOR3 v1, const VECTOR3 v2)
+static __inline__ void VAssign(VECTOR3 v1, const VECTOR3 v2)
 {
 	memcpy(v1, v2, sizeof(VECTOR3));
 }
@@ -135,7 +135,7 @@ static inline void VAssign(VECTOR3 v1, const VECTOR3 v2)
  * 
  * \callgraph
  */
-static inline void VAssign4(VECTOR4 v1, const VECTOR3 v2, const float vw)
+static __inline__ void VAssign4(VECTOR4 v1, const VECTOR3 v2, const float vw)
 {
 	memcpy(v1, v2, sizeof(VECTOR3));
 	v1[W] = vw;
@@ -153,7 +153,7 @@ static inline void VAssign4(VECTOR4 v1, const VECTOR3 v2, const float vw)
  * 
  * \callgraph
  */
-static inline void VMake(VECTOR3 v1, const float v_x, const float v_y, const float v_z)
+static __inline__ void VMake(VECTOR3 v1, const float v_x, const float v_y, const float v_z)
 {
 	v1[X] = v_x;
 	v1[Y] = v_y;
@@ -170,7 +170,7 @@ static inline void VMake(VECTOR3 v1, const float v_x, const float v_y, const flo
  * 
  * \callgraph
  */
-static inline void Normalize(VECTOR3 v1, const VECTOR3 v2)
+static __inline__ void Normalize(VECTOR3 v1, const VECTOR3 v2)
 {
 	float n;
 	n = v2[X] * v2[X] + v2[Y] * v2[Y] + v2[Z] * v2[Z];
@@ -191,7 +191,7 @@ static inline void Normalize(VECTOR3 v1, const VECTOR3 v2)
  * 
  * \callgraph
  */
-static inline void VAssignS3(SHORT_VEC3 v1, const VECTOR3 v2)
+static __inline__ void VAssignS3(SHORT_VEC3 v1, const VECTOR3 v2)
 {
 	v1[X] = v2[X]*32767.0f;
 	v1[Y] = v2[Y]*32767.0f;

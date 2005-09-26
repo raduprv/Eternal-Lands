@@ -18,7 +18,7 @@
  *  
  * \callgraph
  */
-static inline void build_normal_texures_lo_mem(SHORT_VEC3* normal_map, const unsigned int size_x, 
+static __inline__ void build_normal_texures_lo_mem(SHORT_VEC3* normal_map, const unsigned int size_x, 
 		const unsigned int size_y)
 {
 	unsigned int i, j, k, l, index;
@@ -84,7 +84,7 @@ static inline void build_normal_texures_lo_mem(SHORT_VEC3* normal_map, const uns
  *  
  * \callgraph
  */
-static inline void calc_triangle_normal(VECTOR4 v1, const unsigned int index, 
+static __inline__ void calc_triangle_normal(VECTOR4 v1, const unsigned int index, 
 		const unsigned int size_x, const unsigned int size_y, 
 		unsigned short* h_map, const float h_scale)
 {
@@ -138,7 +138,7 @@ static inline void calc_triangle_normal(VECTOR4 v1, const unsigned int index,
  *  
  * \callgraph
  */
-static inline void calc_normal_map_lo_mem(unsigned short* h_map, const unsigned int size_x, 
+static __inline__ void calc_normal_map_lo_mem(unsigned short* h_map, const unsigned int size_x, 
 		const unsigned int size_y, const float h_scale)
 {
 	int i, j, n_index, n_row;

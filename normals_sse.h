@@ -37,7 +37,7 @@
  *  
  * \callgraph
  */
-static inline void calc_normal_map_float_sse(float* h_map_f, const unsigned int size_x, 
+static __inline__ void calc_normal_map_float_sse(float* h_map_f, const unsigned int size_x, 
 		const unsigned int size_y)
 {
 	unsigned int i, j, n_index, n_row;
@@ -373,7 +373,7 @@ static inline void calc_normal_map_float_sse(float* h_map_f, const unsigned int 
  *  
  * \callgraph
  */
-static inline void calc_normal_map_sse(unsigned short* h_map, unsigned int size_x, 
+static __inline__ void calc_normal_map_sse(unsigned short* h_map, unsigned int size_x, 
 		unsigned int size_y, float h_scale)
 {
 	unsigned int i, j, index;

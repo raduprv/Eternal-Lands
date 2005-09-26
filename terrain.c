@@ -32,7 +32,7 @@ float *hf_map;
  *  
  * \callgraph
  */
-static inline void calc_current_terrain(unsigned short* map_data, const unsigned int size_x,
+static __inline__ void calc_current_terrain(unsigned short* map_data, const unsigned int size_x,
 		const unsigned int size_y, const float h_scale, float* h_map)
 {
 	unsigned int i, j, tmp, index;

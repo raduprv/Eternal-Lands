@@ -143,7 +143,7 @@ extern VECTOR3* terrain_vertex_normals;
  *  
  * \callgraph
  */
-static inline GLuint get_normal_texture_ID(const unsigned int tile_x, const unsigned int tile_y)
+static __inline__ GLuint get_normal_texture_ID(const unsigned int tile_x, const unsigned int tile_y)
 {
 	unsigned int x, y;
 	unsigned int normal_texture_count_x;
@@ -165,7 +165,7 @@ static inline GLuint get_normal_texture_ID(const unsigned int tile_x, const unsi
  *  
  * \callgraph
  */
-static inline float get_texture_coord_u(const unsigned int tile_x, const unsigned int x)
+static __inline__ float get_texture_coord_u(const unsigned int tile_x, const unsigned int x)
 {
 	float coord;
 	float pad;
@@ -186,7 +186,7 @@ static inline float get_texture_coord_u(const unsigned int tile_x, const unsigne
  *  
  * \callgraph
  */
-static inline float get_texture_coord_v(const unsigned int tile_y, const unsigned int y)
+static __inline__ float get_texture_coord_v(const unsigned int tile_y, const unsigned int y)
 {
 	float coord;
 	float pad;
@@ -209,7 +209,7 @@ static inline float get_texture_coord_v(const unsigned int tile_y, const unsigne
  *  
  * \callgraph
  */
-static inline float get_vertex_height(const unsigned int tile_x, const unsigned int tile_y, const unsigned int x, const unsigned int y)
+static __inline__ float get_vertex_height(const unsigned int tile_x, const unsigned int tile_y, const unsigned int x, const unsigned int y)
 {
 	return hf_map[(y+tile_y*VERTEXES_PER_TILE_Y)*(normal_map_size_x/NORMALS_PER_VERTEX_X)+(x+VERTEXES_PER_TILE_X*tile_x)];
 }
@@ -227,7 +227,7 @@ static inline float get_vertex_height(const unsigned int tile_x, const unsigned 
  *  
  * \callgraph
  */
-static inline int get_vertex_normal(const unsigned int tile_x, const unsigned int tile_y, const unsigned int x, const unsigned int y)
+static __inline__ int get_vertex_normal(const unsigned int tile_x, const unsigned int tile_y, const unsigned int x, const unsigned int y)
 {
 	return (y+tile_y*VERTEXES_PER_TILE_Y)*(normal_map_size_x/NORMALS_PER_VERTEX_X)+(x+VERTEXES_PER_TILE_X*tile_x);
 }

@@ -53,7 +53,7 @@ VECTOR3* terrain_vertex_normals;
  *  
  * \callgraph
  */
-static inline void build_normal_texures(VECTOR4* normal_map, const unsigned int size_x, 
+static __inline__ void build_normal_texures(VECTOR4* normal_map, const unsigned int size_x, 
 		const unsigned int size_y)
 {
 	unsigned int i, j, k, l, index, size, copy_size;
@@ -115,7 +115,7 @@ static inline void build_normal_texures(VECTOR4* normal_map, const unsigned int 
  *  
  * \callgraph
  */
-static inline GLuint* create_normal_texture_IDs(const unsigned int count)
+static __inline__ GLuint* create_normal_texture_IDs(const unsigned int count)
 {
 	GLuint* ret;
 	ret = malloc(count*sizeof(GLuint));
@@ -144,7 +144,7 @@ static inline GLuint* create_normal_texture_IDs(const unsigned int count)
  *  
  * \callgraph
  */
-static inline void calc_normal_map(unsigned short* h_map, unsigned int size_x, 
+static __inline__ void calc_normal_map(unsigned short* h_map, unsigned int size_x, 
 		unsigned int size_y, float h_scale)
 {
 	int i, j, n_index, n_row;
@@ -221,7 +221,7 @@ static inline void calc_normal_map(unsigned short* h_map, unsigned int size_x,
  *  
  * \callgraph
  */
-static inline void calc_terrain_vertex_normals(unsigned short* h_map, unsigned int size_x, 
+static __inline__ void calc_terrain_vertex_normals(unsigned short* h_map, unsigned int size_x, 
 		unsigned int size_y, float h_scale)
 {
 	int i, j, n_index, n_row;

@@ -9,7 +9,7 @@
 #include "global.h"
 #endif
 
-static inline void load_shader(GLhandleARB ShaderObject, char* filename)
+static __inline__ void load_shader(GLhandleARB ShaderObject, char* filename)
 {
 	int shader_size;
 	FILE *file;

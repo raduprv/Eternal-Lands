@@ -22,7 +22,7 @@ float ambient_b=0;
 char map_file_name[256];
 
 #ifdef	TERRAIN
-static inline void draw_tile_map_normal_mapping(const unsigned int x, const unsigned int y)
+static __inline__ void draw_tile_map_normal_mapping(const unsigned int x, const unsigned int y)
 {
 	int i, j;
 	float x_scaled, y_scaled;
@@ -59,7 +59,7 @@ static inline void draw_tile_map_normal_mapping(const unsigned int x, const unsi
 	}
 }
 
-static inline void draw_tile_map_multitexture(const unsigned int x, const unsigned int y)
+static __inline__ void draw_tile_map_multitexture(const unsigned int x, const unsigned int y)
 {
 	int i, j;
 	float x_scaled, y_scaled;
@@ -96,7 +96,7 @@ static inline void draw_tile_map_multitexture(const unsigned int x, const unsign
 	}
 }
 
-static inline void draw_tile_map_singletexture(const unsigned int x, const unsigned int y)
+static __inline__ void draw_tile_map_singletexture(const unsigned int x, const unsigned int y)
 {
 	int i, j;
 	float x_scaled, y_scaled;

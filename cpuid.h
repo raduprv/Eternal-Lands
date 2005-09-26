@@ -31,7 +31,7 @@
  *
  * \callgraph
  */
-static inline void cpuid(int code, unsigned int *a, unsigned int *b,
+static __inline__ void cpuid(int code, unsigned int *a, unsigned int *b,
 		unsigned int *c, unsigned int *d) 
 {
 	asm(	"cpuid\n\t"
@@ -47,7 +47,7 @@ static inline void cpuid(int code, unsigned int *a, unsigned int *b,
  *
  * \callgraph
  */
-static inline int get_sse()
+static __inline__ int get_sse()
 {
 	unsigned int a, b, c, d, ret;
 	cpuid(0, &a, &b, &c, &d);
