@@ -293,6 +293,11 @@ void read_bin_cfg()
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 	rz=cfg_mem.camera_angle;
 
+	view_health_bar=cfg_mem.view_health_bar;
+	view_names=cfg_mem.view_names;
+	view_hp=cfg_mem.view_hp;
+	quantities.selected=cfg_mem.quantity_selected;
+
 	for(i=0;i<6;i++){
 		if(cfg_mem.quantity[i]){
 			quantities.quantity[i].val=cfg_mem.quantity[i];
@@ -416,6 +421,11 @@ void save_bin_cfg()
 		cfg_mem.storage_win_x=storage_win_x;
 		cfg_mem.storage_win_y=storage_win_y;
 	}
+
+	cfg_mem.view_health_bar=view_health_bar;
+	cfg_mem.view_names=view_names;
+	cfg_mem.view_hp=view_hp;
+	cfg_mem.quantity_selected=quantities.selected;
 
 	if(quickbar_relocatable>0)
 		{

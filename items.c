@@ -742,6 +742,7 @@ int show_items_handler(window_info * win)
 	win->len_y=6*items_grid_size+90;
 	quantity_x_offset=6*items_grid_size+20;
 	wear_items_x_offset=6*items_grid_size+20;
+	item_quantity=quantities.quantity[quantities.selected].val;
 
 	w=widget_find(items_win, drop_button_id);
 	if(w)w->pos_y=6*items_grid_size+2;

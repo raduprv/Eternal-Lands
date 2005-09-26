@@ -119,8 +119,14 @@ typedef struct
 	int storage_win_x;
 	int storage_win_y;
 
+	int quantity_selected;
+
+	int view_health_bar;
+	int view_names;
+	int view_hp;
+
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[8];
+	int reserved[4];
 
     /*!
      * \name Camera position and attributes
