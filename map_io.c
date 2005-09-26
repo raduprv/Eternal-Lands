@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 #include "loading_win.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -34,6 +38,7 @@ void destroy_map()
 			height_map=0;
 		}
 
+#ifndef MAP_EDITOR2
 	///kill the pathfinding tile map
 	if(pf_tile_map)
 		{
@@ -44,6 +49,7 @@ void destroy_map()
 				pf_destroy_path();
 			}
 		}
+#endif
 
 	//kill the 3d objects links
 	for(i=0;i<MAX_OBJ_3D;i++)
@@ -92,6 +98,7 @@ void destroy_map()
 #endif
 }
 
+#ifndef MAP_EDITOR2
 int get_cur_map (const char * file_name)
 {
 	int i;
@@ -106,15 +113,17 @@ int get_cur_map (const char * file_name)
 
 	return -1;	
 }
+#endif
 
 void change_map (const char *mapname)
 {
 	regenerate_near_objects=1;//Regenerate the near 3d objects...
 	regenerate_near_2d_objects=1;//Regenerate the near 3d objects...
+	object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
+#ifndef MAP_EDITOR2
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 	close_dialogue();	// close the dialogue window if open
 	close_storagewin(); //if storage is open, close it
 	destroy_all_particles();
@@ -153,6 +162,24 @@ void change_map (const char *mapname)
 		show_window(game_root_win);
 	}
 	load_map_marks();//Load the map marks
+#else
+	destroy_all_particles();
+	kill_local_sounds();
+	if (!load_map(mapname)) {
+		char error[255];
+		snprintf(error, 255, cant_change_map, mapname);
+		LOG_TO_CONSOLE(c_red4, error);
+		LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
+		LOG_ERROR(cant_change_map, mapname);
+		load_empty_map();
+	}
+	kill_local_sounds();
+#ifndef	NO_MUSIC
+	playing_music=0;
+#endif	//NO_MUSIC
+	get_map_playlist();
+	have_a_map=1;
+#endif
 }
 
 int load_map (const char * file_name)
@@ -254,8 +281,10 @@ int load_map (const char * file_name)
 	ambient_g=cur_map_header.ambient_g;
 	ambient_b=cur_map_header.ambient_b;
 
+#ifndef MAP_EDITOR2
 	if (!dungeon) cur_map = get_cur_map (file_name); //Otherwise we pretend that we don't know where we are - if anyone wants to do the work and input all coordinates it's fine by me however :o)
 	else cur_map=-1;
+#endif
 
 	//this is useful if we go in/out a dungeon
 	new_minute();
@@ -269,6 +298,7 @@ int load_map (const char * file_name)
 	//read the heights map
 	fread(height_map, 1, tile_map_size_x*tile_map_size_y*6*6, f);
 
+#ifndef MAP_EDITOR2
 	//create the tile map that will be used for pathfinding
 	pf_tile_map = (PF_TILE *)calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE));
 	{
@@ -283,6 +313,7 @@ int load_map (const char * file_name)
 			}
 		}
 	}
+#endif
 
 	update_loading_win("Loading 3d objects", 0);
 	//see which objects in our cache are not used in this map
@@ -353,7 +384,11 @@ int load_map (const char * file_name)
 				cur_light_io.b = SwapFloat(cur_light_io.b);
 			#endif
 			
+#ifdef MAP_EDITOR2
+			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f,1);
+#else
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f);
+#endif
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);
 			}
@@ -397,6 +432,7 @@ int load_map (const char * file_name)
 int load_empty_map()
 {
 	if(!load_map("./maps/nomap.elm")) {
+#ifndef MAP_EDITOR2
 		locked_to_console = 1;
 		hide_window (game_root_win);
 		show_window (console_root_win);
@@ -407,6 +443,7 @@ int load_empty_map()
 		SDLNet_Quit();
 		LOG_TO_CONSOLE(c_red3, disconnected_from_server);
 		//Fake a map to make sure we don't get any crashes.
+#endif
 		snprintf(map_file_name, sizeof(map_file_name), "./maps/nomap.elm");
 		tile_map_size_y = 256;
 		tile_map_size_x = 256;
@@ -416,12 +453,15 @@ int load_empty_map()
 		ambient_b = 0;
 		tile_map = calloc(tile_map_size_x*tile_map_size_y, sizeof(char));
 		height_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(char));
+#ifndef MAP_EDITOR2
 		pf_tile_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(char));
+#endif
 		return 0;
 	}
 	return 1;
 }
 
+#ifndef MAP_EDITOR2
 void load_map_marks()
 { 
 	FILE * fp = NULL;
@@ -455,8 +495,9 @@ void load_map_marks()
 	
 	fclose(fp);
 }
+#endif
 
-/* currently UNUSED
+#ifdef MAP_EDITOR2
 void new_map(int m_x_size,int m_y_size)
 {
 	int i;
@@ -689,8 +730,9 @@ int save_map(char * file_name)
 	return 1;
 
 }
-*/
+#endif
 
+#ifndef MAP_EDITOR2
 int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 {
 	int iobj;
@@ -800,3 +842,4 @@ void remove_3d_object_from_server (int id)
 
 	destroy_3d_object (id);
 }
+#endif

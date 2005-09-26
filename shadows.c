@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 #ifdef OSX
 #define GL_EXT_texture_env_combine 1
@@ -261,7 +265,7 @@ void draw_3d_object_shadow(object3d * object_id)
 }
 
 
-
+#ifndef MAP_EDITOR2
 void draw_enhanced_actor_shadow(actor * actor_id)
 {
 	double x_pos,y_pos,z_pos;
@@ -344,6 +348,7 @@ void display_actors_shadow()
 		}
 	}
 }
+#endif
 
 void display_shadows()
 {
@@ -373,9 +378,11 @@ void display_shadows()
 
 	glDisableClientState(GL_VERTEX_ARRAY);
     	glDisable(GL_CULL_FACE);
+#ifndef MAP_EDITOR2
 	glDisable(GL_TEXTURE_2D);
 	display_actors_shadow();
 	glEnable(GL_TEXTURE_2D);
+#endif
 }
 
 void display_3d_ground_objects()
@@ -502,7 +509,9 @@ void render_light_view()
 			glPolygonOffset(1.1f,4.0f);
 			glDisable(GL_LIGHTING);
 			glEnable(GL_DEPTH_TEST);
+#ifndef MAP_EDITOR2
 			if(use_fog)glDisable(GL_FOG);
+#endif
 			glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
 			CHECK_GL_ERRORS();
 			glMatrixMode(GL_PROJECTION);
@@ -611,7 +620,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 			base_unit=GL_TEXTURE1_ARB;
 			detail_unit=GL_TEXTURE2_ARB;
 
+#ifndef MAP_EDITOR2
 			if (use_fog) glDisable(GL_FOG);
+#endif
 
 			ELglActiveTextureARB(shadow_unit);
 			glEnable(depth_texture_target);
@@ -629,7 +640,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			CHECK_GL_ERRORS();
 
+#ifndef MAP_EDITOR2
 			if(use_fog) glEnable(GL_FOG);
+#endif
 
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
@@ -639,10 +652,14 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 			display_objects();
+#ifndef MAP_EDITOR2
 			display_actors();  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
+#endif
 			display_blended_objects();
 
+#ifndef MAP_EDITOR2
 			if (use_fog) glDisable(GL_FOG);
+#endif
 
 			ELglActiveTextureARB(shadow_unit);
 			glDisable(depth_texture_target);
@@ -712,7 +729,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glDepthMask(GL_FALSE);
 			glDisable(GL_DEPTH_TEST);
 
+#ifndef MAP_EDITOR2
 			if (use_fog) glEnable(GL_FOG);
+#endif
 
 			glEnable(GL_BLEND);
 			// need this function (or both flipped) for correctly working fog too
@@ -724,7 +743,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 			abs_light=light_level;
 			if(light_level>59)abs_light=119-light_level;
 
+#ifndef MAP_EDITOR2
 			abs_light+=weather_light_offset;
+#endif
 			if(abs_light<0)abs_light=0;
 			if(abs_light>59)abs_light=59;
 
@@ -749,7 +770,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glDisable(GL_STENCIL_TEST);
 
 			display_3d_non_ground_objects();
+#ifndef MAP_EDITOR2
 			display_actors();
+#endif
 			display_blended_objects();
 
 		}

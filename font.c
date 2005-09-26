@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -221,6 +225,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		// no point in trying
 		return;
 
+#ifndef MAP_EDITOR2
 	if (filter != FILTER_ALL)
 	{
 		// skip all messages of the wrong channel
@@ -278,6 +283,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 		}
 	}
+#endif
 
 	if (ichar > 0) {
 		ch = msgs[imsg].data[ichar];
@@ -329,6 +335,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		{
 			// end of message
 			if (++imsg >= msgs_size) imsg = 0;
+#ifndef MAP_EDITOR2
 			if (filter != FILTER_ALL)
 			{
 				// skip all messages of the wrong channel
@@ -366,7 +373,9 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 					}
 				}
 			}
+#endif
 			if (msgs[imsg].data == NULL || imsg == msg_start) break;
+#ifndef MAP_EDITOR2
 			if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3)
 			{
 				// when using the window, the input buffer does nasty things.
@@ -383,6 +392,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 					msgs[imsg].data[0] = (Uint8)(127+c_grey1);
 				}
 			}
+#endif
 			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
 			ichar = 0;
 		}
@@ -739,6 +749,7 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 }
 
 #ifdef	ELC
+#ifndef MAP_EDITOR2
 void draw_ingame_string(float x, float y,const unsigned char * our_string,
 						int max_lines, float font_x_scale, float font_y_scale)
 {
@@ -847,6 +858,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
     glEnd();
 	glDisable(GL_ALPHA_TEST);
 }
+#endif
 #endif	//ELC
 
 

@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 #include "cache.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -61,7 +65,11 @@ void cache_dump_sizes(cache_struct *cache)
 						}
 					snprintf(str,sizeof(str), "%s %6d%c - %d: %s", cache_size_str, size, scale, i, cache->cached_items[i]->name);
 					put_colored_text_in_buffer(c_yellow1, CHAT_SERVER, str, -1);
+#ifdef MAP_EDITOR2
+					log_error(str);
+#else
 					write_to_log(str, strlen(str));
+#endif
 				}
 		}
 }

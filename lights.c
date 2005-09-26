@@ -1,6 +1,10 @@
 #include <stdlib.h>
-#include "global.h"
 #include <math.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
+#include "global.h"
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -203,7 +207,11 @@ void draw_lights()
 	}
 }
 
+#ifdef MAP_EDITOR2
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity,int locked)
+#else
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity)
+#endif
 {
 	int i;
 	light *new_light;
@@ -229,6 +237,10 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 	new_light->g= g*intensity;
 	new_light->b= b*intensity;
 
+#ifdef MAP_EDITOR2
+	new_light->locked=locked;
+#endif
+	
 	lights_list[i] = new_light;
 	if (i >= num_lights) num_lights = i+1;
 	
@@ -603,7 +615,9 @@ void draw_global_light()
 	if(i<0)i=0;
 #else
 	//this is for weather things, when the light level is not the normal light lvel of the current time
+#ifndef MAP_EDITOR2
 	i+=weather_light_offset;
+#endif
 	if(i<0)i=0;
 	if(i>59)i=59;
 #endif
@@ -614,9 +628,15 @@ void draw_global_light()
 	difuse_light[1] = weather_bias_light(global_lights[i][1] - 0.15f);
 	difuse_light[2] = weather_bias_light(global_lights[i][2] - 0.15f);
 #else
+#ifndef MAP_EDITOR2
 	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90-0.15f;
 	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60-0.15f;
 	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15-0.15f;
+#else
+	difuse_light[0]=global_lights[i][0];
+	difuse_light[1]=global_lights[i][1];
+	difuse_light[2]=global_lights[i][2];
+#endif
 #endif
 
 	if(map_type==2)

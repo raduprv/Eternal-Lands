@@ -6,6 +6,16 @@
 #ifndef __TILE_H__
 #define __TILE_H__
 
+#ifdef MAP_EDITOR2
+typedef struct
+{
+	char * img;
+	int x;
+	int y;
+} img_struct;
+
+extern img_struct map_tiles[256];
+#endif
 
 extern unsigned char *tile_map;     /*!< The tile-map is an unsigned char array of map_tile_size_x*map_tile_size_y */
 extern unsigned char *height_map;   /*!< The height-map is an unsigned char array of (map_tile_size_x*6)*(map_tile_size_y*6) - each tile has 36 heightmap blocks */

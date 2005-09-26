@@ -6,7 +6,7 @@
 #ifndef __MAP_IO_H__
 #define __MAP_IO_H__
 
-extern char map_file_name[60]; /*!< filename of the current map */
+extern char map_file_name[256]; /*!< filename of the current map */
 #define PLAINS 		0x00000001 //It can rain here
 #define SNOW 		0x00000002 //It can snow here
 #define DESERT 		0x00000004 //It can be darned hot here :P
@@ -288,5 +288,30 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len);
  * \callgraph
  */
 void remove_3d_object_from_server (int id);
+
+#ifdef MAP_EDITOR2
+/*!
+ * \ingroup maps
+ * \brief Creates a new map
+ * 	
+ * 	Creates a new map with the given width and height measured in tiles
+ *
+ * \param size_x The width
+ * \param size_y The height
+ */
+void new_map(int size_x, int size_y);
+
+/*!
+ * \ingroup maps
+ * \brief Saves a map
+ *
+ * 	Saves the current map to file
+ *
+ * \param filename The file to save to
+ * \retval Always returns true. Can exit(1) if the output file cannot be saved.
+ * \todo Don't exit(1) on failure!
+ */
+int save_map(char * filename);
+#endif
 
 #endif

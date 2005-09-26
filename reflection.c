@@ -1,9 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
 #include <math.h>
-#include "textures.h"
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
+#include "global.h"
 #include "tiles.h"
+#include "textures.h"
+#endif
 
 typedef struct
 {
@@ -26,6 +30,7 @@ float mrandom(float max)
 	return ((float) max * (rand () % 8 ));
 }
 
+#ifndef MAP_EDITOR2
 void draw_actor_reflection(actor * actor_id)
 {
 	double x_pos,y_pos,z_pos;
@@ -112,6 +117,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
 }
+#endif
 
 
 
@@ -300,7 +306,9 @@ void display_3d_reflection()
 	 * TODO: Render to texture, then create ripples and other nifty things 
 	 * 	 Fix the bug with reflections showing up when z<water_deepth_offset even if it's not a reflective tile that's beneath it.
 	 */
+#ifndef MAP_EDITOR2
 	int i;
+#endif
 	int x,y;
 	double water_clipping_p[4]={0,0,-1,water_deepth_offset};
 	float window_ratio;
@@ -356,6 +364,7 @@ void display_3d_reflection()
 		}
 	}
 
+#ifndef MAP_EDITOR2
 	for(i=0;i<no_near_actors;i++) {
 		if(near_actors[i].dist<=100 && !near_actors[i].ghost){ 
 			actor * act=actors_list[near_actors[i].actor];
@@ -371,6 +380,7 @@ void display_3d_reflection()
 			}
 		}
 	}
+#endif
 	glPopMatrix();
 	reset_material();
 
@@ -449,6 +459,7 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 }
 
 
+#ifndef MAP_EDITOR2
 void blend_reflection_fog()
 {
 	int x_start,x_end,y_start,y_end;
@@ -526,6 +537,7 @@ void blend_reflection_fog()
 	// ok, now we can write depth values
 	glDepthMask(GL_TRUE);
 }
+#endif
 
 void draw_lake_tiles()
 {
@@ -583,10 +595,14 @@ void draw_lake_tiles()
 void draw_sky_background()
 {
 	static GLfloat lights_c[4][3];
+#ifdef MAP_EDITOR2
+	int i;
+#else
 #ifdef NEW_WEATHER
 	int i;
 #else
 	int i, j;
+#endif
 #endif
 
 #ifdef NEW_WEATHER
@@ -609,12 +625,14 @@ void draw_sky_background()
 		lights_c[2][i] = sky_lights_c3[light_level][i];
 		lights_c[3][i] = sky_lights_c4[light_level][i];
 		
+#ifndef MAP_EDITOR2		
 		for (j=0; j<4; j++) {
 			// make it darker according to weather
 			GLfloat tmp = lights_c[j][i] - (float)weather_light_offset/100.0f;
 			// blend it with fog color according to fog density
 			lights_c[j][i] = (1.0f - fogAlpha)*tmp + fogAlpha*fogColor[i];
 		}
+#endif
 	}
 #endif
 	
@@ -635,6 +653,9 @@ void draw_sky_background()
 void draw_dungeon_sky_background()
 {
 	static const GLfloat baseColor[3] = { 0.00f, 0.21f, 0.34f };
+#ifdef MAP_EDITOR2
+	glColor3fv(baseColor);
+#else
 	static GLfloat color[3];
 	int i;
 
@@ -646,6 +667,7 @@ void draw_dungeon_sky_background()
 	}
 #endif
 	glColor3fv(color);
+#endif
 	
 	Enter2DMode();
 	glDisable(GL_TEXTURE_2D);

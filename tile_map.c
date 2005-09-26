@@ -19,9 +19,7 @@ char dungeon=0;//no sun
 float ambient_r=0;
 float ambient_g=0;
 float ambient_b=0;
-#ifndef MAP_EDITOR2
-char map_file_name[60];
-#endif
+char map_file_name[256];
 
 #ifdef	TERRAIN
 static inline void draw_tile_map_normal_mapping(const unsigned int x, const unsigned int y)

@@ -6,7 +6,12 @@
 #ifndef __TEXTURES_H__
 #define __TEXTURES_H__
 
-#include "global.h"
+#ifdef MAP_EDITOR2
+ #include "../map_editor2/global.h"
+#else
+ #include "global.h"
+#endif
+
 
 #define TEXTURE_CACHE_MAX 2000
 extern texture_cache_struct texture_cache[TEXTURE_CACHE_MAX]; /*!< global texture cache */
@@ -99,6 +104,22 @@ void	bind_texture_id(int texture_id);
  */
 int		get_and_set_texture_id(int i);
 
+#ifdef MAP_EDITOR2
+/*!
+ * \ingroup 	load_bmp
+ * \brief	Loads the image into the given img_struct
+ *
+ * 	Loads a bmp file, optionally sets the image x, y as given by the img_struct. Does not generate the OpenGL texture.
+ *
+ * \param	FileName The filename of the bmp file
+ * \param	img The optional img_struct to set the width and height
+ * \retval	char* The raw image
+ * \todo	Rewrite, it's stupid to pass an img_struct ptr...
+ */
+char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img);
+#endif
+                               
+#ifndef MAP_EDITOR2
 /*!
  * \ingroup 	load_bmp
  * \brief 	Loads a remapped skin for the actor
@@ -117,7 +138,7 @@ int		get_and_set_texture_id(int i);
  */
 GLuint	load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short shirt,
 							   short pants, short boots);
-                               
+
 #ifdef	ELC
 /*!
  * \ingroup 	load_bmp
@@ -134,4 +155,6 @@ GLuint	load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
  */
 int		load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a);
 #endif	//ELC
+#endif  //MAP_EDITOR2
+
 #endif

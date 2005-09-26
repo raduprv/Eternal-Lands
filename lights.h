@@ -30,6 +30,9 @@ typedef struct
 	float g;
 	float b;
     /*! @} */
+#ifdef MAP_EDITOR2
+	int locked;
+#endif
 }light;
 
 /*! \name Lights limits */
@@ -92,7 +95,11 @@ void draw_lights();
  * \param intensity     a (intensity) value of the lights color
  * \retval int          the index into the \ref lights_list array, where the light was added.
  */
+#ifdef MAP_EDITOR2
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked);
+#else
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity);
+#endif
 #endif
 
 /*!

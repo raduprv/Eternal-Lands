@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 Uint32 flags;
 
@@ -751,6 +755,7 @@ void set_new_video_mode(int fs,int mode)
 				}
 		}
 
+#ifndef MAP_EDITOR2
 	//do the same for the actors textures...
 	for(i=0;i<max_actors;i++)
 		{
@@ -764,6 +769,7 @@ void set_new_video_mode(int fs,int mode)
 						}
 				}
 		}
+#endif
 
 	if(have_vertex_buffers){
 		e3d_object * obj;
@@ -829,6 +835,7 @@ void set_new_video_mode(int fs,int mode)
 
 	reload_fonts();
 
+#ifndef MAP_EDITOR2
 	//do the same for the actors textures...
 	for(i=0;i<max_actors;i++)
 		{
@@ -847,6 +854,7 @@ void set_new_video_mode(int fs,int mode)
 						}
 				}
 		}
+#endif
 
 	if(have_vertex_buffers){
 		e3d_object * obj;
