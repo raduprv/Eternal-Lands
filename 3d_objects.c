@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 object3d *objects_list[MAX_OBJ_3D];
 struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
@@ -357,6 +361,18 @@ int get_near_3d_objects()
 	int sx, sy, ex, ey;
 	float x, y;
 	int i, j, k;
+
+#ifdef MAP_EDITOR2
+	no_near_3d_objects = 0;
+	no_near_blended_3d_objects = 0;
+	first_near_3d_object = NULL;
+	first_near_blended_3d_object = NULL;
+     
+	x = -cx;
+	y = -cy;
+     
+	get_supersector (SECTOR_GET (global_x_pos, global_y_pos), &sx, &sy, &ex, &ey);
+#else
 	actor *xxx = pf_get_our_actor ();
 
 	if (xxx == NULL) return 0;
@@ -370,6 +386,7 @@ int get_near_3d_objects()
 	y = -cy;
      
 	get_supersector (SECTOR_GET (xxx->x_pos, xxx->y_pos), &sx, &sy, &ex, &ey);
+#endif
 	for (i = sx; i <= ex; i++)
 	{
 		for (j = sy; j <= ey; j++)

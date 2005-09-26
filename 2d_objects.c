@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#else
 #include "global.h"
+#endif
 
 #define INVALID -1
 #define GROUND 0
@@ -423,6 +427,15 @@ int get_nearby_2d_objects()
 	int i;
 	float x,y;
 	int sx,sy,ex,ey,j,k;
+	
+#ifdef MAP_EDITOR2
+	no_nearby_2d_objects=0;
+	
+	x = -cx;
+	y = -cy;
+	
+	get_supersector(SECTOR_GET(global_x_pos,global_y_pos), &sx, &sy, &ex, &ey);
+#else
 	actor *xxx=pf_get_our_actor();
 	
 	no_nearby_2d_objects=0;
@@ -432,6 +445,7 @@ int get_nearby_2d_objects()
 	y = -cy;
 	
 	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
+#endif
 	for (i = sx; i <= ex; i++)
 	{
 		for (j = sy; j <= ey; j++)
