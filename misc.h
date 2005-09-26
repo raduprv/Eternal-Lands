@@ -95,19 +95,6 @@ int mouse_in_sphere(float x, float y, float z, float radius);
  */
 void find_last_url(const unsigned char *source_string, const int len);
 
-/*!
- * \ingroup misc
- * \brief   Sends a system command to open a browser with the last seen URL.
- *
- *      Sends a system command to open a browser window using the current URL.
- *
- * \param dummy     unused
- * \retval int      always 0.
- *
- * \pre If \ref have_url is false, this function returns 0, without performing any actions.
- */
-int go_to_url(void *dummy);
-
 //some prototypes, that won't fit somewhere else
 
 /*!
