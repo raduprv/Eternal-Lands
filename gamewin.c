@@ -547,6 +547,8 @@ int display_game_handler (window_info *win)
 
 	if (new_zoom_level != zoom_level)
 	{
+		if (new_zoom_level > zoom_level)
+			regenerate_near_objects = regenerate_near_2d_objects = 1;
 		zoom_level = new_zoom_level;
 		resize_root_window ();
 	}
@@ -1030,6 +1032,8 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			hide_window (tab_help_win);
 		if (storage_win >= 0)
 			hide_window (storage_win);
+		if (dialogue_win >= 0)
+			hide_window (dialogue_win);
 	}
 	// toggle options
 	else if (key == K_HEALTHBAR)

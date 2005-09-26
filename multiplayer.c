@@ -210,7 +210,7 @@ void connect_to_server()
 
 	if(SDLNet_TCP_AddSocket(set,my_socket)==-1)
 		{
-            log_error("SDLNet_TCP_AddSocket: %s\n", SDLNet_GetError());
+			log_error("SDLNet_TCP_AddSocket: %s\n", SDLNet_GetError());
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(2);
@@ -662,7 +662,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case PONG:
 			{
 				Uint8 str[160];
-				sprintf(str,"%s: %i MS",server_latency, SDL_GetTicks()-SDL_SwapLE32(*((Uint32 *)(in_data+3))));
+				sprintf(str,"%s: %i ms",server_latency, SDL_GetTicks()-SDL_SwapLE32(*((Uint32 *)(in_data+3))));
 				LOG_TO_CONSOLE(c_green1,str);
 			}
 			break;

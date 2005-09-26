@@ -20,6 +20,7 @@ void test_for_console_command (char *text, int len)
 {
 	char *text_loc = text;
 	int text_length = len;
+	
 	//skip a leading #
 	if(*text_loc=='#')
 		{
@@ -32,14 +33,20 @@ void test_for_console_command (char *text, int len)
 			text_loc++;
 			text_length--;
 		}
-	//remove trailing '_'
-	if(text_loc[text_length] == '_')
+	//remove trailing '_' and spaces
+	if (text_loc[text_length] == '_' || text_loc[text_length] == ' ')
 		{
 			text_loc[text_length]='\0';
 			text_length--;
 		}
+	
+	// is there a message?
+	if (text_length <= 0 || (text_loc[0] == '@' && text_length <= 1))
+	{
+		return;
+	}	
 	//cls?
-	if(my_strcompare(text_loc,"cls"))
+	else if(my_strcompare(text_loc,"cls"))
 		{
 			clear_display_text_buffer ();
 			return;

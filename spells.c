@@ -45,6 +45,7 @@ int quickspell_x_len=26;
 int quickspell_y_len=6*30;
 int quickspell_x=60;
 int quickspell_y=64;
+int quickspells_loaded = 0;
 
 void repeat_spell()
 {
@@ -651,6 +652,8 @@ void load_quickspells ()
 		mqb_data[i] = (mqbdata*) calloc (1, sizeof(mqbdata));
 		memcpy (mqb_data[i], data+1+(i-1)*sizeof(mqbdata), sizeof(mqbdata));
 	}
+	
+	quickspells_loaded = 1;
 }
 
 void save_quickspells()
@@ -660,10 +663,13 @@ void save_quickspells()
 	Uint8 i;
 	char data[MAX_DATA_FILE_SIZE];
 	//extern char username_str[16];
-	
 #ifndef WINDOWS
 	char username[20];
+#endif
 	
+	if (!quickspells_loaded) return;
+	
+#ifndef WINDOWS	
 	snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
 	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
