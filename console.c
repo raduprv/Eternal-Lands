@@ -481,7 +481,7 @@ void test_for_console_command (char *text, int len)
 					int nb = text_length - i - 1;
 					if (nb > sizeof (storage_filter) - 1)
 						nb = sizeof (storage_filter) - 1;
-					my_strncp (storage_filter, &text_loc[i+1], nb);
+					my_strncp (storage_filter, &text_loc[i+1], nb+1);
 					len = 4;
 				}
 			}
