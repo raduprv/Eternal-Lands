@@ -777,7 +777,7 @@ void display_items_menu()
 void get_items_cooldown (const Uint8 *data, int len)
 {
 	int iitem, nitems, ibyte, pos;
-	Uint16 cooldown;
+	Uint16 cooldown, max_cooldown;
 	
 	// reset old cooldown values
 	for (iitem = 0; iitem < ITEM_NUM_ITEMS; iitem++)
@@ -786,16 +786,17 @@ void get_items_cooldown (const Uint8 *data, int len)
 		item_list[iitem].max_cooldown = 0;
 	}
 	
-	nitems = len / 2;
+	nitems = len / 3;
 	if (nitems <= 0) return;
 	
 	ibyte = 0;
 	for (iitem = 0; iitem < nitems; iitem++)
 	{
 		pos = data[ibyte++];
+		max_cooldown = 3 * data[ibyte++];
 		cooldown = 3 * data[ibyte++];
 		item_list[pos].cooldown = cooldown;
-		item_list[pos].max_cooldown = cooldown;
+		item_list[pos].max_cooldown = max_cooldown;
 		item_list[pos].cool_time = cur_time;
 	}
 }
