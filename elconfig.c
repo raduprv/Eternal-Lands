@@ -512,12 +512,12 @@ void change_normal_mapping(int *nm)
 #endif // ELC
 #ifdef MAP_EDITOR
 
-void set_auto_save_interval(int *pointer, int time)
+void set_auto_save_interval (int *save_time, int time)
 {
 	if(time>0) {
-		auto_save_time = time*60000;
+		*save_time = time*60000;
 	} else {
-		auto_save_time = 0;
+		*save_time = 0;
 	}
 }
 
