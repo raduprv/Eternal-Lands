@@ -56,8 +56,8 @@ GLhandleARB init_normal_mapping_shader()
 	VertexShaderObject = ELglCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 	FragmentShaderObject = ELglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
-	load_shader(VertexShaderObject, "/home/daniel/Develop/el-cvs/elc/shader/normal_mapping_vs.gls", "");
-	load_shader(FragmentShaderObject, "/home/daniel/Develop/el-cvs/elc/shader/normal_mapping_fs.gls", "");
+	load_shader(VertexShaderObject, "/home/daniel/Develop/el-cvs/elc/shader/normal_mapping_vs.gls");
+	load_shader(FragmentShaderObject, "/home/daniel/Develop/el-cvs/elc/shader/normal_mapping_fs.gls");
 
 	ELglCompileShaderARB(VertexShaderObject);
 	ELglCompileShaderARB(FragmentShaderObject);

@@ -22,6 +22,8 @@ float ambient_b=0;
 char map_file_name[256];
 
 #ifdef	TERRAIN
+unsigned int etr = 0;
+
 static __inline__ void draw_tile_map_normal_mapping(const unsigned int x, const unsigned int y)
 {
 	int i, j;
@@ -179,7 +181,53 @@ void draw_tile_map()
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "base_texture"), base_unit-GL_TEXTURE0_ARB);
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "detail_texture"), detail_unit-GL_TEXTURE0_ARB);
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "normal_texture"), normal_map_unit-GL_TEXTURE0_ARB);
-			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "NumEnabledLights"), show_lights);
+
+			int num;
+			int i;
+			num = -1;
+			
+			for (i = 0; i < 7; i++)
+				if (glIsEnabled(GL_LIGHT0+i)) num++;
+			
+			if (etr == 0)
+			{
+				float fv[4];
+				
+				printf("\nNum:\t%d\n", num);
+				printf("\nshow_lights:\t%d\n", show_lights);
+				printf("\nnum_lights:\t%d\n", num_lights);
+
+				for (i = 0; i < 8; i++)
+				{
+					if (glIsEnabled(GL_LIGHT0+i))
+					{
+						printf("\nLight%d:\n", i);
+						glGetLightfv(GL_LIGHT0+i, GL_POSITION, fv);
+						printf("\tPosition:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+						glGetLightfv(GL_LIGHT0+i, GL_DIFFUSE, fv);
+						printf("\tDiffuse:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+						glGetLightfv(GL_LIGHT0+i, GL_SPECULAR, fv);
+						printf("\tSpecular:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+						glGetLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, fv);
+						printf("\tSpot direction:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+						glGetLightfv(GL_LIGHT0+i, GL_AMBIENT, fv);
+						printf("\tAmbient:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+						glGetLightfv(GL_LIGHT0+i, GL_SPECULAR, fv);
+						printf("\tSpecular:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+						glGetLightfv(GL_LIGHT0+i, GL_SPOT_CUTOFF, fv);
+						printf("\tSpot cutoff:\t%f\n", fv[0]);
+						glGetLightfv(GL_LIGHT0+i, GL_CONSTANT_ATTENUATION, fv);
+						printf("\tConstant attentuation:\t%f\n", fv[0]);
+						glGetLightfv(GL_LIGHT0+i, GL_LINEAR_ATTENUATION, fv);
+						printf("\tLinear attentuation:\t%f\n", fv[0]);
+						glGetLightfv(GL_LIGHT0+i, GL_QUADRATIC_ATTENUATION, fv);
+						printf("\tQuadratic attentuation:\t%f\n", fv[0]);
+					}
+				}
+				etr = 1;
+			}			
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "NumEnabledLights"), num);//show_lights);
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "show_Lights"), show_lights);
 			/*
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "base_texture_ID"), base_unit-GL_TEXTURE0_ARB);
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "detail_texture_ID"), detail_unit-GL_TEXTURE0_ARB);
@@ -189,6 +237,7 @@ void draw_tile_map()
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
+	else etr = 0;
 	
 	if(!have_multitexture || (!clouds_shadows && !use_shadow_mapping && !use_normal_mapping))
 	{

@@ -10,12 +10,20 @@
 #else
 #include "global.h"
 #endif
+#include "simd.h"
 
 /*!
  * The hf-map is a float array of map_tile_size_x*map_tile_size_y size 
  * storing the height for the vertexes of the terrain.
  */
 float *hf_map;
+#ifdef MAP_EDITOR2
+/*!
+ * The h-map is the full terrain height map, an array of unsigned shorts, 
+ * storing the height for normal mapping of the terrain.
+ */
+unsigned short *h_map;
+#endif
 
 /*! 
  * \ingroup 	display_utils
@@ -49,36 +57,77 @@ static __inline__ void calc_current_terrain(unsigned short* map_data, const unsi
 	}
 }
 
-void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size_y)
+void free_terrain()
+{
+	free_normal_mapping();
+	free(hf_map);
+#ifdef MAP_EDITOR2
+	SIMD_FREE(h_map);
+#endif
+}
+
+unsigned short * load_terrain(FILE *file, unsigned int size_x, unsigned int size_y)
 {
 	unsigned int size;
-	unsigned short *h_map;
-	float h_scale;
-#ifdef	NEW_MAP_FORMAT
 	unsigned long file_size, buffer_size;
 	unsigned char *buffer;
-	
-	h_scale = 0.25f;
+	unsigned short *h_map;
 
 	fread(&size, 1, sizeof(unsigned int), file);
 	buffer_size = size_x*size_y*sizeof(unsigned short);
-	file_size = SDL_SwapLE32(size);
-
+	size = SDL_SwapLE32(size);
+	file_size = size;
+	
 	buffer = (unsigned char*)SIMD_MALLOC(size);
 	h_map = (unsigned short*)SIMD_MALLOC(buffer_size);
 	fread(buffer, 1, size, file);
 	uncompress ((unsigned char*)h_map, &buffer_size, buffer, file_size);
 	SIMD_FREE(buffer);
-
+	
 #ifdef	OSX
-//	swap_16_mem(h_map, buffer_size/2);
+//	SwapLE16_mem(h_map, buffer_size/2);
 #endif
+	return h_map;
+}
+
+void save_terrain(FILE *file, unsigned short *h_map)
+{
+	unsigned long buffer_size;
+	unsigned char *buffer;
+	unsigned int size;
+	
+	buffer_size = (normal_map_size_x*normal_map_size_y*3)/4;
+	buffer = (unsigned char*)SIMD_MALLOC(buffer_size);
+	
+#ifdef	OSX
+//	SwapLE16_mem(h_map, buffer_size/2);
+#endif
+	
+	compress2(buffer, &buffer_size, (unsigned char*)h_map, size, 9);
+	size = buffer_size;
+	size = SDL_SwapLE32(size);
+	fwrite(&size, 1, sizeof(unsigned int), file);
+	fwrite(buffer, 1, size, file);
+	SIMD_FREE(buffer);
+}
+
+void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size_y)
+{
+	unsigned int size;
+	float h_scale;
+#ifndef MAP_EDITOR2
+	unsigned short *h_map;
+#endif
+#ifdef	NEW_MAP_FORMAT
+	
+	h_scale = 0.25f;
+	h_map = load_terrain(file, size_x, size_y);
 #else
 	int i;
 	
 	h_scale = -0.001f;
 	size = size_x*size_y*sizeof(unsigned short);
-	h_map = (unsigned short*)malloc(size);
+	h_map = (unsigned short*)SIMD_MALLOC(size);
 	for (i = 0; i < size/2; i++)
 		h_map[i] = 1;
 #endif
@@ -87,12 +136,8 @@ void init_terrain(FILE *file, const unsigned int size_x, const unsigned int size
 
 	calc_current_terrain(h_map, size_x, size_y, h_scale, hf_map);
 
-	free(h_map);
-}
-
-void free_terrain()
-{
-	free_normal_mapping();
-	free(hf_map);
+#ifndef MAP_EDITOR2
+	SIMD_FREE(h_map);
+#endif
 }
 #endif

@@ -12,7 +12,7 @@ uniform int NumEnabledLights;
 varying vec3 light_dir;
 /*
 void main(void)
-{
+{	
 
 	vec3 normal, texture, detail;
 
@@ -62,9 +62,9 @@ void PointLight(in int i, in vec3 eye, in vec3 ecPosition3, in vec3 normal, inou
 	d = length(VP);
 	VP = normalize(VP);
 
-	attenuation = 1.0/* / max(	gl_LightSource[i].constantAttenuation +
+	attenuation = 1.0 / max(	gl_LightSource[i].constantAttenuation +
 				gl_LightSource[i].linearAttenuation * d +
-				gl_LightSource[i].quadraticAttenuation * d * d)*/;
+				gl_LightSource[i].quadraticAttenuation * d * d, 0);
 	
 	halfVector = normalize(VP + eye);
 	
@@ -119,24 +119,51 @@ void SpotLight(in int i, in vec3 eye, in vec3 ecPosition3, in vec3 normal, inout
 	specular += gl_LightSource[i].specular * pf * attenuation;
 }
 
+void PointLight_2(in int i, in vec3 ecPosition3, in vec3 normal, inout vec4 diffuse)
+{
+	float nDotVP;
+	float attenuation;
+	float d;
+	vec3  VP;
+	vec3 halfVector;
+
+	VP = vec3(gl_LightSource[i].position - ecPosition3);
+	d = length(VP);
+	VP = normalize(VP);
+	
+	d = max(min(d, 5), 0.01);
+	
+	attenuation = 1.0 / (	//gl_LightSource[i].constantAttenuation +
+				gl_LightSource[i].linearAttenuation * d +
+				gl_LightSource[i].quadraticAttenuation * d * d);
+	
+	nDotVP = max(0.0, dot(normal, VP));
+	
+	diffuse += gl_LightSource[i].diffuse * nDotVP * attenuation;
+}
+
+varying vec4 light;
+
 void main(void)
 {
-	vec3 normal, texture, base, detail;
+	vec3 normal;
+	vec4 texture, base, detail;
 
 	normal = texture2D(normal_texture, vec2(gl_TexCoord[3])).rgb;
 	normal = gl_NormalMatrix * normalize(normal * 2.0f - 1.0f);
-	base = vec3(texture2D(base_texture, vec2(gl_TexCoord[0])));
-	detail = vec3(texture2D(detail_texture, vec2(gl_TexCoord[1])));
-	texture = base*detail;
+	base = vec4(texture2D(base_texture, vec2(gl_TexCoord[0])));
+	detail = vec4(texture2D(detail_texture, vec2(gl_TexCoord[1])));
+//	if (
+	texture = base;//*detail;
 
 	vec3 eye;
+
 	bool LocalViewer;
 
-	LocalViewer = true;
+	LocalViewer = false;
 	
 	if (LocalViewer) eye = -normalize(eyepos);
 	else eye = vec3(0.0, 0.0, 1.0);
-
 	vec4 amb, diff, spec;
 	int i;
 
@@ -146,6 +173,7 @@ void main(void)
 /*	
 	for (i = 0; i < 8; i++)
 */
+/*
 	if (NumEnabledLights >= 0)
 	{	
 		i = 0;
@@ -209,6 +237,8 @@ void main(void)
 			PointLight(i, eye, eyepos, normal, amb, diff, spec);
 		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
 	}
+*/
+/*
 	{	
 		i = 7;
 		if (gl_LightSource[i].position.w == 0.0)
@@ -217,35 +247,18 @@ void main(void)
 			PointLight(i, eye, eyepos, normal, amb, diff, spec);
 		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
 	}
-/*
-	if (NumEnabledLights >= 0) SpotLight(0, eye, eyepos, normal, amb, diff, spec);
-	if (NumEnabledLights >= 1) SpotLight(1, eye, eyepos, normal, amb, diff, spec);
-	if (NumEnabledLights >= 2) SpotLight(2, eye, eyepos, normal, amb, diff, spec);
-	if (NumEnabledLights >= 3) SpotLight(3, eye, eyepos, normal, amb, diff, spec);
-	if (NumEnabledLights >= 4) SpotLight(4, eye, eyepos, normal, amb, diff, spec);
-	if (NumEnabledLights >= 5) SpotLight(5, eye, eyepos, normal, amb, diff, spec);
-	if (NumEnabledLights >= 6) SpotLight(6, eye, eyepos, normal, amb, diff, spec);
-	PointLight(7, eye, eyepos, normal, amb, diff, spec);
-*/	
-#if 0
-	float attenuation = 1.0 /*/ (	gl_LightSource[i].constantAttenuation +
-				gl_LightSource[i].linearAttenuation * d +
-				gl_LightSource[i].quadraticAttenuation * d * d)*/;
-	{
-		i = 0;
-		amb += gl_LightSource[i].ambient;
-		diff += gl_LightSource[i].diffuse * 1 * attenuation;
-		spec += gl_LightSource[i].specular * 1 * attenuation;
-	}
-	{
-		i = 7;
-		amb += gl_LightSource[i].ambient;
-		diff += gl_LightSource[i].diffuse * 1 * attenuation;
-		spec += gl_LightSource[i].specular * 1 * attenuation;
-	}
-#endif	
-	gl_FragColor.rgb = texture*(amb*gl_FrontMaterial.ambient+diff*gl_FrontMaterial.diffuse+spec*gl_FrontMaterial.specular+gl_FrontLightModelProduct.sceneColor);
-	
+*/
+	amb = gl_LightSource[7].ambient;
+	if (NumEnabledLights >= 0) PointLight_2(0, eyepos, normal, diff);
+	if (NumEnabledLights >= 1) PointLight_2(1, eyepos, normal, diff);
+	if (NumEnabledLights >= 2) PointLight_2(2, eyepos, normal, diff);
+	if (NumEnabledLights >= 3) PointLight_2(3, eyepos, normal, diff);
+	if (NumEnabledLights >= 4) PointLight_2(4, eyepos, normal, diff);
+	if (NumEnabledLights >= 5) PointLight_2(5, eyepos, normal, diff);
+	if (NumEnabledLights >= 6) PointLight_2(6, eyepos, normal, diff);
+
+//	gl_FragColor.rgb = texture*light;//texture*(diff+amb);//texture*diff*6;//*gl_FrontMaterial.ambient+diff*gl_FrontMaterial.diffuse+spec*gl_FrontMaterial.specular+gl_FrontLightModelProduct.sceneColor);
+	gl_FragColor = texture*light;	
 //	if (NumEnabledLights >= 1) amb.r = 0.5;
 /*	
 	if (NumEnabledLights == 2) amb.g = 0.5;
