@@ -336,7 +336,8 @@ void init_browser()
 		}else if(temp[0]!='\n'){
 			int i=0,j;
 			while(temp[i]!=','){
-				Dir[dc].Names[Dir[dc].nf][i]=temp[i++];
+				Dir[dc].Names[Dir[dc].nf][i]=temp[i];
+				i++;
 			}
 			j=i+1;
 			i=0;

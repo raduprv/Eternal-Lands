@@ -2,11 +2,14 @@
 
 CC=gcc
 
+WARN = -Wall -W #-Werror
 OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND -DNEW_CLIENT -DX86_64 -DROTATE_PARTICLES
+#-DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
+
 GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
 GTK2_CFLAGS = $(shell pkg-config gtk+-2.0 --cflags) -DGTK2
 
-CFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g -W
+CFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g $(WARN)
 
 _CFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) 
 

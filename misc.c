@@ -69,7 +69,6 @@ void get_3d_object_under_mouse()
 	//ok, first of all, let's see what objects we have in range...
 	int i;
 	int x,y;
-	int lit_bak;
 	float least_z;
 
 	selected_3d_object=-1;
@@ -832,7 +831,6 @@ void floodfill (unsigned char new_height, int x, int y)
 	int size = tile_map_size_x * 6;
 	unsigned char old_height = height_map[y*size+x];
 	int i, imin, imax;
-	static int nest = 0;
 	
 	for (i = x; i >= 0 && height_map[y*size+i] == old_height; i--)
 		height_map[y*size+i] = new_height;

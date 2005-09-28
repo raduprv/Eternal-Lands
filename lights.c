@@ -97,6 +97,7 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 					break;
 				}
 		}
+
 	return i;
 }
 

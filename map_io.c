@@ -126,9 +126,8 @@ int save_map(char * file_name)
 	f=fopen(file_name, "wb");
 
 	if (!f) {
-		const msglen = 500;
-		char msg[msglen];
-		snprintf(msg,500,"Could not open file for writing: %s", file_name);
+		char msg[500];
+		snprintf (msg, sizeof(msg), "Could not open file for writing: %s", file_name);
 		LOG_ERROR(msg);
 	} else {
 
@@ -151,7 +150,6 @@ int save_map(char * file_name)
 					{
 						char * cur_3do_pointer=(char *)&cur_3d_obj_io;
 						int k=0;
-printf("saving %d\n",i);
 
 						//clear the object
 						for(k=0;k<(int)sizeof(object3d_io);k++)cur_3do_pointer[k]=0;

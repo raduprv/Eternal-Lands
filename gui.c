@@ -53,17 +53,16 @@ void init_filters()
 	strcat(particles_folder, "/particles/");
 }
 
-copy_folder(char * folder,  char * file)
+void copy_folder(char * folder,  const char * file)
 {
 	int i;
 
-	for(i=0;file[i];i++){
-		folder[i]=file[i];
-	}
+	for (i = 0; file[i] != '\0'; i++)
+		folder[i] = file[i];
 
-	for(;file[i]!='/';i--);
+	for ( ; file[i] != '/'; i--);
 
-	folder[i]=0;
+	folder[i] = '\0';
 }
 
 void open_button_clicked()
