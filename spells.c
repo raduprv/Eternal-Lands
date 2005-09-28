@@ -50,9 +50,9 @@ int quickspells_loaded = 0;
 void repeat_spell()
 {
 	if(last_spell_len > 0)
-		{
-			my_tcp_send(my_socket, last_spell_str, last_spell_len);
-		}
+	{
+		my_tcp_send(my_socket, last_spell_str, last_spell_len);
+	}
 }
 
 void make_sigils_list()
@@ -250,34 +250,34 @@ void display_spells_we_have()
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
 	for(i=0;i<10;i++)
+	{
+		if(active_spells[i]!=-1)
 		{
-			if(active_spells[i]!=-1)
-				{
-					float u_start,v_start,u_end,v_end;
-					int cur_spell,cur_pos;
-					int x_start,x_end,y_start,y_end;
+			float u_start,v_start,u_end,v_end;
+			int cur_spell,cur_pos;
+			int x_start,x_end,y_start,y_end;
 
-					//get the UV coordinates.
-					cur_spell=active_spells[i]+32;//the first 32 icons are the sigils
-					u_start=0.125f*(cur_spell%8);
-					u_end=u_start+0.125f;
-					v_start=1.0f-(0.125f*(cur_spell/8));
-					v_end=v_start-0.125f;
+			//get the UV coordinates.
+			cur_spell=active_spells[i]+32;//the first 32 icons are the sigils
+			u_start=0.125f*(cur_spell%8);
+			u_end=u_start+0.125f;
+			v_start=1.0f-(0.125f*(cur_spell/8));
+			v_end=v_start-0.125f;
 
-					//get the x and y
-					cur_pos=i;
+			//get the x and y
+			cur_pos=i;
 
-					x_start=33*cur_pos;
-					x_end=x_start+32;
-					y_start=window_height-hud_y-64;
-					y_end=y_start+32;
+			x_start=33*cur_pos;
+			x_end=x_start+32;
+			y_start=window_height-hud_y-64;
+			y_end=y_start+32;
 
-					get_and_set_texture_id(sigils_text);
-					glBegin(GL_QUADS);
-					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-					glEnd();
-				}
+			get_and_set_texture_id(sigils_text);
+			glBegin(GL_QUADS);
+			draw_2d_thing (u_start, v_start, u_end, v_end, x_start, y_start, x_end, y_end);
+			glEnd();
 		}
+	}
 	//glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 }
@@ -294,7 +294,8 @@ int display_sigils_handler(window_info *win)
 	//let's add the new spell icon if we have one
 	get_and_set_texture_id(sigils_text);
 	
-	if(mqb_data[0] && mqb_data[0]->spell_id!=-1) {
+	if(mqb_data[0] && mqb_data[0]->spell_id!=-1)
+	{
 		int x_start,y_start,x_end,y_end;
 		float u_start,v_start,u_end,v_end;
 		
@@ -320,64 +321,64 @@ int display_sigils_handler(window_info *win)
 	glBegin(GL_QUADS);
 	//ok, now let's draw the objects...
 	for(i=0;i<SIGILS_NO;i++)
+	{
+		if(sigils_list[i].have_sigil)
 		{
-			if(sigils_list[i].have_sigil)
-				{
-					float u_start,v_start,u_end,v_end;
-					int cur_item,cur_pos;
-					int x_start,x_end,y_start,y_end;
+			float u_start,v_start,u_end,v_end;
+			int cur_item,cur_pos;
+			int x_start,x_end,y_start,y_end;
 
-					//get the UV coordinates.
-					cur_item=sigils_list[i].sigil_img;
-					u_start=0.125f*(cur_item%8);
-					u_end=u_start+0.125f;
-					v_start=1.0f-(0.125f*(cur_item/8));
-					v_end=v_start-0.125f;
+			//get the UV coordinates.
+			cur_item=sigils_list[i].sigil_img;
+			u_start=0.125f*(cur_item%8);
+			u_end=u_start+0.125f;
+			v_start=1.0f-(0.125f*(cur_item/8));
+			v_end=v_start-0.125f;
 
-					//get the x and y
-					cur_pos=i;
+			//get the x and y
+			cur_pos=i;
 
-					x_start=33*(cur_pos%12)+1;
-					x_end=x_start+32;
-					y_start=33*(cur_pos/12);
-					y_end=y_start+32;
+			x_start=33*(cur_pos%12)+1;
+			x_end=x_start+32;
+			y_start=33*(cur_pos/12);
+			y_end=y_start+32;
 
-					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-				}
+			draw_2d_thing (u_start, v_start, u_end, v_end, x_start, y_start, x_end, y_end);
 		}
+	}
 	glEnd();
 
 	//ok, now let's draw the sigils on the list
 	for(i=0;i<6;i++)
+	{
+		if(on_cast[i]!=-1)
 		{
-			if(on_cast[i]!=-1)
-				{
-					float u_start,v_start,u_end,v_end;
-					int cur_item,cur_pos;
-					int x_start,x_end,y_start,y_end;
+			float u_start,v_start,u_end,v_end;
+			int cur_item,cur_pos;
+			int x_start,x_end,y_start,y_end;
+		
+			//get the UV coordinates.
+			cur_item=on_cast[i];
+			u_start=0.125f*(cur_item%8);
+			u_end=u_start+0.125f;
+			v_start=1.0f-(0.125f*(cur_item/8));
+			v_end=v_start-0.125f;
 
-					//get the UV coordinates.
-					cur_item=on_cast[i];
-					u_start=0.125f*(cur_item%8);
-					u_end=u_start+0.125f;
-					v_start=1.0f-(0.125f*(cur_item/8));
-					v_end=v_start-0.125f;
+			//get the x and y
+			cur_pos=i;
 
-					//get the x and y
-					cur_pos=i;
+			x_start=33*(cur_pos%6)+5;
+			x_end=x_start+32;
+			y_start=win->len_y-37;
+			y_end=y_start+32;
 
-					x_start=33*(cur_pos%6)+5;
-					x_end=x_start+32;
-					y_start=win->len_y-37;
-					y_end=y_start+32;
-
-					//get the texture this item belongs to
-					get_and_set_texture_id(sigils_text);
-					glBegin(GL_QUADS);
-					draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-					glEnd();
-				}
+			//get the texture this item belongs to
+			get_and_set_texture_id(sigils_text);
+			glBegin(GL_QUADS);
+			draw_2d_thing (u_start, v_start, u_end, v_end, x_start, y_start, x_end, y_end);
+			glEnd();
 		}
+	}
 
 	//now, draw the inventory text, if any.
 	draw_string_small(4,win->len_y-90,spell_text,4);

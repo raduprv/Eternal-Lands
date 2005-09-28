@@ -22,7 +22,7 @@ int ctrl_on;
 
 void	quick_use(int use_id)
 {
-	Uint8 quick_use_str[2];
+	Uint8 quick_use_str[3];
 	int	i;
 
 	for(i=0; i<ITEM_NUM_ITEMS; i++){
@@ -31,6 +31,7 @@ void	quick_use(int use_id)
 			item_list[i].use_with_inventory){
 				quick_use_str[0]= USE_INVENTORY_ITEM;
 				quick_use_str[1]= use_id;
+				quick_use_str[2]= i;
 				my_tcp_send(my_socket,quick_use_str,2);
 				break;
 		}

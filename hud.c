@@ -1142,33 +1142,28 @@ int	display_quickbar_handler(window_info *win)
 			
 			if (item_list[i].cooldown > 0)
 			{
-				int x_bar = x_end - 5;
-				int y_bar;
 				float cooldown = ((float) item_list[i].cooldown) / item_list[i].max_cooldown;
+				int dx, dy;
 
 				if (cooldown < 0.0f)
 					cooldown = 0.0f;
 				else if (cooldown > 1.0f)
 					cooldown = 1.0f;
-				y_bar = (int) (0.5f + cooldown*y_start + (1.0f - cooldown)*y_end);
+				
+				dx = (int) (0.5f + 0.35f * (1.0f - cooldown) * (x_end - x_start));
+				dy = (int) (0.5f + 0.35f * (1.0f - cooldown) * (y_end - y_start));
 
 				glDisable(GL_TEXTURE_2D);
 				glEnable(GL_BLEND);
 				
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_QUADS);
-					glColor4f(0.0f, 0.0f, 0.0f, 0.5f*cooldown);
-					glVertex2i(x_start, y_start);
-					glVertex2i(x_start, y_end);
-					glVertex2i(x_end, y_end);
-					glVertex2i(x_end, y_start);
-
-					glColor4f(0.5f, 0.0f, 0.0f, 1.0f);
-					glVertex2i(x_bar, y_bar);
-					glVertex2i(x_bar, y_end);
-					glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-					glVertex2i(x_end, y_end);
-					glVertex2i(x_end, y_bar);
+					glColor4f(0.75f, 0.0f, 0.0f, 0.75f); 
+					
+					glVertex2i(x_start+dx, y_start+dy);
+					glVertex2i(x_start+dx, y_end-dy);
+					glVertex2i(x_end-dx, y_end-dy);
+					glVertex2i(x_end-dx, y_start+dy);
 
 					glColor3f(1.0f, 1.0f, 1.0f);
 				glEnd();
