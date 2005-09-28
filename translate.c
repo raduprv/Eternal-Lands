@@ -399,6 +399,7 @@ char	win_notepad[20],
 	tab_market_channel[20],
 	tab_general_channel[20],
 	tab_offtopic_channel[20],
+	tab_guild_channel[20],
 	tab_channel[20],
 	tab_guild[10],
 	tab_mod[10],
@@ -1005,6 +1006,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "c_market", tab_market_channel, "Market Channel", sizeof(tab_market_channel));
 	add_xml_identifier (titles_str, "c_general", tab_general_channel, "General Channel", sizeof(tab_general_channel));
 	add_xml_identifier (titles_str, "c_offtopic", tab_offtopic_channel, "Offtopic Channel", sizeof(tab_offtopic_channel));
+	add_xml_identifier (titles_str, "c_guildchan", tab_guild_channel, "Guild Channel", sizeof (tab_guild_channel));
 	add_xml_identifier (titles_str, "t_channel", tab_channel, "Channel %d", sizeof(tab_channel));
 	add_xml_identifier (titles_str, "c_guild", tab_guild, "Guild", sizeof(tab_guild));
 	add_xml_identifier (titles_str, "c_mod", tab_mod, "Mod", sizeof(tab_mod));

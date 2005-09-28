@@ -1066,6 +1066,10 @@ const char *tab_label (Uint8 chan)
 				case 4: return tab_general_channel;
 				case 5: return tab_offtopic_channel;
 				default: 
+					if (cnr >= 1000000000)
+					{
+						return tab_guild_channel;
+					}
 					snprintf (tmp_tab_label, sizeof (tmp_tab_label), tab_channel, cnr);
 					return tmp_tab_label;
 			}
