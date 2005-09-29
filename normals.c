@@ -56,7 +56,7 @@ VECTOR3* terrain_vertex_normals;
 static __inline__ void build_normal_texures(VECTOR4* normal_map, const unsigned int size_x, 
 		const unsigned int size_y)
 {
-	unsigned int i, j, k, l, index, size, copy_size;
+	unsigned int i, j, k, l, index;
 	unsigned int x_count, y_count;
 	VECTOR4* normal_texture;
 	

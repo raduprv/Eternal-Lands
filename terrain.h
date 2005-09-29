@@ -12,6 +12,18 @@
  * storing the height for the vertexes of the terrain.
  */
 extern float *hf_map;
+#ifdef MAP_EDITOR2
+/*!
+ * The h-map is the full terrain height map, an array of unsigned shorts, 
+ * storing the height for normal mapping of the terrain.
+ */
+extern unsigned short *h_map;
+#endif
+/*!
+ * The extra_texture_coordinates an array with extra texture coordinates for
+ * multitexturing terrain.
+ */
+extern TEXTCOORD2 *extra_texture_coordinates;
 
 /*!
  * \ingroup 	display_utils

@@ -46,11 +46,16 @@ static __inline__ void draw_tile_map_normal_mapping(const unsigned int x, const 
 			ELglMultiTexCoord2fARB(base_unit, u, v);
 			ELglMultiTexCoord2fARB(detail_unit, x_scaled/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
 			ELglMultiTexCoord2fARB(normal_map_unit, get_texture_coord_u(x, j), get_texture_coord_v(y, i));
+			ELglMultiTexCoord2fARB(extra_unit, extra_texture_coordinates[get_extra_texcoord(x, y, j, i)][0],
+					extra_texture_coordinates[get_extra_texcoord(x, y, j, i)][1]);
 			glVertex3f(x_scaled, y_scaled, get_vertex_height(x, y, j, i));
 
 			ELglMultiTexCoord2fARB(base_unit, u, v+1.0f/VERTEXES_PER_TILE_Y);
-			ELglMultiTexCoord2fARB(detail_unit, x_scaled/texture_scale+clouds_movement_u, (y_scaled+UNITS_PER_VERTEX_Y)/texture_scale+clouds_movement_v);
+			ELglMultiTexCoord2fARB(detail_unit, x_scaled/texture_scale+clouds_movement_u,
+					(y_scaled+UNITS_PER_VERTEX_Y)/texture_scale+clouds_movement_v);
 			ELglMultiTexCoord2fARB(normal_map_unit, get_texture_coord_u(x, j), get_texture_coord_v(y, i+1));
+			ELglMultiTexCoord2fARB(extra_unit, extra_texture_coordinates[get_extra_texcoord(x, y, j, i+1)][0],
+					extra_texture_coordinates[get_extra_texcoord(x, y, j, i+1)][1]);
 			glVertex3f(x_scaled, y_scaled+UNITS_PER_VERTEX_Y, get_vertex_height(x, y, j, i+1));
 			x_scaled += UNITS_PER_VERTEX_X;
 			u += 1.0f/VERTEXES_PER_TILE_X;
@@ -82,11 +87,16 @@ static __inline__ void draw_tile_map_multitexture(const unsigned int x, const un
 		{
 			ELglMultiTexCoord2fARB(base_unit, u, v);
 			ELglMultiTexCoord2fARB(detail_unit, x_scaled/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
+			ELglMultiTexCoord2fARB(extra_unit, extra_texture_coordinates[get_extra_texcoord(x, y, j, i)][0],
+					extra_texture_coordinates[get_extra_texcoord(x, y, j, i)][1]);
 			glNormal3fv(terrain_vertex_normals[get_vertex_normal(x, y, j, i)]);
 			glVertex3f(x_scaled, y_scaled, get_vertex_height(x, y, j, i));
 
 			ELglMultiTexCoord2fARB(base_unit, u, v+1.0f/VERTEXES_PER_TILE_Y);
-			ELglMultiTexCoord2fARB(detail_unit, x_scaled/texture_scale+clouds_movement_u, (y_scaled+UNITS_PER_VERTEX_Y)/texture_scale+clouds_movement_v);
+			ELglMultiTexCoord2fARB(detail_unit, x_scaled/texture_scale+clouds_movement_u,
+					(y_scaled+UNITS_PER_VERTEX_Y)/texture_scale+clouds_movement_v);
+			ELglMultiTexCoord2fARB(extra_unit, extra_texture_coordinates[get_extra_texcoord(x, y, j, i)][0],
+					extra_texture_coordinates[get_extra_texcoord(x, y, j, i)][1]);
 			glNormal3fv(terrain_vertex_normals[get_vertex_normal(x, y, j, i+1)]);
 			glVertex3f(x_scaled, y_scaled+UNITS_PER_VERTEX_Y, get_vertex_height(x, y, j, i+1));
 			x_scaled += UNITS_PER_VERTEX_X;

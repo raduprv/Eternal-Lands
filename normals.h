@@ -232,5 +232,23 @@ static __inline__ int get_vertex_normal(const unsigned int tile_x, const unsigne
 	return (y+tile_y*VERTEXES_PER_TILE_Y)*(normal_map_size_x/NORMALS_PER_VERTEX_X)+(x+VERTEXES_PER_TILE_X*tile_x);
 }
 
+/*!
+ * \ingroup 	display_utils
+ * \brief 	Returns the index for the extra texture coordinates of the vertex.
+ *
+ * Returns the index for the extra texture coordinates of the vertex (x, y) in tile (tile_x, tile_y).
+ * \param	tile_x The tile number in x direction.
+ * \param	tile_y The tile number in y direction.
+ * \param	x The vertex number in x direction for this tile.
+ * \param	y The vertex number in y direction for this tile.
+ * \retval	int The index of the extra texture coordinates for this vertex.
+ *  
+ * \callgraph
+ */
+static __inline__ int get_extra_texcoord(const unsigned int tile_x, const unsigned int tile_y, const unsigned int x, const unsigned int y)
+{
+	return (y+tile_y*VERTEXES_PER_TILE_Y)*(normal_map_size_x/NORMALS_PER_VERTEX_X)+(x+VERTEXES_PER_TILE_X*tile_x);
+}
+
 #endif
 #endif

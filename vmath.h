@@ -62,16 +62,18 @@ typedef enum {
  * VECTOR4 is used for normal calculating using SSE, SSE2 and SSE3.
  */
 typedef float VECTOR4[4];
-
 /*! 
  * VECTOR3 is used for normal calculating without SIMD.
  */
 typedef float VECTOR3[3];
-
 /*! 
  * SHORT_VEC3 is used for normal calculating using little memory.
  */
 typedef short SHORT_VEC3[3];
+/*! 
+ * TEXTCOORD2 is used for texture coordinates.
+ */
+typedef float TEXTCOORD2[2];
 
 /*!
  * \ingroup 	misc_utils

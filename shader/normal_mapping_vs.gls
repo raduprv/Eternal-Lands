@@ -43,19 +43,20 @@ void main()
 	
 	normal = normalize(gl_NormalMatrix*normal);
 
-	vec4 L0, L1, L2, L3, L4, L5, L6, a0, a1, a2, a3, a4, a5, a6;
+	vec3 L0, L1, L2, L3, L4, L5, L6, L7, a0, a1, a2, a3, a4, a5, a6, a7;
 	float d0, d1, d2, d3, d4, d5, d6;
-	vec4 v;
+	vec3 v;
 	
-	v = gl_ModelViewMatrix * gl_Vertex;
+	v = vec3(gl_ModelViewMatrix * gl_Vertex);
 	
-	a0 = gl_LightSource[0].position - v;
-	a1 = gl_LightSource[1].position - v;
-	a2 = gl_LightSource[2].position - v;
-	a3 = gl_LightSource[3].position - v;
-	a4 = gl_LightSource[4].position - v;
-	a5 = gl_LightSource[5].position - v;
-	a6 = gl_LightSource[6].position - v;
+	a0 = gl_LightSource[0].position.xyz - v;
+	a1 = gl_LightSource[1].position.xyz - v;
+	a2 = gl_LightSource[2].position.xyz - v;
+	a3 = gl_LightSource[3].position.xyz - v;
+	a4 = gl_LightSource[4].position.xyz - v;
+	a5 = gl_LightSource[5].position.xyz - v;
+	a6 = gl_LightSource[6].position.xyz - v;
+	a7 = gl_LightSource[7].position.xyz;
 
 	L0 = normalize(a0);
 	L1 = normalize(a1);
@@ -64,6 +65,7 @@ void main()
 	L4 = normalize(a4);
 	L5 = normalize(a5);
 	L6 = normalize(a6);
+	L7 = normalize(a7);
 
 	d0 = length(a0);
 	d1 = length(a1);
@@ -74,28 +76,21 @@ void main()
 	d6 = length(a6);
 	
 	d0 = 1.0 / (	gl_LightSource[0].constantAttenuation +
-			gl_LightSource[0].linearAttenuation * d0 +
-			gl_LightSource[0].quadraticAttenuation * d0 * d0);
+			gl_LightSource[0].linearAttenuation * d0);
 	d1 = 1.0 / (	gl_LightSource[1].constantAttenuation +
-			gl_LightSource[1].linearAttenuation * d1 +
-			gl_LightSource[1].quadraticAttenuation * d1 * d1);
+			gl_LightSource[1].linearAttenuation * d1);
 	d2 = 1.0 / (	gl_LightSource[2].constantAttenuation +
-			gl_LightSource[2].linearAttenuation * d2 +
-			gl_LightSource[2].quadraticAttenuation * d2 * d2);
+			gl_LightSource[2].linearAttenuation * d2);
 	d3 = 1.0 / (	gl_LightSource[3].constantAttenuation +
-			gl_LightSource[3].linearAttenuation * d3 +
-			gl_LightSource[3].quadraticAttenuation * d3 * d3);
+			gl_LightSource[3].linearAttenuation * d3);
 	d4 = 1.0 / (	gl_LightSource[4].constantAttenuation +
-			gl_LightSource[4].linearAttenuation * d4 +
-			gl_LightSource[4].quadraticAttenuation * d4 * d4);
+			gl_LightSource[4].linearAttenuation * d4);
 	d5 = 1.0 / (	gl_LightSource[5].constantAttenuation +
-			gl_LightSource[5].linearAttenuation * d5 +
-			gl_LightSource[5].quadraticAttenuation * d5 * d5);
+			gl_LightSource[5].linearAttenuation * d5);
 	d6 = 1.0 / (	gl_LightSource[6].constantAttenuation +
-			gl_LightSource[6].linearAttenuation * d6 +
-			gl_LightSource[6].quadraticAttenuation * d6 * d6);
+			gl_LightSource[6].linearAttenuation * d6);
 	
-	light = vec4(0.0);//gl_FrontLightModelProduct.sceneColor;
+	light = vec4(0.0);
 	if (NumEnabledLights >= 0)
 		light += gl_FrontLightProduct[0].diffuse * max(dot(normal, L0), 0.0) * d0;
 	if (NumEnabledLights >= 1)
@@ -110,9 +105,9 @@ void main()
 		light += gl_FrontLightProduct[5].diffuse * max(dot(normal, L5), 0.0) * d5;
 	if (NumEnabledLights >= 6)
 		light += gl_FrontLightProduct[6].diffuse * max(dot(normal, L6), 0.0) * d6;
-	if (all(equal(gl_LightSource[7].position, vec4(0.0))))
+	if (all(equal(gl_FrontLightProduct[7].diffuse, vec4(0.0))))
 		light += gl_FrontLightProduct[7].diffuse * max(dot(normal, L7), 0.0);
-	light += gl_FrontLightProduct[7].ambient;
+	light += gl_FrontLightProduct[7].ambient*gl_FrontMaterial.ambient;
 	light += gl_LightModel.ambient * gl_FrontMaterial.ambient;
 }
 
