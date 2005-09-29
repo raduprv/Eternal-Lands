@@ -1143,27 +1143,51 @@ int	display_quickbar_handler(window_info *win)
 			if (item_list[i].cooldown > 0)
 			{
 				float cooldown = ((float) item_list[i].cooldown) / item_list[i].max_cooldown;
-				int dx, dy;
+				float x_center = (x_start + x_end)*0.5f;
+				float y_center = (y_start + y_end)*0.5f;
 
 				if (cooldown < 0.0f)
 					cooldown = 0.0f;
 				else if (cooldown > 1.0f)
 					cooldown = 1.0f;
 				
-				dx = (int) (0.5f + 0.35f * (1.0f - cooldown) * (x_end - x_start));
-				dy = (int) (0.5f + 0.35f * (1.0f - cooldown) * (y_end - y_start));
-
 				glDisable(GL_TEXTURE_2D);
 				glEnable(GL_BLEND);
 				
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glBegin(GL_QUADS);
-					glColor4f(0.75f, 0.0f, 0.0f, 0.75f); 
-					
-					glVertex2i(x_start+dx, y_start+dy);
-					glVertex2i(x_start+dx, y_end-dy);
-					glVertex2i(x_end-dx, y_end-dy);
-					glVertex2i(x_end-dx, y_start+dy);
+				glBegin(GL_TRIANGLE_FAN);
+					glColor4f(0.75f, 0.0f, 0.0f, 0.75f);
+
+					glVertex2f(x_center, y_center);
+
+					if (cooldown >= 0.875f) {
+						float t = tan(2.0f*M_PI*(1.0f - cooldown));
+						glVertex2f(t*x_end + (1.0f - t)*x_center, y_start);
+						glVertex2f(x_end, y_start);
+						glVertex2f(x_end, y_end);
+						glVertex2f(x_start, y_end);
+						glVertex2f(x_start, y_start);
+					} else if (cooldown >= 0.625f) {
+						float t = 0.5f + 0.5f*tan(2.0f*M_PI*(0.75f - cooldown));
+						glVertex2f(x_end, t*y_end + (1.0f - t)*y_start);
+						glVertex2f(x_end, y_end);
+						glVertex2f(x_start, y_end);
+						glVertex2f(x_start, y_start);
+					} else if (cooldown >= 0.375f) {
+						float t = 0.5f + 0.5f*tan(2.0f*M_PI*(0.5f - cooldown));
+						glVertex2f(t*x_start + (1.0f - t)*x_end, y_end);
+						glVertex2f(x_start, y_end);
+						glVertex2f(x_start, y_start);
+					} else if (cooldown >= 0.125f) {
+						float t = 0.5f + 0.5f*tan(2.0f*M_PI*(0.25f - cooldown));
+						glVertex2f(x_start, t*y_start + (1.0f - t)*y_end);
+						glVertex2f(x_start, y_start);
+					} else {
+						float t = tan(2.0f*M_PI*(cooldown));
+						glVertex2f(t*x_start + (1.0f - t)*x_center, y_start);
+					}
+
+					glVertex2f(x_center, y_start);
 
 					glColor3f(1.0f, 1.0f, 1.0f);
 				glEnd();
@@ -1171,7 +1195,6 @@ int	display_quickbar_handler(window_info *win)
 				glDisable(GL_BLEND);
 				glEnable(GL_TEXTURE_2D);
 			}
-			
 			
 			snprintf(str,sizeof(str),"%i",item_list[i].quantity);
 			if(quickbar_dir==VERTICAL)

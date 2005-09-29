@@ -862,6 +862,21 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #endif
 	}
 #ifdef DEBUG
+	else if ((keysym == SDLK_LEFT) && shift_on && ctrl_on && !alt_on)
+	{
+
+		item_list[0].max_cooldown = 64;
+		item_list[0].cooldown = 64;
+	}
+	else if ((keysym == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
+	{
+
+		item_list[0].cooldown -= 1;
+	}
+	else if ((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
+	{
+		item_list[0].cooldown += 1;
+	}
 #ifndef NEW_WEATHER
 	else if ((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
 	{
