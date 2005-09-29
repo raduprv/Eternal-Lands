@@ -15,6 +15,7 @@ typedef int INT;
 
 INT oid=-1,nid=-1, mode=1;
 char cOid[100],cNid[100];
+float new_object_red = 0.0f, new_object_green = 0.0f, new_object_blue = 0.0f;
 
 //buttons
 int d1_x1=245,d1_x2=320,d1_y1=10,d1_y2=25;
@@ -96,7 +97,7 @@ int display_replace_window_handler(window_info *win)
 int check_replace_window_interface(window_info *win, int mx, int my)
 {
 	// Grum: this shouldn't happen
-   	if (view_replace_window && mx > win->len_x-20 && my <= 20)
+	if (view_replace_window && mx > win->len_x-20 && my <= 20)
 	{
 		view_replace_window=0;
 		return 1;
@@ -104,90 +105,123 @@ int check_replace_window_interface(window_info *win, int mx, int my)
 
 	if (mx > d1_x1 && mx <= d1_x2 && my > d1_y1 && my <= d1_y2)
 	{
-	  
-	   if(selected_particles_object!=-1 && mode==4){
-		   	oid=(INT)particles_list[selected_particles_object]->def;
-	   }else if(selected_3d_object!=-1 && mode==3){
-		   	oid=(INT)objects_list[selected_3d_object]->e3d_data;
-		   	strcpy(cOid,objects_list[selected_3d_object]->file_name);
-	   }else if(selected_2d_object!=-1 && mode==2){
-			oid=(INT)obj_2d_list[selected_2d_object]->obj_pointer;
-			strcpy(cOid,obj_2d_list[selected_2d_object]->file_name);
-	   }else if(selected_tile!=255 && mode==1){
+		if (selected_particles_object != -1 && mode == 4)
+		{
+			oid = (INT) particles_list[selected_particles_object]->def;
+		}
+		else if (selected_3d_object != -1 && mode == 3)
+		{
+			oid = (INT) objects_list[selected_3d_object]->e3d_data;
+			strcpy (cOid, objects_list[selected_3d_object]->file_name);
+		}
+		else if (selected_2d_object != -1 && mode == 2)
+		{
+			oid = (INT) obj_2d_list[selected_2d_object]->obj_pointer;
+			strcpy (cOid, obj_2d_list[selected_2d_object]->file_name);
+		}
+		else if (selected_tile != 255 && mode == 1)
+		{
 			oid=selected_tile;
-	   }
-
+		}
 	}
 	
 	if (mx > d2_x1 && mx <= d2_x2 && my > d2_y1 && my <= d2_y2)
 	{
-	   if(selected_particles_object!=-1 && mode==4){
-		   	nid=(INT)particles_list[selected_particles_object]->def;
-	   }else if(selected_3d_object!=-1  && mode==3){
-		   	nid=(INT)objects_list[selected_3d_object]->e3d_data;
-		   	strcpy(cNid,objects_list[selected_3d_object]->file_name);
-	   }else if(selected_2d_object!=-1 && mode==2){
-			nid=(INT)obj_2d_list[selected_2d_object]->obj_pointer;
-			strcpy(cNid,obj_2d_list[selected_2d_object]->file_name);
-	   }else if(selected_tile!=255 && mode==1){
+		if (selected_particles_object != -1 && mode == 4)
+		{
+			nid = (INT) particles_list[selected_particles_object]->def;
+		}
+		else if (selected_3d_object != -1 && mode == 3)
+		{
+			nid = (INT)objects_list[selected_3d_object]->e3d_data;
+			strcpy (cNid, objects_list[selected_3d_object]->file_name);
+			new_object_red = objects_list[selected_3d_object]->r;
+			new_object_green = objects_list[selected_3d_object]->g;
+			new_object_blue = objects_list[selected_3d_object]->b;
+		}
+		else if (selected_2d_object != -1 && mode == 2)
+		{
+			nid = (INT) obj_2d_list[selected_2d_object]->obj_pointer;
+			strcpy (cNid, obj_2d_list[selected_2d_object]->file_name);
+		}
+		else if (selected_tile != 255 && mode == 1)
+		{
 			nid=selected_tile;
-	   }
-
+		}
 	}
 
 	if (mx > d3_x1 && mx <= d3_x2 && my > d3_y1 && my <= d3_y2 && oid != -1 && nid != -1)
 	{
 		int i=0;
-		if(mode==4  && nid!=-1 && oid!=-1){
+		if (mode == 4 && nid != -1 && oid != -1)
+		{
 			LOCK_PARTICLES_LIST();
-			for(;i<MAX_PARTICLE_SYSTEMS;i++){
-				if(particles_list[i]){
-					if((INT)particles_list[i]->def==oid){
+			for (; i < MAX_PARTICLE_SYSTEMS; i++)
+			{
+				if (particles_list[i] != NULL)
+				{
+					if ((INT)particles_list[i]->def == oid)
+					{
 						int j;
-						particle_sys_def *def=(particle_sys_def*)nid;
-						particles_list[i]->def=def;
-						particles_list[i]->particle_count=def->total_particle_no;
-						particles_list[i]->ttl=def->ttl;
-						memset(particles_list[i]->particles,0,MAX_PARTICLES);
-						for(j=0;j<def->total_particle_no;j++)create_particle(particles_list[i],&(particles_list[i]->particles[j]));
+						particle_sys_def *def = (particle_sys_def*)nid;
+						particles_list[i]->def = def;
+						particles_list[i]->particle_count = def->total_particle_no;
+						particles_list[i]->ttl = def->ttl;
+						memset (particles_list[i]->particles, 0, MAX_PARTICLES);
+						for (j = 0; j < def->total_particle_no; j++)
+							create_particle (particles_list[i], &(particles_list[i]->particles[j]));
 					}
 				}
 			}
-			UNLOCK_PARTICLES_LIST();
-		}else if(mode==3  && nid!=-1 && oid!=-1){
-			for(;i<max_obj_3d;i++){
-				if(objects_list[i]){
-					if((INT)objects_list[i]->e3d_data==oid){
-						objects_list[i]->e3d_data=(e3d_object *)nid;
-						strcpy(objects_list[i]->file_name,cNid);
+			UNLOCK_PARTICLES_LIST ();
+		}
+		else if (mode == 3 && nid != -1 && oid != -1)
+		{
+			for ( ; i < max_obj_3d; i++)
+			{
+				if (objects_list[i] != NULL)
+				{
+					if ((INT)objects_list[i]->e3d_data == oid)
+					{
+						objects_list[i]->e3d_data = (e3d_object *)nid;
+						strcpy (objects_list[i]->file_name, cNid);
+						objects_list[i]->r = new_object_red;
+						objects_list[i]->g = new_object_green;
+						objects_list[i]->b = new_object_blue;
 					}
 				}
 			}
-		}else if(mode==2  && nid!=-1 && oid!=-1){
-			for(;i<max_obj_2d;i++){
-				if(obj_2d_list[i]){
-					if((INT)obj_2d_list[i]->obj_pointer==oid){
-						obj_2d_list[i]->obj_pointer=(obj_2d_def *)nid;
-						strcpy(obj_2d_list[i]->file_name,cNid);
+		}
+		else if (mode == 2 && nid != -1 && oid != -1)
+		{
+			for ( ; i < max_obj_2d; i++)
+			{
+				if (obj_2d_list[i] != NULL)
+				{
+					if ((INT)obj_2d_list[i]->obj_pointer == oid)
+					{
+						obj_2d_list[i]->obj_pointer = (obj_2d_def *)nid;
+						strcpy (obj_2d_list[i]->file_name, cNid);
 					}
 				}
 			}
-		}else if(mode==1 && nid!=-1 && oid!=-1){
-			for(i=0;i<tile_map_size_x*tile_map_size_y;i++){
-				if(tile_map[i]==oid)
-					tile_map[i]=nid;
+		}
+		else if (mode == 1 && nid != -1 && oid != -1)
+		{
+			for (i = 0; i < tile_map_size_x*tile_map_size_y; i++)
+			{
+				if (tile_map[i] == oid)
+					tile_map[i] = nid;
 			}
-				
-	   }
+		}
 	}
 
 	if (mx > d4_x1 && mx <= d4_x2 && my > d4_y1 && my <= d4_y2)
 	{
 		mode++;
-		nid=-1;
-		oid=-1;
-		if(mode>4)mode=1;
-
+		nid = -1;
+		oid = -1;
+		if (mode > 4) mode = 1;
 	}
 	  
 	return 1;
