@@ -6,26 +6,27 @@
 #ifndef __TRANSLATE_H__
 #define __TRANSLATE_H__
 #include <libxml/parser.h>
-#ifdef ELC
-#include "stats.h"
-#endif
 
-#define XML_ID_SIZE 16
+#define XML_ID_SIZE 64
 
 /*!
  * This is used for setting a short name and description - used for i.e. options and sigils
  */
 typedef struct
 {
-	unsigned char str[31];     /*!< str */
+	unsigned char str[51];     /*!< str */
 #ifdef WRITE_XML
 	int saved_str;             /*!< saved_str */
 #endif
-	unsigned char desc[101];   /*!< desc */
+	unsigned char desc[251];   /*!< desc */
 #ifdef WRITE_XML
 	int saved_desc;            /*!< saved_desc */
 #endif
 } dichar;
+
+#ifdef ELC
+#include "stats.h"
+#endif
 
 /*! 
  * Defines a normal xml-node and a pointer to the variable the content should be saved to.
@@ -515,7 +516,6 @@ extern char	win_notepad[20],
  *
  * \sa	init_console
  * \sa	init_help
- * \sa	init_options
  * \sa	init_spells
  * \sa	init_stats
  * \sa	init_errors
@@ -537,5 +537,18 @@ void init_translatables();
  * \callgraph
  */
 void load_translatables();
+
+
+/*!
+ * \ingroup	translation
+ * \brief 	Adds a label/description pair for a config option
+ *
+ *          Adds a label/description pair for a config option.
+ *
+ * \sa      add_var
+ * \sa      add_xml_distringid
+ * \callgraph
+ */
+void add_options_distringid(char * xml_id, dichar * var, char * str, char * desc);
 
 #endif

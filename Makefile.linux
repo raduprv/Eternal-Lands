@@ -15,6 +15,7 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT
 #-DPNG_SCREENSHOT # make screenshots in W3C's PNG format in game
 #-DATI_9200_FIX   # flickering fix for ATI 92xx
 #-DNEW_WEATHER    # new weather effects
+#-DOPTIONS_I18N   # make option labels & descriptions translatable
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

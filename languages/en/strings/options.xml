@@ -1,53 +1,257 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <options>
-    <shadows>
-      <name>Shadows</name>
-      <desc>Enables shadows - disable if you experience performance problems</desc>
-    </shadows>
-    <clouds>
-      <name>Clouds</name>
-      <desc>Enables clouds - disable if you experience performance problems</desc>
-    </clouds>
-    <reflections>
-      <name>Reflections</name>
-      <desc>Enable reflections - disable if you experience performance problems</desc>
-    </reflections>
-    <fps>
-      <name>Show FPS</name>
-      <desc>Show the current framerate in upper left corner</desc>
-    </fps>
-    <sitlock>
-      <name>Sit lock</name>
-      <desc>Locks you in a sitting position until you press the "Stand" button or right click to move.</desc>
-    </sitlock>
-    <caps>
-      <name>Filter CAPS</name>
-      <desc>Turns on/off a filter for capitalized letters</desc>
-    </caps>
-    <sound>
-      <name>Sound</name>
-      <desc>Turns on/off sound effects</desc>
-    </sound>
-    <music>
-      <name>Music</name>
-      <desc>Turns on/off in-game music</desc>
-    </music>
-    <autocam>
-      <name>Auto Camera</name>
-      <desc>Automatically change the camera according to the actor position</desc>
-    </autocam>
-    <exit>
-      <name>Exit</name>
-      <desc>Exits the game</desc>
-    </exit>
-    <fullscreen>
+    <full_screen>
       <name>Full Screen</name>
-      <desc>Switches between full screen and windowed mode</desc>
-    </fullscreen>
-    <strings>
-      <name>Options</name>
-      <desc>Video mode</desc>
-    </strings>
+      <desc>Changes between full screen and windowed mode</desc>
+    </full_screen>
+    <shadows_on>
+      <name>Shadows</name>
+      <desc>Toggles the shadows</desc>
+    </shadows_on>
+    <use_shadow_mapping>
+      <name>Shadow Mapping</name>
+      <desc>If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.</desc>
+    </use_shadow_mapping>
+    <max_shadow_map_size>
+      <name>Shadow Map Size</name>
+      <desc>This parameter determines the quality of the shadow maps. You should as minimum set it to 512.</desc>
+    </max_shadow_map_size>
+    <render_fog>
+      <name>Render fog</name>
+      <desc>Toggles fog rendering.</desc>
+    </render_fog>
+    <poor_man>
+      <name>Poor Man</name>
+      <desc>Toggles the poor man option for slower systems</desc>
+    </poor_man>
+    <show_reflection>
+      <name>Show Reflections</name>
+      <desc>Toggle the reflections</desc>
+    </show_reflection>
+    <no_adjust_shadows>
+      <name>Don't Adjust Shadows</name>
+      <desc>If enabled, tell the engine not to disable the shadows if the frame rate is too low.</desc>
+    </no_adjust_shadows>
+    <clouds_shadows>
+      <name>Cloud Shadows</name>
+      <desc>The clouds shadows are projected on the ground, and the game looks nicer with them on.</desc>
+    </clouds_shadows>
+    <show_fps>
+      <name>Show FPS</name>
+      <desc>Show the current frames per second in the corner of the window</desc>
+    </show_fps>
+    <use_mipmaps>
+      <name>Mipmaps</name>
+      <desc>Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.</desc>
+    </use_mipmaps>
+    <use_point_particles>
+      <name>Point Particles</name>
+      <desc>Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.</desc>
+    </use_point_particles>
+    <particles_percentage>
+      <name>Particle Percentage</name>
+      <desc>If you experience a significant slowdown when particles are nearby, you should consider lowering this number.</desc>
+    </particles_percentage>
+    <use_vertex_array>
+      <name>Vertex Array</name>
+      <desc>Toggle the use of the vertex array</desc>
+    </use_vertex_array>
+    <use_vertex_buffers>
+      <name>Vertex Buffer objects</name>
+      <desc>Toggle the use of the vertex buffer objects</desc>
+    </use_vertex_buffers>
+    <mouse_limit>
+      <name>Mouse Limit</name>
+      <desc>You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!</desc>
+    </mouse_limit>
+    <normal_camera_rotation_speed>
+      <name>Camera Rotation Speed</name>
+      <desc>Set the speed the camera rotates</desc>
+    </normal_camera_rotation_speed>
+    <fine_camera_rotation_speed>
+      <name>Fine Rotation Speed</name>
+      <desc>Set the fine camera rotation speed (when holding shift+arrow key)</desc>
+    </fine_camera_rotation_speed>
+    <name_text_size>
+      <name>Name Text Size</name>
+      <desc>Set the size of the players name text</desc>
+    </name_text_size>
+    <chat_text_size>
+      <name>Chat Text Size</name>
+      <desc>Sets the size of the normal text</desc>
+    </chat_text_size>
+    <name_font>
+      <name>Name Font</name>
+      <desc>Change the type of font used for the name</desc>
+    </name_font>
+    <chat_font>
+      <name>Chat Font</name>
+      <desc>Set the type of font used for normal text</desc>
+    </chat_font>
+    <no_sound>
+      <name>No sound</name>
+      <desc>Toggle the Audio</desc>
+    </no_sound>
+    <sound_gain>
+      <name>Sound Gain</name>
+      <desc>Adjust the sound effects volume</desc>
+    </sound_gain>
+    <music_gain>
+      <name>Music Gain</name>
+      <desc>Adjust the music volume</desc>
+    </music_gain>
+    <sit_lock>
+      <name>Sit Lock</name>
+      <desc>Enable this to prevent your character from moving by accident when you are sitting.</desc>
+    </sit_lock>
+    <item_window_on_drop>
+      <name>Item Window On Drop</name>
+      <desc>Toggle whether the item window shows when you drop items</desc>
+    </item_window_on_drop>
+    <view_digital_clock>
+      <name>Digital Clock</name>
+      <desc>Toggle the digital clock</desc>
+    </view_digital_clock>
+    <show_stats_in_hud>
+      <name>Stats In HUD</name>
+      <desc>Toggle showing stats in the HUD</desc>
+    </show_stats_in_hud>
+    <show_help_text>
+      <name>Help Text</name>
+      <desc>Enable tooltips.</desc>
+    </show_help_text>
+    <relocate_quickbar>
+      <name>Relocate Quickbar</name>
+      <desc>Set whether you can move the quickbar</desc>
+    </relocate_quickbar>
+    <compass_north>
+      <name>Compass Direction</name>
+      <desc>Set the compass direction for a static compass</desc>
+    </compass_north>
+    <auto_afk_time>
+      <name>AFK Time</name>
+      <desc>The idle time in minutes before the AFK auto message</desc>
+    </auto_afk_time>
+    <afk_message>
+      <name>AFK Message</name>
+      <desc>Set the AFK message</desc>
+    </afk_message>
+    <use_global_ignores>
+      <name>Global Ignores</name>
+      <desc>Global ignores is a list with people that are well known for being nasty, so we put them into a list (global_ignores.txt). Enable this to load that list on startup.</desc>
+    </use_global_ignores>
+    <save_ignores>
+      <name>Save Ignores</name>
+      <desc>Toggle saving of the local ignores list on exit.</desc>
+    </save_ignores>
+    <use_global_filters>
+      <name>Global Filter</name>
+      <desc>Toggle the use of global text filters.</desc>
+    </use_global_filters>
+    <caps_filter>
+      <name>Caps filter</name>
+      <desc>Toggle the caps filter</desc>
+    </caps_filter>
+    <server_address>
+      <name>Server Address</name>
+      <desc>The address of the EL server</desc>
+    </server_address>
+    <server_port>
+      <name>Server Port</name>
+      <desc>Where on the server to connect.</desc>
+    </server_port>
+    <username>
+      <name>Username</name>
+      <desc>Your user name here</desc>
+    </username>
+    <password>
+      <name>Password</name>
+      <desc>Put your password here</desc>
+    </password>
+    <log_chat>
+      <name>Log messages</name>
+      <desc>Log messages from the server (chat, harvesting events, GMs, etc)</desc>
+    </log_chat>
+    <language>
+      <name>Language</name>
+      <desc>Wah?</desc>
+    </language>
+    <browser>
+      <name>Browser</name>
+      <desc>Location of your browser</desc>
+    </browser>
+    <windowed_chat>
+      <name>Use windowed chat</name>
+      <desc>How do you want your chat to be displayed?</desc>
+    </windowed_chat>
+    <write_ini_on_exit>
+      <name>Save INI</name>
+      <desc>Save options when you quit</desc>
+    </write_ini_on_exit>
+    <ati_click_workaround>
+      <name>ATI Bug</name>
+      <desc>If you are using an ATI card and don't move when you click, try this option to work around a bug in their drivers</desc>
+    </ati_click_workaround>
+    <use_alpha_border>
+      <name>Alpha Border</name>
+      <desc>Toggle the use of alpha borders</desc>
+    </use_alpha_border>
+    <use_floating_messages>
+      <name>Floating messages</name>
+      <desc>Toggles the use of floating experience messages and other graphical enhancements</desc>
+    </use_floating_messages>
+    <local_chat_separate>
+      <name>Separate local chat</name>
+      <desc>Should local chat be separate?</desc>
+    </local_chat_separate>
+    <guild_chat_separate>
+      <name>Seperate guild chat</name>
+      <desc>Should guild chat be seperate?</desc>
+    </guild_chat_separate>
+    <server_chat_separate>
+      <name>Seperate server messages</name>
+      <desc>Should the messages from the server be seperate?</desc>
+    </server_chat_separate>
+    <mod_chat_separate>
+      <name>Seperate moderator chat</name>
+      <desc>Should moderator chat be seperated from the rest?</desc>
+    </mod_chat_separate>
+    <highlight_tab_on_nick>
+      <name>Highlight tabs on name</name>
+      <desc>Should tabs be highlighted when someone mentions your name?</desc>
+    </highlight_tab_on_nick>
+    <isometric>
+      <name>Use isometric view</name>
+      <desc>Toggle the use of isometric (instead of perspective) view</desc>
+    </isometric>
+    <perspective>
+      <name>Perspective</name>
+      <desc>The degree of perspective distortion. Change if your view looks odd.</desc>
+    </perspective>
+    <near_plane>
+      <name>Near plane distance</name>
+      <desc>The distance of the near clipping plane to your actor</desc>
+    </near_plane>
+    <buddy_log_notice>
+      <name>Log Buddy sign on/off</name>
+      <desc>Toggle whether to display notices when people on your buddy list log on or off</desc>
+    </buddy_log_notice>
+    <data_dir>
+      <name>Data Directory</name>
+      <desc>Place were we keep our data. Can only be changed with a Client restart.</desc>
+    </data_dir>
+    <video_mode>
+      <name>Video Mode</name>
+      <desc>The video mode you wish to use</desc>
+    </video_mode>
+    <limit_fps>
+      <name>Limit FPS</name>
+      <desc>Limit the frame rate to reduce load on the system</desc>
+    </limit_fps>
+    <gamma>
+      <name>Gamma</name>
+      <desc>How bright your display should be.</desc>
+    </gamma>
   </options>
 </root>

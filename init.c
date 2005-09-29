@@ -491,9 +491,6 @@ void init_stuff()
 	//TODO: process command line options
 	chdir(DATA_DIR);
 
-	//Initialize all strings
-	init_translatables();
-
 #ifdef WRITE_XML
 	load_translatables();//Write to the current working directory - hopefully we'll have write rights here...
 #endif

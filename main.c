@@ -17,6 +17,7 @@
 
 #include "global.h"
 #include "init.h"
+#include "translate.h"
 
 Uint32 cur_time=0, last_time=0;//for FPS
 
@@ -214,6 +215,7 @@ int main(int argc, char **argv)
 	gargv=argv;
 
 	// do basic initialization
+	init_translatables();
 	init_vars();
 	init_stuff();
 

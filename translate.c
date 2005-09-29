@@ -444,7 +444,6 @@ group_id * titles_str;
 
 void init_console(void);
 void init_help(void);
-void init_options(void);
 void init_spells(void);
 void init_stats(void);
 void init_titles(void);
@@ -520,8 +519,8 @@ void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char *
 	group->distrings[group->no]=(distring_item*)calloc(1,sizeof(distring_item));
 	snprintf (group->distrings[group->no]->xml_id, sizeof (group->distrings[group->no]->xml_id), "%s", xml_id);
 	group->distrings[group->no]->var=var;
-	strncpy(var->str, str, 30);
-	strncpy(var->desc, desc, 100);
+	snprintf(var->str, sizeof(var->str), "%s", str);
+	snprintf(var->desc, sizeof(var->desc), "%s", desc);
 	group->no++;
 }
 
@@ -549,6 +548,11 @@ void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def,
 	group->no++;
 }
 
+void add_options_distringid(char * xml_id, dichar * var, char * str, char * desc)
+{
+	add_xml_distringid(options_str, xml_id, var, str, desc);
+}
+
 void init_translatables()
 {
 	init_groups();
@@ -556,7 +560,6 @@ void init_translatables()
 #ifdef ELC
 	init_console();
 	init_help();
-	init_options();
 	init_spells();
 	init_stats();
 	init_titles();
@@ -877,25 +880,6 @@ void init_help()
 #endif
 
 #ifdef ELC
-void init_options()
-{
-	//Options
-	add_xml_distringid(options_str,"shadows",&opt_shadows,"Shadows","Enables shadows - disable if you experience performance problems");
-	add_xml_distringid(options_str,"clouds",&opt_clouds,"Clouds","Enables clouds - disable if you experience performance problems");
-	add_xml_distringid(options_str,"reflections",&opt_reflections,"Reflections","Enable reflections - disable if you experience performance problems");
-	add_xml_distringid(options_str,"fps",&opt_show_fps,"Show FPS","Show the current framerate in upper left corner");
-	add_xml_distringid(options_str,"sitlock",&opt_sit_lock,"Sit lock","Locks you in a sitting position until you press the \"Stand\" button or right click to move.");
-	add_xml_distringid(options_str,"caps",&opt_caps_filter,"Filter CAPS","Turns on/off a filter for capitalized letters");
-	add_xml_distringid(options_str,"sound",&opt_sound,"Sound","Turns on/off sound effects");
-	add_xml_distringid(options_str,"music",&opt_music,"Music","Turns on/off in-game music");
-	add_xml_distringid(options_str,"autocam",&opt_autocam,"Auto Camera","Automatically change the camera according to the actor position");
-	add_xml_distringid(options_str,"exit",&opt_exit,"Exit","Exits the game");
-	add_xml_distringid(options_str,"fullscreen",&opt_full_screen,"Full Screen","Switches between full screen and windowed mode");
-	add_xml_distringid(options_str,"strings",&opt_strings,"Options","Video mode");
-}
-#endif
-
-#ifdef ELC
 void init_spells()
 {
 	//Sigils
@@ -1177,13 +1161,13 @@ void copy_strings(xmlNode * in, distring_item * string)
 			if(cur->children) {
 				if(!xmlStrcasecmp(cur->name,"name")) {
 					char *p=string->var->str;
-					my_xmlStrncopy(&p, cur->children->content, 30);
+					my_xmlStrncopy(&p, cur->children->content, sizeof(string->var->str) -1);
 #ifdef WRITE_XML
 					string->var->saved_str=1;
 #endif
 				} else if (!xmlStrcasecmp(cur->name,"desc")) {
 					char *p=string->var->desc;
-					my_xmlStrncopy(&p, cur->children->content, 100);
+					my_xmlStrncopy(&p, cur->children->content, sizeof(string->var->desc) -1);
 #ifdef WRITE_XML
 					string->var->saved_desc=1;
 #endif

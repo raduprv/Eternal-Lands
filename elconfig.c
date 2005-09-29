@@ -686,8 +686,10 @@ void free_vars()
 				}
 			break;
 		}
+#ifndef OPTIONS_I18N
 		free(our_vars.var[i]->short_desc);
 		free(our_vars.var[i]->long_desc);
+#endif
 		free(our_vars.var[i]);
 	}
 	our_vars.no=0;
@@ -764,10 +766,14 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 	our_vars.var[no]->nlen=strlen(our_vars.var[no]->name);
 	our_vars.var[no]->snlen=strlen(our_vars.var[no]->shortname);
 	our_vars.var[no]->saved = 0;
+#ifdef OPTIONS_I18N
+	add_options_distringid(name, &our_vars.var[no]->display, short_desc, long_desc);
+#else
 	our_vars.var[no]->short_desc = malloc(strlen(short_desc)+1);
 	strcpy(our_vars.var[no]->short_desc, short_desc);
 	our_vars.var[no]->long_desc = malloc(strlen(long_desc)+1);
 	strcpy(our_vars.var[no]->long_desc, long_desc);
+#endif
 	our_vars.var[no]->widgets.tab_id = tab_id;
 }
 
@@ -1236,8 +1242,13 @@ int mouseover_option_handler(widget_list *widget, int mx, int my)
 		//We didn't find anything, abort
 		return 0;
 	}
+#ifdef OPTIONS_I18N
+	put_small_text_in_box(our_vars.var[i]->display.desc, strlen(our_vars.var[i]->display.desc),
+								elconfig_menu_x_len-TAB_MARGIN*2, elconf_description_buffer);
+#else
 	put_small_text_in_box(our_vars.var[i]->long_desc, strlen(our_vars.var[i]->long_desc),
 								elconfig_menu_x_len-TAB_MARGIN*2, elconf_description_buffer);
+#endif
 	return 1;
 }
 
@@ -1319,7 +1330,11 @@ void elconfig_populate_tabs(void)
 				widget_id = checkbox_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 											elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, CHECKBOX_SIZE, CHECKBOX_SIZE, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var);
 				//Add label for the checkbox
+#ifdef OPTIONS_I18N
+				label_id = label_add(elconfig_tabs[tab_id].tab, NULL, our_vars.var[i]->display.str, elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y);
+#else
 				label_id = label_add(elconfig_tabs[tab_id].tab, NULL, our_vars.var[i]->short_desc, elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y);
+#endif
 				//Set handlers
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, label_id, onclick_label_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, onclick_label_handler);
@@ -1328,7 +1343,11 @@ void elconfig_populate_tabs(void)
 				min = queue_pop(our_vars.var[i]->queue);
 				max = queue_pop(our_vars.var[i]->queue);
 				/* interval is always 1 */
+#ifdef OPTIONS_I18N
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+#else
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+#endif
 				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, *(int *)min, *(int *)max, 1.0);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
@@ -1341,7 +1360,11 @@ void elconfig_populate_tabs(void)
 				min = queue_pop(our_vars.var[i]->queue);
 				max = queue_pop(our_vars.var[i]->queue);
 				interval = (float *)queue_pop(our_vars.var[i]->queue);
+#ifdef OPTIONS_I18N
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+#else
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+#endif
 				widget_id = spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, *(float *)min, *(float *)max, *interval);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
@@ -1352,19 +1375,32 @@ void elconfig_populate_tabs(void)
 				our_vars.var[i]->queue = NULL;
 			break;
 			case STRING:
+#ifdef OPTIONS_I18N
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+#else
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+#endif
 				widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
 				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler); 
 			break;
 			case PASSWORD:
 				// Grum: the client shouldn't store the password, so let's not add it to the configuration window
+#ifdef OPTIONS_I18N
+				//label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+#else
 				//label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+#endif
 				//widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
 				//widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler); 
 			break;
 			case MULTI:
+#ifdef OPTIONS_I18N
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+				widget_id = multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+#else
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 				widget_id = multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->short_desc), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+#endif
 				for(y = 0; !queue_isempty(our_vars.var[i]->queue); y++) {
 					char *label = queue_pop(our_vars.var[i]->queue);
 					int width = strlen(label) > 0 ? 0 : -1;
