@@ -38,7 +38,7 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <edit_quantity>Rightclick on the quantity you wish to edit</edit_quantity>
     <you>You</you>
     <accept>Accept</accept>
-  </misc>
+  <x_quit>Press Alt-x to close the game</x_quit></misc>
   <new>
     <skin>Skin</skin>
     <hair>Hair</hair>

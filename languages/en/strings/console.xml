@@ -11,7 +11,7 @@
     <rem>OK, %s was removed from your filter list!</rem>
     <none>You are filtering nothing!</none>
     <cur>You are currently filtering</cur>
-  </filter>
+  <flistfull>Your filter list is full, you can't add another filter</flistfull></filter>
   <ignore>
     <toolong>Name too long, the max limit is 15 characters.</toolong>
     <tooshort>Name too short, only names&gt;=3 characters can be used!</tooshort>

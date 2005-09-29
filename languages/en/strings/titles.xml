@@ -31,5 +31,5 @@
     <b_save>Save Notes</b_save>
     <l_nname>Note name</l_nname>
     <l_cursor_coords>Cursor position</l_cursor_coords>
-  </titles>
+  <c_guildchan>Guild Channel</c_guildchan></titles>
 </root>
