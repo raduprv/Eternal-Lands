@@ -807,17 +807,19 @@ void get_items_cooldown (const Uint8 *data, int len)
 		item_list[iitem].cooldown_rate = 1;
 	}
 
-	nitems = len / 3;
+	nitems = len / 5;
 	if (nitems <= 0) return;
 	
 	ibyte = 0;
 	for (iitem = 0; iitem < nitems; iitem++)
 	{
-		pos = data[ibyte++];
-		max_cooldown = data[ibyte++];
-		cooldown = data[ibyte++];
-		item_list[pos].cooldown_rate = 3000 * (Uint32)max_cooldown;
-		item_list[pos].cooldown_time = cur_time + 3000 * (Uint32)cooldown;
+		pos = data[ibyte];
+		max_cooldown = SDL_SwapLE16 (*((Uint16*)(&data[ibyte+1])));
+		cooldown = SDL_SwapLE16 (*((Uint16*)(&data[ibyte+3])));
+		ibyte += 5;
+		
+		item_list[pos].cooldown_rate = 1000 * (Uint32)max_cooldown;
+		item_list[pos].cooldown_time = cur_time + 1000 * (Uint32)cooldown;
 	}
 }
 
