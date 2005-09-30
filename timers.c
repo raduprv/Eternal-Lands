@@ -92,9 +92,6 @@ Uint32 check_misc(Uint32 interval, void * data)
 	rain_control();
 #endif
 
-	// check items cooling down
-	update_cooldown ();
-	
 	//should we send the heart beat?
 	if(!disconnected && last_heart_beat+25 <= time(NULL))
 	{

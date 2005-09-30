@@ -18,9 +18,8 @@ typedef struct
 	int is_resource; /*!< does it appear on the manufacturing menu? */
 	int use_with_inventory;
 	int is_stackable;
-	Uint16 cooldown;
-	Uint16 max_cooldown;
-	Uint32 cool_time;
+	Uint32 cooldown_time; /*!< time when cooldown shall reach zero */
+	Uint32 cooldown_rate; /*!< time that the item would need to cool down from full heat */
 } item;
 
 /*!

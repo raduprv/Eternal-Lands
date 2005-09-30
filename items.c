@@ -249,8 +249,8 @@ void get_your_items (const Uint8 *data)
 	for(i=0;i<total_items;i++){
 		pos=data[i*8+1+6];
 		item_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data+i*8+1)));
-		item_list[pos].cooldown = 0;
-		item_list[pos].max_cooldown = 0;
+		item_list[pos].cooldown_time = 0;
+		item_list[pos].cooldown_rate = 1;
 		item_list[pos].quantity=SDL_SwapLE32(*((Uint32 *)(data+i*8+1+2)));
 		item_list[pos].pos=pos;
 		flags=data[i*8+1+7];
@@ -286,8 +286,8 @@ void get_new_inventory_item (const Uint8 *data)
 
 	item_list[pos].quantity=quantity;
 	item_list[pos].image_id=image_id;
-	item_list[pos].cooldown = 0;
-	item_list[pos].max_cooldown = 0;
+	item_list[pos].cooldown_time = 0;
+	item_list[pos].cooldown_rate = 1;
 	item_list[pos].pos=pos;
 
 	item_list[pos].is_resource=((flags&ITEM_RESOURCE)>0);
@@ -303,6 +303,7 @@ int display_items_handler(window_info *win)
 	Uint8 str[80];
 	int x,y,i;
 	int item_is_weared=0;
+	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -363,9 +364,9 @@ int display_items_handler(window_info *win)
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			if (item_list[i].cooldown > 0)
+			if (item_list[i].cooldown_time > _cur_time)
 			{
-				float cooldown = ((float) item_list[i].cooldown) / item_list[i].max_cooldown;
+				float cooldown = ((float)(item_list[i].cooldown_time - _cur_time)) / ((float)item_list[i].cooldown_rate);
 				float x_center = (x_start + x_end)*0.5f;
 				float y_center = (y_start + y_end)*0.5f;
 
@@ -379,7 +380,7 @@ int display_items_handler(window_info *win)
 				
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_TRIANGLE_FAN);
-					glColor4f(0.75f, 0.0f, 0.0f, 0.75f);
+					glColor4f(0.625f, 0.25f, 0.25f, 0.667f);
 
 					glVertex2f(x_center, y_center);
 
@@ -797,13 +798,13 @@ void display_items_menu()
 void get_items_cooldown (const Uint8 *data, int len)
 {
 	int iitem, nitems, ibyte, pos;
-	Uint16 cooldown, max_cooldown;
+	Uint8 cooldown, max_cooldown;
 	
 	// reset old cooldown values
 	for (iitem = 0; iitem < ITEM_NUM_ITEMS; iitem++)
 	{
-		item_list[iitem].cooldown = 0;
-		item_list[iitem].max_cooldown = 0;
+		item_list[iitem].cooldown_time = 0;
+		item_list[iitem].cooldown_rate = 1;
 	}
 
 	nitems = len / 3;
@@ -813,25 +814,10 @@ void get_items_cooldown (const Uint8 *data, int len)
 	for (iitem = 0; iitem < nitems; iitem++)
 	{
 		pos = data[ibyte++];
-		max_cooldown = 3 * data[ibyte++];
-		cooldown = 3 * data[ibyte++];
-		item_list[pos].cooldown = cooldown;
-		item_list[pos].max_cooldown = max_cooldown;
-		item_list[pos].cool_time = cur_time;
+		max_cooldown = data[ibyte++];
+		cooldown = data[ibyte++];
+		item_list[pos].cooldown_rate = 3000 * (Uint32)max_cooldown;
+		item_list[pos].cooldown_time = cur_time + 3000 * (Uint32)cooldown;
 	}
 }
 
-void update_cooldown ()
-{
-	int iitem;
-	
-	for (iitem = 0; iitem < ITEM_NUM_ITEMS; iitem++)
-	{
-		if (item_list[iitem].cooldown > 0)
-		{
-			int seconds = 1 + item_list[iitem].max_cooldown - item_list[iitem].cooldown;
-		 	if (cur_time - item_list[iitem].cool_time >= 1000 * seconds)
-				item_list[iitem].cooldown--;
-		}
-	}
-}

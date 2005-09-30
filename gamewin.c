@@ -844,6 +844,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	int ctrl_on = key & ELW_CTRL;
 	int shift_on = key & ELW_SHIFT;
 	Uint16 keysym = key & 0xffff;
+#ifdef DEBUG
+	int i;
+	Uint32 _cur_time = SDL_GetTicks();
+#endif
 	
 	if ( check_quit_or_fullscreen (key) )
 	{
@@ -864,18 +868,22 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #ifdef DEBUG
 	else if ((keysym == SDLK_LEFT) && shift_on && ctrl_on && !alt_on)
 	{
-
-		item_list[0].max_cooldown = 64;
-		item_list[0].cooldown = 64;
+		for (i=0; i<ITEM_WEAR_START;i++) {
+			item_list[i].cooldown_rate = 60000;
+			item_list[i].cooldown_time = _cur_time + 60000;
+		}
 	}
 	else if ((keysym == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
 	{
-
-		item_list[0].cooldown -= 1;
+		for (i=0; i<ITEM_WEAR_START;i++) {
+			item_list[i].cooldown_time -= 1000;
+		}
 	}
 	else if ((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
 	{
-		item_list[0].cooldown += 1;
+		for (i=0; i<ITEM_WEAR_START;i++) {
+			item_list[i].cooldown_time += 1000;
+		}
 	}
 #ifndef NEW_WEATHER
 	else if ((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)

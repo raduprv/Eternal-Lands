@@ -1098,6 +1098,7 @@ int	display_quickbar_handler(window_info *win)
 {
 	Uint8 str[80];
 	int y, i;
+	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
@@ -1140,9 +1141,9 @@ int	display_quickbar_handler(window_info *win)
 			}
 			glEnd();
 			
-			if (item_list[i].cooldown > 0)
+			if (item_list[i].cooldown_time > _cur_time)
 			{
-				float cooldown = ((float) item_list[i].cooldown) / item_list[i].max_cooldown;
+				float cooldown = ((float)(item_list[i].cooldown_time - _cur_time)) / ((float)item_list[i].cooldown_rate);
 				float x_center = (x_start + x_end)*0.5f;
 				float y_center = (y_start + y_end)*0.5f;
 
@@ -1156,7 +1157,7 @@ int	display_quickbar_handler(window_info *win)
 				
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_TRIANGLE_FAN);
-					glColor4f(0.75f, 0.0f, 0.0f, 0.75f);
+					glColor4f(0.625f, 0.25f, 0.25f, 0.667f);
 
 					glVertex2f(x_center, y_center);
 
