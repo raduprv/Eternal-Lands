@@ -432,10 +432,10 @@ char	win_notepad[20],
 #endif
 
 group_id * errors;
+group_id_di * options_str;
 #ifdef ELC
 group_id * console_str;
 group_id * help_str;
-group_id_di * options_str;
 group_id_di * sigils_str;
 group_stat * stats_str;
 group_id * stats_extra;
