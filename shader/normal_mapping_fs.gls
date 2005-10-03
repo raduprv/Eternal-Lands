@@ -6,6 +6,7 @@ uniform int normal_texture_ID;
 uniform sampler2D base_texture;
 uniform sampler2D detail_texture;
 uniform sampler2D normal_texture;
+uniform sampler2DShadow shadow_texture;
 
 uniform int NumEnabledLights;
 
@@ -153,8 +154,9 @@ void main(void)
 	normal = gl_NormalMatrix * normalize(normal * 2.0f - 1.0f);
 	base = vec4(texture2D(base_texture, vec2(gl_TexCoord[0])));
 	detail = vec4(texture2D(detail_texture, vec2(gl_TexCoord[1])));
+//	base = vec4(texture2D(base_texture, vec2(gl_TexCoord[1])));
 //	if (
-	texture = base;//*detail;
+	texture = base;//*0.75+detail*0.25;
 
 	vec3 eye;
 
@@ -170,84 +172,7 @@ void main(void)
 	amb = vec4(0.0);
 	diff = vec4(0.0);
 	spec = vec4(0.0);
-/*	
-	for (i = 0; i < 8; i++)
-*/
-/*
-	if (NumEnabledLights >= 0)
-	{	
-		i = 0;
-		if (gl_LightSource[i].position.w == 0.0)
-			DirectionalLight(i, normal, amb, diff, spec);
-		else if (gl_LightSource[i].spotCutoff == 180.0)
-			PointLight(i, eye, eyepos, normal, amb, diff, spec);
-		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
-	}
-	if (NumEnabledLights >= 1)
-	{	
-		i = 1;
-		if (gl_LightSource[i].position.w == 0.0)
-			DirectionalLight(i, normal, amb, diff, spec);
-		else if (gl_LightSource[i].spotCutoff == 180.0)
-			PointLight(i, eye, eyepos, normal, amb, diff, spec);
-		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
-	}
-	if (NumEnabledLights >= 2)
-	{	
-		i = 2;
-		if (gl_LightSource[i].position.w == 0.0)
-			DirectionalLight(i, normal, amb, diff, spec);
-		else if (gl_LightSource[i].spotCutoff == 180.0)
-			PointLight(i, eye, eyepos, normal, amb, diff, spec);
-		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
-	}
-	if (NumEnabledLights >= 3)
-	{	
-		i = 3;
-		if (gl_LightSource[i].position.w == 0.0)
-			DirectionalLight(i, normal, amb, diff, spec);
-		else if (gl_LightSource[i].spotCutoff == 180.0)
-			PointLight(i, eye, eyepos, normal, amb, diff, spec);
-		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
-	}
-	if (NumEnabledLights >= 4)
-	{	
-		i = 4;
-		if (gl_LightSource[i].position.w == 0.0)
-			DirectionalLight(i, normal, amb, diff, spec);
-		else if (gl_LightSource[i].spotCutoff == 180.0)
-			PointLight(i, eye, eyepos, normal, amb, diff, spec);
-		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
-	}
-	if (NumEnabledLights >= 5)
-	{	
-		i = 5;
-		if (gl_LightSource[i].position.w == 0.0)
-			DirectionalLight(i, normal, amb, diff, spec);
-		else if (gl_LightSource[i].spotCutoff == 180.0)
-			PointLight(i, eye, eyepos, normal, amb, diff, spec);
-		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
-	}
-	if (NumEnabledLights >= 6)
-	{	
-		i = 6;
-		if (gl_LightSource[i].position.w == 0.0)
-			DirectionalLight(i, normal, amb, diff, spec);
-		else if (gl_LightSource[i].spotCutoff == 180.0)
-			PointLight(i, eye, eyepos, normal, amb, diff, spec);
-		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
-	}
-*/
-/*
-	{	
-		i = 7;
-		if (gl_LightSource[i].position.w == 0.0)
-			DirectionalLight(i, normal, amb, diff, spec);
-		else if (gl_LightSource[i].spotCutoff == 180.0)
-			PointLight(i, eye, eyepos, normal, amb, diff, spec);
-		else SpotLight(i, eye, eyepos, normal, amb, diff, spec);
-	}
-*/
+	
 	amb = gl_LightSource[7].ambient;
 	if (NumEnabledLights >= 0) PointLight_2(0, eyepos, normal, diff);
 	if (NumEnabledLights >= 1) PointLight_2(1, eyepos, normal, diff);

@@ -121,7 +121,7 @@ float cal_get_maxz(actor *act)
 }
 		
 
-void draw_enhanced_actor(actor * actor_id)
+void draw_enhanced_actor(actor * actor_id, int banner)
 {
 	//int i=0;
 	double x_pos,y_pos,z_pos;
@@ -167,7 +167,7 @@ void draw_enhanced_actor(actor * actor_id)
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
-	draw_actor_banner(actor_id, healtbar_z);
+	if (banner) draw_actor_banner(actor_id, healtbar_z);
 
 	glPopMatrix();//we don't want to affect the rest of the scene
 }

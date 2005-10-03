@@ -91,4 +91,33 @@ void draw_sky_background();
  */
 void draw_dungeon_sky_background();
 
+#ifdef	USE_FRAMEBUFFER
+/*!
+ * \ingroup reflections
+ * \brief Frees the reflection frame buffer.
+ *
+ * Frees the reflection frame buffer.
+ *
+ * \callgraph
+ */
+void free_reflection_framebuffer();
+/*!
+ * \ingroup reflections
+ * \brief Makes the reflection frame buffer.
+ *
+ * Makes the reflection frame buffer.
+ * 
+ * \callgraph
+ */
+void make_reflection_framebuffer(int width, int height);
+/*!
+ * \ingroup reflections
+ * \brief Changes the size of the reflection frame buffer.
+ *
+ * Changes the size of the reflection frame buffer.
+ *
+ * \callgraph
+ */
+void change_reflection_framebuffer_size(int width, int height);
+#endif
 #endif

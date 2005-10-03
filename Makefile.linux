@@ -16,6 +16,7 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT
 #-DATI_9200_FIX   # flickering fix for ATI 92xx
 #-DNEW_WEATHER    # new weather effects
 #-DOPTIONS_I18N   # make option labels & descriptions translatable
+#-DUSE_FRAMEBUFFER	# use framebuffer for reflection
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
@@ -41,7 +42,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	cache.o cal.o chat.o colors.o console.o consolewin.o cursors.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elmemory.o elwindows.o encyclopedia.o errors.o events.o	\
-	filter.o font.o frustum.o	\
+	framebuffer.o filter.o font.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
 	keys.o knowledge.o lights.o loginwin.o loading_win.o	\

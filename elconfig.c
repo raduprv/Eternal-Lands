@@ -141,6 +141,9 @@ void change_poor_man(int *poor_man)
 {
 	*poor_man = !*poor_man;
 	if(*poor_man) {
+#ifdef	USE_FRAMEBUFFER
+		if (have_framebuffer_object && show_reflection) free_reflection_framebuffer();
+#endif
 		show_reflection=0;
 		shadows_on=0;
 		clouds_shadows=0;
@@ -507,7 +510,22 @@ void change_normal_mapping(int *nm)
 		LOG_TO_CONSOLE (c_red1, disabled_normal_mapping);
 	}
 }
+#endif
 
+#ifdef	USE_FRAMEBUFFER
+void change_reflection(int *rf)
+{
+	if (*rf)
+	{
+		*rf = 0;
+		if (have_framebuffer_object) free_reflection_framebuffer();
+	}
+	else
+	{
+		*rf = 1;
+		if (have_framebuffer_object) make_reflection_framebuffer(window_width, window_height);
+	}
+}
 #endif
 #endif // ELC
 #ifdef MAP_EDITOR
@@ -795,7 +813,11 @@ void init_vars()
 	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render fog","Toggles fog rendering.",VIDEO);
 #endif
 	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);
+#ifdef	USE_FRAMEBUFFER
+	add_var(BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",VIDEO);
+#else
 	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1,"Show Reflections","Toggle the reflections",VIDEO);
+#endif
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",SPECIALVID);
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",SPECIALVID);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);

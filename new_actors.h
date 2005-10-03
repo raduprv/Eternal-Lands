@@ -18,7 +18,7 @@ extern float sitting; /*!< used to compute several actor related z values */
  *
  * \callgraph
  */
-void draw_enhanced_actor(actor * actor_id);
+void draw_enhanced_actor(actor * actor_id, int banner);
 
 /*!
  * \ingroup display_actors

@@ -433,7 +433,7 @@ float cal_get_maxz2(actor *act)
 	return maxz;
 }
 
-void draw_actor(actor * actor_id)
+void draw_actor(actor * actor_id, int banner)
 {
 	//int i;
 	double x_pos,y_pos,z_pos;
@@ -496,7 +496,7 @@ void draw_actor(actor * actor_id)
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
-	draw_actor_banner(actor_id, healthbar_z);
+	if (banner) draw_actor_banner(actor_id, healthbar_z);
 	glPopMatrix();//we don't want to affect the rest of the scene
 }
 
@@ -533,7 +533,7 @@ void get_actors_in_range()
 	}
 }
 
-void display_actors()
+void display_actors(int banner)
 {
 	int i;
 	int x,y;
@@ -562,14 +562,14 @@ void display_actors()
 			actor *cur_actor= actors_list[near_actors[i].actor];
 			if(cur_actor) {
 				if(cur_actor->is_enhanced_model) {
-					draw_enhanced_actor(cur_actor);
+					draw_enhanced_actor(cur_actor, banner);
 #ifndef NETWORK_THREAD
 					//check for network data - reduces resyncs
 					get_message_from_server();
 #endif //NETWORK_THREAD
 					if(actors_list[i]==NULL || cur_actor!=actors_list[i])continue;//The server might destroy our actor in that very moment...
 				} else {
-					draw_actor(cur_actor);
+					draw_actor(cur_actor, banner);
 				}
 				
 				if(cur_actor->kind_of_actor==NPC){
@@ -597,9 +597,9 @@ void display_actors()
 				actor *cur_actor= actors_list[near_actors[i].actor];
 				if(cur_actor) {
 					if(cur_actor->is_enhanced_model) {
-						draw_enhanced_actor(cur_actor);
+						draw_enhanced_actor(cur_actor, banner);
 					} else {
-						draw_actor(cur_actor);
+						draw_actor(cur_actor, banner);
 					}
 					
 					if(cur_actor->kind_of_actor==NPC){

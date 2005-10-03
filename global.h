@@ -157,4 +157,7 @@ typedef int point;
 	#include "normals.h"
 #endif
 
+#ifdef	USE_FRAMEBUFFER
+	#include "framebuffer.h"
+#endif
 #endif

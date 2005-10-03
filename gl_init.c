@@ -48,7 +48,6 @@ struct list {
 void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
 void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
-void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
 void (APIENTRY * ELglLockArraysEXT) (GLint first, GLsizei count);
 void (APIENTRY * ELglUnlockArraysEXT) (void);
 void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
@@ -78,6 +77,18 @@ void (APIENTRY * ELglUseProgramObjectARB)(GLhandleARB program);
 #ifdef	TERRAIN
 GLint (APIENTRY * ELglGetUniformLocationARB)(GLhandleARB program, const char * name);
 void (APIENTRY * ELglUniform1iARB)(GLint location, GLint v0);
+#endif
+#ifdef	USE_FRAMEBUFFER
+GLboolean (APIENTRY * ELglIsRenderbufferEXT) (GLuint renderbuffer);
+void (APIENTRY * ELglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint *params);
+GLboolean (APIENTRY * ELglIsFramebufferEXT) (GLuint framebuffer);
+GLenum (APIENTRY * ELglCheckFramebufferStatusEXT) (GLenum target);
+void (APIENTRY * ELglFramebufferTexture1DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+void (APIENTRY * ELglFramebufferTexture2DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+void (APIENTRY * ELglFramebufferTexture3DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset);
+void (APIENTRY * ELglFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+void (APIENTRY * ELglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname, GLint *params);
+void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
 #endif
 
 void setup_video_mode(int fs, int mode)
@@ -503,6 +514,18 @@ void init_gl_extensions()
 	ELglGetUniformLocationARB=SDL_GL_GetProcAddress("glGetUniformLocationARB");
 	ELglUniform1iARB=SDL_GL_GetProcAddress("glUniform1iARB");
 #endif
+#ifdef	USE_FRAMEBUFFER
+	ELglIsRenderbufferEXT=SDL_GL_GetProcAddress("glIsRenderbufferEXT");
+	ELglGetRenderbufferParameterivEXT=SDL_GL_GetProcAddress("glGetRenderbufferParameterivEXT");
+	ELglIsFramebufferEXT=SDL_GL_GetProcAddress("glIsFramebufferEXT");
+	ELglCheckFramebufferStatusEXT=SDL_GL_GetProcAddress("glCheckFramebufferStatusEXT");
+	ELglFramebufferTexture1DEXT=SDL_GL_GetProcAddress("glFramebufferTexture1DEXT");
+	ELglFramebufferTexture2DEXT=SDL_GL_GetProcAddress("glFramebufferTexture2DEXT");
+	ELglFramebufferTexture3DEXT=SDL_GL_GetProcAddress("glFramebufferTexture3DEXT");
+	ELglFramebufferRenderbufferEXT=SDL_GL_GetProcAddress("glFramebufferRenderbufferEXT");
+	ELglGetFramebufferAttachmentParameterivEXT=SDL_GL_GetProcAddress("glGetFramebufferAttachmentParameterivEXT");
+	ELglGenerateMipmapEXT=SDL_GL_GetProcAddress("glGenerateMipmapEXT");
+#endif
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
@@ -610,12 +633,27 @@ void init_gl_extensions()
 	}
 	
 	if(ELglGenRenderbuffersEXT && ELglDeleteRenderbuffersEXT && ELglBindRenderbufferEXT && ELglRenderbufferStorageEXT &&
+#ifdef	USE_FRAMEBUFFER
+	   ELglIsRenderbufferEXT && ELglGetRenderbufferParameterivEXT && ELglIsFramebufferEXT && ELglCheckFramebufferStatusEXT &&
+	   ELglFramebufferTexture1DEXT && ELglFramebufferTexture2DEXT && ELglFramebufferTexture3DEXT && 
+	   ELglFramebufferRenderbufferEXT && ELglGetFramebufferAttachmentParameterivEXT && ELglGenerateMipmapEXT &&
+#endif
 	   ELglGenFramebuffersEXT && ELglDeleteFramebuffersEXT && ELglBindFramebufferEXT && strstr(extensions, "GL_EXT_framebuffer_object")){
+#ifdef	USE_FRAMEBUFFER
+		snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_framebuffer_object");
+#else
 		snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_EXT_framebuffer_object");
+#endif
 		LOG_TO_CONSOLE(c_green2, str);
 		have_framebuffer_object=1;
 	} else {
+#ifdef	USE_FRAMEBUFFER
+		snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
+		LOG_TO_CONSOLE(c_green2, str);
+		have_framebuffer_object=0;
+#else
 		//snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
+#endif
 	}
 	
 	//Test for ARB{fp,vp}
@@ -901,6 +939,9 @@ void set_new_video_mode(int fs,int mode)
 
 	// resize the EL root windows
 	resize_all_root_windows (window_width, window_height);
+#ifdef	USE_FRAMEBUFFER
+	change_reflection_framebuffer_size(window_width, window_height);
+#endif
 }
 
 void toggle_full_screen()

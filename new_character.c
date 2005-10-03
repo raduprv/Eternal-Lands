@@ -229,7 +229,7 @@ int display_newchar_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 			if (show_reflection) display_3d_reflection ();
 		}
-		
+
 		CHECK_GL_ERRORS ();
 
 		if (shadows_on && is_day) {
@@ -243,7 +243,7 @@ int display_newchar_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
 			display_objects ();
-			display_actors ();
+			display_actors (1);
 			display_blended_objects();
 		}
 		CHECK_GL_ERRORS ();

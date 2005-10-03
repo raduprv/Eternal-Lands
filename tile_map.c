@@ -164,10 +164,10 @@ void draw_tile_map()
 	x_end   = (int)x + 8;
 	y_end   = (int)y + 8;
 
-	if(x_start<0)x_start=0;
-	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
-	if(y_start<0)y_start=0;
-	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
+	if(x_start < 0) x_start = 0;
+	if(x_end >= tile_map_size_x) x_end = tile_map_size_x - 1;
+	if(y_start < 0) y_start = 0;
+	if(y_end >= tile_map_size_y) y_end = tile_map_size_y - 1;
 	
 	if(have_multitexture && (clouds_shadows || use_normal_mapping))
 	{
@@ -191,6 +191,7 @@ void draw_tile_map()
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "base_texture"), base_unit-GL_TEXTURE0_ARB);
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "detail_texture"), detail_unit-GL_TEXTURE0_ARB);
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "normal_texture"), normal_map_unit-GL_TEXTURE0_ARB);
+			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "shadow_texture"), shadow_unit-GL_TEXTURE0_ARB);
 
 			int num;
 			int i;

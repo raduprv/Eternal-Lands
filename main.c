@@ -177,6 +177,9 @@ int start_rendering()
 	cleanup_mem();
 	xmlCleanupParser();
 	FreeXML();
+#ifdef	USE_FRAMEBUFFER
+	free_reflection_framebuffer();
+#endif
 	return(0);
 }
 

@@ -4,7 +4,7 @@ SRCS= 2d_objects.c 3d_objects.c  \
     cache.c chat.c colors.c console.c consolewin.c cursors.c    \
     dialogues.c draw_scene.c    \
     elconfig.c elmemory.c elwindows.c encyclopedia.c errors.c events.c \
-    filter.c font.c frustum.c   \
+    framebuffer.o filter.c font.c frustum.c   \
     gamewin.c gl_init.c hud.c help.c    \
     ignore.c init.c interface.c items.c \
     keys.c knowledge.c lights.c loading_win.c loginwin.c  \

@@ -731,6 +731,9 @@ void init_stuff()
 	bp_init_symbols();
 	bp_parseFile(malloc(sizeof(bp_Context)), "languages/en/Encyclopedia/encyclopedia.xml");
 #endif
+#ifdef	USE_FRAMEBUFFER
+	make_reflection_framebuffer(window_width, window_height);
+#endif
 
 }
 

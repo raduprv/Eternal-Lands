@@ -487,7 +487,7 @@ void draw_actor_banner(actor * actor_id, float offset_z);
  *
  * \callgraph
  */
-void display_actors();
+void display_actors(int banner);
 
 /*!
  * \ingroup	network_actors

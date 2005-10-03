@@ -82,6 +82,18 @@ extern void (APIENTRY * ELglUseProgramObjectARB)(GLhandleARB program);
 extern GLint (APIENTRY * ELglGetUniformLocationARB)(GLhandleARB program, const char * name);
 extern void (APIENTRY * ELglUniform1iARB)(GLint location, GLint v0);
 #endif
+#ifdef	USE_FRAMEBUFFER
+extern GLboolean (APIENTRY * ELglIsRenderbufferEXT) (GLuint renderbuffer);
+extern void (APIENTRY * ELglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint *params);
+extern GLboolean (APIENTRY * ELglIsFramebufferEXT) (GLuint framebuffer);
+extern GLenum (APIENTRY * ELglCheckFramebufferStatusEXT) (GLenum target);
+extern void (APIENTRY * ELglFramebufferTexture1DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+extern void (APIENTRY * ELglFramebufferTexture2DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+extern void (APIENTRY * ELglFramebufferTexture3DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset);
+extern void (APIENTRY * ELglFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+extern void (APIENTRY * ELglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname, GLint *params);
+extern void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
+#endif
 /*! @} */
 
 /*!
