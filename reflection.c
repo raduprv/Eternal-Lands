@@ -28,6 +28,8 @@ int show_reflection=1;
 int water_reflection_fbo = 0;
 int water_reflection_fbo_renderbuffer = 0;
 int water_reflection_fbo_texture = 0;
+int reflection_texture_width = 0;
+int reflection_texture_height = 0;
 double projectionlMatrixd[16];
 double modelMatrixd[16];
 #endif
@@ -308,6 +310,14 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 }
 
 #ifdef	USE_FRAMEBUFFER
+static __inline__ int adapt_size(int size)
+{
+	int i;
+	i = 1;
+	while (i < size) i += i;
+	return i;
+}
+
 void free_reflection_framebuffer()
 {
 	free_color_framebuffer(&water_reflection_fbo, &water_reflection_fbo_renderbuffer, 
@@ -316,13 +326,17 @@ void free_reflection_framebuffer()
 
 void make_reflection_framebuffer(int width, int height)
 {
-	make_color_framebuffer(width, height, &water_reflection_fbo, &water_reflection_fbo_renderbuffer, 
-			&water_reflection_fbo_texture);
+	reflection_texture_width = adapt_size(width);
+	reflection_texture_height = adapt_size(height);
+	make_color_framebuffer(reflection_texture_width, reflection_texture_height, &water_reflection_fbo, 
+			&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
 }
 
 void change_reflection_framebuffer_size(int width, int height)
 {
-	change_color_framebuffer_size(width, height, &water_reflection_fbo,
+	reflection_texture_width = adapt_size(width);
+	reflection_texture_height = adapt_size(height);
+	change_color_framebuffer_size(reflection_texture_width, reflection_texture_height, &water_reflection_fbo,
 		&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
 }
 
@@ -479,7 +493,7 @@ void display_3d_reflection()
 	if (have_framebuffer_object)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
-		glViewport(0, 0, window_width, window_height);
+		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -494,7 +508,7 @@ void display_3d_reflection()
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
 
-	glNormal3f(0.0f,0.0f,1.0f);
+	glNormal3f(0.0f, 0.0f, 1.0f);
 	draw_tile_map();
 	display_2d_objects();
 	display_objects();
