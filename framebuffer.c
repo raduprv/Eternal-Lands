@@ -24,9 +24,21 @@ void free_color_framebuffer(int *FBO, int *FBORenderBuffer, int *FBOTexture)
 	}
 }
 
+static __inline__ int adapt_size(int size)
+{
+	int i;
+	i = 1;
+	while (i < size) i += i;
+	return i;
+}
+
 void make_color_framebuffer(int width, int height, int *FBO, int *FBORenderBuffer, int *FBOTexture)
 {
 	if ((width <= 0) || (height <= 0)) return;
+	
+	width = adapt_size(width);
+	height = adapt_size(height);
+
 	// create objects
 	ELglGenFramebuffersEXT(1, FBO);// frame buffer
 	ELglGenRenderbuffersEXT(1, FBORenderBuffer);// render buffer
