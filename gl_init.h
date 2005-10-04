@@ -41,6 +41,9 @@ extern int have_arb_shadow;
 extern int have_ogsl_pixel_shader;
 extern int have_ogsl_vertex_shader;
 #endif
+#ifdef	USE_FRAMEBUFFER
+extern int have_texture_non_power_of_two; /*! < flag that indicates whether the GL_ARB_texture_non_power_of_two extension is supported or not*/
+#endif
 /*! @} */
 
 // Grum

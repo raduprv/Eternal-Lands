@@ -39,6 +39,9 @@ int have_ogsl_vertex_shader=0;
 float gamma_var = 1.00f;
 float perspective = 0.15f;
 float near_plane = 40.0f; // don't cut off anything
+#ifdef	USE_FRAMEBUFFER
+int have_texture_non_power_of_two = 0;
+#endif
 
 struct list {
 	int i;
@@ -656,6 +659,15 @@ void init_gl_extensions()
 #endif
 	}
 	
+#ifdef	USE_FRAMEBUFFER
+	if (strstr(extensions, "GL_ARB_texture_non_power_of_two"))
+	{		
+		snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_texture_non_power_of_two");
+		LOG_TO_CONSOLE(c_green2, str);
+		have_texture_non_power_of_two = 1;
+	}
+#endif
+
 	//Test for ARB{fp,vp}
 	if(ELglGenProgramsARB && ELglDeleteProgramsARB && ELglBindProgramARB && ELglProgramStringARB){
 		if(strstr(extensions, "GL_ARB_fragment_program")){

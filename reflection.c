@@ -326,16 +326,32 @@ void free_reflection_framebuffer()
 
 void make_reflection_framebuffer(int width, int height)
 {
-	reflection_texture_width = adapt_size(width);
-	reflection_texture_height = adapt_size(height);
+	if (have_texture_non_power_of_two)
+	{
+		reflection_texture_width = width;
+		reflection_texture_height = height;
+	}
+	else
+	{
+		reflection_texture_width = adapt_size(width);
+		reflection_texture_height = adapt_size(height);
+	}
 	make_color_framebuffer(reflection_texture_width, reflection_texture_height, &water_reflection_fbo, 
 			&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
 }
 
 void change_reflection_framebuffer_size(int width, int height)
 {
-	reflection_texture_width = adapt_size(width);
-	reflection_texture_height = adapt_size(height);
+	if (have_texture_non_power_of_two)
+	{
+		reflection_texture_width = width;
+		reflection_texture_height = height;
+	}
+	else
+	{
+		reflection_texture_width = adapt_size(width);
+		reflection_texture_height = adapt_size(height);
+	}
 	change_color_framebuffer_size(reflection_texture_width, reflection_texture_height, &water_reflection_fbo,
 		&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
 }
