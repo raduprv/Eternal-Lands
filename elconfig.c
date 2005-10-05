@@ -511,6 +511,7 @@ void change_normal_mapping(int *nm)
 	}
 }
 #endif
+#endif // ELC
 
 #ifdef	USE_FRAMEBUFFER
 void change_reflection(int *rf)
@@ -518,16 +519,32 @@ void change_reflection(int *rf)
 	if (*rf)
 	{
 		*rf = 0;
-		if (have_framebuffer_object) free_reflection_framebuffer();
+		if (use_frame_buffer) free_reflection_framebuffer();
 	}
 	else
 	{
 		*rf = 1;
-		if (have_framebuffer_object) make_reflection_framebuffer(window_width, window_height);
+		if (use_frame_buffer) make_reflection_framebuffer(window_width, window_height);
 	}
 }
+
+void change_frame_buffer(int *fb)
+{
+	if (*fb)
+	{
+		*fb = 0;
+		free_reflection_framebuffer();
+	}
+	else 
+	{	
+		if (have_framebuffer_object)
+		{
+			*fb = 1;
+			make_reflection_framebuffer(window_width, window_height);
+		}
+	}	
+}
 #endif
-#endif // ELC
 #ifdef MAP_EDITOR
 
 void set_auto_save_interval (int *save_time, int time)
@@ -937,6 +954,9 @@ void init_vars()
  #endif //ANTI_ALIAS
 	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_buddy_log_notice, 1, "Log Buddy sign on/off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif // def ELC
+#ifdef	USE_FRAMEBUFFER
+	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle frame buffer support", "Toggle frame buffer support. At the moment just for reflection the frame buffer is used.", SPECIALVID);
+#endif // TERRAIN
 
 	//Global vars...
 	// Only possible to do at startup - this could of course be changed by using a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...

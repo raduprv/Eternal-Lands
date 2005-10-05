@@ -43,6 +43,8 @@ extern int have_ogsl_vertex_shader;
 #endif
 #ifdef	USE_FRAMEBUFFER
 extern int have_texture_non_power_of_two; /*! < flag that indicates whether the GL_ARB_texture_non_power_of_two extension is supported or not*/
+extern int use_frame_buffer; /*!< specifies if we use frame buffer or not */
+
 #endif
 /*! @} */
 

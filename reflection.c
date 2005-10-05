@@ -506,7 +506,7 @@ void display_3d_reflection()
 	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
 	int view_port[4];
 	
-	if (have_framebuffer_object)
+	if (use_frame_buffer)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
@@ -539,7 +539,7 @@ void display_3d_reflection()
 	CHECK_GL_ERRORS();
 	reset_material();
 
-	if (have_framebuffer_object)
+	if (use_frame_buffer)
 	{
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
@@ -710,7 +710,7 @@ void draw_lake_tiles()
 
 	glEnable(GL_CULL_FACE);
 #if	USE_FRAMEBUFFER
-	if (have_framebuffer_object)
+	if (use_frame_buffer)
 	{
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
@@ -761,7 +761,7 @@ void draw_lake_tiles()
 	if(dungeon) water_id = tile_list[231];
 	else water_id = tile_list[0];
 	
-	if (have_framebuffer_object)
+	if (use_frame_buffer)
 	{
 		for(y = y_start; y <= y_end; y++)
 		{
@@ -833,7 +833,7 @@ void draw_lake_tiles()
 #endif
 	
 #if	USE_FRAMEBUFFER
-	if (have_framebuffer_object)
+	if (use_frame_buffer)
 	{
 		ELglActiveTextureARB(detail_unit);
 		glDisable(GL_TEXTURE_2D);

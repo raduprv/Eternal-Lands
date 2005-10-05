@@ -41,6 +41,7 @@ float perspective = 0.15f;
 float near_plane = 40.0f; // don't cut off anything
 #ifdef	USE_FRAMEBUFFER
 int have_texture_non_power_of_two = 0;
+int use_frame_buffer = 0;
 #endif
 
 struct list {
