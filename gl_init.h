@@ -207,6 +207,26 @@ int print_gl_errors(const char *file, const char *func, int line);
 #ifndef COMPRESSED_RGBA_S3TC_DXT5_EXT
 #define COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
 #endif
+#ifdef	USE_FRAMEBUFFER
+#ifndef GL_FRAMEBUFFER_EXT
+#define GL_FRAMEBUFFER_EXT				0x8D40
+#endif
+#ifndef GL_RENDERBUFFER_EXT
+#define GL_RENDERBUFFER_EXT				0x8D41
+#endif
+#ifndef GL_FRAMEBUFFER_COMPLETE_EXT
+#define GL_FRAMEBUFFER_COMPLETE_EXT			0x8CD5
+#endif
+#ifndef GL_COLOR_ATTACHMENT0_EXT
+#define GL_COLOR_ATTACHMENT0_EXT			0x8CE0
+#endif
+#ifndef GL_DEPTH_COMPONENT24
+#define GL_DEPTH_COMPONENT24				0x81A6
+#endif
+#ifndef GL_DEPTH_ATTACHMENT_EXT
+#define GL_DEPTH_ATTACHMENT_EXT				0x8D00
+#endif
+#endif
 /*! @} */
 
 #endif
