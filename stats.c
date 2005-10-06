@@ -182,42 +182,42 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case MAN_S_CUR:
 			your_info.manufacturing_skill.cur=value;break;
 		case MAN_S_BASE:
-			floatingmessages_add_level(yourself, value, "Manufacturing");
+			floatingmessages_add_level(yourself, value, attributes.manufacturing_skill.name);
 			your_info.manufacturing_skill.base=value;break;
 		case HARV_S_CUR:
 			your_info.harvesting_skill.cur=value;break;
 		case HARV_S_BASE:
-			floatingmessages_add_level(yourself, value, "Harvesting");
+			floatingmessages_add_level(yourself, value, attributes.harvesting_skill.name);
 			your_info.harvesting_skill.base=value;break;
 		case ALCH_S_CUR:
 			your_info.alchemy_skill.cur=value;break;
 		case ALCH_S_BASE:
-			floatingmessages_add_level(yourself, value, "Alchemy");
+			floatingmessages_add_level(yourself, value, attributes.alchemy_skill.name);
 			your_info.alchemy_skill.base=value;break;
 		case OVRL_S_CUR:
 			your_info.overall_skill.cur=value;break;
 		case OVRL_S_BASE:
-			floatingmessages_add_level(yourself, value, "Overall");
+			floatingmessages_add_level(yourself, value, attributes.overall_skill.name);
 			your_info.overall_skill.base=value;break;
 		case ATT_S_CUR:
 			your_info.attack_skill.cur=value;break;
 		case ATT_S_BASE:
-			floatingmessages_add_level(yourself, value, "Attack");
+			floatingmessages_add_level(yourself, value, attributes.attack_skill.name);
 			your_info.attack_skill.base=value;break;
 		case DEF_S_CUR:
 			your_info.defense_skill.cur=value;break;
 		case DEF_S_BASE:
-			floatingmessages_add_level(yourself, value, "Defense");
+			floatingmessages_add_level(yourself, value, attributes.defense_skill.name);
 			your_info.defense_skill.base=value;break;
 		case MAG_S_CUR:
 			your_info.magic_skill.cur=value;break;
 		case MAG_S_BASE:
-			floatingmessages_add_level(yourself, value, "Magic");
+			floatingmessages_add_level(yourself, value, attributes.magic_skill.name);
 			your_info.magic_skill.base=value;break;
 		case POT_S_CUR:
 			your_info.potion_skill.cur=value;break;
 		case POT_S_BASE:
-			floatingmessages_add_level(yourself, value, "Potion");
+			floatingmessages_add_level(yourself, value, attributes.potion_skill.name);
 			your_info.potion_skill.base=value;break;
 		case CARRY_WGHT_CUR:
 			your_info.carry_capacity.cur=value;break;
@@ -241,19 +241,19 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case FOOD_LEV:
 			your_info.food_level=value;break;
 		case MAN_EXP:
-			floatingmessages_compare_stat(yourself, your_info.manufacturing_exp, value, "man");
+			floatingmessages_compare_stat(yourself, your_info.manufacturing_exp, value, attributes.manufacturing_skill.shortname);
 			your_info.manufacturing_exp=value;
 			break;
 		case MAN_EXP_NEXT:
 			your_info.manufacturing_exp_next_lev=value;break;
 		case HARV_EXP:
-			floatingmessages_compare_stat(yourself, your_info.harvesting_exp, value, "har");
+			floatingmessages_compare_stat(yourself, your_info.harvesting_exp, value, attributes.harvesting_skill.shortname);
 			your_info.harvesting_exp=value;
 			break;
 		case HARV_EXP_NEXT:
 			your_info.harvesting_exp_next_lev=value;break;
 		case ALCH_EXP:
-			floatingmessages_compare_stat(yourself, your_info.alchemy_exp, value, "alc");
+			floatingmessages_compare_stat(yourself, your_info.alchemy_exp, value, attributes.alchemy_skill.shortname);
 			your_info.alchemy_exp=value;
 			break;
 		case ALCH_EXP_NEXT:
@@ -263,31 +263,31 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case OVRL_EXP_NEXT:
 			your_info.overall_exp_next_lev=value;break;
 		case DEF_EXP:
-			floatingmessages_compare_stat(yourself, your_info.defense_exp, value, "def");
+			floatingmessages_compare_stat(yourself, your_info.defense_exp, value, attributes.defense_skill.shortname);
 			your_info.defense_exp=value;
 			break;
 		case DEF_EXP_NEXT:
 			your_info.defense_exp_next_lev=value;break;
 		case ATT_EXP:
-			floatingmessages_compare_stat(yourself, your_info.attack_exp, value, "att");
+			floatingmessages_compare_stat(yourself, your_info.attack_exp, value, attributes.attack_skill.shortname);
 			your_info.attack_exp=value;
 			break;
 		case ATT_EXP_NEXT:
 			your_info.attack_exp_next_lev=value;break;
 		case MAG_EXP:
-			floatingmessages_compare_stat(yourself, your_info.magic_exp, value, "mag");
+			floatingmessages_compare_stat(yourself, your_info.magic_exp, value, attributes.magic_skill.shortname);
 			your_info.magic_exp=value;
 			break;
 		case MAG_EXP_NEXT:
 			your_info.magic_exp_next_lev=value;break;
 		case POT_EXP:
-			floatingmessages_compare_stat(yourself, your_info.potion_exp, value, "pot");
+			floatingmessages_compare_stat(yourself, your_info.potion_exp, value, attributes.potion_skill.shortname);
 			your_info.potion_exp=value;
 			break;
 		case POT_EXP_NEXT:
 			your_info.potion_exp_next_lev=value;break;
 		case SUM_EXP:
-			floatingmessages_compare_stat(yourself, your_info.summoning_exp, value, "sum");
+			floatingmessages_compare_stat(yourself, your_info.summoning_exp, value, attributes.summoning_skill.shortname);
 			your_info.summoning_exp=value;
 			break;
 		case SUM_EXP_NEXT:
@@ -295,10 +295,10 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case SUM_S_CUR:
 			your_info.summoning_skill.cur=value;break;
 		case SUM_S_BASE:
-			floatingmessages_add_level(yourself, value, "Summoning");
+			floatingmessages_add_level(yourself, value, attributes.summoning_skill.name);
 			your_info.summoning_skill.base=value;break;
 		case CRA_EXP:
-			floatingmessages_compare_stat(yourself, your_info.crafting_exp, value, "cra");
+			floatingmessages_compare_stat(yourself, your_info.crafting_exp, value, attributes.crafting_skill.shortname);
 			your_info.crafting_exp=value;
 			break;
 		case CRA_EXP_NEXT:
@@ -306,7 +306,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case CRA_S_CUR:
 			your_info.crafting_skill.cur=value;break;
 		case CRA_S_BASE:
-			floatingmessages_add_level(yourself, value, "Crafting");
+			floatingmessages_add_level(yourself, value, attributes.crafting_skill.name);
 			your_info.crafting_skill.base=value;break;
 		case RESEARCHING:
 			your_info.researching=value;break;
