@@ -644,16 +644,27 @@ void init_gl_extensions()
 #endif
 	   ELglGenFramebuffersEXT && ELglDeleteFramebuffersEXT && ELglBindFramebufferEXT && strstr(extensions, "GL_EXT_framebuffer_object")){
 #ifdef	USE_FRAMEBUFFER
-		snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_framebuffer_object");
+		if (ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT)
+		{
+			snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_framebuffer_object");
+			LOG_TO_CONSOLE(c_green2, str);
+			have_framebuffer_object = 1;
+		}
+		else
+		{
+			snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
+			LOG_TO_CONSOLE(c_red1, str);
+			have_framebuffer_object = 0;
+		}
 #else
 		snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_EXT_framebuffer_object");
-#endif
 		LOG_TO_CONSOLE(c_green2, str);
 		have_framebuffer_object=1;
+#endif
 	} else {
 #ifdef	USE_FRAMEBUFFER
 		snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
-		LOG_TO_CONSOLE(c_green2, str);
+		LOG_TO_CONSOLE(c_red1, str);
 		have_framebuffer_object=0;
 #else
 		//snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");

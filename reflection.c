@@ -714,23 +714,26 @@ void draw_lake_tiles()
 	{
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
+		
+		if (show_reflection)
+		{
+			ELglActiveTextureARB(detail_unit);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
 
-		ELglActiveTextureARB(detail_unit);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
+			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);
+			glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
-		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
-
-		ELglActiveTextureARB(base_unit);
+			ELglActiveTextureARB(base_unit);
+		}
 	}
 	else
 	{
@@ -869,6 +872,18 @@ void draw_sky_background()
 	int i, j;
 #endif
 #endif
+#ifdef	USE_FRAMEBUFFER
+	int view_port[4];
+	
+	if (use_frame_buffer)
+	{
+		glGetIntegerv(GL_VIEWPORT, view_port);
+		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
+		init_texturing();
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+#endif
 
 #ifdef NEW_WEATHER
 	for (i = 0; i < 3; i++) {
@@ -913,16 +928,47 @@ void draw_sky_background()
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	Leave2DMode();
+#ifdef	USE_FRAMEBUFFER
+	if (use_frame_buffer)
+	{
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
+	}
+#endif
 }
 
 void draw_dungeon_sky_background()
 {
 	static const GLfloat baseColor[3] = { 0.00f, 0.21f, 0.34f };
 #ifdef MAP_EDITOR2
+#ifdef	USE_FRAMEBUFFER
+	int view_port[4];
+	
+	if (use_frame_buffer)
+	{
+		glGetIntegerv(GL_VIEWPORT, view_port);
+		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
+		init_texturing();
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+#endif
 	glColor3fv(baseColor);
 #else
 	static GLfloat color[3];
 	int i;
+#ifdef	USE_FRAMEBUFFER
+	int view_port[4];
+	
+	if (use_frame_buffer)
+	{
+		glGetIntegerv(GL_VIEWPORT, view_port);
+		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
+		init_texturing();
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+#endif
 
 #ifdef NEW_WEATHER
 	weather_color_bias(baseColor, color);
@@ -947,4 +993,11 @@ void draw_dungeon_sky_background()
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	Leave2DMode();
+#ifdef	USE_FRAMEBUFFER
+	if (use_frame_buffer)
+	{
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
+	}
+#endif
 }
