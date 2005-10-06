@@ -1057,6 +1057,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			hide_window (storage_win);
 		if (dialogue_win >= 0)
 			hide_window (dialogue_win);
+#ifdef NOTEPAD
+		if (notepad_win >= 0)
+			hide_window (notepad_win);
+#endif
 	}
 	// toggle options
 	else if (key == K_HEALTHBAR)
