@@ -512,7 +512,6 @@ void display_3d_reflection()
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
 	glCullFace(GL_FRONT);
