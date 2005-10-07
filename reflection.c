@@ -315,7 +315,7 @@ static __inline__ int adapt_size(int size)
 	int i;
 	i = 1;
 	while (i < size) i += i;
-	return i;
+	return i/2;
 }
 
 void free_reflection_framebuffer()
@@ -328,8 +328,8 @@ void make_reflection_framebuffer(int width, int height)
 {
 	if (have_texture_non_power_of_two)
 	{
-		reflection_texture_width = width;
-		reflection_texture_height = height;
+		reflection_texture_width = (width*3)/4;
+		reflection_texture_height = (height*3)/4;
 	}
 	else
 	{
@@ -344,8 +344,8 @@ void change_reflection_framebuffer_size(int width, int height)
 {
 	if (have_texture_non_power_of_two)
 	{
-		reflection_texture_width = width;
-		reflection_texture_height = height;
+		reflection_texture_width = (width*3)/4;
+		reflection_texture_height = (height*3)/4;
 	}
 	else
 	{
@@ -509,9 +509,10 @@ void display_3d_reflection()
 	if (use_frame_buffer)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
-		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
 	glCullFace(GL_FRONT);
@@ -877,9 +878,9 @@ void draw_sky_background()
 	if (use_frame_buffer)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
-		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 #endif
@@ -946,9 +947,9 @@ void draw_dungeon_sky_background()
 	if (use_frame_buffer)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
-		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 #endif
@@ -962,9 +963,9 @@ void draw_dungeon_sky_background()
 	if (use_frame_buffer)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
-		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 #endif
