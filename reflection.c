@@ -940,26 +940,17 @@ void draw_sky_background()
 void draw_dungeon_sky_background()
 {
 	static const GLfloat baseColor[3] = { 0.00f, 0.21f, 0.34f };
-#ifdef MAP_EDITOR2
-#ifdef	USE_FRAMEBUFFER
-	int view_port[4];
-	
-	if (use_frame_buffer)
-	{
-		glGetIntegerv(GL_VIEWPORT, view_port);
-		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
-		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
-		init_texturing();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-#endif
-	glColor3fv(baseColor);
-#else
+#ifndef MAP_EDITOR2
 	static GLfloat color[3];
+#ifndef  NEW_WEATHER
 	int i;
-#ifdef	USE_FRAMEBUFFER
+#endif //  NEW_WEATHER
+#endif // MAP_EDITOR2
+#ifdef USE_FRAMEBUFFER
 	int view_port[4];
-	
+#endif // USE_FRAMEBUFFER
+
+#ifdef USE_FRAMEBUFFER
 	if (use_frame_buffer)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
@@ -968,17 +959,22 @@ void draw_dungeon_sky_background()
 		init_texturing();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
-#endif
+#endif // FRAMEBUFFER
 
-#ifdef NEW_WEATHER
+#ifdef MAP_EDITOR2
+	glColor3fv(baseColor);
+#else // MAP EDITOR 2
+
+#ifdef  NEW_WEATHER
 	weather_color_bias(baseColor, color);
-#else
+#else //  NEW_WEATHER
 	for (i=0; i<3; i++) {
 		color[i] = (1.0f - fogAlpha)*baseColor[i] + fogAlpha*fogColor[i];
 	}
-#endif
+#endif //  NEW_WEATHER
+
 	glColor3fv(color);
-#endif
+#endif // MAP_EDITOR
 	
 	Enter2DMode();
 	glDisable(GL_TEXTURE_2D);
