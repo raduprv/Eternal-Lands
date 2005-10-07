@@ -510,7 +510,7 @@ void display_3d_reflection()
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
-		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
+//		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
@@ -542,7 +542,7 @@ void display_3d_reflection()
 	if (use_frame_buffer)
 	{
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
+//		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
 #endif
 }
@@ -879,7 +879,7 @@ void draw_sky_background()
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
-		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
+//		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
@@ -932,7 +932,7 @@ void draw_sky_background()
 	if (use_frame_buffer)
 	{
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
+//		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
 #endif
 }
@@ -955,7 +955,7 @@ void draw_dungeon_sky_background()
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
-		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
+//		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
@@ -993,7 +993,7 @@ void draw_dungeon_sky_background()
 	if (use_frame_buffer)
 	{
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
+//		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
 #endif
 }
