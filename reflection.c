@@ -313,9 +313,14 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 static __inline__ int adapt_size(int size)
 {
 	int i;
-	i = 1;
-	while (i < size) i += i;
-	return i/2;
+	
+	if (have_texture_non_power_of_two) return (size*3)/4;
+	else
+	{
+		i = 1;
+		while (i < size) i += i;
+		return i/2;
+	}
 }
 
 void free_reflection_framebuffer()
@@ -326,32 +331,16 @@ void free_reflection_framebuffer()
 
 void make_reflection_framebuffer(int width, int height)
 {
-	if (have_texture_non_power_of_two)
-	{
-		reflection_texture_width = (width*3)/4;
-		reflection_texture_height = (height*3)/4;
-	}
-	else
-	{
-		reflection_texture_width = adapt_size(width);
-		reflection_texture_height = adapt_size(height);
-	}
+	reflection_texture_width = adapt_size(width);
+	reflection_texture_height = adapt_size(height);
 	make_color_framebuffer(reflection_texture_width, reflection_texture_height, &water_reflection_fbo, 
 			&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
 }
 
 void change_reflection_framebuffer_size(int width, int height)
 {
-	if (have_texture_non_power_of_two)
-	{
-		reflection_texture_width = (width*3)/4;
-		reflection_texture_height = (height*3)/4;
-	}
-	else
-	{
-		reflection_texture_width = adapt_size(width);
-		reflection_texture_height = adapt_size(height);
-	}
+	reflection_texture_width = adapt_size(width);
+	reflection_texture_height = adapt_size(height);
 	change_color_framebuffer_size(reflection_texture_width, reflection_texture_height, &water_reflection_fbo,
 		&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
 }
@@ -880,8 +869,7 @@ void draw_sky_background()
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
-		init_texturing();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 #endif
 
@@ -956,8 +944,7 @@ void draw_dungeon_sky_background()
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
-		init_texturing();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 #endif // FRAMEBUFFER
 

@@ -50,7 +50,7 @@ int ati_click_workaround = 0;
 
 void get_world_x_y()
 {
-  	float mouse_z,z;	
+  	float mouse_z,z;
 	glReadPixels(mouse_x, window_height-mouse_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse_z);
 	// XXX FIXME (Grum): hack to work around a bug in the Ati drivers or
 	// a giant misconception on the part of all EL developers so far.
