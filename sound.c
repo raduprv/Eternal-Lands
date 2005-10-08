@@ -97,6 +97,7 @@ void get_map_playlist()
 #ifndef	NO_MUSIC
 	int i=0, len;
 	char map_list_file_name[256];
+	char tmp_buf[1024];
 	FILE *fp;
 	char strLine[255];
 	char *tmp;
@@ -126,7 +127,19 @@ void get_map_playlist()
 
 	while(1)
 		{
-			fscanf(fp,"%d %d %d %d %d %s",&playlist[i].min_x,&playlist[i].min_y,&playlist[i].max_x,&playlist[i].max_y,&playlist[i].time,playlist[i].file_name);
+			fscanf(fp,"%d %d %d %d %d %s",&playlist[i].min_x,&playlist[i].min_y,&playlist[i].max_x,&playlist[i].max_y,&playlist[i].time,tmp_buf);
+			// check for a comment
+			tmp= strstr(tmp_buf, "--");
+			if(tmp){
+				*tmp= '\0';
+				len= strlen(tmp_buf);
+				while(len > 0 && isspace(tmp_buf[len-1])){
+					len--;
+					tmp_buf[len]= '\0';
+				}
+			}
+			strncpy(playlist[i].file_name, tmp_buf, 64);
+			playlist[i].file_name[63]= '\0';
 			i++;
 			if(!fgets(strLine, 100, fp))break;
 		}
