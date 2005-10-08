@@ -2,7 +2,7 @@
 
 <fontdef>
 	<font name="default" id="0" linesize="20" baseline="16">
-		<texture src="font.bmp">
+		<texture src="font.bmp" width="256" height="256">
 			<!-- character x-pos y-pos width height baseline --><!--
 c______ x__ y__ w_ h_ bl -->
 !        22   2  4 13 12
@@ -137,7 +137,7 @@ z       109 131  9 10  9
 		</texture>
 	</font>
 	<font name="baroque" id="2" linesize="19" baseline="14">
-		<texture src="font2.bmp">
+		<texture src="font2.bmp" width="256" height="256">
 			<!-- character x-pos y-pos width height baseline --><!--
 c______ x__ y__ w_ h_ bl -->
 !        20   2  6 12 12
@@ -274,7 +274,7 @@ z       109 135  8  7  6
 		</texture>
 	</font>
 	<font name="tight" id="3" linesize="18" baseline="15">
-		<texture src="font3.bmp">
+		<texture src="font3.bmp" width="256" height="256">
 			<!-- character x-pos y-pos width height baseline --><!--
 c______ x__ y__ w_ h_ bl -->
 !        23   3  2 11 11

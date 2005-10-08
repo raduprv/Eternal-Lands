@@ -20,6 +20,7 @@ typedef struct _ts_Page {
 
 /*! \name */
 typedef struct _ts_Context {
+	struct _ts_Topic * topic;
 	int winWidth, winHeight;
 	bp_Layout layout;
 	bp_Direction inlineProg, blockProg;
@@ -31,6 +32,6 @@ typedef struct _ts_Context {
 /*!
  * \brief
  */
-ts_Topic * ts_setTopic(ts_Context * context, bp_Page * topic);
+ts_Topic * ts_setTopic(ts_Context * context, bp_Book * book, bp_Page * topic);
 
 #endif // not defined __BOOKS_TYPESETTER_H__

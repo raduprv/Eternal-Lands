@@ -1,32 +1,25 @@
-#include "global.h"
+#include <stdlib.h>
+#include <SDL/SDL_types.h>
 
+#include "../errors.h"
+#include "types.h"
 #include "typesetter.h"
 
 ts_Page * ts_startPage(ts_Context * context);
 void ts_closePage(ts_Context * context);
 
-ts_Topic * ts_setTopic(ts_Context * context, bp_Page * topic) {
+ts_Topic * ts_setTopic(ts_Context * context, bp_Book * book, bp_Page * topic) {
 	ts_Topic * result;
-	bp_Node * booknode;
-	bp_Book * book;
 	ts_Page * pagelist;
 	bp_Node * child;
 	int i;
-
-	// find book parent
-	for (booknode = &topic->node; booknode->element != BPE_BOOK && booknode->parent != NULL; booknode = booknode->parent);
-	if (booknode->element != BPE_BOOK) {
-		LOG_ERROR("Could not find book parent of page to be typeset\n");
-		exit(1);
-	}
-	book = (bp_Page *) booknode;
 
 	result = malloc(sizeof(ts_Topic));
 
 	// init context
 	context->topic = result;
-	context->win_width = book->width;
-	context->win_height = book->height;
+	context->winWidth = book->width;
+	context->winHeight = book->height;
 	context->layout = book->layout;
 	context->inlineProg = book->inlineProgression;
 	context->blockProg = book->blockProgression;
@@ -48,6 +41,7 @@ ts_Topic * ts_setTopic(ts_Context * context, bp_Page * topic) {
 			case BPE_TABLE:
 				break;
 			default:
+				;
 		}
 	}
 
@@ -75,13 +69,13 @@ ts_Page * ts_startPage(ts_Context * context) {
 	context->page = newPage;
 
 	switch (context->layout) {
-		case BPE_SCROLL:
+		case BPL_SCROLL:
 			context->pageLeft   = 0.0625f*context->winWidth;
 			context->pageTop    = 0.0625f*context->winHeight;
 			context->pageWidth  = 0.8750f*context->winWidth;
 			context->pageHeight = 0.8750f*context->winHeight;
 			break;
-		case BPE_BOOK:
+		case BPL_BOOK:
 			// distinguish left/right pages
 			if (context->nPages & 1) {
 				// put page one on the right
