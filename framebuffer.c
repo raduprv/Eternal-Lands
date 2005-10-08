@@ -30,7 +30,9 @@ void make_color_framebuffer(int width, int height, int *FBO, int *FBORenderBuffe
 
 	// create objects
 	ELglGenFramebuffersEXT(1, FBO);// frame buffer
+#ifndef	FRAMEBUFFER_TEST
 	ELglGenRenderbuffersEXT(1, FBORenderBuffer);// render buffer
+#endif
 	glGenTextures(1, FBOTexture);// texture
 	
 	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, FBO[0]);
@@ -43,11 +45,13 @@ void make_color_framebuffer(int width, int height, int *FBO, int *FBORenderBuffe
 	
 	// attach texture to framebuffercolor buffer
 	ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, FBOTexture[0], 0);
+#ifndef	FRAMEBUFFER_TEST
 	ELglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, FBORenderBuffer[0]);
 	ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, width, height);
 	
 	// attach renderbufferto framebufferdepth buffer
 	ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, FBORenderBuffer[0]);
+#endif
 	
 	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }

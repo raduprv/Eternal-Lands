@@ -495,13 +495,17 @@ void display_3d_reflection()
 	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
 	int view_port[4];
 	
+	if (regenerate_near_objects)
+	{
+		if (!get_near_3d_objects()) return;
+	}
 	if (use_frame_buffer)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
 	glCullFace(GL_FRONT);
@@ -515,7 +519,7 @@ void display_3d_reflection()
 
 	glNormal3f(0.0f, 0.0f, 1.0f);
 	draw_tile_map();
-	display_2d_objects();
+//	display_2d_objects();
 	display_objects();
 #ifndef MAP_EDITOR2
 	display_actors(0);
@@ -869,7 +873,9 @@ void draw_sky_background()
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#ifndef	FRAMEBUFFER_TEST
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
 	}
 #endif
 
@@ -944,7 +950,9 @@ void draw_dungeon_sky_background()
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#ifndef	FRAMEBUFFER_TEST
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
 	}
 #endif // FRAMEBUFFER
 
