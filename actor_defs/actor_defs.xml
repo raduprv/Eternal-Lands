@@ -44,7 +44,13 @@
         <!ENTITY unicorn_1 SYSTEM "unicorn_1.xml">
         <!ENTITY chimeran_desert_wolf SYSTEM "chimeran_desert_wolf.xml">
         <!ENTITY chimeran_forest_wolf SYSTEM "chimeran_forest_wolf.xml">
+        <!ENTITY chimeran_arctic_wolf SYSTEM "chimeran_arctic_wolf.xml">
         <!ENTITY bear_3 SYSTEM "bear_3.xml">
+        <!ENTITY bear_4 SYSTEM "bear_4.xml">
+        <!ENTITY panther SYSTEM "panther.xml">
+        <!ENTITY leopard SYSTEM "leopard.xml">
+        <!ENTITY leopard_snow SYSTEM "leopard_snow.xml">
+        <!ENTITY feran SYSTEM "feran.xml">
 ]>
 
 <actors>
@@ -93,6 +99,11 @@
         &unicorn_1;
         &chimeran_desert_wolf;
         &chimeran_forest_wolf;
+        &chimeran_arctic_wolf;
         &bear_3;
-
+        &bear_4;
+        &panther;
+        &leopard;
+        &leopard_snow;
+	&feran;
 </actors>

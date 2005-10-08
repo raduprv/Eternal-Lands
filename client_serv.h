@@ -59,6 +59,12 @@
 #define chimeran_wolf_desert 46
 #define chimeran_wolf_forest 47
 #define bear_3 48
+#define bear_4 49
+#define panther 50
+#define feran 51
+#define leopard_1 52
+#define leopard_2 53
+#define chimeran_wolf_arctic 54
 /*! @} */
 
 /*!

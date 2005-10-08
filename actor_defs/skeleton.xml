@@ -20,6 +20,9 @@
 		<CAL_idle_sit>./animations/skeleton_idle.caf 0</CAL_idle_sit>
 		<CAL_sit_down>./animations/skeleton_intoidle.caf 1</CAL_sit_down>
 		<CAL_stand_up>./animations/skeleton_outidle.caf 1</CAL_stand_up>
+		<CAL_in_combat>./animations/monster_fight_in.caf 1</CAL_in_combat>
+		<CAL_out_combat>./animations/monster_fight_out.caf 1</CAL_out_combat>
+		<CAL_combat_idle>./animations/monster_fight_idle.caf 0</CAL_combat_idle>
 
 	</frames>
 	<ghost>no</ghost>
