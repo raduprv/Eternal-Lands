@@ -31,4 +31,9 @@ void fd_load();
  */
 void fd_free();
 
+/*!
+ * \brief
+ */
+fd_Font * fd_getFont(int id);
+
 #endif // not defined __BOOKS_FONTDEF_H__

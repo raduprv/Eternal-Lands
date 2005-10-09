@@ -6,6 +6,8 @@
 #ifndef __MISC_H__
 #define __MISC_H__
 
+#include "global.h"
+
 /*!
  * \ingroup misc
  * \brief Swaps a float properly
@@ -230,4 +232,7 @@ void draw_box(char * name, int x, int y, int w, int h, int rad);
  * \param ha The alpha color for highlighted buttons
  */
 void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
+
+__inline__ int min2i (int x, int y);
+__inline__ int max2f (float x, float y);
 #endif

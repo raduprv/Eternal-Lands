@@ -238,7 +238,21 @@ void fd_free() {
 		}
 
 		free(fd_fonts);
+		fd_fonts = NULL;
 	}
+
+	fd_nFonts = 0;
+
+	if(bp_fonts) {
+		st_destroy(bp_fonts);
+		bp_fonts = NULL;
+	}
+}
+
+fd_Font * fd_getFont(int id) {
+	if (!fd_fonts) return NULL;
+	if (id > fd_nFonts) return NULL;
+	return fd_fonts[id];
 }
 
 Uint32 fd_utf8_decode(const Uint8 * src) {

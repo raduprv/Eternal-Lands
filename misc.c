@@ -591,3 +591,13 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 		draw_string_zoomed(xstr, y+radius/2.0f, str, lines, size);
 	}
 }
+
+__inline__ int min2i (int x, int y)
+{
+	return (x <= y)? x : y;
+}
+
+__inline__ int max2f (float x, float y)
+{
+	return (x >= y)? x : y;
+}

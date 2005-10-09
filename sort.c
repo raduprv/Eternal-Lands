@@ -1,18 +1,6 @@
 #include <string.h>
+#include "misc.h"
 #include "sort.h"
-
-// XXX FIXME (Grum): apparently MSVC defines its own inline min function, since
-// the linker complains about this if we try to inline this. Why we cannot get
-// away with ifndef'ing this function altogether is a mystery that an MSVC
-// user has to solve.
-#ifndef _MSC_VER
-__inline__ int min (int x, int y)
-#else
-int min (int x, int y)
-#endif
-{
-	return (x <= y)? x : y;
-}
 
 void gen_mkeysort_recursive(void * pdata, gen_mkey_retrieve_func get, gen_mkey_swap_func 
 		swap, int l, int r, int h) {
@@ -46,11 +34,11 @@ void gen_mkeysort_recursive(void * pdata, gen_mkey_retrieve_func get, gen_mkey_s
 					b++; c--;
 				}
 			} while (b <= c);
-			nmove = min(a-l,b-a);
+			nmove = min2i(a-l,b-a);
 			for (i = 0; i < nmove; i++) {
 				swap(pdata,l+i,c-i);
 			}
-			nmove = min(r-d,d-c);
+			nmove = min2i(r-d,d-c);
 			for (i = 0; i < nmove; i++) {
 				swap(pdata,b+i,r-i);
 			}
@@ -77,7 +65,7 @@ void gen_mkeysort(void * pdata, gen_mkey_retrieve_func get, gen_mkey_swap_func
 int gen_mkeyfind(void * pdata, gen_mkey_retrieve_func get, int n, const char * key) {
 	int l=0, r=n-1, lo=0, ro=0;
 	while (l <= r) {
-		int o = min(lo,ro), m = (l + r) >> 1;
+		int o = min2i(lo,ro), m = (l + r) >> 1;
 		const char * Am = get(pdata,m);
 		char c = Am[o], k = key[o];
 		if (k < c) {

@@ -7,7 +7,7 @@
 symbol_table * bp_elements;
 symbol_table * bp_attributes;
 symbol_table * bp_layouts;
-symbol_table * bp_fonts;
+symbol_table * bp_fonts = NULL;
 symbol_table * bp_alignments;
 symbol_table * bp_directions;
 symbol_table * bp_referenceTypes;
