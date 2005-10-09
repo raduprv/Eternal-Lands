@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
 #else

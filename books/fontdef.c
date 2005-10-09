@@ -1,9 +1,13 @@
+#include <string.h>
+#include <ctype.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
-#include <string.h>
+#include <SDL_types.h>
 
 #include "../textures.h"
+#include "../symbol_table.h"
+#include "symbols.h"
 #include "fontdef.h"
 
 fd_Font ** fd_fonts = NULL;
@@ -41,12 +45,13 @@ void fd_load() {
 			// allocate space
 			fd_nFonts = maxFont + 1;
 			fd_fonts = calloc(fd_nFonts, sizeof(fd_Font *)); // calloc fills memory with zeroes
+			bp_fonts = st_create(fd_nFonts);
 
 			// load the fonts
 			for (fontNode = rootNode->children; fontNode; fontNode = fontNode->next) {
 				if (!strcmp(fontNode->name, "font")) {
 					fd_Font * font = malloc(sizeof(fd_Font));
-					xmlChar *strval = xmlGetProp(fontNode, "id");
+					xmlChar *strval;
 					int maxChar = 0;
 					xmlNodePtr texNode, charNode;
 
@@ -91,9 +96,14 @@ void fd_load() {
 						continue;
 					}
 
+					strval = xmlGetProp(fontNode, "id");
 					if (strval) {
 						int fontID = atoi(strval);
-						if (fontID >= 0) fd_fonts[fontID] = font;
+						if (fontID >= 0) {
+							// add font to font and symbol table
+							fd_fonts[fontID] = font;
+							st_addnum(bp_fonts, font->name, fontID);
+						}
 
 						xmlFree(strval);
 					} else {
@@ -102,6 +112,7 @@ void fd_load() {
 						free(font);
 						continue;
 					}
+					
 					
 					// find highest char value
 					for (texNode = fontNode->children; texNode; texNode = texNode->next) {
@@ -113,7 +124,7 @@ void fd_load() {
 									if (pch) {
 										while (*pch) {
 											Uint32 uch = fd_utf8_decode(pch++);
-											if (uch != 0xffffffff && uch > maxChar) maxChar = uch;
+											if (uch != 0xffffffff && !isspace(uch) && uch > maxChar) maxChar = uch;
 
 											// find next line
 											while (*pch && *pch != '\n') pch++;
@@ -175,7 +186,7 @@ void fd_load() {
 											
 											pch = fd_utf8_next_char(pch);
 											
-											if (uch != 0xffffffff) {
+											if (uch != 0xffffffff && !isspace(uch)) {
 												fd_Char * dest = &font->chars[uch];
 												int left, top, width, height, baseline;
 
@@ -206,6 +217,7 @@ void fd_load() {
 				}
 			}
 		}
+		st_commit(bp_fonts);
 
 		free(doc);
 	}
@@ -266,3 +278,4 @@ const Uint8 * fd_utf8_next_char(const Uint8 * src) {
 
 	return src;
 }
+

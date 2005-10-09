@@ -108,11 +108,6 @@ void bp_init_symbols() {
 	st_addnum(bp_layouts, "scroll", BPL_SCROLL);
 	st_commit(bp_layouts);
 
-	bp_fonts = st_create(2);
-	st_addnum(bp_fonts, "default", load_texture_cache_deferred("textures/font.bmp",0));
-	st_addnum(bp_fonts, "baroque", load_texture_cache_deferred("textures/font2.bmp",0));
-	st_commit(bp_fonts);
-
 	bp_alignments = st_create(BPAL_COUNT);
 	st_addnum(bp_alignments, "start", BPAL_START);
 	st_addnum(bp_alignments, "end", BPAL_END);

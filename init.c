@@ -22,6 +22,7 @@
 #ifdef ENCYCLOPEDIA
  #include "books/symbols.h"
  #include "books/parser.h"
+ #include "books/fontdef.h"
 #endif
 
 int ini_file_size=0;
@@ -728,6 +729,7 @@ void init_stuff()
 	}
 
 #ifdef ENCYCLOPEDIA
+	fd_load();
 	bp_init_symbols();
 	bp_parseFile(malloc(sizeof(bp_Context)), "languages/en/Encyclopedia/encyclopedia.xml");
 #endif
