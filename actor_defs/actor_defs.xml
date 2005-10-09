@@ -48,8 +48,8 @@
         <!ENTITY bear_3 SYSTEM "bear_3.xml">
         <!ENTITY bear_4 SYSTEM "bear_4.xml">
         <!ENTITY panther SYSTEM "panther.xml">
-        <!ENTITY leopard SYSTEM "leopard.xml">
-        <!ENTITY leopard_snow SYSTEM "leopard_snow.xml">
+        <!ENTITY leopard_1 SYSTEM "leopard.xml">
+        <!ENTITY leopard_2 SYSTEM "leopard_snow.xml">
         <!ENTITY feran SYSTEM "feran.xml">
 ]>
 
@@ -103,7 +103,7 @@
         &bear_3;
         &bear_4;
         &panther;
-        &leopard;
-        &leopard_snow;
+        &leopard_1;
+        &leopard_2;
 	&feran;
 </actors>

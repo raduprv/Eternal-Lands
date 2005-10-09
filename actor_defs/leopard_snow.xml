@@ -1,4 +1,4 @@
-<actor type="leopard_snow">
+<actor type="leopard 2">
 	<skin>./meshes/animals9.bmp</skin>
 	<mesh>./meshes/leopard_snow.cmf</mesh>
 	<skeleton>./skeletons/feline.csf</skeleton>
