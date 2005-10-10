@@ -536,6 +536,7 @@ void add_spell_to_quickbar()
 	
 	mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
 	memcpy(mqb_data[0], mqb_data[1], sizeof(mqbdata));
+	save_quickspells();
 }
 
 void remove_spell_from_quickbar (int pos)
@@ -551,6 +552,7 @@ void remove_spell_from_quickbar (int pos)
 	for (i = pos; i < 6; i++)
 		mqb_data[i] = mqb_data[i+1];
 	mqb_data[6] = NULL;
+	save_quickspells();
 }
 
 void set_spell_name (int id, const char *data, int len)
