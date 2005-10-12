@@ -628,10 +628,17 @@ void load_quickspells ()
 	char data[MAX_DATA_FILE_SIZE];
 	FILE *fp;
 	Uint8 i;
-	
 #ifndef WINDOWS
 	char username[20];
+#endif
+
+	// Grum: move this over here instead of at the end of the function,
+	// so that quickspells are always saved when the player logs in. 
+	// (We're only interested in if this function is called, not if it 
+	// succeeds)
+	quickspells_loaded = 1;
 	
+#ifndef WINDOWS
 	snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
 	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
@@ -654,9 +661,7 @@ void load_quickspells ()
 	{
 		mqb_data[i] = (mqbdata*) calloc (1, sizeof(mqbdata));
 		memcpy (mqb_data[i], data+1+(i-1)*sizeof(mqbdata), sizeof(mqbdata));
-	}
-	
-	quickspells_loaded = 1;
+	}	
 }
 
 void save_quickspells()

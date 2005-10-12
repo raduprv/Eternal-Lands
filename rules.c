@@ -493,10 +493,12 @@ void init_rules_interface(float text_size, int count, int len_x, int len_y)
 	y_arrow_up = 128 * window_ratio - arrow_size / 2;
 	y_arrow_down = len_y - 128 * window_ratio - arrow_size / 2;
 
-	accept_x = len_x / 2 - 50 * window_ratio;
+	// Roja prefers the button to be natural size
+	accept_width = 64; //100 * window_ratio;
+	accept_height = 32; //40 * window_ratio;
+	
+	accept_x = (len_x - accept_width)/ 2; // len_x / 2 - 50 * window_ratio;
 	accept_y = len_y - 95 * window_ratio;
-	accept_width = 100 * window_ratio;
-	accept_height = 40 * window_ratio;
 }
 
 float rules_u_start=(float)1/256;
@@ -551,8 +553,11 @@ void draw_rules_interface (int len_x, int len_y)
 	
 	get_and_set_texture_id(hud_text);
     	
-	width = 120*window_ratio;
-	height = 40*window_ratio;
+	// Roja prefers the button to be natural size
+	//width = 120*window_ratio;
+	//height = 40*window_ratio;
+	width = 128/2;
+	height = 64/2;
 	y = 66*window_ratio;
     
 	glPushMatrix ();
