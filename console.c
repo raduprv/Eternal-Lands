@@ -14,6 +14,21 @@
 
 char	auto_open_encyclopedia= 1;
 
+void print_version_string (char *buf, int len)
+{
+	char extra[100];
+	
+	if (client_version_patch > 0)
+	{
+		snprintf (extra, sizeof(extra), "p%d Beta %s", client_version_patch, DEF_INFO);
+	}
+	else
+	{
+		snprintf (extra, sizeof(extra), " Beta %s", DEF_INFO);
+	}
+	snprintf (buf, len, "Eternal Lands Version %d.%d.%d%s", client_version_major, client_version_minor, client_version_release, extra);
+}
+
 //do we have any console commands?
 //if not, send the text to the server
 void test_for_console_command (char *text, int len)
@@ -163,16 +178,7 @@ void test_for_console_command (char *text, int len)
 	else if(my_strcompare(text_loc,"ver") || my_strcompare(text_loc,"vers"))
 		{
 			char str[250];
-			char extra[100];
-			if(client_version_patch > 0)
-				{
-					snprintf(extra,sizeof(extra),"p%d Beta %s",client_version_patch, DEF_INFO);
-				}
-			else
-				{
-					snprintf(extra,sizeof(extra)," Beta %s", DEF_INFO);
-				}
-			snprintf(str, sizeof(str), "Eternal Lands Version %d.%d.%d%s", client_version_major, client_version_minor, client_version_release, extra);
+			print_version_string (str, sizeof (str));
 			LOG_TO_CONSOLE(c_green1,str);
 			return;
 		}

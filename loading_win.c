@@ -41,6 +41,9 @@ int delete_texture = 0;
 
 unsigned char text_buffer[255] = {0};
 
+char version_str[250] = {0};
+int version_width;
+
 int display_loading_win_handler(window_info *win)
 {
 	glBindTexture (GL_TEXTURE_2D, loading_texture);
@@ -64,6 +67,7 @@ int display_loading_win_handler(window_info *win)
 	// the last texture, so that the font will be loaded
 	last_texture = -1;
 	glColor3f (1.0, 1.0, 1.0);
+	draw_string ((win->len_x - version_width) / 2, (win->len_y * 2) / 3 - 20, version_str, 1);
 	draw_string_small((win->len_x - (get_string_width(text_buffer)*SMALL_FONT_X_LEN)/12)/2, (win->len_y*2)/3 + PROGRESSBAR_HEIGHT + 2, text_buffer, 1);
 
 	glDisable(GL_TEXTURE_2D);
@@ -99,6 +103,7 @@ void take_snapshot (int width, int height)
 
 int create_loading_win (int width, int height, int snapshot)
 {
+	version_str[0] = '\0';
 	if (snapshot)
 	{
 		take_snapshot (width, height);
@@ -116,6 +121,9 @@ int create_loading_win (int width, int height, int snapshot)
 			loading_texture = get_texture_id (idx);
 			frac_x = frac_y = 1.0f;
 			delete_texture = 0;
+
+			print_version_string (version_str, sizeof (version_str));
+			version_width = (get_string_width (version_str) * DEFAULT_FONT_X_LEN) / 12;		
 		}
 	}
 	
