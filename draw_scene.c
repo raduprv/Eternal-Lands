@@ -19,8 +19,6 @@ float terrain_scale=2.0f;
 float zoom_level=3.0f;
 float name_zoom=1.0f;
 
-int zoom_angle_limits=1;
-
 float fine_camera_rotation_speed;
 float normal_camera_rotation_speed;
 
@@ -255,7 +253,7 @@ void update_camera()
 	}
 	if(camera_zoom_frames) {
 		if(camera_zoom_dir == 1) {
-			if(zoom_level<3.75f||(!zoom_angle_limits && zoom_level<7.5f)){
+			if(zoom_level<3.75f){
 				new_zoom_level+=0.05f;
 				camera_zoom_frames--;
 				regenerate_near_objects=

@@ -18,7 +18,6 @@ extern int camera_rotation_frames;
 extern float camera_tilt_speed;
 extern int camera_tilt_frames;
 extern int normal_animation_timer;
-extern int zoom_angle_limits;
 
 extern float fine_camera_rotation_speed; /*!< configurable fine grained speed for rotating the camera */
 extern float normal_camera_rotation_speed; /*!< configurable normal speed for rotating the camera */
