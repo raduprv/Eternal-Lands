@@ -191,7 +191,19 @@ void read_key_config()
 	if((t=get_string_occurance("#K_PREV_CHAT_TAB",file_mem,key_file_size,0))!=-1)
 		K_PREV_CHAT_TAB = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_RULES",file_mem,key_file_size,0))!=-1)
-		K_PREV_CHAT_TAB = parse_key_string(&file_mem[t]);
+		K_RULES = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL1",file_mem,key_file_size,0))!=-1)
+		K_SPELL1 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL2",file_mem,key_file_size,0))!=-1)
+		K_SPELL2 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL3",file_mem,key_file_size,0))!=-1)
+		K_SPELL3 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL4",file_mem,key_file_size,0))!=-1)
+		K_SPELL4 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL5",file_mem,key_file_size,0))!=-1)
+		K_SPELL5 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL6",file_mem,key_file_size,0))!=-1)
+		K_SPELL6 = parse_key_string(&file_mem[t]);
 }
 
 Uint32 parse_key_string(char *s)
