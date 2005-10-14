@@ -474,7 +474,9 @@ void load_map_tiles()
 		if(IS_WATER_TILE(i) && IS_REFLECTING(i))
 			tile_list[i]=load_texture_cache(str,70);
 		else 	tile_list[i]=load_texture_cache(str,255);
-		
+
+		if(get_texture_id(tile_list[i]) == 0)
+			tile_list[i]=0;
 	}
 #else
 	int cur_tile;
