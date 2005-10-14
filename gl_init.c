@@ -440,7 +440,11 @@ void init_video()
 
 	SDL_WM_SetIcon(SDL_LoadBMP("icon.bmp"), NULL);
 	/* Set the window manager title bar */
+#ifdef MAP_EDITOR2
+	SDL_WM_SetCaption( "Map Editor", "mapeditor" );
+#else
 	SDL_WM_SetCaption( "Eternal Lands", "eternallands" );
+#endif
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);

@@ -879,7 +879,9 @@ void init_vars()
 	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
 
 	add_var(BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",CONTROLS);
+#endif
 	add_var(BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
+#ifndef MAP_EDITOR2
 	add_var(BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
 #endif
 	add_var(BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable tooltips.",HUD);
@@ -952,7 +954,9 @@ void init_vars()
  #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
  #endif //ANTI_ALIAS
+#ifndef MAP_EDITOR2
 	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_buddy_log_notice, 1, "Log Buddy sign on/off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
+#endif
 #endif // def ELC
 #ifdef	USE_FRAMEBUFFER
 	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle frame buffer support", "Toggle frame buffer support. At the moment just for reflection the frame buffer is used.", SPECIALVID);

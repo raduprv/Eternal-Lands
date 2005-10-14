@@ -466,6 +466,17 @@ void draw_tile_map()
 void load_map_tiles()
 {
 	int i;
+#ifdef MAP_EDITOR2
+	char str[200];
+	
+	for(i=0;i<255;i++){
+		snprintf(str,sizeof(str), "./tiles/tile%i.bmp",i);
+		if(IS_WATER_TILE(i) && IS_REFLECTING(i))
+			tile_list[i]=load_texture_cache(str,70);
+		else 	tile_list[i]=load_texture_cache(str,255);
+		
+	}
+#else
 	int cur_tile;
 	char str[80];
 	for(i=0;i<tile_map_size_x*tile_map_size_y;i++)
@@ -482,7 +493,7 @@ void load_map_tiles()
 					else tile_list[cur_tile]=load_texture_cache(str,255);
 				}
 		}
-
+#endif
 }
 
 

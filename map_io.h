@@ -298,8 +298,9 @@ void remove_3d_object_from_server (int id);
  *
  * \param size_x The width
  * \param size_y The height
+ * \param tile_type The type of base tile
  */
-void new_map(int size_x, int size_y);
+void new_map(int size_x, int size_y, int tile_type);
 
 /*!
  * \ingroup maps

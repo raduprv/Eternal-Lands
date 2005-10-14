@@ -7,13 +7,6 @@
 #endif
 #include "loading_win.h"
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * int save_map(char*);
- * void new_map(int, int);
- */
-
 int map_type=1;
 Uint32 map_flags=0;
 
@@ -498,7 +491,7 @@ void load_map_marks()
 #endif
 
 #ifdef MAP_EDITOR2
-void new_map(int m_x_size,int m_y_size)
+void new_map(int m_x_size,int m_y_size,int tile_type)
 {
 	int i;
 
@@ -511,7 +504,7 @@ void new_map(int m_x_size,int m_y_size)
 	//allocate memory for the tile map (it was destroyed)
 	tile_map=(char *)calloc(m_x_size*m_y_size, 1);
 	//now, fill the map
-	for(i=0;i<m_x_size*m_y_size;i++)tile_map[i]=1;
+	for(i=0;i<m_x_size*m_y_size;i++)tile_map[i]=tile_type;
 	tile_map_size_x=m_x_size;
 	tile_map_size_y=m_y_size;
 
@@ -522,7 +515,12 @@ void new_map(int m_x_size,int m_y_size)
 
 	load_map_tiles();
 
+	dungeon = 0;
+	ambient_r=1.0f;
+	ambient_g=1.0f;
+	ambient_b=1.0f;
 
+	new_minute();
 }
 
 int save_map(char * file_name)
