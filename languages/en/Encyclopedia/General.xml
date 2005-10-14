@@ -157,8 +157,6 @@
 	<Text>       The Eternal Lands Encyclopedia</Text>
 	<nl/>
 	<Text>                    BOOKS</Text><nl/><nl/>
-	<Color>red</Color>
-	<Text>                  Page 1/3</Text><nl/><nl/>
 	<size>Small</size>
 	<color r="1" g="0.5" b="0"/>
 	<Text>To advance in the game you will need to read many books.</Text>
@@ -182,25 +180,6 @@
 	<link ref="Books_CP" title="Crystal Processing"/><nl/>
 	<nl/>
 	
-	<color r="0" g="0.5" b="1"/>
-	<Text>                    Go to page: </Text>
-	<link ref="Books_2" title="[2]"/><Text> </Text>
-	<link ref="Books_3" title="[3]"/><nl/>
-	<nl/>
-	<color>yellow</color>
-	<Text>                        </Text><link ref="Index" title="Back To Index"/>
-	<nl/>
-</Page>	
-<Page name="Books_2">
-	<size>Big</size>
-	<color r="0" g="1" b="0"/>
-	<Text>       The Eternal Lands Encyclopedia</Text>
-	<nl/>
-	<Text>                    BOOKS</Text><nl/><nl/>
-	<Color>red</Color>
-	<Text>                  Page 2/3</Text><nl/><nl/>
-	<size>Small</size>
-	
 	<color r="0" g="0.7" b="1"/>
 	<Text>Dan (Market place in White Stone City)</Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
@@ -215,7 +194,7 @@
 	<link ref="Books_AL" title="Alchemy"/><nl/>
 	<link ref="Books_PO" title="Potions"/><nl/>
 	<nl/>
-
+	
 	<color r="0" g="0.7" b="1"/>
 	<Text>Itilli (Registry Room in Magic School)</Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
@@ -224,35 +203,12 @@
 	<link ref="Books_RB" title="Ring Building"/><nl/>
 	<nl/>
 	
-	<color r="0" g="0.5" b="1"/>
-	<Text>                    Go to page: </Text>
-	<link ref="Books"   title="[1]"/><Text> </Text>
-	<link ref="Books_3" title="[3]"/><nl/>
-	<color>yellow</color>
-	<Text>                        </Text><link ref="Index" title="Back To Index"/>
-	<nl/>
-</Page>
-<Page name="Books_3">
-	<size>Big</size>
-	<color r="0" g="1" b="0"/>
-	<Text>       The Eternal Lands Encyclopedia</Text>
-	<nl/>
-	<Text>                    BOOKS</Text><nl/><nl/>
-	<Color>red</Color>
-	<Text>                  Page 3/3</Text><nl/><nl/>
-	<size>Small</size>
-	
 	<color r="0" g="0.7" b="1"/>
 	<Text>Nahark (Ywarstav, Grubani Peninsula)</Text><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
 	<link ref="Books_SM" title="Summoning"/><nl/>
 	<link ref="Books_FT" title="Fighting"/><nl/>
 	<nl/>
-
-	<color r="0" g="0.5" b="1"/>
-	<Text>                    Go to page: </Text>
-	<link ref="Books"   title="[1]"/><Text> </Text>
-	<link ref="Books_2" title="[2]"/><nl/>
 	<nl/>
 	<color>yellow</color>
 	<Text>                        </Text><link ref="Index" title="Back To Index"/>
@@ -503,8 +459,8 @@
         <Text>Grubani Penninsula (Grubani)  Unsafe: High level monsters.</Text><nl/>
         <Text>Tarsengaard(TG)               Unsafe Outside and the School:</Text><nl/>
 	 <Text>                              Armed Goblins. Storage NPC.</Text><nl/>
-        <Text>Nordcarn (NC)                 Safe ouside, PK insides:</Text><nl/>
-	<Text>                              </Text><Text>Sapphire Cavern, storage NPC.</Text><nl/>
+        <Text>Nordcarn (NC)                 Safe ouside, PK inside: </Text><nl/>
+	<Text>                              </Text><Text>Sapphire Cavern. Storage NPC.</Text><nl/>
         <Text>Southern Kilaran (SK)         Unsafe: high level monsters.</Text><nl/>
         <Text>Kilaran Field (KF)            Unsafe: PK.</Text><nl/>
         <Text>Tahraji Desert (TD)           Unsafe: PK, high level monsters.</Text><nl/>
@@ -617,15 +573,11 @@
 	<Text>                   POTIONS</Text><nl/>
 	<size>Small</size>
 	<color r="1" g="0.5" b="0"/>
-	<Text>Potions can restore or temporarly increase your attributes.</Text>
+	<Text>Potions can restore or temporarily increase your attributes.</Text>
 	<nl/><nl/>
 	<color r="0.9" g="0.9" b="0.9"/>
-	<link ref="P_Mana" title="Potion of Mana"/>
-	<Text>                     </Text>
-	<link ref="P_Craft" title="Potion of Crafting"/><nl/>
-	<link ref="P_Healing" title="Potion of Minor Healing"/>
-	<Text>            </Text>
-	<link ref="P_Magic" title="Potion of Magic"/><nl/>
+	<link ref="P_Mana" title="Potion of Mana"/><nl/>
+	<link ref="P_Healing" title="Potion of Minor Healing"/><nl/>
 	<link ref="P_Reasoning" title="Potion of Reasoning"/><nl/>
 	<link ref="P_Physique" title="Potion of Physique"/><nl/>
 	<link ref="P_Defense" title="Potion of Defense"/><nl/>
@@ -640,6 +592,8 @@
 	<link ref="P_Harvesting" title="Potion of Harvesting"/><nl/>
 	<link ref="P_Manufacturing" title="Potion of Manufacturing"/><nl/>
 	<link ref="P_Summoning" title="Potion of Summoning"/><nl/>
+	<link ref="P_Craft" title="Potion of Crafting"/><nl/>
+	<link ref="P_Magic" title="Potion of Magic"/><nl/>
 	<color r="0" g="0.7" b="1"/>
 	<nl/>
 	<color>yellow</color>

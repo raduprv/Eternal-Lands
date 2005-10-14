@@ -119,27 +119,6 @@
 	<Text>Leather pants                 500           1200</Text><nl/>
 	<Text>Iron Cuisses                 5000           1600</Text><nl/>
 	<Text>Padded leather torso         1000           1000</Text><nl/>
-	<nl/>
-	<color r="0" g="0.5" b="1"/>
-	<Text>                    Go to page: </Text>
-	<link ref="Books_AC_2" title="[2]"/><nl/><nl/>
-	<color>yellow</color>
-	<Text>                    </Text><link ref="Books_2" title="Back To Books Index"/>
-</Page>
-<Page name="Books_AC_2">
-	<size>Big</size>
-	<color r="0" g="1" b="0"/>
-	<Text>       The Eternal Lands Encyclopedia</Text>
-	<nl/>
-	<Text>                   BOOKS</Text><nl/>
-	<color r="1" g="0.5" b="0"/>
-	<Text>             Armor Construction</Text><nl/>	
-	<Color>red</Color>
-	<Text>                 Page 2/2</Text><nl/><nl/>
-	<size>Medium</size>
-	<color r="0" g="0.5" b="1"/>
-	<Text>Book Name                 Price (gc)   Research Points</Text><nl/>
-	<color r="0.9" g="0.9" b="0.9"/>
 	<Text>Iron Chainmail               2500           2000</Text><nl/>
 	<Text>Steel Chainmail              5000           2100</Text><nl/>
 	<Text>Titanium Chainmail          20000           4000</Text><nl/>
@@ -149,11 +128,8 @@
 	<Text>Iron shield                  1000           1400</Text><nl/>
 	<Text>Steel Shield                 5000           1800</Text><nl/>
 	<nl/>
-	<color r="0" g="0.5" b="1"/>
-	<Text>                    Go to page: </Text>
-	<link ref="Books_AC" title="[1]"/><nl/><nl/>
 	<color>yellow</color>
-	<Text>                    </Text><link ref="Books_2" title="Back To Books Index"/>
+	<Text>                    </Text><link ref="Books" title="Back To Books Index"/>
 </Page>
 <Page name="Books_BI">
 	<size>Big</size>
