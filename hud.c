@@ -1157,7 +1157,7 @@ int	display_quickbar_handler(window_info *win)
 				
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_TRIANGLE_FAN);
-					glColor4f(0.625f, 0.25f, 0.25f, 0.667f);
+					glColor4f(0.14f, 0.35f, 0.82f, 0.50f); 
 
 					glVertex2f(x_center, y_center);
 
