@@ -6,6 +6,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef	NEW_FRUSTUM
+#include "bbox_tree.h"
+#endif
 
 #define INVALID -1
 #define GROUND 0
@@ -16,9 +19,11 @@
 #define SECTOR_SIZE_Y 15
 
 obj_2d *obj_2d_list[MAX_OBJ_2D];
+#ifndef	NEW_FRUSTUM
 obj_2d *nearby_2d_objects[MAX_NEARBY_2D_OBJECTS];
 
 int no_nearby_2d_objects=0;
+#endif
 int regenerate_near_2d_objects=1;
 
 int map_meters_size_x;
@@ -424,6 +429,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 
 int get_nearby_2d_objects()
 {
+#ifndef	NEW_FRUSTUM
 	int i;
 	float x,y;
 	int sx,sy,ex,ey,j,k;
@@ -473,10 +479,17 @@ int get_nearby_2d_objects()
 	regenerate_near_2d_objects = 0;
 
 	return no_nearby_2d_objects;
+#else
+	check_bbox_tree(bbox_tree, &frustum);
+	regenerate_near_2d_objects = 0;
+
+	return 1;
+#endif
 }
 
 void display_2d_objects()
 {
+#ifndef	NEW_FRUSTUM
 	int i;
 
 	if(regenerate_near_2d_objects)
@@ -502,6 +515,49 @@ void display_2d_objects()
 	}
 	
 	glDisable(GL_ALPHA_TEST);
+#else
+	int i, l;
+
+	if(regenerate_near_2d_objects)
+		if(!get_nearby_2d_objects())
+			return;
+
+	//First draw everyone with the same alpha test
+    	
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER,0.18f);
+	
+	for (i = 0; i < bbox_tree->intersect_index; i++)
+	{
+		if (bbox_tree->intersect_items[i].type != TYPE_2D_OBJECT) continue;
+		l = bbox_tree->intersect_items[i].ID;
+#ifdef	DEBUG
+		if (obj_2d_list[l] && obj_2d_list[l]->obj_pointer && !obj_2d_list[l]->obj_pointer->alpha_test) 
+#else
+		if (!obj_2d_list[l]->obj_pointer->alpha_test) 
+#endif
+			draw_2d_object(obj_2d_list[l]);
+	}
+	
+	//Then draw all that needs a change
+	for (i = 0; i < bbox_tree->intersect_index; i++)
+	{
+		if (bbox_tree->intersect_items[i].type != TYPE_2D_OBJECT) continue;
+		l = bbox_tree->intersect_items[i].ID;
+
+#ifdef	DEBUG
+		if (obj_2d_list[l] && obj_2d_list[l]->obj_pointer && obj_2d_list[l]->obj_pointer->alpha_test) 
+#else
+		if (obj_2d_list[l]->obj_pointer->alpha_test) 
+#endif
+		{
+    			glAlphaFunc(GL_GREATER, obj_2d_list[l]->obj_pointer->alpha_test);
+			draw_2d_object(obj_2d_list[l]);
+		}
+	}
+	
+	glDisable(GL_ALPHA_TEST);
+#endif
 }
 
 // for support of the 1.0.3 server, change if an object is to be displayed or not

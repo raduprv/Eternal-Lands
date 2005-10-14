@@ -139,7 +139,7 @@ void remove_bag(int which_bag)
 
 	sectors[sector].e3d_local[k]=sectors[sector].e3d_local[j];
 	sectors[sector].e3d_local[j]=-1;
-
+	
 	destroy_3d_object(bag_list[which_bag].obj_3d_id);
 	bag_list[which_bag].obj_3d_id=-1;
 }

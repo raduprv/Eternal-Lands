@@ -6,6 +6,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef	NEW_FRUSTUM
+#include "bbox_tree.h"
+#endif
 
 object3d *objects_list[MAX_OBJ_3D];
 struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
@@ -429,8 +432,39 @@ int get_near_3d_objects()
 		}
 	}
 		
-	regenerate_near_objects = 0;
+#ifdef	NEW_FRUSTUM
+	check_bbox_tree(bbox_tree, &frustum);
+	float r, d;
+	for (i = 0; i < bbox_tree->intersect_index; i++)
+	{
+		if (bbox_tree->intersect_items[i].type != TYPE_3D_OBJECT) continue;
+		object3d *object_id;
+		int l = bbox_tree->intersect_items[i].ID;
+		object_id = objects_list[l];
 
+		if (object_id != NULL && object_id->blended != 20)
+		{
+			float dist1, dist2;
+			float dist;
+			float x_len, y_len, z_len;
+			float radius;
+			
+			dist1 = x - object_id->x_pos;
+			dist2 = y - object_id->y_pos;
+			dist = dist1*dist1 + dist2*dist2;
+
+			z_len= object_id->e3d_data->max_z-object_id->e3d_data->min_z;
+			x_len= object_id->e3d_data->max_x-object_id->e3d_data->min_x;
+			y_len= object_id->e3d_data->max_y-object_id->e3d_data->min_y;
+			//do some checks, to see if we really have to display this object
+			radius = x_len / 2;
+			if (radius < y_len/2) radius = y_len / 2;
+			if (radius < z_len) radius = z_len;
+			add_near_3d_object (dist, radius, l, object_id->blended);
+		}
+	}
+#endif
+	regenerate_near_objects = 0;
 	return 1;
 }
 
