@@ -31,5 +31,30 @@
     <b_save>Save Notes</b_save>
     <l_nname>Note name</l_nname>
     <l_cursor_coords>Cursor position</l_cursor_coords>
-  <c_guildchan>Guild Channel</c_guildchan></titles>
+    <c_guildchan>Guild Channel</c_guildchan>
+    <w_stats>Statistics</w_stats>
+    <w_sigils>Sigils</w_sigils>
+    <w_inv>Inventory</w_inv>
+    <w_help>Help</w_help>
+    <w_buddy>Buddy</w_buddy>
+    <w_config>ELconfig</w_config>
+    <w_manu>Manufacture</w_manu>
+    <w_principal>Eternal Lands</w_principal>
+    <w_storage>Storage</w_storage>
+    <w_trade>Trade</w_trade>
+    <w_rules>Rules</w_rules>
+    <w_bag>Bag</w_bag>
+    <w_design>Design your character</w_design>
+    <w_name_pass>Choose name and password</w_name_pass>
+    <w_newchar>New Character</w_newchar>
+    <tab_control>Controls</tab_control>
+    <tab_audio>Audio</tab_audio>
+    <tab_hud>HUD</tab_hud>
+    <tab_server>Server</tab_server>
+    <tab_misc>Misc</tab_misc>
+    <tab_chat>Chat</tab_chat>
+    <tab_video>Video</tab_video>
+    <tab_adv_video>Advanced video</tab_adv_video>
+    <tab_font>Font</tab_font>
+  </titles>
 </root>

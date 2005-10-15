@@ -11,7 +11,8 @@
     <rem>OK, %s was removed from your filter list!</rem>
     <none>You are filtering nothing!</none>
     <cur>You are currently filtering</cur>
-  <flistfull>Your filter list is full, you can't add another filter</flistfull></filter>
+    <flistfull>Your filter list is full, you can't add another filter</flistfull>
+  </filter>
   <ignore>
     <toolong>Name too long, the max limit is 15 characters.</toolong>
     <tooshort>Name too short, only names&gt;=3 characters can be used!</tooshort>
@@ -32,4 +33,36 @@
     <ext>Supported extensions</ext>
     <opengl>OpenGL Version</opengl>
   </misc>
+  <loading_msg>
+    <init_opengl>Initializing OpenGL extensions</init_opengl>
+    <init_random>Generating random seed</init_random>
+    <load_ignores>Loading ignores</load_ignores>
+    <load_filters>Loading filters</load_filters>
+    <load_lists>Loading lists</load_lists>
+    <load_cursors>Loading cursors</load_cursors>
+    <bld_glow>Building glow table</bld_glow>
+    <init_lists>Initializing lists</init_lists>
+    <init_actor_defs>Initializing actor definitions</init_actor_defs>
+    <load_map_tiles>Loading map tiles</load_map_tiles>
+    <init_lights>Initializing lights</init_lights>
+    <init_logs>Initializing logs</init_logs>
+    <read_config>Reading configuration</read_config>
+    <init_weather>Initializing weather</init_weather>
+    <init_audio>Initializing audio</init_audio>
+    <load_icons>Loading icons</load_icons>
+    <load_textures>Loading textures</load_textures>
+    <init_network>Initializing network</init_network>
+    <init_timers>Initializing timers</init_timers>
+    <load_encyc>Loading Encyclopedia files</load_encyc>
+    <init_display>Initializing display stuff</init_display>
+    <prep_op_win>Preparing opening window</prep_op_win>
+    <load_map>Loading map</load_map>
+    <load_3d_object>Loading 3D objects</load_3d_object>
+    <load_2d_object>Loading 2D objects</load_2d_object>
+    <load_lights>Loading lights</load_lights>
+    <load_particles>Loading particles</load_particles>
+    <bld_sectors>Building sectors</bld_sectors>
+    <init_done>Done</init_done>
+  </loading_msg>
 </root>
+

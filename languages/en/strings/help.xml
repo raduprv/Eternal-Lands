@@ -38,7 +38,9 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <edit_quantity>Rightclick on the quantity you wish to edit</edit_quantity>
     <you>You</you>
     <accept>Accept</accept>
-  <x_quit>Press Alt-x to close the game</x_quit></misc>
+    <x_quit>Press Alt-x to close the game</x_quit>
+    <dropall>Drop All</dropall>
+  </misc>
   <new>
     <skin>Skin</skin>
     <hair>Hair</hair>
@@ -120,5 +122,12 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <delete_desc>Check this to delete the buddy from the list</delete_desc>
     <request_dialog>%s wants to add you to his/her buddy list. Do you wish to allow it?</request_dialog>
     <add_to_list>Add to my buddy list</add_to_list>
+    <logon>%.*s has logged on.</logon>
+    <logoff>%.*s has logged off.</logoff>
+    <white>White</white>
+    <red>Red</red>
+    <green>Green</green>
+    <blue>Blue</blue>
+    <yellow>Yellow</yellow>
   </buddy>
 </root>
