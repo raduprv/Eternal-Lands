@@ -777,7 +777,7 @@ int show_items_handler(window_info * win)
 void display_items_menu()
 {
 	if(items_win < 0){
-		items_win= create_window("Inventory", game_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
+		items_win= create_window(win_inventory, game_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
@@ -785,7 +785,7 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		
-		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 2, 6*(video_mode>4?51:33)+2, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, "Drop All");
+		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 2, 6*(video_mode>4?51:33)+2, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, drop_all_str);
 		widget_set_OnClick (items_win, drop_button_id, drop_all_handler);
 		
 		show_items_handler(&windows_list.window[items_win]);

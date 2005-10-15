@@ -292,7 +292,7 @@ void display_manufacture_menu()
 		static int clear_button_id=100;
 		static int mix_button_id=101;
 		
-		manufacture_win= create_window("Manufacture", game_root_win, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
+		manufacture_win= create_window(win_manufacture, game_root_win, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );

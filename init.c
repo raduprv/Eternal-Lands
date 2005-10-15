@@ -554,54 +554,54 @@ void init_stuff()
 	create_loading_win (window_width, window_height, 0);
 	show_window(loading_win);
 
-	update_loading_win("Initializing OpenGL extensions", 5);
+	update_loading_win(init_opengl_str, 5);
 	init_gl_extensions();
 
-	update_loading_win("Generating random seed", 4);
+	update_loading_win(init_random_str, 4);
 	seed = time (NULL);
 	srand (seed);
 
-	update_loading_win("Loading ignores", 1);
+	update_loading_win(load_ignores_str, 1);
 	load_ignores();
-	update_loading_win("Loading filters", 2);
+	update_loading_win(load_filters_str, 2);
 	load_filters();
-	update_loading_win("Loading lists", 2);
+	update_loading_win(load_lists_str, 2);
 	load_harvestable_list();
 	load_e3d_list();
 	load_entrable_list();
 	load_knowledge_list();
-	update_loading_win("Loading cursors", 5);
+	update_loading_win(load_cursors_str, 5);
 	load_cursors();
 	build_cursors();
 	change_cursor(CURSOR_ARROW);
-	update_loading_win("Building glow table", 3);
+	update_loading_win(bld_glow_str, 3);
 	build_glow_color_table();
 
-	update_loading_win("Initializing lists", 2);
+	update_loading_win(init_lists_str, 2);
 	init_actors_lists();
 	update_loading_win(NULL, 4);
 	memset(tile_list, 0, sizeof(tile_list));
 	memset(lights_list, 0, sizeof(lights_list));
 	init_particles_list();
-	update_loading_win("Initializing actor definitions", 4);
+	update_loading_win(init_actor_defs_str, 4);
 	memset(actors_defs, 0, sizeof(actors_defs));
 	init_actor_defs();
-	update_loading_win("Loading map tiles", 4);
+	update_loading_win(load_map_tiles_str, 4);
 	load_map_tiles();
 
-	update_loading_win("Initializing lights", 4);
+	update_loading_win(init_lights_str, 4);
 	//lights setup
 	build_global_light_table();
 	build_sun_pos_table();
 	reset_material();
 	init_lights();
 	disable_local_lights();
-	update_loading_win("Initializing logs", 5);
+	update_loading_win(init_logs_str, 5);
 	clear_error_log();
 	clear_conn_log();
-	update_loading_win("Reading config", 2);
+	update_loading_win(read_config_str, 2);
 	read_bin_cfg();
-	update_loading_win("Initializing weather", 3);
+	update_loading_win(init_weather_str, 3);
 #ifdef NEW_WEATHER
 	init_weather();
 #else
@@ -611,16 +611,16 @@ void init_stuff()
 	build_levels_table();//for some HUD stuff
 
 	if(!no_sound) {
-		update_loading_win("Initializing audio", 0);
+		update_loading_win(init_audio_str, 0);
 		init_sound();
 	}
 
-	update_loading_win("Loading icons", 4);
+	update_loading_win(load_icons_str, 4);
 	//load the necesary textures
 	//font_text=load_texture_cache("./textures/font.bmp",0);
 	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
 	hud_text=load_texture_cache("./textures/gamebuttons2.bmp",0);
-	update_loading_win("Loading textures", 4);
+	update_loading_win(load_textures_str, 4);
 	cons_text=load_texture_cache("./textures/console.bmp",255);
 	particle_textures[0]=load_texture_cache("./textures/particle0.bmp",0);
 	particle_textures[1]=load_texture_cache("./textures/particle1.bmp",0);
@@ -664,7 +664,7 @@ void init_stuff()
 	create_char_error_str[0]=0;
 	init_opening_interface();
 	make_sigils_list();
-	update_loading_win("Initializing network", 5);
+	update_loading_win(init_network_str, 5);
 	if(SDLNet_Init()<0)
  		{
 			log_error("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
@@ -672,14 +672,14 @@ void init_stuff()
 			SDL_Quit();
 			exit(2);
 		}
-	update_loading_win("Initializing timers", 5);
+	update_loading_win(init_timers_str, 5);
 	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
 		{
 			log_error("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
 			SDL_Quit();
 		 	exit(1);
 		}
-	update_loading_win("Loading XML files", 5);
+	update_loading_win(load_encyc_str, 5);
 	ReadXML("languages/en/Encyclopedia/index.xml");
 	read_key_config();
 	load_questlog();
@@ -698,7 +698,7 @@ void init_stuff()
 	//Read the books for i.e. the new char window
 	init_books();
 
-	update_loading_win("Initializing display stuff", 5);
+	update_loading_win(init_display_str, 5);
 	SDL_SetGamma(gamma_var, gamma_var, gamma_var);
 
 	draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
@@ -707,7 +707,7 @@ void init_stuff()
 	//we might want to do this later.
 //	connect_to_server();
 
-	update_loading_win("Preparing opening window", 7);
+	update_loading_win(prep_op_win_str, 7);
 	create_opening_root_window (window_width, window_height);
 	// initialize the chat window
 	if (use_windowed_chat == 1)

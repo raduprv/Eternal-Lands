@@ -443,7 +443,7 @@ void init_video()
 #ifdef MAP_EDITOR2
 	SDL_WM_SetCaption( "Map Editor", "mapeditor" );
 #else
-	SDL_WM_SetCaption( "Eternal Lands", "eternallands" );
+	SDL_WM_SetCaption( win_principal, "eternallands" );
 #endif
 
 	glEnable(GL_DEPTH_TEST);

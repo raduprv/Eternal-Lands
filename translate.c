@@ -120,6 +120,13 @@ char
 	buddy_long_delete_str[100],
 	buddy_wants_to_add_str[150],
 	buddy_add_to_list_str[180],
+	buddy_logon_str[30],
+	buddy_logoff_str[30],
+	buddy_white_str[10],
+	buddy_red_str[10],
+	buddy_green_str[10],
+	buddy_blue_str[10],
+	buddy_yellow_str[10],
 	/*draw_scene.c*/
 	low_framerate_str[100],
 	/*gl_init.c*/
@@ -137,7 +144,8 @@ char
 	researching_str[30],
 	not_researching_anything[25],
 	/*manufacture.c*/
-	mix_str[4],
+	drop_all_str[11],
+	mix_str[5],
 	clear_str[6],
 	/*multiplayer.c*/
 	connect_to_server_str[50],
@@ -294,6 +302,36 @@ char	reg_error_str[15],
 	failed_sdl_timer_init[30], 
 	cant_read_elini[50],
 	must_use_tabs[80],
+	init_opengl_str[35],
+	init_random_str[35],
+	load_ignores_str[35],
+	load_filters_str[35],
+	load_lists_str[35],
+	load_cursors_str[35],
+	bld_glow_str[35],
+	init_lists_str[35],
+	init_actor_defs_str[35],
+	load_map_tiles_str[35],
+	init_lights_str[35],
+	init_logs_str[35],
+	read_config_str[35],
+	init_weather_str[35],
+	init_audio_str[35],
+	load_icons_str[35],
+	load_textures_str[35],
+	init_network_str[35],
+	init_timers_str[35],
+	load_encyc_str[35],
+	init_display_str[35],
+	prep_op_win_str[35],
+	/* map_io.c */
+	load_map_str[35],
+	load_3d_object_str[35],
+	load_2d_object_str[35],
+	load_lights_str[35],
+	load_particles_str[35],
+	bld_sectors_str[35],
+	init_done_str[35],
 	/*multiplayer.c*/
 	failed_resolve[150],
 	failed_connect[100], 
@@ -384,6 +422,30 @@ char	reg_error_str[15],
 /*! \{ */
 char	win_notepad[20],
 	win_prompt[10],
+	win_statistics[20],
+	win_sigils[10],
+	win_help[10],
+	win_buddy[10],
+	win_configuration[20],
+	win_manufacture[20],
+	win_principal[20],
+	win_storage[10],
+	win_trade[10],
+	win_rules[10],
+	win_bag[5],
+	win_inventory[15],
+	win_newchar[20],
+	win_name_pass[30],
+	win_design[25],
+	ttab_controls[10],
+	ttab_audio[10],
+	ttab_hud[5],
+	ttab_server[10],
+	ttab_misc[10],
+	ttab_chat[10],
+	ttab_video[10],
+	ttab_specialvideo[15],
+	ttab_font[10],
 	tab_help[10],
 	tab_encyclopedia[20],
 	tab_skills[20],
@@ -417,7 +479,7 @@ char	win_notepad[20],
 /*! \} */
 
 #ifdef ELC
-#define CONSOLE_STR 3
+#define CONSOLE_STR 4
 #define ERRORS 7
 #define HELP_STR 5
 #define OPTIONS_STR 1
@@ -465,7 +527,7 @@ struct xml_struct load_strings_file(char * filename);
 void init_groups()
 {
 #ifdef ELC
-	console_str=add_xml_group(GROUP,CONSOLE_STR,"filter","ignore","misc");
+	console_str=add_xml_group(GROUP,CONSOLE_STR,"filter","ignore","misc","loading_msg");
 	errors=add_xml_group(GROUP,ERRORS,"actors","load","misc","particles","snd","video","rules");
 	help_str=add_xml_group(GROUP,HELP_STR,"afk","misc","new","tooltips","buddy");
 	options_str=add_xml_group(DIGROUP,OPTIONS_STR,"options");
@@ -572,6 +634,7 @@ void init_console()
 	group_id * filter=&(console_str[0]);
 	group_id * ignore=&(console_str[1]);
 	group_id * misc=&(console_str[2]);
+	group_id * loading_msg=&(console_str[3]);
 	
 	add_xml_identifier(ignore,"toolong",name_too_long,"Name too long, the max limit is 15 characters.",sizeof(name_too_long));
 	add_xml_identifier(ignore,"tooshort",name_too_short,"Name too short, only names>=3 characters can be used!",sizeof(name_too_short));
@@ -602,6 +665,36 @@ void init_console()
 	add_xml_identifier(misc,"vendor",video_vendor_str,"Vendor ID",sizeof(video_vendor_str));
 	add_xml_identifier(misc,"ext",supported_extensions_str,"Supported extensions",sizeof(supported_extensions_str));
 	add_xml_identifier(misc,"opengl",opengl_version_str,"OpenGL Version",sizeof(opengl_version_str));
+
+	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
+	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
+	add_xml_identifier(loading_msg,"load_ignores",load_ignores_str,"Loading ignores",sizeof(load_ignores_str));
+	add_xml_identifier(loading_msg,"load_filters",load_filters_str,"Loading filters",sizeof(load_filters_str));
+	add_xml_identifier(loading_msg,"load_lists",load_lists_str,"Loading lists",sizeof(load_lists_str));
+	add_xml_identifier(loading_msg,"load_cursors",load_cursors_str,"Loading cursors",sizeof(load_cursors_str));
+	add_xml_identifier(loading_msg,"bld_glow",bld_glow_str,"Building glow table",sizeof(bld_glow_str));
+	add_xml_identifier(loading_msg,"init_lists",init_lists_str,"Initializing lists",sizeof(init_lists_str));
+	add_xml_identifier(loading_msg,"init_actor_defs",init_actor_defs_str,"Initializing actor definitions",sizeof(init_actor_defs_str));
+	add_xml_identifier(loading_msg,"load_map_tiles",load_map_tiles_str,"Loading map tiles",sizeof(load_map_tiles_str));
+	add_xml_identifier(loading_msg,"init_lights",init_lights_str,"Initializing lights",sizeof(init_lights_str));
+	add_xml_identifier(loading_msg,"init_logs",init_logs_str,"Initializing logs",sizeof(init_logs_str));
+	add_xml_identifier(loading_msg,"read_config",read_config_str,"Reading configuration",sizeof(read_config_str));
+	add_xml_identifier(loading_msg,"init_weather",init_weather_str,"Initializing weather",sizeof(init_weather_str));
+	add_xml_identifier(loading_msg,"init_audio",init_audio_str,"Initializing audio",sizeof(init_audio_str));
+	add_xml_identifier(loading_msg,"load_icons",load_icons_str,"Loading icons",sizeof(load_icons_str));
+	add_xml_identifier(loading_msg,"load_textures",load_textures_str,"Loading textures",sizeof(load_textures_str));
+	add_xml_identifier(loading_msg,"init_network",init_network_str,"Initializing network",sizeof(init_network_str));
+	add_xml_identifier(loading_msg,"init_timers",init_timers_str,"Initializing timers",sizeof(init_timers_str));
+	add_xml_identifier(loading_msg,"load_encyc",load_encyc_str,"Loading Encyclopedia files",sizeof(load_encyc_str));
+	add_xml_identifier(loading_msg,"init_display",init_display_str,"Initializing display stuff",sizeof(init_display_str));
+	add_xml_identifier(loading_msg,"prep_op_win",prep_op_win_str,"Preparing opening window",sizeof(prep_op_win_str));
+	add_xml_identifier(loading_msg,"load_map",load_map_str,"Loading map",sizeof(load_map_str));
+	add_xml_identifier(loading_msg,"load_3d_object",load_3d_object_str,"Loading 3D objects",sizeof(load_3d_object_str));
+	add_xml_identifier(loading_msg,"load_2d_object",load_2d_object_str,"Loading 2D objects",sizeof(load_2d_object_str));
+	add_xml_identifier(loading_msg,"load_lights",load_lights_str,"Loading lights",sizeof(load_lights_str));
+	add_xml_identifier(loading_msg,"load_particles",load_particles_str,"Loading particles",sizeof(load_particles_str));
+	add_xml_identifier(loading_msg,"bld_sectors",bld_sectors_str,"Building sectors",sizeof(bld_sectors_str));
+	add_xml_identifier(loading_msg,"init_done",init_done_str,"Done",sizeof(init_done_str));
 }
 #endif
 
@@ -778,6 +871,7 @@ void init_help()
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
 	add_xml_identifier(misc,"mix",mix_str,"Mix",sizeof(mix_str));
+	add_xml_identifier(misc,"dropall",drop_all_str,"Drop All",sizeof(drop_all_str));
 	add_xml_identifier(misc,"clear",clear_str,"Clear",sizeof(clear_str));
 	add_xml_identifier(misc,"cast",cast_str,"Cast",sizeof(cast_str));
 	add_xml_identifier(misc,"connect",connect_to_server_str,"Connecting to Server...",sizeof(connect_to_server_str));
@@ -875,6 +969,13 @@ void init_help()
 	add_xml_identifier(buddy, "delete_desc", buddy_long_delete_str, "Check this to delete the buddy from the list", sizeof(buddy_long_delete_str));
 	add_xml_identifier(buddy, "request_dialog", buddy_wants_to_add_str, "%s wants to add you to his/her buddy list. Do you wish to allow it?", sizeof(buddy_wants_to_add_str));
 	add_xml_identifier(buddy, "add_to_list", buddy_add_to_list_str, "Add to my buddy list", sizeof(buddy_add_to_list_str));
+	add_xml_identifier(buddy, "logon", buddy_logon_str, "%.*s has logged on.", sizeof(buddy_logon_str));
+	add_xml_identifier(buddy, "logoff", buddy_logoff_str, "%.*s has logged off.", sizeof(buddy_logoff_str));
+	add_xml_identifier(buddy, "white", buddy_white_str, "White", sizeof(buddy_white_str));
+	add_xml_identifier(buddy, "red", buddy_red_str, "Red", sizeof(buddy_red_str));
+	add_xml_identifier(buddy, "green", buddy_green_str, "Green", sizeof(buddy_green_str));
+	add_xml_identifier(buddy, "blue", buddy_blue_str, "Blue", sizeof(buddy_blue_str));
+	add_xml_identifier(buddy, "yellow", buddy_yellow_str, "Yellow", sizeof(buddy_yellow_str));
 
 }
 #endif
@@ -975,6 +1076,30 @@ void init_titles ()
 {
 	add_xml_identifier (titles_str, "w_note", win_notepad, "Notepad", sizeof(win_notepad));
 	add_xml_identifier (titles_str, "w_prompt", win_prompt, "Prompt", sizeof(win_prompt));
+	add_xml_identifier (titles_str, "w_stats", win_statistics, "Statistics", sizeof(win_statistics));
+	add_xml_identifier (titles_str, "w_sigils", win_sigils, "Sigils", sizeof(win_sigils));
+	add_xml_identifier (titles_str, "w_inv", win_inventory, "Inventory", sizeof(win_inventory));
+	add_xml_identifier (titles_str, "w_help", win_help, "Help", sizeof(win_help));
+	add_xml_identifier (titles_str, "w_buddy", win_buddy, "Buddy", sizeof(win_buddy));
+	add_xml_identifier (titles_str, "w_config", win_configuration, "ELconfig", sizeof(win_configuration));
+	add_xml_identifier (titles_str, "w_manu", win_manufacture, "Manufacture", sizeof(win_manufacture));
+	add_xml_identifier (titles_str, "w_principal", win_principal, "Eternal Lands", sizeof(win_principal));
+	add_xml_identifier (titles_str, "w_storage", win_storage, "Storage", sizeof(win_storage));
+	add_xml_identifier (titles_str, "w_trade", win_trade, "Trade", sizeof(win_trade));
+	add_xml_identifier (titles_str, "w_rules", win_rules, "Rules", sizeof(win_rules));
+	add_xml_identifier (titles_str, "w_bag", win_bag, "Bag", sizeof(win_bag));
+	add_xml_identifier (titles_str, "w_design", win_design, "Design your character", sizeof(win_design));
+	add_xml_identifier (titles_str, "w_name_pass", win_name_pass, "Choose name and password", sizeof(win_name_pass));
+	add_xml_identifier (titles_str, "w_newchar", win_newchar, "New Character", sizeof(win_newchar));
+	add_xml_identifier (titles_str, "tab_control", ttab_controls, "Controls", sizeof(ttab_controls));
+	add_xml_identifier (titles_str, "tab_audio", ttab_audio, "Audio", sizeof(ttab_audio));
+	add_xml_identifier (titles_str, "tab_hud", ttab_hud, "HUD", sizeof(ttab_hud));
+	add_xml_identifier (titles_str, "tab_server", ttab_server, "Server", sizeof(ttab_server));
+	add_xml_identifier (titles_str, "tab_misc", ttab_misc, "Misc", sizeof(ttab_misc));
+	add_xml_identifier (titles_str, "tab_chat", ttab_chat, "Chat", sizeof(ttab_chat));
+	add_xml_identifier (titles_str, "tab_video", ttab_video, "Video", sizeof(ttab_video));
+	add_xml_identifier (titles_str, "tab_adv_video", ttab_specialvideo, "Advanced video", sizeof(ttab_specialvideo));
+	add_xml_identifier (titles_str, "tab_font", ttab_font, "Font", sizeof(ttab_font));
 	add_xml_identifier (titles_str, "t_help", tab_help, "Help", sizeof(tab_help));
 	add_xml_identifier (titles_str, "t_ency", tab_encyclopedia, "Encyclopedia", sizeof(tab_encyclopedia));
 	add_xml_identifier (titles_str, "t_skills", tab_skills, "Skills", sizeof(tab_skills));

@@ -81,7 +81,7 @@ void move_to_category(int cat)
 	if(cat<0||cat>=no_storage_categories) return;
 	storage_categories[cat].name[0]=127+c_red3;
 	if(selected_category!=-1 && cat!=selected_category) storage_categories[selected_category].name[0]=127+c_orange1;
-	sprintf(windows_list.window[storage_win].window_name, "Storage - %s", storage_categories[cat].name+1);
+	sprintf(windows_list.window[storage_win].window_name, "%s - %s", win_storage, storage_categories[cat].name+1);
 
 	str[0]=GET_STORAGE_CATEGORY;
 	*((Uint8 *)(str+1))=storage_categories[cat].id;
@@ -134,7 +134,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 		storage_categories[cat].name[0] = 127+c_red3;
 		if (selected_category != -1 && cat != selected_category)
 			storage_categories[selected_category].name[0] = 127+c_orange1;
-		sprintf (windows_list.window[storage_win].window_name, "Storage - %s", storage_categories[cat].name+1);
+		sprintf (windows_list.window[storage_win].window_name, "%s - %s", win_storage, storage_categories[cat].name+1);
 		selected_category = cat;
 	}
 
@@ -360,8 +360,7 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 void display_storage_menu()
 {
 	if(storage_win<=0){
-		storage_win=create_window("Storage", game_root_win, 0, storage_win_x, storage_win_y, storage_win_x_len, storage_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
-
+		storage_win=create_window(win_storage, game_root_win, 0, storage_win_x, storage_win_y, storage_win_x_len, storage_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
 		set_window_handler(storage_win, ELW_HANDLER_DISPLAY, &display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_CLICK, &click_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_MOUSEOVER, &mouseover_storage_handler);
@@ -371,7 +370,7 @@ void display_storage_menu()
 	} else {
 		int i;
 
-		snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), "Storage");
+		snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), win_storage);
 		no_storage=0;
 		
 		for(i=0;i<no_storage_categories;i++)storage_categories[i].name[0]=127+c_orange1;

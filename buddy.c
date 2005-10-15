@@ -406,11 +406,11 @@ int create_buddy_interface_win(const char *title, void *argument)
 		label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_type_str);
 
 		buddy_type_input_id = multiselect_add(buddy_change_win, NULL, x, y, buddy_add_x_len-string_width*2);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 0, "White", 1);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 25, "Red", 0);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 50, "Green", 0);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 75, "Blue", 0);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 100, "Yellow", 0);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 0, buddy_white_str, 1);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 25, buddy_red_str, 0);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 50,  buddy_green_str, 0);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 75, buddy_blue_str, 0);
+		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 100, buddy_yellow_str, 0);
 		multiselect_set_selected(buddy_change_win, buddy_type_input_id, buddy->type);
 
 		widget_set_OnMouseover(buddy_change_win, label_id, type_onmouseover_handler);
@@ -506,7 +506,7 @@ void display_buddy()
 	if(buddy_win < 0)
 		{
 			//buddy_win = AddXMLWindow("buddy.xml");
-			buddy_win = create_window("Buddy", game_root_win, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
+			buddy_win = create_window(win_buddy, game_root_win, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
 
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
@@ -547,7 +547,7 @@ void add_buddy (const char *name, int type, int len)
 				time (&n_time);
 				if (difftime (c_time, n_time) > -5.0f) break;
 				
-				snprintf (message, sizeof(message), "%.*s has logged on.", len, name);
+				snprintf (message, sizeof(message), buddy_logon_str, len, name);
 				LOG_TO_CONSOLE (c_green1, message);
 			}
 			break;
@@ -580,7 +580,7 @@ void del_buddy (const char *name, int len)
 				time (&n_time);
 				if (difftime (c_time, n_time) > -5.0f) break;
 				
-				snprintf (message, sizeof(message), "%.*s has logged off", len, name);
+				snprintf (message, sizeof(message), buddy_logoff_str, len, name);
 				LOG_TO_CONSOLE (c_green1, message);
 			}
 			break;

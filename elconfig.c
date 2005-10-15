@@ -1502,22 +1502,22 @@ void display_elconfig_win(void)
 {
 	if(elconfig_win < 0) {
 		/* Set up the window */
-		elconfig_win = create_window("ELconfig", game_root_win, 0, elconfig_menu_x, elconfig_menu_y, elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT);
+		elconfig_win = create_window(win_configuration, game_root_win, 0, elconfig_menu_x, elconfig_menu_y, elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT);
 		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
 		set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
 		// TODO: replace this hack by something clean.
 		set_window_handler(elconfig_win, ELW_HANDLER_SHOW, &show_elconfig_handler);
 		/* Create tabs */
 		elconfig_tab_collection_id = tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_TABS, TAB_TAG_HEIGHT);
-		elconfig_tabs[CONTROLS].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Controls", 0, 0);
-		elconfig_tabs[AUDIO].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Audio", 0, 0);
-		elconfig_tabs[HUD].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "HUD", 0, 0);
-		elconfig_tabs[SERVER].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Server", 0, 0);
-		elconfig_tabs[MISC].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Misc", 0, 0);
-		elconfig_tabs[FONT].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Font", 0, 0);
-		elconfig_tabs[CHAT].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Chat", 0, 0);
-		elconfig_tabs[VIDEO].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Video", 0, 0);
-		elconfig_tabs[SPECIALVID].tab = tab_add(elconfig_win, elconfig_tab_collection_id, "Advanced video", 0, 0);
+		elconfig_tabs[CONTROLS].tab = tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0);
+		elconfig_tabs[AUDIO].tab = tab_add(elconfig_win, elconfig_tab_collection_id, ttab_audio, 0, 0);
+		elconfig_tabs[HUD].tab = tab_add(elconfig_win, elconfig_tab_collection_id, ttab_hud, 0, 0);
+		elconfig_tabs[SERVER].tab = tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0);
+		elconfig_tabs[MISC].tab = tab_add(elconfig_win, elconfig_tab_collection_id, ttab_misc, 0, 0);
+		elconfig_tabs[FONT].tab = tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0);
+		elconfig_tabs[CHAT].tab = tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0);
+		elconfig_tabs[VIDEO].tab = tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0);
+		elconfig_tabs[SPECIALVID].tab = tab_add(elconfig_win, elconfig_tab_collection_id, ttab_specialvideo, 0, 0);
 		
 		elconfig_populate_tabs();
 	}

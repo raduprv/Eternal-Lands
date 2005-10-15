@@ -360,7 +360,7 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 void draw_pick_up_menu()
 {
 	if(ground_items_win < 0){
-		ground_items_win= create_window("Bag", game_root_win, 0, ground_items_menu_x, ground_items_menu_y, ground_items_menu_x_len, ground_items_menu_y_len, ELW_WIN_DEFAULT);
+		ground_items_win= create_window(win_bag, game_root_win, 0, ground_items_menu_x, ground_items_menu_y, ground_items_menu_x_len, ground_items_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(ground_items_win, ELW_HANDLER_DISPLAY, &display_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_CLICK, &click_ground_items_handler );

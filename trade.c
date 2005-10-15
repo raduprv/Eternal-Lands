@@ -366,7 +366,7 @@ void remove_item_from_trade (const Uint8 *data)
 void display_trade_menu()
 {
 	if(trade_win < 0){
-		trade_win= create_window("Trade", game_root_win, 0, trade_menu_x, trade_menu_y, trade_menu_x_len, trade_menu_y_len, (ELW_WIN_DEFAULT& ~ELW_CLOSE_BOX));
+		trade_win= create_window(win_trade, game_root_win, 0, trade_menu_x, trade_menu_y, trade_menu_x_len, trade_menu_y_len, (ELW_WIN_DEFAULT& ~ELW_CLOSE_BOX));
 
 		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );

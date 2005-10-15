@@ -390,7 +390,7 @@ void create_newchar_root_window ()
 		
 		change_map ("./maps/newcharactermap.elm");
 
-		newchar_root_win = create_window ("New Character", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		newchar_root_win = create_window (win_newchar, -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (newchar_root_win, ELW_HANDLER_DISPLAY, &display_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_newchar_handler);
@@ -616,7 +616,7 @@ void show_account_win ()
 {
 	if (namepass_win < 0){
 	        // Create the window
-	        namepass_win = create_window ("Choose name and password", newchar_root_win, 0, 10, 200, 270, 260, ELW_WIN_DEFAULT);
+	        namepass_win = create_window (win_name_pass, newchar_root_win, 0, 10, 200, 270, 260, ELW_WIN_DEFAULT);
 	        set_window_handler (namepass_win, ELW_HANDLER_DISPLAY, &display_namepass_handler);
 	        set_window_handler (namepass_win, ELW_HANDLER_KEYPRESS, &keypress_namepass_handler);
 	        set_window_handler (namepass_win, ELW_HANDLER_CLICK, &click_namepass_handler);
@@ -908,7 +908,7 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 void show_color_race_win()
 {
 	if(color_race_win < 0){
-		color_race_win = create_window ("Design your character", newchar_root_win, 0, 300, 200, 420, 170, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
+		color_race_win = create_window (win_design, newchar_root_win, 0, 300, 200, 420, 170, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
 		set_window_handler (color_race_win, ELW_HANDLER_DISPLAY, &display_color_race_handler);
 		set_window_handler (color_race_win, ELW_HANDLER_MOUSEOVER, &mouseover_color_race_handler);
 		set_window_handler (color_race_win, ELW_HANDLER_CLICK, &click_color_race_handler);

@@ -812,7 +812,7 @@ void create_rules_root_window (int width, int height, int next, int time)
 {
 	if (rules_root_win < 0)
 	{
-		rules_root_win = create_window ("Rules", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		rules_root_win = create_window (win_rules, -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		
 		set_window_handler (rules_root_win, ELW_HANDLER_DISPLAY, &display_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_root_handler);

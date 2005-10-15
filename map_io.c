@@ -246,7 +246,7 @@ int load_map (const char * file_name)
 		}
 	create_loading_win (window_width, window_height, 1);
 	show_window(loading_win);
-	update_loading_win("Loading map", 0);
+	update_loading_win(load_map_str, 0);
 	//get the map size
 	tile_map_size_x=cur_map_header.tile_map_x_len;
 	tile_map_size_y=cur_map_header.tile_map_y_len;
@@ -308,7 +308,7 @@ int load_map (const char * file_name)
 	}
 #endif
 
-	update_loading_win("Loading 3d objects", 0);
+	update_loading_win(load_3d_object_str, 0);
 	//see which objects in our cache are not used in this map
 	//read the 3d objects
 	for(i=0;i<obj_3d_no;i++)
@@ -338,7 +338,7 @@ int load_map (const char * file_name)
 
 	//delete the unused objects from the cache
 
-	update_loading_win("Loading 2d objects", 20);
+	update_loading_win(load_2d_object_str, 20);
 	//read the 2d objects
 	for(i=0;i<obj_2d_no;i++)
 		{
@@ -361,7 +361,7 @@ int load_map (const char * file_name)
 			}
 		}
 
-	update_loading_win("Loading lights", 20);
+	update_loading_win(load_lights_str, 20);
 	//read the lights
 	for(i=0;i<lights_no;i++)
 		{
@@ -387,7 +387,7 @@ int load_map (const char * file_name)
 			}
 		}
 
-	update_loading_win("Loading particles", 20);
+	update_loading_win(load_particles_str, 20);
 	//read particle systems
 	for(i=0;i<particles_no;i++)
 		{
@@ -411,9 +411,9 @@ int load_map (const char * file_name)
 #endif
 	
 	fclose(f);
-	update_loading_win("building sectors", 20);
+	update_loading_win(bld_sectors_str, 20);
 	sector_add_map();
-	update_loading_win("done", 20);
+	update_loading_win(init_done_str, 20);
 #ifdef EXTRA_DEBUG
 	ERR();//We finished loading the new map apparently...
 #endif
