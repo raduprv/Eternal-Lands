@@ -91,6 +91,17 @@ void draw_sky_background();
  */
 void draw_dungeon_sky_background();
 
+/*!
+ * \ingroup reflections
+ * \brief Draws a lake water tile
+ *
+ * 	Draws a lake water tile
+ *
+ * \param x_pos The x position
+ * \param y_pos The y position
+ */
+void draw_lake_water_tile(float x_pos, float y_pos);
+
 #ifdef	USE_FRAMEBUFFER
 /*!
  * \ingroup reflections

@@ -520,6 +520,8 @@ void new_map(int m_x_size,int m_y_size,int tile_type)
 	ambient_g=1.0f;
 	ambient_b=1.0f;
 
+	have_a_map = 1;
+
 	new_minute();
 }
 
