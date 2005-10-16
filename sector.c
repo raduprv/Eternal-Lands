@@ -6,7 +6,6 @@
 #include "global.h"
 #endif
 #ifdef	NEW_FRUSTUM
-#include <math.h>
 #include "bbox_tree.h"
 #endif
 
@@ -16,11 +15,12 @@
  * int sector_add_light(int);
  */
 
+#ifndef	NEW_FRUSTUM
 map_sector sectors[256*256];
 int num_sectors=256*256;
 Uint16 active_sector;
 int current_sector;
-#ifdef	NEW_FRUSTUM
+#else
 BBOX_TREE* bbox_tree = NULL;
 
 #define INVALID -1
@@ -30,6 +30,7 @@ BBOX_TREE* bbox_tree = NULL;
 #endif
 
 
+#ifndef	NEW_FRUSTUM
 void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey)
 {
 	int tile_map_size_y_4=tile_map_size_y>>2;
@@ -66,7 +67,6 @@ int sector_add_3do(int objectid)
 }
 
 
-#ifndef	NEW_FRUSTUM
 int sector_add_2do(int objectid)
 {
 	int i;
@@ -83,7 +83,6 @@ int sector_add_2do(int objectid)
 	}
 	return -1;
 }
-#endif
 
 int sector_add_particle(int objectid)
 {
@@ -101,71 +100,8 @@ int sector_add_particle(int objectid)
 	}
 	return -1;
 }
-
-
-#ifdef	NEW_FRUSTUM
-static __inline__ void rotate_aabb(AABBOX* bbox, const float r_x, const float r_y, const float r_z)
-{
-	float matrix_1[16], matrix_2[16];
-	matrix_1[0] = bbox->bbmax[X];
-	matrix_1[1] = bbox->bbmax[Y];
-	matrix_1[2] = bbox->bbmax[Z];
-	matrix_1[3] = 1.0f;
-	matrix_1[4] = bbox->bbmax[X];
-	matrix_1[5] = bbox->bbmax[Y];
-	matrix_1[6] = bbox->bbmin[Z];
-	matrix_1[7] = 1.0f;
-	matrix_1[8] = bbox->bbmax[X];
-	matrix_1[9] = bbox->bbmin[Y];
-	matrix_1[10] = bbox->bbmax[Z];
-	matrix_1[11] = 1.0f;
-	matrix_1[12] = bbox->bbmax[X];
-	matrix_1[13] = bbox->bbmin[Y];
-	matrix_1[14] = bbox->bbmin[Z];
-	matrix_1[15] = 1.0f;
-	matrix_2[0] = bbox->bbmin[X];
-	matrix_2[1] = bbox->bbmax[Y];
-	matrix_2[2] = bbox->bbmax[Z];
-	matrix_2[3] = 1.0f;
-	matrix_2[4] = bbox->bbmin[X];
-	matrix_2[5] = bbox->bbmax[Y];
-	matrix_2[6] = bbox->bbmin[Z];
-	matrix_2[7] = 1.0f;
-	matrix_2[8] = bbox->bbmin[X];
-	matrix_2[9] = bbox->bbmin[Y];
-	matrix_2[10] = bbox->bbmax[Z];
-	matrix_2[11] = 1.0f;
-	matrix_2[12] = bbox->bbmin[X];
-	matrix_2[13] = bbox->bbmin[Y];
-	matrix_2[14] = bbox->bbmin[Z];
-	matrix_2[15] = 1.0f;
-	glPushMatrix();
-	glLoadIdentity();
-	glRotatef(r_z, 0.0f, 0.0f, 1.0f);
-	glRotatef(r_x, 1.0f, 0.0f, 0.0f);
-	glRotatef(r_y, 0.0f, 1.0f, 0.0f);
-	glPushMatrix();
-	glMultMatrixf(matrix_1);
-	glGetFloatv(GL_MODELVIEW_MATRIX, matrix_1);
-	glPopMatrix();
-	glMultMatrixf(matrix_2);
-	glGetFloatv(GL_MODELVIEW_MATRIX, matrix_2);
-	glPopMatrix();
-	bbox->bbmin[X] = min(min(matrix_1[0], matrix_1[4]), min(matrix_1[8], matrix_1[12]));
-	bbox->bbmin[X] = min(bbox->bbmin[X], min(min(matrix_2[0], matrix_2[4]), min(matrix_2[8], matrix_2[12])));
-	bbox->bbmin[Y] = min(min(matrix_1[1], matrix_1[5]), min(matrix_1[9], matrix_1[13]));
-	bbox->bbmin[Y] = min(bbox->bbmin[Y], min(min(matrix_2[1], matrix_2[5]), min(matrix_2[9], matrix_2[13])));
-	bbox->bbmin[Z] = min(min(matrix_1[2], matrix_1[6]), min(matrix_1[10], matrix_1[14]));
-	bbox->bbmin[Z] = min(bbox->bbmin[Z], min(min(matrix_2[2], matrix_2[6]), min(matrix_2[10], matrix_2[14])));
-
-	bbox->bbmax[X] = max(max(matrix_1[0], matrix_1[4]), max(matrix_1[8], matrix_1[12]));
-	bbox->bbmax[X] = max(bbox->bbmax[X], max(max(matrix_2[0], matrix_2[4]), max(matrix_2[8], matrix_2[12])));
-	bbox->bbmax[Y] = max(max(matrix_1[1], matrix_1[5]), max(matrix_1[9], matrix_1[13]));
-	bbox->bbmax[Y] = max(bbox->bbmax[Y], max(max(matrix_2[1], matrix_2[5]), max(matrix_2[9], matrix_2[13])));
-	bbox->bbmax[Z] = max(max(matrix_1[2], matrix_1[6]), max(matrix_1[10], matrix_1[14]));
-	bbox->bbmax[Z] = max(bbox->bbmax[Z], max(max(matrix_2[2], matrix_2[6]), max(matrix_2[10], matrix_2[14])));
-}
 #endif
+
 
 // adds everything from the maps to the sectors
 void sector_add_map()
@@ -174,15 +110,12 @@ void sector_add_map()
 #ifndef	NEW_FRUSTUM
 	int obj_3d_no=0;
 	int obj_2d_no=0;
-#endif
 	//int lights_no=0;
 	int particles_no=0;
 	memset(sectors,-1,sizeof(map_sector)*256*256);
 
-#ifndef	NEW_FRUSTUM
 	for(i=0;i<MAX_OBJ_3D;i++)if(objects_list[i])obj_3d_no++;
 	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
-#endif
 	for(i=0;i<MAX_LIGHTS;i++){
 		if(lights_list[i]){
 			//lights_no++;
@@ -194,7 +127,6 @@ void sector_add_map()
 			particles_no++;
 		}
 	}
-#ifndef	NEW_FRUSTUM
 	// 3d objects
 	for(i=0;i<MAX_OBJ_3D;i++){
 		if(j>obj_3d_no){
@@ -216,7 +148,6 @@ void sector_add_map()
 			j++;
 		}
 	}
-#endif
 /*
 	//lights
 	j=0;
@@ -240,7 +171,7 @@ void sector_add_map()
 	}
 */
 
-#ifdef	NEW_FRUSTUM
+#else
 	BBOX_ITEMS* items;
 	float len_x, len_y, len_z;
 	float r_x, r_y, r_z;

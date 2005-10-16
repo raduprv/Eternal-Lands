@@ -361,6 +361,7 @@ void add_near_3d_object(int dist, float radius, int pos, int blended )//Blended 
 
 int get_near_3d_objects()
 {
+#ifndef	NEW_FRUSTUM	
 	int sx, sy, ex, ey;
 	float x, y;
 	int i, j, k;
@@ -432,14 +433,25 @@ int get_near_3d_objects()
 		}
 	}
 		
-#ifdef	NEW_FRUSTUM
+#else
+	float x, y;
+	int i, l;
+
+	no_near_3d_objects = 0;
+	no_near_blended_3d_objects = 0;
+	first_near_3d_object = NULL;
+	first_near_blended_3d_object = NULL;
+     
+	x = -cx;
+	y = -cy;
+	
 	check_bbox_tree(bbox_tree, &frustum);
-	float r, d;
+
 	for (i = 0; i < bbox_tree->intersect_index; i++)
 	{
 		if (bbox_tree->intersect_items[i].type != TYPE_3D_OBJECT) continue;
 		object3d *object_id;
-		int l = bbox_tree->intersect_items[i].ID;
+		l = bbox_tree->intersect_items[i].ID;
 		object_id = objects_list[l];
 
 		if (object_id != NULL && object_id->blended != 20)

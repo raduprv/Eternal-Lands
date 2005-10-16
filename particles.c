@@ -9,6 +9,9 @@
  #include "global.h"
 #endif
 #include "string.h"
+#ifdef	NEW_FRUSTUM
+#include "bbox_tree.h"
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -1038,6 +1041,11 @@ void update_particles() {
 #ifdef ELC
 void add_teleporters_from_list (const Uint8 *teleport_list)
 {
+#ifdef	NEW_FRUSTUM
+	AABBOX bbox;
+	float len_x, len_y, len_z;
+	int obj_3d_id;
+#endif
 	Uint16 teleporters_no;
 	int i;
 	int teleport_x,teleport_y,teleport_type,my_offset;
@@ -1065,8 +1073,28 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 			y=y+0.25f;
 
 			add_particle_sys ("./particles/teleporter.part", x, y, z);
+#ifdef	NEW_FRUSTUM
+			obj_3d_id = add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
+			len_x = objects_list[obj_3d_id]->e3d_data->max_x - objects_list[obj_3d_id]->e3d_data->min_x;
+			len_y = objects_list[obj_3d_id]->e3d_data->max_y - objects_list[obj_3d_id]->e3d_data->min_y;
+			len_z = objects_list[obj_3d_id]->e3d_data->max_z - objects_list[obj_3d_id]->e3d_data->min_z;
+			bbox.bbmin[X] = -len_x*0.5f;
+			bbox.bbmax[X] = len_x*0.5f;
+			bbox.bbmin[Y] = -len_y*0.5f;
+			bbox.bbmax[Y] = len_y*0.5f;
+			bbox.bbmin[Z] = -len_z*0.5f;
+			bbox.bbmax[Z] = len_z*0.5f;
+			bbox.bbmin[X] += objects_list[obj_3d_id]->x_pos;
+			bbox.bbmin[Y] += objects_list[obj_3d_id]->y_pos;
+			bbox.bbmin[Z] += objects_list[obj_3d_id]->z_pos;
+			bbox.bbmax[X] += objects_list[obj_3d_id]->x_pos;
+			bbox.bbmax[Y] += objects_list[obj_3d_id]->y_pos;
+			bbox.bbmax[Z] += objects_list[obj_3d_id]->z_pos;
+			add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox);
+#else
 			sector_add_3do(add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
-
+#endif
+			
 			//mark the teleporter as an unwalkable so that the pathfinder
 			//won't try to plot a path through it
 #ifdef MAP_EDITOR

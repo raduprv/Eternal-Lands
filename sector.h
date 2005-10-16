@@ -6,16 +6,13 @@
 #ifndef __SECTOR_H__
 #define __SECTOR_H__
 
+#ifndef	NEW_FRUSTUM
 /*!
  * returns the sector associated with the coordinates x and y
  */
 #define SECTOR_GET(x,y) (((int)(y)/12)*(tile_map_size_x>>2)+(int)(x)/12)
 
-#ifdef	NEW_FRUSTUM
-#define MAX_3D_OBJECTS 50 /*!< maximum number of 3d objects in a sector */
-#else
 #define MAX_3D_OBJECTS 400 /*!< maximum number of 3d objects in a sector */
-#endif
 
 /*!
  * map_sector handles the data of one sector
@@ -23,8 +20,8 @@
 typedef struct{
 	Uint32 objects_checksum; /*!< a MD5 checksum to check the objects in this sector */
 	Uint32 tiles_checksum; /*!< a MD5 checksum for the tiles in this sector */
-	short e3d_local[MAX_3D_OBJECTS]; /*!< array of local \see e3d objects in this sector */
 #ifndef	NEW_FRUSTUM
+	short e3d_local[MAX_3D_OBJECTS]; /*!< array of local \see e3d objects in this sector */
 	short e2d_local[100]; /*!< array of local \see e2d objects in this sector */
 #endif
 	short lights_local[4]; /*!< up to 4 lights are possible in one sector */
@@ -57,6 +54,7 @@ void get_supersector(int sector, int *sx, int *sy, int *ex, int *ey);
  * \retval int
  */
 int sector_add_3do(int objectid);
+#endif
 
 /*!
  * \ingroup maps

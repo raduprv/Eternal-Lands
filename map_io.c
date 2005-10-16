@@ -810,6 +810,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 	
 void remove_3d_object_from_server (int id)
 {
+#ifndef	NEW_FRUSTUM
 	int sector, i, j = MAX_3D_OBJECTS-1, k = -1;
 
 	if (id < 0 || id > MAX_3D_OBJECTS)
@@ -839,7 +840,10 @@ void remove_3d_object_from_server (int id)
 
 	sectors[sector].e3d_local[k] = sectors[sector].e3d_local[j];
 	sectors[sector].e3d_local[j] = -1;
-
+#else
+#warning	"Not ok so!"
+	LOG_ERROR ("Trying to remove a static object!");
+#endif
 	destroy_3d_object (id);
 }
 #endif
