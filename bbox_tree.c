@@ -576,7 +576,6 @@ static __inline__ void delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, BBOX_
 	if (node != NULL)
 	{		
 		ret = dynamic_aabb_is_in_node(node, ID, type, &idx);
-		
 		if (ret != 0)
 		{
 			if (ret == 1)
@@ -613,8 +612,7 @@ static __inline__ void delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, BBOX_
 					index = node->dynamic_objects.sub_index;
 					size = node->dynamic_objects.sub_size;
 					delete_dynamic_aabb_from_node(bbox_tree, node->nodes[0], ID, type);
-					delete_dynamic_aabb_from_node(bbox_tree, node->nodes[1], ID, type);
-					
+					delete_dynamic_aabb_from_node(bbox_tree, node->nodes[1], ID, type);			
 					if (index <= 1)
 					{
 						size = 0;
@@ -638,11 +636,11 @@ static __inline__ void delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, BBOX_
 								(index-idx-1)*sizeof(BBOX_ITEM_DATA));
 						index--;
 					}
-					node->dynamic_objects.index = index;
-					node->dynamic_objects.size = size;
+					node->dynamic_objects.sub_index = index;
+					node->dynamic_objects.sub_size = size;
 				}
 			}
-		
+
 			if ((node->nodes[0] != NULL) && (node->nodes[1] != NULL))
 			{
 				VMin(new_bbox.bbmin, node->nodes[0]->bbox.bbmin, node->nodes[1]->bbox.bbmin);
@@ -674,17 +672,17 @@ static __inline__ void delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, BBOX_
 
 void delete_dynamic_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-//	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, TYPE_3D_OBJECT);
+	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, TYPE_3D_OBJECT);
 }
 
 void delete_dynamic_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-//	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, TYPE_PARTICLE);
+	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, TYPE_PARTICLE);
 }
 
 void delete_dynamic_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-//	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, TYPE_LIGHT);
+	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, TYPE_LIGHT);
 }
 
 BBOX_ITEMS* create_bbox_items(unsigned int size)
@@ -708,6 +706,7 @@ void free_bbox_items(BBOX_ITEMS* bbox_items)
 		free(bbox_items);
 	}
 }
+
 #if	0
 static __inline__ void save_nodes(BBOX_TREE_NODE* node, unsigned long base, FILE file)
 {
