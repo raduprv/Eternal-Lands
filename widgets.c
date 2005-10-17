@@ -2028,9 +2028,14 @@ int spinbutton_draw(widget_list *widget)
 				glColor3f(1, 0, 0);
 				snprintf(str, sizeof (str), "%s", button->input_buffer);
 			} else {
-				char *pointer = strstr(button->input_buffer, ".");
-				int accuracy = (pointer == NULL) ? 0 : strlen(pointer+1);
+				char *pointer = strchr(button->input_buffer, '.');
+				int accuracy;
 				char format[10];
+			       
+				if(pointer == NULL) 
+					pointer = strchr(button->input_buffer, ',');
+
+				accuracy = (pointer == NULL) ? 0 : strlen(pointer+1);
 				if(accuracy > 3) {
 					accuracy = 3;
 				}
@@ -2045,9 +2050,9 @@ int spinbutton_draw(widget_list *widget)
 		break;
 	}
 	/* Numbers */
+	glColor3f(widget->r, widget->g, widget->b);
 	draw_string_zoomed(widget->pos_x + 2, widget->pos_y + 2, str, 1, widget->size);
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(widget->r, widget->g, widget->b);
 	/* Border */
 	glBegin(GL_LINE_LOOP);
 		glVertex3i (widget->pos_x, widget->pos_y, 0);
