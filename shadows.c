@@ -720,6 +720,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
 			draw_tile_map();
+#ifdef MAP_EDITOR2
+			display_mode();
+#endif
 			CHECK_GL_ERRORS();
 			display_2d_objects();
 			CHECK_GL_ERRORS();
@@ -771,6 +774,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 			if(any_reflection)draw_lake_tiles();
 
 			draw_tile_map();
+#ifdef MAP_EDITOR2
+			display_mode();
+#endif
 			CHECK_GL_ERRORS();
 			display_2d_objects();
 			CHECK_GL_ERRORS();
