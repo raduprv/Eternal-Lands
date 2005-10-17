@@ -33,6 +33,10 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_USE;
 		}
+		else if(action_mode==ACTION_USE_WITEM)
+		{
+			elwin_mouse = CURSOR_USE_WITEM;
+		}
 		//see if the object is a harvestable resource.
 		else if(objects_list[object_under_mouse]->flags&OBJ_3D_HARVESTABLE) 
 		{
@@ -41,10 +45,6 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		//see if the object is an entrable resource.
 		else if(objects_list[object_under_mouse]->flags&OBJ_3D_ENTRABLE) {
 			elwin_mouse = CURSOR_ENTER;
-		}
-		else if(action_mode==ACTION_USE_WITEM)
-		{
-			elwin_mouse = CURSOR_USE_WITEM;
 		}
 		//hmm, no usefull object, so select walk....
 		else  
