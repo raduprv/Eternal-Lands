@@ -5,9 +5,6 @@
 #else
 #include "global.h"
 #endif
-#ifdef	NEW_FRUSTUM
-#include "bbox_tree.h"
-#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -184,9 +181,9 @@ void sector_add_map()
 	{
 		if (objects_list[i])
 		{
-			len_x = objects_list[i]->e3d_data->max_x - objects_list[i]->e3d_data->min_x;
-			len_y = objects_list[i]->e3d_data->max_y - objects_list[i]->e3d_data->min_y;
-			len_z = objects_list[i]->e3d_data->max_z - objects_list[i]->e3d_data->min_z;
+			len_x = (objects_list[i]->e3d_data->max_x - objects_list[i]->e3d_data->min_x)*2;
+			len_y = (objects_list[i]->e3d_data->max_y - objects_list[i]->e3d_data->min_y)*2;
+			len_z = (objects_list[i]->e3d_data->max_z - objects_list[i]->e3d_data->min_z)*2;
 			bbox.bbmin[X] = -len_x*0.5f;
 			bbox.bbmax[X] = len_x*0.5f;
 			bbox.bbmin[Y] = -len_y*0.5f;
@@ -203,7 +200,8 @@ void sector_add_map()
 			bbox.bbmax[X] += objects_list[i]->x_pos;
 			bbox.bbmax[Y] += objects_list[i]->y_pos;
 			bbox.bbmax[Z] += objects_list[i]->z_pos;
-			add_3dobject_to_abt(items, i, &bbox);
+			add_3dobject_to_abt(items, i, &bbox, objects_list[i]->blended, 
+					objects_list[i]->e3d_data->is_ground);
 		}
 	}
 
@@ -211,8 +209,8 @@ void sector_add_map()
 	{
 		if (obj_2d_list[i])
 		{
-			len_x = obj_2d_list[i]->obj_pointer->x_size;
-			len_y = obj_2d_list[i]->obj_pointer->y_size;
+			len_x = (obj_2d_list[i]->obj_pointer->x_size)*2;
+			len_y = (obj_2d_list[i]->obj_pointer->y_size)*2;
 			bbox.bbmin[X] = -len_x*0.5f;
 			bbox.bbmax[X] = len_x*0.5f;
 			if (obj_2d_list[i]->obj_pointer->object_type == GROUND)
@@ -247,7 +245,8 @@ void sector_add_map()
 			bbox.bbmax[X] += obj_2d_list[i]->x_pos;
 			bbox.bbmax[Y] += obj_2d_list[i]->y_pos;
 			bbox.bbmax[Z] += obj_2d_list[i]->z_pos;
-			add_2dobject_to_abt(items, i, &bbox);
+			if (!obj_2d_list[i]->obj_pointer->alpha_test) add_2dobject_to_abt(items, i, &bbox, 0);
+			else add_2dobject_to_abt(items, i, &bbox, 1);
 		}
 	}
 	bbox_tree = build_bbox_tree(items);

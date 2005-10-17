@@ -439,6 +439,7 @@ void display_3d_reflection()
 	glPushMatrix();
 	glScalef(1.0f, 1.0f, -1.0f);
 
+#ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
         	if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
@@ -481,6 +482,15 @@ void display_3d_reflection()
 		}
 	}
 #endif
+#else
+	draw_tile_map();
+	display_2d_objects();
+	display_objects();
+#ifndef MAP_EDITOR2
+	display_actors(0);
+#endif
+	display_blended_objects();
+#endif
 	glPopMatrix();
 	reset_material();
 
@@ -519,7 +529,7 @@ void display_3d_reflection()
 
 	glNormal3f(0.0f, 0.0f, 1.0f);
 	draw_tile_map();
-//	display_2d_objects();
+	display_2d_objects();
 	display_objects();
 #ifndef MAP_EDITOR2
 	display_actors(0);

@@ -6,9 +6,6 @@
 #else
 #include "global.h"
 #endif
-#ifdef	NEW_FRUSTUM
-#include "bbox_tree.h"
-#endif
 
 #define INVALID -1
 #define GROUND 0
@@ -525,35 +522,34 @@ void display_2d_objects()
 	//First draw everyone with the same alpha test
     	
 	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER,0.18f);
+	glAlphaFunc(GL_GREATER, 0.18f);
 	
-	for (i = 0; i < bbox_tree->intersect_index; i++)
+	for (i = bbox_tree->type_start[TYPE_2D_NO_ALPHA_OBJECT]; i < bbox_tree->type_stop[TYPE_2D_NO_ALPHA_OBJECT]; i++)
 	{
-		if (bbox_tree->intersect_items[i].type != TYPE_2D_OBJECT) continue;
 		l = bbox_tree->intersect_items[i].ID;
-#ifdef	DEBUG
-		if (obj_2d_list[l] && obj_2d_list[l]->obj_pointer && !obj_2d_list[l]->obj_pointer->alpha_test) 
-#else
-		if (!obj_2d_list[l]->obj_pointer->alpha_test) 
+#ifdef EXTRA_DEBUG
+		if (!obj_2d_list[l] || !obj_2d_list[l]->obj_pointer)
+		{
+			ERR();
+			continue;
+		}
 #endif
-			draw_2d_object(obj_2d_list[l]);
+		draw_2d_object(obj_2d_list[l]);
 	}
 	
 	//Then draw all that needs a change
-	for (i = 0; i < bbox_tree->intersect_index; i++)
+	for (i = bbox_tree->type_start[TYPE_2D_ALPHA_OBJECT]; i < bbox_tree->type_stop[TYPE_2D_ALPHA_OBJECT]; i++)
 	{
-		if (bbox_tree->intersect_items[i].type != TYPE_2D_OBJECT) continue;
 		l = bbox_tree->intersect_items[i].ID;
-
-#ifdef	DEBUG
-		if (obj_2d_list[l] && obj_2d_list[l]->obj_pointer && obj_2d_list[l]->obj_pointer->alpha_test) 
-#else
-		if (obj_2d_list[l]->obj_pointer->alpha_test) 
-#endif
+#ifdef EXTRA_DEBUG
+		if (!obj_2d_list[l] || !obj_2d_list[l]->obj_pointer)
 		{
-    			glAlphaFunc(GL_GREATER, obj_2d_list[l]->obj_pointer->alpha_test);
-			draw_2d_object(obj_2d_list[l]);
+			ERR();
+			continue;
 		}
+#endif
+		glAlphaFunc(GL_GREATER, obj_2d_list[l]->obj_pointer->alpha_test);
+		draw_2d_object(obj_2d_list[l]);
 	}
 	
 	glDisable(GL_ALPHA_TEST);

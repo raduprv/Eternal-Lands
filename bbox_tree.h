@@ -4,6 +4,22 @@
 
 #include <math.h>
 
+#define TYPE_2D_NO_ALPHA_OBJECT				0x00
+#define TYPE_2D_ALPHA_OBJECT				0x01
+#define TYPE_3D_NO_BLEND_NO_GOUND_OBJECT		0x02
+#define TYPE_3D_NO_BLEND_GROUND_OBJECT			0x03
+#define TYPE_3D_BLEND_NO_GROUND_OBJECT			0x04
+#define TYPE_3D_BLEND_GROUND_OBJECT			0x05
+#define TYPE_PARTICLE					0x06
+#define	TYPE_LIGHT					0x07
+#define	TYPES_COUNT					0x08
+
+#define	OUTSIDE		0x0000
+#define	INSIDE		0x0001
+#define INTERSECT	0x0002
+
+#define BOUND_HUGE	10e30
+
 typedef float VECTOR3[3];
 typedef float VECTOR4[4];
 typedef unsigned short IDX_TYPE;
@@ -69,20 +85,11 @@ typedef	struct
 	BBOX_ITEM*		items;
 	IDX_TYPE		nodes_count;
 	BBOX_TREE_NODE*		nodes;	
-	IDX_TYPE		intersect_index;
+	IDX_TYPE		intersect_count;
+	IDX_TYPE		type_start[TYPES_COUNT];
+	IDX_TYPE		type_stop[TYPES_COUNT];
 	BBOX_ITEM_DATA*		intersect_items;
 } BBOX_TREE;
-
-#define	TYPE_LIGHT	0x01
-#define TYPE_3D_OBJECT	0x02
-#define TYPE_2D_OBJECT	0x03
-#define TYPE_PARTICLE	0x04
-
-#define	OUTSIDE		0x0000
-#define	INSIDE		0x0001
-#define INTERSECT	0x0002
-
-#define BOUND_HUGE	10e30
 
 enum
 {
@@ -233,13 +240,13 @@ void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum);
 void free_bbox_tree(BBOX_TREE* bbox_tree);
 BBOX_TREE* build_bbox_tree(BBOX_ITEMS *bbox_items);
 void add_light_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
-void add_3dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
-void add_2dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
+void add_3dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground);
+void add_2dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha);
 void add_particle_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
-void add_dynamic_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox);
+void add_dynamic_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground);
 void add_dynamic_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox);
 void add_dynamic_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox);
-void delete_dynamic_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
+void delete_dynamic_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground);
 void delete_dynamic_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
 void delete_dynamic_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
 BBOX_ITEMS* create_bbox_items(unsigned int size);

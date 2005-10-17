@@ -161,4 +161,7 @@ typedef int point;
 #ifdef	USE_FRAMEBUFFER
 	#include "framebuffer.h"
 #endif
+#ifdef	NEW_FRUSTUM
+	#include "bbox_tree.h"
+#endif
 #endif

@@ -9,9 +9,6 @@
  #include "global.h"
 #endif
 #include "string.h"
-#ifdef	NEW_FRUSTUM
-#include "bbox_tree.h"
-#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -1090,7 +1087,8 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 			bbox.bbmax[X] += objects_list[obj_3d_id]->x_pos;
 			bbox.bbmax[Y] += objects_list[obj_3d_id]->y_pos;
 			bbox.bbmax[Z] += objects_list[obj_3d_id]->z_pos;
-			add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox);
+			add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox, objects_list[obj_3d_id]->blended, 
+					objects_list[obj_3d_id]->e3d_data->is_ground);
 #else
 			sector_add_3do(add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
 #endif

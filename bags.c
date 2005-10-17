@@ -2,9 +2,6 @@
 #include <string.h>
 #include "global.h"
 #include "elwindows.h"
-#ifdef	NEW_FRUSTUM
-#include "bbox_tree.h"
-#endif
 
 typedef struct
 {
@@ -82,7 +79,8 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	bbox.bbmax[X] += objects_list[obj_3d_id]->x_pos;
 	bbox.bbmax[Y] += objects_list[obj_3d_id]->y_pos;
 	bbox.bbmax[Z] += objects_list[obj_3d_id]->z_pos;
-	add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox);
+	add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox, objects_list[obj_3d_id]->blended, 
+			objects_list[obj_3d_id]->e3d_data->is_ground);
 #else
 	sector_add_3do(obj_3d_id);
 #endif
@@ -151,7 +149,8 @@ void add_bags_from_list (const Uint8 *data)
 		bbox.bbmax[X] += objects_list[obj_3d_id]->x_pos;
 		bbox.bbmax[Y] += objects_list[obj_3d_id]->y_pos;
 		bbox.bbmax[Z] += objects_list[obj_3d_id]->z_pos;
-		add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox);
+		add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox, objects_list[obj_3d_id]->blended, 
+				objects_list[obj_3d_id]->e3d_data->is_ground);
 #else
 		sector_add_3do(obj_3d_id);
 #endif
@@ -167,6 +166,8 @@ void remove_bag(int which_bag)
 {
 #ifndef	NEW_FRUSTUM
 	int sector, i, j=MAX_3D_OBJECTS-1, k=-1;
+#else
+	int obj_3d_id;
 #endif
 	
 	if (which_bag >= NUM_BAGS) return;
@@ -179,7 +180,9 @@ void remove_bag(int which_bag)
 
 	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
 #ifdef	NEW_FRUSTUM
-	delete_dynamic_3dobject_from_abt(bbox_tree, bag_list[which_bag].obj_3d_id);
+	obj_3d_id = bag_list[which_bag].obj_3d_id;
+	delete_dynamic_3dobject_from_abt(bbox_tree, obj_3d_id, objects_list[obj_3d_id]->blended, 
+			objects_list[obj_3d_id]->e3d_data->is_ground);
 #else
 	sector=SECTOR_GET(objects_list[bag_list[which_bag].obj_3d_id]->x_pos, objects_list[bag_list[which_bag].obj_3d_id]->y_pos);
 	for(i=0;i<MAX_3D_OBJECTS;i++){

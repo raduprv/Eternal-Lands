@@ -6,6 +6,7 @@
 #ifndef __OBJ_3D_H__
 #define __OBJ_3D_H__
 
+#ifndef	NEW_FRUSTUM
 struct near_3d_object {
        int dist;
        float radius;
@@ -15,6 +16,7 @@ struct near_3d_object {
 
 extern struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
 extern struct near_3d_object * first_near_3d_object;
+#endif
 extern int regenerate_near_objects;
 
 /*!

@@ -6,19 +6,20 @@
 #else
 #include "global.h"
 #endif
-#ifdef	NEW_FRUSTUM
-#include "bbox_tree.h"
-#endif
 
 object3d *objects_list[MAX_OBJ_3D];
+#ifndef	NEW_FRUSTUM
 struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
 struct near_3d_object * first_near_3d_object=NULL;
 int no_near_3d_objects=0;
+#endif
 int highest_obj_3d= 0;
 
+#ifndef	NEW_FRUSTUM
 struct near_3d_object near_blended_3d_objects[MAX_NEAR_BLENDED_3D_OBJECTS];
 struct near_3d_object * first_near_blended_3d_object=NULL;
 int no_near_blended_3d_objects=0;
+#endif
 
 int regenerate_near_objects=1;
 
@@ -305,7 +306,8 @@ int add_e3d (const char *file_name, float x_pos, float y_pos, float z_pos, float
 	
 	return add_e3d_at_id (i, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b);
 }
-	
+
+#ifndef	NEW_FRUSTUM
 void add_near_3d_object(int dist, float radius, int pos, int blended )//Blended objects needs to be in their own list
 {
 	struct near_3d_object *cur, *nearest, *list, **first;
@@ -358,6 +360,7 @@ void add_near_3d_object(int dist, float radius, int pos, int blended )//Blended 
 		}
 	}
 }
+#endif
 
 int get_near_3d_objects()
 {
@@ -434,47 +437,7 @@ int get_near_3d_objects()
 	}
 		
 #else
-	float x, y;
-	int i, l;
-
-	no_near_3d_objects = 0;
-	no_near_blended_3d_objects = 0;
-	first_near_3d_object = NULL;
-	first_near_blended_3d_object = NULL;
-     
-	x = -cx;
-	y = -cy;
-	
 	check_bbox_tree(bbox_tree, &frustum);
-
-	for (i = 0; i < bbox_tree->intersect_index; i++)
-	{
-		if (bbox_tree->intersect_items[i].type != TYPE_3D_OBJECT) continue;
-		object3d *object_id;
-		l = bbox_tree->intersect_items[i].ID;
-		object_id = objects_list[l];
-
-		if (object_id != NULL && object_id->blended != 20)
-		{
-			float dist1, dist2;
-			float dist;
-			float x_len, y_len, z_len;
-			float radius;
-			
-			dist1 = x - object_id->x_pos;
-			dist2 = y - object_id->y_pos;
-			dist = dist1*dist1 + dist2*dist2;
-
-			z_len= object_id->e3d_data->max_z-object_id->e3d_data->min_z;
-			x_len= object_id->e3d_data->max_x-object_id->e3d_data->min_x;
-			y_len= object_id->e3d_data->max_y-object_id->e3d_data->min_y;
-			//do some checks, to see if we really have to display this object
-			radius = x_len / 2;
-			if (radius < y_len/2) radius = y_len / 2;
-			if (radius < z_len) radius = z_len;
-			add_near_3d_object (dist, radius, l, object_id->blended);
-		}
-	}
 #endif
 	regenerate_near_objects = 0;
 	return 1;
@@ -482,10 +445,14 @@ int get_near_3d_objects()
 
 void display_objects()
 {
+#ifndef	NEW_FRUSTUM
 	struct near_3d_object * nobj;
 	
 	if(regenerate_near_objects||!first_near_3d_object)
 		if(!get_near_3d_objects())return;
+#else
+	int i, l;
+#endif
 	
 	CHECK_GL_ERRORS();
 	glEnable(GL_CULL_FACE);
@@ -504,23 +471,53 @@ void display_objects()
 
 	CHECK_GL_ERRORS();
 
+#ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
 		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
 			draw_3d_object(objects_list[nobj->pos]);
 	}
+#else
+	for (i = bbox_tree->type_start[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i++)
+	{
+		l = bbox_tree->intersect_items[i].ID;
+#ifdef EXTRA_DEBUG
+		if (!objects_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		draw_3d_object(objects_list[l]);
+	}
+#endif
 	
 	glDisableClientState(GL_NORMAL_ARRAY);
 
 	glNormal3f(0,0,1);
 	
+#ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
 		else if(objects_list[nobj->pos]->e3d_data->is_ground)
 			draw_3d_object(objects_list[nobj->pos]);
 	}
+#else
+	for (i = bbox_tree->type_start[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i++)
+	{
+		l = bbox_tree->intersect_items[i].ID;
+#ifdef EXTRA_DEBUG
+		if (!objects_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		draw_3d_object(objects_list[l]);
+	}
+#endif
 	
 	CHECK_GL_ERRORS();
 	glDisable(GL_CULL_FACE);
@@ -538,11 +535,15 @@ void display_objects()
 
 void display_blended_objects()
 {
+#ifndef	NEW_FRUSTUM
 	struct near_3d_object * nobj;
 	
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 	
 	if(!no_near_blended_3d_objects)return;
+#else
+	int i, l;
+#endif
 	
 	CHECK_GL_ERRORS();
 	glEnable(GL_CULL_FACE);
@@ -563,23 +564,53 @@ void display_blended_objects()
 
 	CHECK_GL_ERRORS();
 
+#ifndef	NEW_FRUSTUM
 	for(nobj=first_near_blended_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
 		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
 			draw_3d_object(objects_list[nobj->pos]);
 	}
+#else
+	for (i = bbox_tree->type_start[TYPE_3D_BLEND_NO_GROUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_BLEND_NO_GROUND_OBJECT]; i++)
+	{
+		l = bbox_tree->intersect_items[i].ID;
+#ifdef EXTRA_DEBUG
+		if (!objects_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		draw_3d_object(objects_list[l]);
+	}
+#endif
 	
 	glDisableClientState(GL_NORMAL_ARRAY);
 
 	glNormal3f(0,0,1);
 	
+#ifndef	NEW_FRUSTUM
 	for(nobj=first_near_blended_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
 		else if(objects_list[nobj->pos]->e3d_data->is_ground)
 			draw_3d_object(objects_list[nobj->pos]);
 	}
+#else
+	for (i = bbox_tree->type_start[TYPE_3D_BLEND_GROUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_BLEND_GROUND_OBJECT]; i++)
+	{
+		l = bbox_tree->intersect_items[i].ID;
+#ifdef EXTRA_DEBUG
+		if (!objects_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		draw_3d_object(objects_list[l]);
+	}
+#endif
 	
 	CHECK_GL_ERRORS();
 	glDisable(GL_CULL_FACE);

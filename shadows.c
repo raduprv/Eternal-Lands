@@ -352,14 +352,19 @@ void display_actors_shadow()
 
 void display_shadows()
 {
+#ifndef	NEW_FRUSTUM
 	struct near_3d_object * nobj;
 
 	if(regenerate_near_objects)
 		if(!get_near_3d_objects())return;
-
+#else
+	int i, l;
+#endif
+	
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
+#ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
@@ -375,6 +380,36 @@ void display_shadows()
 				draw_3d_object_shadow(objects_list[nobj->pos]);
 		}
 	}
+#else
+	for (i = bbox_tree->type_start[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i++)
+	{
+		l = bbox_tree->intersect_items[i].ID;
+#ifdef EXTRA_DEBUG
+		if (!objects_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		if (objects_list[l]->z_pos>-0.20f) draw_3d_object_shadow(objects_list[l]);
+	}
+
+	if(use_shadow_mapping)
+	{
+		for (i = bbox_tree->type_start[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i++)
+		{
+			l = bbox_tree->intersect_items[i].ID;
+#ifdef EXTRA_DEBUG
+			if (!objects_list[l])
+			{
+				ERR();
+				continue;
+			}
+#endif
+			draw_3d_object_shadow(objects_list[l]);
+		}
+	}
+#endif
 
 	glDisableClientState(GL_VERTEX_ARRAY);
     	glDisable(GL_CULL_FACE);
@@ -387,9 +422,13 @@ void display_shadows()
 
 void display_3d_ground_objects()
 {
+#ifndef	NEW_FRUSTUM
 	struct near_3d_object *nobj;
 
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+#else
+	int i, l;
+#endif
 
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -408,12 +447,27 @@ void display_3d_ground_objects()
 
    	glNormal3f(0,0,1);
 
+#ifndef	NEW_FRUSTUM
     	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
 		else if(objects_list[nobj->pos]->e3d_data->is_ground && nobj->dist<=700)
     	        	draw_3d_object(objects_list[nobj->pos]);
     	}
+#else
+	for (i = bbox_tree->type_start[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i++)
+	{
+		l = bbox_tree->intersect_items[i].ID;
+#ifdef EXTRA_DEBUG
+		if (!objects_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		draw_3d_object(objects_list[l]);
+	}
+#endif
 
 	if(have_multitexture && clouds_shadows)
 		{
@@ -429,9 +483,13 @@ void display_3d_ground_objects()
 
 void display_3d_non_ground_objects()
 {
+#ifndef	NEW_FRUSTUM
 	struct near_3d_object * nobj;
 
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+#else
+	int i, l;
+#endif
 
 	//we don't want to be affected by 2d objects and shadows
 	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
@@ -452,12 +510,27 @@ void display_3d_non_ground_objects()
 
 		}
 
+#ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
 			regenerate_near_objects=1;
 		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
 			draw_3d_object(objects_list[nobj->pos]);
 	}
+#else
+	for (i = bbox_tree->type_start[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i++)
+	{
+		l = bbox_tree->intersect_items[i].ID;
+#ifdef EXTRA_DEBUG
+		if (!objects_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		draw_3d_object(objects_list[l]);
+	}
+#endif
 
 	if(have_multitexture && clouds_shadows)
 		{
