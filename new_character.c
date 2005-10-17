@@ -17,7 +17,7 @@ my_enum    normal_shirt_enum[] = { SHIRT_BLACK, SHIRT_BLUE, SHIRT_BROWN, SHIRT_G
 my_enum     normal_pants_enum[] = { PANTS_BLACK, PANTS_BLUE, PANTS_BROWN, PANTS_DARKBROWN, PANTS_GREY, PANTS_GREEN, PANTS_LIGHTBROWN, PANTS_RED, PANTS_WHITE, PANTS_BLACK };
 my_enum     normal_boots_enum[] = { BOOTS_BLACK, BOOTS_BROWN, BOOTS_DARKBROWN, BOOTS_DULLBROWN, BOOTS_LIGHTBROWN, BOOTS_ORANGE, BOOTS_BLACK };
 my_enum     normal_head_enum[] = { HEAD_1, HEAD_2, HEAD_3, HEAD_4, HEAD_1 };
-my_enum     humanf_head_enum[] = { HEAD_1, HEAD_2, HEAD_3, HEAD_4, HEAD_5, HEAD_1 };
+my_enum     human_head_enum[] = { HEAD_1, HEAD_2, HEAD_3, HEAD_4, HEAD_5, HEAD_1 };
 
 struct race_def {
 	int type;
@@ -29,8 +29,8 @@ struct race_def {
 	my_enum *head;
 	float x, y, z_rot;
 } races[12] = {
-	{human_female, 		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, humanf_head_enum, 43.0f,	156.0f,	140.0f},
-	{human_male, 		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 43.0f,	156.0f,	140.0f},
+	{human_female, 		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, human_head_enum, 43.0f,	156.0f,	140.0f},
+	{human_male, 		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, human_head_enum, 43.0f,	156.0f,	140.0f},
 	{elf_female, 		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
 	{elf_male,		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
 	{dwarf_female,		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
