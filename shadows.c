@@ -359,6 +359,8 @@ void display_shadows()
 		if(!get_near_3d_objects())return;
 #else
 	int i, l;
+
+	if (regenerate_near_objects) get_near_3d_objects();
 #endif
 	
 	glEnable(GL_CULL_FACE);
@@ -428,6 +430,8 @@ void display_3d_ground_objects()
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 #else
 	int i, l;
+
+	if (regenerate_near_objects) get_near_3d_objects();
 #endif
 
 	glEnable(GL_CULL_FACE);
@@ -489,6 +493,8 @@ void display_3d_non_ground_objects()
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 #else
 	int i, l;
+
+	if (regenerate_near_objects) get_near_3d_objects();
 #endif
 
 	//we don't want to be affected by 2d objects and shadows

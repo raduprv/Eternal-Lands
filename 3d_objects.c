@@ -452,6 +452,8 @@ void display_objects()
 		if(!get_near_3d_objects())return;
 #else
 	int i, l;
+	
+	if (regenerate_near_objects) get_near_3d_objects();
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -543,6 +545,8 @@ void display_blended_objects()
 	if(!no_near_blended_3d_objects)return;
 #else
 	int i, l;
+
+	if (regenerate_near_objects) get_near_3d_objects();
 #endif
 	
 	CHECK_GL_ERRORS();

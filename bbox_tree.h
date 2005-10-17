@@ -41,6 +41,7 @@ typedef PLANE FRUSTUM[6];
 typedef struct
 {
 	unsigned char		type;
+	unsigned char		sort_data;
 	unsigned short		ID;
 } BBOX_ITEM_DATA;
 
@@ -242,9 +243,9 @@ BBOX_TREE* build_bbox_tree(BBOX_ITEMS *bbox_items);
 void add_light_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
 void add_3dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground);
 void add_2dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha);
-void add_particle_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
+void add_particle_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend);
 void add_dynamic_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground);
-void add_dynamic_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox);
+void add_dynamic_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend);
 void add_dynamic_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox);
 void delete_dynamic_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground);
 void delete_dynamic_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);

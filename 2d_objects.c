@@ -515,9 +515,7 @@ void display_2d_objects()
 #else
 	int i, l;
 
-	if(regenerate_near_2d_objects)
-		if(!get_nearby_2d_objects())
-			return;
+	if (regenerate_near_2d_objects) get_nearby_2d_objects();
 
 	//First draw everyone with the same alpha test
     	
@@ -528,7 +526,7 @@ void display_2d_objects()
 	{
 		l = bbox_tree->intersect_items[i].ID;
 #ifdef EXTRA_DEBUG
-		if (!obj_2d_list[l] || !obj_2d_list[l]->obj_pointer)
+		if (!obj_2d_list[l])
 		{
 			ERR();
 			continue;
@@ -542,7 +540,7 @@ void display_2d_objects()
 	{
 		l = bbox_tree->intersect_items[i].ID;
 #ifdef EXTRA_DEBUG
-		if (!obj_2d_list[l] || !obj_2d_list[l]->obj_pointer)
+		if (!obj_2d_list[l])
 		{
 			ERR();
 			continue;
