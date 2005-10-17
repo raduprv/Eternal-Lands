@@ -483,13 +483,13 @@ void display_3d_reflection()
 	}
 #endif
 #else
-	draw_tile_map();
-	display_2d_objects();
+//	draw_tile_map();
+//	display_2d_objects();
 	display_objects();
 #ifndef MAP_EDITOR2
 	display_actors(0);
 #endif
-	display_blended_objects();
+//	display_blended_objects();
 #endif
 	glPopMatrix();
 	reset_material();
