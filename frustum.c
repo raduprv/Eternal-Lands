@@ -190,56 +190,27 @@ void CalculateFrustum()
 	frustum[RIGHT].mask[0] = m_Frustum[RIGHT][A] < 0.0f ? 0 : 1;
 	frustum[RIGHT].mask[1] = m_Frustum[RIGHT][B] < 0.0f ? 0 : 1;
 	frustum[RIGHT].mask[2] = m_Frustum[RIGHT][C] < 0.0f ? 0 : 1;
-	frustum[RIGHT].mask[3] = 0;
-	frustum[RIGHT].mask[4] = m_Frustum[RIGHT][A] < 0.0f ? 1 : 0;
-	frustum[RIGHT].mask[5] = m_Frustum[RIGHT][B] < 0.0f ? 1 : 0;
-	frustum[RIGHT].mask[6] = m_Frustum[RIGHT][C] < 0.0f ? 1 : 0;
-	frustum[RIGHT].mask[7] = 0;
 	memcpy(frustum[LEFT].plane, m_Frustum[LEFT], sizeof(VECTOR4));
 	frustum[LEFT].mask[0] = m_Frustum[LEFT][A] < 0.0f ? 0 : 1;
 	frustum[LEFT].mask[1] = m_Frustum[LEFT][B] < 0.0f ? 0 : 1;
 	frustum[LEFT].mask[2] = m_Frustum[LEFT][C] < 0.0f ? 0 : 1;
-	frustum[LEFT].mask[3] = 0;
-	frustum[LEFT].mask[4] = m_Frustum[LEFT][A] < 0.0f ? 1 : 0;
-	frustum[LEFT].mask[5] = m_Frustum[LEFT][B] < 0.0f ? 1 : 0;
-	frustum[LEFT].mask[6] = m_Frustum[LEFT][C] < 0.0f ? 1 : 0;
-	frustum[LEFT].mask[7] = 0;
 	memcpy(frustum[BOTTOM].plane, m_Frustum[BOTTOM], sizeof(VECTOR4));
 	frustum[BOTTOM].mask[0] = m_Frustum[BOTTOM][A] < 0.0f ? 0 : 1;
 	frustum[BOTTOM].mask[1] = m_Frustum[BOTTOM][B] < 0.0f ? 0 : 1;
 	frustum[BOTTOM].mask[2] = m_Frustum[BOTTOM][C] < 0.0f ? 0 : 1;
-	frustum[BOTTOM].mask[3] = 0;
-	frustum[BOTTOM].mask[4] = m_Frustum[BOTTOM][A] < 0.0f ? 1 : 0;
-	frustum[BOTTOM].mask[5] = m_Frustum[BOTTOM][B] < 0.0f ? 1 : 0;
-	frustum[BOTTOM].mask[6] = m_Frustum[BOTTOM][C] < 0.0f ? 1 : 0;
-	frustum[BOTTOM].mask[7] = 0;
 	memcpy(frustum[TOP].plane, m_Frustum[TOP], sizeof(VECTOR4));
 	frustum[TOP].mask[0] = m_Frustum[TOP][A] < 0.0f ? 0 : 1;
 	frustum[TOP].mask[1] = m_Frustum[TOP][B] < 0.0f ? 0 : 1;
 	frustum[TOP].mask[2] = m_Frustum[TOP][C] < 0.0f ? 0 : 1;
-	frustum[TOP].mask[3] = 0;
-	frustum[TOP].mask[4] = m_Frustum[TOP][A] < 0.0f ? 1 : 0;
-	frustum[TOP].mask[5] = m_Frustum[TOP][B] < 0.0f ? 1 : 0;
-	frustum[TOP].mask[6] = m_Frustum[TOP][C] < 0.0f ? 1 : 0;
-	frustum[TOP].mask[7] = 0;
 	memcpy(frustum[BACK].plane, m_Frustum[BACK], sizeof(VECTOR4));
 	frustum[BACK].mask[0] = m_Frustum[BACK][A] < 0.0f ? 0 : 1;
 	frustum[BACK].mask[1] = m_Frustum[BACK][B] < 0.0f ? 0 : 1;
 	frustum[BACK].mask[2] = m_Frustum[BACK][C] < 0.0f ? 0 : 1;
-	frustum[BACK].mask[3] = 0;
-	frustum[BACK].mask[4] = m_Frustum[BACK][A] < 0.0f ? 1 : 0;
-	frustum[BACK].mask[5] = m_Frustum[BACK][B] < 0.0f ? 1 : 0;
-	frustum[BACK].mask[6] = m_Frustum[BACK][C] < 0.0f ? 1 : 0;
-	frustum[BACK].mask[7] = 0;
 	memcpy(frustum[FRONT].plane, m_Frustum[FRONT], sizeof(VECTOR4));
 	frustum[FRONT].mask[0] = m_Frustum[FRONT][A] < 0.0f ? 0 : 1;
 	frustum[FRONT].mask[1] = m_Frustum[FRONT][B] < 0.0f ? 0 : 1;
 	frustum[FRONT].mask[2] = m_Frustum[FRONT][C] < 0.0f ? 0 : 1;
-	frustum[FRONT].mask[3] = 0;
-	frustum[FRONT].mask[4] = m_Frustum[FRONT][A] < 0.0f ? 1 : 0;
-	frustum[FRONT].mask[5] = m_Frustum[FRONT][B] < 0.0f ? 1 : 0;
-	frustum[FRONT].mask[6] = m_Frustum[FRONT][C] < 0.0f ? 1 : 0;
-	frustum[FRONT].mask[7] = 0;
+
 #endif
 }
 

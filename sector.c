@@ -181,9 +181,9 @@ void sector_add_map()
 	{
 		if (objects_list[i])
 		{
-			len_x = (objects_list[i]->e3d_data->max_x - objects_list[i]->e3d_data->min_x)*2;
-			len_y = (objects_list[i]->e3d_data->max_y - objects_list[i]->e3d_data->min_y)*2;
-			len_z = (objects_list[i]->e3d_data->max_z - objects_list[i]->e3d_data->min_z)*2;
+			len_x = (objects_list[i]->e3d_data->max_x - objects_list[i]->e3d_data->min_x);
+			len_y = (objects_list[i]->e3d_data->max_y - objects_list[i]->e3d_data->min_y);
+			len_z = (objects_list[i]->e3d_data->max_z - objects_list[i]->e3d_data->min_z);
 			bbox.bbmin[X] = -len_x*0.5f;
 			bbox.bbmax[X] = len_x*0.5f;
 			bbox.bbmin[Y] = -len_y*0.5f;
@@ -209,8 +209,8 @@ void sector_add_map()
 	{
 		if (obj_2d_list[i])
 		{
-			len_x = (obj_2d_list[i]->obj_pointer->x_size)*2;
-			len_y = (obj_2d_list[i]->obj_pointer->y_size)*2;
+			len_x = (obj_2d_list[i]->obj_pointer->x_size);
+			len_y = (obj_2d_list[i]->obj_pointer->y_size);
 			bbox.bbmin[X] = -len_x*0.5f;
 			bbox.bbmax[X] = len_x*0.5f;
 			if (obj_2d_list[i]->obj_pointer->object_type == GROUND)

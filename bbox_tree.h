@@ -10,9 +10,12 @@
 #define TYPE_3D_NO_BLEND_GROUND_OBJECT			0x03
 #define TYPE_3D_BLEND_NO_GROUND_OBJECT			0x04
 #define TYPE_3D_BLEND_GROUND_OBJECT			0x05
-#define TYPE_PARTICLE					0x06
-#define	TYPE_LIGHT					0x07
-#define	TYPES_COUNT					0x08
+#define	TYPE_REFLECTION_FRUSTUM				0x06
+#define TYPE_PARTICLE					0x07
+#define	TYPE_LIGHT					0x08
+#define	TYPE_WATER					0x09
+#define	TYPE_TERRAIN					0x0A
+#define	TYPES_COUNT					0x0B
 
 #define	OUTSIDE		0x0000
 #define	INSIDE		0x0001
@@ -33,10 +36,18 @@ typedef struct
 typedef	struct
 {
 	VECTOR4 		plane;
-	unsigned int 		mask[8];
+	unsigned char 		mask[3];
 } PLANE;
 
 typedef PLANE FRUSTUM[6];
+
+typedef	PLANE PORTAL_FRUSTUM[8];
+
+typedef struct
+{
+	unsigned short		count;
+	PORTAL_FRUSTUM*		portal_frustums;
+} PORTAL_FRUSTUMS;
 
 typedef struct
 {
@@ -108,13 +119,13 @@ enum
 	W = 3
 };
 
-static __inline__ float min(const float f1, const float f2)
+static __inline__ float min(float f1, float f2)
 {
 	if (f1 < f2) return f1;
 	else return f2;
 }
 
-static __inline__ float max(const float f1, const float f2)
+static __inline__ float max(float f1, float f2)
 {
 	if (f1 > f2) return f1;
 	else return f2;
@@ -141,7 +152,7 @@ static __inline__ void VSub(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
 	v1[Z] = v2[Z] - v3[Z];
 }
 
-static __inline__ void Make_Vector3(VECTOR3 v1, const float f)
+static __inline__ void Make_Vector3(VECTOR3 v1, float f)
 {
 	v1[X] = f;
 	v1[Y] = f;
@@ -175,7 +186,7 @@ static __inline__ void calc_light_aabb(AABBOX *bbox, float pos_x, float pos_y, f
 	bbox->bbmax[Z] = pos_z + r;
 }
 
-static __inline__ void rotate_aabb(AABBOX* bbox, const float r_x, const float r_y, const float r_z)
+static __inline__ void rotate_aabb(AABBOX* bbox, float r_x, float r_y, float r_z)
 {
 	float matrix_1[16], matrix_2[16];
 	matrix_1[0] = bbox->bbmax[X];

@@ -56,11 +56,11 @@ static __inline__ int check_aabb_in_frustum(AABBOX *bbox, FRUSTUM *frustum, unsi
 			float nx, px, ny, py, nz, pz;
 
 			nx = !frustum[0][i].mask[0] ? bbox->bbmin[X] :  bbox->bbmax[X];
+			px = frustum[0][i].mask[0] ? bbox->bbmin[X] :  bbox->bbmax[X];
 			ny = !frustum[0][i].mask[1] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
+			py = frustum[0][i].mask[1] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
 			nz = !frustum[0][i].mask[2] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
-			px = !frustum[0][i].mask[4] ? bbox->bbmin[X] :  bbox->bbmax[X];
-			py = !frustum[0][i].mask[5] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
-			pz = !frustum[0][i].mask[6] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
+			pz = frustum[0][i].mask[2] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
 			m = (	frustum[0][i].plane[A] * nx + 
 				frustum[0][i].plane[B] * ny + 
 				frustum[0][i].plane[C] * nz);
