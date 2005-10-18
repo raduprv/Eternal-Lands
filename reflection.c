@@ -437,7 +437,13 @@ void display_3d_reflection()
 
 	set_material(0.1f,0.2f,0.3f);
 	glPushMatrix();
+#ifdef	NEW_FRUSTUM	
+	glTranslatef(0.0f, 0.0f, water_deepth_offset);
+#endif
 	glScalef(1.0f, 1.0f, -1.0f);
+#ifdef	NEW_FRUSTUM	
+	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
+#endif
 
 #ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
