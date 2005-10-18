@@ -319,7 +319,7 @@ void http_get_file(char *server, char *path, FILE *fp)
 float xmlGetFloat(xmlNode * n, xmlChar * c)
 {
 	char * t=xmlGetProp(n,c);
-	float f=t?atof(t):0;
+	float f=t?atof(t):0.0f;
 	xmlFree(t);
 	return f;
 }
