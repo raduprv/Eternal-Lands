@@ -3,6 +3,7 @@
 #include <libxml/tree.h>
 #include <string.h>
 #include "global.h"
+#include "init.h"
 
 #ifdef BSD
 #include <stdlib.h>
@@ -421,18 +422,21 @@ book * read_book(char * file, int type, int id)
 	xmlNode * root=NULL;
 	xmlChar *title=NULL;
 	book *b=NULL;
+	char path[1024];
 
-	if ((doc = xmlReadFile(file, NULL, 0)) == NULL) {
+	snprintf(path, sizeof(path), "%s/languages/%s/%s", datadir, lang, file);
+
+	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
 		char str[200];
-		snprintf(str, sizeof(str), "Couldn't open the book: %s", file);
+		snprintf(str, sizeof(str), "Couldn't open the book: %s", path);
 		log_error(str);
 		LOG_TO_CONSOLE(c_red1,str);
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
-		log_error("Error while parsing: %s", file);
+		log_error("Error while parsing: %s", path);
 	} else if(xmlStrcasecmp(root->name,"book")){
-		log_error("Root element in %s is not <book>", file);
+		log_error("Root element in %s is not <book>", path);
 	} else if((title=xmlGetProp(root,"title"))==NULL){
-		log_error("Root element in %s does not contain a title=\"<short title>\" property.", file);
+		log_error("Root element in %s does not contain a title=\"<short title>\" property.", path);
 	} else {
 		b=parse_book(root->children, title, type, id);
 	}
@@ -448,12 +452,12 @@ book * read_book(char * file, int type, int id)
 
 void init_books()
 {
-	read_book("./books/races/human.xml", 2, book_human);
-	read_book("./books/races/dwarf.xml", 2, book_dwarf);
-	read_book("./books/races/elf.xml", 2, book_elf);
-	read_book("./books/races/gnome.xml", 2, book_gnome);
-	read_book("./books/races/orchan.xml", 2, book_orchan);
-	read_book("./books/races/draegoni.xml", 2, book_draegoni);
+	read_book("books/races/human.xml", 2, book_human);
+	read_book("books/races/dwarf.xml", 2, book_dwarf);
+	read_book("books/races/elf.xml", 2, book_elf);
+	read_book("books/races/gnome.xml", 2, book_gnome);
+	read_book("books/races/orchan.xml", 2, book_orchan);
+	read_book("books/races/draegoni.xml", 2, book_draegoni);
 }
 
 /*Network parser*/

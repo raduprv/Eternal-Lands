@@ -1397,9 +1397,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (keysym == SDLK_F7)
 	{
 		if (ctrl_on) 
-			read_local_book ("./books/abc.xml\0", 22);
+			read_local_book ("books/abc.xml\0", 22);
 		else if (shift_on)
-			read_local_book ("./books/sediculos.xml\0", 22);
+			read_local_book ("books/sediculos.xml\0", 22);
 	}
 	else if (keysym == SDLK_F9)
 	{
