@@ -14,6 +14,7 @@ OPTIONS=-DLINUX -DELC -DBSD -DPNG_SCREENSHOT
 #-DMEMORY_DEBUG # gather information about memory allocation and freeing
 #-DPNG_SCREENSHOT # make screenshots in W3C's PNG format in game
 #-DUSE_FRAMEBUFFER	# use framebuffer for reflection
+#-DNEW_TEX # use new texture coordinates for enhanced actors
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

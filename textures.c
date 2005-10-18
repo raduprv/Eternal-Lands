@@ -850,13 +850,22 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	texture_mem=(Uint8*)calloc(1,256*256*4);
 	if(this_actor->pants_tex[0])load_bmp8_to_coordinates(this_actor->pants_tex,texture_mem,78,175,a);
 	if(this_actor->boots_tex[0])load_bmp8_to_coordinates(this_actor->boots_tex,texture_mem,0,175,a);
+#ifdef NEW_TEX
+	if(this_actor->torso_tex[0])load_bmp8_to_coordinates(this_actor->torso_tex,texture_mem,158,149,a);
+#else
 	if(this_actor->torso_tex[0])load_bmp8_to_coordinates(this_actor->torso_tex,texture_mem,158,156,a);
+#endif
 	if(this_actor->arms_tex[0])load_bmp8_to_coordinates(this_actor->arms_tex,texture_mem,0,96,a);
 	if(this_actor->hands_tex[0])load_bmp8_to_coordinates(this_actor->hands_tex,texture_mem,67,64,a);
 	if(this_actor->head_tex[0])load_bmp8_to_coordinates(this_actor->head_tex,texture_mem,67,0,a);
 	if(this_actor->hair_tex[0])load_bmp8_to_coordinates(this_actor->hair_tex,texture_mem,0,0,a);
+#ifdef NEW_TEX
+	if(this_actor->weapon_tex[0])load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,178,77,a);
+	if(this_actor->shield_tex[0])load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,100,77,a);
+#else
 	if(this_actor->weapon_tex[0])load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,158,77,a);
 	if(this_actor->shield_tex[0])load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,80,96,a);
+#endif
 	if(this_actor->helmet_tex[0])load_bmp8_to_coordinates(this_actor->helmet_tex,texture_mem,80,149,a);
 	if(this_actor->cape_tex[0])load_bmp8_to_coordinates(this_actor->cape_tex,texture_mem,131,0,a);
 
