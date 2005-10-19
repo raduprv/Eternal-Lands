@@ -145,4 +145,15 @@ void set_2d_object (Uint8 display, const void *ptr, int len);
  */
 void state_2d_object (Uint8 state, const void *ptr, int len);
 
+/*!
+ * \ingroup	load_2d
+ * \brief	Check the 2D object cache for file_name - if not found, load it into the cache
+ * 
+ * 	Check the 2D object cache for file_name - if not found, load it into the cache
+ *
+ * \param	file_name The file name of the 2D object
+ * \retval	A pointer to the loaded 2D object
+ */
+obj_2d_def * load_obj_2d_def_cache(char * file_name);
+
 #endif

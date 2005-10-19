@@ -32,10 +32,6 @@ typedef struct {
 }progressbar;
 
 typedef struct {
-	int pos, pos_inc, bar_len;
-}vscrollbar;
-
-typedef struct {
 	char * password;
 	int status;
 	int max_chars;

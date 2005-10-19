@@ -34,6 +34,10 @@ typedef struct {
 	tab *tabs;
 } tab_collection;
 
+typedef struct {
+	int pos, pos_inc, bar_len;
+}vscrollbar;
+
 /*!
  * The widget list structure - each window has a widget list.
  */

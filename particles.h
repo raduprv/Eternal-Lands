@@ -144,6 +144,17 @@ extern int particles_percentage;
 //INITIALIZATION AND CLEANUP FUNCTIONS
 
 /*!
+ * \ingroup loadsave
+ * \brief	Checks the particle def list for filename, if not found it will be loaded
+ * 
+ * 	Checks the particle def list for filename, if not found it will be loaded
+ *
+ * \param	filename The file name
+ * \retval 	A pointer to the loaded particle def
+ */
+particle_sys_def *load_particle_def(const char *filename);
+
+/*!
  * \ingroup other
  * \brief Destroys all particles of all particles systems and frees up memory used.
  *
