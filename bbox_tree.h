@@ -3,6 +3,8 @@
 #define BBOX_TREE_H
 
 #include <math.h>
+#include "global.h"
+#include "misc.h"
 
 #define TYPE_2D_NO_ALPHA_OBJECT				0x00
 #define TYPE_2D_ALPHA_OBJECT				0x01
@@ -119,30 +121,18 @@ enum
 	W = 3
 };
 
-static __inline__ float min(float f1, float f2)
-{
-	if (f1 < f2) return f1;
-	else return f2;
-}
-
-static __inline__ float max(float f1, float f2)
-{
-	if (f1 > f2) return f1;
-	else return f2;
-}
-
 static __inline__ void VMin(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
 {
-	v1[X] = min(v2[X], v3[X]);
-	v1[Y] = min(v2[Y], v3[Y]);
-	v1[Z] = min(v2[Z], v3[Z]);
+	v1[X] = min2f(v2[X], v3[X]);
+	v1[Y] = min2f(v2[Y], v3[Y]);
+	v1[Z] = min2f(v2[Z], v3[Z]);
 }
 
 static __inline__ void VMax(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
 {
-	v1[X] = max(v2[X], v3[X]);
-	v1[Y] = max(v2[Y], v3[Y]);
-	v1[Z] = max(v2[Z], v3[Z]);
+	v1[X] = max2f(v2[X], v3[X]);
+	v1[Y] = max2f(v2[Y], v3[Y]);
+	v1[Z] = max2f(v2[Z], v3[Z]);
 }
 
 static __inline__ void VSub(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
@@ -164,7 +154,7 @@ static __inline__ void calc_light_aabb(AABBOX *bbox, float pos_x, float pos_y, f
 {
 	float h, r;
 
-	h = max(abs(diff_r), max(abs(diff_g), abs(diff_b)));
+	h = max2f(abs(diff_r), max2f(abs(diff_g), abs(diff_b)));
 
 	r = (h/clamp-1)/att;
 
@@ -233,19 +223,19 @@ static __inline__ void rotate_aabb(AABBOX* bbox, float r_x, float r_y, float r_z
 	glMultMatrixf(matrix_2);
 	glGetFloatv(GL_MODELVIEW_MATRIX, matrix_2);
 	glPopMatrix();
-	bbox->bbmin[X] = min(min(matrix_1[0], matrix_1[4]), min(matrix_1[8], matrix_1[12]));
-	bbox->bbmin[X] = min(bbox->bbmin[X], min(min(matrix_2[0], matrix_2[4]), min(matrix_2[8], matrix_2[12])));
-	bbox->bbmin[Y] = min(min(matrix_1[1], matrix_1[5]), min(matrix_1[9], matrix_1[13]));
-	bbox->bbmin[Y] = min(bbox->bbmin[Y], min(min(matrix_2[1], matrix_2[5]), min(matrix_2[9], matrix_2[13])));
-	bbox->bbmin[Z] = min(min(matrix_1[2], matrix_1[6]), min(matrix_1[10], matrix_1[14]));
-	bbox->bbmin[Z] = min(bbox->bbmin[Z], min(min(matrix_2[2], matrix_2[6]), min(matrix_2[10], matrix_2[14])));
+	bbox->bbmin[X] = min2f(min2f(matrix_1[0], matrix_1[4]), min2f(matrix_1[8], matrix_1[12]));
+	bbox->bbmin[X] = min2f(bbox->bbmin[X], min2f(min2f(matrix_2[0], matrix_2[4]), min2f(matrix_2[8], matrix_2[12])));
+	bbox->bbmin[Y] = min2f(min2f(matrix_1[1], matrix_1[5]), min2f(matrix_1[9], matrix_1[13]));
+	bbox->bbmin[Y] = min2f(bbox->bbmin[Y], min2f(min2f(matrix_2[1], matrix_2[5]), min2f(matrix_2[9], matrix_2[13])));
+	bbox->bbmin[Z] = min2f(min2f(matrix_1[2], matrix_1[6]), min2f(matrix_1[10], matrix_1[14]));
+	bbox->bbmin[Z] = min2f(bbox->bbmin[Z], min2f(min2f(matrix_2[2], matrix_2[6]), min2f(matrix_2[10], matrix_2[14])));
 
-	bbox->bbmax[X] = max(max(matrix_1[0], matrix_1[4]), max(matrix_1[8], matrix_1[12]));
-	bbox->bbmax[X] = max(bbox->bbmax[X], max(max(matrix_2[0], matrix_2[4]), max(matrix_2[8], matrix_2[12])));
-	bbox->bbmax[Y] = max(max(matrix_1[1], matrix_1[5]), max(matrix_1[9], matrix_1[13]));
-	bbox->bbmax[Y] = max(bbox->bbmax[Y], max(max(matrix_2[1], matrix_2[5]), max(matrix_2[9], matrix_2[13])));
-	bbox->bbmax[Z] = max(max(matrix_1[2], matrix_1[6]), max(matrix_1[10], matrix_1[14]));
-	bbox->bbmax[Z] = max(bbox->bbmax[Z], max(max(matrix_2[2], matrix_2[6]), max(matrix_2[10], matrix_2[14])));
+	bbox->bbmax[X] = max2f(max2f(matrix_1[0], matrix_1[4]), max2f(matrix_1[8], matrix_1[12]));
+	bbox->bbmax[X] = max2f(bbox->bbmax[X], max2f(max2f(matrix_2[0], matrix_2[4]), max2f(matrix_2[8], matrix_2[12])));
+	bbox->bbmax[Y] = max2f(max2f(matrix_1[1], matrix_1[5]), max2f(matrix_1[9], matrix_1[13]));
+	bbox->bbmax[Y] = max2f(bbox->bbmax[Y], max2f(max2f(matrix_2[1], matrix_2[5]), max2f(matrix_2[9], matrix_2[13])));
+	bbox->bbmax[Z] = max2f(max2f(matrix_1[2], matrix_1[6]), max2f(matrix_1[10], matrix_1[14]));
+	bbox->bbmax[Z] = max2f(bbox->bbmax[Z], max2f(max2f(matrix_2[2], matrix_2[6]), max2f(matrix_2[10], matrix_2[14])));
 }
 
 void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum);

@@ -234,5 +234,8 @@ void draw_box(char * name, int x, int y, int w, int h, int rad);
 void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
 
 __inline__ int min2i (int x, int y);
+__inline__ int min2u (unsigned x, unsigned y);
+__inline__ int max2u (unsigned x, unsigned y);
+__inline__ int min2f (float x, float y);
 __inline__ int max2f (float x, float y);
 #endif
