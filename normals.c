@@ -75,8 +75,8 @@ static __inline__ void build_normal_texures(VECTOR4* normal_map, const unsigned 
 				{
 					for (l = 0; l < NORMAL_TEXTURE_MAX_X; l++)
 					{
-						index = min2u(max2u(j*NORMAL_MAP_MAX_X-NORMAL_MAP_PAD_X/2+l, 0), size_x-1);
-						index += min2u(max2u(i*NORMAL_MAP_MAX_Y-NORMAL_MAP_PAD_Y/2+k, 0), size_y-1)*size_x;
+						index = min2u(max2i(j*NORMAL_MAP_MAX_X-NORMAL_MAP_PAD_X/2+l, 0), size_x-1);
+						index += min2u(max2i(i*NORMAL_MAP_MAX_Y-NORMAL_MAP_PAD_Y/2+k, 0), size_y-1)*size_x;
 						memcpy(normal_texture[k*NORMAL_TEXTURE_MAX_X+l], normal_map[index], 
 								sizeof(VECTOR4));
 					}

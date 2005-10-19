@@ -597,9 +597,14 @@ __inline__ int min2i (int x, int y)
 	return (x <= y)? x : y;
 }
 
-__inline__ int min2u (unsigned x, unsigned y)
+__inline__ int max2i (int x, int y)
 {
 	return (x >= y)? x : y;
+}
+
+__inline__ int min2u (unsigned x, unsigned y)
+{
+	return (x <= y)? x : y;
 }
 
 __inline__ int max2u (unsigned x, unsigned y)
@@ -609,7 +614,7 @@ __inline__ int max2u (unsigned x, unsigned y)
 
 __inline__ int min2f (float x, float y)
 {
-	return (x >= y)? x : y;
+	return (x <= y)? x : y;
 }
 
 __inline__ int max2f (float x, float y)
