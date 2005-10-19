@@ -406,13 +406,15 @@ void display_3d_reflection()
 	 * TODO: Render to texture, then create ripples and other nifty things 
 	 * 	 Fix the bug with reflections showing up when z<water_deepth_offset even if it's not a reflective tile that's beneath it.
 	 */
-#ifndef MAP_EDITOR2
+#if !defined(MAP_EDITOR2) && !defined(NEW_FRUSTUM)
 	int i;
 #endif
 	int x,y;
 	double water_clipping_p[4]={0,0,-1,water_deepth_offset};
 	float window_ratio;
+#ifndef NEW_FRUSTUM
 	struct near_3d_object * nobj;
+#endif
 	
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 

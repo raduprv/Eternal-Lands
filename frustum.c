@@ -20,6 +20,7 @@
  #include "global.h"
 #endif
 #ifdef	NEW_FRUSTUM
+#include <string.h>
 #include "bbox_tree.h"
 #endif
 

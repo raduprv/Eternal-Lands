@@ -757,86 +757,83 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 
 
 
-void load_bmp8_to_coordinates(char * FileName, Uint8 *texture_space,int x_pos,int y_pos,
-							  Uint8 alpha)
+void load_bmp8_to_coordinates (const char *FileName, Uint8 *texture_space, int x_pos, int y_pos, Uint8 alpha)
 {
-	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry;
-	Uint8 * file_mem;
-	Uint8 * file_mem_start;
-	Uint8 * read_buffer;
-	Uint8 * color_pallete;
+	int x, y, x_padding, x_size, y_size, colors_no, r, g, b, current_pallete_entry;
+	Uint8 *file_mem;
+	Uint8 *file_mem_start;
+	Uint8 *read_buffer;
+	Uint8 *color_pallete;
 	FILE *f = NULL;
 
   	f = my_fopen (FileName, "rb");
-  	if (!f) return;
-  	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
-  	file_mem_start=file_mem;
+  	if (f == NULL) return;
+  	file_mem = calloc (20000, sizeof(Uint8));
+  	file_mem_start = file_mem;
   	fread (file_mem, 1, 50, f);//header only
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-  	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
+  	if (*((short *) file_mem) != SDL_SwapLE16 (19778)) // BM (the identifier)
+	{
+		free (file_mem_start);
+		fclose (f);
+		return;
+	}
+	file_mem += 18;
+	x_size = SDL_SwapLE32 (*((int *) file_mem));
+	file_mem += 4;
+	y_size = SDL_SwapLE32 (*((int *) file_mem));
+	file_mem += 6;
+	if (*((short *)file_mem) != SDL_SwapLE16(8)) // 8 bit/pixel?
+	{
+		free (file_mem_start);
+		fclose (f);
+		return;
+	}
+
+	file_mem += 2;
+	if (*((int *)file_mem) != SDL_SwapLE32 (0)) // any compression?
+	{
+		free (file_mem_start);
+		fclose (f);
+		return;
+	}
+	file_mem += 16;
+
+	colors_no = SDL_SwapLE32 (*((int *)file_mem));
+	if (colors_no == 0) colors_no = 256;
+	file_mem += 8; // here comes the pallete
+
+	color_pallete = file_mem + 4;
+	fread (file_mem, 1, colors_no*4+4, f); // header only
+	file_mem += colors_no * 4;
+
+	x_padding = x_size % 4;
+	if (x_padding) x_padding = 4 - x_padding;
+	if (x_size <= x_padding) x_padding = 0;
+
+	// now, allocate the memory for the file
+	read_buffer = calloc (x_size + x_padding + 1, sizeof(Uint8));
+
+	for (y = y_size - 1; y >= 0; y--)
+	{
+		fread (read_buffer, 1, x_size+x_padding, f);
+		for (x = 0; x < x_size; x++)
 		{
-			free(file_mem_start);
-			fclose (f);
-			return;
+			int texture_y;
+			texture_y = (255 - (y + y_pos));
+			current_pallete_entry = *(read_buffer+x);
+			b = *(color_pallete+current_pallete_entry*4);
+			g = *(color_pallete+current_pallete_entry*4+1);
+			r = *(color_pallete+current_pallete_entry*4+2);
+			*(texture_space+(texture_y*256+x+x_pos)*4) = r;
+			*(texture_space+(texture_y*256+x+x_pos)*4+1) = g;
+			*(texture_space+(texture_y*256+x+x_pos)*4+2) = b;
+			*(texture_space+(texture_y*256+x+x_pos)*4+3) = alpha;
 		}
-	file_mem+=18;
-	x_size=SDL_SwapLE32(*((int *) file_mem));
-	file_mem+=4;
-	y_size=SDL_SwapLE32(*((int *) file_mem));
-	file_mem+=6;
-	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
-		{
-			free(file_mem_start);
-			fclose (f);
-			return;
-		}
+	}
 
-	file_mem+=2;
-	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
-		{
-			free(file_mem_start);
-			fclose (f);
-			return;
-		}
-	file_mem+=16;
-
-	colors_no=SDL_SwapLE32(*((int *)file_mem));
-	if(!colors_no)colors_no=256;
-	file_mem+=8;//here comes the pallete
-
-	color_pallete=file_mem+4;
-	fread (file_mem, 1, colors_no*4+4, f);//header only
-	file_mem+=colors_no*4;
-
-	x_padding=x_size%4;
-	if(x_padding)x_padding=4-x_padding;
-
-	if(x_size<=x_padding)x_padding=0;
-
-	//now, allocate the memory for the file
-	read_buffer = (Uint8 *) calloc ( x_size+x_padding+1, sizeof(Uint8));
-
-	for(y=y_size-1;y>=0;y--)
-		{
-			fread (read_buffer, 1, x_size+x_padding, f);
-			for(x=0;x<x_size;x++)
-				{
-					int texture_y;
-					texture_y=(255-(y+y_pos));
-					current_pallete_entry=*(read_buffer+x);
-					b=*(color_pallete+current_pallete_entry*4);
-					g=*(color_pallete+current_pallete_entry*4+1);
-					r=*(color_pallete+current_pallete_entry*4+2);
-					*(texture_space+(texture_y*256+x+x_pos)*4)=r;
-					*(texture_space+(texture_y*256+x+x_pos)*4+1)=g;
-					*(texture_space+(texture_y*256+x+x_pos)*4+2)=b;
-					*(texture_space+(texture_y*256+x+x_pos)*4+3)=alpha;
-				}
-
-		}
-
-	free(file_mem_start);
-	free(read_buffer);
+	free (file_mem_start);
+	free (read_buffer);
 	fclose (f);
 }
 

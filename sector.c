@@ -103,8 +103,9 @@ int sector_add_particle(int objectid)
 // adds everything from the maps to the sectors
 void sector_add_map()
 {
-	int i,j=0;
+	int i;
 #ifndef	NEW_FRUSTUM
+	int j = 0;
 	int obj_3d_no=0;
 	int obj_2d_no=0;
 	//int lights_no=0;

@@ -139,7 +139,7 @@ void *elm_calloc(const size_t nmemb, const size_t size, char *file, const int li
 	if(pointer == NULL) {
 		fprintf(stderr, "%s:%i:calloc() failed\n", file, line);
 	} else {
-		elm_add_to_list(pointer, size, file, line);
+		elm_add_to_list(pointer, nmemb*size, file, line);
 	}
 	SDL_UnlockMutex(elm_mutex);
 	return pointer;
@@ -156,7 +156,9 @@ void elm_free(void *ptr, char *file, const int line)
 		/* We found the pointer in the list
 		 * and it's safe to free() it. */
 		SDL_UnlockMutex(elm_mutex);
-		return free(ptr);
+		//return free(ptr);
+		free (ptr);
+		return;
 	} else {
 		/* We're trying to free 
 		 * something that's not allocated, which is evil.
