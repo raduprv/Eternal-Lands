@@ -25,21 +25,6 @@ void reset_under_the_mouse()
 	thing_under_the_mouse = UNDER_MOUSE_NOTHING;
 }
 
-__inline__ float SwapFloat(float t)
-{
-	union {
-		float f;
-		int i;
-	} intOrFloat;
-	intOrFloat.f = t;
-	intOrFloat.i = SDL_Swap32(intOrFloat.i);
-	return intOrFloat.f;
-	/*
-	int ftemp = SDL_Swap32(*((int*)(&t)));
-	return *((float*)(&ftemp));
-	*/
-}
-
 int anything_under_the_mouse(int object_id, int object_type)
 {
 	char pixels[16]={0};
@@ -592,6 +577,3 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 	}
 }
 
-#ifndef _MSC_VER
-	#include "inline_functions.c"
-#endif

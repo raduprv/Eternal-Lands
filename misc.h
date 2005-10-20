@@ -17,7 +17,21 @@
  * \param t         the float to swap
  * \retval float    the swapped float
  */
-__inline__ float SwapFloat(float t);
+static __inline__ float SwapFloat(float t)
+{
+	union {
+		float f;
+		int i;
+	} intOrFloat;
+	intOrFloat.f = t;
+	intOrFloat.i = SDL_Swap32(intOrFloat.i);
+	return intOrFloat.f;
+	/*
+	int ftemp = SDL_Swap32(*((int*)(&t)));
+	return *((float*)(&ftemp));
+	*/
+}
+
 
 /*!
  * \ingroup misc
@@ -233,14 +247,34 @@ void draw_box(char * name, int x, int y, int w, int h, int rad);
  */
 void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
 
-__inline__ int min2i (int x, int y);
-__inline__ int max2i (int x, int y);
-__inline__ unsigned min2u (unsigned x, unsigned y);
-__inline__ unsigned max2u (unsigned x, unsigned y);
-__inline__ float min2f (float x, float y);
-__inline__ float max2f (float x, float y);
+static __inline__ int min2i (int x, int y)
+{
+	return (x <= y)? x : y;
+}
 
-#ifdef _MSC_VER
-	#include "inline_functions.c"
-#endif
+static __inline__ int max2i (int x, int y)
+{
+	return (x >= y)? x : y;
+}
+
+static __inline__ unsigned min2u (unsigned x, unsigned y)
+{
+	return (x <= y)? x : y;
+}
+
+static __inline__ unsigned max2u (unsigned x, unsigned y)
+{
+	return (x >= y)? x : y;
+}
+
+static __inline__ float min2f (float x, float y)
+{
+	return (x <= y)? x : y;
+}
+
+static __inline__ float max2f (float x, float y)
+{
+	return (x >= y)? x : y;
+}
+
 #endif
