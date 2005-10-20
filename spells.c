@@ -278,7 +278,6 @@ void display_spells_we_have()
 			glEnd();
 		}
 	}
-	//glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 }
 

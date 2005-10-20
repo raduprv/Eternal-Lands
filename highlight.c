@@ -174,7 +174,7 @@ void display_highlight_markers() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glEnable(GL_ALPHA_TEST);
-	
+
 	for(i = 0; i < NUMBER_OF_HIGHLIGHT_MARKERS; i++) {
 		if (markers[i].active) {
 			markers[i].timeleft -= (cur_time - last_time);
@@ -186,7 +186,8 @@ void display_highlight_markers() {
 			}
 		}
 	}
-	
+
+	glDisable(GL_ALPHA_TEST);
 	glEnable(GL_LIGHTING);
 	glDisable(GL_BLEND);
 }

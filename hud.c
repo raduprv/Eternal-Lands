@@ -872,9 +872,13 @@ void init_misc_display()
 int	display_misc_handler(window_info *win)
 {
 	get_and_set_texture_id(hud_text);
-	//draw the compass
+
 	glBegin(GL_QUADS);
+	//draw the compass
 	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0,win->len_y-64,64,win->len_y);
+	//draw the clock
+	draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,
+				  0, win->len_y-128, 64, win->len_y-64);
 	glEnd();
 
 	//draw the compass needle
@@ -888,16 +892,8 @@ int	display_misc_handler(window_info *win)
 	draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end,-5, -28, 5, 28);
 	glEnd();
 	glPopMatrix();
-	glDisable(GL_ALPHA_TEST);
-
-	//draw the clock
-	glBegin(GL_QUADS);
-	draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,
-				  0, win->len_y-128, 64, win->len_y-64);
-	glEnd();
 
 	//draw the clock needle
-	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.05f);
 	glPushMatrix();
 	glTranslatef(32, win->len_y-96, 0);
