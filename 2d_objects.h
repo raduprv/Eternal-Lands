@@ -87,6 +87,14 @@ extern float texture_scale; /*!< scaling factor for textures */
 
 extern int regenerate_near_2d_objects;
 
+/*
+ * \ingroup	display_2d
+ * \brief	Displays the 2d object given by object_id
+ *
+ * 	Displays the 2D object given by object_id
+ */
+void draw_2d_object(obj_2d * object_id);
+
 /*! 
  * \ingroup	display_2d
  * \brief	Displays the 2dobjects in the obj_2d_list array
