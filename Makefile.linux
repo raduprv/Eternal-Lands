@@ -18,6 +18,7 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT
 #-DOPTIONS_I18N   # make option labels & descriptions translatable
 #-DUSE_FRAMEBUFFER	# use framebuffer for reflection
 #-DNEW_TEX        # use new texture coordinates for enhanced actors
+#-DNEW_FRUSTUM    # use new frustum culling (AABB trees)
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

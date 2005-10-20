@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <SDL_types.h>
 
-#include "../errors.h"
+#include "../global.h" // because of misc.h
 #include "../misc.h"
+#include "../errors.h"
 #include "types.h"
 #include "fontdef.h"
 #include "typesetter.h"

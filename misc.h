@@ -235,8 +235,12 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 
 __inline__ int min2i (int x, int y);
 __inline__ int max2i (int x, int y);
-__inline__ int min2u (unsigned x, unsigned y);
-__inline__ int max2u (unsigned x, unsigned y);
-__inline__ int min2f (float x, float y);
-__inline__ int max2f (float x, float y);
+__inline__ unsigned min2u (unsigned x, unsigned y);
+__inline__ unsigned max2u (unsigned x, unsigned y);
+__inline__ float min2f (float x, float y);
+__inline__ float max2f (float x, float y);
+
+#ifdef _MSC_VER
+	#include "inline_functions.c"
+#endif
 #endif
