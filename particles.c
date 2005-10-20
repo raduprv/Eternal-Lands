@@ -218,6 +218,184 @@ particle_sys_def *load_particle_def(const char *filename)
 	return def;
 }
 
+#ifdef	NEW_FRUSTUM
+static __inline__ void calc_particle_random_min_max(float f1, float f2, float* v_min, float* v_max)
+{
+	if (f1 < f2)
+	{
+		*v_min = f1;
+		*v_max = f2;
+	}
+	else
+	{
+		*v_min = f2;
+		*v_max = f1;
+	}
+}
+
+static __inline__ void calc_particle_random2_min_max(float f1, float f2, float* v_min, float* v_max)
+{	
+	*v_min = (f1+f2)*0.5f-abs(f2-f1);
+	*v_max = (f1+f2)*0.5f+abs(f2-f1);
+}
+
+static __inline__ void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle_sys *system_id)
+{
+	unsigned int count;
+	float p_max, p_min, p_step, sq;
+	VECTOR3 pv_min, pv_max, pv_v_min, pv_v_max, pv_acc_min, pv_acc_max;
+	
+	sq = sqrt(system_id->def->constrain_rad_sq);
+	if (system_id->def->random_func == 0) 
+	{
+		calc_particle_random_min_max(system_id->def->vel_minx, system_id->def->vel_maxx, &p_min, &p_max);
+		pv_v_min[X] = p_min;
+		pv_v_max[X] = p_max;
+		calc_particle_random_min_max(system_id->def->vel_miny, system_id->def->vel_maxy, &p_min, &p_max);
+		pv_v_min[Y] = p_min;
+		pv_v_max[Y] = p_max;
+		calc_particle_random_min_max(system_id->def->vel_minz, system_id->def->vel_maxz, &p_min, &p_max);
+		pv_v_min[Z] = p_min;
+		pv_v_max[Z] = p_max;
+
+		if (system_id->def->constrain_rad_sq > 0.0f)
+		{
+			pv_min[X] = -sq;
+			pv_min[Y] = -sq;
+			pv_max[X] = sq;
+			pv_max[Y] = sq;
+		}
+		else
+		{
+			calc_particle_random_min_max(system_id->def->minx, system_id->def->maxx, &p_min, &p_max);
+			pv_min[X] = p_min;
+			pv_max[X] = p_max;
+			calc_particle_random_min_max(system_id->def->miny, system_id->def->maxy, &p_min, &p_max);
+			pv_min[Y] = p_min;
+			pv_max[Y] = p_max;
+		}
+		calc_particle_random_min_max(system_id->def->minz, system_id->def->maxz, &p_min, &p_max);
+		pv_min[Z] = p_min;
+		pv_max[Z] = p_max;
+	}
+	else 
+	{
+		calc_particle_random2_min_max(system_id->def->vel_minx, system_id->def->vel_maxx, &p_min, &p_max);
+		pv_v_min[X] = p_min;
+		pv_v_max[X] = p_max;
+		calc_particle_random2_min_max(system_id->def->vel_miny, system_id->def->vel_maxy, &p_min, &p_max);
+		pv_v_min[Y] = p_min;
+		pv_v_max[Y] = p_max;
+		calc_particle_random2_min_max(system_id->def->vel_minz, system_id->def->vel_maxz, &p_min, &p_max);
+		pv_v_min[Z] = p_min;
+		pv_v_max[Z] = p_max;
+		
+		if (system_id->def->constrain_rad_sq > 0.0f)
+		{
+			pv_min[X] = -sq;
+			pv_min[Y] = -sq;
+			pv_max[X] = sq;
+			pv_max[Y] = sq;
+		}
+		else
+		{
+			calc_particle_random2_min_max(system_id->def->minx, system_id->def->maxx, &p_min, &p_max);
+			pv_min[X] = p_min;
+			pv_max[X] = p_max;
+			calc_particle_random2_min_max(system_id->def->miny, system_id->def->maxy, &p_min, &p_max);
+			pv_min[Y] = p_min;
+			pv_max[Y] = p_max;
+		}
+		calc_particle_random2_min_max(system_id->def->minz, system_id->def->maxz, &p_min, &p_max);
+		pv_min[Z] = p_min;
+		pv_max[Z] = p_max;
+	}
+	
+	switch (system_id->def->part_sys_type)
+	{
+		case(TELEPORTER_PARTICLE_SYS):
+                case(TELEPORT_PARTICLE_SYS):
+			calc_particle_random2_min_max(system_id->def->acc_minx, system_id->def->acc_maxx, &p_min, &p_max);
+			pv_acc_min[X] = p_min;
+			pv_acc_max[X] = p_max;
+			calc_particle_random2_min_max(system_id->def->acc_miny, system_id->def->acc_maxy, &p_min, &p_max);
+			pv_acc_min[Y] = p_min;
+			pv_acc_max[Y] = p_max;
+			calc_particle_random2_min_max(system_id->def->acc_minz, system_id->def->acc_maxz, &p_min, &p_max);
+			pv_acc_min[Z] = p_min;
+			pv_acc_max[Z] = p_max;
+			p_step = pv_acc_min[Z]+pv_v_min[Z];
+			count = ceil(2.0f/p_step);
+			bbox->bbmin[X] = min2f(pv_min[X], pv_min[X]+count*(pv_v_min[X]+pv_acc_min[X]));
+			bbox->bbmin[Y] = min2f(pv_min[Y], pv_min[Y]+count*(pv_v_min[Y]+pv_acc_max[X]));
+			bbox->bbmin[Z] = min2f(pv_min[Z], pv_min[Z]+count*(pv_v_min[Z]+pv_acc_min[Y]));
+			bbox->bbmax[X] = max2f(pv_max[X], pv_max[X]+count*(pv_v_max[X]+pv_acc_max[Y]));
+			bbox->bbmax[Y] = max2f(pv_max[Y], pv_max[Y]+count*(pv_v_max[Y]+pv_acc_min[Z]));
+			bbox->bbmax[Z] = max2f(pv_max[Z], pv_max[Z]+count*(pv_v_max[Z]+pv_acc_min[Z]));
+			break;
+		case(BAG_PARTICLE_SYS):
+			calc_particle_random2_min_max(system_id->def->acc_minx, system_id->def->acc_maxx, &p_min, &p_max);
+			pv_acc_min[X] = p_min;
+			pv_acc_max[X] = p_max;
+			calc_particle_random2_min_max(system_id->def->acc_miny, system_id->def->acc_maxy, &p_min, &p_max);
+			pv_acc_min[Y] = p_min;
+			pv_acc_max[Y] = p_max;
+			calc_particle_random2_min_max(system_id->def->acc_minz, system_id->def->acc_maxz, &p_min, &p_max);
+			pv_acc_min[Z] = p_min;
+			pv_acc_max[Z] = p_max;
+			p_step = pv_acc_min[Z]+pv_v_min[Z];
+			count = ceil(1.0f/p_step);
+			bbox->bbmin[X] = min2f(pv_min[X], pv_min[X]+count*(pv_v_min[X]+pv_acc_min[X]));
+			bbox->bbmin[Y] = min2f(pv_min[Y], pv_min[Y]+count*(pv_v_min[Y]+pv_acc_max[X]));
+			bbox->bbmin[Z] = min2f(pv_min[Z], pv_min[Z]+count*(pv_v_min[Z]+pv_acc_min[Y]));
+			bbox->bbmax[X] = max2f(pv_max[X], pv_max[X]+count*(pv_v_max[X]+pv_acc_max[Y]));
+			bbox->bbmax[Y] = max2f(pv_max[Y], pv_max[Y]+count*(pv_v_max[Y]+pv_acc_min[Z]));
+			bbox->bbmax[Z] = max2f(pv_max[Z], pv_max[Z]+count*(pv_v_max[Z]+pv_acc_min[Z]));
+			break;
+		case(BURST_PARTICLE_SYS):
+			sq *= 3;
+			bbox->bbmin[X] = -sq;
+			bbox->bbmin[Y] = -sq;
+			bbox->bbmin[Z] = -sq;
+			bbox->bbmax[X] = sq;
+			bbox->bbmax[Y] = sq;
+			bbox->bbmax[Z] = sq;
+			break;
+		case(FIRE_PARTICLE_SYS):
+		case(FOUNTAIN_PARTICLE_SYS):
+			calc_particle_random_min_max(system_id->def->acc_minx, system_id->def->acc_maxx, &p_min, &p_max);
+			pv_acc_min[X] = p_min;
+			pv_acc_max[X] = p_max;
+			calc_particle_random_min_max(system_id->def->acc_miny, system_id->def->acc_maxy, &p_min, &p_max);
+			pv_acc_min[Y] = p_min;
+			pv_acc_max[Y] = p_max;
+			calc_particle_random_min_max(system_id->def->acc_minz, system_id->def->acc_maxz, &p_min, &p_max);
+			pv_acc_min[Z] = p_min;
+			pv_acc_max[Z] = p_max;
+
+			if (system_id->def->random_func == 0) 
+				calc_particle_random_min_max(system_id->def->mina, system_id->def->maxa, &p_min, &p_max);
+			else calc_particle_random2_min_max(system_id->def->mina, system_id->def->maxa, &p_min, &p_max);
+			p_step = p_min;
+			calc_particle_random_min_max(system_id->def->minda, system_id->def->maxda, &p_min, &p_max);
+			count = ceil(p_max/(-p_step));
+			bbox->bbmin[X] = min2f(pv_min[X], pv_min[X]+count*pv_v_min[X]+count*(count+1)*0.5f*pv_acc_min[X]);
+			bbox->bbmin[Y] = min2f(pv_min[Y], pv_min[Y]+count*pv_v_min[Y]+count*(count+1)*0.5f*pv_acc_max[X]);
+			bbox->bbmin[Z] = min2f(pv_min[Z], pv_min[Z]+count*pv_v_min[Z]+count*(count+1)*0.5f*pv_acc_min[Y]);
+			bbox->bbmax[X] = max2f(pv_max[X], pv_max[X]+count*pv_v_max[X]+count*(count+1)*0.5f*pv_acc_max[Y]);
+			bbox->bbmax[Y] = max2f(pv_max[Y], pv_max[Y]+count*pv_v_max[Y]+count*(count+1)*0.5f*pv_acc_min[Z]);
+			bbox->bbmax[Z] = max2f(pv_max[Z], pv_max[Z]+count*pv_v_max[Z]+count*(count+1)*0.5f*pv_acc_min[Z]);
+			break;
+	}
+
+	bbox->bbmin[X] += system_id->x_pos;
+	bbox->bbmin[Y] += system_id->y_pos;
+	bbox->bbmin[Z] += system_id->z_pos;
+	bbox->bbmax[X] += system_id->x_pos;
+	bbox->bbmax[Y] += system_id->y_pos;
+	bbox->bbmax[Z] += system_id->z_pos;
+}
+#endif
 #ifdef MAP_EDITOR2
 #define MAP_EDITOR
 #endif
@@ -370,6 +548,9 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 			if (sys->sound != 0)
 				remove_sound_object (sys->sound);
 #endif
+#ifdef	NEW_FRUSTUM
+			delete_dynamic_particle_from_abt(bbox_tree, i);
+#endif
 			free (sys);
 			particles_list[i] = NULL;
 		}
@@ -458,7 +639,10 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	int	i,psys;
 	particle_sys *system_id;
 	particle *p;
-
+#ifdef	NEW_FRUSTUM
+	AABBOX bbox;
+#endif
+	
 	if(!def)return -1;
 	
 	//allocate memory for this particle system
@@ -507,6 +691,11 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 		system_id->sound = add_sound_object (def->sound_nr, (int)(x+x-0.5), (int)(y+y-0.5), def->positional, def->loop);
 #endif
 
+#ifdef	NEW_FRUSTUM
+	calc_bounding_box_for_particle_sys(&bbox, system_id);
+	if (dynamic) add_dynamic_particle_to_abt(bbox_tree, psys, &bbox, def->sblend, def->dblend);
+	else add_particle_sys_to_list(items, psys, &bbox, def->sblend, def->dblend);
+#endif
 	UNLOCK_PARTICLES_LIST();
 
 	return psys;
@@ -621,6 +810,13 @@ void display_particles()
 	int i;
 	int x,y;
 	GLenum sblend=GL_SRC_ALPHA,dblend=GL_ONE;
+#ifdef	NEW_FRUSTUM
+	unsigned int l, idx;
+
+	if (regenerate_near_objects) get_near_3d_objects();
+
+	idx = bbox_tree->cur_intersect_type;
+#endif
 
 	if(!particles_percentage)
 	  return;
@@ -639,6 +835,27 @@ void display_particles()
 
 	LOCK_PARTICLES_LIST();
 	// Perhaps we should have a depth sort here..?
+#ifdef	NEW_FRUSTUM
+	for (i = bbox_tree->intersect[idx].start[TYPE_PARTICLE_SYSTEM]; i < bbox_tree->intersect[idx].stop[TYPE_PARTICLE_SYSTEM]; i++)
+	{
+		l = bbox_tree->intersect[idx].items[i].ID;
+#ifdef EXTRA_DEBUG
+		if (!particles_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		if ((particles_list[l]->def->sblend != sblend) || (particles_list[l]->def->dblend != dblend))
+		{
+			sblend = particles_list[l]->def->sblend;
+			dblend = particles_list[l]->def->dblend;
+			glBlendFunc(sblend, dblend);
+		}
+		if (use_point_particles) draw_point_particle_sys(particles_list[l]);
+		else draw_text_particle_sys(particles_list[l]);
+	}
+#else
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 	{
 		if(particles_list[i])
@@ -664,6 +881,7 @@ void display_particles()
 			}
 		}
 	}
+#endif
 	UNLOCK_PARTICLES_LIST();
 	glDisable(GL_CULL_FACE); //Intel fix
 	glPopAttrib();
@@ -1001,14 +1219,98 @@ void update_bag_part_sys(particle_sys *system_id)
 }
 
 void update_particles() {
+#ifdef	NEW_FRUSTUM
+	unsigned int idx, i, l;
+#else
 	int i;
 #ifdef ELC
 	int x = -cx, y = -cy;
 #endif
-
+#endif
+	
 	if(!particles_percentage)
 	  return;
 	LOCK_PARTICLES_LIST();
+#ifdef	NEW_FRUSTUM
+	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
+	{
+		if (particles_list[i])
+		{
+			// Systems with a TTL need to be updated, even if they are far away
+			if (particles_list[i]->ttl < 0) continue;
+
+			switch (particles_list[i]->def->part_sys_type)
+			{
+				case TELEPORTER_PARTICLE_SYS:
+					update_teleporter_sys(particles_list[i]);
+					break;
+                     		case TELEPORT_PARTICLE_SYS:
+					update_teleport_sys(particles_list[i]);
+					break;
+				case BAG_PARTICLE_SYS:
+					update_bag_part_sys(particles_list[i]);
+					break;
+				case BURST_PARTICLE_SYS:
+					update_burst_sys(particles_list[i]);
+					break;
+				case FIRE_PARTICLE_SYS:
+					update_fire_sys(particles_list[i]);
+					break;
+				case FOUNTAIN_PARTICLE_SYS:
+					update_fountain_sys(particles_list[i]);
+					break;
+			}
+			if (particles_list[i]->ttl > 0) particles_list[i]->ttl--;
+			if (!particles_list[i]->ttl && !particles_list[i]->particle_count)
+			//if there are no more particles to add, and the TTL expired, then kill this evil system
+			{
+				if (particles_list[i]->def->use_light && lights_list[particles_list[i]->light])
+				{
+					free(lights_list[particles_list[i]->light]);
+					lights_list[particles_list[i]->light] = NULL;
+				}
+				delete_dynamic_particle_from_abt(bbox_tree, i);
+				free(particles_list[i]);
+				particles_list[i]=0;
+			}			
+		}
+	}
+	idx = bbox_tree->cur_intersect_type;
+	for (i = bbox_tree->intersect[idx].start[TYPE_PARTICLE_SYSTEM]; i < bbox_tree->intersect[idx].stop[TYPE_PARTICLE_SYSTEM]; i++)
+	{
+		l = bbox_tree->intersect[idx].items[i].ID;
+#ifdef EXTRA_DEBUG
+		if (!particles_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		if (particles_list[l]->ttl > 0) continue;
+		
+		switch (particles_list[l]->def->part_sys_type)
+		{
+			case TELEPORTER_PARTICLE_SYS:
+				update_teleporter_sys(particles_list[l]);
+				break;
+               		case TELEPORT_PARTICLE_SYS:
+				update_teleport_sys(particles_list[l]);
+				break;
+			case BAG_PARTICLE_SYS:
+				update_bag_part_sys(particles_list[l]);
+				break;
+			case BURST_PARTICLE_SYS:
+				update_burst_sys(particles_list[l]);
+				break;
+			case FIRE_PARTICLE_SYS:
+				update_fire_sys(particles_list[l]);
+				break;
+			case FOUNTAIN_PARTICLE_SYS:
+				update_fountain_sys(particles_list[l]);
+				break;
+		}
+	}
+#else
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
 		if(particles_list[i])
@@ -1057,6 +1359,7 @@ void update_particles() {
 				
 			}
 		}
+#endif
 	UNLOCK_PARTICLES_LIST();
 }
 

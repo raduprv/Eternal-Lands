@@ -103,6 +103,14 @@ void CalculateFrustum()
 	// By passing in GL_MODELVIEW_MATRIX, we can abstract our model view matrix.
 	// This also stores it in an array of [16].
 	glGetFloatv( GL_MODELVIEW_MATRIX, modl );
+#ifdef	NEW_FRUSTUM
+	glPushMatrix();
+	glLoadIdentity();
+	glScalef(0.95f, 0.95f, 0.95f);
+	glMultMatrixf(modl);
+	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
+	glPopMatrix();
+#endif
 
 	// Now that we have our modelview and projection matrix, if we combine these 2 matrices,
 	// it will give us our clipping planes.  To combine 2 matrices, we multiply them.

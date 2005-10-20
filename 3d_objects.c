@@ -487,9 +487,11 @@ void display_objects()
 	if(regenerate_near_objects||!first_near_3d_object)
 		if(!get_near_3d_objects())return;
 #else
-	int i, l;
-	
+	unsigned int i, l, idx;
+
 	if (regenerate_near_objects) get_near_3d_objects();
+
+	idx = bbox_tree->cur_intersect_type;
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -517,9 +519,9 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = bbox_tree->type_start[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i++)
+	for (i = bbox_tree->intersect[idx].start[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect_items[i].ID;
+		l = bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!objects_list[l])
 		{
@@ -543,9 +545,9 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = bbox_tree->type_start[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i++)
+	for (i = bbox_tree->intersect[idx].start[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect_items[i].ID;
+		l = bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!objects_list[l])
 		{
@@ -580,9 +582,11 @@ void display_blended_objects()
 	
 	if(!no_near_blended_3d_objects)return;
 #else
-	int i, l;
+	unsigned int i, l, idx;
 
 	if (regenerate_near_objects) get_near_3d_objects();
+
+	idx = bbox_tree->cur_intersect_type;	
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -612,9 +616,9 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = bbox_tree->type_start[TYPE_3D_BLEND_NO_GROUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_BLEND_NO_GROUND_OBJECT]; i++)
+	for (i = bbox_tree->intersect[idx].start[TYPE_3D_BLEND_NO_GROUND_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_3D_BLEND_NO_GROUND_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect_items[i].ID;
+		l = bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!objects_list[l])
 		{
@@ -638,9 +642,9 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = bbox_tree->type_start[TYPE_3D_BLEND_GROUND_OBJECT]; i < bbox_tree->type_stop[TYPE_3D_BLEND_GROUND_OBJECT]; i++)
+	for (i = bbox_tree->intersect[idx].start[TYPE_3D_BLEND_GROUND_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_3D_BLEND_GROUND_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect_items[i].ID;
+		l = bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!objects_list[l])
 		{

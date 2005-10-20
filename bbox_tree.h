@@ -18,6 +18,11 @@
 #define	TYPE_TERRAIN					0x09
 #define	TYPES_COUNT					0x0A
 
+#define	ITERSECTION_TYPES_DEFAULT			0x00
+#define	ITERSECTION_TYPES_SHADOW			0x01
+#define	ITERSECTION_TYPES_REFLECTION			0x02
+#define	MAX_ITERSECTION_TYPES				0x03
+
 #define	OUTSIDE		0x0000
 #define	INSIDE		0x0001
 #define INTERSECT	0x0002
@@ -91,17 +96,23 @@ struct BBox_Tree_Node_Struct
 	IDX_TYPE		items_count;
 };
 
+typedef struct
+{
+	IDX_TYPE		count;
+	IDX_TYPE		start[TYPES_COUNT];
+	IDX_TYPE		stop[TYPES_COUNT];
+	BBOX_ITEM_DATA*		items;
+} BBOX_INTERSECTION_DATA;
+
 typedef	struct
 {
 	BBOX_TREE_NODE*		root_node;
 	IDX_TYPE		items_count;
 	BBOX_ITEM*		items;
 	IDX_TYPE		nodes_count;
-	BBOX_TREE_NODE*		nodes;	
-	IDX_TYPE		intersect_count;
-	IDX_TYPE		type_start[TYPES_COUNT];
-	IDX_TYPE		type_stop[TYPES_COUNT];
-	BBOX_ITEM_DATA*		intersect_items;
+	BBOX_TREE_NODE*		nodes;
+	unsigned short		cur_intersect_type;
+	BBOX_INTERSECTION_DATA	intersect[MAX_ITERSECTION_TYPES];
 } BBOX_TREE;
 
 enum

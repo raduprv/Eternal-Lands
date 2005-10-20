@@ -567,18 +567,20 @@ void display_2d_objects()
 	
 	glDisable(GL_ALPHA_TEST);
 #else
-	int i, l;
+	unsigned int i, l, idx;
 
 	if (regenerate_near_2d_objects) get_nearby_2d_objects();
 
+	idx = bbox_tree->cur_intersect_type;
+	
 	//First draw everyone with the same alpha test
     	
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.18f);
 	
-	for (i = bbox_tree->type_start[TYPE_2D_NO_ALPHA_OBJECT]; i < bbox_tree->type_stop[TYPE_2D_NO_ALPHA_OBJECT]; i++)
+	for (i = bbox_tree->intersect[idx].start[TYPE_2D_NO_ALPHA_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_2D_NO_ALPHA_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect_items[i].ID;
+		l = bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!obj_2d_list[l])
 		{
@@ -590,9 +592,9 @@ void display_2d_objects()
 	}
 	
 	//Then draw all that needs a change
-	for (i = bbox_tree->type_start[TYPE_2D_ALPHA_OBJECT]; i < bbox_tree->type_stop[TYPE_2D_ALPHA_OBJECT]; i++)
+	for (i = bbox_tree->intersect[idx].start[TYPE_2D_ALPHA_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_2D_ALPHA_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect_items[i].ID;
+		l = bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!obj_2d_list[l])
 		{
