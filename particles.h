@@ -15,6 +15,18 @@
 /*! \} */
 
 /*!
+ * \name Particle system types
+ */
+/*! \{ */
+#define TELEPORTER_PARTICLE_SYS 0
+#define TELEPORT_PARTICLE_SYS 1
+#define BAG_PARTICLE_SYS 2
+#define BURST_PARTICLE_SYS 3
+#define FIRE_PARTICLE_SYS 4
+#define FOUNTAIN_PARTICLE_SYS 5
+/*! \} */
+
+/*!
  * stores the data of a single particle
  */
 typedef struct
@@ -297,6 +309,17 @@ int save_particle_def(particle_sys_def *def);
 int save_particle_def(particle_sys_def *def);
 #endif
 
+#ifdef MAP_EDITOR2
+void draw_text_particle_sys(particle_sys *system_id);
+void draw_point_particle_sys(particle_sys *system_id);
+
+void update_bag_part_sys(particle_sys *system_id);
+void update_teleport_sys(particle_sys *system_id);
+void update_teleporter_sys(particle_sys *system_id);
+void update_fire_sys(particle_sys *system_id);
+void update_burst_sys(particle_sys *system_id);
+void update_fountain_sys(particle_sys *system_id);
+#endif
 #endif
 
 extern int use_point_particles; /*!< specifies if we use point particles or not */
