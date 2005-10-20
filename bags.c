@@ -36,10 +36,6 @@ void strap_word(char * in, char * out)
 
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 {
-#ifdef	NEW_FRUSTUM
-	AABBOX bbox;
-	float len_x, len_y, len_z;
-#endif
 	float x,y,z;
 	int obj_3d_id;
 
@@ -57,41 +53,23 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	//center the object
 	x=x+0.25f;
 	y=y+0.25f;
+#ifdef	NEW_FRUSTUM
+	obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
+#else
 	obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
-
+#endif
+	
 	//now, find a place into the bags list, so we can destroy the bag properly
 	bag_list[bag_id].x=bag_x;
 	bag_list[bag_id].y=bag_y;
 	bag_list[bag_id].obj_3d_id=obj_3d_id;
-#ifdef	NEW_FRUSTUM
-	len_x = objects_list[obj_3d_id]->e3d_data->max_x - objects_list[obj_3d_id]->e3d_data->min_x;
-	len_y = objects_list[obj_3d_id]->e3d_data->max_y - objects_list[obj_3d_id]->e3d_data->min_y;
-	len_z = objects_list[obj_3d_id]->e3d_data->max_z - objects_list[obj_3d_id]->e3d_data->min_z;
-	bbox.bbmin[X] = -len_x*0.5f;
-	bbox.bbmax[X] = len_x*0.5f;
-	bbox.bbmin[Y] = -len_y*0.5f;
-	bbox.bbmax[Y] = len_y*0.5f;
-	bbox.bbmin[Z] = -len_z*0.5f;
-	bbox.bbmax[Z] = len_z*0.5f;
-	bbox.bbmin[X] += objects_list[obj_3d_id]->x_pos;
-	bbox.bbmin[Y] += objects_list[obj_3d_id]->y_pos;
-	bbox.bbmin[Z] += objects_list[obj_3d_id]->z_pos;
-	bbox.bbmax[X] += objects_list[obj_3d_id]->x_pos;
-	bbox.bbmax[Y] += objects_list[obj_3d_id]->y_pos;
-	bbox.bbmax[Z] += objects_list[obj_3d_id]->z_pos;
-	add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox, objects_list[obj_3d_id]->blended, 
-			objects_list[obj_3d_id]->e3d_data->is_ground);
-#else
+#ifndef	NEW_FRUSTUM
 	sector_add_3do(obj_3d_id);
 #endif
 }
 
 void add_bags_from_list (const Uint8 *data)
 {
-#ifdef	NEW_FRUSTUM
-	AABBOX bbox;
-	float len_x, len_y, len_z;
-#endif
 	Uint16 bags_no;
 	int i;
 	int bag_x,bag_y,my_offset; //bag_type unused?
@@ -127,31 +105,17 @@ void add_bags_from_list (const Uint8 *data)
 		x=x+0.25f;
 		y=y+0.25f;
 	
+#ifdef	NEW_FRUSTUM
+		obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
+#else
 		obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
+#endif
 		//now, find a place into the bags list, so we can destroy the bag properly
 	
 		bag_list[bag_id].x=bag_x;
 		bag_list[bag_id].y=bag_y;
 		bag_list[bag_id].obj_3d_id=obj_3d_id;
-#ifdef	NEW_FRUSTUM
-		len_x = objects_list[obj_3d_id]->e3d_data->max_x - objects_list[obj_3d_id]->e3d_data->min_x;
-		len_y = objects_list[obj_3d_id]->e3d_data->max_y - objects_list[obj_3d_id]->e3d_data->min_y;
-		len_z = objects_list[obj_3d_id]->e3d_data->max_z - objects_list[obj_3d_id]->e3d_data->min_z;
-		bbox.bbmin[X] = -len_x*0.5f;
-		bbox.bbmax[X] = len_x*0.5f;
-		bbox.bbmin[Y] = -len_y*0.5f;
-		bbox.bbmax[Y] = len_y*0.5f;
-		bbox.bbmin[Z] = -len_z*0.5f;
-		bbox.bbmax[Z] = len_z*0.5f;
-		bbox.bbmin[X] += objects_list[obj_3d_id]->x_pos;
-		bbox.bbmin[Y] += objects_list[obj_3d_id]->y_pos;
-		bbox.bbmin[Z] += objects_list[obj_3d_id]->z_pos;
-		bbox.bbmax[X] += objects_list[obj_3d_id]->x_pos;
-		bbox.bbmax[Y] += objects_list[obj_3d_id]->y_pos;
-		bbox.bbmax[Z] += objects_list[obj_3d_id]->z_pos;
-		add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox, objects_list[obj_3d_id]->blended, 
-				objects_list[obj_3d_id]->e3d_data->is_ground);
-#else
+#ifndef	NEW_FRUSTUM
 		sector_add_3do(obj_3d_id);
 #endif
 	}
@@ -178,12 +142,13 @@ void remove_bag(int which_bag)
 		return;
 	}
 
-	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
 #ifdef	NEW_FRUSTUM
+	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y, 1);
 	obj_3d_id = bag_list[which_bag].obj_3d_id;
 	delete_dynamic_3dobject_from_abt(bbox_tree, obj_3d_id, objects_list[obj_3d_id]->blended, 
 			objects_list[obj_3d_id]->e3d_data->is_ground);
 #else
+	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
 	sector=SECTOR_GET(objects_list[bag_list[which_bag].obj_3d_id]->x_pos, objects_list[bag_list[which_bag].obj_3d_id]->y_pos);
 	for(i=0;i<MAX_3D_OBJECTS;i++){
 		if(k!=-1 && sectors[sector].e3d_local[i]==-1){

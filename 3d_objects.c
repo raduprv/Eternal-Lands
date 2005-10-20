@@ -202,13 +202,21 @@ e3d_object *load_e3d_cache (const char * file_name)
 	return e3d_id;
 }
 
+#ifdef	NEW_FRUSTUM
+int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b, unsigned int dynamic)
+#else
 int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
+#endif
 {
 	char fname[128];
 	e3d_object *returned_e3d;
 	object3d *our_object;
 	int i;
-	
+#ifdef	NEW_FRUSTUM
+	float len_x, len_y, len_z;
+	AABBOX bbox;
+#endif
+
 	if (id < 0 || id >= MAX_OBJ_3D)
 	{
 		LOG_ERROR ("Invalid object id %d", id);
@@ -288,12 +296,36 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		highest_obj_3d = id+1;
 	}
 
+#ifdef	NEW_FRUSTUM
+	len_x = (returned_e3d->max_x - returned_e3d->min_x);
+	len_y = (returned_e3d->max_y - returned_e3d->min_y);
+	len_z = (returned_e3d->max_z - returned_e3d->min_z);
+	bbox.bbmin[X] = -len_x*0.5f;
+	bbox.bbmax[X] = len_x*0.5f;
+	bbox.bbmin[Y] = -len_y*0.5f;
+	bbox.bbmax[Y] = len_y*0.5f;
+	bbox.bbmin[Z] = -len_z*0.5f;
+	bbox.bbmax[Z] = len_z*0.5f;
+	if ((x_rot != 0.0f) || (y_rot != 0.0f) || (z_rot != 0.0f)) rotate_aabb(&bbox, x_rot, y_rot, z_rot);
+	bbox.bbmin[X] += x_pos;
+	bbox.bbmin[Y] += y_pos;
+	bbox.bbmin[Z] += z_pos;
+	bbox.bbmax[X] += x_pos;
+	bbox.bbmax[Y] += y_pos;
+	bbox.bbmax[Z] += z_pos;
+	if (dynamic) add_dynamic_3dobject_to_abt(bbox_tree, id, &bbox, blended, returned_e3d->is_ground);
+	else add_3dobject_to_list(items, id, &bbox, blended, returned_e3d->is_ground);	
+#endif
 	regenerate_near_objects = 1; // We've added an object..
 
 	return id;
 }
 
-int add_e3d (const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
+#ifdef	NEW_FRUSTUM
+int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b, unsigned int dynamic)
+#else
+int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
+#endif
 {
 	int i;
 	
@@ -304,7 +336,11 @@ int add_e3d (const char *file_name, float x_pos, float y_pos, float z_pos, float
 			break;
 	}
 	
+#ifdef	NEW_FRUSTUM
+	return add_e3d_at_id (i, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b, dynamic);
+#else
 	return add_e3d_at_id (i, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b);
+#endif
 }
 
 #ifndef	NEW_FRUSTUM

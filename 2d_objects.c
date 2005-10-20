@@ -374,14 +374,25 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 	return obj_2d_def_id;
 }
 
+#ifdef	NEW_FRUSTUM
+int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
+			   float x_rot, float y_rot, float z_rot, unsigned int dynamic)
+#else
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			   float x_rot, float y_rot, float z_rot)
+#endif
 {
 	int i;//,len,k;
 	char	fname[128];
 	obj_2d_def *returned_obj_2d_def;
 	obj_2d *our_object;
+#ifdef	NEW_FRUSTUM
+	float len_x, len_y;
+	int alpha_test;
+	AABBOX bbox;
+#else
 	short sector;
+#endif
 
 	//find a free spot, in the obj_2d_list
 	for(i=0; i<MAX_OBJ_2D; i++)
@@ -415,9 +426,52 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	obj_2d_list[i]=our_object;
 
+#ifdef	NEW_FRUSTUM
+	len_x = (returned_obj_2d_def->x_size);
+	len_y = (returned_obj_2d_def->y_size);
+	bbox.bbmin[X] = -len_x*0.5f;
+	bbox.bbmax[X] = len_x*0.5f;
+	if (returned_obj_2d_def->object_type == GROUND)
+	{
+		bbox.bbmin[Y] = -len_y*0.5f;
+		bbox.bbmax[Y] = len_y*0.5f;
+	}
+	else
+	{
+		bbox.bbmin[Y] = 0.0f;
+		bbox.bbmax[Y] = len_y;
+	}
+	bbox.bbmin[Z] = 0.0f;
+	bbox.bbmax[Z] = 0.0f;
+
+	if (returned_obj_2d_def->object_type == PLANT)
+	{
+		x_rot += 90.0f;
+		z_rot = 0.0f;
+		bbox.bbmin[X] *= sqrt(2);
+		bbox.bbmax[X] *= sqrt(2);
+		bbox.bbmin[Y] *= sqrt(2);
+		bbox.bbmax[Y] *= sqrt(2);
+	}
+	else if (returned_obj_2d_def->object_type == FENCE) x_rot += 90.0f;
+	
+	if ((x_rot != 0.0f) || (y_rot != 0.0f) || (z_rot != 0.0f)) rotate_aabb(&bbox, x_rot, y_rot, z_rot);
+	bbox.bbmin[X] += x_pos;
+	bbox.bbmin[Y] += y_pos;
+	bbox.bbmin[Z] += z_pos;
+	bbox.bbmax[X] += x_pos;
+	bbox.bbmax[Y] += y_pos;
+	bbox.bbmax[Z] += z_pos;
+	if (returned_obj_2d_def->alpha_test) alpha_test = 1;
+	else alpha_test = 0;
+
+	if (dynamic) add_dynamic_2dobject_to_abt(bbox_tree, i, &bbox, alpha_test);
+	else add_2dobject_to_list(items, i, &bbox, alpha_test);
+#else
 	//get the current sector
 	sector = (short) ((y_pos/SECTOR_SIZE_Y) * (map_meters_size_x/SECTOR_SIZE_X) + (x_pos/SECTOR_SIZE_X));
 	our_object->sector=sector;
+#endif
 
 	regenerate_near_2d_objects=1;//We've added a new object...
 	

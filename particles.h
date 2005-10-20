@@ -236,7 +236,11 @@ extern void	end_particles_list();
  * \retval int
  * \callgraph
  */
+#ifdef	NEW_FRUSTUM
+int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
+#else
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
+#endif
 
 /*!
  * \ingroup particles
@@ -250,11 +254,19 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
  * \retval int
  * \callgraph
  */
+#ifdef	NEW_FRUSTUM
+int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, unsigned int dynamic);
+#else
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile);
+#endif
 
 // Grum: included here for the map editor
 void create_particle (particle_sys *sys, particle *result);
+#ifdef	NEW_FRUSTUM
+int create_particle_sys (particle_sys_def *def, float x, float y, float z, unsigned int dynamic);
+#else
 int create_particle_sys (particle_sys_def *def, float x, float y, float z);
+#endif
 
 //RENDERING FUNCTIONS
 

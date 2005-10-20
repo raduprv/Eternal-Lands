@@ -41,7 +41,7 @@ static __inline__ void add_dyn_intersect_datas(BBOX_TREE* bbox_tree, BBOX_TREE_N
 	for (i = 0; i < count; i++) add_dyn_intersect_data(bbox_tree, node, i);		
 }
 
-static __inline__ int check_aabb_in_frustum(AABBOX *bbox, FRUSTUM *frustum, unsigned int in_mask, unsigned int *out_mask)
+static __inline__ int check_aabb_in_frustum(AABBOX *bbox, PLANE *frustum, unsigned int in_mask, unsigned int *out_mask)
 {
 	float m, n;
 	unsigned int i, k, result;
@@ -55,21 +55,21 @@ static __inline__ int check_aabb_in_frustum(AABBOX *bbox, FRUSTUM *frustum, unsi
 		{
 			float nx, px, ny, py, nz, pz;
 
-			nx = !frustum[0][i].mask[0] ? bbox->bbmin[X] :  bbox->bbmax[X];
-			px = frustum[0][i].mask[0] ? bbox->bbmin[X] :  bbox->bbmax[X];
-			ny = !frustum[0][i].mask[1] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
-			py = frustum[0][i].mask[1] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
-			nz = !frustum[0][i].mask[2] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
-			pz = frustum[0][i].mask[2] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
-			m = (	frustum[0][i].plane[A] * nx + 
-				frustum[0][i].plane[B] * ny + 
-				frustum[0][i].plane[C] * nz);
-			if (m < -frustum[0][i].plane[D]) return OUTSIDE;
+			nx = !frustum[i].mask[0] ? bbox->bbmin[X] :  bbox->bbmax[X];
+			px = frustum[i].mask[0] ? bbox->bbmin[X] :  bbox->bbmax[X];
+			ny = !frustum[i].mask[1] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
+			py = frustum[i].mask[1] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
+			nz = !frustum[i].mask[2] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
+			pz = frustum[i].mask[2] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
+			m = (	frustum[i].plane[A] * nx + 
+				frustum[i].plane[B] * ny + 
+				frustum[i].plane[C] * nz);
+			if (m < -frustum[i].plane[D]) return OUTSIDE;
 			
-			n = (	frustum[0][i].plane[A] * px + 
-				frustum[0][i].plane[B] * py + 
-				frustum[0][i].plane[C] * pz);
-			if (n < -frustum[0][i].plane[D]) 
+			n = (	frustum[i].plane[A] * px + 
+				frustum[i].plane[B] * py + 
+				frustum[i].plane[C] * pz);
+			if (n < -frustum[i].plane[D]) 
 			{
 				*out_mask |= k;
 				result = INTERSECT;
@@ -80,7 +80,7 @@ static __inline__ int check_aabb_in_frustum(AABBOX *bbox, FRUSTUM *frustum, unsi
 	return result;
 }
 
-static __inline__ void add_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, FRUSTUM *frustum, unsigned int in_mask)
+static __inline__ void add_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, PLANE *frustum, unsigned int in_mask)
 {
 	unsigned int idx2, size, i, result, out_mask;
 
@@ -94,7 +94,7 @@ static __inline__ void add_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node,
 	}
 }
 
-static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, FRUSTUM *frustum, unsigned int in_mask)
+static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, PLANE *frustum, unsigned int in_mask)
 {
 	unsigned int size, i, result, out_mask;
 
@@ -108,7 +108,7 @@ static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_n
 	}
 }
 
-static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, FRUSTUM *frustum, unsigned int in_mask)
+static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, PLANE *frustum, unsigned int in_mask)
 {
 	unsigned int out_mask, result;
 	
@@ -200,7 +200,7 @@ void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum)
 	if (bbox_tree != NULL)
 	{
 		bbox_tree->intersect_count = 0;
-		check_sub_nodes(bbox_tree, bbox_tree->root_node, frustum, 63);
+		check_sub_nodes(bbox_tree, bbox_tree->root_node, *frustum, 63);
 		qsort((void *)(bbox_tree->intersect_items), bbox_tree->intersect_count, sizeof(BBOX_ITEM_DATA), comp_items);
 		build_start_stop(bbox_tree);
 	}	
@@ -457,7 +457,7 @@ BBOX_TREE* build_bbox_tree(BBOX_ITEMS *bbox_items)
 	return bbox_tree;
 }
 
-static __inline__ void add_aabb_to_abt(BBOX_ITEMS *bbox_items, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int sort_data)
+static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int sort_data)
 {
 	unsigned int index, size;
 	
@@ -478,9 +478,9 @@ static __inline__ void add_aabb_to_abt(BBOX_ITEMS *bbox_items, AABBOX *bbox, uns
 	bbox_items->index = index + 1;
 }
 
-void add_light_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox)
+void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox)
 {
-	add_aabb_to_abt(bbox_items, bbox, ID, TYPE_LIGHT, 0);
+	add_aabb_to_list(bbox_items, bbox, ID, TYPE_LIGHT, 0);
 }
 
 static __inline__ int get_3D_type(unsigned int blend, unsigned int ground)
@@ -497,15 +497,20 @@ static __inline__ int get_3D_type(unsigned int blend, unsigned int ground)
 	}
 }
 
-void add_3dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground)
+void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground)
 {
-	add_aabb_to_abt(bbox_items, bbox, ID, get_3D_type(blend, ground), 0);
+	add_aabb_to_list(bbox_items, bbox, ID, get_3D_type(blend, ground), 0);
 }
 
-void add_2dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha)
+static __inline__ int get_2D_type(unsigned int alpha)
 {
-	if (alpha == 0)	add_aabb_to_abt(bbox_items, bbox, ID, TYPE_2D_NO_ALPHA_OBJECT, 0);
-	else add_aabb_to_abt(bbox_items, bbox, ID, TYPE_2D_ALPHA_OBJECT, 0);
+	if (alpha == 0) return TYPE_2D_NO_ALPHA_OBJECT;
+	else return TYPE_2D_ALPHA_OBJECT;
+}
+
+void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha)
+{
+	add_aabb_to_list(bbox_items, bbox, ID, get_2D_type(alpha), 0);
 }
 
 static __inline__ unsigned int get_blend_type(unsigned int blend)
@@ -532,9 +537,9 @@ static __inline__ int get_particle_type(unsigned int sblend, unsigned int dblend
 	return ((get_blend_type(sblend) << 4) + get_blend_type(dblend));
 }
 
-void add_particle_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend)
+void add_particle_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend)
 {
-	add_aabb_to_abt(bbox_items, bbox, ID, TYPE_PARTICLE, get_particle_type(sblend, dblend));
+	add_aabb_to_list(bbox_items, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend));
 }
 
 static __inline__ int check_aabb_aabb(AABBOX *bbox, AABBOX *dyn_bbox, AABBOX *new_bbox, float grow)
@@ -639,9 +644,14 @@ void add_dynamic_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *
 	add_dynamic_aabb_to_abt(bbox_tree->root_node, bbox, ID, get_3D_type(blend, ground), 0);
 }
 
+void add_dynamic_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha)
+{
+	add_dynamic_aabb_to_abt(bbox_tree->root_node, bbox, ID, get_2D_type(alpha), 0);
+}
+
 void add_dynamic_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend)
 {
-	add_dynamic_aabb_to_abt(bbox_tree->root_node, bbox, ID, TYPE_PARTICLE, get_particle_type(sblend, dblend));
+	add_dynamic_aabb_to_abt(bbox_tree->root_node, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend));
 }
 
 static __inline__ int dynamic_aabb_is_in_node(BBOX_TREE_NODE *node, unsigned int ID, unsigned int type, unsigned int *index)
@@ -776,9 +786,14 @@ void delete_dynamic_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, uns
 	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, get_3D_type(blend, ground));
 }
 
+void delete_dynamic_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha)
+{
+	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, get_2D_type(alpha));
+}
+
 void delete_dynamic_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, TYPE_PARTICLE);
+	delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, TYPE_PARTICLE_SYSTEM);
 }
 
 void delete_dynamic_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)

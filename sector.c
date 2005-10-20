@@ -19,6 +19,7 @@ Uint16 active_sector;
 int current_sector;
 #else
 BBOX_TREE* bbox_tree = NULL;
+BBOX_ITEMS* items = NULL;
 
 #define INVALID -1
 #define GROUND 0
@@ -103,9 +104,8 @@ int sector_add_particle(int objectid)
 // adds everything from the maps to the sectors
 void sector_add_map()
 {
-	int i;
 #ifndef	NEW_FRUSTUM
-	int j = 0;
+	int i, j = 0;
 	int obj_3d_no=0;
 	int obj_2d_no=0;
 	//int lights_no=0;
@@ -169,89 +169,6 @@ void sector_add_map()
 	}
 */
 
-#else
-	BBOX_ITEMS* items;
-	float len_x, len_y, len_z;
-	float r_x, r_y, r_z;
-	AABBOX bbox;
-
-	free_bbox_tree(bbox_tree);
-	items = create_bbox_items(1024);
-
-	for (i = 0; i < MAX_OBJ_3D; i++)
-	{
-		if (objects_list[i])
-		{
-			len_x = (objects_list[i]->e3d_data->max_x - objects_list[i]->e3d_data->min_x);
-			len_y = (objects_list[i]->e3d_data->max_y - objects_list[i]->e3d_data->min_y);
-			len_z = (objects_list[i]->e3d_data->max_z - objects_list[i]->e3d_data->min_z);
-			bbox.bbmin[X] = -len_x*0.5f;
-			bbox.bbmax[X] = len_x*0.5f;
-			bbox.bbmin[Y] = -len_y*0.5f;
-			bbox.bbmax[Y] = len_y*0.5f;
-			bbox.bbmin[Z] = -len_z*0.5f;
-			bbox.bbmax[Z] = len_z*0.5f;
-			r_x = objects_list[i]->x_rot;
-			r_y = objects_list[i]->y_rot;
-			r_z = objects_list[i]->z_rot;
-			rotate_aabb(&bbox, r_x, r_y, r_z);
-			bbox.bbmin[X] += objects_list[i]->x_pos;
-			bbox.bbmin[Y] += objects_list[i]->y_pos;
-			bbox.bbmin[Z] += objects_list[i]->z_pos;
-			bbox.bbmax[X] += objects_list[i]->x_pos;
-			bbox.bbmax[Y] += objects_list[i]->y_pos;
-			bbox.bbmax[Z] += objects_list[i]->z_pos;
-			add_3dobject_to_abt(items, i, &bbox, objects_list[i]->blended, 
-					objects_list[i]->e3d_data->is_ground);
-		}
-	}
-
-	for (i = 0; i < MAX_OBJ_2D; i++)
-	{
-		if (obj_2d_list[i])
-		{
-			len_x = (obj_2d_list[i]->obj_pointer->x_size);
-			len_y = (obj_2d_list[i]->obj_pointer->y_size);
-			bbox.bbmin[X] = -len_x*0.5f;
-			bbox.bbmax[X] = len_x*0.5f;
-			if (obj_2d_list[i]->obj_pointer->object_type == GROUND)
-			{
-				bbox.bbmin[Y] = -len_y*0.5f;
-				bbox.bbmax[Y] = len_y*0.5f;
-			}
-			else
-			{
-				bbox.bbmin[Y] = 0.0f;
-				bbox.bbmax[Y] = len_y;
-			}
-			bbox.bbmin[Z] = 0.0f;
-			bbox.bbmax[Z] = 0.0f;
-			r_x = obj_2d_list[i]->x_rot;
-			r_y = obj_2d_list[i]->y_rot;
-			r_z = obj_2d_list[i]->z_rot;
-			if (obj_2d_list[i]->obj_pointer->object_type == PLANT)
-			{
-				r_x += 90.0f;
-				r_z = 0.0f;
-				bbox.bbmin[X] *= sqrt(2);
-				bbox.bbmax[X] *= sqrt(2);
-				bbox.bbmin[Y] *= sqrt(2);
-				bbox.bbmax[Y] *= sqrt(2);
-			}
-			if (obj_2d_list[i]->obj_pointer->object_type == FENCE) r_x += 90.0f;
-			rotate_aabb(&bbox, r_x, r_y, r_z);
-			bbox.bbmin[X] += obj_2d_list[i]->x_pos;
-			bbox.bbmin[Y] += obj_2d_list[i]->y_pos;
-			bbox.bbmin[Z] += obj_2d_list[i]->z_pos;
-			bbox.bbmax[X] += obj_2d_list[i]->x_pos;
-			bbox.bbmax[Y] += obj_2d_list[i]->y_pos;
-			bbox.bbmax[Z] += obj_2d_list[i]->z_pos;
-			if (!obj_2d_list[i]->obj_pointer->alpha_test) add_2dobject_to_abt(items, i, &bbox, 0);
-			else add_2dobject_to_abt(items, i, &bbox, 1);
-		}
-	}
-	bbox_tree = build_bbox_tree(items);
-	free_bbox_items(items);
 #endif
 }
 

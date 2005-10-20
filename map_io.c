@@ -89,6 +89,9 @@ void destroy_map()
 #ifdef	TERRAIN
 	free_terrain();
 #endif
+#ifdef	NEW_FRUSTUM
+	free_bbox_tree(bbox_tree);
+#endif
 }
 
 #ifndef MAP_EDITOR2
@@ -207,6 +210,9 @@ int load_map (const char * file_name)
 
 	destroy_map();
 
+#ifdef	NEW_FRUSTUM
+	items = create_bbox_items(1024);
+#endif
 	// XXX (Grum): non-portable
 	fread(mem_map_header, 1, sizeof(cur_map_header), f);//header only
 
@@ -328,9 +334,15 @@ int load_map (const char * file_name)
 			cur_3d_obj_io.b = SwapFloat(cur_3d_obj_io.b);
 #endif
 			
+#ifdef	NEW_FRUSTUM
+			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
+					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
+					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b, 0);
+#else
 			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
 					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
 					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
+#endif
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);
 			}
@@ -354,8 +366,13 @@ int load_map (const char * file_name)
 			cur_2d_obj_io.z_rot = SwapFloat(cur_2d_obj_io.z_rot);
 #endif
 			
+#ifdef	NEW_FRUSTUM
+			add_2d_obj(cur_2d_obj_io.file_name,cur_2d_obj_io.x_pos,cur_2d_obj_io.y_pos,
+					   cur_2d_obj_io.z_pos,cur_2d_obj_io.x_rot,cur_2d_obj_io.y_rot,cur_2d_obj_io.z_rot, 0);
+#else
 			add_2d_obj(cur_2d_obj_io.file_name,cur_2d_obj_io.x_pos,cur_2d_obj_io.y_pos,
 					   cur_2d_obj_io.z_pos,cur_2d_obj_io.x_rot,cur_2d_obj_io.y_rot,cur_2d_obj_io.z_rot);
+#endif
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);
 			}
@@ -401,7 +418,11 @@ int load_map (const char * file_name)
 #endif
 			
 
+#ifdef	NEW_FRUSTUM
+			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, 0);
+#else
 			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos);
+#endif
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);
 			}
@@ -413,6 +434,10 @@ int load_map (const char * file_name)
 	fclose(f);
 	update_loading_win(bld_sectors_str, 20);
 	sector_add_map();
+#ifdef	NEW_FRUSTUM
+	bbox_tree = build_bbox_tree(items);
+	free_bbox_items(items);
+#endif
 	update_loading_win(init_done_str, 20);
 #ifdef EXTRA_DEBUG
 	ERR();//We finished loading the new map apparently...
@@ -800,7 +825,11 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 		nb_left -= name_len + 1;
 		
 		if (!obj_err)
+#ifdef	NEW_FRUSTUM
+			add_e3d_at_id (id, obj_name, x, y, z, rx, ry, rz, 0, 0, 1.0f, 1.0f, 1.0f, 1);
+#else
 			add_e3d_at_id (id, obj_name, x, y, z, rx, ry, rz, 0, 0, 1.0f, 1.0f, 1.0f);
+#endif
 		else
 			all_ok = 0;
 	}
@@ -812,8 +841,9 @@ void remove_3d_object_from_server (int id)
 {
 #ifndef	NEW_FRUSTUM
 	int sector, i, j = MAX_3D_OBJECTS-1, k = -1;
-
-	if (id < 0 || id > MAX_3D_OBJECTS)
+#endif
+	
+	if (id < 0 || id > MAX_OBJ_3D)
 	{
 		LOG_ERROR ("Trying to remove object with invalid id %d", id);
 		return;
@@ -824,6 +854,7 @@ void remove_3d_object_from_server (int id)
 		return;
 	}
 
+#ifndef	NEW_FRUSTUM
 	sector = SECTOR_GET (objects_list[id]->x_pos, objects_list[id]->y_pos);
 	for (i = 0; i < MAX_3D_OBJECTS; i++)
 	{
@@ -841,8 +872,7 @@ void remove_3d_object_from_server (int id)
 	sectors[sector].e3d_local[k] = sectors[sector].e3d_local[j];
 	sectors[sector].e3d_local[j] = -1;
 #else
-#warning	"Not ok so!"
-	LOG_ERROR ("Trying to remove a static object!");
+	delete_dynamic_3dobject_from_abt(bbox_tree, id, objects_list[id]->blended, objects_list[id]->e3d_data->is_ground);
 #endif
 	destroy_3d_object (id);
 }

@@ -62,7 +62,9 @@ typedef struct
 	float z_rot;
     /*! @} */
 
+#ifndef	NEW_FRUSTUM
 	short sector;  /*!< the \see sector in which this object should occur */
+#endif
 	char display;/*!< flag determining whether the object is to be shown on screen. */
 	char state; /*!< state flag for future expansion & data alignment. */
 	obj_2d_def *obj_pointer; /**< Points to the 2d object type in the obj_2d_def list */
@@ -114,8 +116,13 @@ void display_2d_objects();
  * \retval int 	Returns 0 on failure and the location in the obj_2d_list if it succeeds
  * \callgraph
  */
+#ifdef	NEW_FRUSTUM
+int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
+			   float x_rot, float y_rot, float z_rot, unsigned int dynamic);
+#else
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			   float x_rot, float y_rot, float z_rot);
+#endif
 			   
 /*!
  * \ingroup	load_2d

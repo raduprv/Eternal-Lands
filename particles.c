@@ -333,11 +333,19 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	switch (kind)
 	{
 		case 2:
+#ifdef	NEW_FRUSTUM
+			add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
+#else
 			add_particle_sys ("./particles/fire_big.part", x, y, z);
+#endif
 			break;
 		case 1:
 		default:
+#ifdef	NEW_FRUSTUM
+			add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
+#else
 			add_particle_sys ("./particles/fire_small.part", x, y, z);
+#endif
 	}
 }
 
@@ -371,17 +379,33 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 /*********************************************************************
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/
+#ifdef	NEW_FRUSTUM
+int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
+#else
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
+#endif
 {
 	particle_sys_def *def = load_particle_def(file_name);
 	if (!def) return -1;
 
+#ifdef	NEW_FRUSTUM
+	return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
+#else
 	return create_particle_sys (def, x_pos, y_pos, z_pos);
+#endif
 }
 
+#ifdef	NEW_FRUSTUM
+int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, unsigned int dynamic)
+#else
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile)
+#endif
 {
+#ifdef	NEW_FRUSTUM
+	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height_map[y_tile*tile_map_size_x*6+x_tile] * 0.2f, dynamic);
+#else
 	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height_map[y_tile*tile_map_size_x*6+x_tile] * 0.2f);
+#endif
 }
 
 void create_particle(particle_sys *sys,particle *result)
@@ -425,7 +449,11 @@ void create_particle(particle_sys *sys,particle *result)
 	result->free=0;
 }
 
+#ifdef	NEW_FRUSTUM
+int create_particle_sys (particle_sys_def *def, float x, float y, float z, unsigned int dynamic)
+#else
 int create_particle_sys (particle_sys_def *def, float x, float y, float z)
+#endif
 {
 	int	i,psys;
 	particle_sys *system_id;
@@ -1038,11 +1066,6 @@ void update_particles() {
 #ifdef ELC
 void add_teleporters_from_list (const Uint8 *teleport_list)
 {
-#ifdef	NEW_FRUSTUM
-	AABBOX bbox;
-	float len_x, len_y, len_z;
-	int obj_3d_id;
-#endif
 	Uint16 teleporters_no;
 	int i;
 	int teleport_x,teleport_y,teleport_type,my_offset;
@@ -1069,27 +1092,11 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 			x=x+0.25f;
 			y=y+0.25f;
 
-			add_particle_sys ("./particles/teleporter.part", x, y, z);
 #ifdef	NEW_FRUSTUM
-			obj_3d_id = add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f);
-			len_x = objects_list[obj_3d_id]->e3d_data->max_x - objects_list[obj_3d_id]->e3d_data->min_x;
-			len_y = objects_list[obj_3d_id]->e3d_data->max_y - objects_list[obj_3d_id]->e3d_data->min_y;
-			len_z = objects_list[obj_3d_id]->e3d_data->max_z - objects_list[obj_3d_id]->e3d_data->min_z;
-			bbox.bbmin[X] = -len_x*0.5f;
-			bbox.bbmax[X] = len_x*0.5f;
-			bbox.bbmin[Y] = -len_y*0.5f;
-			bbox.bbmax[Y] = len_y*0.5f;
-			bbox.bbmin[Z] = -len_z*0.5f;
-			bbox.bbmax[Z] = len_z*0.5f;
-			bbox.bbmin[X] += objects_list[obj_3d_id]->x_pos;
-			bbox.bbmin[Y] += objects_list[obj_3d_id]->y_pos;
-			bbox.bbmin[Z] += objects_list[obj_3d_id]->z_pos;
-			bbox.bbmax[X] += objects_list[obj_3d_id]->x_pos;
-			bbox.bbmax[Y] += objects_list[obj_3d_id]->y_pos;
-			bbox.bbmax[Z] += objects_list[obj_3d_id]->z_pos;
-			add_dynamic_3dobject_to_abt(bbox_tree, obj_3d_id, &bbox, objects_list[obj_3d_id]->blended, 
-					objects_list[obj_3d_id]->e3d_data->is_ground);
+			add_particle_sys ("./particles/teleporter.part", x, y, z, 1);
+			add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
 #else
+			add_particle_sys ("./particles/teleporter.part", x, y, z);
 			sector_add_3do(add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
 #endif
 			

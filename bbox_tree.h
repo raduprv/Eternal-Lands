@@ -12,12 +12,11 @@
 #define TYPE_3D_NO_BLEND_GROUND_OBJECT			0x03
 #define TYPE_3D_BLEND_NO_GROUND_OBJECT			0x04
 #define TYPE_3D_BLEND_GROUND_OBJECT			0x05
-#define	TYPE_REFLECTION_FRUSTUM				0x06
-#define TYPE_PARTICLE					0x07
-#define	TYPE_LIGHT					0x08
-#define	TYPE_WATER					0x09
-#define	TYPE_TERRAIN					0x0A
-#define	TYPES_COUNT					0x0B
+#define TYPE_PARTICLE_SYSTEM				0x06
+#define	TYPE_LIGHT					0x07
+#define	TYPE_WATER					0x08
+#define	TYPE_TERRAIN					0x09
+#define	TYPES_COUNT					0x0A
 
 #define	OUTSIDE		0x0000
 #define	INSIDE		0x0001
@@ -238,24 +237,234 @@ static __inline__ void rotate_aabb(AABBOX* bbox, float r_x, float r_y, float r_z
 	bbox->bbmax[Z] = max2f(bbox->bbmax[Z], max2f(max2f(matrix_2[2], matrix_2[6]), max2f(matrix_2[10], matrix_2[14])));
 }
 
+/*!
+ * \ingroup misc
+ * \brief Checks which objects of the bounding-box-tree are in the frustum.
+ *
+ * Checks which objects of the axis-aligned-bounding-box-tree are in the frustum.
+ *
+ * \param bbox_tree	The bounding-box-tree holding the objects.
+ * \param frustum	The frustum, mostly the view-frustum.
+ *
+ * \callgraph
+ */
 void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum);
+
+/*!
+ * \ingroup misc
+ * \brief Frees the given bounding-box-tree.
+ *
+ * Frees the given bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ *
+ * \callgraph
+ */
 void free_bbox_tree(BBOX_TREE* bbox_tree);
+
+/*!
+ * \ingroup misc
+ * \brief Creates a bounding-box-tree.
+ *
+ * Creates a bounding-box-tree from a list of static objects.
+ *
+ * \param bbox_items	The list of the static objects.
+ * \retval BBOX_TREE	The bounding-box-tree.
+ * \callgraph
+ */
 BBOX_TREE* build_bbox_tree(BBOX_ITEMS *bbox_items);
-void add_light_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
-void add_3dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground);
-void add_2dobject_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha);
-void add_particle_to_abt(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a static light to a list of static objects.
+ *
+ * Adds a static light to a list of static objects.
+ *
+ * \param bbox_items	The list of the static objects.
+ * \param ID		The ID of the static light.
+ * \param bbox	The bounding box of the static light.
+ * \callgraph
+ */
+void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a static 3d object to a list of static objects.
+ *
+ * Adds a static 3d object to a list of static objects.
+ *
+ * \param bbox_items	The list of the static objects.
+ * \param ID		The ID of the static 3d object.
+ * \param bbox		The bounding box of the static 3d object.
+ * \param blend		Is this a blend object?
+ * \param ground	Is this a ground object?
+ * \callgraph
+ */
+void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a static 2d object to a list of static objects.
+ *
+ * Adds a static 2d object to a list of static objects.
+ *
+ * \param bbox_items	The list of the static objects.
+ * \param ID		The ID of the static 2d object.
+ * \param bbox		The bounding box of the static 2d object.
+ * \param alpha		Is this an alpha object?
+ * \callgraph
+ */
+void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a static particle system to a list of static objects.
+ *
+ * Adds a static particle system to a list of static objects.
+ *
+ * \param bbox_items	The list of the static objects.
+ * \param ID		The ID of the static particle system.
+ * \param bbox		The bounding box of the static particle system.
+ * \param sblend	The sblend value of the static particle system.
+ * \param dblend	The dblend value of the static particle system.
+ * \callgraph
+ */
+void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a dynamic 3d object to the bounding-box-tree.
+ *
+ * Adds a dynamic 3d object to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic 3d object.
+ * \param bbox		The bounding box of the dynamic 3d object.
+ * \param blend		Is this a blend object?
+ * \param ground	Is this a ground object?
+ * \callgraph
+ */
 void add_dynamic_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a dynamic 2d object to the bounding-box-tree.
+ *
+ * Adds a dynamic 2d object to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic 3d object.
+ * \param bbox		The bounding box of the dynamic 2d object.
+ * \param alpha		Is this an alpha object?
+ * \callgraph
+ */
+void add_dynamic_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a dynamic particle system to the bounding-box-tree.
+ *
+ * Adds a dynamic particle system to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic particle system.
+ * \param bbox		The bounding box of the dynamic particle system.
+ * \param sblend	The sblend value of the dynamic particle system.
+ * \param dblend	The dblend value of the dynamic particle system.
+ * \callgraph
+ */
 void add_dynamic_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a dynamic light to the bounding-box-tree.
+ *
+ * Adds a dynamic light to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic light.
+ * \param bbox		The bounding box of the dynamic light.
+ * \callgraph
+ */
 void add_dynamic_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox);
+
+/*!
+ * \ingroup misc
+ * \brief Deletes a dynamic 3d object to the bounding-box-tree.
+ *
+ * Deletes a dynamic 3d object to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic 3d object.
+ * \param blend		Is this a blend object?
+ * \param ground	Is this a ground object?
+ * \callgraph
+ */
 void delete_dynamic_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground);
+
+/*!
+ * \ingroup misc
+ * \brief Deletes a dynamic 2d object to the bounding-box-tree.
+ *
+ * Deletes a dynamic 2d object to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic 3d object.
+ * \param alpha		Is this an alpha object?
+ * \callgraph
+ */
+void delete_dynamic_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha);
+
+/*!
+ * \ingroup misc
+ * \brief Deletes a dynamic particle system to the bounding-box-tree.
+ *
+ * Deletes a dynamic particle system to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic particle system.
+ * \callgraph
+ */
 void delete_dynamic_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
+
+/*!
+ * \ingroup misc
+ * \brief Deletes a dynamic light to the bounding-box-tree.
+ *
+ * Deletes a dynamic light to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic light.
+ * \callgraph
+ */
 void delete_dynamic_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
+
+/*!
+ * \ingroup misc
+ * \brief Creates a list for static objects.
+ *
+ * Creates a list for static objects.
+ *
+ * \param size		The minimum size of the list for the static objects.
+ * \retval BBOX_ITEMS	The list for the static objects.
+ * \callgraph
+ */
 BBOX_ITEMS* create_bbox_items(unsigned int size);
+
+/*!
+ * \ingroup misc
+ * \brief Frees the list for static objects.
+ *
+ * Frees the list for static objects.
+ *
+ * \param bbox_items	The list of the static objects.
+ * \callgraph
+ */
 void free_bbox_items(BBOX_ITEMS* bbox_items);
 
 extern FRUSTUM frustum;
 extern BBOX_TREE* bbox_tree;
+extern BBOX_ITEMS* items;
 
 #endif
 #endif

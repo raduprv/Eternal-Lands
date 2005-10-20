@@ -532,7 +532,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 	ERR();
 #endif
 
+#ifdef	NEW_FRUSTUM
+				add_particle_sys_at_tile("./particles/teleport_in.part", SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE16 (*((short *)(in_data+5))), 1);
+#else
 				add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );
+#endif
 			}
 			break;
 
@@ -542,7 +546,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 	ERR();
 #endif
 
-				add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );	
+#ifdef	NEW_FRUSTUM
+				add_particle_sys_at_tile("./particles/teleport_in.part", SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE16(*((short *)(in_data+5))), 1);
+#else
+				add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );
+#endif
 			}
 			break;
 				regenerate_near_objects=1;//Regenerate the near 3d objects...
@@ -706,7 +714,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 	ERR();
 #endif
 
+#ifdef	NEW_FRUSTUM
+				add_particle_sys_at_tile("./particles/bag_in.part", SDL_SwapLE16(*((Uint16 *)(in_data+3))), SDL_SwapLE16(*((Uint16 *)(in_data+5))), 1);
+#else
 				add_particle_sys_at_tile ( "./particles/bag_in.part", SDL_SwapLE16 ( *( (Uint16 *)(in_data+3) ) ), SDL_SwapLE16 ( *( (Uint16 *)(in_data+5) ) ) );
+#endif
 			}
 			break;
 
