@@ -34,6 +34,11 @@
 #define UNDER_MOUSE_3D_OBJ 3
 #define UNDER_MOUSE_NOTHING 4
 #define UNDER_MOUSE_NO_CHANGE 5
+#ifdef MAP_EDITOR2
+#define UNDER_MOUSE_2D_OBJ 6
+#define UNDER_MOUSE_PARTICLE 7
+#define UNDER_MOUSE_LIGHT 8
+#endif
 /*! @} */
 
 extern actor *actor_under_mouse;

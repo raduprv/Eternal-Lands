@@ -17,7 +17,11 @@
 
 obj_2d *obj_2d_list[MAX_OBJ_2D];
 #ifndef	NEW_FRUSTUM
+#ifdef MAP_EDITOR2
+int nearby_2d_objects[MAX_NEARBY_2D_OBJECTS];
+#else
 obj_2d *nearby_2d_objects[MAX_NEARBY_2D_OBJECTS];
+#endif
 
 int no_nearby_2d_objects=0;
 #endif
@@ -173,6 +177,7 @@ void draw_2d_object(obj_2d * object_id)
 			ELglActiveTextureARB(base_unit);
 		}
 	glPopMatrix();//restore the scene
+
 }
 
 
@@ -519,7 +524,11 @@ int get_nearby_2d_objects()
 					dist2 = y - obj_2d_list[l]->y_pos;
 					if (dist1*dist1 + dist2*dist2 <= 220.0f)
 					{
+#ifdef MAP_EDITOR2
+						nearby_2d_objects[no_nearby_2d_objects] = l;
+#else
 						nearby_2d_objects[no_nearby_2d_objects] = obj_2d_list[l];
+#endif
 						no_nearby_2d_objects++;
 					}
 				}
@@ -542,6 +551,7 @@ void display_2d_objects()
 {
 #ifndef	NEW_FRUSTUM
 	int i;
+	int rad;
 
 	if(regenerate_near_2d_objects)
 		if(!get_nearby_2d_objects())
@@ -553,21 +563,47 @@ void display_2d_objects()
 	glAlphaFunc(GL_GREATER,0.18f);
 	
 	for(i=0;i<no_nearby_2d_objects;i++){
-		if(nearby_2d_objects[i] && nearby_2d_objects[i]->obj_pointer && !nearby_2d_objects[i]->obj_pointer->alpha_test)
+#ifdef MAP_EDITOR2
+		if(obj_2d_list[nearby_2d_objects[i]] && obj_2d_list[nearby_2d_objects[i]]->obj_pointer && !obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test) {
+			draw_2d_object(obj_2d_list[nearby_2d_objects[i]]);
+
+			rad = obj_2d_list[nearby_2d_objects[i]]->obj_pointer->x_size / 2.0f;
+			if (rad < obj_2d_list[nearby_2d_objects[i]]->obj_pointer->y_size / 2.0f)
+				rad = obj_2d_list[nearby_2d_objects[i]]->obj_pointer->y_size / 2.0f;
+			if (selected_2d_object == -1 && read_mouse_now && mouse_in_sphere(obj_2d_list[nearby_2d_objects[i]]->x_pos, obj_2d_list[nearby_2d_objects[i]]->y_pos, obj_2d_list[nearby_2d_objects[i]]->z_pos, rad))
+				anything_under_the_mouse(nearby_2d_objects[i], UNDER_MOUSE_2D_OBJ);
+		}
+#else
+		if(nearby_2d_objects[i] && nearby_2d_objects[i]->obj_pointer && !nearby_2d_objects[i]->obj_pointer->alpha_test) {
 			draw_2d_object(nearby_2d_objects[i]);
+		}
+#endif
 	}
 
 	//Then draw all that needs a change
 	for(i=0;i<no_nearby_2d_objects;i++){
+#ifdef MAP_EDITOR2
+		if(obj_2d_list[nearby_2d_objects[i]] && obj_2d_list[nearby_2d_objects[i]]->obj_pointer && obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test) {
+    			glAlphaFunc(GL_GREATER,obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test);
+			draw_2d_object(obj_2d_list[nearby_2d_objects[i]]);
+			
+			rad = obj_2d_list[nearby_2d_objects[i]]->obj_pointer->x_size / 2.0f;
+			if (rad < obj_2d_list[nearby_2d_objects[i]]->obj_pointer->y_size / 2.0f)
+				rad = obj_2d_list[nearby_2d_objects[i]]->obj_pointer->y_size / 2.0f;
+			if (selected_2d_object == -1 && read_mouse_now && mouse_in_sphere(obj_2d_list[nearby_2d_objects[i]]->x_pos, obj_2d_list[nearby_2d_objects[i]]->y_pos, obj_2d_list[nearby_2d_objects[i]]->z_pos, rad))
+				anything_under_the_mouse(nearby_2d_objects[i], UNDER_MOUSE_2D_OBJ);
+		}
+#else
 		if(nearby_2d_objects[i] && nearby_2d_objects[i]->obj_pointer && nearby_2d_objects[i]->obj_pointer->alpha_test){
     			glAlphaFunc(GL_GREATER,nearby_2d_objects[i]->obj_pointer->alpha_test);
 			draw_2d_object(nearby_2d_objects[i]);
 		}
+#endif
 	}
 	
 	glDisable(GL_ALPHA_TEST);
 #else
-	unsigned int i, l, idx;
+	unsigned int i, l, idx, rad;
 
 	if (regenerate_near_2d_objects) get_nearby_2d_objects();
 
@@ -589,6 +625,13 @@ void display_2d_objects()
 		}
 #endif
 		draw_2d_object(obj_2d_list[l]);
+#ifdef MAP_EDITOR2
+		rad = obj_2d_list[nearby_2d_objects[i]]->obj_pointer->x_size / 2.0f;
+		if (rad < obj_2d_list[nearby_2d_objects[i]]->obj_pointer->y_size / 2.0f)
+			rad = obj_2d_list[nearby_2d_objects[i]]->obj_pointer->y_size / 2.0f;
+		if (selected_2d_object == -1 && read_mouse_now && mouse_in_sphere(obj_2d_list[l]->x_pos, obj_2d_list[l]->y_pos, obj_2d_list[l]->z_pos, rad))
+			anything_under_the_mouse(l, UNDER_MOUSE_2D_OBJ);
+#endif
 	}
 	
 	//Then draw all that needs a change
@@ -604,6 +647,13 @@ void display_2d_objects()
 #endif
 		glAlphaFunc(GL_GREATER, obj_2d_list[l]->obj_pointer->alpha_test);
 		draw_2d_object(obj_2d_list[l]);
+#ifdef MAP_EDITOR2
+		rad = obj_2d_list[nearby_2d_objects[i]]->obj_pointer->x_size / 2.0f;
+		if (rad < obj_2d_list[nearby_2d_objects[i]]->obj_pointer->y_size / 2.0f)
+			rad = obj_2d_list[nearby_2d_objects[i]]->obj_pointer->y_size / 2.0f;
+		if (selected_2d_object == -1 && read_mouse_now && mouse_in_sphere(obj_2d_list[l]->x_pos, obj_2d_list[l]->y_pos, obj_2d_list[l]->z_pos, rad))
+			anything_under_the_mouse(l, UNDER_MOUSE_2D_OBJ);
+#endif
 	}
 	
 	glDisable(GL_ALPHA_TEST);
