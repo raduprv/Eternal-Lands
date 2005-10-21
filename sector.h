@@ -67,6 +67,17 @@ int sector_add_particle(int objectid);
 
 /*!
  * \ingroup maps
+ * \brief Adds the given 2d object to the current sector
+ *
+ *      Adds the 2d object given by objectid to the current sector
+ *
+ * \param objectid  points to the 2d object to add
+ * \retval int
+ */
+int sector_add_2do(int objectid);
+
+/*!
+ * \ingroup maps
  * \brief Adds a map to the sector
  *
  *      Adds a previously loaded map to the current sector

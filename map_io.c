@@ -540,6 +540,8 @@ void new_map(int m_x_size,int m_y_size,int tile_type)
 
 	load_map_tiles();
 
+	sector_add_map();
+
 	dungeon = 0;
 	ambient_r=1.0f;
 	ambient_g=1.0f;
