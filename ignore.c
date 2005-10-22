@@ -11,6 +11,11 @@ int use_global_ignores=1;
 int add_to_ignore_list(Uint8 *name, char save_name)
 {
 	int i;
+	
+	// never ignore uobeyuok, the rule bot
+	if(!strcasecmp(name, "uobeyuok")){
+		return(-1);
+	}
 	//see if this name is already on the list
 	for(i=0;i<MAX_IGNORES;i++)
 		{
