@@ -1018,7 +1018,7 @@ void compute_clouds_map(object3d * object_id)
 	//y_rot=object_id->y_rot;
 	z_rot=object_id->z_rot;
 
-	m = -z_rot * 3.1415926f / 180;
+	m = -z_rot * M_PI / 180.0f;
 	cos_m = cos(m);
 	sin_m = sin(m);
 

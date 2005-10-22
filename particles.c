@@ -709,8 +709,8 @@ void draw_text_particle_sys(particle_sys *system_id)
 	float x_pos,y_pos,z_pos;
 	int i;
 	float z_len=0.065f*system_id->def->part_size;
-	float x_len=z_len*cos(-rz*3.1415926/180.0);
-	float y_len=z_len*sin(-rz*3.1415926/180.0);
+	float x_len=z_len*cos(-rz*M_PI/180.0);
+	float y_len=z_len*sin(-rz*M_PI/180.0);
 	particle *p;
 
 	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues

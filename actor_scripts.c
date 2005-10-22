@@ -744,8 +744,8 @@ void next_command()
 							} else targeted_z_rot=z_rot;
 							
 							//ok, now calculate the motion vector...
-							actors_list[i]->move_x_speed=(actors_defs[actor_type].walk_speed/3.0f)*sin(targeted_z_rot*3.1415926/180.0);
-							actors_list[i]->move_y_speed=(actors_defs[actor_type].walk_speed/3.0f)*cos(targeted_z_rot*3.1415926/180.0);
+							actors_list[i]->move_x_speed=(actors_defs[actor_type].walk_speed/3.0f)*sin(targeted_z_rot*M_PI/180.0);
+							actors_list[i]->move_y_speed=(actors_defs[actor_type].walk_speed/3.0f)*cos(targeted_z_rot*M_PI/180.0);
 							actors_list[i]->movement_frames_left=54/4;
 							actors_list[i]->after_move_frames_left=0;
 							actors_list[i]->moving=1;

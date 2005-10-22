@@ -478,7 +478,7 @@ void makeScreenShot ()
 
 void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int angle_to)
 {
-	const float mul=3.14159265f/180.0f;
+	const float mul=M_PI/180.0f;
 	int angle;
 
 	if(radius==0){

@@ -327,7 +327,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right, float y_top, float y_bottom, float y_actor)
 {
 	const float r=0.1f;
-	const float mul=3.14159265f/180.0f;
+	const float mul=M_PI/180.0f;
 	int angle;
 	
 	glEnable(GL_BLEND);

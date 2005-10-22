@@ -110,7 +110,7 @@ void draw_2d_object(obj_2d * object_id)
 
 			glBegin(GL_QUADS);
 
-			m=(-z_rot)*3.1415926f/180;
+			m=(-z_rot)*M_PI/180;
 			cos_m=cos(m);
 			sin_m=sin(m);
 

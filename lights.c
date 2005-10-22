@@ -747,8 +747,8 @@ void build_sun_pos_table()
 	d=400;
 	for(i=0;i<60*3;i++)
 		{
-			z = d*sin((float)(i+start)*0.6f*3.1415926/180);
-			y = d*cos((float)(i+start)*0.6f*3.1415926/180);
+			z = d*sin((float)(i+start)*0.6f*M_PI/180.0f);
+			y = d*cos((float)(i+start)*0.6f*M_PI/180.0f);
 			x+=0.5f;
 
 			sun_pos[i].x=x;

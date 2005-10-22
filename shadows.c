@@ -105,17 +105,17 @@ void calc_shadow_matrix()
 #else
 			xrot=-acosf(sun_position[2]);
 #endif
-			//xrot=-atan2f(sun_position[2],sun_position[0])*180.0f/3.1415926f;
+			//xrot=-atan2f(sun_position[2],sun_position[0])*180.0f/(float)M_PI;
 #ifdef OSX
-			zrot=-90.0f-atan2(sun_position[1],sun_position[0])*180.0f/3.1415926f;
+			zrot=-90.0f-atan2(sun_position[1],sun_position[0])*180.0f/(float)M_PI;
 #else
-			zrot=-90.0f-atan2f(sun_position[1],sun_position[0])*180.0f/3.1415926f;
+			zrot=-90.0f-atan2f(sun_position[1],sun_position[0])*180.0f/(float)M_PI;
 #endif
 
 			glPushMatrix();
 			glLoadIdentity();
 			calc_light_frustum(xrot);
-			xrot*=180.0f/3.1415926f;
+			xrot*=180.0f/(float)M_PI;
 			glOrtho(-light_view_hscale,light_view_hscale,
 				light_view_bottom,light_view_top,light_view_near,light_view_far);
 			glGetDoublev(GL_MODELVIEW_MATRIX,light_proj_mat);
