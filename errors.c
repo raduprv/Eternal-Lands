@@ -50,7 +50,9 @@ void log_error (const char* message, ...)
 	va_start(ap, message);
 		vfprintf (err_file, message, ap);
 	va_end(ap);
-	fprintf (err_file, "\n");
+	if(message[strlen(message)-1] != '\n') {
+		fprintf(err_file, "\n");
+	}
   	fflush (err_file);
 }
 
