@@ -171,4 +171,14 @@ void state_2d_object (Uint8 state, const void *ptr, int len);
  */
 obj_2d_def * load_obj_2d_def_cache(char * file_name);
 
+#ifdef MAP_EDITOR2
+/*!
+ * \ingroup	display_2d
+ * \brief Draws all 2D objects and evaluates collision with the mouse pointer
+ *
+ * 	Draws all 2D objects and evaluates collision with the mouse pointer - if there's a collision it sets selected_2d_object accordingly
+ */
+void get_2d_object_under_mouse();
+#endif
+
 #endif

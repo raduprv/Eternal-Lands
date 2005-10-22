@@ -179,8 +179,13 @@ void draw_3d_object(object3d * object_id)
 	CHECK_GL_ERRORS();
 	
 	//OK, let's check if our mouse is over...
+#ifdef MAP_EDITOR2
+	if (selected_3d_object == -1 && read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, object_id->e3d_data->radius))
+		anything_under_the_mouse(object_id->id, UNDER_MOUSE_3D_OBJ);
+#else
 	if (read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, object_id->e3d_data->radius))
 		anything_under_the_mouse(object_id->id, UNDER_MOUSE_3D_OBJ);
+#endif
 }
 
 //Tests to see if an e3d object is already loaded. If it is, return the handle.

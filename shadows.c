@@ -733,6 +733,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			if(any_reflection)draw_lake_tiles();
 			draw_tile_map();
 #ifdef MAP_EDITOR2
+			get_world_x_y ();
 			display_mode();
 #endif
 			CHECK_GL_ERRORS();
@@ -787,6 +788,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 
 			draw_tile_map();
 #ifdef MAP_EDITOR2
+			get_world_x_y ();
 			display_mode();
 #endif
 			CHECK_GL_ERRORS();
