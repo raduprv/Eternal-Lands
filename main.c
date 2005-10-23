@@ -169,6 +169,9 @@ int start_rendering()
 	SDL_RemoveTimer(draw_scene_timer);
 	SDL_RemoveTimer(misc_timer);
 	end_particles_list();
+#ifdef	NEW_FRUSTUM
+	free_bbox_tree(main_bbox_tree);
+#endif
 	/* Destroy our GL context, etc. */
 	destroy_sound();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);

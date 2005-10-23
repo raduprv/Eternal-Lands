@@ -90,7 +90,7 @@ void destroy_map()
 	free_terrain();
 #endif
 #ifdef	NEW_FRUSTUM
-	free_bbox_tree(bbox_tree);
+	clear_bbox_tree(main_bbox_tree);
 #endif
 }
 
@@ -211,7 +211,7 @@ int load_map (const char * file_name)
 	destroy_map();
 
 #ifdef	NEW_FRUSTUM
-	items = create_bbox_items(1024);
+	main_bbox_tree_items = create_bbox_items(1024);
 #endif
 	// XXX (Grum): non-portable
 	fread(mem_map_header, 1, sizeof(cur_map_header), f);//header only
@@ -435,8 +435,8 @@ int load_map (const char * file_name)
 	update_loading_win(bld_sectors_str, 20);
 	sector_add_map();
 #ifdef	NEW_FRUSTUM
-	bbox_tree = build_bbox_tree(items);
-	free_bbox_items(items);
+	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
+	free_bbox_items(main_bbox_tree_items);
 #endif
 	update_loading_win(init_done_str, 20);
 #ifdef EXTRA_DEBUG
@@ -874,7 +874,7 @@ void remove_3d_object_from_server (int id)
 	sectors[sector].e3d_local[k] = sectors[sector].e3d_local[j];
 	sectors[sector].e3d_local[j] = -1;
 #else
-	delete_dynamic_3dobject_from_abt(bbox_tree, id, objects_list[id]->blended, objects_list[id]->e3d_data->is_ground);
+	delete_dynamic_3dobject_from_abt(main_bbox_tree, id, objects_list[id]->blended, objects_list[id]->e3d_data->is_ground);
 #endif
 	destroy_3d_object (id);
 }

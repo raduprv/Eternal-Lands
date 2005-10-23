@@ -466,8 +466,8 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	if (returned_obj_2d_def->alpha_test) alpha_test = 1;
 	else alpha_test = 0;
 
-	if (dynamic) add_dynamic_2dobject_to_abt(bbox_tree, i, &bbox, alpha_test);
-	else add_2dobject_to_list(items, i, &bbox, alpha_test);
+	if (dynamic) add_dynamic_2dobject_to_abt(main_bbox_tree, i, &bbox, alpha_test);
+	else add_2dobject_to_list(main_bbox_tree_items, i, &bbox, alpha_test);
 #else
 	//get the current sector
 	sector = (short) ((y_pos/SECTOR_SIZE_Y) * (map_meters_size_x/SECTOR_SIZE_X) + (x_pos/SECTOR_SIZE_X));
@@ -532,7 +532,7 @@ int get_nearby_2d_objects()
 
 	return no_nearby_2d_objects;
 #else
-	check_bbox_tree(bbox_tree, &frustum);
+	check_bbox_tree(main_bbox_tree, &main_frustum);
 	regenerate_near_2d_objects = 0;
 
 	return 1;
@@ -657,16 +657,16 @@ void display_2d_objects()
 
 	if (regenerate_near_2d_objects) get_nearby_2d_objects();
 
-	idx = bbox_tree->cur_intersect_type;
+	idx = main_bbox_tree->cur_intersect_type;
 	
 	//First draw everyone with the same alpha test
     	
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.18f);
 	
-	for (i = bbox_tree->intersect[idx].start[TYPE_2D_NO_ALPHA_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_2D_NO_ALPHA_OBJECT]; i++)
+	for (i = main_bbox_tree->intersect[idx].start[TYPE_2D_NO_ALPHA_OBJECT]; i < main_bbox_tree->intersect[idx].stop[TYPE_2D_NO_ALPHA_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect[idx].items[i].ID;
+		l = main_bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!obj_2d_list[l])
 		{
@@ -678,9 +678,9 @@ void display_2d_objects()
 	}
 	
 	//Then draw all that needs a change
-	for (i = bbox_tree->intersect[idx].start[TYPE_2D_ALPHA_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_2D_ALPHA_OBJECT]; i++)
+	for (i = main_bbox_tree->intersect[idx].start[TYPE_2D_ALPHA_OBJECT]; i < main_bbox_tree->intersect[idx].stop[TYPE_2D_ALPHA_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect[idx].items[i].ID;
+		l = main_bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!obj_2d_list[l])
 		{

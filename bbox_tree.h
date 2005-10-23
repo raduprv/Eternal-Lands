@@ -17,6 +17,7 @@
 #define	TYPE_WATER					0x08
 #define	TYPE_TERRAIN					0x09
 #define	TYPES_COUNT					0x0A
+#define TYPE_DELETED					0xFF
 
 #define	ITERSECTION_TYPES_DEFAULT			0x00
 #define	ITERSECTION_TYPES_SHADOW			0x01
@@ -31,7 +32,7 @@
 
 typedef float VECTOR3[3];
 typedef float VECTOR4[4];
-typedef unsigned short IDX_TYPE;
+typedef unsigned int IDX_TYPE;
 
 typedef struct
 {
@@ -98,11 +99,28 @@ struct BBox_Tree_Node_Struct
 
 typedef struct
 {
+	IDX_TYPE		size;
 	IDX_TYPE		count;
 	IDX_TYPE		start[TYPES_COUNT];
 	IDX_TYPE		stop[TYPES_COUNT];
 	BBOX_ITEM_DATA*		items;
 } BBOX_INTERSECTION_DATA;
+
+#ifdef	FRUSTUM_THREADS
+typedef	struct
+{
+	BBOX_ITEM		item;
+	unsigned char		dynamic;
+} BBOX_UPDATE_ITEM_DATA;
+
+typedef struct
+{
+	unsigned int		bbox_tree_degeneration;
+	IDX_TYPE		size;
+	IDX_TYPE		index;
+	BBOX_UPDATE_ITEM_DATA*	list;
+} BBOX_TREE_UPDATE_DATA;
+#endif
 
 typedef	struct
 {
@@ -113,6 +131,13 @@ typedef	struct
 	BBOX_TREE_NODE*		nodes;
 	unsigned short		cur_intersect_type;
 	BBOX_INTERSECTION_DATA	intersect[MAX_ITERSECTION_TYPES];
+	SDL_mutex*		bbox_tree_mutex;
+#ifdef	FRUSTUM_THREADS
+	SDL_cond*		update_condition;
+	BBOX_TREE_UPDATE_DATA	update_data;
+	unsigned char		done;
+	SDL_Thread*		thread_id;
+#endif
 } BBOX_TREE;
 
 enum
@@ -248,6 +273,16 @@ static __inline__ void rotate_aabb(AABBOX* bbox, float r_x, float r_y, float r_z
 	bbox->bbmax[Z] = max2f(bbox->bbmax[Z], max2f(max2f(matrix_2[2], matrix_2[6]), max2f(matrix_2[10], matrix_2[14])));
 }
 
+static __inline__ int lock_bbox_tree(BBOX_TREE* bbox_tree)
+{
+	return SDL_LockMutex(bbox_tree->bbox_tree_mutex);
+}
+
+static __inline__ int unlock_bbox_tree(BBOX_TREE* bbox_tree)
+{
+	return SDL_UnlockMutex(bbox_tree->bbox_tree_mutex);
+}
+
 /*!
  * \ingroup misc
  * \brief Checks which objects of the bounding-box-tree are in the frustum.
@@ -275,15 +310,39 @@ void free_bbox_tree(BBOX_TREE* bbox_tree);
 
 /*!
  * \ingroup misc
+ * \brief Clears the given bounding-box-tree.
+ *
+ * Clears the data of the given bounding-box-tree without 
+ * freeing the bounding boxtree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ *
+ * \callgraph
+ */
+void clear_bbox_tree(BBOX_TREE* bbox_tree);
+
+/*!
+ * \ingroup misc
  * \brief Creates a bounding-box-tree.
  *
- * Creates a bounding-box-tree from a list of static objects.
+ * Creates an empty bounding-box-tree.
  *
- * \param bbox_items	The list of the static objects.
  * \retval BBOX_TREE	The bounding-box-tree.
  * \callgraph
  */
-BBOX_TREE* build_bbox_tree(BBOX_ITEMS *bbox_items);
+BBOX_TREE* build_bbox_tree();
+
+/*!
+ * \ingroup misc
+ * \brief Inits a bounding-box-tree.
+ *
+ * Inits a bounding-box-tree from a list of static objects.
+ *
+ * \param bbox_items	The list of the static objects.
+ * \param bbox_tree	The bounding-box-tree.
+ * \callgraph
+ */
+void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items);
 
 /*!
  * \ingroup misc
@@ -473,9 +532,9 @@ BBOX_ITEMS* create_bbox_items(unsigned int size);
  */
 void free_bbox_items(BBOX_ITEMS* bbox_items);
 
-extern FRUSTUM frustum;
-extern BBOX_TREE* bbox_tree;
-extern BBOX_ITEMS* items;
+extern FRUSTUM main_frustum;
+extern BBOX_TREE* main_bbox_tree;
+extern BBOX_ITEMS* main_bbox_tree_items;
 
 #endif
 #endif

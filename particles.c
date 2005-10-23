@@ -549,7 +549,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 				remove_sound_object (sys->sound);
 #endif
 #ifdef	NEW_FRUSTUM
-			delete_dynamic_particle_from_abt(bbox_tree, i);
+			delete_dynamic_particle_from_abt(main_bbox_tree, i);
 #endif
 			free (sys);
 			particles_list[i] = NULL;
@@ -693,8 +693,8 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 
 #ifdef	NEW_FRUSTUM
 	calc_bounding_box_for_particle_sys(&bbox, system_id);
-	if (dynamic) add_dynamic_particle_to_abt(bbox_tree, psys, &bbox, def->sblend, def->dblend);
-	else add_particle_sys_to_list(items, psys, &bbox, def->sblend, def->dblend);
+	if (dynamic) add_dynamic_particle_to_abt(main_bbox_tree, psys, &bbox, def->sblend, def->dblend);
+	else add_particle_sys_to_list(main_bbox_tree_items, psys, &bbox, def->sblend, def->dblend);
 #endif
 	UNLOCK_PARTICLES_LIST();
 
@@ -815,7 +815,7 @@ void display_particles()
 
 	if (regenerate_near_objects) get_near_3d_objects();
 
-	idx = bbox_tree->cur_intersect_type;
+	idx = main_bbox_tree->cur_intersect_type;
 #endif
 
 	if(!particles_percentage)
@@ -836,9 +836,9 @@ void display_particles()
 	LOCK_PARTICLES_LIST();
 	// Perhaps we should have a depth sort here..?
 #ifdef	NEW_FRUSTUM
-	for (i = bbox_tree->intersect[idx].start[TYPE_PARTICLE_SYSTEM]; i < bbox_tree->intersect[idx].stop[TYPE_PARTICLE_SYSTEM]; i++)
+	for (i = main_bbox_tree->intersect[idx].start[TYPE_PARTICLE_SYSTEM]; i < main_bbox_tree->intersect[idx].stop[TYPE_PARTICLE_SYSTEM]; i++)
 	{
-		l = bbox_tree->intersect[idx].items[i].ID;
+		l = main_bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!particles_list[l])
 		{
@@ -1269,16 +1269,17 @@ void update_particles() {
 					free(lights_list[particles_list[i]->light]);
 					lights_list[particles_list[i]->light] = NULL;
 				}
-				delete_dynamic_particle_from_abt(bbox_tree, i);
+				delete_dynamic_particle_from_abt(main_bbox_tree, i);
 				free(particles_list[i]);
 				particles_list[i]=0;
 			}			
 		}
 	}
-	idx = bbox_tree->cur_intersect_type;
-	for (i = bbox_tree->intersect[idx].start[TYPE_PARTICLE_SYSTEM]; i < bbox_tree->intersect[idx].stop[TYPE_PARTICLE_SYSTEM]; i++)
+	lock_bbox_tree(main_bbox_tree);
+	idx = main_bbox_tree->cur_intersect_type;
+	for (i = main_bbox_tree->intersect[idx].start[TYPE_PARTICLE_SYSTEM]; i < main_bbox_tree->intersect[idx].stop[TYPE_PARTICLE_SYSTEM]; i++)
 	{
-		l = bbox_tree->intersect[idx].items[i].ID;
+		l = main_bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!particles_list[l])
 		{
@@ -1310,6 +1311,7 @@ void update_particles() {
 				break;
 		}
 	}
+	unlock_bbox_tree(main_bbox_tree);
 #else
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
