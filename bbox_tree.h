@@ -358,7 +358,7 @@ void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items);
  *
  * \param bbox_items	The list of the static objects.
  * \param ID		The ID of the static light.
- * \param bbox	The bounding box of the static light.
+ * \param bbox		The bounding box of the static light.
  * \callgraph
  */
 void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
@@ -406,6 +406,33 @@ void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox,
  * \callgraph
  */
 void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a static terrain tile to a list of static objects.
+ *
+ * Adds a static terrain tile to a list of static objects.
+ *
+ * \param bbox_items	The list of the static objects.
+ * \param ID		The ID of the static terrain tile.
+ * \param bbox		The bounding box of the static terrain tile.
+ * \callgraph
+ */
+void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a static water tile to a list of static objects.
+ *
+ * Adds a static water tile to a list of static objects.
+ *
+ * \param bbox_items	The list of the static objects.
+ * \param ID		The ID of the static water tile.
+ * \param bbox		The bounding box of the static water tile.
+ * \param reflectiv	Is the tile reflectiv.
+ * \callgraph
+ */
+void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int reflectiv);
 
 /*!
  * \ingroup misc

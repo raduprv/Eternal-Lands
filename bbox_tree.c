@@ -5,11 +5,13 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef	FRUSTUM_THREADS
 static __inline__ void update_bbox_tree_degeneration(BBOX_TREE* bbox_tree, unsigned int count)
 {
 	bbox_tree->update_data.bbox_tree_degeneration += count;
 	if (bbox_tree->update_data.bbox_tree_degeneration > 100) SDL_CondBroadcast(bbox_tree->update_condition);
 }
+#endif
 
 static __inline__ void adapt_intersect_list_size(BBOX_TREE* bbox_tree, unsigned int count)
 {
@@ -690,6 +692,16 @@ void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *b
 	add_aabb_to_list(bbox_items, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend));
 }
 
+void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox)
+{
+	add_aabb_to_list(bbox_items, bbox, ID, TYPE_TERRAIN, 0);
+}
+
+void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int reflectiv)
+{
+	add_aabb_to_list(bbox_items, bbox, ID, TYPE_WATER, reflectiv);
+}
+
 static __inline__ unsigned int check_aabb_aabb(AABBOX *bbox, AABBOX *dyn_bbox, AABBOX *new_bbox, float grow)
 {
 	VECTOR3 len;
@@ -1022,7 +1034,9 @@ static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int I
 		}
 #endif
 		delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, type);
+#ifdef	FRUSTUM_THREADS
 		update_bbox_tree_degeneration(bbox_tree, 1);
+#endif
 		unlock_bbox_tree(bbox_tree);
 	}
 }

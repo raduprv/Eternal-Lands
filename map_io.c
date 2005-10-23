@@ -181,6 +181,10 @@ void change_map (const char *mapname)
 int load_map (const char * file_name)
 {
 	int i;
+#ifdef	NEW_FRUSTUM
+	int cur_tile, j;
+	AABBOX bbox;
+#endif
 	map_header cur_map_header;
 	char * mem_map_header=(char *)&cur_map_header;
 
@@ -293,6 +297,34 @@ int load_map (const char * file_name)
 
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
+#ifdef	NEW_FRUSTUM
+	for(i = 0; i < tile_map_size_y; i++)
+	{
+		bbox.bbmin[Y] = i*3.0f;
+		bbox.bbmax[Y] = (i+1)*3.0f;
+		for(j = 0; j < tile_map_size_x; j++)
+		{
+			cur_tile = tile_map[i*tile_map_size_x+j];
+			if(cur_tile != 255)
+			{
+				bbox.bbmin[X] = j*3.0f;
+				bbox.bbmax[X] = (j+1)*3.0f;
+				if (IS_WATER_TILE(cur_tile)) 
+				{
+					bbox.bbmin[Z] = -0.25f;
+					bbox.bbmax[Z] = -0.25f;
+					add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, IS_REFLECTING(cur_tile));
+				}
+				else 
+				{
+					bbox.bbmin[Z] = 0.0f;
+					bbox.bbmax[Z] = 0.0f;
+					add_terrain_to_list(main_bbox_tree_items, (i << 8)+j, &bbox);
+				}
+			}
+		}
+	}
+#endif
 
 	//read the heights map
 	fread(height_map, 1, tile_map_size_x*tile_map_size_y*6*6, f);

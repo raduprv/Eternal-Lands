@@ -346,7 +346,11 @@ void draw_tile_map()
 #else
 void draw_tile_map()
 {
+#ifndef	NEW_FRUSTUM
 	int x_start,x_end,y_start,y_end;
+#else
+	unsigned int i, l, idx;
+#endif
 	int x,y;
 	float x_scaled,y_scaled;
 	int cur_texture;
@@ -361,6 +365,9 @@ void draw_tile_map()
 			glEnable(GL_TEXTURE_2D);
 		}
 
+#ifdef	NEW_FRUSTUM
+	idx = main_bbox_tree->cur_intersect_type;
+#else
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
 	if(cx<0)x=(cx*-1)/3;
@@ -377,9 +384,11 @@ void draw_tile_map()
 	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
 	if(y_start<0)y_start=0;
 	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
+#endif
 	if(!have_multitexture || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glBegin(GL_QUADS);
+#ifndef	NEW_FRUSTUM
 			for(y=y_start;y<=y_end;y++)
 				{
 					y_scaled=y*3.0f;
@@ -389,6 +398,15 @@ void draw_tile_map()
 							if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]))continue;//lake, skip
 							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
 							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
+#else
+			for (i = main_bbox_tree->intersect[idx].start[TYPE_TERRAIN]; i < main_bbox_tree->intersect[idx].stop[TYPE_TERRAIN]; i++)
+			{
+				l = main_bbox_tree->intersect[idx].items[i].ID;
+				x = l & 0xFF;
+				y = l >> 8;
+				y_scaled = y*3.0f;
+				x_scaled = x*3.0f;
+#endif
 							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
 							if(last_texture!=cur_texture)
 								{
@@ -405,7 +423,9 @@ void draw_tile_map()
 							glVertex3f(x_scaled+3, y_scaled,-0.001f);
 							glTexCoord2f(1.0f, 1.0f);
 							glVertex3f(x_scaled+3, y_scaled+3,-0.001f);
+#ifndef	NEW_FRUSTUM
 						}
+#endif
 				}
 			glEnd();
 		}
@@ -413,12 +433,22 @@ void draw_tile_map()
 		{
 
 			glBegin(GL_QUADS);
+#ifndef	NEW_FRUSTUM
 			for(y=y_start;y<=y_end;y++)
 				{
 					y_scaled=y*3.0f;
 					for(x=x_start;x<=x_end;x++)
 						{
 							x_scaled=x*3.0f;
+#else
+			for (i = main_bbox_tree->intersect[idx].start[TYPE_TERRAIN]; i < main_bbox_tree->intersect[idx].stop[TYPE_TERRAIN]; i++)
+			{
+				l = main_bbox_tree->intersect[idx].items[i].ID;
+				x = l & 0xFF;
+				y = l >> 8;
+				y_scaled = y*3.0f;
+				x_scaled = x*3.0f;
+#endif
 							if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]))continue;//lake, skip
 							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
 							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
@@ -445,7 +475,9 @@ void draw_tile_map()
 							ELglMultiTexCoord2fARB(base_unit,1.0f, 1.0f);
 							ELglMultiTexCoord2fARB(detail_unit,(x_scaled+3.0)/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
 							glVertex3f(x_scaled+3, y_scaled+3,-0.001f);
+#ifndef	NEW_FRUSTUM
 						}
+#endif
 				}
 			glEnd();
 
@@ -493,6 +525,7 @@ void load_map_tiles()
 					if(IS_WATER_TILE(cur_tile) && IS_REFLECTING(cur_tile))
 					  tile_list[cur_tile]=load_texture_cache(str,70);
 					else tile_list[cur_tile]=load_texture_cache(str,255);
+			
 				}
 		}
 #endif
