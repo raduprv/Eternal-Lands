@@ -1392,10 +1392,14 @@ int cal_get_idle_group(actor_types *act,char *name)
 
 struct cal_anim cal_load_idle(actor_types *act, char *str)
 {
-	struct cal_anim res;
+	struct cal_anim res = {-1,0,0};
 	struct CalCoreAnimation *coreanim;
 	
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,str);
+	if(res.anim_index == -1) {
+		log_error("Cal3d error: %s: %s\n", str, CalError_GetLastErrorDescription());
+		return res;
+	}
 	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
 	
 	if (coreanim) {
@@ -1671,11 +1675,11 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
 	
 	//Scale coremesh
-	if (res>=0) {
+	if (res >= 0) {
 		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
 		if ((mesh)&&(act->mesh_scale!=1.0)) CalCoreMesh_Scale(mesh,act->mesh_scale);
 	} else {
-		log_error("No mesh: %s\n",fn);
+		log_error("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
 	
 	return res;
@@ -1713,7 +1717,7 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
 		if ((mesh)&&(act->skel_scale!=1.0)) CalCoreMesh_Scale(mesh,act->skel_scale);
 	} else {
-		log_error("No mesh: %s\n",fn);
+		log_error("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
 	
 	return res;
@@ -1814,7 +1818,9 @@ int parse_actor_script (xmlNode *cfg) {
 			} else if (xmlStrcasecmp (item->name, "skeleton")==0) {
 				get_string_value (act->skeleton_name, sizeof (act->skeleton_name), item);
 				act->coremodel=CalCoreModel_New("Model");
-				CalCoreModel_LoadCoreSkeleton(act->coremodel,act->skeleton_name);
+				if(!CalCoreModel_LoadCoreSkeleton(act->coremodel, act->skeleton_name)) {
+					log_error("Cal3d error: %s: %s\n", act->skeleton_name, CalError_GetLastErrorDescription());
+				}
 			} else if (xmlStrcasecmp (item->name, "frames") == 0) {
 				ok &= parse_actor_frames (act, item->children);
 			} else if (xmlStrcasecmp (item->name, "shirt") == 0) {

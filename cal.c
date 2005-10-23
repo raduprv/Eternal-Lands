@@ -41,7 +41,8 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 	
 	CalModel_Update(actors_list[id]->calmodel,0.0001);//Make changes take effect now
 
-	if (actors_list[id]->cur_anim.anim_index==-1) actors_list[id]->busy=0;
+	if (actors_list[id]->cur_anim.anim_index==-1)
+		actors_list[id]->busy=0;
 	actors_list[id]->IsOnIdle=0;
 }
 
@@ -53,30 +54,31 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 {
 	char fname[255]={0};
 	struct cal_anim res={-1,0,0};
-	char temp[255]={0};
 	struct CalCoreAnimation *coreanim;
 
-	if(sscanf(str,"%s %d",fname,&res.kind)!=2) return res;
-	
+	if(sscanf(str,"%s %d",fname,&res.kind) != 2)
+		return res;
+
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,fname);
+	if(res.anim_index == -1) {
+		log_error("Cal3d error: %s: %s\n", fname, CalError_GetLastErrorDescription());
+		return res;
+	}
 	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
 
 	if (coreanim) {
 		CalCoreAnimation_Scale(coreanim,act->scale);
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
-		snprintf(temp,sizeof(temp),"No Anim: %s\n",fname);
-		log_error(temp);
+		log_error("No Anim: %s\n", fname);
 	}
 
 	return res;
-
 }
 
 
 
 void cal_render_bones(actor *act)
-
 {
 	float lines[1024][2][3];
 	float points[1024][3];
