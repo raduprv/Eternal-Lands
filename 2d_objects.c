@@ -570,25 +570,22 @@ void get_2d_object_under_mouse()
 
 	glPopMatrix();
 #else
-	unsigned int i, l, idx, rad;
+	unsigned int i, l, idx;
 	float least_z = 1.0f;
 
 	if (regenerate_near_2d_objects) get_nearby_2d_objects();
 
-	idx = bbox_tree->cur_intersect_type;
+	idx = main_bbox_tree->cur_intersect_type;
 	
+	//First draw everyone with the same alpha test
+    	
+	glPushMatrix();
 	glClearDepth(least_z);
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-
-	glPushMatrix();
-	glLoadIdentity();
-	glRotatef(rx, 1.0f, 0.0f, 0.0f);
-	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(cx, cy, cz);
 	
-	for (i = bbox_tree->intersect[idx].start[TYPE_2D_NO_ALPHA_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_2D_NO_ALPHA_OBJECT]; i++)
+	for (i = main_bbox_tree->intersect[idx].start[TYPE_2D_NO_ALPHA_OBJECT]; i < main_bbox_tree->intersect[idx].stop[TYPE_2D_NO_ALPHA_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect[idx].items[i].ID;
+		l = main_bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!obj_2d_list[l])
 		{
@@ -602,9 +599,10 @@ void get_2d_object_under_mouse()
 		}
 	}
 	
-	for (i = bbox_tree->intersect[idx].start[TYPE_2D_ALPHA_OBJECT]; i < bbox_tree->intersect[idx].stop[TYPE_2D_ALPHA_OBJECT]; i++)
+	//Then draw all that needs a change
+	for (i = main_bbox_tree->intersect[idx].start[TYPE_2D_ALPHA_OBJECT]; i < main_bbox_tree->intersect[idx].stop[TYPE_2D_ALPHA_OBJECT]; i++)
 	{
-		l = bbox_tree->intersect[idx].items[i].ID;
+		l = main_bbox_tree->intersect[idx].items[i].ID;
 #ifdef EXTRA_DEBUG
 		if (!obj_2d_list[l])
 		{
@@ -617,9 +615,9 @@ void get_2d_object_under_mouse()
 			selected_2d_object = l;
 		}
 	}
-#endif
 	
 	glPopMatrix();
+#endif
 }
 #endif
 
@@ -653,7 +651,7 @@ void display_2d_objects()
 	
 	glDisable(GL_ALPHA_TEST);
 #else
-	unsigned int i, l, idx, rad;
+	unsigned int i, l, idx;
 
 	if (regenerate_near_2d_objects) get_nearby_2d_objects();
 

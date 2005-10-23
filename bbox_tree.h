@@ -3,8 +3,14 @@
 #define BBOX_TREE_H
 
 #include <math.h>
+#include <stdlib.h>
+#ifdef MAP_EDITOR2
+#include "../map_editor2/global.h"
+#include "../map_editor2/misc.h"
+#else
 #include "global.h"
 #include "misc.h"
+#endif
 
 #define TYPE_2D_NO_ALPHA_OBJECT				0x00
 #define TYPE_2D_ALPHA_OBJECT				0x01
