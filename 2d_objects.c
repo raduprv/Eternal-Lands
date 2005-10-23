@@ -466,8 +466,8 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	if (returned_obj_2d_def->alpha_test) alpha_test = 1;
 	else alpha_test = 0;
 
-	if (dynamic) add_dynamic_2dobject_to_abt(main_bbox_tree, i, &bbox, alpha_test);
-	else add_2dobject_to_list(main_bbox_tree_items, i, &bbox, alpha_test);
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_2dobject_to_list(main_bbox_tree_items, i, &bbox, alpha_test);
+	else add_2dobject_to_abt(main_bbox_tree, i, &bbox, alpha_test, dynamic);
 #else
 	//get the current sector
 	sector = (short) ((y_pos/SECTOR_SIZE_Y) * (map_meters_size_x/SECTOR_SIZE_X) + (x_pos/SECTOR_SIZE_X));

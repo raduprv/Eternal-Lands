@@ -549,7 +549,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 				remove_sound_object (sys->sound);
 #endif
 #ifdef	NEW_FRUSTUM
-			delete_dynamic_particle_from_abt(main_bbox_tree, i);
+			delete_particle_from_abt(main_bbox_tree, i, 1);
 #endif
 			free (sys);
 			particles_list[i] = NULL;
@@ -693,8 +693,9 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 
 #ifdef	NEW_FRUSTUM
 	calc_bounding_box_for_particle_sys(&bbox, system_id);
-	if (dynamic) add_dynamic_particle_to_abt(main_bbox_tree, psys, &bbox, def->sblend, def->dblend);
-	else add_particle_sys_to_list(main_bbox_tree_items, psys, &bbox, def->sblend, def->dblend);
+	
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_particle_sys_to_list(main_bbox_tree_items, psys, &bbox, def->sblend, def->dblend);
+	else add_particle_to_abt(main_bbox_tree, psys, &bbox, def->sblend, def->dblend, dynamic);
 #endif
 	UNLOCK_PARTICLES_LIST();
 
@@ -1269,7 +1270,7 @@ void update_particles() {
 					free(lights_list[particles_list[i]->light]);
 					lights_list[particles_list[i]->light] = NULL;
 				}
-				delete_dynamic_particle_from_abt(main_bbox_tree, i);
+				delete_particle_from_abt(main_bbox_tree, i, 1);
 				free(particles_list[i]);
 				particles_list[i]=0;
 			}			

@@ -8,7 +8,7 @@
 static __inline__ void update_bbox_tree_degeneration(BBOX_TREE* bbox_tree, unsigned int count)
 {
 	bbox_tree->update_data.bbox_tree_degeneration += count;
-	if (bbox_tree->update_data.bbox_tree_degeneration > 50)	SDL_CondBroadcast(bbox_tree->update_condition);
+	if (bbox_tree->update_data.bbox_tree_degeneration > 100) SDL_CondBroadcast(bbox_tree->update_condition);
 }
 
 static __inline__ void adapt_intersect_list_size(BBOX_TREE* bbox_tree, unsigned int count)
@@ -820,24 +820,24 @@ static __inline__ void add_dynamic_aabb_to_abt(BBOX_TREE *bbox_tree, AABBOX *bbo
 	}
 }
 
-void add_dynamic_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox)
+void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int dynamic)
 {
-	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, TYPE_LIGHT, 0, 1);
+	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, TYPE_LIGHT, 0, dynamic);
 }
 
-void add_dynamic_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground)
+void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int dynamic)
 {
-	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, get_3D_type(blend, ground), 0, 1);
+	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, get_3D_type(blend, ground), 0, dynamic);
 }
 
-void add_dynamic_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha)
+void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int dynamic)
 {
-	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, get_2D_type(alpha), 0, 1);
+	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, get_2D_type(alpha), 0, dynamic);
 }
 
-void add_dynamic_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend)
+void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend, unsigned int dynamic)
 {
-	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend), 1);
+	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend), dynamic);
 }
 
 static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE_NODE *node, unsigned int ID, unsigned int type, unsigned int *index)
@@ -1027,24 +1027,24 @@ static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int I
 	}
 }
 
-void delete_dynamic_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground)
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground, unsigned int dynamic)
 {
-	delete_aabb_from_abt(bbox_tree, ID, get_3D_type(blend, ground), 1);
+	delete_aabb_from_abt(bbox_tree, ID, get_3D_type(blend, ground), dynamic);
 }
 
-void delete_dynamic_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha)
+void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha, unsigned int dynamic)
 {
-	delete_aabb_from_abt(bbox_tree, ID, get_2D_type(alpha), 1);
+	delete_aabb_from_abt(bbox_tree, ID, get_2D_type(alpha), dynamic);
 }
 
-void delete_dynamic_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
+void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic)
 {
-	delete_aabb_from_abt(bbox_tree, ID, TYPE_PARTICLE_SYSTEM, 1);
+	delete_aabb_from_abt(bbox_tree, ID, TYPE_PARTICLE_SYSTEM, dynamic);
 }
 
-void delete_dynamic_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
+void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic)
 {
-	delete_aabb_from_abt(bbox_tree, ID, TYPE_LIGHT, 1);
+	delete_aabb_from_abt(bbox_tree, ID, TYPE_LIGHT, dynamic);
 }
 
 BBOX_ITEMS* create_bbox_items(unsigned int size)

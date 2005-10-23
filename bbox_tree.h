@@ -412,9 +412,10 @@ void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *b
  * \param bbox		The bounding box of the dynamic 3d object.
  * \param blend		Is this a blend object?
  * \param ground	Is this a ground object?
+ * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_dynamic_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground);
+void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -426,9 +427,10 @@ void add_dynamic_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *
  * \param ID		The ID of the dynamic 3d object.
  * \param bbox		The bounding box of the dynamic 2d object.
  * \param alpha		Is this an alpha object?
+ * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_dynamic_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha);
+void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -441,9 +443,10 @@ void add_dynamic_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *
  * \param bbox		The bounding box of the dynamic particle system.
  * \param sblend	The sblend value of the dynamic particle system.
  * \param dblend	The dblend value of the dynamic particle system.
+ * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_dynamic_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend);
+void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -454,9 +457,10 @@ void add_dynamic_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *
  * \param bbox_tree	The bounding-box-tree.
  * \param ID		The ID of the dynamic light.
  * \param bbox		The bounding box of the dynamic light.
+ * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_dynamic_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox);
+void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -468,9 +472,10 @@ void add_dynamic_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbo
  * \param ID		The ID of the dynamic 3d object.
  * \param blend		Is this a blend object?
  * \param ground	Is this a ground object?
+ * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_dynamic_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground);
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -481,9 +486,10 @@ void delete_dynamic_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, uns
  * \param bbox_tree	The bounding-box-tree.
  * \param ID		The ID of the dynamic 3d object.
  * \param alpha		Is this an alpha object?
+ * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_dynamic_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha);
+void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -493,9 +499,10 @@ void delete_dynamic_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, uns
  *
  * \param bbox_tree	The bounding-box-tree.
  * \param ID		The ID of the dynamic particle system.
+ * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_dynamic_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
+void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -505,9 +512,10 @@ void delete_dynamic_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
  *
  * \param bbox_tree	The bounding-box-tree.
  * \param ID		The ID of the dynamic light.
+ * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_dynamic_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
+void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic);
 
 /*!
  * \ingroup misc

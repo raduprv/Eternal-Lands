@@ -437,6 +437,7 @@ int load_map (const char * file_name)
 #ifdef	NEW_FRUSTUM
 	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
 	free_bbox_items(main_bbox_tree_items);
+	main_bbox_tree_items = NULL;
 #endif
 	update_loading_win(init_done_str, 20);
 #ifdef EXTRA_DEBUG
@@ -874,7 +875,7 @@ void remove_3d_object_from_server (int id)
 	sectors[sector].e3d_local[k] = sectors[sector].e3d_local[j];
 	sectors[sector].e3d_local[j] = -1;
 #else
-	delete_dynamic_3dobject_from_abt(main_bbox_tree, id, objects_list[id]->blended, objects_list[id]->e3d_data->is_ground);
+	delete_3dobject_from_abt(main_bbox_tree, id, objects_list[id]->blended, objects_list[id]->e3d_data->is_ground, 1);
 #endif
 	destroy_3d_object (id);
 }

@@ -145,8 +145,8 @@ void remove_bag(int which_bag)
 #ifdef	NEW_FRUSTUM
 	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y, 1);
 	obj_3d_id = bag_list[which_bag].obj_3d_id;
-	delete_dynamic_3dobject_from_abt(main_bbox_tree, obj_3d_id, objects_list[obj_3d_id]->blended, 
-			objects_list[obj_3d_id]->e3d_data->is_ground);
+	delete_3dobject_from_abt(main_bbox_tree, obj_3d_id, objects_list[obj_3d_id]->blended, 
+			objects_list[obj_3d_id]->e3d_data->is_ground, 1);
 #else
 	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
 	sector=SECTOR_GET(objects_list[bag_list[which_bag].obj_3d_id]->x_pos, objects_list[bag_list[which_bag].obj_3d_id]->y_pos);

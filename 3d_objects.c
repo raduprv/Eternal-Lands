@@ -318,8 +318,8 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	bbox.bbmax[X] += x_pos;
 	bbox.bbmax[Y] += y_pos;
 	bbox.bbmax[Z] += z_pos;
-	if (dynamic) add_dynamic_3dobject_to_abt(main_bbox_tree, id, &bbox, blended, returned_e3d->is_ground);
-	else add_3dobject_to_list(main_bbox_tree_items, id, &bbox, blended, returned_e3d->is_ground);	
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, &bbox, blended, returned_e3d->is_ground);
+	else add_3dobject_to_abt(main_bbox_tree, id, &bbox, blended, returned_e3d->is_ground, dynamic);
 #endif
 	regenerate_near_objects = 1; // We've added an object..
 
