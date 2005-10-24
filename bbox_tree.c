@@ -1,7 +1,9 @@
 #ifdef	NEW_FRUSTUM
 #include "global.h"
 #include <stdlib.h>
+#ifndef	BSD
 #include <malloc.h>
+#endif
 #include <string.h>
 #include <math.h>
 
