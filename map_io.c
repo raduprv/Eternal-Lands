@@ -313,13 +313,14 @@ int load_map (const char * file_name)
 				{
 					bbox.bbmin[Z] = -0.25f;
 					bbox.bbmax[Z] = -0.25f;
-					add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, IS_REFLECTING(cur_tile));
+					if (IS_REFLECTING(cur_tile)) add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, cur_tile, 1);
+					else add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, cur_tile, 0);
 				}
 				else 
 				{
 					bbox.bbmin[Z] = 0.0f;
 					bbox.bbmax[Z] = 0.0f;
-					add_terrain_to_list(main_bbox_tree_items, (i << 8)+j, &bbox);
+					add_terrain_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, cur_tile);
 				}
 			}
 		}
@@ -552,6 +553,10 @@ void load_map_marks()
 void new_map(int m_x_size,int m_y_size,int tile_type)
 {
 	int i;
+#ifdef	NEW_FRUSTUM
+	int cur_tile, j;
+	AABBOX bbox;
+#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -565,6 +570,38 @@ void new_map(int m_x_size,int m_y_size,int tile_type)
 	for(i=0;i<m_x_size*m_y_size;i++)tile_map[i]=tile_type;
 	tile_map_size_x=m_x_size;
 	tile_map_size_y=m_y_size;
+#ifdef	NEW_FRUSTUM
+	main_bbox_tree_items = create_bbox_items(tile_map_size_x*tile_map_size_y);
+	for(i = 0; i < tile_map_size_y; i++)
+	{
+		bbox.bbmin[Y] = i*3.0f;
+		bbox.bbmax[Y] = (i+1)*3.0f;
+		for(j = 0; j < tile_map_size_x; j++)
+		{
+			if(tile_type != 255)
+			{
+				bbox.bbmin[X] = j*3.0f;
+				bbox.bbmax[X] = (j+1)*3.0f;
+				if (IS_WATER_TILE(tile_type)) 
+				{
+					bbox.bbmin[Z] = -0.25f;
+					bbox.bbmax[Z] = -0.25f;
+					if (IS_REFLECTING(tile_type)) add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, tile_type, 1);
+					else add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, tile_type, 0);
+				}
+				else 
+				{
+					bbox.bbmin[Z] = 0.0f;
+					bbox.bbmax[Z] = 0.0f;
+					add_terrain_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, tile_type);
+				}
+			}
+		}
+	}
+	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
+	free_bbox_items(main_bbox_tree_items);
+	main_bbox_tree_items = NULL;
+#endif
 
 	//allocates the memory for the heights now
 	height_map=(char *)calloc(m_x_size*m_y_size*6*6, 1);

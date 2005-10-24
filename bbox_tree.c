@@ -694,14 +694,20 @@ void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *b
 	add_aabb_to_list(bbox_items, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend));
 }
 
-void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox)
+void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int texture_id)
 {
-	add_aabb_to_list(bbox_items, bbox, ID, TYPE_TERRAIN, 0);
+	add_aabb_to_list(bbox_items, bbox, ID, TYPE_TERRAIN, texture_id);
 }
 
-void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int reflectiv)
+static __inline__ unsigned int get_water_type(unsigned int reflectiv)
 {
-	add_aabb_to_list(bbox_items, bbox, ID, TYPE_WATER, reflectiv);
+	if (reflectiv) return TYPE_REFLECTIV_WATER;
+	else return TYPE_NO_REFLECTIV_WATER;
+}
+
+void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int texture_id, unsigned int reflectiv)
+{
+	add_aabb_to_list(bbox_items, bbox, ID, get_water_type(reflectiv), texture_id);
 }
 
 static __inline__ unsigned int check_aabb_aabb(AABBOX *bbox, AABBOX *dyn_bbox, AABBOX *new_bbox, float grow)
@@ -820,7 +826,7 @@ static __inline__ void add_objects_to_update_list(BBOX_TREE *bbox_tree, AABBOX *
 }
 #endif
 
-static __inline__ void add_dynamic_aabb_to_abt(BBOX_TREE *bbox_tree, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int sort_data, unsigned int dynamic)
+static __inline__ void add_aabb_to_abt(BBOX_TREE *bbox_tree, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int sort_data, unsigned int dynamic)
 {
 	if (bbox_tree != NULL)
 	{
@@ -836,22 +842,32 @@ static __inline__ void add_dynamic_aabb_to_abt(BBOX_TREE *bbox_tree, AABBOX *bbo
 
 void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int dynamic)
 {
-	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, TYPE_LIGHT, 0, dynamic);
+	add_aabb_to_abt(bbox_tree, bbox, ID, TYPE_LIGHT, 0, dynamic);
 }
 
 void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int dynamic)
 {
-	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, get_3D_type(blend, ground), 0, dynamic);
+	add_aabb_to_abt(bbox_tree, bbox, ID, get_3D_type(blend, ground), 0, dynamic);
 }
 
 void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int dynamic)
 {
-	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, get_2D_type(alpha), 0, dynamic);
+	add_aabb_to_abt(bbox_tree, bbox, ID, get_2D_type(alpha), 0, dynamic);
 }
 
 void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend, unsigned int dynamic)
 {
-	add_dynamic_aabb_to_abt(bbox_tree, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend), dynamic);
+	add_aabb_to_abt(bbox_tree, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend), dynamic);
+}
+
+void add_terrain_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int texture_id, unsigned int dynamic)
+{
+	add_aabb_to_abt(bbox_tree, bbox, ID, TYPE_TERRAIN, texture_id, dynamic);
+}
+
+void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int texture_id, unsigned int reflectiv, unsigned int dynamic)
+{
+	add_aabb_to_abt(bbox_tree, bbox, ID, get_water_type(reflectiv), texture_id, dynamic);
 }
 
 static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE_NODE *node, unsigned int ID, unsigned int type, unsigned int *index)
@@ -1076,6 +1092,16 @@ void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned in
 void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic)
 {
 	delete_aabb_from_abt(bbox_tree, ID, TYPE_LIGHT, dynamic);
+}
+
+void delete_tile_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic)
+{
+	delete_aabb_from_abt(bbox_tree, ID, TYPE_TERRAIN, dynamic);
+}
+
+void delete_water_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int reflectiv, unsigned int dynamic)
+{
+	delete_aabb_from_abt(bbox_tree, ID, get_water_type(reflectiv), dynamic);
 }
 
 BBOX_ITEMS* create_bbox_items(unsigned int size)

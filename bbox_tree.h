@@ -20,9 +20,10 @@
 #define TYPE_3D_BLEND_GROUND_OBJECT			0x05
 #define TYPE_PARTICLE_SYSTEM				0x06
 #define	TYPE_LIGHT					0x07
-#define	TYPE_WATER					0x08
-#define	TYPE_TERRAIN					0x09
-#define	TYPES_COUNT					0x0A
+#define	TYPE_TERRAIN					0x08
+#define	TYPE_NO_REFLECTIV_WATER				0x09
+#define	TYPE_REFLECTIV_WATER				0x0A
+#define	TYPES_COUNT					0x0B
 #define TYPE_DELETED					0xFF
 
 #define	ITERSECTION_TYPES_DEFAULT			0x00
@@ -416,9 +417,10 @@ void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *b
  * \param bbox_items	The list of the static objects.
  * \param ID		The ID of the static terrain tile.
  * \param bbox		The bounding box of the static terrain tile.
+ * \param texture_id	The ID of the texture_id.
  * \callgraph
  */
-void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
+void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int texture_id);
 
 /*!
  * \ingroup misc
@@ -430,15 +432,16 @@ void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
  * \param ID		The ID of the static water tile.
  * \param bbox		The bounding box of the static water tile.
  * \param reflectiv	Is the tile reflectiv.
+ * \param texture_id	The ID of the texture_id.
  * \callgraph
  */
-void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int reflectiv);
+void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int reflectiv, unsigned int texture_id);
 
 /*!
  * \ingroup misc
- * \brief Adds a dynamic 3d object to the bounding-box-tree.
+ * \brief Adds a 3d object to the bounding-box-tree.
  *
- * Adds a dynamic 3d object to the bounding-box-tree.
+ * Adds a 3d object to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
  * \param ID		The ID of the dynamic 3d object.
@@ -452,9 +455,9 @@ void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
 
 /*!
  * \ingroup misc
- * \brief Adds a dynamic 2d object to the bounding-box-tree.
+ * \brief Adds a 2d object to the bounding-box-tree.
  *
- * Adds a dynamic 2d object to the bounding-box-tree.
+ * Adds a 2d object to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
  * \param ID		The ID of the dynamic 3d object.
@@ -467,9 +470,9 @@ void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
 
 /*!
  * \ingroup misc
- * \brief Adds a dynamic particle system to the bounding-box-tree.
+ * \brief Adds a particle system to the bounding-box-tree.
  *
- * Adds a dynamic particle system to the bounding-box-tree.
+ * Adds a particle system to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
  * \param ID		The ID of the dynamic particle system.
@@ -483,9 +486,9 @@ void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
 
 /*!
  * \ingroup misc
- * \brief Adds a dynamic light to the bounding-box-tree.
+ * \brief Adds a light to the bounding-box-tree.
  *
- * Adds a dynamic light to the bounding-box-tree.
+ * Adds a light to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
  * \param ID		The ID of the dynamic light.
@@ -494,6 +497,35 @@ void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
  * \callgraph
  */
 void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int dynamic);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a terrain tile to the bounding-box-tree.
+ *
+ * Adds a terrain tile to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the static terrain tile.
+ * \param bbox		The bounding box of the static terrain tile.
+ * \param texture_id	The ID of the texture_id.
+ * \callgraph
+ */
+void add_terrain_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int texture_id, unsigned int dynamic);
+
+/*!
+ * \ingroup misc
+ * \brief Adds a static water tile to the bounding-box-tree.
+ *
+ * Adds a static water tile to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the static water tile.
+ * \param bbox		The bounding box of the static water tile.
+ * \param reflectiv	Is the tile reflectiv.
+ * \param texture_id	The ID of the texture_id.
+ * \callgraph
+ */
+void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int reflectiv, unsigned int texture_id, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -549,6 +581,33 @@ void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned in
  * \callgraph
  */
 void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic);
+
+/*!
+ * \ingroup misc
+ * \brief Deletes a dynamic light to the bounding-box-tree.
+ *
+ * Deletes a dynamic light to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic light.
+ * \param dynamic	Is this a dynamic object?
+ * \callgraph
+ */
+void delete_tile_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic);
+
+/*!
+ * \ingroup misc
+ * \brief Deletes a dynamic light to the bounding-box-tree.
+ *
+ * Deletes a dynamic light to the bounding-box-tree.
+ *
+ * \param bbox_tree	The bounding-box-tree.
+ * \param ID		The ID of the dynamic light.
+ * \param reflectiv	Is the tile reflectiv.
+ * \param dynamic	Is this a dynamic object?
+ * \callgraph
+ */
+void delete_water_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int reflectiv, unsigned int dynamic);
 
 /*!
  * \ingroup misc

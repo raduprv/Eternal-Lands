@@ -239,7 +239,7 @@ void draw_3d_reflection(object3d * object_id)
 //if there is any reflecting tile, returns 1, otherwise 0
 int find_reflection()
 {
-#ifdef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM
 	int x_start,x_end,y_start,y_end;
 	int x,y;
 	float x_scaled,y_scaled;
@@ -275,13 +275,15 @@ int find_reflection()
 		}
 	return found_water;
 #else
-	unsigned int i, l, idx;
+	unsigned int idx;
 	
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_WATER]; i++)
+	idx = main_bbox_tree->cur_intersect_type;
+	if (main_bbox_tree->intersect[idx].start[TYPE_REFLECTIV_WATER] < main_bbox_tree->intersect[idx].stop[TYPE_REFLECTIV_WATER]) return 2;
+	else 
 	{
-		if (main_bbox_tree->intersect[idx].items[i].type) return 1;
+		if (main_bbox_tree->intersect[idx].start[TYPE_NO_REFLECTIV_WATER] < main_bbox_tree->intersect[idx].stop[TYPE_NO_REFLECTIV_WATER]) return 1;
+		else return 0;
 	}
-	return 0;
 #endif
 }
 
@@ -727,13 +729,15 @@ void draw_lake_tiles()
 #endif
 	int x,y;
 	float x_scaled,y_scaled;
-#if	USE_FRAMEBUFFER
+#if	defined(USE_FRAMEBUFFER) || defined(NEW_FRUSTUM)
 	int water_id;
+#endif
+#ifdef	USE_FRAMEBUFFER
 	float blend_float = 0.75f;
 	float blend_vec[4] = {blend_float, blend_float, blend_float, blend_float};
 #endif
 	glEnable(GL_CULL_FACE);
-#if	USE_FRAMEBUFFER
+#ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer)
 	{
 		ELglActiveTextureARB(base_unit);
@@ -783,20 +787,18 @@ void draw_lake_tiles()
 	x_end   = (int)x + 8;
 	y_end   = (int)y + 8;
 #endif
-#if	USE_FRAMEBUFFER
 #ifndef	NEW_FRUSTUM
+#ifdef	USE_FRAMEBUFFER
 	if(x_start < 0) x_start = 0;
 	if(x_end >= tile_map_size_x) x_end = tile_map_size_x - 1;
 	if(y_start < 0) y_start = 0;
 	if(y_end >= tile_map_size_y) y_end = tile_map_size_y - 1;
-#endif
 
 	if(dungeon) water_id = tile_list[231];
 	else water_id = tile_list[0];
 	
 	if (use_frame_buffer)
 	{
-#ifndef	NEW_FRUSTUM
 		for(y = y_start; y <= y_end; y++)
 		{
 			y_scaled=y*3.0f;
@@ -805,30 +807,18 @@ void draw_lake_tiles()
 				x_scaled = x*3.0f;
 				if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]) && check_tile_in_frustrum(x_scaled, y_scaled))
 				{
-#else
-		for (i = main_bbox_tree->intersect[idx].start[TYPE_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_WATER]; i++)
-		{
-			l = main_bbox_tree->intersect[idx].items[i].ID;
-			x = l & 0xFF;
-			y = l >> 8;
-			y_scaled = y*3.0f;
-			x_scaled = x*3.0f;
-#endif
 					if(!tile_map[y*tile_map_size_x+x])
 					{
 						get_and_set_texture_id(water_id);
 					}
 					else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
 					draw_lake_water_tile_framebuffer(x_scaled, y_scaled);
-#ifndef	NEW_FRUSTUM
 				}
 			}
-#endif
 		}
 	}
 	else
 	{
-#ifndef	NEW_FRUSTUM
 		for(y = y_start; y <= y_end; y++)
 		{
 			y_scaled=y*3.0f;
@@ -837,29 +827,17 @@ void draw_lake_tiles()
 				x_scaled = x*3.0f;
 				if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]) && check_tile_in_frustrum(x_scaled, y_scaled))
 				{
-#else
-		for (i = main_bbox_tree->intersect[idx].start[TYPE_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_WATER]; i++)
-		{
-			l = main_bbox_tree->intersect[idx].items[i].ID;
-			x = l & 0xFF;
-			y = l >> 8;
-			y_scaled = y*3.0f;
-			x_scaled = x*3.0f;
-#endif
 					if(!tile_map[y*tile_map_size_x+x])
 					{
 						get_and_set_texture_id(water_id);
 					}
 					else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
 					draw_lake_water_tile(x_scaled, y_scaled);
-#ifndef	NEW_FRUSTUM
 				}
 			}
-#endif
 		}
 	}
 #else
-#ifndef	NEW_FRUSTUM
 	for(y=y_start;y<=y_end;y++)
 		{
 			int actualy=y;
@@ -876,16 +854,6 @@ void draw_lake_tiles()
 					if(IS_WATER_TILE(tile_map[actualy+actualx]) && check_tile_in_frustrum(x_scaled,y_scaled))
 						{
 							if(!tile_map[actualy+actualx])
-#else
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_WATER]; i++)
-	{
-		l = main_bbox_tree->intersect[idx].items[i].ID;
-		x = l & 0xFF;
-		y = l >> 8;
-		y_scaled = y*3.0f;
-		x_scaled = x*3.0f;
-		if(!tile_map[y*tile_map_size_x+x])
-#endif
 								{
 									if(dungeon)
 										get_and_set_texture_id(tile_list[231]);
@@ -893,20 +861,62 @@ void draw_lake_tiles()
 										get_and_set_texture_id(tile_list[0]);
 								}
 							else
-#ifndef	NEW_FRUSTUM
-								get_and_set_texture_id(tile_list[tile_map[actualx+actualy]]);
-#else
 								get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-#endif
 							draw_lake_water_tile(x_scaled,y_scaled);
-#ifndef	NEW_FRUSTUM
 						}
 				}
-#endif
 		}
 #endif
+#else
+	if(dungeon) water_id = tile_list[231];
+	else water_id = tile_list[0];
+
+	for (i = main_bbox_tree->intersect[idx].start[TYPE_NO_REFLECTIV_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_NO_REFLECTIV_WATER]; i++)
+	{
+		l = main_bbox_tree->intersect[idx].items[i].ID;
+		x = l & 0xFF;
+		y = l >> 8;
+		y_scaled = y*3.0f;
+		x_scaled = x*3.0f;
+		if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
+		else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
+		draw_lake_water_tile(x_scaled,y_scaled);
+	}
+#ifdef	USE_FRAMEBUFFER
+	if (use_frame_buffer)
+	{
+		for (i = main_bbox_tree->intersect[idx].start[TYPE_REFLECTIV_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_REFLECTIV_WATER]; i++)
+		{
+			l = main_bbox_tree->intersect[idx].items[i].ID;
+			x = l & 0xFF;
+			y = l >> 8;
+			y_scaled = y*3.0f;
+			x_scaled = x*3.0f;
+			if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
+			else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
+			draw_lake_water_tile_framebuffer(x_scaled,y_scaled);
+		}
+	}
+	else
+	{
+#endif
+	for (i = main_bbox_tree->intersect[idx].start[TYPE_REFLECTIV_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_REFLECTIV_WATER]; i++)
+	{
+		l = main_bbox_tree->intersect[idx].items[i].ID;
+		x = l & 0xFF;
+		y = l >> 8;
+		y_scaled = y*3.0f;
+		x_scaled = x*3.0f;
+		if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
+		else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
+		draw_lake_water_tile(x_scaled,y_scaled);
+	}
+#ifdef	USE_FRAMEBUFFER	
+	}
+#endif
+#endif
 	
-#if	USE_FRAMEBUFFER
+#ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer)
 	{
 		ELglActiveTextureARB(detail_unit);
