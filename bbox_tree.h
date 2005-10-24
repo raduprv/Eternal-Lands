@@ -444,7 +444,7 @@ void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, un
  * Adds a 3d object to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic 3d object.
+ * \param ID		The ID of the 3d object.
  * \param bbox		The bounding box of the dynamic 3d object.
  * \param blend		Is this a blend object?
  * \param ground	Is this a ground object?
@@ -460,7 +460,7 @@ void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
  * Adds a 2d object to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic 3d object.
+ * \param ID		The ID of the 3d object.
  * \param bbox		The bounding box of the dynamic 2d object.
  * \param alpha		Is this an alpha object?
  * \param dynamic	Is this a dynamic object?
@@ -475,7 +475,7 @@ void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
  * Adds a particle system to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic particle system.
+ * \param ID		The ID of the particle system.
  * \param bbox		The bounding box of the dynamic particle system.
  * \param sblend	The sblend value of the dynamic particle system.
  * \param dblend	The dblend value of the dynamic particle system.
@@ -491,8 +491,8 @@ void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
  * Adds a light to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic light.
- * \param bbox		The bounding box of the dynamic light.
+ * \param ID		The ID of the light.
+ * \param bbox		The bounding box of the light.
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
@@ -505,8 +505,8 @@ void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsig
  * Adds a terrain tile to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the static terrain tile.
- * \param bbox		The bounding box of the static terrain tile.
+ * \param ID		The ID of the terrain tile.
+ * \param bbox		The bounding box of the terrain tile.
  * \param texture_id	The ID of the texture_id.
  * \callgraph
  */
@@ -514,13 +514,13 @@ void add_terrain_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, uns
 
 /*!
  * \ingroup misc
- * \brief Adds a static water tile to the bounding-box-tree.
+ * \brief Adds a water tile to the bounding-box-tree.
  *
- * Adds a static water tile to the bounding-box-tree.
+ * Adds a water tile to the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the static water tile.
- * \param bbox		The bounding box of the static water tile.
+ * \param ID		The ID of the water tile.
+ * \param bbox		The bounding box of the water tile.
  * \param reflectiv	Is the tile reflectiv.
  * \param texture_id	The ID of the texture_id.
  * \callgraph
@@ -529,12 +529,12 @@ void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsig
 
 /*!
  * \ingroup misc
- * \brief Deletes a dynamic 3d object to the bounding-box-tree.
+ * \brief Deletes a 3d object from the bounding-box-tree.
  *
- * Deletes a dynamic 3d object to the bounding-box-tree.
+ * Deletes a 3d object from the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic 3d object.
+ * \param ID		The ID of the 3d object.
  * \param blend		Is this a blend object?
  * \param ground	Is this a ground object?
  * \param dynamic	Is this a dynamic object?
@@ -544,12 +544,12 @@ void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned in
 
 /*!
  * \ingroup misc
- * \brief Deletes a dynamic 2d object to the bounding-box-tree.
+ * \brief Deletes a 2d object from the bounding-box-tree.
  *
- * Deletes a dynamic 2d object to the bounding-box-tree.
+ * Deletes a 2d object from the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic 3d object.
+ * \param ID		The ID of the 2d object.
  * \param alpha		Is this an alpha object?
  * \param dynamic	Is this a dynamic object?
  * \callgraph
@@ -558,12 +558,12 @@ void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned in
 
 /*!
  * \ingroup misc
- * \brief Deletes a dynamic particle system to the bounding-box-tree.
+ * \brief Deletes a particle system from the bounding-box-tree.
  *
- * Deletes a dynamic particle system to the bounding-box-tree.
+ * Deletes a particle system from the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic particle system.
+ * \param ID		The ID of the particle system.
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
@@ -571,12 +571,12 @@ void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned in
 
 /*!
  * \ingroup misc
- * \brief Deletes a dynamic light to the bounding-box-tree.
+ * \brief Deletes a light from the bounding-box-tree.
  *
- * Deletes a dynamic light to the bounding-box-tree.
+ * Deletes a light from the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic light.
+ * \param ID		The ID of the light.
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
@@ -584,25 +584,25 @@ void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int d
 
 /*!
  * \ingroup misc
- * \brief Deletes a dynamic light to the bounding-box-tree.
+ * \brief Deletes a terrain tile from the bounding-box-tree.
  *
- * Deletes a dynamic light to the bounding-box-tree.
+ * Deletes a terrain tile from the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic light.
+ * \param ID		The ID of the terrain tile.
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_tile_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic);
+void delete_terrain_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic);
 
 /*!
  * \ingroup misc
- * \brief Deletes a dynamic light to the bounding-box-tree.
+ * \brief Deletes a water tile from the bounding-box-tree.
  *
- * Deletes a dynamic light to the bounding-box-tree.
+ * Deletes a water tile from the bounding-box-tree.
  *
  * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the dynamic light.
+ * \param ID		The ID of the water tile.
  * \param reflectiv	Is the tile reflectiv.
  * \param dynamic	Is this a dynamic object?
  * \callgraph

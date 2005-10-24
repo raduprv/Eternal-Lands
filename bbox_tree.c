@@ -1094,7 +1094,7 @@ void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int d
 	delete_aabb_from_abt(bbox_tree, ID, TYPE_LIGHT, dynamic);
 }
 
-void delete_tile_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic)
+void delete_terrain_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic)
 {
 	delete_aabb_from_abt(bbox_tree, ID, TYPE_TERRAIN, dynamic);
 }
