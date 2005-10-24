@@ -5,6 +5,9 @@
 #include "storage.h"
 
 #define STORAGE_CATEGORIES_SIZE 50
+#define STORAGE_CATEGORIES_DISPLAY 13
+#define STORAGE_SCROLLBAR_CATEGORIES 1200
+#define STORAGE_SCROLLBAR_ITEMS 1201
 
 struct storage_category {
 	char name[25];
@@ -55,6 +58,7 @@ void get_storage_categories (const char *in_data, int len)
 
 	if (i < STORAGE_CATEGORIES_SIZE) storage_categories[i].id = -1;
 	no_storage_categories = i;
+	if (storage_win > 0) vscrollbar_set_bar_len(storage_win, STORAGE_SCROLLBAR_CATEGORIES, no_storage_categories - STORAGE_CATEGORIES_DISPLAY);
 
 	selected_category=-1;
 	active_storage_item=-1;
@@ -92,7 +96,7 @@ void move_to_category(int cat)
 void get_storage_items (const Uint8 *in_data, int len)
 {
 	int i;
-	int cat;
+	int cat, pos;
 	int idx;
 
 	if (in_data[0] == 255)
@@ -151,7 +155,13 @@ void get_storage_items (const Uint8 *in_data, int len)
 		storage_items[i].quantity=0;
 	}
 	
-	vscrollbar_set_pos(storage_win, 1201, 0);
+	vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_ITEMS, 0);
+	pos = vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
+	if (cat < pos) {
+		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat);
+	} else	if (cat >= pos + STORAGE_CATEGORIES_DISPLAY) {
+		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat - STORAGE_CATEGORIES_DISPLAY + 1);
+	}
 }
 
 int storage_win=-1;
@@ -172,7 +182,7 @@ int display_storage_handler(window_info * win)
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glEnable(GL_TEXTURE_2D);
 	
-	for(i=pos=vscrollbar_get_pos(storage_win,1200); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+13; i++,n++){
+	for(i=pos=vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+STORAGE_CATEGORIES_DISPLAY; i++,n++){
 		draw_string_small(20, 20+n*13, storage_categories[i].name,1);
 	}
 	if(storage_text[0]){
@@ -181,7 +191,7 @@ int display_storage_handler(window_info * win)
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	
-	for(i=pos=6*vscrollbar_get_pos(storage_win, 1201); i<pos+36 && i<no_storage;i++){
+	for(i=pos=6*vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i<pos+36 && i<no_storage;i++){
 		GLfloat u_start, v_start, u_end, v_end;
 		int x_start, x_end, y_start, y_end;
 		int cur_item;
@@ -209,7 +219,7 @@ int display_storage_handler(window_info * win)
 	}
 	if(active_storage_item >= 0) {
 		/* Draw the active item's quantity on top of everything else. */
-		for(i = pos = 6*vscrollbar_get_pos(storage_win, 1201); i < pos+36 && i < no_storage; i++) {
+		for(i = pos = 6*vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i < pos+36 && i < no_storage; i++) {
 			if(storage_items[i].pos == active_storage_item) {
 				char str[20];
 				int x = (i%6)*32+161+16;
@@ -266,15 +276,15 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 {
 	if(flags&ELW_WHEEL_UP) {
 		if(mx>10 && mx<130) {
-			vscrollbar_scroll_up(storage_win, 1200);
+			vscrollbar_scroll_up(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
 		} else if(mx>150 && mx<352){
-			vscrollbar_scroll_up(storage_win, 1201);
+			vscrollbar_scroll_up(storage_win, STORAGE_SCROLLBAR_ITEMS);
 		}
 	} else if(flags&ELW_WHEEL_DOWN) {
 		if(mx>10 && mx<130) {
-			vscrollbar_scroll_down(storage_win, 1200);
+			vscrollbar_scroll_down(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
 		} else if(mx>150 && mx<352){
-			vscrollbar_scroll_down(storage_win, 1201);
+			vscrollbar_scroll_down(storage_win, STORAGE_SCROLLBAR_ITEMS);
 		}
 	}
 	else if ( (flags & ELW_MOUSE_BUTTON) == 0) {
@@ -285,7 +295,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 			if(mx>10 && mx<130){
 				int cat=-1;
 		
-				cat=(my-20)/13 + vscrollbar_get_pos(storage_win, 1200);
+				cat=(my-20)/13 + vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
 				move_to_category(cat);
 			} else if(mx>150 && mx<352){
 				if(item_dragged!=-1 && left_click){
@@ -335,7 +345,7 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 			int pos=last_pos=(my-20)/13;
 			int p;
 
-			for(i=p=vscrollbar_get_pos(storage_win,1200);i<no_storage_categories;i++){
+			for(i=p=vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES);i<no_storage_categories;i++){
 				if(i==selected_category) {
 				} else if(i!=p+pos) {
 					storage_categories[i].name[0]=127+c_orange1;
@@ -344,13 +354,13 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 			
 			return 0;
 		} else if (mx>150 && mx<352){
-			cur_item_over = get_mouse_pos_in_grid(mx, my, 6, 6, 160, 10, 32, 32)+vscrollbar_get_pos(storage_win, 1201)*6;
+			cur_item_over = get_mouse_pos_in_grid(mx, my, 6, 6, 160, 10, 32, 32)+vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS)*6;
 			if(cur_item_over>=no_storage||cur_item_over<0||!storage_items[cur_item_over].quantity) cur_item_over=-1;
 		}
 	}
 	
 	if(last_pos>=0 && last_pos<13){
-		storage_categories[last_pos+vscrollbar_get_pos(storage_win,1200)].name[0]=127+c_orange1;
+		storage_categories[last_pos+vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES)].name[0]=127+c_orange1;
 		last_pos=-1;
 	}
 	
@@ -365,8 +375,9 @@ void display_storage_menu()
 		set_window_handler(storage_win, ELW_HANDLER_CLICK, &click_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_MOUSEOVER, &mouseover_storage_handler);
 
-		vscrollbar_add_extended(storage_win, 1200, NULL, 130, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 10);
-		vscrollbar_add_extended(storage_win, 1201, NULL, 352, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
+		vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_CATEGORIES, NULL, 130, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 
+				max2i(no_storage_categories - STORAGE_CATEGORIES_DISPLAY, 0));
+		vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 352, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
 	} else {
 		int i;
 
@@ -378,8 +389,8 @@ void display_storage_menu()
 		show_window(storage_win);
 		select_window(storage_win);
 
-		vscrollbar_set_pos(storage_win, 1200, 0);
-		vscrollbar_set_pos(storage_win, 1201, 0);
+		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, 0);
+		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_ITEMS, 0);
 	}
 }
 void close_storagewin()
