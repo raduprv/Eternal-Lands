@@ -179,6 +179,7 @@ char
 	error_illegal_character[100],
 	passwords_match[30],
 	remember_change_appearance[200],
+	appearance_str[15],
 	p2p_race[100],
 	char_help[200],
 	invalid_pass[30],
@@ -264,6 +265,8 @@ char	reg_error_str[15],
 	/*actor_scripts.c*/
 	resync_server[50],
 	cant_add_command[50],
+	/* books.c */
+	book_open_err_str[30],
 	/*cache.c*/
 	cache_size_str[20],
 	/*cursors.c*/
@@ -474,6 +477,7 @@ char	win_notepad[20],
 	button_remove_category[30],
 	button_save_notes[30],
 	label_note_name[20],
+	game_version_str[60],
 	label_cursor_coords[17];
 #endif  // ELC
 /*! \} */
@@ -773,6 +777,7 @@ void init_errors()
 	add_xml_identifier(misc,"nameinuse",char_name_in_use,"Character name is already taken",sizeof(char_name_in_use));
 	add_xml_identifier(misc,"notabs",must_use_tabs,"You cannot disable tabbed windows with video mode %d, forcing them",sizeof(must_use_tabs));
 	add_xml_identifier (misc, "nomap", cant_change_map, "Unable to switch to map %s!", sizeof(cant_change_map));
+	add_xml_identifier (misc, "book_open", book_open_err_str, "Couldn't open the book: %s!", sizeof(book_open_err_str));
 #endif
 
 	//Particle errors
@@ -911,6 +916,7 @@ void init_help()
 	add_xml_identifier(new,"passnomatch",error_pass_no_match,"Passwords don't match!",sizeof(error_pass_no_match));
 	add_xml_identifier(new,"passmatch",passwords_match,"Passwords are matching!",sizeof(passwords_match));
 	add_xml_identifier(new,"appearance",remember_change_appearance,"Remember to change your characters appearance before pressing \"Done\"",sizeof(remember_change_appearance));
+	add_xml_identifier(new,"appearance_box",appearance_str,"Appearance",sizeof(appearance_str));
 	add_xml_identifier(new,"max_digits",error_max_digits,"You can only have 2 digits in your name!",sizeof(error_max_digits));
 	add_xml_identifier(new,"max_length",error_length,"Names and passwords can max be 15 characters long",sizeof(error_length));
 	add_xml_identifier(new,"illegal_char",error_illegal_character,"You have typed an illegal character!",sizeof(error_illegal_character));
@@ -1129,6 +1135,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "b_save", button_save_notes, "Save Notes", sizeof(button_save_notes));
 	add_xml_identifier (titles_str, "l_nname", label_note_name, "Note name", sizeof(label_note_name));
 	add_xml_identifier (titles_str, "l_cursor_coords", label_cursor_coords, "Cursor position", sizeof(label_cursor_coords));
+	add_xml_identifier (titles_str, "game_version", game_version_str, "Eternal Lands Version %d.%d.%d%s", sizeof(game_version_str));
 }
 #endif // ELC
 

@@ -26,7 +26,7 @@ void print_version_string (char *buf, int len)
 	{
 		snprintf (extra, sizeof(extra), " Beta %s", DEF_INFO);
 	}
-	snprintf (buf, len, "Eternal Lands Version %d.%d.%d%s", client_version_major, client_version_minor, client_version_release, extra);
+	snprintf (buf, len, game_version_str, client_version_major, client_version_minor, client_version_release, extra);
 }
 
 //do we have any console commands?

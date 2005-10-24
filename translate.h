@@ -287,6 +287,7 @@ extern char
 		error_illegal_character[100],
 		passwords_match[30],
 		remember_change_appearance[200],
+		appearance_str[15],
 		zoom_in_out[200],
 		rotate_camera[200],
 		p2p_race[100],
@@ -335,6 +336,8 @@ extern char	reg_error_str[15],
 		/*actor_scripts.c*/
 		resync_server[50],
 		cant_add_command[50],
+		/* books.c*/
+		book_open_err_str[30],
 		/*cache.c*/
 		cache_size_str[20],
 		/*console.c*/
@@ -565,6 +568,7 @@ extern char	win_notepad[20],
 		button_new_category[30],
 		button_remove_category[30],
 		button_save_notes[30],
+		game_version_str[60],
 		label_note_name[20],
 		label_cursor_coords[17];
 #endif  // DOXYGEN_SKIP_THIS

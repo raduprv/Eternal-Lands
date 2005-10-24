@@ -428,7 +428,7 @@ book * read_book(char * file, int type, int id)
 
 	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
 		char str[200];
-		snprintf(str, sizeof(str), "Couldn't open the book: %s", path);
+		snprintf(str, sizeof(str), book_open_err_str, path);
 		log_error(str);
 		LOG_TO_CONSOLE(c_red1,str);
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {

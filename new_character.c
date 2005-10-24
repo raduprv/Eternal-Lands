@@ -687,7 +687,7 @@ int display_color_race_handler (window_info *win)
 	draw_smooth_button(draegoni_str, DEFAULT_SMALL_RATIO, 140, 131, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==draegoni_female||our_actor.race==draegoni_male, 0.32f, 0.23f, 0.15f, 0.5f);
 	
 	//Appearance
-	draw_box("Appearance", 270, 10, 120, win->len_y-17, 0);
+	draw_box(appearance_str, 270, 10, 120, win->len_y-17, 0);
 	x=330;
 	draw_string_small(x-(get_string_width(head_str)*8.0f/12.0f)/2.0f, 25, head_str, 1);
 	draw_string_small(x-(get_string_width(skin_str)*8.0f/12.0f)/2.0f, 48, skin_str, 1);
