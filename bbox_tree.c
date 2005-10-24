@@ -1002,9 +1002,7 @@ static __inline__ void delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, BBOX_
 
 static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int type, unsigned int dynamic)
 {
-#ifdef	FRUSTUM_THREADS
-	unsigned int i;
-#endif
+	unsigned int i, j, cur_idx;
 	
 	if (bbox_tree != NULL)
 	{
@@ -1033,6 +1031,23 @@ static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int I
 			}
 		}
 #endif
+		// Not perfect, but should work
+		cur_idx = bbox_tree->cur_intersect_type;
+		for (j = 0; j < MAX_ITERSECTION_TYPES; j++)
+		{
+			for (i = 0; i < bbox_tree->intersect[j].count; i++)
+			{
+				if ((bbox_tree->intersect[j].items[i].ID == ID) && 
+						(bbox_tree->intersect[j].items[i].type == type))
+				{
+					bbox_tree->intersect[j].items[i].type = TYPE_DELETED;
+				}
+			}
+			bbox_tree->cur_intersect_type = j;
+			qsort((void *)(bbox_tree->intersect[j].items), bbox_tree->intersect[j].count, sizeof(BBOX_ITEM_DATA), comp_items);
+			build_start_stop(bbox_tree);
+		}
+		bbox_tree->cur_intersect_type = cur_idx;
 		delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, type);
 #ifdef	FRUSTUM_THREADS
 		update_bbox_tree_degeneration(bbox_tree, 1);
