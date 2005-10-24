@@ -1197,6 +1197,7 @@ int update_bbox_tree(void *thread_args)
 			}
 		}
 		resize_bbox_items(new_bbox_items);
+		memset(&new_bbox_tree, 0, sizeof(new_bbox_tree));
 		init_bbox_tree(&new_bbox_tree, new_bbox_items);
 		for (i = 0; i < index; i++)
 		{
