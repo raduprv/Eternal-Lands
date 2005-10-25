@@ -383,16 +383,11 @@ void draw_skill(int len, int x, int y, attrib_16 * lvl, names * name, int exp, i
 	char str[37];
 	char lvlstr[9];
 	char expstr[25];
-	int offset;
 
-	snprintf(lvlstr,8,"%2i/%-2i",lvl->cur,lvl->base);
-	lvlstr[8]=0;
-	snprintf(expstr,24,"[%2i/%-2i]",exp, exp_next);
-	expstr[24]=0;
-	offset=strlen(str);
-	snprintf(str,36,"%-7s %-22s",lvlstr,expstr);
-	str[36]=0;
-	draw_stat_final(len,x,y,name->name,str);
+	snprintf(lvlstr, sizeof(lvlstr), "%2i/%-2i", lvl->cur, lvl->base);
+	snprintf(expstr,sizeof(expstr),"[%2i/%-2i]", exp, exp_next);
+	snprintf(str, sizeof(str), "%-7s %-22s", lvlstr, expstr);
+	draw_stat_final(len, x, y, name->name, str);
 }
 
 void draw_statf(int len, int x, int y, attrib_16f * var, names * name)

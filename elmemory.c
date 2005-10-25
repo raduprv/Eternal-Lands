@@ -6,9 +6,9 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 #ifdef MAP_EDITOR2
-#include "../map_editor2/init.h"
+ #include "../map_editor2/init.h"
 #else
-#include "init.h"
+ #include "init.h"
 #endif
 
 /* The size of the array */
@@ -28,7 +28,7 @@ struct elm_memory_struct {
 void elm_init()
 {
 	elm_mutex = SDL_CreateMutex();
-	elm_memory = calloc(ELM_INITIAL_SIZE,sizeof(*elm_memory));
+	elm_memory = calloc(ELM_INITIAL_SIZE, sizeof(*elm_memory));
 	elm_allocs++;
 }
 
@@ -51,6 +51,7 @@ void elm_cleanup()
 	}
 	fclose(fp);
 	fprintf(stderr, "EL Memory debugger: %i malloc/calloc calls not free'd\n", malloc_calls_remaining);
+	SDL_DestroyMutex(elm_mutex);
 	free(elm_memory);
 }
 
@@ -61,7 +62,6 @@ void elm_add_to_list(void *pointer, const size_t size, char *file, const int lin
 	for(i = 0; i < ELM_INITIAL_SIZE*elm_allocs; i++) {
 		if(elm_memory[i].size == 0 && elm_memory[i].pointer == NULL) {
 			/* Yay! A free slot! */
-//fprintf(stderr,"%s:%i:Found slot for %p\n", file, line, pointer);
 			elm_memory[i].size = size;
 			elm_memory[i].pointer = pointer;
 			elm_memory[i].file = file;
@@ -104,7 +104,6 @@ void *elm_in_list(const void *pointer)
 	for(i = 0; i < ELM_INITIAL_SIZE*elm_allocs; i++) {
 		if(elm_memory[i].pointer == pointer) {
 			/* We found it! */
-			SDL_UnlockMutex(elm_mutex);
 			return &elm_memory[i];
 		}
 	}
@@ -117,14 +116,14 @@ void *elm_malloc(const size_t size, char *file, const int line)
 {
 	void *pointer;
 
-	SDL_LockMutex(elm_mutex);
 	pointer = malloc(size);
-//fprintf(stderr,"mallocing %p\n", pointer);
-	elm_add_to_list(pointer, size, file, line);
-	SDL_UnlockMutex(elm_mutex);
 	if(pointer == NULL) {
 		/* malloc failed, sound the alarms */
 		fprintf(stderr, "%s:%i:malloc() failed\n", file, line);
+	} else {
+		SDL_LockMutex(elm_mutex);
+		elm_add_to_list(pointer, size, file, line);
+		SDL_UnlockMutex(elm_mutex);
 	}
 	return pointer;
 }
@@ -133,32 +132,27 @@ void *elm_calloc(const size_t nmemb, const size_t size, char *file, const int li
 {
 	void *pointer;
 
-	SDL_LockMutex(elm_mutex);
 	pointer = calloc(nmemb, size);
-//fprintf(stderr,"Callocing %p\n", pointer);
 	if(pointer == NULL) {
 		fprintf(stderr, "%s:%i:calloc() failed\n", file, line);
 	} else {
+		SDL_LockMutex(elm_mutex);
 		elm_add_to_list(pointer, nmemb*size, file, line);
+		SDL_UnlockMutex(elm_mutex);
 	}
-	SDL_UnlockMutex(elm_mutex);
 	return pointer;
 }
 
 void elm_free(void *ptr, char *file, const int line)
 {
-	SDL_LockMutex(elm_mutex);
-//fprintf(stderr, "%s:%i:freeing %p\n", file, line, ptr);
 	if(ptr == NULL) {
 		fprintf(stderr, "%s:%i:Freeing a NULL pointer\n", file, line);
 	}
+	SDL_LockMutex(elm_mutex);
 	if(elm_delete_from_list(ptr)) {
 		/* We found the pointer in the list
 		 * and it's safe to free() it. */
-		SDL_UnlockMutex(elm_mutex);
-		//return free(ptr);
 		free (ptr);
-		return;
 	} else {
 		/* We're trying to free 
 		 * something that's not allocated, which is evil.
@@ -170,7 +164,7 @@ void elm_free(void *ptr, char *file, const int line)
 
 void *elm_realloc(void *ptr, const size_t size, char *file, const int line)
 {
-	void *pointer;
+	void *new_pointer;
 	struct elm_memory_struct *mem = NULL;
 	SDL_LockMutex(elm_mutex);
 	if(ptr == NULL) {
@@ -185,17 +179,17 @@ void *elm_realloc(void *ptr, const size_t size, char *file, const int line)
 		elm_free(ptr, file, line);
 		return NULL;
 	} else if((mem = elm_in_list(ptr)) != NULL) {
-		pointer = realloc(ptr, size);
-		if(pointer != ptr) {
+		new_pointer = realloc(ptr, size);
+		if(new_pointer != ptr) {
 			/* The area was moved. Update the list. */
-			mem->pointer = pointer;
+			mem->pointer = new_pointer;
 		}
 		/* Update the size in the struct */
 		mem->size = size;
 		mem->file = file;
 		mem->line = line;
 		SDL_UnlockMutex(elm_mutex);
-		return pointer;
+		return new_pointer;
 	} else {
 		/* The pointer wasn't found in the list,
 		 * which means we'd get an error */

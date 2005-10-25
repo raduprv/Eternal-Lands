@@ -1384,7 +1384,7 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 			my_offset=i*5+2;
 			teleport_x=SDL_SwapLE16(*((Uint16 *)(teleport_list+my_offset)));
 			teleport_y=SDL_SwapLE16(*((Uint16 *)(teleport_list+my_offset+2)));
-			teleport_type=SDL_SwapLE16(*((Uint16 *)(teleport_list+my_offset+4)));
+			teleport_type=teleport_list[my_offset+4];
 						
 			//later on, maybe we want to have different visual types
 			//now, get the Z position
