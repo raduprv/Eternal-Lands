@@ -1108,7 +1108,7 @@ BBOX_ITEMS* create_bbox_items(unsigned int size)
 {
 	BBOX_ITEMS* bbox_items;
 	
-	bbox_items = (BBOX_ITEMS*)malloc(sizeof(bbox_items));
+	bbox_items = (BBOX_ITEMS*)malloc(sizeof(BBOX_ITEMS));
 	size = max2u(8, size);
 	bbox_items->size = size;
 	bbox_items->index = 0;
