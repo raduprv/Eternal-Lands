@@ -19,9 +19,9 @@ int highest_obj_3d= 0;
 struct near_3d_object near_blended_3d_objects[MAX_NEAR_BLENDED_3D_OBJECTS];
 struct near_3d_object * first_near_blended_3d_object=NULL;
 int no_near_blended_3d_objects=0;
-#endif
 
 int regenerate_near_objects=1;
+#endif
 
 e3d_object *load_e3d (const char *file_name);
 void compute_clouds_map(object3d * object_id);
@@ -320,8 +320,9 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	bbox.bbmax[Z] += z_pos;
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, &bbox, blended, returned_e3d->is_ground);
 	else add_3dobject_to_abt(main_bbox_tree, id, &bbox, blended, returned_e3d->is_ground, dynamic);
-#endif
+#else
 	regenerate_near_objects = 1; // We've added an object..
+#endif
 
 	return id;
 }
@@ -403,9 +404,9 @@ void add_near_3d_object(int dist, float radius, int pos, int blended )//Blended 
 }
 #endif
 
+#ifndef	NEW_FRUSTUM
 int get_near_3d_objects()
 {
-#ifndef	NEW_FRUSTUM	
 	int sx, sy, ex, ey;
 	float x, y;
 	int i, j, k;
@@ -477,12 +478,10 @@ int get_near_3d_objects()
 		}
 	}
 		
-#else
-	check_bbox_tree(main_bbox_tree, &main_frustum);
-#endif
 	regenerate_near_objects = 0;
 	return 1;
 }
+#endif
 
 void display_objects()
 {
@@ -492,11 +491,9 @@ void display_objects()
 	if(regenerate_near_objects||!first_near_3d_object)
 		if(!get_near_3d_objects())return;
 #else
-	unsigned int i, l, idx;
+	unsigned int i, l;
 
-	if (regenerate_near_objects) get_near_3d_objects();
-
-	idx = main_bbox_tree->cur_intersect_type;
+	check_and_update_intersect_list(main_bbox_tree);
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -524,9 +521,9 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i < main_bbox_tree->intersect[idx].stop[TYPE_3D_NO_BLEND_NO_GOUND_OBJECT]; i++)
+	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_OBJECT); i++)
 	{
-		l = main_bbox_tree->intersect[idx].items[i].ID;
+		l = get_intersect_item_ID(main_bbox_tree, i);
 #ifdef EXTRA_DEBUG
 		if (!objects_list[l])
 		{
@@ -550,9 +547,9 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i < main_bbox_tree->intersect[idx].stop[TYPE_3D_NO_BLEND_GROUND_OBJECT]; i++)
+	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_OBJECT); i++)
 	{
-		l = main_bbox_tree->intersect[idx].items[i].ID;
+		l = get_intersect_item_ID(main_bbox_tree, i);
 #ifdef EXTRA_DEBUG
 		if (!objects_list[l])
 		{
@@ -587,11 +584,9 @@ void display_blended_objects()
 	
 	if(!no_near_blended_3d_objects)return;
 #else
-	unsigned int i, l, idx;
+	unsigned int i, l;
 
-	if (regenerate_near_objects) get_near_3d_objects();
-
-	idx = main_bbox_tree->cur_intersect_type;	
+	check_and_update_intersect_list(main_bbox_tree);
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -621,9 +616,9 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_3D_BLEND_NO_GROUND_OBJECT]; i < main_bbox_tree->intersect[idx].stop[TYPE_3D_BLEND_NO_GROUND_OBJECT]; i++)
+	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_OBJECT); i++)
 	{
-		l = main_bbox_tree->intersect[idx].items[i].ID;
+		l = get_intersect_item_ID(main_bbox_tree, i);
 #ifdef EXTRA_DEBUG
 		if (!objects_list[l])
 		{
@@ -647,9 +642,9 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_3D_BLEND_GROUND_OBJECT]; i < main_bbox_tree->intersect[idx].stop[TYPE_3D_BLEND_GROUND_OBJECT]; i++)
+	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_BLEND_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_OBJECT); i++)
 	{
-		l = main_bbox_tree->intersect[idx].items[i].ID;
+		l = get_intersect_item_ID(main_bbox_tree, i);
 #ifdef EXTRA_DEBUG
 		if (!objects_list[l])
 		{
@@ -1082,14 +1077,22 @@ void destroy_3d_object(int i)
 	destroy_clouds_cache(objects_list[i]);
 	free(objects_list[i]);
 	objects_list[i] = NULL;
+#ifdef	NEW_FRUSTUM
+	set_all_intsect_update_needed(main_bbox_tree);
+#else
 	regenerate_near_objects = 1;
+#endif
 	if(i == highest_obj_3d+1)
 		highest_obj_3d = i;
 }
 
 Uint32 free_e3d_va(e3d_object *e3d_id)
 {
-	regenerate_near_objects=1;
+#ifdef	NEW_FRUSTUM
+	set_all_intsect_update_needed(main_bbox_tree);
+#else
+	regenerate_near_objects = 1;
+#endif
 
 	if(e3d_id->array_vertex) {
 		free(e3d_id->array_vertex);

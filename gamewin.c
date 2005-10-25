@@ -548,7 +548,11 @@ int display_game_handler (window_info *win)
 	if (new_zoom_level != zoom_level)
 	{
 		if (new_zoom_level > zoom_level)
+#ifdef	NEW_FRUSTUM
+			set_all_intsect_update_needed(main_bbox_tree);
+#else
 			regenerate_near_objects = regenerate_near_2d_objects = 1;
+#endif
 		zoom_level = new_zoom_level;
 		resize_root_window ();
 	}

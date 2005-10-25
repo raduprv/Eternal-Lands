@@ -430,7 +430,11 @@ void display_3d_reflection()
 	
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
+#ifdef NEW_FRUSTUM
+	check_and_update_intersect_list(main_bbox_tree);
+#else
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
+#endif
 	
 	x=-cx;
 	y=-cy;
@@ -723,7 +727,7 @@ void blend_reflection_fog()
 void draw_lake_tiles()
 {
 #ifdef	NEW_FRUSTUM
-	unsigned int i, l, idx;
+	unsigned int i, l;
 #else
 	int x_start,x_end,y_start,y_end;
 #endif
@@ -773,9 +777,7 @@ void draw_lake_tiles()
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 #endif
 	
-#ifdef	NEW_FRUSTUM
-	idx = main_bbox_tree->cur_intersect_type;
-#else
+#ifndef	NEW_FRUSTUM
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
 	if(cx<0)x=(cx*-1)/3;
@@ -871,9 +873,9 @@ void draw_lake_tiles()
 	if(dungeon) water_id = tile_list[231];
 	else water_id = tile_list[0];
 
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_NO_REFLECTIV_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_NO_REFLECTIV_WATER]; i++)
+	for (i = get_intersect_start(main_bbox_tree, TYPE_NO_REFLECTIV_WATER); i < get_intersect_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER); i++)
 	{
-		l = main_bbox_tree->intersect[idx].items[i].ID;
+		l = get_intersect_item_ID(main_bbox_tree, i);
 		x = l & 0xFF;
 		y = l >> 8;
 		y_scaled = y*3.0f;
@@ -885,9 +887,9 @@ void draw_lake_tiles()
 #ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer)
 	{
-		for (i = main_bbox_tree->intersect[idx].start[TYPE_REFLECTIV_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_REFLECTIV_WATER]; i++)
+		for (i = get_intersect_start(main_bbox_tree, TYPE_REFLECTIV_WATER); i < get_intersect_stop(main_bbox_tree, TYPE_REFLECTIV_WATER); i++)
 		{
-			l = main_bbox_tree->intersect[idx].items[i].ID;
+			l = get_intersect_item_ID(main_bbox_tree, i);
 			x = l & 0xFF;
 			y = l >> 8;
 			y_scaled = y*3.0f;
@@ -900,9 +902,9 @@ void draw_lake_tiles()
 	else
 	{
 #endif
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_REFLECTIV_WATER]; i < main_bbox_tree->intersect[idx].stop[TYPE_REFLECTIV_WATER]; i++)
+	for (i = get_intersect_start(main_bbox_tree, TYPE_REFLECTIV_WATER); i < get_intersect_stop(main_bbox_tree, TYPE_REFLECTIV_WATER); i++)
 	{
-		l = main_bbox_tree->intersect[idx].items[i].ID;
+		l = get_intersect_item_ID(main_bbox_tree, i);
 		x = l & 0xFF;
 		y = l >> 8;
 		y_scaled = y*3.0f;

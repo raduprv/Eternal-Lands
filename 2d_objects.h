@@ -13,7 +13,9 @@
 /*! \{ */
 #define MAX_OBJ_2D 15000 /*!<Maximum number of 2d objects in a map*/
 #define MAX_OBJ_2D_DEF 1000 /*!<Maximum number of loaded 2d object definitions*/
+#ifndef	NEW_FRUSTUM
 #define MAX_NEARBY_2D_OBJECTS 1000 /*!<Maximum number of nearby 2d objects*/
+#endif
 /*! \} */
 
 
@@ -85,7 +87,9 @@ extern obj_2d *obj_2d_list[MAX_OBJ_2D]; /*!< The 2d object array - holds all 2d 
 
 extern float texture_scale; /*!< scaling factor for textures */
 
+#ifndef	NEW_FRUSTUM
 extern int regenerate_near_2d_objects;
+#endif
 
 /*
  * \ingroup	display_2d

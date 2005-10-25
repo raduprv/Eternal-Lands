@@ -159,8 +159,13 @@ void enable_local_lights()
 
 void draw_lights()
 {
+#ifdef	NEW_FRUSTUM
+	unsigned int i, j, l;
+	float vec4[0];
+#else
 	GLfloat spot_direction[] = { -0.0, -0.0, -0.0f };
-
+#endif
+	
 	if(show_lights <0){
 		if(max_enabled >= 0){
 			disable_local_lights();
@@ -171,6 +176,7 @@ void draw_lights()
 	}
 	if(max_enabled >= 0 && show_lights != max_enabled)	enable_local_lights();
 	
+#ifndef	NEW_FRUSTUM
 	glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_0_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
@@ -205,16 +211,57 @@ void draw_lights()
 		glLightfv(GL_LIGHT6,GL_DIFFUSE,light_6_diffuse);
 		glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
 	}
+#else	
+	check_and_update_intersect_list(main_bbox_tree);
+	
+	j = 0;
+	
+	for (i = get_intersect_start(main_bbox_tree, TYPE_LIGHT); i < get_intersect_stop(main_bbox_tree, TYPE_LIGHT); i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+#ifdef EXTRA_DEBUG
+		if (!lights_list[l])
+		{
+			ERR();
+			continue;
+		}
+#endif
+		vec4[0] = lights_list[l]->pos_x;
+		vec4[1] = lights_list[l]->pos_y;
+		vec4[2] = lights_list[l]->pos_z;
+		vec4[3] = 1.0f;
+		glLightfv(GL_LIGHT0+j, GL_POSITION, vec4);
+		vec4[0] = lights_list[l]->r;
+		vec4[1] = lights_list[l]->g;
+		vec4[2] = lights_list[l]->b;
+		vec4[3] = 1.0f;
+		glLightfv(GL_LIGHT0+j, GL_DIFFUSE, vec4);
+		if (j >= 6) break;
+		else j++;
+	}
+
+#endif
 }
 
-#ifdef MAP_EDITOR2
-int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity,int locked)
+#ifdef	NEW_FRUSTUM
+#if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked, unsigned int dynamic)
+#else
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, unsigned int dynamic)
+#endif
+#else
+#if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked)
 #else
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity)
+#endif
 #endif
 {
 	int i;
 	light *new_light;
+#ifdef	NEW_FRUSTUM
+	AABBOX bbox;
+#endif
 
 	//find a free spot, in the lights list
 	for (i = 0; i < MAX_LIGHTS; i++)
@@ -242,8 +289,13 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 #endif
 	
 	lights_list[i] = new_light;
-	if (i >= num_lights) num_lights = i+1;
-	
+	if (i >= num_lights) num_lights = i+1;	
+#ifdef	NEW_FRUSTUM
+	calc_light_aabb(&bbox, x, y, z, r*intensity, g*intensity, b*intensity, 1.41f, 1.0f, 0.05f);
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_light_to_list(main_bbox_tree_items, i, &bbox);
+	else add_light_to_abt(main_bbox_tree, i, &bbox, dynamic);
+#endif
+
 	return i;
 }
 
@@ -261,6 +313,7 @@ void cleanup_lights(void)
 //should be called only when we change the camera pos
 void update_scene_lights()
 {
+#ifndef	NEW_FRUSTUM
 	int i;
 	float x,y;
 	float x_dist,y_dist,dist;
@@ -507,7 +560,10 @@ void update_scene_lights()
 						}
 				}
 		}
-
+#else
+	check_and_update_intersect_list(main_bbox_tree);
+	show_lights = min2i(6, get_intersect_stop(main_bbox_tree, TYPE_LIGHT) - get_intersect_start(main_bbox_tree, TYPE_LIGHT) -1);
+#endif
 }
 
 void init_lights()

@@ -211,7 +211,7 @@ void CalculateFrustum()
 	main_frustum[FRONT].mask[0] = m_Frustum[FRONT][A] < 0.0f ? 0 : 1;
 	main_frustum[FRONT].mask[1] = m_Frustum[FRONT][B] < 0.0f ? 0 : 1;
 	main_frustum[FRONT].mask[2] = m_Frustum[FRONT][C] < 0.0f ? 0 : 1;
-
+	check_bbox_tree(main_bbox_tree, &main_frustum);
 #endif
 }
 

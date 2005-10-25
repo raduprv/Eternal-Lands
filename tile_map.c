@@ -349,7 +349,7 @@ void draw_tile_map()
 #ifndef	NEW_FRUSTUM
 	int x_start,x_end,y_start,y_end;
 #else
-	unsigned int i, l, idx;
+	unsigned int i, l;
 #endif
 	int x,y;
 	float x_scaled,y_scaled;
@@ -365,9 +365,8 @@ void draw_tile_map()
 			glEnable(GL_TEXTURE_2D);
 		}
 
-#ifdef	NEW_FRUSTUM
-	idx = main_bbox_tree->cur_intersect_type;
-#else
+#ifndef	NEW_FRUSTUM
+
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
 	if(cx<0)x=(cx*-1)/3;
@@ -399,9 +398,9 @@ void draw_tile_map()
 							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
 							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
 #else
-			for (i = main_bbox_tree->intersect[idx].start[TYPE_TERRAIN]; i < main_bbox_tree->intersect[idx].stop[TYPE_TERRAIN]; i++)
+			for (i = get_intersect_start(main_bbox_tree, TYPE_TERRAIN); i < get_intersect_stop(main_bbox_tree, TYPE_TERRAIN); i++)
 			{
-				l = main_bbox_tree->intersect[idx].items[i].ID;
+				l = get_intersect_item_ID(main_bbox_tree, i);
 				x = l & 0xFF;
 				y = l >> 8;
 				y_scaled = y*3.0f;
@@ -441,9 +440,9 @@ void draw_tile_map()
 						{
 							x_scaled=x*3.0f;
 #else
-			for (i = main_bbox_tree->intersect[idx].start[TYPE_TERRAIN]; i < main_bbox_tree->intersect[idx].stop[TYPE_TERRAIN]; i++)
+			for (i = get_intersect_start(main_bbox_tree, TYPE_TERRAIN); i < get_intersect_stop(main_bbox_tree, TYPE_TERRAIN); i++)
 			{
-				l = main_bbox_tree->intersect[idx].items[i].ID;
+				l = get_intersect_item_ID(main_bbox_tree, i);
 				x = l & 0xFF;
 				y = l >> 8;
 				y_scaled = y*3.0f;

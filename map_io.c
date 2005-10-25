@@ -17,6 +17,9 @@ void destroy_map()
 	ERR();
 #endif
 
+#ifdef	NEW_FRUSTUM
+	clear_bbox_tree(main_bbox_tree);
+#endif
 	//kill the tile and height map
 	if(tile_map)
 		{
@@ -89,9 +92,6 @@ void destroy_map()
 #ifdef	TERRAIN
 	free_terrain();
 #endif
-#ifdef	NEW_FRUSTUM
-	clear_bbox_tree(main_bbox_tree);
-#endif
 }
 
 #ifndef MAP_EDITOR2
@@ -113,8 +113,12 @@ int get_cur_map (const char * file_name)
 
 void change_map (const char *mapname)
 {
+#ifdef	NEW_FRUSTUM
+	set_all_intsect_update_needed(main_bbox_tree);
+#else
 	regenerate_near_objects=1;//Regenerate the near 3d objects...
 	regenerate_near_2d_objects=1;//Regenerate the near 3d objects...
+#endif
 	object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 #ifndef MAP_EDITOR2
 #ifdef EXTRA_DEBUG
@@ -427,10 +431,18 @@ int load_map (const char * file_name)
 				cur_light_io.b = SwapFloat(cur_light_io.b);
 			#endif
 			
+#ifdef	NEW_FRUSTUM
+#ifdef MAP_EDITOR2
+			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f,1, 0);
+#else
+			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f, 0);
+#endif
+#else
 #ifdef MAP_EDITOR2
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f,1);
 #else
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f);
+#endif
 #endif
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);

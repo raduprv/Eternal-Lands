@@ -494,7 +494,13 @@ void destroy_all_particles()
 			if(particles_list[i]->def && particles_list[i]->def->use_light && lights_list[particles_list[i]->light]) {
 				free(lights_list[particles_list[i]->light]);
 				lights_list[particles_list[i]->light]=NULL;
+#ifdef	NEW_FRUSTUM
+				delete_light_from_abt(main_bbox_tree, particles_list[i]->light, 1);
+#endif
 			}
+#ifdef	NEW_FRUSTUM
+			delete_particle_from_abt(main_bbox_tree, i, 1);
+#endif
 			free(particles_list[i]);
 			particles_list[i]=0;
 		}
@@ -550,6 +556,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 #endif
 #ifdef	NEW_FRUSTUM
 			delete_particle_from_abt(main_bbox_tree, i, 1);
+			delete_light_from_abt(main_bbox_tree, sys->light, 1);
 #endif
 			free (sys);
 			particles_list[i] = NULL;
@@ -673,12 +680,22 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	system_id->ttl=def->ttl;
 
 	if(def->use_light) {
+#ifdef	NEW_FRUSTUM
+#ifdef MAP_EDITOR
+		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1, dynamic);
+#elif defined(MAP_EDITOR2)
+		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1, dynamic);
+#else
+		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f, dynamic);
+#endif
+#else
 #ifdef MAP_EDITOR
 		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1);
 #elif defined(MAP_EDITOR2)
 		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1);
 #else
 		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f);
+#endif
 #endif
 	}
 
@@ -812,11 +829,9 @@ void display_particles()
 	int x,y;
 	GLenum sblend=GL_SRC_ALPHA,dblend=GL_ONE;
 #ifdef	NEW_FRUSTUM
-	unsigned int l, idx;
+	unsigned int l;
 
-	if (regenerate_near_objects) get_near_3d_objects();
-
-	idx = main_bbox_tree->cur_intersect_type;
+	check_and_update_intersect_list(main_bbox_tree);
 #endif
 
 	if(!particles_percentage)
@@ -837,9 +852,9 @@ void display_particles()
 	LOCK_PARTICLES_LIST();
 	// Perhaps we should have a depth sort here..?
 #ifdef	NEW_FRUSTUM
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_PARTICLE_SYSTEM]; i < main_bbox_tree->intersect[idx].stop[TYPE_PARTICLE_SYSTEM]; i++)
+	for (i = get_intersect_start(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i < get_intersect_stop(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i++)
 	{
-		l = main_bbox_tree->intersect[idx].items[i].ID;
+		l = get_intersect_item_ID(main_bbox_tree, i);
 #ifdef EXTRA_DEBUG
 		if (!particles_list[l])
 		{
@@ -1221,7 +1236,7 @@ void update_bag_part_sys(particle_sys *system_id)
 
 void update_particles() {
 #ifdef	NEW_FRUSTUM
-	unsigned int idx, i, l;
+	unsigned int i, l;
 #else
 	int i;
 #ifdef ELC
@@ -1269,6 +1284,7 @@ void update_particles() {
 				{
 					free(lights_list[particles_list[i]->light]);
 					lights_list[particles_list[i]->light] = NULL;
+					delete_light_from_abt(main_bbox_tree, particles_list[i]->light, 1);
 				}
 				delete_particle_from_abt(main_bbox_tree, i, 1);
 				free(particles_list[i]);
@@ -1276,11 +1292,11 @@ void update_particles() {
 			}			
 		}
 	}
+	check_and_update_intersect_list(main_bbox_tree);
 	lock_bbox_tree(main_bbox_tree);
-	idx = main_bbox_tree->cur_intersect_type;
-	for (i = main_bbox_tree->intersect[idx].start[TYPE_PARTICLE_SYSTEM]; i < main_bbox_tree->intersect[idx].stop[TYPE_PARTICLE_SYSTEM]; i++)
+	for (i = get_intersect_start(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i < get_intersect_stop(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i++)
 	{
-		l = main_bbox_tree->intersect[idx].items[i].ID;
+		l = get_intersect_item_ID(main_bbox_tree, i);
 #ifdef EXTRA_DEBUG
 		if (!particles_list[l])
 		{

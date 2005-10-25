@@ -169,8 +169,12 @@ void move_camera ()
 		camera_y_frames=0;
 		camera_z_frames=0;
 		lagged=0;
+#ifdef	NEW_FRUSTUM
+		set_all_intsect_update_needed(main_bbox_tree);
+#else
 		regenerate_near_objects=
 		regenerate_near_2d_objects=1;
+#endif
 	} else {
 		//move near the actor, but smoothly
 		camera_x_speed=(x-(-cx))/16.0;
@@ -207,15 +211,23 @@ void update_camera()
 				rz += 360;
 			}
 			camera_rotation_frames--;
+#ifdef	NEW_FRUSTUM
+			set_all_intsect_update_needed(main_bbox_tree);
+#else
 			regenerate_near_objects=
 			regenerate_near_2d_objects=1;
+#endif
 		}
 	if(camera_x_frames)
 		{
 			if(camera_x_speed>0.005 || camera_x_speed<-0.005){
 				cx-=camera_x_speed;
+#ifdef	NEW_FRUSTUM
+				set_all_intsect_update_needed(main_bbox_tree);
+#else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
+#endif
 			}
 			camera_x_frames--;
 		}
@@ -223,8 +235,12 @@ void update_camera()
 		{
 			if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
 				cy-=camera_y_speed;
+#ifdef	NEW_FRUSTUM
+				set_all_intsect_update_needed(main_bbox_tree);
+#else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
+#endif
 			}
 			camera_y_frames--;
 		}
@@ -256,16 +272,24 @@ void update_camera()
 			if(zoom_level<3.75f){
 				new_zoom_level+=0.05f;
 				camera_zoom_frames--;
+#ifdef	NEW_FRUSTUM
+				set_all_intsect_update_needed(main_bbox_tree);
+#else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
+#endif
 			} else 
 				camera_zoom_frames = 0;
 		} else {
 			if(zoom_level>sitting){
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
+#ifdef	NEW_FRUSTUM
+				set_all_intsect_update_needed(main_bbox_tree);
+#else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
+#endif
 			} else 
 				camera_zoom_frames = 0;
 		}

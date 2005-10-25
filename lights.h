@@ -94,10 +94,18 @@ void draw_lights();
  * \param intensity     a (intensity) value of the lights color
  * \retval int          the index into the \ref lights_list array, where the light was added.
  */
+#ifdef	NEW_FRUSTUM
+#if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked, unsigned int dynamic);
+#else
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, unsigned int dynamic);
+#endif
+#else
 #if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked);
 #else
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity);
+#endif
 #endif
 
 /*!

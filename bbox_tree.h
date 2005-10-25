@@ -2,7 +2,6 @@
 #ifndef	BBOX_TREE_H
 #define BBOX_TREE_H
 
-#include <math.h>
 #include <stdlib.h>
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
@@ -14,7 +13,7 @@
 
 #define TYPE_2D_NO_ALPHA_OBJECT				0x00
 #define TYPE_2D_ALPHA_OBJECT				0x01
-#define TYPE_3D_NO_BLEND_NO_GOUND_OBJECT		0x02
+#define TYPE_3D_NO_BLEND_NO_GROUND_OBJECT		0x02
 #define TYPE_3D_NO_BLEND_GROUND_OBJECT			0x03
 #define TYPE_3D_BLEND_NO_GROUND_OBJECT			0x04
 #define TYPE_3D_BLEND_GROUND_OBJECT			0x05
@@ -106,6 +105,7 @@ struct BBox_Tree_Node_Struct
 
 typedef struct
 {
+	unsigned int		intersect_update_needed;
 	IDX_TYPE		size;
 	IDX_TYPE		count;
 	IDX_TYPE		start[TYPES_COUNT];
@@ -136,13 +136,13 @@ typedef	struct
 	BBOX_ITEM*		items;
 	IDX_TYPE		nodes_count;
 	BBOX_TREE_NODE*		nodes;
-	unsigned short		cur_intersect_type;
+	unsigned int		cur_intersect_type;
 	BBOX_INTERSECTION_DATA	intersect[MAX_ITERSECTION_TYPES];
 	SDL_mutex*		bbox_tree_mutex;
 #ifdef	FRUSTUM_THREADS
 	SDL_cond*		update_condition;
 	BBOX_TREE_UPDATE_DATA	update_data;
-	unsigned char		done;
+	unsigned int		done;
 	SDL_Thread*		thread_id;
 #endif
 } BBOX_TREE;
@@ -288,6 +288,30 @@ static __inline__ int lock_bbox_tree(BBOX_TREE* bbox_tree)
 static __inline__ int unlock_bbox_tree(BBOX_TREE* bbox_tree)
 {
 	return SDL_UnlockMutex(bbox_tree->bbox_tree_mutex);
+}
+
+static __inline__ unsigned int get_intersect_start(BBOX_TREE* bbox_tree, unsigned int type)
+{
+	unsigned int idx;
+
+	idx = bbox_tree->cur_intersect_type;
+	return bbox_tree->intersect[idx].start[type];
+}
+
+static __inline__ unsigned int get_intersect_stop(BBOX_TREE* bbox_tree, unsigned int type)
+{
+	unsigned int idx;
+
+	idx = bbox_tree->cur_intersect_type;
+	return bbox_tree->intersect[idx].stop[type];
+}
+
+static __inline__ unsigned int get_intersect_item_ID(BBOX_TREE* bbox_tree, unsigned int index)
+{
+	unsigned int idx;
+
+	idx = bbox_tree->cur_intersect_type;
+	return bbox_tree->intersect[idx].items[index].ID;
 }
 
 /*!
@@ -632,7 +656,28 @@ BBOX_ITEMS* create_bbox_items(unsigned int size);
  */
 void free_bbox_items(BBOX_ITEMS* bbox_items);
 
-extern FRUSTUM main_frustum;
+/*!
+ * \ingroup misc
+ * \brief Updates the intersection list if it is necessary.
+ *
+ * Updates the intersection list if it is necessary. Just deleted objects are removed, nothing more.
+ *
+ * \param bbox_tree	The bounding box tree of the intersection list.
+ * \callgraph
+ */
+void check_and_update_intersect_list(BBOX_TREE *bbox_tree);
+
+/*!
+ * \ingroup misc
+ * \brief Sets all intersection lists to update needed.
+ *
+ * Sets all intersection lists to update needed.
+ *
+ * \param bbox_tree	The bounding box tree of the intersection list.
+ * \callgraph
+ */
+void set_all_intsect_update_needed(BBOX_TREE* bbox_tree);
+
 extern BBOX_TREE* main_bbox_tree;
 extern BBOX_ITEMS* main_bbox_tree_items;
 

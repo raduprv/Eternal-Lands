@@ -553,8 +553,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 			}
 			break;
-				regenerate_near_objects=1;//Regenerate the near 3d objects...
-
+#ifndef	NEW_FRUSTUM
+			regenerate_near_objects=1;//Regenerate the near 3d objects...
+#endif
 		case LOG_IN_NOT_OK:
 			{
 				set_login_error (&in_data[3], data_length - 3);
