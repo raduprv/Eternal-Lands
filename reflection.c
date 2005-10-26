@@ -529,10 +529,14 @@ void display_3d_reflection()
 	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
 	int view_port[4];
 	
+#ifdef NEW_FRUSTUM
+	check_and_update_intersect_list(main_bbox_tree);
+#else
 	if (regenerate_near_objects)
 	{
 		if (!get_near_3d_objects()) return;
 	}
+#endif
 	if (use_frame_buffer)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);

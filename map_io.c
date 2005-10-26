@@ -566,7 +566,7 @@ void new_map(int m_x_size,int m_y_size,int tile_type)
 {
 	int i;
 #ifdef	NEW_FRUSTUM
-	int cur_tile, j;
+	unsigned int j;
 	AABBOX bbox;
 #endif
 
