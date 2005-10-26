@@ -685,6 +685,17 @@ void display_2d_objects()
 #endif
 }
 
+#ifdef	NEW_FRUSTUM
+void destroy_2d_object(int i)
+{
+	if ((i < 0) || (i >= MAX_OBJ_2D)) return;
+	if (obj_2d_list[i] == NULL) return;
+	delete_2dobject_from_abt(main_bbox_tree, i, obj_2d_list[i]->obj_pointer->alpha_test);
+	free(obj_2d_list[i]);
+	obj_2d_list[i] = NULL;
+}
+#endif
+
 // for support of the 1.0.3 server, change if an object is to be displayed or not
 void set_2d_object (Uint8 display, const void *ptr, int len)
 {

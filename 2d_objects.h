@@ -175,6 +175,20 @@ void state_2d_object (Uint8 state, const void *ptr, int len);
  */
 obj_2d_def * load_obj_2d_def_cache(char * file_name);
 
+#ifdef	NEW_FRUSTUM
+/*
+ * \ingroup	display_2d
+ * \brief	Destroys the 2d object at position i in the obj_2d_list
+ * 
+ * 		Destroyes the 2d object on position i in the obj_2d_list - frees the memory and sets the obj_2d_list[i]=NULL.
+ *
+ * \param	i The position in the obj_2d_list
+ *
+ * \callgraph
+ */
+void destroy_2d_object(int i);
+#endif
+
 #ifdef MAP_EDITOR2
 /*!
  * \ingroup	display_2d

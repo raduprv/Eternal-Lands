@@ -395,6 +395,25 @@ static __inline__ void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle
 	bbox->bbmax[Y] += system_id->y_pos;
 	bbox->bbmax[Z] += system_id->z_pos;
 }
+
+static __inline__ void destroy_partice_sys_without_lock(int i)
+{
+	if ((i < 0) || (i >= MAX_PARTICLE_SYSTEMS)) return;
+	if (particles_list[i] == NULL) return;
+	if(particles_list[i]->def && particles_list[i]->def->use_light && lights_list[particles_list[i]->light])
+		destroy_light(particles_list[i]->light);
+	delete_particle_from_abt(main_bbox_tree, i);
+	free(particles_list[i]);
+	particles_list[i] = NULL;
+}
+
+void destroy_particle_sys(int i)
+{
+	LOCK_PARTICLES_LIST();
+	destroy_partice_sys_without_lock(i);
+	UNLOCK_PARTICLES_LIST();
+}
+
 #endif
 #ifdef MAP_EDITOR2
 #define MAP_EDITOR
@@ -490,19 +509,17 @@ void destroy_all_particles()
 	LOCK_PARTICLES_LIST();
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
+#ifdef	NEW_FRUSTUM
+			destroy_partice_sys_without_lock(i);
+#else
 			if(!particles_list[i])continue;
 			if(particles_list[i]->def && particles_list[i]->def->use_light && lights_list[particles_list[i]->light]) {
 				free(lights_list[particles_list[i]->light]);
 				lights_list[particles_list[i]->light]=NULL;
-#ifdef	NEW_FRUSTUM
-				delete_light_from_abt(main_bbox_tree, particles_list[i]->light, 1);
-#endif
 			}
-#ifdef	NEW_FRUSTUM
-			delete_particle_from_abt(main_bbox_tree, i, 1);
-#endif
 			free(particles_list[i]);
 			particles_list[i]=0;
+#endif
 		}
 	UNLOCK_PARTICLES_LIST();
 
@@ -540,11 +557,15 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 	int i;
 	particle_sys *sys;
 	
+	LOCK_PARTICLES_LIST();
 	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
 	{
 		sys = particles_list[i];
 		if (particles_list[i] && strncmp (sys->def->file_name, "./particles/fire_", 17) == 0 && sys->x_pos == x && sys->y_pos == y)
 		{
+#ifdef	NEW_FRUSTUM
+			destroy_partice_sys_without_lock(i);
+#else
 			if (sys->def->use_light && lights_list[sys->light])
 			{
 				free (lights_list[sys->light]);
@@ -554,14 +575,12 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 			if (sys->sound != 0)
 				remove_sound_object (sys->sound);
 #endif
-#ifdef	NEW_FRUSTUM
-			delete_particle_from_abt(main_bbox_tree, i, 1);
-			delete_light_from_abt(main_bbox_tree, sys->light, 1);
-#endif
 			free (sys);
 			particles_list[i] = NULL;
+#endif
 		}
 	}
+	UNLOCK_PARTICLES_LIST();
 }
 
 /*********************************************************************
@@ -1277,19 +1296,9 @@ void update_particles() {
 					break;
 			}
 			if (particles_list[i]->ttl > 0) particles_list[i]->ttl--;
-			if (!particles_list[i]->ttl && !particles_list[i]->particle_count)
 			//if there are no more particles to add, and the TTL expired, then kill this evil system
-			{
-				if (particles_list[i]->def->use_light && lights_list[particles_list[i]->light])
-				{
-					free(lights_list[particles_list[i]->light]);
-					lights_list[particles_list[i]->light] = NULL;
-					delete_light_from_abt(main_bbox_tree, particles_list[i]->light, 1);
-				}
-				delete_particle_from_abt(main_bbox_tree, i, 1);
-				free(particles_list[i]);
-				particles_list[i]=0;
-			}			
+			if (!particles_list[i]->ttl && !particles_list[i]->particle_count)
+				destroy_partice_sys_without_lock(i);		
 		}
 	}
 	check_and_update_intersect_list(main_bbox_tree);

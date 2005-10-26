@@ -28,6 +28,7 @@ GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
 GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 
 int	show_lights;
+#ifndef	NEW_FRUSTUM
 GLfloat light_0_position[4];
 GLfloat light_0_diffuse[4];
 GLfloat light_0_dist;
@@ -55,6 +56,7 @@ GLfloat light_5_dist;
 GLfloat light_6_position[4];
 GLfloat light_6_diffuse[4];
 GLfloat light_6_dist;
+#endif
 
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
@@ -82,6 +84,7 @@ int test_point_visible(float x,float y,float z)
 	else 	return 0;
 }
 
+#ifndef	NEW_FRUSTUM
 void render_corona(float x,float y,float z,float r,float g,float b)
 {
 	float i;
@@ -127,6 +130,7 @@ void render_coronas()
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 }
+#endif
 
 
 int	max_enabled;
@@ -242,6 +246,17 @@ void draw_lights()
 
 #endif
 }
+
+#ifdef	NEW_FRUSTUM
+void destroy_light(int i)
+{
+	if ((i < 0) || (i >= MAX_LIGHTS)) return;
+	if (lights_list[i] == NULL) return;
+	delete_light_from_abt(main_bbox_tree, i);
+	free(lights_list[i]);
+	lights_list[i] = NULL;
+}
+#endif
 
 #ifdef	NEW_FRUSTUM
 #if defined (MAP_EDITOR2) || defined (MAP_EDITOR)

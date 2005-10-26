@@ -171,6 +171,7 @@ int start_rendering()
 	end_particles_list();
 #ifdef	NEW_FRUSTUM
 	free_bbox_tree(main_bbox_tree);
+	main_bbox_tree = NULL;
 #endif
 	/* Destroy our GL context, etc. */
 	destroy_sound();

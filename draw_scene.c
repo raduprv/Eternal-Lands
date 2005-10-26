@@ -170,7 +170,7 @@ void move_camera ()
 		camera_z_frames=0;
 		lagged=0;
 #ifdef	NEW_FRUSTUM
-		set_all_intsect_update_needed(main_bbox_tree);
+		set_all_intersect_update_needed(main_bbox_tree);
 #else
 		regenerate_near_objects=
 		regenerate_near_2d_objects=1;
@@ -212,7 +212,7 @@ void update_camera()
 			}
 			camera_rotation_frames--;
 #ifdef	NEW_FRUSTUM
-			set_all_intsect_update_needed(main_bbox_tree);
+			set_all_intersect_update_needed(main_bbox_tree);
 #else
 			regenerate_near_objects=
 			regenerate_near_2d_objects=1;
@@ -223,7 +223,7 @@ void update_camera()
 			if(camera_x_speed>0.005 || camera_x_speed<-0.005){
 				cx-=camera_x_speed;
 #ifdef	NEW_FRUSTUM
-				set_all_intsect_update_needed(main_bbox_tree);
+				set_all_intersect_update_needed(main_bbox_tree);
 #else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
@@ -236,7 +236,7 @@ void update_camera()
 			if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
 				cy-=camera_y_speed;
 #ifdef	NEW_FRUSTUM
-				set_all_intsect_update_needed(main_bbox_tree);
+				set_all_intersect_update_needed(main_bbox_tree);
 #else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
@@ -273,7 +273,7 @@ void update_camera()
 				new_zoom_level+=0.05f;
 				camera_zoom_frames--;
 #ifdef	NEW_FRUSTUM
-				set_all_intsect_update_needed(main_bbox_tree);
+				set_all_intersect_update_needed(main_bbox_tree);
 #else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
@@ -285,7 +285,7 @@ void update_camera()
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
 #ifdef	NEW_FRUSTUM
-				set_all_intsect_update_needed(main_bbox_tree);
+				set_all_intersect_update_needed(main_bbox_tree);
 #else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;

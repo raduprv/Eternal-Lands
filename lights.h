@@ -79,6 +79,20 @@ void disable_local_lights();
  */
 void draw_lights();
 
+#ifdef	NEW_FRUSTUM
+/*
+ * \ingroup	lights
+ * \brief	Destroys the light at position i in the lights_list
+ * 
+ * 		Destroyes the light on position i in the lights_list - frees the memory and sets the lights_list[i]=NULL.
+ *
+ * \param	i The position in the lights_list
+ *
+ * \callgraph
+ */
+void destroy_light(int i);
+#endif
+
 /*!
  * \ingroup lights
  * \brief   Adds a new light using the given position and color.

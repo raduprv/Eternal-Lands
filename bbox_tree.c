@@ -9,12 +9,15 @@
 #endif
 #include <string.h>
 
-void set_all_intsect_update_needed(BBOX_TREE* bbox_tree)
+void set_all_intersect_update_needed(BBOX_TREE* bbox_tree)
 {
 	unsigned int i;
 
-	for (i = 0; i < MAX_ITERSECTION_TYPES; i++)
-		bbox_tree->intersect[i].intersect_update_needed = 1;
+	if (bbox_tree != NULL)
+	{
+		for (i = 0; i < MAX_ITERSECTION_TYPES; i++)
+			bbox_tree->intersect[i].intersect_update_needed = 1;
+	}
 }
 
 #ifdef	FRUSTUM_THREADS
@@ -418,15 +421,16 @@ void free_bbox_tree(BBOX_TREE* bbox_tree)
 	if (bbox_tree != NULL)
 	{
 #ifdef	FRUSTUM_THREADS
+		lock_bbox_tree(bbox_tree);
 		bbox_tree->done = 1;
+		unlock_bbox_tree(bbox_tree);
 		SDL_CondBroadcast(bbox_tree->update_condition);
 		SDL_WaitThread(bbox_tree->thread_id, &ret);
+		SDL_DestroyCond(bbox_tree->update_condition);
 #endif
 		clear_bbox_tree(bbox_tree);
 		SDL_DestroyMutex(bbox_tree->bbox_tree_mutex);
-#ifdef	FRUSTUM_THREADS
-		SDL_DestroyCond(bbox_tree->update_condition);
-#endif
+		bbox_tree->bbox_tree_mutex = NULL;
 		free(bbox_tree);
 	}
 }
@@ -662,7 +666,7 @@ void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items)
 		bbox_tree->nodes_count = index;
 		bbox_tree->nodes = (BBOX_TREE_NODE*)realloc(bbox_tree->nodes, index*sizeof(BBOX_TREE_NODE));
 	}
-	set_all_intsect_update_needed(bbox_tree);
+	set_all_intersect_update_needed(bbox_tree);
 #ifdef	FRUSTUM_THREADS
 	bbox_tree->update_data.bbox_tree_degeneration = 0;
 	bbox_tree->update_data.size = 0;
@@ -671,14 +675,19 @@ void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items)
 #endif
 }
 
+// Xaphier: Just for the moment, will be changed in the future
 static __inline__ void resize_aabb(AABBOX *resized_bbox, AABBOX *bbox)
 {
-	resized_bbox->bbmin[X] = bbox->bbmin[X] - 1.0f;
-	resized_bbox->bbmin[Y] = bbox->bbmin[Y] - 1.0f;
-	resized_bbox->bbmin[Z] = bbox->bbmin[Z] - 1.0f;
-	resized_bbox->bbmax[X] = bbox->bbmax[X] + 1.0f;
-	resized_bbox->bbmax[Y] = bbox->bbmax[Y] + 1.0f;
-	resized_bbox->bbmax[Z] = bbox->bbmax[Z] + 1.0f;
+	float box_size_const;
+
+	box_size_const = 1.0f;
+	
+	resized_bbox->bbmin[X] = bbox->bbmin[X] - box_size_const;
+	resized_bbox->bbmin[Y] = bbox->bbmin[Y] - box_size_const;
+	resized_bbox->bbmin[Z] = bbox->bbmin[Z] - box_size_const;
+	resized_bbox->bbmax[X] = bbox->bbmax[X] + box_size_const;
+	resized_bbox->bbmax[Y] = bbox->bbmax[Y] + box_size_const;
+	resized_bbox->bbmax[Z] = bbox->bbmax[Z] + box_size_const;
 }
 
 static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int sort_data)
@@ -907,7 +916,7 @@ static __inline__ void add_aabb_to_abt(BBOX_TREE *bbox_tree, AABBOX *bbox, unsig
 #else
 		add_dynamic_aabb_to_abt_node(bbox_tree->root_node, bbox, ID, type, sort_data);
 #endif
-		set_all_intsect_update_needed(bbox_tree);
+		set_all_intersect_update_needed(bbox_tree);
 		unlock_bbox_tree(bbox_tree);
 	}
 }
@@ -1090,7 +1099,7 @@ static __inline__ void delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, BBOX_
 	}
 }
 
-static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int type, unsigned int dynamic)
+static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int type)
 {
 	unsigned int i, j;
 	
@@ -1098,26 +1107,20 @@ static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int I
 	{
 		lock_bbox_tree(bbox_tree);
 #ifdef	FRUSTUM_THREADS
-		if (dynamic)
+		for (i = 0; i < bbox_tree->update_data.index; i++)
 		{
-			for (i = 0; i < bbox_tree->update_data.index; i++)
+			if ((bbox_tree->update_data.list[i].item.data.ID == ID) && 
+					(bbox_tree->update_data.list[i].item.data.type == type))
 			{
-				if ((bbox_tree->update_data.list[i].item.data.ID == ID) && 
-						(bbox_tree->update_data.list[i].item.data.type == type))
-				{
-					bbox_tree->update_data.list[i].item.data.type = TYPE_DELETED;
-				}
+				bbox_tree->update_data.list[i].item.data.type = TYPE_DELETED;
 			}
 		}
-		else
+		for (i = 0; i < bbox_tree->items_count; i++)
 		{
-			for (i = 0; i < bbox_tree->items_count; i++)
+			if ((bbox_tree->items[i].data.ID == ID) && 
+					(bbox_tree->items[i].data.type == type))
 			{
-				if ((bbox_tree->items[i].data.ID == ID) && 
-						(bbox_tree->items[i].data.type == type))
-				{
-					bbox_tree->items[i].data.type = TYPE_DELETED;
-				}
+				bbox_tree->items[i].data.type = TYPE_DELETED;
 			}
 		}
 #endif
@@ -1137,39 +1140,39 @@ static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int I
 #ifdef	FRUSTUM_THREADS
 		update_bbox_tree_degeneration(bbox_tree, 1);
 #endif
-		set_all_intsect_update_needed(bbox_tree);
+		set_all_intersect_update_needed(bbox_tree);
 		unlock_bbox_tree(bbox_tree);
 	}
 }
 
-void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground, unsigned int dynamic)
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground)
 {
-	delete_aabb_from_abt(bbox_tree, ID, get_3D_type(blend, ground), dynamic);
+	delete_aabb_from_abt(bbox_tree, ID, get_3D_type(blend, ground));
 }
 
-void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha, unsigned int dynamic)
+void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha)
 {
-	delete_aabb_from_abt(bbox_tree, ID, get_2D_type(alpha), dynamic);
+	delete_aabb_from_abt(bbox_tree, ID, get_2D_type(alpha));
 }
 
-void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic)
+void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-	delete_aabb_from_abt(bbox_tree, ID, TYPE_PARTICLE_SYSTEM, dynamic);
+	delete_aabb_from_abt(bbox_tree, ID, TYPE_PARTICLE_SYSTEM);
 }
 
-void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic)
+void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-	delete_aabb_from_abt(bbox_tree, ID, TYPE_LIGHT, dynamic);
+	delete_aabb_from_abt(bbox_tree, ID, TYPE_LIGHT);
 }
 
-void delete_terrain_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic)
+void delete_terrain_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-	delete_aabb_from_abt(bbox_tree, ID, TYPE_TERRAIN, dynamic);
+	delete_aabb_from_abt(bbox_tree, ID, TYPE_TERRAIN);
 }
 
-void delete_water_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int reflectiv, unsigned int dynamic)
+void delete_water_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int reflectiv)
 {
-	delete_aabb_from_abt(bbox_tree, ID, get_water_type(reflectiv), dynamic);
+	delete_aabb_from_abt(bbox_tree, ID, get_water_type(reflectiv));
 }
 
 BBOX_ITEMS* create_bbox_items(unsigned int size)

@@ -963,7 +963,7 @@ void set_new_video_mode(int fs,int mode)
 	new_minute();
 
 #ifdef	NEW_FRUSTUM
-	set_all_intsect_update_needed(main_bbox_tree);
+	set_all_intersect_update_needed(main_bbox_tree);
 #else
 	regenerate_near_objects=1;
 	regenerate_near_2d_objects=1;

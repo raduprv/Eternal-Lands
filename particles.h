@@ -321,6 +321,20 @@ int save_particle_def(particle_sys_def *def);
 int save_particle_def(particle_sys_def *def);
 #endif
 
+#ifdef	NEW_FRUSTUM
+/*
+ * \ingroup	particles
+ * \brief	Destroys the particle system at position i in the particles_list
+ * 
+ * 		Destroyes the particle system on position i in the particles_list - frees the memory and sets the particles_list[i]=NULL.
+ *
+ * \param	i The position in the particles_list
+ *
+ * \callgraph
+ */
+void destroy_particle_sys(int i);
+#endif
+
 #ifdef MAP_EDITOR2
 void draw_text_particle_sys(particle_sys *system_id);
 void draw_point_particle_sys(particle_sys *system_id);

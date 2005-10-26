@@ -282,12 +282,16 @@ static __inline__ void rotate_aabb(AABBOX* bbox, float r_x, float r_y, float r_z
 
 static __inline__ int lock_bbox_tree(BBOX_TREE* bbox_tree)
 {
-	return SDL_LockMutex(bbox_tree->bbox_tree_mutex);
+	if ((bbox_tree != NULL) && (bbox_tree->bbox_tree_mutex != NULL))
+		return SDL_LockMutex(bbox_tree->bbox_tree_mutex);
+	else return -1;
 }
 
 static __inline__ int unlock_bbox_tree(BBOX_TREE* bbox_tree)
 {
-	return SDL_UnlockMutex(bbox_tree->bbox_tree_mutex);
+	if ((bbox_tree != NULL) && (bbox_tree->bbox_tree_mutex != NULL))
+		return SDL_UnlockMutex(bbox_tree->bbox_tree_mutex);
+	else return -1;
 }
 
 static __inline__ unsigned int get_intersect_start(BBOX_TREE* bbox_tree, unsigned int type)
@@ -564,7 +568,7 @@ void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsig
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground, unsigned int dynamic);
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground);
 
 /*!
  * \ingroup misc
@@ -578,7 +582,7 @@ void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned in
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha, unsigned int dynamic);
+void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha);
 
 /*!
  * \ingroup misc
@@ -591,7 +595,7 @@ void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned in
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic);
+void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
 
 /*!
  * \ingroup misc
@@ -604,7 +608,7 @@ void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned in
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic);
+void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
 
 /*!
  * \ingroup misc
@@ -617,7 +621,7 @@ void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int d
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_terrain_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int dynamic);
+void delete_terrain_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
 
 /*!
  * \ingroup misc
@@ -631,7 +635,7 @@ void delete_terrain_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_water_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int reflectiv, unsigned int dynamic);
+void delete_water_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int reflectiv);
 
 /*!
  * \ingroup misc
@@ -676,7 +680,7 @@ void check_and_update_intersect_list(BBOX_TREE *bbox_tree);
  * \param bbox_tree	The bounding box tree of the intersection list.
  * \callgraph
  */
-void set_all_intsect_update_needed(BBOX_TREE* bbox_tree);
+void set_all_intersect_update_needed(BBOX_TREE* bbox_tree);
 
 extern BBOX_TREE* main_bbox_tree;
 extern BBOX_ITEMS* main_bbox_tree_items;

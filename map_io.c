@@ -114,7 +114,7 @@ int get_cur_map (const char * file_name)
 void change_map (const char *mapname)
 {
 #ifdef	NEW_FRUSTUM
-	set_all_intsect_update_needed(main_bbox_tree);
+	set_all_intersect_update_needed(main_bbox_tree);
 #else
 	regenerate_near_objects=1;//Regenerate the near 3d objects...
 	regenerate_near_2d_objects=1;//Regenerate the near 3d objects...
@@ -955,8 +955,6 @@ void remove_3d_object_from_server (int id)
 
 	sectors[sector].e3d_local[k] = sectors[sector].e3d_local[j];
 	sectors[sector].e3d_local[j] = -1;
-#else
-	delete_3dobject_from_abt(main_bbox_tree, id, objects_list[id]->blended, objects_list[id]->e3d_data->is_ground, 1);
 #endif
 	destroy_3d_object (id);
 }

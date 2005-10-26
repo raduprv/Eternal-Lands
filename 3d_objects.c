@@ -1073,13 +1073,17 @@ void clear_clouds_cache()
 
 void destroy_3d_object(int i)
 {
-	if(objects_list[i]==NULL) return;
+#ifdef	NEW_FRUSTUM
+	if ((i < 0) || (i >= MAX_OBJ_3D)) return;
+#endif
+	if (objects_list[i] == NULL) return;
 	destroy_clouds_cache(objects_list[i]);
+#ifdef	NEW_FRUSTUM
+	delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->e3d_data->is_ground);
+#endif
 	free(objects_list[i]);
 	objects_list[i] = NULL;
-#ifdef	NEW_FRUSTUM
-	set_all_intsect_update_needed(main_bbox_tree);
-#else
+#ifndef	NEW_FRUSTUM
 	regenerate_near_objects = 1;
 #endif
 	if(i == highest_obj_3d+1)
@@ -1089,7 +1093,7 @@ void destroy_3d_object(int i)
 Uint32 free_e3d_va(e3d_object *e3d_id)
 {
 #ifdef	NEW_FRUSTUM
-	set_all_intsect_update_needed(main_bbox_tree);
+	set_all_intersect_update_needed(main_bbox_tree);
 #else
 	regenerate_near_objects = 1;
 #endif
