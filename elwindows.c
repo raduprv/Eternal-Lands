@@ -982,6 +982,11 @@ int	draw_window(window_info *win)
 	if(!win->displayed)	return 0;
 	// mouse over processing first
 	mouseover_window(win->window_id, mouse_x, mouse_y);
+	//if it's too far out of bounds, put it back. you do the bottom bounds first incase the window in question is larger than the game window
+	if(win->cur_x + 20 > window_width)  win->cur_x = win->pos_x = window_width  - 20;
+	if(win->cur_y + 10 > window_height) win->cur_y = win->pos_y = window_height - 10;
+	if(win->cur_x + win->len_x < 20) win->cur_x = 20 - win->len_x;
+	if(win->cur_y < (win->flags&ELW_TITLE_NONE)*10) win->cur_y = 10;
 	// now normal display processing
 	glPushMatrix();
 	glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
