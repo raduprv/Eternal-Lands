@@ -554,8 +554,8 @@ void add_enhanced_actor_from_server (const char *in_data)
 	}
 
 	/* precompute the paths to custom files */
-	snprintf(playerpath, 256, "custom/player/%d/", uniq_id);
-	snprintf(guildpath, 256, "custom/guild/%d/", guild_id);
+	snprintf(playerpath, sizeof(playerpath), "custom/player/%d/", uniq_id);
+	snprintf(guildpath, sizeof(guildpath), "custom/guild/%d/", guild_id);
 
 	/* store the ids */
 	this_actor->uniq_id = uniq_id;

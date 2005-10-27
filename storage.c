@@ -27,8 +27,7 @@ char storage_text[202]={0};
 
 void get_storage_text (const Uint8 *in_data, int len)
 {
-	if(len>200)len=200;
-	snprintf(storage_text, len+1, "%s", in_data);
+	snprintf(storage_text, sizeof(storage_text), "%.*s", len, in_data);
 }
 
 void get_storage_categories (const char *in_data, int len)

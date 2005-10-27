@@ -452,7 +452,7 @@ void test_for_console_command (char *text, int len)
 				{
 					if ((text_length = len - (text_loc-text)) > 0) 
 						{
-							snprintf(afk_message, text_length+1, "%s", text_loc); 
+							snprintf(afk_message, sizeof(afk_message), "%.*s", text_length, text_loc); 
 						}
 					go_afk();
 					last_action_time=cur_time-afk_time-1;

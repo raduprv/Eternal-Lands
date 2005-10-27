@@ -80,7 +80,7 @@ void print_return_message()
 	LOG_TO_CONSOLE(c_green1,not_afk);
 	if(pm_log.ppl && pm_log.msgs)
 		{
-			snprintf(str, 60, new_messages, pm_log.msgs);
+			snprintf(str, sizeof(str), new_messages, pm_log.msgs);
 			LOG_TO_CONSOLE(c_green2,str);
 			print_title("#", afk_names, afk_messages);
 			LOG_TO_CONSOLE(c_green2, afk_title);
@@ -171,7 +171,7 @@ int is_talking_about_me (const Uint8 *server_msg, int len, char everywhere)
 		return 0; //Only do local chat
 	}
 
-	snprintf (msg, len+1, "%s", server_msg);
+	snprintf (msg, sizeof(msg), "%.*s", len, server_msg);
 	my_tolower (msg);
 
 	while (msg[a] && msg[a] != ':' && (msg[a] < 127+c_red1 || msg[a] > 127+c_grey4))

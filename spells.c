@@ -564,7 +564,7 @@ void set_spell_name (int id, const char *data, int len)
 	{
 		if (mqb_data[i] != NULL && mqb_data[i]->spell_id==id)
 		{
-			snprintf (mqb_data[i]->spell_name, len+1, "%s", data);
+			snprintf (mqb_data[i]->spell_name, sizeof(mqb_data[i]->spell_name), "%.*s", len, data);
 		}
 	}
 

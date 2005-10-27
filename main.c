@@ -202,7 +202,7 @@ void	read_command_line()
 					else
 						{
 							char str[200];
-							snprintf(str,198,"%s %s",gargv[i],gargv[i+1]);
+							snprintf(str,sizeof(str),"%s %s",gargv[i],gargv[i+1]);
 							check_var(str+1,COMMAND_LINE_SHORT_VAR);
 						}
 				}

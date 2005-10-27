@@ -130,7 +130,7 @@ void change_map (const char *mapname)
 	kill_local_sounds();
 	if (!load_map(mapname)) {
 		char error[255];
-		snprintf(error, 255, cant_change_map, mapname);
+		snprintf(error, sizeof(error), cant_change_map, mapname);
 		LOG_TO_CONSOLE(c_red4, error);
 		LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
 		LOG_ERROR(cant_change_map, mapname);
@@ -167,7 +167,7 @@ void change_map (const char *mapname)
 	kill_local_sounds();
 	if (!load_map(mapname)) {
 		char error[255];
-		snprintf(error, 255, cant_change_map, mapname);
+		snprintf(error, sizeof(error), cant_change_map, mapname);
 		LOG_TO_CONSOLE(c_red4, error);
 		LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
 		LOG_ERROR(cant_change_map, mapname);

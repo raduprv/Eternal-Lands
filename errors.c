@@ -66,7 +66,7 @@ void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *fu
 		snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
 		err_file = open_log (error_log, "a");
 	}
-	snprintf(str, 2048, "%s.%s:%d - %s", file, func, line, message);
+	snprintf(str, sizeof(str), "%s.%s:%d - %s", file, func, line, message);
 
 	va_start(ap, line);
 		vfprintf(err_file, str, ap);

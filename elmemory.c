@@ -39,7 +39,7 @@ void elm_cleanup()
 	char path[256];
 	FILE *fp;
 
-	snprintf(path, 255, "%s/elmemory.log", configdir);
+	snprintf(path, sizeof(path), "%s/elmemory.log", configdir);
 	fp = fopen(path, "w");
 	fprintf(fp, "-------Pointers not free'd-------\n");
 	for(i = 0; i < ELM_INITIAL_SIZE*elm_allocs; i++) {

@@ -1874,7 +1874,7 @@ int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
 					if(*(int *)button->data*10 + i_tmp > button->max) {
 						/* Make sure we don't exceed any limits */
 						*(int *)button->data = button->max;
-						snprintf(button->input_buffer, 255, "%i", (int)button->max);
+						snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", (int)button->max);
 					} else {
 						if(atoi(button->input_buffer) >= button->min) {
 							*(int *)button->data = *(int *)button->data * 10 + i_tmp;
@@ -1917,7 +1917,7 @@ int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
 							button->input_buffer[i+1] = '\0';
 						}
 						if(atof(button->input_buffer) > button->max) {
-							snprintf(button->input_buffer, 255, "%.2f", button->max);
+							snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", button->max);
 						}
 					}
 					if(atof(button->input_buffer) >= button->min && atof(button->input_buffer) <= button->max) {
@@ -1974,7 +1974,7 @@ int spinbutton_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
 							}
 						break;
 					}
-					snprintf(button->input_buffer, 255, "%i", *(int *)button->data);
+					snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
 				break;
 				case SPIN_FLOAT:
 					switch (action) {
@@ -1990,7 +1990,7 @@ int spinbutton_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
 							}
 						break;
 					}
-					snprintf(button->input_buffer, 255, "%.2f", *(float *)button->data);
+					snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
 				break;
 			}
 			return 1;
@@ -2104,11 +2104,11 @@ int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(),
 	switch(data_type)
 	{
 		case SPIN_FLOAT:
-			snprintf(button->input_buffer, 255, "%.2f", *(float *)button->data);
+			snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
 		break;
 		case SPIN_INT:
 			button->interval = (int)button->interval;
-			snprintf(button->input_buffer, 255, "%i", *(int *)button->data);
+			snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
 		break;
 	}
 

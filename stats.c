@@ -373,7 +373,7 @@ void draw_stat_final(int len, int x, int y, char * name, char * value);
 void draw_stat(int len, int x, int y, attrib_16 * var, names * name)
 {
 	char str[9];
-	snprintf(str,8,"%2i/%-2i",var->cur,var->base);
+	snprintf(str,sizeof(str),"%2i/%-2i",var->cur,var->base);
 	str[8]=0;
 	draw_stat_final(len,x,y,name->name,str);
 }
@@ -394,7 +394,7 @@ void draw_statf(int len, int x, int y, attrib_16f * var, names * name)
 {
 	char str[9];
 
-	snprintf(str,8,"%2i/%-2i",var->cur(),var->base());
+	snprintf(str,sizeof(str),"%2i/%-2i",var->cur(),var->base());
 	str[8]=0;
 	draw_stat_final(len,x,y,name->name,str);
 }

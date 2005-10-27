@@ -720,7 +720,7 @@ void init_sound()
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
      		char str[256];
-    		snprintf(str, 256, "%s: %s\n", snd_init_error, alGetString(error));
+    		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
     		LOG_TO_CONSOLE(c_red1, str);
     		LOG_ERROR(str);
 			have_sound=0;

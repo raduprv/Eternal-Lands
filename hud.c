@@ -768,7 +768,7 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	glEnable(GL_TEXTURE_2D);
 
 	// handle the text
-	snprintf(buf, 32, "%d", val);
+	snprintf(buf, sizeof(buf), "%d", val);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	draw_string_small(x-(1+8*strlen(buf)), y-3, buf, 1);
 }
@@ -909,7 +909,7 @@ int	display_misc_handler(window_info *win)
 		char str[6];	// one extra incase the length of the day ever changes
 		int	x;
 
-		snprintf(str, 6, "%1d:%02d", game_minute/60, game_minute%60);
+		snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
 		x= 3+(win->len_x - (get_string_width(str)*11)/12)/2;
 		glColor3f(0.77f, 0.57f, 0.39f);
 		draw_string(x, 157, str, 1);
