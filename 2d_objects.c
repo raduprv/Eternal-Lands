@@ -567,8 +567,6 @@ void get_2d_object_under_mouse()
 #else
 	unsigned int i, l;
 	float least_z = 1.0f;
-
-	check_and_update_intersect_list(main_bbox_tree);
 	
 	//First draw everyone with the same alpha test
     	
@@ -645,8 +643,6 @@ void display_2d_objects()
 	glDisable(GL_ALPHA_TEST);
 #else
 	unsigned int i, l;
-
-	check_and_update_intersect_list(main_bbox_tree);
 	
 	//First draw everyone with the same alpha test
     	

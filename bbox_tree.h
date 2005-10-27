@@ -662,17 +662,6 @@ void free_bbox_items(BBOX_ITEMS* bbox_items);
 
 /*!
  * \ingroup misc
- * \brief Updates the intersection list if it is necessary.
- *
- * Updates the intersection list if it is necessary. Just deleted objects are removed, nothing more.
- *
- * \param bbox_tree	The bounding box tree of the intersection list.
- * \callgraph
- */
-void check_and_update_intersect_list(BBOX_TREE *bbox_tree);
-
-/*!
- * \ingroup misc
  * \brief Sets all intersection lists to update needed.
  *
  * Sets all intersection lists to update needed.

@@ -849,8 +849,6 @@ void display_particles()
 	GLenum sblend=GL_SRC_ALPHA,dblend=GL_ONE;
 #ifdef	NEW_FRUSTUM
 	unsigned int l;
-
-	check_and_update_intersect_list(main_bbox_tree);
 #endif
 
 	if(!particles_percentage)
@@ -1301,7 +1299,6 @@ void update_particles() {
 				destroy_partice_sys_without_lock(i);		
 		}
 	}
-	check_and_update_intersect_list(main_bbox_tree);
 	lock_bbox_tree(main_bbox_tree);
 	for (i = get_intersect_start(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i < get_intersect_stop(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i++)
 	{

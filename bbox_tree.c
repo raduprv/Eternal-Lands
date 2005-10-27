@@ -20,6 +20,35 @@ void set_all_intersect_update_needed(BBOX_TREE* bbox_tree)
 	}
 }
 
+static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, unsigned int ID, unsigned int type)
+{
+	unsigned int i, j, size;
+	int i_min, i_max;
+	
+
+	for (j = 0; j < MAX_ITERSECTION_TYPES; j++)
+	{
+		i_min = bbox_tree->intersect[j].start[type];
+		i_max = bbox_tree->intersect[j].stop[type]-1;
+		while (i_min <= i_max)
+		{
+			i = (i_min+i_max)/2;
+			if (bbox_tree->intersect[j].items[i].ID == ID)
+			{
+				size = bbox_tree->intersect[j].stop[type] - i -1;
+				memmove(&bbox_tree->intersect[j].items[i], &bbox_tree->intersect[j].items[i+1], size*sizeof(BBOX_ITEM_DATA));
+				bbox_tree->intersect[j].stop[type]--;
+				break;
+			}
+			else
+			{
+				if (bbox_tree->intersect[j].items[i].ID < ID) i_max = i-1;
+				else i_min = i+1;
+			}
+		}
+	}
+}
+
 #ifdef	FRUSTUM_THREADS
 static __inline__ void update_bbox_tree_degeneration(BBOX_TREE* bbox_tree, unsigned int count)
 {
@@ -331,24 +360,6 @@ void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum)
 		}
 		unlock_bbox_tree(bbox_tree);
 	}	
-}
-
-void check_and_update_intersect_list(BBOX_TREE *bbox_tree)
-{
-	unsigned int idx;
-
-	if (bbox_tree != NULL)
-	{
-		lock_bbox_tree(bbox_tree);
-		idx = bbox_tree->cur_intersect_type;
-		if (bbox_tree->intersect[idx].intersect_update_needed == 1)
-		{
-			qsort((void *)(bbox_tree->intersect[idx].items), bbox_tree->intersect[idx].count, sizeof(BBOX_ITEM_DATA), comp_items);
-			build_start_stop(bbox_tree);
-			bbox_tree->intersect[idx].intersect_update_needed = 2;
-		}
-			unlock_bbox_tree(bbox_tree);
-	}
 }
 
 static __inline__ void free_bbox_tree_data(BBOX_TREE* bbox_tree)
@@ -1101,8 +1112,10 @@ static __inline__ void delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, BBOX_
 
 static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int type)
 {
-	unsigned int i, j;
-	
+#ifdef	FRUSTUM_THREADS
+	unsigned int i;
+#endif
+
 	if (bbox_tree != NULL)
 	{
 		lock_bbox_tree(bbox_tree);
@@ -1124,23 +1137,11 @@ static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int I
 			}
 		}
 #endif
-		// Not perfect, but should work
-		for (j = 0; j < MAX_ITERSECTION_TYPES; j++)
-		{
-			for (i = 0; i < bbox_tree->intersect[j].count; i++)
-			{
-				if ((bbox_tree->intersect[j].items[i].ID == ID) && 
-						(bbox_tree->intersect[j].items[i].type == type))
-				{
-					bbox_tree->intersect[j].items[i].type = TYPE_DELETED;
-				}
-			}
-		}
+		delete_item_from_intersect_list(bbox_tree, ID, type);
 		delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, type);
 #ifdef	FRUSTUM_THREADS
 		update_bbox_tree_degeneration(bbox_tree, 1);
 #endif
-		set_all_intersect_update_needed(bbox_tree);
 		unlock_bbox_tree(bbox_tree);
 	}
 }

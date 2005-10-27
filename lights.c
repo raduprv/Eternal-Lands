@@ -216,8 +216,6 @@ void draw_lights()
 		glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
 	}
 #else	
-	check_and_update_intersect_list(main_bbox_tree);
-	
 	j = 0;
 	
 	for (i = get_intersect_start(main_bbox_tree, TYPE_LIGHT); i < get_intersect_stop(main_bbox_tree, TYPE_LIGHT); i++)
@@ -576,7 +574,6 @@ void update_scene_lights()
 				}
 		}
 #else
-	check_and_update_intersect_list(main_bbox_tree);
 	show_lights = min2i(6, get_intersect_stop(main_bbox_tree, TYPE_LIGHT) - get_intersect_start(main_bbox_tree, TYPE_LIGHT) -1);
 #endif
 }

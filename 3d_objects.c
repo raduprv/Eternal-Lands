@@ -492,8 +492,6 @@ void display_objects()
 		if(!get_near_3d_objects())return;
 #else
 	unsigned int i, l;
-
-	check_and_update_intersect_list(main_bbox_tree);
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -585,8 +583,6 @@ void display_blended_objects()
 	if(!no_near_blended_3d_objects)return;
 #else
 	unsigned int i, l;
-
-	check_and_update_intersect_list(main_bbox_tree);
 #endif
 	
 	CHECK_GL_ERRORS();

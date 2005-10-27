@@ -430,9 +430,7 @@ void display_3d_reflection()
 	
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 
-#ifdef NEW_FRUSTUM
-	check_and_update_intersect_list(main_bbox_tree);
-#else
+#ifndef NEW_FRUSTUM
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 #endif
 	
@@ -529,9 +527,7 @@ void display_3d_reflection()
 	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
 	int view_port[4];
 	
-#ifdef NEW_FRUSTUM
-	check_and_update_intersect_list(main_bbox_tree);
-#else
+#ifndef NEW_FRUSTUM
 	if (regenerate_near_objects)
 	{
 		if (!get_near_3d_objects()) return;

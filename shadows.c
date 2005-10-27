@@ -359,8 +359,6 @@ void display_shadows()
 		if(!get_near_3d_objects())return;
 #else
 	unsigned int i, l;
-
-	check_and_update_intersect_list(main_bbox_tree);
 #endif
 	
 	glEnable(GL_CULL_FACE);
@@ -430,8 +428,6 @@ void display_3d_ground_objects()
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 #else
 	unsigned int i, l;
-
-	check_and_update_intersect_list(main_bbox_tree);
 #endif
 
 	glEnable(GL_CULL_FACE);
@@ -493,8 +489,6 @@ void display_3d_non_ground_objects()
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 #else
 	unsigned int i, l;
-
-	check_and_update_intersect_list(main_bbox_tree);
 #endif
 
 	//we don't want to be affected by 2d objects and shadows
