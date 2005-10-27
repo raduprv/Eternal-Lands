@@ -1894,7 +1894,7 @@ int read_actor_defs (const char *dir, const char *index) {
 	char fname[120];
 	int ok = 1;
 	
-	snprintf (fname, 120, "%s/%s", dir, index);
+	snprintf (fname, sizeof(fname), "%s/%s", dir, index);
 	
 	doc = xmlReadFile (fname, NULL, 0);
 	if (doc == NULL) {

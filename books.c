@@ -41,7 +41,7 @@ typedef struct {
 	int h;
 	
 	int texture;
-    
+
 	int u[2];
 	int v[2];
 } _image;
@@ -52,7 +52,7 @@ typedef struct {
 	int page_no;
 } page;
 
-struct _book {
+typedef struct _book {
 	char title[35];
 	int id;
 	
@@ -70,8 +70,7 @@ struct _book {
 	int active_page;
 
 	struct _book * next;
-};
-typedef struct _book book;
+} book;
 
 book * books=NULL;
 
@@ -116,7 +115,7 @@ book * create_book(char * title, int type, int id)
 	}
 	b->type=type;
 	b->id=id;
-	snprintf(b->title, 34, "%s", title);
+	snprintf(b->title, sizeof(b->title), "%s", title);
 	
 	add_book(b);
 	
@@ -184,7 +183,9 @@ void add_book(book *bs)
 	if(b) {
 		for(;b->next;b=b->next);
 		b->next=bs;
-	} else books=bs;
+	} else {
+		books=bs;
+	}
 }
 
 /*Book parser*/
@@ -255,20 +256,24 @@ char * wrap_line_around_image(char * line, int w, int x, int max_width, char * l
 			if(!*last||(i>=x && i<x+w)) {
 				*line++=' ';
 			} else {
-				for(j=0;j<max_width && last[j] && last[j]!=' ' && last[j]!=0x0a && last[j]!=0x0d;j++);
+				for(j=0;j<max_width && last[j] && last[j]!=' ' && last[j]!='\n' && last[j]!='\r';j++);
 				if(i+j<x||(i>=x+w && i+j<max_width)){
 					for(;j-->=0;line++,last++){
-						if(*last==0x0d)last++;
-						if(*last==0x0a){
+						if(*last=='\r')
+							last++;
+						if(*last=='\n'){
 							last++;
 							i=max_width;
 							break;
 						}
 						*line=*last;
 						i++;
-						if(!*last)break;
+						if(!*last)
+							break;
 					}
-				} else *line++=' ';
+				} else {
+					*line++=' ';
+				}
 			}
 		}
 		
@@ -327,7 +332,8 @@ page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 			}
 		}
 
-		if(*last_ptr) p=add_str_to_page(last_ptr,_IMAGE_TEXT,b,p);
+		if(*last_ptr)
+			p=add_str_to_page(last_ptr,_IMAGE_TEXT,b,p);
 	}
 
 	return p;
@@ -350,10 +356,12 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 	
 	u_start=xmlGetFloat(cur,"u_start");
 	u_end=xmlGetFloat(cur,"u_end");
-	if(!u_end) u_end=1;
+	if(!u_end)
+		u_end=1;
 	
 	v_start=xmlGetFloat(cur,"v_start");
-	if(!v_start) v_start=1;
+	if(!v_start)
+		v_start=1;
 	v_end=xmlGetFloat(cur,"v_end");
 	
 	image_path=xmlGetProp(cur,"src");
@@ -365,10 +373,12 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 		MY_XMLSTRCPY(&text, cur->children->content);
 	}
 	
-	if(add_image_to_page(text, img, b, p)==NULL) free(img);
+	if(add_image_to_page(text, img, b, p)==NULL)
+		free(img);
 	
 	xmlFree(image_path);
-	if(text) free(text);
+	if(text)
+		free(text);
 }
 
 void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
@@ -427,10 +437,14 @@ book * read_book(char * file, int type, int id)
 	snprintf(path, sizeof(path), "%s/languages/%s/%s", datadir, lang, file);
 
 	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
-		char str[200];
-		snprintf(str, sizeof(str), book_open_err_str, path);
-		log_error(str);
-		LOG_TO_CONSOLE(c_red1,str);
+		snprintf(path, sizeof(path), "%s/%s", datadir, file);
+		if((doc = xmlReadFile(path, NULL, 0)) == NULL) {
+			char str[200];
+
+			snprintf(str, sizeof(str), book_open_err_str, path);
+			log_error(str);
+			LOG_TO_CONSOLE(c_red1,str);
+		}
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
 		log_error("Error while parsing: %s", path);
 	} else if(xmlStrcasecmp(root->name,"book")){
@@ -474,7 +488,9 @@ void open_book(int id)
 		*((Uint16*)(str+3))=SDL_SwapLE16(0);
 
 		my_tcp_send(my_socket, str, 5);
-	} else display_book_window(b);
+	} else {
+		display_book_window(b);
+	}
 }
 
 void read_local_book (const char *data, int len)
@@ -522,7 +538,8 @@ page * add_image_from_server(char *data, book *b, page *p)
 	data+=l+2;
 
 	l=SDL_SwapLE16(*((Uint16*)(data)));
-	if(l>510)l=510;
+	if(l>510)
+		l=510;
 	memcpy(text, data+2, l);
 	text[l]=0;
 
@@ -640,7 +657,8 @@ void display_page(book * b, page * p)
 	int i;
 	char str[20];
 	
-	if(!p)return;
+	if(!p)
+		return;
 	
 	set_font(2);
 	if(p->image) {
@@ -655,8 +673,10 @@ void display_page(book * b, page * p)
 	glColor3f(0.385f,0.285f, 0.19f);
 	
 	snprintf(str,sizeof(str),"%d",p->page_no);
-	if(b->type==1)draw_string_zoomed(140,b->max_lines*18*0.9f+2,str,0,1.0);
-	else if(b->type==2)draw_string_zoomed(110,b->max_lines*18*0.9f+2,str,0,1.0);
+	if(b->type==1)
+		draw_string_zoomed(140,b->max_lines*18*0.9f+2,str,0,1.0);
+	else if(b->type==2)
+		draw_string_zoomed(110,b->max_lines*18*0.9f+2,str,0,1.0);
 	set_font(0);
 }
 
@@ -670,7 +690,8 @@ void display_book(book * b, int type)
 			glTranslatef(x,0,0);
 			display_page(b,*p);
 			glPopMatrix();
-			if(b->no_pages<=b->active_page)break;
+			if(b->no_pages<=b->active_page)
+				break;
 			p++;
 			x+=250;
 		case 1:
@@ -707,9 +728,11 @@ int display_book_handler(window_info *win)
 		return 1;
 	}
 	switch(b->type){
-		case 1: get_and_set_texture_id(paper1_text);
+		case 1:
+			get_and_set_texture_id(paper1_text);
 			break;
-		case 2: get_and_set_texture_id(book1_text);
+		case 2:
+			get_and_set_texture_id(book1_text);
 			break;
 	}
 	glBegin(GL_QUADS);
@@ -719,8 +742,10 @@ int display_book_handler(window_info *win)
 		glTexCoord2f(1.0f,1.0f); glVertex3i(win->len_x,0,0);
 	glEnd();
 	glPushMatrix();
-	if(b->type==1)glTranslatef(15,25,0);
-	else if(b->type==2)glTranslatef(30,15,0);
+	if(b->type==1)
+		glTranslatef(15,25,0);
+	else if(b->type==2)
+		glTranslatef(30,15,0);
 	display_book(b, b->type);
 	glPopMatrix();
 	
@@ -832,7 +857,7 @@ int display_book_handler(window_info *win)
 	
 	draw_string(win->len_x/2-15,0,"[X]",0);
 	glPopMatrix();
-        return 1;
+	return 1;
 }
 
 int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
@@ -843,14 +868,17 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 	
-	my-=win->len_y;
+	my -= win->len_y;
 	if(my<-2 && my>-18) {
 		if(mx>10 && mx < 20){
-			if(b->have_server_pages<b->server_pages){
-				if(b->active_page-b->type>=0)b->active_page-=b->type;
+			if(b->have_server_pages<b->server_pages) {
+				if(b->active_page-b->type >= 0)
+					b->active_page -= b->type;
 				//We'll always have the first pages, you can't advance from 0-20 in 1 jump but must get them all.
 				//TODO: Make it possible to jump that many pages.
-			} else if(b->active_page-b->type>=0)b->active_page-=b->type;
+			} else if(b->active_page-b->type >= 0) {
+				b->active_page-=b->type;
+			}
 		} else if(mx>win->len_x-20 && mx<win->len_x-10){
 			if(b->have_server_pages<b->server_pages){
 				//Get a 2 new pages...
@@ -863,9 +891,13 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				*((Uint16*)(str+3))=SDL_SwapLE16(pages);
 				my_tcp_send(my_socket, str, 5);
 
-				if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
-				else b->pages_to_scroll=b->type;
-			} else if(b->active_page+b->type<b->no_pages)b->active_page+=b->type;
+				if(b->active_page+b->type<b->no_pages)
+					b->active_page+=b->type;
+				else
+					b->pages_to_scroll=b->type;
+			} else if(b->active_page+b->type<b->no_pages) {
+				b->active_page+=b->type;
+			}
 		}
 		if(b->type==1){
 			x=50;
@@ -889,7 +921,7 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF); // Swap not actually necessary.. But it's cleaner.
 				my_tcp_send(my_socket, str, 5);
 				
-				win->displayed=0;
+				hide_window(win->window_id);
 				book_opened=-1;
 			}
 			
@@ -922,7 +954,7 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF);
 				my_tcp_send(my_socket, str, 5);
 				
-				win->displayed=0;
+				hide_window(win->window_id);
 				book_opened=-1;
 			}
 			
@@ -945,7 +977,7 @@ int mouseover_book_handler(window_info * win, int mx, int my)
 	book_mouse_x=mx;
 	book_mouse_y=my;
 	
-	return 1;
+	return 0;
 }
 
 
@@ -953,45 +985,59 @@ void display_book_window(book *b)
 {
 	int *p;
 
-	if(!b)return;
+	if(!b)
+		return;
+
 	if(b->type==1){
 		p=&paper_win;
-		if(book_win!=-1) windows_list.window[book_win].displayed=0;
+		if(book_win!=-1)
+			hide_window(book_win);
 	} else {
 		p=&book_win;
-		if(paper_win!=-1) windows_list.window[paper_win].displayed=0;
+		if(paper_win!=-1)
+			hide_window(paper_win);
 	}
-	book_opened=b->id;
-        if(*p<0){
-                if(b->type==1)
+	book_opened = b->id;
+	if(*p<0){
+		if(b->type==1)
 			*p=create_window(b->title, -1, 0, book_win_x, book_win_y, 320, 400, ELW_WIN_DEFAULT^ELW_CLOSE_BOX);
 		else if(b->type==2)
 			*p=create_window(b->title, -1, 0, book_win_x, book_win_y, 528, 320, ELW_WIN_DEFAULT^ELW_CLOSE_BOX); //width/height are different
 
-                set_window_handler(*p, ELW_HANDLER_DISPLAY, &display_book_handler);
-                set_window_handler(*p, ELW_HANDLER_MOUSEOVER, &mouseover_book_handler);
-                set_window_handler(*p, ELW_HANDLER_CLICK, &click_book_handler);
+		set_window_handler(*p, ELW_HANDLER_DISPLAY, &display_book_handler);
+		set_window_handler(*p, ELW_HANDLER_MOUSEOVER, &mouseover_book_handler);
+		set_window_handler(*p, ELW_HANDLER_CLICK, &click_book_handler);
 		windows_list.window[*p].data=b;
-        } else {
-		if((point)windows_list.window[*p].data!=(point)b){
+	} else {
+		if((point)windows_list.window[*p].data!=(point)b) {
 			snprintf(windows_list.window[*p].window_name, sizeof(windows_list.window[*p].window_name), "%s", b->title);
 			windows_list.window[*p].data=b;
-			if(!windows_list.window[*p].displayed) show_window(*p);
+			if(!get_show_window(*p))
+				show_window(*p);
 			select_window(*p);
-		} else if(!windows_list.window[*p].displayed) {
+		} else if(!get_show_window(*p)) {
 			show_window(*p);
 			select_window(*p);
 		}
-        }
+	}
 }
 
 void close_book(int book_id)
 {
 	book *b=get_book(book_id);
 
-	if(!b) return;
-	if(book_win!=-1)if((point)windows_list.window[book_win].data==(point)b) windows_list.window[book_win].displayed=0;
-	if(paper_win!=-1)if((point)windows_list.window[paper_win].data==(point)b) windows_list.window[paper_win].displayed=0;
+	if(!b)
+		return;
+	if(book_win!=-1) {
+		if((point)windows_list.window[book_win].data==(point)b) {
+			hide_window(book_win);
+		}
+	}
+	if(paper_win!=-1) {
+		if((point)windows_list.window[paper_win].data == (point)b) {
+			hide_window(paper_win);
+		}
+	}
 
 	book_opened=-1;
 }

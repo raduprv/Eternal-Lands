@@ -61,7 +61,7 @@ int write_ini_on_exit = 1;
 int elconfig_win = -1;
 int elconfig_tab_collection_id = 1;
 int elconfig_free_widget_id = 2;
-char elconf_description_buffer[400] = {0};
+unsigned char elconf_description_buffer[400] = {0};
 struct {
 	Uint32 tab;
 	Uint16 x;
@@ -643,7 +643,7 @@ int check_var (char *str, var_name_type type)
 #ifdef ELC
 #ifndef ELCONFIG
 				char str[200];
-				snprintf (str, 200, "Reached newline without an ending \" in %s", our_vars.var[i]->name);
+				snprintf (str, sizeof(str), "Reached newline without an ending \" in %s", our_vars.var[i]->name);
 				LOG_TO_CONSOLE(c_red2,str);
 #endif // !ELCONFIG
 #endif // ELC

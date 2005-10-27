@@ -137,7 +137,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	if(flags&ELW_RIGHT_MOUSE) {
 		if(flags&ELW_CTRL) {
 			//CTRL + right click, delete buddy.
-			snprintf(str,sizeof(str), "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
+			snprintf(str, sizeof(str), "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
 			my_tcp_send(my_socket, str, strlen(str+1)+1);
 		} else {
 			//Right click, open edit window
@@ -298,7 +298,7 @@ int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
 		/* We didn't find it */
 		return 0;
 	}
-	snprintf(string, 255, "%c#accept_buddy %s", RAW_TEXT, accept_windows[i].name);
+	snprintf(string, sizeof(string), "%c#accept_buddy %s", RAW_TEXT, accept_windows[i].name);
 
 	my_tcp_send(my_socket, string, strlen(string+1)+1);
 	if(accept_windows[i].checkbox >= 0 && checkbox_get_checked(accept_windows[i].window_id, accept_windows[i].checkbox) > 0) {
@@ -534,7 +534,7 @@ void add_buddy (const char *name, int type, int len)
 		{
 			// found then add buddy
 			buddy_list[i].type = type;
-			snprintf (buddy_list[i].name, len+1, "%s", name);
+			snprintf (buddy_list[i].name, sizeof(buddy_list[i].name), "%.*s", len, name);
 			if (buddy_log_notice == 1)
 			{
 				// if less than 5sec since the timer was 
@@ -552,7 +552,8 @@ void add_buddy (const char *name, int type, int len)
 			}
 			break;
 		}
-		if (strncasecmp (buddy_list[i].name, name, len) == 0) break; // we already have this one in the list
+		if (strncasecmp (buddy_list[i].name, name, len) == 0)
+			break; // we already have this one in the list
 	}
 }
 
