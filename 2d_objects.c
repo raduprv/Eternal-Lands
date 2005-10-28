@@ -79,7 +79,7 @@ void draw_2d_object(obj_2d * object_id)
 
 	get_and_set_texture_id(obj_def_pointer->texture_id);
 
-	if(!have_multitexture || (!clouds_shadows && !use_shadow_mapping))
+	if(!have_multitexture || dungeon || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glBegin(GL_QUADS);
 
@@ -688,7 +688,7 @@ void display_2d_objects()
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER,0.18f);
 
-	if(have_multitexture && !(!clouds_shadows && !use_shadow_mapping))
+	if(have_multitexture && !dungeon && !(!clouds_shadows && !use_shadow_mapping))
 	    {
 			if(clouds_shadows)
 				{
@@ -722,7 +722,7 @@ void display_2d_objects()
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.18f);
 
-	if(have_multitexture && !(!clouds_shadows && !use_shadow_mapping))
+	if(have_multitexture && !dungeon && !(!clouds_shadows && !use_shadow_mapping))
 	    {
 			if(clouds_shadows)
 				{
@@ -765,7 +765,7 @@ void display_2d_objects()
 	}
 #endif
 
-	if(have_multitexture && !(!clouds_shadows && !use_shadow_mapping))
+	if(have_multitexture && !dungeon && !(!clouds_shadows && !use_shadow_mapping))
 	    {
     		//disable the multitexturing
 			ELglActiveTextureARB(detail_unit);

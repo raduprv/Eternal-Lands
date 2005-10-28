@@ -148,9 +148,9 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 
 	x_rot=actor_id->tmp.x_rot;
 	y_rot=actor_id->tmp.y_rot;
-	z_rot=actor_id->tmp.z_rot;
-	z_rot+=180;//test
-	z_rot=-z_rot;
+	z_rot=-actor_id->tmp.z_rot;
+	z_rot+=180;	//test
+	glPushMatrix();
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
@@ -159,17 +159,13 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 		cal_render_actor(actor_id);
 	} 
 
-	//////
-	glPopMatrix();//restore the scene
 	//now, draw their damage
-
-	glPushMatrix();
-	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+	glPopMatrix();  // restore the matrix
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
 	if (banner) draw_actor_banner(actor_id, healtbar_z);
 
-	glPopMatrix();//we don't want to affect the rest of the scene
+	glPopMatrix();	//we don't want to affect the rest of the scene
 }
 
 void unwear_item_from_actor(int actor_id,Uint8 which_part)

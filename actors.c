@@ -142,7 +142,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	float healthbar_x_loss_fade=1.0f;
 	float healthbar_z_len=0.05f*zoom_level/3.0f*ratio;
 	char temp[255];
-	// are we activley drawing?
+	
+	// are we actively drawing?
 	if(SDL_GetAppState()&SDL_APPACTIVE){
 				
 		if(use_shadow_mapping)
@@ -468,36 +469,22 @@ void draw_actor(actor * actor_id, int banner)
 	x_rot=actor_id->tmp.x_rot;
 	y_rot=actor_id->tmp.y_rot;
 	z_rot=-actor_id->tmp.z_rot;
-	
-	//glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	//glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	//glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
+	z_rot+=180;	//test
+	glPushMatrix();
+	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
+	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
+	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 	if (actor_id->calmodel!=NULL) {
-		glPushMatrix();
-		z_rot+=180;//test
-		glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-		glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-		glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 		cal_render_actor(actor_id);
-		glPopMatrix();
-	} else {
-		glPushMatrix();
-		glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-		glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-		glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-		glPopMatrix();
 	}
 
-	glPopMatrix();//restore the scene
 	//now, draw their damage & nametag
-	glPushMatrix();
-	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+	glPopMatrix();  // restore the matrix
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
 	if (banner) draw_actor_banner(actor_id, healthbar_z);
-	glPopMatrix();//we don't want to affect the rest of the scene
+	glPopMatrix();	//we don't want to affect the rest of the scene
 }
 
 void get_actors_in_range()
@@ -553,6 +540,7 @@ void display_actors(int banner)
 		}
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
 	//display only the non ghosts
 	for(i=0;i<no_near_actors;i++){
 		if(near_actors[i].ghost) {
@@ -620,6 +608,7 @@ void display_actors(int banner)
 	if(have_multitexture) ELglClientActiveTextureARB(base_unit);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
 }
 
 

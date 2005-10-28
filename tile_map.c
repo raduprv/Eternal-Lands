@@ -169,7 +169,7 @@ void draw_tile_map()
 	if(y_start < 0) y_start = 0;
 	if(y_end >= tile_map_size_y) y_end = tile_map_size_y - 1;
 	
-	if(have_multitexture && (clouds_shadows || use_normal_mapping))
+	if(have_multitexture && !dungeon && (clouds_shadows || use_normal_mapping))
 	{
 		if (clouds_shadows)
 		{
@@ -250,7 +250,7 @@ void draw_tile_map()
 	}
 	else etr = 0;
 	
-	if(!have_multitexture || (!clouds_shadows && !use_shadow_mapping && !use_normal_mapping))
+	if(!have_multitexture || dungeon || (!clouds_shadows && !use_shadow_mapping && !use_normal_mapping))
 	{
 		for(y=y_start;y<=y_end;y++)
 		{
@@ -322,7 +322,7 @@ void draw_tile_map()
 			}
 		}
 	}
-	if(have_multitexture && (clouds_shadows || use_normal_mapping))
+	if(have_multitexture && !dungeon && (clouds_shadows || use_normal_mapping))
 	{
 		if (clouds_shadows)
 		{
@@ -355,7 +355,7 @@ void draw_tile_map()
 	float x_scaled,y_scaled;
 	int cur_texture;
 
-	if(have_multitexture && clouds_shadows)
+	if(have_multitexture && !dungeon && clouds_shadows)
 		{
 			//bind the detail texture
 			ELglActiveTextureARB(detail_unit);
@@ -384,7 +384,7 @@ void draw_tile_map()
 	if(y_start<0)y_start=0;
 	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
 #endif
-	if(!have_multitexture || (!clouds_shadows && !use_shadow_mapping))
+	if(!have_multitexture || dungeon || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glBegin(GL_QUADS);
 #ifndef	NEW_FRUSTUM
@@ -481,7 +481,7 @@ void draw_tile_map()
 			glEnd();
 
 		}
-	if(have_multitexture && clouds_shadows)
+	if(have_multitexture && !dungeon && clouds_shadows)
 		{
 			//disable the second texture unit
 			ELglActiveTextureARB(detail_unit);

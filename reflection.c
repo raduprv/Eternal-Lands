@@ -111,10 +111,8 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	
 	x_rot=actor_id->tmp.x_rot;
 	y_rot=actor_id->tmp.y_rot;
-	z_rot=actor_id->tmp.z_rot;
-	
-	z_rot+=180;//test
-	z_rot=-z_rot;
+	z_rot=-actor_id->tmp.z_rot;
+	z_rot+=180;	//test
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
@@ -123,7 +121,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 		cal_render_actor(actor_id);
 	}
 
-	glPopMatrix();//restore the scene
+	glPopMatrix();	//restore the scene
 	CHECK_GL_ERRORS();
 }
 #endif
@@ -488,6 +486,9 @@ void display_3d_reflection()
 	}
 
 #ifndef MAP_EDITOR2
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
 	for(i=0;i<no_near_actors;i++) {
 		if(near_actors[i].dist<=100 && !near_actors[i].ghost){ 
 			actor * act=actors_list[near_actors[i].actor];
@@ -503,6 +504,9 @@ void display_3d_reflection()
 			}
 		}
 	}
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
 #endif
 #else
 //	draw_tile_map();

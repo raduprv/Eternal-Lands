@@ -193,24 +193,24 @@ void cal_render_actor(actor *act)
 #ifdef DEBUG
 	if (render_mesh) {
 #endif
-  		pCalRenderer = CalModel_GetRenderer(act->calmodel);
-  		// begin the rendering loop
-  		if(CalRenderer_BeginRendering(pCalRenderer)){
-    			// set global OpenGL states
+		pCalRenderer = CalModel_GetRenderer(act->calmodel);
+		// begin the rendering loop
+		if(CalRenderer_BeginRendering(pCalRenderer)){
+			// set global OpenGL states
 
-    			// we will use vertex arrays, so enable them
-    			glEnableClientState(GL_VERTEX_ARRAY);
-    			glEnableClientState(GL_NORMAL_ARRAY);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			// will use vertex arrays, so enable them
+			//EnableClientState(GL_VERTEX_ARRAY);
+			//EnableClientState(GL_NORMAL_ARRAY);
+			//EnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    			// get the number of meshes
+			// get the number of meshes
 
-    			meshCount = CalRenderer_GetMeshCount(pCalRenderer);
+			meshCount = CalRenderer_GetMeshCount(pCalRenderer);
 
-    			// render all meshes of the model
-    			for(meshId = 0; meshId < meshCount; meshId++){
+			// render all meshes of the model
+			for(meshId = 0; meshId < meshCount; meshId++){
 				// get the number of submeshes
-      				submeshCount = CalRenderer_GetSubmeshCount(pCalRenderer,meshId);
+   				submeshCount = CalRenderer_GetSubmeshCount(pCalRenderer,meshId);
 				glPushMatrix();
 
 				//Special treatment for weapons and shields only for enhanced models
@@ -293,31 +293,31 @@ void cal_render_actor(actor *act)
 			}
 			
 			// clear vertex array state
-    			glDisableClientState(GL_NORMAL_ARRAY);
-    			glDisableClientState(GL_VERTEX_ARRAY);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			//glDisableClientState(GL_NORMAL_ARRAY);
+			//glDisableClientState(GL_VERTEX_ARRAY);
+			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    			// end the rendering
-    			CalRenderer_EndRendering(pCalRenderer);
+			// end the rendering
+			CalRenderer_EndRendering(pCalRenderer);
 		}
 #ifdef DEBUG
 	}
 #endif
 
+	glColor3f(1,1,1);
+
+#ifdef DEBUG
   	glDisable(GL_LIGHTING);
   	glDisable(GL_DEPTH_TEST);
   	glDisable(GL_TEXTURE_2D);
 
-	glColor3f(1,1,1);
-
-#ifdef DEBUG
   	if (render_skeleton) cal_render_bones(act);
-#endif
 
-  	glEnable(GL_LIGHTING);
-  	glEnable(GL_DEPTH_TEST);
-  	glEnable(GL_TEXTURE_2D);
-  	glPopMatrix();
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+#endif
+	glPopMatrix();
 
 	//glEnable(GL_TEXTURE_2D);
 }

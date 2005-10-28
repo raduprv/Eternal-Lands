@@ -336,6 +336,9 @@ void display_actors_shadow()
 	x=-cx;
 	y=-cy;
 
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
 	for(i=0;i<no_near_actors;i++){
 		if(!near_actors[i].ghost){
 			actor *act=actors_list[near_actors[i].actor];
@@ -347,6 +350,9 @@ void display_actors_shadow()
 			}
 		}
 	}
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
 }
 #endif
 
@@ -433,7 +439,7 @@ void display_3d_ground_objects()
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	if(have_multitexture && clouds_shadows)
+	if(have_multitexture && !dungeon && clouds_shadows)
 		{
 			//bind the detail texture
 			ELglActiveTextureARB(detail_unit);
@@ -441,9 +447,7 @@ void display_3d_ground_objects()
 			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 			ELglActiveTextureARB(base_unit);
 			glEnable(GL_TEXTURE_2D);
-
 		}
-
 
    	glNormal3f(0,0,1);
 
@@ -469,7 +473,7 @@ void display_3d_ground_objects()
 	}
 #endif
 
-	if(have_multitexture && clouds_shadows)
+	if(have_multitexture && !dungeon && clouds_shadows)
 		{
 			//disable the second texture unit
 			ELglActiveTextureARB(detail_unit);
@@ -499,7 +503,7 @@ void display_3d_non_ground_objects()
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 
-	if(have_multitexture && clouds_shadows)
+	if(have_multitexture && !dungeon && clouds_shadows)
 		{
 			//bind the detail texture
 			ELglActiveTextureARB(detail_unit);
@@ -507,7 +511,6 @@ void display_3d_non_ground_objects()
 			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 			ELglActiveTextureARB(base_unit);
 			glEnable(GL_TEXTURE_2D);
-
 		}
 
 #ifndef	NEW_FRUSTUM
@@ -532,7 +535,7 @@ void display_3d_non_ground_objects()
 	}
 #endif
 
-	if(have_multitexture && clouds_shadows)
+	if(have_multitexture && !dungeon && clouds_shadows)
 		{
 			//disable the second texture unit
 			ELglActiveTextureARB(detail_unit);
