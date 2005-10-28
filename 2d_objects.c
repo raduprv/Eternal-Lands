@@ -29,6 +29,10 @@ float texture_scale=12.0;
 
 void draw_2d_object(obj_2d * object_id)
 {
+#ifdef	DRAW_BBOX
+	float len_x, len_y;
+	AABBOX bbox;
+#endif
 	float render_x_start,render_y_start,u_start,v_start,u_end,v_end;
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
@@ -174,6 +178,81 @@ void draw_2d_object(obj_2d * object_id)
 		}
 	glPopMatrix();//restore the scene
 
+#ifdef	DRAW_BBOX
+	x_pos = object_id->x_pos;
+	y_pos = object_id->y_pos;
+	z_pos = object_id->z_pos;
+	x_rot = object_id->x_rot;
+	y_rot = object_id->y_rot;
+	z_rot = object_id->z_rot;
+	
+	len_x = (object_id->obj_pointer->x_size);
+	len_y = (object_id->obj_pointer->y_size);
+	bbox.bbmin[X] = -len_x*0.5f;
+	bbox.bbmax[X] = len_x*0.5f;
+	if (object_id->obj_pointer->object_type == GROUND)
+	{
+		bbox.bbmin[Y] = -len_y*0.5f;
+		bbox.bbmax[Y] = len_y*0.5f;
+	}
+	else
+	{
+		bbox.bbmin[Y] = 0.0f;
+		bbox.bbmax[Y] = len_y;
+		if (object_id->obj_pointer->object_type == PLANT)
+		{
+			x_rot += 90.0f;
+			z_rot = 0.0f;
+			bbox.bbmin[X] *= sqrt(2);
+			bbox.bbmax[X] *= sqrt(2);
+			bbox.bbmin[Y] *= sqrt(2);
+			bbox.bbmax[Y] *= sqrt(2);
+		}
+		else if (object_id->obj_pointer->object_type == FENCE) x_rot += 90.0f;
+	}
+	bbox.bbmin[Z] = 0.0f;
+	bbox.bbmax[Z] = 0.0f;
+
+	
+	if ((x_rot != 0.0f) || (y_rot != 0.0f) || (z_rot != 0.0f)) rotate_aabb(&bbox, x_rot, y_rot, z_rot);
+	bbox.bbmin[X] += x_pos;
+	bbox.bbmin[Y] += y_pos;
+	bbox.bbmin[Z] += z_pos;
+	bbox.bbmax[X] += x_pos;
+	bbox.bbmax[Y] += y_pos;
+	bbox.bbmax[Z] += z_pos;
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_LINES);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+	glEnd();
+#endif
 }
 
 
@@ -441,20 +520,19 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	{
 		bbox.bbmin[Y] = 0.0f;
 		bbox.bbmax[Y] = len_y;
+		if (returned_obj_2d_def->object_type == PLANT)
+		{
+			x_rot += 90.0f;
+			z_rot = 0.0f;
+			bbox.bbmin[X] *= sqrt(2);
+			bbox.bbmax[X] *= sqrt(2);
+			bbox.bbmin[Y] *= sqrt(2);
+			bbox.bbmax[Y] *= sqrt(2);
+		}
+		else if (returned_obj_2d_def->object_type == FENCE) x_rot += 90.0f;
 	}
 	bbox.bbmin[Z] = 0.0f;
 	bbox.bbmax[Z] = 0.0f;
-
-	if (returned_obj_2d_def->object_type == PLANT)
-	{
-		x_rot += 90.0f;
-		z_rot = 0.0f;
-		bbox.bbmin[X] *= sqrt(2);
-		bbox.bbmax[X] *= sqrt(2);
-		bbox.bbmin[Y] *= sqrt(2);
-		bbox.bbmax[Y] *= sqrt(2);
-	}
-	else if (returned_obj_2d_def->object_type == FENCE) x_rot += 90.0f;
 	
 	if ((x_rot != 0.0f) || (y_rot != 0.0f) || (z_rot != 0.0f)) rotate_aabb(&bbox, x_rot, y_rot, z_rot);
 	bbox.bbmin[X] += x_pos;

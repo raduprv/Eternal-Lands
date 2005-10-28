@@ -28,6 +28,9 @@ void compute_clouds_map(object3d * object_id);
 
 void draw_3d_object(object3d * object_id)
 {
+#ifdef	DRAW_BBOX
+	AABBOX bbox;
+#endif
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int i, materials_no;
@@ -177,6 +180,53 @@ void draw_3d_object(object3d * object_id)
 	}
 	
 	CHECK_GL_ERRORS();
+#ifdef	DRAW_BBOX
+	bbox.bbmin[X] = object_id->e3d_data->min_x;
+	bbox.bbmax[X] = object_id->e3d_data->max_x;
+	bbox.bbmin[Y] = object_id->e3d_data->min_y;
+	bbox.bbmax[Y] = object_id->e3d_data->max_y;
+	bbox.bbmin[Z] = object_id->e3d_data->min_z;
+	bbox.bbmax[Z] = object_id->e3d_data->max_z;
+
+	if ((x_rot != 0.0f) || (y_rot != 0.0f) || (z_rot != 0.0f)) rotate_aabb(&bbox, x_rot, y_rot, z_rot);
+	bbox.bbmin[X] += x_pos;
+	bbox.bbmin[Y] += y_pos;
+	bbox.bbmin[Z] += z_pos;
+	bbox.bbmax[X] += x_pos;
+	bbox.bbmax[Y] += y_pos;
+	bbox.bbmax[Z] += z_pos;
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_LINES);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
+	glEnd();
+#endif
 	
 	//OK, let's check if our mouse is over...
 #ifdef MAP_EDITOR2
@@ -218,7 +268,6 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	object3d *our_object;
 	int i;
 #ifdef	NEW_FRUSTUM
-	float len_x, len_y, len_z;
 	AABBOX bbox;
 #endif
 
@@ -302,15 +351,13 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	}
 
 #ifdef	NEW_FRUSTUM
-	len_x = (returned_e3d->max_x - returned_e3d->min_x);
-	len_y = (returned_e3d->max_y - returned_e3d->min_y);
-	len_z = (returned_e3d->max_z - returned_e3d->min_z);
-	bbox.bbmin[X] = -len_x*0.5f;
-	bbox.bbmax[X] = len_x*0.5f;
-	bbox.bbmin[Y] = -len_y*0.5f;
-	bbox.bbmax[Y] = len_y*0.5f;
-	bbox.bbmin[Z] = -len_z*0.5f;
-	bbox.bbmax[Z] = len_z*0.5f;
+	bbox.bbmin[X] = returned_e3d->min_x;
+	bbox.bbmax[X] = returned_e3d->max_x;
+	bbox.bbmin[Y] = returned_e3d->min_y;
+	bbox.bbmax[Y] = returned_e3d->max_y;
+	bbox.bbmin[Z] = returned_e3d->min_z;
+	bbox.bbmax[Z] = returned_e3d->max_z;
+	
 	if ((x_rot != 0.0f) || (y_rot != 0.0f) || (z_rot != 0.0f)) rotate_aabb(&bbox, x_rot, y_rot, z_rot);
 	bbox.bbmin[X] += x_pos;
 	bbox.bbmin[Y] += y_pos;
@@ -674,6 +721,9 @@ e3d_object *load_e3d (const char *file_name)
 	e3d_object *cur_object;
 	//int transparency=0; unused?
 	e3d_header our_header;
+#ifdef	BUG_FIX_3D_OBJECTS_MIN_MAX
+	float len_x, len_y, len_z;
+#endif
 	char *our_header_pointer=(char *)&our_header;
 
 	f = my_fopen(file_name, "rb");
@@ -707,7 +757,18 @@ e3d_object *load_e3d (const char *file_name)
 	cur_object->max_y=our_header.max_y;
 	cur_object->max_z=our_header.max_z;
 #endif
-	
+
+#ifdef	BUG_FIX_3D_OBJECTS_MIN_MAX
+	len_x = (cur_object->max_x - cur_object->min_x);
+	len_y = (cur_object->max_y - cur_object->min_y);
+	len_z = (cur_object->max_z - cur_object->min_z);
+	cur_object->min_x = -len_x*0.5f;
+	cur_object->max_x = len_x*0.5f;
+	cur_object->min_y = -len_y*0.5f;
+	cur_object->max_y = len_y*0.5f;
+	cur_object->min_z = 0.0f;
+	cur_object->max_z = len_z;
+#endif
 	cur_object->is_transparent=our_header.is_transparent;
 	cur_object->is_ground=our_header.is_ground;
 	cur_object->face_no=faces_no;

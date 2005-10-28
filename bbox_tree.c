@@ -686,21 +686,6 @@ void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items)
 #endif
 }
 
-// Xaphier: Just for the moment, will be changed in the future
-static __inline__ void resize_aabb(AABBOX *resized_bbox, AABBOX *bbox)
-{
-	float box_size_const;
-
-	box_size_const = 1.0f;
-	
-	resized_bbox->bbmin[X] = bbox->bbmin[X] - box_size_const;
-	resized_bbox->bbmin[Y] = bbox->bbmin[Y] - box_size_const;
-	resized_bbox->bbmin[Z] = bbox->bbmin[Z] - box_size_const;
-	resized_bbox->bbmax[X] = bbox->bbmax[X] + box_size_const;
-	resized_bbox->bbmax[Y] = bbox->bbmax[Y] + box_size_const;
-	resized_bbox->bbmax[Z] = bbox->bbmax[Z] + box_size_const;
-}
-
 static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int sort_data)
 {
 	unsigned int index, size;
@@ -714,7 +699,8 @@ static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, AABBOX *bbox, un
 		bbox_items->items = (BBOX_ITEM*)realloc(bbox_items->items, size*sizeof(BBOX_ITEM));
 		bbox_items->size = size;
 	}
-	resize_aabb(&bbox_items->items[index].bbox, bbox);
+	memcpy(bbox_items->items[index].bbox.bbmin, bbox->bbmin, sizeof(VECTOR3));
+	memcpy(bbox_items->items[index].bbox.bbmax, bbox->bbmax, sizeof(VECTOR3));
 	bbox_items->items[index].data.type = type;
 	bbox_items->items[index].data.sort_data = sort_data;
 	bbox_items->items[index].data.ID = ID;
@@ -838,7 +824,8 @@ static __inline__ void add_dynamic_item_to_node(BBOX_TREE_NODE *node, AABBOX *bb
 		node->dynamic_objects.items[index].data.ID = ID;
 		node->dynamic_objects.items[index].data.sort_data = sort_data;
 		node->dynamic_objects.items[index].data.type = type;
-		resize_aabb(&node->dynamic_objects.items[index].bbox, bbox);
+		memcpy(node->dynamic_objects.items[index].bbox.bbmin, bbox->bbmin, sizeof(VECTOR3));
+		memcpy(node->dynamic_objects.items[index].bbox.bbmax, bbox->bbmax, sizeof(VECTOR3));
 		node->dynamic_objects.index = index + 1;
 		VMin(node->bbox.bbmin, node->bbox.bbmin, bbox->bbmin);
 		VMax(node->bbox.bbmax, node->bbox.bbmax, bbox->bbmax);
@@ -910,7 +897,8 @@ static __inline__ void add_objects_to_update_list(BBOX_TREE *bbox_tree, AABBOX *
 	bbox_tree->update_data.list[index].item.data.ID = ID;
 	bbox_tree->update_data.list[index].item.data.type = type;
 	bbox_tree->update_data.list[index].item.data.sort_data = sort_data;
-	resize_aabb(&bbox_tree->update_data.list[index].item.bbox, bbox);
+	memcpy(bbox_tree->update_data.list[index].item.bbox.bbmim, bbox->bbmin, sizeof(VECTOR3));
+	memcpy(bbox_tree->update_data.list[index].item.bbox.bbmax, bbox->bbmax, sizeof(VECTOR3));
 	bbox_tree->update_data.list[index].dynamic = dynamic;
 	bbox_tree->update_data.index = index + 1;
 	update_bbox_tree_degeneration(bbox_tree, 1);

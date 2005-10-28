@@ -19,6 +19,8 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT
 #-DUSE_FRAMEBUFFER	# use framebuffer for reflection
 #-DNEW_TEX        # use new texture coordinates for enhanced actors
 #-DNEW_FRUSTUM    # use new frustum culling (AABB trees)
+#-DBUG_FIX_3D_OBJECTS_MIN_MAX # Just a smal work around for the new frustum with the buggy 3d objects. This is not nessecary if you have correct 3d objects.
+#-DDRAW_BBOX	  # draws the bounding boxes for 2d and 3d objects
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
