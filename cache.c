@@ -295,6 +295,7 @@ cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item)
 			cache_use(cache, cache->recent_item);
 			return(cache->recent_item);
 		}
+	// TODO: how about a sorted list or a hash system?
 	for(i=0; i<cache->max_item; i++)
 		{
 			if(cache->cached_items[i] && cache->cached_items[i]->name && cache->cached_items[i]->cache_item == item)
