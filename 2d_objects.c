@@ -101,17 +101,6 @@ void draw_2d_object(obj_2d * object_id)
 			float m,x,y,x1,y1;
 			float cos_m,sin_m;
 
-			if(clouds_shadows)
-				{
-					//bind the detail texture
-					ELglActiveTextureARB(detail_unit);
-					glEnable(GL_TEXTURE_2D);
-					//glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
-					glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-				}
-			ELglActiveTextureARB(base_unit);
-			glEnable(GL_TEXTURE_2D);
-
 			glBegin(GL_QUADS);
 
 			m=(-z_rot)*M_PI/180;
@@ -171,10 +160,6 @@ void draw_2d_object(obj_2d * object_id)
 								 +clouds_movement_v);
 			glVertex3f(x,y,z_pos);
     		glEnd();
-    		//disable the multitexturing
-			ELglActiveTextureARB(detail_unit);
-			glDisable(GL_TEXTURE_2D);
-			ELglActiveTextureARB(base_unit);
 		}
 	glPopMatrix();//restore the scene
 
@@ -700,10 +685,22 @@ void display_2d_objects()
 			return;
 
 	//First draw everyone with the same alpha test
-    	
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER,0.18f);
-	
+
+	if(have_multitexture && !(!clouds_shadows && !use_shadow_mapping))
+	    {
+			if(clouds_shadows)
+				{
+					//bind the detail texture
+					ELglActiveTextureARB(detail_unit);
+					glEnable(GL_TEXTURE_2D);
+					glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+				}
+			ELglActiveTextureARB(base_unit);
+			glEnable(GL_TEXTURE_2D);
+		}
+
 	for(i=0;i<no_nearby_2d_objects;i++){
 		if(obj_2d_list[nearby_2d_objects[i]] && obj_2d_list[nearby_2d_objects[i]]->obj_pointer && !obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test) {
 			draw_2d_object(obj_2d_list[nearby_2d_objects[i]]);
@@ -713,20 +710,32 @@ void display_2d_objects()
 	//Then draw all that needs a change
 	for(i=0;i<no_nearby_2d_objects;i++){
 		if(obj_2d_list[nearby_2d_objects[i]] && obj_2d_list[nearby_2d_objects[i]]->obj_pointer && obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test){
-    			glAlphaFunc(GL_GREATER,obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test);
+    		glAlphaFunc(GL_GREATER,obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test);
 			draw_2d_object(obj_2d_list[nearby_2d_objects[i]]);
 		}
 	}
-	
-	glDisable(GL_ALPHA_TEST);
+
 #else
 	unsigned int i, l;
 	
 	//First draw everyone with the same alpha test
-    	
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.18f);
-	
+
+	if(have_multitexture && !(!clouds_shadows && !use_shadow_mapping))
+	    {
+			if(clouds_shadows)
+				{
+					//bind the detail texture
+					ELglActiveTextureARB(detail_unit);
+					glEnable(GL_TEXTURE_2D);
+					//glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
+					glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+				}
+			ELglActiveTextureARB(base_unit);
+			glEnable(GL_TEXTURE_2D);
+		}
+
 	for (i = get_intersect_start(main_bbox_tree, TYPE_2D_NO_ALPHA_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_2D_NO_ALPHA_OBJECT); i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
@@ -754,9 +763,17 @@ void display_2d_objects()
 		glAlphaFunc(GL_GREATER, obj_2d_list[l]->obj_pointer->alpha_test);
 		draw_2d_object(obj_2d_list[l]);
 	}
-	
-	glDisable(GL_ALPHA_TEST);
 #endif
+
+	if(have_multitexture && !(!clouds_shadows && !use_shadow_mapping))
+	    {
+    		//disable the multitexturing
+			ELglActiveTextureARB(detail_unit);
+			glDisable(GL_TEXTURE_2D);
+			ELglActiveTextureARB(base_unit);
+		}
+
+	glDisable(GL_ALPHA_TEST);
 }
 
 #ifdef	NEW_FRUSTUM
