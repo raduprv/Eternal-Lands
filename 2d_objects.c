@@ -12,8 +12,10 @@
 #define PLANT 1
 #define FENCE 2
 
+#ifndef	NEW_FRUSTUM
 #define SECTOR_SIZE_X 15
 #define SECTOR_SIZE_Y 15
+#endif
 
 obj_2d *obj_2d_list[MAX_OBJ_2D];
 #ifndef	NEW_FRUSTUM
@@ -206,8 +208,8 @@ void draw_2d_object(obj_2d * object_id)
 	bbox.bbmax[X] += x_pos;
 	bbox.bbmax[Y] += y_pos;
 	bbox.bbmax[Z] += z_pos;
-	glColor3f(1.0f, 0.0f, 0.0f);
 	glBegin(GL_LINES);
+		glColor3f(1.0f, 0.0f, 0.0f);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
@@ -453,7 +455,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	obj_2d *our_object;
 #ifdef	NEW_FRUSTUM
 	float len_x, len_y;
-	int alpha_test;
+	unsigned int alpha_test, texture_id;
 	AABBOX bbox;
 #else
 	short sector;
@@ -529,8 +531,10 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	if (returned_obj_2d_def->alpha_test) alpha_test = 1;
 	else alpha_test = 0;
 
-	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_2dobject_to_list(main_bbox_tree_items, i, &bbox, alpha_test);
-	else add_2dobject_to_abt(main_bbox_tree, i, &bbox, alpha_test, dynamic);
+	texture_id = returned_obj_2d_def->texture_id;
+	
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_2dobject_to_list(main_bbox_tree_items, i, &bbox, alpha_test, texture_id);
+	else add_2dobject_to_abt(main_bbox_tree, i, &bbox, alpha_test, texture_id, dynamic);
 #else
 	//get the current sector
 	sector = (short) ((y_pos/SECTOR_SIZE_Y) * (map_meters_size_x/SECTOR_SIZE_X) + (x_pos/SECTOR_SIZE_X));
@@ -716,7 +720,7 @@ void display_2d_objects()
 	}
 
 #else
-	unsigned int i, l;
+	unsigned int i, l, start, stop;
 	
 	//First draw everyone with the same alpha test
 	glEnable(GL_ALPHA_TEST);
@@ -736,30 +740,18 @@ void display_2d_objects()
 			glEnable(GL_TEXTURE_2D);
 		}
 
-	for (i = get_intersect_start(main_bbox_tree, TYPE_2D_NO_ALPHA_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_2D_NO_ALPHA_OBJECT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_2D_NO_ALPHA_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-		if (!obj_2d_list[l])
-		{
-			ERR();
-			continue;
-		}
-#endif
 		draw_2d_object(obj_2d_list[l]);
 	}
 	
 	//Then draw all that needs a change
-	for (i = get_intersect_start(main_bbox_tree, TYPE_2D_ALPHA_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_2D_ALPHA_OBJECT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_2D_ALPHA_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-		if (!obj_2d_list[l])
-		{
-			ERR();
-			continue;
-		}
-#endif
 		glAlphaFunc(GL_GREATER, obj_2d_list[l]->obj_pointer->alpha_test);
 		draw_2d_object(obj_2d_list[l]);
 	}

@@ -561,6 +561,9 @@ int display_game_handler (window_info *win)
 	save_scene_matrix ();
 
 	CalculateFrustum ();
+#ifdef	NEW_FRUSTUM
+	calculate_reflection_frustum(0, -0.25f);
+#endif
 	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
 

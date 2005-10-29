@@ -317,14 +317,14 @@ int load_map (const char * file_name)
 				{
 					bbox.bbmin[Z] = -0.25f;
 					bbox.bbmax[Z] = -0.25f;
-					if (IS_REFLECTING(cur_tile)) add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, cur_tile, 1);
-					else add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, cur_tile, 0);
+					if (IS_REFLECTING(cur_tile)) add_water_to_list(main_bbox_tree_items, get_terrain_id(j, i), &bbox, cur_tile, 1);
+					else add_water_to_list(main_bbox_tree_items, get_terrain_id(j, i), &bbox, cur_tile, 0);
 				}
 				else 
 				{
 					bbox.bbmin[Z] = 0.0f;
 					bbox.bbmax[Z] = 0.0f;
-					add_terrain_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, cur_tile);
+					add_terrain_to_list(main_bbox_tree_items, get_terrain_id(j, i), &bbox, cur_tile);
 				}
 			}
 		}
@@ -598,14 +598,14 @@ void new_map(int m_x_size,int m_y_size,int tile_type)
 				{
 					bbox.bbmin[Z] = -0.25f;
 					bbox.bbmax[Z] = -0.25f;
-					if (IS_REFLECTING(tile_type)) add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, tile_type, 1);
-					else add_water_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, tile_type, 0);
+					if (IS_REFLECTING(tile_type)) add_water_to_list(main_bbox_tree_items, get_terrain_id(j, i), &bbox, tile_type, 1);
+					else add_water_to_list(main_bbox_tree_items, get_terrain_id(j, i), &bbox, tile_type, 0);
 				}
 				else 
 				{
 					bbox.bbmin[Z] = 0.0f;
 					bbox.bbmax[Z] = 0.0f;
-					add_terrain_to_list(main_bbox_tree_items, (i << 8)+j, &bbox, tile_type);
+					add_terrain_to_list(main_bbox_tree_items, get_terrain_id(j, i), &bbox, tile_type);
 				}
 			}
 		}

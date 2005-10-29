@@ -1,4 +1,3 @@
-#ifdef	TERRAIN
 /*!
  * \file
  * \ingroup 	misc_utils
@@ -6,44 +5,11 @@
  */
 #ifndef	VMATH_H
 #define	VMATH_H
-#include <stdlib.h>
 #include <string.h>
-#include <math.h>
-
-#ifndef	MIN
-/*!
- * \ingroup 	misc_utils
- * \brief 	minimum
- * 
- * Calculating minimun of two signed integers.
- * \paran 	a Value one.
- * \param 	b Value two.
- * \retval 	int The minimum of a and b.
- * 
- * \callgraph
- */
-static __inline__ int min(int a, int b)
-{
-	return a < b ? a : b;
-}
-#endif
-
-#ifndef	MAX
-/*!
- * \ingroup 	misc_utils
- * \brief	maximun
- * 
- * Calculating maximum of two signed integers.
- * \paran 	a Value one.
- * \param 	b Value two.
- * \retval 	int The maximum of a and b.
- * 
- * \callgraph
- */
-static __inline__ int max(int a, int b)
-{
-	return a > b ? a : b;
-}
+#ifdef MAP_EDITOR2
+#include "../map_editor2/misc.h"
+#else
+#include "misc.h"
 #endif
 
 /*!
@@ -59,11 +25,11 @@ typedef enum {
 /*! @} */
 
 /*! 
- * VECTOR4 is used for normal calculating using SSE, SSE2 and SSE3.
+ * VECTOR4 is used for normal, bounding box etc. calculating using SSE, SSE2 and SSE3.
  */
 typedef float VECTOR4[4];
 /*! 
- * VECTOR3 is used for normal calculating without SIMD.
+ * VECTOR3 is used for normal, bounding box etc. calculating without SIMD.
  */
 typedef float VECTOR3[3];
 /*! 
@@ -74,6 +40,10 @@ typedef short SHORT_VEC3[3];
  * TEXTCOORD2 is used for texture coordinates.
  */
 typedef float TEXTCOORD2[2];
+/*!
+ * MATRIX4x4 is used for translation and rotation.
+ */
+typedef float MATRIX4x4[16];
 
 /*!
  * \ingroup 	misc_utils
@@ -108,6 +78,60 @@ static __inline__ void VAddEq(VECTOR3 v1, const VECTOR3 v2)
 	v1[X] += v2[X];
 	v1[Y] += v2[Y];
 	v1[Z] += v2[Z];
+}
+
+/*!
+ * \ingroup 	misc_utils
+ * \brief 	Vector min.
+ * 
+ * Calculating vector min of two vectors of three floats.
+ * \paran 	v1 The return value. 
+ * \param 	v2 Value one.
+ * \param 	v3 Value two.
+ * 
+ * \callgraph
+ */
+static __inline__ void VMin(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
+{
+	v1[X] = min2f(v2[X], v3[X]);
+	v1[Y] = min2f(v2[Y], v3[Y]);
+	v1[Z] = min2f(v2[Z], v3[Z]);
+}
+
+/*!
+ * \ingroup 	misc_utils
+ * \brief 	Vector max.
+ * 
+ * Calculating vector max of two vectors of three floats.
+ * \paran 	v1 The return value. 
+ * \param 	v2 Value one.
+ * \param 	v3 Value two.
+ * 
+ * \callgraph
+ */
+static __inline__ void VMax(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
+{
+	v1[X] = max2f(v2[X], v3[X]);
+	v1[Y] = max2f(v2[Y], v3[Y]);
+	v1[Z] = max2f(v2[Z], v3[Z]);
+}
+
+/*!
+ * \ingroup 	misc_utils
+ * \brief 	Vector sub.
+ * 
+ * Calculating vector sub of two vectors of three floats.
+ * \paran 	v1 The return value. 
+ * \param 	v2 Value one.
+ * \param 	v3 Value two.
+ * 
+ * \callgraph
+ */
+static __inline__ void VSub(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
+{
+	v1[X] = v2[X] - v3[X];
+	v1[Y] = v2[Y] - v3[Y];
+	v1[Z] = v2[Z] - v3[Z];
 }
 
 /*!
@@ -164,6 +188,23 @@ static __inline__ void VMake(VECTOR3 v1, const float v_x, const float v_y, const
 
 /*!
  * \ingroup 	misc_utils
+ * \brief 	Vector fill.
+ *
+ * Makes a vector of thre floats.
+ * \paran 	v1 The return value. 
+ * \param 	f X, Y and Z value of the vector.
+ * 
+ * \callgraph
+ */
+static __inline__ void VFill(VECTOR3 v1, float f)
+{
+	v1[X] = f;
+	v1[Y] = f;
+	v1[Z] = f;
+}
+
+/*!
+ * \ingroup 	misc_utils
  * \brief 	Vector normalize.
  * 
  * Normalize vector of three floats.
@@ -200,5 +241,15 @@ static __inline__ void VAssignS3(SHORT_VEC3 v1, const VECTOR3 v2)
 	v1[Z] = v2[Z]*32767.0f;
 }
 
-#endif
+static __inline__ void calc_rotation_and_translation_matrix(MATRIX4x4 matrix, float trans_x, float trans_y, float trans_z, float rot_x, float rot_y, float rot_z)
+{
+	glPushMatrix();
+	glLoadIdentity();
+	glTranslatef(trans_x, trans_y, trans_z);
+	glRotatef(rot_z, 0.0f, 0.0f, 1.0f);
+	glRotatef(rot_x, 1.0f, 0.0f, 0.0f);
+	glRotatef(rot_y, 0.0f, 1.0f, 0.0f);
+	glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+	glPopMatrix();
+}
 #endif

@@ -31,8 +31,10 @@ void draw_3d_object(object3d * object_id)
 #ifdef	DRAW_BBOX
 	AABBOX bbox;
 #endif
+#ifndef	NEW_FRUSTUM
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
+#endif
 	int i, materials_no;
 
 	e3d_array_vertex *array_vertex;
@@ -96,6 +98,9 @@ void draw_3d_object(object3d * object_id)
 	CHECK_GL_ERRORS();
 
 	glPushMatrix();//we don't want to affect the rest of the scene
+#ifdef	NEW_FRUSTUM
+	glMultMatrixf(object_id->matrix);
+#else
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
 	z_pos=object_id->z_pos;
@@ -107,7 +112,7 @@ void draw_3d_object(object3d * object_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	y_rot=object_id->y_rot;
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
+#endif
 	CHECK_GL_ERRORS();
 	
 	if(have_multitexture && (clouds_shadows||use_shadow_mapping)){
@@ -188,15 +193,9 @@ void draw_3d_object(object3d * object_id)
 	bbox.bbmin[Z] = object_id->e3d_data->min_z;
 	bbox.bbmax[Z] = object_id->e3d_data->max_z;
 
-	if ((x_rot != 0.0f) || (y_rot != 0.0f) || (z_rot != 0.0f)) rotate_aabb(&bbox, x_rot, y_rot, z_rot);
-	bbox.bbmin[X] += x_pos;
-	bbox.bbmin[Y] += y_pos;
-	bbox.bbmin[Z] += z_pos;
-	bbox.bbmax[X] += x_pos;
-	bbox.bbmax[Y] += y_pos;
-	bbox.bbmax[Z] += z_pos;
-	glColor3f(1.0f, 0.0f, 0.0f);
+	matrix_mul_aabb(&bbox, object_id->matrix);
 	glBegin(GL_LINES);
+		glColor3f(0.0f, 0.0f, 1.0f);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
@@ -269,6 +268,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	int i;
 #ifdef	NEW_FRUSTUM
 	AABBOX bbox;
+	unsigned int texture_id;
 #endif
 
 	if (id < 0 || id >= MAX_OBJ_3D)
@@ -357,16 +357,19 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	bbox.bbmax[Y] = returned_e3d->max_y;
 	bbox.bbmin[Z] = returned_e3d->min_z;
 	bbox.bbmax[Z] = returned_e3d->max_z;
-	
-	if ((x_rot != 0.0f) || (y_rot != 0.0f) || (z_rot != 0.0f)) rotate_aabb(&bbox, x_rot, y_rot, z_rot);
-	bbox.bbmin[X] += x_pos;
-	bbox.bbmin[Y] += y_pos;
-	bbox.bbmin[Z] += z_pos;
-	bbox.bbmax[X] += x_pos;
-	bbox.bbmax[Y] += y_pos;
-	bbox.bbmax[Z] += z_pos;
-	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, &bbox, blended, returned_e3d->is_ground);
-	else add_3dobject_to_abt(main_bbox_tree, id, &bbox, blended, returned_e3d->is_ground, dynamic);
+
+	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
+	matrix_mul_aabb(&bbox, our_object->matrix);
+
+	if (returned_e3d->materials_no > 0) 
+	{	
+		if (!returned_e3d->array_order) load_e3d_detail(returned_e3d);
+		texture_id = returned_e3d->array_order[0].texture_id;
+	}
+	else texture_id = 0xFFFFFFFF;
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, &bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id);
+	else add_3dobject_to_abt(main_bbox_tree, id, &bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, dynamic);
+
 #else
 	regenerate_near_objects = 1; // We've added an object..
 #endif
@@ -538,7 +541,7 @@ void display_objects()
 	if(regenerate_near_objects||!first_near_3d_object)
 		if(!get_near_3d_objects())return;
 #else
-	unsigned int i, l;
+	unsigned int i, l, start, stop;
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -566,16 +569,28 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_OBJECT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-		if (!objects_list[l])
-		{
-			ERR();
-			continue;
-		}
-#endif
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
 		draw_3d_object(objects_list[l]);
 	}
 #endif
@@ -592,16 +607,28 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_OBJECT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-		if (!objects_list[l])
-		{
-			ERR();
-			continue;
-		}
-#endif
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
 		draw_3d_object(objects_list[l]);
 	}
 #endif
@@ -629,7 +656,7 @@ void display_blended_objects()
 	
 	if(!no_near_blended_3d_objects)return;
 #else
-	unsigned int i, l;
+	unsigned int i, l, start, stop;
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -659,16 +686,28 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_OBJECT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-		if (!objects_list[l])
-		{
-			ERR();
-			continue;
-		}
-#endif
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
 		draw_3d_object(objects_list[l]);
 	}
 #endif
@@ -685,16 +724,28 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_BLEND_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_OBJECT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-		if (!objects_list[l])
-		{
-			ERR();
-			continue;
-		}
-#endif
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
 		draw_3d_object(objects_list[l]);
 	}
 #endif
@@ -1136,7 +1187,7 @@ void destroy_3d_object(int i)
 	if (objects_list[i] == NULL) return;
 	destroy_clouds_cache(objects_list[i]);
 #ifdef	NEW_FRUSTUM
-	delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->e3d_data->is_ground);
+	delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->e3d_data->is_ground, objects_list[i]->e3d_data->is_transparent, objects_list[i]->self_lit);
 #endif
 	free(objects_list[i]);
 	objects_list[i] = NULL;

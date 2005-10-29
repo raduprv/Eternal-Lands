@@ -364,7 +364,7 @@ void display_shadows()
 	if(regenerate_near_objects)
 		if(!get_near_3d_objects())return;
 #else
-	unsigned int i, l;
+	unsigned int i, l, start, stop;
 #endif
 	
 	glEnable(GL_CULL_FACE);
@@ -387,33 +387,57 @@ void display_shadows()
 		}
 	}
 #else
-	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_OBJECT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-		if (!objects_list[l])
-		{
-			ERR();
-			continue;
-		}
-#endif
+		if (objects_list[l]->z_pos>-0.20f) draw_3d_object_shadow(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		if (objects_list[l]->z_pos>-0.20f) draw_3d_object_shadow(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		if (objects_list[l]->z_pos>-0.20f) draw_3d_object_shadow(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
 		if (objects_list[l]->z_pos>-0.20f) draw_3d_object_shadow(objects_list[l]);
 	}
 
 	if(use_shadow_mapping)
 	{
-		for (i = get_intersect_start(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_OBJECT); i++)
+		get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+		for (i = start; i < stop; i++)
 		{
 			l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-			if (!objects_list[l])
-			{
-				ERR();
-				continue;
-			}
-#endif
 			draw_3d_object_shadow(objects_list[l]);
 		}
+		get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+		for (i = start; i < stop; i++)
+		{
+			l = get_intersect_item_ID(main_bbox_tree, i);
+			draw_3d_object_shadow(objects_list[l]);
+		}
+		get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+		for (i = start; i < stop; i++)
+		{
+			l = get_intersect_item_ID(main_bbox_tree, i);
+			draw_3d_object_shadow(objects_list[l]);
+		}
+		get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+		for (i = start; i < stop; i++)
+		{
+			l = get_intersect_item_ID(main_bbox_tree, i);
+			draw_3d_object_shadow(objects_list[l]);
+		}		
 	}
 #endif
 
@@ -433,7 +457,7 @@ void display_3d_ground_objects()
 
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 #else
-	unsigned int i, l;
+	unsigned int i, l, start, stop;
 #endif
 
 	glEnable(GL_CULL_FACE);
@@ -459,16 +483,28 @@ void display_3d_ground_objects()
     	        	draw_3d_object(objects_list[nobj->pos]);
     	}
 #else
-	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_OBJECT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-		if (!objects_list[l])
-		{
-			ERR();
-			continue;
-		}
-#endif
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
 		draw_3d_object(objects_list[l]);
 	}
 #endif
@@ -492,7 +528,7 @@ void display_3d_non_ground_objects()
 
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 #else
-	unsigned int i, l;
+	unsigned int i, l, start, stop;
 #endif
 
 	//we don't want to be affected by 2d objects and shadows
@@ -521,16 +557,28 @@ void display_3d_non_ground_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	for (i = get_intersect_start(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_OBJECT); i < get_intersect_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_OBJECT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
-		if (!objects_list[l])
-		{
-			ERR();
-			continue;
-		}
-#endif
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		draw_3d_object(objects_list[l]);
+	}
+	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
 		draw_3d_object(objects_list[l]);
 	}
 #endif

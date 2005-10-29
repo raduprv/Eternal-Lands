@@ -11,23 +11,38 @@
 #include "misc.h"
 #endif
 
-#define TYPE_2D_NO_ALPHA_OBJECT				0x00
-#define TYPE_2D_ALPHA_OBJECT				0x01
-#define TYPE_3D_NO_BLEND_NO_GROUND_OBJECT		0x02
-#define TYPE_3D_NO_BLEND_GROUND_OBJECT			0x03
-#define TYPE_3D_BLEND_NO_GROUND_OBJECT			0x04
-#define TYPE_3D_BLEND_GROUND_OBJECT			0x05
-#define TYPE_PARTICLE_SYSTEM				0x06
-#define	TYPE_LIGHT					0x07
-#define	TYPE_TERRAIN					0x08
-#define	TYPE_NO_REFLECTIV_WATER				0x09
-#define	TYPE_REFLECTIV_WATER				0x0A
-#define	TYPES_COUNT					0x0B
-#define TYPE_DELETED					0xFF
+#define TYPE_2D_NO_ALPHA_OBJECT					0x00
+#define TYPE_2D_ALPHA_OBJECT					0x01
 
-#define	ITERSECTION_TYPES_DEFAULT			0x00
-#define	ITERSECTION_TYPES_SHADOW			0x01
-#define	ITERSECTION_TYPES_REFLECTION			0x02
+#define TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT		0x02
+#define TYPE_3D_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT		0x03
+#define TYPE_3D_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT		0x04
+#define TYPE_3D_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT	0x05
+#define TYPE_3D_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT		0x06
+#define TYPE_3D_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT	0x07
+#define TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT	0x08
+#define TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT	0x09
+
+#define TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT		0x0A
+#define TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT	0x0B
+#define TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT	0x0C
+#define TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT	0x0D
+#define TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT	0x0E
+#define TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT	0x0F
+#define TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT	0x10
+#define TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT	0x11
+
+#define TYPE_PARTICLE_SYSTEM					0x12
+#define	TYPE_LIGHT						0x13
+#define	TYPE_TERRAIN						0x14
+#define	TYPE_NO_REFLECTIV_WATER					0x15
+#define	TYPE_REFLECTIV_WATER					0x16
+#define	TYPES_COUNT						0x17
+#define TYPE_DELETED						0xFF
+
+#define	ITERSECTION_TYPE_DEFAULT			0x00
+#define	ITERSECTION_TYPE_SHADOW				0x01
+#define	ITERSECTION_TYPE_REFLECTION			0x02
 #define	MAX_ITERSECTION_TYPES				0x03
 
 #define	OUTSIDE		0x0000
@@ -36,8 +51,6 @@
 
 #define BOUND_HUGE	10e30
 
-typedef float VECTOR3[3];
-typedef float VECTOR4[4];
 typedef unsigned int IDX_TYPE;
 
 typedef struct
@@ -65,7 +78,7 @@ typedef struct
 typedef struct
 {
 	unsigned char		type;
-	unsigned char		sort_data;
+	unsigned short		sort_data;
 	unsigned short		ID;
 } BBOX_ITEM_DATA;
 
@@ -154,42 +167,6 @@ enum
 	C = 2,
 	D = 3
 };
-
-enum
-{
-	X = 0,
-	Y = 1,
-	Z = 2,
-	W = 3
-};
-
-static __inline__ void VMin(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
-{
-	v1[X] = min2f(v2[X], v3[X]);
-	v1[Y] = min2f(v2[Y], v3[Y]);
-	v1[Z] = min2f(v2[Z], v3[Z]);
-}
-
-static __inline__ void VMax(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
-{
-	v1[X] = max2f(v2[X], v3[X]);
-	v1[Y] = max2f(v2[Y], v3[Y]);
-	v1[Z] = max2f(v2[Z], v3[Z]);
-}
-
-static __inline__ void VSub(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
-{
-	v1[X] = v2[X] - v3[X];
-	v1[Y] = v2[Y] - v3[Y];
-	v1[Z] = v2[Z] - v3[Z];
-}
-
-static __inline__ void Make_Vector3(VECTOR3 v1, float f)
-{
-	v1[X] = f;
-	v1[Y] = f;
-	v1[Z] = f;
-}
 
 static __inline__ void calc_light_aabb(AABBOX *bbox, float pos_x, float pos_y, float pos_z, float diff_r, float diff_g, float diff_b, 
 		float att, float exp, float clamp)
@@ -280,6 +257,65 @@ static __inline__ void rotate_aabb(AABBOX* bbox, float r_x, float r_y, float r_z
 	bbox->bbmax[Z] = max2f(bbox->bbmax[Z], max2f(max2f(matrix_2[2], matrix_2[6]), max2f(matrix_2[10], matrix_2[14])));
 }
 
+static __inline__ void matrix_mul_aabb(AABBOX* bbox, MATRIX4x4 matrix)
+{
+	MATRIX4x4 matrix_1, matrix_2;
+	matrix_1[0] = bbox->bbmax[X];
+	matrix_1[1] = bbox->bbmax[Y];
+	matrix_1[2] = bbox->bbmax[Z];
+	matrix_1[3] = 1.0f;
+	matrix_1[4] = bbox->bbmax[X];
+	matrix_1[5] = bbox->bbmax[Y];
+	matrix_1[6] = bbox->bbmin[Z];
+	matrix_1[7] = 1.0f;
+	matrix_1[8] = bbox->bbmax[X];
+	matrix_1[9] = bbox->bbmin[Y];
+	matrix_1[10] = bbox->bbmax[Z];
+	matrix_1[11] = 1.0f;
+	matrix_1[12] = bbox->bbmax[X];
+	matrix_1[13] = bbox->bbmin[Y];
+	matrix_1[14] = bbox->bbmin[Z];
+	matrix_1[15] = 1.0f;
+	matrix_2[0] = bbox->bbmin[X];
+	matrix_2[1] = bbox->bbmax[Y];
+	matrix_2[2] = bbox->bbmax[Z];
+	matrix_2[3] = 1.0f;
+	matrix_2[4] = bbox->bbmin[X];
+	matrix_2[5] = bbox->bbmax[Y];
+	matrix_2[6] = bbox->bbmin[Z];
+	matrix_2[7] = 1.0f;
+	matrix_2[8] = bbox->bbmin[X];
+	matrix_2[9] = bbox->bbmin[Y];
+	matrix_2[10] = bbox->bbmax[Z];
+	matrix_2[11] = 1.0f;
+	matrix_2[12] = bbox->bbmin[X];
+	matrix_2[13] = bbox->bbmin[Y];
+	matrix_2[14] = bbox->bbmin[Z];
+	matrix_2[15] = 1.0f;
+	glPushMatrix();
+	glLoadMatrixf(matrix);
+	glPushMatrix();
+	glMultMatrixf(matrix_1);
+	glGetFloatv(GL_MODELVIEW_MATRIX, matrix_1);
+	glPopMatrix();
+	glMultMatrixf(matrix_2);
+	glGetFloatv(GL_MODELVIEW_MATRIX, matrix_2);
+	glPopMatrix();
+	bbox->bbmin[X] = min2f(min2f(matrix_1[0], matrix_1[4]), min2f(matrix_1[8], matrix_1[12]));
+	bbox->bbmin[X] = min2f(bbox->bbmin[X], min2f(min2f(matrix_2[0], matrix_2[4]), min2f(matrix_2[8], matrix_2[12])));
+	bbox->bbmin[Y] = min2f(min2f(matrix_1[1], matrix_1[5]), min2f(matrix_1[9], matrix_1[13]));
+	bbox->bbmin[Y] = min2f(bbox->bbmin[Y], min2f(min2f(matrix_2[1], matrix_2[5]), min2f(matrix_2[9], matrix_2[13])));
+	bbox->bbmin[Z] = min2f(min2f(matrix_1[2], matrix_1[6]), min2f(matrix_1[10], matrix_1[14]));
+	bbox->bbmin[Z] = min2f(bbox->bbmin[Z], min2f(min2f(matrix_2[2], matrix_2[6]), min2f(matrix_2[10], matrix_2[14])));
+
+	bbox->bbmax[X] = max2f(max2f(matrix_1[0], matrix_1[4]), max2f(matrix_1[8], matrix_1[12]));
+	bbox->bbmax[X] = max2f(bbox->bbmax[X], max2f(max2f(matrix_2[0], matrix_2[4]), max2f(matrix_2[8], matrix_2[12])));
+	bbox->bbmax[Y] = max2f(max2f(matrix_1[1], matrix_1[5]), max2f(matrix_1[9], matrix_1[13]));
+	bbox->bbmax[Y] = max2f(bbox->bbmax[Y], max2f(max2f(matrix_2[1], matrix_2[5]), max2f(matrix_2[9], matrix_2[13])));
+	bbox->bbmax[Z] = max2f(max2f(matrix_1[2], matrix_1[6]), max2f(matrix_1[10], matrix_1[14]));
+	bbox->bbmax[Z] = max2f(bbox->bbmax[Z], max2f(max2f(matrix_2[2], matrix_2[6]), max2f(matrix_2[10], matrix_2[14])));
+}
+
 static __inline__ int lock_bbox_tree(BBOX_TREE* bbox_tree)
 {
 	if ((bbox_tree != NULL) && (bbox_tree->bbox_tree_mutex != NULL))
@@ -294,20 +330,13 @@ static __inline__ int unlock_bbox_tree(BBOX_TREE* bbox_tree)
 	else return -1;
 }
 
-static __inline__ unsigned int get_intersect_start(BBOX_TREE* bbox_tree, unsigned int type)
+static __inline__ void get_intersect_start_stop(BBOX_TREE* bbox_tree, unsigned int type, unsigned int* start, unsigned int* stop)
 {
 	unsigned int idx;
 
 	idx = bbox_tree->cur_intersect_type;
-	return bbox_tree->intersect[idx].start[type];
-}
-
-static __inline__ unsigned int get_intersect_stop(BBOX_TREE* bbox_tree, unsigned int type)
-{
-	unsigned int idx;
-
-	idx = bbox_tree->cur_intersect_type;
-	return bbox_tree->intersect[idx].stop[type];
+	*start = bbox_tree->intersect[idx].start[type];
+	*stop = bbox_tree->intersect[idx].stop[type];
 }
 
 static __inline__ unsigned int get_intersect_item_ID(BBOX_TREE* bbox_tree, unsigned int index)
@@ -318,6 +347,33 @@ static __inline__ unsigned int get_intersect_item_ID(BBOX_TREE* bbox_tree, unsig
 	return bbox_tree->intersect[idx].items[index].ID;
 }
 
+static __inline__ unsigned int get_cur_intersect_type(BBOX_TREE* bbox_tree)
+{
+	return bbox_tree->cur_intersect_type;
+}
+
+static __inline__ void set_cur_intersect_type(BBOX_TREE* bbox_tree, unsigned int intersec_type)
+{
+	bbox_tree->cur_intersect_type = intersec_type;
+}
+
+static __inline__ unsigned int get_terrain_id(unsigned int x, unsigned int y)
+{
+	return (y << 8) + x;
+//	return (y << 16) + x;
+}
+
+static __inline__ unsigned int get_terrain_x(unsigned int ID)
+{
+	return ID & 0xFF;
+//	return ID & 0xFFFF;
+}
+
+static __inline__ unsigned int get_terrain_y(unsigned int ID)
+{
+	return ID >> 8;
+//	return ID >> 16;
+}
 /*!
  * \ingroup misc
  * \brief Checks which objects of the bounding-box-tree are in the frustum.
@@ -405,7 +461,7 @@ void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
  * \param ground	Is this a ground object?
  * \callgraph
  */
-void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground);
+void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id);
 
 /*!
  * \ingroup misc
@@ -419,7 +475,7 @@ void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox,
  * \param alpha		Is this an alpha object?
  * \callgraph
  */
-void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha);
+void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int texture_id);
 
 /*!
  * \ingroup misc
@@ -479,7 +535,7 @@ void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, un
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int dynamic);
+void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -494,7 +550,7 @@ void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int dynamic);
+void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int texture_id, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -568,7 +624,7 @@ void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsig
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground);
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit);
 
 /*!
  * \ingroup misc
@@ -674,5 +730,6 @@ void set_all_intersect_update_needed(BBOX_TREE* bbox_tree);
 extern BBOX_TREE* main_bbox_tree;
 extern BBOX_ITEMS* main_bbox_tree_items;
 
+void calculate_reflection_frustum(unsigned int num, float water_height);
 #endif
 #endif

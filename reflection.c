@@ -424,6 +424,8 @@ void display_3d_reflection()
 	float window_ratio;
 #ifndef NEW_FRUSTUM
 	struct near_3d_object * nobj;
+#else
+	unsigned int cur_intersect_type;	
 #endif
 	
 	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
@@ -509,14 +511,17 @@ void display_3d_reflection()
 	glDisableClientState(GL_NORMAL_ARRAY);
 #endif
 #else
-//	draw_tile_map();
-//	display_2d_objects();
+	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
+	draw_tile_map();
+	display_2d_objects();
 	display_objects();
 #ifndef MAP_EDITOR2
 	display_actors(0);
 #endif
-//	display_blended_objects();
+	display_blended_objects();
 #endif
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 	glPopMatrix();
 	reset_material();
 
@@ -530,7 +535,9 @@ void display_3d_reflection()
 #else	
 	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
 	int view_port[4];
-	
+#ifdef NEW_FRUSTUM
+	unsigned int cur_intersect_type;
+#endif
 #ifndef NEW_FRUSTUM
 	if (regenerate_near_objects)
 	{
@@ -556,6 +563,10 @@ void display_3d_reflection()
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
 
 	glNormal3f(0.0f, 0.0f, 1.0f);
+#ifdef NEW_FRUSTUM
+	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
+#endif
 	draw_tile_map();
 	display_2d_objects();
 	display_objects();
@@ -563,6 +574,9 @@ void display_3d_reflection()
 	display_actors(0);
 #endif
 	display_blended_objects();
+#ifdef NEW_FRUSTUM
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+#endif
 
 	glPopMatrix();
 	glDisable(GL_CLIP_PLANE0);
@@ -731,7 +745,7 @@ void blend_reflection_fog()
 void draw_lake_tiles()
 {
 #ifdef	NEW_FRUSTUM
-	unsigned int i, l;
+	unsigned int i, l, start, stop;
 #else
 	int x_start,x_end,y_start,y_end;
 #endif
@@ -877,11 +891,12 @@ void draw_lake_tiles()
 	if(dungeon) water_id = tile_list[231];
 	else water_id = tile_list[0];
 
-	for (i = get_intersect_start(main_bbox_tree, TYPE_NO_REFLECTIV_WATER); i < get_intersect_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-		x = l & 0xFF;
-		y = l >> 8;
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
 		y_scaled = y*3.0f;
 		x_scaled = x*3.0f;
 		if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
@@ -891,11 +906,12 @@ void draw_lake_tiles()
 #ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer)
 	{
-		for (i = get_intersect_start(main_bbox_tree, TYPE_REFLECTIV_WATER); i < get_intersect_stop(main_bbox_tree, TYPE_REFLECTIV_WATER); i++)
+		get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+		for (i = start; i < stop; i++)
 		{
 			l = get_intersect_item_ID(main_bbox_tree, i);
-			x = l & 0xFF;
-			y = l >> 8;
+			x = get_terrain_x(l);
+			y = get_terrain_y(l);
 			y_scaled = y*3.0f;
 			x_scaled = x*3.0f;
 			if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
@@ -906,11 +922,12 @@ void draw_lake_tiles()
 	else
 	{
 #endif
-	for (i = get_intersect_start(main_bbox_tree, TYPE_REFLECTIV_WATER); i < get_intersect_stop(main_bbox_tree, TYPE_REFLECTIV_WATER); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-		x = l & 0xFF;
-		y = l >> 8;
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
 		y_scaled = y*3.0f;
 		x_scaled = x*3.0f;
 		if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);

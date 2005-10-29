@@ -844,11 +844,13 @@ int have_point_sprite=0;
 void display_particles()
 {
 
+#ifndef	NEW_FRUSTUM
 	int i;
+#endif
 	int x,y;
 	GLenum sblend=GL_SRC_ALPHA,dblend=GL_ONE;
 #ifdef	NEW_FRUSTUM
-	unsigned int l;
+	unsigned int i, l, start, stop;
 #endif
 
 	if(!particles_percentage)
@@ -869,7 +871,8 @@ void display_particles()
 	LOCK_PARTICLES_LIST();
 	// Perhaps we should have a depth sort here..?
 #ifdef	NEW_FRUSTUM
-	for (i = get_intersect_start(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i < get_intersect_stop(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_PARTICLE_SYSTEM, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
 #ifdef EXTRA_DEBUG
@@ -1253,7 +1256,7 @@ void update_bag_part_sys(particle_sys *system_id)
 
 void update_particles() {
 #ifdef	NEW_FRUSTUM
-	unsigned int i, l;
+	unsigned int i, l, start, stop;
 #else
 	int i;
 #ifdef ELC
@@ -1300,7 +1303,8 @@ void update_particles() {
 		}
 	}
 	lock_bbox_tree(main_bbox_tree);
-	for (i = get_intersect_start(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i < get_intersect_stop(main_bbox_tree, TYPE_PARTICLE_SYSTEM); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_PARTICLE_SYSTEM, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
 #ifdef EXTRA_DEBUG

@@ -349,7 +349,7 @@ void draw_tile_map()
 #ifndef	NEW_FRUSTUM
 	int x_start,x_end,y_start,y_end;
 #else
-	unsigned int i, l;
+	unsigned int i, l, start, stop;
 #endif
 	int x,y;
 	float x_scaled,y_scaled;
@@ -398,11 +398,12 @@ void draw_tile_map()
 							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
 							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
 #else
-			for (i = get_intersect_start(main_bbox_tree, TYPE_TERRAIN); i < get_intersect_stop(main_bbox_tree, TYPE_TERRAIN); i++)
+			get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
+			for (i = start; i < stop; i++)
 			{
 				l = get_intersect_item_ID(main_bbox_tree, i);
-				x = l & 0xFF;
-				y = l >> 8;
+				x = get_terrain_x(l);
+				y = get_terrain_y(l);
 				y_scaled = y*3.0f;
 				x_scaled = x*3.0f;
 #endif
@@ -440,11 +441,12 @@ void draw_tile_map()
 						{
 							x_scaled=x*3.0f;
 #else
-			for (i = get_intersect_start(main_bbox_tree, TYPE_TERRAIN); i < get_intersect_stop(main_bbox_tree, TYPE_TERRAIN); i++)
+			get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
+			for (i = start; i < stop; i++)
 			{
 				l = get_intersect_item_ID(main_bbox_tree, i);
-				x = l & 0xFF;
-				y = l >> 8;
+				x = get_terrain_x(l);
+				y = get_terrain_y(l);
 				y_scaled = y*3.0f;
 				x_scaled = x*3.0f;
 #endif

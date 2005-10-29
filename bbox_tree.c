@@ -7,7 +7,6 @@
 #ifndef	BSD
 #include <malloc.h>
 #endif
-#include <string.h>
 
 void set_all_intersect_update_needed(BBOX_TREE* bbox_tree)
 {
@@ -492,8 +491,8 @@ static __inline__ void build_area_table(BBOX_TREE *bbox_tree, unsigned int a, un
 		dir = -1;
 	}
 
-	Make_Vector3(bmin, BOUND_HUGE);
-	Make_Vector3(bmax, -BOUND_HUGE);
+	VFill(bmin, BOUND_HUGE);
+	VFill(bmax, -BOUND_HUGE);
 
 	for (i = a; i != (b + dir); i += dir)
 	{
@@ -511,8 +510,8 @@ static __inline__ void find_axis(BBOX_TREE *bbox_tree, unsigned int first, unsig
 	VECTOR3 bmin, bmax;
 	float d, e;
 
-	Make_Vector3(bmin, BOUND_HUGE);
-	Make_Vector3(bmax, -BOUND_HUGE);
+	VFill(bmin, BOUND_HUGE);
+	VFill(bmax, -BOUND_HUGE);
 
 	for (i = first; i < last; i++)
 	{
@@ -564,8 +563,8 @@ static __inline__ void calc_bbox(AABBOX *bbox, BBOX_TREE *bbox_tree, unsigned in
 	int i;
 	VECTOR3 bmin, bmax;
 
-	Make_Vector3(bmin, BOUND_HUGE);
-	Make_Vector3(bmax, -BOUND_HUGE);
+	VFill(bmin, BOUND_HUGE);
+	VFill(bmax, -BOUND_HUGE);
 
 	for (i = first; i < last; i++)
 	{
@@ -712,23 +711,40 @@ void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox)
 	add_aabb_to_list(bbox_items, bbox, ID, TYPE_LIGHT, 0);
 }
 
-static __inline__ unsigned int get_3D_type(unsigned int blend, unsigned int ground)
+static __inline__ unsigned int get_3D_type(unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit)
 {
-	if (blend)
+	unsigned int type;
+
+	type = 0;
+	if (!blend) type += 8;
+	if (!ground) type += 4;
+	if (!alpha) type += 2;
+	if (!self_lit) type += 1;
+
+	switch (type)
 	{
-		if (ground) return TYPE_3D_BLEND_GROUND_OBJECT;
-		else return TYPE_3D_BLEND_NO_GROUND_OBJECT;
-	}
-	else
-	{
-		if (ground) return TYPE_3D_NO_BLEND_GROUND_OBJECT;
-		else return TYPE_3D_NO_BLEND_NO_GROUND_OBJECT;
+		case 0: return TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT;
+		case 1: return TYPE_3D_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT;
+		case 2: return TYPE_3D_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT;
+		case 3: return TYPE_3D_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT;
+		case 4: return TYPE_3D_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT;
+		case 5: return TYPE_3D_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT;
+		case 6: return TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT;
+		case 7: return TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT;
+		case 8: return TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT;
+		case 9: return TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT;
+		case 10: return TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT;
+		case 11: return TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT;
+		case 12: return TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT;
+		case 13: return TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT;
+		case 14: return TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT;
+		case 15: return TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT;
 	}
 }
 
-void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground)
+void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id)
 {
-	add_aabb_to_list(bbox_items, bbox, ID, get_3D_type(blend, ground), 0);
+	add_aabb_to_list(bbox_items, bbox, ID, get_3D_type(blend, ground, alpha, self_lit), texture_id);
 }
 
 static __inline__ unsigned int get_2D_type(unsigned int alpha)
@@ -737,9 +753,9 @@ static __inline__ unsigned int get_2D_type(unsigned int alpha)
 	else return TYPE_2D_ALPHA_OBJECT;
 }
 
-void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha)
+void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int texture_id)
 {
-	add_aabb_to_list(bbox_items, bbox, ID, get_2D_type(alpha), 0);
+	add_aabb_to_list(bbox_items, bbox, ID, get_2D_type(alpha), texture_id);
 }
 
 static __inline__ unsigned int get_blend_type(unsigned int blend)
@@ -925,14 +941,14 @@ void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsig
 	add_aabb_to_abt(bbox_tree, bbox, ID, TYPE_LIGHT, 0, dynamic);
 }
 
-void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int dynamic)
+void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, unsigned int dynamic)
 {
-	add_aabb_to_abt(bbox_tree, bbox, ID, get_3D_type(blend, ground), 0, dynamic);
+	add_aabb_to_abt(bbox_tree, bbox, ID, get_3D_type(blend, ground, alpha, self_lit), texture_id, dynamic);
 }
 
-void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int dynamic)
+void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int texture_id, unsigned int dynamic)
 {
-	add_aabb_to_abt(bbox_tree, bbox, ID, get_2D_type(alpha), 0, dynamic);
+	add_aabb_to_abt(bbox_tree, bbox, ID, get_2D_type(alpha), texture_id, dynamic);
 }
 
 void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend, unsigned int dynamic)
@@ -1075,8 +1091,8 @@ static __inline__ void delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, BBOX_
 			}
 			else
 			{
-				Make_Vector3(new_bbox.bbmin, BOUND_HUGE);
-				Make_Vector3(new_bbox.bbmax, -BOUND_HUGE);
+				VFill(new_bbox.bbmin, BOUND_HUGE);
+				VFill(new_bbox.bbmax, -BOUND_HUGE);
 			
 				for (i = 0; i < node->items_count; i++)
 				{
@@ -1134,9 +1150,9 @@ static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int I
 	}
 }
 
-void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground)
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit)
 {
-	delete_aabb_from_abt(bbox_tree, ID, get_3D_type(blend, ground));
+	delete_aabb_from_abt(bbox_tree, ID, get_3D_type(blend, ground, alpha, self_lit));
 }
 
 void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha)
@@ -1305,7 +1321,7 @@ BBOX_TREE* build_bbox_tree()
 
 	bbox_tree = (BBOX_TREE*)malloc(sizeof(BBOX_TREE));
 	
-	bbox_tree->cur_intersect_type = ITERSECTION_TYPES_DEFAULT;
+	bbox_tree->cur_intersect_type = ITERSECTION_TYPE_DEFAULT;
 	for (i = 0; i < MAX_ITERSECTION_TYPES; i++)
 	{
 		bbox_tree->intersect[i].size = 8;

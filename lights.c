@@ -164,7 +164,7 @@ void enable_local_lights()
 void draw_lights()
 {
 #ifdef	NEW_FRUSTUM
-	unsigned int i, j, l;
+	unsigned int i, j, l, start, stop;
 	float vec4[0];
 #else
 	GLfloat spot_direction[] = { -0.0, -0.0, -0.0f };
@@ -218,7 +218,8 @@ void draw_lights()
 #else	
 	j = 0;
 	
-	for (i = get_intersect_start(main_bbox_tree, TYPE_LIGHT); i < get_intersect_stop(main_bbox_tree, TYPE_LIGHT); i++)
+	get_intersect_start_stop(main_bbox_tree, TYPE_LIGHT, &start, &stop);
+	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
 #ifdef EXTRA_DEBUG
@@ -574,7 +575,10 @@ void update_scene_lights()
 				}
 		}
 #else
-	show_lights = min2i(6, get_intersect_stop(main_bbox_tree, TYPE_LIGHT) - get_intersect_start(main_bbox_tree, TYPE_LIGHT) -1);
+	unsigned int start, stop;
+
+	get_intersect_start_stop(main_bbox_tree, TYPE_LIGHT, &start, &stop);
+	show_lights = min2i(6, stop - start -1);
 #endif
 }
 

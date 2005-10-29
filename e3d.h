@@ -6,6 +6,9 @@
 #ifndef __E3D_H__
 #define __E3D_H__
 
+#ifdef	NEW_FRUSTUM
+#include "vmath.h"
+#endif
 /*!
  * \name    3D objects array sizes
  */
@@ -252,7 +255,10 @@ typedef struct
    float x_rot; /*!< x coordinate of the rotation */
    float y_rot; /*!< y coordinate of the rotation */
    float z_rot; /*!< z coordinate of the rotation */
-
+#ifdef	NEW_FRUSTUM
+   MATRIX4x4 matrix; /*!< translation and rotaion matrix */
+#endif
+   
    char self_lit; /*!< flag determining whether this object is self lit or not. Self lit objects contains their own lighs. */
    char blended; /*!< flag determining whether the object is blended with some other objects. */
    char display; /*!< flag determining whether the object is to be shown on screen. */

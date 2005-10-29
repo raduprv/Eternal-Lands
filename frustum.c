@@ -82,7 +82,155 @@ void NormalizePlane(float frustum[6][4], int side)
 	frustum[side][D] /= magnitude;
 }
 
+#ifdef	NEW_FRUSTUM
+static __inline__ void normalize_plane(VECTOR4 plane)
+{
+	// Here we calculate the magnitude of the normal to the plane (point A B C)
+	// Remember that (A, B, C) is that same thing as the normal's (X, Y, Z).
+	// To calculate magnitude you use the equation:  magnitude = sqrt( x^2 + y^2 + z^2)
+	float magnitude;
+	
+	magnitude = sqrt(plane[A]*plane[A] + plane[B]*plane[B] + plane[C]*plane[C]);
 
+	// Then we divide the plane's values by it's magnitude.
+	// This makes it easier to work with.
+	plane[A] /= magnitude;
+	plane[B] /= magnitude;
+	plane[C] /= magnitude;
+	plane[D] /= magnitude;
+}
+
+static __inline__ void calculate_frustum_from_clip_matrix(FRUSTUM frustum, MATRIX4x4 clip)
+{
+	frustum[RIGHT].plane[A] = clip[ 3] - clip[ 0];
+	frustum[RIGHT].plane[B] = clip[ 7] - clip[ 4];
+	frustum[RIGHT].plane[C] = clip[11] - clip[ 8];
+	frustum[RIGHT].plane[D] = clip[15] - clip[12];
+
+	// This will extract the LEFT side of the frustum
+	frustum[LEFT].plane[A] = clip[ 3] + clip[ 0];
+	frustum[LEFT].plane[B] = clip[ 7] + clip[ 4];
+	frustum[LEFT].plane[C] = clip[11] + clip[ 8];
+	frustum[LEFT].plane[D] = clip[15] + clip[12];
+
+	// This will extract the BOTTOM side of the frustum
+	frustum[BOTTOM].plane[A] = clip[ 3] + clip[ 1];
+	frustum[BOTTOM].plane[B] = clip[ 7] + clip[ 5];
+	frustum[BOTTOM].plane[C] = clip[11] + clip[ 9];
+	frustum[BOTTOM].plane[D] = clip[15] + clip[13];
+
+	// This will extract the TOP side of the frustum
+	frustum[TOP].plane[A] = clip[ 3] - clip[ 1];
+	frustum[TOP].plane[B] = clip[ 7] - clip[ 5];
+	frustum[TOP].plane[C] = clip[11] - clip[ 9];
+	frustum[TOP].plane[D] = clip[15] - clip[13];
+
+	// This will extract the BACK side of the frustum
+	frustum[BACK].plane[A] = clip[ 3] - clip[ 2];
+	frustum[BACK].plane[B] = clip[ 7] - clip[ 6];
+	frustum[BACK].plane[C] = clip[11] - clip[10];
+	frustum[BACK].plane[D] = clip[15] - clip[14];
+
+	// This will extract the FRONT side of the frustum
+	frustum[FRONT].plane[A] = clip[ 3] + clip[ 2];
+	frustum[FRONT].plane[B] = clip[ 7] + clip[ 6];
+	frustum[FRONT].plane[C] = clip[11] + clip[10];
+	frustum[FRONT].plane[D] = clip[15] + clip[14];
+
+	// Now that we have a normal (A,B,C) and a distance (D) to the plane,
+	// we want to normalize that normal and distance.
+
+	// Normalize the RIGHT side
+	normalize_plane(frustum[RIGHT].plane);
+
+	// Normalize the LEFT side
+	normalize_plane(frustum[LEFT].plane);
+
+	// Normalize the BOTTOM side
+	normalize_plane(frustum[BOTTOM].plane);
+
+	// Normalize the TOP side
+	normalize_plane(frustum[TOP].plane);
+
+	// Normalize the BACK side
+	normalize_plane(frustum[BACK].plane);
+
+	// Normalize the FRONT side
+	normalize_plane(frustum[FRONT].plane);
+	
+	frustum[RIGHT].mask[0] = frustum[RIGHT].plane[A] < 0.0f ? 0 : 1;
+	frustum[RIGHT].mask[1] = frustum[RIGHT].plane[B] < 0.0f ? 0 : 1;
+	frustum[RIGHT].mask[2] = frustum[RIGHT].plane[C] < 0.0f ? 0 : 1;
+	frustum[LEFT].mask[0] = frustum[LEFT].plane[A] < 0.0f ? 0 : 1;
+	frustum[LEFT].mask[1] = frustum[LEFT].plane[B] < 0.0f ? 0 : 1;
+	frustum[LEFT].mask[2] = frustum[LEFT].plane[C] < 0.0f ? 0 : 1;
+	frustum[BOTTOM].mask[0] = frustum[BOTTOM].plane[A] < 0.0f ? 0 : 1;
+	frustum[BOTTOM].mask[1] = frustum[BOTTOM].plane[B] < 0.0f ? 0 : 1;
+	frustum[BOTTOM].mask[2] = frustum[BOTTOM].plane[C] < 0.0f ? 0 : 1;
+	frustum[TOP].mask[0] = frustum[TOP].plane[A] < 0.0f ? 0 : 1;
+	frustum[TOP].mask[1] = frustum[TOP].plane[B] < 0.0f ? 0 : 1;
+	frustum[TOP].mask[2] = frustum[TOP].plane[C] < 0.0f ? 0 : 1;
+	frustum[BACK].mask[0] = frustum[BACK].plane[A] < 0.0f ? 0 : 1;
+	frustum[BACK].mask[1] = frustum[BACK].plane[B] < 0.0f ? 0 : 1;
+	frustum[BACK].mask[2] = frustum[BACK].plane[C] < 0.0f ? 0 : 1;
+	frustum[FRONT].mask[0] = frustum[FRONT].plane[A] < 0.0f ? 0 : 1;
+	frustum[FRONT].mask[1] = frustum[FRONT].plane[B] < 0.0f ? 0 : 1;
+	frustum[FRONT].mask[2] = frustum[FRONT].plane[C] < 0.0f ? 0 : 1;
+}
+
+void calculate_reflection_frustum(unsigned int num, float water_height)
+{
+	FRUSTUM frustum;
+	MATRIX4x4 proj;
+	MATRIX4x4 modl;
+	MATRIX4x4 clip;
+	unsigned int cur_intersect_type;
+
+
+	glGetFloatv(GL_PROJECTION_MATRIX, proj);
+
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, water_height);
+	glScalef(1.0f, 1.0f, -1.0f);
+	glTranslatef(0.0f, 0.0f, -water_height);
+	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
+	glPopMatrix();
+	glPushMatrix();
+	glLoadIdentity();
+	glScalef(0.95f, 0.95f, 0.95f);
+	glMultMatrixf(modl);
+	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
+	glPopMatrix();
+	
+	clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
+	clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
+	clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
+	clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
+
+	clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
+	clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
+	clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
+	clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
+
+	clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
+	clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
+	clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
+	clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
+
+	clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
+	clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
+	clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
+	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
+		
+	calculate_frustum_from_clip_matrix(frustum, clip);
+	
+	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
+	check_bbox_tree(main_bbox_tree, &frustum);
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+}
+
+#endif
 ///////////////////////////////// CALCULATE FRUSTUM \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 /////
 /////	This extracts our frustum from the projection and modelview matrix.
@@ -91,9 +239,15 @@ void NormalizePlane(float frustum[6][4], int side)
 
 void CalculateFrustum()
 {
+#ifdef	NEW_FRUSTUM
+	MATRIX4x4 proj;								// This will hold our projection matrix
+	MATRIX4x4 modl;								// This will hold our modelview matrix
+	MATRIX4x4 clip;								// This will hold the clipping planes
+#else
 	float   proj[16];								// This will hold our projection matrix
 	float   modl[16];								// This will hold our modelview matrix
 	float   clip[16];								// This will hold the clipping planes
+#endif
 
 	// glGetFloatv() is used to extract information about our OpenGL world.
 	// Below, we pass in GL_PROJECTION_MATRIX to abstract our projection matrix.
@@ -103,6 +257,14 @@ void CalculateFrustum()
 	// By passing in GL_MODELVIEW_MATRIX, we can abstract our model view matrix.
 	// This also stores it in an array of [16].
 	glGetFloatv( GL_MODELVIEW_MATRIX, modl );
+#ifdef	NEW_FRUSTUM
+	glPushMatrix();
+	glLoadIdentity();
+	glScalef(0.95f, 0.95f, 0.95f);
+	glMultMatrixf(modl);
+	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
+	glPopMatrix();
+#endif
 
 	// Now that we have our modelview and projection matrix, if we combine these 2 matrices,
 	// it will give us our clipping planes.  To combine 2 matrices, we multiply them.
@@ -187,30 +349,7 @@ void CalculateFrustum()
 	// Normalize the FRONT side
 	NormalizePlane(m_Frustum, FRONT);
 #ifdef	NEW_FRUSTUM
-	memcpy(main_frustum[RIGHT].plane, m_Frustum[RIGHT], sizeof(VECTOR4));
-	main_frustum[RIGHT].mask[0] = m_Frustum[RIGHT][A] < 0.0f ? 0 : 1;
-	main_frustum[RIGHT].mask[1] = m_Frustum[RIGHT][B] < 0.0f ? 0 : 1;
-	main_frustum[RIGHT].mask[2] = m_Frustum[RIGHT][C] < 0.0f ? 0 : 1;
-	memcpy(main_frustum[LEFT].plane, m_Frustum[LEFT], sizeof(VECTOR4));
-	main_frustum[LEFT].mask[0] = m_Frustum[LEFT][A] < 0.0f ? 0 : 1;
-	main_frustum[LEFT].mask[1] = m_Frustum[LEFT][B] < 0.0f ? 0 : 1;
-	main_frustum[LEFT].mask[2] = m_Frustum[LEFT][C] < 0.0f ? 0 : 1;
-	memcpy(main_frustum[BOTTOM].plane, m_Frustum[BOTTOM], sizeof(VECTOR4));
-	main_frustum[BOTTOM].mask[0] = m_Frustum[BOTTOM][A] < 0.0f ? 0 : 1;
-	main_frustum[BOTTOM].mask[1] = m_Frustum[BOTTOM][B] < 0.0f ? 0 : 1;
-	main_frustum[BOTTOM].mask[2] = m_Frustum[BOTTOM][C] < 0.0f ? 0 : 1;
-	memcpy(main_frustum[TOP].plane, m_Frustum[TOP], sizeof(VECTOR4));
-	main_frustum[TOP].mask[0] = m_Frustum[TOP][A] < 0.0f ? 0 : 1;
-	main_frustum[TOP].mask[1] = m_Frustum[TOP][B] < 0.0f ? 0 : 1;
-	main_frustum[TOP].mask[2] = m_Frustum[TOP][C] < 0.0f ? 0 : 1;
-	memcpy(main_frustum[BACK].plane, m_Frustum[BACK], sizeof(VECTOR4));
-	main_frustum[BACK].mask[0] = m_Frustum[BACK][A] < 0.0f ? 0 : 1;
-	main_frustum[BACK].mask[1] = m_Frustum[BACK][B] < 0.0f ? 0 : 1;
-	main_frustum[BACK].mask[2] = m_Frustum[BACK][C] < 0.0f ? 0 : 1;
-	memcpy(main_frustum[FRONT].plane, m_Frustum[FRONT], sizeof(VECTOR4));
-	main_frustum[FRONT].mask[0] = m_Frustum[FRONT][A] < 0.0f ? 0 : 1;
-	main_frustum[FRONT].mask[1] = m_Frustum[FRONT][B] < 0.0f ? 0 : 1;
-	main_frustum[FRONT].mask[2] = m_Frustum[FRONT][C] < 0.0f ? 0 : 1;
+	calculate_frustum_from_clip_matrix(main_frustum, clip);
 	check_bbox_tree(main_bbox_tree, &main_frustum);
 #endif
 }
