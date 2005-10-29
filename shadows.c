@@ -55,8 +55,6 @@ void set_shadow_map_size()
 
 	while(depth_map_width>max)depth_map_width/=2;
 	while(depth_map_height>max)depth_map_height/=2;
-
-
 }
 
 void calc_light_frustum(float light_xrot)
@@ -64,23 +62,27 @@ void calc_light_frustum(float light_xrot)
 	float window_ratio=(GLfloat)window_width/(GLfloat)window_height;
 	float max_height=20.0; //TODO: Really calculate this from positions and heights of objects
 	float x,y;
+	float slight, clight;
+
 	light_xrot=-light_xrot;
+	clight=cos(light_xrot);
+	slight=sin(light_xrot);
 	//TODO: Optimize this function a bit.
 	//Assuming a max zoom_level of 3.75 and near/far distances of 20.0, we'll set the hscale to the radius of a circle that
 	//can just contain the view frustum of the player. To simplify things, we'll assume the view frustum is horizontal.
 	//light_view_hscale=sqrt(window_ratio*window_ratio*3.75f*3.75f+12.0f*12.0f);
 	light_view_hscale=sqrt(window_ratio*window_ratio+14.0f*14.0f);
 	// For the others, we can just use the parametric ellipse formula to find the value for this angle
-	x=light_view_hscale*sin(light_xrot);
-	y=max_height*cos(light_xrot);
+	x=light_view_hscale*slight;
+	y=max_height*clight;
 	light_view_top=sqrt(x*x+y*y);
-	y=3.75f*cos(light_xrot);
+	y=3.75f*clight;
 	light_view_far=sqrt(x*x+y*y);
-	x=light_view_hscale*cos(light_xrot);
-	y=3.75f*sin(light_xrot);
+	x=light_view_hscale*clight;
+	y=3.75f*slight;
 	light_view_bottom=-sqrt(x*x+y*y);
-	x=100.0f*sin(light_xrot);  // A bit better than the real value (infinity)
-	y=max_height*cos(light_xrot);
+	x=100.0f*slight;  // A bit better than the real value (infinity)
+	y=max_height*clight;
 	light_view_near=-sqrt(x*x+y*y);
 }
 
