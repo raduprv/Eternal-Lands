@@ -174,6 +174,7 @@ void calc_shadow_matrix()
 		}
 }
 
+#ifdef  NEW_FRUSTUM
 void draw_3d_object_shadow_detail(object3d * object_id)
 {
 	float x_pos,y_pos,z_pos;
@@ -251,7 +252,6 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 	}
 }
 
-#ifdef  NEW_FRUSTUM
 void draw_3d_object_shadows(unsigned int object_type)
 {
 	unsigned int    start, stop;
