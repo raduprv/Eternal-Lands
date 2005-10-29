@@ -26,12 +26,12 @@ int regenerate_near_objects=1;
 e3d_object *load_e3d (const char *file_name);
 void compute_clouds_map(object3d * object_id);
 
-void draw_3d_object(object3d * object_id)
+void draw_3d_object_detail(object3d * object_id)
 {
 #ifdef	DRAW_BBOX
 	AABBOX bbox;
 #endif
-#ifndef	NEW_FRUSTUM
+#ifndef NEW_FRUSTUM
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 #endif
@@ -44,32 +44,23 @@ void draw_3d_object(object3d * object_id)
 	e3d_array_order *array_order;
 
 	GLuint *vbo;
-
-	int is_transparent;
-	int is_ground;
-
-	//track the usage
-	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
-	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
-	if(!object_id->display) return;	// not currently on the map, ignore it
+	unsigned int is_ground;
 
 	// check for having to load the arrays
 	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order){
 		load_e3d_detail(object_id->e3d_data);
 	}
-	
+
 	array_vertex=object_id->e3d_data->array_vertex;
 	array_normal=object_id->e3d_data->array_normal;
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;
-	
-	vbo=object_id->e3d_data->vbo;
 
-	is_transparent=object_id->e3d_data->is_transparent;
+	vbo=object_id->e3d_data->vbo;
 	is_ground=object_id->e3d_data->is_ground;
 
 	CHECK_GL_ERRORS();
-	if(have_multitexture && (clouds_shadows||use_shadow_mapping)){
+	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
 		if(!object_id->clouds_uv)
 			compute_clouds_map(object_id);
 	}
@@ -83,18 +74,8 @@ void draw_3d_object(object3d * object_id)
 	//debug
 
 	if(object_id->self_lit && (!is_day || dungeon)) {
-		glDisable(GL_LIGHTING);
 		glColor3f(object_id->r,object_id->g,object_id->b);
 	}
-
-	if(is_transparent) {
-		//enable alpha filtering, so we have some alpha key
-		glEnable(GL_ALPHA_TEST);
-		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
-		else glAlphaFunc(GL_GREATER,0.06f);
-		glDisable(GL_CULL_FACE);
-	}
-	
 	CHECK_GL_ERRORS();
 
 	glPushMatrix();//we don't want to affect the rest of the scene
@@ -114,8 +95,8 @@ void draw_3d_object(object3d * object_id)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 #endif
 	CHECK_GL_ERRORS();
-	
-	if(have_multitexture && (clouds_shadows||use_shadow_mapping)){
+
+	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
 		ELglClientActiveTextureARB(detail_unit);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		if(have_vertex_buffers && object_id->cloud_vbo){
@@ -124,19 +105,19 @@ void draw_3d_object(object3d * object_id)
 		} else  glTexCoordPointer(2,GL_FLOAT,0,clouds_uv);
 		ELglClientActiveTextureARB(base_unit);
 	}
-	
+
 	if(have_vertex_buffers && vbo[0] && vbo[2]) {
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[0]);
 		glTexCoordPointer(2,GL_FLOAT,0,0);
-				
+
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[2]);
 		glVertexPointer(3,GL_FLOAT,0,0);
 	} else {
 		glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-		
+
 		glVertexPointer(3,GL_FLOAT,0,array_vertex);
 	}
-			
+
 	if(!is_ground) {
 		if(have_vertex_buffers && vbo[1]){
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[1]);
@@ -145,9 +126,9 @@ void draw_3d_object(object3d * object_id)
 	}
 
 	CHECK_GL_ERRORS();
-		
+
 	materials_no=object_id->e3d_data->materials_no;
-					
+
 	if(have_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);
 	for(i=0;i<materials_no;i++) {
 		get_and_set_texture_id(array_order[i].texture_id);
@@ -162,29 +143,11 @@ void draw_3d_object(object3d * object_id)
 #endif	// DEBUG
 		glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 	}
-			
 	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	
-	if(have_multitexture && (clouds_shadows||use_shadow_mapping)){
-		ELglClientActiveTextureARB(detail_unit);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		ELglClientActiveTextureARB(base_unit);
-	}
-	
+
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
 
-	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
-	if(is_transparent) {
-		glDisable(GL_ALPHA_TEST);
-		glEnable(GL_CULL_FACE);
-	}
-
-	if(have_vertex_buffers){
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	}
-	
-	CHECK_GL_ERRORS();
 #ifdef	DRAW_BBOX
 	bbox.bbmin[X] = object_id->e3d_data->min_x;
 	bbox.bbmax[X] = object_id->e3d_data->max_x;
@@ -194,15 +157,15 @@ void draw_3d_object(object3d * object_id)
 	bbox.bbmax[Z] = object_id->e3d_data->max_z;
 
 	matrix_mul_aabb(&bbox, object_id->matrix);
+	glColor3f(1.0f, 0.0f, 0.0f);
 	glBegin(GL_LINES);
-		glColor3f(0.0f, 0.0f, 1.0f);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
-		
+
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
@@ -212,12 +175,12 @@ void draw_3d_object(object3d * object_id)
 		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
 		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
-		
+
 		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
 		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
-		
+
 		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
 		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
 		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
@@ -226,7 +189,7 @@ void draw_3d_object(object3d * object_id)
 		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
 	glEnd();
 #endif
-	
+
 	//OK, let's check if our mouse is over...
 #ifdef MAP_EDITOR2
 	if (selected_3d_object == -1 && read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, object_id->e3d_data->radius))
@@ -237,6 +200,134 @@ void draw_3d_object(object3d * object_id)
 #endif
 }
 
+void draw_3d_object(object3d * object_id)
+{
+	unsigned int is_transparent;
+	unsigned int is_ground;
+
+	//track the usage
+	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
+	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
+	if(!object_id->display) return;	// not currently on the map, ignore it
+
+	is_transparent=object_id->e3d_data->is_transparent;
+	is_ground=object_id->e3d_data->is_ground;
+
+	CHECK_GL_ERRORS();
+
+	//debug
+
+	if(object_id->self_lit && (!is_day || dungeon)) {
+		glDisable(GL_LIGHTING);
+		glColor3f(object_id->r,object_id->g,object_id->b);
+	}
+
+	if(is_transparent) {
+		//enable alpha filtering, so we have some alpha key
+		glEnable(GL_ALPHA_TEST);
+		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
+		else glAlphaFunc(GL_GREATER,0.06f);
+		glDisable(GL_CULL_FACE);
+	}
+
+	// call the low level routine we share
+	draw_3d_object_detail(object_id);
+
+	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
+	if(is_transparent) {
+		glDisable(GL_ALPHA_TEST);
+		glEnable(GL_CULL_FACE);
+	}
+
+	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
+		ELglClientActiveTextureARB(detail_unit);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		ELglClientActiveTextureARB(base_unit);
+	}
+
+	if(have_vertex_buffers){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
+
+	CHECK_GL_ERRORS();
+}
+
+
+#ifdef  NEW_FRUSTUM
+void draw_3d_objects(unsigned int object_type)
+{
+	unsigned int    start, stop;
+	unsigned int    i, l;
+	int is_selflit, is_transparent, is_ground;
+
+	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
+	// nothing to draw?
+	if(start >= stop){
+		return;
+	}
+	// reduce CPU usage while minimized
+	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
+		// not actually drawing, fake it
+		// now loop through each object
+		for (i=start; i<stop; i++)
+		{
+			l = get_intersect_item_ID(main_bbox_tree, i);
+			//track the usage
+			cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
+		}
+		// and all done
+		return;
+	}
+	
+	// find the modes we need
+    is_selflit= is_self_lit_3d_object(object_type);
+	is_transparent= is_alpha_3d_object(object_type);
+	is_ground= is_ground_3d_object(object_type);
+	// set the modes we need
+	if(is_selflit && (!is_day || dungeon)) {
+		glDisable(GL_LIGHTING);
+	}
+
+	if(is_transparent) {
+		//enable alpha filtering, so we have some alpha key
+		glEnable(GL_ALPHA_TEST);
+		if(is_ground)	glAlphaFunc(GL_GREATER,0.23f);
+		else glAlphaFunc(GL_GREATER,0.06f);
+		glDisable(GL_CULL_FACE);
+	}
+
+	// now loop through each object
+	for (i=start; i<stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		//track the usage
+		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
+		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
+		draw_3d_object_detail(objects_list[l]);
+	}
+
+	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
+		ELglClientActiveTextureARB(detail_unit);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		ELglClientActiveTextureARB(base_unit);
+	}
+
+	if(have_vertex_buffers){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
+	// restore the settings
+	if(is_selflit && (!is_day || dungeon)){
+		glEnable(GL_LIGHTING);
+	}
+	if(is_transparent) {
+		glDisable(GL_ALPHA_TEST);
+		glEnable(GL_CULL_FACE);
+	}
+
+	CHECK_GL_ERRORS();
+}
+#endif  //NEW_FRUSTUM
+
 //Tests to see if an e3d object is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
 e3d_object *load_e3d_cache (const char * file_name)
@@ -246,7 +337,7 @@ e3d_object *load_e3d_cache (const char * file_name)
 	//do we have it already?
 	e3d_id = cache_find_item (cache_e3d, file_name);
 	if (e3d_id != NULL) return e3d_id;
-	
+
 	//e3d not found in the cache, so load it, and store it
 	e3d_id = load_e3d (file_name);
 	if (e3d_id == NULL) return NULL;
@@ -540,8 +631,6 @@ void display_objects()
 	
 	if(regenerate_near_objects||!first_near_3d_object)
 		if(!get_near_3d_objects())return;
-#else
-	unsigned int i, l, start, stop;
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -569,36 +658,15 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
-	
-	glDisableClientState(GL_NORMAL_ARRAY);
 
+	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0,0,1);
-	
+
 #ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
@@ -607,30 +675,10 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -655,8 +703,6 @@ void display_blended_objects()
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 	
 	if(!no_near_blended_3d_objects)return;
-#else
-	unsigned int i, l, start, stop;
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -686,36 +732,16 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
+	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
-	
+
 	glDisableClientState(GL_NORMAL_ARRAY);
 
 	glNormal3f(0,0,1);
-	
+
 #ifndef	NEW_FRUSTUM
 	for(nobj=first_near_blended_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])
@@ -724,32 +750,12 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
+	draw_3d_objects(TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
-	
+
 	CHECK_GL_ERRORS();
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
