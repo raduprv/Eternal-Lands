@@ -602,6 +602,7 @@ void display_actors(int banner)
 			}
 		}
 		
+		glEnable(GL_LIGHTING);
 		glDisable(GL_BLEND);
 	}
 
