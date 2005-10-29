@@ -174,7 +174,7 @@ void calc_shadow_matrix()
 		}
 }
 
-void draw_3d_object_shadow(object3d * object_id)
+void draw_3d_object_shadow_detail(object3d * object_id)
 {
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
@@ -206,13 +206,6 @@ void draw_3d_object_shadow(object3d * object_id)
 
 	is_transparent=object_id->e3d_data->is_transparent;
 	materials_no=object_id->e3d_data->materials_no;
-
-	if(is_transparent)
-		{
-			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-			glAlphaFunc(GL_GREATER,0.05f);
-		}
-	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	if(!use_shadow_mapping)glMultMatrixf(proj_on_ground);
@@ -253,6 +246,43 @@ void draw_3d_object_shadow(object3d * object_id)
 			}
 	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 	glPopMatrix();//restore the scene
+	if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
+}
+
+#ifdef  NEW_FRUSTUM
+void draw_3d_object_shadows(unsigned int object_type)
+{
+	unsigned int    start, stop;
+	unsigned int    i, l;
+	int is_transparent;
+
+	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
+	// nothing to draw?
+	if(start >= stop){
+		return;
+	}
+
+	// find the modes we need
+	is_transparent= is_alpha_3d_object(object_type);
+	if(is_transparent)
+		{
+			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+			glAlphaFunc(GL_GREATER,0.05f);
+		}
+	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
+
+	// now loop through each object
+	for (i=start; i<stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		//track the usage
+		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
+		if(!(SDL_GetAppState()&SDL_APPACTIVE)) continue;	// not actually drawing, fake it
+		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
+		draw_3d_object_shadow_detail(objects_list[l]);
+	}
 
 	if(is_transparent)
 		{
@@ -261,11 +291,38 @@ void draw_3d_object_shadow(object3d * object_id)
 		}
 	else glEnable(GL_TEXTURE_2D);
 
-	if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	}
+	CHECK_GL_ERRORS();
 }
 
+#else   //NEW_FRUSTUM
+
+void draw_3d_object_shadow(object3d * object_id)
+{
+	char is_transparent;
+
+	if(!object_id->display) return;	// not currently on the map, ignore it
+    if(object_id->blended)return;//blended objects can't have shadows
+    //if(object_id->self_lit)return;//light sources can't have shadows
+    if(object_id->e3d_data->min_z>=object_id->e3d_data->max_z)return;//we have a flat object
+
+	is_transparent=object_id->e3d_data->is_transparent;
+	if(is_transparent)
+		{
+			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+			glAlphaFunc(GL_GREATER,0.05f);
+		}
+	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
+
+	draw_3d_object_shadow_detail(object_id);
+	
+	if(is_transparent)
+		{
+			glDisable(GL_ALPHA_TEST);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+	else glEnable(GL_TEXTURE_2D);
+}
+#endif  //NEW_FRUSTUM
 
 #ifndef MAP_EDITOR2
 void draw_enhanced_actor_shadow(actor * actor_id)
@@ -365,8 +422,6 @@ void display_shadows()
 
 	if(regenerate_near_objects)
 		if(!get_near_3d_objects())return;
-#else
-	unsigned int i, l, start, stop;
 #endif
 	
 	glEnable(GL_CULL_FACE);
@@ -389,57 +444,17 @@ void display_shadows()
 		}
 	}
 #else
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		if (objects_list[l]->z_pos>-0.20f) draw_3d_object_shadow(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		if (objects_list[l]->z_pos>-0.20f) draw_3d_object_shadow(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		if (objects_list[l]->z_pos>-0.20f) draw_3d_object_shadow(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		if (objects_list[l]->z_pos>-0.20f) draw_3d_object_shadow(objects_list[l]);
-	}
+	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 
 	if(use_shadow_mapping)
 	{
-		get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-		for (i = start; i < stop; i++)
-		{
-			l = get_intersect_item_ID(main_bbox_tree, i);
-			draw_3d_object_shadow(objects_list[l]);
-		}
-		get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-		for (i = start; i < stop; i++)
-		{
-			l = get_intersect_item_ID(main_bbox_tree, i);
-			draw_3d_object_shadow(objects_list[l]);
-		}
-		get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-		for (i = start; i < stop; i++)
-		{
-			l = get_intersect_item_ID(main_bbox_tree, i);
-			draw_3d_object_shadow(objects_list[l]);
-		}
-		get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-		for (i = start; i < stop; i++)
-		{
-			l = get_intersect_item_ID(main_bbox_tree, i);
-			draw_3d_object_shadow(objects_list[l]);
-		}		
+		draw_3d_object_shadows(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
+		draw_3d_object_shadows(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+		draw_3d_object_shadows(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
+		draw_3d_object_shadows(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 	}
 #endif
 
