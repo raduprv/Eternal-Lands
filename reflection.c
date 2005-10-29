@@ -127,7 +127,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 #endif
 
 
-
+#ifndef NEW_FRUSTUM
 void draw_3d_reflection(object3d * object_id)
 {
 	float x_pos,y_pos,z_pos;
@@ -233,6 +233,7 @@ void draw_3d_reflection(object3d * object_id)
 
 	CHECK_GL_ERRORS();
 }
+#endif  //NEW_FRUSTUM
 
 //if there is any reflecting tile, returns 1, otherwise 0
 int find_reflection()
@@ -521,7 +522,9 @@ void display_3d_reflection()
 #endif
 	display_blended_objects();
 #endif
+#ifdef  NEW_FRUSTUM
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+#endif  //NEW_FRUSTUM
 	glPopMatrix();
 	reset_material();
 
