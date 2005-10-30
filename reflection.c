@@ -514,13 +514,13 @@ void display_3d_reflection()
 #else
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
-	draw_tile_map();
-	display_2d_objects();
+//	draw_tile_map();
+//	display_2d_objects();
 	display_objects();
 #ifndef MAP_EDITOR2
 	display_actors(0);
 #endif
-	display_blended_objects();
+//	display_blended_objects();
 #endif
 #ifdef  NEW_FRUSTUM
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
@@ -570,13 +570,13 @@ void display_3d_reflection()
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
 #endif
-	draw_tile_map();
-	display_2d_objects();
+//	draw_tile_map();
+//	display_2d_objects();
 	display_objects();
 #ifndef MAP_EDITOR2
 	display_actors(0);
 #endif
-	display_blended_objects();
+//	display_blended_objects();
 #ifdef NEW_FRUSTUM
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 #endif

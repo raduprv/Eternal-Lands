@@ -244,24 +244,18 @@ static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub
 static __inline__ int light_depht_comp(BBOX_ITEM_DATA* a, BBOX_ITEM_DATA* b)
 {
 	unsigned int ai, bi;
-	float x, y, ax, ay, az, bx, by, bz, ad, bd;
+	float ax, ay, az, bx, by, bz, ad, bd;
 
 	ai = a->ID;
 	bi = b->ID;
 
 	if ((lights_list[ai] == NULL) || (lights_list[bi] == NULL)) return 0;
 	
-	x = cx / 3.0f;
-	y = cy / 3.0f;
-	
-	if (cx < 0.0f) x = -x;
-	if (cy < 0.0f) y = -y;
-	
-	ax = lights_list[ai]->pos_x -x;
-	ay = lights_list[ai]->pos_y -y;
+	ax = lights_list[ai]->pos_x + cx;
+	ay = lights_list[ai]->pos_y + cy;
 	az = lights_list[ai]->pos_z;
-	bx = lights_list[bi]->pos_x -x;
-	by = lights_list[bi]->pos_y -y;
+	bx = lights_list[bi]->pos_x + cx;
+	by = lights_list[bi]->pos_y + cy;
 	bz = lights_list[bi]->pos_z;
 	ad = ax*ax+ay*ay+az*az;
 	bd = bx*bx+by*by+bz*bz;
