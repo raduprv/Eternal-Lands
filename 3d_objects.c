@@ -200,6 +200,7 @@ void draw_3d_object_detail(object3d * object_id)
 #endif
 }
 
+#ifndef NEW_FRUSTUM
 void draw_3d_object(object3d * object_id)
 {
 	unsigned int is_transparent;
@@ -251,7 +252,7 @@ void draw_3d_object(object3d * object_id)
 
 	CHECK_GL_ERRORS();
 }
-
+#endif  //NEW_FRUSTUM
 
 #ifdef  NEW_FRUSTUM
 void draw_3d_objects(unsigned int object_type)

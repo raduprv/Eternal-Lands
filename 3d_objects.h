@@ -19,6 +19,7 @@ extern struct near_3d_object * first_near_3d_object;
 extern int regenerate_near_objects;
 #endif
 
+#ifndef	NEW_FRUSTUM
 /*!
  * \ingroup 	display_3d
  * \brief 	Draws the 3d object pointed to by object_id
@@ -31,7 +32,6 @@ extern int regenerate_near_objects;
  */
 void draw_3d_object(object3d * object_id);
 
-#ifndef	NEW_FRUSTUM
 /*!
  * \ingroup	display_3d
  * \brief	Generates a tree of the nearest 3d objects
@@ -41,6 +41,16 @@ void draw_3d_object(object3d * object_id);
  * \return	Returns 1 on succes and 0 on failure.
  */
 int get_near_3d_objects();
+#endif
+
+#ifdef  NEW_FRUSTUM
+/*!
+ * \ingroup	display_3d
+ * \brief	Optimized display or a selected 3d object list
+ *
+ * \return	nothing.
+ */
+void draw_3d_objects();
 #endif
 
 /*!
