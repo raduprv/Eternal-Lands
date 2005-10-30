@@ -138,23 +138,23 @@ __inline__ void render_submesh(int meshId, int submeshCount, struct CalRenderer 
 			// get the transformed normals of the submesh
 			CalRenderer_GetNormals(pCalRenderer,&meshNormals[0][0]);
 
-	  	        // get the texture coordinates of the submesh
-       		  	textureCoordinateCount = CalRenderer_GetTextureCoordinates(pCalRenderer,0,&meshTextureCoordinates[0][0]);
+			// get the texture coordinates of the submesh
+			textureCoordinateCount = CalRenderer_GetTextureCoordinates(pCalRenderer,0,&meshTextureCoordinates[0][0]);
 
 			// get the faces of the submesh
-        	  	faceCount = CalRenderer_GetFaces(pCalRenderer, &meshFaces[0][0]);
+			faceCount = CalRenderer_GetFaces(pCalRenderer, &meshFaces[0][0]);
 
-	          	// set the vertex and normal buffers
-	          	glVertexPointer(3, GL_FLOAT, 0, &meshVertices[0][0]);
-	          	glNormalPointer(GL_FLOAT, 0, &meshNormals[0][0]);
+			// set the vertex and normal buffers
+			glVertexPointer(3, GL_FLOAT, 0, &meshVertices[0][0]);
+			glNormalPointer(GL_FLOAT, 0, &meshNormals[0][0]);
  			
 			// draw the submesh
 			glTexCoordPointer(2, GL_FLOAT, 0, &meshTextureCoordinates[0][0]);
 						
 			if(sizeof(CalIndex)==2)
-        			glDrawElements(GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, &meshFaces[0][0]);
-        		else
-            			glDrawElements(GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_INT, &meshFaces[0][0]);
+				glDrawElements(GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, &meshFaces[0][0]);
+			else
+				glDrawElements(GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_INT, &meshFaces[0][0]);
 		}
 	}
 }
@@ -199,9 +199,9 @@ void cal_render_actor(actor *act)
 			// set global OpenGL states
 
 			// will use vertex arrays, so enable them
-			//EnableClientState(GL_VERTEX_ARRAY);
-			//EnableClientState(GL_NORMAL_ARRAY);
-			//EnableClientState(GL_TEXTURE_COORD_ARRAY);
+			//glEnableClientState(GL_VERTEX_ARRAY);
+			//glEnableClientState(GL_NORMAL_ARRAY);
+			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 			// get the number of meshes
 
