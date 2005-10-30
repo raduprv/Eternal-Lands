@@ -165,7 +165,7 @@ void draw_lights()
 {
 #ifdef	NEW_FRUSTUM
 	unsigned int i, j, l, start, stop;
-	float vec4[0];
+	VECTOR4 vec4;
 #else
 	GLfloat spot_direction[] = { -0.0, -0.0, -0.0f };
 #endif
