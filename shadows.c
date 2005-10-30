@@ -174,7 +174,6 @@ void calc_shadow_matrix()
 		}
 }
 
-#ifdef  NEW_FRUSTUM
 void draw_3d_object_shadow_detail(object3d * object_id)
 {
 	float x_pos,y_pos,z_pos;
@@ -252,6 +251,7 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 	}
 }
 
+#ifdef  NEW_FRUSTUM
 void draw_3d_object_shadows(unsigned int object_type)
 {
 	unsigned int    start, stop;
@@ -322,7 +322,7 @@ void draw_3d_object_shadow(object3d * object_id)
 		}
 	else glEnable(GL_TEXTURE_2D);
 }
-#endif  //NEW_FRUSTUM
+#endif   //NEW_FRUSTUM
 
 #ifndef MAP_EDITOR2
 void draw_enhanced_actor_shadow(actor * actor_id)
@@ -473,8 +473,6 @@ void display_3d_ground_objects()
 	struct near_3d_object *nobj;
 
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
-#else
-	unsigned int i, l, start, stop;
 #endif
 
 	glEnable(GL_CULL_FACE);
@@ -500,30 +498,10 @@ void display_3d_ground_objects()
     	        	draw_3d_object(objects_list[nobj->pos]);
     	}
 #else
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 
 	if(have_multitexture && !dungeon && clouds_shadows)
@@ -544,8 +522,6 @@ void display_3d_non_ground_objects()
 	struct near_3d_object * nobj;
 
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
-#else
-	unsigned int i, l, start, stop;
 #endif
 
 	//we don't want to be affected by 2d objects and shadows
@@ -574,30 +550,10 @@ void display_3d_non_ground_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
-	get_intersect_start_stop(main_bbox_tree, TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		draw_3d_object(objects_list[l]);
-	}
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects( TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 
 	if(have_multitexture && !dungeon && clouds_shadows)
