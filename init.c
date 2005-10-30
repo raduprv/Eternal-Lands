@@ -112,9 +112,9 @@ void load_harvestable_list()
 	}
 	while(1)
 	{
-		fscanf(f, "%s", harvestable_objects[i].name);
+		fscanf(f, "%s", harvestable_objects[i]);
 		i++;
-		if(!fgets(strLine, 100, f)) {
+		if(!fgets(strLine, sizeof(strLine), f)) {
 			break;
 		}
 	}
@@ -133,9 +133,9 @@ void load_entrable_list()
 	if(!f)return;
 	while(1)
 		{
-			fscanf(f,"%s",entrable_objects[i].name);
+			fscanf(f,"%s",entrable_objects[i]);
 			i++;
-			if(!fgets(strLine, 100, f))break;
+			if(!fgets(strLine, sizeof(strLine), f))break;
 		}
 	fclose(f);
 }

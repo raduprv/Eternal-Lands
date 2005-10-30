@@ -35,9 +35,9 @@
 #define UNDER_MOUSE_NOTHING 4
 #define UNDER_MOUSE_NO_CHANGE 5
 #ifdef MAP_EDITOR2
-#define UNDER_MOUSE_2D_OBJ 6
-#define UNDER_MOUSE_PARTICLE 7
-#define UNDER_MOUSE_LIGHT 8
+ #define UNDER_MOUSE_2D_OBJ 6
+ #define UNDER_MOUSE_PARTICLE 7
+ #define UNDER_MOUSE_LIGHT 8
 #endif
 /*! @} */
 
@@ -60,20 +60,12 @@ struct cursors_struct
 /*!
  * contains the names of harvestable items
  */
-struct harvest_names_struct
-{
-	char name[80];
-};
-extern struct harvest_names_struct harvestable_objects[300];
+extern char harvestable_objects[300][80];
 
 /*!
  * contains the name of entrable items
  */
-struct enter_names_struct
-{
-	char name[80];
-};
-extern struct enter_names_struct entrable_objects[300];
+extern char entrable_objects[300][80];
 
 /*!
  * \ingroup other

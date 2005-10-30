@@ -419,14 +419,14 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	our_object->id = id;
 
 	our_object->flags = 0;
-	for(i = 0; i < sizeof(harvestable_objects)/sizeof(harvestable_objects[0].name); i++) {
-		if(*harvestable_objects[i].name && strstr(file_name, harvestable_objects[i].name) != NULL) {
+	for(i = 0; i < sizeof(harvestable_objects)/sizeof(harvestable_objects[0]); i++) {
+		if(*harvestable_objects[i] && strstr(file_name, harvestable_objects[i]) != NULL) {
 			our_object->flags |= OBJ_3D_HARVESTABLE;
 			break;
 		}
 	}
-	for(i = 0; i < sizeof(entrable_objects)/sizeof(entrable_objects[0].name); i++) {
-		if(*entrable_objects[i].name && strstr(file_name, entrable_objects[i].name) != NULL) {
+	for(i = 0; i < sizeof(entrable_objects)/sizeof(entrable_objects[0]); i++) {
+		if(*(entrable_objects[i]) && strstr(file_name, entrable_objects[i]) != NULL) {
 			our_object->flags |= OBJ_3D_ENTRABLE;
 			break;
 		}
