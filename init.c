@@ -256,24 +256,21 @@ void read_bin_cfg()
 	manufacture_menu_x=cfg_mem.manufacture_menu_x;
 	manufacture_menu_y=cfg_mem.manufacture_menu_y;
 
-	attrib_menu_x=cfg_mem.attrib_menu_x;
-	attrib_menu_y=cfg_mem.attrib_menu_y;
+	tab_stats_x=cfg_mem.tab_stats_x;
+	tab_stats_y=cfg_mem.tab_stats_y;
 
 	elconfig_menu_x=cfg_mem.elconfig_menu_x;
 	elconfig_menu_y=cfg_mem.elconfig_menu_y;
 
-	knowledge_menu_x=cfg_mem.knowledge_menu_x;
-	knowledge_menu_y=cfg_mem.knowledge_menu_y;
-
-	encyclopedia_menu_x=cfg_mem.encyclopedia_menu_x;
-	encyclopedia_menu_y=cfg_mem.encyclopedia_menu_y;
-
-	questlog_menu_x=cfg_mem.questlog_menu_x;
-	questlog_menu_y=cfg_mem.questlog_menu_y;
+	tab_help_x=cfg_mem.tab_help_x;
+	tab_help_y=cfg_mem.tab_help_y;
 
 	storage_win_x=cfg_mem.storage_win_x;
 	storage_win_y=cfg_mem.storage_win_y;
-	
+
+	buddy_menu_x=cfg_mem.buddy_menu_x;
+	buddy_menu_y=cfg_mem.buddy_menu_y;
+
 	if(quickbar_relocatable>0)
 		{
 			if((quickbar_x=cfg_mem.quickbar_x)>window_width||quickbar_x<=0)quickbar_x=34;
@@ -288,11 +285,10 @@ void read_bin_cfg()
 
 	has_accepted=cfg_mem.has_accepted_rules;
 	
-	cx=cfg_mem.camera_x;
-	cy=cfg_mem.camera_y;
-	cz=cfg_mem.camera_z;
+	rx=cfg_mem.camera_x;
+	ry=cfg_mem.camera_y;
+	rz=cfg_mem.camera_z;
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
-	rz=cfg_mem.camera_angle;
 
 	view_health_bar=cfg_mem.view_health_bar;
 	view_names=cfg_mem.view_names;
@@ -359,6 +355,15 @@ void save_bin_cfg()
 	cfg_mem.questlog_menu_x=questlog_menu_x;
 	cfg_mem.questlog_menu_y=questlog_menu_y;
 */
+
+	if(tab_help_win >= 0) {
+		cfg_mem.tab_help_x=windows_list.window[tab_help_win].cur_x;
+		cfg_mem.tab_help_y=windows_list.window[tab_help_win].cur_y;
+	} else {
+		cfg_mem.tab_help_x=tab_help_x;
+		cfg_mem.tab_help_y=tab_help_y;
+	}
+
 	if(items_win >= 0) {
 		cfg_mem.items_menu_x=windows_list.window[items_win].cur_x;
 		cfg_mem.items_menu_y=windows_list.window[items_win].cur_y;
@@ -423,6 +428,22 @@ void save_bin_cfg()
 		cfg_mem.storage_win_y=storage_win_y;
 	}
 
+	if(tab_stats_win >= 0) {
+		cfg_mem.tab_stats_x=windows_list.window[tab_stats_win].cur_x;
+		cfg_mem.tab_stats_y=windows_list.window[tab_stats_win].cur_y;
+	} else {
+		cfg_mem.tab_stats_x=tab_stats_x;
+		cfg_mem.tab_stats_y=tab_stats_y;
+	}
+
+	if(buddy_win >= 0) {
+		cfg_mem.buddy_menu_x=windows_list.window[buddy_win].cur_x;
+		cfg_mem.buddy_menu_y=windows_list.window[buddy_win].cur_y;
+	} else {
+		cfg_mem.buddy_menu_x=buddy_menu_x;
+		cfg_mem.buddy_menu_y=buddy_menu_y;
+	}
+
 	cfg_mem.view_health_bar=view_health_bar;
 	cfg_mem.view_names=view_names;
 	cfg_mem.view_hp=view_hp;
@@ -445,11 +466,10 @@ void save_bin_cfg()
 
 	cfg_mem.has_accepted_rules=has_accepted;
 	
-	cfg_mem.camera_x=cx;
-	cfg_mem.camera_y=cy;
-	cfg_mem.camera_z=cz;
+	cfg_mem.camera_x=rx;
+	cfg_mem.camera_y=ry;
+	cfg_mem.camera_z=rz;
 	cfg_mem.zoom_level=zoom_level;
-	cfg_mem.camera_angle=rz;
 	
 	for(i=0;i<6;i++){
 		cfg_mem.quantity[i]=quantities.quantity[i].val;

@@ -28,12 +28,18 @@ extern int STATS_TAB_STATS, STATS_TAB_KNOWLEDGE, STATS_TAB_QUESTLOG;
 extern int tab_stats_win; /*!< handler for the stats tabbed window */
 /* @} */
 
+Uint16 tab_stats_x;
+Uint16 tab_stats_y;
+
 extern int tab_stats_collection_id; /*!< pointer to the \see tab_collection for statistics windows */
 
 /*! \name windows handlers 
  * @{ */
 extern int tab_help_win; /*!< handler for the help tabbed window */
 /* @} */
+
+Uint16 tab_help_x;
+Uint16 tab_help_y;
 
 extern int tab_help_collection_id; /*!< pointer to the \see tab_collection for help windows */
 

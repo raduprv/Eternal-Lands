@@ -24,6 +24,9 @@ typedef struct
 extern int buddy_win; /*!< The identifier of the buddy window */
 /*! @} */
 
+int buddy_menu_x;
+int buddy_menu_y;
+
 /*!
  * \ingroup	other
  * \brief	Initiates the buddy list

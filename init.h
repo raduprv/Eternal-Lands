@@ -57,8 +57,8 @@ typedef struct
      * \name Stats window position
      */
     /*! @{ */
-	int attrib_menu_x;
-	int attrib_menu_y;
+	int tab_stats_x;
+	int tab_stats_y;
     /*! @} */
     
     /*!
@@ -78,30 +78,14 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name Knowledge window position
+     * \name Help window position
      */
     /*! @{ */
-	int knowledge_menu_x;
-	int knowledge_menu_y;
+	int tab_help_x;
+	int tab_help_y;
     /*! @} */
-    
-    /*!
-     * \name Encyclopedia window position
-     */
-    /*! @{ */
-	int encyclopedia_menu_x;
-	int encyclopedia_menu_y;
-    /*! @} */
-    
-    /*!
-     * \name Questlog window position
-     */
-    /*! @{ */
-	int questlog_menu_x;
-	int questlog_menu_y;
-    /*! @} */
-    
-    /*!
+
+	/*!
      * \name Quickbar location and flags
      */
     /*! @{ */
@@ -119,6 +103,9 @@ typedef struct
 	int storage_win_x;
 	int storage_win_y;
 
+	int buddy_menu_x;
+	int buddy_menu_y;
+
 	int quantity_selected;
 
 	int view_health_bar;
@@ -126,7 +113,7 @@ typedef struct
 	int view_hp;
 
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[4];
+	int reserved[6];
 
     /*!
      * \name Camera position and attributes
@@ -136,11 +123,10 @@ typedef struct
 	float camera_y;
 	float camera_z;
 	float zoom_level;
-	float camera_angle;
     /*! @} */
     
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
-	float freserved[20];
+	float freserved[21];
 
 }bin_cfg;
 
