@@ -428,8 +428,9 @@ int switch_to_game_map()
 	map_map_file_name[len-2]='m';
 	map_map_file_name[len-1]='p';
 	map_text=load_bmp8_fixed_alpha(map_map_file_name,128);
-	if(!map_text){
-		LOG_TO_CONSOLE(c_yellow2,"There is no map for this place.");
+	if(!map_text)
+	{
+		LOG_TO_CONSOLE(c_yellow2,err_nomap_str);
 		return 0;
 	}
 	

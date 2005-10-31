@@ -127,6 +127,12 @@ char
 	buddy_green_str[10],
 	buddy_blue_str[10],
 	buddy_yellow_str[10],
+	buddy_request_str[10],
+	/* console.c */
+	help_cmd_markpos_str[50],
+	location_info_str[40],
+	marked_str[30],
+	unmarked_str[30],
 	/*draw_scene.c*/
 	low_framerate_str[100],
 	/*gl_init.c*/
@@ -241,7 +247,34 @@ char	name_too_long[75],
 	video_vendor_str[20],
 	opengl_version_str[20],
 	supported_extensions_str[30],
-	logconn_str[50];
+	pm_from_str[10],
+	mod_pm_from_str[15],
+	help_request_str[20],
+	help_cmd_str[10],
+	char_cmd_str[2],
+	char_at_str[2],
+	char_slash_str[2],
+	gm_cmd_str[5],
+	mod_cmd_str[5],
+	bc_cmd_str[5],
+	msg_accept_buddy_str[55],
+	logconn_str[50],
+	cmd_ignores[20],
+	cmd_ignore[20],
+	cmd_unignore[20],
+	cmd_filter[20],
+	cmd_filters[20],
+	cmd_unfilter[20],
+	cmd_glinfo[10],
+	cmd_markpos[20],
+	cmd_mark[20],
+	cmd_unmark[20],
+	cmd_stats[10],
+	cmd_time[10],
+	cmd_date[10],
+	cmd_exit[10],
+	cmd_msg[10],
+	cmd_afk[5];
 #endif
 
 /*! \name Errors */
@@ -269,6 +302,10 @@ char	reg_error_str[15],
 	book_open_err_str[30],
 	/*cache.c*/
 	cache_size_str[20],
+	/* cal.c */
+	no_animation_err_str[30],
+	/* console.c */
+	invalid_location_str[30],
 	/*cursors.c*/
 	cursors_file_str[30],
 	/*dialogues.c*/
@@ -327,6 +364,8 @@ char	reg_error_str[15],
 	load_encyc_str[35],
 	init_display_str[35],
 	prep_op_win_str[35],
+	/* interface;c */
+	err_nomap_str[60],
 	/* map_io.c */
 	load_map_str[35],
 	load_3d_object_str[35],
@@ -347,6 +386,8 @@ char	reg_error_str[15],
 	packet_overrun[50],
 	disconnected_from_server[100],
 	cant_change_map[100],
+	empty_map_str[100],
+	no_nomap_str[150],
 	/*new_actors.c*/
 	error_body_part[30],
 	error_head[15],
@@ -483,7 +524,7 @@ char	win_notepad[20],
 /*! \} */
 
 #ifdef ELC
-#define CONSOLE_STR 4
+#define CONSOLE_STR 5
 #define ERRORS 7
 #define HELP_STR 5
 #define OPTIONS_STR 1
@@ -531,7 +572,7 @@ struct xml_struct load_strings_file(char * filename);
 void init_groups()
 {
 #ifdef ELC
-	console_str=add_xml_group(GROUP,CONSOLE_STR,"filter","ignore","misc","loading_msg");
+	console_str=add_xml_group(GROUP,CONSOLE_STR,"filter","ignore","misc","loading_msg","cmd");
 	errors=add_xml_group(GROUP,ERRORS,"actors","load","misc","particles","snd","video","rules");
 	help_str=add_xml_group(GROUP,HELP_STR,"afk","misc","new","tooltips","buddy");
 	options_str=add_xml_group(DIGROUP,OPTIONS_STR,"options");
@@ -598,7 +639,7 @@ void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name,
 	snprintf (group->statstrings[group->no]->xml_id, sizeof (group->statstrings[group->no]->xml_id), "%s", xml_id);
 	group->statstrings[group->no]->var=var;
 	strncpy(var->name, name, 20);
-	strncpy(var->shortname, shortname, 5);
+	strncpy(var->shortname, shortname, 7);
 	group->no++;
 }
 #endif
@@ -639,6 +680,7 @@ void init_console()
 	group_id * ignore=&(console_str[1]);
 	group_id * misc=&(console_str[2]);
 	group_id * loading_msg=&(console_str[3]);
+	group_id * cmd_grp=&(console_str[4]);
 	
 	add_xml_identifier(ignore,"toolong",name_too_long,"Name too long, the max limit is 15 characters.",sizeof(name_too_long));
 	add_xml_identifier(ignore,"tooshort",name_too_short,"Name too short, only names>=3 characters can be used!",sizeof(name_too_short));
@@ -669,6 +711,8 @@ void init_console()
 	add_xml_identifier(misc,"vendor",video_vendor_str,"Vendor ID",sizeof(video_vendor_str));
 	add_xml_identifier(misc,"ext",supported_extensions_str,"Supported extensions",sizeof(supported_extensions_str));
 	add_xml_identifier(misc,"opengl",opengl_version_str,"OpenGL Version",sizeof(opengl_version_str));
+	add_xml_identifier(misc,"pm_from",pm_from_str,"[PM from",sizeof(pm_from_str));
+	add_xml_identifier(misc,"mod_pm_from",mod_pm_from_str,"[Mod PM from",sizeof(mod_pm_from_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
@@ -699,6 +743,32 @@ void init_console()
 	add_xml_identifier(loading_msg,"load_particles",load_particles_str,"Loading particles",sizeof(load_particles_str));
 	add_xml_identifier(loading_msg,"bld_sectors",bld_sectors_str,"Building sectors",sizeof(bld_sectors_str));
 	add_xml_identifier(loading_msg,"init_done",init_done_str,"Done",sizeof(init_done_str));
+
+	add_xml_identifier(cmd_grp,"help_rq",help_request_str,"#help request",sizeof(help_request_str));
+	add_xml_identifier(cmd_grp,"help_cmd",help_cmd_str,"help",sizeof(help_cmd_str));
+	add_xml_identifier(cmd_grp,"char_cmd",char_cmd_str,"#",sizeof(char_cmd_str));
+	add_xml_identifier(cmd_grp,"char_at",char_at_str,"@",sizeof(char_at_str));
+	add_xml_identifier(cmd_grp,"char_slash",char_slash_str,"/",sizeof(char_slash_str));
+	add_xml_identifier(cmd_grp,"gm_cmd",gm_cmd_str,"#gm",sizeof(gm_cmd_str));
+	add_xml_identifier(cmd_grp,"mod_cmd",mod_cmd_str,"#mod",sizeof(mod_cmd_str));
+	add_xml_identifier(cmd_grp,"bc_cmd",bc_cmd_str,"#bc",sizeof(bc_cmd_str));
+	add_xml_identifier(cmd_grp,"msg_accept_buddy",msg_accept_buddy_str," wants to add you on his buddy list",sizeof(msg_accept_buddy_str));
+	add_xml_identifier(cmd_grp,"filter",cmd_filter,"filter",sizeof(cmd_filter));
+	add_xml_identifier(cmd_grp,"filters",cmd_filters,"filters",sizeof(cmd_filters));
+	add_xml_identifier(cmd_grp,"unfilter",cmd_unfilter,"unfilter",sizeof(cmd_unfilter));
+	add_xml_identifier(cmd_grp,"ignore",cmd_ignore,"ignore",sizeof(cmd_ignore));
+	add_xml_identifier(cmd_grp,"ignores",cmd_ignores,"ignores",sizeof(cmd_ignores));
+	add_xml_identifier(cmd_grp,"unignore",cmd_unignore,"unignore",sizeof(cmd_unignore));
+	add_xml_identifier(cmd_grp,"markpos",cmd_markpos,"markpos",sizeof(cmd_markpos));
+	add_xml_identifier(cmd_grp,"mark",cmd_mark,"mark",sizeof(cmd_mark));
+	add_xml_identifier(cmd_grp,"unmark",cmd_unmark,"unmark",sizeof(cmd_unmark));
+	add_xml_identifier(cmd_grp,"stats",cmd_stats,"stats",sizeof(cmd_stats));
+	add_xml_identifier(cmd_grp,"time",cmd_time,"time",sizeof(cmd_time));
+	add_xml_identifier(cmd_grp,"date",cmd_date,"date",sizeof(cmd_date));
+	add_xml_identifier(cmd_grp,"exit",cmd_exit,"exit",sizeof(cmd_exit));
+	add_xml_identifier(cmd_grp,"msg",cmd_msg,"msg",sizeof(cmd_msg));
+	add_xml_identifier(cmd_grp,"afk",cmd_afk,"afk",sizeof(cmd_afk));
+	add_xml_identifier(cmd_grp,"glinfo",cmd_glinfo,"glinfo",sizeof(cmd_glinfo));
 }
 #endif
 
@@ -777,7 +847,12 @@ void init_errors()
 	add_xml_identifier(misc,"nameinuse",char_name_in_use,"Character name is already taken",sizeof(char_name_in_use));
 	add_xml_identifier(misc,"notabs",must_use_tabs,"You cannot disable tabbed windows with video mode %d, forcing them",sizeof(must_use_tabs));
 	add_xml_identifier (misc, "nomap", cant_change_map, "Unable to switch to map %s!", sizeof(cant_change_map));
+	add_xml_identifier (misc, "emptymap", empty_map_str, "Using an empty map instead.", sizeof(empty_map_str));
+	add_xml_identifier (misc, "nonomap", no_nomap_str, "Fatal error: Couldn't load map ./maps/nomap.elm.\nFix your maps.", sizeof(no_nomap_str));
+	add_xml_identifier (misc, "nobmpmap", err_nomap_str, "There is no map for this place.", sizeof(err_nomap_str));
 	add_xml_identifier (misc, "book_open", book_open_err_str, "Couldn't open the book: %s!", sizeof(book_open_err_str));
+	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
+	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
 #endif
 
 	//Particle errors
@@ -892,6 +967,10 @@ void init_help()
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Rightclick on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"you",you_str,"You",sizeof(you_str));
 	add_xml_identifier(misc,"accept",accept_str,"Accept",sizeof(accept_str));
+	add_xml_identifier(misc,"cmd_markpos",help_cmd_markpos_str,"Usage: #markpos <x-coord>,<y-coord> <name>",sizeof(help_cmd_markpos_str));
+	add_xml_identifier(misc,"location_info",location_info_str,"Location %d,%d marked with %s",sizeof(location_info_str));
+	add_xml_identifier(misc,"marked",marked_str,"%s marked",sizeof(marked_str));
+	add_xml_identifier(misc,"unmarked",unmarked_str,"%s unmarked",sizeof(unmarked_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));
@@ -982,6 +1061,7 @@ void init_help()
 	add_xml_identifier(buddy, "green", buddy_green_str, "Green", sizeof(buddy_green_str));
 	add_xml_identifier(buddy, "blue", buddy_blue_str, "Blue", sizeof(buddy_blue_str));
 	add_xml_identifier(buddy, "yellow", buddy_yellow_str, "Yellow", sizeof(buddy_yellow_str));
+	add_xml_identifier(buddy, "request", buddy_request_str, "Requests", sizeof(buddy_request_str));
 
 }
 #endif
@@ -1330,7 +1410,7 @@ void copy_stats(xmlNode * in, statstring_item * string)
 #endif
 				} else if (!xmlStrcasecmp(cur->name,"shortname")){
 					char *p=string->var->shortname;
-					my_xmlStrncopy(&p, cur->children->content, 5);
+					my_xmlStrncopy(&p, cur->children->content, 7);
 #ifdef WRITE_XML
 					string->var->saved_shortname=1;
 #endif

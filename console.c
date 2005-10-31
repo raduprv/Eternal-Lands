@@ -37,8 +37,10 @@ void test_for_console_command (char *text, int len)
 	int text_length = len;
 	
 	//skip a leading #
-	if(*text_loc=='#')
+//	if(*text_loc=='#')
+	if(*text_loc == '#' || *text_loc==char_cmd_str[0])
 		{
+			text_loc[0]='#';
 			text_loc++;
 			text_length--;
 		}
@@ -55,6 +57,8 @@ void test_for_console_command (char *text, int len)
 			text_length--;
 		}
 	
+	if (text_loc[0] == char_at_str[0]) text_loc[0]='@';
+	
 	// is there a message?
 	if (text_length <= 0 || (text_loc[0] == '@' && text_length <= 1))
 	{
@@ -66,7 +70,7 @@ void test_for_console_command (char *text, int len)
 			clear_display_text_buffer ();
 			return;
 		}
-	else if(my_strncompare(text_loc,"markpos", 7))
+	else if(my_strncompare(text_loc,cmd_markpos, strlen(cmd_markpos)))
 	{
 		if (strlen(text_loc) > 5) //check for empty marks
 		{
@@ -76,37 +80,37 @@ void test_for_console_command (char *text, int len)
 			
 			while (*ptr == ' ') ptr++;
 			if (sscanf(ptr, "%d,%d ", &map_x, &map_y) != 2) {
-				LOG_TO_CONSOLE(c_red2, "Usage: #markpos <x-coord>,<y-coord> <name>");
+				LOG_TO_CONSOLE(c_red2, help_cmd_markpos_str);
 				return;
 			}
 			while (*ptr != ' ' && *ptr) ptr++;
 			while (*ptr == ' ') ptr++;
 			if (!*ptr) {
-				LOG_TO_CONSOLE(c_red2, "Usage: #markpos <x-coord>,<y-coord> <name>");
+				LOG_TO_CONSOLE(c_red2, help_cmd_markpos_str);
 				return;
 			}
 			if (put_mark_on_position(map_x, map_y, ptr)) {
-				snprintf (msg, sizeof(msg),"Location %d,%d marked with %s", map_x, map_y, ptr);
+				snprintf (msg, sizeof(msg), location_info_str, map_x, map_y, ptr);
 				LOG_TO_CONSOLE(c_orange1,msg);
 			} else {
-				snprintf (msg,sizeof(msg),"Invalid location %d,%d", map_x, map_y);
+				snprintf (msg,sizeof(msg), invalid_location_str, map_x, map_y);
 				LOG_TO_CONSOLE(c_red2,msg);
 			}
 		}
 		return;		
 	}
-	else if(my_strncompare(text_loc,"mark", 4))
+	else if(my_strncompare(text_loc, cmd_mark, strlen(cmd_mark)))
 	{
-		if (strlen(text_loc) > 5) //check for empty marks
+		if (strlen(text_loc) > strlen(cmd_mark)+1) //check for empty marks
 		{
 			char str[520];
-			put_mark_on_current_position(text_loc+5);
-			snprintf (str, sizeof(str),"%s marked", text_loc+5);
+			put_mark_on_current_position(text_loc+strlen(cmd_mark)+1);
+			snprintf (str, sizeof(str), marked_str, text_loc+strlen(cmd_mark)+1);
 			LOG_TO_CONSOLE(c_orange1,str);
 		}
 		return;		
 	}
-	else if (my_strncompare(text_loc,"unmark",6))
+	else if (my_strncompare(text_loc, cmd_unmark,strlen(cmd_unmark)))
 	{
 		int i;
 		while (!isspace(*text_loc))
@@ -121,7 +125,7 @@ void test_for_console_command (char *text, int len)
 				char str[520];
 				marks[i].x = marks[i].y = -1;
 				save_markings();
-				snprintf(str,sizeof(str),"%s removed", marks[i].text);
+				snprintf(str,sizeof(str), unmarked_str, marks[i].text);
 				LOG_TO_CONSOLE(c_orange1,str);
 				break;
 			}
@@ -129,7 +133,7 @@ void test_for_console_command (char *text, int len)
 		return;
 	}
 	//stats ?
-	else if(my_strcompare(text_loc,"stats"))
+	else if(my_strcompare(text_loc,cmd_stats))
 		{
 			unsigned char protocol_name;
 			protocol_name=SERVER_STATS;
@@ -137,7 +141,7 @@ void test_for_console_command (char *text, int len)
 			return;
 		}
 	//time?
-	else if(my_strcompare(text_loc,"time"))
+	else if(my_strcompare(text_loc,cmd_time))
 		{
 			unsigned char protocol_name;
 			protocol_name=GET_TIME;
@@ -155,14 +159,14 @@ void test_for_console_command (char *text, int len)
 		}
 
 	//date?
-	else if(my_strcompare(text_loc,"date"))
+	else if(my_strcompare(text_loc,cmd_date))
 		{
 			unsigned char protocol_name;
 			protocol_name=GET_DATE;
 			my_tcp_send(my_socket,&protocol_name,1);
 			return;
 		}
-	else if(my_strcompare(text_loc,"quit") || my_strcompare(text_loc,"exit"))
+	else if(my_strcompare(text_loc,"quit") || my_strcompare(text_loc,"exit") || my_strcompare(text_loc,cmd_exit))
 		{
 			exit_now=1;
 			return;
@@ -183,21 +187,25 @@ void test_for_console_command (char *text, int len)
 			return;
 		}
 
-	else if(my_strcompare(text_loc,"ignores"))
+	else if(my_strcompare(text_loc,cmd_ignores))
 		{
 			list_ignores();
 			return;
 		}
-	else if(my_strncompare(text_loc,"ignore ", 7))
+	else if(my_strncompare(text_loc,cmd_ignore, strlen(cmd_ignore)))
 		{
 			Uint8 name[16];
 			int i;
 			Uint8 ch='\0';
 			int result;
 
+			while (!isspace(*text_loc))
+				text_loc++;
+			while (isspace(*text_loc))
+				text_loc++;
 			for (i = 0; i < 15; i++)
 			{
-				ch=text_loc[i+7]; // 7 because there is a space after "ignore"
+				ch=text_loc[i]; 
 				if (ch == ' ' || ch == '\0')
 				{
 					ch = '\0';
@@ -244,12 +252,12 @@ void test_for_console_command (char *text, int len)
 			}
 		}
 
-	else if (my_strcompare (text_loc, "filters"))
+	else if (my_strcompare (text_loc, cmd_filters))
 		{
 			list_filters ();
 			return;
 		}
-	else if (my_strncompare(text_loc, "filter ", 7))
+	else if (my_strncompare(text_loc, cmd_filter, strlen(cmd_filter)))
 		{
 			Uint8 name[256];
 			Uint8 str[100];
@@ -257,9 +265,13 @@ void test_for_console_command (char *text, int len)
 			Uint8 ch='\0';
 			int result;
 
+			while (!isspace(*text_loc))
+				text_loc++;
+			while (isspace(*text_loc))
+				text_loc++;
 			for (i = 0; i < sizeof (name) - 1; i++)
 			{
-				ch = text_loc[i+7]; // 7 because there is a space after "filter"
+				ch = text_loc[i];
 				if (ch == '\0') break;
 				name[i] = ch;
 			}
@@ -299,7 +311,7 @@ void test_for_console_command (char *text, int len)
 		}
 
 	////////////////////////
-	else if(my_strncompare(text_loc,"unignore ",9))
+	else if(my_strncompare(text_loc,cmd_unignore, strlen(cmd_unignore)))
 		{
 			Uint8 name[16];
 			Uint8 str[200];
@@ -307,9 +319,13 @@ void test_for_console_command (char *text, int len)
 			Uint8 ch='\0';
 			int result;
 
+			while (!isspace(*text_loc))
+				text_loc++;
+			while (isspace(*text_loc))
+				text_loc++;
 			for (i = 0; i < 15; i++)
 			{
-				ch = text_loc[i+9];//9 because there is a space after "ignore"
+				ch = text_loc[i];
 				if (ch == ' ' || ch == '\0')
 				{
 					ch = '\0';
@@ -345,7 +361,7 @@ void test_for_console_command (char *text, int len)
 				return;
 			}
 		}
-	else if (my_strncompare (text_loc, "unfilter ", 9))
+	else if (my_strncompare (text_loc, cmd_unfilter, strlen(cmd_unfilter)))
 		{
 			Uint8 name[64];
 			Uint8 str[200];
@@ -353,9 +369,13 @@ void test_for_console_command (char *text, int len)
 			Uint8 ch='\0';
 			int result;
 
+			while (!isspace(*text_loc))
+				text_loc++;
+			while (isspace(*text_loc))
+				text_loc++;
 			for (i = 0; i < sizeof (name) - 1; i++)
 			{
-				ch = text_loc[i+9];//9 because there is a space after "filter"
+				ch = text_loc[i];
 				if (ch==' ' || ch=='\0')
 				{
 					ch = '\0';
@@ -393,7 +413,7 @@ void test_for_console_command (char *text, int len)
 		}
 
 
-	else if(my_strcompare(text_loc,"glinfo"))
+	else if(my_strcompare(text_loc,cmd_glinfo))
 		{
 			GLubyte *my_string;
 			Uint8 this_string[8192];
@@ -428,7 +448,7 @@ void test_for_console_command (char *text, int len)
 		}
 
 	// TODO: make this automatic or a better command, m is too short
-	else if(my_strncompare(text_loc,"msg", 3))
+	else if(my_strncompare(text_loc,cmd_msg, strlen(cmd_msg)))
 		{
 			int no;//, m=-1;
 
@@ -443,7 +463,7 @@ void test_for_console_command (char *text, int len)
 			if(no<pm_log.ppl && no>=0)	print_message(no);
 			return;
 		}
-	else if(my_strncompare(text_loc,"afk",3))
+	else if(my_strncompare(text_loc,cmd_afk,strlen(cmd_afk)))
 		{
 			// find first space, then skip any spaces
 			while(*text_loc && !isspace(*text_loc))	text_loc++;
@@ -461,7 +481,7 @@ void test_for_console_command (char *text, int len)
 			return;
 		}
 	
-	else if(my_strncompare(text_loc,"help", 4))
+	else if(my_strncompare(text_loc,help_cmd_str, strlen(help_cmd_str)))
 		{
 			// help can open the Enc!
 			if(auto_open_encyclopedia)

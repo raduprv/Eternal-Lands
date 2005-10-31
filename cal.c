@@ -70,7 +70,7 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 		CalCoreAnimation_Scale(coreanim,act->scale);
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
-		log_error("No Anim: %s\n", fname);
+		log_error(no_animation_err_str, fname);
 	}
 
 	return res;

@@ -513,27 +513,27 @@ void change_to_current_chat_tab(const char *input)
 	int ichan;
 	int itab;
 
-	if(input[0] == '@')
+	if(input[0] == '@' || input[0] == char_at_str[0])
 	{
 		channel = CHAT_CHANNEL1 + current_channel;
 	}
-	else if(my_strncompare(input, "#gm", 3))
+	else if(my_strncompare(input, "#gm", 3) || my_strncompare(input, gm_cmd_str, strlen(gm_cmd_str)))
 	{
 		channel = CHAT_GM;
 	}
-	else if(my_strncompare(input, "#mod", 4))
+	else if(my_strncompare(input, "#mod", 4) || my_strncompare(input, mod_cmd_str, strlen(mod_cmd_str)))
 	{
 		channel = CHAT_MOD;
 	}
-	else if(my_strncompare(input, "#bc", 3))
+	else if(my_strncompare(input, "#bc", 3) || my_strncompare(input, bc_cmd_str, strlen(bc_cmd_str)))
 	{
 		channel = CHAT_SERVER;
 	}
-	else if(input[0] == '/')
+	else if(input[0] == '/' || input[0] == char_slash_str[0])
 	{
 		channel = CHAT_PERSONAL;
 	}
-	else if(input[0] == '#') {
+	else if(input[0] == '#' || input[0] == char_cmd_str[0]) {
 		//We don't want to switch tab on commands.
 		channel = CHAT_ALL;
 	}
@@ -666,7 +666,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 	int input_y = height - input_height - CHAT_WIN_SPACE;
 	int tabcol_height = input_y - 2 * CHAT_WIN_SPACE;
 	int output_height = tabcol_height - CHAT_WIN_TAG_HEIGHT;
-	int line_height = (int) 18*chat_zoom;
+	int line_height = (int) (18.0*chat_zoom);
 	
 	if (output_height < 5*line_height + 2 * CHAT_WIN_SPACE && input_height > 3*line_height + 2 * CHAT_WIN_SPACE)
 	{
@@ -759,12 +759,14 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 				send_input_text_line (msg->data, msg->len);
 			}
 		}
-		else if ( msg->data[0] == '#' || get_show_window (console_root_win) )
+//		else if ( msg->data[0] == '#' || get_show_window (console_root_win) )
+		else if ( msg->data[0] == '#' || msg->data[0] == char_cmd_str[0] || get_show_window (console_root_win) )
 		{
 			test_for_console_command (msg->data, msg->len);
 		}
 		else
 		{
+			if(msg->data[0] == char_at_str[0])msg->data[0]='@';
 			send_input_text_line (msg->data, msg->len);
 		}
 		msg->data[0] = '\0';
@@ -810,7 +812,9 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		int nr_lines;
 	
 		// watch for the '//' shortcut
-		if (tf->cursor == 1 && ch == '/' && msg->data[0] == '/' && last_pm_from[0])
+		if (tf->cursor == 1 && (ch == '/' || ch == char_slash_str[0])
+			&& (msg->data[0] == '/' || msg->data[0]== char_slash_str[0])
+			&& last_pm_from[0])
 		{
 			tf->cursor += put_string_in_buffer (msg, last_pm_from, 1);
 			tf->cursor += put_char_in_buffer (msg, ' ', tf->cursor);
@@ -1227,27 +1231,27 @@ void change_to_current_tab(const char *input)
 	Uint8 channel;
 	int itab;
 
-	if(input[0] == '@')
+	if(input[0] == '@' || input[0] == char_at_str[0])
 	{
 		channel = CHAT_CHANNEL1 + current_channel;
 	}
-	else if(my_strncompare(input, "#gm", 3))
+	else if(my_strncompare(input, "#gm", 3) || my_strncompare(input, gm_cmd_str,strlen(gm_cmd_str)))
 	{
 		channel = CHAT_GM;
 	}
-	else if(my_strncompare(input, "#mod", 4))
+	else if(my_strncompare(input, "#mod", 4) || my_strncompare(input, mod_cmd_str, strlen(mod_cmd_str)))
 	{
 		channel = CHAT_MOD;
 	}
-	else if(my_strncompare(input, "#bc", 3))
+	else if(my_strncompare(input, "#bc", 3) || my_strncompare(input, bc_cmd_str, strlen(bc_cmd_str)))
 	{
 		channel = CHAT_SERVER;
 	}
-	else if(input[0] == '/')
+	else if(input[0] == '/' || input[0]==char_slash_str[0])
 	{
 		channel = CHAT_PERSONAL;
 	}
-	else if(input[0] == '#')
+	else if(input[0] == '#' || input[0] == char_cmd_str[0])
 	{
 		//We don't want to switch tab on commands.
 		channel = CHAT_ALL;

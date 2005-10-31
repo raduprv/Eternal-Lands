@@ -30,7 +30,7 @@ typedef struct
 #ifdef WRITE_XML
 	int saved_name;
 #endif
-	unsigned char shortname[6]; /*!< a short-name for the given name */
+	unsigned char shortname[7]; /*!< a short-name for the given name */
 #ifdef WRITE_XML
 	int saved_shortname;
 #endif

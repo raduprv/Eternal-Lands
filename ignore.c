@@ -118,8 +118,8 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, int type)
 	if (type != 0)
 	{
 		//now find the name portion
-		offset = type == 1 ? 10 : 14;
-		for (i = 0; i < 15 && i+offset < len; i++)
+		offset = (type == 1 ? strlen(pm_from_str) : strlen(mod_pm_from_str))+2;
+		for (i = 0; i < 15 && ((i+offset) < len); i++)
 		{
 			ch = input_text[i+offset];	//skip over the prefix
 			if (ch==':' || ch==' ') break;

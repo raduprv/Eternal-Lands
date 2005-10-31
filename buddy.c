@@ -99,7 +99,7 @@ int display_buddy_handler(window_info *win)
 			glVertex2i(win->len_x-20, 0);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
-		draw_string_zoomed(win->len_x/3+10,1,"Requests",1,0.7);
+		draw_string_zoomed(win->len_x/3+10,1,buddy_request_str,1,0.7);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
 	return 1;

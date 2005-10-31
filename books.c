@@ -507,7 +507,7 @@ void read_local_book (const char *data, int len)
 		if (b == NULL)
 		{
 			char str[200];
-			snprintf (str, sizeof(str), "Could not open: %s", file_name);
+			snprintf (str, sizeof(str), book_open_err_str, file_name);
 			LOG_TO_CONSOLE(c_red1, str);
 			return;
 		}

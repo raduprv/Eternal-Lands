@@ -1305,7 +1305,9 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 	else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
 	{
 		// watch for the '//' shortcut
-		if (input_text_line.len == 1 && ch== '/' && input_text_line.data[0] == '/' && last_pm_from[0])
+		if (input_text_line.len == 1 && (ch== '/' || ch == char_slash_str[0])
+			&& (input_text_line.data[0] == '/' || input_text_line.data[0]== char_slash_str[0])
+			&& last_pm_from[0])
 		{
 			put_string_in_buffer (&input_text_line, last_pm_from, 1);
 			put_char_in_buffer (&input_text_line, ' ', input_text_line.len);
@@ -1330,7 +1332,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 			if ( (check_var (&(input_text_line.data[1]), IN_GAME_VAR) ) < 0)
 				send_input_text_line (input_text_line.data, input_text_line.len);
 		}
-		else if ( input_text_line.data[0] == '#' || get_show_window (console_root_win) )
+		else if ( input_text_line.data[0] == '#' || input_text_line.data[0] == char_cmd_str[0] || get_show_window (console_root_win) )
 		{
 			test_for_console_command (input_text_line.data, input_text_line.len);
 			// also clear the buffer
@@ -1339,6 +1341,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 		}
 		else
 		{
+			if(input_text_line.data[0] == char_at_str[0])input_text_line.data[0]='@';
 			send_input_text_line (input_text_line.data, input_text_line.len);
 		}
 		// also clear the buffer

@@ -132,7 +132,7 @@ void change_map (const char *mapname)
 		char error[255];
 		snprintf(error, sizeof(error), cant_change_map, mapname);
 		LOG_TO_CONSOLE(c_red4, error);
-		LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
+		LOG_TO_CONSOLE(c_red4, empty_map_str);
 		LOG_ERROR(cant_change_map, mapname);
 		load_empty_map();
 	} else {
@@ -156,7 +156,8 @@ void change_map (const char *mapname)
 	weather_light_offset=0;
 	rain_light_offset=0;
 #endif
-	if ( get_show_window (map_root_win) ){
+	if ( get_show_window (map_root_win) )
+	{
 		hide_window(map_root_win);
 		switch_from_game_map ();
 		show_window(game_root_win);
@@ -169,7 +170,7 @@ void change_map (const char *mapname)
 		char error[255];
 		snprintf(error, sizeof(error), cant_change_map, mapname);
 		LOG_TO_CONSOLE(c_red4, error);
-		LOG_TO_CONSOLE(c_red4, "Using an empty map instead.");
+		LOG_TO_CONSOLE(c_red4, empty_map_str);
 		LOG_ERROR(cant_change_map, mapname);
 		load_empty_map();
 	}
@@ -500,7 +501,7 @@ int load_empty_map()
 		locked_to_console = 1;
 		hide_window (game_root_win);
 		show_window (console_root_win);
-		LOG_TO_CONSOLE(c_red4, "Fatal error: Couldn't load map ./maps/nomap.elm.\nFix your maps.");
+		LOG_TO_CONSOLE(c_red4, no_nomap_str);
 		LOG_ERROR(cant_change_map, "./maps/nomap.elm");
 		SDLNet_TCP_Close(my_socket);
 		disconnected = 1;

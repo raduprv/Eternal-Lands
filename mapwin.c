@@ -117,7 +117,8 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 			hide_window (map_root_win);
 			show_window (console_root_win);
 		}
-		else if (ch == SDLK_RETURN && input_text_line.len > 0 && input_text_line.data[0] == '#')
+//		else if (ch == SDLK_RETURN && input_text_line.len > 0 && input_text_line.data[0] == '#')
+		else if (ch == SDLK_RETURN && input_text_line.len > 0 && (input_text_line.data[0] == char_cmd_str[0] || input_text_line.data[0] == '#'))
 		{
 			test_for_console_command (input_text_line.data, input_text_line.len);
 			// also clear the buffer

@@ -168,7 +168,7 @@ void send_input_text_line (char *line, int line_len)
 
 	i=0;
 	j=1;
-	if (line[0] != '/')	//we don't have a PM
+	if (line[0] != '/' && line[0] != char_slash_str[0])	//we don't have a PM
 	{
 		str[0] = RAW_TEXT;
 	}
@@ -210,16 +210,16 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size)
 		if (!IS_COLOR (text_to_add[idx])) break;
 	}
 	l = len - idx;
-	if (l >= 9 && text_to_add[idx] == '#' && (strncasecmp (&text_to_add[idx], "#help request", 9) == 0 || strncasecmp (&text_to_add[idx], "#mod chat", 9) == 0))
+	if (l >= strlen(help_request_str) && text_to_add[idx] == '#' && (strncasecmp (&text_to_add[idx], help_request_str, strlen(help_request_str)) == 0 || strncasecmp (&text_to_add[idx], "#mod chat", 9) == 0))
 	{
 		auto_open_encyclopedia = 0;
 	}
 
 	//check if ignored
 	type = 0;
-	if (len >= 9 && strncasecmp (&text_to_add[1], "[PM from", 8) == 0)
+	if (len >= strlen(pm_from_str) && strncasecmp (&text_to_add[1], pm_from_str, strlen(pm_from_str)) == 0)
 		type = 1;
-	else if (len >= 13 && strncasecmp (&text_to_add[1], "[Mod PM from", 12) == 0)
+	else if (len >= strlen(mod_pm_from_str) && strncasecmp (&text_to_add[1], mod_pm_from_str, strlen(mod_pm_from_str)) == 0)
 		type = 2;
 
 	if (pre_check_if_ignored (text_to_add, len, type))
@@ -260,7 +260,7 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size)
 		{
 			if (text_to_add[l] == ' ') break;
 		}
-		if (len - l >= 35 && strncmp (&text_to_add[l], " wants to add you on his buddy list", 35) == 0 && l <=32)
+		if (len - l >= strlen(msg_accept_buddy_str) && strncmp (&text_to_add[l], msg_accept_buddy_str, strlen(msg_accept_buddy_str)) == 0 && l <=32)
 		{
 			char name[32];
 			int i;
@@ -278,7 +278,7 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size)
 				name[i] = cur_char;
 				if (cur_char == ' ')
 				{
-					name[i] = 0;
+					name[i] = '\0';
 					break;
 				}
 			}
