@@ -39,6 +39,10 @@ GLfloat light_view_bottom=-10.0;
 GLfloat light_view_near=-30.0;
 GLfloat light_view_far=6.0;
 
+extern int e3d_count, e3d_total;    // LRNR:stats testing only
+extern int cur_e3d_count;
+extern e3d_object   *cur_e3d;
+
 int floor_pow2(int n)
 {
 	int ret=1;
@@ -221,34 +225,51 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
-		glVertexPointer(3,GL_FLOAT,0,0);
-	} else  glVertexPointer(3,GL_FLOAT,0,array_vertex);
-
-	if(is_transparent)
-		{
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			if(have_vertex_buffers && object_id->e3d_data->vbo[0]){
-				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
-				glTexCoordPointer(2,GL_FLOAT,0,0);
-			} else glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
+	// watch for a change
+	if(object_id->e3d_data != cur_e3d){
+		if(cur_e3d != NULL){
+           	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
+		if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
+			glVertexPointer(3,GL_FLOAT,0,0);
+		} else  glVertexPointer(3,GL_FLOAT,0,array_vertex);
 
-	if(have_compiled_vertex_array)ELglLockArraysEXT(0,object_id->e3d_data->face_no);
-	for(i=0;i<materials_no;i++)
+		if(is_transparent)
+			{
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				if(have_vertex_buffers && object_id->e3d_data->vbo[0]){
+					ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
+					glTexCoordPointer(2,GL_FLOAT,0,0);
+				} else glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
+			}
+		CHECK_GL_ERRORS();
+		// lock this new one
+		if(have_compiled_vertex_array)ELglLockArraysEXT(0,object_id->e3d_data->face_no);
+		// gather statistics
+		if(object_id->e3d_data != cur_e3d){
+			if(cur_e3d_count > 0 && cur_e3d != NULL){
+				e3d_count++;
+				e3d_total+= cur_e3d_count;
+			}
+			cur_e3d_count= 0;
+			cur_e3d= object_id->e3d_data;
+		}
+	}
+	cur_e3d_count++;
+
+	for(i=0;i<materials_no;i++){
 		if(array_order[i].count>0)
 			{
 				CHECK_GL_ERRORS();
-				if(is_transparent)
+				if(is_transparent){
 					get_and_set_texture_id(array_order[i].texture_id);
+				}
 				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 			}
-	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-	glPopMatrix();//restore the scene
-	if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
+	//if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	glPopMatrix();//restore the scene
 }
 
 #ifdef  NEW_FRUSTUM
@@ -261,6 +282,19 @@ void draw_3d_object_shadows(unsigned int object_type)
 	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
 	// nothing to draw?
 	if(start >= stop){
+		return;
+	}
+	// reduce CPU usage while minimized
+	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
+		// not actually drawing, fake it
+		// now loop through each object
+		for (i=start; i<stop; i++)
+		{
+			l = get_intersect_item_ID(main_bbox_tree, i);
+			//track the usage
+			cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
+		}
+		// and all done
 		return;
 	}
 
@@ -279,11 +313,14 @@ void draw_3d_object_shadows(unsigned int object_type)
 		l = get_intersect_item_ID(main_bbox_tree, i);
 		//track the usage
 		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
-		if(!(SDL_GetAppState()&SDL_APPACTIVE)) continue;	// not actually drawing, fake it
 		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
 		draw_3d_object_shadow_detail(objects_list[l]);
 	}
 
+    if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	if(have_vertex_buffers){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
 	if(is_transparent)
 		{
 			glDisable(GL_ALPHA_TEST);
@@ -315,6 +352,10 @@ void draw_3d_object_shadow(object3d * object_id)
 
 	draw_3d_object_shadow_detail(object_id);
 	
+	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	if(have_vertex_buffers){
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
 	if(is_transparent)
 		{
 			glDisable(GL_ALPHA_TEST);
