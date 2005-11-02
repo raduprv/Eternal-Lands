@@ -875,13 +875,13 @@ void display_particles()
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
 		if (!particles_list[l])
 		{
+#ifdef EXTRA_DEBUG
 			ERR();
+#endif
 			continue;
 		}
-#endif
 		if ((particles_list[l]->def->sblend != sblend) || (particles_list[l]->def->dblend != dblend))
 		{
 			sblend = particles_list[l]->def->sblend;
@@ -1264,8 +1264,9 @@ void update_particles() {
 #endif
 #endif
 	
-	if(!particles_percentage)
-	  return;
+	if(!particles_percentage){
+		return;
+	}
 	LOCK_PARTICLES_LIST();
 #ifdef	NEW_FRUSTUM
 	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
@@ -1307,13 +1308,13 @@ void update_particles() {
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
 		if (!particles_list[l])
 		{
+#ifdef EXTRA_DEBUG
 			ERR();
+#endif
 			continue;
 		}
-#endif
 		if (particles_list[l]->ttl > 0) continue;
 		
 		switch (particles_list[l]->def->part_sys_type)
@@ -1350,8 +1351,9 @@ void update_particles() {
 			// Systems with a TTL need to be updated, even if they are far away
 			// Though, if we're using the map editor we always want to update, otherwise the preview int the
 			// particles window won't update correctly...
-			if(particles_list[i]->ttl<0 && xdist*xdist+ydist*ydist>PART_SYS_VISIBLE_DIST_SQ)
+			if(particles_list[i]->ttl<0 && xdist*xdist+ydist*ydist>PART_SYS_VISIBLE_DIST_SQ){
 				continue;
+			}
 #endif
 			switch(particles_list[i]->def->part_sys_type)
 				{

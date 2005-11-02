@@ -16,6 +16,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 {
 	int	new_time;
 	SDL_Event e;
+	
 //animate_actors();
 	// adjust the timer clock
 	if(my_timer_clock == 0)my_timer_clock=SDL_GetTicks();
@@ -38,14 +39,18 @@ Uint32 my_timer(Uint32 interval, void * data)
 	if(is_raining)update_rain();
 #endif
 	//next_command();
-	e.type= SDL_USEREVENT;
+	//e.type= SDL_USEREVENT;
 	e.user.code= EVENT_ANIMATE_ACTORS;
 	SDL_PushEvent(&e);
 	if(normal_animation_timer>2 && have_a_map)
 		{
 			if(my_timer_adjust > 0) my_timer_adjust--;
 			normal_animation_timer=0;
-    		update_particles();
+    		//update_particles();
+			//e.type= SDL_USEREVENT;
+			e.user.code= EVENT_UPDATE_PARTICLES;
+			SDL_PushEvent(&e);
+
     		next_command();
 
     		move_to_next_frame();

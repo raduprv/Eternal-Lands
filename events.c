@@ -216,6 +216,10 @@ int HandleEvent (SDL_Event *event)
 			{
 				animate_actors();
 			}
+			else if (event->user.code == EVENT_UPDATE_PARTICLES)
+			{
+                update_particles();
+			}
 	}
 
 	return(done);
