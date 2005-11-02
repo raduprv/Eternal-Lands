@@ -286,6 +286,7 @@ int find_reflection()
 #endif
 }
 
+#ifndef NEW_FRUSTUM
 int find_local_reflection(int x_pos,int y_pos,int range)
 {
 	int x_start,x_end,y_start,y_end;
@@ -319,6 +320,7 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 		}
 	return found_water;
 }
+#endif  //NEW_FRUSTUM
 
 #ifdef	USE_FRAMEBUFFER
 static __inline__ int adapt_size(int size)
@@ -408,8 +410,8 @@ static __inline__ void draw_lake_water_tile_framebuffer(float x_pos, float y_pos
 	}
 	glEnd();
 }
-
 #endif
+
 void display_3d_reflection()
 {
 #ifndef	USE_FRAMEBUFFER
@@ -511,7 +513,7 @@ void display_3d_reflection()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 #endif
-#else
+#else   //NEW_FRUSTUM
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
 //	draw_tile_map();
@@ -521,8 +523,6 @@ void display_3d_reflection()
 	display_actors(0);
 #endif
 //	display_blended_objects();
-#endif
-#ifdef  NEW_FRUSTUM
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 #endif  //NEW_FRUSTUM
 	glPopMatrix();
