@@ -6,6 +6,9 @@
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
+#ifdef  DEBUG
+extern int e3d_count, e3d_total;    // LRNR:stats testing only
+#endif  //DEBUG
 
 // This is the main part of the old check_cursor_change ()
 int mouseover_game_handler (window_info *win, int mx, int my)
@@ -743,6 +746,12 @@ int display_game_handler (window_info *win)
 #endif	//DEBUG
 		snprintf (str, sizeof(str), "FPS: %i", fps[0]);
 		draw_string (win->len_x-hud_x-95, 5, str, 1);
+#ifdef DEBUG
+		//LRNR: stats testing
+		snprintf(str, sizeof(str), "E3D:%3d TOT:%3d", e3d_count, e3d_total);
+		draw_string (win->len_x-hud_x-183, 19, str, 1);
+		e3d_count= e3d_total= 0;
+#endif //DEBUG
 	}
 
 	CHECK_GL_ERRORS ();

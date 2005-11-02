@@ -39,8 +39,10 @@ GLfloat light_view_bottom=-10.0;
 GLfloat light_view_near=-30.0;
 GLfloat light_view_far=6.0;
 
+#ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 extern int cur_e3d_count;
+#endif
 extern e3d_object   *cur_e3d;
 
 int floor_pow2(int n)
@@ -248,15 +250,19 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 		if(have_compiled_vertex_array)ELglLockArraysEXT(0,object_id->e3d_data->face_no);
 		// gather statistics
 		if(object_id->e3d_data != cur_e3d){
+#ifdef  DEBUG
 			if(cur_e3d_count > 0 && cur_e3d != NULL){
 				e3d_count++;
 				e3d_total+= cur_e3d_count;
 			}
 			cur_e3d_count= 0;
+#endif  //DEBUG
 			cur_e3d= object_id->e3d_data;
 		}
 	}
+#ifdef  DEBUG
 	cur_e3d_count++;
+#endif  //DEBUG
 
 	for(i=0;i<materials_no;i++){
 		if(array_order[i].count>0)
