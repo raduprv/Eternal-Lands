@@ -156,9 +156,9 @@ extern int disconnected; /*!< indicates whether we are currently connected or no
 extern int exit_now; /*!< a flag that indicates we should exit the programm immediately */
 extern int have_url;
 extern char current_url[160]; /*!< contains the last URL that was opened by hitting F2 */
-#ifndef WINDOWS
+//#ifndef WINDOWS
 extern char browser_name[120]; /*!< a buffer that contains the name of the browser we should use */
-#endif
+//#endif
 
 extern char lang[10]; /*!< contains the identifier for the current language. \todo Shouldn't this go into translate.h? */
 

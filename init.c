@@ -31,9 +31,9 @@ int disconnected=1;
 int exit_now=0;
 int have_url=0;
 char current_url[160];
-#ifndef WINDOWS
+//#ifndef WINDOWS
 char browser_name[120];
-#endif
+//#endif
 int poor_man=0;
 #ifdef ANTI_ALIAS
 int anti_alias=0;
@@ -545,7 +545,7 @@ void init_stuff()
 
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
-	
+
 	init_video();
 
 	//Init the caches here, as the loading window needs them
@@ -557,7 +557,7 @@ void init_stuff()
 	load_font_textures ();
 	CHECK_GL_ERRORS();
 	init_colors();
-	
+
 	// read the continent map info
 	read_mapinfo ();
 
@@ -569,7 +569,7 @@ void init_stuff()
 	create_console_root_window (window_width, window_height);
 	create_map_root_window (window_width, window_height);
 	create_login_root_window (window_width, window_height);
-	
+
 	//create the loading window
 	create_loading_win (window_width, window_height, 0);
 	show_window(loading_win);
@@ -714,7 +714,7 @@ void init_stuff()
 		SDL_Quit();
 		exit(3);
 	}
-	
+
 	//initiate function pointers
 	init_attribf();
 

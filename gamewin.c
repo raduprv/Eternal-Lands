@@ -1124,12 +1124,18 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
 	}
-	#ifdef NOTEPAD
+#ifdef NOTEPAD
 	else if (key == K_NOTEPAD)
 	{
 		view_window (&notepad_win, 0);
 	}
-	#endif
+#endif
+#ifdef  MINIMAP
+	else if(key == K_MINIMAP)
+	{
+		view_window (&minimap_win, 0);
+	}
+#endif  //MINIMAP
 	else if (key == K_SIGILS)
 	{
 		view_window (&sigil_win, -1);

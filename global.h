@@ -154,6 +154,9 @@ typedef int point;
 #ifdef NOTEPAD
 	#include "notepad.h"
 #endif //NOTEPAD
+#ifdef  MINIMAP
+    #include "minimap.h"
+#endif  //MINIMAP
 #include "alphamap.h"
 #include "highlight.h"
 

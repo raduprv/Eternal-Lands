@@ -622,6 +622,9 @@ void view_window(int * window, int id)
 #ifdef NOTEPAD
 			else if(window==&notepad_win) display_notepad();
 #endif
+#ifdef MINIMAP
+			else if(window==&minimap_win) display_minimap();
+#endif
 			else if(window==&storage_win) display_storage_menu();
 			else if(window==&tab_stats_win) display_tab_stats();
 			else if(window==&tab_help_win) display_tab_help();

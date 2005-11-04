@@ -118,7 +118,7 @@ void change_map (const char *mapname)
 #else
 	regenerate_near_objects=1;//Regenerate the near 3d objects...
 	regenerate_near_2d_objects=1;//Regenerate the near 3d objects...
-#endif
+#endif  //NEW_FRUSTUM
 	object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 #ifndef MAP_EDITOR2
 #ifdef EXTRA_DEBUG
@@ -166,6 +166,9 @@ void change_map (const char *mapname)
 #else
 	destroy_all_particles();
 	kill_local_sounds();
+#ifdef  MINIMAP
+    change_minimap();
+#endif  //MINIMAP
 	if (!load_map(mapname)) {
 		char error[255];
 		snprintf(error, sizeof(error), cant_change_map, mapname);
@@ -180,7 +183,7 @@ void change_map (const char *mapname)
 #endif	//NO_MUSIC
 	get_map_playlist();
 	have_a_map=1;
-#endif
+#endif  //MAP_EDITOR2
 }
 
 int load_map (const char * file_name)

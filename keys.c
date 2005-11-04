@@ -26,6 +26,7 @@ Uint32 K_SIGILS=CTRL|'s';
 Uint32 K_MANUFACTURE=CTRL|'m';
 Uint32 K_ITEMS=CTRL|'i';
 Uint32 K_MAP=9;
+Uint32 K_MINIMAP=ALT|'m';
 Uint32 K_ROTATELEFT=276;
 Uint32 K_ROTATERIGHT=275;
 Uint32 K_FROTATELEFT=SHIFT|276;
@@ -138,6 +139,8 @@ void read_key_config()
 		K_ITEMS = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_MAP",file_mem,key_file_size,0))!=-1)
 		K_MAP = parse_key_string(&file_mem[t]);
+    if((t=get_string_occurance("#K_MINIMAP",file_mem,key_file_size,0))!=-1)
+		K_MINIMAP = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ROTATELEFT",file_mem,key_file_size,0))!=-1)
 		K_ROTATELEFT = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ROTATERIGHT",file_mem,key_file_size,0))!=-1)

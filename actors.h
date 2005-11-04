@@ -67,8 +67,8 @@ typedef struct
 {
 #ifdef CUSTOM_LOOK
 	int uniq_id;
-	int guild_id;
 #endif
+	int guild_id;
 
 	int legs_meshindex;
 	int head_meshindex;
