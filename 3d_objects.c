@@ -260,7 +260,8 @@ void draw_3d_object(object3d * object_id)
 	draw_3d_object_detail(object_id);
 
 	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-
+	cur_e3d= NULL;
+	
 	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
 	if(is_transparent) {
 		glDisable(GL_ALPHA_TEST);

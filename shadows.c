@@ -335,6 +335,15 @@ void draw_3d_object_shadows(unsigned int object_type)
 	else glEnable(GL_TEXTURE_2D);
 
 	CHECK_GL_ERRORS();
+#ifdef  DEBUG
+	// final statistics
+	if(cur_e3d_count > 0){
+		e3d_count++;
+		e3d_total+= cur_e3d_count;
+	}
+	cur_e3d_count= 0;
+#endif  //DEBUG
+	cur_e3d= NULL;
 }
 
 #else   //NEW_FRUSTUM
@@ -359,6 +368,7 @@ void draw_3d_object_shadow(object3d * object_id)
 	draw_3d_object_shadow_detail(object_id);
 	
 	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	cur_e3d= NULL;
 	if(have_vertex_buffers){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
