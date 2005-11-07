@@ -423,7 +423,9 @@ void display_3d_reflection()
 	int i;
 #endif
 	int x,y;
-	double water_clipping_p[4]={0,0,-1,water_deepth_offset};
+#ifndef NEW_FRUSTUM
+	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
+#endif
 	float window_ratio;
 #ifndef NEW_FRUSTUM
 	struct near_3d_object * nobj;
@@ -445,8 +447,10 @@ void display_3d_reflection()
 	//glDisable(GL_STENCIL_TEST);
 	//glDisable(GL_DEPTH_TEST);
 	
+#ifndef	NEW_FRUSTUM
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
+#endif
 
 	//glDisable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
@@ -456,12 +460,13 @@ void display_3d_reflection()
 
 	set_material(0.1f,0.2f,0.3f);
 	glPushMatrix();
-#ifdef	NEW_FRUSTUM	
+#ifdef	NEW_FRUSTUM
 	glTranslatef(0.0f, 0.0f, water_deepth_offset);
 #endif
 	glScalef(1.0f, 1.0f, -1.0f);
 #ifdef	NEW_FRUSTUM	
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
+	enable_reflection_clip_planes();
 #endif
 
 #ifndef	NEW_FRUSTUM
@@ -528,7 +533,11 @@ void display_3d_reflection()
 	glPopMatrix();
 	reset_material();
 
+#ifndef	NEW_FRUSTUM
 	glDisable(GL_CLIP_PLANE0);
+#else
+	disable_reflection_clip_planes();
+#endif
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glCullFace(GL_BACK);
@@ -536,7 +545,9 @@ void display_3d_reflection()
 	//glEnable(GL_CULL_FACE);
 	CHECK_GL_ERRORS();
 #else	
+#ifndef NEW_FRUSTUM
 	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
+#endif
 	int view_port[4];
 #ifdef NEW_FRUSTUM
 	unsigned int cur_intersect_type;
@@ -557,13 +568,18 @@ void display_3d_reflection()
 	}
 	
 	glCullFace(GL_FRONT);
+#ifndef	NEW_FRUSTUM
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
+#endif
 	glPushMatrix();	
 
 	glTranslatef(0.0f, 0.0f, water_deepth_offset);
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
+#ifdef	NEW_FRUSTUM	
+	enable_reflection_clip_planes();
+#endif
 
 	glNormal3f(0.0f, 0.0f, 1.0f);
 #ifdef NEW_FRUSTUM
@@ -582,7 +598,11 @@ void display_3d_reflection()
 #endif
 
 	glPopMatrix();
+#ifndef	NEW_FRUSTUM
 	glDisable(GL_CLIP_PLANE0);
+#else
+	disable_reflection_clip_planes();
+#endif
 	glCullFace(GL_BACK);
 	CHECK_GL_ERRORS();
 	reset_material();
@@ -668,8 +688,12 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 #ifndef MAP_EDITOR2
 void blend_reflection_fog()
 {
+#ifndef	NEW_FRUSTUM
 	int x_start,x_end,y_start,y_end;
 	int x,y;
+#else
+	unsigned int i, l, x, y, start, stop;
+#endif
 	float x_scaled,y_scaled;
 	static GLfloat blendColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
 #ifdef NEW_WEATHER
@@ -687,6 +711,7 @@ void blend_reflection_fog()
 	glDisable(GL_LIGHTING);
 	glColor3f(0.0f, 0.0f, 0.0f); 
 
+#ifndef	NEW_FRUSTUM
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
 	if(cx<0)x=(cx*-1)/3;
@@ -734,7 +759,63 @@ void blend_reflection_fog()
 						}
 				}
 		}
+	
+#else
+	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
+		y_scaled = y*3.0f;
+		x_scaled = x*3.0f;
+		glFogfv(GL_FOG_COLOR, blendColor);
+		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+		glBegin(GL_QUADS);
+			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
+			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
+		glEnd();
 
+		// now add the fog by additive blending
+		glFogfv(GL_FOG_COLOR, fogColor);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBegin(GL_QUADS);
+			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
+			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
+		glEnd();
+	}	
+	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
+		y_scaled = y*3.0f;
+		x_scaled = x*3.0f;
+		glFogfv(GL_FOG_COLOR, blendColor);
+		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+		glBegin(GL_QUADS);
+			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
+			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
+		glEnd();
+
+		// now add the fog by additive blending
+		glFogfv(GL_FOG_COLOR, fogColor);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBegin(GL_QUADS);
+			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
+			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
+		glEnd();
+	}	
+#endif
 	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);

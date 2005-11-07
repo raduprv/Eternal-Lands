@@ -440,6 +440,9 @@ void draw_tile_map()
 					for(x=x_start;x<=x_end;x++)
 						{
 							x_scaled=x*3.0f;
+							if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]))continue;//lake, skip
+							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
+							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
 #else
 			get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
 			for (i = start; i < stop; i++)
@@ -450,9 +453,6 @@ void draw_tile_map()
 				y_scaled = y*3.0f;
 				x_scaled = x*3.0f;
 #endif
-							if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]))continue;//lake, skip
-							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
-							if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
 							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
 							if(last_texture!=cur_texture)
 								{

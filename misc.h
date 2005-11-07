@@ -113,6 +113,7 @@ void find_last_url(const unsigned char *source_string, const int len);
 
 //some prototypes, that won't fit somewhere else
 
+#ifndef	NEW_FRUSTUM
 /*!
  * \ingroup misc
  * \brief   Checks if a sphere with center at (\a x, \a y, \a z) with the given \a radius is inside the view frustum.
@@ -139,6 +140,10 @@ int SphereInFrustum(float x, float y, float z, float radius);
  * \callgraph
  */
 int check_tile_in_frustrum(float x,float y);
+#else
+void enable_reflection_clip_planes();
+void disable_reflection_clip_planes();
+#endif
 
 /*!
  * \ingroup misc

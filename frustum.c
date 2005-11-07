@@ -58,6 +58,8 @@ enum PlaneData
 float m_Frustum[8][4];	// only use 6, but mult by 8 is faster
 #ifdef	NEW_FRUSTUM
 FRUSTUM main_frustum;
+FRUSTUM reflection_frustum;
+double reflection_clip_planes[5][4];
 #endif
 ///////////////////////////////// NORMALIZE PLANE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 /////
@@ -98,6 +100,82 @@ static __inline__ void normalize_plane(VECTOR4 plane)
 	plane[B] /= magnitude;
 	plane[C] /= magnitude;
 	plane[D] /= magnitude;
+}
+
+static __inline__ void calc_plane_mask(PLANE* plane)
+{
+	plane->mask[0] = plane->plane[A] < 0.0f ? 0 : 1;
+	plane->mask[1] = plane->plane[B] < 0.0f ? 0 : 1;
+	plane->mask[2] = plane->plane[C] < 0.0f ? 0 : 1;
+}
+
+static __inline__ void VMInvert(MATRIX4x4 r, MATRIX4x4 m)
+{
+	float d00, d01, d02, d03;
+	float d10, d11, d12, d13;
+	float d20, d21, d22, d23;
+	float d30, d31, d32, d33;
+	float m00, m01, m02, m03;
+	float m10, m11, m12, m13;
+	float m20, m21, m22, m23;
+	float m30, m31, m32, m33;
+	float D;
+
+	m00 = m[0];
+	m01 = m[4];
+	m02 = m[8];
+	m03 = m[12];
+	m10 = m[1];
+	m11 = m[5];
+	m12 = m[9];
+	m13 = m[13];
+	m20 = m[2];
+	m21 = m[6];
+	m22 = m[10];
+	m23 = m[14];
+	m30 = m[3];
+	m31 = m[7];
+	m32 = m[11];
+	m33 = m[15];
+
+	d00 = m11*m22*m33 + m12*m23*m31 + m13*m21*m32 - m31*m22*m13 - m32*m23*m11 - m33*m21*m12;
+	d01 = m10*m22*m33 + m12*m23*m30 + m13*m20*m32 - m30*m22*m13 - m32*m23*m10 - m33*m20*m12;
+	d02 = m10*m21*m33 + m11*m23*m30 + m13*m20*m31 - m30*m21*m13 - m31*m23*m10 - m33*m20*m11;
+	d03 = m10*m21*m32 + m11*m22*m30 + m12*m20*m31 - m30*m21*m12 - m31*m22*m10 - m32*m20*m11;
+
+	d10 = m01*m22*m33 + m02*m23*m31 + m03*m21*m32 - m31*m22*m03 - m32*m23*m01 - m33*m21*m02;
+	d11 = m00*m22*m33 + m02*m23*m30 + m03*m20*m32 - m30*m22*m03 - m32*m23*m00 - m33*m20*m02;
+	d12 = m00*m21*m33 + m01*m23*m30 + m03*m20*m31 - m30*m21*m03 - m31*m23*m00 - m33*m20*m01;
+	d13 = m00*m21*m32 + m01*m22*m30 + m02*m20*m31 - m30*m21*m02 - m31*m22*m00 - m32*m20*m01;
+
+	d20 = m01*m12*m33 + m02*m13*m31 + m03*m11*m32 - m31*m12*m03 - m32*m13*m01 - m33*m11*m02;
+	d21 = m00*m12*m33 + m02*m13*m30 + m03*m10*m32 - m30*m12*m03 - m32*m13*m00 - m33*m10*m02;
+	d22 = m00*m11*m33 + m01*m13*m30 + m03*m10*m31 - m30*m11*m03 - m31*m13*m00 - m33*m10*m01;
+	d23 = m00*m11*m32 + m01*m12*m30 + m02*m10*m31 - m30*m11*m02 - m31*m12*m00 - m32*m10*m01;
+
+	d30 = m01*m12*m23 + m02*m13*m21 + m03*m11*m22 - m21*m12*m03 - m22*m13*m01 - m23*m11*m02;
+	d31 = m00*m12*m23 + m02*m13*m20 + m03*m10*m22 - m20*m12*m03 - m22*m13*m00 - m23*m10*m02;
+	d32 = m00*m11*m23 + m01*m13*m20 + m03*m10*m21 - m20*m11*m03 - m21*m13*m00 - m23*m10*m01;
+	d33 = m00*m11*m22 + m01*m12*m20 + m02*m10*m21 - m20*m11*m02 - m21*m12*m00 - m22*m10*m01;
+
+	D = m00*d00 - m01*d01 + m02*d02 - m03*d03;
+
+	r[0] =  d00/D;
+	r[1] = -d10/D;
+	r[2] =  d20/D;
+	r[3] = -d30/D;
+	r[4] = -d01/D;
+	r[5] =  d11/D;
+	r[6] = -d21/D;
+	r[7] =  d31/D;
+	r[8] =  d02/D;
+	r[9] = -d12/D;
+	r[10] =  d22/D;
+	r[11] = -d32/D;
+	r[12] = -d03/D;
+	r[13] =  d13/D;
+	r[14] = -d23/D;
+	r[15] =  d33/D;
 }
 
 static __inline__ void calculate_frustum_from_clip_matrix(FRUSTUM frustum, MATRIX4x4 clip)
@@ -145,62 +223,84 @@ static __inline__ void calculate_frustum_from_clip_matrix(FRUSTUM frustum, MATRI
 
 	// Normalize the LEFT side
 	normalize_plane(frustum[LEFT].plane);
-
-	// Normalize the BOTTOM side
+ 
+ 	// Normalize the BOTTOM side
 	normalize_plane(frustum[BOTTOM].plane);
-
-	// Normalize the TOP side
+ 
+ 	// Normalize the TOP side
 	normalize_plane(frustum[TOP].plane);
 
 	// Normalize the BACK side
 	normalize_plane(frustum[BACK].plane);
 
-	// Normalize the FRONT side
+ 	// Normalize the FRONT side
 	normalize_plane(frustum[FRONT].plane);
 	
-	frustum[RIGHT].mask[0] = frustum[RIGHT].plane[A] < 0.0f ? 0 : 1;
-	frustum[RIGHT].mask[1] = frustum[RIGHT].plane[B] < 0.0f ? 0 : 1;
-	frustum[RIGHT].mask[2] = frustum[RIGHT].plane[C] < 0.0f ? 0 : 1;
-	frustum[LEFT].mask[0] = frustum[LEFT].plane[A] < 0.0f ? 0 : 1;
-	frustum[LEFT].mask[1] = frustum[LEFT].plane[B] < 0.0f ? 0 : 1;
-	frustum[LEFT].mask[2] = frustum[LEFT].plane[C] < 0.0f ? 0 : 1;
-	frustum[BOTTOM].mask[0] = frustum[BOTTOM].plane[A] < 0.0f ? 0 : 1;
-	frustum[BOTTOM].mask[1] = frustum[BOTTOM].plane[B] < 0.0f ? 0 : 1;
-	frustum[BOTTOM].mask[2] = frustum[BOTTOM].plane[C] < 0.0f ? 0 : 1;
-	frustum[TOP].mask[0] = frustum[TOP].plane[A] < 0.0f ? 0 : 1;
-	frustum[TOP].mask[1] = frustum[TOP].plane[B] < 0.0f ? 0 : 1;
-	frustum[TOP].mask[2] = frustum[TOP].plane[C] < 0.0f ? 0 : 1;
-	frustum[BACK].mask[0] = frustum[BACK].plane[A] < 0.0f ? 0 : 1;
-	frustum[BACK].mask[1] = frustum[BACK].plane[B] < 0.0f ? 0 : 1;
-	frustum[BACK].mask[2] = frustum[BACK].plane[C] < 0.0f ? 0 : 1;
-	frustum[FRONT].mask[0] = frustum[FRONT].plane[A] < 0.0f ? 0 : 1;
-	frustum[FRONT].mask[1] = frustum[FRONT].plane[B] < 0.0f ? 0 : 1;
-	frustum[FRONT].mask[2] = frustum[FRONT].plane[C] < 0.0f ? 0 : 1;
+	calc_plane_mask(&frustum[RIGHT]);
+	calc_plane_mask(&frustum[LEFT]);
+	calc_plane_mask(&frustum[BOTTOM]);
+	calc_plane_mask(&frustum[TOP]);
+	calc_plane_mask(&frustum[BACK]);
+	calc_plane_mask(&frustum[FRONT]);
+}
+
+static __inline__ void calc_plane(VECTOR4 plane, const VECTOR3 p1, const VECTOR3 p2, const VECTOR3 p3)
+{
+	VECTOR3 t0, t1, t2, t3;
+	
+	VSub(t2, p1, p2);
+	VSub(t3, p2, p3);
+	VCross(t1, t2, t3);
+	Normalize(t0, t1);
+	
+	plane[A] = t0[X];
+	plane[B] = t0[Y];
+	plane[C] = t0[Z];
+	plane[D] = -VDot(t0, p1);
+}
+
+void enable_reflection_clip_planes()
+{
+	glEnable(GL_CLIP_PLANE0);
+	glEnable(GL_CLIP_PLANE1);
+	glEnable(GL_CLIP_PLANE2);
+	glEnable(GL_CLIP_PLANE3);
+	glEnable(GL_CLIP_PLANE4);
+	glClipPlane(GL_CLIP_PLANE0, reflection_clip_planes[0]);
+	glClipPlane(GL_CLIP_PLANE1, reflection_clip_planes[1]);
+	glClipPlane(GL_CLIP_PLANE2, reflection_clip_planes[2]);
+	glClipPlane(GL_CLIP_PLANE3, reflection_clip_planes[3]);
+	glClipPlane(GL_CLIP_PLANE4, reflection_clip_planes[4]);
+}
+
+void disable_reflection_clip_planes()
+{
+	glDisable(GL_CLIP_PLANE0);
+	glDisable(GL_CLIP_PLANE1);
+	glDisable(GL_CLIP_PLANE2);
+	glDisable(GL_CLIP_PLANE3);
+	glDisable(GL_CLIP_PLANE4);
 }
 
 void calculate_reflection_frustum(unsigned int num, float water_height)
 {
-	FRUSTUM frustum;
 	MATRIX4x4 proj;
 	MATRIX4x4 modl;
 	MATRIX4x4 clip;
-	unsigned int cur_intersect_type;
+	MATRIX4x4 inv;
+	VECTOR3 pos, p1, p2, p3, p4;
+	float x_min, x_max, y_min, y_max, x_scaled, y_scaled;
+	unsigned int cur_intersect_type, i, l, start, stop, x, y;
 
-
-	glGetFloatv(GL_PROJECTION_MATRIX, proj);
-
+	if (main_bbox_tree->intersect[ITERSECTION_TYPE_REFLECTION].intersect_update_needed == 0) return;
+		
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, water_height);
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_height);
 	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
 	glPopMatrix();
-	glPushMatrix();
-	glLoadIdentity();
-	glScalef(0.95f, 0.95f, 0.95f);
-	glMultMatrixf(modl);
-	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
-	glPopMatrix();
+	glGetFloatv(GL_PROJECTION_MATRIX, proj);
 	
 	clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
 	clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
@@ -221,13 +321,81 @@ void calculate_reflection_frustum(unsigned int num, float water_height)
 	clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
 	clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
 	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
-		
-	calculate_frustum_from_clip_matrix(frustum, clip);
-	
+
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_DEFAULT);
+
+	VMInvert(inv, clip);
+	
+	x_min = BOUND_HUGE;
+	x_max = -BOUND_HUGE;
+	y_min = BOUND_HUGE;
+	y_max = -BOUND_HUGE;
+	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
+		y_scaled = y*3.0f;
+		x_scaled = x*3.0f;
+		x_min = min2f(x_min, x_scaled);
+		x_max = max2f(x_max, x_scaled+3.0f);
+		y_min = min2f(y_min, y_scaled);
+		y_max = max2f(y_max, y_scaled+3.0f);
+	}
+	
 	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
-	check_bbox_tree(main_bbox_tree, &frustum);
-	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+	calculate_frustum_from_clip_matrix(reflection_frustum, clip);
+
+	pos[0] = inv[3]/inv[15];
+	pos[1] = inv[7]/inv[15];
+	pos[2] = inv[11]/inv[15];
+	p1[X] = x_min;
+	p1[Y] = y_min;
+	p1[Z] = water_height;
+	p2[X] = x_min;
+	p2[Y] = y_max;
+	p2[Z] = water_height;
+	p3[X] = x_max;
+	p3[Y] = y_min;
+	p3[Z] = water_height;
+	p4[X] = x_max;
+	p4[Y] = y_max;
+	p4[Z] = water_height;
+	calc_plane(reflection_frustum[4].plane, p2, p1, p3);
+	calc_plane(reflection_frustum[5].plane, pos, p2, p1);
+	calc_plane(reflection_frustum[6].plane, pos, p3, p4);
+	calc_plane(reflection_frustum[7].plane, pos, p4, p2);
+	calc_plane(reflection_frustum[8].plane, pos, p1, p3);
+	calc_plane_mask(&reflection_frustum[4]);
+	calc_plane_mask(&reflection_frustum[5]);
+	calc_plane_mask(&reflection_frustum[6]);
+	calc_plane_mask(&reflection_frustum[7]);
+	calc_plane_mask(&reflection_frustum[8]);
+
+	reflection_clip_planes[0][A] = reflection_frustum[4].plane[A];
+	reflection_clip_planes[0][B] = reflection_frustum[4].plane[B];
+	reflection_clip_planes[0][C] = reflection_frustum[4].plane[C];
+	reflection_clip_planes[0][D] = reflection_frustum[4].plane[D];
+	reflection_clip_planes[1][A] = reflection_frustum[5].plane[A];
+	reflection_clip_planes[1][B] = reflection_frustum[5].plane[B];
+	reflection_clip_planes[1][C] = reflection_frustum[5].plane[C];
+	reflection_clip_planes[1][D] = reflection_frustum[5].plane[D];
+	reflection_clip_planes[2][A] = reflection_frustum[6].plane[A];
+	reflection_clip_planes[2][B] = reflection_frustum[6].plane[B];
+	reflection_clip_planes[2][C] = reflection_frustum[6].plane[C];
+	reflection_clip_planes[2][D] = reflection_frustum[6].plane[D];
+	reflection_clip_planes[3][A] = reflection_frustum[7].plane[A];
+	reflection_clip_planes[3][B] = reflection_frustum[7].plane[B];
+	reflection_clip_planes[3][C] = reflection_frustum[7].plane[C];
+	reflection_clip_planes[3][D] = reflection_frustum[7].plane[D];
+	reflection_clip_planes[4][A] = reflection_frustum[8].plane[A];
+	reflection_clip_planes[4][B] = reflection_frustum[8].plane[B];
+	reflection_clip_planes[4][C] = reflection_frustum[8].plane[C];
+	reflection_clip_planes[4][D] = reflection_frustum[8].plane[D];
+	check_bbox_tree(main_bbox_tree, &reflection_frustum, 511);
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);	
 }
 
 #endif
@@ -247,6 +415,8 @@ void CalculateFrustum()
 	float   proj[16];								// This will hold our projection matrix
 	float   modl[16];								// This will hold our modelview matrix
 	float   clip[16];								// This will hold the clipping planes
+	
+	if (main_bbox_tree->intersect[ITERSECTION_TYPE_DEFAULT].intersect_update_needed == 0) return;
 #endif
 
 	// glGetFloatv() is used to extract information about our OpenGL world.
@@ -257,14 +427,6 @@ void CalculateFrustum()
 	// By passing in GL_MODELVIEW_MATRIX, we can abstract our model view matrix.
 	// This also stores it in an array of [16].
 	glGetFloatv( GL_MODELVIEW_MATRIX, modl );
-#ifdef	NEW_FRUSTUM
-	glPushMatrix();
-	glLoadIdentity();
-	glScalef(0.95f, 0.95f, 0.95f);
-	glMultMatrixf(modl);
-	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
-	glPopMatrix();
-#endif
 
 	// Now that we have our modelview and projection matrix, if we combine these 2 matrices,
 	// it will give us our clipping planes.  To combine 2 matrices, we multiply them.
@@ -289,6 +451,7 @@ void CalculateFrustum()
 	clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
 	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
 
+#ifndef	NEW_FRUSTUM
 	// Now we actually want to get the sides of the frustum.  To do this we take
 	// the clipping planes we received above and extract the sides from them.
 
@@ -348,9 +511,9 @@ void CalculateFrustum()
 
 	// Normalize the FRONT side
 	NormalizePlane(m_Frustum, FRONT);
-#ifdef	NEW_FRUSTUM
+#else
 	calculate_frustum_from_clip_matrix(main_frustum, clip);
-	check_bbox_tree(main_bbox_tree, &main_frustum);
+	check_bbox_tree(main_bbox_tree, &main_frustum, 63);
 #endif
 }
 
@@ -365,6 +528,7 @@ void CalculateFrustum()
 /////
 ///////////////////////////////// POINT IN FRUSTUM \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
+#ifndef	NEW_FRUSTUM
 int PointInFrustum( float x, float y, float z )
 {
 	// If you remember the plane equation (A*x + B*y + C*z + D = 0), then the rest
@@ -488,5 +652,6 @@ int check_tile_in_frustrum(float x,float y)
 	//if(SphereInFrustum(x+1.5f, y+1.5f, 0, 2.449f))return 1;
 	//else return 0;
 }
+#endif
 
 

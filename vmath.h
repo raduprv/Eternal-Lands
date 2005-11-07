@@ -217,10 +217,10 @@ static __inline__ void Normalize(VECTOR3 v1, const VECTOR3 v2)
 {
 	float n;
 	n = v2[X] * v2[X] + v2[Y] * v2[Y] + v2[Z] * v2[Z];
-	n = 1.0f/sqrt(n);
-	v1[X] = v2[X] * n;
-	v1[Y] = v2[Y] * n;
-	v1[Z] = v2[Z] * n;
+	n = sqrt(n);
+	v1[X] = v2[X] / n;
+	v1[Y] = v2[Y] / n;
+	v1[Z] = v2[Z] / n;
 }
 
 /*!
@@ -239,6 +239,44 @@ static __inline__ void VAssignS3(SHORT_VEC3 v1, const VECTOR3 v2)
 	v1[X] = v2[X]*32767.0f;
 	v1[Y] = v2[Y]*32767.0f;
 	v1[Z] = v2[Z]*32767.0f;
+}
+
+/*!
+ * \ingroup 	misc_utils
+ * \brief 	Vector cross product.
+ * 
+ * Calculating vector cross product of two vectors of three floats.
+ * \paran 	v1 The return value. 
+ * \param 	v2 Value one.
+ * \param 	v3 Value two.
+ * 
+ * \callgraph
+ */
+static __inline__ void VCross(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
+{
+	VECTOR3 tmp;
+
+	tmp[X] = v2[Y] * v3[Z] - v2[Z] * v3[Y];
+	tmp[Y] = v2[Z] * v3[X] - v2[X] * v3[Z];
+	tmp[Z] = v2[X] * v3[Y] - v2[Y] * v3[X];
+
+	VAssign(v1, tmp);
+}
+
+/*!
+ * \ingroup 	misc_utils
+ * \brief 	Vector dot product.
+ * 
+ * Calculating vector dot product of two vectors of three floats.
+ * \param 	v2 Value one.
+ * \param 	v3 Value two.
+ * \retval 	float The vector dot product. 
+ * 
+ * \callgraph
+ */
+static __inline__ float VDot(const VECTOR3 v2, const VECTOR3 v3)
+{
+	return v2[X]*v3[X] + v2[Y]*v3[Y] + v2[Z]*v3[Z];	
 }
 
 static __inline__ void calc_rotation_and_translation_matrix(MATRIX4x4 matrix, float trans_x, float trans_y, float trans_z, float rot_x, float rot_y, float rot_z)

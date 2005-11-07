@@ -499,7 +499,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	if (returned_e3d->materials_no > 0) 
 	{	
-		if (!returned_e3d->array_order) load_e3d_detail(returned_e3d);
+		if (returned_e3d->array_order == NULL) load_e3d_detail(returned_e3d);
 		texture_id = returned_e3d->array_order[0].texture_id;
 	}
 	else texture_id = 0xFFFFFFFF;

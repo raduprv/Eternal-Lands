@@ -13,7 +13,6 @@
 
 #define TYPE_2D_NO_ALPHA_OBJECT					0x00
 #define TYPE_2D_ALPHA_OBJECT					0x01
-
 #define TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT		0x02
 #define TYPE_3D_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT		0x03
 #define TYPE_3D_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT		0x04
@@ -30,7 +29,6 @@
 #define TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT	0x0F
 #define TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT	0x10
 #define TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT	0x11
-
 #define TYPE_PARTICLE_SYSTEM					0x12
 #define	TYPE_LIGHT						0x13
 #define	TYPE_TERRAIN						0x14
@@ -64,7 +62,7 @@ typedef	struct
 	unsigned char 		mask[3];
 } PLANE;
 
-typedef PLANE FRUSTUM[6];
+typedef PLANE FRUSTUM[16];
 
 typedef	PLANE PORTAL_FRUSTUM[8];
 
@@ -391,6 +389,7 @@ static __inline__ unsigned int is_blend_3d_object(unsigned int type)
 		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT: return 0;
+		default: return 0;
 	}
 }
 
@@ -414,6 +413,7 @@ static __inline__ unsigned int is_ground_3d_object(unsigned int type)
 		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT: return 0;
+		default: return 0;
 	}
 }
 
@@ -437,6 +437,7 @@ static __inline__ unsigned int is_alpha_3d_object(unsigned int type)
 		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT: return 1;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT: return 0;
+		default: return 0;
 	}
 }
 
@@ -460,6 +461,7 @@ static __inline__ unsigned int is_self_lit_3d_object(unsigned int type)
 		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT: return 1;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT: return 0;
+		default: return 0;
 	}
 }
 
@@ -474,7 +476,7 @@ static __inline__ unsigned int is_self_lit_3d_object(unsigned int type)
  *
  * \callgraph
  */
-void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum);
+void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum, unsigned int mask);
 
 /*!
  * \ingroup misc
