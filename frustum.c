@@ -67,6 +67,7 @@ double reflection_clip_planes[5][4];
 /////
 ///////////////////////////////// NORMALIZE PLANE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 
+#ifndef	NEW_FRUSTUM
 void NormalizePlane(float frustum[6][4], int side)
 {
 	// Here we calculate the magnitude of the normal to the plane (point A B C)
@@ -83,8 +84,12 @@ void NormalizePlane(float frustum[6][4], int side)
 	frustum[side][C] /= magnitude;
 	frustum[side][D] /= magnitude;
 }
+#endif
 
 #ifdef	NEW_FRUSTUM
+/*
+ * Normalizes a given Plane.
+ */
 static __inline__ void normalize_plane(VECTOR4 plane)
 {
 	// Here we calculate the magnitude of the normal to the plane (point A B C)
@@ -102,6 +107,9 @@ static __inline__ void normalize_plane(VECTOR4 plane)
 	plane[D] /= magnitude;
 }
 
+/*
+ * Calculates the mask of given Plane used for check_aabb_in_frustum.
+ */
 static __inline__ void calc_plane_mask(PLANE* plane)
 {
 	plane->mask[0] = plane->plane[A] < 0.0f ? 0 : 1;
@@ -109,6 +117,11 @@ static __inline__ void calc_plane_mask(PLANE* plane)
 	plane->mask[2] = plane->plane[C] < 0.0f ? 0 : 1;
 }
 
+/*
+ * Inverts the given matrix.
+ * \param	r The Result.
+ * \param	m The matrix to invert.
+ */
 static __inline__ void VMInvert(MATRIX4x4 r, MATRIX4x4 m)
 {
 	float d00, d01, d02, d03;
@@ -411,12 +424,13 @@ void CalculateFrustum()
 	MATRIX4x4 proj;								// This will hold our projection matrix
 	MATRIX4x4 modl;								// This will hold our modelview matrix
 	MATRIX4x4 clip;								// This will hold the clipping planes
+	
+	if (main_bbox_tree->intersect[ITERSECTION_TYPE_DEFAULT].intersect_update_needed == 0) return;
 #else
 	float   proj[16];								// This will hold our projection matrix
 	float   modl[16];								// This will hold our modelview matrix
 	float   clip[16];								// This will hold the clipping planes
-	
-	if (main_bbox_tree->intersect[ITERSECTION_TYPE_DEFAULT].intersect_update_needed == 0) return;
+
 #endif
 
 	// glGetFloatv() is used to extract information about our OpenGL world.
