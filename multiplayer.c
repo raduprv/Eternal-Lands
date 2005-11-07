@@ -552,10 +552,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				add_particle_sys_at_tile ( "./particles/teleport_in.part", SDL_SwapLE16 ( *( (short *)(in_data+3) ) ), SDL_SwapLE16 ( *( (short *)(in_data+5) ) ) );
 #endif
 			}
-			break;
 #ifndef	NEW_FRUSTUM
 			regenerate_near_objects=1;//Regenerate the near 3d objects...
 #endif
+			break;
 		case LOG_IN_NOT_OK:
 			{
 				set_login_error (&in_data[3], data_length - 3);
