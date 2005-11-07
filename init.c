@@ -31,9 +31,7 @@ int disconnected=1;
 int exit_now=0;
 int have_url=0;
 char current_url[160];
-//#ifndef WINDOWS
 char browser_name[120];
-//#endif
 int poor_man=0;
 #ifdef ANTI_ALIAS
 int anti_alias=0;

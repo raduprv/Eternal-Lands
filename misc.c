@@ -257,6 +257,23 @@ void find_last_url(const unsigned char *source_string, const int len)
 	have_url = 1;
 }
 
+#ifdef  WINDOWS
+int go_to_url(void *dummy)
+{
+	char browser_command[400];
+
+	if(!have_url || !*browser_name){
+		return 0;
+	}
+
+	// build the command line and execute it
+	snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, current_url),
+	system(browser_command);
+
+	return 0;
+}
+#endif
+
 FILE *my_fopen (const char *fname, const char *mode)
 {
 	FILE *file = fopen (fname, mode);

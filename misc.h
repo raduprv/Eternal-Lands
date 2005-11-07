@@ -147,6 +147,16 @@ void disable_reflection_clip_planes();
 
 /*!
  * \ingroup misc
+ * \brief Opens a url in the configured browser
+ *
+ *      Opens the configured browser to the current URL
+ *
+ * \retval int  always returns 0
+ */
+int go_to_url(void *dummy);
+
+/*!
+ * \ingroup misc
  * \brief Opens a file and check the result
  *
  *      Tries to open a file, and logs an error message if it fails
