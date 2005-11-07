@@ -69,6 +69,7 @@ typedef struct
 	int uniq_id;
 #endif
 	int guild_id;
+    int guild_tag_color;
 
 	int legs_meshindex;
 	int head_meshindex;

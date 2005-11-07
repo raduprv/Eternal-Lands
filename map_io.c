@@ -166,9 +166,6 @@ void change_map (const char *mapname)
 #else
 	destroy_all_particles();
 	kill_local_sounds();
-#ifdef  MINIMAP
-    change_minimap();
-#endif  //MINIMAP
 	if (!load_map(mapname)) {
 		char error[255];
 		snprintf(error, sizeof(error), cant_change_map, mapname);
@@ -184,6 +181,9 @@ void change_map (const char *mapname)
 	get_map_playlist();
 	have_a_map=1;
 #endif  //MAP_EDITOR2
+#ifdef  MINIMAP
+    change_minimap();
+#endif  //MINIMAP
 }
 
 int load_map (const char * file_name)

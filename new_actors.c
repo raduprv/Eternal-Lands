@@ -387,8 +387,11 @@ void add_enhanced_actor_from_server (const char *in_data)
 	enhanced_actor *this_actor;
 #ifdef CUSTOM_LOOK
 	unsigned char playerpath[256], guildpath[256];
-	Uint32 uniq_id, guild_id; // - Post ported.... We'll come up with something later...
+	Uint32 uniq_id; // - Post ported.... We'll come up with something later...
 #endif
+#if defined(CUSTOM_LOOK) || defined(MINIMAP)
+    Uint32 guild_id;
+#endif  //CUSTOM_LOOK || MINIMAP
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
 
 #ifdef EXTRA_DEBUG
@@ -510,7 +513,7 @@ void add_enhanced_actor_from_server (const char *in_data)
 
 	this_actor=calloc(1,sizeof(enhanced_actor));
 
-#ifdef CUSTOM_LOOK
+#if defined(CUSTOM_LOOK) || defined(MINIMAP)
 // FIXME: NEW_CLIENT should have player AND guild id, otherwise BOTH should be guessed (lachesis)
 	/* Guess player and guild id */
 	{
@@ -526,37 +529,51 @@ void add_enhanced_actor_from_server (const char *in_data)
 		for (name = buffer; *name && (*name >= 127 + c_lbound) && (*name <= 127 + c_ubound); name++);
 
 		/* search for string end or color mark */
+		this_actor->guild_tag_color = 0;
 		for (guild = name; *guild && ((*guild < 127 + c_lbound) || (*guild > 127 + c_ubound)); guild++);
 		if (*guild) {
 			/* separate the two strings */
+			this_actor->guild_tag_color = *guild - 127;
 			*guild = 0;
 			guild++;
 		}
 
-		/* perform case insensitive comparison */
+		/* perform case insensitive comparison/hashing */
 		my_tolower(name);
-		my_tolower(guild);
+		//my_tolower(guild);
 		
 #ifndef UID
+#ifdef  CUSTOM_LOOK
 		uniq_id = 0;
 #endif
+#endif
 
-		/* guild tags of Erisian Power Foundation (guild 82) */
-		if (!strcmp(guild, "chao") || !strcmp(guild, "eris") || ! strcmp(guild, "kali")) {
-			guild_id = 82;
-		} else {
-			guild_id = 0;
+		//perfect hashing of guildtag
+ 		switch(strlen(guild))
+ 		{
+ 		case 2:
+ 		    guild_id = guild[0] + (guild[1] << 8);
+ 		    break;
+ 		case 3:
+ 		    guild_id = guild[0] + (guild[1] << 8) + (guild[2] << 16);
+ 		    break;
+ 		default:
+ 		    guild_id = guild[0] + (guild[1] << 8) + (guild[2] << 16) + (guild[3] << 24);
+ 		    break;
 		}
+		this_actor->guild_id = guild_id;
 	}
 
+#ifdef  CUSTOM_LOOK
 	/* precompute the paths to custom files */
-	snprintf(playerpath, sizeof(playerpath), "custom/player/%d/", uniq_id);
-	snprintf(guildpath, sizeof(guildpath), "custom/guild/%d/", guild_id);
+	snprintf(playerpath, sizeof(playerpath), "custom/player/%u/", uniq_id);
+	snprintf(guildpath, sizeof(guildpath), "custom/guild/%u/", guild_id);
 
 	/* store the ids */
 	this_actor->uniq_id = uniq_id;
+#endif  //CUSTOM_LOOK
 	this_actor->guild_id = guild_id;
-#endif // CUSTOM_LOOK
+#endif // CUSTOM_LOOK||MINIMAP
 
 	//get the torso
 	my_strncp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name,sizeof(this_actor->arms_tex));
