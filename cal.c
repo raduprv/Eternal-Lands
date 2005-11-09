@@ -199,9 +199,9 @@ void cal_render_actor(actor *act)
 			// set global OpenGL states
 
 			// will use vertex arrays, so enable them
-			//glEnableClientState(GL_VERTEX_ARRAY);
-			//glEnableClientState(GL_NORMAL_ARRAY);
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 			// get the number of meshes
 
@@ -293,9 +293,9 @@ void cal_render_actor(actor *act)
 			}
 			
 			// clear vertex array state
-			//glDisableClientState(GL_NORMAL_ARRAY);
-			//glDisableClientState(GL_VERTEX_ARRAY);
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDisableClientState(GL_NORMAL_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 			// end the rendering
 			CalRenderer_EndRendering(pCalRenderer);
