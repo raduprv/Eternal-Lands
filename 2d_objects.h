@@ -64,8 +64,10 @@ typedef struct
 	float z_rot;
     /*! @} */
 
-#ifndef	NEW_FRUSTUM
-	short sector;  /*!< the \see sector in which this object should occur */
+#ifdef	NEW_FRUSTUM
+	MATRIX4x4 matrix; /*!< translation and rotaion matrix */
+#else
+   	short sector;  /*!< the \see sector in which this object should occur */
 #endif
 	char display;/*!< flag determining whether the object is to be shown on screen. */
 	char state; /*!< state flag for future expansion & data alignment. */

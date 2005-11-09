@@ -63,6 +63,24 @@ void draw_2d_object(obj_2d * object_id)
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
 	z_pos=object_id->z_pos;
+#ifdef	NEW_FRUSTUM
+	if (object_type != PLANT)
+	{
+		glMultMatrixf(object_id->matrix);
+		z_rot = object_id->z_rot;
+	}
+	else
+	{
+		glTranslatef (x_pos, y_pos, 0);
+
+		x_rot = object_id->x_rot + 90;
+		y_rot = object_id->y_rot;
+		z_rot=-rz;
+		glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
+		glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
+		glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+	}
+#else
 	glTranslatef (x_pos, y_pos, 0);
 
 	x_rot=object_id->x_rot;
@@ -78,6 +96,7 @@ void draw_2d_object(obj_2d * object_id)
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+#endif
 
 	get_and_set_texture_id(obj_def_pointer->texture_id);
 
@@ -521,13 +540,8 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	bbox.bbmin[Z] = 0.0f;
 	bbox.bbmax[Z] = 0.0f;
 	
-	if ((x_rot != 0.0f) || (y_rot != 0.0f) || (z_rot != 0.0f)) rotate_aabb(&bbox, x_rot, y_rot, z_rot);
-	bbox.bbmin[X] += x_pos;
-	bbox.bbmin[Y] += y_pos;
-	bbox.bbmin[Z] += z_pos;
-	bbox.bbmax[X] += x_pos;
-	bbox.bbmax[Y] += y_pos;
-	bbox.bbmax[Z] += z_pos;
+	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
+	matrix_mul_aabb(&bbox, our_object->matrix);
 	if (returned_obj_2d_def->alpha_test) alpha_test = 1;
 	else alpha_test = 0;
 

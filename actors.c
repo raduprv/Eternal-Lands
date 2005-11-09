@@ -487,8 +487,51 @@ void draw_actor(actor * actor_id, int banner)
 	glPopMatrix();	//we don't want to affect the rest of the scene
 }
 
+#ifdef	NEW_FRUSTUM
+void get_actors_in_range(unsigned int intersect_type)
+#else
 void get_actors_in_range()
+#endif
 {
+#ifdef	NEW_FRUSTUM
+	float dx, dy, x, y, x_pos, y_pos, z_pos;
+	unsigned int i;
+	actor *me;
+	
+	me = pf_get_our_actor();
+
+	if (!me) return;
+
+	no_near_actors = 0;
+	
+	x = -cx;
+	y = -cy;
+	
+	set_current_frustum(intersect_type);
+	
+	for (i = 0; i < max_actors; i++)
+	{
+		if(actors_list[i])
+		{
+			if (!actors_list[i]->tmp.have_tmp) continue;
+			x_pos = actors_list[i]->tmp.x_pos;
+			y_pos = actors_list[i]->tmp.y_pos;
+			z_pos = actors_list[i]->tmp.z_pos;
+			if (z_pos == 0.0f)//actor is walking, as opposed to flying, get the height underneath
+				z_pos=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f;
+
+			if (sphere_in_frustum(actors_list[i]->tmp.x_pos+0.25f, actors_list[i]->tmp.y_pos+0.25f, z_pos+1.5f, 1.5f))
+			{
+				near_actors[no_near_actors].actor = i;
+				dx = x - x_pos;
+				dy = y - y_pos;
+				near_actors[no_near_actors].dist = dx*dx + dy*dy;
+				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
+				no_near_actors++;
+			}
+		}
+	}
+#else
 	int i;
 	int x,y;
 	actor *me=pf_get_our_actor();
@@ -518,6 +561,7 @@ void get_actors_in_range()
 			}
 		}
 	}
+#endif
 }
 
 void display_actors(int banner)
@@ -528,7 +572,11 @@ void display_actors(int banner)
 	x=-cx;
 	y=-cy;
 
+#ifdef	NEW_FRUSTUM
+	get_actors_in_range(get_cur_intersect_type(main_bbox_tree));
+#else
 	get_actors_in_range();
+#endif
 	vertex_arrays_built=0;	// clear the counter
 	//MD2s don't have real normals...
 	glNormal3f(0.0f,0.0f,1.0f);
@@ -610,6 +658,9 @@ void display_actors(int banner)
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
+#ifdef	NEW_FRUSTUM
+	get_actors_in_range(ITERSECTION_TYPE_DEFAULT);
+#endif
 }
 
 

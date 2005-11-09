@@ -60,6 +60,8 @@ float m_Frustum[8][4];	// only use 6, but mult by 8 is faster
 FRUSTUM main_frustum;
 FRUSTUM reflection_frustum;
 FRUSTUM shadow_frustum;
+FRUSTUM current_frustum;
+unsigned int current_frustum_size;
 double reflection_clip_planes[5][4];
 #endif
 ///////////////////////////////// NORMALIZE PLANE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
@@ -276,24 +278,70 @@ static __inline__ void calc_plane(VECTOR4 plane, const VECTOR3 p1, const VECTOR3
 void enable_reflection_clip_planes()
 {
 	glEnable(GL_CLIP_PLANE0);
+#ifdef	USE_EXTRA_CLIP_PLANES
 	glEnable(GL_CLIP_PLANE1);
 	glEnable(GL_CLIP_PLANE2);
 	glEnable(GL_CLIP_PLANE3);
 	glEnable(GL_CLIP_PLANE4);
+#endif
 	glClipPlane(GL_CLIP_PLANE0, reflection_clip_planes[0]);
+#ifdef	USE_EXTRA_CLIP_PLANES
 	glClipPlane(GL_CLIP_PLANE1, reflection_clip_planes[1]);
 	glClipPlane(GL_CLIP_PLANE2, reflection_clip_planes[2]);
 	glClipPlane(GL_CLIP_PLANE3, reflection_clip_planes[3]);
 	glClipPlane(GL_CLIP_PLANE4, reflection_clip_planes[4]);
+#endif
 }
 
 void disable_reflection_clip_planes()
 {
 	glDisable(GL_CLIP_PLANE0);
+#ifdef	USE_EXTRA_CLIP_PLANES
 	glDisable(GL_CLIP_PLANE1);
 	glDisable(GL_CLIP_PLANE2);
 	glDisable(GL_CLIP_PLANE3);
 	glDisable(GL_CLIP_PLANE4);
+#endif
+}
+
+void set_current_frustum(unsigned int intersect_type)
+{
+	switch (intersect_type)
+	{
+		case ITERSECTION_TYPE_DEFAULT:
+			current_frustum_size = 6;
+			memcpy(current_frustum, main_frustum, sizeof(FRUSTUM));
+			break;
+		case ITERSECTION_TYPE_SHADOW:
+			current_frustum_size = 6;
+			memcpy(current_frustum, shadow_frustum, sizeof(FRUSTUM));
+			break;
+		case ITERSECTION_TYPE_REFLECTION:
+			current_frustum_size = 9;
+			memcpy(current_frustum, reflection_frustum, sizeof(FRUSTUM));
+			break;
+		default:
+			current_frustum_size = 0;
+			break;
+	}
+}
+
+unsigned int sphere_in_frustum(float x, float y, float z, float r)
+{
+	unsigned int i;
+	float nx, ny, nz, m;
+	
+	for(i = 0; i < current_frustum_size; i++)
+	{
+		nx = !current_frustum[i].mask[0] ? x-r :  x+r;
+		ny = !current_frustum[i].mask[1] ? y-r :  y+r;
+		nz = !current_frustum[i].mask[2] ? z-r :  z+r;
+		m = (	current_frustum[i].plane[A] * nx + 
+			current_frustum[i].plane[B] * ny + 
+			current_frustum[i].plane[C] * nz);
+		if (m < -current_frustum[i].plane[D]) return 0;
+	}
+	return 1;
 }
 
 void calculate_reflection_frustum(unsigned int num, float water_height)
