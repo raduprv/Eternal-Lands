@@ -821,6 +821,5 @@ void set_all_intersect_update_needed(BBOX_TREE* bbox_tree);
 extern BBOX_TREE* main_bbox_tree;
 extern BBOX_ITEMS* main_bbox_tree_items;
 
-void calculate_reflection_frustum(unsigned int num, float water_height);
 #endif
 #endif

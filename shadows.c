@@ -182,8 +182,10 @@ void calc_shadow_matrix()
 
 void draw_3d_object_shadow_detail(object3d * object_id)
 {
+#ifndef	NEW_FRUSTUM
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
+#endif
 
 	int materials_no;
 	int i;
@@ -215,6 +217,9 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	if(!use_shadow_mapping)glMultMatrixf(proj_on_ground);
+#ifdef	NEW_FRUSTUM
+	glMultMatrixf(object_id->matrix);
+#else
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
 	z_pos=object_id->z_pos;
@@ -226,6 +231,7 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+#endif
 
 	// watch for a change
 	if(object_id->e3d_data != cur_e3d){
@@ -628,6 +634,9 @@ void display_3d_non_ground_objects()
 
 void render_light_view()
 {
+#ifdef NEW_FRUSTUM
+	unsigned int cur_intersect_type;
+#endif
 	if(use_shadow_mapping)
 		{
 
@@ -675,7 +684,15 @@ void render_light_view()
 			glPushMatrix();
 			glLoadMatrixd(light_view_mat);
 			glTranslatef((int)cx,(int)cy,(int)cz);
+#ifdef NEW_FRUSTUM
+			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+			set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SHADOW);
+			calculate_shadow_frustum();
+#endif
 			display_shadows();
+#ifdef NEW_FRUSTUM
+			set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+#endif
 
 			glBindTexture(depth_texture_target,depth_map_id);
 			glCopyTexSubImage2D(depth_texture_target,0,0,0,0,0,depth_map_width,depth_map_height);
