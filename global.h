@@ -18,6 +18,7 @@
 	#include <al.h>
 	#include <alut.h>
 	#ifdef	_MSC_VER	// now we do test for VC
+		#define stat _stat
 		#define	snprintf sane_snprintf
 		#define strncasecmp _strnicmp
 		#define strcasecmp _stricmp

@@ -2,11 +2,14 @@
 #include <math.h>
 #include <string.h>
 #ifdef PNG_SCREENSHOT
- #include <dirent.h>
- #include <sys/stat.h>
+ #ifndef _MSC_VER
+  #include <dirent.h>
+  #include <errno.h>
+ #endif //_MSC_VER
  #include <sys/types.h>
+ #include <sys/stat.h>
  #include <png.h>
-#endif
+#endif //PNG_SCREENSHOT
 #include "global.h"
 
 #define IMG_SetError(a) SDL_SetError(a)
@@ -410,6 +413,29 @@ done:
 	return result;
 }
 
+//warning: when checking directories, do not include the trailing slash, for portability reasons
+int file_exists(const char *fname)
+{
+	int statres;
+	struct stat fstat;
+
+	statres = stat(fname, &fstat);
+	if(statres < 0)
+	{
+		statres = errno;
+	}
+	if(statres != ENOENT && statres != 0)
+	{
+		//something went wrong...
+		LOG_ERROR("Error when checking file or directory %s (error code %d)\n", fname, statres);
+		return -1;
+	}
+	else
+	{
+		return (statres != ENOENT);
+	}
+}
+
 int IMG_SavePNG (SDL_Surface *surface, const char *file)
 {
 	SDL_RWops *out = SDL_RWFromFile (file, "wb");
@@ -424,9 +450,8 @@ int IMG_SavePNG (SDL_Surface *surface, const char *file)
 void makeScreenShot ()
 {
 	char fname[256];
+	int ret;
 	int dlen, ishot, iline, w = window_width, h = window_height;
-	FILE *f;
-	DIR *d;
 	unsigned char *pixels;
 	SDL_Surface *surf;
 	
@@ -434,29 +459,31 @@ void makeScreenShot ()
 	int rmask = 0x00ff0000;
 	int gmask = 0x0000ff00;
 	int bmask = 0x000000ff;
-	int amask = 0x00000000;
 #else
 	int rmask = 0x000000ff;
 	int gmask = 0x0000ff00;
 	int bmask = 0x00ff0000;
+#endif
 	int amask = 0x00000000;
-#endif
 
-        /* see if the screenshots directory exists */
-#ifndef WINDOWS
-	snprintf (fname, sizeof (fname), "%sscreenshots/", configdir);
-#else
-	snprintf (fname, sizeof (fname), "screenshots/");
-#endif
-	d = opendir(fname);
-	if (d == NULL)
-#ifndef WINDOWS
-	if (mkdir(fname, 0755) < 0)
-#else
-	if (mkdir(fname) < 0)
-#endif
+	/* see if the screenshots directory exists */
+	snprintf (fname, sizeof (fname), "%sscreenshots", configdir);
+
+	ret = file_exists(fname);
+	if(ret == 0)
 	{
-		LOG_ERROR ("Unable to create screenshots directory");
+#ifndef WINDOWS
+		if (mkdir(fname, 0755) < 0)
+#else //WINDOWS
+		if (mkdir(fname) < 0)
+#endif //!WINDOWS
+		{
+			LOG_ERROR ("Unable to create directory \"%s\"\n", fname);
+			return;
+		}
+	}
+	else if (ret == -1)
+	{
 		return;
 	}
 
@@ -465,15 +492,23 @@ void makeScreenShot ()
 	/* try to find a file name which isn't taken yet */
 	for (ishot = 1; ishot < 1000; ishot++)
 	{
-		snprintf (fname+dlen, sizeof(fname)-dlen, "elscreen%03d.png", ishot);
-		f = fopen (fname, "r");
-		if (f == NULL) break;
-		fclose (f);
+		snprintf (fname+dlen, sizeof(fname)-dlen, "/elscreen%03d.png", ishot);
+		ret = file_exists(fname);
+		if(ret == 0)
+		{
+			break;
+		}
+		else if(ret == -1)
+		{
+			return; //we hit an error, it's already reported
+		}
 	}
 
 	/* if all numbered file names have been taken, use the default */
 	if (ishot >= 1000)
-		snprintf (fname+dlen, sizeof(fname)-dlen, "elscreen.png");
+	{
+		snprintf (fname+dlen, sizeof(fname)-dlen, "/elscreen.png");
+	}
 
 	/* read the pixels from the GL scene */
 	pixels = malloc (3 * w * h);
@@ -484,7 +519,7 @@ void makeScreenShot ()
 
 	/* simply memcpy'ing the pixels results in an upside-down image,
 	 * so copy the lines in reverse order */
-        for (iline = 0; iline < h; iline++)
+	for (iline = 0; iline < h; iline++)
 		memcpy (surf->pixels + surf->pitch*iline, pixels + surf->pitch*(h-iline-1), 3*w);
 	//SDL_SaveBMP (surf, fname);
 	IMG_SavePNG (surf, fname);
