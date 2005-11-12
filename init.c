@@ -506,6 +506,7 @@ void check_options ()
 void init_stuff()
 {
 	int seed;
+	char file_name[250];
 
 	//TODO: process command line options
 	chdir(DATA_DIR);
@@ -701,7 +702,8 @@ void init_stuff()
 		 	exit(1);
 		}
 	update_loading_win(load_encyc_str, 5);
-	ReadXML("languages/en/Encyclopedia/index.xml");
+	sprintf(file_name,"languages/%s/Encyclopedia/index.xml", lang);
+	ReadXML(file_name);
 	read_key_config();
 	load_questlog();
 	init_buddy();
@@ -750,9 +752,10 @@ void init_stuff()
 	}
 
 #ifdef ENCYCLOPEDIA
+	sprintf(file_name,"languages/%s/Encyclopedia/encyclopedia.xml", lang);
 	fd_load();
 	bp_init_symbols();
-	bp_parseFile(malloc(sizeof(bp_Context)), "languages/en/Encyclopedia/encyclopedia.xml");
+	bp_parseFile(malloc(sizeof(bp_Context)), file_name);
 #endif
 #ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer) make_reflection_framebuffer(window_width, window_height);
