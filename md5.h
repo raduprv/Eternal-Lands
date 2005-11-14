@@ -35,7 +35,9 @@ documentation and/or software.
 #ifndef H__MD5
 #define H__MD5
 
-typedef unsigned long UINT4;
+// sizeof(unsigned long) == 8 on 64 bit system and MD5Close will segfault.
+//typedef unsigned long UINT4;
+typedef unsigned int UINT4;
 
 /*!
  * The MD5 structure used to generate MD5 hash values
