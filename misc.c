@@ -520,7 +520,7 @@ void makeScreenShot ()
 	/* simply memcpy'ing the pixels results in an upside-down image,
 	 * so copy the lines in reverse order */
 	for (iline = 0; iline < h; iline++)
-		memcpy (surf->pixels + surf->pitch*iline, pixels + surf->pitch*(h-iline-1), 3*w);
+		memcpy ((char *)surf->pixels + surf->pitch*iline, pixels + surf->pitch*(h-iline-1), 3*w);
 	//SDL_SaveBMP (surf, fname);
 	IMG_SavePNG (surf, fname);
 	free (pixels);
