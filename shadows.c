@@ -56,11 +56,20 @@ int floor_pow2(int n)
 void set_shadow_map_size()
 {
 	int max=floor_pow2(max_shadow_map_size);
-	depth_map_width=floor_pow2(window_width);
-	depth_map_height=floor_pow2(window_height);
 
-	while(depth_map_width>max)depth_map_width/=2;
-	while(depth_map_height>max)depth_map_height/=2;
+	if (have_texture_non_power_of_two)
+	{
+		depth_map_width = window_width;
+		depth_map_height = window_height;
+	}
+	else
+	{
+		depth_map_width=floor_pow2(window_width);
+		depth_map_height=floor_pow2(window_height);
+	}
+	
+	if (depth_map_width > max) depth_map_width = max;
+	if (depth_map_height > max) depth_map_height = max;
 }
 
 void calc_light_frustum(float light_xrot)

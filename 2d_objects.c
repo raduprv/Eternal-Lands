@@ -540,7 +540,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	bbox.bbmin[Z] = 0.0f;
 	bbox.bbmax[Z] = 0.0f;
 	
-	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
+	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, 0.0f, x_rot, y_rot, z_rot);
 	matrix_mul_aabb(&bbox, our_object->matrix);
 	if (returned_obj_2d_def->alpha_test) alpha_test = 1;
 	else alpha_test = 0;
