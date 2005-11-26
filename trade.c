@@ -28,7 +28,6 @@ int storage_available=0;
 int display_trade_handler(window_info *win)
 {
 	int x=10+33;
-	int no_trade_items=0;
 	int i;
 	char str[20];
 	
@@ -84,9 +83,9 @@ int display_trade_handler(window_info *win)
 
 			if(this_texture!=-1) get_and_set_texture_id(this_texture);
 
-			x_start=(no_trade_items%4)*33+10;
+			x_start=(i%4)*33+10;
 			x_end=x_start+32;
-			y_start=(no_trade_items/4)*33+30;
+			y_start=(i/4)*33+30;
 			y_end=y_start+32;
 
 			glBegin(GL_QUADS);
@@ -95,12 +94,8 @@ int display_trade_handler(window_info *win)
 			
 			sprintf(str,"%i",your_trade_list[i].quantity);
 			draw_string_small(x_start,y_end-15,str,1);
-
-			no_trade_items++;
 		}
 	}
-
-	no_trade_items=0;
 
 	for(i=0; i<16; i++){
 		if(others_trade_list[i].quantity){
@@ -119,9 +114,9 @@ int display_trade_handler(window_info *win)
 
 			if(this_texture!=-1) get_and_set_texture_id(this_texture);
 
-			x_start=(no_trade_items%4)*33+10+5*33;
+			x_start=(i%4)*33+10+5*33;
 			x_end=x_start+32;
-			y_start=(no_trade_items/4)*33+30;
+			y_start=(i/4)*33+30;
 			y_end=y_start+32;
 
 			glBegin(GL_QUADS);
@@ -136,8 +131,6 @@ int display_trade_handler(window_info *win)
 				str[1]=0;
 				draw_string_small(x_end-9,y_start+2,str,1);
 			}
-
-			no_trade_items++;
 		}
 	}
 	
