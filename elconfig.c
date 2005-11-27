@@ -914,9 +914,7 @@ void init_vars()
 	add_var(INT,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
  #endif //ELC
  	add_var(STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
- #ifndef WINDOWS
  	add_var(STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your browser",MISC);
- #endif
 #endif // MAP_EDITOR2
 
 #ifndef MAP_EDITOR2
