@@ -13,7 +13,7 @@
 #include "keys.h"
 #include "loading_win.h"
 
-#define	CFG_VERSION	5
+#define	CFG_VERSION 6
 
 #ifndef DATA_DIR
  #define DATA_DIR "./"
