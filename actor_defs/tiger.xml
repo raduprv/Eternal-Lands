@@ -1,4 +1,4 @@
-<actor type="tiger">
+<actor type="tiger 1">
 	<skin>./meshes/animals10.bmp</skin>
 	<mesh>./meshes/tiger.cmf</mesh>
 	<skeleton>./skeletons/feline.csf</skeleton>

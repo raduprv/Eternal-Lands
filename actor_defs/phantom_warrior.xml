@@ -1,4 +1,4 @@
-<actor type="phantom_warrior">
+<actor type="phantom warrior">
 	<skin>./meshes/skeleton1.bmp</skin>
 	<mesh>./meshes/phantom_warrior.cmf</mesh>
 	<skeleton>./skeletons/monster1.csf</skeleton>

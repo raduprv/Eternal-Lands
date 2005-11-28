@@ -55,10 +55,8 @@
         <!ENTITY tiger_2 SYSTEM "tiger_white.xml">
         <!ENTITY armed_female_orc SYSTEM "orc_female_1_armed.xml">
         <!ENTITY armed_male_orc SYSTEM "orc_male_1_armed.xml">
-
         <!ENTITY armed_skeleton SYSTEM "skeleton_armed.xml">
         <!ENTITY phantom_warrior SYSTEM "phantom_warrior.xml">
-
         <!ENTITY imp SYSTEM "imp.xml">
         <!ENTITY brownie SYSTEM "brownie.xml">
 
@@ -117,8 +115,13 @@
         &leopard_1;
         &leopard_2;
 	&feran;
-	&tiger1;
-	&tiger2;
+	&tiger_1;
+	&tiger_2;
 	&armed_female_orc;
 	&armed_male_orc;
+	&armed_skeleton;
+	&phantom_warrior;
+	&imp;
+	&brownie;
+
 </actors>

@@ -1,4 +1,4 @@
-<actor type="imp">
+<actor type="armed female orc">
 	<skeleton>./skeletons/monster1.csf</skeleton>
 	<skin>./meshes/orcf1_armed.bmp</skin>
 	<mesh>./meshes/orcf1_armed.cmf</mesh>

@@ -1,4 +1,4 @@
-<actor type="skeleton_armed">
+<actor type="armed skeleton">
 	<skin>./meshes/skeleton1.bmp</skin>
 	<mesh>./meshes/skeleton1_armed.cmf</mesh>
 	<skeleton>./skeletons/monster1.csf</skeleton>
