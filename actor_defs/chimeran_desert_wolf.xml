@@ -11,7 +11,7 @@
 		<CAL_in_combat>./animations/canine_default.caf 1</CAL_in_combat>
 		<CAL_out_combat>./animations/canine_default.caf 1</CAL_out_combat>
 		<CAL_combat_idle>./animations/canine_idle1.caf 0</CAL_combat_idle>
-		<CAL_pain1>./animations/canine_pain.caf 1</CAL_pain1>
+		<CAL_pain1>./animations/canine_pain1.caf 1</CAL_pain1>
 		<CAL_die1>./animations/canine_die.caf 1</CAL_die1>
 		<CAL_attack_up_1>./animations/chimeran_attack1.caf 1</CAL_attack_up_1>
           	<CAL_attack_up_2>./animations/chimeran_attack2.caf 1</CAL_attack_up_2>

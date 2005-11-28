@@ -65,6 +65,16 @@
 #define leopard_1 52
 #define leopard_2 53
 #define chimeran_wolf_arctic 54
+#define tiger_1 55
+#define tiger_2 56
+#define armed_female_orc 57
+#define armed_male_orc 58
+#define armed_skeleton 59
+#define phantom_warrior 60
+#define imp 61
+#define brownie 62
+
+
 /*! @} */
 
 /*!
@@ -634,8 +644,8 @@
 /*! @} */
 
 
-/*! 
- * \name Protocol places 
+/*!
+ * \name Protocol places
  */
 #define PROTOCOL 0 /*!< is an unsigned char */
 

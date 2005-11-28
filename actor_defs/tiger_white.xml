@@ -1,6 +1,6 @@
-<actor type="feran">
-	<skin>./meshes/animals8.bmp</skin>
-	<mesh>./meshes/feran.cmf</mesh>
+<actor type="tiger_white">
+	<skin>./meshes/animals10.bmp</skin>
+	<mesh>./meshes/tiger_white.cmf</mesh>
 	<skeleton>./skeletons/feline.csf</skeleton>
 	<scale>1.2</scale>
 	<bone_scale>1.2</bone_scale>

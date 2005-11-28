@@ -51,6 +51,17 @@
         <!ENTITY leopard_1 SYSTEM "leopard.xml">
         <!ENTITY leopard_2 SYSTEM "leopard_snow.xml">
         <!ENTITY feran SYSTEM "feran.xml">
+        <!ENTITY tiger_1 SYSTEM "tiger.xml">
+        <!ENTITY tiger_2 SYSTEM "tiger_white.xml">
+        <!ENTITY armed_female_orc SYSTEM "orc_female_1_armed.xml">
+        <!ENTITY armed_male_orc SYSTEM "orc_male_1_armed.xml">
+
+        <!ENTITY armed_skeleton SYSTEM "skeleton_armed.xml">
+        <!ENTITY phantom_warrior SYSTEM "phantom_warrior.xml">
+
+        <!ENTITY imp SYSTEM "imp.xml">
+        <!ENTITY brownie SYSTEM "brownie.xml">
+
 ]>
 
 <actors>
@@ -106,4 +117,8 @@
         &leopard_1;
         &leopard_2;
 	&feran;
+	&tiger1;
+	&tiger2;
+	&armed_female_orc;
+	&armed_male_orc;
 </actors>
