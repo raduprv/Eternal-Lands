@@ -6,14 +6,14 @@
 	<bone_scale>0.83</bone_scale>
 	<frames>
 		<CAL_walk>./animations/player_walk.caf 0</CAL_walk> 
-                <CAL_pain1>./animations/player_pain.caf 1</CAL_pain1> 
+                <CAL_pain1 duration="500">./animations/player_pain.caf 1</CAL_pain1> 
                 <CAL_idle>./animations/player_idle1.caf 0</CAL_idle> 
                 <CAL_idle_sit>./animations/player_sit_idle.caf 0</CAL_idle_sit> 
                 <CAL_sit_down>./animations/player_sit_in.caf 1</CAL_sit_down> 
                 <CAL_stand_up>./animations/player_sit_out.caf 1</CAL_stand_up> 
-                <CAL_in_combat>./animations/player_fight_in.caf 1</CAL_in_combat> 
-                <CAL_out_combat>./animations/player_fight_out.caf 1</CAL_out_combat> 
-                <CAL_combat_idle>./animations/player_fight_idle.caf 0</CAL_combat_idle> 
+                <CAL_in_combat duration="500">./animations/player_fight_in.caf 1</CAL_in_combat> 
+                <CAL_out_combat duration="500">./animations/player_fight_out.caf 1</CAL_out_combat> 
+                <CAL_combat_idle duration="500">./animations/player_fight_idle.caf 0</CAL_combat_idle> 
 
 	</frames>
 	<head number="1">
@@ -189,460 +189,460 @@
 	<weapon type="none">
 		<mesh></mesh>
 		<skin></skin>
-		<CAL_attack_up1>./animations/player_punch1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_punch2.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_kick1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_kick2.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_punch1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_punch2.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_kick1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_kick2.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="stick 1">
 		<mesh>./meshes/stick1.cmf</mesh>
 		<skin>./meshes/sticks.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="bone 1">
 		<mesh>./meshes/bone1.cmf</mesh>
 		<skin>./meshes/bone1.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>		
 	<weapon type="sword 1">
 		<mesh>./meshes/sword1.cmf</mesh>
 		<skin>./meshes/sword1.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="sword 2">
 		<mesh>./meshes/sword2.cmf</mesh>
 		<skin>./meshes/sword2.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="sword 3">
 		<mesh>./meshes/sword3.cmf</mesh>
 		<skin>./meshes/sword3.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="sword 4">
 		<mesh>./meshes/sword4.cmf</mesh>
 		<skin>./meshes/sword4.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="sword 5">
 		<mesh>./meshes/sword5.cmf</mesh>
 		<skin>./meshes/sword5.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="sword 6">
 		<mesh>./meshes/sword6.cmf</mesh>
 		<skin>./meshes/sword6.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="sword 7">
 		<mesh>./meshes/sword7.cmf</mesh>
 		<skin>./meshes/sword7.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="staff 1">
 		<mesh>./meshes/staff1.cmf</mesh>
 		<skin>./meshes/staff1_brown.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash2.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash2.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack2.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack2.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash2.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash2.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack2.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack2.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="staff 2">
 		<mesh>./meshes/staff1.cmf</mesh>
 		<skin>./meshes/staff1_green.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash2.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash2.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack2.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack2.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash2.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash2.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack2.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack2.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="staff 3">
 		<mesh>./meshes/staff2.cmf</mesh>
 		<skin>./meshes/staff3.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash2.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash2.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack2.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack2.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash2.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash2.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack2.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack2.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="staff 4">
 		<mesh>./meshes/staff3.cmf</mesh>
 		<skin>./meshes/staff4.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash2.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash2.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack2.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack2.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash2.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash2.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack2.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack2.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="hammer 1">
 		<mesh>./meshes/warhammer1.cmf</mesh>
 		<skin>./meshes/warhammer1.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="hammer 2">
 		<mesh>./meshes/warhammer2.cmf</mesh>
 		<skin>./meshes/warhammer2.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="pickaxe">
 		<mesh>./meshes/pickaxe1.cmf</mesh>
 		<skin>./meshes/pickaxe1.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="sword 1 of fire">
 		<mesh>./meshes/sword1.cmf</mesh>
 		<skin>./meshes/sword1.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="sword 2 of fire">
 		<mesh>./meshes/sword2.cmf</mesh>
 		<skin>./meshes/sword2.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="sword 2 of ice">
 		<mesh>./meshes/sword2.cmf</mesh>
 		<skin>./meshes/sword2.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>ice</glow>
 	</weapon>
 	<weapon type="sword 3 of fire">
 		<mesh>./meshes/sword3.cmf</mesh>
 		<skin>./meshes/sword3.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="sword 3 of ice">
 		<mesh>./meshes/sword3.cmf</mesh>
 		<skin>./meshes/sword3.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>ice</glow>
 	</weapon>
 	<weapon type="sword 3 of magic">
 		<mesh>./meshes/sword3.cmf</mesh>
 		<skin>./meshes/sword3.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>magic</glow>
 	</weapon>
 	<weapon type="sword 4 of fire">
 		<mesh>./meshes/sword4.cmf</mesh>
 		<skin>./meshes/sword4.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="sword 4 of ice">
 		<mesh>./meshes/sword4.cmf</mesh>
 		<skin>./meshes/sword4.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>ice</glow>
 	</weapon>
 	<weapon type="sword 4 of magic">
 		<mesh>./meshes/sword4.cmf</mesh>
 		<skin>./meshes/sword4.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>magic</glow>
 	</weapon>
 	<weapon type="thermal sword 4">
 		<mesh>./meshes/sword4.cmf</mesh>
 		<skin>./meshes/sword4.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>thermal</glow>
 	</weapon>
 	<weapon type="sword 5 of fire">
 		<mesh>./meshes/sword5.cmf</mesh>
 		<skin>./meshes/sword5.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="sword 5 of ice">
 		<mesh>./meshes/sword5.cmf</mesh>
 		<skin>./meshes/sword5.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>ice</glow>
 	</weapon>
 	<weapon type="sword 5 of magic">
 		<mesh>./meshes/sword5.cmf</mesh>
 		<skin>./meshes/sword5.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>magic</glow>
 	</weapon>
 	<weapon type="thermal sword 5">
 		<mesh>./meshes/sword5.cmf</mesh>
 		<skin>./meshes/sword5.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>thermal</glow>
 	</weapon>
 	<weapon type="sword 6 of fire">
 		<mesh>./meshes/sword6.cmf</mesh>
 		<skin>./meshes/sword6.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="sword 6 of ice">
 		<mesh>./meshes/sword6.cmf</mesh>
 		<skin>./meshes/sword6.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>ice</glow>
 	</weapon>
 	<weapon type="sword 6 of magic">
 		<mesh>./meshes/sword6.cmf</mesh>
 		<skin>./meshes/sword6.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>magic</glow>
 	</weapon>
 	<weapon type="thermal sword 6">
 		<mesh>./meshes/sword6.cmf</mesh>
 		<skin>./meshes/sword6.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>thermal</glow>
 	</weapon>
 	<weapon type="sword 7 of fire">
 		<mesh>./meshes/sword7.cmf</mesh>
 		<skin>./meshes/sword7.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="sword 7 of ice">
 		<mesh>./meshes/sword7.cmf</mesh>
 		<skin>./meshes/sword7.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>ice</glow>
 	</weapon>
 	<weapon type="sword 7 of magic">
 		<mesh>./meshes/sword7.cmf</mesh>
 		<skin>./meshes/sword7.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>magic</glow>
 	</weapon>
 	<weapon type="thermal sword 7">
 		<mesh>./meshes/sword7.cmf</mesh>
 		<skin>./meshes/sword7.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>thermal</glow>
 	</weapon>
 	<weapon type="pickaxe of magic">
 		<mesh>./meshes/pickaxe1.cmf</mesh>
 		<skin>./meshes/pickaxe1.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>magic</glow>
 	</weapon>
 	<weapon type="iron battle axe">
 		<mesh>./meshes/axe1.cmf</mesh>
 		<skin>./meshes/axe1.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="steel battle axe">
 		<mesh>./meshes/axe2.cmf</mesh>
 		<skin>./meshes/axe2.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="titanium battle axe">
 		<mesh>./meshes/axe3.cmf</mesh>
 		<skin>./meshes/axe3.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="iron battle axe of fire">
 		<mesh>./meshes/axe1.cmf</mesh>
 		<skin>./meshes/axe1.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="steel battle axe of ice">
 		<mesh>./meshes/axe2.cmf</mesh>
 		<skin>./meshes/axe2.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>ice</glow>
 	</weapon>
 	<weapon type="steel battle axe of fire">
 		<mesh>./meshes/axe2.cmf</mesh>
 		<skin>./meshes/axe2.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="titanium battle axe of ice">
 		<mesh>./meshes/axe3.cmf</mesh>
 		<skin>./meshes/axe3.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>ice</glow>
 	</weapon>
 	<weapon type="titanium battle axe of fire">
 		<mesh>./meshes/axe3.cmf</mesh>
 		<skin>./meshes/axe3.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>fire</glow>
 	</weapon>
 	<weapon type="titanium battle axe of magic">
 		<mesh>./meshes/axe3.cmf</mesh>
 		<skin>./meshes/axe3.bmp</skin>
-		<CAL_attack_up1>./animations/player_slash1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_slash1.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_hack1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_hack1.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_slash1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_slash1.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_hack1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_hack1.caf 1</CAL_attack_down2>
 		<glow>magic</glow>
 	</weapon>
 	<weapon type="fur gloves">
 		<mesh></mesh>
 		<skin>./meshes/gloves_fur.bmp</skin>
-		<CAL_attack_up1>./animations/player_punch1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_punch2.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_kick1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_kick2.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_punch1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_punch2.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_kick1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_kick2.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<weapon type="leather gloves">
 		<mesh></mesh>
 		<skin>./meshes/gloves_leather.bmp</skin>
-		<CAL_attack_up1>./animations/player_punch1.caf 1</CAL_attack_up1>
-		<CAL_attack_up2>./animations/player_punch2.caf 1</CAL_attack_up2>
-		<CAL_attack_down1>./animations/player_kick1.caf 1</CAL_attack_down1>
-		<CAL_attack_down2>./animations/player_kick2.caf 1</CAL_attack_down2>
+		<CAL_attack_up1 duration="500">./animations/player_punch1.caf 1</CAL_attack_up1>
+		<CAL_attack_up2 duration="500">./animations/player_punch2.caf 1</CAL_attack_up2>
+		<CAL_attack_down1 duration="500">./animations/player_kick1.caf 1</CAL_attack_down1>
+		<CAL_attack_down2 duration="500">./animations/player_kick2.caf 1</CAL_attack_down2>
 		<glow>none</glow>
 	</weapon>
 	<shirt color="black">
