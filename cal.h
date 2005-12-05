@@ -11,6 +11,10 @@ void CalCoreAnimation_Scale(struct CalCoreAnimation *self, float factor);
 void CalCoreMesh_Scale(struct CalCoreMesh *self,float factor);
 
 void cal_render_actor(actor *act);
+#ifdef	NEW_ACTOR_ANIMATION
+struct cal_anim cal_load_anim(actor_types *act, char *str, int duration);
+#else
 struct cal_anim cal_load_anim(actor_types *act, char *str);
+#endif
 void cal_actor_set_anim(int id,struct cal_anim anim);
 #endif

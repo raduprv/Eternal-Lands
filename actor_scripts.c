@@ -437,8 +437,13 @@ void animate_actors()
 			}
 			
 			if (actors_list[i]->calmodel!=NULL){
+#ifdef	NEW_ACTOR_ANIMATION
+				actors_list[i]->anim_time=actors_list[i]->anim_time+(((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0);
+				CalModel_Update(actors_list[i]->calmodel, (((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0));
+#else
 				actors_list[i]->anim_time=actors_list[i]->anim_time+(cur_time-last_update)/1000.0;
 				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
+#endif
 			}
 		}
 	}
@@ -1135,6 +1140,23 @@ double get_float_value (xmlNode *node) {
 	return atof (node->children->content);
 }
 
+#ifdef	NEW_ACTOR_ANIMATION
+int get_int_property (xmlNode *node, const char *prop)
+{
+	xmlAttr *attr;
+
+	for (attr = node->properties; attr; attr = attr->next)
+	{
+		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, prop) == 0)
+		{
+			return atoi (attr->children->content);
+		}
+	}
+
+	return -1;
+}
+
+#endif
 int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]) {
 	xmlAttr *attr;
 
@@ -1262,16 +1284,32 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 				get_string_value (weapon->skin_name, sizeof (weapon->skin_name), item);
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_up1") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			weapon->cal_attack_up_1_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			weapon->cal_attack_up_1_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_up2") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			weapon->cal_attack_up_2_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			weapon->cal_attack_up_2_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_down1") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			weapon->cal_attack_down_1_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			weapon->cal_attack_down_1_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_down2") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			weapon->cal_attack_down_2_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			weapon->cal_attack_down_2_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
@@ -1473,76 +1511,172 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 				//Not functional!
 			} else if (xmlStrcasecmp (item->name, "CAL_walk") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_walk_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_walk_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_run") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_run_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_run_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_die1") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_die1_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_die1_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_die2") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_die2_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_die2_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_pain1") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_pain1_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_pain1_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_pain2") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_pain2_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_pain2_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_pick") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_pick_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_pick_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_drop") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_drop_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_drop_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_idle") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_idle1_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_idle1_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_idle2") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_idle2_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_idle2_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_idle_sit") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_idle_sit_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_idle_sit_frame=cal_load_anim(act,str);
-			} else if (xmlStrcasecmp (item->name, "CAL_harvest") == 0) {
+#endif
+ 			} else if (xmlStrcasecmp (item->name, "CAL_harvest") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_harvest_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_harvest_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_cast") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_attack_cast_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_attack_cast_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_sit_down") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_sit_down_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_sit_down_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_stand_up") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_stand_up_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_stand_up_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_in_combat") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_in_combat_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_in_combat_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_out_combat") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_out_combat_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_out_combat_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_combat_idle") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_combat_idle_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_combat_idle_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_1") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_attack_up_1_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_attack_up_1_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_2") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_attack_up_2_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_attack_up_2_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_3") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_attack_up_3_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_attack_up_3_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_4") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_attack_up_4_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_attack_up_4_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_down_1") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_attack_down_1_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_attack_down_1_frame=cal_load_anim(act,str);
+#endif
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_down_2") == 0) {
 				get_string_value (str,sizeof(str),item);
+#ifdef	NEW_ACTOR_ANIMATION
+     			act->cal_attack_down_2_frame=cal_load_anim(act, str, get_int_property(item, "duration"));
+#else
      			act->cal_attack_down_2_frame=cal_load_anim(act,str);
+#endif
 			} else {
 				LOG_ERROR("unknown frame property \"%s\"", item->name);
 				ok = 0;

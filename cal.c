@@ -50,7 +50,11 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 
 
 
+#ifdef	NEW_ACTOR_ANIMATION
+struct cal_anim cal_load_anim(actor_types *act, char *str, int duration)
+#else
 struct cal_anim cal_load_anim(actor_types *act, char *str)
+#endif
 {
 	char fname[255]={0};
 	struct cal_anim res={-1,0,0};
@@ -69,10 +73,13 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 	if (coreanim) {
 		CalCoreAnimation_Scale(coreanim,act->scale);
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
+#ifdef	NEW_ACTOR_ANIMATION
+		if (duration > 0) res.duration_scale = res.duration/(duration*0.001f);
+		else res.duration_scale = 1.0f;
+#endif
 	} else {
 		log_error(no_animation_err_str, fname);
 	}
-
 	return res;
 }
 
