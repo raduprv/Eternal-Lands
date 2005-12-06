@@ -105,6 +105,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	return i;
 }
 
+#ifdef	NEW_FRUSTUM
 float cal_get_maxz(actor *act)
 {
 	float points[1024][3];
@@ -119,7 +120,8 @@ float cal_get_maxz(actor *act)
 	for (i=1;i<nrPoints;++i) if (maxz<points[i][2]) maxz=points[i][2];
 	return maxz;
 }
-		
+#endif	
+
 
 void draw_enhanced_actor(actor * actor_id, int banner)
 {
@@ -131,7 +133,11 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 	bind_texture_id(actor_id->texture_id);
 
 	if (actor_id->calmodel!=NULL){
+#ifdef	NEW_FRUSTUM
+		healtbar_z = actor_id->max_z+0.2;
+#else
 		healtbar_z=cal_get_maxz(actor_id)+0.2;
+#endif
 	}
 	
 	if(actor_id->actor_id==yourself)sitting=healtbar_z/2.0f;

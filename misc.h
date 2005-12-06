@@ -146,7 +146,7 @@ void calculate_shadow_frustum();
 void enable_reflection_clip_planes();
 void disable_reflection_clip_planes();
 void set_current_frustum(unsigned int intersect_type);
-unsigned int sphere_in_frustum(float x, float y, float z, float r);
+void set_selection_matrix();
 #endif
 
 /*!

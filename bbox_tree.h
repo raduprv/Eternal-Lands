@@ -40,7 +40,8 @@
 #define	ITERSECTION_TYPE_DEFAULT			0x00
 #define	ITERSECTION_TYPE_SHADOW				0x01
 #define	ITERSECTION_TYPE_REFLECTION			0x02
-#define	MAX_ITERSECTION_TYPES				0x03
+#define	ITERSECTION_TYPE_SELECTION			0x03
+#define	MAX_ITERSECTION_TYPES				0x04
 
 #define	OUTSIDE		0x0000
 #define	INSIDE		0x0001
@@ -821,5 +822,6 @@ void set_all_intersect_update_needed(BBOX_TREE* bbox_tree);
 extern BBOX_TREE* main_bbox_tree;
 extern BBOX_ITEMS* main_bbox_tree_items;
 
+int aabb_in_frustum(AABBOX *bbox);
 #endif
 #endif

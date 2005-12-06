@@ -220,8 +220,10 @@ void draw_3d_object_detail(object3d * object_id)
 	if (selected_3d_object == -1 && read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, object_id->e3d_data->radius))
 		anything_under_the_mouse(object_id->id, UNDER_MOUSE_3D_OBJ);
 #else
+#ifndef	NEW_FRUSTUM
 	if (read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, object_id->e3d_data->radius))
 		anything_under_the_mouse(object_id->id, UNDER_MOUSE_3D_OBJ);
+#endif
 #endif
 }
 
@@ -318,7 +320,9 @@ void draw_3d_objects(unsigned int object_type)
 	is_transparent= is_alpha_3d_object(object_type);
 	is_ground= is_ground_3d_object(object_type);
 	// set the modes we need
-	if(is_selflit && (!is_day || dungeon)) {
+	if (	(is_selflit && (!is_day || dungeon)) ||
+		(get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_SELECTION))
+	{
 		glDisable(GL_LIGHTING);
 	}
 
@@ -337,6 +341,7 @@ void draw_3d_objects(unsigned int object_type)
 		//track the usage
 		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
 		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
+		if (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_SELECTION) glLoadName(l);
 		draw_3d_object_detail(objects_list[l]);
 	}
 
@@ -351,7 +356,9 @@ void draw_3d_objects(unsigned int object_type)
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 	// restore the settings
-	if(is_selflit && (!is_day || dungeon)){
+	if (	(is_selflit && (!is_day || dungeon)) ||
+		(get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_SELECTION))
+	{
 		glEnable(GL_LIGHTING);
 	}
 	if(is_transparent) {

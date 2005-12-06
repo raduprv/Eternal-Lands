@@ -337,6 +337,10 @@ typedef struct
 	float y_rot;		/*!< Sets the current y rotation*/
 	float z_rot;		/*!< Sets the current z rotation*/
 	/*! \} */
+	
+#ifdef	NEW_FRUSTUM
+	float max_z;
+#endif
 
 	/*! \name Actors worn item IDs*/
 	/*! \{ */

@@ -60,7 +60,8 @@ float m_Frustum[8][4];	// only use 6, but mult by 8 is faster
 FRUSTUM main_frustum;
 FRUSTUM reflection_frustum;
 FRUSTUM shadow_frustum;
-FRUSTUM current_frustum;
+FRUSTUM selection_frustum;
+FRUSTUM* current_frustum;
 unsigned int current_frustum_size;
 double reflection_clip_planes[5][4];
 #endif
@@ -310,39 +311,103 @@ void set_current_frustum(unsigned int intersect_type)
 	{
 		case ITERSECTION_TYPE_DEFAULT:
 			current_frustum_size = 6;
-			memcpy(current_frustum, main_frustum, sizeof(FRUSTUM));
+			current_frustum = &main_frustum;
 			break;
 		case ITERSECTION_TYPE_SHADOW:
 			current_frustum_size = 6;
-			memcpy(current_frustum, shadow_frustum, sizeof(FRUSTUM));
+			current_frustum = &shadow_frustum;
 			break;
 		case ITERSECTION_TYPE_REFLECTION:
 			current_frustum_size = 9;
-			memcpy(current_frustum, reflection_frustum, sizeof(FRUSTUM));
+			current_frustum = &reflection_frustum;
 			break;
+		case ITERSECTION_TYPE_SELECTION:
+			current_frustum_size = 6;
+			current_frustum = &selection_frustum;
+			break;			
 		default:
 			current_frustum_size = 0;
 			break;
 	}
 }
 
-unsigned int sphere_in_frustum(float x, float y, float z, float r)
+int aabb_in_frustum(AABBOX *bbox)
 {
 	unsigned int i;
-	float nx, ny, nz, m;
+	float m, nx, ny, nz;
 	
 	for(i = 0; i < current_frustum_size; i++)
 	{
-		nx = !current_frustum[i].mask[0] ? x-r :  x+r;
-		ny = !current_frustum[i].mask[1] ? y-r :  y+r;
-		nz = !current_frustum[i].mask[2] ? z-r :  z+r;
-		m = (	current_frustum[i].plane[A] * nx + 
-			current_frustum[i].plane[B] * ny + 
-			current_frustum[i].plane[C] * nz);
-		if (m < -current_frustum[i].plane[D]) return 0;
+		nx = !current_frustum[0][i].mask[0] ? bbox->bbmin[X] :  bbox->bbmax[X];
+		ny = !current_frustum[0][i].mask[1] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
+		nz = !current_frustum[0][i].mask[2] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
+		m = (	current_frustum[0][i].plane[A] * nx + 
+			current_frustum[0][i].plane[B] * ny + 
+			current_frustum[0][i].plane[C] * nz);
+		if (m < -current_frustum[0][i].plane[D]) return 0;
 	}
+
 	return 1;
 }
+
+void set_selection_matrix()
+{
+	MATRIX4x4 proj;								// This will hold our projection matrix
+	MATRIX4x4 modl;								// This will hold our modelview matrix
+	MATRIX4x4 clip;								// This will hold the clipping planes
+	GLint viewport[4];
+	unsigned int cur_intersect_type;
+
+	// glGetFloatv() is used to extract information about our OpenGL world.
+	// Below, we pass in GL_PROJECTION_MATRIX to abstract our projection matrix.
+	// It then stores the matrix into an array of [16].
+	glGetFloatv(GL_PROJECTION_MATRIX, proj);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluPickMatrix(mouse_x, window_height-mouse_y, 1.0, 1.0, viewport);
+	glMultMatrixf(proj);
+	glMatrixMode(GL_MODELVIEW);
+	glGetFloatv(GL_PROJECTION_MATRIX, proj);
+	
+	// By passing in GL_MODELVIEW_MATRIX, we can abstract our model view matrix.
+	// This also stores it in an array of [16].
+	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
+
+	// Now that we have our modelview and projection matrix, if we combine these 2 matrices,
+	// it will give us our clipping planes.  To combine 2 matrices, we multiply them.
+
+	clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
+	clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
+	clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
+	clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
+
+	clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
+	clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
+	clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
+	clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
+
+	clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
+	clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
+	clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
+	clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
+
+	clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
+	clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
+	clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
+	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
+
+	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SELECTION);
+	main_bbox_tree->intersect[ITERSECTION_TYPE_SELECTION].intersect_update_needed = 1;
+
+	calculate_frustum_from_clip_matrix(selection_frustum, clip);
+	check_bbox_tree(main_bbox_tree, &selection_frustum, 63);
+	
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+}
+
 
 void calculate_reflection_frustum(unsigned int num, float water_height)
 {

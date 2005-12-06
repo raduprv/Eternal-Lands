@@ -417,6 +417,7 @@ void draw_actor_overtext( actor* actor_ptr )
 	}
 }
 
+#ifndef	NEW_FRUSTUM
 float cal_get_maxz2(actor *act)
 {
 	float points[1024][3];
@@ -433,6 +434,7 @@ float cal_get_maxz2(actor *act)
 	for (i=1;i<nrPoints;++i) if (maxz<points[i][2]) maxz=points[i][2];
 	return maxz;
 }
+#endif
 
 void draw_actor(actor * actor_id, int banner)
 {
@@ -453,7 +455,11 @@ void draw_actor(actor * actor_id, int banner)
 	//i=get_frame_number(actor_id->model_data, actor_id->tmp.cur_frame);
 	//if(i >= 0)healthbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
 	if (actor_id->calmodel!=NULL){
+#ifdef	NEW_FRUSTUM
+		healthbar_z = actor_id->max_z+0.2;
+#else
 		healthbar_z=cal_get_maxz2(actor_id)+0.2;
+#endif
 	}
 
 	glPushMatrix();//we don't want to affect the rest of the scene
@@ -488,6 +494,62 @@ void draw_actor(actor * actor_id, int banner)
 }
 
 #ifdef	NEW_FRUSTUM
+static __inline__ void objects_under_mouse(int count, GLuint* buffer)
+{
+	int i, idx, names, object_id, object_type;
+	GLuint min_z;
+
+	idx = 0;
+
+	if ((count < 1) || (!read_mouse_now)) return;
+	
+	min_z = 0xFFFFFFFF;
+	object_id = -1;
+	object_type = -1;
+	
+	for (i = 0; i < count; i++)
+	{
+		names = buffer[idx];
+		idx += 2;
+		if (min_z > buffer[idx-1])
+		{
+			min_z = buffer[idx-1];
+			object_type = buffer[idx+1];
+			object_id = buffer[idx+2];
+		}
+		idx += names+1;
+	}
+	if (object_type == 0)
+	{
+		thing_under_the_mouse = UNDER_MOUSE_3D_OBJ;
+		actor_under_mouse = NULL;
+	}
+	else
+	{
+		if (actors_list[object_id]->kind_of_actor == NPC)
+		{
+			thing_under_the_mouse = UNDER_MOUSE_NPC;
+		} 
+		else
+		{
+			if	(actors_list[object_id]->kind_of_actor == HUMAN || actors_list[object_id]->kind_of_actor == COMPUTER_CONTROLLED_HUMAN || 
+				(actors_list[object_id]->is_enhanced_model && (actors_list[object_id]->kind_of_actor == PKABLE_HUMAN ||
+					actors_list[object_id]->kind_of_actor == PKABLE_COMPUTER_CONTROLLED)))
+			{
+				thing_under_the_mouse = UNDER_MOUSE_PLAYER;
+			}
+			else
+			{
+				thing_under_the_mouse = UNDER_MOUSE_ANIMAL;
+			}
+		}
+		actor_under_mouse = actors_list[object_id];
+		object_id = actors_list[object_id]->actor_id;
+	}
+
+	object_under_mouse = object_id;
+}
+
 void get_actors_in_range(unsigned int intersect_type)
 #else
 void get_actors_in_range()
@@ -497,6 +559,10 @@ void get_actors_in_range()
 	float dx, dy, x, y, x_pos, y_pos, z_pos;
 	unsigned int i;
 	actor *me;
+	AABBOX bbox;
+	struct CalSkeleton *skel;
+	GLuint select_buffer[1000];
+	GLint count;
 	
 	me = pf_get_our_actor();
 
@@ -506,9 +572,27 @@ void get_actors_in_range()
 	
 	x = -cx;
 	y = -cy;
-	
+
+	if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
+	{
+		set_selection_matrix();
+		glSelectBuffer(1000, select_buffer);
+		glRenderMode(GL_SELECT);
+		glInitNames();
+		glPushName(0);
+		glPushName(0);
+		set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SELECTION);
+		display_objects();
+		display_blended_objects();
+		set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_DEFAULT);
+		glPopName();
+		glPopName();
+		glPushName(1);
+		glPushName(0);
+		glEnable(GL_CULL_FACE);
+	}
 	set_current_frustum(intersect_type);
-	
+
 	for (i = 0; i < max_actors; i++)
 	{
 		if(actors_list[i])
@@ -519,8 +603,19 @@ void get_actors_in_range()
 			z_pos = actors_list[i]->tmp.z_pos;
 			if (z_pos == 0.0f)//actor is walking, as opposed to flying, get the height underneath
 				z_pos=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f;
-
-			if (sphere_in_frustum(actors_list[i]->tmp.x_pos+0.25f, actors_list[i]->tmp.y_pos+0.25f, z_pos+1.5f, 1.5f))
+			
+			skel = CalModel_GetSkeleton(actors_list[i]->calmodel);
+			CalSkeleton_CalculateBoundingBoxes(skel);
+			CalSkeleton_GetBoneBoundingBox(skel, bbox.bbmin, bbox.bbmax);
+			rotate_aabb(&bbox, actors_list[i]->tmp.x_rot, actors_list[i]->tmp.y_rot, 180.0f-actors_list[i]->tmp.z_rot);
+			bbox.bbmin[0] += x_pos+0.25f;
+			bbox.bbmin[1] += y_pos+0.25f;
+			bbox.bbmin[2] += z_pos;
+			bbox.bbmax[0] += x_pos+0.25f;
+			bbox.bbmax[1] += y_pos+0.25f;
+			bbox.bbmax[2] += z_pos;
+	
+			if (aabb_in_frustum(&bbox))
 			{
 				near_actors[no_near_actors].actor = i;
 				dx = x - x_pos;
@@ -528,8 +623,39 @@ void get_actors_in_range()
 				near_actors[no_near_actors].dist = dx*dx + dy*dy;
 				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
 				no_near_actors++;
+	
+				actors_list[i]->max_z = bbox.bbmax[2];
+				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
+				{
+					set_current_frustum(ITERSECTION_TYPE_SELECTION);
+					if (aabb_in_frustum(&bbox))
+					{
+						glLoadName(i);
+						if (actors_list[i]->is_enhanced_model)
+						{
+							draw_enhanced_actor(actors_list[i], 0);
+						}
+						else
+						{
+							draw_actor(actors_list[i], 0);
+						}
+					}
+					set_current_frustum(intersect_type);
+				}
 			}
 		}
+	}
+	if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
+	{
+		glPopName();
+		glPopName();
+		glDisable(GL_CULL_FACE);
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glFlush();
+		count = glRenderMode(GL_RENDER);
+		objects_under_mouse(count, select_buffer);
 	}
 #else
 	int i;
@@ -553,7 +679,7 @@ void get_actors_in_range()
 			dist1=x-actors_list[i]->tmp.x_pos;
 			dist2=y-actors_list[i]->tmp.y_pos;
 						
-			if((dist=dist1*dist1+dist2*dist2)<=12*12){
+			if((dist=dist1*dist1+dist2*dist2)<=7*7){
 				near_actors[no_near_actors].actor=i;
 				near_actors[no_near_actors].dist=dist;
 				near_actors[no_near_actors].ghost=actors_list[i]->ghost;
@@ -589,6 +715,61 @@ void display_actors(int banner)
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
+#ifdef	NEW_FRUSTUM
+	for (i = 0; i < no_near_actors; i++)
+	{
+		if (near_actors[i].ghost)
+		{
+			has_ghosts = 1;
+		}
+		else
+		{
+			actor *cur_actor = actors_list[near_actors[i].actor];
+			if (cur_actor)
+			{
+				if (cur_actor->is_enhanced_model)
+				{
+					draw_enhanced_actor(cur_actor, banner);
+				}
+				else
+				{
+					draw_actor(cur_actor, banner);
+				}			
+			}
+		}
+	}
+
+	if (has_ghosts)
+	{
+		//we don't need the light, for ghosts
+		glDisable(GL_LIGHTING);
+		//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		
+		//display only the ghosts
+		glEnable(GL_BLEND);
+		for (i = 0; i < no_near_actors; i++)
+		{
+			if (near_actors[i].ghost)
+			{
+				actor *cur_actor = actors_list[near_actors[i].actor];
+				if (cur_actor)
+				{
+					if (cur_actor->is_enhanced_model) 
+					{
+						draw_enhanced_actor(cur_actor, banner);
+					}
+					else
+					{
+						draw_actor(cur_actor, banner);
+					}				
+				}
+			}
+		}
+		
+		glDisable(GL_BLEND);
+	}
+#else
 	//display only the non ghosts
 	for(i=0;i<no_near_actors;i++){
 		if(near_actors[i].ghost) {
@@ -609,12 +790,12 @@ void display_actors(int banner)
 				}
 				
 				if(cur_actor->kind_of_actor==NPC){
-					anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+					anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
 				} else if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
 				       (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED))){
-					anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+					anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
 				} else {
-					anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
+					anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
 				}
 			}
 		}
@@ -639,12 +820,12 @@ void display_actors(int banner)
 					}
 					
 					if(cur_actor->kind_of_actor==NPC){
-						anything_under_the_mouse(i, UNDER_MOUSE_NPC);
+						anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
 					} else if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
 						 (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED))){
-						anything_under_the_mouse(i, UNDER_MOUSE_PLAYER);
+						anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
 					} else {
-						anything_under_the_mouse(i, UNDER_MOUSE_ANIMAL);
+						anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
 					}
 				}
 			}
@@ -653,14 +834,12 @@ void display_actors(int banner)
 		glEnable(GL_LIGHTING);
 		glDisable(GL_BLEND);
 	}
+#endif
 
 	if(have_multitexture) ELglClientActiveTextureARB(base_unit);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
-#ifdef	NEW_FRUSTUM
-	get_actors_in_range(ITERSECTION_TYPE_DEFAULT);
-#endif
 }
 
 

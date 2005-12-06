@@ -33,3 +33,14 @@ extern "C" CAL3D_WRAPPER_API void CalCoreMesh_Scale(CalCoreMesh *self,float fact
 	self->scale(factor);
 }
 
+#ifdef	NEW_FRUSTUM
+extern "C" CAL3D_WRAPPER_API void CalSkeleton_GetBoneBoundingBox(CalSkeleton *self, float *min, float *max)
+{
+	self->getBoneBoundingBox(min, max);
+}
+
+extern "C" CAL3D_WRAPPER_API void CalSkeleton_CalculateBoundingBoxes(struct CalSkeleton *self)
+{
+	self->calculateBoundingBoxes();
+}
+#endif
