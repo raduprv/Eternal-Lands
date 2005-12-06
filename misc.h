@@ -58,6 +58,7 @@ void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GL
  */
 void reset_under_the_mouse();
 
+#ifndef	NEW_FRUSTUM
 /*!
  * \ingroup misc
  * \brief   Checks if there any objects at the mouse cursor position.
@@ -72,6 +73,7 @@ void reset_under_the_mouse();
  * \pre If \a object_type equals \ref UNDER_MOUSE_NO_CHANGE, this function will return 0, after storing the pixel values at the current mouse position.
  */
 int anything_under_the_mouse(int object_id, int object_type);
+#endif
 
 /*!
  * \ingroup misc
@@ -82,6 +84,7 @@ int anything_under_the_mouse(int object_id, int object_type);
  */
 void save_scene_matrix();
 
+#ifndef	NEW_FRUSTUM
 /*!
  * \ingroup misc
  * \brief   Checks if the mouse cursor is within a sphere with center in (\a x, \a y, \a z) and the given \a radius.
@@ -96,6 +99,7 @@ void save_scene_matrix();
  * \callgraph
  */
 int mouse_in_sphere(float x, float y, float z, float radius);
+#endif
 
 /*!
  * \ingroup misc

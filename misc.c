@@ -14,20 +14,25 @@
 
 #define IMG_SetError(a) SDL_SetError(a)
 
+#ifndef	NEW_FRUSTUM
 Uint8 last_pixel_color[4];
+#endif
 
 void reset_under_the_mouse()
 {
 	if(!read_mouse_now) {
 		return;
 	}
+#ifndef	NEW_FRUSTUM
 	last_pixel_color[0] = 0;
 	last_pixel_color[1] = 0;
 	last_pixel_color[2] = 0;
+#endif
 	object_under_mouse = -1;
 	thing_under_the_mouse = UNDER_MOUSE_NOTHING;
 }
 
+#ifndef	NEW_FRUSTUM
 int anything_under_the_mouse(int object_id, int object_type)
 {
 	char pixels[16]={0};
@@ -58,6 +63,7 @@ int anything_under_the_mouse(int object_id, int object_type)
 	return 0;//no collision, sorry
 
 }
+#endif
 
 static GLfloat  model[16], inv_model[16];
 static GLfloat  proj[16], inv_proj[16];
@@ -177,6 +183,7 @@ void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GL
 	*oz /= ow;
 }
 
+#ifndef	NEW_FRUSTUM
 int mouse_in_sphere(float x, float y, float z, float radius)
 {
 	GLfloat  winx, winy;
@@ -190,6 +197,7 @@ int mouse_in_sphere(float x, float y, float z, float radius)
 	return (mouse_x >= winx - radius  &&  mouse_x <= winx + radius  &&
 			m_y     >= winy - radius  &&  m_y     <= winy + radius);
 }
+#endif
 
 void find_last_url(const unsigned char *source_string, const int len)
 {
