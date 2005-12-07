@@ -105,7 +105,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	return i;
 }
 
-#ifdef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM
 float cal_get_maxz(actor *act)
 {
 	float points[1024][3];
