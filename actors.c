@@ -624,7 +624,7 @@ void get_actors_in_range()
 				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
 				no_near_actors++;
 	
-				actors_list[i]->max_z = bbox.bbmax[2];
+				actors_list[i]->max_z = bbox.bbmax[2]-z_pos;
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
 				{
 					set_current_frustum(ITERSECTION_TYPE_SELECTION);
