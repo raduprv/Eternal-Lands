@@ -979,6 +979,7 @@ void toggle_full_screen()
 	full_screen=!full_screen;
 	set_new_video_mode(full_screen,video_mode);
 	build_video_mode_array();
+    SDL_SetGamma(gamma_var, gamma_var, gamma_var);
 }
 
 
