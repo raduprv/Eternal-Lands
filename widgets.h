@@ -9,6 +9,7 @@
 #include <SDL_types.h>
 #include "text.h"
 
+#ifndef WIDGETS_FIX
 #define LABEL		1
 #define IMAGE		2
 #define CHECKBOX	3
@@ -21,6 +22,7 @@
 #define MULTISELECT	10
 #define SPINBUTTON	11
 
+#endif
 typedef struct {
 	Sint8 label[64];
 	Uint32 content_id;
@@ -34,6 +36,43 @@ typedef struct {
 	tab *tabs;
 } tab_collection;
 
+#ifdef WIDGETS_FIX
+// The purpose of this implementation if to remove the need to edit
+// the implementation of the widgets to add a new client widget. It
+// also allows clients to be dynamically created and populated.
+struct WIDGET_TYPE {
+    // Function Pointers
+	int (*init)();
+	int (*draw)();
+	int (*click)();
+	int (*drag)();
+	int (*mouseover)();
+	int (*resize)();
+	int (*key)();
+	int (*destroy)();
+    // We can conceivably store other generic info here too
+} ;
+
+/*!
+ * These are the type declarations for widgets.c
+  */
+extern const struct WIDGET_TYPE label_type;
+extern const struct WIDGET_TYPE image_type;
+extern const struct WIDGET_TYPE checkbox_type;
+extern const struct WIDGET_TYPE round_button_type;
+extern const struct WIDGET_TYPE square_button_type;
+extern const struct WIDGET_TYPE progressbar_type;
+extern const struct WIDGET_TYPE vscrollbar_type;
+extern const struct WIDGET_TYPE tab_collection_type;
+extern const struct WIDGET_TYPE text_field_type;
+extern const struct WIDGET_TYPE pword_field_type;
+extern const struct WIDGET_TYPE multiselect_type;
+extern const struct WIDGET_TYPE spinbutton_type;
+
+// Type Conversion Function - TODO : Document'
+int widget_set_type (Uint32 window_id, Uint32 widget_id, const struct WIDGET_TYPE *type);
+
+#endif
 typedef struct {
 	int pos, pos_inc, bar_len;
 }vscrollbar;
@@ -49,13 +88,22 @@ typedef struct wl{
 	Uint16 pos_x, pos_y, len_x, len_y; /*!< Widget area */
 	Uint32 id;                         /*!< Widget unique id */
 	int window_id; /*!< The id of the parent window */
+#ifndef WIDGETS_FIX
 	Uint32 type;   /*!< Specifies what kind of widget it is */
+#else
+	const struct WIDGET_TYPE *type;  /*!< Specifies what properties the widget inherits from it's type */
+	void *spec;		/*!< The specific implementation info for this widget which is passed to type-nonspecific handlers*/
+#endif
 	Uint32 Flags;  /*!< Status flags...visible,enbled,etc */
 	float size;    /*!< Size of text, image, etc */
 	float r, g, b; /*!< Associated color */
     /*! @} */
 
+#ifndef WIDGETS_FIX
 	/*! \name The widget handlers */
+#else
+	/*! \name The specific widget handlers */
+#endif
 	/*! \{ */
 	int (*OnDraw)();
 	int (*OnClick)();
@@ -106,6 +154,10 @@ typedef struct {
 	float interval;
 }spinbutton;
 
+#ifdef WIDGETS_FIX
+/* SPLIT INTO ELWIDGETS.C and ELWIDGETS.H */
+
+#endif
 // Common widget functions
 
 /*!
@@ -208,6 +260,23 @@ int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)())
 int widget_set_OnKey ( Uint32 window_id, Uint32 widget_id, int (*handler)() );
 
 /*!
+#ifdef WIDGETS_FIX
+ * \ingroup	widgets
+ * \brief 	Sets the widget's specific argument (passed to specific handlers)
+ *
+ * 		Finds the widget in the window and sets the widget's specific argument.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \param   	spec A pointer to the memory of the argument.
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int widget_set_args (Uint32 window_id, Uint32 widget_id, void *spec);
+
+/*!
+#endif
  * \ingroup 	widgets
  * \brief 	Moves the widget
  *
@@ -341,7 +410,11 @@ int widget_get_width (Uint32 window_id, Uint32 widget_id);
  *
  * \sa lable_add
  */
+#ifndef WIDGETS_FIX
 int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text);
+#else
+int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text);
+#endif
 
 /*!
  * \ingroup	labels

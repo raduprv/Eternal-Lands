@@ -1121,8 +1121,12 @@ int add_tab_button (Uint8 channel)
 
 	tabs[tabs_in_use].button = button_add_extended (tab_bar_win, cur_button_id++, NULL, tab_bar_width, 0, 0, tab_bar_height, 0, 0.75, 0.77f, 0.57f, 0.39f, label);
 	widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_bar_button_click);
+#ifndef WIDGETS_FIX
 	widget_set_OnDraw (tab_bar_win, tabs[itab].button, square_button_draw);
 
+#else
+	widget_set_type(tab_bar_win, tabs[itab].button, &square_button_type); 
+#endif
 	tab_bar_width += widget_get_width (tab_bar_win, tabs[tabs_in_use].button)+1;
 	resize_window (tab_bar_win, tab_bar_width, tab_bar_height);
 

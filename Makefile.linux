@@ -1,14 +1,14 @@
 .PHONY: clean release docs
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT
+OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT -DNETWORK_THREAD
 #-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
 #-DNOTEPAD        # enable in-game notepad
 #-DCUSTOM_LOOK    # allows you to customize your look. (EXPERIMENTAL)
 #-DUID            # use unique ID sent from server for custom looks. (INCOMPLETE)
-#-DNETWORK_THREAD # use separate thread for network reading (EXPERIMENTAL)
+#-DNETWORK_THREAD # use separate thread for network reading (recommended)
 #-DANTI_ALIAS     # allows to enable/disable anti-aliasing in el.ini
 #-DENCYCLOPEDIA   # enable new encyclopedia and books format (INCOMPLETE)
 #-DMEMORY_DEBUG   # gather information about memory allocation and freeing
@@ -21,6 +21,7 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT
 #-DNEW_FRUSTUM    # use new frustum culling (AABB trees)
 #-DBUG_FIX_3D_OBJECTS_MIN_MAX # Just a smal work around for the new frustum with the buggy 3d objects. This is not nessecary if you have correct 3d objects.
 #-DDRAW_BBOX	  # draws the bounding boxes for 2d and 3d objects
+#-DWIDGETS_FIX    # CK's widget patch (EXPERIMENTAL)
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

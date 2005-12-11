@@ -1007,8 +1007,21 @@ int	draw_window(window_info *win)
 	// widget drawing
 	while(W != NULL)
 	{
+#ifdef WIDGETS_FIX
+		// Draw defaults, then secondaries
+		if (W->type != NULL)
+			if (W->type->draw != NULL)
+				W->type->draw(W);
+#endif
 		if (W->OnDraw != NULL)
+#ifndef WIDGETS_FIX
 			W->OnDraw(W);
+#else
+		{
+			if(W->spec != NULL) W->OnDraw(W, W->spec);
+			else W->OnDraw(W);
+		}
+#endif
 		W = W->next;
 	}
 

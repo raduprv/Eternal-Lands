@@ -362,7 +362,11 @@ int create_buddy_interface_win(const char *title, void *argument)
 			buddy_add_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_add_x_len, buddy_add_y_len+10, ELW_WIN_DEFAULT);
 			set_window_handler(buddy_add_win, ELW_HANDLER_DISPLAY, &display_add_buddy_handler);
 			/* Add name input and label */
+#ifndef WIDGETS_FIX
 			label_id = label_add_extended(buddy_add_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_str);
+#else
+			label_id = label_add_extended(buddy_add_win, label_id, NULL, x, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_str);
+#endif
 			string_width = get_string_width(buddy_name_str)*0.9f;
 			x = string_width+5;
 			y = 5;
@@ -393,17 +397,29 @@ int create_buddy_interface_win(const char *title, void *argument)
 		buddy_change_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_change_x_len, buddy_change_y_len, ELW_WIN_DEFAULT);
 		set_window_handler(buddy_change_win, ELW_HANDLER_DISPLAY, &display_add_buddy_handler);
 		/* Add name label and name */
+#ifndef WIDGETS_FIX
 		label_id = label_add_extended(buddy_change_win, label_id, NULL, x, y, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_str);
+#else
+		label_id = label_add_extended(buddy_change_win, label_id, NULL, x, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_str);
+#endif
 		widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
 		x += get_string_width(buddy_name_str)*0.9f+5;
+#ifndef WIDGETS_FIX
 		label_id = label_add_extended(buddy_change_win, ++label_id, NULL, x, y, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_to_change);
+#else
+		label_id = label_add_extended(buddy_change_win, ++label_id, NULL, x, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_to_change);
+#endif
 		widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
 		label_id++;
 		x = 5;
 		/* Add type label and input widget */
 		y += 25;
 		x += string_width = get_string_width(buddy_type_str)*0.9f;
+#ifndef WIDGETS_FIX
 		label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_type_str);
+#else
+		label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_type_str);
+#endif
 
 		buddy_type_input_id = multiselect_add(buddy_change_win, NULL, x, y, buddy_add_x_len-string_width*2);
 		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 0, buddy_white_str, 1);
@@ -422,7 +438,11 @@ int create_buddy_interface_win(const char *title, void *argument)
 		extra_space = 2+ceilf((buddy_change_x_len-string_width*2 - (20 + get_string_width(buddy_delete_str)*0.9f))/2.0);
 		checkbox_add(buddy_change_win, NULL, x+extra_space, y, 15, 15, &buddy_delete);
 		x += 20;
+#ifndef WIDGETS_FIX
 		label_add_extended(buddy_change_win, label_id, NULL, extra_space+x, y, 0, 0, 0, 0.9f, 0.77f, 0.59f, 0.39f, buddy_delete_str);
+#else
+		label_add_extended(buddy_change_win, label_id, NULL, extra_space+x, y, 0, 0.9f, 0.77f, 0.59f, 0.39f, buddy_delete_str);
+#endif
 		widget_set_OnClick(buddy_change_win, label_id, click_delete_checkbox_label);
 		widget_set_OnMouseover(buddy_change_win, label_id, delete_onmouseover_handler);
 		label_id++;
@@ -471,8 +491,16 @@ int create_buddy_interface_win(const char *title, void *argument)
 		if(!is_in_buddylist(accept_windows[current_window].name)) {
 			accept_windows[current_window].checkbox = checkbox_add(accept_windows[current_window].window_id, NULL, x, y, 15, 15, NULL);
 			x += 20;
+#ifdef WIDGETS_FIX
+
+#endif
 			snprintf (string, sizeof (string), buddy_add_to_list_str);
+#ifndef WIDGETS_FIX
 			label_add_extended(accept_windows[current_window].window_id, label_id++, NULL, x, y, 0, 0, 0, 0.8, -1, -1, -1, string);
+#else
+			label_add_extended(accept_windows[current_window].window_id, label_id++, NULL, x, y, 0, 0.8, -1, -1, -1, string);
+
+#endif
 			y += 20;
 			x = 5;
 		}
@@ -514,7 +542,11 @@ void display_buddy()
 			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 130, 20, 20, 180, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, MAX_BUDDY-19);
 			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, buddy_menu_y_len-20, buddy_menu_x_len, 20, 0, 1.0, -1.0, -1.0, -1.0, buddy_add_str);
 			widget_set_OnClick(buddy_win, buddy_button_id, click_buddy_button_handler);
+#ifndef WIDGETS_FIX
 			widget_set_OnDraw(buddy_win, buddy_button_id, square_button_draw); 
+#else
+			widget_set_type(buddy_win, buddy_button_id, &square_button_type); 
+#endif
 		}
 	else
 		{
