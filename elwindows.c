@@ -826,33 +826,65 @@ int	draw_window_title(window_info *win)
 	glAlphaFunc(GL_GREATER,0.03f);
 	glBegin(GL_QUADS);
 
-	glTexCoord2f(u_first_end, v_first_start);
-	glVertex3i(0, -ELW_TITLE_HEIGHT, 0);
-	glTexCoord2f(u_first_end, v_first_end);
-	glVertex3i(0, 0, 0);
-	glTexCoord2f(u_first_start, v_first_end);
-	glVertex3i(32, 0, 0);
-	glTexCoord2f(u_first_start, v_first_start);
-	glVertex3i(32, -ELW_TITLE_HEIGHT, 0);
+	if (win->len_x > 64) 
+	{
+		glTexCoord2f(u_first_end, v_first_start);
+		glVertex3i(0, -ELW_TITLE_HEIGHT, 0);
+		glTexCoord2f(u_first_end, v_first_end);
+		glVertex3i(0, 0, 0);
+		glTexCoord2f(u_first_start, v_first_end);
+		glVertex3i(32, 0, 0);
+		glTexCoord2f(u_first_start, v_first_start);
+		glVertex3i(32, -ELW_TITLE_HEIGHT, 0);
 
-	// draw one streched out cell to the proper size
-	glTexCoord2f(u_middle_end, v_middle_start);
-	glVertex3i(32, -ELW_TITLE_HEIGHT, 0);
-	glTexCoord2f(u_middle_end, v_middle_end);
-	glVertex3i(32, 0, 0);
-	glTexCoord2f(u_middle_start, v_middle_end);
-	glVertex3i(win->len_x-32, 0, 0);
-	glTexCoord2f(u_middle_start, v_middle_start);
-	glVertex3i(win->len_x-32, -ELW_TITLE_HEIGHT, 0);
+		// draw one streched out cell to the proper size
+		glTexCoord2f(u_middle_end, v_middle_start);
+		glVertex3i(32, -ELW_TITLE_HEIGHT, 0);
+		glTexCoord2f(u_middle_end, v_middle_end);
+		glVertex3i(32, 0, 0);
+		glTexCoord2f(u_middle_start, v_middle_end);
+		glVertex3i(win->len_x-32, 0, 0);
+		glTexCoord2f(u_middle_start, v_middle_start);
+		glVertex3i(win->len_x-32, -ELW_TITLE_HEIGHT, 0);
 
-	glTexCoord2f(u_last_end, v_last_start);
-	glVertex3i(win->len_x-32, -ELW_TITLE_HEIGHT, 0);
-	glTexCoord2f(u_last_end, v_last_end);
-	glVertex3i(win->len_x-32, 0, 0);
-	glTexCoord2f(u_last_start, v_last_end);
-	glVertex3i(win->len_x, 0, 0);
-	glTexCoord2f(u_last_start, v_last_start);
-	glVertex3i(win->len_x, -ELW_TITLE_HEIGHT, 0);
+		glTexCoord2f(u_last_end, v_last_start);
+		glVertex3i(win->len_x-32, -ELW_TITLE_HEIGHT, 0);
+		glTexCoord2f(u_last_end, v_last_end);
+		glVertex3i(win->len_x-32, 0, 0);
+		glTexCoord2f(u_last_start, v_last_end);
+		glVertex3i(win->len_x, 0, 0);
+		glTexCoord2f(u_last_start, v_last_start);
+		glVertex3i(win->len_x, -ELW_TITLE_HEIGHT, 0);
+	}
+	else
+	{
+		glTexCoord2f(u_first_end, v_first_start);
+		glVertex3i(0, -ELW_TITLE_HEIGHT, 0);
+		glTexCoord2f(u_first_end, v_first_end);
+		glVertex3i(0, 0, 0);
+		glTexCoord2f(u_first_start, v_first_end);
+		glVertex3i(win->len_x / 2, 0, 0);
+		glTexCoord2f(u_first_start, v_first_start);
+		glVertex3i(win->len_x / 2, -ELW_TITLE_HEIGHT, 0);
+
+		glTexCoord2f(u_middle_end, v_middle_start);
+		glVertex3i(win->len_x / 2, -ELW_TITLE_HEIGHT, 0);
+		glTexCoord2f(u_middle_end, v_middle_end);
+		glVertex3i(win->len_x / 2, 0, 0);
+		glTexCoord2f(u_middle_start, v_middle_end);
+		glVertex3i(win->len_x / 2 + 1, 0, 0);
+		glTexCoord2f(u_middle_start, v_middle_start);
+		glVertex3i(win->len_x / 2 + 1, -ELW_TITLE_HEIGHT, 0);
+
+		glTexCoord2f(u_last_end, v_last_start);
+		glVertex3i(win->len_x / 2 + 1, -ELW_TITLE_HEIGHT, 0);
+		glTexCoord2f(u_last_end, v_last_end);
+		glVertex3i(win->len_x / 2 + 1, 0, 0);
+		glTexCoord2f(u_last_start, v_last_end);
+		glVertex3i(win->len_x, 0, 0);
+		glTexCoord2f(u_last_start, v_last_start);
+		glVertex3i(win->len_x, -ELW_TITLE_HEIGHT, 0);
+	}
 
 	glEnd();
 	glDisable(GL_ALPHA_TEST);

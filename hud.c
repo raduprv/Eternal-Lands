@@ -1108,7 +1108,7 @@ int	display_quickbar_handler(window_info *win)
 		{
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
-			int x_start,x_end,y_start,y_end;
+			int x_start,x_end,y_start,y_end, itmp;
 
 			//get the UV coordinates.
 			cur_item=item_list[i].image_id%25;
@@ -1120,24 +1120,23 @@ int	display_quickbar_handler(window_info *win)
 			//get the x and y
 			cur_pos=item_list[i].pos;
 					
-			x_start= 1;
-			x_end= x_start+29;
-			y_start= 30*(cur_pos%6)+1;
-			y_end= y_start+29;
+			x_start= 2;
+			x_end= x_start+27;
+			y_start= 30*(cur_pos%6)+2;
+			y_end= y_start+27;
+
+			if(quickbar_dir != VERTICAL)
+			{
+				itmp = x_start; x_start = y_start; y_start = itmp;
+				itmp = x_end; x_end = y_end; y_end = itmp;
+			}
 
 			//get the texture this item belongs to
 			this_texture=get_items_texture(item_list[i].image_id/25);
 
 			get_and_set_texture_id(this_texture);
 			glBegin(GL_QUADS);
-			if(quickbar_dir==VERTICAL)
-			{
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-			}
-			else
-			{
-				draw_2d_thing(u_start,v_start,u_end,v_end,y_start+1,x_start+1,y_end-1,x_end-1);
-			}
 			glEnd();
 			
 			if (item_list[i].cooldown_time > _cur_time)
@@ -1197,10 +1196,7 @@ int	display_quickbar_handler(window_info *win)
 			}
 			
 			snprintf(str,sizeof(str),"%i",item_list[i].quantity);
-			if(quickbar_dir==VERTICAL)
-				draw_string_small(x_start,y_end-15,str,1);
-			else
-				draw_string_small(y_start,x_end-15,str,1);
+			draw_string_small(x_start,y_end-15,str,1);
 		}
 	}
 	
