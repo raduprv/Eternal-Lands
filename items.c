@@ -29,17 +29,7 @@ int items_grid_size=51;//Changes depending on the size of the root window (is 51
 int items_menu_x_len=6*51+110;
 int items_menu_y_len=6*51+90;
 
-int items_text_1;
-int items_text_2;
-int items_text_3;
-int items_text_4;
-int items_text_5;
-int items_text_6;
-int items_text_7;
-int items_text_8;
-int items_text_9;
-int items_text_10;
-int items_text_11;
+int items_text[11];
 
 char items_string[300]={0};
 int item_dragged=-1;
@@ -55,45 +45,7 @@ int quantity_y_offset=185;
 
 __inline__ GLuint get_items_texture(int no)
 {
-	GLuint retval=-1;
-	
-	switch(no){
-		case 0:
-			retval=items_text_1;
-			break;
-		case 1:
-			retval=items_text_2;
-			break;
-		case 2:
-			retval=items_text_3;
-			break;
-		case 3:
-			retval=items_text_4;
-			break;
-		case 4:
-			retval=items_text_5;
-			break;
-		case 5:
-			retval=items_text_6;
-			break;
-		case 6:
-			retval=items_text_7;
-			break;
-		case 7:
-			retval=items_text_8;
-			break;
-		case 8:
-			retval=items_text_9;
-			break;
-		case 9:
-			retval=items_text_10;
-			break;
-		case 10:
-			retval = items_text_11;
-			break;
-	}
-
-	return retval;
+	return items_text[no];
 }
 
 void rendergrid(int columns, int rows, int left, int top, int width, int height)

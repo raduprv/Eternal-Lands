@@ -77,17 +77,7 @@ extern int items_grid_size;
 
 /*! \name Text fields for items */
 /*! @{ */
-extern int items_text_1;
-extern int items_text_2;
-extern int items_text_3;
-extern int items_text_4;
-extern int items_text_5;
-extern int items_text_6;
-extern int items_text_7;
-extern int items_text_8;
-extern int items_text_9;
-extern int items_text_10;
-extern int items_text_11;
+extern int items_text[11];
 /*! @} */
 
 extern int item_dragged;
