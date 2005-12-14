@@ -220,17 +220,18 @@ int close_channel (window_info *win)
 {
 	int id = win->window_id;
 	int ichan;
+	char str[256];
 	
 	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 	{
 		if (channels[ichan].tab_id == id)
 		{
-			channels[ichan].tab_id = -1;
-			channels[ichan].chan_nr = CHAT_ALL;
-			channels[ichan].nr_lines = 0;
-			channels[ichan].open = 0;
-			channels[ichan].newchan = 0;
-			channels[ichan].highlighted = 0;
+			snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, channels[ichan].chan_nr);
+			my_tcp_send(my_socket, str, strlen(str+1)+1);
+
+			// Safe to remove?
+			remove_tab(channels[ichan].chan_nr);
+
 			return 1;
 		}
 	}
@@ -1034,6 +1035,31 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 		// shouldn't happen
 		return 0;
 	
+#ifdef WIDGETS_FIX
+
+	// NOTE: This is an optimization, instead of redefining a "Tab/Button" type.
+	//		 Further use of this would be best served be a new definition.
+	// Detect clicking on 'x'
+	if(tabs[itab].channel == CHAT_CHANNEL1 || tabs[itab].channel == CHAT_CHANNEL2 ||
+	   tabs[itab].channel == CHAT_CHANNEL3)
+	{
+			int x = w->len_x - 6;
+			int y = 5;
+			char str[256];
+
+			// 'x' was clicked?
+			if(mx > x-4 && mx < x+3 && my > y-4 && my < y+3)
+			{
+				// Drop this channel via #lc
+				snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[tabs[itab].channel-CHAT_CHANNEL1]);
+				my_tcp_send(my_socket, str, strlen(str+1)+1);
+				// Can I remove this?
+				remove_tab(tabs[itab].channel);
+			}
+	}
+
+#endif
+
 	if (current_tab != itab)
 	{
 		switch_to_tab(itab);
@@ -1099,6 +1125,32 @@ void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx)
 	}
 }
 
+#ifdef WIDGETS_FIX
+
+// Just for drawing an 'x' on channel buttons.
+
+int draw_tab_x (widget_list *W)
+{
+	int x = W->pos_x + W->len_x - 6;
+	int y = W->pos_y+5;
+
+	glColor3f(0.77f,0.57f,0.39f);
+
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_LINES);
+		glVertex2i(x-4,y-4);
+		glVertex2i(x+3,y+3);
+
+		glVertex2i(x+3,y-4);
+		glVertex2i(x-4,y+3);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+
+	return 1;
+}
+
+#endif
+
 int add_tab_button (Uint8 channel)
 {
 	int itab;
@@ -1126,6 +1178,13 @@ int add_tab_button (Uint8 channel)
 
 #else
 	widget_set_type(tab_bar_win, tabs[itab].button, &square_button_type); 
+ 	// Handlers for the 'x'
+ 	// Make sure it's a CHANNEL first
+ 	if(tabs[itab].channel == CHAT_CHANNEL1 || tabs[itab].channel == CHAT_CHANNEL2 ||
+ 	   tabs[itab].channel == CHAT_CHANNEL3)
+ 	{
+ 		widget_set_OnDraw (tab_bar_win, tabs[itab].button, draw_tab_x);
+ 	}
 #endif
 	tab_bar_width += widget_get_width (tab_bar_win, tabs[tabs_in_use].button)+1;
 	resize_window (tab_bar_win, tab_bar_width, tab_bar_height);
