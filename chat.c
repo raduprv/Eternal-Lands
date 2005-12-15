@@ -1141,8 +1141,8 @@ int draw_tab_x (widget_list *W)
 		glVertex2i(x-4,y-4);
 		glVertex2i(x+3,y+3);
 
-		glVertex2i(x+3,y-4);
 		glVertex2i(x-4,y+3);
+		glVertex2i(x+3,y-4);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
