@@ -27,7 +27,9 @@
 /*! @} */
 
 extern int highest_obj_3d;  /*!< pointer to the highes 3D object in map */
+#ifndef	NEW_FRUSTUM
 extern int no_near_3d_objects;
+#endif
 
 //the new array structures
 
@@ -210,7 +212,9 @@ typedef struct
 
    	GLuint vbo[3];/*!< Vertex buffer objects*/
 
+#ifndef	NEW_FRUSTUM
 	float radius;
+#endif
     
     /*!
      * \name min/max of x,y,z

@@ -374,7 +374,8 @@ int load_map (const char * file_name)
 			cur_3d_obj_io.g = SwapFloat(cur_3d_obj_io.g);
 			cur_3d_obj_io.b = SwapFloat(cur_3d_obj_io.b);
 #endif
-			
+
+			if (cur_3d_obj_io.blended != 1) cur_3d_obj_io.blended = 0;		
 #ifdef	NEW_FRUSTUM
 			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
 					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,

@@ -912,7 +912,9 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	e3d_array_uv_main *array_uv_main;
 	e3d_array_order *array_order;
 	int	mem=0;
+#ifndef	NEW_FRUSTUM
 	float radius, x_len, y_len, z_len;
+#endif
 
 	//get the current directory
 	l=strlen(cur_object->file_name);
@@ -1136,6 +1138,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	free(vertex_list);
 	free(face_list);
 
+#ifndef	NEW_FRUSTUM
 	z_len= cur_object->max_z-cur_object->min_z;
 	x_len= cur_object->max_x-cur_object->min_x;
 	y_len= cur_object->max_y-cur_object->min_y;
@@ -1145,6 +1148,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	if(radius<z_len)radius=z_len;
 
 	cur_object->radius=radius;
+#endif
 	
 	cache_adj_size(cache_e3d, mem, cur_object);
 
