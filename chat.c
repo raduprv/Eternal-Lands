@@ -230,7 +230,7 @@ int close_channel (window_info *win)
 			my_tcp_send(my_socket, str, strlen(str+1)+1);
 
 			// Safe to remove?
-			remove_tab(channels[ichan].chan_nr);
+			if (tab_bar_win != -1) remove_tab_button(channels[ichan].chan_nr);
 
 			return 1;
 		}
