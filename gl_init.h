@@ -37,10 +37,8 @@ extern int have_shaders;
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 
 extern int have_arb_shadow;
-#ifdef	TERRAIN
 extern int have_ogsl_pixel_shader;
 extern int have_ogsl_vertex_shader;
-#endif
 extern int have_texture_non_power_of_two; /*! < flag that indicates whether the GL_ARB_texture_non_power_of_two extension is supported or not*/
 #ifdef	USE_FRAMEBUFFER
 extern int use_frame_buffer; /*!< specifies if we use frame buffer or not */
@@ -83,10 +81,18 @@ extern GLhandleARB (APIENTRY * ELglCreateProgramObjectARB)(void);
 extern void (APIENTRY * ELglAttachObjectARB)(GLhandleARB program, GLhandleARB shader);
 extern void (APIENTRY * ELglLinkProgramARB)(GLhandleARB program);
 extern void (APIENTRY * ELglUseProgramObjectARB)(GLhandleARB program);
-#ifdef	TERRAIN
+extern void (APIENTRY * ELglDeleteObjectARB)(GLhandleARB shader);
+extern void (APIENTRY * ELglGetInfoLogARB)(GLhandleARB object,GLsizei maxLength, GLsizei *length, GLcharARB *infoLog);
+extern void (APIENTRY * ELglGetObjectParameterivARB)(GLhandleARB object, GLenum pname, GLint *params);
 extern GLint (APIENTRY * ELglGetUniformLocationARB)(GLhandleARB program, const char * name);
+extern GLint (APIENTRY * ELglGetAttribLocationARB)(GLhandleARB program, const char *name);
 extern void (APIENTRY * ELglUniform1iARB)(GLint location, GLint v0);
-#endif
+extern void (APIENTRY * ELglUniformMatrix3fvARB)(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
+extern void (APIENTRY * ELglUniform3fvARB)(GLint location, GLsizei count, const GLfloat* value);
+extern void (APIENTRY * ELglUniform4fvARB)(GLint location, GLsizei count, const GLfloat* value);
+extern void (APIENTRY * ELglVertexAttribPointerARB)(GLuint index, int size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+extern void (APIENTRY * ELglEnableVertexAttribArrayARB)(GLuint index);
+extern void (APIENTRY * ELglDisableVertexAttribArrayARB)(GLuint index);
 #ifdef	USE_FRAMEBUFFER
 extern GLboolean (APIENTRY * ELglIsRenderbufferEXT) (GLuint renderbuffer);
 extern void (APIENTRY * ELglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint *params);

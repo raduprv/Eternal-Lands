@@ -78,10 +78,18 @@ GLhandleARB (APIENTRY * ELglCreateProgramObjectARB)(void);
 void (APIENTRY * ELglAttachObjectARB)(GLhandleARB program, GLhandleARB shader);
 void (APIENTRY * ELglLinkProgramARB)(GLhandleARB program);
 void (APIENTRY * ELglUseProgramObjectARB)(GLhandleARB program);
-#ifdef	TERRAIN
+void (APIENTRY * ELglDeleteObjectARB)(GLhandleARB shader);
+void (APIENTRY * ELglGetInfoLogARB)(GLhandleARB object,GLsizei maxLength, GLsizei *length, GLcharARB *infoLog);
+void (APIENTRY * ELglGetObjectParameterivARB)(GLhandleARB object, GLenum pname, GLint *params);
 GLint (APIENTRY * ELglGetUniformLocationARB)(GLhandleARB program, const char * name);
+GLint (APIENTRY * ELglGetAttribLocationARB)(GLhandleARB program, const char *name);
 void (APIENTRY * ELglUniform1iARB)(GLint location, GLint v0);
-#endif
+void (APIENTRY * ELglUniformMatrix3fvARB)(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
+void (APIENTRY * ELglUniform3fvARB)(GLint location, GLsizei count, const GLfloat* value);
+void (APIENTRY * ELglUniform4fvARB)(GLint location, GLsizei count, const GLfloat* value);
+void (APIENTRY * ELglVertexAttribPointerARB)(GLuint index, int size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+void (APIENTRY * ELglEnableVertexAttribArrayARB)(GLuint index);
+void (APIENTRY * ELglDisableVertexAttribArrayARB)(GLuint index);
 #ifdef	USE_FRAMEBUFFER
 GLboolean (APIENTRY * ELglIsRenderbufferEXT) (GLuint renderbuffer);
 void (APIENTRY * ELglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint *params);
@@ -517,11 +525,18 @@ void init_gl_extensions()
 	ELglAttachObjectARB=SDL_GL_GetProcAddress("glAttachObjectARB");
 	ELglLinkProgramARB=SDL_GL_GetProcAddress("glLinkProgramARB");
 	ELglUseProgramObjectARB=SDL_GL_GetProcAddress("glUseProgramObjectARB");
-#ifdef	TERRAIN
 	ELglDeleteObjectARB=SDL_GL_GetProcAddress("glDeleteObjectARB");
+	ELglGetInfoLogARB=SDL_GL_GetProcAddress("glGetInfoLogARB");
+	ELglGetObjectParameterivARB=SDL_GL_GetProcAddress("glGetObjectParameterivARB");
 	ELglGetUniformLocationARB=SDL_GL_GetProcAddress("glGetUniformLocationARB");
+	ELglGetAttribLocationARB=SDL_GL_GetProcAddress("glGetAttribLocationARB");
 	ELglUniform1iARB=SDL_GL_GetProcAddress("glUniform1iARB");
-#endif
+	ELglUniformMatrix3fvARB=SDL_GL_GetProcAddress("glUniformMatrix3fvARB");
+	ELglUniform3fvARB=SDL_GL_GetProcAddress("glUniform3fvARB");
+	ELglUniform4fvARB=SDL_GL_GetProcAddress("glUniform4fvARB");
+	ELglVertexAttribPointerARB=SDL_GL_GetProcAddress("glVertexAttribPointerARB");
+	ELglEnableVertexAttribArrayARB=SDL_GL_GetProcAddress("glEnableVertexAttribArrayARB");
+	ELglDisableVertexAttribArrayARB=SDL_GL_GetProcAddress("glDisableVertexAttribArrayARB");
 #ifdef	USE_FRAMEBUFFER
 	ELglIsRenderbufferEXT=SDL_GL_GetProcAddress("glIsRenderbufferEXT");
 	ELglGetRenderbufferParameterivEXT=SDL_GL_GetProcAddress("glGetRenderbufferParameterivEXT");
@@ -714,39 +729,30 @@ void init_gl_extensions()
 	//Test for OGSL
 	if(ELglCreateShaderObjectARB && ELglShaderSourceARB && ELglCompileShaderARB && ELglCreateProgramObjectARB &&
 	   ELglAttachObjectARB && ELglLinkProgramARB && ELglUseProgramObjectARB && 
-#ifdef	TERRAIN
-	   ELglDeleteObjectARB && ELglGetUniformLocationARB && ELglUniform1iARB &&
-#endif
-	   strstr(extensions,"GL_ARB_shader_objects") && strstr(extensions, "GL_ARB_shading_language_100")){
-		if(strstr(extensions,"GL_ARB_vertex_shader")){
-#ifdef	TERRAIN
-			snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_vertex_shader");
-#else
-			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_vertex_shader");
-#endif
+	   ELglDeleteObjectARB && ELglGetInfoLogARB && ELglGetObjectParameterivARB &&
+	   ELglGetUniformLocationARB && ELglGetAttribLocationARB && ELglUniform1iARB && 
+	   ELglUniformMatrix3fvARB && ELglUniform3fvARB && ELglUniform4fvARB &&
+	   ELglVertexAttribPointerARB && ELglEnableVertexAttribArray && ELglDisableVertexAttribArray && 
+	   strstr(extensions,"GL_ARB_shader_objects") && strstr(extensions, "GL_ARB_shading_language_100"))
+	{
+		if(strstr(extensions,"GL_ARB_vertex_shader"))
+		{
+			snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_vertex_shader");
 			LOG_TO_CONSOLE(c_green2, str);
 			have_ogsl_vertex_shader=1;
 		}
 		
-		if(strstr(extensions,"GL_ARB_fragment_shader")){
-#ifdef	TERRAIN
-			snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_fragment_shader");
-#else
-			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_fragment_shader");
-#endif
+		if(strstr(extensions,"GL_ARB_fragment_shader"))
+		{
+			snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_fragment_shader");
 			LOG_TO_CONSOLE(c_green2, str);
 			have_ogsl_pixel_shader=1;
 		}
-	} else {
-#ifdef	TERRAIN
-		snprintf(str,sizeof(str),gl_ext_not_found,"OpenGL Shading Language");
+	} 
+	else 
+	{
+		snprintf(str,sizeof(str), gl_ext_not_found, "OpenGL Shading Language");
 		LOG_TO_CONSOLE(c_green2, str);
-#else
-		/*
-		 * snprintf(str,sizeof(str),gl_ext_not_found,"OpenGL Shading Language");
-		 * LOG_TO_CONSOLE(c_green2, str);
-		 */
-#endif
 	}
 
 #ifdef	TERRAIN
@@ -797,11 +803,7 @@ void resize_root_window()
 		// first, move back to the actor
 		glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
 	}
-	else
-	{
-		ELPerspective(6.0 + 9.0*zoom_level, window_ratio, 1.0, 5.0*near_plane);
-//		glTranslatef(0.0f, 0.0f, zoom_level*camera_distance-zoom_level/perspective);
-	}
+	else ELPerspective(6.0 + 9.0*zoom_level, window_ratio, 1.0, 5.0*near_plane);
 #else
 	if (isometric) {
 		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );
