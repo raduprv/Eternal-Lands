@@ -732,7 +732,7 @@ void init_gl_extensions()
 	   ELglDeleteObjectARB && ELglGetInfoLogARB && ELglGetObjectParameterivARB &&
 	   ELglGetUniformLocationARB && ELglGetAttribLocationARB && ELglUniform1iARB && 
 	   ELglUniformMatrix3fvARB && ELglUniform3fvARB && ELglUniform4fvARB &&
-	   ELglVertexAttribPointerARB && ELglEnableVertexAttribArray && ELglDisableVertexAttribArray && 
+	   ELglVertexAttribPointerARB && ELglEnableVertexAttribArrayARB && ELglDisableVertexAttribArrayARB && 
 	   strstr(extensions,"GL_ARB_shader_objects") && strstr(extensions, "GL_ARB_shading_language_100"))
 	{
 		if(strstr(extensions,"GL_ARB_vertex_shader"))

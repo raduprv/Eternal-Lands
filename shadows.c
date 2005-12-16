@@ -915,7 +915,9 @@ void draw_sun_shadowed_scene(int any_reflection)
 #ifndef MAP_EDITOR2
 			if(use_fog) glEnable(GL_FOG);
 #endif		
+#ifdef NEW_FRUSTUM
 			main_bbox_tree->intersect[ITERSECTION_TYPE_DEFAULT].intersect_update_needed = 1;
+#endif
 			CalculateFrustum();
 			
 			glNormal3f(0.0f,0.0f,1.0f);
