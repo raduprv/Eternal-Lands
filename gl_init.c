@@ -759,6 +759,16 @@ void init_gl_extensions()
 	CHECK_GL_ERRORS();
 }
 
+#ifdef	USE_LISPSM
+void ELPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
+{
+	double range;
+	
+	range = zNear*tan(fovy*M_PI/360.0);
+	glFrustum(-range*aspect, range*aspect, -range, range, zNear, zFar);
+}
+#endif
+
 void resize_root_window()
 {
 	float window_ratio;
@@ -780,6 +790,19 @@ void resize_root_window()
 	//hud_x_adjust=(2.0/window_width)*hud_x;
 
 	//new zoom
+#ifdef	USE_LISPSM
+	if (isometric)
+	{
+		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );
+		// first, move back to the actor
+		glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
+	}
+	else
+	{
+		ELPerspective(6.0 + 9.0*zoom_level, window_ratio, 1.0, 5.0*near_plane);
+//		glTranslatef(0.0f, 0.0f, zoom_level*camera_distance-zoom_level/perspective);
+	}
+#else
 	if (isometric) {
 		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );
 	} else {
@@ -793,6 +816,7 @@ void resize_root_window()
 	}
 	// first, move back to the actor
 	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
+#endif
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix

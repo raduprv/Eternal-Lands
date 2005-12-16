@@ -167,6 +167,45 @@ static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_n
 	}
 }
 
+static __inline__ void merge_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node,
+	PLANE *frustum, unsigned int in_mask, AABBOX* bbox)
+{
+	unsigned int idx1, idx2, size, i, out_mask;
+
+	idx1 = bbox_tree->cur_intersect_type;
+	idx2 = sub_node->items_index;
+	size = sub_node->items_count;
+		
+	for (i = 0; i < size; i++)
+	{
+		if (check_aabb_in_frustum(&bbox_tree->items[idx2+i].bbox, frustum,
+			in_mask, &out_mask) != OUTSIDE)
+		{
+			VMin(bbox->bbmin, bbox->bbmin, bbox_tree->items[idx2+i].bbox.bbmin);
+			VMax(bbox->bbmax, bbox->bbmax, bbox_tree->items[idx2+i].bbox.bbmax);
+		}
+	}
+}
+
+static __inline__ void merge_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node,
+	PLANE *frustum, unsigned int in_mask, AABBOX* bbox)
+{
+	unsigned int idx, size, i, out_mask;
+
+	idx = bbox_tree->cur_intersect_type;
+	size = sub_node->dynamic_objects.index;
+		
+	for (i = 0; i < size; i++)
+	{
+		if (check_aabb_in_frustum(&sub_node->dynamic_objects.items[i].bbox,
+			frustum, in_mask, &out_mask) != OUTSIDE)
+		{
+			VMin(bbox->bbmin, bbox->bbmin, sub_node->dynamic_objects.items[i].bbox.bbmin);
+			VMax(bbox->bbmax, bbox->bbmax, sub_node->dynamic_objects.items[i].bbox.bbmax);			
+		}
+	}
+}
+
 #ifdef	FRUSTUM_THREADS
 static __inline__ void add_add_list_items(BBOX_TREE* bbox_tree, PLANE *frustum, unsigned int in_mask)
 {
@@ -206,6 +245,34 @@ static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub
 				{
 					check_sub_nodes(bbox_tree, sub_node->nodes[0], frustum, out_mask);
 					check_sub_nodes(bbox_tree, sub_node->nodes[1], frustum, out_mask);
+				}
+			}
+		}
+	}
+}
+
+static __inline__ void calc_bbox_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, PLANE *frustum, unsigned int in_mask, AABBOX* bbox)
+{
+	unsigned int out_mask, result;
+	
+	if (sub_node != NULL)
+	{
+		result = check_aabb_in_frustum(&sub_node->bbox, frustum, in_mask, &out_mask);
+		if (result == INSIDE)
+		{
+			VMin(bbox->bbmin, bbox->bbmin, sub_node->bbox.bbmin);
+			VMax(bbox->bbmax, bbox->bbmax, sub_node->bbox.bbmax);
+		}
+		else
+		{
+			if (result == INTERSECT)
+			{
+				merge_dyn_items(bbox_tree, sub_node, frustum, out_mask, bbox);
+				if (sub_node->nodes[0] == NULL)	merge_items(bbox_tree, sub_node, frustum, out_mask, bbox);
+				else
+				{
+					calc_bbox_sub_nodes(bbox_tree, sub_node->nodes[0], frustum, out_mask, bbox);
+					calc_bbox_sub_nodes(bbox_tree, sub_node->nodes[1], frustum, out_mask, bbox);
 				}
 			}
 		}
@@ -353,6 +420,18 @@ void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum, unsigned int mask)
 			build_start_stop(bbox_tree);
 			bbox_tree->intersect[idx].intersect_update_needed = 0;
 		}
+		unlock_bbox_tree(bbox_tree);
+	}	
+}
+
+void calc_scene_bbox(BBOX_TREE* bbox_tree, FRUSTUM *frustum, AABBOX* bbox)
+{	
+	if (bbox_tree != NULL)
+	{
+		lock_bbox_tree(bbox_tree);
+		VFill(bbox->bbmax, -BOUND_HUGE);
+		VFill(bbox->bbmin, BOUND_HUGE);
+		calc_bbox_sub_nodes(bbox_tree, bbox_tree->root_node, *frustum, 63, bbox);
 		unlock_bbox_tree(bbox_tree);
 	}	
 }

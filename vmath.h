@@ -33,6 +33,10 @@ typedef float VECTOR4[4];
  */
 typedef float VECTOR3[3];
 /*! 
+ * VECTOR3D is the same as VECTOR3 but with double precision.
+ */
+typedef double VECTOR3D[3];
+/*! 
  * SHORT_VEC3 is used for normal calculating using little memory.
  */
 typedef short SHORT_VEC3[3];
@@ -44,7 +48,10 @@ typedef float TEXTCOORD2[2];
  * MATRIX4x4 is used for translation and rotation.
  */
 typedef float MATRIX4x4[16];
-
+/*! 
+ * MATRIX4x4D is the same as MATRIX4x4 but with double precision.
+ */
+typedef double MATRIX4x4D[16];
 /*!
  * \ingroup 	misc_utils
  * \brief 	Vector add.
@@ -241,24 +248,6 @@ static __inline__ void VAssignS3(SHORT_VEC3 v1, const VECTOR3 v2)
 	v1[Z] = v2[Z]*32767.0f;
 }
 
-/*	| a1 a2 |
-	| b1 b2 | calculate the determinent of a 2x2 matrix*/
-static __inline__ float det2x2(const float a1, const float a2, const float b1,
-	const float b2)
-{
-	return a1*b2 - b1*a2;
-}
-
-/*	| a1 a2 a3 |
-	| b1 b2 b3 |
-	| c1 c2 c3 | calculate the determinent of a 3x3 matrix*/
-static __inline__ float det3x3(const float a1, const float a2, const float a3,
-	const float b1, const float b2, const float b3, const float c1,
-	const float c2, const float c3)
-{
-	return a1*det2x2(b2,b3,c2,c3) - b1*det2x2(a2,a3,c2,c3) + c1*det2x2(a2,a3,b2,b3);
-}
-
 /*!
  * \ingroup 	misc_utils
  * \brief 	Vector cross product.
@@ -270,11 +259,15 @@ static __inline__ float det3x3(const float a1, const float a2, const float a3,
  * 
  * \callgraph
  */
-static __inline__ void VCross(VECTOR3 result, const VECTOR3 a, const VECTOR3 b)
+static __inline__ void VCross(VECTOR3 v1, const VECTOR3 v2, const VECTOR3 v3)
 {
-	result[0] =  det2x2(a[1], b[1], a[2], b[2]);
-	result[1] = -det2x2(a[0], b[0], a[2], b[2]);
-	result[2] =  det2x2(a[0], b[0], a[1], b[1]);
+	VECTOR3 tmp;
+
+	tmp[X] = v2[Y] * v3[Z] - v2[Z] * v3[Y];
+	tmp[Y] = v2[Z] * v3[X] - v2[X] * v3[Z];
+	tmp[Z] = v2[X] * v3[Y] - v2[Y] * v3[X];
+
+	VAssign(v1, tmp);
 }
 
 /*!
@@ -304,4 +297,9 @@ static __inline__ void calc_rotation_and_translation_matrix(MATRIX4x4 matrix, fl
 	glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
 	glPopMatrix();
 }
+
+void calculate_Light_Matrix(int useBodyVec, double nearDist,
+	const VECTOR3D lightDir, const MATRIX4x4D ModelViewMatrix,
+	const MATRIX4x4D ProjectionMatrix, MATRIX4x4D lightView,
+	MATRIX4x4D lightProjection);
 #endif

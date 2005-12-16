@@ -105,6 +105,7 @@ void calc_shadow_matrix()
 {
 	if(use_shadow_mapping)
 		{
+#ifndef USE_LISPSM
 			float xrot,zrot;
 
 			double scale1d[]={0.0,0.0,0.0,0.0,
@@ -152,6 +153,7 @@ void calc_shadow_matrix()
 			glMultMatrixd(light_view_mat);     // L^-1
 			glGetDoublev(GL_MODELVIEW_MATRIX,texgen_mat_1d);
 			glPopMatrix();
+#endif
 		}
 	else
 		{
@@ -497,6 +499,7 @@ void display_shadows()
 #endif
 	
 	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 #ifndef	NEW_FRUSTUM
@@ -531,10 +534,14 @@ void display_shadows()
 #endif
 
 	glDisableClientState(GL_VERTEX_ARRAY);
-    	glDisable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glDisable(GL_CULL_FACE);
 #ifndef MAP_EDITOR2
 	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(1.1f, 4.0f);
 	display_actors_shadow();
+	glDisable(GL_POLYGON_OFFSET_FILL);
 	glEnable(GL_TEXTURE_2D);
 #endif
 }
@@ -650,7 +657,27 @@ void render_light_view()
 #endif
 	if(use_shadow_mapping)
 		{
-
+#ifdef USE_LISPSM
+			MATRIX4x4D ModelViewMatrix;
+			MATRIX4x4D ProjectionMatrix;
+			VECTOR3D lightDir;
+			double d;
+			
+			glGetDoublev(GL_MODELVIEW_MATRIX, ModelViewMatrix);
+			glGetDoublev(GL_PROJECTION_MATRIX, ProjectionMatrix);
+			
+			lightDir[X] = -sun_position[X];
+			lightDir[Y] = -sun_position[Y];
+			lightDir[Z] = -sun_position[Z];
+			
+			d = sqrt(lightDir[X]*lightDir[X] + lightDir[Y]*lightDir[Y] + lightDir[Z]*lightDir[Z]);
+			lightDir[X] /= d;
+			lightDir[Y] /= d;
+			lightDir[Z] /= d;
+			
+			calculate_Light_Matrix(1, 1.0, lightDir, ModelViewMatrix,
+				ProjectionMatrix, light_view_mat, light_proj_mat);
+#endif
 			glPushAttrib(GL_ALL_ATTRIB_BITS);
 			if(!depth_map_id)
 				{
@@ -659,6 +686,7 @@ void render_light_view()
 					glGenTextures(1,&depth_map_id);
 					glBindTexture(depth_texture_target,depth_map_id);
 					CHECK_GL_ERRORS();
+#ifndef USE_LISPSM
 					glGetIntegerv(GL_DEPTH_BITS,&depthbits);
 					if(depthbits==24)internalformat=GL_DEPTH_COMPONENT24_ARB;
 					else if(depthbits==32)internalformat=GL_DEPTH_COMPONENT32_ARB;
@@ -674,13 +702,22 @@ void render_light_view()
 					//TODO: Might want to use CLAMP_TO_BORDER for cards that support it?
 					glTexParameteri(depth_texture_target,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 					glTexParameteri(depth_texture_target,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+#else
+					glTexImage2D(depth_texture_target,0,GL_DEPTH_COMPONENT,
+						     depth_map_width,depth_map_height,
+						     0,GL_DEPTH_COMPONENT,GL_UNSIGNED_BYTE,NULL);					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);	
+					glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_LUMINANCE);					
+#endif
 					CHECK_GL_ERRORS();
 				}
 
 			glViewport(0,0,depth_map_width,depth_map_height);
 
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(1.1f,4.0f);
 			glDisable(GL_LIGHTING);
 			glEnable(GL_DEPTH_TEST);
 #ifndef MAP_EDITOR2
@@ -694,7 +731,9 @@ void render_light_view()
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
 			glLoadMatrixd(light_view_mat);
+#ifndef USE_LISPSM
 			glTranslatef((int)cx,(int)cy,(int)cz);
+#endif
 #ifdef NEW_FRUSTUM
 			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 			set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SHADOW);
@@ -723,6 +762,7 @@ void render_light_view()
 
 void setup_2d_texgen()
 {
+#ifndef USE_LISPSM
 	GLfloat plane[4];
 
 	glEnable(GL_TEXTURE_GEN_S);
@@ -744,26 +784,74 @@ void setup_2d_texgen()
 	glTexGeni(GL_Q,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
 	plane[0]=texgen_mat[3];plane[1]=texgen_mat[7];plane[2]=texgen_mat[11];plane[3]=texgen_mat[15];
 	glTexGenfv(GL_Q,GL_EYE_PLANE,plane);
+#else
+	const GLdouble x[4] = {1.0, 0.0, 0.0, 0.0};
+	const GLdouble y[4] = {0.0, 1.0, 0.0, 0.0};
+	const GLdouble z[4] = {0.0, 0.0, 1.0, 0.0};
+	const GLdouble w[4] = {0.0, 0.0, 0.0, 1.0};
+	const GLdouble bias[16] = {0.5, 0.0, 0.0, 0.0, 
+				 	0.0, 0.5, 0.0, 0.0,
+					0.0, 0.0, 0.5, 0.0,
+					0.5, 0.5, 0.5, 1.0};
+
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+	glEnable(GL_TEXTURE_GEN_R);
+	glEnable(GL_TEXTURE_GEN_Q);
+
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	
+	glTexGendv(GL_S, GL_EYE_PLANE, x);
+	glTexGendv(GL_T, GL_EYE_PLANE, y);
+	glTexGendv(GL_R, GL_EYE_PLANE, z);
+	glTexGendv(GL_Q, GL_EYE_PLANE, w);
+
+	glMatrixMode(GL_TEXTURE);
+	glLoadMatrixd(bias);
+	glMultMatrixd(light_proj_mat);
+	glMultMatrixd(light_view_mat);
+	glMatrixMode(GL_MODELVIEW);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+#endif
 }
 
 void disable_texgen()
 {
+#ifndef USE_LISPSM
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	glDisable(GL_TEXTURE_GEN_R);
 	glDisable(GL_TEXTURE_GEN_Q);
+#else
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+	glDisable(GL_TEXTURE_GEN_R);
+	glDisable(GL_TEXTURE_GEN_Q);
+#endif
 }
 
 void setup_shadow_mapping()
 {
+#ifndef USE_LISPSM
 	glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(cx-(int)cx,cy-(int)cy,cz-(int)cz);
+#endif
 	glBindTexture(depth_texture_target,depth_map_id);
 	setup_2d_texgen();
+
 #ifdef OSX
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_ARB);
 	glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_ARB,GL_INTERPOLATE_ARB);
@@ -791,7 +879,9 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_ALPHA_EXT,GL_PREVIOUS_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_ALPHA_EXT,GL_SRC_ALPHA);
 #endif
+#ifndef USE_LISPSM
 	glPopMatrix();
+#endif
 }
 
 void draw_sun_shadowed_scene(int any_reflection)
@@ -824,8 +914,10 @@ void draw_sun_shadowed_scene(int any_reflection)
 
 #ifndef MAP_EDITOR2
 			if(use_fog) glEnable(GL_FOG);
-#endif
-
+#endif		
+			main_bbox_tree->intersect[ITERSECTION_TYPE_DEFAULT].intersect_update_needed = 1;
+			CalculateFrustum();
+			
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
 			draw_tile_map();

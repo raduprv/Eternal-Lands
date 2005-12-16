@@ -474,6 +474,7 @@ static __inline__ unsigned int is_self_lit_3d_object(unsigned int type)
  *
  * \param bbox_tree	The bounding-box-tree holding the objects.
  * \param frustum	The frustum, mostly the view-frustum.
+ * \param mask		The mask used with the frustum.
  *
  * \callgraph
  */
@@ -819,9 +820,24 @@ void free_bbox_items(BBOX_ITEMS* bbox_items);
  */
 void set_all_intersect_update_needed(BBOX_TREE* bbox_tree);
 
+/*!
+ * \ingroup misc
+ * \brief .
+ *
+ * .
+ *
+ * \param bbox_tree	The bounding-box-tree holding the objects.
+ * \param frustum	The frustum.
+ * \param bbox		The bbox of the objects in the frustum.
+ *
+ * \callgraph
+ */
+void calc_scene_bbox(BBOX_TREE* bbox_tree, FRUSTUM *frustum, AABBOX* bbox);
+
 extern BBOX_TREE* main_bbox_tree;
 extern BBOX_ITEMS* main_bbox_tree_items;
 
 int aabb_in_frustum(AABBOX *bbox);
+void calculate_light_frustum(FRUSTUM frustum, double* modl, double* proj);
 #endif
 #endif
