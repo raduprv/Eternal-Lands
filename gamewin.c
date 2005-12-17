@@ -6,6 +6,7 @@
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
+int use_old_clicker=0;
 #ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
@@ -326,7 +327,11 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				Uint8 str[10];
 				short x, y;
 		
-				get_world_x_y ();
+				if(use_old_clicker)
+					get_old_world_x_y();
+				else
+					get_world_x_y ();
+
 				x = scene_mouse_x / 0.5f;
 				y = scene_mouse_y / 0.5f;
 				// check to see if the coordinates are OUTSIDE the map
@@ -461,7 +466,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		
 			if (you_sit && sit_lock && !flag_ctrl)
 				return 1;
-			get_world_x_y ();
+
+			if(use_old_clicker)
+				get_old_world_x_y();
+			else
+				get_world_x_y ();
+
 			x = scene_mouse_x / 0.5f;
 			y = scene_mouse_y / 0.5f;
 			// check to see if the coordinates are OUTSIDE the map
@@ -815,11 +825,11 @@ int display_game_handler (window_info *win)
 int check_quit_or_fullscreen (Uint32 key)
 {
 	int alt_on = key & ELW_ALT;
-	int ctrl_on = key & ELW_CTRL;
 	Uint16 keysym = key & 0xffff;
+#ifndef WINDOWS
+	int ctrl_on = key & ELW_CTRL;
 
 	// first, try to see if we pressed Alt+x or Ctrl+q, to quit.
-#ifndef WINDOWS
 	if ( (keysym == SDLK_x && alt_on) || (keysym == SDLK_q && ctrl_on && !alt_on) )
 #else
 	// Windows SDL reports [Alt Gr] as [Ctrl], which hinders German users typing '@'

@@ -11,6 +11,7 @@
  * @{ */
 extern int game_root_win; /*!< the root (game) window */
 /*! @} */
+extern int use_old_clicker;
 
 /*!
  * \ingroup events
