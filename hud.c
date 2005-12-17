@@ -1187,13 +1187,12 @@ int	display_quickbar_handler(window_info *win)
 					}
 
 					glVertex2f(x_center, y_start);
-
-					glColor3f(1.0f, 1.0f, 1.0f);
 				glEnd();
 
 				glDisable(GL_BLEND);
 				glEnable(GL_TEXTURE_2D);
-			}
+				glColor3f(1.0f, 1.0f, 1.0f);
+		}
 			
 			snprintf(str,sizeof(str),"%i",item_list[i].quantity);
 			draw_string_small(x_start,y_end-15,str,1);
@@ -1575,8 +1574,11 @@ void draw_exp_display()
 		//exp_bar_length = (int)( (((float)cur_exp - prev_exp) / ((float)nl_exp - prev_exp)) * 100.0);
 		exp_adjusted_x_len = 100-100.0f/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
-	draw_stats_bar(exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
-	draw_string_small(exp_bar_start_x, exp_bar_start_y+10, name, 1);
+	// only display if you are below the exp needed, don't allow negative bars
+	if(exp_adjusted_x_len >= 0){
+		draw_stats_bar(exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
+		draw_string_small(exp_bar_start_x, exp_bar_start_y+10, name, 1);
+	}
 }
 
 /*Change flags*/

@@ -367,12 +367,11 @@ int display_items_handler(window_info *win)
 					}
 
 					glVertex2f(x_center, y_start);
-
-					glColor3f(1.0f, 1.0f, 1.0f);
 				glEnd();
 
 				glDisable(GL_BLEND);
 				glEnable(GL_TEXTURE_2D);
+				glColor3f(1.0f, 1.0f, 1.0f);
 			}
 			
 			if(!item_is_weared){
