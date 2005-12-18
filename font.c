@@ -132,21 +132,18 @@ int get_font_char(unsigned char cur_char)
 						cur_char=oUMLAUT;break;
 					case 248:
 						cur_char=oSLASH;break;
+					case 249:
+						cur_char=uGRAVE;break;
 					case 250:
 						cur_char=uACCENT;break;
-					case 251:
-						cur_char=UGRAVE;break;
 					case 252:
-						cur_char=UUML;break;
-					/* this case is redundant. which one is right?
-					case 252:
-						cur_char=uUMLAUT;break; */
+						cur_char=uUMLAUT;break;
 					default:
 						return -1;	//ignore it
 					}
-					if(cur_char>=UUML && cur_char<=UACCENT)
-						{
-							cur_char-=(UUML-127);
+					if(cur_char>=SPECIALCHAR_LBOUND && cur_char<=SPECIALCHAR_UBOUND)
+					{
+							cur_char-=(SPECIALCHAR_LBOUND-127);
 						}
 				}
 		}

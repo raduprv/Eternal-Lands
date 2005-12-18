@@ -370,7 +370,7 @@
  * \name Foreign chars
  */
 /*! @{ */
-#define UUML 180
+#define SPECIALCHAR_LBOUND 180
 #define EACUTE 181
 #define ACIRC 182
 #define AGRAVE 183
@@ -380,7 +380,7 @@
 #define EGRAVE 187
 #define IUML 188
 #define OCIRC 189
-#define UGRAVE 190
+#define uGRAVE 190
 #define aUMLAUT 191
 #define oUMLAUT 192
 #define uUMLAUT 192
@@ -405,6 +405,7 @@
 #define OACCENT 212
 #define uACCENT 213
 #define UACCENT 214
+#define SPECIALCHAR_UBOUND 214
 
 /*! @} */
 
