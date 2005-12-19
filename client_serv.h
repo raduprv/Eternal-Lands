@@ -383,7 +383,7 @@
 #define uGRAVE 190
 #define aUMLAUT 191
 #define oUMLAUT 192
-#define uUMLAUT 192
+#define uUMLAUT 193
 #define AUMLAUT 194
 #define OUMLAUT 195
 #define UUMLAUT 196
