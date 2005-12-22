@@ -48,7 +48,9 @@ int find_font_char(unsigned char cur_char)
 			r=(float)colors_list[cur_char].r1/255.0f;
 			g=(float)colors_list[cur_char].g1/255.0f;
 			b=(float)colors_list[cur_char].b1/255.0f;
-			glColor3f(r,g,b);
+			//This fixes missing letters in the font on some clients
+			//No idea why going from 3f to 4f helps, but it does
+			glColor4f(r,g,b,1.0);
 			return(-1);	// nothing to do
 		}
 	return(get_font_char(cur_char));
