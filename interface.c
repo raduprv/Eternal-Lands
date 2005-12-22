@@ -122,86 +122,29 @@ void build_video_mode_array()
 		flags=SDL_OPENGL;
 
 #ifdef WINDOWS
-	if(bpp==16 || full_screen)
+	if(bpp==16 || full_screen){
 #else
-		if(bpp==16)
+	if(bpp==16){
 #endif
-			if(SDL_VideoModeOK(640, 480, 16, flags))video_modes[0].supported=1;
-
+		if(SDL_VideoModeOK(640, 480, 16, flags))video_modes[0].supported=1;
+		if(SDL_VideoModeOK(800, 600, 16, flags))video_modes[2].supported=1;
+		if(SDL_VideoModeOK(1024, 768, 16, flags))video_modes[4].supported=1;
+		if(SDL_VideoModeOK(1152, 864, 16, flags))video_modes[6].supported=1;
+		if(SDL_VideoModeOK(1280, 1024, 16, flags))video_modes[8].supported=1;
+		if(SDL_VideoModeOK(1600, 1200, 16, flags))video_modes[10].supported=1;
+	}
 #ifdef WINDOWS
-	if(bpp==32 || full_screen)
+	if(bpp==32 || full_screen){
 #else
-		if(bpp==32)
+	if(bpp==32){
 #endif
-			if(SDL_VideoModeOK(640, 480, 32, flags))video_modes[1].supported=1;
-
-#ifdef WINDOWS
-	if(bpp==16 || full_screen)
-#else
-		if(bpp==16)
-#endif
-			if(SDL_VideoModeOK(800, 600, 16, flags))video_modes[2].supported=1;
-
-#ifdef WINDOWS
-	if(bpp==32 || full_screen)
-#else
-		if(bpp==32)
-#endif
-			if(SDL_VideoModeOK(800, 600, 32, flags))video_modes[3].supported=1;
-
-#ifdef WINDOWS
-	if(bpp==16 || full_screen)
-#else
-		if(bpp==16)
-#endif
-			if(SDL_VideoModeOK(1024, 768, 16, flags))video_modes[4].supported=1;
-
-#ifdef WINDOWS
-	if(bpp==32 || full_screen)
-#else
-		if(bpp==32)
-#endif
-			if(SDL_VideoModeOK(1024, 768, 32, flags))video_modes[5].supported=1;
-
-#ifdef WINDOWS
-	if(bpp==16 || full_screen)
-#else
-		if(bpp==16)
-#endif
-			if(SDL_VideoModeOK(1152, 864, 16, flags))video_modes[6].supported=1;
-
-#ifdef WINDOWS
-	if(bpp==32 || full_screen)
-#else
-		if(bpp==32)
-#endif
-			if(SDL_VideoModeOK(1152, 864, 32, flags))video_modes[7].supported=1;
-
-#ifdef WINDOWS
-	if(bpp==16 || full_screen)
-#else
-		if(bpp==16)
-#endif
-			if(SDL_VideoModeOK(1280, 1024, 16, flags))video_modes[8].supported=1;
-
-#ifdef WINDOWS
-	if(bpp==32 || full_screen)
-#else
-		if(bpp==32)
-#endif
-			if(SDL_VideoModeOK(1280, 1024, 32, flags))video_modes[9].supported=1;
-#ifdef WINDOWS
-        if(bpp==16 || full_screen)
-#else
-                if(bpp==16)
-#endif
-                        if(SDL_VideoModeOK(1600, 1200, 16, flags))video_modes[10].supported=1;
-#ifdef WINDOWS
-        if(bpp==32 || full_screen)
-#else
-                if(bpp==32)
-#endif
-                        if(SDL_VideoModeOK(1600, 1200, 32, flags))video_modes[11].supported=1;
+		if(SDL_VideoModeOK(640, 480, 32, flags))video_modes[1].supported=1;
+		if(SDL_VideoModeOK(800, 600, 32, flags))video_modes[3].supported=1;
+		if(SDL_VideoModeOK(1024, 768, 32, flags))video_modes[5].supported=1;
+		if(SDL_VideoModeOK(1152, 864, 32, flags))video_modes[7].supported=1;
+		if(SDL_VideoModeOK(1280, 1024, 32, flags))video_modes[9].supported=1;
+		if(SDL_VideoModeOK(1600, 1200, 32, flags))video_modes[11].supported=1;
+	}
 //TODO: Add wide screen resolutions
 //1280x800
 //1400x1050
