@@ -735,17 +735,17 @@ int display_color_race_handler (window_info *win)
 	}
 
 	if(book_over==book_human){
-		show_help("About Human", 142, 80);
+		show_help(about_human, 142, 80);
 	} else if(book_over==book_elf){
-		show_help("About Elves", 142, 108);
+		show_help(about_elves, 142, 108);
 	} else if(book_over==book_dwarf){
-		show_help("About Dwarfs", 142, 136);
+		show_help(about_dwarfs, 142, 136);
 	} else if(book_over==book_gnome){
-		show_help("About Gnomes", 260, 80);
+		show_help(about_gnomes, 260, 80);
 	} else if(book_over==book_orchan){
-		show_help("About Orchans", 262, 108);
+		show_help(about_orchans, 262, 108);
 	} else if(book_over==book_draegoni){
-		show_help("About Draegoni", 262, 136);
+		show_help(about_draegoni, 262, 136);
 	}
 	
 	glColor3f(1.0f,1.0f,1.0f);
