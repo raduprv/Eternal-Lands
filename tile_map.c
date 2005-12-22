@@ -180,6 +180,9 @@ void draw_tile_map()
 		}
 		if (use_normal_mapping)
 		{
+			int num;
+			int i;
+
 			//bind the normal map texture
 			last_normal_map = get_normal_texture_ID(x_start, y_start);
 			ELglActiveTextureARB(normal_map_unit);
@@ -193,8 +196,6 @@ void draw_tile_map()
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "normal_texture"), normal_map_unit-GL_TEXTURE0_ARB);
 			ELglUniform1iARB(ELglGetUniformLocationARB(normal_mapping_shader, "shadow_texture"), shadow_unit-GL_TEXTURE0_ARB);
 
-			int num;
-			int i;
 			num = -1;
 			
 			for (i = 0; i < 7; i++)

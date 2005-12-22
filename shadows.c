@@ -681,8 +681,10 @@ void render_light_view()
 			glPushAttrib(GL_ALL_ATTRIB_BITS);
 			if(!depth_map_id)
 				{
+#ifndef USE_LISPSM
 					GLint depthbits=16;
 					GLenum internalformat=GL_DEPTH_COMPONENT16_ARB;
+#endif
 					glGenTextures(1,&depth_map_id);
 					glBindTexture(depth_texture_target,depth_map_id);
 					CHECK_GL_ERRORS();

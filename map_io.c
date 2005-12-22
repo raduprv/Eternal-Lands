@@ -525,6 +525,9 @@ int load_empty_map()
 #ifndef MAP_EDITOR2
 		pf_tile_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(char));
 #endif
+#ifdef	TERRAIN
+		init_terrain(NULL, tile_map_size_x*6*4, tile_map_size_y*6*4);
+#endif
 		return 0;
 	}
 	return 1;
@@ -624,6 +627,10 @@ void new_map(int m_x_size,int m_y_size,int tile_type)
 	height_map=(char *)calloc(m_x_size*m_y_size*6*6, 1);
 	//now, fill the map
 	for(i=0;i<m_x_size*m_y_size*6*6;i++)height_map[i]=11;
+
+#ifdef	TERRAIN
+	init_terrain(NULL, tile_map_size_x*6*4, tile_map_size_y*6*4);
+#endif
 
 	load_map_tiles();
 

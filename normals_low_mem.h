@@ -7,6 +7,9 @@
 #ifndef NORMALS_LOW_MEM_H
 #define NORMALS_LOW_MEM_H
 
+#define min(a,b) (a>b?b:a)
+#define max(a,b) (a>b?a:b)
+
 /*!
  * \ingroup 	display_utils
  * \brief	Calculates the normal textures of the normal map with little memory usage.

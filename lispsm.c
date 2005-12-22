@@ -745,7 +745,7 @@ static __inline__ void calcObjectCubicHull(VECTOR3D min, VECTOR3D max,
 	
 	if (obj.size > 0)
 	{
-		calcCubicHull(min, max, obj.poly[0].points, obj.poly[0].size);
+		calcCubicHull(min, max, (const VECTOR3D*) obj.poly[0].points, obj.poly[0].size);
 		
 		for (i = 1; i < obj.size; i++)
 		{
@@ -1102,7 +1102,7 @@ static __inline__ void calcFocusedLightVolumePoints(VecPoint* points,
 	obj = OBJECT_NULL;
 
 	calcViewFrustumWorldCoord(pts, invEyeProjView);
-	calcViewFrustObject(&obj, pts);
+	calcViewFrustObject(&obj, (const VECTOR3D*) pts);
 	clipObjectByAABox(&obj, sceneAABox);
 	includeObjectLightVolume(points, obj, lightDir, sceneAABox);
 	emptyObject(&obj);
@@ -1183,7 +1183,7 @@ static __inline__ void calcLispSMMtx(VecPoint* B, int useBodyVec,
 	//calculate the cubic hull (an AABB) 
 	//of the light space extents of the intersection body B
 	//and save the two extreme points min and max
-	calcCubicHull(min, max, B->points, B->size);
+	calcCubicHull(min, max, (const VECTOR3D*) B->points, B->size);
 
 	//use the formulas of the paper to get n (and f)
 	factor = 1.0/sinGamma;
@@ -1216,7 +1216,7 @@ static __inline__ void calcLispSMMtx(VecPoint* B, int useBodyVec,
 	//calculate the cubic hull (an AABB) 
 	//of the light space extents of the intersection body B
 	//and save the two extreme points min and max
-	calcCubicHull(min, max, Bcopy.points, Bcopy.size);
+	calcCubicHull(min, max, (const VECTOR3D*) Bcopy.points, Bcopy.size);
 
 	//refit to unit cube
 	//this operation calculates a scale translate matrix that
