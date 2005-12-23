@@ -152,7 +152,7 @@ void change_actor ()
 		our_actor.our_model=NULL;
 	}
 	
-	your_actor = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
+	your_actor = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 	our_actor.our_model = your_actor;
 
 	snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), "%s", inputs[0].str);
@@ -176,7 +176,7 @@ int display_newchar_handler (window_info *win)
 	//see if we have to load a model (male or female)
 	if (creating_char && !our_actor.our_model){
 		move_camera();//Make sure we lag a little...
-		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
+		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 		yourself = 0;
 		your_actor = our_actor.our_model; 
 	}

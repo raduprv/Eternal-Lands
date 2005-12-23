@@ -32,7 +32,7 @@ void init_actors_lists()
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, char remappable, short skin_color, short hair_color, short shirt_color, short pants_color, short boots_color, int actor_id)
+int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, float scale, char remappable, short skin_color, short hair_color, short shirt_color, short pants_color, short boots_color, int actor_id)
 {
 	int texture_id;
 	int i;
@@ -62,6 +62,7 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 	our_actor->x_pos=x_pos;
 	our_actor->y_pos=y_pos;
 	our_actor->z_pos=z_pos;
+	our_actor->scale=scale;
 
 	our_actor->x_speed=0;
 	our_actor->y_speed=0;
@@ -145,7 +146,11 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	
 	// are we actively drawing?
 	if(SDL_GetAppState()&SDL_APPACTIVE){
-				
+  		// account for the dynamic scaling
+		if(actor_id->scale != 1.0f){
+            healthbar_z *= actor_id->scale;
+		}
+
 		if(use_shadow_mapping)
 			{
 				glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
@@ -843,7 +848,7 @@ void display_actors(int banner)
 }
 
 
-void add_actor_from_server (const char *in_data)
+void add_actor_from_server (const char *in_data, int len)
 {
 	short actor_id;
 	short x_pos;
@@ -865,6 +870,7 @@ void add_actor_from_server (const char *in_data)
 	int kind_of_actor;
 
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
+	float scale= 1.0f;
 
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
 	x_pos=SDL_SwapLE16(*((short *)(in_data+2)));
@@ -882,6 +888,9 @@ void add_actor_from_server (const char *in_data)
 	max_health=SDL_SwapLE16(*((short *)(in_data+18)));
 	cur_health=SDL_SwapLE16(*((short *)(in_data+20)));
 	kind_of_actor=*(in_data+22);
+	if(len > 23+strlen(in_data+23)+2){
+		scale=((float)SDL_SwapLE16(*((short *)(in_data+23+strlen(in_data+23)+1)))/((float)0x4000));
+	}
 
 	//translate from tile to world
 	f_x_pos=x_pos*0.5;
@@ -938,7 +947,7 @@ void add_actor_from_server (const char *in_data)
 					}
 		}
 
-	i = add_actor (actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, f_z_pos, f_z_rot, remapable, skin, hair, shirt, pants, boots, actor_id);
+	i = add_actor (actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, f_z_pos, f_z_rot, scale, remapable, skin, hair, shirt, pants, boots, actor_id);
 	
 	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
 	

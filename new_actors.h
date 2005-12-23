@@ -62,10 +62,11 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id);
  *      Adds a new server character. The data for the actor will be sent by the server an is given by \a in_data.
  *
  * \param in_data   the data for the new actor.
+ * \param len   	then length of the data received
  *
  * \callgraph
  */
-void add_enhanced_actor_from_server (const char * in_data);
+void add_enhanced_actor_from_server (const char * in_data, int len);
 
 /*!
  * \ingroup other
@@ -86,6 +87,7 @@ void build_glow_color_table();
  * \param	x The x position
  * \param	y The y position
  * \param	z_rot The z rotation
+ * \param   scale The size of the actor
  * \param	actor_type The race and sex
  * \param	skin The skin type
  * \param	hair The hair type
@@ -97,6 +99,6 @@ void build_glow_color_table();
  * \sa		client_serv.h
  * \callgraph
  */
-actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short skin, short hair,
+actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair,
 							short shirt, short pants, short boots, short head);
 #endif

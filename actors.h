@@ -326,6 +326,7 @@ typedef struct
 	double x_pos;		/*!< Specifies the x position of the actor */
 	double y_pos;		/*!< Specifies the y position of the actor */
 	double z_pos;		/*!< Specifies the z position of the actor */
+	float   scale;      /*!< Specidies the custom scaling for the actor model */
 
 	int x_tile_pos;		/*!< Specifies the x tile position - updated in the timer thread*/
 	int y_tile_pos;		/*!< Specifies the y tile position - updated in the timer thread \n*/
@@ -501,10 +502,11 @@ void display_actors(int banner);
  * 		Is called when the client gets an ADD_NEW_ACTOR command from the server. Parses the data pointed to by in_data, then adds the actor to the actors list
  *
  * \param	in_data The data from the server
+ * \param   len The length of the supplied data
  *
  * \callgraph
  */
-void add_actor_from_server (const char * in_data);
+void add_actor_from_server (const char * in_data, int len);
 //void draw_interface_body_part(md2 *model_data);
 
 /*!

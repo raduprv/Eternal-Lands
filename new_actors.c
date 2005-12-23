@@ -32,7 +32,7 @@ void build_glow_color_table()
 
 //return the ID (number in the actors_list[]) of the new allocated actor
 int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
-					   float z_pos, float z_rot, int actor_id)
+					   float z_pos, float z_rot, float scale, int actor_id)
 {
 	int texture_id;
 	int i;
@@ -57,6 +57,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->x_pos=x_pos;
 	our_actor->y_pos=y_pos;
 	our_actor->z_pos=z_pos;
+	our_actor->scale=scale;
 
 	our_actor->x_speed=0;
 	our_actor->y_speed=0;
@@ -366,7 +367,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 		}
 }
 
-void add_enhanced_actor_from_server (const char *in_data)
+void add_enhanced_actor_from_server (const char *in_data, int len)
 {
 	short actor_id;
 	short x_pos;
@@ -399,7 +400,8 @@ void add_enhanced_actor_from_server (const char *in_data)
     Uint32 guild_id;
 #endif  //CUSTOM_LOOK || MINIMAP
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
-
+	float   scale=1.0f;
+	
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -430,6 +432,13 @@ void add_enhanced_actor_from_server (const char *in_data)
 	kind_of_actor=*(in_data+27);
 #if defined CUSTOM_LOOK && defined UID
 	uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
+	if(len > 32+strlen(in_data+32)+2){
+		scale=((float)SDL_SwapLE16(*((short *)(in_data+32+strlen(in_data+32)+1)))/((float)0x4000));
+	}
+#else
+	if(len > 28+strlen(in_data+28)+2){
+		scale=((float)SDL_SwapLE16(*((short *)(in_data+28+strlen(in_data+28)+1)))/((float)0x4000));
+	}
 #endif
 
 	//translate from tile to world
@@ -661,7 +670,7 @@ void add_enhanced_actor_from_server (const char *in_data)
 			my_strncp(this_actor->helmet_tex,"",sizeof(this_actor->helmet_tex));
 		}
 
-	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,f_z_pos,f_z_rot,actor_id);
+	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,f_z_pos,f_z_rot,scale,actor_id);
 	
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -746,7 +755,7 @@ void add_enhanced_actor_from_server (const char *in_data)
 #endif
 }
 
-actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short skin, short hair,
+actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair,
 				short shirt, short pants, short boots, short head)
 {
 	enhanced_actor * this_actor=calloc(1,sizeof(enhanced_actor));
@@ -761,7 +770,7 @@ actor * add_actor_interface(float x, float y, float z_rot, int actor_type, short
 	my_strncp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name,sizeof(this_actor->boots_tex));
 	my_strncp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name,sizeof(this_actor->pants_tex));
 
-	a=actors_list[add_enhanced_actor(this_actor, x*0.5f, y*0.5f, 0.00000001f, z_rot, 0)];
+	a=actors_list[add_enhanced_actor(this_actor, x*0.5f, y*0.5f, 0.00000001f, z_rot, scale, 0)];
 
 	a->x_tile_pos=x;
 	a->y_tile_pos=y;
