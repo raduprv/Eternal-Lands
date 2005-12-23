@@ -73,6 +73,7 @@
 #define phantom_warrior 60
 #define imp 61
 #define brownie 62
+#define leprechaun 63
 
 
 /*! @} */

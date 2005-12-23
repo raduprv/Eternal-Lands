@@ -69,13 +69,14 @@ const dict_elem actor_type_dict[] =
 	  { "chimeran arctic wolf"  , chimeran_wolf_arctic   },
 	  { "tiger 1"  	    	    , tiger_1		     },
 	  { "tiger 2"  	            , tiger_2		     },
-	  { "armed female orc"	    , armed_female_orc	     },
-	  { "armed male orc"	    , armed_male_orc	     },
-	  { "armed skeleton"	    , armed_skeleton	     },
-	  { "phantom warrior"	    , phantom_warrior	     },
-	  { "imp"		    , imp		     },
-	  { "brownie"		    , brownie		     },
-	  { NULL                    , -1                     }
+	  { "armed female orc"		, armed_female_orc		},
+	  { "armed male orc"		, armed_male_orc		},
+	  { "armed skeleton"		, armed_skeleton		},
+	  { "phantom warrior"		, phantom_warrior		},
+	  { "imp"					, imp					},
+	  { "brownie"				, brownie				},
+	  { "leprechaun"        	, leprechaun			},
+	  { NULL                    , -1					}
 	};
 
 const dict_elem shirt_color_dict[] = 
