@@ -200,9 +200,12 @@ void get_your_items (const Uint8 *data)
 	
 	for(i=0;i<total_items;i++){
 		pos=data[i*8+1+6];
+		// try not to wipe out cooldown information if no real change
+		if(item_list[pos].image_id != SDL_SwapLE16(*((Uint16 *)(data+i*8+1))) ){
+			item_list[pos].cooldown_time = 0;
+			item_list[pos].cooldown_rate = 1;
+		}
 		item_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data+i*8+1)));
-		item_list[pos].cooldown_time = 0;
-		item_list[pos].cooldown_rate = 1;
 		item_list[pos].quantity=SDL_SwapLE32(*((Uint32 *)(data+i*8+1+2)));
 		item_list[pos].pos=pos;
 		flags=data[i*8+1+7];
