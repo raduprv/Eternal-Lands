@@ -1,7 +1,7 @@
 .PHONY: clean release docs
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT -DNETWORK_THREAD
+OPTIONS=-DBSD -DELC -DPNG_SCREENSHOT -DNETWORK_THREAD
 #-DX86_64
 #-DTIMER_CHECK
 #-DWRITE_XML
