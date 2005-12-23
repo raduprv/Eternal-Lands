@@ -3,7 +3,7 @@
 #include "global.h"
 
 #ifndef WINDOWS
-#include <SDL_syswm.h>
+ #include <SDL_syswm.h>
 #endif
 
 void do_paste(Uint8 * buffer)
@@ -25,9 +25,30 @@ void finishpaste (void* event)
 	// Todo. This :-)
 }
 #else
-#ifndef WINDOWS
+ #ifndef WINDOWS
 
-void startpaste() {
+int use_clipboard = 1;
+
+void processpaste(Display *dpy, Window window, Atom atom)
+{
+	Atom type;
+	int actualformat;
+	unsigned long items;
+	unsigned long bytes;
+	unsigned char * value = NULL;
+
+	XGetWindowProperty(dpy,window,atom,0,256,1,XA_STRING,&type,&actualformat,&items, &bytes, &value);
+	if(type == XA_STRING) {
+		do_paste(value);
+	}
+	/* XGetWindowProperty allocated this, so we have to free it */
+	if(value) {
+		XFree(value);
+	}
+}
+
+void startpaste()
+{
 	Display * dpy;
 	Window window;
 	SDL_SysWMinfo wminfo;
@@ -46,24 +67,31 @@ void startpaste() {
 		 * KDE3 should use CLIPBOARD also, I'm not sure about older
 		 * KDE versions */
 
-		/* selection=XA_PRIMARY; */
-		selection=XInternAtom(dpy,"CLIPBOARD",0);
+		if(use_clipboard) {
+			selection=XInternAtom(dpy,"CLIPBOARD",0);
+		} else {
+			selection=XA_PRIMARY;
+		}
 		property=XInternAtom(dpy,"PASTE",0);
 		XConvertSelection(dpy,selection,XA_STRING,property,window,CurrentTime);
-
+		/* - If we used the CLIPBOARD, we don't get a SelectionNotify
+		 *   event, so we have to call processpaste immediately.
+		 * - If we used XA_PRIMARY, the selection-holder will send us a
+		 *   SelectionNotify-event, as soon as the selection is
+		 *   available for us. Then finishpaste calls processpaste
+		 */
+		if(use_clipboard) {
+			processpaste(dpy, window, property);
+		}
 		wminfo.info.x11.unlock_func();
 	}
 }
 
-void finishpaste(XSelectionEvent event) {
+void finishpaste(XSelectionEvent event)
+{
 	Display * dpy;
 	Window window;
 	SDL_SysWMinfo wminfo;
-	Atom type;
-	int actualformat;
-	unsigned long items;
-	unsigned long bytes;
-	unsigned char * value;
 
 	SDL_VERSION(&wminfo.version);
 	if(SDL_GetWMInfo(&wminfo) && wminfo.subsystem==SDL_SYSWM_X11) {
@@ -76,16 +104,12 @@ void finishpaste(XSelectionEvent event) {
 			fprintf(stderr,"%s\n",not_ascii);
 			return;
 		}
-		XGetWindowProperty(dpy,window,event.property,0,256,1,XA_STRING,&type,&actualformat,&items, &bytes, &value);
-		if(type == XA_STRING)
-			{
-				do_paste(value);
-			}
+		processpaste(dpy, window, event.property);
 		wminfo.info.x11.unlock_func();
 	}
 }
 
-#else
+ #else
 
 void windows_paste()
 {
@@ -96,5 +120,5 @@ void windows_paste()
 	CloseClipboard();
 }
 
-#endif
-#endif
+ #endif //ndef WINDOWS
+#endif //OSX

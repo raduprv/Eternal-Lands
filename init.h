@@ -151,6 +151,9 @@ extern int buddy_log_notice; /*!< whether to log buddy logged on/off notices to 
 extern char configdir[256]; /*!< the default directory where we look for configuration files */
 extern char datadir[256]; /*!< the default directory where we look for data files (aka installation dir) */
 extern int show_help_text;
+#if !defined(WINDOWS) && !defined(OSX)
+extern int use_clipboard; /*!< whether to use CLIPBOARD or PRIMARY for pasting */
+#endif
 
 extern int disconnected; /*!< indicates whether we are currently connected or not */
 extern int exit_now; /*!< a flag that indicates we should exit the programm immediately */

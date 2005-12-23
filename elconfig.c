@@ -980,6 +980,9 @@ void init_vars()
 	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show grid", "Show grid",HUD);
 #endif
 
+#if !defined(WINDOWS) && !defined(OSX)
+	add_var(BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use clipboard for pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",MISC);
+#endif
 }
 
 void write_var (FILE *fout, int ivar)
