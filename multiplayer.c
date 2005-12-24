@@ -348,7 +348,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				add_actor_from_server(&in_data[3]);
+				add_actor_from_server(&in_data[3], data_length-3);
 			}
 			break;
 
@@ -357,7 +357,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				add_enhanced_actor_from_server(&in_data[3]);
+				add_enhanced_actor_from_server(&in_data[3], data_length-3);
 			}
 			break;
 
