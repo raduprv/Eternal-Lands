@@ -171,7 +171,6 @@ void cal_render_actor(actor *act)
 {
 	struct CalRenderer *pCalRenderer;
 	int meshCount,meshId,submeshCount/*,submeshId, vertexCount*/;
-	//int textureCoordinateCount,faceCount;
 	float points[1024][3];
 	static float meshVertices[30000][3];
 	static float meshNormals[30000][3];
@@ -184,7 +183,6 @@ void cal_render_actor(actor *act)
 	struct CalCoreMesh *_shieldmesh;
 	int boneid=-1;
 	float reverse_scale;
-	//char str[255];
 	int glow=-1;
 
 	if(act->calmodel==NULL) {
@@ -194,9 +192,12 @@ void cal_render_actor(actor *act)
 
 	//glDisable(GL_TEXTURE_2D);
 	glPushMatrix();
-	//glScalef(1.2,1.2,1.2);
-	// get the renderer of the model
+	// the dynamic scaling
+	if(act->scale != 1.0f){
+		glScalef(act->scale,act->scale,act->scale);
+	}
 
+	// get the renderer of the model
 #ifdef DEBUG
 	if (render_mesh) {
 #endif
