@@ -1303,7 +1303,6 @@ void update_particles() {
 				destroy_partice_sys_without_lock(i);		
 		}
 	}
-	lock_bbox_tree(main_bbox_tree);
 	get_intersect_start_stop(main_bbox_tree, TYPE_PARTICLE_SYSTEM, &start, &stop);
 	for (i = start; i < stop; i++)
 	{
@@ -1339,7 +1338,6 @@ void update_particles() {
 				break;
 		}
 	}
-	unlock_bbox_tree(main_bbox_tree);
 #else
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{

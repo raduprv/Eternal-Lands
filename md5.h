@@ -38,6 +38,7 @@ documentation and/or software.
 // sizeof(unsigned long) == 8 on 64 bit system and MD5Close will segfault.
 //typedef unsigned long UINT4;
 typedef unsigned int UINT4;
+typedef unsigned char MD5_DIGEST[16];
 
 /*!
  * The MD5 structure used to generate MD5 hash values
@@ -82,6 +83,6 @@ void MD5Digest(MD5 *md5, const void *input, unsigned int input_len);
  *
  * \sa MD5Digest
  */
-void MD5Close(MD5 *md5, unsigned char digest[16]);
+void MD5Close(MD5 *md5, MD5_DIGEST digest);
 
 #endif

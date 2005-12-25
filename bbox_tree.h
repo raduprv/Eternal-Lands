@@ -10,6 +10,7 @@
 #include "global.h"
 #include "misc.h"
 #endif
+#include "md5.h"
 
 #define TYPE_2D_NO_ALPHA_OBJECT					0x00
 #define TYPE_2D_ALPHA_OBJECT					0x01
@@ -49,7 +50,7 @@
 
 #define BOUND_HUGE	10e30
 
-typedef unsigned int IDX_TYPE;
+#define	EXTRA_FIRST_SUB_NODE	0x0001
 
 typedef struct
 {
@@ -76,8 +77,10 @@ typedef struct
 typedef struct
 {
 	unsigned char		type;
-	unsigned short		sort_data;
-	unsigned short		ID;
+	unsigned char		extra;
+	unsigned int		texture_id;
+	MD5_DIGEST		md5;
+	unsigned int		ID;
 } BBOX_ITEM_DATA;
 
 typedef struct
@@ -88,17 +91,17 @@ typedef struct
 
 typedef struct
 {
-	IDX_TYPE		size;
-	IDX_TYPE		index;
+	unsigned int		size;
+	unsigned int		index;
 	BBOX_ITEM*		items;
 } BBOX_ITEMS;	
 
 typedef struct
 {
-	IDX_TYPE		size;
-	IDX_TYPE		index;
-	IDX_TYPE		sub_size;
-	IDX_TYPE		sub_index;
+	unsigned int		size;
+	unsigned int		index;
+	unsigned int		sub_size;
+	unsigned int		sub_index;
 	BBOX_ITEM*		items;
 	BBOX_ITEM_DATA*		sub_items;
 } BBOX_TREE_DYN_NODE;
@@ -108,54 +111,32 @@ typedef struct BBox_Tree_Node_Struct BBOX_TREE_NODE;
 struct BBox_Tree_Node_Struct
 {
 	AABBOX			bbox;
+	AABBOX			orig_bbox;
 	BBOX_TREE_NODE*		nodes[2];
 	BBOX_TREE_DYN_NODE	dynamic_objects;
-	IDX_TYPE		items_index;
-	IDX_TYPE		items_count;
+	unsigned int		items_index;
+	unsigned int		items_count;
 };
 
 typedef struct
 {
 	unsigned int		intersect_update_needed;
-	IDX_TYPE		size;
-	IDX_TYPE		count;
-	IDX_TYPE		start[TYPES_COUNT];
-	IDX_TYPE		stop[TYPES_COUNT];
+	unsigned int		size;
+	unsigned int		count;
+	unsigned int		start[TYPES_COUNT];
+	unsigned int		stop[TYPES_COUNT];
 	BBOX_ITEM_DATA*		items;
 } BBOX_INTERSECTION_DATA;
-
-#ifdef	FRUSTUM_THREADS
-typedef	struct
-{
-	BBOX_ITEM		item;
-	unsigned char		dynamic;
-} BBOX_UPDATE_ITEM_DATA;
-
-typedef struct
-{
-	unsigned int		bbox_tree_degeneration;
-	IDX_TYPE		size;
-	IDX_TYPE		index;
-	BBOX_UPDATE_ITEM_DATA*	list;
-} BBOX_TREE_UPDATE_DATA;
-#endif
 
 typedef	struct
 {
 	BBOX_TREE_NODE*		root_node;
-	IDX_TYPE		items_count;
+	unsigned int		items_count;
 	BBOX_ITEM*		items;
-	IDX_TYPE		nodes_count;
+	unsigned int		nodes_count;
 	BBOX_TREE_NODE*		nodes;
 	unsigned int		cur_intersect_type;
 	BBOX_INTERSECTION_DATA	intersect[MAX_ITERSECTION_TYPES];
-	SDL_mutex*		bbox_tree_mutex;
-#ifdef	FRUSTUM_THREADS
-	SDL_cond*		update_condition;
-	BBOX_TREE_UPDATE_DATA	update_data;
-	unsigned int		done;
-	SDL_Thread*		thread_id;
-#endif
 } BBOX_TREE;
 
 enum
@@ -312,20 +293,6 @@ static __inline__ void matrix_mul_aabb(AABBOX* bbox, MATRIX4x4 matrix)
 	bbox->bbmax[Y] = max2f(bbox->bbmax[Y], max2f(max2f(matrix_2[1], matrix_2[5]), max2f(matrix_2[9], matrix_2[13])));
 	bbox->bbmax[Z] = max2f(max2f(matrix_1[2], matrix_1[6]), max2f(matrix_1[10], matrix_1[14]));
 	bbox->bbmax[Z] = max2f(bbox->bbmax[Z], max2f(max2f(matrix_2[2], matrix_2[6]), max2f(matrix_2[10], matrix_2[14])));
-}
-
-static __inline__ int lock_bbox_tree(BBOX_TREE* bbox_tree)
-{
-	if ((bbox_tree != NULL) && (bbox_tree->bbox_tree_mutex != NULL))
-		return SDL_LockMutex(bbox_tree->bbox_tree_mutex);
-	else return -1;
-}
-
-static __inline__ int unlock_bbox_tree(BBOX_TREE* bbox_tree)
-{
-	if ((bbox_tree != NULL) && (bbox_tree->bbox_tree_mutex != NULL))
-		return SDL_UnlockMutex(bbox_tree->bbox_tree_mutex);
-	else return -1;
 }
 
 static __inline__ void get_intersect_start_stop(BBOX_TREE* bbox_tree, unsigned int type, unsigned int* start, unsigned int* stop)
@@ -554,7 +521,7 @@ void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
  * \param ground	Is this a ground object?
  * \callgraph
  */
-void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id);
+void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5);
 
 /*!
  * \ingroup misc
@@ -628,7 +595,7 @@ void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, un
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, unsigned int dynamic);
+void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5, unsigned int dynamic);
 
 /*!
  * \ingroup misc

@@ -223,7 +223,7 @@ void MD5Digest(MD5 *md5, const void *input, unsigned int inputLen)
 #define ENCODE(p,n) (p)[0]=n,(p)[1]=n>>8,(p)[2]=n>>16,(p)[3]=n>>24
 #endif
 
-void MD5Close(MD5 *md5, unsigned char digest[16])
+void MD5Close(MD5 *md5, MD5_DIGEST digest)
 {
   unsigned char bits[8];
   unsigned int index, padLen;

@@ -412,6 +412,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 #ifdef	NEW_FRUSTUM
 	AABBOX bbox;
 	unsigned int texture_id;
+	MD5_DIGEST ZERO_MD5 = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 #endif
 
 	if (id < 0 || id >= MAX_OBJ_3D)
@@ -510,8 +511,8 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		texture_id = returned_e3d->array_order[0].texture_id;
 	}
 	else texture_id = 0xFFFFFFFF;
-	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, &bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id);
-	else add_3dobject_to_abt(main_bbox_tree, id, &bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, dynamic);
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, &bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, ZERO_MD5);
+	else add_3dobject_to_abt(main_bbox_tree, id, &bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, ZERO_MD5, dynamic);
 
 #else
 	regenerate_near_objects = 1; // We've added an object..
