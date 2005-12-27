@@ -1070,8 +1070,8 @@ static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tre
 			}
 			else
 			{
-				memcpy(node->bbox.bbmin, node->orig_bbox.bbmin, sizeof(VECTOR3));
-				memcpy(node->bbox.bbmax, node->orig_bbox.bbmax, sizeof(VECTOR3));
+				memcpy(new_bbox.bbmin, node->orig_bbox.bbmin, sizeof(VECTOR3));
+				memcpy(new_bbox.bbmax, node->orig_bbox.bbmax, sizeof(VECTOR3));
 			}
 
 			for (i = 0; i < node->dynamic_objects.index; i++)
