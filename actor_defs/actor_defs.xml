@@ -66,7 +66,7 @@
         <!ENTITY spider_s_2 SYSTEM "spider_small2.xml">
         <!ENTITY spider_s_3 SYSTEM "spider_small3.xml">
         <!ENTITY wood_sprite SYSTEM "wood_sprite.xml">
-
+        <!ENTITY leprechaun SYSTEM "leprechaun.xml">
 
 ]>
 
@@ -138,5 +138,6 @@
         &spider_s_2;
         &spider_s_3;
         &wood_sprite;
+	&leprechaun;
 
 </actors>
