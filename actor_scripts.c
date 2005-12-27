@@ -76,12 +76,12 @@ const dict_elem actor_type_dict[] =
 	  { "imp"					, imp					},
 	  { "brownie"				, brownie				},
 	  { "leprechaun"        	, leprechaun			},
-	  { "spider big 1"        	, spider_big1			},
-	  { "spider big 2"        	, spider_big2			},
-	  { "spider big 3"        	, spider_big3			},
-	  { "spider small 1"        	, spider_small1			},
-	  { "spider small 2"        	, spider_small2			},
-	  { "spider small 3"        	, spider_small3			},
+	  { "spider big 1"        	, spider_l_1			},
+	  { "spider big 2"        	, spider_l_2			},
+	  { "spider big 3"        	, spider_l_3			},
+	  { "spider small 1"        	, spider_s_1			},
+	  { "spider small 2"        	, spider_s_2			},
+	  { "spider small 3"        	, spider_s_3			},
 	  { "wood sprite"        	, wood_sprite			},
 
 
