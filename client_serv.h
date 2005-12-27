@@ -74,6 +74,13 @@
 #define imp 61
 #define brownie 62
 #define leprechaun 63
+#define spider_s_1 64
+#define spider_s_2 65
+#define spider_s_3 66
+#define spider_l_1 67
+#define spider_l_2 68
+#define spider_l_3 69
+#define wood_sprite 70
 
 
 /*! @} */

@@ -59,6 +59,14 @@
         <!ENTITY phantom_warrior SYSTEM "phantom_warrior.xml">
         <!ENTITY imp SYSTEM "imp.xml">
         <!ENTITY brownie SYSTEM "brownie.xml">
+        <!ENTITY spider_big1 SYSTEM "spider_big1.xml">
+        <!ENTITY spider_big2 SYSTEM "spider_big2.xml">
+        <!ENTITY spider_big3 SYSTEM "spider_big3.xml">
+        <!ENTITY spider_small1 SYSTEM "spider_small1.xml">
+        <!ENTITY spider_small2 SYSTEM "spider_small2.xml">
+        <!ENTITY spider_small3 SYSTEM "spider_small3.xml">
+        <!ENTITY wood_sprite SYSTEM "wood_sprite.xml">
+
 
 ]>
 
@@ -123,5 +131,12 @@
 	&phantom_warrior;
 	&imp;
 	&brownie;
+        &spider_big1;
+        &spider_big2;
+        &spider_big3;
+        &spider_small1;
+        &spider_small2;
+        &spider_small3;
+        &wood_sprite;
 
 </actors>
