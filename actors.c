@@ -498,7 +498,7 @@ void draw_actor(actor * actor_id, int banner)
 	glPopMatrix();	//we don't want to affect the rest of the scene
 }
 
-#ifdef	NEW_FRUSTUM
+#ifdef	NEW_FRUSTUM_TEST
 static __inline__ void objects_under_mouse(int count, GLuint* buffer)
 {
 	int i, idx, names, object_id, object_type;
@@ -554,11 +554,9 @@ static __inline__ void objects_under_mouse(int count, GLuint* buffer)
 
 	object_under_mouse = object_id;
 }
-
-void get_actors_in_range(unsigned int intersect_type)
-#else
-void get_actors_in_range()
 #endif
+
+void get_actors_in_range()
 {
 #ifdef	NEW_FRUSTUM
 	float dx, dy, x, y, x_pos, y_pos, z_pos;
@@ -566,8 +564,10 @@ void get_actors_in_range()
 	actor *me;
 	AABBOX bbox;
 	struct CalSkeleton *skel;
+#ifdef	NEW_FRUSTUM_TEST
 	GLuint select_buffer[1000];
 	GLint count;
+#endif
 	
 	me = pf_get_our_actor();
 
@@ -578,6 +578,7 @@ void get_actors_in_range()
 	x = -cx;
 	y = -cy;
 
+#ifdef	NEW_FRUSTUM_TEST
 	if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
 	{
 		set_selection_matrix();
@@ -596,7 +597,8 @@ void get_actors_in_range()
 		glPushName(0);
 		glEnable(GL_CULL_FACE);
 	}
-	set_current_frustum(intersect_type);
+#endif
+	set_current_frustum(get_cur_intersect_type(main_bbox_tree));
 
 	for (i = 0; i < max_actors; i++)
 	{
@@ -613,23 +615,25 @@ void get_actors_in_range()
 			CalSkeleton_CalculateBoundingBoxes(skel);
 			CalSkeleton_GetBoneBoundingBox(skel, bbox.bbmin, bbox.bbmax);
 			rotate_aabb(&bbox, actors_list[i]->tmp.x_rot, actors_list[i]->tmp.y_rot, 180.0f-actors_list[i]->tmp.z_rot);
-			bbox.bbmin[0] += x_pos+0.25f;
-			bbox.bbmin[1] += y_pos+0.25f;
-			bbox.bbmin[2] += z_pos;
-			bbox.bbmax[0] += x_pos+0.25f;
-			bbox.bbmax[1] += y_pos+0.25f;
-			bbox.bbmax[2] += z_pos;
+			bbox.bbmin[0] += x_pos;
+			bbox.bbmin[1] += y_pos;
+			bbox.bbmin[2] += z_pos-0.25f;
+			bbox.bbmax[0] += x_pos+0.5f;
+			bbox.bbmax[1] += y_pos+0.5f;
+			bbox.bbmax[2] += z_pos+0.5f;
 	
 			if (aabb_in_frustum(&bbox))
 			{
 				near_actors[no_near_actors].actor = i;
 				dx = x - x_pos;
 				dy = y - y_pos;
-				near_actors[no_near_actors].dist = dx*dx + dy*dy;
 				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
+				near_actors[no_near_actors].select = 1;
 				no_near_actors++;
 	
 				actors_list[i]->max_z = bbox.bbmax[2]-z_pos;
+
+#ifdef	NEW_FRUSTUM_TEST
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
 				{
 					set_current_frustum(ITERSECTION_TYPE_SELECTION);
@@ -645,11 +649,13 @@ void get_actors_in_range()
 							draw_actor(actors_list[i], 0);
 						}
 					}
-					set_current_frustum(intersect_type);
+					set_current_frustum(ITERSECTION_TYPE_DEFAULT);
 				}
+#endif
 			}
 		}
 	}
+#ifdef	NEW_FRUSTUM_TEST
 	if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
 	{
 		glPopName();
@@ -662,6 +668,7 @@ void get_actors_in_range()
 		count = glRenderMode(GL_RENDER);
 		objects_under_mouse(count, select_buffer);
 	}
+#endif
 #else
 	int i;
 	int x,y;
@@ -703,11 +710,7 @@ void display_actors(int banner)
 	x=-cx;
 	y=-cy;
 
-#ifdef	NEW_FRUSTUM
-	get_actors_in_range(get_cur_intersect_type(main_bbox_tree));
-#else
 	get_actors_in_range();
-#endif
 	vertex_arrays_built=0;	// clear the counter
 	//MD2s don't have real normals...
 	glNormal3f(0.0f,0.0f,1.0f);
@@ -739,7 +742,31 @@ void display_actors(int banner)
 				else
 				{
 					draw_actor(cur_actor, banner);
-				}			
+				}
+#ifndef	NEW_FRUSTUM_TEST
+				if (near_actors[i].select == 1)
+				{
+					if (cur_actor->kind_of_actor == NPC)
+					{
+						anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
+					}
+					else
+					{
+						if ((cur_actor->kind_of_actor == HUMAN) ||
+							(cur_actor->kind_of_actor == COMPUTER_CONTROLLED_HUMAN) ||
+							(cur_actor->is_enhanced_model && 
+							((cur_actor->kind_of_actor == PKABLE_HUMAN) ||
+							(cur_actor->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))))
+						{
+							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
+						}
+						else
+						{
+							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
+						}
+					}
+				}
+#endif
 			}
 		}
 	}
@@ -768,11 +795,35 @@ void display_actors(int banner)
 					{
 						draw_actor(cur_actor, banner);
 					}				
+#ifndef	NEW_FRUSTUM_TEST
+					if (near_actors[i].select == 1)
+					{
+						if (cur_actor->kind_of_actor == NPC)
+						{
+							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
+						}
+						else
+						{
+							if ((cur_actor->kind_of_actor == HUMAN) ||
+								(cur_actor->kind_of_actor == COMPUTER_CONTROLLED_HUMAN) ||
+								(cur_actor->is_enhanced_model && 
+								 ((cur_actor->kind_of_actor == PKABLE_HUMAN) ||
+								 (cur_actor->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))))
+							{
+								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
+							}
+							else
+							{
+								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
+							}
+						}
+					}
+#endif
 				}
 			}
 		}
-		
 		glDisable(GL_BLEND);
+		glEnable(GL_LIGHTING);
 	}
 #else
 	//display only the non ghosts

@@ -60,7 +60,9 @@ float m_Frustum[8][4];	// only use 6, but mult by 8 is faster
 FRUSTUM main_frustum;
 FRUSTUM reflection_frustum;
 FRUSTUM shadow_frustum;
+#ifdef	NEW_FRUSTUM_TEST
 FRUSTUM selection_frustum;
+#endif
 FRUSTUM* current_frustum;
 unsigned int current_frustum_size;
 double reflection_clip_planes[5][4];
@@ -321,10 +323,12 @@ void set_current_frustum(unsigned int intersect_type)
 			current_frustum_size = 9;
 			current_frustum = &reflection_frustum;
 			break;
+#ifdef	NEW_FRUSTUM_TEST
 		case ITERSECTION_TYPE_SELECTION:
 			current_frustum_size = 6;
 			current_frustum = &selection_frustum;
-			break;			
+			break;
+#endif
 		default:
 			current_frustum_size = 0;
 			break;
@@ -350,6 +354,7 @@ int aabb_in_frustum(AABBOX *bbox)
 	return 1;
 }
 
+#ifdef	NEW_FRUSTUM_TEST
 void set_selection_matrix()
 {
 	MATRIX4x4 proj;								// This will hold our projection matrix
@@ -407,6 +412,7 @@ void set_selection_matrix()
 	
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 }
+#endif
 
 void calculate_reflection_frustum(unsigned int num, float water_height)
 {

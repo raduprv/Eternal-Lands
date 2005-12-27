@@ -647,7 +647,7 @@ int display_game_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 			display_2d_objects ();
 			CHECK_GL_ERRORS ();
-#ifndef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM_TEST
 			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
 #endif
 			display_objects ();
@@ -782,7 +782,7 @@ int display_game_handler (window_info *win)
 		}
 	}
 	
-#ifndef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM_TEST
 	anything_under_the_mouse (0, UNDER_MOUSE_NO_CHANGE);
 #endif
 	CHECK_GL_ERRORS ();

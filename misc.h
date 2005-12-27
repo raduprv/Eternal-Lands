@@ -58,7 +58,7 @@ void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GL
  */
 void reset_under_the_mouse();
 
-#ifndef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM_TEST
 /*!
  * \ingroup misc
  * \brief   Checks if there any objects at the mouse cursor position.
@@ -150,7 +150,9 @@ void calculate_shadow_frustum();
 void enable_reflection_clip_planes();
 void disable_reflection_clip_planes();
 void set_current_frustum(unsigned int intersect_type);
+#ifdef	NEW_FRUSTUM_TEST
 void set_selection_matrix();
+#endif
 #endif
 
 /*!

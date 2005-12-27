@@ -14,7 +14,7 @@
 
 #define IMG_SetError(a) SDL_SetError(a)
 
-#ifndef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM_TEST
 Uint8 last_pixel_color[4];
 #endif
 
@@ -23,7 +23,7 @@ void reset_under_the_mouse()
 	if(!read_mouse_now) {
 		return;
 	}
-#ifndef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM_TEST
 	last_pixel_color[0] = 0;
 	last_pixel_color[1] = 0;
 	last_pixel_color[2] = 0;
@@ -32,7 +32,7 @@ void reset_under_the_mouse()
 	thing_under_the_mouse = UNDER_MOUSE_NOTHING;
 }
 
-#ifndef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM_TEST
 int anything_under_the_mouse(int object_id, int object_type)
 {
 	char pixels[16]={0};

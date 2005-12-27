@@ -320,8 +320,7 @@ void draw_3d_objects(unsigned int object_type)
 	is_transparent= is_alpha_3d_object(object_type);
 	is_ground= is_ground_3d_object(object_type);
 	// set the modes we need
-	if (	(is_selflit && (!is_day || dungeon)) ||
-		(get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_SELECTION))
+	if (is_selflit && (!is_day || dungeon))
 	{
 		glDisable(GL_LIGHTING);
 	}
@@ -333,7 +332,7 @@ void draw_3d_objects(unsigned int object_type)
 		else glAlphaFunc(GL_GREATER,0.06f);
 		glDisable(GL_CULL_FACE);
 	}
-
+	
 	// now loop through each object
 	for (i=start; i<stop; i++)
 	{
@@ -341,8 +340,16 @@ void draw_3d_objects(unsigned int object_type)
 		//track the usage
 		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
 		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
+#ifdef	NEW_FRUSTUM_TEST
 		if (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_SELECTION) glLoadName(l);
+#endif
 		draw_3d_object_detail(objects_list[l]);
+#ifndef	NEW_FRUSTUM_TEST
+		if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
+		{
+			anything_under_the_mouse(objects_list[l]->id, UNDER_MOUSE_3D_OBJ);
+		}
+#endif
 	}
 
 	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
@@ -356,8 +363,7 @@ void draw_3d_objects(unsigned int object_type)
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 	// restore the settings
-	if (	(is_selflit && (!is_day || dungeon)) ||
-		(get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_SELECTION))
+	if (is_selflit && (!is_day || dungeon))
 	{
 		glEnable(GL_LIGHTING);
 	}
@@ -504,6 +510,8 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
 	matrix_mul_aabb(&bbox, our_object->matrix);
+	memcpy(our_object->bbox.bbmin, bbox.bbmin, sizeof(VECTOR3));
+	memcpy(our_object->bbox.bbmax, bbox.bbmax, sizeof(VECTOR3));
 
 	if (returned_e3d->materials_no > 0) 
 	{	

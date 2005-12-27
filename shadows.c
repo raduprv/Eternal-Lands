@@ -603,7 +603,7 @@ void display_3d_non_ground_objects()
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 #endif
 
-#ifndef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM_TEST
 	//we don't want to be affected by 2d objects and shadows
 	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
 #endif
@@ -932,7 +932,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 			display_2d_objects();
 			CHECK_GL_ERRORS();
-#ifndef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM_TEST
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 #endif
 			display_objects();
@@ -989,7 +989,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 			display_2d_objects();
 			CHECK_GL_ERRORS();
-#ifndef	NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM_TEST
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 #endif
 			display_3d_ground_objects();
