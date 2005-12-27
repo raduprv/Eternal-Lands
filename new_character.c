@@ -204,6 +204,7 @@ int display_newchar_handler (window_info *win)
 	CalculateFrustum ();
 #ifdef	NEW_FRUSTUM
 	calculate_reflection_frustum(0, -0.25f);
+	set_click_line();
 #endif
 	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
@@ -244,9 +245,7 @@ int display_newchar_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 			display_2d_objects ();
 			CHECK_GL_ERRORS ();
-#ifndef	NEW_FRUSTUM_TEST
 			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
-#endif
 			display_objects ();
 			display_actors (1);
 			display_blended_objects();

@@ -14,8 +14,89 @@
 
 #define IMG_SetError(a) SDL_SetError(a)
 
-#ifndef	NEW_FRUSTUM_TEST
 Uint8 last_pixel_color[4];
+#ifdef	NEW_FRUSTUM
+LINE click_line;
+#endif
+
+#ifdef	NEW_FRUSTUM
+void get_click_line(LINE* line)
+{
+	double proj[16];
+	double modl[16];
+	GLint view[4];
+	double x1, x2, y1, y2, z1, z2, len;
+	
+	glGetDoublev(GL_PROJECTION_MATRIX, proj);
+	glGetDoublev(GL_MODELVIEW_MATRIX, modl);
+	glGetIntegerv(GL_VIEWPORT, view);
+	gluUnProject(mouse_x, window_height-mouse_y, 0, modl, proj, view, &x1, &y1, &z1);
+	gluUnProject(mouse_x, window_height-mouse_y, 1, modl, proj, view, &x2, &y2, &z2);
+	
+	line->center[X] = x1;
+	line->center[Y] = y1;
+	line->center[Z] = z1;
+	
+	x2 -= x1;
+	y2 -= y1;
+	z2 -= z1;
+	
+	len = sqrt(x2*x2 + y2*y2 + z2*z2);
+	
+	line->direction[X] = x2/len;
+	line->direction[Y] = y2/len;
+	line->direction[Z] = z2/len;
+	
+	line->length = len;
+}
+
+int click_line_bbox_intersection(const AABBOX bbox)
+{
+	/* ALGORITHM: Use the separating axis
+	 * theorem to see if the line segment
+	 * and the box overlap. A line
+	 * segment is a degenerate OBB. */
+
+	VECTOR3 T, E;
+	float r;
+	
+	VSub(T, bbox.bbmin, click_line.center);
+	VSub(E, bbox.bbmax, bbox.bbmin);
+	
+	// do any of the principal axes
+	// form a separating axis?
+	
+	if (fabs(T[X]) > (E[X] + click_line.length*fabs(click_line.direction[X]))) return 0;
+	if (fabs(T[Y]) > (E[Y] + click_line.length*fabs(click_line.direction[Y]))) return 0;
+	if (fabs(T[Z]) > (E[Z] + click_line.length*fabs(click_line.direction[Z]))) return 0;
+		
+	/* NOTE: Since the separating axis is
+	 * perpendicular to the line in these
+	 * last four cases, the line does not
+	 * contribute to the projection. */
+	
+	// line.cross(x-axis)?
+	
+	r = E[Y]*fabs(click_line.direction[Z]) + E[Z]*fabs(click_line.direction[Y]);
+	if (fabs(T[Y]*click_line.direction[Z] - T[Z]*click_line.direction[Y]) > r) return 0;
+	
+	// line.cross(y-axis)?
+	
+	r = E[X]*fabs(click_line.direction[Z]) + E[Z]*fabs(click_line.direction[X]);
+	if( fabs(T[Z]*click_line.direction[X] - T[X]*click_line.direction[Z]) > r) return 0;
+	
+	// line.cross(z-axis)?
+	
+	r = E[X]*fabs(click_line.direction[Y]) + E[Y]*fabs(click_line.direction[X]);
+	if (fabs(T[X]*click_line.direction[Y] - T[Y]*click_line.direction[X]) > r) return 0;
+
+	return 1;
+}
+
+void set_click_line()
+{
+	if (read_mouse_now) get_click_line(&click_line);
+}
 #endif
 
 void reset_under_the_mouse()
@@ -23,16 +104,13 @@ void reset_under_the_mouse()
 	if(!read_mouse_now) {
 		return;
 	}
-#ifndef	NEW_FRUSTUM_TEST
 	last_pixel_color[0] = 0;
 	last_pixel_color[1] = 0;
 	last_pixel_color[2] = 0;
-#endif
 	object_under_mouse = -1;
 	thing_under_the_mouse = UNDER_MOUSE_NOTHING;
 }
 
-#ifndef	NEW_FRUSTUM_TEST
 int anything_under_the_mouse(int object_id, int object_type)
 {
 	char pixels[16]={0};
@@ -63,7 +141,6 @@ int anything_under_the_mouse(int object_id, int object_type)
 	return 0;//no collision, sorry
 
 }
-#endif
 
 static GLfloat  model[16], inv_model[16];
 static GLfloat  proj[16], inv_proj[16];

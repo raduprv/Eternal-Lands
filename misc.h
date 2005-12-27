@@ -58,7 +58,6 @@ void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GL
  */
 void reset_under_the_mouse();
 
-#ifndef	NEW_FRUSTUM_TEST
 /*!
  * \ingroup misc
  * \brief   Checks if there any objects at the mouse cursor position.
@@ -73,7 +72,6 @@ void reset_under_the_mouse();
  * \pre If \a object_type equals \ref UNDER_MOUSE_NO_CHANGE, this function will return 0, after storing the pixel values at the current mouse position.
  */
 int anything_under_the_mouse(int object_id, int object_type);
-#endif
 
 /*!
  * \ingroup misc
@@ -150,9 +148,6 @@ void calculate_shadow_frustum();
 void enable_reflection_clip_planes();
 void disable_reflection_clip_planes();
 void set_current_frustum(unsigned int intersect_type);
-#ifdef	NEW_FRUSTUM_TEST
-void set_selection_matrix();
-#endif
 #endif
 
 /*!

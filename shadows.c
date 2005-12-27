@@ -603,10 +603,8 @@ void display_3d_non_ground_objects()
 	if(regenerate_near_objects)if(!get_near_3d_objects())return;
 #endif
 
-#ifndef	NEW_FRUSTUM_TEST
 	//we don't want to be affected by 2d objects and shadows
 	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
-#endif
 	
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -932,9 +930,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 			display_2d_objects();
 			CHECK_GL_ERRORS();
-#ifndef	NEW_FRUSTUM_TEST
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
-#endif
 			display_objects();
 #ifndef MAP_EDITOR2
 			display_actors(1);  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
@@ -989,9 +985,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 			display_2d_objects();
 			CHECK_GL_ERRORS();
-#ifndef	NEW_FRUSTUM_TEST
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
-#endif
 			display_3d_ground_objects();
 			// turning off writing to the color buffer and depth buffer
 			glDisable(GL_DEPTH_TEST);

@@ -498,106 +498,21 @@ void draw_actor(actor * actor_id, int banner)
 	glPopMatrix();	//we don't want to affect the rest of the scene
 }
 
-#ifdef	NEW_FRUSTUM_TEST
-static __inline__ void objects_under_mouse(int count, GLuint* buffer)
-{
-	int i, idx, names, object_id, object_type;
-	GLuint min_z;
-
-	idx = 0;
-
-	if ((count < 1) || (!read_mouse_now)) return;
-	
-	min_z = 0xFFFFFFFF;
-	object_id = -1;
-	object_type = -1;
-	
-	for (i = 0; i < count; i++)
-	{
-		names = buffer[idx];
-		idx += 2;
-		if (min_z > buffer[idx-1])
-		{
-			min_z = buffer[idx-1];
-			object_type = buffer[idx+1];
-			object_id = buffer[idx+2];
-		}
-		idx += names+1;
-	}
-	if (object_type == 0)
-	{
-		thing_under_the_mouse = UNDER_MOUSE_3D_OBJ;
-		actor_under_mouse = NULL;
-	}
-	else
-	{
-		if (actors_list[object_id]->kind_of_actor == NPC)
-		{
-			thing_under_the_mouse = UNDER_MOUSE_NPC;
-		} 
-		else
-		{
-			if	(actors_list[object_id]->kind_of_actor == HUMAN || actors_list[object_id]->kind_of_actor == COMPUTER_CONTROLLED_HUMAN || 
-				(actors_list[object_id]->is_enhanced_model && (actors_list[object_id]->kind_of_actor == PKABLE_HUMAN ||
-					actors_list[object_id]->kind_of_actor == PKABLE_COMPUTER_CONTROLLED)))
-			{
-				thing_under_the_mouse = UNDER_MOUSE_PLAYER;
-			}
-			else
-			{
-				thing_under_the_mouse = UNDER_MOUSE_ANIMAL;
-			}
-		}
-		actor_under_mouse = actors_list[object_id];
-		object_id = actors_list[object_id]->actor_id;
-	}
-
-	object_under_mouse = object_id;
-}
-#endif
-
 void get_actors_in_range()
 {
 #ifdef	NEW_FRUSTUM
-	float dx, dy, x, y, x_pos, y_pos, z_pos;
+	float x_pos, y_pos, z_pos;
 	unsigned int i;
 	actor *me;
 	AABBOX bbox;
 	struct CalSkeleton *skel;
-#ifdef	NEW_FRUSTUM_TEST
-	GLuint select_buffer[1000];
-	GLint count;
-#endif
 	
 	me = pf_get_our_actor();
 
 	if (!me) return;
 
 	no_near_actors = 0;
-	
-	x = -cx;
-	y = -cy;
 
-#ifdef	NEW_FRUSTUM_TEST
-	if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
-	{
-		set_selection_matrix();
-		glSelectBuffer(1000, select_buffer);
-		glRenderMode(GL_SELECT);
-		glInitNames();
-		glPushName(0);
-		glPushName(0);
-		set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SELECTION);
-		display_objects();
-		display_blended_objects();
-		set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_DEFAULT);
-		glPopName();
-		glPopName();
-		glPushName(1);
-		glPushName(0);
-		glEnable(GL_CULL_FACE);
-	}
-#endif
 	set_current_frustum(get_cur_intersect_type(main_bbox_tree));
 
 	for (i = 0; i < max_actors; i++)
@@ -622,53 +537,22 @@ void get_actors_in_range()
 			bbox.bbmax[1] += y_pos+0.5f;
 			bbox.bbmax[2] += z_pos+0.5f;
 	
-			if (aabb_in_frustum(&bbox))
+			if (aabb_in_frustum(bbox))
 			{
 				near_actors[no_near_actors].actor = i;
-				dx = x - x_pos;
-				dy = y - y_pos;
 				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
-				near_actors[no_near_actors].select = 1;
-				no_near_actors++;
+				near_actors[no_near_actors].select = 0;
 	
-				actors_list[i]->max_z = bbox.bbmax[2]-z_pos;
-
-#ifdef	NEW_FRUSTUM_TEST
+				actors_list[i]->max_z = bbox.bbmax[2]-z_pos-0.5f;
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
 				{
-					set_current_frustum(ITERSECTION_TYPE_SELECTION);
-					if (aabb_in_frustum(&bbox))
-					{
-						glLoadName(i);
-						if (actors_list[i]->is_enhanced_model)
-						{
-							draw_enhanced_actor(actors_list[i], 0);
-						}
-						else
-						{
-							draw_actor(actors_list[i], 0);
-						}
-					}
-					set_current_frustum(ITERSECTION_TYPE_DEFAULT);
+					if (click_line_bbox_intersection(bbox))
+						near_actors[no_near_actors].select = 1;
 				}
-#endif
+				no_near_actors++;
 			}
 		}
 	}
-#ifdef	NEW_FRUSTUM_TEST
-	if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
-	{
-		glPopName();
-		glPopName();
-		glDisable(GL_CULL_FACE);
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glFlush();
-		count = glRenderMode(GL_RENDER);
-		objects_under_mouse(count, select_buffer);
-	}
-#endif
 #else
 	int i;
 	int x,y;
@@ -743,8 +627,7 @@ void display_actors(int banner)
 				{
 					draw_actor(cur_actor, banner);
 				}
-#ifndef	NEW_FRUSTUM_TEST
-				if (near_actors[i].select == 1)
+				if (near_actors[i].select)
 				{
 					if (cur_actor->kind_of_actor == NPC)
 					{
@@ -766,7 +649,6 @@ void display_actors(int banner)
 						}
 					}
 				}
-#endif
 			}
 		}
 	}
@@ -795,8 +677,7 @@ void display_actors(int banner)
 					{
 						draw_actor(cur_actor, banner);
 					}				
-#ifndef	NEW_FRUSTUM_TEST
-					if (near_actors[i].select == 1)
+					if (near_actors[i].select)
 					{
 						if (cur_actor->kind_of_actor == NPC)
 						{
@@ -818,7 +699,6 @@ void display_actors(int banner)
 							}
 						}
 					}
-#endif
 				}
 			}
 		}

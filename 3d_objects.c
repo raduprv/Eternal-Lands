@@ -340,16 +340,12 @@ void draw_3d_objects(unsigned int object_type)
 		//track the usage
 		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
 		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
-#ifdef	NEW_FRUSTUM_TEST
-		if (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_SELECTION) glLoadName(l);
-#endif
 		draw_3d_object_detail(objects_list[l]);
-#ifndef	NEW_FRUSTUM_TEST
 		if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
 		{
-			anything_under_the_mouse(objects_list[l]->id, UNDER_MOUSE_3D_OBJ);
+			if (click_line_bbox_intersection(objects_list[l]->bbox))
+				anything_under_the_mouse(objects_list[l]->id, UNDER_MOUSE_3D_OBJ);
 		}
-#endif
 	}
 
 	if(have_compiled_vertex_array)ELglUnlockArraysEXT();

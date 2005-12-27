@@ -41,12 +41,7 @@
 #define	ITERSECTION_TYPE_DEFAULT			0x00
 #define	ITERSECTION_TYPE_SHADOW				0x01
 #define	ITERSECTION_TYPE_REFLECTION			0x02
-#ifdef	NEW_FRUSTUM_TEST
-#define	ITERSECTION_TYPE_SELECTION			0x03
-#define	MAX_ITERSECTION_TYPES				0x04
-#else
 #define	MAX_ITERSECTION_TYPES				0x03
-#endif
 
 #define	OUTSIDE		0x0000
 #define	INSIDE		0x0001
@@ -61,6 +56,13 @@ typedef struct
 	VECTOR3 bbmin;
 	VECTOR3 bbmax;
 } AABBOX;
+
+typedef struct
+{
+	VECTOR3 center;
+	VECTOR3 direction;
+	float length;
+} LINE;
 
 typedef	struct
 {
@@ -151,7 +153,7 @@ enum
 	D = 3
 };
 
-static __inline__ void calc_light_aabb(AABBOX *bbox, float pos_x, float pos_y, float pos_z, float diff_r, float diff_g, float diff_b, 
+static __inline__ void calc_light_aabb(AABBOX* bbox, float pos_x, float pos_y, float pos_z, float diff_r, float diff_g, float diff_b, 
 		float att, float exp, float clamp)
 {
 	float h, r;
@@ -808,7 +810,29 @@ void calc_scene_bbox(BBOX_TREE* bbox_tree, FRUSTUM *frustum, AABBOX* bbox);
 extern BBOX_TREE* main_bbox_tree;
 extern BBOX_ITEMS* main_bbox_tree_items;
 
-int aabb_in_frustum(AABBOX *bbox);
+int aabb_in_frustum(const AABBOX bbox);
 void calculate_light_frustum(FRUSTUM frustum, double* modl, double* proj);
+
+/*!
+ * \ingroup misc
+ * \brief   Checks if the box intersect with the click line.
+ *
+ *      Checks if the bounding box intersect with the click line.
+ *
+ * \param bbox      bounding box
+ * \retval int      1 (true), if intersect, else 0 (false).
+ * \callgraph
+ */
+int click_line_bbox_intersection(const AABBOX bbox);
+
+/*!
+ * \ingroup misc
+ * \brief   Set the click line.
+ *
+ *      Set click line.
+ *
+ * \callgraph
+ */
+void set_click_line();
 #endif
 #endif
