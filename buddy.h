@@ -8,6 +8,8 @@
 #include <time.h>
 #include "queue.h"
 
+#define	MAX_BUDDY	100
+
 /*!
  * The buddy structure containing the name and the type.
  */
@@ -87,5 +89,7 @@ void add_buddy_confirmation(char *name);
 extern queue_t *buddy_request_queue;
 
 extern time_t c_time;
+
+extern _buddy buddy_list[];
 
 #endif

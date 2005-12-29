@@ -738,6 +738,10 @@ void init_stuff()
 	else if (use_windowed_chat == 2)
 		display_chat ();
 
+#ifdef COMMAND_BUFFER
+	init_commands("commands.lst");
+#endif //COMMAND_BUFFER
+
 	// display something
 	destroy_loading_win();
 	if (has_accepted)

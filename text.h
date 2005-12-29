@@ -6,6 +6,8 @@
 #ifndef __TEXT_H__
 #define __TEXT_H__
 
+#include <SDL_types.h>
+
 #define DISPLAY_TEXT_BUFFER_SIZE 5000 /*!< maximum number of lines in the text buffer */
 
 #define CHAT_ALL	((Uint8) -1)

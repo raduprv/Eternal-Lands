@@ -9,7 +9,6 @@
 #include "elwindows.h"
 #include "queue.h"
 
-#define	MAX_BUDDY	100
 #define MAX_ACCEPT_BUDDY_WINDOWS MAX_BUDDY
 
 int buddy_win=-1;

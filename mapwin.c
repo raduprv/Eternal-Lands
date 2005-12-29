@@ -110,17 +110,24 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	}
 	else
 	{
-
+#ifdef COMMAND_BUFFER
+		reset_tab_completer();
+#endif //COMMAND_BUFFER
 		if (ch == '`' || key == K_CONSOLE)
 		{
 			switch_from_game_map ();
 			hide_window (map_root_win);
 			show_window (console_root_win);
 		}
-//		else if (ch == SDLK_RETURN && input_text_line.len > 0 && input_text_line.data[0] == '#')
 		else if (ch == SDLK_RETURN && input_text_line.len > 0 && (input_text_line.data[0] == char_cmd_str[0] || input_text_line.data[0] == '#'))
 		{
+#ifdef COMMAND_BUFFER
+			if(test_for_console_command (input_text_line.data, input_text_line.len) || (input_text_line.data[0] == char_cmd_str[0] || input_text_line.data[0] == '#')) {
+				add_line_to_history(input_text_line.data, input_text_line.len);
+			}
+#else
 			test_for_console_command (input_text_line.data, input_text_line.len);
+#endif //COMMAND_BUFFER
 			// also clear the buffer
 			clear_input_line (); 
 		}

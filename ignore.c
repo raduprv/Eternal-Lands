@@ -82,7 +82,7 @@ int remove_from_ignore_list(Uint8 *name)
 					if(ignore_list[i].used)
 						{
 							fwrite(ignore_list[i].name, strlen(ignore_list[i].name), 1, f);
-							fwrite("\n", 1, 1, f);	
+							fwrite("\n", 1, 1, f);
 						}
 				}
 				fclose(f);
@@ -114,7 +114,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, int type)
 	int i, offset;
 	Uint8 name[16];
 	Uint8 ch;
-	
+
 	if (type != 0)
 	{
 		//now find the name portion
@@ -146,7 +146,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, int type)
 	name[i] = '\0';
 	if (check_if_ignored (name))
 		return 1;
-	
+
 	return 0;
 }
 
@@ -179,7 +179,9 @@ void load_ignores_list(char * file_name)
 			ch=ignore_list_mem[i];
 			if(ch=='\n' || ch=='\r')
 				{
-					if(j)if(add_to_ignore_list(name,0)==-1)return;//ignore list full
+					if(j && add_to_ignore_list(name,0) == -1) {
+						return;//ignore list full
+					}
 					j=0;
 					i++;
 					continue;
@@ -192,8 +194,6 @@ void load_ignores_list(char * file_name)
 			j++;
 			i++;
 		}
-
-
 	free(ignore_list_mem);
 }
 
@@ -216,7 +216,7 @@ void load_ignores()
 	if(use_global_ignores)load_ignores_list("global_ignores.txt");
 }
 
-void list_ignores()
+int list_ignores()
 {
 	int i;
 	Uint8 str[MAX_IGNORES*19];
@@ -224,7 +224,7 @@ void list_ignores()
 	if(!ignored_so_far)
 		{
 			LOG_TO_CONSOLE(c_grey1,no_ignores_str);
-			return;
+			return 1;
 		}
 	snprintf(str,sizeof(str),"%s:\n",ignores_str);
 	for(i=0;i<MAX_IGNORES;i++)
@@ -239,5 +239,5 @@ void list_ignores()
 	str[strlen(str)-2]=0;//get rid of the last ", " thingy
 
 	LOG_TO_CONSOLE(c_grey1,str);
-
+	return 1;
 }

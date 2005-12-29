@@ -7,12 +7,12 @@
 #endif //NETWORK_THREAD
 
 #ifdef	__GNUC__
-#include <unistd.h>
+ #include <unistd.h>
 #endif
 
 #ifdef WINDOWS
-#include <windows.h>
-#undef WRITE_XML
+ #include <windows.h>
+ #undef WRITE_XML
 #endif
 
 #include "global.h"
@@ -37,6 +37,10 @@ void cleanup_mem(void)
 {
 	int i;
 
+#ifdef COMMAND_BUFFER
+	history_destroy();
+	command_cleanup();
+#endif //COMMAND_BUFFER
 	queue_destroy(buddy_request_queue);
 	cleanup_text_buffers();
 	cleanup_fonts();

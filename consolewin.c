@@ -77,6 +77,55 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		return 1;
 	}
+#ifdef COMMAND_BUFFER
+	else if(keysym == SDLK_UP)
+ 	{
+		if(input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str))
+		{
+			char *line = history_get_line_up();
+			if(line != NULL) {
+				input_text_line.len = snprintf(input_text_line.data, input_text_line.size, "%s", line);
+			}
+		}
+		else if (total_nr_lines > nr_console_lines + scroll_up_lines)
+		{
+			scroll_up_lines++;
+			console_text_changed = 1;
+		}
+ 	}
+	else if (keysym == SDLK_DOWN)
+ 	{
+		if(input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str))
+		{
+			char *line = history_get_line_down();
+			if(line != NULL) {
+				input_text_line.len = snprintf(input_text_line.data, input_text_line.size, "%s", line);
+			}
+		}
+		else if(scroll_up_lines > 0)
+		{
+			scroll_up_lines--;
+			console_text_changed = 1;
+		}
+	}
+	else if(key == K_TABCOMPLETE && input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str || *input_text_line.data == '/' || *input_text_line.data == *char_slash_str))
+	{
+		const char *completed_str = tab_complete(&input_text_line);
+		char prefix = *input_text_line.data;
+		char suffix = '\0';
+
+		if(completed_str != NULL)
+		{
+			/* Append a space if there isn't one already. */
+			if(completed_str[strlen(completed_str)-1] != ' ')
+			{
+				suffix = ' ';
+			}
+			snprintf(input_text_line.data, input_text_line.size, "%c%s%c", prefix, completed_str, suffix);
+			input_text_line.len = strlen(input_text_line.data);
+		}
+	}
+#else
 	else if (keysym == SDLK_UP && total_nr_lines > nr_console_lines + scroll_up_lines)
 	{
 		scroll_up_lines++;
@@ -87,6 +136,7 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		scroll_up_lines--;
 		console_text_changed = 1;
 	}
+#endif //COMMAND_BUFFER
 	else if (keysym == SDLK_PAGEUP && total_nr_lines > nr_console_lines + scroll_up_lines)
 	{
 		scroll_up_lines += nr_console_lines - 1;
@@ -97,12 +147,13 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	else if (keysym == SDLK_PAGEDOWN && scroll_up_lines > 0)
 	{
 		scroll_up_lines -= nr_console_lines - 1;
-		if (scroll_up_lines < 0) scroll_up_lines = 0;
+		if (scroll_up_lines < 0)
+			scroll_up_lines = 0;
 		console_text_changed = 1;
 	}
-	else if (key == K_MAP && !locked_to_console)
+	else if (key == K_MAP)
 	{
-		if ( switch_to_game_map () )
+		if (!locked_to_console && switch_to_game_map())
 		{
 			hide_window (console_root_win);
 			show_window (map_root_win);
@@ -112,6 +163,9 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		Uint8 ch = key_to_char (unikey);
 
+#ifdef COMMAND_BUFFER
+		reset_tab_completer();
+#endif //COMMAND_BUFFER
 		if ((ch == '`' || key == K_CONSOLE) && !locked_to_console)
 		{
 			hide_window (console_root_win);

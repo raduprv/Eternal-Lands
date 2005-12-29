@@ -6,9 +6,16 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
+#include "text.h"
+
 #ifndef DEF_INFO
-#define DEF_INFO ""
+ #define DEF_INFO ""
 #endif
+
+typedef struct command {
+	char command[64];
+	int (*callback)();
+} command_t;
 
 extern char	auto_open_encyclopedia; /*!< flag, that indicates whether the encyclopedia window should be opened automatically upon startup of the client */
 
@@ -21,7 +28,7 @@ extern char	auto_open_encyclopedia; /*!< flag, that indicates whether the encycl
  * \param len	the size of the buffer
  * \callgraph
  */
-void print_version_string (char *buf, int len);
+void print_version_string (char *buf, size_t len);
 
 /*!
  * \brief checks whether a console command is waiting and executes it if necessary.
@@ -32,5 +39,25 @@ void print_version_string (char *buf, int len);
  * \param len the length of the input line
  * \callgraph
  */
+
+#ifdef COMMAND_BUFFER
+int test_for_console_command (char *text, int len);
+
+void command_cleanup(void);
+
+void add_command(const char *command, int (*callback)());
+
+void init_commands(const char *filename);
+
+void add_line_to_history(const char *line, int len);
+char *history_get_line_up(void);
+char *history_get_line_down(void);
+void history_reset(void);
+void history_destroy(void);
+const char *tab_complete(const text_message *input);
+void reset_tab_completer(void);
+#else
 void test_for_console_command (char *text, int len);
+#endif //COMMAND_BUFFER
+
 #endif

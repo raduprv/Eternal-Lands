@@ -60,6 +60,7 @@ Uint32 K_SPELL3=ALT|'3';
 Uint32 K_SPELL4=ALT|'4';
 Uint32 K_SPELL5=ALT|'5';
 Uint32 K_SPELL6=ALT|'6';
+Uint32 K_TABCOMPLETE=CTRL|' ';
 
 unsigned int CRC32(unsigned char *data, int len);
 unsigned short get_key_code(char *key);
@@ -92,7 +93,10 @@ void read_key_config()
 	stat("key.ini",&key_file);
 #endif
 
-	if(!f)return; //take the defaults
+	if(!f)
+	{
+		return; //take the defaults
+	}
 
 	key_file_size = key_file.st_size;
 	file_mem = (Uint8 *) calloc(key_file_size+2, sizeof(Uint8));
@@ -207,6 +211,8 @@ void read_key_config()
 		K_SPELL5 = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_SPELL6",file_mem,key_file_size,0))!=-1)
 		K_SPELL6 = parse_key_string(&file_mem[t]);
+	if((t = get_string_occurance("#K_TABCOMPLETE",file_mem,key_file_size,0)) != -1)
+		K_TABCOMPLETE = parse_key_string(&file_mem[t]);
 }
 
 Uint32 parse_key_string(char *s)

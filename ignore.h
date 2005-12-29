@@ -80,6 +80,6 @@ void load_ignores();
  *      Lists the names that are currently ignored by the actor, if any. The function is called, when the actor uses the #ignores command.
  *
  */
-void list_ignores();
+int list_ignores();
 
 #endif

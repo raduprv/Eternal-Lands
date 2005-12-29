@@ -224,39 +224,40 @@ int filter_storage_text (Uint8 * input_text, int len) {
 	flen = strlen (storage_filter);
 	istart = iline = ic = 0;
 	while (ic < len - flen)
-        	{
-			if (input_text[ic] == '\n')
-                        	{
-					iline = ++ic;
-				}
-			else if (my_strncompare (input_text+ic, storage_filter, flen))
-                        	{
-					diff = iline - istart;
-					if (diff > 0)
-                                        	{
-					    		len -= diff;
-					    		memmove (input_text + istart, input_text + iline, len * sizeof (Uint8));
-			    				ic -= diff;
-			  			}
-			 		while (ic < len && input_text[ic] != '\n') ic++;
-					  iline = istart = ++ic;
-				}
-			else
-                        	{
-					ic++;
-				}
+	{
+		if (input_text[ic] == '\n')
+		{
+			iline = ++ic;
 		}
+		else if (my_strncompare (input_text+ic, storage_filter, flen))
+		{
+			diff = iline - istart;
+			if (diff > 0)
+			{
+				len -= diff;
+				memmove (input_text + istart, input_text + iline, len * sizeof (Uint8));
+				ic -= diff;
+			}
+			while (ic < len && input_text[ic] != '\n')
+				ic++;
+			iline = istart = ++ic;
+		}
+		else
+		{
+			ic++;
+		}
+	}
 
 	if (istart == 0)
-        	{
-			sprintf (input_text, "<none>");
-			len = 6;
-		} 
+	{
+		sprintf (input_text, "<none>");
+		len = 6;
+	} 
 	else
-        	{
-			input_text[--istart] = '\0';
-			len = istart;
-		}
+	{
+		input_text[--istart] = '\0';
+		len = istart;
+	}
 
 	storage_filter[0] = '\0';
 	return len;
@@ -451,7 +452,7 @@ void load_filters()
 	if (use_global_filters) load_filters_list ("global_filters.txt", 0);
 }
 
-void list_filters()
+int list_filters()
 {
 	int i, size, minlen;
 	Uint8 *str;
@@ -459,7 +460,7 @@ void list_filters()
 	if (filtered_so_far == 0)
 	{
 		LOG_TO_CONSOLE (c_grey1, no_filters_str);
-		return;
+		return 1;
 	}
 
 	size = MAX_FILTERS*20;
@@ -491,4 +492,5 @@ void list_filters()
 	LOG_TO_CONSOLE (c_grey1,str);
 
 	free (str);
+	return 1;
 }

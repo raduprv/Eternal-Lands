@@ -79,7 +79,7 @@ void load_filters();
  *      Lists all currently defined filters to the console.
  *
  */
-void list_filters();
+int list_filters();
 
 #ifdef DEBUG
 void print_filter_list ();

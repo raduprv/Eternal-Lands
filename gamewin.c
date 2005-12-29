@@ -885,6 +885,25 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		return 1;
 	}
+#ifdef COMMAND_BUFFER
+	else if ((keysym == SDLK_UP || keysym == SDLK_DOWN) && input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str))
+	{
+		char *line;
+
+		if(keysym == SDLK_UP)
+		{
+			line = history_get_line_up();
+		}
+		else
+		{
+			line = history_get_line_down();
+		}
+		if(line != NULL)
+		{
+			input_text_line.len = snprintf(input_text_line.data, input_text_line.size, "%s", line);
+		}
+	}
+#endif //COMMAND_BUFFER
 	else if (disconnected && !alt_on && !ctrl_on && !locked_to_console)
 	{
 		connect_to_server();
@@ -1246,6 +1265,9 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		}
 		else
 		{
+#ifdef COMMAND_BUFFER
+			history_reset();
+#endif //COMMAND_BUFFER
 			// clear the input buffer
 			input_text_line.data[0] = '\0';
 			input_text_line.len = 0;
@@ -1371,10 +1393,13 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 		}
 		else if ( input_text_line.data[0] == '#' || input_text_line.data[0] == char_cmd_str[0] || get_show_window (console_root_win) )
 		{
+#ifdef COMMAND_BUFFER
+			if(test_for_console_command (input_text_line.data, input_text_line.len) || input_text_line.data[0] == '#' || input_text_line.data[0] == char_cmd_str[0]) {
+				add_line_to_history(input_text_line.data, input_text_line.len);
+			}
+#else
 			test_for_console_command (input_text_line.data, input_text_line.len);
-			// also clear the buffer
-			input_text_line.len = 0;
-			input_text_line.data[0] = '\0';
+#endif //COMMAND_BUFFER
 		}
 		else
 		{
@@ -1384,6 +1409,9 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 		// also clear the buffer
 		input_text_line.data[0] = '\0';
 		input_text_line.len = 0;
+#ifdef COMMAND_BUFFER
+		history_reset();
+#endif //COMMAND_BUFFER
 	}
 	else
 	{
@@ -1403,6 +1431,24 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		return 1;
 	}
+#ifdef COMMAND_BUFFER
+	else if (key == K_TABCOMPLETE && input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str || *input_text_line.data == '/' || *input_text_line.data == *char_slash_str))
+	{
+		const char *completed_str = tab_complete(&input_text_line);
+		char suffix = '\0';
+
+		if(completed_str != NULL)
+		{
+			/* Append a space if there isn't one already. */
+			if(completed_str[strlen(completed_str)-1] != ' ')
+			{
+				suffix = ' ';
+			}
+			snprintf(input_text_line.data, input_text_line.size, "%c%s%c", *input_text_line.data, completed_str, suffix);
+			input_text_line.len = strlen(input_text_line.data);
+		}
+	}
+#endif //COMMAND_BUFFER
 	else if (key == K_CAMERAUP)
 	{
 		if (rx > -60) rx -= 1.0f;
@@ -1500,6 +1546,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		Uint8 ch = key_to_char (unikey);
 
+#ifdef COMMAND_BUFFER
+		reset_tab_completer();
+#endif //COMMAND_BUFFER
 		if (ch == '`' || key == K_CONSOLE)
 		{
 			hide_window (game_root_win);
