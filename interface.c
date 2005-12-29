@@ -61,10 +61,22 @@ void get_world_x_y()
 
 void get_old_world_x_y()
 {
+#ifndef NEW_FRUSTUM
+	float x1,y1,z1, x2,y2,z2, l;
+	/* Shoot a ray through the pixel and determine its intersection with the ground plane (z == 0) */
+	unproject_ortho(mouse_x,window_height-hud_y-mouse_y,0.0f,&x1,&y1,&z1);
+	unproject_ortho(mouse_x,window_height-hud_y-mouse_y,1.0f,&x2,&y2,&z2);
+#else
 	AABBOX box;
 	float t, x, y, z, t1, t2, tx, ty, dx, dy, h, len;
 	int i, j, h_max, h_min, h1, h2, h3, h4, sx, sy, zx, zy, i_min, i_max, j_min, j_max;
+#endif
 	
+#ifndef NEW_FRUSTUM
+	l = z2 / (z2 - z1);
+	scene_mouse_x = l*x1 + (1 - l)*x2;
+	scene_mouse_y = l*y1 + (1 - l)*y2;
+#else
 	x = click_line.center[X];
 	y = click_line.center[Y];
 	z = click_line.center[Z];
@@ -198,6 +210,7 @@ void get_old_world_x_y()
 	t = (h-click_line.center[Z])/click_line.direction[Z];
 	scene_mouse_x = click_line.center[X]+click_line.direction[X]*t;
 	scene_mouse_y = click_line.center[Y]+click_line.direction[Y]*t;
+#endif
 }
 
 void Enter2DMode()
