@@ -834,5 +834,7 @@ int click_line_bbox_intersection(const AABBOX bbox);
  * \callgraph
  */
 void set_click_line();
+
+extern LINE click_line;
 #endif
 #endif

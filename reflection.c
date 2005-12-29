@@ -327,7 +327,7 @@ static __inline__ int adapt_size(int size)
 {
 	int i;
 	
-	if (have_texture_non_power_of_two) return (size*3)/4;
+	if (have_texture_non_power_of_two) return size;
 	else
 	{
 		i = 1;
@@ -563,8 +563,6 @@ void display_3d_reflection()
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
-		init_texturing();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
 	glCullFace(GL_FRONT);
@@ -761,7 +759,11 @@ void blend_reflection_fog()
 		}
 	
 #else
+	glFogfv(GL_FOG_COLOR, blendColor);
+	glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+	
 	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
+	
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
@@ -769,26 +771,16 @@ void blend_reflection_fog()
 		y = get_terrain_y(l);
 		y_scaled = y*3.0f;
 		x_scaled = x*3.0f;
-		glFogfv(GL_FOG_COLOR, blendColor);
-		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 		glBegin(GL_QUADS);
 			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
 			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
 			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
 			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
 		glEnd();
-
-		// now add the fog by additive blending
-		glFogfv(GL_FOG_COLOR, fogColor);
-		glBlendFunc(GL_ONE, GL_ONE);
-		glBegin(GL_QUADS);
-			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
-			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
-		glEnd();
-	}	
+	}
+	
 	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+	
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
@@ -796,25 +788,51 @@ void blend_reflection_fog()
 		y = get_terrain_y(l);
 		y_scaled = y*3.0f;
 		x_scaled = x*3.0f;
-		glFogfv(GL_FOG_COLOR, blendColor);
-		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 		glBegin(GL_QUADS);
 			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
 			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
 			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
 			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
 		glEnd();
+	}
+	
+	// now add the fog by additive blending
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glBlendFunc(GL_ONE, GL_ONE);
+	
+	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
 
-		// now add the fog by additive blending
-		glFogfv(GL_FOG_COLOR, fogColor);
-		glBlendFunc(GL_ONE, GL_ONE);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
+		y_scaled = y*3.0f;
+		x_scaled = x*3.0f;
 		glBegin(GL_QUADS);
 			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
 			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
 			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
 			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
 		glEnd();
-	}	
+	}
+	
+	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+	
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
+		y_scaled = y*3.0f;
+		x_scaled = x*3.0f;
+		glBegin(GL_QUADS);
+			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
+			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
+			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
+		glEnd();
+	}
 #endif
 	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
@@ -844,30 +862,27 @@ void draw_lake_tiles()
 #endif
 	glEnable(GL_CULL_FACE);
 #ifdef	USE_FRAMEBUFFER
-	if (use_frame_buffer)
+	if (use_frame_buffer && show_reflection)
 	{
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 		
-		if (show_reflection)
-		{
-			ELglActiveTextureARB(detail_unit);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
+		ELglActiveTextureARB(detail_unit);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
 
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
-			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);
-			glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
+		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 
-			ELglActiveTextureARB(base_unit);
-		}
+		ELglActiveTextureARB(base_unit);
 	}
 	else
 	{
@@ -988,7 +1003,7 @@ void draw_lake_tiles()
 		draw_lake_water_tile(x_scaled,y_scaled);
 	}
 #ifdef	USE_FRAMEBUFFER
-	if (use_frame_buffer)
+	if (use_frame_buffer && show_reflection)
 	{
 		get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
 		for (i = start; i < stop; i++)
@@ -1024,7 +1039,7 @@ void draw_lake_tiles()
 #endif
 	
 #ifdef	USE_FRAMEBUFFER
-	if (use_frame_buffer)
+	if (use_frame_buffer && show_reflection)
 	{
 		ELglActiveTextureARB(detail_unit);
 		glDisable(GL_TEXTURE_2D);
@@ -1063,12 +1078,13 @@ void draw_sky_background()
 #ifdef	USE_FRAMEBUFFER
 	int view_port[4];
 	
-	if (use_frame_buffer)
+	if (use_frame_buffer && show_reflection)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		init_texturing();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 #endif
 
@@ -1116,7 +1132,7 @@ void draw_sky_background()
 	glEnable(GL_TEXTURE_2D);
 	Leave2DMode();
 #ifdef	USE_FRAMEBUFFER
-	if (use_frame_buffer)
+	if (use_frame_buffer && show_reflection)
 	{
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
@@ -1138,12 +1154,13 @@ void draw_dungeon_sky_background()
 #endif // USE_FRAMEBUFFER
 
 #ifdef USE_FRAMEBUFFER
-	if (use_frame_buffer)
+	if (use_frame_buffer && show_reflection)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		init_texturing();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 #endif // FRAMEBUFFER
 
@@ -1176,7 +1193,7 @@ void draw_dungeon_sky_background()
 	glEnable(GL_TEXTURE_2D);
 	Leave2DMode();
 #ifdef	USE_FRAMEBUFFER
-	if (use_frame_buffer)
+	if (use_frame_buffer && show_reflection)
 	{
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);

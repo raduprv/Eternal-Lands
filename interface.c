@@ -61,14 +61,143 @@ void get_world_x_y()
 
 void get_old_world_x_y()
 {
-	float x1,y1,z1, x2,y2,z2, l;
-	/* Shoot a ray through the pixel and determine its intersection with the ground plane (z == 0) */
-	unproject_ortho(mouse_x,window_height-hud_y-mouse_y,0.0f,&x1,&y1,&z1);
-	unproject_ortho(mouse_x,window_height-hud_y-mouse_y,1.0f,&x2,&y2,&z2);
+	AABBOX box;
+	float t, x, y, z, t1, t2, tx, ty, dx, dy, h, len;
+	int i, j, h_max, h_min, h1, h2, h3, h4, sx, sy, zx, zy, i_min, i_max, j_min, j_max;
 	
-	l = z2 / (z2 - z1);
-	scene_mouse_x = l*x1 + (1 - l)*x2;
-	scene_mouse_y = l*y1 + (1 - l)*y2;
+	x = click_line.center[X];
+	y = click_line.center[Y];
+	z = click_line.center[Z];
+	dx = click_line.direction[X];
+	dy = click_line.direction[Y];
+	t = min2f(4.0f, max2f(-2.2f, z));
+	if (t != z)
+	{
+		t = (t-z)/click_line.direction[Z];
+		x += t*dx;
+		y += t*dy;
+	}
+	t = 6.2f / click_line.direction[Z];
+	len = min2f(max2f(t, -t), click_line.length);
+
+	len = click_line.length;
+	if (max2f(dx, -dx) < 0.000001f)
+	{
+		zx = 1;
+		sx = 0;
+	}
+	else
+	{
+		zx = 0;
+		if (dx < 0.0f) sx = -1;
+		else sx = 1;
+	}
+	if (max2f(dy, -dy) < 0.000001f)
+	{
+		zy = 1;
+		sy = 0;
+	}
+	else
+	{
+		zy = 0;
+		if (dy < 0.0f) sy = -1;
+		else sy = 1;
+	}
+	i = x*2.0f;
+	j = y*2.0f;
+	
+	i_min = min2f(x, x+dx*len)*2.0f;
+	i_max = max2f(x, x+dx*len)*2.0f;
+	j_min = min2f(y, y+dy*len)*2.0f;
+	j_max = max2f(y, y+dy*len)*2.0f;
+	
+	i_min = max2i(min2i(i_min, tile_map_size_x*6), 0);
+	i_max = max2i(min2i(i_max, tile_map_size_x*6), 0);
+	j_min = max2i(min2i(j_min, tile_map_size_y*6), 0);
+	j_max = max2i(min2i(j_max, tile_map_size_y*6), 0);
+
+	i = min2i(max2i(i, i_min), i_max-1);
+	j = min2i(max2i(j, j_min), j_max-1);
+	
+	h = 0.0f;
+	while ((i >= i_min) && (j >= j_min) && (i < i_max) && (j < j_max))
+	{
+		h1 = height_map[j*tile_map_size_x*6+i];
+		h2 = height_map[j*tile_map_size_x*6+i+1];
+		h3 = height_map[(j+1)*tile_map_size_x*6+i];
+		h4 = height_map[(j+1)*tile_map_size_x*6+i+1];
+		h_max = max2i(max2i(h1, h2), max2i(h3, h4));
+		h_min = min2i(min2i(h1, h2), min2i(h3, h4));
+		tx = i*0.5f;
+		ty = j*0.5f;
+		box.bbmin[X] = tx;
+		box.bbmin[Y] = ty;
+		box.bbmin[Z] = h_min*0.2f-2.2f;
+		box.bbmax[X] = tx+1.0f;
+		box.bbmax[Y] = ty+1.0f;
+		box.bbmax[Z] = h_max*0.2f-2.2f;
+		if (click_line_bbox_intersection(box))
+		{
+			box.bbmin[X] = tx+0.0f;
+			box.bbmin[Y] = ty+0.0f;
+			box.bbmin[Z] = h1*0.2f-2.2f;
+			box.bbmax[X] = tx+0.5f;
+			box.bbmax[Y] = ty+0.5f;
+			box.bbmax[Z] = h1*0.2f-2.2f;
+			if (click_line_bbox_intersection(box))
+			{
+				h = h1*0.2f-2.2f;
+				break;
+			}
+			box.bbmin[X] = tx+0.5f;
+			box.bbmin[Y] = ty+0.0f;
+			box.bbmin[Z] = h2*0.2f-2.2f;
+			box.bbmax[X] = tx+1.0f;
+			box.bbmax[Y] = ty+0.5f;
+			box.bbmax[Z] = h2*0.2f-2.2f;
+			if (click_line_bbox_intersection(box))
+			{
+				h = h2*0.2f-2.2f;
+				break;
+			}
+			box.bbmin[X] = tx+0.0f;
+			box.bbmin[Y] = ty+0.5f;
+			box.bbmin[Z] = h3*0.2f-2.2f;
+			box.bbmax[X] = tx+0.5f;
+			box.bbmax[Y] = ty+1.0f;
+			box.bbmax[Z] = h3*0.2f-2.2f;
+			if (click_line_bbox_intersection(box))
+			{
+				h = h3*0.2f-2.2f;
+				break;
+			}
+			box.bbmin[X] = tx+0.5f;
+			box.bbmin[Y] = ty+0.5f;
+			box.bbmin[Z] = h4*0.2f-2.2f;
+			box.bbmax[X] = tx+1.0f;
+			box.bbmax[Y] = ty+1.0f;
+			box.bbmax[Z] = h4*0.2f-2.2f;
+			if (click_line_bbox_intersection(box))
+			{
+				h = h4*0.2f-2.2f;
+				break;
+			}
+		}
+		if ((zx == 1) && (zy == 1)) break;
+		if (zx == 0) t1 = (tx+sx-x)/dx;
+		else t1 = 10e30;
+		if (zx == 0) t2 = (ty+sy-y)/dy;
+		else t2 = -10e30;
+		if (t1 < t2) i += 2*sx;
+		else j += 2*sy;
+		
+		t = min2f(t1, t2);
+		x += dx*t;
+		y += dy*t;
+	}
+	t = (h-click_line.center[Z])/click_line.direction[Z];
+	scene_mouse_x = click_line.center[X]+click_line.direction[X]*t;
+	scene_mouse_y = click_line.center[Y]+click_line.direction[Y]*t;
 }
 
 void Enter2DMode()
