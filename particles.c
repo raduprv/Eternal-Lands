@@ -730,8 +730,8 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 #ifdef	NEW_FRUSTUM
 	calc_bounding_box_for_particle_sys(&bbox, system_id);
 	
-	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_particle_sys_to_list(main_bbox_tree_items, psys, &bbox, def->sblend, def->dblend);
-	else add_particle_to_abt(main_bbox_tree, psys, &bbox, def->sblend, def->dblend, dynamic);
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_particle_sys_to_list(main_bbox_tree_items, psys, bbox, def->sblend, def->dblend);
+	else add_particle_to_abt(main_bbox_tree, psys, bbox, def->sblend, def->dblend, dynamic);
 #endif
 	UNLOCK_PARTICLES_LIST();
 

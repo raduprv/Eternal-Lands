@@ -547,8 +547,8 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	texture_id = returned_obj_2d_def->texture_id;
 	
-	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_2dobject_to_list(main_bbox_tree_items, i, &bbox, alpha_test, texture_id);
-	else add_2dobject_to_abt(main_bbox_tree, i, &bbox, alpha_test, texture_id, dynamic);
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_2dobject_to_list(main_bbox_tree_items, i, bbox, alpha_test, texture_id);
+	else add_2dobject_to_abt(main_bbox_tree, i, bbox, alpha_test, texture_id, dynamic);
 #else
 	//get the current sector
 	sector = (short) ((y_pos/SECTOR_SIZE_Y) * (map_meters_size_x/SECTOR_SIZE_X) + (x_pos/SECTOR_SIZE_X));

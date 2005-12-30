@@ -451,7 +451,7 @@ static __inline__ unsigned int is_self_lit_3d_object(unsigned int type)
  *
  * \callgraph
  */
-void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum, unsigned int mask);
+void check_bbox_tree(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask);
 
 /*!
  * \ingroup misc
@@ -512,7 +512,7 @@ void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items);
  * \param bbox		The bounding box of the static light.
  * \callgraph
  */
-void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
+void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox);
 
 /*!
  * \ingroup misc
@@ -527,7 +527,7 @@ void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox);
  * \param ground	Is this a ground object?
  * \callgraph
  */
-void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5);
+void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5);
 
 /*!
  * \ingroup misc
@@ -541,7 +541,7 @@ void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox,
  * \param alpha		Is this an alpha object?
  * \callgraph
  */
-void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int texture_id);
+void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int alpha, unsigned int texture_id);
 
 /*!
  * \ingroup misc
@@ -556,7 +556,7 @@ void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox,
  * \param dblend	The dblend value of the static particle system.
  * \callgraph
  */
-void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend);
+void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int sblend, unsigned int dblend);
 
 /*!
  * \ingroup misc
@@ -570,7 +570,7 @@ void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *b
  * \param texture_id	The ID of the texture_id.
  * \callgraph
  */
-void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int texture_id);
+void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int texture_id);
 
 /*!
  * \ingroup misc
@@ -585,7 +585,7 @@ void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, 
  * \param texture_id	The ID of the texture_id.
  * \callgraph
  */
-void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int reflectiv, unsigned int texture_id);
+void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int reflectiv, unsigned int texture_id);
 
 /*!
  * \ingroup misc
@@ -601,7 +601,7 @@ void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, un
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5, unsigned int dynamic);
+void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -616,7 +616,7 @@ void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int texture_id, unsigned int dynamic);
+void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int alpha, unsigned int texture_id, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -632,7 +632,7 @@ void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend, unsigned int dynamic);
+void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int sblend, unsigned int dblend, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -646,7 +646,7 @@ void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, un
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int dynamic);
+void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -660,7 +660,7 @@ void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsig
  * \param texture_id	The ID of the texture_id.
  * \callgraph
  */
-void add_terrain_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int texture_id, unsigned int dynamic);
+void add_terrain_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int texture_id, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -675,7 +675,7 @@ void add_terrain_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, uns
  * \param texture_id	The ID of the texture_id.
  * \callgraph
  */
-void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int reflectiv, unsigned int texture_id, unsigned int dynamic);
+void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int reflectiv, unsigned int texture_id, unsigned int dynamic);
 
 /*!
  * \ingroup misc
@@ -805,7 +805,7 @@ void set_all_intersect_update_needed(BBOX_TREE* bbox_tree);
  *
  * \callgraph
  */
-void calc_scene_bbox(BBOX_TREE* bbox_tree, FRUSTUM *frustum, AABBOX* bbox);
+void calc_scene_bbox(BBOX_TREE* bbox_tree, const FRUSTUM frustum, AABBOX* bbox);
 
 extern BBOX_TREE* main_bbox_tree;
 extern BBOX_ITEMS* main_bbox_tree_items;

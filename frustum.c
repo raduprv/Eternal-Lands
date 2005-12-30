@@ -457,7 +457,7 @@ void calculate_reflection_frustum(unsigned int num, float water_height)
 	reflection_clip_planes[4][B] = reflection_frustum[8].plane[B];
 	reflection_clip_planes[4][C] = reflection_frustum[8].plane[C];
 	reflection_clip_planes[4][D] = reflection_frustum[8].plane[D];
-	check_bbox_tree(main_bbox_tree, &reflection_frustum, 511);
+	check_bbox_tree(main_bbox_tree, reflection_frustum, 511);
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);	
 }
 
@@ -505,7 +505,7 @@ void calculate_shadow_frustum()
 	calculate_frustum_from_clip_matrix(shadow_frustum, clip);
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SHADOW);	
-	check_bbox_tree(main_bbox_tree, &shadow_frustum, 63);
+	check_bbox_tree(main_bbox_tree, shadow_frustum, 63);
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 }
 
@@ -651,7 +651,7 @@ void CalculateFrustum()
 	NormalizePlane(m_Frustum, FRONT);
 #else
 	calculate_frustum_from_clip_matrix(main_frustum, clip);
-	check_bbox_tree(main_bbox_tree, &main_frustum, 63);
+	check_bbox_tree(main_bbox_tree, main_frustum, 63);
 #endif
 }
 

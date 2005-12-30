@@ -10,6 +10,13 @@
 
 static const MD5_DIGEST ZERO_MD5 = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+// Always on at the moment. 
+//#ifdef	DEBUG
+#define BBOX_TREE_LOG_INFO(item)	log_error_detailed("%s is NULL", __FILE__, __FUNCTION__, __LINE__, item);
+//#else	//DEBUG
+//#define BBOX_TREE_LOG_INFO(item)	/*!< NOP */
+//#endif	//DEBUG
+
 static __inline__ unsigned int is_extra_first_sub_node(unsigned int extra)
 {
 	return ((extra & EXTRA_FIRST_SUB_NODE) != 0);
@@ -24,6 +31,7 @@ void set_all_intersect_update_needed(BBOX_TREE* bbox_tree)
 		for (i = 0; i < MAX_ITERSECTION_TYPES; i++)
 			bbox_tree->intersect[i].intersect_update_needed = 1;
 	}
+	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
 static __inline__ void adapt_intersect_list_size(BBOX_TREE* bbox_tree, unsigned int count)
@@ -89,7 +97,7 @@ static __inline__ void add_dyn_intersect_datas(BBOX_TREE* bbox_tree, BBOX_TREE_N
 	bbox_tree->intersect[idx].count += count;
 }
 
-static __inline__ int check_aabb_in_frustum(AABBOX *bbox, PLANE *frustum, unsigned int in_mask, unsigned int *out_mask)
+static __inline__ int check_aabb_in_frustum(const AABBOX bbox, const FRUSTUM frustum, unsigned int in_mask, unsigned int *out_mask)
 {
 	float m, n;
 	unsigned int i, k, result;
@@ -103,12 +111,12 @@ static __inline__ int check_aabb_in_frustum(AABBOX *bbox, PLANE *frustum, unsign
 		{
 			float nx, px, ny, py, nz, pz;
 
-			nx = !frustum[i].mask[0] ? bbox->bbmin[X] :  bbox->bbmax[X];
-			px = frustum[i].mask[0] ? bbox->bbmin[X] :  bbox->bbmax[X];
-			ny = !frustum[i].mask[1] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
-			py = frustum[i].mask[1] ? bbox->bbmin[Y] :  bbox->bbmax[Y];
-			nz = !frustum[i].mask[2] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
-			pz = frustum[i].mask[2] ? bbox->bbmin[Z] :  bbox->bbmax[Z];
+			nx = !frustum[i].mask[0] ? bbox.bbmin[X] :  bbox.bbmax[X];
+			px = frustum[i].mask[0] ? bbox.bbmin[X] :  bbox.bbmax[X];
+			ny = !frustum[i].mask[1] ? bbox.bbmin[Y] :  bbox.bbmax[Y];
+			py = frustum[i].mask[1] ? bbox.bbmin[Y] :  bbox.bbmax[Y];
+			nz = !frustum[i].mask[2] ? bbox.bbmin[Z] :  bbox.bbmax[Z];
+			pz = frustum[i].mask[2] ? bbox.bbmin[Z] :  bbox.bbmax[Z];
 			m = (	frustum[i].plane[A] * nx + 
 				frustum[i].plane[B] * ny + 
 				frustum[i].plane[C] * nz);
@@ -128,7 +136,7 @@ static __inline__ int check_aabb_in_frustum(AABBOX *bbox, PLANE *frustum, unsign
 	return result;
 }
 
-static __inline__ void add_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, PLANE *frustum, unsigned int in_mask)
+static __inline__ void add_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, const FRUSTUM frustum, unsigned int in_mask)
 {
 	unsigned int idx1, idx2, size, i, out_mask;
 
@@ -138,12 +146,12 @@ static __inline__ void add_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node,
 		
 	for (i = 0; i < size; i++)
 	{
-		if (check_aabb_in_frustum(&bbox_tree->items[idx2+i].bbox, frustum, in_mask, &out_mask) != OUTSIDE) 
+		if (check_aabb_in_frustum(bbox_tree->items[idx2+i].bbox, frustum, in_mask, &out_mask) != OUTSIDE) 
 			add_intersect_item(bbox_tree, idx2+i, idx1);
 	}
 }
 
-static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, PLANE *frustum, unsigned int in_mask)
+static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, const FRUSTUM frustum, unsigned int in_mask)
 {
 	unsigned int idx, size, i, out_mask;
 
@@ -152,13 +160,13 @@ static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_n
 		
 	for (i = 0; i < size; i++)
 	{
-		if (check_aabb_in_frustum(&sub_node->dynamic_objects.items[i].bbox, frustum, in_mask, &out_mask) != OUTSIDE) 
+		if (check_aabb_in_frustum(sub_node->dynamic_objects.items[i].bbox, frustum, in_mask, &out_mask) != OUTSIDE) 
 			add_dyn_intersect_item(bbox_tree, sub_node, i, idx);
 	}
 }
 
 static __inline__ void merge_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node,
-	PLANE *frustum, unsigned int in_mask, AABBOX* bbox)
+	const FRUSTUM frustum, unsigned int in_mask, AABBOX* bbox)
 {
 	unsigned int idx1, idx2, size, i, out_mask;
 
@@ -168,7 +176,7 @@ static __inline__ void merge_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_nod
 		
 	for (i = 0; i < size; i++)
 	{
-		if (check_aabb_in_frustum(&bbox_tree->items[idx2+i].bbox, frustum,
+		if (check_aabb_in_frustum(bbox_tree->items[idx2+i].bbox, frustum,
 			in_mask, &out_mask) != OUTSIDE)
 		{
 			VMin(bbox->bbmin, bbox->bbmin, bbox_tree->items[idx2+i].bbox.bbmin);
@@ -178,7 +186,7 @@ static __inline__ void merge_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_nod
 }
 
 static __inline__ void merge_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node,
-	PLANE *frustum, unsigned int in_mask, AABBOX* bbox)
+	const FRUSTUM frustum, unsigned int in_mask, AABBOX* bbox)
 {
 	unsigned int idx, size, i, out_mask;
 
@@ -187,7 +195,7 @@ static __inline__ void merge_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub
 		
 	for (i = 0; i < size; i++)
 	{
-		if (check_aabb_in_frustum(&sub_node->dynamic_objects.items[i].bbox,
+		if (check_aabb_in_frustum(sub_node->dynamic_objects.items[i].bbox,
 			frustum, in_mask, &out_mask) != OUTSIDE)
 		{
 			VMin(bbox->bbmin, bbox->bbmin, sub_node->dynamic_objects.items[i].bbox.bbmin);
@@ -196,13 +204,13 @@ static __inline__ void merge_dyn_items(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub
 	}
 }
 
-static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, PLANE *frustum, unsigned int in_mask)
+static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, const FRUSTUM frustum, unsigned int in_mask)
 {
 	unsigned int out_mask, result;
 	
 	if (sub_node != NULL)
 	{
-		result = check_aabb_in_frustum(&sub_node->bbox, frustum, in_mask, &out_mask);
+		result = check_aabb_in_frustum(sub_node->bbox, frustum, in_mask, &out_mask);
 		if (result == INSIDE)
 		{
 			add_intersect_items(bbox_tree, sub_node->items_index, sub_node->items_count);
@@ -225,13 +233,13 @@ static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub
 	}
 }
 
-static __inline__ void calc_bbox_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, PLANE *frustum, unsigned int in_mask, AABBOX* bbox)
+static __inline__ void calc_bbox_sub_nodes(BBOX_TREE* bbox_tree, BBOX_TREE_NODE* sub_node, const FRUSTUM frustum, unsigned int in_mask, AABBOX* bbox)
 {
 	unsigned int out_mask, result;
 	
 	if (sub_node != NULL)
 	{
-		result = check_aabb_in_frustum(&sub_node->bbox, frustum, in_mask, &out_mask);
+		result = check_aabb_in_frustum(sub_node->bbox, frustum, in_mask, &out_mask);
 		if (result == INSIDE)
 		{
 			VMin(bbox->bbmin, bbox->bbmin, sub_node->bbox.bbmin);
@@ -368,7 +376,7 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, uns
 	}
 }
 
-void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum, unsigned int mask)
+void check_bbox_tree(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask)
 {	
 	unsigned int idx;
 
@@ -378,22 +386,24 @@ void check_bbox_tree(BBOX_TREE* bbox_tree, FRUSTUM *frustum, unsigned int mask)
 		if (bbox_tree->intersect[idx].intersect_update_needed > 0)
 		{
 			bbox_tree->intersect[idx].count = 0;
-			check_sub_nodes(bbox_tree, bbox_tree->root_node, *frustum, mask);
+			check_sub_nodes(bbox_tree, bbox_tree->root_node, frustum, mask);
 			qsort((void *)(bbox_tree->intersect[idx].items), bbox_tree->intersect[idx].count, sizeof(BBOX_ITEM_DATA), comp_items);
 			build_start_stop(bbox_tree);
 			bbox_tree->intersect[idx].intersect_update_needed = 0;
 		}
 	}	
+	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
-void calc_scene_bbox(BBOX_TREE* bbox_tree, FRUSTUM *frustum, AABBOX* bbox)
+void calc_scene_bbox(BBOX_TREE* bbox_tree, const FRUSTUM frustum, AABBOX* bbox)
 {	
 	if (bbox_tree != NULL)
 	{
 		VFill(bbox->bbmax, -BOUND_HUGE);
 		VFill(bbox->bbmin, BOUND_HUGE);
-		calc_bbox_sub_nodes(bbox_tree, bbox_tree->root_node, *frustum, 63, bbox);
+		calc_bbox_sub_nodes(bbox_tree, bbox_tree->root_node, frustum, 63, bbox);
 	}	
+	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
 static __inline__ void free_bbox_tree_data(BBOX_TREE* bbox_tree)
@@ -405,6 +415,7 @@ static __inline__ void free_bbox_tree_data(BBOX_TREE* bbox_tree)
 		free(bbox_tree->items);
 		bbox_tree->items = NULL;
 	}
+	else BBOX_TREE_LOG_INFO("bbox_tree->items");
 	for (i = 0; i < bbox_tree->nodes_count; i++)
 	{
 		if (bbox_tree->nodes[i].dynamic_objects.items != NULL)
@@ -423,6 +434,7 @@ static __inline__ void free_bbox_tree_data(BBOX_TREE* bbox_tree)
 		free(bbox_tree->nodes);
 		bbox_tree->nodes = NULL;
 	}
+	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
 void clear_bbox_tree(BBOX_TREE* bbox_tree)
@@ -446,6 +458,7 @@ void clear_bbox_tree(BBOX_TREE* bbox_tree)
 		}
 		free_bbox_tree_data(bbox_tree);
 	}
+	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
 void free_bbox_tree(BBOX_TREE* bbox_tree)
@@ -454,7 +467,9 @@ void free_bbox_tree(BBOX_TREE* bbox_tree)
 	{
 		clear_bbox_tree(bbox_tree);
 		free(bbox_tree);
+		bbox_tree = NULL;
 	}
+	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
 int Axis = 0;
@@ -676,24 +691,28 @@ void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items)
 {
 	unsigned int size, index;
 
-	if ((bbox_items != NULL) && (bbox_items->index > 0))
+	if (bbox_items != NULL)
 	{
-		size = bbox_items->index;	
-		index = 1;
-		bbox_tree->nodes_count = 2*size;
-		bbox_tree->nodes = (BBOX_TREE_NODE*)malloc(size*2*sizeof(BBOX_TREE_NODE));
-		bbox_tree->root_node = &bbox_tree->nodes[0];
-		bbox_tree->items_count = size;
-		bbox_tree->items = (BBOX_ITEM*)malloc(size*sizeof(BBOX_ITEM));
-		memcpy(bbox_tree->items, bbox_items->items, size*sizeof(BBOX_ITEM));
-		sort_and_split(bbox_tree, bbox_tree->root_node, &index, 0, size);
-		bbox_tree->nodes_count = index;
-		bbox_tree->nodes = (BBOX_TREE_NODE*)realloc(bbox_tree->nodes, index*sizeof(BBOX_TREE_NODE));
+		if (bbox_items->index > 0)
+		{
+			size = bbox_items->index;	
+			index = 1;
+			bbox_tree->nodes_count = 2*size;
+			bbox_tree->nodes = (BBOX_TREE_NODE*)malloc(size*2*sizeof(BBOX_TREE_NODE));
+			bbox_tree->root_node = &bbox_tree->nodes[0];
+			bbox_tree->items_count = size;
+			bbox_tree->items = (BBOX_ITEM*)malloc(size*sizeof(BBOX_ITEM));
+			memcpy(bbox_tree->items, bbox_items->items, size*sizeof(BBOX_ITEM));
+			sort_and_split(bbox_tree, bbox_tree->root_node, &index, 0, size);
+			bbox_tree->nodes_count = index;
+			bbox_tree->nodes = (BBOX_TREE_NODE*)realloc(bbox_tree->nodes, index*sizeof(BBOX_TREE_NODE));
+			set_all_intersect_update_needed(bbox_tree);
+		}
 	}
-	set_all_intersect_update_needed(bbox_tree);
+	else BBOX_TREE_LOG_INFO("bbox_items");
 }
 
-static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5)
+static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, const AABBOX bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5)
 {
 	unsigned int index, size;
 
@@ -706,8 +725,8 @@ static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, AABBOX *bbox, un
 		bbox_items->items = (BBOX_ITEM*)realloc(bbox_items->items, size*sizeof(BBOX_ITEM));
 		bbox_items->size = size;
 	}
-	memcpy(bbox_items->items[index].bbox.bbmin, bbox->bbmin, sizeof(VECTOR3));
-	memcpy(bbox_items->items[index].bbox.bbmax, bbox->bbmax, sizeof(VECTOR3));
+	memcpy(bbox_items->items[index].bbox.bbmin, bbox.bbmin, sizeof(VECTOR3));
+	memcpy(bbox_items->items[index].bbox.bbmax, bbox.bbmax, sizeof(VECTOR3));
 	bbox_items->items[index].data.type = type;
 	bbox_items->items[index].data.extra = 0;
 	bbox_items->items[index].data.texture_id = texture_id;
@@ -716,7 +735,7 @@ static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, AABBOX *bbox, un
 	bbox_items->index = index + 1;
 }
 
-void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox)
+void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox)
 {
 	add_aabb_to_list(bbox_items, bbox, ID, TYPE_LIGHT, 0, ZERO_MD5);
 }
@@ -752,7 +771,7 @@ static __inline__ unsigned int get_3D_type(unsigned int blend, unsigned int grou
 	}
 }
 
-void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5)
+void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5)
 {
 	add_aabb_to_list(bbox_items, bbox, ID, get_3D_type(blend, ground, alpha, self_lit), texture_id, md5);
 }
@@ -763,7 +782,7 @@ static __inline__ unsigned int get_2D_type(unsigned int alpha)
 	else return TYPE_2D_ALPHA_OBJECT;
 }
 
-void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int texture_id)
+void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int alpha, unsigned int texture_id)
 {
 	add_aabb_to_list(bbox_items, bbox, ID, get_2D_type(alpha), texture_id, ZERO_MD5);
 }
@@ -792,12 +811,12 @@ static __inline__ unsigned int get_particle_type(unsigned int sblend, unsigned i
 	return ((get_blend_type(sblend) << 4) + get_blend_type(dblend));
 }
 
-void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend)
+void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int sblend, unsigned int dblend)
 {
 	add_aabb_to_list(bbox_items, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend), ZERO_MD5);
 }
 
-void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int texture_id)
+void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int texture_id)
 {
 	add_aabb_to_list(bbox_items, bbox, ID, TYPE_TERRAIN, texture_id, ZERO_MD5);
 }
@@ -808,29 +827,30 @@ static __inline__ unsigned int get_water_type(unsigned int reflectiv)
 	else return TYPE_NO_REFLECTIV_WATER;
 }
 
-void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, AABBOX *bbox, unsigned int texture_id, unsigned int reflectiv)
+void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int texture_id, unsigned int reflectiv)
 {
 	add_aabb_to_list(bbox_items, bbox, ID, get_water_type(reflectiv), texture_id, ZERO_MD5);
 }
 
-static __inline__ unsigned int check_aabb_aabb(AABBOX *bbox, AABBOX *dyn_bbox, AABBOX *new_bbox, float grow)
+static __inline__ unsigned int check_aabb_aabb(const AABBOX bbox, const AABBOX dyn_bbox, float grow)
 {
+	AABBOX new_bbox;
 	VECTOR3 len;
 	float old_v, new_v;
 
-	VMin(new_bbox->bbmin, bbox->bbmin, dyn_bbox->bbmin);
-	VMax(new_bbox->bbmax, bbox->bbmax, dyn_bbox->bbmax);
+	VMin(new_bbox.bbmin, bbox.bbmin, dyn_bbox.bbmin);
+	VMax(new_bbox.bbmax, bbox.bbmax, dyn_bbox.bbmax);
 
-	VSub(len, bbox->bbmax, bbox->bbmin);
+	VSub(len, bbox.bbmax, bbox.bbmin);
 	old_v = len[X] * len[Y] * len[Z];
-	VSub(len, new_bbox->bbmax, new_bbox->bbmin);
+	VSub(len, new_bbox.bbmax, new_bbox.bbmin);
 	new_v = len[X] * len[Y] * len[Z];
 
 	if ((new_v / old_v) > grow) return 0;
 	else return 1;
 }
 
-static __inline__ void add_dynamic_item_to_node(BBOX_TREE_NODE *node, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5)
+static __inline__ void add_dynamic_item_to_node(BBOX_TREE_NODE *node, const AABBOX bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5)
 {	
 	unsigned int index, size;
 
@@ -852,15 +872,15 @@ static __inline__ void add_dynamic_item_to_node(BBOX_TREE_NODE *node, AABBOX *bb
 		node->dynamic_objects.items[index].data.texture_id = texture_id;
 		memcpy(node->dynamic_objects.items[index].data.md5, md5, sizeof(MD5_DIGEST));
 		node->dynamic_objects.items[index].data.type = type;
-		memcpy(node->dynamic_objects.items[index].bbox.bbmin, bbox->bbmin, sizeof(VECTOR3));
-		memcpy(node->dynamic_objects.items[index].bbox.bbmax, bbox->bbmax, sizeof(VECTOR3));
+		memcpy(node->dynamic_objects.items[index].bbox.bbmin, bbox.bbmin, sizeof(VECTOR3));
+		memcpy(node->dynamic_objects.items[index].bbox.bbmax, bbox.bbmax, sizeof(VECTOR3));
 		node->dynamic_objects.index = index + 1;
-		VMin(node->bbox.bbmin, node->bbox.bbmin, bbox->bbmin);
-		VMax(node->bbox.bbmax, node->bbox.bbmax, bbox->bbmax);
+		VMin(node->bbox.bbmin, node->bbox.bbmin, bbox.bbmin);
+		VMax(node->bbox.bbmax, node->bbox.bbmax, bbox.bbmax);
 	}
 }
 
-static __inline__ void add_dynamic_data_to_node(BBOX_TREE_NODE *node, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5, unsigned int extra)
+static __inline__ void add_dynamic_data_to_node(BBOX_TREE_NODE *node, const AABBOX bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5, unsigned int extra)
 {	
 	unsigned int index, size;
 
@@ -884,19 +904,18 @@ static __inline__ void add_dynamic_data_to_node(BBOX_TREE_NODE *node, AABBOX *bb
 		memcpy(node->dynamic_objects.sub_items[index].md5, md5, sizeof(MD5_DIGEST));
 		node->dynamic_objects.sub_items[index].type = type;
 		node->dynamic_objects.sub_index = index + 1;
-		VMin(node->bbox.bbmin, node->bbox.bbmin, bbox->bbmin);
-		VMax(node->bbox.bbmax, node->bbox.bbmax, bbox->bbmax);
+		VMin(node->bbox.bbmin, node->bbox.bbmin, bbox.bbmin);
+		VMax(node->bbox.bbmax, node->bbox.bbmax, bbox.bbmax);
 	}
 }
 
-static __inline__ int add_dynamic_aabb_to_abt_node(BBOX_TREE_NODE *node, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5)
+static __inline__ int add_dynamic_aabb_to_abt_node(BBOX_TREE_NODE *node, const AABBOX bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5)
 {
-	AABBOX new_bbox;
 	unsigned int result, extra;
 
 	if (node != NULL)
 	{
-		if (check_aabb_aabb(&node->orig_bbox, bbox, &new_bbox, 1.1f))
+		if (check_aabb_aabb(node->orig_bbox, bbox, 1.1f))
 		{
 			extra = EXTRA_FIRST_SUB_NODE;
 			result = add_dynamic_aabb_to_abt_node(node->nodes[0], bbox, ID, type, texture_id, md5);
@@ -914,7 +933,7 @@ static __inline__ int add_dynamic_aabb_to_abt_node(BBOX_TREE_NODE *node, AABBOX 
 	else return 0;
 }
 
-static __inline__ void add_aabb_to_abt(BBOX_TREE *bbox_tree, AABBOX *bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5, unsigned int dynamic)
+static __inline__ void add_aabb_to_abt(BBOX_TREE *bbox_tree, const AABBOX bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5, unsigned int dynamic)
 {
 	unsigned int result;
 	
@@ -924,34 +943,35 @@ static __inline__ void add_aabb_to_abt(BBOX_TREE *bbox_tree, AABBOX *bbox, unsig
 		if (result == 0) add_dynamic_item_to_node(bbox_tree->root_node, bbox, ID, type, texture_id, md5);
 		set_all_intersect_update_needed(bbox_tree);
 	}
+	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
-void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int dynamic)
+void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int dynamic)
 {
 	add_aabb_to_abt(bbox_tree, bbox, ID, TYPE_LIGHT, 0, ZERO_MD5, dynamic);
 }
 
-void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5, unsigned int dynamic)
+void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5, unsigned int dynamic)
 {
 	add_aabb_to_abt(bbox_tree, bbox, ID, get_3D_type(blend, ground, alpha, self_lit), texture_id, md5, dynamic);
 }
 
-void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int alpha, unsigned int texture_id, unsigned int dynamic)
+void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int alpha, unsigned int texture_id, unsigned int dynamic)
 {
 	add_aabb_to_abt(bbox_tree, bbox, ID, get_2D_type(alpha), texture_id, ZERO_MD5, dynamic);
 }
 
-void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int sblend, unsigned int dblend, unsigned int dynamic)
+void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int sblend, unsigned int dblend, unsigned int dynamic)
 {
 	add_aabb_to_abt(bbox_tree, bbox, ID, TYPE_PARTICLE_SYSTEM, get_particle_type(sblend, dblend), ZERO_MD5, dynamic);
 }
 
-void add_terrain_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int texture_id, unsigned int dynamic)
+void add_terrain_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int texture_id, unsigned int dynamic)
 {
 	add_aabb_to_abt(bbox_tree, bbox, ID, TYPE_TERRAIN, texture_id, ZERO_MD5, dynamic);
 }
 
-void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, AABBOX *bbox, unsigned int texture_id, unsigned int reflectiv, unsigned int dynamic)
+void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int texture_id, unsigned int reflectiv, unsigned int dynamic)
 {
 	add_aabb_to_abt(bbox_tree, bbox, ID, get_water_type(reflectiv), texture_id, ZERO_MD5, dynamic);
 }
@@ -1096,6 +1116,7 @@ static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int I
 		delete_item_from_intersect_list(bbox_tree, ID, type);
 		delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->root_node, ID, type);
 	}
+	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
 void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit)
@@ -1150,8 +1171,11 @@ void free_bbox_items(BBOX_ITEMS* bbox_items)
 			free(bbox_items->items);
 			bbox_items->items = NULL;
 		}
+		else BBOX_TREE_LOG_INFO("bbox_items->items");
 		free(bbox_items);
+		bbox_items = NULL;
 	}
+	else BBOX_TREE_LOG_INFO("bbox_items");
 }
 
 BBOX_TREE* build_bbox_tree()

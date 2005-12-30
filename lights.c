@@ -306,8 +306,8 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 	if (i >= num_lights) num_lights = i+1;	
 #ifdef	NEW_FRUSTUM
 	calc_light_aabb(&bbox, x, y, z, r*intensity, g*intensity, b*intensity, 1.41f, 1.0f, 0.05f);
-	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_light_to_list(main_bbox_tree_items, i, &bbox);
-	else add_light_to_abt(main_bbox_tree, i, &bbox, dynamic);
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_light_to_list(main_bbox_tree_items, i, bbox);
+	else add_light_to_abt(main_bbox_tree, i, bbox, dynamic);
 #endif
 
 	return i;
