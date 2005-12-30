@@ -198,9 +198,9 @@ void send_input_text_line (char *line, int line_len)
 	return;
 }
 
-int filter_or_ignore_text (Uint8 *text_to_add, int len, int size)
+int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 {
-	int l, type, idx;
+	int l, idx;
 
 	if (len <= 0) return 0;	// no point
 
@@ -216,37 +216,37 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size)
 	}
 
 	//check if ignored
-	type = 0;
-	if (len >= strlen(pm_from_str) && strncasecmp (&text_to_add[1], pm_from_str, strlen(pm_from_str)) == 0)
-		type = 1;
-	else if (len >= strlen(mod_pm_from_str) && strncasecmp (&text_to_add[1], mod_pm_from_str, strlen(mod_pm_from_str)) == 0)
-		type = 2;
-
-	if (pre_check_if_ignored (text_to_add, len, type))
-		return 0;
-
-	//All right, we do not ignore the person
-	if (afk)
-	{
-		if (type)
+	//Make sure we don't check our own messages.
+	if( !(channel == CHAT_PERSONAL && len >= strlen(pm_from_str) && strncasecmp (text_to_add+1, pm_from_str, strlen(pm_from_str)) != 0) &&
+		!(channel == CHAT_MODPM && len >= strlen(mod_pm_from_str) && strncasecmp (text_to_add+1, mod_pm_from_str, strlen(mod_pm_from_str)) != 0)
+	) {
+		if (pre_check_if_ignored (text_to_add, len, channel))
 		{
-			// player sent us a PM
-			add_message_to_pm_log (text_to_add, len);
+			return 0;
 		}
-		else if (text_to_add[0] == 127 + c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0) )
+		//All right, we do not ignore the person
+		if (afk)
 		{
-			// player mentions our name in local chat
-			send_afk_message (&text_to_add[1], len - 1, type);
-		}
-		else
-		{
-			// check if this was a trade attempt
-			int i;
-			for (i = 1; i < len; i++)
-				if (text_to_add[i] == ' ' || text_to_add[i] == ':' || IS_COLOR (text_to_add[i]))
-					break;
-			if (i < len-15 && strncasecmp (&text_to_add[i], " wants to trade", 15) == 0)
-				send_afk_message (&text_to_add[1], len - 1, type);
+			if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
+			{
+				// player sent us a PM
+				add_message_to_pm_log (text_to_add, len);
+			}
+			else if (channel == CHAT_LOCAL && text_to_add[0] == 127 + c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0))
+			{
+				// player mentions our name in local chat
+				send_afk_message (&text_to_add[1], len - 1, channel);
+			}
+			else if (channel == CHAT_SERVER)
+			{
+				// check if this was a trade attempt
+				int i;
+				for (i = 1; i < len; i++)
+					if (text_to_add[i] == ' ' || text_to_add[i] == ':' || IS_COLOR (text_to_add[i]))
+						break;
+				if (i < len-15 && strncasecmp (&text_to_add[i], " wants to trade", 15) == 0)
+					send_afk_message (&text_to_add[1], len - 1, channel);
+			}
 		}
 	}
 
@@ -254,7 +254,7 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size)
 	find_last_url (text_to_add, len);
 
 	// look for buddy-wants-to-add-you messages
-	if(text_to_add[0] == c_green1+127)
+	if(channel == CHAT_SERVER && text_to_add[0] == c_green1+127)
 	{
 		for (l = 1; l < len; l++)
 		{

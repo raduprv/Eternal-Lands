@@ -109,45 +109,97 @@ int check_if_ignored (const Uint8 *name)
 
 
 //returns 1 if ignored, 0 if not ignored
-int pre_check_if_ignored (const Uint8 *input_text, int len, int type)
+int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 {
 	int i, offset;
 	Uint8 name[16];
 	Uint8 ch;
 
-	if (type != 0)
+	switch(channel)
 	{
-		//now find the name portion
-		offset = (type == 1 ? strlen(pm_from_str) : strlen(mod_pm_from_str))+2;
-		for (i = 0; i < 15 && ((i+offset) < len); i++)
-		{
-			ch = input_text[i+offset];	//skip over the prefix
-			if (ch==':' || ch==' ') break;
-			name[i]=ch;
-		}
-		name[i] = '\0';
-		if (check_if_ignored(name)) return 1;
-		//memorize this players name
-		my_strcp (last_pm_from, name);
-		return 0;
+		case CHAT_PERSONAL:
+		case CHAT_MODPM:
+			offset = (channel == CHAT_MODPM ? strlen(mod_pm_from_str) : strlen(pm_from_str))+2;
+			for (i = 0; i < 15 && ((i+offset) < len); i++)
+			{
+				ch = input_text[i+offset];	//skip over the prefix
+				if (ch == ':' || ch == ' ')
+				{
+					break;
+				}
+				name[i] = ch;
+			}
+			name[i] = '\0';
+			my_strcp (last_pm_from, name);
+			if(channel == CHAT_MODPM)
+			{
+				return 0;
+			}
+			else
+			{
+				break;
+			}
+		case CHAT_LOCAL:
+			offset = 0;
+			while (IS_COLOR (input_text[offset]))
+			{
+				offset++;
+			}
+			for (i = 0; i < 15 && i+offset < len; i++)
+			{
+				ch = input_text[i+offset];
+				if (ch == ':' || ch == ' ')
+				{
+					break;
+				}
+				name[i] = ch;
+			}
+			name[i] = '\0';
+		break;
+		case CHAT_CHANNEL1:
+		case CHAT_CHANNEL2:
+		case CHAT_CHANNEL3:
+			for(offset = 0; IS_COLOR (input_text[offset]); offset++);
+			if (input_text[offset] == '[')
+			{
+				offset++;
+			}
+			for (i = 0; i < 15 && i+offset < len; i++)
+			{
+				ch = input_text[i+offset];
+				if (ch == ':' || ch == ' ' || ch == ']')
+				{
+					break;
+				}
+				name[i] = ch;
+			}
+			name[i] = '\0';
+		break;
+		case CHAT_GM:
+			for(offset = 0; IS_COLOR(input_text[offset]); offset++);
+			if(strncasecmp(input_text+offset, gm_from_str, strlen(gm_from_str)) == 0)
+			{
+				offset = strlen(gm_from_str)+2;
+				for (i = 0; i < 15 && ((i+offset) < len); i++)
+				{
+					ch = input_text[i+offset];	//skip over the prefix
+					if (ch == ':' || ch == ' ')
+					{
+						break;
+					}
+					name[i] = ch;
+				}
+				name[i] = '\0';
+				break;
+			}
+		default:
+			return 0;
+		break;
 	}
-
-	offset = 0;
-	while (IS_COLOR (input_text[offset]))
-		offset++;
-	if (input_text[offset] == '[')
-		offset++;
-	for (i = 0; i < 15 && i+offset < len; i++)
-	{
-		ch = input_text[i+offset];
-		if (ch==':' || ch==' ' || ch==']') break;
-		name[i] = ch;
-	}
-	name[i] = '\0';
-	if (check_if_ignored (name))
-		return 1;
-
-	return 0;
+#ifdef COMMAND_BUFFER
+	add_name_to_tablist(name);
+#endif //COMMAND_BUFFER
+	return check_if_ignored (name);
 }
 
 

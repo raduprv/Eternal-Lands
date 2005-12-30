@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 #include "global.h"
 
 float sitting=1.0f;
@@ -560,8 +561,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #ifndef UID
 #ifdef  CUSTOM_LOOK
 		uniq_id = 0;
-#endif
-#endif
+#endif //CUSTOM_LOOK
+#endif //ndef UID
 
 		//perfect hashing of guildtag
  		switch(strlen(guild))
@@ -618,7 +619,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	custom_path(this_actor->boots_tex, playerpath, guildpath);
 	//legs
 	custom_path(this_actor->pants_tex, playerpath, guildpath);
-#endif
+#endif //CUSTOM_LOOK
 
 	//cape
 	if(cape!=CAPE_NONE)
@@ -626,7 +627,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->cape_tex,actors_defs[actor_type].cape[cape].skin_name,sizeof(this_actor->cape_tex));
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->cape_tex, playerpath, guildpath);
-#endif
+#endif //CUSTOM_LOOK
 		}
 	else
 		{
@@ -638,7 +639,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->shield_tex,actors_defs[actor_type].shield[shield].skin_name,sizeof(this_actor->shield_tex));
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->shield_tex, playerpath, guildpath);
-#endif
+#endif //CUSTOM_LOOK
 		}
 	else
 		{
@@ -648,13 +649,13 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	my_strncp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->weapon_tex));
 #ifdef CUSTOM_LOOK
 	custom_path(this_actor->weapon_tex, playerpath, guildpath);
-#endif
+#endif //CUSTOM_LOOK
 	this_actor->weapon_glow=actors_defs[actor_type].weapon[weapon].glow;
 	if(weapon == GLOVE_FUR || weapon == GLOVE_LEATHER){
 		my_strncp(this_actor->hands_tex, actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->hands_tex));
 #ifdef CUSTOM_LOOK
 		custom_path(this_actor->hands_tex, playerpath, guildpath);
-#endif
+#endif //CUSTOM_LOOK
 	}
 
 	//helmet
@@ -663,7 +664,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->helmet_tex,actors_defs[actor_type].helmet[helmet].skin_name,sizeof(this_actor->helmet_tex));
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->helmet_tex, playerpath, guildpath);
-#endif
+#endif //CUSTOM_LOOK
 		}
 	else
 		{
@@ -674,7 +675,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	
 #ifdef EXTRA_DEBUG
 	ERR();
-#endif
+#endif //EXTRA_DEBUG
 	//The actors list is already locked here
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
@@ -702,13 +703,32 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	actors_list[i]->cur_weapon=weapon;
 	actors_list[i]->kind_of_actor=kind_of_actor;
 	if(strlen(&in_data[28]) >= 30)
-		{
-			log_error("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
+	{
+		log_error("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
+	}
+	else 
+	{
+#ifdef COMMAND_BUFFER
+		/* Extract the name for use in the tab completion list. */
+		const unsigned char *name = in_data+28;
+		unsigned char *ptr;
+		unsigned char buffer[32];
+
+		if(kind_of_actor != NPC) {
+			/* Skip leading color codes */
+			for (; *name && IS_COLOR(*name); name++);
+			snprintf(buffer, sizeof(buffer), "%.30s", name);
+			/* Remove guild tag, etc. */
+			for(ptr = buffer; *ptr && *ptr <= 127 + c_lbound && !isspace(*ptr); ptr++);
+			*ptr = '\0';
+			add_name_to_tablist(buffer);
 		}
-	else 	{
-			my_strncp(actors_list[i]->actor_name,&in_data[28],sizeof(actors_list[i]->actor_name));
-			if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) my_tolower(actors_list[i]->actor_name);
+#endif //COMMAND_BUFFER
+		my_strncp(actors_list[i]->actor_name,&in_data[28],sizeof(actors_list[i]->actor_name));
+		if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) {
+			my_tolower(actors_list[i]->actor_name);
 		}
+	}
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);

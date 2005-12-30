@@ -558,6 +558,9 @@ void add_buddy (const char *name, int type, int len)
 	int i;
 	char message[35];
 
+#ifdef COMMAND_BUFFER
+	add_name_to_tablist(name);
+#endif //COMMAND_BUFFER
 	// find empty space
 	for (i = 0; i < MAX_BUDDY; i++)
 	{

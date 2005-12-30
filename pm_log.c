@@ -135,7 +135,7 @@ void add_message_to_pm_log (const char *message, int len)
 
 	if (z < 0)
 	{
-		send_afk_message (NULL, 0, 1);
+		send_afk_message (NULL, 0, CHAT_PERSONAL);
 		z = add_name_to_pm_log (last_pm_from, last_pm_len);
 	}
 	
@@ -187,13 +187,13 @@ int is_talking_about_me (const Uint8 *server_msg, int len, char everywhere)
 	return 0;
 }
 
-void send_afk_message (const Uint8 *server_msg, int len, int type)
+void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
 {
 	Uint8 sendtext[MAX_TEXT_MESSAGE_LENGTH+60]={0};
 	
 	if (afk_message[0] == '\0') return;
 	
-	if (type)
+	if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
 	{
 		snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, last_pm_from, afk_message);
 	}

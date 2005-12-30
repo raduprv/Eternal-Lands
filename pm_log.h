@@ -92,7 +92,7 @@ void add_message_to_pm_log (const char *msg, int len);
  *
  * \callgraph
  */
-void send_afk_message (const Uint8 *server_msg, int len, int type);
+void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel);
 
 /*!
  * \ingroup actor_utils

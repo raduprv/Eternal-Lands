@@ -58,10 +58,10 @@ int remove_from_ignore_list(Uint8 *name);
  *
  * \param input_text    the message to check for ignored users
  * \param len		the length of \a input_text
- * \param type          if true, this indicates \a input_text is a PM message, else it's a channel message.
+ * \param channel        the channel the message comes from
  * \retval int          true (1) if the sender of \a input_text is already ignored, else false (0).
  */
-int pre_check_if_ignored (const Uint8 *input_text, int len, int type);
+int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel);
 
 /*!
  * \ingroup loadsave

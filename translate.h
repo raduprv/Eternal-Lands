@@ -333,6 +333,7 @@ extern char
 		afk_print_help[150],
 		/*text.c*/
 		pm_from_str[10],
+		gm_from_str[10],
 		mod_pm_from_str[15],
 		/*trade.c*/
 		quantity_str[30],

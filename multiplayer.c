@@ -307,7 +307,7 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 
 // TEMP LOGAND [5/25/2004]
 #ifndef NPC_SAY_OVERTEXT
-#define NPC_SAY_OVERTEXT 58 
+ #define NPC_SAY_OVERTEXT 58 
 #endif
 //---
 
@@ -333,7 +333,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					text_buf[len] = '\0';
 					
 					// do filtering and ignoring
-					len = filter_or_ignore_text (text_buf, len, sizeof (text_buf));
+					len = filter_or_ignore_text (text_buf, len, sizeof (text_buf), in_data[3]);
 					if (len > 0)
 					{
 						//how to display it

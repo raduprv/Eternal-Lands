@@ -13,13 +13,17 @@
  * void cls();
  */
 
-char auto_open_encyclopedia = 1;
+typedef char name_t[32];
 
+char auto_open_encyclopedia = 1;
 #ifdef COMMAND_BUFFER
 /* Pointer to the array holding the commands */
 command_t *commands;
+/* Array holding names we have seen (for completion) */
+name_t *name_list = NULL;
 /* Counts how many commands we have */
 Uint16 command_count = 0;
+Uint16 name_count = 0;
 /* The command buffer head pointer */
 list_node_t *command_buffer = NULL;
 /* Pointer to our position in the buffer */
@@ -88,6 +92,9 @@ void command_cleanup(void)
 	if(command_count > 0) {
 		free(commands);
 	}
+	if(name_count > 0) {
+		free(name_list);
+	}
 }
 
 void add_command(const char *command, int (*callback)())
@@ -114,6 +121,28 @@ void add_command(const char *command, int (*callback)())
 	snprintf(commands[command_count].command, sizeof(commands[command_count].command), "%s", command);
 	commands[command_count].callback = callback;
 	command_count++;
+}
+
+void add_name_to_tablist(const unsigned char *name)
+{
+	static int list_size = 0;
+	int i;
+
+	for(i = 0; i < name_count; i++) {
+		if(strcasecmp(name_list[i], name) == 0) {
+			/* Name is already in the list, do nothing */
+			return;
+		}
+	}
+	if(name_count >= list_size) {
+		if(list_size == 0) {
+			list_size += 10;
+		}
+		list_size *= 2;
+		name_list = realloc(name_list, list_size * sizeof(*name_list));
+	}
+	snprintf(name_list[name_count], sizeof(name_list[name_count]), "%s", name);
+	name_count++;
 }
 
 #define COMMAND 1
@@ -152,14 +181,13 @@ const char *tab_complete(const text_message *input)
 		for(retries = 0; retries < 2 && !return_value; retries++) {
 			switch(type) {
 				case NAME:
-					for(i = 0, count = 0; i < MAX_BUDDY; i++) {
-						if(*buddy_list[i].name && strncasecmp(buddy_list[i].name, last_complete, strlen(last_complete)) == 0) {
+					for(i = 0, count = 0; i < name_count; i++) {
+						if(strncasecmp(name_list[i], last_complete, strlen(last_complete)) == 0) {
 							/* We have a match! */
 							if(count > last_count) {
 								/* This hasn't been returned yet, let's return it */
-								last_count = count;
-								return_value = buddy_list[i].name;
-								count++;
+								last_count = count++;
+								return_value = name_list[i];
 								break;
 							}
 							count++;
@@ -212,13 +240,12 @@ int test_for_console_command(char *text, int length)
 		*text = '#';
 		text++;
 		length--;
+	} else if (*text == char_at_str[0]) {
+		*text = '@';
 	}
 	//Skip leading spaces
 	for(;isspace(*text); text++,length--);
-	
-	if (*text == char_at_str[0]) {
-		*text = '@';
-	}
+
 	//Check if there's anything left of the command
 	if (length <= 0 || (*text == '@' && length <= 1)) {
 		return 0;
@@ -245,6 +272,8 @@ int test_for_console_command(char *text, int length)
 
 // -------- COMMAND CALLBACKS -------- //
 // Return 0 if you want the string to be sent to the server.
+// the first argument passed is the input string without the command itself
+// if ie. '#filter foo' is passed to test_for_console_command(), only ' foo' is passed to the callback.
 
 int command_cls(char *text, int len)
 {
