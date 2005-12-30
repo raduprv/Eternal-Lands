@@ -265,7 +265,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 		}
 		if (msgs[imsg].data == NULL) return;
-		if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3)
+		if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3 && msgs[imsg].len > 0 && msgs[imsg].data[0] && !msgs[imsg].deleted)
 		{
 			// when using the window, the input buffer does nasty things.
 			// if not using tabs or window, this isn't used at all(but if
@@ -375,7 +375,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 #endif
 			if (msgs[imsg].data == NULL || imsg == msg_start) break;
 #ifndef MAP_EDITOR2
-			if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3)
+			if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3 && msgs[imsg].len > 0 && msgs[imsg].data[0] && !msgs[imsg].deleted)
 			{
 				// when using the window, the input buffer does nasty things.
 				// if not using tabs or window, this isn't used at all(but if

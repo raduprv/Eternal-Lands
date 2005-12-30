@@ -861,9 +861,8 @@ void clear_display_text_buffer ()
 		{
 			total_nr_lines-= display_text_buffer[imsg].wrap_lines;
 			display_text_buffer[imsg].deleted= 1;
-			update_text_windows (&display_text_buffer[imsg]);
-			
 			display_text_buffer[imsg].data[0]= '\0';
+			update_text_windows(&display_text_buffer[imsg]);
 		}
 		display_text_buffer[imsg].len= 0;
 	}
