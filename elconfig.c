@@ -142,7 +142,10 @@ void change_poor_man(int *poor_man)
 	*poor_man = !*poor_man;
 	if(*poor_man) {
 #ifdef	USE_FRAMEBUFFER
-		if (have_framebuffer_object && show_reflection) free_reflection_framebuffer();
+		if (have_framebuffer_object)
+		{
+			if (show_reflection) free_reflection_framebuffer();
+		}
 #endif
 		show_reflection=0;
 		shadows_on=0;
@@ -524,7 +527,7 @@ void change_reflection(int *rf)
 	else
 	{
 		*rf = 1;
-		if (use_frame_buffer) make_reflection_framebuffer(window_width, window_height);
+		if (use_frame_buffer && options_set) make_reflection_framebuffer(window_width, window_height);
 	}
 }
 
@@ -537,10 +540,13 @@ void change_frame_buffer(int *fb)
 	}
 	else 
 	{	
-		if (have_framebuffer_object)
+		if (!options_set || have_framebuffer_object)
 		{
 			*fb = 1;
-			make_reflection_framebuffer(window_width, window_height);
+			if (options_set)
+			{
+				if (show_reflection) make_reflection_framebuffer(window_width, window_height);
+			}
 		}
 	}	
 }

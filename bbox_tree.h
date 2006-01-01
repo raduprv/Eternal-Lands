@@ -118,7 +118,7 @@ struct BBox_Tree_Node_Struct
 {
 	AABBOX			bbox;
 	AABBOX			orig_bbox;
-	BBOX_TREE_NODE*		nodes[2];
+	unsigned int		nodes[2];
 	BBOX_TREE_DYN_NODE	dynamic_objects;
 	unsigned int		items_index;
 	unsigned int		items_count;
@@ -136,7 +136,6 @@ typedef struct
 
 typedef	struct
 {
-	BBOX_TREE_NODE*		root_node;
 	unsigned int		items_count;
 	BBOX_ITEM*		items;
 	unsigned int		nodes_count;

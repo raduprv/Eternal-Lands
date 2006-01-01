@@ -346,6 +346,7 @@ void make_reflection_framebuffer(int width, int height)
 {
 	reflection_texture_width = adapt_size(width);
 	reflection_texture_height = adapt_size(height);
+	free_reflection_framebuffer();
 	make_color_framebuffer(reflection_texture_width, reflection_texture_height, &water_reflection_fbo, 
 			&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
 }
