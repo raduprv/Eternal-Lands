@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include "global.h"
 
@@ -151,6 +152,11 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 				if (ch == ':' || ch == ' ')
 				{
 					break;
+				}
+				else if(!isalnum(ch) && ch != '_')
+				{
+					/* Not a name */
+					return 0;
 				}
 				name[i] = ch;
 			}
