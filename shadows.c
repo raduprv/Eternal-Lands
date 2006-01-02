@@ -302,6 +302,11 @@ void draw_3d_object_shadows(unsigned int object_type)
 	unsigned int    i, l;
 	int is_transparent;
 
+	cur_e3d= NULL;
+#ifdef  DEBUG
+	cur_e3d_count= 0;
+#endif  //DEBUG
+
 	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
 	// nothing to draw?
 	if(start >= stop){
@@ -329,7 +334,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 			glAlphaFunc(GL_GREATER,0.05f);
 		}
 	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
-
+	
 	// now loop through each object
 	for (i=start; i<stop; i++)
 	{
@@ -340,7 +345,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 		draw_3d_object_shadow_detail(objects_list[l]);
 	}
 
-    if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+    if(have_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
 	if(have_vertex_buffers){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}

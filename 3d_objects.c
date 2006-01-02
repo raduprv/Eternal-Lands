@@ -348,7 +348,7 @@ void draw_3d_objects(unsigned int object_type)
 		}
 	}
 
-	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	if(have_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
 	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
 		ELglClientActiveTextureARB(detail_unit);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
