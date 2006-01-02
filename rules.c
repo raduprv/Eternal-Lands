@@ -54,12 +54,16 @@ int accept_height;
 
 int next_win_id;
 
+/* Colors */
+const float rules_winRGB[8][3] = {{0.0f,1.0f,0.0f},{1.0f,0.0f,0.0f},{1.2f,0.5f,1.2f},{1.0f,0.3f,1.0f},{0.1f,0.5f,0.9f},{0.1f,0.5f,1.0f},{0.8f,0.0f,0.0f},{1.0f,1.0f,1.0f}};
+const float rules_screenRGB[8][3] = {{1.0f,0.0f,0.0f},{1.0f,0.0f,0.0f},{0.77f,0.5f,0.4f},{0.77f, 0.57f, 0.39f},{0.8f,0.5f,0.5f},{0.76f,0.48f,0.39f},{0.8f,0.0f,0.0f},{0.76f,0.5f,0.37f}};
+
 /* Rule parser */
 static struct rules_struct rules = {0,{{NULL,0,NULL,0,0}}};
 
 void free_rules(rule_string * d);
 rule_string * get_interface_rules(int chars_per_line);
-int draw_rules(rule_string * rules, int rules_no, int x, int y, int lenx, int leny, float text_size);
+int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int lenx, int leny, float text_size, const float rgb[8][3]);
 
 void add_rule(char * short_desc, char * long_desc, int type)
 {
@@ -194,7 +198,7 @@ int display_rules_handler(window_info *win)
 {
 	int len;
 	if(rule_offset < 0)rule_offset=0;
-	len=(float)draw_rules(display_rules, rule_offset, 0, 20, win->len_x, win->len_y-40,0.8f)/(float)rules.no*250;
+	len=(float)draw_rules(display_rules, rule_offset, 0, 20, win->len_x, win->len_y-40,0.8f, rules_winRGB)/(float)rules.no*250;
 
 	return 1;
 }
@@ -383,7 +387,7 @@ rule_string * get_interface_rules(int chars_per_line)
 	return _rules;
 }
 
-int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int lenx, int leny, float text_size)
+int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int lenx, int leny, float text_size, const float rgb[8][3])
 {
 	int xdiff=0,ydiff=18,i,j=0,tmplen=0,len=0;
 	char str[1024];
@@ -407,16 +411,16 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 				rules_ptr[i].y_start=2*leny;//Minor trick
 				return i;
 			case TITLE:
-				glColor3f(1.0f,0.0f,0.0f);
+				glColor3f(rgb[0][0],rgb[0][1],rgb[0][2]);
 				zoom=text_size*1.5f;
 				ydiff=30*zoom;
 				xdiff=0;
 				x=x_in+((lenx-x_in)>>1)-(strlen(rules_ptr[i].short_str[0])>>1)*11*zoom;
 				break;
 			case RULE:
-				if(rules_ptr[i].highlight) glColor3f(1.0f,0.0f,0.0f);
-				else if(rules_ptr[i].mouseover) glColor3f(0.77f,0.5f,0.4f);
-				else glColor3f(0.77f, 0.57f, 0.39f);
+				if(rules_ptr[i].highlight) glColor3f(rgb[1][0],rgb[1][1],rgb[1][2]);
+				else if(rules_ptr[i].mouseover) glColor3f(rgb[2][0],rgb[2][1],rgb[2][2]);
+				else glColor3f(rgb[3][0],rgb[3][1],rgb[3][2]);
 				sprintf(str,"%d: ", nr++);
 				ptr+=strlen(str);
 				zoom=text_size;
@@ -425,8 +429,8 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 				ydiff=20*zoom;
 				break;
 			case INFO:
-				if(rules_ptr[i].mouseover) glColor3f(0.8f,0.5f,0.5f);
-				else glColor3f(0.76f,0.48f,0.39f);
+				if(rules_ptr[i].mouseover) glColor3f(rgb[4][0],rgb[4][1],rgb[4][2]);
+				else glColor3f(rgb[5][0],rgb[5][1],rgb[5][2]);
 				zoom=text_size;
 				x=x_in+20;
 				y+=10*zoom;
@@ -449,8 +453,8 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 		rules_ptr[i].y_end=y;
 		rules_ptr[i].x_end=rules_ptr[i].x_start+len;
 		if(rules_ptr[i].show_long_desc && rules_ptr[i].long_str){//Draw the lines of the long description
-			if(rules_ptr[i].highlight) glColor3f(0.8f,0.0f,0.0f);
-			else glColor3f(0.76f,0.5f,0.37f);
+			if(rules_ptr[i].highlight) glColor3f(rgb[6][0],rgb[6][1],rgb[6][2]);
+			else glColor3f(rgb[7][0],rgb[7][1],rgb[7][2]);
 			for(j=0;rules_ptr[i].long_str[j]&& y<leny;j++){
 				if(j)y+=18*zoom;
 				strcpy(str,rules_ptr[i].long_str[j]);
@@ -658,7 +662,7 @@ void draw_rules_interface (int len_x, int len_y)
 	draw_string (len_x / 2 - strlen (str) * 11 / 2, len_y - 40 * window_ratio, str, 0);
 	
 	set_font(3);
-	draw_rules (display_rules, rule_offset, diff + 30 * window_ratio, 120 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.1f);
+	draw_rules (display_rules, rule_offset, diff + 30 * window_ratio, 120 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.1f, rules_screenRGB);
 	set_font(0);
 
     	glDisable (GL_ALPHA_TEST);
