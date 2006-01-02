@@ -190,9 +190,7 @@ void change_particles_percentage(int *pointer, int value)
 	else 
 		{
 			particles_percentage=0;
-#ifndef ELCONFIG
 			LOG_TO_CONSOLE(c_green2,disabled_particles_str);
-#endif
 		}
 }
 
@@ -594,18 +592,6 @@ void switch_vidmode(int mode)
 
 #endif
 
-#ifdef ELCONFIG
-
-void change_srv_string(char *var, char *string, int len)
-{
-	char *p = var;
-	while(*string && isdigit(*string)) {
-		*p++ = *string++;
-	}
-}
-
-#endif
-
 int find_var (char *str, var_name_type type)
 {
 	int i, isvar;
@@ -647,11 +633,9 @@ int check_var (char *str, var_name_type type)
 			if (*tptr == 0x0a || *tptr == 0x0d) 
 			{
 #ifdef ELC
-#ifndef ELCONFIG
 				char str[200];
 				snprintf (str, sizeof(str), "Reached newline without an ending \" in %s", our_vars.var[i]->name);
 				LOG_TO_CONSOLE(c_red2,str);
-#endif // !ELCONFIG
 #endif // ELC
 				break;
 			}
