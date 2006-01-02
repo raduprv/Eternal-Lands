@@ -94,6 +94,14 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		adding_mark = 0;
 		clear_input_line ();
 	}
+	// does the user want to cancel a mapmark?
+	else if (ch == SDLK_ESCAPE && adding_mark)
+	{
+		input_text_line.len=0;
+		input_text_line.data[0] = '\0';
+		adding_mark = 0;
+		clear_input_line ();
+	}
 	// now try the keypress handler for all root windows
 	else if ( keypress_root_common (key, unikey) )
 	{
