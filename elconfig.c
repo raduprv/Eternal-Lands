@@ -986,7 +986,7 @@ void init_vars()
 	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show grid", "Show grid",HUD);
 #endif
 
-#if !defined(WINDOWS) && !defined(OSX)
+#if !defined(_WIN32) && !defined(OSX)
 	add_var(BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use clipboard for pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",MISC);
 #endif
 }
@@ -1030,7 +1030,7 @@ void write_var (FILE *fout, int ivar)
 
 FILE* open_el_ini (const char *mode)
 {
-#ifdef WINDOWS
+#ifdef _WIN32
 	return my_fopen ("el.ini", mode);
 #else
 	char el_ini[256];
@@ -1094,7 +1094,7 @@ FILE* open_el_ini (const char *mode)
 	}
 
 	return f;
-#endif //WINDOWS
+#endif //_WIN32
 }
 
 int read_el_ini ()

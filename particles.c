@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
-#ifndef WINDOWS
+#ifndef _WIN32
  #include <locale.h>
 #endif
 #ifdef MAP_EDITOR2
@@ -129,7 +129,7 @@ particle_sys_def *load_particle_def(const char *filename)
 			fclose(f);
 			return NULL;
 		}
-#ifndef WINDOWS
+#ifndef _WIN32
 	setlocale(LC_NUMERIC,"en_US");
 #endif
 	// System info

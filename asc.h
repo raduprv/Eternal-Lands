@@ -225,7 +225,7 @@ int xmlGetInt(xmlNode *n, xmlChar *p);
  */
 int my_xmlStrncopy(char ** dest, const char * src, int len);
 
-#ifdef WINDOWS
+#ifdef _WIN32
 #if defined(_MSC_VER) || defined(__MINGW32__)
 /*!
  * \ingroup	misc_utils

@@ -345,7 +345,7 @@ void find_last_url(const unsigned char *source_string, const int len)
 	have_url = 1;
 }
 
-#ifdef  WINDOWS
+#ifdef  _WIN32
 int go_to_url(void *dummy)
 {
 	char browser_command[400];
@@ -557,11 +557,11 @@ void makeScreenShot ()
 	ret = file_exists(fname);
 	if(ret == 0)
 	{
-#ifndef WINDOWS
+#ifndef _WIN32
 		if (mkdir(fname, 0755) < 0)
-#else //WINDOWS
+#else //_WIN32
 		if (mkdir(fname) < 0)
-#endif //!WINDOWS
+#endif //!_WIN32
 		{
 			LOG_ERROR ("Unable to create directory \"%s\"\n", fname);
 			return;

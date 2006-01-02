@@ -19,7 +19,7 @@
 void do_paste(Uint8 * buffer);
 
 #ifndef OSX
-#ifndef WINDOWS
+#ifndef _WIN32
 
 #include <X11/Xlib.h>
 /*!
@@ -55,6 +55,6 @@ void finishpaste(XSelectionEvent event);
  */
 void windows_paste();
 
-#endif // not def WINDOWS
+#endif // not def _WIN32
 #endif // not def OSX
 #endif // not def __PASTE_H__

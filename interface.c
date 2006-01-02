@@ -263,7 +263,7 @@ void build_video_mode_array()
 	else
 		flags=SDL_OPENGL;
 
-#ifdef WINDOWS
+#ifdef _WIN32
 	if(bpp==16 || full_screen){
 #else
 	if(bpp==16){
@@ -275,7 +275,7 @@ void build_video_mode_array()
 		if(SDL_VideoModeOK(1280, 1024, 16, flags))video_modes[8].supported=1;
 		if(SDL_VideoModeOK(1600, 1200, 16, flags))video_modes[10].supported=1;
 	}
-#ifdef WINDOWS
+#ifdef _WIN32
 	if(bpp==32 || full_screen){
 #else
 	if(bpp==32){
@@ -938,7 +938,7 @@ void save_markings()
       char marks_file[256];
       int i;
 
-#ifndef WINDOWS
+#ifndef _WIN32
       snprintf (marks_file, sizeof(marks_file), "%s/.elc/%s.txt", getenv ("HOME"), strrchr (map_file_name,'/') + 1);
 #else
       snprintf (marks_file, sizeof (marks_file), "%s.txt", strrchr (map_file_name,'/') + 1);

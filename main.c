@@ -10,7 +10,7 @@
  #include <unistd.h>
 #endif
 
-#ifdef WINDOWS
+#ifdef _WIN32
  #include <windows.h>
  #undef WRITE_XML
 #endif
@@ -83,7 +83,7 @@ int start_rendering()
 	queue_t *message_queue;
 #endif //NETWORK_THREAD
 
-#ifndef WINDOWS
+#ifndef _WIN32
 	SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
 #endif
 #ifdef NETWORK_THREAD
@@ -213,7 +213,7 @@ void	read_command_line()
 		}
 }
 
-#ifdef WINDOWS
+#ifdef _WIN32
 int Main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
 }
 
 
-#ifdef WINDOWS
+#ifdef _WIN32
 // splits a char* into a char ** based on the delimiters
 int makeargv(char *s, char *delimiters, char ***argvp)
 {

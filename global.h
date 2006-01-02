@@ -13,7 +13,7 @@
  #define M_PI 3.14159265358979323846
 #endif //M_PI
 
-#ifdef WINDOWS
+#ifdef _WIN32
 	#include <windows.h>
 	#include <al.h>
 	#include <alut.h>
@@ -43,7 +43,7 @@
 #else
 	#include <AL/al.h>
 	#include <AL/alut.h>
-#endif //WINDOWS
+#endif //_WIN32
 
 #ifdef EL_BIG_ENDIAN
 	#define SwapLEFloat(X) SwapFloat(X)

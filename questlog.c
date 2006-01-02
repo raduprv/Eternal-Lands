@@ -29,7 +29,7 @@ void load_questlog()
 	FILE *f = NULL;
 	char temp[1000];
 
-#ifndef WINDOWS
+#ifndef _WIN32
 	char questlog_ini[256];
 	snprintf (questlog_ini, sizeof (questlog_ini), "%s/quest.log", configdir);
 	// don't use my_fopen here, not everyone uses local settings
@@ -105,7 +105,7 @@ void add_questlog (char *t, int len)
 
 	//write on file
 	if(qlf == NULL){
-		#ifndef WINDOWS
+		#ifndef _WIN32
 			char questlog_ini[256];
 			snprintf (questlog_ini, sizeof (questlog_ini), "%s/quest.log", configdir);
 			// don't use my_fopen here, not everyone uses local settings

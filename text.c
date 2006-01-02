@@ -88,7 +88,7 @@ void write_to_log (Uint8 *data, int len)
 	{
 		char chat_log_file[100];
 		char srv_log_file[100];
-#ifndef WINDOWS
+#ifndef _WIN32
 		snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
 		snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
 #else

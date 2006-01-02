@@ -2,7 +2,7 @@
 #include <string.h>
 #include "global.h"
 
-#ifndef WINDOWS
+#ifndef _WIN32
  #include <SDL_syswm.h>
 #endif
 
@@ -25,7 +25,7 @@ void finishpaste (void* event)
 	// Todo. This :-)
 }
 #else
- #ifndef WINDOWS
+ #ifndef _WIN32
 
 int use_clipboard = 1;
 
@@ -120,5 +120,5 @@ void windows_paste()
 	CloseClipboard();
 }
 
- #endif //ndef WINDOWS
+ #endif //ndef _WIN32
 #endif //OSX

@@ -193,7 +193,7 @@ int notepadLoadFile ()
 	doc = xmlParseFile (file);
 	if (doc == NULL )
 	{
-#ifndef WINDOWS
+#ifndef _WIN32
 		// try the data directory then
 		snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
 		doc = xmlParseFile (file);
@@ -294,7 +294,7 @@ int notepadSaveFile (widget_list *w, int mx, int my, Uint32 flags)
 	}
 	if (xmlSaveFormatFileEnc (file, doc, "UTF-8", 1) < 0)
 	{
-#ifndef WINDOWS
+#ifndef _WIN32
 		// error writing. try the data directory
 		snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
 		if (xmlSaveFormatFileEnc(file, doc, "UTF-8", 1) < 0)
