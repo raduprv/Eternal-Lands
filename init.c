@@ -19,12 +19,6 @@
  #define DATA_DIR "./"
 #endif
 
-#ifdef ENCYCLOPEDIA
- #include "books/symbols.h"
- #include "books/parser.h"
- #include "books/fontdef.h"
-#endif
-
 int ini_file_size=0;
 
 int disconnected=1;
@@ -755,12 +749,6 @@ void init_stuff()
 		show_window (rules_root_win);
 	}
 
-#ifdef ENCYCLOPEDIA
-	sprintf(file_name,"languages/%s/Encyclopedia/encyclopedia.xml", lang);
-	fd_load();
-	bp_init_symbols();
-	bp_parseFile(malloc(sizeof(bp_Context)), file_name);
-#endif
 #ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer) make_reflection_framebuffer(window_width, window_height);
 #endif

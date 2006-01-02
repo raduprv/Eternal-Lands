@@ -10,7 +10,6 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT -DNETWORK_THREAD
 #-DUID            # use unique ID sent from server for custom looks. (INCOMPLETE)
 #-DNETWORK_THREAD # use separate thread for network reading (recommended)
 #-DANTI_ALIAS     # allows to enable/disable anti-aliasing in el.ini
-#-DENCYCLOPEDIA   # enable new encyclopedia and books format (INCOMPLETE)
 #-DMEMORY_DEBUG   # gather information about memory allocation and freeing
 #-DPNG_SCREENSHOT # make screenshots in W3C's PNG format in game
 #-DATI_9200_FIX   # flickering fix for ATI 92xx
