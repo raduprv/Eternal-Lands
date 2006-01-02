@@ -678,7 +678,6 @@ int keypress_items_handler(window_info * win, int x, int y, Uint32 key, Uint32 k
 int drop_all_handler ()
 {
 	Uint8 str[6] = {0};
-#ifndef SERVER_DROP_ALL
 	int i;
 
 	for(i = 0; i < ITEM_NUM_ITEMS; i++)
@@ -691,10 +690,6 @@ int drop_all_handler ()
 			my_tcp_send (my_socket, str, 6);
 		}
 	}
-#else
-	str[0] = DROP_ALL;
-	my_tcp_send (my_socket, str, 1); // this may need to be altered depending on server implementation
-#endif
 
 	return 1;
 }

@@ -75,11 +75,7 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
 	// movement.
-#ifdef SERVER_DROP_ALL
-	if ( (str[0] == DROP_ITEM || str[0] == DROP_ALL) && on_the_move (your_actor))
-#else
 	if (str[0] == DROP_ITEM  && on_the_move (your_actor))
-#endif
 	{
 		// I thought about having a bit of code here that counts attempts, and after say 5,
 		// announces on #abuse something like "#abuse I attempted to bagspam, but was thwarted,
