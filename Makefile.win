@@ -11,8 +11,8 @@ LIBS =  -L"C:/Dev-Cpp/lib" -mwindows -lSDL -lopengl32  -lxml2 -lSDL_net -lALut -
 INCS =  -I"C:/Dev-Cpp/include" 
 CXXINCS =  -I"C:/Dev-Cpp/include/c++/3.3.1"  -I"C:/Dev-Cpp/include/c++/3.3.1/mingw32"  -I"C:/Dev-Cpp/include/c++/3.3.1/backward"  -I"C:/Dev-Cpp/lib/gcc-lib/mingw32/3.3.1/include"  -I"C:/Dev-Cpp/include" 
 BIN  = Debug/EL.exe
-CXXFLAGS = $(CXXINCS) -DWINDOWS  -D_WIN32 -Wall -DELC  
-CFLAGS = $(INCS) -DWINDOWS  -D_WIN32 -Wall -DELC  
+CXXFLAGS = $(CXXINCS) -Wall -DELC  
+CFLAGS = $(INCS) -Wall -DELC  
 
 .PHONY: all all-before all-after clean clean-custom
 
