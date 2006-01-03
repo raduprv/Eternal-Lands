@@ -227,7 +227,7 @@ int display_newchar_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 		}
 
-		if(use_fog)render_fog();
+		if(weather_use_fog())render_fog();
 		if (any_reflection > 1) {
 			draw_sky_background ();
 			CHECK_GL_ERRORS ();

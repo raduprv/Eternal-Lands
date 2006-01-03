@@ -726,7 +726,7 @@ void render_light_view()
 			glDisable(GL_LIGHTING);
 			glEnable(GL_DEPTH_TEST);
 #ifndef MAP_EDITOR2
-			if(use_fog)glDisable(GL_FOG);
+			if(weather_use_fog())glDisable(GL_FOG);
 #endif
 			glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
 			CHECK_GL_ERRORS();
@@ -898,7 +898,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			detail_unit=GL_TEXTURE2_ARB;
 
 #ifndef MAP_EDITOR2
-			if (use_fog) glDisable(GL_FOG);
+			if (weather_use_fog()) glDisable(GL_FOG);
 #endif
 
 			ELglActiveTextureARB(shadow_unit);
@@ -918,7 +918,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 
 #ifndef MAP_EDITOR2
-			if(use_fog) glEnable(GL_FOG);
+			if(weather_use_fog()) glEnable(GL_FOG);
 #endif		
 #ifdef NEW_FRUSTUM
 			main_bbox_tree->intersect[ITERSECTION_TYPE_DEFAULT].intersect_update_needed = 1;
@@ -943,7 +943,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			display_blended_objects();
 
 #ifndef MAP_EDITOR2
-			if (use_fog) glDisable(GL_FOG);
+			if (weather_use_fog()) glDisable(GL_FOG);
 #endif
 
 			ELglActiveTextureARB(shadow_unit);
@@ -1019,7 +1019,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glDisable(GL_DEPTH_TEST);
 
 #ifndef MAP_EDITOR2
-			if (use_fog) glEnable(GL_FOG);
+			if (weather_use_fog()) glEnable(GL_FOG);
 #endif
 
 			glEnable(GL_BLEND);

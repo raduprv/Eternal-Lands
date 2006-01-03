@@ -357,6 +357,20 @@ void clear_weather() {
 	num_thunders = 0;
 }
 
+int weather_use_fog()
+{
+	if (!use_fog) return 0;
+	switch (weather_flags & (WEATHER_TYPE|WEATHER_ACTIVE))
+	{
+		case WEATHER_RAIN|WEATHER_ACTIVE: 
+		case WEATHER_SNOW|WEATHER_ACTIVE: 
+		case WEATHER_SAND|WEATHER_ACTIVE: 
+			return 1;
+		default:
+			return 0;
+	}
+}
+
 void render_fog()
 {
 	float current_severity = weather_severity * get_fadeinout_bias();
@@ -714,8 +728,6 @@ int num_rain_drops=0, max_rain_drops=0;
 
 rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 int rain_table_valid = 0;
-
-int use_fog=1;
 
 #ifdef DEBUG
 int rain_calls = 0;

@@ -10,12 +10,11 @@
 
 static const MD5_DIGEST ZERO_MD5 = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-// Always on at the moment. 
-//#ifdef	DEBUG
+#ifdef	EXTRA_DEBUG
 #define BBOX_TREE_LOG_INFO(item)	log_error_detailed("%s is NULL", __FILE__, __FUNCTION__, __LINE__, item);
-//#else	//DEBUG
-//#define BBOX_TREE_LOG_INFO(item)	/*!< NOP */
-//#endif	//DEBUG
+#else	//DEBUG
+#define BBOX_TREE_LOG_INFO(item)	/*!< NOP */
+#endif	//DEBUG
 
 #define	NO_INDEX	0xFFFFFFFF
 
