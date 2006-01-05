@@ -603,7 +603,11 @@ int display_game_handler (window_info *win)
 		//check for network data
 		get_message_from_server ();
 #endif //NETWORK_THREAD
-		if(weather_use_fog())render_fog();
+#ifdef	NEW_WEATHER
+		if (weather_use_fog()) render_fog();
+#else
+		if (use_fog) render_fog();
+#endif
 		if (any_reflection > 1)
 		{
 		  	if (!dungeon)
@@ -625,7 +629,11 @@ int display_game_handler (window_info *win)
 		if (!dungeon && shadows_on && is_day)
 		{
 			glNormal3f(0.0f,0.0f,1.0f);
-			if(weather_use_fog() && any_reflection)blend_reflection_fog();
+#ifdef	NEW_WEATHER
+			if (weather_use_fog() && any_reflection) blend_reflection_fog();
+#else
+			if (use_fog && any_reflection) blend_reflection_fog();
+#endif
 
 			draw_sun_shadowed_scene (any_reflection);
 		}

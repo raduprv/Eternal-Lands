@@ -41,12 +41,17 @@ void make_color_framebuffer(int width, int height, int *FBO, int *FBORenderBuffe
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-	// attach texture to framebuffercolor buffer
+	// attach texture to frame-buffer color-buffer
 	ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, FBOTexture[0], 0);
+
+	// attach render-buffer
 	ELglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, FBORenderBuffer[0]);
+
+	// setting size of the render-buffer
+	ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, width, height);
 	ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, width, height);
 	
-	// attach renderbufferto framebufferdepth buffer
+	// attach render-buffer to frame-buffer depth-buffer
 	ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, FBORenderBuffer[0]);
 	
 	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);

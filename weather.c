@@ -728,6 +728,7 @@ int num_rain_drops=0, max_rain_drops=0;
 
 rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 int rain_table_valid = 0;
+int use_fog = 1;
 
 #ifdef DEBUG
 int rain_calls = 0;
