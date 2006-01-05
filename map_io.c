@@ -375,16 +375,19 @@ int load_map (const char * file_name)
 			cur_3d_obj_io.b = SwapFloat(cur_3d_obj_io.b);
 #endif
 
-			if (cur_3d_obj_io.blended != 1) cur_3d_obj_io.blended = 0;		
+			if (cur_3d_obj_io.blended != 20)
+			{
+				if (cur_3d_obj_io.blended != 1) cur_3d_obj_io.blended = 0;
 #ifdef	NEW_FRUSTUM
-			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
+				add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
 					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
 					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b, 0);
 #else
-			add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
+				add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
 					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
 					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
 #endif
+			}
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);
 			}
