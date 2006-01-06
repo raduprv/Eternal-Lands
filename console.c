@@ -240,8 +240,6 @@ int test_for_console_command(char *text, int length)
 		*text = '#';
 		text++;
 		length--;
-	} else if (*text == char_at_str[0]) {
-		*text = '@';
 	}
 	//Skip leading spaces
 	for(;isspace(*text); text++,length--);

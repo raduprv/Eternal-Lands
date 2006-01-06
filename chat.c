@@ -763,7 +763,14 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 //		else if ( msg->data[0] == '#' || get_show_window (console_root_win) )
 		else if ( msg->data[0] == '#' || msg->data[0] == char_cmd_str[0] || get_show_window (console_root_win) )
 		{
+#ifdef COMMAND_BUFFER
+			if(test_for_console_command (msg->data, msg->len) || msg->data[0] == '#' || msg->data[0] == char_cmd_str[0])
+			{
+				add_line_to_history(msg->data, msg->len);
+			}
+#else
 			test_for_console_command (msg->data, msg->len);
+#endif //COMMAND_BUFFER
 		}
 		else
 		{
@@ -923,6 +930,7 @@ void display_chat ()
 		show_window (chat_win);
 		select_window (chat_win);
 	}
+	update_chat_win_buffers();
 }
 
 void chat_win_update_zoom () {
