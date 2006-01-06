@@ -681,6 +681,13 @@ void render_light_view()
 			calculate_Light_Matrix(1, 1.0, lightDir, ModelViewMatrix,
 				ProjectionMatrix, light_view_mat, light_proj_mat);
 #endif
+#ifdef NEW_FRUSTUM
+#ifdef NEW_FRUSTUM_TEST
+			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+			set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SHADOW);
+			calculate_shadow_frustum();
+#endif
+#endif
 			glPushAttrib(GL_ALL_ATTRIB_BITS);
 			if(!depth_map_id)
 				{
@@ -744,9 +751,11 @@ void render_light_view()
 			glTranslatef((int)cx,(int)cy,(int)cz);
 #endif
 #ifdef NEW_FRUSTUM
+#ifndef NEW_FRUSTUM_TEST
 			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 			set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SHADOW);
 			calculate_shadow_frustum();
+#endif
 #endif
 			display_shadows();
 #ifdef NEW_FRUSTUM
