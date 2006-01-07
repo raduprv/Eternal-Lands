@@ -859,18 +859,6 @@ void new_minute()
 		}
 	else//it's too dark, or we are in a dungeon
 		{
-			if (!dungeon)
-			{
-				light_level = 0;
-				disable_local_lights();
-				is_day = 1;
-				sun_position[0]=sun_pos[100].x;
-				sun_position[1]=sun_pos[100].y;
-				sun_position[2]=sun_pos[100].z;
-				sun_position[3]=sun_pos[100].w;
-				calc_shadow_matrix();
-				return;
-			}
 			is_day=0;
 			enable_local_lights();
 	    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
