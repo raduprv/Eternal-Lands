@@ -32,7 +32,7 @@
     <vendor>Vendor ID</vendor>
     <ext>Supported extensions</ext>
     <opengl>OpenGL Version</opengl>
-  </misc>
+  <pm_from>[PM from</pm_from><mod_pm_from>[Mod PM from</mod_pm_from><gm_from>#GM from</gm_from></misc>
   <loading_msg>
     <init_opengl>Initializing OpenGL extensions</init_opengl>
     <init_random>Generating random seed</init_random>
@@ -64,5 +64,4 @@
     <bld_sectors>Building sectors</bld_sectors>
     <init_done>Done</init_done>
   </loading_msg>
-</root>
-
+<cmd><help_rq>#help request</help_rq><help_cmd>help</help_cmd><char_cmd>#</char_cmd><char_at>@</char_at><char_slash>/</char_slash><gm_cmd>#gm</gm_cmd><mod_cmd>#mod</mod_cmd><bc_cmd>#bc</bc_cmd><msg_accept_buddy> wants to add you on his buddy list</msg_accept_buddy><filter>filter</filter><filters>filters</filters><unfilter>unfilter</unfilter><ignore>ignore</ignore><ignores>ignores</ignores><unignore>unignore</unignore><markpos>markpos</markpos><mark>mark</mark><unmark>unmark</unmark><stats>stats</stats><time>time</time><date>date</date><exit>exit</exit><msg>msg</msg><afk>afk</afk><glinfo>glinfo</glinfo></cmd></root>

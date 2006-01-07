@@ -84,6 +84,8 @@ int sit_lock=0;
 
 int options_set = 0;
 
+static __inline__ void check_option_var(char* name);
+
 void change_var(int * var)
 {
 	*var=!*var;
@@ -142,10 +144,22 @@ void change_poor_man(int *poor_man)
 	*poor_man = !*poor_man;
 	if(*poor_man) {
 #ifdef	USE_FRAMEBUFFER
-		if (have_framebuffer_object)
+		if (use_frame_buffer && have_framebuffer_object)
 		{
-			if (show_reflection) free_reflection_framebuffer();
+			free_reflection_framebuffer();
+			free_shadow_framebuffer();
+			use_frame_buffer = 0;
 		}
+		else
+		{
+			//...and the texture used for shadow mapping
+			glDeleteTextures(1, &depth_map_id);
+			depth_map_id = 0;
+		}
+#else
+		//...and the texture used for shadow mapping
+		glDeleteTextures(1, &depth_map_id);
+		depth_map_id = 0;
 #endif
 		show_reflection=0;
 		shadows_on=0;
@@ -160,6 +174,7 @@ void change_poor_man(int *poor_man)
 	}
 }
 
+#ifdef	NOT_USED
 void change_vertex_array(int *pointer)
 {
 	*pointer = !*pointer;
@@ -168,19 +183,21 @@ void change_vertex_array(int *pointer)
 		LOG_TO_CONSOLE(c_green2,enabled_vertex_arrays);
 	}
 }
+#endif
 
 void change_point_particles(int *value)
 {
-	/* Make sure we only enable it if we have the extension */
-	if(have_point_sprite) {
-		*value = !*value;
-	} else {
+	if (*value)
+	{
 		*value = 0;
 	}
-	if(!use_point_particles)
+	else if (!gl_extensions_loaded || have_point_sprite)
 	{
-		LOG_TO_CONSOLE(c_green2,disabled_point_particles);
+		// don't check if we have hardware support when OpenGL 
+		// extensions are not initialized yet.
+		*value = 1;
 	}
+	else LOG_TO_CONSOLE(c_green2,disabled_point_particles);
 }
 
 void change_particles_percentage(int *pointer, int value)
@@ -307,25 +324,92 @@ void toggle_full_screen_mode(int * fs)
 
 void change_shadow_map_size(int *pointer, int value)
 {
-	const int array[5] = {512,1024,2048,4096,8192};
+	const int array[10] = {256, 512, 768, 1024, 1280, 1536, 1792, 2048, 3072, 4096};
+	int index, size, i, max_size, error;
+	char error_str[1024];
 	
-	if(value >= 512) {
-		int i;
-		for(i = 0; i < 5; i++) {
+	if (value >= array[0])
+	{
+		index = 0;
+		for(i = 0; i < 10; i++) 
+		{
 			/* Check if we can set the multiselect widget to this */
-			if(array[i] == value) {
-				*pointer = i;
+			if(array[i] == value)
+			{
+				index = i;
 				break;
 			}
 		}
-		max_shadow_map_size = value;
-	} else {
-		if(value >= 5) {
-			value = 0;
-		}
-		*pointer = value;
-		max_shadow_map_size = array[value];
 	}
+	else index = min2i(max2i(0, value), 9);
+	
+	size = array[index];
+	
+	if (gl_extensions_loaded && use_shadow_mapping && have_arb_shadow)
+	{
+		error = 0;
+		
+#ifdef	USE_FRAMEBUFFER
+		if (use_frame_buffer && have_framebuffer_object) glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &max_size);
+		else max_size = min2i(window_width, window_height);
+#else
+		max_size = min2i(window_width, window_height);
+#endif
+		
+		if (size > max_size)
+		{
+			while ((size > max_size) && (index > 0))
+			{
+				index--;
+				size = array[index];
+			}
+			error = 1;
+		}
+		
+		if (!have_texture_non_power_of_two)
+		{
+			switch (index)
+			{
+				case 2:
+					index = 1;
+					error = 1;
+					break;
+				case 4:
+				case 5:
+				case 6:
+					index = 3;
+					error = 1;
+					break;
+				case 8:
+					index = 7;
+					error = 1;
+					break;
+			}
+			size = array[index];
+		}
+		if (error == 1)
+		{
+			memset(error_str, 0, sizeof(error_str));
+			snprintf(error_str, sizeof(error_str), shadow_map_size_not_supported_str, size);
+			LOG_TO_CONSOLE(c_yellow2, error_str);
+		}
+	
+		shadow_map_size = size;
+#ifdef	USE_FRAMEBUFFER
+		if (use_frame_buffer && have_framebuffer_object) change_shadow_framebuffer_size();
+		else
+		{
+			glDeleteTextures(1, &depth_map_id);
+			depth_map_id = 0;
+		}
+#else
+		glDeleteTextures(1, &depth_map_id);
+		depth_map_id = 0;
+#endif
+	}
+	
+	if (pointer != NULL) *pointer = index;
+	shadow_map_size = size;
 }
 
 void change_compass_direction(int *dir)
@@ -469,17 +553,18 @@ void change_shadow_mapping (int *sm)
 	if (*sm)
 	{
 		*sm = 0;
+#ifdef	USE_FRAMEBUFFER
+		if (use_frame_buffer && have_framebuffer_object) free_shadow_framebuffer();
+#endif
 	}
-	else if (!options_set || (have_multitexture >= 3 && have_arb_shadow))
+	else if (!gl_extensions_loaded || (have_multitexture >= 3 && have_arb_shadow))
 	{
 		// don't check if we have hardware support when OpenGL 
 		// extensions are not initialized yet.
 		*sm = 1;
+		check_option_var("shadow_map_size");
 	}
-	else
-	{
-		LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
-	}
+	else LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
 }
 
 #ifndef MAP_EDITOR2
@@ -500,16 +585,13 @@ void change_normal_mapping(int *nm)
 	{
 		*nm = 0;
 	}
-	else if (!options_set || (have_multitexture >= 4 && have_ogsl_vertex_shader && have_ogsl_pixel_shader))
+	else if (!gl_extensions_loaded || (have_multitexture >= 4 && have_ogsl_vertex_shader && have_ogsl_pixel_shader))
 	{
 		// don't check if we have hardware support when OpenGL 
 		// extensions are not initialized yet.
 		*nm = 1;
 	}
-	else
-	{
-		LOG_TO_CONSOLE (c_red1, disabled_normal_mapping);
-	}
+	else LOG_TO_CONSOLE (c_red1, disabled_normal_mapping);
 }
 #endif
 #endif // ELC
@@ -520,12 +602,12 @@ void change_reflection(int *rf)
 	if (*rf)
 	{
 		*rf = 0;
-		if (use_frame_buffer) free_reflection_framebuffer();
+		if (use_frame_buffer && have_framebuffer_object) free_reflection_framebuffer();
 	}
 	else
 	{
 		*rf = 1;
-		if (use_frame_buffer && options_set) make_reflection_framebuffer(window_width, window_height);
+		if (gl_extensions_loaded && use_frame_buffer && have_framebuffer_object) make_reflection_framebuffer(window_width, window_height);
 	}
 }
 
@@ -534,21 +616,55 @@ void change_frame_buffer(int *fb)
 	if (*fb)
 	{
 		*fb = 0;
-		free_reflection_framebuffer();
+		if (have_framebuffer_object)
+		{
+			free_reflection_framebuffer();
+			free_shadow_framebuffer();
+		}
+		check_option_var("shadow_map_size");
 	}
-	else 
-	{	
-		if (!options_set || have_framebuffer_object)
+	else
+	{
+		if (!gl_extensions_loaded || have_framebuffer_object)
 		{
 			*fb = 1;
-			if (options_set)
+			if (gl_extensions_loaded)
 			{
 				if (show_reflection) make_reflection_framebuffer(window_width, window_height);
+				if (use_shadow_mapping) make_shadow_framebuffer(window_width, window_height);
 			}
 		}
-	}	
+		else LOG_TO_CONSOLE (c_red1, disabled_framebuffer);
+	}
 }
 #endif
+
+void change_shadows(int *sh)
+{
+	if (*sh)
+	{
+		*sh = 0;
+		if (use_frame_buffer && have_framebuffer_object) free_shadow_framebuffer();
+		else
+		{
+			//...and the texture used for shadow mapping
+			glDeleteTextures(1, &depth_map_id);
+			depth_map_id = 0;
+		}
+	}
+	else
+	{
+		*sh = 1;
+		if (gl_extensions_loaded && use_frame_buffer && have_framebuffer_object) make_shadow_framebuffer(window_width, window_height);
+		else
+		{
+			//...and the texture used for shadow mapping
+			glDeleteTextures(1, &depth_map_id);
+			depth_map_id = 0;
+		}
+	}
+}
+
 #ifdef MAP_EDITOR
 
 void set_auto_save_interval (int *save_time, int time)
@@ -606,6 +722,56 @@ int find_var (char *str, var_name_type type)
 			return i;
 	}
 	return -1;
+}
+
+static __inline__ void check_option_var(char* name)
+{
+	int i;
+	int value_i;
+	float value_f;
+	char* value_s;
+
+	i = find_var(name, IN_GAME_VAR);
+	if (i < 0) return;
+
+	switch (our_vars.var[i]->type)
+	{
+		case INT:
+		case MULTI:
+			value_i = *((int*)our_vars.var[i]->var);
+			our_vars.var[i]->func (our_vars.var[i]->var, value_i);
+			break;
+		case BOOL:
+			value_i = *((int*)our_vars.var[i]->var);
+			if (value_i == 0) *((int*)our_vars.var[i]->var) = 1;
+			else *((int*)our_vars.var[i]->var) = 0;
+			our_vars.var[i]->func (our_vars.var[i]->var);
+			break;
+		case STRING:
+#ifdef ELC
+		case PASSWORD:
+#endif //ELC
+			value_s = (char*)our_vars.var[i]->var;
+			our_vars.var[i]->func (our_vars.var[i]->var, value_s, our_vars.var[i]->len);
+			break;
+		case FLOAT:
+			value_f = *((float*)our_vars.var[i]->var);
+			our_vars.var[i]->func (our_vars.var[i]->var, value_f);
+			break;
+	}
+}
+
+void check_options()
+{
+	check_option_var("use_point_particles");
+#ifdef	USE_FRAMEBUFFER
+	check_option_var("use_frame_buffer");
+#endif
+	check_option_var("use_shadow_mapping");
+	check_option_var("shadow_map_size");
+#ifdef	TERRAIN
+	check_option_var("use_normal_mapping");
+#endif
 }
 
 int check_var (char *str, var_name_type type)
@@ -813,9 +979,9 @@ void init_vars()
 	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render mesh", "Render the mesh", SPECIALVID);
  #endif//DEBUG
 #endif
-	add_var(BOOL,"shadows_on","shad",&shadows_on,change_var,0,"Shadows","Toggles the shadows",VIDEO);
+	add_var(BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows",VIDEO);
 	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", VIDEO);
-	add_var(MULTI,"max_shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"512","1024","2048","4096","8192",NULL);
+	add_var(MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
 #ifndef MAP_EDITOR2
 	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render fog","Toggles fog rendering.",VIDEO);
 #endif
@@ -836,9 +1002,11 @@ void init_vars()
  #endif // TERRAIN
 #endif // ELC
 
-#ifndef MAP_EDITOR	
+#ifndef MAP_EDITOR
+#ifdef	NOT_USED
 	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",SPECIALVID);
 	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects",SPECIALVID);
+#endif
 
 	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
 	// Lachesis: this var is not used in the code.

@@ -492,11 +492,6 @@ void init_2d_obj_cache()
 	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache));
 }
 
-void check_options ()
-{
-
-}
-
 void init_stuff()
 {
 	int seed;
@@ -527,9 +522,6 @@ void init_stuff()
 	//Parse command line options
 	read_command_line();
 	options_set = 1;
-
-	// check for invalid combinations
-	check_options ();
 
 	//OK, we have the video mode settings...
 	setup_video_mode(full_screen,video_mode);
@@ -569,6 +561,9 @@ void init_stuff()
 
 	update_loading_win(init_opengl_str, 5);
 	init_gl_extensions();
+
+	// check for invalid combinations
+	check_options();
 
 	update_loading_win(init_random_str, 4);
 	seed = time (NULL);

@@ -327,6 +327,10 @@ static __inline__ int adapt_size(int size)
 {
 	int i;
 	
+	glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &i);
+
+	size = min2i(size, i);
+	
 	if (have_texture_non_power_of_two) return size;
 	else
 	{
@@ -355,8 +359,8 @@ void change_reflection_framebuffer_size(int width, int height)
 {
 	reflection_texture_width = adapt_size(width);
 	reflection_texture_height = adapt_size(height);
-	change_color_framebuffer_size(reflection_texture_width, reflection_texture_height, &water_reflection_fbo,
-		&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
+	change_color_framebuffer_size(reflection_texture_width, reflection_texture_height, &water_reflection_fbo, 
+			&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
 }
 
 static __inline__ void init_texturing()
@@ -521,7 +525,7 @@ void display_3d_reflection()
 #endif
 #else   //NEW_FRUSTUM
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 //	draw_tile_map();
 //	display_2d_objects();
 	display_objects();
@@ -583,7 +587,7 @@ void display_3d_reflection()
 	glNormal3f(0.0f, 0.0f, 1.0f);
 #ifdef NEW_FRUSTUM
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 #endif
 //	draw_tile_map();
 //	display_2d_objects();

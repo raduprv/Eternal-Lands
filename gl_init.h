@@ -45,6 +45,7 @@ extern int use_frame_buffer; /*!< specifies if we use frame buffer or not */
 
 #endif
 /*! @} */
+extern int gl_extensions_loaded; /*< specifies if the OpenGL extensions were loaded or not */
 
 // Grum
 // necessary for OSX?

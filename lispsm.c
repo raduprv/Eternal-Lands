@@ -1244,7 +1244,7 @@ void calculate_Light_Matrix(int useBodyVec, double nearDist,
 
 	if (main_bbox_tree != NULL)
 	{
-		if (main_bbox_tree->root_node != NULL)
+		if (main_bbox_tree->nodes != NULL)
 		{
 			invert(tmp, ModelViewMatrix);
 	
@@ -1269,12 +1269,12 @@ void calculate_Light_Matrix(int useBodyVec, double nearDist,
 			mult(tmp, ProjectionMatrix, ModelViewMatrix);
 			invert(invEyeProjView, tmp);
 
-			sceneAABox.bbmin[0] = main_bbox_tree->root_node->bbox.bbmin[0];
-			sceneAABox.bbmin[1] = main_bbox_tree->root_node->bbox.bbmin[1];
-			sceneAABox.bbmin[2] = main_bbox_tree->root_node->bbox.bbmin[2];
-			sceneAABox.bbmax[0] = main_bbox_tree->root_node->bbox.bbmax[0];
-			sceneAABox.bbmax[1] = main_bbox_tree->root_node->bbox.bbmax[1];
-			sceneAABox.bbmax[2] = main_bbox_tree->root_node->bbox.bbmax[2];
+			sceneAABox.bbmin[0] = main_bbox_tree->nodes[0].bbox.bbmin[0];
+			sceneAABox.bbmin[1] = main_bbox_tree->nodes[0].bbox.bbmin[1];
+			sceneAABox.bbmin[2] = main_bbox_tree->nodes[0].bbox.bbmin[2];
+			sceneAABox.bbmax[0] = main_bbox_tree->nodes[0].bbox.bbmax[0];
+			sceneAABox.bbmax[1] = main_bbox_tree->nodes[0].bbox.bbmax[1];
+			sceneAABox.bbmax[2] = main_bbox_tree->nodes[0].bbox.bbmax[2];
 
 			for (i = 0; i < 5; i++)
 			{
@@ -1294,7 +1294,7 @@ void calculate_Light_Matrix(int useBodyVec, double nearDist,
 				mult(lightProjection, tmp, lightProjection);
 				
 				calculate_light_frustum(frustum, lightView, lightProjection);
-				calc_scene_bbox(main_bbox_tree, &frustum, &bbox);
+				calc_scene_bbox(main_bbox_tree, frustum, &bbox);
 				sceneAABox.bbmin[0] = bbox.bbmin[0];
 				sceneAABox.bbmin[1] = bbox.bbmin[1];
 				sceneAABox.bbmin[2] = bbox.bbmin[2];

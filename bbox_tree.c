@@ -29,7 +29,7 @@ void set_all_intersect_update_needed(BBOX_TREE* bbox_tree)
 
 	if (bbox_tree != NULL)
 	{
-		for (i = 0; i < MAX_ITERSECTION_TYPES; i++)
+		for (i = 0; i < MAX_INTERSECTION_TYPES; i++)
 			bbox_tree->intersect[i].intersect_update_needed = 1;
 	}
 	else BBOX_TREE_LOG_INFO("bbox_tree");
@@ -362,7 +362,7 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, uns
 	
 	idx = bbox_tree->cur_intersect_type;
 	
-	for (i = 0; i < MAX_ITERSECTION_TYPES; i++)
+	for (i = 0; i < MAX_INTERSECTION_TYPES; i++)
 	{
 		start = bbox_tree->intersect[i].start[type];
 		stop = bbox_tree->intersect[i].stop[type];
@@ -445,7 +445,7 @@ void clear_bbox_tree(BBOX_TREE* bbox_tree)
 	
 	if (bbox_tree != NULL)
 	{
-		for (i = 0; i < MAX_ITERSECTION_TYPES; i++)
+		for (i = 0; i < MAX_INTERSECTION_TYPES; i++)
 		{
 			memset(bbox_tree->intersect[i].start, 0, TYPES_COUNT*sizeof(unsigned int));
 			memset(bbox_tree->intersect[i].stop, 0, TYPES_COUNT*sizeof(unsigned int));
@@ -1190,8 +1190,8 @@ BBOX_TREE* build_bbox_tree()
 
 	bbox_tree = (BBOX_TREE*)malloc(sizeof(BBOX_TREE));
 	
-	bbox_tree->cur_intersect_type = ITERSECTION_TYPE_DEFAULT;
-	for (i = 0; i < MAX_ITERSECTION_TYPES; i++)
+	bbox_tree->cur_intersect_type = INTERSECTION_TYPE_DEFAULT;
+	for (i = 0; i < MAX_INTERSECTION_TYPES; i++)
 	{
 		bbox_tree->intersect[i].size = 8;
 		bbox_tree->intersect[i].count = 0;

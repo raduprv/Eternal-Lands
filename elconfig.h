@@ -131,4 +131,13 @@ int read_el_ini ();
  */
 int write_el_ini ();
 
+/*!
+ * \ingroup other
+ * \brief   Checkes the option-vars.
+ *
+ *      Checks the global option vars ( \see our_vars variable).
+ *
+ * \callgraph
+ */
+void check_options();
 #endif

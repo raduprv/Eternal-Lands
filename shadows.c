@@ -19,19 +19,19 @@ float sun_position[4]={400.0, 400.0, 500.0, 0.0};
 double light_view_mat[16],light_proj_mat[16],texgen_mat[16],texgen_mat_1d[16];
 int shadows_on=0;
 int is_day;
-int shadows_texture;
 int use_shadow_mapping=1;
 
 //TODO: Would like to use TEXTURE_RECTANGLE for cards that support it, but for some reason it doesn't work??
 GLenum depth_texture_target=GL_TEXTURE_2D;
-int max_shadow_map_size;
-GLsizei depth_map_width;
-GLsizei depth_map_height;
-GLuint depth_map_id=0;
+int shadow_map_size;
+GLuint depth_map_id = 0;
 /* Good values:
 #define depth_map_scale 15.0
 #define light_view_near -30.0
 #define light_view_far 6.0*/
+#ifdef	USE_FRAMEBUFFER
+int shadow_fbo = 0;
+#endif
 
 GLfloat light_view_hscale=13.0;
 GLfloat light_view_top=10.0;
@@ -45,32 +45,22 @@ extern int cur_e3d_count;
 #endif
 extern e3d_object   *cur_e3d;
 
-int floor_pow2(int n)
+#ifdef	USE_FRAMEBUFFER
+void free_shadow_framebuffer()
 {
-	int ret=1;
-	if(n<1)return 0;
-	while(ret*2<=n)ret*=2;
-	return ret;
+	free_depth_framebuffer(&shadow_fbo, &depth_map_id);
 }
 
-void set_shadow_map_size()
+void make_shadow_framebuffer()
 {
-	int max=floor_pow2(max_shadow_map_size);
-
-	if (have_texture_non_power_of_two)
-	{
-		depth_map_width = window_width;
-		depth_map_height = window_height;
-	}
-	else
-	{
-		depth_map_width=floor_pow2(window_width);
-		depth_map_height=floor_pow2(window_height);
-	}
-	
-	if (depth_map_width > max) depth_map_width = max;
-	if (depth_map_height > max) depth_map_height = max;
+	change_shadow_framebuffer_size();
 }
+
+void change_shadow_framebuffer_size()
+{
+	change_depth_framebuffer_size(shadow_map_size, shadow_map_size, &shadow_fbo, &depth_map_id);
+}
+#endif
 
 void calc_light_frustum(float light_xrot)
 {
@@ -142,7 +132,7 @@ void calc_shadow_matrix()
 			glRotatef(zrot,0.0f,0.0f,1.0f);
 			glGetDoublev(GL_MODELVIEW_MATRIX,light_view_mat);
 			glLoadIdentity();
-			if(depth_texture_target!=GL_TEXTURE_2D)glScalef(depth_map_width,depth_map_height,0);
+			if(depth_texture_target!=GL_TEXTURE_2D)glScalef(shadow_map_size,shadow_map_size,0);
 			glTranslatef(0.5,0.5,0.5);   // This...
 			glScalef(0.5,0.5,0.5);       // ...and this == S
 			glMultMatrixd(light_proj_mat);     // Plight
@@ -658,6 +648,7 @@ void render_light_view()
 #ifdef NEW_FRUSTUM
 	unsigned int cur_intersect_type;
 #endif
+//	printf("OK 0\n");
 	if(use_shadow_mapping)
 		{
 #ifdef USE_LISPSM
@@ -684,26 +675,30 @@ void render_light_view()
 #ifdef NEW_FRUSTUM
 #ifdef NEW_FRUSTUM_TEST
 			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-			set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SHADOW);
+			set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);
 			calculate_shadow_frustum();
 #endif
 #endif
-			glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+#ifdef	USE_FRAMEBUFFER
+			if (!use_frame_buffer && !depth_map_id)
+#else
 			if(!depth_map_id)
+#endif
 				{
-#ifndef USE_LISPSM
 					GLint depthbits=16;
 					GLenum internalformat=GL_DEPTH_COMPONENT16_ARB;
-#endif
+
+					glGetIntegerv(GL_DEPTH_BITS,&depthbits);
+					if(depthbits==24)internalformat=GL_DEPTH_COMPONENT24_ARB;
+					else if(depthbits==32)internalformat=GL_DEPTH_COMPONENT32_ARB;
+
 					glGenTextures(1,&depth_map_id);
 					glBindTexture(depth_texture_target,depth_map_id);
 					CHECK_GL_ERRORS();
 #ifndef USE_LISPSM
-					glGetIntegerv(GL_DEPTH_BITS,&depthbits);
-					if(depthbits==24)internalformat=GL_DEPTH_COMPONENT24_ARB;
-					else if(depthbits==32)internalformat=GL_DEPTH_COMPONENT32_ARB;
 					glTexImage2D(depth_texture_target,0,internalformat,
-						     depth_map_width,depth_map_height,
+						     shadow_map_size,shadow_map_size,
 						     0,GL_DEPTH_COMPONENT,GL_FLOAT,NULL);
 					glTexParameteri(depth_texture_target,GL_TEXTURE_COMPARE_MODE_ARB,
 							GL_COMPARE_R_TO_TEXTURE_ARB);
@@ -715,8 +710,8 @@ void render_light_view()
 					glTexParameteri(depth_texture_target,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 					glTexParameteri(depth_texture_target,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 #else
-					glTexImage2D(depth_texture_target,0,GL_DEPTH_COMPONENT,
-						     depth_map_width,depth_map_height,
+					glTexImage2D(depth_texture_target,0,internalformat,
+						     shadow_map_size,shadow_map_size,
 						     0,GL_DEPTH_COMPONENT,GL_UNSIGNED_BYTE,NULL);					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
@@ -728,7 +723,22 @@ void render_light_view()
 					CHECK_GL_ERRORS();
 				}
 
-			glViewport(0,0,depth_map_width,depth_map_height);
+#ifdef	USE_FRAMEBUFFER
+			if (use_frame_buffer && have_framebuffer_object)
+			{
+				ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, shadow_fbo);
+			        ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_map_id, 0);
+				glClear(GL_DEPTH_BUFFER_BIT);
+        			glDrawBuffer(GL_NONE);
+	        		glReadBuffer(GL_NONE);
+			}
+#endif
+			CHECK_GL_ERRORS();
+
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+			glViewport(0,0,shadow_map_size,shadow_map_size);
+			CHECK_GL_ERRORS();
 
 			glDisable(GL_LIGHTING);
 			glEnable(GL_DEPTH_TEST);
@@ -753,7 +763,7 @@ void render_light_view()
 #ifdef NEW_FRUSTUM
 #ifndef NEW_FRUSTUM_TEST
 			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-			set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SHADOW);
+			set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);
 			calculate_shadow_frustum();
 #endif
 #endif
@@ -762,18 +772,35 @@ void render_light_view()
 			set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 #endif
 
-			glBindTexture(depth_texture_target,depth_map_id);
-			glCopyTexSubImage2D(depth_texture_target,0,0,0,0,0,depth_map_width,depth_map_height);
+#ifdef	USE_FRAMEBUFFER
+			if (!use_frame_buffer)
+			{
+				glBindTexture(depth_texture_target, depth_map_id);
+				glCopyTexSubImage2D(depth_texture_target, 0, 0, 0, 0, 0, shadow_map_size, shadow_map_size);
+				glClear(GL_DEPTH_BUFFER_BIT);
+			}
+#else
+			glBindTexture(depth_texture_target, depth_map_id);
+			glCopyTexSubImage2D(depth_texture_target, 0, 0, 0, 0, 0, shadow_map_size, shadow_map_size);
+#endif
 
 			CHECK_GL_ERRORS();
 			glMatrixMode(GL_PROJECTION);
 			glPopMatrix();
 			glMatrixMode(GL_MODELVIEW);
 			glPopMatrix();
-			glClear(GL_DEPTH_BUFFER_BIT);
 			glPopAttrib();
 			glBindTexture(GL_TEXTURE_2D,0);
 			last_texture=-1;
+			CHECK_GL_ERRORS();
+#ifdef	USE_FRAMEBUFFER
+			if (use_frame_buffer)
+			{
+				ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+        			glDrawBuffer(GL_BACK);
+	      			glReadBuffer(GL_BACK);
+			}
+#endif
 			CHECK_GL_ERRORS();
 		}
 }
@@ -942,7 +969,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 #endif
 #endif		
 #ifdef NEW_FRUSTUM
-			main_bbox_tree->intersect[ITERSECTION_TYPE_DEFAULT].intersect_update_needed = 1;
+			main_bbox_tree->intersect[INTERSECTION_TYPE_DEFAULT].intersect_update_needed = 1;
 #endif
 			CalculateFrustum();
 			

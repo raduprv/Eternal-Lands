@@ -330,6 +330,18 @@ char	reg_error_str[15],
 	gl_ext_not_found[100],
 	gl_ext_no_multitexture[150],
 	disabled_shadow_mapping[50],
+	shadow_map_size_not_supported_str[100],
+#ifdef	USE_FRAMEBUFFER
+	disabled_framebuffer[50],
+	fbo_attachment_error[100],
+	fbo_missing_attachment_error[100],
+	fbo_duplicate_attachment_error[100],
+	fbo_dimensions_error[100],
+	fbo_formats_error[100],
+	fbo_draw_buffer_error[100],
+	fbo_read_buffer_error[100],
+	fbo_unknow_error[100],
+#endif
 #ifdef	TERRAIN
 	disabled_normal_mapping[50],
 #endif	
@@ -910,6 +922,18 @@ void init_errors()
 	add_xml_identifier(video,"extnotfound",gl_ext_not_found,"Couldn't find the %s extension, not using it...",sizeof(gl_ext_not_found));
 	add_xml_identifier(video,"multitex",gl_ext_no_multitexture,"Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...",sizeof(gl_ext_no_multitexture));
 	add_xml_identifier(video,"noshadowmapping",disabled_shadow_mapping,"Shadowmapping disabled (need newer hardware)",sizeof(disabled_shadow_mapping));
+	add_xml_identifier(video,"toobigshadowmap",shadow_map_size_not_supported_str,"Shadow map size not supported! Shadow map size reduced to %d!",sizeof(shadow_map_size_not_supported_str));
+#ifdef	USE_FRAMEBUFFER
+	add_xml_identifier(video,"noframebuffer",disabled_framebuffer,"Framebuffer disabled (need newer driver)",sizeof(disabled_framebuffer));
+	add_xml_identifier(video,"fboattachmenterror",fbo_attachment_error,"Framebuffer: attachment error",sizeof(fbo_attachment_error));
+	add_xml_identifier(video,"fbomissingattachmenterror",fbo_missing_attachment_error,"Framebuffer: missing attachment",sizeof(fbo_missing_attachment_error));
+	add_xml_identifier(video,"fboduplicateattachmenterror",fbo_duplicate_attachment_error,"Framebuffer: duplicate attachment",sizeof(fbo_duplicate_attachment_error));
+	add_xml_identifier(video,"fbodimensionserror",fbo_dimensions_error,"Framebuffer: dimensions error",sizeof(fbo_dimensions_error));
+	add_xml_identifier(video,"fboformatserror",fbo_formats_error,"Framebuffer: formats error",sizeof(fbo_formats_error));
+	add_xml_identifier(video,"fbodrawbuffererror",fbo_draw_buffer_error,"Framebuffer: draw buffer error",sizeof(fbo_draw_buffer_error));
+	add_xml_identifier(video,"fboreadbuffererror",fbo_read_buffer_error,"Framebuffer: read buffer error",sizeof(fbo_read_buffer_error));
+	add_xml_identifier(video,"fbounknowerror",fbo_unknow_error,"Framebuffer: unkown error",sizeof(fbo_unknow_error));
+#endif
 #ifdef	TERRAIN
 	add_xml_identifier(video,"nonormalmapping",disabled_normal_mapping,"Normalmapping disabled (need newer hardware)",sizeof(disabled_normal_mapping));
 #endif	

@@ -38,10 +38,10 @@
 #define	TYPES_COUNT						0x17
 #define TYPE_DELETED						0xFF
 
-#define	ITERSECTION_TYPE_DEFAULT			0x00
-#define	ITERSECTION_TYPE_SHADOW				0x01
-#define	ITERSECTION_TYPE_REFLECTION			0x02
-#define	MAX_ITERSECTION_TYPES				0x03
+#define	INTERSECTION_TYPE_DEFAULT			0x00
+#define	INTERSECTION_TYPE_SHADOW			0x01
+#define	INTERSECTION_TYPE_REFLECTION			0x02
+#define	MAX_INTERSECTION_TYPES				0x03
 
 #define	OUTSIDE		0x0000
 #define	INSIDE		0x0001
@@ -141,7 +141,7 @@ typedef	struct
 	unsigned int		nodes_count;
 	BBOX_TREE_NODE*		nodes;
 	unsigned int		cur_intersect_type;
-	BBOX_INTERSECTION_DATA	intersect[MAX_ITERSECTION_TYPES];
+	BBOX_INTERSECTION_DATA	intersect[MAX_INTERSECTION_TYPES];
 } BBOX_TREE;
 
 enum

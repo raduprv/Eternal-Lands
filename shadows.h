@@ -14,7 +14,7 @@ extern int is_day; /*!< this flag shows whether it's day or night */
 extern int use_shadow_mapping; /*!< flag whether to use shadow mapping or not */
 extern GLuint depth_map_id;
 extern GLenum depth_texture_target;
-extern int max_shadow_map_size; /*!< max. size of the shadow maps in byte */
+extern int shadow_map_size; /*!< max. size of the shadow maps in byte */
 
 /*!
  * \ingroup shadows
@@ -59,12 +59,31 @@ void disable_texgen();
 
 /*!
  * \ingroup shadows
- * \brief Computes and sets the size of the shadow maps
+ * \brief Frees the shadow framebuffer.
  *
- *      Computes and sets the size of the shadow maps
+ *      Frees the shadow framebuffer.
  *
- * \sa floor_pow2
+ * \callgraph
  */
-void set_shadow_map_size();
+void free_shadow_framebuffer();
 
+/*!
+ * \ingroup shadows
+ * \brief Makes the shadow framebuffer.
+ *
+ *      Makes the shadow framebuffer.
+ *
+ * \callgraph
+ */
+void make_shadow_framebuffer();
+
+/*!
+ * \ingroup shadows
+ * \brief Changes the shadow framebuffer.
+ *
+ *      Changes the shadow framebuffer.
+ *
+ * \callgraph
+ */
+void change_shadow_framebuffer_size();
 #endif

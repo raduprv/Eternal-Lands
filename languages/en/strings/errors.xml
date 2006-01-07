@@ -63,7 +63,9 @@ Done. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*</redefine>
     <nameinuse>Character name is already taken</nameinuse>
     <notabs>You cannot disable tabbed windows with video mode %d, forcing them</notabs>
     <nomap>Unable to switch to map %s!</nomap>
-  </misc>
+  <emptymap>Using an empty map instead.</emptymap><nonomap>Fatal error: Couldn't load map ./maps/nomap.elm.
+Fix your maps.</nonomap><nobmpmap>There is no map for this place.</nobmpmap><book_open>Couldn't open the book: %s!</book_open><noanimation>No animation: %s!
+</noanimation><invalid_location>Invalid location %d,%d</invalid_location></misc>
   <particles>
     <version>Particle file %s version (%i) doesn't match file reader version (%i)!</version>
     <overrun>Particle file %s tries to define %i particles, when %i is the maximum!</overrun>
@@ -122,7 +124,7 @@ Let's try one more thing...</last_try>
     <multitex>Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...</multitex>
     <noshadowmapping>Shadowmapping disabled (need newer hardware)</noshadowmapping>
     <invalid>Stop playing with the configuration file and select valid modes!</invalid>
-  </video>
+  <toobigshadowmap>Shadow map size not supported! Shadow map size reduced to %d!</toobigshadowmap><noframebuffer>Framebuffer disabled (need newer driver)</noframebuffer><fboattachmenterror>Framebuffer: attachment error</fboattachmenterror><fbomissingattachmenterror>Framebuffer: missing attachment</fbomissingattachmenterror><fboduplicateattachmenterror>Framebuffer: duplicate attachment</fboduplicateattachmenterror><fbodimensionserror>Framebuffer: dimensions error</fbodimensionserror><fboformatserror>Framebuffer: formats error</fboformatserror><fbodrawbuffererror>Framebuffer: draw buffer error</fbodrawbuffererror><fboreadbuffererror>Framebuffer: read buffer error</fboreadbuffererror><fbounknowerror>Framebuffer: unkown error</fbounknowerror></video>
   <rules>
     <proceed>You can proceed in %d seconds</proceed>
     <accept>Click on "I Accept" to play the game!</accept>

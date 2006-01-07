@@ -308,15 +308,15 @@ void set_current_frustum(unsigned int intersect_type)
 {
 	switch (intersect_type)
 	{
-		case ITERSECTION_TYPE_DEFAULT:
+		case INTERSECTION_TYPE_DEFAULT:
 			current_frustum_size = 6;
 			current_frustum = &main_frustum;
 			break;
-		case ITERSECTION_TYPE_SHADOW:
+		case INTERSECTION_TYPE_SHADOW:
 			current_frustum_size = 6;
 			current_frustum = &shadow_frustum;
 			break;
-		case ITERSECTION_TYPE_REFLECTION:
+		case INTERSECTION_TYPE_REFLECTION:
 			current_frustum_size = 9;
 			current_frustum = &reflection_frustum;
 			break;
@@ -355,7 +355,7 @@ void calculate_reflection_frustum(unsigned int num, float water_height)
 	float x_min, x_max, y_min, y_max, x_scaled, y_scaled;
 	unsigned int cur_intersect_type, i, l, start, stop, x, y;
 
-	if (main_bbox_tree->intersect[ITERSECTION_TYPE_REFLECTION].intersect_update_needed == 0) return;
+	if (main_bbox_tree->intersect[INTERSECTION_TYPE_REFLECTION].intersect_update_needed == 0) return;
 		
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, water_height);
@@ -386,7 +386,7 @@ void calculate_reflection_frustum(unsigned int num, float water_height)
 	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
 
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_DEFAULT);
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
 
 	VMInvert(inv, clip);
 	
@@ -408,7 +408,7 @@ void calculate_reflection_frustum(unsigned int num, float water_height)
 		y_max = max2f(y_max, y_scaled+3.0f);
 	}
 	
-	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_REFLECTION);
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 	calculate_frustum_from_clip_matrix(reflection_frustum, clip);
 
 	pos[0] = inv[3]/inv[15];
@@ -468,7 +468,7 @@ void calculate_shadow_frustum()
 	MATRIX4x4 clip;								// This will hold the clipping planes
 	unsigned int cur_intersect_type;
 
-	main_bbox_tree->intersect[ITERSECTION_TYPE_SHADOW].intersect_update_needed = 1;
+	main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed = 1;
 
 	// glGetFloatv() is used to extract information about our OpenGL world.
 	// Below, we pass in GL_PROJECTION_MATRIX to abstract our projection matrix.
@@ -504,7 +504,7 @@ void calculate_shadow_frustum()
 
 	calculate_frustum_from_clip_matrix(shadow_frustum, clip);
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, ITERSECTION_TYPE_SHADOW);	
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);	
 	check_bbox_tree(main_bbox_tree, shadow_frustum, 63);
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 }
@@ -549,7 +549,7 @@ void CalculateFrustum()
 	MATRIX4x4 modl;								// This will hold our modelview matrix
 	MATRIX4x4 clip;								// This will hold the clipping planes
 	
-	if (main_bbox_tree->intersect[ITERSECTION_TYPE_DEFAULT].intersect_update_needed == 0) return;
+	if (main_bbox_tree->intersect[INTERSECTION_TYPE_DEFAULT].intersect_update_needed == 0) return;
 #else
 	float   proj[16];								// This will hold our projection matrix
 	float   modl[16];								// This will hold our modelview matrix

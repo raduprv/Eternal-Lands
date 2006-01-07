@@ -544,7 +544,7 @@ void get_actors_in_range()
 				near_actors[no_near_actors].select = 0;
 	
 				actors_list[i]->max_z = bbox.bbmax[2]-z_pos-0.5f;
-				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == ITERSECTION_TYPE_DEFAULT))
+				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 				{
 					if (click_line_bbox_intersection(bbox))
 						near_actors[no_near_actors].select = 1;

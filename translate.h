@@ -429,6 +429,18 @@ extern char	reg_error_str[15],
 		gl_ext_not_found[100],
 		gl_ext_no_multitexture[150],
 		disabled_shadow_mapping[50],
+		shadow_map_size_not_supported_str[100],
+#ifdef	USE_FRAMEBUFFER
+		disabled_framebuffer[50],
+		fbo_attachment_error[100],
+		fbo_missing_attachment_error[100],
+		fbo_duplicate_attachment_error[100],
+		fbo_dimensions_error[100],
+		fbo_formats_error[100],
+		fbo_draw_buffer_error[100],
+		fbo_read_buffer_error[100],
+		fbo_unknow_error[100],
+#endif
 #ifdef	TERRAIN
 		disabled_normal_mapping[50],
 #endif		

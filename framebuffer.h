@@ -50,5 +50,45 @@ void make_color_framebuffer(int width, int height, int *FBO, int *FBORenderBuffe
  */
 void change_color_framebuffer_size(int width, int height, int *FBO, int *FBORenderBuffer, int *FBOTexture);
 
+/*!
+ * \ingroup 	display_utils
+ * \brief 	Free framebuffer.
+ * 
+ * Frees the given frame buffer and texture.
+ * \param 	FBO The frame buffer.
+ * \param 	FBOTexture The destination texture.
+ *  
+ * \callgraph
+ */
+void free_depth_framebuffer(int *FBO, int *FBOTexture);
+
+/*!
+ * \ingroup 	display_utils
+ * \brief 	Creates a new frame buffer and attachs a new destination texture.
+ * 
+ * Creates a new frame buffer and attachs a destination texture.
+ * \param	width The width of the texture.
+ * \param	height The height of the texture.
+ * \param 	FBO The frame buffer.
+ * \param 	FBOTexture The destination texture.
+ *  
+ * \callgraph
+ */
+void make_depth_framebuffer(int width, int height, int *FBO, int *FBOTexture);
+
+/*!
+ * \ingroup 	display_utils
+ * \brief 	Changes the size of the destinatoin texture of a given framebuffer.
+ * 
+ * Changes the size of the destinatoin texture of a given framebuffer
+ * \param	width The width of the texture.
+ * \param	height The height of the texture.
+ * \param 	FBO The frame buffer.
+ * \param 	FBOTexture The destination texture.
+ *  
+ * \callgraph
+ */
+void change_depth_framebuffer_size(int width, int height, int *FBO, int *FBOTexture);
+
 #endif
 #endif

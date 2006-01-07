@@ -56,5 +56,5 @@
     <tab_video>Video</tab_video>
     <tab_adv_video>Advanced video</tab_adv_video>
     <tab_font>Font</tab_font>
-  </titles>
+  <game_version>Eternal Lands Version %d.%d.%d%s</game_version></titles>
 </root>

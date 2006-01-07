@@ -43,6 +43,7 @@ int have_texture_non_power_of_two = 0;
 #ifdef	USE_FRAMEBUFFER
 int use_frame_buffer = 0;
 #endif
+int gl_extensions_loaded = 0;
 
 struct list {
 	int i;
@@ -488,7 +489,7 @@ void init_video()
 	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &have_stencil);
 	last_texture=-1;	//no active texture
 
-	set_shadow_map_size();
+	check_options();
 }
 
 void init_gl_extensions()
@@ -586,12 +587,8 @@ void init_gl_extensions()
 
 	have_point_sprite = get_string_occurance("GL_ARB_point_sprite",extensions,ext_str_len,0)>=0 || get_string_occurance("GL_NV_point_sprite",extensions,ext_str_len,0)>=0;
 	if(!have_point_sprite){
-		use_point_particles = 0;
 		snprintf(str,sizeof(str),gl_ext_not_found,"GL_*_point_sprite");
 		LOG_TO_CONSOLE(c_red1,str);
-	} else if(!use_point_particles) {
-		snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_*_point_sprite");
-		LOG_TO_CONSOLE(c_green2,str);
 	} else {
 		snprintf(str,sizeof(str),gl_ext_found,"GL_*_point_sprite");
 		LOG_TO_CONSOLE(c_green2,str);
@@ -642,11 +639,6 @@ void init_gl_extensions()
 		LOG_TO_CONSOLE(c_green2,str);
 	}
 
-	if((have_multitexture<3 || !have_arb_shadow) && use_shadow_mapping) {
-		use_shadow_mapping=0;
-		LOG_TO_CONSOLE(c_red1,disabled_shadow_mapping);
-	}
-
 	if(get_string_occurance("GL_ARB_vertex_buffer_object",extensions,ext_str_len,0)>=0 && use_vertex_buffers){
 		snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_vertex_buffer_object");
 		LOG_TO_CONSOLE(c_green2, str);
@@ -684,7 +676,7 @@ void init_gl_extensions()
 #ifdef	USE_FRAMEBUFFER
 		snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
 		LOG_TO_CONSOLE(c_red1, str);
-		have_framebuffer_object=0;
+		have_framebuffer_object = 0;
 #else
 		//snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
 #endif
@@ -763,6 +755,7 @@ void init_gl_extensions()
 	}
 #endif
 	CHECK_GL_ERRORS();
+	gl_extensions_loaded = 1;
 }
 
 #ifdef	USE_LISPSM
@@ -891,9 +884,11 @@ void set_new_video_mode(int fs,int mode)
 		}
 	}
 
+#ifndef	USE_FRAMEBUFFER
 	//...and the texture used for shadow mapping
 	glDeleteTextures(1,&depth_map_id);
 	depth_map_id=0;
+#endif
 
 	//destroy the current context
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -998,6 +993,7 @@ void set_new_video_mode(int fs,int mode)
 #ifdef	USE_FRAMEBUFFER
 	change_reflection_framebuffer_size(window_width, window_height);
 #endif
+	check_options();
 }
 
 void toggle_full_screen()
