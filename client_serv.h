@@ -81,6 +81,8 @@
 #define spider_l_2 68
 #define spider_l_3 69
 #define wood_sprite 70
+#define spider_l_3 71
+#define spider_s_3 72
 
 
 /*! @} */

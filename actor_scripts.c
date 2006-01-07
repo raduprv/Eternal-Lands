@@ -83,6 +83,8 @@ const dict_elem actor_type_dict[] =
 	  { "spider small 2"        	, spider_s_2			},
 	  { "spider small 3"        	, spider_s_3			},
 	  { "wood sprite"        	, wood_sprite			},
+	  { "spider big 4"        	, spider_l_4			},
+	  { "spider small 4"        	, spider_s_4			},
 
 
 	  { NULL                    , -1					}
