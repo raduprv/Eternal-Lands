@@ -990,9 +990,6 @@ void set_new_video_mode(int fs,int mode)
 
 	// resize the EL root windows
 	resize_all_root_windows (window_width, window_height);
-#ifdef	USE_FRAMEBUFFER
-	change_reflection_framebuffer_size(window_width, window_height);
-#endif
 	check_options();
 }
 

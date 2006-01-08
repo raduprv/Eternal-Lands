@@ -601,8 +601,8 @@ static __inline__ void calc_bbox(AABBOX *bbox, BBOX_TREE *bbox_tree, unsigned in
 		VMax(bmax, bmax, bbox_tree->items[i].bbox.bbmax);
 	}
 
-	memcpy(bbox->bbmin, bmin, sizeof(VECTOR3));
-	memcpy(bbox->bbmax, bmax, sizeof(VECTOR3));
+	VAssign(bbox->bbmin, bmin);
+	VAssign(bbox->bbmax, bmax);
 }
 
 static __inline__ unsigned int sort_and_split(BBOX_TREE* bbox_tree, unsigned int node, unsigned int* index, unsigned int first, unsigned int last)
@@ -655,8 +655,8 @@ static __inline__ unsigned int sort_and_split(BBOX_TREE* bbox_tree, unsigned int
 	}
 	
 	calc_bbox(&bbox_tree->nodes[node].bbox, bbox_tree, first, last);
-	memcpy(bbox_tree->nodes[node].orig_bbox.bbmin, bbox_tree->nodes[node].bbox.bbmin, sizeof(VECTOR3));
-	memcpy(bbox_tree->nodes[node].orig_bbox.bbmax, bbox_tree->nodes[node].bbox.bbmax, sizeof(VECTOR3));
+	VAssign(bbox_tree->nodes[node].orig_bbox.bbmin, bbox_tree->nodes[node].bbox.bbmin);
+	VAssign(bbox_tree->nodes[node].orig_bbox.bbmax, bbox_tree->nodes[node].bbox.bbmax);
 	bbox_tree->nodes[node].items_index = first;
 	bbox_tree->nodes[node].items_count = size;
 
@@ -726,8 +726,8 @@ static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, const AABBOX bbo
 		bbox_items->items = (BBOX_ITEM*)realloc(bbox_items->items, size*sizeof(BBOX_ITEM));
 		bbox_items->size = size;
 	}
-	memcpy(bbox_items->items[index].bbox.bbmin, bbox.bbmin, sizeof(VECTOR3));
-	memcpy(bbox_items->items[index].bbox.bbmax, bbox.bbmax, sizeof(VECTOR3));
+	VAssign(bbox_items->items[index].bbox.bbmin, bbox.bbmin);
+	VAssign(bbox_items->items[index].bbox.bbmax, bbox.bbmax);
 	bbox_items->items[index].data.type = type;
 	bbox_items->items[index].data.extra = 0;
 	bbox_items->items[index].data.texture_id = texture_id;
@@ -873,8 +873,8 @@ static __inline__ void add_dynamic_item_to_node(BBOX_TREE *bbox_tree, unsigned i
 		bbox_tree->nodes[node].dynamic_objects.items[index].data.texture_id = texture_id;
 		memcpy(bbox_tree->nodes[node].dynamic_objects.items[index].data.md5, md5, sizeof(MD5_DIGEST));
 		bbox_tree->nodes[node].dynamic_objects.items[index].data.type = type;
-		memcpy(bbox_tree->nodes[node].dynamic_objects.items[index].bbox.bbmin, bbox.bbmin, sizeof(VECTOR3));
-		memcpy(bbox_tree->nodes[node].dynamic_objects.items[index].bbox.bbmax, bbox.bbmax, sizeof(VECTOR3));
+		VAssign(bbox_tree->nodes[node].dynamic_objects.items[index].bbox.bbmin, bbox.bbmin);
+		VAssign(bbox_tree->nodes[node].dynamic_objects.items[index].bbox.bbmax, bbox.bbmax);
 		bbox_tree->nodes[node].dynamic_objects.index = index + 1;
 		VMin(bbox_tree->nodes[node].bbox.bbmin, bbox_tree->nodes[node].bbox.bbmin, bbox.bbmin);
 		VMax(bbox_tree->nodes[node].bbox.bbmax, bbox_tree->nodes[node].bbox.bbmax, bbox.bbmax);
@@ -1093,8 +1093,8 @@ static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tre
 			}
 			else
 			{
-				memcpy(new_bbox.bbmin, bbox_tree->nodes[node].orig_bbox.bbmin, sizeof(VECTOR3));
-				memcpy(new_bbox.bbmax, bbox_tree->nodes[node].orig_bbox.bbmax, sizeof(VECTOR3));
+				VAssign(new_bbox.bbmin, bbox_tree->nodes[node].orig_bbox.bbmin);
+				VAssign(new_bbox.bbmax, bbox_tree->nodes[node].orig_bbox.bbmax);
 			}
 
 			for (i = 0; i < bbox_tree->nodes[node].dynamic_objects.index; i++)
@@ -1103,8 +1103,8 @@ static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tre
 				VMax(new_bbox.bbmax, new_bbox.bbmax, bbox_tree->nodes[node].dynamic_objects.items[i].bbox.bbmax);
 			}
 
-			memcpy(bbox_tree->nodes[node].bbox.bbmin, new_bbox.bbmin, sizeof(VECTOR3));
-			memcpy(bbox_tree->nodes[node].bbox.bbmax, new_bbox.bbmax, sizeof(VECTOR3));
+			VAssign(bbox_tree->nodes[node].bbox.bbmin, new_bbox.bbmin);
+			VAssign(bbox_tree->nodes[node].bbox.bbmax, new_bbox.bbmax);
 
 			return 1;
 		}

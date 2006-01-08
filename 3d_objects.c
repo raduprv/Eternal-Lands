@@ -506,8 +506,8 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
 	matrix_mul_aabb(&bbox, our_object->matrix);
-	memcpy(our_object->bbox.bbmin, bbox.bbmin, sizeof(VECTOR3));
-	memcpy(our_object->bbox.bbmax, bbox.bbmax, sizeof(VECTOR3));
+	VAssign(our_object->bbox.bbmin, bbox.bbmin);
+	VAssign(our_object->bbox.bbmax, bbox.bbmax);
 
 	if (returned_e3d->materials_no > 0) 
 	{	

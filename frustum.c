@@ -268,11 +268,8 @@ static __inline__ void calc_plane(VECTOR4 plane, const VECTOR3 p1, const VECTOR3
 	VSub(t3, p2, p3);
 	VCross(t1, t2, t3);
 	Normalize(t0, t1);
-	
-	plane[A] = t0[X];
-	plane[B] = t0[Y];
-	plane[C] = t0[Z];
-	plane[D] = -VDot(t0, p1);
+
+	VAssign4(plane, t0, -VDot(t0, p1));
 }
 
 void enable_reflection_clip_planes()
@@ -411,21 +408,11 @@ void calculate_reflection_frustum(unsigned int num, float water_height)
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 	calculate_frustum_from_clip_matrix(reflection_frustum, clip);
 
-	pos[0] = inv[3]/inv[15];
-	pos[1] = inv[7]/inv[15];
-	pos[2] = inv[11]/inv[15];
-	p1[X] = x_min;
-	p1[Y] = y_min;
-	p1[Z] = water_height;
-	p2[X] = x_min;
-	p2[Y] = y_max;
-	p2[Z] = water_height;
-	p3[X] = x_max;
-	p3[Y] = y_min;
-	p3[Z] = water_height;
-	p4[X] = x_max;
-	p4[Y] = y_max;
-	p4[Z] = water_height;
+	VMake(pos, inv[3]/inv[15], inv[7]/inv[15], inv[11]/inv[15]);
+	VMake(p1, x_min, y_min, water_height);
+	VMake(p2, x_min, y_max, water_height);
+	VMake(p3, x_max, y_min, water_height);
+	VMake(p4, x_max, y_max, water_height);
 	calc_plane(reflection_frustum[4].plane, p2, p1, p3);
 	calc_plane(reflection_frustum[5].plane, pos, p2, p1);
 	calc_plane(reflection_frustum[6].plane, pos, p3, p4);
@@ -468,7 +455,7 @@ void calculate_shadow_frustum()
 	MATRIX4x4 clip;								// This will hold the clipping planes
 	unsigned int cur_intersect_type;
 
-	main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed = 1;
+	if (main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed == 0) return;
 
 	// glGetFloatv() is used to extract information about our OpenGL world.
 	// Below, we pass in GL_PROJECTION_MATRIX to abstract our projection matrix.

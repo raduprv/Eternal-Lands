@@ -86,6 +86,11 @@ int options_set = 0;
 
 static __inline__ void check_option_var(char* name);
 
+static __inline__ void update_fbo_and_shadow_mapping()
+{
+	check_option_var("shadow_map_size");
+}
+
 void change_var(int * var)
 {
 	*var=!*var;
@@ -143,24 +148,6 @@ void change_poor_man(int *poor_man)
 {
 	*poor_man = !*poor_man;
 	if(*poor_man) {
-#ifdef	USE_FRAMEBUFFER
-		if (use_frame_buffer && have_framebuffer_object)
-		{
-			free_reflection_framebuffer();
-			free_shadow_framebuffer();
-			use_frame_buffer = 0;
-		}
-		else
-		{
-			//...and the texture used for shadow mapping
-			glDeleteTextures(1, &depth_map_id);
-			depth_map_id = 0;
-		}
-#else
-		//...and the texture used for shadow mapping
-		glDeleteTextures(1, &depth_map_id);
-		depth_map_id = 0;
-#endif
 		show_reflection=0;
 		shadows_on=0;
 		clouds_shadows=0;
@@ -170,6 +157,14 @@ void change_poor_man(int *poor_man)
 #endif
 #ifdef	TERRAIN
 		use_normal_mapping=0;
+#endif
+#ifdef	USE_FRAMEBUFFER
+		use_frame_buffer = 0;
+		update_fbo_and_shadow_mapping();
+#else
+		//...and the texture used for shadow mapping
+		glDeleteTextures(1, &depth_map_id);
+		depth_map_id = 0;
 #endif
 	}
 }
@@ -305,6 +300,9 @@ void switch_vidmode(int *pointer, int mode)
 		}
 #endif
 	}
+#ifdef	USE_FRAMEBUFFER
+	update_fbo_and_shadow_mapping();
+#endif
 }
 
 void toggle_full_screen_mode(int * fs)
@@ -396,11 +394,17 @@ void change_shadow_map_size(int *pointer, int value)
 	
 		shadow_map_size = size;
 #ifdef	USE_FRAMEBUFFER
-		if (use_frame_buffer && have_framebuffer_object) change_shadow_framebuffer_size();
-		else
+		if (depth_map_id == 0)
 		{
 			glDeleteTextures(1, &depth_map_id);
 			depth_map_id = 0;
+		}
+		if (gl_extensions_loaded && have_framebuffer_object)
+		{
+			if (use_frame_buffer && use_shadow_mapping && have_arb_shadow && shadows_on) change_shadow_framebuffer_size();
+			else free_shadow_framebuffer();
+			if (use_frame_buffer && show_reflection) change_reflection_framebuffer_size(window_width, window_height);
+			else free_reflection_framebuffer();
 		}
 #else
 		glDeleteTextures(1, &depth_map_id);
@@ -550,21 +554,20 @@ void change_separate_flag(int * pointer) {
 
 void change_shadow_mapping (int *sm)
 {
-	if (*sm)
-	{
-		*sm = 0;
-#ifdef	USE_FRAMEBUFFER
-		if (use_frame_buffer && have_framebuffer_object) free_shadow_framebuffer();
-#endif
-	}
-	else if (!gl_extensions_loaded || (have_multitexture >= 3 && have_arb_shadow))
+	if (*sm) *sm = 0; 
+	else
 	{
 		// don't check if we have hardware support when OpenGL 
 		// extensions are not initialized yet.
-		*sm = 1;
-		check_option_var("shadow_map_size");
+		if (!gl_extensions_loaded || (have_multitexture >= 3 && have_arb_shadow)) *sm = 1;
+		else LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
 	}
-	else LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
+#ifdef	USE_FRAMEBUFFER
+	update_fbo_and_shadow_mapping();
+#else
+	glDeleteTextures(1, &depth_map_id);
+	depth_map_id = 0;
+#endif
 }
 
 #ifndef MAP_EDITOR2
@@ -581,17 +584,14 @@ void change_global_filters (int *use)
 #ifdef	TERRAIN
 void change_normal_mapping(int *nm)
 {
-	if (*nm)
-	{
-		*nm = 0;
-	}
-	else if (!gl_extensions_loaded || (have_multitexture >= 4 && have_ogsl_vertex_shader && have_ogsl_pixel_shader))
+	if (*nm) *nm = 0;
+	else
 	{
 		// don't check if we have hardware support when OpenGL 
 		// extensions are not initialized yet.
-		*nm = 1;
+		if (!gl_extensions_loaded || (have_multitexture >= 4 && have_ogsl_vertex_shader && have_ogsl_pixel_shader)) *nm = 1;
+		else LOG_TO_CONSOLE (c_red1, disabled_normal_mapping);
 	}
-	else LOG_TO_CONSOLE (c_red1, disabled_normal_mapping);
 }
 #endif
 #endif // ELC
@@ -599,78 +599,34 @@ void change_normal_mapping(int *nm)
 #ifdef	USE_FRAMEBUFFER
 void change_reflection(int *rf)
 {
-	if (*rf)
-	{
-		*rf = 0;
-		if (use_frame_buffer && have_framebuffer_object) free_reflection_framebuffer();
-	}
-	else
-	{
-		*rf = 1;
-		if (gl_extensions_loaded && use_frame_buffer && have_framebuffer_object) make_reflection_framebuffer(window_width, window_height);
-	}
+	if (*rf) *rf = 0;
+	else *rf = 1;
+	update_fbo_and_shadow_mapping();
 }
 
 void change_frame_buffer(int *fb)
 {
-	if (*fb)
-	{
-		*fb = 0;
-		if (have_framebuffer_object)
-		{
-			free_reflection_framebuffer();
-			free_shadow_framebuffer();
-		}
-		check_option_var("shadow_map_size");
-	}
+	if (*fb) *fb = 0;
 	else
 	{
-		if (!gl_extensions_loaded || have_framebuffer_object)
-		{
-			*fb = 1;
-			if (gl_extensions_loaded)
-			{
-				if (show_reflection) make_reflection_framebuffer(window_width, window_height);
-				if (use_shadow_mapping) make_shadow_framebuffer(window_width, window_height);
-			}
-		}
+		if (!gl_extensions_loaded || have_framebuffer_object) *fb = 1;
 		else LOG_TO_CONSOLE (c_red1, disabled_framebuffer);
 	}
+	update_fbo_and_shadow_mapping();
 }
 #endif
 
 void change_shadows(int *sh)
 {
-	if (*sh)
-	{
-		*sh = 0;
+	if (*sh) *sh = 0;
+	else *sh = 1;
 #ifdef	USE_FRAMEBUFFER
-		if (use_frame_buffer && have_framebuffer_object) free_shadow_framebuffer();
-		else
-		{
+	update_fbo_and_shadow_mapping();
+#else
+	//...and the texture used for shadow mapping
+	glDeleteTextures(1, &depth_map_id);
+	depth_map_id = 0;
 #endif
-			//...and the texture used for shadow mapping
-			glDeleteTextures(1, &depth_map_id);
-			depth_map_id = 0;
-#ifdef	USE_FRAMEBUFFER
-		}
-#endif
-	}
-	else
-	{
-		*sh = 1;
-#ifdef	USE_FRAMEBUFFER
-		if (gl_extensions_loaded && use_frame_buffer && have_framebuffer_object) make_shadow_framebuffer(window_width, window_height);
-		else
-		{
-#endif
-			//...and the texture used for shadow mapping
-			glDeleteTextures(1, &depth_map_id);
-			depth_map_id = 0;
-#ifdef	USE_FRAMEBUFFER
-		}
-#endif
-	}
 }
 
 #ifdef MAP_EDITOR
@@ -1124,7 +1080,7 @@ void init_vars()
 #endif
 #endif // def ELC
 #ifdef	USE_FRAMEBUFFER
-	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle frame buffer support", "Toggle frame buffer support. At the moment just for reflection the frame buffer is used.", SPECIALVID);
+	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle frame buffer support", "Toggle frame buffer support. Used for reflection and shadow mapping.", SPECIALVID);
 #endif // TERRAIN
 
 	//Global vars...
