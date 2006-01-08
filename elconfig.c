@@ -644,24 +644,32 @@ void change_shadows(int *sh)
 	if (*sh)
 	{
 		*sh = 0;
+#ifdef	USE_FRAMEBUFFER
 		if (use_frame_buffer && have_framebuffer_object) free_shadow_framebuffer();
 		else
 		{
+#endif
 			//...and the texture used for shadow mapping
 			glDeleteTextures(1, &depth_map_id);
 			depth_map_id = 0;
+#ifdef	USE_FRAMEBUFFER
 		}
+#endif
 	}
 	else
 	{
 		*sh = 1;
+#ifdef	USE_FRAMEBUFFER
 		if (gl_extensions_loaded && use_frame_buffer && have_framebuffer_object) make_shadow_framebuffer(window_width, window_height);
 		else
 		{
+#endif
 			//...and the texture used for shadow mapping
 			glDeleteTextures(1, &depth_map_id);
 			depth_map_id = 0;
+#ifdef	USE_FRAMEBUFFER
 		}
+#endif
 	}
 }
 

@@ -493,8 +493,9 @@ void display_shadows()
 		if(!get_near_3d_objects())return;
 #endif
 	
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(1.1f, 4.0f);
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 #ifndef	NEW_FRUSTUM
@@ -529,16 +530,13 @@ void display_shadows()
 #endif
 
 	glDisableClientState(GL_VERTEX_ARRAY);
-	glCullFace(GL_BACK);
 	glDisable(GL_CULL_FACE);
 #ifndef MAP_EDITOR2
 	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(1.1f, 4.0f);
 	display_actors_shadow();
-	glDisable(GL_POLYGON_OFFSET_FILL);
 	glEnable(GL_TEXTURE_2D);
 #endif
+	glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 void display_3d_ground_objects()
@@ -648,7 +646,6 @@ void render_light_view()
 #ifdef NEW_FRUSTUM
 	unsigned int cur_intersect_type;
 #endif
-//	printf("OK 0\n");
 	if(use_shadow_mapping)
 		{
 #ifdef USE_LISPSM
@@ -782,6 +779,7 @@ void render_light_view()
 #else
 			glBindTexture(depth_texture_target, depth_map_id);
 			glCopyTexSubImage2D(depth_texture_target, 0, 0, 0, 0, 0, shadow_map_size, shadow_map_size);
+			glClear(GL_DEPTH_BUFFER_BIT);
 #endif
 
 			CHECK_GL_ERRORS();
