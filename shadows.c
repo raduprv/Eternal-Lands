@@ -179,7 +179,9 @@ void calc_shadow_matrix()
 			proj_on_ground[11] = 0.0f - sun_position[3] * ground_plane[2];
 			proj_on_ground[15] = dot - sun_position[3] * ground_plane[3];
 		}
+#ifdef NEW_FRUSTUM
 	main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed = 1;
+#endif // NEW_FRUSTUM
 }
 
 void draw_3d_object_shadow_detail(object3d * object_id)
