@@ -14,6 +14,7 @@ struct near_3d_object * first_near_3d_object=NULL;
 int no_near_3d_objects=0;
 #endif
 int highest_obj_3d= 0;
+int objects_list_placeholders = 0;
 
 #ifndef	NEW_FRUSTUM
 struct near_3d_object near_blended_3d_objects[MAX_NEAR_BLENDED_3D_OBJECTS];
@@ -30,6 +31,16 @@ e3d_object *cur_e3d;
 int cur_e3d_count;
 int e3d_count, e3d_total;
 #endif  //DEBUG
+
+void clear_objects_list_placeholders()
+{
+	objects_list_placeholders = 0;
+}
+
+void inc_objects_list_placeholders()
+{
+	objects_list_placeholders++;
+}
 
 void draw_3d_object_detail(object3d * object_id)
 {
@@ -531,13 +542,18 @@ int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, floa
 int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
 #endif
 {
-	int i;
+	int i, j;
+
+	j = 0;
 	
 	//find a free spot, in the e3d_list
 	for(i = 0; i < MAX_OBJ_3D; i++)
 	{
 		if(objects_list[i] == NULL)
-			break;
+		{
+			if (j < objects_list_placeholders) j++;
+			else break;
+		}
 	}
 	
 #ifdef	NEW_FRUSTUM

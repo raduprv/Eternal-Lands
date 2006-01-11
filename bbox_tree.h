@@ -67,18 +67,21 @@ typedef struct
 typedef	struct
 {
 	VECTOR4 		plane;
-	unsigned char 		mask[3];
+	VECTOR3I 		mask;
 } PLANE;
 
 typedef PLANE FRUSTUM[16];
 
-typedef	PLANE PORTAL_FRUSTUM[8];
-
 typedef struct
 {
-	unsigned short		count;
-	PORTAL_FRUSTUM*		portal_frustums;
-} PORTAL_FRUSTUMS;
+	float			scale;
+	unsigned int		mask;
+	unsigned int		zero;
+} PLANE_DATA;
+
+typedef PLANE_DATA FRUSTUM_DATA[16];
+
+typedef VECTOR3I VECTOR3Ix2[2];
 
 typedef struct
 {

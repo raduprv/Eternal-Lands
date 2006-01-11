@@ -1276,7 +1276,7 @@ void calculate_Light_Matrix(int useBodyVec, double nearDist,
 			sceneAABox.bbmax[1] = main_bbox_tree->nodes[0].bbox.bbmax[1];
 			sceneAABox.bbmax[2] = main_bbox_tree->nodes[0].bbox.bbmax[2];
 
-			for (i = 0; i < 5; i++)
+			for (i = 0; i < 2; i++)
 			{
 				B = VECPOINT_NULL;
 

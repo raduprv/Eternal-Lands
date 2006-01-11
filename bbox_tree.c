@@ -379,7 +379,7 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, uns
 }
 
 void check_bbox_tree(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask)
-{	
+{
 	unsigned int idx;
 
 	if (bbox_tree != NULL)
@@ -769,6 +769,7 @@ static __inline__ unsigned int get_3D_type(unsigned int blend, unsigned int grou
 		case 13: return TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT;
 		case 14: return TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT;
 		case 15: return TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT;
+		default: return 0xFF;
 	}
 }
 
@@ -1203,4 +1204,5 @@ BBOX_TREE* build_bbox_tree()
 	bbox_tree->items = NULL;
 	return bbox_tree;
 }
+
 #endif

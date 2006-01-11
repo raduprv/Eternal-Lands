@@ -358,6 +358,7 @@ int load_map (const char * file_name)
 	update_loading_win(load_3d_object_str, 0);
 	//see which objects in our cache are not used in this map
 	//read the 3d objects
+	clear_objects_list_placeholders();
 	for(i=0;i<obj_3d_no;i++)
 		{
 			char * cur_3do_pointer=(char *)&cur_3d_obj_io;
@@ -388,6 +389,8 @@ int load_map (const char * file_name)
 					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
 #endif
 			}
+			else inc_objects_list_placeholders();
+
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);
 			}

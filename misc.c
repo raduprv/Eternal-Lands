@@ -33,9 +33,7 @@ void get_click_line(LINE* line)
 	gluUnProject(mouse_x, window_height-mouse_y, 0, modl, proj, view, &x1, &y1, &z1);
 	gluUnProject(mouse_x, window_height-mouse_y, 1, modl, proj, view, &x2, &y2, &z2);
 	
-	line->center[X] = x1;
-	line->center[Y] = y1;
-	line->center[Z] = z1;
+	VMake(line->center, x1, y1, z1);
 	
 	x2 -= x1;
 	y2 -= y1;
@@ -43,9 +41,7 @@ void get_click_line(LINE* line)
 	
 	len = sqrt(x2*x2 + y2*y2 + z2*z2);
 	
-	line->direction[X] = x2/len;
-	line->direction[Y] = y2/len;
-	line->direction[Z] = z2/len;
+	VMake(line->direction, x2/len, y2/len, z2/len);
 	
 	line->length = len;
 }
@@ -69,7 +65,7 @@ int click_line_bbox_intersection(const AABBOX bbox)
 	if (fabs(T[X]) > (E[X] + click_line.length*fabs(click_line.direction[X]))) return 0;
 	if (fabs(T[Y]) > (E[Y] + click_line.length*fabs(click_line.direction[Y]))) return 0;
 	if (fabs(T[Z]) > (E[Z] + click_line.length*fabs(click_line.direction[Z]))) return 0;
-		
+	
 	/* NOTE: Since the separating axis is
 	 * perpendicular to the line in these
 	 * last four cases, the line does not
