@@ -716,6 +716,7 @@ void switch_rules_to_next ()
 {
 	has_accepted = 1;
 	show_window (next_win_id);
+	show_hud_windows();
 	destroy_window (rules_root_win);
 	rules_root_win = -1;
 	if (disconnected) connect_to_server();
