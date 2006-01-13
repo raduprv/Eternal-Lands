@@ -43,12 +43,12 @@ int display_trade_handler(window_info *win)
 	
 	draw_string_small(x+33-strlen(accept_str)*4, win->len_y-58, accept_str, 1);
 
-	if(trade_other_accepted==1){
-		glColor3f(1.0f,1.0f,0.0f);
-	} else if(trade_other_accepted==2){
-		glColor3f(0.0f,1.0f,0.0f);
-	} else {
+    if(trade_other_accepted<=0){    // RED
 		glColor3f(1.0f,0.0f,0.0f);
+	} else if(trade_other_accepted==1){ // YELLOW
+		glColor3f(1.0f,1.0f,0.0f);
+	} else {    // all others default to GREEN
+		glColor3f(0.0f,1.0f,0.0f);
 	}
 	
 	draw_string_small(x+6*33-strlen(accept_str)*4, win->len_y-58, accept_str, 1);
