@@ -29,7 +29,7 @@ int items_grid_size=51;//Changes depending on the size of the root window (is 51
 int items_menu_x_len=6*51+110;
 int items_menu_y_len=6*51+90;
 
-int items_text[11];
+int items_text[14];
 
 char items_string[300]={0};
 int item_dragged=-1;

@@ -332,12 +332,14 @@ static __inline__ int adapt_size(int size)
 	size = min2i(size, i);
 	
 	if (have_texture_non_power_of_two) return size;
-	else
+	else return 1024;
+/*
 	{
 		i = 1;
 		while (i < size) i += i;
 		return i/2;
 	}
+*/
 }
 
 void free_reflection_framebuffer()

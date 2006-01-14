@@ -653,6 +653,9 @@ void init_stuff()
 	items_text[8]=load_texture_cache("./textures/items9.bmp",0);
 	items_text[9]=load_texture_cache("./textures/items10.bmp",0);
 	items_text[10]=load_texture_cache("./textures/items11.bmp",0);
+	items_text[11]=load_texture_cache("./textures/items12.bmp",0);
+	items_text[12]=load_texture_cache("./textures/items13.bmp",0);
+	items_text[13]=load_texture_cache("./textures/items14.bmp",0);
 	update_loading_win(NULL, 5);
 	portraits1_tex=load_texture_cache("./textures/portraits1.bmp",0);
 	portraits2_tex=load_texture_cache("./textures/portraits2.bmp",0);
