@@ -236,7 +236,7 @@ int display_storage_handler(window_info * win)
 		}
 	}
 
-	if(cur_item_over!=-1 && active_storage_item!=storage_items[cur_item_over].pos){
+	if(cur_item_over!=-1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1 && active_storage_item!=storage_items[cur_item_over].pos){
 		char str[20];
 
 		sprintf(str,"%d",storage_items[cur_item_over].quantity);
