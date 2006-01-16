@@ -147,6 +147,7 @@ int start_rendering()
 	if(!done) {
 		done = 1;
 	}
+	log_error("Client closed");
 	have_music=0;
 	SDL_WaitThread(music_thread,&done);
 #ifdef NETWORK_THREAD

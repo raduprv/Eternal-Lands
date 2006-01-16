@@ -71,6 +71,7 @@ void load_e3d_list()
 
 	fp=my_fopen("e3dlist.txt","r");
 	if(!fp){
+		LOG_ERROR("Failure trying to read e3dlist.txt");
 		SDL_Quit();
 		exit(1);
 	}
@@ -186,6 +187,7 @@ void read_config()
 	if ( !read_el_ini () )
 	{
 		// oops, the file doesn't exist, give up
+		LOG_ERROR("Failure reading el.ini");
 		SDL_Quit ();
 		exit (1);
 	}
