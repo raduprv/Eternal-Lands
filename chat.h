@@ -7,8 +7,8 @@
 #define __CHAT_H__
 
 #define MAX_TEXT_MESSAGE_LENGTH 160 /*!< The server will disconnect us when we send longer messages */
-#define MAX_CHAT_TABS		9 /*!< Size of the \see channels array */
-#define MAX_ACTIVE_CHANNELS	3 /*!< Maximum number of channels in use */
+#define MAX_CHAT_TABS		9	/*!< Size of the \see channels array */
+#define MAX_ACTIVE_CHANNELS	10	/*!< Maximum number of channels in use */
 
 extern Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 extern Uint8 current_channel;
