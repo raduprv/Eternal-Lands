@@ -189,7 +189,7 @@ int is_talking_about_me (const Uint8 *server_msg, int len, char everywhere)
 
 void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
 {
-	Uint8 sendtext[MAX_TEXT_MESSAGE_LENGTH+60]={0};
+	Uint8 sendtext[MAX_TEXT_MESSAGE_LENGTH]={0};
 	
 	if (afk_message[0] == '\0') return;
 	
