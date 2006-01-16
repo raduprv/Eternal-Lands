@@ -368,9 +368,9 @@ int filter_text (Uint8 *buff, int len, int size)
 				memmove (buff+i+rep_len, buff+i+bad_len, new_len-i-bad_len+1);
 				strncpy (buff+i, filter_list[idx].replacement, rep_len);
 				new_len += rep_len - bad_len;
-				/* don't filter the replacement text */
-				i += rep_len;
 			}
+			/* don't filter the replacement text */
+			i += rep_len;
 		}
 		else
 		{
