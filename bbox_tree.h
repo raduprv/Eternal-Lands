@@ -81,21 +81,14 @@ typedef struct
 
 typedef PLANE_DATA FRUSTUM_DATA[16];
 
-typedef VECTOR3I VECTOR3Ix2[2];
-
 typedef struct
 {
+	AABBOX			bbox;
 	unsigned char		type;
 	unsigned char		extra;
 	unsigned int		texture_id;
 	MD5_DIGEST		md5;
 	unsigned int		ID;
-} BBOX_ITEM_DATA;
-
-typedef struct
-{
-	AABBOX			bbox;
-	BBOX_ITEM_DATA		data;
 } BBOX_ITEM;
 
 typedef struct
@@ -105,16 +98,6 @@ typedef struct
 	BBOX_ITEM*		items;
 } BBOX_ITEMS;	
 
-typedef struct
-{
-	unsigned int		size;
-	unsigned int		index;
-	unsigned int		sub_size;
-	unsigned int		sub_index;
-	BBOX_ITEM*		items;
-	BBOX_ITEM_DATA*		sub_items;
-} BBOX_TREE_DYN_NODE;
-
 typedef struct BBox_Tree_Node_Struct BBOX_TREE_NODE;
 
 struct BBox_Tree_Node_Struct
@@ -122,7 +105,7 @@ struct BBox_Tree_Node_Struct
 	AABBOX			bbox;
 	AABBOX			orig_bbox;
 	unsigned int		nodes[2];
-	BBOX_TREE_DYN_NODE	dynamic_objects;
+	BBOX_ITEMS		dynamic_objects;
 	unsigned int		items_index;
 	unsigned int		items_count;
 };
@@ -134,7 +117,9 @@ typedef struct
 	unsigned int		count;
 	unsigned int		start[TYPES_COUNT];
 	unsigned int		stop[TYPES_COUNT];
-	BBOX_ITEM_DATA*		items;
+	BBOX_ITEM*		items;
+	unsigned int		frustum_mask;
+	FRUSTUM			frustum;
 } BBOX_INTERSECTION_DATA;
 
 typedef	struct
@@ -453,7 +438,7 @@ static __inline__ unsigned int is_self_lit_3d_object(unsigned int type)
  *
  * \callgraph
  */
-void check_bbox_tree(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask);
+void check_bbox_tree(BBOX_TREE* bbox_tree);
 
 /*!
  * \ingroup misc
@@ -797,23 +782,24 @@ void set_all_intersect_update_needed(BBOX_TREE* bbox_tree);
 
 /*!
  * \ingroup misc
- * \brief .
+ * \brief Calculates the scene bounding box.
  *
- * .
+ * Calculates the bounding box that enclose the hole scene.
  *
  * \param bbox_tree	The bounding-box-tree holding the objects.
  * \param frustum	The frustum.
+ * \param frustum	The frustum mask.
  * \param bbox		The bbox of the objects in the frustum.
  *
  * \callgraph
  */
-void calc_scene_bbox(BBOX_TREE* bbox_tree, const FRUSTUM frustum, AABBOX* bbox);
+void calc_scene_bbox(BBOX_TREE* bbox_tree, AABBOX* bbox);
 
 extern BBOX_TREE* main_bbox_tree;
 extern BBOX_ITEMS* main_bbox_tree_items;
 
 int aabb_in_frustum(const AABBOX bbox);
-void calculate_light_frustum(FRUSTUM frustum, double* modl, double* proj);
+void calculate_light_frustum(double* modl, double* proj);
 
 /*!
  * \ingroup misc

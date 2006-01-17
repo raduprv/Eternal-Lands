@@ -518,6 +518,7 @@ void display_shadows()
 		}
 	}
 #else
+
 	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
@@ -649,35 +650,32 @@ void render_light_view()
 #ifdef NEW_FRUSTUM
 	unsigned int cur_intersect_type;
 #endif
+#ifdef USE_LISPSM
+	MATRIX4x4D ModelViewMatrix;
+	MATRIX4x4D ProjectionMatrix;
+	VECTOR3D lightDir;
+	double d;
+#endif
 	if(use_shadow_mapping)
 		{
 #ifdef USE_LISPSM
-			MATRIX4x4D ModelViewMatrix;
-			MATRIX4x4D ProjectionMatrix;
-			VECTOR3D lightDir;
-			double d;
+			if (main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed != 0)
+			{
+				glGetDoublev(GL_MODELVIEW_MATRIX, ModelViewMatrix);
+				glGetDoublev(GL_PROJECTION_MATRIX, ProjectionMatrix);
 			
-			glGetDoublev(GL_MODELVIEW_MATRIX, ModelViewMatrix);
-			glGetDoublev(GL_PROJECTION_MATRIX, ProjectionMatrix);
+				lightDir[X] = -sun_position[X];
+				lightDir[Y] = -sun_position[Y];
+				lightDir[Z] = -sun_position[Z];
+				
+				d = sqrt(lightDir[X]*lightDir[X] + lightDir[Y]*lightDir[Y] + lightDir[Z]*lightDir[Z]);
+				lightDir[X] /= d;
+				lightDir[Y] /= d;
+				lightDir[Z] /= d;
 			
-			lightDir[X] = -sun_position[X];
-			lightDir[Y] = -sun_position[Y];
-			lightDir[Z] = -sun_position[Z];
-			
-			d = sqrt(lightDir[X]*lightDir[X] + lightDir[Y]*lightDir[Y] + lightDir[Z]*lightDir[Z]);
-			lightDir[X] /= d;
-			lightDir[Y] /= d;
-			lightDir[Z] /= d;
-			
-			calculate_Light_Matrix(1, 1.0, lightDir, ModelViewMatrix,
-				ProjectionMatrix, light_view_mat, light_proj_mat);
-#endif
-#ifdef NEW_FRUSTUM
-#ifdef NEW_FRUSTUM_TEST
-			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-			set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);
-			calculate_shadow_frustum();
-#endif
+				calculate_Light_Matrix(1, 1.0, lightDir, ModelViewMatrix,
+					ProjectionMatrix, light_view_mat, light_proj_mat);
+			}
 #endif
 
 #ifdef	USE_FRAMEBUFFER
@@ -761,11 +759,9 @@ void render_light_view()
 			glTranslatef((int)cx,(int)cy,(int)cz);
 #endif
 #ifdef NEW_FRUSTUM
-#ifndef NEW_FRUSTUM_TEST
 			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 			set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);
 			calculate_shadow_frustum();
-#endif
 #endif
 			display_shadows();
 #ifdef NEW_FRUSTUM

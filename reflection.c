@@ -417,6 +417,40 @@ static __inline__ void draw_lake_water_tile_framebuffer(float x_pos, float y_pos
 	}
 	glEnd();
 }
+
+static __inline__ void init_depth()
+{
+	float x, y, x_scaled, y_scaled;
+	int i, l, start, stop;
+
+	glDepthFunc(GL_ALWAYS);
+	glDepthRange(1.0f, 1.0f);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+	/* Now drawing the water */
+	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+	
+	glBegin(GL_QUADS);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
+		y_scaled = y*3.0f;
+		x_scaled = x*3.0f;
+
+		glVertex3f(x_scaled,        y_scaled + 3.0f, 0.0f);
+		glVertex3f(x_scaled,        y_scaled,        0.0f);
+		glVertex3f(x_scaled + 3.0f, y_scaled,        0.0f);
+		glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, 0.0f);
+	}
+	glEnd();
+
+	/* Re-enable update of color and depth. */
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthRange(0.0f, 1.0f);
+	glDepthFunc(GL_LESS);
+}
 #endif
 
 void display_3d_reflection()
@@ -579,6 +613,7 @@ void display_3d_reflection()
 #endif
 	glPushMatrix();	
 
+	init_depth();
 	glTranslatef(0.0f, 0.0f, water_deepth_offset);
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
@@ -868,35 +903,7 @@ void draw_lake_tiles()
 	float blend_vec[4] = {blend_float, blend_float, blend_float, blend_float};
 #endif
 	glEnable(GL_CULL_FACE);
-#ifdef	USE_FRAMEBUFFER
-	if (use_frame_buffer && show_reflection)
-	{
-		ELglActiveTextureARB(base_unit);
-		glEnable(GL_TEXTURE_2D);
-		
-		ELglActiveTextureARB(detail_unit);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
-		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
-
-		ELglActiveTextureARB(base_unit);
-	}
-	else
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	}
-#else
+#ifndef	USE_FRAMEBUFFER
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 #endif
@@ -1012,6 +1019,26 @@ void draw_lake_tiles()
 #ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
+		ELglActiveTextureARB(base_unit);
+		glEnable(GL_TEXTURE_2D);
+		
+		ELglActiveTextureARB(detail_unit);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
+		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
+
+		ELglActiveTextureARB(base_unit);
+		
 		get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
 		for (i = start; i < stop; i++)
 		{
@@ -1027,6 +1054,8 @@ void draw_lake_tiles()
 	}
 	else
 	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 #endif
 	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
 	for (i = start; i < stop; i++)
@@ -1091,7 +1120,9 @@ void draw_sky_background()
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
+		glClearDepth(0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearDepth(1.0f);
 	}
 #endif
 
@@ -1167,7 +1198,9 @@ void draw_dungeon_sky_background()
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		init_texturing();
+		glClearDepth(0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearDepth(1.0f);
 	}
 #endif // FRAMEBUFFER
 

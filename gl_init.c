@@ -796,7 +796,7 @@ void resize_root_window()
 		// first, move back to the actor
 		glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
 	}
-	else ELPerspective(6.0 + 9.0*zoom_level, window_ratio, 1.0, 5.0*near_plane);
+	else ELPerspective(6.0 + 9.0*zoom_level, window_ratio, 5.0, 5.0*near_plane);
 #else
 	if (isometric) {
 		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );

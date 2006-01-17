@@ -46,7 +46,7 @@ static __inline__ void adapt_intersect_list_size(BBOX_TREE* bbox_tree, unsigned 
 	if ((bbox_tree->intersect[idx].count+count) >= size)
 	{
 		size += max2i(count, size/2);
-		bbox_tree->intersect[idx].items = (BBOX_ITEM_DATA*)realloc(bbox_tree->intersect[idx].items, size*sizeof(BBOX_ITEM_DATA));
+		bbox_tree->intersect[idx].items = (BBOX_ITEM*)realloc(bbox_tree->intersect[idx].items, size*sizeof(BBOX_ITEM));
 		bbox_tree->intersect[idx].size = size;
 	}
 }
@@ -54,7 +54,7 @@ static __inline__ void adapt_intersect_list_size(BBOX_TREE* bbox_tree, unsigned 
 static __inline__ void add_intersect_item(BBOX_TREE* bbox_tree, unsigned int index, unsigned int idx)
 {
 	adapt_intersect_list_size(bbox_tree, 1);
-	memcpy(&bbox_tree->intersect[idx].items[bbox_tree->intersect[idx].count], &bbox_tree->items[index].data, sizeof(BBOX_ITEM_DATA));
+	memcpy(&bbox_tree->intersect[idx].items[bbox_tree->intersect[idx].count], &bbox_tree->items[index], sizeof(BBOX_ITEM));
 	bbox_tree->intersect[idx].count++;
 }
 
@@ -69,7 +69,7 @@ static __inline__ void add_intersect_items(BBOX_TREE* bbox_tree, unsigned int in
 static __inline__ void add_dyn_intersect_item(BBOX_TREE* bbox_tree, unsigned int node, unsigned int index, unsigned int idx)
 {
 	adapt_intersect_list_size(bbox_tree, 1);
-	memcpy(&bbox_tree->intersect[idx].items[bbox_tree->intersect[idx].count], &bbox_tree->nodes[node].dynamic_objects.items[index].data, sizeof(BBOX_ITEM_DATA));
+	memcpy(&bbox_tree->intersect[idx].items[bbox_tree->intersect[idx].count], &bbox_tree->nodes[node].dynamic_objects.items[index], sizeof(BBOX_ITEM));
 	bbox_tree->intersect[idx].count++;
 }
 
@@ -81,26 +81,11 @@ static __inline__ void add_dyn_intersect_items(BBOX_TREE* bbox_tree, unsigned in
 	for (i = 0; i < count; i++) add_dyn_intersect_item(bbox_tree, node, i, bbox_tree->cur_intersect_type);
 }
 
-static __inline__ void add_dyn_intersect_data(BBOX_TREE* bbox_tree, unsigned int node, unsigned int index, unsigned int idx)
-{
-	adapt_intersect_list_size(bbox_tree, 1);
-	memcpy(&bbox_tree->intersect[idx].items[bbox_tree->intersect[idx].count], &bbox_tree->nodes[node].dynamic_objects.sub_items[index], sizeof(BBOX_ITEM_DATA));
-	bbox_tree->intersect[idx].count++;
-}
-
-static __inline__ void add_dyn_intersect_datas(BBOX_TREE* bbox_tree, unsigned int node, unsigned int count)
-{
-	unsigned int idx;
-	
-	idx = bbox_tree->cur_intersect_type;	
-	adapt_intersect_list_size(bbox_tree, count);
-	memcpy(&bbox_tree->intersect[idx].items[bbox_tree->intersect[idx].count], bbox_tree->nodes[node].dynamic_objects.sub_items, count*sizeof(BBOX_ITEM_DATA));
-	bbox_tree->intersect[idx].count += count;
-}
-
 static __inline__ int check_aabb_in_frustum(const AABBOX bbox, const FRUSTUM frustum, unsigned int in_mask, unsigned int *out_mask)
 {
-	float m, n;
+	VECTOR4 n, p;
+	VECTOR3 _n, _p;
+	float v;
 	unsigned int i, k, result;
 	
 	result = INSIDE;
@@ -110,23 +95,18 @@ static __inline__ int check_aabb_in_frustum(const AABBOX bbox, const FRUSTUM fru
 	{
 		if (k & in_mask)
 		{
-			float nx, px, ny, py, nz, pz;
-
-			nx = !frustum[i].mask[0] ? bbox.bbmin[X] :  bbox.bbmax[X];
-			px = frustum[i].mask[0] ? bbox.bbmin[X] :  bbox.bbmax[X];
-			ny = !frustum[i].mask[1] ? bbox.bbmin[Y] :  bbox.bbmax[Y];
-			py = frustum[i].mask[1] ? bbox.bbmin[Y] :  bbox.bbmax[Y];
-			nz = !frustum[i].mask[2] ? bbox.bbmin[Z] :  bbox.bbmax[Z];
-			pz = frustum[i].mask[2] ? bbox.bbmin[Z] :  bbox.bbmax[Z];
-			m = (	frustum[i].plane[A] * nx + 
-				frustum[i].plane[B] * ny + 
-				frustum[i].plane[C] * nz);
-			if (m < -frustum[i].plane[D]) return OUTSIDE;
+			VInvertSelect(_n, bbox.bbmin, bbox.bbmax, frustum[i].mask);
+			VAssign4(n, _n, 1.0f);
+			v = VDot4(n, frustum[i].plane);
+			if (v < 0.0f)
+			{
+				return OUTSIDE;
+			}
 			
-			n = (	frustum[i].plane[A] * px + 
-				frustum[i].plane[B] * py + 
-				frustum[i].plane[C] * pz);
-			if (n < -frustum[i].plane[D]) 
+			VSelect(_p, bbox.bbmin, bbox.bbmax, frustum[i].mask);
+			VAssign4(p, _p, 1.0f);
+			v = VDot4(p, frustum[i].plane);
+			if (v < 0.0f)
 			{
 				*out_mask |= k;
 				result = INTERSECT;
@@ -137,9 +117,65 @@ static __inline__ int check_aabb_in_frustum(const AABBOX bbox, const FRUSTUM fru
 	return result;
 }
 
-static __inline__ void add_items(BBOX_TREE* bbox_tree, unsigned int sub_node, const FRUSTUM frustum, unsigned int in_mask)
+static __inline__ int check_aabb_in_frustum_no_out_mask(const AABBOX bbox, const FRUSTUM frustum, unsigned int in_mask)
 {
-	unsigned int idx1, idx2, size, i, out_mask;
+	VECTOR4 n, p;
+	VECTOR3 _n, _p;
+	float v;
+	unsigned int i, k;
+	
+	for (i = 0, k = 1; k <= in_mask; i++, k += k)
+	{
+		if (k & in_mask)
+		{
+			VInvertSelect(_n, bbox.bbmin, bbox.bbmax, frustum[i].mask);
+			VAssign4(n, _n, 1.0f);
+			v = VDot4(n, frustum[i].plane);
+			if (v < 0.0f)
+			{
+				return OUTSIDE;
+			}
+			
+			VSelect(_p, bbox.bbmin, bbox.bbmax, frustum[i].mask);
+			VAssign4(p, _p, 1.0f);
+			v = VDot4(p, frustum[i].plane);
+			if (v < 0.0f)
+			{
+				return INTERSECT;
+			}
+		}
+	}
+
+	return INSIDE;
+}
+
+static __inline__ int check_aabb_outside_frustum(const AABBOX bbox, const FRUSTUM frustum, unsigned int in_mask)
+{
+	VECTOR4 n;
+	VECTOR3 _n;
+	float v;
+	unsigned int i, k;
+	
+	for (i = 0, k = 1; k <= in_mask; i++, k += k)
+	{
+		if (k & in_mask)
+		{
+			VInvertSelect(_n, bbox.bbmin, bbox.bbmax, frustum[i].mask);
+			VAssign4(n, _n, 1.0f);
+			v = VDot4(n, frustum[i].plane);
+			if (v < 0.0f)
+			{
+				return OUTSIDE;
+			}			
+		}
+	}
+
+	return INTERSECT;
+}
+
+static __inline__ void add_items(BBOX_TREE* bbox_tree, unsigned int sub_node, unsigned int in_mask)
+{
+	unsigned int idx1, idx2, size, i;
 
 	idx1 = bbox_tree->cur_intersect_type;
 	idx2 = bbox_tree->nodes[sub_node].items_index;
@@ -147,29 +183,28 @@ static __inline__ void add_items(BBOX_TREE* bbox_tree, unsigned int sub_node, co
 		
 	for (i = 0; i < size; i++)
 	{
-		if (check_aabb_in_frustum(bbox_tree->items[idx2+i].bbox, frustum, in_mask, &out_mask) != OUTSIDE) 
+		if (check_aabb_outside_frustum(bbox_tree->items[idx2+i].bbox, bbox_tree->intersect[idx1].frustum, in_mask) != OUTSIDE) 
 			add_intersect_item(bbox_tree, idx2+i, idx1);
 	}
 }
 
-static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, unsigned int sub_node, const FRUSTUM frustum, unsigned int in_mask)
+static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, unsigned int sub_node, unsigned int in_mask)
 {
-	unsigned int idx, size, i, out_mask;
+	unsigned int idx, size, i;
 
 	idx = bbox_tree->cur_intersect_type;
 	size = bbox_tree->nodes[sub_node].dynamic_objects.index;
 		
 	for (i = 0; i < size; i++)
 	{
-		if (check_aabb_in_frustum(bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox, frustum, in_mask, &out_mask) != OUTSIDE) 
+		if (check_aabb_outside_frustum(bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox, bbox_tree->intersect[idx].frustum, in_mask) != OUTSIDE) 
 			add_dyn_intersect_item(bbox_tree, sub_node, i, idx);
 	}
 }
 
-static __inline__ void merge_items(BBOX_TREE* bbox_tree, unsigned int sub_node,
-	const FRUSTUM frustum, unsigned int in_mask, AABBOX* bbox)
+static __inline__ void merge_items(BBOX_TREE* bbox_tree, unsigned int sub_node, unsigned int in_mask, AABBOX* bbox)
 {
-	unsigned int idx1, idx2, size, i, out_mask;
+	unsigned int idx1, idx2, size, i;
 
 	idx1 = bbox_tree->cur_intersect_type;
 	idx2 = bbox_tree->nodes[sub_node].items_index;
@@ -177,8 +212,7 @@ static __inline__ void merge_items(BBOX_TREE* bbox_tree, unsigned int sub_node,
 		
 	for (i = 0; i < size; i++)
 	{
-		if (check_aabb_in_frustum(bbox_tree->items[idx2+i].bbox, frustum,
-			in_mask, &out_mask) != OUTSIDE)
+		if (check_aabb_outside_frustum(bbox_tree->items[idx2+i].bbox, bbox_tree->intersect[idx1].frustum, in_mask) != OUTSIDE)
 		{
 			VMin(bbox->bbmin, bbox->bbmin, bbox_tree->items[idx2+i].bbox.bbmin);
 			VMax(bbox->bbmax, bbox->bbmax, bbox_tree->items[idx2+i].bbox.bbmax);
@@ -186,18 +220,17 @@ static __inline__ void merge_items(BBOX_TREE* bbox_tree, unsigned int sub_node,
 	}
 }
 
-static __inline__ void merge_dyn_items(BBOX_TREE* bbox_tree, unsigned int sub_node,
-	const FRUSTUM frustum, unsigned int in_mask, AABBOX* bbox)
+static __inline__ void merge_dyn_items(BBOX_TREE* bbox_tree, unsigned int sub_node, unsigned int in_mask, AABBOX* bbox)
 {
-	unsigned int idx, size, i, out_mask;
+	unsigned int idx, size, i;
 
 	idx = bbox_tree->cur_intersect_type;
 	size = bbox_tree->nodes[sub_node].dynamic_objects.index;
 		
 	for (i = 0; i < size; i++)
 	{
-		if (check_aabb_in_frustum(bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox,
-			frustum, in_mask, &out_mask) != OUTSIDE)
+		if (check_aabb_outside_frustum(bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox,
+			bbox_tree->intersect[idx].frustum, in_mask) != OUTSIDE)
 		{
 			VMin(bbox->bbmin, bbox->bbmin, bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox.bbmin);
 			VMax(bbox->bbmax, bbox->bbmax, bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox.bbmax);			
@@ -205,43 +238,44 @@ static __inline__ void merge_dyn_items(BBOX_TREE* bbox_tree, unsigned int sub_no
 	}
 }
 
-static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, unsigned int sub_node, const FRUSTUM frustum, unsigned int in_mask)
+static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, unsigned int sub_node, unsigned int in_mask)
 {
-	unsigned int out_mask, result;
+	unsigned int out_mask, result, idx;
 	
 	if (sub_node != NO_INDEX)
 	{
-		result = check_aabb_in_frustum(bbox_tree->nodes[sub_node].bbox, frustum, in_mask, &out_mask);
+		idx = bbox_tree->cur_intersect_type;
+		result = check_aabb_in_frustum(bbox_tree->nodes[sub_node].bbox, bbox_tree->intersect[idx].frustum, in_mask, &out_mask);
 		if (result == INSIDE)
 		{
 			add_intersect_items(bbox_tree, bbox_tree->nodes[sub_node].items_index, bbox_tree->nodes[sub_node].items_count);
 			add_dyn_intersect_items(bbox_tree, sub_node, bbox_tree->nodes[sub_node].dynamic_objects.index);
-			add_dyn_intersect_datas(bbox_tree, sub_node, bbox_tree->nodes[sub_node].dynamic_objects.sub_index);
 		}
 		else
 		{
 			if (result == INTERSECT)
 			{
-				add_dyn_items(bbox_tree, sub_node, frustum, out_mask);
+				add_dyn_items(bbox_tree, sub_node, out_mask);
 				if (	(bbox_tree->nodes[sub_node].nodes[0] == NO_INDEX) &&
-					(bbox_tree->nodes[sub_node].nodes[1] == NO_INDEX)) add_items(bbox_tree, sub_node, frustum, out_mask);
+					(bbox_tree->nodes[sub_node].nodes[1] == NO_INDEX)) add_items(bbox_tree, sub_node, out_mask);
 				else
 				{
-					check_sub_nodes(bbox_tree, bbox_tree->nodes[sub_node].nodes[0], frustum, out_mask);
-					check_sub_nodes(bbox_tree, bbox_tree->nodes[sub_node].nodes[1], frustum, out_mask);
+					check_sub_nodes(bbox_tree, bbox_tree->nodes[sub_node].nodes[0], out_mask);
+					check_sub_nodes(bbox_tree, bbox_tree->nodes[sub_node].nodes[1], out_mask);
 				}
 			}
 		}
 	}
 }
 
-static __inline__ void calc_bbox_sub_nodes(BBOX_TREE* bbox_tree, unsigned int sub_node, const FRUSTUM frustum, unsigned int in_mask, AABBOX* bbox)
+static __inline__ void calc_bbox_sub_nodes(BBOX_TREE* bbox_tree, unsigned int sub_node, unsigned int in_mask, AABBOX* bbox)
 {
-	unsigned int out_mask, result;
+	unsigned int out_mask, result, idx;
 	
 	if (sub_node != NO_INDEX)
 	{
-		result = check_aabb_in_frustum(bbox_tree->nodes[sub_node].bbox, frustum, in_mask, &out_mask);
+		idx = bbox_tree->cur_intersect_type;
+		result = check_aabb_in_frustum(bbox_tree->nodes[sub_node].bbox, bbox_tree->intersect[idx].frustum, in_mask, &out_mask);
 		if (result == INSIDE)
 		{
 			VMin(bbox->bbmin, bbox->bbmin, bbox_tree->nodes[sub_node].bbox.bbmin);
@@ -251,20 +285,20 @@ static __inline__ void calc_bbox_sub_nodes(BBOX_TREE* bbox_tree, unsigned int su
 		{
 			if (result == INTERSECT)
 			{
-				merge_dyn_items(bbox_tree, sub_node, frustum, out_mask, bbox);
+				merge_dyn_items(bbox_tree, sub_node, out_mask, bbox);
 				if (	(bbox_tree->nodes[sub_node].nodes[0] == NO_INDEX) &&
-					(bbox_tree->nodes[sub_node].nodes[1] == NO_INDEX)) merge_items(bbox_tree, sub_node, frustum, out_mask, bbox);
+					(bbox_tree->nodes[sub_node].nodes[1] == NO_INDEX)) merge_items(bbox_tree, sub_node, out_mask, bbox);
 				else
 				{
-					calc_bbox_sub_nodes(bbox_tree, bbox_tree->nodes[sub_node].nodes[0], frustum, out_mask, bbox);
-					calc_bbox_sub_nodes(bbox_tree, bbox_tree->nodes[sub_node].nodes[1], frustum, out_mask, bbox);
+					calc_bbox_sub_nodes(bbox_tree, bbox_tree->nodes[sub_node].nodes[0], out_mask, bbox);
+					calc_bbox_sub_nodes(bbox_tree, bbox_tree->nodes[sub_node].nodes[1], out_mask, bbox);
 				}
 			}
 		}
 	}
 }
 
-static __inline__ int light_depht_comp(BBOX_ITEM_DATA* a, BBOX_ITEM_DATA* b)
+static __inline__ int light_depht_comp(BBOX_ITEM* a, BBOX_ITEM* b)
 {
 	unsigned int ai, bi;
 	float ax, ay, az, bx, by, bz, ad, bd;
@@ -293,11 +327,11 @@ static __inline__ int light_depht_comp(BBOX_ITEM_DATA* a, BBOX_ITEM_DATA* b)
 
 static int comp_items(const void *in_a, const void *in_b)
 {
-	BBOX_ITEM_DATA *a, *b;
+	BBOX_ITEM *a, *b;
 	unsigned int am, bm;
 
-	a = (BBOX_ITEM_DATA *)in_a;
-	b = (BBOX_ITEM_DATA *)in_b;
+	a = (BBOX_ITEM *)in_a;
+	b = (BBOX_ITEM *)in_b;
 	
 	am = a->type;
 	bm = b->type;
@@ -371,14 +405,14 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, uns
 			if (bbox_tree->intersect[i].items[j].ID == ID)
 			{
 				size = stop - j -1;
-				if (size > 0) memmove(&bbox_tree->intersect[i].items[j], &bbox_tree->intersect[i].items[j+1], size*sizeof(BBOX_ITEM_DATA));
+				if (size > 0) memmove(&bbox_tree->intersect[i].items[j], &bbox_tree->intersect[i].items[j+1], size*sizeof(BBOX_ITEM));
 				bbox_tree->intersect[i].stop[type]--;
 			}
 		}
 	}
 }
 
-void check_bbox_tree(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask)
+void check_bbox_tree(BBOX_TREE* bbox_tree)
 {
 	unsigned int idx;
 
@@ -388,8 +422,8 @@ void check_bbox_tree(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int m
 		if (bbox_tree->intersect[idx].intersect_update_needed > 0)
 		{
 			bbox_tree->intersect[idx].count = 0;
-			check_sub_nodes(bbox_tree, 0, frustum, mask);
-			qsort((void *)(bbox_tree->intersect[idx].items), bbox_tree->intersect[idx].count, sizeof(BBOX_ITEM_DATA), comp_items);
+			check_sub_nodes(bbox_tree, 0, bbox_tree->intersect[idx].frustum_mask);
+			qsort((void *)(bbox_tree->intersect[idx].items), bbox_tree->intersect[idx].count, sizeof(BBOX_ITEM), comp_items);
 			build_start_stop(bbox_tree);
 			bbox_tree->intersect[idx].intersect_update_needed = 0;
 		}
@@ -397,14 +431,17 @@ void check_bbox_tree(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int m
 	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
-void calc_scene_bbox(BBOX_TREE* bbox_tree, const FRUSTUM frustum, AABBOX* bbox)
-{	
+void calc_scene_bbox(BBOX_TREE* bbox_tree, AABBOX* bbox)
+{
+	unsigned int idx;
+	
 	if (bbox_tree != NULL)
 	{
+		idx = bbox_tree->cur_intersect_type;
 		VFill(bbox->bbmax, -BOUND_HUGE);
 		VFill(bbox->bbmin, BOUND_HUGE);
-		calc_bbox_sub_nodes(bbox_tree, 0, frustum, 63, bbox);
-	}	
+		calc_bbox_sub_nodes(bbox_tree, 0, bbox_tree->intersect[idx].frustum_mask, bbox);
+	}
 	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
@@ -424,11 +461,6 @@ static __inline__ void free_bbox_tree_data(BBOX_TREE* bbox_tree)
 		{
 			free(bbox_tree->nodes[i].dynamic_objects.items);
 			bbox_tree->nodes[i].dynamic_objects.items = NULL;
-		}
-		if (bbox_tree->nodes[i].dynamic_objects.sub_items != NULL)
-		{
-			free(bbox_tree->nodes[i].dynamic_objects.sub_items);
-			bbox_tree->nodes[i].dynamic_objects.sub_items = NULL;
 		}
 	}
 	if (bbox_tree->nodes != NULL)
@@ -612,11 +644,11 @@ static __inline__ unsigned int sort_and_split(BBOX_TREE* bbox_tree, unsigned int
 	float *area_left, *area_right;
 	float best_index, new_index;
 
-	find_axis(bbox_tree, first, last, axis);
-
 	size = last - first;
 
-	if (size < 1) return (1);
+	if (size < 1) return -1;
+
+	find_axis(bbox_tree, first, last, axis);
 
 	best_loc = -1;
 	
@@ -633,12 +665,19 @@ static __inline__ unsigned int sort_and_split(BBOX_TREE* bbox_tree, unsigned int
 			qsort((void *)(&(bbox_tree->items[first])), size, sizeof(BBOX_ITEM), compboxes);
 			build_area_table(bbox_tree, first, last - 1, area_left);
 			build_area_table(bbox_tree, last - 1, first, area_right);
-			
-			best_index = area_right[0] * 1.5f;
 
+			best_index = area_right[0] * (size - 3.0);
+
+			/*
+			 * Find the most effective point to split. The best location will be
+			 * the one that minimizes the function N1*A1 + N2*A2 where N1 and N2
+			 * are the number of objects in the two groups and A1 and A2 are the
+			 * surface areas of the bounding boxes of the two groups.
+			 */
+			
 			for (i = 0; i < size - 1; i++)
 			{
-				new_index = (area_left[i] + area_right[i + 1])*sqrt(((i+1)*(i+1)+(size-i-1)*(size-i-1))/(size*size));
+				new_index = (i + 1) * area_left[i] + (size - 1 - i) * area_right[i + 1];
 
 				if (new_index < best_index)
 				{
@@ -649,7 +688,6 @@ static __inline__ unsigned int sort_and_split(BBOX_TREE* bbox_tree, unsigned int
 			if (best_loc >= 0) break;
 		}
 
-		best_loc = (first + last)/2;
 		free(area_left);
 		free(area_right);
 	}
@@ -662,10 +700,7 @@ static __inline__ unsigned int sort_and_split(BBOX_TREE* bbox_tree, unsigned int
 
 	bbox_tree->nodes[node].dynamic_objects.size = 0;
 	bbox_tree->nodes[node].dynamic_objects.index = 0;
-	bbox_tree->nodes[node].dynamic_objects.sub_size = 0;
-	bbox_tree->nodes[node].dynamic_objects.sub_index = 0;
 	bbox_tree->nodes[node].dynamic_objects.items = NULL;
-	bbox_tree->nodes[node].dynamic_objects.sub_items = NULL;
 
 	if (best_loc < 0) 
 	{
@@ -728,11 +763,11 @@ static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, const AABBOX bbo
 	}
 	VAssign(bbox_items->items[index].bbox.bbmin, bbox.bbmin);
 	VAssign(bbox_items->items[index].bbox.bbmax, bbox.bbmax);
-	bbox_items->items[index].data.type = type;
-	bbox_items->items[index].data.extra = 0;
-	bbox_items->items[index].data.texture_id = texture_id;
-	memcpy(bbox_items->items[index].data.md5, md5, sizeof(MD5_DIGEST));
-	bbox_items->items[index].data.ID = ID;
+	bbox_items->items[index].type = type;
+	bbox_items->items[index].extra = 0;
+	bbox_items->items[index].texture_id = texture_id;
+	memcpy(bbox_items->items[index].md5, md5, sizeof(MD5_DIGEST));
+	bbox_items->items[index].ID = ID;
 	bbox_items->index = index + 1;
 }
 
@@ -852,7 +887,7 @@ static __inline__ unsigned int check_aabb_aabb(const AABBOX bbox, const AABBOX d
 	else return 1;
 }
 
-static __inline__ void add_dynamic_item_to_node(BBOX_TREE *bbox_tree, unsigned int node, const AABBOX bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5)
+static __inline__ void add_dynamic_item_to_node(BBOX_TREE *bbox_tree, unsigned int node, const AABBOX bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5, unsigned int extra)
 {	
 	unsigned int index, size;
 
@@ -869,43 +904,14 @@ static __inline__ void add_dynamic_item_to_node(BBOX_TREE *bbox_tree, unsigned i
 			bbox_tree->nodes[node].dynamic_objects.size = size;
 		}
 
-		bbox_tree->nodes[node].dynamic_objects.items[index].data.ID = ID;
-		bbox_tree->nodes[node].dynamic_objects.items[index].data.extra = 0;
-		bbox_tree->nodes[node].dynamic_objects.items[index].data.texture_id = texture_id;
-		memcpy(bbox_tree->nodes[node].dynamic_objects.items[index].data.md5, md5, sizeof(MD5_DIGEST));
-		bbox_tree->nodes[node].dynamic_objects.items[index].data.type = type;
+		bbox_tree->nodes[node].dynamic_objects.items[index].ID = ID;
+		bbox_tree->nodes[node].dynamic_objects.items[index].extra = extra;
+		bbox_tree->nodes[node].dynamic_objects.items[index].texture_id = texture_id;
+		memcpy(bbox_tree->nodes[node].dynamic_objects.items[index].md5, md5, sizeof(MD5_DIGEST));
+		bbox_tree->nodes[node].dynamic_objects.items[index].type = type;
 		VAssign(bbox_tree->nodes[node].dynamic_objects.items[index].bbox.bbmin, bbox.bbmin);
 		VAssign(bbox_tree->nodes[node].dynamic_objects.items[index].bbox.bbmax, bbox.bbmax);
 		bbox_tree->nodes[node].dynamic_objects.index = index + 1;
-		VMin(bbox_tree->nodes[node].bbox.bbmin, bbox_tree->nodes[node].bbox.bbmin, bbox.bbmin);
-		VMax(bbox_tree->nodes[node].bbox.bbmax, bbox_tree->nodes[node].bbox.bbmax, bbox.bbmax);
-	}
-}
-
-static __inline__ void add_dynamic_data_to_node(BBOX_TREE *bbox_tree, unsigned int node, const AABBOX bbox, unsigned int ID, unsigned int type, unsigned int texture_id, const MD5_DIGEST md5, unsigned int extra)
-{	
-	unsigned int index, size;
-
-	if (node != NO_INDEX)
-	{
-		index = bbox_tree->nodes[node].dynamic_objects.sub_index;
-		size = bbox_tree->nodes[node].dynamic_objects.sub_size;
-
-		if (size <= index)
-		{
-			if (size < 4) size = 4;
-			size *= 2;
-			bbox_tree->nodes[node].dynamic_objects.sub_items = (BBOX_ITEM_DATA*)realloc(bbox_tree->nodes[node].dynamic_objects.sub_items, 
-					size*sizeof(BBOX_ITEM_DATA));
-			bbox_tree->nodes[node].dynamic_objects.sub_size = size;
-		}
-
-		bbox_tree->nodes[node].dynamic_objects.sub_items[index].ID = ID;
-		bbox_tree->nodes[node].dynamic_objects.sub_items[index].extra = extra;
-		bbox_tree->nodes[node].dynamic_objects.sub_items[index].texture_id = texture_id;
-		memcpy(bbox_tree->nodes[node].dynamic_objects.sub_items[index].md5, md5, sizeof(MD5_DIGEST));
-		bbox_tree->nodes[node].dynamic_objects.sub_items[index].type = type;
-		bbox_tree->nodes[node].dynamic_objects.sub_index = index + 1;
 		VMin(bbox_tree->nodes[node].bbox.bbmin, bbox_tree->nodes[node].bbox.bbmin, bbox.bbmin);
 		VMax(bbox_tree->nodes[node].bbox.bbmax, bbox_tree->nodes[node].bbox.bbmax, bbox.bbmax);
 	}
@@ -926,8 +932,7 @@ static __inline__ int add_dynamic_aabb_to_abt_node(BBOX_TREE *bbox_tree, unsigne
 				result = add_dynamic_aabb_to_abt_node(bbox_tree, bbox_tree->nodes[node].nodes[1], bbox, ID, type, texture_id, md5);
 				extra = 0;
 			}
-			if (result == 0) add_dynamic_item_to_node(bbox_tree, node, bbox, ID, type, texture_id, md5);
-			else add_dynamic_data_to_node(bbox_tree, node, bbox, ID, type, texture_id, md5, extra);
+			add_dynamic_item_to_node(bbox_tree, node, bbox, ID, type, texture_id, md5, extra);
 			return 1;
 		}
 		else return 0;
@@ -942,7 +947,7 @@ static __inline__ void add_aabb_to_abt(BBOX_TREE *bbox_tree, const AABBOX bbox, 
 	if (bbox_tree != NULL)
 	{
 		result = add_dynamic_aabb_to_abt_node(bbox_tree, 0, bbox, ID, type, texture_id, md5);
-		if (result == 0) add_dynamic_item_to_node(bbox_tree, 0, bbox, ID, type, texture_id, md5);
+		if (result == 0) add_dynamic_item_to_node(bbox_tree, 0, bbox, ID, type, texture_id, md5, 0);
 		set_all_intersect_update_needed(bbox_tree);
 	}
 	else BBOX_TREE_LOG_INFO("bbox_tree");
@@ -978,12 +983,18 @@ void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, 
 	add_aabb_to_abt(bbox_tree, bbox, ID, get_water_type(reflectiv), texture_id, ZERO_MD5, dynamic);
 }
 
-static __inline__ void delete_dynamic_item_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int idx)
+static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type);
+
+static __inline__ void delete_dynamic_item_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int idx, unsigned int ID, unsigned int type)
 {
 	int index, size, count;
 	
 	index = bbox_tree->nodes[node].dynamic_objects.index;
 	size = bbox_tree->nodes[node].dynamic_objects.size;
+	
+	if (is_extra_first_sub_node(bbox_tree->nodes[node].dynamic_objects.items[idx].extra)) delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->nodes[node].nodes[0], ID, type);
+	else delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->nodes[node].nodes[1], ID, type);
+	
 	if (index <= 1)
 	{
 		size = 0;
@@ -1010,44 +1021,6 @@ static __inline__ void delete_dynamic_item_from_node(BBOX_TREE *bbox_tree, unsig
 	bbox_tree->nodes[node].dynamic_objects.size = size;
 }
 
-static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type);
-
-static __inline__ void delete_dynamic_subitem_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type, unsigned int idx)
-{
-	int index, size, count;
-	
-	index = bbox_tree->nodes[node].dynamic_objects.sub_index;
-	size = bbox_tree->nodes[node].dynamic_objects.sub_size;
-
-	if (is_extra_first_sub_node(bbox_tree->nodes[node].dynamic_objects.sub_items[idx].extra)) delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->nodes[node].nodes[0], ID, type);
-	else delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->nodes[node].nodes[1], ID, type);			
-
-	if (index <= 1)
-	{
-		size = 0;
-		index = 0;
-		if (bbox_tree->nodes[node].dynamic_objects.sub_items != NULL) 
-		{
-			free(bbox_tree->nodes[node].dynamic_objects.sub_items);
-			bbox_tree->nodes[node].dynamic_objects.sub_items = NULL;
-		}
-	}
-	else
-	{
-		if (index < (size/2))
-		{
-			size /= 2;
-			bbox_tree->nodes[node].dynamic_objects.sub_items = (BBOX_ITEM_DATA*)realloc(bbox_tree->nodes[node].dynamic_objects.sub_items, size*sizeof(BBOX_ITEM_DATA));
-		}
-		
-		count = index-idx-1;
-		if (count > 0) memmove(&bbox_tree->nodes[node].dynamic_objects.sub_items[idx], &bbox_tree->nodes[node].dynamic_objects.sub_items[idx+1], count*sizeof(BBOX_ITEM_DATA));
-		index--;
-	}
-	bbox_tree->nodes[node].dynamic_objects.sub_index = index;
-	bbox_tree->nodes[node].dynamic_objects.sub_size = size;
-}
-
 static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type)
 {
 	unsigned int i, result;
@@ -1056,19 +1029,10 @@ static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, uns
 	
 	for (i = 0; i < bbox_tree->nodes[node].dynamic_objects.index; i++)
 	{
-		if ((bbox_tree->nodes[node].dynamic_objects.items[i].data.ID == ID) && (bbox_tree->nodes[node].dynamic_objects.items[i].data.type == type))
+		if ((bbox_tree->nodes[node].dynamic_objects.items[i].ID == ID) && (bbox_tree->nodes[node].dynamic_objects.items[i].type == type))
 		{
-			delete_dynamic_item_from_node(bbox_tree, node, i);
+			delete_dynamic_item_from_node(bbox_tree, node, i, ID, type);
 			result = 1;
-		}
-	}
-
-	for (i = 0; i < bbox_tree->nodes[node].dynamic_objects.sub_index; i++)
-	{
-		if ((bbox_tree->nodes[node].dynamic_objects.sub_items[i].ID == ID) && (bbox_tree->nodes[node].dynamic_objects.sub_items[i].type == type))
-		{
-			delete_dynamic_subitem_from_node(bbox_tree, node, ID, type, i);
-			result = 2;
 		}
 	}
 
@@ -1196,13 +1160,410 @@ BBOX_TREE* build_bbox_tree()
 	{
 		bbox_tree->intersect[i].size = 8;
 		bbox_tree->intersect[i].count = 0;
-		bbox_tree->intersect[i].items = (BBOX_ITEM_DATA*)malloc(8*sizeof(BBOX_ITEM_DATA));
+		bbox_tree->intersect[i].items = (BBOX_ITEM*)malloc(8*sizeof(BBOX_ITEM));
 	}
 	bbox_tree->nodes_count = 0;
 	bbox_tree->nodes = NULL;
 	bbox_tree->items_count = 0;
 	bbox_tree->items = NULL;
 	return bbox_tree;
+}
+
+static __inline__ void get_point_from_aabbox(VECTOR3 point, const AABBOX bbox, unsigned int number)
+{
+	VECTOR3I mask;
+	
+	switch (number)
+	{
+		case 0:
+			VMakeI(mask, 0x00000000, 0x00000000, 0x00000000);
+			break;
+		case 1:
+			VMakeI(mask, 0x00000000, 0x00000000, 0xFFFFFFFF);
+			break;
+		case 2:
+			VMakeI(mask, 0x00000000, 0xFFFFFFFF, 0x00000000);
+			break;
+		case 3:
+			VMakeI(mask, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF);
+			break;
+		case 4:
+			VMakeI(mask, 0xFFFFFFFF, 0x00000000, 0x00000000);
+			break;
+		case 5:
+			VMakeI(mask, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF);
+			break;
+		case 6:
+			VMakeI(mask, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000);
+			break;
+		case 7:
+			VMakeI(mask, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
+			break;
+	}
+	VSelect(point, bbox.bbmin, bbox.bbmax, mask);
+}
+
+static __inline__ void calculate_frustum_data(FRUSTUM_DATA data, const FRUSTUM frustum, const VECTOR3 light_dir, unsigned int mask)
+{
+	VECTOR3 n;
+	VECTOR4 t;
+	float v;
+	int i, k;
+	
+	VAssign(n, light_dir);
+	Normalize(n, n);
+	VAssign4(t, n, 0.0f);
+
+	for (i = 0, k = 1; k <= mask; i++, k += k)
+	{
+		if (k & mask)
+		{
+			v = VDot4(t, frustum[i].plane);
+			if (max2f(v, -v) < 0.0001f)
+			{
+				data[i].zero = 1;
+				data[i].scale = 1.0f;
+				data[i].mask = 0;
+			}
+			else
+			{
+				data[i].zero = 0;
+				data[i].scale = v;
+				if (v < 0.0f) data[i].mask = 1;
+				else data[i].mask = 0;
+			}
+		}
+	}
+}
+
+static __inline__ int check_shadow_line_walk(const AABBOX bbox, const FRUSTUM frustum, const VECTOR3 light_dir, unsigned int mask, const float* hit)
+{
+	AABBOX tmp_bbox;
+	VECTOR3 walk;
+	int i, k, result, intersect;
+
+	intersect = 0;
+	
+	result = check_aabb_in_frustum_no_out_mask(bbox, frustum, mask);
+	
+	if (result == INSIDE) return result;
+	else if (result == INTERSECT) intersect = 1;
+	
+	for (i = 0, k = 1; k <= mask; i++, k += k)
+	{
+		if ((k & mask) && (hit[i] > 0.0f))
+		{
+			VScale(walk, light_dir, hit[i]);
+			VAdd(tmp_bbox.bbmin, bbox.bbmin, walk);
+			VAdd(tmp_bbox.bbmax, bbox.bbmax, walk);
+			result = check_aabb_in_frustum_no_out_mask(tmp_bbox, frustum, mask);
+			if (result == INSIDE) return result;
+			else if (result == INTERSECT) intersect = 1;
+		}
+	}
+	if (intersect != 0) return INTERSECT;
+	else return OUTSIDE;
+}
+
+static __inline__ int check_shadow_lines(const AABBOX bbox, const FRUSTUM frustum, const FRUSTUM_DATA data, const VECTOR3 light_dir, unsigned int mask, unsigned int point_mask)
+{
+	VECTOR3 _p;
+	VECTOR4 p;
+	float tmp, vmin, vmax, step, hit[16];
+	int i, j, k, l, intersect, intersects, points;
+	
+	intersects = 0;
+	points = 0;
+	
+	memset(hit, 0, sizeof(hit));
+	
+	for (i = 0, k = 1; k <= point_mask; i++, k += k)
+	{
+		if (k & point_mask)
+		{
+			get_point_from_aabbox(_p, bbox, i);
+			VAssign4(p, _p, 1.0f);
+			vmin = 0.0f;
+			vmax = BOUND_HUGE;
+			points++;
+			intersect = 1;
+
+			for (j = 0, l = 1; l <= mask; j++, l += l)
+			{
+				if (l & mask)
+				{
+					tmp = VDot4(p, frustum[j].plane);
+					
+					if (data[j].zero == 0)
+					{
+						step = tmp/data[j].scale;
+						if (step < 0.0f)
+						{
+							if (tmp < 0.0f)
+							{
+								intersect = 0;
+							}
+						}
+						else
+						{
+							hit[j] = max2f(hit[j], step);
+							if (intersect != 0)
+							{
+								if (data[j].mask)
+								{
+									vmin = max2f(vmin, step);
+								}
+								else
+								{
+									vmax = min2f(vmax, step);
+								}
+								if (vmin > vmax)
+								{
+									intersect = 0;
+								}
+							}
+						}
+					}
+					else
+					{
+						if (tmp < 0.0f)
+						{
+							intersect = 0;
+						}
+					}
+				}
+			}
+			intersects += intersect;
+		}
+	}
+	if (intersects == 0)
+	{
+		return check_shadow_line_walk(bbox, frustum, light_dir, mask, hit);
+	}
+	else if (intersects == points) return INSIDE;
+	else return INTERSECT;
+}
+
+static __inline__ int check_shadow_line_walk_outside(const AABBOX bbox, const FRUSTUM frustum, const VECTOR3 light_dir, unsigned int mask, const float* hit)
+{
+	AABBOX tmp_bbox;
+	VECTOR3 walk;
+	int i, k;
+
+	if (check_aabb_outside_frustum(bbox, frustum, mask) != OUTSIDE) return INTERSECT;
+	
+	for (i = 0, k = 1; k <= mask; i++, k += k)
+	{
+		if ((k & mask) && (hit[i] > 0.0f))
+		{
+			VScale(walk, light_dir, hit[i]);
+			VAdd(tmp_bbox.bbmin, bbox.bbmin, walk);
+			VAdd(tmp_bbox.bbmax, bbox.bbmax, walk);
+			if (check_aabb_outside_frustum(tmp_bbox, frustum, mask) != OUTSIDE) return INTERSECT;
+		}
+	}
+	return OUTSIDE;
+}
+
+static __inline__ int check_shadow_lines_outside(const AABBOX bbox, const FRUSTUM frustum, const FRUSTUM_DATA data, const VECTOR3 light_dir, unsigned int mask, unsigned int point_mask)
+{
+	VECTOR3 _p;
+	VECTOR4 p;
+	float tmp, vmin, vmax, step, hit[16];
+	int i, j, k, l, intersect;
+	
+	memset(hit, 0, sizeof(hit));
+	
+	for (i = 0, k = 1; k <= point_mask; i++, k += k)
+	{
+		if (k & point_mask)
+		{
+			get_point_from_aabbox(_p, bbox, i);
+			VAssign4(p, _p, 1.0f);
+			vmin = 0.0f;
+			vmax = BOUND_HUGE;
+			intersect = 1;
+
+			for (j = 0, l = 1; l <= mask; j++, l += l)
+			{
+				if (l & mask)
+				{
+					tmp = VDot4(p, frustum[j].plane);
+					
+					if (data[j].zero == 0)
+					{
+						step = tmp/data[j].scale;
+						if (step < 0.0f)
+						{
+							if (tmp < 0.0f)
+							{
+								intersect = 0;
+							}
+						}
+						else
+						{
+							hit[j] = max2f(hit[j], step);
+							if (intersect != 0)
+							{
+								if (data[j].mask)
+								{
+									vmin = max2f(vmin, step);
+								}
+								else
+								{
+									vmax = min2f(vmax, step);
+								}
+								if (vmin > vmax)
+								{
+									intersect = 0;
+								}
+							}
+						}
+					}
+					else
+					{
+						if (tmp < 0.0f)
+						{
+							intersect = 0;
+						}
+					}
+				}
+			}
+			if (intersect != 0) return INTERSECT;
+		}
+	}
+	return check_shadow_line_walk_outside(bbox, frustum, light_dir, mask, hit);
+}
+
+static __inline__ void add_dyn_items_shadow(BBOX_TREE* bbox_tree, unsigned int sub_node, const FRUSTUM frustum, unsigned int in_mask,
+	const FRUSTUM view_frustum, const FRUSTUM_DATA data, const VECTOR3 light_dir, unsigned int mask, unsigned int point_mask)
+{
+	unsigned int idx, size, i;
+
+	idx = bbox_tree->cur_intersect_type;
+	size = bbox_tree->nodes[sub_node].dynamic_objects.index;
+		
+	for (i = 0; i < size; i++)
+	{
+		if (check_aabb_outside_frustum(bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox, frustum, in_mask) != OUTSIDE)
+		{
+			if (check_shadow_lines_outside(bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox, view_frustum, data, light_dir,
+				mask, point_mask) != OUTSIDE)
+				add_dyn_intersect_item(bbox_tree, sub_node, i, idx);
+		}
+	}
+}
+
+static __inline__ void add_items_shadow(BBOX_TREE* bbox_tree, unsigned int sub_node, const FRUSTUM frustum, unsigned int in_mask,
+	const FRUSTUM view_frustum, const FRUSTUM_DATA data, const VECTOR3 light_dir, unsigned int mask, unsigned int point_mask)
+{
+	unsigned int idx1, idx2, size, i;
+
+	idx1 = bbox_tree->cur_intersect_type;
+	idx2 = bbox_tree->nodes[sub_node].items_index;
+	size = bbox_tree->nodes[sub_node].items_count;
+		
+	for (i = 0; i < size; i++)
+	{
+		if (check_aabb_outside_frustum(bbox_tree->items[idx2+i].bbox, frustum, in_mask) != OUTSIDE)
+		{
+			if (check_shadow_lines_outside(bbox_tree->items[idx2+i].bbox, view_frustum, data, light_dir, mask, point_mask) != OUTSIDE)
+				add_intersect_item(bbox_tree, idx2+i, idx1);
+		}
+	}
+}
+
+static __inline__ void check_sub_nodes_shadow(BBOX_TREE* bbox_tree, unsigned int sub_node, const FRUSTUM frustum, unsigned int in_mask,
+	const FRUSTUM view_frustum, const FRUSTUM_DATA data, const VECTOR3 light_dir, unsigned int mask, unsigned int point_mask)
+{
+	unsigned int out_mask, result;
+	
+	if (sub_node != NO_INDEX)
+	{
+		result = check_aabb_in_frustum(bbox_tree->nodes[sub_node].bbox, frustum, in_mask, &out_mask);
+		
+		if (result == OUTSIDE) return;
+		result = check_shadow_lines(bbox_tree->nodes[sub_node].bbox, view_frustum, data, light_dir, mask, point_mask);
+		
+		if (result == INSIDE)
+		{
+			add_intersect_items(bbox_tree, bbox_tree->nodes[sub_node].items_index, bbox_tree->nodes[sub_node].items_count);
+			add_dyn_intersect_items(bbox_tree, sub_node, bbox_tree->nodes[sub_node].dynamic_objects.index);
+		}
+		else
+		{
+			if (result == INTERSECT)
+			{
+				add_dyn_items_shadow(bbox_tree, sub_node, frustum, out_mask, view_frustum, data, light_dir, mask, point_mask);
+				if (	(bbox_tree->nodes[sub_node].nodes[0] == NO_INDEX) &&
+					(bbox_tree->nodes[sub_node].nodes[1] == NO_INDEX)) 
+					add_items_shadow(bbox_tree, sub_node, frustum, out_mask, view_frustum, data, light_dir, mask, point_mask);
+				else
+				{
+					check_sub_nodes_shadow(bbox_tree, bbox_tree->nodes[sub_node].nodes[0], frustum, out_mask,
+						view_frustum, data, light_dir, mask, point_mask);
+					check_sub_nodes_shadow(bbox_tree, bbox_tree->nodes[sub_node].nodes[1], frustum, out_mask,
+						view_frustum, data, light_dir, mask, point_mask);
+				}
+			}
+		}
+	}
+}
+
+static __inline__ int calculate_point_mask(const VECTOR3 light_dir)
+{
+	int mask, idx, i, k;
+
+	idx = 0;
+	
+	if (VExtract(light_dir, X) >= 0.0f) idx += 1;
+	if (VExtract(light_dir, Y) >= 0.0f) idx += 2;
+	if (VExtract(light_dir, Z) >= 0.0f) idx += 4;
+
+	mask = 0;
+
+	for (i = 0, k = 1; i < 8; i++, k += k)
+	{
+		if ((i != idx) && (i != (7-idx))) mask |= k;
+	}
+
+	return mask;
+}
+
+void check_bbox_tree_shadow(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask, const FRUSTUM view_frustum,
+	unsigned int view_mask, const VECTOR3 light_dir)
+{
+	unsigned int idx, point_mask;
+	FRUSTUM_DATA data;
+
+	if (bbox_tree != NULL)
+	{
+		idx = bbox_tree->cur_intersect_type;
+		if (idx != INTERSECTION_TYPE_SHADOW) return;
+		if (bbox_tree->intersect[idx].intersect_update_needed > 0)
+		{
+			point_mask = calculate_point_mask(light_dir);
+			calculate_frustum_data(data, view_frustum, light_dir, view_mask);
+			bbox_tree->intersect[idx].count = 0;
+			check_sub_nodes_shadow(bbox_tree, 0, frustum, mask, view_frustum, data, light_dir, view_mask, point_mask);
+			qsort((void *)(bbox_tree->intersect[idx].items), bbox_tree->intersect[idx].count, sizeof(BBOX_ITEM), comp_items);
+			build_start_stop(bbox_tree);
+			bbox_tree->intersect[idx].intersect_update_needed = 0;
+		}
+	}	
+	else BBOX_TREE_LOG_INFO("bbox_tree");
+}
+
+void set_frustum(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask)
+{
+	unsigned int idx;
+
+	if (bbox_tree != NULL)
+	{
+		idx = bbox_tree->cur_intersect_type;
+		memcpy(bbox_tree->intersect[idx].frustum, frustum, sizeof(FRUSTUM));
+		bbox_tree->intersect[idx].frustum_mask = mask;
+	}	
 }
 
 #endif

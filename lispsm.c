@@ -1236,7 +1236,6 @@ void calculate_Light_Matrix(int useBodyVec, double nearDist,
 	MATRIX4x4D invEyeProjView; //= eyeProjView^(-1)
 	AABBOXD sceneAABox;
 	VECTOR3D eyePos, viewDir;
-	FRUSTUM frustum;
 	AABBOX bbox;
 	double w;
 	VecPoint B;
@@ -1275,7 +1274,7 @@ void calculate_Light_Matrix(int useBodyVec, double nearDist,
 			sceneAABox.bbmax[0] = main_bbox_tree->nodes[0].bbox.bbmax[0];
 			sceneAABox.bbmax[1] = main_bbox_tree->nodes[0].bbox.bbmax[1];
 			sceneAABox.bbmax[2] = main_bbox_tree->nodes[0].bbox.bbmax[2];
-
+			
 			for (i = 0; i < 2; i++)
 			{
 				B = VECPOINT_NULL;
@@ -1293,8 +1292,8 @@ void calculate_Light_Matrix(int useBodyVec, double nearDist,
 				makeScaleMtx(tmp, 1.0f, 1.0f, -1.0f);
 				mult(lightProjection, tmp, lightProjection);
 				
-				calculate_light_frustum(frustum, lightView, lightProjection);
-				calc_scene_bbox(main_bbox_tree, frustum, &bbox);
+				calculate_light_frustum(lightView, lightProjection);
+				calc_scene_bbox(main_bbox_tree, &bbox);
 				sceneAABox.bbmin[0] = bbox.bbmin[0];
 				sceneAABox.bbmin[1] = bbox.bbmin[1];
 				sceneAABox.bbmin[2] = bbox.bbmin[2];

@@ -526,6 +526,7 @@ void get_actors_in_range()
 			if (z_pos == 0.0f)//actor is walking, as opposed to flying, get the height underneath
 				z_pos=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f;
 			
+			if (actors_list[i]->calmodel == NULL) continue;
 			skel = CalModel_GetSkeleton(actors_list[i]->calmodel);
 			CalSkeleton_CalculateBoundingBoxes(skel);
 			CalSkeleton_GetBoneBoundingBox(skel, bbox.bbmin, bbox.bbmax);

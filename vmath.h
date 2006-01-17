@@ -579,6 +579,16 @@ static __inline__ float VDot4(const VECTOR4 v2, const VECTOR4 v3)
 	return v2[X]*v3[X] + v2[Y]*v3[Y] + v2[Z]*v3[Z] + v2[W]*v3[W];	
 }
 
+static __inline__ float VExtract(const VECTOR3 v1, int number)
+{
+	return v1[number];
+}
+
+static __inline__ float VExtract4(const VECTOR4 v1, int number)
+{
+	return v1[number];
+}
+
 static __inline__ void calc_rotation_and_translation_matrix(MATRIX4x4 matrix, float trans_x, float trans_y, float trans_z, float rot_x, float rot_y, float rot_z)
 {
 	glPushMatrix();

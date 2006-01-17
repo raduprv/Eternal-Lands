@@ -115,9 +115,9 @@ static __inline__ void normalize_plane(VECTOR4 plane)
  */
 static __inline__ void calc_plane_mask(PLANE* plane)
 {
-	plane->mask[0] = plane->plane[A] < 0.0f ? 0 : 1;
-	plane->mask[1] = plane->plane[B] < 0.0f ? 0 : 1;
-	plane->mask[2] = plane->plane[C] < 0.0f ? 0 : 1;
+	plane->mask[0] = plane->plane[A] < 0.0f ? 0x00000000 : 0xFFFFFFFF;
+	plane->mask[1] = plane->plane[B] < 0.0f ? 0x00000000 : 0xFFFFFFFF;
+	plane->mask[2] = plane->plane[C] < 0.0f ? 0x00000000 : 0xFFFFFFFF;
 }
 
 /*
@@ -407,7 +407,7 @@ void calculate_reflection_frustum(unsigned int num, float water_height)
 	
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 	calculate_frustum_from_clip_matrix(reflection_frustum, clip);
-
+	
 	VMake(pos, inv[3]/inv[15], inv[7]/inv[15], inv[11]/inv[15]);
 	VMake(p1, x_min, y_min, water_height);
 	VMake(p2, x_min, y_max, water_height);
@@ -444,8 +444,9 @@ void calculate_reflection_frustum(unsigned int num, float water_height)
 	reflection_clip_planes[4][B] = reflection_frustum[8].plane[B];
 	reflection_clip_planes[4][C] = reflection_frustum[8].plane[C];
 	reflection_clip_planes[4][D] = reflection_frustum[8].plane[D];
-	check_bbox_tree(main_bbox_tree, reflection_frustum, 511);
-	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);	
+	set_frustum(main_bbox_tree, reflection_frustum, 511);
+	check_bbox_tree(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 }
 
 void calculate_shadow_frustum()
@@ -453,6 +454,7 @@ void calculate_shadow_frustum()
 	MATRIX4x4 proj;								// This will hold our projection matrix
 	MATRIX4x4 modl;								// This will hold our modelview matrix
 	MATRIX4x4 clip;								// This will hold the clipping planes
+	VECTOR3	ld;
 	unsigned int cur_intersect_type;
 
 	if (main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed == 0) return;
@@ -491,14 +493,23 @@ void calculate_shadow_frustum()
 
 	calculate_frustum_from_clip_matrix(shadow_frustum, clip);
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);	
-	check_bbox_tree(main_bbox_tree, shadow_frustum, 63);
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);
+	VMake(ld, sun_position[X], sun_position[Y], sun_position[Z]);
+	VECTOR3 p1, p2, p3;
+	VMake(p1, -1.0f, -1.0f, -0.251f);
+	VMake(p2, -1.0f, 1.0f, -0.251f);
+	VMake(p3, 1.0f, -1.0f, -0.251f);
+	calc_plane(shadow_frustum[6].plane, p2, p1, p3);
+	calc_plane_mask(&shadow_frustum[6]);
+	set_frustum(main_bbox_tree, shadow_frustum, 127);
+	check_bbox_tree_shadow(main_bbox_tree, shadow_frustum, 127, main_frustum, 127, ld);
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 }
 
-void calculate_light_frustum(FRUSTUM frustum, double* modl, double* proj)
+void calculate_light_frustum(double* modl, double* proj)
 {
 	MATRIX4x4 clip;
+	FRUSTUM frustum;
 	
 	clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
 	clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
@@ -521,6 +532,7 @@ void calculate_light_frustum(FRUSTUM frustum, double* modl, double* proj)
 	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
 	
 	calculate_frustum_from_clip_matrix(frustum, clip);
+	set_frustum(main_bbox_tree, frustum, 63);
 }
 #endif
 ///////////////////////////////// CALCULATE FRUSTUM \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
@@ -535,6 +547,7 @@ void CalculateFrustum()
 	MATRIX4x4 proj;								// This will hold our projection matrix
 	MATRIX4x4 modl;								// This will hold our modelview matrix
 	MATRIX4x4 clip;								// This will hold the clipping planes
+	unsigned int cur_intersect_type;
 	
 	if (main_bbox_tree->intersect[INTERSECTION_TYPE_DEFAULT].intersect_update_needed == 0) return;
 #else
@@ -638,7 +651,17 @@ void CalculateFrustum()
 	NormalizePlane(m_Frustum, FRONT);
 #else
 	calculate_frustum_from_clip_matrix(main_frustum, clip);
-	check_bbox_tree(main_bbox_tree, main_frustum, 63);
+	VECTOR3 p1, p2, p3;
+	VMake(p1, -1.0f, -1.0f, -0.251f);
+	VMake(p2, -1.0f, 1.0f, -0.251f);
+	VMake(p3, 1.0f, -1.0f, -0.251f);
+	calc_plane(main_frustum[6].plane, p2, p1, p3);
+	calc_plane_mask(&main_frustum[6]);
+	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
+	set_frustum(main_bbox_tree, main_frustum, 127);
+	check_bbox_tree(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 #endif
 }
 
