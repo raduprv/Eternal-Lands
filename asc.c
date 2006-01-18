@@ -464,12 +464,14 @@ int sane_snprintf (char *str, size_t size, const char *format, ...)
 #ifdef __MINGW32__
 	ret = vsnprintf (str, size, format, ap);
 #else
-	ret = _vsnprintf (str, size - 1, format, ap);
+	ret = _vsnprintf (str, size, format, ap);
 #endif
 	va_end (ap);
+	if ( size > 0 ){
+		str[size-1] = '\0';
+	}
 	if (ret < 0 || ret >= size)
 	{
-		str[size-1] = '\0';
 		return size;
 	}
 	return ret;
