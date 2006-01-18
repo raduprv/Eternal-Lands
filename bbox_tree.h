@@ -823,6 +823,10 @@ int click_line_bbox_intersection(const AABBOX bbox);
  */
 void set_click_line();
 
+void set_frustum(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask);
+void check_bbox_tree_shadow(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask, const FRUSTUM view_frustum,
+	unsigned int view_mask, const VECTOR3 light_dir);
+
 extern LINE click_line;
 #endif
 #endif
