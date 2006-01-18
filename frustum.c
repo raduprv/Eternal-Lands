@@ -456,6 +456,7 @@ void calculate_shadow_frustum()
 	MATRIX4x4 clip;								// This will hold the clipping planes
 	VECTOR3	ld;
 	unsigned int cur_intersect_type;
+	VECTOR3 p1, p2, p3;
 
 	if (main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed == 0) return;
 
@@ -495,7 +496,6 @@ void calculate_shadow_frustum()
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);
 	VMake(ld, sun_position[X], sun_position[Y], sun_position[Z]);
-	VECTOR3 p1, p2, p3;
 	VMake(p1, -1.0f, -1.0f, -0.251f);
 	VMake(p2, -1.0f, 1.0f, -0.251f);
 	VMake(p3, 1.0f, -1.0f, -0.251f);
@@ -548,6 +548,7 @@ void CalculateFrustum()
 	MATRIX4x4 modl;								// This will hold our modelview matrix
 	MATRIX4x4 clip;								// This will hold the clipping planes
 	unsigned int cur_intersect_type;
+	VECTOR3 p1, p2, p3;
 	
 	if (main_bbox_tree->intersect[INTERSECTION_TYPE_DEFAULT].intersect_update_needed == 0) return;
 #else
@@ -651,7 +652,6 @@ void CalculateFrustum()
 	NormalizePlane(m_Frustum, FRONT);
 #else
 	calculate_frustum_from_clip_matrix(main_frustum, clip);
-	VECTOR3 p1, p2, p3;
 	VMake(p1, -1.0f, -1.0f, -0.251f);
 	VMake(p2, -1.0f, 1.0f, -0.251f);
 	VMake(p3, 1.0f, -1.0f, -0.251f);
