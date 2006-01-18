@@ -517,6 +517,8 @@ char	win_notepad[20],
 	tab_help_channel[20],
 	tab_market_channel[20],
 	tab_general_channel[20],
+	tab_roleplaying_channel[20],
+	tab_contest_channel[20],
 	tab_offtopic_channel[20],
 	tab_guild_channel[20],
 	tab_channel[20],
@@ -1222,12 +1224,14 @@ void init_titles ()
 	add_xml_identifier (titles_str, "t_all", tab_all, "All", sizeof(tab_all));
 	add_xml_identifier (titles_str, "t_none", tab_none, "None", sizeof(tab_none));
 	add_xml_identifier (titles_str, "t_local", tab_local, "Local", sizeof(tab_local));
-	add_xml_identifier (titles_str, "c_newbie", tab_newbie_channel, "Newbie Channel", sizeof(tab_newbie_channel));
-	add_xml_identifier (titles_str, "c_help", tab_help_channel, "Help Channel", sizeof(tab_help_channel));
-	add_xml_identifier (titles_str, "c_market", tab_market_channel, "Market Channel", sizeof(tab_market_channel));
-	add_xml_identifier (titles_str, "c_general", tab_general_channel, "General Channel", sizeof(tab_general_channel));
-	add_xml_identifier (titles_str, "c_offtopic", tab_offtopic_channel, "Offtopic Channel", sizeof(tab_offtopic_channel));
-	add_xml_identifier (titles_str, "c_guildchan", tab_guild_channel, "Guild Channel", sizeof (tab_guild_channel));
+	add_xml_identifier (titles_str, "c_newbie", tab_newbie_channel, "Newbie", sizeof(tab_newbie_channel));
+	add_xml_identifier (titles_str, "c_help", tab_help_channel, "Help", sizeof(tab_help_channel));
+	add_xml_identifier (titles_str, "c_market", tab_market_channel, "Market", sizeof(tab_market_channel));
+	add_xml_identifier (titles_str, "c_general", tab_general_channel, "General", sizeof(tab_general_channel));
+	add_xml_identifier (titles_str, "c_roleplaying", tab_roleplaying_channel, "Roleplaying", sizeof(tab_roleplaying_channel));
+	add_xml_identifier (titles_str, "c_contest", tab_contest_channel, "Contest/Inv", sizeof(tab_contest_channel));
+	add_xml_identifier (titles_str, "c_offtopic", tab_offtopic_channel, "Offtopic", sizeof(tab_offtopic_channel));
+	add_xml_identifier (titles_str, "c_guild", tab_guild_channel, "Guild", sizeof (tab_guild_channel));
 	add_xml_identifier (titles_str, "t_channel", tab_channel, "Channel %d", sizeof(tab_channel));
 	add_xml_identifier (titles_str, "c_guild", tab_guild, "Guild", sizeof(tab_guild));
 	add_xml_identifier (titles_str, "c_mod", tab_mod, "Mod", sizeof(tab_mod));

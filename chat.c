@@ -1102,7 +1102,9 @@ const char *tab_label (Uint8 chan)
 				case 2: return tab_help_channel;
 				case 3: return tab_market_channel;
 				case 4: return tab_general_channel;
-				case 5: return tab_offtopic_channel;
+				case 5: return tab_roleplaying_channel;
+				case 6: return tab_contest_channel;
+				case 20: return tab_offtopic_channel;
 				default: 
 					if (cnr >= 1000000000)
 					{
