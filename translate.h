@@ -269,6 +269,8 @@ extern char
 		drop_all_str[11],
 		get_all_str[8],
 		quantity_edit_str[100],
+		equip_here_str[100],
+		equip_str[20],
 		/*knowledge.c*/
 		completed_research[12],
 		researching_str[30],

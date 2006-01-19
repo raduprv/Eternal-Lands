@@ -18,7 +18,6 @@ struct quantities quantities = {
 	}
 };
 int edit_quantity=-1;
-int show_quantity_help=0;
 
 int item_action_mode=ACTION_WALK;
 
@@ -265,10 +264,10 @@ int display_items_handler(window_info *win)
 
 	glEnable(GL_TEXTURE_2D);
 
-	x=quantity_x_offset+33;
+	x=quantity_x_offset+(video_mode>4?69:51)/2;
 	y=quantity_y_offset+3;
 	glColor3f(0.3f,0.5f,1.0f);
-	for(i=0;i<(video_mode>4?6:3);i++,y+=20){
+	for(i=0;i<6;x+=(video_mode>4?69:51),++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
 			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, quantities.quantity[i].str,1);
@@ -279,8 +278,7 @@ int display_items_handler(window_info *win)
 			glColor3f(0.3f, 0.5f, 1.0f);
 		} else  draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, quantities.quantity[i].str,1);
 	}
-	
-	draw_string_small(x-strlen(quantity_str)*4, quantity_y_offset-17, quantity_str, 1);
+	draw_string_small(win->len_x-strlen(quantity_str)*8-5, quantity_y_offset-19, quantity_str, 1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -386,14 +384,15 @@ int display_items_handler(window_info *win)
 	
 	//draw the load string
 	snprintf(str,sizeof(str),"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
-	draw_string_small (win->len_x -  8 * strlen (str) - 4, win->len_y-20, str, 1);
+	draw_string_small ((video_mode>4?win->len_x-8*strlen (str)-10:2), (video_mode>4?win->len_y-107:quantity_y_offset-19), str, 1);
+
+	glColor3f(0.57f,0.67f,0.49f);
+	snprintf(str,sizeof(str),equip_str);
+	draw_string_small (wear_items_x_offset + 33 - (8 * strlen(str))/2, wear_items_y_offset-18, str, 1);
+	glColor3f(1.0f,1.0f,1.0f);
 	
 	//now, draw the inventory text, if any.
-	draw_string_small(4,win->len_y-59,items_string,4);
-
-	if(show_quantity_help){
-		show_help(quantity_edit_str, quantity_x_offset+70-strlen(quantity_edit_str)*8, quantity_y_offset+150);
-	}
+	draw_string_small(4, win->len_y - (video_mode>4?85:105), items_string, 4);
 	
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
@@ -409,7 +408,7 @@ int display_items_handler(window_info *win)
 	
 	//now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
-	rendergrid(1, (video_mode>4?6:3), quantity_x_offset, quantity_y_offset, 66, 20);
+	rendergrid(6, 1, quantity_x_offset, quantity_y_offset, (video_mode>4?69:51), 20);
 	glEnable(GL_TEXTURE_2D);
 
 	return 1;
@@ -442,7 +441,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					item_action_mode=ACTION_WALK;
 			}
 			return 1;
-		} else if(mx>=quantity_x_offset && mx<quantity_x_offset+66 && my>=quantity_y_offset && my<quantity_y_offset+120){
+		} else if(mx>=quantity_x_offset && mx<quantity_x_offset+6*(video_mode>4?69:51) && my>=quantity_y_offset && my<quantity_y_offset+20){
 			//fall through...
 		} else {
 			switch(item_action_mode) {
@@ -469,9 +468,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(item_action_mode==ACTION_USE)	action_mode=ACTION_USE;
 
 	//see if we changed the quantity
-	if(mx>quantity_x_offset && mx<quantity_x_offset+66 &&
-	   my>quantity_y_offset && my<quantity_y_offset+120) {
-		int pos=get_mouse_pos_in_grid(mx, my, 1, (video_mode>4?6:3), quantity_x_offset, quantity_y_offset, 70, 20);
+	if(mx>=quantity_x_offset && mx<quantity_x_offset+6*(video_mode>4?69:51)
+			&& my>=quantity_y_offset && my<quantity_y_offset+20) {
+		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, quantity_x_offset, quantity_y_offset, (video_mode>4?69:51), 20);
 
 		if(pos==-1){
 		} else if(flags & ELW_LEFT_MOUSE){
@@ -591,8 +590,6 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 int mouseover_items_handler(window_info *win, int mx, int my) {
 	int pos;
 	
-	show_quantity_help=0;
-	
 	if(mx>0&&mx<6*items_grid_size&&my>0&&my<6*items_grid_size){
 		pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, items_grid_size, items_grid_size);
 
@@ -613,7 +610,9 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	} else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
 	          my>wear_items_y_offset && my<wear_items_y_offset+4*33){
 		pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
-		
+		if(show_help_text){
+			show_help(equip_here_str, win->len_x-strlen(quantity_edit_str)*8, quantity_y_offset+30);
+		}
 		if(pos==-1) {
 		} else if(item_list[pos].quantity){
 			if(item_action_mode==ACTION_LOOK) {
@@ -628,9 +627,9 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 
 			return 1;
 		}
-	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+66 &&
-	          my>quantity_y_offset && my<quantity_y_offset+120){
-		show_quantity_help=1;
+	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+6*(video_mode>4?69:51) &&
+			my>quantity_y_offset && my<quantity_y_offset+6*20){
+		show_help(quantity_edit_str, win->len_x-strlen(quantity_edit_str)*8, quantity_y_offset+30);
 	} 
 	
 	return 0;
@@ -703,25 +702,28 @@ int show_items_handler(window_info * win)
 	
 	if(video_mode>4) {
 		items_grid_size=51;
-		quantity_y_offset=185;
-		wear_items_y_offset=30;
+		wear_items_y_offset=50;
+		win->len_y=6*items_grid_size+90;
 	} else {
 		items_grid_size=33;
-		quantity_y_offset=155;
-		wear_items_y_offset=0;
+		wear_items_y_offset=19;
+		win->len_y=6*items_grid_size+110;
 	}
 	
 	win->len_x=6*items_grid_size+110;
-	win->len_y=6*items_grid_size+90;
-	quantity_x_offset=6*items_grid_size+20;
-	wear_items_x_offset=6*items_grid_size+20;
+	quantity_y_offset=win->len_y-21;
+	quantity_x_offset=1;
+	wear_items_x_offset=6*items_grid_size+17;
 	item_quantity=quantities.quantity[quantities.selected].val;
 
 	w=widget_find(items_win, drop_button_id);
-	if(w)w->pos_y=6*items_grid_size+2;
+	if(w){
+		w->pos_y=(int)((video_mode>4?5:6)*items_grid_size-w->len_y-5);
+		w->pos_x=win->len_x - (strlen(drop_all_str)*11+18);
+	}
 	
 	strncpy(str,items_string,sizeof(items_string));
-	put_small_text_in_box(str,strlen(str),6*items_grid_size+100,items_string);
+	put_small_text_in_box(str,strlen(str),win->len_x-10,items_string);
 
 	return 1;
 }
@@ -737,7 +739,7 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		
-		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 2, 6*(video_mode>4?51:33)+2, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, drop_all_str);
+		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, items_menu_x_len - (strlen(drop_all_str)*11+18), 6*(video_mode>4?69:51)+2, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, drop_all_str);
 		widget_set_OnClick (items_win, drop_button_id, drop_all_handler);
 		
 		show_items_handler(&windows_list.window[items_win]);

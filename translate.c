@@ -145,6 +145,8 @@ char
 	/*items.c*/
 	get_all_str[8],
 	quantity_edit_str[100],
+	equip_here_str[100],
+	equip_str[20],
 	/*knowledge.c*/
 	completed_research[12],
 	researching_str[30],
@@ -995,6 +997,8 @@ void init_help()
 	add_xml_identifier(misc,"cache",cache_size_str,"Cache size",sizeof(cache_size_str));
 	add_xml_identifier (misc, "appropr_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 2 digits, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Rightclick on the quantity you wish to edit",sizeof(quantity_edit_str));
+	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));
+	add_xml_identifier(misc,"equipment",equip_str,"Equipment",sizeof(equip_str));
 	add_xml_identifier(misc,"you",you_str,"You",sizeof(you_str));
 	add_xml_identifier(misc,"accept",accept_str,"Accept",sizeof(accept_str));
 	add_xml_identifier(misc,"cmd_markpos",help_cmd_markpos_str,"Usage: #markpos <x-coord>,<y-coord> <name>",sizeof(help_cmd_markpos_str));
