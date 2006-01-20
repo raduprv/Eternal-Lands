@@ -186,6 +186,16 @@
 		<skin>./meshes/helmet2.bmp</skin>
 		<glow>none</glow>
 	</helmet>
+	<helmet type="crown_life">
+		<mesh>./meshes/crown1_dwarf.cmf</mesh>
+		<skin>./meshes/crown1.bmp</skin>
+		<glow>none</glow>
+	</helmet>
+	<helmet type="crown_mana">
+		<mesh>./meshes/crown1_dwarf.cmf</mesh>
+		<skin>./meshes/crown2.bmp</skin>
+		<glow>none</glow>
+	</helmet>	
 	<weapon type="none">
 		<mesh></mesh>
 		<skin></skin>
@@ -296,7 +306,7 @@
 	</weapon>
 	<weapon type="staff 3">
 		<mesh>./meshes/staff2.cmf</mesh>
-		<skin>./meshes/staff3.bmp</skin>
+		<skin>./meshes/staff2.bmp</skin>
 		<CAL_attack_up1 duration="500">./animations/player_slash2.caf 1</CAL_attack_up1>
 		<CAL_attack_up2 duration="500">./animations/player_slash2.caf 1</CAL_attack_up2>
 		<CAL_attack_down1 duration="500">./animations/player_hack2.caf 1</CAL_attack_down1>
@@ -305,7 +315,7 @@
 	</weapon>
 	<weapon type="staff 4">
 		<mesh>./meshes/staff3.cmf</mesh>
-		<skin>./meshes/staff4.bmp</skin>
+		<skin>./meshes/staff3.bmp</skin>
 		<CAL_attack_up1 duration="500">./animations/player_slash2.caf 1</CAL_attack_up1>
 		<CAL_attack_up2 duration="500">./animations/player_slash2.caf 1</CAL_attack_up2>
 		<CAL_attack_down1 duration="500">./animations/player_hack2.caf 1</CAL_attack_down1>

@@ -4,6 +4,7 @@
 	<mesh>./meshes/orcm1_armed.cmf</mesh>
 	<scale>1.35</scale>
 	<bone_scale>1.35</bone_scale>
+	<mesh_scale>1</mesh_scale>
 	<frames>
 		<CAL_walk>./animations/monster_walk1.caf 0</CAL_walk>
 		<CAL_die1 duration="500">./animations/monster_die.caf 1</CAL_die1>

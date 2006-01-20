@@ -2,8 +2,9 @@
 	<skeleton>./skeletons/monster1.csf</skeleton>
 	<skin>./meshes/orcf1_armed.bmp</skin>
 	<mesh>./meshes/orcf1_armed.cmf</mesh>
-	<scale>0.7</scale>
-	<bone_scale>0.7</bone_scale>
+	<scale>1.30</scale>
+	<bone_scale>1.30</bone_scale>
+	<mesh_scale>1</mesh_scale>
 	<frames>
 		<CAL_walk>./animations/monster_walk1.caf 0</CAL_walk>
 		<CAL_die1 duration="500">./animations/monster_die.caf 1</CAL_die1>

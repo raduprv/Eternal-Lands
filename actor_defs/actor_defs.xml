@@ -62,13 +62,13 @@
         <!ENTITY spider_l_1 SYSTEM "spider_big1.xml">
         <!ENTITY spider_l_2 SYSTEM "spider_big2.xml">
         <!ENTITY spider_l_3 SYSTEM "spider_big3.xml">
+        <!ENTITY spider_l_4 SYSTEM "spider_big4.xml">
         <!ENTITY spider_s_1 SYSTEM "spider_small1.xml">
         <!ENTITY spider_s_2 SYSTEM "spider_small2.xml">
         <!ENTITY spider_s_3 SYSTEM "spider_small3.xml">
+        <!ENTITY spider_s_4 SYSTEM "spider_small4.xml">
         <!ENTITY wood_sprite SYSTEM "wood_sprite.xml">
         <!ENTITY leprechaun SYSTEM "leprechaun.xml">
-        <!ENTITY spider_s_4 SYSTEM "spider_small4.xml">
-        <!ENTITY spider_l_4 SYSTEM "spider_big4.xml">
 
 ]>
 
@@ -136,12 +136,12 @@
         &spider_l_1;
         &spider_l_2;
         &spider_l_3;
+        &spider_l_4;
         &spider_s_1;
         &spider_s_2;
         &spider_s_3;
+        &spider_s_4;
         &wood_sprite;
 	&leprechaun;
-        &spider_s_4;
-        &spider_l_4;
 
 </actors>
