@@ -12,6 +12,7 @@
 #include "elwindows.h"
 #include "keys.h"
 #include "loading_win.h"
+#include "update.h"
 
 #define	CFG_VERSION 6
 
@@ -701,6 +702,10 @@ void init_stuff()
 	read_key_config();
 	load_questlog();
 	init_buddy();
+
+#ifdef  AUTO_UPDATE
+	init_update();
+#endif
 
 	have_rules=read_rules();
 	if(!have_rules){

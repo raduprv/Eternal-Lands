@@ -15,8 +15,6 @@
  *          Look at the end of the file.
  *
  * Sint32 get_string_after_string(const Uint8*, const Uint8*, Sint32, Uint*, int);
- * void get_file_digest(const Uint8*, Uint8[16]);
- * void get_string_digest(const Uint8*, Uint8[16]);
  */
 
 #ifndef LINUX
@@ -278,42 +276,6 @@ Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
 	return len;
 }
 
-void http_get_file(char *server, char *path, FILE *fp)
-{
-	IPaddress http_ip;
-	TCPsocket http_sock;
-	char message[1024];
-	int len;
-	int got_header = 0;
-	SDLNet_ResolveHost(&http_ip, server, 80);
-	http_sock = SDLNet_TCP_Open(&http_ip);
-	snprintf(message, sizeof(message), "GET %s HTTP/1.0\n\n", path);
-	len = strlen(message);
-	SDLNet_TCP_Send(http_sock,message,len);
-	while(len > 0)
-		{
-			char buf[1024];
-			memset(buf, 0, 1024);
-			len=SDLNet_TCP_Recv(http_sock, buf, 1024);
-			if(!got_header)
-				{
-					int i;
-					for(i = 0; i < len; i++)
-						{
-							if(!got_header &&
-							   buf[i] == 0x0D && buf[i+1] == 0x0A &&
-							   buf[i+2] == 0x0D && buf[i+3] == 0x0A) {
-								fwrite(buf + i + 4, 1, len - i - 4, fp);
-								got_header = 1;
-							}
-						}
-				}
-			else
-				fwrite(buf, 1, len, fp);
-		}
-	SDLNet_TCP_Close(http_sock);
-}
-
 /*XML*/
 
 float xmlGetFloat(xmlNode * n, xmlChar * c)
@@ -397,6 +359,25 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 	return 1;
 }
 
+void get_file_digest(const Uint8 * filename, Uint8 digest[16])
+{
+	MD5 md5;
+	FILE *fp= my_fopen(filename, "rb");
+	Uint8 buffer[1024];
+	Sint32 length;
+	MD5Open(&md5);
+
+	memset (digest, 0, sizeof (digest));
+	if (fp == NULL) return;
+
+	while ((length= fread(buffer, 1, sizeof(buffer), fp)) > 0)
+		{
+			MD5Digest(&md5, buffer, length);
+		}
+	MD5Close(&md5, digest);
+	fclose(fp);
+}
+
 /* currently UNUSED
 //find & copy a string into memory
 //return the length or -1 if not found
@@ -420,25 +401,6 @@ Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_
 	value[i]=0;	// always place a NULL
 
 	return(i);
-}
-
-void get_file_digest(const Uint8 * filename, Uint8 digest[16])
-{
-	MD5 md5;
-	FILE *fp = my_fopen(filename, "r");
-	Uint8 buffer[64];
-	Sint32 length;
-	MD5Open(&md5);
-	
-	memset (digest, 0, sizeof (digest));	
-	if (fp == NULL) return;
-	
-	while ((length = fread(buffer, 1, sizeof(buffer), fp)) > 0)
-		{
-			MD5Digest(&md5, buffer, length);
-		}
-	MD5Close(&md5, digest);
-	fclose(fp);
 }
 
 void get_string_digest(const Uint8 * string, Uint8 digest[16])

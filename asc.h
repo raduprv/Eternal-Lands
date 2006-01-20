@@ -173,18 +173,6 @@ char ** get_lines(char * str, int chars_per_line);
 Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len);
 
 /*!
- * \ingroup	misc_utils
- * \brief	A simple implementation of the http-GET
- *
- * 		The function gets the given file from the server and writes it to the open file pointed to by fp.
- *
- * \param	server The server you're getting the file from
- * \param	path The path on the server
- * \param	fp The file you're saving the file to...
- */
-void http_get_file(char *server, char *path, FILE *fp);
-
-/*!
  * \ingroup	xml_utils
  * \brief	Finds the xml-attribute with the identifier p in the xmlNode and returns it as a floating point value
  *
@@ -247,5 +235,9 @@ int my_xmlStrncopy(char ** dest, const char * src, int len);
 int sane_snprintf (char *buffer, size_t size, const char *format, ...);
 #endif 
 #endif
+
+void get_file_digest(const Uint8*, Uint8[16]);
+void get_string_digest(const Uint8*, Uint8[16]);
+
 
 #endif

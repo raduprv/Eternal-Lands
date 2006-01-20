@@ -22,7 +22,8 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT -DNETWORK_THREAD
 #-DDRAW_BBOX	  # draws the bounding boxes for 2d and 3d objects
 #-DWIDGETS_FIX    # CK's widget patch (EXPERIMENTAL)
 #-DUSE_LISPSM	  # uses light space optimized shadow maps (EXPERIMENTAL)
-#-DCOMMAND_BUFFER # enable command buffer and tab completion 
+#-DCOMMAND_BUFFER # enable command buffer and tab completion
+#-DAUTO_UPDATE	  # enable minor automatic file updating
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

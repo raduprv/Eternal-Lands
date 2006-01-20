@@ -3,6 +3,7 @@
 #include	"global.h"
 #include	"elwindows.h"
 #include	"keys.h"
+#include    "update.h"
 
 #ifndef _WIN32
 #include <SDL_syswm.h>
@@ -204,21 +205,31 @@ int HandleEvent (SDL_Event *event)
 			break;
 			
 		case SDL_USEREVENT:
-			if (event->user.code == EVENT_MOVEMENT_TIMER)
-			{
+			switch(event->user.code){
+			case	EVENT_MOVEMENT_TIMER:
 				pf_move();
-			}
-			else if (event->user.code == EVENT_UPDATE_CAMERA)
-			{
+				break;
+				
+			case	EVENT_UPDATE_CAMERA:
 				update_camera();
-			}
-			else if (event->user.code == EVENT_ANIMATE_ACTORS)
-			{
+				break;
+				
+			case	EVENT_ANIMATE_ACTORS:
 				animate_actors();
-			}
-			else if (event->user.code == EVENT_UPDATE_PARTICLES)
-			{
+				break;
+				
+			case	EVENT_UPDATE_PARTICLES:
                 update_particles();
+            	break;
+                
+			case    EVENT_UPDATES_DOWNLOADED:
+				handle_update_download((struct http_get_struct *)event->user.data1);
+				break;
+			    
+			case    EVENT_DOWNLOAD_COMPLETE:
+				handle_file_download((struct http_get_struct *)event->user.data1);
+				break;
+			    
 			}
 	}
 
