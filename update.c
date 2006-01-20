@@ -52,8 +52,8 @@ void    init_update()
 		char    buffer[1024];
 		char	*ptr;
 		
-		ptr= fgets(buffer, 1024, fp);
-		while(ptr && !ferror(fp) && num_update_servers < 32){
+		ptr= fgets(buffer, sizeof(buffer), fp);
+		while(ptr && !ferror(fp) && num_update_servers < sizeof(update_servers)){
 			int len= strlen(buffer);
 			
 			// is this line worth handling?
@@ -67,10 +67,11 @@ void    init_update()
 				}
 			}
 			// read the next line
-			ptr= fgets(buffer, 1024, fp);
+			ptr= fgets(buffer, sizeof(buffer), fp);
 		}
 		fclose(fp);
-	} else {
+	}
+	if(!num_update_servers) {
 		// oops, no mirror file, no downloading
 		update_servers[0]= "";
 		return;
@@ -131,7 +132,7 @@ void    handle_update_download(struct http_get_struct *get)
 					}
 				}
 			}
-			strncpy(update_server, update_servers[num], 128);
+			strncpy(update_server, update_servers[num], sizeof(update_server));
 			update_server[127]= '\0';
 log_error("downloading from mirror %d of %d %s", num, num_update_servers, update_server);
 		} else {

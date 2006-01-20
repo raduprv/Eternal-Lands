@@ -252,8 +252,8 @@ int main(int argc, char **argv)
 #ifndef WINDOWS
 	// attempt to restart if requested
 	if(restart_required > 0){
-		log_error("Restarting %s", *argv);
-		execv(*argv, (const char **)argv);
+		log_error("Restarting %s\n", *argv);
+		execv(*argv, argv);
 	}
 #endif  //WINDOWS
 
