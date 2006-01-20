@@ -192,13 +192,11 @@ int    do_threaded_update(void *ptr)
 	    sscanf(buffer, "%*[^(](%250[^)])%*[^0-9a-zA-Z]%32s", filename, asc_md5);
 
 	    // check for something to process
-	    if(*filename && *asc_md5){
+     if(*filename && *asc_md5 && !strstr(filename, "..") && filename[0] != '/' && filename[0] != '\\' && filename[1] != ':'){
 			// check for one special case
 			if(!strcasecmp(asc_md5, "none")){
-				// this file is to be removed, with a simple security check
-				if(!strncmp(filename, "./", 2) && !strstr(filename, "..")){
-					remove(filename);
-				}
+				// this file is to be removed
+				remove(filename);
 			} else {
 				int i;
 
