@@ -192,7 +192,7 @@ int    do_threaded_update(void *ptr)
 	    sscanf(buffer, "%*[^(](%250[^)])%*[^0-9a-zA-Z]%32s", filename, asc_md5);
 
 	    // check for something to process
-     if(*filename && *asc_md5 && !strstr(filename, "..") && filename[0] != '/' && filename[0] != '\\' && filename[1] != ':'){
+		if(*filename && *asc_md5 && !strstr(filename, "..") && filename[0] != '/' && filename[0] != '\\' && filename[1] != ':'){
 			// check for one special case
 			if(!strcasecmp(asc_md5, "none")){
 				// this file is to be removed
@@ -203,6 +203,7 @@ int    do_threaded_update(void *ptr)
 				// convert the md5 to binary
 				for(i=0; i<16; i++){
 					int val;
+					
 					strncpy(buffer, asc_md5+i*2, 2);
 					buffer[2]= '\0';
 					sscanf(buffer, "%x", &val);
@@ -242,12 +243,14 @@ void   add_to_download(const char *filename)
 			char	buffer[256];
 			FILE    *fp;
 
-			sprintf(download_temp_file, "temp%03d.dat", ++temp_counter);
+			snprintf(download_temp_file, sizeof(buffer), "temp%03d.dat", ++temp_counter);
+			buffer[sizeof(buffer)-1]= '\0';
 			fp= my_fopen(download_temp_file, "wb+");
 			if(fp){
 				// build the prope URL to download
 				download_cur_file= download_queue[--download_queue_size];
-				sprintf(buffer, "http://%s/updates/%s", update_server, download_cur_file);
+				snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+				buffer[sizeof(buffer)-1]= '\0';
 				http_threaded_get_file(update_server, buffer, fp, EVENT_DOWNLOAD_COMPLETE);
 			}
 		}
@@ -268,21 +271,21 @@ void    handle_file_download(struct http_get_struct *get)
 	if(get->status == 0){
 		// the download was successful
 		// TODO: verify the MD5? if so, we need to save it
-		
+
 		// lock the mutex
 		SDL_mutexP(download_mutex);
-		
+
 		// replace the current file
 		remove(download_cur_file);
 		rename(download_temp_file, download_cur_file);
-		
+
 		// release the filename
 		free(download_cur_file);
 		download_cur_file= NULL;
-		
+
 		// unlock mutex
 		SDL_mutexV(download_mutex);
-		
+
 		// TODO: make the restart intelligent
 		restart_required++;
 	} else {
@@ -312,7 +315,8 @@ void    handle_file_download(struct http_get_struct *get)
 		if(fp){
 			// build the prope URL to download
 			download_cur_file= download_queue[--download_queue_size];
-			sprintf(buffer, "http://%s/updates/%s", update_server, download_cur_file);
+			snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+			buffer[sizeof(buffer)-1]= '\0';
 			http_threaded_get_file(update_server, buffer, fp, EVENT_UPDATES_DOWNLOADED);
 		}
 	}
@@ -376,6 +380,7 @@ int http_get_file(char *server, char *path, FILE *fp)
 	char message[1024];
 	int len;
 	int got_header= 0;
+	int http_status= 0;
 
 	// resolve the hostname
 	if(SDLNet_ResolveHost(&http_ip, server, 80) < 0){   // caution, always port 80!
@@ -408,27 +413,43 @@ int http_get_file(char *server, char *path, FILE *fp)
 			if(!got_header)
 				{
 					int i;
+					
+					// check for http status
+					sscanf(buf, "HTTP/%*s %i ", &http_status);
+
 					// look for the end of the header (a blank line)
-					for(i=0; i < len; i++)
+					for(i=0; i < len && !got_header; i++)
 						{
-							if(!got_header &&
-								buf[i] == 0x0D && buf[i+1] == 0x0A &&
+							if(buf[i] == 0x0D && buf[i+1] == 0x0A &&
 								buf[i+2] == 0x0D && buf[i+3] == 0x0A)
 								{
-									// TODO: get the http status
-
 									// flag we got the header and write what is left to the file
 									got_header= 1;
-									fwrite(buf+i+4, 1, len-i-4, fp);
+									if(http_status == 200){
+										fwrite(buf+i+4, 1, len-i-4, fp);
+									}
+									break;
 								}
 						}
 				}
 			else
 			    {
-					fwrite(buf, 1, len, fp);
+					if(http_status == 200){
+						fwrite(buf, 1, len, fp);
+					} else {
+						break;
+					}
 				}
 		}
 	SDLNet_TCP_Close(http_sock);
+	
+	if(http_status != 200){
+		if(http_status != 0){
+			return(http_status);
+		} else {
+			return(5);
+		}
+	}
 
 	return(0);  // finished
 }
