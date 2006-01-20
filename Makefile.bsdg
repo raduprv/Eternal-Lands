@@ -21,6 +21,9 @@ OPTIONS=-DBSD -DELC -DPNG_SCREENSHOT -DNETWORK_THREAD
 #-DBUG_FIX_3D_OBJECTS_MIN_MAX # Just a smal work around for the new frustum with the buggy 3d objects. This is not nessecary if you have correct 3d objects.
 #-DDRAW_BBOX	  # draws the bounding boxes for 2d and 3d objects
 #-DWIDGETS_FIX    # CK's widget patch (EXPERIMENTAL)
+#-DUSE_LISPSM	  # uses light space optimized shadow maps (EXPERIMENTAL)
+#-DCOMMAND_BUFFER # enable command buffer and tab completion
+#-DAUTO_UPDATE	  # enable minor automatic file updating
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
@@ -57,7 +60,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
 	questlog.o queue.o reflection.o	rules.o skills.o \
 	sector.o shadows.o sort.o sound.o spells.o stats.o storage.o symbol_table.o tabs.o	\
-	text.o textures.o tile_map.o timers.o translate.o trade.o	\
+	update.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	weather.o widgets.o \
 	books/fontdef.o books/parser.o books/symbols.o books/typesetter.o
 	
