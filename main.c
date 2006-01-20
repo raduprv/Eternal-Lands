@@ -8,11 +8,15 @@
 
 #ifdef	__GNUC__
  #include <unistd.h>
+#ifdef  _WIN32
+ #include   <process.h>
+#endif
 #endif
 
-#ifdef _WIN32
+#ifdef WINDOWS
  #include <windows.h>
  #undef WRITE_XML
+ char   *win_command_line;
 #endif
 
 #include "global.h"
@@ -83,7 +87,7 @@ int start_rendering()
 	queue_t *message_queue;
 #endif //NETWORK_THREAD
 
-#ifndef _WIN32
+#ifndef WINDOWS
 	SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
 #endif
 #ifdef NETWORK_THREAD
@@ -161,10 +165,10 @@ int start_rendering()
 	save_quickspells();
 	// save el.ini if asked
 	if (write_ini_on_exit) write_el_ini ();
-	#ifdef NOTEPAD
+#ifdef NOTEPAD
 	// save notepad contents if the file was loaded
 	if (notepad_loaded) notepadSaveFile (NULL, 0, 0, 0);
-	#endif
+#endif
 
 	unload_questlog();
 	free_icons();
@@ -182,6 +186,14 @@ int start_rendering()
 	destroy_sound();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
+/*#ifdef WINDOWS
+	// attempt to restart if requested
+	if(restart_required > 0){
+		log_error("Restarting %s", win_command_line);
+		SDL_CreateThread(system, win_command_line);
+	}
+#endif  //WINDOWS
+*/
 	SDL_Quit( );
 	cleanup_mem();
 	xmlCleanupParser();
@@ -189,6 +201,7 @@ int start_rendering()
 #ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer) free_reflection_framebuffer();
 #endif
+
 	return(0);
 }
 
@@ -214,7 +227,7 @@ void	read_command_line()
 		}
 }
 
-#ifdef _WIN32
+#ifdef WINDOWS
 int Main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
@@ -235,11 +248,20 @@ int main(int argc, char **argv)
 #ifdef MEMORY_DEBUG
 	elm_cleanup();
 #endif //MEMORY_DEBUG
+
+#ifndef WINDOWS
+	// attempt to restart if requested
+	if(restart_required > 0){
+		log_error("Restarting %s", *argv);
+		execv(*argv, (const char **)argv);
+	}
+#endif  //WINDOWS
+
 	return 0;
 }
 
 
-#ifdef _WIN32
+#ifdef WINDOWS
 // splits a char* into a char ** based on the delimiters
 int makeargv(char *s, char *delimiters, char ***argvp)
 {
@@ -286,11 +308,33 @@ void freemakeargv(char **argv)
 
 int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
-	char *k=GetCommandLine();
-	char **argv=NULL;
-	int argc=makeargv(k, " \t\n", &argv);
+	win_command_line= GetCommandLine();
+	char **argv= NULL;
+	int argc= makeargv(win_command_line, " \t\n", &argv);
 	Main(argc, (char **) argv);
 	freemakeargv(argv);
+
+	// attempt to restart if requested
+	if(restart_required > 0){
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+
+		log_error("Restarting %s", win_command_line);
+		ZeroMemory( &si, sizeof(si) );
+		si.cb = sizeof(si);
+		ZeroMemory( &pi, sizeof(pi) );
+
+		CreateProcess(NULL, win_command_line,
+			NULL,			// Process handle not inheritable.
+			NULL,			// Thread handle not inheritable.
+			FALSE,			// Set handle inheritance to FALSE.
+			DETACHED_PROCESS,	// Keep this separate
+			NULL,			// Use parent's environment block.
+			NULL,			// Use parent's starting directory.
+			&si,			// Pointer to STARTUPINFO structure.
+			&pi);          // Pointer to PROCESS_INFORMATION structure
+	}
+
 	return 0;
 }
 

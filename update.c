@@ -12,7 +12,6 @@
 int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
 int temp_counter;           // collision prevention during downloads just incase more then one ever starts
 int update_busy;            // state & lockout control to prevent two updates running at the saem rime
-int restart_required;       // critical files have changed, restart is required
 char    update_server[128]; // the current server we are getting updates from
 int num_update_servers;
 char    *update_servers[32];    // we cant handle more then 32 different servers

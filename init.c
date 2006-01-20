@@ -24,6 +24,7 @@ int ini_file_size=0;
 
 int disconnected=1;
 int exit_now=0;
+int restart_required=0;
 int have_url=0;
 char current_url[160];
 char browser_name[120];

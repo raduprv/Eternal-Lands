@@ -156,7 +156,8 @@ extern int use_clipboard; /*!< whether to use CLIPBOARD or PRIMARY for pasting *
 #endif
 
 extern int disconnected; /*!< indicates whether we are currently connected or not */
-extern int exit_now; /*!< a flag that indicates we should exit the programm immediately */
+extern int exit_now;	/*!< a flag that indicates we should exit the programm immediately */
+extern int restart_required;    /*!< a flag that the exit should attempt to restart, not just exit */
 extern int have_url;
 extern char current_url[160]; /*!< contains the last URL that was opened by hitting F2 */
 extern char browser_name[120]; /*!< a buffer that contains the name of the browser we should use */
