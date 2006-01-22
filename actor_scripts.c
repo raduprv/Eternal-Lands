@@ -90,7 +90,7 @@ const dict_elem actor_type_dict[] =
 	  { NULL                    , -1					}
 	};
 
-const dict_elem shirt_color_dict[] = 
+const dict_elem shirt_color_dict[] =
 	{ { "black"               , SHIRT_BLACK                },
 	  { "blue"                , SHIRT_BLUE                 },
 	  { "brown"               , SHIRT_BROWN                },
@@ -109,19 +109,19 @@ const dict_elem shirt_color_dict[] =
 	  { "titanium chain armor", SHIRT_TITANIUM_CHAIN_ARMOR },
 	  { "iron plate armor"    , SHIRT_IRON_PLATE_ARMOR     },
 	  { "undefined armor"     , SHIRT_ARMOR_6              },
-	  { "fur"                 , SHIRT_FUR                  }, 
+	  { "fur"                 , SHIRT_FUR                  },
 	  { NULL                  , -1                         }
 	};
 
-const dict_elem skin_color_dict[] = 
-	{ { "brown" , SKIN_BROWN  }, 
-	  { "normal", SKIN_NORMAL }, 
-	  { "pale"  , SKIN_PALE   }, 
+const dict_elem skin_color_dict[] =
+	{ { "brown" , SKIN_BROWN  },
+	  { "normal", SKIN_NORMAL },
+	  { "pale"  , SKIN_PALE   },
 	  { "tan"   , SKIN_TAN    },
 	  { NULL    , -1          }
 	};
 
-const dict_elem hair_color_dict[] = 
+const dict_elem hair_color_dict[] =
 	{ { "black" , HAIR_BLACK  },
 	  { "blond" , HAIR_BLOND  },
 	  { "brown" , HAIR_BROWN  },
@@ -134,7 +134,7 @@ const dict_elem hair_color_dict[] =
 	  { NULL    , -1          }
 	};
 
-const dict_elem boots_color_dict[] = 
+const dict_elem boots_color_dict[] =
 	{ { "black"       , BOOTS_BLACK       },
 	  { "brown"       , BOOTS_BROWN       },
 	  { "dark brown"  , BOOTS_DARKBROWN   },
@@ -144,6 +144,9 @@ const dict_elem boots_color_dict[] =
 	  { "leather"     , BOOTS_LEATHER     },
 	  { "fur"         , BOOTS_FUR         },
 	  { "iron greaves", BOOTS_IRON_GREAVE },
+	  { "steel greaves", BOOTS_STEEL_GREAVE },
+	  { "titanium greaves", BOOTS_TITANIUM_GREAVE },
+	  { "hydrogenium greaves", BOOTS_HYDROGENIUM_GREAVE },
 	  { NULL          , -1                }
 	};
 
@@ -159,6 +162,9 @@ const dict_elem legs_color_dict[] =
 	  { "white"       , PANTS_WHITE        },
 	  { "leather"     , PANTS_LEATHER      },
 	  { "iron cuisses", PANTS_IRON_CUISSES },
+	  { "steel cuisses"       , PANTS_STEEL_CUISSES        },
+	  { "titanium cuisses"     , PANTS_TITANIUM_CUISSES      },
+	  { "hydrogenium cuisses", PANTS_HYDROGENIUM_CUISSES },
 	  { "fur"         , PANTS_FUR          },
 	  { NULL          , -1                 }
 	};
@@ -193,6 +199,8 @@ const dict_elem shield_type_dict[] =
 	  { "wood enhanced", SHIELD_WOOD_ENHANCED },
 	  { "iron"         , SHIELD_IRON          },
 	  { "steel"        , SHIELD_STEEL         },
+	  { "titanium"        , SHIELD_TITANIUM         },
+	  { "hydrogenium"        , SHIELD_HYDROGENIUM         },
 	  { "none"         , SHIELD_NONE          },
 	  { NULL           , -1                   }
 	};
@@ -212,7 +220,7 @@ const dict_elem weapon_type_dict[] =
 	  { "staff 4"                     , STAFF_4                  },
 	  { "hammer 1"                    , HAMMER_1                 },
 	  { "hammer 2"                    , HAMMER_2                 },
-	  { "pickaxe"                     , PICKAX                   }, 
+	  { "pickaxe"                     , PICKAX                   },
 	  { "sword 1 of fire"             , SWORD_1_FIRE             },
 	  { "sword 2 of fire"             , SWORD_2_FIRE             },
 	  { "sword 2 of ice"              , SWORD_2_COLD             },
@@ -235,7 +243,7 @@ const dict_elem weapon_type_dict[] =
 	  { "sword 7 of ice"              , SWORD_7_COLD             },
 	  { "sword 7 of magic"            , SWORD_7_MAGIC            },
 	  { "thermal sword 7"             , SWORD_7_THERMAL          },
-	  { "pickaxe of magic"            , PICKAX_MAGIC             }, 
+	  { "pickaxe of magic"            , PICKAX_MAGIC             },
 	  { "iron battle axe"             , BATTLEAXE_IRON           },
 	  { "steel battle axe"            , BATTLEAXE_STEEL          },
 	  { "titanium battle axe"         , BATTLEAXE_TITANIUM       },
@@ -267,6 +275,11 @@ const dict_elem helmet_type_dict[] =
 	  { "leather", HELMET_LEATHER },
 	  { "racoon" , HELMET_RACOON  },
 	  { "skunk"  , HELMET_SKUNK   },
+	  { "crown_mana"  , HELMET_CROWN_OF_MANA   },
+	  { "crown_life"  , HELMET_CROWN_OF_LIFE   },
+	  { "steel"  , HELMET_STEEL   },
+	  { "titanium"  , HELMET_TITANIUM   },
+	  { "hydrogenium"  , HELMET_HYDROGENIUM   },
 	  { "none"   , HELMET_NONE    },
 	  { NULL     , -1             }
 	};
@@ -311,17 +324,17 @@ void cal_actor_set_random_idle(int id)
 		if (random_anim<actors_defs[actors_list[id]->actor_type].idle_group[i].count) random_anim_index=actors_defs[actors_list[id]->actor_type].idle_group[i].anim[random_anim].anim_index;
 		else random_anim_index=-1;
 		if (actors_list[id]->IsOnIdle==1) {
-			if (actors_list[id]->cur_idle_anims[i].anim_index!=random_anim_index) 
+			if (actors_list[id]->cur_idle_anims[i].anim_index!=random_anim_index)
 			CalMixer_ClearCycle(mixer,actors_list[id]->cur_idle_anims[i].anim_index,2.0);
 		}
-		if (actors_list[id]->cur_idle_anims[i].anim_index!=random_anim_index) 
+		if (actors_list[id]->cur_idle_anims[i].anim_index!=random_anim_index)
 			if (random_anim_index>=0) CalMixer_BlendCycle(mixer,random_anim_index,0.5,0.05);
 		//sprintf(str,"%d",random_anim);
 		//LOG_TO_CONSOLE(c_green2,str);
 		actors_list[id]->cur_idle_anims[i].anim_index=random_anim_index;
 		//anim.anim_index,1.0,0.05);else
 	}
-	
+
 	//if (anim.kind==0) CalMixer_BlendCycle(mixer,anim.anim_index,1.0,0.05);else
 	//CalMixer_ExecuteAction(mixer,anim.anim_index,0.0,0.0);
 	//actors_list[id]->cur_anim=anim;
@@ -406,7 +419,7 @@ void animate_actors()
 							actors_list[i]->y_tile_pos++;
 						break;
 					}
-					
+
 					//ok, now update the x/y_pos
 					actors_list[i]->x_pos=actors_list[i]->x_tile_pos*0.5;
 					actors_list[i]->y_pos=actors_list[i]->y_tile_pos*0.5;
@@ -447,7 +460,7 @@ void animate_actors()
 					actors_list[i]->z_rot += 360;
 				}
 			}
-			
+
 			if (actors_list[i]->calmodel!=NULL){
 #ifdef	NEW_ACTOR_ANIMATION
 				actors_list[i]->anim_time=actors_list[i]->anim_time+(((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0);
@@ -489,9 +502,9 @@ void move_to_next_frame()
 			if ((actors_list[i]->IsOnIdle)&&(actors_list[i]->anim_time>=5.0)&&(actors_list[i]->stop_animation!=1)) {
 				cal_actor_set_random_idle(i);
 			}
-			
+
 			if (actors_list[i]->cur_anim.anim_index==-1) actors_list[i]->busy=0;
-			// XXX (Grum): this is weird. Either the closing brace shouldn't be there, 
+			// XXX (Grum): this is weird. Either the closing brace shouldn't be there,
 			// in which case we can forget about the whole if statement, or it should
 			// and then we're dereferencing a NULL pointer.
 			//} else actors_list[i]->busy=0;
@@ -501,7 +514,7 @@ void move_to_next_frame()
 				actors_list[i]->damage_ms-=80;
 				if(actors_list[i]->damage_ms<0)actors_list[i]->damage_ms=0;
 			}
-			
+
 			//9 frames, not moving, and another command is queued farther on (based on how long we've done this action)
 			if(!actors_list[i]->moving && !actors_list[i]->rotating){
 				/*
@@ -513,7 +526,7 @@ void move_to_next_frame()
 			}
 
 			if(actors_list[i]->stop_animation) {
-				
+
 				//we are done with this guy
 				//Should we go into idle here?
 			}
@@ -545,16 +558,16 @@ void next_command()
 							{
 								if (actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND (0, 1))
 									cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame); // normal idle
-								else 
+								else
 									cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame); // normal idle
-									
+
 							}
 							else
 							{
 								cal_actor_set_random_idle(i);
 								actors_list[i]->IsOnIdle=1;
 							}
-												
+
 							actors_list[i]->sit_idle=1;
 						}
 					} else	{
@@ -577,14 +590,14 @@ void next_command()
 				actors_list[i]->stand_idle=0;
 
 				actor_type=actors_list[i]->actor_type;
-				
+
 				switch(actors_list[i]->que[0]) {
 					case kill_me:
 /*						if(actors_list[i]->remapped_colors)
 						glDeleteTextures(1,&actors_list[i]->texture_id);
 						free(actors_list[i]);
 						actors_list[i]=0;*/ //Obsolete
-						break;			
+						break;
 					case die1:
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_die1_frame);
 						actors_list[i]->stop_animation=1;
@@ -660,7 +673,7 @@ void next_command()
 						}
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
-						
+
 						break;
 					case attack_up_2:
 						if(actors_list[i]->is_enhanced_model){
@@ -670,18 +683,18 @@ void next_command()
 						}
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
-						
+
 						break;
 					case attack_up_3:
 						if(actors_list[i]->is_enhanced_model){
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_2_frame);
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_3_frame);
-						} 
-						
+						}
+
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
-								
+
 						break;
 					case attack_up_4:
 						if(actors_list[i]->is_enhanced_model) {
@@ -689,10 +702,10 @@ void next_command()
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_4_frame);
 						}
-					
+
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
-								
+
 						break;
 					case attack_down_1:
 						if(actors_list[i]->is_enhanced_model) {
@@ -700,10 +713,10 @@ void next_command()
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_1_frame);
 						}
-						
+
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
-						
+
 						break;
 					case attack_down_2:
 						if(actors_list[i]->is_enhanced_model) {
@@ -711,10 +724,10 @@ void next_command()
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_2_frame);
 						}
-					
+
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
-						
+
 						break;
 					case turn_left:
 						//LOG_TO_CONSOLE(c_green2,"turn left");
@@ -759,7 +772,7 @@ void next_command()
 								cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame);
 								actors_list[i]->stop_animation=0;
 							}
-							
+
 							if(last_command!=actors_list[i]->que[0]){ //Calculate the rotation
 								targeted_z_rot=(actors_list[i]->que[0]-move_n)*45.0f;
 								rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
@@ -772,7 +785,7 @@ void next_command()
 								actors_list[i]->rotate_frames_left=18;
 								actors_list[i]->rotating=1;
 							} else targeted_z_rot=z_rot;
-							
+
 							//ok, now calculate the motion vector...
 							actors_list[i]->move_x_speed=(actors_defs[actor_type].walk_speed/3.0f)*sin(targeted_z_rot*M_PI/180.0);
 							actors_list[i]->move_y_speed=(actors_defs[actor_type].walk_speed/3.0f)*cos(targeted_z_rot*M_PI/180.0);
@@ -789,7 +802,7 @@ void next_command()
 							actors_list[i]->fighting=0;
 						} else if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw) {
 							float rotation_angle;
-							
+
 							targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
 							rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
 							actors_list[i]->rotate_z_speed=rotation_angle/18.0f;
@@ -830,7 +843,7 @@ void destroy_actor(int actor_id)
 			if(actors_list[i]->actor_id==actor_id){
 				LOCK_ACTORS_LISTS();
 				if(actors_list[i] == your_actor) your_actor = NULL;
-				if(actors_list[i]->calmodel!=NULL) 
+				if(actors_list[i]->calmodel!=NULL)
 					CalModel_Delete(actors_list[i]->calmodel);
 				if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
 				if(actors_list[i]->is_enhanced_model){
@@ -846,7 +859,7 @@ void destroy_actor(int actor_id)
 					actors_list[i]=actors_list[max_actors];
 					actors_list[max_actors]=NULL;
 				}
-				
+
 				UNLOCK_ACTORS_LISTS();
 				break;
 			}
@@ -909,11 +922,11 @@ void add_command_to_actor(int actor_id, char command)
 		LOG_ERROR("%s %d - %d\n", cant_add_command, command, actor_id);
 	} else {
 		LOCK_ACTORS_LISTS();
-		
+
 		if(command==leave_combat||command==enter_combat||command==die1||command==die2){
 			int j=0;
 			int strip=1;
-			
+
 			//Strip the queue for attack messages
 			for(k=0;k<MAX_CMD_QUEUE;k++){
 				switch(act->que[k]){
@@ -944,7 +957,7 @@ void add_command_to_actor(int actor_id, char command)
 				CalModel_Update(act->calmodel,5.0f);
 			}
 		}
-		
+
 		for(k=0;k<MAX_CMD_QUEUE;k++){
 			if(act->que[k]==nothing){
 				//we are SEVERLY behind, just update all the actors in range
@@ -962,7 +975,7 @@ void add_command_to_actor(int actor_id, char command)
 						//backup one entry
 						k--;
 					}
-					
+
 					// is the end a sit/stand spam?
 					else if((command==stand_up||command==sit_down)
 					     && (act->que[k-1]==stand_up||act->que[k-1]==sit_down)) {
@@ -971,14 +984,14 @@ void add_command_to_actor(int actor_id, char command)
 					}
 
 				}
-				
+
 				act->que[k]=command;
 				break;
 			}
 		}
-		
+
 		UNLOCK_ACTORS_LISTS();
-		
+
 		if (k>MAX_CMD_QUEUE-2){
 			update_all_actors();
 		}
@@ -995,7 +1008,7 @@ void get_actor_damage(int actor_id, int damage)
 #endif
 	act = get_actor_ptr_from_id(actor_id);
 
-	if(!act){	
+	if(!act){
 		//if we got here, it means we don't have this actor, so get it from the server...
 	} else {
 		if(floatingmessages_enabled){
@@ -1063,7 +1076,7 @@ void move_self_forward()
 	actor *me=pf_get_our_actor();
 
 	if(!me)return;//Wtf!?
-	
+
 	x=me->tmp.x_tile_pos;
 	y=me->tmp.y_tile_pos;
 	rot=(int)rint(me->z_rot/45.0f);
@@ -1122,7 +1135,7 @@ void move_self_forward()
 int find_description_index (const dict_elem dict[], const char *elem, const char *desc) {
 	int idx = 0;
 	char *key;
-	
+
 	while ((key = dict[idx].desc) != NULL) {
 		if (strcasecmp (key, elem) == 0)
 			return dict[idx].index;
@@ -1136,7 +1149,7 @@ int find_description_index (const dict_elem dict[], const char *elem, const char
 void get_string_value (char *buf, size_t maxlen, xmlNode *node) {
 	if (node->children == NULL)
 		buf[0] = '\0';
-	else 
+	else
 		my_strncp (buf, node->children->content, maxlen);
 }
 
@@ -1177,7 +1190,7 @@ int get_property (xmlNode *node, const char *prop, const char *desc, const dict_
 			return find_description_index (dict,  attr->children->content, desc);
 		}
 	}
-	
+
 	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
 	return -1;
 }
@@ -1188,10 +1201,10 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 	shirt_part *shirt;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	col_idx = get_property (cfg, "color", "shirt color", shirt_color_dict);
 	if (col_idx < 0) return 0;
-	
+
 	shirt = &(act->shirt[col_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
@@ -1209,7 +1222,7 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 			}
 		}
 	}
-	
+
 	return ok;
 }
 
@@ -1219,10 +1232,10 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg) {
 	skin_part *skin;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	col_idx = get_property (cfg, "color", "skin color", skin_color_dict);
 	if (col_idx < 0) return 0;
-	
+
 	skin = &(act->skin[col_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
@@ -1237,7 +1250,7 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg) {
 			}
 		}
 	}
-	
+
 	return ok;
 }
 
@@ -1247,10 +1260,10 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 	legs_part *legs;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	col_idx = get_property (cfg, "color", "legs color", legs_color_dict);
 	if (col_idx < 0) return 0;
-	
+
 	legs = &(act->legs[col_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
@@ -1270,7 +1283,7 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 			}
 		}
 	}
-	
+
 	return ok;
 }
 
@@ -1281,10 +1294,10 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 	weapon_part *weapon;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	type_idx = get_property (cfg, "type", "weapon type", weapon_type_dict);
 	if (type_idx < 0) return 0;
-	
+
 	weapon = &(act->weapon[type_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
@@ -1332,7 +1345,7 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 			}
 		}
 	}
-	
+
 	return ok;
 }
 
@@ -1341,7 +1354,7 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 	int ok = 1;
 
 	if (cfg == NULL) return 0;
-	
+
 	for (item = cfg; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, "mesh") == 0) {
@@ -1362,7 +1375,7 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 			}
 		}
 	}
-	
+
 	return ok;
 }
 
@@ -1371,10 +1384,10 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg) {
 	body_part *helmet;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	type_idx = get_property (cfg, "type", "helmet type", helmet_type_dict);
 	if (type_idx < 0) return 0;
-	
+
 	helmet = &(act->helmet[type_idx]);
 	return parse_actor_body_part (act,helmet, cfg->children, "helmet");
 }
@@ -1384,10 +1397,10 @@ int parse_actor_cape (actor_types *act, xmlNode *cfg) {
 	body_part *cape;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	type_idx = get_property (cfg, "color", "cape color", cape_color_dict);
 	if (type_idx < 0) return 0;
-	
+
 	cape = &(act->cape[type_idx]);
 	return parse_actor_body_part (act,cape, cfg->children, "cape");
 }
@@ -1397,10 +1410,10 @@ int parse_actor_head (actor_types *act, xmlNode *cfg) {
 	body_part *head;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	idx = get_property (cfg, "number", "head number", head_number_dict);
 	if (idx < 0) return 0;
-	
+
 	head = &(act->head[idx]);
 	return parse_actor_body_part (act, head, cfg->children, "head");
 }
@@ -1410,10 +1423,10 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg) {
 	body_part *shield;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	type_idx = get_property (cfg, "type", "shield type", shield_type_dict);
 	if (type_idx < 0) return 0;
-	
+
 	shield = &(act->shield[type_idx]);
 	return parse_actor_body_part (act,shield, cfg->children, "shield");
 }
@@ -1422,12 +1435,12 @@ int parse_actor_hair (actor_types *act, xmlNode *cfg) {
 	int col_idx;
 	size_t len;
 	char *buf;
-	
+
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	col_idx = get_property (cfg, "color", "hair color", hair_color_dict);
 	if (col_idx < 0) return 0;
-	
+
 	buf = act->hair[col_idx].hair_name;
 	len = sizeof (act->hair[col_idx].hair_name);
 	get_string_value (buf, len, cfg);
@@ -1438,18 +1451,18 @@ int cal_get_idle_group(actor_types *act,char *name)
 {
 	int i;
 	int res=-1;
-	
+
 	for (i=0;i<act->group_count;++i) {
 		if (strcmp(name,act->idle_group[i].name)==0) res=i;
 	}
-	
+
 	if (res>=0) return res;//Found it, return
-	
+
 	//Create a new named group
 	res=act->group_count;
 	strncpy(act->idle_group[res].name, name, sizeof(act->idle_group[res].name));
 	++act->group_count;
-	
+
 	return res;
 }
 
@@ -1457,28 +1470,28 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 {
 	struct cal_anim res = {-1,0,0};
 	struct CalCoreAnimation *coreanim;
-	
+
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,str);
 	if(res.anim_index == -1) {
 		log_error("Cal3d error: %s: %s\n", str, CalError_GetLastErrorDescription());
 		return res;
 	}
 	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
-	
+
 	if (coreanim) {
 		CalCoreAnimation_Scale(coreanim,act->scale);
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
 		log_error("No Anim: %s\n",str);
 	}
-	
+
 	return res;
 }
 
 void cal_group_addanim(actor_types *act,int gindex, char *fanim)
 {
 	int i;
-	
+
 	i=act->idle_group[gindex].count;
 	act->idle_group[gindex].anim[i]=cal_load_idle(act,fanim);
 	//LOG_TO_CONSOLE(c_green2,fanim);
@@ -1491,9 +1504,9 @@ void parse_idle_group(actor_types *act,char *str)
 	char fname[255]={0};
 	//char temp[255];
 	int gindex;
-	
+
 	if(sscanf(str,"%s %s",gname,fname)!=2)return;
-	
+
 	gindex=cal_get_idle_group(act,gname);
 	cal_group_addanim(act,gindex,fname);
 	//sprintf(temp,"%d",gindex);
@@ -1508,13 +1521,13 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 	//char fname[255];
 	//char temp[255];
 	//int i;
-	
+
 	int ok = 1;
 	if (cfg == NULL) return 0;
-		
+
 	for (item = cfg; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-		    
+
 			if (xmlStrcasecmp (item->name, "CAL_IDLE_GROUP") == 0) {
 				get_string_value (str,sizeof(str),item);
      				//act->cal_walk_frame=cal_load_anim(act,str);
@@ -1695,7 +1708,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 			}
 		}
 	}
-	
+
 	return ok;
 }
 
@@ -1705,10 +1718,10 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg) {
 	boots_part *boots;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	col_idx = get_property (cfg, "color", "boots color", boots_color_dict);
 	if (col_idx < 0) return 0;
-	
+
 	boots = &(act->boots[col_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
@@ -1725,7 +1738,7 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg) {
 			}
 		}
 	}
-	
+
 	return ok;
 }
 
@@ -1733,7 +1746,7 @@ void MD2_to_CMF(char *str)
 {
 	int l;
 	l=strlen(str);
-	
+
 	if (l<3) return;
 	str[l-3]='c';
 	str[l-2]='m';
@@ -1751,13 +1764,13 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 	else if (strcmp (kind, "head") == 0)
 	{
-		for (i = 0; i < ACTOR_HEAD_SIZE; i++) 
+		for (i = 0; i < ACTOR_HEAD_SIZE; i++)
 			if (strcmp (fn, act->head[i].model_name) == 0 && act->head[i].mesh_index != -1)
 				return act->head[i].mesh_index;
 	}
 	else if (strcmp (kind, "shirt") == 0)
 	{
-		for (i = 0; i < ACTOR_SHIRT_SIZE; i++) 
+		for (i = 0; i < ACTOR_SHIRT_SIZE; i++)
 		{
 			if (strcmp (fn, act->shirt[i].model_name) == 0 && act->shirt[i].mesh_index != -1)
 				return act->shirt[i].mesh_index;
@@ -1765,45 +1778,45 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 	else if (strcmp (kind, "legs") == 0)
 	{
-		for (i = 0; i < ACTOR_LEGS_SIZE; i++) 
+		for (i = 0; i < ACTOR_LEGS_SIZE; i++)
 		{
 			if (strcmp (fn, act->legs[i].model_name) == 0 && act->legs[i].mesh_index != -1)
-				return act->legs[i].mesh_index;	
+				return act->legs[i].mesh_index;
 		}
 	}
 	else if (strcmp (kind, "cape") == 0)
 	{
-		for (i = 0; i < ACTOR_CAPE_SIZE; i++) 
+		for (i = 0; i < ACTOR_CAPE_SIZE; i++)
 		{
 			if (strcmp (fn, act->cape[i].model_name) == 0 && act->cape[i].mesh_index != -1)
-				return act->cape[i].mesh_index;	
+				return act->cape[i].mesh_index;
 		}
 	}
 	else if (strcmp (kind, "helmet") == 0)
 	{
-		for (i = 0; i < ACTOR_HELMET_SIZE; i++) 
+		for (i = 0; i < ACTOR_HELMET_SIZE; i++)
 		{
 			if (strcmp (fn, act->cape[i].model_name) == 0 && act->helmet[i].mesh_index != -1)
-				return act->helmet[i].mesh_index;	
+				return act->helmet[i].mesh_index;
 		}
 	}
 	else if (strcmp (kind, "shield") == 0)
 	{
-		for (i = 0; i < ACTOR_SHIELD_SIZE; i++) 
+		for (i = 0; i < ACTOR_SHIELD_SIZE; i++)
 		{
 			if (strcmp (fn, act->shield[i].model_name) == 0 && act->shield[i].mesh_index != -1)
-				return act->shield[i].mesh_index;	
+				return act->shield[i].mesh_index;
 		}
 	}
 	else if (strcmp (kind, "weapon") == 0)
 	{
-		for (i = 0; i < ACTOR_WEAPON_SIZE; i++) 
+		for (i = 0; i < ACTOR_WEAPON_SIZE; i++)
 		{
 			if (strcmp (fn, act->weapon[i].model_name) == 0 && act->weapon[i].mesh_index != -1)
-				return act->weapon[i].mesh_index;	
+				return act->weapon[i].mesh_index;
 		}
 	}
-	
+
 	return -1;
 }
 
@@ -1816,7 +1829,7 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 	//char temp[255];
 	int res;
 	struct CalCoreMesh *mesh;
-	
+
 	if (fn==0) return -1;
 	if (strlen(fn)==0) return -1;
 	if (act->coremodel==NULL) return -1;
@@ -1829,10 +1842,10 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 	//MD2_to_CMF(temp);
 	//sprintf(fname,"./Meshes/%s",temp);
 	//LOG_TO_CONSOLE(c_green2,fn);
-	
+
 	//Load coremesh
 	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
-	
+
 	//Scale coremesh
 	if (res >= 0) {
 		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
@@ -1840,7 +1853,7 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 	} else {
 		log_error("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
-	
+
 	return res;
 }
 
@@ -1852,22 +1865,22 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 	//char temp[255];
 	int res;
 	struct CalCoreMesh *mesh;
-	
+
 	if (fn==0) return -1;
 	if (strlen(fn)==0) return -1;
 	if (act->coremodel==NULL) return -1;
-	
+
 	if (kind != NULL)
 	{
 		res = cal_search_mesh (act, fn, kind);
 		if (res!=-1) return res;
 	}
-	
+
 	//sscanf(fn,"./md2/%s",temp);
 	//MD2_to_CMF(temp);
 	//sprintf(fname,"./Meshes/%s",temp);
 	//LOG_TO_CONSOLE(c_green2,fn);
-	
+
 	//Load coremesh
 	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
 
@@ -1878,7 +1891,7 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 	} else {
 		log_error("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
-	
+
 	return res;
 }
 
@@ -1889,10 +1902,10 @@ int parse_actor_script (xmlNode *cfg) {
 	struct CalCoreSkeleton *skel;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
-	
+
 	act_idx = get_property (cfg, "type", "actor type", actor_type_dict);
 	if (act_idx < 0) return 0;
-    
+
 	act = &(actors_defs[act_idx]);
 	ok = 1;
 
@@ -1932,7 +1945,7 @@ int parse_actor_script (xmlNode *cfg) {
 	act->cal_attack_up_4_frame.anim_index=-1;
 	act->cal_attack_down_1_frame.anim_index=-1;
 	act->cal_attack_down_2_frame.anim_index=-1;
-	
+
 	for (i=0;i<80;++i){
 		act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
 		act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
@@ -1957,9 +1970,9 @@ int parse_actor_script (xmlNode *cfg) {
 	for (i = 0; i < ACTOR_SHIRT_SIZE; i++)
 		act->shirt[i].mesh_index = -1;
 	//Init legs meshes
-	for (i = 0; i < ACTOR_LEGS_SIZE; i++) 
+	for (i = 0; i < ACTOR_LEGS_SIZE; i++)
 		act->legs[i].mesh_index = -1;
-	    
+
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, "ghost") == 0) {
@@ -2014,23 +2027,23 @@ int parse_actor_script (xmlNode *cfg) {
 	}
 
 	//Actor def parsed, now setup the coremodel
-	if (act->coremodel!=NULL) 
-	{	
+	if (act->coremodel!=NULL)
+	{
 		skel=CalCoreModel_GetCoreSkeleton(act->coremodel);
 		CalCoreSkeleton_Scale(skel,act->skel_scale);
-	
+
 		// If this not an enhanced actor, load the single mesh and exit
 		if (strcmp (act->head[0].model_name, "") == 0)
 			act->shirt[0].mesh_index = cal_load_mesh (act, act->file_name, NULL); //save the single meshindex as torso
 	}
-	
+
 	return ok;
 }
 
 int parse_actor_defs (xmlNode *node) {
 	xmlNode *def;
 	int ok = 1;
-	
+
 	for (def = node->children; def; def = def->next) {
 		if (def->type == XML_ELEMENT_NODE)
 			if (xmlStrcasecmp (def->name, "actor") == 0) {
@@ -2043,7 +2056,7 @@ int parse_actor_defs (xmlNode *node) {
 			ok &= parse_actor_defs (def->children);
 		}
 	}
-	
+
 	return ok;
 }
 
@@ -2052,15 +2065,15 @@ int read_actor_defs (const char *dir, const char *index) {
 	xmlDoc *doc;
 	char fname[120];
 	int ok = 1;
-	
+
 	snprintf (fname, sizeof(fname), "%s/%s", dir, index);
-	
+
 	doc = xmlReadFile (fname, NULL, 0);
 	if (doc == NULL) {
 		LOG_ERROR("Unable to read actor definition file %s", fname);
 		return 0;
 	}
-	
+
 	root = xmlDocGetRootElement (doc);
 	if (root == NULL) {
 		LOG_ERROR("Unable to parse actor definition file %s", fname);
@@ -2071,7 +2084,7 @@ int read_actor_defs (const char *dir, const char *index) {
 	} else {
 		ok = parse_actor_defs (root);
 	}
-	
+
 	xmlFreeDoc (doc);
 	return ok;
 }
