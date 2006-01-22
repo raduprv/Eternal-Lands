@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#ifdef PNG_SCREENSHOT
- #ifndef _MSC_VER
+#ifndef _MSC_VER
   #include <dirent.h>
   #include <errno.h>
- #endif //_MSC_VER
- #include <sys/types.h>
- #include <sys/stat.h>
+#endif //_MSC_VER
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifdef PNG_SCREENSHOT
  #include <png.h>
 #endif //PNG_SCREENSHOT
 #include "global.h"
@@ -368,6 +368,29 @@ FILE *my_fopen (const char *fname, const char *mode)
 	return file;
 }
 
+//warning: when checking directories, do not include the trailing slash, for portability reasons
+int file_exists(const char *fname)
+{
+	int statres;
+	struct stat fstat;
+
+	statres= stat(fname, &fstat);
+	if(statres < 0)
+	{
+		statres= errno;
+	}
+	if(statres != ENOENT && statres != 0)
+	{
+		//something went wrong...
+		LOG_ERROR("Error when checking file or directory %s (error code %d)\n", fname, statres);
+		return -1;
+	}
+	else
+	{
+		return (statres != ENOENT);
+	}
+}
+
 #ifdef PNG_SCREENSHOT
 /* Save a PNG type image to an SDL datasource */
 static void png_write_data(png_structp ctx, png_bytep area, png_size_t size)
@@ -492,29 +515,6 @@ done:
 	png_destroy_write_struct (&png_ptr, (png_infopp)NULL);
 	
 	return result;
-}
-
-//warning: when checking directories, do not include the trailing slash, for portability reasons
-int file_exists(const char *fname)
-{
-	int statres;
-	struct stat fstat;
-
-	statres = stat(fname, &fstat);
-	if(statres < 0)
-	{
-		statres = errno;
-	}
-	if(statres != ENOENT && statres != 0)
-	{
-		//something went wrong...
-		LOG_ERROR("Error when checking file or directory %s (error code %d)\n", fname, statres);
-		return -1;
-	}
-	else
-	{
-		return (statres != ENOENT);
-	}
 }
 
 int IMG_SavePNG (SDL_Surface *surface, const char *file)

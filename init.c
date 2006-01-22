@@ -13,6 +13,7 @@
 #include "keys.h"
 #include "loading_win.h"
 #include "update.h"
+#include "misc.h"
 
 #define	CFG_VERSION 6
 
@@ -483,8 +484,8 @@ void init_texture_cache()
 
 void init_e3d_cache()
 {
-	//cache_e3d=cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
-	cache_e3d=cache_init(1000, NULL);	//no aut- free permitted
+	//cache_e3d= cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
+	cache_e3d= cache_init(1000, NULL);	//no aut- free permitted
 	cache_set_name(cache_system, "E3D cache", cache_e3d);
 	cache_set_compact(cache_e3d, &free_e3d_va);	// to compact, free VA arrays
 	cache_set_time_limit(cache_e3d, 5*60*1000);
@@ -500,6 +501,7 @@ void init_stuff()
 {
 	int seed;
 	char file_name[250];
+	int i;
 
 	//TODO: process command line options
 	chdir(DATA_DIR);
@@ -525,7 +527,7 @@ void init_stuff()
 
 	//Parse command line options
 	read_command_line();
-	options_set = 1;
+	options_set= 1;
 
 	//OK, we have the video mode settings...
 	setup_video_mode(full_screen,video_mode);
@@ -548,7 +550,7 @@ void init_stuff()
 	init_colors();
 
 	// read the continent map info
-	read_mapinfo ();
+	read_mapinfo();
 
 	// now create the root window
 
@@ -570,8 +572,8 @@ void init_stuff()
 	check_options();
 
 	update_loading_win(init_random_str, 4);
-	seed = time (NULL);
-	srand (seed);
+	seed= time (NULL);
+	srand(seed);
 
 	update_loading_win(load_ignores_str, 1);
 	load_ignores();
@@ -632,57 +634,55 @@ void init_stuff()
 
 	update_loading_win(load_icons_str, 4);
 	//load the necesary textures
-	//font_text=load_texture_cache("./textures/font.bmp",0);
-	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
-	hud_text=load_texture_cache("./textures/gamebuttons2.bmp",0);
+	//font_text= load_texture_cache("./textures/font.bmp",0);
+	icons_text= load_texture_cache("./textures/gamebuttons.bmp",0);
+	hud_text= load_texture_cache("./textures/gamebuttons2.bmp",0);
 	update_loading_win(load_textures_str, 4);
-	cons_text=load_texture_cache("./textures/console.bmp",255);
-	particle_textures[0]=load_texture_cache("./textures/particle0.bmp",0);
-	particle_textures[1]=load_texture_cache("./textures/particle1.bmp",0);
-	particle_textures[2]=load_texture_cache("./textures/particle2.bmp",0);
-	particle_textures[3]=load_texture_cache("./textures/particle3.bmp",0);
-	particle_textures[4]=load_texture_cache("./textures/particle4.bmp",0);
-	particle_textures[5]=load_texture_cache("./textures/particle5.bmp",0);
-	particle_textures[6]=load_texture_cache("./textures/particle6.bmp",0);
-	particle_textures[7]=load_texture_cache("./textures/particle7.bmp",0);
+	cons_text= load_texture_cache("./textures/console.bmp",255);
+
+	for(i=0; i<MAX_PARTICLE_TEXTURES; i++){
+		char	buffer[256];
+		
+		sprintf(buffer, "./textures/particle%d.bmp", i);
+		if(file_exists(buffer)){
+            particle_textures[i]= load_texture_cache(buffer, 0);
+		}
+	}
 	update_loading_win(NULL, 5);
-	items_text[0]=load_texture_cache("./textures/items1.bmp",0);
-	items_text[1]=load_texture_cache("./textures/items2.bmp",0);
-	items_text[2]=load_texture_cache("./textures/items3.bmp",0);
-	items_text[3]=load_texture_cache("./textures/items4.bmp",0);
-	items_text[4]=load_texture_cache("./textures/items5.bmp",0);
-	items_text[5]=load_texture_cache("./textures/items6.bmp",0);
-	items_text[6]=load_texture_cache("./textures/items7.bmp",0);
-	items_text[7]=load_texture_cache("./textures/items8.bmp",0);
-	items_text[8]=load_texture_cache("./textures/items9.bmp",0);
-	items_text[9]=load_texture_cache("./textures/items10.bmp",0);
-	items_text[10]=load_texture_cache("./textures/items11.bmp",0);
-	items_text[11]=load_texture_cache("./textures/items12.bmp",0);
-	items_text[12]=load_texture_cache("./textures/items13.bmp",0);
-	items_text[13]=load_texture_cache("./textures/items14.bmp",0);
+
+	for(i=0; i<MAX_ITEMS_TEXTURES; i++){
+		char	buffer[256];
+
+		sprintf(buffer, "./textures/items%d.bmp", i+1);
+		if(file_exists(buffer)){
+            items_text[i]= load_texture_cache(buffer, 0);
+		}
+	}
 	update_loading_win(NULL, 5);
-	portraits1_tex=load_texture_cache("./textures/portraits1.bmp",0);
-	portraits2_tex=load_texture_cache("./textures/portraits2.bmp",0);
-	portraits3_tex=load_texture_cache("./textures/portraits3.bmp",0);
-	portraits4_tex=load_texture_cache("./textures/portraits4.bmp",0);
-	portraits5_tex=load_texture_cache("./textures/portraits5.bmp",0);
-	portraits6_tex=load_texture_cache("./textures/portraits6.bmp",0);
+
+	portraits1_tex= load_texture_cache("./textures/portraits1.bmp",0);
+	portraits2_tex= load_texture_cache("./textures/portraits2.bmp",0);
+	portraits3_tex= load_texture_cache("./textures/portraits3.bmp",0);
+	portraits4_tex= load_texture_cache("./textures/portraits4.bmp",0);
+	portraits5_tex= load_texture_cache("./textures/portraits5.bmp",0);
+	portraits6_tex= load_texture_cache("./textures/portraits6.bmp",0);
 	update_loading_win(NULL, 5);
-	sigils_text=load_texture_cache("./textures/sigils.bmp",0);
+	sigils_text= load_texture_cache("./textures/sigils.bmp",0);
 	//Load the map legend and continent map
-	legend_text=load_texture_cache("./maps/legend.bmp",0);
-	cont_text = load_texture_cache (cont_map_file_names[0], 128);
+	legend_text= load_texture_cache("./maps/legend.bmp",0);
+	cont_text= load_texture_cache (cont_map_file_names[0], 128);
 	
 	//Paper & book
-	paper1_text=load_texture_cache("./textures/paper1.bmp",0);
-	book1_text=load_texture_cache("./textures/book1.bmp",0);
+	paper1_text= load_texture_cache("./textures/paper1.bmp",0);
+	book1_text= load_texture_cache("./textures/book1.bmp",0);
 
 	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 	CHECK_GL_ERRORS();
-	create_char_error_str[0]=0;
+	create_char_error_str[0]= 0;
 	init_opening_interface();
 	make_sigils_list();
 	update_loading_win(init_network_str, 5);
+	
 	if(SDLNet_Init()<0)
  		{
 			log_error("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
@@ -691,6 +691,7 @@ void init_stuff()
 			exit(2);
 		}
 	update_loading_win(init_timers_str, 5);
+	
 	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
 		{
 			log_error("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
@@ -724,8 +725,8 @@ void init_stuff()
 	update_loading_win(init_display_str, 5);
 	SDL_SetGamma(gamma_var, gamma_var, gamma_var);
 
-	draw_scene_timer = SDL_AddTimer (1000/(18*4), my_timer, NULL);
-	misc_timer = SDL_AddTimer (500, check_misc, NULL);
+	draw_scene_timer= SDL_AddTimer (1000/(18*4), my_timer, NULL);
+	misc_timer= SDL_AddTimer (500, check_misc, NULL);
 	
 	//we might want to do this later.
 //	connect_to_server();

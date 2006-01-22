@@ -137,8 +137,9 @@ typedef struct
 
 }particle_sys;
 
+#define MAX_PARTICLE_TEXTURES   16
 extern SDL_mutex *particles_list_mutex;	/*!< used for locking between the timer and main threads */
-extern int particle_textures[8];
+extern int particle_textures[MAX_PARTICLE_TEXTURES];
 extern particle_sys *particles_list[MAX_PARTICLE_SYSTEMS]; /*!< array of particle systems */
 extern int particles_percentage;
 

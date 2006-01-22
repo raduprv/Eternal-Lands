@@ -35,7 +35,7 @@ int use_point_particles = 0;
 #endif
 int particles_percentage=100;
 SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
-int particle_textures[8];
+int particle_textures[MAX_PARTICLE_TEXTURES];
 particle_sys *particles_list[MAX_PARTICLE_SYSTEMS];
 
 /******************************************************

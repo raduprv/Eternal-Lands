@@ -171,6 +171,7 @@ int go_to_url(void *dummy);
  * \retval FILE* Pointer to the file on success, NULL otherwise
  */
 FILE *my_fopen (const char *fname, const char *mode);
+int file_exists(const char *fname);
 
 #ifdef PNG_SCREENSHOT
 /*!

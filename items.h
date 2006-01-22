@@ -77,7 +77,8 @@ extern int items_grid_size;
 
 /*! \name Text fields for items */
 /*! @{ */
-extern int items_text[14];
+#define MAX_ITEMS_TEXTURES  32
+extern int items_text[MAX_ITEMS_TEXTURES];
 /*! @} */
 
 extern int item_dragged;
