@@ -659,7 +659,7 @@ void CalculateFrustum()
 	calc_plane_mask(&main_frustum[6]);
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
-	set_frustum(main_bbox_tree, main_frustum, 127);
+	set_frustum(main_bbox_tree, main_frustum, 63);
 	check_bbox_tree(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 #endif
