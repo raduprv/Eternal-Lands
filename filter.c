@@ -62,7 +62,7 @@ int add_to_filter_list (const Uint8 *name, char local, char save_name)
 					{
 						left[tp] = '\0';
 					}
-					for (tp = t + 1; left[tp] != '\0' && isspace (left[tp]); tp++) ;
+					for (tp = t + 1; left[tp] != '\0' && !(left[tp]&0x80) && isspace(left[tp]); tp++) ;
 					strncpy (right, &left[tp], sizeof(right));
 					break;
 				}
@@ -365,9 +365,9 @@ int filter_text (Uint8 *buff, int len, int size)
 			}
 			else
 			{
-				memmove (buff+i+rep_len, buff+i+bad_len, new_len-i-bad_len+1);
-				strncpy (buff+i, filter_list[idx].replacement, rep_len);
-				new_len += rep_len - bad_len;
+				memmove(buff+i+rep_len, buff+i+bad_len, new_len-i-bad_len+1);
+				memcpy(buff+i, filter_list[idx].replacement, rep_len);
+				new_len+= rep_len - bad_len;
 			}
 			/* don't filter the replacement text */
 			i += rep_len;
