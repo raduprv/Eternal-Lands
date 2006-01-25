@@ -7,7 +7,9 @@
 #include    "asc.h"
 #include    <stdio.h>
 #include    <ctype.h>
-
+#ifdef	WINDOWS
+#define	strdup	_strdup
+#endif	//WINDOWS
 
 int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
 int temp_counter;           // collision prevention during downloads just incase more then one ever starts
@@ -22,7 +24,8 @@ int download_queue_size;
 char    *download_queue[256];
 char    *download_cur_file;
 char    download_temp_file[256];
-
+Uint8	*download_MD5s[256];
+Uint8	*download_cur_md5;
 
 // initialize the auto update system, start the downloading
 void    init_update()
@@ -37,12 +40,14 @@ void    init_update()
 	update_attempt_count= 0;    // no downloads have been attempted
 	temp_counter= 0;    	//start with download name with 0
 	restart_required= 0;    // no restart needed yet
+	allow_restart= 1;       // automated restart allowed
 	// create the mutex & init the download que
 	if(!download_mutex){
        	download_mutex= SDL_CreateMutex();
 		download_queue_size= 0;
 		memset(download_queue, 0, sizeof(download_queue));
 		download_cur_file= NULL;
+		download_cur_md5= NULL;
 	}
 	// load the server list
 	num_update_servers= 0;
@@ -143,7 +148,7 @@ log_error("downloading from mirror %d of %d %s", num, num_update_servers, update
 		fp= my_fopen(filename, "wb+");
 		if(fp){
 			sprintf(filename, "http://%s/updates/files.lst", update_server);
-			http_threaded_get_file(update_server, filename, fp, EVENT_UPDATES_DOWNLOADED);
+			http_threaded_get_file(update_server, filename, fp, NULL, EVENT_UPDATES_DOWNLOADED);
 		}
 		// and keep running until we get a response
 		return;
@@ -214,7 +219,7 @@ int    do_threaded_update(void *ptr)
 				get_file_digest(filename, digest);
   				// if MD5's don't match, start a download
   				if(memcmp(md5, digest, 16) != 0){
-					add_to_download(filename);
+					add_to_download(filename, md5);
 				}
 			}
 		}
@@ -231,13 +236,18 @@ int    do_threaded_update(void *ptr)
 }
 
 
-void   add_to_download(const char *filename)
+void   add_to_download(const char *filename, const Uint8 *md5)
 {
+log_error("Downloaded needed for %s", filename);
 	// lock the mutex
 	SDL_mutexP(download_mutex);
 	if(download_queue_size <256){
 		// add the file to the list, and increase the count
-		download_queue[download_queue_size++]= strdup(filename);
+		download_queue[download_queue_size]= strdup(filename);
+		download_MD5s[download_queue_size]= calloc(1, 16);
+		memcpy(download_MD5s[download_queue_size], md5, 16);
+		download_queue_size++;
+		
 		// start a thread if one isn't running
 		if(!download_cur_file){
 			char	buffer[256];
@@ -249,9 +259,10 @@ void   add_to_download(const char *filename)
 			if(fp){
 				// build the prope URL to download
 				download_cur_file= download_queue[--download_queue_size];
+				download_cur_md5= download_MD5s[download_queue_size];
 				snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
 				buffer[sizeof(buffer)-1]= '\0';
-				http_threaded_get_file(update_server, buffer, fp, EVENT_DOWNLOAD_COMPLETE);
+				http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 			}
 		}
 	}
@@ -267,39 +278,28 @@ void    handle_file_download(struct http_get_struct *get)
 		return;
 	}
 	
-	fclose(get->fp);
+	// lock the mutex
+	SDL_mutexP(download_mutex);
 	if(get->status == 0){
 		// the download was successful
-		// TODO: verify the MD5? if so, we need to save it
-
-		// lock the mutex
-		SDL_mutexP(download_mutex);
-
 		// replace the current file
+		// TODO: check for remove/rename errors
 		remove(download_cur_file);
 		rename(download_temp_file, download_cur_file);
 
-		// release the filename
-		free(download_cur_file);
-		download_cur_file= NULL;
-
-		// unlock mutex
-		SDL_mutexV(download_mutex);
-
-		// TODO: make the restart intelligent
-		restart_required++;
-	} else {
-		// lock the mutex
-		SDL_mutexP(download_mutex);
-
-		// release the filename
-		free(download_cur_file);
-		download_cur_file= NULL;
-
-		// unlock mutex
-		SDL_mutexV(download_mutex);
+		// TODO: make the restart more intelligent
+		if(allow_restart){
+			restart_required++;
+		}
 	}
-	
+	// release the filename
+	free(download_cur_file);
+	free(download_cur_md5);
+	download_cur_file= NULL;
+
+	// unlock mutex
+	SDL_mutexV(download_mutex);
+
 	// now, release everything
 	free(get);
 	
@@ -315,17 +315,18 @@ void    handle_file_download(struct http_get_struct *get)
 		if(fp){
 			// build the prope URL to download
 			download_cur_file= download_queue[--download_queue_size];
+			download_cur_md5= download_MD5s[download_queue_size];
 			snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
 			buffer[sizeof(buffer)-1]= '\0';
-			http_threaded_get_file(update_server, buffer, fp, EVENT_UPDATES_DOWNLOADED);
+			http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 		}
 	}
 
 	// check to see if this was the last file && a restart is required
-	if(!update_busy && restart_required && download_queue_size <= 0){
+	if(!update_busy && restart_required && allow_restart && download_queue_size <= 0 && !download_cur_file){
 		// yes, now trigger a restart
 		log_error("Restart required because of update");
-		exit_now=1;
+		exit_now= 1;
 	}
 
 	// unlock mutex
@@ -334,14 +335,16 @@ void    handle_file_download(struct http_get_struct *get)
 
 
 // start a download in another thread, return an even when complete
-void http_threaded_get_file(char *server, char *path, FILE *fp, Uint32 event)
+void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint32 event)
 {
 	struct http_get_struct  *spec;
 
+log_error("Downloading %s from %s", path, server);
 	// allocate & fill the spec structure
 	spec= (struct http_get_struct  *)calloc(1, sizeof(struct http_get_struct));
 	strcpy(spec->server, server);
 	strcpy(spec->path, path);
+	download_cur_md5= spec->md5= md5;
 	spec->fp= fp;
 	spec->event= event;
 	spec->status= -1;   // just so we don't start with 0
@@ -360,7 +363,24 @@ int http_get_file_thread_handler(void *specs){
 
 	// load the file
 	spec->status= http_get_file(spec->server, spec->path, spec->fp);
+	fclose(spec->fp);
+	
+	// check to see if the file is correct
+	if(spec->md5 && *spec->md5){
+		Uint8 digest[16];
 
+		// get the MD5 for the file
+		get_file_digest(download_temp_file, digest);
+		// if MD5's don't match, something odd is going on. maybe network problems
+		if(memcmp(spec->md5, digest, 16) != 0){
+			log_error("Download of %s does not match the MD5 sum in the update file!", spec->path);
+			spec->status= 404;
+			// and make sure we can't restart
+			allow_restart= 0;
+			restart_required= 0;
+		}
+	}
+	
 	// signal we are done
 	event.type= SDL_USEREVENT;
 	event.user.code= spec->event;
@@ -392,8 +412,8 @@ int http_get_file(char *server, char *path, FILE *fp)
 		return(2);  // failed to open the socket
 	}
 	
-	// send the GET request
-	snprintf(message, sizeof(message), "GET %s HTTP/1.0\n\n", path);
+	// send the GET request, try to avoid ISP caching
+	snprintf(message, sizeof(message), "GET %s HTTP/1.0\nCACHE-CONTROL:NO-CACHE\n\n", path);
 	len= strlen(message);
 	if(SDLNet_TCP_Send(http_sock,message,len) < len){
 		// close the socket to prevent memory leaks
