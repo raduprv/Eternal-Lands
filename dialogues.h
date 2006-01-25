@@ -19,12 +19,8 @@ extern int cur_portrait; /*!< pointer to the portrait used by a particular NPC *
  * \name portrait textures
  */
 /*! @{ */
-extern int portraits1_tex;
-extern int portraits2_tex;
-extern int portraits3_tex;
-extern int portraits4_tex;
-extern int portraits5_tex;
-extern int portraits6_tex;
+#define	MAX_PORTRAITS_TEXTURES	16
+extern int portraits_tex[MAX_PORTRAITS_TEXTURES];
 /*! @} */
 
 /*!

@@ -645,7 +645,7 @@ void init_stuff()
 		
 		sprintf(buffer, "./textures/particle%d.bmp", i);
 		if(file_exists(buffer)){
-            particle_textures[i]= load_texture_cache(buffer, 0);
+			particle_textures[i]= load_texture_cache(buffer, 0);
 		}
 	}
 	update_loading_win(NULL, 5);
@@ -655,18 +655,21 @@ void init_stuff()
 
 		sprintf(buffer, "./textures/items%d.bmp", i+1);
 		if(file_exists(buffer)){
-            items_text[i]= load_texture_cache(buffer, 0);
+			items_text[i]= load_texture_cache(buffer, 0);
 		}
 	}
 	update_loading_win(NULL, 5);
 
-	portraits1_tex= load_texture_cache("./textures/portraits1.bmp",0);
-	portraits2_tex= load_texture_cache("./textures/portraits2.bmp",0);
-	portraits3_tex= load_texture_cache("./textures/portraits3.bmp",0);
-	portraits4_tex= load_texture_cache("./textures/portraits4.bmp",0);
-	portraits5_tex= load_texture_cache("./textures/portraits5.bmp",0);
-	portraits6_tex= load_texture_cache("./textures/portraits6.bmp",0);
+	for(i=0; i<MAX_PORTRAITS_TEXTURES; i++){
+		char	buffer[256];
+
+		sprintf(buffer, "./textures/portraits%d.bmp", i+1);
+		if(file_exists(buffer)){
+			portraits_tex[i]= load_texture_cache(buffer, 0);
+		}
+	}
 	update_loading_win(NULL, 5);
+
 	sigils_text= load_texture_cache("./textures/sigils.bmp",0);
 	//Load the map legend and continent map
 	legend_text= load_texture_cache("./maps/legend.bmp",0);
