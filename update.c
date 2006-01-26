@@ -291,6 +291,10 @@ void    handle_file_download(struct http_get_struct *get)
 		if(allow_restart){
 			restart_required++;
 		}
+	} else {
+		// and make sure we can't restart since we had a total failure
+		allow_restart= 0;
+		restart_required= 0;
 	}
 	// release the filename
 	free(download_cur_file);
