@@ -387,7 +387,11 @@ void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
 	if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, cur->children->content)!=-1){
 		add_str_to_page(string, type, b, p);
 	} else {
+#ifndef OSX
 		log_error("An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n", cur->name, cur->line);
+#else
+		log_error("An error occured when parsing the content of the <%s>-tag - Check it for letters that cannot be translated into iso8859-1\n", cur->name);
+#endif
 	}
 	free(string);
 }

@@ -782,7 +782,11 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		tf->cursor = 0;
 		tf->nr_lines = 0;
 	}
+#ifndef OSX
 	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
+#else
+        else if (((ch == SDLK_BACKSPACE) || (ch == 127)) && tf->cursor > 0)
+#endif
 	{
 		int i = tf->cursor, n = 1;
 		

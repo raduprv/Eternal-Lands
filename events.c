@@ -20,6 +20,9 @@ int mod_key_status;
 int shift_on;
 int alt_on;
 int ctrl_on;
+#ifdef OSX
+int meta_on;
+#endif
 
 void	quick_use(int use_id)
 {
@@ -57,6 +60,11 @@ int HandleEvent (SDL_Event *event)
 
 	if (mod_key_status & KMOD_CTRL) ctrl_on = 1;
 	else ctrl_on = 0;
+
+#ifdef OSX
+        if (mod_key_status & KMOD_META) meta_on = 1;
+        else meta_on = 0;
+#endif
 	
 	switch( event->type )
 	{
@@ -105,34 +113,17 @@ int HandleEvent (SDL_Event *event)
 		case SDL_MOUSEMOTION:
 			if(event->type==SDL_MOUSEMOTION)
 			{
-#ifdef OSX
-				// Some idiot decided to invert the y axis on mac os x sdl. 
-				// This will no-doubt need to be changed when they fix it in the next version
-				mouse_x= event->motion.x;
-				mouse_y= window_height-event->motion.y;
-
-				mouse_delta_x= event->motion.xrel;
-				mouse_delta_y= -event->motion.yrel;
-#else
 				mouse_x= event->motion.x;
 				mouse_y= event->motion.y;
 
 				mouse_delta_x= event->motion.xrel;
 				mouse_delta_y= event->motion.yrel;
-#endif
 			}
 			else
 			{
-#ifdef OSX
-				// See above comment
-				mouse_x= event->button.x;
-				mouse_y= window_height-event->button.y;
-				mouse_delta_x= mouse_delta_y= 0;
-#else
 				mouse_x= event->button.x;
 				mouse_y= event->button.y;
 				mouse_delta_x= mouse_delta_y= 0;
-#endif
 			}
 
 			if (event->type == SDL_MOUSEBUTTONDOWN)
@@ -163,7 +154,11 @@ int HandleEvent (SDL_Event *event)
 				if (event->button.button == SDL_BUTTON_MIDDLE)
 					middle_click++;
 			}
+#ifndef OSX
 			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_MIDDLE)))
+#else
+                        else if (event->type == SDL_MOUSEMOTION && (event->motion.state & (SDL_BUTTON(SDL_BUTTON_MIDDLE) || meta_on)))
+#endif
 				middle_click++;
 			else
 				middle_click= 0;
@@ -180,7 +175,11 @@ int HandleEvent (SDL_Event *event)
 			if (alt_on) flags |= ELW_ALT;
 			if (ctrl_on) flags |= ELW_CTRL;
 			if (left_click) flags |= ELW_LEFT_MOUSE;
+#ifndef OSX
 			if (middle_click) flags |= ELW_MID_MOUSE;
+#else
+			if (middle_click || meta_on) flags |= ELW_MID_MOUSE;
+#endif
 			if (right_click) flags |= ELW_RIGHT_MOUSE;
 
 			if (event->type == SDL_MOUSEBUTTONDOWN)

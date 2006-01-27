@@ -26,6 +26,9 @@ enum {
 extern int shift_on; /*!< flag indicating whether the Shift key is pressed. */
 extern int alt_on; /*!< flag indicating whether the Alt key is pressed. */
 extern int ctrl_on; /*!< flag indicating whether the Ctrl key is pressd. */
+#ifdef OSX
+extern int meta_on; /*!< flag indicating whether the Apple/Command  key is pressed. */
+#endif
 
 /*!
  * \ingroup event_handle

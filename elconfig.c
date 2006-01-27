@@ -521,6 +521,11 @@ void change_aa(int *pointer) {
 }
 #endif // ANTI_ALIAS
 #ifdef ELC
+#ifdef OSX 
+void change_projection_float_init(float * var, float * value) {
+        change_float(var, value);
+}
+#endif
 void change_projection_float(float * var, float * value) {
 	change_float(var, value);
 	resize_root_window();
@@ -615,7 +620,20 @@ void change_frame_buffer(int *fb)
 	update_fbo_and_shadow_mapping();
 }
 #endif
-
+#ifdef OSX
+void change_shadows_init(int *sh)
+{
+        if (*sh) *sh = 0;
+        else *sh = 1;
+#ifdef  USE_FRAMEBUFFER
+        update_fbo_and_shadow_mapping();
+#else
+        //...and the texture used for shadow mapping
+        //glDeleteTextures(1, &depth_map_id);
+        depth_map_id = 0;
+#endif
+}
+#endif
 void change_shadows(int *sh)
 {
 	if (*sh) *sh = 0;
@@ -943,7 +961,11 @@ void init_vars()
 	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render mesh", "Render the mesh", SPECIALVID);
  #endif//DEBUG
 #endif
+#ifndef OSX
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows",VIDEO);
+#else
+        add_var(BOOL,"shadows_on","shad",&shadows_on,change_shadows_init,0,"Shadows","Toggles the shadows",VIDEO);
+#endif
 	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", VIDEO);
 	add_var(MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
 #ifndef MAP_EDITOR2
@@ -1070,8 +1092,13 @@ void init_vars()
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 #endif
 	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
+#ifndef OSX
 	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
 	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
+#else
+        add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
+        add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
+#endif
  #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
  #endif //ANTI_ALIAS

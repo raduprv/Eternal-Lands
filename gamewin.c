@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#ifdef OSX
+#include <ApplicationServices/ApplicationServices.h>
+#endif
 #include "global.h"
 #include "weather.h"
 #include "draw_scene.h"
@@ -1241,6 +1244,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		if (have_url)
 		{
+#ifdef OSX
+                        CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault,CFStringCreateWithCStringNoCopy(NULL,current_url,kCFStringEncodingMacRoman, NULL),NULL);
+                        LSOpenCFURLRef(url,NULL);
+                        CFRelease(url);
+#else
 			// browser name can override the windows default, and if not defined in Linux, don't error
 			if(*browser_name){
 #ifndef _WIN32
@@ -1255,6 +1263,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 				ShellExecute(NULL, "open", current_url, NULL, NULL, SW_SHOWNORMAL); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
 #endif  //_WIN32
 			}
+#endif // OSX
 		}
 	}
 	else if (keysym == SDLK_ESCAPE)
@@ -1377,7 +1386,11 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 			put_char_in_buffer (&input_text_line, ch, input_text_line.len);
 		}
 	}
+#ifndef OSX
 	else if (ch == SDLK_BACKSPACE && input_text_line.len > 0)
+#else
+        else if (((ch == SDLK_BACKSPACE) || (ch == 127)) && input_text_line.len > 0)
+#endif
 	{
 		input_text_line.len--;
 		if (input_text_line.data[input_text_line.len] == '\n')

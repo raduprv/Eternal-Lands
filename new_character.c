@@ -558,7 +558,11 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 		active++;
 		if(active>2) active=0;
 	}
+#ifndef OSX
 	else if (unikey == SDLK_BACKSPACE && t->pos>0)
+#else
+        else if (key == SDLK_BACKSPACE && t->pos>0)
+#endif
 	{
 		t->pos--;
 		if (isdigit (t->str[t->pos])) numbers_in_name--;

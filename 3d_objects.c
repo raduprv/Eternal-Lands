@@ -257,7 +257,9 @@ void draw_3d_object(object3d * object_id)
 	//debug
 
 	if(object_id->self_lit && (!is_day || dungeon)) {
+#ifndef OSX
 		glDisable(GL_LIGHTING);
+#endif
 		glColor3f(object_id->r,object_id->g,object_id->b);
 	}
 
@@ -333,7 +335,9 @@ void draw_3d_objects(unsigned int object_type)
 	// set the modes we need
 	if (is_selflit && (!is_day || dungeon))
 	{
+#ifndef OSX
 		glDisable(GL_LIGHTING);
+#endif
 	}
 
 	if(is_transparent) {

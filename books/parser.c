@@ -141,8 +141,13 @@ void bp_discardElement(xmlNodePtr node) {
 		}
 		if (whitespace) return;
 	}
+#ifndef OSX
 	snprintf(errmsg, sizeof(errmsg), "%s:%d: element of type \"%s\""
 			" not allowed here!\n", node->doc->name, node->line, node->name);
+#else
+        snprintf(errmsg, sizeof(errmsg), "%s: element of type \"%s\""
+                        " not allowed here!\n", node->doc->name, node->name);
+#endif
 	LOG_ERROR(errmsg);
 	exit(1);
 }
@@ -657,8 +662,13 @@ bp_Label * bp_parseLabel(bp_Context * context, xmlNodePtr node) {
 	result->page = (void *) xmlGetProp(node, "name");
 
 	if (!result->page) {
+#ifndef OSX
 		snprintf(errmsg, sizeof(errmsg), "%s:%d: \"label\" element "
 				"requires \"name\" attribute", node->doc->name, node->line);
+#else
+                snprintf(errmsg, sizeof(errmsg), "%s: \"label\" element "
+                                "requires \"name\" attribute", node->doc->name);
+#endif
 		LOG_ERROR(errmsg);
 		exit(1);
 	}
@@ -678,15 +688,25 @@ void bp_parseNavRef(bp_Context * context, xmlNodePtr node, bp_Page * page) {
 			page->nav[stdata->num] = result;
 		} else {
 			char errmsg[500];
+#ifndef OSX
 			snprintf(errmsg, sizeof(errmsg), "%s:%d: Unknown reference type \"%s\"\n"
 					, node->doc->name, node->line, cdata);
+#else
+                        snprintf(errmsg, sizeof(errmsg), "%s: Unknown reference type \"%s\"\n"
+                                        , node->doc->name, cdata);
+#endif
 			LOG_ERROR(errmsg);
 			// non-fatal
 		}
 	} else {
 		char errmsg[500];
+#ifndef OSX
 		snprintf(errmsg, sizeof(errmsg), "%s:%d: only navigation references allowed"
 				" outside block elements\n", node->doc->name, node->line);
+#else
+                snprintf(errmsg, sizeof(errmsg), "%s: only navigation references allowed"
+                                " outside block elements\n", node->doc->name);
+#endif
 		LOG_ERROR(errmsg);
 		// non-fatal
 	}
@@ -716,8 +736,13 @@ bp_Ref * bp_parseRef(bp_Context * context, xmlNodePtr node) {
 
 	if (!result->label) {
 		char errmsg[500];
+#ifndef OSX
 		snprintf(errmsg, sizeof(errmsg), "%s:%d: \"ref\" element requires \"to\" "
 				"attribute", node->doc->name, node->line);
+#else
+                snprintf(errmsg, sizeof(errmsg), "%s: \"ref\" element requires \"to\" "
+                                "attribute", node->doc->name);
+#endif
 		LOG_ERROR(errmsg);
 		exit(1);
 	}
@@ -984,8 +1009,13 @@ void bp_parseFloatAttribute(bp_Context * context, bp_FloatAttributes * _float, x
 					break;
 				default: {
 						char errmsg[500];
+#ifndef OSX
 						snprintf(errmsg, sizeof(errmsg), "%s:%d: invalid value for \"align"
 								"\" attribute\n", attr->doc->name, attr->parent->line);
+#else
+                                                snprintf(errmsg, sizeof(errmsg), "%s: invalid value for \"align"
+                                                                "\" attribute\n", attr->doc->name);
+#endif
 						LOG_ERROR(errmsg);
 						exit(1);
 					}

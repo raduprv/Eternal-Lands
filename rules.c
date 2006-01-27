@@ -3,8 +3,12 @@
 #include <libxml/tree.h>
 #include <string.h>
 #include <stdlib.h>
+#ifdef OSX
+#include <sys/malloc.h>
+#else
 #ifndef BSD
 #include <malloc.h>
+#endif
 #endif
 #include "global.h"
 
