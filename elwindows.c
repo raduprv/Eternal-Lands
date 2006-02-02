@@ -1227,7 +1227,10 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
         		if(my>0 && my<=20 && mx>(win->len_x-20) && mx<=win->len_x)
 			{
 				// the X was hit, hide this window
-				hide_window(win_id);
+				// but don't close storage if trade is open
+				if(win_id != storage_win || trade_win < 0 || !windows_list.window[trade_win].displayed){
+					hide_window(win_id);
+				}
 				if (win->close_handler != NULL)
 					win->close_handler (win);
 				return 1;
