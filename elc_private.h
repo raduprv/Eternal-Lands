@@ -5,10 +5,10 @@
 #define ELC_PRIVATE_H
 
 /* VERSION DEFINITIONS */
-#define VER_STRING	"1.1.2.0"
+#define VER_STRING	"1.2.0.0"
 #define VER_MAJOR	1
-#define VER_MINOR	1
-#define VER_RELEASE	2
+#define VER_MINOR	2
+#define VER_RELEASE	0
 #define VER_BUILD	0
 #define COMPANY_NAME	""
 #define FILE_VERSION	""
