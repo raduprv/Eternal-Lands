@@ -74,7 +74,9 @@ void    init_update()
 			// read the next line
 			ptr= fgets(buffer, sizeof(buffer), fp);
 		}
-		fclose(fp);
+		if(fp){
+			fclose(fp);
+		}
 	}
 	if(!num_update_servers) {
 		// oops, no mirror file, no downloading
@@ -96,7 +98,9 @@ void    handle_update_download(struct http_get_struct *get)
 		// did we finish properly?
 		if(get->status == 0){\
 			// release the memory
-			fclose(get->fp);
+			if(get->fp){
+				fclose(get->fp);
+			}
 			free(get);
 
 			// yes, lets start using the new file
@@ -110,7 +114,9 @@ void    handle_update_download(struct http_get_struct *get)
 			return;
 		}
 		//no, we need to free the memory and try again
-		fclose(get->fp);
+		if(get->fp){
+			fclose(get->fp);
+		}
 		free(get);
 	}
 
@@ -228,7 +234,9 @@ int    do_threaded_update(void *ptr)
 		buf= fgets(buffer, 1024, fp);
 	}
 	// close the file, clear that we are busy
-	fclose(fp);
+	if(fp){
+		fclose(fp);
+	}
 	update_busy= 0;
 
 	// all done
@@ -368,6 +376,7 @@ int http_get_file_thread_handler(void *specs){
 	// load the file
 	spec->status= http_get_file(spec->server, spec->path, spec->fp);
 	fclose(spec->fp);
+	spec->fp= NULL;
 	
 	// check to see if the file is correct
 	if(spec->md5 && *spec->md5){
